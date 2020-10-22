@@ -1,0 +1,13 @@
+{
+  "globals": {
+    "chai": true,
+    "sinon": true,
+    "spy": true,
+    "expect": true,
+    "$": true,
+    "jQuery": true,
+    "_": true,
+    "Backbone": true,
+    "Marionette": true
+  }
+}

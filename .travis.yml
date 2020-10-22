@@ -1,0 +1,14 @@
+language: node_js
+node_js:
+  - "12"
+cache: npm
+env:
+  - TEST_SUITE=coverage
+  - TEST_SUITE=browser
+  - TEST_SUITE=lodash USE_LODASH=1
+after_install:
+  - yarn install travis-ci
+script:
+  - if [[ $TEST_SUITE = "coverage" ]]; then yarn run coveralls; fi
+  - if [[ $TEST_SUITE = "browser" ]]  && [[ $SAUCE_USERNAME ]]; then yarn run test-cross-browser; fi
+  - if [[ $TEST_SUITE = "lodash" ]]; then yarn run test-lodash; fi

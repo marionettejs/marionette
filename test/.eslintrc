@@ -1,0 +1,12 @@
+{
+  "extends": ["../.eslintrc", "./.globals.json"],
+  "env": {
+    "mocha": true
+  },
+  "rules": {
+    "object-shorthand": 0,
+    "one-var": [ 2, "never" ],
+    "new-cap": 0,
+    "no-new": 0
+  }
+}

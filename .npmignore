@@ -1,0 +1,17 @@
+build
+coverage
+docs
+test
+tmp
+.babelrc
+.editorconfig
+.eslintrc
+.gitignore
+.nyc_output
+.travis.yml
+CONTRIBUTING.md
+ISSUE_TEMPLATE.md
+marionette-logo.png
+PULL_REQUEST_TEMPLATE.md
+rollup.config.js
+upgradeGuide.md
