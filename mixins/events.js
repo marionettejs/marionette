@@ -37,7 +37,7 @@ const onceReducer = function(events, { name, callback, context }) {
 
 const cleanupListener = function({ obj, listeneeId, listenerId, listeningTo }) {
   delete listeningTo[listeneeId];
-  delete obj._listeners[listenerId];
+  delete obj._rdListeners[listenerId];
 };
 
 // The reducing API that removes a callback from the `events` object.
@@ -78,15 +78,15 @@ const offReducer = function(events , { name, callback, context }) {
 };
 
 const getListener = function(obj, listenerObj) {
-  const listeneeId = obj._listenId || (obj._listenId = uniqueId('l'));
-  obj._events = obj._events || {};
-  const listeningTo = listenerObj._listeningTo || (listenerObj._listeningTo = {});
+  const listeneeId = obj._rdListenId || (obj._rdListenId = uniqueId('l'));
+  obj._rdEvents = obj._rdEvents || {};
+  const listeningTo = listenerObj._rdListeningTo || (listenerObj._rdListeningTo = {});
   const listener = listeningTo[listeneeId];
 
   // This listenerObj is not listening to any other events on `obj` yet.
   // Setup the necessary references to track the listening callbacks.
   if (!listener) {
-    const listenerId = listenerObj._listenId || (listenerObj._listenId = uniqueId('l'));
+    const listenerId = listenerObj._rdListenId || (listenerObj._rdListenId = uniqueId('l'));
     listeningTo[listeneeId] = {obj, listeneeId, listenerId, listeningTo, count: 0};
 
     return listeningTo[listeneeId];
@@ -99,13 +99,13 @@ const listenToApi = function({ name, callback, context, listener }) {
   if (!callback) {return;}
 
   const { obj, listenerId } = listener;
-  const listeners = obj._listeners || (obj._listeners = {});
-  obj._events = onApi({ events: obj._events, name, callback, context, listener });
+  const listeners = obj._rdListeners || (obj._rdListeners = {});
+  obj._rdEvents = onApi({ events: obj._rdEvents, name, callback, context, listener });
   listeners[listenerId] = listener;
   listener.count++;
 
   // Call `on` for interop
-  obj.on(name, callback, context, { _internal: true });
+  obj.on(name, callback, context, { _rdInternal: true });
 };
 
 const listenToOnceApi = function({ name, callback, context, listener }) {
@@ -134,10 +134,10 @@ export default {
   // Bind an event to a `callback` function. Passing `"all"` will bind
   // the callback to all events fired.
   on(name, callback, context, opts) {
-    if (opts && opts._internal) {return;}
+    if (opts && opts._rdInternal) {return;}
 
     const eventArgs = buildEventArgs(name, callback, context);
-    this._events = reduce(eventArgs, onReducer.bind(this), this._events || {});
+    this._rdEvents = reduce(eventArgs, onReducer.bind(this), this._rdEvents || {});
 
     return this;
   },
@@ -147,13 +147,13 @@ export default {
   // callbacks for the event. If `name` is null, removes all bound
   // callbacks for all events.
   off(name, callback, context, opts) {
-    if (!this._events) {return this;}
-    if (opts && opts._internal) {return;}
+    if (!this._rdEvents) {return this;}
+    if (opts && opts._rdInternal) {return;}
 
     // Delete all event listeners and "drop" events.
     if (!name && !context && !callback) {
-      this._events = void 0;
-      const listeners = this._listeners;
+      this._rdEvents = void 0;
+      const listeners = this._rdListeners;
       each(keys(listeners), listenerId => {
         cleanupListener(listeners[listenerId]);
       });
@@ -162,7 +162,7 @@ export default {
 
     const eventArgs = buildEventArgs(name, callback, context);
 
-    this._events = reduce(eventArgs, offReducer, this._events);
+    this._rdEvents = reduce(eventArgs, offReducer, this._rdEvents);
 
     return this;
   },
@@ -174,7 +174,7 @@ export default {
   once(name, callback, context) {
     const eventArgs = buildEventArgs(name, callback, context);
 
-    this._events = reduce(eventArgs, onceReducer.bind(this), this._events || {})
+    this._rdEvents = reduce(eventArgs, onceReducer.bind(this), this._rdEvents || {})
 
     return this;
   },
@@ -206,12 +206,12 @@ export default {
   // Tell this object to stop listening to either specific events ... or
   // to every object it's currently listening to.
   stopListening(obj, name, callback) {
-    const listeningTo = this._listeningTo;
+    const listeningTo = this._rdListeningTo;
     if (!listeningTo) {return this;}
 
     const eventArgs = buildEventArgs(name, callback, this);
 
-    const listenerIds = obj ? [obj._listenId] : keys(listeningTo);
+    const listenerIds = obj ? [obj._rdListenId] : keys(listeningTo);
     for (let i = 0; i < listenerIds.length; i++) {
       const listener = listeningTo[listenerIds[i]];
 
@@ -221,14 +221,14 @@ export default {
 
       each(eventArgs, args => {
         const listenToObj = listener.obj;
-        const events = listenToObj._events;
+        const events = listenToObj._rdEvents;
 
         if (!events) {return;}
 
-        listenToObj._events = offReducer(events, args);
+        listenToObj._rdEvents = offReducer(events, args);
 
         // Call `off` for interop
-        listenToObj.off(args.name, args.callback, this, { _internal: true });
+        listenToObj.off(args.name, args.callback, this, { _reInternal: true });
       });
     }
 
@@ -240,12 +240,12 @@ export default {
   // (unless you're listening on `"all"`, which will cause your callback to
   // receive the true name of the event as the first argument).
   trigger(name, ...args) {
-    if (!this._events) {return this;}
+    if (!this._rdEvents) {return this;}
 
     if (name && typeof name === 'object') {
       each(keys(name), key => {
         triggerApi({
-          events: this._events,
+          events: this._rdEvents,
           name: key,
           args: [name[key]],
         });
@@ -255,7 +255,7 @@ export default {
     if (name && eventSplitter.test(name)) {
       each(name.split(eventSplitter), n => {
         triggerApi({
-          events: this._events,
+          events: this._rdEvents,
           name: n,
           args,
         });
@@ -264,7 +264,7 @@ export default {
     }
 
     triggerApi({
-      events: this._events,
+      events: this._rdEvents,
       name,
       args,
     });

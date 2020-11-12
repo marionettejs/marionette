@@ -54,7 +54,7 @@ export default {
   reply(name, callback, context) {
     const eventArgs = buildEventArgs(name, callback, context);
 
-    this._requests = reduce(eventArgs, replyReducer.bind(this, false), this._requests || {});
+    this._rdRequests = reduce(eventArgs, replyReducer.bind(this, false), this._rdRequests || {});
 
     return this;
   },
@@ -63,22 +63,22 @@ export default {
   replyOnce(name, callback, context) {
     const eventArgs = buildEventArgs(name, callback, context);
 
-    this._requests = reduce(eventArgs, replyReducer.bind(this, true), this._requests || {});
+    this._rdRequests = reduce(eventArgs, replyReducer.bind(this, true), this._rdRequests || {});
 
     return this;
   },
 
   // Remove handler(s)
   stopReplying(name, callback, context) {
-    if (!this._requests) {return this;}
+    if (!this._rdRequests) {return this;}
 
     if (!name && !callback && !context) {
-      delete this._requests;
+      delete this._rdRequests;
       return this;
     }
 
     const eventArgs = buildEventArgs(name, callback, context);
-    this._requests = reduce(eventArgs, stopReducer.bind(this), this._requests || {});
+    this._rdRequests = reduce(eventArgs, stopReducer.bind(this), this._rdRequests || {});
 
     return this;
   },
@@ -101,7 +101,7 @@ export default {
     }
 
     // const channelName = this.channelName;
-    const requests = this._requests;
+    const requests = this._rdRequests;
 
     // // Check if we should log the request, and if so, do it
     // if (channelName && this._tunedIn) {
