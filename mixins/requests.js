@@ -1,5 +1,6 @@
 import { each, extend, keys, reduce } from 'underscore';
 
+import { debugLog, log } from '../modules/common/radio';
 import buildEventArgs, { eventSplitter } from '../utils/build-event-args';
 import callHandler from '../utils/call-handler';
 import makeCallback from '../utils/make-callback';
@@ -13,9 +14,9 @@ import onceWrap from '../utils/once-wrap';
  */
 
 const replyReducer = function(isOnce, requests, { name, callback, context }) {
-  // if (requests[name]) {
-  //   Radio.debugLog('A request was overwritten', name, this.channelName);
-  // }
+  if (requests[name]) {
+    debugLog('A request was overwritten', name, this.channelName);
+  }
 
   requests[name] = {
     callback: isOnce ? onceWrap(makeCallback(callback), this.stopReplying.bind(this, name)) : makeCallback(callback),
@@ -100,13 +101,13 @@ export default {
       }, {});
     }
 
-    // const channelName = this.channelName;
+    const channelName = this.channelName;
     const requests = this._rdRequests;
 
     // // Check if we should log the request, and if so, do it
-    // if (channelName && this._tunedIn) {
-    //   Radio.log.apply(this, [channelName, name].concat(args));
-    // }
+    if (channelName && this._tunedIn) {
+      log.apply(this, [channelName, name].concat(args));
+    }
 
     // If the request isn't handled, log it in DEBUG mode and exit
     if (requests && (requests[name] || requests.default)) {
@@ -115,6 +116,6 @@ export default {
       return callHandler(handler.callback, handler.context, args);
     }
 
-    // Radio.debugLog('An unhandled request was fired', name, channelName);
+    debugLog('An unhandled request was fired', name, channelName);
   },
 };

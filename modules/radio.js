@@ -1,55 +1,27 @@
 import { each, extend, keys } from 'underscore';
 
+import { setDebug, debugLog, log } from './common/radio';
 import Events from '../mixins/events';
 import Requests from '../mixins/requests';
 
 import callHandler from '../utils/call-handler';
-
-
-const Radio = {};
-
-// Whether or not we're in DEBUG mode or not. DEBUG mode helps you
-// get around the issues of lack of warnings when events are mis-typed.
-Radio.DEBUG = false;
-
-// Format debug text.
-function debugText(warning, eventName, channelName) {
-  return warning + (channelName ? ` on the ${ channelName } channel` : '') +
-    `: "${ eventName }"`;
-}
-
-// This is the method that's called when an unregistered event was called.
-// By default, it logs warning to the console. By overriding this you could
-// make it throw an Error, for instance. This would make firing a nonexistent event
-// have the same consequence as firing a nonexistent method on an Object.
-Radio.debugLog = function(warning, eventName, channelName) {
-  if (Radio.DEBUG && console && console.warn) {
-    console.warn(debugText(warning, eventName, channelName));
-  }
-};
-
-/*
- * tune-in
- * -------
- * Get console logs of a channel's activity
- *
- */
 
 const _logs = {};
 
 // This is to produce an identical function in both tuneIn and tuneOut,
 // so that Events unregisters it.
 function _partial(channelName) {
-  return _logs[channelName] || (_logs[channelName] = Radio.log.bind(Radio, channelName));
+  return _logs[channelName] || (_logs[channelName] = log.bind(Radio, channelName));
 }
 
-extend(Radio, {
+const Radio = {};
 
-  // Log information about the channel and event
-  log(channelName, eventName, ...args) {
-    if (typeof console === 'undefined') { return; }
-    console.log(`[${ channelName }] "${ eventName }"`, args);
-  },
+extend(Radio, {
+  setDebug,
+
+  log,
+
+  debugLog,
 
   // Logs all events on this channel to the console. It sets an
   // internal value on the channel telling it we're listening,
