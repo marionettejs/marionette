@@ -48,7 +48,7 @@
     return child;
   }
 
-  var version = "5.0.0-alpha.1";
+  var version = "5.0.0-alpha.2";
 
   // ----------------------
   // Pass in a mapping of events => functions or function names
@@ -526,7 +526,7 @@
         listenerId = _ref4.listenerId,
         listeningTo = _ref4.listeningTo;
     delete listeningTo[listeneeId];
-    delete obj._listeners[listenerId];
+    delete obj._rdListeners[listenerId];
   }; // The reducing API that removes a callback from the `events` object.
 
 
@@ -570,14 +570,14 @@
   };
 
   var getListener = function getListener(obj, listenerObj) {
-    var listeneeId = obj._listenId || (obj._listenId = underscore.uniqueId('l'));
-    obj._events = obj._events || {};
-    var listeningTo = listenerObj._listeningTo || (listenerObj._listeningTo = {});
+    var listeneeId = obj._rdListenId || (obj._rdListenId = underscore.uniqueId('l'));
+    obj._rdEvents = obj._rdEvents || {};
+    var listeningTo = listenerObj._rdListeningTo || (listenerObj._rdListeningTo = {});
     var listener = listeningTo[listeneeId]; // This listenerObj is not listening to any other events on `obj` yet.
     // Setup the necessary references to track the listening callbacks.
 
     if (!listener) {
-      var listenerId = listenerObj._listenId || (listenerObj._listenId = underscore.uniqueId('l'));
+      var listenerId = listenerObj._rdListenId || (listenerObj._rdListenId = underscore.uniqueId('l'));
       listeningTo[listeneeId] = {
         obj: obj,
         listeneeId: listeneeId,
@@ -603,9 +603,9 @@
 
     var obj = listener.obj,
         listenerId = listener.listenerId;
-    var listeners = obj._listeners || (obj._listeners = {});
-    obj._events = onApi({
-      events: obj._events,
+    var listeners = obj._rdListeners || (obj._rdListeners = {});
+    obj._rdEvents = onApi({
+      events: obj._rdEvents,
       name: name,
       callback: callback,
       context: context,
@@ -615,7 +615,7 @@
     listener.count++; // Call `on` for interop
 
     obj.on(name, callback, context, {
-      _internal: true
+      _rdInternal: true
     });
   };
 
@@ -668,12 +668,12 @@
     // Bind an event to a `callback` function. Passing `"all"` will bind
     // the callback to all events fired.
     on: function on(name, callback, context, opts) {
-      if (opts && opts._internal) {
+      if (opts && opts._rdInternal) {
         return;
       }
 
       var eventArgs = buildEventArgs(name, callback, context);
-      this._events = underscore.reduce(eventArgs, onReducer.bind(this), this._events || {});
+      this._rdEvents = underscore.reduce(eventArgs, onReducer.bind(this), this._rdEvents || {});
       return this;
     },
     // Remove one or many callbacks. If `context` is null, removes all
@@ -681,18 +681,18 @@
     // callbacks for the event. If `name` is null, removes all bound
     // callbacks for all events.
     off: function off(name, callback, context, opts) {
-      if (!this._events) {
+      if (!this._rdEvents) {
         return this;
       }
 
-      if (opts && opts._internal) {
+      if (opts && opts._rdInternal) {
         return;
       } // Delete all event listeners and "drop" events.
 
 
       if (!name && !context && !callback) {
-        this._events = void 0;
-        var listeners = this._listeners;
+        this._rdEvents = void 0;
+        var listeners = this._rdListeners;
         underscore.each(underscore.keys(listeners), function (listenerId) {
           cleanupListener(listeners[listenerId]);
         });
@@ -700,7 +700,7 @@
       }
 
       var eventArgs = buildEventArgs(name, callback, context);
-      this._events = underscore.reduce(eventArgs, offReducer, this._events);
+      this._rdEvents = underscore.reduce(eventArgs, offReducer, this._rdEvents);
       return this;
     },
     // Bind an event to only be triggered a single time. After the first time
@@ -709,7 +709,7 @@
     // once for each event, not once for a combination of all events.
     once: function once(name, callback, context) {
       var eventArgs = buildEventArgs(name, callback, context);
-      this._events = underscore.reduce(eventArgs, onceReducer.bind(this), this._events || {});
+      this._rdEvents = underscore.reduce(eventArgs, onceReducer.bind(this), this._rdEvents || {});
       return this;
     },
     // Inversion-of-control versions of `on`. Tell *this* object to listen to
@@ -741,14 +741,14 @@
     stopListening: function stopListening(obj, name, callback) {
       var _this = this;
 
-      var listeningTo = this._listeningTo;
+      var listeningTo = this._rdListeningTo;
 
       if (!listeningTo) {
         return this;
       }
 
       var eventArgs = buildEventArgs(name, callback, this);
-      var listenerIds = obj ? [obj._listenId] : underscore.keys(listeningTo);
+      var listenerIds = obj ? [obj._rdListenId] : underscore.keys(listeningTo);
 
       var _loop = function _loop(i) {
         var listener = listeningTo[listenerIds[i]]; // If listening doesn't exist, this object is not currently
@@ -760,16 +760,16 @@
 
         underscore.each(eventArgs, function (args) {
           var listenToObj = listener.obj;
-          var events = listenToObj._events;
+          var events = listenToObj._rdEvents;
 
           if (!events) {
             return;
           }
 
-          listenToObj._events = offReducer(events, args); // Call `off` for interop
+          listenToObj._rdEvents = offReducer(events, args); // Call `off` for interop
 
           listenToObj.off(args.name, args.callback, _this, {
-            _internal: true
+            _reInternal: true
           });
         });
       };
@@ -793,14 +793,14 @@
         args[_key - 1] = arguments[_key];
       }
 
-      if (!this._events) {
+      if (!this._rdEvents) {
         return this;
       }
 
       if (name && _typeof(name) === 'object') {
         underscore.each(underscore.keys(name), function (key) {
           triggerApi({
-            events: _this2._events,
+            events: _this2._rdEvents,
             name: key,
             args: [name[key]]
           });
@@ -810,7 +810,7 @@
       if (name && eventSplitter.test(name)) {
         underscore.each(name.split(eventSplitter), function (n) {
           triggerApi({
-            events: _this2._events,
+            events: _this2._rdEvents,
             name: n,
             args: args
           });
@@ -819,7 +819,7 @@
       }
 
       triggerApi({
-        events: this._events,
+        events: this._rdEvents,
         name: name,
         args: args
       });
@@ -827,6 +827,43 @@
     },
     triggerMethod: triggerMethod
   };
+
+  // Whether or not we're in debug mode or not. debug mode helps you
+  // get around the issues of lack of warnings when events are mis-typed.
+  var shouldDebug = false;
+
+  function setDebug() {
+    var setShouldDebug = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+    shouldDebug = setShouldDebug;
+  } // Format debug text.
+
+
+  function debugText(warning, eventName, channelName) {
+    return warning + (channelName ? " on the ".concat(channelName, " channel") : '') + ": \"".concat(eventName, "\"");
+  } // This is the method that's called when an unregistered event was called.
+  // By default, it logs warning to the console. By overriding this you could
+  // make it throw an Error, for instance. This would make firing a nonexistent event
+  // have the same consequence as firing a nonexistent method on an Object.
+
+
+  function debugLog(warning, eventName, channelName) {
+    if (shouldDebug && console && console.warn) {
+      console.warn(debugText(warning, eventName, channelName));
+    }
+  } // Log information about the channel and event
+
+
+  function log(channelName, eventName) {
+    if (typeof console === 'undefined') {
+      return;
+    }
+
+    for (var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+      args[_key - 2] = arguments[_key];
+    }
+
+    console.log("[".concat(channelName, "] \"").concat(eventName, "\""), args);
+  }
 
   // If callback is not a function return the callback and flag it for removal
   function makeCallback(callback) {
@@ -853,9 +890,11 @@
     var name = _ref.name,
         callback = _ref.callback,
         context = _ref.context;
-    // if (requests[name]) {
-    //   Radio.debugLog('A request was overwritten', name, this.channelName);
-    // }
+
+    if (requests[name]) {
+      debugLog('A request was overwritten', name, this.channelName);
+    }
+
     requests[name] = {
       callback: isOnce ? onceWrap(makeCallback(callback), this.stopReplying.bind(this, name)) : makeCallback(callback),
       context: context || this
@@ -885,28 +924,28 @@
     // Set up a handler for a request
     reply: function reply(name, callback, context) {
       var eventArgs = buildEventArgs(name, callback, context);
-      this._requests = underscore.reduce(eventArgs, replyReducer.bind(this, false), this._requests || {});
+      this._rdRequests = underscore.reduce(eventArgs, replyReducer.bind(this, false), this._rdRequests || {});
       return this;
     },
     // Set up a handler that can only be requested once
     replyOnce: function replyOnce(name, callback, context) {
       var eventArgs = buildEventArgs(name, callback, context);
-      this._requests = underscore.reduce(eventArgs, replyReducer.bind(this, true), this._requests || {});
+      this._rdRequests = underscore.reduce(eventArgs, replyReducer.bind(this, true), this._rdRequests || {});
       return this;
     },
     // Remove handler(s)
     stopReplying: function stopReplying(name, callback, context) {
-      if (!this._requests) {
+      if (!this._rdRequests) {
         return this;
       }
 
       if (!name && !callback && !context) {
-        delete this._requests;
+        delete this._rdRequests;
         return this;
       }
 
       var eventArgs = buildEventArgs(name, callback, context);
-      this._requests = underscore.reduce(eventArgs, stopReducer.bind(this), this._requests || {});
+      this._rdRequests = underscore.reduce(eventArgs, stopReducer.bind(this), this._rdRequests || {});
       return this;
     },
     // Make a request
@@ -931,21 +970,23 @@
           replies[n] = _this.request.apply(_this, [n].concat(_toConsumableArray(args)));
           return replies;
         }, {});
-      } // const channelName = this.channelName;
+      }
 
+      var channelName = this.channelName;
+      var requests = this._rdRequests; // // Check if we should log the request, and if so, do it
 
-      var requests = this._requests; // // Check if we should log the request, and if so, do it
-      // if (channelName && this._tunedIn) {
-      //   Radio.log.apply(this, [channelName, name].concat(args));
-      // }
-      // If the request isn't handled, log it in DEBUG mode and exit
+      if (channelName && this._tunedIn) {
+        log.apply(this, [channelName, name].concat(args));
+      } // If the request isn't handled, log it in DEBUG mode and exit
+
 
       if (requests && (requests[name] || requests.default)) {
         var handler = requests[name] || requests.default;
         args = requests[name] ? args : arguments;
         return callHandler(handler.callback, handler.context, args);
-      } // Radio.debugLog('An unhandled request was fired', name, channelName);
+      }
 
+      debugLog('An unhandled request was fired', name, channelName);
     }
   };
 
@@ -993,52 +1034,18 @@
     }
   };
 
-  var Radio = {}; // Whether or not we're in DEBUG mode or not. DEBUG mode helps you
-  // get around the issues of lack of warnings when events are mis-typed.
-
-  Radio.DEBUG = false; // Format debug text.
-
-  function debugText(warning, eventName, channelName) {
-    return warning + (channelName ? " on the ".concat(channelName, " channel") : '') + ": \"".concat(eventName, "\"");
-  } // This is the method that's called when an unregistered event was called.
-  // By default, it logs warning to the console. By overriding this you could
-  // make it throw an Error, for instance. This would make firing a nonexistent event
-  // have the same consequence as firing a nonexistent method on an Object.
-
-
-  Radio.debugLog = function (warning, eventName, channelName) {
-    if (Radio.DEBUG && console && console.warn) {
-      console.warn(debugText(warning, eventName, channelName));
-    }
-  };
-  /*
-   * tune-in
-   * -------
-   * Get console logs of a channel's activity
-   *
-   */
-
-
   var _logs = {}; // This is to produce an identical function in both tuneIn and tuneOut,
   // so that Events unregisters it.
 
   function _partial(channelName) {
-    return _logs[channelName] || (_logs[channelName] = Radio.log.bind(Radio, channelName));
+    return _logs[channelName] || (_logs[channelName] = log.bind(Radio, channelName));
   }
 
+  var Radio = {};
   underscore.extend(Radio, {
-    // Log information about the channel and event
-    log: function log(channelName, eventName) {
-      if (typeof console === 'undefined') {
-        return;
-      }
-
-      for (var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-        args[_key - 2] = arguments[_key];
-      }
-
-      console.log("[".concat(channelName, "] \"").concat(eventName, "\""), args);
-    },
+    setDebug: setDebug,
+    log: log,
+    debugLog: debugLog,
     // Logs all events on this channel to the console. It sets an
     // internal value on the channel telling it we're listening,
     // then sets a listener on the Events
@@ -1112,8 +1119,8 @@
       Radio[methodName] = function (channelName) {
         var channel = this.channel(channelName);
 
-        for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-          args[_key2 - 1] = arguments[_key2];
+        for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+          args[_key - 1] = arguments[_key];
         }
 
         return callHandler(channel[methodName], channel, args);

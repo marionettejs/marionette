@@ -1,7 +1,7 @@
 {
   "name": "marionette",
   "description": "The Composite Javascript Framework",
-  "version": "5.0.0-alpha.1",
+  "version": "5.0.0-alpha.2",
   "homepage": "https://marionettejs.com/",
   "browser": "lib/marionette.umd.js",
   "main": "index.js",

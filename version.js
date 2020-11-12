@@ -1,3 +1,3 @@
-var version = "5.0.0-alpha.1";
+var version = "5.0.0-alpha.2";
 
 export { version };
