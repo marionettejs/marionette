@@ -1,6 +1,6 @@
 import { extend } from 'underscore';
 import Backbone from 'backbone';
-import { Events } from 'marionette';
+import { Events } from './index.js';
 
 extend(Backbone, Events);
 extend(Backbone.Model.prototype, Events);
