@@ -7,6 +7,8 @@ const globals = {
   underscore: '_',
 };
 
+const external = ['underscore', 'backbone'];
+
 export default [
   {
     input: 'build/version.js',
@@ -22,7 +24,7 @@ export default [
   },
   {
     input: 'index.js',
-    external: ['underscore'],
+    external,
     output: [
       {
         file: 'dist/marionette.umd.js',
@@ -36,6 +38,11 @@ export default [
         file: 'dist/marionette.js',
         format: 'es',
       },
+      {
+        file: 'dist/marionette.cjs',
+        format: 'cjs',
+        exports: 'named',
+      },
     ],
     plugins: [
       eslint({ exclude: ['node_modules/**', './version.js'] }),
@@ -44,7 +51,7 @@ export default [
   },
   {
     input: 'index.js',
-    external: ['underscore'],
+    external,
     output: [
       {
         file: 'dist/marionette.min.js',
