@@ -7,8 +7,6 @@ const globals = {
   underscore: '_',
 };
 
-const external = ['underscore', 'backbone'];
-
 export default [
   {
     input: 'build/version.js',
@@ -24,7 +22,7 @@ export default [
   },
   {
     input: 'index.js',
-    external,
+    external: ['underscore'],
     output: [
       {
         file: 'dist/marionette.umd.js',
@@ -51,7 +49,7 @@ export default [
   },
   {
     input: 'index.js',
-    external,
+    external: ['underscore'],
     output: [
       {
         file: 'dist/marionette.min.js',
