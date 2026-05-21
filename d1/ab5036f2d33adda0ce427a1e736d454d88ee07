@@ -1,0 +1,34 @@
+.github/ISSUE_TEMPLATE/bug.yml
+  s_fe19cce59feaed::t_059f7aa585e445 1-7,9-123
+  s_fe19cce59feaed::t_f6c58d38b4b8e2 8
+.github/copilot-instructions.md
+  s_fe19cce59feaed::t_059f7aa585e445 1-24
+.github/ISSUE_TEMPLATE/v5-task.yml
+  s_fe19cce59feaed::t_059f7aa585e445 1-120
+.github/pull_request_template.md
+  s_fe19cce59feaed::t_059f7aa585e445 1-48
+.github/ISSUE_TEMPLATE/rfc.yml
+  s_fe19cce59feaed::t_059f7aa585e445 1-86,88-95
+  s_fe19cce59feaed::t_f6c58d38b4b8e2 87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "d1ab5036f2d33adda0ce427a1e736d454d88ee07",
+  "prompts": {},
+  "humans": {
+    "h_0f06c286dda36f": {
+      "author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  },
+  "sessions": {
+    "s_fe19cce59feaed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e4abd-d151-7393-9e1b-a54e59cf5441",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
