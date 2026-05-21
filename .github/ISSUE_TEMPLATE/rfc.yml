@@ -1,0 +1,95 @@
+name: RFC / design proposal
+description: Propose post-v5 or larger Marionette design work.
+title: "[RFC]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Marionette v5 is scoped as a compatibility bridge. Runtime architecture expansions are v6/labs work unless maintainers explicitly accept a narrower v5 exception.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Briefly describe the proposal.
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: What problem does this solve?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: target
+    attributes:
+      label: Proposed target
+      description: Where does this proposal belong?
+      options:
+        - v5 compatibility bridge
+        - v6/labs
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: why-v5
+    attributes:
+      label: Why this belongs in v5, or why it should not
+      description: Explain why this fits or does not fit the v5 compatibility-bridge boundary.
+    validations:
+      required: true
+
+  - type: textarea
+    id: public-api-impact
+    attributes:
+      label: Public API impact
+      description: Describe new, changed, or removed public APIs.
+    validations:
+      required: true
+
+  - type: textarea
+    id: migration-impact
+    attributes:
+      label: Migration impact
+      description: Explain how existing Marionette applications would migrate.
+    validations:
+      required: true
+
+  - type: textarea
+    id: compatibility-risk
+    attributes:
+      label: Compatibility risk
+      description: Describe risk to existing Marionette, Backbone, Radio, DomApi, or package-entrypoint behavior.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Include documentation-only, fixture-only, or v6/labs alternatives when relevant.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: scope-check
+    attributes:
+      label: Scope check
+      options:
+        - label: I understand v5 is compatibility-bridge scoped.
+          required: true
+        - label: I understand runtime architecture expansions are v6/labs unless explicitly accepted by maintainers.
+          required: true
+        - label: This proposal can be evaluated from public artifacts and public-safe examples.
+          required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional public-safe context
+    validations:
+      required: false

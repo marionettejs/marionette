@@ -1,0 +1,123 @@
+name: Bug report
+description: Report a Marionette bug or compatibility regression.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a Marionette issue. Please include enough detail to reproduce the behavior with public code or a small inline example.
+
+  - type: input
+    id: affected-version
+    attributes:
+      label: Affected version
+      description: Which Marionette version or commit are you using?
+      placeholder: "Example: 4.1.3, 5.0.0-alpha.2, or commit SHA"
+    validations:
+      required: true
+
+  - type: input
+    id: node-version
+    attributes:
+      label: Node version
+      placeholder: "Example: 20.11.1"
+    validations:
+      required: false
+
+  - type: input
+    id: package-manager
+    attributes:
+      label: Package manager
+      placeholder: "Example: npm 10, pnpm 9, yarn 4"
+    validations:
+      required: false
+
+  - type: input
+    id: bundler-runtime
+    attributes:
+      label: Bundler or runtime
+      description: Include Node, Vite, Webpack, Rollup, browser script tag, or another runtime if relevant.
+      placeholder: "Example: Node ESM, Webpack 5, Vite 6, browser script tag"
+    validations:
+      required: false
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser
+      description: Required only for browser-specific behavior.
+      placeholder: "Example: Chrome 125, Safari 17"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: compatibility-surface
+    attributes:
+      label: Compatibility surface involved
+      description: Select any surfaces that are involved in the reproduction.
+      options:
+        - label: Backbone models, collections, events, or views
+        - label: Backbone shim via `marionette/backbone`
+        - label: jQuery DomApi adapter
+        - label: Custom DomApi
+        - label: Radio or Requests
+        - label: Regions or View lifecycle
+        - label: Package entrypoints, exports, CJS, ESM, or UMD
+
+  - type: dropdown
+    id: v4-regression
+    attributes:
+      label: Is this a regression from v4 behavior?
+      options:
+        - "Yes"
+        - "No"
+        - "Not sure"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction link or code
+      description: Provide a small public reproduction, repository, gist, or code block.
+      placeholder: |
+        ```js
+        // Minimal code that reproduces the issue
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      placeholder: |
+        1. Install ...
+        2. Run ...
+        3. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What actually happens? Include errors or stack traces when useful.
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add any other public-safe context that helps explain the issue.
+    validations:
+      required: false
