@@ -1,0 +1,21 @@
+dist/marionette.cjs
+  s_e1a183878c01ed::t_e10d544ec7c845 1-3865
+rollup.config.js
+  s_e1a183878c01ed::t_ebc1b1fcd47fe8 10-11,27,41-45,54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "1c8b9c04b53cdc5ac6c462b676599f2533b0dc5e",
+  "prompts": {},
+  "sessions": {
+    "s_e1a183878c01ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e4b3d-de5d-70e3-ba78-14db78af3877",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
