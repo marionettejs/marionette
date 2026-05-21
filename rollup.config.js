@@ -36,6 +36,11 @@ export default [
         file: 'dist/marionette.js',
         format: 'es',
       },
+      {
+        file: 'dist/marionette.cjs',
+        format: 'cjs',
+        exports: 'named',
+      },
     ],
     plugins: [
       eslint({ exclude: ['node_modules/**', './version.js'] }),
