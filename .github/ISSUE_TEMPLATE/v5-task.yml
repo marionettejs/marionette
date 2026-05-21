@@ -1,0 +1,120 @@
+name: v5 implementation task
+description: Maintainer-facing task for Marionette v5 compatibility-bridge work.
+title: "[v5]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for focused Marionette v5 implementation work. v5 is a compatibility bridge for existing Marionette and Backbone applications. Public runtime behavior must be preserved unless this issue explicitly allows a behavior change.
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: One or two sentences explaining what this issue accomplishes.
+      placeholder: "This issue ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope-allowed
+    attributes:
+      label: Scope - allowed
+      description: List what this issue may change.
+      placeholder: |
+        - ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope-not-allowed
+    attributes:
+      label: Scope - not allowed
+      description: List what this issue must not change.
+      placeholder: |
+        - Do not expand runtime scope.
+        - Do not opportunistically refactor unrelated code.
+    validations:
+      required: true
+
+  - type: textarea
+    id: public-behavior-boundary
+    attributes:
+      label: Public behavior boundary
+      description: State the public runtime behavior boundary for this task.
+      value: "This issue must preserve public runtime behavior unless explicitly stated below."
+    validations:
+      required: true
+
+  - type: textarea
+    id: allowed-behavior-changes
+    attributes:
+      label: Allowed behavior changes
+      description: List any explicitly allowed public behavior changes, or write "None."
+      placeholder: |
+        - None.
+    validations:
+      required: true
+
+  - type: textarea
+    id: not-allowed-behavior-changes
+    attributes:
+      label: Not allowed behavior changes
+      description: List behavior changes this issue must avoid.
+      placeholder: |
+        - ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: tests-validation
+    attributes:
+      label: Tests / validation
+      description: Required commands or checks.
+      placeholder: |
+        Required commands or checks:
+        - ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: files-likely-involved
+    attributes:
+      label: Files likely involved
+      placeholder: |
+        - ...
+    validations:
+      required: false
+
+  - type: textarea
+    id: agent-notes
+    attributes:
+      label: Agent notes
+      value: |
+        - Do not opportunistically refactor unrelated code.
+        - Keep the diff reviewable.
+        - Stop and report if implementation requires a public behavior change not listed here.
+        - Do not expand runtime scope.
+    validations:
+      required: true
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Link the v5 plan section, related issue, or related old issue.
+      placeholder: |
+        - v5-plan.md issue ...
+        - Related old issue ...
+    validations:
+      required: false
