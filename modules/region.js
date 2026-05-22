@@ -1,7 +1,7 @@
 // Region
 // ------
 
-import { extend as _extend, uniqueId, isObject, isFunction, result } from 'underscore';
+import { extend as _extend, uniqueId, isObject, isFunction, isString, result } from 'underscore';
 import MarionetteError from '../utils/error';
 import extend from '../utils/extend';
 import monitorViewEvents from './common/monitor-view-events';
@@ -25,6 +25,7 @@ const Region = function(options) {
 
   // getOption necessary because options.el may be passed as undefined
   this._initEl = this.el = this.getOption('el');
+  this._validateEl(this.el);
 
   this.initialize.apply(this, arguments);
 };
@@ -42,6 +43,16 @@ _extend(Region.prototype, CommonMixin, {
   replaceElement: false,
   _isReplaced: false,
   _isSwappingView: false,
+
+  _validateEl(el) {
+    if (!el || isString(el) || el.nodeType === 1) { return; }
+
+    throw new MarionetteError({
+      name: classErrorName,
+      message: 'Region "el" must be a selector string or DOM element.',
+      url: 'marionette.region.html#additional-options'
+    });
+  },
 
   // Displays a view instance inside of the region. If necessary handles calling the `render`
   // method for you. Reads content directly from the `el` attribute.
@@ -87,6 +98,8 @@ _extend(Region.prototype, CommonMixin, {
   },
 
   _setEl(el) {
+    this._validateEl(el);
+
     if (isObject(el)) {
       this.el = el;
       return;

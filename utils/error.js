@@ -12,7 +12,10 @@ const MarionetteError = extend.call(Error, {
 
   url: '',
 
-  constructor(options) {
+  // Long-form on purpose: method shorthand produces a non-constructor function,
+  // which makes `new MarionetteError(...)` throw at runtime.
+  // eslint-disable-next-line object-shorthand
+  constructor: function(options) {
     const error = Error.call(this, options.message);
     _extend(this, pick(error, errorProps), pick(options, errorProps));
 
