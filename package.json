@@ -3,6 +3,9 @@
   "description": "The Composite Javascript Framework",
   "version": "5.0.0-alpha.2",
   "homepage": "https://marionettejs.com/",
+  "engines": {
+    "node": ">=24"
+  },
   "browser": "dist/marionette.umd.js",
   "main": "dist/marionette.cjs",
   "module": "dist/marionette.js",
@@ -31,9 +34,10 @@
     "./dist/backbone.cjs"
   ],
   "browserslist": [
-    ">0.5%",
-    "Explorer >= 10",
-    "not op_mini all"
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "last 2 Edge versions"
   ],
   "nyc": {
     "require": [
