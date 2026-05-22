@@ -22,21 +22,22 @@ export default {
       const delegateHandler = function(evt) {
         let node = evt.target;
         for (; node && node !== rootEl; node = node.parentNode) {
-          if (Element.prototype.matches.call(node, selector)) {
+          if (node.nodeType === 1 && node.matches(selector)) {
             evt.delegateTarget = node;
             handler(evt);
+            break;
           }
         }
       };
 
       events.push({ eventName, handler: delegateHandler });
-      Element.prototype.addEventListener.call(rootEl, eventName, delegateHandler, shouldCapture);
+      rootEl.addEventListener(eventName, delegateHandler, shouldCapture);
 
       return;
     }
 
     events.push({ eventName, handler });
-    Element.prototype.addEventListener.call(rootEl, eventName, handler, shouldCapture);
+    rootEl.addEventListener(eventName, handler, shouldCapture);
   },
 
   // this.$el.off('.delegateEvents' + this.cid);
@@ -45,7 +46,7 @@ export default {
 
     each(events, ({ eventName, handler }) => {
       const shouldCapture = this.shouldCapture(eventName);
-      Element.prototype.removeEventListener.call(rootEl, eventName, handler, shouldCapture);
+      rootEl.removeEventListener(eventName, handler, shouldCapture);
     });
 
     events.length = 0;
