@@ -848,6 +848,20 @@ describe('Behavior', function() {
     it('should return the behavior', function() {
       expect(behavior.destroy).to.have.returned(behavior);
     });
+
+    it('should destroy an attached behavior and remove it from the view', function() {
+      const MyBehavior = Behavior.extend({});
+      const MyView = View.extend({
+        behaviors: [MyBehavior]
+      });
+      const myView = new MyView();
+      const myBehavior = myView._behaviors[0];
+
+      expect(function() {
+        myBehavior.destroy();
+      }).to.not.throw();
+      expect(myView._behaviors).to.not.include(myBehavior);
+    });
   });
 
   describe('#_getEvents', function() {
