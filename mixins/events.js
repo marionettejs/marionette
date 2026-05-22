@@ -228,7 +228,7 @@ export default {
         listenToObj._rdEvents = offReducer(events, args);
 
         // Call `off` for interop
-        listenToObj.off(args.name, args.callback, this, { _reInternal: true });
+        listenToObj.off(args.name, args.callback, this, { _rdInternal: true });
       });
     }
 
