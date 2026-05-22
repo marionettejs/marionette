@@ -74,10 +74,13 @@
   },
   "github": "https://github.com/marionettejs/marionette",
   "peerDependencies": {
+    "backbone": "^1.4.0",
     "underscore": "^1.11.0"
   },
-  "optionalDependencies": {
-    "backbone": "1.4.0"
+  "peerDependenciesMeta": {
+    "backbone": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@babel/core": "7.12.3",
