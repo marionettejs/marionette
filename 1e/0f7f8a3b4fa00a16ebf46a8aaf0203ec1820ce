@@ -1,0 +1,32 @@
+package.json
+  s_e1a183878c01ed::t_1a96976bfec809 37-39
+  s_709aa24e7cc8fb::t_acff463ff524a6 40
+  s_e1a183878c01ed::t_f34e49a440f4bf 6,8
+  s_709aa24e7cc8fb::t_6b2e8231ed262d 7
+.nvmrc
+  s_709aa24e7cc8fb::t_80e4688e00af6e 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "1e0f7f8a3b4fa00a16ebf46a8aaf0203ec1820ce",
+  "prompts": {},
+  "sessions": {
+    "s_709aa24e7cc8fb": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "db662122-12df-4efd-9483-c258142d4790",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": null
+    },
+    "s_e1a183878c01ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e4b3d-de5d-70e3-ba78-14db78af3877",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
