@@ -75,7 +75,7 @@
   "github": "https://github.com/marionettejs/marionette",
   "peerDependencies": {
     "backbone": "^1.4.0",
-    "underscore": "^1.11.0"
+    "underscore": "^1.13.0"
   },
   "peerDependenciesMeta": {
     "backbone": {
