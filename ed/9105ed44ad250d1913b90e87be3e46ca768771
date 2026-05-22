@@ -1,0 +1,25 @@
+test/unit/region-el-validation.spec.js
+  s_8f35aff1fe777d::t_eb8b6032c25398 34,42-44,47-56,59-62
+modules/region.js
+  s_8f35aff1fe777d::t_3c6325a73a4baf 48,50-54
+  s_8f35aff1fe777d::t_a953279bc5bcfc 103
+utils/error.js
+  s_8f35aff1fe777d::t_5c1a340810d264 15-17
+  s_8f35aff1fe777d::t_a8855f09f9b9cb 18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "ed9105ed44ad250d1913b90e87be3e46ca768771",
+  "prompts": {},
+  "sessions": {
+    "s_8f35aff1fe777d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a80edc80-38fb-4ce4-b196-192769d01078",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
