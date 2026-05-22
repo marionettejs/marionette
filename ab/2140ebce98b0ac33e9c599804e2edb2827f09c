@@ -1,0 +1,19 @@
+test/unit/behavior.spec.js
+  s_e1a183878c01ed::t_b6c9f4b2f8c3b7 851-865
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "ab2140ebce98b0ac33e9c599804e2edb2827f09c",
+  "prompts": {},
+  "sessions": {
+    "s_e1a183878c01ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e4b3d-de5d-70e3-ba78-14db78af3877",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
