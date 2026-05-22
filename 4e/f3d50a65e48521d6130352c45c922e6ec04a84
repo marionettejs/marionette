@@ -1,0 +1,21 @@
+mixins/events.js
+  s_709aa24e7cc8fb::t_87ca91f7d8a70f 253
+test/unit/mixins/events.spec.js
+  s_709aa24e7cc8fb::t_033a93f0c65fce 1-85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "4ef3d50a65e48521d6130352c45c922e6ec04a84",
+  "prompts": {},
+  "sessions": {
+    "s_709aa24e7cc8fb": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "db662122-12df-4efd-9483-c258142d4790",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
