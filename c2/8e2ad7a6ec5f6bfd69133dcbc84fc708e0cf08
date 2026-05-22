@@ -1,0 +1,23 @@
+modules/region.js
+  s_e1a183878c01ed::t_e65e8bd38d5e4d 4,14,41,60-71,73-74,119-121
+  s_e1a183878c01ed::t_8c50b740b7a2b7 16-26,72
+test/unit/region-el-validation.spec.js
+  s_e1a183878c01ed::t_d06a2722cf7aec 1-4,6-26,41-56,58-60,62-64,66-67
+  s_e1a183878c01ed::t_02b7b9bbb6f8ea 5,27-40,57,61,65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "c28e2ad7a6ec5f6bfd69133dcbc84fc708e0cf08",
+  "prompts": {},
+  "sessions": {
+    "s_e1a183878c01ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e4b3d-de5d-70e3-ba78-14db78af3877",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
