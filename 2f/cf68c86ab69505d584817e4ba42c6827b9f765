@@ -1,0 +1,19 @@
+package.json
+  s_71f14c96c1537b::t_3d2e1821d5b91f 70,73-76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "2fcf68c86ab69505d584817e4ba42c6827b9f765",
+  "prompts": {},
+  "sessions": {
+    "s_71f14c96c1537b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7b292b53-8800-40ef-a92c-766e28c724f5",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
