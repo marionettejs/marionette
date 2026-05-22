@@ -1,0 +1,21 @@
+upgradeGuide.md
+  s_71f14c96c1537b::t_1a1fd7dc3d71d6 4-10
+package.json
+  s_71f14c96c1537b::t_0882de646e54a6 78
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "712ba2919d9bc6fadb54f952ad1a93caf1b9cfaf",
+  "prompts": {},
+  "sessions": {
+    "s_71f14c96c1537b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7b292b53-8800-40ef-a92c-766e28c724f5",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
