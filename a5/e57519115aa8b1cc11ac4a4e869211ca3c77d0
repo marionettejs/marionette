@@ -1,0 +1,22 @@
+test/unit/backbone-shim.spec.js
+  s_e1a183878c01ed::t_64afff7eec3289 5-6,8,19-30,34-35,46-51
+  s_e1a183878c01ed::t_26d73ca991f32d 65-66,68-72
+  s_e1a183878c01ed::t_cad0bb081342b7 1-4,9-18,36-45,56-64,67,73-75
+  s_e1a183878c01ed::t_e58efe3f5c18e1 7,31-33,52-55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "a5e57519115aa8b1cc11ac4a4e869211ca3c77d0",
+  "prompts": {},
+  "sessions": {
+    "s_e1a183878c01ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e4b3d-de5d-70e3-ba78-14db78af3877",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
