@@ -250,6 +250,7 @@ export default {
           args: [name[key]],
         });
       });
+      return this;
     }
 
     if (name && eventSplitter.test(name)) {
