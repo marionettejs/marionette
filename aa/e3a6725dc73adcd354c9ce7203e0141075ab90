@@ -1,0 +1,24 @@
+changelog.md
+  s_e1a183878c01ed::t_c9d656b1e83fe5 5
+test/unit/config/event-delegator.spec.js
+  s_e1a183878c01ed::t_7c0a5165bca991 1-44,46-55,57-67,69-70
+  s_e1a183878c01ed::t_2ad4aa90fa6b4f 45,56,68
+config/event-delegator.js
+  s_e1a183878c01ed::t_a3a8858f17974c 25,28,34,40,49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "aae3a6725dc73adcd354c9ce7203e0141075ab90",
+  "prompts": {},
+  "sessions": {
+    "s_e1a183878c01ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e4b3d-de5d-70e3-ba78-14db78af3877",
+        "model": "gpt-5.5"
+      },
+      "human_author": null
+    }
+  }
+}
