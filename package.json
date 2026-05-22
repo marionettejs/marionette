@@ -3,9 +3,22 @@
   "description": "The Composite Javascript Framework",
   "version": "5.0.0-alpha.2",
   "homepage": "https://marionettejs.com/",
-  "browser": "lib/marionette.umd.js",
-  "main": "index.js",
-  "module": "index.js",
+  "browser": "dist/marionette.umd.js",
+  "main": "dist/marionette.cjs",
+  "module": "dist/marionette.js",
+  "exports": {
+    ".": {
+      "import": "./dist/marionette.js",
+      "require": "./dist/marionette.cjs",
+      "default": "./dist/marionette.js"
+    },
+    "./backbone": {
+      "import": "./dist/backbone.js",
+      "require": "./dist/backbone.cjs",
+      "default": "./dist/backbone.js"
+    },
+    "./package.json": "./package.json"
+  },
   "sideEffects": [
     "./dist/backbone.js",
     "./dist/backbone.cjs"
