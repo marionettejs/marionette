@@ -19,6 +19,13 @@
     },
     "./package.json": "./package.json"
   },
+  "files": [
+    "dist/",
+    "readme.md",
+    "license.txt",
+    "changelog.md",
+    "upgradeGuide.md"
+  ],
   "sideEffects": [
     "./dist/backbone.js",
     "./dist/backbone.cjs"
