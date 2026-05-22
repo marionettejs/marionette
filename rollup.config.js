@@ -7,6 +7,21 @@ const globals = {
   underscore: '_',
 };
 
+const shimExternal = ['underscore', 'backbone', 'marionette'];
+const shimMainExternal = {
+  name: 'shim-main-external',
+  resolveId(source, importer) {
+    const normalizedImporter = importer && importer.replace(/\\/g, '/');
+
+    // Keep the built shim pointed at the package entry instead of bundling Marionette.
+    if (source === './index.js' && normalizedImporter && normalizedImporter.endsWith('/backbone.js')) {
+      return { id: 'marionette', external: true };
+    }
+
+    return null;
+  },
+};
+
 export default [
   {
     input: 'build/version.js',
@@ -63,6 +78,26 @@ export default [
     plugins: [
       babel({ babelHelpers: 'bundled' }),
       terser(),
+    ]
+  },
+  {
+    input: 'backbone.js',
+    external: shimExternal,
+    output: [
+      {
+        file: 'dist/backbone.js',
+        format: 'es',
+      },
+      {
+        file: 'dist/backbone.cjs',
+        format: 'cjs',
+        exports: 'default',
+      },
+    ],
+    plugins: [
+      shimMainExternal,
+      eslint({ exclude: ['node_modules/**', './version.js'] }),
+      babel({ babelHelpers: 'bundled' }),
     ]
   },
 ]

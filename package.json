@@ -6,7 +6,10 @@
   "browser": "lib/marionette.umd.js",
   "main": "index.js",
   "module": "index.js",
-  "sideEffects": false,
+  "sideEffects": [
+    "./dist/backbone.js",
+    "./dist/backbone.cjs"
+  ],
   "browserslist": [
     ">0.5%",
     "Explorer >= 10",
