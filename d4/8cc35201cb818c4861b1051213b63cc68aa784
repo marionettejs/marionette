@@ -1,0 +1,39 @@
+test/unit/view-el.spec.js
+  s_e1a183878c01ed::t_0e54f9ef98e875 1-4,6-16,18-27,29,31-34,37,40-41,43,45-47,52,62,65-66,68-69,71,78
+  s_8f35aff1fe777d::t_a5340cee71964c 5,17,28,30,35-36,38-39,42,44,48-51,53-61,63-64,67,70,73-74,76
+  s_e1a183878c01ed::t_25938ee8380aec 72,75,77
+mixins/view.js
+  s_e1a183878c01ed::t_dcc6b22c16a000 4-5,15,45-48,50-53,56-58
+  s_8f35aff1fe777d::t_334f1d41689592 44,49,67
+modules/collection-view.js
+  s_8f35aff1fe777d::t_70272b1394e0b9 292
+modules/view.js
+  s_8f35aff1fe777d::t_6bdc99248212db 76
+upgradeGuide.md
+  s_e1a183878c01ed::t_b8d53940706cb0 11
+  s_8f35aff1fe777d::t_301f3b57c2656c 12-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "d48cc35201cb818c4861b1051213b63cc68aa784",
+  "prompts": {},
+  "sessions": {
+    "s_8f35aff1fe777d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a80edc80-38fb-4ce4-b196-192769d01078",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": null
+    },
+    "s_e1a183878c01ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e4b3d-de5d-70e3-ba78-14db78af3877",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
