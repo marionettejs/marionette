@@ -8,3 +8,27 @@ Todo
   from `underscore`, and Underscore versions before 1.13 are CJS-only with no
   package `exports` map, so modern Node and bundler ESM resolution cannot satisfy
   the named imports.
+
+## View `el` is element-only
+
+- `View` (and `CollectionView`) accept a DOM element for `el` in v5. Selector
+  strings are no longer resolved.
+- v4 inherited string-`el` resolution from `Backbone.View._ensureElement`, which
+  used jQuery to look up the selector. v5 drops `Backbone.View` inheritance and
+  the default jQuery dependency, so the string-resolution path goes with them.
+- v5 now throws a `ViewError` with a migration hint on construction (or
+  `setElement`) when a string is passed, instead of silently storing the raw
+  string as `view.el` and failing later in DOM code.
+- Migration: resolve at the call site.
+
+  ```js
+  // v4
+  new View({ el: '#root' });
+
+  // v5
+  new View({ el: document.querySelector('#root') });
+  ```
+
+- `Region` continues to accept selector strings. That API is Marionette-native
+  (the Region abstraction has always been "where to mount"), not inherited from
+  Backbone, so it is preserved.

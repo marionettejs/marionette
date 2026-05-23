@@ -73,7 +73,7 @@ _extend(View.prototype, ViewMixin, RegionsMixin, {
 
   setElement(element) {
     this._undelegateViewEvents();
-    this.el = element;
+    this.el = this._validateEl(element);
     this._setBehaviorElements();
 
     this._isRendered = this.Dom.hasContents(this.el);

@@ -289,7 +289,7 @@ _extend(CollectionView.prototype, ViewMixin, {
   // attached on setElement.
   setElement(element) {
     this._undelegateViewEvents();
-    this.el = element;
+    this.el = this._validateEl(element);
     this._setBehaviorElements();
 
     this._isAttached = this._isElAttached();
