@@ -12,11 +12,10 @@ global.sinon = sinon;
 if (!global.document || !global.window) {
   const dom = new JSDOM(`
     <html>
-      <head><script></script></head>
+      <head></head>
       <body></body>
     </html>
   `, {
-    runScripts: 'dangerously',
     url: 'http://localhost'
   });
 

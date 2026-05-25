@@ -91,6 +91,45 @@ describe('jQuery DomApi adapter', function() {
     expect(view).to.not.have.property('$el');
   });
 
+  it('detaches elements without removing listeners with the jQuery DomApi', function() {
+    const parent = document.createElement('div');
+    const child = document.createElement('button');
+    const onClick = this.sinon.stub();
+    child.addEventListener('click', onClick);
+    parent.appendChild(child);
+    document.body.appendChild(parent);
+
+    JQueryDomApi.detachEl(child);
+    child.click();
+
+    expect(parent.childNodes).to.have.length(0);
+    expect(document.body.contains(child)).to.be.false;
+    expect(onClick).to.have.been.calledOnce;
+  });
+
+  it('replaces element contents with the jQuery DomApi', function() {
+    const el = document.createElement('div');
+    const oldChild = document.createElement('span');
+    oldChild.className = 'old';
+    el.appendChild(oldChild);
+
+    JQueryDomApi.setContents(el, '<strong class="new">New</strong>');
+
+    expect(el.querySelector('.old')).to.be.null;
+    expect(el.querySelector('.new').textContent).to.equal('New');
+  });
+
+  it('appends contents with the jQuery DomApi', function() {
+    const el = document.createElement('div');
+    const child = document.createElement('span');
+    child.className = 'child';
+
+    JQueryDomApi.appendContents(el, child);
+
+    expect(el.childNodes).to.have.length(1);
+    expect(el.firstChild).to.equal(child);
+  });
+
   it('preserves detached content listeners with the jQuery DomApi', function() {
     const el = document.createElement('div');
     const child = document.createElement('button');
@@ -112,8 +151,8 @@ describe('jQuery DomApi adapter', function() {
     const JQueryRegion = Region.extend();
     JQueryRegion.setDomApi(JQueryDomApi);
 
-    const region = new JQueryRegion({ el: root });
-    region._setElement('#region-root');
+    const region = new JQueryRegion({ el: '#region-root' });
+    region.empty();
 
     expect(region.el).to.equal(root);
   });
