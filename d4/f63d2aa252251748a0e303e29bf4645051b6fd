@@ -1,0 +1,19 @@
+upgradeGuide.md
+  s_4d573ea9dfffe8::t_a8266e3c032d8c 35-56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "d4f63d2aa252251748a0e303e29bf4645051b6fd",
+  "prompts": {},
+  "sessions": {
+    "s_4d573ea9dfffe8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e600b-af0f-7401-bd80-18d8736333e1",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
