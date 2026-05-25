@@ -1,0 +1,37 @@
+package.json
+  s_4d573ea9dfffe8::t_b1d5bbd875b378 23-28,88,94-95
+dist/jquery-dom-api.d.ts
+  s_4d573ea9dfffe8::t_b1d5bbd875b378 1-9
+test/unit/jquery-dom-api.spec.js
+  s_4d573ea9dfffe8::t_5e348fde3cf81e 1-120
+dist/jquery-dom-api.js
+  s_4d573ea9dfffe8::t_5cc7af30c2e857 1-34
+test/setup/jquery-dom-api.js
+  s_4d573ea9dfffe8::t_5e348fde3cf81e 1-38
+upgradeGuide.md
+  s_4d573ea9dfffe8::t_b1d5bbd875b378 35-63
+changelog.md
+  s_4d573ea9dfffe8::t_b1d5bbd875b378 3-4
+rollup.config.js
+  s_4d573ea9dfffe8::t_b1d5bbd875b378 8,104-118
+dist/jquery-dom-api.cjs
+  s_4d573ea9dfffe8::t_5cc7af30c2e857 1-40
+jquery-dom-api.js
+  s_4d573ea9dfffe8::t_b1d5bbd875b378 1-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "bf37db8030b28459095ec6429ff18c50b8f0cae0",
+  "prompts": {},
+  "sessions": {
+    "s_4d573ea9dfffe8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e600b-af0f-7401-bd80-18d8736333e1",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
