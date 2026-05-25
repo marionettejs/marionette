@@ -1,0 +1,54 @@
+dist/marionette.umd.js
+  s_4d573ea9dfffe8::t_3751ed276071af 2659,2937
+  s_4d573ea9dfffe8::t_e8782d81dc14e0 2693-2698,3181-3186,3747-3755
+test/setup/jquery-dom-api.js
+  s_4d573ea9dfffe8::t_ee381237796f3c 25-28
+  s_4d573ea9dfffe8::t_bf614f93d483cf 1-24,29-38
+dist/jquery-dom-api.cjs
+  s_4d573ea9dfffe8::t_e8782d81dc14e0 1-39
+modules/view.js
+  s_4d573ea9dfffe8::t_db3a77146c6275 78-82
+  s_4d573ea9dfffe8::t_ee28f6fe306d5e 50
+modules/collection-view.js
+  s_4d573ea9dfffe8::t_ee28f6fe306d5e 52
+  s_4d573ea9dfffe8::t_db3a77146c6275 294-298
+dist/marionette.js
+  s_4d573ea9dfffe8::t_3751ed276071af 2650,2928
+  s_4d573ea9dfffe8::t_e8782d81dc14e0 2684-2689,3172-3177,3738-3746
+dist/jquery-dom-api.js
+  s_4d573ea9dfffe8::t_e8782d81dc14e0 1-33
+test/unit/jquery-dom-api.spec.js
+  s_4d573ea9dfffe8::t_9df00e82db604c 1-121
+test/unit/behavior.spec.js
+  s_4d573ea9dfffe8::t_75b01fcaf7454e 389,392
+modules/behavior.js
+  s_4d573ea9dfffe8::t_db3a77146c6275 84-91
+package.json
+  s_4d573ea9dfffe8::t_db3a77146c6275 20-25,84,90-91
+dist/jquery-dom-api.d.ts
+  s_4d573ea9dfffe8::t_444b0787aa3c67 2,7
+  s_4d573ea9dfffe8::t_db3a77146c6275 1,3-6,8-10
+jquery-dom-api.js
+  s_4d573ea9dfffe8::t_db3a77146c6275 1-36
+dist/marionette.cjs
+  s_4d573ea9dfffe8::t_3751ed276071af 2654,2932
+  s_4d573ea9dfffe8::t_e8782d81dc14e0 2688-2693,3176-3181,3742-3750
+rollup.config.js
+  s_4d573ea9dfffe8::t_db3a77146c6275 8,104-118
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "ec2d6fc1faba03d20ce1188cf68a4a98b3d33d20",
+  "prompts": {},
+  "sessions": {
+    "s_4d573ea9dfffe8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e600b-af0f-7401-bd80-18d8736333e1",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
