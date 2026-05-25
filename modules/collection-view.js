@@ -49,6 +49,7 @@ const ClassOptions = [
 const CollectionView = function(options) {
   this.cid = uniqueId(this.cidPrefix);
   this._setOptions(options, ClassOptions);
+  this.Dom = _extend({}, this.Dom);
 
   this.preinitialize.apply(this, arguments);
 
@@ -289,7 +290,15 @@ _extend(CollectionView.prototype, ViewMixin, {
   // attached on setElement.
   setElement(element) {
     this._undelegateViewEvents();
-    this.el = this._validateEl(element);
+    const el = this._validateEl(element);
+    const wrappedEl = this.Dom.wrapEl && this.Dom.wrapEl(el);
+
+    this.el = el;
+    if (this.Dom.wrapEl) {
+      this.$el = wrappedEl;
+    } else {
+      delete this.$el;
+    }
     this._setBehaviorElements();
 
     this._isAttached = this._isElAttached();

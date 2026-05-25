@@ -32,3 +32,23 @@ Todo
 - `Region` continues to accept selector strings. That API is Marionette-native
   (the Region abstraction has always been "where to mount"), not inherited from
   Backbone, so it is preserved.
+
+## Optional jQuery DomApi adapter
+
+- v5 core remains jQuery-free. `View` and `CollectionView` instances no longer
+  create `$el` with the native DomApi.
+- Projects that still need jQuery-shaped DOM helpers can opt in with the
+  `marionette/jquery-dom-api` subpath:
+
+  ```js
+  import { setDomApi } from 'marionette';
+  import JQueryDomApi from 'marionette/jquery-dom-api';
+
+  setDomApi(JQueryDomApi);
+  ```
+
+- The adapter imports `jquery`, so jQuery is an optional peer dependency only for
+  consumers that opt into this subpath.
+- DomApi configuration is snapshotted when a `View` or `CollectionView` is
+  constructed. Calling `setDomApi` later affects future instances, not existing
+  ones.
