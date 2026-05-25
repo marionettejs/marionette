@@ -1,0 +1,54 @@
+dist/marionette.umd.js
+  s_4d573ea9dfffe8::t_5de7b97199ae50 76-79,725,750,1222,1525,1528,1537,1545,1562,1774,1800-1811,1814-1816,1832,2047,2056-2058,2073-2084,2100,2126-2127,2135,2234,2247,2255,2704,2737-2746,2990,2999,3190,3200,3259-3268,3318,3469,3643,3670,3861-3865
+dist/marionette.cjs
+  s_4d573ea9dfffe8::t_5de7b97199ae50 71-74,720,745,1217,1520,1523,1532,1540,1557,1769,1795-1806,1809-1811,1827,2042,2051-2053,2068-2079,2095,2121-2122,2130,2229,2242,2250,2699,2732-2741,2985,2994,3185,3195,3254-3263,3313,3464,3638,3665,3856-3860
+jquery-dom-api.js
+  s_4d573ea9dfffe8::t_5e427cba32e658 1-36
+modules/collection-view.js
+  s_4d573ea9dfffe8::t_5e427cba32e658 52,293-301
+modules/view.js
+  s_4d573ea9dfffe8::t_5e427cba32e658 50,77-85
+dist/jquery-dom-api.d.ts
+  s_4d573ea9dfffe8::t_5e427cba32e658 1-10
+rollup.config.js
+  s_4d573ea9dfffe8::t_5e427cba32e658 8,104-118
+upgradeGuide.md
+  s_4d573ea9dfffe8::t_5e427cba32e658 35-54
+dist/marionette.js
+  s_4d573ea9dfffe8::t_5de7b97199ae50 67-70,716,741,1213,1516,1519,1528,1536,1553,1765,1791-1802,1805-1807,1823,2038,2047-2049,2064-2075,2091,2117-2118,2126,2225,2238,2246,2695,2728-2737,2981,2990,3181,3191,3250-3259,3309,3460,3634,3661,3852-3856
+test/unit/jquery-dom-api.spec.js
+  s_4d573ea9dfffe8::t_c94d30d57640f8 32,44
+  s_4d573ea9dfffe8::t_012d4104c2e8b6 116-117,148
+  s_4d573ea9dfffe8::t_34f9e54bf4f70a 1-31,33-43,45-47,49-115,118-147,149-170
+  s_4d573ea9dfffe8::t_cb7653fb1f4598 48
+dist/jquery-dom-api.cjs
+  s_4d573ea9dfffe8::t_5de7b97199ae50 1-45
+changelog.md
+  s_4d573ea9dfffe8::t_5e427cba32e658 3-4
+modules/behavior.js
+  s_4d573ea9dfffe8::t_5e427cba32e658 85-89
+package.json
+  s_4d573ea9dfffe8::t_5e427cba32e658 23-28,88,94-95
+test/setup/jquery-dom-api.js
+  s_4d573ea9dfffe8::t_34f9e54bf4f70a 1-38
+test/unit/behavior.spec.js
+  s_4d573ea9dfffe8::t_34f9e54bf4f70a 389,392
+dist/jquery-dom-api.js
+  s_4d573ea9dfffe8::t_5de7b97199ae50 1-39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "bf373be25261ba6072e6677302a281e13b4eb93a",
+  "prompts": {},
+  "sessions": {
+    "s_4d573ea9dfffe8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e600b-af0f-7401-bd80-18d8736333e1",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
