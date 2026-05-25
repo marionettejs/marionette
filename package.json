@@ -17,6 +17,12 @@
       "require": "./dist/backbone.cjs",
       "default": "./dist/backbone.js"
     },
+    "./jquery-dom-api": {
+      "types": "./dist/jquery-dom-api.d.ts",
+      "import": "./dist/jquery-dom-api.js",
+      "require": "./dist/jquery-dom-api.cjs",
+      "default": "./dist/jquery-dom-api.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -75,10 +81,14 @@
   "github": "https://github.com/marionettejs/marionette",
   "peerDependencies": {
     "backbone": "^1.4.0",
+    "jquery": "^3.5.0",
     "underscore": "^1.13.0"
   },
   "peerDependenciesMeta": {
     "backbone": {
+      "optional": true
+    },
+    "jquery": {
       "optional": true
     }
   },

@@ -2647,6 +2647,7 @@ var View = function View(options) {
 
   this._setOptions(options, ClassOptions$2);
 
+  this.Dom = extend$1({}, this.Dom);
   this.preinitialize.apply(this, arguments);
 
   this._initViewEvents();
@@ -2679,6 +2680,12 @@ extend$1(View.prototype, ViewMixin, RegionsMixin, {
     this._undelegateViewEvents();
 
     this.el = element;
+
+    if (this.Dom.wrapEl) {
+      this.$el = this.Dom.wrapEl(element);
+    } else {
+      delete this.$el;
+    }
 
     this._setBehaviorElements();
 
@@ -2918,6 +2925,7 @@ var CollectionView = function CollectionView(options) {
 
   this._setOptions(options, ClassOptions$3);
 
+  this.Dom = extend$1({}, this.Dom);
   this.preinitialize.apply(this, arguments);
 
   this._initViewEvents();
@@ -3160,6 +3168,12 @@ extend$1(CollectionView.prototype, ViewMixin, {
     this._undelegateViewEvents();
 
     this.el = element;
+
+    if (this.Dom.wrapEl) {
+      this.$el = this.Dom.wrapEl(element);
+    } else {
+      delete this.$el;
+    }
 
     this._setBehaviorElements();
 
@@ -3721,7 +3735,15 @@ extend$1(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, Vi
   setElement: function setElement() {
     this._undelegateViewEvents();
 
-    this.el = this.view.el;
+    if (this.view) {
+      this.el = this.view.el;
+
+      if (this.view.$el) {
+        this.$el = this.view.$el;
+      } else {
+        delete this.$el;
+      }
+    }
 
     this._delegateViewEvents(this.view);
 

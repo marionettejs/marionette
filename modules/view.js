@@ -47,6 +47,7 @@ function childReducer(children, region) {
 const View = function(options) {
   this.cid = uniqueId(this.cidPrefix);
   this._setOptions(options, ClassOptions);
+  this.Dom = _extend({}, this.Dom);
 
   this.preinitialize.apply(this, arguments);
 
@@ -74,6 +75,11 @@ _extend(View.prototype, ViewMixin, RegionsMixin, {
   setElement(element) {
     this._undelegateViewEvents();
     this.el = element;
+    if (this.Dom.wrapEl) {
+      this.$el = this.Dom.wrapEl(element);
+    } else {
+      delete this.$el;
+    }
     this._setBehaviorElements();
 
     this._isRendered = this.Dom.hasContents(this.el);

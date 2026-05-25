@@ -386,10 +386,10 @@ describe('Behavior', function() {
       fooView = new FooView();
     });
 
-    it('should proxy the views $el', function() {
+    it('should not proxy the views $el when the view does not have one', function() {
       fooView.setElement(document.createElement('bar'));
 
-      expect(fooBehavior.$el).to.equal(fooView.$el);
+      expect(fooBehavior).to.not.have.property('$el');
     });
 
     it('should proxy the views el', function() {

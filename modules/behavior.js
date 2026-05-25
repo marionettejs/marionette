@@ -81,7 +81,14 @@ _extend(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, Vie
   setElement() {
     this._undelegateViewEvents();
 
-    this.el = this.view.el;
+    if (this.view) {
+      this.el = this.view.el;
+      if (this.view.$el) {
+        this.$el = this.view.$el;
+      } else {
+        delete this.$el;
+      }
+    }
 
     this._delegateViewEvents(this.view);
 

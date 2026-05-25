@@ -2656,6 +2656,7 @@
 
     this._setOptions(options, ClassOptions$2);
 
+    this.Dom = underscore.extend({}, this.Dom);
     this.preinitialize.apply(this, arguments);
 
     this._initViewEvents();
@@ -2688,6 +2689,12 @@
       this._undelegateViewEvents();
 
       this.el = element;
+
+      if (this.Dom.wrapEl) {
+        this.$el = this.Dom.wrapEl(element);
+      } else {
+        delete this.$el;
+      }
 
       this._setBehaviorElements();
 
@@ -2927,6 +2934,7 @@
 
     this._setOptions(options, ClassOptions$3);
 
+    this.Dom = underscore.extend({}, this.Dom);
     this.preinitialize.apply(this, arguments);
 
     this._initViewEvents();
@@ -3169,6 +3177,12 @@
       this._undelegateViewEvents();
 
       this.el = element;
+
+      if (this.Dom.wrapEl) {
+        this.$el = this.Dom.wrapEl(element);
+      } else {
+        delete this.$el;
+      }
 
       this._setBehaviorElements();
 
@@ -3730,7 +3744,15 @@
     setElement: function setElement() {
       this._undelegateViewEvents();
 
-      this.el = this.view.el;
+      if (this.view) {
+        this.el = this.view.el;
+
+        if (this.view.$el) {
+          this.$el = this.view.$el;
+        } else {
+          delete this.$el;
+        }
+      }
 
       this._delegateViewEvents(this.view);
 
