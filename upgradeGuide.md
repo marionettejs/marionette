@@ -32,3 +32,25 @@ Todo
 - `Region` continues to accept selector strings. That API is Marionette-native
   (the Region abstraction has always been "where to mount"), not inherited from
   Backbone, so it is preserved.
+
+## jQuery `$el` compatibility
+
+- v5 core does not create `view.$el`. If an app still has view code that expects
+  a jQuery-wrapped element, set it in your own view layer instead of configuring
+  Marionette globally.
+- For example, a legacy app can define a local base view:
+
+  ```js
+  import $ from 'jquery';
+  import { View } from 'marionette';
+
+  const LegacyView = View.extend({
+    initialize() {
+      this.$el = $(this.el);
+    }
+  });
+  ```
+
+- If the same view calls `setElement`, update `$el` in that app-specific override
+  as well. New v5 code should prefer `view.el`, `view.$(selector)`, and native DOM
+  APIs.
