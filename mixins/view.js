@@ -1,7 +1,8 @@
 // ViewMixin
 //  ---------
 
-import { extend, result } from 'underscore';
+import { extend, isString, result } from 'underscore';
+import MarionetteError from '../utils/error';
 import BehaviorsMixin from './behaviors';
 import CommonMixin from './common';
 import DelegateEntityEventsMixin from './delegate-entity-events';
@@ -11,6 +12,7 @@ import ViewEvents from './view-events';
 import { isEnabled } from '../config/features';
 import DomApi from '../config/dom';
 
+const classErrorName = 'ViewError';
 
 // MixinOptions
 // - attributes
@@ -39,9 +41,21 @@ const ViewMixin = {
 
   Dom: DomApi,
 
+  _validateEl(el) {
+    if (!isString(el)) { return el; }
+
+    throw new MarionetteError({
+      name: classErrorName,
+      message: `View "el" must be a DOM element. Resolve selector strings at the call site, e.g. \`document.querySelector('${el}')\`. (Region still accepts selector strings.)`,
+      url: 'marionette.view.html#specifying-an-el'
+    });
+  },
+
   // Create an element from the `id`, `className` and `tagName` properties.
   _getEl() {
-    if (!this.el) {
+    const elOption = result(this, 'el');
+
+    if (!elOption) {
       const el = this.Dom.createElement(result(this, 'tagName'));
       const attrs = extend({}, result(this, 'attributes'));
       if (this.id) {attrs.id = result(this, 'id');}
@@ -50,7 +64,7 @@ const ViewMixin = {
       return el;
     }
 
-    return result(this, 'el');
+    return elOption;
   },
 
   $(selector) {
