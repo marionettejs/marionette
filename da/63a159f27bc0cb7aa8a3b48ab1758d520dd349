@@ -1,0 +1,21 @@
+docs/installation.md
+  s_8f35aff1fe777d::t_cc5e0ddef2da2a 63
+  s_8f35aff1fe777d::t_c8bdabf7b1918c 10-14,22-29,32-62,64-118,124
+  s_8f35aff1fe777d::t_a7a9628669282e 30-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "da63a159f27bc0cb7aa8a3b48ab1758d520dd349",
+  "prompts": {},
+  "sessions": {
+    "s_8f35aff1fe777d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a80edc80-38fb-4ce4-b196-192769d01078",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
