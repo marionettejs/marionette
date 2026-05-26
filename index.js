@@ -59,6 +59,7 @@ export const setRenderer = function(renderer) {
 };
 
 export const setEventDelegator = function(delegator) {
+  Behavior.setEventDelegator(delegator);
   CollectionView.setEventDelegator(delegator);
   View.setEventDelegator(delegator);
 };

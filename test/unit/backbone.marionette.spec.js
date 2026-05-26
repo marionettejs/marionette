@@ -222,4 +222,27 @@ describe('backbone.marionette', function() {
       });
     });
   });
+
+  describe('#setEventDelegator', function() {
+    const DelegatorClasses = {
+      Behavior,
+      CollectionView,
+      View
+    };
+
+    const fakeEventDelegator = {
+      foo: 'bar'
+    };
+
+    _.each(DelegatorClasses, function(Class, key) {
+      it(`should setEventDelegator on ${ key }`, function() {
+        this.sinon.spy(Class, 'setEventDelegator');
+
+        Mn.setEventDelegator(fakeEventDelegator);
+        expect(Class.setEventDelegator)
+          .to.be.calledOnce
+          .and.calledWith(fakeEventDelegator);
+      });
+    });
+  });
 });

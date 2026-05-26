@@ -12,6 +12,7 @@ import CommonMixin from '../mixins/common';
 import DelegateEntityEventsMixin from '../mixins/delegate-entity-events';
 import UIMixin from '../mixins/ui';
 import ViewEventsMixin from '../mixins/view-events';
+import { setEventDelegator } from '../config/event-delegator';
 
 const ClassOptions = [
   'collectionEvents',
@@ -50,7 +51,7 @@ const Behavior = function(options, view) {
   this.initialize.apply(this, arguments);
 };
 
-Behavior.extend = extend;
+_extend(Behavior, { extend, setEventDelegator });
 
 // Behavior Methods
 // --------------

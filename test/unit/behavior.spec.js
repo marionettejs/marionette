@@ -15,6 +15,56 @@ describe('Behavior', function() {
     });
   });
 
+  describe('setEventDelegator', function() {
+    let behavior;
+
+    function buildViewWithBehavior(BehaviorClass) {
+      const FooView = View.extend({
+        behaviors: [BehaviorClass]
+      });
+
+      const view = new FooView({
+        el: document.createElement('div')
+      });
+
+      behavior = view._behaviors[0];
+
+      return view;
+    }
+
+    it('should set EventDelegator on behavior delegated events', function() {
+      const delegate = this.sinon.stub();
+      const MyBehavior = Behavior.extend({
+        events: {
+          'click .foo': 'onFooClick'
+        },
+        onFooClick() {}
+      });
+
+      MyBehavior.setEventDelegator({ delegate });
+      const view = buildViewWithBehavior(MyBehavior);
+
+      expect(delegate).to.have.been.calledOnce;
+      expect(delegate.firstCall.args[0])
+        .to.include({
+          eventName: 'click',
+          selector: '.foo',
+          rootEl: view.el
+        });
+    });
+
+    it('should keep $ proxied through the host view', function() {
+      const MyBehavior = Behavior.extend({});
+      const view = buildViewWithBehavior(MyBehavior);
+      view.$ = this.sinon.stub().returns(['host-view-dom']);
+
+      expect(behavior.$('.foo')).to.eql(['host-view-dom']);
+      expect(view.$)
+        .to.have.been.calledOnce
+        .and.calledWith('.foo');
+    });
+  });
+
   describe('behavior parsing', function() {
     let behaviorSpies;
     let FooView;
