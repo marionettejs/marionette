@@ -47,11 +47,12 @@ describe('view mixin', function() {
     let view;
     let onDestroyStub;
     let destroyStub;
+    let detachElSpy;
 
     beforeEach(function() {
       view = new View();
 
-      sinon.spy(view, '_removeElement');
+      detachElSpy = sinon.spy(view.Dom, 'detachEl');
       sinon.spy(view, '_deleteEntityEventHandlers');
       sinon.spy(view, 'destroy');
 
@@ -75,7 +76,7 @@ describe('view mixin', function() {
     });
 
     it('should remove the view', function() {
-      expect(view._removeElement).to.have.been.calledOnce;
+      expect(detachElSpy).to.have.been.calledOnce;
     });
 
     it('should delete entity event handlers', function() {
@@ -217,13 +218,13 @@ describe('view mixin', function() {
 
   describe('when destroying a view that is already destroyed', function() {
     let view;
-    let removeSpy;
+    let detachElSpy;
     let destroyStub;
 
     beforeEach(function() {
       view = new View();
 
-      removeSpy = sinon.spy(view, '_removeElement');
+      detachElSpy = sinon.spy(view.Dom, 'detachEl');
       destroyStub = sinon.stub();
       view.on('destroy', destroyStub);
 
@@ -236,45 +237,11 @@ describe('view mixin', function() {
     });
 
     it('should not remove the view', function() {
-      expect(removeSpy).to.have.been.calledOnce;
+      expect(detachElSpy).to.have.been.calledOnce;
     });
 
     it('should leave _isDestroyed as true', function() {
       expect(view).to.be.have.property('_isDestroyed', true);
-    });
-  });
-
-  describe('#delegateEvents', function() {
-    describe('when passing events', function() {
-      let events;
-      let view;
-
-      beforeEach(function() {
-        const FooView = View.extend({
-          events: {
-            'click': 'onClick'
-          },
-          onClick: this.sinon.stub()
-        });
-
-        view = new FooView();
-
-        events = {
-          'click': this.sinon.stub()
-        };
-
-        view.delegateEvents(events);
-
-        view.$el.trigger('click');
-      });
-
-      it('should delegate the passed events', function() {
-        expect(events.click).to.have.been.calledOnce;
-      });
-
-      it('should not delegate instance events', function() {
-        expect(view.onClick).to.not.have.been.called;
-      });
     });
   });
 
@@ -323,7 +290,7 @@ describe('view mixin', function() {
 
       collectionView.render();
       childView = collectionView.children.findByModel(collection.at(0));
-      childView.$el.click();
+      childView.el.click();
     });
 
     it('should fire the event method once', function() {
@@ -445,7 +412,7 @@ describe('view mixin', function() {
       beforeEach(function() {
         // use the function definition of childViewEvents instead of the hash
         layoutView.childViewEvents = childEventsFunction;
-        layoutView.delegateEvents();
+        layoutView._buildEventProxies();
         layoutView.showChildView('child', childView);
         childView.triggerMethod('boom', 'foo', 'bar');
       });
@@ -477,7 +444,7 @@ describe('view mixin', function() {
       beforeEach(function() {
         layoutView.showChildView('child', childView);
         layoutView.childViewEventPrefix = false;
-        layoutView.delegateEvents();
+        layoutView._buildEventProxies();
         childView.triggerMethod('boom', 'foo', 'bar');
       });
 
@@ -536,23 +503,9 @@ describe('view mixin', function() {
 
       it('setElement should return the view', function() {
         this.sinon.spy(fooView, 'setElement');
-        fooView.setElement(fooView.$el);
+        fooView.setElement(fooView.el);
 
         expect(fooView.setElement).to.have.returned(fooView);
-      });
-
-      it('delegateEvents should return the view', function() {
-        this.sinon.spy(fooView, 'delegateEvents');
-        fooView.delegateEvents();
-
-        expect(fooView.delegateEvents).to.have.returned(fooView);
-      });
-
-      it('undelegateEvents should return the view', function() {
-        this.sinon.spy(fooView, 'undelegateEvents');
-        fooView.undelegateEvents({});
-
-        expect(fooView.undelegateEvents).to.have.returned(fooView);
       });
 
       it('delegateEntityEvents should return the view', function() {

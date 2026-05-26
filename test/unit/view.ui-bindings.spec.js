@@ -36,17 +36,17 @@ describe('view ui elements', function() {
       this.view.render();
     });
 
-    it('should return its jQuery selector if it can be found', function() {
-      expect(this.view.ui.foo).to.be.instanceOf(jQuery).and.to.have.lengthOf(1);
+    it('should return its native selector result if it can be found', function() {
+      expect(this.view.ui.foo).to.be.instanceOf(NodeList).and.to.have.lengthOf(1);
     });
 
-    it('should return an empty jQuery object if it cannot be found', function() {
-      expect(this.view.ui.bar).to.be.instanceOf(jQuery).and.to.have.lengthOf(0);
+    it('should return an empty native selector result if it cannot be found', function() {
+      expect(this.view.ui.bar).to.be.instanceOf(NodeList).and.to.have.lengthOf(0);
     });
 
-    it('should return its jQuery selector through getUI', function() {
-      expect(this.view.getUI('foo')).to.be.instanceOf(jQuery).and.to.have.lengthOf(1);
-      expect(this.view.getUI('bar')).to.be.instanceOf(jQuery).and.to.have.lengthOf(0);
+    it('should return its native selector result through getUI', function() {
+      expect(this.view.getUI('foo')).to.be.instanceOf(NodeList).and.to.have.lengthOf(1);
+      expect(this.view.getUI('bar')).to.be.instanceOf(NodeList).and.to.have.lengthOf(0);
     });
   });
 
@@ -59,13 +59,13 @@ describe('view ui elements', function() {
     });
 
     it('should return an up-to-date selector on subsequent renders', function() {
-      expect(this.view.ui.foo).to.be.instanceOf(jQuery).and.to.have.lengthOf(0);
-      expect(this.view.ui.bar).to.be.instanceOf(jQuery).and.to.have.lengthOf(1);
+      expect(this.view.ui.foo).to.be.instanceOf(NodeList).and.to.have.lengthOf(0);
+      expect(this.view.ui.bar).to.be.instanceOf(NodeList).and.to.have.lengthOf(1);
     });
 
     it('should return an up-to-date selector through getUI', function() {
-      expect(this.view.getUI('foo')).to.be.instanceOf(jQuery).and.to.have.lengthOf(0);
-      expect(this.view.getUI('bar')).to.be.instanceOf(jQuery).and.to.have.lengthOf(1);
+      expect(this.view.getUI('foo')).to.be.instanceOf(NodeList).and.to.have.lengthOf(0);
+      expect(this.view.getUI('bar')).to.be.instanceOf(NodeList).and.to.have.lengthOf(1);
     });
   });
 
@@ -79,17 +79,17 @@ describe('view ui elements', function() {
       this.view.render();
     });
 
-    it('should return its jQuery selector if it can be found', function() {
-      expect(this.view.ui.foo).to.be.instanceOf(jQuery).and.to.have.lengthOf(1);
+    it('should return its native selector result if it can be found', function() {
+      expect(this.view.ui.foo).to.be.instanceOf(NodeList).and.to.have.lengthOf(1);
     });
 
-    it('should return an empty jQuery object if it cannot be found', function() {
-      expect(this.view.ui.bar).to.be.instanceOf(jQuery).and.to.have.lengthOf(0);
+    it('should return an empty native selector result if it cannot be found', function() {
+      expect(this.view.ui.bar).to.be.instanceOf(NodeList).and.to.have.lengthOf(0);
     });
 
     it('should return an up-to-date selector on subsequent renders', function() {
-      expect(this.view.ui.foo).to.be.instanceOf(jQuery).and.to.have.lengthOf(1);
-      expect(this.view.ui.bar).to.be.instanceOf(jQuery).to.have.lengthOf(0);
+      expect(this.view.ui.foo).to.be.instanceOf(NodeList).and.to.have.lengthOf(1);
+      expect(this.view.ui.bar).to.be.instanceOf(NodeList).to.have.lengthOf(0);
 
       this.view.model.set('name', 'bar');
       this.view.render();
@@ -98,8 +98,8 @@ describe('view ui elements', function() {
       expect(this.view.ui.bar).to.have.lengthOf(1);
     });
 
-    it('should return its jQuery selector through getUI', function() {
-      expect(this.view.getUI('foo')).to.be.instanceOf(jQuery).and.to.have.lengthOf(1);
+    it('should return its native selector result through getUI', function() {
+      expect(this.view.getUI('foo')).to.be.instanceOf(NodeList).and.to.have.lengthOf(1);
     });
   });
 

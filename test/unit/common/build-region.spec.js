@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import View from '../../../modules/view';
 import Region from '../../../modules/region';
 
@@ -69,8 +70,8 @@ describe('Region', function() {
           };
         });
 
-        it('throws a `NoElError`', function() {
-          expect(buildRegion).to.throw('An "el" must be specified for a region.');
+        it('allows the region to be created without resolving an el', function() {
+          expect(buildRegion).to.not.throw();
         });
       });
     });
@@ -98,33 +99,33 @@ describe('Region', function() {
             describe('including the selector', function() {
               beforeEach(function() {
                 this.setFixtures('<div id="parent"><div id="child">text</div></div>');
-                const parentEl = $('#parent');
+                const parentEl = $('#parent')[0];
                 definition = _.defaults({parentEl: parentEl, el: '#child' }, definition);
                 region = view.addRegion(_.uniqueId('region_'), definition);
               });
 
-              it('returns the jQuery(el)', function() {
-                expect(region.getEl(region.el).text()).to.equal($(region.el).text());
+              it('returns the element from the parent', function() {
+                expect(region.getEl(region.el).textContent).to.equal($(region.el).text());
               });
             });
 
             describe('excluding the selector', function() {
               beforeEach(function() {
                 this.setFixtures('<div id="parent"></div><div id="not-child">text</div>');
-                const parentEl = $('#parent');
+                const parentEl = $('#parent')[0];
                 definition = _.defaults({parentEl: parentEl, el: '#not-child' }, definition);
                 region = view.addRegion(_.uniqueId('region_'), definition);
               });
 
-              it('returns the jQuery(el)', function() {
-                expect(region.getEl(region.el).text()).to.not.equal($(region.el).text());
+              it('does not return elements outside the parent', function() {
+                expect(region.getEl(region.el)).to.be.undefined;
               });
             });
 
             describe('including multiple instances of the selector', function() {
               beforeEach(function() {
                 this.setFixtures('<div id="parent"><div class="child">text</div><div class="child">text</div></div>');
-                const parentEl = $('#parent');
+                const parentEl = $('#parent')[0];
                 definition = _.defaults({parentEl: parentEl, el: '.child' }, definition);
                 region = view.addRegion(_.uniqueId('region_'), definition);
               });
@@ -132,7 +133,7 @@ describe('Region', function() {
               it('should ensure a jQuery(el) of length 1', function() {
                 // calls _ensureElement
                 region.empty();
-                expect(region.$el.length).to.equal(1);
+                expect(region.el).to.equal(document.querySelector('.child'));
               });
             });
           });
@@ -160,35 +161,32 @@ describe('Region', function() {
 
           describe('with `parentEl` also defined', function() {
             beforeEach(function() {
-              const parentEl = $('<div id="not-actual-parent"></div>');
+              const parentEl = $('<div id="not-actual-parent"></div>')[0];
               definition = _.defaults({parentEl: parentEl}, definition);
               region = view.addRegion(_.uniqueId('region_'), definition);
             });
 
-            it('returns the jQuery(el)', function() {
-              expect(region.getEl(el)).to.deep.equal($(el));
+            it('does not return elements outside the parent', function() {
+              expect(region.getEl('#baz-region')).to.be.undefined;
             });
 
           });
         });
 
         describe('when el is a jQuery object', function() {
-          let el;
-          let region;
+          let buildRegion;
 
           beforeEach(function() {
-            el = $('<div id="baz-region">');
-            new DefaultRegionClass({el: el});
+            const el = $('<div id="baz-region">');
             const definition = {el: el};
-            region = view.addRegion(_.uniqueId('region_'), definition);
+
+            buildRegion = function() {
+              view.addRegion(_.uniqueId('region_'), definition);
+            };
           });
 
-          it('uses the default region class', function() {
-            expect(region).to.be.an.instanceof(DefaultRegionClass);
-          });
-
-          it('uses the el', function() {
-            expect(region.el).to.equal(el[0]);
+          it('throws a `RegionError`', function() {
+            expect(buildRegion).to.throw('Region "el" must be a selector string or DOM element.');
           });
         });
       });
@@ -205,8 +203,8 @@ describe('Region', function() {
           };
         });
 
-        it('throws a `NoElError`', function() {
-          expect(buildRegion).to.throw('An "el" must be specified for a region.');
+        it('throws a `RegionError`', function() {
+          expect(buildRegion).to.throw('Region "el" must be a selector string or DOM element.');
         });
       });
 
@@ -224,7 +222,7 @@ describe('Region', function() {
             const baseDefinition = {regionClass: BazRegion};
             const region1Definition = _.defaults({el: fooSelector}, baseDefinition);
             const region2Definition = _.defaults({el: el}, baseDefinition);
-            const region3Definition = _.defaults({el: $el}, baseDefinition);
+            const region3Definition = _.defaults({el: $el[0]}, baseDefinition);
 
             region1 = view.addRegion(_.uniqueId('region_'), region1Definition);
             region2 = view.addRegion(_.uniqueId('region_'), region2Definition);
@@ -269,8 +267,8 @@ describe('Region', function() {
               };
             });
 
-            it('throws a `NoElError`', function() {
-              expect(buildRegion).to.throw('An "el" must be specified for a region.');
+            it('allows the region to be created without resolving an el', function() {
+              expect(buildRegion).to.not.throw();
             });
           });
         });

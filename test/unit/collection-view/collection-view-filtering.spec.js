@@ -67,7 +67,7 @@ describe('CollectionView - Filtering', function() {
 
       it('should render the entire collection', function() {
         const nums = renderModels(collection.models);
-        expect(myCollectionView.$el.html()).to.equal(nums.join(''));
+        expect(myCollectionView.el.innerHTML).to.equal(nums.join(''));
       });
 
       it('should not call "before:filter" event', function() {
@@ -106,7 +106,7 @@ describe('CollectionView - Filtering', function() {
 
       it('should render only the filtered collection', function() {
         const nums = renderModels(collectionOddModels);
-        expect(myCollectionView.$el.html()).to.equal(nums.join(''));
+        expect(myCollectionView.el.innerHTML).to.equal(nums.join(''));
       });
 
       it('should call "before:filter" event', function() {
@@ -137,7 +137,7 @@ describe('CollectionView - Filtering', function() {
 
       it('should render only the filtered collection', function() {
         const nums = renderModels(collectionEvenModels);
-        expect(myCollectionView.$el.html()).to.equal(nums.join(''));
+        expect(myCollectionView.el.innerHTML).to.equal(nums.join(''));
       });
 
       describe('when children has a view without a model', function() {
@@ -164,7 +164,7 @@ describe('CollectionView - Filtering', function() {
 
       it('should render only the filtered collection', function() {
         const nums = renderModels(collectionOddModels);
-        expect(myCollectionView.$el.html()).to.equal(nums.join(''));
+        expect(myCollectionView.el.innerHTML).to.equal(nums.join(''));
       });
 
       describe('when children has a view without a model', function() {
@@ -199,7 +199,7 @@ describe('CollectionView - Filtering', function() {
 
     it('should render only the filtered collection', function() {
       const nums = renderModels(collectionEvenModels);
-      expect(myCollectionView.$el.html()).to.equal(nums.join(''));
+      expect(myCollectionView.el.innerHTML).to.equal(nums.join(''));
     });
   });
 
@@ -439,7 +439,7 @@ describe('CollectionView - Filtering', function() {
       });
 
       it('should show the empty view', function() {
-        expect(myCollectionView.$el.text()).to.equal('Empty');
+        expect(myCollectionView.el.textContent).to.equal('Empty');
       });
     });
 
@@ -453,7 +453,7 @@ describe('CollectionView - Filtering', function() {
       });
 
       it('should not show the empty view', function() {
-        expect(myCollectionView.$el.text()).to.not.equal('Empty');
+        expect(myCollectionView.el.textContent).to.not.equal('Empty');
       });
     });
   });

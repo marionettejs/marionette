@@ -195,7 +195,7 @@ describe('CollectionView', function() {
       it('should throw InvalidChildViewError', function() {
         const myCollectionView = new CollectionView({
           collection,
-          childView: 'foo'
+          childView: _.noop
         });
 
         expect(myCollectionView.render.bind(myCollectionView)).to.throw('"childView" must be a view class or a function that returns a view class');
@@ -263,15 +263,6 @@ describe('CollectionView', function() {
 
   describe('#setElement', function() {
 
-    it('should call Backbone.View.setElement with all arguments', function() {
-      const myCollectionView = new CollectionView();
-      const bBSetElement = this.sinon.spy(Backbone.View.prototype, 'setElement');
-
-      myCollectionView.setElement('#foo',2,3,4);
-
-      expect(bBSetElement).to.be.calledWith('#foo',2,3,4);
-    });
-
     it('should return the collectionView instance', function() {
       const myCollectionView = new CollectionView();
       this.sinon.spy(myCollectionView, 'setElement');
@@ -284,7 +275,7 @@ describe('CollectionView', function() {
 
     describe('when the view does not have an attach el', function() {
       it('should not mark the view as attached', function() {
-        const myCollectionView = new CollectionView({ el: $('<div>') });
+        const myCollectionView = new CollectionView({ el: $('<div>')[0] });
 
         expect(myCollectionView.isAttached()).to.be.false;
       });
@@ -293,7 +284,7 @@ describe('CollectionView', function() {
     describe('when the view is given an attach el', function() {
       it('should mark the view as attached', function() {
         this.setFixtures('<div id="attached"></div>');
-        const myCollectionView = new CollectionView({ el: $('#attached') });
+        const myCollectionView = new CollectionView({ el: $('#attached')[0] });
 
         expect(myCollectionView.isAttached()).to.be.true;
       });

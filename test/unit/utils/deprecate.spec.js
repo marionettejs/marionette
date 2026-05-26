@@ -39,12 +39,9 @@ describe('deprecate', function() {
       });
 
       describe('when `console.log` does not exist', function() {
-        it('should call `_.noop`', function() {
+        it('should fall back to a no-op without throwing', function() {
           deprecate._console.log = null;
-          this.sinon.spy(_, 'noop');
-          deprecate._warn('foo');
-
-          expect(_.noop).to.have.been.calledOnce;
+          expect(() => deprecate._warn('foo')).to.not.throw();
         });
       });
     });

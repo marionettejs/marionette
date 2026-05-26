@@ -82,4 +82,88 @@ describe('Events Mixin', function() {
       expect(handler).to.have.been.calledWith('arg');
     });
   });
+
+  describe('once and listener cleanup', function() {
+    let listener;
+    let object;
+
+    beforeEach(function() {
+      listener = _.extend({}, EventsMixin);
+      object = _.extend({}, EventsMixin);
+    });
+
+    it('fires once handlers once per event name', function() {
+      const handler = this.sinon.stub();
+
+      object.once('foo bar', handler);
+      object.trigger('foo');
+      object.trigger('foo');
+      object.trigger('bar');
+      object.trigger('bar');
+
+      expect(handler).to.have.been.calledTwice;
+    });
+
+    it('supports listenToOnce cleanup', function() {
+      const handler = this.sinon.stub();
+
+      listener.listenToOnce(object, 'foo', handler);
+      object.trigger('foo', 'bar');
+      object.trigger('foo', 'baz');
+
+      expect(handler).to.have.been.calledOnce.and.calledWith('bar');
+      expect(listener._rdListeningTo).to.eql({});
+    });
+
+    it('removes all callbacks and listener references', function() {
+      const handler = this.sinon.stub();
+
+      listener.listenTo(object, 'foo', handler);
+      object.off();
+      object.trigger('foo');
+
+      expect(handler).to.not.have.been.called;
+      expect(listener._rdListeningTo).to.eql({});
+    });
+
+    it('returns the receiver when listenTo gets no object', function() {
+      expect(listener.listenTo(null, 'foo', _.noop)).to.equal(listener);
+      expect(listener.listenToOnce(null, 'foo', _.noop)).to.equal(listener);
+    });
+
+    it('ignores missing callbacks in registration helpers', function() {
+      object.on('foo');
+      object.once('foo');
+      listener.listenTo(object, 'foo');
+      listener.listenToOnce(object, 'foo');
+
+      object.trigger('foo');
+
+      expect(object._rdEvents).to.eql({});
+    });
+
+    it('ignores off calls for missing event names', function() {
+      const handler = this.sinon.stub();
+
+      object.on('foo', handler);
+      object.off('bar');
+      object.trigger('foo');
+
+      expect(handler).to.have.been.calledOnce;
+    });
+
+    it('stops listening safely when the listener entry or event store is gone', function() {
+      const handler = this.sinon.stub();
+      const other = _.extend({}, EventsMixin);
+
+      listener.listenTo(object, 'foo', handler);
+      listener.stopListening(other, 'foo', handler);
+      delete object._rdEvents;
+      listener.stopListening(object, 'foo', handler);
+
+      expect(function() {
+        object.trigger('foo');
+      }).to.not.throw();
+    });
+  });
 });

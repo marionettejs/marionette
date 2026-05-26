@@ -709,7 +709,7 @@ describe('CollectionView Children', function() {
           });
 
           it('should still have all children attached', function() {
-            expect(myCollectionView.$el.children()).to.have.lengthOf(2);
+            expect(myCollectionView.el.children).to.have.lengthOf(2);
           });
         });
 
@@ -887,7 +887,7 @@ describe('CollectionView Children', function() {
         myCollectionView.monitorViewEvents = false;
         myCollectionView.destroy();
         expect(myCollectionView.Dom.detachContents).to.have.been.calledOnce
-          .and.calledWith(myCollectionView.el, myCollectionView.$el)
+          .and.calledWith(myCollectionView.el)
           .and.calledAfter(myCollectionView.onBeforeDestroyChildren)
           .and.calledBefore(myCollectionView.onDestroyChildren);
       });

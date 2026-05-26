@@ -47,11 +47,11 @@ describe('itemView - dynamic regions', function() {
     });
 
     it('should set the parent of the region to the layoutView', function() {
-      expect(this.region.$el.parent()[0]).to.equal(this.layoutView.el);
+      expect(this.region.el.parentNode).to.equal(this.layoutView.el);
     });
 
     it('should be able to show a view in the region', function() {
-      expect(this.layoutView.getRegion('foo').$el.children().length).to.equal(1);
+      expect(this.layoutView.getRegion('foo').el.children.length).to.equal(1);
     });
 
     it('should trigger a before:add:region event', function() {
@@ -84,11 +84,11 @@ describe('itemView - dynamic regions', function() {
     });
 
     it('should set the parent of the region to the layoutView', function() {
-      expect(this.region.$el.parent()[0]).to.equal(this.layoutView.el);
+      expect(this.region.el.parentNode).to.equal(this.layoutView.el);
     });
 
     it('should be able to show a view in the region', function() {
-      expect(this.layoutView.getRegion('foo').$el.children().length).to.equal(1);
+      expect(this.layoutView.getRegion('foo').el.children.length).to.equal(1);
     });
   });
 
@@ -112,11 +112,11 @@ describe('itemView - dynamic regions', function() {
     });
 
     it('should set the parent of the region to the layoutView', function() {
-      expect(this.region.$el.parent()[0]).to.equal(this.layoutView.el);
+      expect(this.region.el.parentNode).to.equal(this.layoutView.el);
     });
 
     it('should be able to show a view in the region', function() {
-      expect(this.layoutView.getRegion('foo').$el.children().length).to.equal(1);
+      expect(this.layoutView.getRegion('foo').el.children.length).to.equal(1);
     });
   });
 
@@ -150,11 +150,11 @@ describe('itemView - dynamic regions', function() {
 
     it('should set the parent of the region to the layoutView', function() {
       this.region.show(new BBView());
-      expect(this.region.$el.parent()[0]).to.equal(this.layoutView.el);
+      expect(this.region.el.parentNode).to.equal(this.layoutView.el);
     });
 
     it('should be able to show a view in the region', function() {
-      expect(this.layoutView.getRegion('foo').$el.children().length).to.equal(1);
+      expect(this.layoutView.getRegion('foo').el.children.length).to.equal(1);
     });
   });
 
@@ -295,7 +295,7 @@ describe('itemView - dynamic regions', function() {
     });
 
     it('should return the regions', function() {
-      expect(this.view.emptyRegions).to.have.returned(this.regions);
+      expect(this.view.emptyRegions.firstCall.returnValue).to.have.property('foo', this.region);
     });
   });
 });

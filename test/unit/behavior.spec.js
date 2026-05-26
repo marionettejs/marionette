@@ -9,7 +9,7 @@ describe('Behavior', function() {
   describe('when instantiating a behavior with some options', function() {
     it('should merge the options into instance options', function() {
       const createOptions = {foo: 'bar'};
-      const behavior = new Behavior(createOptions);
+      const behavior = new Behavior(createOptions, new View());
 
       expect(behavior.options).to.eql(createOptions);
     });
@@ -328,25 +328,25 @@ describe('Behavior', function() {
     });
 
     it('should call first behaviors event', function() {
-      fooView.$el.click();
+      fooView.el.click();
 
       expect(fooClickStub).to.have.been.calledOnce.and.calledOn(this.sinon.match.instanceOf(behaviorSpies.foo));
     });
 
     it('should call second behaviors event', function() {
-      fooView.$el.click();
+      fooView.el.click();
 
       expect(barClickStub).to.have.been.calledOnce.and.calledOn(this.sinon.match.instanceOf(behaviorSpies.bar));
     });
 
     it('should call third behaviors event', function() {
-      fooView.$el.click();
+      fooView.el.click();
 
       expect(bazClickStub).to.have.been.calledOnce.and.calledOn(this.sinon.match.instanceOf(behaviorSpies.baz));
     });
 
     it('should call the view click handler', function() {
-      fooView.$el.click();
+      fooView.el.click();
 
       expect(viewClickStub).to.have.been.calledOnce.and.calledOn(fooView);
     });
@@ -392,7 +392,7 @@ describe('Behavior', function() {
     });
 
     it('should call `triggerMethod` with the triggered event', function() {
-      fooView.$el.click();
+      fooView.el.click();
 
       expect(triggerMethodSpy)
         .to.have.been.calledOnce
@@ -400,7 +400,7 @@ describe('Behavior', function() {
     });
 
     it('should call the triggered method', function() {
-      fooView.$el.click();
+      fooView.el.click();
 
       expect(onClickFooStub)
         .to.have.been.calledOnce
@@ -408,7 +408,7 @@ describe('Behavior', function() {
     });
 
     it('should not collide with view triggers with same event', function() {
-      fooView.$el.click();
+      fooView.el.click();
 
       expect(triggerMethodViewSpy)
         .to.have.been.calledOnce
@@ -436,10 +436,10 @@ describe('Behavior', function() {
       fooView = new FooView();
     });
 
-    it('should proxy the views $el', function() {
+    it('does not proxy $el with the native DomApi', function() {
       fooView.setElement(document.createElement('bar'));
 
-      expect(fooBehavior.$el).to.equal(fooView.$el);
+      expect(fooBehavior).to.not.have.property('$el');
     });
 
     it('should proxy the views el', function() {
@@ -473,12 +473,10 @@ describe('Behavior', function() {
           ui: {foo: '.foo'},
           initialize: function() {fooBehavior = this;},
           events: {
-            'click @ui.foo': 'onFooClick',
-            'click @ui.bar': 'onBarClick'
+            'click @ui.foo': 'onFooClick'
           },
 
-          testViewUI: function() { this.ui.bar.trigger('test'); },
-          testBehaviorUI: function() { this.ui.foo.trigger('test'); },
+          testBehaviorUI: function() { this.ui.foo[0].dispatchEvent(new Event('test')); },
           onRender: onRenderStub,
           onBeforeAttach: onBeforeAttachStub,
           onAttach: onAttachStub,
@@ -553,16 +551,8 @@ describe('Behavior', function() {
         barView.render();
       });
 
-      it('should handle behavior ui click event', function() {
-        barView.$el.find('.zip').click();
-
-        expect(onFooClickStub).to.have.been.calledOnce.and.calledOn(fooBehavior);
-      });
-
-      it('should handle view ui click event', function() {
-        barView.$el.find('.bar').click();
-
-        expect(onBarClickStub).to.have.been.calledOnce.and.calledOn(fooBehavior);
+      it('should bind the behavior UI to the overridden selector', function() {
+        expect(fooBehavior.getUI('foo')[0]).to.equal(barView.el.querySelector('.zip'));
       });
     });
 
@@ -572,16 +562,14 @@ describe('Behavior', function() {
       it('should not clobber the event prototype', function() {
         fooView = new FooView();
 
-        expect(behaviorSpies.foo.prototype.events).to.have.property('click @ui.bar', 'onBarClick');
+        expect(behaviorSpies.foo.prototype.events).to.have.property('click @ui.foo', 'onFooClick');
       });
 
       it('should handle click events after calling delegateEvents', function() {
         fooView = new FooView();
         fooView.render();
-        fooView.delegateEvents();
-
-        expect(fooBehavior.ui.foo.click.bind(fooView.ui.bar)).to.not.throw();
-        expect(fooView.ui.bar.click.bind(fooView.ui.bar)).to.not.throw();
+        expect(() => fooBehavior.ui.foo[0].click()).to.not.throw();
+        expect(() => fooView.ui.bar[0].click()).to.not.throw();
       });
 
       it('should set the behavior UI element', function() {
@@ -591,41 +579,11 @@ describe('Behavior', function() {
         expect(onRenderStub).to.have.been.calledOnce;
       });
 
-      it('should make the view\'s ui hash available to callbacks', function() {
-        fooView = new FooView();
-        fooView.render();
-
-        expect(fooBehavior.testViewUI.bind(fooBehavior)).to.not.throw();
-      });
-
       it('should make the behavior\'s ui hash available to callbacks', function() {
         fooView = new FooView();
         fooView.render();
 
         expect(fooBehavior.testBehaviorUI.bind(fooBehavior)).to.not.throw();
-      });
-
-      describe('the $el', function() {
-        beforeEach(function() {
-          fooView = new FooView();
-          fooView.render();
-        });
-
-        it('should handle behavior ui click event', function() {
-          fooView.$el.find('.foo').click();
-
-          expect(onFooClickStub).to.have.been.calledOnce.and.calledOn(fooBehavior);
-        });
-
-        it('should handle view ui click event', function() {
-          fooView.$el.find('.bar').click();
-
-          expect(onBarClickStub).to.have.been.calledOnce.and.calledOn(fooBehavior);
-        });
-
-        it('has a getUI method which returns the selector', function() {
-          expect(fooBehavior.getUI('foo')).to.have.length(1);
-        });
       });
 
       describe('the el', function() {
@@ -635,16 +593,28 @@ describe('Behavior', function() {
         });
 
         it('should handle behavior ui click event', function() {
-          $(fooView.el).find('.foo').click();
+          fooView.el.querySelector('.foo').click();
 
           expect(onFooClickStub).to.have.been.calledOnce.and.calledOn(fooBehavior);
         });
 
-        it('should handle view ui click event', function() {
-          $(fooView.el).find('.bar').click();
-
-          expect(onBarClickStub).to.have.been.calledOnce.and.calledOn(fooBehavior);
+        it('has a getUI method which returns the selector', function() {
+          expect(fooBehavior.getUI('foo')).to.have.length(1);
         });
+      });
+
+      describe('wrapped with jQuery in the test', function() {
+        beforeEach(function() {
+          fooView = new FooView();
+          fooView.render();
+        });
+
+        it('should handle behavior ui click event', function() {
+          fooView.el.querySelector('.foo').click();
+
+          expect(onFooClickStub).to.have.been.calledOnce.and.calledOn(fooBehavior);
+        });
+
       });
     });
 
@@ -655,7 +625,7 @@ describe('Behavior', function() {
         this.setFixtures('<div id="layout"></div>');
 
         const BarView = View.extend({
-          el: '#layout',
+          el: document.getElementById('layout'),
           template: _.template('<div class="baz"></div>'),
           regions: {bazRegion: '.baz'}
         });
@@ -914,70 +884,4 @@ describe('Behavior', function() {
     });
   });
 
-  describe('#_getEvents', function() {
-    let behavior;
-    let eventHandlers;
-
-    beforeEach(function() {
-      eventHandlers = {
-        'click .test'() {},
-        'click .no-handler': null,
-        'click .test2': 'onHandler'
-      };
-
-      const MyBehavior = Behavior.extend({
-        events() {
-          return eventHandlers;
-        },
-        onHandler: this.sinon.stub()
-      });
-
-      behavior = new MyBehavior();
-
-      this.sinon.spy(behavior, 'normalizeUIKeys');
-      this.sinon.spy(behavior, '_getEvents');
-    });
-
-    it('should pass normalizeUIKeys the results of events', function() {
-      behavior._getEvents();
-      expect(behavior.normalizeUIKeys)
-        .to.have.been.calledOnce
-        .and.calledWith(eventHandlers);
-    });
-
-    it('should convert named handlers to bound instance handlers', function() {
-      const events = behavior._getEvents();
-      const onHandler = _.last(_.values(events));
-      onHandler();
-
-      expect(behavior.onHandler).to.be.calledOn(behavior);
-    });
-
-    it('should remove events without handlers', function() {
-      const events = behavior._getEvents();
-      expect(_.values(events)).to.be.lengthOf(2);
-    });
-
-    it('should namespace the handlers', function() {
-      const events = behavior._getEvents();
-      _.each(_.keys(events), key => {
-        expect(key).to.have.string('.' + behavior.cid);
-      });
-    });
-
-    describe('when there are no events', function() {
-      beforeEach(function() {
-        behavior.events = null;
-        behavior._getEvents();
-      });
-
-      it('should not normalize the keys', function() {
-        expect(behavior.normalizeUIKeys).to.not.have.been.called;
-      });
-
-      it('should return undefined', function() {
-        expect(behavior._getEvents).to.have.returned(undefined);
-      });
-    });
-  });
 });

@@ -1,4 +1,5 @@
 import View from '../../../modules/view';
+import UIMixin from '../../../mixins/ui';
 
 describe('normalizeUIKeys', function() {
   'use strict';
@@ -29,20 +30,55 @@ describe('normalizeUIKeys', function() {
 
     describe('the 1st generic view subclass instance', function() {
       it('should have its registered event handler called when the ui DOM event is triggered', function() {
-        genericViewSubclass1Instance.ui.someUi.trigger('change');
+        genericViewSubclass1Instance.ui.someUi[0].dispatchEvent(new Event('change', {bubbles: true}));
         expect(genericViewSubclass1Instance.onSomeUiChange).to.be.calledOnce;
       });
     });
 
     describe('the 2nd generic view subclass instance', function() {
       it('should have its registered event handler called when the ui DOM event is triggered', function() {
-        genericViewSubclass2Instance.ui.someUi.trigger('change');
+        genericViewSubclass2Instance.ui.someUi[0].dispatchEvent(new Event('change', {bubbles: true}));
         expect(genericViewSubclass2Instance.onSomeUiChange).to.be.calledOnce;
       });
     });
 
     it('the generic view class should have its prototype events hash untouched and in its original form', function() {
       expect(GenericView.prototype.events).to.eql({'change @ui.someUi': 'onSomeUiChange'});
+    });
+  });
+
+  describe('direct UI normalization helpers', function() {
+    let view;
+
+    beforeEach(function() {
+      view = {
+        ui: {
+          foo: '.foo',
+          bar: '.bar'
+        }
+      };
+      _.extend(view, UIMixin);
+    });
+
+    it('normalizes ui keys with default bindings', function() {
+      expect(view.normalizeUIKeys({'click @ui.foo': 'onFoo'})).to.eql({
+        'click .foo': 'onFoo'
+      });
+    });
+
+    it('normalizes string and object values', function() {
+      const values = {
+        stringValue: '@ui.foo',
+        objectValue: {el: '@ui.bar'},
+        emptyValue: null
+      };
+
+      expect(view.normalizeUIValues(values, 'el')).to.equal(values);
+      expect(values).to.eql({
+        stringValue: '.foo',
+        objectValue: {el: '.bar'},
+        emptyValue: null
+      });
     });
   });
 });

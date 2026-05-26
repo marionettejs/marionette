@@ -43,19 +43,19 @@ describe('view ui event trigger configuration', function() {
       });
 
       it('should correctly trigger an event', function() {
-        this.view.ui.foo.trigger('click');
+        this.view.ui.foo[0].click();
         expect(this.fooHandlerStub).to.have.been.calledOnce;
         expect(this.fooBarBazHandlerStub).to.have.been.calledOnce;
       });
 
       it('should correctly trigger a complex event', function() {
-        this.view.ui.bar.trigger('click');
+        this.view.ui.bar[0].click();
         expect(this.barHandlerStub).to.have.been.calledOnce;
         expect(this.fooBarBazHandlerStub).to.have.been.calledOnce;
       });
 
       it('should correctly call an event', function() {
-        this.view.ui['some-baz'].trigger('click');
+        this.view.ui['some-baz'][0].click();
         expect(this.notBarHandlerStub).to.have.been.calledOnce;
         expect(this.fooBarBazHandlerStub).to.have.been.calledOnce;
       });
@@ -84,22 +84,37 @@ describe('view ui event trigger configuration', function() {
       });
 
       it('should correctly trigger an event', function() {
-        this.view.ui.foo.trigger('click');
+        this.view.ui.foo[0].click();
         expect(this.fooHandlerStub).to.have.been.calledOnce;
         expect(this.fooBarBazHandlerStub).to.have.been.calledOnce;
       });
 
       it('should correctly trigger a complex event', function() {
-        this.view.ui.bar.trigger('click');
+        this.view.ui.bar[0].click();
         expect(this.barHandlerStub).to.have.been.calledOnce;
         expect(this.fooBarBazHandlerStub).to.have.been.calledOnce;
       });
 
       it('should correctly call an event', function() {
-        this.view.ui['some-baz'].trigger('click');
+        this.view.ui['some-baz'][0].click();
         expect(this.notBarHandlerStub).to.have.been.calledOnce;
         expect(this.fooBarBazHandlerStub).to.have.been.calledOnce;
       });
     });
+  });
+
+  it('ignores string event handlers that are not present on the view', function() {
+    const View = Marionette.View.extend({
+      template: _.template('<button class="foo"></button>'),
+      events: {
+        'click .foo': 'missingHandler'
+      }
+    });
+    const view = new View();
+
+    expect(function() {
+      view.render();
+      view.el.querySelector('.foo').click();
+    }).to.not.throw();
   });
 });

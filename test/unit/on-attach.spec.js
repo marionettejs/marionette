@@ -15,7 +15,7 @@ describe('onAttach', function() {
   };
 
   const extendAttachMethods = superConstructor => target => _.assign(target, {
-    constructor(options) {
+    constructor: function(options) {
       superConstructor.call(this, options);
       sinon.spy(this, 'onAttach');
       sinon.spy(this, 'onBeforeAttach');
@@ -67,7 +67,7 @@ describe('onAttach', function() {
     beforeEach(function() {
       const LayoutView = View.extend({
         monitorViewEvents: false,
-        el: '#region',
+        el: document.getElementById('region'),
         template: _.template('<div id="child"></div>'),
         regions: {
           child: '#child'

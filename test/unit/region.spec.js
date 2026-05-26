@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import $ from 'jquery';
 import Backbone from 'backbone';
 import Events from '../../mixins/events';
 import Region from '../../modules/region';
@@ -9,10 +10,10 @@ describe('region', function() {
   'use strict';
 
   describe('when creating a new region and no configuration has been provided', function() {
-    it('should throw an exception saying an "el" is required', function() {
+    it('allows construction without an el', function() {
       expect(function() {
         return new Region();
-      }).to.throw('An "el" must be specified for a region.');
+      }).to.not.throw();
     });
   });
 
@@ -20,7 +21,6 @@ describe('region', function() {
     let el;
     let customRegion;
     let optionRegion;
-    let optionRegionJquery;
 
     beforeEach(function() {
       this.setFixtures('<div id="region"></div>');
@@ -32,7 +32,6 @@ describe('region', function() {
 
       optionRegion = new Region({el: el});
 
-      optionRegionJquery = new Region({el: $(el)});
     });
 
     it('should not have been replaced', function() {
@@ -40,16 +39,17 @@ describe('region', function() {
     });
 
     it('should work when el is passed in as an option', function() {
-      expect(optionRegionJquery.$el[0]).to.equal(el);
-      expect(optionRegionJquery.el).to.equal(el);
+      expect(optionRegion.el).to.equal(el);
     });
 
-    it('should handle when the el option is passed in as a jquery selector', function() {
-      expect(optionRegion.$el[0]).to.equal(el);
+    it('should reject when the el option is passed in as a jQuery object', function() {
+      expect(function() {
+        return new Region({el: $(el)});
+      }).to.throw('Region "el" must be a selector string or DOM element.');
     });
 
     it('should work when el is set in the region extend', function() {
-      expect(customRegion.$el[0]).to.equal(el);
+      expect(customRegion.el).to.equal(el);
     });
 
     it('should not have a view', function() {
@@ -59,14 +59,14 @@ describe('region', function() {
 
     it('should complain if the el passed in as an option is invalid', function() {
       expect(function() {
-        Region({el: $('the-ghost-of-lechuck')[0]});
-      }).to.throw;
+        return new Region({el: []});
+      }).to.throw('Region "el" must be a selector string or DOM element.');
     });
 
     it('should complain if the el passed in via an extended region is invalid', function() {
       expect(function() {
-        (Region.extend({el: $('the-ghost-of-lechuck')[0]}))();
-      }).to.throw;
+        return new (Region.extend({el: []}))();
+      }).to.throw('Region "el" must be a selector string or DOM element.');
     });
 
     it('should not be swapping view', function() {
@@ -165,10 +165,10 @@ describe('region', function() {
       expect(region.el).to.equal(twoEl);
     });
 
-    it('should set the $el', function() {
+    it('should set the el', function() {
       region.show(new TestView());
       region._setElement(twoEl);
-      expect(region.$el[0]).to.equal($(twoEl)[0]);
+      expect(region.el).to.equal(twoEl);
     });
 
     it('should throw an error if the `el` is not specified', function() {
@@ -219,7 +219,7 @@ describe('region', function() {
     });
 
     it('should render the template in the region', function() {
-      expect(myRegion.$el).to.contain.$html('<b>Hello World!</b>');
+      expect($(myRegion.el)).to.contain.$html('<b>Hello World!</b>');
     });
   });
 
@@ -239,7 +239,7 @@ describe('region', function() {
     });
 
     it('should render the template in the region', function() {
-      expect(myRegion.$el).to.contain.$html('<b>Hello World!</b>');
+      expect($(myRegion.el)).to.contain.$html('<b>Hello World!</b>');
     });
   });
 
@@ -256,7 +256,7 @@ describe('region', function() {
     });
 
     it('should render the string in the region', function() {
-      expect(myRegion.$el).to.contain.$html('<b>Hello World!</b>');
+      expect($(myRegion.el)).to.contain.$html('<b>Hello World!</b>');
     });
   });
 
@@ -326,12 +326,12 @@ describe('region', function() {
       expect(region.hasView()).to.equal(true);
     });
 
-    it('should set $el and el', function() {
-      expect(region.$el[0]).to.equal(region.el);
+    it('should set el', function() {
+      expect(region.el).to.equal(document.getElementById('region'));
     });
 
     it('should append the rendered HTML to the managers "el"', function() {
-      expect(region.$el).to.contain.$html(view.$el.html());
+      expect($(region.el)).to.contain.$html(view.el.innerHTML);
     });
 
     it('should pass the proper arguments to the region "onShow"', function() {
@@ -405,14 +405,14 @@ describe('region', function() {
         this.sinon.spy(region, '_restoreEl');
         // empty region to clean existing view
         region.empty();
-        $parentEl = region.$el.parent();
+        $parentEl = $(region.el.parentNode);
         regionHtml = $parentEl.html();
         region.replaceElement = true;
         region.show(view);
       });
 
       it('should append the view HTML to the parent "el"', function() {
-        expect($parentEl).to.contain.$html(view.$el.html());
+        expect($parentEl).to.contain.$html(view.el.innerHTML);
       });
 
       it('should remove the region\'s "el" from the DOM', function() {
@@ -441,7 +441,7 @@ describe('region', function() {
         });
 
         it('should remove the view from the parent', function() {
-          expect($parentEl).to.not.contain.$html(view.$el.html());
+          expect($parentEl).to.not.contain.$html(view.el.innerHTML);
         });
 
         it('should restore the region\'s "el" to the DOM', function() {
@@ -455,7 +455,7 @@ describe('region', function() {
         });
 
         it('should remove the view from the parent', function() {
-          expect($parentEl).to.not.contain.$html(view.$el.html());
+          expect($parentEl).to.not.contain.$html(view.el.innerHTML);
         });
 
         it('should restore the region\'s "el" to the DOM', function() {
@@ -482,7 +482,7 @@ describe('region', function() {
         });
 
         it('should append the view HTML to the parent "el"', function() {
-          expect($parentEl).to.contain.$html(view2.$el.html());
+          expect($parentEl).to.contain.$html(view2.el.innerHTML);
         });
 
         it('should trigger attach events', function() {
@@ -559,8 +559,8 @@ describe('region', function() {
       this.setFixtures('<div id="reg1"></div><div id="reg2"></div><div id="cv"></div><div id="view">content</div>')
       region = new Region({ el: '#reg1' });
       anotherRegion = new Region({ el: '#reg2' });
-      collectionView = new CollectionView({ el: '#cv' });
-      testView = new View({ el: '#view' });
+      collectionView = new CollectionView({ el: document.getElementById('cv') });
+      testView = new View({ el: document.getElementById('view') });
     });
 
     it('should throw an error if view is attached in another region', function() {
@@ -667,7 +667,7 @@ describe('region', function() {
       });
       this.sinon.spy(myRegion, 'empty');
 
-      myRegion.show(new View({ el: '#view' }));
+      myRegion.show(new View({ el: document.getElementById('view') }));
     });
 
     it('should not empty the region', function() {
@@ -716,7 +716,7 @@ describe('region', function() {
     it('should call "empty" even if a new view is attached to the DOM', function() {
 
       this.sinon.spy(region, 'empty');
-      const preRenderedView = new View({ el: '#pre-rendered' });
+      const preRenderedView = new View({ el: document.getElementById('pre-rendered') });
 
       region.show(preRenderedView);
       expect(region.empty).to.have.been.called;
@@ -970,7 +970,7 @@ describe('region', function() {
     it('should return the region even when there was not a view to destroy', function() {
       // The first empty() should have removed the view, this empty() call would be when there isn't a view
       region.empty();
-      expect(region.empty.thirdCall).to.have.returned(region);
+      expect(region.empty.thirdCall.returnValue).to.equal(region);
     });
 
     it('should not have a view', function() {
@@ -990,7 +990,7 @@ describe('region', function() {
 
     beforeEach(function() {
       MyRegion = Region.extend({
-        el: '<div></div>'
+        el: document.createElement('div')
       });
 
       MyView = Backbone.View.extend({
@@ -1143,7 +1143,7 @@ describe('region', function() {
     });
 
     it('should not hold on to the regions previous "el"', function() {
-      expect(region.$el).not.to.exist;
+      expect(region.el).to.equal('#region');
     });
 
     it('should empty any existing view', function() {
@@ -1282,7 +1282,7 @@ describe('region', function() {
       _.extend(BbView.prototype, Events);
 
       region = new Region({
-        el: $('<div></div>')
+        el: document.createElement('div')
       });
       view = new BbView();
       region.show(view);
@@ -1384,7 +1384,7 @@ describe('region', function() {
       this.setFixtures('<div id="region">Preexisting HTML</div>');
       region = new MyRegion();
       region.empty();
-      expect(region.$el.html()).to.eql('');
+      expect(region.el.innerHTML).to.eql('');
     });
 
     // In the future, hopefully allowMissingEl can default to true

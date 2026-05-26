@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import $ from 'jquery';
 import Backbone from 'backbone';
 import Events from '../../mixins/events';
 import View from '../../modules/view';
@@ -15,7 +16,7 @@ describe('onDomRemove', function() {
   beforeEach(function() {
     this.setFixtures($('<div id="region"></div>'));
     attachedRegion = new Region({el: '#region'});
-    detachedRegion = new Region({el: $('<div></div>')});
+    detachedRegion = new Region({el: $('<div></div>')[0]});
     BbView = Backbone.View.extend({
       onDomRemove: this.sinon.stub()
     });

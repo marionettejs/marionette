@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 describe('layoutView', function() {
   'use strict';
 
@@ -58,9 +60,7 @@ describe('layoutView', function() {
     });
 
     it('should create backlink with region manager', function() {
-      it('should instantiate the specified region managers', function() {
-        expect(this.layoutViewManager._parent).to.deep.equal(this.layoutViewManager);
-      });
+      expect(this.regionOne._parentView).to.equal(this.layoutViewManager);
     });
   });
 
@@ -156,7 +156,7 @@ describe('layoutView', function() {
     it('should find the region scoped within the rendered template', function() {
       this.layoutViewManager.getRegion('regionOne')._ensureElement();
       let el = this.layoutViewManager.$('#regionOne');
-      expect(this.layoutViewManager.getRegion('regionOne').$el[0]).to.equal(el[0]);
+      expect(this.layoutViewManager.getRegion('regionOne').el).to.equal(el[0]);
     });
 
     it('should call "onBeforeRender" before rendering', function() {
@@ -205,7 +205,7 @@ describe('layoutView', function() {
       const View = Marionette.View.extend({
         template: _.noop,
         destroy: function() {
-          this.hadParent = this.$el.closest('#parent').length > 0;
+          this.hadParent = Boolean(this.el.closest('#parent'));
           return View.__super__.destroy.call(this);
         }
       });
@@ -298,7 +298,7 @@ describe('layoutView', function() {
         'before:content:rendered': this.childEventsHandlerTrigger,
         'content:rendered': this.childEventsHandlerTriggerMethod
       };
-      this.layoutView.delegateEvents();
+      this.layoutView._buildEventProxies();
       this.layoutView.render();
 
       // create a child view which triggers an event on render
@@ -368,7 +368,7 @@ describe('layoutView', function() {
     });
 
     it('the regions should find their elements in `onRender`', function() {
-      expect(this.regionOne.$el.length).to.equal(1);
+      expect(this.regionOne.el).to.exist;
     });
 
     it('should return the region after showing a view in a region', function() {
@@ -459,12 +459,12 @@ describe('layoutView', function() {
     });
 
     it('should re-bind the regions to the newly rendered elements', function() {
-      expect(this.region.$el.parent()[0]).to.equal(this.layoutView.el);
+      expect(this.region.el.parentNode).to.equal(this.layoutView.el);
     });
 
     it('triggers "before:render" before emptying the regions', function() {
       let cb = function() {
-        expect(this.region.$el).to.exist;
+        expect(this.region.el).to.exist;
       };
       this.layoutView.listenTo(this.layoutView, 'before:render', cb.bind(this));
       this.layoutView.render();
@@ -618,7 +618,9 @@ describe('layoutView', function() {
         this.layout.render();
         this.regions = this.layout.getRegions();
         this.View = Marionette.View.extend({
-          el: '.region-hash-no-template-spec .some-layout-view',
+          el: function() {
+            return document.querySelector('.region-hash-no-template-spec .some-layout-view');
+          },
           template: _.noop,
           regions: {
             regionOne: '.region-one'
@@ -631,9 +633,12 @@ describe('layoutView', function() {
       });
 
       it('after initialization, the view\'s regions should be scoped to its parent view', function() {
-        expect(this.layoutViewInstance.getRegion('regionOne').$el).to.have.length(1);
-        expect(this.layoutViewInstance.getRegion('regionOne').$el.is(this.$inScopeRegion)).to.equal(true);
-        expect(this.layoutViewInstance.getRegion('regionOne').$el.is(this.$outOfScopeRegion)).to.equal(false);
+        const region = this.layoutViewInstance.getRegion('regionOne');
+        region._ensureElement();
+        const regionEl = region.el;
+        expect(regionEl).to.exist;
+        expect(regionEl).to.equal(this.$inScopeRegion[0]);
+        expect(regionEl).to.not.equal(this.$outOfScopeRegion[0]);
       });
     });
   });

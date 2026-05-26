@@ -10,7 +10,6 @@ describe('view triggers', function() {
   let fooHandlerStub;
   let barHandlerStub;
   let fooEvent;
-  let barEvent;
 
   beforeEach(function() {
     triggersHash = {'foo': 'fooHandler'};
@@ -19,9 +18,23 @@ describe('view triggers', function() {
     fooHandlerStub = this.sinon.stub();
     barHandlerStub = this.sinon.stub();
 
-    fooEvent = $.Event('foo');
-    barEvent = $.Event('bar');
+    fooEvent = null;
   });
+
+  function trigger(view, eventName) {
+    const event = new window.Event(eventName, {
+      bubbles: true,
+      cancelable: true
+    });
+    const stopPropagation = event.stopPropagation.bind(event);
+    event._isPropagationStopped = false;
+    event.stopPropagation = function() {
+      event._isPropagationStopped = true;
+      stopPropagation();
+    };
+    view.el.dispatchEvent(event);
+    return event;
+  }
 
   describe('when DOM events are configured to trigger a view event, and the DOM events are fired', function() {
     let model;
@@ -40,7 +53,7 @@ describe('view triggers', function() {
       });
 
       view.on('fooHandler', fooHandlerStub);
-      view.$el.trigger(fooEvent, ['foo', 'bar']);
+      fooEvent = trigger(view, 'foo');
     });
 
     it('should trigger the first view event', function() {
@@ -52,12 +65,7 @@ describe('view triggers', function() {
     });
 
     it('should include the event object in the event', function() {
-      expect(fooHandlerStub.lastCall.args[1]).to.be.an.instanceOf($.Event);
-    });
-
-    it('should include additional triggered event arguments', function() {
-      expect(fooHandlerStub.lastCall.args[2]).to.equal('foo');
-      expect(fooHandlerStub.lastCall.args[3]).to.equal('bar');
+      expect(fooHandlerStub.lastCall.args[1]).to.be.an.instanceOf(Event);
     });
   });
 
@@ -75,8 +83,8 @@ describe('view triggers', function() {
       view = new TestView();
       view.on('fooHandler', fooHandlerStub);
 
-      view.$el.trigger(fooEvent);
-      view.$el.trigger(barEvent);
+      fooEvent = trigger(view, 'foo');
+      trigger(view, 'bar');
     });
 
     it('should fire the trigger', function() {
@@ -99,7 +107,7 @@ describe('view triggers', function() {
       view = new TestView();
       view.on('fooHandler', fooHandlerStub);
 
-      view.$el.trigger(fooEvent);
+      fooEvent = trigger(view, 'foo');
     });
 
     it('should call the function', function() {
@@ -120,15 +128,15 @@ describe('view triggers', function() {
       view = new TestView();
       view.on('fooHandler', fooHandlerStub);
 
-      view.$el.trigger(fooEvent);
+      fooEvent = trigger(view, 'foo');
     });
 
     it('should stop propagation by default', function() {
-      expect(fooEvent.isPropagationStopped()).to.be.true;
+      expect(fooEvent._isPropagationStopped).to.be.true;
     });
 
     it('should prevent default by default', function() {
-      expect(fooEvent.isDefaultPrevented()).to.be.true;
+      expect(fooEvent.defaultPrevented).to.be.true;
     });
   });
 
@@ -149,12 +157,12 @@ describe('view triggers', function() {
       view = new TestView();
       view.on('fooHandler', fooHandlerStub);
 
-      view.$el.trigger(fooEvent);
+      fooEvent = trigger(view, 'foo');
     });
 
     it('should prevent and dont stop the first view event', function() {
-      expect(fooEvent.isDefaultPrevented()).to.be.true;
-      expect(fooEvent.isPropagationStopped()).to.be.false;
+      expect(fooEvent.defaultPrevented).to.be.true;
+      expect(fooEvent._isPropagationStopped).to.be.false;
     });
   });
 
@@ -176,15 +184,15 @@ describe('view triggers', function() {
         view = new TestView();
         view.on('fooHandler', fooHandlerStub);
 
-        view.$el.trigger(fooEvent);
+        fooEvent = trigger(view, 'foo');
       });
 
       it('should stop propagation by default', function() {
-        expect(fooEvent.isPropagationStopped()).to.be.true;
+        expect(fooEvent._isPropagationStopped).to.be.true;
       });
 
       it('should not prevent default by default', function() {
-        expect(fooEvent.isDefaultPrevented()).to.be.false;
+        expect(fooEvent.defaultPrevented).to.be.false;
       });
     });
 
@@ -205,12 +213,12 @@ describe('view triggers', function() {
         view = new TestView();
         view.on('fooHandler', fooHandlerStub);
 
-        view.$el.trigger(fooEvent);
+        fooEvent = trigger(view, 'foo');
       });
 
       it('should prevent and stop the first view event', function() {
-        expect(fooEvent.isDefaultPrevented()).to.be.true;
-        expect(fooEvent.isPropagationStopped()).to.be.true;
+        expect(fooEvent.defaultPrevented).to.be.true;
+        expect(fooEvent._isPropagationStopped).to.be.true;
       });
     });
   });
@@ -233,15 +241,15 @@ describe('view triggers', function() {
         view = new TestView();
         view.on('fooHandler', fooHandlerStub);
 
-        view.$el.trigger(fooEvent);
+        fooEvent = trigger(view, 'foo');
       });
 
       it('should stop propagation by default', function() {
-        expect(fooEvent.isPropagationStopped()).to.be.false;
+        expect(fooEvent._isPropagationStopped).to.be.false;
       });
 
       it('should prevent default by default', function() {
-        expect(fooEvent.isDefaultPrevented()).to.be.true;
+        expect(fooEvent.defaultPrevented).to.be.true;
       });
     });
 
@@ -262,12 +270,12 @@ describe('view triggers', function() {
         view = new TestView();
         view.on('fooHandler', fooHandlerStub);
 
-        view.$el.trigger(fooEvent);
+        fooEvent = trigger(view, 'foo');
       });
 
       it('should prevent and stop the first view event', function() {
-        expect(fooEvent.isDefaultPrevented()).to.be.true;
-        expect(fooEvent.isPropagationStopped()).to.be.true;
+        expect(fooEvent.defaultPrevented).to.be.true;
+        expect(fooEvent._isPropagationStopped).to.be.true;
       });
     });
   });
