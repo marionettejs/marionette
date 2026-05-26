@@ -1,0 +1,26 @@
+upgradeGuide.md
+  s_8f35aff1fe777d::t_d4976f19bfced9 64,66-67,80-92
+  s_8f35aff1fe777d::t_93f3c89f8739ef 65,68-79
+docs/dom.api.md
+  s_8f35aff1fe777d::t_1bc6a34b1600a1 74-77
+  s_8f35aff1fe777d::t_403144600fb098 73,78-80
+test/unit/region-detach-contents.spec.js
+  s_8f35aff1fe777d::t_3615d8d4fde69f 8-13,37-38
+  s_8f35aff1fe777d::t_5f42c8d9466c23 1-7,14-36,39-46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "3b0e9d1f9e3c69e7f37876fd77f40b5f94865b26",
+  "prompts": {},
+  "sessions": {
+    "s_8f35aff1fe777d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a80edc80-38fb-4ce4-b196-192769d01078",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
