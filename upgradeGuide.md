@@ -32,3 +32,32 @@ Todo
 - `Region` continues to accept selector strings. That API is Marionette-native
   (the Region abstraction has always been "where to mount"), not inherited from
   Backbone, so it is preserved.
+
+## jQuery DOM compatibility
+
+- v5 core does not depend on jQuery and does not create `view.$el`.
+- Apps that want Marionette DOM operations such as `view.$(selector)` to return
+  jQuery collections can opt into the `marionette/jquery-dom-api` adapter:
+
+  ```js
+  import { setDomApi } from 'marionette';
+  import JQueryDomApi from 'marionette/jquery-dom-api';
+
+  setDomApi(JQueryDomApi);
+  ```
+
+- The adapter imports `jquery`, so jQuery is an optional peer dependency only for
+  consumers that opt into this subpath.
+- The adapter intentionally does not add `$el`. If legacy app code still expects
+  `view.$el`, set it in your own view layer:
+
+  ```js
+  import $ from 'jquery';
+  import { View } from 'marionette';
+
+  const LegacyView = View.extend({
+    initialize() {
+      this.$el = $(this.el);
+    }
+  });
+  ```

@@ -5,6 +5,7 @@ import { terser } from 'rollup-plugin-terser';
 
 const globals = {
   underscore: '_',
+  jquery: '$',
 };
 
 const shimExternal = ['underscore', 'backbone', 'marionette'];
@@ -96,6 +97,25 @@ export default [
     ],
     plugins: [
       shimMainExternal,
+      eslint({ exclude: ['node_modules/**', './version.js'] }),
+      babel({ babelHelpers: 'bundled' }),
+    ]
+  },
+  {
+    input: 'jquery-dom-api.js',
+    external: ['jquery'],
+    output: [
+      {
+        file: 'dist/jquery-dom-api.js',
+        format: 'es',
+      },
+      {
+        file: 'dist/jquery-dom-api.cjs',
+        format: 'cjs',
+        exports: 'default',
+      },
+    ],
+    plugins: [
       eslint({ exclude: ['node_modules/**', './version.js'] }),
       babel({ babelHelpers: 'bundled' }),
     ]
