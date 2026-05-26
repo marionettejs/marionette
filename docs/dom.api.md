@@ -70,6 +70,14 @@ Returns a boolean indicating if the `el` has child nodes.
 Remove the inner contents of `el` from the DOM while leaving `el` itself in the
 DOM.
 
+The default native implementation clears via `el.textContent = ''`. It is
+fast and jQuery-free. Apps that depend on v4's jQuery detach semantics
+(`$(el).contents().detach()`) — for example, apps that detach-then-reinsert
+children externally and rely on jQuery's handler/data bookkeeping surviving
+that cycle — can opt into the optional jQuery DomApi adapter at app boot via
+`setDomApi(JQueryDomApi)` from `marionette/jquery-dom-api`. See the
+[upgrade guide](../upgradeGuide.md) for the migration entry.
+
 ## The default API
 
 The API used by Marionette by default is attached as `Marionette.DomApi`.
