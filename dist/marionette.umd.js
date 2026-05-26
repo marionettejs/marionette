@@ -73,10 +73,8 @@
   const MarionetteError = extend.call(Error, {
     urlRoot: `http://marionettejs.com/docs/v${version}/`,
     url: '',
-    // Long-form on purpose: method shorthand produces a non-constructor function,
-    // which makes `new MarionetteError(...)` throw at runtime.
-    // eslint-disable-next-line object-shorthand
-    constructor: function (options) {
+
+    constructor(options) {
       const error = Error.call(this, options.message);
 
       underscore.extend(this, underscore.pick(error, errorProps), underscore.pick(options, errorProps));
@@ -722,7 +720,7 @@
           listenToObj._rdEvents = offReducer(events, args); // Call `off` for interop
 
           listenToObj.off(args.name, args.callback, this, {
-            _rdInternal: true
+            _reInternal: true
           });
         });
       }
@@ -747,7 +745,6 @@
             args: [name[key]]
           });
         });
-        return this;
       }
 
       if (name && eventSplitter.test(name)) {
@@ -1219,8 +1216,10 @@
       // Don't worry about the clean up if the view is destroyed
       if (this._isDestroyed) {
         return;
-      }
+      } // Remove behavior-only triggers and events
 
+
+      this.undelegate(`.trig${behavior.cid} .${behavior.cid}`);
       this._behaviors = underscore.without(this._behaviors, behavior);
     },
 
@@ -1522,10 +1521,9 @@
           let node = evt.target;
 
           for (; node && node !== rootEl; node = node.parentNode) {
-            if (node.nodeType === 1 && node.matches(selector)) {
+            if (Element.prototype.matches.call(node, selector)) {
               evt.delegateTarget = node;
               handler(evt);
-              break;
             }
           }
         };
@@ -1534,7 +1532,7 @@
           eventName,
           handler: delegateHandler
         });
-        rootEl.addEventListener(eventName, delegateHandler, shouldCapture);
+        Element.prototype.addEventListener.call(rootEl, eventName, delegateHandler, shouldCapture);
         return;
       }
 
@@ -1542,7 +1540,7 @@
         eventName,
         handler
       });
-      rootEl.addEventListener(eventName, handler, shouldCapture);
+      Element.prototype.addEventListener.call(rootEl, eventName, handler, shouldCapture);
     },
 
     // this.$el.off('.delegateEvents' + this.cid);
@@ -1559,7 +1557,7 @@
         handler
       }) => {
         const shouldCapture = this.shouldCapture(eventName);
-        rootEl.removeEventListener(eventName, handler, shouldCapture);
+        Element.prototype.removeEventListener.call(rootEl, eventName, handler, shouldCapture);
       });
       events.length = 0;
     }
@@ -1771,7 +1769,6 @@
   };
 
   // ViewMixin
-  const classErrorName = 'ViewError'; // MixinOptions
   // - attributes
   // - behaviors
   // - childViewEventPrefix
@@ -1797,23 +1794,9 @@
 
     Dom: DomApi,
 
-    _validateEl(el) {
-      if (!underscore.isString(el)) {
-        return el;
-      }
-
-      throw new MarionetteError({
-        name: classErrorName,
-        message: `View "el" must be a DOM element. Resolve selector strings at the call site, e.g. \`document.querySelector('${el}')\`. (Region still accepts selector strings.)`,
-        url: 'marionette.view.html#specifying-an-el'
-      });
-    },
-
     // Create an element from the `id`, `className` and `tagName` properties.
     _getEl() {
-      const elOption = underscore.result(this, 'el');
-
-      if (!elOption) {
+      if (!this.el) {
         const el = this.Dom.createElement(underscore.result(this, 'tagName'));
         const attrs = underscore.extend({}, underscore.result(this, 'attributes'));
 
@@ -1829,7 +1812,7 @@
         return el;
       }
 
-      return elOption;
+      return underscore.result(this, 'el');
     },
 
     $(selector) {
@@ -2044,7 +2027,7 @@
   }
 
   // Region
-  const classErrorName$1 = 'RegionError';
+  const classErrorName = 'RegionError';
   const ClassOptions$1 = ['allowMissingEl', 'parentEl', 'replaceElement'];
 
   const Region = function (options) {
@@ -2053,9 +2036,6 @@
     this.cid = underscore.uniqueId(this.cidPrefix); // getOption necessary because options.el may be passed as undefined
 
     this._initEl = this.el = this.getOption('el');
-
-    this._validateEl(this.el);
-
     this.initialize.apply(this, arguments);
   };
 
@@ -2069,18 +2049,6 @@
     replaceElement: false,
     _isReplaced: false,
     _isSwappingView: false,
-
-    _validateEl(el) {
-      if (!el || underscore.isString(el) || el.nodeType === 1) {
-        return;
-      }
-
-      throw new MarionetteError({
-        name: classErrorName$1,
-        message: 'Region "el" must be a selector string or DOM element.',
-        url: 'marionette.region.html#additional-options'
-      });
-    },
 
     // Displays a view instance inside of the region. If necessary handles calling the `render`
     // method for you. Reads content directly from the `el` attribute.
@@ -2097,7 +2065,7 @@
 
       if (view._isShown) {
         throw new MarionetteError({
-          name: classErrorName$1,
+          name: classErrorName,
           message: 'View is already shown in a Region or CollectionView',
           url: 'marionette.region.html#showing-a-view'
         });
@@ -2123,8 +2091,6 @@
     },
 
     _setEl(el) {
-      this._validateEl(el);
-
       if (underscore.isObject(el)) {
         this.el = el;
         return;
@@ -2132,7 +2098,7 @@
 
       if (!el) {
         throw new MarionetteError({
-          name: classErrorName$1,
+          name: classErrorName,
           message: 'An "el" must be specified for a region.',
           url: 'marionette.region.html#additional-options'
         });
@@ -2231,7 +2197,7 @@
           return false;
         } else {
           throw new MarionetteError({
-            name: classErrorName$1,
+            name: classErrorName,
             message: `An "el" must exist in DOM for this region ${this.cid}`,
             url: 'marionette.region.html#additional-options'
           });
@@ -2244,7 +2210,7 @@
     _getView(view) {
       if (!view) {
         throw new MarionetteError({
-          name: classErrorName$1,
+          name: classErrorName,
           message: 'The view passed is undefined and therefore invalid. You must pass a view instance to show.',
           url: 'marionette.region.html#showing-a-view'
         });
@@ -2252,7 +2218,7 @@
 
       if (view._isDestroyed) {
         throw new MarionetteError({
-          name: classErrorName$1,
+          name: classErrorName,
           message: `View (cid: "${view.cid}") has already been destroyed and cannot be used.`,
           url: 'marionette.region.html#showing-a-view'
         });
@@ -2733,7 +2699,7 @@
     setElement(element) {
       this._undelegateViewEvents();
 
-      this.el = this._validateEl(element);
+      this.el = element;
 
       this._setBehaviorElements();
 
@@ -2977,7 +2943,7 @@
   });
 
   // Collection View
-  const classErrorName$2 = 'CollectionViewError';
+  const classErrorName$1 = 'CollectionViewError';
   const ClassOptions$3 = ['attributes', 'behaviors', 'childView', 'childViewContainer', 'childViewEventPrefix', 'childViewEvents', 'childViewOptions', 'childViewTriggers', 'className', 'collection', 'collectionEvents', 'el', 'emptyView', 'emptyViewOptions', 'events', 'id', 'model', 'modelEvents', 'sortWithCollection', 'tagName', 'template', 'templateContext', 'triggers', 'ui', 'viewComparator', 'viewFilter']; // A view that iterates over a Backbone.Collection
   // and renders an individual child view for each model.
 
@@ -3176,7 +3142,7 @@
 
       if (!childView) {
         throw new MarionetteError({
-          name: classErrorName$2,
+          name: classErrorName$1,
           message: 'A "childView" must be specified',
           url: 'marionette.collectionview.html#collectionviews-childview'
         });
@@ -3186,7 +3152,7 @@
 
       if (!childView) {
         throw new MarionetteError({
-          name: classErrorName$2,
+          name: classErrorName$1,
           message: '"childView" must be a view class or a function that returns a view class',
           url: 'marionette.collectionview.html#collectionviews-childview'
         });
@@ -3245,7 +3211,7 @@
     setElement(element) {
       this._undelegateViewEvents();
 
-      this.el = this._validateEl(element);
+      this.el = element;
 
       this._setBehaviorElements();
 
@@ -3295,7 +3261,7 @@
 
       if (!this.container) {
         throw new MarionetteError({
-          name: classErrorName$2,
+          name: classErrorName$1,
           message: `The specified "childViewContainer" was not found: ${childViewContainer}`,
           url: 'marionette.collectionview.html#defining-the-childviewcontainer'
         });
@@ -3446,7 +3412,7 @@
       }
 
       throw new MarionetteError({
-        name: classErrorName$2,
+        name: classErrorName$1,
         message: '"viewFilter" must be a function, predicate object literal, a string indicating a model attribute, or falsy',
         url: 'marionette.collectionview.html#defining-the-viewfilter'
       });
@@ -3620,7 +3586,7 @@
     swapChildViews(view1, view2) {
       if (!this._children.hasView(view1) || !this._children.hasView(view2)) {
         throw new MarionetteError({
-          name: classErrorName$2,
+          name: classErrorName$1,
           message: 'Both views must be children of the collection view to swap.',
           url: 'marionette.collectionview.html#swapping-child-views'
         });
@@ -3647,7 +3613,7 @@
 
       if (view._isShown) {
         throw new MarionetteError({
-          name: classErrorName$2,
+          name: classErrorName$1,
           message: 'View is already shown in a Region or CollectionView',
           url: 'marionette.region.html#showing-a-view'
         });
@@ -3807,12 +3773,8 @@
     this.initialize.apply(this, arguments);
   };
 
-  underscore.extend(Behavior, {
-    extend,
-    setEventDelegator
-  }); // Behavior Methods
+  Behavior.extend = extend; // Behavior Methods
   // --------------
-
 
   underscore.extend(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, ViewEventsMixin, {
     cidPrefix: 'mnb',
@@ -3956,7 +3918,6 @@
     View.setRenderer(renderer);
   };
   const setEventDelegator$1 = function (delegator) {
-    Behavior.setEventDelegator(delegator);
     CollectionView.setEventDelegator(delegator);
     View.setEventDelegator(delegator);
   };
