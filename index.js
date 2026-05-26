@@ -49,16 +49,19 @@ export const triggerMethod = proxy(_triggerMethod);
 // Configuration
 
 export const setDomApi = function(mixin) {
+  Behavior.setDomApi(mixin);
   CollectionView.setDomApi(mixin);
   Region.setDomApi(mixin);
   View.setDomApi(mixin);
 };
 export const setRenderer = function(renderer) {
+  Behavior.setRenderer(renderer);
   CollectionView.setRenderer(renderer);
   View.setRenderer(renderer);
 };
 
 export const setEventDelegator = function(delegator) {
+  Behavior.setEventDelegator(delegator);
   CollectionView.setEventDelegator(delegator);
   View.setEventDelegator(delegator);
 };

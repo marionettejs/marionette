@@ -12,6 +12,9 @@ import CommonMixin from '../mixins/common';
 import DelegateEntityEventsMixin from '../mixins/delegate-entity-events';
 import UIMixin from '../mixins/ui';
 import ViewEventsMixin from '../mixins/view-events';
+import DomApi, { setDomApi } from '../config/dom';
+import { setEventDelegator } from '../config/event-delegator';
+import { setRenderer } from '../config/renderer';
 
 const ClassOptions = [
   'collectionEvents',
@@ -50,7 +53,7 @@ const Behavior = function(options, view) {
   this.initialize.apply(this, arguments);
 };
 
-Behavior.extend = extend;
+_extend(Behavior, { extend, setRenderer, setDomApi, setEventDelegator });
 
 // Behavior Methods
 // --------------
@@ -58,11 +61,10 @@ Behavior.extend = extend;
 _extend(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, ViewEventsMixin, {
   cidPrefix: 'mnb',
 
-  // proxy behavior $ method to the view
-  // this is useful for doing jquery DOM lookups
-  // scoped to behaviors view.
-  $() {
-    return this.view.$.apply(this.view, arguments);
+  Dom: DomApi,
+
+  $(selector) {
+    return this.Dom.findEl(this.el, selector);
   },
 
   // Stops the behavior from listening to events.

@@ -172,6 +172,7 @@ describe('backbone.marionette', function() {
 
   describe('#setDomApi', function() {
     const DomClasses = {
+      Behavior,
       CollectionView,
       Region,
       View
@@ -194,17 +195,25 @@ describe('backbone.marionette', function() {
   });
 
   describe('#setRenderer', function() {
+    let behaviorRenderer;
     let renderer;
 
     beforeEach(function() {
+      behaviorRenderer = Behavior.prototype._renderHtml;
       renderer = View.prototype._renderHtml;
     });
 
     afterEach(function() {
+      if (behaviorRenderer) {
+        Behavior.prototype._renderHtml = behaviorRenderer;
+      } else {
+        delete Behavior.prototype._renderHtml;
+      }
       Mn.setRenderer(renderer);
     });
 
     const RendererClasses = {
+      Behavior,
       CollectionView,
       View
     };
@@ -219,6 +228,29 @@ describe('backbone.marionette', function() {
         expect(Class.setRenderer)
           .to.be.calledOnce
           .and.calledWith(fakeRenderer);
+      });
+    });
+  });
+
+  describe('#setEventDelegator', function() {
+    const DelegatorClasses = {
+      Behavior,
+      CollectionView,
+      View
+    };
+
+    const fakeEventDelegator = {
+      foo: 'bar'
+    };
+
+    _.each(DelegatorClasses, function(Class, key) {
+      it(`should setEventDelegator on ${ key }`, function() {
+        this.sinon.spy(Class, 'setEventDelegator');
+
+        Mn.setEventDelegator(fakeEventDelegator);
+        expect(Class.setEventDelegator)
+          .to.be.calledOnce
+          .and.calledWith(fakeEventDelegator);
       });
     });
   });

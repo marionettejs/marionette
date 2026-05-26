@@ -15,6 +15,68 @@ describe('Behavior', function() {
     });
   });
 
+  describe('configuration setters', function() {
+    let behavior;
+
+    function buildViewWithBehavior(BehaviorClass) {
+      const FooView = View.extend({
+        behaviors: [BehaviorClass]
+      });
+
+      const view = new FooView({
+        el: document.createElement('div')
+      });
+
+      behavior = view._behaviors[0];
+
+      return view;
+    }
+
+    it('should set DomApi on behavior classes', function() {
+      const findEl = this.sinon.stub().returns(['custom-dom']);
+      const MyBehavior = Behavior.extend({});
+
+      MyBehavior.setDomApi({ findEl });
+      buildViewWithBehavior(MyBehavior);
+
+      expect(behavior.$('.foo')).to.eql(['custom-dom']);
+      expect(findEl)
+        .to.have.been.calledOnce
+        .and.calledWith(behavior.el, '.foo');
+    });
+
+    it('should set Renderer on behavior classes', function() {
+      const renderer = this.sinon.stub();
+      const MyBehavior = Behavior.extend({});
+
+      MyBehavior.setRenderer(renderer);
+      buildViewWithBehavior(MyBehavior);
+
+      expect(behavior._renderHtml).to.equal(renderer);
+    });
+
+    it('should set EventDelegator on behavior delegated events', function() {
+      const delegate = this.sinon.stub();
+      const MyBehavior = Behavior.extend({
+        events: {
+          'click .foo': 'onFooClick'
+        },
+        onFooClick() {}
+      });
+
+      MyBehavior.setEventDelegator({ delegate });
+      const view = buildViewWithBehavior(MyBehavior);
+
+      expect(delegate).to.have.been.calledOnce;
+      expect(delegate.firstCall.args[0])
+        .to.include({
+          eventName: 'click',
+          selector: '.foo',
+          rootEl: view.el
+        });
+    });
+  });
+
   describe('behavior parsing', function() {
     let behaviorSpies;
     let FooView;
