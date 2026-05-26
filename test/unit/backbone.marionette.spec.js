@@ -1,29 +1,28 @@
 import _ from 'underscore';
 
-import * as Mn from '../../src/backbone.marionette';
-import Marionette from '../../src/backbone.marionette';
+import * as Mn from '../../index.js';
 
 import {version} from '../../package.json';
 
-import extend from '../../src/utils/extend';
+import extend from '../../utils/extend';
 
-import monitorViewEvents from '../../src/common/monitor-view-events';
+import monitorViewEvents from '../../modules/common/monitor-view-events';
 
-import Events from '../../src/mixins/events';
+import Events from '../../mixins/events';
 
-import MnObject from '../../src/object';
-import View from '../../src/view';
-import CollectionView from '../../src/collection-view';
-import Behavior from '../../src/behavior';
-import Region from '../../src/region';
-import Application from '../../src/application';
+import MnObject from '../../modules/object';
+import View from '../../modules/view';
+import CollectionView from '../../modules/collection-view';
+import Behavior from '../../modules/behavior';
+import Region from '../../modules/region';
+import Application from '../../modules/application';
 
-import DomApi from '../../src/config/dom';
+import DomApi from '../../config/dom';
 
 import {
   isEnabled,
   setEnabled
-} from '../../src/config/features';
+} from '../../config/features';
 
 
 describe('backbone.marionette', function() {
@@ -47,33 +46,6 @@ describe('backbone.marionette', function() {
       it(`should have named export ${ key }`, function() {
         expect(Mn[key]).to.equal(val);
       });
-    });
-  });
-
-  describe('Default Export', function() {
-    const namedExports = {
-      View,
-      CollectionView,
-      MnObject,
-      Region,
-      Behavior,
-      Application,
-      isEnabled,
-      setEnabled,
-      monitorViewEvents,
-      Events,
-      extend,
-      DomApi,
-    };
-
-    _.each(namedExports, (val, key) => {
-      it(`should have key ${ key }`, function() {
-        expect(Marionette[key]).to.equal(val);
-      });
-    });
-
-    it('should have key Object', function() {
-      expect(Marionette.Object).to.equal(MnObject);
     });
   });
 

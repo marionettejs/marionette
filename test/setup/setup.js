@@ -15,18 +15,14 @@ module.exports = function() {
   // eslint-disable-next-line
   console.log('Using ' + lib + ': ' + _.VERSION);
 
-  const Backbone = require('backbone');
   const jQuery = require('jquery');
-  Backbone.$ = jQuery;
-  Backbone.Radio = require('backbone.radio');
-  let Marionette = require('../../src/backbone.marionette');
+  const Backbone = require('backbone');
+  const Marionette = require('../../index.js');
 
-  Marionette = 'default' in Marionette ? Marionette.default : Marionette;
-
-  global.$ = global.jQuery = jQuery;
   global._ = _;
   global.Backbone = Backbone;
-  global.Marionette = Backbone.Marionette = Marionette;
+  global.Marionette = Marionette;
+  global.Radio = Marionette.Radio;
 
   global.expect = global.chai.expect;
 
@@ -43,8 +39,8 @@ module.exports = function() {
   }
 
   before(function() {
-    $fixtures = $('<div id="fixtures">');
-    $('body').append($fixtures);
+    $fixtures = jQuery('<div id="fixtures">');
+    jQuery('body').append($fixtures);
     this.setFixtures = setFixtures;
     this.clearFixtures = clearFixtures;
   });

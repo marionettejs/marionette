@@ -1,4 +1,4 @@
-import { bindEvents, unbindEvents } from '../../../src/common/bind-events';
+import { bindEvents, unbindEvents } from '../../../modules/common/bind-events';
 
 describe('bind-events', function() {
   let entity;

@@ -1,9 +1,9 @@
 import _ from 'underscore';
-import Behavior from '../../src/behavior';
-import Region from '../../src/region';
-import View from '../../src/view';
-import CollectionView from '../../src/collection-view';
-import { bindEvents } from '../../src/backbone.marionette';
+import Behavior from '../../modules/behavior';
+import Region from '../../modules/region';
+import View from '../../modules/view';
+import CollectionView from '../../modules/collection-view';
+import { bindEvents } from '../../index.js';
 
 describe('Behavior', function() {
   describe('when instantiating a behavior with some options', function() {

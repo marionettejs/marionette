@@ -1,4 +1,4 @@
-import { setEnabled, isEnabled } from '../../../src/config/features';
+import { setEnabled, isEnabled } from '../../../config/features';
 
 describe('features', function() {
   it('enabled when its present and true', function() {

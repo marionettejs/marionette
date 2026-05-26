@@ -1,5 +1,5 @@
-import View from '../../../src/view';
-import Region from '../../../src/region';
+import View from '../../../modules/view';
+import Region from '../../../modules/region';
 
 describe('Region', function() {
   describe('.buildRegion', function() {

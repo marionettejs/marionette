@@ -1,4 +1,4 @@
-import proxy from '../../../src/utils/proxy';
+import proxy from '../../../utils/proxy';
 
 describe('proxy', function() {
   let method;

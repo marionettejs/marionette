@@ -1,4 +1,4 @@
-import View from '../../src/view';
+import View from '../../modules/view';
 
 describe('_getImmediateChildren', function() {
   let BaseView;

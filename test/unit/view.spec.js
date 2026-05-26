@@ -1,6 +1,6 @@
 import Backbone from 'backbone';
-import Region from '../../src/region';
-import View from '../../src/view';
+import Region from '../../modules/region';
+import View from '../../modules/view';
 
 describe('item view', function() {
   'use strict';

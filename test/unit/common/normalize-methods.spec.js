@@ -1,4 +1,4 @@
-import View from '../../../src/view';
+import View from '../../../modules/view';
 
 describe('normalizeMethods', function() {
   'use strict';

@@ -1,6 +1,6 @@
-import deprecate from '../../../src/utils/deprecate';
+import deprecate from '../../../utils/deprecate';
 
-import {setEnabled} from '../../../src/config/features';
+import {setEnabled} from '../../../config/features';
 
 describe('deprecate', function() {
   beforeEach(function() {

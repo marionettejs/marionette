@@ -1,5 +1,5 @@
-import View from '../../../src/view';
-import monitorViewEvents from '../../../src/common/monitor-view-events';
+import View from '../../../modules/view';
+import monitorViewEvents from '../../../modules/common/monitor-view-events';
 
 describe('monitorViewEvents', function() {
   describe('when the monitor is disabled', function() {

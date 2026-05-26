@@ -1,8 +1,8 @@
 import _ from 'underscore';
 import Backbone from 'backbone';
-import Events from '../../src/mixins/events';
-import View from '../../src/view';
-import Region from '../../src/region';
+import Events from '../../mixins/events';
+import View from '../../modules/view';
+import Region from '../../modules/region';
 
 describe('onDomRemove', function() {
   'use strict';

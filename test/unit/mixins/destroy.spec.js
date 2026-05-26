@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import DestroyMixin from '../../../src/mixins/destroy';
+import DestroyMixin from '../../../mixins/destroy';
 
 describe('Destroy Mixin', function() {
   let obj;

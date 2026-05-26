@@ -1,5 +1,5 @@
-import { VERSION } from '../../../src/backbone.marionette';
-import MarionetteError from '../../../src/utils/error';
+import { VERSION } from '../../../index.js';
+import MarionetteError from '../../../utils/error';
 
 describe('MarionetteError', function() {
   it('should be subclass of native Error', function() {

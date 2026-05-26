@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import Backbone from 'backbone';
-import ChildViewContainer from '../../src/child-view-container';
+import ChildViewContainer from '../../modules/child-view-container';
 
 describe('#ChildViewContainer', function() {
 

@@ -1,6 +1,6 @@
 import Backbone from 'backbone';
 
-import { renderView, destroyView } from '../../../src/common/view';
+import { renderView, destroyView } from '../../../modules/common/view';
 
 describe('common view methods', function() {
   let view;

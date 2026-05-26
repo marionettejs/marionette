@@ -3,9 +3,9 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
-import CollectionView from '../../../src/collection-view';
-import View from '../../../src/view';
-import Events from '../../../src/mixins/events';
+import CollectionView from '../../../modules/collection-view';
+import View from '../../../modules/view';
+import Events from '../../../mixins/events';
 
 describe('CollectionView', function() {
   let MyChildView;
