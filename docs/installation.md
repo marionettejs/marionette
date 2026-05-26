@@ -23,7 +23,7 @@ While some integrations are listed here, more resources are available in the int
 
 The v5 package name is `marionette`.
 
-```
+```bash
 npm install marionette
 ```
 
@@ -37,19 +37,19 @@ required; the rest are optional.
 
 | Peer | Required? | When you need it |
 |---|---|---|
-| `underscore` `>= 1.13` | Required | Always. Marionette publishes named ESM imports from `underscore`, and versions before 1.13 are CJS-only with no package `exports` map, so modern Node and bundler ESM resolution cannot satisfy the imports. |
+| `underscore` `^1.13.0` | Required | Always. Marionette publishes named ESM imports from `underscore`, and versions before 1.13 are CJS-only with no package `exports` map, so modern Node and bundler ESM resolution cannot satisfy the imports. |
 | `backbone` `^1.4.0` | Optional | Only if your app uses Backbone models/collections, or imports the bundled `marionette/backbone` shim. See [Backbone is optional](#backbone-is-optional). |
 | `jquery` `^3.5.0` | Optional | Only if your app uses the `marionette/jquery-dom-api` adapter. See [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional). |
 
 Install the required peer alongside Marionette:
 
-```
+```bash
 npm install marionette underscore
 ```
 
 Optional peers are installed only when you opt into them:
 
-```
+```bash
 # Only if you use Backbone models/collections or the bundled shim
 npm install backbone
 
@@ -120,7 +120,7 @@ compatibility and the `detachContents` policy.
 [NPM](https://www.npmjs.com/) is the package manager for JavaScript.
 
 Installing with NPM through command-line interface
-```
+```bash
 npm install marionette
 ```
 
