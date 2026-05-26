@@ -1,0 +1,23 @@
+docs/optional-backbone.md
+  s_912de509c06020::t_955aa4c3815ecd 1-218,222-223
+  s_912de509c06020::t_52ff14607ae14e 219-221
+docs/installation.md
+  s_912de509c06020::t_075e7c0ec1ad1a 15
+  s_912de509c06020::t_c1e2b294cb9738 68-77
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "c11c884bfb035c24cb74c2cffd984c01ab57a0e4",
+  "prompts": {},
+  "sessions": {
+    "s_912de509c06020": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "366c39ee-9d98-417c-ab92-76015811879f",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
