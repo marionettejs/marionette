@@ -1,0 +1,29 @@
+vitest.config.js
+  s_4d573ea9dfffe8::t_e64d311e0c3c1a 1-7,9-10,12-28
+  s_4d573ea9dfffe8::t_ba7504b23eba42 11
+  s_8b67fbb7384de4::t_8c32ae176a215e 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "cf5eed2df44877e4674a5efe30cf8e4a2f9b2b4b",
+  "prompts": {},
+  "sessions": {
+    "s_4d573ea9dfffe8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e600b-af0f-7401-bd80-18d8736333e1",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_8b67fbb7384de4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "59a67c41-f0b7-4197-a501-619f980af1f1",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
