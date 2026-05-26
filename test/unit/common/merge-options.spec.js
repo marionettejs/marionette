@@ -1,4 +1,4 @@
-import mergeOptions from '../../../src/common/merge-options';
+import mergeOptions from '../../../modules/common/merge-options';
 
 describe('mergeOptions', function() {
   let target;

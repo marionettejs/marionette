@@ -1,7 +1,7 @@
 import _ from 'underscore';
-import Backbone from 'backbone';
-import Radio from 'backbone.radio';
-import RadioMixin from '../../../src/mixins/radio';
+import Events from '../../../mixins/events';
+import Radio from '../../../modules/radio';
+import RadioMixin from '../../../mixins/radio';
 
 describe('Radio Mixin on Marionette.Object', function() {
   let radioObject;
@@ -15,7 +15,7 @@ describe('Radio Mixin on Marionette.Object', function() {
       },
       bindEvents: this.sinon.stub(),
       bindRequests: this.sinon.stub(),
-    }, Backbone.Events, RadioMixin);
+    }, Events, RadioMixin);
 
     channelFoo = Radio.channel('foo');
   });

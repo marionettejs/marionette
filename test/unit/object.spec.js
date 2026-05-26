@@ -1,4 +1,4 @@
-import MnObject from '../../src/object';
+import MnObject from '../../modules/object';
 
 describe('marionette object', function() {
 

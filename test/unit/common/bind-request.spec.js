@@ -1,4 +1,4 @@
-import { bindRequests, unbindRequests } from '../../../src/common/bind-requests';
+import { bindRequests, unbindRequests } from '../../../modules/common/bind-requests';
 
 describe('bind-requests', function() {
   let channel;

@@ -2,9 +2,9 @@
 
 import _ from 'underscore';
 import Backbone from 'backbone';
-import CollectionView from '../../../src/collection-view';
-import Region from '../../../src/region';
-import View from '../../../src/view';
+import CollectionView from '../../../modules/collection-view';
+import Region from '../../../modules/region';
+import View from '../../../modules/view';
 
 function renderModels(models) {
   return _.map(models, model => `<li>${ model.get('num') }</li>`);

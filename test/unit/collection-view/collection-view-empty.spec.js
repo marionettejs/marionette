@@ -2,10 +2,10 @@
 
 import _ from 'underscore';
 import Backbone from 'backbone';
-import CollectionView from '../../../src/collection-view';
-import View from '../../../src/view';
-import Region from '../../../src/region';
-import Events from '../../../src/mixins/events';
+import CollectionView from '../../../modules/collection-view';
+import View from '../../../modules/view';
+import Region from '../../../modules/region';
+import Events from '../../../mixins/events';
 
 describe('CollectionView -  Empty', function() {
   let MyEmptyView;

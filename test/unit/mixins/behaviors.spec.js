@@ -2,8 +2,8 @@
 
 import _ from 'underscore';
 import Backbone from 'backbone';
-import BehaviorsMixin from '../../../src/mixins/behaviors';
-import Behavior from '../../../src/behavior';
+import BehaviorsMixin from '../../../mixins/behaviors';
+import Behavior from '../../../modules/behavior';
 
 describe('Behaviors Mixin', function() {
   let Behaviors;

@@ -1,6 +1,6 @@
 import Backbone from 'backbone';
-import { setEnabled } from '../../src/config/features';
-import View from '../../src/view';
+import { setEnabled } from '../../config/features';
+import View from '../../modules/view';
 
 describe('view triggers', function() {
   'use strict';

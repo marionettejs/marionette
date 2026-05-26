@@ -7,7 +7,7 @@ describe('layoutView', function() {
       return '<span class=".craft"></span><h1 id="#a-fun-game"></h1>';
     };
 
-    this.View = Backbone.Marionette.View.extend({
+    this.View = Marionette.View.extend({
       template: this.layoutViewManagerTemplateFn,
       regions: {
         regionOne: '#regionOne',
@@ -28,7 +28,7 @@ describe('layoutView', function() {
 
     this.CustomRegion1 = function() {};
 
-    this.CustomRegion2 = Backbone.Marionette.Region.extend();
+    this.CustomRegion2 = Marionette.Region.extend();
 
     this.ViewNoDefaultRegion = this.View.extend({
       regions: {
@@ -114,7 +114,7 @@ describe('layoutView', function() {
 
     it('should instantiate marionette regions is no regionClass is specified', function() {
       let layoutViewManagerNoDefault = new this.ViewNoDefaultRegion();
-      expect(layoutViewManagerNoDefault.getRegion('regionTwo')).to.be.instanceof(Backbone.Marionette.Region);
+      expect(layoutViewManagerNoDefault.getRegion('regionTwo')).to.be.instanceof(Marionette.Region);
     });
 
     it('should pass extra options to the custom regionClass', function() {
@@ -140,7 +140,7 @@ describe('layoutView', function() {
     });
 
     it('should build the regions from the returns object literal', function() {
-      expect(this.layoutView.getRegion('regionOne')).to.be.instanceof(Backbone.Marionette.Region);
+      expect(this.layoutView.getRegion('regionOne')).to.be.instanceof(Marionette.Region);
     });
   });
 
@@ -356,7 +356,7 @@ describe('layoutView', function() {
         suite.regionOne._ensureElement();
       };
 
-      this.region = new Backbone.Marionette.Region({
+      this.region = new Marionette.Region({
         el: '#mgr'
       });
 
@@ -526,12 +526,12 @@ describe('layoutView', function() {
         }
       };
 
-      this.layoutView = new Backbone.Marionette.View({
+      this.layoutView = new Marionette.View({
         template: this.template,
         regions: this.regionOptions
       });
 
-      this.layoutView2 = new Backbone.Marionette.View({
+      this.layoutView2 = new Marionette.View({
         template: this.template,
         regions: function() {
           return suite.regionOptions;
@@ -556,7 +556,7 @@ describe('layoutView', function() {
 
   describe('when defining region selectors using @ui. syntax', function() {
     beforeEach(function() {
-      let UIView = Backbone.Marionette.View.extend({
+      let UIView = Marionette.View.extend({
         template: this.template,
         regions: {
           war: '@ui.war',
@@ -617,7 +617,7 @@ describe('layoutView', function() {
         this.setFixtures(fixture);
         this.layout.render();
         this.regions = this.layout.getRegions();
-        this.View = Backbone.Marionette.View.extend({
+        this.View = Marionette.View.extend({
           el: '.region-hash-no-template-spec .some-layout-view',
           template: _.noop,
           regions: {

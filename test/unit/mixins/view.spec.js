@@ -1,6 +1,6 @@
-import { setEnabled } from '../../../src/backbone.marionette';
-import CollectionView from '../../../src/collection-view';
-import View from '../../../src/view';
+import { setEnabled } from '../../../index.js';
+import CollectionView from '../../../modules/collection-view';
+import View from '../../../modules/view';
 
 describe('view mixin', function() {
   'use strict';

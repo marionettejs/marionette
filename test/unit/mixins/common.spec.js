@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import CommonMixin from '../../../src/mixins/common';
+import CommonMixin from '../../../mixins/common';
 
 describe('Common Mixin', function() {
   describe('#setOptions', function() {

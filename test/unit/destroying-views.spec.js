@@ -1,4 +1,4 @@
-import View from '../../src/view';
+import View from '../../modules/view';
 
 
 describe('destroying views', function() {

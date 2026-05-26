@@ -1,8 +1,8 @@
 'use strict';
 
 import _ from 'underscore';
-import Application from '../../src/application';
-import View from '../../src/view';
+import Application from '../../modules/application';
+import View from '../../modules/view';
 
 describe('Marionette Application', function() {
 

@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import Backbone from 'backbone';
-import DelegateEntityEventsMixin from '../../../src/mixins/delegate-entity-events';
+import DelegateEntityEventsMixin from '../../../mixins/delegate-entity-events';
 
 describe('delegate entity events mixin', function() {
   let obj;
