@@ -1,0 +1,19 @@
+mixins/requests.js
+  s_8b67fbb7384de4::t_8ce1246d670929 82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "3e7865a627182e786380e6bde28100c2b8fa86fa",
+  "prompts": {},
+  "sessions": {
+    "s_8b67fbb7384de4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "59a67c41-f0b7-4197-a501-619f980af1f1",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
