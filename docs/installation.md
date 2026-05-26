@@ -12,6 +12,7 @@ While some integrations are listed here, more resources are available in the int
 * [NPM and Browserify](#quick-start-using-npm-and-browserify)
 * [Browserify and Grunt](#browserify-and-grunt)
 * [Browserify and Gulp](#browserify-and-gulp)
+* [Backbone is optional](#backbone-is-optional)
 * [Getting Started](./basics.md)
 
 ## Quick start using NPM and Webpack
@@ -63,6 +64,16 @@ we prepared simple marionettejs skeleton with Browserify.
 [brunch]: http://brunch.io/
 [grunt]: http://gruntjs.com/
 [gulp]: http://gulpjs.com/
+
+## Backbone is optional
+
+Starting with v5, Marionette core does not depend on Backbone at runtime. Backbone is one valid implementation of the model and collection contracts Marionette consumes; any object that satisfies those contracts works equally well. Applications that want the v4-style Backbone integration can opt in with a side-effect import of the bundled shim:
+
+```javascript
+import 'marionette/backbone';
+```
+
+See [Optional Backbone](./optional-backbone.md) for the model/collection protocol and a small non-Backbone adapter example.
 
 ## Getting Started
 
