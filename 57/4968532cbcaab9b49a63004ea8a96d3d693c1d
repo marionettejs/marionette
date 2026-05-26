@@ -1,0 +1,113 @@
+test/unit/mixins/view.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 1-3
+test/unit/collection-view/collection-view-children.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 6-9
+test/unit/common/bind-request.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 1
+test/unit/mixins/behaviors.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 5-6
+test/unit/mixins/radio.spec.js
+  s_4d573ea9dfffe8::t_de12519d1fe9ad 2-3,18
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 4
+test/unit/common/get-option.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 1
+test/unit/application.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 4-5
+test/unit/on-dom-refresh.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 3-5
+test/unit/common/build-region.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 1-2
+test/unit/collection-view/collection-view-sorting.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 5-6
+test/unit/collection-view/collection-view-data.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 6-7
+test/unit/get-immediate-children.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 1
+test/unit/backbone.marionette.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 3,7,9,11,13-18,20,25
+test/unit/common/normalize-methods.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 1
+test/unit/common/bind-events.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 1
+test/unit/on-attach.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 2-3
+test/unit/collection-view/collection-view-childviewcontainer.sepc.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 3-4
+test/unit/mixins/common.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 2
+test/unit/mixins/destroy.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 2
+test/unit/on-dom-remove.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 3-5
+test/unit/region.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 3-6
+test/unit/child-view-container.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 3
+test/unit/utils/deprecate.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 1,3
+test/unit/common/trigger-method.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 1
+test/unit/utils/proxy.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 1
+test/unit/view.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 2-3
+test/unit/view.triggers.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 2-3
+test/unit/object.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 1
+test/unit/common/merge-options.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 1
+test/unit/mixins/ui.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 1
+test/unit/config/renderer.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 1
+test/unit/destroying-views.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 1
+test/unit/config/dom.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 3
+test/unit/collection-view/collection-view-empty.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 5-8
+test/unit/utils/error.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 1-2
+test/unit/common/monitor-view-events.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 1-2
+test/unit/collection-view/collection-view-filtering.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 5-7
+test/unit/behavior.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 2-6
+test/unit/collection-view/collection-view-viewmixin.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 5-6
+test/unit/common/view.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 3
+test/unit/mixins/template-render.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 4
+test/unit/config/features.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 1
+test/unit/view.renderer.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 3
+test/unit/view.child-views.spec.js
+  s_4d573ea9dfffe8::t_b42093e0fcabfe 10,31,117,143,359,529,534,559,620
+test/unit/mixins/delegate-entity-events.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 3
+test/unit/collection-view/collection-view.spec.js
+  s_4d573ea9dfffe8::t_dab4c4a22b825f 6-8
+test/setup/setup.js
+  s_4d573ea9dfffe8::t_14b34a166cd58e 19-20,24-25
+  s_4d573ea9dfffe8::t_2c20e2f497fcc6 42-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "574968532cbcaab9b49a63004ea8a96d3d693c1d",
+  "prompts": {},
+  "sessions": {
+    "s_4d573ea9dfffe8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e600b-af0f-7401-bd80-18d8736333e1",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
