@@ -4,6 +4,8 @@ Starting with v5, Backbone is **optional**. Marionette core does not import Back
 
 `Backbone.Model` and `Backbone.Collection` are one valid implementation of these contracts. Any other implementation — a hand-rolled adapter, a thin wrapper over a different state library, a class you ship yourself — is equally valid as long as it satisfies the protocol.
 
+> **Note**: the contract on this page is Backbone-shaped because Marionette's internals are still Backbone-shaped. A leaner data-adapter surface is being explored for v5 before the stable release. See [Status and direction](#status-and-direction) before writing a new adapter from scratch.
+
 ## Documentation Index
 
 * [Why this exists](#why-this-exists)
@@ -13,6 +15,7 @@ Starting with v5, Backbone is **optional**. Marionette core does not import Back
 * [Events Marionette consumes](#events-marionette-consumes)
 * [Worked adapter example](#worked-adapter-example)
 * [Using the bundled Backbone shim](#using-the-bundled-backbone-shim)
+* [Status and direction](#status-and-direction)
 
 ## Why this exists
 
@@ -221,3 +224,18 @@ The shim is the recommended path for applications migrating from v4 and for any 
 A plain `Backbone.Model` or `Backbone.Collection` already satisfies the emitter protocol on this page without the shim, because Marionette only calls `.on(...)`, `.off(...)`, and reads `.cid` / `.attributes` / `.get(...)` / `.models` / `.indexOf(...)` on the emitter. The shim is not required just to use Backbone entities with Marionette views.
 
 The protocol on this page is broader than the shim. The shim is one implementation of the protocol; this page describes the protocol itself.
+
+## Status and direction
+
+This page describes the contract Marionette **currently** consumes in v5. That contract is Backbone-shaped because Marionette's internals are still Backbone-shaped — for example, the default template serializer reads `model.attributes` and `collection.models` directly, and `CollectionView` reacts to `update` events whose payload carries `options.changes.{added, removed, merged}`. Adapter authors writing against a non-Backbone data layer today must produce those shapes.
+
+A leaner data-adapter surface is being explored as part of v5 before the stable release. Likely directions include:
+
+- A single `subscribe(listener) => unsubscribe` channel in place of named `on` / `off` / `trigger` events on the emitter.
+- A `serialize(entity)` (or similar) hook so views no longer read `attributes` off the entity directly.
+- Caller-supplied identity (a `keyFor(item)` callback) instead of `cid` living on the entity.
+- A snapshot-style read for collection contents instead of a mutable `models` array.
+
+If you are writing a new non-Backbone adapter, the safest hedge is to **keep it thin**: a small class whose only job is to map your real data source to the shapes documented above. When the leaner surface lands, that thin layer is what changes; your application code does not.
+
+Tracking and design discussion for the v5 data-adapter surface lives in the v5 plan tracker (see [#40](https://github.com/marionettejs/marionette/issues/40) and [#18](https://github.com/marionettejs/marionette/issues/18)). Specifics of this contract — field names, event shapes — are not yet stable for v5 final.
