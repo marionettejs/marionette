@@ -25,17 +25,17 @@ describe('CollectionView - childViewContainer', function() {
   });
 
   describe('when childViewContainer is undefined', function() {
-    it('should set the $container to the $el', function() {
+    it('should set the container to the el', function() {
       const myCollectionView = new MyCollectionView({ collection });
       myCollectionView.render();
 
-      expect(myCollectionView.$container).to.equal(myCollectionView.$el);
+      expect(myCollectionView.container).to.equal(myCollectionView.el);
     });
   });
 
   describe('when childViewContainer is defined', function() {
     describe('when a selector within the el', function() {
-      it('should should put the children within the found $container', function() {
+      it('should should put the children within the found container', function() {
         const myCollectionView = new MyCollectionView({
           collection,
           template,
@@ -43,7 +43,7 @@ describe('CollectionView - childViewContainer', function() {
         });
         myCollectionView.render();
 
-        expect(myCollectionView.$container).to.have.$text('barbaz');
+        expect(myCollectionView.container.textContent).to.equal('barbaz');
       });
     });
 
@@ -61,7 +61,7 @@ describe('CollectionView - childViewContainer', function() {
     });
 
     describe('when a function', function() {
-      it('should should put the children within the found $container', function() {
+      it('should should put the children within the found container', function() {
         const myCollectionView = new MyCollectionView({
           collection,
           template,
@@ -69,7 +69,7 @@ describe('CollectionView - childViewContainer', function() {
         });
         myCollectionView.render();
 
-        expect(myCollectionView.$container).to.have.$text('barbaz');
+        expect(myCollectionView.container.textContent).to.equal('barbaz');
       });
     });
   });
