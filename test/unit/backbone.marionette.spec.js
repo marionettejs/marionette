@@ -172,7 +172,6 @@ describe('backbone.marionette', function() {
 
   describe('#setDomApi', function() {
     const DomClasses = {
-      Behavior,
       CollectionView,
       Region,
       View
@@ -195,25 +194,17 @@ describe('backbone.marionette', function() {
   });
 
   describe('#setRenderer', function() {
-    let behaviorRenderer;
     let renderer;
 
     beforeEach(function() {
-      behaviorRenderer = Behavior.prototype._renderHtml;
       renderer = View.prototype._renderHtml;
     });
 
     afterEach(function() {
-      if (behaviorRenderer) {
-        Behavior.prototype._renderHtml = behaviorRenderer;
-      } else {
-        delete Behavior.prototype._renderHtml;
-      }
       Mn.setRenderer(renderer);
     });
 
     const RendererClasses = {
-      Behavior,
       CollectionView,
       View
     };

@@ -15,7 +15,7 @@ describe('Behavior', function() {
     });
   });
 
-  describe('configuration setters', function() {
+  describe('setEventDelegator', function() {
     let behavior;
 
     function buildViewWithBehavior(BehaviorClass) {
@@ -31,29 +31,6 @@ describe('Behavior', function() {
 
       return view;
     }
-
-    it('should set DomApi on behavior classes', function() {
-      const findEl = this.sinon.stub().returns(['custom-dom']);
-      const MyBehavior = Behavior.extend({});
-
-      MyBehavior.setDomApi({ findEl });
-      buildViewWithBehavior(MyBehavior);
-
-      expect(behavior.$('.foo')).to.eql(['custom-dom']);
-      expect(findEl)
-        .to.have.been.calledOnce
-        .and.calledWith(behavior.el, '.foo');
-    });
-
-    it('should set Renderer on behavior classes', function() {
-      const renderer = this.sinon.stub();
-      const MyBehavior = Behavior.extend({});
-
-      MyBehavior.setRenderer(renderer);
-      buildViewWithBehavior(MyBehavior);
-
-      expect(behavior._renderHtml).to.equal(renderer);
-    });
 
     it('should set EventDelegator on behavior delegated events', function() {
       const delegate = this.sinon.stub();
@@ -74,6 +51,17 @@ describe('Behavior', function() {
           selector: '.foo',
           rootEl: view.el
         });
+    });
+
+    it('should keep $ proxied through the host view', function() {
+      const MyBehavior = Behavior.extend({});
+      const view = buildViewWithBehavior(MyBehavior);
+      view.$ = this.sinon.stub().returns(['host-view-dom']);
+
+      expect(behavior.$('.foo')).to.eql(['host-view-dom']);
+      expect(view.$)
+        .to.have.been.calledOnce
+        .and.calledWith('.foo');
     });
   });
 

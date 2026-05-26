@@ -3809,8 +3809,6 @@
 
   underscore.extend(Behavior, {
     extend,
-    setRenderer,
-    setDomApi,
     setEventDelegator
   }); // Behavior Methods
   // --------------
@@ -3818,10 +3816,12 @@
 
   underscore.extend(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, ViewEventsMixin, {
     cidPrefix: 'mnb',
-    Dom: DomApi,
 
-    $(selector) {
-      return this.Dom.findEl(this.el, selector);
+    // proxy behavior $ method to the view
+    // this is useful for doing jquery DOM lookups
+    // scoped to behaviors view.
+    $() {
+      return this.view.$.apply(this.view, arguments);
     },
 
     // Stops the behavior from listening to events.
@@ -3947,13 +3947,11 @@
   const triggerMethod$1 = proxy(triggerMethod); // Configuration
 
   const setDomApi$1 = function (mixin) {
-    Behavior.setDomApi(mixin);
     CollectionView.setDomApi(mixin);
     Region.setDomApi(mixin);
     View.setDomApi(mixin);
   };
   const setRenderer$1 = function (renderer) {
-    Behavior.setRenderer(renderer);
     CollectionView.setRenderer(renderer);
     View.setRenderer(renderer);
   };
