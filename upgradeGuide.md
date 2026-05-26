@@ -61,3 +61,32 @@ Todo
     }
   });
   ```
+
+## `detachContents` policy
+
+- The default native DomApi `detachContents(el)` clears the element via
+  `el.textContent = ''`. Children are removed from `el` and Marionette no
+  longer holds references to them.
+- v4 used jQuery's `$(el).contents().detach()`, which is jQuery's documented
+  detach-for-reinsertion path. It removes children from `el` while preserving
+  jQuery's internal handler/data bookkeeping on those elements.
+- For most apps the user-visible difference is small — `Region.empty()`
+  discards the detached content in both cases, and DOM event listeners
+  attached via `addEventListener` remain on referenced child elements either
+  way. The difference matters for apps that detach-then-reinsert children
+  externally and rely on jQuery's `.on()` handlers, `.data()` cache, or other
+  jQuery-internal element bookkeeping surviving that cycle.
+- Legacy code that depends on the v4 jQuery semantics can opt into the
+  optional jQuery DomApi adapter at app boot:
+
+  ```js
+  import { setDomApi } from 'marionette';
+  import JQueryDomApi from 'marionette/jquery-dom-api';
+
+  setDomApi(JQueryDomApi);
+  ```
+
+  The adapter's `detachContents(el)` calls `$(el).contents().detach()`,
+  matching the v4 behavior.
+
+- The native default is also described in [docs/dom.api.md](docs/dom.api.md).
