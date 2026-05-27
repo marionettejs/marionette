@@ -11,16 +11,8 @@ permissions:
 
 jobs:
   test:
-    name: Node ${{ matrix.node-version }}
+    name: Node 24
     runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        node-version:
-          - 20
-          - 22
-          - 24
 
     steps:
       - name: Checkout
@@ -29,7 +21,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
@@ -48,6 +40,6 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: coverage-node-${{ matrix.node-version }}
+          name: coverage-node-24
           path: coverage/
           if-no-files-found: ignore
