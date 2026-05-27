@@ -1,0 +1,21 @@
+package.json
+  s_4d573ea9dfffe8::t_5754ee87a74020 66
+.github/workflows/ci.yml
+  s_4d573ea9dfffe8::t_5754ee87a74020 31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "6ca35272efec36d31863e9ea25855473a134d92b",
+  "prompts": {},
+  "sessions": {
+    "s_4d573ea9dfffe8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e600b-af0f-7401-bd80-18d8736333e1",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
