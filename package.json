@@ -63,6 +63,7 @@
     "coverage": "vitest run --coverage",
     "coveralls": "npm run coverage && cat coverage/lcov.info | coveralls",
     "lint": "eslint --fix backbone.js config/ index.js jquery-dom-api.js mixins/ modules/ test/setup/vitest.js test/unit/ utils/ vitest.config.js",
+    "lint:ci": "eslint --max-warnings=0 backbone.js config/ index.js jquery-dom-api.js mixins/ modules/ test/setup/vitest.js test/unit/ utils/ vitest.config.js",
     "test": "vitest run"
   },
   "bugs": {
