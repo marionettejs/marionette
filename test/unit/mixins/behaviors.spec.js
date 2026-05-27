@@ -149,8 +149,6 @@ describe('Behaviors Mixin', function() {
 
   describe('#_getBehaviorTriggers', function() {
     let behaviorsInstance;
-    let FooBehavior;
-    let BarBehavior;
     let triggers;
 
     beforeEach(function() {
@@ -158,26 +156,16 @@ describe('Behaviors Mixin', function() {
       triggers = {
         'click @ui.foo': 'bar'
       };
-      FooBehavior = Behavior.extend({});
-
-      this.sinon.stub(FooBehavior.prototype, '_getTriggers').callsFake(function() {
-        if (this.triggers) {
-          return this.triggers;
-        } else {
-          return;
-        }
-      });
-
-      BarBehavior = FooBehavior.extend({
-        triggers: triggers
-      });
     });
 
     describe('when triggers are set', function() {
 
       beforeEach(function() {
-        behaviorsInstance.behaviors = {bar: BarBehavior};
-        behaviorsInstance._initBehaviors();
+        behaviorsInstance._behaviors = [{
+          _getTriggers() {
+            return triggers;
+          }
+        }];
       });
 
       it('should return behavior triggers', function() {
@@ -190,8 +178,9 @@ describe('Behaviors Mixin', function() {
     describe('when triggers are not set', function() {
 
       beforeEach(function() {
-        behaviorsInstance.behaviors = {foo: FooBehavior};
-        behaviorsInstance._initBehaviors();
+        behaviorsInstance._behaviors = [{
+          _getTriggers() {}
+        }];
       });
 
       it('should return empty object', function() {
@@ -204,8 +193,6 @@ describe('Behaviors Mixin', function() {
 
   describe('#_getBehaviorEvents', function() {
     let behaviorsInstance;
-    let FooBehavior;
-    let BarBehavior;
     let events;
 
     beforeEach(function() {
@@ -213,26 +200,16 @@ describe('Behaviors Mixin', function() {
       events = {
         'click @ui.foo': 'bar'
       };
-      FooBehavior = Behavior.extend({});
-
-      this.sinon.stub(FooBehavior.prototype, '_getEvents').callsFake(function() {
-        if (this.events) {
-          return this.events;
-        } else {
-          return;
-        }
-      });
-
-      BarBehavior = FooBehavior.extend({
-        events: events
-      });
     });
 
     describe('when events are set', function() {
 
       beforeEach(function() {
-        behaviorsInstance.behaviors = {bar: BarBehavior};
-        behaviorsInstance._initBehaviors();
+        behaviorsInstance._behaviors = [{
+          _getEvents() {
+            return events;
+          }
+        }];
       });
 
       it('should return behavior events', function() {
@@ -245,8 +222,9 @@ describe('Behaviors Mixin', function() {
     describe('when events are not set', function() {
 
       beforeEach(function() {
-        behaviorsInstance.behaviors = {foo: FooBehavior};
-        behaviorsInstance._initBehaviors();
+        behaviorsInstance._behaviors = [{
+          _getEvents() {}
+        }];
       });
 
       it('should return empty object', function() {
@@ -254,31 +232,6 @@ describe('Behaviors Mixin', function() {
 
         expect(result).to.have.been.deep.equal({});
       });
-    });
-  });
-
-  describe('#_proxyBehaviorViewProperties', function() {
-    let behaviorsInstance;
-    let FooBehavior;
-    let BarBehavior;
-
-    beforeEach(function() {
-      behaviorsInstance = new Behaviors();
-      FooBehavior = Behavior.extend({});
-      BarBehavior = Behavior.extend({});
-
-      this.sinon.spy(FooBehavior.prototype, 'proxyViewProperties');
-      this.sinon.spy(BarBehavior.prototype, 'proxyViewProperties');
-
-      behaviorsInstance.behaviors = {foo: FooBehavior, bar: BarBehavior};
-      behaviorsInstance._initBehaviors();
-    });
-
-    it('should invoke proxyViewProperties', function() {
-      behaviorsInstance._proxyBehaviorViewProperties();
-
-      expect(FooBehavior.prototype.proxyViewProperties).to.have.been.calledOnce;
-      expect(BarBehavior.prototype.proxyViewProperties).to.have.been.calledOnce;
     });
   });
 

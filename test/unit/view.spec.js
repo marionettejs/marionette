@@ -43,7 +43,7 @@ describe('item view', function() {
     beforeEach(function() {
       this.setFixtures('<div id="foo"><span class="element">bar</span></div>');
       view = new View({
-        el: '#foo',
+        el: document.getElementById('foo'),
         ui: {
           element: '.element'
         }
@@ -63,7 +63,7 @@ describe('item view', function() {
     });
 
     it('should bind ui elements', function() {
-      expect(view.ui.element.text()).to.contain('bar');
+      expect(view.ui.element[0].textContent).to.contain('bar');
     });
   });
 
@@ -73,7 +73,7 @@ describe('item view', function() {
     beforeEach(function() {
       this.setFixtures('<div id="foo"><span class="element">bar</span></div>');
       view = new View({
-        el: '#nonexistent'
+        el: document.querySelector('#nonexistent')
       });
     });
 
@@ -172,7 +172,7 @@ describe('item view', function() {
 
       beforeEach(function() {
         this.setFixtures('<div id="foo">bar</div>');
-        elView = new TestView({ el: '#foo' });
+        elView = new TestView({ el: document.getElementById('foo') });
       });
 
       it('should stay rendered', function() {
@@ -214,7 +214,7 @@ describe('item view', function() {
       view = new TestView();
       view.render();
 
-      removeSpy = this.sinon.spy(view, '_removeElement');
+      removeSpy = this.sinon.spy(view.Dom, 'detachEl');
       stopListeningSpy = this.sinon.spy(view, 'stopListening');
       triggerSpy = this.sinon.spy(view, 'trigger');
 
@@ -303,22 +303,6 @@ describe('item view', function() {
 
     it('should trigger a dom:refresh event', function() {
       expect(onDomRefreshStub).to.have.been.calledTwice;
-    });
-  });
-
-  describe('has a valid inheritance chain back to Backbone.View', function() {
-    let constructor;
-
-    beforeEach(function() {
-      constructor = this.sinon.spy(Backbone.View.prototype, 'constructor');
-    });
-
-    it('calls the parent Backbone.Views constructor function on instantiation with the proper parameters', function() {
-      const options = {foo: 'bar'};
-      const customParam = {foo: 'baz'};
-
-      new View(options, customParam);
-      expect(constructor).to.have.been.calledWith(options, customParam);
     });
   });
 

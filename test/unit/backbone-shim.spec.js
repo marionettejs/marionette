@@ -1,5 +1,7 @@
-import { expect } from 'chai';
+import { createRequire } from 'module';
 import { JSDOM } from 'jsdom';
+
+const require = createRequire(import.meta.url);
 
 describe('Backbone shim', function() {
   let Backbone;
@@ -9,7 +11,7 @@ describe('Backbone shim', function() {
   let previousDocument;
   let previousWindow;
 
-  before(function() {
+  before(async function() {
     previousDocument = global.document;
     previousWindow = global.window;
 
@@ -32,7 +34,7 @@ describe('Backbone shim', function() {
       triggerMethod: Backbone.History.prototype.triggerMethod
     };
 
-    ShimmedBackbone = require('../../backbone').default;
+    ShimmedBackbone = (await import('../../backbone.js')).default;
   });
 
   after(function() {

@@ -245,14 +245,14 @@ describe('CollectionView Data', function() {
         collection.add([{ id: 4 }, { id: 5 }]);
 
         const callArgs = myCollectionView.attachHtml.args[0];
-        const $el = callArgs[1];
-        expect($el).to.equal(myCollectionView.$el);
+        const el = callArgs[1];
+        expect(el).to.equal(myCollectionView.el);
       });
 
       it('should still have all children attached', function() {
         collection.add([{ id: 4 }, { id: 5 }]);
 
-        expect(myCollectionView.$el.children()).to.have.lengthOf(5);
+        expect(myCollectionView.el.children).to.have.lengthOf(5);
       });
     });
 
@@ -276,7 +276,7 @@ describe('CollectionView Data', function() {
       it('should still have all children attached', function() {
         collection.add([{ id: 4 }, { id: 5 }]);
 
-        expect(myCollectionView.$el.children()).to.have.lengthOf(5);
+        expect(myCollectionView.el.children).to.have.lengthOf(5);
       });
     });
   });
@@ -297,7 +297,7 @@ describe('CollectionView Data', function() {
     it('should still have the originally added children in the el', function() {
       collection.remove({ id: 1 });
 
-      expect(myCollectionView.$el.children()).to.have.lengthOf(2);
+      expect(myCollectionView.el.children).to.have.lengthOf(2);
     });
   });
 

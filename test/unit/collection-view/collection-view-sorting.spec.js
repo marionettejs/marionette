@@ -67,7 +67,7 @@ describe('CollectionView - Sorting', function() {
 
 
       it('should not sort the collection', function() {
-        expect(myCollectionView.$el.text()).to.equal(noSortText);
+        expect(myCollectionView.el.textContent).to.equal(noSortText);
       });
 
       it('should not call "before:sort" event', function() {
@@ -92,7 +92,7 @@ describe('CollectionView - Sorting', function() {
         it('should not resort the children on sort', function() {
           myCollectionView.sort();
 
-          expect(myCollectionView.$el.text()).to.equal(noSortText);
+          expect(myCollectionView.el.textContent).to.equal(noSortText);
         });
       });
     });
@@ -109,7 +109,7 @@ describe('CollectionView - Sorting', function() {
 
 
         it('should sort the collection by the collection index', function() {
-          expect(myCollectionView.$el.text()).to.equal(noSortText);
+          expect(myCollectionView.el.textContent).to.equal(noSortText);
         });
 
         it('should call "before:sort" event', function() {
@@ -131,7 +131,7 @@ describe('CollectionView - Sorting', function() {
 
             myCollectionView.render();
 
-            expect(myCollectionView.$el.text()).to.equal(sortText);
+            expect(myCollectionView.el.textContent).to.equal(sortText);
           });
         });
       });
@@ -169,7 +169,7 @@ describe('CollectionView - Sorting', function() {
       });
 
       it('should sort the collectionView by the viewComparator', function() {
-        expect(myCollectionView.$el.text()).to.equal(altSortText);
+        expect(myCollectionView.el.textContent).to.equal(altSortText);
       });
 
       it('should call "before:sort" event', function() {
@@ -230,7 +230,7 @@ describe('CollectionView - Sorting', function() {
 
     it('should sort by the return of getComparator', function() {
 
-      expect(myCollectionView.$el.text()).to.equal(altSortText);
+      expect(myCollectionView.el.textContent).to.equal(altSortText);
     });
   });
 

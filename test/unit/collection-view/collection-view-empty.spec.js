@@ -227,7 +227,26 @@ describe('CollectionView -  Empty', function() {
       it('should not show an emptyView', function() {
         const myCollectionView = new CollectionView({
           collection,
-          emptyView: 'foo'
+          emptyView: _.noop
+        });
+
+        this.sinon.spy(myCollectionView.getEmptyRegion(), 'show');
+        myCollectionView.render();
+
+        expect(myCollectionView.getEmptyRegion().show).to.not.have.been.called;
+      });
+    });
+
+    describe('when emptyView is a non-view object with a prototype', function() {
+      // `_getView` only matches a view class (isViewClass) or a function
+      // (isFunction). A non-function object that exposes `.prototype` without
+      // a `render` method falls through and `_showEmptyView` returns early.
+      // Primitives and plain `{}` blow up earlier inside isViewClass when it
+      // reaches for `.prototype.render`, so they are not silent-skip cases.
+      it('should not show an emptyView', function() {
+        const myCollectionView = new CollectionView({
+          collection,
+          emptyView: { prototype: {} }
         });
 
         this.sinon.spy(myCollectionView.getEmptyRegion(), 'show');

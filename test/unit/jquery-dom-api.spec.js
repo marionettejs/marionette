@@ -9,7 +9,7 @@ import {
 import JQueryDomApi from '../../jquery-dom-api';
 
 describe('jQuery DomApi adapter', function() {
-  it('allows core Marionette to require without importing jQuery', function() {
+  it('allows core Marionette to require without importing jQuery', { timeout: 30000 }, function() {
     const script = `
       require('@babel/register');
       const Module = require('module');

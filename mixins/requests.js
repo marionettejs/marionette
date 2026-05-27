@@ -79,7 +79,7 @@ export default {
     }
 
     const eventArgs = buildEventArgs(name, callback, context);
-    this._rdRequests = reduce(eventArgs, stopReducer.bind(this), this._rdRequests || {});
+    this._rdRequests = reduce(eventArgs, stopReducer.bind(this), this._rdRequests);
 
     return this;
   },

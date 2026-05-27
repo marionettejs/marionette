@@ -230,14 +230,12 @@ describe('template-render', function() {
   describe('when attaching content', function() {
     it('should call the DOM Mixin', function() {
       renderer.el = 'fooEl';
-      renderer.$el = '$fooEl';
       renderer._renderHtml = _.constant('html');
       renderer.render();
 
-      // 3rd argument is for internal use only
       expect(renderer.Dom.setContents)
         .to.have.been.calledOnce
-        .and.calledWith('fooEl', 'html', '$fooEl');
+        .and.calledWithExactly('fooEl', 'html');
     });
   })
 });

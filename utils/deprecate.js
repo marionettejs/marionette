@@ -22,6 +22,7 @@ const deprecate = function(message, test) {
 };
 
 /* istanbul ignore next: can't clear console */
+/* v8 ignore next: can't clear console */
 deprecate._console = typeof console !== 'undefined' ? console : {};
 deprecate._warn = function() {
   const warn = deprecate._console.warn || deprecate._console.log || noop;

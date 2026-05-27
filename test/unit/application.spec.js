@@ -140,7 +140,7 @@ describe('Marionette Application', function() {
     });
 
     it('should get the region selector with getRegion', function() {
-      expect(app.getRegion().$el).to.have.length(1);
+      expect(app.getRegion().el).to.equal('#fixtures');
     });
   });
 

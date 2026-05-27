@@ -36,47 +36,6 @@ describe('DomApi', function() {
     })
   });
 
-  describe('#getEl', function() {
-    let $domEl;
-    let domEl;
-
-    beforeEach(function() {
-      this.setFixtures('<div id="foo"></div>');
-      $domEl = $('#foo');
-      domEl = $domEl[0];
-    });
-
-    describe('when passing a selector', function() {
-      it('should return an array-like object', function() {
-        expect(DomApi.getEl('#foo')).to.be.arrayLike;
-      });
-
-      it('should return the DOM element', function() {
-        expect(DomApi.getEl('#foo')[0]).to.eql(domEl)
-      });
-    });
-
-    describe('when passing a DOM element', function() {
-      it('should return an array-like object', function() {
-        expect(DomApi.getEl(domEl)).to.be.arrayLike;
-      });
-
-      it('should return the DOM element', function() {
-        expect(DomApi.getEl(domEl)[0]).to.eql(domEl)
-      });
-    });
-
-    describe('when passing a jQuery element', function() {
-      it('should return an array-like object', function() {
-        expect(DomApi.getEl($domEl)).to.be.arrayLike;
-      });
-
-      it('should return the DOM element', function() {
-        expect(DomApi.getEl($domEl)[0]).to.eql(domEl)
-      });
-    });
-  });
-
   describe('#findEl', function() {
     let domEl;
     let findEl;

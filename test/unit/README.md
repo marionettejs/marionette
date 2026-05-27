@@ -3,12 +3,12 @@
 
 ### Running unit tests
 
-1. Running just unit tests - `yarn test`
+1. Running just unit tests - `npm run test`
 
-2. Running coverage reporter - `yarn coverage`.
-To check coverage, open `./coverage/lcov-report/index.html`.
+2. Running coverage reporter - `npm run coverage`.
+To check coverage, open `./coverage/index.html`.
 
-3. Running tests in browser - `yarn test-browser`.
+3. Browser-side Mocha runner scripts were removed with the Vitest migration.
 
 
 ### Common concepts for writing tests
