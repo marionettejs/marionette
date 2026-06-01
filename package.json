@@ -95,7 +95,7 @@
     "@rollup/plugin-eslint": "^8.0.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-multi-entry": "^4.0.0",
-    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/coverage-v8": "^4.1.8",
     "backbone": "^1.4.0",
     "coveralls": "3.1.0",
     "easy-sauce": "0.4.2",
@@ -109,6 +109,6 @@
     "sinon": "^19.0.0",
     "sinon-chai": "^4.0.0",
     "underscore": "^1.13.0",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.8"
   }
 }
