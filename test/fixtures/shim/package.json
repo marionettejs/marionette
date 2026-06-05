@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node validate.mjs"
+  },
+  "dependencies": {
+    "backbone": "^1.4.0",
+    "underscore": "^1.13.0"
+  }
+}
