@@ -1,0 +1,54 @@
+test/fixtures/no-default-export/package.json
+  s_4d573ea9dfffe8::t_0d81d94e27fdf1 1-10
+test/fixtures/vite/index.html
+  s_4d573ea9dfffe8::t_0d81d94e27fdf1 1-11
+test/fixtures/cjs-node/validate.cjs
+  s_4d573ea9dfffe8::t_0d81d94e27fdf1 1-5
+.github/workflows/ci.yml
+  s_4d573ea9dfffe8::t_5709230580eb8a 38-40
+test/fixtures/peer-underscore-min/package.json
+  s_4d573ea9dfffe8::t_0d81d94e27fdf1 1-10
+test/fixtures/cjs-node/package.json
+  s_4d573ea9dfffe8::t_0d81d94e27fdf1 1-10
+test/fixtures/esm-node/validate.mjs
+  s_4d573ea9dfffe8::t_0d81d94e27fdf1 1-6
+test/fixtures/peer-underscore-min/validate.mjs
+  s_4d573ea9dfffe8::t_0d81d94e27fdf1 1-9
+test/fixtures/run.mjs
+  s_4d573ea9dfffe8::t_26782b43b66179 33
+  s_4d573ea9dfffe8::t_0d81d94e27fdf1 1-32,34-65
+test/fixtures/esm-node/package.json
+  s_4d573ea9dfffe8::t_0d81d94e27fdf1 1-10
+test/fixtures/no-default-export/validate.mjs
+  s_4d573ea9dfffe8::t_0d81d94e27fdf1 1-14
+test/fixtures/shim/validate.mjs
+  s_4d573ea9dfffe8::t_0d81d94e27fdf1 1-18
+test/fixtures/shim/package.json
+  s_4d573ea9dfffe8::t_0d81d94e27fdf1 1-11
+test/fixtures/jquery-dom-api/package.json
+  s_4d573ea9dfffe8::t_0d81d94e27fdf1 1-12
+test/fixtures/vite/package.json
+  s_4d573ea9dfffe8::t_0d81d94e27fdf1 1-12
+package.json
+  s_4d573ea9dfffe8::t_5709230580eb8a 65,68-69
+test/fixtures/vite/src/main.js
+  s_4d573ea9dfffe8::t_0d81d94e27fdf1 1-6
+test/fixtures/jquery-dom-api/validate.mjs
+  s_4d573ea9dfffe8::t_0d81d94e27fdf1 1-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.3",
+  "base_commit_sha": "f462a94b27365ab79717c7a3f5995d9b8759c0b1",
+  "prompts": {},
+  "sessions": {
+    "s_4d573ea9dfffe8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e600b-af0f-7401-bd80-18d8736333e1",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
