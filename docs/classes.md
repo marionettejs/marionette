@@ -71,7 +71,7 @@ An `Application` provides hooks for organizing and initiating other elements and
 
 `Application` includes:
 - [Class Events](./events.class.md#application-events)
-- [Radio API](./backbone.radio.md#marionette-integration)
+- [Radio API](./radio.md#marionette-integration)
 - [MnObject's API](./marionette.mnobject.md)
 
 An `Application` can have a single [region](./marionette.application.md#application-region).
@@ -82,7 +82,7 @@ An `Application` can have a single [region](./marionette.application.md#applicat
 
 `MnObject` includes:
 - [Class Events](./events.class.md#mnobject-events)
-- [Radio API](./backbone.radio.md#marionette-integration).
+- [Radio API](./radio.md#marionette-integration).
 
 ## Routing in Marionette
 
