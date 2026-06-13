@@ -1,0 +1,19 @@
+upgradeGuide.md
+  s_da6fdffbaaed95::t_2d68a4fa76fc67 1,3-183,187-259,268-289,291,293-295,297-303,307-312,314-317,319-322,324-325,327-330,332-337,342-427
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "bd8e7201619210415c8213b5f466e81835fe37f6",
+  "prompts": {},
+  "sessions": {
+    "s_da6fdffbaaed95": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d2acb2cc-f986-4390-9d62-6bc00592baa9",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
