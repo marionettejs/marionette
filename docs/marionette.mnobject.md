@@ -4,7 +4,7 @@
 `MnObject` includes:
 - [Common Marionette Functionality](./common.md)
 - [Class Events](./events.class.md#mnobject-events)
-- [Radio API](./backbone.radio.md#marionette-integration)
+- [Radio API](./radio.md#marionette-integration)
 
 ## Documentation Index
 
