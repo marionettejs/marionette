@@ -1,0 +1,22 @@
+upgradeGuide.md
+  s_4d573ea9dfffe8::t_9a297997c8ba83 3-5
+docs/migration-from-v4.md
+  s_4d573ea9dfffe8::t_5929e52e76e63e 1-29,31-38,40-44,46-61
+  s_4d573ea9dfffe8::t_9a297997c8ba83 30,39,45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "9d27dd9b741b26ea48a725f1825d770b8f0673c0",
+  "prompts": {},
+  "sessions": {
+    "s_4d573ea9dfffe8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e600b-af0f-7401-bd80-18d8736333e1",
+        "model": "gpt-5.5"
+      },
+      "human_author": null
+    }
+  }
+}
