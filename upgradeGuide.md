@@ -1,6 +1,8 @@
 ## From backbone.marionette.js
 
-Todo
+See the [v4-to-v5 compatibility ledger](docs/migration-from-v4.md) for the
+current public behavior boundary. The ordered migration procedure will be
+expanded in [issue #75](https://github.com/marionettejs/marionette/issues/75).
 
 ## Peer dependency requirements
 
