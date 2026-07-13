@@ -133,18 +133,26 @@ describe('Events parity with Backbone.Events', function() {
     // https://github.com/jashkenas/backbone/blob/1.4.0/backbone.js#L328-L340
     expectParity(Events => {
       const calls = [];
-      let isOuterDispatch = true;
+      let isInnerDispatch = false;
+
+      const secondHandler = () => {
+        calls.push(isInnerDispatch ? 'second:inner' : 'second:outer');
+      };
+      const lateHandler = () => {
+        calls.push(isInnerDispatch ? 'late:inner' : 'late:outer');
+      };
 
       Events.on('alpha', () => {
-        calls.push(isOuterDispatch ? 'first:outer' : 'first:inner');
-        if (isOuterDispatch) {
-          isOuterDispatch = false;
+        calls.push(isInnerDispatch ? 'first:inner' : 'first:outer');
+        if (!isInnerDispatch) {
+          Events.off('alpha', secondHandler);
+          Events.on('alpha', lateHandler);
+          isInnerDispatch = true;
           Events.trigger('alpha');
+          isInnerDispatch = false;
         }
       });
-      Events.on('alpha', () => {
-        calls.push(isOuterDispatch ? 'second:outer' : 'second:inner');
-      });
+      Events.on('alpha', secondHandler);
 
       Events.trigger('alpha');
 
