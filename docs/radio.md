@@ -109,6 +109,9 @@ Channels are shared by name and remain available for the lifetime of the Radio
 module. Clean up handlers when their owning object or feature is destroyed:
 
 ```javascript
+import { MnObject, Radio } from 'marionette';
+
+const owner = new MnObject();
 const channel = Radio.channel('feature');
 
 owner.stopListening(channel);
@@ -158,6 +161,7 @@ const Notifications = MnObject.extend({
 
 const notifications = new Notifications();
 const channel = Radio.channel('notifications');
+const message = { text: 'Hello' };
 
 channel.trigger('message:received', message);
 const count = channel.request('message:count');
