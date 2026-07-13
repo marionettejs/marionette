@@ -1,0 +1,34 @@
+config/bundle-size.json
+  s_7b43d93b74975b::t_87537cfc60d80e 1-22
+.github/workflows/ci.yml
+  s_7b43d93b74975b::t_b1205f99d8b520 92,94,96-102
+  s_7b43d93b74975b::t_71cceab292ae14 66-72,74-78,80-84,86,89-91,93,95,103-104,106
+  s_7b43d93b74975b::t_0577456c1ed43a 73,105
+  s_7b43d93b74975b::t_92289d77aef1d0 85,87-88
+.github/workflows/bundle-size-comment.yml
+  s_7b43d93b74975b::t_b1205f99d8b520 1-47
+config/bundle-size.mjs
+  s_7b43d93b74975b::t_b1205f99d8b520 72,104
+  s_7b43d93b74975b::t_71cceab292ae14 1-71,73-93,100-103,105-108,116
+  s_7b43d93b74975b::t_d0fe9b03f4bda9 94-99
+  s_7b43d93b74975b::t_25b36449cb276c 109-115,117-118
+package.json
+  s_7b43d93b74975b::t_71cceab292ae14 68
+  s_7b43d93b74975b::t_46bc103ba6405e 65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.12",
+  "base_commit_sha": "5b8c921b81475c1a4291a8120d572ef250a129d6",
+  "prompts": {},
+  "sessions": {
+    "s_7b43d93b74975b": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f5a3b-2e6e-7dc2-abe9-d96f3a72d000",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
