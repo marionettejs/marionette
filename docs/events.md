@@ -61,7 +61,10 @@ listener.stopListening(emitter);
 | `listenToOnce(object, name, callback)` | Listen to another emitter once. |
 | `triggerMethod(name, ...args)` | Trigger an event and call its matching `onEventName` method. |
 
-Event names may be space-separated. Object-form `trigger` maps each key to the
+`trigger`, `on`, `off`, `once`, `listenTo`, `listenToOnce`, and
+`stopListening` accept space-separated event names. `triggerMethod` delegates
+to `trigger` for listener notification, but call it once per event when you
+need matching `onEventName` methods. Object-form `trigger` maps each key to the
 single value passed to that event's handlers:
 
 ```javascript
@@ -173,7 +176,9 @@ view.listenTo(model, 'change', () => {
 The shim applies Marionette's `Events` mixin to supported Backbone instance
 prototypes. It does not add Marionette event helpers to the `Backbone`
 namespace. Import it before creating Backbone instances so all subscriptions
-use the same bookkeeping.
+use the same bookkeeping. Handlers registered before the shim import remain in
+Backbone's `_events` store and will not fire after the shim replaces the
+instance event methods; recreate those subscriptions after importing the shim.
 
 ### Private bookkeeping
 
@@ -187,7 +192,7 @@ either set of private fields.
 
 In addition to triggering listeners, `triggerMethod` can call specially named
 methods on the instance. For
-example, a view that has been rendered will iternally fire `view.triggerMethod('render')`
+example, a view that has been rendered will internally fire `view.triggerMethod('render')`
 and call `onRender` - providing a handy way to add behavior to your views.
 
 Determining what method an event will call is easy, we will outline this with an
