@@ -142,6 +142,10 @@ import { MnObject, Radio } from 'marionette';
 const Notifications = MnObject.extend({
   channelName: 'notifications',
 
+  initialize() {
+    this.messages = [];
+  },
+
   radioEvents: {
     'message:received': 'showMessage'
   },
