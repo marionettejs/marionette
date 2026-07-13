@@ -1,0 +1,19 @@
+test/unit/events-parity.spec.js
+  s_7b43d93b74975b::t_041195b0c7fb5d 1-163
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.12",
+  "base_commit_sha": "a6c0d9ba8f827708e6530fc844f57ab4af5e9a0a",
+  "prompts": {},
+  "sessions": {
+    "s_7b43d93b74975b": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f5a3b-2e6e-7dc2-abe9-d96f3a72d000",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
