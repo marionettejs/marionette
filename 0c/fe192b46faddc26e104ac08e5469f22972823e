@@ -1,0 +1,21 @@
+test/unit/radio.spec.js
+  s_7b43d93b74975b::t_08b07e12e5d0e3 30-33,36-72,174,178,221-226
+test/unit/requests.spec.js
+  s_7b43d93b74975b::t_08b07e12e5d0e3 1-52
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.12",
+  "base_commit_sha": "0cfe192b46faddc26e104ac08e5469f22972823e",
+  "prompts": {},
+  "sessions": {
+    "s_7b43d93b74975b": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f5a3b-2e6e-7dc2-abe9-d96f3a72d000",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
