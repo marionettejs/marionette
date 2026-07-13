@@ -1,18 +1,19 @@
 # Marionette Events
 
-The Marionette Event system provides a system for objects to communicate with
-each other in a uniform way. In Marionette, this involves one object triggering
-an event that another listens to. This is an extended from of the
-[event handling system in Backbone](http://backbonejs.org/#Events), and is
-different than [DOM related events](./dom.interactions.md#binding-to-user-input).
-It is mixed in to every [Marionette class](./classes.md).
+Marionette v5 provides its own `Events` primitive for communication between
+objects. It is exported from `marionette`, mixed into every
+[Marionette class](./classes.md), and does not require Backbone. These object
+events are separate from [DOM events](./dom.interactions.md#binding-to-user-input).
 
 ## Documentation Index
 
 * [Triggering and Listening to Events](#triggering-and-listening-to-events)
+  * [Events API](#events-api)
   * [`triggerMethod`](#triggermethod)
   * [Listening to Events](#listening-to-events)
     * [`onEvent` Binding](#onevent-binding)
+  * [Backbone interop](#backbone-interop)
+  * [Private bookkeeping](#private-bookkeeping)
   * [View events and triggers](#view-events-and-triggers)
   * [View entity events](#view-entity-events)
 * [Child View Events](#child-view-events)
@@ -29,20 +30,59 @@ It is mixed in to every [Marionette class](./classes.md).
 
 ## Triggering and Listening to Events
 
-The traditional [event handling system in Backbone](http://backbonejs.org/#Events)
-is fully supported in Marionette. Marionette, however, provides an additional
-event API using the `triggerMethod` method - the key difference between the two
-is that `triggerMethod` automatically calls specially named event handlers.
+Use the `Events` export directly when a plain object needs Marionette's event
+API, or use the same methods already present on a Marionette class.
+
+```javascript
+import { Events, MnObject } from 'marionette';
+import { extend } from 'underscore';
+
+const emitter = extend({}, Events);
+const listener = new MnObject();
+
+listener.listenTo(emitter, 'status:changed', status => {
+  console.log(status);
+});
+
+emitter.trigger('status:changed', 'ready');
+listener.stopListening(emitter);
+```
+
+### Events API
+
+| Method | Purpose |
+| --- | --- |
+| `on(name, callback, context?)` | Register a callback on this object. |
+| `off(name?, callback?, context?)` | Remove matching callbacks registered with `on`. |
+| `trigger(name, ...args)` | Trigger one or more named events. |
+| `once(name, callback, context?)` | Register a callback that is removed after its first call. |
+| `listenTo(object, name, callback)` | Listen to another emitter while tracking the relationship on this object. |
+| `stopListening(object?, name?, callback?)` | Remove relationships created with `listenTo` or `listenToOnce`. |
+| `listenToOnce(object, name, callback)` | Listen to another emitter once. |
+| `triggerMethod(name, ...args)` | Trigger an event and call its matching `onEventName` method. |
+
+Event names may be space-separated. Object-form `trigger` maps each key to the
+single value passed to that event's handlers:
+
+```javascript
+emitter.on('start stop', value => console.log(value));
+emitter.trigger('start stop', 'manual');
+
+emitter.trigger({
+  start: 'automatic',
+  stop: 'complete'
+});
+```
 
 ### `triggerMethod`
 
-Just like `Backbone`'s [`trigger`](http://backbonejs.org/#Events-trigger) the
-`triggerMethod` method fires the named event on the instance - any listeners will then
-be triggered on the event. If there are no listeners, this call will still succeed.
-All arguments after the first event name string will be passed to all event handlers.
+`triggerMethod` fires the named event on the instance and also invokes the
+matching `onEventName` method when it exists. If there are no listeners or
+matching method, the call still succeeds. All arguments after the event name
+are passed to both the method and event handlers.
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   callMethod(myString) {
@@ -51,7 +91,6 @@ const MyView = View.extend({
 });
 
 const myView = new MyView();
-/* See Backbone.listenTo */
 myView.on('something:happened', myView.callMethod);
 
 /* Calls callMethod('foo'); */
@@ -64,11 +103,10 @@ myView.triggerMethod('something:happened', 'foo');
 
 ### Listening to Events
 
-Marionette's event triggers work just like regular Backbone events - you can
-use `myView.on` and `myObject.listenTo` to act on events:
+Use `on` to register a callback directly on an emitter:
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   initialize() {
@@ -83,10 +121,10 @@ const MyView = View.extend({
 
 [Live example](https://jsfiddle.net/marionettejs/90Larbty/)
 
-You can also use `listenTo` as in Backbone:
+Use `listenTo` when the listener should own and later clean up the subscription:
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const OtherView = View.extend({
   initialize(someView) {
@@ -109,17 +147,46 @@ myView.triggerMethod('event:happened', 'someValue'); // Logs 'someValue'
 
 [Live examples](https://jsfiddle.net/marionettejs/cm2rczqz/)
 
-As in [Backbone](http://backbonejs.org/#Events), `listenTo` will pass the object
-it is called on in as the context variable. These behave exactly as in Backbone,
-so using `object.on` will require you to unhook any event handlers yourself to
-prevent memory leaks. Marionette, however, does provide extra helpers as part of
-the view lifecycle that bind and unbind event handlers for you. this is the
-core of `onEvent` Binding.
+`listenTo` calls the callback with the listener as its context and records the
+relationship for `stopListening`. A direct `on` subscription must be removed
+with `off` when it is no longer needed. Marionette view lifecycles also clean up
+their tracked `listenTo` relationships during destruction.
+
+### Backbone interop
+
+Backbone is optional. When an application uses Backbone entities, import the
+explicit shim before constructing them:
+
+```javascript
+import 'marionette/backbone';
+import Backbone from 'backbone';
+import { View } from 'marionette';
+
+const model = new Backbone.Model();
+const view = new View();
+
+view.listenTo(model, 'change', () => {
+  // ...
+});
+```
+
+The shim applies Marionette's `Events` mixin to supported Backbone instance
+prototypes. It does not add Marionette event helpers to the `Backbone`
+namespace. Import it before creating Backbone instances so all subscriptions
+use the same bookkeeping.
+
+### Private bookkeeping
+
+Marionette stores event internals under `_rdEvents`, `_rdListeningTo`,
+`_rdListeners`, and `_rdListenId`. These fields are private and replace the
+Backbone-shaped `_events`, `_listeningTo`, and `_listenId` names. Plugins should
+use `on`, `off`, `listenTo`, and `stopListening` instead of reading or writing
+either set of private fields.
 
 #### `onEvent` Binding
 
-The major difference between `Backbone.trigger` and `triggerMethod` is
-that `triggerMethod` can fire specially named events on the instance. For
+In addition to triggering listeners, `triggerMethod` can call specially named
+methods on the instance. For
 example, a view that has been rendered will iternally fire `view.triggerMethod('render')`
 and call `onRender` - providing a handy way to add behavior to your views.
 
@@ -136,7 +203,7 @@ Using this process, `before:dom:refresh` will call the `onBeforeDomRefresh`
 method. Let's see it in action with a custom event:
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   onMyEvent(myVal) {
@@ -161,7 +228,7 @@ Views can automatically bind DOM events to methods and View events with [`events
 and [`triggers`](./dom.interactions.md#view-triggers) respectively:
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   events: {
@@ -192,7 +259,7 @@ Views can automatically bind to its model or collection with [`modelEvents`](./e
 and [`collectionEvents`](./events.entity.md#collection-events) respectively.
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   modelEvents: {
@@ -225,7 +292,7 @@ on a view are automatically propagated to their direct parents as well. Let's
 see a quick example:
 
 ```javascript
-import { View, CollectionView } from 'backbone.marionette';
+import { View, CollectionView } from 'marionette';
 
 const Item = View.extend({
   tagName: 'li',
@@ -265,7 +332,7 @@ When using implicit listeners, the [`childview:*` event prefix](#a-child-views-e
 needs to be included as part of the handler:
 
 ```javascript
-import { View, } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   triggers: {
@@ -305,7 +372,7 @@ const ParentView = View.extend({
 This works exactly the same way for the `CollectionView` and its `childView`:
 
 ```javascript
-import { View, CollectionView } from 'backbone.marionette';
+import { View, CollectionView } from 'marionette';
 
 const MyChild = View.extend({
   triggers: {
@@ -333,18 +400,19 @@ The default value for `childViewEventPrefix` is `false`. Setting this property t
 `false` will disable [automatic event bubbling](#event-bubbling).
 
 ```javascript
+import 'marionette/backbone';
 import Backbone from 'backbone';
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 import MyChildView from './my-child-view';
 
 const myCollection = new Backbone.Collection([{}]);
 
-const CollectionView = CollectionView.extend({
+const MyCollectionView = CollectionView.extend({
   childViewEventPrefix: 'some:prefix',
   childView: MyChildView
 });
 
-const collectionView = new CollectionView({
+const collectionView = new MyCollectionView({
   collection: myCollection
 });
 
@@ -368,7 +436,7 @@ fired on child views - _without the `childview:` prefix_ - and calls the
 method referenced or attached function.
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   triggers: {
@@ -403,7 +471,7 @@ The `childViewEvents` attribute can also attach functions directly to be event
 handlers:
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   triggers: {
@@ -433,7 +501,7 @@ const ParentView = View.extend({
 #### Using `CollectionView`'s `childViewEvents`
 
 ```javascript
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 
 // childViewEvents can be specified as a hash...
 const MyCollectionView = CollectionView.extend({
@@ -457,7 +525,7 @@ setting bindings. The values of the hash should be a string of the event to trig
 in the same way that [view `triggers`](./dom.interaction.md#view-triggers) are sugar for [view `events`](./dom.interactions.md#view-events).
 
 ```javascript
-import { View, CollectionView } from 'backbone.marionette';
+import { View, CollectionView } from 'marionette';
 
 // The child view fires a custom event, `show:message`
 const ChildView = View.extend({
@@ -522,7 +590,7 @@ const GrandParentView = View.extend({
 #### Using `CollectionView`'s `childViewTriggers`
 
 ```javascript
-import { View, CollectionView } from 'backbone.marionette';
+import { View, CollectionView } from 'marionette';
 
 // The child view fires a custom event, `show:message`
 const ChildView = View.extend({
