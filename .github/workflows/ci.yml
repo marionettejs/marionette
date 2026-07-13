@@ -50,9 +50,6 @@ jobs:
     name: Bundle size
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
 
     steps:
       - name: Checkout
@@ -66,7 +63,44 @@ jobs:
           node-version: 24
           cache: npm
 
-      - name: Check bundle size
-        uses: andresz1/size-limit-action@94bc357df29c36c8f8d50ea497c3e225c3c95d1d # v1.8.0
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build current branch
+        run: npm run build
+
+      - name: Check bundle-size budgets
+        id: bundle_size
+        continue-on-error: true
+        run: node config/bundle-size.mjs --json > bundle-size-current.json
+
+      - name: Checkout base branch
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.base_ref }}
+          path: bundle-size-base
+          persist-credentials: false
+
+      - name: Build base branch
+        working-directory: bundle-size-base
+        run: |
+          npm ci
+          npm run build
+
+      - name: Compare bundle sizes
+        run: |
+          node config/bundle-size.mjs --root bundle-size-base --json --no-enforce > bundle-size-base.json
+          node config/bundle-size.mjs --report bundle-size-base.json bundle-size-current.json > bundle-size-report.md
+          cat bundle-size-report.md >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Upload bundle-size report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: bundle-size-report
+          path: bundle-size-report.md
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Enforce bundle-size budgets
+        if: steps.bundle_size.outcome == 'failure'
+        run: exit 1

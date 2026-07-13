@@ -1,0 +1,47 @@
+name: Bundle size comment
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+
+permissions:
+  actions: read
+  pull-requests: write
+
+jobs:
+  comment:
+    name: Comment on pull request
+    if: github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download bundle-size report
+        id: download
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: gh run download "${RUN_ID}" --repo "${GITHUB_REPOSITORY}" --name bundle-size-report
+
+      - name: Comment bundle-size changes
+        if: steps.download.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          pr_number="$(jq -r '.workflow_run.pull_requests[0].number // empty' "${GITHUB_EVENT_PATH}")"
+          if [[ ! "${pr_number}" =~ ^[0-9]+$ ]]; then
+            echo 'No pull request number found for workflow run.' >&2
+            exit 1
+          fi
+
+          marker='<!-- bundle-size-report -->'
+          comment_id="$(gh api "repos/${GITHUB_REPOSITORY}/issues/${pr_number}/comments" --paginate --jq ".[] | select(.body | startswith(\"${marker}\")) | .id" | head -n 1)"
+          if [ -n "${comment_id}" ]; then
+            gh api --method PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${comment_id}" -F body=@bundle-size-report.md
+          else
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/${pr_number}/comments" -F body=@bundle-size-report.md
+          fi

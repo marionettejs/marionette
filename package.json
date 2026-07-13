@@ -62,10 +62,10 @@
     "build": "rollup -c --noConflict",
     "coverage": "vitest run --coverage",
     "coveralls": "npm run coverage && cat coverage/lcov.info | coveralls",
-    "lint:base": "eslint backbone.js config/ index.js jquery-dom-api.js mixins/ modules/ test/fixtures/ test/setup/vitest.js test/unit/ utils/ vitest.config.js",
+    "lint:base": "eslint backbone.js config/ config/bundle-size.mjs index.js jquery-dom-api.js mixins/ modules/ test/fixtures/ test/setup/vitest.js test/unit/ utils/ vitest.config.js",
     "lint": "npm run lint:base -- --fix",
     "lint:ci": "npm run lint:base -- --max-warnings=0",
-    "size": "npm run build && size-limit",
+    "size": "npm run build && node config/bundle-size.mjs",
     "test": "vitest run",
     "test:fixtures": "node test/fixtures/run.mjs"
   },
@@ -99,7 +99,6 @@
     "@rollup/plugin-eslint": "^8.0.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-multi-entry": "^4.0.0",
-    "@size-limit/file": "12.1.0",
     "@vitest/coverage-v8": "^4.1.8",
     "backbone": "^1.4.0",
     "coveralls": "3.1.0",
@@ -113,7 +112,6 @@
     "rollup-plugin-terser": "7.0.2",
     "sinon": "^19.0.0",
     "sinon-chai": "^4.0.0",
-    "size-limit": "12.1.0",
     "underscore": "^1.13.0",
     "vitest": "^4.1.8"
   }
