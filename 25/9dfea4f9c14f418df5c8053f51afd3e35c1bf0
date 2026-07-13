@@ -1,0 +1,19 @@
+docs/radio.md
+  s_7b43d93b74975b::t_9a04c2d10132fe 145-148
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.12",
+  "base_commit_sha": "259dfea4f9c14f418df5c8053f51afd3e35c1bf0",
+  "prompts": {},
+  "sessions": {
+    "s_7b43d93b74975b": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f5a3b-2e6e-7dc2-abe9-d96f3a72d000",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
