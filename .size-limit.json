@@ -1,0 +1,22 @@
+[
+  {
+    "name": "ES module",
+    "path": "dist/marionette.js",
+    "limit": "20825 B"
+  },
+  {
+    "name": "CommonJS",
+    "path": "dist/marionette.cjs",
+    "limit": "20998 B"
+  },
+  {
+    "name": "Minified UMD",
+    "path": "dist/marionette.min.js",
+    "limit": "10526 B"
+  },
+  {
+    "name": "Backbone shim",
+    "path": "dist/backbone.js",
+    "limit": "127 B"
+  }
+]
