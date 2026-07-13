@@ -35,9 +35,8 @@ API, or use the same methods already present on a Marionette class.
 
 ```javascript
 import { Events, MnObject } from 'marionette';
-import { extend } from 'underscore';
 
-const emitter = extend({}, Events);
+const emitter = Object.assign({}, Events);
 const listener = new MnObject();
 
 listener.listenTo(emitter, 'status:changed', status => {
@@ -178,7 +177,7 @@ prototypes. It does not add Marionette event helpers to the `Backbone`
 namespace. Import it before creating Backbone instances so all subscriptions
 use the same bookkeeping. Handlers registered before the shim import remain in
 Backbone's `_events` store and will not fire after the shim replaces the
-instance event methods; recreate those subscriptions after importing the shim.
+prototype event methods; recreate those subscriptions after importing the shim.
 
 ### Private bookkeeping
 
