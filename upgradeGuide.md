@@ -213,6 +213,8 @@ import Mn from 'backbone.marionette';
 //   npm install jquery
 import { setDomApi } from 'marionette';
 import JQueryDomApi from 'marionette/jquery-dom-api';
+
+setDomApi(JQueryDomApi);
 ```
 
 ## Optional jQuery DomApi adapter
@@ -392,15 +394,14 @@ plugins that read or write those private fields directly will not find them.
 
 This is private API. Use the public `on`, `off`, `listenTo`, `listenToOnce`,
 and `stopListening` methods instead. See [Events docs](docs/events.md) for the
-public surface.
+public surface. There is no public replacement for counting or inspecting
+registered handlers; redesign plugins that depend on that private state.
 
 ```js
 // v4 (before) — reaching into private Backbone event fields
 const count = Object.keys(obj._events || {}).length;
 
-// v5 (after) — use the public API; do not read private `_rd*` fields
-obj.on('some:event', handler);
-obj.stopListening();
+// v5 (after) — no public equivalent; remove private-field introspection
 ```
 
 ## Removed or not-restored APIs
@@ -423,5 +424,3 @@ obj.stopListening();
 For the complete per-area status table (Preserved / Changed / Removed /
 Optional / Renamed / Documented) and the precise public behavior boundary, see
 the [v4-to-v5 compatibility ledger](docs/migration-from-v4.md).
-</content>
-</invoke>
