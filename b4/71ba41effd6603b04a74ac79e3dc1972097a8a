@@ -1,0 +1,20 @@
+docs/events.md
+  s_7b43d93b74975b::t_26f31d54ba4f80 3-6,11,15-16,33-75,79-82,85,106,109,124,127,150-184,188-189
+  s_7b43d93b74975b::t_81afc2f7ee5078 206,231,262,295,335,375,403,405,410,415,439,474,504,528,593
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.12",
+  "base_commit_sha": "b471ba41effd6603b04a74ac79e3dc1972097a8a",
+  "prompts": {},
+  "sessions": {
+    "s_7b43d93b74975b": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f5a3b-2e6e-7dc2-abe9-d96f3a72d000",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
