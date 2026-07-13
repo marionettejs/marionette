@@ -141,9 +141,10 @@ import Mn from 'backbone.marionette';
 
 // v5 (after) — install and import Backbone only where you use it
 //   npm install backbone
-import { Model, Collection } from 'backbone';
+import Backbone from 'backbone';
 import { View } from 'marionette';
 
+const { Model, Collection } = Backbone;
 const list = new Collection();
 const ListView = View.extend({ /* ... */ });
 ```
@@ -332,8 +333,10 @@ import $ from 'jquery';
 import { View } from 'marionette';
 
 const LegacyView = View.extend({
-  initialize() {
+  setElement(element) {
+    View.prototype.setElement.call(this, element);
     this.$el = $(this.el);
+    return this;
   }
 });
 ```
@@ -357,6 +360,10 @@ const LegacyView = View.extend({
 
 ```js
 // v4 (before) — jQuery detach preserved .on()/.data() bookkeeping implicitly
+const $widget = view.$('.legacy-widget');
+$widget.on('refresh', refreshWidget).data('state', widgetState);
+view.getRegion('content').empty();
+view.el.appendChild($widget[0]); // handler and data still exist
 
 // v5 (after) — opt back into jQuery detach only if you rely on that bookkeeping
 import { setDomApi } from 'marionette';
