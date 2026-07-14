@@ -1,6 +1,6 @@
 # Marionette Events
 
-Marionette v5 provides its own `Events` primitive for communication between
+Marionette provides its own `Events` primitive for communication between
 objects. It is exported from `marionette`, mixed into every
 [Marionette class](./classes.md), and does not require Backbone. These object
 events are separate from [DOM events](./dom.interactions.md#binding-to-user-input).
