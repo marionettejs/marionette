@@ -94,11 +94,10 @@ More information on `triggerMethod` can be found in the [Marionette events docum
 ### `bindEvents`
 
 This method is used to bind any object that works with the [`Backbone.Events` API](#events-api).
-This includes all Backbone classes, Marionette classes and [Radio](./backbone.radio.md) channels.
+This includes all Backbone classes, Marionette classes and [Radio](./radio.md) channels.
 
 ```javascript
-import Radio from 'backbone.radio';
-import { View } from 'backbone.marionette';
+import { Radio, View } from 'marionette';
 
 const MyView = View.extend({
   fooEvents: {
@@ -128,13 +127,12 @@ configuration. A function can be supplied instead of a string handler name.
 ### `unbindEvents`
 
 This method is used to unbind any object that works with the [`Backbone.Events` API](#events-api).
-This includes all Backbone classes, Marionette classes and [Radio](./backbone.radio.md) channels.
+This includes all Backbone classes, Marionette classes and [Radio](./radio.md) channels.
 
 Calling this method without a events hash will unbind all events from the channel.
 
 ```javascript
-import Radio from 'backbone.radio';
-import { View } from 'backbone.marionette';
+import { Radio, View } from 'marionette';
 
 const MyView = View.extend({
   fooEvents: {
@@ -173,12 +171,11 @@ If the second paramater is not supplied, all listeners are removed.
 
 ### `bindRequests`
 
-This method is used to bind any object that works with the [`Backbone.Radio` Request API](https://github.com/marionettejs/backbone.radio#backboneradiorequests).
-This includes [Radio](./backbone.radio.md) channels.
+This method is used to bind any object that works with the [Radio request API](./radio.md#requests-and-replies).
+This includes [Radio](./radio.md) channels.
 
 ```javascript
-import Radio from 'backbone.radio';
-import { View } from 'backbone.marionette';
+import { Radio, View } from 'marionette';
 
 const MyView = View.extend({
   channelName: 'myChannelName',
@@ -211,7 +208,7 @@ configuration. A function can be supplied instead of a string handler name.
 
 ### `unbindRequests`
 
-This method is used to unbind any object that works with the [`Backbone.Radio` Request API](https://github.com/marionettejs/backbone.radio#backboneradiorequests).
+This method is used to unbind any object that works with the [Radio request API](./radio.md#requests-and-replies).
 
 Calling this method without a radio requests hash will unbind all requests
 from the channel.
@@ -220,8 +217,7 @@ from the channel.
 in or before `onBeforeDestroy`.**
 
 ```javascript
-import Radio from 'backbone.radio';
-import { View } from 'backbone.marionette';
+import { Radio, View } from 'marionette';
 
 const MyView = View.extend({
   channelName: 'myChannelName',

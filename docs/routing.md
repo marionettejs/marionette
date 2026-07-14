@@ -26,7 +26,7 @@ features while maintaining a similar to Marionette API.
 
 ### [Backbone.Eventrouter](https://github.com/RoundingWellOS/backbone.eventrouter)
 
-A highly opinionated, simplistic Backbone.Router coupled with a Backbone.Radio.Channel.
+A highly opinionated, simplistic Backbone.Router coupled with a Radio channel.
 When an event is triggered on the channel, it will set the route URL, or when a URL matches
 a route it will throw an event on the channel.
 
