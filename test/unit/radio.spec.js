@@ -27,10 +27,49 @@ describe('Radio', function() {
     expect(handler).to.have.been.calledOnce.and.calledWith(1);
   });
 
-  it('proxies requests through the top-level API', function() {
-    Radio.reply('foo', 'bar', 'baz');
+  it('requests channel replies through the top-level API', function() {
+    const handler = this.sinon.stub().returns('baz');
+
+    Radio.channel('foo').reply('bar', handler);
 
     expect(Radio.request('foo', 'bar')).to.equal('baz');
+    expect(handler).to.have.been.calledOnce;
+  });
+
+  it('forwards event and request methods through the top-level API', function() {
+    const channel = Radio.channel('foo');
+    const methods = [
+      'on',
+      'off',
+      'once',
+      'listenTo',
+      'listenToOnce',
+      'stopListening',
+      'trigger',
+      'triggerMethod',
+      'reply',
+      'replyOnce',
+      'stopReplying',
+      'request'
+    ];
+
+    methods.forEach(method => {
+      const forwarded = this.sinon.stub(channel, method).returns(method);
+
+      expect(Radio[method]('foo', 'first', 'second')).to.equal(method);
+      expect(forwarded).to.have.been.calledOnce.and.calledOn(channel).and.calledWithExactly('first', 'second');
+    });
+  });
+
+  it('exposes triggerMethod through Radio', function() {
+    const channel = Radio.channel('foo');
+    const handler = this.sinon.stub();
+    channel.onRequestComplete = this.sinon.stub().returns('complete');
+    channel.on('request:complete', handler);
+
+    expect(Radio.triggerMethod('foo', 'request:complete', 1)).to.equal('complete');
+    expect(channel.onRequestComplete).to.have.been.calledOnce.and.calledOn(channel).and.calledWithExactly(1);
+    expect(handler).to.have.been.calledOnce.and.calledWithExactly(1);
   });
 
   it('debug logs overwritten requests when enabled', function() {
@@ -132,11 +171,11 @@ describe('Radio', function() {
   it('logs tuned in events and requests', function() {
     const log = this.sinon.stub(console, 'log');
 
-    Radio.tuneIn('foo');
+    expect(Radio.tuneIn('foo')).to.equal(Radio);
     Radio.trigger('foo', 'bar', 1);
     Radio.reply('foo', 'baz', 'qux');
     Radio.request('foo', 'baz', 2);
-    Radio.tuneOut('foo');
+    expect(Radio.tuneOut('foo')).to.equal(Radio);
     Radio.trigger('foo', 'bar', 3);
 
     expect(log).to.have.been.calledTwice;
@@ -178,5 +217,11 @@ describe('Radio', function() {
     Radio.reset();
     Radio.trigger('bar', 'event');
     expect(barHandler).to.have.been.calledOnce;
+  });
+
+  it('throws when resetting a missing named channel', function() {
+    expect(function() {
+      Radio.reset('missing');
+    }).to.throw(TypeError);
   });
 });
