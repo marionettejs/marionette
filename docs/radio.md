@@ -1,6 +1,6 @@
 # Radio
 
-Marionette v5 includes `Radio`, a global, namespaced message bus for
+Marionette includes `Radio`, a global, namespaced message bus for
 communication between otherwise unrelated parts of an application. Import it
 directly from Marionette:
 
