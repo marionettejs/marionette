@@ -179,7 +179,7 @@ The stable release then requires:
   ordinary CollectionView work.
 - A timing regression is confirmed only after an independent repeat in the same
   environment. Hosted CI warns at ten percent but does not fail on timing alone.
-- At least 100 attach/detach cycles leave one active registration at a time, and at
+- At least 100 attach/detach cycles leave at most one active registration at a time, and at
   least 1,000 mount/destroy cycles leave no framework-owned references in deterministic
   ownership containers.
 
@@ -266,8 +266,9 @@ rather than retained as dormant APIs.
   feature.
 - Bundle and controlled-runner performance budgets pass; shared-runner timings show
   no unexplained regression.
-- Supported entrypoints, declarations, current Chromium/Firefox/WebKit behavior,
-  examples, install fixtures, and 100 percent line and branch coverage pass CI.
+- Supported entrypoints, declarations, the Chromium/Firefox/WebKit versions and host
+  runtimes pinned in the Phase 0 release profile, examples, install fixtures, and 100
+  percent line and branch coverage pass CI.
 - Stable diagnostic codes and documented machine-readable schemas have been reviewed
   as public contracts.
 - No release criterion depends on a private consumer or unpublished fixture.

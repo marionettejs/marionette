@@ -110,4 +110,4 @@ body:
       label: Public references
       description: Link related strategy sections, issues, PRs, fixtures, or benchmark evidence.
     validations:
-      required: false
+      required: true
