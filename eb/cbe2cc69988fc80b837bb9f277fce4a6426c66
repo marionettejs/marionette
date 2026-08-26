@@ -1,0 +1,31 @@
+docs/dom.prerendered.md
+  s_d6429951fb9231::t_ebcefa9e1ea642 8,53,66,74,77,86,90,120,128,131
+  s_d6429951fb9231::t_15b9f7a82b3288 12-13
+  s_d6429951fb9231::t_e8d1b44cfa6de2 10,19,21-22,24,45,95
+ROADMAP.md
+  s_d6429951fb9231::t_108bc91c63b994 124-135,177-180,187-192,207-213,229-230,250-251,290-291
+readme.md
+  s_d6429951fb9231::t_e831f8646fd27d 3,5,7-8,11-14,16-18,20,22-23,26-27,29-32,34-35,37-38,40-41,43,45,47-73,75,77
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_ebcefa9e1ea642 5-6,23,35,40-41,45,60-61
+upgradeGuide.md
+  s_d6429951fb9231::t_ebcefa9e1ea642 4-5
+CONTRIBUTING.md
+  s_d6429951fb9231::t_e831f8646fd27d 1,3-4,6-8,10,12-15,17-24,26-28,30,32-33,35-39,41,43,45-46,48-54,56,58-60,62,64-70,72,74-76,78-80,82,84-86
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "ebcbe2cc69988fc80b837bb9f277fce4a6426c66",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
