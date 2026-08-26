@@ -1,136 +1,90 @@
-Marionette has a few guidelines to facilitate your contribution and streamline
-the process of getting changes merged in and released.
+# Contributing to Marionette
 
-1. [Setting up Marionette locally](#setting-up-marionette-locally)
-2. [Reporting a bug](#reporting-a-bug)
-3. [Submitting patches and fixes](#submitting-patches-and-fixes)
-4. [Running Tests](#running-tests)
+Marionette is community-maintained. Focused bug reports, contract tests,
+documentation corrections, and implementation pull requests are welcome.
 
+The governing direction and stable-v5 release gates are in
+[`ROADMAP.md`](ROADMAP.md). Stable-v5 work must be reproducible from public artifacts
+and must state its production runtime-cost boundary.
 
-## Setting up Marionette locally
+## Set up the repository
 
-* Fork the Marionette repo.
-* `git clone` your fork onto your computer.
-* Select the exact Node and npm versions in the
-  [source and release profile](docs/release-profile.md).
-* Run `npm run check:release-profile` to verify the source toolchain.
-* Run `npm ci` to install the pinned dependency graph.
-* Run `npm run build` to build source files.
+1. Fork and clone `marionettejs/marionette`.
+2. Create a focused branch from `master`.
+3. Select the exact Node and npm versions in the
+   [source and release profile](docs/release-profile.md).
+4. Run `npm run check:release-profile` to verify the source toolchain.
+5. Install the pinned dependency graph with `npm ci`.
+6. Run the relevant validation commands before opening a pull request.
 
-## Reporting a bug
+```sh
+npm run check:release-profile
+npm ci
+npm test
+npm run lint:ci
+npm run coverage
+npm run test:fixtures
+npm run size
+```
 
-In order to best help out with bugs, we need to know the following information
-in your bug submission:
+The full coverage and fixture commands take longer than a focused test. Run the
+smallest useful test while developing, then run the checks required by the linked
+issue before requesting review.
 
-* Marionette version #.
+## Report a bug
 
-Including this information in a submission will help us test the problem and
-ensure that the bug is both reproduced and corrected on the platforms /
-versions that you are having issues with.
+Use the [bug report form](https://github.com/marionettejs/marionette/issues/new/choose)
+and include:
 
-<a name="format-desc"></a>**Provide A Meaningful Description**
+- the Marionette version or commit;
+- Node, package-manager, bundler, and browser versions when relevant;
+- a minimal public reproduction;
+- expected and actual behavior;
+- whether the behavior differs from a previous Marionette version.
 
-It is very important to provide a meaningful description with your bug reports
-and pull requests. A good format for these descriptions will include the
-following things:
+Do not include private application code, customer data, or credentials.
 
-1. The problem you are facing (in as much detail as is necessary to describe
-the problem to someone who doesn't know anything about the system you're
-building)
+## Propose a change
 
-2. A summary of the proposed solution
+Use the repository issue forms before implementing a public API, lifecycle,
+architecture, or stable-v5 change. A ready issue identifies:
 
-3. A description of how this solution solves the problem, in more detail than
-item #2
+- the observed failure or ambiguity;
+- the canonical public behavior;
+- allowed and excluded scope;
+- static, development/test, production, or opt-in runtime cost;
+- acceptance criteria and exact evidence;
+- documentation, diagnostic, type, and package impact;
+- rollback or deprecation conditions.
 
-4. Any additional discussion on possible problems this might introduce,
-questions that you have related to the changes, etc.
+## Open a pull request
 
-For a PR, we need at least the first 2 items to understand why you are changing
-the code. If not, we will ask that you add the necessary information.
+Base pull requests on `master` and use the repository pull request template. Keep one
+logical behavior per pull request and remove obsolete tests, docs, or paths when a new
+behavior becomes canonical.
 
-Please refrain from giving code examples in altJS languages like CoffeeScript,
-etc. Marionette is written in plain-old JavaScript and is generally easier for all
-members in the community to read.
+Pull requests should:
 
-### When you don't have a bug fix
+- link the focused issue;
+- include tests for behavior changes and edge cases;
+- list the commands actually run;
+- measure bundle, hot-path, allocation, and retention impact when required;
+- keep development, test, lint, and benchmark modules out of production entrypoints;
+- avoid compatibility aliases or dual paths without a verified consumer and removal
+  condition.
 
-If you are stuck in a scenario that fails in your app, but you don't know how to
-fix it, submit a failing spec to show the failing scenario. Follow the
-guidelines for a pull request submission, but don't worry about fixing the
-problem. A failing spec to show that a problem exists is a very very very
-helpful pull request for us.
+## Code and test style
 
-We'll even accept a failing test pasted into the ticket description instead of a
-PR. That would at least get us started on creating the failing test in the code.
+Follow the existing file style and ESLint configuration. Prefer public APIs in tests
+and fixtures. Do not make assertions against private framework fields when the behavior
+requires a public contract.
 
-## Submitting patches and fixes
+The project maintains full line and branch coverage for the configured production
+source set. New production, development, and test subpaths must be added to the
+appropriate coverage and package fixtures.
 
-See [Github's documentation for pull
-requests](https://help.github.com/articles/using-pull-requests).
+## Review
 
-Pull requests are by far the best way to contribute to Marionette. They are by
-far the easiest way to demonstrate issues and your proposed resolution. To
-really help us evaluate your pull request and bring it into Marionette, please
-provide as much information as possible and follow the guidelines below:
-
-1. Determine the branch as your base: `next` or `master`
-2. Provide a brief summary of what your pull request is doing
-3. Reference any relevant Github issue numbers
-4. Include any extra detail you feel will help provide context
-
-### Determining your branch
-
-When submitting your pull request, you need to determine whether to base off
-`next` or `master`:
-
-* If you're submitting a bug fix, base off `next`
-* If you're submitting a new feature, base off `next`
-* If you're submitting documentation for a new feature, base off `next`
-* If you're submitting documentation for the current release, base off `master`
-
-### Submitting a Great Patch
-
-We want Marionette to provide a great experience to developers and help you
-write great applications using it. To help us achieve this goal, please follow
-these guidelines when submitting your patches.
-
-#### Solving Issues
-
-When you're submitting a bug fix, include spec tests, where applicable, showing
-the issue and the resolution. We strive to maintain 100% code coverage in our
-testing.
-
-#### Coding Guidelines
-
-The Marionette coding conventions are provided in the ESLint configuration
-included in the repository. Most IDEs and text editors will provide, or allow
-for, a plugin for ESLint to read the `.eslintrc` file.
-For areas where the configuration provides no guidance, try to stick to the
-conventions in the file you're editing.
-
-#### How we Approve Pull Requests
-
-We utilise Github's review approach. When receiving your pull request, we will
-comment inline and provide guidance to help you get your pull request merged
-into Marionette. This is not a one-way process and we're more than happy to
-discuss the context of your decisions.
-
-Once two Marionette.js members approve the pull request, we will then merge it
-into the base branch.
-
-Please remember that Marionette is a community-maintained project and, as such,
-many of us are working on this in our spare time. If we haven't commented on
-your pull request, please be patient. We may be available on our Gitter channel
-to discuss further.
-
-## Running Tests
-
-* via command-line by running `yarn test`
-* in the browser by running `yarn test-browser`
-
-To see the test matrix - run `yarn coverage`
-
-## Writing Tests and Code Style
-
-[More information]('test/unit/README.md')
+Maintainers review correctness, public contracts, runtime cost, tests, documentation,
+and release evidence. Automated review is supporting evidence, not a substitute for
+the issue contract or maintainer judgment.
