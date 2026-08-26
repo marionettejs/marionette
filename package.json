@@ -62,9 +62,10 @@
     "build": "rollup -c --noConflict",
     "coverage": "vitest run --coverage",
     "coveralls": "npm run coverage && cat coverage/lcov.info | coveralls",
-    "lint:base": "eslint backbone.js config/ index.js jquery-dom-api.js mixins/ modules/ test/fixtures/ test/setup/vitest.js test/unit/ utils/ vitest.config.js",
+    "lint:base": "eslint backbone.js config/ config/bundle-size.mjs index.js jquery-dom-api.js mixins/ modules/ test/fixtures/ test/setup/vitest.js test/unit/ utils/ vitest.config.js",
     "lint": "npm run lint:base -- --fix",
     "lint:ci": "npm run lint:base -- --max-warnings=0",
+    "size": "npm run build && node config/bundle-size.mjs",
     "test": "vitest run",
     "test:fixtures": "node test/fixtures/run.mjs"
   },
