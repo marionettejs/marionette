@@ -6,6 +6,7 @@
   "engines": {
     "node": ">=24"
   },
+  "packageManager": "npm@11.17.0",
   "browser": "dist/marionette.umd.js",
   "main": "dist/marionette.cjs",
   "module": "dist/marionette.js",
@@ -61,6 +62,7 @@
   "scripts": {
     "build": "rollup -c --noConflict",
     "check:dist": "npm run build && node config/check-dist.mjs",
+    "check:release-profile": "node config/check-release-profile.mjs",
     "coverage": "vitest run --coverage",
     "docs:build": "node config/docs/build.mjs",
     "docs:check": "npm run docs:build && node config/docs/check-links.mjs",

@@ -1,4 +1,14 @@
-## Documentation
+# Marionette v5 documentation
 
-All of the documentation for Marionette can be found on the website at
-##### [marionettejs.com/docs/current](http://marionettejs.com/docs/current)
+Use these repository guides for the v5 pre-release:
+
+- [Installation and package entrypoints](installation.md)
+- [Optional Backbone integration](optional-backbone.md)
+- [Pre-rendered DOM](dom.prerendered.md)
+- [v4-to-v5 compatibility ledger](migration-from-v4.md)
+- [Upgrade guide](../upgradeGuide.md)
+
+The API reference is being reconciled for stable v5 in
+[issue #147](https://github.com/marionettejs/marionette/issues/147). Until that
+work is complete, do not treat the hosted `/docs/current` site as v5
+documentation; it describes earlier releases.
