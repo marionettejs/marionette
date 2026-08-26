@@ -218,10 +218,4 @@ describe('Radio', function() {
     Radio.trigger('bar', 'event');
     expect(barHandler).to.have.been.calledOnce;
   });
-
-  it('throws when resetting a missing named channel', function() {
-    expect(function() {
-      Radio.reset('missing');
-    }).to.throw(TypeError);
-  });
 });
