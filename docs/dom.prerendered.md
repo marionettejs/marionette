@@ -1,6 +1,6 @@
 # Prerendered Content
 
-[View classes](./classes.md) can be initialized with pre-rendered DOM.
+View classes can be initialized with pre-rendered DOM.
 
 This can be HTML that's currently in the DOM:
 
@@ -27,7 +27,7 @@ const myView = new View({ el: inMemoryHtml });
 [Live example](https://jsfiddle.net/marionettejs/b2yz38gj/)
 
 In both of the cases at instantiation the view will determine
-[its state](./view.lifecycle.md) as to whether the el is rendered
+its state as to whether the el is rendered
 or attached.
 
 **Note** `render` and `attach` events will not fire for the initial
@@ -35,8 +35,8 @@ state as the state is set already at instantiation and is not changing.
 
 ## Managing `View` children
 
-With [`View`](./marionette.view.md) in most cases the [`render` event](./events.class.md#render-and-beforerender-events)
-is the best place to show child views [for best performance](./marionette.view.md#efficient-nested-view-structures).
+With `View`, the `render` event is usually the best place to show child views for
+efficient nested rendering.
 
 However with pre-rendered DOM you may need to show child views in `initialize`
 as the view will already be rendered.
@@ -84,7 +84,7 @@ const MyBaseLayout = View.extend({
 });
 ```
 
-The same can be done with [`CollectionView`](./marionette.collectionview.md):
+The same can be done with `CollectionView`:
 
 ```javascript
 import { CollectionView } from 'marionette';

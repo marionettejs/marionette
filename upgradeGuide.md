@@ -91,4 +91,5 @@ current public behavior boundary. Final migration documentation is tracked in
   The adapter's `detachContents(el)` calls `$(el).contents().detach()`,
   matching the v4 behavior.
 
-- The native default is also described in [docs/dom.api.md](docs/dom.api.md).
+- The optional jQuery adapter is described in the
+  [installation guide](docs/installation.md#jquery-dom-adapter-is-optional).

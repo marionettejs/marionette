@@ -1,0 +1,26 @@
+[
+  {
+    "source": "docs/readme.md",
+    "route": "next"
+  },
+  {
+    "source": "docs/installation.md",
+    "route": "next/installation"
+  },
+  {
+    "source": "docs/optional-backbone.md",
+    "route": "next/optional-backbone"
+  },
+  {
+    "source": "docs/dom.prerendered.md",
+    "route": "next/dom.prerendered"
+  },
+  {
+    "source": "docs/migration-from-v4.md",
+    "route": "next/migration-from-v4"
+  },
+  {
+    "source": "upgradeGuide.md",
+    "route": "next/upgrade-guide"
+  }
+]
