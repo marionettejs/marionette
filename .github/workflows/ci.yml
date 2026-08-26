@@ -32,6 +32,9 @@ jobs:
       - name: Lint
         run: npm run lint:ci
 
+      - name: Verify distributable artifacts
+        run: npm run check:dist
+
       - name: Coverage
         run: npm run coverage
 
