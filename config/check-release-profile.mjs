@@ -11,9 +11,12 @@ const workflowDir = resolve(root, '.github/workflows');
 const workflowFiles = (await readdir(workflowDir))
   .filter(file => /\.ya?ml$/.test(file))
   .sort();
-const ciWorkflow = (await Promise.all(workflowFiles.map(async file => {
-  return `# ${file}\n${await readFile(resolve(workflowDir, file), 'utf8')}`;
-}))).join('\n');
+const workflowContents = new Map(await Promise.all(workflowFiles.map(async file => {
+  return [file, await readFile(resolve(workflowDir, file), 'utf8')];
+})));
+const ciWorkflow = [...workflowContents.entries()]
+  .map(([file, workflow]) => `# ${file}\n${workflow}`)
+  .join('\n');
 const args = process.argv.slice(2);
 
 function fail(message) {
@@ -81,11 +84,19 @@ function validateWorkflow() {
   if (/runs-on:\s+\S*-latest/.test(ciWorkflow)) {
     fail('CI uses a moving *-latest runner label');
   }
-  const explicitNodeVersions = [...ciWorkflow.matchAll(/^\s+node-version:\s+(\S+)\s*$/gm)];
-  for (const [, version] of explicitNodeVersions) {
-    if (version !== profile.source.advisoryNodeMajor) {
-      fail(`CI uses unapproved explicit Node version ${version}`);
+  for (const [file, workflow] of workflowContents) {
+    const explicitNodeVersions = [...workflow.matchAll(/^\s+node-version:\s+(\S+)\s*$/gm)];
+    for (const [, version] of explicitNodeVersions) {
+      if (file !== profile.source.advisoryWorkflow || version !== profile.source.advisoryNodeMajor) {
+        fail(`${file} uses unapproved explicit Node version ${version}`);
+      }
     }
+  }
+
+  const advisoryWorkflow = workflowContents.get(profile.source.advisoryWorkflow);
+  const advisoryVersion = profile.source.advisoryNodeMajor;
+  if (!advisoryWorkflow?.includes(`node-version: ${advisoryVersion}`)) {
+    fail(`${profile.source.advisoryWorkflow} does not test Node ${advisoryVersion}`);
   }
 
   for (const host of profile.hosts) {
