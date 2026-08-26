@@ -74,8 +74,11 @@ function validateWorkflow() {
   if (/runs-on:\s+\S*-latest/.test(ciWorkflow)) {
     fail('CI uses a moving *-latest runner label');
   }
-  if (/^\s+node-version:\s/m.test(ciWorkflow)) {
-    fail('CI bypasses the exact Node version in .nvmrc');
+  const explicitNodeVersions = [...ciWorkflow.matchAll(/^\s+node-version:\s+(\S+)\s*$/gm)];
+  for (const [, version] of explicitNodeVersions) {
+    if (version !== profile.source.advisoryNodeMajor) {
+      fail(`CI uses unapproved explicit Node version ${version}`);
+    }
   }
 
   for (const host of profile.hosts) {

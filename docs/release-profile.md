@@ -17,8 +17,8 @@ With `nvm` installed:
 ```sh
 nvm install
 nvm use
-npm ci
 npm run check:release-profile
+npm ci
 ```
 
 The Node release pinned here includes the pinned npm version. If another version of

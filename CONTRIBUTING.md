@@ -13,8 +13,8 @@ the process of getting changes merged in and released.
 * `git clone` your fork onto your computer.
 * Select the exact Node and npm versions in the
   [source and release profile](docs/release-profile.md).
-* Run `npm ci` to install the pinned dependency graph.
 * Run `npm run check:release-profile` to verify the source toolchain.
+* Run `npm ci` to install the pinned dependency graph.
 * Run `npm run build` to build source files.
 
 ## Reporting a bug

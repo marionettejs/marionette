@@ -3,6 +3,7 @@
   "source": {
     "node": "24.19.0",
     "npm": "11.17.0",
+    "advisoryNodeMajor": "26",
     "consumerNodeRange": ">=24",
     "lockfileVersion": 3
   },
