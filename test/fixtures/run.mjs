@@ -39,7 +39,6 @@ rmSync(packDir, { force: true, recursive: true });
 mkdirSync(packDir, { recursive: true });
 
 try {
-  run('npm', ['run', 'build']);
   run('npm', ['pack', '--pack-destination', packDir]);
 
   const packedTarballs = readdirSync(packDir)

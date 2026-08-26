@@ -60,13 +60,16 @@
   "license": "MIT",
   "scripts": {
     "build": "rollup -c --noConflict",
+    "check:dist": "npm run build && node config/check-dist.mjs",
     "coverage": "vitest run --coverage",
-    "lint:base": "eslint backbone.js config/ config/bundle-size.mjs index.js jquery-dom-api.js mixins/ modules/ test/fixtures/ test/setup/vitest.js test/unit/ utils/ vitest.config.js",
+    "lint:base": "eslint backbone.js config/ config/bundle-size.mjs config/check-dist.mjs index.js jquery-dom-api.js mixins/ modules/ test/dist/validate.mjs test/fixtures/ test/setup/vitest.js test/unit/ utils/ vitest.config.js",
     "lint": "npm run lint:base -- --fix",
     "lint:ci": "npm run lint:base -- --max-warnings=0",
     "size": "npm run build && node config/bundle-size.mjs",
     "test": "vitest run",
-    "test:fixtures": "node test/fixtures/run.mjs"
+    "test:dist": "node test/dist/validate.mjs",
+    "test:fixtures": "node test/fixtures/run.mjs",
+    "prepare": "npm run check:dist && npm run test:dist"
   },
   "bugs": {
     "url": "https://github.com/marionettejs/marionette/issues"
