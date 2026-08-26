@@ -1,0 +1,28 @@
+CONTRIBUTING.md
+  s_d6429951fb9231::t_9e89e97ae74448 17
+.github/workflows/ci.yml
+  s_d6429951fb9231::t_9e89e97ae74448 32-34,81-83,87-108,133-134
+  s_d6429951fb9231::t_98a513c90f9fe7 135
+config/check-release-profile.mjs
+  s_d6429951fb9231::t_9e89e97ae74448 77-81
+config/release-profile.json
+  s_d6429951fb9231::t_9e89e97ae74448 6
+docs/release-profile.md
+  s_d6429951fb9231::t_9e89e97ae74448 21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "e2ab1fc17c2d2c06f44ed3a4107dc8af613ef123",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
