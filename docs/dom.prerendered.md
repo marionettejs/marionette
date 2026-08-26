@@ -5,22 +5,23 @@
 This can be HTML that's currently in the DOM:
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
-const myView = new View({ el: $('#foo-selector') });
+const myView = new View({ el: document.querySelector('#foo-selector') });
 
-myView.isRendered(); // true if '#foo-selector` exists and has content
-myView.isAttached(); // true if '#foo-selector` is in the DOM
+myView.isRendered(); // true if '#foo-selector' exists and has content
+myView.isAttached(); // true if '#foo-selector' is in the DOM
 ```
 
 Or it can be DOM created in memory:
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
-const $inMemoryHtml = $('<div>Hello World!</div>');
+const inMemoryHtml = document.createElement('div');
+inMemoryHtml.textContent = 'Hello World!';
 
-const myView = new View({ el: $inMemoryHtml });
+const myView = new View({ el: inMemoryHtml });
 ```
 
 [Live example](https://jsfiddle.net/marionettejs/b2yz38gj/)
@@ -41,7 +42,7 @@ However with pre-rendered DOM you may need to show child views in `initialize`
 as the view will already be rendered.
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 import HeaderView from './header-view';
 
 const MyBaseLayout = View.extend({
@@ -49,7 +50,7 @@ const MyBaseLayout = View.extend({
     header: '#header-region',
     content: '#content-region'
   },
-  el: $('#base-layout'),
+  el: document.querySelector('#base-layout'),
   initialize() {
    this.showChildView('header', new HeaderView());
   }
@@ -62,7 +63,7 @@ It may be the case that you need child views of already existing DOM as well.
 To set this up you'll need to query for `el`s down the tree:
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 import HeaderView from './header-view';
 
 const MyBaseLayout = View.extend({
@@ -70,10 +71,10 @@ const MyBaseLayout = View.extend({
     header: '#header-region',
     content: '#content-region'
   },
-  el: $('#base-layout'),
+  el: document.querySelector('#base-layout'),
   initialize() {
     this.showChildView('header', new HeaderView({
-      el: this.getRegion('header').$el.contents()
+      el: this.getRegion('header').el.firstElementChild
     }));
   }
 });
@@ -82,16 +83,16 @@ const MyBaseLayout = View.extend({
 The same can be done with [`CollectionView`](./marionette.collectionview.md):
 
 ```javascript
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 import ItemView from './item-view';
 
 const MyList = CollectionView.extend({
-  el: $('#base-table'),
+  el: document.querySelector('#base-table'),
   childView: ItemView,
   childViewContainer: 'tbody',
   buildChildView(model, ChildView) {
     const index = this.collection.indexOf(model);
-    const childEl = this.$('tbody').contents()[index];
+    const childEl = this.el.querySelector('tbody').children[index];
 
     return new ChildView({
       model,
@@ -106,8 +107,6 @@ const myList = new MyList({ collection: someCollection });
 myList.render();
 ```
 
-https://github.com/marionettejs/backbone.marionette/issues/3128
-
 ## Re-rendering children of a view with preexisting DOM.
 
 You may be instantiating a `View` with existing HTML, but if you re-render the view,
@@ -118,7 +117,7 @@ So your view will need to be prepared to handle both scenarios.
 
 ```javascript
 import _ from 'underscore';
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 import HeaderView from './header-view';
 
 const MyBaseLayout = View.extend({
@@ -126,10 +125,10 @@ const MyBaseLayout = View.extend({
     header: '#header-region',
     content: '#content-region'
   },
-  el: $('#base-layout'),
+  el: document.querySelector('#base-layout'),
   initialize() {
     this.showChildView('header', new HeaderView({
-      el: this.getRegion('header').$el.contents()
+      el: this.getRegion('header').el.firstElementChild
     }));
   },
   template: _.template('<div id="header-region"></div><div id="content-region"></div>'),
