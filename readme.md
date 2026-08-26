@@ -27,7 +27,9 @@ npm install marionette underscore
 import { View } from 'marionette';
 
 const GreetingView = View.extend({
-  el: document.querySelector('#app'),
+  el() {
+    return document.querySelector('#app');
+  },
   template: () => '<h1>Hello</h1>'
 });
 
