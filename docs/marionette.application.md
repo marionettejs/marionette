@@ -6,7 +6,7 @@ and a view tree.
 `Application` includes:
 - [Common Marionette Functionality](./common.md)
 - [Class Events](./events.class.md#application-events)
-- [Radio API](./backbone.radio.md#marionette-integration)
+- [Radio API](./radio.md#marionette-integration)
 - [MnObject's API](./marionette.mnobject.md)
 
 In addition to `MnObject`'s API, Application provides two significant additions.
