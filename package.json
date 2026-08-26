@@ -69,7 +69,7 @@
     "test": "vitest run",
     "test:dist": "node test/dist/validate.mjs",
     "test:fixtures": "node test/fixtures/run.mjs",
-    "prepack": "npm run build && npm run test:dist"
+    "prepare": "npm run check:dist && npm run test:dist"
   },
   "bugs": {
     "url": "https://github.com/marionettejs/marionette/issues"

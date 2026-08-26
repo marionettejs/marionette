@@ -1,4 +1,5 @@
 import { spawnSync } from 'child_process';
+import { devNull } from 'os';
 
 const result = spawnSync(
   'git',
@@ -19,17 +20,38 @@ if (result.stdout) {
   console.error('Generated distributable artifacts are out of date:');
   process.stderr.write(result.stdout);
 
-  const diff = spawnSync(
+  const trackedDiff = spawnSync(
     'git',
-    ['diff', '--no-ext-diff', '--unified=1', '--', 'dist', 'version.js'],
+    ['diff', '--no-ext-diff', '--unified=1', 'HEAD', '--', 'dist', 'version.js'],
     { encoding: 'utf8', maxBuffer: 1024 * 1024 },
   );
 
-  if (!diff.error && diff.stdout) {
-    const diagnosticLimit = 20000;
-    process.stderr.write(diff.stdout.slice(0, diagnosticLimit));
+  let diagnostic = trackedDiff.error ? '' : trackedDiff.stdout;
+  const untracked = spawnSync(
+    'git',
+    ['ls-files', '--others', '--exclude-standard', '-z', '--', 'dist', 'version.js'],
+    { encoding: 'utf8' },
+  );
 
-    if (diff.stdout.length > diagnosticLimit) {
+  if (!untracked.error && untracked.stdout) {
+    for (const file of untracked.stdout.split('\0').filter(Boolean)) {
+      const untrackedDiff = spawnSync(
+        'git',
+        ['diff', '--no-index', '--no-ext-diff', '--unified=1', '--', devNull, file],
+        { encoding: 'utf8', maxBuffer: 1024 * 1024 },
+      );
+
+      if (!untrackedDiff.error && untrackedDiff.stdout) {
+        diagnostic += untrackedDiff.stdout;
+      }
+    }
+  }
+
+  if (diagnostic) {
+    const diagnosticLimit = 20000;
+    process.stderr.write(diagnostic.slice(0, diagnosticLimit));
+
+    if (diagnostic.length > diagnosticLimit) {
       console.error('\nArtifact diff truncated after 20,000 characters.');
     }
   }
