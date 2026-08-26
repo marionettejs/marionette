@@ -1,0 +1,21 @@
+.gitattributes
+  s_d6429951fb9231::t_cb52756d6aec8d 1
+config/check-release-profile.mjs
+  s_d6429951fb9231::t_cb52756d6aec8d 2,48-49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "1f5d2001680e203f3a9e6719243afb44b0c0a65c",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
