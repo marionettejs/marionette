@@ -1,69 +1,79 @@
 name: RFC / design proposal
-description: Propose post-v5 or larger Marionette design work.
+description: Propose a public API, architecture, or agent-development change.
 title: "[RFC]: "
 body:
   - type: markdown
     attributes:
       value: |
-        Marionette v5 is scoped as a compatibility bridge. Runtime architecture expansions are v6/labs work unless maintainers explicitly accept a narrower v5 exception.
+        Stable v5 is the agent-ready release. Proposals must demonstrate a public, reproducible benefit and preserve Marionette's clean, fast default production runtime.
 
   - type: textarea
     id: summary
     attributes:
       label: Summary
-      description: Briefly describe the proposal.
+      description: Briefly describe the proposal and its canonical behavior.
     validations:
       required: true
 
   - type: textarea
-    id: motivation
+    id: agent-failure
     attributes:
-      label: Motivation
-      description: What problem does this solve?
+      label: Agent-development failure addressed
+      description: Which observed mistake, ambiguity, or verification gap does this solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Public evidence
+      description: Link or describe the public fixture, benchmark task, or contract that demonstrates the problem.
     validations:
       required: true
 
   - type: dropdown
-    id: target
+    id: surface
     attributes:
-      label: Proposed target
-      description: Where does this proposal belong?
+      label: Proposed surface
       options:
-        - v5 compatibility bridge
-        - v6/labs
-        - Not sure
-    validations:
-      required: true
-
-  - type: textarea
-    id: why-v5
-    attributes:
-      label: Why this belongs in v5, or why it should not
-      description: Explain why this fits or does not fit the v5 compatibility-bridge boundary.
+        - Static tooling or documentation
+        - Development-only surface
+        - Test-only surface
+        - Core runtime contract
+        - Opt-in runtime integration
+        - Evidence-dependent candidate
     validations:
       required: true
 
   - type: textarea
     id: public-api-impact
     attributes:
-      label: Public API impact
-      description: Describe new, changed, or removed public APIs.
+      label: Public API and behavior impact
+      description: Describe additions, changes, removals, lifecycle ordering, diagnostics, and schema implications.
     validations:
       required: true
 
   - type: textarea
-    id: migration-impact
+    id: runtime-cost
     attributes:
-      label: Migration impact
-      description: Explain how existing Marionette applications would migrate.
+      label: Runtime cost
+      description: Describe bundle, startup, hot-path, allocation, and retention impact, including how unused applications avoid the cost.
     validations:
       required: true
 
   - type: textarea
-    id: compatibility-risk
+    id: canonical-pattern
     attributes:
-      label: Compatibility risk
-      description: Describe risk to existing Marionette, Backbone, Radio, DomApi, or package-entrypoint behavior.
+      label: Canonical pattern and obsolete path
+      description: What becomes the one preferred pattern, and what existing path is removed or deprecated?
+    validations:
+      required: true
+
+  - type: textarea
+    id: validation
+    attributes:
+      label: Acceptance and validation
+      description: Define falsifiable correctness, agent benchmark, and performance results.
     validations:
       required: true
 
@@ -71,25 +81,24 @@ body:
     id: alternatives
     attributes:
       label: Alternatives considered
-      description: Include documentation-only, fixture-only, or v6/labs alternatives when relevant.
+      description: Include exposing an existing fact, static-only, and no-change alternatives.
+    validations:
+      required: true
+
+  - type: textarea
+    id: rollback
+    attributes:
+      label: Rollback or deprecation plan
+      description: State what happens if evidence is negative and how an exposed contract could be removed.
     validations:
       required: true
 
   - type: checkboxes
-    id: scope-check
+    id: public-scope
     attributes:
-      label: Scope check
+      label: Public scope
       options:
-        - label: I understand v5 is compatibility-bridge scoped.
+        - label: The proposal can be evaluated entirely from public artifacts.
           required: true
-        - label: I understand runtime architecture expansions are v6/labs unless explicitly accepted by maintainers.
+        - label: The proposal does not require a private consumer or private fixture.
           required: true
-        - label: This proposal can be evaluated from public artifacts and public-safe examples.
-          required: true
-
-  - type: textarea
-    id: additional-context
-    attributes:
-      label: Additional public-safe context
-    validations:
-      required: false
