@@ -121,14 +121,23 @@ budget.
   boundaries, and proving cleanup.
 - The model version, agent harness, prompt, repository revision, commands, evaluator,
   and expected outcomes are pinned for each benchmark series.
-- The stable-v5 benchmark uses at least 10 tasks and five independent runs per task.
-- At least 85 percent of runs are fully correct, no task is below 60 percent, and no
-  previously passing task regresses.
-- Relative to the Phase 0 baseline on the same pinned harness, fully correct results
-  improve by at least 20 percentage points and framework-architecture violations fall
-  by at least 50 percent.
-- A model or harness change starts a new baseline series; results are not compared
-  across unlike series.
+- The stable-v5 benchmark uses at least 10 tasks. A Phase 0 pilot predeclares the
+  paired-run count for each task; each count is at least 10 and provides at least 80
+  percent power, after the multiple-comparison correction, to detect a 15-percentage-
+  point absolute regression.
+- The aggregate fully-correct rate has a 95 percent Wilson lower bound of at least
+  80 percent, and no individual task has a fully-correct point estimate below 60
+  percent. Aborted runs count as not fully correct.
+- Relative to the Phase 0 baseline on the same pinned harness, the fully-correct point
+  estimate does not regress and either improves by at least 20 percentage points or
+  reaches at least 95 percent. Cataloged framework-architecture violations per 100
+  attempted runs fall by at least 50 percent. Violations found before an aborted run
+  still count.
+- No individual task has a statistically significant paired regression after the
+  predeclared multiple-comparison correction.
+- A model or harness change starts a new benchmark series and requires rerunning both
+  the Phase 0 revision and release candidate. Results are not compared across unlike
+  series.
 
 ## Architecture boundaries
 
@@ -170,18 +179,22 @@ The stable release then requires:
   production module graph.
 - Optional features add no instance property, collection, subscription, or registry
   until used.
-- Cumulative production minified-gzip growth is no more than five percent over the
-  adopted baseline. A single PR above one percent requires explicit issue approval
-  and benchmark evidence.
+- Cumulative production Brotli-11 growth is no more than five percent over the adopted
+  Phase 0 baseline. CI compares every production subpath with the pull request base;
+  growth above one percent requires explicit issue approval and benchmark evidence in
+  addition to the cumulative absolute ceiling.
 - On a pinned release runner, there is no confirmed median regression above five
   percent and no confirmed p95 regression above ten percent for View
   construction/destruction, render/rerender, delegation, Region show/empty, and
   ordinary CollectionView work.
 - A timing regression is confirmed only after an independent repeat in the same
   environment. Hosted CI warns at ten percent but does not fail on timing alone.
-- At least 100 attach/detach cycles leave at most one active registration at a time, and at
-  least 1,000 mount/destroy cycles leave no framework-owned references in deterministic
-  ownership containers.
+- Resource tests run at least 100 attach/detach cycles and prove zero registrations
+  while detached and at most one while attached. At least 1,000 mount/destroy cycles
+  leave no framework-owned references in deterministic ownership containers.
+- Allocation tests prove that unused instances have no feature-owned property,
+  collection, subscription, or registry entry; opt-in resource storage begins only at
+  the first registration.
 
 Agent-tooling-only changes should produce byte-identical production entrypoints except
 for version and source-map metadata. Core contract improvements may add bytes or work
@@ -196,6 +209,13 @@ when it does not bypass an earlier gate.
 ### Phase 0: Governance and evidence
 
 - Replace conflicting plans with this strategy and one live issue hierarchy.
+- Restore clean contributor installation by removing unused development dependencies.
+- Guarantee that tested source, built bundles, packed tarballs, and published artifacts
+  represent the same code.
+- Repair the repository front door, contribution workflow, migration links, and
+  canonical examples.
+- Pin the supported release-runner, Node, package-manager, browser, and documentation
+  publication profile.
 - Establish bundle, startup, allocation, render, and retention baselines.
 - Publish a neutral reference application and agent task corpus.
 - Pin the initial benchmark harness and record its baseline.
@@ -211,7 +231,8 @@ instructions, and every release blocker maps to this strategy.
 - Harden Region lookup and View/Region ownership semantics.
 - Specify Behavior scope, dependencies, delegation, and teardown.
 - Introduce the shared diagnostic type, code catalog, and error semantics.
-- Define additive extension hooks and an opt-in resource ownership contract.
+- Specify the requirements and cost boundaries for later opt-in extension hooks and
+  resource ownership without implementing either runtime path in this phase.
 
 Gate: core invariants are documented, testable through public APIs, and add no
 measurable work to unrelated instances beyond approved budgets.
@@ -231,6 +252,8 @@ run in CI without loading new production code.
 - Add removable development validation.
 - Add the optional topology inspector with a versioned output schema.
 - Add runner-neutral lifecycle, topology, and cleanup test helpers.
+- Implement only the extension hooks required by these public development/test
+  consumers, with no listener or allocation cost when unused.
 - Separate and verify production, development, and test package surfaces.
 
 Gate: production bundles prove optional surfaces are absent unless imported;
@@ -269,6 +292,8 @@ rather than retained as dormant APIs.
 - Supported entrypoints, declarations, the Chromium/Firefox/WebKit versions and host
   runtimes pinned in the Phase 0 release profile, examples, install fixtures, and 100
   percent line and branch coverage pass CI.
+- Coverage configuration explicitly includes every production, development, and test
+  subpath; adding a subpath cannot silently leave its implementation outside the gate.
 - Stable diagnostic codes and documented machine-readable schemas have been reviewed
   as public contracts.
 - No release criterion depends on a private consumer or unpublished fixture.
