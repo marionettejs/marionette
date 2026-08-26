@@ -91,4 +91,5 @@ expanded in [issue #75](https://github.com/marionettejs/marionette/issues/75).
   The adapter's `detachContents(el)` calls `$(el).contents().detach()`,
   matching the v4 behavior.
 
-- The native default is also described in [docs/dom.api.md](docs/dom.api.md).
+- The optional jQuery adapter is described in the
+  [installation guide](docs/installation.md#jquery-dom-adapter-is-optional).

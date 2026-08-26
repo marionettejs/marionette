@@ -1,10 +1,9 @@
-import { readFile, readdir, rm, mkdir, writeFile, copyFile } from 'fs/promises';
-import { dirname, resolve, sep } from 'path';
+import { readFile, rm, mkdir, writeFile, copyFile } from 'fs/promises';
+import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { marked } from 'marked';
 
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
-const docsDir = resolve(rootDir, 'docs');
 const siteDir = resolve(rootDir, 'docs-site');
 const pagesDir = resolve(siteDir, 'pages');
 const outputDir = resolve(rootDir, '.docs-site');
@@ -57,18 +56,6 @@ function addHeadingIds(html) {
   return html.replace(/<h([1-6])>([\s\S]*?)<\/h\1>/g, (heading, level, contents) => {
     return `<h${level} id="${slug(contents)}">${contents}</h${level}>`;
   });
-}
-
-function routeForDoc(relativePath) {
-  const normalized = relativePath.split(sep).join('/').replace(/\.md$/, '');
-  const segments = normalized.split('/');
-
-  if (segments[segments.length - 1].toLowerCase() === 'readme') {
-    segments.pop();
-  }
-
-  const suffix = segments.length ? `${segments.join('/')}/` : '';
-  return `/next/${suffix}`;
 }
 
 function rewriteDocLinks(html, sourcePath) {
@@ -174,22 +161,12 @@ async function buildDocs() {
     await writePage(route, await readFile(sourcePath, 'utf8'), null, title);
   }
 
-  const docFiles = (await readdir(docsDir, { withFileTypes: true }))
-    .filter(entry => entry.isFile() && entry.name.endsWith('.md'))
-    .map(entry => entry.name)
-    .sort();
-
-  const docSources = docFiles.map(fileName => ({
-    fileName,
-    route: routeForDoc(fileName).replace(/^\/|\/$/g, ''),
-    sourcePath: resolve(docsDir, fileName),
+  const nextDocs = JSON.parse(await readFile(resolve(siteDir, 'next.json'), 'utf8'));
+  const docSources = nextDocs.map(({ route, source }) => ({
+    fileName: source,
+    route,
+    sourcePath: resolve(rootDir, source),
   }));
-
-  docSources.push({
-    fileName: 'upgradeGuide.md',
-    route: 'next/upgrade-guide',
-    sourcePath: resolve(rootDir, 'upgradeGuide.md'),
-  });
 
   docSources.forEach(({ route, sourcePath }) => docRoutes.set(sourcePath, route));
 

@@ -1,4 +1,4 @@
-/docs/ @marionettejs/marionette-core
-/docs-site/ @marionettejs/marionette-core
-/config/docs/ @marionettejs/marionette-core
-/.github/workflows/docs-pages.yml @marionettejs/marionette-core
+/docs/ @paulfalgout
+/docs-site/ @paulfalgout
+/config/docs/ @paulfalgout
+/.github/workflows/docs-pages.yml @paulfalgout

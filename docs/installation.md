@@ -17,7 +17,7 @@ While some integrations are listed here, more resources are available in the int
 * [NPM and Browserify](#quick-start-using-npm-and-browserify)
 * [Browserify and Grunt](#browserify-and-grunt)
 * [Browserify and Gulp](#browserify-and-gulp)
-* [Getting Started](./basics.md)
+* [Current v5 documentation](./readme.md)
 
 ## Install
 
@@ -170,6 +170,4 @@ we prepared simple marionettejs skeleton with Browserify.
 
 After installing Marionette you might want to check out the basics.
 
-[Continue Reading...](./basics.md).
-
-Additionally check out [features](./features.md) for some configurable options.
+[Continue reading the current v5 documentation](./readme.md).

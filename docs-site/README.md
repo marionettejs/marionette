@@ -5,6 +5,10 @@ Markdown reference documentation in `docs/`. Run `npm run docs:check` to build t
 site into the ignored `.docs-site/` directory and validate its internal links and
 anchors.
 
+`next.json` is the explicit current-v5 publication allowlist. A repository Markdown
+file is not published under `/next/` until that list identifies its public route and
+its contents have been verified against the current package.
+
 The intended public domain is `https://docs.marionettejs.com`. Repository changes do
 not create DNS records or enable GitHub Pages. Deployment remains disabled until a
 maintainer configures the domain and Pages environment, verifies HTTPS, and sets the
