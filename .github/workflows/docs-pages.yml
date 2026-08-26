@@ -27,7 +27,7 @@ permissions:
 jobs:
   build:
     name: Build and validate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout
@@ -38,8 +38,11 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 24
+          node-version-file: .nvmrc
           cache: npm
+
+      - name: Verify release profile
+        run: npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04
 
       - name: Install dependencies
         run: npm ci
@@ -67,7 +70,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Deploy Pages
