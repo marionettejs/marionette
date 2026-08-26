@@ -5,8 +5,11 @@ on:
     branches:
       - master
     paths:
-      - '.github/workflows/docs-pages.yml'
+      - '.github/workflows/**'
+      - '.nvmrc'
+      - 'config/check-release-profile.mjs'
       - 'config/docs/**'
+      - 'config/release-profile.json'
       - 'docs/**'
       - 'docs-site/**'
       - 'upgradeGuide.md'
@@ -14,8 +17,11 @@ on:
       - 'package.json'
   pull_request:
     paths:
-      - '.github/workflows/docs-pages.yml'
+      - '.github/workflows/**'
+      - '.nvmrc'
+      - 'config/check-release-profile.mjs'
       - 'config/docs/**'
+      - 'config/release-profile.json'
       - 'docs/**'
       - 'docs-site/**'
       - 'upgradeGuide.md'
