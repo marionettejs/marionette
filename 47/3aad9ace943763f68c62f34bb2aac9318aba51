@@ -1,0 +1,71 @@
+docs-site/pages/releases.md
+  s_d6429951fb9231::t_fe01861e437d85 1-4
+config/docs/check-links.mjs
+  s_d6429951fb9231::t_40e448b88a7360 9,17-18,44,61-63,68,79,83,99,107
+  s_d6429951fb9231::t_fe01861e437d85 1-8,10-16,19-43,45-60,64-67,69-78,80-82,84-98,100-106,108-123
+docs/events.md
+  s_d6429951fb9231::t_302eb39614744e 529
+docs/marionette.behavior.md
+  s_d6429951fb9231::t_302eb39614744e 231
+docs-site/assets/styles.css
+  s_d6429951fb9231::t_fe01861e437d85 1-74
+docs/marionette.mnobject.md
+  s_d6429951fb9231::t_302eb39614744e 52
+.github/CODEOWNERS
+  s_d6429951fb9231::t_fe01861e437d85 1-4
+docs-site/CNAME
+  s_d6429951fb9231::t_fe01861e437d85 1
+docs/marionette.region.md
+  s_d6429951fb9231::t_302eb39614744e 39,429
+.github/workflows/docs-pages.yml
+  s_d6429951fb9231::t_fe01861e437d85 1-50,52-57,59,63-75
+  s_d6429951fb9231::t_c0ac0688a22786 51,58
+  s_d6429951fb9231::t_7956dceae26fcd 60-62
+config/docs/build.mjs
+  s_d6429951fb9231::t_929328a9e28405 2,18
+  s_d6429951fb9231::t_fe01861e437d85 1,3-11,14-17,19-74,76-87,90,92-94,96-136,138-158,162-180,195,197-211,213-215
+  s_d6429951fb9231::t_af060154fb4ae2 12,88-89,91,95,181-194,196,212
+  s_d6429951fb9231::t_690a3e5b9b14ac 13,75,137,159-161
+docs/view.rendering.md
+  s_d6429951fb9231::t_302eb39614744e 382
+docs/events.class.md
+  s_d6429951fb9231::t_302eb39614744e 11,134,235,237,242,244,255-256,261-262,294,299
+package.json
+  s_d6429951fb9231::t_fe01861e437d85 65-67,109
+docs-site/pages/errors.md
+  s_d6429951fb9231::t_fe01861e437d85 1-8
+docs/common.md
+  s_d6429951fb9231::t_302eb39614744e 52
+docs-site/pages/index.md
+  s_d6429951fb9231::t_fe01861e437d85 1-11
+.gitignore
+  s_d6429951fb9231::t_fe01861e437d85 24
+docs/view.lifecycle.md
+  s_d6429951fb9231::t_302eb39614744e 85,106
+docs/marionette.collectionview.md
+  s_d6429951fb9231::t_302eb39614744e 42,271,497
+docs/upgrade-v2-v3.md
+  s_d6429951fb9231::t_302eb39614744e 45,275
+docs-site/README.md
+  s_d6429951fb9231::t_fe01861e437d85 1-27
+docs-site/pages/v5.md
+  s_d6429951fb9231::t_fe01861e437d85 1-4
+package-lock.json
+  s_d6429951fb9231::t_5407ddd46623b1 23,4360-4372
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "473aad9ace943763f68c62f34bb2aac9318aba51",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
