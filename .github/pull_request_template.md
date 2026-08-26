@@ -2,25 +2,39 @@
 
 - Closes #
 
-## Summary
+## What
 
 -
 
-## Public behavior boundary
+## Agent-development failure addressed
 
-- [ ] This PR is linked to a focused issue.
-- [ ] This PR preserves public runtime behavior unless the issue explicitly allows a change.
-- [ ] This PR does not expand v5 runtime architecture.
-- [ ] I did not opportunistically refactor unrelated code.
+-
 
-## Allowed behavior changes, if any
+## Public behavior contract
 
-- None, or list the issue-approved changes:
+- Canonical behavior after this PR:
+- Superseded behavior removed, if any:
+- Compatibility exception and removal condition, if any:
 
-## Tests run
+## Runtime cost
 
-- [ ] I added or updated tests for the acceptance criteria, or explained why not.
-- [ ] I ran the relevant validation commands and listed them below.
+- [ ] Static or documentation only
+- [ ] Development or test only; excluded from production entrypoints
+- [ ] Changes an existing production path
+- [ ] Adds an explicitly opt-in runtime path
+
+Measured impact or explanation:
+
+- Bundle:
+- Startup/hot path:
+- Allocations/retention:
+
+## Validation
+
+- [ ] Tests cover the acceptance criteria and relevant edge cases.
+- [ ] Docs, examples, declarations, diagnostics, and rule metadata agree where relevant.
+- [ ] No private consumer, private fixture, or undocumented context is required.
+- [ ] I ran the commands listed below and am reporting their actual results.
 
 Commands:
 
@@ -28,21 +42,16 @@ Commands:
 
 ```
 
-## Package / install fixture impact
+## Package and browser impact
 
-- [ ] If package entrypoints, exports, peers, or dist artifacts changed, install fixtures were considered or updated.
-- Impact:
+- Entry points or install fixtures affected:
+- Browser contracts affected:
+- Production/dev/test module-graph impact:
 
-## Docs impact
+## Rollback or deprecation
 
-- [ ] I updated docs where behavior, packaging, or migration guidance changed.
-- Impact:
+-
 
-## Scope creep check
-
-- [ ] This PR stays within the linked issue scope.
-- [ ] This PR does not introduce statecharts, signals, virtual DOM, schema/effect/query platforms, public topology runtime APIs, built-in router, full app rewrite guidance, or AI-native product claims.
-
-## Agent/human review notes
+## Review notes
 
 -

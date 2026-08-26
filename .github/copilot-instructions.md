@@ -1,24 +1,44 @@
-# Marionette v5 Agent Guidance
+# Marionette Agent Guidance
 
-Marionette v5 is a compatibility bridge for existing Marionette and Backbone applications. Use the focused v5 issue and its acceptance criteria as the source of truth for any change.
+The governing project strategy is [`ROADMAP.md`](../ROADMAP.md). Stable
+v5 is the agent-ready release, and production runtime cost is a release constraint.
 
-## Scope Rules
+## Before changing code
 
-- Preserve public runtime behavior unless the issue explicitly allows a behavior change.
-- Do not expand v5 runtime architecture.
-- Do not opportunistically refactor unrelated code.
-- Keep diffs small and reviewable.
-- Prefer compatibility fixtures and tests over assumptions.
-- Add or update tests for the issue acceptance criteria.
-- Run relevant validation commands and report the results.
-- Stop and report if implementation requires a public behavior change not listed in the issue.
+- Read the linked issue and the relevant public contract or tests.
+- State whether the change is static/docs, development/test, an existing production
+  path, or an opt-in runtime path.
+- Identify the affected lifecycle, ownership, diagnostic, type, or package contract.
+- Stop and report if the issue leaves a public behavior or runtime-cost decision open.
 
-## v5 Boundaries
+## Implementation rules
 
-v5 may include behavior-preserving mechanical compatibility work, packaging fixes, tests, CI, migration documentation, compatibility fixtures, and type declaration work.
+- Make one canonical behavior; do not add aliases, fallbacks, or dual paths unless the
+  issue identifies a verified compatibility requirement and removal condition.
+- Keep diffs focused and remove tests, docs, and dead code for superseded behavior.
+- Use public APIs in fixtures and tests. Do not depend on private consumers, private
+  repositories, customer data, or undocumented maintainer knowledge.
+- Do not read private framework fields from public tooling. Expose the smallest useful
+  public contract when a fact the runtime already owns needs to be inspectable.
+- Avoid query methods with lifecycle or rendering side effects.
+- Use stable diagnostic/rule codes for framework invariants; human-readable messages
+  are not the machine contract.
+- Add no global registry and no per-instance allocation, listener, subscription, or
+  collection for an unused optional feature.
+- Keep development, test, lint, benchmark, and rule-catalog modules out of the
+  production import graph.
+- Treat runtime additions as cost-sensitive. Measure bundle, hot-path, allocation, and
+  retention effects required by the issue.
+- Do not opportunistically add a renderer, state system, router, query layer, schema
+  system, agent protocol, or other unrelated framework architecture.
 
-v5 may not introduce new runtime architecture. AI-native architecture remains v6/labs. Machine-readable documentation is allowed only as documentation, not as a product claim.
+## Evidence
 
-Do not introduce or encourage v5 scope creep into statecharts, signals, virtual DOM, schema/effect/query platforms, public topology runtime APIs, built-in router, full app rewrite guidance, or AI-native product claims.
-
-Do not position Marionette v5 as a React or Vue competitor. Keep the work focused on the compatibility bridge.
+- Add or update tests for the issue acceptance criteria and documented edge cases.
+- Run the smallest commands that prove correctness; report exactly what ran.
+- Keep documentation examples executable or drift-checked.
+- For agent-readiness claims, use the public reference application and pinned
+  benchmark. A successful private experiment is not release evidence.
+- For timing measurements, report shared-runner results; enforce hard timing budgets
+  only on the controlled release runner. Bundle and module-graph checks may be hard CI
+  gates.
