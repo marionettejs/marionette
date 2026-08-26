@@ -21,6 +21,7 @@ node_modules
 coverage
 test/tmp
 .nyc_output
+.docs-site
 
 # Users Environment Variables
 .lock-wscript

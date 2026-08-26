@@ -1,0 +1,75 @@
+name: Documentation
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/docs-pages.yml'
+      - 'config/docs/**'
+      - 'docs/**'
+      - 'docs-site/**'
+      - 'package-lock.json'
+      - 'package.json'
+  pull_request:
+    paths:
+      - '.github/workflows/docs-pages.yml'
+      - 'config/docs/**'
+      - 'docs/**'
+      - 'docs-site/**'
+      - 'package-lock.json'
+      - 'package.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and validate documentation
+        run: npm run docs:check
+
+      - name: Upload Pages artifact
+        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && vars.DOCS_PAGES_ENABLED == 'true'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
+        with:
+          path: .docs-site
+
+  deploy:
+    name: Deploy
+    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && vars.DOCS_PAGES_ENABLED == 'true'
+    needs: build
+    concurrency:
+      group: documentation-pages
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+      pages: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5

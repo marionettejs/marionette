@@ -49,7 +49,7 @@ console.log(foo.cid); // foo1234
 MnObjects have a `destroy` method that unbind the events that are directly attached to the
 instance. `destroy` returns the MnObject.
 
-Invoking the `destroy` method will trigger `before:destroy` and `destroy` events and their [corresponding methods](./marionette.functions.md#marionettetriggermethod).
+Invoking the `destroy` method will trigger `before:destroy` and `destroy` events and their [corresponding methods](./events.md#triggermethod).
 
 **Note** The event handlers will pass the `options` argument `destroy` was invoked with.
 

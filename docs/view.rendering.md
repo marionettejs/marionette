@@ -379,7 +379,7 @@ const MyView = View.extend({
 ### Serializing with a `CollectionView`
 
 if you are using a `template` with a `CollectionView` that is not also given a `model`, your `CollectionView`
-will [serialize the collection](serializing-a-collection) for the template. This could be costly and unnecessary.
+will [serialize the collection](#serializing-a-collection) for the template. This could be costly and unnecessary.
 If your `CollectionView` has a `template` it is advised to either use an empty `model` or override the
 [`serializeData`](#serializing-data) method.
 

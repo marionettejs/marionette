@@ -8,7 +8,7 @@ will pass the triggering class instance as the first argument of the event.
 ## Documentation Index
 
 * [Application Events](#application-events)
-  * [`before:start` event](#before-start-event)
+  * [`before:start` event](#beforestart-event)
   * [`start` event](#start-event)
 * [Behavior Events](#behavior-events)
   * [`initialize` event](#initialize-event)
@@ -131,7 +131,7 @@ with its own destruction. A `destroy` event occurring on the `Behavior` will hav
 ## Region Events
 
 When you show a view inside a region - either using [`region.show(view)`](./marionette.region.md#showing-a-view) or
-[`showChildView('region', view)`](./marionette.view.md#showing-a-view) - the `Region` will emit events around the view
+[`showChildView('region', view)`](./marionette.view.md#showing-a-child-view) - the `Region` will emit events around the view
 events that you can hook into.
 
 The `Region` class also triggers [Destroy Events](#destroy-and-beforedestroy-events).
@@ -232,16 +232,16 @@ The `CollectionView` triggers unique events specifically related to child manage
 ### `add:child` and `before:add:child` events
 
 These events fire before (`before:add:child`) and after (`add:child`) each child view
-is instantiated and added to the [`children`](./collectionview.md#collectionviews-children).
+is instantiated and added to the [`children`](./marionette.collectionview.md#managing-children).
 These will fire once for each item in the attached collection or for any view added using
-[`addChildView`](./collectionview.md#adding-a-child-view).
+[`addChildView`](./marionette.collectionview.md#adding-a-child-view).
 
 ### `remove:child` and `before:remove:child` events
 
 These events fire before (`before:remove:child`) and after (`remove:child`) each child view
-is removed to the [`children`](./collectionview.md#collectionviews-children).
+is removed from the [`children`](./marionette.collectionview.md#managing-children).
 A view may be removed from the `children` if it is destroyed, if it is removed
-from the `collection` or if it is removed with [`removeChildView`](./collectionview.md#removing-a-child-view).
+from the `collection` or if it is removed with [`removeChildView`](./marionette.collectionview.md#removing-a-child-view).
 
 **NOTE** A childview may or may not be destroyed by this point.
 
@@ -252,14 +252,14 @@ should happen in [`before:destroy:children`](#destroychildren-and-beforedestroyc
 ### `sort` and `before:sort` events
 
 These events fire before (`before:sort`) and after (`sort`) sorting the children in the `CollectionView`.
-These events will only fire if there are [`children`](./collectionview.md#collectionviews-children)
-and a [`viewComparator`](./collectionview.md#defining-the-viewcomparator)
+These events will only fire if there are [`children`](./marionette.collectionview.md#managing-children)
+and a [`viewComparator`](./marionette.collectionview.md#defining-the-viewcomparator)
 
 ### `filter` and `before:filter` events
 
 These events fire before (`before:filter`) and after (`filter`) filtering the children in the `CollectionView`.
-This event will only fire if there are [`children`](./collectionview.md#collectionviews-children)
-and a [`viewFilter`](./collectionview.md#defining-the-viewfilter).
+This event will only fire if there are [`children`](./marionette.collectionview.md#managing-children)
+and a [`viewFilter`](./marionette.collectionview.md#defining-the-viewfilter).
 
 When the `filter` event is fired the children filtered out will have already been
 detached from the view's `el`, but new children will not yet have been rendered.
@@ -291,12 +291,12 @@ but will be rendered and attached by `render:children`.
 If the `CollectionView` can determine that added views will only be appended to the end, only the appended views
 will be passed to the event. Otherwise all of the `children` views will be passed.
 
-**Note** if you consistently need all of the views within this event use [`children`](./marionette.collectionview.md#collectionviews-children)
+**Note** if you consistently need all of the views within this event use [`children`](./marionette.collectionview.md#managing-children)
 
 ### `destroy:children` and `before:destroy:children` events
 
 These events fire before (`before:destroy:children`) and after (`destroy:children`) destroying the children
-in the `CollectionView`. These events will only fire if there are [`children`](./collectionview.md#collectionviews-children).
+in the `CollectionView`. These events will only fire if there are [`children`](./marionette.collectionview.md#managing-children).
 
 ### CollectionView EmptyView Region Events
 

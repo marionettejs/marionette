@@ -526,7 +526,7 @@ A `childViewTriggers` hash or method permits proxying of child view events witho
 setting bindings. The values of the hash should be a string of the event to trigger on the parent.
 
 `childViewTriggers` is sugar on top of [`childViewEvents`](#explicit-event-listeners) much
-in the same way that [view `triggers`](./dom.interaction.md#view-triggers) are sugar for [view `events`](./dom.interactions.md#view-events).
+in the same way that [view `triggers`](./dom.interactions.md#view-triggers) are sugar for [view `events`](./dom.interactions.md#view-events).
 
 ```javascript
 import { View, CollectionView } from 'marionette';

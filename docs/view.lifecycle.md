@@ -82,7 +82,7 @@ contains no content.
 ### `CollectionView` Rendering
 
 For [`CollectionView`](./marionette.collectionview.md), rendering signifies that the view's
-[`children`](./marionette.collectionview.md#collectionviews-children) were created and attached to the
+[`children`](./marionette.collectionview.md#managing-children) were created and attached to the
 view's `el`. So unlike `View` a `CollectionView` can be instantiated with content in its `el`, but until
 the `children` are "rendered" the entire view is not considered rendered.
 
@@ -103,7 +103,7 @@ rendered, child views are best managed in the view's [`initialize`](./common.md#
 
 ### `View` Children
 
-In general the best method for adding a child view to a `View` is to use [`showChildView`](./marionette.view.md#showing-a-view)
+In general the best method for adding a child view to a `View` is to use [`showChildView`](./marionette.view.md#showing-a-child-view)
 in the [`render` event](./events.class.md#render-and-beforerender-events).
 
 View regions will be emptied on each render so views shown outside of the `render` event will still need be reshown
