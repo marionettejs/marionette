@@ -1,0 +1,28 @@
+.github/copilot-instructions.md
+  s_d6429951fb9231::t_a0c0731dc35f2e 1-2,4-44
+  s_d6429951fb9231::t_f9c7d286fb7241 3
+ROADMAP.md
+  s_d6429951fb9231::t_f9c7d286fb7241 1-299
+.github/pull_request_template.md
+  s_d6429951fb9231::t_a0c0731dc35f2e 5,9,11-19,21-24,26,28-30,32-37,45,47-49,51,53,55
+.github/ISSUE_TEMPLATE/rfc.yml
+  s_d6429951fb9231::t_a0c0731dc35f2e 2,8,14,19,21-30,35,37,39-44,49,51-52,57,59-60,65,67-68,73,75-76,84-92,97,99,101,103
+.github/ISSUE_TEMPLATE/v5-task.yml
+  s_d6429951fb9231::t_a0c0731dc35f2e 2,8,14,19,21-22,27,29,31-35,40,42-43,47-48,50-55,60,62-63,68,77,79-80,85,87-88,90,93,95-96,100-106,110-111
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "e62dcedbdb8d75e8b91a964e00744f9db63ca8e5",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
