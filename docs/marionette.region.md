@@ -29,6 +29,7 @@ Regions maintain the [View's lifecycle](./view.lifecycle.md) while showing or em
 * [Showing a View](#showing-a-view)
   * [Checking whether a region is showing a view](#checking-whether-a-region-is-showing-a-view)
   * [Non-Marionette Views](#non-marionette-views)
+    * [Partially-rendered Views](#partially-rendered-views)
 * [Showing a Template](#showing-a-template)
 * [Emptying a Region](#emptying-a-region)
   * [Preserving Existing Views](#preserving-existing-views)
@@ -36,7 +37,7 @@ Regions maintain the [View's lifecycle](./view.lifecycle.md) while showing or em
 * [`reset` A Region](#reset-a-region)
 * [`destroy` A Region](#destroy-a-region)
 * [Check If View Is Being Swapped By Another](#check-if-view-is-being-swapped-by-another)
-* [Set How View's `el` Is Attached](#set-how-views-el-is-attached-and-detached)
+* [Set How View's `el` Is Attached](#set-how-views-el-is-attached)
 * [Configure How To Remove View](#configure-how-to-remove-view)
 
 ## Instantiating a Region
@@ -426,7 +427,7 @@ the DOM. When a region is emptied [empty events are triggered](./events.class.md
 
 **NOTE** If the region does _not_ currently contain a View it will detach
 any HTML inside the region when emptying. If the region _does_ contain a
-View [any HTML that doesn't belong to the View will remain](./upgrade-v2-v3.md#changes-to-regionshow).
+View [any HTML that doesn't belong to the View will remain](./upgrade.md#changes-to-regionshow).
 
 ### Preserving Existing Views
 

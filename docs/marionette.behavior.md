@@ -228,7 +228,7 @@ triggered on a `View` are passed to all attached `behaviors`. This includes:
 * Events fired from `childView`
 
 These handlers work exactly as they do on `View` -
-[see the `View` documentation](./marionette.view.md#view-lifecycle-and-events)
+[see the `View` documentation](./marionette.view.md#events)
 
 > Be default all events triggered on the behavior come from the view or the view's entities.
 > Events triggered in the behavior instance are not executed in the view. To notify

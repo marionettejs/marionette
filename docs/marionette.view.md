@@ -32,6 +32,7 @@ A `View` can have [`Region`s](./marionette.region.md) and [`Behavior`s](./marion
 * [Managing Children](#managing-children)
   * [Laying Out Views - Regions](#laying-out-views---regions)
   * [Showing a Child View](#showing-a-child-view)
+  * [Attaching a Child View](#attaching-a-child-view)
   * [Detaching a Child View](#detaching-a-child-view)
   * [Destroying a Child View](#destroying-a-child-view)
   * [Region Availability](#region-availability)

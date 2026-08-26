@@ -49,7 +49,7 @@ The [Backbone.Events API](http://backbonejs.org/#Events) is available to all cla
 Each Marionette class can both `listenTo` any object with this API and have events
 triggered on the instance.
 
-**Note** The events API should not be confused with [view `events`](./dom.interactions.md#view-events)
+**Note** The events API should not be confused with [view `events`](/.dom.interactions.md#view-events)
 which capture DOM events.
 
 ### `triggerMethod`

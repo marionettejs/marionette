@@ -39,7 +39,7 @@ A `CollectionView` can have [`Behavior`s](./marionette.behavior.md).
   * [Passing Data to the `emptyView`](#passing-data-to-the-emptyview)
   * [Defining When an `emptyView` shows](#defining-when-an-emptyview-shows)
 * [Accessing a Child View](#accessing-a-child-view)
-  * [CollectionView `children` Iterators And Collection Functions](#collectionview-children-iterators-and-collection-functions)
+  * [CollectionView `children` Iterators And Collection Functions](collectionview-children-iterators-and-collection-functions)
 * [Listening to Events on the `children`](#listening-to-events-on-the-children)
 * [Self Managed `children`](#self-managed-children)
   * [Adding a Child View](#adding-a-child-view)
@@ -268,7 +268,7 @@ CollectionView.extend({
 
 The first parameter is the HTML buffer, and the second parameter
 is the expected container for the children which by default equates
-to the view's `el` unless a [`childViewContainer`](#defining-the-childviewcontainer)
+to the view's `el` unless a [`childViewContainer`](#defining-the-childViewContainer)
 is set.
 
 ### Destroying All `children`
@@ -494,7 +494,7 @@ This region can be useful for handling the
 
 ### Passing Data to the `emptyView`
 
-Similar to [`childView`](#collectionviews-childview) and [`childViewOptions`](#passing-data-to-the-childview),
+Similar to [`childView`](#collectionviews-childview) and [`childViewOptions`](#padding-data-to-the-childview),
 there is an `emptyViewOptions` property that will be passed to the `emptyView` constructor.
 It can be provided as an object literal or as a function.
 

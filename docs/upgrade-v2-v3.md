@@ -42,7 +42,7 @@ The `CompositeView` was deprecated in favor of using `View` and
 `CollectionView`. The `CompositeView` will be completely removed in Marionette
 4.
 
-See [`CollectionView`](./marionette.collectionview.md#rendering-a-collectionview)
+See [`CollectionView`](./marionette.collectionview.md#rendering-collectionviews)
 for detail on upgrading to Marionette 3. This technique works in both Marionette
 2.x and Marionette 3.
 
@@ -272,7 +272,7 @@ in Marionette to manage the `CollectionView` children.
 The main difference between Babysitter and the Marionette implementation is the
 removal of `.call` and `.apply` on `CollectionView.children`. Instead you should
 use `.invoke` or
-[any of the methods provided](./marionette.collectionview.md#collectionview-children-iterators-and-collection-functions).
+[any of the methods provided](./marionette.collectionview.md#collectionview-childview-iterators-and-collection-functions).
 
 For example:
 
