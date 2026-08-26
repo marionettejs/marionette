@@ -1,5 +1,5 @@
 import { readFile, readdir } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import process from 'node:process';
 
 const root = resolve(import.meta.dirname, '..');
@@ -45,7 +45,8 @@ async function getNpmVersion() {
     throw new Error('Run this check through npm so the npm version can be verified.');
   }
 
-  const npmPackage = JSON.parse(await readFile(resolve(npmExecPath, '../..', 'package.json'), 'utf8'));
+  const npmPackagePath = resolve(dirname(npmExecPath), '..', 'package.json');
+  const npmPackage = JSON.parse(await readFile(npmPackagePath, 'utf8'));
   return npmPackage.version;
 }
 
