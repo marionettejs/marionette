@@ -1,7 +1,7 @@
 import { readFile, rm, mkdir, writeFile, copyFile } from 'fs/promises';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
-import { marked } from 'marked';
+import { marked, Renderer } from 'marked';
 
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const siteDir = resolve(rootDir, 'docs-site');
@@ -9,7 +9,10 @@ const pagesDir = resolve(siteDir, 'pages');
 const outputDir = resolve(rootDir, '.docs-site');
 const canonicalOrigin = 'https://docs.marionettejs.com';
 const docRoutes = new Map();
+const markdownRenderer = new Renderer();
 let packageVersion;
+
+markdownRenderer.html = token => escapeHtml(token.raw);
 
 function decodeEntities(value) {
   const named = {
@@ -84,7 +87,10 @@ function rewriteDocLinks(html, sourcePath) {
 }
 
 function renderMarkdown(markdown, sourcePath) {
-  const rendered = marked.parse(markdown, { gfm: true });
+  const rendered = marked.parse(markdown, {
+    gfm: true,
+    renderer: markdownRenderer,
+  });
   const linked = sourcePath ? rewriteDocLinks(rendered, sourcePath) : rendered;
   return addHeadingIds(linked);
 }
