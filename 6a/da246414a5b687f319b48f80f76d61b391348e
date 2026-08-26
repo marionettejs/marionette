@@ -1,0 +1,21 @@
+config/check-release-profile.mjs
+  s_d6429951fb9231::t_25f177da8ab565 1,10-16
+.github/workflows/bundle-size-comment.yml
+  s_d6429951fb9231::t_d6dc1c2643498f 18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "6ada246414a5b687f319b48f80f76d61b391348e",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
