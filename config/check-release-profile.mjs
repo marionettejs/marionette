@@ -95,8 +95,21 @@ function validateWorkflow() {
 
   const advisoryWorkflow = workflowContents.get(profile.source.advisoryWorkflow);
   const advisoryVersion = profile.source.advisoryNodeMajor;
-  if (!advisoryWorkflow?.includes(`node-version: ${advisoryVersion}`)) {
+  const advisoryVersions = advisoryWorkflow
+    ? [...advisoryWorkflow.matchAll(/^\s+node-version:\s+(\S+)\s*$/gm)]
+    : [];
+  if (advisoryVersions.length !== 1 || advisoryVersions[0][1] !== advisoryVersion) {
     fail(`${profile.source.advisoryWorkflow} does not test Node ${advisoryVersion}`);
+  }
+
+  const advisoryJobs = advisoryWorkflow?.split(/^jobs:\s*$/m)[1] || '';
+  const advisoryJobIds = [...advisoryJobs.matchAll(/^  ([a-z0-9-]+):\s*$/gm)]
+    .map(([, jobId]) => jobId);
+  if (advisoryJobIds.length !== 1 || advisoryJobIds[0] !== profile.source.advisoryJob) {
+    fail(`${profile.source.advisoryWorkflow} must contain only ${profile.source.advisoryJob}`);
+  }
+  if (!/^    continue-on-error:\s+true\s*$/m.test(advisoryJobs)) {
+    fail(`${profile.source.advisoryJob} must remain nonblocking`);
   }
 
   for (const host of profile.hosts) {

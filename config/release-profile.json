@@ -5,6 +5,7 @@
     "npm": "11.17.0",
     "advisoryNodeMajor": "26",
     "advisoryWorkflow": "node-current.yml",
+    "advisoryJob": "package-smoke",
     "consumerNodeRange": ">=24",
     "lockfileVersion": 3
   },
