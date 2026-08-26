@@ -11,8 +11,11 @@ the process of getting changes merged in and released.
 
 * Fork the Marionette repo.
 * `git clone` your fork onto your computer.
-* Run `npm install` to make sure you have all Marionette dependencies locally.
-* Run `npm build` to build source files.
+* Select the exact Node and npm versions in the
+  [source and release profile](docs/release-profile.md).
+* Run `npm ci` to install the pinned dependency graph.
+* Run `npm run check:release-profile` to verify the source toolchain.
+* Run `npm run build` to build source files.
 
 ## Reporting a bug
 

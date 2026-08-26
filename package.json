@@ -6,6 +6,7 @@
   "engines": {
     "node": ">=24"
   },
+  "packageManager": "npm@11.17.0",
   "browser": "dist/marionette.umd.js",
   "main": "dist/marionette.cjs",
   "module": "dist/marionette.js",
@@ -61,6 +62,7 @@
   "scripts": {
     "build": "rollup -c --noConflict",
     "check:dist": "npm run build && node config/check-dist.mjs",
+    "check:release-profile": "node config/check-release-profile.mjs",
     "coverage": "vitest run --coverage",
     "lint:base": "eslint backbone.js config/ config/bundle-size.mjs config/check-dist.mjs index.js jquery-dom-api.js mixins/ modules/ test/dist/validate.mjs test/fixtures/ test/setup/vitest.js test/unit/ utils/ vitest.config.js",
     "lint": "npm run lint:base -- --fix",
