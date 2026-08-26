@@ -121,13 +121,17 @@ budget.
   boundaries, and proving cleanup.
 - The model version, agent harness, prompt, repository revision, commands, evaluator,
   and expected outcomes are pinned for each benchmark series.
-- The stable-v5 benchmark uses at least 10 tasks and 10 paired runs per task.
+- The stable-v5 benchmark uses at least 10 tasks. A Phase 0 pilot predeclares the
+  paired-run count for each task; each count is at least 10 and provides at least 80
+  percent power, after the multiple-comparison correction, to detect a 15-percentage-
+  point absolute regression.
 - The aggregate fully-correct rate has a 95 percent Wilson lower bound of at least
   80 percent. Aborted runs count as not fully correct.
-- Relative to the Phase 0 baseline on the same pinned harness, the point estimate for
-  fully-correct results improves by at least 20 percentage points and cataloged
-  framework-architecture violations per 100 attempted runs fall by at least 50
-  percent. Violations found before an aborted run still count.
+- Relative to the Phase 0 baseline on the same pinned harness, the fully-correct point
+  estimate does not regress and either improves by at least 20 percentage points or
+  reaches at least 95 percent. Cataloged framework-architecture violations per 100
+  attempted runs fall by at least 50 percent. Violations found before an aborted run
+  still count.
 - No individual task has a statistically significant paired regression after the
   predeclared multiple-comparison correction.
 - A model or harness change starts a new benchmark series and requires rerunning both
