@@ -50,7 +50,9 @@ const MyBaseLayout = View.extend({
     header: '#header-region',
     content: '#content-region'
   },
-  el: document.querySelector('#base-layout'),
+  el() {
+    return document.querySelector('#base-layout');
+  },
   initialize() {
    this.showChildView('header', new HeaderView());
   }
@@ -71,7 +73,9 @@ const MyBaseLayout = View.extend({
     header: '#header-region',
     content: '#content-region'
   },
-  el: document.querySelector('#base-layout'),
+  el() {
+    return document.querySelector('#base-layout');
+  },
   initialize() {
     this.showChildView('header', new HeaderView({
       el: this.getRegion('header').el.firstElementChild
@@ -87,7 +91,9 @@ import { CollectionView } from 'marionette';
 import ItemView from './item-view';
 
 const MyList = CollectionView.extend({
-  el: document.querySelector('#base-table'),
+  el() {
+    return document.querySelector('#base-table');
+  },
   childView: ItemView,
   childViewContainer: 'tbody',
   buildChildView(model, ChildView) {
@@ -125,7 +131,9 @@ const MyBaseLayout = View.extend({
     header: '#header-region',
     content: '#content-region'
   },
-  el: document.querySelector('#base-layout'),
+  el() {
+    return document.querySelector('#base-layout');
+  },
   initialize() {
     this.showChildView('header', new HeaderView({
       el: this.getRegion('header').el.firstElementChild

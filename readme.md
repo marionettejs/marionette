@@ -45,17 +45,16 @@ See [installation](docs/installation.md) for package entrypoints and supported s
 ## Documentation
 
 - [Documentation index](docs/readme.md)
-- [Application](docs/marionette.application.md)
-- [View](docs/marionette.view.md)
-- [CollectionView](docs/marionette.collectionview.md)
-- [Region](docs/marionette.region.md)
-- [Behavior](docs/marionette.behavior.md)
-- [Radio](docs/radio.md)
+- [Installation and package entrypoints](docs/installation.md)
+- [Optional Backbone integration](docs/optional-backbone.md)
+- [Pre-rendered DOM](docs/dom.prerendered.md)
 - [v4-to-v5 compatibility ledger](docs/migration-from-v4.md)
 - [Upgrade guide](upgradeGuide.md)
 
-The hosted documentation is available at
-[marionettejs.com/docs/current](https://marionettejs.com/docs/current/).
+The API reference is being reconciled for stable v5 in
+[issue #147](https://github.com/marionettejs/marionette/issues/147). Until that
+work is complete, the repository's v5 guides above are canonical; the hosted
+`/docs/current` site describes earlier releases.
 
 ## Development
 

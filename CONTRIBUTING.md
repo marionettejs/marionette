@@ -1,6 +1,6 @@
 # Contributing to Marionette
 
-Marionette is community maintained. Focused bug reports, contract tests,
+Marionette is community-maintained. Focused bug reports, contract tests,
 documentation corrections, and implementation pull requests are welcome.
 
 The governing direction and stable-v5 release gates are in

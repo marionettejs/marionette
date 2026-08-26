@@ -277,7 +277,7 @@ rather than retained as dormant APIs.
 `5.0.0` may be published only when:
 
 - All Phase 0-4 gates pass on the release commit.
-- The public agent benchmark meets its functional, task-floor, improvement,
+- The public agent benchmark meets its functional, improvement,
   architecture-violation, and non-regression thresholds.
 - Production entrypoints contain no development inspector, validation, benchmark, or
   test-helper code unless an application explicitly imports an allowed opt-in runtime
