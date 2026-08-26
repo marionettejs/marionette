@@ -1,0 +1,30 @@
+config/check-release-profile.mjs
+  s_d6429951fb9231::t_9ebf185da9a2e7 98-101,105-113
+  s_80450acd549be3::t_7632c2734f1c08 114
+config/release-profile.json
+  s_d6429951fb9231::t_9ebf185da9a2e7 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "9f30d04fc2bcbb33a31d7be1e150b41600a6264d",
+  "prompts": {},
+  "sessions": {
+    "s_80450acd549be3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b876d6d9-9977-43dc-ab31-7e3552bceded",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
