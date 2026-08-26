@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import process from 'node:process';
 
@@ -7,7 +7,13 @@ const profile = await readJson('config/release-profile.json');
 const packageJson = await readJson('package.json');
 const packageLock = await readJson('package-lock.json');
 const nvmVersion = (await readFile(resolve(root, '.nvmrc'), 'utf8')).trim();
-const ciWorkflow = await readFile(resolve(root, '.github/workflows/ci.yml'), 'utf8');
+const workflowDir = resolve(root, '.github/workflows');
+const workflowFiles = (await readdir(workflowDir))
+  .filter(file => /\.ya?ml$/.test(file))
+  .sort();
+const ciWorkflow = (await Promise.all(workflowFiles.map(async file => {
+  return `# ${file}\n${await readFile(resolve(workflowDir, file), 'utf8')}`;
+}))).join('\n');
 const args = process.argv.slice(2);
 
 function fail(message) {
