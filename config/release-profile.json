@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "node": "24.19.0",
+    "npm": "11.17.0",
+    "advisoryNodeMajor": "26",
+    "advisoryWorkflow": "node-current.yml",
+    "advisoryJob": "package-smoke",
+    "consumerNodeRange": ">=24",
+    "lockfileVersion": 3
+  },
+  "hosts": [
+    {
+      "id": "linux-x64",
+      "role": "canonical",
+      "runner": "ubuntu-24.04",
+      "platform": "linux",
+      "architecture": "x64"
+    },
+    {
+      "id": "macos-arm64",
+      "role": "package-smoke",
+      "runner": "macos-15",
+      "platform": "darwin",
+      "architecture": "arm64"
+    },
+    {
+      "id": "windows-x64",
+      "role": "package-smoke",
+      "runner": "windows-2025",
+      "platform": "win32",
+      "architecture": "x64"
+    }
+  ]
+}

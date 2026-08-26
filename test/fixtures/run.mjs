@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = resolve(__dirname, '../..');
 const packDir = resolve(rootDir, 'test/tmp/pack-fixtures');
+const npmCli = process.env.npm_execpath;
 const fixtures = [
   'cjs-node',
   'esm-node',
@@ -29,6 +30,14 @@ function run(command, args, options = {}) {
   });
 }
 
+function runNpm(args, options) {
+  if (!npmCli) {
+    throw new Error('Run package fixtures through npm so the npm CLI can be located.');
+  }
+
+  run(process.execPath, [npmCli, ...args], options);
+}
+
 function cleanFixture(fixtureDir) {
   rmSync(resolve(fixtureDir, 'dist'), { force: true, recursive: true });
   rmSync(resolve(fixtureDir, 'node_modules'), { force: true, recursive: true });
@@ -39,7 +48,7 @@ rmSync(packDir, { force: true, recursive: true });
 mkdirSync(packDir, { recursive: true });
 
 try {
-  run('npm', ['pack', '--pack-destination', packDir]);
+  runNpm(['pack', '--pack-destination', packDir]);
 
   const packedTarballs = readdirSync(packDir)
     .filter(fileName => fileName.endsWith('.tgz'));
@@ -59,9 +68,9 @@ try {
 
     cleanFixture(fixtureDir);
     try {
-      run('npm', ['install'], { cwd: fixtureDir });
-      run('npm', ['install', '--no-save', tarballPath], { cwd: fixtureDir });
-      run('npm', ['run', 'validate'], { cwd: fixtureDir });
+      runNpm(['install'], { cwd: fixtureDir });
+      runNpm(['install', '--no-save', tarballPath], { cwd: fixtureDir });
+      runNpm(['run', 'validate'], { cwd: fixtureDir });
     } finally {
       cleanFixture(fixtureDir);
     }

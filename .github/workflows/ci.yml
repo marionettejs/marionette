@@ -12,7 +12,7 @@ permissions:
 jobs:
   test:
     name: Node 24
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout
@@ -23,8 +23,11 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 24
+          node-version-file: .nvmrc
           cache: npm
+
+      - name: Verify release profile
+        run: npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04
 
       - name: Install dependencies
         run: npm ci
@@ -49,10 +52,19 @@ jobs:
           path: coverage/
           if-no-files-found: warn
 
-  size:
-    name: Bundle size
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+  package-smoke:
+    name: Package smoke (${{ matrix.name }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS arm64
+            host: macos-arm64
+            runner: macos-15
+          - name: Windows x64
+            host: windows-x64
+            runner: windows-2025
 
     steps:
       - name: Checkout
@@ -63,8 +75,37 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 24
+          node-version-file: .nvmrc
           cache: npm
+
+      - name: Verify release profile
+        run: npm run check:release-profile -- --host ${{ matrix.host }} --runner ${{ matrix.runner }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test package fixtures
+        run: npm run test:fixtures
+
+  size:
+    name: Bundle size
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Verify release profile
+        run: npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04
 
       - name: Install dependencies
         run: npm ci

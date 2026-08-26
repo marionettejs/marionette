@@ -11,10 +11,14 @@ and must state its production runtime-cost boundary.
 
 1. Fork and clone `marionettejs/marionette`.
 2. Create a focused branch from `master`.
-3. Install the pinned dependency graph with `npm ci`.
-4. Run the relevant validation commands before opening a pull request.
+3. Select the exact Node and npm versions in the
+   [source and release profile](docs/release-profile.md).
+4. Run `npm run check:release-profile` to verify the source toolchain.
+5. Install the pinned dependency graph with `npm ci`.
+6. Run the relevant validation commands before opening a pull request.
 
 ```sh
+npm run check:release-profile
 npm ci
 npm test
 npm run lint:ci

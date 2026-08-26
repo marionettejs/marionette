@@ -15,7 +15,7 @@ jobs:
   comment:
     name: Comment on pull request
     if: github.event.workflow_run.event == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Download bundle-size report
