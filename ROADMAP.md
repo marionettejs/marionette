@@ -123,8 +123,12 @@ budget.
   and expected outcomes are pinned for each benchmark series.
 - The stable-v5 benchmark uses at least 10 tasks. A Phase 0 pilot predeclares the
   paired-run count for each task; each count is at least 10 and provides at least 80
-  percent power, after the multiple-comparison correction, to detect a 15-percentage-
-  point absolute regression.
+  percent power to detect an absolute regression of 15 percentage points. Release
+  decisions use one-sided exact McNemar tests and control family-wise error at 0.05
+  with the Holm correction. Sample-size planning uses the conservative Bonferroni
+  level of 0.05 divided by the task count and the pilot's one-sided 95 percent upper
+  confidence bound for discordant pairs under that regression alternative. The
+  executable power calculation and inputs are published before candidate runs.
 - The aggregate fully-correct rate has a 95 percent Wilson lower bound of at least
   80 percent, and no individual task has a fully-correct point estimate below 60
   percent. Aborted runs count as not fully correct.
@@ -183,6 +187,10 @@ The stable release then requires:
   Phase 0 baseline. CI compares every production subpath with the pull request base;
   growth above one percent requires explicit issue approval and benchmark evidence in
   addition to the cumulative absolute ceiling.
+- A new production subpath has no base-relative percentage: it requires the same
+  explicit approval and evidence, and its full Brotli-11 size counts against the
+  cumulative Phase 0 ceiling. Its first merged size becomes its comparison base for
+  later pull requests without resetting the Phase 0 baseline.
 - On a pinned release runner, there is no confirmed median regression above five
   percent and no confirmed p95 regression above ten percent for View
   construction/destruction, render/rerender, delegation, Region show/empty, and
