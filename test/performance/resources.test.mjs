@@ -106,7 +106,7 @@ describe('deterministic resource comparison', () => {
     const current = structuredClone(base);
     delete current.allocations.View.plainObjects;
     current.allocations.View.unknownLedger = 0;
-    current.workload.mountDestroyCycles = 1;
+    current.workload.mountDestroyCycles = 2000;
 
     const comparison = compareResources(base, current);
 
@@ -132,6 +132,14 @@ describe('deterministic resource comparison', () => {
     assert.deepEqual(resourceReportRows(comparison), [
       '| Contract validation | Not comparable | Not comparable | Review required |',
     ]);
+
+    const incompatible = report();
+    incompatible.schemaVersion = 2;
+    assert.ok(
+      compareResources(report(), incompatible).violations.includes(
+        'Pull request resource schemaVersion must be 1; received 2'
+      )
+    );
   });
 
   test('rejects candidate contracts that reduce or remove authority workloads', () => {

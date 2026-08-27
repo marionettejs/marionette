@@ -65,12 +65,12 @@ function snapshot(comments, status = 'ok') {
   };
 }
 
-function evidenceComment({ association = 'MEMBER', type = 'User' } = {}) {
+function evidenceComment({ association = 'MEMBER', login = 'evidence-author', type = 'User' } = {}) {
   return {
     id: 123,
     'author_association': association,
     'html_url': evidenceUrl,
-    user: { type },
+    user: { login, type },
   };
 }
 
@@ -90,12 +90,13 @@ function validation({
   current = [{ name: 'Over', path: 'dist/over.js', size: 102 }],
   currentHead = headSha,
   currentPolicy = policy,
+  evidence = [evidenceComment()],
 } = {}) {
   return validateGrowthApproval({
     baseReport: report(base),
     comments: snapshot(comments),
     currentReport: report(current),
-    evidenceComments: evidenceSnapshot(),
+    evidenceComments: evidenceSnapshot(evidence),
     headSha: currentHead,
     policy: currentPolicy,
     pullRequestNumber,
@@ -270,6 +271,11 @@ describe('exact-head performance growth approval contract', () => {
         .diagnostics[0].code,
       'GROWTH_APPROVAL_POLICY_SCHEMA'
     );
+    assert.deepEqual(
+      validateGrowthApprovalPolicy({ ...policy, allowedLogins: ['zed', 'alpha'] })
+        .map(({ code }) => code),
+      ['GROWTH_APPROVAL_POLICY_LOGINS']
+    );
   });
 
   test('returns a blocked result for malformed reports instead of throwing', () => {
@@ -377,9 +383,23 @@ describe('exact-head performance growth approval contract', () => {
       validation({ comments: [comment(extra)] }).diagnostics[0].code,
       'GROWTH_APPROVAL_PATH_SET_MISMATCH'
     );
+
+    const missing = validation({
+      base: [
+        { name: 'Over', path: 'dist/over.js', size: 100 },
+        { name: 'Second', path: 'dist/second.js', size: 100 },
+      ],
+      comments: [comment(approvalRecord(['dist/over.js']))],
+      current: [
+        { name: 'Over', path: 'dist/over.js', size: 102 },
+        { name: 'Second', path: 'dist/second.js', size: 102 },
+      ],
+    });
+    assert.equal(missing.diagnostics[0].code, 'GROWTH_APPROVAL_PATH_SET_MISMATCH');
+    assert.match(missing.diagnostics[0].message, /missing: dist\/second\.js; extra: none/);
   });
 
-  test('rejects foreign pull request comments and unresolved evidence URLs', () => {
+  test('allows collaborator evidence but rejects foreign comments and unresolved evidence', () => {
     const foreign = comment(approvalRecord(), { pullRequest: 2 });
     assert.equal(
       validation({ comments: [foreign] }).diagnostics[0].code,
@@ -398,6 +418,11 @@ describe('exact-head performance growth approval contract', () => {
     });
     assert.equal(unresolved.status, 'invalid');
     assert.equal(unresolved.diagnostics[0].code, 'GROWTH_APPROVAL_EVIDENCE_MISSING');
+
+    const collaboratorEvidence = validation({
+      evidence: [evidenceComment({ association: 'COLLABORATOR' })],
+    });
+    assert.equal(collaboratorEvidence.status, 'approved');
 
     const untrustedEvidence = validateGrowthApproval({
       baseReport: report([{ path: 'dist/over.js', size: 100 }]),
