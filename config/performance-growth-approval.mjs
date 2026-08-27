@@ -1,3 +1,8 @@
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import process from 'node:process';
+import { pathToFileURL } from 'node:url';
+
 const marker = '<!-- marionette-performance-growth-approval:v1 -->';
 const recordFields = ['approvedPaths', 'evidenceUrls', 'headSha', 'issueUrl', 'schemaVersion'];
 const bodyLimit = 16 * 1024;
@@ -438,4 +443,84 @@ export function validateGrowthApproval({
 
   result.status = 'approved';
   return result;
+}
+
+function getArgument(args, name) {
+  const index = args.indexOf(name);
+  const value = index === -1 ? null : args[index + 1];
+  if (!value || value.startsWith('--')) {
+    throw new Error(`Missing value for ${name}`);
+  }
+
+  return value;
+}
+
+async function readJson(path) {
+  return JSON.parse(await readFile(resolve(path), 'utf8'));
+}
+
+function parsePullRequestNumber(value) {
+  if (!/^[1-9]\d*$/.test(value)) {
+    throw new Error('Pull request number must be a positive integer');
+  }
+
+  const number = Number(value);
+  if (!Number.isSafeInteger(number)) {
+    throw new Error('Pull request number exceeds the safe integer range');
+  }
+
+  return number;
+}
+
+function blockedResult(error, headSha = null) {
+  return {
+    approval: null,
+    diagnostics: [diagnostic('GROWTH_APPROVAL_INPUT', error.message)],
+    headSha,
+    ignored: [],
+    required: [],
+    schemaVersion: 1,
+    status: 'blocked',
+    thresholdPercent: null,
+  };
+}
+
+export async function main(args = process.argv.slice(2)) {
+  let result;
+  let headSha;
+  try {
+    headSha = getArgument(args, '--head-sha');
+    const pullRequestNumber = parsePullRequestNumber(getArgument(args, '--pull-request'));
+    const [contract, baseReport, currentReport, comments, evidenceComments] =
+      await Promise.all([
+        readJson(getArgument(args, '--contract')),
+        readJson(getArgument(args, '--base-report')),
+        readJson(getArgument(args, '--current-report')),
+        readJson(getArgument(args, '--comments')),
+        readJson(getArgument(args, '--evidence-comments')),
+      ]);
+    result = validateGrowthApproval({
+      baseReport,
+      comments,
+      currentReport,
+      evidenceComments,
+      headSha,
+      policy: contract.pullRequestGrowthApproval,
+      pullRequestNumber,
+      thresholdPercent: contract.thresholds?.pullRequestApprovalPercent,
+    });
+  } catch (error) {
+    result = blockedResult(error, headSha);
+  }
+
+  console.log(JSON.stringify(result, null, 2));
+  if (!['approved', 'not-required'].includes(result.status)) {
+    process.exitCode = 1;
+  }
+  return result;
+}
+
+const entryUrl = process.argv[1] ? pathToFileURL(resolve(process.argv[1])).href : null;
+if (entryUrl === import.meta.url) {
+  main();
 }

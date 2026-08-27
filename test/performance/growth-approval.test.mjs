@@ -1,4 +1,9 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, test } from 'node:test';
 import {
   formatGrowthApprovalComment,
@@ -10,6 +15,7 @@ import {
 
 const headSha = '1234567890abcdef1234567890abcdef12345678';
 const pullRequestNumber = 1;
+const root = fileURLToPath(new URL('../..', import.meta.url));
 const evidenceUrl =
   'https://github.com/marionettejs/marionette/issues/127#issuecomment-123';
 const policy = {
@@ -349,5 +355,71 @@ describe('exact-head performance growth approval contract', () => {
 
     assert.equal(result.status, 'not-required');
     assert.deepEqual(result.diagnostics, []);
+  });
+
+  test('emits structured JSON and exit status from the offline CLI', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-growth-approval-'));
+    const paths = {
+      base: join(fixtureRoot, 'base.json'),
+      comments: join(fixtureRoot, 'comments.json'),
+      contract: join(fixtureRoot, 'contract.json'),
+      current: join(fixtureRoot, 'current.json'),
+      evidence: join(fixtureRoot, 'evidence.json'),
+    };
+    const cli = join(root, 'config/performance-growth-approval.mjs');
+    const args = [
+      cli,
+      '--contract', paths.contract,
+      '--base-report', paths.base,
+      '--current-report', paths.current,
+      '--comments', paths.comments,
+      '--evidence-comments', paths.evidence,
+      '--head-sha', headSha,
+      '--pull-request', String(pullRequestNumber),
+    ];
+
+    try {
+      await Promise.all([
+        writeFile(paths.contract, JSON.stringify({
+          thresholds: { pullRequestApprovalPercent: 1 },
+          pullRequestGrowthApproval: policy,
+        })),
+        writeFile(paths.base, JSON.stringify(report([
+          { name: 'Over', path: 'dist/over.js', size: 100 },
+        ]))),
+        writeFile(paths.current, JSON.stringify(report([
+          { name: 'Over', path: 'dist/over.js', size: 102 },
+        ]))),
+        writeFile(paths.comments, JSON.stringify(snapshot([comment(approvalRecord())]))),
+        writeFile(paths.evidence, JSON.stringify(evidenceSnapshot())),
+      ]);
+
+      const approved = spawnSync(process.execPath, args, { encoding: 'utf8' });
+      assert.equal(approved.status, 0);
+      assert.equal(JSON.parse(approved.stdout).status, 'approved');
+
+      await writeFile(paths.comments, JSON.stringify(snapshot([])));
+      const missing = spawnSync(process.execPath, args, { encoding: 'utf8' });
+      assert.equal(missing.status, 1);
+      assert.equal(JSON.parse(missing.stdout).diagnostics[0].code, 'GROWTH_APPROVAL_MISSING');
+
+      const invalidInput = spawnSync(process.execPath, [cli], { encoding: 'utf8' });
+      assert.equal(invalidInput.status, 1);
+      assert.equal(
+        JSON.parse(invalidInput.stdout).diagnostics[0].code,
+        'GROWTH_APPROVAL_INPUT'
+      );
+
+      const invalidPullRequest = spawnSync(process.execPath, [
+        ...args.slice(0, -1), '1e2',
+      ], { encoding: 'utf8' });
+      assert.equal(invalidPullRequest.status, 1);
+      assert.match(
+        JSON.parse(invalidPullRequest.stdout).diagnostics[0].message,
+        /positive integer/
+      );
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
   });
 });
