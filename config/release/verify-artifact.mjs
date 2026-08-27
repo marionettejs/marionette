@@ -35,6 +35,24 @@ function assertEqual(actual, expected, label) {
   }
 }
 
+function run(command, commandArgs) {
+  const result = spawnSync(command, commandArgs, {
+    cwd: root,
+    encoding: 'utf8',
+    maxBuffer: 1024 * 1024,
+  });
+
+  if (result.error) {
+    throw result.error;
+  }
+  if (result.status !== 0) {
+    process.stderr.write(result.stderr);
+    throw new Error(`${command} exited with status ${result.status}.`);
+  }
+
+  return result.stdout.trim();
+}
+
 async function getNpmVersion() {
   const npmExecPath = process.env.npm_execpath;
   if (!npmExecPath) {
@@ -86,6 +104,18 @@ assertEqual(sha512(bundleReportBytes), evidence.reports.bundle.sha512, 'bundle r
 const releaseProfileBytes = await readFile(resolve(root, 'config/release-profile.json'));
 const promotionPolicyBytes = await readFile(resolve(root, 'config/release-promotion.json'));
 const promotionPolicy = JSON.parse(promotionPolicyBytes.toString('utf8'));
+const checkedOutCommit = run('git', ['rev-parse', 'HEAD']);
+assertEqual(checkedOutCommit, evidence.source.commit, 'checked-out source commit');
+assertEqual(
+  run('git', ['rev-parse', `${checkedOutCommit}:config/release-profile.json`]),
+  evidence.releaseProfile.revision,
+  'release profile revision',
+);
+assertEqual(
+  run('git', ['rev-parse', `${checkedOutCommit}:config/release-promotion.json`]),
+  evidence.promotionPolicy.revision,
+  'promotion policy revision',
+);
 assertEqual(sha512(releaseProfileBytes), evidence.releaseProfile.sha512, 'release profile SHA-512');
 assertEqual(sha512(promotionPolicyBytes), evidence.promotionPolicy.sha512, 'promotion policy SHA-512');
 assertEqual(process.versions.node, evidence.toolchain.node, 'Node version');

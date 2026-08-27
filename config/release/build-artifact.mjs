@@ -79,6 +79,10 @@ const repository = readArgument('--repository', process.env.GITHUB_REPOSITORY ||
 if (!sourceCommit || !/^[a-f0-9]{40}$/.test(sourceCommit)) {
   throw new Error('A full 40-character source commit is required.');
 }
+const checkedOutCommit = run('git', ['rev-parse', 'HEAD']);
+if (sourceCommit !== checkedOutCommit) {
+  throw new Error(`Source commit ${sourceCommit} does not match checked-out commit ${checkedOutCommit}.`);
+}
 
 const packageJson = await readJson('package.json');
 const releaseProfile = await readJson('config/release-profile.json');
@@ -157,12 +161,12 @@ const evidence = {
     npm: await getNpmVersion(),
   },
   releaseProfile: {
-    revision: run('git', ['hash-object', 'config/release-profile.json']),
+    revision: run('git', ['rev-parse', `${checkedOutCommit}:config/release-profile.json`]),
     sha512: sha512(releaseProfileBytes),
     profile: releaseProfile,
   },
   promotionPolicy: {
-    revision: run('git', ['hash-object', 'config/release-promotion.json']),
+    revision: run('git', ['rev-parse', `${checkedOutCommit}:config/release-promotion.json`]),
     sha512: sha512(promotionPolicyBytes),
     publicationEnabled: promotionPolicy.publicationEnabled,
   },

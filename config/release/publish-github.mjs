@@ -88,48 +88,49 @@ const viewArgs = [
   'assets,isDraft,tagName,targetCommitish',
 ];
 
+async function verifyRelease(release) {
+  if (release.targetCommitish !== evidence.source.commit) {
+    throw new Error('Release targets a different source commit.');
+  }
+  const existingAssets = release.assets.map(asset => asset.name).sort();
+  const expectedAssets = [...assetNames].sort();
+  if (JSON.stringify(existingAssets) !== JSON.stringify(expectedAssets)) {
+    throw new Error('Release has a different asset manifest.');
+  }
+
+  const downloadDir = await mkdtemp(join(tmpdir(), 'marionette-release-assets-'));
+  try {
+    run([
+      'release',
+      'download',
+      evidence.release.tag,
+      '--repo',
+      evidence.source.repository,
+      '--dir',
+      downloadDir,
+    ]);
+    const downloadedAssets = await readdir(downloadDir);
+    if (JSON.stringify(downloadedAssets.sort()) !== JSON.stringify(expectedAssets)) {
+      throw new Error('Downloaded release assets do not match the expected manifest.');
+    }
+    for (const assetName of assetNames) {
+      const local = await readFile(resolve(artifactDir, assetName));
+      const remote = await readFile(resolve(downloadDir, assetName));
+      if (sha512(local) !== sha512(remote)) {
+        throw new Error(`Release asset differs from the verified artifact: ${assetName}`);
+      }
+    }
+  } finally {
+    await rm(downloadDir, { force: true, recursive: true });
+  }
+}
+
 if (mode === 'stage') {
   const existing = run(viewArgs, { allowFailure: true });
   if (existing.status === 0) {
     const release = JSON.parse(existing.stdout);
-    if (!release.isDraft) {
-      throw new Error(`Release ${evidence.release.tag} is already public.`);
-    }
-    if (release.targetCommitish !== evidence.source.commit) {
-      throw new Error('Existing draft release targets a different source commit.');
-    }
-    const existingAssets = release.assets.map(asset => asset.name).sort();
-    const expectedAssets = [...assetNames].sort();
-    if (JSON.stringify(existingAssets) !== JSON.stringify(expectedAssets)) {
-      throw new Error('Existing draft release has a different asset manifest.');
-    }
-
-    const downloadDir = await mkdtemp(join(tmpdir(), 'marionette-release-assets-'));
-    try {
-      run([
-        'release',
-        'download',
-        evidence.release.tag,
-        '--repo',
-        evidence.source.repository,
-        '--dir',
-        downloadDir,
-      ]);
-      const downloadedAssets = await readdir(downloadDir);
-      if (JSON.stringify(downloadedAssets.sort()) !== JSON.stringify(expectedAssets)) {
-        throw new Error('Downloaded draft assets do not match the expected manifest.');
-      }
-      for (const assetName of assetNames) {
-        const local = await readFile(resolve(artifactDir, assetName));
-        const remote = await readFile(resolve(downloadDir, assetName));
-        if (sha512(local) !== sha512(remote)) {
-          throw new Error(`Draft asset differs from the verified artifact: ${assetName}`);
-        }
-      }
-    } finally {
-      await rm(downloadDir, { force: true, recursive: true });
-    }
-    console.log(`Draft release ${evidence.release.tag} already contains the verified assets.`);
+    await verifyRelease(release);
+    console.log(`Release ${evidence.release.tag} already contains the verified assets.`);
     process.exit(0);
   }
   if (!/release not found|HTTP 404|Not Found/i.test(existing.stderr)) {
@@ -167,11 +168,9 @@ if (mode === 'stage') {
 
 const existing = run(viewArgs);
 const release = JSON.parse(existing.stdout);
-if (release.targetCommitish !== evidence.source.commit) {
-  throw new Error('Release targets a different source commit.');
-}
+await verifyRelease(release);
 if (!release.isDraft) {
-  console.log(`Release ${evidence.release.tag} is already public.`);
+  console.log(`Release ${evidence.release.tag} is already public with the verified assets.`);
   process.exit(0);
 }
 
