@@ -1,0 +1,69 @@
+test/source/validate.mjs
+  s_d6429951fb9231::t_e020f34b39aff0 1-11
+package.json
+  s_d6429951fb9231::t_e020f34b39aff0 85
+.github/workflows/ci.yml
+  s_d6429951fb9231::t_e020f34b39aff0 41-43
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_669cecdf5e29a7 1
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_d60b0ff83a04ae 1
+index.js
+  s_d6429951fb9231::t_ac561749455e77 2-3,12-17,19-20,22-28,30,35
+mixins/behaviors.js
+  s_d6429951fb9231::t_6b18f43f9f7eb1 2
+mixins/common.js
+  s_d6429951fb9231::t_c77711a50d6c52 3-8,12,16
+mixins/events.js
+  s_d6429951fb9231::t_8963a2d550a8b2 3-5,7
+mixins/radio.js
+  s_d6429951fb9231::t_31bb84b2a18b93 2
+mixins/requests.js
+  s_d6429951fb9231::t_ea5317d9045fae 3-7
+mixins/view-events.js
+  s_d6429951fb9231::t_37c8e3f09947ab 2-3
+mixins/view.js
+  s_d6429951fb9231::t_da5ceb8b69d74a 5-13
+modules/application.js
+  s_d6429951fb9231::t_48eeea79b5c2b6 5-10
+modules/behavior.js
+  s_d6429951fb9231::t_6909eb69b57479 10-15
+modules/collection-view.js
+  s_d6429951fb9231::t_dfd737a6722879 5-14
+modules/common/bind-events.js
+  s_d6429951fb9231::t_edfecace022a4a 17-18
+modules/common/bind-requests.js
+  s_d6429951fb9231::t_2b6883eaf13fe4 15-16
+modules/common/build-region.js
+  s_d6429951fb9231::t_acbf6a2650ea5a 1
+modules/common/trigger-method.js
+  s_d6429951fb9231::t_6562be1716d6db 5
+modules/object.js
+  s_d6429951fb9231::t_96e8552ef278fd 5-8
+modules/radio.js
+  s_d6429951fb9231::t_826b3d9586d506 3-5,7
+modules/region.js
+  s_d6429951fb9231::t_cd222e5861a4b4 1
+modules/view-region.js
+  s_d6429951fb9231::t_dba98e2d81e44a 17-25
+modules/view.js
+  s_d6429951fb9231::t_9da06940078376 1
+utils/error.js
+  s_d6429951fb9231::t_8138d8914231a0 5-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "e5abf8d4eec20484e619fb0d7af9162c6757c3d9",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
