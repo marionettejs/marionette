@@ -93,4 +93,30 @@ describe('hosted timing report math', () => {
       await rm(fixtureRoot, { recursive: true, force: true });
     }
   });
+
+  test('restores DOM globals when timing case construction fails', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-timing-'));
+    const contract = JSON.parse(await readFile(new URL('../../config/performance.json', import.meta.url)));
+    const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'window');
+    const documentDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'document');
+
+    try {
+      const configPath = join(fixtureRoot, 'performance.json');
+      await writeFile(configPath, JSON.stringify(contract));
+      await assert.rejects(
+        measure({
+          root,
+          configPath,
+          caseFactory() {
+            throw new Error('Timing case construction failed');
+          },
+        }),
+        /Timing case construction failed/
+      );
+      assert.deepEqual(Object.getOwnPropertyDescriptor(globalThis, 'window'), windowDescriptor);
+      assert.deepEqual(Object.getOwnPropertyDescriptor(globalThis, 'document'), documentDescriptor);
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
 });

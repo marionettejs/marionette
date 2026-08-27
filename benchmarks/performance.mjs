@@ -209,15 +209,19 @@ function createCases({ Backbone, Marionette }) {
   ]);
 }
 
-export async function measure({ root = '.', configPath = 'config/performance.json' } = {}) {
+export async function measure({
+  root = '.',
+  configPath = 'config/performance.json',
+  caseFactory = createCases,
+} = {}) {
   const resolvedRoot = resolve(root);
   const contract = await readJson(configPath);
   assertHarnessRevision(await readFile(new URL(import.meta.url)), contract.timing.harnessRevision);
   const runtime = await loadRuntime(resolvedRoot);
-  const cases = createCases(runtime);
   const results = [];
 
   try {
+    const cases = caseFactory(runtime);
     for (const caseConfig of contract.timing.cases) {
       const run = cases.get(caseConfig.id);
       if (!run) {
