@@ -32,6 +32,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify browser profile
+        run: npm run check:browser-profile
+
       - name: Lint
         run: npm run lint:ci
 

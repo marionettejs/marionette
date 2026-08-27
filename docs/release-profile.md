@@ -19,6 +19,7 @@ nvm install
 nvm use
 npm run check:release-profile
 npm ci
+npm run check:browser-profile
 ```
 
 The Node release pinned here includes the pinned npm version. If another version of
@@ -29,6 +30,25 @@ and packed-package fixtures also run on macOS 15 arm64 and Windows 2025 x64. Git
 fixed OS labels still receive runner-image updates, so release evidence records the
 actual image reported by each run. Hosted-runner timings remain informative rather
 than hard performance gates.
+
+## Browser profiles
+
+Browser behavior and transpilation use separate pinned profiles. The future
+real-browser contract lane uses `@playwright/test` 1.62.1 with Chromium
+151.0.7922.34 revision 1234, Firefox 153.0 revision 1538, and WebKit 26.5 revision
+2336. These are the builds published for the [Playwright 1.62
+release](https://playwright.dev/docs/release-notes#version-162). Playwright WebKit is
+the compatibility engine; it is not evidence that branded Safari ran in CI.
+
+The dependency is installed now so its exact browser manifest can be checked, but
+browser binaries are not downloaded and browser tests are not enabled until the
+real-browser contract work begins. `npm run check:browser-profile` compares the
+installed Playwright manifest with `config/release-profile.json`.
+
+The locked Browserslist database currently resolves the package query to Chrome and
+Edge 148-149, Firefox 150-151, and Safari 26.3-26.4. The same browser-profile check
+compares the complete ordered result with the checked-in snapshot, so a lockfile or
+query update cannot silently change transpilation output.
 
 ## Advancing the profile
 
@@ -43,8 +63,11 @@ test suite before merge.
   Marionette's minimum supported Node major is a separate major-release decision.
 - Introduce a replacement host image in parallel before making it canonical. Never
   use a moving `*-latest` label for release evidence.
+- Review Playwright browser builds and transpilation targets monthly. Update the
+  dependency, lockfile, browser-build manifest, and complete target snapshot in one
+  reviewed pull request; browser tests remain a separate contract lane.
 - Freeze the profile for a release candidate. An emergency profile change reruns all
   release evidence.
 
-Browser-engine and documentation-publication profiles are defined separately; they
-must not silently change these source and host pins.
+Documentation publication is defined separately and must not silently change the
+source, host, or browser pins.
