@@ -69,6 +69,7 @@
   "scripts": {
     "build": "rollup -c rollup.config.mjs --noConflict",
     "check:browser-profile": "node config/check-browser-profile.mjs",
+    "check:diagnostics": "node config/check-diagnostic-catalog.mjs",
     "check:dist": "npm run build && node config/check-dist.mjs",
     "check:release-profile": "node config/check-release-profile.mjs",
     "coverage": "vitest run --coverage",
@@ -113,6 +114,7 @@
     "@rollup/plugin-json": "6.1.0",
     "@rollup/plugin-terser": "1.0.0",
     "@vitest/coverage-v8": "^4.1.11",
+    "ajv": "8.20.0",
     "backbone": "^1.4.0",
     "browserslist": "4.28.4",
     "eslint": "10.9.1",

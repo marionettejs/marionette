@@ -16,6 +16,10 @@
     "route": "next/dom.prerendered"
   },
   {
+    "source": "docs/diagnostic-catalog.md",
+    "route": "next/diagnostic-catalog"
+  },
+  {
     "source": "docs/migration-from-v4.md",
     "route": "next/migration-from-v4"
   },

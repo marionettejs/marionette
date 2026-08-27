@@ -1,0 +1,296 @@
+{
+  "$schema": "./catalog.schema.json",
+  "schemaVersion": 1,
+  "diagnostics": [
+    {
+      "code": "MN0001",
+      "slug": "view-el-must-be-dom-element",
+      "status": "defined",
+      "category": "dom",
+      "severity": "error",
+      "objects": [
+        "CollectionView",
+        "View"
+      ],
+      "remediation": "Resolve selector strings at the call site and pass the resulting DOM element.",
+      "docsAnchor": "/errors/MN0001/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "view"
+    },
+    {
+      "code": "MN0002",
+      "slug": "region-el-type-invalid",
+      "status": "defined",
+      "category": "dom",
+      "severity": "error",
+      "objects": [
+        "Region"
+      ],
+      "remediation": "Pass the Region a selector string or DOM element for its el option.",
+      "docsAnchor": "/errors/MN0002/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "region"
+    },
+    {
+      "code": "MN0003",
+      "slug": "view-already-owned",
+      "status": "defined",
+      "category": "ownership",
+      "severity": "error",
+      "objects": [
+        "CollectionView",
+        "Region",
+        "View"
+      ],
+      "remediation": "Detach or remove the view from its current Region or CollectionView before showing it elsewhere, or create a new view instance.",
+      "docsAnchor": "/errors/MN0003/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "ownership"
+    },
+    {
+      "code": "MN0004",
+      "slug": "region-el-required",
+      "status": "defined",
+      "category": "dom",
+      "severity": "error",
+      "objects": [
+        "Region"
+      ],
+      "remediation": "Configure the Region with an el selector or DOM element before using it.",
+      "docsAnchor": "/errors/MN0004/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "region"
+    },
+    {
+      "code": "MN0005",
+      "slug": "region-el-not-found",
+      "status": "defined",
+      "category": "dom",
+      "severity": "error",
+      "objects": [
+        "Region"
+      ],
+      "remediation": "Ensure the Region selector resolves within its parent element, or explicitly allow a missing element where supported.",
+      "docsAnchor": "/errors/MN0005/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "region"
+    },
+    {
+      "code": "MN0006",
+      "slug": "region-view-required",
+      "status": "defined",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Region"
+      ],
+      "remediation": "Pass a View instance, template function or string, or view-options object to Region#show.",
+      "docsAnchor": "/errors/MN0006/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "region"
+    },
+    {
+      "code": "MN0007",
+      "slug": "region-view-destroyed",
+      "status": "defined",
+      "category": "lifecycle",
+      "severity": "error",
+      "objects": [
+        "Region",
+        "View"
+      ],
+      "remediation": "Create a new View instance instead of attempting to show a destroyed view.",
+      "docsAnchor": "/errors/MN0007/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "lifecycle"
+    },
+    {
+      "code": "MN0008",
+      "slug": "region-definition-invalid",
+      "status": "defined",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "Region",
+        "View"
+      ],
+      "remediation": "Define the region with a selector string, Region instance or class, or region-options object.",
+      "docsAnchor": "/errors/MN0008/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "region"
+    },
+    {
+      "code": "MN0009",
+      "slug": "event-bindings-invalid",
+      "status": "defined",
+      "category": "communication",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "Region",
+        "View"
+      ],
+      "remediation": "Pass an object that maps event names to callbacks or method names.",
+      "docsAnchor": "/errors/MN0009/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "communication"
+    },
+    {
+      "code": "MN0010",
+      "slug": "request-bindings-invalid",
+      "status": "defined",
+      "category": "communication",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "Region",
+        "View"
+      ],
+      "remediation": "Pass an object that maps request names to callbacks or method names.",
+      "docsAnchor": "/errors/MN0010/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "communication"
+    },
+    {
+      "code": "MN0011",
+      "slug": "collection-view-child-view-required",
+      "status": "defined",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "CollectionView"
+      ],
+      "remediation": "Configure childView with a View class or a function that returns a View class.",
+      "docsAnchor": "/errors/MN0011/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "collection-view"
+    },
+    {
+      "code": "MN0012",
+      "slug": "collection-view-child-view-invalid",
+      "status": "defined",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "CollectionView"
+      ],
+      "remediation": "Return a View class from the childView function, or assign a View class directly.",
+      "docsAnchor": "/errors/MN0012/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "collection-view"
+    },
+    {
+      "code": "MN0013",
+      "slug": "collection-view-container-not-found",
+      "status": "defined",
+      "category": "dom",
+      "severity": "error",
+      "objects": [
+        "CollectionView"
+      ],
+      "remediation": "Ensure childViewContainer resolves to an element within the rendered CollectionView.",
+      "docsAnchor": "/errors/MN0013/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "collection-view"
+    },
+    {
+      "code": "MN0014",
+      "slug": "collection-view-filter-invalid",
+      "status": "defined",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "CollectionView"
+      ],
+      "remediation": "Use a function, predicate object, model-attribute string, or falsy value for viewFilter.",
+      "docsAnchor": "/errors/MN0014/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "collection-view"
+    },
+    {
+      "code": "MN0015",
+      "slug": "collection-view-swap-non-children",
+      "status": "defined",
+      "category": "ownership",
+      "severity": "error",
+      "objects": [
+        "CollectionView"
+      ],
+      "remediation": "Pass two views currently owned by the CollectionView to swapChildViews.",
+      "docsAnchor": "/errors/MN0015/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "collection-view"
+    },
+    {
+      "code": "MN0016",
+      "slug": "behavior-definition-invalid",
+      "status": "defined",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Behavior",
+        "CollectionView",
+        "View"
+      ],
+      "remediation": "Pass a Behavior constructor directly or provide it as the behaviorClass property of the behavior options.",
+      "docsAnchor": "/errors/MN0016/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "behavior"
+    },
+    {
+      "code": "MN0017",
+      "slug": "radio-channel-name-required",
+      "status": "defined",
+      "category": "communication",
+      "severity": "error",
+      "objects": [
+        "Radio"
+      ],
+      "remediation": "Pass a non-empty channel name when creating or accessing a Radio channel.",
+      "docsAnchor": "/errors/MN0017/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "communication"
+    }
+  ]
+}

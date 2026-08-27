@@ -1,0 +1,165 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Marionette diagnostic catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "diagnostics"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "./catalog.schema.json"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "diagnostics": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/diagnostic"
+      }
+    }
+  },
+  "definitions": {
+    "code": {
+      "type": "string",
+      "pattern": "^MN[0-9]{4}$"
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "slug",
+        "status",
+        "category",
+        "severity",
+        "objects",
+        "remediation",
+        "docsAnchor",
+        "surfaces",
+        "benchmarkCategory"
+      ],
+      "properties": {
+        "code": {
+          "$ref": "#/definitions/code"
+        },
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "defined",
+            "active",
+            "deprecated"
+          ]
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "configuration",
+            "communication",
+            "dom",
+            "lifecycle",
+            "ownership"
+          ]
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "error",
+            "warning",
+            "info"
+          ]
+        },
+        "objects": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "Application",
+              "Behavior",
+              "CollectionView",
+              "MnObject",
+              "Radio",
+              "Region",
+              "View"
+            ]
+          }
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "docsAnchor": {
+          "type": "string",
+          "pattern": "^/errors/MN[0-9]{4}/$"
+        },
+        "surfaces": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "runtime",
+              "lint",
+              "development",
+              "test",
+              "benchmark"
+            ]
+          }
+        },
+        "benchmarkCategory": {
+          "type": "string",
+          "enum": [
+            "behavior",
+            "cleanup",
+            "collection-view",
+            "communication",
+            "lifecycle",
+            "ownership",
+            "region",
+            "view"
+          ]
+        },
+        "replacementCode": {
+          "$ref": "#/definitions/code"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "deprecated"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "replacementCode"
+            ],
+            "properties": {
+              "replacementCode": {
+                "$ref": "#/definitions/code"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "replacementCode": false
+            }
+          }
+        }
+      ]
+    }
+  }
+}

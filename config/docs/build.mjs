@@ -2,6 +2,7 @@ import { readFile, rm, mkdir, writeFile, copyFile } from 'fs/promises';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { marked, Renderer } from 'marked';
+import { loadDiagnosticCatalog } from '../diagnostics/catalog.mjs';
 
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const siteDir = resolve(rootDir, 'docs-site');
@@ -11,6 +12,44 @@ const canonicalOrigin = 'https://docs.marionettejs.com';
 const docRoutes = new Map();
 const markdownRenderer = new Renderer();
 let packageVersion;
+
+function diagnosticIndex(diagnostics) {
+  const rows = diagnostics.map(({ code, slug, severity }) => {
+    return `| [${code}](/errors/${code}/) | ${slug} | ${severity} |`;
+  });
+
+  return [
+    '## Catalog',
+    '',
+    '| Code | Diagnostic | Severity |',
+    '| --- | --- | --- |',
+    ...rows,
+  ].join('\n');
+}
+
+export function diagnosticPage(diagnostic) {
+  const objects = diagnostic.objects.map(object => `\`${object}\``).join(', ');
+  const surfaces = diagnostic.surfaces.map(surface => `\`${surface}\``).join(', ');
+  const replacement = diagnostic.replacementCode ?
+    `\n| Replacement | [${diagnostic.replacementCode}](/errors/${diagnostic.replacementCode}/) |` :
+    '';
+
+  return `# ${diagnostic.code}: ${diagnostic.slug}
+
+| Field | Value |
+| --- | --- |
+| Status | ${diagnostic.status} |
+| Category | ${diagnostic.category} |
+| Severity | ${diagnostic.severity} |
+| Objects | ${objects} |
+| Surfaces | ${surfaces} |
+| Benchmark category | ${diagnostic.benchmarkCategory} |${replacement}
+
+## Remediation
+
+${diagnostic.remediation}
+`;
+}
 
 markdownRenderer.html = token => escapeHtml(token.raw);
 
@@ -150,6 +189,7 @@ async function writePage(route, markdown, sourcePath, fallbackTitle) {
 
 async function buildDocs() {
   const packageJson = JSON.parse(await readFile(resolve(rootDir, 'package.json'), 'utf8'));
+  const diagnosticCatalog = await loadDiagnosticCatalog();
   packageVersion = packageJson.version;
 
   await rm(outputDir, { force: true, recursive: true });
@@ -164,7 +204,18 @@ async function buildDocs() {
 
   for (const [route, fileName, title] of scaffoldPages) {
     const sourcePath = resolve(pagesDir, fileName);
-    await writePage(route, await readFile(sourcePath, 'utf8'), null, title);
+    let markdown = await readFile(sourcePath, 'utf8');
+
+    if (route === 'errors') {
+      markdown = `${markdown.trim()}\n\n${diagnosticIndex(diagnosticCatalog.diagnostics)}\n`;
+    }
+
+    await writePage(route, markdown, null, title);
+  }
+
+  for (const diagnostic of diagnosticCatalog.diagnostics) {
+    const route = diagnostic.docsAnchor.replace(/^\/+|\/+$/g, '');
+    await writePage(route, diagnosticPage(diagnostic), null, diagnostic.code);
   }
 
   const nextDocs = JSON.parse(await readFile(resolve(siteDir, 'next.json'), 'utf8'));
@@ -192,7 +243,10 @@ async function buildDocs() {
     }),
   );
 
-  console.log(`Built ${docSources.length + scaffoldPages.length} documentation pages in .docs-site/.`);
+  const pageCount = docSources.length + scaffoldPages.length + diagnosticCatalog.diagnostics.length;
+  console.log(`Built ${pageCount} documentation pages in .docs-site/.`);
 }
 
-buildDocs();
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  buildDocs();
+}
