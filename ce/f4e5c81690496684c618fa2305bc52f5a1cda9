@@ -1,0 +1,22 @@
+test/performance/growth-approval.test.mjs
+  s_d6429951fb9231::t_c9ffba390d49c1 187-195,266-267,270
+  s_d6429951fb9231::t_0d1879e117f72f 268-269
+config/performance-growth-approval.mjs
+  s_d6429951fb9231::t_c9ffba390d49c1 352-353
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "cef4e5c81690496684c618fa2305bc52f5a1cda9",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
