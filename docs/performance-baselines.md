@@ -91,8 +91,9 @@ artifact growth now has a versioned, base-owned approval contract in
 `pullRequestGrowthApproval`; new subpaths remain a separate fail-closed case.
 
 An approval is one complete pull request timeline comment. The comment author comes
-from GitHub rather than the JSON body, must appear in the exact-base allowlist, and
-must use this canonical form:
+from GitHub rather than the JSON body, must appear in the exact-base allowlist, must
+have GitHub's `OWNER`, `MEMBER`, or `COLLABORATOR` association, and must use this
+canonical form:
 
 ````markdown
 <!-- marionette-performance-growth-approval:v1 -->

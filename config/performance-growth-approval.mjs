@@ -5,6 +5,7 @@ import { pathToFileURL } from 'node:url';
 
 const marker = '<!-- marionette-performance-growth-approval:v1 -->';
 const recordFields = ['approvedPaths', 'evidenceUrls', 'headSha', 'issueUrl', 'schemaVersion'];
+const allowedAuthorAssociations = new Set(['COLLABORATOR', 'MEMBER', 'OWNER']);
 const bodyLimit = 16 * 1024;
 const pathLimit = 50;
 const evidenceLimit = 20;
@@ -365,7 +366,9 @@ export function validateGrowthApproval({
       ));
       continue;
     }
-    if (comment?.user?.type !== 'User' || !allowedLogins.has(authorLogin)) {
+    if (comment?.user?.type !== 'User' ||
+        !allowedAuthorAssociations.has(comment?.author_association) ||
+        !allowedLogins.has(authorLogin)) {
       result.ignored.push({ authorLogin, commentUrl, reason: 'unauthorized-author' });
       continue;
     }

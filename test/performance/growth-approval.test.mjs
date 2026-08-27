@@ -40,6 +40,7 @@ function approvalRecord(approvedPaths = ['dist/over.js']) {
 }
 
 function comment(record, {
+  association = 'MEMBER',
   id = 1,
   login = 'paulfalgout',
   pullRequest = pullRequestNumber,
@@ -47,6 +48,7 @@ function comment(record, {
 } = {}) {
   return {
     id,
+    'author_association': association,
     body: formatGrowthApprovalComment(record),
     'html_url': `https://github.com/marionettejs/marionette/pull/${pullRequest}#issuecomment-${id}`,
     user: { login, type },
@@ -271,6 +273,11 @@ describe('exact-head performance growth approval contract', () => {
     );
     assert.equal(
       validation({ comments: [comment(approvalRecord(), { login: null })] })
+        .diagnostics[0].code,
+      'GROWTH_APPROVAL_MISSING'
+    );
+    assert.equal(
+      validation({ comments: [comment(approvalRecord(), { association: 'NONE' })] })
         .diagnostics[0].code,
       'GROWTH_APPROVAL_MISSING'
     );
