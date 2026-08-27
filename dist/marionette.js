@@ -1068,8 +1068,7 @@ var UIMixin = {
 const FEATURES = {
   childViewEventPrefix: false,
   triggersStopPropagation: true,
-  triggersPreventDefault: true,
-  DEV_MODE: false
+  triggersPreventDefault: true
 };
 function isEnabled(name) {
   return !!FEATURES[name];

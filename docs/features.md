@@ -65,9 +65,3 @@ The default has been true, but for a future version [`false` is being considered
 
 It indicates the whether or not [`View.triggers` will call `event.stopPropagating()`](./dom.interactions.md#view-triggers-event-object) if not explicitly defined by the trigger.
 The default has been true, but for a future version [`false` is being considered](https://github.com/marionettejs/backbone.marionette/issues/2926).
-
-### DEV_MODE
-
-*Default:* `false`
-
-If `true`, deprecation console warnings are issued at runtime.
