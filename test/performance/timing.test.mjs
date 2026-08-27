@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -94,21 +94,26 @@ describe('hosted timing report math', () => {
   });
 
   test('restores DOM globals when timing case construction fails', async() => {
-    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-timing-'));
-    const contract = JSON.parse(await readFile(new URL('../../config/performance.json', import.meta.url)));
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-runtime-'));
+    const configPath = fileURLToPath(new URL('../../config/performance.json', import.meta.url));
     const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'window');
     const documentDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'document');
 
     try {
-      const configPath = join(fixtureRoot, 'performance.json');
-      await writeFile(configPath, JSON.stringify(contract));
+      await mkdir(join(fixtureRoot, 'dist'));
+      await writeFile(join(fixtureRoot, 'package.json'), '{"type":"module"}\n');
+      await writeFile(
+        join(fixtureRoot, 'dist/marionette.js'),
+        'export const View = { extend() { throw new Error("Timing case construction failed"); } };\n' +
+        'export const Behavior = {};\n' +
+        'export const CollectionView = {};\n' +
+        'export const Region = {};\n'
+      );
       await assert.rejects(
         measure({
-          root,
+          root: fixtureRoot,
           configPath,
-          caseFactory() {
-            throw new Error('Timing case construction failed');
-          },
+          dependencyRoot: root,
         }),
         /Timing case construction failed/
       );

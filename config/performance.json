@@ -289,7 +289,7 @@
   },
   "timing": {
     "harnessSchemaVersion": 1,
-    "harnessRevision": "f22242e13a8af8ee11a57930a6913d77b2ab65f32fa109c917987cdfeadb9145",
+    "harnessRevision": "271128bee00c66b3168424d65220dbe6c5dbea1f336082c21b45a07a344bb1d9",
     "sampleCount": 20,
     "warmupBatches": 5,
     "cases": [
