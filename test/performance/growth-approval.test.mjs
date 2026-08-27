@@ -65,7 +65,16 @@ function snapshot(comments, status = 'ok') {
   };
 }
 
-function evidenceSnapshot(comments = [{ id: 123, 'html_url': evidenceUrl }], status = 'ok') {
+function evidenceComment({ association = 'MEMBER', type = 'User' } = {}) {
+  return {
+    id: 123,
+    'author_association': association,
+    'html_url': evidenceUrl,
+    user: { type },
+  };
+}
+
+function evidenceSnapshot(comments = [evidenceComment()], status = 'ok') {
   return {
     schemaVersion: 1,
     status,
@@ -98,12 +107,14 @@ describe('exact-head performance growth approval contract', () => {
   test('requires only existing artifacts growing strictly above one percent', () => {
     const base = report([
       { name: 'Exact', path: 'dist/exact.js', size: 100 },
+      { name: 'Fractional', path: 'dist/fractional.js', size: 199 },
       { name: 'Over', path: 'dist/over.js', size: 100 },
       { name: 'Shrink', path: 'dist/shrink.js', size: 100 },
       { name: 'Zero', path: 'dist/zero.js', size: 0 },
     ]);
     const current = report([
       { name: 'Exact', path: 'dist/exact.js', size: 101 },
+      { name: 'Fractional', path: 'dist/fractional.js', size: 201 },
       { name: 'Over', path: 'dist/over.js', size: 102 },
       { name: 'Shrink', path: 'dist/shrink.js', size: 99 },
       { name: 'Zero', path: 'dist/zero.js', size: 1 },
@@ -111,6 +122,14 @@ describe('exact-head performance growth approval contract', () => {
     ]);
 
     assert.deepEqual(requiredArtifactGrowth(base, current, 1), [
+      {
+        baseBytes: 199,
+        currentBytes: 201,
+        deltaBytes: 2,
+        growthBasisPoints: 101,
+        name: 'Fractional',
+        path: 'dist/fractional.js',
+      },
       {
         baseBytes: 100,
         currentBytes: 102,
@@ -128,6 +147,17 @@ describe('exact-head performance growth approval contract', () => {
         path: 'dist/zero.js',
       },
     ]);
+  });
+
+  test('rejects a renamed artifact instead of treating its replacement as new', () => {
+    assert.throws(
+      () => requiredArtifactGrowth(
+        report([{ name: 'Old', path: 'dist/old.js', size: 100 }]),
+        report([{ name: 'Replacement', path: 'dist/replacement.js', size: 1000 }]),
+        1
+      ),
+      /missing exact-base artifacts: dist\/old\.js/
+    );
   });
 
   test('rejects duplicate report paths and malformed thresholds', () => {
@@ -151,6 +181,16 @@ describe('exact-head performance growth approval contract', () => {
       ),
       /non-comparable sizes/
     );
+    for (const size of [undefined, -1, Number.NaN]) {
+      assert.throws(
+        () => requiredArtifactGrowth(
+          report([{ path: 'dist/a.js', size: 100 }]),
+          report([{ path: 'dist/a.js', size }]),
+          1
+        ),
+        /non-comparable sizes/
+      );
+    }
     assert.throws(
       () => requiredArtifactGrowth(
         report([{ path: 'dist/a.js', size: 100 }]),
@@ -312,6 +352,18 @@ describe('exact-head performance growth approval contract', () => {
     ]);
   });
 
+  test('ignores forged approvals when one trusted exact-head approval is valid', () => {
+    const result = validation({
+      comments: [
+        comment(approvalRecord(), { association: 'NONE', id: 1 }),
+        comment(approvalRecord(), { id: 2 }),
+      ],
+    });
+
+    assert.equal(result.status, 'approved');
+    assert.deepEqual(result.ignored.map(({ reason }) => reason), ['unauthorized-author']);
+  });
+
   test('rejects duplicate exact-head approvals and path mismatches', () => {
 
     assert.equal(
@@ -346,6 +398,53 @@ describe('exact-head performance growth approval contract', () => {
     });
     assert.equal(unresolved.status, 'invalid');
     assert.equal(unresolved.diagnostics[0].code, 'GROWTH_APPROVAL_EVIDENCE_MISSING');
+
+    const untrustedEvidence = validateGrowthApproval({
+      baseReport: report([{ path: 'dist/over.js', size: 100 }]),
+      comments: snapshot([comment(approvalRecord())]),
+      currentReport: report([{ path: 'dist/over.js', size: 102 }]),
+      evidenceComments: evidenceSnapshot([evidenceComment({ association: 'NONE' })]),
+      headSha,
+      policy,
+      pullRequestNumber,
+      thresholdPercent: 1,
+    });
+    assert.equal(untrustedEvidence.status, 'invalid');
+    assert.equal(
+      untrustedEvidence.diagnostics[0].code,
+      'GROWTH_APPROVAL_EVIDENCE_MISSING'
+    );
+
+    const missingEvidenceAssociation = validateGrowthApproval({
+      baseReport: report([{ path: 'dist/over.js', size: 100 }]),
+      comments: snapshot([comment(approvalRecord())]),
+      currentReport: report([{ path: 'dist/over.js', size: 102 }]),
+      evidenceComments: evidenceSnapshot([evidenceComment({ association: null })]),
+      headSha,
+      policy,
+      pullRequestNumber,
+      thresholdPercent: 1,
+    });
+    assert.equal(missingEvidenceAssociation.status, 'invalid');
+    assert.equal(
+      missingEvidenceAssociation.diagnostics[0].code,
+      'GROWTH_APPROVAL_EVIDENCE_MISSING'
+    );
+  });
+
+  test('rejects abbreviated pull request and approval head SHAs', () => {
+    const prefix = headSha.slice(0, 12);
+    assert.equal(
+      validation({ currentHead: prefix }).diagnostics[0].code,
+      'GROWTH_APPROVAL_PULL_REQUEST_HEAD'
+    );
+
+    const abbreviated = approvalRecord();
+    abbreviated.headSha = prefix;
+    assert.equal(
+      validation({ comments: [comment(abbreviated)] }).diagnostics[0].code,
+      'GROWTH_APPROVAL_MISSING'
+    );
   });
 
   test('does not need comment access when no existing artifact crosses the threshold', () => {
@@ -374,6 +473,12 @@ describe('exact-head performance growth approval contract', () => {
       evidence: join(fixtureRoot, 'evidence.json'),
     };
     const cli = join(root, 'config/performance-growth-approval.mjs');
+    const checkoutHead = spawnSync('git', ['rev-parse', 'HEAD'], {
+      cwd: root,
+      encoding: 'utf8',
+    }).stdout.trim();
+    const cliApproval = approvalRecord();
+    cliApproval.headSha = checkoutHead;
     const args = [
       cli,
       '--contract', paths.contract,
@@ -381,7 +486,7 @@ describe('exact-head performance growth approval contract', () => {
       '--current-report', paths.current,
       '--comments', paths.comments,
       '--evidence-comments', paths.evidence,
-      '--head-sha', headSha,
+      '--head-sha', checkoutHead,
       '--pull-request', String(pullRequestNumber),
     ];
 
@@ -397,13 +502,22 @@ describe('exact-head performance growth approval contract', () => {
         writeFile(paths.current, JSON.stringify(report([
           { name: 'Over', path: 'dist/over.js', size: 102 },
         ]))),
-        writeFile(paths.comments, JSON.stringify(snapshot([comment(approvalRecord())]))),
+        writeFile(paths.comments, JSON.stringify(snapshot([comment(cliApproval)]))),
         writeFile(paths.evidence, JSON.stringify(evidenceSnapshot())),
       ]);
 
       const approved = spawnSync(process.execPath, args, { encoding: 'utf8' });
       assert.equal(approved.status, 0);
       assert.equal(JSON.parse(approved.stdout).status, 'approved');
+
+      const mismatchedArgs = [...args];
+      mismatchedArgs[mismatchedArgs.indexOf('--head-sha') + 1] = headSha;
+      const mismatchedHead = spawnSync(process.execPath, mismatchedArgs, { encoding: 'utf8' });
+      assert.equal(mismatchedHead.status, 1);
+      assert.match(
+        JSON.parse(mismatchedHead.stdout).diagnostics[0].message,
+        /does not match checkout/
+      );
 
       await writeFile(paths.comments, JSON.stringify(snapshot([])));
       const missing = spawnSync(process.execPath, args, { encoding: 'utf8' });
@@ -415,6 +529,10 @@ describe('exact-head performance growth approval contract', () => {
       assert.equal(
         JSON.parse(invalidInput.stdout).diagnostics[0].code,
         'GROWTH_APPROVAL_INPUT'
+      );
+      assert.match(
+        JSON.parse(invalidInput.stdout).diagnostics[0].message,
+        /Missing value for --head-sha/
       );
 
       const invalidPullRequest = spawnSync(process.execPath, [

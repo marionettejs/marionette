@@ -1,12 +1,15 @@
+import { execFile } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import process from 'node:process';
 import { pathToFileURL } from 'node:url';
+import { promisify } from 'node:util';
 
 const marker = '<!-- marionette-performance-growth-approval:v1 -->';
 const recordFields = ['approvedPaths', 'evidenceUrls', 'headSha', 'issueUrl', 'schemaVersion'];
 const allowedAuthorAssociations = new Set(['COLLABORATOR', 'MEMBER', 'OWNER']);
 const bodyLimit = 16 * 1024;
+const execFileAsync = promisify(execFile);
 const pathLimit = 50;
 const evidenceLimit = 20;
 
@@ -430,7 +433,9 @@ export function validateGrowthApproval({
   }
 
   const availableEvidence = new Set(evidenceComments.comments
-    .filter(comment => evidenceCommentUrl(policy.repository, issueNumber, comment))
+    .filter(comment => comment?.user?.type === 'User' &&
+      allowedAuthorAssociations.has(comment?.author_association) &&
+      evidenceCommentUrl(policy.repository, issueNumber, comment))
     .map(comment => comment.html_url));
   const unresolvedEvidence = result.approval.evidenceUrls
     .filter(url => !availableEvidence.has(url));
@@ -460,6 +465,14 @@ function getArgument(args, name) {
 
 async function readJson(path) {
   return JSON.parse(await readFile(resolve(path), 'utf8'));
+}
+
+async function currentCheckoutHead() {
+  const { stdout } = await execFileAsync('git', ['rev-parse', 'HEAD'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+  });
+  return stdout.trim();
 }
 
 function parsePullRequestNumber(value) {
@@ -493,6 +506,10 @@ export async function main(args = process.argv.slice(2)) {
   let headSha;
   try {
     headSha = getArgument(args, '--head-sha');
+    const checkoutHeadSha = await currentCheckoutHead();
+    if (headSha !== checkoutHeadSha) {
+      throw new Error(`Requested head SHA ${headSha} does not match checkout ${checkoutHeadSha}`);
+    }
     const pullRequestNumber = parsePullRequestNumber(getArgument(args, '--pull-request'));
     const [contract, baseReport, currentReport, comments, evidenceComments] =
       await Promise.all([

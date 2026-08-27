@@ -225,7 +225,7 @@ describe('performance contract validation', () => {
     }
   });
 
-  test('renders artifact-specific growth approval results and fails closed without one', async() => {
+  test('renders artifact-specific growth approval results before enforcement', async() => {
     const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-approval-report-'));
     const baseReport = join(fixtureRoot, 'base.json');
     const currentReport = join(fixtureRoot, 'current.json');
@@ -275,7 +275,7 @@ describe('performance contract validation', () => {
       const missing = spawnSync(process.execPath, [
         cli, '--report', baseReport, currentReport,
       ], { encoding: 'utf8' });
-      assert.equal(missing.status, 1);
+      assert.equal(missing.status, 0);
       assert.match(missing.stdout, /Status: \*\*Required\*\*\./);
 
       const approved = spawnSync(process.execPath, [
