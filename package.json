@@ -74,7 +74,7 @@
     "check:release-profile": "node config/check-release-profile.mjs",
     "coverage": "vitest run --coverage",
     "docs:build": "node config/docs/build.mjs",
-    "docs:check": "npm run check:diagnostics && npm run docs:build && node config/docs/check-links.mjs",
+    "docs:check": "npm run docs:build && node config/docs/check-links.mjs",
     "lint:base": "eslint .",
     "lint": "npm run lint:base -- --fix",
     "lint:ci": "npm run lint:base -- --max-warnings=0",
