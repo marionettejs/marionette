@@ -160,6 +160,16 @@ describe('exact-head performance growth approval contract', () => {
       ),
       /non-comparable sizes/
     );
+    for (const size of [undefined, -1, Number.NaN]) {
+      assert.throws(
+        () => requiredArtifactGrowth(
+          report([{ path: 'dist/a.js', size: 100 }]),
+          report([{ path: 'dist/a.js', size }]),
+          1
+        ),
+        /non-comparable sizes/
+      );
+    }
     assert.throws(
       () => requiredArtifactGrowth(
         report([{ path: 'dist/a.js', size: 100 }]),
@@ -321,6 +331,18 @@ describe('exact-head performance growth approval contract', () => {
     ]);
   });
 
+  test('ignores forged approvals when one trusted exact-head approval is valid', () => {
+    const result = validation({
+      comments: [
+        comment(approvalRecord(), { association: 'NONE', id: 1 }),
+        comment(approvalRecord(), { id: 2 }),
+      ],
+    });
+
+    assert.equal(result.status, 'approved');
+    assert.deepEqual(result.ignored.map(({ reason }) => reason), ['unauthorized-author']);
+  });
+
   test('rejects duplicate exact-head approvals and path mismatches', () => {
 
     assert.equal(
@@ -370,6 +392,37 @@ describe('exact-head performance growth approval contract', () => {
     assert.equal(
       untrustedEvidence.diagnostics[0].code,
       'GROWTH_APPROVAL_EVIDENCE_MISSING'
+    );
+
+    const missingEvidenceAssociation = validateGrowthApproval({
+      baseReport: report([{ path: 'dist/over.js', size: 100 }]),
+      comments: snapshot([comment(approvalRecord())]),
+      currentReport: report([{ path: 'dist/over.js', size: 102 }]),
+      evidenceComments: evidenceSnapshot([evidenceComment({ association: null })]),
+      headSha,
+      policy,
+      pullRequestNumber,
+      thresholdPercent: 1,
+    });
+    assert.equal(missingEvidenceAssociation.status, 'invalid');
+    assert.equal(
+      missingEvidenceAssociation.diagnostics[0].code,
+      'GROWTH_APPROVAL_EVIDENCE_MISSING'
+    );
+  });
+
+  test('rejects abbreviated pull request and approval head SHAs', () => {
+    const prefix = headSha.slice(0, 12);
+    assert.equal(
+      validation({ currentHead: prefix }).diagnostics[0].code,
+      'GROWTH_APPROVAL_PULL_REQUEST_HEAD'
+    );
+
+    const abbreviated = approvalRecord();
+    abbreviated.headSha = prefix;
+    assert.equal(
+      validation({ comments: [comment(abbreviated)] }).diagnostics[0].code,
+      'GROWTH_APPROVAL_MISSING'
     );
   });
 
@@ -455,6 +508,10 @@ describe('exact-head performance growth approval contract', () => {
       assert.equal(
         JSON.parse(invalidInput.stdout).diagnostics[0].code,
         'GROWTH_APPROVAL_INPUT'
+      );
+      assert.match(
+        JSON.parse(invalidInput.stdout).diagnostics[0].message,
+        /Missing value for --head-sha/
       );
 
       const invalidPullRequest = spawnSync(process.execPath, [
