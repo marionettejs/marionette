@@ -1,0 +1,179 @@
+name: Performance approval refresh
+
+on:
+  issue_comment:
+    types: [created, edited, deleted]
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    name: Refresh bundle-size approval
+    if: >-
+      ${{
+        (
+          github.event.issue.pull_request &&
+          contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association) &&
+          (
+            github.event.action != 'created' ||
+            contains(github.event.comment.body, '<!-- marionette-performance-growth-approval:v1 -->')
+          )
+        ) ||
+        (
+          !github.event.issue.pull_request &&
+          github.event.issue.number == 127 &&
+          github.event.action != 'created'
+        )
+      }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    concurrency:
+      group: performance-approval-refresh-${{ github.event.comment.id }}
+      cancel-in-progress: true
+    permissions:
+      actions: write
+      contents: read
+      issues: read
+      pull-requests: read
+
+    steps:
+      - name: Re-run exact-head bundle-size checks
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_COMMENT_URL: ${{ github.event.comment.html_url }}
+          IS_PULL_REQUEST: ${{ github.event.issue.pull_request && 'true' || 'false' }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          pull_requests="$(mktemp "${RUNNER_TEMP}/marionette-growth-prs.XXXXXX")"
+          refresh_failed=0
+
+          if [ "${IS_PULL_REQUEST}" = 'true' ]; then
+            printf '%s\n' "${ISSUE_NUMBER}" > "${pull_requests}"
+          else
+            open_pull_requests="$(mktemp "${RUNNER_TEMP}/marionette-open-prs.XXXXXX")"
+            comment_pages="$(mktemp "${RUNNER_TEMP}/marionette-pr-comments.XXXXXX")"
+            gh api --paginate \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'X-GitHub-Api-Version: 2022-11-28' \
+              "repos/${REPOSITORY}/pulls?state=open&per_page=100" \
+              --jq '.[].number' > "${open_pull_requests}"
+
+            while IFS= read -r open_pull_request; do
+              if ! [[ "${open_pull_request}" =~ ^[1-9][0-9]*$ ]]; then
+                echo "Invalid open pull request number: ${open_pull_request}" >&2
+                refresh_failed=1
+                continue
+              fi
+              if ! gh api --paginate --slurp \
+                -H 'Accept: application/vnd.github+json' \
+                -H 'X-GitHub-Api-Version: 2022-11-28' \
+                "repos/${REPOSITORY}/issues/${open_pull_request}/comments?per_page=100" \
+                > "${comment_pages}"; then
+                echo "Comments unavailable for pull request ${open_pull_request}." >&2
+                refresh_failed=1
+                continue
+              fi
+              if jq -e \
+                  --arg evidence_url "${EVENT_COMMENT_URL}" \
+                  --arg marker '<!-- marionette-performance-growth-approval:v1 -->' \
+                  'add // [] | any(.[];
+                    . as $comment |
+                    (($comment.body // "") | contains($marker)) and
+                    (($comment.body // "") | contains($evidence_url)) and
+                    (["OWNER", "MEMBER", "COLLABORATOR"] |
+                      index($comment.author_association) != null)
+                  )' \
+                  "${comment_pages}" > /dev/null; then
+                printf '%s\n' "${open_pull_request}" >> "${pull_requests}"
+              fi
+            done < "${open_pull_requests}"
+          fi
+
+          while IFS= read -r pull_request_number; do
+            if ! [[ "${pull_request_number}" =~ ^[1-9][0-9]*$ ]]; then
+              echo "Invalid pull request number: ${pull_request_number}" >&2
+              refresh_failed=1
+              continue
+            fi
+
+            pull_request_data="$(mktemp "${RUNNER_TEMP}/marionette-pr.XXXXXX")"
+            if ! gh api \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'X-GitHub-Api-Version: 2022-11-28' \
+              "repos/${REPOSITORY}/pulls/${pull_request_number}" \
+              > "${pull_request_data}"; then
+              echo "Pull request ${pull_request_number} is unavailable." >&2
+              refresh_failed=1
+              continue
+            fi
+            head_sha="$(jq -r '.head.sha' "${pull_request_data}")"
+            base_sha="$(jq -r '.base.sha' "${pull_request_data}")"
+            if ! [[ "${head_sha}" =~ ^[0-9a-f]{40}$ ]]; then
+              echo "Invalid head SHA for pull request ${pull_request_number}." >&2
+              refresh_failed=1
+              continue
+            fi
+            if ! [[ "${base_sha}" =~ ^[0-9a-f]{40}$ ]]; then
+              echo "Invalid base SHA for pull request ${pull_request_number}." >&2
+              refresh_failed=1
+              continue
+            fi
+
+            workflow_runs="$(mktemp "${RUNNER_TEMP}/marionette-ci-runs.XXXXXX")"
+            expected_run_name="CI PR #${pull_request_number} base ${base_sha} head ${head_sha}"
+            run_id=''
+            lookup_failed=0
+            for attempt in {1..24}; do
+              if ! gh api \
+                -H 'Accept: application/vnd.github+json' \
+                -H 'X-GitHub-Api-Version: 2022-11-28' \
+                "repos/${REPOSITORY}/actions/workflows/ci.yml/runs?event=pull_request&head_sha=${head_sha}&per_page=100" \
+                > "${workflow_runs}"; then
+                lookup_failed=1
+                break
+              fi
+              run_id="$(jq -r --arg expected_run_name "${expected_run_name}" \
+                '.workflow_runs |
+                 map(select(.display_title == $expected_run_name)) |
+                 sort_by(.created_at) | last | .id // empty' \
+                "${workflow_runs}")"
+              if [ -n "${run_id}" ]; then
+                break
+              fi
+              sleep 5
+            done
+            if [ "${lookup_failed}" -ne 0 ] || ! [[ "${run_id}" =~ ^[1-9][0-9]*$ ]]; then
+              echo "No CI run found for pull request ${pull_request_number} at ${head_sha}." >&2
+              refresh_failed=1
+              continue
+            fi
+
+            gh run watch "${run_id}" --repo "${REPOSITORY}" --exit-status || true
+            if ! bundle_job_id="$(gh api \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'X-GitHub-Api-Version: 2022-11-28' \
+              "repos/${REPOSITORY}/actions/runs/${run_id}/jobs?filter=latest&per_page=100" \
+              --jq '.jobs[] | select(.name == "Bundle size") | .id')"; then
+              echo "Jobs unavailable for CI run ${run_id}." >&2
+              refresh_failed=1
+              continue
+            fi
+            if ! [[ "${bundle_job_id}" =~ ^[1-9][0-9]*$ ]]; then
+              echo "No Bundle size job found for CI run ${run_id}." >&2
+              refresh_failed=1
+              continue
+            fi
+
+            if ! gh api --method POST \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'X-GitHub-Api-Version: 2022-11-28' \
+              "repos/${REPOSITORY}/actions/jobs/${bundle_job_id}/rerun"; then
+              echo "Could not re-run Bundle size job ${bundle_job_id}." >&2
+              refresh_failed=1
+            fi
+          done < "${pull_requests}"
+
+          exit "${refresh_failed}"

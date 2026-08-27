@@ -1,4 +1,6 @@
 name: CI
+run-name: >-
+  ${{ github.event_name == 'pull_request' && format('CI PR #{0} base {1} head {2}', github.event.pull_request.number, github.event.pull_request.base.sha, github.event.pull_request.head.sha) || format('CI {0}', github.ref_name) }}
 
 on:
   push:
@@ -106,6 +108,9 @@ jobs:
     name: Bundle size
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      issues: read
 
     steps:
       - name: Checkout
@@ -128,10 +133,73 @@ jobs:
       - name: Build current branch
         run: npm run build
 
+      - name: Prepare performance workspace
+        id: performance_workspace
+        run: |
+          set -euo pipefail
+          performance_dir="$(mktemp -d "${RUNNER_TEMP}/marionette-growth-approval.XXXXXX")"
+          chmod 700 "${performance_dir}"
+          echo "directory=${performance_dir}" >> "${GITHUB_OUTPUT}"
+
       - name: Check current performance contract
         id: current_contract
         continue-on-error: true
-        run: node config/bundle-size.mjs --json > bundle-size-current.json
+        env:
+          PERFORMANCE_DIR: ${{ steps.performance_workspace.outputs.directory }}
+        run: node config/bundle-size.mjs --json > "${PERFORMANCE_DIR}/bundle-size-current.json"
+
+      - name: Collect performance growth approval records
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PERFORMANCE_DIR: ${{ steps.performance_workspace.outputs.directory }}
+          REPOSITORY: ${{ github.repository }}
+          PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+          TRACKING_ISSUE_NUMBER: 127
+        run: |
+          set -euo pipefail
+          pull_request_status='ok'
+          if ! gh api --paginate --slurp \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "repos/${REPOSITORY}/issues/${PULL_REQUEST_NUMBER}/comments?per_page=100" \
+            > "${PERFORMANCE_DIR}/pull-request-pages.json"; then
+            pull_request_status='unavailable'
+            echo '[]' > "${PERFORMANCE_DIR}/pull-request-pages.json"
+          fi
+          jq -n \
+            --arg repository "${REPOSITORY}" \
+            --arg status "${pull_request_status}" \
+            --argjson pull_request_number "${PULL_REQUEST_NUMBER}" \
+            --slurpfile pages "${PERFORMANCE_DIR}/pull-request-pages.json" \
+            '{
+              schemaVersion: 1,
+              status: $status,
+              repository: $repository,
+              pullRequestNumber: $pull_request_number,
+              comments: ($pages[0] | add // [])
+            }' > "${PERFORMANCE_DIR}/approval-comments.json"
+
+          issue_status='ok'
+          if ! gh api --paginate --slurp \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "repos/${REPOSITORY}/issues/${TRACKING_ISSUE_NUMBER}/comments?per_page=100" \
+            > "${PERFORMANCE_DIR}/tracking-issue-pages.json"; then
+            issue_status='unavailable'
+            echo '[]' > "${PERFORMANCE_DIR}/tracking-issue-pages.json"
+          fi
+          jq -n \
+            --arg repository "${REPOSITORY}" \
+            --arg status "${issue_status}" \
+            --argjson issue_number "${TRACKING_ISSUE_NUMBER}" \
+            --slurpfile pages "${PERFORMANCE_DIR}/tracking-issue-pages.json" \
+            '{
+              schemaVersion: 1,
+              status: $status,
+              repository: $repository,
+              issueNumber: $issue_number,
+              comments: ($pages[0] | add // [])
+            }' > "${PERFORMANCE_DIR}/growth-evidence-comments.json"
 
       - name: Checkout exact pull request base
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -150,37 +218,41 @@ jobs:
         id: base_authority
         continue-on-error: true
         env:
-          PULL_REQUEST_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PERFORMANCE_DIR: ${{ steps.performance_workspace.outputs.directory }}
+          PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
           base_contract='bundle-size-base/config/performance.json'
           authority_script='bundle-size-base/config/bundle-size.mjs'
-          # Each exact-SHA fallback becomes permanently unreachable after its reviewed bootstrap merges.
-          if [ ! -f "${base_contract}" ]; then
-            if [ "${PULL_REQUEST_BASE_SHA}" != '31151c9cb5cb1e11d30da4332f58ca8b56cf2fe4' ]; then
-              echo 'Base has no performance contract and is not the reviewed performance bootstrap base.' >&2
-              exit 1
-            fi
-            base_contract='config/performance.json'
-            authority_script='config/bundle-size.mjs'
-            echo 'Using the current contract for the performance bootstrap from exact base 31151c9.'
-          elif [ ! -f 'bundle-size-base/config/performance-resources.mjs' ]; then
-            if [ "${PULL_REQUEST_BASE_SHA}" != '25f3739376d391df396885f3ea1b88fa1ea7a0f0' ]; then
-              echo 'Base has no resource comparator and is not the reviewed bootstrap base.' >&2
-              exit 1
-            fi
-            authority_script='config/bundle-size.mjs'
-            echo 'Using the current validator for the resource bootstrap from exact base 25f3739.'
-          fi
-          node "${authority_script}" --root bundle-size-base --config "${base_contract}" --json --no-enforce > bundle-size-base.json
+          approval_script='bundle-size-base/config/performance-growth-approval.mjs'
+          test -f "${base_contract}"
+          test -f "${authority_script}"
+          test -f "${approval_script}"
+
+          node "${authority_script}" --root bundle-size-base --config "${base_contract}" --json --no-enforce > "${PERFORMANCE_DIR}/bundle-size-base.json"
           authority_status=0
-          node "${authority_script}" --config "${base_contract}" --json > bundle-size-authority.json || authority_status=$?
+          node "${authority_script}" --config "${base_contract}" --json > "${PERFORMANCE_DIR}/bundle-size-authority.json" || authority_status=$?
           candidate_status=0
           node "${authority_script}" --validate-resource-contract "${base_contract}" config/performance.json || candidate_status=$?
+          approval_status=0
+          node "${approval_script}" \
+            --contract "${base_contract}" \
+            --base-report "${PERFORMANCE_DIR}/bundle-size-base.json" \
+            --current-report "${PERFORMANCE_DIR}/bundle-size-authority.json" \
+            --comments "${PERFORMANCE_DIR}/approval-comments.json" \
+            --evidence-comments "${PERFORMANCE_DIR}/growth-evidence-comments.json" \
+            --head-sha "${PULL_REQUEST_HEAD_SHA}" \
+            --pull-request "${PULL_REQUEST_NUMBER}" \
+            > "${PERFORMANCE_DIR}/growth-approval.json" || approval_status=$?
           report_status=0
-          node "${authority_script}" --report bundle-size-base.json bundle-size-authority.json > bundle-size-report.md || report_status=$?
-          cat bundle-size-report.md >> "${GITHUB_STEP_SUMMARY}"
-          if [ "${authority_status}" -ne 0 ] || [ "${candidate_status}" -ne 0 ] || [ "${report_status}" -ne 0 ]; then
+          node "${authority_script}" \
+            --report "${PERFORMANCE_DIR}/bundle-size-base.json" "${PERFORMANCE_DIR}/bundle-size-authority.json" \
+            --growth-approval "${PERFORMANCE_DIR}/growth-approval.json" \
+            > "${PERFORMANCE_DIR}/bundle-size-report.md" || report_status=$?
+          cat "${PERFORMANCE_DIR}/bundle-size-report.md" >> "${GITHUB_STEP_SUMMARY}"
+          if [ "${authority_status}" -ne 0 ] || [ "${candidate_status}" -ne 0 ] || \
+              [ "${approval_status}" -ne 0 ] || [ "${report_status}" -ne 0 ]; then
             exit 1
           fi
 
@@ -188,7 +260,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bundle-size-report
-          path: bundle-size-report.md
+          path: ${{ steps.performance_workspace.outputs.directory }}/bundle-size-report.md
           if-no-files-found: error
           retention-days: 1
 
