@@ -141,6 +141,11 @@ collection is unavailable when approval is required, the job fails closed; a pul
 request with no existing artifact above the threshold does not require comment
 availability.
 
+The refresh workflow selects only a CI run whose immutable run name records the
+current pull request number, base SHA, and head SHA. If the base advances, it refuses
+to replay an older comparison. The default-branch rules require strict up-to-date
+status checks, so merge remains blocked until CI records the new exact base.
+
 ## Hosted timing
 
 Run the reporting harness with:

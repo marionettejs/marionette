@@ -23,6 +23,7 @@ jobs:
         (
           !github.event.issue.pull_request &&
           github.event.issue.number == 127 &&
+          contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association) &&
           github.event.action != 'created'
         )
       }}
