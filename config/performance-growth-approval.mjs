@@ -349,7 +349,8 @@ export function validateGrowthApproval({
     if (!parsed.matched) {
       continue;
     }
-    const authorLogin = comment?.user?.login?.toLowerCase();
+    const rawAuthorLogin = comment?.user?.login;
+    const authorLogin = typeof rawAuthorLogin === 'string' ? rawAuthorLogin.toLowerCase() : null;
     const commentUrl = comment?.html_url;
     if (!pullRequestCommentUrl(policy.repository, pullRequestNumber, comment)) {
       result.diagnostics.push(diagnostic(

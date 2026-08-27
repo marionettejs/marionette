@@ -177,13 +177,21 @@ describe('exact-head performance growth approval contract', () => {
       ...record,
       approvedPaths: ['../escape.js'],
       evidenceUrls: ['https://example.com/evidence'],
-      unexpected: true,
     };
     const parsed = parseGrowthApprovalComment(formatGrowthApprovalComment(invalid), policy);
     assert.deepEqual(parsed.diagnostics.map(({ code }) => code), [
       'GROWTH_APPROVAL_PATHS',
       'GROWTH_APPROVAL_EVIDENCE',
     ]);
+
+    const unknownField = formatGrowthApprovalComment(record).replace(
+      '  "schemaVersion": 1,',
+      '  "schemaVersion": 1,\n  "unexpected": true,'
+    );
+    assert.equal(
+      parseGrowthApprovalComment(unknownField, policy).diagnostics[0].code,
+      'GROWTH_APPROVAL_FIELDS'
+    );
 
     const duplicateKey = formatGrowthApprovalComment(record).replace(
       '  "schemaVersion": 1,',
@@ -252,6 +260,11 @@ describe('exact-head performance growth approval contract', () => {
     );
     assert.equal(
       validation({ comments: [comment(approvalRecord(), { login: 'attacker' })] })
+        .diagnostics[0].code,
+      'GROWTH_APPROVAL_MISSING'
+    );
+    assert.equal(
+      validation({ comments: [comment(approvalRecord(), { login: null })] })
         .diagnostics[0].code,
       'GROWTH_APPROVAL_MISSING'
     );
