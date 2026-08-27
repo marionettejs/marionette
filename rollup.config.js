@@ -1,5 +1,4 @@
 import babel from '@rollup/plugin-babel';
-import eslint from '@rollup/plugin-eslint';
 import json from '@rollup/plugin-json';
 import { terser } from 'rollup-plugin-terser';
 
@@ -59,7 +58,6 @@ export default [
       },
     ],
     plugins: [
-      eslint({ exclude: ['node_modules/**', './version.js'] }),
       babel({ babelHelpers: 'bundled' }),
     ]
   },
@@ -97,7 +95,6 @@ export default [
     ],
     plugins: [
       shimMainExternal,
-      eslint({ exclude: ['node_modules/**', './version.js'] }),
       babel({ babelHelpers: 'bundled' }),
     ]
   },
@@ -116,7 +113,6 @@ export default [
       },
     ],
     plugins: [
-      eslint({ exclude: ['node_modules/**', './version.js'] }),
       babel({ babelHelpers: 'bundled' }),
     ]
   },

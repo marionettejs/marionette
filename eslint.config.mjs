@@ -1,0 +1,120 @@
+import js from '@eslint/js';
+import jsdoc from 'eslint-plugin-jsdoc';
+import globals from 'globals';
+
+const testGlobals = {
+  ...globals.mocha,
+  chai: 'writable',
+  sinon: 'writable',
+  spy: 'writable',
+  expect: 'writable',
+  $: 'writable',
+  jQuery: 'writable',
+  _: 'writable',
+  Backbone: 'writable',
+  Marionette: 'writable',
+};
+
+export default [
+  {
+    ignores: [
+      '.docs-site/**',
+      'coverage/**',
+      'dist/**',
+      'node_modules/**',
+      'version.js',
+    ],
+  },
+  {
+    files: ['**/*.{cjs,js,mjs}'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
+    },
+    plugins: {
+      jsdoc,
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      'array-bracket-spacing': ['error', 'never'],
+      'block-scoped-var': 'error',
+      'brace-style': ['error', '1tbs', { allowSingleLine: true }],
+      camelcase: ['error', {
+        properties: 'always',
+        allow: [
+          'npm_config_audit',
+          'npm_config_fund',
+          'npm_config_package_lock',
+        ],
+      }],
+      curly: ['error', 'all'],
+      'dot-notation': ['error', { allowKeywords: true }],
+      'eol-last': 'error',
+      eqeqeq: ['error', 'allow-null'],
+      'guard-for-in': 'error',
+      indent: ['error', 2, { SwitchCase: 1 }],
+      'key-spacing': ['error', { beforeColon: false, afterColon: true }],
+      'keyword-spacing': 'error',
+      'jsdoc/check-param-names': 'error',
+      'jsdoc/check-syntax': 'error',
+      'jsdoc/check-tag-names': 'error',
+      'jsdoc/check-types': 'error',
+      'jsdoc/require-param': 'error',
+      'jsdoc/require-param-description': 'error',
+      'jsdoc/require-param-type': 'error',
+      'jsdoc/require-returns': 'error',
+      'jsdoc/require-returns-description': 'error',
+      'jsdoc/require-returns-type': 'error',
+      'new-cap': 'error',
+      'no-bitwise': 'error',
+      'no-caller': 'error',
+      'no-eval': 'error',
+      'no-extend-native': 'error',
+      'no-iterator': 'error',
+      'no-loop-func': 'error',
+      'no-multi-spaces': 'error',
+      'no-multi-str': 'error',
+      'no-multiple-empty-lines': 'error',
+      'no-new': 'error',
+      'no-proto': 'error',
+      'no-script-url': 'error',
+      'no-sequences': 'error',
+      'no-shadow': 'error',
+      'no-trailing-spaces': 'error',
+      'no-unused-vars': ['warn', { args: 'none' }],
+      'no-var': 'error',
+      'no-with': 'error',
+      'object-shorthand': ['error', 'methods'],
+      'operator-linebreak': ['error', 'after'],
+      quotes: ['error', 'single'],
+      'space-before-blocks': 'error',
+      'space-before-function-paren': ['error', 'never'],
+      'space-in-parens': ['error', 'never'],
+      'space-infix-ops': 'error',
+      'space-unary-ops': ['error', { nonwords: false, overrides: {} }],
+      'wrap-iife': ['error', 'inside'],
+    },
+  },
+  {
+    files: ['**/*.cjs'],
+    languageOptions: {
+      sourceType: 'commonjs',
+    },
+  },
+  {
+    files: ['test/**/*.{cjs,js,mjs}'],
+    languageOptions: {
+      globals: testGlobals,
+    },
+    rules: {
+      'new-cap': 'off',
+      'no-new': 'off',
+      'object-shorthand': 'off',
+      'one-var': ['error', 'never'],
+    },
+  },
+];
