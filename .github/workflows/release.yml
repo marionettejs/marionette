@@ -17,6 +17,7 @@ on:
       - 'package.json'
       - 'test/dist/**'
       - 'test/fixtures/**'
+      - 'test/release/**'
       - 'version.js'
   workflow_dispatch:
     inputs:
@@ -110,6 +111,9 @@ jobs:
 
       - name: Lint
         run: npm run lint:ci
+
+      - name: Test release failure paths
+        run: npm run test:release-promotion
 
       - name: Run configured coverage
         run: npm run coverage

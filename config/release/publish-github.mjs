@@ -4,6 +4,7 @@ import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import process from 'node:process';
+import { publishDraftRelease } from './github-release.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 const args = process.argv.slice(2);
@@ -270,6 +271,5 @@ if (evidence.release.prerelease) {
 } else {
   editArgs.push('--latest');
 }
-ensureTag();
-run(editArgs);
+publishDraftRelease({ editArgs, ensureTag, run });
 console.log(`Published GitHub release ${evidence.release.tag}.`);
