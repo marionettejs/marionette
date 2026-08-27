@@ -120,6 +120,20 @@ describe('performance contract validation', () => {
     assert.ok(violations.includes('Shipped runtime artifacts are untracked: dist/untracked.mjs'));
   });
 
+  test('surfaces malformed growth approval policy through contract validation', () => {
+    const contract = contractFor();
+    contract.pullRequestGrowthApproval.allowedLogins = ['zed', 'alpha'];
+    const packageJson = {
+      exports: { '.': { import: './dist/index.mjs' } },
+    };
+
+    const violations = validateContract(contract, packageJson, ['index.mjs']);
+
+    assert.ok(violations.includes(
+      'Growth approval policy allowedLogins must contain sorted, unique lowercase GitHub logins'
+    ));
+  });
+
   test('measures malformed artifact and subpath changes without an uncaught error', async() => {
     const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-contract-'));
     const contract = contractFor();
