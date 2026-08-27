@@ -56,15 +56,14 @@ describe('hosted timing report math', () => {
   });
 
   test('restores DOM globals when loading the runtime fails', async() => {
-    // Keep the fixture below this checkout so createRequire can find its dependencies.
-    const fixtureRoot = await mkdtemp(join(root, '.performance-runtime-'));
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-runtime-'));
+    const configPath = fileURLToPath(new URL('../../config/performance.json', import.meta.url));
     const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'window');
     const documentDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'document');
 
     try {
-      await writeFile(join(fixtureRoot, 'package.json'), '{"type":"module"}\n');
       await assert.rejects(
-        measure({ root: fixtureRoot }),
+        measure({ root: fixtureRoot, configPath, dependencyRoot: root }),
         /dist\/marionette\.js/
       );
       assert.deepEqual(Object.getOwnPropertyDescriptor(globalThis, 'window'), windowDescriptor);

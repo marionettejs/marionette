@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, test } from 'node:test';
 import {
@@ -50,13 +50,15 @@ describe('performance contract validation', () => {
   });
 
   test('anchors Rollup inputs to the measured checkout', () => {
+    const checkoutRoot = resolve(tmpdir(), 'base-checkout');
+
     assert.equal(
-      resolveRollupInput('/tmp/base-checkout', 'index.js'),
-      '/tmp/base-checkout/index.js'
+      resolveRollupInput(checkoutRoot, 'index.js'),
+      resolve(checkoutRoot, 'index.js')
     );
     assert.deepEqual(
-      resolveRollupInput('/tmp/base-checkout', { main: 'index.js' }),
-      { main: '/tmp/base-checkout/index.js' }
+      resolveRollupInput(checkoutRoot, { main: 'index.js' }),
+      { main: resolve(checkoutRoot, 'index.js') }
     );
   });
 

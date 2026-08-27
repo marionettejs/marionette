@@ -289,7 +289,7 @@
   },
   "timing": {
     "harnessSchemaVersion": 1,
-    "harnessRevision": "02aa3f626c3fe0cda1508afc28a1a311ae37546f81f47481f3b175c455e84cc9",
+    "harnessRevision": "f22242e13a8af8ee11a57930a6913d77b2ab65f32fa109c917987cdfeadb9145",
     "sampleCount": 20,
     "warmupBatches": 5,
     "cases": [
@@ -302,11 +302,11 @@
         "iterationsPerSample": 100
       },
       {
-        "id": "view-delegate-undelegate",
+        "id": "view-set-element-destroy",
         "iterationsPerSample": 100
       },
       {
-        "id": "behavior-construct-delegate-destroy",
+        "id": "behavior-view-set-element-destroy",
         "iterationsPerSample": 100
       },
       {

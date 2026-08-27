@@ -84,8 +84,8 @@ export function assertHarnessRevision(source, expectedRevision) {
   return actualRevision;
 }
 
-async function loadRuntime(root) {
-  const requireFromRoot = createRequire(resolve(root, 'package.json'));
+async function loadRuntime(root, dependencyRoot) {
+  const requireFromRoot = createRequire(resolve(dependencyRoot, 'package.json'));
   const { JSDOM } = requireFromRoot('jsdom');
   const Backbone = requireFromRoot('backbone');
   const dom = new JSDOM('<!doctype html><html><body></body></html>');
@@ -164,14 +164,14 @@ function createCases({ Backbone, Marionette }) {
         view.destroy();
       }
     }],
-    ['view-delegate-undelegate', iterations => {
+    ['view-set-element-destroy', iterations => {
       for (let index = 0; index < iterations; index += 1) {
         const view = new EventView();
         view.setElement(view.el);
         view.destroy();
       }
     }],
-    ['behavior-construct-delegate-destroy', iterations => {
+    ['behavior-view-set-element-destroy', iterations => {
       for (let index = 0; index < iterations; index += 1) {
         const view = new BehaviorView();
         view.setElement(view.el);
@@ -213,11 +213,13 @@ export async function measure({
   root = '.',
   configPath = 'config/performance.json',
   caseFactory = createCases,
+  dependencyRoot = root,
 } = {}) {
   const resolvedRoot = resolve(root);
+  const resolvedDependencyRoot = resolve(dependencyRoot);
   const contract = await readJson(configPath);
   assertHarnessRevision(await readFile(new URL(import.meta.url)), contract.timing.harnessRevision);
-  const runtime = await loadRuntime(resolvedRoot);
+  const runtime = await loadRuntime(resolvedRoot, resolvedDependencyRoot);
   const results = [];
 
   try {
