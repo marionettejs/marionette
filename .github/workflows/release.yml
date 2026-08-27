@@ -5,8 +5,8 @@ on:
     paths:
       - '.github/workflows/release.yml'
       - '.nvmrc'
-      - 'config/bundle-size.json'
       - 'config/bundle-size.mjs'
+      - 'config/performance.json'
       - 'config/check-dist.mjs'
       - 'config/check-release-profile.mjs'
       - 'config/release/**'

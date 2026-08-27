@@ -4,3 +4,10 @@
 /config/diagnostics/ @paulfalgout @marionettejs/marionette-core
 /config/check-diagnostic-catalog.mjs @paulfalgout @marionettejs/marionette-core
 /.github/workflows/docs-pages.yml @paulfalgout @marionettejs/marionette-core
+/config/performance.json @paulfalgout @marionettejs/marionette-core
+/config/bundle-size.mjs @paulfalgout @marionettejs/marionette-core
+/benchmarks/ @paulfalgout @marionettejs/marionette-core
+/test/performance/ @paulfalgout @marionettejs/marionette-core
+/.github/workflows/ci.yml @paulfalgout @marionettejs/marionette-core
+/.github/workflows/bundle-size-comment.yml @paulfalgout @marionettejs/marionette-core
+/.github/workflows/release.yml @paulfalgout @marionettejs/marionette-core

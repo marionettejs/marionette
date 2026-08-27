@@ -79,6 +79,7 @@
     "lint:base": "eslint .",
     "lint": "npm run lint:base -- --fix",
     "lint:ci": "npm run lint:base -- --max-warnings=0",
+    "performance:timing": "npm run build && node benchmarks/performance.mjs",
     "release:artifact": "node config/release/build-artifact.mjs",
     "release:github": "node config/release/publish-github.mjs",
     "release:targets": "node config/release/check-targets.mjs",
@@ -87,6 +88,7 @@
     "test": "vitest run",
     "test:dist": "node test/dist/validate.mjs",
     "test:fixtures": "node test/fixtures/run.mjs",
+    "test:performance": "node --test test/performance/*.test.mjs",
     "test:release-promotion": "node --test test/release/promotion.test.mjs",
     "test:source": "node test/source/validate.mjs",
     "prepack": "npm run build && npm run test:dist"
