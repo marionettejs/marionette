@@ -6,6 +6,12 @@ import { pathToFileURL } from 'node:url';
 import { promisify } from 'node:util';
 import { brotliCompress, constants } from 'node:zlib';
 import { rollup } from 'rollup';
+import {
+  compareResources,
+  measureResources,
+  resourceReportRows,
+  validateCandidateResourceContract,
+} from './performance-resources.mjs';
 
 const compress = promisify(brotliCompress);
 
@@ -318,7 +324,11 @@ async function measureArtifact(root, quality, artifact) {
   }
 }
 
-export async function measure({ root = '.', configPath = 'config/performance.json', checkToolchain = true } = {}) {
+export async function measure({
+  root = '.',
+  configPath = 'config/performance.json',
+  checkToolchain = true,
+} = {}) {
   const resolvedRoot = resolve(root);
   const resolvedConfigPath = resolve(configPath);
   const contract = await readJson(resolvedConfigPath);
@@ -392,6 +402,19 @@ export async function measure({ root = '.', configPath = 'config/performance.jso
     }
   }
 
+  let resources = null;
+  if (contract.deterministicResources) {
+    try {
+      resources = await measureResources({
+        root: resolvedRoot,
+        attachDetachCycles: contract.deterministicResources.attachDetachCycles,
+        mountDestroyCycles: contract.deterministicResources.mountDestroyCycles,
+      });
+    } catch (error) {
+      violations.push(`Unable to measure deterministic resources: ${error.message}`);
+    }
+  }
+
   return {
     schemaVersion: 1,
     contractPath: normalizePath(relative(resolvedRoot, resolvedConfigPath)),
@@ -405,6 +428,8 @@ export async function measure({ root = '.', configPath = 'config/performance.jso
       absoluteCeiling: contract.baseline.absoluteCeilingBytes,
     },
     graphs,
+    resourcesRequired: Boolean(contract.deterministicResources),
+    resources,
     violations,
   };
 }
@@ -428,7 +453,33 @@ function graphChange(baseGraph, currentGraph) {
   return changes.join('; ') || 'No change';
 }
 
-export async function createReport(baseFile, currentFile) {
+function compareResourceReports(base, current) {
+  if (!base.resources && !current.resources) {
+    if (base.resourcesRequired || current.resourcesRequired) {
+      return {
+        changes: [],
+        violations: ['Required resource measurements are missing from both reports'],
+      };
+    }
+    return { changes: [], violations: [], unavailable: true };
+  }
+  if (!base.resources) {
+    return {
+      changes: [],
+      violations: ['Exact base resource measurement is missing'],
+    };
+  }
+  if (!current.resources) {
+    return {
+      changes: [],
+      violations: ['Pull request resource measurement is missing'],
+    };
+  }
+
+  return compareResources(base.resources, current.resources);
+}
+
+async function buildReport(baseFile, currentFile) {
   const base = await readJson(baseFile);
   const current = await readJson(currentFile);
   const baseByPath = new Map(base.artifacts.map(result => [result.path, result]));
@@ -455,8 +506,21 @@ export async function createReport(baseFile, currentFile) {
   });
   const cumulativeGrowth = formatChange(base.cumulative.size, current.cumulative.size);
   const phase0Growth = formatChange(current.cumulative.baselineSize, current.cumulative.size);
+  const resourceComparison = compareResourceReports(base, current);
+  const resourceSection = resourceComparison.unavailable ? [] : [
+    '',
+    '## Deterministic allocation and retention',
+    '',
+    '| Structural proxy | Base | PR | Result |',
+    '| --- | --- | --- | --- |',
+    ...resourceReportRows(resourceComparison),
+    '',
+    resourceComparison.violations.length ?
+      `Resource regressions: ${resourceComparison.violations.join('; ')}` :
+      'No eager allocation or retained-resource proxy increased from the exact pull request base.',
+  ];
 
-  return [
+  const markdown = [
     '<!-- bundle-size-report -->',
     '## Production performance contract 📦',
     '',
@@ -473,9 +537,16 @@ export async function createReport(baseFile, currentFile) {
     current.violations.length ?
       `Contract violations: ${current.violations.join('; ')}` :
       'All deterministic size and production-graph checks passed against the base authority contract.',
+    ...resourceSection,
     '',
-    'The exact-head approval protocol for growth above 1% and new subpaths is intentionally deferred to #127 PR B; this report does not treat that threshold as an enforceable approval yet.'
+    'The exact-head approval protocol for growth above 1% and new subpaths remains a separate #127 follow-up; this report does not treat that threshold as enforceable approval yet.'
   ].join('\n');
+
+  return { markdown, resourceComparison };
+}
+
+export async function createReport(baseFile, currentFile) {
+  return (await buildReport(baseFile, currentFile)).markdown;
 }
 
 function writeMeasurement(result, json) {
@@ -491,12 +562,46 @@ function writeMeasurement(result, json) {
   for (const graph of result.graphs) {
     console.log(`${graph.subpath}: ${graph.status === 'measured' ? `${graph.modules.length} internal modules, ${graph.externalImports.length} external imports` : graph.error}`);
   }
+  if (result.resources) {
+    console.log(`Resources: ${Object.keys(result.resources.allocations).length} measured instance shapes; ${result.resources.workload.attachDetachCycles} detach cycles; ${result.resources.workload.mountDestroyCycles} mount/destroy cycles`);
+  }
+}
+
+function positionalPaths(args, index, count, name) {
+  const paths = args.slice(index + 1, index + count + 1);
+  if (paths.length !== count || paths.some(path => !path || path.startsWith('--'))) {
+    throw new Error(`Missing paths for ${name}`);
+  }
+
+  return paths;
 }
 
 export async function main(args = process.argv.slice(2)) {
+  const candidateIndex = args.indexOf('--validate-resource-contract');
+  if (candidateIndex !== -1) {
+    const paths = positionalPaths(args, candidateIndex, 2, '--validate-resource-contract');
+    const [authority, candidate] = await Promise.all([
+      readJson(paths[0]),
+      readJson(paths[1]),
+    ]);
+    const violations = validateCandidateResourceContract(authority, candidate);
+    for (const violation of violations) {
+      console.error(`Performance contract violation: ${violation}`);
+    }
+    if (violations.length) {
+      process.exitCode = 1;
+    }
+    return;
+  }
+
   const reportIndex = args.indexOf('--report');
   if (reportIndex !== -1) {
-    console.log(await createReport(args[reportIndex + 1], args[reportIndex + 2]));
+    const [baseFile, currentFile] = positionalPaths(args, reportIndex, 2, '--report');
+    const report = await buildReport(baseFile, currentFile);
+    console.log(report.markdown);
+    if (report.resourceComparison.violations.length) {
+      process.exitCode = 1;
+    }
     return;
   }
 

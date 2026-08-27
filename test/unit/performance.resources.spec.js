@@ -149,7 +149,9 @@ describe('Phase 0 deterministic resource baselines', function() {
     for (let index = 0; index < resources.mountDestroyCycles; index += 1) {
       const regionEl = document.createElement('div');
       document.body.appendChild(regionEl);
-      const region = new Region({ el: regionEl });
+      const regionHost = new PlainView();
+      const region = regionHost.addRegion('resource', { el: regionEl });
+      expect(region._parentView).to.equal(regionHost);
       const regionView = new PlainView();
       region.show(regionView);
       region.empty();
@@ -187,6 +189,8 @@ describe('Phase 0 deterministic resource baselines', function() {
         .to.equal(shapes.frameworkListeningToAfterDestroy);
       expect(backboneRegistrations(collection)).to.equal(collectionBaseline);
       expect(collectionView.el.isConnected).to.equal(false);
+      expect(Number(collectionView.el.isConnected))
+        .to.equal(shapes.managedRootsConnectedAfterDestroy);
       expect(collectionView.el.childNodes).to.have.lengthOf(resources.retentionShapes.managedDomChildrenAfterEmpty);
 
       const behaviorView = new BehaviorView({ model });
@@ -214,6 +218,8 @@ describe('Phase 0 deterministic resource baselines', function() {
         .to.equal(shapes.frameworkListeningToAfterDestroy);
       expect(backboneRegistrations(model)).to.equal(modelBaseline);
       expect(behaviorView.el.isConnected).to.equal(false);
+      expect(Number(behaviorView.el.isConnected))
+        .to.equal(shapes.managedRootsConnectedAfterDestroy);
       expect(behavior.view === behaviorView)
         .to.equal(resources.retentionShapes.destroyedBehaviorRetainsHostReference);
       expect(behaviorView._behaviors).to.have.lengthOf(
@@ -223,9 +229,11 @@ describe('Phase 0 deterministic resource baselines', function() {
         shapes.destroyedHostRetainsBehaviorCount > 0
       );
 
-      region.destroy();
+      regionHost.destroy();
       expect(region.isDestroyed()).to.equal(true);
       expect(region._parentView).to.equal(undefined);
+      expect(Number(region._parentView != null))
+        .to.equal(shapes.regionParentReferencesAfterDestroy);
       expect(regionEl.isConnected).to.equal(true);
       expect(regionEl.childNodes).to.have.lengthOf(resources.retentionShapes.managedDomChildrenAfterEmpty);
       regionEl.remove();

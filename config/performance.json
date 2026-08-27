@@ -177,6 +177,7 @@
   ],
   "forbiddenProductionModules": [
     "config/bundle-size.mjs",
+    "config/performance-resources.mjs",
     "config/performance.json",
     "config/release-profile.json",
     "config/release-promotion.json"
@@ -245,6 +246,7 @@
         ],
         "emptyObjects": [
           "_regions",
+          "options",
           "regions"
         ],
         "marionetteEventRegistrations": 6
@@ -254,6 +256,7 @@
           "_domEvents"
         ],
         "emptyObjects": [
+          "options",
           "ui"
         ],
         "listeningContainers": 1
@@ -284,7 +287,9 @@
       "externalListenerOwnersAfterDestroy": 0,
       "frameworkListeningToAfterDestroy": 0,
       "childContainerEntriesAfterDestroy": 0,
-      "managedDomChildrenAfterEmpty": 0
+      "managedDomChildrenAfterEmpty": 0,
+      "managedRootsConnectedAfterDestroy": 0,
+      "regionParentReferencesAfterDestroy": 0
     }
   },
   "timing": {

@@ -15,6 +15,11 @@ npm ci
 npm run size
 ```
 
+That single-checkout command validates the current artifacts, lifecycle scenarios,
+and absolute budgets, but it cannot reproduce a base-relative resource regression by
+itself. Use the pull request report or the exact base/current sequence in
+`.github/workflows/ci.yml` when debugging a monotonic-comparison failure.
+
 The check builds the package and measures every shipped runtime JavaScript artifact
 with Brotli quality 11. The Phase 0 total is 49,500 bytes and the fixed cumulative
 ceiling is 51,975 bytes, exactly five percent above that baseline. Package entrypoints
@@ -27,19 +32,17 @@ documentation, benchmark, release, or diagnostic tooling enters a production gra
 The Phase 0 module lists remain fixed evidence; ordinary source-module refactors are
 reported rather than prohibited when the resulting graph remains clean.
 
-Unit tests record both the own-property shape and the current eager allocation
-categories of unused View, Region, Behavior, and CollectionView instances. That
-baseline includes the empty arrays, objects, ChildViewContainers, event maps, and
-CollectionView empty Region that v5 currently creates; it records the current cost
-without pretending those allocations are already pay-for-play. Repeated lifecycle
-checks prove that Region registrations are removed after 100 detach cycles and that
-long-lived DOM, model, and collection owners return to their original event counts
-after every one of 1,000 mount/destroy cycles. A destroyed Behavior and its destroyed
-host currently retain each other inside the otherwise released graph; the baseline
-records that collectible internal cycle instead of falsely claiming those two
-objects are emptied. These allocation and retention shapes are structural ownership
-proxies. They detect known eager containers, listener ownership, and managed DOM
-cleanup deterministically; they are not heap-size, reachability, leak-detector, or
+The same command measures the built runtime's own-property and reference shapes for
+unused View, Region, Behavior, and CollectionView instances. It records eager arrays,
+plain objects, ChildViewContainers, Regions, event registrations, and listening
+ledgers without pretending those allocations are already pay-for-play. Repeated
+lifecycle scenarios prove public behavior while recording Region detach cleanup and
+1,000 CollectionView and Behavior mount/destroy cycles. A destroyed Behavior and its
+destroyed host currently retain each other inside the otherwise released graph; the
+baseline records that collectible internal cycle instead of falsely claiming those
+two objects are emptied. These measurements are structural ownership proxies. They
+detect eager containers, listener ownership, managed DOM cleanup, and known internal
+cycles deterministically; they are not heap-size, reachability, leak-detector, or
 garbage-collector proof.
 
 ## Pull request comparison
@@ -56,12 +59,24 @@ contract. After the bootstrap merges, the fallback is unreachable for ordinary
 descendant pull requests. Reports call out missing artifacts, untracked `.js`,
 `.cjs`, or `.mjs` files, and new or unmeasurable subpaths explicitly.
 
-Structural allocation and retention shapes are recorded and checked for internal
-consistency in PR A, but they are not yet compared with the base contract. A literal
-base-shape equality gate would also reject desired improvements that remove eager
-containers or retained references. PR B must add a monotonic comparator: newly eager
-or more-retained ownership fails without approval, while removals and lower retention
-remain allowed and visible.
+Allocation and retention observations are compared monotonically with the exact pull
+request base. New own properties, reference-backed storage, containers, registrations,
+listener owners, managed DOM, or retained framework entries fail the existing required
+`Bundle size` check. Removed storage and lower retention pass and remain visible as
+improvements in the report. Missing metrics, unknown metrics, incompatible schemas,
+and reduced lifecycle workloads fail closed. The validator also verifies the public
+Region, CollectionView, and Behavior scenarios so a broken or vacuous all-zero probe
+cannot appear to be an improvement.
+
+This comparator has one explicit bootstrap exception: its immediate base contains the
+recorded resource shapes but predates the comparator module. CI therefore uses the
+reviewed pull request validator to measure both exact builds only when the pull request
+base is the pinned resource-bootstrap commit `25f3739`. The earlier performance-
+contract bootstrap is likewise pinned to its reviewed base `31151c9`; any other base
+missing either authority fails closed. Every descendant uses the exact base revision
+of both the validator and resource probe. The active strict required-status-check
+policy prevents a stale pre-bootstrap branch from merging without updating to the
+protected base.
 
 The current contract is also validated independently so intentional contract and
 toolchain edits remain internally coherent. Its pinned release profile records Node
@@ -71,10 +86,10 @@ checks. CI posts artifact, cumulative-size, and production-graph changes through
 the repository's read-only workflow plus the separate comment workflow.
 
 The roadmap also requires explicit issue approval and evidence for growth above one
-percent versus the pull request base and for every new production subpath. This PR A
-does not invent a weak convention that agents could satisfy themselves. PR B must
-define an exact-head, maintainer-authored approval record and make the check validate
-that record before these cases can merge.
+percent versus the pull request base and for every new production subpath. The
+resource comparator does not invent a weak convention that agents could satisfy
+themselves. A separate follow-up must define an exact-head, maintainer-authored
+approval record and make the check validate that record before these cases can merge.
 
 ## Hosted timing
 
@@ -92,12 +107,12 @@ CI runs the base and pull request on the same Ubuntu hosted worker and reports m
 and p95 changes. A change above ten percent is a warning only because shared-runner
 timing is noisy.
 
-Hosted results never decide merge or release eligibility. PR B must name the
-controlled machine, pin its CPU, operating system and kernel, architecture, power
-state, isolation policy, and harness revision, record the initial timing baseline,
-and enforce the roadmap's independently repeated five-percent median and ten-percent
-p95 release limits. Immutable release evidence must consume that exact-source report;
-until then `controlledRunner.status` remains `pending-pr-b`.
+Hosted results never decide merge or release eligibility. A separate follow-up must
+name the controlled machine, pin its CPU, operating system and kernel, architecture,
+power state, isolation policy, and harness revision, record the initial timing
+baseline, and enforce the roadmap's independently repeated five-percent median and
+ten-percent p95 release limits. Immutable release evidence must consume that
+exact-source report; until then `controlledRunner.status` remains `pending-pr-b`.
 
 ## Runtime boundary
 
@@ -107,9 +122,9 @@ zero-runtime-overhead boundary executable.
 
 ## Ownership and enforcement
 
-CODEOWNERS assigns the contract, harness, focused tests, and performance workflows
-to the project maintainer and core team. Current live repository rules do not require
-a CODEOWNER approval, so ownership is review routing rather than an automated merge
-gate. The exact-base authority contract is the automated anti-relaxation guard after
-this bootstrap; PR B remains responsible only for the separate greater-than-one-
-percent approval protocol and controlled timing runner.
+CODEOWNERS assigns the contract, resource probe, harness, focused tests, and
+performance workflows to the project maintainer and core team. Current live repository
+rules do not require a CODEOWNER approval, so ownership is review routing rather than
+an automated merge gate. The exact-base authority contract is the automated
+anti-relaxation guard after this bootstrap; the greater-than-one-percent approval
+protocol and controlled timing runner remain separate follow-ups.
