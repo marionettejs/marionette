@@ -25,6 +25,14 @@ npm run check:browser-profile
 The Node release pinned here includes the pinned npm version. If another version of
 npm is earlier on your path, select npm 11.17.0 before installing dependencies.
 
+npm 11.17 records reviewed dependency installers in each package's top-level
+`allowScripts` map. The repository enables `strict-allow-scripts` in `.npmrc`, so
+installing a package whose scripts have not been reviewed fails instead of silently
+executing them. Use `npm approve-scripts --allow-scripts-pending` to inspect pending
+packages, review the exact package and version, and then use
+`npm approve-scripts <package>` to add a version-pinned approval. Isolated fixture
+packages keep their own approvals.
+
 CI runs the complete suite on the canonical Ubuntu 24.04 x64 host. Clean installation
 and packed-package fixtures also run on macOS 15 arm64 and Windows 2025 x64. GitHub's
 fixed OS labels still receive runner-image updates, so release evidence records the
