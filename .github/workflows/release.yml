@@ -128,16 +128,16 @@ jobs:
         run: >-
           npm run release:artifact --
           --output release
-          --source-commit "${SOURCE_SHA}"
-          --source-ref "${GITHUB_REF}"
-          --repository "${GITHUB_REPOSITORY}"
+          --source-commit "${{ env.SOURCE_SHA }}"
+          --source-ref "${{ github.ref }}"
+          --repository "${{ github.repository }}"
 
       - name: Verify release evidence
         run: >-
           npm run release:verify --
           --artifact-dir release
-          --source-commit "${SOURCE_SHA}"
-          --repository "${GITHUB_REPOSITORY}"
+          --source-commit "${{ env.SOURCE_SHA }}"
+          --repository "${{ github.repository }}"
 
       - name: Test exact packed browser artifacts
         run: |
@@ -204,8 +204,8 @@ jobs:
         run: >-
           npm run release:verify --
           --artifact-dir release
-          --source-commit "${SOURCE_SHA}"
-          --repository "${GITHUB_REPOSITORY}"
+          --source-commit "${{ env.SOURCE_SHA }}"
+          --repository "${{ github.repository }}"
 
       - name: Test exact packed package fixtures
         run: npm run test:fixtures -- --tarball "release/${{ needs.build.outputs.tarball }}"
@@ -240,8 +240,8 @@ jobs:
         run: >-
           npm run release:verify --
           --artifact-dir release
-          --source-commit "${SOURCE_SHA}"
-          --repository "${GITHUB_REPOSITORY}"
+          --source-commit "${{ env.SOURCE_SHA }}"
+          --repository "${{ github.repository }}"
 
       - name: Inspect immutable publication targets
         run: npm run release:targets -- --mode dry-run --artifact-dir release
@@ -289,8 +289,8 @@ jobs:
         run: >-
           npm run release:verify --
           --artifact-dir release
-          --source-commit "${SOURCE_SHA}"
-          --repository "${GITHUB_REPOSITORY}"
+          --source-commit "${{ env.SOURCE_SHA }}"
+          --repository "${{ github.repository }}"
 
       - name: Require unused npm, tag, and release targets
         run: npm run release:targets -- --mode publish --artifact-dir release
@@ -331,8 +331,8 @@ jobs:
         run: >-
           npm run release:verify --
           --artifact-dir release
-          --source-commit "${SOURCE_SHA}"
-          --repository "${GITHUB_REPOSITORY}"
+          --source-commit "${{ env.SOURCE_SHA }}"
+          --repository "${{ github.repository }}"
 
       - name: Stage matching GitHub draft release
         run: npm run release:github -- --mode stage --artifact-dir release
