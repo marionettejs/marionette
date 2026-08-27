@@ -15,6 +15,11 @@ npm ci
 npm run size
 ```
 
+That single-checkout command validates the current artifacts, lifecycle scenarios,
+and absolute budgets, but it cannot reproduce a base-relative resource regression by
+itself. Use the pull request report or the exact base/current sequence in
+`.github/workflows/ci.yml` when debugging a monotonic-comparison failure.
+
 The check builds the package and measures every shipped runtime JavaScript artifact
 with Brotli quality 11. The Phase 0 total is 49,500 bytes and the fixed cumulative
 ceiling is 51,975 bytes, exactly five percent above that baseline. Package entrypoints
