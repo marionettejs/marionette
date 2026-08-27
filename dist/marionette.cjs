@@ -798,9 +798,9 @@ var RadioMixin = {
   }
 };
 
-const ClassOptions$5 = ['channelName', 'radioEvents', 'radioRequests'];
+const ClassOptions$3 = ['channelName', 'radioEvents', 'radioRequests'];
 const MarionetteObject = function (options) {
-  this._setOptions(options, ClassOptions$5);
+  this._setOptions(options, ClassOptions$3);
   this.cid = underscore.uniqueId(this.cidPrefix);
   this._initRadio();
   this.initialize.apply(this, arguments);
@@ -809,6 +809,49 @@ MarionetteObject.extend = extend;
 underscore.extend(MarionetteObject.prototype, CommonMixin, DestroyMixin, RadioMixin, {
   cidPrefix: 'mno'
 });
+
+function isView(view) {
+  return view.render && (view.destroy || view.remove);
+}
+function isViewClass(ViewClass) {
+  return ViewClass.prototype.render && (ViewClass.prototype.destroy || ViewClass.prototype.remove);
+}
+function renderView(view) {
+  if (view._isRendered) {
+    return;
+  }
+  if (!view.supportsRenderLifecycle) {
+    view.triggerMethod('before:render', view);
+  }
+  view.render();
+  view._isRendered = true;
+  if (!view.supportsRenderLifecycle) {
+    view.triggerMethod('render', view);
+  }
+}
+function destroyView(view, disableDetachEvents) {
+  if (view.destroy) {
+    view._disableDetachEvents = disableDetachEvents;
+    view.destroy();
+    return;
+  }
+  if (!view.supportsDestroyLifecycle) {
+    view.triggerMethod('before:destroy', view);
+  }
+  const shouldTriggerDetach = view._isAttached && !disableDetachEvents;
+  if (shouldTriggerDetach) {
+    view.triggerMethod('before:detach', view);
+  }
+  view.remove();
+  if (shouldTriggerDetach) {
+    view._isAttached = false;
+    view.triggerMethod('detach', view);
+  }
+  view._isDestroyed = true;
+  if (!view.supportsDestroyLifecycle) {
+    view.triggerMethod('destroy', view);
+  }
+}
 
 function getBehaviorClass(options) {
   if (options.behaviorClass) {
@@ -1373,53 +1416,15 @@ const ViewMixin = {
 };
 underscore.extend(ViewMixin, BehaviorsMixin, CommonMixin, DelegateEntityEventsMixin, TemplateRenderMixin, UIMixin, ViewEventsMixin);
 
-function isView(view) {
-  return view.render && (view.destroy || view.remove);
-}
-function isViewClass(ViewClass) {
-  return ViewClass.prototype.render && (ViewClass.prototype.destroy || ViewClass.prototype.remove);
-}
-function renderView(view) {
-  if (view._isRendered) {
-    return;
-  }
-  if (!view.supportsRenderLifecycle) {
-    view.triggerMethod('before:render', view);
-  }
-  view.render();
-  view._isRendered = true;
-  if (!view.supportsRenderLifecycle) {
-    view.triggerMethod('render', view);
-  }
-}
-function destroyView(view, disableDetachEvents) {
-  if (view.destroy) {
-    view._disableDetachEvents = disableDetachEvents;
-    view.destroy();
-    return;
-  }
-  if (!view.supportsDestroyLifecycle) {
-    view.triggerMethod('before:destroy', view);
-  }
-  const shouldTriggerDetach = view._isAttached && !disableDetachEvents;
-  if (shouldTriggerDetach) {
-    view.triggerMethod('before:detach', view);
-  }
-  view.remove();
-  if (shouldTriggerDetach) {
-    view._isAttached = false;
-    view.triggerMethod('detach', view);
-  }
-  view._isDestroyed = true;
-  if (!view.supportsDestroyLifecycle) {
-    view.triggerMethod('destroy', view);
-  }
+function setRenderer$1(renderer) {
+  this.prototype._renderHtml = renderer;
+  return this;
 }
 
 const classErrorName$1 = 'RegionError';
-const ClassOptions$4 = ['allowMissingEl', 'parentEl', 'replaceElement'];
+const RegionClassOptions = ['allowMissingEl', 'parentEl', 'replaceElement'];
 const Region = function (options) {
-  this._setOptions(options, ClassOptions$4);
+  this._setOptions(options, RegionClassOptions);
   this.cid = underscore.uniqueId(this.cidPrefix);
   this._initEl = this.el = this.getOption('el');
   this._validateEl(this.el);
@@ -1726,8 +1731,7 @@ underscore.extend(Region.prototype, CommonMixin, {
     return this;
   }
 });
-
-function buildRegion (definition, defaults) {
+function buildRegion(definition, defaults) {
   if (definition instanceof Region) {
     return definition;
   }
@@ -1755,8 +1759,7 @@ function buildRegionFromObject(defaults, definition) {
   delete options.regionClass;
   return new RegionClass(options);
 }
-
-var RegionsMixin = {
+const RegionsMixin = {
   regionClass: Region,
   _initRegions() {
     this.regions = this.regions || {};
@@ -1851,13 +1854,7 @@ var RegionsMixin = {
     return this.getRegion(name).currentView;
   }
 };
-
-function setRenderer$1(renderer) {
-  this.prototype._renderHtml = renderer;
-  return this;
-}
-
-const ClassOptions$3 = ['attributes', 'behaviors', 'childViewEventPrefix', 'childViewEvents', 'childViewTriggers', 'className', 'collection', 'collectionEvents', 'el', 'events', 'id', 'model', 'modelEvents', 'regionClass', 'regions', 'tagName', 'template', 'templateContext', 'triggers', 'ui'];
+const ViewClassOptions = ['attributes', 'behaviors', 'childViewEventPrefix', 'childViewEvents', 'childViewTriggers', 'className', 'collection', 'collectionEvents', 'el', 'events', 'id', 'model', 'modelEvents', 'regionClass', 'regions', 'tagName', 'template', 'templateContext', 'triggers', 'ui'];
 function childReducer(children, region) {
   if (region.currentView) {
     children.push(region.currentView);
@@ -1866,7 +1863,7 @@ function childReducer(children, region) {
 }
 const View = function (options) {
   this.cid = underscore.uniqueId(this.cidPrefix);
-  this._setOptions(options, ClassOptions$3);
+  this._setOptions(options, ViewClassOptions);
   this.preinitialize.apply(this, arguments);
   this._initViewEvents();
   this.setElement(this._getEl());
