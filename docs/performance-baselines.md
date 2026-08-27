@@ -86,10 +86,50 @@ checks. CI posts artifact, cumulative-size, and production-graph changes through
 the repository's read-only workflow plus the separate comment workflow.
 
 The roadmap also requires explicit issue approval and evidence for growth above one
-percent versus the pull request base and for every new production subpath. The
-resource comparator does not invent a weak convention that agents could satisfy
-themselves. A separate follow-up must define an exact-head, maintainer-authored
-approval record and make the check validate that record before these cases can merge.
+percent versus the pull request base and for every new production subpath. Existing
+artifact growth now has a versioned, base-owned approval contract in
+`pullRequestGrowthApproval`; new subpaths remain a separate fail-closed case.
+
+An approval is one complete pull request timeline comment. The comment author comes
+from GitHub rather than the JSON body, must appear in the exact-base allowlist, must
+have GitHub's `OWNER`, `MEMBER`, or `COLLABORATOR` association, and must use this
+canonical form:
+
+````markdown
+<!-- marionette-performance-growth-approval:v1 -->
+```json
+{
+  "schemaVersion": 1,
+  "headSha": "0123456789abcdef0123456789abcdef01234567",
+  "issueUrl": "https://github.com/marionettejs/marionette/issues/127",
+  "approvedPaths": [
+    "dist/marionette.js"
+  ],
+  "evidenceUrls": [
+    "https://github.com/marionettejs/marionette/issues/127#issuecomment-123456789"
+  ]
+}
+```
+````
+
+The full lowercase head SHA prevents an approval from surviving a code change. The
+approved path list must exactly match all existing artifacts above the strict
+greater-than-one-percent threshold. Evidence is limited to durable issue-comment
+permalinks in this repository; Actions artifacts and external mutable pages cannot
+be the sole record. The evaluator binds each marked comment to the expected repository
+and pull request from the API snapshot, and every evidence URL must resolve to a real
+`OWNER`, `MEMBER`, or `COLLABORATOR` comment in the configured tracking issue snapshot.
+Unauthorized, stale, and ordinary comments do not approve anything. Multiple
+exact-head approvals, malformed trusted records without a valid replacement, missing
+paths, extra paths, and noncanonical JSON fail the evaluator.
+
+This change deliberately defines and tests the contract before enforcing it. The
+immediately following pull request will collect the read-only GitHub comment snapshot
+and invoke this parser from the exact base checkout. Until that wiring lands, the
+existing `Bundle size` report still labels growth above one percent but does not treat
+the comment record as a merge gate. This two-step bootstrap avoids allowing the first
+enforcement change to authorize itself with a parser or allowlist absent from its
+base.
 
 ## Hosted timing
 
@@ -122,9 +162,9 @@ zero-runtime-overhead boundary executable.
 
 ## Ownership and enforcement
 
-CODEOWNERS assigns the contract, resource probe, harness, focused tests, and
-performance workflows to the project maintainer and core team. Current live repository
-rules do not require a CODEOWNER approval, so ownership is review routing rather than
-an automated merge gate. The exact-base authority contract is the automated
-anti-relaxation guard after this bootstrap; the greater-than-one-percent approval
-protocol and controlled timing runner remain separate follow-ups.
+CODEOWNERS assigns the contract, growth-approval parser, resource probe, harness,
+focused tests, and performance workflows to the project maintainer and core team.
+Current live repository rules do not require a CODEOWNER approval, so ownership is
+review routing rather than an automated merge gate. The exact-base authority contract
+is the automated anti-relaxation guard after this bootstrap; growth-approval
+enforcement and the controlled timing runner remain separate follow-ups.

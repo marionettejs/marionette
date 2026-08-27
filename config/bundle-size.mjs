@@ -6,6 +6,7 @@ import { pathToFileURL } from 'node:url';
 import { promisify } from 'node:util';
 import { brotliCompress, constants } from 'node:zlib';
 import { rollup } from 'rollup';
+import { validateGrowthApprovalPolicy } from './performance-growth-approval.mjs';
 import {
   compareResources,
   measureResources,
@@ -114,6 +115,8 @@ export function validateContract(contract, packageJson, runtimeFiles) {
   if (contract.schemaVersion !== 1) {
     violations.push(`Unsupported performance schemaVersion ${contract.schemaVersion}`);
   }
+  violations.push(...validateGrowthApprovalPolicy(contract.pullRequestGrowthApproval)
+    .map(({ message }) => message));
 
   const baselineTotal = contract.runtimeArtifacts
     .reduce((total, artifact) => total + artifact.baselineBrotliBytes, 0);
@@ -479,22 +482,154 @@ function compareResourceReports(base, current) {
   return compareResources(base.resources, current.resources);
 }
 
-async function buildReport(baseFile, currentFile) {
+function approvalRequirement(baseResult, currentResult, thresholdPercent) {
+  if (!baseResult || baseResult.size == null || currentResult.size == null) {
+    return null;
+  }
+
+  const deltaBytes = currentResult.size - baseResult.size;
+  if (deltaBytes <= 0 ||
+      (baseResult.size > 0 && deltaBytes * 100 <= baseResult.size * thresholdPercent)) {
+    return null;
+  }
+
+  return {
+    path: currentResult.path,
+    baseBytes: baseResult.size,
+    currentBytes: currentResult.size,
+    deltaBytes,
+    growthBasisPoints: baseResult.size === 0 ? null :
+      Math.round(deltaBytes * 10000 / baseResult.size),
+  };
+}
+
+function sameApprovalRequirements(supplied, expected) {
+  if (!Array.isArray(supplied) || supplied.length !== expected.length) {
+    return false;
+  }
+
+  const normalized = supplied.map(requirement => ({
+    path: requirement?.path,
+    baseBytes: requirement?.baseBytes,
+    currentBytes: requirement?.currentBytes,
+    deltaBytes: requirement?.deltaBytes,
+    growthBasisPoints: requirement?.growthBasisPoints,
+  })).sort((left, right) => String(left.path).localeCompare(String(right.path)));
+
+  return normalized.every((requirement, index) => {
+    const expectedRequirement = expected[index];
+    return requirement.path === expectedRequirement.path &&
+      requirement.baseBytes === expectedRequirement.baseBytes &&
+      requirement.currentBytes === expectedRequirement.currentBytes &&
+      requirement.deltaBytes === expectedRequirement.deltaBytes &&
+      requirement.growthBasisPoints === expectedRequirement.growthBasisPoints;
+  });
+}
+
+function growthApprovalReport(base, current, supplied) {
+  const thresholdPercent = current.thresholds.pullRequestApprovalPercent;
+  const baseByPath = new Map(base.artifacts.map(result => [result.path, result]));
+  const required = current.artifacts
+    .map(result => approvalRequirement(baseByPath.get(result.path), result, thresholdPercent))
+    .filter(Boolean)
+    .sort((left, right) => left.path.localeCompare(right.path));
+  const violations = [];
+
+  if (!supplied) {
+    const status = required.length ? 'required' : 'not-required';
+    if (required.length) {
+      violations.push('Existing artifact growth above the approval threshold has no structured approval result');
+    }
+    return { accepted: !required.length, approval: null, diagnostics: [], headSha: null,
+      required, status, thresholdPercent, violations };
+  }
+
+  if (supplied.schemaVersion !== 1 || !Array.isArray(supplied.required) ||
+      !Array.isArray(supplied.diagnostics)) {
+    violations.push('Growth approval result is malformed');
+  }
+  if (supplied.thresholdPercent !== thresholdPercent) {
+    violations.push(`Growth approval threshold ${supplied.thresholdPercent} does not match report threshold ${thresholdPercent}`);
+  }
+  if (typeof supplied.headSha !== 'string' || !/^[a-f\d]{40}$/.test(supplied.headSha)) {
+    violations.push('Growth approval result is missing a lowercase full head SHA');
+  }
+
+  if (!sameApprovalRequirements(supplied.required, required)) {
+    violations.push('Growth approval requirements do not match the exact report comparison');
+  }
+  if (!['approved', 'not-required'].includes(supplied.status)) {
+    violations.push(`Growth approval status ${supplied.status || 'missing'} does not permit this report`);
+  } else if (required.length && supplied.status !== 'approved') {
+    violations.push('Existing artifact growth requires an approved result');
+  } else if (!required.length && supplied.status !== 'not-required') {
+    violations.push('Growth approval result must be not-required when no artifact crosses the threshold');
+  }
+  if (supplied.status === 'approved' && (!supplied.approval || typeof supplied.approval !== 'object')) {
+    violations.push('Approved growth result is missing its approval record');
+  }
+
+  return {
+    ...supplied,
+    accepted: violations.length === 0,
+    required,
+    thresholdPercent,
+    violations,
+  };
+}
+
+function growthApprovalSection(result) {
+  const status = result.accepted && result.status === 'approved' ? 'Approved' :
+    result.accepted ? 'Not required' :
+      result.status === 'invalid' || result.status === 'blocked' ? 'Invalid' : 'Required';
+  const lines = [
+    '',
+    '## Artifact growth approval',
+    '',
+    `Status: **${status}**.`,
+    `Threshold: greater than ${result.thresholdPercent}% versus the exact pull request base.`,
+  ];
+
+  if (result.headSha) {
+    lines.push(`Head: \`${result.headSha}\`.`);
+  }
+  if (result.accepted && result.status === 'approved') {
+    const author = result.approval.authorLogin ? `@${result.approval.authorLogin}` : 'an allowed maintainer';
+    const link = result.approval.commentUrl ? `[${author}](${result.approval.commentUrl})` : author;
+    lines.push(`Approved by ${link} for ${result.required.map(({ path }) => `\`${path}\``).join(', ')}.`);
+  }
+
+  const diagnostics = [
+    ...(Array.isArray(result.diagnostics) ? result.diagnostics
+      .map(entry => entry?.message)
+      .filter(message => typeof message === 'string' && message) : []),
+    ...result.violations,
+  ];
+  if (diagnostics.length) {
+    lines.push(`Approval diagnostics: ${diagnostics.join('; ')}`);
+  }
+
+  return lines;
+}
+
+async function buildReport(baseFile, currentFile, growthApprovalFile) {
   const base = await readJson(baseFile);
   const current = await readJson(currentFile);
+  const suppliedGrowthApproval = growthApprovalFile ? await readJson(growthApprovalFile) : null;
+  const growthApproval = growthApprovalReport(base, current, suppliedGrowthApproval);
   const baseByPath = new Map(base.artifacts.map(result => [result.path, result]));
-  const approvalThreshold = current.thresholds.pullRequestApprovalPercent;
+  const approvalRequiredPaths = new Set(growthApproval.required.map(({ path }) => path));
   const rows = current.artifacts.map(result => {
     const baseResult = baseByPath.get(result.path);
     if (!baseResult) {
-      return `| ${result.name} | New | ${formatBytes(result.size)} | New artifact | Required by PR B |`;
+      return `| ${result.name} | New | ${formatBytes(result.size)} | New artifact | Required |`;
     }
     if (result.size == null || baseResult.size == null) {
-      return `| ${result.name} | ${formatBytes(baseResult.size)} | ${formatBytes(result.size)} | Not comparable | Review required |`;
+      return `| ${result.name} | ${formatBytes(baseResult.size)} | ${formatBytes(result.size)} | Not comparable | Required |`;
     }
 
-    const percent = baseResult.size === 0 ? 100 : (result.size - baseResult.size) / baseResult.size * 100;
-    const approval = percent > approvalThreshold ? 'Required by PR B' : 'No';
+    const approval = !approvalRequiredPaths.has(result.path) ? 'Not required' :
+      growthApproval.accepted && growthApproval.status === 'approved' ? 'Approved' : 'Required';
     return `| ${result.name} | ${formatBytes(baseResult.size)} | ${formatBytes(result.size)} | ${formatChange(baseResult.size, result.size)} | ${approval} |`;
   });
   const baseGraphs = new Map(base.graphs.map(graph => [graph.subpath, graph]));
@@ -519,6 +654,7 @@ async function buildReport(baseFile, currentFile) {
       `Resource regressions: ${resourceComparison.violations.join('; ')}` :
       'No eager allocation or retained-resource proxy increased from the exact pull request base.',
   ];
+  const approvalSection = growthApprovalSection(growthApproval);
 
   const markdown = [
     '<!-- bundle-size-report -->',
@@ -538,15 +674,14 @@ async function buildReport(baseFile, currentFile) {
       `Contract violations: ${current.violations.join('; ')}` :
       'All deterministic size and production-graph checks passed against the base authority contract.',
     ...resourceSection,
-    '',
-    'The exact-head approval protocol for growth above 1% and new subpaths remains a separate #127 follow-up; this report does not treat that threshold as enforceable approval yet.'
+    ...approvalSection,
   ].join('\n');
 
-  return { markdown, resourceComparison };
+  return { growthApproval, markdown, resourceComparison };
 }
 
-export async function createReport(baseFile, currentFile) {
-  return (await buildReport(baseFile, currentFile)).markdown;
+export async function createReport(baseFile, currentFile, growthApprovalFile) {
+  return (await buildReport(baseFile, currentFile, growthApprovalFile)).markdown;
 }
 
 function writeMeasurement(result, json) {
@@ -597,9 +732,11 @@ export async function main(args = process.argv.slice(2)) {
   const reportIndex = args.indexOf('--report');
   if (reportIndex !== -1) {
     const [baseFile, currentFile] = positionalPaths(args, reportIndex, 2, '--report');
-    const report = await buildReport(baseFile, currentFile);
+    const growthApprovalFile = getArgument(args, '--growth-approval');
+    const report = await buildReport(baseFile, currentFile, growthApprovalFile);
     console.log(report.markdown);
-    if (report.resourceComparison.violations.length) {
+    if (report.resourceComparison.violations.length ||
+        (growthApprovalFile && !report.growthApproval.accepted)) {
       process.exitCode = 1;
     }
     return;

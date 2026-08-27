@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { describe, test } from 'node:test';
 import {
@@ -30,6 +31,12 @@ function contractFor(paths = ['dist/index.mjs']) {
     thresholds: {
       cumulativeGrowthPercent: 0,
     },
+    pullRequestGrowthApproval: {
+      schemaVersion: 1,
+      repository: 'marionettejs/marionette',
+      trackingIssueUrl: 'https://github.com/marionettejs/marionette/issues/127',
+      allowedLogins: ['paulfalgout'],
+    },
     runtimeArtifacts: paths.map(path => ({
       name: path,
       path,
@@ -38,6 +45,45 @@ function contractFor(paths = ['dist/index.mjs']) {
     productionGraphs: [{ subpath: '.' }],
     forbiddenProductionModulePrefixes: ['test/'],
     forbiddenProductionModules: ['config/performance.json'],
+  };
+}
+
+function bundleReport(size) {
+  return {
+    brotliQuality: 11,
+    thresholds: { pullRequestApprovalPercent: 1 },
+    artifacts: [{ name: 'Main', path: 'dist/main.js', size }],
+    cumulative: {
+      size,
+      baselineSize: 100,
+      absoluteCeiling: 105,
+    },
+    graphs: [],
+    resourcesRequired: false,
+    resources: null,
+    violations: [],
+  };
+}
+
+function growthApproval(status = 'approved') {
+  return {
+    schemaVersion: 1,
+    status,
+    headSha: '1234567890abcdef1234567890abcdef12345678',
+    thresholdPercent: 1,
+    required: [{
+      baseBytes: 100,
+      currentBytes: 102,
+      deltaBytes: 2,
+      growthBasisPoints: 200,
+      name: 'Main',
+      path: 'dist/main.js',
+    }],
+    approval: status === 'approved' ? {
+      authorLogin: 'paulfalgout',
+      commentUrl: 'https://github.com/marionettejs/marionette/pull/1#issuecomment-1',
+    } : null,
+    diagnostics: status === 'approved' ? [] : [{ message: 'Approval is required' }],
   };
 }
 
@@ -72,6 +118,20 @@ describe('performance contract validation', () => {
 
     assert.ok(violations.includes('Configured runtime artifacts are missing: dist/index.mjs'));
     assert.ok(violations.includes('Shipped runtime artifacts are untracked: dist/untracked.mjs'));
+  });
+
+  test('surfaces malformed growth approval policy through contract validation', () => {
+    const contract = contractFor();
+    contract.pullRequestGrowthApproval.allowedLogins = ['zed', 'alpha'];
+    const packageJson = {
+      exports: { '.': { import: './dist/index.mjs' } },
+    };
+
+    const violations = validateContract(contract, packageJson, ['index.mjs']);
+
+    assert.ok(violations.includes(
+      'Growth approval policy allowedLogins must contain sorted, unique lowercase GitHub logins'
+    ));
   });
 
   test('measures malformed artifact and subpath changes without an uncaught error', async() => {
@@ -174,6 +234,87 @@ describe('performance contract validation', () => {
         writeFile(currentReport, JSON.stringify(result)),
       ]);
       assert.match(await createReport(baseReport, currentReport), /\| `\.` \| 1 \| None \| No change \|/);
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
+  test('renders artifact-specific growth approval results before enforcement', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-approval-report-'));
+    const baseReport = join(fixtureRoot, 'base.json');
+    const currentReport = join(fixtureRoot, 'current.json');
+    const approvalReport = join(fixtureRoot, 'approval.json');
+
+    try {
+      await Promise.all([
+        writeFile(baseReport, JSON.stringify(bundleReport(100))),
+        writeFile(currentReport, JSON.stringify(bundleReport(102))),
+        writeFile(approvalReport, JSON.stringify(growthApproval())),
+      ]);
+
+      const approved = await createReport(baseReport, currentReport, approvalReport);
+      assert.match(approved, /\| Main \| 100 B \| 102 B \| \+2 B \(\+2\.00%\) 🔺 \| Approved \|/);
+      assert.match(approved, /## Artifact growth approval\n\nStatus: \*\*Approved\*\*\./);
+      assert.match(approved, /Approved by \[@paulfalgout\]/);
+
+      const missing = await createReport(baseReport, currentReport);
+      assert.match(missing, /\| Main .* \| Required \|/);
+      assert.match(missing, /Status: \*\*Required\*\*\./);
+      assert.match(missing, /has no structured approval result/);
+
+      const identical = await createReport(baseReport, baseReport);
+      assert.match(identical, /\| Main .* \| Not required \|/);
+      assert.match(identical, /Status: \*\*Not required\*\*\./);
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
+  test('enforces growth approval status through the report CLI', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-approval-cli-'));
+    const baseReport = join(fixtureRoot, 'base.json');
+    const currentReport = join(fixtureRoot, 'current.json');
+    const approvedReport = join(fixtureRoot, 'approved.json');
+    const requiredReport = join(fixtureRoot, 'required.json');
+    const cli = join(root, 'config/bundle-size.mjs');
+
+    try {
+      await Promise.all([
+        writeFile(baseReport, JSON.stringify(bundleReport(100))),
+        writeFile(currentReport, JSON.stringify(bundleReport(102))),
+        writeFile(approvedReport, JSON.stringify(growthApproval())),
+        writeFile(requiredReport, JSON.stringify(growthApproval('required'))),
+      ]);
+
+      const missing = spawnSync(process.execPath, [
+        cli, '--report', baseReport, currentReport,
+      ], { encoding: 'utf8' });
+      assert.equal(missing.status, 0);
+      assert.match(missing.stdout, /Status: \*\*Required\*\*\./);
+
+      const approved = spawnSync(process.execPath, [
+        cli, '--report', baseReport, currentReport, '--growth-approval', approvedReport,
+      ], { encoding: 'utf8' });
+      assert.equal(approved.status, 0);
+      assert.match(approved.stdout, /Status: \*\*Approved\*\*\./);
+
+      const required = spawnSync(process.execPath, [
+        cli, '--report', baseReport, currentReport, '--growth-approval', requiredReport,
+      ], { encoding: 'utf8' });
+      assert.equal(required.status, 1);
+      assert.match(required.stdout, /Status: \*\*Required\*\*\./);
+
+      const identical = spawnSync(process.execPath, [
+        cli, '--report', baseReport, baseReport,
+      ], { encoding: 'utf8' });
+      assert.equal(identical.status, 0);
+      assert.match(identical.stdout, /Status: \*\*Not required\*\*\./);
+
+      const missingPath = spawnSync(process.execPath, [
+        cli, '--report', baseReport, currentReport, '--growth-approval',
+      ], { encoding: 'utf8' });
+      assert.equal(missingPath.status, 1);
+      assert.match(missingPath.stderr, /Missing value for --growth-approval/);
     } finally {
       await rm(fixtureRoot, { recursive: true, force: true });
     }
