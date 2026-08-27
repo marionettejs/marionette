@@ -1,0 +1,25 @@
+config/release/verify-artifact.mjs
+  s_d6429951fb9231::t_8d9166fb726f60 38-55,107-118
+config/release/publish-github.mjs
+  s_d6429951fb9231::t_8d9166fb726f60 91-127,132-133,171,173
+docs/release-promotion.md
+  s_d6429951fb9231::t_5571f42b2f9cd6 77-79,105-107
+config/release/build-artifact.mjs
+  s_d6429951fb9231::t_8d9166fb726f60 82-85,164,169
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "b95924014a72e89680879dc94b9009f0d2ae9a2c",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
