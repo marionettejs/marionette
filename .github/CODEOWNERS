@@ -6,6 +6,7 @@
 /.github/workflows/docs-pages.yml @paulfalgout @marionettejs/marionette-core
 /config/performance.json @paulfalgout @marionettejs/marionette-core
 /config/bundle-size.mjs @paulfalgout @marionettejs/marionette-core
+/config/performance-growth-approval.mjs @paulfalgout @marionettejs/marionette-core
 /config/performance-resources.mjs @paulfalgout @marionettejs/marionette-core
 /benchmarks/ @paulfalgout @marionettejs/marionette-core
 /test/performance/ @paulfalgout @marionettejs/marionette-core

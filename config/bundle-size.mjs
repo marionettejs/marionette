@@ -6,6 +6,7 @@ import { pathToFileURL } from 'node:url';
 import { promisify } from 'node:util';
 import { brotliCompress, constants } from 'node:zlib';
 import { rollup } from 'rollup';
+import { validateGrowthApprovalPolicy } from './performance-growth-approval.mjs';
 import {
   compareResources,
   measureResources,
@@ -114,6 +115,8 @@ export function validateContract(contract, packageJson, runtimeFiles) {
   if (contract.schemaVersion !== 1) {
     violations.push(`Unsupported performance schemaVersion ${contract.schemaVersion}`);
   }
+  violations.push(...validateGrowthApprovalPolicy(contract.pullRequestGrowthApproval)
+    .map(({ message }) => message));
 
   const baselineTotal = contract.runtimeArtifacts
     .reduce((total, artifact) => total + artifact.baselineBrotliBytes, 0);

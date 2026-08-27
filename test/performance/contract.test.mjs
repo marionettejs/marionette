@@ -29,6 +29,12 @@ function contractFor(paths = ['dist/index.mjs']) {
     thresholds: {
       cumulativeGrowthPercent: 0,
     },
+    pullRequestGrowthApproval: {
+      schemaVersion: 1,
+      repository: 'marionettejs/marionette',
+      trackingIssueUrl: 'https://github.com/marionettejs/marionette/issues/127',
+      allowedLogins: ['paulfalgout'],
+    },
     runtimeArtifacts: paths.map(path => ({
       name: path,
       path,

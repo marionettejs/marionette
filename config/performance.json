@@ -45,6 +45,14 @@
     "controlledMedianRegressionPercent": 5,
     "controlledP95RegressionPercent": 10
   },
+  "pullRequestGrowthApproval": {
+    "schemaVersion": 1,
+    "repository": "marionettejs/marionette",
+    "trackingIssueUrl": "https://github.com/marionettejs/marionette/issues/127",
+    "allowedLogins": [
+      "paulfalgout"
+    ]
+  },
   "runtimeArtifacts": [
     {
       "name": "Main ES module",
@@ -177,6 +185,7 @@
   ],
   "forbiddenProductionModules": [
     "config/bundle-size.mjs",
+    "config/performance-growth-approval.mjs",
     "config/performance.json",
     "config/release-profile.json",
     "config/release-promotion.json"
