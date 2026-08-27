@@ -1,0 +1,60 @@
+config/bundle-size.mjs
+  s_d6429951fb9231::t_003f64ad0347c3 506-528,558
+  s_d6429951fb9231::t_6747a77f1fd5c9 485-505,529-557,559-615,618-619,621,625,628,631-632,657,677,680,683-684,735-736,738
+test/performance/contract.test.mjs
+  s_d6429951fb9231::t_e1f2e5afc6e701 2,6,51-89,228-307
+  s_6bbcc9044761e1::t_c56b24605dca44 308
+config/performance-growth-approval.mjs
+  s_d6429951fb9231::t_afa292d09aa5a0 1-5,450-464,478-495,497-529
+  s_d6429951fb9231::t_45b7a9dfd2bcea 465-477,496
+test/performance/growth-approval.test.mjs
+  s_d6429951fb9231::t_45b7a9dfd2bcea 419-427
+  s_d6429951fb9231::t_afa292d09aa5a0 2-6,18,366-418,428-430
+  s_d6429951fb9231::t_1caceb0df4dcbd 431
+docs/performance-baselines.md
+  s_d6429951fb9231::t_7dd7affcdd1449 134-141
+  s_d6429951fb9231::t_4479b3e3ad0da4 126-133,179-180
+  s_d6429951fb9231::t_1371ef832115a3 142
+.github/CODEOWNERS
+  s_d6429951fb9231::t_49b64a3f5619a3 14
+.github/workflows/performance-approval-refresh.yml
+  s_d6429951fb9231::t_6c6e49583c609d 32
+  s_d6429951fb9231::t_fc91718f26519a 126,138,140
+  s_d6429951fb9231::t_7dd7affcdd1449 51,67-68,70,74-78,98-99,108-111,116-117,125,128,130,133-137,139,141-142,148,150-151,155,159-163,166-167,170,173-176,178-179
+  s_d6429951fb9231::t_1371ef832115a3 16-17,19-24,44,56-57,62-66,69,71-73,89-92
+  s_d6429951fb9231::t_ce7900b2919cac 25-26,37,102-103,107,112-113,119-123
+  s_d6429951fb9231::t_63960b0e3d13e6 79-88
+  s_d6429951fb9231::t_49b64a3f5619a3 1-15,18,27-31,33-36,38-43,46-50,52-55,58-61,93-97,100-101,104-106,114-115,118,124,127,129,131-132,143-147,149,152-154,156-158,164-165,168-169,171-172,177
+  s_d6429951fb9231::t_341d427e1a3df1 45
+.github/workflows/ci.yml
+  s_d6429951fb9231::t_45b7a9dfd2bcea 136-143,147-149,154,165,167,173,180,187,189,195,202,221,263
+  s_d6429951fb9231::t_90a1fa33f45aba 111-113,151-153,155-164,166,168-172,174-179,182-186,188,190-194,196-201
+  s_d6429951fb9231::t_d77d463f0a75e8 2-3
+  s_d6429951fb9231::t_0e44eb5b1330c1 222-223,228-233,235,238-247,249-255
+  s_d6429951fb9231::t_f3447b4a1b249b 150
+  s_d6429951fb9231::t_04df82db10d844 181
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "d49cf7b78f710a4f8d21c385eb2596c3855f5c55",
+  "prompts": {},
+  "sessions": {
+    "s_6bbcc9044761e1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a04305-286c-76c0-9ffb-6400aae17ead",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
