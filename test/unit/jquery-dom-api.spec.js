@@ -8,8 +8,9 @@ import {
 import JQueryDomApi from '../../jquery-dom-api';
 
 describe('jQuery DomApi adapter', function() {
-  it('allows the core ESM graph to bundle without importing jQuery', function() {
+  it('allows the core ESM graph to bundle without circular dependencies or importing jQuery', async function() {
     const bundler = require('rollup');
+    const warnings = [];
     const jqueryBlocker = {
       name: 'jquery-blocker',
       resolveId(source) {
@@ -21,11 +22,19 @@ describe('jQuery DomApi adapter', function() {
       }
     };
 
-    return bundler.rollup({
+    const bundle = await bundler.rollup({
       input: 'index.js',
       external: ['underscore'],
-      plugins: [jqueryBlocker]
+      plugins: [jqueryBlocker],
+      onwarn(warning, warn) {
+        warnings.push(warning);
+        warn(warning);
+      }
     });
+
+    await bundle.close();
+
+    expect(warnings).to.be.empty;
   });
 
   it('does not create $el with the native DomApi', function() {

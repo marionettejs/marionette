@@ -221,6 +221,34 @@ describe('region', function() {
     it('should render the template in the region', function() {
       expect($(myRegion.el)).to.contain.$html('<b>Hello World!</b>');
     });
+
+    it('should construct the public View', function() {
+      expect(myRegion.currentView.constructor).to.equal(View);
+    });
+
+    it('should construct the public View from a Region subclass', function() {
+      const CustomRegion = Region.extend();
+      const customRegion = new CustomRegion({ el: '#region' });
+
+      customRegion.show(_.template('<b>Hello World!</b>'));
+
+      expect(customRegion.currentView.constructor).to.equal(View);
+    });
+
+    it('should construct the public View from a View subclass region', function() {
+      const OwnerView = View.extend({
+        template: _.template('<div class="child-region"></div>'),
+        regions: {
+          child: '.child-region'
+        }
+      });
+      const owner = new OwnerView();
+
+      owner.render();
+      owner.getRegion('child').show(_.template('<b>Hello World!</b>'));
+
+      expect(owner.getChildView('child').constructor).to.equal(View);
+    });
   });
 
   describe('when showing a template with viewOptions', function() {
@@ -241,6 +269,31 @@ describe('region', function() {
     it('should render the template in the region', function() {
       expect($(myRegion.el)).to.contain.$html('<b>Hello World!</b>');
     });
+
+    it('should construct the public View', function() {
+      expect(myRegion.currentView.constructor).to.equal(View);
+    });
+
+    it('should support nested regions with canonical region classes', function() {
+      const CustomRegion = Region.extend();
+
+      myRegion.show({
+        template: _.template('<div class="default-region"></div><div class="custom-region"></div>'),
+        regions: {
+          defaultRegion: '.default-region',
+          customRegion: {
+            el: '.custom-region',
+            regionClass: CustomRegion
+          }
+        }
+      });
+
+      const view = myRegion.currentView;
+
+      expect(view.constructor).to.equal(View);
+      expect(view.getRegion('defaultRegion').constructor).to.equal(Region);
+      expect(view.getRegion('customRegion')).to.be.instanceof(CustomRegion);
+    });
   });
 
   describe('when showing an html string', function() {
@@ -257,6 +310,10 @@ describe('region', function() {
 
     it('should render the string in the region', function() {
       expect($(myRegion.el)).to.contain.$html('<b>Hello World!</b>');
+    });
+
+    it('should construct the public View', function() {
+      expect(myRegion.currentView.constructor).to.equal(View);
     });
   });
 
