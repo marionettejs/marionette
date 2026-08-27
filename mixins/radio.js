@@ -1,5 +1,5 @@
 import { result } from 'underscore';
-import Radio from '../modules/radio';
+import Radio from '../modules/radio.js';
 
 
 // MixinOptions

@@ -1,6 +1,6 @@
 import { isString, isFunction, result, each } from 'underscore';
-import { isEnabled } from '../config/features';
-import EventDelegator from '../config/event-delegator';
+import { isEnabled } from '../config/features.js';
+import EventDelegator from '../config/event-delegator.js';
 
 const delegateEventSplitter = /^(\S+)\s*(.*)$/;
 

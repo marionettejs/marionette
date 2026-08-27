@@ -1,10 +1,10 @@
 import { each, extend, keys, reduce } from 'underscore';
 
-import { debugLog, log } from '../modules/common/radio';
-import buildEventArgs, { eventSplitter } from '../utils/build-event-args';
-import callHandler from '../utils/call-handler';
-import makeCallback from '../utils/make-callback';
-import onceWrap from '../utils/once-wrap';
+import { debugLog, log } from '../modules/common/radio.js';
+import buildEventArgs, { eventSplitter } from '../utils/build-event-args.js';
+import callHandler from '../utils/call-handler.js';
+import makeCallback from '../utils/make-callback.js';
+import onceWrap from '../utils/once-wrap.js';
 
 /*
  * Requests

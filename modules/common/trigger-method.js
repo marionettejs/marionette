@@ -2,7 +2,7 @@
 // --------------
 
 import { isFunction } from 'underscore';
-import getOption from './get-option';
+import getOption from './get-option.js';
 
 // split the event name on the ":"
 const splitter = /(^|:)(\w)/gi;

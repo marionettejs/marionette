@@ -1,19 +1,19 @@
 import { extend, result } from 'underscore';
 
-import EventsMixin from './events';
-import RequestsMixin from './requests';
-import getOption from '../modules/common/get-option';
-import mergeOptions from '../modules/common/merge-options';
-import normalizeMethods from '../modules/common/normalize-methods';
-import triggerMethod from '../modules/common/trigger-method';
+import EventsMixin from './events.js';
+import RequestsMixin from './requests.js';
+import getOption from '../modules/common/get-option.js';
+import mergeOptions from '../modules/common/merge-options.js';
+import normalizeMethods from '../modules/common/normalize-methods.js';
+import triggerMethod from '../modules/common/trigger-method.js';
 import {
   bindEvents,
   unbindEvents
-} from '../modules/common/bind-events';
+} from '../modules/common/bind-events.js';
 import {
   bindRequests,
   unbindRequests
-} from '../modules/common/bind-requests';
+} from '../modules/common/bind-requests.js';
 
 const CommonMixin = {
 

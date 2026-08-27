@@ -1,10 +1,10 @@
 import { reduce, each, keys, uniqueId } from 'underscore';
 
-import buildEventArgs, { eventSplitter } from '../utils/build-event-args';
-import callHandler from '../utils/call-handler';
-import onceWrap from '../utils/once-wrap';
+import buildEventArgs, { eventSplitter } from '../utils/build-event-args.js';
+import callHandler from '../utils/call-handler.js';
+import onceWrap from '../utils/once-wrap.js';
 
-import triggerMethod from '../modules/common/trigger-method';
+import triggerMethod from '../modules/common/trigger-method.js';
 
 // A module that can be mixed in to *any object* in order to provide it with
 // a custom event channel. You may bind a callback to an event with `on` or

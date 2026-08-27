@@ -1,1 +1,1 @@
-export { buildRegion as default } from '../view-region';
+export { buildRegion as default } from '../view-region.js';
