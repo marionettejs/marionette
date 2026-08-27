@@ -7,6 +7,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = resolve(__dirname, '../..');
 const packDir = resolve(rootDir, 'test/tmp/pack-fixtures');
 const npmCli = process.env.npm_execpath;
+const cliArgs = process.argv.slice(2);
 const fixtures = [
   'cjs-node',
   'cjs-adapters',
@@ -39,6 +40,20 @@ function runNpm(args, options) {
   run(process.execPath, [npmCli, ...args], options);
 }
 
+function readArgument(name) {
+  const index = cliArgs.indexOf(name);
+  if (index === -1) {
+    return undefined;
+  }
+
+  const value = cliArgs[index + 1];
+  if (!value || value.startsWith('--')) {
+    throw new Error(`Missing value for ${name}`);
+  }
+
+  return value;
+}
+
 function cleanFixture(fixtureDir) {
   rmSync(resolve(fixtureDir, 'dist'), { force: true, recursive: true });
   rmSync(resolve(fixtureDir, 'node_modules'), { force: true, recursive: true });
@@ -49,16 +64,25 @@ rmSync(packDir, { force: true, recursive: true });
 mkdirSync(packDir, { recursive: true });
 
 try {
-  runNpm(['pack', '--pack-destination', packDir]);
+  const suppliedTarball = readArgument('--tarball');
+  let tarballPath;
+  if (suppliedTarball) {
+    tarballPath = resolve(rootDir, suppliedTarball);
+    if (!existsSync(tarballPath)) {
+      throw new Error(`Packed tarball does not exist: ${tarballPath}`);
+    }
+  } else {
+    runNpm(['pack', '--pack-destination', packDir]);
 
-  const packedTarballs = readdirSync(packDir)
-    .filter(fileName => fileName.endsWith('.tgz'));
+    const packedTarballs = readdirSync(packDir)
+      .filter(fileName => fileName.endsWith('.tgz'));
 
-  if (packedTarballs.length !== 1) {
-    throw new Error(`Expected one packed tarball, found ${packedTarballs.length}`);
+    if (packedTarballs.length !== 1) {
+      throw new Error(`Expected one packed tarball, found ${packedTarballs.length}`);
+    }
+
+    tarballPath = resolve(packDir, packedTarballs[0]);
   }
-
-  const tarballPath = resolve(packDir, packedTarballs[0]);
 
   for (const fixtureName of fixtures) {
     const fixtureDir = resolve(__dirname, fixtureName);

@@ -1,10 +1,20 @@
 import assert from 'assert';
 import { createRequire } from 'module';
 import { readFileSync } from 'fs';
+import { resolve } from 'path';
+import { pathToFileURL } from 'url';
 import vm from 'vm';
 
-const require = createRequire(import.meta.url);
-const packageJson = require('../../package.json');
+const args = process.argv.slice(2);
+const rootIndex = args.indexOf('--root');
+if (rootIndex !== -1 && (!args[rootIndex + 1] || args[rootIndex + 1].startsWith('--'))) {
+  throw new Error('Missing value for --root');
+}
+const packageRoot = rootIndex === -1 ?
+  resolve(import.meta.dirname, '../..') :
+  resolve(args[rootIndex + 1]);
+const require = createRequire(pathToFileURL(resolve(packageRoot, 'package.json')));
+const packageJson = require(resolve(packageRoot, 'package.json'));
 
 function validateBrowserGlobal(file) {
   const previousMarionette = {};
@@ -14,7 +24,7 @@ function validateBrowserGlobal(file) {
   };
 
   vm.runInNewContext(
-    readFileSync(new URL(`../../dist/${file}`, import.meta.url), 'utf8'),
+    readFileSync(resolve(packageRoot, 'dist', file), 'utf8'),
     context,
     { filename: file },
   );
@@ -28,8 +38,8 @@ function validateBrowserGlobal(file) {
 
 async function validate() {
   const entrypoints = [
-    ['CommonJS', require('../../dist/marionette.cjs')],
-    ['ES module', await import('../../dist/marionette.js')],
+    ['CommonJS', require(resolve(packageRoot, 'dist/marionette.cjs'))],
+    ['ES module', await import(pathToFileURL(resolve(packageRoot, 'dist/marionette.js')))],
   ];
 
   for (const [name, Marionette] of entrypoints) {

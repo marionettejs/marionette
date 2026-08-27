@@ -1,0 +1,363 @@
+name: Release promotion
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/release.yml'
+      - '.nvmrc'
+      - 'config/bundle-size.json'
+      - 'config/bundle-size.mjs'
+      - 'config/check-dist.mjs'
+      - 'config/check-release-profile.mjs'
+      - 'config/release/**'
+      - 'config/release-profile.json'
+      - 'config/release-promotion.json'
+      - 'dist/**'
+      - 'package-lock.json'
+      - 'package.json'
+      - 'test/dist/**'
+      - 'test/fixtures/**'
+      - 'version.js'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Request stable publication; blocked while publicationEnabled is false
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-promotion-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  PROMOTION_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.publish && 'publish' || 'dry-run' }}
+
+jobs:
+  preflight:
+    name: Release preflight
+    runs-on: ubuntu-24.04
+    outputs:
+      mode: ${{ steps.preflight.outputs.mode }}
+
+    steps:
+      - name: Checkout exact source commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+
+      - name: Verify release profile
+        run: npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04
+
+      - name: Authorize workflow mode
+        id: preflight
+        run: >-
+          npm run check:release-promotion --
+          --mode "${PROMOTION_MODE}"
+          --repository "${GITHUB_REPOSITORY}"
+          --ref "${GITHUB_REF}"
+          --event "${GITHUB_EVENT_NAME}"
+
+  build:
+    name: Build verified tarball
+    needs: preflight
+    runs-on: ubuntu-24.04
+    outputs:
+      npm_tag: ${{ steps.artifact.outputs.npm_tag }}
+      prerelease: ${{ steps.artifact.outputs.prerelease }}
+      tag: ${{ steps.artifact.outputs.tag }}
+      tarball: ${{ steps.artifact.outputs.tarball }}
+      version: ${{ steps.artifact.outputs.version }}
+
+    steps:
+      - name: Checkout exact source commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+
+      - name: Verify release profile
+        run: npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04
+
+      - name: Install pinned dependencies
+        run: npm ci
+
+      - name: Verify browser profile
+        run: npm run check:browser-profile
+
+      - name: Verify diagnostic catalog
+        run: npm run check:diagnostics
+
+      - name: Test source ESM
+        run: npm run test:source
+
+      - name: Lint
+        run: npm run lint:ci
+
+      - name: Run configured coverage
+        run: npm run coverage
+
+      - name: Build once
+        run: npm run build
+
+      - name: Verify committed distributable projection
+        run: node config/check-dist.mjs
+
+      - name: Test built distributables
+        run: npm run test:dist
+
+      - name: Pack immutable release artifact
+        id: artifact
+        run: >-
+          npm run release:artifact --
+          --output release
+          --source-commit "${SOURCE_SHA}"
+          --source-ref "${GITHUB_REF}"
+          --repository "${GITHUB_REPOSITORY}"
+
+      - name: Verify release evidence
+        run: >-
+          npm run release:verify --
+          --artifact-dir release
+          --source-commit "${SOURCE_SHA}"
+          --repository "${GITHUB_REPOSITORY}"
+
+      - name: Test exact packed browser artifacts
+        run: |
+          mkdir -p test/tmp/release-package
+          tar -xzf "release/${{ steps.artifact.outputs.tarball }}" -C test/tmp/release-package
+          npm run test:dist -- --root test/tmp/release-package/package
+
+      - name: Test exact packed package fixtures
+        run: npm run test:fixtures -- --tarball "release/${{ steps.artifact.outputs.tarball }}"
+
+      - name: Upload immutable release artifact
+        id: upload
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-candidate-${{ env.SOURCE_SHA }}
+          path: release/
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 0
+
+      - name: Record workflow artifact digest
+        run: echo "Workflow artifact SHA-256: ${{ steps.upload.outputs.artifact-digest }}" >> "${GITHUB_STEP_SUMMARY}"
+
+  package-smoke:
+    name: Release package smoke (${{ matrix.name }})
+    needs: [preflight, build]
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS arm64
+            host: macos-arm64
+            runner: macos-15
+          - name: Windows x64
+            host: windows-x64
+            runner: windows-2025
+
+    steps:
+      - name: Checkout exact source commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+
+      - name: Verify release profile
+        run: npm run check:release-profile -- --host ${{ matrix.host }} --runner ${{ matrix.runner }}
+
+      - name: Download immutable release artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-candidate-${{ env.SOURCE_SHA }}
+          path: release
+
+      - name: Verify release evidence
+        run: >-
+          npm run release:verify --
+          --artifact-dir release
+          --source-commit "${SOURCE_SHA}"
+          --repository "${GITHUB_REPOSITORY}"
+
+      - name: Test exact packed package fixtures
+        run: npm run test:fixtures -- --tarball "release/${{ needs.build.outputs.tarball }}"
+
+  promotion-dry-run:
+    name: Promotion dry run
+    if: needs.preflight.outputs.mode == 'dry-run'
+    needs: [preflight, build, package-smoke]
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout exact source commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          persist-credentials: false
+
+      - name: Setup Node for npm registry
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+          registry-url: https://registry.npmjs.org/
+
+      - name: Download immutable release artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-candidate-${{ env.SOURCE_SHA }}
+          path: release
+
+      - name: Verify release evidence
+        run: >-
+          npm run release:verify --
+          --artifact-dir release
+          --source-commit "${SOURCE_SHA}"
+          --repository "${GITHUB_REPOSITORY}"
+
+      - name: Inspect immutable publication targets
+        run: npm run release:targets -- --mode dry-run --artifact-dir release
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Exercise npm publication without publishing
+        run: >-
+          npm publish
+          "./release/${{ needs.build.outputs.tarball }}"
+          --dry-run
+          --ignore-scripts
+          --access public
+          --tag "${{ needs.build.outputs.npm_tag }}"
+
+      - name: Exercise GitHub release plan without publishing
+        run: npm run release:github -- --mode dry-run --artifact-dir release
+
+  publication-targets:
+    name: Authorize empty publication targets
+    if: needs.preflight.outputs.mode == 'publish'
+    needs: [preflight, build, package-smoke]
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout exact source commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+
+      - name: Download immutable release artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-candidate-${{ env.SOURCE_SHA }}
+          path: release
+
+      - name: Verify release evidence
+        run: >-
+          npm run release:verify --
+          --artifact-dir release
+          --source-commit "${SOURCE_SHA}"
+          --repository "${GITHUB_REPOSITORY}"
+
+      - name: Require unused npm, tag, and release targets
+        run: npm run release:targets -- --mode publish --artifact-dir release
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  publish:
+    name: Publish verified tarball and matching release
+    if: needs.preflight.outputs.mode == 'publish'
+    needs: [preflight, build, package-smoke, publication-targets]
+    environment: stable-release
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - name: Checkout exact source commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          persist-credentials: false
+
+      - name: Setup Node for trusted publishing
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+          registry-url: https://registry.npmjs.org/
+
+      - name: Download immutable release artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-candidate-${{ env.SOURCE_SHA }}
+          path: release
+
+      - name: Verify release evidence
+        run: >-
+          npm run release:verify --
+          --artifact-dir release
+          --source-commit "${SOURCE_SHA}"
+          --repository "${GITHUB_REPOSITORY}"
+
+      - name: Stage matching GitHub draft release
+        run: npm run release:github -- --mode stage --artifact-dir release
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Decide whether npm publication is already complete
+        id: npm_state
+        run: npm run release:targets -- --mode npm-decision --artifact-dir release
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Publish exact tarball with npm provenance
+        if: steps.npm_state.outputs.npm_action == 'publish'
+        run: >-
+          npm publish
+          "./release/${{ needs.build.outputs.tarball }}"
+          --ignore-scripts
+          --access public
+          --tag "${{ needs.build.outputs.npm_tag }}"
+
+      - name: Verify published npm integrity
+        run: npm run release:targets -- --mode verify-npm --artifact-dir release
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Publish the staged GitHub release and tag
+        run: npm run release:github -- --mode publish --artifact-dir release
+        env:
+          GH_TOKEN: ${{ github.token }}
