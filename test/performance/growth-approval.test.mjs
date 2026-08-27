@@ -90,12 +90,13 @@ function validation({
   current = [{ name: 'Over', path: 'dist/over.js', size: 102 }],
   currentHead = headSha,
   currentPolicy = policy,
+  evidence = [evidenceComment()],
 } = {}) {
   return validateGrowthApproval({
     baseReport: report(base),
     comments: snapshot(comments),
     currentReport: report(current),
-    evidenceComments: evidenceSnapshot(),
+    evidenceComments: evidenceSnapshot(evidence),
     headSha: currentHead,
     policy: currentPolicy,
     pullRequestNumber,
@@ -418,7 +419,9 @@ describe('exact-head performance growth approval contract', () => {
     assert.equal(unresolved.status, 'invalid');
     assert.equal(unresolved.diagnostics[0].code, 'GROWTH_APPROVAL_EVIDENCE_MISSING');
 
-    const collaboratorEvidence = validation();
+    const collaboratorEvidence = validation({
+      evidence: [evidenceComment({ association: 'COLLABORATOR' })],
+    });
     assert.equal(collaboratorEvidence.status, 'approved');
 
     const untrustedEvidence = validateGrowthApproval({
