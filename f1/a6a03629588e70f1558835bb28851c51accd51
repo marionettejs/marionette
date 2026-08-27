@@ -1,0 +1,28 @@
+test/unit/common/build-region.spec.js
+  s_d6429951fb9231::t_7c57c8af43ddf2 2,34
+  s_d6429951fb9231::t_20cf1c16bee32a 3,33
+  s_d6429951fb9231::t_d360d37c178639 35-36
+test/unit/jquery-dom-api.spec.js
+  s_d6429951fb9231::t_20cf1c16bee32a 37
+  s_d6429951fb9231::t_55718c35a2a5da 13,25,28-32,34-36
+  s_d6429951fb9231::t_80e775d4cca526 11
+test/unit/region.spec.js
+  s_d6429951fb9231::t_20cf1c16bee32a 237-251
+  s_d6429951fb9231::t_55718c35a2a5da 224-236,272-296,314-317
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "f1a6a03629588e70f1558835bb28851c51accd51",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
