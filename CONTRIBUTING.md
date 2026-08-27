@@ -26,7 +26,14 @@ npm run lint:ci
 npm run coverage
 npm run test:fixtures
 npm run size
+npm run performance:timing
 ```
+
+`npm run size` enforces the deterministic Phase 0 size and production-module-graph
+contract. `npm run performance:timing` records informative timing on ordinary
+development or hosted machines; it is not a release timing gate. See the
+[performance baseline contract](docs/performance-baselines.md) for the controlled
+runner boundary and reproducibility requirements.
 
 The full coverage and fixture commands take longer than a focused test. Run the
 smallest useful test while developing, then run the checks required by the linked

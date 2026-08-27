@@ -1,0 +1,301 @@
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { createRequire } from 'node:module';
+import { resolve } from 'node:path';
+import process from 'node:process';
+import { pathToFileURL } from 'node:url';
+import { readFile } from 'node:fs/promises';
+
+const args = process.argv.slice(2);
+
+function getArgument(name, fallback) {
+  const index = args.indexOf(name);
+  if (index === -1) {
+    return fallback;
+  }
+
+  const value = args[index + 1];
+  if (!value || value.startsWith('--')) {
+    throw new Error(`Missing value for ${name}`);
+  }
+
+  return value;
+}
+
+async function readJson(file) {
+  return JSON.parse(await readFile(resolve(file), 'utf8'));
+}
+
+function percentile(sortedValues, percentileValue) {
+  const index = Math.max(0, Math.ceil(sortedValues.length * percentileValue) - 1);
+  return sortedValues[index];
+}
+
+function summarize(samples) {
+  const sorted = [...samples].sort((left, right) => left - right);
+  const middle = Math.floor(sorted.length / 2);
+  const median = sorted.length % 2 ?
+    sorted[middle] :
+    (sorted[middle - 1] + sorted[middle]) / 2;
+
+  return {
+    medianNanoseconds: median,
+    p95Nanoseconds: percentile(sorted, 0.95),
+    minNanoseconds: sorted[0],
+    maxNanoseconds: sorted.at(-1),
+  };
+}
+
+function sourceCommit(root) {
+  try {
+    return execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  } catch {
+    return null;
+  }
+}
+
+function formatTime(nanoseconds) {
+  if (nanoseconds < 1000) {
+    return `${nanoseconds.toFixed(0)} ns`;
+  }
+  if (nanoseconds < 1000000) {
+    return `${(nanoseconds / 1000).toFixed(2)} μs`;
+  }
+  return `${(nanoseconds / 1000000).toFixed(2)} ms`;
+}
+
+function formatPercent(value) {
+  const prefix = value > 0 ? '+' : '';
+  return `${prefix}${value.toFixed(2)}%`;
+}
+
+function changePercent(base, current) {
+  return base === 0 ? 100 : (current - base) / base * 100;
+}
+
+async function loadRuntime(root) {
+  const requireFromRoot = createRequire(resolve(root, 'package.json'));
+  const { JSDOM } = requireFromRoot('jsdom');
+  const Backbone = requireFromRoot('backbone');
+  const dom = new JSDOM('<!doctype html><html><body></body></html>');
+  globalThis.window = dom.window;
+  globalThis.document = dom.window.document;
+
+  const runtimeUrl = pathToFileURL(resolve(root, 'dist/marionette.js'));
+  runtimeUrl.searchParams.set('performance-run', `${process.pid}-${Date.now()}`);
+  const Marionette = await import(runtimeUrl.href);
+
+  return { Backbone, Marionette, dom };
+}
+
+function createCases({ Backbone, Marionette }) {
+  const { Behavior, CollectionView, Region, View } = Marionette;
+  const PlainView = View.extend({ template: false });
+  const RenderView = View.extend({
+    template: data => `<span>${data.value || ''}</span>`,
+    templateContext: { value: 'benchmark' },
+  });
+  const EventView = View.extend({
+    events: {
+      'click button': 'onClick'
+    },
+    onClick() {},
+    template: false,
+  });
+  const TimedBehavior = Behavior.extend({
+    events: {
+      'click button': 'onClick'
+    },
+    onClick() {},
+  });
+  const BehaviorView = View.extend({
+    behaviors: [TimedBehavior],
+    template: false,
+  });
+  const ChildView = View.extend({
+    tagName: 'li',
+    template: false,
+  });
+  const collectionModels = Array.from({ length: 10 }, (_, id) => ({ id }));
+
+  return new Map([
+    ['view-construct-destroy', iterations => {
+      for (let index = 0; index < iterations; index += 1) {
+        new PlainView().destroy();
+      }
+    }],
+    ['view-render-rerender', iterations => {
+      for (let index = 0; index < iterations; index += 1) {
+        const view = new RenderView();
+        view.render();
+        view.render();
+        view.destroy();
+      }
+    }],
+    ['view-delegate-undelegate', iterations => {
+      for (let index = 0; index < iterations; index += 1) {
+        const view = new EventView();
+        view._delegateViewEvents();
+        view._undelegateViewEvents();
+        view.destroy();
+      }
+    }],
+    ['behavior-construct-delegate-destroy', iterations => {
+      for (let index = 0; index < iterations; index += 1) {
+        const view = new BehaviorView();
+        view._delegateViewEvents();
+        view._undelegateViewEvents();
+        view.destroy();
+      }
+    }],
+    ['region-show-empty', iterations => {
+      const region = new Region({ el: document.createElement('div') });
+      for (let index = 0; index < iterations; index += 1) {
+        region.show(new PlainView());
+        region.empty();
+      }
+      region.destroy();
+    }],
+    ['collection-view-render-destroy', iterations => {
+      for (let index = 0; index < iterations; index += 1) {
+        const collectionView = new CollectionView({
+          childView: ChildView,
+          collection: new Backbone.Collection(collectionModels),
+        });
+        collectionView.render();
+        collectionView.destroy();
+      }
+    }],
+    ['collection-view-add-remove', iterations => {
+      const collection = new Backbone.Collection();
+      const collectionView = new CollectionView({ childView: ChildView, collection });
+      collectionView.render();
+      for (let index = 0; index < iterations; index += 1) {
+        const model = collection.add({ id: index });
+        collection.remove(model);
+      }
+      collectionView.destroy();
+    }],
+  ]);
+}
+
+async function measure() {
+  const root = resolve(getArgument('--root', '.'));
+  const contract = await readJson(getArgument('--config', 'config/performance.json'));
+  const harnessRevision = createHash('sha256')
+    .update(await readFile(new URL(import.meta.url)))
+    .digest('hex');
+  if (harnessRevision !== contract.timing.harnessRevision) {
+    throw new Error(`Timing harness revision ${harnessRevision} does not match ${contract.timing.harnessRevision}`);
+  }
+  const runtime = await loadRuntime(root);
+  const cases = createCases(runtime);
+  const results = [];
+
+  try {
+    for (const caseConfig of contract.timing.cases) {
+      const run = cases.get(caseConfig.id);
+      if (!run) {
+        throw new Error(`No timing case implements ${caseConfig.id}`);
+      }
+
+      for (let index = 0; index < contract.timing.warmupBatches; index += 1) {
+        run(caseConfig.iterationsPerSample);
+        document.body.textContent = '';
+      }
+
+      const samples = [];
+      for (let index = 0; index < contract.timing.sampleCount; index += 1) {
+        const start = process.hrtime.bigint();
+        run(caseConfig.iterationsPerSample);
+        const elapsed = process.hrtime.bigint() - start;
+        samples.push(Number(elapsed) / caseConfig.iterationsPerSample);
+        document.body.textContent = '';
+      }
+
+      results.push({
+        id: caseConfig.id,
+        iterationsPerSample: caseConfig.iterationsPerSample,
+        sampleCount: contract.timing.sampleCount,
+        ...summarize(samples),
+      });
+    }
+  } finally {
+    runtime.dom.window.close();
+  }
+
+  const report = {
+    schemaVersion: 1,
+    mode: 'hosted-reporting-only',
+    sourceCommit: sourceCommit(root),
+    harnessSchemaVersion: contract.timing.harnessSchemaVersion,
+    harnessRevision: contract.timing.harnessRevision,
+    environment: {
+      node: process.versions.node,
+      platform: process.platform,
+      architecture: process.arch,
+      runnerImage: process.env.ImageOS || null,
+      runnerImageVersion: process.env.ImageVersion || null,
+    },
+    warningThresholdPercent: contract.thresholds.hostedTimingWarningPercent,
+    cases: results,
+  };
+
+  if (args.includes('--json')) {
+    console.log(JSON.stringify(report, null, 2));
+  } else {
+    for (const result of results) {
+      console.log(`${result.id}: median ${formatTime(result.medianNanoseconds)}, p95 ${formatTime(result.p95Nanoseconds)}`);
+    }
+  }
+}
+
+async function createReport(baseFile, currentFile) {
+  const base = await readJson(baseFile);
+  const current = await readJson(currentFile);
+  const baseCases = new Map(base.cases.map(result => [result.id, result]));
+  const rows = [];
+  const warnings = [];
+
+  for (const result of current.cases) {
+    const baseResult = baseCases.get(result.id);
+    if (!baseResult) {
+      rows.push(`| ${result.id} | New | ${formatTime(result.medianNanoseconds)} | New | ${formatTime(result.p95Nanoseconds)} |`);
+      continue;
+    }
+
+    const medianChange = changePercent(baseResult.medianNanoseconds, result.medianNanoseconds);
+    const p95Change = changePercent(baseResult.p95Nanoseconds, result.p95Nanoseconds);
+    if (medianChange > current.warningThresholdPercent || p95Change > current.warningThresholdPercent) {
+      warnings.push(`${result.id} exceeded the ${current.warningThresholdPercent}% hosted warning threshold`);
+    }
+    rows.push(`| ${result.id} | ${formatTime(baseResult.medianNanoseconds)} | ${formatTime(result.medianNanoseconds)} (${formatPercent(medianChange)}) | ${formatTime(baseResult.p95Nanoseconds)} | ${formatTime(result.p95Nanoseconds)} (${formatPercent(p95Change)}) |`);
+  }
+
+  console.log([
+    '<!-- performance-timing-report -->',
+    '## Hosted timing report ⏱️',
+    '',
+    '| Case | Base median | PR median | Base p95 | PR p95 |',
+    '| --- | ---: | ---: | ---: | ---: |',
+    ...rows,
+    '',
+    warnings.length ? `Warnings: ${warnings.join('; ')}.` : 'No hosted timing warning threshold was exceeded.',
+    '',
+    'Hosted timing is reporting-only and never decides merge or release eligibility. Controlled-runner baselines and enforcement remain #127 PR B.'
+  ].join('\n'));
+}
+
+async function main() {
+  const reportIndex = args.indexOf('--report');
+  if (reportIndex === -1) {
+    await measure();
+  } else {
+    await createReport(args[reportIndex + 1], args[reportIndex + 2]);
+  }
+}
+
+main().catch(error => {
+  console.error(error);
+  process.exitCode = 1;
+});

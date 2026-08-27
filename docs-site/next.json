@@ -20,6 +20,10 @@
     "route": "next/diagnostic-catalog"
   },
   {
+    "source": "docs/performance-baselines.md",
+    "route": "next/performance-baselines"
+  },
+  {
     "source": "docs/migration-from-v4.md",
     "route": "next/migration-from-v4"
   },

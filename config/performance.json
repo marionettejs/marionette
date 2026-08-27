@@ -1,0 +1,296 @@
+{
+  "schemaVersion": 1,
+  "baseline": {
+    "sourceCommit": "31151c9cb5cb1e11d30da4332f58ca8b56cf2fe4",
+    "brotliQuality": 11,
+    "totalBrotliBytes": 49500,
+    "absoluteCeilingBytes": 51975
+  },
+  "toolchain": {
+    "releaseProfileRevision": "d8596d3759712ab56555c81091835f827be6da02",
+    "lockedDependencies": {
+      "backbone": "1.4.0",
+      "jsdom": "30.0.1",
+      "rollup": "4.63.0"
+    }
+  },
+  "thresholds": {
+    "cumulativeGrowthPercent": 5,
+    "pullRequestApprovalPercent": 1,
+    "hostedTimingWarningPercent": 10,
+    "controlledMedianRegressionPercent": 5,
+    "controlledP95RegressionPercent": 10
+  },
+  "runtimeArtifacts": [
+    {
+      "name": "Main ES module",
+      "path": "dist/marionette.js",
+      "baselineBrotliBytes": 12776
+    },
+    {
+      "name": "Main CommonJS",
+      "path": "dist/marionette.cjs",
+      "baselineBrotliBytes": 12932
+    },
+    {
+      "name": "Main UMD",
+      "path": "dist/marionette.umd.js",
+      "baselineBrotliBytes": 13197
+    },
+    {
+      "name": "Main minified UMD",
+      "path": "dist/marionette.min.js",
+      "baselineBrotliBytes": 10001,
+      "additionalShippedArtifact": true
+    },
+    {
+      "name": "Backbone shim ES module",
+      "path": "dist/backbone.js",
+      "baselineBrotliBytes": 121
+    },
+    {
+      "name": "Backbone shim CommonJS",
+      "path": "dist/backbone.cjs",
+      "baselineBrotliBytes": 135
+    },
+    {
+      "name": "jQuery DomApi ES module",
+      "path": "dist/jquery-dom-api.js",
+      "baselineBrotliBytes": 169
+    },
+    {
+      "name": "jQuery DomApi CommonJS",
+      "path": "dist/jquery-dom-api.cjs",
+      "baselineBrotliBytes": 169
+    }
+  ],
+  "productionGraphs": [
+    {
+      "subpath": ".",
+      "input": "index.js",
+      "output": "dist/marionette.js",
+      "baselineModules": [
+        "config/dom.js",
+        "config/event-delegator.js",
+        "config/features.js",
+        "config/renderer.js",
+        "index.js",
+        "mixins/behaviors.js",
+        "mixins/common.js",
+        "mixins/delegate-entity-events.js",
+        "mixins/destroy.js",
+        "mixins/events.js",
+        "mixins/radio.js",
+        "mixins/requests.js",
+        "mixins/template-render.js",
+        "mixins/ui.js",
+        "mixins/view-events.js",
+        "mixins/view.js",
+        "modules/application.js",
+        "modules/behavior.js",
+        "modules/child-view-container.js",
+        "modules/collection-view.js",
+        "modules/common/bind-events.js",
+        "modules/common/bind-requests.js",
+        "modules/common/get-option.js",
+        "modules/common/merge-options.js",
+        "modules/common/monitor-view-events.js",
+        "modules/common/normalize-methods.js",
+        "modules/common/radio.js",
+        "modules/common/trigger-method.js",
+        "modules/common/view.js",
+        "modules/object.js",
+        "modules/radio.js",
+        "modules/view-region.js",
+        "utils/build-event-args.js",
+        "utils/call-handler.js",
+        "utils/error.js",
+        "utils/extend.js",
+        "utils/make-callback.js",
+        "utils/once-wrap.js",
+        "utils/proxy.js",
+        "version.js"
+      ],
+      "baselineExternalImports": [
+        "underscore"
+      ]
+    },
+    {
+      "subpath": "./backbone",
+      "input": "backbone.js",
+      "output": "dist/backbone.js",
+      "baselineModules": [
+        "backbone.js"
+      ],
+      "baselineExternalImports": [
+        "backbone",
+        "marionette",
+        "underscore"
+      ]
+    },
+    {
+      "subpath": "./jquery-dom-api",
+      "input": "jquery-dom-api.js",
+      "output": "dist/jquery-dom-api.js",
+      "baselineModules": [
+        "jquery-dom-api.js"
+      ],
+      "baselineExternalImports": [
+        "jquery"
+      ]
+    }
+  ],
+  "forbiddenProductionModulePrefixes": [
+    ".github/",
+    "benchmarks/",
+    "docs/",
+    "docs-site/",
+    "node_modules/",
+    "test/",
+    "config/diagnostics/",
+    "config/docs/",
+    "config/release/"
+  ],
+  "forbiddenProductionModules": [
+    "config/bundle-size.mjs",
+    "config/performance.json",
+    "config/release-profile.json",
+    "config/release-promotion.json"
+  ],
+  "deterministicResources": {
+    "attachDetachCycles": 100,
+    "mountDestroyCycles": 1000,
+    "instanceShapes": {
+      "View": [
+        "_areViewEventsMonitored",
+        "_behaviors",
+        "_childViewEvents",
+        "_childViewTriggers",
+        "_domEvents",
+        "_eventPrefix",
+        "_isAttached",
+        "_isRendered",
+        "_rdEvents",
+        "_regions",
+        "cid",
+        "el",
+        "options",
+        "regions"
+      ],
+      "Region": [
+        "_initEl",
+        "cid",
+        "el",
+        "options"
+      ],
+      "Behavior": [
+        "_domEvents",
+        "_rdListenId",
+        "_rdListeningTo",
+        "cid",
+        "el",
+        "options",
+        "ui",
+        "view"
+      ],
+      "CollectionView": [
+        "_areViewEventsMonitored",
+        "_behaviors",
+        "_childViewEvents",
+        "_childViewTriggers",
+        "_children",
+        "_collectionEvents",
+        "_domEvents",
+        "_emptyRegion",
+        "_eventPrefix",
+        "_isAttached",
+        "_rdEvents",
+        "childView",
+        "children",
+        "cid",
+        "collection",
+        "el",
+        "options"
+      ]
+    },
+    "allocationShapes": {
+      "View": {
+        "emptyArrays": [
+          "_behaviors",
+          "_domEvents"
+        ],
+        "emptyObjects": [
+          "_regions",
+          "regions"
+        ],
+        "marionetteEventRegistrations": 6
+      },
+      "Behavior": {
+        "emptyArrays": [
+          "_domEvents"
+        ],
+        "emptyObjects": [
+          "ui"
+        ],
+        "listeningContainers": 1
+      },
+      "CollectionView": {
+        "emptyArrays": [
+          "_behaviors",
+          "_domEvents"
+        ],
+        "emptyChildViewContainers": [
+          "_children",
+          "children"
+        ],
+        "eagerEmptyRegion": true,
+        "marionetteEventRegistrations": 6
+      }
+    },
+    "retentionShapes": {
+      "destroyedBehaviorRetainsHostReference": true,
+      "destroyedHostRetainsBehaviorCount": 1,
+      "externalBackboneRegistrationsAfterDestroy": 0,
+      "managedDomChildrenAfterEmpty": 0
+    }
+  },
+  "timing": {
+    "harnessSchemaVersion": 1,
+    "harnessRevision": "069574aac6865e83c9d7abb99ecadcd463323e6a5787b5db8d1a590ec9a0226e",
+    "sampleCount": 20,
+    "warmupBatches": 5,
+    "cases": [
+      {
+        "id": "view-construct-destroy",
+        "iterationsPerSample": 200
+      },
+      {
+        "id": "view-render-rerender",
+        "iterationsPerSample": 100
+      },
+      {
+        "id": "view-delegate-undelegate",
+        "iterationsPerSample": 100
+      },
+      {
+        "id": "behavior-construct-delegate-destroy",
+        "iterationsPerSample": 100
+      },
+      {
+        "id": "region-show-empty",
+        "iterationsPerSample": 50
+      },
+      {
+        "id": "collection-view-render-destroy",
+        "iterationsPerSample": 10
+      },
+      {
+        "id": "collection-view-add-remove",
+        "iterationsPerSample": 20
+      }
+    ],
+    "controlledRunner": {
+      "status": "pending-pr-b"
+    }
+  }
+}
