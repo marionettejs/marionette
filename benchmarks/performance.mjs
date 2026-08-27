@@ -212,7 +212,6 @@ function createCases({ Backbone, Marionette }) {
 export async function measure({
   root = '.',
   configPath = 'config/performance.json',
-  caseFactory = createCases,
   dependencyRoot = root,
 } = {}) {
   const resolvedRoot = resolve(root);
@@ -223,7 +222,7 @@ export async function measure({
   const results = [];
 
   try {
-    const cases = caseFactory(runtime);
+    const cases = createCases(runtime);
     for (const caseConfig of contract.timing.cases) {
       const run = cases.get(caseConfig.id);
       if (!run) {
