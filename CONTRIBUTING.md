@@ -19,6 +19,7 @@ and must state its production runtime-cost boundary.
 
 ```sh
 npm run check:release-profile
+npm run check:release-promotion
 npm ci
 npm test
 npm run lint:ci

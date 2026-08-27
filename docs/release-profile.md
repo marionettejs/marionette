@@ -79,3 +79,10 @@ test suite before merge.
 
 Documentation publication is defined separately and must not silently change the
 source, host, or browser pins.
+
+Package publication uses the separate
+[immutable release-promotion contract](release-promotion.md). That workflow records
+this profile's Git blob revision and SHA-512 in the verified artifact. Changing the
+profile after a candidate is built requires rebuilding and rerunning the complete
+release evidence; publication jobs reject an artifact whose recorded profile differs
+from the checked-out source commit.
