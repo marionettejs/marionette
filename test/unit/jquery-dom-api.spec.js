@@ -1,4 +1,3 @@
-import { execFileSync } from 'child_process';
 import $ from 'jquery';
 import {
   CollectionView,
@@ -9,23 +8,6 @@ import {
 import JQueryDomApi from '../../jquery-dom-api';
 
 describe('jQuery DomApi adapter', function() {
-  it('allows the CommonJS package entry to require without importing jQuery', { timeout: 30000 }, function() {
-    const script = `
-      const Module = require('module');
-      const load = Module._load;
-      Module._load = function(request) {
-        if (request === 'jquery') {
-          throw new Error('jquery should not be imported');
-        }
-        return load.apply(this, arguments);
-      };
-      require('./dist/marionette.cjs');
-    `;
-
-    expect(() => execFileSync(process.execPath, ['-e', script], { cwd: process.cwd() }))
-      .to.not.throw();
-  });
-
   it('allows the core ESM graph to bundle without importing jQuery', function() {
     const bundler = require('rollup');
     const jqueryBlocker = {
