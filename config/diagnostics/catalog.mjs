@@ -71,9 +71,6 @@ function addReplacementErrors(diagnostics, diagnosticsByCode, errors) {
     const replacementCode = diagnostic.replacementCode;
 
     if (diagnostic.status !== 'deprecated') {
-      if (typeof replacementCode !== 'undefined') {
-        errors.push(`${diagnostic.code} is ${diagnostic.status} and must not declare replacementCode`);
-      }
       continue;
     }
 

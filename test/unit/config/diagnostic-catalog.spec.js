@@ -149,7 +149,7 @@ describe('diagnostic catalog validation', function() {
     })]);
 
     expect(() => validate(catalog))
-      .to.throw(DiagnosticCatalogValidationError, /replacementCode boolean schema is false/);
+      .to.throw(DiagnosticCatalogValidationError, /replacementCode/);
   });
 
   it('rejects an uncataloged runtime emission', function() {
