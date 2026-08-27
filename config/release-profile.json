@@ -31,5 +31,38 @@
       "platform": "win32",
       "architecture": "x64"
     }
-  ]
+  ],
+  "browsers": {
+    "playwright": {
+      "package": "@playwright/test",
+      "version": "1.62.1",
+      "browserBuilds": [
+        {
+          "name": "chromium",
+          "version": "151.0.7922.34",
+          "revision": "1234"
+        },
+        {
+          "name": "firefox",
+          "version": "153.0",
+          "revision": "1538"
+        },
+        {
+          "name": "webkit",
+          "version": "26.5",
+          "revision": "2336"
+        }
+      ]
+    },
+    "transpilationTargets": [
+      "chrome 149",
+      "chrome 148",
+      "edge 149",
+      "edge 148",
+      "firefox 151",
+      "firefox 150",
+      "safari 26.4",
+      "safari 26.3"
+    ]
+  }
 }
