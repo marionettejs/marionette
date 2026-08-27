@@ -72,10 +72,18 @@ if (evidence.schemaVersion !== 1) {
   throw new Error(`Unsupported evidence schemaVersion ${evidence.schemaVersion}.`);
 }
 
-const checksum = (await readFile(resolve(artifactDir, 'release-evidence.sha512'), 'utf8')).trim();
+function artifactPath(fileName) {
+  if (typeof fileName !== 'string' || !fileName || fileName === '.' || fileName === '..' ||
+      fileName.includes('/') || fileName.includes('\\')) {
+    throw new Error(`Release artifact must use a contained file name: ${fileName}`);
+  }
+  return resolve(artifactDir, fileName);
+}
+
+const checksum = (await readFile(artifactPath('release-evidence.sha512'), 'utf8')).trim();
 assertEqual(checksum, `${sha512(evidenceBytes)}  release-evidence.json`, 'evidence checksum');
 
-const tarballPath = resolve(artifactDir, evidence.package.tarball.file);
+const tarballPath = artifactPath(evidence.package.tarball.file);
 const tarball = await readFile(tarballPath);
 assertEqual(tarball.length, evidence.package.tarball.size, 'tarball size');
 assertEqual(sha256(tarball), evidence.package.tarball.sha256, 'tarball SHA-256');
@@ -86,7 +94,7 @@ assertEqual(
   'tarball npm integrity',
 );
 
-const packageManifestPath = resolve(artifactDir, evidence.reports.packageManifest.file);
+const packageManifestPath = artifactPath(evidence.reports.packageManifest.file);
 const packageManifestBytes = await readFile(packageManifestPath);
 const packageManifest = JSON.parse(packageManifestBytes);
 assertEqual(sha512(packageManifestBytes), evidence.reports.packageManifest.sha512, 'package manifest SHA-512');
@@ -96,7 +104,7 @@ assertEqual(packageManifest.filename, evidence.package.tarball.file, 'package ma
 assertEqual(packageManifest.integrity, evidence.package.tarball.integrity, 'package manifest integrity');
 assertEqual(packageManifest.shasum, evidence.package.tarball.shasum, 'package manifest shasum');
 
-const bundleReportPath = resolve(artifactDir, evidence.reports.bundle.file);
+const bundleReportPath = artifactPath(evidence.reports.bundle.file);
 const bundleReportBytes = await readFile(bundleReportPath);
 JSON.parse(bundleReportBytes);
 assertEqual(sha512(bundleReportBytes), evidence.reports.bundle.sha512, 'bundle report SHA-512');

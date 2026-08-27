@@ -54,7 +54,8 @@ if (!['dry-run', 'stage', 'publish'].includes(mode)) {
 }
 
 const artifactDir = resolve(root, readArgument('--artifact-dir', 'release'));
-const evidence = JSON.parse(await readFile(resolve(artifactDir, 'release-evidence.json'), 'utf8'));
+const evidenceBytes = await readFile(resolve(artifactDir, 'release-evidence.json'));
+const evidence = JSON.parse(evidenceBytes);
 const policy = JSON.parse(await readFile(resolve(root, 'config/release-promotion.json'), 'utf8'));
 const assetNames = [
   evidence.package.tarball.file,
@@ -63,6 +64,39 @@ const assetNames = [
   evidence.reports.packageManifest.file,
   evidence.reports.bundle.file,
 ];
+
+function artifactPath(fileName) {
+  if (typeof fileName !== 'string' || !fileName || fileName === '.' || fileName === '..' ||
+      fileName.includes('/') || fileName.includes('\\')) {
+    throw new Error(`Release artifact must use a contained file name: ${fileName}`);
+  }
+  return resolve(artifactDir, fileName);
+}
+
+const assetPaths = assetNames.map(artifactPath);
+if (new Set(assetNames).size !== assetNames.length) {
+  throw new Error('Release artifact contains duplicate asset names.');
+}
+
+async function verifyLocalAssets() {
+  const checksum = (await readFile(artifactPath('release-evidence.sha512'), 'utf8')).trim();
+  if (checksum !== `${sha512(evidenceBytes)}  release-evidence.json`) {
+    throw new Error('Release evidence checksum does not match.');
+  }
+  const expectedHashes = new Map([
+    [evidence.package.tarball.file, evidence.package.tarball.sha512],
+    [evidence.reports.packageManifest.file, evidence.reports.packageManifest.sha512],
+    [evidence.reports.bundle.file, evidence.reports.bundle.sha512],
+  ]);
+  for (const [assetName, expectedHash] of expectedHashes) {
+    const bytes = await readFile(artifactPath(assetName));
+    if (sha512(bytes) !== expectedHash) {
+      throw new Error(`Local release asset differs from the verified evidence: ${assetName}`);
+    }
+  }
+}
+
+await verifyLocalAssets();
 
 if (mode === 'dry-run') {
   console.log(JSON.stringify({
@@ -114,7 +148,7 @@ async function verifyRelease(release) {
       throw new Error('Downloaded release assets do not match the expected manifest.');
     }
     for (const assetName of assetNames) {
-      const local = await readFile(resolve(artifactDir, assetName));
+      const local = await readFile(artifactPath(assetName));
       const remote = await readFile(resolve(downloadDir, assetName));
       if (sha512(local) !== sha512(remote)) {
         throw new Error(`Release asset differs from the verified artifact: ${assetName}`);
@@ -160,7 +194,7 @@ if (mode === 'stage') {
   if (evidence.release.prerelease) {
     createArgs.push('--prerelease');
   }
-  createArgs.push(...assetNames.map(assetName => resolve(artifactDir, assetName)));
+  createArgs.push(...assetPaths);
   run(createArgs);
   console.log(`Staged draft release ${evidence.release.tag}.`);
   process.exit(0);

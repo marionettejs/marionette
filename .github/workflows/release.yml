@@ -262,7 +262,12 @@ jobs:
 
   publication-targets:
     name: Authorize empty publication targets
-    if: needs.preflight.outputs.mode == 'publish'
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      github.repository == 'marionettejs/marionette' &&
+      github.ref == 'refs/heads/master' &&
+      inputs.publish == true &&
+      needs.preflight.outputs.mode == 'publish'
     needs: [preflight, build, package-smoke]
     runs-on: ubuntu-24.04
 
@@ -299,7 +304,12 @@ jobs:
 
   publish:
     name: Publish verified tarball and matching release
-    if: needs.preflight.outputs.mode == 'publish'
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      github.repository == 'marionettejs/marionette' &&
+      github.ref == 'refs/heads/master' &&
+      inputs.publish == true &&
+      needs.preflight.outputs.mode == 'publish'
     needs: [preflight, build, package-smoke, publication-targets]
     environment: stable-release
     runs-on: ubuntu-24.04

@@ -12,6 +12,9 @@ cross-platform package verification, npm dry run, and GitHub release plan withou
 creating an npm version, tag, or release. Stable publication remains disabled until
 the final evidence in [issue #147](https://github.com/marionettejs/marionette/issues/147)
 authorizes changing `publicationEnabled` to `true` in a reviewed commit.
+Pull-request output cannot activate the write-capable jobs: those jobs also require a
+manual dispatch from `master` in this repository with the `publish` input enabled,
+followed by approval of the protected `stable-release` environment.
 
 Committed `dist/` files remain generated, CI-verified projections. The release job
 builds them once, verifies that the clean checkout is unchanged, and runs
@@ -51,8 +54,8 @@ dry run:
 
 The current `5.0.0-alpha.2` npm version and tag already exist from an older commit.
 Dry-run target inspection reports that collision as expected. A real publication
-request refuses any occupied version, tag, or release before requesting write
-permissions.
+request refuses any target that conflicts with the verified artifact before requesting
+write permissions; exact matching targets enter the documented recovery path.
 
 ## Stable publication authorization
 
@@ -80,9 +83,10 @@ GitHub publication after those assets are downloaded and reverified.
 
 The write-enabled job first stages a draft GitHub release with the verified assets,
 then publishes the exact tarball through npm OIDC trusted publishing, verifies the
-registry integrity, and finally publishes the draft release and matching tag. npm
-automatically creates provenance for a public package published from this public
-GitHub repository through trusted publishing.
+registry integrity with bounded propagation retries, reverifies the local and staged
+asset bytes, and finally publishes the draft release and matching tag. npm automatically
+creates provenance for a public package published from this public GitHub repository
+through trusted publishing.
 
 ## Recovery and rollback
 

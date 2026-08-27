@@ -53,22 +53,37 @@ if (!npmExecPath) {
   throw new Error('Run release:targets through npm so the npm CLI can be located.');
 }
 
-const npmResult = run(process.execPath, [
-  npmExecPath,
-  'view',
-  `${evidence.package.name}@${evidence.package.version}`,
-  'dist.integrity',
-  '--json',
-]);
+const npmAttempts = mode === 'verify-npm' ? 12 : 1;
 let npmState;
-if (npmResult.status === 0) {
-  const publishedIntegrity = JSON.parse(npmResult.stdout);
-  npmState = publishedIntegrity === evidence.package.tarball.integrity ? 'exact' : 'conflict';
-} else if (/E404|404 Not Found/.test(npmResult.stderr)) {
-  npmState = 'available';
-} else {
-  process.stderr.write(npmResult.stderr);
-  throw new Error(`npm view exited with status ${npmResult.status}.`);
+let npmError;
+for (let attempt = 1; attempt <= npmAttempts; attempt += 1) {
+  const npmResult = run(process.execPath, [
+    npmExecPath,
+    'view',
+    `${evidence.package.name}@${evidence.package.version}`,
+    'dist.integrity',
+    '--json',
+  ]);
+  npmError = undefined;
+  if (npmResult.status === 0) {
+    const publishedIntegrity = JSON.parse(npmResult.stdout);
+    npmState = publishedIntegrity === evidence.package.tarball.integrity ? 'exact' : 'conflict';
+  } else if (/E404|404 Not Found/.test(npmResult.stderr)) {
+    npmState = 'available';
+  } else {
+    npmState = 'unavailable';
+    npmError = npmResult;
+  }
+
+  if (npmState === 'exact' || npmState === 'conflict' || attempt === npmAttempts) {
+    break;
+  }
+  console.warn(`npm integrity is ${npmState}; retrying in 5 seconds (${attempt}/${npmAttempts}).`);
+  await new Promise(resolveDelay => setTimeout(resolveDelay, 5000));
+}
+if (npmError) {
+  process.stderr.write(npmError.stderr);
+  throw new Error(`npm view exited with status ${npmError.status} after ${npmAttempts} attempts.`);
 }
 
 const repositoryUrl = `https://github.com/${evidence.source.repository}.git`;
