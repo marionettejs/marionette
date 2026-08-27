@@ -43,11 +43,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}
         run: |
           set -euo pipefail
           if [ -f performance-timing-report/performance-timing-report.md ]; then
             printf '\n' >> bundle-size-report.md
             cat performance-timing-report/performance-timing-report.md >> bundle-size-report.md
+          else
+            printf '\n## Hosted timing unavailable ⚠️\n\n' >> bundle-size-report.md
+            printf 'No hosted timing artifact was produced for `%s`; inspect the [CI run](%s).\n' \
+              "${HEAD_SHA}" "${RUN_URL}" >> bundle-size-report.md
           fi
           pr_number="$(jq -r '.workflow_run.pull_requests[0].number // empty' "${GITHUB_EVENT_PATH}")"
           if [[ ! "${pr_number}" =~ ^[0-9]+$ ]]; then
