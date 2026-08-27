@@ -14,15 +14,14 @@ jobs:
       ${{
         (
           github.event.issue.pull_request &&
+          github.event.comment.user.type == 'User' &&
           contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association) &&
-          (
-            github.event.action != 'created' ||
-            contains(github.event.comment.body, '<!-- marionette-performance-growth-approval:v1 -->')
-          )
+          contains(github.event.comment.body, '<!-- marionette-performance-growth-approval:v1 -->')
         ) ||
         (
           !github.event.issue.pull_request &&
           github.event.issue.number == 127 &&
+          github.event.comment.user.type == 'User' &&
           contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association) &&
           github.event.action != 'created'
         )
@@ -79,11 +78,14 @@ jobs:
               fi
               if jq -e \
                   --arg evidence_url "${EVENT_COMMENT_URL}" \
-                  --arg marker '<!-- marionette-performance-growth-approval:v1 -->' \
                   'add // [] | any(.[];
                     . as $comment |
-                    (($comment.body // "") | contains($marker)) and
-                    (($comment.body // "") | contains($evidence_url)) and
+                    (($comment.body // "") |
+                      capture("(?s)^<!-- marionette-performance-growth-approval:v1 -->\\n```json\\n(?<record>.+)\\n```\\n?$")? |
+                      .record | fromjson?) as $approval |
+                    (($approval.evidenceUrls? | type) == "array") and
+                    ($approval.evidenceUrls | index($evidence_url) != null) and
+                    ($comment.user.type == "User") and
                     (["OWNER", "MEMBER", "COLLABORATOR"] |
                       index($comment.author_association) != null)
                   )' \
