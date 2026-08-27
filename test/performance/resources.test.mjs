@@ -275,6 +275,27 @@ describe('deterministic resource comparison', () => {
     await assert.rejects(
       measureResources({ root: '/missing', attachDetachCycles: 1, mountDestroyCycles: 1 })
     );
+    const lockedDocumentDescriptor = {
+      configurable: true,
+      enumerable: true,
+      value: {},
+      writable: false,
+    };
+    Object.defineProperty(globalThis, 'document', lockedDocumentDescriptor);
+    await assert.rejects(
+      measureResources({ root, attachDetachCycles: 1, mountDestroyCycles: 1 }),
+      /Cannot assign to read only property 'document'/
+    );
+    assert.deepEqual(Object.getOwnPropertyDescriptor(globalThis, 'window'), windowDescriptor);
+    assert.deepEqual(
+      Object.getOwnPropertyDescriptor(globalThis, 'document'),
+      lockedDocumentDescriptor
+    );
+    if (documentDescriptor) {
+      Object.defineProperty(globalThis, 'document', documentDescriptor);
+    } else {
+      delete globalThis.document;
+    }
     const measurement = await measureResources({
       root,
       attachDetachCycles: 1,

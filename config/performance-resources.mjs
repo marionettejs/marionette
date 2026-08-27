@@ -104,13 +104,13 @@ async function loadRuntime(root) {
     const dom = new JSDOM('<!doctype html><html><body></body></html>');
     const previousWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
     const previousDocument = Object.getOwnPropertyDescriptor(globalThis, 'document');
-    globalThis.window = dom.window;
-    globalThis.document = dom.window.document;
     cleanup = () => {
       restoreGlobal('window', previousWindow);
       restoreGlobal('document', previousDocument);
       dom.window.close();
     };
+    globalThis.window = dom.window;
+    globalThis.document = dom.window.document;
 
     const backboneUrl = pathToFileURL(resolve(root, 'dist/backbone.js'));
     const runtimeUrl = pathToFileURL(resolve(root, 'dist/marionette.js'));
