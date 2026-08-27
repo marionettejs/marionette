@@ -74,7 +74,7 @@ if (evidence.schemaVersion !== 1) {
 
 function artifactPath(fileName) {
   if (typeof fileName !== 'string' || !fileName || fileName === '.' || fileName === '..' ||
-      fileName.includes('/') || fileName.includes('\\')) {
+      fileName.includes('/') || fileName.includes('\\') || fileName.includes(':')) {
     throw new Error(`Release artifact must use a contained file name: ${fileName}`);
   }
   return resolve(artifactDir, fileName);

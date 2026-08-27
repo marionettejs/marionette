@@ -67,7 +67,7 @@ const assetNames = [
 
 function artifactPath(fileName) {
   if (typeof fileName !== 'string' || !fileName || fileName === '.' || fileName === '..' ||
-      fileName.includes('/') || fileName.includes('\\')) {
+      fileName.includes('/') || fileName.includes('\\') || fileName.includes(':')) {
     throw new Error(`Release artifact must use a contained file name: ${fileName}`);
   }
   return resolve(artifactDir, fileName);
@@ -270,6 +270,6 @@ if (evidence.release.prerelease) {
 } else {
   editArgs.push('--latest');
 }
-run(editArgs);
 ensureTag();
+run(editArgs);
 console.log(`Published GitHub release ${evidence.release.tag}.`);
