@@ -1,0 +1,23 @@
+.github/workflows/ci.yml
+  s_d6429951fb9231::t_0778be8c0068c5 119
+docs/performance-baselines.md
+  s_d6429951fb9231::t_0778be8c0068c5 144-148
+.github/workflows/performance-approval-refresh.yml
+  s_d6429951fb9231::t_0778be8c0068c5 26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "15247ff4ca917d0e51f04b95b11bf2e710310300",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
