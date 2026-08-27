@@ -187,6 +187,8 @@ describe('Phase 0 deterministic resource baselines', function() {
         .to.equal(shapes.frameworkListeningToAfterDestroy);
       expect(backboneRegistrations(collection)).to.equal(collectionBaseline);
       expect(collectionView.el.isConnected).to.equal(false);
+      expect(Number(collectionView.el.isConnected))
+        .to.equal(shapes.managedRootsConnectedAfterDestroy);
       expect(collectionView.el.childNodes).to.have.lengthOf(resources.retentionShapes.managedDomChildrenAfterEmpty);
 
       const behaviorView = new BehaviorView({ model });
@@ -214,6 +216,8 @@ describe('Phase 0 deterministic resource baselines', function() {
         .to.equal(shapes.frameworkListeningToAfterDestroy);
       expect(backboneRegistrations(model)).to.equal(modelBaseline);
       expect(behaviorView.el.isConnected).to.equal(false);
+      expect(Number(behaviorView.el.isConnected))
+        .to.equal(shapes.managedRootsConnectedAfterDestroy);
       expect(behavior.view === behaviorView)
         .to.equal(resources.retentionShapes.destroyedBehaviorRetainsHostReference);
       expect(behaviorView._behaviors).to.have.lengthOf(
@@ -226,6 +230,8 @@ describe('Phase 0 deterministic resource baselines', function() {
       region.destroy();
       expect(region.isDestroyed()).to.equal(true);
       expect(region._parentView).to.equal(undefined);
+      expect(Number(region._parentView != null))
+        .to.equal(shapes.regionParentReferencesAfterDestroy);
       expect(regionEl.isConnected).to.equal(true);
       expect(regionEl.childNodes).to.have.lengthOf(resources.retentionShapes.managedDomChildrenAfterEmpty);
       regionEl.remove();

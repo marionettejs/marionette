@@ -149,21 +149,40 @@ jobs:
       - name: Enforce exact base performance contract
         id: base_authority
         continue-on-error: true
+        env:
+          PULL_REQUEST_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           set -euo pipefail
           base_contract='bundle-size-base/config/performance.json'
           authority_script='bundle-size-base/config/bundle-size.mjs'
+          # Each exact-SHA fallback becomes permanently unreachable after its reviewed bootstrap merges.
           if [ ! -f "${base_contract}" ]; then
+            if [ "${PULL_REQUEST_BASE_SHA}" != '31151c9cb5cb1e11d30da4332f58ca8b56cf2fe4' ]; then
+              echo 'Base has no performance contract and is not the reviewed performance bootstrap base.' >&2
+              exit 1
+            fi
             base_contract='config/performance.json'
             authority_script='config/bundle-size.mjs'
-            echo 'Base has no performance contract; using the current contract for this bootstrap PR.'
+            echo 'Using the current contract for the performance bootstrap from exact base 31151c9.'
+          elif [ ! -f 'bundle-size-base/config/performance-resources.mjs' ]; then
+            if [ "${PULL_REQUEST_BASE_SHA}" != '25f3739376d391df396885f3ea1b88fa1ea7a0f0' ]; then
+              echo 'Base has no resource comparator and is not the reviewed bootstrap base.' >&2
+              exit 1
+            fi
+            authority_script='config/bundle-size.mjs'
+            echo 'Using the current validator for the resource bootstrap from exact base 25f3739.'
           fi
           node "${authority_script}" --root bundle-size-base --config "${base_contract}" --json --no-enforce > bundle-size-base.json
           authority_status=0
           node "${authority_script}" --config "${base_contract}" --json > bundle-size-authority.json || authority_status=$?
-          node config/bundle-size.mjs --report bundle-size-base.json bundle-size-authority.json > bundle-size-report.md
+          candidate_status=0
+          node "${authority_script}" --validate-resource-contract "${base_contract}" config/performance.json || candidate_status=$?
+          report_status=0
+          node "${authority_script}" --report bundle-size-base.json bundle-size-authority.json > bundle-size-report.md || report_status=$?
           cat bundle-size-report.md >> "${GITHUB_STEP_SUMMARY}"
-          exit "${authority_status}"
+          if [ "${authority_status}" -ne 0 ] || [ "${candidate_status}" -ne 0 ] || [ "${report_status}" -ne 0 ]; then
+            exit 1
+          fi
 
       - name: Upload bundle-size report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

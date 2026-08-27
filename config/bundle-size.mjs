@@ -6,6 +6,12 @@ import { pathToFileURL } from 'node:url';
 import { promisify } from 'node:util';
 import { brotliCompress, constants } from 'node:zlib';
 import { rollup } from 'rollup';
+import {
+  compareResources,
+  measureResources,
+  resourceReportRows,
+  validateCandidateResourceContract,
+} from './performance-resources.mjs';
 
 const compress = promisify(brotliCompress);
 
@@ -318,7 +324,11 @@ async function measureArtifact(root, quality, artifact) {
   }
 }
 
-export async function measure({ root = '.', configPath = 'config/performance.json', checkToolchain = true } = {}) {
+export async function measure({
+  root = '.',
+  configPath = 'config/performance.json',
+  checkToolchain = true,
+} = {}) {
   const resolvedRoot = resolve(root);
   const resolvedConfigPath = resolve(configPath);
   const contract = await readJson(resolvedConfigPath);
@@ -392,6 +402,19 @@ export async function measure({ root = '.', configPath = 'config/performance.jso
     }
   }
 
+  let resources = null;
+  if (contract.deterministicResources) {
+    try {
+      resources = await measureResources({
+        root: resolvedRoot,
+        attachDetachCycles: contract.deterministicResources.attachDetachCycles,
+        mountDestroyCycles: contract.deterministicResources.mountDestroyCycles,
+      });
+    } catch (error) {
+      violations.push(`Unable to measure deterministic resources: ${error.message}`);
+    }
+  }
+
   return {
     schemaVersion: 1,
     contractPath: normalizePath(relative(resolvedRoot, resolvedConfigPath)),
@@ -405,6 +428,8 @@ export async function measure({ root = '.', configPath = 'config/performance.jso
       absoluteCeiling: contract.baseline.absoluteCeilingBytes,
     },
     graphs,
+    resourcesRequired: Boolean(contract.deterministicResources),
+    resources,
     violations,
   };
 }
@@ -426,6 +451,32 @@ function graphChange(baseGraph, currentGraph) {
   if (externalAdded.length) { changes.push(`external +${externalAdded.join(', +')}`); }
   if (externalRemoved.length) { changes.push(`external -${externalRemoved.join(', -')}`); }
   return changes.join('; ') || 'No change';
+}
+
+function compareResourceReports(base, current) {
+  if (!base.resources && !current.resources) {
+    if (base.resourcesRequired || current.resourcesRequired) {
+      return {
+        changes: [],
+        violations: ['Required resource measurements are missing from both reports'],
+      };
+    }
+    return { changes: [], violations: [], unavailable: true };
+  }
+  if (!base.resources) {
+    return {
+      changes: [],
+      violations: ['Exact base resource measurement is missing'],
+    };
+  }
+  if (!current.resources) {
+    return {
+      changes: [],
+      violations: ['Pull request resource measurement is missing'],
+    };
+  }
+
+  return compareResources(base.resources, current.resources);
 }
 
 export async function createReport(baseFile, currentFile) {
@@ -455,6 +506,19 @@ export async function createReport(baseFile, currentFile) {
   });
   const cumulativeGrowth = formatChange(base.cumulative.size, current.cumulative.size);
   const phase0Growth = formatChange(current.cumulative.baselineSize, current.cumulative.size);
+  const resourceComparison = compareResourceReports(base, current);
+  const resourceSection = resourceComparison.unavailable ? [] : [
+    '',
+    '## Deterministic allocation and retention',
+    '',
+    '| Structural proxy | Base | PR | Result |',
+    '| --- | --- | --- | --- |',
+    ...resourceReportRows(resourceComparison),
+    '',
+    resourceComparison.violations.length ?
+      `Resource regressions: ${resourceComparison.violations.join('; ')}` :
+      'No eager allocation or retained-resource proxy increased from the exact pull request base.',
+  ];
 
   return [
     '<!-- bundle-size-report -->',
@@ -473,8 +537,9 @@ export async function createReport(baseFile, currentFile) {
     current.violations.length ?
       `Contract violations: ${current.violations.join('; ')}` :
       'All deterministic size and production-graph checks passed against the base authority contract.',
+    ...resourceSection,
     '',
-    'The exact-head approval protocol for growth above 1% and new subpaths is intentionally deferred to #127 PR B; this report does not treat that threshold as an enforceable approval yet.'
+    'The exact-head approval protocol for growth above 1% and new subpaths remains a separate #127 follow-up; this report does not treat that threshold as enforceable approval yet.'
   ].join('\n');
 }
 
@@ -491,12 +556,38 @@ function writeMeasurement(result, json) {
   for (const graph of result.graphs) {
     console.log(`${graph.subpath}: ${graph.status === 'measured' ? `${graph.modules.length} internal modules, ${graph.externalImports.length} external imports` : graph.error}`);
   }
+  if (result.resources) {
+    console.log(`Resources: ${Object.keys(result.resources.allocations).length} unused instance shapes; ${result.resources.workload.attachDetachCycles} detach cycles; ${result.resources.workload.mountDestroyCycles} mount/destroy cycles`);
+  }
 }
 
 export async function main(args = process.argv.slice(2)) {
+  const candidateIndex = args.indexOf('--validate-resource-contract');
+  if (candidateIndex !== -1) {
+    const [authority, candidate] = await Promise.all([
+      readJson(args[candidateIndex + 1]),
+      readJson(args[candidateIndex + 2]),
+    ]);
+    const violations = validateCandidateResourceContract(authority, candidate);
+    for (const violation of violations) {
+      console.error(`Performance contract violation: ${violation}`);
+    }
+    if (violations.length) {
+      process.exitCode = 1;
+    }
+    return;
+  }
+
   const reportIndex = args.indexOf('--report');
   if (reportIndex !== -1) {
-    console.log(await createReport(args[reportIndex + 1], args[reportIndex + 2]));
+    const baseFile = args[reportIndex + 1];
+    const currentFile = args[reportIndex + 2];
+    console.log(await createReport(baseFile, currentFile));
+    const [base, current] = await Promise.all([readJson(baseFile), readJson(currentFile)]);
+    const comparison = compareResourceReports(base, current);
+    if (comparison.violations.length) {
+      process.exitCode = 1;
+    }
     return;
   }
 
