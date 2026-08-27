@@ -177,6 +177,7 @@
   ],
   "forbiddenProductionModules": [
     "config/bundle-size.mjs",
+    "config/performance-resources.mjs",
     "config/performance.json",
     "config/release-profile.json",
     "config/release-promotion.json"

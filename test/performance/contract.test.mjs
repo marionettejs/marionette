@@ -213,5 +213,8 @@ describe('performance contract validation', () => {
     const contract = JSON.parse(await readFile(new URL('../../config/performance.json', import.meta.url)));
 
     assert.deepEqual(await validateToolchain(contract, root), []);
+    assert.ok(
+      contract.forbiddenProductionModules.includes('config/performance-resources.mjs')
+    );
   });
 });
