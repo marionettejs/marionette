@@ -84,6 +84,7 @@ jobs:
                   'add // [] | any(.[];
                     . as $comment |
                     (($comment.body // "") |
+                      gsub("\r\n"; "\n") |
                       capture("(?s)^<!-- marionette-performance-growth-approval:v1 -->\\n```json\\n(?<record>.+)\\n```\\n?$")? |
                       .record | fromjson?) as $approval |
                     (($approval.evidenceUrls? | type) == "array") and
