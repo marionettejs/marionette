@@ -26,6 +26,18 @@ jobs:
           RUN_ID: ${{ github.event.workflow_run.id }}
         run: gh run download "${RUN_ID}" --repo "${GITHUB_REPOSITORY}" --name bundle-size-report
 
+      - name: Download hosted timing report
+        id: timing_download
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: >-
+          gh run download "${RUN_ID}"
+          --repo "${GITHUB_REPOSITORY}"
+          --name performance-timing-report
+          --dir performance-timing-report
+
       - name: Comment bundle-size changes
         if: steps.download.outcome == 'success'
         env:
@@ -33,6 +45,9 @@ jobs:
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -euo pipefail
+          if [ -f performance-timing-report/performance-timing-report.md ]; then
+            cat performance-timing-report/performance-timing-report.md >> bundle-size-report.md
+          fi
           pr_number="$(jq -r '.workflow_run.pull_requests[0].number // empty' "${GITHUB_EVENT_PATH}")"
           if [[ ! "${pr_number}" =~ ^[0-9]+$ ]]; then
             pr_number="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${HEAD_SHA}/pulls" | jq -r \

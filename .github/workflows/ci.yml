@@ -125,15 +125,15 @@ jobs:
       - name: Build current branch
         run: npm run build
 
-      - name: Check bundle-size budgets
+      - name: Check deterministic performance contract
         id: bundle_size
         continue-on-error: true
         run: node config/bundle-size.mjs --json > bundle-size-current.json
 
-      - name: Checkout base branch
+      - name: Checkout exact pull request base
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.base_ref }}
+          ref: ${{ github.event.pull_request.base.sha }}
           path: bundle-size-base
           persist-credentials: false
 
@@ -145,7 +145,7 @@ jobs:
 
       - name: Compare bundle sizes
         run: |
-          node config/bundle-size.mjs --root bundle-size-base --json --no-enforce > bundle-size-base.json
+          node config/bundle-size.mjs --root bundle-size-base --config config/performance.json --json --no-enforce > bundle-size-base.json
           node config/bundle-size.mjs --report bundle-size-base.json bundle-size-current.json > bundle-size-report.md
           cat bundle-size-report.md >> "${GITHUB_STEP_SUMMARY}"
 
@@ -160,3 +160,57 @@ jobs:
       - name: Enforce bundle-size budgets
         if: steps.bundle_size.outcome == 'failure'
         run: exit 1
+
+  performance-timing:
+    name: Performance timing (reporting only)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Verify release profile
+        run: npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build current branch
+        run: npm run build
+
+      - name: Checkout exact pull request base
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: performance-base
+          persist-credentials: false
+
+      - name: Build pull request base
+        working-directory: performance-base
+        run: |
+          npm ci
+          npm run build
+
+      - name: Measure hosted timing
+        run: |
+          node benchmarks/performance.mjs --root performance-base --config config/performance.json --json > performance-timing-base.json
+          node benchmarks/performance.mjs --config config/performance.json --json > performance-timing-current.json
+          node benchmarks/performance.mjs --report performance-timing-base.json performance-timing-current.json > performance-timing-report.md
+          cat performance-timing-report.md >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Upload hosted timing report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: performance-timing-report
+          path: performance-timing-report.md
+          if-no-files-found: error
+          retention-days: 1
