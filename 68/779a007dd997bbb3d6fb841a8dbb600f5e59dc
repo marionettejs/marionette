@@ -1,0 +1,45 @@
+test/performance/contract.test.mjs
+  s_d6429951fb9231::t_42a2ea75bcc59a 125
+  s_d6429951fb9231::t_e371161c5f445c 1,5-9,11-58,92-124,126-130
+  s_d6429951fb9231::t_cadfa11adc9d18 2-4,10,59-91
+.github/workflows/ci.yml
+  s_d6429951fb9231::t_cb51c3fe7fb314 155,158
+  s_d6429951fb9231::t_77cccbebb9108a 44-46,131-132,149-151,154,156-157,159-160,162,164,166,177
+  s_d6429951fb9231::t_43ada5832abbad 153,161,163
+benchmarks/performance.mjs
+  s_d6429951fb9231::t_1a0b6399ca828f 9,27,32,70,74-86,193-197,236,250,253,275,286,289,292-302,304,308-314
+test/performance/timing.test.mjs
+  s_d6429951fb9231::t_e371161c5f445c 1,3-35,49-51
+  s_d6429951fb9231::t_43ada5832abbad 2,36-48
+config/performance.json
+  s_d6429951fb9231::t_0c797a69704535 10-22,27-38
+  s_d6429951fb9231::t_b69d3b2520d91a 283
+.github/CODEOWNERS
+  s_d6429951fb9231::t_77cccbebb9108a 7-12
+  s_d6429951fb9231::t_35f7a32d227502 13
+config/bundle-size.mjs
+  s_d6429951fb9231::t_687851f7c228a3 1,12,27-29,38-40,57-58,61,78-79,85,93,106,168-229,261,268,275-276,287,289,291-323,325-334,339-356,360-374,376,392-397,410,418-421,431-433,438,446,454,457-472,475,477-492,496-502
+package.json
+  s_d6429951fb9231::t_77cccbebb9108a 91
+docs/performance-baselines.md
+  s_d6429951fb9231::t_77cccbebb9108a 40-43,48-49,52-64,100-108
+  s_d6429951fb9231::t_cb51c3fe7fb314 50-51
+.github/workflows/bundle-size-comment.yml
+  s_d6429951fb9231::t_77cccbebb9108a 49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "68779a007dd997bbb3d6fb841a8dbb600f5e59dc",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
