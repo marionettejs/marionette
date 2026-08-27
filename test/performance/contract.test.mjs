@@ -216,5 +216,9 @@ describe('performance contract validation', () => {
     assert.ok(
       contract.forbiddenProductionModules.includes('config/performance-resources.mjs')
     );
+    assert.deepEqual(
+      findForbiddenModules(['index.js', 'config/performance-resources.mjs'], contract),
+      ['config/performance-resources.mjs']
+    );
   });
 });
