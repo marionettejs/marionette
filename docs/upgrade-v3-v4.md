@@ -213,10 +213,14 @@ One of the required changes is to explicitly define the `childView` when impleme
  * **New behavior:** There is no accessible Error class.
  * **Reason:** Simplify API and maintenance
 
-#### `DEV_MODE` which shows deprecation warnings was made a feature flag.
- * **Old behavior:** `DEV_MODE` was set on the global `Marionette` object.
- * **New behavior:** Use `setEnabled` to set the `DEV_MODE` feature flag.
- * **Reason:** There is no longer a global `Marionette` object.
+#### `DEV_MODE` deprecation warnings became a feature flag in v4
+
+This describes the historical v3-to-v4 transition only.
+
+ * **v3 behavior:** `DEV_MODE` was set on the global `Marionette` object.
+ * **v4 behavior:** Applications used `setEnabled('DEV_MODE', true)` to enable deprecation warnings.
+ * **v5 status:** The warning capability is removed. See the [v4-to-v5 compatibility ledger](./migration-from-v4.md#compatibility-ledger).
+ * **Reason in v4:** There was no longer a global `Marionette` object.
 
 ## Recommended changes (deprecations)
 These changes are optional, although recommended to make future upgrades easy
