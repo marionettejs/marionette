@@ -323,7 +323,12 @@ export async function measure({ root = '.', configPath = 'config/performance.jso
   const resolvedConfigPath = resolve(configPath);
   const contract = await readJson(resolvedConfigPath);
   const packageJson = await readJson(resolve(resolvedRoot, 'package.json'));
-  const runtimeFiles = await listRuntimeFiles(resolve(resolvedRoot, 'dist'));
+  const runtimeFiles = await listRuntimeFiles(resolve(resolvedRoot, 'dist')).catch(error => {
+    if (error.code !== 'ENOENT') {
+      throw error;
+    }
+    return [];
+  });
   const violations = validateContract(contract, packageJson, runtimeFiles);
   if (checkToolchain) {
     violations.push(...await validateToolchain(contract, resolvedRoot));

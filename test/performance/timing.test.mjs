@@ -1,13 +1,19 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, test } from 'node:test';
 import {
   assertHarnessRevision,
   changePercent,
   harnessRevisionFor,
+  measure,
   percentile,
   summarize,
 } from '../../benchmarks/performance.mjs';
+
+const root = fileURLToPath(new URL('../..', import.meta.url));
 
 describe('hosted timing report math', () => {
   test('calculates deterministic median and nearest-rank p95 values', () => {
@@ -47,5 +53,44 @@ describe('hosted timing report math', () => {
       harnessRevisionFor(source),
       contract.timing.harnessRevision
     );
+  });
+
+  test('restores DOM globals when loading the runtime fails', async() => {
+    // Keep the fixture below this checkout so createRequire can find its dependencies.
+    const fixtureRoot = await mkdtemp(join(root, '.performance-runtime-'));
+    const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'window');
+    const documentDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'document');
+
+    try {
+      await writeFile(join(fixtureRoot, 'package.json'), '{"type":"module"}\n');
+      await assert.rejects(
+        measure({ root: fixtureRoot }),
+        /dist\/marionette\.js/
+      );
+      assert.deepEqual(Object.getOwnPropertyDescriptor(globalThis, 'window'), windowDescriptor);
+      assert.deepEqual(Object.getOwnPropertyDescriptor(globalThis, 'document'), documentDescriptor);
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
+  test('restores DOM globals after a successful measurement', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-timing-'));
+    const contract = JSON.parse(await readFile(new URL('../../config/performance.json', import.meta.url)));
+    const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'window');
+    const documentDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'document');
+    contract.timing.cases = [];
+
+    try {
+      const configPath = join(fixtureRoot, 'performance.json');
+      await writeFile(configPath, JSON.stringify(contract));
+      const result = await measure({ root, configPath });
+
+      assert.deepEqual(result.cases, []);
+      assert.deepEqual(Object.getOwnPropertyDescriptor(globalThis, 'window'), windowDescriptor);
+      assert.deepEqual(Object.getOwnPropertyDescriptor(globalThis, 'document'), documentDescriptor);
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
   });
 });

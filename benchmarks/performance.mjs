@@ -89,14 +89,35 @@ async function loadRuntime(root) {
   const { JSDOM } = requireFromRoot('jsdom');
   const Backbone = requireFromRoot('backbone');
   const dom = new JSDOM('<!doctype html><html><body></body></html>');
+  const previousWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
+  const previousDocument = Object.getOwnPropertyDescriptor(globalThis, 'document');
   globalThis.window = dom.window;
   globalThis.document = dom.window.document;
 
-  const runtimeUrl = pathToFileURL(resolve(root, 'dist/marionette.js'));
-  runtimeUrl.searchParams.set('performance-run', `${process.pid}-${Date.now()}`);
-  const Marionette = await import(runtimeUrl.href);
+  const cleanup = () => {
+    if (previousWindow) {
+      Object.defineProperty(globalThis, 'window', previousWindow);
+    } else {
+      delete globalThis.window;
+    }
+    if (previousDocument) {
+      Object.defineProperty(globalThis, 'document', previousDocument);
+    } else {
+      delete globalThis.document;
+    }
+    dom.window.close();
+  };
 
-  return { Backbone, Marionette, dom };
+  try {
+    const runtimeUrl = pathToFileURL(resolve(root, 'dist/marionette.js'));
+    runtimeUrl.searchParams.set('performance-run', `${process.pid}-${Date.now()}`);
+    const Marionette = await import(runtimeUrl.href);
+
+    return { Backbone, Marionette, cleanup };
+  } catch (error) {
+    cleanup();
+    throw error;
+  }
 }
 
 function createCases({ Backbone, Marionette }) {
@@ -146,16 +167,14 @@ function createCases({ Backbone, Marionette }) {
     ['view-delegate-undelegate', iterations => {
       for (let index = 0; index < iterations; index += 1) {
         const view = new EventView();
-        view._delegateViewEvents();
-        view._undelegateViewEvents();
+        view.setElement(view.el);
         view.destroy();
       }
     }],
     ['behavior-construct-delegate-destroy', iterations => {
       for (let index = 0; index < iterations; index += 1) {
         const view = new BehaviorView();
-        view._delegateViewEvents();
-        view._undelegateViewEvents();
+        view.setElement(view.el);
         view.destroy();
       }
     }],
@@ -227,7 +246,7 @@ export async function measure({ root = '.', configPath = 'config/performance.jso
       });
     }
   } finally {
-    runtime.dom.window.close();
+    runtime.cleanup();
   }
 
   const report = {

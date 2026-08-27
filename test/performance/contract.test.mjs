@@ -104,6 +104,32 @@ describe('performance contract validation', () => {
     }
   });
 
+  test('reports an absent dist directory as missing artifacts', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-contract-'));
+    const contract = contractFor();
+    const packageJson = {
+      type: 'module',
+      exports: { '.': { import: './dist/index.mjs' } },
+    };
+
+    try {
+      await writeFile(join(fixtureRoot, 'package.json'), JSON.stringify(packageJson));
+      await writeFile(join(fixtureRoot, 'performance.json'), JSON.stringify(contract));
+      await writeFile(join(fixtureRoot, 'rollup.config.mjs'), 'export default [];\n');
+
+      const result = await measure({
+        root: fixtureRoot,
+        configPath: join(fixtureRoot, 'performance.json'),
+        checkToolchain: false,
+      });
+
+      assert.equal(result.artifacts[0].status, 'missing');
+      assert.ok(result.violations.includes('Configured runtime artifacts are missing: dist/index.mjs'));
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
   test('reports no graph change for an identical checkout measured from another cwd', async() => {
     const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-graph-'));
     const contract = contractFor();
