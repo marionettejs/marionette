@@ -306,6 +306,64 @@ describe('performance contract validation', () => {
     }
   });
 
+  test('rejects forbidden modules from the measured production graph', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-forbidden-'));
+    const contract = contractFor();
+    contract.productionGraphs = [{
+      subpath: '.',
+      input: 'index.js',
+      output: 'dist/index.mjs',
+      baselineModules: ['index.js'],
+      baselineExternalImports: [],
+    }];
+    contract.forbiddenProductionModules = ['forbidden.js'];
+    const packageJson = {
+      type: 'module',
+      exports: { '.': { import: './dist/index.mjs' } },
+    };
+
+    try {
+      await mkdir(join(fixtureRoot, 'dist'));
+      await writeFile(join(fixtureRoot, 'package.json'), JSON.stringify(packageJson));
+      await writeFile(join(fixtureRoot, 'performance.json'), JSON.stringify(contract));
+      await writeFile(
+        join(fixtureRoot, 'index.js'),
+        'import { forbidden } from \'./forbidden.js\';\nexport const value = forbidden;\n'
+      );
+      await writeFile(join(fixtureRoot, 'forbidden.js'), 'export const forbidden = true;\n');
+      await writeFile(join(fixtureRoot, 'dist/index.mjs'), 'export const value = 1;\n');
+      await writeFile(
+        join(fixtureRoot, 'rollup.config.mjs'),
+        'export default [{ input: \'index.js\', output: { file: \'dist/index.mjs\', format: \'es\' } }];\n'
+      );
+
+      const result = await measure({
+        root: fixtureRoot,
+        configPath: join(fixtureRoot, 'performance.json'),
+        checkToolchain: false,
+      });
+
+      assert.deepEqual(result.graphs[0].forbiddenModules, ['forbidden.js']);
+      assert.ok(result.violations.includes('. includes forbidden production modules: forbidden.js'));
+
+      const enforced = spawnSync(
+        process.execPath,
+        [
+          join(root, 'config/bundle-size.mjs'),
+          '--root', fixtureRoot,
+          '--config', join(fixtureRoot, 'performance.json'),
+          '--artifact-graph-only',
+          '--json',
+        ],
+        { encoding: 'utf8' }
+      );
+      assert.equal(enforced.status, 1);
+      assert.match(enforced.stderr, /includes forbidden production modules: forbidden\.js/);
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
   test('reports exported subpaths missing from the production graph contract', () => {
     const contract = contractFor(['dist/index.mjs', 'dist/feature.mjs']);
     const packageJson = {
@@ -341,5 +399,12 @@ describe('performance contract validation', () => {
     const contract = JSON.parse(await readFile(new URL('../../config/performance.json', import.meta.url)));
 
     assert.deepEqual(await validateToolchain(contract, root), []);
+    assert.ok(
+      contract.forbiddenProductionModules.includes('config/performance-resources.mjs')
+    );
+    assert.deepEqual(
+      findForbiddenModules(['index.js', 'config/performance-resources.mjs'], contract),
+      ['config/performance-resources.mjs']
+    );
   });
 });
