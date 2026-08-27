@@ -76,9 +76,10 @@ Runtime diagnostic options and lint-rule metadata cannot use computed keys, spre
 or duplicate mapping properties. This keeps the emitted code statically decidable.
 A `defined` entry must move to `active` in the same change that first emits it.
 
-`npm run check:diagnostics` rejects runtime codes or lint-rule mappings that are not
-in the catalog, and it rejects a lint rule without a mapping. Documentation routes
-are generated from the catalog and then checked by `npm run docs:check`; they are not
+`npm run check:diagnostics` derives the shipped source graph from the production
+Rollup inputs, rejects runtime codes or lint-rule mappings that are not in the
+catalog, and rejects a lint rule without a mapping. Documentation routes are
+generated from the catalog and then checked by `npm run docs:check`; they are not
 maintained as a second hand-written list.
 
 ## Initial scope

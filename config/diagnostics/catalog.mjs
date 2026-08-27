@@ -1,24 +1,34 @@
 import Ajv from 'ajv';
 import { Linter } from 'eslint';
 import { readFile, readdir } from 'node:fs/promises';
-import { dirname, relative, resolve } from 'node:path';
+import { dirname, isAbsolute, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { rollup } from 'rollup';
+import rollupConfigurations from '../../rollup.config.mjs';
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const defaultSchema = JSON.parse(await readFile(resolve(repositoryRoot, 'config/diagnostics/catalog.schema.json'), 'utf8'));
-const runtimeDirectories = ['modules', 'mixins', 'utils'];
-const runtimeFiles = [
-  'backbone.js',
-  'config/dom.js',
-  'config/event-delegator.js',
-  'config/features.js',
-  'config/renderer.js',
-  'index.js',
-  'jquery-dom-api.js',
-  'version.js',
-];
 const javascriptFilePattern = /\.(?:js|mjs)$/;
 const javascriptLinter = new Linter();
+
+function inputFiles(input) {
+  if (Array.isArray(input)) {
+    return input;
+  }
+
+  if (typeof input === 'object') {
+    return Object.values(input);
+  }
+
+  return [input];
+}
+
+const productionInputs = [...new Set(rollupConfigurations
+  .filter(configuration => {
+    const outputs = Array.isArray(configuration.output) ? configuration.output : [configuration.output];
+    return outputs.some(output => output?.file?.replaceAll('\\', '/').startsWith('dist/'));
+  })
+  .flatMap(configuration => inputFiles(configuration.input)))];
 
 export class DiagnosticCatalogValidationError extends Error {
   constructor(errors) {
@@ -344,23 +354,42 @@ function relativeSources(rootDir, sources) {
   }));
 }
 
+export async function discoverProductionSources({
+  inputs = productionInputs,
+  rootDir = repositoryRoot,
+} = {}) {
+  const bundle = await rollup({
+    external: source => !source.startsWith('.') && !isAbsolute(source),
+    input: inputs.map(input => resolve(rootDir, input)),
+    onwarn(warning) {
+      throw new Error(`Production graph warning: ${warning.message}`);
+    },
+    treeshake: false,
+  });
+
+  try {
+    const sources = await Promise.all(bundle.watchFiles.map(async path => ({
+      contents: await readFile(path, 'utf8'),
+      path,
+    })));
+    return relativeSources(rootDir, sources);
+  } finally {
+    await bundle.close();
+  }
+}
+
 export async function loadDiagnosticCatalog({ rootDir = repositoryRoot } = {}) {
   const diagnosticsDir = resolve(rootDir, 'config/diagnostics');
-  const [catalog, schema, runtimeSourceGroups, runtimeFileSources, eslintRuleSources] = await Promise.all([
+  const [catalog, schema, runtimeSources, eslintRuleSources] = await Promise.all([
     readJson(resolve(diagnosticsDir, 'catalog.json')),
     readJson(resolve(diagnosticsDir, 'catalog.schema.json')),
-    Promise.all(runtimeDirectories.map(directory => readJavaScriptFiles(resolve(rootDir, directory)))),
-    Promise.all(runtimeFiles.map(async path => ({
-      contents: await readFile(resolve(rootDir, path), 'utf8'),
-      path: resolve(rootDir, path),
-    }))),
+    discoverProductionSources({ rootDir }),
     readJavaScriptFiles(resolve(rootDir, 'eslint-rules'), { optional: true }),
   ]);
-  const runtimeSources = [...runtimeSourceGroups.flat(), ...runtimeFileSources];
 
   return validateDiagnosticCatalog(catalog, {
     eslintRuleSources: relativeSources(rootDir, eslintRuleSources),
-    runtimeSources: relativeSources(rootDir, runtimeSources),
+    runtimeSources,
     schema,
   });
 }

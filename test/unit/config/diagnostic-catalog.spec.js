@@ -1,5 +1,9 @@
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
   DiagnosticCatalogValidationError,
+  discoverProductionSources,
   validateDiagnosticCatalog,
 } from '../../../config/diagnostics/catalog.mjs';
 import { diagnosticPage } from '../../../config/docs/build.mjs';
@@ -199,6 +203,31 @@ describe('diagnostic catalog validation', function() {
       expect(() => validate(createCatalog(), {
         runtimeSources: [{ contents, path: 'modules/example.js' }],
       })).to.throw(DiagnosticCatalogValidationError);
+    }
+  });
+
+  it('discovers diagnostics in newly imported production files', async function() {
+    const rootDir = await mkdtemp(join(tmpdir(), 'marionette-diagnostics-'));
+
+    try {
+      await writeFile(join(rootDir, 'entry.js'), 'import \'./emitter.js\';');
+      await writeFile(
+        join(rootDir, 'emitter.js'),
+        'throw new MarionetteError({ code: \'MN9999\' });',
+      );
+
+      const runtimeSources = await discoverProductionSources({
+        inputs: ['entry.js'],
+        rootDir,
+      });
+
+      expect(runtimeSources.map(({ path }) => path)).to.include('emitter.js');
+      expect(() => validate(createCatalog(), { runtimeSources })).to.throw(
+        DiagnosticCatalogValidationError,
+        'emitter.js emits uncataloged diagnostic code MN9999',
+      );
+    } finally {
+      await rm(rootDir, { force: true, recursive: true });
     }
   });
 
