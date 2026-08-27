@@ -9,6 +9,7 @@ const packDir = resolve(rootDir, 'test/tmp/pack-fixtures');
 const npmCli = process.env.npm_execpath;
 const fixtures = [
   'cjs-node',
+  'cjs-adapters',
   'esm-node',
   'no-default-export',
   'shim',
