@@ -1,0 +1,19 @@
+.github/workflows/bundle-size-comment.yml
+  s_d6429951fb9231::t_287fa439bd3a75 46,52-55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "64b5263fe516d62ff0e332cb092a660a88946a10",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
