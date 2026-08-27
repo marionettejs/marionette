@@ -272,6 +272,9 @@ describe('deterministic resource comparison', () => {
   test('measures the built runtime and restores DOM globals', async() => {
     const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'window');
     const documentDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'document');
+    await assert.rejects(
+      measureResources({ root: '/missing', attachDetachCycles: 1, mountDestroyCycles: 1 })
+    );
     const measurement = await measureResources({
       root,
       attachDetachCycles: 1,

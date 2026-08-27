@@ -96,21 +96,22 @@ async function loadRuntime(root) {
   }
   runtimeLoaded = true;
 
-  const requireFromRoot = createRequire(resolve(root, 'package.json'));
-  const { JSDOM } = requireFromRoot('jsdom');
-  const dom = new JSDOM('<!doctype html><html><body></body></html>');
-  const previousWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
-  const previousDocument = Object.getOwnPropertyDescriptor(globalThis, 'document');
-  globalThis.window = dom.window;
-  globalThis.document = dom.window.document;
-
-  const cleanup = () => {
-    restoreGlobal('window', previousWindow);
-    restoreGlobal('document', previousDocument);
-    dom.window.close();
-  };
+  let cleanup;
 
   try {
+    const requireFromRoot = createRequire(resolve(root, 'package.json'));
+    const { JSDOM } = requireFromRoot('jsdom');
+    const dom = new JSDOM('<!doctype html><html><body></body></html>');
+    const previousWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
+    const previousDocument = Object.getOwnPropertyDescriptor(globalThis, 'document');
+    globalThis.window = dom.window;
+    globalThis.document = dom.window.document;
+    cleanup = () => {
+      restoreGlobal('window', previousWindow);
+      restoreGlobal('document', previousDocument);
+      dom.window.close();
+    };
+
     const backboneUrl = pathToFileURL(resolve(root, 'dist/backbone.js'));
     const runtimeUrl = pathToFileURL(resolve(root, 'dist/marionette.js'));
     const [{ default: Backbone }, Marionette] = await Promise.all([
@@ -120,7 +121,8 @@ async function loadRuntime(root) {
 
     return { Backbone, Marionette, cleanup };
   } catch (error) {
-    cleanup();
+    runtimeLoaded = false;
+    cleanup?.();
     throw error;
   }
 }
