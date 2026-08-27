@@ -1,4 +1,6 @@
 /docs/ @paulfalgout
 /docs-site/ @paulfalgout
 /config/docs/ @paulfalgout
+/config/diagnostics/ @paulfalgout
+/config/check-diagnostic-catalog.mjs @paulfalgout
 /.github/workflows/docs-pages.yml @paulfalgout

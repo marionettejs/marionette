@@ -35,6 +35,9 @@ jobs:
       - name: Verify browser profile
         run: npm run check:browser-profile
 
+      - name: Verify diagnostic catalog
+        run: npm run check:diagnostics
+
       - name: Lint
         run: npm run lint:ci
 
