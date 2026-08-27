@@ -34,6 +34,22 @@ function maxValue(target, key, ...values) {
   target[key] = Math.max(target[key], ...values);
 }
 
+const workloadFields = ['attachDetachCycles', 'mountDestroyCycles'];
+
+function validCycleCount(value) {
+  return Number.isInteger(value) && value > 0;
+}
+
+function validateWorkload(workload, label) {
+  if (!workload || typeof workload !== 'object') {
+    return [`${label} is missing`];
+  }
+
+  return workloadFields
+    .filter(field => !validCycleCount(workload[field]))
+    .map(field => `${label} ${field} must be a positive integer; received ${workload[field]}`);
+}
+
 function instanceMeasurement(instance, { Region }) {
   const ownProperties = Object.keys(instance).sort();
   const entries = ownProperties.map(property => [property, instance[property]]);
@@ -103,6 +119,12 @@ async function loadRuntime(root) {
 }
 
 export async function measureResources({ root = '.', attachDetachCycles, mountDestroyCycles }) {
+  const workload = { attachDetachCycles, mountDestroyCycles };
+  const workloadViolations = validateWorkload(workload, 'Resource measurement workload');
+  if (workloadViolations.length) {
+    throw new Error(workloadViolations.join('; '));
+  }
+
   const resolvedRoot = resolve(root);
   const runtime = await loadRuntime(resolvedRoot);
   const { Backbone, Marionette } = runtime;
@@ -190,7 +212,11 @@ export async function measureResources({ root = '.', attachDetachCycles, mountDe
     for (let index = 0; index < mountDestroyCycles; index += 1) {
       const regionEl = document.createElement('div');
       document.body.appendChild(regionEl);
-      const cycleRegion = new Region({ el: regionEl });
+      const regionHost = new PlainView();
+      const cycleRegion = regionHost.addRegion('resource', { el: regionEl });
+      if (cycleRegion._parentView !== regionHost) {
+        throw new Error('Region resource scenario did not establish parent ownership');
+      }
       const regionView = new PlainView();
       cycleRegion.show(regionView);
       cycleRegion.empty();
@@ -264,17 +290,14 @@ export async function measureResources({ root = '.', attachDetachCycles, mountDe
       retention.destroyedBehaviorRetainsHostReference ||= mountedBehavior.view === behaviorView;
       maxValue(retention, 'destroyedHostRetainsBehaviorCount', behaviorView._behaviors.length);
 
-      cycleRegion.destroy();
+      regionHost.destroy();
       maxValue(retention, 'regionParentReferencesAfterDestroy', Number(cycleRegion._parentView != null));
       regionEl.remove();
     }
 
     return {
       schemaVersion: 1,
-      workload: {
-        attachDetachCycles,
-        mountDestroyCycles,
-      },
+      workload,
       allocations,
       retention,
     };
@@ -348,10 +371,17 @@ export function compareResources(base, current) {
   const changes = [];
   const violations = [];
 
-  if (base.schemaVersion !== current.schemaVersion) {
-    violations.push(`Resource schema changed from ${base.schemaVersion} to ${current.schemaVersion}`);
+  if (base.schemaVersion !== 1) {
+    violations.push(`Exact-base resource schemaVersion must be 1; received ${base.schemaVersion}`);
   }
-  if (JSON.stringify(base.workload) !== JSON.stringify(current.workload)) {
+  if (current.schemaVersion !== 1) {
+    violations.push(`Pull request resource schemaVersion must be 1; received ${current.schemaVersion}`);
+  }
+  const baseWorkloadViolations = validateWorkload(base.workload, 'Exact-base resource workload');
+  const currentWorkloadViolations = validateWorkload(current.workload, 'Pull request resource workload');
+  violations.push(...baseWorkloadViolations, ...currentWorkloadViolations);
+  if (!baseWorkloadViolations.length && !currentWorkloadViolations.length &&
+      JSON.stringify(base.workload) !== JSON.stringify(current.workload)) {
     violations.push('Resource measurement workload does not match the exact base');
   }
 
@@ -377,8 +407,14 @@ export function validateCandidateResourceContract(authorityContract, candidateCo
   }
 
   const violations = [];
-  for (const field of ['attachDetachCycles', 'mountDestroyCycles']) {
-    if (!Number.isInteger(candidate[field]) || candidate[field] < authority[field]) {
+  for (const field of workloadFields) {
+    if (!validCycleCount(authority[field])) {
+      violations.push(`Exact-base authority ${field} must be a positive integer; received ${authority[field]}`);
+      continue;
+    }
+    if (!validCycleCount(candidate[field])) {
+      violations.push(`Candidate ${field} must be a positive integer; received ${candidate[field]}`);
+    } else if (candidate[field] < authority[field]) {
       violations.push(`Candidate ${field} ${candidate[field]} is below the exact-base authority ${authority[field]}`);
     }
   }
@@ -388,7 +424,9 @@ export function validateCandidateResourceContract(authorityContract, candidateCo
 
 export function resourceReportRows(comparison) {
   if (!comparison.changes.length) {
-    return ['| None | No change | No change | Pass |'];
+    return comparison.violations.length ?
+      ['| Contract validation | Not comparable | Not comparable | Review required |'] :
+      ['| None | No change | No change | Pass |'];
   }
 
   return comparison.changes.map(change => {

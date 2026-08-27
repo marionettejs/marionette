@@ -557,16 +557,26 @@ function writeMeasurement(result, json) {
     console.log(`${graph.subpath}: ${graph.status === 'measured' ? `${graph.modules.length} internal modules, ${graph.externalImports.length} external imports` : graph.error}`);
   }
   if (result.resources) {
-    console.log(`Resources: ${Object.keys(result.resources.allocations).length} unused instance shapes; ${result.resources.workload.attachDetachCycles} detach cycles; ${result.resources.workload.mountDestroyCycles} mount/destroy cycles`);
+    console.log(`Resources: ${Object.keys(result.resources.allocations).length} measured instance shapes; ${result.resources.workload.attachDetachCycles} detach cycles; ${result.resources.workload.mountDestroyCycles} mount/destroy cycles`);
   }
+}
+
+function positionalPaths(args, index, count, name) {
+  const paths = args.slice(index + 1, index + count + 1);
+  if (paths.length !== count || paths.some(path => !path || path.startsWith('--'))) {
+    throw new Error(`Missing paths for ${name}`);
+  }
+
+  return paths;
 }
 
 export async function main(args = process.argv.slice(2)) {
   const candidateIndex = args.indexOf('--validate-resource-contract');
   if (candidateIndex !== -1) {
+    const paths = positionalPaths(args, candidateIndex, 2, '--validate-resource-contract');
     const [authority, candidate] = await Promise.all([
-      readJson(args[candidateIndex + 1]),
-      readJson(args[candidateIndex + 2]),
+      readJson(paths[0]),
+      readJson(paths[1]),
     ]);
     const violations = validateCandidateResourceContract(authority, candidate);
     for (const violation of violations) {
@@ -580,8 +590,7 @@ export async function main(args = process.argv.slice(2)) {
 
   const reportIndex = args.indexOf('--report');
   if (reportIndex !== -1) {
-    const baseFile = args[reportIndex + 1];
-    const currentFile = args[reportIndex + 2];
+    const [baseFile, currentFile] = positionalPaths(args, reportIndex, 2, '--report');
     console.log(await createReport(baseFile, currentFile));
     const [base, current] = await Promise.all([readJson(baseFile), readJson(currentFile)]);
     const comparison = compareResourceReports(base, current);

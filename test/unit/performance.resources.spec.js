@@ -149,7 +149,9 @@ describe('Phase 0 deterministic resource baselines', function() {
     for (let index = 0; index < resources.mountDestroyCycles; index += 1) {
       const regionEl = document.createElement('div');
       document.body.appendChild(regionEl);
-      const region = new Region({ el: regionEl });
+      const regionHost = new PlainView();
+      const region = regionHost.addRegion('resource', { el: regionEl });
+      expect(region._parentView).to.equal(regionHost);
       const regionView = new PlainView();
       region.show(regionView);
       region.empty();
@@ -227,7 +229,7 @@ describe('Phase 0 deterministic resource baselines', function() {
         shapes.destroyedHostRetainsBehaviorCount > 0
       );
 
-      region.destroy();
+      regionHost.destroy();
       expect(region.isDestroyed()).to.equal(true);
       expect(region._parentView).to.equal(undefined);
       expect(Number(region._parentView != null))

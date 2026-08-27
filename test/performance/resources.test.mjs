@@ -115,6 +115,25 @@ describe('deterministic resource comparison', () => {
     assert.ok(comparison.violations.includes('resources.allocations.View has unknown metrics: unknownLedger'));
   });
 
+  test('rejects missing measurement schema and workloads on both sides', () => {
+    const base = report();
+    const current = report();
+    delete base.schemaVersion;
+    delete current.schemaVersion;
+    delete base.workload;
+    delete current.workload;
+
+    const comparison = compareResources(base, current);
+
+    assert.ok(comparison.violations.includes('Exact-base resource schemaVersion must be 1; received undefined'));
+    assert.ok(comparison.violations.includes('Pull request resource schemaVersion must be 1; received undefined'));
+    assert.ok(comparison.violations.includes('Exact-base resource workload is missing'));
+    assert.ok(comparison.violations.includes('Pull request resource workload is missing'));
+    assert.deepEqual(resourceReportRows(comparison), [
+      '| Contract validation | Not comparable | Not comparable | Review required |',
+    ]);
+  });
+
   test('rejects candidate contracts that reduce or remove authority workloads', () => {
     const authority = {
       deterministicResources: report().workload,
@@ -130,6 +149,11 @@ describe('deterministic resource comparison', () => {
     ]);
     assert.deepEqual(validateCandidateResourceContract({}, authority), [
       'Exact-base performance contract is missing deterministicResources',
+    ]);
+    const malformedAuthority = structuredClone(authority);
+    delete malformedAuthority.deterministicResources.mountDestroyCycles;
+    assert.deepEqual(validateCandidateResourceContract(malformedAuthority, authority), [
+      'Exact-base authority mountDestroyCycles must be a positive integer; received undefined',
     ]);
   });
 
@@ -179,6 +203,15 @@ describe('deterministic resource comparison', () => {
       assert.equal(missingAuthorityResult.status, 1);
       assert.match(missingAuthorityResult.stderr, /Exact-base performance contract is missing/);
 
+      const missingPathResult = spawnSync(process.execPath, [
+        cli,
+        '--validate-resource-contract',
+        authorityContract,
+        '--report',
+      ], { encoding: 'utf8' });
+      assert.equal(missingPathResult.status, 1);
+      assert.match(missingPathResult.stderr, /Missing paths for --validate-resource-contract/);
+
       const reportResult = spawnSync(process.execPath, [
         cli,
         '--report',
@@ -196,6 +229,14 @@ describe('deterministic resource comparison', () => {
       ], { encoding: 'utf8' });
       assert.equal(cleanReportResult.status, 0);
       assert.match(cleanReportResult.stdout, /No eager allocation or retained-resource proxy increased/);
+
+      const missingReportPathResult = spawnSync(process.execPath, [
+        cli,
+        '--report',
+        baseReport,
+      ], { encoding: 'utf8' });
+      assert.equal(missingReportPathResult.status, 1);
+      assert.match(missingReportPathResult.stderr, /Missing paths for --report/);
 
       const asymmetricResult = spawnSync(process.execPath, [
         cli,
@@ -243,8 +284,16 @@ describe('deterministic resource comparison', () => {
       ['_children', 'children']
     );
     assert.equal(measurement.retention.externalRegistrationsAfterDestroy, 0);
+    assert.equal(measurement.retention.regionParentReferencesAfterDestroy, 0);
     assert.equal(measurement.retention.destroyedBehaviorRetainsHostReference, true);
     assert.deepEqual(Object.getOwnPropertyDescriptor(globalThis, 'window'), windowDescriptor);
     assert.deepEqual(Object.getOwnPropertyDescriptor(globalThis, 'document'), documentDescriptor);
+  });
+
+  test('rejects invalid lifecycle workloads before loading the runtime', async() => {
+    await assert.rejects(
+      measureResources({ root: '/missing', attachDetachCycles: 0 }),
+      /attachDetachCycles must be a positive integer.*mountDestroyCycles must be a positive integer/
+    );
   });
 });
