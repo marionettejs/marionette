@@ -119,3 +119,19 @@ test('a verified tag is followed by the public release edit', function() {
 
   assert.deepEqual(calls, ['tag', editArgs]);
 });
+
+test('a failed public release edit propagates after tag validation', function() {
+  const editError = new Error('release edit failed');
+  let tagValidated = false;
+
+  assert.throws(() => publishDraftRelease({
+    editArgs: ['release', 'edit', 'v5.0.0', '--draft=false'],
+    ensureTag() {
+      tagValidated = true;
+    },
+    run() {
+      throw editError;
+    },
+  }), error => error === editError);
+  assert.equal(tagValidated, true);
+});
