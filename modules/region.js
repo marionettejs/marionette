@@ -1,1 +1,1 @@
-export { Region as default } from './view-region';
+export { Region as default } from './view-region.js';

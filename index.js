@@ -1,6 +1,6 @@
 import proxy from './utils/proxy.js';
-import extend from './utils/extend';
-import { version as VERSION } from './version';
+import extend from './utils/extend.js';
+import { version as VERSION } from './version.js';
 
 import {
   bindEvents as _bindEvents,
@@ -9,30 +9,30 @@ import {
 import {
   bindRequests as _bindRequests,
   unbindRequests as _unbindRequests
-} from './modules/common/bind-requests';
-import _getOption from './modules/common/get-option';
-import _mergeOptions from './modules/common/merge-options';
-import monitorViewEvents from './modules/common/monitor-view-events';
-import _normalizeMethods from './modules/common/normalize-methods';
-import _triggerMethod from './modules/common/trigger-method';
+} from './modules/common/bind-requests.js';
+import _getOption from './modules/common/get-option.js';
+import _mergeOptions from './modules/common/merge-options.js';
+import monitorViewEvents from './modules/common/monitor-view-events.js';
+import _normalizeMethods from './modules/common/normalize-methods.js';
+import _triggerMethod from './modules/common/trigger-method.js';
 
-import Events from './mixins/events';
-import Requests from './mixins/requests';
+import Events from './mixins/events.js';
+import Requests from './mixins/requests.js';
 
-import MnObject from './modules/object';
-import View from './modules/view';
-import CollectionView from './modules/collection-view';
-import Behavior from './modules/behavior';
-import Region from './modules/region';
-import Application from './modules/application';
-import Radio from './modules/radio';
+import MnObject from './modules/object.js';
+import View from './modules/view.js';
+import CollectionView from './modules/collection-view.js';
+import Behavior from './modules/behavior.js';
+import Region from './modules/region.js';
+import Application from './modules/application.js';
+import Radio from './modules/radio.js';
 
-import DomApi from './config/dom';
+import DomApi from './config/dom.js';
 
 import {
   isEnabled,
   setEnabled
-} from './config/features';
+} from './config/features.js';
 
 // Utilities
 

@@ -12,8 +12,8 @@
 // configuration. A function can be supplied instead of a string handler name.
 
 import { isObject } from 'underscore';
-import normalizeMethods from './normalize-methods';
-import MarionetteError from '../../utils/error';
+import normalizeMethods from './normalize-methods.js';
+import MarionetteError from '../../utils/error.js';
 
 function normalizeBindings(context, bindings) {
   if (!isObject(bindings)) {

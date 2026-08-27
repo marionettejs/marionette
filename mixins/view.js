@@ -2,15 +2,15 @@
 //  ---------
 
 import { extend, isString, result } from 'underscore';
-import MarionetteError from '../utils/error';
-import BehaviorsMixin from './behaviors';
-import CommonMixin from './common';
-import DelegateEntityEventsMixin from './delegate-entity-events';
-import TemplateRenderMixin from './template-render';
-import UIMixin from './ui';
-import ViewEvents from './view-events';
-import { isEnabled } from '../config/features';
-import DomApi from '../config/dom';
+import MarionetteError from '../utils/error.js';
+import BehaviorsMixin from './behaviors.js';
+import CommonMixin from './common.js';
+import DelegateEntityEventsMixin from './delegate-entity-events.js';
+import TemplateRenderMixin from './template-render.js';
+import UIMixin from './ui.js';
+import ViewEvents from './view-events.js';
+import { isEnabled } from '../config/features.js';
+import DomApi from '../config/dom.js';
 
 const classErrorName = 'ViewError';
 

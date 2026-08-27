@@ -1,10 +1,10 @@
 import { each, extend, keys } from 'underscore';
 
-import { setDebug, debugLog, log } from './common/radio';
-import Events from '../mixins/events';
-import Requests from '../mixins/requests';
+import { setDebug, debugLog, log } from './common/radio.js';
+import Events from '../mixins/events.js';
+import Requests from '../mixins/requests.js';
 
-import callHandler from '../utils/call-handler';
+import callHandler from '../utils/call-handler.js';
 
 const _logs = {};
 

@@ -2,12 +2,12 @@
 // -----------
 
 import { extend as _extend, uniqueId } from 'underscore';
-import extend from '../utils/extend';
-import buildRegion from './common/build-region';
-import CommonMixin from '../mixins/common';
-import DestroyMixin from '../mixins/destroy';
-import RadioMixin from '../mixins/radio';
-import Region from './region';
+import extend from '../utils/extend.js';
+import buildRegion from './common/build-region.js';
+import CommonMixin from '../mixins/common.js';
+import DestroyMixin from '../mixins/destroy.js';
+import RadioMixin from '../mixins/radio.js';
+import Region from './region.js';
 
 const ClassOptions = [
   'channelName',

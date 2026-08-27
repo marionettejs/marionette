@@ -7,12 +7,12 @@
 // into portable logical chunks, keeping your views simple and your code DRY.
 
 import { extend as _extend, uniqueId, result } from 'underscore';
-import extend from '../utils/extend';
-import CommonMixin from '../mixins/common';
-import DelegateEntityEventsMixin from '../mixins/delegate-entity-events';
-import UIMixin from '../mixins/ui';
-import ViewEventsMixin from '../mixins/view-events';
-import { setEventDelegator } from '../config/event-delegator';
+import extend from '../utils/extend.js';
+import CommonMixin from '../mixins/common.js';
+import DelegateEntityEventsMixin from '../mixins/delegate-entity-events.js';
+import UIMixin from '../mixins/ui.js';
+import ViewEventsMixin from '../mixins/view-events.js';
+import { setEventDelegator } from '../config/event-delegator.js';
 
 const ClassOptions = [
   'collectionEvents',

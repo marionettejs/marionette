@@ -2,8 +2,8 @@
 // -----
 
 import { extend as _extend, pick } from 'underscore';
-import extend from './extend';
-import {version} from '../version';
+import extend from './extend.js';
+import {version} from '../version.js';
 
 const errorProps = ['description', 'fileName', 'lineNumber', 'name', 'message', 'number', 'url'];
 

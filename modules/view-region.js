@@ -14,15 +14,15 @@ import {
   result,
   uniqueId
 } from 'underscore';
-import MarionetteError from '../utils/error';
-import extend from '../utils/extend';
-import monitorViewEvents from './common/monitor-view-events';
-import { renderView, destroyView, isView } from './common/view';
-import CommonMixin from '../mixins/common';
-import ViewMixin from '../mixins/view';
-import DomApi, { setDomApi } from '../config/dom';
-import { setEventDelegator } from '../config/event-delegator';
-import { setRenderer } from '../config/renderer';
+import MarionetteError from '../utils/error.js';
+import extend from '../utils/extend.js';
+import monitorViewEvents from './common/monitor-view-events.js';
+import { renderView, destroyView, isView } from './common/view.js';
+import CommonMixin from '../mixins/common.js';
+import ViewMixin from '../mixins/view.js';
+import DomApi, { setDomApi } from '../config/dom.js';
+import { setEventDelegator } from '../config/event-delegator.js';
+import { setRenderer } from '../config/renderer.js';
 
 const classErrorName = 'RegionError';
 

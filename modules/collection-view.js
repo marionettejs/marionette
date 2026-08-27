@@ -2,16 +2,16 @@
 // ---------------
 
 import { extend as _extend, uniqueId, result, map, isFunction, isObject, isString, matches, each, reduce } from 'underscore';
-import extend from '../utils/extend';
-import MarionetteError from '../utils/error';
-import { renderView, destroyView, isViewClass } from './common/view';
-import monitorViewEvents from './common/monitor-view-events';
-import ChildViewContainer from './child-view-container';
-import Region from './region';
-import ViewMixin from '../mixins/view';
-import { setDomApi } from '../config/dom';
-import { setEventDelegator } from '../config/event-delegator';
-import { setRenderer } from '../config/renderer';
+import extend from '../utils/extend.js';
+import MarionetteError from '../utils/error.js';
+import { renderView, destroyView, isViewClass } from './common/view.js';
+import monitorViewEvents from './common/monitor-view-events.js';
+import ChildViewContainer from './child-view-container.js';
+import Region from './region.js';
+import ViewMixin from '../mixins/view.js';
+import { setDomApi } from '../config/dom.js';
+import { setEventDelegator } from '../config/event-delegator.js';
+import { setRenderer } from '../config/renderer.js';
 
 const classErrorName = 'CollectionViewError';
 

@@ -82,6 +82,7 @@
     "test": "vitest run",
     "test:dist": "node test/dist/validate.mjs",
     "test:fixtures": "node test/fixtures/run.mjs",
+    "test:source": "node test/source/validate.mjs",
     "prepack": "npm run build && npm run test:dist"
   },
   "bugs": {

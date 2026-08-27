@@ -1,5 +1,5 @@
 import { isFunction, extend, reduce, result, without, map } from 'underscore';
-import MarionetteError from '../utils/error';
+import MarionetteError from '../utils/error.js';
 
 // MixinOptions
 // - behaviors
