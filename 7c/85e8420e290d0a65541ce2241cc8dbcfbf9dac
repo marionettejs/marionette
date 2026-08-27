@@ -1,0 +1,29 @@
+test/performance/timing.test.mjs
+  s_d6429951fb9231::t_42b64663c3a056 2-4,10,15-16,56-72
+  s_d6429951fb9231::t_105edbc2677a99 73
+benchmarks/performance.mjs
+  s_d6429951fb9231::t_42b64663c3a056 92-93,97-109,111-120,249
+  s_d6429951fb9231::t_c2f611a3ae1885 170,177
+config/bundle-size.mjs
+  s_d6429951fb9231::t_42b64663c3a056 326-331
+test/performance/contract.test.mjs
+  s_d6429951fb9231::t_42b64663c3a056 107-132
+config/performance.json
+  s_d6429951fb9231::t_447f4cd11094f8 292
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "7c85e8420e290d0a65541ce2241cc8dbcfbf9dac",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
