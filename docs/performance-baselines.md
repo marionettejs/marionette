@@ -118,10 +118,10 @@ greater-than-one-percent threshold. Evidence is limited to durable issue-comment
 permalinks in this repository; Actions artifacts and external mutable pages cannot
 be the sole record. The evaluator binds each marked comment to the expected repository
 and pull request from the API snapshot, and every evidence URL must resolve to a real
-comment in the configured tracking issue snapshot. Unauthorized, stale, and ordinary
-comments do not approve anything. Multiple exact-head approvals, malformed trusted
-records without a valid replacement, missing paths, extra paths, and noncanonical JSON
-fail the evaluator.
+`OWNER`, `MEMBER`, or `COLLABORATOR` comment in the configured tracking issue snapshot.
+Unauthorized, stale, and ordinary comments do not approve anything. Multiple
+exact-head approvals, malformed trusted records without a valid replacement, missing
+paths, extra paths, and noncanonical JSON fail the evaluator.
 
 This change deliberately defines and tests the contract before enforcing it. The
 immediately following pull request will collect the read-only GitHub comment snapshot

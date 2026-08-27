@@ -433,7 +433,9 @@ export function validateGrowthApproval({
   }
 
   const availableEvidence = new Set(evidenceComments.comments
-    .filter(comment => evidenceCommentUrl(policy.repository, issueNumber, comment))
+    .filter(comment => comment?.user?.type === 'User' &&
+      allowedAuthorAssociations.has(comment?.author_association) &&
+      evidenceCommentUrl(policy.repository, issueNumber, comment))
     .map(comment => comment.html_url));
   const unresolvedEvidence = result.approval.evidenceUrls
     .filter(url => !availableEvidence.has(url));

@@ -65,7 +65,16 @@ function snapshot(comments, status = 'ok') {
   };
 }
 
-function evidenceSnapshot(comments = [{ id: 123, 'html_url': evidenceUrl }], status = 'ok') {
+function evidenceComment({ association = 'MEMBER', type = 'User' } = {}) {
+  return {
+    id: 123,
+    'author_association': association,
+    'html_url': evidenceUrl,
+    user: { type },
+  };
+}
+
+function evidenceSnapshot(comments = [evidenceComment()], status = 'ok') {
   return {
     schemaVersion: 1,
     status,
@@ -346,6 +355,22 @@ describe('exact-head performance growth approval contract', () => {
     });
     assert.equal(unresolved.status, 'invalid');
     assert.equal(unresolved.diagnostics[0].code, 'GROWTH_APPROVAL_EVIDENCE_MISSING');
+
+    const untrustedEvidence = validateGrowthApproval({
+      baseReport: report([{ path: 'dist/over.js', size: 100 }]),
+      comments: snapshot([comment(approvalRecord())]),
+      currentReport: report([{ path: 'dist/over.js', size: 102 }]),
+      evidenceComments: evidenceSnapshot([evidenceComment({ association: 'NONE' })]),
+      headSha,
+      policy,
+      pullRequestNumber,
+      thresholdPercent: 1,
+    });
+    assert.equal(untrustedEvidence.status, 'invalid');
+    assert.equal(
+      untrustedEvidence.diagnostics[0].code,
+      'GROWTH_APPROVAL_EVIDENCE_MISSING'
+    );
   });
 
   test('does not need comment access when no existing artifact crosses the threshold', () => {
