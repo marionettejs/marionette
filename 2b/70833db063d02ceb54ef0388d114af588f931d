@@ -1,0 +1,21 @@
+config/performance-resources.mjs
+  s_d6429951fb9231::t_2412d1d57740f8 112-113
+test/performance/resources.test.mjs
+  s_d6429951fb9231::t_2412d1d57740f8 278-298
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "2b70833db063d02ceb54ef0388d114af588f931d",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
