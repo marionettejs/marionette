@@ -107,12 +107,14 @@ describe('exact-head performance growth approval contract', () => {
   test('requires only existing artifacts growing strictly above one percent', () => {
     const base = report([
       { name: 'Exact', path: 'dist/exact.js', size: 100 },
+      { name: 'Fractional', path: 'dist/fractional.js', size: 199 },
       { name: 'Over', path: 'dist/over.js', size: 100 },
       { name: 'Shrink', path: 'dist/shrink.js', size: 100 },
       { name: 'Zero', path: 'dist/zero.js', size: 0 },
     ]);
     const current = report([
       { name: 'Exact', path: 'dist/exact.js', size: 101 },
+      { name: 'Fractional', path: 'dist/fractional.js', size: 201 },
       { name: 'Over', path: 'dist/over.js', size: 102 },
       { name: 'Shrink', path: 'dist/shrink.js', size: 99 },
       { name: 'Zero', path: 'dist/zero.js', size: 1 },
@@ -120,6 +122,14 @@ describe('exact-head performance growth approval contract', () => {
     ]);
 
     assert.deepEqual(requiredArtifactGrowth(base, current, 1), [
+      {
+        baseBytes: 199,
+        currentBytes: 201,
+        deltaBytes: 2,
+        growthBasisPoints: 101,
+        name: 'Fractional',
+        path: 'dist/fractional.js',
+      },
       {
         baseBytes: 100,
         currentBytes: 102,
@@ -137,6 +147,17 @@ describe('exact-head performance growth approval contract', () => {
         path: 'dist/zero.js',
       },
     ]);
+  });
+
+  test('rejects a renamed artifact instead of treating its replacement as new', () => {
+    assert.throws(
+      () => requiredArtifactGrowth(
+        report([{ name: 'Old', path: 'dist/old.js', size: 100 }]),
+        report([{ name: 'Replacement', path: 'dist/replacement.js', size: 1000 }]),
+        1
+      ),
+      /missing exact-base artifacts: dist\/old\.js/
+    );
   });
 
   test('rejects duplicate report paths and malformed thresholds', () => {
