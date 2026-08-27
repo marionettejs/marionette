@@ -16,7 +16,10 @@ jobs:
           github.event.issue.pull_request &&
           github.event.comment.user.type == 'User' &&
           contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association) &&
-          contains(github.event.comment.body, '<!-- marionette-performance-growth-approval:v1 -->')
+          (
+            contains(github.event.comment.body, '<!-- marionette-performance-growth-approval:v1 -->') ||
+            contains(github.event.changes.body.from, '<!-- marionette-performance-growth-approval:v1 -->')
+          )
         ) ||
         (
           !github.event.issue.pull_request &&
