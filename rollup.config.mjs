@@ -1,6 +1,6 @@
 import babel from '@rollup/plugin-babel';
 import json from '@rollup/plugin-json';
-import { terser } from 'rollup-plugin-terser';
+import terser from '@rollup/plugin-terser';
 
 const globals = {
   underscore: '_',
@@ -54,6 +54,7 @@ export default [
       {
         file: 'dist/marionette.cjs',
         format: 'cjs',
+        esModule: true,
         exports: 'named',
       },
     ],

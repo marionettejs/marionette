@@ -9,9 +9,8 @@ import {
 import JQueryDomApi from '../../jquery-dom-api';
 
 describe('jQuery DomApi adapter', function() {
-  it('allows core Marionette to require without importing jQuery', { timeout: 30000 }, function() {
+  it('allows the CommonJS package entry to require without importing jQuery', { timeout: 30000 }, function() {
     const script = `
-      require('@babel/register');
       const Module = require('module');
       const load = Module._load;
       Module._load = function(request) {
@@ -20,7 +19,7 @@ describe('jQuery DomApi adapter', function() {
         }
         return load.apply(this, arguments);
       };
-      require('./index');
+      require('./dist/marionette.cjs');
     `;
 
     expect(() => execFileSync(process.execPath, ['-e', script], { cwd: process.cwd() }))
