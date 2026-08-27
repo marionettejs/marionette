@@ -735,7 +735,8 @@ export async function main(args = process.argv.slice(2)) {
     const growthApprovalFile = getArgument(args, '--growth-approval');
     const report = await buildReport(baseFile, currentFile, growthApprovalFile);
     console.log(report.markdown);
-    if (report.resourceComparison.violations.length || !report.growthApproval.accepted) {
+    if (report.resourceComparison.violations.length ||
+        (growthApprovalFile && !report.growthApproval.accepted)) {
       process.exitCode = 1;
     }
     return;

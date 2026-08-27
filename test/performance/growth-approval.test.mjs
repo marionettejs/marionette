@@ -374,6 +374,12 @@ describe('exact-head performance growth approval contract', () => {
       evidence: join(fixtureRoot, 'evidence.json'),
     };
     const cli = join(root, 'config/performance-growth-approval.mjs');
+    const checkoutHead = spawnSync('git', ['rev-parse', 'HEAD'], {
+      cwd: root,
+      encoding: 'utf8',
+    }).stdout.trim();
+    const cliApproval = approvalRecord();
+    cliApproval.headSha = checkoutHead;
     const args = [
       cli,
       '--contract', paths.contract,
@@ -381,7 +387,7 @@ describe('exact-head performance growth approval contract', () => {
       '--current-report', paths.current,
       '--comments', paths.comments,
       '--evidence-comments', paths.evidence,
-      '--head-sha', headSha,
+      '--head-sha', checkoutHead,
       '--pull-request', String(pullRequestNumber),
     ];
 
@@ -397,13 +403,22 @@ describe('exact-head performance growth approval contract', () => {
         writeFile(paths.current, JSON.stringify(report([
           { name: 'Over', path: 'dist/over.js', size: 102 },
         ]))),
-        writeFile(paths.comments, JSON.stringify(snapshot([comment(approvalRecord())]))),
+        writeFile(paths.comments, JSON.stringify(snapshot([comment(cliApproval)]))),
         writeFile(paths.evidence, JSON.stringify(evidenceSnapshot())),
       ]);
 
       const approved = spawnSync(process.execPath, args, { encoding: 'utf8' });
       assert.equal(approved.status, 0);
       assert.equal(JSON.parse(approved.stdout).status, 'approved');
+
+      const mismatchedArgs = [...args];
+      mismatchedArgs[mismatchedArgs.indexOf('--head-sha') + 1] = headSha;
+      const mismatchedHead = spawnSync(process.execPath, mismatchedArgs, { encoding: 'utf8' });
+      assert.equal(mismatchedHead.status, 1);
+      assert.match(
+        JSON.parse(mismatchedHead.stdout).diagnostics[0].message,
+        /does not match checkout/
+      );
 
       await writeFile(paths.comments, JSON.stringify(snapshot([])));
       const missing = spawnSync(process.execPath, args, { encoding: 'utf8' });

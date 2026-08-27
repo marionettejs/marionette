@@ -1,12 +1,15 @@
+import { execFile } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import process from 'node:process';
 import { pathToFileURL } from 'node:url';
+import { promisify } from 'node:util';
 
 const marker = '<!-- marionette-performance-growth-approval:v1 -->';
 const recordFields = ['approvedPaths', 'evidenceUrls', 'headSha', 'issueUrl', 'schemaVersion'];
 const allowedAuthorAssociations = new Set(['COLLABORATOR', 'MEMBER', 'OWNER']);
 const bodyLimit = 16 * 1024;
+const execFileAsync = promisify(execFile);
 const pathLimit = 50;
 const evidenceLimit = 20;
 
@@ -462,6 +465,14 @@ async function readJson(path) {
   return JSON.parse(await readFile(resolve(path), 'utf8'));
 }
 
+async function currentCheckoutHead() {
+  const { stdout } = await execFileAsync('git', ['rev-parse', 'HEAD'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+  });
+  return stdout.trim();
+}
+
 function parsePullRequestNumber(value) {
   if (!/^[1-9]\d*$/.test(value)) {
     throw new Error('Pull request number must be a positive integer');
@@ -493,6 +504,10 @@ export async function main(args = process.argv.slice(2)) {
   let headSha;
   try {
     headSha = getArgument(args, '--head-sha');
+    const checkoutHeadSha = await currentCheckoutHead();
+    if (headSha !== checkoutHeadSha) {
+      throw new Error(`Requested head SHA ${headSha} does not match checkout ${checkoutHeadSha}`);
+    }
     const pullRequestNumber = parsePullRequestNumber(getArgument(args, '--pull-request'));
     const [contract, baseReport, currentReport, comments, evidenceComments] =
       await Promise.all([
