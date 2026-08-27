@@ -159,7 +159,9 @@ jobs:
           compression-level: 0
 
       - name: Record workflow artifact digest
-        run: echo "Workflow artifact SHA-256: ${{ steps.upload.outputs.artifact-digest }}" >> "${GITHUB_STEP_SUMMARY}"
+        run: >-
+          echo "Workflow artifact SHA-256: ${{ steps.upload.outputs.artifact-digest }}"
+          >> "${GITHUB_STEP_SUMMARY}"
 
   package-smoke:
     name: Release package smoke (${{ matrix.name }})
