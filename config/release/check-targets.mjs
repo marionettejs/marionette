@@ -77,15 +77,17 @@ const tagResult = run('git', [
   '--tags',
   repositoryUrl,
   `refs/tags/${evidence.release.tag}`,
+  `refs/tags/${evidence.release.tag}^{}`,
 ]);
 if (tagResult.status !== 0) {
   process.stderr.write(tagResult.stderr);
   throw new Error(`git ls-remote exited with status ${tagResult.status}.`);
 }
-const tagLine = tagResult.stdout.trim();
+const tagLines = tagResult.stdout.trim().split('\n').filter(Boolean);
 let tagState = 'available';
-if (tagLine) {
-  const tagCommit = tagLine.split(/\s+/)[0];
+if (tagLines.length) {
+  const peeledTag = tagLines.find(line => line.endsWith('^{}'));
+  const tagCommit = (peeledTag || tagLines[0]).split(/\s+/)[0];
   tagState = tagCommit === evidence.source.commit ? 'exact' : 'conflict';
 }
 
@@ -129,14 +131,14 @@ console.log(JSON.stringify({
 
 if (mode === 'publish') {
   const unavailable = [
-    ['npm version', npmState],
-    ['Git tag', tagState],
-    ['GitHub release', releaseState],
-  ].filter(([, state]) => state !== 'available');
+    ['npm version', npmState, ['available', 'exact']],
+    ['Git tag', tagState, ['available', 'exact']],
+    ['GitHub release', releaseState, ['available', 'exists']],
+  ].filter(([, state, allowed]) => !allowed.includes(state));
 
   if (unavailable.length) {
     const summary = unavailable.map(([target, state]) => `${target}: ${state}`).join(', ');
-    throw new Error(`Publication targets are not empty (${summary}).`);
+    throw new Error(`Publication targets conflict with the verified artifact (${summary}).`);
   }
 }
 if (mode === 'verify-npm' && npmState !== 'exact') {

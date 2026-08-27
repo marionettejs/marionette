@@ -292,7 +292,7 @@ jobs:
           --source-commit "${{ env.SOURCE_SHA }}"
           --repository "${{ github.repository }}"
 
-      - name: Require unused npm, tag, and release targets
+      - name: Require compatible npm, tag, and release targets
         run: npm run release:targets -- --mode publish --artifact-dir release
         env:
           GH_TOKEN: ${{ github.token }}

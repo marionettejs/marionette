@@ -72,6 +72,11 @@ that authorization:
 5. Dispatch the workflow from `master` with `publish` true and approve the protected
    environment only after reviewing the source commit and evidence artifact.
 
+An initial publication requires unused npm, tag, and release targets. A recovery
+rerun may continue when npm integrity and the Git tag already match the verified
+artifact; an existing release is passed to the draft-release verifier, which requires
+the same source commit, draft state, asset manifest, and asset bytes before proceeding.
+
 The write-enabled job first stages a draft GitHub release with the verified assets,
 then publishes the exact tarball through npm OIDC trusted publishing, verifies the
 registry integrity, and finally publishes the draft release and matching tag. npm
