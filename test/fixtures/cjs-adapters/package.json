@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "validate": "node validate.cjs"
+  },
+  "dependencies": {
+    "backbone": "^1.4.0",
+    "jquery": "^3.5.0",
+    "jsdom": "^24.1.3",
+    "underscore": "^1.13.0"
+  }
+}

@@ -1,3 +1,4 @@
 {
+  "comments": false,
   "presets": ["@babel/env"]
 }
