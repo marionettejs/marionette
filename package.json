@@ -88,6 +88,7 @@
     "test": "vitest run",
     "test:dist": "node test/dist/validate.mjs",
     "test:fixtures": "node test/fixtures/run.mjs",
+    "test:performance": "node --test test/performance/*.test.mjs",
     "test:release-promotion": "node --test test/release/promotion.test.mjs",
     "test:source": "node test/source/validate.mjs",
     "prepack": "npm run build && npm run test:dist"

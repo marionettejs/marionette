@@ -41,6 +41,9 @@ jobs:
       - name: Verify diagnostic catalog
         run: npm run check:diagnostics
 
+      - name: Test performance contract
+        run: npm run test:performance
+
       - name: Test source ESM
         run: npm run test:source
 
@@ -125,8 +128,8 @@ jobs:
       - name: Build current branch
         run: npm run build
 
-      - name: Check deterministic performance contract
-        id: bundle_size
+      - name: Check current performance contract
+        id: current_contract
         continue-on-error: true
         run: node config/bundle-size.mjs --json > bundle-size-current.json
 
@@ -143,11 +146,24 @@ jobs:
           npm ci
           npm run build
 
-      - name: Compare bundle sizes
+      - name: Enforce exact base performance contract
+        id: base_authority
+        continue-on-error: true
         run: |
-          node config/bundle-size.mjs --root bundle-size-base --config config/performance.json --json --no-enforce > bundle-size-base.json
-          node config/bundle-size.mjs --report bundle-size-base.json bundle-size-current.json > bundle-size-report.md
+          set -euo pipefail
+          base_contract='bundle-size-base/config/performance.json'
+          authority_script='bundle-size-base/config/bundle-size.mjs'
+          if [ ! -f "${base_contract}" ]; then
+            base_contract='config/performance.json'
+            authority_script='config/bundle-size.mjs'
+            echo 'Base has no performance contract; using the current contract for this bootstrap PR.'
+          fi
+          node "${authority_script}" --root bundle-size-base --config "${base_contract}" --json --no-enforce > bundle-size-base.json
+          authority_status=0
+          node "${authority_script}" --config "${base_contract}" --json > bundle-size-authority.json || authority_status=$?
+          node config/bundle-size.mjs --report bundle-size-base.json bundle-size-authority.json > bundle-size-report.md
           cat bundle-size-report.md >> "${GITHUB_STEP_SUMMARY}"
+          exit "${authority_status}"
 
       - name: Upload bundle-size report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -158,7 +174,7 @@ jobs:
           retention-days: 1
 
       - name: Enforce bundle-size budgets
-        if: steps.bundle_size.outcome == 'failure'
+        if: steps.current_contract.outcome == 'failure' || steps.base_authority.outcome == 'failure'
         run: exit 1
 
   performance-timing:

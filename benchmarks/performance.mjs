@@ -6,9 +6,7 @@ import process from 'node:process';
 import { pathToFileURL } from 'node:url';
 import { readFile } from 'node:fs/promises';
 
-const args = process.argv.slice(2);
-
-function getArgument(name, fallback) {
+function getArgument(args, name, fallback) {
   const index = args.indexOf(name);
   if (index === -1) {
     return fallback;
@@ -26,12 +24,12 @@ async function readJson(file) {
   return JSON.parse(await readFile(resolve(file), 'utf8'));
 }
 
-function percentile(sortedValues, percentileValue) {
+export function percentile(sortedValues, percentileValue) {
   const index = Math.max(0, Math.ceil(sortedValues.length * percentileValue) - 1);
   return sortedValues[index];
 }
 
-function summarize(samples) {
+export function summarize(samples) {
   const sorted = [...samples].sort((left, right) => left - right);
   const middle = Math.floor(sorted.length / 2);
   const median = sorted.length % 2 ?
@@ -69,8 +67,21 @@ function formatPercent(value) {
   return `${prefix}${value.toFixed(2)}%`;
 }
 
-function changePercent(base, current) {
+export function changePercent(base, current) {
   return base === 0 ? 100 : (current - base) / base * 100;
+}
+
+export function harnessRevisionFor(source) {
+  return createHash('sha256').update(source).digest('hex');
+}
+
+export function assertHarnessRevision(source, expectedRevision) {
+  const actualRevision = harnessRevisionFor(source);
+  if (actualRevision !== expectedRevision) {
+    throw new Error(`Timing harness revision ${actualRevision} does not match ${expectedRevision}`);
+  }
+
+  return actualRevision;
 }
 
 async function loadRuntime(root) {
@@ -179,16 +190,11 @@ function createCases({ Backbone, Marionette }) {
   ]);
 }
 
-async function measure() {
-  const root = resolve(getArgument('--root', '.'));
-  const contract = await readJson(getArgument('--config', 'config/performance.json'));
-  const harnessRevision = createHash('sha256')
-    .update(await readFile(new URL(import.meta.url)))
-    .digest('hex');
-  if (harnessRevision !== contract.timing.harnessRevision) {
-    throw new Error(`Timing harness revision ${harnessRevision} does not match ${contract.timing.harnessRevision}`);
-  }
-  const runtime = await loadRuntime(root);
+export async function measure({ root = '.', configPath = 'config/performance.json' } = {}) {
+  const resolvedRoot = resolve(root);
+  const contract = await readJson(configPath);
+  assertHarnessRevision(await readFile(new URL(import.meta.url)), contract.timing.harnessRevision);
+  const runtime = await loadRuntime(resolvedRoot);
   const cases = createCases(runtime);
   const results = [];
 
@@ -227,7 +233,7 @@ async function measure() {
   const report = {
     schemaVersion: 1,
     mode: 'hosted-reporting-only',
-    sourceCommit: sourceCommit(root),
+    sourceCommit: sourceCommit(resolvedRoot),
     harnessSchemaVersion: contract.timing.harnessSchemaVersion,
     harnessRevision: contract.timing.harnessRevision,
     environment: {
@@ -241,16 +247,10 @@ async function measure() {
     cases: results,
   };
 
-  if (args.includes('--json')) {
-    console.log(JSON.stringify(report, null, 2));
-  } else {
-    for (const result of results) {
-      console.log(`${result.id}: median ${formatTime(result.medianNanoseconds)}, p95 ${formatTime(result.p95Nanoseconds)}`);
-    }
-  }
+  return report;
 }
 
-async function createReport(baseFile, currentFile) {
+export async function createReport(baseFile, currentFile) {
   const base = await readJson(baseFile);
   const current = await readJson(currentFile);
   const baseCases = new Map(base.cases.map(result => [result.id, result]));
@@ -272,7 +272,7 @@ async function createReport(baseFile, currentFile) {
     rows.push(`| ${result.id} | ${formatTime(baseResult.medianNanoseconds)} | ${formatTime(result.medianNanoseconds)} (${formatPercent(medianChange)}) | ${formatTime(baseResult.p95Nanoseconds)} | ${formatTime(result.p95Nanoseconds)} (${formatPercent(p95Change)}) |`);
   }
 
-  console.log([
+  return [
     '<!-- performance-timing-report -->',
     '## Hosted timing report ⏱️',
     '',
@@ -283,19 +283,32 @@ async function createReport(baseFile, currentFile) {
     warnings.length ? `Warnings: ${warnings.join('; ')}.` : 'No hosted timing warning threshold was exceeded.',
     '',
     'Hosted timing is reporting-only and never decides merge or release eligibility. Controlled-runner baselines and enforcement remain #127 PR B.'
-  ].join('\n'));
+  ].join('\n');
 }
 
-async function main() {
+export async function main(args = process.argv.slice(2)) {
   const reportIndex = args.indexOf('--report');
   if (reportIndex === -1) {
-    await measure();
+    const report = await measure({
+      root: getArgument(args, '--root', '.'),
+      configPath: getArgument(args, '--config', 'config/performance.json'),
+    });
+    if (args.includes('--json')) {
+      console.log(JSON.stringify(report, null, 2));
+    } else {
+      for (const result of report.cases) {
+        console.log(`${result.id}: median ${formatTime(result.medianNanoseconds)}, p95 ${formatTime(result.p95Nanoseconds)}`);
+      }
+    }
   } else {
-    await createReport(args[reportIndex + 1], args[reportIndex + 2]);
+    console.log(await createReport(args[reportIndex + 1], args[reportIndex + 2]));
   }
 }
 
-main().catch(error => {
-  console.error(error);
-  process.exitCode = 1;
-});
+const entryUrl = process.argv[1] ? pathToFileURL(resolve(process.argv[1])).href : null;
+if (entryUrl === import.meta.url) {
+  main().catch(error => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}

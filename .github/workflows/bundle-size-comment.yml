@@ -46,6 +46,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ -f performance-timing-report/performance-timing-report.md ]; then
+            printf '\n' >> bundle-size-report.md
             cat performance-timing-report/performance-timing-report.md >> bundle-size-report.md
           fi
           pr_number="$(jq -r '.workflow_run.pull_requests[0].number // empty' "${GITHUB_EVENT_PATH}")"
