@@ -1,0 +1,23 @@
+config/release/check-targets.mjs
+  s_d6429951fb9231::t_d90e515915bd65 80,86,88-90,134-137,141
+docs/release-promotion.md
+  s_d6429951fb9231::t_d90e515915bd65 75-79
+.github/workflows/release.yml
+  s_d6429951fb9231::t_d90e515915bd65 295
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "b759f8f81dd426ed46f10e845b0b0f04cf2893d3",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
