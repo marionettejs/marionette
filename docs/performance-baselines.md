@@ -56,6 +56,13 @@ contract. After the bootstrap merges, the fallback is unreachable for ordinary
 descendant pull requests. Reports call out missing artifacts, untracked `.js`,
 `.cjs`, or `.mjs` files, and new or unmeasurable subpaths explicitly.
 
+Structural allocation and retention shapes are recorded and checked for internal
+consistency in PR A, but they are not yet compared with the base contract. A literal
+base-shape equality gate would also reject desired improvements that remove eager
+containers or retained references. PR B must add a monotonic comparator: newly eager
+or more-retained ownership fails without approval, while removals and lower retention
+remain allowed and visible.
+
 The current contract is also validated independently so intentional contract and
 toolchain edits remain internally coherent. Its pinned release profile records Node
 24.19.0, npm 11.17.0, lockfile v3, Ubuntu 24.04 linux-x64, Rollup 4.63.0, jsdom

@@ -242,9 +242,25 @@ function findRollupConfiguration(configurations, graph) {
   return { configuration, output };
 }
 
+export function resolveRollupInput(root, input) {
+  if (typeof input === 'string') {
+    return resolve(root, input);
+  }
+  if (Array.isArray(input)) {
+    return input.map(entry => resolve(root, entry));
+  }
+
+  return Object.fromEntries(
+    Object.entries(input).map(([name, entry]) => [name, resolve(root, entry)])
+  );
+}
+
 async function measureGraph(root, configurations, graph, contract) {
   const { configuration, output } = findRollupConfiguration(configurations, graph);
-  const bundle = await rollup(configuration);
+  const bundle = await rollup({
+    ...configuration,
+    input: resolveRollupInput(root, configuration.input),
+  });
 
   try {
     const generated = await bundle.generate(output);

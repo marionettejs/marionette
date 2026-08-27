@@ -272,9 +272,18 @@
       }
     },
     "retentionShapes": {
+      "regionRegistrationsWhileShown": 1,
+      "collectionRegistrationsWhileMounted": 3,
+      "modelRegistrationsWhileMounted": 1,
+      "externalListenerOwnersWhileMounted": 1,
+      "collectionViewListeningToWhileMounted": 1,
+      "behaviorListeningToWhileMounted": 2,
       "destroyedBehaviorRetainsHostReference": true,
       "destroyedHostRetainsBehaviorCount": 1,
-      "externalBackboneRegistrationsAfterDestroy": 0,
+      "externalRegistrationsAfterDestroy": 0,
+      "externalListenerOwnersAfterDestroy": 0,
+      "frameworkListeningToAfterDestroy": 0,
+      "childContainerEntriesAfterDestroy": 0,
       "managedDomChildrenAfterEmpty": 0
     }
   },

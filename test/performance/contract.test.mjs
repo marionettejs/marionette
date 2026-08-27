@@ -6,8 +6,10 @@ import { fileURLToPath } from 'node:url';
 import { describe, test } from 'node:test';
 import {
   collectRuntimePaths,
+  createReport,
   findForbiddenModules,
   measure,
+  resolveRollupInput,
   runtimePath,
   validateContract,
   validateCumulativeSize,
@@ -44,6 +46,17 @@ describe('performance contract validation', () => {
     assert.deepEqual(
       [...collectRuntimePaths({ import: './dist/index.mjs', types: './dist/index.d.ts' })],
       ['dist/index.mjs']
+    );
+  });
+
+  test('anchors Rollup inputs to the measured checkout', () => {
+    assert.equal(
+      resolveRollupInput('/tmp/base-checkout', 'index.js'),
+      '/tmp/base-checkout/index.js'
+    );
+    assert.deepEqual(
+      resolveRollupInput('/tmp/base-checkout', { main: 'index.js' }),
+      { main: '/tmp/base-checkout/index.js' }
     );
   });
 
@@ -86,6 +99,52 @@ describe('performance contract validation', () => {
       assert.equal(result.artifacts.find(artifact => artifact.path === 'dist/untracked.mjs').status, 'untracked');
       assert.equal(result.graphs.find(graph => graph.subpath === '.').status, 'measurement-error');
       assert.equal(result.graphs.find(graph => graph.subpath === './feature').status, 'unconfigured');
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
+  test('reports no graph change for an identical checkout measured from another cwd', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-graph-'));
+    const contract = contractFor();
+    contract.productionGraphs = [{
+      subpath: '.',
+      input: 'index.js',
+      output: 'dist/index.mjs',
+      baselineModules: ['index.js'],
+      baselineExternalImports: [],
+    }];
+    const packageJson = {
+      type: 'module',
+      exports: { '.': { import: './dist/index.mjs' } },
+    };
+
+    try {
+      await mkdir(join(fixtureRoot, 'dist'));
+      await writeFile(join(fixtureRoot, 'package.json'), JSON.stringify(packageJson));
+      await writeFile(join(fixtureRoot, 'performance.json'), JSON.stringify(contract));
+      await writeFile(join(fixtureRoot, 'index.js'), 'export const value = 1;\n');
+      await writeFile(join(fixtureRoot, 'dist/index.mjs'), 'export const value = 1;\n');
+      await writeFile(
+        join(fixtureRoot, 'rollup.config.mjs'),
+        'export default [{ input: \'index.js\', output: { file: \'dist/index.mjs\', format: \'es\' } }];\n'
+      );
+
+      const result = await measure({
+        root: fixtureRoot,
+        configPath: join(fixtureRoot, 'performance.json'),
+        checkToolchain: false,
+      });
+      assert.equal(result.graphs[0].status, 'measured');
+      assert.deepEqual(result.graphs[0].modules, ['index.js']);
+
+      const baseReport = join(fixtureRoot, 'base.json');
+      const currentReport = join(fixtureRoot, 'current.json');
+      await Promise.all([
+        writeFile(baseReport, JSON.stringify(result)),
+        writeFile(currentReport, JSON.stringify(result)),
+      ]);
+      assert.match(await createReport(baseReport, currentReport), /\| `\.` \| 1 \| None \| No change \|/);
     } finally {
       await rm(fixtureRoot, { recursive: true, force: true });
     }

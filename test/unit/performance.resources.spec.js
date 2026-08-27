@@ -21,6 +21,17 @@ function backboneRegistrations(emitter, owner) {
   return registrations(emitter._events, owner);
 }
 
+function ledgerEntries(ledger) {
+  return Object.keys(ledger || {}).length;
+}
+
+function expectEmptyChildContainer(container, expectedEntries) {
+  expect(container.length).to.equal(expectedEntries);
+  expect(container._views).to.have.lengthOf(expectedEntries);
+  expect(ledgerEntries(container._viewsByCid)).to.equal(expectedEntries);
+  expect(ledgerEntries(container._indexByModel)).to.equal(expectedEntries);
+}
+
 describe('Phase 0 deterministic resource baselines', function() {
   const resources = performanceContract.deterministicResources;
   const PlainView = View.extend({ template: false });
@@ -112,7 +123,8 @@ describe('Phase 0 deterministic resource baselines', function() {
 
     for (let index = 0; index < resources.attachDetachCycles; index += 1) {
       region.show(view);
-      expect(marionetteRegistrations(view, region)).to.equal(1);
+      expect(marionetteRegistrations(view, region))
+        .to.equal(resources.retentionShapes.regionRegistrationsWhileShown);
       expect(region.detachView()).to.equal(view);
       expect(region.hasView()).to.equal(false);
       expect(marionetteRegistrations(view, region)).to.equal(0);
@@ -127,11 +139,12 @@ describe('Phase 0 deterministic resource baselines', function() {
   it(`releases external owners across ${resources.mountDestroyCycles} mount and destroy cycles`, function() {
     const collection = new Backbone.Collection([{ id: 1 }]);
     const model = new Backbone.Model();
+    const shapes = resources.retentionShapes;
     const collectionBaseline = backboneRegistrations(collection);
     const modelBaseline = backboneRegistrations(model);
 
-    expect(collectionBaseline).to.equal(resources.retentionShapes.externalBackboneRegistrationsAfterDestroy);
-    expect(modelBaseline).to.equal(resources.retentionShapes.externalBackboneRegistrationsAfterDestroy);
+    expect(collectionBaseline).to.equal(shapes.externalRegistrationsAfterDestroy);
+    expect(modelBaseline).to.equal(shapes.externalRegistrationsAfterDestroy);
 
     for (let index = 0; index < resources.mountDestroyCycles; index += 1) {
       const regionEl = document.createElement('div');
@@ -151,13 +164,27 @@ describe('Phase 0 deterministic resource baselines', function() {
       });
       document.body.appendChild(collectionView.el);
       collectionView.render();
-      expect(backboneRegistrations(collection, collectionView)).to.equal(3);
+      expect(backboneRegistrations(collection, collectionView))
+        .to.equal(shapes.collectionRegistrationsWhileMounted);
+      expect(marionetteRegistrations(collection, collectionView))
+        .to.equal(shapes.collectionRegistrationsWhileMounted);
+      expect(ledgerEntries(collection._rdListeners))
+        .to.equal(shapes.externalListenerOwnersWhileMounted);
+      expect(ledgerEntries(collectionView._rdListeningTo))
+        .to.equal(shapes.collectionViewListeningToWhileMounted);
       collectionView.destroy();
 
-      expect(collectionView._children.length).to.equal(0);
-      expect(collectionView.children.length).to.equal(0);
+      expectEmptyChildContainer(collectionView._children, shapes.childContainerEntriesAfterDestroy);
+      expectEmptyChildContainer(collectionView.children, shapes.childContainerEntriesAfterDestroy);
       expect(collectionView._emptyRegion.isDestroyed()).to.equal(true);
-      expect(backboneRegistrations(collection, collectionView)).to.equal(0);
+      expect(backboneRegistrations(collection, collectionView))
+        .to.equal(shapes.externalRegistrationsAfterDestroy);
+      expect(marionetteRegistrations(collection, collectionView))
+        .to.equal(shapes.externalRegistrationsAfterDestroy);
+      expect(ledgerEntries(collection._rdListeners))
+        .to.equal(shapes.externalListenerOwnersAfterDestroy);
+      expect(ledgerEntries(collectionView._rdListeningTo))
+        .to.equal(shapes.frameworkListeningToAfterDestroy);
       expect(backboneRegistrations(collection)).to.equal(collectionBaseline);
       expect(collectionView.el.isConnected).to.equal(false);
       expect(collectionView.el.childNodes).to.have.lengthOf(resources.retentionShapes.managedDomChildrenAfterEmpty);
@@ -165,11 +192,26 @@ describe('Phase 0 deterministic resource baselines', function() {
       const behaviorView = new BehaviorView({ model });
       const behavior = behaviorView._behaviors[0];
       document.body.appendChild(behaviorView.el);
-      expect(backboneRegistrations(model, behavior)).to.equal(1);
+      expect(backboneRegistrations(model, behavior))
+        .to.equal(shapes.modelRegistrationsWhileMounted);
+      expect(marionetteRegistrations(model, behavior))
+        .to.equal(shapes.modelRegistrationsWhileMounted);
+      expect(ledgerEntries(model._rdListeners))
+        .to.equal(shapes.externalListenerOwnersWhileMounted);
+      expect(ledgerEntries(behavior._rdListeningTo))
+        .to.equal(shapes.behaviorListeningToWhileMounted);
       behaviorView.destroy();
 
-      expect(backboneRegistrations(model, behaviorView)).to.equal(0);
-      expect(backboneRegistrations(model, behavior)).to.equal(0);
+      expect(backboneRegistrations(model, behaviorView))
+        .to.equal(shapes.externalRegistrationsAfterDestroy);
+      expect(backboneRegistrations(model, behavior))
+        .to.equal(shapes.externalRegistrationsAfterDestroy);
+      expect(marionetteRegistrations(model, behavior))
+        .to.equal(shapes.externalRegistrationsAfterDestroy);
+      expect(ledgerEntries(model._rdListeners))
+        .to.equal(shapes.externalListenerOwnersAfterDestroy);
+      expect(ledgerEntries(behavior._rdListeningTo))
+        .to.equal(shapes.frameworkListeningToAfterDestroy);
       expect(backboneRegistrations(model)).to.equal(modelBaseline);
       expect(behaviorView.el.isConnected).to.equal(false);
       expect(behavior.view === behaviorView)
@@ -177,7 +219,9 @@ describe('Phase 0 deterministic resource baselines', function() {
       expect(behaviorView._behaviors).to.have.lengthOf(
         resources.retentionShapes.destroyedHostRetainsBehaviorCount
       );
-      expect(behaviorView._behaviors.includes(behavior)).to.equal(true);
+      expect(behaviorView._behaviors.includes(behavior)).to.equal(
+        shapes.destroyedHostRetainsBehaviorCount > 0
+      );
 
       region.destroy();
       expect(region.isDestroyed()).to.equal(true);
