@@ -159,6 +159,54 @@ async function verifyRelease(release) {
   }
 }
 
+function ensureTag() {
+  const repositoryPath = `repos/${evidence.source.repository}`;
+  const tagPath = encodeURIComponent(evidence.release.tag);
+  const ref = run([
+    'api',
+    `${repositoryPath}/git/ref/tags/${tagPath}`,
+    '--jq',
+    '[.object.type, .object.sha] | @tsv',
+  ], { allowFailure: true });
+  if (ref.status !== 0) {
+    if (!/HTTP 404|Not Found/.test(ref.stderr)) {
+      process.stderr.write(ref.stderr);
+      throw new Error(`Unable to inspect tag ${evidence.release.tag}.`);
+    }
+    run([
+      'api',
+      '--method',
+      'POST',
+      `${repositoryPath}/git/refs`,
+      '-f',
+      `ref=refs/tags/${evidence.release.tag}`,
+      '-f',
+      `sha=${evidence.source.commit}`,
+    ]);
+    console.log(`Created missing tag ${evidence.release.tag} at ${evidence.source.commit}.`);
+    return;
+  }
+
+  let [objectType, objectSha] = ref.stdout.trim().split('\t');
+  const visited = new Set();
+  while (objectType === 'tag') {
+    if (visited.has(objectSha)) {
+      throw new Error(`Tag ${evidence.release.tag} contains a cycle.`);
+    }
+    visited.add(objectSha);
+    const tag = run([
+      'api',
+      `${repositoryPath}/git/tags/${objectSha}`,
+      '--jq',
+      '[.object.type, .object.sha] | @tsv',
+    ]);
+    [objectType, objectSha] = tag.stdout.trim().split('\t');
+  }
+  if (objectType !== 'commit' || objectSha !== evidence.source.commit) {
+    throw new Error(`Tag ${evidence.release.tag} does not resolve to the verified source commit.`);
+  }
+}
+
 if (mode === 'stage') {
   const existing = run(viewArgs, { allowFailure: true });
   if (existing.status === 0) {
@@ -204,6 +252,7 @@ const existing = run(viewArgs);
 const release = JSON.parse(existing.stdout);
 await verifyRelease(release);
 if (!release.isDraft) {
+  ensureTag();
   console.log(`Release ${evidence.release.tag} is already public with the verified assets.`);
   process.exit(0);
 }
@@ -222,4 +271,5 @@ if (evidence.release.prerelease) {
   editArgs.push('--latest');
 }
 run(editArgs);
+ensureTag();
 console.log(`Published GitHub release ${evidence.release.tag}.`);

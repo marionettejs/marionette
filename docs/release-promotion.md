@@ -79,7 +79,8 @@ An initial publication requires unused npm, tag, and release targets. A recovery
 rerun may continue when npm integrity and the Git tag already match the verified
 artifact; an existing draft or public release must have the same source commit, asset
 manifest, and asset bytes. A matching public release is treated as an already-completed
-GitHub publication after those assets are downloaded and reverified.
+GitHub publication after those assets are downloaded and reverified; if its matching
+tag was deleted, recovery recreates that tag at the verified source commit.
 
 The write-enabled job first stages a draft GitHub release with the verified assets,
 then publishes the exact tarball through npm OIDC trusted publishing, verifies the
