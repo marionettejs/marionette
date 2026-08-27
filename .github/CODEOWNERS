@@ -1,6 +1,6 @@
-/docs/ @paulfalgout
-/docs-site/ @paulfalgout
-/config/docs/ @paulfalgout
-/config/diagnostics/ @paulfalgout
-/config/check-diagnostic-catalog.mjs @paulfalgout
-/.github/workflows/docs-pages.yml @paulfalgout
+/docs/ @paulfalgout @marionettejs/marionette-core
+/docs-site/ @paulfalgout @marionettejs/marionette-core
+/config/docs/ @paulfalgout @marionettejs/marionette-core
+/config/diagnostics/ @paulfalgout @marionettejs/marionette-core
+/config/check-diagnostic-catalog.mjs @paulfalgout @marionettejs/marionette-core
+/.github/workflows/docs-pages.yml @paulfalgout @marionettejs/marionette-core
