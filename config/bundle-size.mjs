@@ -479,7 +479,7 @@ function compareResourceReports(base, current) {
   return compareResources(base.resources, current.resources);
 }
 
-export async function createReport(baseFile, currentFile) {
+async function buildReport(baseFile, currentFile) {
   const base = await readJson(baseFile);
   const current = await readJson(currentFile);
   const baseByPath = new Map(base.artifacts.map(result => [result.path, result]));
@@ -520,7 +520,7 @@ export async function createReport(baseFile, currentFile) {
       'No eager allocation or retained-resource proxy increased from the exact pull request base.',
   ];
 
-  return [
+  const markdown = [
     '<!-- bundle-size-report -->',
     '## Production performance contract 📦',
     '',
@@ -541,6 +541,12 @@ export async function createReport(baseFile, currentFile) {
     '',
     'The exact-head approval protocol for growth above 1% and new subpaths remains a separate #127 follow-up; this report does not treat that threshold as enforceable approval yet.'
   ].join('\n');
+
+  return { markdown, resourceComparison };
+}
+
+export async function createReport(baseFile, currentFile) {
+  return (await buildReport(baseFile, currentFile)).markdown;
 }
 
 function writeMeasurement(result, json) {
@@ -591,10 +597,9 @@ export async function main(args = process.argv.slice(2)) {
   const reportIndex = args.indexOf('--report');
   if (reportIndex !== -1) {
     const [baseFile, currentFile] = positionalPaths(args, reportIndex, 2, '--report');
-    console.log(await createReport(baseFile, currentFile));
-    const [base, current] = await Promise.all([readJson(baseFile), readJson(currentFile)]);
-    const comparison = compareResourceReports(base, current);
-    if (comparison.violations.length) {
+    const report = await buildReport(baseFile, currentFile);
+    console.log(report.markdown);
+    if (report.resourceComparison.violations.length) {
       process.exitCode = 1;
     }
     return;

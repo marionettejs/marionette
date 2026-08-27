@@ -2,6 +2,8 @@ import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+let runtimeLoaded = false;
+
 function registrations(eventMap, owner) {
   return Object.values(eventMap || {})
     .flat()
@@ -89,6 +91,11 @@ function restoreGlobal(name, descriptor) {
 }
 
 async function loadRuntime(root) {
+  if (runtimeLoaded) {
+    throw new Error('Resource measurement supports one built runtime per process');
+  }
+  runtimeLoaded = true;
+
   const requireFromRoot = createRequire(resolve(root, 'package.json'));
   const { JSDOM } = requireFromRoot('jsdom');
   const dom = new JSDOM('<!doctype html><html><body></body></html>');

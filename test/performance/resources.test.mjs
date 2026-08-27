@@ -288,6 +288,10 @@ describe('deterministic resource comparison', () => {
     assert.equal(measurement.retention.destroyedBehaviorRetainsHostReference, true);
     assert.deepEqual(Object.getOwnPropertyDescriptor(globalThis, 'window'), windowDescriptor);
     assert.deepEqual(Object.getOwnPropertyDescriptor(globalThis, 'document'), documentDescriptor);
+    await assert.rejects(
+      measureResources({ root, attachDetachCycles: 1, mountDestroyCycles: 1 }),
+      /one built runtime per process/
+    );
   });
 
   test('rejects invalid lifecycle workloads before loading the runtime', async() => {
