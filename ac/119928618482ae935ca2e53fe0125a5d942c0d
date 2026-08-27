@@ -1,0 +1,44 @@
+config/performance-growth-approval.mjs
+  s_d6429951fb9231::t_af42046bf6cf30 227-232
+  s_d6429951fb9231::t_c9324c4c2a99ec 23-26,28,34,367-372
+  s_d6429951fb9231::t_d3e957bbd002c9 1-22,27,29-33,35-37,54-159,164-226,233-235,237-238,243-263,265-266,268-269,277-278,280-290,297-306,310-321,341-353,362-366,373-417,433-440
+  s_d6429951fb9231::t_904344cfc248e1 38-53,236,239-242,264,267,291-296,307-309,322-340,354-361,418-432
+  s_d6429951fb9231::t_83e1e9939dd9c8 160-163,270-276,279
+docs/performance-baselines.md
+  s_d6429951fb9231::t_9d036fed139b26 89-117,124-131
+  s_d6429951fb9231::t_308cb673aa78bc 118-123
+  s_d6429951fb9231::t_67432ffc1c6e31 164-166
+  s_d6429951fb9231::t_e7710a684f435d 167-169
+config/bundle-size.mjs
+  s_d6429951fb9231::t_de580ca1aa9983 9,118-119
+config/performance.json
+  s_d6429951fb9231::t_9596638d19815a 48-55
+  s_d6429951fb9231::t_904344cfc248e1 188
+.github/CODEOWNERS
+  s_d6429951fb9231::t_de580ca1aa9983 9
+test/performance/contract.test.mjs
+  s_d6429951fb9231::t_de580ca1aa9983 32-37
+test/performance/growth-approval.test.mjs
+  s_d6429951fb9231::t_c9324c4c2a99ec 273,276-289
+  s_d6429951fb9231::t_cca809466fb07b 12-14,32,51-67,81,84,137-144,224,227,263,266,301-304,306-308,310-322,330,333
+  s_d6429951fb9231::t_83e1e9939dd9c8 212-223,225-226,228-232
+  s_d6429951fb9231::t_f70d90e2117ea5 36-41,45,305
+  s_d6429951fb9231::t_af42046bf6cf30 146-153
+  s_d6429951fb9231::t_d3e957bbd002c9 1-11,15-31,33-35,42-44,46-50,68-80,82-83,85-136,145,154-211,233-262,264-265,267-272,274-275,290-300,309,323-329,331-332,334-340
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "ac119928618482ae935ca2e53fe0125a5d942c0d",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
