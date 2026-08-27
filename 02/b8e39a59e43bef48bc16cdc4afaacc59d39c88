@@ -1,0 +1,48 @@
+config/release/check-targets.mjs
+  s_d6429951fb9231::t_2ec45a2d72f79f 1-2,4-44,46-115,122-140,144
+  s_d6429951fb9231::t_0145291b7dad87 3,45,116-121,141-143
+config/release/preflight.mjs
+  s_d6429951fb9231::t_98f9555625bac4 1-94
+config/release-promotion.json
+  s_d6429951fb9231::t_98f9555625bac4 1-20
+config/release/verify-artifact.mjs
+  s_d6429951fb9231::t_98f9555625bac4 1-3,5-37,49-87,89-91,98-130
+  s_d6429951fb9231::t_af07c694ea69f1 4,38-48,88,92-97
+package.json
+  s_d6429951fb9231::t_0145291b7dad87 83
+  s_d6429951fb9231::t_98f9555625bac4 82,85
+  s_d6429951fb9231::t_2ec45a2d72f79f 74,84
+test/dist/validate.mjs
+  s_d6429951fb9231::t_98f9555625bac4 4-5,8-9,13-17,27,41-42
+  s_d6429951fb9231::t_af07c694ea69f1 10-12
+.github/workflows/release.yml
+  s_d6429951fb9231::t_7740cf4bcd1bc0 1-363
+config/release/build-artifact.mjs
+  s_d6429951fb9231::t_2ec45a2d72f79f 3,70-74,193-200
+  s_d6429951fb9231::t_af07c694ea69f1 160,165
+  s_d6429951fb9231::t_98f9555625bac4 1-2,4-69,75-159,161-164,166-192,201-203
+config/release/publish-github.mjs
+  s_d6429951fb9231::t_b33e3297dada11 5
+  s_d6429951fb9231::t_0145291b7dad87 1-4,6-192
+.github/workflows/ci.yml
+  s_d6429951fb9231::t_4edd65180f6cdb 32-34
+test/fixtures/run.mjs
+  s_d6429951fb9231::t_af07c694ea69f1 10,44,49
+  s_d6429951fb9231::t_98f9555625bac4 43,45-48,50-56,67-75,77-78,80-82,84-85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "02b8e39a59e43bef48bc16cdc4afaacc59d39c88",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
