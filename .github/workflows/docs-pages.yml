@@ -18,19 +18,6 @@ on:
       - 'package-lock.json'
       - 'package.json'
   pull_request:
-    paths:
-      - '.github/workflows/**'
-      - '.nvmrc'
-      - 'config/check-release-profile.mjs'
-      - 'config/check-diagnostic-catalog.mjs'
-      - 'config/diagnostics/**'
-      - 'config/docs/**'
-      - 'config/release-profile.json'
-      - 'docs/**'
-      - 'docs-site/**'
-      - 'upgradeGuide.md'
-      - 'package-lock.json'
-      - 'package.json'
   workflow_dispatch:
 
 permissions:
