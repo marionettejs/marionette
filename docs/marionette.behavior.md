@@ -423,7 +423,10 @@ State lifecycle to Behavior.
 
 If a Region's owning view sets `monitorViewEvents: false`, the shown host does not
 receive attachment lifecycle notifications, so its Behaviors do not receive them
-either.
+either. Separately, setting `monitorViewEvents: false` on the host itself does not
+by itself suppress Region attachment lifecycle. It suppresses the host's
+`dom:refresh` and `dom:remove` notifications, so its Behaviors do not receive those
+notifications.
 
 ## Destroying a Behavior
 
