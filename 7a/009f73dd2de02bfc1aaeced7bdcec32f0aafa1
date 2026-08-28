@@ -1,0 +1,24 @@
+test/unit/view-lifecycle.spec.js
+  s_d6429951fb9231::t_85ce8fd05d5ae5 1-81,90,92-106,108-124
+  s_d6429951fb9231::t_d5a49fb7bde611 82-89,91,107
+docs/view.lifecycle.md
+  s_d6429951fb9231::t_d5a49fb7bde611 56
+  s_d6429951fb9231::t_8e92492f5893e8 62-65
+  s_d6429951fb9231::t_85ce8fd05d5ae5 40-55,57-61,66-69
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "7a009f73dd2de02bfc1aaeced7bdcec32f0aafa1",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
