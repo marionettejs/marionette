@@ -32,7 +32,8 @@ const notifications = Radio.channel('notifications');
 ```
 
 Calling `Radio.channel(name)` again with the same name returns the same channel
-instance. A channel name is required.
+instance. A channel name is required. Channel names that match inherited object
+properties, such as `toString`, are treated as ordinary channel names.
 
 ## Events
 
@@ -129,6 +130,17 @@ channel, while `Radio.reset()` resets all existing channels.
 Resetting a channel clears its handlers but does not replace the shared channel
 instance. Prefer targeted cleanup for long-lived application channels so one
 feature does not remove another feature's handlers.
+
+| Operation | Unknown channel | Existing channel |
+| --- | --- | --- |
+| `Radio.channel(name)` | Creates and registers the channel. | Returns the same channel. |
+| Top-level event, request, and tuning methods | Create the channel through `Radio.channel(name)`. | Operate on the same channel. |
+| `Radio.reset(name)` | Throws `MarionetteError` with code `MN0021` without creating a channel. | Clears handlers and preserves the channel identity. |
+| `Radio.reset()` | Does not create channels. | Resets every registered channel without replacing it. |
+
+Only a zero-argument `Radio.reset()` call means reset all. Supplying an empty or
+otherwise falsy channel name throws the existing required-name diagnostic
+`MN0017` without resetting any channel.
 
 ## Marionette Integration
 

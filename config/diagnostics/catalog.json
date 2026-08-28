@@ -346,6 +346,22 @@
         "runtime"
       ],
       "benchmarkCategory": "region"
+    },
+    {
+      "code": "MN0021",
+      "slug": "radio-channel-not-found",
+      "status": "active",
+      "category": "communication",
+      "severity": "error",
+      "objects": [
+        "Radio"
+      ],
+      "remediation": "Create the named channel with Radio.channel(name) before resetting it, or call Radio.reset() with no arguments to reset all existing channels.",
+      "docsAnchor": "/errors/MN0021/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "communication"
     }
   ]
 }
