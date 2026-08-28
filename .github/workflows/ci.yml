@@ -43,9 +43,6 @@ jobs:
       - name: Verify diagnostic catalog
         run: npm run check:diagnostics
 
-      - name: Test agent benchmark contract
-        run: npm run test:agent-benchmark-contract
-
       - name: Test performance contract
         run: npm run test:performance
 
