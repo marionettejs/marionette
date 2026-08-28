@@ -11,5 +11,6 @@
 /benchmarks/ @paulfalgout @marionettejs/marionette-core
 /test/performance/ @paulfalgout @marionettejs/marionette-core
 /.github/workflows/ci.yml @paulfalgout @marionettejs/marionette-core
+/.github/workflows/performance-approval-refresh.yml @paulfalgout @marionettejs/marionette-core
 /.github/workflows/bundle-size-comment.yml @paulfalgout @marionettejs/marionette-core
 /.github/workflows/release.yml @paulfalgout @marionettejs/marionette-core

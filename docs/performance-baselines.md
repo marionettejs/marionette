@@ -123,13 +123,28 @@ Unauthorized, stale, and ordinary comments do not approve anything. Multiple
 exact-head approvals, malformed trusted records without a valid replacement, missing
 paths, extra paths, and noncanonical JSON fail the evaluator.
 
-This change deliberately defines and tests the contract before enforcing it. The
-immediately following pull request will collect the read-only GitHub comment snapshot
-and invoke this parser from the exact base checkout. Until that wiring lands, the
-existing `Bundle size` report still labels growth above one percent but does not treat
-the comment record as a merge gate. This two-step bootstrap avoids allowing the first
-enforcement change to authorize itself with a parser or allowlist absent from its
-base.
+The required `Bundle size` job collects read-only snapshots of the pull request
+timeline and issue #127 comments. It then invokes the approval evaluator from the
+exact base checkout with the exact-base threshold and allowlist. The evaluator emits
+one structured result that drives both the report and exit status, so candidate edits
+cannot lower the threshold, add an approver, replace the parser, or make output disagree
+with enforcement. GitHub comment bodies remain JSON data and are never evaluated or
+interpolated by the shell.
+
+Approval comment creation, editing, and deletion automatically queues a re-run of the
+completed exact-head `Bundle size` job. Changes to evidence comments on issue #127 do
+the same for every open pull request whose approval references the changed comment.
+GitHub delivers comment events asynchronously, so do not merge until the `Performance
+approval refresh` workflow and resulting `Bundle size` re-run finish. A code push
+changes the head SHA and invalidates the previous approval automatically. If comment
+collection is unavailable when approval is required, the job fails closed; a pull
+request with no existing artifact above the threshold does not require comment
+availability.
+
+The refresh workflow selects only a CI run whose immutable run name records the
+current pull request number, base SHA, and head SHA. If the base advances, it refuses
+to replay an older comparison. The default-branch rules require strict up-to-date
+status checks, so merge remains blocked until CI records the new exact base.
 
 ## Hosted timing
 
@@ -166,5 +181,5 @@ CODEOWNERS assigns the contract, growth-approval parser, resource probe, harness
 focused tests, and performance workflows to the project maintainer and core team.
 Current live repository rules do not require a CODEOWNER approval, so ownership is
 review routing rather than an automated merge gate. The exact-base authority contract
-is the automated anti-relaxation guard after this bootstrap; growth-approval
-enforcement and the controlled timing runner remain separate follow-ups.
+is the automated anti-relaxation guard. Approved new-subpath adoption and the
+controlled timing runner remain separate follow-ups.
