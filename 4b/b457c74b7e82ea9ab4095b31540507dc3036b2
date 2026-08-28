@@ -1,0 +1,21 @@
+test/unit/config/diagnostic-catalog.spec.js
+  s_d6429951fb9231::t_6f7cbe4e86884b 205-216
+config/diagnostics/catalog.mjs
+  s_d6429951fb9231::t_6f7cbe4e86884b 188-189
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "4bb457c74b7e82ea9ab4095b31540507dc3036b2",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
