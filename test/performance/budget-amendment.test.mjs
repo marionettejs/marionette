@@ -1,13 +1,15 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, test } from 'node:test';
 import {
   bootstrapBudgetAmendmentLedger,
   committedCheckoutChanges,
+  evaluateBudgetAmendmentFromCheckouts,
   formatBudgetAmendmentLedger,
   formatBudgetAmendmentApproval,
   parseBudgetAmendmentLedger,
@@ -149,6 +151,57 @@ function evidenceReports() {
     },
     [prototypeContractPath]: contract(),
   };
+}
+
+function jsonText(value) {
+  return `${JSON.stringify(value, null, 2)}\n`;
+}
+
+function sha256(value) {
+  return createHash('sha256').update(value).digest('hex');
+}
+
+async function writeRepositoryFiles(repository, files) {
+  for (const [path, contents] of Object.entries(files)) {
+    const target = join(repository, path);
+    await mkdir(dirname(target), { recursive: true });
+    await writeFile(target, contents);
+  }
+}
+
+function git(repository, args) {
+  const result = spawnSync('git', args, { cwd: repository, encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  return result.stdout.trim();
+}
+
+async function commitRepository(repository, files) {
+  await mkdir(repository, { recursive: true });
+  git(repository, ['init']);
+  git(repository, ['config', 'user.email', 'test@example.com']);
+  git(repository, ['config', 'user.name', 'Test']);
+  await writeRepositoryFiles(repository, files);
+  git(repository, ['add', '.']);
+  git(repository, ['commit', '-m', 'test: performance budget fixture']);
+  return git(repository, ['rev-parse', 'HEAD']);
+}
+
+function governanceComments(record, approvalHead) {
+  const comments = trustedComments();
+  comments.approval.comments = [{
+    ...comments.approval.comments[0],
+    body: formatBudgetAmendmentApproval(record, approvalHead),
+  }];
+  return comments;
+}
+
+async function removeFixture(path) {
+  await rm(path, {
+    force: true,
+    maxRetries: 5,
+    recursive: true,
+    retryDelay: 50,
+  });
 }
 
 function evidenceHashes() {
@@ -310,7 +363,7 @@ describe('two-stage performance budget amendments', () => {
         'committed\n'
       );
     } finally {
-      await rm(fixture, { force: true, recursive: true });
+      await removeFixture(fixture);
     }
   });
 
@@ -355,6 +408,105 @@ describe('two-stage performance budget amendments', () => {
     assert.equal(result.amendment.id, 'BA0001');
     assert.equal(result.activeCeilingBytes, proposedCeiling);
     assert.equal(result.requiresExactHeadGrowthApproval, true);
+  });
+
+  test('evaluates committed authorization then exact consumption across Git repositories', async() => {
+    const fixture = await mkdtemp(join(tmpdir(), 'marionette-budget-integration-'));
+    const baseRoot = join(fixture, 'base');
+    const authorizationRoot = join(fixture, 'authorization');
+    const consumptionRoot = join(fixture, 'consumption');
+    const baseFiles = {
+      'config/performance.json': jsonText(contract()),
+      'config/release/performance-budget-amendments.json':
+        formatBudgetAmendmentLedger(ledger()),
+      'docs/performance-baselines.md': 'Performance baseline fixture.\n',
+    };
+
+    try {
+      const baseHead = await commitRepository(baseRoot, baseFiles);
+      const prototypeCommit = '1'.repeat(40);
+      const baseEvidence = jsonText({
+        schemaVersion: 1,
+        revision: baseHead,
+        report: measuredReport(51000),
+      });
+      const prototypeEvidence = jsonText({
+        schemaVersion: 1,
+        revision: prototypeCommit,
+        report: measuredReport(52000),
+      });
+      const prototypeContract = jsonText(contract());
+      const record = amendment({
+        prototypeBaseCommit: baseHead,
+        prototypeCommit,
+        reports: [
+          { path: baseReportPath, role: 'base', sha256: sha256(baseEvidence) },
+          { path: reportPath, role: 'prototype', sha256: sha256(prototypeEvidence) },
+        ],
+        prototypeContract: {
+          path: prototypeContractPath,
+          sha256: sha256(prototypeContract),
+        },
+      });
+      const evidenceFiles = {
+        [baseReportPath]: baseEvidence,
+        [prototypeContractPath]: prototypeContract,
+        [reportPath]: prototypeEvidence,
+      };
+      const authorizationHead = await commitRepository(authorizationRoot, {
+        ...baseFiles,
+        'config/release/performance-budget-amendments.json':
+          formatBudgetAmendmentLedger(ledger([record])),
+        ...evidenceFiles,
+      });
+      const comments = governanceComments(record, authorizationHead);
+      const authorization = await evaluateBudgetAmendmentFromCheckouts({
+        approvalComments: comments.approval,
+        authorityContract: contract(),
+        authorityContractPath: join(baseRoot, 'config/performance.json'),
+        baseReport: measuredReport(51000),
+        candidateContract: contract(),
+        candidateRoot: authorizationRoot,
+        currentReport: measuredReport(51000),
+        evidenceComments: comments.evidence,
+        expectedBaseHead: baseHead,
+        headSha: authorizationHead,
+        pullRequestNumber: 1,
+      });
+      assert.equal(authorization.status, 'accepted', authorization.diagnostics.join('\n'));
+      assert.equal(authorization.mode, 'authorize');
+
+      const consumptionHead = await commitRepository(consumptionRoot, {
+        ...baseFiles,
+        'config/performance.json': jsonText(contract(proposedCeiling)),
+        'config/release/performance-budget-amendments.json':
+          formatBudgetAmendmentLedger(ledger([record])),
+        'modules/feature.js': 'export const feature = true;\n',
+        ...evidenceFiles,
+      });
+      await writeFile(
+        join(consumptionRoot, 'config/release/performance-budget-amendments.json'),
+        'dirty worktree data\n'
+      );
+      await writeFile(join(consumptionRoot, reportPath), 'dirty worktree data\n');
+      const consumption = await evaluateBudgetAmendmentFromCheckouts({
+        approvalComments: comments.approval,
+        authorityContract: contract(),
+        authorityContractPath: join(authorizationRoot, 'config/performance.json'),
+        baseReport: measuredReport(51000),
+        candidateContract: contract(proposedCeiling),
+        candidateRoot: consumptionRoot,
+        currentReport: measuredReport(52000, { ceiling: proposedCeiling }),
+        evidenceComments: comments.evidence,
+        expectedBaseHead: authorizationHead,
+        headSha: consumptionHead,
+        pullRequestNumber: 1,
+      });
+      assert.equal(consumption.status, 'accepted', consumption.diagnostics.join('\n'));
+      assert.equal(consumption.mode, 'consume');
+    } finally {
+      await removeFixture(fixture);
+    }
   });
 
   test('rejects adding and consuming an authorization in one pull request', () => {
@@ -677,6 +829,46 @@ describe('two-stage performance budget amendments', () => {
         [reportPath]: reportHash,
       },
     }).diagnostics.join('\n'), /graph set mismatch/i);
+  });
+
+  test('rejects unsafe prototype contract and source paths', () => {
+    const unsafeContractPath = amendment({
+      prototypeContract: {
+        path: 'evidence/performance-budget-amendments/BA0001/bad\\name.json',
+        sha256: prototypeContractHash,
+      },
+    });
+    assert.match(transition({
+      candidateLedger: ledger([unsafeContractPath]),
+    }).diagnostics.join('\n'), /prototypeContract must use a safe immutable JSON path/i);
+
+    const unsafeSource = evidenceReports();
+    unsafeSource[prototypeContractPath].productionGraphs.push({
+      subpath: './unsafe',
+      input: 'modules/../unsafe.js',
+      output: 'dist/marionette.js',
+      baselineModules: [],
+      baselineExternalImports: [],
+    });
+    unsafeSource[reportPath].report.graphs.push({
+      subpath: './unsafe',
+      input: 'modules/../unsafe.js',
+      output: 'dist/marionette.js',
+      status: 'measured',
+      modules: ['unsafe.js'],
+      externalImports: [],
+      forbiddenModules: [],
+    });
+    assert.match(transition({
+      candidateLedger: ledger([amendment({ authorizedNewSubpaths: ['./unsafe'] })]),
+      changedFiles: [
+        'config/release/performance-budget-amendments.json',
+        baseReportPath,
+        prototypeContractPath,
+        reportPath,
+      ],
+      evidence: unsafeSource,
+    }).diagnostics.join('\n'), /new graph .* invalid additive contract/i);
   });
 
   test('requires a consuming implementation to use the authorized measured scope', () => {

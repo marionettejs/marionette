@@ -59,6 +59,12 @@ function validArtifactPath(path) {
     !path.includes('//') && !path.split('/').includes('..');
 }
 
+function validSourcePath(path) {
+  return typeof path === 'string' &&
+    /^[A-Za-z0-9][A-Za-z0-9._/-]*\.js$/.test(path) &&
+    !path.includes('//') && !path.split('/').includes('..');
+}
+
 function validSubpath(subpath) {
   return typeof subpath === 'string' &&
     /^\.\/[A-Za-z0-9][A-Za-z0-9._/-]*$/.test(subpath) &&
@@ -188,7 +194,9 @@ function validateAuthorization(record, identifier, contract) {
   if (!exactFields(record.prototypeContract, prototypeContractFields) ||
       typeof record.prototypeContract?.path !== 'string' ||
       !record.prototypeContract.path.startsWith(expectedContractPrefix) ||
-      !record.prototypeContract.path.endsWith('.json') ||
+      !/^[A-Za-z0-9][A-Za-z0-9._/-]*\.json$/.test(
+        record.prototypeContract.path.slice(expectedContractPrefix.length)
+      ) ||
       record.prototypeContract.path.includes('//') ||
       record.prototypeContract.path.split('/').includes('..') ||
       !/^[a-f\d]{64}$/.test(record.prototypeContract?.sha256 || '')) {
@@ -395,8 +403,7 @@ function validatePrototypeContract(authority, prototype) {
       'input',
       'output',
       'subpath',
-    ]) || !validSubpath(subpath) || typeof graph.input !== 'string' ||
-        !/^[A-Za-z0-9][A-Za-z0-9._/-]*\.js$/.test(graph.input) ||
+    ]) || !validSubpath(subpath) || !validSourcePath(graph.input) ||
         !validArtifactPath(graph.output) || !Array.isArray(graph.baselineModules) ||
         graph.baselineModules.length || !Array.isArray(graph.baselineExternalImports) ||
         graph.baselineExternalImports.length || !prototypeArtifacts.map.has(graph.output)) {
