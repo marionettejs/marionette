@@ -58,6 +58,33 @@ describe('Behavior UI contract', function() {
       .with.property('code', 'MN0019');
   });
 
+  it('provides the host element while evaluating functional Behavior ui', function() {
+    const onClick = sinon.stub();
+    const ui = sinon.spy(function() {
+      expect(this.el).to.equal(this.view.el);
+      return { target: '.target' };
+    });
+    const TestBehavior = Behavior.extend({
+      ui,
+      events: { 'click @ui.target': 'onClick' },
+      onClick,
+    });
+    const TestView = View.extend({
+      behaviors: [TestBehavior],
+      template() {
+        return '<button class="target"></button>';
+      },
+    });
+    const view = new TestView();
+
+    expect(ui).to.have.been.calledOnce;
+    view.render();
+    view.el.querySelector('.target').click();
+    expect(onClick).to.have.been.calledOnce;
+
+    view.destroy();
+  });
+
   it('captures merged UI during host construction with host keys winning', function() {
     const lifecycle = [];
     let behavior;

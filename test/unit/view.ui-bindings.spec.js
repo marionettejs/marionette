@@ -27,7 +27,7 @@ describe('view ui elements', function() {
 
     it('should throw a stable diagnostic if it begins with @ui. but can not be found', function() {
       expect(() => this.view.normalizeUIString('@ui.baz'))
-        .to.throw('The ui reference "baz" is not defined.')
+        .to.throw('The ui reference "baz" must be declared as an own ui key.')
         .with.property('code', 'MN0018');
     });
   });

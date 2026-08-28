@@ -63,9 +63,13 @@
     const methodName = method;
     const resolvedMethod = underscore.isString(methodName) ? context[methodName] : undefined;
     if (!underscore.isFunction(resolvedMethod)) {
+      let methodLabel = '<unprintable>';
+      try {
+        methodLabel = String(methodName);
+      } catch {}
       throw new MarionetteError({
         code: 'MN0019',
-        message: `The handler "${methodName}" for "${name}" must resolve to a function.`
+        message: `The handler "${methodLabel}" for "${name}" must resolve to a function.`
       });
     }
     return resolvedMethod;
@@ -1033,11 +1037,24 @@
   const normalizeUIString = function (uiString, ui) {
     return uiString.replace(uiRegEx, r => {
       const name = r.slice(4);
-      const selector = ui && ui[name];
-      if (!ui || !hasOwnProperty.call(ui, name) || typeof selector === 'undefined') {
+      if (!name) {
         throw new MarionetteError({
           code: 'MN0018',
-          message: `The ui reference "${name}" is not defined.`
+          message: 'The ui reference must include a key name.'
+        });
+      }
+      const hasSelector = ui && hasOwnProperty.call(ui, name);
+      const selector = hasSelector ? ui[name] : undefined;
+      if (!hasSelector) {
+        throw new MarionetteError({
+          code: 'MN0018',
+          message: `The ui reference "${name}" must be declared as an own ui key.`
+        });
+      }
+      if (!underscore.isString(selector)) {
+        throw new MarionetteError({
+          code: 'MN0018',
+          message: `The ui reference "${name}" must be a string selector.`
         });
       }
       return selector;
@@ -2630,6 +2647,7 @@
     this._setOptions(options, ClassOptions$1);
     this.cid = underscore.uniqueId(this.cidPrefix);
     this._initViewEvents();
+    this.el = view.el;
     this.ui = underscore.extend({}, underscore.result(this, 'ui'), underscore.result(view, 'ui'));
     this.setElement();
     this.listenTo(view, 'all', this.triggerMethod);

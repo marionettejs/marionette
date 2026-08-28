@@ -291,7 +291,7 @@ By prefixing with `@ui`, we can change the underlying template without having to
 hunt through our view for every place where that selector is referenced - just
 update the `ui` object.
 
-Every `@ui.<name>` reference must name an own, declared key in the applicable
+Every `@ui.<name>` reference must include a non-empty name for an own, declared key in the applicable
 `ui` map. Missing, inherited, or `undefined` keys throw `MarionetteError` with
 code `MN0018` during normalization. An explicitly declared empty selector is a
 known key, though the DOM API may reject it when the selector is used.

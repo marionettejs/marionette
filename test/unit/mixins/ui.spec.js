@@ -83,7 +83,15 @@ describe('normalizeUIKeys', function() {
 
     it('throws a stable diagnostic for an unknown literal ui reference', function() {
       expect(() => view.normalizeUIString('@ui.missing'))
-        .to.throw('The ui reference "missing" is not defined.')
+        .to.throw('The ui reference "missing" must be declared as an own ui key.')
+        .with.property('code', 'MN0018');
+    });
+
+    it('requires a literal ui reference to include a key name', function() {
+      view.ui[''] = '.empty';
+
+      expect(() => view.normalizeUIString('@ui.'))
+        .to.throw('The ui reference must include a key name.')
         .with.property('code', 'MN0018');
     });
 
@@ -100,10 +108,44 @@ describe('normalizeUIKeys', function() {
       });
     });
 
+    it('does not read inherited ui accessors', function() {
+      const inheritedGetter = sinon.stub().throws(new Error('inherited getter ran'));
+      const prototype = {};
+      Object.defineProperty(prototype, 'danger', { get: inheritedGetter });
+      view.ui = Object.create(prototype);
+
+      expect(() => view.normalizeUIString('@ui.danger'))
+        .to.throw('The ui reference "danger" must be declared as an own ui key.')
+        .with.property('code', 'MN0018');
+      expect(inheritedGetter).not.to.have.been.called;
+    });
+
     it('accepts an empty selector when its ui key is declared', function() {
       view.ui.empty = '';
 
       expect(view.normalizeUIString('@ui.empty')).to.equal('');
+    });
+
+    it('requires a declared ui reference to contain a string selector', function() {
+      view.ui.invalid = 1;
+
+      expect(() => view.normalizeUIString('@ui.invalid'))
+        .to.throw('The ui reference "invalid" must be a string selector.')
+        .with.property('code', 'MN0018');
+    });
+
+    it('preserves non-string selectors when binding ui directly', function() {
+      const BindingView = View.extend({
+        ui: {direct: 1}
+      });
+      const bindingView = new BindingView();
+      const selectorResult = {};
+      bindingView.$ = sinon.stub().returns(selectorResult);
+
+      bindingView.bindUIElements();
+
+      expect(bindingView.$).to.have.been.calledOnceWithExactly(1);
+      expect(bindingView.ui.direct).to.equal(selectorResult);
     });
   });
 });

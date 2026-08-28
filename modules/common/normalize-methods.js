@@ -13,9 +13,16 @@ const resolveMethod = function(context, method, name) {
   const resolvedMethod = isString(methodName) ? context[methodName] : undefined;
 
   if (!isFunction(resolvedMethod)) {
+    let methodLabel = '<unprintable>';
+    try {
+      methodLabel = String(methodName);
+    } catch {
+      // Preserve the stable fallback for values without string coercion.
+    }
+
     throw new MarionetteError({
       code: 'MN0019',
-      message: `The handler "${methodName}" for "${name}" must resolve to a function.`
+      message: `The handler "${methodLabel}" for "${name}" must resolve to a function.`
     });
   }
 

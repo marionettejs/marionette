@@ -294,7 +294,7 @@
     },
     {
       "code": "MN0018",
-      "slug": "ui-reference-not-found",
+      "slug": "ui-reference-invalid",
       "status": "active",
       "category": "configuration",
       "severity": "error",
@@ -303,7 +303,7 @@
         "CollectionView",
         "View"
       ],
-      "remediation": "Define the referenced key in the ui hash or replace the @ui reference with a literal selector.",
+      "remediation": "Use @ui.<name> with a non-empty own key whose value is a string selector, or replace the reference with a literal selector.",
       "docsAnchor": "/errors/MN0018/",
       "surfaces": [
         "runtime"

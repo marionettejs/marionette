@@ -20,12 +20,28 @@ const hasOwnProperty = Object.prototype.hasOwnProperty;
 const normalizeUIString = function(uiString, ui) {
   return uiString.replace(uiRegEx, (r) => {
     const name = r.slice(4);
-    const selector = ui && ui[name];
 
-    if (!ui || !hasOwnProperty.call(ui, name) || typeof selector === 'undefined') {
+    if (!name) {
       throw new MarionetteError({
         code: 'MN0018',
-        message: `The ui reference "${name}" is not defined.`
+        message: 'The ui reference must include a key name.'
+      });
+    }
+
+    const hasSelector = ui && hasOwnProperty.call(ui, name);
+    const selector = hasSelector ? ui[name] : undefined;
+
+    if (!hasSelector) {
+      throw new MarionetteError({
+        code: 'MN0018',
+        message: `The ui reference "${name}" must be declared as an own ui key.`
+      });
+    }
+
+    if (!isString(selector)) {
+      throw new MarionetteError({
+        code: 'MN0018',
+        message: `The ui reference "${name}" must be a string selector.`
       });
     }
 

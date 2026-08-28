@@ -54,5 +54,17 @@ describe('normalizeMethods', function() {
         .to.throw('The handler "1" for "found" must resolve to a function.')
         .with.property('code', 'MN0019');
     });
+
+    it('formats Symbol handler references in the stable diagnostic', function() {
+      expect(() => view.normalizeMethods({event: Symbol('handler')}))
+        .to.throw('The handler "Symbol(handler)" for "event" must resolve to a function.')
+        .with.property('code', 'MN0019');
+    });
+
+    it('formats unprintable handler references in the stable diagnostic', function() {
+      expect(() => view.normalizeMethods({event: Object.create(null)}))
+        .to.throw('The handler "<unprintable>" for "event" must resolve to a function.')
+        .with.property('code', 'MN0019');
+    });
   });
 });

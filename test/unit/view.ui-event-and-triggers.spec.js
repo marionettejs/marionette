@@ -117,12 +117,13 @@ describe('view ui event trigger configuration', function() {
   });
 
   it('rejects non-string event handlers', function() {
-    const delegate = this.sinon.spy(Marionette.View.prototype.EventDelegator, 'delegate');
+    const delegate = this.sinon.spy();
     const View = Marionette.View.extend({
       events: {
         click: 1
       }
     });
+    View.setEventDelegator({ delegate });
 
     expect(() => new View())
       .to.throw('The handler "1" for "click" must resolve to a function.')
@@ -131,7 +132,7 @@ describe('view ui event trigger configuration', function() {
   });
 
   it('preflights the complete event map before delegating handlers', function() {
-    const delegate = this.sinon.spy(Marionette.View.prototype.EventDelegator, 'delegate');
+    const delegate = this.sinon.spy();
     const View = Marionette.View.extend({
       events: {
         click: 'onClick',
@@ -139,6 +140,7 @@ describe('view ui event trigger configuration', function() {
       },
       onClick() {}
     });
+    View.setEventDelegator({ delegate });
 
     expect(() => new View()).to.throw().with.property('code', 'MN0019');
     expect(delegate).not.to.have.been.called;
