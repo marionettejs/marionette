@@ -1,0 +1,28 @@
+.github/workflows/ci.yml
+  s_d6429951fb9231::t_c0090332c622a7 236,242
+docs/performance-baselines.md
+  s_d6429951fb9231::t_57bb8ba167a886 241-242
+  s_d6429951fb9231::t_c0090332c622a7 198-204
+test/performance/contract.test.mjs
+  s_d6429951fb9231::t_61bb0446c338c4 486
+  s_d6429951fb9231::t_4b071d61cae808 513-515
+  s_d6429951fb9231::t_c5e6c2bd61aa52 511-512
+  s_d6429951fb9231::t_1ed47af65c6e7b 487,492,523,527-528
+  s_d6429951fb9231::t_9081c805138ee6 488-491,493-510,516-522,524-526
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "e469fdb783cca87d30bba360ef57d7cfe2d45643",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
