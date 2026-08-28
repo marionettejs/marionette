@@ -1,4 +1,4 @@
-import { has, extend as extend$1, create, pick, reduce, isFunction, isString, isObject, each, keys, once, uniqueId, result, map, without, clone, partial, isEmpty, sortBy, partition, pluck, last, rest, initial, first, toArray, invoke, contains, include, any, some, all, every, reject, select, filter, detect, find, forEach, matches } from 'underscore';
+import { has, extend as extend$1, create, pick, reduce, isFunction, isString, isObject, each, keys, once, uniqueId, result, map, without, partial, isEmpty, sortBy, partition, pluck, last, rest, initial, first, toArray, invoke, contains, include, any, some, all, every, reject, select, filter, detect, find, forEach, matches } from 'underscore';
 
 const proxy = function (method) {
   return function (context, ...args) {
@@ -1463,6 +1463,32 @@ function setRenderer$1(renderer) {
 }
 
 const classErrorName$1 = 'RegionError';
+function setRegion(regions, definition, name) {
+  Object.defineProperty(regions, name, {
+    configurable: true,
+    enumerable: true,
+    value: definition,
+    writable: true
+  });
+  return regions;
+}
+function getOwnRegion(regions, name) {
+  try {
+    return Object.getOwnPropertyDescriptor(regions, name)?.value;
+  } catch {}
+}
+function getRequiredRegion(region, name) {
+  if (region) {
+    return region;
+  }
+  const type = typeof name;
+  const label = name === null || type !== 'object' && type !== 'function' ? ` "${String(name)}"` : '';
+  throw new MarionetteError({
+    code: 'MN0020',
+    name: classErrorName$1,
+    message: `Region${label} does not exist.`
+  });
+}
 const RegionClassOptions = ['allowMissingEl', 'parentEl', 'replaceElement'];
 const Region = function (options) {
   this._setOptions(options, RegionClassOptions);
@@ -1811,15 +1837,14 @@ const RegionsMixin = {
   regionClass: Region,
   _initRegions() {
     this.regions = this.regions || {};
-    this._regions = {};
+    this._regions = Object.create(null);
     this.addRegions(result(this, 'regions'));
   },
   _reInitRegions() {
     each(this._regions, region => region.reset());
   },
   addRegion(name, definition) {
-    const regions = {};
-    regions[name] = definition;
+    const regions = setRegion({}, definition, name);
     return this.addRegions(regions)[name];
   },
   addRegions(regions) {
@@ -1827,7 +1852,7 @@ const RegionsMixin = {
       return;
     }
     regions = this.normalizeUIValues(regions, 'el');
-    this.regions = extend$1({}, this.regions, regions);
+    this.regions = reduce(regions, setRegion, reduce(this.regions, setRegion, {}));
     return this._addRegions(regions);
   },
   _addRegions(regionDefinitions) {
@@ -1836,8 +1861,9 @@ const RegionsMixin = {
       parentEl: partial(result, this, 'el')
     };
     return reduce(regionDefinitions, (regions, definition, name) => {
-      regions[name] = buildRegion(definition, defaults);
-      this._addRegion(regions[name], name);
+      const region = buildRegion(definition, defaults);
+      setRegion(regions, region, name);
+      this._addRegion(region, name);
       return regions;
     }, {});
   },
@@ -1849,7 +1875,7 @@ const RegionsMixin = {
     this.triggerMethod('add:region', this, name, region);
   },
   removeRegion(name) {
-    const region = this._regions[name];
+    const region = getRequiredRegion(getOwnRegion(this._regions, name), name);
     this._removeRegion(region, name);
     return region;
   },
@@ -1879,10 +1905,10 @@ const RegionsMixin = {
     if (!this._isRendered) {
       this.render();
     }
-    return this._regions[name];
+    return getOwnRegion(this._regions, name);
   },
   _getRegions() {
-    return clone(this._regions);
+    return reduce(this._regions, setRegion, {});
   },
   getRegions() {
     if (!this._isRendered) {
@@ -1891,15 +1917,15 @@ const RegionsMixin = {
     return this._getRegions();
   },
   showChildView(name, view, options) {
-    const region = this.getRegion(name);
+    const region = getRequiredRegion(this.getRegion(name), name);
     region.show(view, options);
     return view;
   },
   detachChildView(name) {
-    return this.getRegion(name).detachView();
+    return getRequiredRegion(this.getRegion(name), name).detachView();
   },
   getChildView(name) {
-    return this.getRegion(name).currentView;
+    return getRequiredRegion(this.getRegion(name), name).currentView;
   }
 };
 const ViewClassOptions = ['attributes', 'behaviors', 'childViewEventPrefix', 'childViewEvents', 'childViewTriggers', 'className', 'collection', 'collectionEvents', 'el', 'events', 'id', 'model', 'modelEvents', 'regionClass', 'regions', 'tagName', 'template', 'templateContext', 'triggers', 'ui'];

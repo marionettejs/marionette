@@ -1472,6 +1472,32 @@
   }
 
   const classErrorName$1 = 'RegionError';
+  function setRegion(regions, definition, name) {
+    Object.defineProperty(regions, name, {
+      configurable: true,
+      enumerable: true,
+      value: definition,
+      writable: true
+    });
+    return regions;
+  }
+  function getOwnRegion(regions, name) {
+    try {
+      return Object.getOwnPropertyDescriptor(regions, name)?.value;
+    } catch {}
+  }
+  function getRequiredRegion(region, name) {
+    if (region) {
+      return region;
+    }
+    const type = typeof name;
+    const label = name === null || type !== 'object' && type !== 'function' ? ` "${String(name)}"` : '';
+    throw new MarionetteError({
+      code: 'MN0020',
+      name: classErrorName$1,
+      message: `Region${label} does not exist.`
+    });
+  }
   const RegionClassOptions = ['allowMissingEl', 'parentEl', 'replaceElement'];
   const Region = function (options) {
     this._setOptions(options, RegionClassOptions);
@@ -1820,15 +1846,14 @@
     regionClass: Region,
     _initRegions() {
       this.regions = this.regions || {};
-      this._regions = {};
+      this._regions = Object.create(null);
       this.addRegions(underscore.result(this, 'regions'));
     },
     _reInitRegions() {
       underscore.each(this._regions, region => region.reset());
     },
     addRegion(name, definition) {
-      const regions = {};
-      regions[name] = definition;
+      const regions = setRegion({}, definition, name);
       return this.addRegions(regions)[name];
     },
     addRegions(regions) {
@@ -1836,7 +1861,7 @@
         return;
       }
       regions = this.normalizeUIValues(regions, 'el');
-      this.regions = underscore.extend({}, this.regions, regions);
+      this.regions = underscore.reduce(regions, setRegion, underscore.reduce(this.regions, setRegion, {}));
       return this._addRegions(regions);
     },
     _addRegions(regionDefinitions) {
@@ -1845,8 +1870,9 @@
         parentEl: underscore.partial(underscore.result, this, 'el')
       };
       return underscore.reduce(regionDefinitions, (regions, definition, name) => {
-        regions[name] = buildRegion(definition, defaults);
-        this._addRegion(regions[name], name);
+        const region = buildRegion(definition, defaults);
+        setRegion(regions, region, name);
+        this._addRegion(region, name);
         return regions;
       }, {});
     },
@@ -1858,7 +1884,7 @@
       this.triggerMethod('add:region', this, name, region);
     },
     removeRegion(name) {
-      const region = this._regions[name];
+      const region = getRequiredRegion(getOwnRegion(this._regions, name), name);
       this._removeRegion(region, name);
       return region;
     },
@@ -1888,10 +1914,10 @@
       if (!this._isRendered) {
         this.render();
       }
-      return this._regions[name];
+      return getOwnRegion(this._regions, name);
     },
     _getRegions() {
-      return underscore.clone(this._regions);
+      return underscore.reduce(this._regions, setRegion, {});
     },
     getRegions() {
       if (!this._isRendered) {
@@ -1900,15 +1926,15 @@
       return this._getRegions();
     },
     showChildView(name, view, options) {
-      const region = this.getRegion(name);
+      const region = getRequiredRegion(this.getRegion(name), name);
       region.show(view, options);
       return view;
     },
     detachChildView(name) {
-      return this.getRegion(name).detachView();
+      return getRequiredRegion(this.getRegion(name), name).detachView();
     },
     getChildView(name) {
-      return this.getRegion(name).currentView;
+      return getRequiredRegion(this.getRegion(name), name).currentView;
     }
   };
   const ViewClassOptions = ['attributes', 'behaviors', 'childViewEventPrefix', 'childViewEvents', 'childViewTriggers', 'className', 'collection', 'collectionEvents', 'el', 'events', 'id', 'model', 'modelEvents', 'regionClass', 'regions', 'tagName', 'template', 'templateContext', 'triggers', 'ui'];

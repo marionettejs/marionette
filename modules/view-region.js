@@ -2,7 +2,6 @@
 // ------
 
 import {
-  clone,
   each,
   extend as _extend,
   isEmpty,
@@ -25,6 +24,38 @@ import { setEventDelegator } from '../config/event-delegator.js';
 import { setRenderer } from '../config/renderer.js';
 
 const classErrorName = 'RegionError';
+
+function setRegion(regions, definition, name) {
+  Object.defineProperty(regions, name, {
+    configurable: true,
+    enumerable: true,
+    value: definition,
+    writable: true
+  });
+  return regions;
+}
+
+function getOwnRegion(regions, name) {
+  try {
+    return Object.getOwnPropertyDescriptor(regions, name)?.value;
+  } catch {
+    // Required operations report MN0020; optional lookups return undefined.
+  }
+}
+
+function getRequiredRegion(region, name) {
+  if (region) { return region; }
+
+  const type = typeof name;
+  const label = name === null || type !== 'object' && type !== 'function' ?
+    ` "${String(name)}"` : '';
+
+  throw new MarionetteError({
+    code: 'MN0020',
+    name: classErrorName,
+    message: `Region${label} does not exist.`
+  });
+}
 
 const RegionClassOptions = [
   'allowMissingEl',
@@ -519,7 +550,7 @@ const RegionsMixin = {
 
     // init regions hash
     this.regions = this.regions || {};
-    this._regions = {};
+    this._regions = Object.create(null);
 
     this.addRegions(result(this, 'regions'));
   },
@@ -532,8 +563,7 @@ const RegionsMixin = {
 
   // Add a single region, by name, to the View
   addRegion(name, definition) {
-    const regions = {};
-    regions[name] = definition;
+    const regions = setRegion({}, definition, name);
     return this.addRegions(regions)[name];
   },
 
@@ -549,7 +579,7 @@ const RegionsMixin = {
     regions = this.normalizeUIValues(regions, 'el');
 
     // Add the regions definitions to the regions property
-    this.regions = _extend({}, this.regions, regions);
+    this.regions = reduce(regions, setRegion, reduce(this.regions, setRegion, {}));
 
     return this._addRegions(regions);
   },
@@ -562,8 +592,9 @@ const RegionsMixin = {
     };
 
     return reduce(regionDefinitions, (regions, definition, name) => {
-      regions[name] = buildRegion(definition, defaults);
-      this._addRegion(regions[name], name);
+      const region = buildRegion(definition, defaults);
+      setRegion(regions, region, name);
+      this._addRegion(region, name);
       return regions;
     }, {});
   },
@@ -581,7 +612,7 @@ const RegionsMixin = {
 
   // Remove a single region from the View, by name
   removeRegion(name) {
-    const region = this._regions[name];
+    const region = getRequiredRegion(getOwnRegion(this._regions, name), name);
 
     this._removeRegion(region, name);
 
@@ -633,11 +664,11 @@ const RegionsMixin = {
     if (!this._isRendered) {
       this.render();
     }
-    return this._regions[name];
+    return getOwnRegion(this._regions, name);
   },
 
   _getRegions() {
-    return clone(this._regions);
+    return reduce(this._regions, setRegion, {});
   },
 
   // Get all regions
@@ -649,17 +680,17 @@ const RegionsMixin = {
   },
 
   showChildView(name, view, options) {
-    const region = this.getRegion(name);
+    const region = getRequiredRegion(this.getRegion(name), name);
     region.show(view, options);
     return view;
   },
 
   detachChildView(name) {
-    return this.getRegion(name).detachView();
+    return getRequiredRegion(this.getRegion(name), name).detachView();
   },
 
   getChildView(name) {
-    return this.getRegion(name).currentView;
+    return getRequiredRegion(this.getRegion(name), name).currentView;
   }
 
 };
