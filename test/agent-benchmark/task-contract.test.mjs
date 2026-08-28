@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises';
+import { link, mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, test } from 'node:test';
@@ -156,6 +156,75 @@ describe('agent benchmark task contract', () => {
     );
   });
 
+  test('rejects a public prompt hard-linked to a hidden test', async() => {
+    const promptPath = 'tasks/render-a-view/prompt-hard-link.md';
+    const hiddenTestPath = 'tasks/render-a-view/acceptance/render.test.mjs';
+    await link(join(root, hiddenTestPath), join(root, promptPath));
+
+    await expectContractError(
+      root,
+      [validTask({ promptPath })],
+      `render-a-view hidden test must not also be promptPath: ${hiddenTestPath}`
+    );
+  });
+
+  test('rejects a prompt that exposes another task hidden test', async() => {
+    await mkdir(join(root, 'tasks/edit-a-view/workspace/test'), { recursive: true });
+    await mkdir(join(root, 'tasks/edit-a-view/acceptance'), { recursive: true });
+    await writeFile(join(root, 'tasks/edit-a-view/acceptance/edit.test.mjs'), 'export {};\n');
+    const exposedHiddenTest = 'tasks/render-a-view/acceptance/render.test.mjs';
+    const secondTask = validTask({
+      id: 'edit-a-view',
+      title: 'Edit a view',
+      promptPath: exposedHiddenTest,
+      workspacePath: 'tasks/edit-a-view/workspace',
+      acceptance: {
+        command: ['npm', 'test'],
+        hiddenTests: [{
+          sourcePath: 'tasks/edit-a-view/acceptance/edit.test.mjs',
+          targetPath: 'test/edit.test.mjs',
+        }],
+      },
+    });
+
+    await expectContractError(
+      root,
+      [validTask(), secondTask],
+      `edit-a-view promptPath must not expose render-a-view hidden test: ${exposedHiddenTest}`
+    );
+  });
+
+  test('rejects a workspace that exposes another task hidden test', async() => {
+    await mkdir(join(root, 'tasks/edit-a-view/workspace/test'), { recursive: true });
+    await mkdir(join(root, 'tasks/edit-a-view/acceptance'), { recursive: true });
+    await writeFile(join(root, 'tasks/edit-a-view/prompt.md'), '# Edit a view\n');
+    await writeFile(join(root, 'tasks/edit-a-view/acceptance/edit.test.mjs'), 'export {};\n');
+    const exposedHiddenTest = 'tasks/render-a-view/acceptance/render.test.mjs';
+    await link(
+      join(root, exposedHiddenTest),
+      join(root, 'tasks/edit-a-view/workspace/render.test.mjs')
+    );
+    const secondTask = validTask({
+      id: 'edit-a-view',
+      title: 'Edit a view',
+      promptPath: 'tasks/edit-a-view/prompt.md',
+      workspacePath: 'tasks/edit-a-view/workspace',
+      acceptance: {
+        command: ['npm', 'test'],
+        hiddenTests: [{
+          sourcePath: 'tasks/edit-a-view/acceptance/edit.test.mjs',
+          targetPath: 'test/edit.test.mjs',
+        }],
+      },
+    });
+
+    await expectContractError(
+      root,
+      [validTask(), secondTask],
+      `edit-a-view workspacePath must not expose render-a-view hidden test: ${exposedHiddenTest}`
+    );
+  });
+
   test('rejects workspace symlinks that could expose withheld files', async() => {
     await symlink(
       join(root, 'tasks/render-a-view/acceptance/render.test.mjs'),
@@ -242,6 +311,18 @@ describe('agent benchmark task contract', () => {
       root,
       [validTask()],
       'capability ids must be sorted',
+      malformedCapabilities
+    );
+  });
+
+  test('rejects a numeric capability id instead of coercing it to a slug', async() => {
+    const malformedCapabilities = structuredClone(capabilities);
+    malformedCapabilities.capabilities[0].id = 123;
+
+    await expectContractError(
+      root,
+      [validTask()],
+      'capability ids must be lowercase slugs',
       malformedCapabilities
     );
   });

@@ -61,7 +61,9 @@ function validateCapabilityCatalog(catalog, errors) {
   const capabilityIds = catalog.capabilities.map(capability => capability?.id);
   const sortedCapabilityIds = [...capabilityIds].sort();
 
-  if (capabilityIds.some(id => !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id || ''))) {
+  if (capabilityIds.some(id =>
+    typeof id !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)
+  )) {
     errors.push('capability ids must be lowercase slugs');
   }
 
@@ -129,7 +131,13 @@ async function validateReferencedPath({
     errors.push(`${label} must be a directory: ${path}`);
   }
 
-  return realPath;
+  return { realPath, stat: pathStat };
+}
+
+function isSameFile(left, right) {
+  return left.realPath === right.realPath ||
+    (left.stat.ino !== 0 && right.stat.ino !== 0 &&
+      left.stat.dev === right.stat.dev && left.stat.ino === right.stat.ino);
 }
 
 async function validateHiddenTarget({ taskId, targetPath, workspacePath }, errors) {
@@ -173,7 +181,7 @@ async function validateHiddenTarget({ taskId, targetPath, workspacePath }, error
   }
 }
 
-async function addWorkspaceSymlinkErrors(taskId, workspacePath, errors, directory = workspacePath) {
+async function inspectWorkspace(taskId, workspacePath, errors, directory = workspacePath, files = []) {
   const entries = await readdir(directory, { withFileTypes: true });
 
   for (const entry of entries) {
@@ -182,9 +190,14 @@ async function addWorkspaceSymlinkErrors(taskId, workspacePath, errors, director
     if (entry.isSymbolicLink()) {
       errors.push(`${taskId} workspacePath must not contain symlinks: ${relative(workspacePath, entryPath)}`);
     } else if (entry.isDirectory()) {
-      await addWorkspaceSymlinkErrors(taskId, workspacePath, errors, entryPath);
+      await inspectWorkspace(taskId, workspacePath, errors, entryPath, files);
+    } else if (entry.isFile()) {
+      const [fileRealPath, fileStat] = await Promise.all([realpath(entryPath), stat(entryPath)]);
+      files.push({ realPath: fileRealPath, stat: fileStat });
     }
   }
+
+  return files;
 }
 
 /**
@@ -214,6 +227,9 @@ export async function validateTaskContracts({
   }
 
   const taskIds = new Set();
+  const hiddenSources = [];
+  const prompts = [];
+  const workspaces = [];
 
   for (const [index, task] of tasks.entries()) {
     const taskLabel = task?.id || `task at index ${index}`;
@@ -241,14 +257,14 @@ export async function validateTaskContracts({
       }
     }
 
-    const promptPath = await validateReferencedPath({
+    const promptReference = await validateReferencedPath({
       expectedType: 'file',
       label: `${task.id} promptPath`,
       path: task.promptPath,
       root: absoluteRoot,
       realRoot,
     }, errors);
-    const workspacePath = await validateReferencedPath({
+    const workspaceReference = await validateReferencedPath({
       expectedType: 'directory',
       label: `${task.id} workspacePath`,
       path: task.workspacePath,
@@ -257,15 +273,29 @@ export async function validateTaskContracts({
       realRoot,
     }, errors);
 
-    if (workspacePath) {
-      await addWorkspaceSymlinkErrors(task.id, workspacePath, errors);
+    if (promptReference) {
+      prompts.push({ path: task.promptPath, reference: promptReference, taskId: task.id });
+    }
+
+    if (workspaceReference) {
+      const files = await inspectWorkspace(
+        task.id,
+        workspaceReference.realPath,
+        errors
+      );
+      workspaces.push({
+        files,
+        path: task.workspacePath,
+        reference: workspaceReference,
+        taskId: task.id,
+      });
     }
 
     const hiddenTargetPaths = new Set();
 
     for (const hiddenTest of task.acceptance.hiddenTests) {
       const hiddenTestPath = hiddenTest.sourcePath;
-      const resolvedTestPath = await validateReferencedPath({
+      const hiddenTestReference = await validateReferencedPath({
         expectedType: 'file',
         label: `${task.id} hidden test`,
         path: hiddenTestPath,
@@ -273,12 +303,12 @@ export async function validateTaskContracts({
         realRoot,
       }, errors);
 
-      if (workspacePath && resolvedTestPath && isWithin(workspacePath, resolvedTestPath)) {
-        errors.push(`${task.id} hidden test must be outside workspacePath: ${hiddenTestPath}`);
-      }
-
-      if (promptPath && resolvedTestPath === promptPath) {
-        errors.push(`${task.id} hidden test must not also be promptPath: ${hiddenTestPath}`);
+      if (hiddenTestReference) {
+        hiddenSources.push({
+          path: hiddenTestPath,
+          reference: hiddenTestReference,
+          taskId: task.id,
+        });
       }
 
       if (hiddenTargetPaths.has(hiddenTest.targetPath)) {
@@ -286,15 +316,59 @@ export async function validateTaskContracts({
       }
       hiddenTargetPaths.add(hiddenTest.targetPath);
 
-      if (workspacePath) {
+      if (workspaceReference) {
         await validateHiddenTarget({
           taskId: task.id,
           targetPath: hiddenTest.targetPath,
-          workspacePath,
+          workspacePath: workspaceReference.realPath,
         }, errors);
       }
     }
 
+  }
+
+  for (const hiddenSource of hiddenSources) {
+    for (const prompt of prompts) {
+      if (!isSameFile(prompt.reference, hiddenSource.reference)) {
+        continue;
+      }
+
+      if (prompt.taskId === hiddenSource.taskId) {
+        errors.push(
+          `${hiddenSource.taskId} hidden test must not also be promptPath: ${hiddenSource.path}`
+        );
+      } else {
+        errors.push(
+          `${prompt.taskId} promptPath must not expose ${hiddenSource.taskId} hidden test: ` +
+          hiddenSource.path
+        );
+      }
+    }
+
+    for (const workspace of workspaces) {
+      const hiddenInsideWorkspace = isWithin(
+        workspace.reference.realPath,
+        hiddenSource.reference.realPath
+      );
+      const hiddenLinkedFromWorkspace = workspace.files.some(file =>
+        isSameFile(file, hiddenSource.reference)
+      );
+
+      if (!hiddenInsideWorkspace && !hiddenLinkedFromWorkspace) {
+        continue;
+      }
+
+      if (workspace.taskId === hiddenSource.taskId) {
+        errors.push(
+          `${hiddenSource.taskId} hidden test must be outside workspacePath: ${hiddenSource.path}`
+        );
+      } else {
+        errors.push(
+          `${workspace.taskId} workspacePath must not expose ${hiddenSource.taskId} hidden test: ` +
+          hiddenSource.path
+        );
+      }
+    }
   }
 
   if (errors.length) {

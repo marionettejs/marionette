@@ -27,8 +27,10 @@ The contract validator and its filesystem-isolation cases run in CI through
 Hidden tests are hidden from the agent during an attempt, not from repository users.
 They must remain outside the agent-visible fixture tree in this repository. Every
 workspace tree is symlink-free so it cannot expose withheld files indirectly. Every
-attempt starts from a clean copy, and benchmark fixtures and tests may use only public
-Marionette package entrypoints and APIs.
+hidden source must also be distinct from every corpus prompt and every file in every
+visible workspace, including through symbolic-link and hard-link aliases. Every attempt
+starts from a clean copy, and benchmark fixtures and tests may use only public Marionette
+package entrypoints and APIs.
 
 An evaluator may mark an attempt fully correct only when all acceptance checks pass.
 An aborted attempt remains an attempted, incorrect run. Architecture violations use
