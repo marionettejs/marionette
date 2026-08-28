@@ -236,8 +236,10 @@ const Modal = Behavior.extend({
 
 [Live example](https://jsfiddle.net/marionettejs/7ffnqff3/)
 
-Nested Behaviors act as if they were direct Behaviors of the parent `Behavior`'s
-view instance.
+Nesting groups Behavior declarations; it does not transfer cleanup ownership to
+the declaring Behavior. Nested Behaviors act as direct Behaviors of the same host
+view, so destroying the declarer leaves them active until they are removed
+directly or the host is destroyed.
 
 ## The Behavior's `view`
 The `view` is a reference to the `View` instance that the `Behavior` is attached to.

@@ -186,6 +186,58 @@ describe('Behavior lifecycle contract', function() {
     expect(behavior.stopListening).to.have.been.calledOnce;
   });
 
+  it('keeps a nested Behavior host-owned after directly removing its declarer', function() {
+    const parentHostEvent = this.sinon.spy();
+    const nestedHostEvent = this.sinon.spy();
+    const parentBeforeDestroy = this.sinon.spy();
+    const nestedBeforeDestroy = this.sinon.spy();
+    const parentDestroy = this.sinon.spy();
+    const nestedDestroy = this.sinon.spy();
+    let parentBehavior;
+    let nestedBehavior;
+
+    const NestedBehavior = Behavior.extend({
+      initialize() {
+        nestedBehavior = this;
+      },
+      onHostEvent: nestedHostEvent,
+      onBeforeDestroy: nestedBeforeDestroy,
+      onDestroy: nestedDestroy,
+    });
+    const ParentBehavior = Behavior.extend({
+      behaviors: [NestedBehavior],
+      initialize() {
+        parentBehavior = this;
+      },
+      onHostEvent: parentHostEvent,
+      onBeforeDestroy: parentBeforeDestroy,
+      onDestroy: parentDestroy,
+    });
+    const TestView = View.extend({ behaviors: [ParentBehavior] });
+    const view = new TestView();
+
+    expect(parentBehavior.view).to.equal(view);
+    expect(nestedBehavior.view).to.equal(view);
+    view.triggerMethod('host:event');
+    expect(parentHostEvent).to.have.been.calledOnce.and.calledOn(parentBehavior);
+    expect(nestedHostEvent).to.have.been.calledOnce.and.calledOn(nestedBehavior);
+
+    parentBehavior.destroy();
+
+    view.triggerMethod('host:event');
+
+    expect(parentHostEvent).to.have.been.calledOnce;
+    expect(nestedHostEvent).to.have.been.calledTwice;
+
+    view.destroy();
+    view.destroy();
+
+    expect(parentBeforeDestroy).to.not.have.been.called;
+    expect(parentDestroy).to.not.have.been.called;
+    expect(nestedBeforeDestroy).to.have.been.calledOnce.and.calledOn(nestedBehavior);
+    expect(nestedDestroy).to.have.been.calledOnce.and.calledOn(nestedBehavior);
+  });
+
   it('cleans up top-level and nested Behaviors once in host destroy order', function() {
     this.setFixtures('<div id="destroy-region"></div>');
     const lifecycle = [];
