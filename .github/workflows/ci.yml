@@ -233,12 +233,13 @@ jobs:
 
           node "${authority_script}" --root bundle-size-base --config "${base_contract}" --json --no-enforce > "${PERFORMANCE_DIR}/bundle-size-base.json"
           authority_status=0
-          node "${authority_script}" --config "${base_contract}" --json > "${PERFORMANCE_DIR}/bundle-size-authority.json" || authority_status=$?
+          node "${authority_script}" --config config/performance.json --json > "${PERFORMANCE_DIR}/bundle-size-authority.json" || authority_status=$?
           candidate_status=0
           node "${authority_script}" --validate-resource-contract "${base_contract}" config/performance.json || candidate_status=$?
           approval_status=0
           node "${approval_script}" \
             --contract "${base_contract}" \
+            --candidate-contract config/performance.json \
             --base-report "${PERFORMANCE_DIR}/bundle-size-base.json" \
             --current-report "${PERFORMANCE_DIR}/bundle-size-authority.json" \
             --comments "${PERFORMANCE_DIR}/approval-comments.json" \
