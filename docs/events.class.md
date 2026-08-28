@@ -97,7 +97,7 @@ The `Application` class also triggers [Destroy Events](#destroy-and-beforedestro
 
 ### `initialize` event
 
-After the view and behavior are [constructed and initialized](./marionette.behavior.md#events--initialize-order),
+After the view and behavior are [constructed and initialized](./marionette.behavior.md#initialize-order),
 the last event to occur is an `initialize` event on the behavior which is passed
 the view instance and any options passed to the view at instantiation.
 
