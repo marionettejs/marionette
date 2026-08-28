@@ -1,0 +1,73 @@
+modules/behavior.js
+  s_d6429951fb9231::t_c9ec5827ea5c66 37
+test/unit/common/normalize-methods.spec.js
+  s_d6429951fb9231::t_de2d03dda290ff 63-68
+  s_d6429951fb9231::t_c9ec5827ea5c66 57-62
+mixins/ui.js
+  s_d6429951fb9231::t_315c3f659a19c0 37
+  s_d6429951fb9231::t_6d35f45fd686cb 24,27-30
+  s_d6429951fb9231::t_1e99f19806f877 34,41-44
+  s_d6429951fb9231::t_c9ec5827ea5c66 31-32
+  s_d6429951fb9231::t_d42f8add6cebe2 33,35-36,38-40
+docs/dom.interactions.md
+  s_d6429951fb9231::t_6d35f45fd686cb 294
+config/diagnostics/catalog.json
+  s_d6429951fb9231::t_6d35f45fd686cb 306
+test/unit/mixins/ui.spec.js
+  s_d6429951fb9231::t_315c3f659a19c0 86,118
+  s_d6429951fb9231::t_15b30d28dd20b2 87-88
+  s_d6429951fb9231::t_1e99f19806f877 133
+  s_d6429951fb9231::t_6d35f45fd686cb 90-94,138-141,143,145,147-148
+  s_d6429951fb9231::t_c9ec5827ea5c66 111-117,119-122
+  s_d6429951fb9231::t_de2d03dda290ff 128-132,134-137,142,144,146,149
+  s_d6429951fb9231::t_2890c462dfcdac 89
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_8dd2fa3ae118b9 1
+dist/marionette.min.js
+  s_d6429951fb9231::t_ebf91ebdba26f4 1
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_dd0749f63adb18 1
+test/unit/view.ui-event-and-triggers.spec.js
+  s_d6429951fb9231::t_6d35f45fd686cb 120,126,135,143
+dist/marionette.cjs
+  s_d6429951fb9231::t_4577db4cfa9762 61-64
+  s_d6429951fb9231::t_d028414405e224 1044-1048
+  s_d6429951fb9231::t_5f63ab99819331 67,1035,1038-1043,2645
+  s_d6429951fb9231::t_38b5365e8dc4c9 1049-1052
+dist/marionette.umd.js
+  s_d6429951fb9231::t_1fe2b08b8a23d7 72,1040,1043-1048,2650
+  s_d6429951fb9231::t_f1b3d29a4973e4 1054-1057
+  s_d6429951fb9231::t_b00538994a3e0f 66-69
+  s_d6429951fb9231::t_4467d89ec91bba 1049-1053
+test/unit/behavior-ui-contract.spec.js
+  s_d6429951fb9231::t_c9ec5827ea5c66 61-73,77-87
+  s_d6429951fb9231::t_d3b17fe2441ef3 74-76
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_1e99f19806f877 46
+modules/common/normalize-methods.js
+  s_d6429951fb9231::t_0a3260db719511 19-21
+  s_d6429951fb9231::t_de2d03dda290ff 16-18,22,25
+test/unit/view.ui-bindings.spec.js
+  s_d6429951fb9231::t_315c3f659a19c0 30
+dist/marionette.js
+  s_d6429951fb9231::t_8de6706be56f53 57-60
+  s_d6429951fb9231::t_bade1d55a368c8 63,1031,1034-1039,2641
+  s_d6429951fb9231::t_ff8f3f51f82081 1040-1044
+  s_d6429951fb9231::t_f777202edfea67 1045-1048
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "c54973f341944cbbdda0f1bd394c73e14837f6ae",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
