@@ -83,9 +83,9 @@ budget.
 ### Coherent runtime contracts
 
 - Lifecycle methods and events have documented state machines and ordering.
-- `MnObject` is the minimal non-renderable, evented, destroyable object; `Application`
-  adds an active lifecycle and owned composition. Parentlessness identifies the root
-  Application without creating another class.
+- `MnObject` is an optional minimal non-renderable, evented, destroyable convenience;
+  `Application` provides an active lifecycle and owned composition. Parentlessness
+  identifies the root Application without creating another class.
 - Application parent/child ownership, root View and Region association, asynchronous
   startup, restart invalidation, and teardown are explicit and testable.
 - Ownership and topology are available through public, read-only APIs.
@@ -99,7 +99,7 @@ budget.
 - Behavior scope, UI resolution, event delegation, dependencies, and teardown are
   explicit and tested.
 - Resource ownership has a canonical opt-in mechanism for timers, listeners,
-  subscriptions, and disposable objects.
+  subscriptions, cleanup callbacks, and owned resources.
 - Framework invariant failures use a common diagnostic type and stable rule code
   instead of incidental JavaScript exceptions.
 
@@ -115,7 +115,7 @@ budget.
 - Documentation names canonical patterns and counterexamples.
 - Examples are run in CI or otherwise verified against the shipped package.
 - A compact agent-oriented reference describes lifecycle, ownership, regions,
-  features, local state, behaviors, communication, and teardown without inventing a
+  Applications, State, behaviors, communication, and teardown without inventing a
   separate API.
 - Migration documentation reflects final v5 behavior rather than preserving
   pre-release experiments.
@@ -134,9 +134,10 @@ budget.
 ### Measured agent outcomes
 
 - A public task corpus covers representative maintenance work: implementing plain
-  and stateful Views, composing Regions and Applications, repairing lifecycle bugs,
-  adding Behaviors, implementing an overlay through a shared host Region, using
-  communication boundaries, and proving cleanup.
+  and stateful Views, choosing among plain classes, MnObject, and Application,
+  composing Regions and Applications, repairing lifecycle bugs, adding Behaviors,
+  implementing an overlay through a shared host Region, using communication
+  boundaries, and proving cleanup.
 - The model version, agent harness, prompt, repository revision, commands, evaluator,
   and expected outcomes are pinned for each benchmark series.
 - The stable-v5 benchmark uses at least 10 tasks. A Phase 0 pilot predeclares the
@@ -147,6 +148,8 @@ budget.
   level of 0.05 divided by the task count and the pilot's one-sided 95 percent upper
   confidence bound for discordant pairs under that regression alternative. The
   executable power calculation and inputs are published before candidate runs.
+- Every named capability area is exercised by at least two independently scored
+  tasks. One task may cover multiple areas, but no single task certifies an area.
 - The aggregate fully-correct rate has a 95 percent Wilson lower bound of at least
   80 percent, and no individual task has a fully-correct point estimate below 60
   percent. Aborted runs count as not fully correct.
@@ -163,12 +166,19 @@ budget.
 
 ## Architecture boundaries
 
-Core owns the essential MnObject, View, Region, Behavior, Application, CollectionView,
-State, lifecycle, event, and error contracts. Additive APIs are justified when they
-expose information the runtime already maintains or make an existing responsibility
-explicit without adding work to unused instances.
+Core owns the essential View, Region, Behavior, Application, CollectionView, State,
+lifecycle, event, and error contracts and preserves MnObject as an optional
+convenience. Additive APIs are justified when they expose information the runtime
+already maintains or make an existing responsibility explicit without adding work to
+unused instances.
 
-`MnObject` remains the minimal non-renderable object whose lifetime ends at destroy.
+`MnObject` remains an optional minimal convenience for passive, non-renderable,
+evented objects whose lifetime ends at destroy. It has no start, stop, restart, child
+ownership, or Region contract and does not imply that an external container manages
+it. Plain classes and functions remain canonical when those combined Marionette
+conventions are unnecessary. V5 does not rename MnObject or introduce a replacement
+class merely to restate this generic contract.
+
 `Application` is an independent first-class object with start, stop, restart, and
 owned child Applications. An Application without a parent is the root of one
 composition tree; independent roots may coexist on a page. Root status is topology,
@@ -179,11 +189,13 @@ public inheritance hierarchy. They compose first-class collaborators and may sat
 small shared protocols or reuse internal implementation without exposing inheritance
 as the application architecture.
 
-An Application may coordinate one root View and receive a host Region from its owner.
-The Application shows that View through the Region; the Application instance is never
-passed to `Region.show` and never gains an element or render method. Root and nested
-Applications use this same contract. Region remains the only object that mounts or
-tears down the root View.
+An Application may coordinate one root View through a Region it constructs and owns
+or a borrowed host Region it receives from its owner. The Application shows that View
+through the Region; the Application instance is never passed to `Region.show` and
+never gains an element or render method. Root and nested Applications use this same
+contract. Region remains the only object that mounts or tears down the root View.
+Region ownership is explicit: an Application destroys a Region it owns, but never
+destroys a borrowed host Region.
 
 Application stop has one-way teardown responsibility. It first stops owned child
 Applications, then asks the host Region to empty only when that Region still contains
@@ -193,6 +205,11 @@ clears the Application's stale View reference but does not implicitly stop the
 Application. A later stop is idempotent and cannot empty an unrelated replacement
 View. Restart follows the same stop contract before starting and showing a new root
 View.
+
+Phase 1 must define `start`'s return value, readiness signal, and failure propagation,
+including how overlapping start, stop, and restart calls settle. An invalidated start
+must settle deterministically without exposing stale success or leaving callers
+pending, and migration tests must cover the existing synchronous return contract.
 
 Owned child Applications follow their owner's start, stop, restart, and destroy
 lifecycle without per-child lifecycle flags. A capability that must outlive its
@@ -206,10 +223,12 @@ stateful objects. No State instance, listener, cleanup registration, or owner
 property exists until state is declared, supplied, or first requested. State composed
 into View or CollectionView persists across render; State composed into Application
 persists across stop and restart; State composed into MnObject persists for the
-object's lifetime; every owned State ends at owner destroy. An invalidated
-asynchronous start cannot later mutate State or owned children. Region does not own
-State. A Behavior may compose private State when its concern truly owns that state;
-state shared with its View belongs on the View and is passed to the Behavior.
+object's lifetime; State composed into Behavior persists across its owning View's
+render and ends when the Behavior is destroyed. Every owned State ends at owner
+destroy. An invalidated asynchronous start cannot later mutate State or owned
+children. Region does not own State. A Behavior may compose private State when its
+concern truly owns that state; state shared with its View belongs on the View and is
+passed to the Behavior.
 
 Appropriate core additions include public read-only ownership accessors, pure Region
 lookup, shared diagnostics, extension hooks with no registered listeners by default,
@@ -217,7 +236,7 @@ and narrowly designed resource ownership.
 
 Core does not absorb a statechart runtime, signals runtime, virtual DOM, query layer,
 schema system, router, agent protocol, or inspector UI. Optional integrations with
-those systems may adapt to the local-state or data-source contracts without becoming
+those systems may adapt to the State or data-source contracts without becoming
 the canonical implementation.
 
 The existing Marionette Toolkit informs migration but does not define a second v5
@@ -332,7 +351,7 @@ instructions, and every release blocker maps to this strategy.
   without adding a Feature alias or inheritance hierarchy.
 - Separately define and implement State as a lazy first-class object composed into
   MnObject, View, CollectionView, Behavior, or Application without changing Region's
-  renderable contract or conflating local state with model and collection data.
+  renderable contract or conflating State with model and collection data.
 - Make ownership and topology publicly readable without mutation.
 - Harden Region lookup and View/Region ownership semantics.
 - Specify Behavior scope, dependencies, delegation, and teardown.
