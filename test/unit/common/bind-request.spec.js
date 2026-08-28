@@ -81,7 +81,7 @@ describe('bind-requests', function() {
       it('should error', function() {
         expect(function() {
           target.bindRequests(channel, 'replyFoo');
-        }).to.throw('Bindings must be an object.');
+        }).to.throw('Bindings must be an object.').with.property('code', 'MN0010');
       });
     });
   });

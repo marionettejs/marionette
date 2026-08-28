@@ -1,9 +1,13 @@
-import { VERSION } from '../../../index.js';
+import { MarionetteError as PublicMarionetteError, VERSION } from '../../../index.js';
 import MarionetteError from '../../../utils/error';
 
 describe('MarionetteError', function() {
   it('should be subclass of native Error', function() {
     expect(new MarionetteError({ message: 'foo' })).to.be.instanceOf(Error);
+  });
+
+  it('is exposed through the public package entrypoint', function() {
+    expect(PublicMarionetteError).to.equal(MarionetteError);
   });
 
   describe('when passed options', function() {
@@ -58,6 +62,7 @@ describe('MarionetteError', function() {
 
     beforeEach(function() {
       props = {
+        code: 'MN0001',
         description: 'myDescription',
         fileName: 'myFileName',
         lineNumber: 'myLineNumber',
@@ -91,6 +96,21 @@ describe('MarionetteError', function() {
     });
   });
 
+  describe('when Error.captureStackTrace is available', function() {
+    beforeEach(function() {
+      this.sinon.stub(Error, 'captureStackTrace').callsFake(error => {
+        error.stack = 'captured stack';
+      });
+    });
+
+    it('captures and retains the framework error stack', function() {
+      const error = new MarionetteError({ message: 'foo' });
+
+      expect(Error.captureStackTrace).to.have.been.calledOnceWith(error, MarionetteError);
+      expect(error.stack).to.equal('captured stack');
+    });
+  });
+
   describe('when Error.captureStackTrace is unavailable', function() {
     let captureStackTrace = Error.captureStackTrace;
 
@@ -104,8 +124,10 @@ describe('MarionetteError', function() {
     });
 
     it('should not captureStackTrace', function() {
-      new MarionetteError({ message: 'foo' });
+      const error = new MarionetteError({ message: 'foo' });
+      Error.captureStackTrace = captureStackTrace;
       expect(MarionetteError.prototype.captureStackTrace).to.not.be.called;
+      expect(error.stack).to.be.a('string').and.to.contain('Error: foo');
     });
   })
 });

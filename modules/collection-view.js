@@ -222,6 +222,7 @@ _extend(CollectionView.prototype, ViewMixin, {
 
     if (!childView) {
       throw new MarionetteError({
+        code: 'MN0011',
         name: classErrorName,
         message: 'A "childView" must be specified',
         url: 'marionette.collectionview.html#collectionviews-childview'
@@ -232,6 +233,7 @@ _extend(CollectionView.prototype, ViewMixin, {
 
     if (!childView) {
       throw new MarionetteError({
+        code: 'MN0012',
         name: classErrorName,
         message: '"childView" must be a view class or a function that returns a view class',
         url: 'marionette.collectionview.html#collectionviews-childview'
@@ -333,6 +335,7 @@ _extend(CollectionView.prototype, ViewMixin, {
 
     if (!this.container) {
       throw new MarionetteError({
+        code: 'MN0013',
         name: classErrorName,
         message: `The specified "childViewContainer" was not found: ${childViewContainer}`,
         url: 'marionette.collectionview.html#defining-the-childviewcontainer'
@@ -476,6 +479,7 @@ _extend(CollectionView.prototype, ViewMixin, {
     }
 
     throw new MarionetteError({
+      code: 'MN0014',
       name: classErrorName,
       message: '"viewFilter" must be a function, predicate object literal, a string indicating a model attribute, or falsy',
       url: 'marionette.collectionview.html#defining-the-viewfilter'
@@ -649,6 +653,7 @@ _extend(CollectionView.prototype, ViewMixin, {
   swapChildViews(view1, view2) {
     if (!this._children.hasView(view1) || !this._children.hasView(view2)) {
       throw new MarionetteError({
+        code: 'MN0015',
         name: classErrorName,
         message: 'Both views must be children of the collection view to swap.',
         url: 'marionette.collectionview.html#swapping-child-views'
@@ -676,6 +681,7 @@ _extend(CollectionView.prototype, ViewMixin, {
 
     if (view._isShown) {
       throw new MarionetteError({
+        code: 'MN0003',
         name: classErrorName,
         message: 'View is already shown in a Region or CollectionView',
         url: 'marionette.region.html#showing-a-view'

@@ -32,6 +32,7 @@ function validateBrowserGlobal(file) {
   const Marionette = context.Marionette;
 
   assert.strictEqual(Marionette.VERSION, packageJson.version, `${file} browser-global version`);
+  assert.strictEqual(typeof Marionette.MarionetteError, 'function', `${file} MarionetteError export`);
   assert.strictEqual(Marionette.noConflict(), Marionette, `${file} noConflict return value`);
   assert.strictEqual(context.Marionette, previousMarionette, `${file} noConflict restoration`);
 }
@@ -44,12 +45,14 @@ async function validate() {
 
   for (const [name, Marionette] of entrypoints) {
     assert.strictEqual(Marionette.VERSION, packageJson.version, `${name} version`);
+    assert.strictEqual(typeof Marionette.MarionetteError, 'function', `${name} MarionetteError export`);
 
     const object = new Marionette.MnObject();
 
     assert.throws(
       () => object.bindEvents({}, 'invalid'),
-      error => error instanceof Error && error.message === 'Bindings must be an object.',
+      error => error instanceof Marionette.MarionetteError &&
+        error.code === 'MN0009' && error.message === 'Bindings must be an object.',
       `${name} error path`,
     );
   }

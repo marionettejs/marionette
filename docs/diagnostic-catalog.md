@@ -10,6 +10,32 @@ The catalog is static project metadata. Production entrypoints must not import t
 catalog, and the catalog is not part of the production package surface. Runtime
 diagnostics may embed a compact catalog code, but they must not load the full catalog.
 
+## Runtime error contract
+
+Framework invariant failures use the public `MarionetteError` class:
+
+```javascript
+import { MarionetteError, Region } from 'marionette';
+
+try {
+  new Region({ el: [] });
+} catch (error) {
+  if (error instanceof MarionetteError && error.code === 'MN0002') {
+    // Handle the invalid Region element configuration.
+  }
+}
+```
+
+`MarionetteError` extends the native `Error` class and exposes `name`, `code`,
+`message`, `stack`, and the existing `url` property. The code is the stable lookup
+key for the repository-generated diagnostic reference. Error names preserve useful
+framework categories such as `ViewError`, `RegionError`, and `CollectionViewError`.
+Messages and legacy URLs are explanatory prose and are not machine contracts.
+
+Production errors copy only supported Error fields and the compact code. They do not
+import the catalog or perform runtime catalog lookup. Engines with
+`Error.captureStackTrace` use it; other engines retain the native fallback stack.
+
 ## Entry contract
 
 Every entry has these fields:
@@ -84,11 +110,10 @@ maintained as a second hand-written list.
 
 ## Initial scope
 
-The initial entries describe only deliberate errors already thrown by the framework.
-They do not reserve codes for planned validation, incidental JavaScript exceptions,
-or benchmark hypotheses. They remain `defined` until Phase 1 runtime diagnostics
-emit them. New invariants receive codes when their behavior and remediation are
-implemented and reviewed.
+The initial active entries describe only deliberate errors already thrown by the
+framework. They do not reserve codes for planned validation, incidental JavaScript
+exceptions, or benchmark hypotheses. New invariants receive codes when their
+behavior and remediation are implemented and reviewed.
 
 The generated [diagnostic reference](/errors/) lists the current catalog directly
 from the machine-readable source. A shared invariant has one code even when more

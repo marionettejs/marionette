@@ -5,7 +5,7 @@
     {
       "code": "MN0001",
       "slug": "view-el-must-be-dom-element",
-      "status": "defined",
+      "status": "active",
       "category": "dom",
       "severity": "error",
       "objects": [
@@ -22,7 +22,7 @@
     {
       "code": "MN0002",
       "slug": "region-el-type-invalid",
-      "status": "defined",
+      "status": "active",
       "category": "dom",
       "severity": "error",
       "objects": [
@@ -38,7 +38,7 @@
     {
       "code": "MN0003",
       "slug": "view-already-owned",
-      "status": "defined",
+      "status": "active",
       "category": "ownership",
       "severity": "error",
       "objects": [
@@ -56,7 +56,7 @@
     {
       "code": "MN0004",
       "slug": "region-el-required",
-      "status": "defined",
+      "status": "active",
       "category": "dom",
       "severity": "error",
       "objects": [
@@ -72,7 +72,7 @@
     {
       "code": "MN0005",
       "slug": "region-el-not-found",
-      "status": "defined",
+      "status": "active",
       "category": "dom",
       "severity": "error",
       "objects": [
@@ -88,7 +88,7 @@
     {
       "code": "MN0006",
       "slug": "region-view-required",
-      "status": "defined",
+      "status": "active",
       "category": "configuration",
       "severity": "error",
       "objects": [
@@ -104,7 +104,7 @@
     {
       "code": "MN0007",
       "slug": "region-view-destroyed",
-      "status": "defined",
+      "status": "active",
       "category": "lifecycle",
       "severity": "error",
       "objects": [
@@ -121,7 +121,7 @@
     {
       "code": "MN0008",
       "slug": "region-definition-invalid",
-      "status": "defined",
+      "status": "active",
       "category": "configuration",
       "severity": "error",
       "objects": [
@@ -139,7 +139,7 @@
     {
       "code": "MN0009",
       "slug": "event-bindings-invalid",
-      "status": "defined",
+      "status": "active",
       "category": "communication",
       "severity": "error",
       "objects": [
@@ -160,7 +160,7 @@
     {
       "code": "MN0010",
       "slug": "request-bindings-invalid",
-      "status": "defined",
+      "status": "active",
       "category": "communication",
       "severity": "error",
       "objects": [
@@ -181,7 +181,7 @@
     {
       "code": "MN0011",
       "slug": "collection-view-child-view-required",
-      "status": "defined",
+      "status": "active",
       "category": "configuration",
       "severity": "error",
       "objects": [
@@ -197,7 +197,7 @@
     {
       "code": "MN0012",
       "slug": "collection-view-child-view-invalid",
-      "status": "defined",
+      "status": "active",
       "category": "configuration",
       "severity": "error",
       "objects": [
@@ -213,7 +213,7 @@
     {
       "code": "MN0013",
       "slug": "collection-view-container-not-found",
-      "status": "defined",
+      "status": "active",
       "category": "dom",
       "severity": "error",
       "objects": [
@@ -229,7 +229,7 @@
     {
       "code": "MN0014",
       "slug": "collection-view-filter-invalid",
-      "status": "defined",
+      "status": "active",
       "category": "configuration",
       "severity": "error",
       "objects": [
@@ -245,7 +245,7 @@
     {
       "code": "MN0015",
       "slug": "collection-view-swap-non-children",
-      "status": "defined",
+      "status": "active",
       "category": "ownership",
       "severity": "error",
       "objects": [
@@ -261,7 +261,7 @@
     {
       "code": "MN0016",
       "slug": "behavior-definition-invalid",
-      "status": "defined",
+      "status": "active",
       "category": "configuration",
       "severity": "error",
       "objects": [
@@ -279,7 +279,7 @@
     {
       "code": "MN0017",
       "slug": "radio-channel-name-required",
-      "status": "defined",
+      "status": "active",
       "category": "communication",
       "severity": "error",
       "objects": [

@@ -105,7 +105,8 @@ describe('region', function() {
         it('should throw an exception saying an "el" doesnt exist in DOM', function() {
           expect(function() {
             region.show(new MyView());
-          }.bind(this)).to.throw('An "el" must exist in DOM for this region ' + region.cid);
+          }.bind(this)).to.throw('An "el" must exist in DOM for this region ' + region.cid)
+            .with.property('code', 'MN0005');
         });
 
         it('should not have a view', function() {
@@ -622,7 +623,7 @@ describe('region', function() {
 
     it('should throw an error if view is attached in another region', function() {
       anotherRegion.show(testView);
-      expect(region.show.bind(region, testView)).to.throw();
+      expect(region.show.bind(region, testView)).to.throw().with.property('code', 'MN0003');
     });
 
     it('should throw an error if view is attached in a collection view', function() {
@@ -1083,7 +1084,7 @@ describe('region', function() {
 
       it('should throw an error.', function() {
         const errorMessage = 'View (cid: "' + view.cid + '") has already been destroyed and cannot be used.';
-        expect(showFunction).to.throw(errorMessage);
+        expect(showFunction).to.throw(errorMessage).with.property('code', 'MN0007');
       });
     });
   });
@@ -1320,7 +1321,7 @@ describe('region', function() {
 
     it('should throw an error', function() {
       const errorMessage = 'The view passed is undefined and therefore invalid. You must pass a view instance to show.';
-      expect(insertUndefined).to.throw(errorMessage);
+      expect(insertUndefined).to.throw(errorMessage).with.property('code', 'MN0006');
     });
   });
 

@@ -28,6 +28,7 @@ import Application from './modules/application.js';
 import Radio from './modules/radio.js';
 
 import DomApi from './config/dom.js';
+import MarionetteError from './utils/error.js';
 
 import {
   isEnabled,
@@ -79,5 +80,6 @@ export {
   Requests,
   extend,
   DomApi,
+  MarionetteError,
   VERSION,
 };

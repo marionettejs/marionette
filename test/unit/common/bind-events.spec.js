@@ -78,7 +78,7 @@ describe('bind-events', function() {
       it('should error', function() {
         expect(function() {
           target.bindEvents(entity, 'handleFoo');
-        }).to.throw('Bindings must be an object.');
+        }).to.throw('Bindings must be an object.').with.property('code', 'MN0009');
       });
     });
   });

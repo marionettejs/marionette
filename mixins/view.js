@@ -45,6 +45,7 @@ const ViewMixin = {
     if (!isString(el)) { return el; }
 
     throw new MarionetteError({
+      code: 'MN0001',
       name: classErrorName,
       message: `View "el" must be a DOM element. Resolve selector strings at the call site, e.g. \`document.querySelector('${el}')\`. (Region still accepts selector strings.)`,
       url: 'marionette.view.html#specifying-an-el'

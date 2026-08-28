@@ -178,6 +178,56 @@ describe('diagnostic catalog validation', function() {
     );
   });
 
+  it('requires every runtime MarionetteError to declare a diagnostic code', function() {
+    expect(() => validate(createCatalog(), {
+      runtimeSources: [{
+        contents: 'throw new MarionetteError({ message: \'Missing code\' });',
+        path: 'modules/example.js',
+      }],
+    })).to.throw(
+      DiagnosticCatalogValidationError,
+      'modules/example.js MarionetteError must declare one literal diagnostic code',
+    );
+  });
+
+  it('recognizes aliased MarionetteError imports', function() {
+    expect(() => validate(createCatalog(), {
+      runtimeSources: [{
+        contents: 'import FrameworkError from \'../utils/error.js\';\nthrow new FrameworkError({ message: \'Missing code\' });',
+        path: 'modules/example.js',
+      }],
+    })).to.throw(
+      DiagnosticCatalogValidationError,
+      'modules/example.js MarionetteError must declare one literal diagnostic code',
+    );
+  });
+
+  it('recognizes named default MarionetteError imports', function() {
+    expect(() => validate(createCatalog(), {
+      runtimeSources: [{
+        contents: 'import { default as FrameworkError } from \'../utils/error.js\';\nthrow new FrameworkError({ message: \'Missing code\' });',
+        path: 'modules/example.js',
+      }],
+    })).to.throw(
+      DiagnosticCatalogValidationError,
+      'modules/example.js MarionetteError must declare one literal diagnostic code',
+    );
+  });
+
+  it('rejects deliberate native framework errors', function() {
+    for (const errorName of ['Error', 'TypeError']) {
+      expect(() => validate(createCatalog(), {
+        runtimeSources: [{
+          contents: `throw new ${errorName}('Uncataloged');`,
+          path: 'modules/example.js',
+        }],
+      })).to.throw(
+        DiagnosticCatalogValidationError,
+        `modules/example.js must not throw a native ${errorName}; use MarionetteError with a catalog code`,
+      );
+    }
+  });
+
   it('rejects runtime emissions for a defined diagnostic', function() {
     const catalog = createCatalog([createDiagnostic({ status: 'defined' })]);
 

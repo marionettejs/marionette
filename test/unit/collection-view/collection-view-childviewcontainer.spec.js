@@ -56,7 +56,8 @@ describe('CollectionView - childViewContainer', function() {
         });
 
         expect(myCollectionView.render.bind(myCollectionView))
-          .to.throw('The specified "childViewContainer" was not found: #bar');
+          .to.throw('The specified "childViewContainer" was not found: #bar')
+          .with.property('code', 'MN0013');
       });
     });
 
