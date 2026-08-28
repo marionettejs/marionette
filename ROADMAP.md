@@ -293,14 +293,40 @@ The stable release then requires:
   production module graph.
 - Optional features add no instance property, collection, subscription, or registry
   until used.
-- Cumulative production Brotli-11 growth is no more than five percent over the adopted
-  Phase 0 baseline. CI compares every production subpath with the pull request base;
-  growth above one percent requires explicit issue approval and benchmark evidence in
-  addition to the cumulative absolute ceiling.
-- A new production subpath has no base-relative percentage: it requires the same
-  explicit approval and evidence, and its full Brotli-11 size counts against the
-  cumulative Phase 0 ceiling. Its first merged size becomes its comparison base for
-  later pull requests without resetting the Phase 0 baseline.
+- The adopted Phase 0 package-size baseline is immutable: 49,500 Brotli-11 bytes at
+  commit `31151c9cb5cb1e11d30da4332f58ca8b56cf2fe4`. Adding a capability,
+  adopting a production subpath, or approving a larger budget never resets that
+  baseline or rewrites its artifact measurements.
+- CI retains an aggregate shipped-package backstop: the Brotli-11 sum of every
+  shipped JavaScript artifact. Its initial ceiling is 51,975 bytes, five percent
+  above Phase 0. This sum measures distribution footprint across supported delivery
+  formats; it is not the number of bytes loaded by one application. CI also compares
+  every artifact and production subpath with the exact pull request base. Existing-
+  artifact growth above one percent requires explicit issue approval and evidence.
+- Before a runtime-cost-sensitive capability adds a production subpath or requests a
+  package or consumer-scenario ceiling amendment, an exact-base prototype must record
+  every artifact delta and applicable canonical consumer scenario. Ordinary
+  implementation pull requests remain exact-base measured; forecasts from source
+  lines, module counts, or another feature are not evidence for raising a ceiling.
+- Canonical consumer scenarios use the pinned release toolchain, keep declared peer
+  dependencies external, tree-shake and minify the result, and measure Brotli-11 for
+  the root entrypoint alone, each opt-in production subpath alone, and the root
+  entrypoint combined with each opt-in subpath. Each scenario is a versioned fixture
+  that pins its entry source, exercised exports, bundler and minifier configuration,
+  command, and expected artifact set. Equivalent ESM, CommonJS, and UMD delivery
+  formats remain individually measured and compared with the exact pull request base;
+  consumer scenarios do not sum them as though one application executes every format.
+- A new production subpath still requires exact-head approval and evidence. Its full
+  set of new shipped artifacts counts against the aggregate package backstop, while
+  its subpath-only and root-plus-subpath scenarios record the cost paid by consumers
+  that opt in. Its first merged artifact size becomes its later pull-request
+  comparison base without changing Phase 0.
+- Before any ceiling may change, the performance contract must implement a versioned,
+  two-stage budget-amendment protocol rather than re-baselining. A governance change
+  records the immutable Phase 0 baseline, previous and proposed ceilings, exact
+  prototype commit and scenario reports, approval and evidence URLs, rationale, and
+  rollback condition. Only a later implementation may consume that base-owned
+  authorization; a runtime implementation cannot authorize or raise its own ceiling.
 - On a pinned release runner, there is no confirmed median regression above five
   percent and no confirmed p95 regression above ten percent for View
   construction/destruction, render/rerender, delegation, Region show/empty, and
@@ -322,6 +348,8 @@ Agent-tooling-only changes should produce byte-identical production entrypoints 
 for version and source-map metadata. Core contract improvements may add bytes or work
 when explicitly called, within the budgets above. Exceptional-path diagnostic detail
 is allowed. Resource ownership may allocate only after the first registration.
+Package and consumer-scenario limits are independent hard gates once established;
+passing one does not compensate for failing another.
 
 ## Work phases
 
