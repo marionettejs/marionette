@@ -397,17 +397,20 @@ const FirstView = View.extend({
 });
 ```
 
-### View DOM proxies
+### Host DOM boundary
 
-The `Behavior` has a number of proxies attributes that directly refer to the
-related attribute on a view:
+The host View or CollectionView owns the DOM boundary for each attached
+Behavior. A Behavior's `el` is the host's current `el`, and its `$()` lookup
+delegates to the host so that results stay scoped to that element. Behaviors do
+not have a `$el` property.
 
-* `$`
-* `el`
-* `$el`
+Calling the host's `setElement()` automatically moves its Behaviors to the new
+element. Their delegated DOM handlers are removed from the old element and
+attached once to the current element, including after repeated calls or swaps.
+Destroying the host removes the final delegated handlers. Application code
+does not need to retarget the Behavior separately.
 
-In addition, each behavior is able to reference the view they are attached to
-through the `view` attribute:
+Each Behavior can also reference its host through the `view` attribute:
 
 ```javascript
 import { Behavior } from 'backbone.marionette';
@@ -415,17 +418,13 @@ import { Behavior } from 'backbone.marionette';
 const ViewBehavior = Behavior.extend({
   onRender() {
     const shouldHighlight = this.view.model.get('selected');
-    this.$el.toggleClass('highlight', shouldHighlight);
-    this.$('.view-class').addClass('highlighted-icon');
+    this.el.classList.toggle('highlight', shouldHighlight);
+    Array.from(this.$('.view-class')).forEach(element => {
+      element.classList.add('highlighted-icon');
+    });
   }
 });
 ```
-
-[Live example](https://jsfiddle.net/marionettejs/8dmk30Lq/)
-
-**Note** in rare cases when a view's `el` is modified via `setElement` if utilizing
-these proxies they will need to be manually updated by calling
-`myBehavior.proxyViewProperties();`
 
 ## Behavior Lifecycle
 
