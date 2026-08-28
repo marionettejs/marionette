@@ -195,14 +195,13 @@ current pull request number, base SHA, and head SHA. If the base advances, it re
 to replay an older comparison. The default-branch rules require strict up-to-date
 status checks, so merge remains blocked until CI records the new exact base.
 
-The parser, additive-contract validator, and report schema are defined before new-
-subpath enforcement. This contract change does not alter Actions. A separate activation
-must measure the candidate with the exact-base validator and invoke the parser from an
-exact base containing this reviewed contract. Until that wiring lands, new-subpath
-results carry `newProductionEnforced: false`, are labeled blocked pending activation,
-and fail the existing size job. The activation supplies the reviewed candidate contract
-and changes that state to `true`. This two-step bootstrap prevents the first enforcement
-change from authorizing itself with candidate-owned policy.
+The exact-base bundle tool measures the current checkout against its candidate
+performance contract, while the exact-base evaluator validates that contract as an
+additive change to the authority contract. New-subpath results carry
+`newProductionEnforced: true`; every new public subpath and its complete new artifact
+cost therefore require an exact-head approval record. The threshold, approver policy,
+parser, contract validator, and evaluator all come from the pull request's exact base,
+so the first enforcement change cannot authorize itself with candidate-owned policy.
 
 ## Hosted timing
 
@@ -239,5 +238,5 @@ CODEOWNERS assigns the contract, growth-approval parser, resource probe, harness
 focused tests, and performance workflows to the project maintainer and core team.
 Current live repository rules do not require a CODEOWNER approval, so ownership is
 review routing rather than an automated merge gate. The exact-base authority contract
-is the automated anti-relaxation guard. Approved new-subpath adoption and the
-controlled timing runner remain separate follow-ups.
+is the automated anti-relaxation guard. The controlled timing runner remains a
+separate follow-up.

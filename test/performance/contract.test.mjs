@@ -483,6 +483,49 @@ describe('performance contract validation', () => {
     }
   });
 
+  test('wires candidate measurement and validation through exact-base CI code', async() => {
+    const workflow = await readFile(join(root, '.github/workflows/ci.yml'), 'utf8');
+    const authorityStep = workflow.match(
+      /- name:\s+Enforce exact base performance contract\r?\n([\s\S]*?)(?=\n\s+- name: )/
+    )?.[1];
+    assert.ok(authorityStep);
+
+    const commands = authorityStep
+      .replace(/\\\r?\n\s*/g, ' ')
+      .split(/\r?\n/)
+      .map(line => line.trim().replace(/\s+/g, ' '))
+      .filter(Boolean);
+    const measurementIndex = commands.findIndex(command =>
+      command.startsWith('node "${authority_script}"') &&
+      command.includes('> "${PERFORMANCE_DIR}/bundle-size-authority.json"')
+    );
+    const resourceValidationIndex = commands.findIndex(command =>
+      command.includes('--validate-resource-contract')
+    );
+    const approvalIndex = commands.findIndex(command =>
+      command.startsWith('node "${approval_script}"')
+    );
+
+    assert.ok(commands.includes('authority_script=\'bundle-size-base/config/bundle-size.mjs\''));
+    assert.ok(commands.includes(
+      'approval_script=\'bundle-size-base/config/performance-growth-approval.mjs\''
+    ));
+    assert.notEqual(measurementIndex, -1);
+    assert.notEqual(resourceValidationIndex, -1);
+    assert.notEqual(approvalIndex, -1);
+    assert.match(
+      commands[measurementIndex],
+      /^node "\$\{authority_script\}" --config config\/performance\.json --json > "\$\{PERFORMANCE_DIR\}\/bundle-size-authority\.json" \|\| authority_status=\$\?$/
+    );
+    assert.match(
+      commands[resourceValidationIndex],
+      /^node "\$\{authority_script\}" --validate-resource-contract "\$\{base_contract\}" config\/performance\.json \|\| candidate_status=\$\?$/
+    );
+    assert.ok(commands[approvalIndex].includes('--candidate-contract config/performance.json'));
+    assert.ok(measurementIndex < approvalIndex);
+    assert.ok(resourceValidationIndex < approvalIndex);
+  });
+
   test('rejects forbidden modules from the measured production graph', async() => {
     const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-forbidden-'));
     const contract = contractFor();
