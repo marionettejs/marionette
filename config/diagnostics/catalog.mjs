@@ -185,7 +185,8 @@ function addRuntimeSourceErrors(runtimeSources, diagnosticsByCode, errors) {
       }
 
       for (const specifier of node.specifiers) {
-        if (specifier.type === 'ImportDefaultSpecifier') {
+        if (specifier.type === 'ImportDefaultSpecifier' ||
+          (specifier.type === 'ImportSpecifier' && specifier.imported.name === 'default')) {
           marionetteErrorBindings.add(specifier.local.name);
         }
       }

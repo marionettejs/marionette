@@ -202,6 +202,18 @@ describe('diagnostic catalog validation', function() {
     );
   });
 
+  it('recognizes named default MarionetteError imports', function() {
+    expect(() => validate(createCatalog(), {
+      runtimeSources: [{
+        contents: 'import { default as FrameworkError } from \'../utils/error.js\';\nthrow new FrameworkError({ message: \'Missing code\' });',
+        path: 'modules/example.js',
+      }],
+    })).to.throw(
+      DiagnosticCatalogValidationError,
+      'modules/example.js MarionetteError must declare one literal diagnostic code',
+    );
+  });
+
   it('rejects deliberate native framework errors', function() {
     for (const errorName of ['Error', 'TypeError']) {
       expect(() => validate(createCatalog(), {
