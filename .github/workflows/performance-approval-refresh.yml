@@ -18,7 +18,9 @@ jobs:
           contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association) &&
           (
             contains(github.event.comment.body, '<!-- marionette-performance-growth-approval:v1 -->') ||
-            contains(github.event.changes.body.from, '<!-- marionette-performance-growth-approval:v1 -->')
+            contains(github.event.changes.body.from, '<!-- marionette-performance-growth-approval:v1 -->') ||
+            contains(github.event.comment.body, '<!-- marionette-performance-budget-amendment:v1 -->') ||
+            contains(github.event.changes.body.from, '<!-- marionette-performance-budget-amendment:v1 -->')
           )
         ) ||
         (
@@ -85,7 +87,7 @@ jobs:
                     . as $comment |
                     (($comment.body // "") |
                       gsub("\r\n"; "\n") |
-                      capture("(?s)^<!-- marionette-performance-growth-approval:v1 -->\\n```json\\n(?<record>.+)\\n```\\n?$")? |
+                      capture("(?s)^<!-- marionette-performance-(?:growth-approval|budget-amendment):v1 -->\\n```json\\n(?<record>.+)\\n```\\n?$")? |
                       .record | fromjson?) as $approval |
                     (($approval.evidenceUrls? | type) == "array") and
                     ($approval.evidenceUrls | index($evidence_url) != null) and

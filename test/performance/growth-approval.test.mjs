@@ -442,6 +442,73 @@ describe('exact-head performance growth approval contract', () => {
     );
   });
 
+  test('requires an independent exact-head approval when consuming a base-owned budget', () => {
+    const candidateContract = growthContract();
+    candidateContract.baseline.absoluteCeilingBytes = 110;
+    const currentReport = productionReport();
+    currentReport.artifacts[0].size = 106;
+    currentReport.cumulative.size = 106;
+    currentReport.cumulative.absoluteCeiling = 110;
+    const budgetAmendment = {
+      activeCeilingBytes: 110,
+      amendment: {
+        id: 'BA0001',
+        authorizedArtifactPaths: ['dist/main.js'],
+        authorizedNewSubpaths: [],
+        proposedCeilingBytes: 110,
+      },
+      diagnostics: [],
+      mode: 'consume',
+      requiresExactHeadGrowthApproval: true,
+      schemaVersion: 1,
+      status: 'accepted',
+    };
+    const options = {
+      authorityContract: growthContract(),
+      baseReport: productionReport(),
+      budgetAmendment,
+      candidateContract,
+      currentReport,
+      evidenceComments: evidenceSnapshot(),
+      headSha,
+      policy,
+      pullRequestNumber,
+      thresholdPercent: 1,
+    };
+
+    const missing = validateGrowthApproval({ ...options, comments: snapshot([]) });
+    assert.equal(missing.status, 'required');
+    assert.equal(missing.diagnostics[0].code, 'GROWTH_APPROVAL_MISSING');
+
+    const approved = validateGrowthApproval({
+      ...options,
+      comments: snapshot([comment(approvalRecord(['dist/main.js']))]),
+    });
+    assert.equal(approved.status, 'approved');
+    assert.deepEqual(approved.required.map(({ path }) => path), ['dist/main.js']);
+
+    const staleCeilingReport = structuredClone(currentReport);
+    staleCeilingReport.cumulative.absoluteCeiling = 105;
+    const staleCeiling = validateGrowthApproval({
+      ...options,
+      comments: snapshot([]),
+      currentReport: staleCeilingReport,
+    });
+    assert.match(
+      staleCeiling.diagnostics.map(({ message }) => message).join('\n'),
+      /Pull request report does not use the active performance authority/
+    );
+
+    const wrongProposedCeiling = structuredClone(budgetAmendment);
+    wrongProposedCeiling.amendment.proposedCeilingBytes = 109;
+    assert.match(
+      validateCandidateGrowthContract(growthContract(), candidateContract, {
+        budgetAmendment: wrongProposedCeiling,
+      }).join('\n'),
+      /changes exact-base baseline beyond the authorized ceiling/
+    );
+  });
+
   test('fails closed for removed base entries and invalid new production evidence', () => {
     const removedArtifact = candidateGrowthContract();
     removedArtifact.runtimeArtifacts.shift();
@@ -1019,6 +1086,13 @@ describe('exact-head performance growth approval contract', () => {
       evidence: join(fixtureRoot, 'evidence.json'),
     };
     const cli = join(root, 'config/performance-growth-approval.mjs');
+    const offlineEnv = { ...process.env };
+    delete offlineEnv.GITHUB_ACTIONS;
+    delete offlineEnv.GITHUB_EVENT_PATH;
+    const runCli = cliArgs => spawnSync(process.execPath, cliArgs, {
+      encoding: 'utf8',
+      env: offlineEnv,
+    });
     const checkoutHead = spawnSync('git', ['rev-parse', 'HEAD'], {
       cwd: root,
       encoding: 'utf8',
@@ -1045,7 +1119,7 @@ describe('exact-head performance growth approval contract', () => {
         writeFile(paths.evidence, JSON.stringify(evidenceSnapshot())),
       ]);
 
-      const approved = spawnSync(process.execPath, args, { encoding: 'utf8' });
+      const approved = runCli(args);
       assert.equal(approved.status, 0);
       assert.equal(JSON.parse(approved.stdout).status, 'approved');
 
@@ -1062,15 +1136,15 @@ describe('exact-head performance growth approval contract', () => {
         writeFile(paths.current, JSON.stringify(productionReport({ includeFeature: true }))),
         writeFile(paths.comments, JSON.stringify(snapshot([comment(cliNewApproval)]))),
       ]);
-      const beforeActivation = spawnSync(process.execPath, args, { encoding: 'utf8' });
+      const beforeActivation = runCli(args);
       assert.equal(beforeActivation.status, 1);
       assert.equal(JSON.parse(beforeActivation.stdout).status, 'blocked');
       assert.equal(JSON.parse(beforeActivation.stdout).newProductionEnforced, false);
 
-      const newSubpath = spawnSync(process.execPath, [
+      const newSubpath = runCli([
         ...args,
         '--candidate-contract', paths.candidate,
-      ], { encoding: 'utf8' });
+      ]);
       assert.equal(newSubpath.status, 0);
       assert.deepEqual(JSON.parse(newSubpath.stdout).newSubpaths, ['./feature']);
 
@@ -1083,7 +1157,7 @@ describe('exact-head performance growth approval contract', () => {
 
       const mismatchedArgs = [...args];
       mismatchedArgs[mismatchedArgs.indexOf('--head-sha') + 1] = headSha;
-      const mismatchedHead = spawnSync(process.execPath, mismatchedArgs, { encoding: 'utf8' });
+      const mismatchedHead = runCli(mismatchedArgs);
       assert.equal(mismatchedHead.status, 1);
       assert.match(
         JSON.parse(mismatchedHead.stdout).diagnostics[0].message,
@@ -1091,11 +1165,11 @@ describe('exact-head performance growth approval contract', () => {
       );
 
       await writeFile(paths.comments, JSON.stringify(snapshot([])));
-      const missing = spawnSync(process.execPath, args, { encoding: 'utf8' });
+      const missing = runCli(args);
       assert.equal(missing.status, 1);
       assert.equal(JSON.parse(missing.stdout).diagnostics[0].code, 'GROWTH_APPROVAL_MISSING');
 
-      const invalidInput = spawnSync(process.execPath, [cli], { encoding: 'utf8' });
+      const invalidInput = runCli([cli]);
       assert.equal(invalidInput.status, 1);
       assert.equal(
         JSON.parse(invalidInput.stdout).diagnostics[0].code,
@@ -1106,9 +1180,9 @@ describe('exact-head performance growth approval contract', () => {
         /Missing value for --head-sha/
       );
 
-      const invalidPullRequest = spawnSync(process.execPath, [
+      const invalidPullRequest = runCli([
         ...args.slice(0, -1), '1e2',
-      ], { encoding: 'utf8' });
+      ]);
       assert.equal(invalidPullRequest.status, 1);
       assert.match(
         JSON.parse(invalidPullRequest.stdout).diagnostics[0].message,

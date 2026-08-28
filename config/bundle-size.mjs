@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { readFile, readdir } from 'node:fs/promises';
-import { relative, resolve } from 'node:path';
+import { dirname, relative, resolve } from 'node:path';
 import process from 'node:process';
 import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual, promisify } from 'node:util';
@@ -16,6 +16,10 @@ import {
   resourceReportRows,
   validateCandidateResourceContract,
 } from './performance-resources.mjs';
+import {
+  parseBudgetAmendmentLedger,
+  validateBudgetAmendmentLedger,
+} from './release/performance-budget-amendments.mjs';
 
 const compress = promisify(brotliCompress);
 
@@ -113,7 +117,7 @@ function difference(left, right) {
   return left.filter(value => !rightSet.has(value));
 }
 
-export function validateContract(contract, packageJson, runtimeFiles) {
+export function validateContract(contract, packageJson, runtimeFiles, budgetAmendments = null) {
   const violations = [];
   if (contract.schemaVersion !== 1) {
     violations.push(`Unsupported performance schemaVersion ${contract.schemaVersion}`);
@@ -127,11 +131,15 @@ export function validateContract(contract, packageJson, runtimeFiles) {
     violations.push(`Artifact baselines total ${baselineTotal}; expected ${contract.baseline.totalBrotliBytes}`);
   }
 
-  const expectedCeiling = Math.floor(
-    baselineTotal * (1 + contract.thresholds.cumulativeGrowthPercent / 100)
-  );
-  if (contract.baseline.absoluteCeilingBytes !== expectedCeiling) {
-    violations.push(`Absolute ceiling is ${contract.baseline.absoluteCeilingBytes}; expected ${expectedCeiling}`);
+  if (budgetAmendments) {
+    violations.push(...validateBudgetAmendmentLedger(budgetAmendments, contract));
+  } else {
+    const expectedCeiling = Math.floor(
+      baselineTotal * (1 + contract.thresholds.cumulativeGrowthPercent / 100)
+    );
+    if (contract.baseline.absoluteCeilingBytes !== expectedCeiling) {
+      violations.push(`Absolute ceiling is ${contract.baseline.absoluteCeilingBytes}; expected ${expectedCeiling}`);
+    }
   }
 
   const declaredPaths = collectRuntimePaths({
@@ -356,11 +364,26 @@ async function measureArtifact(root, quality, artifact) {
 export async function measure({
   root = '.',
   configPath = 'config/performance.json',
+  budgetAmendmentsPath,
   checkToolchain = true,
 } = {}) {
   const resolvedRoot = resolve(root);
   const resolvedConfigPath = resolve(configPath);
   const contract = await readJson(resolvedConfigPath);
+  const resolvedBudgetAmendmentsPath = resolve(
+    budgetAmendmentsPath || dirname(resolvedConfigPath),
+    budgetAmendmentsPath ? '' : 'release/performance-budget-amendments.json'
+  );
+  let budgetAmendments = null;
+  try {
+    budgetAmendments = parseBudgetAmendmentLedger(
+      await readFile(resolvedBudgetAmendmentsPath, 'utf8')
+    );
+  } catch (error) {
+    if (error.code !== 'ENOENT') {
+      throw error;
+    }
+  }
   const packageJson = await readJson(resolve(resolvedRoot, 'package.json'));
   const runtimeFiles = await listRuntimeFiles(resolve(resolvedRoot, 'dist')).catch(error => {
     if (error.code !== 'ENOENT') {
@@ -368,7 +391,7 @@ export async function measure({
     }
     return [];
   });
-  const violations = validateContract(contract, packageJson, runtimeFiles);
+  const violations = validateContract(contract, packageJson, runtimeFiles, budgetAmendments);
   if (checkToolchain) {
     violations.push(...await validateToolchain(contract, resolvedRoot));
   }
@@ -836,6 +859,7 @@ export async function main(args = process.argv.slice(2)) {
   const result = await measure({
     root: getArgument(args, '--root', '.'),
     configPath: getArgument(args, '--config', 'config/performance.json'),
+    budgetAmendmentsPath: getArgument(args, '--budget-amendments'),
     checkToolchain: !args.includes('--artifact-graph-only'),
   });
   writeMeasurement(result, args.includes('--json'));

@@ -35,11 +35,9 @@ backstop are independent hard gates. These fixtures are not implemented yet and 
 tracked by issue #127, so the current command enforces only the aggregate package
 backstop and per-artifact comparison described below.
 
-The Phase 0 baseline never changes. Before the initial package ceiling or a future
-consumer-scenario ceiling can change, issue #127 must implement a versioned two-stage
-amendment protocol: a governance change records exact prototype and scenario evidence,
-then a later runtime implementation may consume that authorization. A runtime change
-cannot raise its own ceiling.
+The Phase 0 baseline never changes. Aggregate package ceiling changes use the
+versioned, two-stage amendment protocol described below. Consumer-scenario targets
+remain unsupported until issue #127 establishes their canonical fixtures.
 
 The same command asks Rollup for the actual internal modules and external imports of
 `.`, `./backbone`, and `./jquery-dom-api`. It records graph changes and fails if test,
@@ -61,6 +59,83 @@ two objects are emptied. These measurements are structural ownership proxies. Th
 detect eager containers, listener ownership, managed DOM cleanup, and known internal
 cycles deterministically; they are not heap-size, reachability, leak-detector, or
 garbage-collector proof.
+
+## Budget amendments
+
+[`config/release/performance-budget-amendments.json`](https://github.com/marionettejs/marionette/blob/master/config/release/performance-budget-amendments.json)
+is an append-only governance ledger outside the production package. The initial
+ledger is empty. Its entries are either authorizations with sequential `BA0001`
+identifiers or revocations with sequential `BR0001` identifiers. There is no mutable
+status field. The active ceiling and entry order derive whether the latest
+authorization is pending, consumed, or revoked.
+
+An authorization records only the `aggregate-shipped-package` target, its previous
+and proposed ceilings, exact prototype base and head commits, an implementation issue,
+the complete positive-delta artifact and new-subpath scope, and exactly one base and
+one prototype report. Each evidence file is an immutable wrapper containing
+`schemaVersion: 1`, its exact measured `revision`, and the ordinary JSON bundle-size
+`report`; the ledger binds that file with its canonical path and SHA-256. The single
+approval URL must resolve to a canonical exact-head pull-request comment from a
+base-allowed maintainer. Evidence URLs remain durable issue #127 comments from trusted
+repository participants. The record also preserves its rationale and rollback
+condition.
+
+The approval must come from a different base-allowed maintainer whenever the exact-base
+allowlist contains an eligible alternative. If the pull-request author is the sole
+allowlisted maintainer, that maintainer may provide the canonical exact-head
+attestation so the two-stage protocol remains usable. Adding another allowlisted
+maintainer automatically makes distinct approval mandatory.
+
+The approval comment contains only the
+`marionette-performance-budget-amendment:v1` marker and canonical JSON. It binds the
+action (`authorize` or `revoke`), full pull-request head SHA, entry identifier,
+SHA-256 of the canonical complete entry, and its evidence URLs. Missing, stale,
+malformed, unrelated, or multiple allowed-maintainer records fail closed. Creating,
+editing, or deleting this marked pull-request comment queues the same exact-head
+`Bundle size` refresh used by ordinary growth approvals. Editing or deleting a
+referenced issue #127 evidence comment routes through the approval's bound
+`evidenceUrls` and also refreshes the affected open pull request.
+
+Authorization is the first stage. It may append one record while leaving the active
+ceiling unchanged. The exact-base validator derives the committed change set directly
+from the separate base and head Git trees. Only
+`config/release/performance-budget-amendments.json`, the new record's regular evidence files
+under `evidence/performance-budget-amendments/<id>/`, and
+`docs/performance-baselines.md` may change. Evidence symlinks, missing or edited report
+files, hash or revision mismatches, scope mismatches, unrelated source or workflow
+changes, and adding and consuming a record together fail closed. The prototype's
+measured aggregate must exceed the previous ceiling without exceeding the proposal.
+A new runtime artifact also requires a measured new production subpath, matching the
+later new-production adoption contract. Every later pull request rechecks each
+historical evidence blob against its immutable ledger hash.
+
+Consumption is a later implementation based on the merged authorization. It leaves
+the ledger byte-for-byte unchanged and may change the active ceiling only from that
+pending record's previous value to its proposed value. Exact-base and current reports
+must show the same complete positive-delta artifact and new-subpath scope, with a
+current aggregate above the previous ceiling and no greater than the proposal. The
+ordinary exact-head growth approval remains independently required for every positive
+artifact delta, including changes at or below the usual one-percent threshold.
+
+If a pending implementation is abandoned, a governance-only revocation appends a
+record naming that exact authorization. A revocation cannot change the ceiling and may
+change only the ledger and this document. Consumed authorizations and revocations stay
+in history; neither the Phase 0 record nor earlier entries may be edited, deleted, or
+reordered.
+
+The required workflow already invokes the exact-base growth evaluator with both
+contracts and reports. That evaluator automatically loads both ledgers and compares
+the two committed Git trees, so amendment enforcement does not depend on candidate
+workflow arguments. The one-time empty-ledger activation is pinned to base
+`154a8bb43f81a1836fcd70c014f4301e750bcb77`: that base cannot validate the new
+external ledger, but this activation contains no authorization and changes no ceiling.
+Every descendant uses the merged exact-base parser and ledger. This is authority
+within the repository's required-workflow trust model, not a claim of cryptographic
+protection from repository-administrator rule changes.
+
+The ledger, parser, reports, tests, and documentation are absent from package exports
+and the measured production graphs remain byte-for-byte free of them. They add no
+production artifact, module, allocation, subscription, or runtime work.
 
 ## Pull request comparison
 
