@@ -3,10 +3,13 @@ import { readFile, readdir } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
 import process from 'node:process';
 import { pathToFileURL } from 'node:url';
-import { promisify } from 'node:util';
+import { isDeepStrictEqual, promisify } from 'node:util';
 import { brotliCompress, constants } from 'node:zlib';
 import { rollup } from 'rollup';
-import { validateGrowthApprovalPolicy } from './performance-growth-approval.mjs';
+import {
+  newProductionReportDelta,
+  validateGrowthApprovalPolicy,
+} from './performance-growth-approval.mjs';
 import {
   compareResources,
   measureResources,
@@ -526,6 +529,21 @@ function sameApprovalRequirements(supplied, expected) {
   });
 }
 
+function sameNewArtifacts(supplied, expected) {
+  if (!Array.isArray(supplied) || supplied.length !== expected.length) {
+    return false;
+  }
+
+  const normalized = supplied.map(artifact => ({
+    path: artifact?.path,
+    size: artifact?.size,
+  })).sort((left, right) => String(left.path) < String(right.path) ? -1 :
+    String(left.path) > String(right.path) ? 1 : 0);
+  return normalized.every((artifact, index) => {
+    return artifact.path === expected[index].path && artifact.size === expected[index].size;
+  });
+}
+
 function growthApprovalReport(base, current, supplied) {
   const thresholdPercent = current.thresholds.pullRequestApprovalPercent;
   const baseByPath = new Map(base.artifacts.map(result => [result.path, result]));
@@ -533,15 +551,23 @@ function growthApprovalReport(base, current, supplied) {
     .map(result => approvalRequirement(baseByPath.get(result.path), result, thresholdPercent))
     .filter(Boolean)
     .sort((left, right) => left.path.localeCompare(right.path));
+  const newProduction = newProductionReportDelta(base, current);
+  const newProductionPresent = newProduction.artifacts.length || newProduction.subpaths.length;
+  const newProductionEnforced = supplied?.newProductionEnforced === true;
+  const approvalRequired = required.length || newProductionPresent;
   const violations = [];
 
   if (!supplied) {
-    const status = required.length ? 'required' : 'not-required';
+    const status = approvalRequired ? 'required' : 'not-required';
     if (required.length) {
       violations.push('Existing artifact growth above the approval threshold has no structured approval result');
     }
-    return { accepted: !required.length, approval: null, diagnostics: [], headSha: null,
-      required, status, thresholdPercent, violations };
+    if (newProductionPresent) {
+      violations.push('New-production approval enforcement is not active');
+    }
+    return { accepted: !approvalRequired, approval: null, diagnostics: [], headSha: null,
+      newArtifacts: newProduction.artifacts, newSubpaths: newProduction.subpaths,
+      newProductionEnforced: false, required, status, thresholdPercent, violations };
   }
 
   if (supplied.schemaVersion !== 1 || !Array.isArray(supplied.required) ||
@@ -554,16 +580,28 @@ function growthApprovalReport(base, current, supplied) {
   if (typeof supplied.headSha !== 'string' || !/^[a-f\d]{40}$/.test(supplied.headSha)) {
     violations.push('Growth approval result is missing a lowercase full head SHA');
   }
+  if (newProductionPresent && typeof supplied.newProductionEnforced !== 'boolean') {
+    violations.push('Growth approval result is missing its new-production enforcement state');
+  }
+  if (newProductionPresent && !newProductionEnforced) {
+    violations.push('New-production approval enforcement is not active');
+  }
 
   if (!sameApprovalRequirements(supplied.required, required)) {
     violations.push('Growth approval requirements do not match the exact report comparison');
   }
+  const suppliedNewArtifacts = supplied.newArtifacts === undefined ? [] : supplied.newArtifacts;
+  const suppliedNewSubpaths = supplied.newSubpaths === undefined ? [] : supplied.newSubpaths;
+  if (!sameNewArtifacts(suppliedNewArtifacts, newProduction.artifacts) ||
+      !isDeepStrictEqual(suppliedNewSubpaths, newProduction.subpaths)) {
+    violations.push('New-production approval requirements do not match the exact report comparison');
+  }
   if (!['approved', 'not-required'].includes(supplied.status)) {
     violations.push(`Growth approval status ${supplied.status || 'missing'} does not permit this report`);
-  } else if (required.length && supplied.status !== 'approved') {
-    violations.push('Existing artifact growth requires an approved result');
-  } else if (!required.length && supplied.status !== 'not-required') {
-    violations.push('Growth approval result must be not-required when no artifact crosses the threshold');
+  } else if (approvalRequired && supplied.status !== 'approved') {
+    violations.push('Production artifact growth or a new subpath requires an approved result');
+  } else if (!approvalRequired && supplied.status !== 'not-required') {
+    violations.push('Growth approval result must be not-required when no approval condition is present');
   }
   if (supplied.status === 'approved' && (!supplied.approval || typeof supplied.approval !== 'object')) {
     violations.push('Approved growth result is missing its approval record');
@@ -572,6 +610,9 @@ function growthApprovalReport(base, current, supplied) {
   return {
     ...supplied,
     accepted: violations.length === 0,
+    newArtifacts: newProduction.artifacts,
+    newProductionEnforced,
+    newSubpaths: newProduction.subpaths,
     required,
     thresholdPercent,
     violations,
@@ -593,10 +634,30 @@ function growthApprovalSection(result) {
   if (result.headSha) {
     lines.push(`Head: \`${result.headSha}\`.`);
   }
+  if (result.newSubpaths.length && !result.newProductionEnforced) {
+    lines.push('New-subpath approval enforcement: **Blocked pending activation**.');
+    lines.push(`New subpaths: ${result.newSubpaths.map(subpath => `\`${subpath}\``).join(', ')}.`);
+    lines.push(result.newArtifacts.length ?
+      `New artifacts at full Brotli size: ${result.newArtifacts
+        .map(({ path, size }) => `\`${path}\` (${formatBytes(size)})`).join(', ')}.` :
+      'New artifacts: none; the subpath aliases an existing runtime artifact.');
+  }
   if (result.accepted && result.status === 'approved') {
     const author = result.approval.authorLogin ? `@${result.approval.authorLogin}` : 'an allowed maintainer';
     const link = result.approval.commentUrl ? `[${author}](${result.approval.commentUrl})` : author;
-    lines.push(`Approved by ${link} for ${result.required.map(({ path }) => `\`${path}\``).join(', ')}.`);
+    const existingPaths = result.required.map(({ path }) => `\`${path}\``);
+    if (existingPaths.length) {
+      lines.push(`Approved by ${link} for ${existingPaths.join(', ')}.`);
+    } else {
+      lines.push(`Approved by ${link}.`);
+    }
+    if (result.newSubpaths.length) {
+      lines.push(`New subpaths: ${result.newSubpaths.map(subpath => `\`${subpath}\``).join(', ')}.`);
+      lines.push(result.newArtifacts.length ?
+        `New artifacts at full Brotli size: ${result.newArtifacts
+          .map(({ path, size }) => `\`${path}\` (${formatBytes(size)})`).join(', ')}.` :
+        'New artifacts: none; the approved subpath aliases an existing runtime artifact.');
+    }
   }
 
   const diagnostics = [
@@ -619,10 +680,14 @@ async function buildReport(baseFile, currentFile, growthApprovalFile) {
   const growthApproval = growthApprovalReport(base, current, suppliedGrowthApproval);
   const baseByPath = new Map(base.artifacts.map(result => [result.path, result]));
   const approvalRequiredPaths = new Set(growthApproval.required.map(({ path }) => path));
+  const newArtifactPaths = new Set(growthApproval.newArtifacts.map(({ path }) => path));
   const rows = current.artifacts.map(result => {
     const baseResult = baseByPath.get(result.path);
     if (!baseResult) {
-      return `| ${result.name} | New | ${formatBytes(result.size)} | New artifact | Required |`;
+      const approval = !growthApproval.newProductionEnforced ? 'Blocked pending activation' :
+        newArtifactPaths.has(result.path) && growthApproval.accepted &&
+          growthApproval.status === 'approved' ? 'Approved' : 'Required';
+      return `| ${result.name} | New | ${formatBytes(result.size)} | New artifact | ${approval} |`;
     }
     if (result.size == null || baseResult.size == null) {
       return `| ${result.name} | ${formatBytes(baseResult.size)} | ${formatBytes(result.size)} | Not comparable | Required |`;
@@ -637,7 +702,10 @@ async function buildReport(baseFile, currentFile, growthApprovalFile) {
     const baseGraph = baseGraphs.get(graph.subpath);
     const change = baseGraph ? graphChange(baseGraph, graph) : graph.error || 'New production subpath';
     const moduleCount = graph.status === 'measured' ? graph.modules.length : 'Unmeasured';
-    return `| \`${graph.subpath}\` | ${moduleCount} | ${graph.externalImports.join(', ') || 'None'} | ${change} |`;
+    const approval = baseGraph ? 'Not required' : !growthApproval.newProductionEnforced ?
+      'Blocked pending activation' : growthApproval.accepted && growthApproval.status === 'approved' ?
+        'Approved' : 'Required';
+    return `| \`${graph.subpath}\` | ${moduleCount} | ${graph.externalImports.join(', ') || 'None'} | ${change} | ${approval} |`;
   });
   const cumulativeGrowth = formatChange(base.cumulative.size, current.cumulative.size);
   const phase0Growth = formatChange(current.cumulative.baselineSize, current.cumulative.size);
@@ -666,8 +734,8 @@ async function buildReport(baseFile, currentFile, growthApprovalFile) {
     '',
     `Cumulative Brotli-${current.brotliQuality}: **${formatBytes(current.cumulative.size)}** / ${formatBytes(current.cumulative.absoluteCeiling)} authority-contract ceiling (${cumulativeGrowth} from PR base; ${phase0Growth} from Phase 0).`,
     '',
-    '| Production subpath | Internal modules | External imports | PR graph change |',
-    '| --- | ---: | --- | --- |',
+    '| Production subpath | Internal modules | External imports | PR graph change | Approval |',
+    '| --- | ---: | --- | --- | --- |',
     ...graphRows,
     '',
     current.violations.length ?
