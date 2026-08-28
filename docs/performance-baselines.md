@@ -21,10 +21,25 @@ itself. Use the pull request report or the exact base/current sequence in
 `.github/workflows/ci.yml` when debugging a monotonic-comparison failure.
 
 The check builds the package and measures every shipped runtime JavaScript artifact
-with Brotli quality 11. The Phase 0 total is 49,500 bytes and the fixed cumulative
-ceiling is 51,975 bytes, exactly five percent above that baseline. Package entrypoints
-and every JavaScript file shipped from `dist/` must be classified by the contract, so
-a new artifact cannot silently avoid the cumulative budget.
+with Brotli quality 11. The immutable Phase 0 total is 49,500 bytes. The initial
+aggregate shipped-package ceiling is 51,975 bytes, exactly five percent above that
+baseline. This aggregate is a distribution-footprint backstop across supported
+delivery formats, not the payload loaded by one application. Package entrypoints and
+every JavaScript file shipped from `dist/` must be classified by the contract, so a
+new artifact cannot silently avoid the aggregate budget.
+
+The roadmap also requires versioned root-only, opt-in-subpath-only, and
+root-plus-subpath consumer scenarios. Each scenario must record its own Brotli-11
+baseline and ceiling before adoption; those scenario limits and the aggregate package
+backstop are independent hard gates. These fixtures are not implemented yet and remain
+tracked by issue #127, so the current command enforces only the aggregate package
+backstop and per-artifact comparison described below.
+
+The Phase 0 baseline never changes. Before the initial package ceiling or a future
+consumer-scenario ceiling can change, issue #127 must implement a versioned two-stage
+amendment protocol: a governance change records exact prototype and scenario evidence,
+then a later runtime implementation may consume that authorization. A runtime change
+cannot raise its own ceiling.
 
 The same command asks Rollup for the actual internal modules and external imports of
 `.`, `./backbone`, and `./jquery-dom-api`. It records graph changes and fails if test,

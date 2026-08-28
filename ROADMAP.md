@@ -301,8 +301,9 @@ The stable release then requires:
   shipped JavaScript artifact. Its initial ceiling is 51,975 bytes, five percent
   above Phase 0. This sum measures distribution footprint across supported delivery
   formats; it is not the number of bytes loaded by one application. CI also compares
-  every artifact and production subpath with the exact pull request base. Existing-
-  artifact growth above one percent requires explicit issue approval and evidence.
+  every artifact's Brotli-11 measurement and every production module graph with the
+  exact pull request base. Existing-artifact Brotli-11 growth above one percent
+  requires explicit issue approval and evidence.
 - Before a runtime-cost-sensitive capability adds a production subpath or requests a
   package or consumer-scenario ceiling amendment, an exact-base prototype must record
   every artifact delta and applicable canonical consumer scenario. Ordinary
@@ -316,11 +317,14 @@ The stable release then requires:
   command, and expected artifact set. Equivalent ESM, CommonJS, and UMD delivery
   formats remain individually measured and compared with the exact pull request base;
   consumer scenarios do not sum them as though one application executes every format.
+  A scenario is not adopted until it records a versioned Brotli-11 baseline and an
+  explicit ceiling.
 - A new production subpath still requires exact-head approval and evidence. Its full
   set of new shipped artifacts counts against the aggregate package backstop, while
   its subpath-only and root-plus-subpath scenarios record the cost paid by consumers
-  that opt in. Its first merged artifact size becomes its later pull-request
-  comparison base without changing Phase 0.
+  that opt in. The first merged size of each shipped artifact becomes that artifact's
+  later pull-request comparison base. A separately gated subpath aggregate records its
+  own comparison base. Neither changes Phase 0.
 - Before any ceiling may change, the performance contract must implement a versioned,
   two-stage budget-amendment protocol rather than re-baselining. A governance change
   records the immutable Phase 0 baseline, previous and proposed ceilings, exact
@@ -348,8 +352,8 @@ Agent-tooling-only changes should produce byte-identical production entrypoints 
 for version and source-map metadata. Core contract improvements may add bytes or work
 when explicitly called, within the budgets above. Exceptional-path diagnostic detail
 is allowed. Resource ownership may allocate only after the first registration.
-Package and consumer-scenario limits are independent hard gates once established;
-passing one does not compensate for failing another.
+The package backstop and every adopted consumer-scenario ceiling are independent hard
+gates; passing one does not compensate for failing another.
 
 ## Work phases
 
