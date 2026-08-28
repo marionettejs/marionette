@@ -153,7 +153,9 @@ jobs:
                    .display_title == $expected_run_name and
                    .event == "pull_request" and
                    .head_sha == $head_sha and
-                   ((.path // "") | split("@")[0]) == ".github/workflows/ci.yml" and
+                   (((.path // "") | split("@")[0]) as $workflow_path |
+                     ($workflow_path == ".github/workflows/ci.yml" or
+                      $workflow_path == ($repository + "/.github/workflows/ci.yml"))) and
                    .repository.full_name == $repository and
                    ((.workflow_url // "") | startswith("https://api.github.com/repos/" + $repository + "/actions/required_workflows/"))
                  )) |

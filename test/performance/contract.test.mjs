@@ -598,6 +598,8 @@ describe('performance contract validation', () => {
     assert.match(workflow, /gh api --paginate --slurp/);
     assert.match(workflow, /\[\.\[\]\.workflow_runs\[\]\]/);
     assert.match(workflow, /\(\.path \/\/ ""\) \| split\("@"\)\[0\]/);
+    assert.match(workflow, /\$workflow_path == "\.github\/workflows\/ci\.yml"/);
+    assert.match(workflow, /\$repository \+ "\/\.github\/workflows\/ci\.yml"/);
     assert.match(workflow, /actions\/required_workflows\//);
   });
 
