@@ -10,9 +10,9 @@ const resolveMethod = function(context, method, name) {
   if (isFunction(method)) { return method; }
 
   const methodName = method;
-  const resolvedMethod = context[methodName];
+  const resolvedMethod = isString(methodName) ? context[methodName] : undefined;
 
-  if (isString(methodName) && !isFunction(resolvedMethod)) {
+  if (!isFunction(resolvedMethod)) {
     throw new MarionetteError({
       code: 'MN0019',
       message: `The handler "${methodName}" for "${name}" must resolve to a function.`
@@ -26,10 +26,7 @@ const normalizeMethods = function(hash) {
   if (!hash) { return }
 
   return reduce(hash, (normalizedHash, method, name) => {
-    method = resolveMethod(this, method, name);
-    if (method) {
-      normalizedHash[name] = method;
-    }
+    normalizedHash[name] = resolveMethod(this, method, name);
     return normalizedHash;
   }, {});
 };

@@ -71,7 +71,6 @@ export default {
 
     each(result(this, 'events'), (handler, key) => {
       handler = resolveMethod(this, handler, key);
-      if (!handler) { return; }
       delegates.push(handler.bind(this), this.normalizeUIString(key, uiBindings));
     });
   },

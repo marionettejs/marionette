@@ -61,8 +61,8 @@
       return method;
     }
     const methodName = method;
-    const resolvedMethod = context[methodName];
-    if (underscore.isString(methodName) && !underscore.isFunction(resolvedMethod)) {
+    const resolvedMethod = underscore.isString(methodName) ? context[methodName] : undefined;
+    if (!underscore.isFunction(resolvedMethod)) {
       throw new MarionetteError({
         code: 'MN0019',
         message: `The handler "${methodName}" for "${name}" must resolve to a function.`
@@ -75,10 +75,7 @@
       return;
     }
     return underscore.reduce(hash, (normalizedHash, method, name) => {
-      method = resolveMethod(this, method, name);
-      if (method) {
-        normalizedHash[name] = method;
-      }
+      normalizedHash[name] = resolveMethod(this, method, name);
       return normalizedHash;
     }, {});
   };
@@ -1228,9 +1225,6 @@
       }
       underscore.each(underscore.result(this, 'events'), (handler, key) => {
         handler = resolveMethod(this, handler, key);
-        if (!handler) {
-          return;
-        }
         delegates.push(handler.bind(this), this.normalizeUIString(key, uiBindings));
       });
     },

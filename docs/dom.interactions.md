@@ -100,11 +100,11 @@ const MyView = View.extend({
 The DOM event gets passed in as the first argument, allowing you to see any
 information passed as part of the event.
 
-Every string handler in `events` must resolve to a callable method on the View
-or Behavior. Marionette preflights the complete event map before delegating any
-handler and throws `MarionetteError` with code `MN0019` if resolution fails.
-Function handlers are unchanged. String values in `triggers` are event names,
-not handler references.
+Every handler in `events` must be a function or a string that resolves to a
+callable method on the View or Behavior. Marionette preflights the complete event
+map before delegating any handler and throws `MarionetteError` with code `MN0019`
+if validation fails. String values in `triggers` are event names, not handler
+references.
 
 The `events` attribute can also directly bind functions:
 

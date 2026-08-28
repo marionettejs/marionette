@@ -47,12 +47,12 @@ describe('normalizeMethods', function() {
         .with.property('code', 'MN0019');
     });
 
-    it('preserves non-string handler lookup behavior', function() {
+    it('rejects non-string handler references', function() {
       view[1] = view.foo;
 
-      expect(view.normalizeMethods({found: 1, missing: 2})).to.eql({
-        found: view.foo
-      });
+      expect(() => view.normalizeMethods({found: 1}))
+        .to.throw('The handler "1" for "found" must resolve to a function.')
+        .with.property('code', 'MN0019');
     });
   });
 });

@@ -312,7 +312,7 @@
     },
     {
       "code": "MN0019",
-      "slug": "string-handler-not-found",
+      "slug": "handler-not-callable",
       "status": "active",
       "category": "communication",
       "severity": "error",
@@ -324,7 +324,7 @@
         "Region",
         "View"
       ],
-      "remediation": "Define the named handler method on the binding context or provide the handler as a function.",
+      "remediation": "Provide a function or the string name of a callable method on the binding context.",
       "docsAnchor": "/errors/MN0019/",
       "surfaces": [
         "runtime"

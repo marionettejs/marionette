@@ -52,8 +52,8 @@ const resolveMethod = function (context, method, name) {
     return method;
   }
   const methodName = method;
-  const resolvedMethod = context[methodName];
-  if (isString(methodName) && !isFunction(resolvedMethod)) {
+  const resolvedMethod = isString(methodName) ? context[methodName] : undefined;
+  if (!isFunction(resolvedMethod)) {
     throw new MarionetteError({
       code: 'MN0019',
       message: `The handler "${methodName}" for "${name}" must resolve to a function.`
@@ -66,10 +66,7 @@ const normalizeMethods$1 = function (hash) {
     return;
   }
   return reduce(hash, (normalizedHash, method, name) => {
-    method = resolveMethod(this, method, name);
-    if (method) {
-      normalizedHash[name] = method;
-    }
+    normalizedHash[name] = resolveMethod(this, method, name);
     return normalizedHash;
   }, {});
 };
@@ -1219,9 +1216,6 @@ var ViewEventsMixin = {
     }
     each(result(this, 'events'), (handler, key) => {
       handler = resolveMethod(this, handler, key);
-      if (!handler) {
-        return;
-      }
       delegates.push(handler.bind(this), this.normalizeUIString(key, uiBindings));
     });
   },
