@@ -1,0 +1,49 @@
+.github/workflows/ci.yml
+  s_d6429951fb9231::t_b62a77d5872467 46-48
+package.json
+  s_d6429951fb9231::t_6aa12f732e037a 89
+benchmarks/agent/README.md
+  s_d6429951fb9231::t_bd1d9711aacc9d 19-22
+  s_d6429951fb9231::t_b62a77d5872467 23-25
+  s_d6429951fb9231::t_6aa12f732e037a 1-14,18,26-28,30-48
+  s_d6429951fb9231::t_3eec30cbfe7421 15-17
+  s_d6429951fb9231::t_f0efe1577665b9 29
+benchmarks/agent/task.schema.json
+  s_d6429951fb9231::t_6aa12f732e037a 1-46,48-57,59-62,77-85,87-89
+  s_d6429951fb9231::t_3eec30cbfe7421 47,58,63-76
+  s_d6429951fb9231::t_377fd350d0a759 86
+config/agent-benchmark/task-contract.mjs
+  s_d6429951fb9231::t_3eec30cbfe7421 135-138,140-146,151-160,166,168-175,263-264,266-267,282-294
+  s_d6429951fb9231::t_b31c88968dfc91 139,147-150,161-165,167
+  s_d6429951fb9231::t_6aa12f732e037a 1,4-27,31-33,38-39,46-85,94-95,97-104,110-117,122-134,190-243,245-254,256-258,265,268-277,295-305
+  s_d6429951fb9231::t_239a6f53bd68ff 86-93,96,105-109,118-121,244,255,278-281
+  s_d6429951fb9231::t_f0efe1577665b9 2,176-189,259-262
+  s_d6429951fb9231::t_6c74eaab253839 3,28-30
+  s_d6429951fb9231::t_3f8a5dda973c70 34-37,40-45
+test/agent-benchmark/task-contract.test.mjs
+  s_d6429951fb9231::t_377fd350d0a759 19
+  s_d6429951fb9231::t_3f8a5dda973c70 71-76
+  s_d6429951fb9231::t_f0efe1577665b9 159-168,183-185
+  s_d6429951fb9231::t_239a6f53bd68ff 137-158,169-182
+  s_d6429951fb9231::t_3eec30cbfe7421 33-36,55,123-126
+  s_d6429951fb9231::t_b31c88968dfc91 186-219
+  s_d6429951fb9231::t_6aa12f732e037a 1-18,20-32,37-54,56-70,77-122,127-136,220-248
+benchmarks/agent/capabilities.json
+  s_d6429951fb9231::t_6aa12f732e037a 1-65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "30ff0dfa69df52b5a880989e79ea0e3df57fb86c",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
