@@ -1,0 +1,32 @@
+test/performance/budget-amendment.test.mjs
+  s_d6429951fb9231::t_2e62183b5490bd 510,834-873
+  s_d6429951fb9231::t_19af65067a00b5 198-206,366,508
+  s_d6429951fb9231::t_573959d61635b4 3-4,6,12,156-197,413-507,509
+  s_2d91c07b8aa12c::t_03c9195e991304 511
+config/release/performance-budget-amendments.mjs
+  s_d6429951fb9231::t_573959d61635b4 62-67,197-199,406
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "527a26a2c22bed12a3dc61ee916cbbcd7aae9520",
+  "prompts": {},
+  "sessions": {
+    "s_2d91c07b8aa12c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a046dd-e987-7010-815b-e2ec94d7f5d8",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
