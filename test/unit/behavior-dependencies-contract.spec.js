@@ -39,6 +39,41 @@ describe('Behavior dependency contract', function() {
     injectedService.destroy();
   });
 
+  it('uses its own defaults without falling back to host options', function() {
+    const defaultService = new MnObject();
+    const hostService = new MnObject();
+    let behaviorService;
+    let behaviorHostOnly;
+    let hostOnly;
+
+    const TestBehavior = Behavior.extend({
+      options: {
+        service: defaultService,
+      },
+      initialize() {
+        behaviorService = this.getOption('service');
+        behaviorHostOnly = this.getOption('hostOnly');
+        hostOnly = this.view.getOption('hostOnly');
+      },
+    });
+    const TestView = View.extend({
+      behaviors: [TestBehavior],
+    });
+    const view = new TestView({
+      hostOnly: hostService,
+      service: hostService,
+    });
+
+    expect(behaviorService).to.equal(defaultService);
+    expect(behaviorService).to.not.equal(hostService);
+    expect(behaviorHostOnly).to.be.undefined;
+    expect(hostOnly).to.equal(hostService);
+
+    view.destroy();
+    defaultService.destroy();
+    hostService.destroy();
+  });
+
   it('gives nested Behaviors their own options and the same host', function() {
     const parentService = new MnObject();
     const nestedService = new MnObject();

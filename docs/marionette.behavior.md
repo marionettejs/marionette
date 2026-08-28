@@ -204,9 +204,10 @@ const MyView = View.extend({
 });
 ```
 
-Use `this.view` for dependencies owned by the host, such as its model or
-collection. A nested Behavior receives its own definition options while sharing
-the same host View as the Behavior that declared it.
+`getOption()` does not fall back to options on the host. Use `this.view` for
+dependencies owned by the host, such as its model or collection. A nested
+Behavior receives its own definition options while sharing the same host View
+as the Behavior that declared it.
 
 When a Behavior is removed directly or its host is destroyed, Marionette removes
 subscriptions created by that Behavior with `listenTo()`. It does not destroy or
