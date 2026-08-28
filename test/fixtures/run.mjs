@@ -14,6 +14,7 @@ const fixtures = [
   'esm-node',
   'no-default-export',
   'shim',
+  'shim-types',
   'jquery-dom-api',
   'vite',
   'peer-underscore-min',
