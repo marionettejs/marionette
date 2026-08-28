@@ -1,0 +1,26 @@
+test/unit/region-lifecycle.spec.js
+  s_d6429951fb9231::t_acde0a481563fe 1-136,185-202
+  s_d6429951fb9231::t_ab66f2feacb5d9 137-184
+docs/marionette.region.md
+  s_d6429951fb9231::t_dac783aeba4f0b 61
+  s_d6429951fb9231::t_b23abcf397e0c5 92
+  s_d6429951fb9231::t_d1844880229fba 81,85-88
+  s_d6429951fb9231::t_ab66f2feacb5d9 79,83
+  s_d6429951fb9231::t_acde0a481563fe 19,59-60,62-78,80,82,84,89-91
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "e8b33a6618b9a0bdf463720ea8bec56501a8f348",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
