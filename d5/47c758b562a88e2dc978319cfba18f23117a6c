@@ -1,0 +1,23 @@
+test/performance/contract.test.mjs
+  s_d6429951fb9231::t_54ec192312b3c4 596-599
+.github/workflows/performance-approval-refresh.yml
+  s_d6429951fb9231::t_3df1578994bbbd 149,152-153,156,159
+  s_d6429951fb9231::t_27f28fb7b40202 143
+  s_d6429951fb9231::t_0aa8a5d52bd94a 139,150,154-155,157-158
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "d547c758b562a88e2dc978319cfba18f23117a6c",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
