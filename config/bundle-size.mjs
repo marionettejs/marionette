@@ -173,6 +173,14 @@ export function validateContract(contract, packageJson, runtimeFiles) {
   if (missingGraphs.length || extraGraphs.length) {
     violations.push(`Production graph subpaths mismatch exports; missing: ${missingGraphs.join(', ') || 'none'}; extra: ${extraGraphs.join(', ') || 'none'}`);
   }
+  for (const graph of contract.productionGraphs) {
+    const exportedPaths = collectRuntimePaths(packageJson.exports?.[graph.subpath]);
+    if (!exportedPaths.has(graph.output)) {
+      violations.push(
+        `Production graph ${graph.subpath} output ${graph.output} is not exported by that subpath`
+      );
+    }
+  }
 
   return violations;
 }
@@ -239,16 +247,31 @@ export async function validateToolchain(contract, root) {
   return violations;
 }
 
-function findRollupConfiguration(configurations, graph) {
-  const configuration = configurations.find(candidate => candidate.input === graph.input);
-  if (!configuration) {
-    throw new Error(`No Rollup input found for ${graph.input}`);
+function findRollupConfiguration(root, configurations, graph) {
+  const matches = [];
+  const graphOutput = resolve(root, graph.output);
+  for (const configuration of configurations) {
+    const outputs = Array.isArray(configuration.output) ?
+      configuration.output : [configuration.output];
+    for (const output of outputs) {
+      if (typeof output?.file === 'string' && resolve(root, output.file) === graphOutput) {
+        matches.push({ configuration, output });
+      }
+    }
+  }
+  if (!matches.length) {
+    throw new Error(`No Rollup output found for ${graph.output}`);
+  }
+  if (matches.length > 1) {
+    throw new Error(`Multiple Rollup configurations write ${graph.output}`);
   }
 
-  const outputs = Array.isArray(configuration.output) ? configuration.output : [configuration.output];
-  const output = outputs.find(candidate => normalizePath(candidate.file) === graph.output);
-  if (!output) {
-    throw new Error(`No Rollup output found for ${graph.output}`);
+  const [{ configuration, output }] = matches;
+  if (typeof configuration.input !== 'string') {
+    throw new Error(`Rollup output ${graph.output} must use one string input ${graph.input}`);
+  }
+  if (resolveRollupInput(root, configuration.input) !== resolveRollupInput(root, graph.input)) {
+    throw new Error(`Rollup output ${graph.output} does not use input ${graph.input}`);
   }
 
   return { configuration, output };
@@ -268,7 +291,7 @@ export function resolveRollupInput(root, input) {
 }
 
 async function measureGraph(root, configurations, graph, contract) {
-  const { configuration, output } = findRollupConfiguration(configurations, graph);
+  const { configuration, output } = findRollupConfiguration(root, configurations, graph);
   const bundle = await rollup({
     ...configuration,
     input: resolveRollupInput(root, configuration.input),

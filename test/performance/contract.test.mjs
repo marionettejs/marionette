@@ -554,6 +554,210 @@ describe('performance contract validation', () => {
     assert.ok(violations.includes('Production graph subpaths mismatch exports; missing: ./feature; extra: none'));
   });
 
+  test('rejects production graph outputs not exported by their subpath', () => {
+    const contract = contractFor(['dist/index.mjs', 'dist/feature.mjs']);
+    contract.productionGraphs = [
+      {
+        subpath: '.',
+        input: 'index.js',
+        output: 'dist/index.mjs',
+        baselineModules: [],
+        baselineExternalImports: [],
+      },
+      {
+        subpath: './feature',
+        input: 'index.js',
+        output: 'dist/index.mjs',
+        baselineModules: [],
+        baselineExternalImports: [],
+      },
+    ];
+    const packageJson = {
+      exports: {
+        '.': { import: './dist/index.mjs' },
+        './feature': { import: './dist/feature.mjs' },
+      },
+    };
+
+    const violations = validateContract(contract, packageJson, ['feature.mjs', 'index.mjs']);
+
+    assert.ok(violations.includes(
+      'Production graph ./feature output dist/index.mjs is not exported by that subpath'
+    ));
+  });
+
+  for (const outputAlias of [
+    'dist/nested/../index.mjs',
+    'absolute',
+  ]) {
+    test(`rejects an ambiguous ${outputAlias === 'absolute' ? 'absolute' : 'relative'} Rollup output alias`, async() => {
+      const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-output-'));
+      const contract = contractFor();
+      contract.productionGraphs = [{
+        subpath: '.',
+        input: 'index.js',
+        output: 'dist/index.mjs',
+        baselineModules: [],
+        baselineExternalImports: [],
+      }];
+      const packageJson = {
+        type: 'module',
+        exports: { '.': { import: './dist/index.mjs' } },
+      };
+      const duplicateOutput = outputAlias === 'absolute' ?
+        join(fixtureRoot, 'dist/index.mjs') : outputAlias;
+
+      try {
+        await mkdir(join(fixtureRoot, 'dist'));
+        await writeFile(join(fixtureRoot, 'package.json'), JSON.stringify(packageJson));
+        await writeFile(join(fixtureRoot, 'performance.json'), JSON.stringify(contract));
+        await writeFile(join(fixtureRoot, 'index.js'), 'export const value = 1;\n');
+        await writeFile(join(fixtureRoot, 'other.js'), 'export const other = 1;\n');
+        await writeFile(join(fixtureRoot, 'dist/index.mjs'), 'export const value = 1;\n');
+        await writeFile(
+          join(fixtureRoot, 'rollup.config.mjs'),
+          'export default [' +
+            '{ input: \'index.js\', output: { file: \'dist/index.mjs\', format: \'es\' } },' +
+            `{ input: 'other.js', output: { file: ${JSON.stringify(duplicateOutput)}, format: 'es' } }` +
+          '];\n'
+        );
+
+        const result = await measure({
+          root: fixtureRoot,
+          configPath: join(fixtureRoot, 'performance.json'),
+          checkToolchain: false,
+        });
+
+        assert.equal(result.graphs[0].status, 'measurement-error');
+        assert.match(result.graphs[0].error, /Multiple Rollup configurations write dist\/index\.mjs/);
+      } finally {
+        await rm(fixtureRoot, { recursive: true, force: true });
+      }
+    });
+  }
+
+  test('accepts an equivalent Rollup input alias', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-input-'));
+    const contract = contractFor();
+    contract.productionGraphs = [{
+      subpath: '.',
+      input: 'index.js',
+      output: 'dist/index.mjs',
+      baselineModules: ['index.js'],
+      baselineExternalImports: [],
+    }];
+    const packageJson = {
+      type: 'module',
+      exports: { '.': { import: './dist/index.mjs' } },
+    };
+
+    try {
+      await mkdir(join(fixtureRoot, 'dist'));
+      await writeFile(join(fixtureRoot, 'package.json'), JSON.stringify(packageJson));
+      await writeFile(join(fixtureRoot, 'performance.json'), JSON.stringify(contract));
+      await writeFile(join(fixtureRoot, 'index.js'), 'export const value = 1;\n');
+      await writeFile(join(fixtureRoot, 'dist/index.mjs'), 'export const value = 1;\n');
+      await writeFile(
+        join(fixtureRoot, 'rollup.config.mjs'),
+        'export default [{ input: \'./index.js\', output: { file: \'dist/index.mjs\', format: \'es\' } }];\n'
+      );
+
+      const result = await measure({
+        root: fixtureRoot,
+        configPath: join(fixtureRoot, 'performance.json'),
+        checkToolchain: false,
+      });
+
+      assert.equal(result.graphs[0].status, 'measured');
+      assert.deepEqual(result.graphs[0].modules, ['index.js']);
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
+  for (const input of [
+    '[\'index.js\']',
+    '{ main: \'index.js\' }',
+  ]) {
+    test(`rejects an ${input.startsWith('[') ? 'array' : 'object'} Rollup input for a single graph output`, async() => {
+      const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-input-'));
+      const contract = contractFor();
+      contract.productionGraphs = [{
+        subpath: '.',
+        input: 'index.js',
+        output: 'dist/index.mjs',
+        baselineModules: ['index.js'],
+        baselineExternalImports: [],
+      }];
+      const packageJson = {
+        type: 'module',
+        exports: { '.': { import: './dist/index.mjs' } },
+      };
+
+      try {
+        await mkdir(join(fixtureRoot, 'dist'));
+        await writeFile(join(fixtureRoot, 'package.json'), JSON.stringify(packageJson));
+        await writeFile(join(fixtureRoot, 'performance.json'), JSON.stringify(contract));
+        await writeFile(join(fixtureRoot, 'index.js'), 'export const value = 1;\n');
+        await writeFile(join(fixtureRoot, 'dist/index.mjs'), 'export const value = 1;\n');
+        await writeFile(
+          join(fixtureRoot, 'rollup.config.mjs'),
+          `export default [{ input: ${input}, output: { file: 'dist/index.mjs', format: 'es' } }];\n`
+        );
+
+        const result = await measure({
+          root: fixtureRoot,
+          configPath: join(fixtureRoot, 'performance.json'),
+          checkToolchain: false,
+        });
+
+        assert.equal(result.graphs[0].status, 'measurement-error');
+        assert.match(result.graphs[0].error, /must use one string input index\.js/);
+      } finally {
+        await rm(fixtureRoot, { recursive: true, force: true });
+      }
+    });
+  }
+
+  test('rejects a unique Rollup producer with the wrong input', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-input-'));
+    const contract = contractFor();
+    contract.productionGraphs = [{
+      subpath: '.',
+      input: 'index.js',
+      output: 'dist/index.mjs',
+      baselineModules: [],
+      baselineExternalImports: [],
+    }];
+    const packageJson = {
+      type: 'module',
+      exports: { '.': { import: './dist/index.mjs' } },
+    };
+
+    try {
+      await mkdir(join(fixtureRoot, 'dist'));
+      await writeFile(join(fixtureRoot, 'package.json'), JSON.stringify(packageJson));
+      await writeFile(join(fixtureRoot, 'performance.json'), JSON.stringify(contract));
+      await writeFile(join(fixtureRoot, 'other.js'), 'export const other = 1;\n');
+      await writeFile(join(fixtureRoot, 'dist/index.mjs'), 'export const value = 1;\n');
+      await writeFile(
+        join(fixtureRoot, 'rollup.config.mjs'),
+        'export default [{ input: \'other.js\', output: { file: \'dist/index.mjs\', format: \'es\' } }];\n'
+      );
+
+      const result = await measure({
+        root: fixtureRoot,
+        configPath: join(fixtureRoot, 'performance.json'),
+        checkToolchain: false,
+      });
+
+      assert.equal(result.graphs[0].status, 'measurement-error');
+      assert.match(result.graphs[0].error, /Rollup output dist\/index\.mjs does not use input index\.js/);
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
   test('rejects cumulative size above the authority ceiling', () => {
     const contract = contractFor();
 
