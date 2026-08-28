@@ -40,7 +40,7 @@ Returns a boolean value reflecting if the view has been destroyed.
 ### State vectors
 
 The three lifecycle methods are independent observations, not one linear state enum.
-Construction can therefore produce any of the four alive render/attachment vectors:
+`View` construction can therefore produce any of the four alive render/attachment vectors:
 
 | Initial `el` | `isRendered()` | `isAttached()` | `isDestroyed()` |
 | --- | --- | --- | --- |
@@ -49,12 +49,16 @@ Construction can therefore produce any of the four alive render/attachment vecto
 | Populated and detached | `true` | `false` | `false` |
 | Populated and in the document | `true` | `true` | `false` |
 
+`CollectionView` starts unrendered regardless of its initial contents and has its own
+[lifecycle transition table](./marionette.collectionview.md#view-lifecycle-and-events).
+
 With lifecycle monitoring enabled, Marionette-managed operations preserve the
 following observable transitions:
 
 | Operation | Result | Repeated call |
 | --- | --- | --- |
 | `view.render()` with a renderable template while alive | Rendered becomes `true`; attachment is unchanged | Renders again and runs the render lifecycle again |
+| `View#setElement(el)` while alive | Rendered reflects whether the replacement element has contents; attached reflects whether it is in the document | Recomputes the same state from the current element |
 | `region.show(view)` | Ensures the view is rendered; attached becomes `true` only when the Region is in the document | Showing the current view is a no-op |
 | `region.detachView()` | Rendered stays `true`; attached becomes `false`; destroyed stays `false` | Returns `undefined` with no transition |
 | Re-show a detached view | Rendered stays `true`; attachment reflects the Region | Does not render the view again |
@@ -88,10 +92,12 @@ For more information on instanting a view with pre-rendered DOM see: [Prerendere
 
 `Backbone.View` allows the user to change the view's `el` after instantiaton using
 [`setElement`](http://backbonejs.org/#View-setElement). This method can be used in Marionette
-as well, but should be done with caution. `setElement` will redelegate view events, but it will
-essentially ignore children of the view, whether through `regions` or through `children` and the
-view's `behaviors` will also be unaware of the change. It is likely better to reconstuct a new
-view with the new `el` than to try to change the `el` of an existing view.
+as well, but should be done with caution. While the View is alive, `setElement` recomputes
+`isRendered()` from the replacement element's contents and `isAttached()` from whether that
+element is in the document. Repeating the call with the same element recomputes the same state.
+View and Behavior DOM events are redelegated to the replacement element, but existing managed
+children and Region contents are not moved. It is usually better to reconstruct a new View with
+the new `el` than to change the `el` of an existing View with managed children.
 
 ## Rendering a View
 
@@ -99,7 +105,8 @@ In Marionette [rendering a view](./view.rendering.md) is changing a view's `el`'
 
 What rendering indicates varies slightly between the two Marionette views.
 
-**Note** Once a view is considered "rendered" it cannot be unrendered until it is [destroyed](#destroying-a-view).
+**Note** Outside an alive View's explicit `setElement()` replacement, once a View is considered
+rendered it cannot become unrendered until it is [destroyed](#destroying-a-view).
 
 ### `View` Rendering
 
