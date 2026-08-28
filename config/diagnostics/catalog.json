@@ -330,6 +330,22 @@
         "runtime"
       ],
       "benchmarkCategory": "communication"
+    },
+    {
+      "code": "MN0020",
+      "slug": "named-region-not-found",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "View"
+      ],
+      "remediation": "Define the named Region before using child-View or Region-removal operations, or use getRegion or hasRegion for optional lookup.",
+      "docsAnchor": "/errors/MN0020/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "region"
     }
   ]
 }

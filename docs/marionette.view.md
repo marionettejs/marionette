@@ -198,7 +198,7 @@ Note: If `view.showChildView(region, subView)` is invoked before the `view` has 
 
 To access the child view of a `View` - use the `getChildView(regionName)` method.
 This will return the view instance that is currently being displayed at that
-region, or `null`:
+region, or `undefined` when that Region is empty:
 
 ```javascript
 import _ from 'underscore';
@@ -225,7 +225,8 @@ const MyView = View.extend({
 
 [Live example](https://jsfiddle.net/marionettejs/b12kgq3t/)
 
-If no view is available, `getChildView` returns `null`.
+If the named Region exists but has no current View, `getChildView` returns
+`undefined`.
 
 ### Detaching a Child View
 
@@ -277,6 +278,13 @@ Any defined regions within a `View` will be available to the `View` or any
 calling code immediately after rendering the `View`. Using `getRegion` or any
 of the child view methods above will first render the view so that the region is
 available.
+
+`getRegion(name)` and `hasRegion(name)` support optional lookup: an unknown name
+returns `undefined` or `false`, respectively. Operations that require a Region —
+`showChildView`, `detachChildView`, `getChildView`, and `removeRegion` — throw a
+`RegionError` with code `MN0020` when the named Region does not exist. A value
+that cannot be converted to a property key is treated as an unknown name.
+Object-valued names are not coerced a second time while formatting the error.
 
 ## Efficient Nested View Structures
 
