@@ -1,0 +1,25 @@
+test/performance/contract.test.mjs
+  s_d6429951fb9231::t_7bc6d42cd53407 557-588,641-661,663-671,673-677
+  s_d6429951fb9231::t_bdd60cc701fdf5 589-640,662,672
+docs/performance-baselines.md
+  s_d6429951fb9231::t_b83b418e175897 32-33
+config/bundle-size.mjs
+  s_d6429951fb9231::t_bdd60cc701fdf5 250,252,257,291
+  s_d6429951fb9231::t_9ecd76f0d4bad0 176-183,251,253-256,258-260,262,265-272
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "03f6a4bdf92c6f7a151e6fa6b59b9e109ed2a64b",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
