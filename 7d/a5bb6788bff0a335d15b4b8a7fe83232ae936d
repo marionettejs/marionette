@@ -1,0 +1,28 @@
+test/fixtures/docs-radio-owner/package.json
+  s_d6429951fb9231::t_7568ab4ed4b666 1-11
+docs/radio.md
+  s_d6429951fb9231::t_daf981cab00318 138,143,151,155,171,179-180
+test/fixtures/run.mjs
+  s_d6429951fb9231::t_7568ab4ed4b666 21
+test/fixtures/docs-radio-owner/validate.mjs
+  s_d6429951fb9231::t_7568ab4ed4b666 1-32,36-67
+  s_d6429951fb9231::t_72105c15176efa 33-35
+test/fixtures/docs-radio-owner/.gitignore
+  s_d6429951fb9231::t_7568ab4ed4b666 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "7da5bb6788bff0a335d15b4b8a7fe83232ae936d",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
