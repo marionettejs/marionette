@@ -1,0 +1,80 @@
+modules/view-region.js
+  s_d6429951fb9231::t_6c4f0ea3907df7 50-51
+  s_d6429951fb9231::t_2411d4264bc169 28-37,566,582,595-597,671
+  s_d6429951fb9231::t_d6800f9d42b095 553
+  s_d6429951fb9231::t_9217d77705e5d0 38,40,42,44-47,49,52,56,615,667,683,689,693
+  s_d6429951fb9231::t_f481d0a0a8ae57 39,41,43
+  s_d6429951fb9231::t_8bc120140bccbd 48,53-55,57-59
+dist/marionette.js
+  s_2d91c07b8aa12c::t_18981836bae2ff 1
+  s_d6429951fb9231::t_640d8e12a7d7b1 1472,1474,1478-1491,1840,1847,1855,1864-1866,1878,1908,1911,1920,1925,1928
+  s_d6429951fb9231::t_8faa178aef9975 1475-1477
+  s_d6429951fb9231::t_31dbb244bc67c5 1466-1471,1473
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_0586bd2ec4f790 1
+config/diagnostics/catalog.json
+  s_d6429951fb9231::t_8bc120140bccbd 333-348
+test/unit/view-region-diagnostics.spec.js
+  s_d6429951fb9231::t_1a8c11fb58e377 126-127,245
+  s_d6429951fb9231::t_f481d0a0a8ae57 152-169,225-227,229-244
+  s_d6429951fb9231::t_d6800f9d42b095 100-119,180-181,183-201,204
+  s_d6429951fb9231::t_5f6b40efa93ea7 2,25-32,36-42,44,46-53,259-272
+  s_d6429951fb9231::t_14e6872755f093 33-35
+  s_d6429951fb9231::t_9217d77705e5d0 99,120-125,128-134,136-151,182,202-203,228,246-257
+  s_d6429951fb9231::t_2cacd01e785e6b 18-24,45,61
+  s_d6429951fb9231::t_2411d4264bc169 135
+  s_d6429951fb9231::t_7cc7d5f7207d56 170-179,205-206
+  s_d6429951fb9231::t_7bc63a109b3222 1,3-17,43,54-60,62-98,207-224,258
+docs/marionette.view.md
+  s_d6429951fb9231::t_8bc120140bccbd 201,228-229,282-284
+  s_d6429951fb9231::t_f481d0a0a8ae57 285-286
+  s_d6429951fb9231::t_1a8c11fb58e377 287
+  s_2d91c07b8aa12c::t_07ed73f26bfea3 288
+dist/marionette.min.js
+  s_d6429951fb9231::t_222a7b3e550f01 1
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_8bc120140bccbd 47
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_8d0e32e2d57f20 1
+dist/marionette.cjs
+  s_d6429951fb9231::t_c663dca26ace82 1479-1481
+  s_d6429951fb9231::t_f6daa6e0abee7e 1476,1478,1482-1495,1882,1924,1929,1932
+  s_e1a183878c01ed::t_e10d544ec7c845 1844,1851,1859,1868-1869,1912,1915
+  s_d6429951fb9231::t_611f1b32fdc495 1470-1475,1477,1870
+dist/marionette.umd.js
+  s_d6429951fb9231::t_2e8f06cbb9fd81 1481,1483,1487-1500,1849,1856,1864,1873-1875,1887,1917,1920,1929,1934,1937
+  s_d6429951fb9231::t_8bc219ff3849f1 1484-1486
+  s_d6429951fb9231::t_b5c931c7676408 1475-1480,1482
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "1b47d9cd18a43267e2f775ce4b301ca74ed6d6bb",
+  "prompts": {},
+  "sessions": {
+    "s_2d91c07b8aa12c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a046dd-e987-7010-815b-e2ec94d7f5d8",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    },
+    "s_e1a183878c01ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e4b3d-de5d-70e3-ba78-14db78af3877",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
