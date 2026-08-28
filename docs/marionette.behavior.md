@@ -399,16 +399,16 @@ const FirstView = View.extend({
 
 ### Host DOM boundary
 
-The host View owns the DOM boundary for each attached Behavior. A Behavior's
-`el` is the host's current `el`, and its `$()` lookup delegates to the host so
-that results stay scoped to that element. Behaviors do not have a `$el`
-property.
+The host View or CollectionView owns the DOM boundary for each attached
+Behavior. A Behavior's `el` is the host's current `el`, and its `$()` lookup
+delegates to the host so that results stay scoped to that element. Behaviors do
+not have a `$el` property.
 
-Calling the host View's `setElement()` automatically moves its Behaviors to the
-new element. Their delegated DOM handlers are removed from the old element and
+Calling the host's `setElement()` automatically moves its Behaviors to the new
+element. Their delegated DOM handlers are removed from the old element and
 attached once to the current element, including after repeated calls or swaps.
-Destroying the host removes the final delegated handlers. Application code does
-not need to retarget the Behavior separately.
+Destroying the host removes the final delegated handlers. Application code
+does not need to retarget the Behavior separately.
 
 Each Behavior can also reference its host through the `view` attribute:
 
