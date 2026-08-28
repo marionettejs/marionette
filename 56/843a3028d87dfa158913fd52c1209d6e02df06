@@ -1,0 +1,42 @@
+test/fixtures/shim/validate-esm-shim-first.mjs
+  s_d6429951fb9231::t_e213e262e45ad9 1-18
+test/fixtures/shim/validate-esm-backbone-first.mjs
+  s_770d5210fa811f::t_78c64f77e67994 1-21
+test/fixtures/shim/validate-cjs-shim-first.cjs
+  s_d6429951fb9231::t_69263b86266702 1-18
+test/fixtures/shim/assert-interop.cjs
+  s_770d5210fa811f::t_9bb0ba362a83e1 1-50
+test/unit/backbone-shim.spec.js
+  s_d6429951fb9231::t_5e384ed8f936f7 9,12,27-38,74-82,100-129
+test/fixtures/shim/validate-cjs-backbone-first.cjs
+  s_770d5210fa811f::t_ffec55ad4d5858 1-21
+docs/optional-backbone.md
+  s_770d5210fa811f::t_23988310dbea01 224-243
+test/fixtures/shim/validate.mjs
+  s_d6429951fb9231::t_ceb5d082bbce92 12
+  s_d6429951fb9231::t_6b4ebd7a85e6c5 1-11,13-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "56843a3028d87dfa158913fd52c1209d6e02df06",
+  "prompts": {},
+  "sessions": {
+    "s_770d5210fa811f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03f23-015a-7063-93f8-5f891440d862",
+        "model": "unknown"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
