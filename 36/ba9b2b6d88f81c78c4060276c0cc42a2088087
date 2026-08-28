@@ -1,0 +1,21 @@
+test/unit/region-lifecycle.spec.js
+  s_d6429951fb9231::t_e688418e418454 214-269
+docs/marionette.region.md
+  s_d6429951fb9231::t_fe03acffe52539 510-513
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "36ba9b2b6d88f81c78c4060276c0cc42a2088087",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
