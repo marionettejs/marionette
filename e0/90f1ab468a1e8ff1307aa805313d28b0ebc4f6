@@ -1,0 +1,23 @@
+test/unit/behavior-communication-contract.spec.js
+  s_d6429951fb9231::t_82cf834bd86708 1-218
+docs/marionette.behavior.md
+  s_d6429951fb9231::t_151d7145aaa147 26-27,29,31,257,259-261,263,265-267,271,281-292,336
+  s_d6429951fb9231::t_b5194ffed2c151 273-276,278-280,293
+  s_d6429951fb9231::t_393735448559ab 268-269
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "e090f1ab468a1e8ff1307aa805313d28b0ebc4f6",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
