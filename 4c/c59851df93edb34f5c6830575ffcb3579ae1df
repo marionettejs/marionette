@@ -1,0 +1,98 @@
+test/unit/region-el-validation.spec.js
+  s_d6429951fb9231::t_b16d1ab4987429 4,47-53
+  s_d6429951fb9231::t_59568d05ce7ce4 64-67,74-77
+  s_d6429951fb9231::t_6e4a152e608f15 54-55
+test/dist/validate.mjs
+  s_d6429951fb9231::t_b16d1ab4987429 35
+  s_d6429951fb9231::t_59568d05ce7ce4 48,54-55
+test/unit/common/bind-request.spec.js
+  s_d6429951fb9231::t_59568d05ce7ce4 84
+utils/error.js
+  s_d6429951fb9231::t_4fc276fdb8b6eb 8,22,24-25
+test/unit/config/diagnostic-catalog.spec.js
+  s_d6429951fb9231::t_65ad582213d567 181-192
+  s_d6429951fb9231::t_4fc276fdb8b6eb 193-195,197-218
+  s_d6429951fb9231::t_0994d6897006f9 196
+docs/diagnostic-catalog.md
+  s_d6429951fb9231::t_cea1edeba2ec12 13-38,113-116
+test/unit/utils/error.spec.js
+  s_d6429951fb9231::t_0d343fc0a288fe 128
+  s_d6429951fb9231::t_25ffe099aba911 99-113
+  s_d6429951fb9231::t_65ad582213d567 1,9-12,65,127,130
+test/unit/collection-view/collection-view.spec.js
+  s_d6429951fb9231::t_59568d05ce7ce4 136-137,202-203
+test/unit/common/build-region.spec.js
+  s_d6429951fb9231::t_59568d05ce7ce4 326-327
+test/unit/view-el.spec.js
+  s_d6429951fb9231::t_59568d05ce7ce4 53
+modules/view-region.js
+  s_d6429951fb9231::t_ccad85d1a6aca8 65,85,126,220,233,242,493
+test/unit/collection-view/collection-view-filtering.spec.js
+  s_d6429951fb9231::t_59568d05ce7ce4 92-93
+mixins/behaviors.js
+  s_d6429951fb9231::t_ccad85d1a6aca8 24
+config/diagnostics/catalog.json
+  s_d6429951fb9231::t_5745d23c244cc7 8,25,41,59,75,91,107,124,142,163,184,200,216,232,248,264,282
+test/unit/region.spec.js
+  s_d6429951fb9231::t_59568d05ce7ce4 108-109,626,1087,1324
+test/source/validate.mjs
+  s_d6429951fb9231::t_65ad582213d567 9-10
+modules/common/bind-requests.js
+  s_d6429951fb9231::t_ccad85d1a6aca8 21
+test/unit/common/bind-events.spec.js
+  s_d6429951fb9231::t_59568d05ce7ce4 81
+test/unit/collection-view/collection-view-childviewcontainer.spec.js
+  s_d6429951fb9231::t_59568d05ce7ce4 59-60
+test/unit/mixins/behaviors.spec.js
+  s_d6429951fb9231::t_59568d05ce7ce4 145-146
+mixins/view.js
+  s_d6429951fb9231::t_ccad85d1a6aca8 48
+test/unit/radio.spec.js
+  s_d6429951fb9231::t_59568d05ce7ce4 14-15
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_4fc276fdb8b6eb 44
+test/unit/collection-view/collection-view-children.spec.js
+  s_d6429951fb9231::t_4fc276fdb8b6eb 436-437
+  s_d6429951fb9231::t_59568d05ce7ce4 173
+index.js
+  s_d6429951fb9231::t_714997d3b0d2f0 31
+  s_d6429951fb9231::t_0d343fc0a288fe 83
+config/diagnostics/catalog.mjs
+  s_d6429951fb9231::t_4fc276fdb8b6eb 180-193,195-203
+  s_d6429951fb9231::t_0d343fc0a288fe 219-223
+modules/radio.js
+  s_d6429951fb9231::t_bb83788476f2a7 60
+  s_d6429951fb9231::t_ccad85d1a6aca8 8,58-59,61
+modules/common/bind-events.js
+  s_d6429951fb9231::t_ccad85d1a6aca8 23
+modules/collection-view.js
+  s_d6429951fb9231::t_ccad85d1a6aca8 225,236,338,482,656,684
+dist/marionette.cjs
+  s_d6429951fb9231::t_4ff4280972066e 47,54,56-57,72,101,751-754,877,1304,1454,1470,1497,1567,1579,1587,1766,2189,2198,2267,2367,2490,2511,2724
+dist/marionette.js
+  s_d6429951fb9231::t_af5e2298b325c5 43,50,52-53,68,97,747-750,873,1300,1450,1466,1493,1563,1575,1583,1762,2185,2194,2263,2363,2486,2507,2715
+dist/marionette.min.js
+  s_d6429951fb9231::t_14c8fc491d87ac 1
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_b2ec0ff76cc66f 1
+dist/marionette.umd.js
+  s_d6429951fb9231::t_d58ece5b946914 52,59,61-62,77,106,756-759,882,1309,1459,1475,1502,1572,1584,1592,1771,2194,2203,2272,2372,2495,2516,2729
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_c8179a79363cea 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "4cc59851df93edb34f5c6830575ffcb3579ae1df",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
