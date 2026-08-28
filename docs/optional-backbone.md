@@ -221,6 +221,26 @@ Importing this module is the v5 equivalent of "Marionette uses Backbone." It is 
 
 The shim is the recommended path for applications migrating from v4 and for any application that mixes Backbone classes with Marionette classes — particularly when a Backbone class is on the **listener side** (for example a `Backbone.View` subclass calling `listenTo`). The shim swaps Backbone's `Events` for Marionette's `Events` on all four Backbone prototypes so listener-side bookkeeping stays consistent across the two libraries.
 
+The `backbone` module may be loaded before or after `marionette/backbone`. The
+shim patches the same `Backbone` module object and preserves the identity of its
+`Model`, `Collection`, `View`, and `Router` constructors and prototypes. The ESM
+default export and CommonJS `require` value are that exact `Backbone` object. The
+canonical usage is still to load the shim before constructing objects or registering
+subscriptions:
+
+```javascript
+import 'marionette/backbone';
+import Backbone from 'backbone';
+```
+
+Handlers registered before the shim loads remain in Backbone's private `_events`
+store and are not migrated to Marionette's event bookkeeping. Recreate those
+subscriptions after loading the shim. The shim also deliberately does not patch the
+`Backbone` namespace or `Backbone.History`; use the four supported instance types
+above. If an installation resolves more than one physical copy of Backbone, only the
+copy resolved for the shim is patched, so consumers must share the package's supported
+Backbone peer instance.
+
 A plain `Backbone.Model` or `Backbone.Collection` already satisfies the emitter protocol on this page without the shim, because Marionette only calls `.on(...)`, `.off(...)`, and reads `.cid` / `.attributes` / `.get(...)` / `.models` / `.indexOf(...)` on the emitter. The shim is not required just to use Backbone entities with Marionette views.
 
 The protocol on this page is broader than the shim. The shim is one implementation of the protocol; this page describes the protocol itself.

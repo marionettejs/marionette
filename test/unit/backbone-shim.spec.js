@@ -6,8 +6,10 @@ const require = createRequire(import.meta.url);
 describe('Backbone shim', function() {
   let Backbone;
   let ShimmedBackbone;
+  let constructors;
   let historyMethods;
   let namespaceMethods;
+  let prototypes;
   let previousDocument;
   let previousWindow;
 
@@ -22,6 +24,18 @@ describe('Backbone shim', function() {
     Backbone = require('backbone');
     Backbone.$ = require('jquery');
 
+    constructors = {
+      Collection: Backbone.Collection,
+      Model: Backbone.Model,
+      Router: Backbone.Router,
+      View: Backbone.View
+    };
+    prototypes = {
+      Collection: Backbone.Collection.prototype,
+      Model: Backbone.Model.prototype,
+      Router: Backbone.Router.prototype,
+      View: Backbone.View.prototype
+    };
     namespaceMethods = {
       on: Backbone.on,
       off: Backbone.off,
@@ -57,6 +71,15 @@ describe('Backbone shim', function() {
     expect(Backbone.History.prototype.triggerMethod).to.equal(historyMethods.triggerMethod);
   });
 
+  it('preserves the Backbone module, constructors, and prototypes by identity', function() {
+    expect(ShimmedBackbone).to.equal(Backbone);
+
+    Object.keys(constructors).forEach(name => {
+      expect(Backbone[name]).to.equal(constructors[name]);
+      expect(Backbone[name].prototype).to.equal(prototypes[name]);
+    });
+  });
+
   it('mixes Marionette Events into supported Backbone instances', function() {
     [
       new Backbone.Model(),
@@ -73,5 +96,35 @@ describe('Backbone shim', function() {
       instance.triggerMethod('shim:test');
       expect(callCount).to.equal(1);
     });
+  });
+
+  it('preserves Model and Collection data and event behavior', function() {
+    const model = new Backbone.Model({ id: 1, name: 'before' });
+    const collection = new Backbone.Collection([model]);
+    const listener = new Backbone.Model();
+    const calls = [];
+
+    listener.listenTo(model, 'change:name', (changedModel, value) => {
+      calls.push(['change', changedModel, value]);
+    });
+    listener.listenTo(collection, 'add', (addedModel, changedCollection) => {
+      calls.push(['add', addedModel, changedCollection]);
+    });
+
+    model.set('name', 'after');
+    const addedModel = collection.add({ id: 2, name: 'second' });
+
+    expect(collection.get(1)).to.equal(model);
+    expect(collection.get(2)).to.equal(addedModel);
+    expect(calls).to.deep.equal([
+      ['change', model, 'after'],
+      ['add', addedModel, collection]
+    ]);
+
+    listener.stopListening();
+    model.set('name', 'ignored');
+    collection.add({ id: 3 });
+
+    expect(calls).to.have.lengthOf(2);
   });
 });
