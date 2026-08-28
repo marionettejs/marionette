@@ -1,18 +1,14 @@
-import assert from 'assert';
-import Backbone from 'backbone';
+import { execFileSync } from 'node:child_process';
+import { resolve } from 'node:path';
 
-assert.strictEqual(Backbone.Model.prototype.triggerMethod, undefined);
-
-const ShimmedBackbone = (await import('marionette/backbone')).default;
-
-assert.strictEqual(ShimmedBackbone, Backbone);
-assert.strictEqual(typeof Backbone.Model.prototype.triggerMethod, 'function');
-
-let called = false;
-const model = new Backbone.Model();
-model.on('fixture:event', () => {
-  called = true;
-});
-model.triggerMethod('fixture:event');
-
-assert.strictEqual(called, true);
+for (const file of [
+  'validate-esm-backbone-first.mjs',
+  'validate-esm-shim-first.mjs',
+  'validate-cjs-backbone-first.cjs',
+  'validate-cjs-shim-first.cjs',
+]) {
+  execFileSync(process.execPath, [resolve(import.meta.dirname, file)], {
+    stdio: 'inherit',
+    timeout: 30_000,
+  });
+}
