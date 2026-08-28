@@ -5,7 +5,7 @@ describe('Radio', function() {
   afterEach(function() {
     Radio.setDebug(false);
     Radio.reset();
-    Radio._channels = {};
+    Radio._channels = Object.create(null);
   });
 
   it('requires channel names', function() {
@@ -17,6 +17,21 @@ describe('Radio', function() {
 
   it('returns the same channel for a name', function() {
     expect(Radio.channel('foo')).to.equal(Radio.channel('foo'));
+  });
+
+  it('treats object prototype property names as ordinary channel names', function() {
+    ['toString', 'constructor', '__proto__'].forEach(channelName => {
+      const channel = Radio.channel(channelName);
+      const handler = this.sinon.stub();
+
+      expect(channel).to.be.instanceOf(Radio.Channel);
+      expect(Radio.channel(channelName)).to.equal(channel);
+
+      Radio.on(channelName, 'event', handler);
+      Radio.trigger(channelName, 'event');
+
+      expect(handler).to.have.been.calledOnce;
+    });
   });
 
   it('proxies events through the top-level API', function() {
@@ -182,6 +197,18 @@ describe('Radio', function() {
     expect(log).to.have.been.calledTwice;
   });
 
+  it('logs channels named for object prototype properties', function() {
+    const log = this.sinon.stub(console, 'log');
+
+    ['toString', '__proto__'].forEach(channelName => {
+      Radio.tuneIn(channelName);
+      Radio.trigger(channelName, 'event');
+      Radio.tuneOut(channelName);
+    });
+
+    expect(log).to.have.been.calledTwice;
+  });
+
   it('debug logs unhandled requests when enabled', function() {
     const warn = this.sinon.stub(console, 'warn');
 
@@ -218,5 +245,81 @@ describe('Radio', function() {
     Radio.reset();
     Radio.trigger('bar', 'event');
     expect(barHandler).to.have.been.calledOnce;
+  });
+
+  it('rejects an unknown named channel without changing existing channels', function() {
+    const handler = this.sinon.stub();
+    Radio.on('existing', 'event', handler);
+
+    expect(() => Radio.reset('missing'))
+      .to.throw('Radio channel does not exist.')
+      .with.property('code', 'MN0021');
+
+    expect(Object.hasOwn(Radio._channels, 'missing')).to.be.false;
+    Radio.trigger('existing', 'event');
+    expect(handler).to.have.been.calledOnce;
+  });
+
+  it('rejects unknown prototype property channel names and resets them once created', function() {
+    ['toString', 'constructor', '__proto__'].forEach(channelName => {
+      expect(() => Radio.reset(channelName)).to.throw().with.property('code', 'MN0021');
+
+      const channel = Radio.channel(channelName);
+      const handler = this.sinon.stub();
+      channel.on('event', handler);
+
+      Radio.reset(channelName);
+
+      expect(Radio.channel(channelName)).to.equal(channel);
+      channel.trigger('event');
+      expect(handler).not.to.have.been.called;
+    });
+  });
+
+  it('uses stable formatting for an unknown channel name', function() {
+    const name = Object.create(null);
+
+    expect(() => Radio.reset(name))
+      .to.throw('Radio channel does not exist.')
+      .with.property('code', 'MN0021');
+  });
+
+  it('coerces an unknown object channel name once', function() {
+    const toPrimitive = this.sinon.stub();
+    toPrimitive.onFirstCall().returns('missing');
+    toPrimitive.returns('different');
+    const name = { [Symbol.toPrimitive]: toPrimitive };
+
+    expect(() => Radio.reset(name))
+      .to.throw('Radio channel does not exist.')
+      .with.property('code', 'MN0021');
+    expect(toPrimitive).to.have.been.calledOnce;
+  });
+
+  it('rejects a supplied falsy channel name without resetting existing channels', function() {
+    const handler = this.sinon.stub();
+    Radio.on('existing', 'event', handler);
+
+    ['', null, false, 0, undefined].forEach(channelName => {
+      expect(() => Radio.reset(channelName)).to.throw().with.property('code', 'MN0017');
+    });
+
+    Radio.trigger('existing', 'event');
+    expect(handler).to.have.been.calledOnce;
+  });
+
+  it('resets all prototype-named channels only when called without arguments', function() {
+    const handlers = ['toString', '__proto__'].map(channelName => {
+      const handler = this.sinon.stub();
+      Radio.on(channelName, 'event', handler);
+      return [channelName, handler];
+    });
+
+    Radio.reset();
+
+    handlers.forEach(([channelName, handler]) => {
+      Radio.trigger(channelName, 'event');
+      expect(handler).not.to.have.been.called;
+    });
   });
 });

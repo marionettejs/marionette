@@ -7,7 +7,7 @@ import Requests from '../mixins/requests.js';
 import callHandler from '../utils/call-handler.js';
 import MarionetteError from '../utils/error.js';
 
-const _logs = {};
+const _logs = Object.create(null);
 
 // This is to produce an identical function in both tuneIn and tuneOut,
 // so that Events unregisters it.
@@ -51,7 +51,7 @@ extend(Radio, {
  *
  */
 
-Radio._channels = {};
+Radio._channels = Object.create(null);
 
 Radio.channel = function(channelName) {
   if (!channelName) {
@@ -109,8 +109,30 @@ each([Events, Requests], system => {
 });
 
 Radio.reset = function(channelName) {
-  const channels = !channelName ? this._channels : [this._channels[channelName]];
-  each(channels, channel => { channel.reset(); });
+  if (!arguments.length) {
+    each(this._channels, channel => { channel.reset(); });
+    return;
+  }
+
+  if (!channelName) {
+    Radio.channel(channelName);
+  }
+
+  let channel;
+  try {
+    channel = this._channels[channelName];
+  } catch {
+    // The stable diagnostic below formats hostile property keys safely.
+  }
+
+  if (!channel) {
+    throw new MarionetteError({
+      code: 'MN0021',
+      message: 'Radio channel does not exist.'
+    });
+  }
+
+  channel.reset();
 };
 
 export default Radio;

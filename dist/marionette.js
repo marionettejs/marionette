@@ -731,7 +731,7 @@ var DestroyMixin = {
   }
 };
 
-const _logs = {};
+const _logs = Object.create(null);
 function _partial(channelName) {
   return _logs[channelName] || (_logs[channelName] = log.bind(Radio, channelName));
 }
@@ -754,7 +754,7 @@ extend$1(Radio, {
     return this;
   }
 });
-Radio._channels = {};
+Radio._channels = Object.create(null);
 Radio.channel = function (channelName) {
   if (!channelName) {
     throw new MarionetteError({
@@ -787,10 +787,26 @@ each([Events, Requests], system => {
   });
 });
 Radio.reset = function (channelName) {
-  const channels = !channelName ? this._channels : [this._channels[channelName]];
-  each(channels, channel => {
-    channel.reset();
-  });
+  if (!arguments.length) {
+    each(this._channels, channel => {
+      channel.reset();
+    });
+    return;
+  }
+  if (!channelName) {
+    Radio.channel(channelName);
+  }
+  let channel;
+  try {
+    channel = this._channels[channelName];
+  } catch {}
+  if (!channel) {
+    throw new MarionetteError({
+      code: 'MN0021',
+      message: 'Radio channel does not exist.'
+    });
+  }
+  channel.reset();
 };
 
 var RadioMixin = {
