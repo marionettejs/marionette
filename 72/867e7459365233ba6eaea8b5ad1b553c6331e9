@@ -1,0 +1,34 @@
+docs/marionette.collectionview.md
+  s_d6429951fb9231::t_665dea25cf1a56 143
+test/unit/view-lifecycle.spec.js
+  s_d6429951fb9231::t_2a31a6ae6cf7d5 58-95
+  s_d6429951fb9231::t_20b68b12e02627 96-138
+  s_d6429951fb9231::t_b241371794e575 139-142,144-154,158-185,191-228
+  s_d6429951fb9231::t_093d3fdcd31b37 143,155-157,186-190
+docs/view.lifecycle.md
+  s_d6429951fb9231::t_665dea25cf1a56 95-100,108-109
+  s_d6429951fb9231::t_aa6df1e9631e9a 43,52,54,61
+  s_d6429951fb9231::t_b3bd8109f4f21b 53
+  s_d6429951fb9231::t_513c2cde446129 224-229,239-242
+  s_d6429951fb9231::t_42474bac7776e1 243
+test/unit/collection-view/collection-view-lifecycle.spec.js
+  s_d6429951fb9231::t_2a31a6ae6cf7d5 72-97,109-121
+  s_d6429951fb9231::t_cc9295d188efc0 98-108
+  s_d6429951fb9231::t_20b68b12e02627 122-162
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "72867e7459365233ba6eaea8b5ad1b553c6331e9",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
