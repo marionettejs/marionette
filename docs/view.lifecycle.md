@@ -37,6 +37,36 @@ Returns a boolean value reflecting if the view is considered attached to the DOM
 
 Returns a boolean value reflecting if the view has been destroyed.
 
+### State vectors
+
+The three lifecycle methods are independent observations, not one linear state enum.
+Construction can therefore produce any of the four alive render/attachment vectors:
+
+| Initial `el` | `isRendered()` | `isAttached()` | `isDestroyed()` |
+| --- | --- | --- | --- |
+| Empty and detached | `false` | `false` | `false` |
+| Empty and in the document | `false` | `true` | `false` |
+| Populated and detached | `true` | `false` | `false` |
+| Populated and in the document | `true` | `true` | `false` |
+
+With lifecycle monitoring enabled, Marionette-managed operations preserve the
+following observable transitions:
+
+| Operation | Result | Repeated call |
+| --- | --- | --- |
+| `view.render()` with a renderable template while alive | Rendered becomes `true`; attachment is unchanged | Renders again and runs the render lifecycle again |
+| `region.show(view)` | Ensures the view is rendered; attached becomes `true` only when the Region is in the document | Showing the current view is a no-op |
+| `region.detachView()` | Rendered stays `true`; attached becomes `false`; destroyed stays `false` | Returns `undefined` with no transition |
+| Re-show a detached view | Rendered stays `true`; attachment reflects the Region | Does not render the view again |
+| `region.empty()` or `view.destroy()` | Rendered and attached become `false`; destroyed becomes `true` | Repeated destroy is a no-op |
+
+Setting `monitorViewEvents: false` on a Region's owning view intentionally disables
+attachment events and automatic `isAttached()` updates for the shown view.
+
+This table specifies the normal managed lifecycle. Operations on an already destroyed
+view, other than repeated `destroy()`, are intentionally outside this contract until
+their invalid-transition behavior is made consistent.
+
 ## Instantiating a View
 
 Marionette Views are Backbone Views and so when they are instantiated the view
