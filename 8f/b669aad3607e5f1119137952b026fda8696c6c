@@ -1,0 +1,21 @@
+.github/workflows/performance-approval-refresh.yml
+  s_d6429951fb9231::t_0aa8a5d52bd94a 139,150,154-155,157-158
+  s_d6429951fb9231::t_27f28fb7b40202 143
+  s_d6429951fb9231::t_3df1578994bbbd 149,152-153,156,159
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "8fb669aad3607e5f1119137952b026fda8696c6c",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
