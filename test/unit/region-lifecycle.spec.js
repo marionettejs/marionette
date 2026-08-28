@@ -65,6 +65,18 @@ describe('Region lifecycle contract', function() {
     });
   });
 
+  it('stays empty when a missing element is allowed', function() {
+    const missingRegion = new Region({
+      el: '#missing',
+      allowMissingEl: true,
+    });
+    const view = new TestView();
+
+    expect(missingRegion.show(view)).to.be.undefined;
+    expect(missingRegion.hasView()).to.be.false;
+    expect(view.isRendered()).to.be.false;
+  });
+
   it('treats repeated show, empty, and destroy operations deterministically', function() {
     const lifecycle = [];
     const view = new TestView();

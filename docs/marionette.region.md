@@ -84,8 +84,7 @@ change which lifecycle operations are valid.
 
 Successful `show`, `empty`, and `destroy` calls return the Region when their
 operation completes. With `allowMissingEl: true`, `show` instead returns `undefined`
-and leaves the Region empty when its element does not resolve; `empty` returns the
-Region without changing unresolved DOM contents. A View returned
+and leaves the Region empty when its element does not resolve. A View returned
 by `detachView()` remains the caller's responsibility until another Region shows it
 or it is destroyed. Operations other than repeated `destroy()` after Region
 destruction are unsupported; this contract does not make a destroyed Region reusable.
