@@ -133,8 +133,8 @@ The table describes the default rendered and monitored path. Passing
 `{ preventRender: true }` to `addChildView` still renders the parent when
 needed, but manages the supplied child without rendering it; detaching that
 child returns it in its current lifecycle state. Setting
-`monitorViewEvents: false` intentionally disables child attachment events and
-automatic child `isAttached()` updates.
+`monitorViewEvents: false` on the `CollectionView` intentionally disables child
+attachment events and automatic child `isAttached()` updates.
 
 | Operation | CollectionView state | Managed child state |
 | --- | --- | --- |

@@ -160,6 +160,36 @@ describe('CollectionView lifecycle contract', function() {
     region.destroy();
   });
 
+  it('leaves child attachment state unmonitored when parent monitoring is disabled', function() {
+    this.setFixtures('<div id="unmonitored-region"></div>');
+    const collectionView = new CollectionView();
+    const region = new Region({ el: '#unmonitored-region' });
+    const child = new ChildView();
+    const beforeAttach = this.sinon.spy();
+    const attach = this.sinon.spy();
+    child.on('before:attach', beforeAttach);
+    child.on('attach', attach);
+    region.show(collectionView);
+    collectionView.monitorViewEvents = false;
+
+    collectionView.addChildView(child);
+
+    expect(state(collectionView)).to.deep.equal({
+      rendered: true,
+      attached: true,
+      destroyed: false,
+    });
+    expect(state(child)).to.deep.equal({
+      rendered: true,
+      attached: false,
+      destroyed: false,
+    });
+    expect(beforeAttach).to.not.be.called;
+    expect(attach).to.not.be.called;
+
+    region.destroy();
+  });
+
   it('releases detached and externally destroyed children once', function() {
     this.setFixtures('<div id="managed-region"></div>');
     const collectionView = new CollectionView();
