@@ -211,4 +211,60 @@ describe('Region lifecycle contract', function() {
     expect(region.hasView()).to.be.false;
     expect(region.currentView).to.be.undefined;
   });
+
+  it('unlinks a directly destroyed owned Region without repeating teardown', function() {
+    const owner = new View({
+      regions: {
+        content: '.content',
+      },
+      template() {
+        return '<div class="content"></div>';
+      },
+    });
+    const child = new TestView();
+    const regionLifecycle = {
+      beforeDestroy: this.sinon.spy(),
+      beforeEmpty: this.sinon.spy(),
+      empty: this.sinon.spy(),
+      destroy: this.sinon.spy(),
+    };
+    const childLifecycle = {
+      beforeDestroy: this.sinon.spy(),
+      destroy: this.sinon.spy(),
+    };
+
+    owner.render();
+    const ownedRegion = owner.getRegion('content');
+    ownedRegion.on('before:destroy', regionLifecycle.beforeDestroy);
+    ownedRegion.on('before:empty', regionLifecycle.beforeEmpty);
+    ownedRegion.on('empty', regionLifecycle.empty);
+    ownedRegion.on('destroy', regionLifecycle.destroy);
+    child.on('before:destroy', childLifecycle.beforeDestroy);
+    child.on('destroy', childLifecycle.destroy);
+    ownedRegion.show(child);
+
+    expect(owner.getRegion('content')).to.equal(ownedRegion);
+    expect(owner.hasRegion('content')).to.be.true;
+    expect(ownedRegion.currentView).to.equal(child);
+
+    expect(ownedRegion.destroy()).to.equal(ownedRegion);
+    expect(ownedRegion.destroy()).to.equal(ownedRegion);
+
+    expect(ownedRegion.isDestroyed()).to.be.true;
+    expect(ownedRegion.hasView()).to.be.false;
+    expect(ownedRegion.currentView).to.be.undefined;
+    expect(child.isDestroyed()).to.be.true;
+    expect(owner.getRegion('content')).to.be.undefined;
+    expect(owner.hasRegion('content')).to.be.false;
+    expect(owner.getRegions()).not.to.have.own.property('content');
+
+    expect(owner.destroy()).to.equal(owner);
+    expect(owner.destroy()).to.equal(owner);
+
+    for (const lifecycle of [regionLifecycle, childLifecycle]) {
+      for (const callback of Object.values(lifecycle)) {
+        expect(callback).to.have.been.calledOnce;
+      }
+    }
+  });
 });
