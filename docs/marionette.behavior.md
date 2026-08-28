@@ -23,12 +23,12 @@ Instead a `Behavior` should be instantiated by the view it is related to by
   * [Behavior Options](#behavior-options)
 * [Nesting Behaviors](#nesting-behaviors)
 * [The Behavior's `view`](#the-behaviors-view)
-* [View Proxy](#view-proxy)
-  * [Listening to View Events](#listening-to-view-events)
+* [Host Communication and Event Proxies](#host-communication-and-event-proxies)
+  * [Host and Behavior Events](#host-and-behavior-events)
   * [Proxy Handlers](#proxy-handlers)
-  * [Events / Initialize Order](#events--initialize-order)
+  * [Initialize Order](#initialize-order)
   * [Using `ui`](#using-ui)
-  * [View DOM proxies](#view-dom-proxies)
+  * [Host DOM Boundary](#host-dom-boundary)
 * [Behavior Lifecycle](#behavior-lifecycle)
 * [Destroying a Behavior](#destroying-a-behavior)
 
@@ -254,29 +254,43 @@ Behavior.extend({
 
 [Live example](https://jsfiddle.net/marionettejs/p8vymo4j/)
 
-## View Proxy
+## Host Communication and Event Proxies
 
-The `Behavior` class provides proxies for a selection of `View` functionality.
-This includes [listening to events on the view](), being able to [handle events on
-models and collections](), and being able to directly [interact with the attached
-template]().
+A Behavior is an event-capable object attached to one host View. It can handle
+host events, DOM events, and host entity events while keeping its own events
+separate from the host.
 
-### Listening to View Events
+### Host and Behavior Events
 
-Behaviors are powered by an event proxy. This means that any events that are
-triggered on a `View` are passed to all attached `behaviors`. This includes:
+When the host calls `triggerMethod()`, the host's corresponding `onEvent` method
+runs first. The event is then broadcast with the same arguments to every attached
+Behavior, where the corresponding method runs with that Behavior as its context.
+Nested Behaviors participate directly in the same host broadcast. Do not rely on
+an ordering among Behavior handlers.
 
-* Events fired by `triggerMethod`
-* Events fired from `triggers`
-* Events fired by `childViewTriggers`
-* Events fired from `childView`
+Host broadcasts include events produced by:
 
-These handlers work exactly as they do on `View` -
-[see the `View` documentation](./marionette.view.md#events)
+* Calls to `triggerMethod()`
+* DOM `triggers`
+* `childViewTriggers`
+* Child events forwarded through a non-false `childViewEventPrefix`
 
-> Be default all events triggered on the behavior come from the view or the view's entities.
-> Events triggered in the behavior instance are not executed in the view. To notify
-> the view, the behavior must trigger an event in its view property, e.g, `this.view.trigger('my:event')`
+`childViewEvents` calls the configured host handler directly. It becomes a host
+broadcast only if that handler explicitly calls `triggerMethod()`.
+
+A call to `behavior.triggerMethod()` stays local to that Behavior. It does not
+invoke the host or sibling Behaviors. To request host work, call an appropriate
+public host method or explicitly use `this.view.triggerMethod()`. The latter is a
+host broadcast, so every attached Behavior receives it, including the Behavior
+that sent it. Do not re-emit the same host event from that Behavior's corresponding
+handler, as doing so would recurse.
+
+A Behavior's DOM [`triggers`](./dom.interactions.md#view-triggers) are emitted on
+the host automatically. The host method runs first, and all attached Behaviors,
+including the Behavior that declared the trigger, receive the broadcast.
+
+For general event naming and handler conversion, see
+[`triggerMethod`](./events.md#triggermethod).
 
 ### Proxy Handlers
 
@@ -319,10 +333,7 @@ Behavior.extend({
 });
 ```
 
-### Events / Initialize Order
-
-If both view and behavior are listening for the same event, this will be executed
-first in the view then in the behavior as below.
+### Initialize Order
 
 The View + Behavior initialize process is as follows:
 
