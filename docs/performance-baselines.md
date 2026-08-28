@@ -80,6 +80,12 @@ base-allowed maintainer. Evidence URLs remain durable issue #127 comments from t
 repository participants. The record also preserves its rationale and rollback
 condition.
 
+The approval must come from a different base-allowed maintainer whenever the exact-base
+allowlist contains an eligible alternative. If the pull-request author is the sole
+allowlisted maintainer, that maintainer may provide the canonical exact-head
+attestation so the two-stage protocol remains usable. Adding another allowlisted
+maintainer automatically makes distinct approval mandatory.
+
 The approval comment contains only the
 `marionette-performance-budget-amendment:v1` marker and canonical JSON. It binds the
 action (`authorize` or `revoke`), full pull-request head SHA, entry identifier,

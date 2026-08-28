@@ -627,11 +627,13 @@ function validateGovernanceEvidence({
   if (!authorLogin) {
     violations.push('Pull request author login is missing or malformed');
   }
+  const soleMaintainerAttestation = allowedLogins.size === 1 &&
+    allowedLogins.has(authorLogin);
   const trustedMarked = approvalComments.comments.filter(comment => {
     const login = normalizedLogin(comment?.user?.login);
     return comment?.user?.type === 'User' &&
       allowedAuthorAssociations.has(comment?.author_association) &&
-      allowedLogins.has(login) && login !== authorLogin &&
+      allowedLogins.has(login) && (login !== authorLogin || soleMaintainerAttestation) &&
       budgetApprovalTargetsEntry(comment?.body, amendment);
   });
   const canonical = trustedMarked.filter(comment =>
@@ -647,7 +649,7 @@ function validateGovernanceEvidence({
     if (comment?.user?.type !== 'User' ||
         !allowedAuthorAssociations.has(comment?.author_association) ||
         !allowedLogins.has(login) ||
-        login === authorLogin ||
+        (login === authorLogin && !soleMaintainerAttestation) ||
         !parseBudgetAmendmentApproval(comment?.body, amendment, headSha)) {
       violations.push(`${amendment.id} approval URL does not resolve to one canonical exact-head maintainer approval: ${url}`);
     }

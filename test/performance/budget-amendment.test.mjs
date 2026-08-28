@@ -795,12 +795,41 @@ describe('two-stage performance budget amendments', () => {
     assert.equal(malformedResult.status, 'rejected');
     assert.match(malformedResult.diagnostics.join('\n'), /approval URL.*exact-head maintainer/i);
 
+    const soleMaintainerApproved = transition({
+      ...options,
+      pullRequestAuthorLogin: 'paulfalgout',
+    });
+    assert.equal(soleMaintainerApproved.status, 'accepted',
+      soleMaintainerApproved.diagnostics.join('\n'));
+
+    const twoMaintainers = contract();
+    twoMaintainers.pullRequestGrowthApproval.allowedLogins = ['other-maintainer', 'paulfalgout'];
     const selfApproved = transition({
       ...options,
+      authorityContract: twoMaintainers,
+      candidateContract: twoMaintainers,
+      evidence: {
+        ...evidenceReports(),
+        [prototypeContractPath]: twoMaintainers,
+      },
       pullRequestAuthorLogin: 'paulfalgout',
     });
     assert.equal(selfApproved.status, 'rejected');
     assert.match(selfApproved.diagnostics.join('\n'), /approval URL.*exact-head maintainer/i);
+
+    const alternateApproved = transition({
+      ...options,
+      authorityContract: twoMaintainers,
+      candidateContract: twoMaintainers,
+      comments: trustedComments({ approvalLogin: 'other-maintainer' }),
+      evidence: {
+        ...evidenceReports(),
+        [prototypeContractPath]: twoMaintainers,
+      },
+      pullRequestAuthorLogin: 'paulfalgout',
+    });
+    assert.equal(alternateApproved.status, 'accepted',
+      alternateApproved.diagnostics.join('\n'));
     assert.match(transition({
       ...options,
       comments: trustedComments({ evidenceAssociation: 'NONE' }),
@@ -966,7 +995,7 @@ describe('two-stage performance budget amendments', () => {
     assert.equal(result.amendment.id, 'BA0001');
     assert.equal(result.requiresExactHeadGrowthApproval, false);
 
-    const selfApproved = transition({
+    const soleMaintainerApproved = transition({
       authorityLedger: ledger([record]),
       candidateLedger: ledger([record, revoked]),
       changedFiles: [
@@ -975,7 +1004,7 @@ describe('two-stage performance budget amendments', () => {
       ],
       pullRequestAuthorLogin: 'paulfalgout',
     });
-    assert.equal(selfApproved.status, 'rejected');
-    assert.match(selfApproved.diagnostics.join('\n'), /approval URL.*exact-head maintainer/i);
+    assert.equal(soleMaintainerApproved.status, 'accepted',
+      soleMaintainerApproved.diagnostics.join('\n'));
   });
 });
