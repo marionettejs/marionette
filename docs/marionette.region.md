@@ -16,6 +16,7 @@ Regions maintain the [View's lifecycle](./view.lifecycle.md) while showing or em
 ## Documentation Index
 
 * [Instantiating a Region](#instantiating-a-region)
+* [Lifecycle transition contract](#lifecycle-transition-contract)
 * [Defining the Application Region](#defining-the-application-region)
 * [Defining Regions](#defining-regions)
   * [String Selector](#string-selector)
@@ -54,6 +55,40 @@ const myRegion = new Region({ ... });
 
 While regions may be instantiated and useful on their own, their primary use case is through
 the [`Application`](#defining-the-application-region) and [`View`](#defining-regions) classes.
+
+## Lifecycle transition contract
+
+A Region owns at most one current View. Its public lifecycle
+state can be read without changing it:
+
+| State | `hasView()` | `isDestroyed()` | `currentView` |
+| --- | --- | --- | --- |
+| Empty | `false` | `false` | `undefined` |
+| Occupied | `true` | `false` | The View shown by the Region |
+| Destroyed | `false` | `true` | `undefined` |
+
+`isSwappingView()` is a temporary operation flag rather than a fourth stable state.
+It is `true` while one occupied Region replaces its current View with another,
+including the Region's `before:show`, `before:empty`, `empty`, and `show` callbacks.
+It returns to `false` when `show` completes. `isReplaced()` independently reports
+whether `replaceElement` has temporarily replaced the Region element; it does not
+change which lifecycle operations are valid.
+
+| Operation | Empty Region | Occupied Region | Destroyed Region |
+| --- | --- | --- | --- |
+| `show(view)` when the Region element resolves | Renders the View if needed, shows it, and enters occupied. | Showing the same View is a no-op. Showing a different View destroys the old View and swaps to the new one. | Reuse is unsupported. |
+| `detachView()` | Returns `undefined`; state is unchanged. | Detaches and returns the live View, then enters empty. | Reuse is unsupported. |
+| `empty()` | Returns the Region and, when its element resolves, removes unmanaged contents from that element. | Destroys the current View, clears `currentView`, and enters empty. | Reuse is unsupported. |
+| Current View is destroyed externally | No effect. | Runs the Region's empty lifecycle once, clears `currentView`, and enters empty. | No effect. |
+| `destroy()` | Runs the destroy lifecycle and enters destroyed. | Emits `before:destroy`, enters destroyed, destroys and empties the current View, then emits `destroy`. | Returns the Region without repeating cleanup or lifecycle events. |
+
+Successful `show`, `empty`, and `destroy` calls return the Region when their
+operation completes. With `allowMissingEl: true`, `show` instead returns `undefined`
+and leaves the Region empty when its element does not resolve; `empty` returns the
+Region without changing unresolved DOM contents. A View returned
+by `detachView()` remains the caller's responsibility until another Region shows it
+or it is destroyed. Operations other than repeated `destroy()` after Region
+destruction are unsupported; this contract does not make a destroyed Region reusable.
 
 ## Defining the Application Region
 
