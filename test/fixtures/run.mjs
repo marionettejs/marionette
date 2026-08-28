@@ -16,6 +16,7 @@ const fixtures = [
   'shim',
   'shim-types',
   'jquery-dom-api',
+  'jquery-dom-api-types',
   'vite',
   'peer-underscore-min',
 ];

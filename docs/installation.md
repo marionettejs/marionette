@@ -39,7 +39,9 @@ required; the rest are optional.
 |---|---|---|
 | `underscore` `^1.13.0` | Required | Always. Marionette publishes named ESM imports from `underscore`, and versions before 1.13 are CJS-only with no package `exports` map, so modern Node and bundler ESM resolution cannot satisfy the imports. |
 | `backbone` `^1.4.0` | Optional | Only if your app uses Backbone models/collections, or imports the bundled `marionette/backbone` shim. See [Backbone is optional](#backbone-is-optional). |
+| `@types/backbone` `^1.4.23` | Optional | TypeScript declarations for `marionette/backbone`. JavaScript consumers do not need it. |
 | `jquery` `^3.5.0` | Optional | Only if your app uses the `marionette/jquery-dom-api` adapter. See [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional). |
+| `@types/jquery` `^3.5.34` | Optional | TypeScript declarations for `marionette/jquery-dom-api`. JavaScript consumers do not need it. |
 
 Install the required peer alongside Marionette:
 
@@ -55,6 +57,17 @@ npm install backbone
 
 # Only if you use the jQuery DomApi adapter
 npm install jquery
+```
+
+Npm does not install missing optional peers. TypeScript consumers of an optional
+subpath must install its matching type package explicitly:
+
+```bash
+# Only if TypeScript imports marionette/backbone
+npm install --save-dev @types/backbone@^1.4.23
+
+# Only if TypeScript imports marionette/jquery-dom-api
+npm install --save-dev @types/jquery@^3.5.34
 ```
 
 ## Quick start
