@@ -287,6 +287,44 @@ host broadcast, so every attached Behavior receives it, including the Behavior
 that sent it. Do not re-emit the same host event from that Behavior's corresponding
 handler, as doing so would recurse.
 
+<!-- executable-example: behavior-host-communication -->
+```javascript
+import { Behavior, View } from 'marionette';
+
+const SaveBehavior = Behavior.extend({
+  ui: {
+    save: '.save'
+  },
+
+  events: {
+    'click @ui.save': 'requestSave'
+  },
+
+  requestSave() {
+    this.view.requestSave();
+  }
+});
+
+export const FormView = View.extend({
+  behaviors: [SaveBehavior],
+
+  template() {
+    return '<button class="save" type="button">Save</button>';
+  },
+
+  requestSave() {
+    this.triggerMethod('save:requested', this);
+  }
+});
+```
+
+Behavior DOM queries and delegation stay scoped to the host View. A matching
+element outside the host does not participate. Literal configuration errors fail
+eagerly: an undeclared `@ui` reference throws [MN0018](/errors/MN0018/), and a
+string handler that does not resolve to a callable method throws
+[MN0019](/errors/MN0019/). For example, declaring the event above without
+`ui.save`, or naming `requestSave` without defining that method, is invalid.
+
 A Behavior's DOM [`triggers`](./dom.interactions.md#view-triggers) are emitted on
 the host automatically. The host method runs first, and all attached Behaviors,
 including the Behavior that declared the trigger, receive the broadcast.
