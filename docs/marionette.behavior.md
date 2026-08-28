@@ -329,10 +329,39 @@ const MyBehavior = Behavior.extend({
 
 [Live example](https://jsfiddle.net/marionettejs/6b8o3pmz/)
 
-If your `ui` keys clash with keys on the attached view, the view's `ui`
-declarations will take precidence over the behavior's `ui`.
-This allows for behaviors to be more easily reused without dictating
-necessary structures within the view itself.
+### UI resolution and binding
+
+For a host whose `el` is empty at construction, the host constructs each Behavior
+before the host's `initialize` and before binding UI elements. During that
+construction, the Behavior resolves its own `ui` declaration and the host's `ui`
+declaration into one selector map. When both declarations contain the same key, the
+host's selector wins. This allows a Behavior to provide reusable defaults without
+dictating the host's markup.
+
+The merged selector map is available to the Behavior's `initialize`, before either
+the Behavior or host has bound UI elements. The map is captured for that Behavior
+instance during construction; later changes to values returned by a `ui` function do
+not replace its captured selectors. The host evaluates its own `ui` again when it
+binds. If a stateful host `ui` function returns a different selector then, the host
+binds the later selector while the Behavior continues to bind its construction-time
+selector. Keep `ui` functions deterministic when the host and Behavior share keys.
+
+Before binding, `behavior.ui` contains selector strings. A template-rendered `View`
+binds those selectors during render, after which the values are array-like element
+collections found only within the host's `el`. Its rerender replaces the contents and
+rebinds the same Behavior to the replacement elements. Code must read the current
+`behavior.ui` or call `behavior.getUI(name)` after binding instead of retaining an
+element collection from an earlier render.
+
+A `CollectionView` also binds Behavior UI automatically when its render processes a
+template. Without a template, `CollectionView#render` leaves Behavior UI as selector
+strings; call `collectionView.bindUIElements()` after the expected elements exist to
+bind them explicitly.
+
+A `View` initialized around pre-rendered content binds its own UI before it
+constructs Behaviors. This contract pins only that construction ordering. It
+intentionally leaves the mixed Behavior UI representation for that path unresolved;
+do not infer the selector-before-binding sequence above or rely on that representation.
 
 ```javascript
 import { Behavior, View } from 'backbone.marionette';
@@ -416,10 +445,9 @@ is destroyed. Nested Behaviors participate as Behaviors of the same host view.
 
 `Behavior` does not expose an independent `isDestroyed()` state. Repeated direct
 `behavior.destroy()` calls, reuse after direct cleanup, and other post-cleanup
-operations are outside this lifecycle contract. UI capture and collision rules,
-dependency access, invalid references, and dynamic replacement semantics are also
-separate Behavior contract decisions; this table does not add an Application or
-State lifecycle to Behavior.
+operations are outside this lifecycle contract. Dependency access, invalid
+references, and dynamic replacement semantics are separate Behavior contract
+decisions; this table does not add an Application or State lifecycle to Behavior.
 
 If a Region's owning view sets `monitorViewEvents: false`, the shown host does not
 receive attachment lifecycle notifications, so its Behaviors do not receive them
