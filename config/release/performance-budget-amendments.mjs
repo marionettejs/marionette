@@ -675,7 +675,7 @@ function parseBudgetAmendmentApproval(body, entry, headSha) {
   if (typeof body !== 'string' || !body.includes(approvalMarker)) {
     return false;
   }
-  const normalized = body.replaceAll('\r\n', '\n').replace(/\n$/, '');
+  const normalized = body.replaceAll('\r\n', '\n').replace(/\s+$/, '');
   const match = normalized.match(
     /^<!-- marionette-performance-budget-amendment:v1 -->\n```json\n([\s\S]+)\n```$/
   );
@@ -696,8 +696,8 @@ function budgetApprovalTargetsEntry(body, entry) {
   if (typeof body !== 'string' || !body.includes(approvalMarker)) {
     return false;
   }
-  const match = body.replaceAll('\r\n', '\n').match(
-    /^<!-- marionette-performance-budget-amendment:v1 -->\n```json\n([\s\S]+)\n```\n?$/
+  const match = body.replaceAll('\r\n', '\n').replace(/\s+$/, '').match(
+    /^<!-- marionette-performance-budget-amendment:v1 -->\n```json\n([\s\S]+)\n```$/
   );
   if (!match) {
     return true;

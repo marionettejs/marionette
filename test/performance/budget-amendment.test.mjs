@@ -779,6 +779,16 @@ describe('two-stage performance budget amendments', () => {
         [reportPath]: reportHash,
       },
     };
+    const padded = trustedComments();
+    padded.approval.comments[0].body += '\n\n \t';
+    assert.equal(transition({
+      ...options,
+      changedFiles: [
+        ...options.changedFiles,
+        'docs/performance-baselines.md',
+      ],
+      comments: padded,
+    }).status, 'accepted');
     assert.match(transition({
       ...options,
       comments: trustedComments({ approvalLogin: 'attacker' }),
