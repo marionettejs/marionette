@@ -60,9 +60,8 @@ following observable transitions:
 | Re-show a detached view | Rendered stays `true`; attachment reflects the Region | Does not render the view again |
 | `region.empty()` or `view.destroy()` | Rendered and attached become `false`; destroyed becomes `true` | Repeated destroy is a no-op |
 
-Setting `monitorViewEvents: false` on either a Region's owning view or the shown view
-itself intentionally disables attachment events and automatic `isAttached()` updates
-for that shown view.
+Setting `monitorViewEvents: false` on a Region's owning view intentionally disables
+attachment events and automatic `isAttached()` updates for the shown view.
 
 This table specifies the normal managed lifecycle. Operations on an already destroyed
 view, other than repeated `destroy()`, are intentionally outside this contract until
