@@ -1,6 +1,7 @@
-import { isString, isFunction, result, each } from 'underscore';
+import { isString, result, each } from 'underscore';
 import { isEnabled } from '../config/features.js';
 import EventDelegator from '../config/event-delegator.js';
+import { resolveMethod } from '../modules/common/normalize-methods.js';
 
 const delegateEventSplitter = /^(\S+)\s*(.*)$/;
 
@@ -54,28 +55,32 @@ export default {
   },
 
   _delegateViewEvents(view = this) {
+    if (!this.events && !this.triggers) { return; }
+
     const uiBindings = this._getUIBindings();
-    this._delegateEvents(uiBindings);
-    this._delegateTriggers(uiBindings, view);
+    const delegates = [];
+    this._delegateEvents(delegates, uiBindings);
+    this._delegateTriggers(delegates, uiBindings, view);
+    for (let index = 0; index < delegates.length; index += 2) {
+      this._delegate(delegates[index], delegates[index + 1]);
+    }
   },
 
-  _delegateEvents(uiBindings) {
+  _delegateEvents(delegates, uiBindings) {
     if (!this.events) { return; }
 
     each(result(this, 'events'), (handler, key) => {
-      if (!isFunction(handler)) {
-        handler = this[handler];
-      }
+      handler = resolveMethod(this, handler, key);
       if (!handler) { return; }
-      this._delegate(handler.bind(this), this.normalizeUIString(key, uiBindings));
+      delegates.push(handler.bind(this), this.normalizeUIString(key, uiBindings));
     });
   },
 
-  _delegateTriggers(uiBindings, view) {
+  _delegateTriggers(delegates, uiBindings, view) {
     if (!this.triggers) { return; }
 
     each(result(this, 'triggers'), (value, key) => {
-      this._delegate(buildViewTrigger(view, value), this.normalizeUIString(key, uiBindings));
+      delegates.push(buildViewTrigger(view, value), this.normalizeUIString(key, uiBindings));
     });
   },
 

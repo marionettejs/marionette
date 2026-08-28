@@ -3,6 +3,61 @@ import CollectionView from '../../modules/collection-view';
 import View from '../../modules/view';
 
 describe('Behavior UI contract', function() {
+  it('delegates host-only and host-winning ui references on first construction', function() {
+    const onHostOnly = sinon.stub();
+    const onShared = sinon.stub();
+    const TestBehavior = Behavior.extend({
+      ui: {
+        shared: '.behavior-shared',
+      },
+      events: {
+        'click @ui.hostOnly': 'onHostOnly',
+        'click @ui.shared': 'onShared',
+      },
+      onHostOnly,
+      onShared,
+    });
+    const TestView = View.extend({
+      behaviors: [TestBehavior],
+      template() {
+        return [
+          '<button class="host-only"></button>',
+          '<button class="host-shared"></button>',
+          '<button class="behavior-shared"></button>',
+        ].join('');
+      },
+      ui: {
+        hostOnly: '.host-only',
+        shared: '.host-shared',
+      },
+    });
+    const view = new TestView();
+
+    view.render();
+    view.el.querySelector('.host-only').click();
+    view.el.querySelector('.behavior-shared').click();
+    expect(onHostOnly).to.have.been.calledOnce;
+    expect(onShared).not.to.have.been.called;
+
+    view.el.querySelector('.host-shared').click();
+    expect(onShared).to.have.been.calledOnce;
+
+    view.destroy();
+  });
+
+  it('rejects a missing Behavior DOM event handler during host construction', function() {
+    const TestBehavior = Behavior.extend({
+      events: {
+        click: 'missingHandler',
+      },
+    });
+    const TestView = View.extend({ behaviors: [TestBehavior] });
+
+    expect(() => new TestView())
+      .to.throw('The handler "missingHandler" for "click" must resolve to a function.')
+      .with.property('code', 'MN0019');
+  });
+
   it('captures merged UI during host construction with host keys winning', function() {
     const lifecycle = [];
     let behavior;

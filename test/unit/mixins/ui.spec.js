@@ -80,5 +80,30 @@ describe('normalizeUIKeys', function() {
         emptyValue: null
       });
     });
+
+    it('throws a stable diagnostic for an unknown literal ui reference', function() {
+      expect(() => view.normalizeUIString('@ui.missing'))
+        .to.throw('The ui reference "missing" is not defined.')
+        .with.property('code', 'MN0018');
+    });
+
+    it('requires ui references in keys and values to be own declared keys', function() {
+      const operations = [
+        () => view.normalizeUIString('@ui.toString'),
+        () => view.normalizeUIKeys({'click @ui.missing': 'onMissing'}),
+        () => view.normalizeUIValues({region: '@ui.missing'}, 'el'),
+        () => view.normalizeUIValues({region: {el: '@ui.missing'}}, 'el')
+      ];
+
+      operations.forEach(operation => {
+        expect(operation).to.throw().with.property('code', 'MN0018');
+      });
+    });
+
+    it('accepts an empty selector when its ui key is declared', function() {
+      view.ui.empty = '';
+
+      expect(view.normalizeUIString('@ui.empty')).to.equal('');
+    });
   });
 });

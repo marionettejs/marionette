@@ -34,21 +34,6 @@
 
   var version = "5.0.0-alpha.2";
 
-  const normalizeMethods$1 = function (hash) {
-    if (!hash) {
-      return;
-    }
-    return underscore.reduce(hash, (normalizedHash, method, name) => {
-      if (!underscore.isFunction(method)) {
-        method = this[method];
-      }
-      if (method) {
-        normalizedHash[name] = method;
-      }
-      return normalizedHash;
-    }, {});
-  };
-
   const errorProps = ['code', 'description', 'fileName', 'lineNumber', 'name', 'message', 'number', 'url'];
   const MarionetteError = extend.call(Error, {
     urlRoot: `http://marionettejs.com/docs/v${version}/`,
@@ -70,6 +55,33 @@
       return `${this.name}: ${this.message} See: ${this.url}`;
     }
   });
+
+  const resolveMethod = function (context, method, name) {
+    if (underscore.isFunction(method)) {
+      return method;
+    }
+    const methodName = method;
+    const resolvedMethod = context[methodName];
+    if (underscore.isString(methodName) && !underscore.isFunction(resolvedMethod)) {
+      throw new MarionetteError({
+        code: 'MN0019',
+        message: `The handler "${methodName}" for "${name}" must resolve to a function.`
+      });
+    }
+    return resolvedMethod;
+  };
+  const normalizeMethods$1 = function (hash) {
+    if (!hash) {
+      return;
+    }
+    return underscore.reduce(hash, (normalizedHash, method, name) => {
+      method = resolveMethod(this, method, name);
+      if (method) {
+        normalizedHash[name] = method;
+      }
+      return normalizedHash;
+    }, {});
+  };
 
   function normalizeBindings$1(context, bindings) {
     if (!underscore.isObject(bindings)) {
@@ -1020,9 +1032,18 @@
     }, {});
   };
   const uiRegEx = /@ui\.[a-zA-Z-_$0-9]*/g;
+  const hasOwnProperty = Object.prototype.hasOwnProperty;
   const normalizeUIString = function (uiString, ui) {
     return uiString.replace(uiRegEx, r => {
-      return ui[r.slice(4)];
+      const name = r.slice(4);
+      const selector = ui && ui[name];
+      if (!ui || !hasOwnProperty.call(ui, name) || typeof selector === 'undefined') {
+        throw new MarionetteError({
+          code: 'MN0018',
+          message: `The ui reference "${name}" is not defined.`
+        });
+      }
+      return selector;
     });
   };
   const normalizeUIValues = function (hash, ui, property) {
@@ -1190,30 +1211,35 @@
       });
     },
     _delegateViewEvents(view = this) {
+      if (!this.events && !this.triggers) {
+        return;
+      }
       const uiBindings = this._getUIBindings();
-      this._delegateEvents(uiBindings);
-      this._delegateTriggers(uiBindings, view);
+      const delegates = [];
+      this._delegateEvents(delegates, uiBindings);
+      this._delegateTriggers(delegates, uiBindings, view);
+      for (let index = 0; index < delegates.length; index += 2) {
+        this._delegate(delegates[index], delegates[index + 1]);
+      }
     },
-    _delegateEvents(uiBindings) {
+    _delegateEvents(delegates, uiBindings) {
       if (!this.events) {
         return;
       }
       underscore.each(underscore.result(this, 'events'), (handler, key) => {
-        if (!underscore.isFunction(handler)) {
-          handler = this[handler];
-        }
+        handler = resolveMethod(this, handler, key);
         if (!handler) {
           return;
         }
-        this._delegate(handler.bind(this), this.normalizeUIString(key, uiBindings));
+        delegates.push(handler.bind(this), this.normalizeUIString(key, uiBindings));
       });
     },
-    _delegateTriggers(uiBindings, view) {
+    _delegateTriggers(delegates, uiBindings, view) {
       if (!this.triggers) {
         return;
       }
       underscore.each(underscore.result(this, 'triggers'), (value, key) => {
-        this._delegate(buildViewTrigger(view, value), this.normalizeUIString(key, uiBindings));
+        delegates.push(buildViewTrigger(view, value), this.normalizeUIString(key, uiBindings));
       });
     },
     _delegate(handler, key) {
@@ -2610,8 +2636,8 @@
     this._setOptions(options, ClassOptions$1);
     this.cid = underscore.uniqueId(this.cidPrefix);
     this._initViewEvents();
-    this.setElement();
     this.ui = underscore.extend({}, underscore.result(this, 'ui'), underscore.result(view, 'ui'));
+    this.setElement();
     this.listenTo(view, 'all', this.triggerMethod);
     this.initialize.apply(this, arguments);
   };

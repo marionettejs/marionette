@@ -1,4 +1,4 @@
-import { has, extend as extend$1, create, reduce, isFunction, pick, isObject, each, keys, once, uniqueId, result, map, without, isString, clone, partial, isEmpty, sortBy, partition, pluck, last, rest, initial, first, toArray, invoke, contains, include, any, some, all, every, reject, select, filter, detect, find, forEach, matches } from 'underscore';
+import { has, extend as extend$1, create, pick, reduce, isFunction, isString, isObject, each, keys, once, uniqueId, result, map, without, clone, partial, isEmpty, sortBy, partition, pluck, last, rest, initial, first, toArray, invoke, contains, include, any, some, all, every, reject, select, filter, detect, find, forEach, matches } from 'underscore';
 
 const proxy = function (method) {
   return function (context, ...args) {
@@ -25,21 +25,6 @@ function extend (protoProps, staticProps) {
 
 var version = "5.0.0-alpha.2";
 
-const normalizeMethods$1 = function (hash) {
-  if (!hash) {
-    return;
-  }
-  return reduce(hash, (normalizedHash, method, name) => {
-    if (!isFunction(method)) {
-      method = this[method];
-    }
-    if (method) {
-      normalizedHash[name] = method;
-    }
-    return normalizedHash;
-  }, {});
-};
-
 const errorProps = ['code', 'description', 'fileName', 'lineNumber', 'name', 'message', 'number', 'url'];
 const MarionetteError = extend.call(Error, {
   urlRoot: `http://marionettejs.com/docs/v${version}/`,
@@ -61,6 +46,33 @@ const MarionetteError = extend.call(Error, {
     return `${this.name}: ${this.message} See: ${this.url}`;
   }
 });
+
+const resolveMethod = function (context, method, name) {
+  if (isFunction(method)) {
+    return method;
+  }
+  const methodName = method;
+  const resolvedMethod = context[methodName];
+  if (isString(methodName) && !isFunction(resolvedMethod)) {
+    throw new MarionetteError({
+      code: 'MN0019',
+      message: `The handler "${methodName}" for "${name}" must resolve to a function.`
+    });
+  }
+  return resolvedMethod;
+};
+const normalizeMethods$1 = function (hash) {
+  if (!hash) {
+    return;
+  }
+  return reduce(hash, (normalizedHash, method, name) => {
+    method = resolveMethod(this, method, name);
+    if (method) {
+      normalizedHash[name] = method;
+    }
+    return normalizedHash;
+  }, {});
+};
 
 function normalizeBindings$1(context, bindings) {
   if (!isObject(bindings)) {
@@ -1011,9 +1023,18 @@ const normalizeUIKeys = function (hash, ui) {
   }, {});
 };
 const uiRegEx = /@ui\.[a-zA-Z-_$0-9]*/g;
+const hasOwnProperty = Object.prototype.hasOwnProperty;
 const normalizeUIString = function (uiString, ui) {
   return uiString.replace(uiRegEx, r => {
-    return ui[r.slice(4)];
+    const name = r.slice(4);
+    const selector = ui && ui[name];
+    if (!ui || !hasOwnProperty.call(ui, name) || typeof selector === 'undefined') {
+      throw new MarionetteError({
+        code: 'MN0018',
+        message: `The ui reference "${name}" is not defined.`
+      });
+    }
+    return selector;
   });
 };
 const normalizeUIValues = function (hash, ui, property) {
@@ -1181,30 +1202,35 @@ var ViewEventsMixin = {
     });
   },
   _delegateViewEvents(view = this) {
+    if (!this.events && !this.triggers) {
+      return;
+    }
     const uiBindings = this._getUIBindings();
-    this._delegateEvents(uiBindings);
-    this._delegateTriggers(uiBindings, view);
+    const delegates = [];
+    this._delegateEvents(delegates, uiBindings);
+    this._delegateTriggers(delegates, uiBindings, view);
+    for (let index = 0; index < delegates.length; index += 2) {
+      this._delegate(delegates[index], delegates[index + 1]);
+    }
   },
-  _delegateEvents(uiBindings) {
+  _delegateEvents(delegates, uiBindings) {
     if (!this.events) {
       return;
     }
     each(result(this, 'events'), (handler, key) => {
-      if (!isFunction(handler)) {
-        handler = this[handler];
-      }
+      handler = resolveMethod(this, handler, key);
       if (!handler) {
         return;
       }
-      this._delegate(handler.bind(this), this.normalizeUIString(key, uiBindings));
+      delegates.push(handler.bind(this), this.normalizeUIString(key, uiBindings));
     });
   },
-  _delegateTriggers(uiBindings, view) {
+  _delegateTriggers(delegates, uiBindings, view) {
     if (!this.triggers) {
       return;
     }
     each(result(this, 'triggers'), (value, key) => {
-      this._delegate(buildViewTrigger(view, value), this.normalizeUIString(key, uiBindings));
+      delegates.push(buildViewTrigger(view, value), this.normalizeUIString(key, uiBindings));
     });
   },
   _delegate(handler, key) {
@@ -2601,8 +2627,8 @@ const Behavior = function (options, view) {
   this._setOptions(options, ClassOptions$1);
   this.cid = uniqueId(this.cidPrefix);
   this._initViewEvents();
-  this.setElement();
   this.ui = extend$1({}, result(this, 'ui'), result(view, 'ui'));
+  this.setElement();
   this.listenTo(view, 'all', this.triggerMethod);
   this.initialize.apply(this, arguments);
 };

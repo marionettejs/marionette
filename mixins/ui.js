@@ -1,4 +1,5 @@
 import { each, reduce, isString, result } from 'underscore';
+import MarionetteError from '../utils/error.js';
 // allows for the use of the @ui. syntax within
 // a given key for triggers and events
 // swaps the @ui with the associated selector.
@@ -12,12 +13,23 @@ const normalizeUIKeys = function(hash, ui) {
 };
 
 const uiRegEx = /@ui\.[a-zA-Z-_$0-9]*/g;
+const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 // utility method for parsing @ui. syntax strings
 // into associated selector
 const normalizeUIString = function(uiString, ui) {
   return uiString.replace(uiRegEx, (r) => {
-    return ui[r.slice(4)];
+    const name = r.slice(4);
+    const selector = ui && ui[name];
+
+    if (!ui || !hasOwnProperty.call(ui, name) || typeof selector === 'undefined') {
+      throw new MarionetteError({
+        code: 'MN0018',
+        message: `The ui reference "${name}" is not defined.`
+      });
+    }
+
+    return selector;
   });
 };
 

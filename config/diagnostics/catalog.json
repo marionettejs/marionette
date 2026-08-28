@@ -291,6 +291,45 @@
         "runtime"
       ],
       "benchmarkCategory": "communication"
+    },
+    {
+      "code": "MN0018",
+      "slug": "ui-reference-not-found",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Behavior",
+        "CollectionView",
+        "View"
+      ],
+      "remediation": "Define the referenced key in the ui hash or replace the @ui reference with a literal selector.",
+      "docsAnchor": "/errors/MN0018/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "view"
+    },
+    {
+      "code": "MN0019",
+      "slug": "string-handler-not-found",
+      "status": "active",
+      "category": "communication",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "Region",
+        "View"
+      ],
+      "remediation": "Define the named handler method on the binding context or provide the handler as a function.",
+      "docsAnchor": "/errors/MN0019/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "communication"
     }
   ]
 }

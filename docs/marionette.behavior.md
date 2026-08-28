@@ -390,7 +390,9 @@ before the host's `initialize` and before binding UI elements. During that
 construction, the Behavior resolves its own `ui` declaration and the host's `ui`
 declaration into one selector map. When both declarations contain the same key, the
 host's selector wins. This allows a Behavior to provide reusable defaults without
-dictating the host's markup.
+dictating the host's markup. Marionette establishes this merged map before the
+Behavior's first DOM event and trigger delegation, so host-only keys and host
+overrides are available immediately.
 
 The merged selector map is available to the Behavior's `initialize`, before either
 the Behavior or host has bound UI elements. The map is captured for that Behavior

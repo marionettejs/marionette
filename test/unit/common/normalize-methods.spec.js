@@ -24,8 +24,7 @@ describe('normalizeMethods', function() {
 
     beforeEach(function() {
       hash = {
-        'foo': 'foo',
-        'bar': 'bar'
+        'foo': 'foo'
       };
       normalizedHash = view.normalizeMethods(hash);
     });
@@ -34,8 +33,26 @@ describe('normalizeMethods', function() {
       expect(normalizedHash).to.have.property('foo');
     });
 
-    it('should ignore strings that dont exist as functions on the context', function() {
-      expect(normalizedHash).not.to.have.property('bar');
+    it('throws a stable diagnostic when a named handler does not exist', function() {
+      expect(() => view.normalizeMethods({bar: 'bar'}))
+        .to.throw('The handler "bar" for "bar" must resolve to a function.')
+        .with.property('code', 'MN0019');
+    });
+
+    it('throws the same diagnostic when a named handler is not callable', function() {
+      view.bar = true;
+
+      expect(() => view.normalizeMethods({bar: 'bar'}))
+        .to.throw('The handler "bar" for "bar" must resolve to a function.')
+        .with.property('code', 'MN0019');
+    });
+
+    it('preserves non-string handler lookup behavior', function() {
+      view[1] = view.foo;
+
+      expect(view.normalizeMethods({found: 1, missing: 2})).to.eql({
+        found: view.foo
+      });
     });
   });
 });
