@@ -222,17 +222,18 @@ after testing the current Toolkit vocabulary against representative plain and
 stateful objects. No State instance, listener, cleanup registration, or owner
 property exists until state is declared, supplied, or first requested. State composed
 into a Marionette owner has exactly one owner. Supplying an unowned State transfers
-ownership; supplying an already-owned State fails with a stable diagnostic rather
-than sharing or borrowing it. Shared data belongs in an external model, collection,
-or data-source contract. The owner destroys its State and releases its State
-subscriptions at owner destroy. State composed into View or CollectionView persists
-across render. State composed into Application persists across stop and restart;
-State composed into MnObject persists for the object's lifetime; State composed into
-Behavior persists across its owning View's
-render and ends when the Behavior is destroyed. An invalidated asynchronous start
-cannot later mutate State or owned children. Region does not own State. A Behavior may
-compose private State when its concern truly owns that state; state shared with its
-View belongs on the View and is passed to the Behavior.
+ownership; supplying an already-owned State for composition fails with a stable
+diagnostic rather than creating shared or borrowed ownership. Shared data belongs in
+an external model, collection, or data-source contract. The owner destroys its State
+and releases its State subscriptions at owner destroy. State composed into View or
+CollectionView persists across render. State composed into Application persists
+across stop and restart. State composed into MnObject persists for the object's
+lifetime. State composed into Behavior persists across its owning View's render and
+ends when the Behavior is destroyed. An invalidated asynchronous start cannot later
+mutate State or owned children. Region does not own State. A Behavior may compose
+private State when its concern truly owns that state. State shared with its View
+belongs on the View; the Behavior may receive an ordinary reference to that State but
+does not compose, own, or destroy it.
 
 Appropriate core additions include public read-only ownership accessors, pure Region
 lookup, shared diagnostics, extension hooks with no registered listeners by default,
