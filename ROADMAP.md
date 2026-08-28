@@ -138,31 +138,48 @@ budget.
   composing Regions and Applications, repairing lifecycle bugs, adding Behaviors,
   implementing an overlay through a shared host Region, using communication
   boundaries, and proving cleanup.
-- The model version, agent harness, prompt, repository revision, commands, evaluator,
-  and expected outcomes are pinned for each benchmark series.
-- The stable-v5 benchmark uses at least 10 tasks. A Phase 0 pilot predeclares the
-  paired-run count for each task; each count is at least 10 and provides at least 80
+- The model version, agent harness, permissions, commands, evaluator, expected
+  outcomes, repository revisions, and task classification are pinned for each
+  benchmark series.
+- Every task is assigned to one of two strata before its pilot or scored runs. A
+  paired-comparable task uses byte-identical prompts, visible workspaces, hidden
+  acceptance tests, commands, and evaluator rules for the Phase 0 revision and release
+  candidate; only the installed Marionette revision differs, and the objective is
+  achievable through public APIs in both revisions. A candidate-only task is allowed
+  only when its acceptance criteria necessarily exercise an accepted public contract
+  absent from Phase 0. A poor or failed Phase 0 result never justifies reclassification.
+- The stable-v5 benchmark uses at least 10 paired-comparable tasks. Candidate-only
+  tasks do not count toward that floor. Across the full candidate corpus, every named
+  capability area is exercised by at least two independently scored tasks. One task
+  may cover multiple areas, but no single task certifies an area.
+- The classification and run count for every task are predeclared, and every count is
+  at least 10. A Phase 0 pilot sets each paired-comparable task's count with at least 80
   percent power to detect an absolute regression of 15 percentage points. Release
   decisions use one-sided exact McNemar tests and control family-wise error at 0.05
   with the Holm correction. Sample-size planning uses the conservative Bonferroni
-  level of 0.05 divided by the task count and the pilot's one-sided 95 percent upper
-  confidence bound for discordant pairs under that regression alternative. The
-  executable power calculation and inputs are published before candidate runs.
-- Every named capability area is exercised by at least two independently scored
-  tasks. One task may cover multiple areas, but no single task certifies an area.
-- The aggregate fully-correct rate has a 95 percent Wilson lower bound of at least
-  80 percent, and no individual task has a fully-correct point estimate below 60
-  percent. Aborted runs count as not fully correct.
-- Relative to the Phase 0 baseline on the same pinned harness, the fully-correct point
-  estimate does not regress and either improves by at least 20 percentage points or
-  reaches at least 95 percent. Cataloged framework-architecture violations per 100
-  attempted runs fall by at least 50 percent. Violations found before an aborted run
-  still count.
-- No individual task has a statistically significant paired regression after the
-  predeclared multiple-comparison correction.
-- A model or harness change starts a new benchmark series and requires rerunning both
-  the Phase 0 revision and release candidate. Results are not compared across unlike
-  series.
+  level of 0.05 divided by the paired-comparable task count and the pilot's one-sided
+  95 percent upper confidence bound for discordant pairs under that regression
+  alternative. Candidate-only counts, the executable power calculation, and all
+  inputs are published before candidate runs.
+- Across the full candidate corpus, including both strata, the aggregate fully-correct
+  rate has a 95 percent Wilson lower bound of at least 80 percent, and no individual
+  task has a fully-correct point estimate below 60 percent. Aborted runs count as not
+  fully correct.
+- Only the paired-comparable stratum supports relative claims. Relative to its Phase 0
+  baseline on the same pinned harness, the candidate's fully-correct point estimate
+  does not regress and either improves by at least 20 percentage points or reaches at
+  least 95 percent. Cataloged framework-architecture violations per 100 attempted
+  paired-comparable runs fall by at least 50 percent, and no paired-comparable task has
+  a statistically significant regression after the predeclared correction. Violations
+  found before an aborted run still count. Candidate-only results and violations are
+  reported separately and never enter a comparative denominator.
+- A model, harness, permissions, paired task artifact, evaluator, pairing,
+  classification, or statistical-procedure change starts a new benchmark series and
+  requires rerunning both the Phase 0 revision and release candidate. Candidate-only
+  tasks are frozen after their public contracts are accepted and before candidate
+  collection; changing one after collection invalidates the full-corpus candidate
+  result and requires a fresh candidate evaluation. Results are not compared across
+  unlike series.
 
 ## Architecture boundaries
 
