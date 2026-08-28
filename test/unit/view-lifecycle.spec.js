@@ -136,6 +136,96 @@ describe('View lifecycle contract', function() {
     view.destroy();
   });
 
+  it('propagates nested attachment through detached, reentrant, and repeated transitions', function() {
+    this.setFixtures('<div id="nested-lifecycle-region"></div>');
+    const existingChild = new View({ template: () => '<span>Existing child</span>' });
+    const reentrantChild = new View({ template: () => '<span>Reentrant child</span>' });
+    let firstReentrantStateDuringAttach;
+    const ParentView = View.extend({
+      template: () => `
+        <div class="existing-region"></div>
+        <div class="reentrant-region"></div>
+      `,
+      regions: {
+        existing: '.existing-region',
+        reentrant: '.reentrant-region',
+      },
+      onAttach() {
+        this.showChildView('reentrant', reentrantChild);
+        if (!firstReentrantStateDuringAttach) {
+          firstReentrantStateDuringAttach = state(reentrantChild);
+        }
+      },
+    });
+    const parent = new ParentView();
+    const region = new Region({ el: '#nested-lifecycle-region' });
+    const trackLifecycle = view => {
+      const events = {
+        attach: this.sinon.spy(),
+        detach: this.sinon.spy(),
+        destroy: this.sinon.spy(),
+      };
+      view.on(events);
+      return events;
+    };
+    const lifecycleEvents = [
+      trackLifecycle(parent),
+      trackLifecycle(existingChild),
+      trackLifecycle(reentrantChild),
+    ];
+
+    parent.render();
+    parent.showChildView('existing', existingChild);
+
+    expect(state(parent)).to.deep.equal({ rendered: true, attached: false, destroyed: false });
+    expect(state(existingChild)).to.deep.equal({ rendered: true, attached: false, destroyed: false });
+    expect(state(reentrantChild)).to.deep.equal({ rendered: false, attached: false, destroyed: false });
+
+    region.show(parent);
+
+    expect(firstReentrantStateDuringAttach).to.deep.equal({
+      rendered: true,
+      attached: true,
+      destroyed: false,
+    });
+    expect(parent.getChildView('existing')).to.equal(existingChild);
+    expect(parent.getChildView('reentrant')).to.equal(reentrantChild);
+    expect([parent, existingChild, reentrantChild].map(state)).to.deep.equal(Array(3).fill({
+      rendered: true,
+      attached: true,
+      destroyed: false,
+    }));
+    lifecycleEvents.forEach(events => expect(events.attach).to.have.been.calledOnce);
+
+    region.show(parent);
+    lifecycleEvents.forEach(events => expect(events.attach).to.have.been.calledOnce);
+
+    expect(region.detachView()).to.equal(parent);
+    expect([parent, existingChild, reentrantChild].map(state)).to.deep.equal(Array(3).fill({
+      rendered: true,
+      attached: false,
+      destroyed: false,
+    }));
+    lifecycleEvents.forEach(events => expect(events.detach).to.have.been.calledOnce);
+
+    region.show(parent);
+    lifecycleEvents.forEach(events => expect(events.attach).to.have.been.calledTwice);
+
+    region.empty();
+    region.empty();
+    expect([parent, existingChild, reentrantChild].map(state)).to.deep.equal(Array(3).fill({
+      rendered: false,
+      attached: false,
+      destroyed: true,
+    }));
+    lifecycleEvents.forEach(events => {
+      expect(events.detach).to.have.been.calledTwice;
+      expect(events.destroy).to.have.been.calledOnce;
+    });
+
+    region.destroy();
+  });
+
   it('follows the normal Region-managed transition sequence', function() {
     this.setFixtures('<div id="lifecycle-region"></div>');
     const region = new Region({ el: '#lifecycle-region' });

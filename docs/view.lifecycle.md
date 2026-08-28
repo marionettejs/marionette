@@ -221,6 +221,12 @@ The attached state is maintained when attaching a view with a `Region` or as a c
 or during [view instantiation](#instantiating-a-view).
 If a view is attached by other means like `$.append` [`isAttached`] may not reflect the actual state of attachment.
 
+A child shown in a rendered but detached parent View's Region is rendered and remains
+detached. When the parent is later shown in an attached Region, attachment propagates
+to its existing children. A child shown during the parent's `onAttach` is attached
+immediately. Showing the same attached parent again is a no-op for both parent and child
+attachment lifecycles.
+
 ## Detaching a View
 
 A view is detached when its `el` is removed from the DOM.
@@ -229,6 +235,11 @@ The best time to clean up any listeners added to the `el` is in the [`before:det
 While the `el` of the view may remain attached, its contents will be removed on render.
 If you have added listeners to the contents of the view rather than `before:detach` the
 [`dom:remove` event](./events.class.md#domremove-event) would be best.
+
+Detaching a parent View propagates detachment to its managed Region children while
+preserving their rendered state and ownership. Re-showing that parent attaches the same
+children again. Emptying the parent-owning Region then detaches and destroys the parent
+and its still-managed children once.
 
 ## Destroying a View
 
