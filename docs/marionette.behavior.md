@@ -401,8 +401,8 @@ const FirstView = View.extend({
 
 The host View owns the DOM boundary for each attached Behavior. A Behavior's
 `el` is the host's current `el`, and its `$()` lookup delegates to the host so
-that results stay scoped to that element. The native DOM API does not add a
-`$el` property to Behaviors.
+that results stay scoped to that element. Behaviors do not have a `$el`
+property.
 
 Calling the host View's `setElement()` automatically moves its Behaviors to the
 new element. Their delegated DOM handlers are removed from the old element and

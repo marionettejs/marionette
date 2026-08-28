@@ -25,6 +25,7 @@ describe('Behavior DOM delegation contract', function() {
       const host = new TestHost({ el: firstHost });
 
       expect(behavior.el).to.equal(firstHost);
+      expect(behavior).to.not.have.property('$el');
       expect(behavior.$('.action')[0]).to.equal(firstHost.querySelector('.first'));
 
       host.setElement(secondHost);
