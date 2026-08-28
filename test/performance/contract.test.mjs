@@ -42,7 +42,7 @@ function contractFor(paths = ['dist/index.mjs']) {
       path,
       baselineBrotliBytes: 10,
     })),
-    productionGraphs: [{ subpath: '.' }],
+    productionGraphs: [{ subpath: '.', output: paths[0] }],
     forbiddenProductionModulePrefixes: ['test/'],
     forbiddenProductionModules: ['config/performance.json'],
   };
@@ -230,9 +230,7 @@ describe('performance contract validation', () => {
       ['index.mjs'],
       { schemaVersion: 1, entries: [authorization] }
     );
-    assert.equal(accepted.some(violation => violation.startsWith('Absolute ceiling')), false);
-    assert.equal(accepted.some(violation => violation.includes('active ceiling')), false);
-    assert.equal(accepted.some(violation => violation.includes('BA0001')), false);
+    assert.deepEqual(accepted, []);
 
     const rejected = validateContract(
       contract,

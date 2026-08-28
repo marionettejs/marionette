@@ -334,7 +334,8 @@ export function validateCandidateGrowthContract(authority, candidate, { budgetAm
       delete authorityBaseline.absoluteCeilingBytes;
       delete candidateBaseline.absoluteCeilingBytes;
       if (!isDeepStrictEqual(authorityBaseline, candidateBaseline) ||
-          candidate.baseline.absoluteCeilingBytes !== budgetAmendment.activeCeilingBytes) {
+          candidate.baseline.absoluteCeilingBytes !==
+            budgetAmendment.amendment?.proposedCeilingBytes) {
         violations.push('Candidate performance contract changes exact-base baseline beyond the authorized ceiling');
       }
       continue;
@@ -407,6 +408,8 @@ function reportContractViolations(
   expectedCeiling = authority?.baseline?.absoluteCeilingBytes
 ) {
   const violations = [];
+  const ceilingAuthority = expectedCeiling === authority?.baseline?.absoluteCeilingBytes ?
+    'exact-base' : 'active';
   if (report?.schemaVersion !== 1) {
     violations.push(`${label} report schemaVersion must be 1`);
   }
@@ -415,7 +418,7 @@ function reportContractViolations(
       !isDeepStrictEqual(report?.thresholds, authority?.thresholds) ||
       report?.cumulative?.baselineSize !== authority?.baseline?.totalBrotliBytes ||
       report?.cumulative?.absoluteCeiling !== expectedCeiling) {
-    violations.push(`${label} report does not use the exact-base performance authority`);
+    violations.push(`${label} report does not use the ${ceilingAuthority} performance authority`);
   }
   if (!Array.isArray(report?.violations)) {
     violations.push(`${label} report violations must be an array`);
@@ -466,8 +469,6 @@ function reportContractViolations(
     violations.push(`${label} cumulative size does not equal the complete measured artifact set`);
   }
   if (artifactTotal > expectedCeiling) {
-    const ceilingAuthority = expectedCeiling === authority?.baseline?.absoluteCeilingBytes ?
-      'exact-base' : 'active';
     violations.push(`${label} cumulative size ${artifactTotal} exceeds the ${ceilingAuthority} cumulative ceiling ${expectedCeiling}`);
   }
 
@@ -953,11 +954,13 @@ async function pullRequestIdentity(headSha, pullRequestNumber) {
   const event = await readJson(process.env.GITHUB_EVENT_PATH);
   const baseSha = event?.pull_request?.base?.sha;
   const eventHeadSha = event?.pull_request?.head?.sha;
+  const authorLogin = event?.pull_request?.user?.login;
   if (!/^[a-f\d]{40}$/.test(baseSha || '') || eventHeadSha !== headSha ||
-      event?.pull_request?.number !== pullRequestNumber) {
+      event?.pull_request?.number !== pullRequestNumber ||
+      typeof authorLogin !== 'string' || !authorLogin) {
     throw new Error('GitHub pull request event does not match the requested base, head, and number');
   }
-  return { baseSha };
+  return { authorLogin: authorLogin.toLowerCase(), baseSha };
 }
 
 function blockedResult(error, headSha = null) {
@@ -1030,6 +1033,7 @@ export async function main(args = process.argv.slice(2)) {
         evidenceComments,
         expectedBaseHead: identity?.baseSha,
         headSha,
+        pullRequestAuthorLogin: identity?.authorLogin,
         pullRequestNumber,
       }) : null;
     result = validateGrowthApproval({

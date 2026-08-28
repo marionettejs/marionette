@@ -455,6 +455,7 @@ describe('exact-head performance growth approval contract', () => {
         id: 'BA0001',
         authorizedArtifactPaths: ['dist/main.js'],
         authorizedNewSubpaths: [],
+        proposedCeilingBytes: 110,
       },
       diagnostics: [],
       mode: 'consume',
@@ -485,6 +486,27 @@ describe('exact-head performance growth approval contract', () => {
     });
     assert.equal(approved.status, 'approved');
     assert.deepEqual(approved.required.map(({ path }) => path), ['dist/main.js']);
+
+    const staleCeilingReport = structuredClone(currentReport);
+    staleCeilingReport.cumulative.absoluteCeiling = 105;
+    const staleCeiling = validateGrowthApproval({
+      ...options,
+      comments: snapshot([]),
+      currentReport: staleCeilingReport,
+    });
+    assert.match(
+      staleCeiling.diagnostics.map(({ message }) => message).join('\n'),
+      /Pull request report does not use the active performance authority/
+    );
+
+    const wrongProposedCeiling = structuredClone(budgetAmendment);
+    wrongProposedCeiling.amendment.proposedCeilingBytes = 109;
+    assert.match(
+      validateCandidateGrowthContract(growthContract(), candidateContract, {
+        budgetAmendment: wrongProposedCeiling,
+      }).join('\n'),
+      /changes exact-base baseline beyond the authorized ceiling/
+    );
   });
 
   test('fails closed for removed base entries and invalid new production evidence', () => {

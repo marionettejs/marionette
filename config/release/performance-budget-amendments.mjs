@@ -591,12 +591,17 @@ function commentIdentity(contract, comment) {
       `https://github.com/${contract.pullRequestGrowthApproval.repository}/issues/${issueNumber}#issuecomment-${comment.id}`;
 }
 
+function normalizedLogin(value) {
+  return typeof value === 'string' ? value.toLowerCase() : null;
+}
+
 function validateGovernanceEvidence({
   amendment,
   approvalComments,
   contract,
   evidenceComments,
   headSha,
+  pullRequestAuthorLogin,
   pullRequestNumber,
 }) {
   const repository = contract?.pullRequestGrowthApproval?.repository;
@@ -618,11 +623,16 @@ function validateGovernanceEvidence({
       contract.pullRequestGrowthApproval.allowedLogins : []
   );
   const violations = [];
+  const authorLogin = normalizedLogin(pullRequestAuthorLogin);
+  if (!authorLogin) {
+    violations.push('Pull request author login is missing or malformed');
+  }
   const trustedMarked = approvalComments.comments.filter(comment => {
-    const login = comment?.user?.login?.toLowerCase();
+    const login = normalizedLogin(comment?.user?.login);
     return comment?.user?.type === 'User' &&
       allowedAuthorAssociations.has(comment?.author_association) &&
-      allowedLogins.has(login) && budgetApprovalTargetsEntry(comment?.body, amendment);
+      allowedLogins.has(login) && login !== authorLogin &&
+      budgetApprovalTargetsEntry(comment?.body, amendment);
   });
   const canonical = trustedMarked.filter(comment =>
     parseBudgetAmendmentApproval(comment.body, amendment, headSha));
@@ -633,10 +643,11 @@ function validateGovernanceEvidence({
     const comment = approvalComments.comments.find(value => value?.html_url === url &&
       Number.isSafeInteger(value?.id) && value.id > 0 &&
       url === `https://github.com/${repository}/pull/${pullRequestNumber}#issuecomment-${value.id}`);
-    const login = comment?.user?.login?.toLowerCase();
+    const login = normalizedLogin(comment?.user?.login);
     if (comment?.user?.type !== 'User' ||
         !allowedAuthorAssociations.has(comment?.author_association) ||
         !allowedLogins.has(login) ||
+        login === authorLogin ||
         !parseBudgetAmendmentApproval(comment?.body, amendment, headSha)) {
       violations.push(`${amendment.id} approval URL does not resolve to one canonical exact-head maintainer approval: ${url}`);
     }
@@ -747,6 +758,7 @@ export function validateBudgetAmendmentTransition({
   evidenceReports = {},
   reportHashes = {},
   headSha,
+  pullRequestAuthorLogin,
   pullRequestNumber,
 }) {
   const diagnostics = [];
@@ -836,6 +848,7 @@ export function validateBudgetAmendmentTransition({
       contract: authorityContract,
       evidenceComments,
       headSha,
+      pullRequestAuthorLogin,
       pullRequestNumber,
     }));
   } else if (appended?.kind === 'revocation') {
@@ -871,6 +884,7 @@ export function validateBudgetAmendmentTransition({
       contract: authorityContract,
       evidenceComments,
       headSha,
+      pullRequestAuthorLogin,
       pullRequestNumber,
     }));
   } else if (ceilingChanged) {
@@ -1056,8 +1070,12 @@ export async function evaluateBudgetAmendmentFromCheckouts({
   evidenceComments,
   expectedBaseHead,
   headSha,
+  pullRequestAuthorLogin,
   pullRequestNumber,
 }) {
+  if (typeof expectedBaseHead !== 'string' || !/^[a-f\d]{40}$/.test(expectedBaseHead)) {
+    throw new Error('Budget-amendment evaluation requires an independently verified base SHA');
+  }
   const authorityRoot = resolve(dirname(authorityContractPath), '..');
   const resolvedCandidateRoot = resolve(candidateRoot);
   const state = await committedCheckoutState(
@@ -1109,6 +1127,7 @@ export async function evaluateBudgetAmendmentFromCheckouts({
     evidenceComments,
     evidenceReports: evidence.values,
     headSha,
+    pullRequestAuthorLogin,
     pullRequestNumber,
     reportHashes: evidence.hashes,
   });

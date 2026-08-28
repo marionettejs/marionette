@@ -95,6 +95,39 @@ function amendment(overrides = {}) {
   };
 }
 
+function secondAmendment() {
+  return amendment({
+    id: 'BA0002',
+    previousCeilingBytes: proposedCeiling,
+    proposedCeilingBytes: 54000,
+    prototypeCommit: 'abcdef1234567890abcdef1234567890abcdef12',
+    prototypeBaseCommit: '1234567890abcdef1234567890abcdef12345678',
+    implementationIssueUrl: 'https://github.com/marionettejs/marionette/issues/206',
+    reports: [
+      {
+        path: 'evidence/performance-budget-amendments/BA0002/base.json',
+        role: 'base',
+        sha256: '2'.repeat(64),
+      },
+      {
+        path: 'evidence/performance-budget-amendments/BA0002/prototype.json',
+        role: 'prototype',
+        sha256: '3'.repeat(64),
+      },
+    ],
+    prototypeContract: {
+      path: 'evidence/performance-budget-amendments/BA0002/prototype-contract.json',
+      sha256: '4'.repeat(64),
+    },
+    approvalUrls: [
+      'https://github.com/marionettejs/marionette/pull/1#issuecomment-200',
+    ],
+    evidenceUrls: [
+      'https://github.com/marionettejs/marionette/issues/127#issuecomment-201',
+    ],
+  });
+}
+
 function ledger(entries = []) {
   return { schemaVersion: 1, entries };
 }
@@ -274,6 +307,7 @@ function transition({
   comments = trustedComments(),
   reportHashes = evidenceHashes(),
   currentHead = headSha,
+  pullRequestAuthorLogin = 'contributor',
 } = {}) {
   return validateBudgetAmendmentTransition({
     authorityContract,
@@ -288,6 +322,7 @@ function transition({
     evidenceComments: comments.evidence,
     evidenceReports: evidence,
     headSha: currentHead,
+    pullRequestAuthorLogin,
     pullRequestNumber: 1,
     reportHashes,
   });
@@ -460,6 +495,22 @@ describe('two-stage performance budget amendments', () => {
         ...evidenceFiles,
       });
       const comments = governanceComments(record, authorizationHead);
+      await assert.rejects(
+        evaluateBudgetAmendmentFromCheckouts({
+          approvalComments: comments.approval,
+          authorityContract: contract(),
+          authorityContractPath: join(baseRoot, 'config/performance.json'),
+          baseReport: measuredReport(51000),
+          candidateContract: contract(),
+          candidateRoot: authorizationRoot,
+          currentReport: measuredReport(51000),
+          evidenceComments: comments.evidence,
+          headSha: authorizationHead,
+          pullRequestAuthorLogin: 'contributor',
+          pullRequestNumber: 1,
+        }),
+        /independently verified base SHA/
+      );
       const authorization = await evaluateBudgetAmendmentFromCheckouts({
         approvalComments: comments.approval,
         authorityContract: contract(),
@@ -471,6 +522,7 @@ describe('two-stage performance budget amendments', () => {
         evidenceComments: comments.evidence,
         expectedBaseHead: baseHead,
         headSha: authorizationHead,
+        pullRequestAuthorLogin: 'contributor',
         pullRequestNumber: 1,
       });
       assert.equal(authorization.status, 'accepted', authorization.diagnostics.join('\n'));
@@ -500,6 +552,7 @@ describe('two-stage performance budget amendments', () => {
         evidenceComments: comments.evidence,
         expectedBaseHead: authorizationHead,
         headSha: consumptionHead,
+        pullRequestAuthorLogin: 'contributor',
         pullRequestNumber: 1,
       });
       assert.equal(consumption.status, 'accepted', consumption.diagnostics.join('\n'));
@@ -528,36 +581,7 @@ describe('two-stage performance budget amendments', () => {
 
   test('rejects record edits, deletion, reordering, and identifier reuse', () => {
     const first = amendment();
-    const second = amendment({
-      id: 'BA0002',
-      previousCeilingBytes: proposedCeiling,
-      proposedCeilingBytes: 54000,
-      prototypeCommit: 'abcdef1234567890abcdef1234567890abcdef12',
-      prototypeBaseCommit: '1234567890abcdef1234567890abcdef12345678',
-      implementationIssueUrl: 'https://github.com/marionettejs/marionette/issues/206',
-      reports: [
-        {
-          path: 'evidence/performance-budget-amendments/BA0002/base.json',
-          role: 'base',
-          sha256: '2'.repeat(64),
-        },
-        {
-          path: 'evidence/performance-budget-amendments/BA0002/prototype.json',
-          role: 'prototype',
-          sha256: '3'.repeat(64),
-        },
-      ],
-      prototypeContract: {
-        path: 'evidence/performance-budget-amendments/BA0002/prototype-contract.json',
-        sha256: '4'.repeat(64),
-      },
-      approvalUrls: [
-        'https://github.com/marionettejs/marionette/pull/1#issuecomment-200',
-      ],
-      evidenceUrls: [
-        'https://github.com/marionettejs/marionette/issues/127#issuecomment-201',
-      ],
-    });
+    const second = secondAmendment();
     const authorityLedger = ledger([first, second]);
 
     for (const candidateLedger of [
@@ -572,36 +596,7 @@ describe('two-stage performance budget amendments', () => {
   });
 
   test('rejects multiple pending records and a broken ceiling chain', () => {
-    const second = amendment({
-      id: 'BA0002',
-      previousCeilingBytes: proposedCeiling,
-      proposedCeilingBytes: 54000,
-      prototypeCommit: 'abcdef1234567890abcdef1234567890abcdef12',
-      prototypeBaseCommit: '1234567890abcdef1234567890abcdef12345678',
-      implementationIssueUrl: 'https://github.com/marionettejs/marionette/issues/206',
-      reports: [
-        {
-          path: 'evidence/performance-budget-amendments/BA0002/base.json',
-          role: 'base',
-          sha256: '2'.repeat(64),
-        },
-        {
-          path: 'evidence/performance-budget-amendments/BA0002/prototype.json',
-          role: 'prototype',
-          sha256: '3'.repeat(64),
-        },
-      ],
-      prototypeContract: {
-        path: 'evidence/performance-budget-amendments/BA0002/prototype-contract.json',
-        sha256: '4'.repeat(64),
-      },
-      approvalUrls: [
-        'https://github.com/marionettejs/marionette/pull/1#issuecomment-200',
-      ],
-      evidenceUrls: [
-        'https://github.com/marionettejs/marionette/issues/127#issuecomment-201',
-      ],
-    });
+    const second = secondAmendment();
 
     assert.equal(transition({
       authorityLedger: ledger([amendment(), second]),
@@ -793,6 +788,19 @@ describe('two-stage performance budget amendments', () => {
       ...options,
       comments: trustedComments({ approvalLogin: 'attacker' }),
     }).diagnostics.join('\n'), /approval URL.*exact-head maintainer/i);
+
+    const malformedLogin = trustedComments();
+    malformedLogin.approval.comments[0].user.login = { value: 'paulfalgout' };
+    const malformedResult = transition({ ...options, comments: malformedLogin });
+    assert.equal(malformedResult.status, 'rejected');
+    assert.match(malformedResult.diagnostics.join('\n'), /approval URL.*exact-head maintainer/i);
+
+    const selfApproved = transition({
+      ...options,
+      pullRequestAuthorLogin: 'paulfalgout',
+    });
+    assert.equal(selfApproved.status, 'rejected');
+    assert.match(selfApproved.diagnostics.join('\n'), /approval URL.*exact-head maintainer/i);
     assert.match(transition({
       ...options,
       comments: trustedComments({ evidenceAssociation: 'NONE' }),
@@ -957,5 +965,17 @@ describe('two-stage performance budget amendments', () => {
     assert.equal(result.mode, 'revoke');
     assert.equal(result.amendment.id, 'BA0001');
     assert.equal(result.requiresExactHeadGrowthApproval, false);
+
+    const selfApproved = transition({
+      authorityLedger: ledger([record]),
+      candidateLedger: ledger([record, revoked]),
+      changedFiles: [
+        'config/release/performance-budget-amendments.json',
+        'docs/performance-baselines.md',
+      ],
+      pullRequestAuthorLogin: 'paulfalgout',
+    });
+    assert.equal(selfApproved.status, 'rejected');
+    assert.match(selfApproved.diagnostics.join('\n'), /approval URL.*exact-head maintainer/i);
   });
 });
