@@ -89,7 +89,8 @@ describe('CollectionView - Filtering', function() {
       });
 
       it('should throw InvalidViewFilterError', function() {
-        expect(myCollectionView.render.bind(myCollectionView)).to.throw('"viewFilter" must be a function, predicate object literal, a string indicating a model attribute, or falsy');
+        expect(myCollectionView.render.bind(myCollectionView)).to.throw('"viewFilter" must be a function, predicate object literal, a string indicating a model attribute, or falsy')
+          .with.property('code', 'MN0014');
       });
     });
 

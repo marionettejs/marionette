@@ -62,6 +62,7 @@ _extend(Region.prototype, CommonMixin, {
     if (!el || isString(el) || el.nodeType === 1) { return; }
 
     throw new MarionetteError({
+      code: 'MN0002',
       name: classErrorName,
       message: 'Region "el" must be a selector string or DOM element.',
       url: 'marionette.region.html#additional-options'
@@ -81,6 +82,7 @@ _extend(Region.prototype, CommonMixin, {
 
     if (view._isShown) {
       throw new MarionetteError({
+        code: 'MN0003',
         name: classErrorName,
         message: 'View is already shown in a Region or CollectionView',
         url: 'marionette.region.html#showing-a-view'
@@ -121,6 +123,7 @@ _extend(Region.prototype, CommonMixin, {
 
     if (!el) {
       throw new MarionetteError({
+        code: 'MN0004',
         name: classErrorName,
         message: 'An "el" must be specified for a region.',
         url: 'marionette.region.html#additional-options'
@@ -214,6 +217,7 @@ _extend(Region.prototype, CommonMixin, {
         return false;
       } else {
         throw new MarionetteError({
+          code: 'MN0005',
           name: classErrorName,
           message: `An "el" must exist in DOM for this region ${this.cid}`,
           url: 'marionette.region.html#additional-options'
@@ -226,6 +230,7 @@ _extend(Region.prototype, CommonMixin, {
   _getView(view) {
     if (!view) {
       throw new MarionetteError({
+        code: 'MN0006',
         name: classErrorName,
         message: 'The view passed is undefined and therefore invalid. You must pass a view instance to show.',
         url: 'marionette.region.html#showing-a-view'
@@ -234,6 +239,7 @@ _extend(Region.prototype, CommonMixin, {
 
     if (view._isDestroyed) {
       throw new MarionetteError({
+        code: 'MN0007',
         name: classErrorName,
         message: `View (cid: "${view.cid}") has already been destroyed and cannot be used.`,
         url: 'marionette.region.html#showing-a-view'
@@ -484,6 +490,7 @@ function buildRegion(definition, defaults) {
   }
 
   throw new MarionetteError({
+    code: 'MN0008',
     message: 'Improper region configuration type.',
     url: 'marionette.region.html#defining-regions'
   });

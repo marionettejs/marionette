@@ -18,6 +18,7 @@ import MarionetteError from '../../utils/error.js';
 function normalizeBindings(context, bindings) {
   if (!isObject(bindings)) {
     throw new MarionetteError({
+      code: 'MN0010',
       message: 'Bindings must be an object.',
       url: 'common.html#bindrequests'
     });

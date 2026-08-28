@@ -170,7 +170,7 @@ describe('CollectionView Children', function() {
 
         expect(function() {
           collectionView.swapChildViews(view1, view2);
-        }).to.throw();
+        }).to.throw().with.property('code', 'MN0015');
       });
     });
 
@@ -433,7 +433,8 @@ describe('CollectionView Children', function() {
       });
 
       it('should throw an error', function() {
-        expect(myCollectionView.addChildView.bind(myCollectionView, addView)).to.throw();
+        expect(myCollectionView.addChildView.bind(myCollectionView, addView)).to.throw()
+          .with.property('code', 'MN0003');
       });
 
     });

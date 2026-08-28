@@ -323,7 +323,8 @@ describe('Region', function() {
       });
 
       it('throws an error', function() {
-        expect(buildRegion).to.throw('Improper region configuration type.');
+        expect(buildRegion).to.throw('Improper region configuration type.')
+          .with.property('code', 'MN0008');
       });
     });
   });

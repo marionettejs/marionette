@@ -5,7 +5,7 @@ import { extend as _extend, pick } from 'underscore';
 import extend from './extend.js';
 import {version} from '../version.js';
 
-const errorProps = ['description', 'fileName', 'lineNumber', 'name', 'message', 'number', 'url'];
+const errorProps = ['code', 'description', 'fileName', 'lineNumber', 'name', 'message', 'number', 'url'];
 
 const MarionetteError = extend.call(Error, {
   urlRoot: `http://marionettejs.com/docs/v${version}/`,
@@ -19,8 +19,10 @@ const MarionetteError = extend.call(Error, {
     const error = Error.call(this, options.message);
     _extend(this, pick(error, errorProps), pick(options, errorProps));
 
-    if (Error.captureStackTrace) {
+    if (typeof Error.captureStackTrace === 'function') {
       this.captureStackTrace();
+    } else {
+      this.stack = error.stack;
     }
 
     this.url = this.urlRoot + this.url;

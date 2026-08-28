@@ -11,7 +11,8 @@ describe('Radio', function() {
   it('requires channel names', function() {
     expect(function() {
       Radio.channel();
-    }).to.throw('You must provide a name for the channel.');
+    }).to.throw('You must provide a name for the channel.')
+      .with.property('code', 'MN0017');
   });
 
   it('returns the same channel for a name', function() {

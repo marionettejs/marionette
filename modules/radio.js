@@ -5,6 +5,7 @@ import Events from '../mixins/events.js';
 import Requests from '../mixins/requests.js';
 
 import callHandler from '../utils/call-handler.js';
+import MarionetteError from '../utils/error.js';
 
 const _logs = {};
 
@@ -54,7 +55,10 @@ Radio._channels = {};
 
 Radio.channel = function(channelName) {
   if (!channelName) {
-    throw new Error('You must provide a name for the channel.');
+    throw new MarionetteError({
+      code: 'MN0017',
+      message: 'You must provide a name for the channel.'
+    });
   }
 
   if (Radio._channels[channelName]) {

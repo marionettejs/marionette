@@ -1,6 +1,7 @@
 import { JSDOM } from 'jsdom';
 
 import Region from '../../modules/region';
+import View from '../../modules/view';
 import MarionetteError from '../../utils/error';
 
 describe('Region el validation', function() {
@@ -43,6 +44,15 @@ describe('Region el validation', function() {
     expect(() => new Region({})).to.not.throw();
   });
 
+  it('requires an element before showing a View', function() {
+    const region = new Region();
+
+    expect(() => region.show(new View())).to.throw(MarionetteError).and.include({
+      code: 'MN0004',
+      name: 'RegionError',
+    });
+  });
+
   [
     ['array', []],
     ['plain object', {}],
@@ -51,13 +61,19 @@ describe('Region el validation', function() {
     it(`rejects ${label} el with a RegionError`, function() {
       const el = value === null ? document.querySelectorAll('#region') : value;
 
-      expect(() => new Region({ el })).to.throw(MarionetteError).with.property('name', 'RegionError');
+      expect(() => new Region({ el })).to.throw(MarionetteError).and.include({
+        code: 'MN0002',
+        name: 'RegionError',
+      });
     });
   });
 
   it('validates el on _setEl as well as construction', function() {
     const region = new Region({ el: document.createElement('div') });
 
-    expect(() => region._setEl([])).to.throw(MarionetteError).with.property('name', 'RegionError');
+    expect(() => region._setEl([])).to.throw(MarionetteError).and.include({
+      code: 'MN0002',
+      name: 'RegionError',
+    });
   });
 });

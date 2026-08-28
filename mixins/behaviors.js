@@ -21,6 +21,7 @@ function getBehaviorClass(options) {
   }
 
   throw new MarionetteError({
+    code: 'MN0016',
     message: 'Unable to get behavior class. A Behavior constructor should be passed directly or as behaviorClass property of options',
     url: 'marionette.behavior.html#defining-and-attaching-behaviors'
   });

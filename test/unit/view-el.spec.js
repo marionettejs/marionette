@@ -50,6 +50,7 @@ describe('View el policy', function() {
     try { action(); } catch (err) { error = err; }
 
     expect(error).to.be.instanceOf(MarionetteError);
+    expect(error.code).to.equal('MN0001');
     expect(error.name).to.equal('ViewError');
     expect(error.message).to.contain('must be a DOM element');
     expect(error.message).to.contain('document.querySelector');

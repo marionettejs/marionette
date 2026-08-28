@@ -177,8 +177,30 @@ function addRuntimeSourceErrors(runtimeSources, diagnosticsByCode, errors) {
       continue;
     }
 
+    const marionetteErrorBindings = new Set(['MarionetteError']);
+    for (const node of ast.body) {
+      if (node.type !== 'ImportDeclaration' ||
+        !/(?:^|\/)utils\/error\.js$/.test(node.source.value)) {
+        continue;
+      }
+
+      for (const specifier of node.specifiers) {
+        if (specifier.type === 'ImportDefaultSpecifier') {
+          marionetteErrorBindings.add(specifier.local.name);
+        }
+      }
+    }
+
     visitNodes(ast, node => {
-      if (node.type !== 'NewExpression' || node.callee.name !== 'MarionetteError') {
+      if (node.type === 'ThrowStatement' &&
+        ['CallExpression', 'NewExpression'].includes(node.argument?.type) &&
+        ['AggregateError', 'Error', 'EvalError', 'RangeError', 'ReferenceError',
+          'SyntaxError', 'TypeError', 'URIError'].includes(node.argument.callee?.name)) {
+        errors.push(`${path} must not throw a native ${node.argument.callee.name}; use MarionetteError with a catalog code`);
+        return;
+      }
+
+      if (node.type !== 'NewExpression' || !marionetteErrorBindings.has(node.callee.name)) {
         return;
       }
 
@@ -194,6 +216,11 @@ function addRuntimeSourceErrors(runtimeSources, diagnosticsByCode, errors) {
       }
 
       const codeProperties = options.properties.filter(property => propertyName(property) === 'code');
+      if (!codeProperties.length) {
+        errors.push(`${path} MarionetteError must declare one literal diagnostic code`);
+        return;
+      }
+
       if (codeProperties.length > 1) {
         errors.push(`${path} MarionetteError options must not declare duplicate code properties`);
         return;

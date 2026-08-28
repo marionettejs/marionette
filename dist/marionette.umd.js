@@ -49,15 +49,17 @@
     }, {});
   };
 
-  const errorProps = ['description', 'fileName', 'lineNumber', 'name', 'message', 'number', 'url'];
+  const errorProps = ['code', 'description', 'fileName', 'lineNumber', 'name', 'message', 'number', 'url'];
   const MarionetteError = extend.call(Error, {
     urlRoot: `http://marionettejs.com/docs/v${version}/`,
     url: '',
     constructor: function (options) {
       const error = Error.call(this, options.message);
       underscore.extend(this, underscore.pick(error, errorProps), underscore.pick(options, errorProps));
-      if (Error.captureStackTrace) {
+      if (typeof Error.captureStackTrace === 'function') {
         this.captureStackTrace();
+      } else {
+        this.stack = error.stack;
       }
       this.url = this.urlRoot + this.url;
     },
@@ -72,6 +74,7 @@
   function normalizeBindings$1(context, bindings) {
     if (!underscore.isObject(bindings)) {
       throw new MarionetteError({
+        code: 'MN0009',
         message: 'Bindings must be an object.',
         url: 'common.html#bindevents'
       });
@@ -100,6 +103,7 @@
   function normalizeBindings(context, bindings) {
     if (!underscore.isObject(bindings)) {
       throw new MarionetteError({
+        code: 'MN0010',
         message: 'Bindings must be an object.',
         url: 'common.html#bindrequests'
       });
@@ -749,7 +753,10 @@
   Radio._channels = {};
   Radio.channel = function (channelName) {
     if (!channelName) {
-      throw new Error('You must provide a name for the channel.');
+      throw new MarionetteError({
+        code: 'MN0017',
+        message: 'You must provide a name for the channel.'
+      });
     }
     if (Radio._channels[channelName]) {
       return Radio._channels[channelName];
@@ -872,6 +879,7 @@
       };
     }
     throw new MarionetteError({
+      code: 'MN0016',
       message: 'Unable to get behavior class. A Behavior constructor should be passed directly or as behaviorClass property of options',
       url: 'marionette.behavior.html#defining-and-attaching-behaviors'
     });
@@ -1298,6 +1306,7 @@
         return el;
       }
       throw new MarionetteError({
+        code: 'MN0001',
         name: classErrorName$2,
         message: `View "el" must be a DOM element. Resolve selector strings at the call site, e.g. \`document.querySelector('${el}')\`. (Region still accepts selector strings.)`,
         url: 'marionette.view.html#specifying-an-el'
@@ -1447,6 +1456,7 @@
         return;
       }
       throw new MarionetteError({
+        code: 'MN0002',
         name: classErrorName$1,
         message: 'Region "el" must be a selector string or DOM element.',
         url: 'marionette.region.html#additional-options'
@@ -1462,6 +1472,7 @@
       }
       if (view._isShown) {
         throw new MarionetteError({
+          code: 'MN0003',
           name: classErrorName$1,
           message: 'View is already shown in a Region or CollectionView',
           url: 'marionette.region.html#showing-a-view'
@@ -1488,6 +1499,7 @@
       }
       if (!el) {
         throw new MarionetteError({
+          code: 'MN0004',
           name: classErrorName$1,
           message: 'An "el" must be specified for a region.',
           url: 'marionette.region.html#additional-options'
@@ -1557,6 +1569,7 @@
           return false;
         } else {
           throw new MarionetteError({
+            code: 'MN0005',
             name: classErrorName$1,
             message: `An "el" must exist in DOM for this region ${this.cid}`,
             url: 'marionette.region.html#additional-options'
@@ -1568,6 +1581,7 @@
     _getView(view) {
       if (!view) {
         throw new MarionetteError({
+          code: 'MN0006',
           name: classErrorName$1,
           message: 'The view passed is undefined and therefore invalid. You must pass a view instance to show.',
           url: 'marionette.region.html#showing-a-view'
@@ -1575,6 +1589,7 @@
       }
       if (view._isDestroyed) {
         throw new MarionetteError({
+          code: 'MN0007',
           name: classErrorName$1,
           message: `View (cid: "${view.cid}") has already been destroyed and cannot be used.`,
           url: 'marionette.region.html#showing-a-view'
@@ -1753,6 +1768,7 @@
       return buildRegionFromObject(defaults, definition);
     }
     throw new MarionetteError({
+      code: 'MN0008',
       message: 'Improper region configuration type.',
       url: 'marionette.region.html#defining-regions'
     });
@@ -2175,6 +2191,7 @@
       let childView = this.childView;
       if (!childView) {
         throw new MarionetteError({
+          code: 'MN0011',
           name: classErrorName,
           message: 'A "childView" must be specified',
           url: 'marionette.collectionview.html#collectionviews-childview'
@@ -2183,6 +2200,7 @@
       childView = this._getView(childView, child);
       if (!childView) {
         throw new MarionetteError({
+          code: 'MN0012',
           name: classErrorName,
           message: '"childView" must be a view class or a function that returns a view class',
           url: 'marionette.collectionview.html#collectionviews-childview'
@@ -2251,6 +2269,7 @@
       this.container = childViewContainer ? this.$(childViewContainer)[0] : this.el;
       if (!this.container) {
         throw new MarionetteError({
+          code: 'MN0013',
           name: classErrorName,
           message: `The specified "childViewContainer" was not found: ${childViewContainer}`,
           url: 'marionette.collectionview.html#defining-the-childviewcontainer'
@@ -2350,6 +2369,7 @@
         };
       }
       throw new MarionetteError({
+        code: 'MN0014',
         name: classErrorName,
         message: '"viewFilter" must be a function, predicate object literal, a string indicating a model attribute, or falsy',
         url: 'marionette.collectionview.html#defining-the-viewfilter'
@@ -2472,6 +2492,7 @@
     swapChildViews(view1, view2) {
       if (!this._children.hasView(view1) || !this._children.hasView(view2)) {
         throw new MarionetteError({
+          code: 'MN0015',
           name: classErrorName,
           message: 'Both views must be children of the collection view to swap.',
           url: 'marionette.collectionview.html#swapping-child-views'
@@ -2492,6 +2513,7 @@
       }
       if (view._isShown) {
         throw new MarionetteError({
+          code: 'MN0003',
           name: classErrorName,
           message: 'View is already shown in a Region or CollectionView',
           url: 'marionette.region.html#showing-a-view'
@@ -2704,6 +2726,7 @@
   exports.CollectionView = CollectionView;
   exports.DomApi = DomApi;
   exports.Events = Events;
+  exports.MarionetteError = MarionetteError;
   exports.MnObject = MarionetteObject;
   exports.Radio = Radio;
   exports.Region = Region;

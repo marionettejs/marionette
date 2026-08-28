@@ -133,7 +133,8 @@ describe('CollectionView', function() {
       it('should throw NoChildViewError', function() {
         const myCollectionView = new CollectionView({ collection });
 
-        expect(myCollectionView.render.bind(myCollectionView)).to.throw('A "childView" must be specified');
+        expect(myCollectionView.render.bind(myCollectionView)).to.throw('A "childView" must be specified')
+          .with.property('code', 'MN0011');
       });
     });
 
@@ -198,7 +199,8 @@ describe('CollectionView', function() {
           childView: _.noop
         });
 
-        expect(myCollectionView.render.bind(myCollectionView)).to.throw('"childView" must be a view class or a function that returns a view class');
+        expect(myCollectionView.render.bind(myCollectionView)).to.throw('"childView" must be a view class or a function that returns a view class')
+          .with.property('code', 'MN0012');
       });
     });
   });
