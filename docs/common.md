@@ -248,6 +248,12 @@ If the second paramater is not supplied, all handlers are removed.
 Receives a hash of event names and functions and/or function names, and returns the
 same hash with the function names replaced with the function references themselves.
 
+Every supplied handler must be a function or a string that resolves to a callable
+own or inherited method on the binding context. Otherwise Marionette throws
+`MarionetteError` with code `MN0019`. This invariant also applies to event and
+request binding maps, including their unbind operations, and to model, collection,
+Radio, and child-view event bindings.
+
 ```javascript
 import { View } from 'backbone.marionette';
 

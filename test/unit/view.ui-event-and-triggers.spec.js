@@ -103,18 +103,46 @@ describe('view ui event trigger configuration', function() {
     });
   });
 
-  it('ignores string event handlers that are not present on the view', function() {
+  it('rejects string event handlers that are not present on the view', function() {
     const View = Marionette.View.extend({
       template: _.template('<button class="foo"></button>'),
       events: {
         'click .foo': 'missingHandler'
       }
     });
-    const view = new View();
 
-    expect(function() {
-      view.render();
-      view.el.querySelector('.foo').click();
-    }).to.not.throw();
+    expect(() => new View())
+      .to.throw('The handler "missingHandler" for "click .foo" must resolve to a function.')
+      .with.property('code', 'MN0019');
+  });
+
+  it('rejects non-string event handlers', function() {
+    const delegate = this.sinon.spy();
+    const View = Marionette.View.extend({
+      events: {
+        click: 1
+      }
+    });
+    View.setEventDelegator({ delegate });
+
+    expect(() => new View())
+      .to.throw('The handler "1" for "click" must resolve to a function.')
+      .with.property('code', 'MN0019');
+    expect(delegate).not.to.have.been.called;
+  });
+
+  it('preflights the complete event map before delegating handlers', function() {
+    const delegate = this.sinon.spy();
+    const View = Marionette.View.extend({
+      events: {
+        click: 'onClick',
+        dblclick: 'missingHandler'
+      },
+      onClick() {}
+    });
+    View.setEventDelegator({ delegate });
+
+    expect(() => new View()).to.throw().with.property('code', 'MN0019');
+    expect(delegate).not.to.have.been.called;
   });
 });

@@ -291,6 +291,45 @@
         "runtime"
       ],
       "benchmarkCategory": "communication"
+    },
+    {
+      "code": "MN0018",
+      "slug": "ui-reference-invalid",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Behavior",
+        "CollectionView",
+        "View"
+      ],
+      "remediation": "Use @ui.<name> with a non-empty own key whose value is a string selector, or replace the reference with a literal selector.",
+      "docsAnchor": "/errors/MN0018/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "view"
+    },
+    {
+      "code": "MN0019",
+      "slug": "handler-not-callable",
+      "status": "active",
+      "category": "communication",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "Region",
+        "View"
+      ],
+      "remediation": "Provide a function or the string name of a callable method on the binding context.",
+      "docsAnchor": "/errors/MN0019/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "communication"
     }
   ]
 }

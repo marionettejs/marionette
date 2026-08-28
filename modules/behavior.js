@@ -34,7 +34,7 @@ const Behavior = function(options, view) {
   this.cid = uniqueId(this.cidPrefix);
 
   this._initViewEvents();
-  this.setElement();
+  this.el = view.el;
 
   // Construct an internal UI hash using the behaviors UI
   // hash combined and overridden by the view UI hash.
@@ -44,6 +44,7 @@ const Behavior = function(options, view) {
   // between multiple views, while letting a view override
   // a selector under an UI key.
   this.ui = _extend({}, result(this, 'ui'), result(view, 'ui'));
+  this.setElement();
 
   // Proxy view triggers
   this.listenTo(view, 'all', this.triggerMethod);

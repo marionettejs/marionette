@@ -100,7 +100,11 @@ const MyView = View.extend({
 The DOM event gets passed in as the first argument, allowing you to see any
 information passed as part of the event.
 
-**When passing a method reference, the method must exist on the View.**
+Every handler in `events` must be a function or a string that resolves to a
+callable method on the View or Behavior. Marionette preflights the complete event
+map before delegating any handler and throws `MarionetteError` with code `MN0019`
+if validation fails. String values in `triggers` are event names, not handler
+references.
 
 The `events` attribute can also directly bind functions:
 
@@ -286,3 +290,8 @@ be fired on `MyView`.
 By prefixing with `@ui`, we can change the underlying template without having to
 hunt through our view for every place where that selector is referenced - just
 update the `ui` object.
+
+Every `@ui.<name>` reference must include a non-empty name for an own, declared key in the applicable
+`ui` map. Missing, inherited, or `undefined` keys throw `MarionetteError` with
+code `MN0018` during normalization. An explicitly declared empty selector is a
+known key, though the DOM API may reject it when the selector is used.

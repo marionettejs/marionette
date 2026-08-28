@@ -25,8 +25,10 @@ describe('view ui elements', function() {
       expect(this.view.normalizeUIString('@ui.foo')).to.equal('#foo');
     });
 
-    it('should return undefined if it begins with @ui. but can not be found', function() {
-      expect(this.view.normalizeUIString('@ui.baz')).to.equal('undefined');
+    it('should throw a stable diagnostic if it begins with @ui. but can not be found', function() {
+      expect(() => this.view.normalizeUIString('@ui.baz'))
+        .to.throw('The ui reference "baz" must be declared as an own ui key.')
+        .with.property('code', 'MN0018');
     });
   });
 
