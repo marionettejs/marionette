@@ -1,0 +1,23 @@
+docs/view.lifecycle.md
+  s_d6429951fb9231::t_513c2cde446129 221-226,236-239
+  s_d6429951fb9231::t_42474bac7776e1 240
+test/unit/view-lifecycle.spec.js
+  s_d6429951fb9231::t_b241371794e575 139-142,144-154,158-185,191-228
+  s_d6429951fb9231::t_093d3fdcd31b37 143,155-157,186-190
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "7d3252dea236bd9873237bb4cec8ea30cd5cb08e",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
