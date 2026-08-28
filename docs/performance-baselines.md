@@ -29,6 +29,8 @@ a new artifact cannot silently avoid the cumulative budget.
 The same command asks Rollup for the actual internal modules and external imports of
 `.`, `./backbone`, and `./jquery-dom-api`. It records graph changes and fails if test,
 documentation, benchmark, release, or diagnostic tooling enters a production graph.
+Each graph output must be exported by that exact package subpath and have one unique
+Rollup producer with the single declared input, so the measured graph is the shipped graph.
 The Phase 0 module lists remain fixed evidence; ordinary source-module refactors are
 reported rather than prohibited when the resulting graph remains clean.
 
