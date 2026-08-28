@@ -1,0 +1,22 @@
+docs/events.class.md
+  s_d6429951fb9231::t_f5a3419dfd6001 100
+test/unit/behavior-communication-contract.spec.js
+  s_d6429951fb9231::t_f5a3419dfd6001 149-156,162-188
+  s_d6429951fb9231::t_f865a53a15e0b4 157-161
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "12f6a63e4eb93f9f560d729df35c9ff7ad9dab14",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
