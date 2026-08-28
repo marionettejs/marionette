@@ -123,9 +123,34 @@ the child views that may have previously been added.
 
 ## View Lifecycle and Events
 
-An instantiated `CollectionView` is aware of its lifecycle state and will throw events related
-to when that state changes. The view states indicate whether the view is rendered, attached to
-the DOM, or destroyed.
+Like `View`, a `CollectionView` exposes its lifecycle as the independent
+`isRendered()`, `isAttached()`, and `isDestroyed()` state values. Its managed
+children have their own View lifecycle state. Existing contents in the
+`CollectionView` element do not make the `CollectionView` rendered; rendering
+means its child set has been built and inserted into its element.
+
+The table describes the default rendered and monitored path. Passing
+`{ preventRender: true }` to `addChildView` still renders the parent when
+needed, but manages the supplied child without rendering it; detaching that
+child returns it in its current lifecycle state. Setting
+`monitorViewEvents: false` intentionally disables child attachment events and
+automatic child `isAttached()` updates.
+
+| Operation | CollectionView state | Managed child state |
+| --- | --- | --- |
+| Construct | Starts not rendered and not destroyed. It is attached only when its element is already in the document. | No children have been built. |
+| `render()` | Enters rendered and preserves its attached state. Repeated render stays rendered. | Builds and renders the current children. Repeated render destroys the previous children before building replacements. |
+| A rendered collection resets | Remains rendered and preserves its attached state. | Destroys the previous children and builds replacements for the reset collection. |
+| `addChildView(view)` | Renders first when needed, then remains rendered. | Renders and manages the added View. |
+| `detachChildView(view)` | State is unchanged. | Removes and returns the live View in a detached state. The caller becomes responsible for it. |
+| `removeChildView(view)` or external child destruction | State is unchanged. | Removes the child from the managed set. `removeChildView` destroys it; an externally destroyed child is removed once. |
+| The owning Region detaches and re-shows the CollectionView | Remains rendered while attached changes to `false`, then back to `true`. | Live children follow the parent's detached and attached state. |
+| `destroy()` | Detaches, becomes not rendered, and enters destroyed. Repeated destroy returns the CollectionView without repeating lifecycle events. | Detaches and destroys every still-managed child after the parent element is removed. |
+
+A View returned by `detachChildView()` is no longer managed by the
+`CollectionView`; another owner may show it, or the caller must destroy it.
+Operations on an already destroyed `CollectionView`, other than repeated
+`destroy()`, are not part of this lifecycle contract.
 
 Read More:
 - [View Lifecycle](./view.lifecycle.md)
