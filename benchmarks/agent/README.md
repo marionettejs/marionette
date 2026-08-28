@@ -12,7 +12,7 @@ repository-root-relative paths:
 - `promptPath` names the public instructions supplied to the agent.
 - `workspacePath` names the original fixture copied into a fresh workspace for one
   attempt.
-- `acceptance.hiddenTests` maps each public acceptance-test source to a target inside
+- `acceptance.hiddenTests` maps each hidden acceptance-test source to a target inside
   the fresh workspace. The harness withholds those sources until the agent has
   finished, then copies them to their targets without overwriting fixture files.
 - `acceptance.command` is an argument array that the harness runs without a shell after
