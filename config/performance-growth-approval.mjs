@@ -387,8 +387,7 @@ function reportContractViolations(
   report,
   expectedContract,
   authority,
-  label,
-  { allowAdditions = false } = {}
+  label
 ) {
   const violations = [];
   if (report?.schemaVersion !== 1) {
@@ -431,7 +430,7 @@ function reportContractViolations(
     .filter(path => !reportArtifacts.has(path)).sort();
   const extraArtifacts = [...reportArtifacts.keys()]
     .filter(path => !expectedArtifacts.map.has(path)).sort();
-  if (missingArtifacts.length || (!allowAdditions && extraArtifacts.length)) {
+  if (missingArtifacts.length || extraArtifacts.length) {
     violations.push(`${label} report artifact set mismatch; missing: ${missingArtifacts.join(', ') || 'none'}; extra: ${extraArtifacts.join(', ') || 'none'}`);
   }
   let artifactTotal = 0;
@@ -457,7 +456,7 @@ function reportContractViolations(
     .filter(subpath => !reportGraphs.has(subpath)).sort();
   const extraGraphs = [...reportGraphs.keys()]
     .filter(subpath => !expectedGraphs.map.has(subpath)).sort();
-  if (missingGraphs.length || (!allowAdditions && extraGraphs.length)) {
+  if (missingGraphs.length || extraGraphs.length) {
     violations.push(`${label} report graph set mismatch; missing: ${missingGraphs.join(', ') || 'none'}; extra: ${extraGraphs.join(', ') || 'none'}`);
   }
   for (const [subpath, graph] of reportGraphs) {
@@ -529,10 +528,6 @@ export function requiredNewProductionApproval({
   if (baseViolations.length) {
     throw new Error(baseViolations.join('; '));
   }
-  const delta = newProductionReportDelta(baseReport, currentReport);
-  if (delta.artifacts.length && !delta.subpaths.length) {
-    throw new Error('A new runtime artifact cannot be adopted without a new production subpath');
-  }
   const effectiveContract = candidateContract || authorityContract;
   const contractViolations = validateCandidateGrowthContract(authorityContract, effectiveContract);
   if (contractViolations.length) {
@@ -542,14 +537,20 @@ export function requiredNewProductionApproval({
     currentReport,
     effectiveContract,
     authorityContract,
-    'Pull request',
-    { allowAdditions: !candidateContract }
+    'Pull request'
   );
   if (currentViolations.length) {
     throw new Error(currentViolations.join('; '));
   }
-  if (!delta.artifacts.length && !delta.subpaths.length || !candidateContract) {
-    return { ...delta, enforced: !!candidateContract };
+  const delta = newProductionReportDelta(baseReport, currentReport);
+  if (delta.artifacts.length && !delta.subpaths.length) {
+    throw new Error('A new runtime artifact cannot be adopted without a new production subpath');
+  }
+  if (!candidateContract) {
+    return { ...delta, enforced: false };
+  }
+  if (!delta.artifacts.length && !delta.subpaths.length) {
+    return { ...delta, enforced: true };
   }
 
   const authorityArtifacts = new Set(authorityContract.runtimeArtifacts.map(({ path }) => path));

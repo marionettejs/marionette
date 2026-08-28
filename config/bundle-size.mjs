@@ -554,15 +554,18 @@ function growthApprovalReport(base, current, supplied) {
   const newProduction = newProductionReportDelta(base, current);
   const newProductionPresent = newProduction.artifacts.length || newProduction.subpaths.length;
   const newProductionEnforced = supplied?.newProductionEnforced === true;
-  const approvalRequired = required.length || newProductionEnforced && newProductionPresent;
+  const approvalRequired = required.length || newProductionPresent;
   const violations = [];
 
   if (!supplied) {
-    const status = required.length ? 'required' : 'not-required';
+    const status = approvalRequired ? 'required' : 'not-required';
     if (required.length) {
       violations.push('Existing artifact growth above the approval threshold has no structured approval result');
     }
-    return { accepted: !required.length, approval: null, diagnostics: [], headSha: null,
+    if (newProductionPresent) {
+      violations.push('New-production approval enforcement is not active');
+    }
+    return { accepted: !approvalRequired, approval: null, diagnostics: [], headSha: null,
       newArtifacts: newProduction.artifacts, newSubpaths: newProduction.subpaths,
       newProductionEnforced: false, required, status, thresholdPercent, violations };
   }
@@ -580,12 +583,17 @@ function growthApprovalReport(base, current, supplied) {
   if (newProductionPresent && typeof supplied.newProductionEnforced !== 'boolean') {
     violations.push('Growth approval result is missing its new-production enforcement state');
   }
+  if (newProductionPresent && !newProductionEnforced) {
+    violations.push('New-production approval enforcement is not active');
+  }
 
   if (!sameApprovalRequirements(supplied.required, required)) {
     violations.push('Growth approval requirements do not match the exact report comparison');
   }
-  if (!sameNewArtifacts(supplied.newArtifacts || [], newProduction.artifacts) ||
-      !isDeepStrictEqual(supplied.newSubpaths || [], newProduction.subpaths)) {
+  const suppliedNewArtifacts = supplied.newArtifacts === undefined ? [] : supplied.newArtifacts;
+  const suppliedNewSubpaths = supplied.newSubpaths === undefined ? [] : supplied.newSubpaths;
+  if (!sameNewArtifacts(suppliedNewArtifacts, newProduction.artifacts) ||
+      !isDeepStrictEqual(suppliedNewSubpaths, newProduction.subpaths)) {
     violations.push('New-production approval requirements do not match the exact report comparison');
   }
   if (!['approved', 'not-required'].includes(supplied.status)) {
@@ -627,7 +635,7 @@ function growthApprovalSection(result) {
     lines.push(`Head: \`${result.headSha}\`.`);
   }
   if (result.newSubpaths.length && !result.newProductionEnforced) {
-    lines.push('New-subpath approval enforcement: **Reporting only**; activation is pending.');
+    lines.push('New-subpath approval enforcement: **Blocked pending activation**.');
     lines.push(`New subpaths: ${result.newSubpaths.map(subpath => `\`${subpath}\``).join(', ')}.`);
     lines.push(result.newArtifacts.length ?
       `New artifacts at full Brotli size: ${result.newArtifacts
@@ -676,7 +684,7 @@ async function buildReport(baseFile, currentFile, growthApprovalFile) {
   const rows = current.artifacts.map(result => {
     const baseResult = baseByPath.get(result.path);
     if (!baseResult) {
-      const approval = !growthApproval.newProductionEnforced ? 'Reporting only' :
+      const approval = !growthApproval.newProductionEnforced ? 'Blocked pending activation' :
         newArtifactPaths.has(result.path) && growthApproval.accepted &&
           growthApproval.status === 'approved' ? 'Approved' : 'Required';
       return `| ${result.name} | New | ${formatBytes(result.size)} | New artifact | ${approval} |`;
@@ -695,7 +703,7 @@ async function buildReport(baseFile, currentFile, growthApprovalFile) {
     const change = baseGraph ? graphChange(baseGraph, graph) : graph.error || 'New production subpath';
     const moduleCount = graph.status === 'measured' ? graph.modules.length : 'Unmeasured';
     const approval = baseGraph ? 'Not required' : !growthApproval.newProductionEnforced ?
-      'Reporting only' : growthApproval.accepted && growthApproval.status === 'approved' ?
+      'Blocked pending activation' : growthApproval.accepted && growthApproval.status === 'approved' ?
         'Approved' : 'Required';
     return `| \`${graph.subpath}\` | ${moduleCount} | ${graph.externalImports.join(', ') || 'None'} | ${change} | ${approval} |`;
   });

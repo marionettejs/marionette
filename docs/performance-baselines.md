@@ -197,9 +197,9 @@ The parser, additive-contract validator, and report schema are defined before ne
 subpath enforcement. This contract change does not alter Actions. A separate activation
 must measure the candidate with the exact-base validator and invoke the parser from an
 exact base containing this reviewed contract. Until that wiring lands, new-subpath
-results carry `newProductionEnforced: false`, are labeled reporting-only, and do not
-fail the existing size job. The activation supplies the reviewed candidate contract and
-changes that state to `true`. This two-step bootstrap prevents the first enforcement
+results carry `newProductionEnforced: false`, are labeled blocked pending activation,
+and fail the existing size job. The activation supplies the reviewed candidate contract
+and changes that state to `true`. This two-step bootstrap prevents the first enforcement
 change from authorizing itself with candidate-owned policy.
 
 ## Hosted timing

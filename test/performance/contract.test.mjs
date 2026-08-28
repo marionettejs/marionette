@@ -304,6 +304,14 @@ describe('performance contract validation', () => {
       assert.match(approved, /## Artifact growth approval\n\nStatus: \*\*Approved\*\*\./);
       assert.match(approved, /Approved by \[@paulfalgout\]/);
 
+      for (const field of ['newArtifacts', 'newSubpaths']) {
+        const malformedApproval = growthApproval();
+        malformedApproval[field] = null;
+        await writeFile(approvalReport, JSON.stringify(malformedApproval));
+        const malformed = await createReport(baseReport, currentReport, approvalReport);
+        assert.match(malformed, /New-production approval requirements do not match/);
+      }
+
       const missing = await createReport(baseReport, currentReport);
       assert.match(missing, /\| Main .* \| Required \|/);
       assert.match(missing, /Status: \*\*Required\*\*\./);
@@ -337,9 +345,10 @@ describe('performance contract validation', () => {
       assert.match(approved, /New artifacts at full Brotli size: `dist\/feature\.js` \(4 B\)\./);
 
       const missing = await createReport(baseReport, currentReport);
-      assert.match(missing, /\| Feature \| New \| 4 B \| New artifact \| Reporting only \|/);
-      assert.match(missing, /\| `\.\/feature` .* \| Reporting only \|/);
-      assert.match(missing, /New-subpath approval enforcement: \*\*Reporting only\*\*/);
+      assert.match(missing, /\| Feature \| New \| 4 B \| New artifact \| Blocked pending activation \|/);
+      assert.match(missing, /\| `\.\/feature` .* \| Blocked pending activation \|/);
+      assert.match(missing, /New-subpath approval enforcement: \*\*Blocked pending activation\*\*/);
+      assert.match(missing, /New-production approval enforcement is not active/);
 
       const malformedApproval = newSubpathApproval();
       malformedApproval.newArtifacts[0].size = 3;

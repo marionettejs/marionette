@@ -331,12 +331,27 @@ describe('exact-head performance growth approval contract', () => {
     assert.deepEqual(result.newSubpaths, ['./feature']);
   });
 
-  test('reports new production deltas without enforcing before activation', () => {
+  test('blocks new production additions until candidate-contract activation', () => {
+    const currentReport = productionReport({ includeFeature: true });
+    currentReport.violations = [
+      'Declared runtime artifacts missing from the contract: dist/feature.js',
+      'Shipped runtime artifacts are untracked: dist/feature.js',
+      'Production graph subpaths mismatch exports; missing: ./feature; extra: none',
+    ];
+    currentReport.graphs[1] = {
+      subpath: './feature',
+      status: 'unconfigured',
+      modules: [],
+      externalImports: [],
+      forbiddenModules: [],
+      error: 'New exported runtime subpath is not defined by the authority contract',
+    };
+
     const result = validateGrowthApproval({
       authorityContract: growthContract(),
       baseReport: productionReport(),
       comments: snapshot([]),
-      currentReport: productionReport({ includeFeature: true }),
+      currentReport,
       evidenceComments: evidenceSnapshot(),
       headSha,
       policy,
@@ -344,11 +359,12 @@ describe('exact-head performance growth approval contract', () => {
       thresholdPercent: 1,
     });
 
-    assert.equal(result.status, 'not-required');
+    assert.equal(result.status, 'blocked');
     assert.equal(result.newProductionEnforced, false);
-    assert.deepEqual(result.newArtifacts, [{ path: 'dist/feature.js', size: 4 }]);
-    assert.deepEqual(result.newSubpaths, ['./feature']);
-    assert.deepEqual(result.diagnostics, []);
+    assert.deepEqual(result.newArtifacts, []);
+    assert.deepEqual(result.newSubpaths, []);
+    assert.equal(result.diagnostics[0].code, 'GROWTH_APPROVAL_REPORT');
+    assert.match(result.diagnostics[0].message, /report has contract violations/);
   });
 
   test('uses canonical code-unit order for new artifact approvals', () => {
@@ -442,7 +458,7 @@ describe('exact-head performance growth approval contract', () => {
         candidateContract: candidateGrowthContract(),
         currentReport: unmeasured,
       }),
-      /New production graph \.\/feature is not measured/
+      /Pull request production graph \.\/feature is not completely measured/
     );
 
     const forbidden = productionReport({ includeFeature: true });
@@ -493,7 +509,7 @@ describe('exact-head performance growth approval contract', () => {
         candidateContract: candidateGrowthContract(),
         currentReport: orphanArtifact,
       }),
-      /cannot be adopted without a new production subpath/
+      /Pull request report graph set mismatch; missing: \.\/feature/
     );
   });
 
@@ -1046,10 +1062,10 @@ describe('exact-head performance growth approval contract', () => {
         writeFile(paths.current, JSON.stringify(productionReport({ includeFeature: true }))),
         writeFile(paths.comments, JSON.stringify(snapshot([comment(cliNewApproval)]))),
       ]);
-      const reportingOnly = spawnSync(process.execPath, args, { encoding: 'utf8' });
-      assert.equal(reportingOnly.status, 0);
-      assert.equal(JSON.parse(reportingOnly.stdout).status, 'not-required');
-      assert.equal(JSON.parse(reportingOnly.stdout).newProductionEnforced, false);
+      const beforeActivation = spawnSync(process.execPath, args, { encoding: 'utf8' });
+      assert.equal(beforeActivation.status, 1);
+      assert.equal(JSON.parse(beforeActivation.stdout).status, 'blocked');
+      assert.equal(JSON.parse(beforeActivation.stdout).newProductionEnforced, false);
 
       const newSubpath = spawnSync(process.execPath, [
         ...args,
