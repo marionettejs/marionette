@@ -595,7 +595,9 @@ describe('performance contract validation', () => {
     assert.match(workflow, /growth-approval\|budget-amendment/);
     assert.match(workflow, /actions\/runs\?event=pull_request&head_sha=\$\{head_sha\}/);
     assert.doesNotMatch(workflow, /actions\/workflows\/ci\.yml\/runs/);
-    assert.match(workflow, /\.path == "\.github\/workflows\/ci\.yml"/);
+    assert.match(workflow, /gh api --paginate --slurp/);
+    assert.match(workflow, /\[\.\[\]\.workflow_runs\[\]\]/);
+    assert.match(workflow, /\(\.path \/\/ ""\) \| split\("@"\)\[0\]/);
     assert.match(workflow, /actions\/required_workflows\//);
   });
 
