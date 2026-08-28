@@ -171,6 +171,49 @@ Using an object, we must define the `behaviorClass` attribute to refer to our
 behaviors and then add any extra options with keys matching the option we want
 to override. Any passed options will override the values from `options` property.
 
+Behavior options can also provide collaborators that the Behavior needs. These
+values are selected during construction and retained by reference. Read an
+arbitrary collaborator with `getOption()` so that a class default and an
+attachment override follow the same option precedence; arbitrary option names
+are not copied directly onto the Behavior instance.
+
+```javascript
+const SelectionBehavior = Behavior.extend({
+  options: {
+    service: defaultSelectionService
+  },
+
+  initialize(options, hostView) {
+    const service = this.getOption('service');
+    this.listenTo(service, 'selection:change', this.onSelectionChange);
+
+    // The second argument and this.view are the same host View.
+    console.log(hostView === this.view); // true
+  },
+
+  onSelectionChange(selection) {
+    // ...
+  }
+});
+
+const MyView = View.extend({
+  behaviors: [{
+    behaviorClass: SelectionBehavior,
+    service: applicationSelectionService
+  }]
+});
+```
+
+`getOption()` does not fall back to options on the host. Use `this.view` for
+dependencies owned by the host, such as its model or collection. A nested
+Behavior receives its own definition options while sharing the same host View
+as the Behavior that declared it.
+
+When a Behavior is removed directly or its host is destroyed, Marionette removes
+subscriptions created by that Behavior with `listenTo()`. It does not destroy or
+dispose arbitrary values passed through Behavior options, and unrelated listeners
+on those collaborators remain active.
+
 **Errors** An error will be thrown if the `Behavior` class is not passed.
 
 ## Nesting Behaviors
