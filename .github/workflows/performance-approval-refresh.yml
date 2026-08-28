@@ -136,17 +136,27 @@ jobs:
             run_id=''
             lookup_failed=0
             for attempt in {1..24}; do
+              # Required workflow runs are omitted by the repository workflow-scoped endpoint.
               if ! gh api \
                 -H 'Accept: application/vnd.github+json' \
                 -H 'X-GitHub-Api-Version: 2022-11-28' \
-                "repos/${REPOSITORY}/actions/workflows/ci.yml/runs?event=pull_request&head_sha=${head_sha}&per_page=100" \
+                "repos/${REPOSITORY}/actions/runs?event=pull_request&head_sha=${head_sha}&per_page=100" \
                 > "${workflow_runs}"; then
                 lookup_failed=1
                 break
               fi
               run_id="$(jq -r --arg expected_run_name "${expected_run_name}" \
+                --arg repository "${REPOSITORY}" \
+                --arg head_sha "${head_sha}" \
                 '.workflow_runs |
-                 map(select(.display_title == $expected_run_name)) |
+                 map(select(
+                   .display_title == $expected_run_name and
+                   .event == "pull_request" and
+                   .head_sha == $head_sha and
+                   .path == ".github/workflows/ci.yml" and
+                   .repository.full_name == $repository and
+                   ((.workflow_url // "") | startswith("https://api.github.com/repos/" + $repository + "/actions/required_workflows/"))
+                 )) |
                  sort_by(.created_at) | last | .id // empty' \
                 "${workflow_runs}")"
               if [ -n "${run_id}" ]; then
