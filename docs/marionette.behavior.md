@@ -29,6 +29,7 @@ Instead a `Behavior` should be instantiated by the view it is related to by
   * [Events / Initialize Order](#events--initialize-order)
   * [Using `ui`](#using-ui)
   * [View DOM proxies](#view-dom-proxies)
+* [Behavior Lifecycle](#behavior-lifecycle)
 * [Destroying a Behavior](#destroying-a-behavior)
 
 
@@ -396,6 +397,36 @@ const ViewBehavior = Behavior.extend({
 **Note** in rare cases when a view's `el` is modified via `setElement` if utilizing
 these proxies they will need to be manually updated by calling
 `myBehavior.proxyViewProperties();`
+
+## Behavior Lifecycle
+
+A `Behavior` has a host-managed lifetime rather than the independent rendered,
+attached, and destroyed state exposed by a View. In this table, the host view is
+either a `View` or `CollectionView`. It constructs its Behaviors, keeps the same
+instances through render and attachment transitions, and cleans them up when it
+is destroyed. Nested Behaviors participate as Behaviors of the same host view.
+
+| Operation | Host view | Behavior |
+| --- | --- | --- |
+| Construct the View | Constructs each Behavior before the View's `initialize`. | Receives its `view` and runs its own `initialize`; after the View initializes, receives the View's `initialize` notification. |
+| Render or re-render the View | Runs each View lifecycle callback first. | The same instance receives the corresponding lifecycle callback after the View. |
+| Show, detach, or re-show the host through a Region with lifecycle monitoring enabled | Changes the host's attachment state. | The same instance receives the corresponding attachment lifecycle after the host. |
+| First direct `behavior.destroy()` while the View is alive | Remains alive without the removed Behavior. | Undelegates its events, stops listening, removes itself from the View, and deletes its entity-event handlers. It receives no later host lifecycle notifications. |
+| Destroy the View | Runs `before:destroy`, tears down the View, and runs its `destroy` callback. Repeated View destruction is a no-op. | Receives `before:destroy` while the View is alive, is cleaned up after the View enters destroyed, then receives `destroy` after the View's callback. Nested Behaviors follow the same ordering. |
+
+`Behavior` does not expose an independent `isDestroyed()` state. Repeated direct
+`behavior.destroy()` calls, reuse after direct cleanup, and other post-cleanup
+operations are outside this lifecycle contract. UI capture and collision rules,
+dependency access, invalid references, and dynamic replacement semantics are also
+separate Behavior contract decisions; this table does not add an Application or
+State lifecycle to Behavior.
+
+If a Region's owning view sets `monitorViewEvents: false`, the shown host does not
+receive attachment lifecycle notifications, so its Behaviors do not receive them
+either. Separately, setting `monitorViewEvents: false` on the host itself does not
+by itself suppress Region attachment lifecycle. It suppresses the host's
+`dom:refresh` and `dom:remove` notifications, so its Behaviors do not receive those
+notifications.
 
 ## Destroying a Behavior
 
