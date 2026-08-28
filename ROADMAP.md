@@ -323,8 +323,7 @@ The stable release then requires:
   set of new shipped artifacts counts against the aggregate package backstop, while
   its subpath-only and root-plus-subpath scenarios record the cost paid by consumers
   that opt in. The first merged size of each shipped artifact becomes that artifact's
-  later pull-request comparison base. A separately gated subpath aggregate records its
-  own comparison base. Neither changes Phase 0.
+  later pull-request comparison base without changing Phase 0.
 - Before any ceiling may change, the performance contract must implement a versioned,
   two-stage budget-amendment protocol rather than re-baselining. A governance change
   records the immutable Phase 0 baseline, previous and proposed ceilings, exact
