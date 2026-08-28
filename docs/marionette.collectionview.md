@@ -140,6 +140,7 @@ attachment events and automatic child `isAttached()` updates.
 | --- | --- | --- |
 | Construct | Starts not rendered and not destroyed. It is attached only when its element is already in the document. | No children have been built. |
 | `render()` | Enters rendered and preserves its attached state. Repeated render stays rendered. | Builds and renders the current children. Repeated render destroys the previous children before building replacements. |
+| `setElement(el)` while alive | Preserves rendered state and recomputes attached state from whether the replacement element is in the document. Repeating the call with the same element recomputes the same state. | Existing managed child state and ownership are unchanged; child elements are not moved to the replacement element. |
 | A rendered collection resets | Remains rendered and preserves its attached state. | Destroys the previous children and builds replacements for the reset collection. |
 | `addChildView(view)` | Renders first when needed, then remains rendered. | Renders and manages the added View. |
 | `detachChildView(view)` | State is unchanged. | Removes and returns the live View in a detached state. The caller becomes responsible for it. |

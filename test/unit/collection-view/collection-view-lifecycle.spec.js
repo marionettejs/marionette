@@ -69,6 +69,97 @@ describe('CollectionView lifecycle contract', function() {
     });
   }
 
+  it('preserves rendered state and recomputes attachment when replacing its element while alive', function() {
+    this.setFixtures(`
+      <div id="replacement-empty"></div>
+      <div id="replacement-populated"><span>Existing content</span></div>
+    `);
+    const populatedDetached = document.createElement('div');
+    populatedDetached.innerHTML = '<span>Existing content</span>';
+    const replacements = [
+      {
+        el: document.createElement('div'),
+        expected: { rendered: true, attached: false, destroyed: false },
+      },
+      {
+        el: populatedDetached,
+        expected: { rendered: true, attached: false, destroyed: false },
+      },
+      {
+        el: document.querySelector('#replacement-empty'),
+        expected: { rendered: true, attached: true, destroyed: false },
+      },
+      {
+        el: document.querySelector('#replacement-populated'),
+        expected: { rendered: true, attached: true, destroyed: false },
+      },
+    ];
+    const collectionView = new CollectionView();
+
+    for (const replacement of [replacements[0], replacements[2]]) {
+      const expected = { ...replacement.expected, rendered: false };
+
+      expect(collectionView.setElement(replacement.el)).to.equal(collectionView);
+      expect(state(collectionView)).to.deep.equal(expected);
+
+      expect(collectionView.setElement(replacement.el)).to.equal(collectionView);
+      expect(state(collectionView)).to.deep.equal(expected);
+    }
+
+    collectionView.render();
+
+    for (const replacement of replacements) {
+      expect(collectionView.setElement(replacement.el)).to.equal(collectionView);
+      expect(state(collectionView)).to.deep.equal(replacement.expected);
+
+      expect(collectionView.setElement(replacement.el)).to.equal(collectionView);
+      expect(state(collectionView)).to.deep.equal(replacement.expected);
+    }
+
+    collectionView.destroy();
+  });
+
+  it('preserves child ownership without moving child DOM when replacing its element', function() {
+    this.setFixtures('<div id="collection-owner"></div>');
+    const oldRoot = document.querySelector('#collection-owner');
+    const replacementRoot = document.createElement('div');
+    replacementRoot.innerHTML = '<span>Replacement content</span>';
+    const model = new Backbone.Model({ id: 1 });
+    const collectionView = new CollectionView({
+      el: oldRoot,
+      collection: new Backbone.Collection([model]),
+      childView: ChildView,
+    });
+    collectionView.render();
+    const child = collectionView.children.findByModel(model);
+
+    expect(oldRoot.contains(child.el)).to.be.true;
+    expect(state(child)).to.deep.equal({
+      rendered: true,
+      attached: true,
+      destroyed: false,
+    });
+
+    collectionView.setElement(replacementRoot);
+
+    expect(state(collectionView)).to.deep.equal({
+      rendered: true,
+      attached: false,
+      destroyed: false,
+    });
+    expect(collectionView.children).to.have.lengthOf(1);
+    expect(collectionView.children.findByModel(model)).to.equal(child);
+    expect(state(child)).to.deep.equal({
+      rendered: true,
+      attached: true,
+      destroyed: false,
+    });
+    expect(oldRoot.contains(child.el)).to.be.true;
+    expect(replacementRoot.contains(child.el)).to.be.false;
+
+    collectionView.destroy();
+  });
+
   it('follows the normal Region-managed transition sequence', function() {
     this.setFixtures('<div id="collection-region"></div>');
     const collection = new Backbone.Collection([{ id: 1 }, { id: 2 }]);
