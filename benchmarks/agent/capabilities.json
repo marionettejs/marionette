@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "coverage": {
+    "minimumTasks": 10,
+    "minimumIndependentTasksPerCapability": 2
+  },
+  "capabilities": [
+    {
+      "id": "application-state-composition",
+      "description": "Compose Application-owned local State without confusing it with external domain data."
+    },
+    {
+      "id": "async-startup-and-teardown",
+      "description": "Handle asynchronous startup, invalidation, teardown, and cleanup deterministically."
+    },
+    {
+      "id": "behavior",
+      "description": "Add and manage Behavior concerns with explicit host scope and teardown."
+    },
+    {
+      "id": "collection-view",
+      "description": "Implement CollectionView child work through public collection and child-view contracts."
+    },
+    {
+      "id": "communication",
+      "description": "Use explicit communication boundaries between independently owned objects."
+    },
+    {
+      "id": "invalid-cases",
+      "description": "Reject or repair invalid framework usage through documented public contracts."
+    },
+    {
+      "id": "nested-application-ownership",
+      "description": "Compose nested Applications with explicit lifecycle and ownership."
+    },
+    {
+      "id": "nested-regions",
+      "description": "Compose nested Regions without bypassing Region-owned rendering and teardown."
+    },
+    {
+      "id": "plain-view",
+      "description": "Implement a stateless View without unnecessary application or state machinery."
+    },
+    {
+      "id": "resource-ownership-and-cleanup",
+      "description": "Own and release resources, listeners, subscriptions, and disposable work."
+    },
+    {
+      "id": "role-selection",
+      "description": "Choose correctly among a plain class, optional MnObject, and Application."
+    },
+    {
+      "id": "shared-overlay-host",
+      "description": "Display Views through a shared host Region while keeping positioning and exclusivity outside core."
+    },
+    {
+      "id": "state-vs-domain-data",
+      "description": "Keep owner-local State distinct from external model, collection, or domain data."
+    },
+    {
+      "id": "view-state-composition",
+      "description": "Compose View-owned local State while preserving View lifecycle boundaries."
+    }
+  ]
+}
