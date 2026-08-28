@@ -1,0 +1,75 @@
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_8d0e32e2d57f20 1
+dist/marionette.js
+  s_d6429951fb9231::t_8faa178aef9975 1466-1468
+  s_d6429951fb9231::t_640d8e12a7d7b1 1469-1482,1831,1838,1847,1859,1869,1899,1902,1911,1916,1919
+  s_2d91c07b8aa12c::t_18981836bae2ff 1
+config/diagnostics/catalog.json
+  s_d6429951fb9231::t_8bc120140bccbd 333-348
+dist/marionette.umd.js
+  s_d6429951fb9231::t_8bc219ff3849f1 1475-1477
+  s_d6429951fb9231::t_2e8f06cbb9fd81 1478-1491,1840,1847,1856,1868,1878,1908,1911,1920,1925,1928
+docs/marionette.view.md
+  s_2d91c07b8aa12c::t_07ed73f26bfea3 288
+  s_d6429951fb9231::t_8bc120140bccbd 201,228-229,282-284
+  s_d6429951fb9231::t_f481d0a0a8ae57 285-286
+  s_d6429951fb9231::t_1a8c11fb58e377 287
+modules/view-region.js
+  s_d6429951fb9231::t_f481d0a0a8ae57 29,31,33
+  s_d6429951fb9231::t_d6800f9d42b095 543
+  s_d6429951fb9231::t_6c4f0ea3907df7 40-41
+  s_d6429951fb9231::t_8bc120140bccbd 38,43-45,47-49
+  s_d6429951fb9231::t_9217d77705e5d0 28,30,32,34-37,39,42,46,556,573,589,605,657,661,673,679,683
+dist/marionette.min.js
+  s_d6429951fb9231::t_222a7b3e550f01 1
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_8bc120140bccbd 47
+test/unit/view-region-diagnostics.spec.js
+  s_d6429951fb9231::t_7cc7d5f7207d56 169-178,229-230
+  s_d6429951fb9231::t_9217d77705e5d0 99,120-125,128-150,181,201-209,211-218,221-222,226-227,252,270-281
+  s_d6429951fb9231::t_2cacd01e785e6b 18-24,45,61
+  s_d6429951fb9231::t_7bc63a109b3222 1,3-17,43,54-60,62-98,231-248,282
+  s_d6429951fb9231::t_f481d0a0a8ae57 151-168,249-251,253-268
+  s_d6429951fb9231::t_1a8c11fb58e377 126-127,210,219-220,223,225,269
+  s_d6429951fb9231::t_5f6b40efa93ea7 2,25-32,36-42,44,46-53,283-296
+  s_d6429951fb9231::t_14e6872755f093 33-35
+  s_d6429951fb9231::t_d6800f9d42b095 100-119,179-180,182-200,224,228
+dist/marionette.cjs
+  s_d6429951fb9231::t_c663dca26ace82 1470-1472
+  s_d6429951fb9231::t_f6daa6e0abee7e 1473-1486,1873,1915,1920,1923
+  s_e1a183878c01ed::t_e10d544ec7c845 1835,1842,1851,1863,1903,1906
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_0586bd2ec4f790 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "a966c64b86ad61e2c660dea4ecfb8f2ab4b7348d",
+  "prompts": {},
+  "sessions": {
+    "s_2d91c07b8aa12c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a046dd-e987-7010-815b-e2ec94d7f5d8",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    },
+    "s_e1a183878c01ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e4b3d-de5d-70e3-ba78-14db78af3877",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
