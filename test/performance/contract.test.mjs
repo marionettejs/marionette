@@ -87,6 +87,53 @@ function growthApproval(status = 'approved') {
   };
 }
 
+function newSubpathReport(includeFeature = false) {
+  const report = bundleReport(100);
+  report.graphs = [{
+    subpath: '.',
+    status: 'measured',
+    modules: ['index.js'],
+    externalImports: [],
+  }];
+  if (includeFeature) {
+    report.artifacts.push({
+      name: 'Feature',
+      path: 'dist/feature.js',
+      status: 'measured',
+      size: 4,
+    });
+    report.cumulative.size = 104;
+    report.graphs.push({
+      subpath: './feature',
+      status: 'measured',
+      modules: ['feature.js'],
+      externalImports: [],
+      forbiddenModules: [],
+    });
+  }
+  return report;
+}
+
+function newSubpathApproval(status = 'approved') {
+  return {
+    schemaVersion: 1,
+    status,
+    headSha: '1234567890abcdef1234567890abcdef12345678',
+    thresholdPercent: 1,
+    required: [],
+    newProductionEnforced: true,
+    newSubpaths: ['./feature'],
+    newArtifacts: [{ path: 'dist/feature.js', size: 4 }],
+    approval: status === 'approved' ? {
+      approvedNewSubpaths: ['./feature'],
+      approvedNewArtifacts: [{ path: 'dist/feature.js', size: 4 }],
+      authorLogin: 'paulfalgout',
+      commentUrl: 'https://github.com/marionettejs/marionette/pull/1#issuecomment-1',
+    } : null,
+    diagnostics: status === 'approved' ? [] : [{ message: 'Approval is required' }],
+  };
+}
+
 describe('performance contract validation', () => {
   test('recognizes shipped mjs entrypoints', () => {
     assert.equal(runtimePath('./dist/index.mjs'), true);
@@ -265,6 +312,113 @@ describe('performance contract validation', () => {
       const identical = await createReport(baseReport, baseReport);
       assert.match(identical, /\| Main .* \| Not required \|/);
       assert.match(identical, /Status: \*\*Not required\*\*\./);
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
+  test('reports exact new subpath and full-size approval without accepting malformed results', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-new-subpath-report-'));
+    const baseReport = join(fixtureRoot, 'base.json');
+    const currentReport = join(fixtureRoot, 'current.json');
+    const approvalReport = join(fixtureRoot, 'approval.json');
+
+    try {
+      await Promise.all([
+        writeFile(baseReport, JSON.stringify(newSubpathReport())),
+        writeFile(currentReport, JSON.stringify(newSubpathReport(true))),
+        writeFile(approvalReport, JSON.stringify(newSubpathApproval())),
+      ]);
+
+      const approved = await createReport(baseReport, currentReport, approvalReport);
+      assert.match(approved, /\| Feature \| New \| 4 B \| New artifact \| Approved \|/);
+      assert.match(approved, /\| `\.\/feature` \| 1 \| None \| New production subpath \| Approved \|/);
+      assert.match(approved, /New subpaths: `\.\/feature`\./);
+      assert.match(approved, /New artifacts at full Brotli size: `dist\/feature\.js` \(4 B\)\./);
+
+      const missing = await createReport(baseReport, currentReport);
+      assert.match(missing, /\| Feature \| New \| 4 B \| New artifact \| Reporting only \|/);
+      assert.match(missing, /\| `\.\/feature` .* \| Reporting only \|/);
+      assert.match(missing, /New-subpath approval enforcement: \*\*Reporting only\*\*/);
+
+      const malformedApproval = newSubpathApproval();
+      malformedApproval.newArtifacts[0].size = 3;
+      await writeFile(approvalReport, JSON.stringify(malformedApproval));
+      const malformed = await createReport(baseReport, currentReport, approvalReport);
+      assert.match(malformed, /New-production approval requirements do not match/);
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
+  test('reports approval for a zero-byte new subpath aliasing an existing artifact', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-new-subpath-alias-'));
+    const baseReport = join(fixtureRoot, 'base.json');
+    const currentReport = join(fixtureRoot, 'current.json');
+    const approvalReport = join(fixtureRoot, 'approval.json');
+    const base = newSubpathReport();
+    const current = structuredClone(base);
+    current.graphs.push({
+      subpath: './feature',
+      status: 'measured',
+      modules: ['feature.js'],
+      externalImports: [],
+      forbiddenModules: [],
+    });
+    const approval = newSubpathApproval();
+    approval.newArtifacts = [];
+    approval.approval.approvedNewArtifacts = [];
+
+    try {
+      await Promise.all([
+        writeFile(baseReport, JSON.stringify(base)),
+        writeFile(currentReport, JSON.stringify(current)),
+        writeFile(approvalReport, JSON.stringify(approval)),
+      ]);
+
+      const report = await createReport(baseReport, currentReport, approvalReport);
+      assert.match(report, /\| `\.\/feature` \| 1 \| None \| New production subpath \| Approved \|/);
+      assert.match(report, /New artifacts: none; the approved subpath aliases an existing runtime artifact\./);
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
+  test('accepts canonically ordered mixed-case new artifacts in the report', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-new-subpath-order-'));
+    const baseReport = join(fixtureRoot, 'base.json');
+    const currentReport = join(fixtureRoot, 'current.json');
+    const approvalReport = join(fixtureRoot, 'approval.json');
+    const base = newSubpathReport();
+    const current = structuredClone(base);
+    current.artifacts.push(
+      { name: 'View', path: 'dist/View.mjs', status: 'measured', size: 2 },
+      { name: 'All', path: 'dist/all.mjs', status: 'measured', size: 2 });
+    current.cumulative.size = 104;
+    current.graphs.push({
+      subpath: './feature',
+      status: 'measured',
+      modules: ['feature.js'],
+      externalImports: [],
+      forbiddenModules: [],
+    });
+    const approval = newSubpathApproval();
+    approval.newArtifacts = [
+      { path: 'dist/View.mjs', size: 2 },
+      { path: 'dist/all.mjs', size: 2 },
+    ];
+    approval.approval.approvedNewArtifacts = approval.newArtifacts;
+
+    try {
+      await Promise.all([
+        writeFile(baseReport, JSON.stringify(base)),
+        writeFile(currentReport, JSON.stringify(current)),
+        writeFile(approvalReport, JSON.stringify(approval)),
+      ]);
+
+      const report = await createReport(baseReport, currentReport, approvalReport);
+      assert.match(report, /\| View \| New \| 2 B \| New artifact \| Approved \|/);
+      assert.match(report, /\| All \| New \| 2 B \| New artifact \| Approved \|/);
     } finally {
       await rm(fixtureRoot, { recursive: true, force: true });
     }

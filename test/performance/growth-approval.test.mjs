@@ -9,6 +9,8 @@ import {
   formatGrowthApprovalComment,
   parseGrowthApprovalComment,
   requiredArtifactGrowth,
+  requiredNewProductionApproval,
+  validateCandidateGrowthContract,
   validateGrowthApproval,
   validateGrowthApprovalPolicy,
 } from '../../config/performance-growth-approval.mjs';
@@ -25,18 +27,137 @@ const policy = {
   allowedLogins: ['paulfalgout'],
 };
 
-function report(artifacts) {
-  return { artifacts };
+function report(artifacts, graphs = []) {
+  return { artifacts, graphs };
 }
 
-function approvalRecord(approvedPaths = ['dist/over.js']) {
-  return {
+function approvalRecord(approvedPaths = ['dist/over.js'], newProduction) {
+  const record = {
     schemaVersion: 1,
     headSha,
     issueUrl: policy.trackingIssueUrl,
     approvedPaths,
     evidenceUrls: [evidenceUrl],
   };
+
+  if (newProduction) {
+    record.approvedNewSubpaths = newProduction.subpaths;
+    record.approvedNewArtifacts = newProduction.artifacts;
+  }
+
+  return record;
+}
+
+function growthContract() {
+  return {
+    schemaVersion: 1,
+    baseline: {
+      sourceCommit: 'abcdef1234567890abcdef1234567890abcdef12',
+      brotliQuality: 11,
+      totalBrotliBytes: 100,
+      absoluteCeilingBytes: 105,
+    },
+    thresholds: {
+      cumulativeGrowthPercent: 5,
+      pullRequestApprovalPercent: 1,
+    },
+    pullRequestGrowthApproval: policy,
+    forbiddenProductionModulePrefixes: ['test/'],
+    forbiddenProductionModules: ['config/performance.json'],
+    runtimeArtifacts: [{
+      name: 'Main',
+      path: 'dist/main.js',
+      baselineBrotliBytes: 100,
+    }],
+    productionGraphs: [{
+      subpath: '.',
+      input: 'index.js',
+      output: 'dist/main.js',
+      baselineModules: ['index.js'],
+      baselineExternalImports: [],
+    }],
+  };
+}
+
+function candidateGrowthContract() {
+  const contract = structuredClone(growthContract());
+  contract.runtimeArtifacts.push({
+    name: 'Feature',
+    path: 'dist/feature.js',
+    baselineBrotliBytes: 0,
+  });
+  contract.productionGraphs.push({
+    subpath: './feature',
+    input: 'feature.js',
+    output: 'dist/feature.js',
+    baselineModules: [],
+    baselineExternalImports: [],
+  });
+  return contract;
+}
+
+function candidateAliasContract() {
+  const contract = structuredClone(growthContract());
+  contract.productionGraphs.push({
+    subpath: './feature',
+    input: 'index.js',
+    output: 'dist/main.js',
+    baselineModules: [],
+    baselineExternalImports: [],
+  });
+  return contract;
+}
+
+function productionReport({ aliasFeature = false, includeFeature = false, featureStatus = 'measured' } = {}) {
+  const artifacts = [{ name: 'Main', path: 'dist/main.js', status: 'measured', size: 100 }];
+  const graphs = [{
+    subpath: '.',
+    input: 'index.js',
+    output: 'dist/main.js',
+    status: 'measured',
+    modules: ['index.js'],
+    externalImports: [],
+    forbiddenModules: [],
+  }];
+  if (includeFeature) {
+    artifacts.push({ name: 'Feature', path: 'dist/feature.js', status: 'measured', size: 4 });
+  }
+  if (includeFeature || aliasFeature) {
+    graphs.push({
+      subpath: './feature',
+      input: aliasFeature ? 'index.js' : 'feature.js',
+      output: aliasFeature ? 'dist/main.js' : 'dist/feature.js',
+      status: featureStatus,
+      modules: [aliasFeature ? 'index.js' : 'feature.js'],
+      externalImports: [],
+      forbiddenModules: [],
+    });
+  }
+
+  return {
+    schemaVersion: 1,
+    baselineSourceCommit: 'abcdef1234567890abcdef1234567890abcdef12',
+    brotliQuality: 11,
+    thresholds: {
+      cumulativeGrowthPercent: 5,
+      pullRequestApprovalPercent: 1,
+    },
+    artifacts,
+    cumulative: {
+      size: includeFeature ? 104 : 100,
+      baselineSize: 100,
+      absoluteCeiling: 105,
+    },
+    graphs,
+    violations: [],
+  };
+}
+
+function grownProductionReport() {
+  const current = productionReport();
+  current.artifacts[0].size = 102;
+  current.cumulative.size = 102;
+  return current;
 }
 
 function comment(record, {
@@ -161,6 +282,302 @@ describe('exact-head performance growth approval contract', () => {
     );
   });
 
+  test('derives exact new subpaths and full artifact sizes from additive candidate evidence', () => {
+    assert.deepEqual(requiredNewProductionApproval({
+      authorityContract: growthContract(),
+      baseReport: productionReport(),
+      candidateContract: candidateGrowthContract(),
+      currentReport: productionReport({ includeFeature: true }),
+    }), {
+      artifacts: [{ path: 'dist/feature.js', size: 4 }],
+      enforced: true,
+      subpaths: ['./feature'],
+    });
+  });
+
+  test('requires approval when a new public subpath aliases an existing artifact at zero bytes', () => {
+    const currentReport = productionReport({ aliasFeature: true });
+    const required = requiredNewProductionApproval({
+      authorityContract: growthContract(),
+      baseReport: productionReport(),
+      candidateContract: candidateAliasContract(),
+      currentReport,
+    });
+    assert.deepEqual(required, {
+      artifacts: [],
+      enforced: true,
+      subpaths: ['./feature'],
+    });
+
+    const record = approvalRecord([], required);
+    assert.deepEqual(parseGrowthApprovalComment(formatGrowthApprovalComment(record), policy), {
+      matched: true,
+      approval: record,
+    });
+    const result = validateGrowthApproval({
+      authorityContract: growthContract(),
+      baseReport: productionReport(),
+      candidateContract: candidateAliasContract(),
+      comments: snapshot([comment(record)]),
+      currentReport,
+      evidenceComments: evidenceSnapshot(),
+      headSha,
+      policy,
+      pullRequestNumber,
+      thresholdPercent: 1,
+    });
+    assert.equal(result.status, 'approved');
+    assert.deepEqual(result.newArtifacts, []);
+    assert.deepEqual(result.newSubpaths, ['./feature']);
+  });
+
+  test('reports new production deltas without enforcing before activation', () => {
+    const result = validateGrowthApproval({
+      authorityContract: growthContract(),
+      baseReport: productionReport(),
+      comments: snapshot([]),
+      currentReport: productionReport({ includeFeature: true }),
+      evidenceComments: evidenceSnapshot(),
+      headSha,
+      policy,
+      pullRequestNumber,
+      thresholdPercent: 1,
+    });
+
+    assert.equal(result.status, 'not-required');
+    assert.equal(result.newProductionEnforced, false);
+    assert.deepEqual(result.newArtifacts, [{ path: 'dist/feature.js', size: 4 }]);
+    assert.deepEqual(result.newSubpaths, ['./feature']);
+    assert.deepEqual(result.diagnostics, []);
+  });
+
+  test('uses canonical code-unit order for new artifact approvals', () => {
+    const candidateContract = candidateGrowthContract();
+    candidateContract.runtimeArtifacts.splice(1, 1,
+      { name: 'View', path: 'dist/View.mjs', baselineBrotliBytes: 0 },
+      { name: 'All', path: 'dist/all.mjs', baselineBrotliBytes: 0 });
+    candidateContract.productionGraphs[1].output = 'dist/View.mjs';
+    const currentReport = productionReport();
+    currentReport.artifacts.push(
+      { name: 'View', path: 'dist/View.mjs', status: 'measured', size: 2 },
+      { name: 'All', path: 'dist/all.mjs', status: 'measured', size: 2 });
+    currentReport.cumulative.size = 104;
+    currentReport.graphs.push({
+      subpath: './feature',
+      input: 'feature.js',
+      output: 'dist/View.mjs',
+      status: 'measured',
+      modules: ['feature.js'],
+      externalImports: [],
+      forbiddenModules: [],
+    });
+
+    const required = requiredNewProductionApproval({
+      authorityContract: growthContract(),
+      baseReport: productionReport(),
+      candidateContract,
+      currentReport,
+    });
+    assert.deepEqual(required.artifacts, [
+      { path: 'dist/View.mjs', size: 2 },
+      { path: 'dist/all.mjs', size: 2 },
+    ]);
+
+    const result = validateGrowthApproval({
+      authorityContract: growthContract(),
+      baseReport: productionReport(),
+      candidateContract,
+      comments: snapshot([comment(approvalRecord([], required))]),
+      currentReport,
+      evidenceComments: evidenceSnapshot(),
+      headSha,
+      policy,
+      pullRequestNumber,
+      thresholdPercent: 1,
+    });
+    assert.equal(result.status, 'approved');
+  });
+
+  test('permits only zero-Phase-0-cost artifact and graph additions to the candidate contract', () => {
+    assert.deepEqual(
+      validateCandidateGrowthContract(growthContract(), candidateGrowthContract()),
+      []
+    );
+
+    const changedPolicy = candidateGrowthContract();
+    changedPolicy.pullRequestGrowthApproval.allowedLogins = ['attacker'];
+    assert.match(
+      validateCandidateGrowthContract(growthContract(), changedPolicy)[0],
+      /pullRequestGrowthApproval/
+    );
+
+    const changedCeiling = candidateGrowthContract();
+    changedCeiling.baseline.absoluteCeilingBytes = 1000;
+    assert.match(
+      validateCandidateGrowthContract(growthContract(), changedCeiling)[0],
+      /baseline/
+    );
+
+    const resetPhase0 = candidateGrowthContract();
+    resetPhase0.runtimeArtifacts[1].baselineBrotliBytes = 4;
+    assert.match(
+      validateCandidateGrowthContract(growthContract(), resetPhase0)[0],
+      /baselineBrotliBytes must be 0/
+    );
+  });
+
+  test('fails closed for removed base entries and invalid new production evidence', () => {
+    const removedArtifact = candidateGrowthContract();
+    removedArtifact.runtimeArtifacts.shift();
+    assert.match(
+      validateCandidateGrowthContract(growthContract(), removedArtifact)[0],
+      /removes or changes exact-base runtime artifact dist\/main\.js/
+    );
+
+    const unmeasured = productionReport({ includeFeature: true, featureStatus: 'unconfigured' });
+    assert.throws(
+      () => requiredNewProductionApproval({
+        authorityContract: growthContract(),
+        baseReport: productionReport(),
+        candidateContract: candidateGrowthContract(),
+        currentReport: unmeasured,
+      }),
+      /New production graph \.\/feature is not measured/
+    );
+
+    const forbidden = productionReport({ includeFeature: true });
+    forbidden.graphs[1].forbiddenModules = ['test/helper.js'];
+    assert.throws(
+      () => requiredNewProductionApproval({
+        authorityContract: growthContract(),
+        baseReport: productionReport(),
+        candidateContract: candidateGrowthContract(),
+        currentReport: forbidden,
+      }),
+      /includes forbidden modules/
+    );
+
+    const overCeiling = productionReport({ includeFeature: true });
+    overCeiling.artifacts[1].size = 6;
+    overCeiling.cumulative.size = 106;
+    assert.throws(
+      () => requiredNewProductionApproval({
+        authorityContract: growthContract(),
+        baseReport: productionReport(),
+        candidateContract: candidateGrowthContract(),
+        currentReport: overCeiling,
+      }),
+      /exceeds the exact-base cumulative ceiling/
+    );
+
+    for (const size of [null, '4', -1]) {
+      const malformedSize = productionReport({ includeFeature: true });
+      malformedSize.artifacts[1].size = size;
+      assert.throws(
+        () => requiredNewProductionApproval({
+          authorityContract: growthContract(),
+          baseReport: productionReport(),
+          candidateContract: candidateGrowthContract(),
+          currentReport: malformedSize,
+        }),
+        /not measured at a non-negative integer size/
+      );
+    }
+
+    const orphanArtifact = productionReport({ includeFeature: true });
+    orphanArtifact.graphs.pop();
+    assert.throws(
+      () => requiredNewProductionApproval({
+        authorityContract: growthContract(),
+        baseReport: productionReport(),
+        candidateContract: candidateGrowthContract(),
+        currentReport: orphanArtifact,
+      }),
+      /cannot be adopted without a new production subpath/
+    );
+  });
+
+  test('binds complete base and candidate report sets before discovering approval deltas', () => {
+    const omittedBase = productionReport();
+    omittedBase.artifacts = [];
+    omittedBase.graphs = [];
+    omittedBase.cumulative.size = 0;
+    const omittedCurrent = structuredClone(omittedBase);
+    assert.throws(
+      () => requiredNewProductionApproval({
+        authorityContract: growthContract(),
+        baseReport: omittedBase,
+        currentReport: omittedCurrent,
+      }),
+      /Exact-base report artifact set mismatch.*dist\/main\.js.*graph set mismatch.*\./
+    );
+    const omittedResult = validateGrowthApproval({
+      authorityContract: growthContract(),
+      baseReport: omittedBase,
+      comments: snapshot([], 'unavailable'),
+      currentReport: omittedCurrent,
+      evidenceComments: evidenceSnapshot([], 'unavailable'),
+      headSha,
+      policy,
+      pullRequestNumber,
+      thresholdPercent: 1,
+    });
+    assert.equal(omittedResult.status, 'blocked');
+    assert.equal(omittedResult.diagnostics[0].code, 'GROWTH_APPROVAL_REPORT');
+
+    const preseededBase = productionReport({ includeFeature: true });
+    assert.throws(
+      () => requiredNewProductionApproval({
+        authorityContract: growthContract(),
+        baseReport: preseededBase,
+        candidateContract: candidateGrowthContract(),
+        currentReport: productionReport({ includeFeature: true }),
+      }),
+      /Exact-base report artifact set mismatch.*dist\/feature\.js.*graph set mismatch.*\.\/feature/
+    );
+
+    const extraCurrent = productionReport({ includeFeature: true });
+    extraCurrent.artifacts.push({
+      name: 'Extra',
+      path: 'dist/extra.js',
+      status: 'measured',
+      size: 1,
+    });
+    extraCurrent.cumulative.size += 1;
+    assert.throws(
+      () => requiredNewProductionApproval({
+        authorityContract: growthContract(),
+        baseReport: productionReport(),
+        candidateContract: candidateGrowthContract(),
+        currentReport: extraCurrent,
+      }),
+      /Pull request report artifact set mismatch.*dist\/extra\.js/
+    );
+
+    const malformedBase = productionReport();
+    malformedBase.artifacts[0].status = 'missing';
+    malformedBase.graphs[0].status = 'measurement-error';
+    assert.throws(
+      () => requiredNewProductionApproval({
+        authorityContract: growthContract(),
+        baseReport: malformedBase,
+        currentReport: productionReport(),
+      }),
+      /runtime artifact dist\/main\.js is not measured.*production graph \. is not completely measured/
+    );
+
+    const incompleteTotal = productionReport();
+    incompleteTotal.cumulative.size = 99;
+    assert.throws(
+      () => requiredNewProductionApproval({
+        authorityContract: growthContract(),
+        baseReport: productionReport(),
+        currentReport: incompleteTotal,
+      }),
+      /Pull request cumulative size does not equal the complete measured artifact set/
+    );
+  });
+
   test('rejects duplicate report paths and malformed thresholds', () => {
     assert.throws(
       () => requiredArtifactGrowth(
@@ -212,6 +629,21 @@ describe('exact-head performance growth approval contract', () => {
     });
     assert.deepEqual(parseGrowthApprovalComment('ordinary comment', policy), { matched: false });
     assert.equal(body.split('\n')[0], '<!-- marionette-performance-growth-approval:v1 -->');
+  });
+
+  test('formats and parses exact new-subpath approval fields without changing existing records', () => {
+    const newProduction = {
+      artifacts: [{ path: 'dist/feature.js', size: 4 }],
+      subpaths: ['./feature'],
+    };
+    const record = approvalRecord([], newProduction);
+
+    assert.deepEqual(parseGrowthApprovalComment(formatGrowthApprovalComment(record), policy), {
+      matched: true,
+      approval: record,
+    });
+    assert.equal(Object.hasOwn(approvalRecord(), 'approvedNewSubpaths'), false);
+    assert.equal(Object.hasOwn(approvalRecord(), 'approvedNewArtifacts'), false);
   });
 
   test('rejects ambiguous formatting, fields, paths, and evidence', () => {
@@ -301,6 +733,78 @@ describe('exact-head performance growth approval contract', () => {
     assert.deepEqual(result.diagnostics, []);
     assert.equal(result.approval.authorLogin, 'paulfalgout');
     assert.deepEqual(result.approval.approvedPaths, ['dist/over.js']);
+  });
+
+  test('accepts one exact-head approval for the exact new subpath and full artifact size', () => {
+    const newProduction = {
+      artifacts: [{ path: 'dist/feature.js', size: 4 }],
+      subpaths: ['./feature'],
+    };
+    const result = validateGrowthApproval({
+      authorityContract: growthContract(),
+      baseReport: productionReport(),
+      candidateContract: candidateGrowthContract(),
+      comments: snapshot([comment(approvalRecord([], newProduction))]),
+      currentReport: productionReport({ includeFeature: true }),
+      evidenceComments: evidenceSnapshot(),
+      headSha,
+      policy,
+      pullRequestNumber,
+      thresholdPercent: 1,
+    });
+
+    assert.equal(result.status, 'approved');
+    assert.deepEqual(result.newSubpaths, ['./feature']);
+    assert.deepEqual(result.newArtifacts, [{ path: 'dist/feature.js', size: 4 }]);
+    assert.deepEqual(result.approval.approvedNewSubpaths, ['./feature']);
+  });
+
+  test('rejects missing, extra, or stale new-production approval details', () => {
+    const newProduction = {
+      artifacts: [{ path: 'dist/feature.js', size: 4 }],
+      subpaths: ['./feature'],
+    };
+    const options = {
+      authorityContract: growthContract(),
+      baseReport: productionReport(),
+      candidateContract: candidateGrowthContract(),
+      currentReport: productionReport({ includeFeature: true }),
+      evidenceComments: evidenceSnapshot(),
+      headSha,
+      policy,
+      pullRequestNumber,
+      thresholdPercent: 1,
+    };
+
+    const missing = validateGrowthApproval({
+      ...options,
+      comments: snapshot([comment(approvalRecord([]))]),
+    });
+    assert.equal(missing.diagnostics[0].code, 'GROWTH_APPROVAL_MISSING');
+
+    const extraSubpath = structuredClone(newProduction);
+    extraSubpath.subpaths.push('./other');
+    const extra = validateGrowthApproval({
+      ...options,
+      comments: snapshot([comment(approvalRecord([], extraSubpath))]),
+    });
+    assert.equal(extra.diagnostics[0].code, 'GROWTH_APPROVAL_NEW_SUBPATH_SET_MISMATCH');
+
+    const wrongSize = structuredClone(newProduction);
+    wrongSize.artifacts[0].size = 3;
+    const mismatched = validateGrowthApproval({
+      ...options,
+      comments: snapshot([comment(approvalRecord([], wrongSize))]),
+    });
+    assert.equal(mismatched.diagnostics[0].code, 'GROWTH_APPROVAL_NEW_ARTIFACT_SET_MISMATCH');
+
+    const stale = approvalRecord([], newProduction);
+    stale.headSha = 'abcdef1234567890abcdef1234567890abcdef12';
+    const staleResult = validateGrowthApproval({
+      ...options,
+      comments: snapshot([comment(stale)]),
+    });
+    assert.equal(staleResult.diagnostics[0].code, 'GROWTH_APPROVAL_MISSING');
   });
 
   test('fails closed for absent, stale, unauthorized, or unavailable approval comments', () => {
@@ -492,6 +996,7 @@ describe('exact-head performance growth approval contract', () => {
     const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-growth-approval-'));
     const paths = {
       base: join(fixtureRoot, 'base.json'),
+      candidate: join(fixtureRoot, 'candidate.json'),
       comments: join(fixtureRoot, 'comments.json'),
       contract: join(fixtureRoot, 'contract.json'),
       current: join(fixtureRoot, 'current.json'),
@@ -502,7 +1007,7 @@ describe('exact-head performance growth approval contract', () => {
       cwd: root,
       encoding: 'utf8',
     }).stdout.trim();
-    const cliApproval = approvalRecord();
+    const cliApproval = approvalRecord(['dist/main.js']);
     cliApproval.headSha = checkoutHead;
     const args = [
       cli,
@@ -517,16 +1022,9 @@ describe('exact-head performance growth approval contract', () => {
 
     try {
       await Promise.all([
-        writeFile(paths.contract, JSON.stringify({
-          thresholds: { pullRequestApprovalPercent: 1 },
-          pullRequestGrowthApproval: policy,
-        })),
-        writeFile(paths.base, JSON.stringify(report([
-          { name: 'Over', path: 'dist/over.js', size: 100 },
-        ]))),
-        writeFile(paths.current, JSON.stringify(report([
-          { name: 'Over', path: 'dist/over.js', size: 102 },
-        ]))),
+        writeFile(paths.contract, JSON.stringify(growthContract())),
+        writeFile(paths.base, JSON.stringify(productionReport())),
+        writeFile(paths.current, JSON.stringify(grownProductionReport())),
         writeFile(paths.comments, JSON.stringify(snapshot([comment(cliApproval)]))),
         writeFile(paths.evidence, JSON.stringify(evidenceSnapshot())),
       ]);
@@ -534,6 +1032,38 @@ describe('exact-head performance growth approval contract', () => {
       const approved = spawnSync(process.execPath, args, { encoding: 'utf8' });
       assert.equal(approved.status, 0);
       assert.equal(JSON.parse(approved.stdout).status, 'approved');
+
+      const newProduction = {
+        artifacts: [{ path: 'dist/feature.js', size: 4 }],
+        subpaths: ['./feature'],
+      };
+      const cliNewApproval = approvalRecord([], newProduction);
+      cliNewApproval.headSha = checkoutHead;
+      await Promise.all([
+        writeFile(paths.contract, JSON.stringify(growthContract())),
+        writeFile(paths.candidate, JSON.stringify(candidateGrowthContract())),
+        writeFile(paths.base, JSON.stringify(productionReport())),
+        writeFile(paths.current, JSON.stringify(productionReport({ includeFeature: true }))),
+        writeFile(paths.comments, JSON.stringify(snapshot([comment(cliNewApproval)]))),
+      ]);
+      const reportingOnly = spawnSync(process.execPath, args, { encoding: 'utf8' });
+      assert.equal(reportingOnly.status, 0);
+      assert.equal(JSON.parse(reportingOnly.stdout).status, 'not-required');
+      assert.equal(JSON.parse(reportingOnly.stdout).newProductionEnforced, false);
+
+      const newSubpath = spawnSync(process.execPath, [
+        ...args,
+        '--candidate-contract', paths.candidate,
+      ], { encoding: 'utf8' });
+      assert.equal(newSubpath.status, 0);
+      assert.deepEqual(JSON.parse(newSubpath.stdout).newSubpaths, ['./feature']);
+
+      await Promise.all([
+        writeFile(paths.contract, JSON.stringify(growthContract())),
+        writeFile(paths.base, JSON.stringify(productionReport())),
+        writeFile(paths.current, JSON.stringify(grownProductionReport())),
+        writeFile(paths.comments, JSON.stringify(snapshot([comment(cliApproval)]))),
+      ]);
 
       const mismatchedArgs = [...args];
       mismatchedArgs[mismatchedArgs.indexOf('--head-sha') + 1] = headSha;

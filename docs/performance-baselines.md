@@ -88,7 +88,8 @@ the repository's read-only workflow plus the separate comment workflow.
 The roadmap also requires explicit issue approval and evidence for growth above one
 percent versus the pull request base and for every new production subpath. Existing
 artifact growth now has a versioned, base-owned approval contract in
-`pullRequestGrowthApproval`; new subpaths remain a separate fail-closed case.
+`pullRequestGrowthApproval`. The same exact-head record can bind a new production
+subpath to every new runtime artifact and its full measured Brotli size.
 
 An approval is one complete pull request timeline comment. The comment author comes
 from GitHub rather than the JSON body, must appear in the exact-base allowlist, must
@@ -112,9 +113,55 @@ canonical form:
 ```
 ````
 
+A new-subpath-only record leaves `approvedPaths` empty and adds both new-production
+fields:
+
+````markdown
+<!-- marionette-performance-growth-approval:v1 -->
+```json
+{
+  "schemaVersion": 1,
+  "headSha": "0123456789abcdef0123456789abcdef01234567",
+  "issueUrl": "https://github.com/marionettejs/marionette/issues/127",
+  "approvedPaths": [],
+  "approvedNewSubpaths": [
+    "./example"
+  ],
+  "approvedNewArtifacts": [
+    {
+      "path": "dist/example.js",
+      "size": 456
+    }
+  ],
+  "evidenceUrls": [
+    "https://github.com/marionettejs/marionette/issues/127#issuecomment-123456789"
+  ]
+}
+```
+````
+
+`approvedNewArtifacts` is empty when a new public subpath aliases an already tracked
+runtime artifact. The new subpath still requires exact-head approval even though it
+adds zero artifact bytes. Conversely, a new runtime artifact without a corresponding
+new production subpath is invalid rather than independently approvable. Approval binds
+the complete additive artifact set from the same exact head; conditional artifacts such
+as CommonJS outputs need not each be the selected production-graph output, but every
+artifact is named at full size and charged against the cumulative ceiling.
+
 The full lowercase head SHA prevents an approval from surviving a code change. The
 approved path list must exactly match all existing artifacts above the strict
-greater-than-one-percent threshold. Evidence is limited to durable issue-comment
+greater-than-one-percent threshold. New subpaths and new artifact path/size pairs must
+exactly match the additive candidate contract and measured report. A candidate may
+only add runtime artifact and production graph entries: it cannot change the base
+thresholds, allowlist, baseline, ceiling, toolchain, forbidden modules, resource
+contract, timing contract, or any existing artifact or graph. New artifact Phase 0
+baselines remain zero, so their full size counts against the original absolute ceiling;
+after adoption, the exact merged artifact becomes the comparison base for later pull
+requests. Unmeasured graphs, forbidden modules, removed or renamed base entries,
+non-integer sizes, report-contract drift, and cumulative growth above the ceiling fail
+closed.
+
+Evidence is limited to durable issue-comment
 permalinks in this repository; Actions artifacts and external mutable pages cannot
 be the sole record. The evaluator binds each marked comment to the expected repository
 and pull request from the API snapshot, and every evidence URL must resolve to a real
@@ -145,6 +192,15 @@ The refresh workflow selects only a CI run whose immutable run name records the
 current pull request number, base SHA, and head SHA. If the base advances, it refuses
 to replay an older comparison. The default-branch rules require strict up-to-date
 status checks, so merge remains blocked until CI records the new exact base.
+
+The parser, additive-contract validator, and report schema are defined before new-
+subpath enforcement. This contract change does not alter Actions. A separate activation
+must measure the candidate with the exact-base validator and invoke the parser from an
+exact base containing this reviewed contract. Until that wiring lands, new-subpath
+results carry `newProductionEnforced: false`, are labeled reporting-only, and do not
+fail the existing size job. The activation supplies the reviewed candidate contract and
+changes that state to `true`. This two-step bootstrap prevents the first enforcement
+change from authorizing itself with candidate-owned policy.
 
 ## Hosted timing
 
