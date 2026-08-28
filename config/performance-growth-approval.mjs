@@ -1,9 +1,13 @@
 import { execFile } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import process from 'node:process';
 import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual, promisify } from 'node:util';
+import {
+  evaluateBudgetAmendmentFromCheckouts,
+  validateBudgetAmendmentScope,
+} from './release/performance-budget-amendments.mjs';
 
 const marker = '<!-- marionette-performance-growth-approval:v1 -->';
 const requiredRecordFields = ['approvedPaths', 'evidenceUrls', 'headSha', 'issueUrl', 'schemaVersion'];
@@ -309,7 +313,7 @@ function exactObjectFields(value, fields) {
     isDeepStrictEqual(Object.keys(value).sort(), [...fields].sort());
 }
 
-export function validateCandidateGrowthContract(authority, candidate) {
+export function validateCandidateGrowthContract(authority, candidate, { budgetAmendment } = {}) {
   const violations = [];
   if (!authority || typeof authority !== 'object' || !candidate || typeof candidate !== 'object') {
     return ['Authority and candidate performance contracts must be objects'];
@@ -321,6 +325,18 @@ export function validateCandidateGrowthContract(authority, candidate) {
   }
   for (const key of authorityKeys) {
     if (key === 'runtimeArtifacts' || key === 'productionGraphs') {
+      continue;
+    }
+    if (key === 'baseline' && budgetAmendment?.status === 'accepted' &&
+        budgetAmendment.mode === 'consume') {
+      const authorityBaseline = { ...authority.baseline };
+      const candidateBaseline = { ...candidate.baseline };
+      delete authorityBaseline.absoluteCeilingBytes;
+      delete candidateBaseline.absoluteCeilingBytes;
+      if (!isDeepStrictEqual(authorityBaseline, candidateBaseline) ||
+          candidate.baseline.absoluteCeilingBytes !== budgetAmendment.activeCeilingBytes) {
+        violations.push('Candidate performance contract changes exact-base baseline beyond the authorized ceiling');
+      }
       continue;
     }
     if (!isDeepStrictEqual(authority[key], candidate[key])) {
@@ -387,7 +403,8 @@ function reportContractViolations(
   report,
   expectedContract,
   authority,
-  label
+  label,
+  expectedCeiling = authority?.baseline?.absoluteCeilingBytes
 ) {
   const violations = [];
   if (report?.schemaVersion !== 1) {
@@ -397,7 +414,7 @@ function reportContractViolations(
       report?.brotliQuality !== authority?.baseline?.brotliQuality ||
       !isDeepStrictEqual(report?.thresholds, authority?.thresholds) ||
       report?.cumulative?.baselineSize !== authority?.baseline?.totalBrotliBytes ||
-      report?.cumulative?.absoluteCeiling !== authority?.baseline?.absoluteCeilingBytes) {
+      report?.cumulative?.absoluteCeiling !== expectedCeiling) {
     violations.push(`${label} report does not use the exact-base performance authority`);
   }
   if (!Array.isArray(report?.violations)) {
@@ -448,8 +465,10 @@ function reportContractViolations(
   if (!Number.isInteger(report?.cumulative?.size) || report.cumulative.size !== artifactTotal) {
     violations.push(`${label} cumulative size does not equal the complete measured artifact set`);
   }
-  if (artifactTotal > authority?.baseline?.absoluteCeilingBytes) {
-    violations.push(`${label} cumulative size ${artifactTotal} exceeds the exact-base cumulative ceiling ${authority?.baseline?.absoluteCeilingBytes}`);
+  if (artifactTotal > expectedCeiling) {
+    const ceilingAuthority = expectedCeiling === authority?.baseline?.absoluteCeilingBytes ?
+      'exact-base' : 'active';
+    violations.push(`${label} cumulative size ${artifactTotal} exceeds the ${ceilingAuthority} cumulative ceiling ${expectedCeiling}`);
   }
 
   const missingGraphs = [...expectedGraphs.map.keys()]
@@ -516,6 +535,7 @@ export function newProductionReportDelta(baseReport, currentReport) {
 export function requiredNewProductionApproval({
   authorityContract,
   baseReport,
+  budgetAmendment,
   candidateContract,
   currentReport,
 }) {
@@ -529,7 +549,9 @@ export function requiredNewProductionApproval({
     throw new Error(baseViolations.join('; '));
   }
   const effectiveContract = candidateContract || authorityContract;
-  const contractViolations = validateCandidateGrowthContract(authorityContract, effectiveContract);
+  const contractViolations = validateCandidateGrowthContract(authorityContract, effectiveContract, {
+    budgetAmendment,
+  });
   if (contractViolations.length) {
     throw new Error(contractViolations.join('; '));
   }
@@ -537,7 +559,8 @@ export function requiredNewProductionApproval({
     currentReport,
     effectiveContract,
     authorityContract,
-    'Pull request'
+    'Pull request',
+    effectiveContract?.baseline?.absoluteCeilingBytes
   );
   if (currentViolations.length) {
     throw new Error(currentViolations.join('; '));
@@ -625,6 +648,7 @@ export function requiredArtifactGrowth(baseReport, currentReport, thresholdPerce
 export function validateGrowthApproval({
   authorityContract,
   baseReport,
+  budgetAmendment,
   candidateContract,
   comments,
   currentReport,
@@ -639,12 +663,25 @@ export function validateGrowthApproval({
   let newProductionEnforced = false;
   let newSubpaths = [];
   const diagnostics = validateGrowthApprovalPolicy(policy);
+  const consumingBudget = budgetAmendment?.status === 'accepted' &&
+    budgetAmendment.mode === 'consume';
+  if (budgetAmendment && budgetAmendment.status !== 'accepted') {
+    diagnostics.push(diagnostic(
+      'GROWTH_APPROVAL_BUDGET_AMENDMENT',
+      `Budget-amendment validation failed: ${budgetAmendment.diagnostics?.join('; ') || 'unknown error'}`
+    ));
+  }
   try {
-    required = requiredArtifactGrowth(baseReport, currentReport, thresholdPercent);
+    required = requiredArtifactGrowth(
+      baseReport,
+      currentReport,
+      consumingBudget ? 0 : thresholdPercent
+    );
     if (authorityContract) {
       const validated = requiredNewProductionApproval({
         authorityContract,
         baseReport,
+        budgetAmendment,
         candidateContract,
         currentReport,
       });
@@ -656,11 +693,21 @@ export function validateGrowthApproval({
       newArtifacts = newProduction.artifacts;
       newSubpaths = newProduction.subpaths;
     }
+    if (consumingBudget) {
+      const scopeViolations = validateBudgetAmendmentScope(
+        budgetAmendment.amendment,
+        [...required.map(({ path }) => path), ...newArtifacts.map(({ path }) => path)].sort(),
+        newSubpaths
+      );
+      diagnostics.push(...scopeViolations.map(message =>
+        diagnostic('GROWTH_APPROVAL_BUDGET_SCOPE', message)));
+    }
   } catch (error) {
     diagnostics.push(diagnostic('GROWTH_APPROVAL_REPORT', error.message));
   }
   const result = {
     approval: null,
+    budgetAmendment: budgetAmendment || null,
     diagnostics,
     headSha,
     ignored: [],
@@ -896,6 +943,23 @@ function parsePullRequestNumber(value) {
   return number;
 }
 
+async function pullRequestIdentity(headSha, pullRequestNumber) {
+  if (!process.env.GITHUB_EVENT_PATH) {
+    if (process.env.GITHUB_ACTIONS === 'true') {
+      throw new Error('GITHUB_EVENT_PATH is required for exact-base amendment validation');
+    }
+    return null;
+  }
+  const event = await readJson(process.env.GITHUB_EVENT_PATH);
+  const baseSha = event?.pull_request?.base?.sha;
+  const eventHeadSha = event?.pull_request?.head?.sha;
+  if (!/^[a-f\d]{40}$/.test(baseSha || '') || eventHeadSha !== headSha ||
+      event?.pull_request?.number !== pullRequestNumber) {
+    throw new Error('GitHub pull request event does not match the requested base, head, and number');
+  }
+  return { baseSha };
+}
+
 function blockedResult(error, headSha = null) {
   return {
     approval: null,
@@ -922,20 +986,56 @@ export async function main(args = process.argv.slice(2)) {
       throw new Error(`Requested head SHA ${headSha} does not match checkout ${checkoutHeadSha}`);
     }
     const pullRequestNumber = parsePullRequestNumber(getArgument(args, '--pull-request'));
+    const identity = await pullRequestIdentity(headSha, pullRequestNumber);
     const candidateContractPath = args.includes('--candidate-contract') ?
       getArgument(args, '--candidate-contract') : null;
-    const [contract, candidateContract, baseReport, currentReport, comments, evidenceComments] =
+    const authorityContractPath = getArgument(args, '--contract');
+    const [
+      contract,
+      candidateContract,
+      baseReport,
+      currentReport,
+      comments,
+      evidenceComments,
+    ] =
       await Promise.all([
-        readJson(getArgument(args, '--contract')),
+        readJson(authorityContractPath),
         candidateContractPath ? readJson(candidateContractPath) : null,
         readJson(getArgument(args, '--base-report')),
         readJson(getArgument(args, '--current-report')),
         readJson(getArgument(args, '--comments')),
         readJson(getArgument(args, '--evidence-comments')),
       ]);
+    let hasBudgetAmendmentAuthority = Boolean(identity);
+    try {
+      await readFile(resolve(
+        dirname(authorityContractPath),
+        'release/performance-budget-amendments.json'
+      ));
+      hasBudgetAmendmentAuthority = true;
+    } catch (error) {
+      if (error.code !== 'ENOENT') {
+        throw error;
+      }
+    }
+    const budgetAmendment = candidateContractPath && hasBudgetAmendmentAuthority ?
+      await evaluateBudgetAmendmentFromCheckouts({
+        approvalComments: comments,
+        authorityContract: contract,
+        authorityContractPath,
+        baseReport,
+        candidateContract,
+        candidateContractPath,
+        currentReport,
+        evidenceComments,
+        expectedBaseHead: identity?.baseSha,
+        headSha,
+        pullRequestNumber,
+      }) : null;
     result = validateGrowthApproval({
       authorityContract: contract,
       baseReport,
+      budgetAmendment,
       candidateContract,
       comments,
       currentReport,

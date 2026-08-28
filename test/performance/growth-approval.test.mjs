@@ -442,6 +442,51 @@ describe('exact-head performance growth approval contract', () => {
     );
   });
 
+  test('requires an independent exact-head approval when consuming a base-owned budget', () => {
+    const candidateContract = growthContract();
+    candidateContract.baseline.absoluteCeilingBytes = 110;
+    const currentReport = productionReport();
+    currentReport.artifacts[0].size = 106;
+    currentReport.cumulative.size = 106;
+    currentReport.cumulative.absoluteCeiling = 110;
+    const budgetAmendment = {
+      activeCeilingBytes: 110,
+      amendment: {
+        id: 'BA0001',
+        authorizedArtifactPaths: ['dist/main.js'],
+        authorizedNewSubpaths: [],
+      },
+      diagnostics: [],
+      mode: 'consume',
+      requiresExactHeadGrowthApproval: true,
+      schemaVersion: 1,
+      status: 'accepted',
+    };
+    const options = {
+      authorityContract: growthContract(),
+      baseReport: productionReport(),
+      budgetAmendment,
+      candidateContract,
+      currentReport,
+      evidenceComments: evidenceSnapshot(),
+      headSha,
+      policy,
+      pullRequestNumber,
+      thresholdPercent: 1,
+    };
+
+    const missing = validateGrowthApproval({ ...options, comments: snapshot([]) });
+    assert.equal(missing.status, 'required');
+    assert.equal(missing.diagnostics[0].code, 'GROWTH_APPROVAL_MISSING');
+
+    const approved = validateGrowthApproval({
+      ...options,
+      comments: snapshot([comment(approvalRecord(['dist/main.js']))]),
+    });
+    assert.equal(approved.status, 'approved');
+    assert.deepEqual(approved.required.map(({ path }) => path), ['dist/main.js']);
+  });
+
   test('fails closed for removed base entries and invalid new production evidence', () => {
     const removedArtifact = candidateGrowthContract();
     removedArtifact.runtimeArtifacts.shift();

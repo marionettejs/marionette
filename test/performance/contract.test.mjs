@@ -181,6 +181,68 @@ describe('performance contract validation', () => {
     ));
   });
 
+  test('resolves an amended active ceiling from the append-only ledger', () => {
+    const contract = contractFor();
+    contract.baseline.absoluteCeilingBytes = 12;
+    const packageJson = {
+      exports: { '.': { import: './dist/index.mjs' } },
+    };
+    const authorization = {
+      kind: 'authorization',
+      id: 'BA0001',
+      target: 'aggregate-shipped-package',
+      previousCeilingBytes: 10,
+      proposedCeilingBytes: 12,
+      prototypeBaseCommit: 'abcdef1234567890abcdef1234567890abcdef12',
+      prototypeCommit: '1234567890abcdef1234567890abcdef12345678',
+      implementationIssueUrl: 'https://github.com/marionettejs/marionette/issues/205',
+      authorizedArtifactPaths: ['dist/index.mjs'],
+      authorizedNewSubpaths: [],
+      reports: [
+        {
+          path: 'evidence/performance-budget-amendments/BA0001/base.json',
+          role: 'base',
+          sha256: '0'.repeat(64),
+        },
+        {
+          path: 'evidence/performance-budget-amendments/BA0001/prototype.json',
+          role: 'prototype',
+          sha256: '1'.repeat(64),
+        },
+      ],
+      prototypeContract: {
+        path: 'evidence/performance-budget-amendments/BA0001/prototype-contract.json',
+        sha256: '2'.repeat(64),
+      },
+      approvalUrls: [
+        'https://github.com/marionettejs/marionette/pull/205#issuecomment-100',
+      ],
+      evidenceUrls: [
+        'https://github.com/marionettejs/marionette/issues/127#issuecomment-101',
+      ],
+      rationale: 'Measured prototype evidence justifies a bounded ceiling increase.',
+      rollbackCondition: 'Revoke the pending authorization if implementation stops.',
+    };
+
+    const accepted = validateContract(
+      contract,
+      packageJson,
+      ['index.mjs'],
+      { schemaVersion: 1, entries: [authorization] }
+    );
+    assert.equal(accepted.some(violation => violation.startsWith('Absolute ceiling')), false);
+    assert.equal(accepted.some(violation => violation.includes('active ceiling')), false);
+    assert.equal(accepted.some(violation => violation.includes('BA0001')), false);
+
+    const rejected = validateContract(
+      contract,
+      packageJson,
+      ['index.mjs'],
+      { schemaVersion: 1, entries: [] }
+    );
+    assert.equal(rejected.some(violation => violation.includes('active ceiling')), true);
+  });
+
   test('measures malformed artifact and subpath changes without an uncaught error', async() => {
     const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-contract-'));
     const contract = contractFor();
@@ -524,6 +586,15 @@ describe('performance contract validation', () => {
     assert.ok(commands[approvalIndex].includes('--candidate-contract config/performance.json'));
     assert.ok(measurementIndex < approvalIndex);
     assert.ok(resourceValidationIndex < approvalIndex);
+  });
+
+  test('refreshes checks when budget-amendment approvals or evidence change', async() => {
+    const workflow = await readFile(
+      join(root, '.github/workflows/performance-approval-refresh.yml'),
+      'utf8'
+    );
+    assert.match(workflow, /marionette-performance-budget-amendment:v1/);
+    assert.match(workflow, /growth-approval\|budget-amendment/);
   });
 
   test('rejects forbidden modules from the measured production graph', async() => {
