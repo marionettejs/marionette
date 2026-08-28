@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json"
+  },
+  "dependencies": {
+    "@types/backbone": "1.4.23",
+    "@types/jquery": "4.0.1",
+    "@types/underscore": "1.13.0",
+    "backbone": "1.4.0",
+    "typescript": "7.0.2",
+    "underscore": "1.13.8"
+  }
+}

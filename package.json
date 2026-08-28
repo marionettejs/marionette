@@ -24,8 +24,14 @@
       "default": "./dist/marionette.js"
     },
     "./backbone": {
-      "import": "./dist/backbone.js",
-      "require": "./dist/backbone.cjs",
+      "import": {
+        "types": "./dist/backbone.d.mts",
+        "default": "./dist/backbone.js"
+      },
+      "require": {
+        "types": "./dist/backbone.d.cts",
+        "default": "./dist/backbone.cjs"
+      },
       "default": "./dist/backbone.js"
     },
     "./jquery-dom-api": {
