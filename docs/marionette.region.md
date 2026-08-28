@@ -89,6 +89,30 @@ by `detachView()` remains the caller's responsibility until another Region shows
 or it is destroyed. Operations other than repeated `destroy()` after Region
 destruction are unsupported; this contract does not make a destroyed Region reusable.
 
+The following example preserves a View by detaching it before showing it again.
+Calling `empty()` afterward destroys the View and returns the Region to its empty state.
+
+<!-- executable-example: region-lifecycle -->
+```javascript
+import { Region, View } from 'marionette';
+
+export function runRegionLifecycle() {
+  const region = new Region({ el: '#content' });
+  const contentView = new View({
+    template() {
+      return '<p>Content</p>';
+    }
+  });
+
+  region.show(contentView);
+  const detachedView = region.detachView();
+  region.show(detachedView);
+  region.empty();
+
+  return region;
+}
+```
+
 ## Defining the Application Region
 
 The Application defines a single region `el` using the `region` attribute. This

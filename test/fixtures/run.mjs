@@ -19,6 +19,7 @@ const fixtures = [
   'jquery-dom-api-types',
   'docs-behavior-host',
   'docs-radio-owner',
+  'docs-region-lifecycle',
   'vite',
   'peer-underscore-min',
 ];
