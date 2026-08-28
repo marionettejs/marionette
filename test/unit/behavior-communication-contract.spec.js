@@ -146,6 +146,46 @@ describe('Behavior communication contract', function() {
     view.destroy();
   });
 
+  it('keeps childViewEvents handlers local to the host unless they explicitly broadcast', function() {
+    const payload = { value: 'child' };
+    const hostHandler = this.sinon.spy();
+    const behaviorHandler = this.sinon.spy();
+
+    const TestBehavior = Behavior.extend({
+      onChildBoom: behaviorHandler,
+    });
+    const ChildView = View.extend({
+      template() {
+        return '';
+      },
+    });
+    const TestView = View.extend({
+      behaviors: [TestBehavior],
+      template() {
+        return '<div class="child"></div>';
+      },
+      regions: {
+        child: '.child',
+      },
+      childViewEvents: {
+        'child:boom': 'handleChildBoom',
+      },
+      handleChildBoom: hostHandler,
+    });
+    const view = new TestView();
+    const childView = new ChildView();
+    view.render();
+    view.showChildView('child', childView);
+
+    childView.triggerMethod('child:boom', payload);
+
+    expect(hostHandler).to.have.been.calledOnce.and.calledOn(view);
+    expect(hostHandler).to.have.been.calledWithExactly(payload);
+    expect(behaviorHandler).to.not.have.been.called;
+
+    view.destroy();
+  });
+
   it('emits Behavior DOM triggers on the host and broadcasts them to all Behaviors', function() {
     const sequence = [];
     const hostHandler = this.sinon.spy(function() {
