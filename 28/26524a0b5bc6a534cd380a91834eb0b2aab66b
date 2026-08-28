@@ -1,0 +1,26 @@
+test/performance/contract.test.mjs
+  s_d6429951fb9231::t_c5e6c2bd61aa52 491-494
+  s_d6429951fb9231::t_1ed47af65c6e7b 487-490,495-496,498-503
+  s_d6429951fb9231::t_61bb0446c338c4 486,497
+.github/workflows/ci.yml
+  s_d6429951fb9231::t_c0090332c622a7 236,242
+docs/performance-baselines.md
+  s_d6429951fb9231::t_57bb8ba167a886 241-242
+  s_d6429951fb9231::t_c0090332c622a7 198-204
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "2826524a0b5bc6a534cd380a91834eb0b2aab66b",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
