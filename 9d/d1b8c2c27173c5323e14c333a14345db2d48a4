@@ -1,0 +1,33 @@
+test/performance/contract.test.mjs
+  s_d6429951fb9231::t_82336ba395ef16 410,413
+config/bundle-size.mjs
+  s_d6429951fb9231::t_474c76969a50c0 622,667,686-688,788
+config/check-browser-profile.mjs
+  s_d6429951fb9231::t_808c2af244ee77 66-67,69-71,73-74,79,83
+config/performance.json
+  s_d6429951fb9231::t_3dd2f03e8ae74a 12
+config/release-profile.json
+  s_d6429951fb9231::t_31c4f496ccb08b 57-58
+docs/release-profile.md
+  s_d6429951fb9231::t_fa26856c6af8a7 56-65,80-83
+package-lock.json
+  s_d6429951fb9231::t_47ce86b7037209 3448-3457,3674-3680,4909-4918,5698-5728
+package.json
+  s_d6429951fb9231::t_21042205f0de19 56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "9dd1b8c2c27173c5323e14c333a14345db2d48a4",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
