@@ -97,10 +97,23 @@ describe('template-render', function() {
       it('should mix the templateCotext results and data', function() {
         renderer.templateContext = this.sinon.stub().returns({ baz: 'tc' });
         renderer.render();
+        expect(renderer.templateContext)
+          .to.have.been.calledOnce
+          .and.calledOn(renderer)
+          .and.calledWithExactly();
         expect(renderer._renderHtml)
           .to.be.calledOnce
           .and.calledWith(renderer.template, { foo: 'data', bar: 'data', baz: 'tc' });
       });
+    });
+
+    it('reads templateContext once and propagates lookup errors', function() {
+      const error = new Error('templateContext failed');
+      const getter = this.sinon.stub().throws(error);
+      Object.defineProperty(renderer, 'templateContext', { get: getter });
+
+      expect(() => renderer.mixinTemplateContext({ foo: 'data' })).to.throw(error);
+      expect(getter).to.have.been.calledOnce;
     });
 
     describe('when templateContext is not defined', function() {
@@ -241,6 +254,39 @@ describe('template-render', function() {
         expect(renderer._renderHtml)
           .to.be.calledOnce
           .and.calledWith(renderer.template, { items: [{ id: 1 },{ id: 2 }] });
+      });
+
+      it('preserves model order and attribute object identity', function() {
+        const serialized = renderer.serializeCollection();
+
+        expect(serialized).to.have.lengthOf(collection.models.length);
+        collection.models.forEach((collectionModel, index) => {
+          expect(serialized[index]).to.equal(collectionModel.attributes);
+        });
+      });
+
+      it('reads attributes in order and stops on an error', function() {
+        const calls = [];
+        const error = new Error('attributes failed');
+        const [first, second] = collection.models;
+        const firstAttributes = first.attributes;
+        Object.defineProperty(first, 'attributes', {
+          configurable: true,
+          get() {
+            calls.push('first');
+            return firstAttributes;
+          }
+        });
+        Object.defineProperty(second, 'attributes', {
+          configurable: true,
+          get() {
+            calls.push('second');
+            throw error;
+          }
+        });
+
+        expect(() => renderer.serializeCollection()).to.throw(error);
+        expect(calls).to.deep.equal(['first', 'second']);
       });
     });
 
