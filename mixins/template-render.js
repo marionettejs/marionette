@@ -1,5 +1,5 @@
-import { map, result } from 'underscore';
 import { assignOwn } from '../utils/assign-in.js';
+import getValue from '../utils/get-value.js';
 
 // MixinOptions
 // - template
@@ -34,7 +34,7 @@ export default {
   // literal. All methods and attributes from this object
   // are copies to the object passed in.
   mixinTemplateContext(serializedData) {
-    const templateContext = result(this, 'templateContext');
+    const templateContext = getValue(this, 'templateContext');
     if (!templateContext) { return serializedData; }
     if (!serializedData) { return templateContext; }
     return assignOwn({}, serializedData, templateContext);
@@ -66,7 +66,7 @@ export default {
 
   // Serialize a collection
   serializeCollection() {
-    return map(this.collection.models, model => model.attributes);
+    return this.collection.models.map(model => model.attributes);
   },
 
   // Renders the data into the template

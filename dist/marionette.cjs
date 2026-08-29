@@ -1149,7 +1149,7 @@ var TemplateRenderMixin = {
     return this.template;
   },
   mixinTemplateContext(serializedData) {
-    const templateContext = underscore.result(this, 'templateContext');
+    const templateContext = getValue(this, 'templateContext');
     if (!templateContext) {
       return serializedData;
     }
@@ -1172,7 +1172,7 @@ var TemplateRenderMixin = {
     return this.model.attributes;
   },
   serializeCollection() {
-    return underscore.map(this.collection.models, model => model.attributes);
+    return this.collection.models.map(model => model.attributes);
   },
   _renderHtml(template, data) {
     return template(data);
