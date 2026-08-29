@@ -57,6 +57,29 @@ function growthContract() {
       totalBrotliBytes: 100,
       absoluteCeilingBytes: 105,
     },
+    toolchain: {
+      releaseProfile: {
+        path: 'config/release-profile.json',
+        sha256: 'a'.repeat(64),
+        node: '24.19.0',
+        npm: '11.17.0',
+        lockfileVersion: 3,
+        canonicalHost: {
+          id: 'linux-x64',
+          runner: 'ubuntu-24.04',
+          platform: 'linux',
+          architecture: 'x64',
+        },
+      },
+      lockedDependencies: {
+        backbone: '1.4.0',
+        rollup: '4.63.0',
+      },
+      commands: {
+        deterministic: ['npm run size'],
+        hostedTiming: ['npm run performance:timing'],
+      },
+    },
     thresholds: {
       cumulativeGrowthPercent: 5,
       pullRequestApprovalPercent: 1,
@@ -442,9 +465,91 @@ describe('exact-head performance growth approval contract', () => {
     );
   });
 
+  test('permits only a valid release-profile SHA-256 transition in the toolchain', () => {
+    const authorityContract = growthContract();
+    const candidateContract = growthContract();
+    candidateContract.toolchain.releaseProfile.sha256 = 'b'.repeat(64);
+
+    assert.deepEqual(
+      validateCandidateGrowthContract(authorityContract, candidateContract),
+      []
+    );
+
+    const mutations = [
+      ['an invalid digest', contract => {
+        contract.toolchain.releaseProfile.sha256 = 'B'.repeat(64);
+      }],
+      ['a missing digest', contract => {
+        delete contract.toolchain.releaseProfile.sha256;
+      }],
+      ['a short digest', contract => {
+        contract.toolchain.releaseProfile.sha256 = 'b'.repeat(63);
+      }],
+      ['a non-string digest', contract => {
+        contract.toolchain.releaseProfile.sha256 = 1;
+      }],
+      ['another release-profile field', contract => {
+        contract.toolchain.releaseProfile.node = '26.0.0';
+      }],
+      ['a locked dependency', contract => {
+        contract.toolchain.lockedDependencies.rollup = '5.0.0';
+      }],
+      ['a command', contract => {
+        contract.toolchain.commands.deterministic.push('npm run unsafe');
+      }],
+      ['a new toolchain field', contract => {
+        contract.toolchain.untrusted = true;
+      }],
+      ['a removed release-profile field', contract => {
+        delete contract.toolchain.releaseProfile.path;
+      }],
+    ];
+
+    for (const [label, mutate] of mutations) {
+      const changedContract = growthContract();
+      mutate(changedContract);
+      assert.match(
+        validateCandidateGrowthContract(authorityContract, changedContract).join('\n'),
+        /changes exact-base toolchain/,
+        label
+      );
+    }
+  });
+
+  test('requires the candidate report to prove the release-profile digest', () => {
+    const candidateContract = growthContract();
+    candidateContract.toolchain.releaseProfile.sha256 = 'b'.repeat(64);
+
+    assert.deepEqual(requiredNewProductionApproval({
+      authorityContract: growthContract(),
+      baseReport: productionReport(),
+      candidateContract,
+      currentReport: productionReport(),
+    }), {
+      artifacts: [],
+      enforced: true,
+      subpaths: [],
+    });
+
+    const mismatchedReport = productionReport();
+    mismatchedReport.violations = [
+      `Release profile SHA-256 ${'a'.repeat(64)} does not match ${'b'.repeat(64)}`,
+    ];
+    assert.throws(
+      () => requiredNewProductionApproval({
+        authorityContract: growthContract(),
+        baseReport: productionReport(),
+        candidateContract,
+        currentReport: mismatchedReport,
+      }),
+      /Pull request report has contract violations: Release profile SHA-256/
+    );
+  });
+
   test('requires an independent exact-head approval when consuming a base-owned budget', () => {
     const candidateContract = growthContract();
     candidateContract.baseline.absoluteCeilingBytes = 110;
+    candidateContract.toolchain.releaseProfile.sha256 = 'b'.repeat(64);
     const currentReport = productionReport();
     currentReport.artifacts[0].size = 106;
     currentReport.cumulative.size = 106;

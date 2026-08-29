@@ -252,13 +252,15 @@ approved path list must exactly match all existing artifacts above the strict
 greater-than-one-percent threshold. New subpaths and new artifact path/size pairs must
 exactly match the additive candidate contract and measured report. A candidate may
 only add runtime artifact and production graph entries: it cannot change the base
-thresholds, allowlist, baseline, ceiling, toolchain, forbidden modules, resource
-contract, timing contract, or any existing artifact or graph. New artifact Phase 0
-baselines remain zero, so their full size counts against the original absolute ceiling;
-after adoption, the exact merged artifact becomes the comparison base for later pull
-requests. Unmeasured graphs, forbidden modules, removed or renamed base entries,
-non-integer sizes, report-contract drift, and cumulative growth above the ceiling fail
-closed.
+thresholds, allowlist, baseline, ceiling, forbidden modules, resource contract, timing
+contract, or any existing artifact or graph. The only permitted toolchain transition is
+a valid SHA-256 revision at `toolchain.releaseProfile.sha256`; every other toolchain
+field remains exact-base, and the candidate report must prove that digest matches the
+actual candidate release-profile file. New artifact Phase 0 baselines remain zero, so
+their full size counts against the original absolute ceiling; after adoption, the exact
+merged artifact becomes the comparison base for later pull requests. Unmeasured graphs,
+forbidden modules, removed or renamed base entries, non-integer sizes, report-contract
+drift, and cumulative growth above the ceiling fail closed.
 
 Evidence is limited to durable issue-comment
 permalinks in this repository; Actions artifacts and external mutable pages cannot

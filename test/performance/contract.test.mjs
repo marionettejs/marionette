@@ -900,6 +900,14 @@ describe('performance contract validation', () => {
     const contract = JSON.parse(await readFile(new URL('../../config/performance.json', import.meta.url)));
 
     assert.deepEqual(await validateToolchain(contract, root), []);
+
+    const mismatchedProfile = structuredClone(contract);
+    mismatchedProfile.toolchain.releaseProfile.sha256 = '0'.repeat(64);
+    assert.match(
+      (await validateToolchain(mismatchedProfile, root)).join('\n'),
+      /Release profile SHA-256 [a-f\d]{64} does not match 0{64}/
+    );
+
     assert.ok(
       contract.forbiddenProductionModules.includes('config/performance-resources.mjs')
     );
