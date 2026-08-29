@@ -66,6 +66,240 @@ describe('#ChildViewContainer', function() {
     });
   });
 
+  describe('predicate collection helpers', function() {
+    let container;
+    let views;
+
+    function expectPredicateCall(call, index, context) {
+      expect(call.thisValue).to.equal(context);
+      expect(call.args[0]).to.equal(views[index]);
+      expect(call.args[1]).to.equal(index);
+    }
+
+    beforeEach(function() {
+      views = [
+        new Backbone.View(),
+        new Backbone.View(),
+        new Backbone.View()
+      ];
+
+      views.forEach((view, index) => {
+        view.rank = index + 1;
+      });
+
+      container = new ChildViewContainer();
+      container._set(views, true);
+    });
+
+    describe('#find', function() {
+      it('returns the first matching child view and stops iterating', function() {
+        const context = { minimumRank: 2 };
+        const predicate = this.sinon.spy(function(view) {
+          return view.rank >= this.minimumRank ? view : 0;
+        });
+
+        const foundView = container.find(predicate, context);
+
+        expect(foundView).to.equal(views[1]);
+        expect(predicate).to.have.callCount(2);
+        expectPredicateCall(predicate.getCall(0), 0, context);
+        expectPredicateCall(predicate.getCall(1), 1, context);
+      });
+
+      it('returns undefined after every child view fails the predicate', function() {
+        const predicate = this.sinon.spy(() => false);
+
+        expect(container.find(predicate)).to.be.undefined;
+        expect(predicate).to.have.callCount(3);
+        expectPredicateCall(predicate.getCall(0), 0, undefined);
+        expectPredicateCall(predicate.getCall(1), 1, undefined);
+        expectPredicateCall(predicate.getCall(2), 2, undefined);
+      });
+
+      it('does not call the predicate for an empty container', function() {
+        const predicate = this.sinon.spy();
+
+        expect(new ChildViewContainer().find(predicate)).to.be.undefined;
+        expect(predicate).to.not.have.been.called;
+      });
+    });
+
+    describe('#filter', function() {
+      it('returns matching child views in order after visiting every child', function() {
+        const context = { minimumRank: 2 };
+        const predicate = this.sinon.spy(function(view) {
+          return view.rank >= this.minimumRank ? view : 0;
+        });
+
+        const matchingViews = container.filter(predicate, context);
+
+        expect(matchingViews).to.have.lengthOf(2);
+        expect(matchingViews[0]).to.equal(views[1]);
+        expect(matchingViews[1]).to.equal(views[2]);
+        expect(predicate).to.have.callCount(3);
+        expectPredicateCall(predicate.getCall(0), 0, context);
+        expectPredicateCall(predicate.getCall(1), 1, context);
+        expectPredicateCall(predicate.getCall(2), 2, context);
+
+        matchingViews.pop();
+        expect(container).to.have.lengthOf(3);
+        expect(container.last()).to.equal(views[2]);
+        expect(container.filter(view => view.rank >= 2)).to.not.equal(matchingViews);
+      });
+
+      it('returns an empty array without calling the predicate for an empty container', function() {
+        const predicate = this.sinon.spy();
+        const emptyContainer = new ChildViewContainer();
+        const result = emptyContainer.filter(predicate);
+
+        expect(result).to.deep.equal([]);
+        expect(emptyContainer.filter(predicate)).to.not.equal(result);
+        expect(predicate).to.not.have.been.called;
+      });
+    });
+
+    describe('#reject', function() {
+      it('returns rejected child views in order after visiting every child', function() {
+        const context = { minimumRank: 2 };
+        const predicate = this.sinon.spy(function(view) {
+          return view.rank >= this.minimumRank ? view : 0;
+        });
+
+        const rejectedViews = container.reject(predicate, context);
+
+        expect(rejectedViews).to.have.lengthOf(1);
+        expect(rejectedViews[0]).to.equal(views[0]);
+        expect(predicate).to.have.callCount(3);
+        expectPredicateCall(predicate.getCall(0), 0, context);
+        expectPredicateCall(predicate.getCall(1), 1, context);
+        expectPredicateCall(predicate.getCall(2), 2, context);
+
+        rejectedViews.pop();
+        expect(container).to.have.lengthOf(3);
+        expect(container.first()).to.equal(views[0]);
+        expect(container.reject(view => view.rank >= 2)).to.not.equal(rejectedViews);
+      });
+
+      it('returns an empty array without calling the predicate for an empty container', function() {
+        const predicate = this.sinon.spy();
+        const emptyContainer = new ChildViewContainer();
+        const result = emptyContainer.reject(predicate);
+
+        expect(result).to.deep.equal([]);
+        expect(emptyContainer.reject(predicate)).to.not.equal(result);
+        expect(predicate).to.not.have.been.called;
+      });
+    });
+
+    describe('#every', function() {
+      it('returns false at the first child view that fails the predicate', function() {
+        const context = { maximumRank: 1 };
+        const predicate = this.sinon.spy(function(view) {
+          return view.rank <= this.maximumRank ? 'pass' : 0;
+        });
+
+        expect(container.every(predicate, context)).to.be.false;
+        expect(predicate).to.have.callCount(2);
+        expectPredicateCall(predicate.getCall(0), 0, context);
+        expectPredicateCall(predicate.getCall(1), 1, context);
+      });
+
+      it('returns true after every child view passes the predicate', function() {
+        const predicate = this.sinon.spy(() => true);
+
+        expect(container.every(predicate)).to.be.true;
+        expect(predicate).to.have.callCount(3);
+        expectPredicateCall(predicate.getCall(0), 0, undefined);
+        expectPredicateCall(predicate.getCall(1), 1, undefined);
+        expectPredicateCall(predicate.getCall(2), 2, undefined);
+      });
+
+      it('returns true without calling the predicate for an empty container', function() {
+        const predicate = this.sinon.spy();
+
+        expect(new ChildViewContainer().every(predicate)).to.be.true;
+        expect(predicate).to.not.have.been.called;
+      });
+    });
+
+    describe('#some', function() {
+      it('returns true at the first child view that passes the predicate', function() {
+        const context = { minimumRank: 2 };
+        const predicate = this.sinon.spy(function(view) {
+          return view.rank >= this.minimumRank ? view : null;
+        });
+
+        expect(container.some(predicate, context)).to.be.true;
+        expect(predicate).to.have.callCount(2);
+        expectPredicateCall(predicate.getCall(0), 0, context);
+        expectPredicateCall(predicate.getCall(1), 1, context);
+      });
+
+      it('returns false after every child view fails the predicate', function() {
+        const predicate = this.sinon.spy(() => false);
+
+        expect(container.some(predicate)).to.be.false;
+        expect(predicate).to.have.callCount(3);
+        expectPredicateCall(predicate.getCall(0), 0, undefined);
+        expectPredicateCall(predicate.getCall(1), 1, undefined);
+        expectPredicateCall(predicate.getCall(2), 2, undefined);
+      });
+
+      it('returns false without calling the predicate for an empty container', function() {
+        const predicate = this.sinon.spy();
+
+        expect(new ChildViewContainer().some(predicate)).to.be.false;
+        expect(predicate).to.not.have.been.called;
+      });
+    });
+
+    describe('#partition', function() {
+      it('partitions every child view into new ordered arrays', function() {
+        const context = { minimumRank: 2 };
+        const predicate = this.sinon.spy(function(view) {
+          return view.rank >= this.minimumRank ? view : 0;
+        });
+
+        const partitionedViews = container.partition(predicate, context);
+        const [matchingViews, rejectedViews] = partitionedViews;
+
+        expect(matchingViews).to.have.lengthOf(2);
+        expect(matchingViews[0]).to.equal(views[1]);
+        expect(matchingViews[1]).to.equal(views[2]);
+        expect(rejectedViews).to.have.lengthOf(1);
+        expect(rejectedViews[0]).to.equal(views[0]);
+        expect(predicate).to.have.callCount(3);
+        expectPredicateCall(predicate.getCall(0), 0, context);
+        expectPredicateCall(predicate.getCall(1), 1, context);
+        expectPredicateCall(predicate.getCall(2), 2, context);
+
+        matchingViews.pop();
+        rejectedViews.pop();
+        expect(container).to.have.lengthOf(3);
+        expect(container.first()).to.equal(views[0]);
+        expect(container.last()).to.equal(views[2]);
+
+        const nextPartition = container.partition(view => view.rank >= 2);
+        expect(nextPartition).to.not.equal(partitionedViews);
+        expect(nextPartition[0]).to.not.equal(matchingViews);
+        expect(nextPartition[1]).to.not.equal(rejectedViews);
+      });
+
+      it('returns two empty arrays without calling the predicate for an empty container', function() {
+        const predicate = this.sinon.spy();
+        const emptyContainer = new ChildViewContainer();
+        const result = emptyContainer.partition(predicate);
+        const nextResult = emptyContainer.partition(predicate);
+
+        expect(result).to.deep.equal([[], []]);
+        expect(nextResult).to.not.equal(result);
+        expect(nextResult[0]).to.not.equal(result[0]);
+        expect(nextResult[1]).to.not.equal(result[1]);
+        expect(predicate).to.not.have.been.called;
+      });
+    });
+  });
+
   describe('ordered collection helpers', function() {
     let container;
     let views;
