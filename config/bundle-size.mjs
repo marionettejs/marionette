@@ -592,9 +592,16 @@ function sameNewArtifacts(supplied, expected) {
 
 function growthApprovalReport(base, current, supplied) {
   const thresholdPercent = current.thresholds.pullRequestApprovalPercent;
+  const consumingBudget = supplied?.budgetAmendment?.status === 'accepted' &&
+    supplied.budgetAmendment.mode === 'consume';
+  const approvalThresholdPercent = consumingBudget ? 0 : thresholdPercent;
   const baseByPath = new Map(base.artifacts.map(result => [result.path, result]));
   const required = current.artifacts
-    .map(result => approvalRequirement(baseByPath.get(result.path), result, thresholdPercent))
+    .map(result => approvalRequirement(
+      baseByPath.get(result.path),
+      result,
+      approvalThresholdPercent
+    ))
     .filter(Boolean)
     .sort((left, right) => left.path.localeCompare(right.path));
   const newProduction = newProductionReportDelta(base, current);
