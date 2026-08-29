@@ -1,0 +1,21 @@
+docs/marionette.behavior.md
+  s_d6429951fb9231::t_48c198ddacd2ba 462,464,466,468,472,475-477,481-482,484-488,491-492,495-496
+test/fixtures/docs-behavior-host/validate.mjs
+  s_d6429951fb9231::t_8cebcbf33c1e4f 10-20,22,24-29,31-32,34-36,41-44,52-99,101-103,105-108,110-111,113-114,116-118,120-123
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "ec1f23f020387fe97320b3637dab1cd4901c05cc",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
