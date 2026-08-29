@@ -21,7 +21,7 @@ use Backbone.View or Backbone.Model or another Backbone object to grab the
 method from.
 
 ```javascript
-import { extend } from 'backbone.marionette';
+import { extend } from 'marionette';
 
 const Foo = function(){};
 
@@ -51,7 +51,7 @@ in [common utilities](./common.md) except that the target of the method is added
 
 For instance:
 ```javascript
-import { View, triggerMethod, getOption } from 'backbone.marionette';
+import { View, triggerMethod, getOption } from 'marionette';
 
 const MyView = View.extend({
   initialize() {

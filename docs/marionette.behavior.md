@@ -175,32 +175,49 @@ Behavior options can also provide collaborators that the Behavior needs. These
 values are selected during construction and retained by reference. Read an
 arbitrary collaborator with `getOption()` so that a class default and an
 attachment override follow the same option precedence; arbitrary option names
-are not copied directly onto the Behavior instance.
+are not copied directly onto the Behavior instance. A host can explicitly pass
+an injected service through a `behaviors()` function:
 
+`initialize(options, hostView)` receives the same host View exposed as
+`this.view`.
+
+<!-- executable-example: behavior-collaborator -->
 ```javascript
+import { Behavior, View } from 'marionette';
+
 const SelectionBehavior = Behavior.extend({
-  options: {
-    service: defaultSelectionService
-  },
-
-  initialize(options, hostView) {
-    const service = this.getOption('service');
-    this.listenTo(service, 'selection:change', this.onSelectionChange);
-
-    // The second argument and this.view are the same host View.
-    console.log(hostView === this.view); // true
+  initialize() {
+    this.listenTo(
+      this.getOption('service'),
+      'selection:change',
+      this.onSelectionChange
+    );
   },
 
   onSelectionChange(selection) {
-    // ...
+    this.view.showSelection(selection);
   }
 });
 
-const MyView = View.extend({
-  behaviors: [{
-    behaviorClass: SelectionBehavior,
-    service: applicationSelectionService
-  }]
+export const SelectionView = View.extend({
+  template() {
+    return '<output class="selection"></output>';
+  },
+
+  ui: {
+    selection: '.selection'
+  },
+
+  behaviors() {
+    return [{
+      behaviorClass: SelectionBehavior,
+      service: this.getOption('selectionService')
+    }];
+  },
+
+  showSelection(selection) {
+    this.getUI('selection')[0].textContent = selection.label;
+  }
 });
 ```
 
@@ -392,7 +409,7 @@ The `initialize` event is triggered on the behavior indicating that the view is 
 #### Using `ui`
 
 As in views, `events` and `triggers` can use the `ui` references in their
-listeners. For more details, see the [`ui` documentation](./dom.interactions.md#organizing-your-view).
+listeners. For more details, see the [`ui` documentation](./dom.interactions.md#organizing-a-view-with-ui).
 These can be defined on either the Behavior or the View:
 
 ```javascript

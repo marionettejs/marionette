@@ -3,7 +3,7 @@
 Marionette provides its own `Events` primitive for communication between
 objects. It is exported from `marionette`, mixed into every
 [Marionette class](./classes.md), and does not require Backbone. These object
-events are separate from [DOM events](./dom.interactions.md#binding-to-user-input).
+events are separate from [DOM events](./dom.interactions.md#canonical-view-interaction).
 
 ## Documentation Index
 
@@ -255,7 +255,7 @@ const MyView = View.extend({
 
 [Live example](https://jsfiddle.net/marionettejs/pq4xfchk/)
 
-For more information, see the [DOM interactions documentation](./dom.interactions.md#binding-to-user-input).
+For more information, see the [DOM interactions documentation](./dom.interactions.md#canonical-view-interaction).
 
 ### View entity events
 
@@ -526,7 +526,7 @@ A `childViewTriggers` hash or method permits proxying of child view events witho
 setting bindings. The values of the hash should be a string of the event to trigger on the parent.
 
 `childViewTriggers` is sugar on top of [`childViewEvents`](#explicit-event-listeners) much
-in the same way that [view `triggers`](./dom.interaction.md#view-triggers) are sugar for [view `events`](./dom.interactions.md#view-events).
+in the same way that [view `triggers`](./dom.interactions.md#view-triggers) are sugar for [view `events`](./dom.interactions.md#view-events).
 
 ```javascript
 import { View, CollectionView } from 'marionette';
