@@ -8,23 +8,15 @@ const rootDir = resolve(__dirname, '../..');
 const packDir = resolve(rootDir, 'test/tmp/pack-fixtures');
 const npmCli = process.env.npm_execpath;
 const cliArgs = process.argv.slice(2);
-const fixtures = [
-  'cjs-node',
-  'cjs-adapters',
-  'esm-node',
-  'no-default-export',
-  'shim',
-  'shim-types',
-  'jquery-dom-api',
-  'jquery-dom-api-types',
-  'docs-behavior-host',
-  'docs-collectionview-child-ownership',
-  'docs-radio-owner',
-  'docs-region-lifecycle',
-  'docs-view-child-region',
-  'vite',
-  'peer-underscore-min',
-];
+const fixtures = readdirSync(__dirname, { withFileTypes: true })
+  .filter(entry => entry.isDirectory() &&
+    existsSync(resolve(__dirname, entry.name, 'package.json')))
+  .map(entry => entry.name)
+  .sort();
+
+if (fixtures.length === 0) {
+  throw new Error('No packed-package fixtures discovered under test/fixtures');
+}
 
 function run(command, args, options = {}) {
   execFileSync(command, args, {
