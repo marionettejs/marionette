@@ -1,0 +1,39 @@
+test/fixtures/docs-view-dom-interactions/validate.mjs
+  s_d6429951fb9231::t_968aa276ec2dd4 1,3-8,11-13,34-44,46-50,52-60,62,64,66-69,75-79,81-97,100-104,106,108-118,120-123,125,127-131,133-139,158-173,182,184,187-188,190-191,193,196-212
+  s_d6429951fb9231::t_8df8969a8327d3 45
+  s_d6429951fb9231::t_8d5420ea5375eb 61,63,65,70-74,80,98-99,105,107,119,124,126,132
+  s_d6429951fb9231::t_20962da1d9cffa 140-157,174-181,183,185-186,189,192,194-195
+  s_d6429951fb9231::t_0f0d7e2d18625e 2,9-10,14-33,51
+docs/events.md
+  s_d6429951fb9231::t_0f0d7e2d18625e 6,258
+test/fixtures/docs-view-dom-interactions/package.json
+  s_d6429951fb9231::t_968aa276ec2dd4 1-11
+docs/marionette.behavior.md
+  s_d6429951fb9231::t_0f0d7e2d18625e 412
+docs/marionette.collectionview.md
+  s_d6429951fb9231::t_0a9552946951c7 181-182
+  s_d6429951fb9231::t_91394b49250350 171-180,186
+test/fixtures/docs-view-dom-interactions/.gitignore
+  s_d6429951fb9231::t_968aa276ec2dd4 1
+docs/dom.interactions.md
+  s_d6429951fb9231::t_613a35bcbc7dbc 3-16,21-37,39-48,52-53,56-57,60-61,64-65,67-68,71-72,77,80,82-83,86-88,90,92-93,96,99-101,103-107,109-112,114,116-119,121-122,125-129,131,134-138,148,150,153-156,159-167,169-173,175,177-180
+  s_d6429951fb9231::t_0f0d7e2d18625e 17-20,140-146
+docs/features.md
+  s_d6429951fb9231::t_0f0d7e2d18625e 59,65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "0601a50811cf19ef5829ee8300b625b19fd93548",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
