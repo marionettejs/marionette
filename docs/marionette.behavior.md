@@ -459,36 +459,41 @@ constructs Behaviors. This contract pins only that construction ordering. It
 intentionally leaves the mixed Behavior UI representation for that path unresolved;
 do not infer the selector-before-binding sequence above or rely on that representation.
 
+<!-- executable-example: behavior-ui-resolution -->
 ```javascript
-import { Behavior, View } from 'backbone.marionette';
+import { Behavior, View } from 'marionette';
 
-const MyBehavior = Behavior.extend({
+const SaveBehavior = Behavior.extend({
   ui: {
-    saveForm: '.btn-save'
+    save: '.btn-save'
   },
 
   events: {
-    'click @ui.saveForm': 'saveForm'  // .btn-primary when used with `FirstView`
+    'click @ui.save': 'requestSave'
   },
 
-  saveForm() {
-    this.view.model.save();
+  requestSave() {
+    this.getUI('save')[0].classList.add('is-saving');
+    this.view.requestSave();
   }
 });
 
-const FirstView = View.extend({
-  behaviors: [MyBehavior],
+export const FormView = View.extend({
+  behaviors: [SaveBehavior],
+
+  template() {
+    return [
+      '<button class="btn-save" type="button">Default save</button>',
+      '<button class="btn-primary" type="button">Save</button>'
+    ].join('');
+  },
 
   ui: {
-    saveForm: '.btn-primary'
+    save: '.btn-primary'
   },
 
-  events: {
-    'click @ui.saveForm': 'checkForm'  // .btn-primary
-  },
-
-  checkForm() {
-    // ...
+  requestSave() {
+    this.triggerMethod('save:requested', this);
   }
 });
 ```
