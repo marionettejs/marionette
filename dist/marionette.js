@@ -1,4 +1,4 @@
-import { has, extend as extend$1, create, pick, reduce, isFunction, isString, isObject, each, keys, once, uniqueId, result, map, without, partial, isEmpty, sortBy, matches } from 'underscore';
+import { has, extend as extend$1, create, pick, reduce, isFunction, isString, isObject, each, keys, once, uniqueId, result, map, without, partial, isEmpty, matches } from 'underscore';
 
 const proxy = function (method) {
   return function (context, ...args) {
@@ -2063,6 +2063,30 @@ function assertCount(count) {
 function stringComparator(comparator, view) {
   return view.model && view.model.get(comparator);
 }
+function compareCriteria(left, right) {
+  const leftCriteria = left.criteria;
+  const rightCriteria = right.criteria;
+  if (leftCriteria !== rightCriteria) {
+    if (leftCriteria > rightCriteria || leftCriteria === undefined) {
+      return 1;
+    }
+    if (leftCriteria < rightCriteria || rightCriteria === undefined) {
+      return -1;
+    }
+  }
+  return left.index - right.index;
+}
+function sortByCriteria(views, comparator, context) {
+  const decoratedViews = views.map((view, index) => ({
+    criteria: comparator.call(context, view),
+    index,
+    view
+  }));
+  decoratedViews.sort(compareCriteria);
+  return decoratedViews.map(({
+    view
+  }) => view);
+}
 Object.assign(Container.prototype, {
   each(callback, context) {
     assertFunction(callback);
@@ -2258,16 +2282,15 @@ Object.assign(Container.prototype, {
   },
   _sort(comparator, context) {
     if (typeof comparator === 'string') {
-      comparator = partial(stringComparator, comparator);
-      return this._sortBy(comparator);
+      return this._sortBy(view => stringComparator(comparator, view));
     }
     if (comparator.length === 1) {
-      return this._sortBy(comparator.bind(context));
+      return this._sortBy(comparator, context);
     }
     return this._views.sort(comparator.bind(context));
   },
-  _sortBy(comparator) {
-    const sortedViews = sortBy(this._views, comparator);
+  _sortBy(comparator, context) {
+    const sortedViews = sortByCriteria(this._views, comparator, context);
     this._set(sortedViews);
     return sortedViews;
   },

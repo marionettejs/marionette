@@ -978,6 +978,14 @@ The `viewComparator` can take any of the acceptable `Backbone.Collection`
 function that expects two arguments), or as a string indicating the attribute to
 sort by.
 
+A string or single-argument comparator evaluates one criterion per child View and
+sorts stably. Equal, `NaN`, or otherwise incomparable criteria retain their existing
+order, while `undefined` criteria sort last. A string comparator therefore places a
+child without a model last. Two-argument comparators retain native `Array#sort`
+semantics. Sorting keeps the same `children` container in use. If evaluating or
+comparing a single-argument criterion throws, the error propagates without changing
+the child order.
+
 #### `getComparator`
 
 Override this method to determine which `viewComparator` to use.

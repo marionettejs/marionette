@@ -1,4 +1,3 @@
-import { partial, sortBy } from 'underscore';
 import MarionetteError from '../utils/error.js';
 
 const classErrorName = 'CollectionViewError';
@@ -33,6 +32,30 @@ function assertCount(count) {
 
 function stringComparator(comparator, view) {
   return view.model && view.model.get(comparator);
+}
+
+function compareCriteria(left, right) {
+  const leftCriteria = left.criteria;
+  const rightCriteria = right.criteria;
+
+  if (leftCriteria !== rightCriteria) {
+    if (leftCriteria > rightCriteria || leftCriteria === undefined) { return 1; }
+    if (leftCriteria < rightCriteria || rightCriteria === undefined) { return -1; }
+  }
+
+  return left.index - right.index;
+}
+
+function sortByCriteria(views, comparator, context) {
+  const decoratedViews = views.map((view, index) => ({
+    criteria: comparator.call(context, view),
+    index,
+    view
+  }));
+
+  decoratedViews.sort(compareCriteria);
+
+  return decoratedViews.map(({ view }) => view);
 }
 
 // Container Methods
@@ -295,20 +318,19 @@ Object.assign(Container.prototype, {
   // Sort (mutate) and return the array of the child views.
   _sort(comparator, context) {
     if (typeof comparator === 'string') {
-      comparator = partial(stringComparator, comparator);
-      return this._sortBy(comparator);
+      return this._sortBy(view => stringComparator(comparator, view));
     }
 
     if (comparator.length === 1) {
-      return this._sortBy(comparator.bind(context));
+      return this._sortBy(comparator, context);
     }
 
     return this._views.sort(comparator.bind(context));
   },
 
   // Makes `sortBy` mutate the array to match `this._views.sort`
-  _sortBy(comparator) {
-    const sortedViews = sortBy(this._views, comparator);
+  _sortBy(comparator, context) {
+    const sortedViews = sortByCriteria(this._views, comparator, context);
 
     this._set(sortedViews);
 
