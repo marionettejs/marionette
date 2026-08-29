@@ -628,50 +628,69 @@ const index = myCollectionView.children.findIndexByView(bView);
 
 ### CollectionView `children` Iterators And Collection Functions
 
-The container object borrows several functions from
-[Underscore.js](http://underscorejs.org/), to provide iterators and other
-collection functions, including:
+The container owns the following iteration and collection functions:
 
-* [each](http://underscorejs.org/#each)
-* [map](http://underscorejs.org/#map)
-* [reduce](http://underscorejs.org/#reduce)
+* `each`
+* `map`
+* `reduce`
 * `find`
 * `filter`
 * `reject`
 * `every`
 * `some`
-* [contains](http://underscorejs.org/#contains)
-* [invoke](http://underscorejs.org/#invoke)
-* [toArray](http://underscorejs.org/#toArray)
-* [first](http://underscorejs.org/#first)
-* [initial](http://underscorejs.org/#initial)
-* [rest](http://underscorejs.org/#rest)
-* [last](http://underscorejs.org/#last)
-* [without](http://underscorejs.org/#without)
-* [isEmpty](http://underscorejs.org/#isEmpty)
-* [pluck](http://underscorejs.org/#pluck)
+* `contains`
+* `invoke`
+* `toArray`
+* `first`
+* `initial`
+* `rest`
+* `last`
+* `without`
+* `isEmpty`
+* `pluck`
 * `partition`
 
 These methods can be called directly on the container, to iterate and process
 the views held by the container.
 
+`each`, `map`, `reduce`, `find`, `filter`, `reject`, `every`, `some`, and
+`partition` require callback functions. Invalid callbacks throw
+[`MN0024`](/errors/MN0024/), including for an empty container. String, object,
+and null iteratee shorthand is not supported. Structurally adding, removing, or
+reordering children while a callback runs is unsupported, and these methods do
+not promise call-start snapshot semantics. Mutating ordinary properties on a
+child View remains valid.
+
+`each(callback, context)` visits every child View in order, calls `callback` as
+`(view, index)`, binds `this` to `context` when provided, and returns the
+`children` container. An empty container returns itself without calling the
+callback.
+
+`map(callback, context)` calls `(view, index)` for every child View and returns a
+new ordered array of callback results. An empty container returns a new `[]`.
+Use `map(view => view.id)` or `pluck('id')` instead of property-name shorthand.
+
+`reduce(callback, initialValue, context)` calls
+`(accumulator, view, index)` in container order and binds optional `context`.
+When `initialValue` is supplied, every child View is visited; an empty container
+returns that exact value without calling the callback. When it is omitted, the
+first child View becomes the accumulator and traversal starts at index `1`. An
+empty container without an initial value throws [`MN0024`](/errors/MN0024/).
+
 `pluck(key)` reads `key` directly from each child View. For example,
 `children.pluck('model')` returns the child Views' model objects, and a child
 without a model contributes `undefined`. It does not read model attributes; use
 an explicit callback such as `children.map(view => view.model?.get('status'))`
-for those values. An empty container returns `[]`.
+for those values. Array-form deep paths are not traversed; replace
+`children.pluck(['model', 'cid'])` with
+`children.map(view => view.model?.cid)`. An empty container returns `[]`.
 
 `contains(value)` checks for the exact child View instance. A child View's model
 or another object with the same properties is not considered contained. An empty
 container returns `false`.
 
-`find`, `filter`, `reject`, `every`, `some`, and `partition` accept a predicate
-function and an optional `context`. Marionette does not define Underscore-style
-property-name or object-matcher shorthand for these methods. The predicate is
-called with the supported arguments `(view, index)`, with `this` set to `context`
-when one is provided. Additional callback arguments are not public API.
-Structurally adding, removing, or reordering children while a predicate runs is
-unsupported, and these methods do not promise call-start snapshot semantics.
+`find`, `filter`, `reject`, `every`, `some`, and `partition` call their predicate
+with `(view, index)` and set `this` to optional `context`.
 
 `find(predicate, context)` returns the first child View for which the predicate
 is truthy, preserving View identity, and stops iterating at that match. It
@@ -692,6 +711,13 @@ at the first truthy result; otherwise it returns `false`. For an empty container
 container order and contain the exact child View instances. An empty container
 returns `[[], []]` without calling the predicate.
 
+`invoke(methodName, ...args)` requires a direct string method name, invokes that
+method with each child View as `this`, forwards `args`, and returns a new ordered
+array of results. A missing or non-callable child method throws
+[`MN0025`](/errors/MN0025/) at that child. A non-string method name throws
+[`MN0024`](/errors/MN0024/). Function-form and deep-path method names are not
+supported. An empty container returns `[]` for a valid string method name.
+
 `toArray()` returns a new array containing the current child Views in container
 order. Changing the returned array's membership or order does not change the
 container. An empty container returns `[]`.
@@ -706,7 +732,8 @@ the count forms return `[]`.
 excluding `count` Views from the end or start of the container, respectively.
 The count is a nonnegative integer: `0` returns a new array of every child View,
 and a count greater than or equal to the container length returns `[]`. An empty
-container also returns `[]`.
+container also returns `[]`. `first`, `initial`, `rest`, and `last` throw
+[`MN0024`](/errors/MN0024/) when a supplied count is not a nonnegative integer.
 
 `without(...views)` returns a new ordered array excluding the exact child View
 instances supplied. Models and lookalike objects do not exclude their associated
@@ -718,9 +745,18 @@ container returns `[]`.
 Views. It is distinct from the overridable `CollectionView#isEmpty()` method,
 which controls whether a CollectionView renders its `emptyView`.
 
+The child container is iterable. `for...of`, spread, destructuring, and
+`Array.from(children)` yield the exact child View instances in container order.
+The iterator is defined once on the prototype rather than allocated as an own
+property on every container.
+
+The former undocumented Underscore aliases `forEach`, `detect`, `select`, `all`,
+`any`, and `include` are not part of the v5 container. Use `each`, `find`,
+`filter`, `every`, `some`, and `contains`, respectively.
+
 ```javascript
 import Backbone from 'backbone';
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 
 const collectionView = new CollectionView({
   collection: new Backbone.Collection()

@@ -396,6 +396,38 @@
         "runtime"
       ],
       "benchmarkCategory": "view"
+    },
+    {
+      "code": "MN0024",
+      "slug": "child-container-argument-invalid",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "CollectionView"
+      ],
+      "remediation": "Pass a function callback, a nonnegative integer count, an initial value when reducing an empty container, or a direct string method name as required.",
+      "docsAnchor": "/errors/MN0024/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "collection-view"
+    },
+    {
+      "code": "MN0025",
+      "slug": "child-container-method-not-callable",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "CollectionView"
+      ],
+      "remediation": "Ensure every child View implements the direct method named in children.invoke before invoking it.",
+      "docsAnchor": "/errors/MN0025/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "collection-view"
     }
   ]
 }
