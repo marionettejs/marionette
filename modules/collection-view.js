@@ -15,6 +15,14 @@ import { setRenderer } from '../config/renderer.js';
 
 const classErrorName = 'CollectionViewError';
 
+function isEmptyViewClass(view) {
+  return isFunction(view) && view.prototype && isViewClass(view);
+}
+
+function isClassDefinition(view) {
+  return /^class\s/.test(Function.prototype.toString.call(view));
+}
+
 const ClassOptions = [
   'attributes',
   'behaviors',
@@ -624,9 +632,21 @@ _extend(CollectionView.prototype, ViewMixin, {
   _getEmptyView() {
     const emptyView = this.emptyView;
 
-    if (!emptyView) { return; }
+    if (emptyView == null || emptyView === false) { return; }
 
-    return this._getView(emptyView);
+    if (isEmptyViewClass(emptyView)) { return emptyView; }
+
+    const EmptyView = isFunction(emptyView) && !isClassDefinition(emptyView) ?
+      emptyView.call(this) : undefined;
+
+    if (isEmptyViewClass(EmptyView)) { return EmptyView; }
+
+    throw new MarionetteError({
+      code: 'MN0022',
+      name: classErrorName,
+      message: '"emptyView" must be a view class or a function that returns a view class',
+      url: 'marionette.collectionview.html#collectionviews-emptyview'
+    });
   },
 
   // Remove the emptyView

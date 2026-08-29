@@ -194,15 +194,66 @@ describe('Region lifecycle contract', function() {
     expect(region.isDestroyed()).to.be.true;
   });
 
-  it('does not restart destruction after before:destroy throws', function() {
+  it('retries destruction after before:destroy throws and cleans up ownership once', function() {
     const error = new Error('before:destroy failed');
-    const beforeDestroy = this.sinon.stub().throws(error);
-    region.on('before:destroy', beforeDestroy);
+    const firstOptions = { attempt: 1 };
+    const retryOptions = { attempt: 2 };
+    const lifecycle = [];
+    const owner = new View({
+      regions: {
+        content: '.content',
+      },
+      template() {
+        return '<div class="content"></div>';
+      },
+    });
+    const child = new TestView();
+    let beforeDestroySideEffects = 0;
 
-    expect(() => region.destroy()).to.throw(error);
-    expect(region.isDestroyed()).to.be.false;
-    expect(region.destroy()).to.equal(region);
-    expect(beforeDestroy).to.have.been.calledOnceWith(region, undefined);
+    owner.render();
+    const ownedRegion = owner.getRegion('content');
+    ownedRegion.show(child);
+    this.sinon.spy(child, 'destroy');
+    this.sinon.spy(ownedRegion, 'stopListening');
+    this.sinon.spy(owner, '_removeReferences');
+    ownedRegion.on('before:destroy', (currentRegion, options) => {
+      lifecycle.push(['region:before:destroy', options]);
+      if (++beforeDestroySideEffects === 1) { throw error; }
+    });
+    ownedRegion.on('before:empty', () => lifecycle.push(['region:before:empty']));
+    child.on('before:destroy', () => lifecycle.push(['child:before:destroy']));
+    child.on('destroy', () => lifecycle.push(['child:destroy']));
+    ownedRegion.on('empty', () => lifecycle.push(['region:empty']));
+    ownedRegion.on('destroy', () => lifecycle.push(['region:destroy']));
+
+    expect(() => ownedRegion.destroy(firstOptions)).to.throw(error);
+    expect(ownedRegion.isDestroyed()).to.be.false;
+    expect(ownedRegion.currentView).to.equal(child);
+    expect(child.isDestroyed()).to.be.false;
+    expect(owner.getRegion('content')).to.equal(ownedRegion);
+    expect(ownedRegion.stopListening).to.not.have.been.called;
+    expect(owner._removeReferences).to.not.have.been.called;
+
+    expect(ownedRegion.destroy(retryOptions)).to.equal(ownedRegion);
+    expect(ownedRegion.destroy()).to.equal(ownedRegion);
+    expect(ownedRegion.isDestroyed()).to.be.true;
+    expect(child.isDestroyed()).to.be.true;
+    expect(owner.getRegion('content')).to.be.undefined;
+    expect(beforeDestroySideEffects).to.equal(2);
+    expect(lifecycle).to.deep.equal([
+      ['region:before:destroy', firstOptions],
+      ['region:before:destroy', retryOptions],
+      ['region:before:empty'],
+      ['child:before:destroy'],
+      ['child:destroy'],
+      ['region:empty'],
+      ['region:destroy'],
+    ]);
+    expect(child.destroy).to.have.been.calledOnce;
+    expect(ownedRegion.stopListening).to.have.been.calledOnce;
+    expect(owner._removeReferences).to.have.been.calledOnceWith('content');
+
+    owner.destroy();
   });
 
   it('clears the Region once when its current View is destroyed externally', function() {

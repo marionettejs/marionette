@@ -728,7 +728,12 @@ var DestroyMixin = {
       return this;
     }
     this._isDestroying = true;
-    this.triggerMethod('before:destroy', this, options);
+    try {
+      this.triggerMethod('before:destroy', this, options);
+    } catch (error) {
+      delete this._isDestroying;
+      throw error;
+    }
     this._isDestroyed = true;
     this.triggerMethod('destroy', this, options);
     this.stopListening();
@@ -1413,7 +1418,12 @@ const ViewMixin = {
     }
     this._isDestroying = true;
     const shouldTriggerDetach = this._isAttached && !this._disableDetachEvents;
-    this.triggerMethod('before:destroy', this, options);
+    try {
+      this.triggerMethod('before:destroy', this, options);
+    } catch (error) {
+      delete this._isDestroying;
+      throw error;
+    }
     if (shouldTriggerDetach) {
       this.triggerMethod('before:detach', this);
     }
@@ -1813,7 +1823,12 @@ underscore.extend(Region.prototype, CommonMixin, {
       return this;
     }
     this._isDestroying = true;
-    this.triggerMethod('before:destroy', this, options);
+    try {
+      this.triggerMethod('before:destroy', this, options);
+    } catch (error) {
+      delete this._isDestroying;
+      throw error;
+    }
     this._isDestroyed = true;
     this.reset(options);
     if (this._name) {
@@ -2142,6 +2157,12 @@ underscore.extend(Container.prototype, {
 });
 
 const classErrorName = 'CollectionViewError';
+function isEmptyViewClass(view) {
+  return underscore.isFunction(view) && view.prototype && isViewClass(view);
+}
+function isClassDefinition(view) {
+  return /^class\s/.test(Function.prototype.toString.call(view));
+}
 const ClassOptions$2 = ['attributes', 'behaviors', 'childView', 'childViewContainer', 'childViewEventPrefix', 'childViewEvents', 'childViewOptions', 'childViewTriggers', 'className', 'collection', 'collectionEvents', 'el', 'emptyView', 'emptyViewOptions', 'events', 'id', 'model', 'modelEvents', 'sortWithCollection', 'tagName', 'template', 'templateContext', 'triggers', 'ui', 'viewComparator', 'viewFilter'];
 const CollectionView = function (options) {
   this.cid = underscore.uniqueId(this.cidPrefix);
@@ -2547,10 +2568,22 @@ underscore.extend(CollectionView.prototype, ViewMixin, {
   },
   _getEmptyView() {
     const emptyView = this.emptyView;
-    if (!emptyView) {
+    if (emptyView == null || emptyView === false) {
       return;
     }
-    return this._getView(emptyView);
+    if (isEmptyViewClass(emptyView)) {
+      return emptyView;
+    }
+    const EmptyView = underscore.isFunction(emptyView) && !isClassDefinition(emptyView) ? emptyView.call(this) : undefined;
+    if (isEmptyViewClass(EmptyView)) {
+      return EmptyView;
+    }
+    throw new MarionetteError({
+      code: 'MN0022',
+      name: classErrorName,
+      message: '"emptyView" must be a view class or a function that returns a view class',
+      url: 'marionette.collectionview.html#collectionviews-emptyview'
+    });
   },
   _destroyEmptyView() {
     const emptyRegion = this.getEmptyRegion();

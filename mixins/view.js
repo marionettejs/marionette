@@ -123,7 +123,12 @@ const ViewMixin = {
     this._isDestroying = true;
     const shouldTriggerDetach = this._isAttached && !this._disableDetachEvents;
 
-    this.triggerMethod('before:destroy', this, options);
+    try {
+      this.triggerMethod('before:destroy', this, options);
+    } catch (error) {
+      delete this._isDestroying;
+      throw error;
+    }
     if (shouldTriggerDetach) {
       this.triggerMethod('before:detach', this);
     }

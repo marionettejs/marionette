@@ -484,8 +484,12 @@ _extend(Region.prototype, CommonMixin, {
   destroy(options) {
     if (this._isDestroyed || this._isDestroying) { return this; }
     this._isDestroying = true;
-
-    this.triggerMethod('before:destroy', this, options);
+    try {
+      this.triggerMethod('before:destroy', this, options);
+    } catch (error) {
+      delete this._isDestroying;
+      throw error;
+    }
     this._isDestroyed = true;
 
     this.reset(options);

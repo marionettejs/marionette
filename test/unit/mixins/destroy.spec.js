@@ -62,17 +62,33 @@ describe('Destroy Mixin', function() {
     });
   });
 
-  it('does not restart destruction after before:destroy throws', function() {
+  it('retries destruction after before:destroy throws', function() {
     const error = new Error('before:destroy failed');
-    obj.triggerMethod.callsFake(eventName => {
-      if (eventName === 'before:destroy') { throw error; }
+    const firstOptions = { attempt: 1 };
+    const retryOptions = { attempt: 2 };
+    const lifecycle = [];
+    let beforeDestroySideEffects = 0;
+    obj.triggerMethod.callsFake((eventName, currentObject, options) => {
+      lifecycle.push([eventName, options]);
+      if (eventName === 'before:destroy' && ++beforeDestroySideEffects === 1) {
+        throw error;
+      }
     });
 
-    expect(() => obj.destroy()).to.throw(error);
+    expect(() => obj.destroy(firstOptions)).to.throw(error);
     expect(obj.isDestroyed()).to.be.false;
-    expect(obj.destroy()).to.equal(obj);
-    expect(obj.triggerMethod).to.have.been.calledOnceWith('before:destroy', obj, undefined);
     expect(obj.stopListening).to.not.have.been.called;
+
+    expect(obj.destroy(retryOptions)).to.equal(obj);
+    expect(obj.destroy()).to.equal(obj);
+    expect(obj.isDestroyed()).to.be.true;
+    expect(beforeDestroySideEffects).to.equal(2);
+    expect(lifecycle).to.deep.equal([
+      ['before:destroy', firstOptions],
+      ['before:destroy', retryOptions],
+      ['destroy', retryOptions],
+    ]);
+    expect(obj.stopListening).to.have.been.calledOnce;
   });
 });
 

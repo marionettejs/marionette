@@ -362,6 +362,22 @@
         "runtime"
       ],
       "benchmarkCategory": "communication"
+    },
+    {
+      "code": "MN0022",
+      "slug": "collection-view-empty-view-invalid",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "CollectionView"
+      ],
+      "remediation": "Assign a View class directly or return a View class from the emptyView resolver; use null or false to disable the empty view.",
+      "docsAnchor": "/errors/MN0022/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "collection-view"
     }
   ]
 }
