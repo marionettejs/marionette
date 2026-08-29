@@ -1,149 +1,175 @@
 # The DOM API
 
-With the release of Marionette 3.2, developers can remove the dependency on
-jQuery and integrate with the DOM using a custom api.
+Marionette uses a small DOM adapter for element creation, selection, attributes,
+content, and attachment operations. The default `DomApi` uses native browser
+APIs and does not require Backbone or jQuery.
 
-## API Methods
+`View`, `CollectionView`, and `Region` expose their adapter as `Dom`. A custom
+adapter can replace only the operations an application needs; all omitted
+methods continue to use the inherited adapter.
 
-The DOM API manages the DOM on behalf of [each view class and `Region`](./classes.md).
-It defines the methods that actually attach and remove views and children.
+## Element and selector boundaries
 
-[The default API](#the-default-api) depends on Backbone's jQuery `$` object however it does not
-rely on jQuery-specific behavior. This should make it easier to develop your own
-API. You will, however, [need to also handle Backbone's jQuery integration](#backbone-jquery-integration).
-
-### `createBuffer()`
-
-Returns a new HTML DOM node instance. The resulting node can be passed into the
-other DOM functions.
-
-### `getDocumentEl(el)`
-
-Look up the top level element of `el`. Used by Marionette to determine attachment.
+`View` and `CollectionView` own a concrete DOM element. Their `el` option must
+be a DOM element; passing a selector string throws `MN0001`. Resolve a selector
+at the call site when a View should reuse existing markup:
 
 ```javascript
-const elIsAttached = this.Dom.hasEl(this.Dom.getDocumentEl(this.el), this.el);
-```
+import { View } from 'marionette';
 
-### `getEl(selector)`
-
-Lookup the `selector` string withing the DOM. The `selector` may also be a DOM element.
-It should return an array-like object of the node.
-
-### `findEl(el, selector)`
-
-Lookup the `selector` string within the DOM node `el`. It should return an array-like object of nodes.
-
-### `hasEl(el, childEl)`
-
-Returns true if the el contains the node childEl
-
-### `detachEl(el)`
-
-Detach `el` from the DOM without removing listeners.
-
-### `replaceEl(newEl, oldEl)`
-
-Remove `oldEl` from the DOM and put `newEl` in its place.
-
-### `swapEl(el1, el2)`
-
-Swaps the location of `el1` and `el2` in the DOM.
-Both els must have a parentNode to be able to swap.
-
-### `setContents(el, html)`
-
-Replace the contents of `el` with the HTML string of `html`. Unlike other DOM
-functions, this only takes a literal string for its second argument.
-
-### `appendContents(el, contents)`
-
-Takes the DOM node `el` and appends the DOM node `contents` to the end of the
-element's contents.
-
-### `hasContents(el)`
-
-Returns a boolean indicating if the `el` has child nodes.
-
-### `detachContents(el)`
-
-Remove the inner contents of `el` from the DOM while leaving `el` itself in the
-DOM.
-
-The default native implementation clears via `el.textContent = ''`. It is
-fast and jQuery-free. Apps that depend on v4's jQuery detach semantics
-(`$(el).contents().detach()`) — for example, apps that detach-then-reinsert
-children externally and rely on jQuery's handler/data bookkeeping surviving
-that cycle — can opt into the optional jQuery DomApi adapter at app boot via
-`setDomApi(JQueryDomApi)` from `marionette/jquery-dom-api`. See the
-[upgrade guide](../upgradeGuide.md) for the migration entry.
-
-## The default API
-
-The API used by Marionette by default is attached as `Marionette.DomApi`.
-This is useful if you [change the API](#providing-your-own-dom-api) globally,
-but want to reuse the default in certain cases.
-
-```javascript
-import { setDomApi, DomApi } from 'backbone.marionette';
-
-import MyDOMApi from './mydom';
-
-setDomApi(MyDOMApi);
-
-// Use MyDOMApi everywhere but `Marionette.View`
-View.setDomApi(DomApi);
-```
-
-## Providing Your Own DOM API
-
-To implement your own DOM API use `setDomApi`:
-
-```javascript
-import { setDomApi } from 'backbone.marionette';
-import MyDOMApi from './mydom';
-
-setDomApi(MyDOMApi);
-```
-
-You can also implement a different DOM API for a particular class:
-
-```javascript
-import { View } from 'backbone.marionette';
-
-View.setDomApi(MyDOMApi);
-```
-
-`CollectionView`, `Region`, and `View`
-all have `setDomApi`. Each extended class may have their own DOM API.
-
-Additionally a DOM API can be partially set:
-
-```javascript
-import { View } from 'backbone.marionette';
-
-const MyView = View.extend();
-
-MyView.setDomApi({
-  setContents(el, html) {
-    el.innerHTML = html;
-  }
+const view = new View({
+  el: document.querySelector('#content')
 });
 ```
 
-### Backbone jQuery Integration
+`Region` retains selector resolution because a Region locates its managed
+element relative to its `parentEl` or the document. `View#$()` and Region
+selector lookup both delegate to `DomApi.findEl`. With the native adapter,
+`View#$()` returns a `NodeList`.
 
-Backbone.js is tied to jQuery's API for managing DOM manipulation. If you want
-to completely remove jQuery from your Marionette app, you'll also have to
-provide your own versions of the following methods:
+## Native API methods
 
-* [`_setAttributes`](http://backbonejs.org/docs/backbone.html#section-170)
-* [`delegate`](http://backbonejs.org/docs/backbone.html#section-165)
-* [`undelegate`](http://backbonejs.org/docs/backbone.html#section-167)
+The exported `DomApi` contains the following methods. This list is checked
+against the shipped package in CI.
 
-#### See Also
+### `createElement(tagName)`
 
-The DOM API takes care of the other DOM manipulation methods for you. The
-[Backbone Wiki](https://github.com/jashkenas/backbone/wiki/using-backbone-without-jquery)
-has a good reference for removing jQuery from the app, including Browserify and
-Webpack configuration hooks.
+Creates and returns a DOM element with `document.createElement(tagName)`.
+Marionette uses it when a View does not receive an `el`.
+
+### `createBuffer()`
+
+Creates and returns a `DocumentFragment` for collecting DOM nodes before one
+append operation.
+
+### `getDocumentEl(el)`
+
+Returns `el.ownerDocument.documentElement`. Marionette uses that document root
+when determining whether a View is attached.
+
+### `findEl(el, selector)`
+
+Finds descendants of `el` matching `selector`. The native adapter returns the
+`NodeList` produced by `el.querySelectorAll(selector)`.
+
+### `hasEl(el, childEl)`
+
+Reports whether `childEl` is attached beneath `el`. Marionette uses this for
+attachment-state checks.
+
+### `detachEl(el)`
+
+Removes `el` from its parent when it has one. Native listeners attached to the
+element remain on the detached element.
+
+### `replaceEl(newEl, oldEl)`
+
+Replaces `oldEl` with `newEl` when `oldEl` has a parent. Passing the same
+element twice or an unattached `oldEl` is a no-op.
+
+### `swapEl(el1, el2)`
+
+Swaps the positions of two attached elements. Passing the same element twice
+or an element without a parent is a no-op.
+
+### `setContents(el, html)`
+
+Replaces the contents of `el` by assigning `html` to `el.innerHTML`.
+
+### `setAttributes(el, attrs)`
+
+Sets each entry in `attrs` on `el`. A key that exists as an element property is
+assigned as a property; other keys use `setAttribute`.
+
+### `appendContents(el, contents)`
+
+Appends the DOM node or `DocumentFragment` in `contents` to `el`.
+
+### `hasContents(el)`
+
+Returns whether `el` exists and has child nodes.
+
+### `detachContents(el)`
+
+Removes all children by assigning an empty string to `el.textContent`. This is
+the fast, jQuery-free default.
+
+## Using the default API
+
+The native adapter is exported for direct use and for restoring native methods
+inside a customized class:
+
+```javascript
+import { DomApi, View } from 'marionette';
+
+const NativeView = View.extend();
+NativeView.setDomApi(DomApi);
+```
+
+## Providing a custom API
+
+The root `setDomApi` function overlays methods for `View`, `CollectionView`,
+and `Region`:
+
+```javascript
+import { setDomApi } from 'marionette';
+import MyDomApi from './my-dom-api.js';
+
+setDomApi(MyDomApi);
+```
+
+Use a class setter when only one class or subclass needs the override. The
+setter creates a shallow adapter overlay for that class, so a partial override
+continues to inherit every other native method.
+
+<!-- executable-example: dom-api-partial-override -->
+```javascript
+import { View } from 'marionette';
+
+export const PlainTextView = View.extend({
+  template() {
+    return '<strong>Literal markup</strong>';
+  }
+});
+
+PlainTextView.setDomApi({
+  setContents(el, html) {
+    el.textContent = html;
+  }
+});
+
+export function renderPlainText() {
+  const view = new PlainTextView();
+  view.render();
+  return view;
+}
+```
+
+`PlainTextView` uses the custom `setContents`, while `View` and unrelated View
+subclasses retain their existing adapters. `CollectionView`, `Region`, and
+`View` each support this class-level pattern.
+
+## Optional jQuery adapter
+
+Applications that rely on jQuery DOM bookkeeping can install jQuery and opt in
+at application boot:
+
+```javascript
+import { setDomApi } from 'marionette';
+import JQueryDomApi from 'marionette/jquery-dom-api';
+
+setDomApi(JQueryDomApi);
+```
+
+The optional adapter overrides `findEl`, `detachEl`, `setContents`,
+`appendContents`, and `detachContents`. All other methods remain native.
+`View#$()` consequently returns a jQuery collection when this adapter is used.
+
+Neither the native adapter nor the jQuery adapter creates a `$el` property.
+The adapter also does not replace Marionette's event delegator or restore
+Backbone.View behavior. Configure those concerns separately when an application
+actually requires them.
+
+Prefer the native adapter for new applications. Use
+`marionette/jquery-dom-api` only for an existing integration that depends on
+jQuery selection, content, or detach semantics.
