@@ -55,6 +55,7 @@ Status values describe the v5 outcome:
 | `onShow` | `Region` invoked `onShow(region, view, options)` for its `show` lifecycle event. | The Region `show` event and `onShow` method convention remain supported. | Preserved | No lifecycle rename is required. |
 | Native DomApi customization | Applications could replace or partially override Marionette's DomApi globally or per class. | The native DomApi is the default and remains customizable with `setDomApi` or class-level setters. | Documented | Customization applies to `View`, `CollectionView`, and `Region`. |
 | EventDelegator customization | DOM event delegation was supplied through Backbone view and jQuery behavior. | Native delegation is the default and can be customized globally with `setEventDelegator` or per class. | Changed | Custom delegators must provide compatible `delegate` and `undelegateAll` methods. Detailed examples are tracked in [#147](https://github.com/marionettejs/marionette/issues/147). |
+| Adapter overlay input inheritance | DomApi and EventDelegator overlays could contribute inherited enumerable properties. | Static adapter setters copy own enumerable string properties only and preserve a literal own `__proto__` property without changing the adapter prototype. | Changed | Move intended adapter overrides onto the supplied object itself; do not inherit them through its prototype. |
 
 ## Reading changed and removed rows
 

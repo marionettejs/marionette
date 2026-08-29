@@ -1191,7 +1191,7 @@ function setEnabled(name, state) {
 }
 
 function setEventDelegator$1(mixin) {
-  this.prototype.EventDelegator = extend$1({}, this.prototype.EventDelegator, mixin);
+  this.prototype.EventDelegator = assignOwn({}, this.prototype.EventDelegator, mixin);
   return this;
 }
 var EventDelegator = {
@@ -1327,7 +1327,7 @@ var ViewEventsMixin = {
 };
 
 function setDomApi$1(mixin) {
-  this.prototype.Dom = extend$1({}, this.prototype.Dom, mixin);
+  this.prototype.Dom = assignOwn({}, this.prototype.Dom, mixin);
   return this;
 }
 var DomApi = {

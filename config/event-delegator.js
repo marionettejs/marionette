@@ -1,10 +1,11 @@
 // Event Delegator
 //  ---------
-import { each, extend } from 'underscore';
+import { each } from 'underscore';
+import { assignOwn } from '../utils/assign-in.js';
 
 // Static setter
 export function setEventDelegator(mixin) {
-  this.prototype.EventDelegator = extend({}, this.prototype.EventDelegator, mixin);
+  this.prototype.EventDelegator = assignOwn({}, this.prototype.EventDelegator, mixin);
   return this;
 }
 

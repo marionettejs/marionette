@@ -28,6 +28,52 @@ describe('DomApi', function() {
       MyObject.setDomApi = setDomApi;
       expect(MyObject.setDomApi()).to.be.eq(MyObject);
     });
+
+    it('overlays own enumerable string properties', function() {
+      const inherited = { inheritedMixin: true };
+      const mixin = Object.assign(Object.create(inherited), { shared: 'mixin', mixin: true });
+      const symbol = Symbol('ignored');
+      const protoValue = { polluted: true };
+      mixin[symbol] = true;
+      Object.defineProperty(mixin, 'hidden', { enumerable: false, value: true });
+      Object.defineProperty(mixin, '__proto__', { enumerable: true, value: protoValue });
+
+      const MyObject = function() {};
+      MyObject.prototype.Dom = Object.assign(
+        Object.create({ inheritedBase: true }),
+        { base: true, shared: 'base' }
+      );
+      MyObject.setDomApi = setDomApi;
+
+      MyObject.setDomApi(mixin);
+
+      expect(MyObject.prototype.Dom).to.include({ base: true, shared: 'mixin', mixin: true });
+      expect(MyObject.prototype.Dom).to.not.have.property('inheritedBase');
+      expect(MyObject.prototype.Dom).to.not.have.property('inheritedMixin');
+      expect(MyObject.prototype.Dom).to.not.have.property('hidden');
+      expect(MyObject.prototype.Dom).to.not.have.property(symbol);
+      expect(Object.getPrototypeOf(MyObject.prototype.Dom)).to.equal(Object.prototype);
+      expect(Object.hasOwn(MyObject.prototype.Dom, '__proto__')).to.be.true;
+      expect(Object.getOwnPropertyDescriptor(MyObject.prototype.Dom, '__proto__').value)
+        .to.equal(protoValue);
+    });
+
+    it('isolates repeated overlays to the receiving class', function() {
+      const Parent = function() {};
+      Parent.prototype.Dom = { base: true };
+
+      const Child = function() {};
+      Child.prototype = Object.create(Parent.prototype);
+      Child.setDomApi = setDomApi;
+
+      Child.setDomApi({ first: true });
+      const firstOverlay = Child.prototype.Dom;
+      Child.setDomApi({ second: true });
+
+      expect(Child.prototype.Dom).to.include({ base: true, first: true, second: true });
+      expect(Child.prototype.Dom).to.not.equal(firstOverlay);
+      expect(Parent.prototype.Dom).to.deep.equal({ base: true });
+    });
   });
 
   describe('#createBuffer', function() {

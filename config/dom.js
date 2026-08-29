@@ -1,10 +1,11 @@
 // DomApi
 //  ---------
-import { extend, each, keys } from 'underscore';
+import { each, keys } from 'underscore';
+import { assignOwn } from '../utils/assign-in.js';
 
 // Static setter
 export function setDomApi(mixin) {
-  this.prototype.Dom = extend({}, this.prototype.Dom, mixin);
+  this.prototype.Dom = assignOwn({}, this.prototype.Dom, mixin);
   return this;
 }
 
