@@ -1395,7 +1395,11 @@ var DomApi = {
   },
   setAttributes(el, attrs) {
     underscore.each(underscore.keys(attrs), attr => {
-      attr in el ? el[attr] = attrs[attr] : el.setAttribute(attr, attrs[attr]);
+      if (attr in el) {
+        setProperty(el, attr, attrs[attr]);
+      } else {
+        el.setAttribute(attr, attrs[attr]);
+      }
     });
   },
   appendContents(el, contents) {
@@ -1429,7 +1433,7 @@ const ViewMixin = {
     const elOption = underscore.result(this, 'el');
     if (!elOption) {
       const el = this.Dom.createElement(underscore.result(this, 'tagName'));
-      const attrs = underscore.extend({}, underscore.result(this, 'attributes'));
+      const attrs = assignOwn({}, underscore.result(this, 'attributes'));
       if (this.id) {
         attrs.id = underscore.result(this, 'id');
       }
