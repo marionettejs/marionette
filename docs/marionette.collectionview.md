@@ -660,6 +660,18 @@ that many Views from the corresponding end of the container. A count of `0`
 returns `[]`. For an empty container, the no-count forms return `undefined` and
 the count forms return `[]`.
 
+`initial(count = 1)` and `rest(count = 1)` return new ordered arrays after
+excluding `count` Views from the end or start of the container, respectively.
+The count is a nonnegative integer: `0` returns a new array of every child View,
+and a count greater than or equal to the container length returns `[]`. An empty
+container also returns `[]`.
+
+`without(...views)` returns a new ordered array excluding the exact child View
+instances supplied. Models and lookalike objects do not exclude their associated
+Views. With no arguments it returns a new array of every child View. Changing the
+returned array's membership or order does not change the container. An empty
+container returns `[]`.
+
 `children.isEmpty()` reports whether the child container currently has zero
 Views. It is distinct from the overridable `CollectionView#isEmpty()` method,
 which controls whether a CollectionView renders its `emptyView`.
