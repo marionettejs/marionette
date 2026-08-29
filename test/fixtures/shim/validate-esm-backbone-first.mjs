@@ -11,6 +11,9 @@ const constructors = {
 assert.strictEqual(Backbone.Model.prototype.triggerMethod, undefined);
 
 const Marionette = await import('marionette');
+for (const Constructor of Object.values(constructors)) {
+  assert.strictEqual(Constructor.prototype.triggerMethod, undefined);
+}
 const { default: ShimmedBackbone } = await import('marionette/backbone');
 
 assertInterop({
