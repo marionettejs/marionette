@@ -177,6 +177,8 @@ not rebind the parent's `ui` to reach into child View DOM.
 After application code places parent-owned DOM inside a template-less
 `CollectionView`, call `bindUIElements()` before reading it with `getUI()`. Use
 that method only to bind the CollectionView's own DOM, not child View DOM.
+Calling `getUI()` without a declared `ui` map or while UI elements are unbound throws
+[`MN0023`](/errors/MN0023/).
 
 When parent code needs a child, [retrieve the child View through the public
 `children` lookup APIs](#accessing-a-child-view) and call an intentional public

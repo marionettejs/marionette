@@ -464,7 +464,8 @@ binds those selectors during render, after which the values are array-like eleme
 collections found only within the host's `el`. Its rerender replaces the contents and
 rebinds the same Behavior to the replacement elements. Code must read the current
 `behavior.ui` or call `behavior.getUI(name)` after binding instead of retaining an
-element collection from an earlier render.
+element collection from an earlier render. Calling `getUI()` without a declared
+`ui` map, before binding, or after unbinding throws [`MN0023`](/errors/MN0023/).
 
 A `CollectionView` also binds Behavior UI automatically when its render processes a
 template. Without a template, `CollectionView#render` leaves Behavior UI as selector

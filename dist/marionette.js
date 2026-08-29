@@ -32,14 +32,14 @@ const MarionetteError = extend.call(Error, {
   constructor: function (options) {
     const error = Error.call(this, options.message);
     extend$1(this, pick(error, errorProps), pick(options, errorProps));
-    if (typeof Error.captureStackTrace === 'function') {
-      this.captureStackTrace();
-    } else {
-      this.stack = error.stack;
-    }
+    this.captureStackTrace(error);
     this.url = this.urlRoot + this.url;
   },
-  captureStackTrace() {
+  captureStackTrace(fallbackError) {
+    if (typeof Error.captureStackTrace !== 'function') {
+      this.stack = fallbackError.stack;
+      return;
+    }
     Error.captureStackTrace(this, MarionetteError);
   },
   toString() {
@@ -1126,6 +1126,18 @@ var UIMixin = {
     delete this._ui;
   },
   _getUI(name) {
+    if (!this.ui) {
+      throw new MarionetteError({
+        code: 'MN0023',
+        message: 'A ui map must be declared before calling getUI().'
+      });
+    }
+    if (!this._ui) {
+      throw new MarionetteError({
+        code: 'MN0023',
+        message: 'UI elements must be bound before calling getUI().'
+      });
+    }
     return this._ui[name];
   }
 };
