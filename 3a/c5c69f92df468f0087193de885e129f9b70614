@@ -1,0 +1,85 @@
+backbone.js
+  s_d6429951fb9231::t_7ed19760cc7f35 4-7
+mixins/behaviors.js
+  s_d6429951fb9231::t_d594b01263c928 2-5,22,37,42,48,52-54,59-61,67,72,77,85,93,97,101,105
+mixins/common.js
+  s_d6429951fb9231::t_2f56fcecfa1167 3-4,28,53
+mixins/delegate-entity-events.js
+  s_d6429951fb9231::t_7b4e54b24e061e 1,11,16
+mixins/events.js
+  s_d6429951fb9231::t_7a5458796d913c 3,5-6,46,48,55,128,141,158,166,178,191,202,215,223,247,258
+mixins/radio.js
+  s_d6429951fb9231::t_d4e43e591e02f6 1,13,21,24
+mixins/requests.js
+  s_d6429951fb9231::t_9f90309c8575e4 2,5,8,31,33,59,68,83,91,93,99
+mixins/template-render.js
+  s_d6429951fb9231::t_b9b6992ef74401 1-2,37,40,69
+mixins/ui.js
+  s_d6429951fb9231::t_dd45c178ebd8cb 2-5,11,59,93-94,109,115,126
+mixins/view-events.js
+  s_d6429951fb9231::t_11d39dd22ede6b 4-6,74,83
+mixins/view.js
+  s_d6429951fb9231::t_ad76892661b4e5 5-7,59,62-65,186-187,193,226
+modules/application.js
+  s_d6429951fb9231::t_b6a87c3f57a8db 5-6,34
+modules/behavior.js
+  s_d6429951fb9231::t_937fc5034c0992 10-12,48,57,62
+modules/collection-view.js
+  s_d6429951fb9231::t_04a5debb77f6b9 5-9,11-12,24-40,97,99,182,210,274,280,290,356,467,485,491,539,593,608,615,669,779
+modules/common/bind-events.js
+  s_d6429951fb9231::t_cacdacae2326e6 18
+modules/common/bind-requests.js
+  s_d6429951fb9231::t_854b237eda6433 16
+modules/common/merge-options.js
+  s_d6429951fb9231::t_a47c4b303169c7 5
+modules/common/monitor-view-events.js
+  s_d6429951fb9231::t_a25b4bf6475a0e 4,9
+modules/common/normalize-methods.js
+  s_d6429951fb9231::t_93a6bf5eca31c4 2-3,11,16,36
+modules/common/trigger-method.js
+  s_d6429951fb9231::t_59cd0be8ebcde9 40
+modules/object.js
+  s_d6429951fb9231::t_decc143197df19 5-6,30
+modules/radio.js
+  s_d6429951fb9231::t_cfb863b41b2f9a 5,7,20,83,102-103,113
+modules/view-region.js
+  s_d6429951fb9231::t_c22870ab478bdf 4,7-10,12-13,22-30,88,224,249,296,312,519,535,559,565,577,586,595,598,630,653,675,761,763,813
+utils/assign-in.js
+  s_d6429951fb9231::t_56cd605d6c02ee 1-15
+utils/build-event-args.js
+  s_d6429951fb9231::t_d5184926182e34 1,11,17
+utils/error.js
+  s_d6429951fb9231::t_139a8389c33e99 5,10-21,32
+utils/extend.js
+  s_d6429951fb9231::t_2b13ff15b361a0 4,14,21,25-30
+utils/for-each.js
+  s_d6429951fb9231::t_957f688a6a2cbc 1-25
+utils/get-value.js
+  s_d6429951fb9231::t_3d4cbc38df1f33 1-7
+utils/is-object.js
+  s_d6429951fb9231::t_9c5bb93c3189ee 1-4
+utils/is-string.js
+  s_d6429951fb9231::t_e7c98f5be4f350 1-5
+utils/once-wrap.js
+  s_d6429951fb9231::t_155f11de5850a9 4-9,11-13
+utils/reduce-values.js
+  s_d6429951fb9231::t_18bba611f9761e 1-10
+utils/unique-id.js
+  s_d6429951fb9231::t_8248b7a98a4945 1-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "3ac5c69f92df468f0087193de885e129f9b70614",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
