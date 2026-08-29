@@ -1,0 +1,33 @@
+test/unit/common/trigger-method.spec.js
+  s_d6429951fb9231::t_43757e0477d308 81-110
+modules/common/trigger-method.js
+  s_d6429951fb9231::t_100612bfa81555 40
+dist/marionette.cjs
+  s_d6429951fb9231::t_5ef47f62b18bac 300
+dist/marionette.js
+  s_d6429951fb9231::t_bc30852693c113 296
+dist/marionette.min.js
+  s_d6429951fb9231::t_175b0ed9822cf5 1
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_361abb4e326e0c 1
+dist/marionette.umd.js
+  s_d6429951fb9231::t_0e06f8a87e7b56 305
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_eb386f44ee2015 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "985f7a355154dbb22759769e128fe3e15960c135",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
