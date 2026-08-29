@@ -1,0 +1,22 @@
+scripts/docs/check-executable-examples.mjs
+  s_d6429951fb9231::t_6a7c467d86568e 62
+  s_d6429951fb9231::t_b7e1f205a01e7c 63-65
+test/docs/executable-examples.test.mjs
+  s_d6429951fb9231::t_6a7c467d86568e 19,24,51-54,58,84,86-93
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "68fe039658e49871541e4ee1b087ee8c55c27763",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
