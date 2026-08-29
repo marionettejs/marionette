@@ -381,7 +381,7 @@
     },
     {
       "code": "MN0023",
-      "slug": "ui-elements-not-bound",
+      "slug": "ui-elements-unavailable",
       "status": "active",
       "category": "lifecycle",
       "severity": "error",
@@ -390,7 +390,7 @@
         "CollectionView",
         "View"
       ],
-      "remediation": "Render the View or explicitly bind its UI elements before calling getUI; bind them again before calling getUI after unbinding.",
+      "remediation": "Declare a ui map, then render the View or explicitly bind its UI elements before calling getUI; bind them again before calling getUI after unbinding.",
       "docsAnchor": "/errors/MN0023/",
       "surfaces": [
         "runtime"

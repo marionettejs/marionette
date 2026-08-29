@@ -162,8 +162,9 @@ DOM API, `view.getUI('save')` and `view.ui.save` are native `NodeList`
 instances. Marionette rebinds those collections to replacement nodes after
 each render.
 
-Use `getUI(name)` after UI elements have been bound when application code needs
-a named element. Calling it before binding or after unbinding throws
+Use `getUI(name)` after declaring a `ui` map and binding its elements when
+application code needs a named element. Calling it without a declared map,
+before binding, or after unbinding throws
 `MarionetteError` with code [`MN0023`](/errors/MN0023/). Once bound, a missing
 key preserves the existing `undefined` result. Use the `@ui.<name>`
 form in `events`, `triggers`, Behaviors, and Regions so a selector change has one

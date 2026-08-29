@@ -4,6 +4,12 @@ import View from '../../modules/view';
 import MarionetteError from '../../utils/error';
 
 describe('getUI binding diagnostics', function() {
+  function expectUndeclared(getUI) {
+    expect(getUI)
+      .to.throw(MarionetteError, 'A ui map must be declared before calling getUI().')
+      .with.property('code', 'MN0023');
+  }
+
   function expectUnbound(getUI) {
     expect(getUI)
       .to.throw(MarionetteError, 'UI elements must be bound before calling getUI().')
@@ -25,6 +31,14 @@ describe('getUI binding diagnostics', function() {
 
     view.destroy();
   }
+
+  it('requires a ui map to be declared', function() {
+    const view = new View();
+
+    expectUndeclared(() => view.getUI('target'));
+
+    view.destroy();
+  });
 
   it('requires View UI elements to be bound', function() {
     const TestView = View.extend({

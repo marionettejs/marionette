@@ -1135,6 +1135,12 @@
       delete this._ui;
     },
     _getUI(name) {
+      if (!this.ui) {
+        throw new MarionetteError({
+          code: 'MN0023',
+          message: 'A ui map must be declared before calling getUI().'
+        });
+      }
       if (!this._ui) {
         throw new MarionetteError({
           code: 'MN0023',
