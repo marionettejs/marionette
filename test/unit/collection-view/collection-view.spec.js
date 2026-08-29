@@ -271,6 +271,34 @@ describe('CollectionView', function() {
       myCollectionView.render();
       expect(myCollectionView.buildChildView).to.be.calledWith(model, childView, childViewOptions);
     });
+
+    it('merges only own child view options', function() {
+      const defaultModel = new Backbone.Model({ id: 'default' });
+      const configuredModel = new Backbone.Model({ id: 'configured' });
+      const protoValue = { polluted: true };
+      const childViewOptions = Object.assign(Object.create({ inherited: true }), {
+        model: configuredModel,
+        owned: true
+      });
+      Object.defineProperty(childViewOptions, '__proto__', {
+        enumerable: true,
+        value: protoValue
+      });
+      let capturedOptions;
+      const ChildView = function(options) {
+        capturedOptions = options;
+      };
+      const collectionView = new CollectionView();
+
+      collectionView.buildChildView(defaultModel, ChildView, childViewOptions);
+
+      expect(capturedOptions).to.include({ model: configuredModel, owned: true });
+      expect(capturedOptions).to.not.have.property('inherited');
+      expect(Object.getPrototypeOf(capturedOptions)).to.equal(Object.prototype);
+      expect(Object.hasOwn(capturedOptions, '__proto__')).to.be.true;
+      expect(Object.getOwnPropertyDescriptor(capturedOptions, '__proto__').value)
+        .to.equal(protoValue);
+    });
   });
 
   describe('#setElement', function() {

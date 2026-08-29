@@ -298,6 +298,43 @@ describe('Region', function() {
           expect(region.getOption('myRegionOption')).to.equal(42);
           expect(region.getOption('myOtherRegionOption')).to.equal('foobar');
         });
+
+        it('merges only own region defaults and definition options', function() {
+          let capturedOptions;
+          const protoValue = { polluted: true };
+          const CapturingRegion = Region.extend({
+            initialize(options) {
+              capturedOptions = options;
+            }
+          });
+          const defaults = Object.assign(Object.create({ inheritedDefault: true }), {
+            regionClass: CapturingRegion,
+            defaultOption: true
+          });
+          const definition = Object.assign(Object.create({ inheritedDefinition: true }), {
+            el: fooSelector,
+            definitionOption: true
+          });
+          Object.defineProperty(definition, '__proto__', {
+            enumerable: true,
+            value: protoValue
+          });
+
+          ownedBuildRegion(definition, defaults);
+
+          expect(capturedOptions).to.include({
+            defaultOption: true,
+            definitionOption: true,
+            el: fooSelector
+          });
+          expect(capturedOptions).to.not.have.property('inheritedDefault');
+          expect(capturedOptions).to.not.have.property('inheritedDefinition');
+          expect(capturedOptions).to.not.have.property('regionClass');
+          expect(Object.getPrototypeOf(capturedOptions)).to.equal(Object.prototype);
+          expect(Object.hasOwn(capturedOptions, '__proto__')).to.be.true;
+          expect(Object.getOwnPropertyDescriptor(capturedOptions, '__proto__').value)
+            .to.equal(protoValue);
+        });
       });
     });
 

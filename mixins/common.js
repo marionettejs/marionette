@@ -1,5 +1,6 @@
 import { extend, result } from 'underscore';
 
+import { assignOwn } from '../utils/assign-in.js';
 import EventsMixin from './events.js';
 import RequestsMixin from './requests.js';
 import getOption from '../modules/common/get-option.js';
@@ -25,7 +26,7 @@ const CommonMixin = {
   normalizeMethods,
 
   _setOptions(options, classOptions) {
-    this.options = extend({}, result(this, 'options'), options);
+    this.options = assignOwn({}, result(this, 'options'), options);
     this.mergeOptions(options, classOptions);
   },
 

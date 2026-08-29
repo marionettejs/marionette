@@ -353,7 +353,9 @@ example has an undefined value for `f`.
 
 The `mergeOptions` method takes two arguments: an `options` object and `keys` to
 pull from the options object. Any matching `keys` will be merged onto the
-class instance. For example:
+class instance. Only requested own enumerable string properties with values
+other than `undefined` are copied. Requested inherited, symbol, and
+non-enumerable properties are ignored. For example:
 
 ```javascript
 import { MnObject } from 'backbone.marionette';

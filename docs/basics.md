@@ -208,6 +208,11 @@ many class-based attributes when you need to. You can also pass new information
 specific to the object in question that it can access through special helper
 methods.
 
+Resolved class defaults and constructor option hashes contribute their own
+enumerable string properties when Marionette builds `options`. Inherited,
+symbol, and non-enumerable properties are ignored. `mergeOptions` applies the
+same rule to the named options copied onto an instance.
+
 ```javascript
 import { View } from 'backbone.marionette';
 

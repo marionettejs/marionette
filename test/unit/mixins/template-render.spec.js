@@ -132,6 +132,40 @@ describe('template-render', function() {
           .and.calledWith(renderer.template, { foo: 'data', bar: 'tc', baz: 'tc' });
       });
     });
+
+    it('merges only own template data and context keys', function() {
+      const protoValue = { polluted: true };
+      const data = Object.assign(Object.create({ inheritedData: true }), { ownData: true });
+      const context = Object.assign(
+        Object.create({ inheritedContext: true }),
+        { ownContext: true }
+      );
+      Object.defineProperty(context, '__proto__', { enumerable: true, value: protoValue });
+      renderer.serializeData.returns(data);
+      renderer.templateContext = context;
+
+      renderer.render();
+
+      const renderedData = renderer._renderHtml.firstCall.args[1];
+      expect(renderedData).to.include({ ownData: true, ownContext: true });
+      expect(renderedData).to.not.have.property('inheritedData');
+      expect(renderedData).to.not.have.property('inheritedContext');
+      expect(Object.getPrototypeOf(renderedData)).to.equal(Object.prototype);
+      expect(Object.hasOwn(renderedData, '__proto__')).to.be.true;
+      expect(Object.getOwnPropertyDescriptor(renderedData, '__proto__').value)
+        .to.equal(protoValue);
+    });
+
+    it('preserves the original object when only data or context exists', function() {
+      const data = Object.create({ inheritedData: true });
+      const context = Object.create({ inheritedContext: true });
+
+      delete renderer.templateContext;
+      expect(renderer.mixinTemplateContext(data)).to.equal(data);
+
+      renderer.templateContext = context;
+      expect(renderer.mixinTemplateContext()).to.equal(context);
+    });
   });
 
   describe('when serializing data', function() {

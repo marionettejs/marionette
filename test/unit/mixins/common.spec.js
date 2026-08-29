@@ -46,5 +46,33 @@ describe('Common Mixin', function() {
         .to.have.been.calledOnce
         .and.calledWith(options, classOptions);
     });
+
+    it('merges only own options and safely owns __proto__', function() {
+      const protoValue = { polluted: true };
+      const defaults = Object.assign(
+        Object.create({ inheritedDefault: true }),
+        { ownDefault: true }
+      );
+      const passed = Object.assign(
+        Object.create({ inheritedPassed: true }),
+        { ownPassed: true }
+      );
+      Object.defineProperty(passed, '__proto__', { enumerable: true, value: protoValue });
+      const target = _.extend({
+        options() {
+          return defaults;
+        }
+      }, CommonMixin);
+
+      target._setOptions(passed, []);
+
+      expect(target.options).to.include({ ownDefault: true, ownPassed: true });
+      expect(target.options).to.not.have.property('inheritedDefault');
+      expect(target.options).to.not.have.property('inheritedPassed');
+      expect(Object.getPrototypeOf(target.options)).to.equal(Object.prototype);
+      expect(Object.hasOwn(target.options, '__proto__')).to.be.true;
+      expect(Object.getOwnPropertyDescriptor(target.options, '__proto__').value)
+        .to.equal(protoValue);
+    });
   });
 });
