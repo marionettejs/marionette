@@ -1,4 +1,46 @@
 {
   "schemaVersion": 1,
-  "entries": []
+  "entries": [
+    {
+      "kind": "authorization",
+      "id": "BA0001",
+      "target": "aggregate-shipped-package",
+      "previousCeilingBytes": 51975,
+      "proposedCeilingBytes": 52369,
+      "prototypeBaseCommit": "6d7c33a65766540f9266bfe21192c48fceb8c813",
+      "prototypeCommit": "2bac1e5afb3f294ee553d77a8e58fcaf9380f48a",
+      "implementationIssueUrl": "https://github.com/marionettejs/marionette/issues/226",
+      "authorizedArtifactPaths": [
+        "dist/marionette.cjs",
+        "dist/marionette.js",
+        "dist/marionette.min.js",
+        "dist/marionette.umd.js"
+      ],
+      "authorizedNewSubpaths": [],
+      "reports": [
+        {
+          "path": "evidence/performance-budget-amendments/BA0001/base.json",
+          "role": "base",
+          "sha256": "658d7cb338db6cbfd75c39636fe4951a2e2c17299bd547ccfceea7b3023aaa60"
+        },
+        {
+          "path": "evidence/performance-budget-amendments/BA0001/prototype.json",
+          "role": "prototype",
+          "sha256": "dbbf0b9eb56198eb1709c1e851b7f647b4e97c0f653215dbd4f27b38302464b5"
+        }
+      ],
+      "prototypeContract": {
+        "path": "evidence/performance-budget-amendments/BA0001/prototype-contract.json",
+        "sha256": "636c9246d075352cf9a938891abf41fa88dbf01160cef7462edc46367980719e"
+      },
+      "approvalUrls": [
+        "https://github.com/marionettejs/marionette/pull/227#issuecomment-5459577374"
+      ],
+      "evidenceUrls": [
+        "https://github.com/marionettejs/marionette/issues/127#issuecomment-5459577259"
+      ],
+      "rationale": "Authorize the exact measured distribution cost of a uniform retryable before:destroy contract and stable lazy MN0022 validation for CollectionView emptyView definitions. The combined prototype avoids divergent lifecycle semantics and incidental errors without speculative padding, new production subpaths, normal-path helper calls, or changes to the immutable Phase 0 baseline.",
+      "rollbackCondition": "If #224 is abandoned before consumption, append a governance-only BA0001 revocation. Never edit or delete this authorization. If a final runtime implementation exceeds 52369 bytes or changes the authorized positive-delta artifact scope, require a new exact-base budget amendment."
+    }
+  ]
 }
