@@ -11,7 +11,7 @@ and called with the context of the view instance.
 For example, to listen to a model's events:
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   modelEvents: {
@@ -37,7 +37,7 @@ The `modelEvents` attribute can also take a
 You can also bind a function callback directly in the `modelEvents` attribute:
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   modelEvents: {
@@ -56,7 +56,7 @@ Collection events work exactly the same way as [`modelEvents`](#model-events)
 with their own `collectionEvents` key:
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   collectionEvents: {
@@ -78,7 +78,7 @@ Just as in `modelEvents`, you can bind function callbacks directly inside the
 `collectionEvents` object:
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   collectionEvents: {
@@ -97,7 +97,7 @@ If your view has a `model` and `collection` attached, it will listen for events
 on both:
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
 
