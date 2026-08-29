@@ -481,11 +481,12 @@ instantiation. It must be a `View` class or a resolver that returns a `View`
 class. Marionette calls resolvers with the `CollectionView` as `this`; arrow and
 bound functions retain their normal JavaScript `this` semantics.
 
-If `emptyView` is omitted or its direct value is `undefined`, `null`, or
-`false`, no empty view is rendered. Use `null` or `false` to disable an
-inherited definition. A resolver must return a `View` class; every other direct
-value and every non-`View` resolver result—including a resolver returning
-`undefined`, `null`, or `false`—is invalid.
+If the resolved `emptyView` property is `undefined`, `null`, or `false`, no
+empty view is rendered. Because an `undefined` constructor option does not
+replace an inherited value, use `null` or `false` to disable an inherited
+definition. A resolver must return a `View` class; every other direct value and
+every non-`View` resolver result—including a resolver returning `undefined`,
+`null`, or `false`—is invalid.
 Marionette validates `emptyView` only when the collection is empty and throws
 [`MN0022`](/errors/MN0022/) for an invalid definition. Errors thrown by a
 resolver propagate unchanged.

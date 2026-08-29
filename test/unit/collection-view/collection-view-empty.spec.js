@@ -194,6 +194,21 @@ describe('CollectionView -  Empty', function() {
           .to.be.calledOnce
           .and.calledWith(sinon.match.instanceOf(MyView));
       });
+
+      it('does not read remove when the view has a valid destroy method', function() {
+        const MyView = View.extend({ template: _.noop });
+        Object.defineProperty(MyView.prototype, 'remove', {
+          get() {
+            throw new Error('remove should not be read');
+          },
+        });
+        const myCollectionView = new CollectionView({ collection, emptyView: MyView });
+
+        myCollectionView.render();
+
+        expect(myCollectionView.getEmptyRegion().currentView).to.be.instanceOf(MyView);
+        myCollectionView.destroy();
+      });
     });
 
     describe('when emptyView is a Backbone.View', function() {

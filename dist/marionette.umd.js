@@ -2168,10 +2168,9 @@
     }
     const {
       render,
-      destroy,
-      remove
+      destroy
     } = view.prototype;
-    return underscore.isFunction(render) && (underscore.isFunction(destroy) || !destroy && underscore.isFunction(remove));
+    return underscore.isFunction(render) && (destroy ? underscore.isFunction(destroy) : underscore.isFunction(view.prototype.remove));
   }
   function isClassDefinition(view) {
     return /^class(?:\s|\/[/*])/.test(Function.prototype.toString.call(view));

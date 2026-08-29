@@ -18,10 +18,10 @@ const classErrorName = 'CollectionViewError';
 function isEmptyViewClass(view) {
   if (!isFunction(view) || !view.prototype) { return false; }
 
-  const { render, destroy, remove } = view.prototype;
+  const { render, destroy } = view.prototype;
 
   return isFunction(render) &&
-    (isFunction(destroy) || (!destroy && isFunction(remove)));
+    (destroy ? isFunction(destroy) : isFunction(view.prototype.remove));
 }
 
 function isClassDefinition(view) {
