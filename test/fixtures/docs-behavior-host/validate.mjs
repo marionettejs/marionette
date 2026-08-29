@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { JSDOM } from 'jsdom';
+import { MnObject } from 'marionette';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const docsPath = resolve(__dirname, '../../../docs/marionette.behavior.md');
@@ -16,6 +17,10 @@ const examples = [
   {
     marker: '<!-- executable-example: behavior-ui-resolution -->',
     path: resolve(distDir, 'ui-resolution.mjs'),
+  },
+  {
+    marker: '<!-- executable-example: behavior-collaborator -->',
+    path: resolve(distDir, 'collaborator.mjs'),
   },
 ];
 
@@ -42,6 +47,7 @@ const dom = new JSDOM(`<!doctype html>
       <button class="btn-primary" id="outside-primary" type="button">Outside primary</button>
       <main id="communication-host"></main>
       <main id="ui-host"></main>
+      <main id="selection-host"></main>
     </body>
   </html>`);
 
@@ -49,9 +55,11 @@ globalThis.window = dom.window;
 globalThis.document = dom.window.document;
 
 try {
-  const [{ FormView: CommunicationView }, { FormView: UiResolutionView }] = await Promise.all(
-    examples.map(example => import(pathToFileURL(example.path))),
-  );
+  const [
+    { FormView: CommunicationView },
+    { FormView: UiResolutionView },
+    { SelectionView },
+  ] = await Promise.all(examples.map(example => import(pathToFileURL(example.path))));
 
   {
     const view = new CommunicationView();
@@ -120,6 +128,42 @@ try {
     view.destroy();
     secondPrimaryButton.click();
     assert.equal(requestCount, 2, 'destroy must undelegate the rebound UI element');
+  }
+
+  {
+    const selectionService = new MnObject();
+    let behaviorDeliveryCount = 0;
+    let unrelatedDeliveryCount = 0;
+    const InstrumentedSelectionView = SelectionView.extend({
+      showSelection(selection) {
+        behaviorDeliveryCount += 1;
+        return SelectionView.prototype.showSelection.call(this, selection);
+      },
+    });
+    const view = new InstrumentedSelectionView({ selectionService });
+
+    selectionService.on('selection:change', () => {
+      unrelatedDeliveryCount += 1;
+    });
+
+    view.render();
+    document.querySelector('#selection-host').append(view.el);
+
+    selectionService.trigger('selection:change', { label: 'First selection' });
+
+    assert.equal(behaviorDeliveryCount, 1, 'the injected collaborator must notify the Behavior once');
+    assert.equal(unrelatedDeliveryCount, 1, 'the collaborator must retain unrelated listeners');
+    assert.equal(view.getUI('selection')[0].textContent, 'First selection');
+
+    view.destroy();
+    selectionService.trigger('selection:change', { label: 'After destroy' });
+
+    assert.equal(behaviorDeliveryCount, 1, 'host destroy must remove the Behavior subscription');
+    assert.equal(unrelatedDeliveryCount, 2, 'host destroy must leave unrelated listeners active');
+    assert.equal(selectionService.isDestroyed(), false, 'host destroy must not destroy the collaborator');
+
+    selectionService.off();
+    selectionService.destroy();
   }
 } finally {
   dom.window.close();
