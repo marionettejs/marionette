@@ -179,6 +179,14 @@ use the same bookkeeping. Handlers registered before the shim import remain in
 Backbone's `_events` store and will not fire after the shim replaces the
 prototype event methods; recreate those subscriptions after importing the shim.
 
+### Event names
+
+Event callbacks are dispatched only when they were explicitly registered with
+`on`, `once`, `listenTo`, or `listenToOnce`. Names that also exist on
+`Object.prototype`, including `constructor`, `toString`, and `__proto__`, are
+ordinary event names and do not affect the event store's prototype. Remove them
+through the corresponding `off` or `stopListening` API as with any other name.
+
 ### Private bookkeeping
 
 Marionette stores event internals under `_rdEvents`, `_rdListeningTo`,

@@ -1,6 +1,7 @@
 import { reduce, each, keys, uniqueId } from 'underscore';
 
 import buildEventArgs, { eventSplitter } from '../utils/build-event-args.js';
+import { setProperty } from '../utils/assign-in.js';
 import callHandler from '../utils/call-handler.js';
 import onceWrap from '../utils/once-wrap.js';
 
@@ -19,7 +20,11 @@ import triggerMethod from '../modules/common/trigger-method.js';
 
 // The reducing API that adds a callback to the `events` object.
 const onApi = function({ events, name, callback, context, ctx, listener }) {
-  const handlers = events[name] || (events[name] = []);
+  let handlers = Object.hasOwn(events, name) ? events[name] : undefined;
+  if (!handlers) {
+    handlers = [];
+    setProperty(events, name, handlers);
+  }
   handlers.push({ callback, context, ctx: context || ctx, listener });
   return events;
 };
@@ -45,7 +50,7 @@ const offReducer = function(events , { name, callback, context }) {
   const names = name ? [name] : keys(events);
 
   each(names, key => {
-    const handlers = events[key];
+    const handlers = Object.hasOwn(events, key) ? events[key] : undefined;
 
     // Bail out if there are no events stored.
     if (!handlers) {return;}
@@ -117,8 +122,9 @@ const listenToOnceApi = function({ name, callback, context, listener }) {
 
 // Handles triggering the appropriate event callbacks.
 const triggerApi = function({ events, name, args }) {
-  const objEvents = events[name];
-  const allEvents = (objEvents && events.all) ? events.all.slice() : events.all;
+  const objEvents = Object.hasOwn(events, name) ? events[name] : undefined;
+  const registeredAllEvents = Object.hasOwn(events, 'all') ? events.all : undefined;
+  const allEvents = (objEvents && registeredAllEvents) ? registeredAllEvents.slice() : registeredAllEvents;
   if (objEvents) {triggerEvents(objEvents, args);}
   if (allEvents) {triggerEvents(allEvents, [name].concat(args));}
 };
