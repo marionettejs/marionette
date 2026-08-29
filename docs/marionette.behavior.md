@@ -409,7 +409,7 @@ The `initialize` event is triggered on the behavior indicating that the view is 
 #### Using `ui`
 
 As in views, `events` and `triggers` can use the `ui` references in their
-listeners. For more details, see the [`ui` documentation](./dom.interactions.md#organizing-your-view).
+listeners. For more details, see the [`ui` documentation](./dom.interactions.md#organizing-a-view-with-ui).
 These can be defined on either the Behavior or the View:
 
 ```javascript
