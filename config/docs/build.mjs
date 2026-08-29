@@ -2,7 +2,7 @@ import { readFile, rm, mkdir, writeFile, copyFile } from 'fs/promises';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { marked, Renderer } from 'marked';
-import { loadDiagnosticCatalog } from '../diagnostics/catalog.mjs';
+import { loadDiagnosticCatalog } from '../../scripts/diagnostics/catalog.mjs';
 
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const siteDir = resolve(rootDir, 'docs-site');

@@ -620,11 +620,11 @@ collection functions, including:
 * [each](http://underscorejs.org/#each)
 * [map](http://underscorejs.org/#map)
 * [reduce](http://underscorejs.org/#reduce)
-* [find](http://underscorejs.org/#find)
-* [filter](http://underscorejs.org/#filter)
-* [reject](http://underscorejs.org/#reject)
-* [every](http://underscorejs.org/#every)
-* [some](http://underscorejs.org/#some)
+* `find`
+* `filter`
+* `reject`
+* `every`
+* `some`
 * [contains](http://underscorejs.org/#contains)
 * [invoke](http://underscorejs.org/#invoke)
 * [toArray](http://underscorejs.org/#toArray)
@@ -635,7 +635,7 @@ collection functions, including:
 * [without](http://underscorejs.org/#without)
 * [isEmpty](http://underscorejs.org/#isEmpty)
 * [pluck](http://underscorejs.org/#pluck)
-* [partition](http://underscorejs.org/#partition)
+* `partition`
 
 These methods can be called directly on the container, to iterate and process
 the views held by the container.
@@ -650,6 +650,33 @@ for those values. An empty container returns `[]`.
 or another object with the same properties is not considered contained. An empty
 container returns `false`.
 
+`find`, `filter`, `reject`, `every`, `some`, and `partition` accept a predicate
+function and an optional `context`. Marionette does not define Underscore-style
+property-name or object-matcher shorthand for these methods. The predicate is
+called with the supported arguments `(view, index)`, with `this` set to `context`
+when one is provided. Additional callback arguments are not public API.
+Structurally adding, removing, or reordering children while a predicate runs is
+unsupported, and these methods do not promise call-start snapshot semantics.
+
+`find(predicate, context)` returns the first child View for which the predicate
+is truthy, preserving View identity, and stops iterating at that match. It
+returns `undefined` when no View matches or the container is empty.
+
+`filter(predicate, context)` and `reject(predicate, context)` visit every child
+View and return new ordered arrays containing the Views for which the predicate
+is truthy or falsey, respectively. Changing a returned array does not change the
+container. An empty container returns `[]` without calling the predicate.
+
+`every(predicate, context)` returns `false` and stops at the first falsey result;
+otherwise it returns `true`. `some(predicate, context)` returns `true` and stops
+at the first truthy result; otherwise it returns `false`. For an empty container,
+`every` returns `true` and `some` returns `false`, without calling the predicate.
+
+`partition(predicate, context)` visits every child View and returns
+`[matchingViews, rejectedViews]`. Both members are new arrays that preserve the
+container order and contain the exact child View instances. An empty container
+returns `[[], []]` without calling the predicate.
+
 `toArray()` returns a new array containing the current child Views in container
 order. Changing the returned array's membership or order does not change the
 container. An empty container returns `[]`.
@@ -659,6 +686,18 @@ a nonnegative integer count, they return a new ordered array containing up to
 that many Views from the corresponding end of the container. A count of `0`
 returns `[]`. For an empty container, the no-count forms return `undefined` and
 the count forms return `[]`.
+
+`initial(count = 1)` and `rest(count = 1)` return new ordered arrays after
+excluding `count` Views from the end or start of the container, respectively.
+The count is a nonnegative integer: `0` returns a new array of every child View,
+and a count greater than or equal to the container length returns `[]`. An empty
+container also returns `[]`.
+
+`without(...views)` returns a new ordered array excluding the exact child View
+instances supplied. Models and lookalike objects do not exclude their associated
+Views. With no arguments it returns a new array of every child View. Changing the
+returned array's membership or order does not change the container. An empty
+container returns `[]`.
 
 `children.isEmpty()` reports whether the child container currently has zero
 Views. It is distinct from the overridable `CollectionView#isEmpty()` method,
