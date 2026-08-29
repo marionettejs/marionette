@@ -1,0 +1,32 @@
+test/fixtures/docs-region-lifecycle/.gitignore
+  s_d6429951fb9231::t_e551672fd270a4 1
+test/fixtures/run.mjs
+  s_d6429951fb9231::t_e551672fd270a4 22
+test/fixtures/docs-region-lifecycle/package.json
+  s_d6429951fb9231::t_e551672fd270a4 1-11
+docs/marionette.region.md
+  s_d6429951fb9231::t_e551672fd270a4 92-99,107-111,113-115
+  s_d6429951fb9231::t_b3402dc0f15e85 100-106,112
+test/fixtures/docs-region-lifecycle/validate.mjs
+  s_d6429951fb9231::t_e7106e49796ebd 90
+  s_d6429951fb9231::t_c2df89ee49f496 113,116,119-125,137
+  s_d6429951fb9231::t_6608d967013d8f 37-53,57,61-77,81,96-100,114-115,117,129,131,133-134,140-150,152,158-160
+  s_d6429951fb9231::t_e551672fd270a4 1-36,54-56,58-60,82-89,91-95,101-112,118,126-128,130,132,135-136,138-139,151,153-157,161-165
+  s_d6429951fb9231::t_ec818f372d58e4 78-80
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "4c2a32d8853c2ce5b6f3ec0d59b3dd1e5a0c975b",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
