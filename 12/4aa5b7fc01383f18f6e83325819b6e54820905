@@ -1,0 +1,23 @@
+package.json
+  s_d6429951fb9231::t_9052961f123afe 120
+rollup.config.mjs
+  s_d6429951fb9231::t_9052961f123afe 9
+package-lock.json
+  s_d6429951fb9231::t_ad38f2fb4199d7 42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "124aa5b7fc01383f18f6e83325819b6e54820905",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
