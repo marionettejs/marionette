@@ -1,0 +1,28 @@
+docs/dom.interactions.md
+  s_d6429951fb9231::t_613a35bcbc7dbc 3-36,38-47,51-52,55-56,59-60,63-64,66-67,70-71,76,79,81-82,85-87,89,91-92,95,98-100,102-106,108-111,113,115-118,120-121,124-128,130,133-137,139-142,144,146,149-152,155-163,165-169,171,173-176
+test/fixtures/docs-view-dom-interactions/.gitignore
+  s_d6429951fb9231::t_968aa276ec2dd4 1
+test/fixtures/docs-view-dom-interactions/validate.mjs
+  s_d6429951fb9231::t_968aa276ec2dd4 1-23,25-39,41,43,45-48,54-58,60-76,79-83,85,87-97,99-102,104,106-110,112-118,137-152,161,163,166-167,169-170,172,175-191
+  s_d6429951fb9231::t_20962da1d9cffa 119-136,153-160,162,164-165,168,171,173-174
+  s_d6429951fb9231::t_8df8969a8327d3 24
+  s_d6429951fb9231::t_8d5420ea5375eb 40,42,44,49-53,59,77-78,84,86,98,103,105,111
+test/fixtures/docs-view-dom-interactions/package.json
+  s_d6429951fb9231::t_968aa276ec2dd4 1-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "2fe717f8f6164b6377a6094ebd57d052e05cb8be",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
