@@ -1,5 +1,5 @@
-import { result } from 'underscore';
 import Radio from '../modules/radio.js';
+import getValue from '../utils/get-value.js';
 
 
 // MixinOptions
@@ -10,7 +10,7 @@ import Radio from '../modules/radio.js';
 export default {
 
   _initRadio() {
-    const channelName = result(this, 'channelName');
+    const channelName = getValue(this, 'channelName');
 
     if (!channelName) {
       return;
@@ -18,10 +18,10 @@ export default {
 
     const channel = this._channel = Radio.channel(channelName);
 
-    const radioEvents = result(this, 'radioEvents');
+    const radioEvents = getValue(this, 'radioEvents');
     this.bindEvents(channel, radioEvents);
 
-    const radioRequests = result(this, 'radioRequests');
+    const radioRequests = getValue(this, 'radioRequests');
     this.bindRequests(channel, radioRequests);
 
     this.on('destroy', this._destroyRadio);
