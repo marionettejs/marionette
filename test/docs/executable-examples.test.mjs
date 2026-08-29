@@ -16,11 +16,12 @@ const validator = (path, ...ids) => ({
   path,
 });
 
-function expectContractError(input, message) {
+function expectContractError(input, message, context) {
   assert.throws(
     () => validateExecutableExamples(input),
     error => error instanceof ExecutableExampleContractError &&
       error.errors.some(contractError => contractError.includes(message)),
+    context,
   );
 }
 
@@ -47,14 +48,14 @@ test('rejects marker IDs that are not lowercase hyphenated slugs', () => {
 
 test('rejects a marker without an immediately following javascript fence', () => {
   [
-    'Explanation\n```javascript\nconst example = true;\n```',
-    '\n```javascript\nconst example = true;\n```',
-    '```javascript\nconst example = true;\n``` trailing',
-  ].forEach(fence => {
+    ['intervening explanation', 'Explanation\n```javascript\nconst example = true;\n```'],
+    ['blank-line gap', '\n```javascript\nconst example = true;\n```'],
+    ['trailing closing-fence text', '```javascript\nconst example = true;\n``` trailing'],
+  ].forEach(([context, fence]) => {
     expectContractError({
       documents: [document('docs/example.md', 'example', fence)],
       validators: [validator('test/fixtures/docs-example/validate.mjs', 'example')],
-    }, 'must be followed immediately by a javascript fence');
+    }, 'must be followed immediately by a javascript fence', context);
   });
 
   expectContractError({
@@ -80,8 +81,16 @@ test('rejects duplicate documentation marker IDs', () => {
   assert.throws(
     () => validateExecutableExamples(input),
     error => error instanceof ExecutableExampleContractError &&
-      error.errors.includes('executable example "example" appears in multiple documentation locations: docs/example.md'),
+      error.errors.includes('executable example "example" appears more than once in docs/example.md'),
   );
+
+  expectContractError({
+    documents: [
+      document('docs/one.md', 'example'),
+      document('docs/two.md', 'example'),
+    ],
+    validators: [validator('test/fixtures/docs-example/validate.mjs', 'example')],
+  }, 'appears in multiple documentation locations: docs/one.md, docs/two.md');
 });
 
 test('rejects a documented example without a fixture owner', () => {

@@ -59,7 +59,10 @@ export function validateExecutableExamples({ documents, validators }) {
 
   for (const [id, entries] of documentedById) {
     if (entries.length > 1) {
-      errors.push(`executable example "${id}" appears in multiple documentation locations: ${describeLocations(entries)}`);
+      const locations = describeLocations(entries);
+      errors.push(locations.includes(', ') ?
+        `executable example "${id}" appears in multiple documentation locations: ${locations}` :
+        `executable example "${id}" appears more than once in ${locations}`);
     }
 
     const owners = validatorsById.get(id) || [];
