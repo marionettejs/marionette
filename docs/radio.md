@@ -76,6 +76,14 @@ const currentUser = account.request('current:user');
 Arguments passed after the request name are passed to the reply handler, and
 the handler's return value is returned from `request`.
 
+Only explicitly registered own handlers are eligible for a named request or
+the `default` fallback. Names matching inherited object properties, including
+`constructor`, `toString`, and `__proto__`, are ordinary request names. Result
+maps from object-form or space-separated requests likewise define safe own
+string properties. When an object-form key contains multiple space-separated
+names, the nested result contributes its own enumerable string properties
+only; inherited, symbol, and non-enumerable properties are ignored.
+
 Use `replyOnce` for a handler that should be removed after its first request.
 Use `stopReplying` to remove one or more handlers:
 

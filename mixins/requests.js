@@ -1,6 +1,7 @@
-import { each, extend, keys, reduce } from 'underscore';
+import { each, keys, reduce } from 'underscore';
 
 import { debugLog, log } from '../modules/common/radio.js';
+import { assignOwn, setProperty } from '../utils/assign-in.js';
 import buildEventArgs, { eventSplitter } from '../utils/build-event-args.js';
 import callHandler from '../utils/call-handler.js';
 import makeCallback from '../utils/make-callback.js';
@@ -14,14 +15,14 @@ import onceWrap from '../utils/once-wrap.js';
  */
 
 const replyReducer = function(isOnce, requests, { name, callback, context }) {
-  if (requests[name]) {
+  if (Object.hasOwn(requests, name)) {
     debugLog('A request was overwritten', name, this.channelName);
   }
 
-  requests[name] = {
+  setProperty(requests, name, {
     callback: isOnce ? onceWrap(makeCallback(callback), this.stopReplying.bind(this, name)) : makeCallback(callback),
     context: context || this,
-  };
+  });
 
   return requests;
 };
@@ -30,7 +31,7 @@ const stopReducer = function(requests, { name, callback, context }) {
   const names = name ? [name] : keys(requests);
 
   each(names, key => {
-    const handler = requests[key];
+    const handler = Object.hasOwn(requests, key) ? requests[key] : undefined;
 
     // Bail out if there are no events stored.
     if (
@@ -89,14 +90,18 @@ export default {
     if (name && typeof name === 'object') {
       return reduce(keys(name), (replies, key) => {
         const result = this.request(key, name[key]);
-        eventSplitter.test(key) ? extend(replies, result) : replies[key] = result;
+        if (eventSplitter.test(key)) {
+          assignOwn(replies, result);
+        } else {
+          setProperty(replies, key, result);
+        }
         return replies;
       }, {});
     }
 
     if (name && eventSplitter.test(name)) {
       return reduce(name.split(eventSplitter), (replies, n) => {
-        replies[n] = this.request(n, ...args);
+        setProperty(replies, n, this.request(n, ...args));
         return replies;
       }, {});
     }
@@ -110,10 +115,15 @@ export default {
     }
 
     // If the request isn't handled, log it in DEBUG mode and exit
-    if (requests && (requests[name] || requests.default)) {
-      const handler = requests[name] || requests.default;
-      args = requests[name] ? args : arguments;
-      return callHandler(handler.callback, handler.context, args);
+    if (requests) {
+      const hasRequest = Object.hasOwn(requests, name);
+      const handler = hasRequest ? requests[name] :
+        Object.hasOwn(requests, 'default') ? requests.default : undefined;
+
+      if (handler) {
+        args = hasRequest ? args : arguments;
+        return callHandler(handler.callback, handler.context, args);
+      }
     }
 
     debugLog('An unhandled request was fired', name, channelName);
