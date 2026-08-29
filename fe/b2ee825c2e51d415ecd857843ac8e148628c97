@@ -1,0 +1,20 @@
+test/unit/child-view-container.spec.js
+  s_d6429951fb9231::t_c09fe5a76a05d8 1116-1137
+  s_d6429951fb9231::t_e7351f1b4a177d 1093,1101-1115
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "feb2ee825c2e51d415ecd857843ac8e148628c97",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
