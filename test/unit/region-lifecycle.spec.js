@@ -194,6 +194,17 @@ describe('Region lifecycle contract', function() {
     expect(region.isDestroyed()).to.be.true;
   });
 
+  it('does not restart destruction after before:destroy throws', function() {
+    const error = new Error('before:destroy failed');
+    const beforeDestroy = this.sinon.stub().throws(error);
+    region.on('before:destroy', beforeDestroy);
+
+    expect(() => region.destroy()).to.throw(error);
+    expect(region.isDestroyed()).to.be.false;
+    expect(region.destroy()).to.equal(region);
+    expect(beforeDestroy).to.have.been.calledOnceWith(region, undefined);
+  });
+
   it('clears the Region once when its current View is destroyed externally', function() {
     const view = new TestView();
     const beforeEmpty = this.sinon.spy();
@@ -212,7 +223,7 @@ describe('Region lifecycle contract', function() {
     expect(region.currentView).to.be.undefined;
   });
 
-  it('unlinks a directly destroyed owned Region without repeating teardown', function() {
+  it('unlinks a reentrantly destroyed owned Region without repeating teardown', function() {
     const owner = new View({
       regions: {
         content: '.content',
@@ -222,11 +233,23 @@ describe('Region lifecycle contract', function() {
       },
     });
     const child = new TestView();
+    let beforeDestroyReturn;
+    let destroyReturn;
+    let reenteredBeforeDestroy = false;
+    let reenteredDestroy = false;
     const regionLifecycle = {
-      beforeDestroy: this.sinon.spy(),
+      beforeDestroy: this.sinon.spy(currentRegion => {
+        if (reenteredBeforeDestroy) { return; }
+        reenteredBeforeDestroy = true;
+        beforeDestroyReturn = currentRegion.destroy();
+      }),
       beforeEmpty: this.sinon.spy(),
       empty: this.sinon.spy(),
-      destroy: this.sinon.spy(),
+      destroy: this.sinon.spy(currentRegion => {
+        if (reenteredDestroy) { return; }
+        reenteredDestroy = true;
+        destroyReturn = currentRegion.destroy();
+      }),
     };
     const childLifecycle = {
       beforeDestroy: this.sinon.spy(),
@@ -249,6 +272,8 @@ describe('Region lifecycle contract', function() {
 
     expect(ownedRegion.destroy()).to.equal(ownedRegion);
     expect(ownedRegion.destroy()).to.equal(ownedRegion);
+    expect(beforeDestroyReturn).to.equal(ownedRegion);
+    expect(destroyReturn).to.equal(ownedRegion);
 
     expect(ownedRegion.isDestroyed()).to.be.true;
     expect(ownedRegion.hasView()).to.be.false;

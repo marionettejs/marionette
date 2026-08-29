@@ -436,6 +436,11 @@ and a `destroy` event.
 As a general rule, `onBeforeDestroy` is the best handler for cleanup as the instance
 and any internally created children are already destroyed by the time `onDestroy` is called.
 
+For classes with these lifecycle events, once destruction begins, reentrant
+`destroy()` calls from `before:destroy` or `destroy`, and later repeated calls,
+return the same instance without restarting teardown. `isDestroyed()` remains
+`false` during `before:destroy` and is `true` by the time `destroy` is triggered.
+
 **Note** For views this is not the ideal location for clean up of anything touching the DOM.
 See [`dom:remove`](#domremove-event) or [`before:detach`] for DOM related clean up.
 

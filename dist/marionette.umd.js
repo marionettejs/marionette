@@ -729,9 +729,10 @@
       return this._isDestroyed;
     },
     destroy(options) {
-      if (this._isDestroyed) {
+      if (this._isDestroyed || this._isDestroying) {
         return this;
       }
+      this._isDestroying = true;
       this.triggerMethod('before:destroy', this, options);
       this._isDestroyed = true;
       this.triggerMethod('destroy', this, options);
@@ -1813,9 +1814,10 @@
       return this._isDestroyed;
     },
     destroy(options) {
-      if (this._isDestroyed) {
+      if (this._isDestroyed || this._isDestroying) {
         return this;
       }
+      this._isDestroying = true;
       this.triggerMethod('before:destroy', this, options);
       this._isDestroyed = true;
       this.reset(options);

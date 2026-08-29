@@ -482,7 +482,8 @@ _extend(Region.prototype, CommonMixin, {
   // Destroy the region, remove any child view
   // and remove the region from any associated view
   destroy(options) {
-    if (this._isDestroyed) { return this; }
+    if (this._isDestroyed || this._isDestroying) { return this; }
+    this._isDestroying = true;
 
     this.triggerMethod('before:destroy', this, options);
     this._isDestroyed = true;
