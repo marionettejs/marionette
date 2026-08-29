@@ -1,4 +1,4 @@
-import { isFunction, isString, each, keys, reduce, uniqueId, extend as extend$1, result, map, without, isObject, partial, isEmpty, matches } from 'underscore';
+import { each, keys, reduce, uniqueId, extend as extend$1, result, map, without, isFunction, isString, isObject, partial, isEmpty, matches } from 'underscore';
 
 const proxy = function (method) {
   return function (context, ...args) {
@@ -100,13 +100,14 @@ const MarionetteError = extend.call(Error, {
   }
 });
 
+const getObjectTag = Function.call.bind(Object.prototype.toString);
 const resolveMethod = function (context, method, name) {
-  if (isFunction(method)) {
+  if (typeof method === 'function') {
     return method;
   }
   const methodName = method;
-  const resolvedMethod = isString(methodName) ? context[methodName] : undefined;
-  if (!isFunction(resolvedMethod)) {
+  const resolvedMethod = getObjectTag(methodName) === '[object String]' ? context[methodName] : undefined;
+  if (typeof resolvedMethod !== 'function') {
     let methodLabel = '<unprintable>';
     try {
       methodLabel = String(methodName);
