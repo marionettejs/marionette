@@ -1,0 +1,21 @@
+test/fixtures/shim/validate-esm-backbone-first.mjs
+  s_d6429951fb9231::t_ee01124f0918e4 14-16
+test/fixtures/shim/validate-cjs-backbone-first.cjs
+  s_d6429951fb9231::t_ee01124f0918e4 14-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "5da0d5a92977e67af5f4477b3d9059e845ac6c5a",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
