@@ -378,6 +378,24 @@
         "runtime"
       ],
       "benchmarkCategory": "collection-view"
+    },
+    {
+      "code": "MN0023",
+      "slug": "ui-elements-not-bound",
+      "status": "active",
+      "category": "lifecycle",
+      "severity": "error",
+      "objects": [
+        "Behavior",
+        "CollectionView",
+        "View"
+      ],
+      "remediation": "Render the View or explicitly bind its UI elements before calling getUI; bind them again before calling getUI after unbinding.",
+      "docsAnchor": "/errors/MN0023/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "view"
     }
   ]
 }

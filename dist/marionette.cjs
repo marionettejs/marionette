@@ -1130,6 +1130,12 @@ var UIMixin = {
     delete this._ui;
   },
   _getUI(name) {
+    if (!this._ui) {
+      throw new MarionetteError({
+        code: 'MN0023',
+        message: 'UI elements must be bound before calling getUI().'
+      });
+    }
     return this._ui[name];
   }
 };
