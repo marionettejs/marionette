@@ -385,6 +385,43 @@ describe('performance contract validation', () => {
     }
   });
 
+  test('accepts exact artifact growth approval while consuming an authorized budget', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-budget-consumption-report-'));
+    const baseReport = join(fixtureRoot, 'base.json');
+    const currentReport = join(fixtureRoot, 'current.json');
+    const approvalReport = join(fixtureRoot, 'approval.json');
+    const approval = growthApproval();
+    approval.budgetAmendment = { mode: 'consume', status: 'accepted' };
+    approval.required[0] = {
+      ...approval.required[0],
+      currentBytes: 101,
+      deltaBytes: 1,
+      growthBasisPoints: 100,
+    };
+
+    try {
+      await Promise.all([
+        writeFile(baseReport, JSON.stringify(bundleReport(100))),
+        writeFile(currentReport, JSON.stringify(bundleReport(101))),
+        writeFile(approvalReport, JSON.stringify(approval)),
+      ]);
+
+      const approved = await createReport(baseReport, currentReport, approvalReport);
+      assert.match(approved, /\| Runtime artifact \| Base \| PR \| Change \| >0% approval \|/);
+      assert.match(approved, /\| Main \| 100 B \| 101 B \| \+1 B \(\+1\.00%\) 🔺 \| Approved \|/);
+      assert.match(approved, /## Artifact growth approval\n\nStatus: \*\*Approved\*\*\./);
+      assert.match(approved, /Threshold: greater than 0% during accepted budget consumption/);
+
+      delete approval.budgetAmendment;
+      await writeFile(approvalReport, JSON.stringify(approval));
+      const ordinary = await createReport(baseReport, currentReport, approvalReport);
+      assert.match(ordinary, /Growth approval requirements do not match the exact report comparison/);
+      assert.match(ordinary, /must be not-required when no approval condition is present/);
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
   test('reports exact new subpath and full-size approval without accepting malformed results', async() => {
     const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-new-subpath-report-'));
     const baseReport = join(fixtureRoot, 'base.json');
