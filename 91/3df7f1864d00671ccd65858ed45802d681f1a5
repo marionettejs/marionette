@@ -1,0 +1,76 @@
+docs/marionette.region.md
+  s_d6429951fb9231::t_7477463786c483 536-537,542
+  s_d6429951fb9231::t_9e83523a83c68f 538-541
+dist/marionette.umd.js
+  s_d6429951fb9231::t_6cbf32ebf78a86 732,735-741,1426-1431,1827,1830
+  s_d6429951fb9231::t_1ea9dc44cde8b4 1831-1836
+test/unit/view-lifecycle.spec.js
+  s_d6429951fb9231::t_f88f60d5ab243e 293-377
+docs/events.class.md
+  s_d6429951fb9231::t_9e83523a83c68f 443-447
+  s_d6429951fb9231::t_7477463786c483 448
+  s_d6429951fb9231::t_400de72a3a276a 439-442
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_be4f21a8b2e404 1
+modules/view-region.js
+  s_d6429951fb9231::t_c86a17da8c481d 485-486
+  s_d6429951fb9231::t_e93af0a83fae91 487-492
+test/unit/region-lifecycle.spec.js
+  s_d6429951fb9231::t_400de72a3a276a 198,257-258
+  s_d6429951fb9231::t_27a0058f3e6195 277,287-290,292-296,299-303,326-327
+  s_d6429951fb9231::t_4a9ff611de20a5 197,199-256
+mixins/destroy.js
+  s_d6429951fb9231::t_c86a17da8c481d 9-10
+  s_d6429951fb9231::t_e93af0a83fae91 11-16
+dist/marionette.js
+  s_d6429951fb9231::t_476c16fa886347 723,726-732,1417-1422,1818,1821
+  s_d6429951fb9231::t_2d8a70f69878a8 1822-1827
+test/unit/mixins/destroy.spec.js
+  s_d6429951fb9231::t_4a9ff611de20a5 65,67-75,78,81-91
+  s_d6429951fb9231::t_27a0058f3e6195 2,4,64,66,76-77,79-80,92-124
+docs/view.lifecycle.md
+  s_d6429951fb9231::t_9e83523a83c68f 256-259
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_556e1a920917e0 1
+mixins/view.js
+  s_d6429951fb9231::t_e93af0a83fae91 126-131
+config/performance.json
+  s_d6429951fb9231::t_cd5e77269d8313 7
+docs/marionette.mnobject.md
+  s_d6429951fb9231::t_9e83523a83c68f 57-60
+  s_d6429951fb9231::t_7477463786c483 54,61
+  s_d6429951fb9231::t_400de72a3a276a 55
+  s_d6429951fb9231::t_03b6d8d9991c17 56
+dist/marionette.min.js
+  s_d6429951fb9231::t_161f212a36e5ba 1
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_9e83523a83c68f 45
+dist/marionette.cjs
+  s_d6429951fb9231::t_81b55927c84b11 727,730,1822,1825
+  s_e1a183878c01ed::t_e10d544ec7c845 732-736,1421-1422,1827
+  s_d6429951fb9231::t_e103f20da028da 731,1423-1426,1826,1828-1831
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "913df7f1864d00671ccd65858ed45802d681f1a5",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    },
+    "s_e1a183878c01ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e4b3d-de5d-70e3-ba78-14db78af3877",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
