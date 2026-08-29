@@ -66,6 +66,104 @@ describe('#ChildViewContainer', function() {
     });
   });
 
+  describe('ordered collection helpers', function() {
+    let container;
+    let views;
+
+    beforeEach(function() {
+      views = [
+        new Backbone.View(),
+        new Backbone.View(),
+        new Backbone.View()
+      ];
+
+      container = new ChildViewContainer();
+      container._set(views, true);
+    });
+
+    describe('#toArray', function() {
+      it('returns a new ordered array of the child views', function() {
+        const snapshot = container.toArray();
+
+        expect(container.toArray()).to.not.equal(snapshot);
+        expect(snapshot[0]).to.equal(views[0]);
+        expect(snapshot[1]).to.equal(views[1]);
+        expect(snapshot[2]).to.equal(views[2]);
+
+        snapshot.pop();
+
+        expect(container).to.have.lengthOf(3);
+        expect(container.toArray()).to.deep.equal(views);
+      });
+
+      it('returns an empty array for an empty container', function() {
+        expect(new ChildViewContainer().toArray()).to.deep.equal([]);
+      });
+    });
+
+    describe('#first', function() {
+      it('returns the first child view', function() {
+        expect(container.first()).to.equal(views[0]);
+      });
+
+      it('returns a new ordered array when given a count', function() {
+        const firstViews = container.first(2);
+        const allViews = container.first(5);
+
+        expect(firstViews).to.have.lengthOf(2);
+        expect(firstViews[0]).to.equal(views[0]);
+        expect(firstViews[1]).to.equal(views[1]);
+        expect(container.first(2)).to.not.equal(firstViews);
+        expect(allViews).to.have.lengthOf(3);
+        expect(allViews[2]).to.equal(views[2]);
+        expect(container.first(0)).to.deep.equal([]);
+      });
+
+      it('returns the empty-container values', function() {
+        const emptyContainer = new ChildViewContainer();
+
+        expect(emptyContainer.first()).to.be.undefined;
+        expect(emptyContainer.first(2)).to.deep.equal([]);
+      });
+    });
+
+    describe('#last', function() {
+      it('returns the last child view', function() {
+        expect(container.last()).to.equal(views[2]);
+      });
+
+      it('returns a new ordered array when given a count', function() {
+        const lastViews = container.last(2);
+        const allViews = container.last(5);
+
+        expect(lastViews).to.have.lengthOf(2);
+        expect(lastViews[0]).to.equal(views[1]);
+        expect(lastViews[1]).to.equal(views[2]);
+        expect(container.last(2)).to.not.equal(lastViews);
+        expect(allViews).to.have.lengthOf(3);
+        expect(allViews[0]).to.equal(views[0]);
+        expect(container.last(0)).to.deep.equal([]);
+      });
+
+      it('returns the empty-container values', function() {
+        const emptyContainer = new ChildViewContainer();
+
+        expect(emptyContainer.last()).to.be.undefined;
+        expect(emptyContainer.last(2)).to.deep.equal([]);
+      });
+    });
+
+    describe('#isEmpty', function() {
+      it('reports whether the container has child views without mutating it', function() {
+        expect(container.isEmpty()).to.be.false;
+        expect(container).to.have.lengthOf(3);
+        expect(container.first()).to.equal(views[0]);
+        expect(container.last()).to.equal(views[2]);
+        expect(new ChildViewContainer().isEmpty()).to.be.true;
+      });
+    });
+  });
+
   describe('#_init', function() {
     let container;
 
