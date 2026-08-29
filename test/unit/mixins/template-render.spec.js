@@ -259,6 +259,7 @@ describe('template-render', function() {
       it('preserves model order and attribute object identity', function() {
         const serialized = renderer.serializeCollection();
 
+        expect(serialized).to.not.equal(collection.models);
         expect(serialized).to.have.lengthOf(collection.models.length);
         collection.models.forEach((collectionModel, index) => {
           expect(serialized[index]).to.equal(collectionModel.attributes);
