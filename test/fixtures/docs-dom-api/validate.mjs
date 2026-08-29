@@ -34,12 +34,21 @@ const examplePath = resolve(distDir, 'example.mjs');
 await mkdir(distDir, { recursive: true });
 await writeFile(examplePath, `${codeFence[1]}\n`, 'utf8');
 
-const dom = new JSDOM('<!doctype html><html><body><main id="region-host"></main></body></html>');
+function createDom() {
+  const dom = new JSDOM('<!doctype html><html><body><main id="region-host"></main></body></html>');
 
-globalThis.window = dom.window;
-globalThis.document = dom.window.document;
+  globalThis.window = dom.window;
+  globalThis.document = dom.window.document;
+  return dom;
+}
 
-function assertExampleRun(renderPlainText) {
+function destroyDom(dom) {
+  dom.window.close();
+  delete globalThis.document;
+  delete globalThis.window;
+}
+
+function assertExampleRun(renderPlainText, dom) {
   const view = renderPlainText();
 
   assert.equal(
@@ -57,15 +66,35 @@ function assertExampleRun(renderPlainText) {
   return view;
 }
 
+async function runExample(run) {
+  const dom = createDom();
+
+  try {
+    const exampleUrl = new URL(pathToFileURL(examplePath));
+    exampleUrl.searchParams.set('run', run);
+    const { PlainTextView, renderPlainText } = await import(exampleUrl);
+
+    return {
+      PlainTextView,
+      view: assertExampleRun(renderPlainText, dom),
+    };
+  } finally {
+    destroyDom(dom);
+  }
+}
+
+const firstRun = await runExample('first');
+const secondRun = await runExample('second');
+
+assert.notEqual(firstRun.view, secondRun.view, 'repeated runs must create fresh View instances');
+assert.notEqual(firstRun.PlainTextView, secondRun.PlainTextView, 'repeated runs must reload the example');
+assert.notEqual(firstRun.PlainTextView.prototype.Dom, View.prototype.Dom, 'the override must be class-local');
+assert.notEqual(secondRun.PlainTextView.prototype.Dom, View.prototype.Dom, 'the override must remain class-local');
+assert.equal(View.prototype.Dom.setContents, DomApi.setContents, 'the base View must remain native');
+
+const dom = createDom();
+
 try {
-  const { PlainTextView, renderPlainText } = await import(pathToFileURL(examplePath));
-  const firstView = assertExampleRun(renderPlainText);
-  const secondView = assertExampleRun(renderPlainText);
-
-  assert.notEqual(firstView, secondView, 'repeated runs must create fresh View instances');
-  assert.notEqual(PlainTextView.prototype.Dom, View.prototype.Dom, 'the override must be class-local');
-  assert.equal(View.prototype.Dom.setContents, DomApi.setContents, 'the base View must remain native');
-
   const baseView = new View({ template: () => '<strong>Parsed markup</strong>' });
   baseView.render();
   assert.equal(baseView.el.querySelector('strong')?.textContent, 'Parsed markup');
@@ -84,7 +113,5 @@ try {
     'View must reject selector-string el values with MN0001',
   );
 } finally {
-  dom.window.close();
-  delete globalThis.document;
-  delete globalThis.window;
+  destroyDom(dom);
 }
