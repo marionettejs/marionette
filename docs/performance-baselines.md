@@ -63,8 +63,8 @@ garbage-collector proof.
 ## Budget amendments
 
 [`config/release/performance-budget-amendments.json`](https://github.com/marionettejs/marionette/blob/master/config/release/performance-budget-amendments.json)
-is an append-only governance ledger outside the production package. The initial
-ledger is empty. Its entries are either authorizations with sequential `BA0001`
+is an append-only governance ledger outside the production package. The ledger
+began empty. Its entries are either authorizations with sequential `BA0001`
 identifiers or revocations with sequential `BR0001` identifiers. There is no mutable
 status field. The active ceiling and entry order derive whether the latest
 authorization is pending, consumed, or revoked.
@@ -79,6 +79,13 @@ approval URL must resolve to a canonical exact-head pull-request comment from a
 base-allowed maintainer. Evidence URLs remain durable issue #127 comments from trusted
 repository participants. The record also preserves its rationale and rollback
 condition.
+
+BA0001 authorizes a pending aggregate-ceiling increase from 51,975 to 52,369
+bytes for the exact-base lifecycle-retry and CollectionView `emptyView`
+diagnostic prototype tracked by [#226](https://github.com/marionettejs/marionette/issues/226).
+The proposal equals the measured combined prototype total without padding. It
+does not change the active ceiling until a later implementation consumes the
+authorization, and it adds no production subpath.
 
 The approval must come from a different base-allowed maintainer whenever the exact-base
 allowlist contains an eligible alternative. If the pull-request author is the sole
