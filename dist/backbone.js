@@ -1,9 +1,8 @@
-import { extend } from 'underscore';
 import Backbone from 'backbone';
 export { default } from 'backbone';
 import { Events } from 'marionette';
 
-extend(Backbone.Model.prototype, Events);
-extend(Backbone.Collection.prototype, Events);
-extend(Backbone.View.prototype, Events);
-extend(Backbone.Router.prototype, Events);
+Object.assign(Backbone.Model.prototype, Events);
+Object.assign(Backbone.Collection.prototype, Events);
+Object.assign(Backbone.View.prototype, Events);
+Object.assign(Backbone.Router.prototype, Events);
