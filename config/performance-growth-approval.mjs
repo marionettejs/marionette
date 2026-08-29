@@ -313,6 +313,30 @@ function exactObjectFields(value, fields) {
     isDeepStrictEqual(Object.keys(value).sort(), [...fields].sort());
 }
 
+function validReleaseProfileTransition(authorityToolchain, candidateToolchain) {
+  const authorityProfile = authorityToolchain?.releaseProfile;
+  const candidateProfile = candidateToolchain?.releaseProfile;
+  if (!authorityToolchain || typeof authorityToolchain !== 'object' ||
+      Array.isArray(authorityToolchain) || !candidateToolchain ||
+      typeof candidateToolchain !== 'object' || Array.isArray(candidateToolchain) ||
+      !authorityProfile || typeof authorityProfile !== 'object' ||
+      Array.isArray(authorityProfile) || !candidateProfile ||
+      typeof candidateProfile !== 'object' || Array.isArray(candidateProfile) ||
+      typeof candidateProfile.sha256 !== 'string' ||
+      !/^[a-f\d]{64}$/.test(candidateProfile.sha256)) {
+    return false;
+  }
+
+  const expectedToolchain = {
+    ...authorityToolchain,
+    releaseProfile: {
+      ...authorityProfile,
+      sha256: candidateProfile.sha256,
+    },
+  };
+  return isDeepStrictEqual(candidateToolchain, expectedToolchain);
+}
+
 export function validateCandidateGrowthContract(authority, candidate, { budgetAmendment } = {}) {
   const violations = [];
   if (!authority || typeof authority !== 'object' || !candidate || typeof candidate !== 'object') {
@@ -325,6 +349,12 @@ export function validateCandidateGrowthContract(authority, candidate, { budgetAm
   }
   for (const key of authorityKeys) {
     if (key === 'runtimeArtifacts' || key === 'productionGraphs') {
+      continue;
+    }
+    if (key === 'toolchain') {
+      if (!validReleaseProfileTransition(authority.toolchain, candidate.toolchain)) {
+        violations.push('Candidate performance contract changes exact-base toolchain beyond releaseProfile.sha256');
+      }
       continue;
     }
     if (key === 'baseline' && budgetAmendment?.status === 'accepted' &&
