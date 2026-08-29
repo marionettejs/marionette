@@ -8,12 +8,6 @@
     "node": ">=24"
   },
   "packageManager": "npm@11.17.0",
-  "overrides": {
-    "caniuse-lite": "1.0.30001799",
-    "electron-to-chromium": "1.5.378",
-    "node-releases": "2.0.48",
-    "update-browserslist-db": "1.2.3"
-  },
   "browser": "dist/marionette.umd.js",
   "main": "dist/marionette.cjs",
   "module": "dist/marionette.js",
@@ -59,10 +53,7 @@
     "./dist/backbone.cjs"
   ],
   "browserslist": [
-    "last 2 Chrome versions",
-    "last 2 Firefox versions",
-    "last 2 Safari versions",
-    "last 2 Edge versions"
+    "baseline widely available"
   ],
   "keywords": [
     "backbone",

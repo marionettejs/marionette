@@ -54,15 +54,8 @@
         }
       ]
     },
-    "transpilationTargets": [
-      "chrome 149",
-      "chrome 148",
-      "edge 149",
-      "edge 148",
-      "firefox 151",
-      "firefox 150",
-      "safari 26.4",
-      "safari 26.3"
+    "transpilationQuery": [
+      "baseline widely available"
     ]
   }
 }

@@ -63,20 +63,22 @@ async function validateBrowserBuilds() {
   }
 }
 
-function validateTranspilationTargets() {
-  const actualTargets = browserslist(packageJson.browserslist);
-  const expectedTargets = browserProfile.transpilationTargets;
+function validateTranspilationQuery() {
+  const expectedQuery = browserProfile.transpilationQuery;
 
-  if (JSON.stringify(actualTargets) !== JSON.stringify(expectedTargets)) {
-    fail(`transpilation targets are ${actualTargets.join(', ')}; expected ${expectedTargets.join(', ')}`);
+  if (JSON.stringify(packageJson.browserslist) !== JSON.stringify(expectedQuery)) {
+    fail(`transpilation query is ${packageJson.browserslist?.join(', ')}; ` +
+      `expected ${expectedQuery.join(', ')}`);
   }
+
+  return browserslist(expectedQuery);
 }
 
 validatePackagePin();
 await validateBrowserBuilds();
-validateTranspilationTargets();
+const transpilationTargets = validateTranspilationQuery();
 
 if (!process.exitCode) {
   console.log(`Browser profile verified: Playwright ${playwrightProfile.version}; ` +
-    `${browserProfile.transpilationTargets.length} transpilation targets.`);
+    `${transpilationTargets.length} locked Baseline targets.`);
 }
