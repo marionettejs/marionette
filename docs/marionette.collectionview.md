@@ -650,6 +650,20 @@ for those values. An empty container returns `[]`.
 or another object with the same properties is not considered contained. An empty
 container returns `false`.
 
+`toArray()` returns a new array containing the current child Views in container
+order. Changing the returned array's membership or order does not change the
+container. An empty container returns `[]`.
+
+Without a count, `first()` and `last()` return the first or last child View. With
+a nonnegative integer count, they return a new ordered array containing up to
+that many Views from the corresponding end of the container. A count of `0`
+returns `[]`. For an empty container, the no-count forms return `undefined` and
+the count forms return `[]`.
+
+`children.isEmpty()` reports whether the child container currently has zero
+Views. It is distinct from the overridable `CollectionView#isEmpty()` method,
+which controls whether a CollectionView renders its `emptyView`.
+
 ```javascript
 import Backbone from 'backbone';
 import { CollectionView } from 'backbone.marionette';
