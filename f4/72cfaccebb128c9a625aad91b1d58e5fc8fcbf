@@ -1,0 +1,39 @@
+modules/common/normalize-methods.js
+  s_d6429951fb9231::t_000a4219c3280d 4,15
+  s_d6429951fb9231::t_6c9e6bf74faf46 5
+  s_d6429951fb9231::t_282aba67577f70 12,16,18
+test/unit/common/normalize-methods.spec.js
+  s_d6429951fb9231::t_282aba67577f70 74-83,85-87,90,92-101,103-106,108-109
+  s_d6429951fb9231::t_6c9e6bf74faf46 1-2,102,107
+  s_d6429951fb9231::t_fafabc67a5b7f8 91
+  s_d6429951fb9231::t_b0eecf86f5b657 112-124
+  s_d6429951fb9231::t_72146bd1a462f3 110-111
+dist/marionette.cjs
+  s_d6429951fb9231::t_b2a9eb771c9395 107,109,113-114
+dist/marionette.js
+  s_d6429951fb9231::t_3577a9113cf363 1,103,105,109-110
+dist/marionette.min.js
+  s_d6429951fb9231::t_e03a3cf131edaa 1
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_4bc0ba2abeede7 1
+dist/marionette.umd.js
+  s_d6429951fb9231::t_9ad5ab5a4ce4aa 112,114,118-119
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_bcf47246c57459 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "f472cfaccebb128c9a625aad91b1d58e5fc8fcbf",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
