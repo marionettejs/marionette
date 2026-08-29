@@ -58,4 +58,26 @@ describe('mergeOptions', function() {
       expect(target).to.contain.keys('color', 'size');
     });
   });
+
+  it('merges only own enumerable string options and safely owns __proto__', function() {
+    const symbol = Symbol('ignored');
+    const protoValue = { polluted: true };
+    const options = Object.assign(Object.create({ color: 'inherited' }), {
+      size: 'large',
+      [symbol]: 'symbol'
+    });
+    Object.defineProperty(options, 'country', { value: 'hidden' });
+    Object.defineProperty(options, '__proto__', { enumerable: true, value: protoValue });
+
+    target.myOptions = ['color', 'size', 'country', symbol, '__proto__'];
+    target.initialize(options);
+
+    expect(target.size).to.equal('large');
+    expect(target).to.not.have.property('color');
+    expect(target).to.not.have.property('country');
+    expect(target).to.not.have.property(symbol);
+    expect(Object.getPrototypeOf(target)).to.equal(Object.prototype);
+    expect(Object.hasOwn(target, '__proto__')).to.be.true;
+    expect(Object.getOwnPropertyDescriptor(target, '__proto__').value).to.equal(protoValue);
+  });
 });

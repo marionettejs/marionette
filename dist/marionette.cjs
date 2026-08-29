@@ -184,14 +184,18 @@ const getOption$1 = function (optionName) {
   }
 };
 
+const propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
 const mergeOptions$1 = function (options, keys) {
   if (!options) {
     return;
   }
   underscore.each(keys, key => {
+    if (typeof key !== 'string' || !propertyIsEnumerable.call(options, key)) {
+      return;
+    }
     const option = options[key];
     if (option !== undefined) {
-      this[key] = option;
+      setProperty(this, key, option);
     }
   });
 };
@@ -741,7 +745,7 @@ const CommonMixin = {
   initialize() {},
   normalizeMethods: normalizeMethods$1,
   _setOptions(options, classOptions) {
-    this.options = underscore.extend({}, underscore.result(this, 'options'), options);
+    this.options = assignOwn({}, underscore.result(this, 'options'), options);
     this.mergeOptions(options, classOptions);
   },
   mergeOptions: mergeOptions$1,
@@ -1052,7 +1056,7 @@ var TemplateRenderMixin = {
     if (!serializedData) {
       return templateContext;
     }
-    return underscore.extend({}, serializedData, templateContext);
+    return assignOwn({}, serializedData, templateContext);
   },
   serializeData() {
     if (this.model) {
@@ -1913,7 +1917,7 @@ function buildRegion(definition, defaults) {
   });
 }
 function buildRegionFromObject(defaults, definition) {
-  const options = underscore.extend({}, defaults, definition);
+  const options = assignOwn({}, defaults, definition);
   const RegionClass = options.regionClass;
   delete options.regionClass;
   return new RegionClass(options);
@@ -2564,7 +2568,7 @@ underscore.extend(CollectionView.prototype, ViewMixin, {
     return this.childViewOptions;
   },
   buildChildView(child, ChildViewClass, childViewOptions) {
-    const options = underscore.extend({
+    const options = assignOwn({
       model: child
     }, childViewOptions);
     return new ChildViewClass(options);

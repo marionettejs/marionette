@@ -13,6 +13,7 @@ import {
   result,
   uniqueId
 } from 'underscore';
+import { assignOwn } from '../utils/assign-in.js';
 import MarionetteError from '../utils/error.js';
 import extend from '../utils/extend.js';
 import monitorViewEvents from './common/monitor-view-events.js';
@@ -533,7 +534,7 @@ function buildRegion(definition, defaults) {
 }
 
 function buildRegionFromObject(defaults, definition) {
-  const options = _extend({}, defaults, definition);
+  const options = assignOwn({}, defaults, definition);
 
   const RegionClass = options.regionClass
 

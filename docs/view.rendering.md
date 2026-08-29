@@ -390,6 +390,11 @@ extra information to your templates. This can be either an object, or a function
 returning an object. The keys on the returned object will be mixed into the
 model or collection keys and made available to the template.
 
+When serialized data and template context are combined, each contributes its
+own enumerable string properties only. Inherited, symbol, and non-enumerable
+properties are ignored. If only one object exists, Marionette passes that
+original object through unchanged.
+
 ```javascript
 import _ from 'underscore';
 import { View } from 'backbone.marionette';

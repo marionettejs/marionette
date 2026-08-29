@@ -168,6 +168,10 @@ an `el` property - the selector string to hook the region into. With this
 format is possible to define whether showing the region overwrites the `el` or
 just overwrites the content (the default behavior).
 
+Region defaults and object-literal definitions contribute their own enumerable
+string properties only. Inherited, symbol, and non-enumerable properties are
+ignored when Marionette builds the Region options.
+
 To overwrite the parent `el` of the region with the rendered contents of the
 inner View, use `replaceElement` as so:
 

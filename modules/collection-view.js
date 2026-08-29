@@ -2,6 +2,7 @@
 // ---------------
 
 import { extend as _extend, uniqueId, result, map, isFunction, isObject, isString, matches, each, reduce } from 'underscore';
+import { assignOwn } from '../utils/assign-in.js';
 import extend from '../utils/extend.js';
 import MarionetteError from '../utils/error.js';
 import { renderView, destroyView, isViewClass } from './common/view.js';
@@ -277,7 +278,7 @@ _extend(CollectionView.prototype, ViewMixin, {
   // Build a `childView` for a model in the collection.
   // Override to customize the build
   buildChildView(child, ChildViewClass, childViewOptions) {
-    const options = _extend({model: child}, childViewOptions);
+    const options = assignOwn({model: child}, childViewOptions);
     return new ChildViewClass(options);
   },
 

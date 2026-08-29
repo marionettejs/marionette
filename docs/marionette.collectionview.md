@@ -458,7 +458,9 @@ You can also specify the `childViewOptions` as a function, if you need to
 calculate the values to return at runtime. The model will be passed into
 the function should you need access to it when calculating
 `childViewOptions`. The function must return an object, and the attributes
-of the object will be copied to the `childView` instance's options.
+of the object will be copied to the `childView` instance's options. Whether
+provided directly or returned by a function, only the object's own enumerable
+string properties are copied.
 
 ```javascript
 import { CollectionView } from 'backbone.marionette';

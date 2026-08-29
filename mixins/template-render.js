@@ -1,4 +1,5 @@
-import { map, result, extend } from 'underscore';
+import { map, result } from 'underscore';
+import { assignOwn } from '../utils/assign-in.js';
 
 // MixinOptions
 // - template
@@ -36,7 +37,7 @@ export default {
     const templateContext = result(this, 'templateContext');
     if (!templateContext) { return serializedData; }
     if (!serializedData) { return templateContext; }
-    return extend({}, serializedData, templateContext);
+    return assignOwn({}, serializedData, templateContext);
   },
 
   // Serialize the view's model *or* collection, if
