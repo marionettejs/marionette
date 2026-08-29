@@ -10,6 +10,8 @@ describe('Backbone shim', function() {
   let historyMethods;
   let namespaceMethods;
   let prototypes;
+  let prototypeKeys;
+  let prototypeParents;
   let previousDocument;
   let previousWindow;
 
@@ -36,6 +38,10 @@ describe('Backbone shim', function() {
       Router: Backbone.Router.prototype,
       View: Backbone.View.prototype
     };
+    prototypeKeys = Object.fromEntries(Object.entries(prototypes)
+      .map(([name, prototype]) => [name, Object.keys(prototype)]));
+    prototypeParents = Object.fromEntries(Object.entries(prototypes)
+      .map(([name, prototype]) => [name, Object.getPrototypeOf(prototype)]));
     namespaceMethods = {
       on: Backbone.on,
       off: Backbone.off,
@@ -48,7 +54,13 @@ describe('Backbone shim', function() {
       triggerMethod: Backbone.History.prototype.triggerMethod
     };
 
-    ShimmedBackbone = (await import('../../backbone.js')).default;
+    const eventsPrototype = Object.getPrototypeOf(Marionette.Events);
+    Object.setPrototypeOf(Marionette.Events, { inheritedShimPollution: true });
+    try {
+      ShimmedBackbone = (await import('../../backbone.js')).default;
+    } finally {
+      Object.setPrototypeOf(Marionette.Events, eventsPrototype);
+    }
   });
 
   after(function() {
@@ -77,6 +89,27 @@ describe('Backbone shim', function() {
     Object.keys(constructors).forEach(name => {
       expect(Backbone[name]).to.equal(constructors[name]);
       expect(Backbone[name].prototype).to.equal(prototypes[name]);
+      expect(Object.getPrototypeOf(Backbone[name].prototype)).to.equal(prototypeParents[name]);
+    });
+  });
+
+  it('copies only the own enumerable Events surface with assignment descriptors', function() {
+    const eventKeys = Object.keys(Marionette.Events);
+
+    Object.entries(prototypes).forEach(([name, prototype]) => {
+      const expectedKeys = [...new Set([...prototypeKeys[name], ...eventKeys])].sort();
+
+      expect(Object.keys(prototype).sort()).to.deep.equal(expectedKeys);
+      expect(prototype).to.not.have.own.property('inheritedShimPollution');
+
+      eventKeys.forEach(key => {
+        expect(Object.getOwnPropertyDescriptor(prototype, key)).to.deep.equal({
+          configurable: true,
+          enumerable: true,
+          value: Marionette.Events[key],
+          writable: true
+        });
+      });
     });
   });
 
