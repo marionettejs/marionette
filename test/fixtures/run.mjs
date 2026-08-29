@@ -18,6 +18,7 @@ const fixtures = [
   'jquery-dom-api',
   'jquery-dom-api-types',
   'docs-behavior-host',
+  'docs-collectionview-child-ownership',
   'docs-radio-owner',
   'docs-region-lifecycle',
   'vite',
