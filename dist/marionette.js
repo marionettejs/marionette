@@ -349,7 +349,11 @@ const onApi = function ({
   ctx,
   listener
 }) {
-  const handlers = events[name] || (events[name] = []);
+  let handlers = Object.hasOwn(events, name) ? events[name] : undefined;
+  if (!handlers) {
+    handlers = [];
+    setProperty(events, name, handlers);
+  }
   handlers.push({
     callback,
     context,
@@ -407,7 +411,7 @@ const offReducer = function (events, {
 }) {
   const names = name ? [name] : keys(events);
   each(names, key => {
-    const handlers = events[key];
+    const handlers = Object.hasOwn(events, key) ? events[key] : undefined;
     if (!handlers) {
       return;
     }
@@ -499,8 +503,9 @@ const triggerApi = function ({
   name,
   args
 }) {
-  const objEvents = events[name];
-  const allEvents = objEvents && events.all ? events.all.slice() : events.all;
+  const objEvents = Object.hasOwn(events, name) ? events[name] : undefined;
+  const registeredAllEvents = Object.hasOwn(events, 'all') ? events.all : undefined;
+  const allEvents = objEvents && registeredAllEvents ? registeredAllEvents.slice() : registeredAllEvents;
   if (objEvents) {
     triggerEvents(objEvents, args);
   }

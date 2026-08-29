@@ -81,6 +81,93 @@ describe('Events Mixin', function() {
       expect(handler).to.have.been.calledTwice;
       expect(handler).to.have.been.calledWith('arg');
     });
+
+    it('dispatches only event names registered on the event store', function() {
+      const inheritedHandler = this.sinon.stub();
+      const inheritedAllHandler = this.sinon.stub();
+      const ownHandler = this.sinon.stub();
+      const inheritedEvents = {
+        inherited: [{ callback: inheritedHandler, ctx: object }],
+        all: [{ callback: inheritedAllHandler, ctx: object }],
+      };
+      object._rdEvents = Object.create(inheritedEvents);
+
+      object.trigger('inherited');
+      object.on('inherited', ownHandler);
+      object.trigger('inherited', 'arg');
+
+      expect(inheritedHandler).to.not.have.been.called;
+      expect(inheritedAllHandler).to.not.have.been.called;
+      expect(ownHandler).to.have.been.calledOnce.and.calledWith('arg');
+      expect(Object.hasOwn(object._rdEvents, 'inherited')).to.equal(true);
+    });
+
+    ['constructor', 'toString', '__proto__', 'all'].forEach(name => {
+      it(`supports ${name} across registration and cleanup APIs`, function() {
+        const context = {};
+        const directHandler = this.sinon.stub();
+        const onceHandler = this.sinon.stub();
+        const listeningHandler = this.sinon.stub();
+        const listeningOnceHandler = this.sinon.stub();
+        const listener = _.extend({}, EventsMixin);
+        const onceListener = _.extend({}, EventsMixin);
+        const directCallCount = name === 'all' ? 2 : 1;
+
+        object.on(name, directHandler, context);
+        object.trigger(name, 'direct');
+        object.off(name, directHandler, context);
+        object.trigger(name, 'removed');
+
+        expect(directHandler).to.have.callCount(directCallCount);
+        expect(directHandler).to.always.have.been.calledOn(context);
+
+        if (name === 'all') {
+          expect(directHandler.firstCall).to.have.been.calledWithExactly('direct');
+          expect(directHandler.secondCall).to.have.been.calledWithExactly('all', 'direct');
+        } else {
+          expect(directHandler).to.have.been.calledWithExactly('direct');
+        }
+
+        object.once(name, onceHandler, context);
+        object.trigger(name, 'once');
+        object.trigger(name, 'later');
+
+        expect(onceHandler).to.have.been.calledOnce.and.calledOn(context);
+
+        listener.listenTo(object, name, listeningHandler);
+        object.trigger(name, 'listening');
+        listener.stopListening(object, name, listeningHandler);
+        object.trigger(name, 'stopped');
+
+        expect(listeningHandler).to.have.callCount(directCallCount);
+        expect(listeningHandler).to.always.have.been.calledOn(listener);
+        expect(listener._rdListeningTo).to.eql({});
+
+        onceListener.listenToOnce(object, name, listeningOnceHandler);
+        object.trigger(name, 'listening-once');
+        object.trigger(name, 'later');
+
+        expect(listeningOnceHandler).to.have.been.calledOnce.and.calledOn(onceListener);
+        expect(onceListener._rdListeningTo).to.eql({});
+        expect(object._rdListeners).to.eql({});
+        expect(Object.getPrototypeOf(object._rdEvents)).to.equal(Object.prototype);
+      });
+    });
+
+    it('snapshots all-event handlers before named-event dispatch', function() {
+      const firstAllHandler = this.sinon.stub().callsFake(() => {
+        object.off('all', secondAllHandler);
+      });
+      const secondAllHandler = this.sinon.stub();
+      object.on('event', () => object.off('all', secondAllHandler));
+      object.on('all', firstAllHandler);
+      object.on('all', secondAllHandler);
+
+      object.trigger('event', 'arg');
+
+      expect(firstAllHandler).to.have.been.calledOnce.and.calledWith('event', 'arg');
+      expect(secondAllHandler).to.have.been.calledOnce.and.calledWith('event', 'arg');
+    });
   });
 
   describe('once and listener cleanup', function() {
@@ -150,6 +237,26 @@ describe('Events Mixin', function() {
       object.trigger('foo');
 
       expect(handler).to.have.been.calledOnce;
+    });
+
+    it('does not remove inherited event-store entries', function() {
+      const consulted = this.sinon.stub();
+      const inheritedHandler = {};
+      Object.defineProperty(inheritedHandler, 'callback', {
+        enumerable: true,
+        get() {
+          consulted();
+          return _.noop;
+        },
+      });
+      const inheritedEvents = { inherited: [inheritedHandler] };
+      object._rdEvents = Object.create(inheritedEvents);
+
+      object.off('inherited');
+
+      expect(consulted).to.not.have.been.called;
+      expect(Object.hasOwn(object._rdEvents, 'inherited')).to.equal(false);
+      expect(object._rdEvents.inherited).to.equal(inheritedEvents.inherited);
     });
 
     it('stops listening safely when the listener entry or event store is gone', function() {
