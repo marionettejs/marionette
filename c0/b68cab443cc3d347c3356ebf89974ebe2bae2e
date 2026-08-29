@@ -1,0 +1,49 @@
+test/unit/mixins/events.spec.js
+  s_d6429951fb9231::t_9a4135aa23c5d8 105-154
+  s_d6429951fb9231::t_ac5a1e74f1e29e 158,243-252,257
+  s_d6429951fb9231::t_67ac64b2599daa 87,91,100
+  s_d6429951fb9231::t_588a575a2607fd 84-86,88-90,92-99,101-104,155-157,159-170,242,253-256,258-260
+  s_57fbe8fbb18d14::t_8160b8e21237ae 261
+mixins/events.js
+  s_d6429951fb9231::t_3493f68858f77d 4,23-27,53,125-127
+docs/events.md
+  s_d6429951fb9231::t_26ef7e3e03a1dd 182-189
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_85e9b1c1dd33d5 50
+dist/marionette.cjs
+  s_d6429951fb9231::t_8ccf1a148eac0d 356-360,418,510-512
+dist/marionette.js
+  s_d6429951fb9231::t_e823d6020963b9 352-356,414,506-508
+dist/marionette.min.js
+  s_d6429951fb9231::t_c79518bc13013b 1
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_4d46f2eef21386 1
+dist/marionette.umd.js
+  s_d6429951fb9231::t_bce3e79e87784c 361-365,423,515-517
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_45cd3089ac48b3 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "c0b68cab443cc3d347c3356ebf89974ebe2bae2e",
+  "prompts": {},
+  "sessions": {
+    "s_57fbe8fbb18d14": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a04e40-d34b-73f3-82a8-f0ca986431b2",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
