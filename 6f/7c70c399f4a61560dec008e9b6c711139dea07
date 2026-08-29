@@ -1,0 +1,30 @@
+evidence/performance-budget-amendments/BA0003/prototype-contract.json
+  s_d6429951fb9231::t_9de7b1e1eff734 1-344
+config/release/performance-budget-amendments.json
+  s_d6429951fb9231::t_55e2c6a0548c40 93,97,111,124-125
+  s_d6429951fb9231::t_6ce4505bc817f6 119
+  s_d6429951fb9231::t_142a6521acac58 85-92,94-96,98-110,112-118,120-123
+evidence/performance-budget-amendments/BA0003/base.json
+  s_d6429951fb9231::t_639d352c83afa7 1-365
+docs/performance-baselines.md
+  s_d6429951fb9231::t_55e2c6a0548c40 100-102
+  s_d6429951fb9231::t_142a6521acac58 90,93,95-99,103-110,137-139
+evidence/performance-budget-amendments/BA0003/prototype.json
+  s_d6429951fb9231::t_19801bb08ecbbc 1-367
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "6f7c70c399f4a61560dec008e9b6c711139dea07",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
