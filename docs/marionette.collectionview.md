@@ -168,35 +168,26 @@ Read More:
 
 ## DOM Interactions
 
-In addition to what Backbone provides the views, Marionette has additional API
-for DOM interactions: `events`, `triggers`, and `ui`.
+`CollectionView` uses the same native [`events`, `triggers`, and `ui`
+contracts](./dom.interactions.md) as `View`. Keep parent selectors and handlers
+specific to DOM that the `CollectionView` itself owns. Delegation is rooted at
+the parent `el`, so a broad selector can also match child-owned descendants; do
+not rebind the parent's `ui` to reach into child View DOM.
 
-By default `ui` is only bound to the elements within the [template](#rendering-a-template).
-However as `events` and `triggers` are delegated to the view's `el` they will apply to any children.
-There may be instances where binding `ui` is helpful when you want to access elements inside
-`CollectionView`s children with [`getUI()`](./dom.interactions.md#accessing-ui-elements). For these
-cases you will need to bind `ui` yourself. To do so run `bindUIElements` on the `CollectionView`:
+After application code places parent-owned DOM inside a template-less
+`CollectionView`, call `bindUIElements()` before reading it with `getUI()`. Use
+that method only to bind the CollectionView's own DOM, not child View DOM.
 
-```javascript
-import { CollectionView } from 'backbone.marionette';
-
-const MyCollectionView = CollectionView.extend({
-  // ...
-
-  ui: {
-    checkbox: 'input[type="checkbox"]'
-  }
-});
-
-const collectionView = new MyCollectionView();
-
-collectionView.bindUIElements();
-
-console.log(collectionView.getUI('checkbox')); // Output all checkboxes.
-```
+When parent code needs a child, [retrieve the child View through the public
+`children` lookup APIs](#accessing-a-child-view) and call an intentional public
+method on that View. For communication initiated by a child, use
+[`childViewEvents` or `childViewTriggers`](./events.md#child-view-events), or an
+explicit public [`listenTo`](./events.md#listening-to-events) subscription,
+instead of querying or mutating the child's DOM from the parent.
 
 Read More:
 - [DOM Interactions](./dom.interactions.md)
+- [Listening to Events on Children](#listening-to-events-on-the-children)
 
 ## Behaviors
 
