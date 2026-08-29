@@ -67,8 +67,8 @@ function validateTranspilationQuery() {
   const expectedQuery = browserProfile.transpilationQuery;
 
   if (JSON.stringify(packageJson.browserslist) !== JSON.stringify(expectedQuery)) {
-    fail(`transpilation query is ${packageJson.browserslist?.join(', ')}; ` +
-      `expected ${expectedQuery.join(', ')}`);
+    fail(`transpilation query is ${JSON.stringify(packageJson.browserslist)}; ` +
+      `expected ${JSON.stringify(expectedQuery)}`);
   }
 
   return browserslist(expectedQuery);
