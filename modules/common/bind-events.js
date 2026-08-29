@@ -13,14 +13,14 @@
 // configuration. Multiple handlers can be separated by a space. A
 // function can be supplied instead of a string handler name.
 
-import { isObject } from 'underscore';
 import normalizeMethods from './normalize-methods.js';
 import MarionetteError from '../../utils/error.js';
 
 const propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
 
 function normalizeBindings(context, bindings) {
-  if (!isObject(bindings)) {
+  const bindingsType = typeof bindings;
+  if (bindings === null || (bindingsType !== 'object' && bindingsType !== 'function')) {
     throw new MarionetteError({
       code: 'MN0009',
       message: 'Bindings must be an object.',

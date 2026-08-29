@@ -1,4 +1,4 @@
-import { isFunction, isString, isObject, each, keys, reduce, uniqueId, extend as extend$1, result, map, without, partial, isEmpty, matches } from 'underscore';
+import { isFunction, isString, each, keys, reduce, uniqueId, extend as extend$1, result, map, without, isObject, partial, isEmpty, matches } from 'underscore';
 
 const proxy = function (method) {
   return function (context, ...args) {
@@ -131,7 +131,8 @@ const normalizeMethods$1 = function (hash) {
 
 const propertyIsEnumerable$1 = Object.prototype.propertyIsEnumerable;
 function normalizeBindings$1(context, bindings) {
-  if (!isObject(bindings)) {
+  const bindingsType = typeof bindings;
+  if (bindings === null || bindingsType !== 'object' && bindingsType !== 'function') {
     throw new MarionetteError({
       code: 'MN0009',
       message: 'Bindings must be an object.',
@@ -167,7 +168,8 @@ function unbindEvents$1(entity, bindings) {
 }
 
 function normalizeBindings(context, bindings) {
-  if (!isObject(bindings)) {
+  const bindingsType = typeof bindings;
+  if (bindings === null || bindingsType !== 'object' && bindingsType !== 'function') {
     throw new MarionetteError({
       code: 'MN0010',
       message: 'Bindings must be an object.',

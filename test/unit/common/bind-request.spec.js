@@ -1,5 +1,22 @@
 import { bindRequests, unbindRequests } from '../../../modules/common/bind-requests';
 
+const acceptedBindingMaps = [
+  {},
+  [],
+  function() {},
+  async function() {},
+  function*() {},
+  class {},
+  new Boolean(false),
+  new Number(0),
+  new String(''),
+  new Proxy({}, {})
+];
+
+const rejectedBindingMaps = [true, 1, 1n, 'replyFoo', Symbol('bindings')];
+
+const falsyBindingMaps = [undefined, null, false, 0, 0n, '', NaN];
+
 describe('bind-requests', function() {
   let channel;
   let target;
@@ -49,6 +66,22 @@ describe('bind-requests', function() {
       });
     });
 
+    it('preserves accepted object and function binding maps', function() {
+      for (const bindings of acceptedBindingMaps) {
+        expect(target.bindRequests(channel, bindings)).to.equal(target);
+        expect(channel.reply).to.have.been.calledOnce;
+        channel.reply.resetHistory();
+      }
+    });
+
+    it('preserves the falsy binding-map early return', function() {
+      for (const bindings of falsyBindingMaps) {
+        expect(target.bindRequests(channel, bindings)).to.equal(target);
+      }
+
+      expect(channel.reply).to.not.have.been.called;
+    });
+
     describe('when bindings is an object with an event handler hash', function() {
       it('should return the target', function() {
         target.bindRequests(channel, { 'foo': 'replyFoo' })
@@ -78,10 +111,15 @@ describe('bind-requests', function() {
     });
 
     describe('when bindings is not an object', function() {
-      it('should error', function() {
-        expect(function() {
-          target.bindRequests(channel, 'replyFoo');
-        }).to.throw('Bindings must be an object.').with.property('code', 'MN0010');
+      it('rejects truthy primitives before replying', function() {
+        for (const bindings of rejectedBindingMaps) {
+          const bind = target.bindRequests.bind(target, channel, bindings);
+          expect(bind)
+            .to.throw('Bindings must be an object.')
+            .with.property('code', 'MN0010');
+        }
+
+        expect(channel.reply).to.not.have.been.called;
       });
     });
   });
@@ -117,6 +155,24 @@ describe('bind-requests', function() {
       });
     });
 
+    it('preserves accepted object and function binding maps', function() {
+      for (const bindings of acceptedBindingMaps) {
+        expect(target.unbindRequests(channel, bindings)).to.equal(target);
+        expect(channel.stopReplying).to.have.been.calledOnce;
+        channel.stopReplying.resetHistory();
+      }
+    });
+
+    it('preserves the falsy binding-map unbind-all path', function() {
+      for (const bindings of falsyBindingMaps) {
+        expect(target.unbindRequests(channel, bindings)).to.equal(target);
+        expect(channel.stopReplying)
+          .to.have.been.calledOnce
+          .and.calledWith(null, null, target);
+        channel.stopReplying.resetHistory();
+      }
+    });
+
     describe('when bindings is an object with an event handler hash', function() {
       it('should return the target', function() {
         target.unbindRequests(channel, { 'foo': 'replyFoo' });
@@ -146,10 +202,15 @@ describe('bind-requests', function() {
     });
 
     describe('when bindings is not an object', function() {
-      it('should error', function() {
-        expect(function() {
-          target.unbindRequests(channel, 'replyFoo');
-        }).to.throw('Bindings must be an object.');
+      it('rejects truthy primitives before selectively stopping replies', function() {
+        for (const bindings of rejectedBindingMaps) {
+          const unbind = target.unbindRequests.bind(target, channel, bindings);
+          expect(unbind)
+            .to.throw('Bindings must be an object.')
+            .with.property('code', 'MN0010');
+        }
+
+        expect(channel.stopReplying).to.not.have.been.called;
       });
     });
   });

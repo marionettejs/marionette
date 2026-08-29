@@ -9,6 +9,23 @@ function createProtoBindings(descriptor) {
   return bindings;
 }
 
+const acceptedBindingMaps = [
+  {},
+  [],
+  function() {},
+  async function() {},
+  function*() {},
+  class {},
+  new Boolean(false),
+  new Number(0),
+  new String(''),
+  new Proxy({}, {})
+];
+
+const rejectedBindingMaps = [true, 1, 1n, 'handleFoo', Symbol('bindings')];
+
+const falsyBindingMaps = [undefined, null, false, 0, 0n, '', NaN];
+
 describe('bind-events', function() {
   let entity;
   let target;
@@ -55,6 +72,22 @@ describe('bind-events', function() {
       it('should return the target', function() {
         expect(target.bindEvents).to.have.returned(target);
       });
+    });
+
+    it('preserves accepted object and function binding maps', function() {
+      for (const bindings of acceptedBindingMaps) {
+        expect(target.bindEvents(entity, bindings)).to.equal(target);
+        expect(target.listenTo).to.have.been.calledOnce;
+        target.listenTo.resetHistory();
+      }
+    });
+
+    it('preserves the falsy binding-map early return', function() {
+      for (const bindings of falsyBindingMaps) {
+        expect(target.bindEvents(entity, bindings)).to.equal(target);
+      }
+
+      expect(target.listenTo).to.not.have.been.called;
     });
 
     describe('when bindings is an object with an event handler hash', function() {
@@ -110,10 +143,15 @@ describe('bind-events', function() {
     });
 
     describe('when bindings is not an object', function() {
-      it('should error', function() {
-        expect(function() {
-          target.bindEvents(entity, 'handleFoo');
-        }).to.throw('Bindings must be an object.').with.property('code', 'MN0009');
+      it('rejects truthy primitives before binding', function() {
+        for (const bindings of rejectedBindingMaps) {
+          const bind = target.bindEvents.bind(target, entity, bindings);
+          expect(bind)
+            .to.throw('Bindings must be an object.')
+            .with.property('code', 'MN0009');
+        }
+
+        expect(target.listenTo).to.not.have.been.called;
       });
     });
   });
@@ -147,6 +185,22 @@ describe('bind-events', function() {
       it('should return the target', function() {
         expect(target.unbindEvents).to.have.returned(target);
       });
+    });
+
+    it('preserves accepted object and function binding maps', function() {
+      for (const bindings of acceptedBindingMaps) {
+        expect(target.unbindEvents(entity, bindings)).to.equal(target);
+        expect(target.stopListening).to.have.been.calledOnce;
+        target.stopListening.resetHistory();
+      }
+    });
+
+    it('preserves the falsy binding-map unbind-all path', function() {
+      for (const bindings of falsyBindingMaps) {
+        expect(target.unbindEvents(entity, bindings)).to.equal(target);
+        expect(target.stopListening).to.have.been.calledOnce.and.calledWith(entity);
+        target.stopListening.resetHistory();
+      }
     });
 
     describe('when bindings is an object with an event handler hash', function() {
@@ -187,10 +241,15 @@ describe('bind-events', function() {
     });
 
     describe('when bindings is not an object', function() {
-      it('should error', function() {
-        expect(function() {
-          target.unbindEvents(entity, 'handleFoo');
-        }).to.throw('Bindings must be an object.');
+      it('rejects truthy primitives before selective unbinding', function() {
+        for (const bindings of rejectedBindingMaps) {
+          const unbind = target.unbindEvents.bind(target, entity, bindings);
+          expect(unbind)
+            .to.throw('Bindings must be an object.')
+            .with.property('code', 'MN0009');
+        }
+
+        expect(target.stopListening).to.not.have.been.called;
       });
     });
   });

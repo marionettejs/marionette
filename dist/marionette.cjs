@@ -135,7 +135,8 @@ const normalizeMethods$1 = function (hash) {
 
 const propertyIsEnumerable$1 = Object.prototype.propertyIsEnumerable;
 function normalizeBindings$1(context, bindings) {
-  if (!underscore.isObject(bindings)) {
+  const bindingsType = typeof bindings;
+  if (bindings === null || bindingsType !== 'object' && bindingsType !== 'function') {
     throw new MarionetteError({
       code: 'MN0009',
       message: 'Bindings must be an object.',
@@ -171,7 +172,8 @@ function unbindEvents$1(entity, bindings) {
 }
 
 function normalizeBindings(context, bindings) {
-  if (!underscore.isObject(bindings)) {
+  const bindingsType = typeof bindings;
+  if (bindings === null || bindingsType !== 'object' && bindingsType !== 'function') {
     throw new MarionetteError({
       code: 'MN0010',
       message: 'Bindings must be an object.',
