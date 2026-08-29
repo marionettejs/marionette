@@ -47,10 +47,14 @@ new Marionette.Application();
 
 ## Class-based Inheritance
 
-Like [Backbone](http://backbonejs.org/#Model-extend), Marionette utilizes the
-[`_.extend`](http://underscorejs.org/#extend) function to simulate class-based
-inheritance. [All built-in classes](./classes.md), such as `Marionette.View`, `Marionette.MnObject`
-and everything that extend these provide an `extend` method for just this purpose.
+Like [Backbone](http://backbonejs.org/#Model-extend), Marionette provides a
+pseudo-class `extend` method. [All built-in classes](./classes.md), such as
+`Marionette.View` and `Marionette.MnObject`, provide this method.
+
+The `protoProps` and `staticProps` hashes passed to `extend` contribute their own
+enumerable string keys only. Symbols, non-enumerable properties, and inherited
+properties on either input are ignored. Static properties inherited by the parent
+constructor remain available on the child constructor.
 
 In the example below, we create a new pseudo-class called `MyView`:
 

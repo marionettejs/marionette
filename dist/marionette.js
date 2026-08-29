@@ -1,4 +1,4 @@
-import { has, extend as extend$1, create, pick, reduce, isFunction, isString, isObject, each, keys, once, uniqueId, result, map, without, partial, isEmpty, matches } from 'underscore';
+import { extend as extend$1, pick, reduce, isFunction, isString, isObject, each, keys, once, uniqueId, result, map, without, partial, isEmpty, matches } from 'underscore';
 
 const proxy = function (method) {
   return function (context, ...args) {
@@ -6,18 +6,54 @@ const proxy = function (method) {
   };
 };
 
+function setProperty(target, key, value) {
+  if (key === '__proto__') {
+    Object.defineProperty(target, key, {
+      configurable: true,
+      enumerable: true,
+      value,
+      writable: true
+    });
+  } else {
+    target[key] = value;
+  }
+}
+function assign(target, sources, ownOnly) {
+  for (const source of sources) {
+    const type = typeof source;
+    if (source == null || type !== 'object' && type !== 'function') {
+      continue;
+    }
+    for (const key in source) {
+      if (ownOnly && !Object.hasOwn(source, key)) {
+        continue;
+      }
+      setProperty(target, key, source[key]);
+    }
+  }
+  return target;
+}
+function assignOwn(target, ...sources) {
+  return assign(target, sources, true);
+}
+function assignIn(target, ...sources) {
+  return assign(target, sources, false);
+}
+
 function extend (protoProps, staticProps) {
   const parent = this;
   let child;
-  if (protoProps && has(protoProps, 'constructor')) {
+  if (protoProps && Object.hasOwn(protoProps, 'constructor')) {
     child = protoProps.constructor;
   } else {
     child = function () {
       return parent.apply(this, arguments);
     };
   }
-  extend$1(child, parent, staticProps);
-  child.prototype = create(parent.prototype, protoProps);
+  assignIn(child, parent);
+  assignOwn(child, staticProps);
+  child.prototype = Object.create(parent.prototype);
+  assignOwn(child.prototype, protoProps);
   child.prototype.constructor = child;
   child.__super__ = parent.prototype;
   return child;
