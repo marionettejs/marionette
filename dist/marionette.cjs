@@ -724,10 +724,16 @@ var DestroyMixin = {
     return this._isDestroyed;
   },
   destroy(options) {
-    if (this._isDestroyed) {
+    if (this._isDestroyed || this._isDestroying) {
       return this;
     }
-    this.triggerMethod('before:destroy', this, options);
+    this._isDestroying = true;
+    try {
+      this.triggerMethod('before:destroy', this, options);
+    } catch (error) {
+      delete this._isDestroying;
+      throw error;
+    }
     this._isDestroyed = true;
     this.triggerMethod('destroy', this, options);
     this.stopListening();
@@ -1412,7 +1418,12 @@ const ViewMixin = {
     }
     this._isDestroying = true;
     const shouldTriggerDetach = this._isAttached && !this._disableDetachEvents;
-    this.triggerMethod('before:destroy', this, options);
+    try {
+      this.triggerMethod('before:destroy', this, options);
+    } catch (error) {
+      delete this._isDestroying;
+      throw error;
+    }
     if (shouldTriggerDetach) {
       this.triggerMethod('before:detach', this);
     }
@@ -1808,10 +1819,16 @@ underscore.extend(Region.prototype, CommonMixin, {
     return this._isDestroyed;
   },
   destroy(options) {
-    if (this._isDestroyed) {
+    if (this._isDestroyed || this._isDestroying) {
       return this;
     }
-    this.triggerMethod('before:destroy', this, options);
+    this._isDestroying = true;
+    try {
+      this.triggerMethod('before:destroy', this, options);
+    } catch (error) {
+      delete this._isDestroying;
+      throw error;
+    }
     this._isDestroyed = true;
     this.reset(options);
     if (this._name) {

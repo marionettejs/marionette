@@ -533,8 +533,13 @@ This can be useful in unit testing your views.
 
 A region can be destroyed which will `reset` the region, destroy its current View,
 remove it from any parent View's Region lookups, and stop any internal Region listeners.
-Repeated Region destruction or later destruction of the parent View does not repeat
-the child or Region teardown. A destroyed Region should not be reused.
+Reentrant Region destruction from `before:destroy` or `destroy`, repeated calls,
+and later destruction of the parent View do not repeat the child or Region teardown.
+If `before:destroy` throws, the Region remains live and owned with its current
+View intact. A later `destroy()` call retries `before:destroy` before cleaning up
+that View and ownership once. Errors after `before:destroy` completes do not
+restart teardown.
+A destroyed Region should not be reused.
 
 ```javascript
 import { View } from 'backbone.marionette';

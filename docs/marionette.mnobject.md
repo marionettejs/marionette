@@ -51,6 +51,14 @@ instance. `destroy` returns the MnObject.
 
 Invoking the `destroy` method will trigger `before:destroy` and `destroy` events and their [corresponding methods](./marionette.functions.md#marionettetriggermethod).
 
+Reentrant `destroy()` calls from either lifecycle event, and later repeated
+calls, return the same MnObject without restarting teardown.
+[Applications](./marionette.application.md) share this destruction contract.
+If a `before:destroy` handler throws, its error propagates without marking the
+instance destroyed. A later `destroy()` call retries `before:destroy`, including
+all of its handlers, before completing teardown. Errors after `before:destroy`
+completes do not restart teardown.
+
 **Note** The event handlers will pass the `options` argument `destroy` was invoked with.
 
 ```javascript
