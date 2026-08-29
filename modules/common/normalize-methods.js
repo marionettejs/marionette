@@ -1,7 +1,6 @@
 import MarionetteError from '../../utils/error.js';
 import { setProperty } from '../../utils/assign-in.js';
-
-const getObjectTag = Function.call.bind(Object.prototype.toString);
+import isString from '../../utils/is-string.js';
 
 // Marionette.normalizeMethods
 // ----------------------
@@ -12,7 +11,7 @@ const resolveMethod = function(context, method, name) {
   if (typeof method === 'function') { return method; }
 
   const methodName = method;
-  const resolvedMethod = getObjectTag(methodName) === '[object String]' ?
+  const resolvedMethod = isString(methodName) ?
     context[methodName] : undefined;
 
   if (typeof resolvedMethod !== 'function') {

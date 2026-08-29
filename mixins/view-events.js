@@ -1,9 +1,19 @@
-import { isString, result, each } from 'underscore';
 import { isEnabled } from '../config/features.js';
 import EventDelegator from '../config/event-delegator.js';
 import { resolveMethod } from '../modules/common/normalize-methods.js';
+import getValue from '../utils/get-value.js';
+import isString from '../utils/is-string.js';
 
 const delegateEventSplitter = /^(\S+)\s*(.*)$/;
+
+function eachOwn(object, iteratee) {
+  if (object == null) { return; }
+
+  const keys = Object.keys(object);
+  for (const key of keys) {
+    iteratee(object[key], key);
+  }
+}
 
 // Internal method to create an event handler for a given `triggerDef` like
 // 'click:foo'
@@ -69,7 +79,7 @@ export default {
   _delegateEvents(delegates, uiBindings) {
     if (!this.events) { return; }
 
-    each(result(this, 'events'), (handler, key) => {
+    eachOwn(getValue(this, 'events'), (handler, key) => {
       handler = resolveMethod(this, handler, key);
       delegates.push(handler.bind(this), this.normalizeUIString(key, uiBindings));
     });
@@ -78,7 +88,7 @@ export default {
   _delegateTriggers(delegates, uiBindings, view) {
     if (!this.triggers) { return; }
 
-    each(result(this, 'triggers'), (value, key) => {
+    eachOwn(getValue(this, 'triggers'), (value, key) => {
       delegates.push(buildViewTrigger(view, value), this.normalizeUIString(key, uiBindings));
     });
   },
