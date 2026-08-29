@@ -1,4 +1,4 @@
-import { each, keys, reduce, uniqueId, extend as extend$1, map, without, result, isFunction, isString, isObject, partial, isEmpty, matches } from 'underscore';
+import { each, keys, reduce, uniqueId, extend as extend$1, map, without, result, isFunction, isString as isString$1, isObject, partial, isEmpty, matches } from 'underscore';
 
 const proxy = function (method) {
   return function (context, ...args) {
@@ -101,12 +101,16 @@ const MarionetteError = extend.call(Error, {
 });
 
 const getObjectTag = Function.call.bind(Object.prototype.toString);
+function isString(value) {
+  return getObjectTag(value) === '[object String]';
+}
+
 const resolveMethod = function (context, method, name) {
   if (typeof method === 'function') {
     return method;
   }
   const methodName = method;
-  const resolvedMethod = getObjectTag(methodName) === '[object String]' ? context[methodName] : undefined;
+  const resolvedMethod = isString(methodName) ? context[methodName] : undefined;
   if (typeof resolvedMethod !== 'function') {
     let methodLabel = '<unprintable>';
     try {
@@ -1204,7 +1208,7 @@ const normalizeUIString = function (uiString, ui) {
         message: `The ui reference "${name}" must be declared as an own ui key.`
       });
     }
-    if (!isString(selector)) {
+    if (!isString$1(selector)) {
       throw new MarionetteError({
         code: 'MN0018',
         message: `The ui reference "${name}" must be a string selector.`
@@ -1215,11 +1219,11 @@ const normalizeUIString = function (uiString, ui) {
 };
 const normalizeUIValues = function (hash, ui, property) {
   each(hash, (val, key) => {
-    if (isString(val)) {
+    if (isString$1(val)) {
       hash[key] = normalizeUIString(val, ui);
     } else if (val) {
       const propertyVal = val[property];
-      if (isString(propertyVal)) {
+      if (isString$1(propertyVal)) {
         val[property] = normalizeUIString(propertyVal, ui);
       }
     }
@@ -1354,6 +1358,15 @@ var EventDelegator = {
 };
 
 const delegateEventSplitter = /^(\S+)\s*(.*)$/;
+function eachOwn(object, iteratee) {
+  if (object == null) {
+    return;
+  }
+  const keys = Object.keys(object);
+  for (const key of keys) {
+    iteratee(object[key], key);
+  }
+}
 function buildViewTrigger(view, triggerDef) {
   if (isString(triggerDef)) {
     triggerDef = {
@@ -1406,7 +1419,7 @@ var ViewEventsMixin = {
     if (!this.events) {
       return;
     }
-    each(result(this, 'events'), (handler, key) => {
+    eachOwn(getValue(this, 'events'), (handler, key) => {
       handler = resolveMethod(this, handler, key);
       delegates.push(handler.bind(this), this.normalizeUIString(key, uiBindings));
     });
@@ -1415,7 +1428,7 @@ var ViewEventsMixin = {
     if (!this.triggers) {
       return;
     }
-    each(result(this, 'triggers'), (value, key) => {
+    eachOwn(getValue(this, 'triggers'), (value, key) => {
       delegates.push(buildViewTrigger(view, value), this.normalizeUIString(key, uiBindings));
     });
   },
@@ -1509,7 +1522,7 @@ const ViewMixin = {
   preinitialize() {},
   Dom: DomApi,
   _validateEl(el) {
-    if (!isString(el)) {
+    if (!isString$1(el)) {
       return el;
     }
     throw new MarionetteError({
@@ -1690,7 +1703,7 @@ extend$1(Region.prototype, CommonMixin, {
   _isReplaced: false,
   _isSwappingView: false,
   _validateEl(el) {
-    if (!el || isString(el) || el.nodeType === 1) {
+    if (!el || isString$1(el) || el.nodeType === 1) {
       return;
     }
     throw new MarionetteError({
@@ -1998,7 +2011,7 @@ function buildRegion(definition, defaults) {
   if (definition instanceof Region) {
     return definition;
   }
-  if (isString(definition)) {
+  if (isString$1(definition)) {
     return buildRegionFromObject(defaults, {
       el: definition
     });
@@ -2810,7 +2823,7 @@ extend$1(CollectionView.prototype, ViewMixin, {
         return matcher(view.model && view.model.attributes);
       };
     }
-    if (isString(viewFilter)) {
+    if (isString$1(viewFilter)) {
       return function (view) {
         return view.model && view.model.get(viewFilter);
       };

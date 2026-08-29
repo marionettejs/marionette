@@ -105,12 +105,16 @@ const MarionetteError = extend.call(Error, {
 });
 
 const getObjectTag = Function.call.bind(Object.prototype.toString);
+function isString(value) {
+  return getObjectTag(value) === '[object String]';
+}
+
 const resolveMethod = function (context, method, name) {
   if (typeof method === 'function') {
     return method;
   }
   const methodName = method;
-  const resolvedMethod = getObjectTag(methodName) === '[object String]' ? context[methodName] : undefined;
+  const resolvedMethod = isString(methodName) ? context[methodName] : undefined;
   if (typeof resolvedMethod !== 'function') {
     let methodLabel = '<unprintable>';
     try {
@@ -1358,8 +1362,17 @@ var EventDelegator = {
 };
 
 const delegateEventSplitter = /^(\S+)\s*(.*)$/;
+function eachOwn(object, iteratee) {
+  if (object == null) {
+    return;
+  }
+  const keys = Object.keys(object);
+  for (const key of keys) {
+    iteratee(object[key], key);
+  }
+}
 function buildViewTrigger(view, triggerDef) {
-  if (underscore.isString(triggerDef)) {
+  if (isString(triggerDef)) {
     triggerDef = {
       event: triggerDef
     };
@@ -1410,7 +1423,7 @@ var ViewEventsMixin = {
     if (!this.events) {
       return;
     }
-    underscore.each(underscore.result(this, 'events'), (handler, key) => {
+    eachOwn(getValue(this, 'events'), (handler, key) => {
       handler = resolveMethod(this, handler, key);
       delegates.push(handler.bind(this), this.normalizeUIString(key, uiBindings));
     });
@@ -1419,7 +1432,7 @@ var ViewEventsMixin = {
     if (!this.triggers) {
       return;
     }
-    underscore.each(underscore.result(this, 'triggers'), (value, key) => {
+    eachOwn(getValue(this, 'triggers'), (value, key) => {
       delegates.push(buildViewTrigger(view, value), this.normalizeUIString(key, uiBindings));
     });
   },
