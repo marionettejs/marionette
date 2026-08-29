@@ -81,6 +81,95 @@ describe('EventDelegator', function() {
     });
   });
 
+  describe('#undelegateAll', function() {
+    it('removes each registered handler in order with the expected capture flag', function() {
+      const clickHandler = vi.fn();
+      const focusHandler = vi.fn();
+      const removeEventListener = vi.fn();
+      const eventRoot = { removeEventListener };
+      const registeredEvents = [
+        { eventName: 'click', handler: clickHandler },
+        { eventName: 'focus', handler: focusHandler }
+      ];
+
+      EventDelegator.undelegateAll({ events: registeredEvents, rootEl: eventRoot });
+
+      expect(removeEventListener.mock.calls).to.deep.equal([
+        ['click', clickHandler, false],
+        ['focus', focusHandler, true]
+      ]);
+      expect(removeEventListener.mock.instances).to.deep.equal([eventRoot, eventRoot]);
+      expect(registeredEvents).to.have.lengthOf(0);
+    });
+
+    it('uses the initial length while reading later registrations at removal time', function() {
+      const firstHandler = vi.fn();
+      const originalSecondHandler = vi.fn();
+      const replacementHandler = vi.fn();
+      const appendedHandler = vi.fn();
+      const registeredEvents = [
+        { eventName: 'first', handler: firstHandler },
+        { eventName: 'second', handler: originalSecondHandler }
+      ];
+      const removeEventListener = vi.fn(function() {
+        if (removeEventListener.mock.calls.length === 1) {
+          registeredEvents[1] = { eventName: 'replacement', handler: replacementHandler };
+          registeredEvents.push({ eventName: 'appended', handler: appendedHandler });
+        }
+      });
+
+      EventDelegator.undelegateAll({
+        events: registeredEvents,
+        rootEl: { removeEventListener }
+      });
+
+      expect(removeEventListener.mock.calls).to.deep.equal([
+        ['first', firstHandler, false],
+        ['replacement', replacementHandler, false]
+      ]);
+      expect(registeredEvents).to.have.lengthOf(0);
+    });
+
+    it('treats sparse registrations as dense and leaves the registry on failure', function() {
+      const firstHandler = vi.fn();
+      const lastHandler = vi.fn();
+      const registeredEvents = new Array(3);
+      registeredEvents[0] = { eventName: 'first', handler: firstHandler };
+      registeredEvents[2] = { eventName: 'last', handler: lastHandler };
+      const removeEventListener = vi.fn();
+
+      expect(() => EventDelegator.undelegateAll({
+        events: registeredEvents,
+        rootEl: { removeEventListener }
+      })).to.throw(TypeError);
+
+      expect(removeEventListener.mock.calls).to.deep.equal([
+        ['first', firstHandler, false]
+      ]);
+      expect(registeredEvents).to.have.lengthOf(3);
+    });
+
+    it('stops at a removal error and leaves the registry intact for retry', function() {
+      const registeredEvents = [
+        { eventName: 'first', handler: vi.fn() },
+        { eventName: 'second', handler: vi.fn() },
+        { eventName: 'third', handler: vi.fn() }
+      ];
+      const failure = new Error('remove failed');
+      const removeEventListener = vi.fn(function(eventName) {
+        if (eventName === 'second') { throw failure; }
+      });
+
+      expect(() => EventDelegator.undelegateAll({
+        events: registeredEvents,
+        rootEl: { removeEventListener }
+      })).to.throw(failure);
+
+      expect(removeEventListener).toHaveBeenCalledTimes(2);
+      expect(registeredEvents).to.have.lengthOf(3);
+    });
+  });
+
   it('handles delegated clicks on matching elements and their descendants', function() {
     const handler = vi.fn();
 
