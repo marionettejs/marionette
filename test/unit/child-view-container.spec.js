@@ -22,6 +22,50 @@ describe('#ChildViewContainer', function() {
     });
   });
 
+  describe('view property collection helpers', function() {
+    let container;
+    let model;
+    let view;
+
+    beforeEach(function() {
+      model = new Backbone.Model({ status: 'model status' });
+      view = new Backbone.View({ model });
+      view.status = 'view status';
+
+      container = new ChildViewContainer();
+      container._set([view, new Backbone.View()], true);
+    });
+
+    describe('#pluck', function() {
+      it('reads properties directly from child views', function() {
+        const [viewModel, missingModel] = container.pluck('model');
+
+        expect(viewModel).to.equal(model);
+        expect(missingModel).to.be.undefined;
+      });
+
+      it('does not read model attributes', function() {
+        expect(container.pluck('status')).to.deep.equal(['view status', undefined]);
+      });
+
+      it('returns an empty array for an empty container', function() {
+        expect(new ChildViewContainer().pluck('model')).to.deep.equal([]);
+      });
+    });
+
+    describe('#contains', function() {
+      it('matches the exact child view instance', function() {
+        expect(container.contains(view)).to.be.true;
+        expect(container.contains(model)).to.be.false;
+        expect(container.contains({ cid: view.cid })).to.be.false;
+      });
+
+      it('returns false for an empty container', function() {
+        expect(new ChildViewContainer().contains(view)).to.be.false;
+      });
+    });
+  });
+
   describe('#_init', function() {
     let container;
 

@@ -640,6 +640,16 @@ collection functions, including:
 These methods can be called directly on the container, to iterate and process
 the views held by the container.
 
+`pluck(key)` reads `key` directly from each child View. For example,
+`children.pluck('model')` returns the child Views' model objects, and a child
+without a model contributes `undefined`. It does not read model attributes; use
+an explicit callback such as `children.map(view => view.model?.get('status'))`
+for those values. An empty container returns `[]`.
+
+`contains(value)` checks for the exact child View instance. A child View's model
+or another object with the same properties is not considered contained. An empty
+container returns `false`.
+
 ```javascript
 import Backbone from 'backbone';
 import { CollectionView } from 'backbone.marionette';
