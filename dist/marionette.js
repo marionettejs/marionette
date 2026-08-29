@@ -279,7 +279,7 @@ function monitorViewEvents(view) {
 }
 
 const splitter = /(^|:)(\w)/gi;
-const methodCache = {};
+const methodCache = Object.create(null);
 function getEventName(match, prefix, eventName) {
   return eventName.toUpperCase();
 }

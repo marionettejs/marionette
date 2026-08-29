@@ -117,4 +117,53 @@ describe('triggerMethod', function() {
     expect(() => target.triggerMethod('event:name')).to.throw(error);
     expect(target.onEventName).to.have.been.calledBefore(target.trigger);
   });
+
+  [
+    ['constructor', 'onConstructor'],
+    ['toString', 'onToString'],
+    ['__proto__', 'on__proto__']
+  ].forEach(([eventName, methodName]) => {
+    it(`supports the ${eventName} event name across targets and repeated calls`, function() {
+      const firstHandler = this.sinon.stub().returns('first result');
+      const secondHandler = this.sinon.stub().returns('second result');
+      const firstTarget = {
+        trigger: this.sinon.stub(),
+        triggerMethod,
+        [methodName]: firstHandler
+      };
+      const secondTarget = {
+        trigger: this.sinon.stub(),
+        triggerMethod,
+        [methodName]: secondHandler
+      };
+
+      expect(firstTarget.triggerMethod(eventName, 'first argument'))
+        .to.equal('first result');
+      expect(firstTarget.triggerMethod(eventName, 'second argument'))
+        .to.equal('first result');
+      expect(secondTarget.triggerMethod(eventName, 'third argument'))
+        .to.equal('second result');
+
+      expect(firstHandler)
+        .to.have.been.calledTwice
+        .and.calledOn(firstTarget);
+      expect(firstHandler.firstCall).to.have.been.calledWith('first argument');
+      expect(firstHandler.secondCall).to.have.been.calledWith('second argument');
+      expect(secondHandler)
+        .to.have.been.calledOnce
+        .and.calledOn(secondTarget)
+        .and.calledWith('third argument');
+      expect(firstTarget.trigger)
+        .to.have.been.calledTwice
+        .and.calledOn(firstTarget);
+      expect(firstTarget.trigger.firstCall)
+        .to.have.been.calledWith(eventName, 'first argument');
+      expect(firstTarget.trigger.secondCall)
+        .to.have.been.calledWith(eventName, 'second argument');
+      expect(secondTarget.trigger)
+        .to.have.been.calledOnce
+        .and.calledOn(secondTarget)
+        .and.calledWith(eventName, 'third argument');
+    });
+  });
 });
