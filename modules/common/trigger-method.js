@@ -7,7 +7,7 @@ import getOption from './get-option.js';
 const splitter = /(^|:)(\w)/gi;
 
 // Only calc getOnMethodName once
-const methodCache = {};
+const methodCache = Object.create(null);
 
 // take the event section ("section1:section2:section3")
 // and turn it in to uppercase name onSection1Section2Section3
