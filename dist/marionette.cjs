@@ -109,17 +109,26 @@ const normalizeMethods$1 = function (hash) {
   if (!hash) {
     return;
   }
-  return underscore.reduce(hash, (normalizedHash, method, name) => {
-    normalizedHash[name] = resolveMethod(this, method, name);
-    return normalizedHash;
-  }, {});
+  const normalizedHash = {};
+  for (const name of Object.keys(hash)) {
+    setProperty(normalizedHash, name, resolveMethod(this, hash[name], name));
+  }
+  return normalizedHash;
 };
 
+const propertyIsEnumerable$1 = Object.prototype.propertyIsEnumerable;
 function normalizeBindings$1(context, bindings) {
   if (!underscore.isObject(bindings)) {
     throw new MarionetteError({
       code: 'MN0009',
       message: 'Bindings must be an object.',
+      url: 'common.html#bindevents'
+    });
+  }
+  if (propertyIsEnumerable$1.call(bindings, '__proto__')) {
+    throw new MarionetteError({
+      code: 'MN0026',
+      message: 'Entity event maps cannot include an own "__proto__" event name.',
       url: 'common.html#bindevents'
     });
   }

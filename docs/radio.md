@@ -156,6 +156,10 @@ otherwise falsy channel name throws the existing required-name diagnostic
 `channelName`, `radioEvents`, and `radioRequests`. `getChannel()` returns the
 configured channel.
 
+`radioEvents` follows the [entity-event map contract](./common.md#bindevents),
+including the `MN0026` rejection of an own enumerable `__proto__` map entry.
+The direct Radio Events API continues to support `__proto__` as an event name.
+
 <!-- executable-example: radio-owner-lifecycle -->
 ```javascript
 import { MnObject, Radio } from 'marionette';

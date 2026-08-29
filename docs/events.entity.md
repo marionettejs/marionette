@@ -6,6 +6,14 @@ collections - this includes both [standard backbone-events](http://backbonejs.or
 Event handlers are called with the same arguments as if listening to the entity directly
 and called with the context of the view instance.
 
+Entity-event maps cannot contain an own enumerable `__proto__` event name. Marionette
+throws `MarionetteError` code `MN0026` before binding or selectively unbinding such a
+map because third-party entity event implementations may not safely store that name.
+Marionette does not reject other names inherited from `Object.prototype`, such as
+`constructor` and `toString`. Marionette's Events API supports those names and
+continues to support `__proto__`, but third-party emitters such as Backbone may not
+safely support every prototype-collision name.
+
 ### Model Events
 
 For example, to listen to a model's events:

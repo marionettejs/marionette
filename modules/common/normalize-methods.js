@@ -1,5 +1,6 @@
-import { reduce, isFunction, isString } from 'underscore';
+import { isFunction, isString } from 'underscore';
 import MarionetteError from '../../utils/error.js';
+import { setProperty } from '../../utils/assign-in.js';
 
 // Marionette.normalizeMethods
 // ----------------------
@@ -32,10 +33,13 @@ const resolveMethod = function(context, method, name) {
 const normalizeMethods = function(hash) {
   if (!hash) { return }
 
-  return reduce(hash, (normalizedHash, method, name) => {
-    normalizedHash[name] = resolveMethod(this, method, name);
-    return normalizedHash;
-  }, {});
+  const normalizedHash = {};
+
+  for (const name of Object.keys(hash)) {
+    setProperty(normalizedHash, name, resolveMethod(this, hash[name], name));
+  }
+
+  return normalizedHash;
 };
 
 export default normalizeMethods;

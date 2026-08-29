@@ -1,5 +1,14 @@
 import { bindEvents, unbindEvents } from '../../../modules/common/bind-events';
 
+function createProtoBindings(descriptor) {
+  const bindings = {};
+  Object.defineProperty(bindings, '__proto__', {
+    enumerable: true,
+    ...descriptor
+  });
+  return bindings;
+}
+
 describe('bind-events', function() {
   let entity;
   let target;
@@ -72,6 +81,32 @@ describe('bind-events', function() {
             .and.calledWith(entity, { 'foo': target.handleFoo });
         });
       });
+
+      it('accepts other Object prototype collision names', function() {
+        const constructorHandler = this.sinon.stub();
+        const toStringHandler = this.sinon.stub();
+
+        target.bindEvents(entity, {
+          constructor: constructorHandler,
+          toString: toStringHandler
+        });
+
+        expect(target.listenTo).to.have.been.calledOnce.and.calledWith(entity, {
+          constructor: constructorHandler,
+          toString: toStringHandler
+        });
+      });
+
+      it('rejects an own enumerable __proto__ event before binding', function() {
+        const getter = this.sinon.stub().throws(new Error('must not run'));
+        const bindings = createProtoBindings({ get: getter });
+
+        expect(() => target.bindEvents(entity, bindings))
+          .to.throw('Entity event maps cannot include an own "__proto__" event name.')
+          .with.property('code', 'MN0026');
+        expect(getter).to.not.have.been.called;
+        expect(target.listenTo).to.not.have.been.called;
+      });
     });
 
     describe('when bindings is not an object', function() {
@@ -139,6 +174,15 @@ describe('bind-events', function() {
               .and.calledWith(entity, { 'foo': target.handleFoo });
           });
         });
+      });
+
+      it('rejects an own enumerable __proto__ event before selective unbinding', function() {
+        const bindings = createProtoBindings({ value: this.sinon.stub() });
+
+        expect(() => target.unbindEvents(entity, bindings))
+          .to.throw('Entity event maps cannot include an own "__proto__" event name.')
+          .with.property('code', 'MN0026');
+        expect(target.stopListening).to.not.have.been.called;
       });
     });
 

@@ -123,6 +123,10 @@ The second parameter is a hash of `{ 'event:name': 'eventHandler' }`
 configuration. A function can be supplied instead of a string handler name.
 
 **Errors** An error will be thrown if the second parameter is not an object.
+An own enumerable `__proto__` event name is rejected with `MarionetteError`
+code `MN0026` before any listener is added. This restriction applies only to
+entity-event maps; Marionette's direct Events API supports `__proto__` as an
+ordinary event name.
 
 ### `unbindEvents`
 
@@ -166,6 +170,8 @@ any object that has Backbone.Events mixed in) to bind the events from.
 The second parameter is a hash of `{ 'event:name': 'eventHandler' }`
 configuration. A function can be supplied instead of a string handler name.
 If the second paramater is not supplied, all listeners are removed.
+When selectively unbinding with a map, an own enumerable `__proto__` event name
+is rejected with `MarionetteError` code `MN0026` before any listener is removed.
 
 [Live example](https://jsfiddle.net/marionettejs/yvsfm65c/)
 
@@ -245,8 +251,13 @@ If the second paramater is not supplied, all handlers are removed.
 
 ### `normalizeMethods`
 
-Receives a hash of event names and functions and/or function names, and returns the
-same hash with the function names replaced with the function references themselves.
+Receives a hash of event names and functions and/or function names, and returns a
+fresh hash with the function names replaced with the function references themselves.
+Only the hash's own enumerable string keys are normalized; inherited, symbol, and
+non-enumerable properties are ignored. When a hash is supplied, the returned value
+is a fresh plain object.
+A literal own `__proto__` entry remains a handler key without changing the returned
+object's prototype.
 
 Every supplied handler must be a function or a string that resolves to a callable
 own or inherited method on the binding context. Otherwise Marionette throws
