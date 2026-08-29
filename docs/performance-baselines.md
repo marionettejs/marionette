@@ -87,13 +87,27 @@ The proposal equaled the measured combined prototype total without padding and
 added no production subpath. [#224](https://github.com/marionettejs/marionette/pull/224)
 consumed that authorization.
 
-BA0002 authorizes a pending aggregate-ceiling increase from 52,369 to 52,565
+BA0002 authorized an aggregate-ceiling increase from 52,369 to 52,565
 bytes for readable local validation of malformed CollectionView `emptyView`
 classes found during exact-head review of
-[#254](https://github.com/marionettejs/marionette/pull/254). The proposal equals
+[#254](https://github.com/marionettejs/marionette/pull/254). The proposal equaled
 the reviewed prototype total without padding, adds no production subpath, and
-does not include allowance for later Underscore work. It does not change the
-active ceiling until #254 consumes the authorization.
+does not include allowance for later Underscore work. #254 consumed that
+authorization.
+
+BA0003 authorizes a pending increase from 52,565 to 75,000 bytes as a deliberate
+development envelope for the remaining v5 alpha runtime work. Its exact-base
+[#134](https://github.com/marionettejs/marionette/issues/134) stack-fallback and
+unbound-`getUI` diagnostic prototype proves that the previous ceiling is exhausted
+and grows all four main delivery formats, but the proposal
+intentionally includes development headroom. The aggregate sums duplicated delivery
+formats, so this envelope is a coarse runaway-distribution backstop, not a design
+target, feature allocation, or substitute for consumer-bundle evidence. Clean,
+maintainable contracts take priority over byte-golfing within it. Exact-base artifact
+and graph reports, exact-head growth approval, resource checks, and adopted consumer
+scenario budgets remain independent gates. Before beta promotion, the envelope must
+be reviewed against the completed core and canonical dependency-inclusive consumer
+scenarios; unused headroom does not establish release readiness.
 
 The approval must come from a different base-allowed maintainer whenever the exact-base
 allowlist contains an eligible alternative. If the pull-request author is the sole
@@ -120,6 +134,9 @@ under `evidence/performance-budget-amendments/<id>/`, and
 files, hash or revision mismatches, scope mismatches, unrelated source or workflow
 changes, and adding and consuming a record together fail closed. The prototype's
 measured aggregate must exceed the previous ceiling without exceeding the proposal.
+A proposal may deliberately include documented development headroom; it need not
+equal the prototype total. That headroom is shared framework capacity, not reserved
+for the prototype issue or evidence that later growth is desirable.
 A new runtime artifact also requires a measured new production subpath, matching the
 later new-production adoption contract. Every later pull request rechecks each
 historical evidence blob against its immutable ledger hash.
