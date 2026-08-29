@@ -226,6 +226,70 @@ describe('View lifecycle contract', function() {
     region.destroy();
   });
 
+  it('ignores reentrant and repeated destroy calls while tearing down once', function() {
+    this.setFixtures('<div id="reentrant-destroy-region"></div>');
+    const parent = new View({
+      regions: { child: '.child-region' },
+      template: () => '<div class="child-region"></div>',
+    });
+    const child = new View({ template: () => '<span>Child</span>' });
+    const region = new Region({ el: '#reentrant-destroy-region' });
+    let beforeDestroyReturn;
+    let destroyReturn;
+    const lifecycle = {
+      parentBeforeDestroy: this.sinon.spy(currentView => {
+        beforeDestroyReturn = currentView.destroy();
+      }),
+      parentBeforeDetach: this.sinon.spy(),
+      parentDetach: this.sinon.spy(),
+      parentDestroy: this.sinon.spy(currentView => {
+        destroyReturn = currentView.destroy();
+      }),
+      childBeforeDetach: this.sinon.spy(),
+      childDetach: this.sinon.spy(),
+      childBeforeDestroy: this.sinon.spy(),
+      childDestroy: this.sinon.spy(),
+      regionBeforeEmpty: this.sinon.spy(),
+      regionEmpty: this.sinon.spy(),
+    };
+
+    parent.on({
+      'before:destroy': lifecycle.parentBeforeDestroy,
+      'before:detach': lifecycle.parentBeforeDetach,
+      detach: lifecycle.parentDetach,
+      destroy: lifecycle.parentDestroy,
+    });
+    child.on({
+      'before:detach': lifecycle.childBeforeDetach,
+      detach: lifecycle.childDetach,
+      'before:destroy': lifecycle.childBeforeDestroy,
+      destroy: lifecycle.childDestroy,
+    });
+    region.on({
+      'before:empty': lifecycle.regionBeforeEmpty,
+      empty: lifecycle.regionEmpty,
+    });
+
+    region.show(parent);
+    parent.showChildView('child', child);
+
+    expect(parent.destroy()).to.equal(parent);
+    expect(parent.destroy()).to.equal(parent);
+    expect(beforeDestroyReturn).to.equal(parent);
+    expect(destroyReturn).to.equal(parent);
+
+    expect(state(parent)).to.deep.equal({ rendered: false, attached: false, destroyed: true });
+    expect(state(child)).to.deep.equal({ rendered: false, attached: false, destroyed: true });
+    expect(region.hasView()).to.be.false;
+    expect(region.currentView).to.be.undefined;
+
+    for (const callback of Object.values(lifecycle)) {
+      expect(callback).to.have.been.calledOnce;
+    }
+
+    region.destroy();
+  });
+
   it('follows the normal Region-managed transition sequence', function() {
     this.setFixtures('<div id="lifecycle-region"></div>');
     const region = new Region({ el: '#lifecycle-region' });

@@ -249,6 +249,11 @@ a view's instance is no longer referenced the view can be cleaned up by the brow
 The [`before:destroy` event](./events.class.md#destroy-and-beforedestroy-events) is the best place to clean
 up any added listeners not related to the view's DOM.
 
+Once destruction begins, reentrant `destroy()` calls from `before:destroy` or
+`destroy`, and later repeated calls, return the same View without restarting
+teardown. An attached parent, its managed children, and its owning Region therefore
+complete their detach, destroy, and empty lifecycles once.
+
 The state of the view after the destroy is not attached and not rendered although the `el` is not emptied.
 
 ## Destroying Children
