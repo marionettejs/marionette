@@ -1,7 +1,6 @@
 // Trigger Method
 // --------------
 
-import { isFunction } from 'underscore';
 import getOption from './get-option.js';
 
 // split the event name on the ":"
@@ -38,7 +37,7 @@ export default function triggerMethod(event, ...args) {
   let result;
 
   // call the onMethodName if it exists
-  if (isFunction(method)) {
+  if (typeof method === 'function') {
     // pass all args, except the event name
     result = method.apply(this, args);
   }

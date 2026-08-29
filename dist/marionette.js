@@ -293,7 +293,7 @@ function triggerMethod$1(event, ...args) {
   const methodName = getOnMethodName(event);
   const method = getOption$1.call(this, methodName);
   let result;
-  if (isFunction(method)) {
+  if (typeof method === 'function') {
     result = method.apply(this, args);
   }
   this.trigger.apply(this, arguments);
