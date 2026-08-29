@@ -9,7 +9,7 @@
   "toolchain": {
     "releaseProfile": {
       "path": "config/release-profile.json",
-      "sha256": "a0a7b0330fc84feae7766616f4a651abbc822d268a566a0350ebb2c0f1818ce5",
+      "sha256": "405b0135261d44bc5c1cb7832f7bbdbcadfe8415704e40e14abee217ce2e5162",
       "node": "24.19.0",
       "npm": "11.17.0",
       "lockfileVersion": 3,
