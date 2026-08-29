@@ -1200,7 +1200,7 @@
   }
 
   function setEventDelegator$1(mixin) {
-    this.prototype.EventDelegator = underscore.extend({}, this.prototype.EventDelegator, mixin);
+    this.prototype.EventDelegator = assignOwn({}, this.prototype.EventDelegator, mixin);
     return this;
   }
   var EventDelegator = {
@@ -1336,7 +1336,7 @@
   };
 
   function setDomApi$1(mixin) {
-    this.prototype.Dom = underscore.extend({}, this.prototype.Dom, mixin);
+    this.prototype.Dom = assignOwn({}, this.prototype.Dom, mixin);
     return this;
   }
   var DomApi = {

@@ -5,6 +5,11 @@ a root DOM element, `el`. Core uses the browser DOM API by default: `view.$()`
 and bound `getUI()` values are native `NodeList` instances, and delegated
 handlers receive native DOM events.
 
+`View`, `CollectionView`, and `Behavior` support partial event-delegator
+overrides through their static `setEventDelegator` method. The current
+delegator and supplied overlay contribute own enumerable string properties
+only. Inherited, symbol, and non-enumerable properties are ignored.
+
 ## DOM Ownership Boundaries
 
 Use these boundaries when deciding where DOM work belongs:
