@@ -1,0 +1,24 @@
+utils/for-each.js
+  s_d6429951fb9231::t_e7cde9117d914a 4
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_e1fa0ee8f1a119 42
+test/unit/utils/owned-runtime.spec.js
+  s_d6429951fb9231::t_97ca16316c8bfc 119-120
+  s_d6429951fb9231::t_b332c131a01c2f 1-118,121-123
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "c74d02be870636d4f504f2e0a6fb1e7704bf1c7a",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
