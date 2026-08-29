@@ -36,6 +36,26 @@ describe('Radio Mixin on Marionette.Object', function() {
     it('should not bind radioRequests', function() {
       expect(radioObject.bindRequests).to.not.have.been.called;
     });
+
+    it('does not read radio bindings after a falsy channel name', function() {
+      const channelName = this.sinon.stub();
+      const radioEvents = this.sinon.stub().throws(new Error('must not read events'));
+      const radioRequests = this.sinon.stub().throws(new Error('must not read requests'));
+      Object.defineProperties(radioObject, {
+        channelName: { get: channelName, enumerable: true },
+        radioEvents: { get: radioEvents, enumerable: true },
+        radioRequests: { get: radioRequests, enumerable: true }
+      });
+
+      [undefined, null, false, 0, ''].forEach(value => {
+        channelName.returns(value);
+        radioObject.initialize();
+      });
+
+      expect(channelName).to.have.callCount(5);
+      expect(radioEvents).to.not.have.been.called;
+      expect(radioRequests).to.not.have.been.called;
+    });
   });
 
   describe('when a channelName is defined', function() {
@@ -108,6 +128,66 @@ describe('Radio Mixin on Marionette.Object', function() {
           .and.to.have.been.calledWith(channelFoo, {'baz': 'getBaz'});
       });
     });
+  });
+
+  it('resolves and binds radio options in order', function() {
+    const calls = [];
+    radioObject.channelName = this.sinon.stub().callsFake(function(...args) {
+      calls.push(['channelName', this === radioObject, args.length]);
+      return 'foo';
+    });
+    radioObject.radioEvents = this.sinon.stub().callsFake(function(...args) {
+      calls.push(['radioEvents', this === radioObject, args.length]);
+      return { bar: 'onBar' };
+    });
+    radioObject.radioRequests = this.sinon.stub().callsFake(function(...args) {
+      calls.push(['radioRequests', this === radioObject, args.length]);
+      return { baz: 'getBaz' };
+    });
+    radioObject.bindEvents.callsFake(() => calls.push(['bindEvents']));
+    radioObject.bindRequests.callsFake(() => calls.push(['bindRequests']));
+    this.sinon.stub(Radio, 'channel').callsFake(channelName => {
+      calls.push(['channel', channelName]);
+      return channelFoo;
+    });
+    this.sinon.stub(radioObject, 'on').callsFake(() => calls.push(['on']));
+
+    radioObject.initialize();
+
+    expect(calls).to.deep.equal([
+      ['channelName', true, 0],
+      ['channel', 'foo'],
+      ['radioEvents', true, 0],
+      ['bindEvents'],
+      ['radioRequests', true, 0],
+      ['bindRequests'],
+      ['on']
+    ]);
+    [radioObject.channelName, radioObject.radioEvents, radioObject.radioRequests]
+      .forEach(option => {
+        expect(option).to.have.been.calledOnce
+          .and.calledOn(radioObject)
+          .and.calledWithExactly();
+      });
+  });
+
+  it('propagates a radio option lookup error before later work', function() {
+    const error = new Error('radioEvents failed');
+    const radioRequests = this.sinon.stub().returns({ baz: 'getBaz' });
+    radioObject.channelName = 'foo';
+    Object.defineProperty(radioObject, 'radioEvents', {
+      get() {
+        throw error;
+      }
+    });
+    radioObject.radioRequests = radioRequests;
+    this.sinon.spy(radioObject, 'on');
+
+    expect(() => radioObject.initialize()).to.throw(error);
+    expect(radioObject.bindEvents).to.not.have.been.called;
+    expect(radioRequests).to.not.have.been.called;
+    expect(radioObject.bindRequests).to.not.have.been.called;
+    expect(radioObject.on).to.not.have.been.called;
   });
 
   describe('when an Object is destroyed', function() {

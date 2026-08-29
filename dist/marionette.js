@@ -949,16 +949,22 @@ Radio.reset = function (channelName) {
   channel.reset();
 };
 
+function getValue(object, property, fallback) {
+  const value = object == null ? undefined : object[property];
+  const resolvedValue = value === undefined ? fallback : value;
+  return typeof resolvedValue === 'function' ? resolvedValue.call(object) : resolvedValue;
+}
+
 var RadioMixin = {
   _initRadio() {
-    const channelName = result(this, 'channelName');
+    const channelName = getValue(this, 'channelName');
     if (!channelName) {
       return;
     }
     const channel = this._channel = Radio.channel(channelName);
-    const radioEvents = result(this, 'radioEvents');
+    const radioEvents = getValue(this, 'radioEvents');
     this.bindEvents(channel, radioEvents);
-    const radioRequests = result(this, 'radioRequests');
+    const radioRequests = getValue(this, 'radioRequests');
     this.bindRequests(channel, radioRequests);
     this.on('destroy', this._destroyRadio);
   },
@@ -1099,12 +1105,6 @@ var BehaviorsMixin = {
     map(this._behaviors, behavior => behavior.triggerMethod(eventName, view, options));
   }
 };
-
-function getValue(object, property, fallback) {
-  const value = object == null ? undefined : object[property];
-  const resolvedValue = value === undefined ? fallback : value;
-  return typeof resolvedValue === 'function' ? resolvedValue.call(object) : resolvedValue;
-}
 
 var DelegateEntityEventsMixin = {
   _delegateEntityEvents(model, collection) {
