@@ -82,6 +82,47 @@
       ],
       "rationale": "Authorize the exact measured distribution cost of readable local lifecycle validation and class-source recognition for CollectionView emptyView definitions after exact-head review found malformed classes that could still leak native TypeError failures instead of MN0022. The prototype adds no production subpath, shared child-view behavior change, speculative padding, or allowance for later Underscore work.",
       "rollbackCondition": "If #254 is abandoned before consumption, append a governance-only BA0002 revocation. Never edit or delete this authorization. If the final implementation exceeds 52565 bytes or changes the authorized positive-delta artifact scope, require a new exact-base budget amendment."
+    },
+    {
+      "kind": "authorization",
+      "id": "BA0003",
+      "target": "aggregate-shipped-package",
+      "previousCeilingBytes": 52565,
+      "proposedCeilingBytes": 75000,
+      "prototypeBaseCommit": "041393c36eb546d2daaf3f683a8c0235eb274874",
+      "prototypeCommit": "a043b8452ce2971f33fdee31b7335be8667d2620",
+      "implementationIssueUrl": "https://github.com/marionettejs/marionette/issues/134",
+      "authorizedArtifactPaths": [
+        "dist/marionette.cjs",
+        "dist/marionette.js",
+        "dist/marionette.min.js",
+        "dist/marionette.umd.js"
+      ],
+      "authorizedNewSubpaths": [],
+      "reports": [
+        {
+          "path": "evidence/performance-budget-amendments/BA0003/base.json",
+          "role": "base",
+          "sha256": "2183cb2c85673f9acf857828af6f0905eaa02f11183984b7324defe24b10422c"
+        },
+        {
+          "path": "evidence/performance-budget-amendments/BA0003/prototype.json",
+          "role": "prototype",
+          "sha256": "eb7125cc4381ba7005aebcad2afde3bd3d927cf773c05e583e6b482eb5c70837"
+        }
+      ],
+      "prototypeContract": {
+        "path": "evidence/performance-budget-amendments/BA0003/prototype-contract.json",
+        "sha256": "5a484d639179198c76378b4418c2bea32198098600611d0ca9f5263c36af2fd3"
+      },
+      "approvalUrls": [
+        "https://github.com/marionettejs/marionette/pull/256#issuecomment-5462572016"
+      ],
+      "evidenceUrls": [
+        "https://github.com/marionettejs/marionette/issues/127#issuecomment-5462552703"
+      ],
+      "rationale": "Authorize a deliberate 75000-byte aggregate development envelope for the remaining v5 alpha runtime work. The exact stack-fallback and unbound-getUI diagnostic prototype proves the previous ceiling is exhausted and grows every main delivery format, while the larger envelope keeps the duplicated-format package sum as a runaway-growth backstop instead of an incentive to byte-golf clean runtime contracts. Exact-base artifact and graph reporting, growth approval, resource checks, and later consumer-scenario budgets remain independent gates.",
+      "rollbackCondition": "If the stack-fallback and unbound-getUI prototype is abandoned before consumption, append a governance-only BA0003 revocation. Never edit or delete this authorization. Before beta promotion, review the envelope against the completed core and canonical dependency-inclusive consumer scenarios; if a final runtime implementation exceeds 75000 bytes or changes the authorized positive-delta artifact scope, require a new exact-base budget amendment."
     }
   ]
 }
