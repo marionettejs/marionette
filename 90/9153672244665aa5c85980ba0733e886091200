@@ -1,0 +1,31 @@
+.github/CODEOWNERS
+  s_d6429951fb9231::t_e61e64831424fb 5
+config/performance.json
+  s_d6429951fb9231::t_e61e64831424fb 181
+scripts/diagnostics/check-catalog.mjs
+  s_d6429951fb9231::t_e61e64831424fb 1-10
+.github/workflows/docs-pages.yml
+  s_d6429951fb9231::t_e61e64831424fb 19
+config/docs/build.mjs
+  s_d6429951fb9231::t_e61e64831424fb 5
+test/unit/config/diagnostic-catalog.spec.js
+  s_d6429951fb9231::t_e61e64831424fb 8
+package.json
+  s_d6429951fb9231::t_e61e64831424fb 83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "909153672244665aa5c85980ba0733e886091200",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
