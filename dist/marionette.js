@@ -1391,7 +1391,11 @@ var DomApi = {
   },
   setAttributes(el, attrs) {
     each(keys(attrs), attr => {
-      attr in el ? el[attr] = attrs[attr] : el.setAttribute(attr, attrs[attr]);
+      if (attr in el) {
+        setProperty(el, attr, attrs[attr]);
+      } else {
+        el.setAttribute(attr, attrs[attr]);
+      }
     });
   },
   appendContents(el, contents) {
@@ -1425,7 +1429,7 @@ const ViewMixin = {
     const elOption = result(this, 'el');
     if (!elOption) {
       const el = this.Dom.createElement(result(this, 'tagName'));
-      const attrs = extend$1({}, result(this, 'attributes'));
+      const attrs = assignOwn({}, result(this, 'attributes'));
       if (this.id) {
         attrs.id = result(this, 'id');
       }

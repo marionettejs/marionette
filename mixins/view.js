@@ -2,6 +2,7 @@
 //  ---------
 
 import { extend, isString, result } from 'underscore';
+import { assignOwn } from '../utils/assign-in.js';
 import MarionetteError from '../utils/error.js';
 import BehaviorsMixin from './behaviors.js';
 import CommonMixin from './common.js';
@@ -58,7 +59,7 @@ const ViewMixin = {
 
     if (!elOption) {
       const el = this.Dom.createElement(result(this, 'tagName'));
-      const attrs = extend({}, result(this, 'attributes'));
+      const attrs = assignOwn({}, result(this, 'attributes'));
       if (this.id) {attrs.id = result(this, 'id');}
       if (this.className) {attrs.class = result(this, 'className');}
       this.Dom.setAttributes(el, attrs);

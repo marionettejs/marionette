@@ -251,6 +251,49 @@ describe('DomApi', function() {
     });
   });
 
+  describe('#setAttributes', function() {
+    it('assigns existing properties and sets other attributes', function() {
+      const el = {
+        existing: 'old',
+        setAttribute: this.sinon.stub()
+      };
+
+      DomApi.setAttributes(el, { existing: 'new', missing: 'attribute' });
+
+      expect(el.existing).to.equal('new');
+      expect(el.setAttribute).to.have.been.calledOnce
+        .and.calledWithExactly('missing', 'attribute');
+    });
+
+    it('uses only own enumerable string keys and safely assigns __proto__', function() {
+      const symbol = Symbol('ignored');
+      const protoValue = { polluted: true };
+      const attrs = Object.assign(Object.create({ inherited: 'ignored' }), {
+        title: 'owned',
+        'data-owned': 'owned',
+        [symbol]: 'ignored'
+      });
+      Object.defineProperty(attrs, 'hidden', { value: 'ignored' });
+      Object.defineProperty(attrs, '__proto__', {
+        enumerable: true,
+        value: protoValue
+      });
+      const el = document.createElement('div');
+      const elementPrototype = Object.getPrototypeOf(el);
+
+      DomApi.setAttributes(el, attrs);
+
+      expect(el.title).to.equal('owned');
+      expect(el.dataset.owned).to.equal('owned');
+      expect(el.getAttribute('inherited')).to.be.null;
+      expect(el.getAttribute('hidden')).to.be.null;
+      expect(el[symbol]).to.be.undefined;
+      expect(Object.getPrototypeOf(el)).to.equal(elementPrototype);
+      expect(Object.hasOwn(el, '__proto__')).to.be.true;
+      expect(Object.getOwnPropertyDescriptor(el, '__proto__').value).to.equal(protoValue);
+    });
+  });
+
   describe('#appendContents', function() {
     let domEl;
     let appending;

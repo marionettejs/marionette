@@ -54,6 +54,11 @@ const myView = new View({ ... });
 ```
 
 These properties are defined by Marionette's standalone `View` constructor.
+When Marionette creates the View's element, `attributes` contributes own
+enumerable string properties only; inherited, symbol, and non-enumerable
+properties are ignored. When applied, `id` and `className` assignments occur
+afterward and override the corresponding `attributes` keys. See the
+[`DomApi.setAttributes` contract](./dom.api.md#setattributesel-attrs).
 
 ## Rendering a View
 

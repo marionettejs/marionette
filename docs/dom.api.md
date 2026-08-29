@@ -79,7 +79,14 @@ Replaces the contents of `el` by assigning `html` to `el.innerHTML`.
 ### `setAttributes(el, attrs)`
 
 Sets each entry in `attrs` on `el`. A key that exists as an element property is
-assigned as a property; other keys use `setAttribute`.
+assigned as a property; other keys use `setAttribute`. The input contributes
+own enumerable string properties only. Inherited, symbol, and non-enumerable
+properties are ignored. A literal own `__proto__` key becomes an own element
+property without changing the element's prototype.
+
+When `View` or `CollectionView` creates an element, its `attributes` map follows
+the same own-enumerable-string rule. When applied, `id` and `className`
+assignments occur afterward and override the corresponding `attributes` keys.
 
 ### `appendContents(el, contents)`
 

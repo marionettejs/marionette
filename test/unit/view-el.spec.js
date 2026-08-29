@@ -38,6 +38,44 @@ describe('View el policy', function() {
     expect(view.el.className).to.equal('foo');
   });
 
+  it('uses only own enumerable attributes and safely applies __proto__', function() {
+    const symbol = Symbol('ignored');
+    const protoValue = { polluted: true };
+    const attributeHash = Object.assign(Object.create({ 'data-inherited': 'ignored' }), {
+      class: 'attribute-class',
+      id: 'attribute-id',
+      title: 'owned',
+      'data-owned': 'owned',
+      [symbol]: 'ignored'
+    });
+    Object.defineProperty(attributeHash, 'data-hidden', { value: 'ignored' });
+    Object.defineProperty(attributeHash, '__proto__', {
+      enumerable: true,
+      value: protoValue
+    });
+    const attributes = this.sinon.stub().returns(attributeHash);
+    const AttributeView = View.extend({
+      attributes,
+      className: 'canonical-class',
+      id: 'canonical-id'
+    });
+    const elementPrototype = Object.getPrototypeOf(document.createElement('div'));
+
+    const view = new AttributeView();
+
+    expect(attributes).to.have.been.calledOnce.and.calledOn(view);
+    expect(view.el.title).to.equal('owned');
+    expect(view.el.dataset.owned).to.equal('owned');
+    expect(view.el.getAttribute('data-inherited')).to.be.null;
+    expect(view.el.getAttribute('data-hidden')).to.be.null;
+    expect(view.el[symbol]).to.be.undefined;
+    expect(view.el.id).to.equal('canonical-id');
+    expect(view.el.className).to.equal('canonical-class');
+    expect(Object.getPrototypeOf(view.el)).to.equal(elementPrototype);
+    expect(Object.hasOwn(view.el, '__proto__')).to.be.true;
+    expect(Object.getOwnPropertyDescriptor(view.el, '__proto__').value).to.equal(protoValue);
+  });
+
   it('accepts a function-valued el that returns a DOM element', function() {
     const rootEl = document.getElementById('root');
     const view = new View({ el: () => rootEl });
