@@ -671,13 +671,13 @@
     callback,
     context
   }) {
-    if (requests[name]) {
+    if (Object.hasOwn(requests, name)) {
       debugLog('A request was overwritten', name, this.channelName);
     }
-    requests[name] = {
+    setProperty(requests, name, {
       callback: isOnce ? onceWrap(makeCallback(callback), this.stopReplying.bind(this, name)) : makeCallback(callback),
       context: context || this
-    };
+    });
     return requests;
   };
   const stopReducer = function (requests, {
@@ -687,7 +687,7 @@
   }) {
     const names = name ? [name] : underscore.keys(requests);
     underscore.each(names, key => {
-      const handler = requests[key];
+      const handler = Object.hasOwn(requests, key) ? requests[key] : undefined;
       if (!handler || callback && callback !== handler.callback && callback !== handler.callback._callback || context && context !== handler.context) {
         return;
       }
@@ -722,13 +722,17 @@
       if (name && typeof name === 'object') {
         return underscore.reduce(underscore.keys(name), (replies, key) => {
           const result = this.request(key, name[key]);
-          eventSplitter.test(key) ? underscore.extend(replies, result) : replies[key] = result;
+          if (eventSplitter.test(key)) {
+            assignOwn(replies, result);
+          } else {
+            setProperty(replies, key, result);
+          }
           return replies;
         }, {});
       }
       if (name && eventSplitter.test(name)) {
         return underscore.reduce(name.split(eventSplitter), (replies, n) => {
-          replies[n] = this.request(n, ...args);
+          setProperty(replies, n, this.request(n, ...args));
           return replies;
         }, {});
       }
@@ -737,10 +741,13 @@
       if (channelName && this._tunedIn) {
         log.apply(this, [channelName, name].concat(args));
       }
-      if (requests && (requests[name] || requests.default)) {
-        const handler = requests[name] || requests.default;
-        args = requests[name] ? args : arguments;
-        return callHandler(handler.callback, handler.context, args);
+      if (requests) {
+        const hasRequest = Object.hasOwn(requests, name);
+        const handler = hasRequest ? requests[name] : Object.hasOwn(requests, 'default') ? requests.default : undefined;
+        if (handler) {
+          args = hasRequest ? args : arguments;
+          return callHandler(handler.callback, handler.context, args);
+        }
       }
       debugLog('An unhandled request was fired', name, channelName);
     }
