@@ -2,8 +2,8 @@
 
 A `View` is used for managing portions of the DOM via a single parent DOM element or `el`.
 It provides a consistent interface for managing the content of the `el` which is typically
-administered by serializing a `Backbone.Model` or `Backbone.Collection` and rendering
-a template with the serialized data into the `View`s `el`.
+administered by serializing attached model or collection data and rendering a template
+with that data into the `View`'s `el`.
 
 The `View` provides event delegation for capturing and handling DOM interactions as well as
 the ability to separate concerns into smaller, managed child views.
@@ -48,13 +48,12 @@ that will be attached directly to the instance:
 `tagName`, `template`, `templateContext`, `triggers`, `ui`
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const myView = new View({ ... });
 ```
 
-Some of these properties come from Marionette, but many are inherited from
-[`Backbone.View`](http://backbonejs.org/#View-constructor).
+These properties are defined by Marionette's standalone `View` constructor.
 
 ## Rendering a View
 
@@ -63,8 +62,8 @@ The Marionette View implements a powerful render method which, given a
 HTML from that template, mixing in `model` or `collection` data and any
 extra [template context](./view.rendering.md#adding-context-data).
 
-Unlike `Backbone.View` Marionette defines `render` and this method should
-not be overridden. To add functionality to the render use the
+Marionette `View` defines `render`, and this method should not be overridden.
+To add functionality around rendering, use the
 [`render` and `before:render` events](./events.class.md#render-and-beforerender-events).
 
 [Live example](https://jsfiddle.net/marionettejs/dhsjcka4/)
@@ -99,8 +98,7 @@ Read More:
 
 ## DOM Interactions
 
-In addition to what Backbone provides the views, Marionette has additional API
-for DOM interactions: `events`, `triggers`, and `ui`.
+`View` provides `events`, `triggers`, and `ui` for DOM interactions.
 
 Read More:
 - [DOM Interactions](./dom.interactions.md)
@@ -124,7 +122,7 @@ We will cover this here but for more advanced information, see the
 
 ### Laying Out Views - Regions
 
-The `Marionette.View` class lets us manage a hierarchy of views using `regions`.
+The `View` class lets us manage a hierarchy of views using `regions`.
 Regions are a hook point that lets us show views inside views, manage the
 show/hide lifecycles, and act on events inside the children.
 
@@ -144,7 +142,7 @@ where the new view will be displayed:
 
 ```javascript
 import _ from 'underscore';
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   template: _.template(`
@@ -163,8 +161,7 @@ const MyView = View.extend({
 
 When we show views in the region, the contents of `#first-region` and
 `#second-region` will be replaced with the contents of the view we show. The
-value in the `regions` hash is just a jQuery selector, and any valid jQuery
-syntax will suffice.
+string values in this example are CSS selectors scoped to the `View`'s `el`.
 
 ### Showing a Child View
 
@@ -261,7 +258,7 @@ paint: just render all of the children in the `onRender` callback for the
 [`render` event](./events.class.md#render-and-beforerender-events).
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const ParentView = View.extend({
   // ...
