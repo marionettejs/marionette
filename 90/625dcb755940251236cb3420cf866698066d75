@@ -1,0 +1,39 @@
+dist/marionette.min.js
+  s_d6429951fb9231::t_ec79657c433b76 1
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_181ea15f7d0e4d 1
+modules/collection-view.js
+  s_d6429951fb9231::t_b1702c32774323 28
+  s_d6429951fb9231::t_1015a1026ec1fd 20
+  s_d6429951fb9231::t_ee05c3296d90ea 19,21-24
+dist/marionette.cjs
+  s_d6429951fb9231::t_a6f67849317396 2161-2169,2172
+dist/marionette.js
+  s_d6429951fb9231::t_9a75078627c5d8 2157-2165,2168
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_b649c2eff22507 1
+test/unit/collection-view/collection-view-empty.spec.js
+  s_d6429951fb9231::t_704f68e2a75159 294,297-302
+  s_d6429951fb9231::t_8f1d68243567f5 306-312
+  s_d6429951fb9231::t_b1702c32774323 293,295-296,303-305
+dist/marionette.umd.js
+  s_d6429951fb9231::t_59ba2cb9113ca3 2166-2174,2177
+docs/marionette.collectionview.md
+  s_d6429951fb9231::t_704f68e2a75159 484-488
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "90625dcb755940251236cb3420cf866698066d75",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
