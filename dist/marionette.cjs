@@ -193,14 +193,14 @@ const getOption$1 = function (optionName) {
   }
 };
 
-const MAX_ARRAY_INDEX = Number.MAX_SAFE_INTEGER;
+const MAX_ARRAY_INDEX$1 = Number.MAX_SAFE_INTEGER;
 const propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
 const eachRequestedKey = function (keys, iteratee) {
   if (keys == null) {
     return;
   }
   const candidateLength = keys.length;
-  if (typeof candidateLength === 'number' && candidateLength >= 0 && candidateLength <= MAX_ARRAY_INDEX) {
+  if (typeof candidateLength === 'number' && candidateLength >= 0 && candidateLength <= MAX_ARRAY_INDEX$1) {
     const length = keys.length;
     for (let index = 0; index < length; index++) {
       iteratee(keys[index]);
@@ -227,11 +227,30 @@ const mergeOptions$1 = function (options, keys) {
   });
 };
 
+const MAX_ARRAY_INDEX = Number.MAX_SAFE_INTEGER;
+function eachChild(children, iteratee) {
+  if (children == null) {
+    return;
+  }
+  const candidateLength = children.length;
+  if (typeof candidateLength === 'number' && candidateLength >= 0 && candidateLength <= MAX_ARRAY_INDEX) {
+    const length = children.length;
+    for (let index = 0; index < length; index++) {
+      iteratee(children[index]);
+    }
+    return;
+  }
+  const names = Object.keys(children);
+  for (let index = 0, length = names.length; index < length; index++) {
+    const name = names[index];
+    iteratee(children[name]);
+  }
+}
 function triggerMethodChildren(view, event, shouldTrigger) {
   if (!view._getImmediateChildren) {
     return;
   }
-  underscore.each(view._getImmediateChildren(), child => {
+  eachChild(view._getImmediateChildren(), child => {
     if (!shouldTrigger(child)) {
       return;
     }
