@@ -41,6 +41,47 @@
       ],
       "rationale": "Authorize the exact measured distribution cost of a uniform retryable before:destroy contract and stable lazy MN0022 validation for CollectionView emptyView definitions. The combined prototype avoids divergent lifecycle semantics and incidental errors without speculative padding, new production subpaths, normal-path helper calls, or changes to the immutable Phase 0 baseline.",
       "rollbackCondition": "If #224 is abandoned before consumption, append a governance-only BA0001 revocation. Never edit or delete this authorization. If a final runtime implementation exceeds 52369 bytes or changes the authorized positive-delta artifact scope, require a new exact-base budget amendment."
+    },
+    {
+      "kind": "authorization",
+      "id": "BA0002",
+      "target": "aggregate-shipped-package",
+      "previousCeilingBytes": 52369,
+      "proposedCeilingBytes": 52565,
+      "prototypeBaseCommit": "bb950d819cd066c0ea6e4c4c7efec77892114d91",
+      "prototypeCommit": "90625dcb755940251236cb3420cf866698066d75",
+      "implementationIssueUrl": "https://github.com/marionettejs/marionette/issues/226",
+      "authorizedArtifactPaths": [
+        "dist/marionette.cjs",
+        "dist/marionette.js",
+        "dist/marionette.min.js",
+        "dist/marionette.umd.js"
+      ],
+      "authorizedNewSubpaths": [],
+      "reports": [
+        {
+          "path": "evidence/performance-budget-amendments/BA0002/base.json",
+          "role": "base",
+          "sha256": "72b794a36b9e770fece18a149960b3629be2aba3adedfa404375ee8d6655a837"
+        },
+        {
+          "path": "evidence/performance-budget-amendments/BA0002/prototype.json",
+          "role": "prototype",
+          "sha256": "bd9520d929211b83126463a559f771cbe2d321cf4e9b2f972754d0d8da6df4ae"
+        }
+      ],
+      "prototypeContract": {
+        "path": "evidence/performance-budget-amendments/BA0002/prototype-contract.json",
+        "sha256": "5b2c2d4c9ab7f678448876914222a99bccad33f4438a012a89edaac9f6504a17"
+      },
+      "approvalUrls": [
+        "https://github.com/marionettejs/marionette/pull/255#issuecomment-5462436235"
+      ],
+      "evidenceUrls": [
+        "https://github.com/marionettejs/marionette/issues/127#issuecomment-5462436127"
+      ],
+      "rationale": "Authorize the exact measured distribution cost of readable local lifecycle validation and class-source recognition for CollectionView emptyView definitions after exact-head review found malformed classes that could still leak native TypeError failures instead of MN0022. The prototype adds no production subpath, shared child-view behavior change, speculative padding, or allowance for later Underscore work.",
+      "rollbackCondition": "If #254 is abandoned before consumption, append a governance-only BA0002 revocation. Never edit or delete this authorization. If the final implementation exceeds 52565 bytes or changes the authorized positive-delta artifact scope, require a new exact-base budget amendment."
     }
   ]
 }

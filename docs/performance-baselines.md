@@ -80,12 +80,20 @@ base-allowed maintainer. Evidence URLs remain durable issue #127 comments from t
 repository participants. The record also preserves its rationale and rollback
 condition.
 
-BA0001 authorizes a pending aggregate-ceiling increase from 51,975 to 52,369
+BA0001 authorized an aggregate-ceiling increase from 51,975 to 52,369
 bytes for the exact-base lifecycle-retry and CollectionView `emptyView`
 diagnostic prototype tracked by [#226](https://github.com/marionettejs/marionette/issues/226).
-The proposal equals the measured combined prototype total without padding. It
-does not change the active ceiling until a later implementation consumes the
-authorization, and it adds no production subpath.
+The proposal equaled the measured combined prototype total without padding and
+added no production subpath. [#224](https://github.com/marionettejs/marionette/pull/224)
+consumed that authorization.
+
+BA0002 authorizes a pending aggregate-ceiling increase from 52,369 to 52,565
+bytes for readable local validation of malformed CollectionView `emptyView`
+classes found during exact-head review of
+[#254](https://github.com/marionettejs/marionette/pull/254). The proposal equals
+the reviewed prototype total without padding, adds no production subpath, and
+does not include allowance for later Underscore work. It does not change the
+active ceiling until #254 consumes the authorization.
 
 The approval must come from a different base-allowed maintainer whenever the exact-base
 allowlist contains an eligible alternative. If the pull-request author is the sole
