@@ -1,0 +1,25 @@
+test/fixtures/docs-behavior-host/validate.mjs
+  s_d6429951fb9231::t_7522d84e696226 6,21-24,50,58-62,132-136,144-151,153-158,160-166
+  s_d6429951fb9231::t_d6e090ffe51f61 137-143,152,159
+  s_d6429951fb9231::t_df7bf06a32eef8 167
+docs/marionette.behavior.md
+  s_d6429951fb9231::t_d6e090ffe51f61 181-182
+  s_d6429951fb9231::t_16ca109cc646aa 178-179
+  s_d6429951fb9231::t_cda8dfb264abaa 184-186,188-194,198,202-220
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "560661fbec151aae5b6e6af84c6758f465c48ec5",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
