@@ -114,10 +114,11 @@
     if (!hash) {
       return;
     }
-    return underscore.reduce(hash, (normalizedHash, method, name) => {
-      normalizedHash[name] = resolveMethod(this, method, name);
-      return normalizedHash;
-    }, {});
+    const normalizedHash = {};
+    for (const name of Object.keys(hash)) {
+      setProperty(normalizedHash, name, resolveMethod(this, hash[name], name));
+    }
+    return normalizedHash;
   };
 
   function normalizeBindings$1(context, bindings) {

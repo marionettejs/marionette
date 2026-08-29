@@ -245,8 +245,12 @@ If the second paramater is not supplied, all handlers are removed.
 
 ### `normalizeMethods`
 
-Receives a hash of event names and functions and/or function names, and returns the
-same hash with the function names replaced with the function references themselves.
+Receives a hash of event names and functions and/or function names, and returns a
+fresh hash with the function names replaced with the function references themselves.
+Only the hash's own enumerable string keys are normalized; inherited, symbol, and
+non-enumerable properties are ignored. The returned hash is always a fresh plain object.
+A literal own `__proto__` entry remains a handler key without changing the returned
+object's prototype.
 
 Every supplied handler must be a function or a string that resolves to a callable
 own or inherited method on the binding context. Otherwise Marionette throws

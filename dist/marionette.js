@@ -1,4 +1,4 @@
-import { extend as extend$1, pick, reduce, isFunction, isString, isObject, each, keys, once, uniqueId, result, map, without, partial, isEmpty, matches } from 'underscore';
+import { extend as extend$1, pick, isFunction, isString, isObject, each, reduce, keys, once, uniqueId, result, map, without, partial, isEmpty, matches } from 'underscore';
 
 const proxy = function (method) {
   return function (context, ...args) {
@@ -105,10 +105,11 @@ const normalizeMethods$1 = function (hash) {
   if (!hash) {
     return;
   }
-  return reduce(hash, (normalizedHash, method, name) => {
-    normalizedHash[name] = resolveMethod(this, method, name);
-    return normalizedHash;
-  }, {});
+  const normalizedHash = {};
+  for (const name of Object.keys(hash)) {
+    setProperty(normalizedHash, name, resolveMethod(this, hash[name], name));
+  }
+  return normalizedHash;
 };
 
 function normalizeBindings$1(context, bindings) {
