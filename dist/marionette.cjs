@@ -104,13 +104,14 @@ const MarionetteError = extend.call(Error, {
   }
 });
 
+const getObjectTag = Function.call.bind(Object.prototype.toString);
 const resolveMethod = function (context, method, name) {
-  if (underscore.isFunction(method)) {
+  if (typeof method === 'function') {
     return method;
   }
   const methodName = method;
-  const resolvedMethod = underscore.isString(methodName) ? context[methodName] : undefined;
-  if (!underscore.isFunction(resolvedMethod)) {
+  const resolvedMethod = getObjectTag(methodName) === '[object String]' ? context[methodName] : undefined;
+  if (typeof resolvedMethod !== 'function') {
     let methodLabel = '<unprintable>';
     try {
       methodLabel = String(methodName);

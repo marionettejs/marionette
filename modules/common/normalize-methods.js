@@ -1,6 +1,7 @@
-import { isFunction, isString } from 'underscore';
 import MarionetteError from '../../utils/error.js';
 import { setProperty } from '../../utils/assign-in.js';
+
+const getObjectTag = Function.call.bind(Object.prototype.toString);
 
 // Marionette.normalizeMethods
 // ----------------------
@@ -8,12 +9,13 @@ import { setProperty } from '../../utils/assign-in.js';
 // Pass in a mapping of events => functions or function names
 // and return a mapping of events => functions
 const resolveMethod = function(context, method, name) {
-  if (isFunction(method)) { return method; }
+  if (typeof method === 'function') { return method; }
 
   const methodName = method;
-  const resolvedMethod = isString(methodName) ? context[methodName] : undefined;
+  const resolvedMethod = getObjectTag(methodName) === '[object String]' ?
+    context[methodName] : undefined;
 
-  if (!isFunction(resolvedMethod)) {
+  if (typeof resolvedMethod !== 'function') {
     let methodLabel = '<unprintable>';
     try {
       methodLabel = String(methodName);

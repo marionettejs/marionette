@@ -1,3 +1,5 @@
+import vm from 'node:vm';
+
 import View from '../../../modules/view';
 
 describe('normalizeMethods', function() {
@@ -69,15 +71,57 @@ describe('normalizeMethods', function() {
       expect(accessOrder).to.deep.equal(['first', 'second']);
     });
 
-    it('passes function handlers through unchanged', function() {
-      const handler = this.sinon.stub();
+    it('passes callable handlers through unchanged', function() {
+      const handlers = {
+        async: async function() {},
+        class: class Handler {},
+        generator: function*() {},
+        ordinary: this.sinon.stub(),
+        proxy: new Proxy(function() {}, {})
+      };
 
-      expect(view.normalizeMethods({ event: handler }).event).to.equal(handler);
+      const normalized = view.normalizeMethods(handlers);
+
+      Object.keys(handlers).forEach(name => {
+        expect(normalized[name]).to.equal(handlers[name]);
+      });
     });
 
-    it('resolves primitive and boxed string handler names', function() {
-      expect(view.normalizeMethods({ primitive: 'foo', boxed: new String('foo') }))
-        .to.deep.equal({ primitive: view.foo, boxed: view.foo });
+    it('resolves primitive, boxed, and string-tagged handler names', function() {
+      const crossRealmBoxed = vm.runInNewContext('new String(\'foo\')');
+      const tagged = {
+        [Symbol.toStringTag]: 'String',
+        toString() {
+          return 'foo';
+        }
+      };
+
+      expect(view.normalizeMethods({
+        primitive: 'foo',
+        boxed: new String('foo'),
+        crossRealmBoxed,
+        tagged
+      })).to.deep.equal({
+        primitive: view.foo,
+        boxed: view.foo,
+        crossRealmBoxed: view.foo,
+        tagged: view.foo
+      });
+    });
+
+    it('uses the string tag reader captured when the module loads', function() {
+      const boxed = new String('foo');
+      const toStringStub = this.sinon.stub(Object.prototype, 'toString')
+        .returns('[object Number]');
+      let normalized;
+
+      try {
+        normalized = view.normalizeMethods({ boxed });
+      } finally {
+        toStringStub.restore();
+      }
+
+      expect(normalized).to.deep.equal({ boxed: view.foo });
     });
 
     it('resolves own and inherited context methods', function() {
