@@ -172,105 +172,69 @@ syntax will suffice.
 To show a view inside a region, simply call `showChildView(regionName, view)`. This
 will handle rendering the view's HTML and attaching it to the DOM for you:
 
+<!-- executable-example: view-child-region -->
 ```javascript
-import _ from 'underscore';
-import { View } from 'backbone.marionette';
-import SubView from './subview';
+import { View } from 'marionette';
 
-const MyView = View.extend({
-  template: _.template('<h1>Title</h1><div id="first-region"></div>'),
-
-  regions: {
-    firstRegion: '#first-region'
-  },
-
-  onRender() {
-    this.showChildView('firstRegion', new SubView());
+const ChildView = View.extend({
+  template() {
+    return '<p class="content">Content</p>';
   }
 });
+
+const ParentView = View.extend({
+  template() {
+    return `
+      <div class="first-region"></div>
+      <div class="second-region"></div>
+    `;
+  },
+
+  regions: {
+    firstRegion: '.first-region',
+    secondRegion: '.second-region'
+  }
+});
+
+export function runViewChildRegionLifecycle() {
+  const parentView = new ParentView();
+
+  parentView.showChildView('firstRegion', new ChildView());
+  const childView = parentView.getChildView('firstRegion');
+
+  parentView.detachChildView('firstRegion');
+  parentView.showChildView('secondRegion', childView);
+  parentView.getRegion('secondRegion').empty();
+
+  return parentView;
+}
 ```
 
 Note: If `view.showChildView(region, subView)` is invoked before the `view` has been rendered, it will automatically render the `view` so the region's `el` exists in the DOM.
-
-[Live example](https://jsfiddle.net/marionettejs/98u073m0/)
 
 ### Accessing a Child View
 
 To access the child view of a `View` - use the `getChildView(regionName)` method.
 This will return the view instance that is currently being displayed at that
-region, or `undefined` when that Region is empty:
-
-```javascript
-import _ from 'underscore';
-import { View } from 'backbone.marionette'
-import SubView from './subview';
-
-const MyView = View.extend({
-  template: _.template('<h1>Title</h1><div id="first-region"></div>'),
-
-  regions: {
-    firstRegion: '#first-region'
-  },
-
-  onRender() {
-    this.showChildView('firstRegion', new SubView());
-  },
-
-  onSomeEvent() {
-    const first = this.getChildView('firstRegion');
-    first.doSomething();
-  }
-});
-```
-
-[Live example](https://jsfiddle.net/marionettejs/b12kgq3t/)
+region. The example gets the exact `ChildView` shown in `firstRegion` before
+moving it.
 
 If the named Region exists but has no current View, `getChildView` returns
 `undefined`.
 
 ### Detaching a Child View
 
-You can detach a child view from a region through `detachChildView(region)`
-
-```javascript
-import _ from 'underscore';
-import { View } from 'backbone.marionette'
-import SubView from './subview';
-
-const MyView = View.extend({
-  template: _.template(`
-    <h1>Title</h1>
-    <div id="first-region"></div>
-    <div id="second-region"></div>
-  `),
-  regions: {
-    firstRegion: '#first-region',
-    secondRegion: '#second-region'
-  },
-
-  onRender() {
-    this.showChildView('firstRegion', new SubView());
-  },
-
-  onMoveView() {
-    const view = this.detachChildView('firstRegion');
-    this.showChildView('secondRegion', view);
-  }
-});
-```
-This is a proxy for [region.detachView()](./marionette.region.md#detaching-existing-views)
+You can detach a child view from a Region through `detachChildView(regionName)`.
+It returns the same live, rendered View so that it can be shown again without
+rendering a second time. In the example, the parent detaches its child from
+`firstRegion` before showing that same child in `secondRegion`. This is a proxy
+for [Region `detachView()`](./marionette.region.md#detaching-existing-views).
 
 ### Destroying a Child View
 
-There are two ways to easily destroy a child view.
-
-```javascript
-// Directly
-myChildView.getChildView('regionName').destroy();
-
-// Indirectly
-myChildView.getRegion('regionName').empty();
-```
+To destroy and clear a child owned by a View, empty its owning Region. The
+example calls `parentView.getRegion('secondRegion').empty()`, which destroys the
+current child and leaves `secondRegion` empty and available for another View.
 
 ### Region Availability
 
@@ -282,8 +246,9 @@ available.
 `getRegion(name)` and `hasRegion(name)` support optional lookup: an unknown name
 returns `undefined` or `false`, respectively. Operations that require a Region —
 `showChildView`, `detachChildView`, `getChildView`, and `removeRegion` — throw a
-`RegionError` with code `MN0020` when the named Region does not exist. A value
-that cannot be converted to a property key is treated as an unknown name.
+`RegionError` with code [`MN0020`](/errors/MN0020/) when the named Region does not
+exist. A value that cannot be converted to a property key is treated as an
+unknown name.
 Object-valued names are not coerced a second time while formatting the error.
 
 ## Efficient Nested View Structures

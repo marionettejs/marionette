@@ -21,6 +21,7 @@ const fixtures = [
   'docs-collectionview-child-ownership',
   'docs-radio-owner',
   'docs-region-lifecycle',
+  'docs-view-child-region',
   'vite',
   'peer-underscore-min',
 ];
