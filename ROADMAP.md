@@ -256,6 +256,17 @@ Appropriate core additions include public read-only ownership accessors, pure Re
 lookup, shared diagnostics, extension hooks with no registered listeners by default,
 and narrowly designed resource ownership.
 
+Stable v5 removes Underscore as a required Marionette runtime peer without removing
+the documented, useful Backbone-era ergonomics of `CollectionView.children`. The
+container owns its documented method vocabulary and gains prototype-level iteration;
+callback methods use explicit function semantics, `pluck` reads child View properties,
+and model attributes are accessed explicitly through the View. Undocumented pure
+aliases may be removed, but a method is not removed merely because one private
+application does not use it. Private consumers may provide real-world migration
+evidence, but never define the public contract or a release gate. Marionette may use
+Underscore in development-only Backbone parity coverage, while production entrypoints
+and shipped subpaths do not import or require it.
+
 Core does not absorb a statechart runtime, signals runtime, virtual DOM, query layer,
 schema system, router, agent protocol, or inspector UI. Optional integrations with
 those systems may adapt to the State or data-source contracts without becoming
@@ -336,6 +347,11 @@ The stable release then requires:
   consumer scenarios do not sum them as though one application executes every format.
   A scenario is not adopted until it records a versioned Brotli-11 baseline and an
   explicit ceiling.
+- Removing an external runtime dependency requires an exact-base complete prototype
+  and a separate dependency-inclusive application-bundle scenario that records both
+  the removed dependency and its owned replacement cost. That evidence may justify a
+  two-stage ceiling amendment when shipped artifacts grow, but it never rewrites the
+  immutable Phase 0 baseline or changes peer-external canonical scenario history.
 - A new production subpath still requires exact-head approval and evidence. Its full
   set of new shipped artifacts counts against the aggregate package backstop, while
   its subpath-only and root-plus-subpath scenarios record the cost paid by consumers
@@ -409,6 +425,9 @@ instructions, and every release blocker maps to this strategy.
 - Harden Region lookup and View/Region ownership semantics.
 - Specify Behavior scope, dependencies, delegation, and teardown.
 - Introduce the shared diagnostic type, code catalog, and error semantics.
+- Remove Underscore as a required runtime peer while preserving the documented
+  ChildViewContainer vocabulary, making its callback and View-property semantics
+  explicit, and validating optional Backbone integration (#241).
 - Specify the requirements and cost boundaries for later opt-in extension hooks and
   resource ownership without implementing either runtime path in this phase.
 
@@ -479,6 +498,9 @@ rather than retained as dormant APIs.
   subpath; adding a subpath cannot silently leave its implementation outside the gate.
 - Stable diagnostic codes and documented machine-readable schemas have been reviewed
   as public contracts.
+- Production source and shipped subpaths contain no Underscore import or required
+  Underscore peer; the owned ChildViewContainer contract and Backbone integration pass
+  their documented source, distribution, and packed-package tests.
 - No release criterion depends on a private consumer or unpublished fixture.
 - Known migration and behavior differences are documented, and no obsolete v5
   pre-release path is presented as canonical.
