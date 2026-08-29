@@ -1,0 +1,29 @@
+docs/release-profile.md
+  s_d6429951fb9231::t_6065666e228083 56-65,80-83
+config/performance.json
+  s_d6429951fb9231::t_9ae51838d94052 12
+package.json
+  s_d6429951fb9231::t_6065666e228083 56
+config/release-profile.json
+  s_d6429951fb9231::t_6065666e228083 57-58
+config/check-browser-profile.mjs
+  s_d6429951fb9231::t_6065666e228083 66-67,69-71,73-74,79,83
+package-lock.json
+  s_d6429951fb9231::t_f5e6281091c374 3448-3457,3674-3680,4909-4918,5698-5728
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "8562ffecff6848549ca828f0deaa6fb9bb6c4617",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
