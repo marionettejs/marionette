@@ -2153,6 +2153,12 @@ extend$1(Container.prototype, {
 });
 
 const classErrorName = 'CollectionViewError';
+function isEmptyViewClass(view) {
+  return isFunction(view) && view.prototype && isViewClass(view);
+}
+function isClassDefinition(view) {
+  return /^class\s/.test(Function.prototype.toString.call(view));
+}
 const ClassOptions$2 = ['attributes', 'behaviors', 'childView', 'childViewContainer', 'childViewEventPrefix', 'childViewEvents', 'childViewOptions', 'childViewTriggers', 'className', 'collection', 'collectionEvents', 'el', 'emptyView', 'emptyViewOptions', 'events', 'id', 'model', 'modelEvents', 'sortWithCollection', 'tagName', 'template', 'templateContext', 'triggers', 'ui', 'viewComparator', 'viewFilter'];
 const CollectionView = function (options) {
   this.cid = uniqueId(this.cidPrefix);
@@ -2558,10 +2564,22 @@ extend$1(CollectionView.prototype, ViewMixin, {
   },
   _getEmptyView() {
     const emptyView = this.emptyView;
-    if (!emptyView) {
+    if (emptyView == null || emptyView === false) {
       return;
     }
-    return this._getView(emptyView);
+    if (isEmptyViewClass(emptyView)) {
+      return emptyView;
+    }
+    const EmptyView = isFunction(emptyView) && !isClassDefinition(emptyView) ? emptyView.call(this) : undefined;
+    if (isEmptyViewClass(EmptyView)) {
+      return EmptyView;
+    }
+    throw new MarionetteError({
+      code: 'MN0022',
+      name: classErrorName,
+      message: '"emptyView" must be a view class or a function that returns a view class',
+      url: 'marionette.collectionview.html#collectionviews-emptyview'
+    });
   },
   _destroyEmptyView() {
     const emptyRegion = this.getEmptyRegion();

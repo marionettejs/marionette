@@ -202,6 +202,16 @@ describe('CollectionView', function() {
         expect(myCollectionView.render.bind(myCollectionView)).to.throw('"childView" must be a view class or a function that returns a view class')
           .with.property('code', 'MN0012');
       });
+
+      it('should throw InvalidChildViewError for a non-function definition', function() {
+        const myCollectionView = new CollectionView({
+          collection,
+          childView: { prototype: {} }
+        });
+
+        expect(myCollectionView.render.bind(myCollectionView)).to.throw('"childView" must be a view class or a function that returns a view class')
+          .with.property('code', 'MN0012');
+      });
     });
   });
 
