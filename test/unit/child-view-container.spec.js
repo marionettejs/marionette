@@ -127,6 +127,80 @@ describe('#ChildViewContainer', function() {
       });
     });
 
+    describe('#initial', function() {
+      it('returns a new ordered array without the last child view by default', function() {
+        const initialViews = container.initial();
+
+        expect(initialViews).to.have.lengthOf(2);
+        expect(initialViews[0]).to.equal(views[0]);
+        expect(initialViews[1]).to.equal(views[1]);
+        expect(container.initial()).to.not.equal(initialViews);
+      });
+
+      it('excludes a nonnegative integer count from the end', function() {
+        const oneView = container.initial(2);
+        const allViews = container.initial(0);
+
+        expect(oneView).to.have.lengthOf(1);
+        expect(oneView[0]).to.equal(views[0]);
+        expect(allViews).to.have.lengthOf(3);
+        expect(allViews[0]).to.equal(views[0]);
+        expect(allViews[1]).to.equal(views[1]);
+        expect(allViews[2]).to.equal(views[2]);
+        allViews.pop();
+        expect(container).to.have.lengthOf(3);
+        expect(container.first()).to.equal(views[0]);
+        expect(container.findByIndex(1)).to.equal(views[1]);
+        expect(container.last()).to.equal(views[2]);
+        expect(container.initial(3)).to.deep.equal([]);
+        expect(container.initial(5)).to.deep.equal([]);
+      });
+
+      it('returns an empty array for an empty container', function() {
+        const emptyContainer = new ChildViewContainer();
+
+        expect(emptyContainer.initial()).to.deep.equal([]);
+        expect(emptyContainer.initial(2)).to.deep.equal([]);
+      });
+    });
+
+    describe('#rest', function() {
+      it('returns a new ordered array without the first child view by default', function() {
+        const remainingViews = container.rest();
+
+        expect(remainingViews).to.have.lengthOf(2);
+        expect(remainingViews[0]).to.equal(views[1]);
+        expect(remainingViews[1]).to.equal(views[2]);
+        expect(container.rest()).to.not.equal(remainingViews);
+      });
+
+      it('excludes a nonnegative integer count from the start', function() {
+        const oneView = container.rest(2);
+        const allViews = container.rest(0);
+
+        expect(oneView).to.have.lengthOf(1);
+        expect(oneView[0]).to.equal(views[2]);
+        expect(allViews).to.have.lengthOf(3);
+        expect(allViews[0]).to.equal(views[0]);
+        expect(allViews[1]).to.equal(views[1]);
+        expect(allViews[2]).to.equal(views[2]);
+        allViews.shift();
+        expect(container).to.have.lengthOf(3);
+        expect(container.first()).to.equal(views[0]);
+        expect(container.findByIndex(1)).to.equal(views[1]);
+        expect(container.last()).to.equal(views[2]);
+        expect(container.rest(3)).to.deep.equal([]);
+        expect(container.rest(5)).to.deep.equal([]);
+      });
+
+      it('returns an empty array for an empty container', function() {
+        const emptyContainer = new ChildViewContainer();
+
+        expect(emptyContainer.rest()).to.deep.equal([]);
+        expect(emptyContainer.rest(2)).to.deep.equal([]);
+      });
+    });
+
     describe('#last', function() {
       it('returns the last child view', function() {
         expect(container.last()).to.equal(views[2]);
@@ -150,6 +224,53 @@ describe('#ChildViewContainer', function() {
 
         expect(emptyContainer.last()).to.be.undefined;
         expect(emptyContainer.last(2)).to.deep.equal([]);
+      });
+    });
+
+    describe('#without', function() {
+      it('returns a new ordered array without the exact child views', function() {
+        const remainingViews = container.without(views[1]);
+        const middleView = container.without(views[0], views[2]);
+
+        expect(remainingViews).to.have.lengthOf(2);
+        expect(remainingViews[0]).to.equal(views[0]);
+        expect(remainingViews[1]).to.equal(views[2]);
+        expect(container.without(views[1])).to.not.equal(remainingViews);
+        expect(middleView).to.have.lengthOf(1);
+        expect(middleView[0]).to.equal(views[1]);
+      });
+
+      it('does not exclude models or lookalikes or mutate the container', function() {
+        const model = new Backbone.Model();
+        views[1].model = model;
+        const remainingViews = container.without(model, { cid: views[1].cid });
+
+        expect(remainingViews).to.have.lengthOf(3);
+        expect(remainingViews[0]).to.equal(views[0]);
+        expect(remainingViews[1]).to.equal(views[1]);
+        expect(remainingViews[2]).to.equal(views[2]);
+        remainingViews.pop();
+
+        expect(container).to.have.lengthOf(3);
+        expect(container.first()).to.equal(views[0]);
+        expect(container.last()).to.equal(views[2]);
+      });
+
+      it('returns a new array of every child view without arguments', function() {
+        const allViews = container.without();
+
+        expect(allViews).to.have.lengthOf(3);
+        expect(allViews[0]).to.equal(views[0]);
+        expect(allViews[1]).to.equal(views[1]);
+        expect(allViews[2]).to.equal(views[2]);
+        expect(container.without()).to.not.equal(allViews);
+      });
+
+      it('returns an empty array for an empty container', function() {
+        const emptyContainer = new ChildViewContainer();
+
+        expect(emptyContainer.without()).to.deep.equal([]);
+        expect(emptyContainer.without(views[0])).to.deep.equal([]);
       });
     });
 
