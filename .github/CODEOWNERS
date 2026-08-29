@@ -2,7 +2,7 @@
 /docs-site/ @paulfalgout @marionettejs/marionette-core
 /config/docs/ @paulfalgout @marionettejs/marionette-core
 /config/diagnostics/ @paulfalgout @marionettejs/marionette-core
-/config/check-diagnostic-catalog.mjs @paulfalgout @marionettejs/marionette-core
+/scripts/diagnostics/ @paulfalgout @marionettejs/marionette-core
 /.github/workflows/docs-pages.yml @paulfalgout @marionettejs/marionette-core
 /config/performance.json @paulfalgout @marionettejs/marionette-core
 /config/release/performance-budget-amendments.json @paulfalgout @marionettejs/marionette-core
