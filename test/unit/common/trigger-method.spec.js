@@ -78,4 +78,43 @@ describe('triggerMethod', function() {
       expect(target.triggerMethod).to.have.returned('baz');
     });
   });
+
+  it('ignores truthy non-function handlers while still triggering the event', function() {
+    target.onEventName = this.sinon.stub();
+    target.options = { onEventName: {} };
+
+    const result = target.triggerMethod('event:name', 'foo', 'bar');
+
+    expect(target.onEventName).to.not.have.been.called;
+    expect(target.trigger)
+      .to.have.been.calledOnce
+      .and.calledOn(target)
+      .and.calledWith('event:name', 'foo', 'bar');
+    expect(result).to.equal(undefined);
+  });
+
+  it('calls the matching method before triggering the event', function() {
+    target.onEventName = this.sinon.stub();
+
+    target.triggerMethod('event:name');
+
+    expect(target.onEventName).to.have.been.calledBefore(target.trigger);
+  });
+
+  it('does not trigger the event when the matching method throws', function() {
+    const error = new Error('event handler failed');
+    target.onEventName = this.sinon.stub().throws(error);
+
+    expect(() => target.triggerMethod('event:name')).to.throw(error);
+    expect(target.trigger).to.not.have.been.called;
+  });
+
+  it('propagates trigger errors after calling the matching method', function() {
+    const error = new Error('event listener failed');
+    target.onEventName = this.sinon.stub();
+    target.trigger.throws(error);
+
+    expect(() => target.triggerMethod('event:name')).to.throw(error);
+    expect(target.onEventName).to.have.been.calledBefore(target.trigger);
+  });
 });
