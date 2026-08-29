@@ -178,6 +178,7 @@
     "docs/",
     "docs-site/",
     "node_modules/",
+    "scripts/",
     "test/",
     "config/diagnostics/",
     "config/docs/",

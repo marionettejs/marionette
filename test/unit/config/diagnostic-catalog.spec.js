@@ -5,7 +5,7 @@ import {
   DiagnosticCatalogValidationError,
   discoverProductionSources,
   validateDiagnosticCatalog,
-} from '../../../config/diagnostics/catalog.mjs';
+} from '../../../scripts/diagnostics/catalog.mjs';
 import { diagnosticPage } from '../../../config/docs/build.mjs';
 
 describe('diagnostic catalog validation', function() {

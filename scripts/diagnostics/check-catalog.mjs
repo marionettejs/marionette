@@ -1,4 +1,4 @@
-import { loadDiagnosticCatalog } from './diagnostics/catalog.mjs';
+import { loadDiagnosticCatalog } from './catalog.mjs';
 
 try {
   const catalog = await loadDiagnosticCatalog();
