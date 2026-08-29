@@ -1,7 +1,6 @@
 // Error
 // -----
 
-import { extend as _extend, pick } from 'underscore';
 import extend from './extend.js';
 import {version} from '../version.js';
 
@@ -17,7 +16,27 @@ const MarionetteError = extend.call(Error, {
   // eslint-disable-next-line object-shorthand
   constructor: function(options) {
     const error = Error.call(this, options.message);
-    _extend(this, pick(error, errorProps), pick(options, errorProps));
+    const nativeProperties = {};
+    const optionProperties = {};
+
+    for (const property of errorProps) {
+      const value = error[property];
+      if (property in error) {
+        nativeProperties[property] = value;
+      }
+    }
+
+    const optionSource = Object(options);
+    for (const property of errorProps) {
+      const value = optionSource[property];
+      if (property in optionSource) {
+        optionProperties[property] = value;
+      }
+    }
+
+    if (this !== undefined && this !== null) {
+      Object.assign(this, nativeProperties, optionProperties);
+    }
 
     this.captureStackTrace(error);
 
