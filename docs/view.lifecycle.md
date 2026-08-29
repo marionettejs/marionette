@@ -253,6 +253,10 @@ Once destruction begins, reentrant `destroy()` calls from `before:destroy` or
 `destroy`, and later repeated calls, return the same View without restarting
 teardown. An attached parent, its managed children, and its owning Region therefore
 complete their detach, destroy, and empty lifecycles once.
+If a View's `before:destroy` handler throws, the error propagates and the View
+remains live with its managed children intact. A later `destroy()` call retries
+`before:destroy` before completing detach and child cleanup once. Errors after
+`before:destroy` completes do not restart teardown.
 
 The state of the view after the destroy is not attached and not rendered although the `el` is not emptied.
 

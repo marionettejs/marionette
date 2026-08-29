@@ -194,6 +194,68 @@ describe('Region lifecycle contract', function() {
     expect(region.isDestroyed()).to.be.true;
   });
 
+  it('retries destruction after before:destroy throws and cleans up ownership once', function() {
+    const error = new Error('before:destroy failed');
+    const firstOptions = { attempt: 1 };
+    const retryOptions = { attempt: 2 };
+    const lifecycle = [];
+    const owner = new View({
+      regions: {
+        content: '.content',
+      },
+      template() {
+        return '<div class="content"></div>';
+      },
+    });
+    const child = new TestView();
+    let beforeDestroySideEffects = 0;
+
+    owner.render();
+    const ownedRegion = owner.getRegion('content');
+    ownedRegion.show(child);
+    this.sinon.spy(child, 'destroy');
+    this.sinon.spy(ownedRegion, 'stopListening');
+    this.sinon.spy(owner, '_removeReferences');
+    ownedRegion.on('before:destroy', (currentRegion, options) => {
+      lifecycle.push(['region:before:destroy', options]);
+      if (++beforeDestroySideEffects === 1) { throw error; }
+    });
+    ownedRegion.on('before:empty', () => lifecycle.push(['region:before:empty']));
+    child.on('before:destroy', () => lifecycle.push(['child:before:destroy']));
+    child.on('destroy', () => lifecycle.push(['child:destroy']));
+    ownedRegion.on('empty', () => lifecycle.push(['region:empty']));
+    ownedRegion.on('destroy', () => lifecycle.push(['region:destroy']));
+
+    expect(() => ownedRegion.destroy(firstOptions)).to.throw(error);
+    expect(ownedRegion.isDestroyed()).to.be.false;
+    expect(ownedRegion.currentView).to.equal(child);
+    expect(child.isDestroyed()).to.be.false;
+    expect(owner.getRegion('content')).to.equal(ownedRegion);
+    expect(ownedRegion.stopListening).to.not.have.been.called;
+    expect(owner._removeReferences).to.not.have.been.called;
+
+    expect(ownedRegion.destroy(retryOptions)).to.equal(ownedRegion);
+    expect(ownedRegion.destroy()).to.equal(ownedRegion);
+    expect(ownedRegion.isDestroyed()).to.be.true;
+    expect(child.isDestroyed()).to.be.true;
+    expect(owner.getRegion('content')).to.be.undefined;
+    expect(beforeDestroySideEffects).to.equal(2);
+    expect(lifecycle).to.deep.equal([
+      ['region:before:destroy', firstOptions],
+      ['region:before:destroy', retryOptions],
+      ['region:before:empty'],
+      ['child:before:destroy'],
+      ['child:destroy'],
+      ['region:empty'],
+      ['region:destroy'],
+    ]);
+    expect(child.destroy).to.have.been.calledOnce;
+    expect(ownedRegion.stopListening).to.have.been.calledOnce;
+    expect(owner._removeReferences).to.have.been.calledOnceWith('content');
+
+    owner.destroy();
+  });
+
   it('clears the Region once when its current View is destroyed externally', function() {
     const view = new TestView();
     const beforeEmpty = this.sinon.spy();
@@ -212,7 +274,7 @@ describe('Region lifecycle contract', function() {
     expect(region.currentView).to.be.undefined;
   });
 
-  it('unlinks a directly destroyed owned Region without repeating teardown', function() {
+  it('unlinks a reentrantly destroyed owned Region without repeating teardown', function() {
     const owner = new View({
       regions: {
         content: '.content',
@@ -222,11 +284,23 @@ describe('Region lifecycle contract', function() {
       },
     });
     const child = new TestView();
+    let beforeDestroyReturn;
+    let destroyReturn;
+    let reenteredBeforeDestroy = false;
+    let reenteredDestroy = false;
     const regionLifecycle = {
-      beforeDestroy: this.sinon.spy(),
+      beforeDestroy: this.sinon.spy(currentRegion => {
+        if (reenteredBeforeDestroy) { return; }
+        reenteredBeforeDestroy = true;
+        beforeDestroyReturn = currentRegion.destroy();
+      }),
       beforeEmpty: this.sinon.spy(),
       empty: this.sinon.spy(),
-      destroy: this.sinon.spy(),
+      destroy: this.sinon.spy(currentRegion => {
+        if (reenteredDestroy) { return; }
+        reenteredDestroy = true;
+        destroyReturn = currentRegion.destroy();
+      }),
     };
     const childLifecycle = {
       beforeDestroy: this.sinon.spy(),
@@ -249,6 +323,8 @@ describe('Region lifecycle contract', function() {
 
     expect(ownedRegion.destroy()).to.equal(ownedRegion);
     expect(ownedRegion.destroy()).to.equal(ownedRegion);
+    expect(beforeDestroyReturn).to.equal(ownedRegion);
+    expect(destroyReturn).to.equal(ownedRegion);
 
     expect(ownedRegion.isDestroyed()).to.be.true;
     expect(ownedRegion.hasView()).to.be.false;

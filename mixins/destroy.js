@@ -6,9 +6,14 @@ export default {
   },
 
   destroy(options) {
-    if (this._isDestroyed) { return this; }
-
-    this.triggerMethod('before:destroy', this, options);
+    if (this._isDestroyed || this._isDestroying) { return this; }
+    this._isDestroying = true;
+    try {
+      this.triggerMethod('before:destroy', this, options);
+    } catch (error) {
+      delete this._isDestroying;
+      throw error;
+    }
     this._isDestroyed = true;
     this.triggerMethod('destroy', this, options);
     this.stopListening();
