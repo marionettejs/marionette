@@ -1052,6 +1052,8 @@ describe('#ChildViewContainer', function() {
           container._add(view);
         });
 
+        this.modelGetSpies = collection.map(model => this.sinon.spy(model, 'get'));
+        this.viewsReference = container._views;
         container._sort('text');
       });
 
@@ -1059,6 +1061,16 @@ describe('#ChildViewContainer', function() {
         expect(container.findByIndex(0).model).to.equal(collection.models[1]);
         expect(container.findByIndex(1).model).to.equal(collection.models[2]);
         expect(container.findByIndex(2).model).to.equal(collection.models[0]);
+      });
+
+      it('preserves the child array reference', function() {
+        expect(container._views).to.equal(this.viewsReference);
+      });
+
+      it('evaluates each model attribute once', function() {
+        this.modelGetSpies.forEach(get => {
+          expect(get).to.have.been.calledOnce.and.calledWithExactly('text');
+        });
       });
 
       describe('when a view does not have a model', function() {
@@ -1104,17 +1116,99 @@ describe('#ChildViewContainer', function() {
 
         comparator = this.sinon.spy(this, 'comparator');
 
+        this.viewsReference = container._views;
         container._sort(this.comparator, this);
       });
 
       it('should call the comparator with context', function() {
         expect(comparator).to.have.been.calledOn(this);
+        expect(comparator).to.have.callCount(3);
       });
 
       it('should should re-sort the container', function() {
         expect(container.findByIndex(0).model).to.equal(collection.models[1]);
         expect(container.findByIndex(1).model).to.equal(collection.models[2]);
         expect(container.findByIndex(2).model).to.equal(collection.models[0]);
+      });
+
+      it('preserves the child array reference', function() {
+        expect(container._views).to.equal(this.viewsReference);
+      });
+
+      it('keeps equal criteria stable and evaluates each view once', function() {
+        const stableContainer = new ChildViewContainer();
+        const views = [
+          Object.assign(new Backbone.View(), { rank: 1 }),
+          Object.assign(new Backbone.View(), { rank: 1 }),
+          Object.assign(new Backbone.View(), { rank: 0 })
+        ];
+        const rank = this.sinon.spy(view => view.rank);
+
+        stableContainer._set(views, true);
+        stableContainer._sort(rank);
+
+        expect(rank).to.have.callCount(3);
+        expect(stableContainer.toArray()).to.deep.equal([views[2], views[0], views[1]]);
+      });
+
+      it('places undefined criteria last while preserving their order', function() {
+        const undefinedContainer = new ChildViewContainer();
+        const views = [
+          Object.assign(new Backbone.View(), { rank: undefined }),
+          Object.assign(new Backbone.View(), { rank: 1 }),
+          Object.assign(new Backbone.View(), { rank: undefined }),
+          Object.assign(new Backbone.View(), { rank: 0 })
+        ];
+
+        undefinedContainer._set(views, true);
+        undefinedContainer._sort(view => view.rank);
+
+        expect(undefinedContainer.toArray()).to.deep.equal([
+          views[3], views[1], views[0], views[2]
+        ]);
+      });
+
+      it('keeps NaN and otherwise incomparable criteria stable', function() {
+        const nanContainer = new ChildViewContainer();
+        const nanViews = [
+          Object.assign(new Backbone.View(), { rank: NaN }),
+          Object.assign(new Backbone.View(), { rank: 1 })
+        ];
+        const objectContainer = new ChildViewContainer();
+        const objectViews = [
+          Object.assign(new Backbone.View(), { rank: {} }),
+          Object.assign(new Backbone.View(), { rank: {} })
+        ];
+
+        nanContainer._set(nanViews, true);
+        nanContainer._sort(view => view.rank);
+        objectContainer._set(objectViews, true);
+        objectContainer._sort(view => view.rank);
+
+        expect(nanContainer.toArray()).to.deep.equal(nanViews);
+        expect(objectContainer.toArray()).to.deep.equal(objectViews);
+      });
+
+      it('leaves order and reference unchanged when criteria evaluation throws', function() {
+        const viewsReference = container._views;
+        const originalOrder = container.toArray();
+        const error = new Error('criterion failed');
+
+        expect(() => container._sort(view => {
+          if (view === originalOrder[1]) { throw error; }
+          return view.model.get('text');
+        })).to.throw(error);
+        expect(container._views).to.equal(viewsReference);
+        expect(container.toArray()).to.deep.equal(originalOrder);
+      });
+
+      it('leaves order and reference unchanged when criteria comparison throws', function() {
+        const viewsReference = container._views;
+        const originalOrder = container.toArray();
+
+        expect(() => container._sort(view => Symbol(view.cid))).to.throw(TypeError);
+        expect(container._views).to.equal(viewsReference);
+        expect(container.toArray()).to.deep.equal(originalOrder);
       });
     });
 
@@ -1145,7 +1239,8 @@ describe('#ChildViewContainer', function() {
 
         comparator = this.sinon.spy(this, 'comparator');
 
-        container._sort(this.comparator, this);
+        this.viewsReference = container._views;
+        this.result = container._sort(this.comparator, this);
       });
 
       it('should call the comparator with context', function() {
@@ -1156,6 +1251,11 @@ describe('#ChildViewContainer', function() {
         expect(container.findByIndex(0).model).to.equal(collection.models[0]);
         expect(container.findByIndex(1).model).to.equal(collection.models[2]);
         expect(container.findByIndex(2).model).to.equal(collection.models[1]);
+      });
+
+      it('retains native binary sort mutation and return behavior', function() {
+        expect(container._views).to.equal(this.viewsReference);
+        expect(this.result).to.equal(this.viewsReference);
       });
     });
   });
