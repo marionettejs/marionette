@@ -1,9 +1,12 @@
 import _ from 'underscore';
 import CommonMixin from '../../../mixins/common';
+import EventsMixin from '../../../mixins/events';
+import RequestsMixin from '../../../mixins/requests';
 
 describe('Common Mixin', function() {
   describe('#setOptions', function() {
     let object;
+    let optionsMethod;
     const classOptions = [];
     const options = {
       foo: 'baz',
@@ -11,13 +14,12 @@ describe('Common Mixin', function() {
     };
 
     beforeEach(function() {
+      optionsMethod = this.sinon.stub().returns({
+        foo: 'bar',
+        bar: 'baz'
+      });
       object = _.extend({
-        options() {
-          return {
-            foo: 'bar',
-            bar: 'baz'
-          };
-        }
+        options: optionsMethod
       }, CommonMixin);
 
       this.sinon.spy(object, 'mergeOptions');
@@ -39,6 +41,10 @@ describe('Common Mixin', function() {
         bar: 'baz',
         baz: 'baz'
       });
+      expect(optionsMethod)
+        .to.have.been.calledOnce
+        .and.calledOn(object)
+        .and.calledWithExactly();
     });
 
     it('should call mergeOptions', function() {
@@ -73,6 +79,90 @@ describe('Common Mixin', function() {
       expect(Object.hasOwn(target.options, '__proto__')).to.be.true;
       expect(Object.getOwnPropertyDescriptor(target.options, '__proto__').value)
         .to.equal(protoValue);
+    });
+  });
+
+  describe('composition', function() {
+    it('keeps the intended own method order and a clean object prototype', function() {
+      const baseKeys = [
+        'initialize',
+        'normalizeMethods',
+        '_setOptions',
+        'mergeOptions',
+        'getOption',
+        'bindEvents',
+        'unbindEvents',
+        'bindRequests',
+        'unbindRequests',
+        'triggerMethod'
+      ];
+      const composedKeys = [...Object.keys(EventsMixin), ...Object.keys(RequestsMixin)]
+        .filter(methodName => !baseKeys.includes(methodName));
+
+      expect(Object.keys(CommonMixin)).to.deep.equal([...baseKeys, ...composedKeys]);
+      expect(Object.getPrototypeOf(CommonMixin)).to.equal(Object.prototype);
+      expect(CommonMixin).to.not.have.own.property('constructor');
+      expect(CommonMixin).to.not.have.own.property('toString');
+      expect(CommonMixin).to.not.have.own.property('__proto__');
+    });
+
+    it('keeps each event and request method identity with assignment descriptors', function() {
+      [EventsMixin, RequestsMixin].forEach(mixin => {
+        Object.keys(mixin).forEach(methodName => {
+          expect(Object.getOwnPropertyDescriptor(CommonMixin, methodName)).to.deep.equal({
+            configurable: true,
+            enumerable: true,
+            value: mixin[methodName],
+            writable: true
+          });
+        });
+      });
+    });
+
+    it('applies defaults before passed options and merges class options afterward', function() {
+      const calls = [];
+      const options = { shared: 'passed', passed: true };
+      const object = Object.assign({}, CommonMixin, {
+        mergeOptions(receivedOptions, classOptions) {
+          calls.push(['mergeOptions', this.options, receivedOptions, classOptions]);
+        },
+        options() {
+          calls.push(['options', this]);
+          return { default: true, shared: 'default' };
+        }
+      });
+      const classOptions = ['passed'];
+
+      object._setOptions(options, classOptions);
+
+      expect(object.options).to.deep.equal({ default: true, shared: 'passed', passed: true });
+      expect(calls).to.deep.equal([
+        ['options', object],
+        ['mergeOptions', object.options, options, classOptions]
+      ]);
+    });
+
+    it('does not compose inherited enumerable source pollution', async function() {
+      const eventsPrototype = Object.getPrototypeOf(EventsMixin);
+      const requestsPrototype = Object.getPrototypeOf(RequestsMixin);
+      Object.setPrototypeOf(EventsMixin, { inheritedEventPollution() {} });
+      Object.setPrototypeOf(RequestsMixin, { inheritedRequestPollution() {} });
+
+      let IsolatedCommonMixin;
+      try {
+        expect(Object.hasOwn(EventsMixin, 'inheritedEventPollution')).to.equal(false);
+        expect(Object.hasOwn(RequestsMixin, 'inheritedRequestPollution')).to.equal(false);
+        expect(EventsMixin.inheritedEventPollution).to.be.a('function');
+        expect(RequestsMixin.inheritedRequestPollution).to.be.a('function');
+        ({ default: IsolatedCommonMixin } = await import('../../../mixins/common.js?composition-test'));
+      } finally {
+        Object.setPrototypeOf(EventsMixin, eventsPrototype);
+        Object.setPrototypeOf(RequestsMixin, requestsPrototype);
+      }
+
+      expect(IsolatedCommonMixin).to.not.equal(CommonMixin);
+      expect(IsolatedCommonMixin).to.not.have.own.property('inheritedEventPollution');
+      expect(IsolatedCommonMixin).to.not.have.own.property('inheritedRequestPollution');
     });
   });
 });

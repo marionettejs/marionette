@@ -835,11 +835,17 @@ var Requests = {
   }
 };
 
+function getValue(object, property, fallback) {
+  const value = object == null ? undefined : object[property];
+  const resolvedValue = value === undefined ? fallback : value;
+  return typeof resolvedValue === 'function' ? resolvedValue.call(object) : resolvedValue;
+}
+
 const CommonMixin = {
   initialize() {},
   normalizeMethods: normalizeMethods$1,
   _setOptions(options, classOptions) {
-    this.options = assignOwn({}, underscore.result(this, 'options'), options);
+    this.options = assignOwn({}, getValue(this, 'options'), options);
     this.mergeOptions(options, classOptions);
   },
   mergeOptions: mergeOptions$1,
@@ -850,7 +856,7 @@ const CommonMixin = {
   unbindRequests: unbindRequests$1,
   triggerMethod: triggerMethod$1
 };
-underscore.extend(CommonMixin, Events, Requests);
+assignOwn(CommonMixin, Events, Requests);
 
 var DestroyMixin = {
   _isDestroyed: false,
@@ -952,12 +958,6 @@ Radio.reset = function (channelName) {
   }
   channel.reset();
 };
-
-function getValue(object, property, fallback) {
-  const value = object == null ? undefined : object[property];
-  const resolvedValue = value === undefined ? fallback : value;
-  return typeof resolvedValue === 'function' ? resolvedValue.call(object) : resolvedValue;
-}
 
 var RadioMixin = {
   _initRadio() {
