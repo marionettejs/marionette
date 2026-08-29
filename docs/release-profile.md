@@ -53,10 +53,16 @@ browser binaries are not downloaded and browser tests are not enabled until the
 real-browser contract work begins. `npm run check:browser-profile` compares the
 installed Playwright manifest with `config/release-profile.json`.
 
-The locked Browserslist database currently resolves the package query to Chrome and
-Edge 148-149, Firefox 150-151, and Safari 26.3-26.4. The same browser-profile check
-compares the complete ordered result with the checked-in snapshot, so a lockfile or
-query update cannot silently change transpilation output.
+The package and release profile use the semantic Browserslist query `baseline widely
+available`. This is the minimum capability floor for transpilation, not a fixed list
+of supported browser versions or an upper limit on newer releases. The browser-profile
+check requires that exact query and verifies that it resolves successfully.
+
+The checked-in lockfile fixes the Browserslist data used by each commit, so clean
+installs reproduce that commit's resolved targets and build artifacts. Reviewed
+lockfile updates may advance the resolved target list without changing the public
+support contract. Resolved versions are build evidence, not manually maintained
+browser-support ceilings.
 
 ## Advancing the profile
 
@@ -71,9 +77,10 @@ test suite before merge.
   Marionette's minimum supported Node major is a separate major-release decision.
 - Introduce a replacement host image in parallel before making it canonical. Never
   use a moving `*-latest` label for release evidence.
-- Review Playwright browser builds and transpilation targets monthly. Update the
-  dependency, lockfile, browser-build manifest, and complete target snapshot in one
-  reviewed pull request; browser tests remain a separate contract lane.
+- Review Playwright browser builds and Browserslist data monthly. Update the
+  dependency, lockfile, and browser-build manifest in one reviewed pull request;
+  changing the semantic transpilation query is a separate support-policy decision,
+  and browser tests remain a separate contract lane.
 - Freeze the profile for a release candidate. An emergency profile change reruns all
   release evidence.
 

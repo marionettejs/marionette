@@ -407,8 +407,10 @@ describe('performance contract validation', () => {
       ]);
 
       const approved = await createReport(baseReport, currentReport, approvalReport);
+      assert.match(approved, /\| Runtime artifact \| Base \| PR \| Change \| >0% approval \|/);
       assert.match(approved, /\| Main \| 100 B \| 101 B \| \+1 B \(\+1\.00%\) 🔺 \| Approved \|/);
       assert.match(approved, /## Artifact growth approval\n\nStatus: \*\*Approved\*\*\./);
+      assert.match(approved, /Threshold: greater than 0% during accepted budget consumption/);
 
       delete approval.budgetAmendment;
       await writeFile(approvalReport, JSON.stringify(approval));

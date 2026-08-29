@@ -619,6 +619,7 @@ function growthApprovalReport(base, current, supplied) {
       violations.push('New-production approval enforcement is not active');
     }
     return { accepted: !approvalRequired, approval: null, diagnostics: [], headSha: null,
+      approvalThresholdPercent,
       newArtifacts: newProduction.artifacts, newSubpaths: newProduction.subpaths,
       newProductionEnforced: false, required, status, thresholdPercent, violations };
   }
@@ -663,6 +664,7 @@ function growthApprovalReport(base, current, supplied) {
   return {
     ...supplied,
     accepted: violations.length === 0,
+    approvalThresholdPercent,
     newArtifacts: newProduction.artifacts,
     newProductionEnforced,
     newSubpaths: newProduction.subpaths,
@@ -681,7 +683,9 @@ function growthApprovalSection(result) {
     '## Artifact growth approval',
     '',
     `Status: **${status}**.`,
-    `Threshold: greater than ${result.thresholdPercent}% versus the exact pull request base.`,
+    result.approvalThresholdPercent === result.thresholdPercent ?
+      `Threshold: greater than ${result.thresholdPercent}% versus the exact pull request base.` :
+      `Threshold: greater than ${result.approvalThresholdPercent}% during accepted budget consumption versus the exact pull request base (normal threshold: greater than ${result.thresholdPercent}%).`,
   ];
 
   if (result.headSha) {
@@ -781,7 +785,7 @@ async function buildReport(baseFile, currentFile, growthApprovalFile) {
     '<!-- bundle-size-report -->',
     '## Production performance contract 📦',
     '',
-    '| Runtime artifact | Base | PR | Change | >1% approval |',
+    `| Runtime artifact | Base | PR | Change | >${growthApproval.approvalThresholdPercent}% approval |`,
     '| --- | ---: | ---: | ---: | --- |',
     ...rows,
     '',
