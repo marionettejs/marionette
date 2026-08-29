@@ -1280,13 +1280,14 @@
       if (!rootEl) {
         return;
       }
-      underscore.each(events, ({
-        eventName,
-        handler
-      }) => {
+      for (let index = 0, length = events.length; index < length; index++) {
+        const {
+          eventName,
+          handler
+        } = events[index];
         const shouldCapture = this.shouldCapture(eventName);
         rootEl.removeEventListener(eventName, handler, shouldCapture);
-      });
+      }
       events.length = 0;
     }
   };
