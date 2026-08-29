@@ -14,8 +14,8 @@ function findMarkers(contents) {
   }));
 }
 
-function describeLocations(entries) {
-  return [...new Set(entries.map(entry => entry.path))].sort().join(', ');
+function distinctPaths(entries) {
+  return [...new Set(entries.map(entry => entry.path))].sort();
 }
 
 export class ExecutableExampleContractError extends Error {
@@ -59,23 +59,23 @@ export function validateExecutableExamples({ documents, validators }) {
 
   for (const [id, entries] of documentedById) {
     if (entries.length > 1) {
-      const locations = describeLocations(entries);
-      errors.push(locations.includes(', ') ?
-        `executable example "${id}" appears in multiple documentation locations: ${locations}` :
-        `executable example "${id}" appears more than once in ${locations}`);
+      const paths = distinctPaths(entries);
+      errors.push(paths.length > 1 ?
+        `executable example "${id}" appears in multiple documentation locations: ${paths.join(', ')}` :
+        `executable example "${id}" appears more than once in ${paths[0]}`);
     }
 
     const owners = validatorsById.get(id) || [];
     if (owners.length === 0) {
       errors.push(`executable example "${id}" has no fixture validator`);
     } else if (owners.length > 1) {
-      errors.push(`executable example "${id}" has multiple fixture validators: ${describeLocations(owners)}`);
+      errors.push(`executable example "${id}" has multiple fixture validators: ${distinctPaths(owners).join(', ')}`);
     }
   }
 
   for (const [id, owners] of validatorsById) {
     if (!documentedById.has(id)) {
-      errors.push(`fixture marker "${id}" has no documentation example: ${describeLocations(owners)}`);
+      errors.push(`fixture marker "${id}" has no documentation example: ${distinctPaths(owners).join(', ')}`);
     }
   }
 

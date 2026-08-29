@@ -72,7 +72,7 @@ test('rejects duplicate documentation marker IDs', () => {
     documents: [
       {
         contents: `${document('docs/example.md', 'example').contents}\n${document('docs/example.md', 'example').contents}`,
-        path: 'docs/example.md',
+        path: 'docs/example, part.md',
       },
     ],
     validators: [validator('test/fixtures/docs-example/validate.mjs', 'example')],
@@ -81,7 +81,7 @@ test('rejects duplicate documentation marker IDs', () => {
   assert.throws(
     () => validateExecutableExamples(input),
     error => error instanceof ExecutableExampleContractError &&
-      error.errors.includes('executable example "example" appears more than once in docs/example.md'),
+      error.errors.includes('executable example "example" appears more than once in docs/example, part.md'),
   );
 
   expectContractError({
