@@ -1,4 +1,4 @@
-import { extend as extend$1, pick, isFunction, isString, isObject, each, keys, reduce, uniqueId, result, map, without, partial, isEmpty, matches } from 'underscore';
+import { isFunction, isString, isObject, each, keys, reduce, uniqueId, extend as extend$1, result, map, without, partial, isEmpty, matches } from 'underscore';
 
 const proxy = function (method) {
   return function (context, ...args) {
@@ -67,7 +67,24 @@ const MarionetteError = extend.call(Error, {
   url: '',
   constructor: function (options) {
     const error = Error.call(this, options.message);
-    extend$1(this, pick(error, errorProps), pick(options, errorProps));
+    const nativeProperties = {};
+    const optionProperties = {};
+    for (const property of errorProps) {
+      const value = error[property];
+      if (property in error) {
+        nativeProperties[property] = value;
+      }
+    }
+    const optionSource = Object(options);
+    for (const property of errorProps) {
+      const value = optionSource[property];
+      if (property in optionSource) {
+        optionProperties[property] = value;
+      }
+    }
+    if (this !== undefined && this !== null) {
+      Object.assign(this, nativeProperties, optionProperties);
+    }
     this.captureStackTrace(error);
     this.url = this.urlRoot + this.url;
   },
