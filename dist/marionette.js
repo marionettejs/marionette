@@ -1100,14 +1100,20 @@ var BehaviorsMixin = {
   }
 };
 
+function getValue(object, property, fallback) {
+  const value = object == null ? undefined : object[property];
+  const resolvedValue = value === undefined ? fallback : value;
+  return typeof resolvedValue === 'function' ? resolvedValue.call(object) : resolvedValue;
+}
+
 var DelegateEntityEventsMixin = {
   _delegateEntityEvents(model, collection) {
     if (model) {
-      this._modelEvents = result(this, 'modelEvents');
+      this._modelEvents = getValue(this, 'modelEvents');
       this.bindEvents(model, this._modelEvents);
     }
     if (collection) {
-      this._collectionEvents = result(this, 'collectionEvents');
+      this._collectionEvents = getValue(this, 'collectionEvents');
       this.bindEvents(collection, this._collectionEvents);
     }
   },

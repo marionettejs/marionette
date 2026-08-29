@@ -46,6 +46,10 @@ describe('delegate entity events mixin', function() {
 
         it('should cache modelEvents', function() {
           expect(obj._modelEvents).to.equal(modelEvents);
+          expect(obj.modelEvents)
+            .to.have.been.calledOnce
+            .and.calledOn(obj)
+            .and.calledWithExactly();
         });
 
         it('should call bindEvents', function() {
@@ -82,8 +86,12 @@ describe('delegate entity events mixin', function() {
           obj._delegateEntityEvents(null, collection);
         });
 
-        it('should cache modelEvents', function() {
+        it('should cache collectionEvents', function() {
           expect(obj._collectionEvents).to.equal(collectionEvents);
+          expect(obj.collectionEvents)
+            .to.have.been.calledOnce
+            .and.calledOn(obj)
+            .and.calledWithExactly();
         });
 
         it('should call bindEvents', function() {
