@@ -1,0 +1,21 @@
+docs/common.md
+  s_d6429951fb9231::t_859065d4c3c6ce 52
+docs/utils.md
+  s_d6429951fb9231::t_254c65930d58f0 24,54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "2f1a231743b061b5fc25a9cdef41796cc7137d3c",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
