@@ -1,0 +1,26 @@
+test/unit/backbone-shim.spec.js
+  s_d6429951fb9231::t_14be82aba95b8b 57-58,62
+  s_d6429951fb9231::t_ffca5483ee8eb6 13-14,41-44,59-61,63,92-112
+backbone.js
+  s_d6429951fb9231::t_ffca5483ee8eb6 4-7
+dist/backbone.cjs
+  s_d6429951fb9231::t_97001d9997d261 6-9
+dist/backbone.js
+  s_d6429951fb9231::t_460a84629ca3f6 5-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "5394eeb859d4f3bc7e681594c8c04dd15209ae9a",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
