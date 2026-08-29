@@ -73,23 +73,23 @@ async function runExample(run) {
     const exampleUrl = new URL(pathToFileURL(examplePath));
     exampleUrl.searchParams.set('run', run);
     const { PlainTextView, renderPlainText } = await import(exampleUrl);
+    const firstView = assertExampleRun(renderPlainText, dom);
+    const secondView = assertExampleRun(renderPlainText, dom);
 
-    return {
-      PlainTextView,
-      view: assertExampleRun(renderPlainText, dom),
-    };
+    assert.notEqual(firstView, secondView, 'repeated calls must create fresh View instances');
+
+    return PlainTextView;
   } finally {
     destroyDom(dom);
   }
 }
 
-const firstRun = await runExample('first');
-const secondRun = await runExample('second');
+const firstPlainTextView = await runExample('first');
+const secondPlainTextView = await runExample('second');
 
-assert.notEqual(firstRun.view, secondRun.view, 'repeated runs must create fresh View instances');
-assert.notEqual(firstRun.PlainTextView, secondRun.PlainTextView, 'repeated runs must reload the example');
-assert.notEqual(firstRun.PlainTextView.prototype.Dom, View.prototype.Dom, 'the override must be class-local');
-assert.notEqual(secondRun.PlainTextView.prototype.Dom, View.prototype.Dom, 'the override must remain class-local');
+assert.notEqual(firstPlainTextView, secondPlainTextView, 'repeated runs must reload the example');
+assert.notEqual(firstPlainTextView.prototype.Dom, View.prototype.Dom, 'the override must be class-local');
+assert.notEqual(secondPlainTextView.prototype.Dom, View.prototype.Dom, 'the override must remain class-local');
 assert.equal(View.prototype.Dom.setContents, DomApi.setContents, 'the base View must remain native');
 
 const dom = createDom();
