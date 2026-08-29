@@ -1,0 +1,28 @@
+config/release/performance-budget-amendments.json
+  s_d6429951fb9231::t_142a6521acac58 85-117,119-124
+  s_d6429951fb9231::t_6ce4505bc817f6 118
+evidence/performance-budget-amendments/BA0003/base.json
+  s_d6429951fb9231::t_639d352c83afa7 1-365
+evidence/performance-budget-amendments/BA0003/prototype-contract.json
+  s_d6429951fb9231::t_9de7b1e1eff734 1-344
+docs/performance-baselines.md
+  s_d6429951fb9231::t_142a6521acac58 90,93,95-109,136-138
+evidence/performance-budget-amendments/BA0003/prototype.json
+  s_d6429951fb9231::t_19801bb08ecbbc 1-367
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "ac7206c9613aba5ed53c731217cb94fe1af3a9c7",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
