@@ -2157,6 +2157,19 @@ underscore.extend(Container.prototype, {
 });
 
 const classErrorName = 'CollectionViewError';
+function isEmptyViewClass(view) {
+  if (!underscore.isFunction(view) || !view.prototype) {
+    return false;
+  }
+  const {
+    render,
+    destroy
+  } = view.prototype;
+  return underscore.isFunction(render) && (destroy ? underscore.isFunction(destroy) : underscore.isFunction(view.prototype.remove));
+}
+function isClassDefinition(view) {
+  return /^class(?:\s|\/[/*])/.test(Function.prototype.toString.call(view));
+}
 const ClassOptions$2 = ['attributes', 'behaviors', 'childView', 'childViewContainer', 'childViewEventPrefix', 'childViewEvents', 'childViewOptions', 'childViewTriggers', 'className', 'collection', 'collectionEvents', 'el', 'emptyView', 'emptyViewOptions', 'events', 'id', 'model', 'modelEvents', 'sortWithCollection', 'tagName', 'template', 'templateContext', 'triggers', 'ui', 'viewComparator', 'viewFilter'];
 const CollectionView = function (options) {
   this.cid = underscore.uniqueId(this.cidPrefix);
@@ -2562,10 +2575,22 @@ underscore.extend(CollectionView.prototype, ViewMixin, {
   },
   _getEmptyView() {
     const emptyView = this.emptyView;
-    if (!emptyView) {
+    if (emptyView == null || emptyView === false) {
       return;
     }
-    return this._getView(emptyView);
+    if (isEmptyViewClass(emptyView)) {
+      return emptyView;
+    }
+    const EmptyView = underscore.isFunction(emptyView) && !isClassDefinition(emptyView) ? emptyView.call(this) : undefined;
+    if (isEmptyViewClass(EmptyView)) {
+      return EmptyView;
+    }
+    throw new MarionetteError({
+      code: 'MN0022',
+      name: classErrorName,
+      message: '"emptyView" must be a view class or a function that returns a view class',
+      url: 'marionette.collectionview.html#collectionviews-emptyview'
+    });
   },
   _destroyEmptyView() {
     const emptyRegion = this.getEmptyRegion();

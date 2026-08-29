@@ -475,8 +475,21 @@ const MyCollectionView = CollectionView.extend({
 
 When a collection has no children, and you need to render a view other than
 the list of childViews, you can specify an `emptyView` attribute on your
-collection view. The `emptyView` just like the [`childView`](#collectionviews-childview) can also be passed as an option on instantiation or can be a
-function that returns the `emptyView`.
+collection view. The `emptyView`, like the
+[`childView`](#collectionviews-childview), can be passed as an option on
+instantiation. It must be a `View` class or a resolver that returns a `View`
+class. Marionette calls resolvers with the `CollectionView` as `this`; arrow and
+bound functions retain their normal JavaScript `this` semantics.
+
+If the resolved `emptyView` property is `undefined`, `null`, or `false`, no
+empty view is rendered. Because an `undefined` constructor option does not
+replace an inherited value, use `null` or `false` to disable an inherited
+definition. A resolver must return a `View` class; every other direct value and
+every non-`View` resolver result—including a resolver returning `undefined`,
+`null`, or `false`—is invalid.
+Marionette validates `emptyView` only when the collection is empty and throws
+[`MN0022`](/errors/MN0022/) for an invalid definition. Errors thrown by a
+resolver propagate unchanged.
 
 ```javascript
 import _ from 'underscore';
