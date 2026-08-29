@@ -123,11 +123,13 @@ describe('MarionetteError', function() {
       Error.captureStackTrace = captureStackTrace;
     });
 
-    it('should not captureStackTrace', function() {
+    it('retains the fallback stack', function() {
       const error = new MarionetteError({ message: 'foo' });
-      Error.captureStackTrace = captureStackTrace;
-      expect(MarionetteError.prototype.captureStackTrace).to.not.be.called;
-      expect(error.stack).to.be.a('string').and.to.contain('Error: foo');
+      const fallbackError = MarionetteError.prototype.captureStackTrace.firstCall.firstArg;
+
+      expect(MarionetteError.prototype.captureStackTrace).to.have.been.calledOnce;
+      expect(fallbackError).to.be.instanceOf(Error);
+      expect(error.stack).to.equal(fallbackError.stack).and.to.contain('Error: foo');
     });
   })
 });

@@ -41,14 +41,14 @@
     constructor: function (options) {
       const error = Error.call(this, options.message);
       underscore.extend(this, underscore.pick(error, errorProps), underscore.pick(options, errorProps));
-      if (typeof Error.captureStackTrace === 'function') {
-        this.captureStackTrace();
-      } else {
-        this.stack = error.stack;
-      }
+      this.captureStackTrace(error);
       this.url = this.urlRoot + this.url;
     },
-    captureStackTrace() {
+    captureStackTrace(fallbackError) {
+      if (typeof Error.captureStackTrace !== 'function') {
+        this.stack = fallbackError.stack;
+        return;
+      }
       Error.captureStackTrace(this, MarionetteError);
     },
     toString() {
