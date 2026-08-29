@@ -37,6 +37,26 @@ describe('item view', function() {
     });
   });
 
+  describe('when modelEvents contains an own __proto__ event', function() {
+    it('throws before delegating to a Backbone model', function() {
+      const modelOn = this.sinon.spy(model, 'on');
+      const modelEvents = {};
+      Object.defineProperty(modelEvents, '__proto__', {
+        enumerable: true,
+        value: this.sinon.stub()
+      });
+      const TestView = View.extend({
+        template: false,
+        modelEvents
+      });
+
+      expect(() => new TestView({ model }))
+        .to.throw('Entity event maps cannot include an own "__proto__" event name.')
+        .with.property('code', 'MN0026');
+      expect(modelOn).to.not.have.been.called;
+    });
+  });
+
   describe('when instantiating a view with a DOM element', function() {
     let view;
 

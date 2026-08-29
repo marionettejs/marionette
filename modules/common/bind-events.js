@@ -17,11 +17,21 @@ import { isObject } from 'underscore';
 import normalizeMethods from './normalize-methods.js';
 import MarionetteError from '../../utils/error.js';
 
+const propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
+
 function normalizeBindings(context, bindings) {
   if (!isObject(bindings)) {
     throw new MarionetteError({
       code: 'MN0009',
       message: 'Bindings must be an object.',
+      url: 'common.html#bindevents'
+    });
+  }
+
+  if (propertyIsEnumerable.call(bindings, '__proto__')) {
+    throw new MarionetteError({
+      code: 'MN0026',
+      message: 'Entity event maps cannot include an own "__proto__" event name.',
       url: 'common.html#bindevents'
     });
   }

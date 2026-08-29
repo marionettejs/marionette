@@ -428,6 +428,27 @@
         "runtime"
       ],
       "benchmarkCategory": "collection-view"
+    },
+    {
+      "code": "MN0026",
+      "slug": "entity-event-name-unsafe",
+      "status": "active",
+      "category": "communication",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "Region",
+        "View"
+      ],
+      "remediation": "Rename an own __proto__ entry in an entity-event map before binding or selectively unbinding it.",
+      "docsAnchor": "/errors/MN0026/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "communication"
     }
   ]
 }

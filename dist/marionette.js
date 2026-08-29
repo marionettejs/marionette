@@ -112,11 +112,19 @@ const normalizeMethods$1 = function (hash) {
   return normalizedHash;
 };
 
+const propertyIsEnumerable$1 = Object.prototype.propertyIsEnumerable;
 function normalizeBindings$1(context, bindings) {
   if (!isObject(bindings)) {
     throw new MarionetteError({
       code: 'MN0009',
       message: 'Bindings must be an object.',
+      url: 'common.html#bindevents'
+    });
+  }
+  if (propertyIsEnumerable$1.call(bindings, '__proto__')) {
+    throw new MarionetteError({
+      code: 'MN0026',
+      message: 'Entity event maps cannot include an own "__proto__" event name.',
       url: 'common.html#bindevents'
     });
   }
