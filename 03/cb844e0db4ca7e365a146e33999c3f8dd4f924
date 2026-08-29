@@ -1,0 +1,89 @@
+test/unit/view-el.spec.js
+  s_d6429951fb9231::t_f864e45282d41f 52
+  s_d6429951fb9231::t_7a7abc027886f7 41-51,53-55
+test/unit/utils/owned-runtime.spec.js
+  s_d6429951fb9231::t_e28552ad078817 6,14-23,25-36,38-48,50-52,65-70,72-77,81-83
+  s_d6429951fb9231::t_f864e45282d41f 37,49
+  s_d6429951fb9231::t_e77c770260c161 53-64,71,78-80
+mixins/view.js
+  s_d6429951fb9231::t_ac0c3ed90efece 5,63
+mixins/ui.js
+  s_d6429951fb9231::t_ac0c3ed90efece 6,14,117
+test/unit/mixins/template-render.spec.js
+  s_d6429951fb9231::t_790edc7233265f 135-149,151
+  s_d6429951fb9231::t_f864e45282d41f 150
+test/unit/mixins/behaviors.spec.js
+  s_d6429951fb9231::t_dbca57cff11fc7 177-188,190,235-246,248
+  s_d6429951fb9231::t_f864e45282d41f 189,247
+docs/dom.api.md
+  s_d6429951fb9231::t_23b17f29bbe78c 124
+docs/marionette.collectionview.md
+  s_d6429951fb9231::t_23b17f29bbe78c 459-460
+config/dom.js
+  s_d6429951fb9231::t_ac0c3ed90efece 3,7,86
+modules/behavior.js
+  s_d6429951fb9231::t_ac0c3ed90efece 10,48
+utils/assign-in.js
+  s_d6429951fb9231::t_ac0c3ed90efece 1-14,20-21,27-36
+test/unit/behavior-ui-contract.spec.js
+  s_d6429951fb9231::t_dbca57cff11fc7 6-37,39-43,45-48
+  s_d6429951fb9231::t_f864e45282d41f 38,44
+config/event-delegator.js
+  s_d6429951fb9231::t_ac0c3ed90efece 3,8
+test/unit/mixins/common.spec.js
+  s_d6429951fb9231::t_a63ea05431cb46 49-65,67
+  s_d6429951fb9231::t_f864e45282d41f 66
+test/unit/collection-view/collection-view.spec.js
+  s_d6429951fb9231::t_f09e4d0e4e7076 264-284,286
+  s_d6429951fb9231::t_f864e45282d41f 285
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_23b17f29bbe78c 42
+mixins/common.js
+  s_d6429951fb9231::t_ac0c3ed90efece 3,28
+test/unit/config/dom.spec.js
+  s_d6429951fb9231::t_f864e45282d41f 46,62
+  s_d6429951fb9231::t_5fe5279e82fea3 31-45,47-61,63-64
+docs/basics.md
+  s_d6429951fb9231::t_23b17f29bbe78c 207-213
+utils/extend.js
+  s_d6429951fb9231::t_ac0c3ed90efece 4,21-22
+test/unit/requests.spec.js
+  s_d6429951fb9231::t_f864e45282d41f 96,99
+  s_d6429951fb9231::t_ba9dd3b1df7347 52,63-95,97-98,100
+  s_d6429951fb9231::t_6353e8afcdf442 53-62
+modules/view-region.js
+  s_d6429951fb9231::t_ac0c3ed90efece 4,535
+mixins/requests.js
+  s_d6429951fb9231::t_f805717b48085d 118-120
+  s_d6429951fb9231::t_c500e233f7c0d4 2,18,22,25,34,93,100,114-115,121
+  s_d6429951fb9231::t_6353e8afcdf442 116-117
+mixins/template-render.js
+  s_d6429951fb9231::t_ac0c3ed90efece 1,40
+modules/collection-view.js
+  s_d6429951fb9231::t_ac0c3ed90efece 5,290
+test/unit/config/event-delegator.spec.js
+  s_d6429951fb9231::t_5fe5279e82fea3 4,36-49,51
+  s_d6429951fb9231::t_f864e45282d41f 50
+  s_d6429951fb9231::t_1235db452a9212 52
+test/unit/common/build-region.spec.js
+  s_d6429951fb9231::t_f09e4d0e4e7076 302-329,331
+  s_d6429951fb9231::t_f864e45282d41f 330
+mixins/behaviors.js
+  s_d6429951fb9231::t_ac0c3ed90efece 2,54,61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "03cb844e0db4ca7e365a146e33999c3f8dd4f924",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
