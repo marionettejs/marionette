@@ -1,0 +1,20 @@
+test/fixtures/run.mjs
+  s_d6429951fb9231::t_701ed0b5933aa2 11,14-15
+  s_d6429951fb9231::t_91be2040c11c90 12-13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "b72ecc8a1618e5046cdb9bd1ac5572b8a132a576",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
