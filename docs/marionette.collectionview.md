@@ -686,25 +686,45 @@ optionally the index for where it should be placed within the
 [CollectionView's `children`](#managing-children), and an options hash.
 It returns the added view.
 
+<!-- executable-example: collectionview-child-ownership -->
 ```javascript
-import { CollectionView } from 'backbone.marionette';
-import ButtonView from './button-view';
+import { CollectionView, View } from 'marionette';
 
-const MyCollectionView = CollectionView.extend({
-  onRender() {
-    View = new ButtonView();
-    this.addChildView(buttonView, this.children.length);
+const ItemView = View.extend({
+  tagName: 'li',
+  template() {
+    return 'Item';
   }
 });
 
-const myCollectionView = new MyCollectionView();
+export function runChildOwnershipLifecycle() {
+  const collectionView = new CollectionView({ tagName: 'ul' });
+  const reusableChild = new ItemView();
+  const remainingChild = new ItemView();
 
-myCollectionView.render();
+  collectionView.render();
+  collectionView.addChildView(reusableChild);
+
+  const detachedChild = collectionView.detachChildView(reusableChild);
+  collectionView.addChildView(detachedChild);
+  collectionView.removeChildView(detachedChild);
+
+  collectionView.addChildView(remainingChild);
+  collectionView.destroy();
+}
 ```
+
+`detachChildView()` returns the same live View and transfers responsibility to
+the caller. That View may be added again without rendering it a second time.
+`removeChildView()` destroys the removed View, while destroying the
+`CollectionView` destroys every child that it still manages.
+
 **Note** Unless an index is specified, this added view will be subject to filtering
 and sorting and may be difficult to manage in complex situations. Use with care.
 
-**Errors** An error will be thrown if the view is already shown in a Region or CollectionView.
+**Errors** Adding a View that is still managed by a Region or
+`CollectionView` throws [`MN0003`](/errors/MN0003/). Detach the View from its
+current owner before transferring it.
 
 #### `preventRender` option
 
