@@ -1,0 +1,23 @@
+docs/events.entity.md
+  s_d6429951fb9231::t_815f3a1d05c765 12-15
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_815f3a1d05c765 51
+docs/radio.md
+  s_d6429951fb9231::t_815f3a1d05c765 159-162
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "5c6098093410b6569840da76289be624fe9780be",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
