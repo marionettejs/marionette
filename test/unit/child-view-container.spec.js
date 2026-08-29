@@ -1,24 +1,243 @@
-import _ from 'underscore';
 import Backbone from 'backbone';
 import ChildViewContainer from '../../modules/child-view-container';
 
 describe('#ChildViewContainer', function() {
 
-  describe('emulate collection', function() {
+  describe('callback collection helpers', function() {
     let container;
+    let views;
 
     beforeEach(function() {
-      container = new ChildViewContainer();
-
-      container._set([
+      views = [
         new Backbone.View({ id: 1 }),
         new Backbone.View({ id: 2 }),
         new Backbone.View({ id: 3 })
-      ], true);
+      ];
+
+      container = new ChildViewContainer();
+      container._set(views, true);
     });
 
-    it('should be able to map over list', function() {
-      expect(container.map('id')).to.eql([1, 2, 3]);
+    describe('#each', function() {
+      it('visits every child view with index and context and returns the container', function() {
+        const context = {};
+        const callback = this.sinon.spy(function(view, index) {
+          expect(this).to.equal(context);
+          expect(view).to.equal(views[index]);
+        });
+
+        expect(container.each(callback, context)).to.equal(container);
+        expect(callback).to.have.callCount(3);
+        callback.getCalls().forEach(call => {
+          expect(call.args).to.have.lengthOf(2);
+        });
+      });
+
+      it('returns an empty container without calling the callback', function() {
+        const emptyContainer = new ChildViewContainer();
+        const callback = this.sinon.spy();
+
+        expect(emptyContainer.each(callback)).to.equal(emptyContainer);
+        expect(callback).to.not.have.been.called;
+      });
+    });
+
+    describe('#map', function() {
+      it('maps every child view with index and context into a new ordered array', function() {
+        const context = { prefix: 'view' };
+        const callback = this.sinon.spy(function(view, index) {
+          expect(view).to.equal(views[index]);
+          return `${ this.prefix }-${ index + 1 }`;
+        });
+
+        const result = container.map(callback, context);
+
+        expect(result).to.deep.equal(['view-1', 'view-2', 'view-3']);
+        expect(container.map(view => view.id)).to.not.equal(result);
+        expect(callback).to.have.callCount(3);
+        callback.getCalls().forEach(call => {
+          expect(call.thisValue).to.equal(context);
+          expect(call.args).to.have.lengthOf(2);
+        });
+      });
+
+      it('returns a new empty array without calling the callback', function() {
+        const emptyContainer = new ChildViewContainer();
+        const callback = this.sinon.spy();
+        const result = emptyContainer.map(callback);
+
+        expect(result).to.deep.equal([]);
+        expect(emptyContainer.map(callback)).to.not.equal(result);
+        expect(callback).to.not.have.been.called;
+      });
+    });
+
+    describe('#reduce', function() {
+      it('reduces every child view with an initial value, index, and context', function() {
+        const context = { multiplier: 2 };
+        const callback = this.sinon.spy(function(total, view, index) {
+          expect(view).to.equal(views[index]);
+          return total + (view.id * this.multiplier);
+        });
+
+        expect(container.reduce(callback, 1, context)).to.equal(13);
+        expect(callback).to.have.callCount(3);
+        callback.getCalls().forEach(call => {
+          expect(call.thisValue).to.equal(context);
+          expect(call.args).to.have.lengthOf(3);
+        });
+      });
+
+      it('uses the first child view when the initial value is omitted', function() {
+        const callback = this.sinon.spy((accumulator, view, index) => ({
+          ids: (accumulator.ids || [accumulator.id]).concat(view.id),
+          index
+        }));
+
+        const result = container.reduce(callback);
+
+        expect(result).to.deep.equal({ ids: [1, 2, 3], index: 2 });
+        expect(callback).to.have.callCount(2);
+        expect(callback.firstCall.args[0]).to.equal(views[0]);
+        expect(callback.firstCall.args[1]).to.equal(views[1]);
+        expect(callback.firstCall.args[2]).to.equal(1);
+        expect(callback.secondCall.args[1]).to.equal(views[2]);
+        expect(callback.secondCall.args[2]).to.equal(2);
+      });
+
+      it('returns the exact initial value for an empty container', function() {
+        const initialValue = {};
+        const callback = this.sinon.spy();
+
+        expect(new ChildViewContainer().reduce(callback, initialValue)).to.equal(initialValue);
+        expect(callback).to.not.have.been.called;
+      });
+
+      it('treats an explicitly supplied undefined as an initial value', function() {
+        const callback = this.sinon.spy((total, view) => (total || 0) + view.id);
+
+        expect(container.reduce(callback, undefined)).to.equal(6);
+        expect(callback).to.have.callCount(3);
+        expect(callback.firstCall.args[0]).to.be.undefined;
+        expect(callback.firstCall.args[1]).to.equal(views[0]);
+        expect(callback.firstCall.args[2]).to.equal(0);
+      });
+
+      it('throws for an empty container without an initial value', function() {
+        const callback = this.sinon.spy();
+
+        expect(() => new ChildViewContainer().reduce(callback))
+          .to.throw().with.property('code', 'MN0024');
+        expect(callback).to.not.have.been.called;
+      });
+    });
+
+    describe('#invoke', function() {
+      beforeEach(function() {
+        views.forEach((view, index) => {
+          view.describe = function(prefix, suffix) {
+            expect(this).to.equal(view);
+            return `${ prefix }-${ index + 1 }-${ suffix }`;
+          };
+        });
+      });
+
+      it('invokes a direct method on every child view with forwarded arguments', function() {
+        expect(container.invoke('describe', 'view', 'done')).to.deep.equal([
+          'view-1-done',
+          'view-2-done',
+          'view-3-done'
+        ]);
+      });
+
+      it('returns an empty array for an empty container and a string method name', function() {
+        expect(new ChildViewContainer().invoke('render')).to.deep.equal([]);
+      });
+
+      it('throws at a missing or non-callable child view method', function() {
+        delete views[1].describe;
+        expect(() => container.invoke('describe'))
+          .to.throw().with.property('code', 'MN0025');
+
+        views[1].describe = 'not callable';
+        expect(() => container.invoke('describe'))
+          .to.throw().with.property('code', 'MN0025');
+      });
+
+      it('stops invoking children at the first missing method', function() {
+        views[0].describe = this.sinon.spy();
+        delete views[1].describe;
+        views[2].describe = this.sinon.spy();
+
+        expect(() => container.invoke('describe'))
+          .to.throw().with.property('code', 'MN0025');
+        expect(views[0].describe).to.have.been.calledOnce;
+        expect(views[2].describe).to.not.have.been.called;
+      });
+
+      it('rejects non-string and deep-path method names', function() {
+        views.forEach(view => {
+          view.nested = { describe: view.describe };
+        });
+
+        expect(() => container.invoke(views[0].describe))
+          .to.throw().with.property('code', 'MN0024');
+        expect(() => container.invoke(['describe']))
+          .to.throw().with.property('code', 'MN0024');
+        expect(() => container.invoke('nested.describe'))
+          .to.throw().with.property('code', 'MN0025');
+      });
+    });
+
+    it('rejects invalid callbacks consistently, including for empty containers', function() {
+      const callbackMethods = ['each', 'map', 'find', 'filter', 'reject', 'every', 'some', 'partition'];
+      const invalidCallbacks = [undefined, null, 'id', { id: 1 }];
+
+      callbackMethods.forEach(methodName => {
+        invalidCallbacks.forEach(callback => {
+          expect(() => container[methodName](callback))
+            .to.throw().with.property('code', 'MN0024');
+          expect(() => new ChildViewContainer()[methodName](callback))
+            .to.throw().with.property('code', 'MN0024');
+        });
+      });
+
+      invalidCallbacks.forEach(callback => {
+        expect(() => container.reduce(callback, 0))
+          .to.throw().with.property('code', 'MN0024');
+        expect(() => new ChildViewContainer().reduce(callback, 0))
+          .to.throw().with.property('code', 'MN0024');
+      });
+    });
+
+    it('does not expose the removed Underscore aliases', function() {
+      ['forEach', 'detect', 'select', 'all', 'any', 'include'].forEach(alias => {
+        expect(container[alias]).to.be.undefined;
+      });
+    });
+
+    it('does not add undocumented where helpers', function() {
+      expect(container.where).to.be.undefined;
+      expect(container.findWhere).to.be.undefined;
+    });
+
+    it('iterates child views in order through the prototype iterator', function() {
+      expect(container).to.not.have.own.property(Symbol.iterator);
+      expect(Object.getPrototypeOf(container)).to.have.own.property(Symbol.iterator);
+      expect([...container]).to.deep.equal(views);
+      expect(Array.from(container)).to.deep.equal(views);
+
+      const [firstView, secondView, thirdView] = container;
+      expect(firstView).to.equal(views[0]);
+      expect(secondView).to.equal(views[1]);
+      expect(thirdView).to.equal(views[2]);
+
+      const iteratedViews = [];
+      for (const view of container) {
+        iteratedViews.push(view);
+      }
+      expect(iteratedViews).to.deep.equal(views);
+      expect([...new ChildViewContainer()]).to.deep.equal([]);
     });
   });
 
@@ -45,11 +264,26 @@ describe('#ChildViewContainer', function() {
       });
 
       it('does not read model attributes', function() {
-        expect(container.pluck('status')).to.deep.equal(['view status', undefined]);
+        const result = container.pluck('status');
+
+        expect(result).to.deep.equal(['view status', undefined]);
+        expect(container.pluck('status')).to.not.equal(result);
+      });
+
+      it('does not traverse array-form property paths', function() {
+        view['model,cid'] = 'literal property';
+
+        expect(container.pluck(['model', 'cid']))
+          .to.deep.equal(['literal property', undefined]);
+        expect(container.pluck(['model', 'cid'])[0]).to.not.equal(model.cid);
       });
 
       it('returns an empty array for an empty container', function() {
-        expect(new ChildViewContainer().pluck('model')).to.deep.equal([]);
+        const emptyContainer = new ChildViewContainer();
+        const result = emptyContainer.pluck('model');
+
+        expect(result).to.deep.equal([]);
+        expect(emptyContainer.pluck('model')).to.not.equal(result);
       });
     });
 
@@ -72,6 +306,7 @@ describe('#ChildViewContainer', function() {
 
     function expectPredicateCall(call, index, context) {
       expect(call.thisValue).to.equal(context);
+      expect(call.args).to.have.lengthOf(2);
       expect(call.args[0]).to.equal(views[index]);
       expect(call.args[1]).to.equal(index);
     }
@@ -517,6 +752,15 @@ describe('#ChildViewContainer', function() {
         expect(new ChildViewContainer().isEmpty()).to.be.true;
       });
     });
+
+    it('rejects counts that are not nonnegative integers', function() {
+      ['first', 'initial', 'rest', 'last'].forEach(methodName => {
+        [-1, 1.5, NaN, '1', null].forEach(count => {
+          expect(() => container[methodName](count))
+            .to.throw().with.property('code', 'MN0024');
+        });
+      });
+    });
   });
 
   describe('#_init', function() {
@@ -786,32 +1030,6 @@ describe('#ChildViewContainer', function() {
       it('should not remove a view from the container', function() {
         expect(container).to.have.lengthOf(4);
       });
-    });
-  });
-
-  describe('when using iterators and collection functions', function() {
-    let container;
-    let view;
-    let views;
-
-    beforeEach(function() {
-      views = [];
-      view = new Backbone.View();
-
-      container = new ChildViewContainer();
-      container._add(view);
-
-      container.each(function(v) {
-        views.push(v);
-      });
-    });
-
-    it('should provide a .each iterator', function() {
-      expect(_.isFunction(container.each)).to.equal(true);
-    });
-
-    it('should iterate the views with the .each function', function() {
-      expect(views[0]).to.equal(view);
     });
   });
 

@@ -1,14 +1,7 @@
-import { extend, partial, sortBy } from 'underscore';
+import { partial, sortBy } from 'underscore';
+import MarionetteError from '../utils/error.js';
 
-import { forEach, each, map, find, detect, filter,
-  select, reject, every, all, some, any, include,
-  contains, invoke, toArray, first, initial, rest,
-  last, without, isEmpty, pluck, reduce, partition } from 'underscore';
-
-const _ = { forEach, each, map, find, detect, filter,
-  select, reject, every, all, some, any, include,
-  contains, invoke, toArray, first, initial, rest,
-  last, without, isEmpty, pluck, reduce, partition };
+const classErrorName = 'CollectionViewError';
 
 // Provide a container to store, retrieve and
 // shut down child views.
@@ -16,20 +9,27 @@ const Container = function() {
   this._init();
 };
 
-// Mix in methods from Underscore, for iteration, and other
-// collection related features.
-// Borrowing this code from Backbone.Collection:
-// https://github.com/jashkenas/backbone/blob/1.1.2/backbone.js#L962
-const methods = ['forEach', 'each', 'map', 'find', 'detect', 'filter',
-  'select', 'reject', 'every', 'all', 'some', 'any', 'include',
-  'contains', 'invoke', 'toArray', 'first', 'initial', 'rest',
-  'last', 'without', 'isEmpty', 'pluck', 'reduce', 'partition'];
+function assertFunction(callback) {
+  if (typeof callback !== 'function') {
+    throw new MarionetteError({
+      code: 'MN0024',
+      name: classErrorName,
+      message: 'ChildViewContainer callback must be a function.'
+    });
+  }
+}
 
-each(methods, function(method) {
-  Container.prototype[method] = function(...args) {
-    return _[method].apply(_, [this._views].concat(args));
-  };
-});
+function assertCount(count) {
+  if (!Number.isInteger(count) || count < 0) {
+    throw new MarionetteError({
+      code: 'MN0024',
+      name: classErrorName,
+      message: 'ChildViewContainer count must be a nonnegative integer.'
+    });
+  }
+
+  return count;
+}
 
 function stringComparator(comparator, view) {
   return view.model && view.model.get(comparator);
@@ -38,7 +38,228 @@ function stringComparator(comparator, view) {
 // Container Methods
 // -----------------
 
-extend(Container.prototype, {
+Object.assign(Container.prototype, {
+
+  each(callback, context) {
+    assertFunction(callback);
+
+    const length = this._views.length;
+    for (let index = 0; index < length; index++) {
+      callback.call(context, this._views[index], index);
+    }
+
+    return this;
+  },
+
+  map(callback, context) {
+    assertFunction(callback);
+
+    const length = this._views.length;
+    const results = Array(length);
+    for (let index = 0; index < length; index++) {
+      results[index] = callback.call(context, this._views[index], index);
+    }
+
+    return results;
+  },
+
+  reduce(callback, initialValue, context) {
+    assertFunction(callback);
+
+    const length = this._views.length;
+    const hasInitialValue = arguments.length > 1;
+    let index = 0;
+    let accumulator = initialValue;
+
+    if (!hasInitialValue) {
+      if (!length) {
+        throw new MarionetteError({
+          code: 'MN0024',
+          name: classErrorName,
+          message: 'Reduce of empty ChildViewContainer with no initial value.'
+        });
+      }
+
+      accumulator = this._views[index++];
+    }
+
+    for (; index < length; index++) {
+      accumulator = callback.call(context, accumulator, this._views[index], index);
+    }
+
+    return accumulator;
+  },
+
+  find(predicate, context) {
+    assertFunction(predicate);
+
+    const length = this._views.length;
+    for (let index = 0; index < length; index++) {
+      const view = this._views[index];
+      if (predicate.call(context, view, index)) {
+        return view;
+      }
+    }
+  },
+
+  filter(predicate, context) {
+    assertFunction(predicate);
+
+    const results = [];
+    const length = this._views.length;
+    for (let index = 0; index < length; index++) {
+      const view = this._views[index];
+      if (predicate.call(context, view, index)) {
+        results.push(view);
+      }
+    }
+
+    return results;
+  },
+
+  reject(predicate, context) {
+    assertFunction(predicate);
+
+    const results = [];
+    const length = this._views.length;
+    for (let index = 0; index < length; index++) {
+      const view = this._views[index];
+      if (!predicate.call(context, view, index)) {
+        results.push(view);
+      }
+    }
+
+    return results;
+  },
+
+  every(predicate, context) {
+    assertFunction(predicate);
+
+    const length = this._views.length;
+    for (let index = 0; index < length; index++) {
+      if (!predicate.call(context, this._views[index], index)) {
+        return false;
+      }
+    }
+
+    return true;
+  },
+
+  some(predicate, context) {
+    assertFunction(predicate);
+
+    const length = this._views.length;
+    for (let index = 0; index < length; index++) {
+      if (predicate.call(context, this._views[index], index)) {
+        return true;
+      }
+    }
+
+    return false;
+  },
+
+  contains(view) {
+    return this._views.indexOf(view) !== -1;
+  },
+
+  invoke(methodName, ...args) {
+    if (typeof methodName !== 'string') {
+      throw new MarionetteError({
+        code: 'MN0024',
+        name: classErrorName,
+        message: 'ChildViewContainer method name must be a string.'
+      });
+    }
+
+    const length = this._views.length;
+    const results = Array(length);
+    for (let index = 0; index < length; index++) {
+      const view = this._views[index];
+      const method = view[methodName];
+      if (typeof method !== 'function') {
+        throw new MarionetteError({
+          code: 'MN0025',
+          name: classErrorName,
+          message: `Child view method "${ methodName }" must be callable.`
+        });
+      }
+
+      results[index] = method.apply(view, args);
+    }
+
+    return results;
+  },
+
+  toArray() {
+    return this._views.slice();
+  },
+
+  first(count) {
+    if (count === undefined) {
+      return this._views[0];
+    }
+
+    return this._views.slice(0, assertCount(count));
+  },
+
+  initial(count = 1) {
+    const end = Math.max(this._views.length - assertCount(count), 0);
+    return this._views.slice(0, end);
+  },
+
+  rest(count = 1) {
+    return this._views.slice(assertCount(count));
+  },
+
+  last(count) {
+    if (count === undefined) {
+      return this._views[this._views.length - 1];
+    }
+
+    const start = Math.max(this._views.length - assertCount(count), 0);
+    return this._views.slice(start);
+  },
+
+  without(...excludedViews) {
+    const results = [];
+    const length = this._views.length;
+    for (let index = 0; index < length; index++) {
+      const view = this._views[index];
+      if (excludedViews.indexOf(view) === -1) {
+        results.push(view);
+      }
+    }
+
+    return results;
+  },
+
+  isEmpty() {
+    return this._views.length === 0;
+  },
+
+  pluck(key) {
+    const length = this._views.length;
+    const results = Array(length);
+    for (let index = 0; index < length; index++) {
+      results[index] = this._views[index][key];
+    }
+
+    return results;
+  },
+
+  partition(predicate, context) {
+    assertFunction(predicate);
+
+    const matching = [];
+    const rejected = [];
+    const length = this._views.length;
+    for (let index = 0; index < length; index++) {
+      const view = this._views[index];
+      (predicate.call(context, view, index) ? matching : rejected).push(view);
+    }
+
+    return [matching, rejected];
+  },
 
   // Initializes an empty container
   _init() {
@@ -105,7 +326,9 @@ extend(Container.prototype, {
       this._viewsByCid = {};
       this._indexByModel = {};
 
-      each(views, this._addViewIndexes.bind(this));
+      for (const view of views) {
+        this._addViewIndexes(view);
+      }
 
       this._updateLength();
     }
@@ -180,5 +403,9 @@ extend(Container.prototype, {
     this.length = this._views.length;
   }
 });
+
+Container.prototype[Symbol.iterator] = function() {
+  return this._views[Symbol.iterator]();
+};
 
 export default Container;
