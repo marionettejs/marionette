@@ -16,11 +16,16 @@ import { setRenderer } from '../config/renderer.js';
 const classErrorName = 'CollectionViewError';
 
 function isEmptyViewClass(view) {
-  return isFunction(view) && view.prototype && isViewClass(view);
+  if (!isFunction(view) || !view.prototype) { return false; }
+
+  const { render, destroy, remove } = view.prototype;
+
+  return isFunction(render) &&
+    (isFunction(destroy) || (!destroy && isFunction(remove)));
 }
 
 function isClassDefinition(view) {
-  return /^class\s/.test(Function.prototype.toString.call(view));
+  return /^class(?:\s|\/[/*])/.test(Function.prototype.toString.call(view));
 }
 
 const ClassOptions = [

@@ -2158,10 +2158,18 @@ underscore.extend(Container.prototype, {
 
 const classErrorName = 'CollectionViewError';
 function isEmptyViewClass(view) {
-  return underscore.isFunction(view) && view.prototype && isViewClass(view);
+  if (!underscore.isFunction(view) || !view.prototype) {
+    return false;
+  }
+  const {
+    render,
+    destroy,
+    remove
+  } = view.prototype;
+  return underscore.isFunction(render) && (underscore.isFunction(destroy) || !destroy && underscore.isFunction(remove));
 }
 function isClassDefinition(view) {
-  return /^class\s/.test(Function.prototype.toString.call(view));
+  return /^class(?:\s|\/[/*])/.test(Function.prototype.toString.call(view));
 }
 const ClassOptions$2 = ['attributes', 'behaviors', 'childView', 'childViewContainer', 'childViewEventPrefix', 'childViewEvents', 'childViewOptions', 'childViewTriggers', 'className', 'collection', 'collectionEvents', 'el', 'emptyView', 'emptyViewOptions', 'events', 'id', 'model', 'modelEvents', 'sortWithCollection', 'tagName', 'template', 'templateContext', 'triggers', 'ui', 'viewComparator', 'viewFilter'];
 const CollectionView = function (options) {

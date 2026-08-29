@@ -290,6 +290,26 @@ describe('CollectionView -  Empty', function() {
         ['an object with a prototype property', () => ({ prototype: {} })],
         ['a View instance', () => new View()],
         ['a non-View class', () => class InvalidEmptyView {}],
+        ['a commented non-View class', () => class/**/ InvalidEmptyView {}],
+        ['a class with a non-function render property', () => {
+          class InvalidEmptyView {}
+          InvalidEmptyView.prototype.render = true;
+          InvalidEmptyView.prototype.remove = function() {};
+          return InvalidEmptyView;
+        }],
+        ['a class with a non-function remove property', () => {
+          class InvalidEmptyView {}
+          InvalidEmptyView.prototype.render = function() {};
+          InvalidEmptyView.prototype.remove = true;
+          return InvalidEmptyView;
+        }],
+        ['a class with a non-function destroy property', () => {
+          class InvalidEmptyView {}
+          InvalidEmptyView.prototype.render = function() {};
+          InvalidEmptyView.prototype.destroy = true;
+          InvalidEmptyView.prototype.remove = function() {};
+          return InvalidEmptyView;
+        }],
       ];
 
       invalidDefinitions.forEach(([name, createEmptyView]) => {
