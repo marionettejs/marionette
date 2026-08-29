@@ -1,0 +1,24 @@
+config/event-delegator.js
+  s_d6429951fb9231::t_e2c665960eeab4 3-4,8,48
+config/dom.js
+  s_d6429951fb9231::t_e2c665960eeab4 3,7,85
+modules/child-view-container.js
+  s_d6429951fb9231::t_e2c665960eeab4 2,38-55,59,348
+  s_d6429951fb9231::t_311569c0949547 316-317
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "45b0b28a3b925bbe5f4831711a0796359938eec6",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
