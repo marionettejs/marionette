@@ -11,12 +11,12 @@
 // The third parameter is a hash of { "request:name": "replyHandler" }
 // configuration. A function can be supplied instead of a string handler name.
 
-import { isObject } from 'underscore';
 import normalizeMethods from './normalize-methods.js';
 import MarionetteError from '../../utils/error.js';
 
 function normalizeBindings(context, bindings) {
-  if (!isObject(bindings)) {
+  const bindingsType = typeof bindings;
+  if (bindings === null || (bindingsType !== 'object' && bindingsType !== 'function')) {
     throw new MarionetteError({
       code: 'MN0010',
       message: 'Bindings must be an object.',
