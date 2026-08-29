@@ -1,0 +1,25 @@
+upgradeGuide.md
+  s_d6429951fb9231::t_945e9966b0bb8c 7,9-11
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_945e9966b0bb8c 22,41
+readme.md
+  s_d6429951fb9231::t_945e9966b0bb8c 23
+docs/installation.md
+  s_d6429951fb9231::t_945e9966b0bb8c 35-36,53-55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "d0c68190d922c9606cf8fd5d7c6ef618c5b6bb0b",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
