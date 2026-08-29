@@ -27,6 +27,36 @@ function expectParity(createScenario) {
 }
 
 describe('getValue', function() {
+  it('reads once and invokes a callable with the object receiver and no arguments', function() {
+    let callArguments;
+    let callReceiver;
+    let reads = 0;
+    const object = Object.defineProperty({}, 'handler', {
+      get() {
+        reads += 1;
+        return function(...args) {
+          callArguments = args;
+          callReceiver = this;
+          return 'handled';
+        };
+      }
+    });
+
+    expect(getValue(object, 'handler')).to.equal('handled');
+    expect(reads).to.equal(1);
+    expect(callReceiver).to.equal(object);
+    expect(callArguments).to.deep.equal([]);
+  });
+
+  it('uses the fallback only when the property value is undefined', function() {
+    expect(getValue({ value: null }, 'value', 'fallback')).to.be.null;
+    expect(getValue({ value: false }, 'value', 'fallback')).to.equal(false);
+    expect(getValue({ value: 0 }, 'value', 'fallback')).to.equal(0);
+    expect(getValue({ value: '' }, 'value', 'fallback')).to.equal('');
+    expect(getValue({ value: undefined }, 'value', 'fallback')).to.equal('fallback');
+    expect(getValue({}, 'value', 'fallback')).to.equal('fallback');
+  });
+
   it('matches inherited, nullish, missing, and fallback values', function() {
     [
       () => ({ object: Object.create({ setting: 'inherited' }), property: 'setting' }),
