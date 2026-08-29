@@ -1,4 +1,4 @@
-import { extend as extend$1, pick, isFunction, isString, isObject, once, each, keys, reduce, uniqueId, result, map, without, partial, isEmpty, matches } from 'underscore';
+import { extend as extend$1, pick, isFunction, isString, isObject, each, keys, reduce, uniqueId, result, map, without, partial, isEmpty, matches } from 'underscore';
 
 const proxy = function (method) {
   return function (context, ...args) {
@@ -388,10 +388,17 @@ function callHandler(callback, context, args = []) {
 }
 
 function onceWrap(callback, offCallback) {
-  const onceCallback = once(function () {
+  let called = false;
+  let result;
+  function onceCallback() {
+    if (called) {
+      return result;
+    }
+    called = true;
     offCallback(onceCallback);
-    return callback.apply(this, arguments);
-  });
+    result = callback.apply(this, arguments);
+    return result;
+  }
   onceCallback._callback = callback;
   return onceCallback;
 }
