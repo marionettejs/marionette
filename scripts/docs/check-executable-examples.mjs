@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const markerPattern = /<!--\s*executable-example:\s*([\s\S]*?)\s*-->/g;
 const validIdPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const javascriptFencePattern = /^\s*```javascript\r?\n[\s\S]*?\r?\n```/;
+const javascriptFencePattern = /^[ \t]*\r?\n {0,3}```javascript\r?\n[\s\S]*?\r?\n {0,3}```[ \t]*(?:\r?\n|$)/;
 
 function findMarkers(contents) {
   return [...contents.matchAll(markerPattern)].map(match => ({
@@ -15,7 +15,7 @@ function findMarkers(contents) {
 }
 
 function describeLocations(entries) {
-  return entries.map(entry => entry.path).sort().join(', ');
+  return [...new Set(entries.map(entry => entry.path))].sort().join(', ');
 }
 
 export class ExecutableExampleContractError extends Error {

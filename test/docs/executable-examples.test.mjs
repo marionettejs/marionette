@@ -46,20 +46,42 @@ test('rejects marker IDs that are not lowercase hyphenated slugs', () => {
 });
 
 test('rejects a marker without an immediately following javascript fence', () => {
+  [
+    'Explanation\n```javascript\nconst example = true;\n```',
+    '\n```javascript\nconst example = true;\n```',
+    '```javascript\nconst example = true;\n``` trailing',
+  ].forEach(fence => {
+    expectContractError({
+      documents: [document('docs/example.md', 'example', fence)],
+      validators: [validator('test/fixtures/docs-example/validate.mjs', 'example')],
+    }, 'must be followed immediately by a javascript fence');
+  });
+
   expectContractError({
-    documents: [document('docs/example.md', 'example', 'Explanation\n```javascript\nconst example = true;\n```')],
+    documents: [{
+      contents: `${marker('example')} \`\`\`javascript\nconst example = true;\n\`\`\``,
+      path: 'docs/example.md',
+    }],
     validators: [validator('test/fixtures/docs-example/validate.mjs', 'example')],
   }, 'must be followed immediately by a javascript fence');
 });
 
 test('rejects duplicate documentation marker IDs', () => {
-  expectContractError({
+  const input = {
     documents: [
-      document('docs/one.md', 'example'),
-      document('docs/two.md', 'example'),
+      {
+        contents: `${document('docs/example.md', 'example').contents}\n${document('docs/example.md', 'example').contents}`,
+        path: 'docs/example.md',
+      },
     ],
     validators: [validator('test/fixtures/docs-example/validate.mjs', 'example')],
-  }, 'appears in multiple documentation locations');
+  };
+
+  assert.throws(
+    () => validateExecutableExamples(input),
+    error => error instanceof ExecutableExampleContractError &&
+      error.errors.includes('executable example "example" appears in multiple documentation locations: docs/example.md'),
+  );
 });
 
 test('rejects a documented example without a fixture owner', () => {
