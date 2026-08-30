@@ -449,6 +449,24 @@
         "runtime"
       ],
       "benchmarkCategory": "communication"
+    },
+    {
+      "code": "MN0027",
+      "slug": "feature-name-invalid",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Behavior",
+        "CollectionView",
+        "View"
+      ],
+      "remediation": "Pass one of the documented Marionette feature names to setEnabled; keep application-owned flags in an application registry or configuration object.",
+      "docsAnchor": "/errors/MN0027/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "view"
     }
   ]
 }

@@ -5,6 +5,8 @@
 * Fixed Radio circular dependency with log and debug
 * Fixed event interop with Backbone
 * Fixed delegated event matching so nested matching ancestors fire once per event
+* Changed `setEnabled` to reject undocumented feature names with stable diagnostic
+  code `MN0027`
 
 ### v5.0.0-alpha.1
 
