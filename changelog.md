@@ -13,6 +13,8 @@
   instance without resolving templates or running the render lifecycle
 * Changed base `View#setElement` and `CollectionView#setElement` calls once
   destruction begins to reject with stable diagnostic code `MN0029`
+* Changed base `CollectionView#addChildView` calls once destruction begins to
+  return the supplied View without inspecting or managing it
 * Changed `View#hasRegion` to check own registered Regions without rendering or
   changing View lifecycle state
 * Changed `View#getRegions` to return a safe Region snapshot without rendering;

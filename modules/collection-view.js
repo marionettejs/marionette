@@ -750,6 +750,10 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
   // Render the child's view and add it to the HTML for the collection view at a given index, based on the current sort
   addChildView(view, index, options = {}) {
+    if (this._isDestroying || this._isDestroyed) {
+      return view;
+    }
+
     if (!view || view._isDestroyed) {
       return view;
     }

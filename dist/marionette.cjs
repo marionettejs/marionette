@@ -3213,6 +3213,9 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     return this;
   },
   addChildView(view, index, options = {}) {
+    if (this._isDestroying || this._isDestroyed) {
+      return view;
+    }
     if (!view || view._isDestroyed) {
       return view;
     }
