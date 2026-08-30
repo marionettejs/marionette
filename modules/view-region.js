@@ -96,6 +96,15 @@ assignOwn(Region.prototype, CommonMixin, {
   // Displays a view instance inside of the region. If necessary handles calling the `render`
   // method for you. Reads content directly from the `el` attribute.
   show(view, options) {
+    if (this._isDestroyed) {
+      throw new MarionetteError({
+        code: 'MN0028',
+        name: classErrorName,
+        message: 'A destroyed Region cannot show a View.',
+        url: 'errors/MN0028/',
+      });
+    }
+
     if (!this._ensureElement(options)) {
       return;
     }
@@ -485,6 +494,7 @@ assignOwn(Region.prototype, CommonMixin, {
     }
     this._isDestroyed = true;
 
+    // reset remains valid here because it completes this destruction lifecycle.
     this.reset(options);
 
     if (this._name) {

@@ -76,7 +76,7 @@ change which lifecycle operations are valid.
 
 | Operation | Empty Region | Occupied Region | Destroyed Region |
 | --- | --- | --- | --- |
-| `show(view)` when the Region element resolves | Renders the View if needed, shows it, and enters occupied. | Showing the same View is a no-op. Showing a different View destroys the old View and swaps to the new one. | Reuse is unsupported. |
+| `show(view)` when the Region element resolves | Renders the View if needed, shows it, and enters occupied. | Showing the same View is a no-op. Showing a different View destroys the old View and swaps to the new one. | Throws `MN0028` before resolving the element or changing the View. |
 | `detachView()` | Returns `undefined`; state is unchanged. | Detaches and returns the live View, then enters empty. | Reuse is unsupported. |
 | `empty()` | Returns the Region and, when its element resolves, removes unmanaged contents from that element. | Destroys the current View, clears `currentView`, and enters empty. | Reuse is unsupported. |
 | Current View is destroyed externally | No effect. | Runs the Region's empty lifecycle once, clears `currentView`, and enters empty. | No effect. |
@@ -86,8 +86,9 @@ Successful `show`, `empty`, and `destroy` calls return the Region when their
 operation completes. With `allowMissingEl: true`, `show` instead returns `undefined`
 and leaves the Region empty when its element does not resolve. A View returned
 by `detachView()` remains the caller's responsibility until another Region shows it
-or it is destroyed. Operations other than repeated `destroy()` after Region
-destruction are unsupported; this contract does not make a destroyed Region reusable.
+or it is destroyed. Calling `show()` after Region destruction throws `MN0028`;
+repeated `destroy()` remains a no-op. Other operations after destruction remain
+unsupported; this contract does not make a destroyed Region reusable.
 
 The following example preserves a View by detaching it before showing it again.
 Calling `empty()` afterward destroys the View and returns the Region to its empty state.
@@ -549,10 +550,11 @@ If `before:destroy` throws, the Region remains live and owned with its current
 View intact. A later `destroy()` call retries `before:destroy` before cleaning up
 that View and ownership once. Errors after `before:destroy` completes do not
 restart teardown.
-A destroyed Region should not be reused.
+A destroyed Region should not be reused. Calling `show()` on it throws `MN0028`
+before resolving the Region element or rendering, attaching, or owning the supplied View.
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   regions: {

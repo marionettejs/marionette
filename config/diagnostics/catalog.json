@@ -467,6 +467,22 @@
         "runtime"
       ],
       "benchmarkCategory": "view"
+    },
+    {
+      "code": "MN0028",
+      "slug": "region-destroyed-operation",
+      "status": "active",
+      "category": "lifecycle",
+      "severity": "error",
+      "objects": [
+        "Region"
+      ],
+      "remediation": "Construct or use a live Region before showing a View; destroyed Regions cannot be reused.",
+      "docsAnchor": "/errors/MN0028/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "region"
     }
   ]
 }
