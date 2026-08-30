@@ -330,6 +330,12 @@ additive change to the authority contract. New-subpath results carry
 cost therefore require an exact-head approval record. The threshold, approver policy,
 parser, contract validator, and evaluator all come from the pull request's exact base,
 so the first enforcement change cannot authorize itself with candidate-owned policy.
+The bundle tool keeps `forbiddenExternalImports` optional so exact-base contracts from
+before this tightening remain valid. When a candidate introduces the field, the
+exact-base tool requires a sorted, unique, non-empty string list and
+fails every measured production graph that statically or dynamically imports a
+listed package or any rooted subpath of it. Similarly prefixed packages are not
+matched.
 
 ## Hosted timing
 

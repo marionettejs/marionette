@@ -7,6 +7,7 @@ import { isDeepStrictEqual, promisify } from 'node:util';
 import { brotliCompress, constants } from 'node:zlib';
 import { rollup } from 'rollup';
 import {
+  canonicalForbiddenExternalImports,
   newProductionReportDelta,
   validateGrowthApprovalPolicy,
 } from './performance-growth-approval.mjs';
@@ -122,16 +123,12 @@ export function validateContract(contract, packageJson, runtimeFiles, budgetAmen
   if (contract.schemaVersion !== 1) {
     violations.push(`Unsupported performance schemaVersion ${contract.schemaVersion}`);
   }
-  if (!Array.isArray(contract.forbiddenExternalImports) ||
-      contract.forbiddenExternalImports.some(value => typeof value !== 'string' || !value) ||
-      !isDeepStrictEqual(
-        contract.forbiddenExternalImports,
-        [...new Set(contract.forbiddenExternalImports)].sort()
-      )) {
-    violations.push('forbiddenExternalImports must contain sorted, unique non-empty strings');
-  }
   violations.push(...validateGrowthApprovalPolicy(contract.pullRequestGrowthApproval)
     .map(({ message }) => message));
+  if (Object.hasOwn(contract, 'forbiddenExternalImports') &&
+      !canonicalForbiddenExternalImports(contract.forbiddenExternalImports)) {
+    violations.push('forbiddenExternalImports must be a sorted, unique array of non-empty strings');
+  }
 
   const baselineTotal = contract.runtimeArtifacts
     .reduce((total, artifact) => total + artifact.baselineBrotliBytes, 0);
@@ -213,6 +210,16 @@ export function findForbiddenModules(modules, contract) {
   return modules.filter(module => {
     return contract.forbiddenProductionModules.includes(module) ||
       contract.forbiddenProductionModulePrefixes.some(prefix => module.startsWith(prefix));
+  });
+}
+
+export function findForbiddenExternalImports(externalImports, contract) {
+  const forbiddenExternalImports = Array.isArray(contract.forbiddenExternalImports) ?
+    contract.forbiddenExternalImports : [];
+  return externalImports.filter(externalImport => {
+    return forbiddenExternalImports.some(forbiddenImport => {
+      return externalImport === forbiddenImport || externalImport.startsWith(`${forbiddenImport}/`);
+    });
   });
 }
 
@@ -320,9 +327,9 @@ async function measureGraph(root, configurations, graph, contract) {
       .map(moduleId => normalizePath(relative(root, moduleId)))
       .sort();
     const externalImports = [...new Set(chunks.flatMap(chunk => chunk.imports))].sort();
-    const forbiddenExternalImports = externalImports.filter(externalImport => {
-      return contract.forbiddenExternalImports.includes(externalImport);
-    });
+    const policyExternalImports = [...new Set(chunks.flatMap(chunk => {
+      return [...chunk.imports, ...chunk.dynamicImports];
+    }))].sort();
 
     return {
       subpath: graph.subpath,
@@ -331,12 +338,12 @@ async function measureGraph(root, configurations, graph, contract) {
       status: 'measured',
       modules,
       externalImports,
-      forbiddenExternalImports,
       phase0AddedModules: difference(modules, graph.baselineModules),
       phase0RemovedModules: difference(graph.baselineModules, modules),
       phase0AddedExternalImports: difference(externalImports, graph.baselineExternalImports),
       phase0RemovedExternalImports: difference(graph.baselineExternalImports, externalImports),
       forbiddenModules: findForbiddenModules(modules, contract),
+      forbiddenExternalImports: findForbiddenExternalImports(policyExternalImports, contract),
     };
   } finally {
     await bundle.close();
@@ -448,8 +455,8 @@ export async function measure({
         status: 'measurement-error',
         modules: [],
         externalImports: [],
-        forbiddenExternalImports: [],
         forbiddenModules: [],
+        forbiddenExternalImports: [],
         error: error.message,
       });
       violations.push(`Unable to measure production graph ${graph.subpath}: ${error.message}`);
@@ -464,8 +471,8 @@ export async function measure({
         status: 'unconfigured',
         modules: [],
         externalImports: [],
-        forbiddenExternalImports: [],
         forbiddenModules: [],
+        forbiddenExternalImports: [],
         error: 'New exported runtime subpath is not defined by the authority contract',
       });
     }
