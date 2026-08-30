@@ -1,0 +1,38 @@
+test/unit/config/diagnostic-catalog.spec.js
+  s_d6429951fb9231::t_d11e86911a1194 475
+  s_d6429951fb9231::t_3ea3988b94b896 31,483-486
+  s_d6429951fb9231::t_b86652a02d5d7a 1
+  s_d6429951fb9231::t_84810f6b018cf2 9,80-93,453-454,456-470,488-497
+  s_d6429951fb9231::t_c77d2ee72f9d75 169-184,275-288,406-419,445-452,455,471-474,476-482,487,498
+config/diagnostics/catalog.schema.json
+  s_d6429951fb9231::t_3ea3988b94b896 16
+  s_d6429951fb9231::t_b86652a02d5d7a 59-60
+scripts/docs/build.mjs
+  s_d6429951fb9231::t_84810f6b018cf2 16,33,44,46
+  s_d6429951fb9231::t_b86652a02d5d7a 17-18,24-25
+scripts/diagnostics/catalog.mjs
+  s_d6429951fb9231::t_b86652a02d5d7a 238-239,277-278
+docs/diagnostic-catalog.md
+  s_d6429951fb9231::t_3ea3988b94b896 12,77-80
+  s_d6429951fb9231::t_84810f6b018cf2 81,94-95
+  s_d6429951fb9231::t_b86652a02d5d7a 48-50,59-60,64,87-88,91,115,126-128
+config/diagnostics/catalog.json
+  s_d6429951fb9231::t_3ea3988b94b896 3
+  s_d6429951fb9231::t_b86652a02d5d7a 470-502
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "85f68ff57294bf8e52e294f4de5871408920bf7d",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
