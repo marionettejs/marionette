@@ -91,19 +91,6 @@ describe('Requests', function() {
       }
     });
 
-    it('does not assign a fresh replyOnce registry when wrapper setup throws', function() {
-      const requests = { ...Requests };
-      Object.defineProperty(requests, 'stopReplying', {
-        get() {
-          throw new Error('stopReplying lookup failed');
-        }
-      });
-
-      expect(() => requests.replyOnce('foo', 'response'))
-        .to.throw('stopReplying lookup failed');
-      expect(requests).to.not.have.own.property('_rdRequests');
-    });
-
     it('warns only when an own handler is overwritten', function() {
       const warn = this.sinon.stub(console, 'warn');
       this.requests._rdRequests = Object.create({
@@ -120,6 +107,19 @@ describe('Requests', function() {
   });
 
   describe('#replyOnce', function() {
+    it('does not assign a fresh registry when wrapper setup throws', function() {
+      const requests = { ...Requests };
+      Object.defineProperty(requests, 'stopReplying', {
+        get() {
+          throw new Error('stopReplying lookup failed');
+        }
+      });
+
+      expect(() => requests.replyOnce('foo', 'response'))
+        .to.throw('stopReplying lookup failed');
+      expect(requests).to.not.have.own.property('_rdRequests');
+    });
+
     it('removes the reply before invoking it and returns the first result once', function() {
       const callback = this.sinon.stub().callsFake(() => {
         expect(this.requests.request('foo')).to.be.undefined;
@@ -192,9 +192,10 @@ describe('Requests', function() {
     it('snapshots own keys before reading values and skips later additions', function() {
       const callback = this.sinon.stub();
       const trace = [];
+      const requestsContext = this.requests;
       const target = {
-        first: handler(callback, this.requests),
-        second: handler(callback, this.requests)
+        first: handler(callback, requestsContext),
+        second: handler(callback, requestsContext)
       };
       const registry = new Proxy(target, {
         ownKeys(object) {
@@ -205,13 +206,13 @@ describe('Requests', function() {
           trace.push(`descriptor:${key}`);
           return Reflect.getOwnPropertyDescriptor(object, key);
         },
-        get(object, key, receiver) {
+        get(object, key, proxyReceiver) {
           trace.push(`get:${key}`);
           if (key === 'first') {
             delete object.second;
-            object.added = handler(callback, this.requests);
+            object.added = handler(callback, requestsContext);
           }
-          return Reflect.get(object, key, receiver);
+          return Reflect.get(object, key, proxyReceiver);
         },
         deleteProperty(object, key) {
           trace.push(`delete:${key}`);
@@ -232,6 +233,7 @@ describe('Requests', function() {
         'descriptor:second'
       ]);
       expect(Object.keys(target)).to.deep.equal(['added']);
+      expect(target.added.context).to.equal(requestsContext);
     });
 
     it('preserves callback-read short-circuiting and falsey wildcards', function() {
