@@ -1,5 +1,3 @@
-import { extend as extend$1, each, isObject, isFunction, matches, isString as isString$1, result, map, reduce } from 'underscore';
-
 const proxy = function (method) {
   return function (context, ...args) {
     return method.apply(context, args);
@@ -2626,14 +2624,36 @@ Container.prototype[Symbol.iterator] = function () {
 
 const classErrorName = 'CollectionViewError';
 function isEmptyViewClass(view) {
-  if (!isFunction(view) || !view.prototype) {
+  if (typeof view !== 'function' || !view.prototype) {
     return false;
   }
   const {
     render,
     destroy
   } = view.prototype;
-  return isFunction(render) && (destroy ? isFunction(destroy) : isFunction(view.prototype.remove));
+  return typeof render === 'function' && (destroy ? typeof destroy === 'function' : typeof view.prototype.remove === 'function');
+}
+function modelAttributesMatcher(predicate) {
+  const keys = Object.keys(predicate);
+  const length = keys.length;
+  const values = Array(length);
+  for (let index = 0; index < length; index++) {
+    values[index] = predicate[keys[index]];
+  }
+  return function (view) {
+    const attributes = view.model && view.model.attributes;
+    if (attributes == null) {
+      return length === 0;
+    }
+    const object = Object(attributes);
+    for (let index = 0; index < length; index++) {
+      const key = keys[index];
+      if (values[index] !== object[key] || !(key in object)) {
+        return false;
+      }
+    }
+    return true;
+  };
 }
 function isClassDefinition(view) {
   return /^class(?:\s|\/[/*])/.test(Function.prototype.toString.call(view));
@@ -2654,13 +2674,13 @@ const CollectionView = function (options) {
   this.delegateEntityEvents();
   this._triggerEventOnBehaviors('initialize', this, options);
 };
-extend$1(CollectionView, {
+assignOwn(CollectionView, {
   extend,
   setRenderer: setRenderer$1,
   setDomApi: setDomApi$1,
   setEventDelegator: setEventDelegator$1
 });
-extend$1(CollectionView.prototype, ViewMixin, {
+assignOwn(CollectionView.prototype, ViewMixin, {
   cidPrefix: 'mncv',
   sortWithCollection: true,
   _initChildViewStorage() {
@@ -2717,13 +2737,15 @@ extend$1(CollectionView.prototype, ViewMixin, {
     this._removeChildViews(removedViews);
   },
   _removeChildModels(models) {
-    return reduce(models, (views, model) => {
-      const removeView = this._removeChildModel(model);
+    const views = [];
+    const length = models.length;
+    for (let index = 0; index < length; index++) {
+      const removeView = this._removeChildModel(models[index]);
       if (removeView) {
         views.push(removeView);
       }
-      return views;
-    }, []);
+    }
+    return views;
   },
   _removeChildModel(model) {
     const view = this._children.findByModel(model);
@@ -2739,7 +2761,12 @@ extend$1(CollectionView.prototype, ViewMixin, {
     this.triggerMethod('remove:child', this, view);
   },
   _addChildModels(models) {
-    return map(models, this._addChildModel.bind(this));
+    const length = models.length;
+    const views = Array(length);
+    for (let index = 0; index < length; index++) {
+      views[index] = this._addChildModel(models[index]);
+    }
+    return views;
   },
   _addChildModel(model) {
     const view = this._createChildView(model);
@@ -2783,12 +2810,12 @@ extend$1(CollectionView.prototype, ViewMixin, {
   _getView(view, child) {
     if (isViewClass(view)) {
       return view;
-    } else if (isFunction(view)) {
+    } else if (typeof view === 'function') {
       return view.call(this, child);
     }
   },
   _getChildViewOptions(child) {
-    if (isFunction(this.childViewOptions)) {
+    if (typeof this.childViewOptions === 'function') {
       return this.childViewOptions(child);
     }
     return this.childViewOptions;
@@ -2837,7 +2864,7 @@ extend$1(CollectionView.prototype, ViewMixin, {
     return this;
   },
   _getChildViewContainer() {
-    const childViewContainer = result(this, 'childViewContainer');
+    const childViewContainer = getValue(this, 'childViewContainer');
     this.container = childViewContainer ? this.$(childViewContainer)[0] : this.el;
     if (!this.container) {
       throw new MarionetteError({
@@ -2914,9 +2941,12 @@ extend$1(CollectionView.prototype, ViewMixin, {
     this.triggerMethod('before:filter', this);
     const attachViews = [];
     const detachViews = [];
-    each(this._children._views, (view, key, children) => {
-      (viewFilter.call(this, view, key, children) ? attachViews : detachViews).push(view);
-    });
+    const children = this._children._views;
+    const length = children.length;
+    for (let index = 0; index < length; index++) {
+      const view = children[index];
+      (viewFilter.call(this, view, index, children) ? attachViews : detachViews).push(view);
+    }
     this._detachChildren(detachViews);
     this.children._set(attachViews, true);
     this.triggerMethod('filter', this, attachViews, detachViews);
@@ -2926,16 +2956,13 @@ extend$1(CollectionView.prototype, ViewMixin, {
     if (!viewFilter) {
       return false;
     }
-    if (isFunction(viewFilter)) {
+    if (typeof viewFilter === 'function') {
       return viewFilter;
     }
-    if (isObject(viewFilter)) {
-      const matcher = matches(viewFilter);
-      return function (view) {
-        return matcher(view.model && view.model.attributes);
-      };
+    if (viewFilter !== null && typeof viewFilter === 'object' && !Array.isArray(viewFilter)) {
+      return modelAttributesMatcher(viewFilter);
     }
-    if (isString$1(viewFilter)) {
+    if (isString(viewFilter)) {
       return function (view) {
         return view.model && view.model.get(viewFilter);
       };
@@ -2965,7 +2992,13 @@ extend$1(CollectionView.prototype, ViewMixin, {
     return this.setFilter(null, options);
   },
   _detachChildren(detachingViews) {
-    each(detachingViews, this._detachChildView.bind(this));
+    if (!detachingViews) {
+      return;
+    }
+    const length = detachingViews.length;
+    for (let index = 0; index < length; index++) {
+      this._detachChildView(detachingViews[index]);
+    }
   },
   _detachChildView(view) {
     const shouldTriggerDetach = view._isAttached && this.monitorViewEvents !== false;
@@ -3001,30 +3034,36 @@ extend$1(CollectionView.prototype, ViewMixin, {
   },
   _getBuffer(views) {
     const elBuffer = this.Dom.createBuffer();
-    each(views, view => {
+    const length = views.length;
+    for (let index = 0; index < length; index++) {
+      const view = views[index];
       renderView(view);
       view._isShown = true;
       this.Dom.appendContents(elBuffer, view.el);
-    });
+    }
     return elBuffer;
   },
   _attachChildren(els, views) {
     const shouldTriggerAttach = this._isAttached && this.monitorViewEvents !== false;
     views = shouldTriggerAttach ? views : [];
-    each(views, view => {
+    const beforeAttachLength = views.length;
+    for (let index = 0; index < beforeAttachLength; index++) {
+      const view = views[index];
       if (view._isAttached) {
-        return;
+        continue;
       }
       view.triggerMethod('before:attach', view);
-    });
+    }
     this.attachHtml(els, this.container);
-    each(views, view => {
+    const attachLength = views.length;
+    for (let index = 0; index < attachLength; index++) {
+      const view = views[index];
       if (view._isAttached) {
-        return;
+        continue;
       }
       view._isAttached = true;
       view.triggerMethod('attach', view);
-    });
+    }
   },
   attachHtml(els, container) {
     this.Dom.appendContents(container, els);
@@ -3049,7 +3088,7 @@ extend$1(CollectionView.prototype, ViewMixin, {
     if (isEmptyViewClass(emptyView)) {
       return emptyView;
     }
-    const EmptyView = isFunction(emptyView) && !isClassDefinition(emptyView) ? emptyView.call(this) : undefined;
+    const EmptyView = typeof emptyView === 'function' && !isClassDefinition(emptyView) ? emptyView.call(this) : undefined;
     if (isEmptyViewClass(EmptyView)) {
       return EmptyView;
     }
@@ -3068,7 +3107,7 @@ extend$1(CollectionView.prototype, ViewMixin, {
   },
   _getEmptyViewOptions() {
     const emptyViewOptions = this.emptyViewOptions || this.childViewOptions;
-    if (isFunction(emptyViewOptions)) {
+    if (typeof emptyViewOptions === 'function') {
       return emptyViewOptions.call(this);
     }
     return emptyViewOptions;
@@ -3103,7 +3142,8 @@ extend$1(CollectionView.prototype, ViewMixin, {
         url: 'marionette.region.html#showing-a-view'
       });
     }
-    if (isObject(index)) {
+    const indexType = typeof index;
+    if (index !== null && (indexType === 'object' || indexType === 'function')) {
       options = index;
     }
     if (options.index != null) {
@@ -3147,7 +3187,13 @@ extend$1(CollectionView.prototype, ViewMixin, {
     return view;
   },
   _removeChildViews(views) {
-    each(views, this._removeChildView.bind(this));
+    if (!views) {
+      return;
+    }
+    const length = views.length;
+    for (let index = 0; index < length; index++) {
+      this._removeChildView(views[index]);
+    }
   },
   _removeChildView(view, {
     shouldDetach

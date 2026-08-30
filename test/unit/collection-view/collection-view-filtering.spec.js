@@ -123,6 +123,46 @@ describe('CollectionView - Filtering', function() {
         expect(_.map(calledWith[1], 'model')).to.have.same.members(collectionOddModels);
         expect(_.map(calledWith[2], 'model')).to.have.same.members(collectionEvenModels);
       });
+
+      it('uses the CollectionView receiver and a dense initial-length snapshot', function() {
+        const calls = [];
+        let expectedLength;
+        let mutationView;
+        const mutationFilter = function(view, index, children) {
+          calls.push([this, view, index, children]);
+          if (index === 0) {
+            expectedLength = children.length;
+            mutationView = {};
+            children.push(mutationView);
+          }
+          if (index === expectedLength - 1) {
+            expect(children.pop()).to.equal(mutationView);
+          }
+          return true;
+        };
+        const mutationCollection = new Backbone.Collection([
+          { num: 1 },
+          { num: 2 },
+          { num: 3 },
+        ]);
+        const mutationCollectionView = new MyCollectionView({
+          collection: mutationCollection,
+          viewFilter: mutationFilter,
+        });
+
+        try {
+          mutationCollectionView.render();
+
+          expect(calls).to.have.lengthOf(expectedLength);
+          expect(calls.map(call => call[0]))
+            .to.deep.equal(Array(expectedLength).fill(mutationCollectionView));
+          expect(calls.map(call => call[2])).to.deep.equal([0, 1, 2]);
+          expect(calls.every(call => call[3] === mutationCollectionView._children._views))
+            .to.be.true;
+        } finally {
+          mutationCollectionView.destroy();
+        }
+      });
     });
 
     describe('when viewFilter is an object', function() {
@@ -149,6 +189,65 @@ describe('CollectionView - Filtering', function() {
         it('should filter without error', function() {
           expect(myCollectionView.filter.bind(myCollectionView)).to.not.throw();
         });
+      });
+
+      it('snapshots own enumerable string predicates with strict attribute equality', function() {
+        const expected = {};
+        const inherited = { inherited: true };
+        const predicate = Object.create(inherited);
+        const readExpected = this.sinon.stub().returns(expected);
+        Object.defineProperties(predicate, {
+          expected: {
+            configurable: true,
+            enumerable: true,
+            get: readExpected,
+          },
+          hidden: {
+            get() {
+              throw new Error('hidden predicate was read');
+            },
+          },
+          [Symbol('ignored')]: {
+            enumerable: true,
+            get() {
+              throw new Error('symbol predicate was read');
+            },
+          },
+        });
+        const predicateCollection = new Backbone.Collection([
+          { expected, num: 1 },
+          { expected: {}, num: 2 },
+          { num: 3 },
+        ]);
+        const predicateView = new MyCollectionView({
+          collection: predicateCollection,
+          viewFilter: predicate,
+        });
+
+        try {
+          predicateView.render();
+          Object.defineProperty(predicate, 'expected', {
+            enumerable: true,
+            value: {},
+          });
+
+          expect(predicateView.children.pluck('model'))
+            .to.deep.equal([predicateCollection.at(0)]);
+          expect(readExpected).to.have.been.calledOnce;
+        } finally {
+          predicateView.destroy();
+        }
+      });
+
+      it('rejects arrays as predicate objects', function() {
+        const arrayFilterView = new MyCollectionView({ collection, viewFilter: [] });
+
+        try {
+          expect(() => arrayFilterView.render()).to.throw()
+            .with.property('code', 'MN0014');
+        } finally {
+          arrayFilterView.destroy();
+        }
       });
     });
 

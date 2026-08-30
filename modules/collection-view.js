@@ -1,9 +1,10 @@
 // Collection View
 // ---------------
 
-import { extend as _extend, result, map, isFunction, isObject, isString, matches, each, reduce } from 'underscore';
 import { assignOwn } from '../utils/assign-in.js';
 import extend from '../utils/extend.js';
+import getValue from '../utils/get-value.js';
+import isString from '../utils/is-string.js';
 import uniqueId from '../utils/unique-id.js';
 import MarionetteError from '../utils/error.js';
 import { renderView, destroyView, isViewClass } from './common/view.js';
@@ -18,12 +19,33 @@ import { setRenderer } from '../config/renderer.js';
 const classErrorName = 'CollectionViewError';
 
 function isEmptyViewClass(view) {
-  if (!isFunction(view) || !view.prototype) { return false; }
+  if (typeof view !== 'function' || !view.prototype) { return false; }
 
   const { render, destroy } = view.prototype;
 
-  return isFunction(render) &&
-    (destroy ? isFunction(destroy) : isFunction(view.prototype.remove));
+  return typeof render === 'function' &&
+    (destroy ? typeof destroy === 'function' : typeof view.prototype.remove === 'function');
+}
+
+function modelAttributesMatcher(predicate) {
+  const keys = Object.keys(predicate);
+  const length = keys.length;
+  const values = Array(length);
+  for (let index = 0; index < length; index++) {
+    values[index] = predicate[keys[index]];
+  }
+
+  return function(view) {
+    const attributes = view.model && view.model.attributes;
+    if (attributes == null) { return length === 0; }
+
+    const object = Object(attributes);
+    for (let index = 0; index < length; index++) {
+      const key = keys[index];
+      if (values[index] !== object[key] || !(key in object)) { return false; }
+    }
+    return true;
+  };
 }
 
 function isClassDefinition(view) {
@@ -86,9 +108,9 @@ const CollectionView = function(options) {
   this._triggerEventOnBehaviors('initialize', this, options);
 };
 
-_extend(CollectionView, { extend, setRenderer, setDomApi, setEventDelegator });
+assignOwn(CollectionView, { extend, setRenderer, setDomApi, setEventDelegator });
 
-_extend(CollectionView.prototype, ViewMixin, {
+assignOwn(CollectionView.prototype, ViewMixin, {
   cidPrefix: 'mncv',
 
   // flag for maintaining the sorted order of the collection
@@ -171,13 +193,14 @@ _extend(CollectionView.prototype, ViewMixin, {
   },
 
   _removeChildModels(models) {
-    return reduce(models, (views, model) => {
-      const removeView = this._removeChildModel(model);
+    const views = [];
+    const length = models.length;
+    for (let index = 0; index < length; index++) {
+      const removeView = this._removeChildModel(models[index]);
 
       if (removeView) { views.push(removeView); }
-
-      return views;
-    }, []);
+    }
+    return views;
   },
 
   _removeChildModel(model) {
@@ -199,7 +222,12 @@ _extend(CollectionView.prototype, ViewMixin, {
 
   // Added views are returned for consistency with _removeChildModels
   _addChildModels(models) {
-    return map(models, this._addChildModel.bind(this));
+    const length = models.length;
+    const views = Array(length);
+    for (let index = 0; index < length; index++) {
+      views[index] = this._addChildModel(models[index]);
+    }
+    return views;
   },
 
   _addChildModel(model) {
@@ -263,13 +291,13 @@ _extend(CollectionView.prototype, ViewMixin, {
   _getView(view, child) {
     if (isViewClass(view)) {
       return view;
-    } else if (isFunction(view)) {
+    } else if (typeof view === 'function') {
       return view.call(this, child);
     }
   },
 
   _getChildViewOptions(child) {
-    if (isFunction(this.childViewOptions)) {
+    if (typeof this.childViewOptions === 'function') {
       return this.childViewOptions(child);
     }
 
@@ -345,7 +373,7 @@ _extend(CollectionView.prototype, ViewMixin, {
 
   // Get a container within the template to add the children within
   _getChildViewContainer() {
-    const childViewContainer = result(this, 'childViewContainer');
+    const childViewContainer = getValue(this, 'childViewContainer');
     this.container = childViewContainer ? this.$(childViewContainer)[0] : this.el;
 
     if (!this.container) {
@@ -456,9 +484,12 @@ _extend(CollectionView.prototype, ViewMixin, {
     const attachViews = [];
     const detachViews = [];
 
-    each(this._children._views, (view, key, children) => {
-      (viewFilter.call(this, view, key, children) ? attachViews : detachViews).push(view);
-    });
+    const children = this._children._views;
+    const length = children.length;
+    for (let index = 0; index < length; index++) {
+      const view = children[index];
+      (viewFilter.call(this, view, index, children) ? attachViews : detachViews).push(view);
+    }
 
     this._detachChildren(detachViews);
 
@@ -474,16 +505,13 @@ _extend(CollectionView.prototype, ViewMixin, {
 
     if (!viewFilter) { return false; }
 
-    if (isFunction(viewFilter)) {
+    if (typeof viewFilter === 'function') {
       return viewFilter;
     }
 
     // Support filter predicates `{ fooFlag: true }`
-    if (isObject(viewFilter)) {
-      const matcher = matches(viewFilter);
-      return function(view) {
-        return matcher(view.model && view.model.attributes);
-      };
+    if (viewFilter !== null && typeof viewFilter === 'object' && !Array.isArray(viewFilter)) {
+      return modelAttributesMatcher(viewFilter);
     }
 
     // Filter by model attribute
@@ -528,7 +556,12 @@ _extend(CollectionView.prototype, ViewMixin, {
   },
 
   _detachChildren(detachingViews) {
-    each(detachingViews, this._detachChildView.bind(this));
+    if (!detachingViews) { return; }
+
+    const length = detachingViews.length;
+    for (let index = 0; index < length; index++) {
+      this._detachChildView(detachingViews[index]);
+    }
   },
 
   _detachChildView(view) {
@@ -582,12 +615,14 @@ _extend(CollectionView.prototype, ViewMixin, {
   _getBuffer(views) {
     const elBuffer = this.Dom.createBuffer();
 
-    each(views, view => {
+    const length = views.length;
+    for (let index = 0; index < length; index++) {
+      const view = views[index];
       renderView(view);
       // corresponds that view is shown in a Region or CollectionView
       view._isShown = true;
       this.Dom.appendContents(elBuffer, view.el);
-    });
+    }
 
     return elBuffer;
   },
@@ -597,18 +632,22 @@ _extend(CollectionView.prototype, ViewMixin, {
 
     views = shouldTriggerAttach ? views : [];
 
-    each(views, view => {
-      if (view._isAttached) { return; }
+    const beforeAttachLength = views.length;
+    for (let index = 0; index < beforeAttachLength; index++) {
+      const view = views[index];
+      if (view._isAttached) { continue; }
       view.triggerMethod('before:attach', view);
-    });
+    }
 
     this.attachHtml(els, this.container);
 
-    each(views, view => {
-      if (view._isAttached) { return; }
+    const attachLength = views.length;
+    for (let index = 0; index < attachLength; index++) {
+      const view = views[index];
+      if (view._isAttached) { continue; }
       view._isAttached = true;
       view.triggerMethod('attach', view);
-    });
+    }
   },
 
   // Override this method to do something other than `.append`.
@@ -643,7 +682,7 @@ _extend(CollectionView.prototype, ViewMixin, {
 
     if (isEmptyViewClass(emptyView)) { return emptyView; }
 
-    const EmptyView = isFunction(emptyView) && !isClassDefinition(emptyView) ?
+    const EmptyView = typeof emptyView === 'function' && !isClassDefinition(emptyView) ?
       emptyView.call(this) : undefined;
 
     if (isEmptyViewClass(EmptyView)) { return EmptyView; }
@@ -670,7 +709,7 @@ _extend(CollectionView.prototype, ViewMixin, {
   _getEmptyViewOptions() {
     const emptyViewOptions = this.emptyViewOptions || this.childViewOptions;
 
-    if (isFunction(emptyViewOptions)) {
+    if (typeof emptyViewOptions === 'function') {
       return emptyViewOptions.call(this);
     }
 
@@ -715,7 +754,8 @@ _extend(CollectionView.prototype, ViewMixin, {
       });
     }
 
-    if (isObject(index)) {
+    const indexType = typeof index;
+    if (index !== null && (indexType === 'object' || indexType === 'function')) {
       options = index;
     }
 
@@ -780,7 +820,12 @@ _extend(CollectionView.prototype, ViewMixin, {
   },
 
   _removeChildViews(views) {
-    each(views, this._removeChildView.bind(this));
+    if (!views) { return; }
+
+    const length = views.length;
+    for (let index = 0; index < length; index++) {
+      this._removeChildView(views[index]);
+    }
   },
 
   _removeChildView(view, {shouldDetach} = {}) {
