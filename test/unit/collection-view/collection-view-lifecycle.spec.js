@@ -251,7 +251,7 @@ describe('CollectionView lifecycle contract', function() {
     region.destroy();
   });
 
-  it('destroys manually added children on rerender and collection reset', function() {
+  it('destroys manually added children on rerender, reset, and owner destruction', function() {
     const collection = new Backbone.Collection([{ id: 1 }]);
     const collectionView = new CollectionView({ collection, childView: ChildView });
     const rerenderChild = new ChildView();
