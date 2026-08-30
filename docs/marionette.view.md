@@ -240,7 +240,7 @@ current child and leaves `secondRegion` empty and available for another View.
 ### Region Availability
 
 Defined regions are registered during `View` construction. `hasRegion(name)`
-checks that own Region registry without rendering the View, including when the
+checks its own Region registry without rendering the View, including when the
 View is unrendered or destroyed. It reports stored ownership directly and does
 not call an overridden `getRegion`. Calling `getRegion` or any child View method
 above on a live, unrendered View still renders it and dispatches through any

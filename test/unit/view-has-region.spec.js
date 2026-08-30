@@ -16,18 +16,13 @@ function createTrackedView(context) {
   const TestBehavior = Behavior.extend({
     bindUIElements: bindBehaviorUIElements,
   });
-  const regions = Object.create({ inherited: '.inherited' });
-  Object.assign(regions, {
+  const regions = {
+    ['__proto__']: '.proto',
     constructor: '.constructor',
     content: '.content',
     toString: '.to-string',
-  });
-  Object.defineProperty(regions, '__proto__', {
-    configurable: true,
-    enumerable: true,
-    value: '.proto',
-    writable: true,
-  });
+  };
+  Object.setPrototypeOf(regions, { inherited: '.inherited' });
   const view = new View({
     behaviors: [TestBehavior],
     regions,
