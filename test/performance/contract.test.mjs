@@ -11,13 +11,14 @@ import {
   createReport,
   findForbiddenExternalImports,
   findForbiddenModules,
+  listRuntimeFiles,
   measure,
   resolveRollupInput,
   runtimePath,
   validateContract,
   validateCumulativeSize,
   validateToolchain,
-} from '../../config/bundle-size.mjs';
+} from '../../scripts/performance/bundle-size.mjs';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 
@@ -589,7 +590,7 @@ describe('performance contract validation', () => {
     const currentReport = join(fixtureRoot, 'current.json');
     const approvedReport = join(fixtureRoot, 'approved.json');
     const requiredReport = join(fixtureRoot, 'required.json');
-    const cli = join(root, 'config/bundle-size.mjs');
+    const cli = join(root, 'scripts/performance/bundle-size.mjs');
 
     try {
       await Promise.all([
@@ -659,6 +660,10 @@ describe('performance contract validation', () => {
     assert.ok(commands.includes(
       'node scripts/resolve-performance-tools.mjs --root bundle-size-base'
     ));
+    assert.match(
+      workflow,
+      /node "\$\{bundle_script\}" --json > "\$\{PERFORMANCE_DIR\}\/bundle-size-current\.json"/
+    );
     assert.notEqual(measurementIndex, -1);
     assert.notEqual(resourceValidationIndex, -1);
     assert.notEqual(approvalIndex, -1);
@@ -790,7 +795,7 @@ describe('performance contract validation', () => {
       const enforced = spawnSync(
         process.execPath,
         [
-          join(root, 'config/bundle-size.mjs'),
+          join(root, 'scripts/performance/bundle-size.mjs'),
           '--root', fixtureRoot,
           '--config', join(fixtureRoot, 'performance.json'),
           '--artifact-graph-only',
@@ -852,7 +857,7 @@ describe('performance contract validation', () => {
       const enforced = spawnSync(
         process.execPath,
         [
-          join(root, 'config/bundle-size.mjs'),
+          join(root, 'scripts/performance/bundle-size.mjs'),
           '--root', fixtureRoot,
           '--config', join(fixtureRoot, 'performance.json'),
           '--artifact-graph-only',
@@ -1121,12 +1126,9 @@ describe('performance contract validation', () => {
       /Release profile SHA-256 [a-f\d]{64} does not match 0{64}/
     );
 
-    assert.ok(
-      contract.forbiddenProductionModules.includes('config/performance-resources.mjs')
-    );
-    assert.deepEqual(
-      findForbiddenModules(['index.js', 'config/performance-resources.mjs'], contract),
-      ['config/performance-resources.mjs']
-    );
+    assert.ok(contract.forbiddenProductionModulePrefixes.includes('scripts/'));
+    const scriptModules = await listRuntimeFiles(join(root, 'scripts'), root);
+    assert.ok(scriptModules.length > 0);
+    assert.deepEqual(findForbiddenModules(scriptModules, contract), scriptModules);
   });
 });

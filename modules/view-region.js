@@ -12,9 +12,9 @@ import monitorViewEvents from './common/monitor-view-events.js';
 import { renderView, destroyView, isView } from './common/view.js';
 import CommonMixin from '../mixins/common.js';
 import ViewMixin from '../mixins/view.js';
-import DomApi, { setDomApi } from '../config/dom.js';
-import { setEventDelegator } from '../config/event-delegator.js';
-import { setRenderer } from '../config/renderer.js';
+import DomApi, { setDomApi } from '../runtime/dom-api.js';
+import { setEventDelegator } from '../runtime/event-delegator.js';
+import { setRenderer } from '../runtime/renderer.js';
 
 const classErrorName = 'RegionError';
 

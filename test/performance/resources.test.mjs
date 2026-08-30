@@ -10,7 +10,7 @@ import {
   measureResources,
   resourceReportRows,
   validateCandidateResourceContract,
-} from '../../config/performance-resources.mjs';
+} from '../../scripts/performance/resources.mjs';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 
@@ -174,7 +174,7 @@ describe('deterministic resource comparison', () => {
     const currentReport = join(fixtureRoot, 'current-report.json');
     const missingReport = join(fixtureRoot, 'missing-report.json');
     const requiredMissingReport = join(fixtureRoot, 'required-missing-report.json');
-    const cli = join(root, 'config/bundle-size.mjs');
+    const cli = join(root, 'scripts/performance/bundle-size.mjs');
     const authority = { deterministicResources: report().workload };
     const candidate = structuredClone(authority);
     const baseResources = report();

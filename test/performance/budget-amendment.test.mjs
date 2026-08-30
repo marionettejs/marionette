@@ -15,7 +15,7 @@ import {
   parseBudgetAmendmentLedger,
   readCommittedBudgetFile,
   validateBudgetAmendmentTransition,
-} from '../../config/release/performance-budget-amendments.mjs';
+} from '../../scripts/performance/budget-amendments.mjs';
 
 const initialCeiling = 51975;
 const proposedCeiling = 53000;

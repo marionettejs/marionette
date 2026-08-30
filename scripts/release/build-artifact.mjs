@@ -122,7 +122,7 @@ const packageManifestText = `${JSON.stringify(packageManifest, null, 2)}\n`;
 await writeFile(resolve(outputDir, 'package-manifest.json'), packageManifestText);
 
 const bundleReportText = `${run(process.execPath, [
-  resolve(root, 'config/bundle-size.mjs'),
+  resolve(root, 'scripts/performance/bundle-size.mjs'),
   '--json',
 ])}\n`;
 await writeFile(resolve(outputDir, 'bundle-report.json'), bundleReportText);

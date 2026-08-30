@@ -10,17 +10,17 @@ import {
   canonicalForbiddenExternalImports,
   newProductionReportDelta,
   validateGrowthApprovalPolicy,
-} from './performance-growth-approval.mjs';
+} from './growth-approval.mjs';
 import {
   compareResources,
   measureResources,
   resourceReportRows,
   validateCandidateResourceContract,
-} from './performance-resources.mjs';
+} from './resources.mjs';
 import {
   parseBudgetAmendmentLedger,
   validateBudgetAmendmentLedger,
-} from './release/performance-budget-amendments.mjs';
+} from './budget-amendments.mjs';
 
 const compress = promisify(brotliCompress);
 

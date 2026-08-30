@@ -3,7 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { createRequire } from 'node:module';
 import browserslist from 'browserslist';
 
-const root = resolve(import.meta.dirname, '..');
+const root = resolve(import.meta.dirname, '../..');
 const require = createRequire(import.meta.url);
 const profile = await readJson('config/release-profile.json');
 const packageJson = await readJson('package.json');

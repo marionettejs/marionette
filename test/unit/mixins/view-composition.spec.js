@@ -1,6 +1,6 @@
 import vm from 'node:vm';
 
-import { setEnabled } from '../../../config/features';
+import { setEnabled } from '../../../runtime/features';
 import BehaviorsMixin from '../../../mixins/behaviors';
 import CommonMixin from '../../../mixins/common';
 import DelegateEntityEventsMixin from '../../../mixins/delegate-entity-events';

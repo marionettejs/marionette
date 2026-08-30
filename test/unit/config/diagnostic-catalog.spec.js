@@ -6,7 +6,7 @@ import {
   discoverProductionSources,
   validateDiagnosticCatalog,
 } from '../../../scripts/diagnostics/catalog.mjs';
-import { diagnosticPage } from '../../../config/docs/build.mjs';
+import { diagnosticPage } from '../../../scripts/docs/build.mjs';
 
 describe('diagnostic catalog validation', function() {
   function createDiagnostic(overrides = {}) {
@@ -287,11 +287,11 @@ describe('diagnostic catalog validation', function() {
     expect(() => validate(catalog, {
       runtimeSources: [{
         contents: 'throw new MarionetteError({ code: \'MN0001\' });',
-        path: 'config/dom.js',
+        path: 'runtime/dom-api.js',
       }],
     })).to.throw(
       DiagnosticCatalogValidationError,
-      'config/dom.js emits MN0001, but its catalog surfaces do not include runtime',
+      'runtime/dom-api.js emits MN0001, but its catalog surfaces do not include runtime',
     );
   });
 

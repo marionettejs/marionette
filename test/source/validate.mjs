@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readdirSync, readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import Backbone from '../../backbone.js';
@@ -16,6 +16,9 @@ assert.equal(typeof jqueryDomApi.setContents, 'function');
 
 const root = resolve(import.meta.dirname, '../..');
 const packageJson = JSON.parse(readFileSync(resolve(root, 'package.json')));
+const nonDeclarativeConfigFiles = readdirSync(resolve(root, 'config'), { recursive: true })
+  .filter(file => statSync(resolve(root, 'config', file)).isFile())
+  .filter(file => !file.endsWith('.json'));
 const productionFiles = [
   'index.js',
   'backbone.js',
@@ -38,9 +41,9 @@ for (const source of ['const packageName = \'underscore\';', 'import \'./undersc
   assert.doesNotMatch(source, underscoreImport);
 }
 
-for (const file of readdirSync(resolve(root, 'config'))) {
+for (const file of readdirSync(resolve(root, 'runtime'), { recursive: true })) {
   if (file.endsWith('.js')) {
-    productionFiles.push(`config/${file}`);
+    productionFiles.push(`runtime/${file}`);
   }
 }
 
@@ -53,6 +56,7 @@ for (const directory of ['modules', 'mixins', 'utils']) {
 }
 
 assert.equal(Object.hasOwn(packageJson.peerDependencies, 'underscore'), false);
+assert.deepEqual(nonDeclarativeConfigFiles, []);
 
 for (const file of productionFiles) {
   assert.doesNotMatch(
