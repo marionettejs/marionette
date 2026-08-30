@@ -20,7 +20,6 @@ function validateBrowserGlobal(file) {
   const previousMarionette = {};
   const context = {
     Marionette: previousMarionette,
-    _: require('underscore'),
   };
 
   vm.runInNewContext(

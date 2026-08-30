@@ -20,7 +20,7 @@ in the [project roadmap](ROADMAP.md) pass.
 ## Install
 
 ```sh
-npm install marionette underscore
+npm install marionette
 ```
 
 ```js
@@ -36,8 +36,8 @@ const GreetingView = View.extend({
 new GreetingView().render();
 ```
 
-Marionette requires Underscore 1.13 or later. Install optional peers only when the
-application uses their corresponding integration:
+Marionette core has no required peer dependencies. Install optional peers only when
+the application uses their corresponding integration:
 
 - [Backbone models, collections, and shim](docs/optional-backbone.md)
 - [jQuery DOM adapter](docs/installation.md#jquery-dom-adapter-is-optional)
