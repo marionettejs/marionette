@@ -1,0 +1,40 @@
+test/unit/mixins/view.spec.js
+  s_d6429951fb9231::t_ce184d8cae4f1a 110
+  s_d6429951fb9231::t_1337f4c059866b 2,48,91-96,101-105,111-113,115-116,118,120-121,127
+  s_d6429951fb9231::t_0961174025508d 3,49-90,97-100,106-109,114,117,119,122-126
+  s_d6429951fb9231::t_a5670538847137 128-130
+mixins/view.js
+  s_d6429951fb9231::t_4950f7bde36641 145-146
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_efa8ce353f138f 76
+changelog.md
+  s_d6429951fb9231::t_36422cb645c3b5 33-35
+dist/marionette.cjs
+  s_d6429951fb9231::t_3b68948f51c7d0 1712-1714
+dist/marionette.js
+  s_d6429951fb9231::t_1f16361e6530f6 1708-1710
+dist/marionette.min.js
+  s_d6429951fb9231::t_ca9dddb8e4a70b 1
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_7eebe6e046ee62 1
+dist/marionette.umd.js
+  s_d6429951fb9231::t_b106d4a4f934ae 1719-1721
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_3571e18ac89e1d 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "6d08cba97049a0cf144a44847ad9c4f64c6c4834",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
