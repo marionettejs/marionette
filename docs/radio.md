@@ -42,8 +42,8 @@ properties, such as `toString`, are treated as ordinary channel names.
 
 ## Events
 
-Channels provide event-style messaging with methods including `on` (`bind`),
-`once`, `off` (`unbind`), `trigger`, `listenTo`, and `stopListening`.
+Channels provide event-style messaging with methods including `on`, `once`,
+`off`, `trigger`, `listenTo`, and `stopListening`.
 
 ```javascript
 import { Radio } from 'marionette';
