@@ -1125,6 +1125,10 @@ A `viewFilter` can be a function, predicate object. or string.
 
 The `viewFilter` function takes a view from the `children` and returns a truthy
 value if the child should be attached, and a falsey value if it should not.
+It runs with the `CollectionView` as `this` and receives the child View, index,
+and the live backing child array. A filter pass captures the array's initial
+length, visits every index densely, and does not visit entries appended during
+that pass.
 
 ```javascript
 import Backbone from 'backbone';
@@ -1153,6 +1157,11 @@ cv.render();
 #### `viewFilter` as a predicate object
 
 The `viewFilter` predicate object will filter against the view's model attributes.
+Each filter pass snapshots the predicate's own enumerable string keys and values
+in standard JavaScript own-key order. Inherited, symbol, and non-enumerable keys
+are ignored. Every predicate key must exist in the model attributes and its value
+must compare strictly equal; nested objects therefore match by identity. Arrays
+are not predicate objects.
 
 ```javascript
 import Backbone from 'backbone';

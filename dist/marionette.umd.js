@@ -1,13 +1,13 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('underscore')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'underscore'], factory) :
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+  typeof define === 'function' && define.amd ? define(['exports'], factory) :
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, (function () {
     var current = global.Marionette;
     var exports = global.Marionette = {};
-    factory(exports, global._);
+    factory(exports);
     exports.noConflict = function () { global.Marionette = current; return exports; };
   })());
-})(this, (function (exports, underscore) { 'use strict';
+})(this, (function (exports) { 'use strict';
 
   const proxy = function (method) {
     return function (context, ...args) {
@@ -2635,14 +2635,36 @@
 
   const classErrorName = 'CollectionViewError';
   function isEmptyViewClass(view) {
-    if (!underscore.isFunction(view) || !view.prototype) {
+    if (typeof view !== 'function' || !view.prototype) {
       return false;
     }
     const {
       render,
       destroy
     } = view.prototype;
-    return underscore.isFunction(render) && (destroy ? underscore.isFunction(destroy) : underscore.isFunction(view.prototype.remove));
+    return typeof render === 'function' && (destroy ? typeof destroy === 'function' : typeof view.prototype.remove === 'function');
+  }
+  function modelAttributesMatcher(predicate) {
+    const keys = Object.keys(predicate);
+    const length = keys.length;
+    const values = Array(length);
+    for (let index = 0; index < length; index++) {
+      values[index] = predicate[keys[index]];
+    }
+    return function (view) {
+      const attributes = view.model && view.model.attributes;
+      if (attributes == null) {
+        return length === 0;
+      }
+      const object = Object(attributes);
+      for (let index = 0; index < length; index++) {
+        const key = keys[index];
+        if (values[index] !== object[key] || !(key in object)) {
+          return false;
+        }
+      }
+      return true;
+    };
   }
   function isClassDefinition(view) {
     return /^class(?:\s|\/[/*])/.test(Function.prototype.toString.call(view));
@@ -2663,13 +2685,13 @@
     this.delegateEntityEvents();
     this._triggerEventOnBehaviors('initialize', this, options);
   };
-  underscore.extend(CollectionView, {
+  assignOwn(CollectionView, {
     extend,
     setRenderer: setRenderer$1,
     setDomApi: setDomApi$1,
     setEventDelegator: setEventDelegator$1
   });
-  underscore.extend(CollectionView.prototype, ViewMixin, {
+  assignOwn(CollectionView.prototype, ViewMixin, {
     cidPrefix: 'mncv',
     sortWithCollection: true,
     _initChildViewStorage() {
@@ -2726,13 +2748,15 @@
       this._removeChildViews(removedViews);
     },
     _removeChildModels(models) {
-      return underscore.reduce(models, (views, model) => {
-        const removeView = this._removeChildModel(model);
+      const views = [];
+      const length = models.length;
+      for (let index = 0; index < length; index++) {
+        const removeView = this._removeChildModel(models[index]);
         if (removeView) {
           views.push(removeView);
         }
-        return views;
-      }, []);
+      }
+      return views;
     },
     _removeChildModel(model) {
       const view = this._children.findByModel(model);
@@ -2748,7 +2772,12 @@
       this.triggerMethod('remove:child', this, view);
     },
     _addChildModels(models) {
-      return underscore.map(models, this._addChildModel.bind(this));
+      const length = models.length;
+      const views = Array(length);
+      for (let index = 0; index < length; index++) {
+        views[index] = this._addChildModel(models[index]);
+      }
+      return views;
     },
     _addChildModel(model) {
       const view = this._createChildView(model);
@@ -2792,12 +2821,12 @@
     _getView(view, child) {
       if (isViewClass(view)) {
         return view;
-      } else if (underscore.isFunction(view)) {
+      } else if (typeof view === 'function') {
         return view.call(this, child);
       }
     },
     _getChildViewOptions(child) {
-      if (underscore.isFunction(this.childViewOptions)) {
+      if (typeof this.childViewOptions === 'function') {
         return this.childViewOptions(child);
       }
       return this.childViewOptions;
@@ -2846,7 +2875,7 @@
       return this;
     },
     _getChildViewContainer() {
-      const childViewContainer = underscore.result(this, 'childViewContainer');
+      const childViewContainer = getValue(this, 'childViewContainer');
       this.container = childViewContainer ? this.$(childViewContainer)[0] : this.el;
       if (!this.container) {
         throw new MarionetteError({
@@ -2923,9 +2952,12 @@
       this.triggerMethod('before:filter', this);
       const attachViews = [];
       const detachViews = [];
-      underscore.each(this._children._views, (view, key, children) => {
-        (viewFilter.call(this, view, key, children) ? attachViews : detachViews).push(view);
-      });
+      const children = this._children._views;
+      const length = children.length;
+      for (let index = 0; index < length; index++) {
+        const view = children[index];
+        (viewFilter.call(this, view, index, children) ? attachViews : detachViews).push(view);
+      }
       this._detachChildren(detachViews);
       this.children._set(attachViews, true);
       this.triggerMethod('filter', this, attachViews, detachViews);
@@ -2935,16 +2967,13 @@
       if (!viewFilter) {
         return false;
       }
-      if (underscore.isFunction(viewFilter)) {
+      if (typeof viewFilter === 'function') {
         return viewFilter;
       }
-      if (underscore.isObject(viewFilter)) {
-        const matcher = underscore.matches(viewFilter);
-        return function (view) {
-          return matcher(view.model && view.model.attributes);
-        };
+      if (typeof viewFilter === 'object' && !Array.isArray(viewFilter)) {
+        return modelAttributesMatcher(viewFilter);
       }
-      if (underscore.isString(viewFilter)) {
+      if (isString(viewFilter)) {
         return function (view) {
           return view.model && view.model.get(viewFilter);
         };
@@ -2974,7 +3003,13 @@
       return this.setFilter(null, options);
     },
     _detachChildren(detachingViews) {
-      underscore.each(detachingViews, this._detachChildView.bind(this));
+      if (!detachingViews) {
+        return;
+      }
+      const length = detachingViews.length;
+      for (let index = 0; index < length; index++) {
+        this._detachChildView(detachingViews[index]);
+      }
     },
     _detachChildView(view) {
       const shouldTriggerDetach = view._isAttached && this.monitorViewEvents !== false;
@@ -3010,30 +3045,36 @@
     },
     _getBuffer(views) {
       const elBuffer = this.Dom.createBuffer();
-      underscore.each(views, view => {
+      const length = views.length;
+      for (let index = 0; index < length; index++) {
+        const view = views[index];
         renderView(view);
         view._isShown = true;
         this.Dom.appendContents(elBuffer, view.el);
-      });
+      }
       return elBuffer;
     },
     _attachChildren(els, views) {
       const shouldTriggerAttach = this._isAttached && this.monitorViewEvents !== false;
       views = shouldTriggerAttach ? views : [];
-      underscore.each(views, view => {
+      const beforeAttachLength = views.length;
+      for (let index = 0; index < beforeAttachLength; index++) {
+        const view = views[index];
         if (view._isAttached) {
-          return;
+          continue;
         }
         view.triggerMethod('before:attach', view);
-      });
+      }
       this.attachHtml(els, this.container);
-      underscore.each(views, view => {
+      const attachLength = views.length;
+      for (let index = 0; index < attachLength; index++) {
+        const view = views[index];
         if (view._isAttached) {
-          return;
+          continue;
         }
         view._isAttached = true;
         view.triggerMethod('attach', view);
-      });
+      }
     },
     attachHtml(els, container) {
       this.Dom.appendContents(container, els);
@@ -3058,7 +3099,7 @@
       if (isEmptyViewClass(emptyView)) {
         return emptyView;
       }
-      const EmptyView = underscore.isFunction(emptyView) && !isClassDefinition(emptyView) ? emptyView.call(this) : undefined;
+      const EmptyView = typeof emptyView === 'function' && !isClassDefinition(emptyView) ? emptyView.call(this) : undefined;
       if (isEmptyViewClass(EmptyView)) {
         return EmptyView;
       }
@@ -3077,7 +3118,7 @@
     },
     _getEmptyViewOptions() {
       const emptyViewOptions = this.emptyViewOptions || this.childViewOptions;
-      if (underscore.isFunction(emptyViewOptions)) {
+      if (typeof emptyViewOptions === 'function') {
         return emptyViewOptions.call(this);
       }
       return emptyViewOptions;
@@ -3112,7 +3153,8 @@
           url: 'marionette.region.html#showing-a-view'
         });
       }
-      if (underscore.isObject(index)) {
+      const indexType = typeof index;
+      if (index !== null && (indexType === 'object' || indexType === 'function')) {
         options = index;
       }
       if (options.index != null) {
@@ -3156,7 +3198,13 @@
       return view;
     },
     _removeChildViews(views) {
-      underscore.each(views, this._removeChildView.bind(this));
+      if (!views) {
+        return;
+      }
+      const length = views.length;
+      for (let index = 0; index < length; index++) {
+        this._removeChildView(views[index]);
+      }
     },
     _removeChildView(view, {
       shouldDetach
