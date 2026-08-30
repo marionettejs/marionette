@@ -43,7 +43,7 @@ function unbindRequests(channel, bindings) {
     return this;
   }
 
-  channel.stopReplying(normalizeBindings(this, bindings));
+  channel.stopReplying(normalizeBindings(this, bindings), this);
 
   return this;
 }

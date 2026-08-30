@@ -1,6 +1,7 @@
 # Common Marionette Functionality
 
-Marionette has a few methods that are common to [all classes](./classes.md).
+Marionette classes share a small set of lifecycle, event, request, and option
+helpers.
 
 ## Documentation Index
 
@@ -19,419 +20,270 @@ Marionette has a few methods that are common to [all classes](./classes.md).
 
 ### `initialize`
 
-Like the backbone classes, `initialize` is a method you can define on any Marionette class
-that will be called when the class is instantiated and will be passed any arguments passed
-at instantiation.  The first argument may contain [options](#getoption) the class attaches
-to the instance.
+`initialize` is a no-op method that you can override on any Marionette class.
+It is called when the class is instantiated and receives the constructor
+arguments unchanged. The first argument is conventionally an options object.
+Use [`getOption`](#getoption) to read that object together with class defaults.
 
-```js
-import { MnObject } from 'backbone.marionette';
+```javascript
+import { MnObject } from 'marionette';
 
 const MyObject = MnObject.extend({
-  initialize(options, arg2) {
-    console.log(options.foo, this.getOption('foo'), arg2);
+  initialize(options, secondArgument) {
+    console.log(options.foo, this.getOption('foo'), secondArgument);
   }
 });
 
-const myObject = new MyObject({ foo: 'bar' }, 'baz'); // logs "bar" "bar" "baz"
+new MyObject({ foo: 'bar' }, 'baz'); // logs "bar" "bar" "baz"
 ```
-
-[Live example](https://jsfiddle.net/marionettejs/1ytrwyog/)
 
 ### `extend`
 
-Borrowed from backbone, `extend` is available on all class definitions for
-[class based inheritance](./basics.md#class-based-inheritance)
+`extend` is available on Marionette class definitions for
+[class-based inheritance](./basics.md#class-based-inheritance).
 
 ### Events API
 
-The [Backbone.Events API](http://backbonejs.org/#Events) is available to all classes.
-Each Marionette class can both `listenTo` any object with this API and have events
-triggered on the instance.
+Marionette classes include Marionette's owned [Events API](./events.md). Each
+class can emit events and listen to other objects that implement the compatible
+event interface. Backbone interoperability is available through the explicit
+[`marionette/backbone` shim](./events.md#backbone-interop); the
+core Events API does not require Backbone.
 
-**Note** The events API should not be confused with [view `events`](./dom.interactions.md#view-events)
+The Events API should not be confused with [view `events`](./dom.interactions.md#view-events),
 which capture DOM events.
 
 ### `triggerMethod`
 
-Trigger an event and [a corresponding method](./events.md#onevent-binding) on the object.
-It is the same as `Backbone`'s [`trigger`](http://backbonejs.org/#Events-trigger)
-but with the additional method handler.
+`triggerMethod` calls a matching method and then triggers an event on the
+object. The first letter of each event-name segment is capitalized and `on` is
+prepended:
 
-When an event is triggered, the first letter of each section of the
-event name is capitalized, and the word "on" is prepended to the front
-of it. Examples:
+* `triggerMethod('foo')` calls `onFoo` and triggers `foo`.
+* `triggerMethod('before:foo')` calls `onBeforeFoo` and triggers `before:foo`.
 
-* `triggerMethod('foo')` fires the "onFoo" function
-* `triggerMethod('before:foo')` fires the "onBeforeFoo" function
-
-All arguments that are passed to the `triggerMethod` call are passed along
-to both the event and the method, with the exception of the event name not
-being passed to the corresponding method.
-
-`triggerMethod('foo', bar)` will call `onFoo(bar){...})`
-
+Arguments after the event name are passed to both the method and event. The
+matching method is resolved through `getOption`, runs first with the Marionette
+object as its context, and supplies the return value of `triggerMethod`. If that
+method throws, the event is not triggered.
 
 ```javascript
-import { MnObject } from 'backbone.marionette';
+import { MnObject } from 'marionette';
 
 const MyObject = MnObject.extend({
-  initialize(){
-    this.triggerMethod('foo', 'baz');
-  },
-  onFoo(bar){
-    console.log(bar);
+  onFoo(value) {
+    return value.toUpperCase();
   }
 });
 
-const myObj = new MyObject(); // console.log "baz"
+const object = new MyObject();
+object.on('foo', value => console.log(value));
 
-myObj.triggerMethod('foo', 'qux'); // console.log "qux"
+object.triggerMethod('foo', 'bar'); // logs "bar" and returns "BAR"
 ```
 
-More information on `triggerMethod` can be found in the [Marionette events documentation](./events.md#triggermethod).
+See the [Marionette events documentation](./events.md#triggermethod) for the
+complete event and method-handler contract.
 
 ### `bindEvents`
 
-This method is used to bind any object that works with the [`Backbone.Events` API](#events-api).
-This includes all Backbone classes, Marionette classes and [Radio](./radio.md) channels.
+`bindEvents(entity, bindings)` uses the Marionette object's `listenTo` API to
+bind events from another compatible event emitter. The binding map associates
+event names with functions or method names on the listening object. The method
+returns the listening object.
 
-```javascript
-import { Radio, View } from 'marionette';
+Marionette classes and [Radio](./radio.md) channels implement the required
+event interface. Backbone models, collections, and other Backbone emitters can
+participate after installing the explicit
+[`marionette/backbone` shim](./events.md#backbone-interop).
 
-const MyView = View.extend({
-  fooEvents: {
-    'change:foo': 'doSomething'
-  },
-  initialize(){
-    this.fooChannel = Radio.channel('foo');
-    this.bindEvents(this.fooChannel, this.fooEvents);
-  },
-  doSomething(){
-    // the "change:foo" event was fired from the radio channel
-    // respond to it appropriately, here.
-  }
-});
-```
-
-[Live example](https://jsfiddle.net/marionettejs/L640ecac/)
-
-The first parameter is the `entity` (Backbone.Model, Backbone.Collection or
-any object that has Backbone.Events mixed in) to bind the events from.
-
-The second parameter is a hash of `{ 'event:name': 'eventHandler' }`
-configuration. A function can be supplied instead of a string handler name.
-
-**Errors** An error will be thrown if the second parameter is not an object.
-An own enumerable `__proto__` event name is rejected with `MarionetteError`
-code `MN0026` before any listener is added. This restriction applies only to
-entity-event maps; Marionette's direct Events API supports `__proto__` as an
-ordinary event name.
+An invalid binding map throws `MarionetteError` code `MN0009`. An own
+enumerable `__proto__` event name is rejected with code `MN0026` before any
+listener is added. This restriction applies only to entity-event maps;
+Marionette's direct Events API supports `__proto__` as an ordinary event name.
 
 ### `unbindEvents`
 
-This method is used to unbind any object that works with the [`Backbone.Events` API](#events-api).
-This includes all Backbone classes, Marionette classes and [Radio](./radio.md) channels.
+`unbindEvents(entity, bindings)` stops the subscriptions represented by a
+binding map. Without a binding map, it stops every subscription that this
+Marionette object established to that entity. It does not remove listeners
+owned by other objects or direct handlers registered on the entity. The method
+returns the listening object.
 
-Calling this method without a events hash will unbind all events from the channel.
-
-```javascript
-import { Radio, View } from 'marionette';
-
-const MyView = View.extend({
-  fooEvents: {
-    'change:foo': 'onChangeFoo',
-    'stop': 'onStop'
-  },
-  initialize(){
-    this.fooChannel = Radio.channel('foo');
-    this.bindEvents(this.fooChannel, this.fooEvents);
-  },
-  onChangeFoo(){
-    // the "change:foo" event was fired from the radio channel
-    // respond to it appropriately, here.
-
-    // Doing something
-    this.listenTo(this.fooChannel, 'adhoc', this.render);
-  },
-  onStop() {
-    // Removes all fooEvents
-    this.unbindEvents(this.fooChannel, this.fooEvents);
-
-    // Removes all bound fooChannel events including `adhoc`
-    this.unbindEvents(this.fooChannel);
-  }
-});
-```
-
-The first parameter is the `entity` (Backbone.Model, Backbone.Collection or
-any object that has Backbone.Events mixed in) to bind the events from.
-
-The second parameter is a hash of `{ 'event:name': 'eventHandler' }`
-configuration. A function can be supplied instead of a string handler name.
-If the second paramater is not supplied, all listeners are removed.
 When selectively unbinding with a map, an own enumerable `__proto__` event name
 is rejected with `MarionetteError` code `MN0026` before any listener is removed.
 
-[Live example](https://jsfiddle.net/marionettejs/yvsfm65c/)
-
 ### `bindRequests`
 
-This method is used to bind any object that works with the [Radio request API](./radio.md#requests-and-replies).
-This includes [Radio](./radio.md) channels.
+`bindRequests(channel, bindings)` registers replies on a [Radio](./radio.md)
+channel. The binding map associates request names with functions or method names
+on the Marionette object. Reply methods run with that object as their context,
+and `bindRequests` returns the object.
 
-```javascript
-import { Radio, View } from 'marionette';
-
-const MyView = View.extend({
-  channelName: 'myChannelName',
-  radioRequests: {
-    'foo:bar': 'doFooBar'
-  },
-  initialize() {
-    const channel = Radio.channel(this.channelName);
-    this.bindRequests(channel, this.radioRequests);
-  },
-  doFooBar() {
-    console.log('foo:bar');
-    return 'bar';
-  }
- });
-
-const myView = new MyView();
-const channel = Radio.channel('myChannelName');
-channel.request('foo:bar'); // Logs 'foo:bar' and returns 'bar'
-```
-
-[Live example](https://jsfiddle.net/marionettejs/hmjgkg7w/)
-
-The first parameter, `channel`, is an instance from `Radio`.
-
-The second parameter is a hash of `{ 'request:name': 'replyHandler' }`
-configuration. A function can be supplied instead of a string handler name.
-
-**Errors** An error will be thrown if the second parameter is not an object.
+An invalid binding map throws `MarionetteError` code `MN0010`.
 
 ### `unbindRequests`
 
-This method is used to unbind any object that works with the [Radio request API](./radio.md#requests-and-replies).
+`unbindRequests(channel, bindings)` removes the replies represented by a
+binding map. Without a binding map, it removes every reply owned by this object
+from that channel. Replies owned by other objects remain registered. The method
+returns the object.
 
-Calling this method without a radio requests hash will unbind all requests
-from the channel.
+> **Warning:** Request bindings created manually retain their owner as reply
+> context. To avoid memory leaks, call `unbindRequests` in or before
+> `onBeforeDestroy`, and whenever a shorter binding lifetime ends.
 
-**NOTE: To avoid memory leaks, `unbindRequests` should be called
-in or before `onBeforeDestroy`.**
+`MnObject` and `Application` instead support the declarative `channelName`,
+`radioEvents`, and `radioRequests` options; those owned bindings are cleaned up
+when the owner is destroyed. A `View` using `bindRequests` directly should call
+`unbindRequests` as part of its own cleanup.
 
+The following example shows both event and request bindings remaining scoped to
+their owner.
+
+<!-- executable-example: common-owner-bindings -->
 ```javascript
-import { Radio, View } from 'marionette';
+import { MnObject, Radio } from 'marionette';
 
-const MyView = View.extend({
-  channelName: 'myChannelName',
-  radioRequests: {
-    'foo:bar': 'doFooBar'
+const source = new MnObject();
+const channel = Radio.channel('common-owner-bindings');
+const unrelatedMessages = [];
+
+source.on('status', value => unrelatedMessages.push(value));
+channel.reply('status:other', () => 'other');
+
+const Owner = MnObject.extend({
+  initialize() {
+    this.messages = [];
+    this.bindEvents(source, { status: 'onStatus' });
+    this.bindRequests(channel, { 'status:current': 'getStatus' });
   },
-  onAttach() {
-    const channel = Radio.channel(this.channelName);
-    this.bindRequests(channel, this.radioRequests);
+
+  onStatus(value) {
+    this.messages.push(value);
   },
-  onBeforeDetach() {
-    const channel = Radio.channel(this.channelName);
-    this.unbindRequests(channel, this.radioRequests);
+
+  getStatus() {
+    return this.messages[this.messages.length - 1];
   }
- });
+});
+
+const owner = new Owner();
+source.trigger('status', 'ready');
+const ownerReply = channel.request('status:current'); // "ready"
+
+owner.unbindEvents(source);
+owner.unbindRequests(channel);
+source.trigger('status', 'after');
+
+const ownerReplyAfterCleanup = channel.request('status:current'); // undefined
+const unrelatedReplyAfterCleanup = channel.request('status:other'); // "other"
+
+export {
+  Radio,
+  owner,
+  ownerReply,
+  ownerReplyAfterCleanup,
+  unrelatedMessages,
+  unrelatedReplyAfterCleanup
+};
 ```
-
-[Live examples](https://jsfiddle.net/marionettejs/r5kmwwke/)
-
-The first parameter, `channel`, is an instance from `Radio`.
-
-The second parameter is a hash of `{ 'request:name': 'replyHandler' }`
-configuration. A function can be supplied instead of a string handler name.
-If the second paramater is not supplied, all handlers are removed.
 
 ### `normalizeMethods`
 
-Receives a hash of event names and functions and/or function names, and returns a
-fresh hash with the function names replaced with the function references themselves.
-Only the hash's own enumerable string keys are normalized; inherited, symbol, and
-non-enumerable properties are ignored. When a hash is supplied, the returned value
-is a fresh plain object.
-A literal own `__proto__` entry remains a handler key without changing the returned
-object's prototype.
+`normalizeMethods(bindings)` returns a fresh map with method-name strings
+replaced by function references from the Marionette object. Only the map's own
+enumerable string keys are normalized; inherited, symbol, and non-enumerable
+properties are ignored. A literal own `__proto__` entry remains a handler key
+without changing the returned object's prototype.
 
-Every supplied handler must be a function or a string that resolves to a callable
-own or inherited method on the binding context. Otherwise Marionette throws
-`MarionetteError` with code `MN0019`. This invariant also applies to event and
-request binding maps, including their unbind operations, and to model, collection,
-Radio, and child-view event bindings.
+Every supplied handler must be a function or a string that resolves to a
+callable own or inherited method on the binding context. Otherwise Marionette
+throws `MarionetteError` with code `MN0019`. This invariant also applies to
+event and request binding maps, including their unbind operations, and to model,
+collection, Radio, and child-view event bindings.
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   initialize() {
-    const hash = {
-      'action:one': 'handleActionOne', // This will become a reference to `this.handleActionOne`
+    this.normalizedActions = this.normalizeMethods({
+      'action:one': 'handleActionOne',
       'action:two': this.handleActionTwo
-    };
-
-    this.normalizedHash = this.normalizeMethods(hash);
-  },
-
-  do(action) {
-    this.normalizedHash[action]();
+    });
   },
 
   handleActionOne() {
-    console.log('action:one was fired');
+    console.log('action:one');
   },
 
   handleActionTwo() {
-    console.log('action:two was fired');
+    console.log('action:two');
   }
-
 });
-
-const myView = new MyView();
-myView.do('action:one');
-myView.do('action:two');
 ```
-
-[Live example](https://jsfiddle.net/marionettejs/zzjhm4p1/)
 
 ### `getOption`
 
-To access an option, we use the `getOption` method. `getOption` will fall back
-to the value of the same name defined on the instance if not defined in the options.
-
-```javascript
-import { View } from 'backbone.marionette';
-
-const View = View.extend({
-  classVal: 'class value',
-  initialize(){
-    this.instanceVal = 'instance value'
-  }
-});
-
-const view = new View({ optVal: 'option value' });
-
-view.getOption('instanceVal'); // instance value
-view.getOption('classVal'); // class value
-view.getOption('optVal'); // option value
-
-const view2 = new View({ instanceVal: 'foo', classVal: 'bar', optVal: 'baz' });
-
-view.getOption('instanceVal'); // foo
-view.getOption('classVal'); // bar
-view.getOption('optVal'); // baz
-```
-
-[Live example](https://jsfiddle.net/marionettejs/ekvb8wwa/)
-
-#### Falsey values
-
-The `getOption` function will return any falsey value from the `options`,
-other than `undefined`. If an object's options has an undefined value, it will
-attempt to read the value from the object directly.
-
-For example:
-
-```javascript
-import { MnObject } from 'backbone.marionette';
-
-const MyObject = MnObject.extend({
-  foo: 'bar',
-
-  initialize() {
-    console.log(this.getOption('foo'));
-  }
-});
-
-const model1 = new MyObject(); // => "bar"
-
-const myObj = {};
-console.log(myObj.foo); // undefined
-const model2 = new MyObject({ foo: myObj.foo }); // => "bar"
-```
-
-[Live example](https://jsfiddle.net/marionettejs/2ddk28ap/)
-
-In this example, "bar" is returned both times because the second
-example has an undefined value for `f`.
+`getOption(name)` first reads the named value from the merged `options` object.
+If that value is `undefined`, it falls back to the same property on the
+instance or its prototype. Explicit option values such as `null`, `false`, `0`,
+and an empty string are returned without falling back. Function values are
+returned without being invoked.
 
 ### `mergeOptions`
 
-The `mergeOptions` method takes two arguments: an `options` object and an array
-of `keys` to pull from the options object. Any matching `keys` will be merged
-onto the class instance. Array-like and object key collections remain accepted
-for compatibility, but arrays are the canonical form. Only requested own
-enumerable string properties with values other than `undefined` are copied.
-Requested inherited, symbol, and non-enumerable properties are ignored. For
-example:
-
-```javascript
-import { MnObject } from 'backbone.marionette';
-
-const MyObject = MnObject.extend({
-  initialize(options) {
-    this.mergeOptions(options, ['model', 'something']);
-    // this.model and this.something will now be available
-  }
-});
-
-const myObject = new MyObject({
-  model: new Backbone.Model(),
-  something: 'test',
-  another: 'value'
-});
-
-console.log(myObject.model);
-console.log(myObject.something);
-console.log(myObject.getOption('another'));
-```
-
-[Live example](https://jsfiddle.net/marionettejs/ub510cbx/)
-
-In this example, `model` and `something` are directly available on the
-`MyObject` instance, while `another` must be accessed via `getOption`. This is
-handy when you want to add extra keys that will be used heavily throughout the
-defined class.
+`mergeOptions(options, keys)` copies selected option values directly onto the
+class instance. Pass `keys` as an array. Only requested own enumerable string
+properties with values other than `undefined` are copied; inherited, symbol,
+and non-enumerable properties are ignored.
 
 ### The `options` Property
 
-The Marionette classes accept an `options` property in the class definition
-which is merged with the `options` argument passed at instantiation. The
-values from the passed in `options` overrides the property values.
+A class-level `options` property supplies defaults. Marionette creates a fresh
+`this.options` object for each instance by merging those defaults with the
+constructor options; constructor values take precedence. The `options` argument
+received by `initialize` remains the raw object supplied by the caller, so use
+`getOption` when class defaults must be included.
 
-> The `options` argument passed in `initialize` method is equal to the passed at
-> class instantiation. To get the option inside initialize considering the
-> `options` property is necessary to use `getOption`
+`mergeOptions` is separate: it copies only named values directly onto the
+instance for APIs that need instance properties.
 
+<!-- executable-example: common-options -->
 ```javascript
-import { MnObject } from 'backbone.marionette';
+import { MnObject } from 'marionette';
 
-const MyObject = MnObject.extend({
+const service = { name: 'example' };
+const Example = MnObject.extend({
+  enabled: true,
   options: {
-    foo: 'bar',
-    another: 'thing'
+    mode: 'default'
   },
 
   initialize(options) {
-    console.log(options.foo) // undefined
-    console.log(this.getOption('foo')) // 'bar'
-    console.log(this.getOption('another')) // 'value'
+    this.rawMode = options.mode;
+    this.mergeOptions(options, ['service']);
   }
 });
 
-const myObject = new MyObject({
-  another: 'value'
+const example = new Example({
+  enabled: false,
+  service,
+  extra: 'kept only in this.options'
 });
+const rawMode = example.rawMode; // undefined
+
+example.getOption('mode'); // "default"
+example.getOption('enabled'); // false
+example.getOption('extra'); // "kept only in this.options"
+console.log(example.service === service); // true
+
+export { example, rawMode, service };
 ```
 
 ## Marionette Classes
 
-Marionette provides a few classes for building your view tree and
-application structure.
+Marionette provides classes for building a view tree and application structure.
 
 [Continue Reading...](./classes.md).

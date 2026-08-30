@@ -1,4 +1,5 @@
 import { bindRequests, unbindRequests } from '../../../modules/common/bind-requests';
+import Radio from '../../../modules/radio';
 
 const acceptedBindingMaps = [
   {},
@@ -94,7 +95,7 @@ describe('bind-requests', function() {
           target.bindRequests(channel, { 'bar': replyBar });
           expect(channel.reply)
             .to.have.been.calledOnce
-            .and.calledWith({ 'bar': replyBar });
+            .and.calledWith({ 'bar': replyBar }, target);
         });
       });
 
@@ -104,7 +105,7 @@ describe('bind-requests', function() {
             target.bindRequests(channel, { 'foo': 'replyFoo' });
             expect(channel.reply)
               .to.have.been.calledOnce
-              .and.calledWith({ 'foo': target.replyFoo });
+              .and.calledWith({ 'foo': target.replyFoo }, target);
           });
         });
       });
@@ -125,6 +126,66 @@ describe('bind-requests', function() {
   });
 
   describe('unbindRequests', function() {
+    it('removes only the current owner\'s replies without a binding map', function() {
+      const realChannel = new Radio.Channel('owner-scoped-unbind-all');
+      const firstOwner = {
+        name: 'first',
+        bindRequests,
+        unbindRequests
+      };
+      const secondOwner = {
+        name: 'second',
+        bindRequests,
+        unbindRequests
+      };
+      const replyWithOwner = function() {
+        return this.name;
+      };
+
+      firstOwner.bindRequests(realChannel, { first: replyWithOwner });
+      secondOwner.bindRequests(realChannel, { second: replyWithOwner });
+      realChannel.reply('direct', () => 'direct');
+
+      firstOwner.unbindRequests(realChannel);
+
+      expect(realChannel.request('first')).to.be.undefined;
+      expect(realChannel.request('second')).to.equal('second');
+      expect(realChannel.request('direct')).to.equal('direct');
+    });
+
+    it('selectively removes caller-owned replies without disturbing other replies', function() {
+      const realChannel = new Radio.Channel('owner-scoped-selective-unbind');
+      const sharedReply = function() {
+        return this.name;
+      };
+      const firstOwner = {
+        name: 'first',
+        bindRequests,
+        unbindRequests
+      };
+      const secondOwner = {
+        name: 'second',
+        bindRequests,
+        unbindRequests
+      };
+      const firstBindings = {
+        keep: sharedReply,
+        remove: sharedReply,
+        replaced: sharedReply
+      };
+
+      firstOwner.bindRequests(realChannel, firstBindings);
+      secondOwner.bindRequests(realChannel, { replaced: sharedReply });
+      firstOwner.unbindRequests(realChannel, {
+        remove: sharedReply,
+        replaced: sharedReply
+      });
+
+      expect(realChannel.request('remove')).to.be.undefined;
+      expect(realChannel.request('keep')).to.equal('first');
+      expect(realChannel.request('replaced')).to.equal('second');
+    });
+
     describe('when channel isnt passed', function() {
       beforeEach(function() {
         target.unbindRequests(false, { 'foo': 'replyFoo' });
@@ -185,7 +246,7 @@ describe('bind-requests', function() {
           target.unbindRequests(channel, { 'bar': replyBar })
           expect(channel.stopReplying)
             .to.have.been.calledOnce
-            .and.calledWith({ 'bar': replyBar });
+            .and.calledWith({ 'bar': replyBar }, target);
         });
       });
 
@@ -195,7 +256,7 @@ describe('bind-requests', function() {
             target.unbindRequests(channel, { 'foo': 'replyFoo' });
             expect(channel.stopReplying)
               .to.have.been.calledOnce
-              .and.calledWith({ 'foo': target.replyFoo });
+              .and.calledWith({ 'foo': target.replyFoo }, target);
           });
         });
       });
