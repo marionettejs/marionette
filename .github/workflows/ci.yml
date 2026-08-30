@@ -147,7 +147,12 @@ jobs:
         continue-on-error: true
         env:
           PERFORMANCE_DIR: ${{ steps.performance_workspace.outputs.directory }}
-        run: node config/bundle-size.mjs --json > "${PERFORMANCE_DIR}/bundle-size-current.json"
+        run: |
+          set -euo pipefail
+          IFS=$'\t' read -r bundle_script approval_script timing_script < <(
+            node scripts/resolve-performance-tools.mjs --root .
+          )
+          node "${bundle_script}" --json > "${PERFORMANCE_DIR}/bundle-size-current.json"
 
       - name: Collect performance growth approval records
         env:
@@ -225,9 +230,16 @@ jobs:
         run: |
           set -euo pipefail
           base_contract='bundle-size-base/config/performance.json'
-          authority_script='bundle-size-base/config/bundle-size.mjs'
-          approval_script='bundle-size-base/config/performance-growth-approval.mjs'
+          IFS=$'\t' read -r authority_script approval_script timing_script < <(
+            node scripts/resolve-performance-tools.mjs --root bundle-size-base
+          )
           test -f "${base_contract}"
+          resolved_layout="${authority_script}"$'\t'"${approval_script}"$'\t'"${timing_script}"
+          case "${resolved_layout}" in
+            $'bundle-size-base/config/bundle-size.mjs\tbundle-size-base/config/performance-growth-approval.mjs\tbundle-size-base/benchmarks/performance.mjs'|\
+            $'bundle-size-base/scripts/performance/bundle-size.mjs\tbundle-size-base/scripts/performance/growth-approval.mjs\tbundle-size-base/scripts/performance/timing.mjs') ;;
+            *) echo "Resolved performance tool outside a known exact-base layout" >&2; exit 1 ;;
+          esac
           test -f "${authority_script}"
           test -f "${approval_script}"
 
@@ -311,9 +323,23 @@ jobs:
 
       - name: Measure hosted timing
         run: |
-          node benchmarks/performance.mjs --root performance-base --config config/performance.json --json > performance-timing-base.json
-          node benchmarks/performance.mjs --config config/performance.json --json > performance-timing-current.json
-          node benchmarks/performance.mjs --report performance-timing-base.json performance-timing-current.json > performance-timing-report.md
+          set -euo pipefail
+          IFS=$'\t' read -r current_bundle_script current_approval_script current_timing_script < <(
+            node scripts/resolve-performance-tools.mjs --root .
+          )
+          IFS=$'\t' read -r base_bundle_script base_approval_script base_timing_script < <(
+            node scripts/resolve-performance-tools.mjs --root performance-base
+          )
+          resolved_layout="${base_bundle_script}"$'\t'"${base_approval_script}"$'\t'"${base_timing_script}"
+          case "${resolved_layout}" in
+            $'performance-base/config/bundle-size.mjs\tperformance-base/config/performance-growth-approval.mjs\tperformance-base/benchmarks/performance.mjs'|\
+            $'performance-base/scripts/performance/bundle-size.mjs\tperformance-base/scripts/performance/growth-approval.mjs\tperformance-base/scripts/performance/timing.mjs') ;;
+            *) echo "Resolved performance tool outside a known exact-base layout" >&2; exit 1 ;;
+          esac
+          test -f "${base_timing_script}"
+          node "${base_timing_script}" --root performance-base --config performance-base/config/performance.json --json > performance-timing-base.json
+          node "${current_timing_script}" --config config/performance.json --json > performance-timing-current.json
+          node "${current_timing_script}" --report performance-timing-base.json performance-timing-current.json > performance-timing-report.md
           cat performance-timing-report.md >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Upload hosted timing report
