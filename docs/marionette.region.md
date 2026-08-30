@@ -364,11 +364,12 @@ myView.removeRegions();
 ## Using Regions on a view
 
 In addition to adding and removing regions there are a few methods to help
-utilize regions. `hasRegion` is a pure presence query and `getRegions` returns a
-pure snapshot; neither renders. `getRegion` and `emptyRegions` first render a
-live, unrendered View before resolving or mutating Regions.
+utilize regions. `hasRegion` and `getRegion` are pure own-registry queries, and
+`getRegions` returns a pure snapshot; none renders. Child View operations and
+`emptyRegions` first render a live, unrendered View before resolving or mutating
+Regions.
 
-- `getRegion(name)` - Request a region from a view by name.
+- `getRegion(name)` - Request an own registered Region without rendering.
 - `getRegions()` - Return a fresh own-key snapshot of registered Regions without rendering.
 - `hasRegion(name)` - Check if a View has an own registered Region without rendering.
 - `emptyRegions()` - Render when needed, then empty all Regions returned by `getRegions()`.
@@ -380,11 +381,16 @@ Once a region is defined, you can call its `show` method to display the view:
 ```javascript
 const myView = new MyView();
 const childView = new MyChildView();
+myView.render();
 const mainRegion = myView.getRegion('main');
 
-// render and display the view
+// render and display the child View
 mainRegion.show(childView, { fooOption: 'bar' });
 ```
+
+The parent View must already be rendered before calling a selector Region's
+`show` directly. Use `showChildView('main', childView)` to render the parent when
+needed before showing the child.
 
 This is equivalent to a view's `showChildView` which can be used as:
 
@@ -414,6 +420,7 @@ is showing a view.
 
 ```javascript
 const myView = new MyView();
+myView.render();
 const mainRegion = myView.getRegion('main');
 
 mainRegion.hasView() // false
@@ -581,6 +588,7 @@ const MyView = View.extend({
 });
 
 const myView = new MyView();
+myView.render();
 
 const myRegion = myView.getRegion('mainRegion');
 

@@ -84,6 +84,13 @@ function getRequiredRegion(region, name) {
   });
 }
 
+function getRegionForChild(view, name) {
+  if (!view._isRendered) {
+    view.render();
+  }
+  return getRequiredRegion(view.getRegion(name), name);
+}
+
 const RegionClassOptions = [
   'allowMissingEl',
   'parentEl',
@@ -710,9 +717,6 @@ const RegionsMixin = {
   // Accepts the region name
   // getRegion('main')
   getRegion(name) {
-    if (!this._isRendered) {
-      this.render();
-    }
     return getOwnRegion(this._regions, name);
   },
 
@@ -728,17 +732,17 @@ const RegionsMixin = {
   },
 
   showChildView(name, view, options) {
-    const region = getRequiredRegion(this.getRegion(name), name);
+    const region = getRegionForChild(this, name);
     region.show(view, options);
     return view;
   },
 
   detachChildView(name) {
-    return getRequiredRegion(this.getRegion(name), name).detachView();
+    return getRegionForChild(this, name).detachView();
   },
 
   getChildView(name) {
-    return getRequiredRegion(this.getRegion(name), name).currentView;
+    return getRegionForChild(this, name).currentView;
   }
 
 };

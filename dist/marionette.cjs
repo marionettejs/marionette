@@ -1837,6 +1837,12 @@ function getRequiredRegion(region, name) {
     message: `Region${label} does not exist.`
   });
 }
+function getRegionForChild(view, name) {
+  if (!view._isRendered) {
+    view.render();
+  }
+  return getRequiredRegion(view.getRegion(name), name);
+}
 const RegionClassOptions = ['allowMissingEl', 'parentEl', 'replaceElement'];
 const Region = function (options) {
   this._setOptions(options, RegionClassOptions);
@@ -2274,9 +2280,6 @@ const RegionsMixin = {
     return !!getOwnRegion(this._regions, name);
   },
   getRegion(name) {
-    if (!this._isRendered) {
-      this.render();
-    }
     return getOwnRegion(this._regions, name);
   },
   _getRegions() {
@@ -2288,15 +2291,15 @@ const RegionsMixin = {
     return this._getRegions();
   },
   showChildView(name, view, options) {
-    const region = getRequiredRegion(this.getRegion(name), name);
+    const region = getRegionForChild(this, name);
     region.show(view, options);
     return view;
   },
   detachChildView(name) {
-    return getRequiredRegion(this.getRegion(name), name).detachView();
+    return getRegionForChild(this, name).detachView();
   },
   getChildView(name) {
-    return getRequiredRegion(this.getRegion(name), name).currentView;
+    return getRegionForChild(this, name).currentView;
   }
 };
 const ViewClassOptions = ['attributes', 'behaviors', 'childViewEventPrefix', 'childViewEvents', 'childViewTriggers', 'className', 'collection', 'collectionEvents', 'el', 'events', 'id', 'model', 'modelEvents', 'regionClass', 'regions', 'tagName', 'template', 'templateContext', 'triggers', 'ui'];

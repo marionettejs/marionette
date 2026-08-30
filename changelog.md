@@ -15,6 +15,8 @@
   changing View lifecycle state
 * Changed `View#getRegions` to return a safe Region snapshot without rendering;
   `View#emptyRegions` remains a render-triggering mutator
+* Changed `View#getRegion` to return an own registered Region without rendering;
+  child View operations now render before dispatching Region lookup overrides
 
 ### v5.0.0-alpha.1
 
