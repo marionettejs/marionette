@@ -1,12 +1,12 @@
-import { each, extend, keys } from 'underscore';
-
 import { setDebug, debugLog, log } from './common/radio.js';
 import Events from '../mixins/events.js';
 import Requests from '../mixins/requests.js';
 
+import { assignOwn, setProperty } from '../utils/assign-in.js';
 import callHandler from '../utils/call-handler.js';
 import MarionetteError from '../utils/error.js';
 
+const objectKeys = Object.keys;
 const _logs = Object.create(null);
 
 // This is to produce an identical function in both tuneIn and tuneOut,
@@ -17,7 +17,7 @@ function _partial(channelName) {
 
 const Radio = {};
 
-extend(Radio, {
+assignOwn(Radio, {
   setDebug,
 
   log,
@@ -80,7 +80,7 @@ Radio.Channel = function(channelName) {
   this.channelName = channelName;
 };
 
-extend(Radio.Channel.prototype, Events, Requests, {
+assignOwn(Radio.Channel.prototype, Events, Requests, {
 
   // Remove all handlers from the messaging systems of this channel
   reset() {
@@ -99,18 +99,24 @@ extend(Radio.Channel.prototype, Events, Requests, {
  *
  */
 
-each([Events, Requests], system => {
-  each(keys(system), methodName => {
-    Radio[methodName] = function(channelName, ...args) {
+const systems = [Events, Requests];
+for (let systemIndex = 0, systemsLength = systems.length; systemIndex < systemsLength; systemIndex++) {
+  const methodNames = objectKeys(systems[systemIndex]);
+  for (let index = 0, length = methodNames.length; index < length; index++) {
+    const methodName = methodNames[index];
+    setProperty(Radio, methodName, function(channelName, ...args) {
       const channel = this.channel(channelName);
       return callHandler(channel[methodName], channel, args);
-    };
-  });
-});
+    });
+  }
+}
 
 Radio.reset = function(channelName) {
   if (!arguments.length) {
-    each(this._channels, channel => { channel.reset(); });
+    const channelNames = objectKeys(this._channels);
+    for (let index = 0, length = channelNames.length; index < length; index++) {
+      this._channels[channelNames[index]].reset();
+    }
     return;
   }
 
