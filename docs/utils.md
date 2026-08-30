@@ -1,9 +1,8 @@
 # Marionette Utility Functions
 
-Marionette provides a set of utility / helper functions that are used to
-facilitate common behaviors throughout the framework. These functions may
-be useful to those that are building on top of Marionette, as they provide
-a way to get the same behaviors and conventions from your own code.
+Marionette exports the utility functions it uses to implement common framework
+conventions. These functions are useful when extending Marionette or applying
+the same conventions to another object.
 
 ## Documentation Index
 
@@ -13,81 +12,140 @@ a way to get the same behaviors and conventions from your own code.
 
 ## extend
 
-Backbone's `extend` function is a useful utility to have, and is used in
-various places in Marionette. To make the use of this method more consistent,
-Backbone's `extend` has been exported `extend`. This allows you to get the
-extend functionality for your object without having to decide if you want to
-use Backbone.View or Backbone.Model or another Backbone object to grab the
-method from.
+`extend` is Marionette's owned, standalone implementation of its classic
+pseudo-class extension convention. Assign it to a constructor, then call it as
+a method so that constructor is the parent. Marionette's extendable classes
+already expose this method.
 
+<!-- executable-example: utils-owned-extend -->
 ```javascript
 import { extend } from 'marionette';
 
-const Foo = function(){};
+function Service(name) {
+  this.name = name;
+}
 
-// use Marionette.extend to make Foo extendable, just like other
-// Backbone and Marionette objects
-Foo.extend = extend;
+Service.extend = extend;
 
-// Now Foo can be extended to create a new class, with methods
-const Bar = Foo.extend({
-
-  someMethod(){ ... }
-
-  // ...
+const SpecialService = Service.extend({
+  label() {
+    return `special:${this.name}`;
+  }
+}, {
+  kind: 'special'
 });
 
-// Create an instance of Bar
-const b = new Bar();
+const service = new SpecialService('api');
+
+export { Service, SpecialService, extend, service };
 ```
 
-[Live example](https://jsfiddle.net/marionettejs/w5avq89r/)
+The child inherits the parent's prototype and static properties. Prototype
+properties are supplied by the first argument and optional static properties
+by the second. See the [v4 compatibility ledger](./migration-from-v4.md#compatibility-ledger)
+for the v5 input-copying boundary.
 
 ## Common Method Utilities
 
-These [common utilities](./common.md) are available to all Marionette classes and exported
-so that the functionality can be used elsewhere. Each method has the same arguments as documented
-in [common utilities](./common.md) except that the target of the method is added as the first argument.
+The [common utilities](./common.md) are available as instance methods on
+Marionette classes and as exports for other objects. An exported utility takes
+its target as the first argument; the remaining arguments match the documented
+instance method.
 
-For instance:
+<!-- executable-example: utils-target-first-proxies -->
 ```javascript
-import { View, triggerMethod, getOption } from 'marionette';
+import {
+  MnObject,
+  Radio,
+  VERSION,
+  bindEvents,
+  bindRequests,
+  getOption,
+  mergeOptions,
+  normalizeMethods,
+  triggerMethod,
+  unbindEvents,
+  unbindRequests
+} from 'marionette';
 
-const MyView = View.extend({
-  initialize() {
-    this.triggerMethod('foo', this.getOption('foo'));
-  },
-  onFoo() {
-    console.log('bar');
-  }
-});
+const source = new MnObject();
+const channel = Radio.channel('utils-target-first');
+const unrelatedMessages = [];
 
-// logs "bar"
-const myView = new MyView({ foo: 'bar' });
+source.on('status', value => unrelatedMessages.push(value));
+channel.reply('status:other', () => 'other');
 
-// Same as initialize, logs "bar"
-triggerMethod(myView, 'foo', getOption(myView, 'foo'));
+const target = new MnObject({ enabled: false });
+target.enabled = true;
+target.messages = [];
+target.utilityCalls = [];
+target.onStatus = function(value) {
+  this.messages.push(value);
+};
+target.getStatus = function() {
+  return this.messages.at(-1);
+};
+target.onUtility = function(value) {
+  this.utilityCalls.push(`method:${value}`);
+  return value.toUpperCase();
+};
+target.on('utility', value => target.utilityCalls.push(`event:${value}`));
+
+const normalizedInput = { status: 'onStatus' };
+const normalized = normalizeMethods(target, normalizedInput);
+
+mergeOptions(target, {
+  selected: 'copied',
+  ignored: 'not-copied'
+}, ['selected']);
+bindEvents(target, source, normalizedInput);
+bindRequests(target, channel, { 'status:current': 'getStatus' });
+
+const optionValue = getOption(target, 'enabled');
+const triggerResult = triggerMethod(target, 'utility', 'ready');
+
+source.trigger('status', 'before-cleanup');
+const ownerReply = channel.request('status:current');
+
+unbindEvents(target, source);
+unbindRequests(target, channel);
+
+source.trigger('status', 'after-cleanup');
+const ownerReplyAfterCleanup = channel.request('status:current');
+const unrelatedReplyAfterCleanup = channel.request('status:other');
+
+export {
+  Radio,
+  VERSION,
+  normalized,
+  normalizedInput,
+  optionValue,
+  ownerReply,
+  ownerReplyAfterCleanup,
+  target,
+  triggerResult,
+  unrelatedMessages,
+  unrelatedReplyAfterCleanup
+};
 ```
 
-* [triggerMethod](./common.md#triggermethod)
-  - Trigger an event and a corresponding method on the target object.
-* [bindEvents](./common.md#bindevents)
-  - This method is used to bind a backbone "entity" to methods on a target object.
-* [unbindEvents](./common.md#unbindevents)
-  - This method can be used to unbind callbacks from entities' events.
-* [bindRequests](./common.md#bindrequests)
-  - This method is used to bind backbone radio replies to methods on a target object.
-* [unbindRequests](./common.md#unbindrequests)
-  - This method can be used to unbind radio reply handler from entities' events.
-* [normalizeMethods](./common.md#normalizemethods)
-  - Receives a hash of event names and functions and/or function names,
-    and returns the same hash with the function names replaced with the function references themselves.
-* [getOption](./common.md#getoption)
-  - Retrieve an object's attribute either directly from the object, or from the object's `this.options`.
-* [mergeOptions](./common.md#mergeoptions)
-  - A handy function to pluck certain `options` and attach them directly to an instance.
+* [triggerMethod](./common.md#triggermethod) invokes the corresponding `on*`
+  method before triggering the event and returns the method's result.
+* [bindEvents](./common.md#bindevents) binds a compatible event emitter to
+  methods on the target; [unbindEvents](./common.md#unbindevents) removes only
+  bindings owned by that target.
+* [bindRequests](./common.md#bindrequests) binds Radio replies with the target
+  as owner and callback context; [unbindRequests](./common.md#unbindrequests)
+  removes only replies owned by that target.
+* [normalizeMethods](./common.md#normalizemethods) returns a fresh map with
+  method names resolved against the target.
+* [getOption](./common.md#getoption) reads a defined value from `options` before
+  the direct property.
+* [mergeOptions](./common.md#mergeoptions) copies the selected own enumerable
+  string-keyed option values directly onto the target.
 
 ## VERSION
 
-Maintains a reference to the version of a Marionette instance.
-`VERSION` is used to direct users to the correctly versioned documentation when errors are thrown.
+`VERSION` is the installed Marionette package version. Marionette also uses it
+when constructing versioned diagnostic documentation URLs; exporting it does
+not imply that a corresponding website deployment is available.
