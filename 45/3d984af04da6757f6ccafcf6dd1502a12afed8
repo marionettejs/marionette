@@ -1,0 +1,21 @@
+test/unit/runtime/features.spec.js
+  s_d6429951fb9231::t_9130cd77efff05 39-40,50,69-70,76-77
+docs/features.md
+  s_d6429951fb9231::t_9130cd77efff05 48-57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "453d984af04da6757f6ccafcf6dd1502a12afed8",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
