@@ -119,26 +119,6 @@ function candidateGrowthContract() {
   return contract;
 }
 
-function toolingRelocationContract() {
-  const contract = growthContract();
-  contract.forbiddenProductionModulePrefixes = [
-    'scripts/',
-    'test/',
-    'config/diagnostics/',
-    'config/docs/',
-    'config/release/',
-  ];
-  contract.forbiddenProductionModules = [
-    'config/bundle-size.mjs',
-    'config/performance-growth-approval.mjs',
-    'config/performance-resources.mjs',
-    'config/performance.json',
-    'config/release-profile.json',
-    'config/release-promotion.json',
-  ];
-  return contract;
-}
-
 function candidateAliasContract() {
   const contract = structuredClone(growthContract());
   contract.productionGraphs.push({
@@ -555,115 +535,30 @@ describe('exact-head performance growth approval contract', () => {
     );
   });
 
-  test('permits only the staged issue 237 stale tooling-path cleanup', () => {
-    const authority = toolingRelocationContract();
-    const cleanup = structuredClone(authority);
-    cleanup.forbiddenProductionModules = [
-      'config/performance.json',
-      'config/release-profile.json',
-      'config/release-promotion.json',
-    ];
-    cleanup.forbiddenProductionModulePrefixes = [
-      'scripts/',
-      'test/',
-      'config/diagnostics/',
-      'config/release/',
-    ];
-
-    assert.deepEqual(validateCandidateGrowthContract(authority, cleanup), []);
+  test('keeps production module exclusions equal to the exact-base contract', () => {
+    const authority = growthContract();
+    authority.forbiddenProductionModules.push('config/release-profile.json');
+    authority.forbiddenProductionModulePrefixes.push('scripts/');
     assert.deepEqual(
       validateCandidateGrowthContract(authority, structuredClone(authority)),
       []
     );
 
-    const moduleOnly = structuredClone(authority);
-    moduleOnly.forbiddenProductionModules = cleanup.forbiddenProductionModules;
-    const prefixOnly = structuredClone(authority);
-    prefixOnly.forbiddenProductionModulePrefixes = cleanup.forbiddenProductionModulePrefixes;
-    const partialModules = structuredClone(cleanup);
-    partialModules.forbiddenProductionModules = [
-      'config/performance-resources.mjs',
-      'config/performance.json',
-      'config/release-profile.json',
-      'config/release-promotion.json',
-    ];
-    const unrelatedRemoval = structuredClone(authority);
-    unrelatedRemoval.forbiddenProductionModules = [
-      'config/bundle-size.mjs',
-      'config/performance-growth-approval.mjs',
-      'config/performance-resources.mjs',
-      'config/release-profile.json',
-      'config/release-promotion.json',
-    ];
-    const replacement = structuredClone(authority);
-    replacement.forbiddenProductionModules = [
-      'config/performance.json',
-      'config/release-profile.json',
-      'config/release-promotion.json',
-      'scripts/performance/bundle-size.mjs',
-    ];
-    const addition = structuredClone(authority);
-    addition.forbiddenProductionModules.push('scripts/unrelated.mjs');
-    const prefixAddition = structuredClone(cleanup);
-    prefixAddition.forbiddenProductionModulePrefixes.push('tools/');
-    const prefixReordering = structuredClone(cleanup);
-    prefixReordering.forbiddenProductionModulePrefixes.reverse();
-    const moduleReordering = structuredClone(cleanup);
-    moduleReordering.forbiddenProductionModules.reverse();
-    const weakenedPrefix = structuredClone(cleanup);
-    weakenedPrefix.forbiddenProductionModulePrefixes = ['scripts/', 'test/'];
-
-    for (const candidate of [
-      moduleOnly,
-      prefixOnly,
-      partialModules,
-      unrelatedRemoval,
-      replacement,
-      addition,
-      prefixAddition,
-      prefixReordering,
-      moduleReordering,
-      weakenedPrefix,
+    for (const [field, mutate] of [
+      ['forbiddenProductionModules', values => values.slice(1)],
+      ['forbiddenProductionModules', values => [...values, 'scripts/unrelated.mjs']],
+      ['forbiddenProductionModules', values => values.toReversed()],
+      ['forbiddenProductionModulePrefixes', values => values.slice(1)],
+      ['forbiddenProductionModulePrefixes', values => [...values, 'tools/']],
+      ['forbiddenProductionModulePrefixes', values => values.toReversed()],
     ]) {
+      const candidate = structuredClone(authority);
+      candidate[field] = mutate(candidate[field]);
       assert.match(
         validateCandidateGrowthContract(authority, candidate).join('\n'),
-        /may only atomically remove the three stale issue #237 config tool modules/
+        new RegExp(`changes exact-base ${field}`)
       );
     }
-
-    for (const forbiddenProductionModules of [
-      [],
-      ['config/performance.json', 'config/performance.json'],
-      ['config/performance.json', 1],
-    ]) {
-      const malformed = structuredClone(authority);
-      malformed.forbiddenProductionModules = forbiddenProductionModules;
-      assert.match(
-        validateCandidateGrowthContract(authority, malformed).join('\n'),
-        /may only atomically remove the three stale issue #237 config tool modules/
-      );
-    }
-
-    for (const forbiddenProductionModulePrefixes of [
-      [],
-      ['scripts/', 'scripts/'],
-      ['scripts/', 1],
-    ]) {
-      const malformed = structuredClone(authority);
-      malformed.forbiddenProductionModulePrefixes = forbiddenProductionModulePrefixes;
-      assert.match(
-        validateCandidateGrowthContract(authority, malformed).join('\n'),
-        /may only atomically remove the three stale issue #237 config tool modules/
-      );
-    }
-
-    assert.deepEqual(validateCandidateGrowthContract(cleanup, structuredClone(cleanup)), []);
-    const afterCleanupChange = structuredClone(cleanup);
-    afterCleanupChange.forbiddenProductionModules = [];
-    assert.match(
-      validateCandidateGrowthContract(cleanup, afterCleanupChange).join('\n'),
-      /may only atomically remove the three stale issue #237 config tool modules/
-    );
   });
 
   test('permits only a valid release-profile SHA-256 transition in the toolchain', () => {

@@ -657,13 +657,16 @@ describe('performance contract validation', () => {
       command.startsWith('node "${approval_script}"')
     );
 
-    assert.ok(commands.includes(
-      'node scripts/resolve-performance-tools.mjs --root bundle-size-base'
-    ));
     assert.match(
       workflow,
-      /node "\$\{bundle_script\}" --json > "\$\{PERFORMANCE_DIR\}\/bundle-size-current\.json"/
+      /node scripts\/performance\/bundle-size\.mjs --json > "\$\{PERFORMANCE_DIR\}\/bundle-size-current\.json"/
     );
+    assert.ok(commands.includes(
+      'authority_script=\'bundle-size-base/scripts/performance/bundle-size.mjs\''
+    ));
+    assert.ok(commands.includes(
+      'approval_script=\'bundle-size-base/scripts/performance/growth-approval.mjs\''
+    ));
     assert.notEqual(measurementIndex, -1);
     assert.notEqual(resourceValidationIndex, -1);
     assert.notEqual(approvalIndex, -1);
@@ -680,20 +683,24 @@ describe('performance contract validation', () => {
     assert.ok(resourceValidationIndex < approvalIndex);
   });
 
-  test('resolves current and exact-base performance tools in CI workflows', async() => {
+  test('uses the canonical current and exact-base performance tools in CI workflows', async() => {
     const workflow = await readFile(join(root, '.github/workflows/ci.yml'), 'utf8');
 
     assert.match(
       workflow,
-      /node scripts\/resolve-performance-tools\.mjs --root \./
+      /node scripts\/performance\/bundle-size\.mjs --json > "\$\{PERFORMANCE_DIR\}\/bundle-size-current\.json"/
     );
     assert.match(
       workflow,
-      /node "\$\{bundle_script\}" --json > "\$\{PERFORMANCE_DIR\}\/bundle-size-current\.json"/
+      /authority_script='bundle-size-base\/scripts\/performance\/bundle-size\.mjs'/
     );
     assert.match(
       workflow,
-      /node scripts\/resolve-performance-tools\.mjs --root performance-base/
+      /approval_script='bundle-size-base\/scripts\/performance\/growth-approval\.mjs'/
+    );
+    assert.match(
+      workflow,
+      /base_timing_script='performance-base\/scripts\/performance\/timing\.mjs'/
     );
     assert.match(
       workflow,
@@ -701,31 +708,16 @@ describe('performance contract validation', () => {
     );
     assert.match(
       workflow,
-      /bundle-size-base\/config\/bundle-size\.mjs\\tbundle-size-base\/config\/performance-growth-approval\.mjs\\tbundle-size-base\/benchmarks\/performance\.mjs/
-    );
-    assert.match(
-      workflow,
-      /bundle-size-base\/scripts\/performance\/bundle-size\.mjs\\tbundle-size-base\/scripts\/performance\/growth-approval\.mjs\\tbundle-size-base\/scripts\/performance\/timing\.mjs/
-    );
-    assert.match(
-      workflow,
-      /performance-base\/config\/bundle-size\.mjs\\tperformance-base\/config\/performance-growth-approval\.mjs\\tperformance-base\/benchmarks\/performance\.mjs/
-    );
-    assert.match(
-      workflow,
-      /performance-base\/scripts\/performance\/bundle-size\.mjs\\tperformance-base\/scripts\/performance\/growth-approval\.mjs\\tperformance-base\/scripts\/performance\/timing\.mjs/
+      /current_timing_script='scripts\/performance\/timing\.mjs'/
     );
     assert.match(workflow, /test -f "\$\{authority_script\}"/);
     assert.match(workflow, /test -f "\$\{approval_script\}"/);
     assert.match(workflow, /test -f "\$\{base_timing_script\}"/);
-    assert.equal(
-      workflow.match(/resolved_layout="\$\{[^}]+\}"\$'\\t'"\$\{[^}]+\}"\$'\\t'"\$\{[^}]+\}"/g)?.length,
-      2
-    );
     assert.match(
       workflow,
       /node "\$\{current_timing_script\}" --config config\/performance\.json/
     );
+    assert.doesNotMatch(workflow, /resolve-performance-tools|config\/bundle-size\.mjs|benchmarks\/performance\.mjs/);
 
     const releaseWorkflow = await readFile(
       join(root, '.github/workflows/release.yml'),
