@@ -11,6 +11,20 @@ function createView(overrides = {}) {
 
 describe('view events mixin', function() {
   describe('#_delegateEvents', function() {
+    it('uses an explicit event map instead of the configured map', function() {
+      const configuredHandler = this.sinon.stub();
+      const explicitHandler = this.sinon.stub();
+      const view = createView({ events: { click: configuredHandler } });
+      const delegates = [];
+
+      view._delegateEvents(delegates, {}, { submit: explicitHandler });
+
+      expect(delegates).to.have.lengthOf(2);
+      delegates[0]();
+      expect(explicitHandler).to.have.been.calledOnce;
+      expect(configuredHandler).to.not.have.been.called;
+    });
+
     it('resolves a callable event map on the view with no arguments', function() {
       const eventHandler = this.sinon.stub();
       const events = this.sinon.stub().returns({ click: eventHandler });

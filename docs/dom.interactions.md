@@ -116,6 +116,17 @@ the same selector, its bubbling DOM event can reach the parent handler. Prefer
 owner-specific selectors; use Marionette events for parent-child communication
 instead of relying on DOM bubbling across ownership boundaries.
 
+Call `view.delegateEvents(events)` to refresh delegated DOM handlers after
+changing a callable `events`, `triggers`, or `ui` definition. A supplied event
+map replaces only the View's configured `events` for that delegation pass;
+View triggers and Behavior events and triggers remain active. The method first
+removes existing handlers, so repeated calls do not duplicate them.
+`view.undelegateEvents()` removes the View and Behavior DOM handlers. Both
+methods return the View, and both are no-ops after destruction has started.
+Replacing `el` with `setElement()` dispatches through both public methods, so a
+subclass override remains responsible for delegating to the base method when it
+wants Marionette's cleanup and redelegation.
+
 ## View `triggers`
 
 The `triggers` attribute translates a DOM event into a Marionette View event.

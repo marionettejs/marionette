@@ -1197,6 +1197,9 @@
     _setBehaviorElements() {
       eachBehavior(this._behaviors, behavior => behavior.setElement());
     },
+    _undelegateBehaviorViewEvents() {
+      eachBehavior(this._behaviors, behavior => behavior._undelegateViewEvents());
+    },
     _delegateBehaviorEntityEvents() {
       eachBehavior(this._behaviors, behavior => behavior.delegateEntityEvents());
     },
@@ -1522,23 +1525,24 @@
         rootEl: this.el
       });
     },
-    _delegateViewEvents(view = this) {
-      if (!this.events && !this.triggers) {
+    _delegateViewEvents(view = this, events) {
+      if (!events && !this.events && !this.triggers) {
         return;
       }
       const uiBindings = this._getUIBindings();
       const delegates = [];
-      this._delegateEvents(delegates, uiBindings);
+      this._delegateEvents(delegates, uiBindings, events);
       this._delegateTriggers(delegates, uiBindings, view);
       for (let index = 0; index < delegates.length; index += 2) {
         this._delegate(delegates[index], delegates[index + 1]);
       }
     },
-    _delegateEvents(delegates, uiBindings) {
-      if (!this.events) {
+    _delegateEvents(delegates, uiBindings, events) {
+      const eventMap = events || getValue(this, 'events');
+      if (!eventMap) {
         return;
       }
-      eachOwn(getValue(this, 'events'), (handler, key) => {
+      eachOwn(eventMap, (handler, key) => {
         handler = resolveMethod(this, handler, key);
         delegates.push(handler.bind(this), this.normalizeUIString(key, uiBindings));
       });
@@ -1693,6 +1697,24 @@
     _isAttached: false,
     isAttached() {
       return !!this._isAttached;
+    },
+    delegateEvents(events) {
+      if (this._isDestroyed || this._isDestroying) {
+        return this;
+      }
+      this.undelegateEvents();
+      this._buildEventProxies();
+      this._delegateViewEvents(this, events);
+      this._setBehaviorElements();
+      return this;
+    },
+    undelegateEvents() {
+      if (this._isDestroyed || this._isDestroying) {
+        return this;
+      }
+      this._undelegateViewEvents();
+      this._undelegateBehaviorViewEvents();
+      return this;
     },
     delegateEntityEvents() {
       this._delegateEntityEvents(this.model, this.collection);
@@ -2342,20 +2364,19 @@
       }
       const el = this._validateEl(element);
       const wrappedEl = this.Dom.wrapEl && this.Dom.wrapEl(el);
-      this._undelegateViewEvents();
+      this.undelegateEvents();
       this.el = el;
       if (this.Dom.wrapEl) {
         this.$el = wrappedEl;
       } else {
         delete this.$el;
       }
-      this._setBehaviorElements();
       this._isRendered = this.Dom.hasContents(this.el);
       this._isAttached = this._isElAttached();
       if (this._isRendered) {
         this.bindUIElements();
       }
-      this._delegateViewEvents();
+      this.delegateEvents();
       return this;
     },
     render() {
@@ -2930,16 +2951,15 @@
       }
       const el = this._validateEl(element);
       const wrappedEl = this.Dom.wrapEl && this.Dom.wrapEl(el);
-      this._undelegateViewEvents();
+      this.undelegateEvents();
       this.el = el;
       if (this.Dom.wrapEl) {
         this.$el = wrappedEl;
       } else {
         delete this.$el;
       }
-      this._setBehaviorElements();
       this._isAttached = this._isElAttached();
-      this._delegateViewEvents();
+      this.delegateEvents();
       return this;
     },
     render() {

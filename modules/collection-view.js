@@ -346,18 +346,17 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     const el = this._validateEl(element);
     const wrappedEl = this.Dom.wrapEl && this.Dom.wrapEl(el);
 
-    this._undelegateViewEvents();
+    this.undelegateEvents();
     this.el = el;
     if (this.Dom.wrapEl) {
       this.$el = wrappedEl;
     } else {
       delete this.$el;
     }
-    this._setBehaviorElements();
 
     this._isAttached = this._isElAttached();
 
-    this._delegateViewEvents();
+    this.delegateEvents();
 
     return this;
   },

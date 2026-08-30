@@ -99,6 +99,26 @@ const ViewMixin = {
     return !!this._isAttached;
   },
 
+  delegateEvents(events) {
+    if (this._isDestroyed || this._isDestroying) { return this; }
+
+    this.undelegateEvents();
+    this._buildEventProxies();
+    this._delegateViewEvents(this, events);
+    this._setBehaviorElements();
+
+    return this;
+  },
+
+  undelegateEvents() {
+    if (this._isDestroyed || this._isDestroying) { return this; }
+
+    this._undelegateViewEvents();
+    this._undelegateBehaviorViewEvents();
+
+    return this;
+  },
+
   // Handle `modelEvents`, and `collectionEvents` configuration
   delegateEntityEvents() {
     this._delegateEntityEvents(this.model, this.collection);

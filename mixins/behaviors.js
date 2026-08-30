@@ -98,6 +98,10 @@ export default {
     eachBehavior(this._behaviors, behavior => behavior.setElement());
   },
 
+  _undelegateBehaviorViewEvents() {
+    eachBehavior(this._behaviors, behavior => behavior._undelegateViewEvents());
+  },
+
   // delegate modelEvents and collectionEvents
   _delegateBehaviorEntityEvents() {
     eachBehavior(this._behaviors, behavior => behavior.delegateEntityEvents());

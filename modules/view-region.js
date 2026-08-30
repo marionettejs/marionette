@@ -812,14 +812,13 @@ assignOwn(View.prototype, ViewMixin, RegionsMixin, {
     const el = this._validateEl(element);
     const wrappedEl = this.Dom.wrapEl && this.Dom.wrapEl(el);
 
-    this._undelegateViewEvents();
+    this.undelegateEvents();
     this.el = el;
     if (this.Dom.wrapEl) {
       this.$el = wrappedEl;
     } else {
       delete this.$el;
     }
-    this._setBehaviorElements();
 
     this._isRendered = this.Dom.hasContents(this.el);
     this._isAttached = this._isElAttached();
@@ -828,7 +827,7 @@ assignOwn(View.prototype, ViewMixin, RegionsMixin, {
       this.bindUIElements();
     }
 
-    this._delegateViewEvents();
+    this.delegateEvents();
 
     return this;
   },
