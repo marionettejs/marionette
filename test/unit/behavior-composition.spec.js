@@ -4,7 +4,7 @@ import DelegateEntityEventsMixin from '../../mixins/delegate-entity-events';
 import UIMixin from '../../mixins/ui';
 import ViewEventsMixin from '../../mixins/view-events';
 import extend from '../../utils/extend';
-import { setEventDelegator } from '../../config/event-delegator';
+import { setEventDelegator } from '../../runtime/event-delegator';
 
 const mixins = [CommonMixin, DelegateEntityEventsMixin, UIMixin, ViewEventsMixin];
 

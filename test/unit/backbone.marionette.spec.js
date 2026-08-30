@@ -17,12 +17,12 @@ import Behavior from '../../modules/behavior';
 import Region from '../../modules/region';
 import Application from '../../modules/application';
 
-import DomApi from '../../config/dom';
+import DomApi from '../../runtime/dom-api';
 
 import {
   isEnabled,
   setEnabled
-} from '../../config/features';
+} from '../../runtime/features';
 
 
 describe('backbone.marionette', function() {

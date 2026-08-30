@@ -1,4 +1,4 @@
-import { setRenderer } from '../../../config/renderer';
+import { setRenderer } from '../../../runtime/renderer';
 
 describe('#setRenderer', function() {
   let MyObject;

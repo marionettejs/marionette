@@ -1,7 +1,7 @@
 import { JSDOM } from 'jsdom';
 import { vi } from 'vitest';
 
-import EventDelegator, { setEventDelegator } from '../../../config/event-delegator';
+import EventDelegator, { setEventDelegator } from '../../../runtime/event-delegator';
 import View from '../../../modules/view';
 
 describe('EventDelegator', function() {

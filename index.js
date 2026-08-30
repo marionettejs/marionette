@@ -27,13 +27,13 @@ import Region from './modules/region.js';
 import Application from './modules/application.js';
 import Radio from './modules/radio.js';
 
-import DomApi from './config/dom.js';
+import DomApi from './runtime/dom-api.js';
 import MarionetteError from './utils/error.js';
 
 import {
   isEnabled,
   setEnabled
-} from './config/features.js';
+} from './runtime/features.js';
 
 // Utilities
 

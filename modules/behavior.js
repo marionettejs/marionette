@@ -14,7 +14,7 @@ import CommonMixin from '../mixins/common.js';
 import DelegateEntityEventsMixin from '../mixins/delegate-entity-events.js';
 import UIMixin from '../mixins/ui.js';
 import ViewEventsMixin from '../mixins/view-events.js';
-import { setEventDelegator } from '../config/event-delegator.js';
+import { setEventDelegator } from '../runtime/event-delegator.js';
 
 const ClassOptions = [
   'collectionEvents',

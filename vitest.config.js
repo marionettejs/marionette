@@ -11,11 +11,11 @@ export default defineConfig({
       reporter: ['text', 'html', 'lcov'],
       include: [
         'backbone.js',
-        'config/**/*.js',
         'index.js',
         'jquery-dom-api.js',
         'mixins/**/*.js',
         'modules/**/*.js',
+        'runtime/**/*.js',
         'utils/**/*.js',
         'version.js'
       ],

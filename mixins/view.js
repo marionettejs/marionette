@@ -11,8 +11,8 @@ import DelegateEntityEventsMixin from './delegate-entity-events.js';
 import TemplateRenderMixin from './template-render.js';
 import UIMixin from './ui.js';
 import ViewEvents from './view-events.js';
-import { isEnabled } from '../config/features.js';
-import DomApi from '../config/dom.js';
+import { isEnabled } from '../runtime/features.js';
+import DomApi from '../runtime/dom-api.js';
 
 const classErrorName = 'ViewError';
 

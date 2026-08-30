@@ -1,5 +1,5 @@
-import { isEnabled } from '../config/features.js';
-import EventDelegator from '../config/event-delegator.js';
+import { isEnabled } from '../runtime/features.js';
+import EventDelegator from '../runtime/event-delegator.js';
 import { resolveMethod } from '../modules/common/normalize-methods.js';
 import eachOwn from '../utils/each-own.js';
 import getValue from '../utils/get-value.js';

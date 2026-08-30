@@ -1,5 +1,5 @@
 import Backbone from 'backbone';
-import { setEnabled } from '../../config/features';
+import { setEnabled } from '../../runtime/features';
 import View from '../../modules/view';
 
 describe('view triggers', function() {
