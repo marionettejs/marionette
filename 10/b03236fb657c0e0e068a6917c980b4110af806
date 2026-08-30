@@ -1,0 +1,43 @@
+docs/features.md
+  s_d6429951fb9231::t_1445f20598189f 22,29-32,37,39
+test/unit/runtime/features.spec.js
+  s_d6429951fb9231::t_ab71fdc7092e08 1,5-19,28-49,64-72
+  s_d6429951fb9231::t_0a19c7296c4db6 2,21-25,50-63
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_1445f20598189f 26
+changelog.md
+  s_d6429951fb9231::t_0a19c7296c4db6 8-9
+runtime/features.js
+  s_d6429951fb9231::t_0a19c7296c4db6 16,19-26
+  s_d6429951fb9231::t_1445f20598189f 1-2,17-18,27-29
+config/diagnostics/catalog.json
+  s_d6429951fb9231::t_1445f20598189f 452-469
+dist/marionette.cjs
+  s_d6429951fb9231::t_523f5e35d4db27 1406-1417
+dist/marionette.js
+  s_d6429951fb9231::t_4cebe9b3a95fa0 1402-1413
+dist/marionette.min.js
+  s_d6429951fb9231::t_c06812c4fbf818 1
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_d5f1e6655659f4 1
+dist/marionette.umd.js
+  s_d6429951fb9231::t_ef4f0b49d19009 1413-1424
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_23157bc49ba5a5 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "10b03236fb657c0e0e068a6917c980b4110af806",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
