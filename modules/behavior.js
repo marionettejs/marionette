@@ -6,8 +6,9 @@
 // Behaviors allow you to blackbox View specific interactions
 // into portable logical chunks, keeping your views simple and your code DRY.
 
-import { extend as _extend, uniqueId, result } from 'underscore';
+import { extend as _extend, result } from 'underscore';
 import extend from '../utils/extend.js';
+import uniqueId from '../utils/unique-id.js';
 import CommonMixin from '../mixins/common.js';
 import DelegateEntityEventsMixin from '../mixins/delegate-entity-events.js';
 import UIMixin from '../mixins/ui.js';

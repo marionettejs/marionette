@@ -69,5 +69,37 @@ describe('marionette object', function() {
 
       expect(object.onBar).to.have.been.calledOnce.and.calledWith(options);
     });
+
+    it('preserves constructor order, receiver, and initialize arguments', function() {
+      const calls = [];
+      const cidPrefix = {
+        [Symbol.toPrimitive](hint) {
+          calls.push(['cidPrefix', hint]);
+          return 'ordered';
+        }
+      };
+      const OrderedObject = MnObject.extend({
+        cidPrefix,
+        _setOptions(...args) {
+          calls.push(['setOptions', this, args]);
+        },
+        _initRadio(...args) {
+          calls.push(['initRadio', this, args]);
+        },
+        initialize(...args) {
+          calls.push(['initialize', this, args]);
+        }
+      });
+      const orderedOptions = { ordered: true };
+      const orderedObject = new OrderedObject(orderedOptions, 'extra');
+
+      expect(calls).to.deep.equal([
+        ['setOptions', orderedObject, [orderedOptions, ['channelName', 'radioEvents', 'radioRequests']]],
+        ['cidPrefix', 'default'],
+        ['initRadio', orderedObject, []],
+        ['initialize', orderedObject, [orderedOptions, 'extra']]
+      ]);
+      expect(orderedObject.cid).to.match(/^ordered\d+$/);
+    });
   });
 });

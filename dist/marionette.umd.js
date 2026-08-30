@@ -436,6 +436,12 @@
     return onceCallback;
   }
 
+  let idCounter = 0;
+  function uniqueId(prefix) {
+    const id = `${++idCounter}`;
+    return prefix ? prefix + id : id;
+  }
+
   const onApi = function ({
     events,
     name,
@@ -531,12 +537,12 @@
     return events;
   };
   const getListener = function (obj, listenerObj) {
-    const listeneeId = obj._rdListenId || (obj._rdListenId = underscore.uniqueId('l'));
+    const listeneeId = obj._rdListenId || (obj._rdListenId = uniqueId('l'));
     obj._rdEvents = obj._rdEvents || {};
     const listeningTo = listenerObj._rdListeningTo || (listenerObj._rdListeningTo = {});
     const listener = listeningTo[listeneeId];
     if (!listener) {
-      const listenerId = listenerObj._rdListenId || (listenerObj._rdListenId = underscore.uniqueId('l'));
+      const listenerId = listenerObj._rdListenId || (listenerObj._rdListenId = uniqueId('l'));
       listeningTo[listeneeId] = {
         obj,
         listeneeId,
@@ -992,12 +998,12 @@
   const ClassOptions$3 = ['channelName', 'radioEvents', 'radioRequests'];
   const MarionetteObject = function (options) {
     this._setOptions(options, ClassOptions$3);
-    this.cid = underscore.uniqueId(this.cidPrefix);
+    this.cid = uniqueId(this.cidPrefix);
     this._initRadio();
     this.initialize.apply(this, arguments);
   };
   MarionetteObject.extend = extend;
-  underscore.extend(MarionetteObject.prototype, CommonMixin, DestroyMixin, RadioMixin, {
+  assignOwn(MarionetteObject.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     cidPrefix: 'mno'
   });
 
@@ -1708,7 +1714,7 @@
   const RegionClassOptions = ['allowMissingEl', 'parentEl', 'replaceElement'];
   const Region = function (options) {
     this._setOptions(options, RegionClassOptions);
-    this.cid = underscore.uniqueId(this.cidPrefix);
+    this.cid = uniqueId(this.cidPrefix);
     this._initEl = this.el = this.getOption('el');
     this._validateEl(this.el);
     this.initialize.apply(this, arguments);
@@ -2158,7 +2164,7 @@
     return children;
   }
   const View = function (options) {
-    this.cid = underscore.uniqueId(this.cidPrefix);
+    this.cid = uniqueId(this.cidPrefix);
     this._setOptions(options, ViewClassOptions);
     this.preinitialize.apply(this, arguments);
     this._initViewEvents();
@@ -2547,7 +2553,7 @@
   }
   const ClassOptions$2 = ['attributes', 'behaviors', 'childView', 'childViewContainer', 'childViewEventPrefix', 'childViewEvents', 'childViewOptions', 'childViewTriggers', 'className', 'collection', 'collectionEvents', 'el', 'emptyView', 'emptyViewOptions', 'events', 'id', 'model', 'modelEvents', 'sortWithCollection', 'tagName', 'template', 'templateContext', 'triggers', 'ui', 'viewComparator', 'viewFilter'];
   const CollectionView = function (options) {
-    this.cid = underscore.uniqueId(this.cidPrefix);
+    this.cid = uniqueId(this.cidPrefix);
     this._setOptions(options, ClassOptions$2);
     this.preinitialize.apply(this, arguments);
     this._initViewEvents();
@@ -3099,7 +3105,7 @@
   const Behavior = function (options, view) {
     this.view = view;
     this._setOptions(options, ClassOptions$1);
-    this.cid = underscore.uniqueId(this.cidPrefix);
+    this.cid = uniqueId(this.cidPrefix);
     this._initViewEvents();
     this.el = view.el;
     this.ui = underscore.extend({}, underscore.result(this, 'ui'), underscore.result(view, 'ui'));
@@ -3153,13 +3159,13 @@
   const ClassOptions = ['channelName', 'radioEvents', 'radioRequests', 'region', 'regionClass'];
   const Application = function (options) {
     this._setOptions(options, ClassOptions);
-    this.cid = underscore.uniqueId(this.cidPrefix);
+    this.cid = uniqueId(this.cidPrefix);
     this._initRegion();
     this._initRadio();
     this.initialize.apply(this, arguments);
   };
   Application.extend = extend;
-  underscore.extend(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
+  assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     cidPrefix: 'mna',
     start(options) {
       this.triggerMethod('before:start', this, options);

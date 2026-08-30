@@ -1,4 +1,4 @@
-import { each, keys, reduce, uniqueId, extend as extend$1, map, without, result, isFunction, isString as isString$1, isObject, partial, isEmpty, matches } from 'underscore';
+import { each, keys, reduce, extend as extend$1, map, without, result, isFunction, isString as isString$1, isObject, partial, isEmpty, matches } from 'underscore';
 
 const proxy = function (method) {
   return function (context, ...args) {
@@ -425,6 +425,12 @@ function onceWrap(callback, offCallback) {
   }
   onceCallback._callback = callback;
   return onceCallback;
+}
+
+let idCounter = 0;
+function uniqueId(prefix) {
+  const id = `${++idCounter}`;
+  return prefix ? prefix + id : id;
 }
 
 const onApi = function ({
@@ -988,7 +994,7 @@ const MarionetteObject = function (options) {
   this.initialize.apply(this, arguments);
 };
 MarionetteObject.extend = extend;
-extend$1(MarionetteObject.prototype, CommonMixin, DestroyMixin, RadioMixin, {
+assignOwn(MarionetteObject.prototype, CommonMixin, DestroyMixin, RadioMixin, {
   cidPrefix: 'mno'
 });
 
@@ -3150,7 +3156,7 @@ const Application = function (options) {
   this.initialize.apply(this, arguments);
 };
 Application.extend = extend;
-extend$1(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
+assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
   cidPrefix: 'mna',
   start(options) {
     this.triggerMethod('before:start', this, options);

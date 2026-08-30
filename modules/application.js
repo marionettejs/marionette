@@ -1,8 +1,9 @@
 // Application
 // -----------
 
-import { extend as _extend, uniqueId } from 'underscore';
+import { assignOwn } from '../utils/assign-in.js';
 import extend from '../utils/extend.js';
+import uniqueId from '../utils/unique-id.js';
 import buildRegion from './common/build-region.js';
 import CommonMixin from '../mixins/common.js';
 import DestroyMixin from '../mixins/destroy.js';
@@ -30,7 +31,7 @@ Application.extend = extend;
 // Application Methods
 // --------------
 
-_extend(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
+assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
   cidPrefix: 'mna',
 
   // Kick off all of the application's processes.
