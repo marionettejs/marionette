@@ -41,7 +41,7 @@ for (const source of ['const packageName = \'underscore\';', 'import \'./undersc
   assert.doesNotMatch(source, underscoreImport);
 }
 
-for (const file of readdirSync(resolve(root, 'runtime'))) {
+for (const file of readdirSync(resolve(root, 'runtime'), { recursive: true })) {
   if (file.endsWith('.js')) {
     productionFiles.push(`runtime/${file}`);
   }
