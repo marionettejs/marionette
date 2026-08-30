@@ -74,7 +74,7 @@ It returns to `false` when `show` completes. `isReplaced()` independently report
 whether `replaceElement` has temporarily replaced the Region element; it does not
 change which lifecycle operations are valid.
 
-| Operation | Empty Region | Occupied Region | Destroyed Region |
+| Operation | Empty Region | Occupied Region | Destruction begun |
 | --- | --- | --- | --- |
 | `show(view)` when the Region element resolves | Renders the View if needed, shows it, and enters occupied. | Showing the same View is a no-op. Showing a different View destroys the old View and swaps to the new one. | Returns the Region without inspecting or changing the caller-owned View or resolving the element. |
 | `detachView()` | Returns `undefined`; state is unchanged. | Detaches and returns the live View, then enters empty. | Returns `undefined` without changing state or DOM or emitting lifecycle events. |

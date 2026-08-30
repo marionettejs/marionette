@@ -154,6 +154,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   // Internal method. This checks for any changes in the order of the collection.
   // If the index of any view doesn't match, it will re-sort.
   _onCollectionSort(collection, { add, merge, remove }) {
+    if (this._isDestroying || this._isDestroyed) { return; }
+
     if (!this.sortWithCollection || this.viewComparator === false) {
       return;
     }
@@ -168,6 +170,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   },
 
   _onCollectionReset() {
+    if (this._isDestroying || this._isDestroyed) { return; }
+
     this._destroyChildren();
 
     this._addChildModels(this.collection.models);
@@ -177,6 +181,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
   // Handle collection update model additions and  removals
   _onCollectionUpdate(collection, options) {
+    if (this._isDestroying || this._isDestroyed) { return; }
+
     const changes = options.changes;
 
     // Remove first since it'll be a shorter array lookup.

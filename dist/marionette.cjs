@@ -2782,6 +2782,9 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     merge,
     remove
   }) {
+    if (this._isDestroying || this._isDestroyed) {
+      return;
+    }
     if (!this.sortWithCollection || this.viewComparator === false) {
       return;
     }
@@ -2791,11 +2794,17 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     this.sort();
   },
   _onCollectionReset() {
+    if (this._isDestroying || this._isDestroyed) {
+      return;
+    }
     this._destroyChildren();
     this._addChildModels(this.collection.models);
     this.sort();
   },
   _onCollectionUpdate(collection, options) {
+    if (this._isDestroying || this._isDestroyed) {
+      return;
+    }
     const changes = options.changes;
     const removedViews = changes.removed.length && this._removeChildModels(changes.removed);
     this._addedViews = changes.added.length && this._addChildModels(changes.added);

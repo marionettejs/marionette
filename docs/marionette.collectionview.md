@@ -151,6 +151,9 @@ attachment events and automatic child `isAttached()` updates.
 | `setElement(el)` once destruction begins | Returns the same CollectionView before inspecting or replacing the element or changing delegation, DOM, or lifecycle state. Calls during `before:destroy` and repeated calls after destruction are no-ops. | Existing child state is unchanged. |
 | `addChildView(view)` once destruction begins | Returns the supplied View without inspecting it, the index, or options or changing events, ownership, DOM, or lifecycle state. Calls during `before:destroy` and repeated calls after destruction are the same no-op. | The supplied View remains unchanged and can be added to a live owner. |
 
+Collection `sort`, `reset`, and `update` events raised reentrantly during destruction
+do not rebuild, add, remove, sort, render, or destroy additional child Views.
+
 A View returned by `detachChildView()` is no longer managed by the
 `CollectionView`; another owner may show it, or the caller must destroy it.
 Other operations on an already destroyed `CollectionView` remain outside this

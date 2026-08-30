@@ -1,3 +1,4 @@
+import Backbone from 'backbone';
 import CollectionView from '../../modules/collection-view';
 import Region from '../../modules/region';
 import View from '../../modules/view';
@@ -11,6 +12,28 @@ function state(view) {
 }
 
 describe('#addChildView after destruction begins', function() {
+  it('ignores collection additions triggered by child destruction', function() {
+    const collection = new Backbone.Collection([{ id: 1 }]);
+    const ChildView = View.extend({ template: () => '<span>Child</span>' });
+    const parent = new CollectionView({ childView: ChildView, collection, template: false });
+    parent.render();
+    const child = parent.children.findByModel(collection.at(0));
+    const beforeAdd = this.sinon.spy();
+    const add = this.sinon.spy();
+    parent.on('before:add:child', beforeAdd);
+    parent.on('add:child', add);
+    child.on('destroy', () => collection.add({ id: 2 }));
+
+    expect(parent.destroy()).to.equal(parent);
+
+    expect(collection).to.have.lengthOf(2);
+    expect(beforeAdd).to.not.have.been.called;
+    expect(add).to.not.have.been.called;
+    expect(parent._children).to.have.lengthOf(0);
+    expect(parent.children).to.have.lengthOf(0);
+    expect(state(parent)).to.deep.equal({ attached: false, destroyed: true, rendered: false });
+  });
+
   it('returns the child during before:destroy without changing the parent or child', function() {
     const parent = new CollectionView({ template: false });
     const child = new View({ template: () => '<span>Child</span>' });
