@@ -1121,7 +1121,7 @@ describe('region', function() {
 
       expect(lifecycle).to.deep.equal([['initialize', '#foo']]);
       expect(deferredRegion.el).to.equal('#foo');
-      expect(deferredRegion._ensureElement()).to.be.true;
+      expect(deferredRegion.empty()).to.equal(deferredRegion);
       expect(lifecycle).to.deep.equal([
         ['initialize', '#foo'],
         ['getEl', '#foo']

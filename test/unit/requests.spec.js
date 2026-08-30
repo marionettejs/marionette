@@ -52,6 +52,7 @@ describe('Requests', function() {
     it('retains earlier public registrations when a later split entry throws', function() {
       const requests = { ...Requests };
       Object.defineProperty(requests, 'channelName', {
+        configurable: true,
         get() {
           throw new Error('channel lookup failed');
         }
@@ -59,7 +60,8 @@ describe('Requests', function() {
 
       expect(() => requests.reply('first first', 'response'))
         .to.throw('channel lookup failed');
-      expect(requests._rdRequests).to.have.own.property('first');
+      delete requests.channelName;
+      expect(requests.request('first')).to.equal('response');
     });
 
     it('retains earlier in-place mutations when a later reply throws', function() {
@@ -158,7 +160,6 @@ describe('Requests', function() {
       });
 
       expect(() => requests.replyOnce('foo', 'response')).to.not.throw();
-      expect(requests._rdRequests).to.have.own.property('foo');
       expect(() => requests.request('foo'))
         .to.throw('stopReplying lookup failed');
     });

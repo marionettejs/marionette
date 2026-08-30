@@ -369,10 +369,10 @@ describe('Events Mixin', function() {
     });
   });
 
-  describe('Backbone.Events aliases', function() {
-    it('aliases bind and unbind to on and off', function() {
-      expect(EventsMixin.bind).to.equal(EventsMixin.on);
-      expect(EventsMixin.unbind).to.equal(EventsMixin.off);
+  describe('legacy Backbone.Events aliases', function() {
+    it('does not expose bind or unbind', function() {
+      expect(EventsMixin.bind).to.be.undefined;
+      expect(EventsMixin.unbind).to.be.undefined;
     });
   });
 });

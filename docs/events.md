@@ -52,9 +52,7 @@ listener.stopListening(emitter);
 | Method | Purpose |
 | --- | --- |
 | `on(name, callback, context?)` | Register a callback on this object. |
-| `bind(name, callback, context?)` | Alias of `on`. |
 | `off(name?, callback?, context?)` | Remove matching callbacks registered with `on`. |
-| `unbind(name?, callback?, context?)` | Alias of `off`. |
 | `trigger(name, ...args)` | Trigger one or more named events. |
 | `once(name, callback, context?)` | Register a callback that is removed after its first call. |
 | `listenTo(object, name, callback)` | Listen to another emitter while tracking the relationship on this object. |

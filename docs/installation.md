@@ -121,9 +121,9 @@ setDomApi(JQueryDomApi);
 ```
 
 The adapter imports `jquery`, so `jquery` is only required when you install the
-adapter. The adapter intentionally does not restore `view.$el`; legacy apps
-that still depend on `$el` should set it in their own view layer. See the
-[upgrade guide](../upgradeGuide.md) for the migration entries on jQuery DOM
+adapter. It restores `$el` on View, CollectionView, and Behavior instances and
+keeps the wrapper synchronized with the owning View's `setElement()` calls. See
+the [upgrade guide](../upgradeGuide.md) for the migration entries on jQuery DOM
 compatibility and the `detachContents` policy.
 
 ## Quick start using NPM and Webpack

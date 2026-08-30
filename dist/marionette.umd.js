@@ -740,8 +740,6 @@
     },
     triggerMethod: triggerMethod$1
   };
-  Events.bind = Events.on;
-  Events.unbind = Events.off;
 
   function getValue(object, property, fallback) {
     const value = object == null ? undefined : object[property];
