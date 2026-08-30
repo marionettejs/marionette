@@ -1,5 +1,6 @@
 import { execFileSync } from 'child_process';
-import { existsSync, mkdirSync, readdirSync, rmSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync } from 'fs';
+import { tmpdir } from 'os';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -84,19 +85,32 @@ try {
   }
 
   for (const fixtureName of fixtures) {
-    const fixtureDir = resolve(__dirname, fixtureName);
+    const fixtureSourceDir = resolve(__dirname, fixtureName);
+    const externalFixture = fixtureName === 'core-no-underscore';
 
-    if (!existsSync(resolve(fixtureDir, 'package.json'))) {
+    if (!existsSync(resolve(fixtureSourceDir, 'package.json'))) {
       throw new Error(`Fixture is missing package.json: ${fixtureName}`);
     }
 
-    cleanFixture(fixtureDir);
+    const fixtureDir = externalFixture ?
+      mkdtempSync(resolve(tmpdir(), 'marionette-core-no-underscore-')) : fixtureSourceDir;
+
     try {
+      if (externalFixture) {
+        copyFileSync(resolve(fixtureSourceDir, 'package.json'), resolve(fixtureDir, 'package.json'));
+        copyFileSync(resolve(fixtureSourceDir, 'validate.mjs'), resolve(fixtureDir, 'validate.mjs'));
+      }
+
+      cleanFixture(fixtureDir);
       runNpm(['install'], { cwd: fixtureDir });
       runNpm(['install', '--no-save', tarballPath], { cwd: fixtureDir });
       runNpm(['run', 'validate'], { cwd: fixtureDir });
     } finally {
-      cleanFixture(fixtureDir);
+      if (externalFixture) {
+        rmSync(fixtureDir, { force: true, recursive: true });
+      } else {
+        cleanFixture(fixtureDir);
+      }
     }
   }
 } finally {

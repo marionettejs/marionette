@@ -3,8 +3,5 @@
   "type": "commonjs",
   "scripts": {
     "validate": "node validate.cjs"
-  },
-  "dependencies": {
-    "underscore": "^1.13.0"
   }
 }

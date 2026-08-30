@@ -2,12 +2,7 @@ import babel from '@rollup/plugin-babel';
 import json from '@rollup/plugin-json';
 import terser from '@rollup/plugin-terser';
 
-const globals = {
-  underscore: '_',
-  jquery: '$',
-};
-
-const shimExternal = ['underscore', 'backbone', 'marionette'];
+const shimExternal = ['backbone', 'marionette'];
 const shimMainExternal = {
   name: 'shim-main-external',
   resolveId(source, importer) {
@@ -37,7 +32,6 @@ export default [
   },
   {
     input: 'index.js',
-    external: ['underscore'],
     output: [
       {
         file: 'dist/marionette.umd.js',
@@ -45,7 +39,6 @@ export default [
         name: 'Marionette',
         exports: 'named',
         sourcemap: true,
-        globals,
       },
       {
         file: 'dist/marionette.js',
@@ -64,7 +57,6 @@ export default [
   },
   {
     input: 'index.js',
-    external: ['underscore'],
     output: [
       {
         file: 'dist/marionette.min.js',
@@ -72,7 +64,6 @@ export default [
         name: 'Marionette',
         exports: 'named',
         sourcemap: true,
-        globals,
       },
     ],
     plugins: [

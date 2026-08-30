@@ -4,12 +4,14 @@ See the [v4-to-v5 compatibility ledger](docs/migration-from-v4.md) for the
 current public behavior boundary. Final migration documentation is tracked in
 [issue #147](https://github.com/marionettejs/marionette/issues/147).
 
-## Peer dependency requirements
+## Underscore is no longer a peer dependency
 
-- Underscore must be `1.13.0` or later. Marionette v5 publishes named ESM imports
-  from `underscore`, and Underscore versions before 1.13 are CJS-only with no
-  package `exports` map, so modern Node and bundler ESM resolution cannot satisfy
-  the named imports.
+- Marionette v5 core does not import or declare Underscore as a peer dependency.
+- Remove an explicit Underscore installation if it existed only for Marionette.
+  Keep it as an application dependency when your own code uses it, such as an
+  `_.template` supplied to a View.
+- The optional Backbone shim relies on Backbone's own declared Underscore
+  dependency.
 
 ## View `el` is element-only
 
