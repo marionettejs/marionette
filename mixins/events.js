@@ -9,8 +9,7 @@ import triggerMethod from '../modules/common/trigger-method.js';
 const objectKeys = Object.keys;
 
 function getKeys(object) {
-  const type = typeof object;
-  return object != null && (type === 'object' || type === 'function') ? objectKeys(object) : [];
+  return object == null ? [] : objectKeys(object);
 }
 
 // A module that can be mixed in to *any object* in order to provide it with

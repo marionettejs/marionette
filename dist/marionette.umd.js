@@ -444,8 +444,7 @@
 
   const objectKeys$3 = Object.keys;
   function getKeys$1(object) {
-    const type = typeof object;
-    return object != null && (type === 'object' || type === 'function') ? objectKeys$3(object) : [];
+    return object == null ? [] : objectKeys$3(object);
   }
   const onApi = function ({
     events,
