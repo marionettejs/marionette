@@ -276,12 +276,16 @@ The full lowercase head SHA prevents an approval from surviving a code change. T
 approved path list must exactly match all existing artifacts above the strict
 greater-than-one-percent threshold. New subpaths and new artifact path/size pairs must
 exactly match the additive candidate contract and measured report. A candidate may
-only add runtime artifact and production graph entries: it cannot change the base
-thresholds, allowlist, baseline, ceiling, forbidden modules, resource contract, timing
-contract, or any existing artifact or graph. The only permitted toolchain transition is
-a valid SHA-256 revision at `toolchain.releaseProfile.sha256`; every other toolchain
-field remains exact-base, and the candidate report must prove that digest matches the
-actual candidate release-profile file. New artifact Phase 0 baselines remain zero, so
+only add runtime artifact and production graph entries. It may also introduce a
+well-formed `forbiddenExternalImports` list or add entries to an existing list, but it
+cannot remove or replace an existing forbidden import. This is a tightening-only
+transition: Phase 0 `baselineExternalImports` remain immutable historical observations,
+not current allowlists. A candidate cannot change the base thresholds, allowlist,
+baseline, ceiling, forbidden modules, resource contract, timing contract, or any
+existing artifact or graph. The only permitted toolchain transition is a valid SHA-256
+revision at `toolchain.releaseProfile.sha256`; every other toolchain field remains
+exact-base, and the candidate report must prove that digest matches the actual
+candidate release-profile file. New artifact Phase 0 baselines remain zero, so
 their full size counts against the original absolute ceiling; after adoption, the exact
 merged artifact becomes the comparison base for later pull requests. Unmeasured graphs,
 forbidden modules, removed or renamed base entries, non-integer sizes, report-contract
@@ -326,6 +330,12 @@ additive change to the authority contract. New-subpath results carry
 cost therefore require an exact-head approval record. The threshold, approver policy,
 parser, contract validator, and evaluator all come from the pull request's exact base,
 so the first enforcement change cannot authorize itself with candidate-owned policy.
+The bundle tool keeps `forbiddenExternalImports` optional so exact-base contracts from
+before this tightening remain valid. When a candidate introduces the field, the
+exact-base tool requires a sorted, unique, non-empty string list and
+fails every measured production graph that statically or dynamically imports a
+listed package or any rooted subpath of it. Similarly prefixed packages are not
+matched.
 
 ## Hosted timing
 

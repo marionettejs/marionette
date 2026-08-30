@@ -9,6 +9,7 @@ import { describe, test } from 'node:test';
 import {
   collectRuntimePaths,
   createReport,
+  findForbiddenExternalImports,
   findForbiddenModules,
   measure,
   resolveRollupInput,
@@ -181,6 +182,49 @@ describe('performance contract validation', () => {
     ));
   });
 
+  test('keeps forbidden external imports optional and validates canonical candidate lists', () => {
+    const packageJson = {
+      exports: { '.': { import: './dist/index.mjs' } },
+    };
+    const absent = contractFor();
+
+    assert.deepEqual(validateContract(absent, packageJson, ['index.mjs']), []);
+
+    const canonical = contractFor();
+    canonical.forbiddenExternalImports = ['jquery', 'underscore'];
+    assert.deepEqual(validateContract(canonical, packageJson, ['index.mjs']), []);
+    const large = contractFor();
+    large.forbiddenExternalImports = Array.from(
+      { length: 51 },
+      (_, index) => `package-${String(index).padStart(2, '0')}`
+    );
+    assert.deepEqual(validateContract(large, packageJson, ['index.mjs']), []);
+    assert.deepEqual(
+      findForbiddenExternalImports([
+        'backbone',
+        'jquery',
+        'underscore',
+        'underscore/modules/each.js',
+        'underscore-plus',
+      ], canonical),
+      ['jquery', 'underscore', 'underscore/modules/each.js']
+    );
+
+    for (const malformed of [
+      'underscore',
+      [],
+      [''],
+      ['underscore', 'jquery'],
+      ['underscore', 'underscore'],
+    ]) {
+      const contract = contractFor();
+      contract.forbiddenExternalImports = malformed;
+      assert.ok(validateContract(contract, packageJson, ['index.mjs']).includes(
+        'forbiddenExternalImports must be a sorted, unique array of non-empty strings'
+      ));
+    }
+  });
+
   test('resolves an amended active ceiling from the append-only ledger', () => {
     const contract = contractFor();
     contract.baseline.absoluteCeilingBytes = 12;
@@ -269,6 +313,14 @@ describe('performance contract validation', () => {
       assert.equal(result.artifacts.find(artifact => artifact.path === 'dist/untracked.mjs').status, 'untracked');
       assert.equal(result.graphs.find(graph => graph.subpath === '.').status, 'measurement-error');
       assert.equal(result.graphs.find(graph => graph.subpath === './feature').status, 'unconfigured');
+      assert.deepEqual(
+        result.graphs.find(graph => graph.subpath === '.').forbiddenExternalImports,
+        []
+      );
+      assert.deepEqual(
+        result.graphs.find(graph => graph.subpath === './feature').forbiddenExternalImports,
+        []
+      );
     } finally {
       await rm(fixtureRoot, { recursive: true, force: true });
     }
@@ -333,6 +385,7 @@ describe('performance contract validation', () => {
       });
       assert.equal(result.graphs[0].status, 'measured');
       assert.deepEqual(result.graphs[0].modules, ['index.js']);
+      assert.deepEqual(result.graphs[0].forbiddenExternalImports, []);
 
       const baseReport = join(fixtureRoot, 'base.json');
       const currentReport = join(fixtureRoot, 'current.json');
@@ -693,6 +746,75 @@ describe('performance contract validation', () => {
       );
       assert.equal(enforced.status, 1);
       assert.match(enforced.stderr, /includes forbidden production modules: forbidden\.js/);
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
+  test('rejects forbidden dynamic imports without matching prefixed packages', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-external-'));
+    const contract = contractFor();
+    contract.productionGraphs = [{
+      subpath: '.',
+      input: 'index.js',
+      output: 'dist/index.mjs',
+      baselineModules: ['index.js'],
+      baselineExternalImports: [],
+    }];
+    contract.forbiddenExternalImports = ['underscore'];
+    const packageJson = {
+      type: 'module',
+      exports: { '.': { import: './dist/index.mjs' } },
+    };
+
+    try {
+      await mkdir(join(fixtureRoot, 'dist'));
+      await writeFile(join(fixtureRoot, 'package.json'), JSON.stringify(packageJson));
+      await writeFile(join(fixtureRoot, 'performance.json'), JSON.stringify(contract));
+      await writeFile(
+        join(fixtureRoot, 'index.js'),
+        'export const forbidden = import(\'underscore/modules/each.js\');\n' +
+          'export const allowed = import(\'underscore-plus\');\n'
+      );
+      await writeFile(join(fixtureRoot, 'dist/index.mjs'), 'export const value = 1;\n');
+      await writeFile(
+        join(fixtureRoot, 'rollup.config.mjs'),
+        'export default [{ input: \'index.js\', external: [\'underscore/modules/each.js\', \'underscore-plus\'], output: { file: \'dist/index.mjs\', format: \'es\' } }];\n'
+      );
+
+      const result = await measure({
+        root: fixtureRoot,
+        configPath: join(fixtureRoot, 'performance.json'),
+        checkToolchain: false,
+      });
+
+      assert.deepEqual(result.graphs[0].externalImports, []);
+      assert.deepEqual(result.graphs[0].phase0AddedExternalImports, []);
+      assert.deepEqual(result.graphs[0].forbiddenExternalImports, ['underscore/modules/each.js']);
+      assert.ok(result.violations.includes(
+        '. includes forbidden external imports: underscore/modules/each.js'
+      ));
+
+      const enforced = spawnSync(
+        process.execPath,
+        [
+          join(root, 'config/bundle-size.mjs'),
+          '--root', fixtureRoot,
+          '--config', join(fixtureRoot, 'performance.json'),
+          '--artifact-graph-only',
+          '--json',
+        ],
+        { encoding: 'utf8' }
+      );
+      assert.equal(enforced.status, 1);
+      assert.match(
+        enforced.stderr,
+        /includes forbidden external imports: underscore\/modules\/each\.js/
+      );
+      assert.deepEqual(
+        JSON.parse(enforced.stdout).graphs[0].forbiddenExternalImports,
+        ['underscore/modules/each.js']
+      );
     } finally {
       await rm(fixtureRoot, { recursive: true, force: true });
     }
