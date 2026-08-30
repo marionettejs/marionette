@@ -1,8 +1,9 @@
 // Object
 // ------
 
-import { extend as _extend, uniqueId } from 'underscore';
+import { assignOwn } from '../utils/assign-in.js';
 import extend from '../utils/extend.js';
+import uniqueId from '../utils/unique-id.js';
 import CommonMixin from '../mixins/common.js';
 import DestroyMixin from '../mixins/destroy.js';
 import RadioMixin from '../mixins/radio.js';
@@ -26,7 +27,7 @@ MarionetteObject.extend = extend;
 // Object Methods
 // --------------
 
-_extend(MarionetteObject.prototype, CommonMixin, DestroyMixin, RadioMixin, {
+assignOwn(MarionetteObject.prototype, CommonMixin, DestroyMixin, RadioMixin, {
   cidPrefix: 'mno',
 });
 

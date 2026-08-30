@@ -1,9 +1,10 @@
-import { reduce, each, keys, uniqueId } from 'underscore';
+import { reduce, each, keys } from 'underscore';
 
 import buildEventArgs, { eventSplitter } from '../utils/build-event-args.js';
 import { setProperty } from '../utils/assign-in.js';
 import callHandler from '../utils/call-handler.js';
 import onceWrap from '../utils/once-wrap.js';
+import uniqueId from '../utils/unique-id.js';
 
 import triggerMethod from '../modules/common/trigger-method.js';
 

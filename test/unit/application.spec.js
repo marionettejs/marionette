@@ -41,6 +41,48 @@ describe('Marionette Application', function() {
 
         expect(app._initRadio).to.have.been.called;
       });
+
+      it('preserves constructor order, receiver, and initialize arguments', function() {
+        const calls = [];
+        const cidPrefix = {
+          [Symbol.toPrimitive](hint) {
+            calls.push(['cidPrefix', hint]);
+            return 'ordered';
+          }
+        };
+        const OrderedApplication = Application.extend({
+          cidPrefix,
+          _setOptions(...args) {
+            calls.push(['setOptions', this, args]);
+          },
+          _initRegion(...args) {
+            calls.push(['initRegion', this, args]);
+          },
+          _initRadio(...args) {
+            calls.push(['initRadio', this, args]);
+          },
+          initialize(...args) {
+            calls.push(['initialize', this, args]);
+          }
+        });
+        const options = { ordered: true };
+        const orderedApp = new OrderedApplication(options, 'extra');
+
+        expect(calls).to.deep.equal([
+          ['setOptions', orderedApp, [options, [
+            'channelName',
+            'radioEvents',
+            'radioRequests',
+            'region',
+            'regionClass'
+          ]]],
+          ['cidPrefix', 'default'],
+          ['initRegion', orderedApp, []],
+          ['initRadio', orderedApp, []],
+          ['initialize', orderedApp, [options, 'extra']]
+        ]);
+        expect(orderedApp.cid).to.match(/^ordered\d+$/);
+      });
     });
   });
 

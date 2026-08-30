@@ -1,9 +1,10 @@
 // Collection View
 // ---------------
 
-import { extend as _extend, uniqueId, result, map, isFunction, isObject, isString, matches, each, reduce } from 'underscore';
+import { extend as _extend, result, map, isFunction, isObject, isString, matches, each, reduce } from 'underscore';
 import { assignOwn } from '../utils/assign-in.js';
 import extend from '../utils/extend.js';
+import uniqueId from '../utils/unique-id.js';
 import MarionetteError from '../utils/error.js';
 import { renderView, destroyView, isViewClass } from './common/view.js';
 import monitorViewEvents from './common/monitor-view-events.js';

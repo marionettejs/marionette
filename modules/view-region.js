@@ -10,12 +10,12 @@ import {
   isString,
   partial,
   reduce,
-  result,
-  uniqueId
+  result
 } from 'underscore';
 import { assignOwn } from '../utils/assign-in.js';
 import MarionetteError from '../utils/error.js';
 import extend from '../utils/extend.js';
+import uniqueId from '../utils/unique-id.js';
 import monitorViewEvents from './common/monitor-view-events.js';
 import { renderView, destroyView, isView } from './common/view.js';
 import CommonMixin from '../mixins/common.js';
