@@ -110,6 +110,15 @@ describe('CollectionView', function() {
       expect(myCollectionView.initialize).to.be.calledBefore(myCollectionView.delegateEntityEvents);
     });
 
+    it('should call initialize prior to constructing the empty Region', function() {
+      this.sinon.stub(MyCollectionView.prototype, 'initialize');
+      this.sinon.spy(MyCollectionView.prototype, 'getEmptyRegion');
+
+      const myCollectionView = new MyCollectionView();
+
+      expect(myCollectionView.initialize).to.be.calledBefore(myCollectionView.getEmptyRegion);
+    });
+
     it('should trigger `initialize` on the behaviors', function() {
       this.sinon.stub(MyCollectionView.prototype, '_triggerEventOnBehaviors');
 

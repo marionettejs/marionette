@@ -99,10 +99,10 @@ const CollectionView = function(options) {
   this._initBehaviors();
   this._buildEventProxies();
 
-  // Init empty region
-  this.getEmptyRegion();
-
   this.initialize.apply(this, arguments);
+
+  // Init empty region after initialize to preserve the v4 override boundary.
+  this.getEmptyRegion();
 
   this.delegateEntityEvents();
 

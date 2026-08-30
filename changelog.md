@@ -7,6 +7,7 @@
 * Fixed delegated event matching so nested matching ancestors fire once per event
 * Fixed callable Behavior `events` and `triggers` to resolve after Behavior
   initialization
+* Fixed CollectionView empty Region construction to occur after `initialize`
 * Changed `setEnabled` to reject non-string and blank feature names with stable
   diagnostic code `MN0027`; custom string feature names remain supported
 * Preserved `emptyView` resolver returns of `undefined`, `null`, or `false` as

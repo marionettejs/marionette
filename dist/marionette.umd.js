@@ -2768,8 +2768,8 @@
     this._initChildViewStorage();
     this._initBehaviors();
     this._buildEventProxies();
-    this.getEmptyRegion();
     this.initialize.apply(this, arguments);
+    this.getEmptyRegion();
     this.delegateEntityEvents();
     this._triggerEventOnBehaviors('initialize', this, options);
   };
