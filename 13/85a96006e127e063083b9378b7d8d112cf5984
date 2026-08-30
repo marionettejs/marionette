@@ -1,0 +1,55 @@
+test/unit/collection-view/collection-view.spec.js
+  s_d6429951fb9231::t_3e56834515677a 407,413
+  s_d6429951fb9231::t_4b0de071a5942c 375-393,395-396,398-406,408-412,414-416,419-427
+docs/marionette.collectionview.md
+  s_d6429951fb9231::t_4b0de071a5942c 150,155
+docs/view.lifecycle.md
+  s_d6429951fb9231::t_4b0de071a5942c 66,72-73
+dist/marionette.min.js
+  s_d6429951fb9231::t_e019e7ba2efbac 1
+changelog.md
+  s_d6429951fb9231::t_3e56834515677a 12-13
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_daa43b33e050bb 1
+dist/marionette.umd.js
+  s_d6429951fb9231::t_bd515f38acc190 2351-2353,2355
+test/unit/view-lifecycle.spec.js
+  s_d6429951fb9231::t_61252fed650dd7 132,140
+  s_d6429951fb9231::t_1070b801a193be 155-156
+  s_d6429951fb9231::t_4b0de071a5942c 2,97-131,133-139,141-154
+modules/view-region.js
+  s_d6429951fb9231::t_61252fed650dd7 830-831,834
+dist/marionette.cjs
+  s_d6429951fb9231::t_ec9ca994cf6b00 2344-2346
+  s_e1a183878c01ed::t_e10d544ec7c845 2348
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_07d504ae26007a 1
+dist/marionette.js
+  s_d6429951fb9231::t_7a7dc30b6036ca 2340-2342,2344
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_3e56834515677a 58
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "1385a96006e127e063083b9378b7d8d112cf5984",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    },
+    "s_e1a183878c01ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e4b3d-de5d-70e3-ba78-14db78af3877",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
