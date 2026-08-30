@@ -1,0 +1,55 @@
+mixins/view-events.js
+  s_d6429951fb9231::t_8bf1f2d94990d2 1-2
+test/unit/mixins/view-composition.spec.js
+  s_d6429951fb9231::t_8bf1f2d94990d2 3
+test/unit/behavior-composition.spec.js
+  s_d6429951fb9231::t_8bf1f2d94990d2 7
+test/unit/view.triggers.spec.js
+  s_d6429951fb9231::t_8bf1f2d94990d2 2
+test/unit/runtime/features.spec.js
+  s_d6429951fb9231::t_8bf1f2d94990d2 1-17
+test/unit/runtime/renderer.spec.js
+  s_d6429951fb9231::t_8bf1f2d94990d2 1-20
+test/unit/config/diagnostic-catalog.spec.js
+  s_d6429951fb9231::t_8bf1f2d94990d2 290,294
+index.js
+  s_d6429951fb9231::t_8bf1f2d94990d2 30,36
+mixins/view.js
+  s_d6429951fb9231::t_8bf1f2d94990d2 14-15
+test/source/validate.mjs
+  s_d6429951fb9231::t_8bf1f2d94990d2 41,43
+modules/view-region.js
+  s_d6429951fb9231::t_8bf1f2d94990d2 15-17
+modules/collection-view.js
+  s_d6429951fb9231::t_8bf1f2d94990d2 15-17
+vitest.config.js
+  s_d6429951fb9231::t_8bf1f2d94990d2 18
+modules/behavior.js
+  s_d6429951fb9231::t_8bf1f2d94990d2 17
+test/unit/runtime/event-delegator.spec.js
+  s_d6429951fb9231::t_8bf1f2d94990d2 1-264
+test/unit/backbone.marionette.spec.js
+  s_d6429951fb9231::t_8bf1f2d94990d2 20,25
+test/unit/runtime/dom-api.spec.js
+  s_d6429951fb9231::t_8bf1f2d94990d2 1-633
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_5de7f2a03fee7e 1
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_ce29f0c1e52517 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "3f3e9b57013db9ba2f2e818395871c45569fcc1a",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
