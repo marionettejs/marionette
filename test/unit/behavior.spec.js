@@ -350,6 +350,15 @@ describe('Behavior', function() {
 
       expect(viewClickStub).to.have.been.calledOnce.and.calledOn(fooView);
     });
+
+    it('runs every matching host and Behavior declaration without map collisions', function() {
+      fooView.el.click();
+
+      expect(fooClickStub).to.have.been.calledOnce;
+      expect(barClickStub).to.have.been.calledOnce;
+      expect(bazClickStub).to.have.been.calledOnce;
+      expect(viewClickStub).to.have.been.calledOnce;
+    });
   });
 
   describe('behavior triggers', function() {

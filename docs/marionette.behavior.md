@@ -292,6 +292,11 @@ Behavior, where the corresponding method runs with that Behavior as its context.
 Nested Behaviors participate directly in the same host broadcast. Do not rely on
 an ordering among Behavior handlers.
 
+Host and Behavior DOM declarations are delegated independently. If multiple
+Behaviors or the host declare the same event and selector, every matching
+declaration runs once. Do not use declaration collisions to establish
+precedence or suppress another handler.
+
 Host broadcasts include events produced by:
 
 * Calls to `triggerMethod()`
