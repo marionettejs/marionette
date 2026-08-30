@@ -249,6 +249,23 @@ describe('CollectionView - Filtering', function() {
           arrayFilterView.destroy();
         }
       });
+
+      it('requires an undefined predicate key to be present', function() {
+        const presenceView = new MyCollectionView({ viewFilter: { optional: undefined } });
+        const filter = presenceView._getFilter();
+        const presentAttributes = {};
+        Object.defineProperty(presentAttributes, 'optional', {
+          enumerable: true,
+          value: undefined,
+        });
+
+        try {
+          expect(filter({ model: { attributes: {} } })).to.be.false;
+          expect(filter({ model: { attributes: presentAttributes } })).to.be.true;
+        } finally {
+          presenceView.destroy();
+        }
+      });
     });
 
     describe('when viewFilter is a string', function() {
