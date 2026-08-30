@@ -758,10 +758,10 @@ function makeCallback(callback) {
   return result;
 }
 
-const objectKeys$1 = Object.keys;
+const objectKeys$2 = Object.keys;
 function getKeys(object) {
   const type = typeof object;
-  return object != null && (type === 'object' || type === 'function') ? objectKeys$1(object) : [];
+  return object != null && (type === 'object' || type === 'function') ? objectKeys$2(object) : [];
 }
 const replyReducer = function (isOnce, requests, {
   name,
@@ -915,12 +915,13 @@ var DestroyMixin = {
   }
 };
 
+const objectKeys$1 = Object.keys;
 const _logs = Object.create(null);
 function _partial(channelName) {
   return _logs[channelName] || (_logs[channelName] = log.bind(Radio, channelName));
 }
 const Radio = {};
-underscore.extend(Radio, {
+assignOwn(Radio, {
   setDebug,
   log,
   debugLog,
@@ -954,7 +955,7 @@ Radio.channel = function (channelName) {
 Radio.Channel = function (channelName) {
   this.channelName = channelName;
 };
-underscore.extend(Radio.Channel.prototype, Events, Requests, {
+assignOwn(Radio.Channel.prototype, Events, Requests, {
   reset() {
     this.off();
     this.stopListening();
@@ -962,19 +963,23 @@ underscore.extend(Radio.Channel.prototype, Events, Requests, {
     return this;
   }
 });
-underscore.each([Events, Requests], system => {
-  underscore.each(underscore.keys(system), methodName => {
-    Radio[methodName] = function (channelName, ...args) {
+const systems = [Events, Requests];
+for (let systemIndex = 0, systemsLength = systems.length; systemIndex < systemsLength; systemIndex++) {
+  const methodNames = objectKeys$1(systems[systemIndex]);
+  for (let index = 0, length = methodNames.length; index < length; index++) {
+    const methodName = methodNames[index];
+    setProperty(Radio, methodName, function (channelName, ...args) {
       const channel = this.channel(channelName);
       return callHandler(channel[methodName], channel, args);
-    };
-  });
-});
+    });
+  }
+}
 Radio.reset = function (channelName) {
   if (!arguments.length) {
-    underscore.each(this._channels, channel => {
-      channel.reset();
-    });
+    const channelNames = objectKeys$1(this._channels);
+    for (let index = 0, length = channelNames.length; index < length; index++) {
+      this._channels[channelNames[index]].reset();
+    }
     return;
   }
   if (!channelName) {
