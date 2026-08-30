@@ -200,7 +200,7 @@ function unbindRequests$1(channel, bindings) {
     channel.stopReplying(null, null, this);
     return this;
   }
-  channel.stopReplying(normalizeBindings(this, bindings));
+  channel.stopReplying(normalizeBindings(this, bindings), this);
   return this;
 }
 

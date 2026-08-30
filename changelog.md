@@ -10,6 +10,8 @@
   same-cid impostors cannot corrupt ownership or mutate unowned Views
 * Removed the undocumented alpha-only named `Requests` export; request/reply
   methods remain owned by the built-in `Radio` singleton and its channels
+* Fixed selective `unbindRequests` cleanup to preserve a replacement reply
+  owned by another object
 * Fixed Radio circular dependency with log and debug
 * Fixed event interop with Backbone
 * Fixed delegated event matching so nested matching ancestors fire once per event
