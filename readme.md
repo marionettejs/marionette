@@ -42,6 +42,9 @@ the application uses their corresponding integration:
 - [Backbone models, collections, and shim](docs/optional-backbone.md)
 - [jQuery DOM adapter](docs/installation.md#jquery-dom-adapter-is-optional)
 
+Applications that use Underscore directly, such as with `_.template`, must declare
+`underscore` as their own dependency.
+
 See [installation](docs/installation.md) for package entrypoints and supported setup.
 
 ## Documentation
