@@ -5,8 +5,10 @@
 * Fixed Radio circular dependency with log and debug
 * Fixed event interop with Backbone
 * Fixed delegated event matching so nested matching ancestors fire once per event
-* Changed `setEnabled` to reject undocumented feature names with stable diagnostic
-  code `MN0027`
+* Changed `setEnabled` to reject non-string and blank feature names with stable
+  diagnostic code `MN0027`; custom string feature names remain supported
+* Preserved `emptyView` resolver returns of `undefined`, `null`, or `false` as
+  disabled empty-view states
 * Changed the base `Region#show`, `Region#empty`, and `Region#reset`
   implementations to no-op once Region destruction begins
 * Changed destroyed `View#render` and `CollectionView#render` calls to return the

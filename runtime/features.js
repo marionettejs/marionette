@@ -10,21 +10,14 @@ const FEATURES = {
 };
 
 function isEnabled(name) {
-  return !!FEATURES[name];
+  return typeof name === 'string' && !!FEATURES[name];
 }
 
 function setEnabled(name, state) {
-  if (typeof name !== 'string') {
+  if (typeof name !== 'string' || !name.trim()) {
     throw new MarionetteError({
       code: 'MN0027',
-      message: 'The feature name must be a documented Marionette feature name.'
-    });
-  }
-
-  if (!Object.hasOwn(FEATURES, name)) {
-    throw new MarionetteError({
-      code: 'MN0027',
-      message: `The feature "${name}" is not a documented Marionette feature.`
+      message: 'The feature name must be a non-empty string.'
     });
   }
 

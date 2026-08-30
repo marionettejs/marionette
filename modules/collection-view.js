@@ -692,8 +692,10 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
     if (isEmptyViewClass(emptyView)) { return emptyView; }
 
-    const EmptyView = typeof emptyView === 'function' && !isClassDefinition(emptyView) ?
-      emptyView.call(this) : undefined;
+    const isResolver = typeof emptyView === 'function' && !isClassDefinition(emptyView);
+    const EmptyView = isResolver ? emptyView.call(this) : undefined;
+
+    if (isResolver && (EmptyView == null || EmptyView === false)) { return; }
 
     if (isEmptyViewClass(EmptyView)) { return EmptyView; }
 

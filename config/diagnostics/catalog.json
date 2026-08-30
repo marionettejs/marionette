@@ -461,7 +461,7 @@
         "CollectionView",
         "View"
       ],
-      "remediation": "Pass one of the documented Marionette feature names to setEnabled; keep application-owned flags in an application registry or configuration object.",
+      "remediation": "Pass a non-empty string feature name to setEnabled; documented Marionette names and application-owned names are supported.",
       "docsAnchor": "/errors/MN0027/",
       "surfaces": [
         "runtime"
