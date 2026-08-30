@@ -1,0 +1,25 @@
+test/unit/runtime/event-delegator.spec.js
+  s_d6429951fb9231::t_a2ee71f4fee6d2 174-176,190-206,210,212-228
+  s_d6429951fb9231::t_c23b03f7ec9ddb 207-209,211
+  s_d6429951fb9231::t_ca1622bf0d9203 229
+upgradeGuide.md
+  s_d6429951fb9231::t_2079e09574e38b 69-100
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_2079e09574e38b 75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "881423e7d41da961f741a7956b24bdd33ee63bbc",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
