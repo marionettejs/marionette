@@ -2270,6 +2270,9 @@
       delete this._regions[name];
     },
     emptyRegions() {
+      if (!this._isRendered) {
+        this.render();
+      }
       const regions = this.getRegions();
       eachOwn(regions, region => region.empty());
       return regions;
@@ -2289,9 +2292,6 @@
       return regions;
     },
     getRegions() {
-      if (!this._isRendered) {
-        this.render();
-      }
       return this._getRegions();
     },
     showChildView(name, view, options) {

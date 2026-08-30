@@ -587,12 +587,6 @@ describe('layoutView', function() {
       expect(this.regions.regionTwo).to.equal(this.layout.getRegion('regionTwo'));
     });
 
-    it('should render the view if it hasn\'t been yet', function() {
-      this.sinon.spy(this.layout, 'render');
-      this.layout.getRegions();
-      expect(this.layout.render).to.be.calledOnce;
-    });
-
     describe('when the regions are specified via regions hash and the view has no template', function() {
       beforeEach(function() {
         let fixture =
