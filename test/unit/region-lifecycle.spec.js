@@ -556,7 +556,7 @@ describe('Region lifecycle contract', function() {
     expect(empty).to.not.have.been.called;
   });
 
-  it('does not expose an unguarded empty implementation', function() {
+  it('does not expose an _emptyRegion helper on Region instances', function() {
     const view = new TestView();
     region.show(view);
     region.destroy();
