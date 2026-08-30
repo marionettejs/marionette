@@ -1,0 +1,61 @@
+dist/marionette.cjs
+  s_e1a183878c01ed::t_e10d544ec7c845 2360,2372,2947,2955
+  s_d6429951fb9231::t_0c1d8356a0d7a4 1193-1195,1521-1522,1527,1533-1535,1538,1694-1711
+modules/view-region.js
+  s_d6429951fb9231::t_55f6e3e83ce128 815,830
+  s_d6429951fb9231::t_c15568b118a55f 814
+modules/collection-view.js
+  s_d6429951fb9231::t_55f6e3e83ce128 348-349,359
+test/unit/view-dom-delegation.spec.js
+  s_d6429951fb9231::t_942fe28c73bfd3 27
+  s_d6429951fb9231::t_81c2b0e1364511 6-26,28-64
+  s_d6429951fb9231::t_faf97542f5b97d 1-5,65-162
+mixins/view-events.js
+  s_d6429951fb9231::t_5fbd7af1a57014 59-60,64,71-73,75
+mixins/behaviors.js
+  s_d6429951fb9231::t_5fbd7af1a57014 101-104
+dist/marionette.js
+  s_d6429951fb9231::t_cac331ca814e8b 2356,2368
+  s_d6429951fb9231::t_15fe4c8107550b 1189-1191,1517-1518,1523,1529-1531,1534,1690-1707,2943
+  s_d6429951fb9231::t_3b87ed4ce72586 2951
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_f920525a2ab322 81
+  s_d6429951fb9231::t_9d22dd18a91943 82-83
+test/unit/mixins/view-events.spec.js
+  s_d6429951fb9231::t_faf97542f5b97d 14-27
+test/unit/mixins/view-composition.spec.js
+  s_d6429951fb9231::t_5d04d87aee370f 38-39
+dist/marionette.umd.js
+  s_d6429951fb9231::t_e86341ac26d224 2367,2379
+  s_d6429951fb9231::t_27e33603e4c6c9 1200-1202,1528-1529,1534,1540-1542,1545,1701-1718,2954
+  s_d6429951fb9231::t_f5bff6663b7042 2962
+docs/dom.interactions.md
+  s_d6429951fb9231::t_9d22dd18a91943 119-125,129
+  s_d6429951fb9231::t_f920525a2ab322 126-128
+mixins/view.js
+  s_d6429951fb9231::t_5fbd7af1a57014 102-121
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "1f293e719d2801e600172a0278a5d27703fb1af7",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    },
+    "s_e1a183878c01ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e4b3d-de5d-70e3-ba78-14db78af3877",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
