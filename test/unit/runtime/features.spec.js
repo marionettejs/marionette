@@ -36,7 +36,8 @@ describe('features', function() {
     });
 
     it('rejects unknown feature names without mutation', function() {
-      const names = ['applicationOwned', 'constructor', 'toString', '__proto__'];
+      const names = ['', ' ', 'applicationOwned', 'constructor', 'toString', '__proto__'];
+      const initialFeatures = { ...FEATURES };
       const prototype = Object.getPrototypeOf(FEATURES);
 
       for (const name of names) {
@@ -46,6 +47,7 @@ describe('features', function() {
         expect(Object.hasOwn(FEATURES, name)).to.be.false;
       }
 
+      expect(FEATURES).to.deep.equal(initialFeatures);
       expect(Object.getPrototypeOf(FEATURES)).to.equal(prototype);
     });
 
@@ -64,11 +66,15 @@ describe('features', function() {
     });
 
     it('rejects non-string feature names with a stable code', function() {
+      const initialFeatures = { ...FEATURES };
+
       for (const name of [undefined, null, 0, {}, Symbol('feature')]) {
         expect(() => setEnabled(name, true))
           .to.throw()
           .with.property('code', 'MN0027');
       }
+
+      expect(FEATURES).to.deep.equal(initialFeatures);
     });
   });
 });

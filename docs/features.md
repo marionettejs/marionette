@@ -45,6 +45,16 @@ const myApp = new MyApp({
 myApp.start();
 ```
 
+Move custom application flags out of Marionette during a v5 migration:
+
+```javascript
+// v4
+setEnabled('applicationOwned', true);
+
+// v5
+const applicationFeatures = { applicationOwned: true };
+```
+
 ## Current Features
 
 ### `childViewEventPrefix`
