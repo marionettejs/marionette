@@ -77,7 +77,7 @@ change which lifecycle operations are valid.
 | Operation | Empty Region | Occupied Region | Destroyed Region |
 | --- | --- | --- | --- |
 | `show(view)` when the Region element resolves | Renders the View if needed, shows it, and enters occupied. | Showing the same View is a no-op. Showing a different View destroys the old View and swaps to the new one. | Throws `MN0028` before resolving the element or changing the View. |
-| `detachView()` | Returns `undefined`; state is unchanged. | Detaches and returns the live View, then enters empty. | Reuse is unsupported. |
+| `detachView()` | Returns `undefined`; state is unchanged. | Detaches and returns the live View, then enters empty. | Returns `undefined` without changing state or DOM or emitting lifecycle events. |
 | `empty()` | Returns the Region and, when its element resolves, removes unmanaged contents from that element. | Destroys the current View, clears `currentView`, and enters empty. | Reuse is unsupported. |
 | Current View is destroyed externally | No effect. | Runs the Region's empty lifecycle once, clears `currentView`, and enters empty. | No effect. |
 | `destroy()` | Runs the destroy lifecycle and enters destroyed. | Emits `before:destroy`, enters destroyed, destroys and empties the current View, then emits `destroy`. | Returns the Region without repeating cleanup or lifecycle events. |
@@ -87,8 +87,9 @@ operation completes. With `allowMissingEl: true`, `show` instead returns `undefi
 and leaves the Region empty when its element does not resolve. A View returned
 by `detachView()` remains the caller's responsibility until another Region shows it
 or it is destroyed. Calling `show()` after Region destruction throws `MN0028`;
-repeated `destroy()` remains a no-op. Other operations after destruction remain
-unsupported; this contract does not make a destroyed Region reusable.
+`detachView()` after destruction is an idempotent no-op that returns `undefined`,
+and repeated `destroy()` remains a no-op. Other operations after destruction
+remain unsupported; this contract does not make a destroyed Region reusable.
 
 The following example preserves a View by detaching it before showing it again.
 Calling `empty()` afterward destroys the View and returns the Region to its empty state.

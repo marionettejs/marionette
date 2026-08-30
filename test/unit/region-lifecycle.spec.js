@@ -306,6 +306,32 @@ describe('Region lifecycle contract', function() {
     view.destroy();
   });
 
+  it('treats detachView after destruction as an idempotent no-op', function() {
+    const view = new TestView();
+    region.show(view);
+    region.destroy();
+
+    const sentinel = document.createElement('span');
+    sentinel.textContent = 'unmanaged';
+    const regionEl = document.querySelector('#region');
+    regionEl.appendChild(sentinel);
+    const beforeEmpty = this.sinon.spy();
+    const empty = this.sinon.spy();
+    region.on('before:empty', beforeEmpty);
+    region.on('empty', empty);
+
+    expect(region.detachView()).to.be.undefined;
+    expect(region.detachView()).to.be.undefined;
+    expect(region.isDestroyed()).to.be.true;
+    expect(region.hasView()).to.be.false;
+    expect(region.currentView).to.be.undefined;
+    expect(regionEl.childNodes).to.have.length(1);
+    expect(regionEl.firstChild).to.equal(sentinel);
+    expect(sentinel.textContent).to.equal('unmanaged');
+    expect(beforeEmpty).to.not.have.been.called;
+    expect(empty).to.not.have.been.called;
+  });
+
   it('clears the Region once when its current View is destroyed externally', function() {
     const view = new TestView();
     const beforeEmpty = this.sinon.spy();
