@@ -1,0 +1,32 @@
+test/fixtures/docs-common-contract/.gitignore
+  s_d6429951fb9231::t_51b0eae80f345a 1
+test/fixtures/docs-common-contract/package.json
+  s_d6429951fb9231::t_51b0eae80f345a 1-7
+docs/common.md
+  s_d6429951fb9231::t_10e70783e53a17 98
+  s_d6429951fb9231::t_770b7d463cd16f 66-68,232-233
+  s_d6429951fb9231::t_eb1c45685d0564 50
+  s_d6429951fb9231::t_c8a3361b720a0e 3-4,23-26,28-29,32-33,37,42-43,47-49,51,53,58-60,62-63,65,71,74-75,79-80,82,85-86,90-93,95-97,103,107-111,118-121,125,127-130,141-142,144-146,148-150,152-153,155-159,162-164,166-169,171-190,194-198,200-204,207,211-212,214,218,222,229-231,237,244-248,250-251,253,255,257-259,261,265-266,270-273,275-282,287
+  s_d6429951fb9231::t_b6c3ab0aae9fc7 132-134,136-139
+  s_d6429951fb9231::t_a9beb107d3f085 100-102,123
+  s_d6429951fb9231::t_35058780a53e8d 238-240
+test/fixtures/docs-common-contract/validate.mjs
+  s_d6429951fb9231::t_51b0eae80f345a 1-11,13-25,27-33,35-42
+  s_d6429951fb9231::t_c8a3361b720a0e 12,26,34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "98aa8c7b2946d49c635b77f41ecad9880a04ae3f",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
