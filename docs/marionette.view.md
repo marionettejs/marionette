@@ -239,10 +239,12 @@ current child and leaves `secondRegion` empty and available for another View.
 
 ### Region Availability
 
-Any defined regions within a `View` will be available to the `View` or any
-calling code immediately after rendering the `View`. Using `getRegion` or any
-of the child view methods above will first render the view so that the region is
-available.
+Defined regions are registered during `View` construction. `hasRegion(name)`
+checks that own Region registry without rendering the View, including when the
+View is unrendered or destroyed. It reports stored ownership directly and does
+not call an overridden `getRegion`. Calling `getRegion` or any child View method
+above on a live, unrendered View still renders it and dispatches through any
+`getRegion` override before resolving the Region element.
 
 `getRegion(name)` and `hasRegion(name)` support optional lookup: an unknown name
 returns `undefined` or `false`, respectively. Operations that require a Region —

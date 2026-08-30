@@ -700,7 +700,7 @@ const RegionsMixin = {
   // Accepts the region name
   // hasRegion('main')
   hasRegion(name) {
-    return !!this.getRegion(name);
+    return !!getOwnRegion(this._regions, name);
   },
 
   // Provides access to regions
