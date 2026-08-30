@@ -363,13 +363,13 @@ myView.removeRegions();
 
 ## Using Regions on a view
 
-In addition to adding and removing regions there are a few
-methods to help utilize regions. All of these methods will first
-render an unrendered view so that regions are properly initialized.
+In addition to adding and removing regions there are a few methods to help
+utilize regions. Methods that return or operate on Region instances first render
+an unrendered View. `hasRegion` is a pure presence query and does not render.
 
 - `getRegion(name)` - Request a region from a view by name.
 - `getRegions()` - Returns an object literal of all regions on the view organized by name.
-- `hasRegion(name)` - Check if a view has a region.
+- `hasRegion(name)` - Check if a View has an own registered Region without rendering.
 - `emptyRegions()` - Empty all of the regions on a view.
 
 ## Showing a View

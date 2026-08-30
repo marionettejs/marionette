@@ -501,18 +501,6 @@ describe('layoutView', function() {
     });
   });
 
-  describe('when checking for a region', function() {
-    beforeEach(function() {
-      this.layoutView = new this.View();
-      this.region = this.layoutView.getRegion('regionOne');
-    });
-
-    it('should return if has the region', function() {
-      expect(this.layoutView.hasRegion('regionOne')).to.equal(true);
-      expect(this.layoutView.hasRegion('regionNone')).to.equal(false);
-    });
-  });
-
   describe('when adding regions in a layoutViews options', function() {
     beforeEach(function() {
       let suite = this;

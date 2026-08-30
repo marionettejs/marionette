@@ -2264,7 +2264,7 @@ const RegionsMixin = {
     return regions;
   },
   hasRegion(name) {
-    return !!this.getRegion(name);
+    return !!getOwnRegion(this._regions, name);
   },
   getRegion(name) {
     if (!this._isRendered) {
