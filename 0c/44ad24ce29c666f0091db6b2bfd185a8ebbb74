@@ -1,0 +1,21 @@
+test/unit/collection-view/collection-view-filtering.spec.js
+  s_d6429951fb9231::t_0a323b7205e12f 252-268
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_0a323b7205e12f 50
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "0c44ad24ce29c666f0091db6b2bfd185a8ebbb74",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
