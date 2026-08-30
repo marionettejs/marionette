@@ -1,0 +1,21 @@
+docs/marionette.region.md
+  s_d6429951fb9231::t_a7e66bdde9b63c 569-571
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_a7e66bdde9b63c 66
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "9656b9c1e397acab81c16e8321e9c5d9ab21d7f0",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
