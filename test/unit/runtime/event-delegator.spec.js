@@ -171,7 +171,9 @@ describe('EventDelegator', function() {
   });
 
   it('handles delegated clicks on matching elements and their descendants', function() {
-    const handler = vi.fn();
+    const handler = vi.fn(function(event) {
+      expect(event.currentTarget).to.equal(rootEl);
+    });
 
     rootEl.innerHTML = '<button class="foo"><span>click</span></button>';
     delegate('click', '.foo', handler);
@@ -183,6 +185,46 @@ describe('EventDelegator', function() {
     expect(handler).toHaveBeenCalledTimes(2);
     expect(handler.mock.calls[0][0].delegateTarget).to.equal(button);
     expect(handler.mock.calls[1][0].delegateTarget).to.equal(button);
+  });
+
+  it('does not emulate delegated mouseenter bubbling', function() {
+    const handler = vi.fn();
+
+    rootEl.innerHTML = '<button class="foo">enter</button>';
+    delegate('mouseenter', '.foo', handler);
+
+    rootEl.querySelector('.foo').dispatchEvent(new dom.window.MouseEvent('mouseenter'));
+
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('treats a jQuery-style namespace as part of the native event type', function() {
+    const handler = vi.fn();
+
+    rootEl.innerHTML = '<button class="foo">click</button>';
+    delegate('click.menu', '.foo', handler);
+
+    const button = rootEl.querySelector('.foo');
+    dispatchClick(button);
+    button.dispatchEvent(new dom.window.Event('click.menu', { bubbles: true }));
+
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not interpret a false return or add trigger arguments', function() {
+    const handler = vi.fn(() => false);
+
+    rootEl.innerHTML = '<button class="foo">click</button>';
+    delegate('click', '.foo', handler);
+
+    const event = new dom.window.MouseEvent('click', { bubbles: true, cancelable: true });
+    const dispatched = rootEl.querySelector('.foo').dispatchEvent(event);
+
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler.mock.calls[0]).to.have.lengthOf(1);
+    expect(handler.mock.calls[0][0]).to.equal(event);
+    expect(dispatched).to.be.true;
+    expect(event.defaultPrevented).to.be.false;
   });
 
   it('handles delegated events with text-node targets', function() {

@@ -60,6 +60,38 @@ current public behavior boundary. Final migration documentation is tracked in
   View `el`; resolve View elements explicitly. Region selector strings remain
   supported.
 
+## Native delegation versus jQuery events
+
+The default EventDelegator uses `addEventListener` on the View's root element.
+During a delegated handler, the native `event.currentTarget` is therefore the
+View's root `el`. Marionette sets `event.delegateTarget` to the closest matching
+descendant between the original target and that root. If nested ancestors match
+the same selector, only that closest match invokes the handler; Marionette does
+not invoke it again for every matching ancestor.
+
+This is a native DOM contract, not an emulation of jQuery's event system:
+
+- `mouseenter` does not bubble, and Marionette does not provide jQuery's special
+  delegated `mouseenter` handling. Use a bubbling event such as `mouseover`
+  with an appropriate `relatedTarget` check, or bind `mouseenter` directly to
+  the intended element.
+- A name such as `click.menu` is a literal native event type, not a `click`
+  event in a jQuery namespace. Marionette already tracks and removes a View's
+  delegated listeners; application-owned native listeners should retain their
+  own callbacks or abort signals for cleanup.
+- Returning `false` from a handler does not prevent the default action or stop
+  propagation. Call `event.preventDefault()` and/or `event.stopPropagation()`
+  explicitly.
+- Browser `dispatchEvent()` supplies only the event object to a handler; jQuery
+  trigger arguments are not forwarded. Put application data in a
+  `CustomEvent`'s `detail`, or use Marionette events when positional arguments
+  are part of the application contract.
+
+The optional jQuery DomApi changes query and DOM-manipulation operations only;
+it does not replace the native EventDelegator. Applications with a verified
+need for different delegation semantics can provide an explicit
+`setEventDelegator` adapter.
+
 ## `detachContents` policy
 
 - The default native DomApi `detachContents(el)` clears the element via
