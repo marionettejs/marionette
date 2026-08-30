@@ -7,6 +7,7 @@ import { isDeepStrictEqual, promisify } from 'node:util';
 import { brotliCompress, constants } from 'node:zlib';
 import { rollup } from 'rollup';
 import {
+  canonicalForbiddenExternalImports,
   newProductionReportDelta,
   validateGrowthApprovalPolicy,
 } from './performance-growth-approval.mjs';
@@ -115,12 +116,6 @@ export async function listRuntimeFiles(directory, root = directory) {
 function difference(left, right) {
   const rightSet = new Set(right);
   return left.filter(value => !rightSet.has(value));
-}
-
-function canonicalForbiddenExternalImports(values) {
-  return Array.isArray(values) && values.length > 0 &&
-    values.every(value => typeof value === 'string' && value.length > 0) &&
-    values.every((value, index) => index === 0 || values[index - 1] < value);
 }
 
 export function validateContract(contract, packageJson, runtimeFiles, budgetAmendments = null) {
@@ -332,6 +327,9 @@ async function measureGraph(root, configurations, graph, contract) {
       .map(moduleId => normalizePath(relative(root, moduleId)))
       .sort();
     const externalImports = [...new Set(chunks.flatMap(chunk => chunk.imports))].sort();
+    const policyExternalImports = [...new Set(chunks.flatMap(chunk => {
+      return [...chunk.imports, ...chunk.dynamicImports];
+    }))].sort();
 
     return {
       subpath: graph.subpath,
@@ -345,7 +343,7 @@ async function measureGraph(root, configurations, graph, contract) {
       phase0AddedExternalImports: difference(externalImports, graph.baselineExternalImports),
       phase0RemovedExternalImports: difference(graph.baselineExternalImports, externalImports),
       forbiddenModules: findForbiddenModules(modules, contract),
-      forbiddenExternalImports: findForbiddenExternalImports(externalImports, contract),
+      forbiddenExternalImports: findForbiddenExternalImports(policyExternalImports, contract),
     };
   } finally {
     await bundle.close();

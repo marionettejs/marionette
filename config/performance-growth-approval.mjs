@@ -30,6 +30,12 @@ function uniqueSortedStrings(values, limit, allowEmpty = false) {
     values.every((value, index) => index === 0 || values[index - 1] < value);
 }
 
+export function canonicalForbiddenExternalImports(values) {
+  return Array.isArray(values) && values.length > 0 &&
+    values.every(value => typeof value === 'string' && value.length > 0) &&
+    values.every((value, index) => index === 0 || values[index - 1] < value);
+}
+
 function validSubpath(subpath) {
   return /^\.\/[A-Za-z0-9][A-Za-z0-9._/-]*$/.test(subpath) &&
     !subpath.includes('//') && !subpath.split('/').includes('..');
@@ -343,11 +349,11 @@ function validForbiddenExternalImportsTransition(authority, candidate) {
 
   if (!authorityHasField) {
     return !candidateHasField ||
-      uniqueSortedStrings(candidate.forbiddenExternalImports, pathLimit);
+      canonicalForbiddenExternalImports(candidate.forbiddenExternalImports);
   }
   if (!candidateHasField ||
-      !uniqueSortedStrings(authority.forbiddenExternalImports, pathLimit, true) ||
-      !uniqueSortedStrings(candidate.forbiddenExternalImports, pathLimit, true)) {
+      !canonicalForbiddenExternalImports(authority.forbiddenExternalImports) ||
+      !canonicalForbiddenExternalImports(candidate.forbiddenExternalImports)) {
     return false;
   }
 

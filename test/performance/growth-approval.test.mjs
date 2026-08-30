@@ -474,6 +474,23 @@ describe('exact-head performance growth approval contract', () => {
       []
     );
 
+    const largeAuthority = growthContract();
+    largeAuthority.forbiddenExternalImports = Array.from(
+      { length: 51 },
+      (_, index) => `package-${String(index).padStart(2, '0')}`
+    );
+    assert.deepEqual(
+      validateCandidateGrowthContract(largeAuthority, structuredClone(largeAuthority)),
+      []
+    );
+
+    const largeExtension = structuredClone(largeAuthority);
+    largeExtension.forbiddenExternalImports.push('package-51');
+    assert.deepEqual(
+      validateCandidateGrowthContract(largeAuthority, largeExtension),
+      []
+    );
+
     authorityContract.forbiddenExternalImports = ['jquery'];
     const extended = structuredClone(authorityContract);
     extended.forbiddenExternalImports = ['jquery', 'underscore'];

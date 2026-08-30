@@ -193,6 +193,12 @@ describe('performance contract validation', () => {
     const canonical = contractFor();
     canonical.forbiddenExternalImports = ['jquery', 'underscore'];
     assert.deepEqual(validateContract(canonical, packageJson, ['index.mjs']), []);
+    const large = contractFor();
+    large.forbiddenExternalImports = Array.from(
+      { length: 51 },
+      (_, index) => `package-${String(index).padStart(2, '0')}`
+    );
+    assert.deepEqual(validateContract(large, packageJson, ['index.mjs']), []);
     assert.deepEqual(
       findForbiddenExternalImports([
         'backbone',
@@ -745,7 +751,7 @@ describe('performance contract validation', () => {
     }
   });
 
-  test('rejects a candidate-forbidden import from a measured graph', async() => {
+  test('rejects forbidden dynamic imports without matching prefixed packages', async() => {
     const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-external-'));
     const contract = contractFor();
     contract.productionGraphs = [{
@@ -767,12 +773,13 @@ describe('performance contract validation', () => {
       await writeFile(join(fixtureRoot, 'performance.json'), JSON.stringify(contract));
       await writeFile(
         join(fixtureRoot, 'index.js'),
-        'import each from \'underscore/modules/each.js\';\nexport const value = each;\n'
+        'export const forbidden = import(\'underscore/modules/each.js\');\n' +
+          'export const allowed = import(\'underscore-plus\');\n'
       );
       await writeFile(join(fixtureRoot, 'dist/index.mjs'), 'export const value = 1;\n');
       await writeFile(
         join(fixtureRoot, 'rollup.config.mjs'),
-        'export default [{ input: \'index.js\', external: [\'underscore/modules/each.js\'], output: { file: \'dist/index.mjs\', format: \'es\' } }];\n'
+        'export default [{ input: \'index.js\', external: [\'underscore/modules/each.js\', \'underscore-plus\'], output: { file: \'dist/index.mjs\', format: \'es\' } }];\n'
       );
 
       const result = await measure({
@@ -781,7 +788,8 @@ describe('performance contract validation', () => {
         checkToolchain: false,
       });
 
-      assert.deepEqual(result.graphs[0].externalImports, ['underscore/modules/each.js']);
+      assert.deepEqual(result.graphs[0].externalImports, []);
+      assert.deepEqual(result.graphs[0].phase0AddedExternalImports, []);
       assert.deepEqual(result.graphs[0].forbiddenExternalImports, ['underscore/modules/each.js']);
       assert.ok(result.violations.includes(
         '. includes forbidden external imports: underscore/modules/each.js'
