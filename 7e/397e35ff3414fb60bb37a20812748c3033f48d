@@ -1,0 +1,20 @@
+test/unit/region-lifecycle.spec.js
+  s_d6429951fb9231::t_91318abe0bb233 317,320,322-323,328-355,357-408
+  s_d6429951fb9231::t_f2432e92cd70ff 318-319,321,324-327,356
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "7e397e35ff3414fb60bb37a20812748c3033f48d",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
