@@ -1,0 +1,37 @@
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_2fd4ba9df5afcf 66
+modules/view-region.js
+  s_d6429951fb9231::t_2fd4ba9df5afcf 40-54,393
+test/unit/region-lifecycle.spec.js
+  s_d6429951fb9231::t_2fd4ba9df5afcf 546-554
+docs/marionette.region.md
+  s_d6429951fb9231::t_2fd4ba9df5afcf 562-565
+dist/marionette.cjs
+  s_d6429951fb9231::t_2872c920adda19 1801-1813,2058
+dist/marionette.js
+  s_d6429951fb9231::t_5efff3d81bf5cc 1797-1809,2054
+dist/marionette.min.js
+  s_d6429951fb9231::t_169e318822c739 1
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_d6d49ac13c46ff 1
+dist/marionette.umd.js
+  s_d6429951fb9231::t_25f1dfad3a731e 1808-1820,2065
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_3249905d514591 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "06a2f7a32e2a793411274ed693a4493ea1e39fd3",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
