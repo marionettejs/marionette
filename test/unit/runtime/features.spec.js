@@ -9,10 +9,11 @@ describe('features', function() {
     for (const name of Object.keys(FEATURES)) {
       if (!Object.hasOwn(initialFeatures, name)) {
         delete FEATURES[name];
-        continue;
       }
+    }
 
-      setEnabled(name, initialFeatures[name]);
+    for (const name of Object.keys(initialFeatures)) {
+      FEATURES[name] = initialFeatures[name];
     }
   });
 
