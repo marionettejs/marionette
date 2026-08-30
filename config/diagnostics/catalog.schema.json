@@ -13,7 +13,7 @@
       "const": "./catalog.schema.json"
     },
     "schemaVersion": {
-      "const": 1
+      "const": 2
     },
     "diagnostics": {
       "type": "array",
@@ -56,7 +56,8 @@
           "enum": [
             "defined",
             "active",
-            "deprecated"
+            "deprecated",
+            "retired"
           ]
         },
         "category": {
