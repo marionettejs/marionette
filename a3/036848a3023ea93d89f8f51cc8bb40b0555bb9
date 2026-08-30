@@ -1,0 +1,33 @@
+test/unit/view-constructor-options.spec.js
+  s_d6429951fb9231::t_a284f79ff0f976 1-75
+modules/view-region.js
+  s_d6429951fb9231::t_21b69c151bbc8c 14,785
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_6667686598b9ab 51
+modules/collection-view.js
+  s_d6429951fb9231::t_21b69c151bbc8c 14,91
+mixins/view.js
+  s_d6429951fb9231::t_21b69c151bbc8c 19-29
+dist/marionette.cjs
+  s_d6429951fb9231::t_29790268bd9670 1643,2337,2763
+dist/marionette.js
+  s_d6429951fb9231::t_19eb09a36e36d5 1639,2333,2759
+dist/marionette.umd.js
+  s_d6429951fb9231::t_3f200a5dd58ade 1650,2344,2770
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "a3036848a3023ea93d89f8f51cc8bb40b0555bb9",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
