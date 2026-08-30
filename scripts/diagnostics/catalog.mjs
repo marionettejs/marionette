@@ -235,8 +235,8 @@ function addRuntimeSourceErrors(runtimeSources, diagnosticsByCode, errors) {
           errors.push(`${path} must emit a literal diagnostic code`);
         } else if (!diagnostic) {
           errors.push(`${path} emits uncataloged diagnostic code ${code}`);
-        } else if (diagnostic.status === 'defined') {
-          errors.push(`${path} emits ${code}, but its catalog status is defined`);
+        } else if (['defined', 'retired'].includes(diagnostic.status)) {
+          errors.push(`${path} emits ${code}, but its catalog status is ${diagnostic.status}`);
         } else if (!diagnostic.surfaces.includes('runtime')) {
           errors.push(`${path} emits ${code}, but its catalog surfaces do not include runtime`);
         }
@@ -274,8 +274,8 @@ function addEslintRuleErrors(eslintRuleSources, diagnosticsByCode, errors) {
     const diagnostic = diagnosticsByCode.get(code);
     if (!diagnostic) {
       errors.push(`${path} maps to uncataloged diagnostic code ${code}`);
-    } else if (diagnostic.status === 'defined') {
-      errors.push(`${path} maps to ${code}, but its catalog status is defined`);
+    } else if (['defined', 'retired'].includes(diagnostic.status)) {
+      errors.push(`${path} maps to ${code}, but its catalog status is ${diagnostic.status}`);
     } else if (!diagnostic.surfaces.includes('lint')) {
       errors.push(`${path} maps to ${code}, but its catalog surfaces do not include lint`);
     }

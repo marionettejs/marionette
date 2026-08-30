@@ -1,6 +1,6 @@
 {
   "$schema": "./catalog.schema.json",
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "diagnostics": [
     {
       "code": "MN0001",
@@ -463,6 +463,39 @@
       ],
       "remediation": "Pass a non-empty string feature name to setEnabled; documented Marionette names and application-owned names are supported.",
       "docsAnchor": "/errors/MN0027/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "view"
+    },
+    {
+      "code": "MN0028",
+      "slug": "region-destroyed-operation",
+      "status": "retired",
+      "category": "lifecycle",
+      "severity": "error",
+      "objects": [
+        "Region"
+      ],
+      "remediation": "Calls to show, empty, or reset after Region destruction are lifecycle-safe no-ops. Use a live Region when the operation must take effect.",
+      "docsAnchor": "/errors/MN0028/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "region"
+    },
+    {
+      "code": "MN0029",
+      "slug": "view-destroyed-set-element",
+      "status": "retired",
+      "category": "lifecycle",
+      "severity": "error",
+      "objects": [
+        "CollectionView",
+        "View"
+      ],
+      "remediation": "Calls to setElement after View or CollectionView destruction begins are lifecycle-safe no-ops. Use a live instance when element replacement must take effect.",
+      "docsAnchor": "/errors/MN0029/",
       "surfaces": [
         "runtime"
       ],

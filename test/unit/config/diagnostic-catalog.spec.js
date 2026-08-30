@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -6,7 +6,7 @@ import {
   discoverProductionSources,
   validateDiagnosticCatalog,
 } from '../../../scripts/diagnostics/catalog.mjs';
-import { diagnosticPage } from '../../../scripts/docs/build.mjs';
+import { diagnosticIndex, diagnosticPage } from '../../../scripts/docs/build.mjs';
 
 describe('diagnostic catalog validation', function() {
   function createDiagnostic(overrides = {}) {
@@ -28,7 +28,7 @@ describe('diagnostic catalog validation', function() {
   function createCatalog(diagnostics = [createDiagnostic()]) {
     return {
       $schema: './catalog.schema.json',
-      schemaVersion: 1,
+      schemaVersion: 2,
       diagnostics,
     };
   }
@@ -75,6 +75,20 @@ describe('diagnostic catalog validation', function() {
     ]);
 
     expect(() => validate(catalog)).to.throw(DiagnosticCatalogValidationError, /duplicate diagnostic code MN0001/);
+  });
+
+  it('does not allow a retired slug to be reused by another code', function() {
+    const catalog = createCatalog([
+      createDiagnostic({ status: 'retired' }),
+      createDiagnostic({
+        code: 'MN0002',
+        docsAnchor: '/errors/MN0002/',
+        slug: 'unknown-region',
+      }),
+    ]);
+
+    expect(() => validate(catalog))
+      .to.throw(DiagnosticCatalogValidationError, 'duplicate diagnostic slug unknown-region');
   });
 
   it('requires diagnostics to be sorted by code', function() {
@@ -146,6 +160,22 @@ describe('diagnostic catalog validation', function() {
     const catalog = createCatalog([createDiagnostic({
       replacementCode: 'MN0002',
       status: 'active',
+    })]);
+
+    expect(() => validate(catalog))
+      .to.throw(DiagnosticCatalogValidationError, /replacementCode/);
+  });
+
+  it('accepts a retired diagnostic without a replacement', function() {
+    const catalog = createCatalog([createDiagnostic({ status: 'retired' })]);
+
+    expect(validate(catalog)).to.equal(catalog);
+  });
+
+  it('rejects a replacement on a retired diagnostic', function() {
+    const catalog = createCatalog([createDiagnostic({
+      replacementCode: 'MN0002',
+      status: 'retired',
     })]);
 
     expect(() => validate(catalog))
@@ -239,6 +269,20 @@ describe('diagnostic catalog validation', function() {
     })).to.throw(
       DiagnosticCatalogValidationError,
       'modules/example.js emits MN0001, but its catalog status is defined',
+    );
+  });
+
+  it('rejects runtime emissions for a retired diagnostic', function() {
+    const catalog = createCatalog([createDiagnostic({ status: 'retired' })]);
+
+    expect(() => validate(catalog, {
+      runtimeSources: [{
+        contents: 'throw new MarionetteError({ code: \'MN0001\' });',
+        path: 'modules/example.js',
+      }],
+    })).to.throw(
+      DiagnosticCatalogValidationError,
+      'modules/example.js emits MN0001, but its catalog status is retired',
     );
   });
 
@@ -359,6 +403,20 @@ describe('diagnostic catalog validation', function() {
     );
   });
 
+  it('rejects ESLint mappings for a retired diagnostic', function() {
+    const catalog = createCatalog([createDiagnostic({ status: 'retired' })]);
+
+    expect(() => validate(catalog, {
+      eslintRuleSources: [{
+        contents: 'export default { meta: { diagnosticCode: \'MN0001\' } };',
+        path: 'eslint-rules/example.js',
+      }],
+    })).to.throw(
+      DiagnosticCatalogValidationError,
+      'eslint-rules/example.js maps to MN0001, but its catalog status is retired',
+    );
+  });
+
   it('rejects ESLint metadata that can override the mapping', function() {
     const unsafeSources = [
       'export default { meta: { diagnosticCode: \'MN0001\', ...meta } };',
@@ -383,5 +441,59 @@ describe('diagnostic catalog validation', function() {
     }));
 
     expect(markdown).to.contain('| Replacement | [MN0002](/errors/MN0002/) |');
+  });
+
+  it('renders a retired diagnostic as historical guidance', function() {
+    const markdown = diagnosticPage(createDiagnostic({
+      remediation: 'The retired operation is now a lifecycle-safe no-op.',
+      status: 'retired',
+    }));
+
+    expect(markdown).to.contain('| Status | retired |');
+    expect(markdown).to.contain('| Severity | error (historical) |');
+    expect(markdown).to.contain('| Surfaces | `lint`, `runtime`, `test` (historical) |');
+    expect(markdown).to.contain('The retired operation is now a lifecycle-safe no-op.');
+  });
+
+  it('distinguishes retired diagnostics in the catalog index', function() {
+    const markdown = diagnosticIndex([
+      createDiagnostic(),
+      createDiagnostic({
+        code: 'MN0002',
+        docsAnchor: '/errors/MN0002/',
+        slug: 'retired-operation',
+        status: 'retired',
+      }),
+    ]);
+
+    expect(markdown).to.contain('| Code | Diagnostic | Status | Severity |');
+    expect(markdown).to.contain('| [MN0002](/errors/MN0002/) | retired-operation | retired | error |');
+  });
+
+  it('reserves the retired MN0028 and MN0029 identities', async function() {
+    const catalog = JSON.parse(await readFile(
+      join(process.cwd(), 'config/diagnostics/catalog.json'),
+      'utf8',
+    ));
+    const retired = catalog.diagnostics.filter(({ status }) => status === 'retired');
+
+    expect(retired.map(({ code, slug }) => ({ code, slug }))).to.deep.equal([
+      { code: 'MN0028', slug: 'region-destroyed-operation' },
+      { code: 'MN0029', slug: 'view-destroyed-set-element' },
+    ]);
+    expect(retired.map(({ severity, surfaces }) => ({ severity, surfaces }))).to.deep.equal([
+      { severity: 'error', surfaces: ['runtime'] },
+      { severity: 'error', surfaces: ['runtime'] },
+    ]);
+
+    expect(() => validate(catalog, {
+      runtimeSources: [{
+        contents: 'throw new MarionetteError({ code: \'MN0028\' });',
+        path: 'modules/region.js',
+      }],
+    })).to.throw(
+      DiagnosticCatalogValidationError,
+      'modules/region.js emits MN0028, but its catalog status is retired',
+    );
   });
 });

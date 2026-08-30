@@ -13,16 +13,16 @@ const docRoutes = new Map();
 const markdownRenderer = new Renderer();
 let packageVersion;
 
-function diagnosticIndex(diagnostics) {
-  const rows = diagnostics.map(({ code, slug, severity }) => {
-    return `| [${code}](/errors/${code}/) | ${slug} | ${severity} |`;
+export function diagnosticIndex(diagnostics) {
+  const rows = diagnostics.map(({ code, slug, severity, status }) => {
+    return `| [${code}](/errors/${code}/) | ${slug} | ${status} | ${severity} |`;
   });
 
   return [
     '## Catalog',
     '',
-    '| Code | Diagnostic | Severity |',
-    '| --- | --- | --- |',
+    '| Code | Diagnostic | Status | Severity |',
+    '| --- | --- | --- | --- |',
     ...rows,
   ].join('\n');
 }
@@ -30,6 +30,7 @@ function diagnosticIndex(diagnostics) {
 export function diagnosticPage(diagnostic) {
   const objects = diagnostic.objects.map(object => `\`${object}\``).join(', ');
   const surfaces = diagnostic.surfaces.map(surface => `\`${surface}\``).join(', ');
+  const historical = diagnostic.status === 'retired' ? ' (historical)' : '';
   const replacement = diagnostic.replacementCode ?
     `\n| Replacement | [${diagnostic.replacementCode}](/errors/${diagnostic.replacementCode}/) |` :
     '';
@@ -40,9 +41,9 @@ export function diagnosticPage(diagnostic) {
 | --- | --- |
 | Status | ${diagnostic.status} |
 | Category | ${diagnostic.category} |
-| Severity | ${diagnostic.severity} |
+| Severity | ${diagnostic.severity}${historical} |
 | Objects | ${objects} |
-| Surfaces | ${surfaces} |
+| Surfaces | ${surfaces}${historical} |
 | Benchmark category | ${diagnostic.benchmarkCategory} |${replacement}
 
 ## Remediation
