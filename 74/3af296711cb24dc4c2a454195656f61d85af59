@@ -1,0 +1,28 @@
+.github/workflows/ci.yml
+  s_d6429951fb9231::t_155801b647526a 150-155,233-234,237-244,326-342
+test/performance/contract.test.mjs
+  s_d6429951fb9231::t_f4d3f32c5f7e20 661,665,683-735
+  s_d6429951fb9231::t_8e759386707658 736-737
+.github/workflows/release.yml
+  s_d6429951fb9231::t_155801b647526a 121-122
+scripts/resolve-performance-tools.mjs
+  s_d6429951fb9231::t_2204f19f6fb5e1 9,11,15,17,32-33,35-36,45,47,49,53,55,61,63-66
+test/performance/tool-layout.test.mjs
+  s_d6429951fb9231::t_6b136d6f9f74c7 1-99
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "743af296711cb24dc4c2a454195656f61d85af59",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
