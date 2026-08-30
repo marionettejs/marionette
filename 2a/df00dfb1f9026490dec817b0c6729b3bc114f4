@@ -1,0 +1,26 @@
+test/fixtures/docs-utils-contract/validate.mjs
+  s_d6429951fb9231::t_02658096b705d2 1-65
+docs/utils.md
+  s_d6429951fb9231::t_27bb521c1a932f 45
+  s_d6429951fb9231::t_8833aab71837aa 3-5,15-18,20,24-26,28,30-35,38-40,43-44,46,50-53,55,57-125,128-141,145-147
+test/fixtures/docs-utils-contract/.gitignore
+  s_d6429951fb9231::t_02658096b705d2 1
+test/fixtures/docs-utils-contract/package.json
+  s_d6429951fb9231::t_02658096b705d2 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "2adf00dfb1f9026490dec817b0c6729b3bc114f4",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
