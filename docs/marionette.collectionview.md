@@ -147,11 +147,12 @@ attachment events and automatic child `isAttached()` updates.
 | `removeChildView(view)` or external child destruction | State is unchanged. | Removes the child from the managed set. `removeChildView` destroys it; an externally destroyed child is removed once. |
 | The owning Region detaches and re-shows the CollectionView | Remains rendered while attached changes to `false`, then back to `true`. | Live children follow the parent's detached and attached state. |
 | `destroy()` | Detaches, becomes not rendered, and enters destroyed. Repeated destroy returns the CollectionView without repeating lifecycle events. | Detaches and destroys every still-managed child after the parent element is removed. |
+| `render()` after destruction | Returns the same CollectionView and remains not rendered and destroyed. Repeated calls are no-ops. | Does not recreate or render children. |
 
 A View returned by `detachChildView()` is no longer managed by the
 `CollectionView`; another owner may show it, or the caller must destroy it.
 Operations on an already destroyed `CollectionView`, other than repeated
-`destroy()`, are not part of this lifecycle contract.
+`destroy()` and `render()`, are not part of this lifecycle contract.
 
 Read More:
 - [View Lifecycle](./view.lifecycle.md)

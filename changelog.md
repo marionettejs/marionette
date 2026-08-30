@@ -9,6 +9,8 @@
   code `MN0027`
 * Changed the base `Region#show`, `Region#empty`, and `Region#reset`
   implementations to reject destroyed Regions with stable diagnostic code `MN0028`
+* Changed destroyed `View#render` and `CollectionView#render` calls to return the
+  instance without resolving templates or running the render lifecycle
 
 ### v5.0.0-alpha.1
 

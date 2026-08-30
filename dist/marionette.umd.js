@@ -2348,8 +2348,11 @@
       return this;
     },
     render() {
+      if (this._isDestroyed) {
+        return this;
+      }
       const template = this.getTemplate();
-      if (template === false || this._isDestroyed) {
+      if (template === false) {
         return this;
       }
       this.triggerMethod('before:render', this);

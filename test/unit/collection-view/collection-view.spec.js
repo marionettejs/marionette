@@ -372,21 +372,59 @@ describe('CollectionView', function() {
     });
 
     describe('when the view is destroyed', function() {
-      beforeEach(function() {
-        myCollectionView.destroy();
+      it('should treat repeated renders as idempotent no-ops', function() {
+        const template = this.sinon.spy(() => '<div class="children"></div>');
+        const childTemplate = this.sinon.spy(() => '<span>Child</span>');
+        const childInitialize = this.sinon.spy();
+        const ChildView = View.extend({
+          initialize: childInitialize,
+          template: childTemplate,
+        });
+        const DestroyedCollectionView = CollectionView.extend({
+          childView: ChildView,
+          childViewContainer: '.children',
+          onBeforeRender: this.sinon.spy(),
+          onRender: this.sinon.spy(),
+          template,
+          ui: { children: '.children' },
+        });
+        myCollectionView = new DestroyedCollectionView({
+          collection: new Backbone.Collection([{}, {}]),
+        });
         myCollectionView.render();
-      });
+        const childViews = myCollectionView.children.map(view => view);
+        myCollectionView.destroy();
 
-      it('should not call "before:render" event', function() {
+        const sentinel = document.createElement('span');
+        sentinel.textContent = 'Unmanaged content';
+        myCollectionView.el.append(sentinel);
+        const destroyedHtml = myCollectionView.el.innerHTML;
+        template.resetHistory();
+        childTemplate.resetHistory();
+        childInitialize.resetHistory();
+        myCollectionView.onBeforeRender.resetHistory();
+        myCollectionView.onRender.resetHistory();
+        const getTemplate = this.sinon.spy(myCollectionView, 'getTemplate');
+        const bindUIElements = this.sinon.spy(myCollectionView, 'bindUIElements');
+
+        expect(myCollectionView.render()).to.equal(myCollectionView);
+        expect(myCollectionView.render()).to.equal(myCollectionView);
+
+        expect(getTemplate).to.not.have.been.called;
+        expect(template).to.not.have.been.called;
+        expect(childTemplate).to.not.have.been.called;
+        expect(childInitialize).to.not.have.been.called;
         expect(myCollectionView.onBeforeRender).to.not.have.been.called;
-      });
-
-      it('should not call "render" event', function() {
         expect(myCollectionView.onRender).to.not.have.been.called;
-      });
-
-      it('should return the collectionView instance', function() {
-        expect(myCollectionView.render).to.have.returned(myCollectionView);
+        expect(bindUIElements).to.not.have.been.called;
+        expect(myCollectionView.el.innerHTML).to.equal(destroyedHtml);
+        expect(myCollectionView.el.lastChild).to.equal(sentinel);
+        expect(myCollectionView.isRendered()).to.be.false;
+        expect(myCollectionView.isAttached()).to.be.false;
+        expect(myCollectionView.isDestroyed()).to.be.true;
+        expect(myCollectionView.children).to.have.length(0);
+        expect(myCollectionView._children).to.have.length(0);
+        childViews.forEach(view => expect(view.isDestroyed()).to.be.true);
       });
     });
   });
