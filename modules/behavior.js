@@ -46,12 +46,13 @@ const Behavior = function(options, view) {
   // between multiple views, while letting a view override
   // a selector under an UI key.
   this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui'));
-  this.setElement();
 
   // Proxy view triggers
   this.listenTo(view, 'all', this.triggerMethod);
 
   this.initialize.apply(this, arguments);
+
+  this.setElement();
 };
 
 assignOwn(Behavior, { extend, setEventDelegator });

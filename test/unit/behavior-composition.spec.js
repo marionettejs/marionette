@@ -77,9 +77,9 @@ describe('Behavior composition', function() {
         ['initViewEvents', behavior, []],
         ['behaviorUI', behavior, []],
         ['hostUI', host, []],
-        ['setElement', behavior, []],
         ['listenTo', behavior, [host, 'all', behavior.triggerMethod]],
-        ['initialize', behavior, [options, host, 'extra']]
+        ['initialize', behavior, [options, host, 'extra']],
+        ['setElement', behavior, []]
       ]);
       expect(Object.keys(behavior.ui)).to.deep.equal(['first', 'shared', 'last']);
       expect(behavior.ui).to.deep.equal({ first: '.first', shared: '.host', last: '.last' });

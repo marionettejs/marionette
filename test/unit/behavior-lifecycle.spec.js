@@ -39,6 +39,84 @@ describe('Behavior lifecycle contract', function() {
     view.destroy();
   });
 
+  it('resolves callable events after Behavior initialize and before host initialize', function() {
+    const lifecycle = [];
+    const onAction = this.sinon.spy();
+    const el = document.createElement('div');
+    el.innerHTML = '<button class="initialized-action">Action</button>';
+
+    const TestBehavior = Behavior.extend({
+      initialize() {
+        this.actionSelector = '.initialized-action';
+        lifecycle.push('behavior:initialize');
+      },
+      events() {
+        lifecycle.push(`behavior:events:${ this.actionSelector }`);
+        return {
+          [`click ${ this.actionSelector }`]: 'onAction',
+        };
+      },
+      onAction,
+    });
+    const TestView = View.extend({
+      behaviors: [TestBehavior],
+      initialize() {
+        lifecycle.push('view:initialize');
+      },
+    });
+
+    const view = new TestView({ el });
+    el.querySelector('.initialized-action').click();
+
+    expect(lifecycle).to.deep.equal([
+      'behavior:initialize',
+      'behavior:events:.initialized-action',
+      'view:initialize',
+    ]);
+    expect(onAction).to.have.been.calledOnce;
+
+    view.destroy();
+  });
+
+  it('resolves callable triggers after Behavior initialize and before host initialize', function() {
+    const lifecycle = [];
+    const onAction = this.sinon.spy();
+    const el = document.createElement('div');
+    el.innerHTML = '<button class="initialized-action">Action</button>';
+
+    const TestBehavior = Behavior.extend({
+      initialize() {
+        this.actionSelector = '.initialized-action';
+        lifecycle.push('behavior:initialize');
+      },
+      triggers() {
+        lifecycle.push(`behavior:triggers:${ this.actionSelector }`);
+        return {
+          [`click ${ this.actionSelector }`]: 'action',
+        };
+      },
+    });
+    const TestView = View.extend({
+      behaviors: [TestBehavior],
+      initialize() {
+        lifecycle.push('view:initialize');
+      },
+      onAction,
+    });
+
+    const view = new TestView({ el });
+    el.querySelector('.initialized-action').click();
+
+    expect(lifecycle).to.deep.equal([
+      'behavior:initialize',
+      'behavior:triggers:.initialized-action',
+      'view:initialize',
+    ]);
+    expect(onAction).to.have.been.calledOnce;
+
+    view.destroy();
+  });
+
   it('keeps one instance through render and attachment transitions', function() {
     this.setFixtures('<div id="behavior-region"></div>');
     const lifecycle = [];

@@ -3366,9 +3366,9 @@
     this._initViewEvents();
     this.el = view.el;
     this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui'));
-    this.setElement();
     this.listenTo(view, 'all', this.triggerMethod);
     this.initialize.apply(this, arguments);
+    this.setElement();
   };
   assignOwn(Behavior, {
     extend,

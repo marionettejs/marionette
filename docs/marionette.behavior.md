@@ -402,10 +402,13 @@ The View + Behavior initialize process is as follows:
 1. View is constructed
 2. Behavior is constructed
 3. Behavior is initialized with view property set
-4. View is initialized
-5. View triggers an `initialize` event on the behavior.
+4. Callable Behavior `events` and `triggers` are resolved and delegated
+5. View is initialized
+6. View triggers an `initialize` event on the behavior.
 
 This means that the behavior can access the view during its own `initialize` method.
+Callable `events` and `triggers` may use state established by that method before
+the View initializes.
 The view `initialize` is called later with the information eventually injected by the behavior.
 The `initialize` event is triggered on the behavior indicating that the view is fully initialized.
 
