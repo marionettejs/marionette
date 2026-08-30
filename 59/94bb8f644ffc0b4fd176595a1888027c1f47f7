@@ -1,0 +1,19 @@
+test/unit/mixins/behaviors-composition.spec.js
+  s_d6429951fb9231::t_bb63ddfff0fbfc 141-150,153,155-189,191-195,197-220,222-233,235-238,242-243,246,248,251-252,257-260,263-268,270,272-275
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "5994bb8f644ffc0b4fd176595a1888027c1f47f7",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
