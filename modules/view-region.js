@@ -378,8 +378,8 @@ assignOwn(Region.prototype, CommonMixin, {
     return !!this._isSwappingView;
   },
 
-  // Override this method to change how the new view is appended to the `$el` that the
-  // region is managing
+  // Override this method to change how the new view is appended to the element
+  // the region manages.
   attachHtml(view) {
     this.Dom.appendContents(this.el, view.el);
   },
@@ -482,9 +482,8 @@ assignOwn(Region.prototype, CommonMixin, {
     return !!this.currentView;
   },
 
-  // Reset the region by destroying any existing view and clearing out the cached `$el`.
-  // The next time a view is shown via this region, the region will re-query the DOM for
-  // the region's `el`.
+  // Reset the region by destroying any existing view and restoring its initial element.
+  // The next time a view is shown, the region will re-query the DOM for its `el`.
   reset(options) {
     const authorized = consumeDestroyTeardown(this, 'reset');
     if (!canMutateRegion(this, authorized)) { return this; }
