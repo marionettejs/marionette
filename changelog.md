@@ -2,6 +2,8 @@
 
 * Added optional `marionette/jquery-dom-api` adapter for jQuery-backed DomApi
   operations and opt-in View, CollectionView, and Behavior `$el` compatibility
+* Changed jQuery-wrapped View and CollectionView `el` inputs to fail with the
+  same `MN0001` migration diagnostic as selector strings
 * Fixed Radio circular dependency with log and debug
 * Fixed event interop with Backbone
 * Fixed delegated event matching so nested matching ancestors fire once per event

@@ -109,6 +109,25 @@ describe('jQuery DomApi adapter', function() {
     expect(view.$el[0]).to.equal(secondEl);
   });
 
+  [
+    ['View', View],
+    ['CollectionView', CollectionView],
+  ].forEach(([name, ViewClass]) => {
+    it(`rejects a jQuery-wrapped ${ name } el with the migration diagnostic`, function() {
+      const WrappedView = ViewClass.extend();
+      WrappedView.setDomApi(JQueryDomApi);
+      const wrappedEl = $(document.createElement('div'));
+
+      let error;
+      try { new WrappedView({ el: wrappedEl }); } catch (err) { error = err; }
+
+      expect(error).to.be.instanceOf(Error);
+      expect(error.code).to.equal('MN0001');
+      expect(error.message).to.contain('must be a DOM element');
+      expect(error.message).to.contain('wrappedEl[0]');
+    });
+  });
+
   it('does not mutate a view when wrapEl throws', function() {
     const oldEl = document.createElement('div');
     const newEl = document.createElement('section');

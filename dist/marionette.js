@@ -1630,19 +1630,24 @@ var DomApi = {
 };
 
 const classErrorName$3 = 'ViewError';
+function isJQueryCollection(el) {
+  return el != null && typeof el === 'object' && typeof el.jquery === 'string' && typeof el.get === 'function';
+}
 const ViewOptions = ['attributes', 'className', 'collection', 'el', 'events', 'id', 'model', 'tagName'];
 const ViewMixin = {
   tagName: 'div',
   preinitialize() {},
   Dom: DomApi,
   _validateEl(el) {
-    if (!isString(el)) {
+    const stringEl = isString(el);
+    if (!stringEl && !isJQueryCollection(el)) {
       return el;
     }
+    const migration = stringEl ? `Resolve selector strings at the call site, e.g. \`document.querySelector('${el}')\`.` : 'Unwrap jQuery collections at the call site, e.g. `wrappedEl[0]`.';
     throw new MarionetteError({
       code: 'MN0001',
       name: classErrorName$3,
-      message: `View "el" must be a DOM element. Resolve selector strings at the call site, e.g. \`document.querySelector('${el}')\`. (Region still accepts selector strings.)`,
+      message: `View "el" must be a DOM element. ${migration} (Region still accepts selector strings.)`,
       url: 'marionette.view.html#specifying-an-el'
     });
   },
