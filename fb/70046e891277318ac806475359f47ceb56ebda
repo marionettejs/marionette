@@ -1,0 +1,44 @@
+rollup.config.mjs
+  s_d6429951fb9231::t_9f60fb48458759 5
+test/fixtures/jquery-dom-api/package.json
+  s_d6429951fb9231::t_9f60fb48458759 9
+readme.md
+  s_d6429951fb9231::t_9f60fb48458759 23,39-40
+test/fixtures/shim-types/package.json
+  s_d6429951fb9231::t_9f60fb48458759 11
+test/fixtures/cjs-adapters/package.json
+  s_d6429951fb9231::t_9f60fb48458759 10
+test/fixtures/core-no-underscore/validate.mjs
+  s_d6429951fb9231::t_9f60fb48458759 1-4,7-8,10-17
+test/source/validate.mjs
+  s_d6429951fb9231::t_9f60fb48458759 2-3,16-38
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_9f60fb48458759 22,44
+docs/installation.md
+  s_d6429951fb9231::t_9f60fb48458759 35-36,66-68
+  s_d6429951fb9231::t_dc260b8389f328 69
+test/fixtures/shim/package.json
+  s_d6429951fb9231::t_9f60fb48458759 8
+upgradeGuide.md
+  s_d6429951fb9231::t_9f60fb48458759 7,9-14
+package-lock.json
+  s_d6429951fb9231::t_30bc69313de8c2 42
+package.json
+  s_d6429951fb9231::t_48ef7094762c4c 112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "fb70046e891277318ac806475359f47ceb56ebda",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
