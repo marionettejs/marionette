@@ -140,6 +140,11 @@ const MyView = View.extend({
 });
 ```
 
+Arrays are the only supported list form for `behaviors`. Object maps use own
+enumerable string keys in standard JavaScript own-key order. Inherited, symbol,
+and non-enumerable properties are ignored, and a numeric `length` property is
+an ordinary map entry rather than an array-like signal.
+
 #### Behavior Options
 
 When we attach behaviors to views, we can also pass in options to add to the
