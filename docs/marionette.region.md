@@ -566,6 +566,9 @@ directly after destruction receives `MN0028`.
 An `empty` override invoked by destruction must delegate to
 `Region.prototype.empty` to receive Marionette's View and DOM cleanup; a
 non-delegating override owns that teardown behavior.
+Destroy, reset, and empty override chaining is synchronous. Overrides must
+delegate to the base method before returning; deferred or asynchronous base
+delegation is unsupported because Region lifecycle completion is synchronous.
 
 ```javascript
 import { View } from 'marionette';
