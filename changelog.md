@@ -8,11 +8,11 @@
 * Changed `setEnabled` to reject undocumented feature names with stable diagnostic
   code `MN0027`
 * Changed the base `Region#show`, `Region#empty`, and `Region#reset`
-  implementations to reject destroyed Regions with stable diagnostic code `MN0028`
+  implementations to no-op once Region destruction begins
 * Changed destroyed `View#render` and `CollectionView#render` calls to return the
   instance without resolving templates or running the render lifecycle
 * Changed base `View#setElement` and `CollectionView#setElement` calls once
-  destruction begins to reject with stable diagnostic code `MN0029`
+  destruction begins to return the instance without changing its element
 * Changed base `CollectionView#addChildView` calls once destruction begins to
   return the supplied View without inspecting or managing it
 * Changed `View#hasRegion` to check own registered Regions without rendering or

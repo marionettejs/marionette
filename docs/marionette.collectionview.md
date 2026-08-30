@@ -148,7 +148,7 @@ attachment events and automatic child `isAttached()` updates.
 | The owning Region detaches and re-shows the CollectionView | Remains rendered while attached changes to `false`, then back to `true`. | Live children follow the parent's detached and attached state. |
 | `destroy()` | Detaches, becomes not rendered, and enters destroyed. Repeated destroy returns the CollectionView without repeating lifecycle events. | Detaches and destroys every still-managed child after the parent element is removed. |
 | `render()` after destruction | Returns the same CollectionView and remains not rendered and destroyed. Repeated calls are no-ops. | Does not recreate or render children. |
-| `setElement(el)` once destruction begins | Throws [`MN0029`](/errors/MN0029/) before inspecting or replacing the element or changing delegation, DOM, or lifecycle state. Calls during `before:destroy` and repeated calls after destruction throw the same diagnostic. | Existing child state is unchanged. |
+| `setElement(el)` once destruction begins | Returns the same CollectionView before inspecting or replacing the element or changing delegation, DOM, or lifecycle state. Calls during `before:destroy` and repeated calls after destruction are no-ops. | Existing child state is unchanged. |
 | `addChildView(view)` once destruction begins | Returns the supplied View without inspecting it, the index, or options or changing events, ownership, DOM, or lifecycle state. Calls during `before:destroy` and repeated calls after destruction are the same no-op. | The supplied View remains unchanged and can be added to a live owner. |
 
 A View returned by `detachChildView()` is no longer managed by the

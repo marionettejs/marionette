@@ -1783,16 +1783,8 @@ function consumeDestroyTeardown(region, operation) {
   destroyTeardown.delete(region);
   return true;
 }
-function assertRegionIsLive(region, operation, authorized) {
-  if (!region._isDestroyed || authorized) {
-    return;
-  }
-  throw new MarionetteError({
-    code: 'MN0028',
-    name: classErrorName$2,
-    message: `A destroyed Region cannot ${operation}.`,
-    url: 'errors/MN0028/'
-  });
+function canMutateRegion(region, authorized) {
+  return authorized || !region._isDestroying && !region._isDestroyed;
 }
 function emptyRegion(region, options = {
   allowMissingEl: true
@@ -1867,7 +1859,9 @@ assignOwn(Region.prototype, CommonMixin, {
     });
   },
   show(view, options) {
-    assertRegionIsLive(this, 'show a View');
+    if (!canMutateRegion(this)) {
+      return this;
+    }
     if (!this._ensureElement(options)) {
       return;
     }
@@ -2056,7 +2050,9 @@ assignOwn(Region.prototype, CommonMixin, {
     allowMissingEl: true
   }) {
     const authorized = consumeDestroyTeardown(this, 'empty');
-    assertRegionIsLive(this, 'empty', authorized);
+    if (!canMutateRegion(this, authorized)) {
+      return this;
+    }
     return emptyRegion(this, options);
   },
   _empty(view, shouldDestroy) {
@@ -2124,7 +2120,9 @@ assignOwn(Region.prototype, CommonMixin, {
   },
   reset(options) {
     const authorized = consumeDestroyTeardown(this, 'reset');
-    assertRegionIsLive(this, 'reset', authorized);
+    if (!canMutateRegion(this, authorized)) {
+      return this;
+    }
     if (authorized) {
       destroyTeardown.set(this, 'empty');
     }
@@ -2329,12 +2327,7 @@ assignOwn(View.prototype, ViewMixin, RegionsMixin, {
   cidPrefix: 'mnv',
   setElement(element) {
     if (this._isDestroying || this._isDestroyed) {
-      throw new MarionetteError({
-        code: 'MN0029',
-        name: 'ViewError',
-        message: 'A destroying or destroyed View cannot setElement.',
-        url: 'errors/MN0029/'
-      });
+      return this;
     }
     this._undelegateViewEvents();
     this.el = this._validateEl(element);
@@ -2906,12 +2899,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   },
   setElement(element) {
     if (this._isDestroying || this._isDestroyed) {
-      throw new MarionetteError({
-        code: 'MN0029',
-        name: classErrorName,
-        message: 'A destroying or destroyed CollectionView cannot setElement.',
-        url: 'errors/MN0029/'
-      });
+      return this;
     }
     this._undelegateViewEvents();
     this.el = this._validateEl(element);

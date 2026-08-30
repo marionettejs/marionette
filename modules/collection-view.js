@@ -334,12 +334,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   // attached on setElement.
   setElement(element) {
     if (this._isDestroying || this._isDestroyed) {
-      throw new MarionetteError({
-        code: 'MN0029',
-        name: classErrorName,
-        message: 'A destroying or destroyed CollectionView cannot setElement.',
-        url: 'errors/MN0029/',
-      });
+      return this;
     }
 
     this._undelegateViewEvents();

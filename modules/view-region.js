@@ -26,15 +26,8 @@ function consumeDestroyTeardown(region, operation) {
   return true;
 }
 
-function assertRegionIsLive(region, operation, authorized) {
-  if (!region._isDestroyed || authorized) { return; }
-
-  throw new MarionetteError({
-    code: 'MN0028',
-    name: classErrorName,
-    message: `A destroyed Region cannot ${operation}.`,
-    url: 'errors/MN0028/',
-  });
+function canMutateRegion(region, authorized) {
+  return authorized || !region._isDestroying && !region._isDestroyed;
 }
 
 function emptyRegion(region, options = { allowMissingEl: true }) {
@@ -137,7 +130,7 @@ assignOwn(Region.prototype, CommonMixin, {
   // Displays a view instance inside of the region. If necessary handles calling the `render`
   // method for you. Reads content directly from the `el` attribute.
   show(view, options) {
-    assertRegionIsLive(this, 'show a View');
+    if (!canMutateRegion(this)) { return this; }
 
     if (!this._ensureElement(options)) {
       return;
@@ -395,7 +388,7 @@ assignOwn(Region.prototype, CommonMixin, {
   // it will detach any html inside the region's `el`.
   empty(options = { allowMissingEl: true }) {
     const authorized = consumeDestroyTeardown(this, 'empty');
-    assertRegionIsLive(this, 'empty', authorized);
+    if (!canMutateRegion(this, authorized)) { return this; }
 
     return emptyRegion(this, options);
   },
@@ -494,7 +487,7 @@ assignOwn(Region.prototype, CommonMixin, {
   // the region's `el`.
   reset(options) {
     const authorized = consumeDestroyTeardown(this, 'reset');
-    assertRegionIsLive(this, 'reset', authorized);
+    if (!canMutateRegion(this, authorized)) { return this; }
 
     if (authorized) {
       destroyTeardown.set(this, 'empty');
@@ -813,12 +806,7 @@ assignOwn(View.prototype, ViewMixin, RegionsMixin, {
 
   setElement(element) {
     if (this._isDestroying || this._isDestroyed) {
-      throw new MarionetteError({
-        code: 'MN0029',
-        name: 'ViewError',
-        message: 'A destroying or destroyed View cannot setElement.',
-        url: 'errors/MN0029/',
-      });
+      return this;
     }
 
     this._undelegateViewEvents();
