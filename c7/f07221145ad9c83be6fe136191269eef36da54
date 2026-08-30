@@ -1,0 +1,62 @@
+test/unit/mixins/view.spec.js
+  s_d6429951fb9231::t_ce184d8cae4f1a 110
+  s_d6429951fb9231::t_1337f4c059866b 2,48,91-96,101-105,111-113,115-116,118,120-121,127
+  s_d6429951fb9231::t_0961174025508d 3,49-90,97-100,106-109,114,117,119,122-126
+  s_d6429951fb9231::t_a5670538847137 128-130
+mixins/view.js
+  s_d6429951fb9231::t_4950f7bde36641 145-146
+changelog.md
+  s_d6429951fb9231::t_36422cb645c3b5 33-35
+  s_d6429951fb9231::t_e8fddf0c667d9c 36-38
+dist/marionette.cjs
+  s_d6429951fb9231::t_3b68948f51c7d0 1712-1714
+  s_d6429951fb9231::t_bca3f6721cdc91 3427-3429
+dist/marionette.js
+  s_d6429951fb9231::t_1f16361e6530f6 1708-1710
+  s_d6429951fb9231::t_cb3fa35daf90b2 3423-3425
+dist/marionette.umd.js
+  s_d6429951fb9231::t_b106d4a4f934ae 1719-1721
+  s_d6429951fb9231::t_850761aa46fdda 3434-3436
+test/fixtures/docs-entity-events/package.json
+  s_d6429951fb9231::t_32f47b8c909ab4 1-10
+docs/events.entity.md
+  s_d6429951fb9231::t_90f11119b21f27 5,145-148
+  s_d6429951fb9231::t_4d398202ea3858 118-120
+  s_d6429951fb9231::t_32f47b8c909ab4 3-4,6,8,10-11,13-16,18,20,22-25,33-37,41-42,44-49,51-57,59-60,62-67,73-75,81,87-88,91-92,97,99-102,104-107,110-112,115-116,130,132-135,137-140,142,144,151-153,155-156,159-160
+  s_d6429951fb9231::t_6fe6bc6b1b795b 150
+  s_d6429951fb9231::t_e8fddf0c667d9c 26-30,121-128
+test/fixtures/docs-entity-events/validate.mjs
+  s_d6429951fb9231::t_32f47b8c909ab4 1-52,58-63,69,84-88,94,100-102,105,107-108,114,120-123,129,136-140
+  s_d6429951fb9231::t_4d398202ea3858 70-83,89-93,95-99,103,115-119,130-135
+  s_d6429951fb9231::t_e8fddf0c667d9c 53-57,64-68,104,106,109-113,124-128
+test/fixtures/docs-entity-events/.gitignore
+  s_d6429951fb9231::t_0a5686f7653159 1
+modules/behavior.js
+  s_d6429951fb9231::t_a69b731348dae1 121-122
+test/unit/behavior.spec.js
+  s_d6429951fb9231::t_becd2b7d16c9ce 784-861
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_e8fddf0c667d9c 76
+dist/marionette.min.js
+  s_d6429951fb9231::t_855976c8f61540 1
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_d674227106af61 1
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_4c23e2a0df44e8 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "c7f07221145ad9c83be6fe136191269eef36da54",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
