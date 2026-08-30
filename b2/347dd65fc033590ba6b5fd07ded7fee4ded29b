@@ -1,0 +1,76 @@
+test/performance/growth-approval.test.mjs
+  s_d6429951fb9231::t_3e3ff77577b280 124-130,566-571,579,581-584,607-612,614,617-619,623-625,630,641-653,656,659-666
+  s_d6429951fb9231::t_00f92d95cde81c 667-668
+  s_d6429951fb9231::t_b0fc448f6e6c6d 16,1394
+  s_d6429951fb9231::t_f0c125793fc609 122-123,131-135,138-141,558-560,572-578,585-586,589-594,597-600,603-606,613,615-616,620-622,626-629,631-640,654-655,657-658
+  s_d6429951fb9231::t_3e3776171fc1e3 136-137,561-565,580,587-588,595-596,601-602
+scripts/performance/bundle-size.mjs
+  s_d6429951fb9231::t_bbc8ad2ac2e28f 13,19,23
+scripts/release/build-artifact.mjs
+  s_d6429951fb9231::t_bbc8ad2ac2e28f 125
+.github/workflows/ci.yml
+  s_d6429951fb9231::t_47d88489300b24 150,228-230
+  s_d6429951fb9231::t_6dcf5dfffb7aad 313-315
+test/source/validate.mjs
+  s_d6429951fb9231::t_68c57f28b4e82a 2,19-21,59
+scripts/performance/growth-approval.mjs
+  s_d6429951fb9231::t_bbc8ad2ac2e28f 10,435-436
+  s_d6429951fb9231::t_4faadf1cf558e1 21-25,378-379,382,386-387,390-391,395-397,399,404-405
+  s_d6429951fb9231::t_d5cddde8ccaefd 425
+  s_d6429951fb9231::t_71c77a0a10adba 26-27,371-377,380-381,383-385,388-389,392-394,398,400-403,423-424,433-434
+scripts/checks/browser-profile.mjs
+  s_d6429951fb9231::t_bbc8ad2ac2e28f 6
+test/performance/resources.test.mjs
+  s_d6429951fb9231::t_b0fc448f6e6c6d 13,177
+test/unit/config/diagnostic-catalog.spec.js
+  s_d6429951fb9231::t_b0fc448f6e6c6d 9
+test/agent-benchmark/task-contract.test.mjs
+  s_d6429951fb9231::t_b0fc448f6e6c6d 9
+test/performance/budget-amendment.test.mjs
+  s_d6429951fb9231::t_b0fc448f6e6c6d 18
+scripts/performance/resolve-base-tools.mjs
+  s_d6429951fb9231::t_47d88489300b24 1-66
+scripts/checks/release-profile.mjs
+  s_d6429951fb9231::t_bbc8ad2ac2e28f 5
+package.json
+  s_d6429951fb9231::t_6dcf5dfffb7aad 85
+  s_d6429951fb9231::t_bbc8ad2ac2e28f 73,75,77-78,80-81,86-90
+scripts/docs/build.mjs
+  s_d6429951fb9231::t_bbc8ad2ac2e28f 5
+test/release/promotion.test.mjs
+  s_d6429951fb9231::t_b0fc448f6e6c6d 8,53,79
+.github/workflows/docs-pages.yml
+  s_d6429951fb9231::t_47d88489300b24 10,12
+.github/workflows/release.yml
+  s_d6429951fb9231::t_47d88489300b24 8,10-11,125
+test/performance/contract.test.mjs
+  s_d6429951fb9231::t_68c57f28b4e82a 651-658
+  s_d6429951fb9231::t_061a07e7bc428c 22,638-650,659-691,716,718-721
+  s_d6429951fb9231::t_4faadf1cf558e1 14,1129-1132
+  s_d6429951fb9231::t_b0fc448f6e6c6d 21,594,798,860
+.github/CODEOWNERS
+  s_d6429951fb9231::t_061a07e7bc428c 5-6,8
+  s_d6429951fb9231::t_47d88489300b24 3,12
+test/performance/timing.test.mjs
+  s_d6429951fb9231::t_6dcf5dfffb7aad 14,47
+docs/performance-baselines.md
+  s_d6429951fb9231::t_3e3ff77577b280 347-351
+  s_d6429951fb9231::t_4faadf1cf558e1 344-346
+  s_d6429951fb9231::t_061a07e7bc428c 340-343,352
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "b2347dd65fc033590ba6b5fd07ded7fee4ded29b",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
