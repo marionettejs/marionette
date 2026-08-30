@@ -16,7 +16,7 @@ current public behavior boundary. Final migration documentation is tracked in
 ## View `el` is element-only
 
 - `View` (and `CollectionView`) accept a DOM element for `el` in v5. Selector
-  strings are no longer resolved.
+  strings are no longer resolved, and jQuery collections must be unwrapped.
 - v4 inherited string-`el` resolution from `Backbone.View._ensureElement`, which
   used jQuery to look up the selector. v5 drops `Backbone.View` inheritance and
   the default jQuery dependency, so the string-resolution path goes with them.
@@ -35,7 +35,8 @@ current public behavior boundary. Final migration documentation is tracked in
 
 - `Region` continues to accept selector strings. That API is Marionette-native
   (the Region abstraction has always been "where to mount"), not inherited from
-  Backbone, so it is preserved.
+  Backbone, so it is preserved. When the mount point is already resolved, pass
+  its native element rather than a jQuery collection.
 
 ## jQuery DOM compatibility
 
