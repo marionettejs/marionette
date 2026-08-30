@@ -1,0 +1,39 @@
+test/unit/backbone.marionette.spec.js
+  s_d6429951fb9231::t_6d6abf7ef33ef3 50-53
+upgradeGuide.md
+  s_d6429951fb9231::t_6d6abf7ef33ef3 96-119
+docs/radio.md
+  s_d6429951fb9231::t_6d6abf7ef33ef3 14-18
+changelog.md
+  s_d6429951fb9231::t_6d6abf7ef33ef3 11-12
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_6d6abf7ef33ef3 41-43,71
+dist/marionette.cjs
+  s_d6429951fb9231::t_e01487a6fb7eb3 739-744
+dist/marionette.js
+  s_d6429951fb9231::t_26e860cf3e0017 735-740,3481
+dist/marionette.min.js
+  s_d6429951fb9231::t_272c4b18ea89d1 1
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_a9bf7c21a5b046 1
+dist/marionette.umd.js
+  s_d6429951fb9231::t_1be54f2a9462a5 746-751
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_dcccb34d86d117 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "fde30310cde36546de2d58f79e1a676c15894469",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
