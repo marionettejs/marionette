@@ -1,0 +1,67 @@
+test/performance/growth-approval.test.mjs
+  s_d6429951fb9231::t_b0fc448f6e6c6d 16,1334
+  s_d6429951fb9231::t_f0c125793fc609 122-133,550-606
+  s_d6429951fb9231::t_00f92d95cde81c 607-608
+scripts/checks/browser-profile.mjs
+  s_d6429951fb9231::t_bbc8ad2ac2e28f 1-84
+scripts/performance/growth-approval.mjs
+  s_d6429951fb9231::t_4faadf1cf558e1 21-25,369-392,415-420
+  s_d6429951fb9231::t_bbc8ad2ac2e28f 1-20,26-368,393-414,421-1165
+.github/workflows/docs-pages.yml
+  s_d6429951fb9231::t_47d88489300b24 10,12
+test/agent-benchmark/task-contract.test.mjs
+  s_d6429951fb9231::t_b0fc448f6e6c6d 9
+scripts/performance/bundle-size.mjs
+  s_d6429951fb9231::t_bbc8ad2ac2e28f 1-915
+scripts/release/build-artifact.mjs
+  s_d6429951fb9231::t_bbc8ad2ac2e28f 1-207
+test/performance/budget-amendment.test.mjs
+  s_d6429951fb9231::t_b0fc448f6e6c6d 18
+test/unit/config/diagnostic-catalog.spec.js
+  s_d6429951fb9231::t_b0fc448f6e6c6d 9
+.github/workflows/release.yml
+  s_d6429951fb9231::t_47d88489300b24 8,10-11,125
+scripts/performance/resolve-base-tools.mjs
+  s_d6429951fb9231::t_47d88489300b24 1-66
+.github/workflows/ci.yml
+  s_d6429951fb9231::t_47d88489300b24 150,228-230
+scripts/docs/build.mjs
+  s_d6429951fb9231::t_bbc8ad2ac2e28f 1-252
+scripts/checks/release-profile.mjs
+  s_d6429951fb9231::t_bbc8ad2ac2e28f 1-156
+.github/CODEOWNERS
+  s_d6429951fb9231::t_47d88489300b24 3,12
+  s_d6429951fb9231::t_061a07e7bc428c 5-6,8
+test/source/validate.mjs
+  s_d6429951fb9231::t_68c57f28b4e82a 2,19-21,59
+test/release/promotion.test.mjs
+  s_d6429951fb9231::t_b0fc448f6e6c6d 8,53,79
+docs/performance-baselines.md
+  s_d6429951fb9231::t_4faadf1cf558e1 344-349
+  s_d6429951fb9231::t_061a07e7bc428c 340-343,350
+test/performance/contract.test.mjs
+  s_d6429951fb9231::t_68c57f28b4e82a 651-658
+  s_d6429951fb9231::t_b0fc448f6e6c6d 21,594,798,860
+  s_d6429951fb9231::t_4faadf1cf558e1 14,1129-1132
+  s_d6429951fb9231::t_061a07e7bc428c 22,638-650,659-691,716,718-721
+package.json
+  s_d6429951fb9231::t_bbc8ad2ac2e28f 73,75,77-78,80-81,86-90
+test/performance/resources.test.mjs
+  s_d6429951fb9231::t_b0fc448f6e6c6d 13,177
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "58ff042a44f9d66c636d8ea70bd2c23182bffa29",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
