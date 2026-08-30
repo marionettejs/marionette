@@ -251,6 +251,32 @@ describe('CollectionView lifecycle contract', function() {
     region.destroy();
   });
 
+  it('destroys manually added children on rerender and collection reset', function() {
+    const collection = new Backbone.Collection([{ id: 1 }]);
+    const collectionView = new CollectionView({ collection, childView: ChildView });
+    const rerenderChild = new ChildView();
+    const resetChild = new ChildView();
+    const destroyChild = new ChildView();
+
+    collectionView.render();
+    collectionView.addChildView(rerenderChild);
+    collectionView.render();
+
+    expect(rerenderChild.isDestroyed()).to.be.true;
+    expect(collectionView.children.hasView(rerenderChild)).to.be.false;
+
+    collectionView.addChildView(resetChild);
+    collection.reset([{ id: 2 }]);
+
+    expect(resetChild.isDestroyed()).to.be.true;
+    expect(collectionView.children.hasView(resetChild)).to.be.false;
+
+    collectionView.addChildView(destroyChild);
+    collectionView.destroy();
+
+    expect(destroyChild.isDestroyed()).to.be.true;
+  });
+
   it('leaves child attachment state unmonitored when parent monitoring is disabled', function() {
     this.setFixtures('<div id="unmonitored-region"></div>');
     const collectionView = new CollectionView();
