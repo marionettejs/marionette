@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import {
+  Behavior,
   CollectionView,
   DomApi,
   Region,
@@ -46,8 +47,11 @@ describe('jQuery DomApi adapter', function() {
     expect(collectionView).to.not.have.property('$el');
   });
 
-  it('does not provide wrapEl on the jQuery DomApi adapter', function() {
-    expect(JQueryDomApi.wrapEl).to.be.undefined;
+  it('provides wrapEl on the jQuery DomApi adapter', function() {
+    const el = document.createElement('div');
+
+    expect(JQueryDomApi.wrapEl(el)).to.be.instanceof($);
+    expect(JQueryDomApi.wrapEl(el)[0]).to.equal(el);
   });
 
   it('returns native results from view.$() with the native DomApi', function() {
@@ -78,7 +82,78 @@ describe('jQuery DomApi adapter', function() {
 
     expect(result).to.be.instanceof($);
     expect(result[0]).to.equal(child);
+    expect(view.$el).to.be.instanceof($);
+    expect(view.$el[0]).to.equal(view.el);
+  });
+
+  it('creates $el for CollectionView when the jQuery DomApi is active', function() {
+    const JQueryCollectionView = CollectionView.extend();
+    JQueryCollectionView.setDomApi(JQueryDomApi);
+
+    const view = new JQueryCollectionView();
+
+    expect(view.$el).to.be.instanceof($);
+    expect(view.$el[0]).to.equal(view.el);
+  });
+
+  it('refreshes $el when setElement changes the view element', function() {
+    const JQueryView = View.extend();
+    JQueryView.setDomApi(JQueryDomApi);
+    const firstEl = document.createElement('div');
+    const secondEl = document.createElement('section');
+    const view = new JQueryView({ el: firstEl });
+
+    view.setElement(secondEl);
+
+    expect(view.el).to.equal(secondEl);
+    expect(view.$el[0]).to.equal(secondEl);
+  });
+
+  it('does not mutate a view when wrapEl throws', function() {
+    const oldEl = document.createElement('div');
+    const newEl = document.createElement('section');
+    const error = new Error('wrap failed');
+    const onClick = this.sinon.stub();
+    const view = new View({
+      el: oldEl,
+      events: { click: onClick },
+    });
+    view.Dom = Object.assign({}, view.Dom, {
+      wrapEl() {
+        throw error;
+      },
+    });
+
+    expect(() => view.setElement(newEl)).to.throw(error);
+    expect(view.el).to.equal(oldEl);
     expect(view).to.not.have.property('$el');
+
+    oldEl.click();
+
+    expect(onClick).to.have.been.calledOnce;
+  });
+
+  it('mirrors the host view $el on behaviors', function() {
+    let behavior;
+    const JQueryView = View.extend({
+      behaviors: [Behavior.extend({
+        initialize() {
+          behavior = this;
+        },
+      })],
+    });
+    JQueryView.setDomApi(JQueryDomApi);
+
+    const view = new JQueryView();
+    const nextEl = document.createElement('section');
+
+    expect(behavior.$el).to.equal(view.$el);
+    expect(behavior.$el[0]).to.equal(view.el);
+
+    view.setElement(nextEl);
+
+    expect(behavior.$el).to.equal(view.$el);
+    expect(behavior.$el[0]).to.equal(nextEl);
   });
 
   it('detaches elements without removing listeners with the jQuery DomApi', function() {

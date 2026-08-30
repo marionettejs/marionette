@@ -3,6 +3,7 @@ import JQueryDomApi from 'marionette/jquery-dom-api';
 const host = document.createElement('div');
 const fragment = document.createDocumentFragment();
 const result: JQuery<HTMLElement> = JQueryDomApi.findEl(host, '.child');
+const wrapped: JQuery<HTMLElement> = JQueryDomApi.wrapEl(host);
 
 JQueryDomApi.detachEl(host);
 JQueryDomApi.setContents(host, '<span>child</span>');
@@ -18,4 +19,5 @@ JQueryDomApi.findEl(host, 1);
 JQueryDomApi.addClass('active');
 
 void result;
+void wrapped;
 void element;

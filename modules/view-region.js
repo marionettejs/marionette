@@ -809,8 +809,16 @@ assignOwn(View.prototype, ViewMixin, RegionsMixin, {
       return this;
     }
 
+    const el = this._validateEl(element);
+    const wrappedEl = this.Dom.wrapEl && this.Dom.wrapEl(el);
+
     this._undelegateViewEvents();
-    this.el = this._validateEl(element);
+    this.el = el;
+    if (this.Dom.wrapEl) {
+      this.$el = wrappedEl;
+    } else {
+      delete this.$el;
+    }
     this._setBehaviorElements();
 
     this._isRendered = this.Dom.hasContents(this.el);

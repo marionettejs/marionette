@@ -39,9 +39,10 @@ current public behavior boundary. Final migration documentation is tracked in
 
 ## jQuery DOM compatibility
 
-- v5 core does not depend on jQuery and does not create `view.$el`.
-- Apps that want Marionette DOM operations such as `view.$(selector)` to return
-  jQuery collections can opt into the `marionette/jquery-dom-api` adapter:
+- v5 core does not depend on jQuery and the native DomApi does not create
+  `view.$el`.
+- Apps that need the v4 jQuery compatibility surface can opt into the
+  `marionette/jquery-dom-api` adapter:
 
   ```js
   import { setDomApi } from 'marionette';
@@ -52,19 +53,12 @@ current public behavior boundary. Final migration documentation is tracked in
 
 - The adapter imports `jquery`, so jQuery is an optional peer dependency only for
   consumers that opt into this subpath.
-- The adapter intentionally does not add `$el`. If legacy app code still expects
-  `view.$el`, set it in your own view layer:
-
-  ```js
-  import $ from 'jquery';
-  import { View } from 'marionette';
-
-  const LegacyView = View.extend({
-    initialize() {
-      this.$el = $(this.el);
-    }
-  });
-  ```
+- With the adapter active before construction, `View` and `CollectionView`
+  create and refresh `$el` through `setElement()`. Behaviors mirror their host
+  View's `$el`. `view.$(selector)` also returns a jQuery collection.
+- This does not restore Backbone.View inheritance or allow selector strings as a
+  View `el`; resolve View elements explicitly. Region selector strings remain
+  supported.
 
 ## `detachContents` policy
 

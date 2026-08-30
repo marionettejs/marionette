@@ -13,6 +13,7 @@ assert.ok(new Marionette.MarionetteError({ message: 'fixture' }) instanceof Erro
 assert.equal(Backbone.Model.prototype.triggerMethod, Marionette.Events.triggerMethod);
 assert.equal(typeof jqueryDomApi.findEl, 'function');
 assert.equal(typeof jqueryDomApi.setContents, 'function');
+assert.equal(typeof jqueryDomApi.wrapEl, 'function');
 
 const root = resolve(import.meta.dirname, '../..');
 const packageJson = JSON.parse(readFileSync(resolve(root, 'package.json')));

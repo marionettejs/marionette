@@ -19,4 +19,5 @@ const result = view.$('.child');
 
 assert.ok(result instanceof $);
 assert.strictEqual(result[0].textContent, 'child');
-assert.strictEqual(Object.prototype.hasOwnProperty.call(view, '$el'), false);
+assert.ok(view.$el instanceof $);
+assert.strictEqual(view.$el[0], el);

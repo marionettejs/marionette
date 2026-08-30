@@ -1,7 +1,7 @@
 ### v5.0.0-alpha.2
 
 * Added optional `marionette/jquery-dom-api` adapter for jQuery-backed DomApi
-  operations without restoring `$el`
+  operations and opt-in View, CollectionView, and Behavior `$el` compatibility
 * Fixed Radio circular dependency with log and debug
 * Fixed event interop with Backbone
 * Fixed delegated event matching so nested matching ancestors fire once per event

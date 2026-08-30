@@ -109,7 +109,7 @@
     "@types/backbone": "^1.4.23",
     "@types/jquery": "^3.5.34",
     "backbone": "^1.4.0",
-    "jquery": "^3.5.0"
+    "jquery": ">=3.5.0 <5"
   },
   "peerDependenciesMeta": {
     "backbone": {

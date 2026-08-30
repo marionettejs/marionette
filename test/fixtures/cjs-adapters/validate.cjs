@@ -29,5 +29,7 @@ const result = view.$('.child');
 
 assert.ok(result instanceof $);
 assert.strictEqual(result[0].textContent, 'child');
+assert.ok(view.$el instanceof $);
+assert.strictEqual(view.$el[0], el);
 
 dom.window.close();

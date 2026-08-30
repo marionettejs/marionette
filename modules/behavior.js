@@ -86,6 +86,11 @@ assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, V
     this._undelegateViewEvents();
 
     this.el = this.view.el;
+    if (this.view.$el) {
+      this.$el = this.view.$el;
+    } else {
+      delete this.$el;
+    }
 
     this._delegateViewEvents(this.view);
 
