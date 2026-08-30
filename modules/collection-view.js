@@ -510,7 +510,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     }
 
     // Support filter predicates `{ fooFlag: true }`
-    if (viewFilter !== null && typeof viewFilter === 'object' && !Array.isArray(viewFilter)) {
+    if (typeof viewFilter === 'object' && !Array.isArray(viewFilter)) {
       return modelAttributesMatcher(viewFilter);
     }
 

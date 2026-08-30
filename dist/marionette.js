@@ -2959,7 +2959,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     if (typeof viewFilter === 'function') {
       return viewFilter;
     }
-    if (viewFilter !== null && typeof viewFilter === 'object' && !Array.isArray(viewFilter)) {
+    if (typeof viewFilter === 'object' && !Array.isArray(viewFilter)) {
       return modelAttributesMatcher(viewFilter);
     }
     if (isString(viewFilter)) {
