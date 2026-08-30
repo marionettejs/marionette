@@ -117,6 +117,12 @@ function difference(left, right) {
   return left.filter(value => !rightSet.has(value));
 }
 
+function canonicalForbiddenExternalImports(values) {
+  return Array.isArray(values) && values.length > 0 &&
+    values.every(value => typeof value === 'string' && value.length > 0) &&
+    values.every((value, index) => index === 0 || values[index - 1] < value);
+}
+
 export function validateContract(contract, packageJson, runtimeFiles, budgetAmendments = null) {
   const violations = [];
   if (contract.schemaVersion !== 1) {
@@ -124,6 +130,10 @@ export function validateContract(contract, packageJson, runtimeFiles, budgetAmen
   }
   violations.push(...validateGrowthApprovalPolicy(contract.pullRequestGrowthApproval)
     .map(({ message }) => message));
+  if (Object.hasOwn(contract, 'forbiddenExternalImports') &&
+      !canonicalForbiddenExternalImports(contract.forbiddenExternalImports)) {
+    violations.push('forbiddenExternalImports must be a sorted, unique array of non-empty strings');
+  }
 
   const baselineTotal = contract.runtimeArtifacts
     .reduce((total, artifact) => total + artifact.baselineBrotliBytes, 0);
@@ -206,6 +216,13 @@ export function findForbiddenModules(modules, contract) {
     return contract.forbiddenProductionModules.includes(module) ||
       contract.forbiddenProductionModulePrefixes.some(prefix => module.startsWith(prefix));
   });
+}
+
+export function findForbiddenExternalImports(externalImports, contract) {
+  const forbiddenExternalImports = Array.isArray(contract.forbiddenExternalImports) ?
+    contract.forbiddenExternalImports : [];
+  const forbidden = new Set(forbiddenExternalImports);
+  return externalImports.filter(externalImport => forbidden.has(externalImport));
 }
 
 async function sha256(file) {
@@ -325,6 +342,7 @@ async function measureGraph(root, configurations, graph, contract) {
       phase0AddedExternalImports: difference(externalImports, graph.baselineExternalImports),
       phase0RemovedExternalImports: difference(graph.baselineExternalImports, externalImports),
       forbiddenModules: findForbiddenModules(modules, contract),
+      forbiddenExternalImports: findForbiddenExternalImports(externalImports, contract),
     };
   } finally {
     await bundle.close();
@@ -425,6 +443,9 @@ export async function measure({
       if (result.forbiddenModules.length) {
         violations.push(`${graph.subpath} includes forbidden production modules: ${result.forbiddenModules.join(', ')}`);
       }
+      if (result.forbiddenExternalImports.length) {
+        violations.push(`${graph.subpath} includes forbidden external imports: ${result.forbiddenExternalImports.join(', ')}`);
+      }
     } catch (error) {
       graphs.push({
         subpath: graph.subpath,
@@ -434,6 +455,7 @@ export async function measure({
         modules: [],
         externalImports: [],
         forbiddenModules: [],
+        forbiddenExternalImports: [],
         error: error.message,
       });
       violations.push(`Unable to measure production graph ${graph.subpath}: ${error.message}`);
@@ -449,6 +471,7 @@ export async function measure({
         modules: [],
         externalImports: [],
         forbiddenModules: [],
+        forbiddenExternalImports: [],
         error: 'New exported runtime subpath is not defined by the authority contract',
       });
     }
