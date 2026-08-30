@@ -2,6 +2,7 @@ import _ from 'underscore';
 
 import Region from '../../modules/region';
 import View from '../../modules/view';
+import MarionetteError from '../../utils/error';
 
 describe('Region lifecycle contract', function() {
   'use strict';
@@ -254,6 +255,47 @@ describe('Region lifecycle contract', function() {
     expect(owner._removeReferences).to.have.been.calledOnceWith('content');
 
     owner.destroy();
+  });
+
+  it('rejects show after destruction before resolving or mutating ownership', function() {
+    const view = new TestView();
+    const destroyedView = new TestView();
+    const beforeShow = this.sinon.spy();
+    const show = this.sinon.spy();
+
+    region.on('before:show', beforeShow);
+    region.on('show', show);
+    this.sinon.spy(view, 'render');
+
+    expect(region.destroy()).to.equal(region);
+
+    expect(() => region.show(view)).to.throw(MarionetteError).and.include({
+      code: 'MN0028',
+      name: 'RegionError',
+    });
+    expect(() => region.show(view)).to.throw(MarionetteError).and.include({
+      code: 'MN0028',
+      name: 'RegionError',
+    });
+
+    document.querySelector('#region').remove();
+    destroyedView.destroy();
+
+    expect(() => region.show(destroyedView)).to.throw(MarionetteError).and.include({
+      code: 'MN0028',
+      name: 'RegionError',
+    });
+    expect(region.isDestroyed()).to.be.true;
+    expect(region.hasView()).to.be.false;
+    expect(region.currentView).to.be.undefined;
+    expect(beforeShow).to.not.have.been.called;
+    expect(show).to.not.have.been.called;
+    expect(view.render).to.not.have.been.called;
+    expect(view.isRendered()).to.be.false;
+    expect(view.isDestroyed()).to.be.false;
+    expect(region.destroy()).to.equal(region);
+
+    view.destroy();
   });
 
   it('clears the Region once when its current View is destroyed externally', function() {

@@ -1840,6 +1840,13 @@
       });
     },
     show(view, options) {
+      if (this._isDestroyed) {
+        throw new MarionetteError({
+          code: 'MN0028',
+          name: classErrorName$2,
+          message: 'A destroyed Region cannot show a View.'
+        });
+      }
       if (!this._ensureElement(options)) {
         return;
       }
