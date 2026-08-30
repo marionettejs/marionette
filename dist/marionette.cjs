@@ -1779,6 +1779,25 @@ function setRenderer$1(renderer) {
 }
 
 const classErrorName$2 = 'RegionError';
+const destroyTeardown = new WeakMap();
+function consumeDestroyTeardown(region, operation) {
+  if (destroyTeardown.get(region) !== operation) {
+    return false;
+  }
+  destroyTeardown.delete(region);
+  return true;
+}
+function assertRegionIsLive(region, operation, authorized) {
+  if (!region._isDestroyed || authorized) {
+    return;
+  }
+  throw new MarionetteError({
+    code: 'MN0028',
+    name: classErrorName$2,
+    message: `A destroyed Region cannot ${operation}.`,
+    url: 'errors/MN0028/'
+  });
+}
 function setRegion(regions, definition, name) {
   Object.defineProperty(regions, name, {
     configurable: true,
@@ -1833,14 +1852,7 @@ assignOwn(Region.prototype, CommonMixin, {
     });
   },
   show(view, options) {
-    if (this._isDestroyed) {
-      throw new MarionetteError({
-        code: 'MN0028',
-        name: classErrorName$2,
-        message: 'A destroyed Region cannot show a View.',
-        url: 'errors/MN0028/'
-      });
-    }
+    assertRegionIsLive(this, 'show a View');
     if (!this._ensureElement(options)) {
       return;
     }
@@ -2028,6 +2040,13 @@ assignOwn(Region.prototype, CommonMixin, {
   empty(options = {
     allowMissingEl: true
   }) {
+    const authorized = consumeDestroyTeardown(this, 'empty');
+    assertRegionIsLive(this, 'empty', authorized);
+    return this._emptyRegion(options);
+  },
+  _emptyRegion(options = {
+    allowMissingEl: true
+  }) {
     const view = this.currentView;
     if (!view) {
       if (this._ensureElement(options)) {
@@ -2102,7 +2121,18 @@ assignOwn(Region.prototype, CommonMixin, {
     return !!this.currentView;
   },
   reset(options) {
-    this.empty(options);
+    const authorized = consumeDestroyTeardown(this, 'reset');
+    assertRegionIsLive(this, 'reset', authorized);
+    if (authorized) {
+      destroyTeardown.set(this, 'empty');
+    }
+    try {
+      this.empty(options);
+    } finally {
+      if (authorized && destroyTeardown.get(this) === 'empty') {
+        destroyTeardown.delete(this);
+      }
+    }
     this.el = this._initEl;
     delete this.$el;
     return this;
@@ -2123,7 +2153,12 @@ assignOwn(Region.prototype, CommonMixin, {
       throw error;
     }
     this._isDestroyed = true;
-    this.reset(options);
+    destroyTeardown.set(this, 'reset');
+    try {
+      this.reset(options);
+    } finally {
+      destroyTeardown.delete(this);
+    }
     if (this._name) {
       this._parentView._removeReferences(this._name);
     }

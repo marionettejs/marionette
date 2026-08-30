@@ -195,6 +195,125 @@ describe('Region lifecycle contract', function() {
     expect(region.isDestroyed()).to.be.true;
   });
 
+  it('authorizes only the intended reset and empty override chain during destroy', function() {
+    const lifecycle = [];
+    const rejected = [];
+    let duringDestroy = false;
+    let view;
+    const captureRejection = (label, currentRegion, operation) => {
+      let error;
+      try {
+        operation();
+      } catch (caughtError) {
+        error = caughtError;
+      }
+      rejected.push({
+        label,
+        error,
+        currentView: currentRegion.currentView,
+        el: currentRegion.el,
+      });
+    };
+    const CustomRegion = Region.extend({
+      reset(options) {
+        if (duringDestroy) {
+          lifecycle.push('reset');
+          captureRejection('reset:empty', this, () => Region.prototype.empty.call(this));
+        }
+        return Region.prototype.reset.call(this, options);
+      },
+      empty(options) {
+        if (duringDestroy) {
+          lifecycle.push('empty');
+          captureRejection('empty:reset', this, () => Region.prototype.reset.call(this));
+        }
+        return Region.prototype.empty.call(this, options);
+      },
+    });
+    const customRegion = new CustomRegion({ el: '#region' });
+    view = new TestView();
+    customRegion.show(view);
+    const occupiedEl = customRegion.el;
+    customRegion.on('before:empty', currentRegion => {
+      lifecycle.push('before:empty');
+      captureRejection(
+        'before:empty:empty',
+        currentRegion,
+        () => Region.prototype.empty.call(currentRegion)
+      );
+      captureRejection(
+        'before:empty:reset',
+        currentRegion,
+        () => Region.prototype.reset.call(currentRegion)
+      );
+    });
+
+    duringDestroy = true;
+    expect(customRegion.destroy()).to.equal(customRegion);
+    expect(lifecycle).to.deep.equal(['reset', 'empty', 'before:empty']);
+    expect(rejected.map(({ label }) => label)).to.deep.equal([
+      'reset:empty',
+      'empty:reset',
+      'before:empty:empty',
+      'before:empty:reset',
+    ]);
+    for (const rejection of rejected) {
+      expect(rejection.error).to.be.instanceOf(MarionetteError).and.include({
+        code: 'MN0028',
+        name: 'RegionError',
+      });
+      expect(rejection.currentView).to.equal(view);
+      expect(rejection.el).to.equal(occupiedEl);
+    }
+    expect(customRegion.isDestroyed()).to.be.true;
+    expect(customRegion.hasView()).to.be.false;
+    expect(customRegion.currentView).to.be.undefined;
+    expect(view.isDestroyed()).to.be.true;
+  });
+
+  it('consumes teardown authorization when an empty override omits the base method', function() {
+    let overrideSymbolKeys;
+    const CustomRegion = Region.extend({
+      empty() {
+        overrideSymbolKeys = Reflect.ownKeys(this)
+          .filter(key => typeof key === 'symbol');
+        return this;
+      },
+    });
+    const customRegion = new CustomRegion({ el: '#region' });
+    const originalSymbolKeys = Reflect.ownKeys(customRegion)
+      .filter(key => typeof key === 'symbol');
+    this.sinon.spy(customRegion, 'empty');
+
+    expect(customRegion.destroy()).to.equal(customRegion);
+    expect(customRegion.empty).to.have.been.calledOnce;
+    expect(overrideSymbolKeys).to.deep.equal(originalSymbolKeys);
+
+    const regionEl = document.querySelector('#region');
+    const sentinel = document.createElement('span');
+    sentinel.textContent = 'unmanaged';
+    regionEl.appendChild(sentinel);
+    const cachedEl = customRegion.el;
+    const cached$El = { cached: true };
+    customRegion.$el = cached$El;
+
+    expect(() => Region.prototype.empty.call(customRegion)).to.throw(MarionetteError).and.include({
+      code: 'MN0028',
+      name: 'RegionError',
+    });
+    expect(() => Region.prototype.reset.call(customRegion)).to.throw(MarionetteError).and.include({
+      code: 'MN0028',
+      name: 'RegionError',
+    });
+    expect(Reflect.ownKeys(customRegion).filter(key => typeof key === 'symbol'))
+      .to.deep.equal(originalSymbolKeys);
+    expect(customRegion.el).to.equal(cachedEl);
+    expect(customRegion.$el).to.equal(cached$El);
+    expect(regionEl.childNodes).to.have.length(1);
+    expect(regionEl.firstChild).to.equal(sentinel);
+    expect(sentinel.textContent).to.equal('unmanaged');
+  });
+
   it('retries destruction after before:destroy throws and cleans up ownership once', function() {
     const error = new Error('before:destroy failed');
     const firstOptions = { attempt: 1 };
@@ -331,6 +450,72 @@ describe('Region lifecycle contract', function() {
     expect(beforeEmpty).to.not.have.been.called;
     expect(empty).to.not.have.been.called;
   });
+
+  for (const operation of ['empty', 'reset']) {
+    it(`rejects ${operation} after destruction without changing lifecycle state`, function() {
+      const owner = new View({
+        regions: {
+          content: '.content',
+        },
+        template() {
+          return '<div class="content"></div>';
+        },
+      });
+      const view = new TestView();
+      owner.render();
+      const ownedRegion = owner.getRegion('content');
+      ownedRegion.show(view);
+      ownedRegion.destroy();
+
+      const regionEl = owner.el.querySelector('.content');
+      const sentinel = document.createElement('span');
+      sentinel.textContent = 'unmanaged';
+      regionEl.appendChild(sentinel);
+      const cachedEl = ownedRegion.el;
+      const cached$El = { cached: true };
+      ownedRegion.$el = cached$El;
+      const beforeEmpty = this.sinon.spy();
+      const empty = this.sinon.spy();
+      ownedRegion.on('before:empty', beforeEmpty);
+      ownedRegion.on('empty', empty);
+      this.sinon.spy(ownedRegion, 'getEl');
+
+      let error;
+      try {
+        ownedRegion[operation]();
+      } catch (caughtError) {
+        error = caughtError;
+      }
+
+      expect(error).to.be.instanceOf(MarionetteError).and.include({
+        code: 'MN0028',
+        name: 'RegionError',
+      });
+      expect(error.url).to.match(/\/errors\/MN0028\/$/);
+      expect(() => ownedRegion[operation]()).to.throw(MarionetteError).and.include({
+        code: 'MN0028',
+        name: 'RegionError',
+      });
+      expect(ownedRegion.isDestroyed()).to.be.true;
+      expect(ownedRegion.hasView()).to.be.false;
+      expect(ownedRegion.currentView).to.be.undefined;
+      expect(ownedRegion.el).to.equal(cachedEl);
+      expect(ownedRegion.$el).to.equal(cached$El);
+      expect(ownedRegion.getEl).to.not.have.been.called;
+      expect(regionEl.childNodes).to.have.length(1);
+      expect(regionEl.firstChild).to.equal(sentinel);
+      expect(sentinel.textContent).to.equal('unmanaged');
+      expect(beforeEmpty).to.not.have.been.called;
+      expect(empty).to.not.have.been.called;
+      expect(view.isDestroyed()).to.be.true;
+      expect(owner.hasRegion('content')).to.be.false;
+      expect(owner.getRegion('content')).to.be.undefined;
+      expect(owner.regions).not.to.have.own.property('content');
+      expect(owner._regions).not.to.have.own.property('content');
+
+      owner.destroy();
+    });
+  }
 
   it('clears the Region once when its current View is destroyed externally', function() {
     const view = new TestView();

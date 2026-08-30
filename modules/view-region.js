@@ -17,6 +17,25 @@ import { setEventDelegator } from '../runtime/event-delegator.js';
 import { setRenderer } from '../runtime/renderer.js';
 
 const classErrorName = 'RegionError';
+const destroyTeardown = new WeakMap();
+
+function consumeDestroyTeardown(region, operation) {
+  if (destroyTeardown.get(region) !== operation) { return false; }
+
+  destroyTeardown.delete(region);
+  return true;
+}
+
+function assertRegionIsLive(region, operation, authorized) {
+  if (!region._isDestroyed || authorized) { return; }
+
+  throw new MarionetteError({
+    code: 'MN0028',
+    name: classErrorName,
+    message: `A destroyed Region cannot ${operation}.`,
+    url: 'errors/MN0028/',
+  });
+}
 
 function setRegion(regions, definition, name) {
   Object.defineProperty(regions, name, {
@@ -96,14 +115,7 @@ assignOwn(Region.prototype, CommonMixin, {
   // Displays a view instance inside of the region. If necessary handles calling the `render`
   // method for you. Reads content directly from the `el` attribute.
   show(view, options) {
-    if (this._isDestroyed) {
-      throw new MarionetteError({
-        code: 'MN0028',
-        name: classErrorName,
-        message: 'A destroyed Region cannot show a View.',
-        url: 'errors/MN0028/',
-      });
-    }
+    assertRegionIsLive(this, 'show a View');
 
     if (!this._ensureElement(options)) {
       return;
@@ -360,6 +372,13 @@ assignOwn(Region.prototype, CommonMixin, {
   // Destroy the current view, if there is one. If there is no current view,
   // it will detach any html inside the region's `el`.
   empty(options = { allowMissingEl: true }) {
+    const authorized = consumeDestroyTeardown(this, 'empty');
+    assertRegionIsLive(this, 'empty', authorized);
+
+    return this._emptyRegion(options);
+  },
+
+  _emptyRegion(options = { allowMissingEl: true }) {
     const view = this.currentView;
 
     // If there is no view in the region we should only detach current html
@@ -467,8 +486,19 @@ assignOwn(Region.prototype, CommonMixin, {
   // The next time a view is shown via this region, the region will re-query the DOM for
   // the region's `el`.
   reset(options) {
-    this.empty(options);
+    const authorized = consumeDestroyTeardown(this, 'reset');
+    assertRegionIsLive(this, 'reset', authorized);
 
+    if (authorized) {
+      destroyTeardown.set(this, 'empty');
+    }
+    try {
+      this.empty(options);
+    } finally {
+      if (authorized && destroyTeardown.get(this) === 'empty') {
+        destroyTeardown.delete(this);
+      }
+    }
     this.el = this._initEl;
 
     delete this.$el;
@@ -494,8 +524,12 @@ assignOwn(Region.prototype, CommonMixin, {
     }
     this._isDestroyed = true;
 
-    // reset remains valid here because it completes this destruction lifecycle.
-    this.reset(options);
+    destroyTeardown.set(this, 'reset');
+    try {
+      this.reset(options);
+    } finally {
+      destroyTeardown.delete(this);
+    }
 
     if (this._name) {
       this._parentView._removeReferences(this._name);
