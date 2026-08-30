@@ -3,6 +3,7 @@ import MarionetteError from '../utils/error.js';
 // Add Feature flags here
 // e.g. 'class' => false
 const FEATURES = {
+  __proto__: null,
   childViewEventPrefix: false,
   triggersStopPropagation: true,
   triggersPreventDefault: true

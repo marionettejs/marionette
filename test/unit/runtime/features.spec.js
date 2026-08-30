@@ -1,6 +1,8 @@
 import { FEATURES, setEnabled, isEnabled } from '../../../runtime/features';
 import MarionetteError from '../../../utils/error';
 
+const invalidFeatureNames = ['', ' ', 'applicationOwned', 'constructor', 'toString', '__proto__', 'hasOwnProperty'];
+
 describe('features', function() {
   describe('#isEnabled', function() {
     it('returns the configured state of each Marionette feature', function() {
@@ -15,7 +17,9 @@ describe('features', function() {
     });
 
     it('remains disabled for unknown names', function() {
-      expect(isEnabled('applicationOwned')).to.be.false;
+      for (const name of invalidFeatureNames) {
+        expect(isEnabled(name)).to.be.false;
+      }
     });
 
     it('remains disabled for non-string names', function() {
@@ -36,11 +40,10 @@ describe('features', function() {
     });
 
     it('rejects unknown feature names without mutation', function() {
-      const names = ['', ' ', 'applicationOwned', 'constructor', 'toString', '__proto__'];
       const initialFeatures = { ...FEATURES };
       const prototype = Object.getPrototypeOf(FEATURES);
 
-      for (const name of names) {
+      for (const name of invalidFeatureNames) {
         expect(() => setEnabled(name, true))
           .to.throw()
           .with.property('code', 'MN0027');

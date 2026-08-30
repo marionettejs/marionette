@@ -1395,6 +1395,7 @@ var UIMixin = {
 };
 
 const FEATURES = {
+  __proto__: null,
   childViewEventPrefix: false,
   triggersStopPropagation: true,
   triggersPreventDefault: true
