@@ -39,8 +39,8 @@ optional integrations.
 |---|---|---|
 | `backbone` `^1.4.0` | Optional | Only if your app uses Backbone models/collections, or imports the bundled `marionette/backbone` shim. See [Backbone is optional](#backbone-is-optional). |
 | `@types/backbone` `^1.4.23` | Optional | TypeScript declarations for `marionette/backbone`. JavaScript consumers do not need it. |
-| `jquery` `^3.5.0` | Optional | Only if your app uses the `marionette/jquery-dom-api` adapter. See [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional). |
-| `@types/jquery` `^3.5.34` | Optional | TypeScript declarations for `marionette/jquery-dom-api`. JavaScript consumers do not need it. |
+| `jquery` `^4.0.0` | Optional | Only if your app uses the `marionette/jquery-dom-api` adapter. See [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional). |
+| `@types/jquery` `^4.0.1` | Optional | TypeScript declarations for `marionette/jquery-dom-api`. JavaScript consumers do not need it. |
 
 Optional peers are installed only when you opt into them:
 
@@ -60,7 +60,7 @@ subpath must install its matching type package explicitly:
 npm install --save-dev @types/backbone@^1.4.23
 
 # Only if TypeScript imports marionette/jquery-dom-api
-npm install --save-dev @types/jquery@^3.5.34
+npm install --save-dev @types/jquery@^4.0.1
 ```
 
 Marionette core does not import or require Underscore. Install it as an
