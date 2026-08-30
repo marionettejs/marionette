@@ -159,7 +159,7 @@ other array-like values are not supported as Region declaration maps.
 
 ### String Selector
 
-You can use a jQuery string selector to define regions.
+You can use a CSS selector string to define regions.
 
 ```javascript
 import { View } from 'backbone.marionette';
@@ -170,6 +170,13 @@ const MyView = View.extend({
   }
 });
 ```
+
+`Region#getEl(selector)` resolves the selector within `parentEl`, or within the
+document when no parent is defined, and returns the first matching native DOM
+element. A custom `getEl` override must preserve that native-element return
+contract; do not return a `NodeList` or jQuery collection. To customize selector
+lookup through the DOM adapter, implement `findEl(context, selector)` instead.
+The v4 `DomApi#getEl` method is not part of the v5 DOM API.
 
 ### Additional Options
 

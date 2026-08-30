@@ -332,7 +332,7 @@ assignOwn(Region.prototype, CommonMixin, {
   },
 
   // Override this method to change how the region finds the DOM element that it manages. Return
-  // a jQuery selector object scoped to a provided parent el or the document if none exists.
+  // a native DOM element resolved within a provided parent el or the document if none exists.
   getEl(el) {
     const context = getValue(this, 'parentEl');
 

@@ -25,7 +25,13 @@ const view = new View({
 `Region` retains selector resolution because a Region locates its managed
 element relative to its `parentEl` or the document. `View#$()` and Region
 selector lookup both delegate to `DomApi.findEl`. With the native adapter,
-`View#$()` returns a `NodeList`.
+`View#$()` returns a `NodeList`. `Region#getEl` selects the first result and
+returns that native DOM element. This Region return contract does not change
+when `findEl` is supplied by the optional jQuery adapter.
+
+The v4 `DomApi#getEl` method is removed. DOM adapter overrides should implement
+`findEl(context, selector)` with an array-like result. Region `getEl` overrides
+are a separate extension point and must return one native DOM element.
 
 ## Native API methods
 

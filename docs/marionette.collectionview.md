@@ -284,15 +284,15 @@ import { CollectionView } from 'backbone.marionette';
 CollectionView.extend({
 
   // The default implementation:
-  attachHtml(els, $container){
-    // Unless childViewContainer, $container === this.$el
-    this.Dom.appendContents(this.el, els);
+  attachHtml(els, container) {
+    // Unless childViewContainer is set, container === this.el
+    this.Dom.appendContents(container, els);
   }
 });
 ```
 
 The first parameter is the HTML buffer, and the second parameter
-is the expected container for the children which by default equates
+is the native DOM container for the children which by default equates
 to the view's `el` unless a [`childViewContainer`](#defining-the-childviewcontainer)
 is set.
 
