@@ -184,13 +184,9 @@
     "scripts/",
     "test/",
     "config/diagnostics/",
-    "config/docs/",
     "config/release/"
   ],
   "forbiddenProductionModules": [
-    "config/bundle-size.mjs",
-    "config/performance-growth-approval.mjs",
-    "config/performance-resources.mjs",
     "config/performance.json",
     "config/release-profile.json",
     "config/release-promotion.json"

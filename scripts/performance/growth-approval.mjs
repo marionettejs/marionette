@@ -18,13 +18,6 @@ const bodyLimit = 16 * 1024;
 const execFileAsync = promisify(execFile);
 const pathLimit = 50;
 const evidenceLimit = 20;
-const staleConfigToolPaths = [
-  'config/bundle-size.mjs',
-  'config/performance-growth-approval.mjs',
-  'config/performance-resources.mjs',
-];
-const staleConfigToolPrefix = 'config/docs/';
-const requiredToolingPrefixes = ['scripts/', 'config/diagnostics/', 'config/release/'];
 
 function diagnostic(code, message, commentUrl) {
   return commentUrl ? { code, commentUrl, message } : { code, message };
@@ -368,41 +361,6 @@ function validForbiddenExternalImportsTransition(authority, candidate) {
   return authority.forbiddenExternalImports.every(value => candidateImports.has(value));
 }
 
-function uniqueNonEmptyStrings(values) {
-  return Array.isArray(values) && values.length > 0 &&
-    values.every(value => typeof value === 'string' && value.length > 0) &&
-    new Set(values).size === values.length;
-}
-
-function validToolingCleanupTransition(authority, candidate) {
-  const authorityModules = authority.forbiddenProductionModules;
-  const candidateModules = candidate.forbiddenProductionModules;
-  const authorityPrefixes = authority.forbiddenProductionModulePrefixes;
-  const candidatePrefixes = candidate.forbiddenProductionModulePrefixes;
-  if (!canonicalForbiddenExternalImports(authorityModules) ||
-      !canonicalForbiddenExternalImports(candidateModules) ||
-      !uniqueNonEmptyStrings(authorityPrefixes) ||
-      !uniqueNonEmptyStrings(candidatePrefixes)) {
-    return false;
-  }
-  if (isDeepStrictEqual(authorityModules, candidateModules) &&
-      isDeepStrictEqual(authorityPrefixes, candidatePrefixes)) {
-    return true;
-  }
-  if (!staleConfigToolPaths.every(path => authorityModules.includes(path)) ||
-      !authorityPrefixes.includes(staleConfigToolPrefix) ||
-      !requiredToolingPrefixes.every(prefix => candidatePrefixes.includes(prefix))) {
-    return false;
-  }
-
-  const expectedModules = authorityModules
-    .filter(path => !staleConfigToolPaths.includes(path));
-  const expectedPrefixes = authorityPrefixes
-    .filter(prefix => prefix !== staleConfigToolPrefix);
-  return isDeepStrictEqual(candidateModules, expectedModules) &&
-    isDeepStrictEqual(candidatePrefixes, expectedPrefixes);
-}
-
 export function validateCandidateGrowthContract(authority, candidate, { budgetAmendment } = {}) {
   const violations = [];
   if (!authority || typeof authority !== 'object' || !candidate || typeof candidate !== 'object') {
@@ -420,18 +378,11 @@ export function validateCandidateGrowthContract(authority, candidate, { budgetAm
   if (!validForbiddenExternalImportsTransition(authority, candidate)) {
     violations.push('Candidate performance contract forbiddenExternalImports must be a sorted, unique, non-empty string superset of the exact-base list');
   }
-  if (!validToolingCleanupTransition(authority, candidate)) {
-    violations.push('Candidate performance contract may only atomically remove the three stale issue #237 config tool modules and config/docs/ prefix while retaining every other module and prefix');
-  }
   for (const key of authorityKeys) {
     if (key === 'runtimeArtifacts' || key === 'productionGraphs') {
       continue;
     }
     if (key === 'forbiddenExternalImports') {
-      continue;
-    }
-    if (key === 'forbiddenProductionModules' ||
-        key === 'forbiddenProductionModulePrefixes') {
       continue;
     }
     if (key === 'toolchain') {

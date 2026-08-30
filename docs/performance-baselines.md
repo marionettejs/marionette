@@ -338,20 +338,9 @@ listed package or any rooted subpath of it. Similarly prefixed packages are not
 matched.
 
 Repository-only performance executables live under `scripts/performance/`; `config/`
-contains declarative contracts and schemas. During the issue #237 rollout, CI resolves
-the exact-base authority only when it finds exactly one complete known layout: the old
-`config/{bundle-size,performance-growth-approval}.mjs` plus
-`benchmarks/performance.mjs` triplet, or the new `scripts/performance/bundle-size.mjs`,
-`scripts/performance/growth-approval.mjs`, and `scripts/performance/timing.mjs` triplet.
-Mixed, partial, duplicate, and unknown layouts fail closed. The layout commit
-temporarily retains the three stale
-`config/` tool entries in `forbiddenProductionModules` so its exact-base contract stays
-immutable; the existing `scripts/` prefix blocks every moved executable. The immediate
-cleanup PR may atomically remove exactly those three entries and the stale
-`config/docs/` prefix while preserving every other module and prefix, including
-`scripts/`, `config/diagnostics/`, and `config/release/`. Neither half is valid alone,
-and after cleanup only equality is accepted. Remove both rollout transitions in that
-cleanup PR after every supported exact base uses `scripts/performance/`.
+contains declarative contracts and schemas. The `scripts/` production-module prefix
+keeps every repository-only executable outside shipped production graphs, while
+`config/diagnostics/` and `config/release/` cover their declarative support trees.
 
 ## Hosted timing
 

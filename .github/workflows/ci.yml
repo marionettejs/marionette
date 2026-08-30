@@ -149,10 +149,7 @@ jobs:
           PERFORMANCE_DIR: ${{ steps.performance_workspace.outputs.directory }}
         run: |
           set -euo pipefail
-          IFS=$'\t' read -r bundle_script approval_script timing_script < <(
-            node scripts/resolve-performance-tools.mjs --root .
-          )
-          node "${bundle_script}" --json > "${PERFORMANCE_DIR}/bundle-size-current.json"
+          node scripts/performance/bundle-size.mjs --json > "${PERFORMANCE_DIR}/bundle-size-current.json"
 
       - name: Collect performance growth approval records
         env:
@@ -230,16 +227,9 @@ jobs:
         run: |
           set -euo pipefail
           base_contract='bundle-size-base/config/performance.json'
-          IFS=$'\t' read -r authority_script approval_script timing_script < <(
-            node scripts/resolve-performance-tools.mjs --root bundle-size-base
-          )
+          authority_script='bundle-size-base/scripts/performance/bundle-size.mjs'
+          approval_script='bundle-size-base/scripts/performance/growth-approval.mjs'
           test -f "${base_contract}"
-          resolved_layout="${authority_script}"$'\t'"${approval_script}"$'\t'"${timing_script}"
-          case "${resolved_layout}" in
-            $'bundle-size-base/config/bundle-size.mjs\tbundle-size-base/config/performance-growth-approval.mjs\tbundle-size-base/benchmarks/performance.mjs'|\
-            $'bundle-size-base/scripts/performance/bundle-size.mjs\tbundle-size-base/scripts/performance/growth-approval.mjs\tbundle-size-base/scripts/performance/timing.mjs') ;;
-            *) echo "Resolved performance tool outside a known exact-base layout" >&2; exit 1 ;;
-          esac
           test -f "${authority_script}"
           test -f "${approval_script}"
 
@@ -324,18 +314,8 @@ jobs:
       - name: Measure hosted timing
         run: |
           set -euo pipefail
-          IFS=$'\t' read -r current_bundle_script current_approval_script current_timing_script < <(
-            node scripts/resolve-performance-tools.mjs --root .
-          )
-          IFS=$'\t' read -r base_bundle_script base_approval_script base_timing_script < <(
-            node scripts/resolve-performance-tools.mjs --root performance-base
-          )
-          resolved_layout="${base_bundle_script}"$'\t'"${base_approval_script}"$'\t'"${base_timing_script}"
-          case "${resolved_layout}" in
-            $'performance-base/config/bundle-size.mjs\tperformance-base/config/performance-growth-approval.mjs\tperformance-base/benchmarks/performance.mjs'|\
-            $'performance-base/scripts/performance/bundle-size.mjs\tperformance-base/scripts/performance/growth-approval.mjs\tperformance-base/scripts/performance/timing.mjs') ;;
-            *) echo "Resolved performance tool outside a known exact-base layout" >&2; exit 1 ;;
-          esac
+          current_timing_script='scripts/performance/timing.mjs'
+          base_timing_script='performance-base/scripts/performance/timing.mjs'
           test -f "${base_timing_script}"
           node "${base_timing_script}" --root performance-base --config performance-base/config/performance.json --json > performance-timing-base.json
           node "${current_timing_script}" --config config/performance.json --json > performance-timing-current.json
