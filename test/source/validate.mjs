@@ -1,10 +1,15 @@
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { JSDOM } from 'jsdom';
 
 import Backbone from '../../backbone.js';
-import jqueryDomApi from '../../jquery-dom-api.js';
 import * as Marionette from '../../index.js';
+
+const dom = new JSDOM('<!doctype html>');
+globalThis.window = dom.window;
+globalThis.document = dom.window.document;
+const { default: jqueryDomApi } = await import('../../jquery-dom-api.js');
 
 assert.equal(typeof Marionette.View, 'function');
 assert.equal(typeof Marionette.Region, 'function');
