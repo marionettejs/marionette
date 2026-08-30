@@ -123,6 +123,8 @@ describe('Backbone shim', function() {
       let callCount = 0;
 
       expect(instance.triggerMethod).to.be.a('function');
+      expect(instance.bind).to.equal(Marionette.Events.on);
+      expect(instance.unbind).to.equal(Marionette.Events.off);
       instance.on('shim:test', function() {
         callCount += 1;
       });

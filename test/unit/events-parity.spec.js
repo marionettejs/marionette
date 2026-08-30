@@ -67,6 +67,40 @@ describe('Events parity with Backbone.Events', function() {
     });
   });
 
+  it('dispatches one-shot registration through the canonical overrides', function() {
+    // Backbone 1.3.3 and 1.4.0 implement once through `this.on` and
+    // listenToOnce through `this.listenTo`.
+    const runScenario = Events => {
+      const emitter = createEmitter(Events);
+      const listener = createEmitter(Events);
+      const baseOn = emitter.on;
+      const baseListenTo = listener.listenTo;
+      let onCalls = 0;
+      let listenToCalls = 0;
+      let handlerCalls = 0;
+
+      emitter.on = function(...args) {
+        onCalls++;
+        return baseOn.apply(this, args);
+      };
+      listener.listenTo = function(...args) {
+        listenToCalls++;
+        return baseListenTo.apply(this, args);
+      };
+
+      emitter.once('direct', () => handlerCalls++);
+      listener.listenToOnce(emitter, 'listening', () => handlerCalls++);
+      emitter.trigger('direct');
+      emitter.trigger('direct');
+      emitter.trigger('listening');
+      emitter.trigger('listening');
+
+      return { onCalls, listenToCalls, handlerCalls };
+    };
+
+    expect(runScenario(EventsMixin)).to.deep.equal(runScenario(Backbone.Events));
+  });
+
   it('cleans up listener bookkeeping as subscriptions are removed', function() {
     // Backbone listener cleanup after the final callback is removed:
     // https://github.com/jashkenas/backbone/blob/1.4.0/backbone.js#L220-L268

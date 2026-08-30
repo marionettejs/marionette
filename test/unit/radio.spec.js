@@ -56,7 +56,9 @@ describe('Radio', function() {
     const channel = Radio.channel('foo');
     const methods = [
       'on',
+      'bind',
       'off',
+      'unbind',
       'once',
       'listenTo',
       'listenToOnce',

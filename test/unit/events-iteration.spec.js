@@ -227,29 +227,40 @@ describe('Events owned iteration', function() {
   });
 
   describe('interop ordering', function() {
-    it('updates internal bookkeeping before calling external on and off', function() {
+    it('calls external on and off with documented arguments', function() {
       const calls = [];
+      const callbacks = {};
       const listener = createEmitter();
       const target = createEmitter();
       const callback = function() {};
-      target.on = function(name, receivedCallback, context, options) {
-        calls.push(['on', this, name, receivedCallback, context, options]);
-        expect(this._rdEvents[name][0].callback).to.equal(callback);
+      target.on = function(name, receivedCallback, context) {
+        calls.push(['on', this, ...arguments]);
+        callbacks[name] = { callback: receivedCallback, context };
+        expect(this).to.not.have.own.property('_rdEvents');
+        expect(this).to.not.have.own.property('_rdListeners');
         expect(listener._rdListeningTo).to.have.all.keys(this._rdListenId);
       };
-      target.off = function(name, receivedCallback, context, options) {
-        calls.push(['off', this, name, receivedCallback, context, options]);
-        expect(this._rdEvents).to.not.have.own.property(name);
-        expect(listener._rdListeningTo).to.eql({});
-        expect(this._rdListeners).to.eql({});
+      target.off = function(name, receivedCallback, context) {
+        calls.push(['off', this, ...arguments]);
+        expect(callbacks[name]).to.eql({
+          callback: receivedCallback,
+          context,
+        });
+        delete callbacks[name];
+        expect(this).to.not.have.own.property('_rdEvents');
+        expect(this).to.not.have.own.property('_rdListeners');
       };
 
       expect(listener.listenTo(target, 'event', callback)).to.equal(listener);
+      expect(listener._rdListeningTo[target._rdListenId]._rdEvents.event[0].callback)
+        .to.equal(callback);
       expect(listener.stopListening(target, 'event', callback)).to.equal(listener);
 
+      expect(callbacks).to.eql({});
+      expect(listener._rdListeningTo).to.eql({});
       expect(calls).to.deep.equal([
-        ['on', target, 'event', callback, listener, { _rdInternal: true }],
-        ['off', target, 'event', callback, listener, { _rdInternal: true }]
+        ['on', target, 'event', callback, listener],
+        ['off', target, 'event', callback, listener]
       ]);
     });
   });

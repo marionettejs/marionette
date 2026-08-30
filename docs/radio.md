@@ -37,8 +37,8 @@ properties, such as `toString`, are treated as ordinary channel names.
 
 ## Events
 
-Channels provide event-style messaging with methods including `on`, `once`,
-`off`, `trigger`, `listenTo`, and `stopListening`.
+Channels provide event-style messaging with methods including `on` (`bind`),
+`once`, `off` (`unbind`), `trigger`, `listenTo`, and `stopListening`.
 
 ```javascript
 import { Radio } from 'marionette';
@@ -91,6 +91,13 @@ Use `stopReplying` to remove one or more handlers:
 account.replyOnce('access:token', createAccessToken);
 account.stopReplying('current:user');
 ```
+
+The request registration methods retain Backbone.Radio's customization
+seams: `replyOnce` installs its wrapper through overridable `reply`, and map or
+space-separated `reply`, `replyOnce`, and `stopReplying` calls dispatch each
+entry through the corresponding public method. For object-form `request`, the
+mapped value is the first handler argument and any arguments after the map are
+forwarded after it.
 
 Use requests when one handler owns an operation or when the sender needs a
 return value.

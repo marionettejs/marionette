@@ -191,6 +191,101 @@ describe('Events Mixin', function() {
       expect(handler).to.have.been.calledTwice;
     });
 
+    it('dispatches once registration through an overridden on method', function() {
+      const registrations = [];
+      const handler = this.sinon.stub();
+      const baseOn = EventsMixin.on;
+      object.on = function(...args) {
+        registrations.push(args);
+        return baseOn.apply(this, args);
+      };
+
+      object.once('foo', handler);
+
+      expect(registrations).to.have.lengthOf(1);
+      expect(registrations[0][0]).to.have.own.property('foo')
+        .that.is.a('function');
+      object.trigger('foo');
+      object.trigger('foo');
+      expect(handler).to.have.been.calledOnce;
+    });
+
+    it('preserves object-form once context through the on override', function() {
+      const context = {};
+      const handler = this.sinon.stub();
+      const baseOn = EventsMixin.on;
+      object.on = function(...args) {
+        expect(args[1]).to.equal(context);
+        return baseOn.apply(this, args);
+      };
+
+      object.once({ foo: handler }, context);
+      object.trigger('foo');
+
+      expect(handler).to.have.been.calledOnce.and.calledOn(context);
+    });
+
+    it('supports Toolkit-shaped cleanup of running once registrations', function() {
+      const runningEvents = [];
+      const handler = this.sinon.stub();
+      const baseOn = EventsMixin.on;
+      object.on = function(...args) {
+        runningEvents.push(args);
+        return baseOn.apply(this, args);
+      };
+
+      object.once('foo', handler);
+      runningEvents.forEach(args => object.off(...args));
+      object.trigger('foo');
+
+      expect(handler).to.not.have.been.called;
+    });
+
+    it('dispatches listenToOnce registration through overridden listenTo', function() {
+      const registrations = [];
+      const handler = this.sinon.stub();
+      const baseListenTo = EventsMixin.listenTo;
+      listener.listenTo = function(...args) {
+        registrations.push(args);
+        return baseListenTo.apply(this, args);
+      };
+
+      listener.listenToOnce(object, 'foo', handler);
+
+      expect(registrations).to.have.lengthOf(1);
+      expect(registrations[0][0]).to.equal(object);
+      expect(registrations[0][1]).to.have.own.property('foo')
+        .that.is.a('function');
+      object.trigger('foo');
+      object.trigger('foo');
+      expect(handler).to.have.been.calledOnce;
+    });
+
+    it('registers once through a three-argument delegating on override', function() {
+      const handler = this.sinon.stub();
+      const baseOn = EventsMixin.on;
+      object.on = function(name, callback, context) {
+        return baseOn.call(this, name, callback, context);
+      };
+
+      listener.listenTo(object, 'foo', handler);
+      object.trigger('foo');
+
+      expect(handler).to.have.been.calledOnce;
+    });
+
+    it('respects a non-delegating on override on a Marionette emitter', function() {
+      const handler = this.sinon.stub();
+      object.on = function() {
+        return this;
+      };
+
+      listener.listenTo(object, 'foo', handler);
+      object.trigger('foo');
+
+      expect(handler).to.not.have.been.called;
+    });
+
     it('supports listenToOnce cleanup', function() {
       const handler = this.sinon.stub();
 
@@ -271,6 +366,13 @@ describe('Events Mixin', function() {
       expect(function() {
         object.trigger('foo');
       }).to.not.throw();
+    });
+  });
+
+  describe('Backbone.Events aliases', function() {
+    it('aliases bind and unbind to on and off', function() {
+      expect(EventsMixin.bind).to.equal(EventsMixin.on);
+      expect(EventsMixin.unbind).to.equal(EventsMixin.off);
     });
   });
 });
