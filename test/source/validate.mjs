@@ -16,7 +16,13 @@ assert.equal(typeof jqueryDomApi.setContents, 'function');
 
 const root = resolve(import.meta.dirname, '../..');
 const packageJson = JSON.parse(readFileSync(resolve(root, 'package.json')));
-const productionFiles = ['index.js', 'backbone.js', 'jquery-dom-api.js'];
+const productionFiles = [
+  'index.js',
+  'backbone.js',
+  'jquery-dom-api.js',
+  'build/version.js',
+  'version.js',
+];
 const underscoreImport = /(?:\bfrom\s+|\bimport\s*(?:\(\s*)?|\brequire\s*\(\s*)['"]underscore(?:\/[^'"]*)?['"]/;
 
 for (const source of [
