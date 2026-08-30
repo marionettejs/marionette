@@ -14,7 +14,7 @@ export default {
     return ['focus', 'blur'].indexOf(eventName) !== -1;
   },
 
-  // this.$el.on(eventName + '.delegateEvents' + this.cid, selector, handler);
+  // Delegate a matching event from the root element.
   delegate({ eventName, selector, handler, events, rootEl }) {
     const shouldCapture = this.shouldCapture(eventName);
 
@@ -40,7 +40,7 @@ export default {
     rootEl.addEventListener(eventName, handler, shouldCapture);
   },
 
-  // this.$el.off('.delegateEvents' + this.cid);
+  // Remove every delegated event from the root element.
   undelegateAll({ events, rootEl }) {
     if (!rootEl) { return; }
 

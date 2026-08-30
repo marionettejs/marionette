@@ -206,5 +206,7 @@ reject it when the selector is used.
 
 Applications that explicitly configure
 [`marionette/jquery-dom-api`](./installation.md#jquery-dom-adapter-is-optional)
-receive jQuery collections from query methods. The adapter does not add `$el`.
-Core examples use native collections so the default package remains jQuery-free.
+before constructing Views receive jQuery collections from query methods. The
+adapter also creates and refreshes `$el` on View and CollectionView instances,
+and each Behavior mirrors its host View's `$el`. Core examples use native
+collections so the default package remains jQuery-free.

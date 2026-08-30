@@ -95,8 +95,7 @@ export default {
     return uiBindings || getValue(this, 'ui');
   },
 
-  // This method binds the elements specified in the "ui" hash inside the view's code with
-  // the associated jQuery selectors.
+  // Bind each element specified in the "ui" hash to the configured DOM query result.
   _bindUIElements() {
     if (!this.ui) { return; }
 

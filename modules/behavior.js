@@ -67,8 +67,7 @@ assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, V
   cidPrefix: 'mnb',
 
   // proxy behavior $ method to the view
-  // this is useful for doing jquery DOM lookups
-  // scoped to behaviors view.
+  // this performs a configured DOM lookup scoped to the behavior's view.
   $() {
     return this.view.$.apply(this.view, arguments);
   },
