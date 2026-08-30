@@ -178,6 +178,11 @@ contract; do not return a `NodeList` or jQuery collection. To customize selector
 lookup through the DOM adapter, implement `findEl(context, selector)` instead.
 The v4 `DomApi#getEl` method is not part of the v5 DOM API.
 
+Selector lookup is deferred until the first DOM operation, such as `show()` or
+`_ensureElement()`. During construction, `initialize` observes the configured
+selector string in `this.el`; constructing a Region does not query the document
+or dispatch through a `getEl` override.
+
 ### Additional Options
 
 You can define regions with an object literal. Object literal definitions expect
