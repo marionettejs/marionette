@@ -183,9 +183,7 @@ const Events = {
 
   // Bind an event to a `callback` function. Passing `"all"` will bind
   // the callback to all events fired.
-  on(name, callback, context, opts) {
-    if (opts && opts._rdInternal) {return;}
-
+  on(name, callback, context) {
     const eventArgs = buildEventArgs(name, callback, context);
     this._rdEvents = reduceEventArgs(this, eventArgs, this._rdEvents || {}, onReducer);
 
@@ -196,9 +194,8 @@ const Events = {
   // callbacks with that function. If `callback` is null, removes all
   // callbacks for the event. If `name` is null, removes all bound
   // callbacks for all events.
-  off(name, callback, context, opts) {
+  off(name, callback, context) {
     if (!this._rdEvents) {return this;}
-    if (opts && opts._rdInternal) {return;}
 
     // Delete all event listeners and "drop" events.
     if (!name && !context && !callback) {

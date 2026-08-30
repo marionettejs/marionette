@@ -12,6 +12,19 @@ function state(view) {
 }
 
 describe('#addChildView after destruction begins', function() {
+  it('ignores collection sort and reset notifications after destruction', function() {
+    const parent = new CollectionView({ collection: new Backbone.Collection() });
+    parent.destroy();
+    const sort = this.sinon.spy(parent, 'sort');
+    const destroyChildren = this.sinon.spy(parent, '_destroyChildren');
+
+    parent._onCollectionSort(parent.collection, {});
+    parent._onCollectionReset();
+
+    expect(sort).to.not.have.been.called;
+    expect(destroyChildren).to.not.have.been.called;
+  });
+
   it('ignores collection additions triggered by child destruction', function() {
     const collection = new Backbone.Collection([{ id: 1 }]);
     const ChildView = View.extend({ template: () => '<span>Child</span>' });

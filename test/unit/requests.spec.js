@@ -107,6 +107,31 @@ describe('Requests', function() {
   });
 
   describe('#replyOnce', function() {
+    it('dispatches map and space-separated entries through replyOnce', function() {
+      const calls = [];
+      const baseReplyOnce = Requests.replyOnce;
+      this.requests.replyOnce = function(...args) {
+        calls.push(args[0]);
+        return baseReplyOnce.apply(this, args);
+      };
+
+      this.requests.replyOnce({ alpha: 'a', beta: 'b' });
+      this.requests.replyOnce('gamma delta', 'split');
+
+      expect(calls).to.deep.equal([
+        { alpha: 'a', beta: 'b' },
+        'alpha',
+        'beta',
+        'gamma delta',
+        'gamma',
+        'delta'
+      ]);
+      expect(this.requests.request('alpha')).to.equal('a');
+      expect(this.requests.request('beta')).to.equal('b');
+      expect(this.requests.request('gamma')).to.equal('split');
+      expect(this.requests.request('delta')).to.equal('split');
+    });
+
     it('dispatches wrapper registration through an overridden reply method', function() {
       const registrations = [];
       const callback = this.sinon.stub().returns('response');

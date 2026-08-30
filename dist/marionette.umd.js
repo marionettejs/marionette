@@ -631,20 +631,14 @@
     return events;
   }
   const Events = {
-    on(name, callback, context, opts) {
-      if (opts && opts._rdInternal) {
-        return;
-      }
+    on(name, callback, context) {
       const eventArgs = buildEventArgs(name, callback, context);
       this._rdEvents = reduceEventArgs(this, eventArgs, this._rdEvents || {}, onReducer);
       return this;
     },
-    off(name, callback, context, opts) {
+    off(name, callback, context) {
       if (!this._rdEvents) {
         return this;
-      }
-      if (opts && opts._rdInternal) {
-        return;
       }
       if (!name && !context && !callback) {
         this._rdEvents = void 0;

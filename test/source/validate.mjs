@@ -62,6 +62,9 @@ for (const directory of ['modules', 'mixins', 'utils']) {
 }
 
 assert.equal(Object.hasOwn(packageJson.peerDependencies, 'underscore'), false);
+assert.equal(packageJson.peerDependencies.jquery, '^4.0.0');
+assert.equal(packageJson.peerDependenciesMeta.jquery.optional, true);
+assert.equal(Object.hasOwn(packageJson.dependencies || {}, 'jquery'), false);
 assert.deepEqual(nonDeclarativeConfigFiles, []);
 
 for (const file of productionFiles) {
