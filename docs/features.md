@@ -19,21 +19,24 @@ It is a good practice to set these flags only once prior to instantiating any Ma
 Use `isEnabled` if you need to know the state of a feature flag programmatically.
 
 ```javascript
-import { isEnabled } from 'backbone.marionette';
+import { isEnabled } from 'marionette';
 
 isEnabled('fooFlag'); // false
 ```
 
 ## Setting a Feature Flag
 
-Use `setEnabled` to change the value of a flag.
+Use `setEnabled` to change the value of a documented Marionette flag.
+Unknown or non-string names throw `MarionetteError` code
+[`MN0027`](/errors/MN0027/) without changing the feature registry. Keep
+application-owned flags in an application registry or configuration object.
 While setting a flag at any point may work, these flags are designed to be set before
 any functionality of Marionette is used. Change flags after at your own risk.
 
 ```javascript
-import { setEnabled } from 'backbone.marionette';
+import { setEnabled } from 'marionette';
 
-setEnabled('fooFlag', true);
+setEnabled('triggersPreventDefault', false);
 
 const myApp = new MyApp({
   region: '#app-hook'

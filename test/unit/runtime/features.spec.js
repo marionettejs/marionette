@@ -1,17 +1,74 @@
-import { setEnabled, isEnabled } from '../../../runtime/features';
+import { FEATURES, setEnabled, isEnabled } from '../../../runtime/features';
+import MarionetteError from '../../../utils/error';
 
 describe('features', function() {
-  it('enabled when its present and true', function() {
-    setEnabled('foo', true);
-    expect(isEnabled('foo')).to.be.true;
+  describe('#isEnabled', function() {
+    it('returns the configured state of each Marionette feature', function() {
+      for (const name of Object.keys(FEATURES)) {
+        const initialState = FEATURES[name];
+
+        setEnabled(name, !initialState);
+        expect(isEnabled(name)).to.equal(!initialState);
+
+        setEnabled(name, initialState);
+      }
+    });
+
+    it('remains disabled for unknown names', function() {
+      expect(isEnabled('applicationOwned')).to.be.false;
+    });
+
+    it('remains disabled for non-string names', function() {
+      for (const name of [undefined, null, 0, {}, Symbol('feature')]) {
+        expect(isEnabled(name)).to.be.false;
+      }
+    });
   });
 
-  it('disabled when its present and false', function() {
-    setEnabled('foo', false);
-    expect(isEnabled('foo')).to.be.false;
-  });
+  describe('#setEnabled', function() {
+    it('sets and returns the exact state for a known feature', function() {
+      const state = {};
 
-  it('disabled when not present', function() {
-    expect(isEnabled('foo')).to.be.false;
+      expect(setEnabled('childViewEventPrefix', state)).to.equal(state);
+      expect(FEATURES.childViewEventPrefix).to.equal(state);
+
+      setEnabled('childViewEventPrefix', false);
+    });
+
+    it('rejects unknown feature names without mutation', function() {
+      const names = ['applicationOwned', 'constructor', 'toString', '__proto__'];
+      const prototype = Object.getPrototypeOf(FEATURES);
+
+      for (const name of names) {
+        expect(() => setEnabled(name, true))
+          .to.throw()
+          .with.property('code', 'MN0027');
+        expect(Object.hasOwn(FEATURES, name)).to.be.false;
+      }
+
+      expect(Object.getPrototypeOf(FEATURES)).to.equal(prototype);
+    });
+
+    it('provides the rejected feature name on MarionetteError', function() {
+      let error;
+
+      try {
+        setEnabled('applicationOwned', true);
+      } catch (caughtError) {
+        error = caughtError;
+      }
+
+      expect(error).to.be.instanceOf(MarionetteError);
+      expect(error).to.have.property('code', 'MN0027');
+      expect(error.message).to.contain('applicationOwned');
+    });
+
+    it('rejects non-string feature names with a stable code', function() {
+      for (const name of [undefined, null, 0, {}, Symbol('feature')]) {
+        expect(() => setEnabled(name, true))
+          .to.throw()
+          .with.property('code', 'MN0027');
+      }
+    });
   });
 });
