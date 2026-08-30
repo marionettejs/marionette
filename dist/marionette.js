@@ -1182,12 +1182,24 @@ var TemplateRenderMixin = {
   }
 };
 
+function eachOwn(object, iteratee) {
+  if (object == null) {
+    return object;
+  }
+  const keys = Object.keys(object);
+  for (const key of keys) {
+    iteratee(object[key], key, object);
+  }
+  return object;
+}
+
 const normalizeUIKeys = function (hash, ui) {
-  return reduce(hash, (memo, val, key) => {
+  const normalizedHash = {};
+  eachOwn(hash, (val, key) => {
     const normalizedKey = normalizeUIString(key, ui);
-    memo[normalizedKey] = val;
-    return memo;
-  }, {});
+    setProperty(normalizedHash, normalizedKey, val);
+  });
+  return normalizedHash;
 };
 const uiRegEx = /@ui\.[a-zA-Z-_$0-9]*/g;
 const hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -1208,7 +1220,7 @@ const normalizeUIString = function (uiString, ui) {
         message: `The ui reference "${name}" must be declared as an own ui key.`
       });
     }
-    if (!isString$1(selector)) {
+    if (!isString(selector)) {
       throw new MarionetteError({
         code: 'MN0018',
         message: `The ui reference "${name}" must be a string selector.`
@@ -1218,12 +1230,12 @@ const normalizeUIString = function (uiString, ui) {
   });
 };
 const normalizeUIValues = function (hash, ui, property) {
-  each(hash, (val, key) => {
-    if (isString$1(val)) {
+  eachOwn(hash, (val, key) => {
+    if (isString(val)) {
       hash[key] = normalizeUIString(val, ui);
     } else if (val) {
       const propertyVal = val[property];
-      if (isString$1(propertyVal)) {
+      if (isString(propertyVal)) {
         val[property] = normalizeUIString(propertyVal, ui);
       }
     }
@@ -1241,8 +1253,8 @@ var UIMixin = {
     return normalizeUIValues(hash, uiBindings, property);
   },
   _getUIBindings() {
-    const uiBindings = result(this, '_uiBindings');
-    return uiBindings || result(this, 'ui');
+    const uiBindings = getValue(this, '_uiBindings');
+    return uiBindings || getValue(this, 'ui');
   },
   _bindUIElements() {
     if (!this.ui) {
@@ -1251,10 +1263,10 @@ var UIMixin = {
     if (!this._uiBindings) {
       this._uiBindings = this.ui;
     }
-    const bindings = result(this, '_uiBindings');
+    const bindings = getValue(this, '_uiBindings');
     this._ui = {};
-    each(bindings, (selector, key) => {
-      this._ui[key] = this.$(selector);
+    eachOwn(bindings, (selector, key) => {
+      setProperty(this._ui, key, this.$(selector));
     });
     this.ui = this._ui;
   },
@@ -1262,7 +1274,7 @@ var UIMixin = {
     if (!this.ui || !this._uiBindings) {
       return;
     }
-    each(this.ui, ($el, name) => {
+    eachOwn(this.ui, ($el, name) => {
       delete this.ui[name];
     });
     this.ui = this._uiBindings;
@@ -1358,15 +1370,6 @@ var EventDelegator = {
 };
 
 const delegateEventSplitter = /^(\S+)\s*(.*)$/;
-function eachOwn(object, iteratee) {
-  if (object == null) {
-    return;
-  }
-  const keys = Object.keys(object);
-  for (const key of keys) {
-    iteratee(object[key], key);
-  }
-}
 function buildViewTrigger(view, triggerDef) {
   if (isString(triggerDef)) {
     triggerDef = {

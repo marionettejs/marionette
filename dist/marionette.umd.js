@@ -1191,12 +1191,24 @@
     }
   };
 
+  function eachOwn(object, iteratee) {
+    if (object == null) {
+      return object;
+    }
+    const keys = Object.keys(object);
+    for (const key of keys) {
+      iteratee(object[key], key, object);
+    }
+    return object;
+  }
+
   const normalizeUIKeys = function (hash, ui) {
-    return underscore.reduce(hash, (memo, val, key) => {
+    const normalizedHash = {};
+    eachOwn(hash, (val, key) => {
       const normalizedKey = normalizeUIString(key, ui);
-      memo[normalizedKey] = val;
-      return memo;
-    }, {});
+      setProperty(normalizedHash, normalizedKey, val);
+    });
+    return normalizedHash;
   };
   const uiRegEx = /@ui\.[a-zA-Z-_$0-9]*/g;
   const hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -1217,7 +1229,7 @@
           message: `The ui reference "${name}" must be declared as an own ui key.`
         });
       }
-      if (!underscore.isString(selector)) {
+      if (!isString(selector)) {
         throw new MarionetteError({
           code: 'MN0018',
           message: `The ui reference "${name}" must be a string selector.`
@@ -1227,12 +1239,12 @@
     });
   };
   const normalizeUIValues = function (hash, ui, property) {
-    underscore.each(hash, (val, key) => {
-      if (underscore.isString(val)) {
+    eachOwn(hash, (val, key) => {
+      if (isString(val)) {
         hash[key] = normalizeUIString(val, ui);
       } else if (val) {
         const propertyVal = val[property];
-        if (underscore.isString(propertyVal)) {
+        if (isString(propertyVal)) {
           val[property] = normalizeUIString(propertyVal, ui);
         }
       }
@@ -1250,8 +1262,8 @@
       return normalizeUIValues(hash, uiBindings, property);
     },
     _getUIBindings() {
-      const uiBindings = underscore.result(this, '_uiBindings');
-      return uiBindings || underscore.result(this, 'ui');
+      const uiBindings = getValue(this, '_uiBindings');
+      return uiBindings || getValue(this, 'ui');
     },
     _bindUIElements() {
       if (!this.ui) {
@@ -1260,10 +1272,10 @@
       if (!this._uiBindings) {
         this._uiBindings = this.ui;
       }
-      const bindings = underscore.result(this, '_uiBindings');
+      const bindings = getValue(this, '_uiBindings');
       this._ui = {};
-      underscore.each(bindings, (selector, key) => {
-        this._ui[key] = this.$(selector);
+      eachOwn(bindings, (selector, key) => {
+        setProperty(this._ui, key, this.$(selector));
       });
       this.ui = this._ui;
     },
@@ -1271,7 +1283,7 @@
       if (!this.ui || !this._uiBindings) {
         return;
       }
-      underscore.each(this.ui, ($el, name) => {
+      eachOwn(this.ui, ($el, name) => {
         delete this.ui[name];
       });
       this.ui = this._uiBindings;
@@ -1367,15 +1379,6 @@
   };
 
   const delegateEventSplitter = /^(\S+)\s*(.*)$/;
-  function eachOwn(object, iteratee) {
-    if (object == null) {
-      return;
-    }
-    const keys = Object.keys(object);
-    for (const key of keys) {
-      iteratee(object[key], key);
-    }
-  }
   function buildViewTrigger(view, triggerDef) {
     if (isString(triggerDef)) {
       triggerDef = {
