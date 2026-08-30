@@ -117,6 +117,59 @@ describe('View named Region diagnostics', function() {
     }
   });
 
+  it('iterates Region declaration maps by own enumerable string keys', function() {
+    const inheritedDefinitions = {};
+    Object.defineProperty(inheritedDefinitions, 'inherited', {
+      enumerable: true,
+      get() {
+        throw new Error('inherited Region definition was read');
+      },
+    });
+    const definitions = Object.create(inheritedDefinitions);
+    Object.defineProperties(definitions, {
+      content: {
+        configurable: true,
+        enumerable: true,
+        value: '.content',
+        writable: true,
+      },
+      length: {
+        configurable: true,
+        enumerable: true,
+        value: '.length',
+        writable: true,
+      },
+      hidden: {
+        get() {
+          throw new Error('non-enumerable Region definition was read');
+        },
+      },
+      [Symbol('ignored')]: {
+        enumerable: true,
+        get() {
+          throw new Error('symbol Region definition was read');
+        },
+      },
+    });
+    const mapView = new View({
+      regions: definitions,
+      template() {
+        return '<div class="content"></div><div class="length"></div>';
+      },
+    });
+
+    try {
+      const regions = mapView.getRegions();
+
+      expect(Object.keys(regions)).to.deep.equal(['content', 'length']);
+      expect(regions.content).to.be.instanceOf(Region);
+      expect(regions.length).to.be.instanceOf(Region);
+      expect(Object.getOwnPropertySymbols(regions)).to.deep.equal([]);
+    } finally {
+      mapView.destroy();
+    }
+  });
+
   it('preserves a dynamic __proto__ Region through snapshots and lifecycle operations', function() {
     const protoView = new View({
       template() {

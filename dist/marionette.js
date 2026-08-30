@@ -1,4 +1,4 @@
-import { extend as extend$1, result, isFunction, isObject, isString as isString$1, reduce, each, partial, isEmpty, matches, map } from 'underscore';
+import { extend as extend$1, each, isObject, isFunction, matches, isString as isString$1, result, map, reduce } from 'underscore';
 
 const proxy = function (method) {
   return function (context, ...args) {
@@ -1052,6 +1052,17 @@ assignOwn(MarionetteObject.prototype, CommonMixin, DestroyMixin, RadioMixin, {
   cidPrefix: 'mno'
 });
 
+function eachOwn(object, iteratee) {
+  if (object == null) {
+    return object;
+  }
+  const keys = Object.keys(object);
+  for (const key of keys) {
+    iteratee(object[key], key, object);
+  }
+  return object;
+}
+
 function isView(view) {
   return view.render && (view.destroy || view.remove);
 }
@@ -1093,17 +1104,6 @@ function destroyView(view, disableDetachEvents) {
   if (!view.supportsDestroyLifecycle) {
     view.triggerMethod('destroy', view);
   }
-}
-
-function eachOwn(object, iteratee) {
-  if (object == null) {
-    return object;
-  }
-  const keys = Object.keys(object);
-  for (const key of keys) {
-    iteratee(object[key], key, object);
-  }
-  return object;
 }
 
 function getBehaviorClass(options) {
@@ -1800,14 +1800,14 @@ const Region = function (options) {
 };
 Region.extend = extend;
 Region.setDomApi = setDomApi$1;
-extend$1(Region.prototype, CommonMixin, {
+assignOwn(Region.prototype, CommonMixin, {
   Dom: DomApi,
   cidPrefix: 'mnr',
   replaceElement: false,
   _isReplaced: false,
   _isSwappingView: false,
   _validateEl(el) {
-    if (!el || isString$1(el) || el.nodeType === 1) {
+    if (!el || isString(el) || el.nodeType === 1) {
       return;
     }
     throw new MarionetteError({
@@ -1848,7 +1848,7 @@ extend$1(Region.prototype, CommonMixin, {
   },
   _setEl(el) {
     this._validateEl(el);
-    if (isObject(el)) {
+    if (el !== null && typeof el === 'object') {
       this.el = el;
       return;
     }
@@ -1901,7 +1901,7 @@ extend$1(Region.prototype, CommonMixin, {
     replaceElement
   } = {}) {
     const shouldTriggerAttach = !view._isAttached && this._isElAttached() && !this._shouldDisableMonitoring();
-    const shouldReplaceEl = typeof replaceElement === 'undefined' ? !!result(this, 'replaceElement') : !!replaceElement;
+    const shouldReplaceEl = typeof replaceElement === 'undefined' ? !!getValue(this, 'replaceElement') : !!replaceElement;
     if (shouldTriggerAttach) {
       view.triggerMethod('before:attach', view);
     }
@@ -1919,7 +1919,7 @@ extend$1(Region.prototype, CommonMixin, {
   _ensureElement(options = {}) {
     this._setEl(this.el);
     if (!this.el) {
-      const allowMissingEl = typeof options.allowMissingEl === 'undefined' ? !!result(this, 'allowMissingEl') : !!options.allowMissingEl;
+      const allowMissingEl = typeof options.allowMissingEl === 'undefined' ? !!getValue(this, 'allowMissingEl') : !!options.allowMissingEl;
       if (allowMissingEl) {
         return false;
       } else {
@@ -1957,12 +1957,12 @@ extend$1(Region.prototype, CommonMixin, {
     return new View(viewOptions);
   },
   _getViewOptions(viewOptions) {
-    if (isFunction(viewOptions)) {
+    if (typeof viewOptions === 'function') {
       return {
         template: viewOptions
       };
     }
-    if (isObject(viewOptions)) {
+    if (viewOptions !== null && typeof viewOptions === 'object') {
       return viewOptions;
     }
     const template = function () {
@@ -1973,7 +1973,7 @@ extend$1(Region.prototype, CommonMixin, {
     };
   },
   getEl(el) {
-    const context = result(this, 'parentEl');
+    const context = getValue(this, 'parentEl');
     return this.Dom.findEl(context || document, el)[0];
   },
   _replaceEl(view) {
@@ -2115,17 +2115,17 @@ function buildRegion(definition, defaults) {
   if (definition instanceof Region) {
     return definition;
   }
-  if (isString$1(definition)) {
+  if (isString(definition)) {
     return buildRegionFromObject(defaults, {
       el: definition
     });
   }
-  if (isFunction(definition)) {
+  if (typeof definition === 'function') {
     return buildRegionFromObject(defaults, {
       regionClass: definition
     });
   }
-  if (isObject(definition)) {
+  if (definition !== null && typeof definition === 'object') {
     return buildRegionFromObject(defaults, definition);
   }
   throw new MarionetteError({
@@ -2145,34 +2145,38 @@ const RegionsMixin = {
   _initRegions() {
     this.regions = this.regions || {};
     this._regions = Object.create(null);
-    this.addRegions(result(this, 'regions'));
+    this.addRegions(getValue(this, 'regions'));
   },
   _reInitRegions() {
-    each(this._regions, region => region.reset());
+    eachOwn(this._regions, region => region.reset());
   },
   addRegion(name, definition) {
     const regions = setRegion({}, definition, name);
     return this.addRegions(regions)[name];
   },
   addRegions(regions) {
-    if (isEmpty(regions)) {
+    if (regions == null || Object.keys(regions).length === 0) {
       return;
     }
     regions = this.normalizeUIValues(regions, 'el');
-    this.regions = reduce(regions, setRegion, reduce(this.regions, setRegion, {}));
+    const allRegions = {};
+    eachOwn(this.regions, (definition, name) => setRegion(allRegions, definition, name));
+    eachOwn(regions, (definition, name) => setRegion(allRegions, definition, name));
+    this.regions = allRegions;
     return this._addRegions(regions);
   },
   _addRegions(regionDefinitions) {
     const defaults = {
       regionClass: this.regionClass,
-      parentEl: partial(result, this, 'el')
+      parentEl: () => getValue(this, 'el')
     };
-    return reduce(regionDefinitions, (regions, definition, name) => {
+    const regions = {};
+    eachOwn(regionDefinitions, (definition, name) => {
       const region = buildRegion(definition, defaults);
       setRegion(regions, region, name);
       this._addRegion(region, name);
-      return regions;
-    }, {});
+    });
+    return regions;
   },
   _addRegion(region, name) {
     this.triggerMethod('before:add:region', this, name, region);
@@ -2188,7 +2192,7 @@ const RegionsMixin = {
   },
   removeRegions() {
     const regions = this._getRegions();
-    each(this._regions, this._removeRegion.bind(this));
+    eachOwn(this._regions, (region, name) => this._removeRegion(region, name));
     return regions;
   },
   _removeRegion(region, name) {
@@ -2202,7 +2206,7 @@ const RegionsMixin = {
   },
   emptyRegions() {
     const regions = this.getRegions();
-    each(regions, region => region.empty());
+    eachOwn(regions, region => region.empty());
     return regions;
   },
   hasRegion(name) {
@@ -2215,7 +2219,9 @@ const RegionsMixin = {
     return getOwnRegion(this._regions, name);
   },
   _getRegions() {
-    return reduce(this._regions, setRegion, {});
+    const regions = {};
+    eachOwn(this._regions, (region, name) => setRegion(regions, region, name));
+    return regions;
   },
   getRegions() {
     if (!this._isRendered) {
@@ -2256,13 +2262,13 @@ const View = function (options) {
   this.delegateEntityEvents();
   this._triggerEventOnBehaviors('initialize', this, options);
 };
-extend$1(View, {
+assignOwn(View, {
   extend,
   setRenderer: setRenderer$1,
   setDomApi: setDomApi$1,
   setEventDelegator: setEventDelegator$1
 });
-extend$1(View.prototype, ViewMixin, RegionsMixin, {
+assignOwn(View.prototype, ViewMixin, RegionsMixin, {
   cidPrefix: 'mnv',
   setElement(element) {
     this._undelegateViewEvents();
@@ -2295,7 +2301,9 @@ extend$1(View.prototype, ViewMixin, RegionsMixin, {
     this.removeRegions();
   },
   _getImmediateChildren() {
-    return reduce(this._regions, childReducer, []);
+    const children = [];
+    eachOwn(this._regions, region => childReducer(children, region));
+    return children;
   }
 });
 

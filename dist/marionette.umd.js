@@ -1061,6 +1061,17 @@
     cidPrefix: 'mno'
   });
 
+  function eachOwn(object, iteratee) {
+    if (object == null) {
+      return object;
+    }
+    const keys = Object.keys(object);
+    for (const key of keys) {
+      iteratee(object[key], key, object);
+    }
+    return object;
+  }
+
   function isView(view) {
     return view.render && (view.destroy || view.remove);
   }
@@ -1102,17 +1113,6 @@
     if (!view.supportsDestroyLifecycle) {
       view.triggerMethod('destroy', view);
     }
-  }
-
-  function eachOwn(object, iteratee) {
-    if (object == null) {
-      return object;
-    }
-    const keys = Object.keys(object);
-    for (const key of keys) {
-      iteratee(object[key], key, object);
-    }
-    return object;
   }
 
   function getBehaviorClass(options) {
@@ -1809,14 +1809,14 @@
   };
   Region.extend = extend;
   Region.setDomApi = setDomApi$1;
-  underscore.extend(Region.prototype, CommonMixin, {
+  assignOwn(Region.prototype, CommonMixin, {
     Dom: DomApi,
     cidPrefix: 'mnr',
     replaceElement: false,
     _isReplaced: false,
     _isSwappingView: false,
     _validateEl(el) {
-      if (!el || underscore.isString(el) || el.nodeType === 1) {
+      if (!el || isString(el) || el.nodeType === 1) {
         return;
       }
       throw new MarionetteError({
@@ -1857,7 +1857,7 @@
     },
     _setEl(el) {
       this._validateEl(el);
-      if (underscore.isObject(el)) {
+      if (el !== null && typeof el === 'object') {
         this.el = el;
         return;
       }
@@ -1910,7 +1910,7 @@
       replaceElement
     } = {}) {
       const shouldTriggerAttach = !view._isAttached && this._isElAttached() && !this._shouldDisableMonitoring();
-      const shouldReplaceEl = typeof replaceElement === 'undefined' ? !!underscore.result(this, 'replaceElement') : !!replaceElement;
+      const shouldReplaceEl = typeof replaceElement === 'undefined' ? !!getValue(this, 'replaceElement') : !!replaceElement;
       if (shouldTriggerAttach) {
         view.triggerMethod('before:attach', view);
       }
@@ -1928,7 +1928,7 @@
     _ensureElement(options = {}) {
       this._setEl(this.el);
       if (!this.el) {
-        const allowMissingEl = typeof options.allowMissingEl === 'undefined' ? !!underscore.result(this, 'allowMissingEl') : !!options.allowMissingEl;
+        const allowMissingEl = typeof options.allowMissingEl === 'undefined' ? !!getValue(this, 'allowMissingEl') : !!options.allowMissingEl;
         if (allowMissingEl) {
           return false;
         } else {
@@ -1966,12 +1966,12 @@
       return new View(viewOptions);
     },
     _getViewOptions(viewOptions) {
-      if (underscore.isFunction(viewOptions)) {
+      if (typeof viewOptions === 'function') {
         return {
           template: viewOptions
         };
       }
-      if (underscore.isObject(viewOptions)) {
+      if (viewOptions !== null && typeof viewOptions === 'object') {
         return viewOptions;
       }
       const template = function () {
@@ -1982,7 +1982,7 @@
       };
     },
     getEl(el) {
-      const context = underscore.result(this, 'parentEl');
+      const context = getValue(this, 'parentEl');
       return this.Dom.findEl(context || document, el)[0];
     },
     _replaceEl(view) {
@@ -2124,17 +2124,17 @@
     if (definition instanceof Region) {
       return definition;
     }
-    if (underscore.isString(definition)) {
+    if (isString(definition)) {
       return buildRegionFromObject(defaults, {
         el: definition
       });
     }
-    if (underscore.isFunction(definition)) {
+    if (typeof definition === 'function') {
       return buildRegionFromObject(defaults, {
         regionClass: definition
       });
     }
-    if (underscore.isObject(definition)) {
+    if (definition !== null && typeof definition === 'object') {
       return buildRegionFromObject(defaults, definition);
     }
     throw new MarionetteError({
@@ -2154,34 +2154,38 @@
     _initRegions() {
       this.regions = this.regions || {};
       this._regions = Object.create(null);
-      this.addRegions(underscore.result(this, 'regions'));
+      this.addRegions(getValue(this, 'regions'));
     },
     _reInitRegions() {
-      underscore.each(this._regions, region => region.reset());
+      eachOwn(this._regions, region => region.reset());
     },
     addRegion(name, definition) {
       const regions = setRegion({}, definition, name);
       return this.addRegions(regions)[name];
     },
     addRegions(regions) {
-      if (underscore.isEmpty(regions)) {
+      if (regions == null || Object.keys(regions).length === 0) {
         return;
       }
       regions = this.normalizeUIValues(regions, 'el');
-      this.regions = underscore.reduce(regions, setRegion, underscore.reduce(this.regions, setRegion, {}));
+      const allRegions = {};
+      eachOwn(this.regions, (definition, name) => setRegion(allRegions, definition, name));
+      eachOwn(regions, (definition, name) => setRegion(allRegions, definition, name));
+      this.regions = allRegions;
       return this._addRegions(regions);
     },
     _addRegions(regionDefinitions) {
       const defaults = {
         regionClass: this.regionClass,
-        parentEl: underscore.partial(underscore.result, this, 'el')
+        parentEl: () => getValue(this, 'el')
       };
-      return underscore.reduce(regionDefinitions, (regions, definition, name) => {
+      const regions = {};
+      eachOwn(regionDefinitions, (definition, name) => {
         const region = buildRegion(definition, defaults);
         setRegion(regions, region, name);
         this._addRegion(region, name);
-        return regions;
-      }, {});
+      });
+      return regions;
     },
     _addRegion(region, name) {
       this.triggerMethod('before:add:region', this, name, region);
@@ -2197,7 +2201,7 @@
     },
     removeRegions() {
       const regions = this._getRegions();
-      underscore.each(this._regions, this._removeRegion.bind(this));
+      eachOwn(this._regions, (region, name) => this._removeRegion(region, name));
       return regions;
     },
     _removeRegion(region, name) {
@@ -2211,7 +2215,7 @@
     },
     emptyRegions() {
       const regions = this.getRegions();
-      underscore.each(regions, region => region.empty());
+      eachOwn(regions, region => region.empty());
       return regions;
     },
     hasRegion(name) {
@@ -2224,7 +2228,9 @@
       return getOwnRegion(this._regions, name);
     },
     _getRegions() {
-      return underscore.reduce(this._regions, setRegion, {});
+      const regions = {};
+      eachOwn(this._regions, (region, name) => setRegion(regions, region, name));
+      return regions;
     },
     getRegions() {
       if (!this._isRendered) {
@@ -2265,13 +2271,13 @@
     this.delegateEntityEvents();
     this._triggerEventOnBehaviors('initialize', this, options);
   };
-  underscore.extend(View, {
+  assignOwn(View, {
     extend,
     setRenderer: setRenderer$1,
     setDomApi: setDomApi$1,
     setEventDelegator: setEventDelegator$1
   });
-  underscore.extend(View.prototype, ViewMixin, RegionsMixin, {
+  assignOwn(View.prototype, ViewMixin, RegionsMixin, {
     cidPrefix: 'mnv',
     setElement(element) {
       this._undelegateViewEvents();
@@ -2304,7 +2310,9 @@
       this.removeRegions();
     },
     _getImmediateChildren() {
-      return underscore.reduce(this._regions, childReducer, []);
+      const children = [];
+      eachOwn(this._regions, region => childReducer(children, region));
+      return children;
     }
   });
 

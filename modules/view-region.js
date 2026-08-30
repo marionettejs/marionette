@@ -1,20 +1,12 @@
 // Region
 // ------
 
-import {
-  each,
-  extend as _extend,
-  isEmpty,
-  isFunction,
-  isObject,
-  isString,
-  partial,
-  reduce,
-  result
-} from 'underscore';
 import { assignOwn } from '../utils/assign-in.js';
+import eachOwn from '../utils/each-own.js';
 import MarionetteError from '../utils/error.js';
 import extend from '../utils/extend.js';
+import getValue from '../utils/get-value.js';
+import isString from '../utils/is-string.js';
 import uniqueId from '../utils/unique-id.js';
 import monitorViewEvents from './common/monitor-view-events.js';
 import { renderView, destroyView, isView } from './common/view.js';
@@ -82,7 +74,7 @@ Region.setDomApi = setDomApi;
 // Region Methods
 // --------------
 
-_extend(Region.prototype, CommonMixin, {
+assignOwn(Region.prototype, CommonMixin, {
   Dom: DomApi,
 
   cidPrefix: 'mnr',
@@ -148,7 +140,7 @@ _extend(Region.prototype, CommonMixin, {
   _setEl(el) {
     this._validateEl(el);
 
-    if (isObject(el)) {
+    if (el !== null && typeof el === 'object') {
       this.el = el;
       return;
     }
@@ -218,7 +210,7 @@ _extend(Region.prototype, CommonMixin, {
 
   _attachView(view, { replaceElement } = {}) {
     const shouldTriggerAttach = !view._isAttached && this._isElAttached() && !this._shouldDisableMonitoring();
-    const shouldReplaceEl = typeof replaceElement === 'undefined' ? !!result(this, 'replaceElement') : !!replaceElement;
+    const shouldReplaceEl = typeof replaceElement === 'undefined' ? !!getValue(this, 'replaceElement') : !!replaceElement;
 
     if (shouldTriggerAttach) {
       view.triggerMethod('before:attach', view);
@@ -243,7 +235,7 @@ _extend(Region.prototype, CommonMixin, {
     this._setEl(this.el);
 
     if (!this.el) {
-      const allowMissingEl = typeof options.allowMissingEl === 'undefined' ? !!result(this, 'allowMissingEl') : !!options.allowMissingEl;
+      const allowMissingEl = typeof options.allowMissingEl === 'undefined' ? !!getValue(this, 'allowMissingEl') : !!options.allowMissingEl;
 
       if (allowMissingEl) {
         return false;
@@ -290,11 +282,11 @@ _extend(Region.prototype, CommonMixin, {
   // This allows for a template or a static string to be
   // used as a template
   _getViewOptions(viewOptions) {
-    if (isFunction(viewOptions)) {
+    if (typeof viewOptions === 'function') {
       return { template: viewOptions };
     }
 
-    if (isObject(viewOptions)) {
+    if (viewOptions !== null && typeof viewOptions === 'object') {
       return viewOptions;
     }
 
@@ -306,7 +298,7 @@ _extend(Region.prototype, CommonMixin, {
   // Override this method to change how the region finds the DOM element that it manages. Return
   // a jQuery selector object scoped to a provided parent el or the document if none exists.
   getEl(el) {
-    const context = result(this, 'parentEl');
+    const context = getValue(this, 'parentEl');
 
     return this.Dom.findEl(context || document, el)[0];
   },
@@ -518,11 +510,11 @@ function buildRegion(definition, defaults) {
     return buildRegionFromObject(defaults, { el: definition });
   }
 
-  if (isFunction(definition)) {
+  if (typeof definition === 'function') {
     return buildRegionFromObject(defaults, { regionClass: definition });
   }
 
-  if (isObject(definition)) {
+  if (definition !== null && typeof definition === 'object') {
     return buildRegionFromObject(defaults, definition);
   }
 
@@ -558,13 +550,13 @@ const RegionsMixin = {
     this.regions = this.regions || {};
     this._regions = Object.create(null);
 
-    this.addRegions(result(this, 'regions'));
+    this.addRegions(getValue(this, 'regions'));
   },
 
   // Internal method to re-initialize all of the regions by updating
   // the `el` that they point to
   _reInitRegions() {
-    each(this._regions, region => region.reset());
+    eachOwn(this._regions, region => region.reset());
   },
 
   // Add a single region, by name, to the View
@@ -576,7 +568,7 @@ const RegionsMixin = {
   // Add multiple regions as a {name: definition, name2: def2} object literal
   addRegions(regions) {
     // If there's nothing to add, stop here.
-    if (isEmpty(regions)) {
+    if (regions == null || Object.keys(regions).length === 0) {
       return;
     }
 
@@ -585,7 +577,10 @@ const RegionsMixin = {
     regions = this.normalizeUIValues(regions, 'el');
 
     // Add the regions definitions to the regions property
-    this.regions = reduce(regions, setRegion, reduce(this.regions, setRegion, {}));
+    const allRegions = {};
+    eachOwn(this.regions, (definition, name) => setRegion(allRegions, definition, name));
+    eachOwn(regions, (definition, name) => setRegion(allRegions, definition, name));
+    this.regions = allRegions;
 
     return this._addRegions(regions);
   },
@@ -594,15 +589,16 @@ const RegionsMixin = {
   _addRegions(regionDefinitions) {
     const defaults = {
       regionClass: this.regionClass,
-      parentEl: partial(result, this, 'el')
+      parentEl: () => getValue(this, 'el')
     };
 
-    return reduce(regionDefinitions, (regions, definition, name) => {
+    const regions = {};
+    eachOwn(regionDefinitions, (definition, name) => {
       const region = buildRegion(definition, defaults);
       setRegion(regions, region, name);
       this._addRegion(region, name);
-      return regions;
-    }, {});
+    });
+    return regions;
   },
 
   _addRegion(region, name) {
@@ -629,7 +625,7 @@ const RegionsMixin = {
   removeRegions() {
     const regions = this._getRegions();
 
-    each(this._regions, this._removeRegion.bind(this));
+    eachOwn(this._regions, (region, name) => this._removeRegion(region, name));
 
     return regions;
   },
@@ -652,7 +648,7 @@ const RegionsMixin = {
   // leave them attached
   emptyRegions() {
     const regions = this.getRegions();
-    each(regions, region => region.empty());
+    eachOwn(regions, region => region.empty());
     return regions;
   },
 
@@ -674,7 +670,9 @@ const RegionsMixin = {
   },
 
   _getRegions() {
-    return reduce(this._regions, setRegion, {});
+    const regions = {};
+    eachOwn(this._regions, (region, name) => setRegion(regions, region, name));
+    return regions;
   },
 
   // Get all regions
@@ -760,9 +758,9 @@ const View = function(options) {
   this._triggerEventOnBehaviors('initialize', this, options);
 };
 
-_extend(View, { extend, setRenderer, setDomApi, setEventDelegator });
+assignOwn(View, { extend, setRenderer, setDomApi, setEventDelegator });
 
-_extend(View.prototype, ViewMixin, RegionsMixin, {
+assignOwn(View.prototype, ViewMixin, RegionsMixin, {
   cidPrefix: 'mnv',
 
   setElement(element) {
@@ -812,7 +810,9 @@ _extend(View.prototype, ViewMixin, RegionsMixin, {
   },
 
   _getImmediateChildren() {
-    return reduce(this._regions, childReducer, []);
+    const children = [];
+    eachOwn(this._regions, region => childReducer(children, region));
+    return children;
   }
 });
 

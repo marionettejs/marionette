@@ -145,6 +145,12 @@ on your `Application` or `View`. This section will document the two types as app
 to `View`, although they will work for `Application` as well - just replace `regions`
 with `region` in your definition.
 
+Region declaration maps, including maps passed to `addRegions`, use own enumerable
+string keys in standard JavaScript own-key order. Inherited, symbol, and
+non-enumerable properties are ignored, and a numeric `length` property is an
+ordinary Region name rather than an array-like signal. Arrays, sparse arrays, and
+other array-like values are not supported as Region declaration maps.
+
 **Errors** An error will be thrown for an incorrect region configuration.
 
 ### String Selector
