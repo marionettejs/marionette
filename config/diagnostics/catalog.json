@@ -477,7 +477,7 @@
       "objects": [
         "Region"
       ],
-      "remediation": "Construct or use a live Region before showing a View; destroyed Regions cannot be reused.",
+      "remediation": "Construct or use a live Region before calling show, empty, or reset; destroyed Regions cannot be reused.",
       "docsAnchor": "/errors/MN0028/",
       "surfaces": [
         "runtime"

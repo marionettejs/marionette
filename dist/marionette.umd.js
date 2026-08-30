@@ -1786,6 +1786,38 @@
   }
 
   const classErrorName$2 = 'RegionError';
+  const destroyTeardown = new WeakMap();
+  function consumeDestroyTeardown(region, operation) {
+    if (destroyTeardown.get(region) !== operation) {
+      return false;
+    }
+    destroyTeardown.delete(region);
+    return true;
+  }
+  function assertRegionIsLive(region, operation, authorized) {
+    if (!region._isDestroyed || authorized) {
+      return;
+    }
+    throw new MarionetteError({
+      code: 'MN0028',
+      name: classErrorName$2,
+      message: `A destroyed Region cannot ${operation}.`,
+      url: 'errors/MN0028/'
+    });
+  }
+  function emptyRegion(region, options = {
+    allowMissingEl: true
+  }) {
+    const view = region.currentView;
+    if (!view) {
+      if (region._ensureElement(options)) {
+        region.detachHtml();
+      }
+      return region;
+    }
+    region._empty(view, true);
+    return region;
+  }
   function setRegion(regions, definition, name) {
     Object.defineProperty(regions, name, {
       configurable: true,
@@ -1840,14 +1872,7 @@
       });
     },
     show(view, options) {
-      if (this._isDestroyed) {
-        throw new MarionetteError({
-          code: 'MN0028',
-          name: classErrorName$2,
-          message: 'A destroyed Region cannot show a View.',
-          url: 'errors/MN0028/'
-        });
-      }
+      assertRegionIsLive(this, 'show a View');
       if (!this._ensureElement(options)) {
         return;
       }
@@ -2035,15 +2060,9 @@
     empty(options = {
       allowMissingEl: true
     }) {
-      const view = this.currentView;
-      if (!view) {
-        if (this._ensureElement(options)) {
-          this.detachHtml();
-        }
-        return this;
-      }
-      this._empty(view, true);
-      return this;
+      const authorized = consumeDestroyTeardown(this, 'empty');
+      assertRegionIsLive(this, 'empty', authorized);
+      return emptyRegion(this, options);
     },
     _empty(view, shouldDestroy) {
       view.off('destroy', this._empty, this);
@@ -2109,7 +2128,18 @@
       return !!this.currentView;
     },
     reset(options) {
-      this.empty(options);
+      const authorized = consumeDestroyTeardown(this, 'reset');
+      assertRegionIsLive(this, 'reset', authorized);
+      if (authorized) {
+        destroyTeardown.set(this, 'empty');
+      }
+      try {
+        this.empty(options);
+      } finally {
+        if (authorized && destroyTeardown.get(this) === 'empty') {
+          destroyTeardown.delete(this);
+        }
+      }
       this.el = this._initEl;
       delete this.$el;
       return this;
@@ -2130,7 +2160,12 @@
         throw error;
       }
       this._isDestroyed = true;
-      this.reset(options);
+      destroyTeardown.set(this, 'reset');
+      try {
+        this.reset(options);
+      } finally {
+        destroyTeardown.delete(this);
+      }
       if (this._name) {
         this._parentView._removeReferences(this._name);
       }
