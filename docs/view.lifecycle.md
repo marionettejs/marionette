@@ -64,13 +64,14 @@ following observable transitions:
 | Re-show a detached view | Rendered stays `true`; attachment reflects the Region | Does not render the view again |
 | `region.empty()` or `view.destroy()` | Rendered and attached become `false`; destroyed becomes `true` | Repeated destroy is a no-op |
 | `view.render()` after destruction | Returns the same View with rendered and attached `false` and destroyed `true` | Repeated calls are no-ops |
+| `view.setElement(el)` once destruction begins | Throws [`MN0029`](/errors/MN0029/) before inspecting or replacing the element or changing delegation, DOM, or lifecycle state | Calls during `before:destroy` and repeated calls after destruction throw the same diagnostic |
 
 Setting `monitorViewEvents: false` on a Region's owning view intentionally disables
 attachment events and automatic `isAttached()` updates for the shown view.
 
-This table specifies the normal managed lifecycle. Operations on an already destroyed
-view, other than repeated `destroy()` and `render()`, are intentionally outside this
-contract until their invalid-transition behavior is made consistent.
+This table specifies the normal managed lifecycle. Other operations on an already
+destroyed View remain outside this contract until their invalid-transition behavior
+is made consistent.
 
 ## Instantiating a View
 
@@ -99,6 +100,11 @@ element is in the document. Repeating the call with the same element recomputes 
 View and Behavior DOM events are redelegated to the replacement element, but existing managed
 children and Region contents are not moved. It is usually better to reconstruct a new View with
 the new `el` than to change the `el` of an existing View with managed children.
+
+Calling the base `View#setElement` or `CollectionView#setElement` once destruction begins
+throws [`MN0029`](/errors/MN0029/) before inspecting the supplied element or changing
+delegation, DOM, element identity, or lifecycle state. Construct a new instance instead.
+A custom override owns its behavior unless it delegates to the guarded base method.
 
 ## Rendering a View
 
