@@ -7,8 +7,8 @@
 * Fixed delegated event matching so nested matching ancestors fire once per event
 * Changed `setEnabled` to reject undocumented feature names with stable diagnostic
   code `MN0027`
-* Changed `Region#show`, `Region#empty`, and `Region#reset` to reject destroyed
-  Regions with stable diagnostic code `MN0028`
+* Changed the base `Region#show`, `Region#empty`, and `Region#reset`
+  implementations to reject destroyed Regions with stable diagnostic code `MN0028`
 
 ### v5.0.0-alpha.1
 

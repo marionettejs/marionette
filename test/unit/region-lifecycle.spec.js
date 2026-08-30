@@ -271,7 +271,7 @@ describe('Region lifecycle contract', function() {
     expect(view.isDestroyed()).to.be.true;
   });
 
-  it('consumes teardown authorization when an empty override omits the base method', function() {
+  it('leaves teardown behavior to a non-delegating empty override', function() {
     let overrideSymbolKeys;
     const CustomRegion = Region.extend({
       empty() {
@@ -281,13 +281,21 @@ describe('Region lifecycle contract', function() {
       },
     });
     const customRegion = new CustomRegion({ el: '#region' });
+    const view = new TestView();
+    customRegion.show(view);
     const originalSymbolKeys = Reflect.ownKeys(customRegion)
       .filter(key => typeof key === 'symbol');
     this.sinon.spy(customRegion, 'empty');
+    const destroy = this.sinon.spy();
+    customRegion.on('destroy', destroy);
 
     expect(customRegion.destroy()).to.equal(customRegion);
     expect(customRegion.empty).to.have.been.calledOnce;
+    expect(destroy).to.have.been.calledOnceWith(customRegion, undefined);
     expect(overrideSymbolKeys).to.deep.equal(originalSymbolKeys);
+    expect(customRegion.isDestroyed()).to.be.true;
+    expect(customRegion.currentView).to.equal(view);
+    expect(view.isDestroyed()).to.be.false;
 
     const regionEl = document.querySelector('#region');
     const sentinel = document.createElement('span');
@@ -309,9 +317,14 @@ describe('Region lifecycle contract', function() {
       .to.deep.equal(originalSymbolKeys);
     expect(customRegion.el).to.equal(cachedEl);
     expect(customRegion.$el).to.equal(cached$El);
-    expect(regionEl.childNodes).to.have.length(1);
-    expect(regionEl.firstChild).to.equal(sentinel);
+    expect(customRegion.currentView).to.equal(view);
+    expect(view.isDestroyed()).to.be.false;
+    expect(regionEl.childNodes).to.have.length(2);
+    expect(regionEl.firstChild).to.equal(view.el);
+    expect(regionEl.lastChild).to.equal(sentinel);
     expect(sentinel.textContent).to.equal('unmanaged');
+
+    view.destroy();
   });
 
   for (const operation of ['reset', 'empty']) {

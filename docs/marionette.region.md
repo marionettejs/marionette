@@ -563,6 +563,9 @@ ownership, lifecycle state, element caches, or DOM.
 A `reset` override participating in destruction must delegate to
 `Region.prototype.reset`; a non-delegating override that calls `this.empty()`
 directly after destruction receives `MN0028`.
+An `empty` override invoked by destruction must delegate to
+`Region.prototype.empty` to receive Marionette's View and DOM cleanup; a
+non-delegating override owns that teardown behavior.
 
 ```javascript
 import { View } from 'marionette';
