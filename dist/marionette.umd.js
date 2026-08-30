@@ -1456,6 +1456,7 @@
     }
   };
 
+  const objectKeys = Object.keys;
   function setDomApi$1(mixin) {
     this.prototype.Dom = assignOwn({}, this.prototype.Dom, mixin);
     return this;
@@ -1509,13 +1510,19 @@
       el.innerHTML = html;
     },
     setAttributes(el, attrs) {
-      underscore.each(underscore.keys(attrs), attr => {
+      const attrsType = typeof attrs;
+      if (attrs == null || attrsType !== 'object' && attrsType !== 'function') {
+        return;
+      }
+      const attrNames = objectKeys(attrs);
+      for (let index = 0, length = attrNames.length; index < length; index++) {
+        const attr = attrNames[index];
         if (attr in el) {
           setProperty(el, attr, attrs[attr]);
         } else {
           el.setAttribute(attr, attrs[attr]);
         }
-      });
+      }
     },
     appendContents(el, contents) {
       el.appendChild(contents);
