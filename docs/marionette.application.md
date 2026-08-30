@@ -29,7 +29,7 @@ that will be attached directly to the instance:
 `channelName`, `radioEvents`, `radioRequests`, `region`, `regionClass`
 
 ```javascript
-import { Application } from 'backbone.marionette';
+import { Application } from 'marionette';
 
 const myApplication = new Application({ ... });
 ```
@@ -43,7 +43,7 @@ This function takes a single optional argument to pass along to the events.
 
 ```javascript
 import Bb from 'backbone';
-import { Application } from 'backbone.marionette';
+import { Application } from 'marionette';
 
 const MyApp = Application.extend({
   region: '#root-element',
@@ -80,7 +80,7 @@ An `Application` provides a single [region](./marionette.region.md) for attachin
 The `region` property can be [defined in multiple ways](./marionette.region.md#defining-regions)
 
 ```javascript
-import { Application } from 'backbone.marionette';
+import { Application } from 'marionette';
 import RootView from './views/root';
 
 const MyApp = Application.extend({
@@ -109,7 +109,7 @@ By default the [`Region`](./marionette.region.md) is used to instantiate the `Ap
 An extended Region can be provided to the `Application` definition to override the default.
 
 ```javascript
-import { Application, Region } from 'backbone.marionette';
+import { Application, Region } from 'marionette';
 
 const MyRegion = Region.extend({
   isSpecial: true
