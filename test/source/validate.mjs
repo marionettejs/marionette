@@ -17,6 +17,26 @@ assert.equal(typeof jqueryDomApi.setContents, 'function');
 const root = resolve(import.meta.dirname, '../..');
 const packageJson = JSON.parse(readFileSync(resolve(root, 'package.json')));
 const productionFiles = ['index.js', 'backbone.js', 'jquery-dom-api.js'];
+const underscoreImport = /(?:\bfrom\s+|\bimport\s*(?:\(\s*)?|\brequire\s*\(\s*)['"]underscore(?:\/[^'"]*)?['"]/;
+
+for (const source of [
+  'import \'underscore\';',
+  'import { each } from \'underscore\';',
+  'await import(\'underscore/modules/each.js\');',
+  'require("underscore");',
+]) {
+  assert.match(source, underscoreImport);
+}
+
+for (const source of ['const packageName = \'underscore\';', 'import \'./underscore.js\';']) {
+  assert.doesNotMatch(source, underscoreImport);
+}
+
+for (const file of readdirSync(resolve(root, 'config'))) {
+  if (file.endsWith('.js')) {
+    productionFiles.push(`config/${file}`);
+  }
+}
 
 for (const directory of ['modules', 'mixins', 'utils']) {
   for (const file of readdirSync(resolve(root, directory), { recursive: true })) {
@@ -31,7 +51,7 @@ assert.equal(Object.hasOwn(packageJson.peerDependencies, 'underscore'), false);
 for (const file of productionFiles) {
   assert.doesNotMatch(
     readFileSync(resolve(root, file), 'utf8'),
-    /(?:from\s+|import\s*\(|require\s*\()\s*['"]underscore(?:\/[^'"]*)?['"]/
+    underscoreImport
   );
 }
 
