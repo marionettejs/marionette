@@ -559,6 +559,10 @@ restart teardown.
 A destroyed Region should not be reused. Calling `show()`, `empty()`, or `reset()`
 on it throws `MN0028` before resolving the Region element or changing View
 ownership, lifecycle state, element caches, or DOM.
+`destroy()` still dispatches through overridable `reset()` and `empty()` methods.
+A `reset` override participating in destruction must delegate to
+`Region.prototype.reset`; a non-delegating override that calls `this.empty()`
+directly after destruction receives `MN0028`.
 
 ```javascript
 import { View } from 'marionette';

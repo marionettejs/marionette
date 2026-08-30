@@ -543,6 +543,15 @@ describe('Region lifecycle contract', function() {
     expect(empty).to.not.have.been.called;
   });
 
+  it('does not expose an unguarded empty implementation', function() {
+    const view = new TestView();
+    region.show(view);
+    region.destroy();
+
+    expect(Region.prototype).not.to.have.own.property('_emptyRegion');
+    expect(region._emptyRegion).to.be.undefined;
+  });
+
   for (const operation of ['empty', 'reset']) {
     it(`rejects ${operation} after destruction without changing lifecycle state`, function() {
       const owner = new View({

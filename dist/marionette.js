@@ -1794,6 +1794,19 @@ function assertRegionIsLive(region, operation, authorized) {
     url: 'errors/MN0028/'
   });
 }
+function emptyRegion(region, options = {
+  allowMissingEl: true
+}) {
+  const view = region.currentView;
+  if (!view) {
+    if (region._ensureElement(options)) {
+      region.detachHtml();
+    }
+    return region;
+  }
+  region._empty(view, true);
+  return region;
+}
 function setRegion(regions, definition, name) {
   Object.defineProperty(regions, name, {
     configurable: true,
@@ -2038,20 +2051,7 @@ assignOwn(Region.prototype, CommonMixin, {
   }) {
     const authorized = consumeDestroyTeardown(this, 'empty');
     assertRegionIsLive(this, 'empty', authorized);
-    return this._emptyRegion(options);
-  },
-  _emptyRegion(options = {
-    allowMissingEl: true
-  }) {
-    const view = this.currentView;
-    if (!view) {
-      if (this._ensureElement(options)) {
-        this.detachHtml();
-      }
-      return this;
-    }
-    this._empty(view, true);
-    return this;
+    return emptyRegion(this, options);
   },
   _empty(view, shouldDestroy) {
     view.off('destroy', this._empty, this);
