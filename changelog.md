@@ -11,6 +11,8 @@
   implementations to reject destroyed Regions with stable diagnostic code `MN0028`
 * Changed destroyed `View#render` and `CollectionView#render` calls to return the
   instance without resolving templates or running the render lifecycle
+* Changed base `View#setElement` and `CollectionView#setElement` calls once
+  destruction begins to reject with stable diagnostic code `MN0029`
 * Changed `View#hasRegion` to check own registered Regions without rendering or
   changing View lifecycle state
 * Changed `View#getRegions` to return a safe Region snapshot without rendering;

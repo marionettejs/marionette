@@ -483,6 +483,23 @@
         "runtime"
       ],
       "benchmarkCategory": "region"
+    },
+    {
+      "code": "MN0029",
+      "slug": "view-destroyed-set-element",
+      "status": "active",
+      "category": "lifecycle",
+      "severity": "error",
+      "objects": [
+        "CollectionView",
+        "View"
+      ],
+      "remediation": "Construct or use a live View or CollectionView before replacing its element; view instances cannot replace their element once destruction begins.",
+      "docsAnchor": "/errors/MN0029/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "view"
     }
   ]
 }

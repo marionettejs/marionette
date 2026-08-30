@@ -2332,6 +2332,14 @@ assignOwn(View, {
 assignOwn(View.prototype, ViewMixin, RegionsMixin, {
   cidPrefix: 'mnv',
   setElement(element) {
+    if (this._isDestroying || this._isDestroyed) {
+      throw new MarionetteError({
+        code: 'MN0029',
+        name: 'ViewError',
+        message: 'A destroying or destroyed View cannot setElement.',
+        url: 'errors/MN0029/'
+      });
+    }
     this._undelegateViewEvents();
     this.el = this._validateEl(element);
     this._setBehaviorElements();
@@ -2901,6 +2909,14 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     return this.children._views;
   },
   setElement(element) {
+    if (this._isDestroying || this._isDestroyed) {
+      throw new MarionetteError({
+        code: 'MN0029',
+        name: classErrorName,
+        message: 'A destroying or destroyed CollectionView cannot setElement.',
+        url: 'errors/MN0029/'
+      });
+    }
     this._undelegateViewEvents();
     this.el = this._validateEl(element);
     this._setBehaviorElements();
