@@ -827,9 +827,11 @@ assignOwn(View.prototype, ViewMixin, RegionsMixin, {
   // If a template is available, renders it into the view's `el`
   // Re-inits regions and binds UI.
   render() {
+    if (this._isDestroyed) { return this; }
+
     const template = this.getTemplate();
 
-    if (template === false || this._isDestroyed) { return this; }
+    if (template === false) { return this; }
 
     this.triggerMethod('before:render', this);
 

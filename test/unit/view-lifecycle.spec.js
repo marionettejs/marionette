@@ -93,6 +93,48 @@ describe('View lifecycle contract', function() {
     view.destroy();
   });
 
+  it('treats repeated render calls after destruction as idempotent no-ops', function() {
+    const template = this.sinon.spy(() => `
+      <div class="child-region"></div>
+    `);
+    const beforeRender = this.sinon.spy();
+    const render = this.sinon.spy();
+    const ParentView = View.extend({
+      regions: { child: '.child-region' },
+      template,
+    });
+    const view = new ParentView();
+    const child = new View({ template: () => '<span>Child</span>' });
+    view.on('before:render', beforeRender);
+    view.on('render', render);
+    view.render();
+    view.showChildView('child', child);
+
+    view.destroy();
+
+    const sentinel = document.createElement('span');
+    sentinel.textContent = 'Unmanaged content';
+    view.el.append(sentinel);
+    const destroyedHtml = view.el.innerHTML;
+    template.resetHistory();
+    beforeRender.resetHistory();
+    render.resetHistory();
+    const getTemplate = this.sinon.spy(view, 'getTemplate');
+
+    expect(view.render()).to.equal(view);
+    expect(view.render()).to.equal(view);
+    expect(view.hasRegion('child')).to.be.false;
+
+    expect(getTemplate).to.not.have.been.called;
+    expect(template).to.not.have.been.called;
+    expect(beforeRender).to.not.have.been.called;
+    expect(render).to.not.have.been.called;
+    expect(view.el.innerHTML).to.equal(destroyedHtml);
+    expect(view.el.lastChild).to.equal(sentinel);
+    expect(state(view)).to.deep.equal({ rendered: false, attached: false, destroyed: true });
+    expect(state(child)).to.deep.equal({ rendered: false, attached: false, destroyed: true });
+  });
+
   it('preserves Region ownership without moving child DOM when replacing its element', function() {
     this.setFixtures('<div id="region-owner"></div>');
     const oldRoot = document.querySelector('#region-owner');
