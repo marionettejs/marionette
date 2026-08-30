@@ -1,7 +1,8 @@
 // DomApi
 //  ---------
-import { each, keys } from 'underscore';
 import { assignOwn, setProperty } from '../utils/assign-in.js';
+
+const objectKeys = Object.keys;
 
 // Static setter
 export function setDomApi(mixin) {
@@ -83,13 +84,18 @@ export default {
 
   // Sets attributes on a DOM node
   setAttributes(el, attrs) {
-    each(keys(attrs), attr => {
+    const attrsType = typeof attrs;
+    if (attrs == null || attrsType !== 'object' && attrsType !== 'function') { return; }
+
+    const attrNames = objectKeys(attrs);
+    for (let index = 0, length = attrNames.length; index < length; index++) {
+      const attr = attrNames[index];
       if (attr in el) {
         setProperty(el, attr, attrs[attr]);
       } else {
         el.setAttribute(attr, attrs[attr]);
       }
-    });
+    }
   },
 
   // Takes the DOM node `el` and appends the DOM node `contents`

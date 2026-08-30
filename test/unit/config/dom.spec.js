@@ -292,6 +292,276 @@ describe('DomApi', function() {
       expect(Object.hasOwn(el, '__proto__')).to.be.true;
       expect(Object.getOwnPropertyDescriptor(el, '__proto__').value).to.equal(protoValue);
     });
+
+    it('snapshots keys and checks property membership before reading each value', function() {
+      const trace = [];
+      const attrs = new Proxy({ existing: 'property', missing: 'attribute' }, {
+        get(target, property, receiver) {
+          trace.push(`attrs:get:${String(property)}`);
+          return Reflect.get(target, property, receiver);
+        },
+        getOwnPropertyDescriptor(target, property) {
+          trace.push(`attrs:descriptor:${String(property)}`);
+          return Reflect.getOwnPropertyDescriptor(target, property);
+        },
+        ownKeys(target) {
+          trace.push('attrs:keys');
+          return Reflect.ownKeys(target);
+        }
+      });
+      const el = new Proxy({
+        existing: 'old',
+        setAttribute(name, value) {
+          trace.push(`el:setAttribute:${name}:${value}`);
+        }
+      }, {
+        get(target, property, receiver) {
+          trace.push(`el:get:${String(property)}`);
+          return Reflect.get(target, property, receiver);
+        },
+        has(target, property) {
+          trace.push(`el:has:${String(property)}`);
+          return Reflect.has(target, property);
+        },
+        set(target, property, value, receiver) {
+          trace.push(`el:set:${String(property)}:${value}`);
+          return Reflect.set(target, property, value, receiver);
+        }
+      });
+
+      DomApi.setAttributes(el, attrs);
+
+      expect(trace).to.deep.equal([
+        'attrs:keys',
+        'attrs:descriptor:existing',
+        'attrs:descriptor:missing',
+        'el:has:existing',
+        'attrs:get:existing',
+        'el:set:existing:property',
+        'el:has:missing',
+        'el:get:setAttribute',
+        'attrs:get:missing',
+        'el:setAttribute:missing:attribute'
+      ]);
+    });
+
+    it('uses the snapshotted key order while reading later values lazily', function() {
+      const reads = [];
+      const attrs = {};
+      Object.defineProperties(attrs, {
+        first: {
+          enumerable: true,
+          get() {
+            reads.push('first');
+            attrs.third = 'late';
+            delete attrs.second;
+            return 'first';
+          }
+        },
+        second: {
+          configurable: true,
+          enumerable: true,
+          get() {
+            reads.push('second');
+            return 'second';
+          }
+        }
+      });
+      const el = { setAttribute: this.sinon.stub() };
+
+      DomApi.setAttributes(el, attrs);
+
+      expect(reads).to.deep.equal(['first']);
+      expect(el.setAttribute).to.have.been.calledTwice;
+      expect(el.setAttribute.firstCall.args).to.deep.equal(['first', 'first']);
+      expect(el.setAttribute.secondCall.args).to.deep.equal(['second', undefined]);
+    });
+
+    it('treats nullish and primitive attribute inputs as no-ops', function() {
+      const el = new Proxy({}, {
+        get() {
+          throw new Error('element read');
+        },
+        has() {
+          throw new Error('element membership');
+        }
+      });
+
+      [null, undefined, 'attrs', 1, true, Symbol('attrs'), 1n]
+        .forEach(attrs => expect(() => DomApi.setAttributes(el, attrs)).not.to.throw());
+    });
+
+    it('iterates own enumerable properties on callable attribute maps', function() {
+      const attrs = function() {};
+      attrs.title = 'callable';
+      const el = { title: 'old', setAttribute: this.sinon.stub() };
+
+      DomApi.setAttributes(el, attrs);
+
+      expect(el.title).to.equal('callable');
+      expect(el.setAttribute).not.to.have.been.called;
+    });
+
+    it('retains Object.keys behavior for boxed strings and sparse arrays', function() {
+      const el = { setAttribute: this.sinon.stub() };
+      const sparseAttrs = [];
+      sparseAttrs[0] = 'first';
+      sparseAttrs[2] = 'third';
+
+      DomApi.setAttributes(el, Object('ab'));
+      DomApi.setAttributes(el, sparseAttrs);
+
+      expect(el.setAttribute.callCount).to.equal(4);
+      expect(el.setAttribute.getCalls().map(call => call.args)).to.deep.equal([
+        ['0', 'a'],
+        ['1', 'b'],
+        ['0', 'first'],
+        ['2', 'third']
+      ]);
+    });
+
+    it('treats own length and built-in names as ordinary attribute-map keys', function() {
+      const attrs = {
+        length: 'ordinary',
+        constructor: 'constructor value',
+        toString: 'toString value'
+      };
+      const el = { setAttribute: this.sinon.stub() };
+
+      DomApi.setAttributes(el, attrs);
+
+      expect(el.setAttribute).to.have.been.calledOnceWithExactly('length', 'ordinary');
+      expect(el).to.have.own.property('constructor', 'constructor value');
+      expect(el).to.have.own.property('toString', 'toString value');
+    });
+
+    it('uses the Object.keys intrinsic captured when the module loads', function() {
+      const originalKeys = Object.keys;
+      const el = { title: 'old', setAttribute: this.sinon.stub() };
+
+      try {
+        Object.keys = () => { throw new Error('patched Object.keys'); };
+        DomApi.setAttributes(el, { title: 'captured' });
+      } finally {
+        Object.keys = originalKeys;
+      }
+
+      expect(el.title).to.equal('captured');
+    });
+
+    it('propagates membership errors without reading the attribute value', function() {
+      const valueGetter = this.sinon.stub().returns('value');
+      const attrs = Object.defineProperty({}, 'title', {
+        enumerable: true,
+        get: valueGetter
+      });
+      const error = new Error('membership failed');
+      const el = new Proxy({}, {
+        has() {
+          throw error;
+        }
+      });
+
+      expect(() => DomApi.setAttributes(el, attrs)).to.throw(error);
+      expect(valueGetter).not.to.have.been.called;
+    });
+
+    it('propagates setAttribute lookup errors without reading the attribute value', function() {
+      const valueGetter = this.sinon.stub().returns('value');
+      const attrs = Object.defineProperty({}, 'missing', {
+        enumerable: true,
+        get: valueGetter
+      });
+      const error = new Error('setAttribute lookup failed');
+      const el = Object.defineProperty({}, 'setAttribute', {
+        get() {
+          throw error;
+        }
+      });
+
+      expect(() => DomApi.setAttributes(el, attrs)).to.throw(error);
+      expect(valueGetter).not.to.have.been.called;
+    });
+
+    it('propagates attribute getter errors before writing the property', function() {
+      const error = new Error('attribute read failed');
+      const attrs = Object.defineProperty({}, 'title', {
+        enumerable: true,
+        get() {
+          throw error;
+        }
+      });
+      const propertySetter = this.sinon.stub();
+      const el = Object.defineProperties({}, {
+        setAttribute: { value: this.sinon.stub() },
+        title: { set: propertySetter }
+      });
+
+      expect(() => DomApi.setAttributes(el, attrs)).to.throw(error);
+      expect(propertySetter).not.to.have.been.called;
+    });
+
+    it('propagates property write errors after reading the attribute value', function() {
+      const valueGetter = this.sinon.stub().returns('value');
+      const attrs = Object.defineProperty({}, 'title', {
+        enumerable: true,
+        get: valueGetter
+      });
+      const error = new Error('property write failed');
+      const el = Object.defineProperties({}, {
+        setAttribute: { value: this.sinon.stub() },
+        title: {
+          set() {
+            throw error;
+          }
+        }
+      });
+
+      expect(() => DomApi.setAttributes(el, attrs)).to.throw(error);
+      expect(valueGetter).to.have.been.calledOnce;
+    });
+
+    it('propagates __proto__ definition errors after reading the attribute value', function() {
+      const valueGetter = this.sinon.stub().returns('value');
+      const attrs = Object.defineProperty({}, '__proto__', {
+        enumerable: true,
+        get: valueGetter
+      });
+      const error = new Error('property definition failed');
+      const el = new Proxy({}, {
+        defineProperty() {
+          throw error;
+        }
+      });
+
+      expect(() => DomApi.setAttributes(el, attrs)).to.throw(error);
+      expect(valueGetter).to.have.been.calledOnce;
+    });
+
+    it('stops before a later value when the first setAttribute call throws', function() {
+      const valueGetter = this.sinon.stub().returns('value');
+      const laterGetter = this.sinon.stub().returns('later');
+      const attrs = Object.defineProperties({}, {
+        missing: {
+          enumerable: true,
+          get: valueGetter
+        },
+        later: {
+          enumerable: true,
+          get: laterGetter
+        }
+      });
+      const error = new Error('setAttribute failed');
+      const el = {
+        setAttribute() {
+          throw error;
+        }
+      };
+
+      expect(() => DomApi.setAttributes(el, attrs)).to.throw(error);
+      expect(valueGetter).to.have.been.calledOnce;
+      expect(laterGetter).not.to.have.been.called;
+    });
   });
 
   describe('#appendContents', function() {
