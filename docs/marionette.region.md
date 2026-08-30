@@ -365,8 +365,8 @@ myView.removeRegions();
 
 In addition to adding and removing regions there are a few methods to help
 utilize regions. `hasRegion` is a pure presence query and `getRegions` returns a
-pure snapshot; neither renders. Methods that resolve or mutate Region instances,
-including `emptyRegions`, first render a live, unrendered View.
+pure snapshot; neither renders. `getRegion` and `emptyRegions` first render a
+live, unrendered View before resolving or mutating Regions.
 
 - `getRegion(name)` - Request a region from a view by name.
 - `getRegions()` - Return a fresh own-key snapshot of registered Regions without rendering.
