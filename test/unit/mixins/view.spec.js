@@ -1,4 +1,6 @@
 import { setEnabled } from '../../../index.js';
+import Backbone from 'backbone';
+import Behavior from '../../../modules/behavior';
 import CollectionView from '../../../modules/collection-view';
 import View from '../../../modules/view';
 
@@ -40,6 +42,89 @@ describe('view mixin', function() {
 
     it('should trigger the "destroy" event', function() {
       expect(destroyStub).to.have.been.called;
+    });
+  });
+
+  describe('when delegating entity events after destruction starts', function() {
+    function buildHost(context, ViewClass, onBeforeDestroy) {
+      const stubs = {
+        behaviorCollectionHandler: context.sinon.stub(),
+        behaviorCollectionEvents: context.sinon.stub(),
+        behaviorModelHandler: context.sinon.stub(),
+        behaviorModelEvents: context.sinon.stub(),
+        hostCollectionHandler: context.sinon.stub(),
+        hostCollectionEvents: context.sinon.stub(),
+        hostModelHandler: context.sinon.stub(),
+        hostModelEvents: context.sinon.stub()
+      };
+      stubs.behaviorCollectionEvents.returns({ update: stubs.behaviorCollectionHandler });
+      stubs.behaviorModelEvents.returns({ change: stubs.behaviorModelHandler });
+      stubs.hostCollectionEvents.returns({ update: stubs.hostCollectionHandler });
+      stubs.hostModelEvents.returns({ change: stubs.hostModelHandler });
+
+      const EntityBehavior = Behavior.extend({
+        collectionEvents: stubs.behaviorCollectionEvents,
+        modelEvents: stubs.behaviorModelEvents
+      });
+      const TestView = ViewClass.extend({
+        behaviors: [EntityBehavior],
+        collectionEvents: stubs.hostCollectionEvents,
+        modelEvents: stubs.hostModelEvents,
+        onBeforeDestroy
+      });
+      const collection = new Backbone.Collection();
+      const model = new Backbone.Model();
+      const view = new TestView({ collection, model });
+
+      Object.values(stubs).forEach(stub => stub.resetHistory());
+
+      return { collection, model, stubs, view };
+    }
+
+    function expectResolversNotCalled(stubs) {
+      expect(stubs.behaviorCollectionEvents).not.to.have.been.called;
+      expect(stubs.behaviorModelEvents).not.to.have.been.called;
+      expect(stubs.hostCollectionEvents).not.to.have.been.called;
+      expect(stubs.hostModelEvents).not.to.have.been.called;
+    }
+
+    [
+      ['View', View],
+      ['CollectionView', CollectionView]
+    ].forEach(([name, ViewClass]) => {
+      it(`should not evaluate or bind ${ name } entity events while destroying`, function() {
+        let result;
+        const { collection, model, stubs, view } = buildHost(this, ViewClass, function() {
+          result = this.delegateEntityEvents();
+          model.trigger('change');
+          collection.trigger('update');
+        });
+
+        view.destroy();
+
+        expect(result).to.equal(view);
+        expect(stubs.hostModelHandler).to.have.been.calledOnce;
+        expect(stubs.hostCollectionHandler).to.have.been.calledOnce;
+        expect(stubs.behaviorModelHandler).to.have.been.calledOnce;
+        expect(stubs.behaviorCollectionHandler).to.have.been.calledOnce;
+        expectResolversNotCalled(stubs);
+      });
+
+      it(`should not evaluate or bind ${ name } entity events after destruction`, function() {
+        const { collection, model, stubs, view } = buildHost(this, ViewClass);
+        view.destroy();
+        const result = view.delegateEntityEvents();
+
+        model.trigger('change');
+        collection.trigger('update');
+
+        expect(result).to.equal(view);
+        expectResolversNotCalled(stubs);
+        expect(stubs.hostModelHandler).not.to.have.been.called;
+        expect(stubs.hostCollectionHandler).not.to.have.been.called;
+        expect(stubs.behaviorModelHandler).not.to.have.been.called;
+        expect(stubs.behaviorCollectionHandler).not.to.have.been.called;
+      });
     });
   });
 

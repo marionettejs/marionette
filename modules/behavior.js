@@ -118,6 +118,8 @@ assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, V
 
   // Handle `modelEvents`, and `collectionEvents` configuration
   delegateEntityEvents() {
+    if (this.view._isDestroying || this.view._isDestroyed) { return this; }
+
     this._delegateEntityEvents(this.view.model, this.view.collection);
 
     return this;
