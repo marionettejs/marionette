@@ -75,6 +75,50 @@ describe('Behavior lifecycle contract', function() {
     });
   });
 
+  describe.each([
+    ['View', View],
+    ['CollectionView', CollectionView],
+  ])('%s initialize-time destruction', function(name, HostView) {
+    it('keeps destruction terminal after initialize returns', function() {
+      const lifecycle = [];
+      const model = new Backbone.Model();
+      const onModelEvent = this.sinon.stub();
+
+      const TestBehavior = Behavior.extend({
+        onInitialize() {
+          lifecycle.push('behavior:onInitialize');
+        },
+        onDestroy() {
+          lifecycle.push('behavior:onDestroy');
+        },
+      });
+      const TestView = HostView.extend({
+        behaviors: [TestBehavior],
+        modelEvents: {
+          ping: 'onModelEvent',
+        },
+        onModelEvent,
+        initialize() {
+          lifecycle.push('view:initialize');
+          this.destroy();
+        },
+      });
+
+      const view = new TestView({ model });
+      model.trigger('ping');
+
+      expect(view.isDestroyed()).to.be.true;
+      expect(lifecycle).to.deep.equal([
+        'view:initialize',
+        'behavior:onDestroy',
+      ]);
+      expect(onModelEvent).to.not.have.been.called;
+      if (view instanceof CollectionView) {
+        expect(view.getEmptyRegion().isDestroyed()).to.be.true;
+      }
+    });
+  });
+
   it('resolves callable events after Behavior initialize and before host initialize', function() {
     const lifecycle = [];
     const onAction = this.sinon.spy();

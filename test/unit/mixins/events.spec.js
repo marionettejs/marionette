@@ -191,6 +191,46 @@ describe('Events Mixin', function() {
       expect(handler).to.have.been.calledTwice;
     });
 
+    it('collapses repeated once event names to one registration', function() {
+      const handler = this.sinon.stub();
+
+      object.once('foo foo', handler);
+      object.trigger('foo');
+      object.trigger('foo');
+
+      expect(handler).to.have.been.calledOnce;
+    });
+
+    it('collapses repeated listenToOnce event names to one registration', function() {
+      const handler = this.sinon.stub();
+
+      listener.listenToOnce(object, 'foo foo', handler);
+      object.trigger('foo');
+      object.trigger('foo');
+
+      expect(handler).to.have.been.calledOnce;
+    });
+
+    it('preserves falsy once contexts without using the handler as context', function() {
+      [false, 0, ''].forEach(context => {
+        const emitter = _.extend({}, EventsMixin);
+        const registrations = [];
+        const handler = this.sinon.stub();
+        const baseOn = EventsMixin.on;
+        emitter.on = function(...args) {
+          registrations.push(args);
+          return baseOn.apply(this, args);
+        };
+
+        emitter.once('foo', handler, context);
+        emitter.trigger('foo');
+        emitter.trigger('foo');
+
+        expect(registrations[0][2]).to.equal(context);
+        expect(handler).to.have.been.calledOnce.and.calledOn(emitter);
+      });
+    });
+
     it('dispatches once registration through an overridden on method', function() {
       const registrations = [];
       const handler = this.sinon.stub();
@@ -261,7 +301,7 @@ describe('Events Mixin', function() {
       expect(handler).to.have.been.calledOnce;
     });
 
-    it('registers once through a three-argument delegating on override', function() {
+    it('registers a listenTo handler through a three-argument delegating on override', function() {
       const handler = this.sinon.stub();
       const baseOn = EventsMixin.on;
       object.on = function(name, callback, context) {

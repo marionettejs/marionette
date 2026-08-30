@@ -795,6 +795,8 @@ const View = function(options) {
 
   this.initialize.apply(this, arguments);
 
+  if (this._isDestroyed || this._isDestroying) { return; }
+
   this.delegateEntityEvents();
 
   this._triggerEventOnBehaviors('initialize', this, options);

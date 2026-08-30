@@ -101,6 +101,8 @@ const CollectionView = function(options) {
 
   this.initialize.apply(this, arguments);
 
+  if (this._isDestroyed || this._isDestroying) { return; }
+
   // Init empty region after initialize to preserve the v4 override boundary.
   this.getEmptyRegion();
 
@@ -127,6 +129,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
   // Create an region to show the emptyView
   getEmptyRegion() {
+    if (this._isDestroyed && this._emptyRegion) { return this._emptyRegion; }
+
     const emptyEl = this.container || this.el;
 
     if (this._emptyRegion && !this._emptyRegion.isDestroyed()) {

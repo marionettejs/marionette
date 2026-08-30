@@ -373,11 +373,12 @@
   const eventSplitter = /\s+/;
   function buildEventArgs(name, callback, context, listener) {
     if (name && typeof name === 'object') {
+      const eventContext = context === undefined ? callback : context;
       const eventArgs = [];
       const names = Object.keys(name);
       for (let i = 0; i < names.length; i++) {
         const key = names[i];
-        const args = buildEventArgs(key, name[key], context || callback, listener);
+        const args = buildEventArgs(key, name[key], eventContext, listener);
         for (let j = 0; j < args.length; j++) {
           eventArgs.push(args[j]);
         }
@@ -2346,6 +2347,9 @@
     this._initRegions();
     this._buildEventProxies();
     this.initialize.apply(this, arguments);
+    if (this._isDestroyed || this._isDestroying) {
+      return;
+    }
     this.delegateEntityEvents();
     this._triggerEventOnBehaviors('initialize', this, options);
   };
@@ -2775,6 +2779,9 @@
     this._initBehaviors();
     this._buildEventProxies();
     this.initialize.apply(this, arguments);
+    if (this._isDestroyed || this._isDestroying) {
+      return;
+    }
     this.getEmptyRegion();
     this.delegateEntityEvents();
     this._triggerEventOnBehaviors('initialize', this, options);
@@ -2793,6 +2800,9 @@
       this.children = new Container();
     },
     getEmptyRegion() {
+      if (this._isDestroyed && this._emptyRegion) {
+        return this._emptyRegion;
+      }
       const emptyEl = this.container || this.el;
       if (this._emptyRegion && !this._emptyRegion.isDestroyed()) {
         this._emptyRegion._setElement(emptyEl);
