@@ -1,0 +1,20 @@
+test/source/validate.mjs
+  s_d6429951fb9231::t_4cc957ea65c398 20-22,26-30,32-39,54
+  s_d6429951fb9231::t_d8e8f89b19042c 23-25,31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "50862e95c56140272371d8d97406f5ffcf658fca",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
