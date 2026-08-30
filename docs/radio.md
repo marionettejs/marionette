@@ -11,6 +11,11 @@ import { Radio } from 'marionette';
 `Backbone.Radio` is no longer a required external dependency. Do not install
 `backbone.radio` for Marionette's Radio API.
 
+The built-in singleton does not share channels with `backbone.radio`. Migrate
+all application imports atomically, including code that publishes or requests
+outside Marionette classes; mixing both packages creates disconnected buses.
+See [Atomic Radio migration](../upgradeGuide.md#atomic-radio-migration).
+
 ## Documentation Index
 
 * [Channels](#channels)
@@ -91,6 +96,13 @@ Use `stopReplying` to remove one or more handlers:
 account.replyOnce('access:token', createAccessToken);
 account.stopReplying('current:user');
 ```
+
+The request registration methods retain Backbone.Radio's customization
+seams: `replyOnce` installs its wrapper through overridable `reply`, and map or
+space-separated `reply`, `replyOnce`, and `stopReplying` calls dispatch each
+entry through the corresponding public method. For object-form `request`, the
+mapped value is the first handler argument and any arguments after the map are
+forwarded after it.
 
 Use requests when one handler owns an operation or when the sender needs a
 return value.

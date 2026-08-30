@@ -54,6 +54,11 @@ describe('Radio', function() {
 
   it('forwards event and request methods through the top-level API', function() {
     const channel = Radio.channel('foo');
+    expect(Radio.bind).to.be.undefined;
+    expect(Radio.unbind).to.be.undefined;
+    expect(channel.bind).to.be.undefined;
+    expect(channel.unbind).to.be.undefined;
+
     const methods = [
       'on',
       'off',

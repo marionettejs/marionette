@@ -16,7 +16,7 @@ current public behavior boundary. Final migration documentation is tracked in
 ## View `el` is element-only
 
 - `View` (and `CollectionView`) accept a DOM element for `el` in v5. Selector
-  strings are no longer resolved.
+  strings are no longer resolved, and jQuery collections must be unwrapped.
 - v4 inherited string-`el` resolution from `Backbone.View._ensureElement`, which
   used jQuery to look up the selector. v5 drops `Backbone.View` inheritance and
   the default jQuery dependency, so the string-resolution path goes with them.
@@ -35,13 +35,15 @@ current public behavior boundary. Final migration documentation is tracked in
 
 - `Region` continues to accept selector strings. That API is Marionette-native
   (the Region abstraction has always been "where to mount"), not inherited from
-  Backbone, so it is preserved.
+  Backbone, so it is preserved. When the mount point is already resolved, pass
+  its native element rather than a jQuery collection.
 
 ## jQuery DOM compatibility
 
-- v5 core does not depend on jQuery and does not create `view.$el`.
-- Apps that want Marionette DOM operations such as `view.$(selector)` to return
-  jQuery collections can opt into the `marionette/jquery-dom-api` adapter:
+- v5 core does not depend on jQuery and the native DomApi does not create
+  `view.$el`.
+- Apps that need the v4 jQuery compatibility surface can opt into the
+  `marionette/jquery-dom-api` adapter:
 
   ```js
   import { setDomApi } from 'marionette';
@@ -52,19 +54,68 @@ current public behavior boundary. Final migration documentation is tracked in
 
 - The adapter imports `jquery`, so jQuery is an optional peer dependency only for
   consumers that opt into this subpath.
-- The adapter intentionally does not add `$el`. If legacy app code still expects
-  `view.$el`, set it in your own view layer:
+- With the adapter active before construction, `View` and `CollectionView`
+  create and refresh `$el` through `setElement()`. Behaviors mirror their host
+  View's `$el`. `view.$(selector)` also returns a jQuery collection.
+- This does not restore Backbone.View inheritance or allow selector strings as a
+  View `el`; resolve View elements explicitly. Region selector strings remain
+  supported.
 
-  ```js
-  import $ from 'jquery';
-  import { View } from 'marionette';
+## Native delegation versus jQuery events
 
-  const LegacyView = View.extend({
-    initialize() {
-      this.$el = $(this.el);
-    }
-  });
-  ```
+The default EventDelegator uses `addEventListener` on the View's root element.
+During a delegated handler, the native `event.currentTarget` is therefore the
+View's root `el`. Marionette sets `event.delegateTarget` to the closest matching
+descendant between the original target and that root. If nested ancestors match
+the same selector, only that closest match invokes the handler; Marionette does
+not invoke it again for every matching ancestor.
+
+This is a native DOM contract, not an emulation of jQuery's event system:
+
+- `mouseenter` does not bubble, and Marionette does not provide jQuery's special
+  delegated `mouseenter` handling. Use a bubbling event such as `mouseover`
+  with an appropriate `relatedTarget` check, or bind `mouseenter` directly to
+  the intended element.
+- A name such as `click.menu` is a literal native event type, not a `click`
+  event in a jQuery namespace. Marionette already tracks and removes a View's
+  delegated listeners; application-owned native listeners should retain their
+  own callbacks or abort signals for cleanup.
+- Returning `false` from a handler does not prevent the default action or stop
+  propagation. Call `event.preventDefault()` and/or `event.stopPropagation()`
+  explicitly.
+- Browser `dispatchEvent()` supplies only the event object to a handler; jQuery
+  trigger arguments are not forwarded. Put application data in a
+  `CustomEvent`'s `detail`, or use Marionette events when positional arguments
+  are part of the application contract.
+
+The optional jQuery DomApi changes query and DOM-manipulation operations only;
+it does not replace the native EventDelegator. Applications with a verified
+need for different delegation semantics can provide an explicit
+`setEventDelegator` adapter.
+
+## Atomic Radio migration
+
+Marionette v5 owns the `Radio` singleton used by `channelName`, `radioEvents`,
+and `radioRequests`. It is not the singleton exported by `backbone.radio`.
+Replace every application import in one migration:
+
+```js
+// v4
+import Radio from 'backbone.radio';
+
+// v5
+import { Radio } from 'marionette';
+```
+
+This includes publishers and requesters that do not instantiate a Marionette
+class. Leaving either import in the application creates two channels with the
+same name on disconnected buses, so messages and requests can disappear
+without an exception. Do not bridge, mirror, or run both singletons as a
+compatibility strategy.
+
+Replace `Radio.DEBUG = true` with `Radio.setDebug()` and disable it with
+`Radio.setDebug(false)`. The v4 `Radio.Requests` mixin is removed; use request
+methods on `Radio.channel(name)` or on the top-level built-in `Radio` API.
 
 ## `detachContents` policy
 

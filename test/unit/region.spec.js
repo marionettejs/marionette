@@ -1103,6 +1103,31 @@ describe('region', function() {
     it('should manage the specified el', function() {
       expect(region.el).to.equal(el);
     });
+
+    it('defers selector resolution until the first DOM operation', function() {
+      this.setFixtures('<div id="foo"></div>');
+      const lifecycle = [];
+      const DeferredRegion = Region.extend({
+        getEl(selector) {
+          lifecycle.push(['getEl', selector]);
+          return Region.prototype.getEl.call(this, selector);
+        },
+        initialize() {
+          lifecycle.push(['initialize', this.el]);
+        }
+      });
+
+      const deferredRegion = new DeferredRegion({ el: '#foo' });
+
+      expect(lifecycle).to.deep.equal([['initialize', '#foo']]);
+      expect(deferredRegion.el).to.equal('#foo');
+      expect(deferredRegion.empty()).to.equal(deferredRegion);
+      expect(lifecycle).to.deep.equal([
+        ['initialize', '#foo'],
+        ['getEl', '#foo']
+      ]);
+      expect(deferredRegion.el).to.equal(document.getElementById('foo'));
+    });
   });
 
   describe('when creating a region instance with an initialize method', function() {

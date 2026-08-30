@@ -97,7 +97,9 @@ describe('Backbone shim', function() {
     const eventKeys = Object.keys(Marionette.Events);
 
     Object.entries(prototypes).forEach(([name, prototype]) => {
-      const expectedKeys = [...new Set([...prototypeKeys[name], ...eventKeys])].sort();
+      const expectedKeys = [...new Set([...prototypeKeys[name], ...eventKeys])]
+        .filter(key => key !== 'bind' && key !== 'unbind')
+        .sort();
 
       expect(Object.keys(prototype).sort()).to.deep.equal(expectedKeys);
       expect(prototype).to.not.have.own.property('inheritedShimPollution');
@@ -123,6 +125,8 @@ describe('Backbone shim', function() {
       let callCount = 0;
 
       expect(instance.triggerMethod).to.be.a('function');
+      expect(instance.bind).to.be.undefined;
+      expect(instance.unbind).to.be.undefined;
       instance.on('shim:test', function() {
         callCount += 1;
       });

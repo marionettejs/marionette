@@ -292,6 +292,11 @@ Behavior, where the corresponding method runs with that Behavior as its context.
 Nested Behaviors participate directly in the same host broadcast. Do not rely on
 an ordering among Behavior handlers.
 
+Host and Behavior DOM declarations are delegated independently. If multiple
+Behaviors or the host declare the same event and selector, every matching
+declaration runs once. Do not use declaration collisions to establish
+precedence or suppress another handler.
+
 Host broadcasts include events produced by:
 
 * Calls to `triggerMethod()`
@@ -399,13 +404,17 @@ Behavior.extend({
 
 The View + Behavior initialize process is as follows:
 
-1. View is constructed
+1. View construction begins and the View's `preinitialize` runs
 2. Behavior is constructed
 3. Behavior is initialized with view property set
-4. View is initialized
-5. View triggers an `initialize` event on the behavior.
+4. Callable Behavior `events` and `triggers` are resolved and delegated
+5. View is initialized
+6. View triggers an `initialize` event on the behavior.
 
 This means that the behavior can access the view during its own `initialize` method.
+It can also access state established by the View's `preinitialize` method.
+Callable `events` and `triggers` may use state established by that method before
+the View initializes.
 The view `initialize` is called later with the information eventually injected by the behavior.
 The `initialize` event is triggered on the behavior indicating that the view is fully initialized.
 
@@ -463,6 +472,11 @@ not replace its captured selectors. The host evaluates its own `ui` again when i
 binds. If a stateful host `ui` function returns a different selector then, the host
 binds the later selector while the Behavior continues to bind its construction-time
 selector. Keep `ui` functions deterministic when the host and Behavior share keys.
+
+The Behavior's `el` is also available during `initialize`. When the optional jQuery
+DomApi is selected, `$el` is available at the same point and mirrors the host View's
+wrapper. DOM event and trigger declarations are delegated only after `initialize`
+returns, so callable declarations may safely depend on state established there.
 
 Before binding, `behavior.ui` contains selector strings. A template-rendered `View`
 binds those selectors during render, after which the values are array-like element

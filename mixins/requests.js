@@ -1,6 +1,6 @@
 import { debugLog, log } from '../modules/common/radio.js';
 import { assignOwn, setProperty } from '../utils/assign-in.js';
-import buildEventArgs, { eventSplitter } from '../utils/build-event-args.js';
+import { eventSplitter } from '../utils/build-event-args.js';
 import callHandler from '../utils/call-handler.js';
 import makeCallback from '../utils/make-callback.js';
 import onceWrap from '../utils/once-wrap.js';
@@ -19,13 +19,13 @@ function getKeys(object) {
   return object != null && (type === 'object' || type === 'function') ? objectKeys(object) : [];
 }
 
-const replyReducer = function(isOnce, requests, { name, callback, context }) {
+const registerReply = function(requests, name, callback, context) {
   if (Object.hasOwn(requests, name)) {
     debugLog('A request was overwritten', name, this.channelName);
   }
 
   setProperty(requests, name, {
-    callback: isOnce ? onceWrap(makeCallback(callback), this.stopReplying.bind(this, name)) : makeCallback(callback),
+    callback: makeCallback(callback),
     context: context || this,
   });
 
@@ -56,44 +56,53 @@ const stopReducer = function(requests, { name, callback, context }) {
   return requests;
 };
 
-function registerReplies(context, eventArgs, requests, isOnce) {
-  for (let index = 0, length = eventArgs.length; index < length; index++) {
-    requests = replyReducer.call(context, isOnce, requests, eventArgs[index]);
+function dispatchOverload(receiver, method, name, callback, context) {
+  if (name && typeof name === 'object') {
+    const names = getKeys(name);
+    const mapContext = context || callback;
+    for (let index = 0, length = names.length; index < length; index++) {
+      const key = names[index];
+      receiver[method](key, name[key], mapContext);
+    }
+    return true;
   }
 
-  return requests;
-}
-
-function removeReplies(context, eventArgs, requests) {
-  for (let index = 0, length = eventArgs.length; index < length; index++) {
-    requests = stopReducer.call(context, requests, eventArgs[index]);
+  if (name && eventSplitter.test(name)) {
+    const names = name.split(eventSplitter);
+    for (let index = 0, length = names.length; index < length; index++) {
+      receiver[method](names[index], callback, context);
+    }
+    return true;
   }
 
-  return requests;
+  return false;
 }
 
 export default {
 
   // Set up a handler for a request
   reply(name, callback, context) {
-    const eventArgs = buildEventArgs(name, callback, context);
+    if (dispatchOverload(this, 'reply', name, callback, context)) {return this;}
 
-    this._rdRequests = registerReplies(this, eventArgs, this._rdRequests || {}, false);
+    this._rdRequests = registerReply.call(this, this._rdRequests || {}, name, callback, context);
 
     return this;
   },
 
   // Set up a handler that can only be requested once
   replyOnce(name, callback, context) {
-    const eventArgs = buildEventArgs(name, callback, context);
+    if (dispatchOverload(this, 'replyOnce', name, callback, context)) {return this;}
 
-    this._rdRequests = registerReplies(this, eventArgs, this._rdRequests || {}, true);
+    const onceCallback = onceWrap(makeCallback(callback), callbackToRemove => {
+      this.stopReplying(name, callbackToRemove);
+    });
 
-    return this;
+    return this.reply(name, onceCallback, context);
   },
 
   // Remove handler(s)
   stopReplying(name, callback, context) {
+    if (dispatchOverload(this, 'stopReplying', name, callback, context)) {return this;}
     if (!this._rdRequests) {return this;}
 
     if (!name && !callback && !context) {
@@ -101,8 +110,7 @@ export default {
       return this;
     }
 
-    const eventArgs = buildEventArgs(name, callback, context);
-    this._rdRequests = removeReplies(this, eventArgs, this._rdRequests);
+    this._rdRequests = stopReducer.call(this, this._rdRequests, { name, callback, context });
 
     return this;
   },
@@ -114,7 +122,7 @@ export default {
       const names = getKeys(name);
       for (let index = 0, length = names.length; index < length; index++) {
         const key = names[index];
-        const result = this.request(key, name[key]);
+        const result = this.request(key, name[key], ...args);
         if (eventSplitter.test(key)) {
           assignOwn(replies, result);
         } else {

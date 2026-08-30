@@ -17,6 +17,9 @@ var jqueryDomApi = {
   },
   detachContents(el) {
     $(el).contents().detach();
+  },
+  wrapEl(el) {
+    return $(el);
   }
 };
 

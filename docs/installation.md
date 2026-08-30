@@ -39,8 +39,8 @@ optional integrations.
 |---|---|---|
 | `backbone` `^1.4.0` | Optional | Only if your app uses Backbone models/collections, or imports the bundled `marionette/backbone` shim. See [Backbone is optional](#backbone-is-optional). |
 | `@types/backbone` `^1.4.23` | Optional | TypeScript declarations for `marionette/backbone`. JavaScript consumers do not need it. |
-| `jquery` `^3.5.0` | Optional | Only if your app uses the `marionette/jquery-dom-api` adapter. See [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional). |
-| `@types/jquery` `^3.5.34` | Optional | TypeScript declarations for `marionette/jquery-dom-api`. JavaScript consumers do not need it. |
+| `jquery` `^4.0.0` | Optional | Only if your app uses the `marionette/jquery-dom-api` adapter. See [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional). |
+| `@types/jquery` `^4.0.1` | Optional | TypeScript declarations for `marionette/jquery-dom-api`. JavaScript consumers do not need it. |
 
 Optional peers are installed only when you opt into them:
 
@@ -60,7 +60,7 @@ subpath must install its matching type package explicitly:
 npm install --save-dev @types/backbone@^1.4.23
 
 # Only if TypeScript imports marionette/jquery-dom-api
-npm install --save-dev @types/jquery@^3.5.34
+npm install --save-dev @types/jquery@^4.0.1
 ```
 
 Marionette core does not import or require Underscore. Install it as an
@@ -121,9 +121,9 @@ setDomApi(JQueryDomApi);
 ```
 
 The adapter imports `jquery`, so `jquery` is only required when you install the
-adapter. The adapter intentionally does not restore `view.$el`; legacy apps
-that still depend on `$el` should set it in their own view layer. See the
-[upgrade guide](../upgradeGuide.md) for the migration entries on jQuery DOM
+adapter. It restores `$el` on View, CollectionView, and Behavior instances and
+keeps the wrapper synchronized with the owning View's `setElement()` calls. See
+the [upgrade guide](../upgradeGuide.md) for the migration entries on jQuery DOM
 compatibility and the `detachContents` policy.
 
 ## Quick start using NPM and Webpack

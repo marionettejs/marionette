@@ -2,6 +2,10 @@ import MarionetteError from '../utils/error.js';
 
 const classErrorName = 'CollectionViewError';
 
+function createIndex() {
+  return Object.create(null);
+}
+
 // Provide a container to store, retrieve and
 // shut down child views.
 const Container = function() {
@@ -287,8 +291,8 @@ Object.assign(Container.prototype, {
   // Initializes an empty container
   _init() {
     this._views = [];
-    this._viewsByCid = {};
-    this._indexByModel = {};
+    this._viewsByCid = createIndex();
+    this._indexByModel = createIndex();
     this._updateLength();
   },
 
@@ -345,8 +349,8 @@ Object.assign(Container.prototype, {
     this._views.push.apply(this._views, views.slice(0));
 
     if (shouldReset) {
-      this._viewsByCid = {};
-      this._indexByModel = {};
+      this._viewsByCid = createIndex();
+      this._indexByModel = createIndex();
 
       for (const view of views) {
         this._addViewIndexes(view);
@@ -397,17 +401,17 @@ Object.assign(Container.prototype, {
   },
 
   hasView(view) {
-    return !!this.findByCid(view.cid);
+    return this.findByCid(view.cid) === view;
   },
 
   // Remove a view and clean up index references.
   _remove(view) {
-    if (!this._viewsByCid[view.cid]) {
+    if (!this.hasView(view)) {
       return;
     }
 
     // delete model index
-    if (view.model) {
+    if (view.model && this._indexByModel[view.model.cid] === view) {
       delete this._indexByModel[view.model.cid];
     }
 

@@ -11,7 +11,7 @@ import uniqueId from '../utils/unique-id.js';
 import monitorViewEvents from './common/monitor-view-events.js';
 import { renderView, destroyView, isView } from './common/view.js';
 import CommonMixin from '../mixins/common.js';
-import ViewMixin from '../mixins/view.js';
+import ViewMixin, { ViewOptions } from '../mixins/view.js';
 import DomApi, { setDomApi } from '../runtime/dom-api.js';
 import { setEventDelegator } from '../runtime/event-delegator.js';
 import { setRenderer } from '../runtime/renderer.js';
@@ -26,15 +26,8 @@ function consumeDestroyTeardown(region, operation) {
   return true;
 }
 
-function assertRegionIsLive(region, operation, authorized) {
-  if (!region._isDestroyed || authorized) { return; }
-
-  throw new MarionetteError({
-    code: 'MN0028',
-    name: classErrorName,
-    message: `A destroyed Region cannot ${operation}.`,
-    url: 'errors/MN0028/',
-  });
+function canMutateRegion(region, authorized) {
+  return authorized || !region._isDestroying && !region._isDestroyed;
 }
 
 function emptyRegion(region, options = { allowMissingEl: true }) {
@@ -137,7 +130,7 @@ assignOwn(Region.prototype, CommonMixin, {
   // Displays a view instance inside of the region. If necessary handles calling the `render`
   // method for you. Reads content directly from the `el` attribute.
   show(view, options) {
-    assertRegionIsLive(this, 'show a View');
+    if (!canMutateRegion(this)) { return this; }
 
     if (!this._ensureElement(options)) {
       return;
@@ -339,7 +332,7 @@ assignOwn(Region.prototype, CommonMixin, {
   },
 
   // Override this method to change how the region finds the DOM element that it manages. Return
-  // a jQuery selector object scoped to a provided parent el or the document if none exists.
+  // a native DOM element resolved within a provided parent el or the document if none exists.
   getEl(el) {
     const context = getValue(this, 'parentEl');
 
@@ -395,7 +388,7 @@ assignOwn(Region.prototype, CommonMixin, {
   // it will detach any html inside the region's `el`.
   empty(options = { allowMissingEl: true }) {
     const authorized = consumeDestroyTeardown(this, 'empty');
-    assertRegionIsLive(this, 'empty', authorized);
+    if (!canMutateRegion(this, authorized)) { return this; }
 
     return emptyRegion(this, options);
   },
@@ -494,7 +487,7 @@ assignOwn(Region.prototype, CommonMixin, {
   // the region's `el`.
   reset(options) {
     const authorized = consumeDestroyTeardown(this, 'reset');
-    assertRegionIsLive(this, 'reset', authorized);
+    if (!canMutateRegion(this, authorized)) { return this; }
 
     if (authorized) {
       destroyTeardown.set(this, 'empty');
@@ -789,6 +782,7 @@ const View = function(options) {
   this._setOptions(options, ViewClassOptions);
 
   this.preinitialize.apply(this, arguments);
+  this.mergeOptions(options, ViewOptions);
 
   this._initViewEvents();
   this.setElement(this._getEl());
@@ -800,6 +794,8 @@ const View = function(options) {
   this._buildEventProxies();
 
   this.initialize.apply(this, arguments);
+
+  if (this._isDestroyed || this._isDestroying) { return; }
 
   this.delegateEntityEvents();
 
@@ -813,17 +809,19 @@ assignOwn(View.prototype, ViewMixin, RegionsMixin, {
 
   setElement(element) {
     if (this._isDestroying || this._isDestroyed) {
-      throw new MarionetteError({
-        code: 'MN0029',
-        name: 'ViewError',
-        message: 'A destroying or destroyed View cannot setElement.',
-        url: 'errors/MN0029/',
-      });
+      return this;
     }
 
-    this._undelegateViewEvents();
-    this.el = this._validateEl(element);
-    this._setBehaviorElements();
+    const el = this._validateEl(element);
+    const wrappedEl = this.Dom.wrapEl && this.Dom.wrapEl(el);
+
+    this.undelegateEvents();
+    this.el = el;
+    if (this.Dom.wrapEl) {
+      this.$el = wrappedEl;
+    } else {
+      delete this.$el;
+    }
 
     this._isRendered = this.Dom.hasContents(this.el);
     this._isAttached = this._isElAttached();
@@ -832,7 +830,7 @@ assignOwn(View.prototype, ViewMixin, RegionsMixin, {
       this.bindUIElements();
     }
 
-    this._delegateViewEvents();
+    this.delegateEvents();
 
     return this;
   },

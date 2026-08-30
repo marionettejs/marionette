@@ -26,10 +26,10 @@ isEnabled('fooFlag'); // false
 
 ## Setting a Feature Flag
 
-Use `setEnabled` to change the value of a documented Marionette flag.
-Unknown or non-string names throw `MarionetteError` code
-[`MN0027`](/errors/MN0027/) without changing the feature registry. Keep
-application-owned flags in an application registry or configuration object.
+Use `setEnabled` to change the value of a documented Marionette flag or to
+store an application-owned flag. Non-string and blank names throw
+`MarionetteError` code [`MN0027`](/errors/MN0027/) without changing the feature
+registry.
 While setting a flag at any point may work, these flags are designed to be set before
 any functionality of Marionette is used. Change flags after at your own risk.
 
@@ -37,22 +37,13 @@ any functionality of Marionette is used. Change flags after at your own risk.
 import { setEnabled } from 'marionette';
 
 setEnabled('triggersPreventDefault', false);
+setEnabled('applicationOwned', true);
 
 const myApp = new MyApp({
   region: '#app-hook'
 });
 
 myApp.start();
-```
-
-Move custom application flags out of Marionette during a v5 migration:
-
-```javascript
-// v4
-setEnabled('applicationOwned', true);
-
-// v5
-const applicationFeatures = { applicationOwned: true };
 ```
 
 ## Current Features

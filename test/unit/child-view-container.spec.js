@@ -791,6 +791,24 @@ describe('#ChildViewContainer', function() {
   });
 
   describe('#_add', function() {
+    it('indexes prototype-collision view and model cids as ordinary keys', function() {
+      const container = new ChildViewContainer();
+      const views = ['constructor', 'toString', '__proto__'].map(cid => {
+        const model = new Backbone.Model();
+        model.cid = cid;
+        const view = new Backbone.View({ model });
+        view.cid = cid;
+        container._add(view);
+        return view;
+      });
+
+      views.forEach(view => {
+        expect(container.findByCid(view.cid)).to.equal(view);
+        expect(container.findByModelCid(view.model.cid)).to.equal(view);
+        expect(container.hasView(view)).to.be.true;
+      });
+    });
+
     describe('when adding a view that does not have a model', function() {
       let container;
       let view;
@@ -1030,6 +1048,32 @@ describe('#ChildViewContainer', function() {
       it('should not remove a view from the container', function() {
         expect(container).to.have.lengthOf(4);
       });
+
+      it('does not remove a real child for an inherited-key or same-cid impostor', function() {
+        const realView = container.first();
+        const inheritedKeyImpostor = { cid: 'toString' };
+        const sameCidImpostor = { cid: realView.cid };
+
+        container._remove(inheritedKeyImpostor);
+        container._remove(sameCidImpostor);
+
+        expect(container).to.have.lengthOf(4);
+        expect(container.first()).to.equal(realView);
+        expect(container.findByCid(realView.cid)).to.equal(realView);
+      });
+    });
+
+    it('fully removes a child whose cid is __proto__', function() {
+      const container = new ChildViewContainer();
+      const view = new Backbone.View();
+      view.cid = '__proto__';
+
+      container._add(view);
+      container._remove(view);
+
+      expect(container).to.have.lengthOf(0);
+      expect(container.findByCid('__proto__')).to.be.undefined;
+      expect(container.hasView(view)).to.be.false;
     });
   });
 
@@ -1323,6 +1367,15 @@ describe('#ChildViewContainer', function() {
       const container = new ChildViewContainer();
       const view = new Backbone.View();
       expect(container.hasView(view)).to.be.false;
+    });
+
+    it('requires the exact registered view for matching and inherited cids', function() {
+      const container = new ChildViewContainer();
+      const view = new Backbone.View();
+      container._add(view);
+
+      expect(container.hasView({ cid: view.cid })).to.be.false;
+      expect(container.hasView({ cid: 'toString' })).to.be.false;
     });
   });
 });

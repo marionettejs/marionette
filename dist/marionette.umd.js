@@ -373,11 +373,12 @@
   const eventSplitter = /\s+/;
   function buildEventArgs(name, callback, context, listener) {
     if (name && typeof name === 'object') {
+      const eventContext = context === undefined ? callback : context;
       const eventArgs = [];
       const names = Object.keys(name);
       for (let i = 0; i < names.length; i++) {
         const key = names[i];
-        const args = buildEventArgs(key, name[key], context || callback, listener);
+        const args = buildEventArgs(key, name[key], eventContext, listener);
         for (let j = 0; j < args.length; j++) {
           eventArgs.push(args[j]);
         }
@@ -443,6 +444,7 @@
   }
 
   const objectKeys$3 = Object.keys;
+  let listening;
   function getKeys$1(object) {
     return object == null ? [] : objectKeys$3(object);
   }
@@ -475,30 +477,22 @@
     if (!callback) {
       return events;
     }
-    return onApi({
+    const listener = listening;
+    events = onApi({
       events,
       name,
       callback,
       context,
-      ctx: this
+      ctx: this,
+      listener
     });
-  };
-  const onceReducer = function (events, {
-    name,
-    callback,
-    context
-  }) {
-    if (!callback) {
-      return events;
+    if (listener) {
+      const listeners = this._rdListeners || (this._rdListeners = {});
+      listeners[listener.listenerId] = listener;
+      listener.count++;
+      listener.interop = false;
     }
-    const onceCallback = onceWrap(callback, this.off.bind(this, name));
-    return onApi({
-      events,
-      name,
-      callback: onceCallback,
-      context,
-      ctx: this
-    });
+    return events;
   };
   const cleanupListener = function ({
     obj,
@@ -507,7 +501,9 @@
     listeningTo
   }) {
     delete listeningTo[listeneeId];
-    delete obj._rdListeners[listenerId];
+    if (obj._rdListeners) {
+      delete obj._rdListeners[listenerId];
+    }
   };
   const offReducer = function (events, {
     name,
@@ -545,7 +541,6 @@
   };
   const getListener = function (obj, listenerObj) {
     const listeneeId = obj._rdListenId || (obj._rdListenId = uniqueId('l'));
-    obj._rdEvents = obj._rdEvents || {};
     const listeningTo = listenerObj._rdListeningTo || (listenerObj._rdListeningTo = {});
     const listener = listeningTo[listeneeId];
     if (!listener) {
@@ -555,7 +550,9 @@
         listeneeId,
         listenerId,
         listeningTo,
-        count: 0
+        count: 0,
+        interop: true,
+        _rdEvents: {}
       };
       return listeningTo[listeneeId];
     }
@@ -570,42 +567,40 @@
     if (!callback) {
       return;
     }
-    const {
-      obj,
-      listenerId
-    } = listener;
-    const listeners = obj._rdListeners || (obj._rdListeners = {});
-    obj._rdEvents = onApi({
-      events: obj._rdEvents,
-      name,
-      callback,
-      context,
-      listener
-    });
-    listeners[listenerId] = listener;
-    listener.count++;
-    obj.on(name, callback, context, {
-      _rdInternal: true
-    });
-  };
-  const listenToOnceApi = function ({
-    name,
-    callback,
-    context,
-    listener
-  }) {
-    if (!callback) {
-      return;
+    const previousListening = listening;
+    listening = listener;
+    try {
+      listener.obj.on(name, callback, context);
+    } finally {
+      listening = previousListening;
     }
-    const offCallback = this.stopListening.bind(this, listener.obj, name);
-    const onceCallback = onceWrap(callback, offCallback);
-    listenToApi({
-      name,
-      callback: onceCallback,
-      context,
-      listener
-    });
+    if (listener.interop) {
+      listener._rdEvents = onApi({
+        events: listener._rdEvents,
+        name,
+        callback,
+        context,
+        ctx: context
+      });
+    }
   };
+  function buildOnceMap(eventArgs, offer) {
+    const events = {};
+    for (let index = 0, length = eventArgs.length; index < length; index++) {
+      const {
+        name,
+        callback
+      } = eventArgs[index];
+      if (!callback) {
+        continue;
+      }
+      const onceCallback = onceWrap(callback, callbackToRemove => {
+        offer(name, callbackToRemove);
+      });
+      setProperty(events, name, onceCallback);
+    }
+    return events;
+  }
   const triggerApi = function ({
     events,
     name,
@@ -636,21 +631,15 @@
     }
     return events;
   }
-  var Events = {
-    on(name, callback, context, opts) {
-      if (opts && opts._rdInternal) {
-        return;
-      }
+  const Events = {
+    on(name, callback, context) {
       const eventArgs = buildEventArgs(name, callback, context);
       this._rdEvents = reduceEventArgs(this, eventArgs, this._rdEvents || {}, onReducer);
       return this;
     },
-    off(name, callback, context, opts) {
+    off(name, callback, context) {
       if (!this._rdEvents) {
         return this;
-      }
-      if (opts && opts._rdInternal) {
-        return;
       }
       if (!name && !context && !callback) {
         this._rdEvents = void 0;
@@ -668,8 +657,11 @@
     },
     once(name, callback, context) {
       const eventArgs = buildEventArgs(name, callback, context);
-      this._rdEvents = reduceEventArgs(this, eventArgs, this._rdEvents || {}, onceReducer);
-      return this;
+      const events = buildOnceMap(eventArgs, this.off.bind(this));
+      if (typeof name === 'string' && context == null) {
+        callback = undefined;
+      }
+      return this.on(events, callback, context);
     },
     listenTo(obj, name, callback) {
       if (!obj) {
@@ -683,15 +675,9 @@
       return this;
     },
     listenToOnce(obj, name, callback) {
-      if (!obj) {
-        return this;
-      }
-      const listener = getListener(obj, this);
-      const eventArgs = buildEventArgs(name, callback, this, listener);
-      for (let index = 0, length = eventArgs.length; index < length; index++) {
-        listenToOnceApi.call(this, eventArgs[index]);
-      }
-      return this;
+      const eventArgs = buildEventArgs(name, callback, this);
+      const events = buildOnceMap(eventArgs, this.stopListening.bind(this, obj));
+      return this.listenTo(obj, events);
     },
     stopListening(obj, name, callback) {
       const listeningTo = this._rdListeningTo;
@@ -707,15 +693,13 @@
         }
         for (let index = 0, length = eventArgs.length; index < length; index++) {
           const args = eventArgs[index];
-          const listenToObj = listener.obj;
-          const events = listenToObj._rdEvents;
-          if (!events) {
-            continue;
+          listener.obj.off(args.name, args.callback, this);
+          if (listener.interop) {
+            listener._rdEvents = offReducer(listener._rdEvents, args);
+            if (!getKeys$1(listener._rdEvents).length) {
+              cleanupListener(listener);
+            }
           }
-          listenToObj._rdEvents = offReducer(events, args);
-          listenToObj.off(args.name, args.callback, this, {
-            _rdInternal: true
-          });
         }
       }
       return this;
@@ -758,6 +742,12 @@
     triggerMethod: triggerMethod$1
   };
 
+  function getValue(object, property, fallback) {
+    const value = object == null ? undefined : object[property];
+    const resolvedValue = value === undefined ? fallback : value;
+    return typeof resolvedValue === 'function' ? resolvedValue.call(object) : resolvedValue;
+  }
+
   let shouldDebug = false;
   function setDebug(setShouldDebug = true) {
     shouldDebug = setShouldDebug;
@@ -793,16 +783,12 @@
     const type = typeof object;
     return object != null && (type === 'object' || type === 'function') ? objectKeys$2(object) : [];
   }
-  const replyReducer = function (isOnce, requests, {
-    name,
-    callback,
-    context
-  }) {
+  const registerReply = function (requests, name, callback, context) {
     if (Object.hasOwn(requests, name)) {
       debugLog('A request was overwritten', name, this.channelName);
     }
     setProperty(requests, name, {
-      callback: isOnce ? onceWrap(makeCallback(callback), this.stopReplying.bind(this, name)) : makeCallback(callback),
+      callback: makeCallback(callback),
       context: context || this
     });
     return requests;
@@ -823,30 +809,46 @@
     }
     return requests;
   };
-  function registerReplies(context, eventArgs, requests, isOnce) {
-    for (let index = 0, length = eventArgs.length; index < length; index++) {
-      requests = replyReducer.call(context, isOnce, requests, eventArgs[index]);
+  function dispatchOverload(receiver, method, name, callback, context) {
+    if (name && typeof name === 'object') {
+      const names = getKeys(name);
+      const mapContext = context || callback;
+      for (let index = 0, length = names.length; index < length; index++) {
+        const key = names[index];
+        receiver[method](key, name[key], mapContext);
+      }
+      return true;
     }
-    return requests;
-  }
-  function removeReplies(context, eventArgs, requests) {
-    for (let index = 0, length = eventArgs.length; index < length; index++) {
-      requests = stopReducer.call(context, requests, eventArgs[index]);
+    if (name && eventSplitter.test(name)) {
+      const names = name.split(eventSplitter);
+      for (let index = 0, length = names.length; index < length; index++) {
+        receiver[method](names[index], callback, context);
+      }
+      return true;
     }
-    return requests;
+    return false;
   }
   var Requests = {
     reply(name, callback, context) {
-      const eventArgs = buildEventArgs(name, callback, context);
-      this._rdRequests = registerReplies(this, eventArgs, this._rdRequests || {}, false);
+      if (dispatchOverload(this, 'reply', name, callback, context)) {
+        return this;
+      }
+      this._rdRequests = registerReply.call(this, this._rdRequests || {}, name, callback, context);
       return this;
     },
     replyOnce(name, callback, context) {
-      const eventArgs = buildEventArgs(name, callback, context);
-      this._rdRequests = registerReplies(this, eventArgs, this._rdRequests || {}, true);
-      return this;
+      if (dispatchOverload(this, 'replyOnce', name, callback, context)) {
+        return this;
+      }
+      const onceCallback = onceWrap(makeCallback(callback), callbackToRemove => {
+        this.stopReplying(name, callbackToRemove);
+      });
+      return this.reply(name, onceCallback, context);
     },
     stopReplying(name, callback, context) {
+      if (dispatchOverload(this, 'stopReplying', name, callback, context)) {
+        return this;
+      }
       if (!this._rdRequests) {
         return this;
       }
@@ -854,8 +856,11 @@
         delete this._rdRequests;
         return this;
       }
-      const eventArgs = buildEventArgs(name, callback, context);
-      this._rdRequests = removeReplies(this, eventArgs, this._rdRequests);
+      this._rdRequests = stopReducer.call(this, this._rdRequests, {
+        name,
+        callback,
+        context
+      });
       return this;
     },
     request(name, ...args) {
@@ -864,7 +869,7 @@
         const names = getKeys(name);
         for (let index = 0, length = names.length; index < length; index++) {
           const key = names[index];
-          const result = this.request(key, name[key]);
+          const result = this.request(key, name[key], ...args);
           if (eventSplitter.test(key)) {
             assignOwn(replies, result);
           } else {
@@ -898,12 +903,6 @@
       debugLog('An unhandled request was fired', name, channelName);
     }
   };
-
-  function getValue(object, property, fallback) {
-    const value = object == null ? undefined : object[property];
-    const resolvedValue = value === undefined ? fallback : value;
-    return typeof resolvedValue === 'function' ? resolvedValue.call(object) : resolvedValue;
-  }
 
   const CommonMixin = {
     initialize() {},
@@ -1189,7 +1188,10 @@
       return mergeBehaviorMaps(this._behaviors, behavior => behavior._getEvents());
     },
     _setBehaviorElements() {
-      eachBehavior(this._behaviors, behavior => behavior.setElement());
+      eachBehavior(this._behaviors, behavior => behavior._syncElement());
+    },
+    _undelegateBehaviorViewEvents() {
+      eachBehavior(this._behaviors, behavior => behavior._undelegateViewEvents());
     },
     _delegateBehaviorEntityEvents() {
       eachBehavior(this._behaviors, behavior => behavior.delegateEntityEvents());
@@ -1408,19 +1410,13 @@
     triggersPreventDefault: true
   };
   function isEnabled(name) {
-    return !!FEATURES[name];
+    return typeof name === 'string' && !!FEATURES[name];
   }
   function setEnabled(name, state) {
-    if (typeof name !== 'string') {
+    if (typeof name !== 'string' || !name.trim()) {
       throw new MarionetteError({
         code: 'MN0027',
-        message: 'The feature name must be a documented Marionette feature name.'
-      });
-    }
-    if (!Object.hasOwn(FEATURES, name)) {
-      throw new MarionetteError({
-        code: 'MN0027',
-        message: `The feature "${name}" is not a documented Marionette feature.`
+        message: 'The feature name must be a non-empty string.'
       });
     }
     return FEATURES[name] = state;
@@ -1522,23 +1518,24 @@
         rootEl: this.el
       });
     },
-    _delegateViewEvents(view = this) {
-      if (!this.events && !this.triggers) {
+    _delegateViewEvents(view = this, events) {
+      if (!events && !this.events && !this.triggers) {
         return;
       }
       const uiBindings = this._getUIBindings();
       const delegates = [];
-      this._delegateEvents(delegates, uiBindings);
+      this._delegateEvents(delegates, uiBindings, events);
       this._delegateTriggers(delegates, uiBindings, view);
       for (let index = 0; index < delegates.length; index += 2) {
         this._delegate(delegates[index], delegates[index + 1]);
       }
     },
-    _delegateEvents(delegates, uiBindings) {
-      if (!this.events) {
+    _delegateEvents(delegates, uiBindings, events) {
+      const eventMap = events || getValue(this, 'events');
+      if (!eventMap) {
         return;
       }
-      eachOwn(getValue(this, 'events'), (handler, key) => {
+      eachOwn(eventMap, (handler, key) => {
         handler = resolveMethod(this, handler, key);
         delegates.push(handler.bind(this), this.normalizeUIString(key, uiBindings));
       });
@@ -1643,18 +1640,24 @@
   };
 
   const classErrorName$3 = 'ViewError';
+  function isJQueryCollection(el) {
+    return el != null && typeof el === 'object' && typeof el.jquery === 'string' && typeof el.get === 'function';
+  }
+  const ViewOptions = ['attributes', 'className', 'collection', 'el', 'events', 'id', 'model', 'tagName'];
   const ViewMixin = {
     tagName: 'div',
     preinitialize() {},
     Dom: DomApi,
     _validateEl(el) {
-      if (!isString(el)) {
+      const stringEl = isString(el);
+      if (!stringEl && !isJQueryCollection(el)) {
         return el;
       }
+      const migration = stringEl ? `Resolve selector strings at the call site, e.g. \`document.querySelector('${el}')\`.` : 'Unwrap jQuery collections at the call site, e.g. `wrappedEl[0]`.';
       throw new MarionetteError({
         code: 'MN0001',
         name: classErrorName$3,
-        message: `View "el" must be a DOM element. Resolve selector strings at the call site, e.g. \`document.querySelector('${el}')\`. (Region still accepts selector strings.)`,
+        message: `View "el" must be a DOM element. ${migration} (Region still accepts selector strings.)`,
         url: 'marionette.view.html#specifying-an-el'
       });
     },
@@ -1693,6 +1696,24 @@
     _isAttached: false,
     isAttached() {
       return !!this._isAttached;
+    },
+    delegateEvents(events) {
+      if (this._isDestroyed || this._isDestroying) {
+        return this;
+      }
+      this.undelegateEvents();
+      this._buildEventProxies();
+      this._delegateViewEvents(this, events);
+      this._setBehaviorElements();
+      return this;
+    },
+    undelegateEvents() {
+      if (this._isDestroyed || this._isDestroying) {
+        return this;
+      }
+      this._undelegateViewEvents();
+      this._undelegateBehaviorViewEvents();
+      return this;
     },
     delegateEntityEvents() {
       this._delegateEntityEvents(this.model, this.collection);
@@ -1794,16 +1815,8 @@
     destroyTeardown.delete(region);
     return true;
   }
-  function assertRegionIsLive(region, operation, authorized) {
-    if (!region._isDestroyed || authorized) {
-      return;
-    }
-    throw new MarionetteError({
-      code: 'MN0028',
-      name: classErrorName$2,
-      message: `A destroyed Region cannot ${operation}.`,
-      url: 'errors/MN0028/'
-    });
+  function canMutateRegion(region, authorized) {
+    return authorized || !region._isDestroying && !region._isDestroyed;
   }
   function emptyRegion(region, options = {
     allowMissingEl: true
@@ -1878,7 +1891,9 @@
       });
     },
     show(view, options) {
-      assertRegionIsLive(this, 'show a View');
+      if (!canMutateRegion(this)) {
+        return this;
+      }
       if (!this._ensureElement(options)) {
         return;
       }
@@ -2067,7 +2082,9 @@
       allowMissingEl: true
     }) {
       const authorized = consumeDestroyTeardown(this, 'empty');
-      assertRegionIsLive(this, 'empty', authorized);
+      if (!canMutateRegion(this, authorized)) {
+        return this;
+      }
       return emptyRegion(this, options);
     },
     _empty(view, shouldDestroy) {
@@ -2135,7 +2152,9 @@
     },
     reset(options) {
       const authorized = consumeDestroyTeardown(this, 'reset');
-      assertRegionIsLive(this, 'reset', authorized);
+      if (!canMutateRegion(this, authorized)) {
+        return this;
+      }
       if (authorized) {
         destroyTeardown.set(this, 'empty');
       }
@@ -2320,6 +2339,7 @@
     this.cid = uniqueId(this.cidPrefix);
     this._setOptions(options, ViewClassOptions);
     this.preinitialize.apply(this, arguments);
+    this.mergeOptions(options, ViewOptions);
     this._initViewEvents();
     this.setElement(this._getEl());
     monitorViewEvents(this);
@@ -2327,6 +2347,9 @@
     this._initRegions();
     this._buildEventProxies();
     this.initialize.apply(this, arguments);
+    if (this._isDestroyed || this._isDestroying) {
+      return;
+    }
     this.delegateEntityEvents();
     this._triggerEventOnBehaviors('initialize', this, options);
   };
@@ -2340,22 +2363,23 @@
     cidPrefix: 'mnv',
     setElement(element) {
       if (this._isDestroying || this._isDestroyed) {
-        throw new MarionetteError({
-          code: 'MN0029',
-          name: 'ViewError',
-          message: 'A destroying or destroyed View cannot setElement.',
-          url: 'errors/MN0029/'
-        });
+        return this;
       }
-      this._undelegateViewEvents();
-      this.el = this._validateEl(element);
-      this._setBehaviorElements();
+      const el = this._validateEl(element);
+      const wrappedEl = this.Dom.wrapEl && this.Dom.wrapEl(el);
+      this.undelegateEvents();
+      this.el = el;
+      if (this.Dom.wrapEl) {
+        this.$el = wrappedEl;
+      } else {
+        delete this.$el;
+      }
       this._isRendered = this.Dom.hasContents(this.el);
       this._isAttached = this._isElAttached();
       if (this._isRendered) {
         this.bindUIElements();
       }
-      this._delegateViewEvents();
+      this.delegateEvents();
       return this;
     },
     render() {
@@ -2387,6 +2411,9 @@
   });
 
   const classErrorName$1 = 'CollectionViewError';
+  function createIndex() {
+    return Object.create(null);
+  }
   const Container = function () {
     this._init();
   };
@@ -2614,8 +2641,8 @@
     },
     _init() {
       this._views = [];
-      this._viewsByCid = {};
-      this._indexByModel = {};
+      this._viewsByCid = createIndex();
+      this._indexByModel = createIndex();
       this._updateLength();
     },
     _add(view, index = this._views.length) {
@@ -2647,8 +2674,8 @@
       this._views.length = 0;
       this._views.push.apply(this._views, views.slice(0));
       if (shouldReset) {
-        this._viewsByCid = {};
-        this._indexByModel = {};
+        this._viewsByCid = createIndex();
+        this._indexByModel = createIndex();
         for (const view of views) {
           this._addViewIndexes(view);
         }
@@ -2681,13 +2708,13 @@
       return this._viewsByCid[cid];
     },
     hasView(view) {
-      return !!this.findByCid(view.cid);
+      return this.findByCid(view.cid) === view;
     },
     _remove(view) {
-      if (!this._viewsByCid[view.cid]) {
+      if (!this.hasView(view)) {
         return;
       }
-      if (view.model) {
+      if (view.model && this._indexByModel[view.model.cid] === view) {
         delete this._indexByModel[view.model.cid];
       }
       delete this._viewsByCid[view.cid];
@@ -2744,14 +2771,18 @@
     this.cid = uniqueId(this.cidPrefix);
     this._setOptions(options, ClassOptions$2);
     this.preinitialize.apply(this, arguments);
+    this.mergeOptions(options, ViewOptions);
     this._initViewEvents();
     this.setElement(this._getEl());
     monitorViewEvents(this);
     this._initChildViewStorage();
     this._initBehaviors();
     this._buildEventProxies();
-    this.getEmptyRegion();
     this.initialize.apply(this, arguments);
+    if (this._isDestroyed || this._isDestroying) {
+      return;
+    }
+    this.getEmptyRegion();
     this.delegateEntityEvents();
     this._triggerEventOnBehaviors('initialize', this, options);
   };
@@ -2769,6 +2800,9 @@
       this.children = new Container();
     },
     getEmptyRegion() {
+      if (this._isDestroyed && this._emptyRegion) {
+        return this._emptyRegion;
+      }
       const emptyEl = this.container || this.el;
       if (this._emptyRegion && !this._emptyRegion.isDestroyed()) {
         this._emptyRegion._setElement(emptyEl);
@@ -2796,6 +2830,9 @@
       merge,
       remove
     }) {
+      if (this._isDestroying || this._isDestroyed) {
+        return;
+      }
       if (!this.sortWithCollection || this.viewComparator === false) {
         return;
       }
@@ -2805,11 +2842,17 @@
       this.sort();
     },
     _onCollectionReset() {
+      if (this._isDestroying || this._isDestroyed) {
+        return;
+      }
       this._destroyChildren();
       this._addChildModels(this.collection.models);
       this.sort();
     },
     _onCollectionUpdate(collection, options) {
+      if (this._isDestroying || this._isDestroyed) {
+        return;
+      }
       const changes = options.changes;
       const removedViews = changes.removed.length && this._removeChildModels(changes.removed);
       this._addedViews = changes.added.length && this._addChildModels(changes.added);
@@ -2917,18 +2960,19 @@
     },
     setElement(element) {
       if (this._isDestroying || this._isDestroyed) {
-        throw new MarionetteError({
-          code: 'MN0029',
-          name: classErrorName,
-          message: 'A destroying or destroyed CollectionView cannot setElement.',
-          url: 'errors/MN0029/'
-        });
+        return this;
       }
-      this._undelegateViewEvents();
-      this.el = this._validateEl(element);
-      this._setBehaviorElements();
+      const el = this._validateEl(element);
+      const wrappedEl = this.Dom.wrapEl && this.Dom.wrapEl(el);
+      this.undelegateEvents();
+      this.el = el;
+      if (this.Dom.wrapEl) {
+        this.$el = wrappedEl;
+      } else {
+        delete this.$el;
+      }
       this._isAttached = this._isElAttached();
-      this._delegateViewEvents();
+      this.delegateEvents();
       return this;
     },
     render() {
@@ -3177,7 +3221,11 @@
       if (isEmptyViewClass(emptyView)) {
         return emptyView;
       }
-      const EmptyView = typeof emptyView === 'function' && !isClassDefinition(emptyView) ? emptyView.call(this) : undefined;
+      const isResolver = typeof emptyView === 'function' && !isClassDefinition(emptyView);
+      const EmptyView = isResolver ? emptyView.call(this) : undefined;
+      if (isResolver && (EmptyView == null || EmptyView === false)) {
+        return;
+      }
       if (isEmptyViewClass(EmptyView)) {
         return EmptyView;
       }
@@ -3220,6 +3268,9 @@
       return this;
     },
     addChildView(view, index, options = {}) {
+      if (this._isDestroying || this._isDestroyed) {
+        return view;
+      }
       if (!view || view._isDestroyed) {
         return view;
       }
@@ -3265,7 +3316,7 @@
       return view;
     },
     removeChildView(view, options) {
-      if (!view) {
+      if (!view || !this._children.hasView(view)) {
         return view;
       }
       this._removeChildView(view, options);
@@ -3330,10 +3381,13 @@
     this.cid = uniqueId(this.cidPrefix);
     this._initViewEvents();
     this.el = view.el;
+    if (view.$el) {
+      this.$el = view.$el;
+    }
     this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui'));
-    this.setElement();
     this.listenTo(view, 'all', this.triggerMethod);
     this.initialize.apply(this, arguments);
+    this._syncElement();
   };
   assignOwn(Behavior, {
     extend,
@@ -3351,9 +3405,14 @@
       this._deleteEntityEventHandlers();
       return this;
     },
-    setElement() {
+    _syncElement() {
       this._undelegateViewEvents();
       this.el = this.view.el;
+      if (this.view.$el) {
+        this.$el = this.view.$el;
+      } else {
+        delete this.$el;
+      }
       this._delegateViewEvents(this.view);
       return this;
     },
@@ -3450,7 +3509,6 @@
   exports.MnObject = MarionetteObject;
   exports.Radio = Radio;
   exports.Region = Region;
-  exports.Requests = Requests;
   exports.VERSION = version;
   exports.View = View;
   exports.bindEvents = bindEvents;

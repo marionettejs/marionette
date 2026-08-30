@@ -7,6 +7,7 @@ import uniqueId from '../utils/unique-id.js';
 import triggerMethod from '../modules/common/trigger-method.js';
 
 const objectKeys = Object.keys;
+let listening;
 
 function getKeys(object) {
   return object == null ? [] : objectKeys(object);
@@ -36,18 +37,22 @@ const onApi = function({ events, name, callback, context, ctx, listener }) {
 
 const onReducer = function(events, { name, callback, context }) {
   if (!callback) {return events;}
-  return onApi({ events, name, callback, context, ctx: this });
-}
+  const listener = listening;
+  events = onApi({ events, name, callback, context, ctx: this, listener });
 
-const onceReducer = function(events, { name, callback, context }) {
-  if (!callback) {return events;}
-  const onceCallback = onceWrap(callback, this.off.bind(this, name));
-  return onApi({ events, name, callback: onceCallback, context, ctx: this });
+  if (listener) {
+    const listeners = this._rdListeners || (this._rdListeners = {});
+    listeners[listener.listenerId] = listener;
+    listener.count++;
+    listener.interop = false;
+  }
+
+  return events;
 }
 
 const cleanupListener = function({ obj, listeneeId, listenerId, listeningTo }) {
   delete listeningTo[listeneeId];
-  delete obj._rdListeners[listenerId];
+  if (obj._rdListeners) {delete obj._rdListeners[listenerId];}
 };
 
 // The reducing API that removes a callback from the `events` object.
@@ -92,7 +97,6 @@ const offReducer = function(events , { name, callback, context }) {
 
 const getListener = function(obj, listenerObj) {
   const listeneeId = obj._rdListenId || (obj._rdListenId = uniqueId('l'));
-  obj._rdEvents = obj._rdEvents || {};
   const listeningTo = listenerObj._rdListeningTo || (listenerObj._rdListeningTo = {});
   const listener = listeningTo[listeneeId];
 
@@ -100,7 +104,15 @@ const getListener = function(obj, listenerObj) {
   // Setup the necessary references to track the listening callbacks.
   if (!listener) {
     const listenerId = listenerObj._rdListenId || (listenerObj._rdListenId = uniqueId('l'));
-    listeningTo[listeneeId] = {obj, listeneeId, listenerId, listeningTo, count: 0};
+    listeningTo[listeneeId] = {
+      obj,
+      listeneeId,
+      listenerId,
+      listeningTo,
+      count: 0,
+      interop: true,
+      _rdEvents: {},
+    };
 
     return listeningTo[listeneeId];
   }
@@ -111,22 +123,37 @@ const getListener = function(obj, listenerObj) {
 const listenToApi = function({ name, callback, context, listener }) {
   if (!callback) {return;}
 
-  const { obj, listenerId } = listener;
-  const listeners = obj._rdListeners || (obj._rdListeners = {});
-  obj._rdEvents = onApi({ events: obj._rdEvents, name, callback, context, listener });
-  listeners[listenerId] = listener;
-  listener.count++;
+  const previousListening = listening;
+  listening = listener;
+  try {
+    listener.obj.on(name, callback, context);
+  } finally {
+    listening = previousListening;
+  }
 
-  // Call `on` for interop
-  obj.on(name, callback, context, { _rdInternal: true });
+  if (listener.interop) {
+    listener._rdEvents = onApi({
+      events: listener._rdEvents,
+      name,
+      callback,
+      context,
+      ctx: context,
+    });
+  }
 };
 
-const listenToOnceApi = function({ name, callback, context, listener }) {
-  if (!callback) {return;}
-  const offCallback = this.stopListening.bind(this, listener.obj, name);
-  const onceCallback = onceWrap(callback, offCallback);
-  listenToApi({ name, callback: onceCallback, context, listener });
-};
+function buildOnceMap(eventArgs, offer) {
+  const events = {};
+  for (let index = 0, length = eventArgs.length; index < length; index++) {
+    const { name, callback } = eventArgs[index];
+    if (!callback) {continue;}
+    const onceCallback = onceWrap(callback, callbackToRemove => {
+      offer(name, callbackToRemove);
+    });
+    setProperty(events, name, onceCallback);
+  }
+  return events;
+}
 
 // Handles triggering the appropriate event callbacks.
 const triggerApi = function({ events, name, args }) {
@@ -152,13 +179,11 @@ function reduceEventArgs(context, eventArgs, events, reducer) {
   return events;
 }
 
-export default {
+const Events = {
 
   // Bind an event to a `callback` function. Passing `"all"` will bind
   // the callback to all events fired.
-  on(name, callback, context, opts) {
-    if (opts && opts._rdInternal) {return;}
-
+  on(name, callback, context) {
     const eventArgs = buildEventArgs(name, callback, context);
     this._rdEvents = reduceEventArgs(this, eventArgs, this._rdEvents || {}, onReducer);
 
@@ -169,9 +194,8 @@ export default {
   // callbacks with that function. If `callback` is null, removes all
   // callbacks for the event. If `name` is null, removes all bound
   // callbacks for all events.
-  off(name, callback, context, opts) {
+  off(name, callback, context) {
     if (!this._rdEvents) {return this;}
-    if (opts && opts._rdInternal) {return;}
 
     // Delete all event listeners and "drop" events.
     if (!name && !context && !callback) {
@@ -198,10 +222,10 @@ export default {
   // once for each event, not once for a combination of all events.
   once(name, callback, context) {
     const eventArgs = buildEventArgs(name, callback, context);
+    const events = buildOnceMap(eventArgs, this.off.bind(this));
+    if (typeof name === 'string' && context == null) {callback = undefined;}
 
-    this._rdEvents = reduceEventArgs(this, eventArgs, this._rdEvents || {}, onceReducer)
-
-    return this;
+    return this.on(events, callback, context);
   },
 
   // Inversion-of-control versions of `on`. Tell *this* object to listen to
@@ -221,15 +245,10 @@ export default {
 
   // Inversion-of-control versions of `once`.
   listenToOnce(obj, name, callback) {
-    if (!obj) {return this;}
+    const eventArgs = buildEventArgs(name, callback, this);
+    const events = buildOnceMap(eventArgs, this.stopListening.bind(this, obj));
 
-    const listener = getListener(obj, this);
-    const eventArgs = buildEventArgs(name, callback, this, listener);
-    for (let index = 0, length = eventArgs.length; index < length; index++) {
-      listenToOnceApi.call(this, eventArgs[index]);
-    }
-
-    return this;
+    return this.listenTo(obj, events);
   },
 
   // Tell this object to stop listening to either specific events ... or
@@ -250,15 +269,12 @@ export default {
 
       for (let index = 0, length = eventArgs.length; index < length; index++) {
         const args = eventArgs[index];
-        const listenToObj = listener.obj;
-        const events = listenToObj._rdEvents;
+        listener.obj.off(args.name, args.callback, this);
 
-        if (!events) {continue;}
-
-        listenToObj._rdEvents = offReducer(events, args);
-
-        // Call `off` for interop
-        listenToObj.off(args.name, args.callback, this, { _rdInternal: true });
+        if (listener.interop) {
+          listener._rdEvents = offReducer(listener._rdEvents, args);
+          if (!getKeys(listener._rdEvents).length) {cleanupListener(listener);}
+        }
       }
     }
 
@@ -309,3 +325,5 @@ export default {
 
   triggerMethod,
 };
+
+export default Events;

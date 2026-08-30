@@ -37,6 +37,9 @@ const Behavior = function(options, view) {
 
   this._initViewEvents();
   this.el = view.el;
+  if (view.$el) {
+    this.$el = view.$el;
+  }
 
   // Construct an internal UI hash using the behaviors UI
   // hash combined and overridden by the view UI hash.
@@ -46,12 +49,13 @@ const Behavior = function(options, view) {
   // between multiple views, while letting a view override
   // a selector under an UI key.
   this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui'));
-  this.setElement();
 
   // Proxy view triggers
   this.listenTo(view, 'all', this.triggerMethod);
 
   this.initialize.apply(this, arguments);
+
+  this._syncElement();
 };
 
 assignOwn(Behavior, { extend, setEventDelegator });
@@ -82,10 +86,15 @@ assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, V
     return this;
   },
 
-  setElement() {
+  _syncElement() {
     this._undelegateViewEvents();
 
     this.el = this.view.el;
+    if (this.view.$el) {
+      this.$el = this.view.$el;
+    } else {
+      delete this.$el;
+    }
 
     this._delegateViewEvents(this.view);
 

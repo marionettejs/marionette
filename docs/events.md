@@ -76,6 +76,12 @@ emitter.trigger({
 });
 ```
 
+`once` registers its generated callback through the object's overridable
+`on` method, and `listenToOnce` registers through overridable `listenTo`.
+This preserves the extension points used by event-lifecycle mixins. Likewise,
+`listenTo` and `stopListening` call an emitter's documented three-argument
+`on` and `off` methods exactly once per binding.
+
 ### `triggerMethod`
 
 `triggerMethod` fires the named event on the instance and also invokes the

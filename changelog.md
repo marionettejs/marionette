@@ -1,18 +1,33 @@
 ### v5.0.0-alpha.2
 
 * Added optional `marionette/jquery-dom-api` adapter for jQuery-backed DomApi
-  operations without restoring `$el`
+  operations and opt-in View, CollectionView, and Behavior `$el` compatibility
+* Changed jQuery-wrapped View and CollectionView `el` inputs to fail with the
+  same `MN0001` migration diagnostic as selector strings
+* Removed the undocumented alpha-only `Behavior#setElement`; retarget
+  Behaviors through their owning View's `setElement` method
+* Fixed CollectionView child identity indexes so prototype-collision cids and
+  same-cid impostors cannot corrupt ownership or mutate unowned Views
+* Removed the undocumented alpha-only named `Requests` export; request/reply
+  methods remain owned by the built-in `Radio` singleton and its channels
 * Fixed Radio circular dependency with log and debug
 * Fixed event interop with Backbone
 * Fixed delegated event matching so nested matching ancestors fire once per event
-* Changed `setEnabled` to reject undocumented feature names with stable diagnostic
-  code `MN0027`
+* Fixed callable Behavior `events` and `triggers` to resolve after Behavior
+  initialization
+* Fixed CollectionView empty Region construction to occur after `initialize`
+* Changed `setEnabled` to reject non-string and blank feature names with stable
+  diagnostic code `MN0027`; custom string feature names remain supported
+* Preserved `emptyView` resolver returns of `undefined`, `null`, or `false` as
+  disabled empty-view states
 * Changed the base `Region#show`, `Region#empty`, and `Region#reset`
-  implementations to reject destroyed Regions with stable diagnostic code `MN0028`
+  implementations to no-op once Region destruction begins
 * Changed destroyed `View#render` and `CollectionView#render` calls to return the
   instance without resolving templates or running the render lifecycle
 * Changed base `View#setElement` and `CollectionView#setElement` calls once
-  destruction begins to reject with stable diagnostic code `MN0029`
+  destruction begins to return the instance without changing its element
+* Changed base `CollectionView#addChildView` calls once destruction begins to
+  return the supplied View without inspecting or managing it
 * Changed `View#hasRegion` to check own registered Regions without rendering or
   changing View lifecycle state
 * Changed `View#getRegions` to return a safe Region snapshot without rendering;

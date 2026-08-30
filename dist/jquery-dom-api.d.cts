@@ -1,6 +1,7 @@
 import 'jquery';
 
 declare const JQueryDomApi: {
+  wrapEl<TElement extends Element = HTMLElement>(el: TElement): JQuery<TElement>;
   findEl<TElement extends Element = HTMLElement>(
     el: Element | Document,
     selector: string,

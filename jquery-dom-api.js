@@ -27,5 +27,10 @@ export default {
   // `el` itself in the DOM.
   detachContents(el) {
     $(el).contents().detach();
+  },
+
+  // Wrap the view element for the optional `$el` compatibility surface.
+  wrapEl(el) {
+    return $(el);
   }
 };

@@ -2,7 +2,6 @@ import _ from 'underscore';
 
 import Region from '../../modules/region';
 import View from '../../modules/view';
-import MarionetteError from '../../utils/error';
 
 describe('Region lifecycle contract', function() {
   'use strict';
@@ -195,21 +194,35 @@ describe('Region lifecycle contract', function() {
     expect(region.isDestroyed()).to.be.true;
   });
 
+  it('allows child teardown to repeat empty without aborting Region destruction', function() {
+    const view = new TestView();
+    const repeatedEmpty = this.sinon.spy();
+    const destroy = this.sinon.spy();
+    region.show(view);
+    view.on('destroy', () => {
+      repeatedEmpty();
+      expect(region.empty()).to.equal(region);
+    });
+    region.on('destroy', destroy);
+
+    expect(region.destroy()).to.equal(region);
+
+    expect(repeatedEmpty).to.have.been.calledOnce;
+    expect(destroy).to.have.been.calledOnce;
+    expect(region.isDestroyed()).to.be.true;
+    expect(region.hasView()).to.be.false;
+    expect(view.isDestroyed()).to.be.true;
+  });
+
   it('authorizes only the intended reset and empty override chain during destroy', function() {
     const lifecycle = [];
-    const rejected = [];
+    const ignored = [];
     let duringDestroy = false;
     let view;
-    const captureRejection = (label, currentRegion, operation) => {
-      let error;
-      try {
-        operation();
-      } catch (caughtError) {
-        error = caughtError;
-      }
-      rejected.push({
+    const captureNoop = (label, currentRegion, operation) => {
+      ignored.push({
         label,
-        error,
+        result: operation(),
         currentView: currentRegion.currentView,
         el: currentRegion.el,
       });
@@ -218,14 +231,14 @@ describe('Region lifecycle contract', function() {
       reset(options) {
         if (duringDestroy) {
           lifecycle.push('reset');
-          captureRejection('reset:empty', this, () => Region.prototype.empty.call(this));
+          captureNoop('reset:empty', this, () => Region.prototype.empty.call(this));
         }
         return Region.prototype.reset.call(this, options);
       },
       empty(options) {
         if (duringDestroy) {
           lifecycle.push('empty');
-          captureRejection('empty:reset', this, () => Region.prototype.reset.call(this));
+          captureNoop('empty:reset', this, () => Region.prototype.reset.call(this));
         }
         return Region.prototype.empty.call(this, options);
       },
@@ -236,12 +249,12 @@ describe('Region lifecycle contract', function() {
     const occupiedEl = customRegion.el;
     customRegion.on('before:empty', currentRegion => {
       lifecycle.push('before:empty');
-      captureRejection(
+      captureNoop(
         'before:empty:empty',
         currentRegion,
         () => Region.prototype.empty.call(currentRegion)
       );
-      captureRejection(
+      captureNoop(
         'before:empty:reset',
         currentRegion,
         () => Region.prototype.reset.call(currentRegion)
@@ -251,19 +264,16 @@ describe('Region lifecycle contract', function() {
     duringDestroy = true;
     expect(customRegion.destroy()).to.equal(customRegion);
     expect(lifecycle).to.deep.equal(['reset', 'empty', 'before:empty']);
-    expect(rejected.map(({ label }) => label)).to.deep.equal([
+    expect(ignored.map(({ label }) => label)).to.deep.equal([
       'reset:empty',
       'empty:reset',
       'before:empty:empty',
       'before:empty:reset',
     ]);
-    for (const rejection of rejected) {
-      expect(rejection.error).to.be.instanceOf(MarionetteError).and.include({
-        code: 'MN0028',
-        name: 'RegionError',
-      });
-      expect(rejection.currentView).to.equal(view);
-      expect(rejection.el).to.equal(occupiedEl);
+    for (const noop of ignored) {
+      expect(noop.result).to.equal(customRegion);
+      expect(noop.currentView).to.equal(view);
+      expect(noop.el).to.equal(occupiedEl);
     }
     expect(customRegion.isDestroyed()).to.be.true;
     expect(customRegion.hasView()).to.be.false;
@@ -305,14 +315,8 @@ describe('Region lifecycle contract', function() {
     const cached$El = { cached: true };
     customRegion.$el = cached$El;
 
-    expect(() => Region.prototype.empty.call(customRegion)).to.throw(MarionetteError).and.include({
-      code: 'MN0028',
-      name: 'RegionError',
-    });
-    expect(() => Region.prototype.reset.call(customRegion)).to.throw(MarionetteError).and.include({
-      code: 'MN0028',
-      name: 'RegionError',
-    });
+    expect(Region.prototype.empty.call(customRegion)).to.equal(customRegion);
+    expect(Region.prototype.reset.call(customRegion)).to.equal(customRegion);
     expect(Reflect.ownKeys(customRegion).filter(key => typeof key === 'symbol'))
       .to.deep.equal(originalSymbolKeys);
     expect(customRegion.el).to.equal(cachedEl);
@@ -392,16 +396,8 @@ describe('Region lifecycle contract', function() {
       const cached$El = { cached: true };
       ownedRegion.$el = cached$El;
 
-      expect(() => Region.prototype.empty.call(ownedRegion))
-        .to.throw(MarionetteError).and.include({
-          code: 'MN0028',
-          name: 'RegionError',
-        });
-      expect(() => Region.prototype.reset.call(ownedRegion))
-        .to.throw(MarionetteError).and.include({
-          code: 'MN0028',
-          name: 'RegionError',
-        });
+      expect(Region.prototype.empty.call(ownedRegion)).to.equal(ownedRegion);
+      expect(Region.prototype.reset.call(ownedRegion)).to.equal(ownedRegion);
       expect(ownedRegion.currentView).to.equal(view);
       expect(view.isDestroyed()).to.be.false;
       expect(owner.getRegion('content')).to.equal(ownedRegion);
@@ -481,42 +477,30 @@ describe('Region lifecycle contract', function() {
     owner.destroy();
   });
 
-  it('rejects show after destruction before resolving or mutating ownership', function() {
+  it('ignores show once destruction begins before resolving or mutating ownership', function() {
     const view = new TestView();
     const destroyedView = new TestView();
+    const inputRead = this.sinon.spy(() => { throw new Error('input inspected'); });
+    const hostileView = new Proxy({}, { get: inputRead });
     const beforeShow = this.sinon.spy();
     const show = this.sinon.spy();
 
     region.on('before:show', beforeShow);
     region.on('show', show);
     this.sinon.spy(view, 'render');
+    region.on('before:destroy', currentRegion => {
+      expect(currentRegion.show(view)).to.equal(currentRegion);
+    });
 
     expect(region.destroy()).to.equal(region);
-
-    let error;
-    try {
-      region.show(view);
-    } catch (caughtError) {
-      error = caughtError;
-    }
-
-    expect(error).to.be.instanceOf(MarionetteError).and.include({
-      code: 'MN0028',
-      name: 'RegionError',
-    });
-    expect(error.url).to.match(/\/errors\/MN0028\/$/);
-    expect(() => region.show(view)).to.throw(MarionetteError).and.include({
-      code: 'MN0028',
-      name: 'RegionError',
-    });
+    expect(region.show(view)).to.equal(region);
+    expect(region.show(view)).to.equal(region);
 
     document.querySelector('#region').remove();
     destroyedView.destroy();
 
-    expect(() => region.show(destroyedView)).to.throw(MarionetteError).and.include({
-      code: 'MN0028',
-      name: 'RegionError',
-    });
+    expect(region.show(destroyedView)).to.equal(region);
+    expect(region.show(hostileView)).to.equal(region);
     expect(region.isDestroyed()).to.be.true;
     expect(region.hasView()).to.be.false;
     expect(region.currentView).to.be.undefined;
@@ -525,6 +509,7 @@ describe('Region lifecycle contract', function() {
     expect(view.render).to.not.have.been.called;
     expect(view.isRendered()).to.be.false;
     expect(view.isDestroyed()).to.be.false;
+    expect(inputRead).to.not.have.been.called;
     expect(region.destroy()).to.equal(region);
 
     view.destroy();
@@ -566,7 +551,7 @@ describe('Region lifecycle contract', function() {
   });
 
   for (const operation of ['empty', 'reset']) {
-    it(`rejects ${operation} after destruction without changing lifecycle state`, function() {
+    it(`ignores ${operation} after destruction without changing lifecycle state`, function() {
       const owner = new View({
         regions: {
           content: '.content',
@@ -594,22 +579,8 @@ describe('Region lifecycle contract', function() {
       ownedRegion.on('empty', empty);
       this.sinon.spy(ownedRegion, 'getEl');
 
-      let error;
-      try {
-        ownedRegion[operation]();
-      } catch (caughtError) {
-        error = caughtError;
-      }
-
-      expect(error).to.be.instanceOf(MarionetteError).and.include({
-        code: 'MN0028',
-        name: 'RegionError',
-      });
-      expect(error.url).to.match(/\/errors\/MN0028\/$/);
-      expect(() => ownedRegion[operation]()).to.throw(MarionetteError).and.include({
-        code: 'MN0028',
-        name: 'RegionError',
-      });
+      expect(ownedRegion[operation]()).to.equal(ownedRegion);
+      expect(ownedRegion[operation]()).to.equal(ownedRegion);
       expect(ownedRegion.isDestroyed()).to.be.true;
       expect(ownedRegion.hasView()).to.be.false;
       expect(ownedRegion.currentView).to.be.undefined;

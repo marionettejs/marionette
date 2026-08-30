@@ -1,6 +1,7 @@
 import Backbone from 'backbone';
 
 import Behavior from '../../modules/behavior';
+import CollectionView from '../../modules/collection-view';
 import Region from '../../modules/region';
 import View from '../../modules/view';
 
@@ -35,6 +36,163 @@ describe('Behavior lifecycle contract', function() {
     ]);
     expect(behavior.view).to.equal(view);
     expect(behavior.el).to.equal(view.el);
+
+    view.destroy();
+  });
+
+  describe.each([
+    ['View', View],
+    ['CollectionView', CollectionView],
+  ])('%s preinitialize order', function(name, HostView) {
+    it('runs host preinitialize before constructing Behaviors', function() {
+      const lifecycle = [];
+
+      const TestBehavior = Behavior.extend({
+        initialize(options, hostView) {
+          lifecycle.push(`behavior:initialize:${ hostView.preinitialized }`);
+        },
+      });
+      const TestView = HostView.extend({
+        behaviors: [TestBehavior],
+        preinitialize() {
+          this.preinitialized = true;
+          lifecycle.push('view:preinitialize');
+        },
+        initialize() {
+          lifecycle.push('view:initialize');
+        },
+      });
+
+      const view = new TestView();
+
+      expect(lifecycle).to.deep.equal([
+        'view:preinitialize',
+        'behavior:initialize:true',
+        'view:initialize',
+      ]);
+
+      view.destroy();
+    });
+  });
+
+  describe.each([
+    ['View', View],
+    ['CollectionView', CollectionView],
+  ])('%s initialize-time destruction', function(name, HostView) {
+    it('keeps destruction terminal after initialize returns', function() {
+      const lifecycle = [];
+      const model = new Backbone.Model();
+      const onModelEvent = this.sinon.stub();
+
+      const TestBehavior = Behavior.extend({
+        onInitialize() {
+          lifecycle.push('behavior:onInitialize');
+        },
+        onDestroy() {
+          lifecycle.push('behavior:onDestroy');
+        },
+      });
+      const TestView = HostView.extend({
+        behaviors: [TestBehavior],
+        modelEvents: {
+          ping: 'onModelEvent',
+        },
+        onModelEvent,
+        initialize() {
+          lifecycle.push('view:initialize');
+          this.destroy();
+        },
+      });
+
+      const view = new TestView({ model });
+      model.trigger('ping');
+
+      expect(view.isDestroyed()).to.be.true;
+      expect(lifecycle).to.deep.equal([
+        'view:initialize',
+        'behavior:onDestroy',
+      ]);
+      expect(onModelEvent).to.not.have.been.called;
+      if (view instanceof CollectionView) {
+        expect(view.getEmptyRegion().isDestroyed()).to.be.true;
+      }
+    });
+  });
+
+  it('resolves callable events after Behavior initialize and before host initialize', function() {
+    const lifecycle = [];
+    const onAction = this.sinon.spy();
+    const el = document.createElement('div');
+    el.innerHTML = '<button class="initialized-action">Action</button>';
+
+    const TestBehavior = Behavior.extend({
+      initialize() {
+        this.actionSelector = '.initialized-action';
+        lifecycle.push('behavior:initialize');
+      },
+      events() {
+        lifecycle.push(`behavior:events:${ this.actionSelector }`);
+        return {
+          [`click ${ this.actionSelector }`]: 'onAction',
+        };
+      },
+      onAction,
+    });
+    const TestView = View.extend({
+      behaviors: [TestBehavior],
+      initialize() {
+        lifecycle.push('view:initialize');
+      },
+    });
+
+    const view = new TestView({ el });
+    el.querySelector('.initialized-action').click();
+
+    expect(lifecycle).to.deep.equal([
+      'behavior:initialize',
+      'behavior:events:.initialized-action',
+      'view:initialize',
+    ]);
+    expect(onAction).to.have.been.calledOnce;
+
+    view.destroy();
+  });
+
+  it('resolves callable triggers after Behavior initialize and before host initialize', function() {
+    const lifecycle = [];
+    const onAction = this.sinon.spy();
+    const el = document.createElement('div');
+    el.innerHTML = '<button class="initialized-action">Action</button>';
+
+    const TestBehavior = Behavior.extend({
+      initialize() {
+        this.actionSelector = '.initialized-action';
+        lifecycle.push('behavior:initialize');
+      },
+      triggers() {
+        lifecycle.push(`behavior:triggers:${ this.actionSelector }`);
+        return {
+          [`click ${ this.actionSelector }`]: 'action',
+        };
+      },
+    });
+    const TestView = View.extend({
+      behaviors: [TestBehavior],
+      initialize() {
+        lifecycle.push('view:initialize');
+      },
+      onAction,
+    });
+
+    const view = new TestView({ el });
+    el.querySelector('.initialized-action').click();
+
+    expect(lifecycle).to.deep.equal([
+      'behavior:initialize',
+      'behavior:triggers:.initialized-action',
+      'view:initialize',
+    ]);
+    expect(onAction).to.have.been.calledOnce;
 
     view.destroy();
   });

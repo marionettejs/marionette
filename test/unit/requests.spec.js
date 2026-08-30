@@ -49,9 +49,10 @@ describe('Requests', function() {
       expect(warn).to.have.been.calledOnce.and.calledWithExactly('A request was overwritten: "foo"');
     });
 
-    it('assigns a fresh registry only after every reply is registered', function() {
+    it('retains earlier public registrations when a later split entry throws', function() {
       const requests = { ...Requests };
       Object.defineProperty(requests, 'channelName', {
+        configurable: true,
         get() {
           throw new Error('channel lookup failed');
         }
@@ -59,7 +60,8 @@ describe('Requests', function() {
 
       expect(() => requests.reply('first first', 'response'))
         .to.throw('channel lookup failed');
-      expect(requests).to.not.have.own.property('_rdRequests');
+      delete requests.channelName;
+      expect(requests.request('first')).to.equal('response');
     });
 
     it('retains earlier in-place mutations when a later reply throws', function() {
@@ -107,7 +109,49 @@ describe('Requests', function() {
   });
 
   describe('#replyOnce', function() {
-    it('does not assign a fresh registry when wrapper setup throws', function() {
+    it('dispatches map and space-separated entries through replyOnce', function() {
+      const calls = [];
+      const baseReplyOnce = Requests.replyOnce;
+      this.requests.replyOnce = function(...args) {
+        calls.push(args[0]);
+        return baseReplyOnce.apply(this, args);
+      };
+
+      this.requests.replyOnce({ alpha: 'a', beta: 'b' });
+      this.requests.replyOnce('gamma delta', 'split');
+
+      expect(calls).to.deep.equal([
+        { alpha: 'a', beta: 'b' },
+        'alpha',
+        'beta',
+        'gamma delta',
+        'gamma',
+        'delta'
+      ]);
+      expect(this.requests.request('alpha')).to.equal('a');
+      expect(this.requests.request('beta')).to.equal('b');
+      expect(this.requests.request('gamma')).to.equal('split');
+      expect(this.requests.request('delta')).to.equal('split');
+    });
+
+    it('dispatches wrapper registration through an overridden reply method', function() {
+      const registrations = [];
+      const callback = this.sinon.stub().returns('response');
+      const baseReply = Requests.reply;
+      this.requests.reply = function(...args) {
+        registrations.push(args);
+        return baseReply.apply(this, args);
+      };
+
+      this.requests.replyOnce('foo', callback);
+
+      expect(registrations).to.have.lengthOf(1);
+      expect(registrations[0][0]).to.equal('foo');
+      expect(registrations[0][1]).to.be.a('function');
+      expect(this.requests.request('foo')).to.equal('response');
+    });
+
+    it('defers stopReplying lookup until the one-shot reply is requested', function() {
       const requests = { ...Requests };
       Object.defineProperty(requests, 'stopReplying', {
         get() {
@@ -115,9 +159,9 @@ describe('Requests', function() {
         }
       });
 
-      expect(() => requests.replyOnce('foo', 'response'))
+      expect(() => requests.replyOnce('foo', 'response')).to.not.throw();
+      expect(() => requests.request('foo'))
         .to.throw('stopReplying lookup failed');
-      expect(requests).to.not.have.own.property('_rdRequests');
     });
 
     it('removes the reply before invoking it and returns the first result once', function() {
@@ -347,6 +391,49 @@ describe('Requests', function() {
     });
   });
 
+  describe('registration overload dispatch', function() {
+    it('dispatches reply map and split entries through the public method', function() {
+      // Backbone.Radio 2.0 recursively dispatched every overloaded entry.
+      const calls = [];
+      const requests = { ...Requests };
+      requests.reply = function(name, ...args) {
+        calls.push(name);
+        return Requests.reply.call(this, name, ...args);
+      };
+
+      requests.reply({ 'first second': 'response', third: 'response' });
+
+      expect(calls).to.deep.equal([
+        { 'first second': 'response', third: 'response' },
+        'first second',
+        'first',
+        'second',
+        'third'
+      ]);
+    });
+
+    it('dispatches stopReplying map and split entries through the public method', function() {
+      // Backbone.Radio 2.0 recursively dispatched every overloaded entry.
+      const calls = [];
+      const requests = { ...Requests };
+      requests.reply('first second third', 'response');
+      requests.stopReplying = function(name, ...args) {
+        calls.push(name);
+        return Requests.stopReplying.call(this, name, ...args);
+      };
+
+      requests.stopReplying({ 'first second': 'response', third: 'response' });
+
+      expect(calls).to.deep.equal([
+        { 'first second': 'response', third: 'response' },
+        'first second',
+        'first',
+        'second',
+        'third'
+      ]);
+    });
+  });
+
   describe('#request', function() {
     it('prioritizes an own named handler and passes only request arguments', function() {
       const named = this.sinon.stub().returns('named');
@@ -452,6 +539,17 @@ describe('Requests', function() {
         'request:second:two'
       ]);
       expect(replies).to.deep.equal({ first: 'first:one', second: 'second:two' });
+    });
+
+    it('forwards trailing arguments after each request-map value', function() {
+      const responseHandler = this.sinon.stub().returns('response');
+      const trailing = {};
+      this.requests.reply('foo', responseHandler);
+
+      expect(this.requests.request({ foo: 'mapped' }, trailing))
+        .to.deep.equal({ foo: 'response' });
+      expect(responseHandler).to.have.been.calledOnce
+        .and.calledWithExactly('mapped', trailing);
     });
 
     it('stops reading a request map when a recursive request throws', function() {

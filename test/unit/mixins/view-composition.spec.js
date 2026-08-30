@@ -35,6 +35,8 @@ const directKeys = [
   'isRendered',
   '_isAttached',
   'isAttached',
+  'delegateEvents',
+  'undelegateEvents',
   'delegateEntityEvents',
   'undelegateEntityEvents',
   'destroy',

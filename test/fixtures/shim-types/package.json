@@ -6,7 +6,7 @@
   },
   "dependencies": {
     "@types/backbone": "1.4.23",
-    "@types/jquery": "3.5.34",
+    "@types/jquery": "4.0.1",
     "backbone": "1.4.0",
     "typescript": "7.0.2"
   }

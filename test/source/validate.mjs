@@ -1,10 +1,15 @@
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { JSDOM } from 'jsdom';
 
 import Backbone from '../../backbone.js';
-import jqueryDomApi from '../../jquery-dom-api.js';
 import * as Marionette from '../../index.js';
+
+const dom = new JSDOM('<!doctype html>');
+globalThis.window = dom.window;
+globalThis.document = dom.window.document;
+const { default: jqueryDomApi } = await import('../../jquery-dom-api.js');
 
 assert.equal(typeof Marionette.View, 'function');
 assert.equal(typeof Marionette.Region, 'function');
@@ -13,6 +18,7 @@ assert.ok(new Marionette.MarionetteError({ message: 'fixture' }) instanceof Erro
 assert.equal(Backbone.Model.prototype.triggerMethod, Marionette.Events.triggerMethod);
 assert.equal(typeof jqueryDomApi.findEl, 'function');
 assert.equal(typeof jqueryDomApi.setContents, 'function');
+assert.equal(typeof jqueryDomApi.wrapEl, 'function');
 
 const root = resolve(import.meta.dirname, '../..');
 const packageJson = JSON.parse(readFileSync(resolve(root, 'package.json')));
@@ -56,6 +62,9 @@ for (const directory of ['modules', 'mixins', 'utils']) {
 }
 
 assert.equal(Object.hasOwn(packageJson.peerDependencies, 'underscore'), false);
+assert.equal(packageJson.peerDependencies.jquery, '^4.0.0');
+assert.equal(packageJson.peerDependenciesMeta.jquery.optional, true);
+assert.equal(Object.hasOwn(packageJson.dependencies || {}, 'jquery'), false);
 assert.deepEqual(nonDeclarativeConfigFiles, []);
 
 for (const file of productionFiles) {

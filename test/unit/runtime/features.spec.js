@@ -1,7 +1,6 @@
 import { FEATURES, setEnabled, isEnabled } from '../../../runtime/features';
-import MarionetteError from '../../../utils/error';
 
-const invalidFeatureNames = ['', ' ', 'applicationOwned', 'constructor', 'toString', '__proto__', 'hasOwnProperty'];
+const invalidFeatureNames = ['', ' '];
 const initialFeatures = { ...FEATURES };
 
 describe('features', function() {
@@ -34,7 +33,7 @@ describe('features', function() {
     });
 
     it('remains disabled for non-string names', function() {
-      for (const name of [undefined, null, 0, {}, Symbol('feature')]) {
+      for (const name of [undefined, null, 0, {}, Object.create(null), Symbol('feature')]) {
         expect(isEnabled(name)).to.be.false;
       }
     });
@@ -48,33 +47,24 @@ describe('features', function() {
       expect(FEATURES.childViewEventPrefix).to.equal(state);
     });
 
-    it('rejects unknown feature names without mutation', function() {
+    it('preserves custom feature flags, including prototype property names', function() {
+      for (const name of ['applicationOwned', 'constructor', 'toString', '__proto__', 'hasOwnProperty']) {
+        expect(setEnabled(name, true)).to.be.true;
+        expect(isEnabled(name)).to.be.true;
+        expect(Object.hasOwn(FEATURES, name)).to.be.true;
+      }
+    });
+
+    it('rejects blank feature names without mutation', function() {
       const featureSnapshot = { ...FEATURES };
-      const prototype = Object.getPrototypeOf(FEATURES);
 
       for (const name of invalidFeatureNames) {
         expect(() => setEnabled(name, true))
           .to.throw()
           .with.property('code', 'MN0027');
-        expect(Object.hasOwn(FEATURES, name)).to.be.false;
       }
 
       expect(FEATURES).to.deep.equal(featureSnapshot);
-      expect(Object.getPrototypeOf(FEATURES)).to.equal(prototype);
-    });
-
-    it('provides the rejected feature name on MarionetteError', function() {
-      let error;
-
-      try {
-        setEnabled('applicationOwned', true);
-      } catch (caughtError) {
-        error = caughtError;
-      }
-
-      expect(error).to.be.instanceOf(MarionetteError);
-      expect(error).to.have.property('code', 'MN0027');
-      expect(error.message).to.contain('applicationOwned');
     });
 
     it('rejects non-string feature names with a stable code', function() {

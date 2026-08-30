@@ -18,29 +18,27 @@ const viewTypes = [
 
 describe('#setElement', function() {
   for (const { Class, name } of viewTypes) {
-    it(`rejects ${name} element replacement as soon as destruction begins`, function() {
+    it(`ignores ${name} element replacement as soon as destruction begins`, function() {
       const original = document.createElement('div');
       const view = new Class({ el: original, template: false });
       const tagRead = this.sinon.spy(() => { throw new Error('element inspected'); });
       const malformed = Object.create(null, {
         [Symbol.toStringTag]: { get: tagRead },
       });
-      let error;
+      let result;
       view.on('before:destroy', () => {
-        try { view.setElement(malformed); } catch (thrown) { error = thrown; }
+        result = view.setElement(malformed);
       });
 
       expect(view.destroy()).to.equal(view);
 
-      expect(error).to.be.instanceOf(MarionetteError);
-      expect(error).to.include({ code: 'MN0029', name: `${name}Error` });
-      expect(error.url).to.match(/\/errors\/MN0029\/$/);
+      expect(result).to.equal(view);
       expect(tagRead).to.not.have.been.called;
       expect(view.el).to.equal(original);
       expect(view.isDestroyed()).to.be.true;
     });
 
-    it(`rejects repeated ${name} element replacement after destruction before observable work`, function() {
+    it(`ignores repeated ${name} element replacement after destruction before observable work`, function() {
       const viewAction = this.sinon.spy();
       const behaviorAction = this.sinon.spy();
       const HostBehavior = Behavior.extend({
@@ -73,23 +71,10 @@ describe('#setElement', function() {
         [Symbol.toStringTag]: { get: tagRead },
       });
 
-      const expectRejected = element => {
-        let error;
-        try { view.setElement(element); } catch (thrown) { error = thrown; }
-
-        expect(error).to.be.instanceOf(MarionetteError);
-        expect(error).to.include({ code: 'MN0029', name: `${name}Error` });
-        expect(error.url).to.match(/\/errors\/MN0029\/$/);
-      };
-
-      let omittedError;
-      try { view.setElement(); } catch (thrown) { omittedError = thrown; }
-      expect(omittedError).to.be.instanceOf(MarionetteError);
-      expect(omittedError).to.include({ code: 'MN0029', name: `${name}Error` });
-      expect(omittedError.url).to.match(/\/errors\/MN0029\/$/);
+      expect(view.setElement()).to.equal(view);
 
       for (const element of [view.el, malformed, malformed, '#missing', replacement]) {
-        expectRejected(element);
+        expect(view.setElement(element)).to.equal(view);
       }
 
       expect(tagRead).to.not.have.been.called;
@@ -127,9 +112,7 @@ describe('#setElement', function() {
       const delegating = new DelegatingView();
       delegating.destroy();
 
-      expect(() => delegating.setElement(replacement))
-        .to.throw(MarionetteError)
-        .and.include({ code: 'MN0029' });
+      expect(delegating.setElement(replacement)).to.equal(delegating);
     });
   }
 });

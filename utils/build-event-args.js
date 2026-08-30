@@ -6,11 +6,12 @@ export const eventSplitter = /\s+/;
 // maps `{event: callback}`).
 export default function buildEventArgs(name, callback, context, listener) {
   if (name && typeof name === 'object') {
+    const eventContext = context === undefined ? callback : context;
     const eventArgs = [];
     const names = Object.keys(name);
     for (let i = 0; i < names.length; i++) {
       const key = names[i];
-      const args = buildEventArgs(key, name[key], context || callback, listener);
+      const args = buildEventArgs(key, name[key], eventContext, listener);
       for (let j = 0; j < args.length; j++) {
         eventArgs.push(args[j]);
       }

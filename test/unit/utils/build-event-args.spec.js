@@ -59,10 +59,12 @@ describe('buildEventArgs', function() {
       .to.deep.equal([
         { name: 'event', callback: handler, context: explicitContext, listener }
       ]);
-    expect(buildEventArgs({ event: handler }, fallbackContext, false, listener))
-      .to.deep.equal([
-        { name: 'event', callback: handler, context: fallbackContext, listener }
-      ]);
+    [false, 0, ''].forEach(explicitFalseyContext => {
+      expect(buildEventArgs({ event: handler }, fallbackContext, explicitFalseyContext, listener))
+        .to.deep.equal([
+          { name: 'event', callback: handler, context: explicitFalseyContext, listener }
+        ]);
+    });
   });
 
   it('selects only own enumerable string event-map keys', function() {

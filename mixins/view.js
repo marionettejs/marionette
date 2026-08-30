@@ -16,6 +16,22 @@ import DomApi from '../runtime/dom-api.js';
 
 const classErrorName = 'ViewError';
 
+function isJQueryCollection(el) {
+  return el != null && typeof el === 'object' &&
+    typeof el.jquery === 'string' && typeof el.get === 'function';
+}
+
+export const ViewOptions = [
+  'attributes',
+  'className',
+  'collection',
+  'el',
+  'events',
+  'id',
+  'model',
+  'tagName'
+];
+
 // MixinOptions
 // - attributes
 // - behaviors
@@ -44,12 +60,17 @@ const ViewMixin = {
   Dom: DomApi,
 
   _validateEl(el) {
-    if (!isString(el)) { return el; }
+    const stringEl = isString(el);
+    if (!stringEl && !isJQueryCollection(el)) { return el; }
+
+    const migration = stringEl ?
+      `Resolve selector strings at the call site, e.g. \`document.querySelector('${el}')\`.` :
+      'Unwrap jQuery collections at the call site, e.g. `wrappedEl[0]`.';
 
     throw new MarionetteError({
       code: 'MN0001',
       name: classErrorName,
-      message: `View "el" must be a DOM element. Resolve selector strings at the call site, e.g. \`document.querySelector('${el}')\`. (Region still accepts selector strings.)`,
+      message: `View "el" must be a DOM element. ${migration} (Region still accepts selector strings.)`,
       url: 'marionette.view.html#specifying-an-el'
     });
   },
@@ -97,6 +118,26 @@ const ViewMixin = {
 
   isAttached() {
     return !!this._isAttached;
+  },
+
+  delegateEvents(events) {
+    if (this._isDestroyed || this._isDestroying) { return this; }
+
+    this.undelegateEvents();
+    this._buildEventProxies();
+    this._delegateViewEvents(this, events);
+    this._setBehaviorElements();
+
+    return this;
+  },
+
+  undelegateEvents() {
+    if (this._isDestroyed || this._isDestroying) { return this; }
+
+    this._undelegateViewEvents();
+    this._undelegateBehaviorViewEvents();
+
+    return this;
   },
 
   // Handle `modelEvents`, and `collectionEvents` configuration

@@ -5,8 +5,8 @@
     "validate": "tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json"
   },
   "dependencies": {
-    "@types/jquery": "3.5.34",
-    "jquery": "3.5.1",
+    "@types/jquery": "4.0.1",
+    "jquery": "4.0.0",
     "typescript": "7.0.2"
   }
 }

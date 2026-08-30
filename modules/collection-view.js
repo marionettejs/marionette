@@ -11,7 +11,7 @@ import { renderView, destroyView, isViewClass } from './common/view.js';
 import monitorViewEvents from './common/monitor-view-events.js';
 import ChildViewContainer from './child-view-container.js';
 import Region from './region.js';
-import ViewMixin from '../mixins/view.js';
+import ViewMixin, { ViewOptions } from '../mixins/view.js';
 import { setDomApi } from '../runtime/dom-api.js';
 import { setEventDelegator } from '../runtime/event-delegator.js';
 import { setRenderer } from '../runtime/renderer.js';
@@ -88,6 +88,7 @@ const CollectionView = function(options) {
   this._setOptions(options, ClassOptions);
 
   this.preinitialize.apply(this, arguments);
+  this.mergeOptions(options, ViewOptions);
 
   this._initViewEvents();
   this.setElement(this._getEl());
@@ -98,10 +99,12 @@ const CollectionView = function(options) {
   this._initBehaviors();
   this._buildEventProxies();
 
-  // Init empty region
-  this.getEmptyRegion();
-
   this.initialize.apply(this, arguments);
+
+  if (this._isDestroyed || this._isDestroying) { return; }
+
+  // Init empty region after initialize to preserve the v4 override boundary.
+  this.getEmptyRegion();
 
   this.delegateEntityEvents();
 
@@ -126,6 +129,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
   // Create an region to show the emptyView
   getEmptyRegion() {
+    if (this._isDestroyed && this._emptyRegion) { return this._emptyRegion; }
+
     const emptyEl = this.container || this.el;
 
     if (this._emptyRegion && !this._emptyRegion.isDestroyed()) {
@@ -154,6 +159,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   // Internal method. This checks for any changes in the order of the collection.
   // If the index of any view doesn't match, it will re-sort.
   _onCollectionSort(collection, { add, merge, remove }) {
+    if (this._isDestroying || this._isDestroyed) { return; }
+
     if (!this.sortWithCollection || this.viewComparator === false) {
       return;
     }
@@ -168,6 +175,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   },
 
   _onCollectionReset() {
+    if (this._isDestroying || this._isDestroyed) { return; }
+
     this._destroyChildren();
 
     this._addChildModels(this.collection.models);
@@ -177,6 +186,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
   // Handle collection update model additions and  removals
   _onCollectionUpdate(collection, options) {
+    if (this._isDestroying || this._isDestroyed) { return; }
+
     const changes = options.changes;
 
     // Remove first since it'll be a shorter array lookup.
@@ -334,21 +345,23 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   // attached on setElement.
   setElement(element) {
     if (this._isDestroying || this._isDestroyed) {
-      throw new MarionetteError({
-        code: 'MN0029',
-        name: classErrorName,
-        message: 'A destroying or destroyed CollectionView cannot setElement.',
-        url: 'errors/MN0029/',
-      });
+      return this;
     }
 
-    this._undelegateViewEvents();
-    this.el = this._validateEl(element);
-    this._setBehaviorElements();
+    const el = this._validateEl(element);
+    const wrappedEl = this.Dom.wrapEl && this.Dom.wrapEl(el);
+
+    this.undelegateEvents();
+    this.el = el;
+    if (this.Dom.wrapEl) {
+      this.$el = wrappedEl;
+    } else {
+      delete this.$el;
+    }
 
     this._isAttached = this._isElAttached();
 
-    this._delegateViewEvents();
+    this.delegateEvents();
 
     return this;
   },
@@ -691,8 +704,10 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
     if (isEmptyViewClass(emptyView)) { return emptyView; }
 
-    const EmptyView = typeof emptyView === 'function' && !isClassDefinition(emptyView) ?
-      emptyView.call(this) : undefined;
+    const isResolver = typeof emptyView === 'function' && !isClassDefinition(emptyView);
+    const EmptyView = isResolver ? emptyView.call(this) : undefined;
+
+    if (isResolver && (EmptyView == null || EmptyView === false)) { return; }
 
     if (isEmptyViewClass(EmptyView)) { return EmptyView; }
 
@@ -750,6 +765,10 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
   // Render the child's view and add it to the HTML for the collection view at a given index, based on the current sort
   addChildView(view, index, options = {}) {
+    if (this._isDestroying || this._isDestroyed) {
+      return view;
+    }
+
     if (!view || view._isDestroyed) {
       return view;
     }
@@ -813,7 +832,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   // childView from `addChildView`
   // The options argument is for internal use only
   removeChildView(view, options) {
-    if (!view) {
+    if (!view || !this._children.hasView(view)) {
       return view;
     }
 
