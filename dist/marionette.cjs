@@ -1182,7 +1182,7 @@ var BehaviorsMixin = {
     return mergeBehaviorMaps(this._behaviors, behavior => behavior._getEvents());
   },
   _setBehaviorElements() {
-    eachBehavior(this._behaviors, behavior => behavior.setElement());
+    eachBehavior(this._behaviors, behavior => behavior._syncElement());
   },
   _undelegateBehaviorViewEvents() {
     eachBehavior(this._behaviors, behavior => behavior._undelegateViewEvents());
@@ -3366,7 +3366,7 @@ const Behavior = function (options, view) {
   this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui'));
   this.listenTo(view, 'all', this.triggerMethod);
   this.initialize.apply(this, arguments);
-  this.setElement();
+  this._syncElement();
 };
 assignOwn(Behavior, {
   extend,
@@ -3384,7 +3384,7 @@ assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, V
     this._deleteEntityEventHandlers();
     return this;
   },
-  setElement() {
+  _syncElement() {
     this._undelegateViewEvents();
     this.el = this.view.el;
     if (this.view.$el) {

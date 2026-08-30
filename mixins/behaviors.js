@@ -95,7 +95,7 @@ export default {
 
   // proxy behavior el to the view's el.
   _setBehaviorElements() {
-    eachBehavior(this._behaviors, behavior => behavior.setElement());
+    eachBehavior(this._behaviors, behavior => behavior._syncElement());
   },
 
   _undelegateBehaviorViewEvents() {

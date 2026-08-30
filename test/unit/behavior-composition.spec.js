@@ -12,7 +12,7 @@ function IsolatedBehavior(overrides = {}) {
   return Behavior.extend({
     _setOptions() {},
     _initViewEvents() {},
-    setElement() { return this; },
+    _syncElement() { return this; },
     listenTo() { return this; },
     ...overrides
   });
@@ -51,8 +51,8 @@ describe('Behavior composition', function() {
           calls.push(['behaviorUI', this, [...arguments]]);
           return behaviorUI;
         },
-        setElement(...args) {
-          calls.push(['setElement', this, args]);
+        _syncElement(...args) {
+          calls.push(['syncElement', this, args]);
           return this;
         },
         listenTo(...args) {
@@ -79,7 +79,7 @@ describe('Behavior composition', function() {
         ['hostUI', host, []],
         ['listenTo', behavior, [host, 'all', behavior.triggerMethod]],
         ['initialize', behavior, [options, host, 'extra']],
-        ['setElement', behavior, []]
+        ['syncElement', behavior, []]
       ]);
       expect(Object.keys(behavior.ui)).to.deep.equal(['first', 'shared', 'last']);
       expect(behavior.ui).to.deep.equal({ first: '.first', shared: '.host', last: '.last' });
@@ -212,7 +212,7 @@ describe('Behavior composition', function() {
         'cidPrefix',
         '$',
         'destroy',
-        'setElement',
+        '_syncElement',
         'bindUIElements',
         'unbindUIElements',
         'getUI',

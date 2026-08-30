@@ -52,7 +52,7 @@ const Behavior = function(options, view) {
 
   this.initialize.apply(this, arguments);
 
-  this.setElement();
+  this._syncElement();
 };
 
 assignOwn(Behavior, { extend, setEventDelegator });
@@ -83,7 +83,7 @@ assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, V
     return this;
   },
 
-  setElement() {
+  _syncElement() {
     this._undelegateViewEvents();
 
     this.el = this.view.el;
