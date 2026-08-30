@@ -1,0 +1,32 @@
+docs/view.lifecycle.md
+  s_d6429951fb9231::t_033743a0db2341 134-143,152-157,159-161,165-166,177,182-184,186-192,194-195
+  s_d6429951fb9231::t_1201a364827479 4,95-97,167,169-170,203-207,226-230,276
+  s_d6429951fb9231::t_3db89e095dada3 22,60-62,64,83-93,100-101,105-116
+  s_d6429951fb9231::t_348ba399e84761 147
+  s_d6429951fb9231::t_fb6f54a673b56c 148-151
+  s_d6429951fb9231::t_a6131f787df9fe 71-72,77-79
+  s_d6429951fb9231::t_85b3e64d8236d7 199-202,209-214,224-225,239-249,256-266,275,277-280,282-283
+  s_d6429951fb9231::t_c18617dcb3834e 267-271
+  s_d6429951fb9231::t_d35254eed3d88c 94
+  s_d6429951fb9231::t_b9c4e6f108904c 208
+  s_d6429951fb9231::t_e087981261951c 197
+test/unit/collection-view/collection-view-lifecycle.spec.js
+  s_d6429951fb9231::t_fb6f54a673b56c 259,274,276-277
+  s_d6429951fb9231::t_348ba399e84761 254-258,260-273,275,278-279
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "c9ea386ee2b212d89f14a4adcab7814bf4a32917",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
