@@ -242,9 +242,12 @@ current child and leaves `secondRegion` empty and available for another View.
 Defined regions are registered during `View` construction. `hasRegion(name)`
 checks its own Region registry without rendering the View, including when the
 View is unrendered or destroyed. It reports stored ownership directly and does
-not call an overridden `getRegion`. Calling `getRegion` or any child View method
-above on a live, unrendered View still renders it and dispatches through any
-`getRegion` override before resolving the Region element.
+not call an overridden `getRegion`. `getRegions()` returns a fresh, safe
+own-key snapshot of the same registry without rendering. Calling `getRegion` or
+any child View method above on a live, unrendered View still renders it and
+dispatches through any `getRegion` override before resolving the Region element.
+`emptyRegions()` also renders a live, unrendered View before calling the
+overridable `getRegions()` and emptying its returned snapshot.
 
 `getRegion(name)` and `hasRegion(name)` support optional lookup: an unknown name
 returns `undefined` or `false`, respectively. Operations that require a Region —

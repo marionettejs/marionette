@@ -691,6 +691,9 @@ const RegionsMixin = {
   // Empty all regions in the region manager, but
   // leave them attached
   emptyRegions() {
+    if (!this._isRendered) {
+      this.render();
+    }
     const regions = this.getRegions();
     eachOwn(regions, region => region.empty());
     return regions;
@@ -721,9 +724,6 @@ const RegionsMixin = {
 
   // Get all regions
   getRegions() {
-    if (!this._isRendered) {
-      this.render();
-    }
     return this._getRegions();
   },
 
