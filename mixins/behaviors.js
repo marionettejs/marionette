@@ -1,5 +1,7 @@
-import { isFunction, extend, reduce, result, without, map } from 'underscore';
+import { assignOwn } from '../utils/assign-in.js';
+import eachOwn from '../utils/each-own.js';
 import MarionetteError from '../utils/error.js';
+import getValue from '../utils/get-value.js';
 
 // MixinOptions
 // - behaviors
@@ -16,7 +18,7 @@ function getBehaviorClass(options) {
   }
 
   //treat functions as a Behavior constructor
-  if (isFunction(options)) {
+  if (typeof options === 'function') {
     return { BehaviorClass: options, options: {} };
   }
 
@@ -27,51 +29,83 @@ function getBehaviorClass(options) {
   });
 }
 
+function addBehavior(view, behaviorDefinition, allBehaviors) {
+  const { BehaviorClass, options } = getBehaviorClass(behaviorDefinition);
+  const behavior = new BehaviorClass(options, view);
+  allBehaviors.push(behavior);
+
+  parseBehaviors(view, getValue(behavior, 'behaviors'), allBehaviors);
+}
+
 // Iterate over the behaviors object, for each behavior
 // instantiate it and get its grouped behaviors.
 // This accepts a list of behaviors in either an object or array form
 function parseBehaviors(view, behaviors, allBehaviors) {
-  return reduce(behaviors, (reducedBehaviors, behaviorDefiniton) => {
-    const { BehaviorClass, options } = getBehaviorClass(behaviorDefiniton);
-    const behavior = new BehaviorClass(options, view);
-    reducedBehaviors.push(behavior);
+  if (Array.isArray(behaviors)) {
+    for (let index = 0, length = behaviors.length; index < length; index++) {
+      addBehavior(view, behaviors[index], allBehaviors);
+    }
+  } else {
+    eachOwn(behaviors, behaviorDefinition => {
+      addBehavior(view, behaviorDefinition, allBehaviors);
+    });
+  }
 
-    return parseBehaviors(view, result(behavior, 'behaviors'), reducedBehaviors);
-  }, allBehaviors);
+  return allBehaviors;
+}
+
+function mergeBehaviorMaps(behaviors, getMap) {
+  if (behaviors == null) { return {}; }
+
+  const length = behaviors.length;
+  const maps = Array(length);
+
+  for (let index = 0; index < length; index++) {
+    maps[index] = getMap(behaviors[index]);
+  }
+
+  const merged = {};
+  for (let index = 0; index < length; index++) {
+    assignOwn(merged, maps[index]);
+  }
+
+  return merged;
+}
+
+function eachBehavior(behaviors, iteratee) {
+  if (behaviors == null) { return; }
+
+  for (let index = 0, length = behaviors.length; index < length; index++) {
+    iteratee(behaviors[index]);
+  }
 }
 
 export default {
   _initBehaviors() {
-    this._behaviors = parseBehaviors(this, result(this, 'behaviors'), []);
+    this._behaviors = parseBehaviors(this, getValue(this, 'behaviors'), []);
   },
 
   _getBehaviorTriggers() {
-    const triggers = map(this._behaviors, behavior => behavior._getTriggers());
-    return reduce(triggers, function(memo, _triggers) {
-      return extend(memo, _triggers);
-    }, {});
+    return mergeBehaviorMaps(this._behaviors, behavior => behavior._getTriggers());
   },
 
   _getBehaviorEvents() {
-    const events = map(this._behaviors, behavior => behavior._getEvents());
-    return reduce(events, function(memo, _events) {
-      return extend(memo, _events);
-    }, {});
+    return mergeBehaviorMaps(this._behaviors, behavior => behavior._getEvents());
   },
 
   // proxy behavior el to the view's el.
   _setBehaviorElements() {
-    map(this._behaviors, behavior => behavior.setElement());
+    eachBehavior(this._behaviors, behavior => behavior.setElement());
   },
 
   // delegate modelEvents and collectionEvents
   _delegateBehaviorEntityEvents() {
-    map(this._behaviors, behavior => behavior.delegateEntityEvents());
+    eachBehavior(this._behaviors, behavior => behavior.delegateEntityEvents());
   },
 
   // undelegate modelEvents and collectionEvents
   _undelegateBehaviorEntityEvents() {
-    map(this._behaviors, behavior => behavior.undelegateEntityEvents());
+    eachBehavior(this._behaviors, behavior => behavior.undelegateEntityEvents());
   },
 
   _destroyBehaviors(options) {
@@ -79,7 +113,7 @@ export default {
     // destroying the view.
     // This unbinds event listeners
     // that behaviors have registered for.
-    map(this._behaviors, behavior => behavior.destroy(options));
+    eachBehavior(this._behaviors, behavior => behavior.destroy(options));
   },
 
   // Remove a behavior
@@ -87,18 +121,25 @@ export default {
     // Don't worry about the clean up if the view is destroyed
     if (this._isDestroyed) { return; }
 
-    this._behaviors = without(this._behaviors, behavior);
+    const remainingBehaviors = [];
+    for (let index = 0, length = this._behaviors.length; index < length; index++) {
+      const currentBehavior = this._behaviors[index];
+      if (currentBehavior !== behavior) {
+        remainingBehaviors.push(currentBehavior);
+      }
+    }
+    this._behaviors = remainingBehaviors;
   },
 
   _bindBehaviorUIElements() {
-    map(this._behaviors, behavior => behavior.bindUIElements());
+    eachBehavior(this._behaviors, behavior => behavior.bindUIElements());
   },
 
   _unbindBehaviorUIElements() {
-    map(this._behaviors, behavior => behavior.unbindUIElements());
+    eachBehavior(this._behaviors, behavior => behavior.unbindUIElements());
   },
 
   _triggerEventOnBehaviors(eventName, view, options) {
-    map(this._behaviors, behavior => behavior.triggerMethod(eventName, view, options));
+    eachBehavior(this._behaviors, behavior => behavior.triggerMethod(eventName, view, options));
   }
 };

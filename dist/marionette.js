@@ -1,4 +1,4 @@
-import { map, without, reduce, extend as extend$1, result, isFunction, isObject, isString as isString$1, each, partial, isEmpty, matches } from 'underscore';
+import { extend as extend$1, result, isFunction, isObject, isString as isString$1, reduce, each, partial, isEmpty, matches, map } from 'underscore';
 
 const proxy = function (method) {
   return function (context, ...args) {
@@ -1095,6 +1095,17 @@ function destroyView(view, disableDetachEvents) {
   }
 }
 
+function eachOwn(object, iteratee) {
+  if (object == null) {
+    return object;
+  }
+  const keys = Object.keys(object);
+  for (const key of keys) {
+    iteratee(object[key], key, object);
+  }
+  return object;
+}
+
 function getBehaviorClass(options) {
   if (options.behaviorClass) {
     return {
@@ -1102,7 +1113,7 @@ function getBehaviorClass(options) {
       options
     };
   }
-  if (isFunction(options)) {
+  if (typeof options === 'function') {
     return {
       BehaviorClass: options,
       options: {}
@@ -1114,59 +1125,93 @@ function getBehaviorClass(options) {
     url: 'marionette.behavior.html#defining-and-attaching-behaviors'
   });
 }
+function addBehavior(view, behaviorDefinition, allBehaviors) {
+  const {
+    BehaviorClass,
+    options
+  } = getBehaviorClass(behaviorDefinition);
+  const behavior = new BehaviorClass(options, view);
+  allBehaviors.push(behavior);
+  parseBehaviors(view, getValue(behavior, 'behaviors'), allBehaviors);
+}
 function parseBehaviors(view, behaviors, allBehaviors) {
-  return reduce(behaviors, (reducedBehaviors, behaviorDefiniton) => {
-    const {
-      BehaviorClass,
-      options
-    } = getBehaviorClass(behaviorDefiniton);
-    const behavior = new BehaviorClass(options, view);
-    reducedBehaviors.push(behavior);
-    return parseBehaviors(view, result(behavior, 'behaviors'), reducedBehaviors);
-  }, allBehaviors);
+  if (Array.isArray(behaviors)) {
+    for (let index = 0, length = behaviors.length; index < length; index++) {
+      addBehavior(view, behaviors[index], allBehaviors);
+    }
+  } else {
+    eachOwn(behaviors, behaviorDefinition => {
+      addBehavior(view, behaviorDefinition, allBehaviors);
+    });
+  }
+  return allBehaviors;
+}
+function mergeBehaviorMaps(behaviors, getMap) {
+  if (behaviors == null) {
+    return {};
+  }
+  const length = behaviors.length;
+  const maps = Array(length);
+  for (let index = 0; index < length; index++) {
+    maps[index] = getMap(behaviors[index]);
+  }
+  const merged = {};
+  for (let index = 0; index < length; index++) {
+    assignOwn(merged, maps[index]);
+  }
+  return merged;
+}
+function eachBehavior(behaviors, iteratee) {
+  if (behaviors == null) {
+    return;
+  }
+  for (let index = 0, length = behaviors.length; index < length; index++) {
+    iteratee(behaviors[index]);
+  }
 }
 var BehaviorsMixin = {
   _initBehaviors() {
-    this._behaviors = parseBehaviors(this, result(this, 'behaviors'), []);
+    this._behaviors = parseBehaviors(this, getValue(this, 'behaviors'), []);
   },
   _getBehaviorTriggers() {
-    const triggers = map(this._behaviors, behavior => behavior._getTriggers());
-    return reduce(triggers, function (memo, _triggers) {
-      return extend$1(memo, _triggers);
-    }, {});
+    return mergeBehaviorMaps(this._behaviors, behavior => behavior._getTriggers());
   },
   _getBehaviorEvents() {
-    const events = map(this._behaviors, behavior => behavior._getEvents());
-    return reduce(events, function (memo, _events) {
-      return extend$1(memo, _events);
-    }, {});
+    return mergeBehaviorMaps(this._behaviors, behavior => behavior._getEvents());
   },
   _setBehaviorElements() {
-    map(this._behaviors, behavior => behavior.setElement());
+    eachBehavior(this._behaviors, behavior => behavior.setElement());
   },
   _delegateBehaviorEntityEvents() {
-    map(this._behaviors, behavior => behavior.delegateEntityEvents());
+    eachBehavior(this._behaviors, behavior => behavior.delegateEntityEvents());
   },
   _undelegateBehaviorEntityEvents() {
-    map(this._behaviors, behavior => behavior.undelegateEntityEvents());
+    eachBehavior(this._behaviors, behavior => behavior.undelegateEntityEvents());
   },
   _destroyBehaviors(options) {
-    map(this._behaviors, behavior => behavior.destroy(options));
+    eachBehavior(this._behaviors, behavior => behavior.destroy(options));
   },
   _removeBehavior(behavior) {
     if (this._isDestroyed) {
       return;
     }
-    this._behaviors = without(this._behaviors, behavior);
+    const remainingBehaviors = [];
+    for (let index = 0, length = this._behaviors.length; index < length; index++) {
+      const currentBehavior = this._behaviors[index];
+      if (currentBehavior !== behavior) {
+        remainingBehaviors.push(currentBehavior);
+      }
+    }
+    this._behaviors = remainingBehaviors;
   },
   _bindBehaviorUIElements() {
-    map(this._behaviors, behavior => behavior.bindUIElements());
+    eachBehavior(this._behaviors, behavior => behavior.bindUIElements());
   },
   _unbindBehaviorUIElements() {
-    map(this._behaviors, behavior => behavior.unbindUIElements());
+    eachBehavior(this._behaviors, behavior => behavior.unbindUIElements());
   },
   _triggerEventOnBehaviors(eventName, view, options) {
-    map(this._behaviors, behavior => behavior.triggerMethod(eventName, view, options));
+    eachBehavior(this._behaviors, behavior => behavior.triggerMethod(eventName, view, options));
   }
 };
 
@@ -1241,17 +1286,6 @@ var TemplateRenderMixin = {
     this.Dom.setContents(this.el, html);
   }
 };
-
-function eachOwn(object, iteratee) {
-  if (object == null) {
-    return object;
-  }
-  const keys = Object.keys(object);
-  for (const key of keys) {
-    iteratee(object[key], key, object);
-  }
-  return object;
-}
 
 const normalizeUIKeys = function (hash, ui) {
   const normalizedHash = {};
