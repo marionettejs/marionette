@@ -1,0 +1,30 @@
+docs/utils.md
+  s_d6429951fb9231::t_8833aab71837aa 3-5,15-18,20,24-26,28,30-35,38-40,43-44,46,50-53,55,57-78,80,82-88,90-91,93-129,132-145,149-151
+  s_d6429951fb9231::t_a37afc42349d00 79
+  s_d6429951fb9231::t_857ba5a122ccf8 81,89,92
+  s_d6429951fb9231::t_27bb521c1a932f 45
+test/fixtures/docs-utils-contract/package.json
+  s_d6429951fb9231::t_02658096b705d2 1-7
+test/fixtures/docs-utils-contract/.gitignore
+  s_d6429951fb9231::t_02658096b705d2 1
+test/fixtures/docs-utils-contract/validate.mjs
+  s_d6429951fb9231::t_a37afc42349d00 15
+  s_d6429951fb9231::t_857ba5a122ccf8 49-52
+  s_d6429951fb9231::t_02658096b705d2 1-14,16-48,53-70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "d26f73241283e93efec081414edf55599db3833a",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
