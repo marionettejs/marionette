@@ -399,7 +399,7 @@ Behavior.extend({
 
 The View + Behavior initialize process is as follows:
 
-1. View is constructed
+1. View construction begins and the View's `preinitialize` runs
 2. Behavior is constructed
 3. Behavior is initialized with view property set
 4. Callable Behavior `events` and `triggers` are resolved and delegated
@@ -407,6 +407,7 @@ The View + Behavior initialize process is as follows:
 6. View triggers an `initialize` event on the behavior.
 
 This means that the behavior can access the view during its own `initialize` method.
+It can also access state established by the View's `preinitialize` method.
 Callable `events` and `triggers` may use state established by that method before
 the View initializes.
 The view `initialize` is called later with the information eventually injected by the behavior.

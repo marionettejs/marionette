@@ -1,6 +1,7 @@
 import Backbone from 'backbone';
 
 import Behavior from '../../modules/behavior';
+import CollectionView from '../../modules/collection-view';
 import Region from '../../modules/region';
 import View from '../../modules/view';
 
@@ -37,6 +38,41 @@ describe('Behavior lifecycle contract', function() {
     expect(behavior.el).to.equal(view.el);
 
     view.destroy();
+  });
+
+  describe.each([
+    ['View', View],
+    ['CollectionView', CollectionView],
+  ])('%s preinitialize order', function(name, HostView) {
+    it('runs host preinitialize before constructing Behaviors', function() {
+      const lifecycle = [];
+
+      const TestBehavior = Behavior.extend({
+        initialize(options, hostView) {
+          lifecycle.push(`behavior:initialize:${ hostView.preinitialized }`);
+        },
+      });
+      const TestView = HostView.extend({
+        behaviors: [TestBehavior],
+        preinitialize() {
+          this.preinitialized = true;
+          lifecycle.push('view:preinitialize');
+        },
+        initialize() {
+          lifecycle.push('view:initialize');
+        },
+      });
+
+      const view = new TestView();
+
+      expect(lifecycle).to.deep.equal([
+        'view:preinitialize',
+        'behavior:initialize:true',
+        'view:initialize',
+      ]);
+
+      view.destroy();
+    });
   });
 
   it('resolves callable events after Behavior initialize and before host initialize', function() {
