@@ -1,0 +1,68 @@
+dist/marionette.cjs
+  s_e1a183878c01ed::t_e10d544ec7c845 2366-2367,2373,2943-2944,2946
+  s_d6429951fb9231::t_0c1d8356a0d7a4 1187-1189,1521-1522,1527,1533-1535,1538,1694-1711
+  s_d6429951fb9231::t_48be0181ed7e31 2365,2942
+modules/view-region.js
+  s_d6429951fb9231::t_55f6e3e83ce128 824,826-827,836
+  s_d6429951fb9231::t_c15568b118a55f 825
+modules/collection-view.js
+  s_d6429951fb9231::t_55f6e3e83ce128 345-348,352
+test/unit/view-dom-delegation.spec.js
+  s_d6429951fb9231::t_942fe28c73bfd3 27
+  s_d6429951fb9231::t_81c2b0e1364511 6-26,28-64
+  s_d6429951fb9231::t_faf97542f5b97d 1-5,65-162
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_cf9fa7cb735e80 1
+mixins/view-events.js
+  s_d6429951fb9231::t_5fbd7af1a57014 59-60,64,71-73,75
+mixins/behaviors.js
+  s_d6429951fb9231::t_5fbd7af1a57014 101-104
+dist/marionette.min.js
+  s_d6429951fb9231::t_877c5b214963d5 1
+dist/marionette.js
+  s_d6429951fb9231::t_cac331ca814e8b 2361-2363,2369,2938
+  s_d6429951fb9231::t_15fe4c8107550b 1183-1185,1517-1518,1523,1529-1531,1534,1690-1707,2939
+  s_d6429951fb9231::t_3b87ed4ce72586 2940,2942
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_f920525a2ab322 75
+  s_d6429951fb9231::t_9d22dd18a91943 76-77
+test/unit/mixins/view-events.spec.js
+  s_d6429951fb9231::t_faf97542f5b97d 14-27
+test/unit/mixins/view-composition.spec.js
+  s_d6429951fb9231::t_5d04d87aee370f 38-39
+dist/marionette.umd.js
+  s_d6429951fb9231::t_e86341ac26d224 2372-2374,2380,2949
+  s_d6429951fb9231::t_27e33603e4c6c9 1194-1196,1528-1529,1534,1540-1542,1545,1701-1718,2950
+  s_d6429951fb9231::t_f5bff6663b7042 2951,2953
+docs/dom.interactions.md
+  s_d6429951fb9231::t_9d22dd18a91943 119-125,129
+  s_d6429951fb9231::t_f920525a2ab322 126-128
+mixins/view.js
+  s_d6429951fb9231::t_5fbd7af1a57014 102-121
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_3fd3f01496719b 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "e9b3137c8068be6a64f04cb070346bcecf803f00",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    },
+    "s_e1a183878c01ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e4b3d-de5d-70e3-ba78-14db78af3877",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
