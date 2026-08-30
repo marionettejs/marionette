@@ -554,7 +554,7 @@ A destroyed Region should not be reused. Calling `show()` on it throws `MN0028`
 before resolving the Region element or rendering, attaching, or owning the supplied View.
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   regions: {

@@ -101,6 +101,7 @@ assignOwn(Region.prototype, CommonMixin, {
         code: 'MN0028',
         name: classErrorName,
         message: 'A destroyed Region cannot show a View.',
+        url: 'errors/MN0028/',
       });
     }
 

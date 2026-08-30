@@ -269,10 +269,18 @@ describe('Region lifecycle contract', function() {
 
     expect(region.destroy()).to.equal(region);
 
-    expect(() => region.show(view)).to.throw(MarionetteError).and.include({
+    let error;
+    try {
+      region.show(view);
+    } catch (caughtError) {
+      error = caughtError;
+    }
+
+    expect(error).to.be.instanceOf(MarionetteError).and.include({
       code: 'MN0028',
       name: 'RegionError',
     });
+    expect(error.url).to.match(/\/errors\/MN0028\/$/);
     expect(() => region.show(view)).to.throw(MarionetteError).and.include({
       code: 'MN0028',
       name: 'RegionError',
