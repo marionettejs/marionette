@@ -1,19 +1,11 @@
 import { isEnabled } from '../config/features.js';
 import EventDelegator from '../config/event-delegator.js';
 import { resolveMethod } from '../modules/common/normalize-methods.js';
+import eachOwn from '../utils/each-own.js';
 import getValue from '../utils/get-value.js';
 import isString from '../utils/is-string.js';
 
 const delegateEventSplitter = /^(\S+)\s*(.*)$/;
-
-function eachOwn(object, iteratee) {
-  if (object == null) { return; }
-
-  const keys = Object.keys(object);
-  for (const key of keys) {
-    iteratee(object[key], key);
-  }
-}
 
 // Internal method to create an event handler for a given `triggerDef` like
 // 'click:foo'

@@ -161,6 +161,16 @@ ui: {
 }
 ```
 
+When Marionette iterates a UI definition for binding, or a map passed to a UI
+normalization helper, it uses own enumerable string keys in standard JavaScript
+own-key order. Inherited, symbol, and non-enumerable properties are ignored by
+those iterations, and a numeric `length` is an ordinary key rather than an
+array-like signal. Arrays, sparse arrays, and other array-like values are not
+supported as UI maps. A literal own `__proto__` key remains an own entry in
+normalized and bound UI maps without changing either map's prototype. Direct
+`@ui.<name>` lookup follows the own-declaration contract described below and
+does not require the declared selector property to be enumerable.
+
 When the View renders, Marionette queries each selector within `view.el` and
 replaces the configured string with the resulting collection. With the default
 DOM API, `view.getUI('save')` and `view.ui.save` are native `NodeList`

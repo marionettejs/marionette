@@ -1,15 +1,19 @@
-import { each, reduce, isString, result } from 'underscore';
 import MarionetteError from '../utils/error.js';
+import { setProperty } from '../utils/assign-in.js';
+import eachOwn from '../utils/each-own.js';
+import getValue from '../utils/get-value.js';
+import isString from '../utils/is-string.js';
 // allows for the use of the @ui. syntax within
 // a given key for triggers and events
 // swaps the @ui with the associated selector.
 // Returns a new, non-mutated, parsed events hash.
 const normalizeUIKeys = function(hash, ui) {
-  return reduce(hash, (memo, val, key) => {
+  const normalizedHash = {};
+  eachOwn(hash, (val, key) => {
     const normalizedKey = normalizeUIString(key, ui);
-    memo[normalizedKey] = val;
-    return memo;
-  }, {});
+    setProperty(normalizedHash, normalizedKey, val);
+  });
+  return normalizedHash;
 };
 
 const uiRegEx = /@ui\.[a-zA-Z-_$0-9]*/g;
@@ -53,7 +57,7 @@ const normalizeUIString = function(uiString, ui) {
 // a given value for regions
 // swaps the @ui with the associated selector
 const normalizeUIValues = function(hash, ui, property) {
-  each(hash, (val, key) => {
+  eachOwn(hash, (val, key) => {
     if (isString(val)) {
       hash[key] = normalizeUIString(val, ui);
     } else if (val) {
@@ -87,8 +91,8 @@ export default {
   },
 
   _getUIBindings() {
-    const uiBindings = result(this, '_uiBindings');
-    return uiBindings || result(this, 'ui');
+    const uiBindings = getValue(this, '_uiBindings');
+    return uiBindings || getValue(this, 'ui');
   },
 
   // This method binds the elements specified in the "ui" hash inside the view's code with
@@ -103,14 +107,14 @@ export default {
     }
 
     // get the bindings result, as a function or otherwise
-    const bindings = result(this, '_uiBindings');
+    const bindings = getValue(this, '_uiBindings');
 
     // empty the ui so we don't have anything to start with
     this._ui = {};
 
     // bind each of the selectors
-    each(bindings, (selector, key) => {
-      this._ui[key] = this.$(selector);
+    eachOwn(bindings, (selector, key) => {
+      setProperty(this._ui, key, this.$(selector));
     });
 
     this.ui = this._ui;
@@ -120,7 +124,7 @@ export default {
     if (!this.ui || !this._uiBindings) { return; }
 
     // delete all of the existing ui bindings
-    each(this.ui, ($el, name) => {
+    eachOwn(this.ui, ($el, name) => {
       delete this.ui[name];
     });
 
