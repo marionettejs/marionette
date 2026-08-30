@@ -1,0 +1,38 @@
+test/unit/radio-composition.spec.js
+  s_d6429951fb9231::t_fe1e6d38840135 227,238-239
+  s_d6429951fb9231::t_8892c7d2fab9a8 90,103,106-113,119-126,131
+  s_d6429951fb9231::t_799a8f5d60591c 1-89,91-102,104-105,114-118,127-130,132-138,141,143-178,193-226,228-237,240-281
+  s_d6429951fb9231::t_7be269853dfbd9 139-140,142
+  s_d6429951fb9231::t_2266dfca310f69 179-192
+modules/radio.js
+  s_d6429951fb9231::t_c92985af94d758 5,9,20,83,105-107,110-112,117-119
+  s_d6429951fb9231::t_10f9eab186bc96 102-104,116
+dist/marionette.cjs
+  s_d6429951fb9231::t_172abcdacbc334 761,764,918,924,958,966-971,974-976,979-982
+dist/marionette.js
+  s_d6429951fb9231::t_e0d4d37d7984df 1,757,760,914,920,954,962-967,970-972,975-978
+dist/marionette.min.js
+  s_d6429951fb9231::t_e407f72fdc677b 1
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_6455aa6321a980 1
+dist/marionette.umd.js
+  s_d6429951fb9231::t_bc97293862f7ca 766,769,923,929,963,971-976,979-981,984-987
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_949b470d7d1ae9 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "9fce05638d546a71dd50cfe887e04f0ccf92b2a7",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
