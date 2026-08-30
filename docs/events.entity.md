@@ -1,132 +1,160 @@
 # Entity events
 
-The [`View`, `CollectionView` and `Behavior`](./classes.md) can bind to events that occur on attached models and
-collections - this includes both [standard backbone-events](http://backbonejs.org/#Events-catalog) and custom events.
+[`View`, `CollectionView`, and `Behavior`](./classes.md) can declaratively
+listen to events from an attached `model` or `collection`. Marionette only
+requires the entity to satisfy its [event-emitter protocol](./optional-backbone.md#listener-side-vs-emitter-side);
+Backbone is optional.
 
-Event handlers are called with the same arguments as if listening to the entity directly
-and called with the context of the view instance.
+## Handler ownership and arguments
 
-Entity-event maps cannot contain an own enumerable `__proto__` event name. Marionette
-throws `MarionetteError` code `MN0026` before binding or selectively unbinding such a
-map because third-party entity event implementations may not safely store that name.
-Marionette does not reject other names inherited from `Object.prototype`, such as
-`constructor` and `toString`. Marionette's Events API supports those names and
-continues to support `__proto__`, but third-party emitters such as Backbone may not
-safely support every prototype-collision name.
+`modelEvents` and `collectionEvents` map entity event names to method names or
+function callbacks. Entity arguments pass through unchanged.
 
-### Model Events
+- A View or CollectionView handler runs with that View or CollectionView as
+  `this`.
+- A Behavior listens to its owning View's `model` and `collection`, but its
+  handler runs with the Behavior as `this`. Use `this.view` to reach the owner.
 
-For example, to listen to a model's events:
-
+<!-- executable-example: entity-events-ownership -->
 ```javascript
-import { View } from 'marionette';
+import { Behavior, Events, View } from 'marionette';
 
-const MyView = View.extend({
-  modelEvents: {
-    'change:attribute': 'onChangeAttribute'
+class Model {}
+Object.assign(Model.prototype, Events);
+
+const StatusBehavior = Behavior.extend({
+  modelEvents() {
+    this.modelEventsResolutionCount = (this.modelEventsResolutionCount || 0) + 1;
+    return {
+      'change:status': 'onStatus'
+    };
   },
 
-  onChangeAttribute(model, value) {
-    console.log('New value: ' + value);
+  onStatus(model, status) {
+    this.view.behaviorCall = {
+      arguments: [model, status],
+      owner: this
+    };
   }
 });
+
+const StatusView = View.extend({
+  behaviors: [StatusBehavior],
+
+  modelEvents() {
+    this.modelEventsResolutionCount = (this.modelEventsResolutionCount || 0) + 1;
+    return {
+      'change:status': 'onStatus'
+    };
+  },
+
+  onStatus(model, status) {
+    this.viewCall = {
+      arguments: [model, status],
+      owner: this
+    };
+  }
+});
+
+const model = new Model();
+const view = new StatusView({ model });
+
+model.trigger('change:status', model, 'ready');
+
+export { Model, model, view };
 ```
 
-[Live example](https://jsfiddle.net/marionettejs/auvk4hps/)
-
-The `modelEvents` attribute passes through all the arguments that are passed
-to `model.trigger('event', arguments)`.
-
-The `modelEvents` attribute can also take a
-[function returning an object](basics.md#functions-returning-values).
-
-#### Function Callback
-
-You can also bind a function callback directly in the `modelEvents` attribute:
+Function callbacks are also supported directly:
 
 ```javascript
 import { View } from 'marionette';
 
 const MyView = View.extend({
-  modelEvents: {
-    'change:attribute'() {
-      console.log('attribute was changed');
+  collectionEvents: {
+    update(collection, options) {
+      console.log('Added models:', options.changes.added);
     }
   }
 });
 ```
 
-[Live example](https://jsfiddle.net/marionettejs/zaxLe6au/)
-
-### Collection Events
-
-Collection events work exactly the same way as [`modelEvents`](#model-events)
-with their own `collectionEvents` key:
+If a View has both entities, Marionette delegates both maps:
 
 ```javascript
 import { View } from 'marionette';
 
 const MyView = View.extend({
-  collectionEvents: {
-    sync: 'onSync'
-  },
-
-  onSync(collection) {
-    console.log('Collection was synchronised with the server');
-  }
-});
-```
-
-[Live example](https://jsfiddle.net/marionettejs/7qyfeh9r/)
-
-The `collectionEvents` attribute can also take a
-[function returning an object](basics.md#functions-returning-values).
-
-Just as in `modelEvents`, you can bind function callbacks directly inside the
-`collectionEvents` object:
-
-```javascript
-import { View } from 'marionette';
-
-const MyView = View.extend({
-  collectionEvents: {
-    'update'() {
-      console.log('the collection was updated');
-    }
-  }
-});
-```
-
-[Live example](https://jsfiddle.net/marionettejs/ze8po0x5/)
-
-### Listening to Both
-
-If your view has a `model` and `collection` attached, it will listen for events
-on both:
-
-```javascript
-import { View } from 'marionette';
-
-const MyView = View.extend({
-
   modelEvents: {
-    'change:someattribute': 'onChangeSomeattribute'
+    'change:status': 'render'
   },
 
   collectionEvents: {
-    'update': 'onCollectionUpdate'
-  },
-
-  onChangeSomeattribute() {
-    console.log('someattribute was changed');
-  },
-
-  onCollectionUpdate() {
-    console.log('models were added or removed in the collection');
+    update: 'render'
   }
 });
 ```
 
-[Live example](https://jsfiddle.net/marionettejs/h9ub5hp3/)
+## Resolver and delegation lifecycle
 
-In this case, Marionette will bind event handlers to both.
+Each map may be a function returning an object. Marionette calls the resolver
+with its owner as `this` and no arguments whenever `delegateEntityEvents()`
+performs a delegation. The resolved map is cached for the matching
+`undelegateEntityEvents()` call.
+
+Initial entity-event delegation happens after the View or CollectionView's
+`initialize` method returns. Assigning a different `model` or `collection`
+later does not automatically move existing subscriptions. Undelegate while the
+old entity is still assigned, replace it, and then delegate the new entity:
+
+```javascript
+view.undelegateEntityEvents();
+view.model = replacementModel;
+view.delegateEntityEvents();
+```
+
+Do not use repeated `delegateEntityEvents()` calls as an idempotent refresh;
+delegate only after the matching undelegation.
+
+After a View or CollectionView's destruction completes successfully, its tracked
+entity subscriptions have been removed. Once destruction starts, its base
+`delegateEntityEvents()` returns the same instance without resolving its maps or
+delegating the attached Behaviors' maps. A direct
+`Behavior#delegateEntityEvents()` call also returns the Behavior without
+resolving maps or binding once its owning View's destruction starts. These
+guards derive from the host lifecycle only; reusing a Behavior after calling
+`Behavior#destroy()` while its host remains live is outside this contract. A
+custom override owns its behavior unless it delegates to the guarded base
+method. `undelegateEntityEvents()` remains available during teardown so cleanup
+can complete.
+
+## Event-map names
+
+Entity-event maps cannot contain an own enumerable `__proto__` event name.
+Marionette throws `MarionetteError` code `MN0026` before binding or selectively
+unbinding such a map because third-party entity event implementations may not
+safely store that name.
+
+Marionette does not reject other names inherited from `Object.prototype`, such
+as `constructor` and `toString`. Marionette's Events API supports those names
+and continues to support `__proto__`, but third-party emitters may not safely
+support every prototype-collision name.
+
+## Backbone entities
+
+A plain `Backbone.Model` or `Backbone.Collection` satisfies the emitter protocol
+for View and Behavior entity events; the shim is not required solely to use
+`modelEvents` or `collectionEvents`. When an application needs unified Marionette
+event bookkeeping across Backbone listeners too, import the optional shim before
+constructing entities or registering subscriptions:
+
+```javascript
+import 'marionette/backbone';
+import Backbone from 'backbone';
+import { View } from 'marionette';
+
+const model = new Backbone.Model();
+const view = new View({ model });
+```
+
+See [Optional Backbone](./optional-backbone.md#using-the-bundled-backbone-shim)
+for the shim's exact boundary.
