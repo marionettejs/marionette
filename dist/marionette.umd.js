@@ -2409,6 +2409,9 @@
   });
 
   const classErrorName$1 = 'CollectionViewError';
+  function createIndex() {
+    return Object.create(null);
+  }
   const Container = function () {
     this._init();
   };
@@ -2636,8 +2639,8 @@
     },
     _init() {
       this._views = [];
-      this._viewsByCid = {};
-      this._indexByModel = {};
+      this._viewsByCid = createIndex();
+      this._indexByModel = createIndex();
       this._updateLength();
     },
     _add(view, index = this._views.length) {
@@ -2669,8 +2672,8 @@
       this._views.length = 0;
       this._views.push.apply(this._views, views.slice(0));
       if (shouldReset) {
-        this._viewsByCid = {};
-        this._indexByModel = {};
+        this._viewsByCid = createIndex();
+        this._indexByModel = createIndex();
         for (const view of views) {
           this._addViewIndexes(view);
         }
@@ -2703,13 +2706,13 @@
       return this._viewsByCid[cid];
     },
     hasView(view) {
-      return !!this.findByCid(view.cid);
+      return this.findByCid(view.cid) === view;
     },
     _remove(view) {
-      if (!this._viewsByCid[view.cid]) {
+      if (!this.hasView(view)) {
         return;
       }
-      if (view.model) {
+      if (view.model && this._indexByModel[view.model.cid] === view) {
         delete this._indexByModel[view.model.cid];
       }
       delete this._viewsByCid[view.cid];
@@ -3305,7 +3308,7 @@
       return view;
     },
     removeChildView(view, options) {
-      if (!view) {
+      if (!view || !this._children.hasView(view)) {
         return view;
       }
       this._removeChildView(view, options);

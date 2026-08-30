@@ -828,7 +828,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   // childView from `addChildView`
   // The options argument is for internal use only
   removeChildView(view, options) {
-    if (!view) {
+    if (!view || !this._children.hasView(view)) {
       return view;
     }
 

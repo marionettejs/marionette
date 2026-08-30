@@ -6,6 +6,8 @@
   same `MN0001` migration diagnostic as selector strings
 * Removed the undocumented alpha-only `Behavior#setElement`; retarget
   Behaviors through their owning View's `setElement` method
+* Fixed CollectionView child identity indexes so prototype-collision cids and
+  same-cid impostors cannot corrupt ownership or mutate unowned Views
 * Fixed Radio circular dependency with log and debug
 * Fixed event interop with Backbone
 * Fixed delegated event matching so nested matching ancestors fire once per event

@@ -172,6 +172,15 @@ describe('CollectionView Children', function() {
           collectionView.swapChildViews(view1, view2);
         }).to.throw().with.property('code', 'MN0015');
       });
+
+      it('rejects an impostor with the same cid as an owned child', function() {
+        const ownedView = collectionView.children.first();
+        const impostor = new View();
+        impostor.cid = ownedView.cid;
+
+        expect(() => collectionView.swapChildViews(impostor, ownedView))
+          .to.throw().with.property('code', 'MN0015');
+      });
     });
 
     describe('when the second child is not in the collectionview', function() {
@@ -541,6 +550,29 @@ describe('CollectionView Children', function() {
       it('should not trigger "remove:child"', function() {
         expect(myCollectionView.onRemoveChild).to.not.be.called;
       });
+    });
+
+    it('does not mutate an unowned view with an owned or inherited cid', function() {
+      const ownedView = myCollectionView.children.first();
+      const childCount = myCollectionView.children.length;
+      const sameCidImpostor = new View();
+      const inheritedCidImpostor = new View();
+      sameCidImpostor.cid = ownedView.cid;
+      inheritedCidImpostor.cid = 'toString';
+      myCollectionView.children._remove.resetHistory();
+      myCollectionView.onBeforeRemoveChild.resetHistory();
+      myCollectionView.onRemoveChild.resetHistory();
+
+      myCollectionView.removeChildView(sameCidImpostor);
+      myCollectionView.detachChildView(inheritedCidImpostor);
+
+      expect(sameCidImpostor.isDestroyed()).to.be.false;
+      expect(inheritedCidImpostor.isDestroyed()).to.be.false;
+      expect(ownedView.isDestroyed()).to.be.false;
+      expect(myCollectionView.children).to.have.lengthOf(childCount);
+      expect(myCollectionView.children._remove).to.not.have.been.called;
+      expect(myCollectionView.onBeforeRemoveChild).to.not.have.been.called;
+      expect(myCollectionView.onRemoveChild).to.not.have.been.called;
     });
 
     // Used only by #detachChildView
