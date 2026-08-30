@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, test } from 'node:test';
 import {
   AgentBenchmarkTaskContractError,
   validateTaskContracts,
-} from '../../config/agent-benchmark/task-contract.mjs';
+} from '../../scripts/agent-benchmark/task-contract.mjs';
 
 const capabilities = {
   schemaVersion: 1,

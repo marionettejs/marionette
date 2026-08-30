@@ -11,7 +11,7 @@ import {
   measure,
   percentile,
   summarize,
-} from '../../benchmarks/performance.mjs';
+} from '../../scripts/performance/timing.mjs';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 
@@ -44,7 +44,7 @@ describe('hosted timing report math', () => {
 
   test('matches the committed harness revision', async() => {
     const [source, contract] = await Promise.all([
-      readFile(new URL('../../benchmarks/performance.mjs', import.meta.url)),
+      readFile(new URL('../../scripts/performance/timing.mjs', import.meta.url)),
       readFile(new URL('../../config/performance.json', import.meta.url), 'utf8')
         .then(JSON.parse),
     ]);

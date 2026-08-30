@@ -13,7 +13,7 @@ import {
   validateCandidateGrowthContract,
   validateGrowthApproval,
   validateGrowthApprovalPolicy,
-} from '../../config/performance-growth-approval.mjs';
+} from '../../scripts/performance/growth-approval.mjs';
 
 const headSha = '1234567890abcdef1234567890abcdef12345678';
 const pullRequestNumber = 1;
@@ -116,6 +116,26 @@ function candidateGrowthContract() {
     baselineModules: [],
     baselineExternalImports: [],
   });
+  return contract;
+}
+
+function toolingRelocationContract() {
+  const contract = growthContract();
+  contract.forbiddenProductionModulePrefixes = [
+    'scripts/',
+    'test/',
+    'config/diagnostics/',
+    'config/docs/',
+    'config/release/',
+  ];
+  contract.forbiddenProductionModules = [
+    'config/bundle-size.mjs',
+    'config/performance-growth-approval.mjs',
+    'config/performance-resources.mjs',
+    'config/performance.json',
+    'config/release-profile.json',
+    'config/release-promotion.json',
+  ];
   return contract;
 }
 
@@ -532,6 +552,117 @@ describe('exact-head performance growth approval contract', () => {
     assert.match(
       validateCandidateGrowthContract(growthContract(), unrelated).join('\n'),
       /top-level fields differ/
+    );
+  });
+
+  test('permits only the staged issue 237 stale tooling-path cleanup', () => {
+    const authority = toolingRelocationContract();
+    const cleanup = structuredClone(authority);
+    cleanup.forbiddenProductionModules = [
+      'config/performance.json',
+      'config/release-profile.json',
+      'config/release-promotion.json',
+    ];
+    cleanup.forbiddenProductionModulePrefixes = [
+      'scripts/',
+      'test/',
+      'config/diagnostics/',
+      'config/release/',
+    ];
+
+    assert.deepEqual(validateCandidateGrowthContract(authority, cleanup), []);
+    assert.deepEqual(
+      validateCandidateGrowthContract(authority, structuredClone(authority)),
+      []
+    );
+
+    const moduleOnly = structuredClone(authority);
+    moduleOnly.forbiddenProductionModules = cleanup.forbiddenProductionModules;
+    const prefixOnly = structuredClone(authority);
+    prefixOnly.forbiddenProductionModulePrefixes = cleanup.forbiddenProductionModulePrefixes;
+    const partialModules = structuredClone(cleanup);
+    partialModules.forbiddenProductionModules = [
+      'config/performance-resources.mjs',
+      'config/performance.json',
+      'config/release-profile.json',
+      'config/release-promotion.json',
+    ];
+    const unrelatedRemoval = structuredClone(authority);
+    unrelatedRemoval.forbiddenProductionModules = [
+      'config/bundle-size.mjs',
+      'config/performance-growth-approval.mjs',
+      'config/performance-resources.mjs',
+      'config/release-profile.json',
+      'config/release-promotion.json',
+    ];
+    const replacement = structuredClone(authority);
+    replacement.forbiddenProductionModules = [
+      'config/performance.json',
+      'config/release-profile.json',
+      'config/release-promotion.json',
+      'scripts/performance/bundle-size.mjs',
+    ];
+    const addition = structuredClone(authority);
+    addition.forbiddenProductionModules.push('scripts/unrelated.mjs');
+    const prefixAddition = structuredClone(cleanup);
+    prefixAddition.forbiddenProductionModulePrefixes.push('tools/');
+    const prefixReordering = structuredClone(cleanup);
+    prefixReordering.forbiddenProductionModulePrefixes.reverse();
+    const moduleReordering = structuredClone(cleanup);
+    moduleReordering.forbiddenProductionModules.reverse();
+    const weakenedPrefix = structuredClone(cleanup);
+    weakenedPrefix.forbiddenProductionModulePrefixes = ['scripts/', 'test/'];
+
+    for (const candidate of [
+      moduleOnly,
+      prefixOnly,
+      partialModules,
+      unrelatedRemoval,
+      replacement,
+      addition,
+      prefixAddition,
+      prefixReordering,
+      moduleReordering,
+      weakenedPrefix,
+    ]) {
+      assert.match(
+        validateCandidateGrowthContract(authority, candidate).join('\n'),
+        /may only atomically remove the three stale issue #237 config tool modules/
+      );
+    }
+
+    for (const forbiddenProductionModules of [
+      [],
+      ['config/performance.json', 'config/performance.json'],
+      ['config/performance.json', 1],
+    ]) {
+      const malformed = structuredClone(authority);
+      malformed.forbiddenProductionModules = forbiddenProductionModules;
+      assert.match(
+        validateCandidateGrowthContract(authority, malformed).join('\n'),
+        /may only atomically remove the three stale issue #237 config tool modules/
+      );
+    }
+
+    for (const forbiddenProductionModulePrefixes of [
+      [],
+      ['scripts/', 'scripts/'],
+      ['scripts/', 1],
+    ]) {
+      const malformed = structuredClone(authority);
+      malformed.forbiddenProductionModulePrefixes = forbiddenProductionModulePrefixes;
+      assert.match(
+        validateCandidateGrowthContract(authority, malformed).join('\n'),
+        /may only atomically remove the three stale issue #237 config tool modules/
+      );
+    }
+
+    assert.deepEqual(validateCandidateGrowthContract(cleanup, structuredClone(cleanup)), []);
+    const afterCleanupChange = structuredClone(cleanup);
+    afterCleanupChange.forbiddenProductionModules = [];
+    assert.match(
+      validateCandidateGrowthContract(cleanup, afterCleanupChange).join('\n'),
+      /may only atomically remove the three stale issue #237 config tool modules/
     );
   });
 
@@ -1260,7 +1391,7 @@ describe('exact-head performance growth approval contract', () => {
       current: join(fixtureRoot, 'current.json'),
       evidence: join(fixtureRoot, 'evidence.json'),
     };
-    const cli = join(root, 'config/performance-growth-approval.mjs');
+    const cli = join(root, 'scripts/performance/growth-approval.mjs');
     const offlineEnv = { ...process.env };
     delete offlineEnv.GITHUB_ACTIONS;
     delete offlineEnv.GITHUB_EVENT_PATH;

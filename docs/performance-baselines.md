@@ -337,6 +337,19 @@ fails every measured production graph that statically or dynamically imports a
 listed package or any rooted subpath of it. Similarly prefixed packages are not
 matched.
 
+Repository-only performance executables live under `scripts/performance/`; `config/`
+contains declarative contracts and schemas. During the issue #237 rollout, CI resolves
+the exact-base authority only when it finds exactly one complete known layout: the old
+`config/` pair or the new `scripts/performance/` pair. Mixed, partial, duplicate, and
+unknown layouts fail closed. The layout commit temporarily retains the three stale
+`config/` tool entries in `forbiddenProductionModules` so its exact-base contract stays
+immutable; the existing `scripts/` prefix blocks every moved executable. The immediate
+cleanup PR may atomically remove exactly those three entries and the stale
+`config/docs/` prefix while preserving every other module and prefix, including
+`scripts/`, `config/diagnostics/`, and `config/release/`. Neither half is valid alone,
+and after cleanup only equality is accepted. Remove both rollout transitions in that
+cleanup PR after every supported exact base uses `scripts/performance/`.
+
 ## Hosted timing
 
 Run the reporting harness with:

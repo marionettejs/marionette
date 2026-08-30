@@ -147,7 +147,7 @@ jobs:
         continue-on-error: true
         env:
           PERFORMANCE_DIR: ${{ steps.performance_workspace.outputs.directory }}
-        run: node config/bundle-size.mjs --json > "${PERFORMANCE_DIR}/bundle-size-current.json"
+        run: node scripts/performance/bundle-size.mjs --json > "${PERFORMANCE_DIR}/bundle-size-current.json"
 
       - name: Collect performance growth approval records
         env:
@@ -225,11 +225,10 @@ jobs:
         run: |
           set -euo pipefail
           base_contract='bundle-size-base/config/performance.json'
-          authority_script='bundle-size-base/config/bundle-size.mjs'
-          approval_script='bundle-size-base/config/performance-growth-approval.mjs'
+          IFS=$'\t' read -r authority_script approval_script < <(
+            node scripts/performance/resolve-base-tools.mjs --root bundle-size-base
+          )
           test -f "${base_contract}"
-          test -f "${authority_script}"
-          test -f "${approval_script}"
 
           node "${authority_script}" --root bundle-size-base --config "${base_contract}" --json --no-enforce > "${PERFORMANCE_DIR}/bundle-size-base.json"
           authority_status=0
@@ -311,9 +310,9 @@ jobs:
 
       - name: Measure hosted timing
         run: |
-          node benchmarks/performance.mjs --root performance-base --config config/performance.json --json > performance-timing-base.json
-          node benchmarks/performance.mjs --config config/performance.json --json > performance-timing-current.json
-          node benchmarks/performance.mjs --report performance-timing-base.json performance-timing-current.json > performance-timing-report.md
+          node scripts/performance/timing.mjs --root performance-base --config config/performance.json --json > performance-timing-base.json
+          node scripts/performance/timing.mjs --config config/performance.json --json > performance-timing-current.json
+          node scripts/performance/timing.mjs --report performance-timing-base.json performance-timing-current.json > performance-timing-report.md
           cat performance-timing-report.md >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Upload hosted timing report

@@ -11,13 +11,15 @@ import {
   createReport,
   findForbiddenExternalImports,
   findForbiddenModules,
+  listRuntimeFiles,
   measure,
   resolveRollupInput,
   runtimePath,
   validateContract,
   validateCumulativeSize,
   validateToolchain,
-} from '../../config/bundle-size.mjs';
+} from '../../scripts/performance/bundle-size.mjs';
+import { resolveBasePerformanceTools } from '../../scripts/performance/resolve-base-tools.mjs';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 
@@ -589,7 +591,7 @@ describe('performance contract validation', () => {
     const currentReport = join(fixtureRoot, 'current.json');
     const approvedReport = join(fixtureRoot, 'approved.json');
     const requiredReport = join(fixtureRoot, 'required.json');
-    const cli = join(root, 'config/bundle-size.mjs');
+    const cli = join(root, 'scripts/performance/bundle-size.mjs');
 
     try {
       await Promise.all([
@@ -633,6 +635,60 @@ describe('performance contract validation', () => {
     }
   });
 
+  test('resolves exactly one known exact-base performance-tool layout', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-base-tools-'));
+    const oldAuthority = join(fixtureRoot, 'config/bundle-size.mjs');
+    const oldApproval = join(fixtureRoot, 'config/performance-growth-approval.mjs');
+    const newAuthority = join(fixtureRoot, 'scripts/performance/bundle-size.mjs');
+    const newApproval = join(fixtureRoot, 'scripts/performance/growth-approval.mjs');
+
+    try {
+      await assert.rejects(
+        resolveBasePerformanceTools(fixtureRoot),
+        /Expected exactly one complete exact-base performance-tool layout/
+      );
+
+      await mkdir(join(fixtureRoot, 'tools/performance'), { recursive: true });
+      await writeFile(join(fixtureRoot, 'tools/performance/bundle-size.mjs'), '');
+      await writeFile(join(fixtureRoot, 'tools/performance/growth-approval.mjs'), '');
+      await assert.rejects(
+        resolveBasePerformanceTools(fixtureRoot),
+        /config 0\/2; scripts 0\/2/
+      );
+
+      await mkdir(join(fixtureRoot, 'config'), { recursive: true });
+      await writeFile(oldAuthority, '');
+      await writeFile(oldApproval, '');
+      assert.deepEqual(await resolveBasePerformanceTools(fixtureRoot), {
+        authorityScript: oldAuthority,
+        approvalScript: oldApproval,
+      });
+
+      await rm(join(fixtureRoot, 'config'), { recursive: true });
+      await mkdir(join(fixtureRoot, 'scripts/performance'), { recursive: true });
+      await writeFile(newAuthority, '');
+      await writeFile(newApproval, '');
+      assert.deepEqual(await resolveBasePerformanceTools(fixtureRoot), {
+        authorityScript: newAuthority,
+        approvalScript: newApproval,
+      });
+
+      await mkdir(join(fixtureRoot, 'config'), { recursive: true });
+      await writeFile(oldAuthority, '');
+      await assert.rejects(
+        resolveBasePerformanceTools(fixtureRoot),
+        /config 1\/2; scripts 2\/2/
+      );
+      await writeFile(oldApproval, '');
+      await assert.rejects(
+        resolveBasePerformanceTools(fixtureRoot),
+        /config 2\/2; scripts 2\/2/
+      );
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
   test('wires candidate measurement and validation through exact-base CI code', async() => {
     const workflow = await readFile(join(root, '.github/workflows/ci.yml'), 'utf8');
     const authorityStep = workflow.match(
@@ -656,10 +712,13 @@ describe('performance contract validation', () => {
       command.startsWith('node "${approval_script}"')
     );
 
-    assert.ok(commands.includes('authority_script=\'bundle-size-base/config/bundle-size.mjs\''));
     assert.ok(commands.includes(
-      'approval_script=\'bundle-size-base/config/performance-growth-approval.mjs\''
+      'node scripts/performance/resolve-base-tools.mjs --root bundle-size-base'
     ));
+    assert.match(
+      workflow,
+      /node scripts\/performance\/bundle-size\.mjs --json > "\$\{PERFORMANCE_DIR\}\/bundle-size-current\.json"/
+    );
     assert.notEqual(measurementIndex, -1);
     assert.notEqual(resourceValidationIndex, -1);
     assert.notEqual(approvalIndex, -1);
@@ -736,7 +795,7 @@ describe('performance contract validation', () => {
       const enforced = spawnSync(
         process.execPath,
         [
-          join(root, 'config/bundle-size.mjs'),
+          join(root, 'scripts/performance/bundle-size.mjs'),
           '--root', fixtureRoot,
           '--config', join(fixtureRoot, 'performance.json'),
           '--artifact-graph-only',
@@ -798,7 +857,7 @@ describe('performance contract validation', () => {
       const enforced = spawnSync(
         process.execPath,
         [
-          join(root, 'config/bundle-size.mjs'),
+          join(root, 'scripts/performance/bundle-size.mjs'),
           '--root', fixtureRoot,
           '--config', join(fixtureRoot, 'performance.json'),
           '--artifact-graph-only',
@@ -1067,12 +1126,9 @@ describe('performance contract validation', () => {
       /Release profile SHA-256 [a-f\d]{64} does not match 0{64}/
     );
 
-    assert.ok(
-      contract.forbiddenProductionModules.includes('config/performance-resources.mjs')
-    );
-    assert.deepEqual(
-      findForbiddenModules(['index.js', 'config/performance-resources.mjs'], contract),
-      ['config/performance-resources.mjs']
-    );
+    assert.ok(contract.forbiddenProductionModulePrefixes.includes('scripts/'));
+    const scriptModules = await listRuntimeFiles(join(root, 'scripts'), root);
+    assert.ok(scriptModules.length > 0);
+    assert.deepEqual(findForbiddenModules(scriptModules, contract), scriptModules);
   });
 });

@@ -2,7 +2,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import process from 'node:process';
 
-const root = resolve(import.meta.dirname, '..');
+const root = resolve(import.meta.dirname, '../..');
 const profile = await readJson('config/release-profile.json');
 const packageJson = await readJson('package.json');
 const packageLock = await readJson('package-lock.json');

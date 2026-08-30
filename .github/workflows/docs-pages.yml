@@ -7,9 +7,9 @@ on:
     paths:
       - '.github/workflows/**'
       - '.nvmrc'
-      - 'config/check-release-profile.mjs'
+      - 'scripts/checks/release-profile.mjs'
       - 'config/diagnostics/**'
-      - 'config/docs/**'
+      - 'scripts/docs/**'
       - 'config/release-profile.json'
       - 'docs/**'
       - 'docs-site/**'

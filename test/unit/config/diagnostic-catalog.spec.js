@@ -6,7 +6,7 @@ import {
   discoverProductionSources,
   validateDiagnosticCatalog,
 } from '../../../scripts/diagnostics/catalog.mjs';
-import { diagnosticPage } from '../../../config/docs/build.mjs';
+import { diagnosticPage } from '../../../scripts/docs/build.mjs';
 
 describe('diagnostic catalog validation', function() {
   function createDiagnostic(overrides = {}) {

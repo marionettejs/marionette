@@ -5,7 +5,7 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { after, test } from 'node:test';
-import { publishDraftRelease } from '../../config/release/github-release.mjs';
+import { publishDraftRelease } from '../../scripts/release/github-release.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 const temporaryDirectories = [];
@@ -50,7 +50,7 @@ test('release artifact verification rejects Windows drive-relative names', async
     },
   }, true);
 
-  const result = runScript('config/release/verify-artifact.mjs', [
+  const result = runScript('scripts/release/verify-artifact.mjs', [
     '--artifact-dir',
     artifactDirectory,
   ]);
@@ -76,7 +76,7 @@ test('GitHub release planning rejects Windows drive-relative names', async funct
     },
   });
 
-  const result = runScript('config/release/publish-github.mjs', [
+  const result = runScript('scripts/release/publish-github.mjs', [
     '--mode',
     'dry-run',
     '--artifact-dir',
