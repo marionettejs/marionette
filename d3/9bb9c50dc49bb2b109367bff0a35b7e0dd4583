@@ -1,0 +1,21 @@
+test/fixtures/docs-entity-events/validate.mjs
+  s_d6429951fb9231::t_e8fddf0c667d9c 53-57,64-68,104,106,109-113,124-128
+docs/events.entity.md
+  s_d6429951fb9231::t_e8fddf0c667d9c 26-30,121-128
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "d39bb9c50dc49bb2b109367bff0a35b7e0dd4583",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
