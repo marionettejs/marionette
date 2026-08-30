@@ -314,6 +314,98 @@ describe('Region lifecycle contract', function() {
     expect(sentinel.textContent).to.equal('unmanaged');
   });
 
+  for (const operation of ['reset', 'empty']) {
+    const article = operation === 'empty' ? 'an' : 'a';
+    it(`clears teardown authorization when ${article} ${operation} override throws`, function() {
+      const error = new Error(`${operation} failed`);
+      let duringDestroy = false;
+      let overrideCalls = 0;
+      const CustomRegion = Region.extend({
+        [operation](options) {
+          if (!duringDestroy) {
+            return Region.prototype[operation].call(this, options);
+          }
+          overrideCalls += 1;
+          throw error;
+        },
+      });
+      const owner = new View({
+        regions: {
+          content: {
+            el: '.content',
+            regionClass: CustomRegion,
+          },
+        },
+        template() {
+          return '<div class="content"></div>';
+        },
+      });
+      const view = new TestView();
+      owner.render();
+      const ownedRegion = owner.getRegion('content');
+      ownedRegion.show(view);
+      const beforeEmpty = this.sinon.spy();
+      const empty = this.sinon.spy();
+      const destroy = this.sinon.spy();
+      ownedRegion.on('before:empty', beforeEmpty);
+      ownedRegion.on('empty', empty);
+      ownedRegion.on('destroy', destroy);
+
+      let thrownError;
+      try {
+        duringDestroy = true;
+        ownedRegion.destroy();
+      } catch (caughtError) {
+        thrownError = caughtError;
+      }
+
+      expect(thrownError).to.equal(error);
+      expect(overrideCalls).to.equal(1);
+      expect(ownedRegion.isDestroyed()).to.be.true;
+      expect(ownedRegion.currentView).to.equal(view);
+      expect(view.isDestroyed()).to.be.false;
+      expect(owner.getRegion('content')).to.equal(ownedRegion);
+      expect(owner.hasRegion('content')).to.be.true;
+      expect(beforeEmpty).to.not.have.been.called;
+      expect(empty).to.not.have.been.called;
+      expect(destroy).to.not.have.been.called;
+
+      const regionEl = owner.el.querySelector('.content');
+      const sentinel = document.createElement('span');
+      sentinel.textContent = 'unmanaged';
+      regionEl.appendChild(sentinel);
+      const contents = Array.from(regionEl.childNodes);
+      const cachedEl = ownedRegion.el;
+      const cached$El = { cached: true };
+      ownedRegion.$el = cached$El;
+
+      expect(() => Region.prototype.empty.call(ownedRegion))
+        .to.throw(MarionetteError).and.include({
+          code: 'MN0028',
+          name: 'RegionError',
+        });
+      expect(() => Region.prototype.reset.call(ownedRegion))
+        .to.throw(MarionetteError).and.include({
+          code: 'MN0028',
+          name: 'RegionError',
+        });
+      expect(ownedRegion.currentView).to.equal(view);
+      expect(view.isDestroyed()).to.be.false;
+      expect(owner.getRegion('content')).to.equal(ownedRegion);
+      expect(ownedRegion.el).to.equal(cachedEl);
+      expect(ownedRegion.$el).to.equal(cached$El);
+      expect(Array.from(regionEl.childNodes)).to.deep.equal(contents);
+      expect(regionEl.lastChild).to.equal(sentinel);
+      expect(sentinel.textContent).to.equal('unmanaged');
+      expect(beforeEmpty).to.not.have.been.called;
+      expect(empty).to.not.have.been.called;
+      expect(destroy).to.not.have.been.called;
+
+      view.destroy();
+      owner.destroy();
+    });
+  }
+
   it('retries destruction after before:destroy throws and cleans up ownership once', function() {
     const error = new Error('before:destroy failed');
     const firstOptions = { attempt: 1 };
