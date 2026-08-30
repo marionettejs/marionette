@@ -2,8 +2,20 @@ import { FEATURES, setEnabled, isEnabled } from '../../../runtime/features';
 import MarionetteError from '../../../utils/error';
 
 const invalidFeatureNames = ['', ' ', 'applicationOwned', 'constructor', 'toString', '__proto__', 'hasOwnProperty'];
+const initialFeatures = { ...FEATURES };
 
 describe('features', function() {
+  afterEach(function() {
+    for (const name of Object.keys(FEATURES)) {
+      if (!Object.hasOwn(initialFeatures, name)) {
+        delete FEATURES[name];
+        continue;
+      }
+
+      setEnabled(name, initialFeatures[name]);
+    }
+  });
+
   describe('#isEnabled', function() {
     it('returns the configured state of each Marionette feature', function() {
       for (const name of Object.keys(FEATURES)) {
@@ -11,8 +23,6 @@ describe('features', function() {
 
         setEnabled(name, !initialState);
         expect(isEnabled(name)).to.equal(!initialState);
-
-        setEnabled(name, initialState);
       }
     });
 
@@ -35,12 +45,10 @@ describe('features', function() {
 
       expect(setEnabled('childViewEventPrefix', state)).to.equal(state);
       expect(FEATURES.childViewEventPrefix).to.equal(state);
-
-      setEnabled('childViewEventPrefix', false);
     });
 
     it('rejects unknown feature names without mutation', function() {
-      const initialFeatures = { ...FEATURES };
+      const featureSnapshot = { ...FEATURES };
       const prototype = Object.getPrototypeOf(FEATURES);
 
       for (const name of invalidFeatureNames) {
@@ -50,7 +58,7 @@ describe('features', function() {
         expect(Object.hasOwn(FEATURES, name)).to.be.false;
       }
 
-      expect(FEATURES).to.deep.equal(initialFeatures);
+      expect(FEATURES).to.deep.equal(featureSnapshot);
       expect(Object.getPrototypeOf(FEATURES)).to.equal(prototype);
     });
 
@@ -69,7 +77,7 @@ describe('features', function() {
     });
 
     it('rejects non-string feature names with a stable code', function() {
-      const initialFeatures = { ...FEATURES };
+      const featureSnapshot = { ...FEATURES };
 
       for (const name of [undefined, null, 0, {}, Symbol('feature')]) {
         expect(() => setEnabled(name, true))
@@ -77,7 +85,7 @@ describe('features', function() {
           .with.property('code', 'MN0027');
       }
 
-      expect(FEATURES).to.deep.equal(initialFeatures);
+      expect(FEATURES).to.deep.equal(featureSnapshot);
     });
   });
 });
