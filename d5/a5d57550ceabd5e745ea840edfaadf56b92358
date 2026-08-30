@@ -1,0 +1,21 @@
+test/unit/view-has-region.spec.js
+  s_d6429951fb9231::t_0610167c09faa1 19-20,24-25
+docs/marionette.view.md
+  s_d6429951fb9231::t_0610167c09faa1 243
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "d5a5d57550ceabd5e745ea840edfaadf56b92358",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
