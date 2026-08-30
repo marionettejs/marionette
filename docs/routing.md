@@ -1,45 +1,42 @@
 # Routing in Marionette
 
-Users of versions of Marionette prior to v4 will notice that a router is no longer a [bundled class](./classes.md).
-The [Marionette.AppRouter](https://github.com/marionettejs/marionette.approuter) was extracted
-and the core library will no longer hold an opinion on routing.
+Marionette does not export a router, depend on a routing library, or require a
+routing integration protocol. Route handlers are ordinary application code and
+can coordinate Marionette objects without a Marionette-specific adapter.
 
-## Some Routing Solutions
+## Using `Backbone.Router`
 
-Besides the router [bundled with Backbone](http://backbonejs.org/#Router) there are many viable
-routing solutions available.  Some specifically designed for Backbone or Marionette and some
-that are generic solutions for any framework.  Here are a few of those options.
+Applications that choose Backbone can load the
+[bundled Backbone shim](./optional-backbone.md#using-the-bundled-backbone-shim)
+before constructing routers:
 
-## Marionette Community Routers
+```javascript
+import 'marionette/backbone';
+import Backbone from 'backbone';
 
-### [Marionette.AppRouter](https://github.com/marionettejs/marionette.approuter)
+const Router = Backbone.Router.extend({
+  routes: {
+    '': 'home'
+  },
 
-Previously bundled router. Extends [backbone.router](http://backbonejs.org/#Router) and is helpful
-for breaking a large amount of routes on a single backbone.router instance into smaller more managable
-approuters.
+  home() {
+    // Navigate the application with its normal Marionette APIs.
+  }
+});
 
-### [Marionette.Routing](https://github.com/blikblum/marionette.routing)
+new Router();
+Backbone.history.start();
+```
 
-An advanced router for MarionetteJS applications. Includes nested routes, states, rendering,
-async operations, lazy loading routes, Radio channel eventing, and inherits most of CherryTree
-features while maintaining a similar to Marionette API.
+The shim preserves the identity of [`Backbone.Router`](https://backbonejs.org/#Router)
+and adds Marionette's `Events` methods to its prototype. It does not add a
+Marionette router or patch `Backbone.History`; routing and history behavior remain
+Backbone contracts.
 
-### [Backbone.Eventrouter](https://github.com/RoundingWellOS/backbone.eventrouter)
+## Using Other Routers
 
-A highly opinionated, simplistic Backbone.Router coupled with a Radio channel.
-When an event is triggered on the channel, it will set the route URL, or when a URL matches
-a route it will throw an event on the channel.
+Other routing libraries can be used directly. Marionette does not require an
+adapter: route handlers can invoke the application's ordinary Marionette APIs.
 
-## Generic Routers
-
-[Stateman](https://github.com/leeluolee/stateman)
-Angular-UI style routing, without the Angular
-
-[Cherrytree](https://github.com/QubitProducts/cherrytree)
-Nested routes, like Ember, but without the transition lifecycle.
-
-[router.js](https://github.com/tildeio/router.js)
-This is what Ember's router is built on top of. It has all of the features needed for good routing
-
-## Know of other routers that should be listed here?
-[Add them!](https://github.com/marionettejs/backbone.marionette/edit/next/docs/routing.md)
+For the history and rationale behind removing `Marionette.AppRouter`, see the
+[v3 to v4 upgrade guide](./upgrade-v3-v4.md#approuter-was-removed).
