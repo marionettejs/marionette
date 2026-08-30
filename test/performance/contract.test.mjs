@@ -19,7 +19,6 @@ import {
   validateCumulativeSize,
   validateToolchain,
 } from '../../scripts/performance/bundle-size.mjs';
-import { resolveBasePerformanceTools } from '../../scripts/performance/resolve-base-tools.mjs';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 
@@ -635,60 +634,6 @@ describe('performance contract validation', () => {
     }
   });
 
-  test('resolves exactly one known exact-base performance-tool layout', async() => {
-    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-base-tools-'));
-    const oldAuthority = join(fixtureRoot, 'config/bundle-size.mjs');
-    const oldApproval = join(fixtureRoot, 'config/performance-growth-approval.mjs');
-    const newAuthority = join(fixtureRoot, 'scripts/performance/bundle-size.mjs');
-    const newApproval = join(fixtureRoot, 'scripts/performance/growth-approval.mjs');
-
-    try {
-      await assert.rejects(
-        resolveBasePerformanceTools(fixtureRoot),
-        /Expected exactly one complete exact-base performance-tool layout/
-      );
-
-      await mkdir(join(fixtureRoot, 'tools/performance'), { recursive: true });
-      await writeFile(join(fixtureRoot, 'tools/performance/bundle-size.mjs'), '');
-      await writeFile(join(fixtureRoot, 'tools/performance/growth-approval.mjs'), '');
-      await assert.rejects(
-        resolveBasePerformanceTools(fixtureRoot),
-        /config 0\/2; scripts 0\/2/
-      );
-
-      await mkdir(join(fixtureRoot, 'config'), { recursive: true });
-      await writeFile(oldAuthority, '');
-      await writeFile(oldApproval, '');
-      assert.deepEqual(await resolveBasePerformanceTools(fixtureRoot), {
-        authorityScript: oldAuthority,
-        approvalScript: oldApproval,
-      });
-
-      await rm(join(fixtureRoot, 'config'), { recursive: true });
-      await mkdir(join(fixtureRoot, 'scripts/performance'), { recursive: true });
-      await writeFile(newAuthority, '');
-      await writeFile(newApproval, '');
-      assert.deepEqual(await resolveBasePerformanceTools(fixtureRoot), {
-        authorityScript: newAuthority,
-        approvalScript: newApproval,
-      });
-
-      await mkdir(join(fixtureRoot, 'config'), { recursive: true });
-      await writeFile(oldAuthority, '');
-      await assert.rejects(
-        resolveBasePerformanceTools(fixtureRoot),
-        /config 1\/2; scripts 2\/2/
-      );
-      await writeFile(oldApproval, '');
-      await assert.rejects(
-        resolveBasePerformanceTools(fixtureRoot),
-        /config 2\/2; scripts 2\/2/
-      );
-    } finally {
-      await rm(fixtureRoot, { recursive: true, force: true });
-    }
-  });
-
   test('wires candidate measurement and validation through exact-base CI code', async() => {
     const workflow = await readFile(join(root, '.github/workflows/ci.yml'), 'utf8');
     const authorityStep = workflow.match(
@@ -713,11 +658,11 @@ describe('performance contract validation', () => {
     );
 
     assert.ok(commands.includes(
-      'node scripts/performance/resolve-base-tools.mjs --root bundle-size-base'
+      'node scripts/resolve-performance-tools.mjs --root bundle-size-base'
     ));
     assert.match(
       workflow,
-      /node scripts\/performance\/bundle-size\.mjs --json > "\$\{PERFORMANCE_DIR\}\/bundle-size-current\.json"/
+      /node "\$\{bundle_script\}" --json > "\$\{PERFORMANCE_DIR\}\/bundle-size-current\.json"/
     );
     assert.notEqual(measurementIndex, -1);
     assert.notEqual(resourceValidationIndex, -1);
@@ -733,6 +678,61 @@ describe('performance contract validation', () => {
     assert.ok(commands[approvalIndex].includes('--candidate-contract config/performance.json'));
     assert.ok(measurementIndex < approvalIndex);
     assert.ok(resourceValidationIndex < approvalIndex);
+  });
+
+  test('resolves current and exact-base performance tools in CI workflows', async() => {
+    const workflow = await readFile(join(root, '.github/workflows/ci.yml'), 'utf8');
+
+    assert.match(
+      workflow,
+      /node scripts\/resolve-performance-tools\.mjs --root \./
+    );
+    assert.match(
+      workflow,
+      /node "\$\{bundle_script\}" --json > "\$\{PERFORMANCE_DIR\}\/bundle-size-current\.json"/
+    );
+    assert.match(
+      workflow,
+      /node scripts\/resolve-performance-tools\.mjs --root performance-base/
+    );
+    assert.match(
+      workflow,
+      /node "\$\{base_timing_script\}" --root performance-base --config performance-base\/config\/performance\.json/
+    );
+    assert.match(
+      workflow,
+      /bundle-size-base\/config\/bundle-size\.mjs\\tbundle-size-base\/config\/performance-growth-approval\.mjs\\tbundle-size-base\/benchmarks\/performance\.mjs/
+    );
+    assert.match(
+      workflow,
+      /bundle-size-base\/scripts\/performance\/bundle-size\.mjs\\tbundle-size-base\/scripts\/performance\/growth-approval\.mjs\\tbundle-size-base\/scripts\/performance\/timing\.mjs/
+    );
+    assert.match(
+      workflow,
+      /performance-base\/config\/bundle-size\.mjs\\tperformance-base\/config\/performance-growth-approval\.mjs\\tperformance-base\/benchmarks\/performance\.mjs/
+    );
+    assert.match(
+      workflow,
+      /performance-base\/scripts\/performance\/bundle-size\.mjs\\tperformance-base\/scripts\/performance\/growth-approval\.mjs\\tperformance-base\/scripts\/performance\/timing\.mjs/
+    );
+    assert.match(workflow, /test -f "\$\{authority_script\}"/);
+    assert.match(workflow, /test -f "\$\{approval_script\}"/);
+    assert.match(workflow, /test -f "\$\{base_timing_script\}"/);
+    assert.equal(
+      workflow.match(/resolved_layout="\$\{[^}]+\}"\$'\\t'"\$\{[^}]+\}"\$'\\t'"\$\{[^}]+\}"/g)?.length,
+      2
+    );
+    assert.match(
+      workflow,
+      /node "\$\{current_timing_script\}" --config config\/performance\.json/
+    );
+
+    const releaseWorkflow = await readFile(
+      join(root, '.github/workflows/release.yml'),
+      'utf8'
+    );
+    assert.match(releaseWorkflow, /run: npm run check:dist/);
+    assert.doesNotMatch(releaseWorkflow, /node config\/check-dist\.mjs/);
   });
 
   test('refreshes checks when budget-amendment approvals or evidence change', async() => {

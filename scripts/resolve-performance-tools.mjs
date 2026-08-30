@@ -6,13 +6,15 @@ import { pathToFileURL } from 'node:url';
 const layouts = [
   {
     name: 'config',
-    authority: 'config/bundle-size.mjs',
+    bundle: 'config/bundle-size.mjs',
     approval: 'config/performance-growth-approval.mjs',
+    timing: 'benchmarks/performance.mjs',
   },
   {
     name: 'scripts',
-    authority: 'scripts/performance/bundle-size.mjs',
+    bundle: 'scripts/performance/bundle-size.mjs',
     approval: 'scripts/performance/growth-approval.mjs',
+    timing: 'scripts/performance/timing.mjs',
   },
 ];
 
@@ -27,10 +29,11 @@ async function isFile(path) {
   }
 }
 
-// Transitional for issue #237. Remove after every supported exact base uses scripts/performance.
-export async function resolveBasePerformanceTools(root) {
+// Transitional for issue #237. Remove after every supported checkout uses scripts/performance.
+export async function resolvePerformanceTools(root) {
   const results = await Promise.all(layouts.map(async layout => {
-    const paths = [layout.authority, layout.approval].map(path => join(root, path));
+    const paths = [layout.bundle, layout.approval, layout.timing]
+      .map(path => join(root, path));
     const present = await Promise.all(paths.map(isFile));
     return { layout, paths, present };
   }));
@@ -39,25 +42,28 @@ export async function resolveBasePerformanceTools(root) {
     return count + result.present.filter(Boolean).length;
   }, 0);
 
-  if (complete.length !== 1 || presentFiles !== 2) {
+  if (complete.length !== 1 || presentFiles !== 3) {
     const summary = results
-      .map(({ layout, present }) => `${layout.name} ${present.filter(Boolean).length}/2`)
+      .map(({ layout, present }) => `${layout.name} ${present.filter(Boolean).length}/3`)
       .join('; ');
-    throw new Error(`Expected exactly one complete exact-base performance-tool layout; ${summary}`);
+    throw new Error(`Expected exactly one complete performance-tool layout; ${summary}`);
   }
 
   return {
-    authorityScript: complete[0].paths[0],
+    bundleScript: complete[0].paths[0],
     approvalScript: complete[0].paths[1],
+    timingScript: complete[0].paths[2],
   };
 }
 
 async function main(args = process.argv.slice(2)) {
   if (args.length !== 2 || args[0] !== '--root') {
-    throw new Error('Usage: resolve-base-tools.mjs --root <exact-base-checkout>');
+    throw new Error('Usage: resolve-performance-tools.mjs --root <checkout>');
   }
-  const tools = await resolveBasePerformanceTools(args[1]);
-  process.stdout.write(`${tools.authorityScript}\t${tools.approvalScript}\n`);
+  const tools = await resolvePerformanceTools(args[1]);
+  process.stdout.write(
+    `${tools.bundleScript}\t${tools.approvalScript}\t${tools.timingScript}\n`
+  );
 }
 
 const entryUrl = process.argv[1] ? pathToFileURL(resolve(process.argv[1])).href : null;

@@ -118,11 +118,8 @@ jobs:
       - name: Run configured coverage
         run: npm run coverage
 
-      - name: Build once
-        run: npm run build
-
-      - name: Verify committed distributable projection
-        run: node scripts/checks/dist.mjs
+      - name: Build and verify committed distributable projection
+        run: npm run check:dist
 
       - name: Test built distributables
         run: npm run test:dist
