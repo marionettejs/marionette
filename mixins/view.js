@@ -16,6 +16,17 @@ import DomApi from '../runtime/dom-api.js';
 
 const classErrorName = 'ViewError';
 
+export const ViewOptions = [
+  'attributes',
+  'className',
+  'collection',
+  'el',
+  'events',
+  'id',
+  'model',
+  'tagName'
+];
+
 // MixinOptions
 // - attributes
 // - behaviors

@@ -1640,6 +1640,7 @@ var DomApi = {
 };
 
 const classErrorName$3 = 'ViewError';
+const ViewOptions = ['attributes', 'className', 'collection', 'el', 'events', 'id', 'model', 'tagName'];
 const ViewMixin = {
   tagName: 'div',
   preinitialize() {},
@@ -2333,6 +2334,7 @@ const View = function (options) {
   this.cid = uniqueId(this.cidPrefix);
   this._setOptions(options, ViewClassOptions);
   this.preinitialize.apply(this, arguments);
+  this.mergeOptions(options, ViewOptions);
   this._initViewEvents();
   this.setElement(this._getEl());
   monitorViewEvents(this);
@@ -2758,6 +2760,7 @@ const CollectionView = function (options) {
   this.cid = uniqueId(this.cidPrefix);
   this._setOptions(options, ClassOptions$2);
   this.preinitialize.apply(this, arguments);
+  this.mergeOptions(options, ViewOptions);
   this._initViewEvents();
   this.setElement(this._getEl());
   monitorViewEvents(this);

@@ -11,7 +11,7 @@ import uniqueId from '../utils/unique-id.js';
 import monitorViewEvents from './common/monitor-view-events.js';
 import { renderView, destroyView, isView } from './common/view.js';
 import CommonMixin from '../mixins/common.js';
-import ViewMixin from '../mixins/view.js';
+import ViewMixin, { ViewOptions } from '../mixins/view.js';
 import DomApi, { setDomApi } from '../runtime/dom-api.js';
 import { setEventDelegator } from '../runtime/event-delegator.js';
 import { setRenderer } from '../runtime/renderer.js';
@@ -782,6 +782,7 @@ const View = function(options) {
   this._setOptions(options, ViewClassOptions);
 
   this.preinitialize.apply(this, arguments);
+  this.mergeOptions(options, ViewOptions);
 
   this._initViewEvents();
   this.setElement(this._getEl());

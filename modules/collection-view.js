@@ -11,7 +11,7 @@ import { renderView, destroyView, isViewClass } from './common/view.js';
 import monitorViewEvents from './common/monitor-view-events.js';
 import ChildViewContainer from './child-view-container.js';
 import Region from './region.js';
-import ViewMixin from '../mixins/view.js';
+import ViewMixin, { ViewOptions } from '../mixins/view.js';
 import { setDomApi } from '../runtime/dom-api.js';
 import { setEventDelegator } from '../runtime/event-delegator.js';
 import { setRenderer } from '../runtime/renderer.js';
@@ -88,6 +88,7 @@ const CollectionView = function(options) {
   this._setOptions(options, ClassOptions);
 
   this.preinitialize.apply(this, arguments);
+  this.mergeOptions(options, ViewOptions);
 
   this._initViewEvents();
   this.setElement(this._getEl());
