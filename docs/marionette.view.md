@@ -239,15 +239,18 @@ current child and leaves `secondRegion` empty and available for another View.
 
 ### Region Availability
 
-Defined regions are registered during `View` construction. `hasRegion(name)`
-checks its own Region registry without rendering the View, including when the
-View is unrendered or destroyed. It reports stored ownership directly and does
-not call an overridden `getRegion`. `getRegions()` returns a fresh, safe
-own-key snapshot of the same registry without rendering. Calling `getRegion` or
-any child View method above on a live, unrendered View still renders it and
-dispatches through any `getRegion` override before resolving the Region element.
-`emptyRegions()` also renders a live, unrendered View before calling the
-overridable `getRegions()` and emptying its returned snapshot.
+Defined regions are registered during `View` construction. `hasRegion(name)`,
+`getRegion(name)`, and `getRegions()` query the View's own Region registry
+without rendering, including when the View is unrendered or destroyed.
+`getRegions()` returns a fresh, safe own-key snapshot. Child View operations
+such as `showChildView`, `detachChildView`, and `getChildView` still render a
+live, unrendered View before dispatching through any `getRegion` override.
+`emptyRegions()` likewise renders before calling the overridable `getRegions()`
+and emptying its returned snapshot.
+
+Calling `getRegion(name).show(view)` before rendering the parent no longer
+renders the parent or resolves the Region element. Use `showChildView`, or
+render the parent first, when showing a child into a declared selector Region.
 
 `getRegion(name)` and `hasRegion(name)` support optional lookup: an unknown name
 returns `undefined` or `false`, respectively. Operations that require a Region —

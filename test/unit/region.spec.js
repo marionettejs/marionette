@@ -1157,31 +1157,6 @@ describe('region', function() {
     });
   });
 
-  describe('when getting a region', function() {
-    let itemView;
-    let region;
-
-    beforeEach(function() {
-      itemView = new View();
-      itemView.render = this.sinon.stub();
-      itemView.addRegions({
-        MyRegion: '#region',
-        anotherRegion: '#region2'
-      });
-
-      region = itemView._regions.MyRegion;
-    });
-
-    it('should return the region', function() {
-      expect(itemView.getRegion('MyRegion')).to.equal(region);
-    });
-
-    it('should call render if getRegion is called without being rendered', function() {
-      itemView.getRegion('whoCares');
-      expect(itemView.render).to.be.calledOnce;
-    });
-  });
-
   describe('when resetting a region', function() {
     let region;
 
