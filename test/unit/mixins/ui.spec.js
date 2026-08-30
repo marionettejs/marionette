@@ -4,7 +4,7 @@ import UIMixin from '../../../mixins/ui';
 describe('ui mixin', function() {
   'use strict';
 
-  describe('#normalizeUIKeys', function() {
+  describe('subclass ui event normalization', function() {
     let GenericView;
     let genericViewSubclass1Instance;
     let genericViewSubclass2Instance;
