@@ -473,6 +473,11 @@ binds. If a stateful host `ui` function returns a different selector then, the h
 binds the later selector while the Behavior continues to bind its construction-time
 selector. Keep `ui` functions deterministic when the host and Behavior share keys.
 
+The Behavior's `el` is also available during `initialize`. When the optional jQuery
+DomApi is selected, `$el` is available at the same point and mirrors the host View's
+wrapper. DOM event and trigger declarations are delegated only after `initialize`
+returns, so callable declarations may safely depend on state established there.
+
 Before binding, `behavior.ui` contains selector strings. A template-rendered `View`
 binds those selectors during render, after which the values are array-like element
 collections found only within the host's `el`. Its rerender replaces the contents and

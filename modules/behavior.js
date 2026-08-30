@@ -37,6 +37,9 @@ const Behavior = function(options, view) {
 
   this._initViewEvents();
   this.el = view.el;
+  if (view.$el) {
+    this.$el = view.$el;
+  }
 
   // Construct an internal UI hash using the behaviors UI
   // hash combined and overridden by the view UI hash.

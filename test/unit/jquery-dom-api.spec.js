@@ -154,10 +154,14 @@ describe('jQuery DomApi adapter', function() {
 
   it('mirrors the host view $el on behaviors', function() {
     let behavior;
+    let initializedEl;
+    let initialized$El;
     const JQueryView = View.extend({
       behaviors: [Behavior.extend({
         initialize() {
           behavior = this;
+          initializedEl = this.el;
+          initialized$El = this.$el;
         },
       })],
     });
@@ -168,6 +172,8 @@ describe('jQuery DomApi adapter', function() {
 
     expect(behavior.$el).to.equal(view.$el);
     expect(behavior.$el[0]).to.equal(view.el);
+    expect(initializedEl).to.equal(view.el);
+    expect(initialized$El).to.equal(view.$el);
 
     view.setElement(nextEl);
 

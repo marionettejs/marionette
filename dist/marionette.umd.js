@@ -3373,6 +3373,9 @@
     this.cid = uniqueId(this.cidPrefix);
     this._initViewEvents();
     this.el = view.el;
+    if (view.$el) {
+      this.$el = view.$el;
+    }
     this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui'));
     this.listenTo(view, 'all', this.triggerMethod);
     this.initialize.apply(this, arguments);
