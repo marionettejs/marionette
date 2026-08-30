@@ -442,6 +442,11 @@
     return prefix ? prefix + id : id;
   }
 
+  const objectKeys$3 = Object.keys;
+  function getKeys$1(object) {
+    const type = typeof object;
+    return object != null && (type === 'object' || type === 'function') ? objectKeys$3(object) : [];
+  }
   const onApi = function ({
     events,
     name,
@@ -510,16 +515,19 @@
     callback,
     context
   }) {
-    const names = name ? [name] : underscore.keys(events);
-    underscore.each(names, key => {
+    const names = name ? [name] : getKeys$1(events);
+    for (let nameIndex = 0, namesLength = names.length; nameIndex < namesLength; nameIndex++) {
+      const key = names[nameIndex];
       const handlers = Object.hasOwn(events, key) ? events[key] : undefined;
       if (!handlers) {
-        return;
+        continue;
       }
-      events[key] = underscore.reduce(handlers, (remaining, handler) => {
+      const remaining = [];
+      for (let index = 0, length = handlers.length; index < length; index++) {
+        const handler = handlers[index];
         if (callback && callback !== handler.callback && callback !== handler.callback._callback || context && context !== handler.context) {
           remaining.push(handler);
-          return remaining;
+          continue;
         }
         if (handler.listener) {
           const listener = handler.listener;
@@ -528,12 +536,12 @@
             cleanupListener(listener);
           }
         }
-        return remaining;
-      }, []);
+      }
+      events[key] = remaining;
       if (!events[key].length) {
         delete events[key];
       }
-    });
+    }
     return events;
   };
   const getListener = function (obj, listenerObj) {
@@ -615,20 +623,27 @@
     }
   };
   const triggerEvents = function (events, args) {
-    underscore.each(events, ({
-      callback,
-      ctx
-    }) => {
+    for (let index = 0, length = events.length; index < length; index++) {
+      const {
+        callback,
+        ctx
+      } = events[index];
       callHandler(callback, ctx, args);
-    });
+    }
   };
+  function reduceEventArgs(context, eventArgs, events, reducer) {
+    for (let index = 0, length = eventArgs.length; index < length; index++) {
+      events = reducer.call(context, events, eventArgs[index]);
+    }
+    return events;
+  }
   var Events = {
     on(name, callback, context, opts) {
       if (opts && opts._rdInternal) {
         return;
       }
       const eventArgs = buildEventArgs(name, callback, context);
-      this._rdEvents = underscore.reduce(eventArgs, onReducer.bind(this), this._rdEvents || {});
+      this._rdEvents = reduceEventArgs(this, eventArgs, this._rdEvents || {}, onReducer);
       return this;
     },
     off(name, callback, context, opts) {
@@ -641,18 +656,20 @@
       if (!name && !context && !callback) {
         this._rdEvents = void 0;
         const listeners = this._rdListeners;
-        underscore.each(underscore.keys(listeners), listenerId => {
+        const listenerIds = getKeys$1(listeners);
+        for (let index = 0, length = listenerIds.length; index < length; index++) {
+          const listenerId = listenerIds[index];
           cleanupListener(listeners[listenerId]);
-        });
+        }
         return this;
       }
       const eventArgs = buildEventArgs(name, callback, context);
-      this._rdEvents = underscore.reduce(eventArgs, offReducer, this._rdEvents);
+      this._rdEvents = reduceEventArgs(undefined, eventArgs, this._rdEvents, offReducer);
       return this;
     },
     once(name, callback, context) {
       const eventArgs = buildEventArgs(name, callback, context);
-      this._rdEvents = underscore.reduce(eventArgs, onceReducer.bind(this), this._rdEvents || {});
+      this._rdEvents = reduceEventArgs(this, eventArgs, this._rdEvents || {}, onceReducer);
       return this;
     },
     listenTo(obj, name, callback) {
@@ -661,7 +678,9 @@
       }
       const listener = getListener(obj, this);
       const eventArgs = buildEventArgs(name, callback, this, listener);
-      underscore.each(eventArgs, listenToApi);
+      for (let index = 0, length = eventArgs.length; index < length; index++) {
+        listenToApi(eventArgs[index]);
+      }
       return this;
     },
     listenToOnce(obj, name, callback) {
@@ -670,7 +689,9 @@
       }
       const listener = getListener(obj, this);
       const eventArgs = buildEventArgs(name, callback, this, listener);
-      underscore.each(eventArgs, listenToOnceApi.bind(this));
+      for (let index = 0, length = eventArgs.length; index < length; index++) {
+        listenToOnceApi.call(this, eventArgs[index]);
+      }
       return this;
     },
     stopListening(obj, name, callback) {
@@ -679,23 +700,24 @@
         return this;
       }
       const eventArgs = buildEventArgs(name, callback, this);
-      const listenerIds = obj ? [obj._rdListenId] : underscore.keys(listeningTo);
-      for (let i = 0; i < listenerIds.length; i++) {
+      const listenerIds = obj ? [obj._rdListenId] : getKeys$1(listeningTo);
+      for (let i = 0, listenerIdsLength = listenerIds.length; i < listenerIdsLength; i++) {
         const listener = listeningTo[listenerIds[i]];
         if (!listener) {
           break;
         }
-        underscore.each(eventArgs, args => {
+        for (let index = 0, length = eventArgs.length; index < length; index++) {
+          const args = eventArgs[index];
           const listenToObj = listener.obj;
           const events = listenToObj._rdEvents;
           if (!events) {
-            return;
+            continue;
           }
           listenToObj._rdEvents = offReducer(events, args);
           listenToObj.off(args.name, args.callback, this, {
             _rdInternal: true
           });
-        });
+        }
       }
       return this;
     },
@@ -704,23 +726,27 @@
         return this;
       }
       if (name && typeof name === 'object') {
-        underscore.each(underscore.keys(name), key => {
+        const names = getKeys$1(name);
+        for (let index = 0, length = names.length; index < length; index++) {
+          const key = names[index];
           triggerApi({
             events: this._rdEvents,
             name: key,
             args: [name[key]]
           });
-        });
+        }
         return this;
       }
       if (name && eventSplitter.test(name)) {
-        underscore.each(name.split(eventSplitter), n => {
+        const names = name.split(eventSplitter);
+        for (let index = 0, length = names.length; index < length; index++) {
+          const n = names[index];
           triggerApi({
             events: this._rdEvents,
             name: n,
             args
           });
-        });
+        }
         return this;
       }
       triggerApi({

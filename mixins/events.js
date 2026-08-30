@@ -1,5 +1,3 @@
-import { reduce, each, keys } from 'underscore';
-
 import buildEventArgs, { eventSplitter } from '../utils/build-event-args.js';
 import { setProperty } from '../utils/assign-in.js';
 import callHandler from '../utils/call-handler.js';
@@ -7,6 +5,13 @@ import onceWrap from '../utils/once-wrap.js';
 import uniqueId from '../utils/unique-id.js';
 
 import triggerMethod from '../modules/common/trigger-method.js';
+
+const objectKeys = Object.keys;
+
+function getKeys(object) {
+  const type = typeof object;
+  return object != null && (type === 'object' || type === 'function') ? objectKeys(object) : [];
+}
 
 // A module that can be mixed in to *any object* in order to provide it with
 // a custom event channel. You may bind a callback to an event with `on` or
@@ -48,23 +53,26 @@ const cleanupListener = function({ obj, listeneeId, listenerId, listeningTo }) {
 
 // The reducing API that removes a callback from the `events` object.
 const offReducer = function(events , { name, callback, context }) {
-  const names = name ? [name] : keys(events);
+  const names = name ? [name] : getKeys(events);
 
-  each(names, key => {
+  for (let nameIndex = 0, namesLength = names.length; nameIndex < namesLength; nameIndex++) {
+    const key = names[nameIndex];
     const handlers = Object.hasOwn(events, key) ? events[key] : undefined;
 
     // Bail out if there are no events stored.
-    if (!handlers) {return;}
+    if (!handlers) {continue;}
 
     // Find any remaining events.
-    events[key] = reduce(handlers, (remaining, handler) => {
+    const remaining = [];
+    for (let index = 0, length = handlers.length; index < length; index++) {
+      const handler = handlers[index];
       if (
         callback && callback !== handler.callback &&
           callback !== handler.callback._callback ||
             context && context !== handler.context
       ) {
         remaining.push(handler);
-        return remaining;
+        continue;
       }
 
       // If not including event, clean up any related listener
@@ -74,11 +82,11 @@ const offReducer = function(events , { name, callback, context }) {
         if (!listener.count) {cleanupListener(listener);}
       }
 
-      return remaining;
-    }, []);
+    }
+    events[key] = remaining;
 
     if (!events[key].length) {delete events[key];}
-  });
+  }
 
   return events;
 };
@@ -131,10 +139,19 @@ const triggerApi = function({ events, name, args }) {
 };
 
 const triggerEvents = function(events, args) {
-  each(events, ({ callback, ctx }) => {
+  for (let index = 0, length = events.length; index < length; index++) {
+    const { callback, ctx } = events[index];
     callHandler(callback, ctx, args);
-  });
+  }
 };
+
+function reduceEventArgs(context, eventArgs, events, reducer) {
+  for (let index = 0, length = eventArgs.length; index < length; index++) {
+    events = reducer.call(context, events, eventArgs[index]);
+  }
+
+  return events;
+}
 
 export default {
 
@@ -144,7 +161,7 @@ export default {
     if (opts && opts._rdInternal) {return;}
 
     const eventArgs = buildEventArgs(name, callback, context);
-    this._rdEvents = reduce(eventArgs, onReducer.bind(this), this._rdEvents || {});
+    this._rdEvents = reduceEventArgs(this, eventArgs, this._rdEvents || {}, onReducer);
 
     return this;
   },
@@ -161,15 +178,17 @@ export default {
     if (!name && !context && !callback) {
       this._rdEvents = void 0;
       const listeners = this._rdListeners;
-      each(keys(listeners), listenerId => {
+      const listenerIds = getKeys(listeners);
+      for (let index = 0, length = listenerIds.length; index < length; index++) {
+        const listenerId = listenerIds[index];
         cleanupListener(listeners[listenerId]);
-      });
+      }
       return this;
     }
 
     const eventArgs = buildEventArgs(name, callback, context);
 
-    this._rdEvents = reduce(eventArgs, offReducer, this._rdEvents);
+    this._rdEvents = reduceEventArgs(undefined, eventArgs, this._rdEvents, offReducer);
 
     return this;
   },
@@ -181,7 +200,7 @@ export default {
   once(name, callback, context) {
     const eventArgs = buildEventArgs(name, callback, context);
 
-    this._rdEvents = reduce(eventArgs, onceReducer.bind(this), this._rdEvents || {})
+    this._rdEvents = reduceEventArgs(this, eventArgs, this._rdEvents || {}, onceReducer)
 
     return this;
   },
@@ -194,7 +213,9 @@ export default {
 
     const listener = getListener(obj, this);
     const eventArgs = buildEventArgs(name, callback, this, listener);
-    each(eventArgs, listenToApi);
+    for (let index = 0, length = eventArgs.length; index < length; index++) {
+      listenToApi(eventArgs[index]);
+    }
 
     return this;
   },
@@ -205,7 +226,9 @@ export default {
 
     const listener = getListener(obj, this);
     const eventArgs = buildEventArgs(name, callback, this, listener);
-    each(eventArgs, listenToOnceApi.bind(this));
+    for (let index = 0, length = eventArgs.length; index < length; index++) {
+      listenToOnceApi.call(this, eventArgs[index]);
+    }
 
     return this;
   },
@@ -218,25 +241,26 @@ export default {
 
     const eventArgs = buildEventArgs(name, callback, this);
 
-    const listenerIds = obj ? [obj._rdListenId] : keys(listeningTo);
-    for (let i = 0; i < listenerIds.length; i++) {
+    const listenerIds = obj ? [obj._rdListenId] : getKeys(listeningTo);
+    for (let i = 0, listenerIdsLength = listenerIds.length; i < listenerIdsLength; i++) {
       const listener = listeningTo[listenerIds[i]];
 
       // If listening doesn't exist, this object is not currently
       // listening to obj. Break out early.
       if (!listener) {break;}
 
-      each(eventArgs, args => {
+      for (let index = 0, length = eventArgs.length; index < length; index++) {
+        const args = eventArgs[index];
         const listenToObj = listener.obj;
         const events = listenToObj._rdEvents;
 
-        if (!events) {return;}
+        if (!events) {continue;}
 
         listenToObj._rdEvents = offReducer(events, args);
 
         // Call `off` for interop
         listenToObj.off(args.name, args.callback, this, { _rdInternal: true });
-      });
+      }
     }
 
     return this;
@@ -250,24 +274,28 @@ export default {
     if (!this._rdEvents) {return this;}
 
     if (name && typeof name === 'object') {
-      each(keys(name), key => {
+      const names = getKeys(name);
+      for (let index = 0, length = names.length; index < length; index++) {
+        const key = names[index];
         triggerApi({
           events: this._rdEvents,
           name: key,
           args: [name[key]],
         });
-      });
+      }
       return this;
     }
 
     if (name && eventSplitter.test(name)) {
-      each(name.split(eventSplitter), n => {
+      const names = name.split(eventSplitter);
+      for (let index = 0, length = names.length; index < length; index++) {
+        const n = names[index];
         triggerApi({
           events: this._rdEvents,
           name: n,
           args,
         });
-      });
+      }
       return this;
     }
 
