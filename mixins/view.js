@@ -1,9 +1,10 @@
 // ViewMixin
 //  ---------
 
-import { extend, isString, result } from 'underscore';
 import { assignOwn } from '../utils/assign-in.js';
 import MarionetteError from '../utils/error.js';
+import getValue from '../utils/get-value.js';
+import isString from '../utils/is-string.js';
 import BehaviorsMixin from './behaviors.js';
 import CommonMixin from './common.js';
 import DelegateEntityEventsMixin from './delegate-entity-events.js';
@@ -55,13 +56,13 @@ const ViewMixin = {
 
   // Create an element from the `id`, `className` and `tagName` properties.
   _getEl() {
-    const elOption = result(this, 'el');
+    const elOption = getValue(this, 'el');
 
     if (!elOption) {
-      const el = this.Dom.createElement(result(this, 'tagName'));
-      const attrs = assignOwn({}, result(this, 'attributes'));
-      if (this.id) {attrs.id = result(this, 'id');}
-      if (this.className) {attrs.class = result(this, 'className');}
+      const el = this.Dom.createElement(getValue(this, 'tagName'));
+      const attrs = assignOwn({}, getValue(this, 'attributes'));
+      if (this.id) {attrs.id = getValue(this, 'id');}
+      if (this.className) {attrs.class = getValue(this, 'className');}
       this.Dom.setAttributes(el, attrs);
       return el;
     }
@@ -187,14 +188,14 @@ const ViewMixin = {
 
   // Cache `childViewEvents` and `childViewTriggers`
   _buildEventProxies() {
-    this._childViewEvents = this.normalizeMethods(result(this, 'childViewEvents'));
-    this._childViewTriggers = result(this, 'childViewTriggers');
+    this._childViewEvents = this.normalizeMethods(getValue(this, 'childViewEvents'));
+    this._childViewTriggers = getValue(this, 'childViewTriggers');
     this._eventPrefix = this._getEventPrefix();
   },
 
   _getEventPrefix() {
     const defaultPrefix = isEnabled('childViewEventPrefix') ? 'childview' : false;
-    const prefix = result(this, 'childViewEventPrefix', defaultPrefix);
+    const prefix = getValue(this, 'childViewEventPrefix', defaultPrefix);
 
     return (prefix === false) ? prefix : prefix + ':';
   },
@@ -227,6 +228,6 @@ const ViewMixin = {
   }
 };
 
-extend(ViewMixin, BehaviorsMixin, CommonMixin, DelegateEntityEventsMixin, TemplateRenderMixin, UIMixin, ViewEvents);
+assignOwn(ViewMixin, BehaviorsMixin, CommonMixin, DelegateEntityEventsMixin, TemplateRenderMixin, UIMixin, ViewEvents);
 
 export default ViewMixin;
