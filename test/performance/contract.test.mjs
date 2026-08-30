@@ -194,8 +194,14 @@ describe('performance contract validation', () => {
     canonical.forbiddenExternalImports = ['jquery', 'underscore'];
     assert.deepEqual(validateContract(canonical, packageJson, ['index.mjs']), []);
     assert.deepEqual(
-      findForbiddenExternalImports(['backbone', 'jquery', 'underscore'], canonical),
-      ['jquery', 'underscore']
+      findForbiddenExternalImports([
+        'backbone',
+        'jquery',
+        'underscore',
+        'underscore/modules/each.js',
+        'underscore-plus',
+      ], canonical),
+      ['jquery', 'underscore', 'underscore/modules/each.js']
     );
 
     for (const malformed of [
@@ -761,12 +767,12 @@ describe('performance contract validation', () => {
       await writeFile(join(fixtureRoot, 'performance.json'), JSON.stringify(contract));
       await writeFile(
         join(fixtureRoot, 'index.js'),
-        'import underscore from \'underscore\';\nexport const value = underscore.identity(1);\n'
+        'import each from \'underscore/modules/each.js\';\nexport const value = each;\n'
       );
       await writeFile(join(fixtureRoot, 'dist/index.mjs'), 'export const value = 1;\n');
       await writeFile(
         join(fixtureRoot, 'rollup.config.mjs'),
-        'export default [{ input: \'index.js\', external: [\'underscore\'], output: { file: \'dist/index.mjs\', format: \'es\' } }];\n'
+        'export default [{ input: \'index.js\', external: [\'underscore/modules/each.js\'], output: { file: \'dist/index.mjs\', format: \'es\' } }];\n'
       );
 
       const result = await measure({
@@ -775,9 +781,11 @@ describe('performance contract validation', () => {
         checkToolchain: false,
       });
 
-      assert.deepEqual(result.graphs[0].externalImports, ['underscore']);
-      assert.deepEqual(result.graphs[0].forbiddenExternalImports, ['underscore']);
-      assert.ok(result.violations.includes('. includes forbidden external imports: underscore'));
+      assert.deepEqual(result.graphs[0].externalImports, ['underscore/modules/each.js']);
+      assert.deepEqual(result.graphs[0].forbiddenExternalImports, ['underscore/modules/each.js']);
+      assert.ok(result.violations.includes(
+        '. includes forbidden external imports: underscore/modules/each.js'
+      ));
 
       const enforced = spawnSync(
         process.execPath,
@@ -791,10 +799,13 @@ describe('performance contract validation', () => {
         { encoding: 'utf8' }
       );
       assert.equal(enforced.status, 1);
-      assert.match(enforced.stderr, /includes forbidden external imports: underscore/);
+      assert.match(
+        enforced.stderr,
+        /includes forbidden external imports: underscore\/modules\/each\.js/
+      );
       assert.deepEqual(
         JSON.parse(enforced.stdout).graphs[0].forbiddenExternalImports,
-        ['underscore']
+        ['underscore/modules/each.js']
       );
     } finally {
       await rm(fixtureRoot, { recursive: true, force: true });

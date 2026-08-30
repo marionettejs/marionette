@@ -221,8 +221,11 @@ export function findForbiddenModules(modules, contract) {
 export function findForbiddenExternalImports(externalImports, contract) {
   const forbiddenExternalImports = Array.isArray(contract.forbiddenExternalImports) ?
     contract.forbiddenExternalImports : [];
-  const forbidden = new Set(forbiddenExternalImports);
-  return externalImports.filter(externalImport => forbidden.has(externalImport));
+  return externalImports.filter(externalImport => {
+    return forbiddenExternalImports.some(forbiddenImport => {
+      return externalImport === forbiddenImport || externalImport.startsWith(`${forbiddenImport}/`);
+    });
+  });
 }
 
 async function sha256(file) {

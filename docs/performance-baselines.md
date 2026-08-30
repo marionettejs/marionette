@@ -333,7 +333,8 @@ so the first enforcement change cannot authorize itself with candidate-owned pol
 The bundle tool keeps `forbiddenExternalImports` optional so exact-base contracts from
 before this tightening remain valid. When a candidate introduces the field, the
 exact-base tool requires a sorted, unique, non-empty string list and fails every
-measured production graph whose external imports intersect it.
+measured production graph that imports a listed package or any rooted subpath of it.
+Similarly prefixed packages are not matched.
 
 ## Hosted timing
 
