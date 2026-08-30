@@ -122,6 +122,14 @@ export function validateContract(contract, packageJson, runtimeFiles, budgetAmen
   if (contract.schemaVersion !== 1) {
     violations.push(`Unsupported performance schemaVersion ${contract.schemaVersion}`);
   }
+  if (!Array.isArray(contract.forbiddenExternalImports) ||
+      contract.forbiddenExternalImports.some(value => typeof value !== 'string' || !value) ||
+      !isDeepStrictEqual(
+        contract.forbiddenExternalImports,
+        [...new Set(contract.forbiddenExternalImports)].sort()
+      )) {
+    violations.push('forbiddenExternalImports must contain sorted, unique non-empty strings');
+  }
   violations.push(...validateGrowthApprovalPolicy(contract.pullRequestGrowthApproval)
     .map(({ message }) => message));
 
@@ -312,6 +320,9 @@ async function measureGraph(root, configurations, graph, contract) {
       .map(moduleId => normalizePath(relative(root, moduleId)))
       .sort();
     const externalImports = [...new Set(chunks.flatMap(chunk => chunk.imports))].sort();
+    const forbiddenExternalImports = externalImports.filter(externalImport => {
+      return contract.forbiddenExternalImports.includes(externalImport);
+    });
 
     return {
       subpath: graph.subpath,
@@ -320,6 +331,7 @@ async function measureGraph(root, configurations, graph, contract) {
       status: 'measured',
       modules,
       externalImports,
+      forbiddenExternalImports,
       phase0AddedModules: difference(modules, graph.baselineModules),
       phase0RemovedModules: difference(graph.baselineModules, modules),
       phase0AddedExternalImports: difference(externalImports, graph.baselineExternalImports),
@@ -425,6 +437,9 @@ export async function measure({
       if (result.forbiddenModules.length) {
         violations.push(`${graph.subpath} includes forbidden production modules: ${result.forbiddenModules.join(', ')}`);
       }
+      if (result.forbiddenExternalImports.length) {
+        violations.push(`${graph.subpath} includes forbidden external imports: ${result.forbiddenExternalImports.join(', ')}`);
+      }
     } catch (error) {
       graphs.push({
         subpath: graph.subpath,
@@ -433,6 +448,7 @@ export async function measure({
         status: 'measurement-error',
         modules: [],
         externalImports: [],
+        forbiddenExternalImports: [],
         forbiddenModules: [],
         error: error.message,
       });
@@ -448,6 +464,7 @@ export async function measure({
         status: 'unconfigured',
         modules: [],
         externalImports: [],
+        forbiddenExternalImports: [],
         forbiddenModules: [],
         error: 'New exported runtime subpath is not defined by the authority contract',
       });

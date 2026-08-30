@@ -172,6 +172,9 @@
       ]
     }
   ],
+  "forbiddenExternalImports": [
+    "underscore"
+  ],
   "forbiddenProductionModulePrefixes": [
     ".github/",
     "benchmarks/",
