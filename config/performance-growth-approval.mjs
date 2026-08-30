@@ -337,6 +337,24 @@ function validReleaseProfileTransition(authorityToolchain, candidateToolchain) {
   return isDeepStrictEqual(candidateToolchain, expectedToolchain);
 }
 
+function validForbiddenExternalImportsTransition(authority, candidate) {
+  const authorityHasField = Object.hasOwn(authority, 'forbiddenExternalImports');
+  const candidateHasField = Object.hasOwn(candidate, 'forbiddenExternalImports');
+
+  if (!authorityHasField) {
+    return !candidateHasField ||
+      uniqueSortedStrings(candidate.forbiddenExternalImports, pathLimit);
+  }
+  if (!candidateHasField ||
+      !uniqueSortedStrings(authority.forbiddenExternalImports, pathLimit, true) ||
+      !uniqueSortedStrings(candidate.forbiddenExternalImports, pathLimit, true)) {
+    return false;
+  }
+
+  const candidateImports = new Set(candidate.forbiddenExternalImports);
+  return authority.forbiddenExternalImports.every(value => candidateImports.has(value));
+}
+
 export function validateCandidateGrowthContract(authority, candidate, { budgetAmendment } = {}) {
   const violations = [];
   if (!authority || typeof authority !== 'object' || !candidate || typeof candidate !== 'object') {
@@ -344,11 +362,21 @@ export function validateCandidateGrowthContract(authority, candidate, { budgetAm
   }
   const authorityKeys = Object.keys(authority).sort();
   const candidateKeys = Object.keys(candidate).sort();
-  if (!isDeepStrictEqual(authorityKeys, candidateKeys)) {
+  const allowedCandidateKeys = Object.hasOwn(authority, 'forbiddenExternalImports') ?
+    authorityKeys : [...authorityKeys, 'forbiddenExternalImports'].sort();
+  const missingAuthorityKeys = authorityKeys.filter(key => !Object.hasOwn(candidate, key));
+  const unrelatedCandidateKeys = candidateKeys.filter(key => !allowedCandidateKeys.includes(key));
+  if (missingAuthorityKeys.length || unrelatedCandidateKeys.length) {
     violations.push('Candidate performance contract top-level fields differ from the exact-base contract');
+  }
+  if (!validForbiddenExternalImportsTransition(authority, candidate)) {
+    violations.push('Candidate performance contract forbiddenExternalImports must be a sorted, unique, non-empty string superset of the exact-base list');
   }
   for (const key of authorityKeys) {
     if (key === 'runtimeArtifacts' || key === 'productionGraphs') {
+      continue;
+    }
+    if (key === 'forbiddenExternalImports') {
       continue;
     }
     if (key === 'toolchain') {

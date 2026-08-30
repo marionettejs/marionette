@@ -465,6 +465,59 @@ describe('exact-head performance growth approval contract', () => {
     );
   });
 
+  test('permits only tightening forbidden external imports', () => {
+    const authorityContract = growthContract();
+    const introduced = growthContract();
+    introduced.forbiddenExternalImports = ['underscore'];
+    assert.deepEqual(
+      validateCandidateGrowthContract(authorityContract, introduced),
+      []
+    );
+
+    authorityContract.forbiddenExternalImports = ['jquery'];
+    const extended = structuredClone(authorityContract);
+    extended.forbiddenExternalImports = ['jquery', 'underscore'];
+    assert.deepEqual(
+      validateCandidateGrowthContract(authorityContract, extended),
+      []
+    );
+
+    const removed = structuredClone(authorityContract);
+    delete removed.forbiddenExternalImports;
+    assert.match(
+      validateCandidateGrowthContract(authorityContract, removed).join('\n'),
+      /forbiddenExternalImports must be a sorted, unique, non-empty string superset/
+    );
+
+    const replaced = structuredClone(authorityContract);
+    replaced.forbiddenExternalImports = ['underscore'];
+    assert.match(
+      validateCandidateGrowthContract(authorityContract, replaced).join('\n'),
+      /forbiddenExternalImports must be a sorted, unique, non-empty string superset/
+    );
+
+    for (const forbiddenExternalImports of [
+      ['underscore', 'underscore'],
+      ['underscore', 'jquery'],
+      [''],
+      [1],
+    ]) {
+      const malformed = growthContract();
+      malformed.forbiddenExternalImports = forbiddenExternalImports;
+      assert.match(
+        validateCandidateGrowthContract(growthContract(), malformed).join('\n'),
+        /forbiddenExternalImports must be a sorted, unique, non-empty string superset/
+      );
+    }
+
+    const unrelated = growthContract();
+    unrelated.arbitraryPolicy = true;
+    assert.match(
+      validateCandidateGrowthContract(growthContract(), unrelated).join('\n'),
+      /top-level fields differ/
+    );
+  });
+
   test('permits only a valid release-profile SHA-256 transition in the toolchain', () => {
     const authorityContract = growthContract();
     const candidateContract = growthContract();

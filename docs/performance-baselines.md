@@ -276,12 +276,16 @@ The full lowercase head SHA prevents an approval from surviving a code change. T
 approved path list must exactly match all existing artifacts above the strict
 greater-than-one-percent threshold. New subpaths and new artifact path/size pairs must
 exactly match the additive candidate contract and measured report. A candidate may
-only add runtime artifact and production graph entries: it cannot change the base
-thresholds, allowlist, baseline, ceiling, forbidden modules, resource contract, timing
-contract, or any existing artifact or graph. The only permitted toolchain transition is
-a valid SHA-256 revision at `toolchain.releaseProfile.sha256`; every other toolchain
-field remains exact-base, and the candidate report must prove that digest matches the
-actual candidate release-profile file. New artifact Phase 0 baselines remain zero, so
+only add runtime artifact and production graph entries. It may also introduce a
+well-formed `forbiddenExternalImports` list or add entries to an existing list, but it
+cannot remove or replace an existing forbidden import. This is a tightening-only
+transition: Phase 0 `baselineExternalImports` remain immutable historical observations,
+not current allowlists. A candidate cannot change the base thresholds, allowlist,
+baseline, ceiling, forbidden modules, resource contract, timing contract, or any
+existing artifact or graph. The only permitted toolchain transition is a valid SHA-256
+revision at `toolchain.releaseProfile.sha256`; every other toolchain field remains
+exact-base, and the candidate report must prove that digest matches the actual
+candidate release-profile file. New artifact Phase 0 baselines remain zero, so
 their full size counts against the original absolute ceiling; after adoption, the exact
 merged artifact becomes the comparison base for later pull requests. Unmeasured graphs,
 forbidden modules, removed or renamed base entries, non-integer sizes, report-contract
