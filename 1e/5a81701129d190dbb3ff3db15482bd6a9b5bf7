@@ -1,0 +1,21 @@
+test/unit/object-application-composition.spec.js
+  s_d6429951fb9231::t_0404c0bde2edbc 84,109,113,119-122,139-140
+  s_d6429951fb9231::t_e29b52bec934ce 78,80-81,85,87-105,108,110,114-118,123-138
+  s_d6429951fb9231::t_e5f73cb94a95c3 141
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "1e5a81701129d190dbb3ff3db15482bd6a9b5bf7",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
