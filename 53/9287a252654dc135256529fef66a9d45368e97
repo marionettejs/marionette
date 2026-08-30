@@ -1,0 +1,22 @@
+docs/marionette.region.md
+  s_d6429951fb9231::t_660098d5de87dc 80,90-92
+test/unit/region-lifecycle.spec.js
+  s_d6429951fb9231::t_d2379c6717dc6d 316-317,328-329
+  s_d6429951fb9231::t_660098d5de87dc 309-315,318-327,330-334
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "539287a252654dc135256529fef66a9d45368e97",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
