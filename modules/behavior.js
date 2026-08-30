@@ -6,8 +6,9 @@
 // Behaviors allow you to blackbox View specific interactions
 // into portable logical chunks, keeping your views simple and your code DRY.
 
-import { extend as _extend, result } from 'underscore';
+import { assignOwn } from '../utils/assign-in.js';
 import extend from '../utils/extend.js';
+import getValue from '../utils/get-value.js';
 import uniqueId from '../utils/unique-id.js';
 import CommonMixin from '../mixins/common.js';
 import DelegateEntityEventsMixin from '../mixins/delegate-entity-events.js';
@@ -44,7 +45,7 @@ const Behavior = function(options, view) {
   // This order will help the reuse and share of a behavior
   // between multiple views, while letting a view override
   // a selector under an UI key.
-  this.ui = _extend({}, result(this, 'ui'), result(view, 'ui'));
+  this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui'));
   this.setElement();
 
   // Proxy view triggers
@@ -53,12 +54,12 @@ const Behavior = function(options, view) {
   this.initialize.apply(this, arguments);
 };
 
-_extend(Behavior, { extend, setEventDelegator });
+assignOwn(Behavior, { extend, setEventDelegator });
 
 // Behavior Methods
 // --------------
 
-_extend(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, ViewEventsMixin, {
+assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, ViewEventsMixin, {
   cidPrefix: 'mnb',
 
   // proxy behavior $ method to the view

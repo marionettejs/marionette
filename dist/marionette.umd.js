@@ -3132,16 +3132,16 @@
     this.cid = uniqueId(this.cidPrefix);
     this._initViewEvents();
     this.el = view.el;
-    this.ui = underscore.extend({}, underscore.result(this, 'ui'), underscore.result(view, 'ui'));
+    this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui'));
     this.setElement();
     this.listenTo(view, 'all', this.triggerMethod);
     this.initialize.apply(this, arguments);
   };
-  underscore.extend(Behavior, {
+  assignOwn(Behavior, {
     extend,
     setEventDelegator: setEventDelegator$1
   });
-  underscore.extend(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, ViewEventsMixin, {
+  assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, ViewEventsMixin, {
     cidPrefix: 'mnb',
     $() {
       return this.view.$.apply(this.view, arguments);

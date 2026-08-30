@@ -3123,16 +3123,16 @@ const Behavior = function (options, view) {
   this.cid = uniqueId(this.cidPrefix);
   this._initViewEvents();
   this.el = view.el;
-  this.ui = extend$1({}, result(this, 'ui'), result(view, 'ui'));
+  this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui'));
   this.setElement();
   this.listenTo(view, 'all', this.triggerMethod);
   this.initialize.apply(this, arguments);
 };
-extend$1(Behavior, {
+assignOwn(Behavior, {
   extend,
   setEventDelegator: setEventDelegator$1
 });
-extend$1(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, ViewEventsMixin, {
+assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, ViewEventsMixin, {
   cidPrefix: 'mnb',
   $() {
     return this.view.$.apply(this.view, arguments);
