@@ -743,6 +743,12 @@
   Events.bind = Events.on;
   Events.unbind = Events.off;
 
+  function getValue(object, property, fallback) {
+    const value = object == null ? undefined : object[property];
+    const resolvedValue = value === undefined ? fallback : value;
+    return typeof resolvedValue === 'function' ? resolvedValue.call(object) : resolvedValue;
+  }
+
   let shouldDebug = false;
   function setDebug(setShouldDebug = true) {
     shouldDebug = setShouldDebug;
@@ -898,12 +904,6 @@
       debugLog('An unhandled request was fired', name, channelName);
     }
   };
-
-  function getValue(object, property, fallback) {
-    const value = object == null ? undefined : object[property];
-    const resolvedValue = value === undefined ? fallback : value;
-    return typeof resolvedValue === 'function' ? resolvedValue.call(object) : resolvedValue;
-  }
 
   const CommonMixin = {
     initialize() {},
@@ -3498,7 +3498,6 @@
   exports.MnObject = MarionetteObject;
   exports.Radio = Radio;
   exports.Region = Region;
-  exports.Requests = Requests;
   exports.VERSION = version;
   exports.View = View;
   exports.bindEvents = bindEvents;

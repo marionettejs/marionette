@@ -11,6 +11,11 @@ import { Radio } from 'marionette';
 `Backbone.Radio` is no longer a required external dependency. Do not install
 `backbone.radio` for Marionette's Radio API.
 
+The built-in singleton does not share channels with `backbone.radio`. Migrate
+all application imports atomically, including code that publishes or requests
+outside Marionette classes; mixing both packages creates disconnected buses.
+See [Atomic Radio migration](../upgradeGuide.md#atomic-radio-migration).
+
 ## Documentation Index
 
 * [Channels](#channels)

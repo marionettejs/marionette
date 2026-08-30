@@ -47,6 +47,10 @@ describe('backbone.marionette', function() {
         expect(Mn[key]).to.equal(val);
       });
     });
+
+    it('does not expose the internal Requests mixin', function() {
+      expect(Mn.Requests).to.be.undefined;
+    });
   });
 
   describe('VERSION', function() {

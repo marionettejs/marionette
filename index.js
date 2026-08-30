@@ -17,7 +17,6 @@ import _normalizeMethods from './modules/common/normalize-methods.js';
 import _triggerMethod from './modules/common/trigger-method.js';
 
 import Events from './mixins/events.js';
-import Requests from './mixins/requests.js';
 
 import MnObject from './modules/object.js';
 import View from './modules/view.js';
@@ -77,7 +76,6 @@ export {
   setEnabled,
   monitorViewEvents,
   Events,
-  Requests,
   extend,
   DomApi,
   MarionetteError,

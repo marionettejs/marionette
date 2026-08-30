@@ -93,6 +93,30 @@ it does not replace the native EventDelegator. Applications with a verified
 need for different delegation semantics can provide an explicit
 `setEventDelegator` adapter.
 
+## Atomic Radio migration
+
+Marionette v5 owns the `Radio` singleton used by `channelName`, `radioEvents`,
+and `radioRequests`. It is not the singleton exported by `backbone.radio`.
+Replace every application import in one migration:
+
+```js
+// v4
+import Radio from 'backbone.radio';
+
+// v5
+import { Radio } from 'marionette';
+```
+
+This includes publishers and requesters that do not instantiate a Marionette
+class. Leaving either import in the application creates two channels with the
+same name on disconnected buses, so messages and requests can disappear
+without an exception. Do not bridge, mirror, or run both singletons as a
+compatibility strategy.
+
+Replace `Radio.DEBUG = true` with `Radio.setDebug()` and disable it with
+`Radio.setDebug(false)`. The v4 `Radio.Requests` mixin is removed; use request
+methods on `Radio.channel(name)` or on the top-level built-in `Radio` API.
+
 ## `detachContents` policy
 
 - The default native DomApi `detachContents(el)` clears the element via

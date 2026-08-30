@@ -732,6 +732,12 @@ const Events = {
 Events.bind = Events.on;
 Events.unbind = Events.off;
 
+function getValue(object, property, fallback) {
+  const value = object == null ? undefined : object[property];
+  const resolvedValue = value === undefined ? fallback : value;
+  return typeof resolvedValue === 'function' ? resolvedValue.call(object) : resolvedValue;
+}
+
 let shouldDebug = false;
 function setDebug(setShouldDebug = true) {
   shouldDebug = setShouldDebug;
@@ -887,12 +893,6 @@ var Requests = {
     debugLog('An unhandled request was fired', name, channelName);
   }
 };
-
-function getValue(object, property, fallback) {
-  const value = object == null ? undefined : object[property];
-  const resolvedValue = value === undefined ? fallback : value;
-  return typeof resolvedValue === 'function' ? resolvedValue.call(object) : resolvedValue;
-}
 
 const CommonMixin = {
   initialize() {},
@@ -3478,4 +3478,4 @@ const setEventDelegator = function (delegator) {
   View.setEventDelegator(delegator);
 };
 
-export { Application, Behavior, CollectionView, DomApi, Events, MarionetteError, MarionetteObject as MnObject, Radio, Region, Requests, version as VERSION, View, bindEvents, bindRequests, extend, getOption, isEnabled, mergeOptions, monitorViewEvents, normalizeMethods, setDomApi, setEnabled, setEventDelegator, setRenderer, triggerMethod, unbindEvents, unbindRequests };
+export { Application, Behavior, CollectionView, DomApi, Events, MarionetteError, MarionetteObject as MnObject, Radio, Region, version as VERSION, View, bindEvents, bindRequests, extend, getOption, isEnabled, mergeOptions, monitorViewEvents, normalizeMethods, setDomApi, setEnabled, setEventDelegator, setRenderer, triggerMethod, unbindEvents, unbindRequests };
