@@ -40,6 +40,32 @@ describe('Behavior lifecycle contract', function() {
     view.destroy();
   });
 
+  it('keeps host constructor arguments separate from explicit Behavior state', function() {
+    const options = { source: 'options' };
+    const extra = { source: 'extra' };
+    const initialize = this.sinon.spy(function(receivedOptions, receivedExtra) {
+      expect(this.behaviorState).to.equal('set explicitly');
+      expect(receivedOptions).to.equal(options);
+      expect(receivedExtra).to.equal(extra);
+    });
+    const TestBehavior = Behavior.extend({
+      initialize(behaviorOptions, hostView) {
+        expect(behaviorOptions).to.deep.equal({});
+        hostView.behaviorState = 'set explicitly';
+      },
+    });
+    const TestView = View.extend({
+      behaviors: [TestBehavior],
+      initialize,
+    });
+
+    const view = new TestView(options, extra);
+
+    expect(initialize).to.have.been.calledOnce.and.calledWithExactly(options, extra);
+
+    view.destroy();
+  });
+
   describe.each([
     ['View', View],
     ['CollectionView', CollectionView],

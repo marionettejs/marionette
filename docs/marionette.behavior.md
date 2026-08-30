@@ -13,7 +13,7 @@ allowing you to share common user-facing operations between your views.
 collection interactions to be utilized across your application. Unlike the other
 Marionette classes, `Behavior`s are not meant to be instantiated directly.
 Instead a `Behavior` should be instantiated by the view it is related to by
-[attaching the a behavior class definition to the view](#using-behaviors).
+[attaching a behavior class definition to the view](#using-behaviors).
 
 ## Documentation Index
 
@@ -44,9 +44,13 @@ The easiest way to see how to use the `Behavior` class is to take an example
 view and factor out common behavior to be shared across other views.
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
+  template() {
+    return '<button class="destroy-btn" type="button">Destroy</button>';
+  },
+
   ui: {
     destroy: '.destroy-btn'
   },
@@ -61,14 +65,10 @@ const MyView = View.extend({
   },
 
   onRender() {
-    this.ui.destroy.tooltip({
-      text: 'What a nice mouse you have.'
-    });
+    this.getUI('destroy')[0].title = 'What a nice mouse you have.';
   }
 });
 ```
-
-[Live example](https://jsfiddle.net/marionettejs/pa8ryv03/)
 
 Interaction points, such as tooltips and warning messages, are generic concepts.
 There is no need to recode them within your Views so they are prime candidates
@@ -76,8 +76,9 @@ to be extracted into `Behavior` classes.
 
 ### Defining and Attaching Behaviors
 
+<!-- executable-example: behavior-defining-attaching -->
 ```javascript
-import { Behavior, View } from 'backbone.marionette';
+import { Behavior, View } from 'marionette';
 
 const DestroyWarn = Behavior.extend({
   // You can set default options
@@ -90,7 +91,7 @@ const DestroyWarn = Behavior.extend({
     destroy: '.destroy-btn'
   },
 
-  // Behaviors have events that are bound to the views DOM.
+  // Behaviors have events that are bound to the view's DOM.
   events: {
     'click @ui.destroy': 'warnBeforeDestroy'
   },
@@ -114,18 +115,21 @@ const ToolTip = Behavior.extend({
   },
 
   onRender() {
-    this.ui.tooltip.tooltip({
-      text: this.getOption('text')
-    });
+    this.getUI('tooltip')[0].title = this.getOption('text');
   }
 });
 
-const MyView = View.extend({
+export const MyView = View.extend({
+  template() {
+    return [
+      '<button class="destroy-btn" type="button">Destroy</button>',
+      '<span class="tooltip">More information</span>'
+    ].join('');
+  },
+
   behaviors: [DestroyWarn, ToolTip]
 });
 ```
-
-[Live example](https://jsfiddle.net/marionettejs/b1awta6u/)
 
 Each behavior will now be able to respond to user interactions as though the
 event handlers were attached to the view directly. In addition to using array
@@ -166,8 +170,6 @@ const MyView = View.extend({
   ]
 });
 ```
-
-[Live example](https://jsfiddle.net/marionettejs/vq9k3c69/)
 
 There are several properties, if passed, that will be attached directly to the instance:
 `collectionEvents`, `events`, `modelEvents`, `triggers`, `ui`
@@ -244,7 +246,7 @@ In addition to extending a `View` with `Behavior`, a `Behavior` can itself use
 other Behaviors. The syntax is identical to that used for a `View`:
 
 ```javascript
-import { Behavior } from 'backbone.marionette';
+import { Behavior } from 'marionette';
 
 const Modal = Behavior.extend({
   behaviors: [
@@ -256,8 +258,6 @@ const Modal = Behavior.extend({
 });
 ```
 
-[Live example](https://jsfiddle.net/marionettejs/7ffnqff3/)
-
 Nesting groups Behavior declarations; it does not transfer cleanup ownership to
 the declaring Behavior. Nested Behaviors act as direct Behaviors of the same host
 view, so destroying the declarer leaves them active until they are removed
@@ -267,7 +267,7 @@ directly or the host is destroyed.
 The `view` is a reference to the `View` instance that the `Behavior` is attached to.
 
 ```javascript
-import { Behavior } from 'backbone.marionette';
+import { Behavior } from 'marionette';
 
 Behavior.extend({
   handleDestroyClick() {
@@ -275,8 +275,6 @@ Behavior.extend({
   }
 });
 ```
-
-[Live example](https://jsfiddle.net/marionettejs/p8vymo4j/)
 
 ## Host Communication and Event Proxies
 
@@ -370,7 +368,7 @@ including:
 * [`collectionEvents`](./events.entity.md#collection-events)
 
 ```javascript
-import { Behavior } from 'backbone.marionette';
+import { Behavior } from 'marionette';
 
 Behavior.extend({
   events: {
@@ -415,10 +413,10 @@ This means that the behavior can access the view during its own `initialize` met
 It can also access state established by the View's `preinitialize` method.
 Callable `events` and `triggers` may use state established by that method before
 the View initializes.
-The view `initialize` is called later with the information eventually injected by the behavior.
+The View's `initialize` is called later with its original constructor arguments.
+It can observe Behavior-driven state only when a Behavior explicitly sets that
+state or calls a host method; Marionette does not inject Behavior information.
 The `initialize` event is triggered on the behavior indicating that the view is fully initialized.
-
-[Live example](https://jsfiddle.net/marionettejs/qb9go1y3/)
 
 #### Using `ui`
 
@@ -427,7 +425,7 @@ listeners. For more details, see the [`ui` documentation](./dom.interactions.md#
 These can be defined on either the Behavior or the View:
 
 ```javascript
-import { Behavior } from 'backbone.marionette';
+import { Behavior } from 'marionette';
 
 const MyBehavior = Behavior.extend({
   ui: {
@@ -451,8 +449,6 @@ const MyBehavior = Behavior.extend({
   }
 });
 ```
-
-[Live example](https://jsfiddle.net/marionettejs/6b8o3pmz/)
 
 ### UI resolution and binding
 
@@ -552,7 +548,7 @@ does not need to retarget the Behavior separately.
 Each Behavior can also reference its host through the `view` attribute:
 
 ```javascript
-import { Behavior } from 'backbone.marionette';
+import { Behavior } from 'marionette';
 
 const ViewBehavior = Behavior.extend({
   onRender() {
