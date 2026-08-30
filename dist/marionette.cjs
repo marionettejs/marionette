@@ -1571,7 +1571,7 @@ const ViewMixin = {
   preinitialize() {},
   Dom: DomApi,
   _validateEl(el) {
-    if (!underscore.isString(el)) {
+    if (!isString(el)) {
       return el;
     }
     throw new MarionetteError({
@@ -1582,15 +1582,15 @@ const ViewMixin = {
     });
   },
   _getEl() {
-    const elOption = underscore.result(this, 'el');
+    const elOption = getValue(this, 'el');
     if (!elOption) {
-      const el = this.Dom.createElement(underscore.result(this, 'tagName'));
-      const attrs = assignOwn({}, underscore.result(this, 'attributes'));
+      const el = this.Dom.createElement(getValue(this, 'tagName'));
+      const attrs = assignOwn({}, getValue(this, 'attributes'));
       if (this.id) {
-        attrs.id = underscore.result(this, 'id');
+        attrs.id = getValue(this, 'id');
       }
       if (this.className) {
-        attrs.class = underscore.result(this, 'className');
+        attrs.class = getValue(this, 'className');
       }
       this.Dom.setAttributes(el, attrs);
       return el;
@@ -1673,13 +1673,13 @@ const ViewMixin = {
     return this._getUI(name);
   },
   _buildEventProxies() {
-    this._childViewEvents = this.normalizeMethods(underscore.result(this, 'childViewEvents'));
-    this._childViewTriggers = underscore.result(this, 'childViewTriggers');
+    this._childViewEvents = this.normalizeMethods(getValue(this, 'childViewEvents'));
+    this._childViewTriggers = getValue(this, 'childViewTriggers');
     this._eventPrefix = this._getEventPrefix();
   },
   _getEventPrefix() {
     const defaultPrefix = isEnabled('childViewEventPrefix') ? 'childview' : false;
-    const prefix = underscore.result(this, 'childViewEventPrefix', defaultPrefix);
+    const prefix = getValue(this, 'childViewEventPrefix', defaultPrefix);
     return prefix === false ? prefix : prefix + ':';
   },
   _proxyChildViewEvents(view) {
@@ -1701,7 +1701,7 @@ const ViewMixin = {
     }
   }
 };
-underscore.extend(ViewMixin, BehaviorsMixin, CommonMixin, DelegateEntityEventsMixin, TemplateRenderMixin, UIMixin, ViewEventsMixin);
+assignOwn(ViewMixin, BehaviorsMixin, CommonMixin, DelegateEntityEventsMixin, TemplateRenderMixin, UIMixin, ViewEventsMixin);
 
 function setRenderer$1(renderer) {
   this.prototype._renderHtml = renderer;
