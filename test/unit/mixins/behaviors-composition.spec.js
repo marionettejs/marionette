@@ -214,6 +214,13 @@ describe('Behaviors Mixin owned iteration', function() {
     });
   });
 
+  it('returns empty behavior event maps before behaviors are initialized', function() {
+    const host = { ...BehaviorsMixin };
+
+    expect(host._getBehaviorTriggers()).to.deep.equal({});
+    expect(host._getBehaviorEvents()).to.deep.equal({});
+  });
+
   it('broadcasts over the initial dense behavior list with exact arguments', function() {
     const calls = [];
     const host = { ...BehaviorsMixin };
