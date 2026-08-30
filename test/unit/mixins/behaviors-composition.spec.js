@@ -138,133 +138,140 @@ describe('Behaviors Mixin owned iteration', function() {
   });
 
   [
-    ['Triggers', '_getTriggers'],
-    ['Events', '_getEvents']
-  ].forEach(([type, getMap]) => {
-    it(`collects all behavior ${type.toLowerCase()} before composing own map keys`, function() {
-      const calls = [];
-      const firstProtoValue = { first: true };
-      const secondProtoValue = { second: true };
-      const inheritedMap = {};
-      Object.defineProperty(inheritedMap, 'inherited', {
-        enumerable: true,
-        get() {
-          throw new Error('inherited map value was read');
-        }
-      });
-      const firstMap = Object.create(inheritedMap);
-      Object.defineProperties(firstMap, {
-        first: {
+    ['_getBehaviorTriggers', 'triggers', '_getTriggers'],
+    ['_getBehaviorEvents', 'events', '_getEvents']
+  ].forEach(([method, type, getMap]) => {
+    describe(`#${method}`, function() {
+      it(`collects all behavior ${type} before composing own map keys`, function() {
+        const calls = [];
+        const firstProtoValue = { first: true };
+        const secondProtoValue = { second: true };
+        const inheritedMap = {};
+        Object.defineProperty(inheritedMap, 'inherited', {
           enumerable: true,
           get() {
-            calls.push('read:first');
-            return 'first';
+            throw new Error('inherited map value was read');
           }
-        },
-        shared: {
-          enumerable: true,
-          get() {
-            calls.push('read:first-shared');
-            return 'first';
+        });
+        const firstMap = Object.create(inheritedMap);
+        Object.defineProperties(firstMap, {
+          first: {
+            enumerable: true,
+            get() {
+              calls.push('read:first');
+              return 'first';
+            }
+          },
+          shared: {
+            enumerable: true,
+            get() {
+              calls.push('read:first-shared');
+              return 'first';
+            }
+          },
+          ['__proto__']: assignmentDescriptor(firstProtoValue)
+        });
+        firstMap[Symbol('ignored')] = 'ignored';
+        const secondMap = {};
+        Object.defineProperties(secondMap, {
+          shared: {
+            enumerable: true,
+            get() {
+              calls.push('read:second-shared');
+              return 'second';
+            }
+          },
+          ['__proto__']: assignmentDescriptor(secondProtoValue)
+        });
+        const firstBehavior = {
+          [getMap]() {
+            calls.push('get:first');
+            return firstMap;
           }
-        },
-        ['__proto__']: assignmentDescriptor(firstProtoValue)
-      });
-      firstMap[Symbol('ignored')] = 'ignored';
-      const secondMap = {};
-      Object.defineProperties(secondMap, {
-        shared: {
-          enumerable: true,
-          get() {
-            calls.push('read:second-shared');
-            return 'second';
+        };
+        const secondBehavior = {
+          [getMap]() {
+            calls.push('get:second');
+            return secondMap;
           }
-        },
-        ['__proto__']: assignmentDescriptor(secondProtoValue)
-      });
-      const firstBehavior = {
-        [getMap]() {
-          calls.push('get:first');
-          return firstMap;
-        }
-      };
-      const secondBehavior = {
-        [getMap]() {
-          calls.push('get:second');
-          return secondMap;
-        }
-      };
-      const host = { ...BehaviorsMixin, _behaviors: [firstBehavior, secondBehavior] };
+        };
+        const host = { ...BehaviorsMixin, _behaviors: [firstBehavior, secondBehavior] };
 
-      const merged = host[`_getBehavior${type}`]();
+        const merged = host[method]();
 
-      expect(calls).to.deep.equal([
-        'get:first',
-        'get:second',
-        'read:first',
-        'read:first-shared',
-        'read:second-shared'
-      ]);
-      expect(merged).to.include({ first: 'first', shared: 'second' });
-      expect(merged).to.not.have.property('inherited');
-      expect(Object.getOwnPropertySymbols(merged)).to.deep.equal([]);
-      expect(Object.getPrototypeOf(merged)).to.equal(Object.prototype);
-      expect(Object.getOwnPropertyDescriptor(merged, '__proto__'))
-        .to.deep.equal(assignmentDescriptor(secondProtoValue));
+        expect(calls).to.deep.equal([
+          'get:first',
+          'get:second',
+          'read:first',
+          'read:first-shared',
+          'read:second-shared'
+        ]);
+        expect(merged).to.include({ first: 'first', shared: 'second' });
+        expect(merged).to.not.have.property('inherited');
+        expect(Object.getOwnPropertySymbols(merged)).to.deep.equal([]);
+        expect(Object.getPrototypeOf(merged)).to.equal(Object.prototype);
+        expect(Object.getOwnPropertyDescriptor(merged, '__proto__'))
+          .to.deep.equal(assignmentDescriptor(secondProtoValue));
+      });
+
+      it('returns an empty map before behaviors are initialized', function() {
+        const host = { ...BehaviorsMixin };
+
+        expect(host[method]()).to.deep.equal({});
+      });
     });
   });
 
-  it('returns empty behavior event maps before behaviors are initialized', function() {
-    const host = { ...BehaviorsMixin };
+  describe('#_triggerEventOnBehaviors', function() {
+    it('broadcasts over the initial dense behavior list with exact arguments', function() {
+      const calls = [];
+      const host = { ...BehaviorsMixin };
+      const lateBehavior = {
+        triggerMethod() {
+          calls.push('late');
+        }
+      };
+      const firstBehavior = {
+        triggerMethod(...args) {
+          calls.push(['first', this, args]);
+          host._behaviors.push(lateBehavior);
+          host._behaviors = [];
+        }
+      };
+      const secondBehavior = {
+        triggerMethod(...args) {
+          calls.push(['second', this, args]);
+        }
+      };
+      host._behaviors = [firstBehavior, secondBehavior];
 
-    expect(host._getBehaviorTriggers()).to.deep.equal({});
-    expect(host._getBehaviorEvents()).to.deep.equal({});
+      host._triggerEventOnBehaviors('event', 'view', 'options');
+
+      expect(calls).to.deep.equal([
+        ['first', firstBehavior, ['event', 'view', 'options']],
+        ['second', secondBehavior, ['event', 'view', 'options']]
+      ]);
+    });
   });
 
-  it('broadcasts over the initial dense behavior list with exact arguments', function() {
-    const calls = [];
-    const host = { ...BehaviorsMixin };
-    const lateBehavior = {
-      triggerMethod() {
-        calls.push('late');
-      }
-    };
-    const firstBehavior = {
-      triggerMethod(...args) {
-        calls.push(['first', this, args]);
-        host._behaviors.push(lateBehavior);
-        host._behaviors = [];
-      }
-    };
-    const secondBehavior = {
-      triggerMethod(...args) {
-        calls.push(['second', this, args]);
-      }
-    };
-    host._behaviors = [firstBehavior, secondBehavior];
-
-    host._triggerEventOnBehaviors('event', 'view', 'options');
-
-    expect(calls).to.deep.equal([
-      ['first', firstBehavior, ['event', 'view', 'options']],
-      ['second', secondBehavior, ['event', 'view', 'options']]
-    ]);
+  describe('#_setBehaviorElements', function() {
+    it('allows element fan-out before behaviors are initialized', function() {
+      expect(() => BehaviorsMixin._setBehaviorElements.call({})).to.not.throw();
+    });
   });
 
-  it('allows element fan-out before behaviors are initialized', function() {
-    expect(() => BehaviorsMixin._setBehaviorElements.call({})).to.not.throw();
-  });
+  describe('#_removeBehavior', function() {
+    it('removes every matching identity into a fresh behavior list', function() {
+      const removed = {};
+      const retained = {};
+      const original = [removed, retained, removed];
+      const host = { ...BehaviorsMixin, _behaviors: original };
 
-  it('removes every matching identity into a fresh behavior list', function() {
-    const removed = {};
-    const retained = {};
-    const original = [removed, retained, removed];
-    const host = { ...BehaviorsMixin, _behaviors: original };
+      host._removeBehavior(removed);
 
-    host._removeBehavior(removed);
-
-    expect(host._behaviors).to.deep.equal([retained]);
-    expect(host._behaviors).to.not.equal(original);
-    expect(original).to.deep.equal([removed, retained, removed]);
+      expect(host._behaviors).to.deep.equal([retained]);
+      expect(host._behaviors).to.not.equal(original);
+      expect(original).to.deep.equal([removed, retained, removed]);
+    });
   });
 });
