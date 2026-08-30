@@ -1,0 +1,25 @@
+test/unit/region-lifecycle.spec.js
+  s_d6429951fb9231::t_8fecc519ac47c2 274,284-285,289-290,294,296-298,320-324,326-327
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_8fecc519ac47c2 66
+docs/marionette.region.md
+  s_d6429951fb9231::t_8fecc519ac47c2 566-568
+changelog.md
+  s_d6429951fb9231::t_8fecc519ac47c2 10-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "ed05becb870c5ba6f6a46cb7ec10a0be921a8d24",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
