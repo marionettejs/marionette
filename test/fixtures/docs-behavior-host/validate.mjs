@@ -11,6 +11,10 @@ const markdown = await readFile(docsPath, 'utf8');
 const distDir = resolve(__dirname, 'dist');
 const examples = [
   {
+    marker: '<!-- executable-example: behavior-defining-attaching -->',
+    path: resolve(distDir, 'defining-attaching.mjs'),
+  },
+  {
     marker: '<!-- executable-example: behavior-host-communication -->',
     path: resolve(distDir, 'host-communication.mjs'),
   },
@@ -46,6 +50,7 @@ const dom = new JSDOM(`<!doctype html>
       <button class="save" id="outside-save" type="button">Outside</button>
       <button class="btn-primary" id="outside-primary" type="button">Outside primary</button>
       <main id="communication-host"></main>
+      <main id="defining-host"></main>
       <main id="ui-host"></main>
       <main id="selection-host"></main>
     </body>
@@ -56,10 +61,44 @@ globalThis.document = dom.window.document;
 
 try {
   const [
+    { MyView: DefiningView },
     { FormView: CommunicationView },
     { FormView: UiResolutionView },
     { SelectionView },
   ] = await Promise.all(examples.map(example => import(pathToFileURL(example.path))));
+
+  {
+    const view = new DefiningView();
+
+    view.render();
+    document.querySelector('#defining-host').append(view.el);
+
+    const destroyButton = view.el.querySelector('.destroy-btn');
+    const tooltip = view.el.querySelector('.tooltip');
+
+    assert.ok(destroyButton, 'the defining example must render the Behavior event target');
+    assert.ok(tooltip, 'the defining example must render the Behavior UI target');
+    assert.equal(
+      tooltip.title,
+      'Tooltip text',
+      'the Behavior must set the native title through its bound UI element',
+    );
+
+    const messages = [];
+    const originalAlert = window.alert;
+    window.alert = message => messages.push(message);
+
+    try {
+      destroyButton.click();
+      assert.deepEqual(messages, ['You are destroying!']);
+      assert.equal(view.isDestroyed(), true, 'the Behavior event must destroy its host View');
+    } finally {
+      window.alert = originalAlert;
+      if (!view.isDestroyed()) {
+        view.destroy();
+      }
+    }
+  }
 
   {
     const view = new CommunicationView();
