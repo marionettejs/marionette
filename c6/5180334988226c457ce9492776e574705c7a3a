@@ -1,0 +1,49 @@
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_4c653268189ba2 1
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_aabdaf35cdba85 1
+dist/marionette.umd.js
+  s_d6429951fb9231::t_abd82201a803ba 2342-2349,2919-2926
+dist/marionette.min.js
+  s_d6429951fb9231::t_e7a36f041eb019 1
+test/unit/destroyed-set-element.spec.js
+  s_d6429951fb9231::t_8f1974039e0c3b 53
+  s_d6429951fb9231::t_8a687a1394d4c2 30,70
+  s_d6429951fb9231::t_68c8fe4efd2317 1-29,31-52,54-69,71-102
+docs/marionette.collectionview.md
+  s_d6429951fb9231::t_ac4a19a2f35749 151
+  s_d6429951fb9231::t_8683128e914276 155-156
+changelog.md
+  s_d6429951fb9231::t_ac4a19a2f35749 14-15
+config/diagnostics/catalog.json
+  s_d6429951fb9231::t_12d97df877c09f 486-502
+docs/view.lifecycle.md
+  s_d6429951fb9231::t_ac4a19a2f35749 67,72-74,104-107
+  s_d6429951fb9231::t_142df767ae8b6e 108
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_ac4a19a2f35749 59
+dist/marionette.js
+  s_d6429951fb9231::t_0f18fbe0c1bb46 2331-2338,2908-2915
+dist/marionette.cjs
+  s_d6429951fb9231::t_3cb12ba6ac6648 2335-2342,2912-2919
+modules/view-region.js
+  s_d6429951fb9231::t_12d97df877c09f 815-823
+modules/collection-view.js
+  s_d6429951fb9231::t_12d97df877c09f 336-344
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "c65180334988226c457ce9492776e574705c7a3a",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
