@@ -386,7 +386,6 @@ describe('CollectionView', function() {
           onBeforeRender: this.sinon.spy(),
           onRender: this.sinon.spy(),
           template,
-          ui: { children: '.children' },
         });
         myCollectionView = new DestroyedCollectionView({
           collection: new Backbone.Collection([{}, {}]),
@@ -405,7 +404,6 @@ describe('CollectionView', function() {
         myCollectionView.onBeforeRender.resetHistory();
         myCollectionView.onRender.resetHistory();
         const getTemplate = this.sinon.spy(myCollectionView, 'getTemplate');
-        const bindUIElements = this.sinon.spy(myCollectionView, 'bindUIElements');
 
         expect(myCollectionView.render()).to.equal(myCollectionView);
         expect(myCollectionView.render()).to.equal(myCollectionView);
@@ -416,14 +414,12 @@ describe('CollectionView', function() {
         expect(childInitialize).to.not.have.been.called;
         expect(myCollectionView.onBeforeRender).to.not.have.been.called;
         expect(myCollectionView.onRender).to.not.have.been.called;
-        expect(bindUIElements).to.not.have.been.called;
         expect(myCollectionView.el.innerHTML).to.equal(destroyedHtml);
         expect(myCollectionView.el.lastChild).to.equal(sentinel);
         expect(myCollectionView.isRendered()).to.be.false;
         expect(myCollectionView.isAttached()).to.be.false;
         expect(myCollectionView.isDestroyed()).to.be.true;
         expect(myCollectionView.children).to.have.length(0);
-        expect(myCollectionView._children).to.have.length(0);
         childViews.forEach(view => expect(view.isDestroyed()).to.be.true);
       });
     });

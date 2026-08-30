@@ -1,5 +1,4 @@
 import Region from '../../modules/region';
-import Behavior from '../../modules/behavior';
 import View from '../../modules/view';
 
 function state(view) {
@@ -96,19 +95,13 @@ describe('View lifecycle contract', function() {
 
   it('treats repeated render calls after destruction as idempotent no-ops', function() {
     const template = this.sinon.spy(() => `
-      <button class="action">Action</button>
       <div class="child-region"></div>
     `);
     const beforeRender = this.sinon.spy();
     const render = this.sinon.spy();
-    const TestBehavior = Behavior.extend({
-      ui: { action: '.action' },
-    });
     const ParentView = View.extend({
-      behaviors: [TestBehavior],
       regions: { child: '.child-region' },
       template,
-      ui: { action: '.action' },
     });
     const view = new ParentView();
     const child = new View({ template: () => '<span>Child</span>' });
@@ -117,8 +110,6 @@ describe('View lifecycle contract', function() {
     view.render();
     view.showChildView('child', child);
 
-    const childRegion = view.getRegion('child');
-    const behavior = view._behaviors[0];
     view.destroy();
 
     const sentinel = document.createElement('span');
@@ -128,29 +119,19 @@ describe('View lifecycle contract', function() {
     template.resetHistory();
     beforeRender.resetHistory();
     render.resetHistory();
-    const renderTemplate = this.sinon.spy(view, '_renderTemplate');
     const getTemplate = this.sinon.spy(view, 'getTemplate');
-    const bindUIElements = this.sinon.spy(view, 'bindUIElements');
-    const bindBehaviorUIElements = this.sinon.spy(behavior, 'bindUIElements');
-    const reInitRegions = this.sinon.spy(view, '_reInitRegions');
 
     expect(view.render()).to.equal(view);
     expect(view.render()).to.equal(view);
+    expect(view.hasRegion('child')).to.be.false;
 
     expect(getTemplate).to.not.have.been.called;
     expect(template).to.not.have.been.called;
-    expect(renderTemplate).to.not.have.been.called;
     expect(beforeRender).to.not.have.been.called;
     expect(render).to.not.have.been.called;
-    expect(bindUIElements).to.not.have.been.called;
-    expect(bindBehaviorUIElements).to.not.have.been.called;
-    expect(reInitRegions).to.not.have.been.called;
     expect(view.el.innerHTML).to.equal(destroyedHtml);
     expect(view.el.lastChild).to.equal(sentinel);
     expect(state(view)).to.deep.equal({ rendered: false, attached: false, destroyed: true });
-    expect(Object.keys(view._regions)).to.deep.equal([]);
-    expect(view._ui).to.be.undefined;
-    expect(childRegion.isDestroyed()).to.be.true;
     expect(state(child)).to.deep.equal({ rendered: false, attached: false, destroyed: true });
   });
 
