@@ -75,33 +75,69 @@ describe('Object and Application prototype composition', function() {
   it('does not compose inherited enumerable source pollution', async function() {
     const mixins = [CommonMixin, DestroyMixin, RadioMixin];
     const prototypes = mixins.map(Object.getPrototypeOf);
+    const commonProtoDescriptor = Object.getOwnPropertyDescriptor(CommonMixin, '__proto__');
     const protoValue = { safe: true };
-    mixins.forEach(mixin => {
-      const pollutedPrototype = {};
-      Object.defineProperty(pollutedPrototype, 'inheritedPollution', {
-        enumerable: true,
-        get() {
-          throw new Error('inherited pollution was read');
-        }
-      });
-      Object.setPrototypeOf(mixin, pollutedPrototype);
-    });
-    Object.defineProperty(CommonMixin, '__proto__', {
-      configurable: true,
-      enumerable: true,
-      value: protoValue,
-      writable: true
-    });
-
+    const mutatedMixins = [];
+    let commonProtoMutated = false;
     let IsolatedObject;
     let IsolatedApplication;
+    let primaryFailed = false;
+    let primaryError;
     try {
+      mixins.forEach(mixin => {
+        const pollutedPrototype = {};
+        Object.defineProperty(pollutedPrototype, 'inheritedPollution', {
+          enumerable: true,
+          get() {
+            throw new Error('inherited pollution was read');
+          }
+        });
+        Object.setPrototypeOf(mixin, pollutedPrototype);
+        mutatedMixins.push(mixin);
+      });
+      Object.defineProperty(CommonMixin, '__proto__', {
+        configurable: true,
+        enumerable: true,
+        value: protoValue,
+        writable: true
+      });
+      commonProtoMutated = true;
+
       ({ default: IsolatedObject } = await import('../../modules/object.js?composition-test'));
       ({ default: IsolatedApplication } = await import('../../modules/application.js?composition-test'));
-    } finally {
-      Reflect.deleteProperty(CommonMixin, '__proto__');
-      mixins.forEach((mixin, index) => Object.setPrototypeOf(mixin, prototypes[index]));
+    } catch (error) {
+      primaryFailed = true;
+      primaryError = error;
     }
+
+    let cleanupFailed = false;
+    let cleanupError;
+    const restore = callback => {
+      try {
+        callback();
+      } catch (error) {
+        if (!cleanupFailed) {
+          cleanupFailed = true;
+          cleanupError = error;
+        }
+      }
+    };
+
+    if (commonProtoMutated) {
+      restore(() => {
+        if (commonProtoDescriptor) {
+          Object.defineProperty(CommonMixin, '__proto__', commonProtoDescriptor);
+        } else if (!Reflect.deleteProperty(CommonMixin, '__proto__')) {
+          throw new Error('Unable to restore CommonMixin.__proto__');
+        }
+      });
+    }
+    for (let index = mutatedMixins.length - 1; index >= 0; index--) {
+      restore(() => Object.setPrototypeOf(mutatedMixins[index], prototypes[index]));
+    }
+
+    if (primaryFailed) { throw primaryError; }
+    if (cleanupFailed) { throw cleanupError; }
 
     expect(IsolatedObject).to.not.equal(MnObject);
     expect(IsolatedApplication).to.not.equal(Application);
