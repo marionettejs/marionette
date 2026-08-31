@@ -335,9 +335,13 @@ public contract.
 
 This roadmap names the public contracts and decision hypotheses so the release gate
 is auditable. Implementation acceptance cases and per-contract work status belong in
-their dedicated GitHub issues.
+their dedicated GitHub issues. Unless a statement explicitly describes current
+source, declarative language records the target v5 contract rather than claiming its
+implementation is already complete.
 
-The current evidence establishes these candidate decisions for validation:
+The current evidence establishes these selected decisions and gated candidates.
+Direct `retain`, `remove`, and `selected` language records a settled direction;
+`unless`, `if`, and `only if` language marks a remaining evidence gate:
 
 - Radio retains its existing module-global registry for v5. Do not add an isolated
   Radio factory, Application injection, or Application-owned channel lifetime without
@@ -443,9 +447,10 @@ Underscore in development-only Backbone parity coverage, while production entryp
 and shipped subpaths do not import or require it.
 
 Core does not absorb a statechart runtime, signals runtime, virtual DOM, query layer,
-schema system, router, agent protocol, or inspector UI. Optional integrations with
-those systems may adapt to the State or data-source contracts without becoming
-the canonical implementation.
+schema system, router, agent protocol, or inspector UI. Passing the platform
+`AbortSignal` to Application readiness is a bounded lifecycle contract, not a general
+signals runtime. Optional integrations with those systems may adapt to the State or
+data-source contracts without becoming the canonical implementation.
 
 The existing Marionette Toolkit informs migration but does not define a second v5
 object model. Toolkit App responsibilities strengthen the Application contract after
@@ -603,11 +608,12 @@ instructions, and every release blocker maps to this strategy.
 
 - Complete the remaining API-shape and agent-ergonomics gate for existing public
   contracts before freezing State, extension, or additional Application ownership
-  surface. The Application lifecycle-hook decision recorded below completed its part
-  of this gate by retaining core Marionette's subject-first lifecycle convention,
-  meeting the verified Toolkit/app-frontend asynchronous-readiness need through that
-  single hook path, and rejecting parallel compatibility seams. Broader Application
-  ownership work remains tracked by [#190][issue-190].
+  surface. The Application lifecycle-hook decision recorded below settles its target
+  shape by retaining core Marionette's subject-first lifecycle convention, meeting the
+  verified Toolkit/app-frontend asynchronous-readiness need through that single hook
+  path, and rejecting parallel compatibility seams. Executable implementation and
+  migration evidence remain required before this part of the gate passes. Broader
+  Application ownership work remains tracked by [#190][issue-190].
 - Complete the [production-runtime authorship audit][issue-329] for every in-scope path
   that differs from the v5 fork revision. Correct avoidable drift in naming, state
   vocabulary, method and helper boundaries, ordering, and control flow; document
