@@ -1,69 +1,81 @@
-# Features
+# Feature flags
 
-Marionette Features are opt-in functionality that you can enable by utilizing [`setEnabled`](#setting-a-feature-flag) in your app.
-It is a good practice to set these flags only once prior to instantiating any Marionette class.
+Marionette feature flags are stored in one module-global registry for each loaded
+copy of Marionette. Every application and Marionette class using that copy sees
+the same values. Configure built-in flags once during application bootstrap,
+before constructing any views.
 
-## Documentation Index
+## Documentation index
 
-* [Goals](#goals)
-* [Checking a Feature Flag state](#checking-a-feature-flag-state)
-* [Setting a Feature Flag](#setting-a-feature-flag)
-* [Current Features](#current-features)
+* [Checking a feature flag](#checking-a-feature-flag)
+* [Setting feature flags at bootstrap](#setting-feature-flags-at-bootstrap)
+* [Custom feature names](#custom-feature-names)
+* [Current features](#current-features)
 
-## Goals:
-+ make it possible to add breaking changes in a minor release
-+ give community members a chance to provide feedback for new functionality
+## Checking a feature flag
 
-## Checking a Feature Flag State
-
-Use `isEnabled` if you need to know the state of a feature flag programmatically.
+`isEnabled(name)` always returns a boolean. It returns the truthiness of the
+stored state for a known string name, and `false` for unknown, blank, or
+non-string names. It does not throw for invalid input.
 
 ```javascript
 import { isEnabled } from 'marionette';
 
-isEnabled('fooFlag'); // false
+isEnabled('triggersPreventDefault'); // true
+isEnabled('missingFeature'); // false
+isEnabled(null); // false
 ```
 
-## Setting a Feature Flag
+## Setting feature flags at bootstrap
 
-Use `setEnabled` to change the value of a documented Marionette flag or to
-store an application-owned flag. Non-string and blank names throw
-`MarionetteError` code [`MN0027`](/errors/MN0027/) without changing the feature
-registry.
-While setting a flag at any point may work, these flags are designed to be set before
-any functionality of Marionette is used. Change flags after at your own risk.
+`setEnabled(name, state)` stores and returns the exact `state` value. Marionette
+uses that value by truthiness when checking the flag; the state is not otherwise
+validated or coerced. A non-string or blank name throws `MarionetteError` code
+[`MN0027`](/errors/MN0027/) before changing the registry.
 
+Set built-in flags before constructing `View` or `CollectionView` instances.
+Their child-event prefix and delegated trigger callbacks capture the applicable
+flag state during setup. Changing a flag later does not itself rebuild existing
+event proxies or delegated callbacks; an explicit `delegateEvents()` refresh,
+including one caused by `setElement()`, resolves the then-current flag values.
+
+<!-- executable-example: feature-flags-bootstrap -->
 ```javascript
-import { setEnabled } from 'marionette';
+import { isEnabled, setEnabled } from 'marionette';
 
+setEnabled('childViewEventPrefix', true);
 setEnabled('triggersPreventDefault', false);
-setEnabled('applicationOwned', true);
+setEnabled('triggersStopPropagation', false);
 
-const myApp = new MyApp({
-  region: '#app-hook'
-});
-
-myApp.start();
+export const featureStates = {
+  childViewEventPrefix: isEnabled('childViewEventPrefix'),
+  triggersPreventDefault: isEnabled('triggersPreventDefault'),
+  triggersStopPropagation: isEnabled('triggersStopPropagation')
+};
 ```
 
-## Current Features
+The registry has no application ownership, lifecycle hooks, scoped overrides,
+reset operation, or automatic cleanup. A value remains in the loaded module's
+registry until another `setEnabled` call overwrites it or the process ends.
 
-### `childViewEventPrefix`
+## Custom feature names
 
-*Default:* `false`
+For compatibility with v3 and v4, `setEnabled` accepts any non-empty string and
+therefore can store application-owned flags. Marionette does not read custom
+names, namespace them, or clean them up. Prefer an explicit application
+configuration object or service for new application flags so their ownership
+and lifecycle are clear and they cannot collide with a future Marionette name.
 
-This flag indicates whether [`childViewEventPrefix`](./events.md#a-child-views-event-prefix)
-for all views will return the default value of `'childview'` or if it will return `false`
-disabling [automatic event bubbling](./events.md#event-bubbling).
+`DEV_MODE` is not a built-in v5 feature. Calling `setEnabled('DEV_MODE', true)`
+stores a custom truthy value but has no effect on Marionette diagnostics or
+runtime behavior. Remove that v4 deprecation-warning configuration.
 
-### `triggersPreventDefault`
+## Current features
 
-*Default:* `true`
+These are the only built-in flags in v5:
 
-It indicates whether [`View.triggers` will call `event.preventDefault()`](./dom.interactions.md#view-triggers) if not explicitly defined by the trigger.
-
-### `triggersStopPropagation`
-
-*Default:* `true`
-
-It indicates whether [`View.triggers` will call `event.stopPropagation()`](./dom.interactions.md#view-triggers) if not explicitly defined by the trigger.
+| Name | Default | Effect |
+| --- | --- | --- |
+| `childViewEventPrefix` | `false` | When truthy, the default [`childViewEventPrefix`](./events.md#a-child-views-event-prefix) is `childview`, producing events such as `childview:render`. When falsey, automatic child-event bubbling is disabled unless the View supplies its own prefix. |
+| `triggersPreventDefault` | `true` | When truthy, [`View.triggers`](./dom.interactions.md#view-triggers) calls `event.preventDefault()` unless that trigger explicitly sets `preventDefault: false`. When falsey, a trigger must explicitly set `preventDefault: true` to call it. |
+| `triggersStopPropagation` | `true` | When truthy, [`View.triggers`](./dom.interactions.md#view-triggers) calls `event.stopPropagation()` unless that trigger explicitly sets `stopPropagation: false`. When falsey, a trigger must explicitly set `stopPropagation: true` to call it. |
