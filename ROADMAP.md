@@ -269,6 +269,10 @@ reference app and agent benchmark. Available app-frontend and Marionette Toolkit
 migrations may reveal implementation or migration problems but do not define the
 public contract.
 
+This roadmap names the public contracts and decision hypotheses so the release gate
+is auditable. Implementation acceptance cases and per-contract work status belong in
+their dedicated GitHub issues.
+
 The current evidence establishes these candidate decisions for validation:
 
 - `Region.show` and `View.showChildView` accept a View-like instance. The v3/v4
@@ -503,7 +507,7 @@ instructions, and every release blocker maps to this strategy.
   before freezing additional Application, State, or extension surface.
 - Before the next v5 alpha, resolve the known detached-element attachment and
   CollectionView removal-only update correctness gaps. Detailed acceptance criteria
-  and browser cases belong in their GitHub issues.
+  and browser cases belong in dedicated GitHub issues created before implementation.
 - Select and document the stable model and collection data protocol independently of
   State. Either deliberately freeze the current Backbone-shaped fields and event
   payloads or replace them with one lean adapter contract; do not ship both as
@@ -574,9 +578,9 @@ Gate: all stable release criteria below pass.
 
 ### Phase 5: Evidence-dependent candidates
 
-Benchmark declarative definition helpers, adapter implementations beyond the Phase 1
-model and collection data protocol, rendering seams, alternative CollectionView
-strategies, and optional integrations. These
+Benchmark declarative definition helpers, adapter implementations beyond whichever
+model and collection data protocol Phase 1 selects, rendering seams, alternative
+CollectionView strategies, and optional integrations. These
 experiments do not block stable v5. Unsuccessful candidates are documented and closed
 rather than retained as dormant APIs.
 
