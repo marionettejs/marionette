@@ -605,6 +605,29 @@ describe('Application lifecycle', function() {
     expect(app.isDestroyed()).to.be.false;
   });
 
+  it('shares stop calls during destroy and settles after the stop phase', async function() {
+    const stopping = defer();
+    const teardown = defer();
+    const app = new (Application.extend({
+      onBeforeStop() { return stopping.promise; },
+      onBeforeDestroy() { return teardown.promise; }
+    }))();
+    await app.start();
+
+    const destroy = app.destroy();
+    const firstStop = app.stop();
+    const repeatedStop = app.stop();
+
+    expect(repeatedStop).to.equal(firstStop);
+    stopping.resolve();
+    expect(await firstStop).to.be.true;
+    expect(app.isDestroyed()).to.be.false;
+
+    teardown.resolve();
+    expect(await destroy).to.be.true;
+    expect(app.isDestroyed()).to.be.true;
+  });
+
   it('shares stop readiness across a start-stop-destroy overlap', async function() {
     const stopping = defer();
     const beforeStop = this.sinon.stub().returns(stopping.promise);

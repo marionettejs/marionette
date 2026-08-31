@@ -3674,12 +3674,8 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
       if (!operation?.stopReadiness) {
         return Promise.resolve(true);
       }
-      return operation.promise.catch(error => {
-        if (this._lifecycleState === STOPPED || this._lifecycleState === DESTROYED) {
-          return true;
-        }
-        throw error;
-      });
+      operation.stopPromise ||= operation.stopReadiness.promise.then(() => true);
+      return operation.stopPromise;
     }
     if (operation?.kind === 'stop') {
       return operation.promise;
