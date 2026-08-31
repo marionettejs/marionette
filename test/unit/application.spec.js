@@ -95,10 +95,10 @@ describe('Marionette Application', function() {
       app = new Application();
     });
 
-    it('should return current application context', function() {
-      const result = app.start(fooOptions);
+    it('should resolve when the application starts', async function() {
+      const result = await app.start(fooOptions);
 
-      expect(result).to.have.been.equal(app);
+      expect(result).to.be.true;
     });
   });
 
@@ -155,15 +155,15 @@ describe('Marionette Application', function() {
       fooApp.on('start', startStub);
     });
 
-    it('should run the onStart callback', function() {
-      fooApp.start(fooOptions);
+    it('should run the onStart callback', async function() {
+      await fooApp.start(fooOptions);
 
       expect(startStub).to.have.been.called;
       expect(onStartStub).to.have.been.called;
     });
 
-    it('should pass the startup option to the callback', function() {
-      fooApp.start(fooOptions);
+    it('should pass the startup option to the callback', async function() {
+      await fooApp.start(fooOptions);
 
       expect(startStub).to.have.been.calledOnce.and.calledWith(fooApp, fooOptions);
       expect(onStartStub).to.have.been.calledOnce.and.calledWith(fooApp, fooOptions);

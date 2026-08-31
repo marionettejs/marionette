@@ -18,6 +18,14 @@ const ClassOptions = [
   'regionClass'
 ];
 
+const DESTROYED = 'destroyed';
+const DESTROYING = 'destroying';
+const RESTARTING = 'restarting';
+const RUNNING = 'running';
+const STARTING = 'starting';
+const STOPPED = 'stopped';
+const STOPPING = 'stopping';
+
 const Application = function(options) {
   this._setOptions(options, ClassOptions);
   this.cid = uniqueId(this.cidPrefix);
@@ -28,17 +36,268 @@ const Application = function(options) {
 
 Application.extend = extend;
 
+function isCurrentOperation(application, operation) {
+  return application._lifecycleOperation === operation;
+}
+
+function createDeferred() {
+  let resolve;
+  let reject;
+  const promise = new Promise((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+
+  return { promise, reject, resolve };
+}
+
+function beginReadiness(operation, options, callback) {
+  const deferred = createDeferred();
+  const controller = new AbortController();
+  const readiness = {
+    ...deferred,
+    context: { signal: controller.signal },
+    controller,
+    options
+  };
+
+  operation.readiness = readiness;
+
+  try {
+    Promise.resolve(callback(readiness.context)).then(readiness.resolve, readiness.reject);
+  } catch (error) {
+    readiness.reject(error);
+  }
+
+  return readiness;
+}
+
+function completeReadiness(operation) {
+  delete operation.readiness;
+}
+
+function getFailureState(application, operation) {
+  if (operation?.stopReadiness) { return operation.failureState; }
+  return application._lifecycleState === RUNNING ? RUNNING : STOPPED;
+}
+
+function supersedeOperation(application) {
+  const operation = application._lifecycleOperation;
+  if (!operation) { return; }
+
+  delete application._lifecycleOperation;
+  operation.resolve(!!operation.isCompleting);
+  return operation;
+}
+
+function completeOperation(application, operation) {
+  if (!isCurrentOperation(application, operation)) { return; }
+
+  delete application._lifecycleOperation;
+  operation.resolve(true);
+}
+
+function failOperation(application, operation, error) {
+  if (!isCurrentOperation(application, operation)) { return; }
+
+  delete application._lifecycleOperation;
+  application._lifecycleState = operation.failureState;
+  operation.reject(error);
+}
+
+function runOperation(application, operation, callback) {
+  (async() => {
+    try {
+      await callback();
+      completeOperation(application, operation);
+    } catch (error) {
+      failOperation(application, operation, error);
+    }
+  })();
+}
+
+function beginOperation(application, kind, state, failureState, callback) {
+  const superseded = supersedeOperation(application);
+  const deferred = createDeferred();
+  const stopReadiness = superseded?.stopReadiness;
+
+  const operation = {
+    ...deferred,
+    kind,
+    failureState,
+    readiness: stopReadiness,
+    stopReadiness
+  };
+
+  application._lifecycleOperation = operation;
+  application._lifecycleState = state;
+
+  if (superseded?.readiness && superseded.readiness !== stopReadiness) {
+    superseded.readiness.controller.abort();
+  }
+
+  if (!isCurrentOperation(application, operation)) { return deferred.promise; }
+  runOperation(application, operation, () => callback(operation));
+
+  return deferred.promise;
+}
+
+async function startApplication(application, operation, options) {
+  if (operation.stopReadiness) {
+    const readiness = operation.stopReadiness;
+    await readiness.promise;
+    if (!isCurrentOperation(application, operation)) { return; }
+
+    completeReadiness(operation);
+    operation.failureState = STOPPED;
+    delete operation.stopReadiness;
+  }
+
+  const readiness = beginReadiness(operation, options, context => {
+    return application.triggerMethod('before:start', application, options, context);
+  });
+
+  await readiness.promise;
+  if (!isCurrentOperation(application, operation)) { return; }
+
+  completeReadiness(operation);
+  application._lifecycleState = RUNNING;
+  operation.failureState = RUNNING;
+  operation.isCompleting = true;
+  application.triggerMethod('start', application, options);
+}
+
+async function stopApplication(application, operation, options) {
+  try {
+    if (!operation.stopReadiness) {
+      const readiness = beginReadiness(operation, options, context => {
+        return application.triggerMethod('before:stop', application, options, context);
+      });
+      operation.stopReadiness = readiness;
+    }
+
+    const readiness = operation.stopReadiness;
+    await readiness.promise;
+    if (!isCurrentOperation(application, operation)) { return; }
+
+    completeReadiness(operation);
+    operation.failureState = STOPPED;
+    delete operation.stopReadiness;
+    operation.isStopped = true;
+    if (operation.kind === 'stop') {
+      application._lifecycleState = STOPPED;
+      operation.isCompleting = true;
+    }
+    application.triggerMethod('stop', application, readiness.options);
+    operation.stopResult?.resolve(true);
+  } catch (error) {
+    operation.stopResult?.reject(error);
+    throw error;
+  }
+}
+
 // Application Methods
 // --------------
 
 assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
   cidPrefix: 'mna',
 
+  _lifecycleState: STOPPED,
+
+  isRunning() {
+    return this._lifecycleState === RUNNING;
+  },
+
   // Kick off all of the application's processes.
   start(options) {
-    this.triggerMethod('before:start', this, options);
-    this.triggerMethod('start', this, options);
-    return this;
+    if (this._lifecycleState === DESTROYING || this._lifecycleState === DESTROYED) {
+      return Promise.resolve(false);
+    }
+
+    const operation = this._lifecycleOperation;
+    if (operation?.kind === 'start') { return operation.promise; }
+    if (this._lifecycleState === RUNNING && !operation) { return Promise.resolve(true); }
+
+    const failureState = getFailureState(this, operation);
+    return beginOperation(this, 'start', STARTING, failureState, current => {
+      return startApplication(this, current, options);
+    });
+  },
+
+  stop(options) {
+    if (this._lifecycleState === DESTROYED) {
+      return Promise.resolve(true);
+    }
+
+    const operation = this._lifecycleOperation;
+    if (this._lifecycleState === DESTROYING) {
+      if (!operation?.stopReadiness) { return Promise.resolve(true); }
+      // Destroy cannot be superseded and starts its stop phase synchronously.
+      if (!operation.stopResult) {
+        operation.stopResult = createDeferred();
+      }
+      return operation.stopResult.promise;
+    }
+    if (operation?.kind === 'stop') { return operation.promise; }
+    if (operation?.isStopped) {
+      const superseded = supersedeOperation(this);
+      this._lifecycleState = STOPPED;
+      superseded.readiness?.controller.abort();
+      return Promise.resolve(true);
+    }
+    if (this._lifecycleState === STOPPED && !operation) { return Promise.resolve(true); }
+    const failureState = getFailureState(this, operation);
+
+    return beginOperation(this, 'stop', STOPPING, failureState, current => {
+      return stopApplication(this, current, options);
+    });
+  },
+
+  restart(options) {
+    if (this._lifecycleState === DESTROYING || this._lifecycleState === DESTROYED) {
+      return Promise.resolve(false);
+    }
+
+    const operation = this._lifecycleOperation;
+    if (operation?.kind === 'restart') { return operation.promise; }
+    const shouldStop = !operation?.isStopped && this._lifecycleState !== STOPPED;
+    const failureState = getFailureState(this, operation);
+
+    return beginOperation(this, 'restart', RESTARTING, failureState, async current => {
+      if (shouldStop) {
+        await stopApplication(this, current, options);
+        if (!isCurrentOperation(this, current)) { return; }
+      }
+      await startApplication(this, current, options);
+    });
+  },
+
+  destroy(options) {
+    if (this._lifecycleState === DESTROYED) { return Promise.resolve(true); }
+
+    const operation = this._lifecycleOperation;
+    if (operation?.kind === 'destroy') { return operation.promise; }
+    const shouldStop = !operation?.isStopped && this._lifecycleState !== STOPPED;
+    const failureState = getFailureState(this, operation);
+
+    return beginOperation(this, 'destroy', DESTROYING, failureState, async current => {
+      if (shouldStop) {
+        await stopApplication(this, current, options);
+      }
+
+      const readiness = beginReadiness(current, options, context => {
+        return this.triggerMethod('before:destroy', this, options, context);
+      });
+
+      await readiness.promise;
+      completeReadiness(current);
+      this._isDestroyed = true;
+      this._lifecycleState = DESTROYED;
+      current.failureState = DESTROYED;
+      current.isCompleting = true;
+      this.triggerMethod('destroy', this, options);
+      this.stopListening();
+    });
   },
 
   regionClass: Region,
