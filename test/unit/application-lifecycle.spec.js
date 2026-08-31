@@ -150,6 +150,21 @@ describe('Application lifecycle', function() {
     expect(app.isRunning()).to.be.true;
   });
 
+  it('rejects the winning stop when superseded restart readiness throws synchronously', async function() {
+    const error = new Error('stop failed');
+    const app = new (Application.extend({
+      onBeforeStop() { throw error; }
+    }))();
+    await app.start();
+
+    const restart = app.restart();
+    const stop = app.stop();
+
+    expect(await restart).to.be.false;
+    await expectRejection(stop, error);
+    expect(app.isRunning()).to.be.true;
+  });
+
   it('restarts through stop and start in lifecycle order', async function() {
     const events = [];
     const TestApplication = Application.extend({
@@ -563,6 +578,28 @@ describe('Application lifecycle', function() {
     expect(beforeStop).to.have.been.calledOnce;
     expect(stopEvent).to.have.been.calledOnce;
     expect(startEvent).to.not.have.been.called;
+    expect(app.isDestroyed()).to.be.true;
+  });
+
+  it('shares repeated stop readiness before destroy supersedes both calls', async function() {
+    const stopping = defer();
+    const beforeStop = this.sinon.stub().returns(stopping.promise);
+    const stopEvent = this.sinon.spy();
+    const app = new (Application.extend({ onBeforeStop: beforeStop, onStop: stopEvent }))();
+    await app.start();
+
+    const firstStop = app.stop();
+    const repeatedStop = app.stop();
+    const destroy = app.destroy();
+
+    expect(repeatedStop).to.equal(firstStop);
+    expect(await firstStop).to.be.false;
+    expect(await repeatedStop).to.be.false;
+
+    stopping.resolve();
+    expect(await destroy).to.be.true;
+    expect(beforeStop).to.have.been.calledOnce;
+    expect(stopEvent).to.have.been.calledOnce;
     expect(app.isDestroyed()).to.be.true;
   });
 

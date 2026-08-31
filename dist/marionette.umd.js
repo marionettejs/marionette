@@ -3693,7 +3693,7 @@
       if (this._lifecycleState === STOPPED && !operation) {
         return Promise.resolve(true);
       }
-      const failureState = this._lifecycleState === RUNNING ? RUNNING : STOPPED;
+      const failureState = operation?.stopReadiness ? operation.failureState : this._lifecycleState === RUNNING ? RUNNING : STOPPED;
       return beginOperation(this, 'stop', STOPPING, failureState, current => {
         return stopApplication(this, current, options);
       });
