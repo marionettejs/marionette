@@ -3565,10 +3565,8 @@ function beginReadiness(operation, options, callback) {
   }
   return readiness;
 }
-function completeReadiness(operation, readiness) {
-  if (operation.readiness === readiness) {
-    delete operation.readiness;
-  }
+function completeReadiness(operation) {
+  delete operation.readiness;
 }
 function getFailureState(application, operation) {
   if (operation?.stopReadiness) {
@@ -3639,7 +3637,7 @@ async function startApplication(application, operation, options) {
     if (!isCurrentOperation(application, operation)) {
       return;
     }
-    completeReadiness(operation, readiness);
+    completeReadiness(operation);
     operation.failureState = STOPPED;
     delete operation.stopReadiness;
   }
@@ -3650,7 +3648,7 @@ async function startApplication(application, operation, options) {
   if (!isCurrentOperation(application, operation)) {
     return;
   }
-  completeReadiness(operation, readiness);
+  completeReadiness(operation);
   application._lifecycleState = RUNNING;
   operation.failureState = RUNNING;
   operation.isCompleting = true;
@@ -3669,7 +3667,7 @@ async function stopApplication(application, operation, options) {
     if (!isCurrentOperation(application, operation)) {
       return;
     }
-    completeReadiness(operation, readiness);
+    completeReadiness(operation);
     operation.failureState = STOPPED;
     delete operation.stopReadiness;
     operation.isStopped = true;
@@ -3775,10 +3773,7 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
         return this.triggerMethod('before:destroy', this, options, context);
       });
       await readiness.promise;
-      if (!isCurrentOperation(this, current)) {
-        return;
-      }
-      completeReadiness(current, readiness);
+      completeReadiness(current);
       this._isDestroyed = true;
       this._lifecycleState = DESTROYED;
       current.failureState = DESTROYED;
