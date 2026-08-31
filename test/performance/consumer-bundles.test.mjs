@@ -96,7 +96,7 @@ describe('consumer bundle measurements', () => {
 
     assert.match(
       validateConsumerBundleContract(changed, fixture, packageJson, brotliQuality).join('\n'),
-      /fixture SHA-256.*does not match.*Locked terser version/s
+      /Locked terser version/
     );
 
     const measured = await measureConsumerBundles({
@@ -104,10 +104,8 @@ describe('consumer bundle measurements', () => {
       contract: changed,
       brotliQuality,
     });
-    assert.match(
-      measured.violations.join('\n'),
-      /fixture SHA-256.*does not match.*Locked terser version/s
-    );
+    assert.match(measured.violations.join('\n'), /fixture SHA-256.*does not match/);
+    assert.match(measured.violations.join('\n'), /Locked terser version/);
   });
 
   test('externalizes runtime peers and keeps the root scenario isolated', async() => {

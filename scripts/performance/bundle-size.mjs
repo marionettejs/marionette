@@ -248,10 +248,6 @@ function sha256Text(value) {
   return createHash('sha256').update(value).digest('hex');
 }
 
-function canonicalJson(value) {
-  return `${JSON.stringify(value, null, 2)}\n`;
-}
-
 function sameStringInventory(actual, expected) {
   return Array.isArray(actual) && isDeepStrictEqual(actual, expected);
 }
@@ -287,11 +283,6 @@ export function validateConsumerBundleContract(contract, fixture, packageJson, b
   if (!isDeepStrictEqual(fixture?.compression, expectedCompression)) {
     violations.push(`Consumer bundle compression must be Brotli quality ${brotliQuality}`);
   }
-  const fixtureRevision = fixture ? sha256Text(canonicalJson(fixture)) : null;
-  if (fixtureRevision !== contract.fixture?.sha256) {
-    violations.push(`Consumer bundle fixture SHA-256 ${fixtureRevision || 'missing'} does not match ${contract.fixture?.sha256 || 'missing'}`);
-  }
-
   const scenarioIds = fixture?.scenarios?.map(({ id }) => id);
   if (!sameStringInventory(scenarioIds, consumerScenarioIds)) {
     violations.push(`Consumer bundle scenario inventory must be ${consumerScenarioIds.join(', ')}`);
@@ -424,8 +415,7 @@ export async function measureConsumerBundles({ root = '.', contract, brotliQuali
     brotliQuality
   );
   const actualFixtureRevision = sha256Text(fixtureText);
-  if (actualFixtureRevision !== contract.fixture.sha256 &&
-      !violations.some(violation => violation.startsWith('Consumer bundle fixture SHA-256'))) {
+  if (actualFixtureRevision !== contract.fixture.sha256) {
     violations.push(`Consumer bundle fixture SHA-256 ${actualFixtureRevision} does not match ${contract.fixture.sha256}`);
   }
   const fixtureRoot = dirname(fixturePath);
