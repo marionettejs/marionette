@@ -1,0 +1,27 @@
+modules/behavior.js
+  s_d6429951fb9231::t_868ee71f2b833e 104-105
+test/unit/destroyed-bind-ui-elements.spec.js
+  s_d6429951fb9231::t_f66ad937daf706 1-100,102-135,151
+  s_d6429951fb9231::t_868ee71f2b833e 101
+  s_d6429951fb9231::t_636bf06264c253 136-150
+mixins/view.js
+  s_d6429951fb9231::t_868ee71f2b833e 214-215
+changelog.md
+  s_d6429951fb9231::t_aae2cddd3739bb 39-41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "fccee4fcd15d3e8a5e84d177c0ff499b3894ed56",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
