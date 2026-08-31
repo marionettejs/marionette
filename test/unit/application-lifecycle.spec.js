@@ -114,6 +114,18 @@ describe('Application lifecycle', function() {
     expect(events).to.deep.equal(['before:start', 'start']);
   });
 
+  it('does not await a before event listener return value', async function() {
+    const listenerReadiness = defer();
+    const app = new Application();
+    app.on('before:start', () => listenerReadiness.promise);
+
+    expect(await app.start()).to.be.true;
+    expect(app.isRunning()).to.be.true;
+
+    listenerReadiness.resolve();
+    await app.destroy();
+  });
+
   it('aborts invalidated readiness before replacement readiness starts', async function() {
     const readiness = defer();
     const events = [];
@@ -155,16 +167,25 @@ describe('Application lifecycle', function() {
 
   it('transfers stop readiness without aborting its signal', async function() {
     const readiness = defer();
+    const stopOptions = { source: 'stop' };
+    const restartOptions = { source: 'restart' };
     let stopContext;
+    let completedStopOptions;
     const onBeforeStop = this.sinon.stub().callsFake((app, options, context) => {
       stopContext = context;
       return readiness.promise;
     });
-    const app = new (Application.extend({ onBeforeStop }))();
+    const app = new (Application.extend({
+      onBeforeStop,
+      onStop(application, options) {
+        expect(application).to.equal(app);
+        completedStopOptions = options;
+      }
+    }))();
     await app.start();
 
-    const stop = app.stop();
-    const restart = app.restart();
+    const stop = app.stop(stopOptions);
+    const restart = app.restart(restartOptions);
 
     expect(await stop).to.be.false;
     expect(stopContext.signal.aborted).to.be.false;
@@ -172,6 +193,8 @@ describe('Application lifecycle', function() {
     expect(await restart).to.be.true;
     expect(stopContext.signal.aborted).to.be.false;
     expect(onBeforeStop).to.have.been.calledOnce;
+    expect(onBeforeStop).to.have.been.calledWith(app, stopOptions, stopContext);
+    expect(completedStopOptions).to.equal(stopOptions);
   });
 
   it('shares a compatible in-flight start and no-ops once running', async function() {
@@ -400,6 +423,19 @@ describe('Application lifecycle', function() {
 
     expect(events).to.deep.equal(['stop']);
     expect(app.isRunning()).to.be.false;
+  });
+
+  it('remains stopped when the restart stop completion hook fails', async function() {
+    const error = new Error('stop completion failed');
+    const app = new (Application.extend({
+      onStop() { throw error; }
+    }))();
+    await app.start();
+
+    await expectRejection(app.restart(), error);
+
+    expect(app.isRunning()).to.be.false;
+    expect(await app.start()).to.be.true;
   });
 
   it('lets start supersede an in-flight stop without a stale stop event', async function() {

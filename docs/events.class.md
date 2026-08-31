@@ -92,9 +92,10 @@ As shown, the `options` object passed to `start` is forwarded after the
 Application to its lifecycle methods and events. Readiness methods and
 `before:*` events also receive a context object as the third argument. Its
 `signal` is aborted when a later operation invalidates that readiness. A
-transferred stop phase retains the same context and un-aborted signal. Only the
-Promise returned by the `onBeforeStart`, `onBeforeStop`, or `onBeforeDestroy`
-method delays its lifecycle; event-listener return values are ignored.
+transferred stop phase retains its original options, context, and un-aborted
+signal. Only the Promise returned by the `onBeforeStart`, `onBeforeStop`, or
+`onBeforeDestroy` method delays its lifecycle; event-listener return values are
+ignored.
 
 ### `before:stop` event
 

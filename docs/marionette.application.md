@@ -88,7 +88,7 @@ readiness, Marionette aborts its signal before starting replacement readiness.
 The signal makes cancellation cooperative; the invalidated operation still
 resolves `false` even when a handler ignores it. When a start, restart, or
 destroy operation adopts an in-flight stop phase, it also adopts that phase's
-context and does not abort its signal.
+original options and context, and does not abort its signal.
 
 The context belongs to the readiness phase rather than to one caller's Promise.
 Completion methods and events receive only `(application, options)`.

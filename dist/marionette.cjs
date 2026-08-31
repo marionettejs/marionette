@@ -3550,7 +3550,7 @@ function createDeferred() {
     resolve
   };
 }
-function beginReadiness(operation, callback) {
+function beginReadiness(operation, options, callback) {
   const deferred = createDeferred();
   const controller = new AbortController();
   const readiness = {
@@ -3558,7 +3558,8 @@ function beginReadiness(operation, callback) {
     context: {
       signal: controller.signal
     },
-    controller
+    controller,
+    options
   };
   operation.readiness = readiness;
   try {
@@ -3643,7 +3644,7 @@ async function startApplication(application, operation, options) {
     operation.failureState = STOPPED;
     delete operation.stopReadiness;
   }
-  const readiness = beginReadiness(operation, context => {
+  const readiness = beginReadiness(operation, options, context => {
     return application.triggerMethod('before:start', application, options, context);
   });
   await readiness.promise;
@@ -3659,7 +3660,7 @@ async function startApplication(application, operation, options) {
 async function stopApplication(application, operation, options) {
   try {
     if (!operation.stopReadiness) {
-      const readiness = beginReadiness(operation, context => {
+      const readiness = beginReadiness(operation, options, context => {
         return application.triggerMethod('before:stop', application, options, context);
       });
       operation.stopReadiness = readiness;
@@ -3677,7 +3678,7 @@ async function stopApplication(application, operation, options) {
       application._lifecycleState = STOPPED;
       operation.isCompleting = true;
     }
-    application.triggerMethod('stop', application, options);
+    application.triggerMethod('stop', application, readiness.options);
     operation.stopResult?.resolve(true);
   } catch (error) {
     operation.stopResult?.reject(error);
@@ -3771,7 +3772,7 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
       if (shouldStop) {
         await stopApplication(this, current, options);
       }
-      const readiness = beginReadiness(current, context => {
+      const readiness = beginReadiness(current, options, context => {
         return this.triggerMethod('before:destroy', this, options, context);
       });
       await readiness.promise;
