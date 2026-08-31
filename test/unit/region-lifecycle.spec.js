@@ -165,6 +165,23 @@ describe('Region lifecycle contract', function() {
     expect(view.isRendered()).to.be.false;
   });
 
+  it('shows a View in template content without reporting attachment', function() {
+    const template = document.createElement('template');
+    template.innerHTML = '<section></section>';
+    const templateRegion = new Region({ el: template.content.firstElementChild });
+    const view = new TestView();
+    const attach = this.sinon.spy();
+    view.on('attach', attach);
+
+    expect(templateRegion.el.ownerDocument.documentElement).to.be.null;
+    expect(templateRegion.show(view)).to.equal(templateRegion);
+    expect(templateRegion.el.contains(view.el)).to.be.true;
+    expect(view.isAttached()).to.be.false;
+    expect(attach).to.not.have.been.called;
+
+    templateRegion.destroy();
+  });
+
   it('treats repeated show, empty, and destroy operations deterministically', function() {
     const lifecycle = [];
     const view = new TestView();

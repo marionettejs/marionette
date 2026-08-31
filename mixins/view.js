@@ -96,7 +96,8 @@ const ViewMixin = {
   },
 
   _isElAttached() {
-    return !!this.el && this.Dom.hasEl(this.Dom.getDocumentEl(this.el), this.el);
+    const documentEl = this.el && this.Dom.getDocumentEl(this.el);
+    return !!documentEl && this.Dom.hasEl(documentEl, this.el);
   },
 
   supportsRenderLifecycle: true,

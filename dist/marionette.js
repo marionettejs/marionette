@@ -1670,7 +1670,8 @@ const ViewMixin = {
     return this.Dom.findEl(this.el, selector);
   },
   _isElAttached() {
-    return !!this.el && this.Dom.hasEl(this.Dom.getDocumentEl(this.el), this.el);
+    const documentEl = this.el && this.Dom.getDocumentEl(this.el);
+    return !!documentEl && this.Dom.hasEl(documentEl, this.el);
   },
   supportsRenderLifecycle: true,
   supportsDestroyLifecycle: true,
@@ -2006,7 +2007,8 @@ assignOwn(Region.prototype, CommonMixin, {
     return this._parentView && this._parentView.monitorViewEvents === false;
   },
   _isElAttached() {
-    return this.Dom.hasEl(this.Dom.getDocumentEl(this.el), this.el);
+    const documentEl = this.Dom.getDocumentEl(this.el);
+    return !!documentEl && this.Dom.hasEl(documentEl, this.el);
   },
   _attachView(view, {
     replaceElement
