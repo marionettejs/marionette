@@ -135,8 +135,6 @@ if (!started) {
 }
 ```
 
-[Live example](https://jsfiddle.net/marionettejs/k05dctyt/)
-
 ## Application Region
 
 An `Application` provides a single [region](./marionette.region.md) for attaching a view tree.
@@ -157,8 +155,6 @@ const MyApp = Application.extend({
 const myApp = new MyApp();
 await myApp.start();
 ```
-
-[Live example](https://jsfiddle.net/marionettejs/uzc8or6u/)
 
 This will immediately render `RootView` and fire the usual triggers such as
 `before:attach` and `attach` in addition to the `before:render` and `render`
