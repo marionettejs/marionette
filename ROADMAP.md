@@ -78,13 +78,12 @@ to preserve obsolete behavior or dependencies.
   behavior-preserving changes with proportionate regression coverage.
 
 Before the stable API and runtime freeze, audit every executable production-source
-path whose source differs from the v5 fork revision, including work already merged. The
-[public audit inventory][issue-329] is bounded to executable production-source paths
-in the shipped module graph that differ from the v5 fork revision. Each path records
-its comparison source and one disposition: align with an established pattern, retain
-a departure for one of the technical requirements enumerated above, or open a separate
-behavior/API issue. A departure without one of those evidenced requirements is
-avoidable drift.
+path in the shipped module graph whose source differs from the v5 fork revision,
+including work already merged. The [public audit inventory][issue-329] records each
+in-scope path's comparison source and one disposition: align with an established
+pattern, retain a departure for one of the technical requirements enumerated above,
+or open a separate behavior/API issue. A departure without one of those evidenced
+requirements is avoidable drift.
 
 ### Explicit contracts over inference
 
@@ -283,8 +282,9 @@ belongs on the View; the Behavior may receive an ordinary reference to that Stat
 does not compose, own, or destroy it.
 
 Appropriate core additions include public read-only ownership accessors, pure Region
-lookup, shared diagnostics, extension hooks with no registered listeners by default,
-and narrowly designed resource ownership.
+lookup, and shared diagnostics. Resource ownership and extension hooks remain
+evidence-dependent 5.x candidates unless required development or test functionality
+cannot be built from public lifecycle events and topology APIs.
 
 ### API-shape and agent-ergonomics gate
 
@@ -333,13 +333,28 @@ The current evidence establishes these candidate decisions for validation:
   semantics, and their overlap behavior, then prove the selected state machine.
   Otherwise retain synchronous lifecycle and keep async orchestration explicit in
   consumer code.
-- The currently documented model and collection data protocol is an explicit but
-  Backbone-shaped v5 pre-release contract. A benchmark adapter can satisfy it only by
-  reproducing `cid`, `attributes`, `models`, `indexOf`, and exact event payloads.
-  Before stable, v5 either freezes that protocol deliberately or replaces it with one
-  lean canonical adapter contract and an executable Backbone migration. State remains
-  an ownership and local-state concern and does not implicitly solve this data-source
-  decision.
+- The remaining Backbone data coupling is narrow rather than architectural. V5 owns
+  Events, `extend`, Radio, lifecycle, and DOM delegation; the root runtime does not
+  import Backbone, while the optional `marionette/backbone` subpath does. The current
+  CollectionView and template paths still assume `model.cid`, `model.attributes`,
+  `collection.models`, `collection.indexOf(model)`, and exact Backbone `sort`, `reset`,
+  and `update` payloads. `modelEvents` and `collectionEvents` require only an emitter
+  with `on` and `off` and remain independent declarative bindings.
+- Before stable, prototype one lean canonical data boundary in preference to freezing
+  those Backbone-shaped fields. Its responsibilities are an ordered item snapshot or
+  iterable, stable identity or an explicit key for immutable replacement, explicit item
+  serialization, and change subscription through normalized change records. Prefer
+  object identity through `Map` or `WeakMap` over requiring `cid`, and obtain order from
+  one snapshot rather than combining `models` with `indexOf`. Backbone enters through
+  an explicit adapter using this same protocol; do not add implicit Backbone detection,
+  per-model wrappers, or a second reconciliation path.
+- Select the lean boundary only if an executable Backbone migration and representative
+  plain-data consumer prove simpler non-Backbone use, preserved child View and DOM
+  identity across removal and reorder, large-list cost within budget, no per-model
+  wrapper, one reconciliation path, retained emitter-only `modelEvents` and
+  `collectionEvents`, and genuinely optional Backbone package metadata. If it fails
+  those gates, deliberately retain and document the current protocol. State remains an
+  owned local-state concern, not the collection data source.
 - Template cloning is a valid optimized rendering technique, not evidence by itself
   for another renderer API. First measure and document the explicit existing recipe:
   construct the final imported element in `buildChildView`, pass it to the child View,
@@ -546,12 +561,14 @@ instructions, and every release blocker maps to this strategy.
 - Before the next v5 alpha, resolve the [detached-element attachment gap][issue-327]
   and [CollectionView removal-only update gap][issue-328]. Detailed acceptance
   criteria and browser cases remain in those issues.
-- Select and document the stable model and collection data protocol independently of
-  State. Either deliberately freeze the current Backbone-shaped fields and event
-  payloads or replace them with one lean adapter contract; do not ship both as
-  canonical paths. A correctness fix against the current protocol does not freeze it;
-  re-evaluate CollectionView update bookkeeping against the selected protocol before
-  freezing either implementation.
+- Prototype and select the stable model and collection data protocol independently of
+  State. Evaluate the preferred lean boundary against the current Backbone-shaped
+  fields and payloads using the API-shape acceptance evidence above. If it passes,
+  Backbone uses an explicit adapter through the single internal reconciliation path;
+  if it fails, deliberately retain and document the current protocol. Do not ship both
+  as canonical paths. A correctness fix against the current protocol does not freeze
+  it; re-evaluate CollectionView update bookkeeping against the selected protocol
+  before freezing either implementation.
 - Specify Application as Marionette's first promise-based public lifecycle contract
   and add transition-table or model-based tests. Preserve Marionette lifecycle
   signatures with the subject first. Treat Promises returned by `onBeforeStart`,
@@ -586,8 +603,9 @@ instructions, and every release blocker maps to this strategy.
 
 Gate: core invariants are documented, testable through public APIs, and add no
 measurable work to unrelated instances beyond approved budgets. The public authorship
-audit covers all v5-added or materially rewritten production runtime files, with
-avoidable drift corrected and substantial remaining departures justified.
+audit covers every executable production-source path in the shipped module graph whose
+source differs from the v5 fork revision, with avoidable drift corrected and
+substantial remaining departures justified.
 
 ### Phase 2: Static guidance
 
@@ -606,8 +624,9 @@ run in CI without loading new production code.
 - Add removable development validation.
 - Add the optional topology inspector with a versioned output schema.
 - Add runner-neutral lifecycle, topology, and cleanup test helpers.
-- Implement only the extension hooks required by these public development/test
-  consumers, with no listener or allocation cost when unused.
+- Build development and test support from public lifecycle events and topology APIs.
+  Do not add extension-hook dispatch to 5.0 unless required public `marionette/dev` or
+  `marionette/test` functionality is proven impossible without it.
 - Separate and verify production, development, and test package surfaces.
 
 Gate: production bundles prove optional surfaces are absent unless imported;
@@ -615,12 +634,10 @@ development and test fixtures exercise every public helper.
 
 ### Phase 4: Integration and benchmark closure
 
-- Add pay-for-play resource ownership and extension integrations justified by the
-  earlier evidence.
 - Run the fixed agent corpus against the complete release candidate.
 - Validate plain Views, Views composed with State, nested Applications, the selected
-  Application startup and restart contract, Application resource cleanup, and
-  shared-host overlays in the reference application.
+  Application startup and restart contract, Application cleanup through public
+  lifecycle callbacks, and shared-host overlays in the reference application.
 - Close correctness, documentation, packaging, browser, and performance gaps exposed
   by the reference application.
 - Complete v5 reference and migration documentation.
@@ -631,9 +648,11 @@ Gate: all stable release criteria below pass.
 
 Benchmark declarative definition helpers, adapter implementations beyond whichever
 model and collection data protocol Phase 1 selects, rendering seams, alternative
-CollectionView strategies, and optional integrations. These
-experiments do not block stable v5. Unsuccessful candidates are documented and closed
-rather than retained as dormant APIs.
+CollectionView strategies, optional integrations, pay-for-play resource ownership,
+and the smallest extension-hook contract justified by a public consumer that cannot
+use lifecycle events and topology APIs. These experiments target 5.x and do not block
+stable v5. Unsuccessful candidates are documented and closed rather than retained as
+dormant APIs.
 
 ## Stable v5 release criteria
 
@@ -665,9 +684,10 @@ rather than retained as dormant APIs.
   that distinguish the selected form from the rejected alternative, truthful source
   ownership, and no unverified duplicate root utility or internal forwarding path.
 - If the current model and collection data protocol is retained, it passes
-  compatibility tests. If it is replaced, an executable Backbone migration is
-  exercised. In either case, the selected protocol passes source, distribution,
-  packed-package, and real-browser tests.
+  compatibility tests. If the lean protocol is selected, its explicit Backbone
+  adapter and plain-data consumer exercise the API-shape acceptance evidence above.
+  In either case, the selected protocol passes source, distribution, packed-package,
+  and real-browser tests.
 - Large-list operation-count scenarios pass source, distribution, packed-package, and
   real-browser tests.
 - CollectionView removal-only update semantics pass source, distribution,
