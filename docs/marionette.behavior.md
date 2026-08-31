@@ -487,6 +487,14 @@ template. Without a template, `CollectionView#render` leaves Behavior UI as sele
 strings; call `collectionView.bindUIElements()` after the expected elements exist to
 bind them explicitly.
 
+Once the owning View or CollectionView starts destruction, its base
+`bindUIElements()` method and direct `bindUIElements()` calls on a Behavior owned by
+or retained from that host are chainable no-ops. They do not resolve host UI or query
+the retained root element. `unbindUIElements()` remains available for cleanup, and
+`getUI()` continues to throw [`MN0023`](/errors/MN0023/) while UI is unbound. Reusing
+a Behavior after calling `Behavior#destroy()` while its host remains live is outside
+this terminal-host contract.
+
 A `View` initialized around pre-rendered content binds its own UI before it
 constructs Behaviors. This contract pins only that construction ordering. It
 intentionally leaves the mixed Behavior UI representation for that path unresolved;

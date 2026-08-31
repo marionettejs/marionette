@@ -1698,7 +1698,7 @@
       return !!this._isAttached;
     },
     delegateEvents(events) {
-      if (this._isDestroyed || this._isDestroying) {
+      if (this._isDestroying || this._isDestroyed) {
         return this;
       }
       this.undelegateEvents();
@@ -1761,6 +1761,9 @@
       return this;
     },
     bindUIElements() {
+      if (this._isDestroyed || this._isDestroying) {
+        return this;
+      }
       this._bindUIElements();
       this._bindBehaviorUIElements();
       return this;
@@ -3420,6 +3423,9 @@
       return this;
     },
     bindUIElements() {
+      if (this.view._isDestroying || this.view._isDestroyed) {
+        return this;
+      }
       this._bindUIElements();
       return this;
     },

@@ -121,7 +121,7 @@ const ViewMixin = {
   },
 
   delegateEvents(events) {
-    if (this._isDestroyed || this._isDestroying) { return this; }
+    if (this._isDestroying || this._isDestroyed) { return this; }
 
     this.undelegateEvents();
     this._buildEventProxies();
@@ -211,6 +211,8 @@ const ViewMixin = {
 
   // This method binds the elements specified in the "ui" hash
   bindUIElements() {
+    if (this._isDestroyed || this._isDestroying) { return this; }
+
     this._bindUIElements();
     this._bindBehaviorUIElements();
 
