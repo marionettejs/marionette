@@ -612,9 +612,11 @@ rather than retained as dormant APIs.
 - Every contract in the API-shape and agent-ergonomics gate has an explicit keep or
   remove decision, an exercised migration when removed, truthful source ownership,
   and no unverified duplicate root utility or internal forwarding path.
-- The selected model and collection protocol, its Backbone migration, large-list
-  operation-count scenarios, detached-element attachment semantics, and optimized
-  rendering recipe pass source, distribution, packed-package, and real-browser tests.
+- The selected model and collection protocol passes compatibility tests when the
+  Backbone-shaped contract is retained or an exercised Backbone migration when it is
+  replaced. The protocol, large-list operation-count scenarios, detached-element
+  attachment semantics, and optimized rendering recipe pass source, distribution,
+  packed-package, and real-browser tests.
 - No unapproved build, lint, type, or test warning remains.
 
 Pre-releases may expose experimental APIs. Before stable, they may be changed or
