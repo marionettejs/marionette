@@ -1,0 +1,20 @@
+test/browser/attachment-owner-document.mjs
+  s_d6429951fb9231::t_731d2cb507ba3c 3,7,10,13,101-102,104,107-109
+  s_d6429951fb9231::t_40820a06d29c10 110
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "b6dca97960b4289d2cdf8b563c4a1292ddebfbba",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
