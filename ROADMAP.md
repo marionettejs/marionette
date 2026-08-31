@@ -78,9 +78,13 @@ to preserve obsolete behavior or dependencies.
   behavior-preserving changes with proportionate regression coverage.
 
 Before the stable API and runtime freeze, audit production code added or materially
-rewritten for v5, including work already merged. The public audit inventory records
-which files were assessed, which departures were corrected, and why any substantial
-departure remains warranted.
+rewritten for v5, including work already merged. The
+[public audit inventory][issue-329] is bounded to executable production-source paths
+in the shipped module graph that differ from the v5 fork revision. Each path records
+its comparison source and one disposition: align with an established pattern, retain
+a departure for a named correctness, concurrency, performance, packaging, native-ESM,
+or dependency-removal requirement, or open a separate behavior/API issue. A departure
+without one of those evidenced requirements is avoidable drift.
 
 ### Explicit contracts over inference
 
@@ -527,8 +531,10 @@ instructions, and every release blocker maps to this strategy.
 
 ### Phase 1: Core contracts
 
-- Complete the API-shape and agent-ergonomics gate for existing public contracts
-  before freezing additional Application, State, or extension surface.
+- Complete the remaining API-shape and agent-ergonomics gate for existing public
+  contracts before freezing State, extension, or additional Application ownership
+  surface. The Application lifecycle-hook decision recorded below is complete; its
+  broader ownership work remains tracked by [#190][issue-190].
 - Complete the [production-runtime authorship audit][issue-329] for code added or
   materially rewritten for v5. Correct avoidable drift in naming, state vocabulary,
   method and helper boundaries, ordering, and control flow; document warranted
@@ -548,11 +554,13 @@ instructions, and every release blocker maps to this strategy.
   signatures with the subject first. Treat Promises returned by `onBeforeStart`,
   `onBeforeStop`, and `onBeforeDestroy` as their operations' only readiness inputs;
   keep `onStart`, `onStop`, and `onDestroy` as non-awaited completion notifications.
-  Compatible repeated calls share their operation. A current readiness failure rejects
-  that operation; a later incompatible operation supersedes it before its target state
-  is reached; destruction is terminal; and stale readiness completion cannot mutate
-  state or emit an invalidated completion event. Do not add Toolkit's `beforeStart`,
-  `triggerStart`, or `finallyStart` extension seams.
+  Completion return values are ignored and asynchronous completion work owns its error
+  handling. A synchronous throw from a current readiness or completion hook rejects
+  the operation while preserving the last lifecycle state reached. Compatible repeated
+  calls share their operation. A later incompatible operation supersedes it before its
+  target state is reached; destruction is terminal; and stale readiness completion
+  cannot mutate state or emit an invalidated completion event. Do not add Toolkit's
+  `beforeStart`, `triggerStart`, or `finallyStart` extension seams.
 - Strengthen Application as the single non-renderable lifecycle and ownership scope,
   with parentlessness identifying the root and child Applications representing nested
   scopes. Specify deterministic startup and restart semantics under the selected
@@ -697,3 +705,4 @@ block stable v5.
 [issue-327]: https://github.com/marionettejs/marionette/issues/327
 [issue-328]: https://github.com/marionettejs/marionette/issues/328
 [issue-329]: https://github.com/marionettejs/marionette/issues/329
+[issue-190]: https://github.com/marionettejs/marionette/issues/190
