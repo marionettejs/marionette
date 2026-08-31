@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "fixtureVersion": "v1",
+  "packageName": "marionette",
+  "compression": {
+    "algorithm": "brotli",
+    "quality": 11
+  },
+  "treeshake": true,
+  "minify": {
+    "compress": {
+      "passes": 2
+    },
+    "format": {
+      "comments": false
+    },
+    "mangle": true
+  },
+  "formats": [
+    {
+      "id": "esm",
+      "rollupFormat": "es"
+    },
+    {
+      "id": "cjs",
+      "rollupFormat": "cjs"
+    },
+    {
+      "id": "umd",
+      "rollupFormat": "umd"
+    }
+  ],
+  "expectedArtifacts": [
+    "root-only:esm",
+    "root-only:cjs",
+    "root-only:umd",
+    "backbone-only:esm",
+    "backbone-only:cjs",
+    "backbone-only:umd",
+    "jquery-dom-api-only:esm",
+    "jquery-dom-api-only:cjs",
+    "jquery-dom-api-only:umd",
+    "root-plus-backbone:esm",
+    "root-plus-backbone:cjs",
+    "root-plus-backbone:umd",
+    "root-plus-jquery:esm",
+    "root-plus-jquery:cjs",
+    "root-plus-jquery:umd",
+    "root-plus-backbone-jquery:esm",
+    "root-plus-backbone-jquery:cjs",
+    "root-plus-backbone-jquery:umd"
+  ],
+  "scenarios": [
+    {
+      "id": "root-only",
+      "entry": "root-only.js",
+      "entrySha256": "9d25eabb86b385791b36e8aa56d845ff459c7adb07d62dacb504bc2189ef1510",
+      "publicImports": [
+        "marionette"
+      ],
+      "exercisedExports": [
+        "*"
+      ],
+      "expectedModules": [
+        "benchmarks/consumer-bundles/v1/root-only.js",
+        "dist/marionette.js"
+      ],
+      "expectedExternalImports": []
+    },
+    {
+      "id": "backbone-only",
+      "entry": "backbone-only.js",
+      "entrySha256": "c54a66300a9438aa88f131fdb8bb03e7e7ff714f2f153136a9d978d484e8c97b",
+      "publicImports": [
+        "marionette/backbone"
+      ],
+      "exercisedExports": [
+        "default"
+      ],
+      "expectedModules": [
+        "benchmarks/consumer-bundles/v1/backbone-only.js",
+        "dist/backbone.js",
+        "dist/marionette.js"
+      ],
+      "expectedExternalImports": [
+        "backbone"
+      ]
+    },
+    {
+      "id": "jquery-dom-api-only",
+      "entry": "jquery-dom-api-only.js",
+      "entrySha256": "26d25e2857d9fadedc404ab61b0e38a585234359494106b9c1477630f3d6f3c4",
+      "publicImports": [
+        "marionette/jquery-dom-api"
+      ],
+      "exercisedExports": [
+        "default"
+      ],
+      "expectedModules": [
+        "benchmarks/consumer-bundles/v1/jquery-dom-api-only.js",
+        "dist/jquery-dom-api.js"
+      ],
+      "expectedExternalImports": [
+        "jquery"
+      ]
+    },
+    {
+      "id": "root-plus-backbone",
+      "entry": "root-plus-backbone.js",
+      "entrySha256": "ee0441e600e3f94b263ac9d3ce0e679a7a9400c4d1a1c83ac9896b2e68a9cf32",
+      "publicImports": [
+        "marionette",
+        "marionette/backbone"
+      ],
+      "exercisedExports": [
+        "*",
+        "default"
+      ],
+      "expectedModules": [
+        "benchmarks/consumer-bundles/v1/root-plus-backbone.js",
+        "dist/backbone.js",
+        "dist/marionette.js"
+      ],
+      "expectedExternalImports": [
+        "backbone"
+      ]
+    },
+    {
+      "id": "root-plus-jquery",
+      "entry": "root-plus-jquery.js",
+      "entrySha256": "22057944e3223539a75566892e2ebd8267f43979495d6ce0370d8884d4f201a1",
+      "publicImports": [
+        "marionette",
+        "marionette/jquery-dom-api"
+      ],
+      "exercisedExports": [
+        "*",
+        "default"
+      ],
+      "expectedModules": [
+        "benchmarks/consumer-bundles/v1/root-plus-jquery.js",
+        "dist/jquery-dom-api.js",
+        "dist/marionette.js"
+      ],
+      "expectedExternalImports": [
+        "jquery"
+      ]
+    },
+    {
+      "id": "root-plus-backbone-jquery",
+      "entry": "root-plus-backbone-jquery.js",
+      "entrySha256": "11e8b600de783fa5958e4b5d5abb006df1eb82f8c662d023e4fe6d094b34a8a3",
+      "publicImports": [
+        "marionette",
+        "marionette/backbone",
+        "marionette/jquery-dom-api"
+      ],
+      "exercisedExports": [
+        "*",
+        "default",
+        "default"
+      ],
+      "expectedModules": [
+        "benchmarks/consumer-bundles/v1/root-plus-backbone-jquery.js",
+        "dist/backbone.js",
+        "dist/jquery-dom-api.js",
+        "dist/marionette.js"
+      ],
+      "expectedExternalImports": [
+        "backbone",
+        "jquery"
+      ]
+    }
+  ]
+}
