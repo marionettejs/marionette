@@ -265,6 +265,32 @@ describe('Region lifecycle contract', function() {
     expect(originalEl.isConnected).to.be.true;
   });
 
+  it('does not detach through an owner while its Region is destroying', function() {
+    const owner = new View({
+      regions: {
+        content: '.content',
+      },
+      template() {
+        return '<div class="content"></div>';
+      },
+    });
+    const view = new TestView();
+
+    owner.render();
+    const ownedRegion = owner.getRegion('content');
+    ownedRegion.show(view);
+    ownedRegion.on('before:destroy', currentRegion => {
+      expect(owner.detachChildView('content')).to.be.undefined;
+      expect(currentRegion.currentView).to.equal(view);
+    });
+
+    ownedRegion.destroy();
+
+    expect(view.isDestroyed()).to.be.true;
+    expect(owner.getRegion('content')).to.be.undefined;
+    owner.destroy();
+  });
+
   it('preserves ownership when terminal detach precedes a failed destroy', function() {
     const error = new Error('stop destroy');
     const view = new TestView();
