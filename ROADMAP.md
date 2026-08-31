@@ -227,7 +227,7 @@ Phase 1 must define `start`'s return value, readiness and failure semantics, and
 reentrant or overlapping start, stop, and restart behavior under the selected
 synchronous or awaitable contract. If lifecycle work may remain pending, invalidated
 work must settle deterministically without exposing stale success or leaving callers
-pending. Migration tests cover the existing synchronous return contract.
+pending. Migration tests must cover the existing synchronous return contract.
 
 Owned child Applications follow their owner's start, stop, restart, and destroy
 lifecycle without per-child lifecycle flags. A capability that must outlive its
@@ -284,8 +284,9 @@ The current evidence establishes these candidate decisions for validation:
 - Instance `getOption` and `mergeOptions` remain migration candidates to keep because
   verified public consumers use both and `mergeOptions` provides an explicit
   constructor option whitelist. New core contracts do not expand their role. The
-  target-first root utility exports are separate contracts and are removed when no
-  verified public consumer or benchmark task justifies their duplicate call shape.
+  target-first root utility exports, which take the target instance as their first
+  argument instead of calling its method, are separate contracts and are removed when
+  no verified public consumer or benchmark task justifies their duplicate call shape.
 - Lifecycle callback discovery must be explicit and inspectable. The audit tests
   whether `triggerMethod` should call only instance methods rather than inheriting
   `getOption`'s constructor-option precedence; an options-based lifecycle handler is
@@ -323,9 +324,10 @@ The current evidence establishes these candidate decisions for validation:
 The gate passes only when every reviewed contract has one documented canonical form,
 an executable migration where behavior changes, source and package entrypoints that
 name their real owner, no unverified alias or fallback path, and paired agent tasks
-that distinguish the retained form from the removed alternative. API-shape changes
-land as small dedicated changes rather than being mixed into unrelated lifecycle or
-ownership work.
+that distinguish the retained form from the removed alternative. These are contract
+discrimination checks; they use the statistical paired-comparable protocol only when
+registered in that benchmark stratum. API-shape changes land as small dedicated
+changes rather than being mixed into unrelated lifecycle or ownership work.
 
 Stable v5 removes Underscore as a required Marionette runtime peer without removing
 the documented, useful Backbone-era ergonomics of `CollectionView.children`. The
@@ -614,9 +616,14 @@ rather than retained as dormant APIs.
   and no unverified duplicate root utility or internal forwarding path.
 - The selected model and collection protocol passes compatibility tests when the
   Backbone-shaped contract is retained or is replaced with an exercised Backbone
-  migration. The protocol, large-list operation-count scenarios, detached-element
-  attachment semantics, and optimized rendering recipe pass source, distribution,
-  packed-package, and real-browser tests.
+  migration. The selected protocol passes source, distribution, packed-package, and
+  real-browser tests.
+- Large-list operation-count scenarios pass their documented source, distribution,
+  packed-package, and real-browser gates.
+- Detached-element attachment semantics pass source, distribution, packed-package,
+  and real-browser tests.
+- The optimized rendering recipe passes source, distribution, packed-package, and
+  real-browser tests.
 - No unapproved build, lint, type, or test warning remains.
 
 Pre-releases may expose experimental APIs. Before stable, they may be changed or
