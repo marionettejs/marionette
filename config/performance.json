@@ -21,12 +21,9 @@
       }
     },
     "lockedDependencies": {
-      "@rollup/plugin-terser": "1.0.0",
       "backbone": "1.4.0",
-      "jquery": "4.0.0",
       "jsdom": "30.0.1",
-      "rollup": "4.63.0",
-      "terser": "5.48.0"
+      "rollup": "4.63.0"
     },
     "commands": {
       "deterministic": [
@@ -194,24 +191,6 @@
     "config/release-profile.json",
     "config/release-promotion.json"
   ],
-  "consumerBundles": {
-    "schemaVersion": 1,
-    "status": "reporting",
-    "fixture": {
-      "version": "v1",
-      "path": "benchmarks/consumer-bundles/v1/manifest.json",
-      "sha256": "4f02c53b7a01054fb4126340d04c6ad5eff319d3c76daad3b790ab8da41a9243"
-    },
-    "toolchain": {
-      "rollup": "4.63.0",
-      "rollupPluginTerser": "1.0.0",
-      "terser": "5.48.0"
-    },
-    "peerExternalImports": [
-      "backbone",
-      "jquery"
-    ]
-  },
   "deterministicResources": {
     "attachDetachCycles": 100,
     "mountDestroyCycles": 1000,

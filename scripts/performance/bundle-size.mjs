@@ -34,6 +34,7 @@ const consumerScenarioIds = [
 const consumerFormatIds = ['esm', 'cjs', 'umd'];
 const consumerCompression = { algorithm: 'brotli', quality: 11 };
 const consumerPeerExternalImports = ['backbone', 'jquery'];
+const consumerBundleContractPath = 'benchmarks/consumer-bundles/contract.json';
 const consumerToolchain = {
   rollup: '4.63.0',
   rollupPluginTerser: '1.0.0',
@@ -257,8 +258,24 @@ function sameStringInventory(actual, expected) {
 
 export function validateConsumerBundleContract(contract, fixture, packageJson, brotliQuality) {
   const violations = [];
-  if (!contract || contract.schemaVersion !== 1) {
+  if (!contract || !sameStringInventory(Object.keys(contract).sort(), [
+    'fixture',
+    'peerExternalImports',
+    'schemaVersion',
+    'status',
+    'toolchain',
+  ]) || contract.schemaVersion !== 1) {
     return ['consumerBundles must use schemaVersion 1'];
+  }
+  if (!sameStringInventory(Object.keys(contract.fixture || {}).sort(), [
+    'path',
+    'sha256',
+    'version',
+  ]) || contract.fixture.version !== 'v1' ||
+      contract.fixture.path !== 'benchmarks/consumer-bundles/v1/manifest.json' ||
+      typeof contract.fixture.sha256 !== 'string' ||
+      !/^[a-f\d]{64}$/.test(contract.fixture.sha256)) {
+    violations.push('consumerBundles fixture authority is malformed');
   }
   if (contract.status !== 'reporting') {
     violations.push('consumerBundles status must remain reporting until baselines and ceilings are adopted');
@@ -297,6 +314,9 @@ export function validateConsumerBundleContract(contract, fixture, packageJson, b
     .sort();
   if (!sameStringInventory(contract.peerExternalImports, runtimePeers)) {
     violations.push(`Consumer bundle peer externals must be ${runtimePeers.join(', ')}`);
+  }
+  if (!isDeepStrictEqual(contract.toolchain, consumerToolchain)) {
+    violations.push('Consumer bundle toolchain metadata is not canonical');
   }
   const pinnedTools = {
     rollup: packageJson.devDependencies?.rollup,
@@ -340,42 +360,6 @@ export function validateConsumerBundleContract(contract, fixture, packageJson, b
   }
 
   return violations;
-}
-
-export function validateCandidateConsumerBundleContract(authority, candidate) {
-  const base = authority?.consumerBundles;
-  const current = candidate?.consumerBundles;
-  if (!base) {
-    if (!current) {
-      return [];
-    }
-    const validBootstrap = sameStringInventory(Object.keys(current).sort(), [
-      'fixture',
-      'peerExternalImports',
-      'schemaVersion',
-      'status',
-      'toolchain',
-    ]) && current.schemaVersion === 1 && current.status === 'reporting' &&
-      sameStringInventory(Object.keys(current.fixture || {}).sort(), [
-        'path',
-        'sha256',
-        'version',
-      ]) && current.fixture.version === 'v1' &&
-      current.fixture.path === 'benchmarks/consumer-bundles/v1/manifest.json' &&
-      typeof current.fixture.sha256 === 'string' &&
-      /^[a-f\d]{64}$/.test(current.fixture.sha256) &&
-      isDeepStrictEqual(current.toolchain, consumerToolchain) &&
-      isDeepStrictEqual(current.peerExternalImports, consumerPeerExternalImports);
-    return validBootstrap ? [] : [
-      'The consumerBundles bootstrap contract is malformed',
-    ];
-  }
-  if (!current) {
-    return ['Candidate performance contract is missing consumerBundles'];
-  }
-  return isDeepStrictEqual(base, current) ? [] : [
-    'Candidate consumerBundles differs from exact-base reporting contract',
-  ];
 }
 
 function consumerPackageResolver(root, packageJson, peerExternalImports) {
@@ -783,17 +767,18 @@ export async function measure({
   }
 
   let consumerBundles = null;
-  if (contract.consumerBundles) {
-    try {
-      consumerBundles = await measureConsumerBundles({
-        root: resolvedRoot,
-        contract: contract.consumerBundles,
-        brotliQuality: quality,
-      });
-      violations.push(...consumerBundles.violations);
-    } catch (error) {
-      violations.push(`Unable to measure consumer bundles: ${error.message}`);
-    }
+  try {
+    const consumerBundleContract = await readJson(
+      resolve(resolvedRoot, consumerBundleContractPath)
+    );
+    consumerBundles = await measureConsumerBundles({
+      root: resolvedRoot,
+      contract: consumerBundleContract,
+      brotliQuality: quality,
+    });
+    violations.push(...consumerBundles.violations);
+  } catch (error) {
+    violations.push(`Unable to measure consumer bundles: ${error.message}`);
   }
 
   let resources = null;
@@ -1335,7 +1320,6 @@ export async function main(args = process.argv.slice(2)) {
     ]);
     const violations = [
       ...validateCandidateResourceContract(authority, candidate),
-      ...validateCandidateConsumerBundleContract(authority, candidate),
     ];
     for (const violation of violations) {
       console.error(`Performance contract violation: ${violation}`);

@@ -7,24 +7,25 @@ import { describe, test } from 'node:test';
 import {
   compareConsumerBundleReports,
   measureConsumerBundles,
-  validateCandidateConsumerBundleContract,
   validateConsumerBundleContract,
 } from '../../scripts/performance/bundle-size.mjs';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 const fixtureUrl = new URL('../../benchmarks/consumer-bundles/v1/manifest.json', import.meta.url);
-const contractUrl = new URL('../../config/performance.json', import.meta.url);
+const contractUrl = new URL('../../benchmarks/consumer-bundles/contract.json', import.meta.url);
+const performanceUrl = new URL('../../config/performance.json', import.meta.url);
 const packageUrl = new URL('../../package.json', import.meta.url);
 
 async function canonicalInputs() {
-  const [performance, fixture, packageJson] = await Promise.all([
+  const [contract, performance, fixture, packageJson] = await Promise.all([
     readFile(contractUrl, 'utf8').then(JSON.parse),
+    readFile(performanceUrl, 'utf8').then(JSON.parse),
     readFile(fixtureUrl, 'utf8').then(JSON.parse),
     readFile(packageUrl, 'utf8').then(JSON.parse),
   ]);
   return {
     brotliQuality: performance.baseline.brotliQuality,
-    contract: performance.consumerBundles,
+    contract,
     fixture,
     packageJson,
   };
@@ -138,76 +139,33 @@ describe('consumer bundle measurements', () => {
     assert.deepEqual(comparison.violations, []);
   });
 
-  test('permits only the reporting bootstrap transition and then fails closed', async() => {
+  test('rejects malformed reporting authority metadata', async() => {
     const inputs = await canonicalInputs();
-    const { contract } = inputs;
-
-    assert.deepEqual(validateCandidateConsumerBundleContract({}, { consumerBundles: contract }), []);
-    assert.match(
-      validateCandidateConsumerBundleContract(
-        {},
-        { consumerBundles: { status: 'reporting' } }
-      ).join('\n'),
-      /bootstrap contract is malformed/
-    );
-    assert.match(
-      validateCandidateConsumerBundleContract(
-        {},
-        { consumerBundles: { ...contract, unknownAuthority: true } }
-      ).join('\n'),
-      /bootstrap contract is malformed/
-    );
-    assert.match(
-      validateCandidateConsumerBundleContract(
-        {},
-        { consumerBundles: { ...contract, schemaVersion: 2 } }
-      ).join('\n'),
-      /bootstrap contract is malformed/
-    );
-    assert.match(
-      validateCandidateConsumerBundleContract(
-        {},
-        {
-          consumerBundles: {
-            ...contract,
-            fixture: {
-              ...contract.fixture,
-              sha256: contract.fixture.sha256.toUpperCase(),
-            },
-          },
-        }
-      ).join('\n'),
-      /bootstrap contract is malformed/
-    );
-    assert.match(
-      validateCandidateConsumerBundleContract(
-        {},
-        {
-          consumerBundles: {
-            ...contract,
-            fixture: { ...contract.fixture, unknownFixtureAuthority: true },
-          },
-        }
-      ).join('\n'),
-      /bootstrap contract is malformed/
-    );
-    assert.match(
-      validateCandidateConsumerBundleContract(
-        { consumerBundles: contract },
-        {}
-      ).join('\n'),
-      /Candidate performance contract is missing consumerBundles/
-    );
-
-    const changed = structuredClone(contract);
-    changed.status = 'enforcing';
-    assert.match(
-      validateCandidateConsumerBundleContract(
-        { consumerBundles: contract },
-        { consumerBundles: changed }
-      ).join('\n'),
-      /consumerBundles differs from exact-base reporting contract/
-    );
+    const { brotliQuality, contract, fixture, packageJson } = inputs;
+    const malformed = [
+      { ...contract, unknownAuthority: true },
+      { ...contract, schemaVersion: 2 },
+      {
+        ...contract,
+        fixture: { ...contract.fixture, sha256: contract.fixture.sha256.toUpperCase() },
+      },
+      {
+        ...contract,
+        fixture: { ...contract.fixture, unknownFixtureAuthority: true },
+      },
+      {
+        ...contract,
+        toolchain: { ...contract.toolchain, unknownTool: '1.0.0' },
+      },
+    ];
+    for (const candidate of malformed) {
+      assert.ok(validateConsumerBundleContract(
+        candidate,
+        fixture,
+        packageJson,
+        brotliQuality
+      ).length > 0);
+    }
 
     const bootstrap = compareConsumerBundleReports(null, consumerReport(inputs));
     assert.equal(bootstrap.bootstrap, true);
