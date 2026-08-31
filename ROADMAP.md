@@ -511,8 +511,9 @@ instructions, and every release blocker maps to this strategy.
 - Select and document the stable model and collection data protocol independently of
   State. Either deliberately freeze the current Backbone-shaped fields and event
   payloads or replace them with one lean adapter contract; do not ship both as
-  canonical paths. Re-evaluate CollectionView update bookkeeping against the selected
-  protocol before freezing either implementation.
+  canonical paths. A correctness fix against the current protocol does not freeze it;
+  re-evaluate CollectionView update bookkeeping against the selected protocol before
+  freezing either implementation.
 - Decide whether Application lifecycle remains synchronous or becomes Marionette's
   first promise-based public contract, then specify only the selected state machine
   and add transition-table or model-based tests. Do not freeze an Application-only
@@ -610,8 +611,9 @@ rather than retained as dormant APIs.
 - Known migration and behavior differences are documented, and no obsolete v5
   pre-release path is presented as canonical.
 - Every contract in the API-shape and agent-ergonomics gate has an explicit keep or
-  remove decision, an exercised migration when removed, truthful source ownership,
-  and no unverified duplicate root utility or internal forwarding path.
+  remove decision, an executable migration when behavior changes, paired agent tasks
+  that distinguish the selected form from the rejected alternative, truthful source
+  ownership, and no unverified duplicate root utility or internal forwarding path.
 - The selected model and collection data protocol passes compatibility tests when the
   current protocol is retained or is replaced with an exercised Backbone
   migration. The selected protocol passes source, distribution, packed-package, and
@@ -622,8 +624,9 @@ rather than retained as dormant APIs.
   packed-package, and real-browser tests.
 - Detached-element attachment semantics pass source, distribution, packed-package,
   and real-browser tests.
-- The optimized rendering recipe passes source, distribution, packed-package, and
-  real-browser tests.
+- The existing `buildChildView` plus `setElement` plus `template: false` optimized
+  rendering recipe passes source, distribution, packed-package, and real-browser
+  tests.
 - No unapproved build, lint, type, or test warning remains.
 
 Pre-releases may expose experimental APIs. Before stable, they may be changed or
