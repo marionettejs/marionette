@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node validate.mjs"
+  },
+  "dependencies": {
+    "backbone": "1.4.0",
+    "jsdom": "30.0.1"
+  }
+}

@@ -781,6 +781,84 @@ describe('Behavior', function() {
     });
   });
 
+  describe('direct behavior entity event delegation', function() {
+    function buildHost(context, onBeforeDestroy) {
+      const stubs = {
+        collectionHandler: context.sinon.stub(),
+        collectionEvents: context.sinon.stub(),
+        modelHandler: context.sinon.stub(),
+        modelEvents: context.sinon.stub()
+      };
+      stubs.collectionEvents.returns({ update: stubs.collectionHandler });
+      stubs.modelEvents.returns({ change: stubs.modelHandler });
+
+      const EntityBehavior = Behavior.extend({
+        collectionEvents: stubs.collectionEvents,
+        modelEvents: stubs.modelEvents
+      });
+      const EntityView = View.extend({
+        behaviors: [EntityBehavior],
+        onBeforeDestroy
+      });
+      const collection = new Backbone.Collection();
+      const model = new Backbone.Model();
+      const view = new EntityView({ collection, model });
+      const behavior = view._behaviors[0];
+
+      Object.values(stubs).forEach(stub => stub.resetHistory());
+
+      return { behavior, collection, model, stubs, view };
+    }
+
+    it('should delegate callable maps directly while the owning view is live', function() {
+      const { behavior, collection, model, stubs, view } = buildHost(this);
+      view.undelegateEntityEvents();
+
+      const result = behavior.delegateEntityEvents();
+      model.trigger('change');
+      collection.trigger('update');
+
+      expect(result).to.equal(behavior);
+      expect(stubs.modelEvents).to.have.been.calledOnce.and.calledOn(behavior);
+      expect(stubs.collectionEvents).to.have.been.calledOnce.and.calledOn(behavior);
+      expect(stubs.modelHandler).to.have.been.calledOnce.and.calledOn(behavior);
+      expect(stubs.collectionHandler).to.have.been.calledOnce.and.calledOn(behavior);
+    });
+
+    it('should not delegate directly while the owning view is destroying', function() {
+      let result;
+      const { behavior, collection, model, stubs, view } = buildHost(this, function() {
+        this.undelegateEntityEvents();
+        result = behavior.delegateEntityEvents();
+        model.trigger('change');
+        collection.trigger('update');
+      });
+
+      view.destroy();
+
+      expect(result).to.equal(behavior);
+      expect(stubs.modelEvents).not.to.have.been.called;
+      expect(stubs.collectionEvents).not.to.have.been.called;
+      expect(stubs.modelHandler).not.to.have.been.called;
+      expect(stubs.collectionHandler).not.to.have.been.called;
+    });
+
+    it('should not delegate a retained behavior after its owning view is destroyed', function() {
+      const { behavior, collection, model, stubs, view } = buildHost(this);
+      view.destroy();
+
+      const result = behavior.delegateEntityEvents();
+      model.trigger('change');
+      collection.trigger('update');
+
+      expect(result).to.equal(behavior);
+      expect(stubs.modelEvents).not.to.have.been.called;
+      expect(stubs.collectionEvents).not.to.have.been.called;
+      expect(stubs.modelHandler).not.to.have.been.called;
+      expect(stubs.collectionHandler).not.to.have.been.called;
+    });
+  });
+
   describe('behavior trigger calls', function() {
     let onRenderStub;
     let fooView;

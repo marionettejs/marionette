@@ -30,6 +30,12 @@
   destruction begins to return the instance without changing its element
 * Changed base `CollectionView#addChildView` calls once destruction begins to
   return the supplied View without inspecting or managing it
+* Changed base `View#delegateEntityEvents` and
+  `CollectionView#delegateEntityEvents` calls once destruction begins to return
+  the instance without resolving host or Behavior maps or binding subscriptions
+* Changed direct `Behavior#delegateEntityEvents` calls once the owning View's
+  destruction begins to return the Behavior without resolving maps or binding
+  subscriptions
 * Changed `View#hasRegion` to check own registered Regions without rendering or
   changing View lifecycle state
 * Changed `View#getRegions` to return a safe Region snapshot without rendering;

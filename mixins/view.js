@@ -142,6 +142,8 @@ const ViewMixin = {
 
   // Handle `modelEvents`, and `collectionEvents` configuration
   delegateEntityEvents() {
+    if (this._isDestroyed || this._isDestroying) { return this; }
+
     this._delegateEntityEvents(this.model, this.collection);
 
     // bind each behaviors model and collection events

@@ -1709,6 +1709,9 @@ const ViewMixin = {
     return this;
   },
   delegateEntityEvents() {
+    if (this._isDestroyed || this._isDestroying) {
+      return this;
+    }
     this._delegateEntityEvents(this.model, this.collection);
     this._delegateBehaviorEntityEvents();
     return this;
@@ -3421,6 +3424,9 @@ assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, V
     return this._getUI(name);
   },
   delegateEntityEvents() {
+    if (this.view._isDestroying || this.view._isDestroyed) {
+      return this;
+    }
     this._delegateEntityEvents(this.view.model, this.view.collection);
     return this;
   },
