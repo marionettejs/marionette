@@ -71,20 +71,20 @@ to preserve obsolete behavior or dependencies.
   resemble a new public lifecycle state or rely on vague flags whose meaning changes by
   call site.
 - Introduce unfamiliar control flow, helper layers, or module structure only when a
-  specific correctness, concurrency, performance, packaging, or dependency-removal
-  requirement warrants it. Record that reason where it can be reconstructed from the
-  owning issue, tests, or a focused source comment.
+  specific correctness, concurrency, performance, packaging (including native ESM),
+  or dependency-removal requirement warrants it. Record that reason where it can be
+  reconstructed from the owning issue, tests, or a focused source comment.
 - Do not create cosmetic rewrite churn. Correct avoidable authorship drift in focused,
   behavior-preserving changes with proportionate regression coverage.
 
-Before the stable API and runtime freeze, audit production code added or materially
-rewritten for v5, including work already merged. The
+Before the stable API and runtime freeze, audit every executable production-source
+path whose source differs from the v5 fork revision, including work already merged. The
 [public audit inventory][issue-329] is bounded to executable production-source paths
 in the shipped module graph that differ from the v5 fork revision. Each path records
 its comparison source and one disposition: align with an established pattern, retain
-a departure for a named correctness, concurrency, performance, packaging, native-ESM,
-or dependency-removal requirement, or open a separate behavior/API issue. A departure
-without one of those evidenced requirements is avoidable drift.
+a departure for one of the technical requirements enumerated above, or open a separate
+behavior/API issue. A departure without one of those evidenced requirements is
+avoidable drift.
 
 ### Explicit contracts over inference
 
@@ -533,13 +533,16 @@ instructions, and every release blocker maps to this strategy.
 
 - Complete the remaining API-shape and agent-ergonomics gate for existing public
   contracts before freezing State, extension, or additional Application ownership
-  surface. The Application lifecycle-hook decision recorded below is complete; its
-  broader ownership work remains tracked by [#190][issue-190].
-- Complete the [production-runtime authorship audit][issue-329] for code added or
-  materially rewritten for v5. Correct avoidable drift in naming, state vocabulary,
-  method and helper boundaries, ordering, and control flow; document warranted
-  departures without changing a settled contract merely to reproduce historical
-  implementation details.
+  surface. The Application lifecycle-hook decision recorded below completed its part
+  of this gate by retaining core Marionette's subject-first lifecycle convention,
+  meeting the verified Toolkit/app-frontend asynchronous-readiness need through that
+  single hook path, and rejecting parallel compatibility seams. Broader Application
+  ownership work remains tracked by [#190][issue-190].
+- Complete the [production-runtime authorship audit][issue-329] for every in-scope path
+  that differs from the v5 fork revision. Correct avoidable drift in naming, state
+  vocabulary, method and helper boundaries, ordering, and control flow; document
+  warranted departures without changing a settled contract merely to reproduce
+  historical implementation details.
 - Before the next v5 alpha, resolve the [detached-element attachment gap][issue-327]
   and [CollectionView removal-only update gap][issue-328]. Detailed acceptance
   criteria and browser cases remain in those issues.
@@ -555,12 +558,14 @@ instructions, and every release blocker maps to this strategy.
   `onBeforeStop`, and `onBeforeDestroy` as their operations' only readiness inputs;
   keep `onStart`, `onStop`, and `onDestroy` as non-awaited completion notifications.
   Completion return values are ignored and asynchronous completion work owns its error
-  handling. A synchronous throw from a current readiness or completion hook rejects
-  the operation while preserving the last lifecycle state reached. Compatible repeated
-  calls share their operation. A later incompatible operation supersedes it before its
-  target state is reached; destruction is terminal; and stale readiness completion
-  cannot mutate state or emit an invalidated completion event. Do not add Toolkit's
-  `beforeStart`, `triggerStart`, or `finallyStart` extension seams.
+  handling. A readiness hook throw or rejection rejects the operation before its target
+  is reached and restores the prior stable state. A synchronous completion-hook throw
+  rejects the operation after retaining the target state already reached. Repeated
+  calls of the same operation kind share the active operation. Before destruction, a
+  different operation kind supersedes it before its target state is reached. Once
+  destruction begins it is terminal, and stale readiness completion cannot mutate
+  state or emit an invalidated completion event. Do not add Toolkit's `beforeStart`,
+  `triggerStart`, or `finallyStart` extension seams.
 - Strengthen Application as the single non-renderable lifecycle and ownership scope,
   with parentlessness identifying the root and child Applications representing nested
   scopes. Specify deterministic startup and restart semantics under the selected
