@@ -52,6 +52,9 @@
 * Changed Region registration to treat the existing owner/name relationship as
   an idempotent no-op and reject conflicting ownership or names with stable
   diagnostic code `MN0030`
+* Changed Application lifecycle operations to return `Promise<boolean>`, added
+  `stop`, `restart`, and `isRunning`, and made later incompatible operations
+  cancel stale lifecycle success without rejecting ordinary cleanup races
 
 ### v5.0.0-alpha.1
 

@@ -67,8 +67,9 @@ Status values describe the v5 outcome:
 | Entity-event map `__proto__` name | Declarative entity-event maps silently discarded an own enumerable `__proto__` name during normalization, so it was never bound or selectively unbound. | `bindEvents` and selective `unbindEvents`, including `modelEvents`, `collectionEvents`, and `radioEvents`, throw `MN0026` before delegation when the map has an own enumerable `__proto__` entry. Marionette does not reject other prototype-collision names: its Events API supports them, but third-party emitters such as Backbone may not safely support every name. | Changed | Rename the `__proto__` entity event or bind it through an entity API that explicitly supports the name; verify other prototype-collision names against the entity's emitter, and omit the map to unbind every event from an entity. |
 | `Mn.Object` | The default namespace exposed an `Object` alias for the Marionette object class. | The alias is not restored. | Removed | Use `import { MnObject } from 'marionette';`; final migration guidance is tracked in [#147](https://github.com/marionettejs/marionette/issues/147). |
 | `MnObject` | The Marionette object class was available as the named `MnObject` export. | `MnObject` remains a named export. | Preserved | Import it directly: `import { MnObject } from 'marionette';`. |
-| Reentrant destruction | Calling `destroy()` from `before:destroy` could recurse or repeat teardown for MnObject, Application, and Region. View guarded reentry, but a throwing `before:destroy` left it unable to retry. | Reentrant and later repeated `destroy()` calls return the same instance without restarting teardown. If `before:destroy` throws, a later call retries that lifecycle before completing teardown. | Changed | Make `before:destroy` handlers safe to run again after an earlier handler throws; child and ownership cleanup still run only after a successful retry. Errors after `before:destroy` completes do not restart teardown. |
-| Custom `destroy` overrides | An override could mutate owned state before calling the v4 base `destroy()` method. Reentrant calls and throwing `before:destroy` handlers did not have one consistent retry boundary. | The v5 base method establishes its destruction guard before `before:destroy` and begins teardown only after that lifecycle succeeds. Cleanup performed before delegating to the base method remains outside those guarantees. | Changed | Audit every custom `destroy` override. Do not remove children, Regions, listeners, or other owned state before the v5 guard and `before:destroy` lifecycle are established. Overrides that require cleanup between `before:destroy` and `destroy` must implement the same reentry and retry boundary explicitly; a later base call cannot retroactively protect earlier mutation. |
+| Reentrant destruction | Calling `destroy()` from `before:destroy` could recurse or repeat teardown for MnObject, Application, and Region. View guarded reentry, but a throwing `before:destroy` left it unable to retry. | MnObject, View, Behavior, and Region guard repeated synchronous teardown as documented by their class contracts. Application destruction is part of its asynchronous lifecycle: compatible repeated calls share an in-flight Promise, and later calls after destruction resolve `true` without restarting teardown. | Changed | Keep non-Application `before:destroy` handlers safe to retry after a thrown hook. For Application, await `destroy()` and treat a rejected current hook as failure; ordinary supersession resolves rather than rejects. |
+| Application lifecycle | `Application#start(options)` synchronously fired `before:start` and `start` on every call and returned the Application. Application had no core stop, restart, readiness, running-state, or overlap contract. | `start`, `stop`, `restart`, and `destroy` return `Promise<boolean>`. `true` means the requested target state settled, including idempotent no-op; `false` means a later incompatible operation superseded it. Current hook failures reject. `isRunning()` is true only after startup readiness. | Changed | Await startup before route dispatch or other work that requires readiness. Move asynchronous preparation into a Promise returned by `onBeforeStart`. Do not treat `false` as failure or add a catch for ordinary cancellation. Remove Toolkit-style `triggerStart` / `finallyStart` overrides; core awaits `onBeforeStart` directly. |
+| Custom `destroy` overrides | An override could mutate owned state before calling the v4 base `destroy()` method. Reentrant calls and throwing `before:destroy` handlers did not have one consistent retry boundary. | The synchronous base method for MnObject, View, CollectionView, Behavior, and Region establishes its destruction guard before `before:destroy`. Application owns a separate asynchronous lifecycle and returns its destroy Promise. Cleanup performed before delegating remains outside either guarantee. | Changed | Audit every custom `destroy` override. Synchronous owner overrides must preserve the base reentry boundary. Application overrides must return or await the Promise from the base operation and must not recreate a synchronous teardown path. |
 | Behavior element retargeting | The undocumented `Behavior#proxyViewProperties()` helper copied the host View's element properties onto the Behavior. | Behavior element synchronization is internal. The owning View's public `setElement()` retargets its Behaviors and their delegated handlers. The alpha-only `Behavior#setElement()` surface is removed. | Removed | Call `setElement()` on the owning View or CollectionView. Do not retarget a Behavior independently or restore either Behavior method as an alias. |
 | Rendering a destroyed View | A destroyed `View#render` could still resolve `getTemplate` before returning, while destroyed `CollectionView#render` behavior was undocumented. | Destroyed View and CollectionView render calls return the same instance without resolving templates, running render lifecycles, changing DOM, or recreating children. No diagnostic is thrown. | Changed | Render only live View and CollectionView instances. |
 | Replacing a View element during or after destruction | Base `View#setElement` and `CollectionView#setElement` could replace the element and redelegate DOM behavior once destruction began. | Both base methods return the same instance before inspecting the supplied element or changing delegation, DOM, element identity, or lifecycle state. | Changed | No guard is needed for a late call; use a live View or CollectionView when replacement must occur. Custom overrides own their behavior unless they delegate to the guarded base method. |
@@ -113,3 +114,33 @@ The highest-impact migration boundaries are:
 
 The full ordered migration procedure and remaining before-and-after examples are
 tracked in issue #147.
+
+### Await Application readiness
+
+V4 startup completed synchronously, so code commonly dispatched work on the
+next line:
+
+```javascript
+app.start();
+dispatchInitialRoute();
+```
+
+V5 awaits a Promise returned by `onBeforeStart`. Await `start()` and dispatch
+only when that exact startup reaches running state:
+
+```javascript
+const App = Application.extend({
+  onBeforeStart() {
+    return loadInitialData();
+  }
+});
+
+const app = new App();
+if (await app.start()) {
+  dispatchInitialRoute();
+}
+```
+
+A `false` result means a later stop, restart, or destroy superseded this startup.
+It is not a failure and does not need a `catch`. A current readiness failure
+rejects and should use the application's ordinary error path.

@@ -81,13 +81,13 @@ const MyApp = Application.extend({
 });
 
 const myApp = new MyApp({ foo: 'My App' });
-myApp.start({ data: { bar: true } });
+await myApp.start({ data: { bar: true } });
 ```
 
 [Live example](https://jsfiddle.net/marionettejs/ny59rs7b/)
 
-As shown the `options` object is passed into the `Application` as the
-second argument to `start`.
+As shown, the `options` object passed to `start` is forwarded after the
+Application to its lifecycle methods and events.
 
 #### Application `destroy` events
 

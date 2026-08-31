@@ -34,7 +34,11 @@ describe('Object and Application prototype composition', function() {
     const objectFinalKeys = ['cidPrefix'];
     const applicationFinalKeys = [
       'cidPrefix',
+      '_lifecycleState',
+      'isRunning',
       'start',
+      'stop',
+      'restart',
       'regionClass',
       '_initRegion',
       'getRegion',
@@ -48,16 +52,19 @@ describe('Object and Application prototype composition', function() {
     expect(MnObject.prototype.destroy).to.equal(DestroyMixin.destroy);
     expect(MnObject.prototype._initRadio).to.equal(RadioMixin._initRadio);
     expect(Application.prototype._setOptions).to.equal(CommonMixin._setOptions);
-    expect(Application.prototype.destroy).to.equal(DestroyMixin.destroy);
+    expect(Application.prototype.destroy).to.not.equal(DestroyMixin.destroy);
     expect(Application.prototype._initRadio).to.equal(RadioMixin._initRadio);
     [CommonMixin, DestroyMixin, RadioMixin].forEach(mixin => {
       Object.keys(mixin).forEach(key => {
         expectAssignmentDescriptor(MnObject.prototype, key, mixin[key]);
-        expectAssignmentDescriptor(Application.prototype, key, mixin[key]);
+        if (key !== 'destroy') {
+          expectAssignmentDescriptor(Application.prototype, key, mixin[key]);
+        }
       });
     });
     expectAssignmentDescriptor(MnObject.prototype, 'cidPrefix', 'mno');
     expectAssignmentDescriptor(Application.prototype, 'cidPrefix', 'mna');
+    expectAssignmentDescriptor(Application.prototype, 'destroy', Application.prototype.destroy);
     expect(Object.getOwnPropertyDescriptor(MnObject.prototype, 'constructor')).to.deep.equal({
       configurable: true,
       enumerable: false,

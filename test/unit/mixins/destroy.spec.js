@@ -93,33 +93,62 @@ describe('Destroy Mixin', function() {
 });
 
 describe('Destroy Mixin public owners', function() {
-  for (const [name, Type] of [['MnObject', MnObject], ['Application', Application]]) {
-    it(`ignores reentrant and repeated ${name} destruction`, function() {
-      const instance = new Type();
-      const options = { reason: 'test' };
-      const states = [];
-      let beforeDestroyReturn;
-      let destroyReturn;
-      const beforeDestroy = this.sinon.spy(currentInstance => {
-        states.push(currentInstance.isDestroyed());
-        beforeDestroyReturn = currentInstance.destroy();
-      });
-      const destroy = this.sinon.spy(currentInstance => {
-        states.push(currentInstance.isDestroyed());
-        destroyReturn = currentInstance.destroy();
-      });
-      this.sinon.spy(instance, 'stopListening');
-      instance.on('before:destroy', beforeDestroy);
-      instance.on('destroy', destroy);
-
-      expect(instance.destroy(options)).to.equal(instance);
-      expect(instance.destroy()).to.equal(instance);
-      expect(beforeDestroyReturn).to.equal(instance);
-      expect(destroyReturn).to.equal(instance);
-      expect(states).to.deep.equal([false, true]);
-      expect(beforeDestroy).to.have.been.calledOnceWith(instance, options);
-      expect(destroy).to.have.been.calledOnceWith(instance, options);
-      expect(instance.stopListening).to.have.been.calledOnce;
+  it('ignores reentrant and repeated MnObject destruction', function() {
+    const instance = new MnObject();
+    const options = { reason: 'test' };
+    const states = [];
+    let beforeDestroyReturn;
+    let destroyReturn;
+    const beforeDestroy = this.sinon.spy(currentInstance => {
+      states.push(currentInstance.isDestroyed());
+      beforeDestroyReturn = currentInstance.destroy();
     });
-  }
+    const destroy = this.sinon.spy(currentInstance => {
+      states.push(currentInstance.isDestroyed());
+      destroyReturn = currentInstance.destroy();
+    });
+    this.sinon.spy(instance, 'stopListening');
+    instance.on('before:destroy', beforeDestroy);
+    instance.on('destroy', destroy);
+
+    expect(instance.destroy(options)).to.equal(instance);
+    expect(instance.destroy()).to.equal(instance);
+    expect(beforeDestroyReturn).to.equal(instance);
+    expect(destroyReturn).to.equal(instance);
+    expect(states).to.deep.equal([false, true]);
+    expect(beforeDestroy).to.have.been.calledOnceWith(instance, options);
+    expect(destroy).to.have.been.calledOnceWith(instance, options);
+    expect(instance.stopListening).to.have.been.calledOnce;
+  });
+
+  it('shares reentrant and repeated Application destruction', async function() {
+    const instance = new Application();
+    const options = { reason: 'test' };
+    const states = [];
+    let beforeDestroyReturn;
+    let destroyReturn;
+    const beforeDestroy = this.sinon.spy(currentInstance => {
+      states.push(currentInstance.isDestroyed());
+      beforeDestroyReturn = currentInstance.destroy();
+    });
+    const destroy = this.sinon.spy(currentInstance => {
+      states.push(currentInstance.isDestroyed());
+      destroyReturn = currentInstance.destroy();
+    });
+    this.sinon.spy(instance, 'stopListening');
+    instance.on('before:destroy', beforeDestroy);
+    instance.on('destroy', destroy);
+
+    const first = instance.destroy(options);
+    const repeated = instance.destroy();
+
+    expect(repeated).to.equal(first);
+    expect(beforeDestroyReturn).to.equal(first);
+    expect(await first).to.be.true;
+    expect(await destroyReturn).to.be.true;
+    expect(states).to.deep.equal([false, true]);
+    expect(beforeDestroy).to.have.been.calledOnceWith(instance, options);
+    expect(destroy).to.have.been.calledOnceWith(instance, options);
+    expect(instance.stopListening).to.have.been.calledOnce;
+  });
 });

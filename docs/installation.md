@@ -86,7 +86,7 @@ const app = new Application({
   }
 });
 
-app.start();
+await app.start();
 ```
 
 `View` and `CollectionView` accept a DOM element for `el`. They do not resolve
