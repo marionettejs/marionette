@@ -614,10 +614,10 @@ rather than retained as dormant APIs.
   remove decision, an executable migration when behavior changes, paired agent tasks
   that distinguish the selected form from the rejected alternative, truthful source
   ownership, and no unverified duplicate root utility or internal forwarding path.
-- The selected model and collection data protocol passes compatibility tests when the
-  current protocol is retained or is replaced with an exercised Backbone
-  migration. The selected protocol passes source, distribution, packed-package, and
-  real-browser tests.
+- If the current model and collection data protocol is retained, it passes
+  compatibility tests. If it is replaced, an executable Backbone migration is
+  exercised. In either case, the selected protocol passes source, distribution,
+  packed-package, and real-browser tests.
 - Large-list operation-count scenarios pass source, distribution, packed-package, and
   real-browser tests.
 - CollectionView removal-only update semantics pass source, distribution,
