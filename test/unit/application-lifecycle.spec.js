@@ -608,8 +608,10 @@ describe('Application lifecycle', function() {
   it('shares stop calls during destroy and settles after the stop phase', async function() {
     const stopping = defer();
     const teardown = defer();
+    const stopEvent = this.sinon.spy();
     const app = new (Application.extend({
       onBeforeStop() { return stopping.promise; },
+      onStop: stopEvent,
       onBeforeDestroy() { return teardown.promise; }
     }))();
     await app.start();
@@ -617,10 +619,13 @@ describe('Application lifecycle', function() {
     const destroy = app.destroy();
     const firstStop = app.stop();
     const repeatedStop = app.stop();
+    const thirdStop = app.stop();
 
     expect(repeatedStop).to.equal(firstStop);
+    expect(thirdStop).to.equal(firstStop);
     stopping.resolve();
     expect(await firstStop).to.be.true;
+    expect(stopEvent).to.have.been.calledOnce;
     expect(app.isDestroyed()).to.be.false;
 
     teardown.resolve();
@@ -719,6 +724,74 @@ describe('Application lifecycle', function() {
     await Promise.all([destroyResult, stopResult]);
 
     expect(app.isRunning()).to.be.true;
+    expect(app.isDestroyed()).to.be.false;
+  });
+
+  it('keeps running when destroy stop readiness fails without a stop caller', async function() {
+    const error = new Error('stop failed');
+    const app = new (Application.extend({
+      onBeforeStop() { throw error; }
+    }))();
+    await app.start();
+
+    await expectRejection(app.destroy(), error);
+
+    expect(app.isRunning()).to.be.true;
+    expect(app.isDestroyed()).to.be.false;
+  });
+
+  it('rejects a concurrent stop when destroy stop readiness throws synchronously', async function() {
+    const error = new Error('stop failed');
+    const beforeStop = this.sinon.stub().throws(error);
+    const app = new (Application.extend({
+      onBeforeStop: beforeStop
+    }))();
+    await app.start();
+
+    const destroy = app.destroy();
+    const stop = app.stop();
+
+    await Promise.all([
+      expectRejection(destroy, error),
+      expectRejection(stop, error)
+    ]);
+
+    expect(app.isRunning()).to.be.true;
+    expect(app.isDestroyed()).to.be.false;
+    expect(beforeStop).to.have.been.calledOnce;
+  });
+
+  it('rejects stop during destroy when the stop event fails', async function() {
+    const stopping = defer();
+    const error = new Error('stop event failed');
+    const app = new (Application.extend({
+      onBeforeStop() { return stopping.promise; },
+      onStop() { throw error; }
+    }))();
+    await app.start();
+
+    const destroy = app.destroy();
+    const stop = app.stop();
+    const destroyResult = expectRejection(destroy, error);
+    const stopResult = expectRejection(stop, error);
+
+    stopping.resolve();
+    await Promise.all([destroyResult, stopResult]);
+
+    expect(app.isRunning()).to.be.false;
+    expect(app.isDestroyed()).to.be.false;
+  });
+
+  it('rejects destroy when its stop event fails without a stop caller', async function() {
+    const error = new Error('stop event failed');
+    const app = new (Application.extend({
+      onStop() { throw error; }
+    }))();
+    await app.start();
+
+    await expectRejection(app.destroy(), error);
+
+    expect(app.isRunning()).to.be.false;
     expect(app.isDestroyed()).to.be.false;
   });
 

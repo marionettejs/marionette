@@ -50,7 +50,7 @@ function supersedeOperation(application) {
   if (!operation) { return; }
 
   delete application._lifecycleOperation;
-  operation.resolve(!!operation.completing);
+  operation.resolve(!!operation.isCompleting);
   return operation;
 }
 
@@ -118,39 +118,45 @@ async function startApplication(application, operation, options) {
   if (!isCurrentOperation(application, operation)) { return; }
 
   application._lifecycleState = RUNNING;
-  operation.completing = true;
+  operation.isCompleting = true;
   application.triggerMethod('start', application, options);
 }
 
 async function stopApplication(application, operation, options) {
-  if (!operation.stopReadiness) {
-    let resolve;
-    let reject;
-    const promise = new Promise((resolvePromise, rejectPromise) => {
-      resolve = resolvePromise;
-      reject = rejectPromise;
-    });
-    operation.stopReadiness = { promise };
+  try {
+    if (!operation.stopReadiness) {
+      let resolve;
+      let reject;
+      const promise = new Promise((resolvePromise, rejectPromise) => {
+        resolve = resolvePromise;
+        reject = rejectPromise;
+      });
+      operation.stopReadiness = { promise };
 
-    try {
-      Promise.resolve(application.triggerMethod('before:stop', application, options))
-        .then(resolve, reject);
-    } catch (error) {
-      reject(error);
+      try {
+        Promise.resolve(application.triggerMethod('before:stop', application, options))
+          .then(resolve, reject);
+      } catch (error) {
+        reject(error);
+      }
     }
-  }
 
-  await operation.stopReadiness.promise;
-  if (!isCurrentOperation(application, operation)) { return; }
+    await operation.stopReadiness.promise;
+    if (!isCurrentOperation(application, operation)) { return; }
 
-  operation.failureState = STOPPED;
-  delete operation.stopReadiness;
-  operation.stopped = true;
-  if (operation.kind === 'stop') {
-    application._lifecycleState = STOPPED;
-    operation.completing = true;
+    operation.failureState = STOPPED;
+    delete operation.stopReadiness;
+    operation.isStopped = true;
+    if (operation.kind === 'stop') {
+      application._lifecycleState = STOPPED;
+      operation.isCompleting = true;
+    }
+    application.triggerMethod('stop', application, options);
+    operation.stopResult?.resolve(true);
+  } catch (error) {
+    operation.stopResult?.reject(error);
+    throw error;
   }
-  application.triggerMethod('stop', application, options);
 }
 
 // Application Methods
@@ -189,11 +195,20 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     const operation = this._lifecycleOperation;
     if (this._lifecycleState === DESTROYING) {
       if (!operation?.stopReadiness) { return Promise.resolve(true); }
-      operation.stopPromise ||= operation.stopReadiness.promise.then(() => true);
-      return operation.stopPromise;
+      // Destroy cannot be superseded and starts its stop phase synchronously.
+      if (!operation.stopResult) {
+        let resolve;
+        let reject;
+        const promise = new Promise((resolvePromise, rejectPromise) => {
+          resolve = resolvePromise;
+          reject = rejectPromise;
+        });
+        operation.stopResult = { promise, reject, resolve };
+      }
+      return operation.stopResult.promise;
     }
     if (operation?.kind === 'stop') { return operation.promise; }
-    if (operation?.stopped) {
+    if (operation?.isStopped) {
       supersedeOperation(this);
       this._lifecycleState = STOPPED;
       return Promise.resolve(true);
@@ -213,7 +228,7 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
 
     const operation = this._lifecycleOperation;
     if (operation?.kind === 'restart') { return operation.promise; }
-    const shouldStop = !operation?.stopped && this._lifecycleState !== STOPPED;
+    const shouldStop = !operation?.isStopped && this._lifecycleState !== STOPPED;
     const failureState = getFailureState(this, operation);
 
     return beginOperation(this, 'restart', RESTARTING, failureState, async current => {
@@ -230,7 +245,7 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
 
     const operation = this._lifecycleOperation;
     if (operation?.kind === 'destroy') { return operation.promise; }
-    const shouldStop = !operation?.stopped && this._lifecycleState !== STOPPED;
+    const shouldStop = !operation?.isStopped && this._lifecycleState !== STOPPED;
     const failureState = getFailureState(this, operation);
 
     return beginOperation(this, 'destroy', DESTROYING, failureState, async current => {
@@ -243,7 +258,7 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
       this._isDestroyed = true;
       this._lifecycleState = DESTROYED;
       current.failureState = DESTROYED;
-      current.completing = true;
+      current.isCompleting = true;
       this.triggerMethod('destroy', this, options);
       this.stopListening();
     });
