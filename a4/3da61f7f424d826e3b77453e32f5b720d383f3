@@ -1,0 +1,23 @@
+modules/application.js
+  s_d6429951fb9231::t_683eb327a6a2cd 12
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_363a24e51ed201 1
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_964a78efcba62c 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "a43da61f7f424d826e3b77453e32f5b720d383f3",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
