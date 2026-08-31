@@ -86,8 +86,8 @@ budget.
 - `MnObject` is an optional minimal non-renderable, evented, destroyable convenience;
   `Application` provides an active lifecycle and owned composition. Parentlessness
   identifies the root Application without creating another class.
-- Application parent/child ownership, root View and Region association, asynchronous
-  startup, restart invalidation, and teardown are explicit and testable.
+- Application parent/child ownership, root View and Region association, startup and
+  restart semantics, and teardown are explicit and testable.
 - Ownership and topology are available through public, read-only APIs.
 - Region lookup does not unexpectedly render or mutate application state.
 - Regions own and mount Views. An Application hosted in a Region coordinates a root
@@ -223,10 +223,11 @@ Application. A later stop is idempotent and cannot empty an unrelated replacemen
 View. Restart follows the same stop contract before starting and showing a new root
 View.
 
-Phase 1 must define `start`'s return value, readiness signal, and failure propagation,
-including how overlapping start, stop, and restart calls settle. An invalidated start
-must settle deterministically without exposing stale success or leaving callers
-pending, and migration tests must cover the existing synchronous return contract.
+Phase 1 must define `start`'s return value, readiness and failure semantics, and
+reentrant or overlapping start, stop, and restart behavior under the selected
+synchronous or awaitable contract. If lifecycle work may remain pending, invalidated
+work must settle deterministically without exposing stale success or leaving callers
+pending. Migration tests cover the existing synchronous return contract.
 
 Owned child Applications follow their owner's start, stop, restart, and destroy
 lifecycle without per-child lifecycle flags. A capability that must outlive its
@@ -246,8 +247,9 @@ and releases its State subscriptions at owner destroy. State composed into View 
 CollectionView persists across render. State composed into Application persists
 across stop and restart. State composed into MnObject persists for the object's
 lifetime. State composed into Behavior persists across its owning View's render and
-ends when the Behavior is destroyed. An invalidated asynchronous start cannot later
-mutate State or owned children. Region does not own State. A Behavior may compose
+ends when the Behavior is destroyed. If the selected lifecycle permits pending
+startup, invalidated startup cannot later mutate State or owned children. Region does
+not own State. A Behavior may compose
 private State when its concern truly owns that state. State shared with its View
 belongs on the View; the Behavior may receive an ordinary reference to that State but
 does not compose, own, or destroy it.
@@ -516,9 +518,9 @@ instructions, and every release blocker maps to this strategy.
   async convention before the API-shape evidence gate passes.
 - Strengthen Application as the single non-renderable lifecycle and ownership scope,
   with parentlessness identifying the root and child Applications representing nested
-  scopes. Specify deterministic asynchronous startup, stale-start invalidation,
-  restart, root View and Region hosting, canonical child ownership, and teardown
-  without adding a Feature alias or inheritance hierarchy.
+  scopes. Specify deterministic startup and restart semantics under the selected
+  lifecycle contract, root View and Region hosting, canonical child ownership, and
+  teardown without adding a Feature alias or inheritance hierarchy.
 - Separately define and implement State as a lazy first-class object composed into
   MnObject, View, CollectionView, Behavior, or Application without changing Region's
   renderable contract or conflating State with model and collection data.
@@ -564,9 +566,9 @@ development and test fixtures exercise every public helper.
 - Add pay-for-play resource ownership and extension integrations justified by the
   earlier evidence.
 - Run the fixed agent corpus against the complete release candidate.
-- Validate plain Views, Views composed with State, nested Applications, asynchronous
-  Application restart, Application resource cleanup, and shared-host overlays in the
-  reference application.
+- Validate plain Views, Views composed with State, nested Applications, the selected
+  Application startup and restart contract, Application resource cleanup, and
+  shared-host overlays in the reference application.
 - Close correctness, documentation, packaging, browser, and performance gaps exposed
   by the reference application.
 - Complete v5 reference and migration documentation.
