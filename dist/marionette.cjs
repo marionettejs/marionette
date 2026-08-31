@@ -3535,6 +3535,12 @@ Application.extend = extend;
 function isCurrentOperation(application, operation) {
   return application._lifecycleOperation === operation;
 }
+function getFailureState(application, operation) {
+  if (operation?.stopReadiness) {
+    return operation.failureState;
+  }
+  return application._lifecycleState === RUNNING ? RUNNING : STOPPED;
+}
 function supersedeOperation(application) {
   const operation = application._lifecycleOperation;
   if (!operation) {
@@ -3654,7 +3660,7 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     if (this._lifecycleState === RUNNING && !operation) {
       return Promise.resolve(true);
     }
-    const failureState = operation?.stopReadiness ? operation.failureState : STOPPED;
+    const failureState = getFailureState(this, operation);
     return beginOperation(this, 'start', STARTING, failureState, current => {
       return startApplication(this, current, options);
     });
@@ -3686,7 +3692,7 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     if (this._lifecycleState === STOPPED && !operation) {
       return Promise.resolve(true);
     }
-    const failureState = operation?.stopReadiness ? operation.failureState : this._lifecycleState === RUNNING ? RUNNING : STOPPED;
+    const failureState = getFailureState(this, operation);
     return beginOperation(this, 'stop', STOPPING, failureState, current => {
       return stopApplication(this, current, options);
     });
@@ -3700,7 +3706,7 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
       return operation.promise;
     }
     const shouldStop = !operation?.stopped && this._lifecycleState !== STOPPED;
-    const failureState = this._lifecycleState === RUNNING ? RUNNING : STOPPED;
+    const failureState = getFailureState(this, operation);
     return beginOperation(this, 'restart', RESTARTING, failureState, async current => {
       if (shouldStop) {
         await stopApplication(this, current, options);
@@ -3720,7 +3726,7 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
       return operation.promise;
     }
     const shouldStop = !operation?.stopped && this._lifecycleState !== STOPPED;
-    const failureState = this._lifecycleState === RUNNING ? RUNNING : STOPPED;
+    const failureState = getFailureState(this, operation);
     return beginOperation(this, 'destroy', DESTROYING, failureState, async current => {
       if (shouldStop) {
         await stopApplication(this, current, options);

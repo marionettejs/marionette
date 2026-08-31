@@ -165,6 +165,62 @@ describe('Application lifecycle', function() {
     expect(app.isRunning()).to.be.true;
   });
 
+  it('preserves running state when restart inherits failing stop readiness', async function() {
+    const stopping = defer();
+    const error = new Error('stop failed');
+    const app = new (Application.extend({
+      onBeforeStop() { return stopping.promise; }
+    }))();
+    await app.start();
+
+    const stop = app.stop();
+    const restart = app.restart();
+    const restartResult = expectRejection(restart, error);
+
+    expect(await stop).to.be.false;
+    stopping.reject(error);
+    await restartResult;
+    expect(app.isRunning()).to.be.true;
+  });
+
+  it('preserves running state when destroy inherits failing stop readiness', async function() {
+    const stopping = defer();
+    const error = new Error('stop failed');
+    const app = new (Application.extend({
+      onBeforeStop() { return stopping.promise; }
+    }))();
+    await app.start();
+
+    const stop = app.stop();
+    const destroy = app.destroy();
+    const destroyResult = expectRejection(destroy, error);
+
+    expect(await stop).to.be.false;
+    stopping.reject(error);
+    await destroyResult;
+    expect(app.isRunning()).to.be.true;
+    expect(app.isDestroyed()).to.be.false;
+  });
+
+  it('preserves running state when destroy supersedes failing restart teardown', async function() {
+    const stopping = defer();
+    const error = new Error('stop failed');
+    const app = new (Application.extend({
+      onBeforeStop() { return stopping.promise; }
+    }))();
+    await app.start();
+
+    const restart = app.restart();
+    const destroy = app.destroy();
+    const destroyResult = expectRejection(destroy, error);
+
+    expect(await restart).to.be.false;
+    stopping.reject(error);
+    await destroyResult;
+    expect(app.isRunning()).to.be.true;
+    expect(app.isDestroyed()).to.be.false;
+  });
+
   it('restarts through stop and start in lifecycle order', async function() {
     const events = [];
     const TestApplication = Application.extend({
