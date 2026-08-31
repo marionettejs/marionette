@@ -1,0 +1,58 @@
+benchmarks/consumer-bundles/v1/root-plus-backbone.js
+  s_d6429951fb9231::t_b1a07245a529ee 1-4
+benchmarks/consumer-bundles/v1/manifest.json
+  s_d6429951fb9231::t_b1a07245a529ee 1-4,10-32,50-53,55-61,63-69,71-77,79-88,90-96,98-106,108-116,118-127,129-137,139-147
+  s_d6429951fb9231::t_05818126e1307b 33-49
+  s_d6429951fb9231::t_0964eb8ffa6c13 9,62,78,97,117,138
+  s_d6429951fb9231::t_21f5a5ef3754e8 54,70,89,107,128
+  s_d6429951fb9231::t_e93159f91bf647 5-8
+test/performance/consumer-bundles.test.mjs
+  s_d6429951fb9231::t_f577666f01f8ae 1,5-24,58-63,65-68,70-79,81-84,86-90,92-96,98-104,106-121,137,139-141,144-163,165-167,222
+  s_d6429951fb9231::t_9dc7256bf518a3 56-57,64,105
+  s_d6429951fb9231::t_1e6e70d66bb1af 2-4,25-55,69,80,85,91,97,122-136,138,142-143,164,168-221
+benchmarks/consumer-bundles/v1/backbone-only.js
+  s_d6429951fb9231::t_b1a07245a529ee 1
+benchmarks/consumer-bundles/v1/root-only.js
+  s_d6429951fb9231::t_b1a07245a529ee 1-3
+benchmarks/consumer-bundles/v1/root-plus-jquery.js
+  s_d6429951fb9231::t_b1a07245a529ee 1-4
+benchmarks/consumer-bundles/v1/jquery-dom-api-only.js
+  s_d6429951fb9231::t_b1a07245a529ee 1
+config/performance.json
+  s_d6429951fb9231::t_e604cfe1aee48f 24,26,28-29,197-202,204-214
+  s_d6429951fb9231::t_645c6654116fe4 203
+scripts/performance/bundle-size.mjs
+  s_d6429951fb9231::t_8f2068d49005d0 334-337
+  s_d6429951fb9231::t_94abef6028049d 8,27-34,246-257,259-268,273-285,291-322,328-333,338-410,412-418,425-435,442,444-469,471-472,474-497,502-508,510-512,514-515
+  s_d6429951fb9231::t_ab290d473cbe50 513
+  s_d6429951fb9231::t_985d5de7452c5b 768-773,775-781,808,850-860,863-865,867-874,876-879,881-882,885-887,889-890,896-898,904-906,908-910,912,914-920,922,924,931-936,1218-1237,1270,1274,1294-1296,1319-1322,1339
+  s_d6429951fb9231::t_05818126e1307b 286-290,498-501
+  s_d6429951fb9231::t_21f5a5ef3754e8 323-327,436-441,443
+  s_d6429951fb9231::t_9468508eb268a1 516
+  s_d6429951fb9231::t_e93159f91bf647 35-41,258,269-272,411,419-424,470,473,509,774
+  s_d6429951fb9231::t_fa51f4f83754b5 815-849,861-862,866,875,880,883-884,888,891-895,899-903,907,911,913,921,923,925-930
+package-lock.json
+  s_d6429951fb9231::t_a22789f68a3751 32,5495
+package.json
+  s_d6429951fb9231::t_33f5ba64131d37 149
+docs/performance-baselines.md
+  s_d6429951fb9231::t_6c412b6e8498ba 32-35,41-47,51-52,220-222,225-231
+  s_d6429951fb9231::t_afae54aa328a94 232
+  s_d6429951fb9231::t_645c6654116fe4 36-40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "64fe0b14c29df1ce236d8495a7c321a5b49ba175",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
