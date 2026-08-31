@@ -741,6 +741,30 @@ describe('Application lifecycle', function() {
     expect(app.isRunning()).to.be.true;
   });
 
+  it('keeps destroy authoritative during before:destroy reentry', async function() {
+    let repeated;
+    let stop;
+    let start;
+    let restart;
+    const app = new (Application.extend({
+      onBeforeDestroy(application) {
+        repeated = application.destroy();
+        stop = application.stop();
+        start = application.start();
+        restart = application.restart();
+      }
+    }))();
+
+    const destroy = app.destroy();
+
+    expect(repeated).to.equal(destroy);
+    expect(await stop).to.be.true;
+    expect(await start).to.be.false;
+    expect(await restart).to.be.false;
+    expect(await destroy).to.be.true;
+    expect(app.isDestroyed()).to.be.true;
+  });
+
   it('absorbs failure from readiness after startup is superseded', async function() {
     const readiness = defer();
     const error = new Error('stale failure');
