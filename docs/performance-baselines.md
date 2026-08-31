@@ -37,7 +37,7 @@ Each entry pins its source digest, public imports, exercised exports, expected m
 graph, and external imports. The adjacent reporting contract pins the fixture digest,
 current peer set, toolchain, and Brotli quality 11 against the global performance
 contract. Rollup tree-shakes each entry and the pinned Terser toolchain
-minifies equivalent ESM, CommonJS, and UMD outputs before all 15 results are compressed.
+minifies equivalent ESM, CommonJS, and UMD outputs before all 18 results are compressed.
 Declared runtime peers remain external. The root-only graph must remain isolated from
 both opt-in adapters and their peers.
 The current optional Backbone and jQuery peer set is part of fixture `v1`; changing
