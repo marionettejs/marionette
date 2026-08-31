@@ -545,9 +545,14 @@ instructions, and every release blocker maps to this strategy.
   freezing either implementation.
 - Specify Application as Marionette's first promise-based public lifecycle contract
   and add transition-table or model-based tests. Preserve Marionette lifecycle
-  signatures with the subject first, await only the Promise returned by
-  `onBeforeStart`, keep `onStart` as the non-awaited completion notification, and do
-  not add Toolkit's `beforeStart`, `triggerStart`, or `finallyStart` extension seams.
+  signatures with the subject first. Treat Promises returned by `onBeforeStart`,
+  `onBeforeStop`, and `onBeforeDestroy` as their operations' only readiness inputs;
+  keep `onStart`, `onStop`, and `onDestroy` as non-awaited completion notifications.
+  Compatible repeated calls share their operation. A current readiness failure rejects
+  that operation; a later incompatible operation supersedes it before its target state
+  is reached; destruction is terminal; and stale readiness completion cannot mutate
+  state or emit an invalidated completion event. Do not add Toolkit's `beforeStart`,
+  `triggerStart`, or `finallyStart` extension seams.
 - Strengthen Application as the single non-renderable lifecycle and ownership scope,
   with parentlessness identifying the root and child Applications representing nested
   scopes. Specify deterministic startup and restart semantics under the selected
