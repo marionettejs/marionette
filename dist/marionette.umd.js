@@ -1639,7 +1639,7 @@
     }
   };
 
-  const classErrorName$3 = 'ViewError';
+  const classErrorName$4 = 'ViewError';
   function isJQueryCollection(el) {
     return el != null && typeof el === 'object' && typeof el.jquery === 'string' && typeof el.get === 'function';
   }
@@ -1656,7 +1656,7 @@
       const migration = stringEl ? `Resolve selector strings at the call site, e.g. \`document.querySelector('${el}')\`.` : 'Unwrap jQuery collections at the call site, e.g. `wrappedEl[0]`.';
       throw new MarionetteError({
         code: 'MN0001',
-        name: classErrorName$3,
+        name: classErrorName$4,
         message: `View "el" must be a DOM element. ${migration} (Region still accepts selector strings.)`,
         url: 'marionette.view.html#specifying-an-el'
       });
@@ -1813,7 +1813,7 @@
     return this;
   }
 
-  const classErrorName$2 = 'RegionError';
+  const classErrorName$3 = 'RegionError';
   const destroyTeardown = new WeakMap();
   function consumeDestroyTeardown(region, operation) {
     if (destroyTeardown.get(region) !== operation) {
@@ -1860,7 +1860,7 @@
     const label = name === null || type !== 'object' && type !== 'function' ? ` "${String(name)}"` : '';
     throw new MarionetteError({
       code: 'MN0020',
-      name: classErrorName$2,
+      name: classErrorName$3,
       message: `Region${label} does not exist.`
     });
   }
@@ -1873,7 +1873,7 @@
   function throwRegionRegistrationConflict(message) {
     throw new MarionetteError({
       code: 'MN0030',
-      name: classErrorName$2,
+      name: classErrorName$3,
       message
     });
   }
@@ -1932,7 +1932,7 @@
       }
       throw new MarionetteError({
         code: 'MN0002',
-        name: classErrorName$2,
+        name: classErrorName$3,
         message: 'Region "el" must be a selector string or DOM element.',
         url: 'marionette.region.html#additional-options'
       });
@@ -1951,7 +1951,7 @@
       if (view._isShown) {
         throw new MarionetteError({
           code: 'MN0003',
-          name: classErrorName$2,
+          name: classErrorName$3,
           message: 'View is already shown in a Region or CollectionView',
           url: 'marionette.region.html#showing-a-view'
         });
@@ -1978,7 +1978,7 @@
       if (!el) {
         throw new MarionetteError({
           code: 'MN0004',
-          name: classErrorName$2,
+          name: classErrorName$3,
           message: 'An "el" must be specified for a region.',
           url: 'marionette.region.html#additional-options'
         });
@@ -2049,7 +2049,7 @@
         } else {
           throw new MarionetteError({
             code: 'MN0005',
-            name: classErrorName$2,
+            name: classErrorName$3,
             message: `An "el" must exist in DOM for this region ${this.cid}`,
             url: 'marionette.region.html#additional-options'
           });
@@ -2061,7 +2061,7 @@
       if (!view) {
         throw new MarionetteError({
           code: 'MN0006',
-          name: classErrorName$2,
+          name: classErrorName$3,
           message: 'The view passed is undefined and therefore invalid. You must pass a view instance to show.',
           url: 'marionette.region.html#showing-a-view'
         });
@@ -2069,7 +2069,7 @@
       if (view._isDestroyed) {
         throw new MarionetteError({
           code: 'MN0007',
-          name: classErrorName$2,
+          name: classErrorName$3,
           message: `View (cid: "${view.cid}") has already been destroyed and cannot be used.`,
           url: 'marionette.region.html#showing-a-view'
         });
@@ -2492,7 +2492,7 @@
     }
   });
 
-  const classErrorName$1 = 'CollectionViewError';
+  const classErrorName$2 = 'CollectionViewError';
   function createIndex() {
     return Object.create(null);
   }
@@ -2503,7 +2503,7 @@
     if (typeof callback !== 'function') {
       throw new MarionetteError({
         code: 'MN0024',
-        name: classErrorName$1,
+        name: classErrorName$2,
         message: 'ChildViewContainer callback must be a function.'
       });
     }
@@ -2512,7 +2512,7 @@
     if (!Number.isInteger(count) || count < 0) {
       throw new MarionetteError({
         code: 'MN0024',
-        name: classErrorName$1,
+        name: classErrorName$2,
         message: 'ChildViewContainer count must be a nonnegative integer.'
       });
     }
@@ -2573,7 +2573,7 @@
         if (!length) {
           throw new MarionetteError({
             code: 'MN0024',
-            name: classErrorName$1,
+            name: classErrorName$2,
             message: 'Reduce of empty ChildViewContainer with no initial value.'
           });
         }
@@ -2645,7 +2645,7 @@
       if (typeof methodName !== 'string') {
         throw new MarionetteError({
           code: 'MN0024',
-          name: classErrorName$1,
+          name: classErrorName$2,
           message: 'ChildViewContainer method name must be a string.'
         });
       }
@@ -2657,7 +2657,7 @@
         if (typeof method !== 'function') {
           throw new MarionetteError({
             code: 'MN0025',
-            name: classErrorName$1,
+            name: classErrorName$2,
             message: `Child view method "${methodName}" must be callable.`
           });
         }
@@ -2812,7 +2812,7 @@
     return this._views[Symbol.iterator]();
   };
 
-  const classErrorName = 'CollectionViewError';
+  const classErrorName$1 = 'CollectionViewError';
   function isEmptyViewClass(view) {
     if (typeof view !== 'function' || !view.prototype) {
       return false;
@@ -2997,7 +2997,7 @@
       if (!childView) {
         throw new MarionetteError({
           code: 'MN0011',
-          name: classErrorName,
+          name: classErrorName$1,
           message: 'A "childView" must be specified',
           url: 'marionette.collectionview.html#collectionviews-childview'
         });
@@ -3006,7 +3006,7 @@
       if (!childView) {
         throw new MarionetteError({
           code: 'MN0012',
-          name: classErrorName,
+          name: classErrorName$1,
           message: '"childView" must be a view class or a function that returns a view class',
           url: 'marionette.collectionview.html#collectionviews-childview'
         });
@@ -3084,7 +3084,7 @@
       if (!this.container) {
         throw new MarionetteError({
           code: 'MN0013',
-          name: classErrorName,
+          name: classErrorName$1,
           message: `The specified "childViewContainer" was not found: ${childViewContainer}`,
           url: 'marionette.collectionview.html#defining-the-childviewcontainer'
         });
@@ -3184,7 +3184,7 @@
       }
       throw new MarionetteError({
         code: 'MN0014',
-        name: classErrorName,
+        name: classErrorName$1,
         message: '"viewFilter" must be a function, predicate object literal, a string indicating a model attribute, or falsy',
         url: 'marionette.collectionview.html#defining-the-viewfilter'
       });
@@ -3313,7 +3313,7 @@
       }
       throw new MarionetteError({
         code: 'MN0022',
-        name: classErrorName,
+        name: classErrorName$1,
         message: '"emptyView" must be a view class or a function that returns a view class',
         url: 'marionette.collectionview.html#collectionviews-emptyview'
       });
@@ -3335,7 +3335,7 @@
       if (!this._children.hasView(view1) || !this._children.hasView(view2)) {
         throw new MarionetteError({
           code: 'MN0015',
-          name: classErrorName,
+          name: classErrorName$1,
           message: 'Both views must be children of the collection view to swap.',
           url: 'marionette.collectionview.html#swapping-child-views'
         });
@@ -3359,7 +3359,7 @@
       if (view._isShown) {
         throw new MarionetteError({
           code: 'MN0003',
-          name: classErrorName,
+          name: classErrorName$1,
           message: 'View is already shown in a Region or CollectionView',
           url: 'marionette.region.html#showing-a-view'
         });
@@ -3533,6 +3533,7 @@
   const STARTING = 'starting';
   const STOPPED = 'stopped';
   const STOPPING = 'stopping';
+  const classErrorName = 'ApplicationError';
   const Application = function (options) {
     this._setOptions(options, ClassOptions);
     this.cid = uniqueId(this.cidPrefix);
@@ -3543,6 +3544,66 @@
   Application.extend = extend;
   function isCurrentOperation(application, operation) {
     return application._lifecycleOperation === operation;
+  }
+  function getOwnChildApp(applications, name) {
+    return applications?.get(name);
+  }
+  function setChildApp(applications, name, application) {
+    applications.set(name, application);
+    return application;
+  }
+  function throwApplicationOwnershipConflict(message) {
+    throw new MarionetteError({
+      code: 'MN0031',
+      name: classErrorName,
+      message
+    });
+  }
+  function isTerminal(application) {
+    return application._lifecycleState === DESTROYING || application._lifecycleState === DESTROYED;
+  }
+  function isSameChildApp(owner, name, application) {
+    return application._parentApp === owner && application._name === name && getOwnChildApp(owner._childApps, name) === application;
+  }
+  function assertChildAppCanRegister(owner, name, application) {
+    if (typeof name !== 'string' || name.length === 0) {
+      throwApplicationOwnershipConflict('A child Application name must be a non-empty string.');
+    }
+    if (!(application instanceof Application)) {
+      throwApplicationOwnershipConflict('A child Application must be an Application instance.');
+    }
+    if (isSameChildApp(owner, name, application)) {
+      return;
+    }
+    if (application === owner) {
+      throwApplicationOwnershipConflict('An Application cannot own itself.');
+    }
+    if (application._parentApp !== undefined) {
+      throwApplicationOwnershipConflict('An Application instance cannot be registered with more than one owner or name.');
+    }
+    if (getOwnChildApp(owner._childApps, name)) {
+      throwApplicationOwnershipConflict(`Child Application name "${name}" is already registered.`);
+    }
+    let parent = owner;
+    while (parent) {
+      if (parent === application) {
+        throwApplicationOwnershipConflict('A child Application cannot be an ancestor of its owner.');
+      }
+      parent = parent._parentApp;
+    }
+  }
+  function removeChildAppReference(owner, name, application) {
+    owner._childApps.delete(name);
+    delete application._parentApp;
+    delete application._name;
+    if (owner._childApps.size === 0) {
+      delete owner._childApps;
+    }
+  }
+  async function destroyChildApps(application, options) {
+    for (const child of application._childApps.values()) {
+      await child.destroy(options);
+    }
   }
   function createDeferred() {
     let resolve;
@@ -3785,13 +3846,68 @@
         });
         await readiness.promise;
         completeReadiness(current);
+        if (this._childApps) {
+          await destroyChildApps(this, options);
+        }
         this._isDestroyed = true;
         this._lifecycleState = DESTROYED;
         current.failureState = DESTROYED;
         current.isCompleting = true;
+        if (this._parentApp) {
+          removeChildAppReference(this._parentApp, this._name, this);
+        }
         this.triggerMethod('destroy', this, options);
         this.stopListening();
       });
+    },
+    addChildApp(name, application) {
+      if (isTerminal(this)) {
+        return application;
+      }
+      if (application instanceof Application && isTerminal(application)) {
+        return application;
+      }
+      assertChildAppCanRegister(this, name, application);
+      if (isSameChildApp(this, name, application)) {
+        return application;
+      }
+      const children = this._childApps || (this._childApps = new Map());
+      application._parentApp = this;
+      application._name = name;
+      return setChildApp(children, name, application);
+    },
+    removeChildApp(name, options) {
+      const application = this.getChildApp(name);
+      if (!application) {
+        return Promise.resolve();
+      }
+      return application.destroy(options).then(() => application);
+    },
+    hasChildApp(name) {
+      return !!this._childApps?.has(name);
+    },
+    getChildApp(name) {
+      return getOwnChildApp(this._childApps, name);
+    },
+    getChildApps() {
+      const applications = {};
+      this._childApps?.forEach((application, name) => {
+        setProperty(applications, name, application);
+      });
+      return applications;
+    },
+    getParentApp() {
+      return this._parentApp;
+    },
+    getRootApp() {
+      let application = this;
+      while (application._parentApp) {
+        application = application._parentApp;
+      }
+      return application;
+    },
+    getName() {
+      return this._name;
     },
     regionClass: Region,
     _initRegion() {

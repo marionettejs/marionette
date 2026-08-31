@@ -1,7 +1,8 @@
 // Application
 // -----------
 
-import { assignOwn } from '../utils/assign-in.js';
+import { assignOwn, setProperty } from '../utils/assign-in.js';
+import MarionetteError from '../utils/error.js';
 import extend from '../utils/extend.js';
 import uniqueId from '../utils/unique-id.js';
 import buildRegion from './common/build-region.js';
@@ -25,6 +26,7 @@ const RUNNING = 'running';
 const STARTING = 'starting';
 const STOPPED = 'stopped';
 const STOPPING = 'stopping';
+const classErrorName = 'ApplicationError';
 
 const Application = function(options) {
   this._setOptions(options, ClassOptions);
@@ -38,6 +40,82 @@ Application.extend = extend;
 
 function isCurrentOperation(application, operation) {
   return application._lifecycleOperation === operation;
+}
+
+function getOwnChildApp(applications, name) {
+  return applications?.get(name);
+}
+
+function setChildApp(applications, name, application) {
+  applications.set(name, application);
+  return application;
+}
+
+function throwApplicationOwnershipConflict(message) {
+  throw new MarionetteError({
+    code: 'MN0031',
+    name: classErrorName,
+    message
+  });
+}
+
+function isTerminal(application) {
+  return application._lifecycleState === DESTROYING ||
+    application._lifecycleState === DESTROYED;
+}
+
+function isSameChildApp(owner, name, application) {
+  return application._parentApp === owner && application._name === name &&
+    getOwnChildApp(owner._childApps, name) === application;
+}
+
+function assertChildAppCanRegister(owner, name, application) {
+  if (typeof name !== 'string' || name.length === 0) {
+    throwApplicationOwnershipConflict('A child Application name must be a non-empty string.');
+  }
+
+  if (!(application instanceof Application)) {
+    throwApplicationOwnershipConflict('A child Application must be an Application instance.');
+  }
+
+  if (isSameChildApp(owner, name, application)) { return; }
+
+  if (application === owner) {
+    throwApplicationOwnershipConflict('An Application cannot own itself.');
+  }
+
+  if (application._parentApp !== undefined) {
+    throwApplicationOwnershipConflict('An Application instance cannot be registered with more than one owner or name.');
+  }
+
+  if (getOwnChildApp(owner._childApps, name)) {
+    throwApplicationOwnershipConflict(`Child Application name "${name}" is already registered.`);
+  }
+
+  let parent = owner;
+  while (parent) {
+    if (parent === application) {
+      throwApplicationOwnershipConflict('A child Application cannot be an ancestor of its owner.');
+    }
+    parent = parent._parentApp;
+  }
+}
+
+function removeChildAppReference(owner, name, application) {
+  owner._childApps.delete(name);
+  delete application._parentApp;
+  delete application._name;
+
+  if (owner._childApps.size === 0) {
+    delete owner._childApps;
+  }
+}
+
+async function destroyChildApps(application, options) {
+  // Destroy removes the current child from this Map without skipping the next.
+  for (const child of application._childApps.values()) {
+    await child.destroy(options);
+  }
 }
 
 function createDeferred() {
@@ -291,13 +369,74 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
 
       await readiness.promise;
       completeReadiness(current);
+      if (this._childApps) {
+        await destroyChildApps(this, options);
+      }
       this._isDestroyed = true;
       this._lifecycleState = DESTROYED;
       current.failureState = DESTROYED;
       current.isCompleting = true;
+      if (this._parentApp) {
+        removeChildAppReference(this._parentApp, this._name, this);
+      }
       this.triggerMethod('destroy', this, options);
       this.stopListening();
     });
+  },
+
+  addChildApp(name, application) {
+    if (isTerminal(this)) { return application; }
+
+    if (application instanceof Application && isTerminal(application)) {
+      return application;
+    }
+
+    assertChildAppCanRegister(this, name, application);
+    if (isSameChildApp(this, name, application)) { return application; }
+
+    const children = this._childApps || (this._childApps = new Map());
+    application._parentApp = this;
+    application._name = name;
+    return setChildApp(children, name, application);
+  },
+
+  removeChildApp(name, options) {
+    const application = this.getChildApp(name);
+    if (!application) { return Promise.resolve(); }
+
+    return application.destroy(options).then(() => application);
+  },
+
+  hasChildApp(name) {
+    return !!this._childApps?.has(name);
+  },
+
+  getChildApp(name) {
+    return getOwnChildApp(this._childApps, name);
+  },
+
+  getChildApps() {
+    const applications = {};
+    this._childApps?.forEach((application, name) => {
+      setProperty(applications, name, application);
+    });
+    return applications;
+  },
+
+  getParentApp() {
+    return this._parentApp;
+  },
+
+  getRootApp() {
+    let application = this;
+    while (application._parentApp) {
+      application = application._parentApp;
+    }
+    return application;
+  },
+
+  getName() {
+    return this._name;
   },
 
   regionClass: Region,

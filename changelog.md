@@ -56,6 +56,8 @@
   `stop`, `restart`, and `isRunning`, and made later incompatible operations
   cancel stale lifecycle success without rejecting ordinary cleanup races;
   readiness hooks receive an operation context with a cooperative abort signal
+* Added explicit named child Application ownership, pure parent/root/child
+  topology queries, and deterministic owner-driven child destruction
 
 ### v5.0.0-alpha.1
 
