@@ -1,0 +1,27 @@
+test/fixtures/docs-feature-flags/package.json
+  s_d6429951fb9231::t_924b19ee25a9f7 1-7
+docs/features.md
+  s_d6429951fb9231::t_625a34297984b1 1,4-6,8,10-13,15,17-19,24-26,29-34,36-37,42,44,46,48,50-54,57-59,61,63-67,69-71,73,75,77-81
+  s_d6429951fb9231::t_dfea2537424127 3,38-40
+test/fixtures/docs-feature-flags/validate.mjs
+  s_d6429951fb9231::t_dfea2537424127 47,52,54
+  s_d6429951fb9231::t_924b19ee25a9f7 1-46,48-51,53,55-66
+test/fixtures/docs-feature-flags/.gitignore
+  s_d6429951fb9231::t_924b19ee25a9f7 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "8f48b095763b130e3eb3468d1996c8889727f354",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
