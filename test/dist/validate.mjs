@@ -25,6 +25,13 @@ const removedRootUtilities = [
   'normalizeMethods',
   'triggerMethod',
 ];
+const removedRadioProperties = ['Channel', 'log', 'debugLog', '_channels'];
+
+function validateRadio(Marionette, name) {
+  for (const property of removedRadioProperties) {
+    assert.strictEqual(Object.hasOwn(Marionette.Radio, property), false, `${name} Radio.${property} absence`);
+  }
+}
 
 function validateBrowserGlobal(file) {
   const previousMarionette = {};
@@ -42,6 +49,7 @@ function validateBrowserGlobal(file) {
 
   assert.strictEqual(Marionette.VERSION, packageJson.version, `${file} browser-global version`);
   assert.strictEqual(typeof Marionette.MarionetteError, 'function', `${file} MarionetteError export`);
+  validateRadio(Marionette, file);
   assert.strictEqual(Marionette.noConflict(), Marionette, `${file} noConflict return value`);
   assert.strictEqual(context.Marionette, previousMarionette, `${file} noConflict restoration`);
 }
@@ -55,6 +63,7 @@ async function validate() {
   for (const [name, Marionette] of entrypoints) {
     assert.strictEqual(Marionette.VERSION, packageJson.version, `${name} version`);
     assert.strictEqual(typeof Marionette.MarionetteError, 'function', `${name} MarionetteError export`);
+    validateRadio(Marionette, name);
 
     for (const utilityName of removedRootUtilities) {
       assert.strictEqual(Object.hasOwn(Marionette, utilityName), false, `${name} ${utilityName} absence`);

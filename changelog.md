@@ -68,6 +68,13 @@
 * Changed `mergeOptions` to require its documented Array of option names with
   diagnostic code `MN0033`, and removed generic object traversal from private
   immediate-child propagation
+* Removed the historically documented `Radio.log` and `Radio.debugLog`
+  replacement hooks; the built-in Radio now owns one diagnostic and tuning
+  output path
+* Internalized the Radio Channel constructor and registry; obtain channels
+  through `Radio.channel(name)`
+* Changed borrowed top-level Radio methods to dispatch through the imported
+  singleton instead of accepting an alternate receiver and registry
 
 ### v5.0.0-alpha.1
 

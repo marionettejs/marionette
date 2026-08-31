@@ -17,3 +17,7 @@ for (const utilityName of [
 ]) {
   assert.strictEqual(Object.hasOwn(Mn, utilityName), false);
 }
+
+for (const property of ['Channel', 'log', 'debugLog', '_channels']) {
+  assert.strictEqual(Object.hasOwn(Mn.Radio, property), false);
+}

@@ -46,7 +46,6 @@ const stopReducer = function(requests, { name, callback, context }) {
           callback !== handler.callback._callback ||
             context && context !== handler.context
     ) {
-      // Radio.debugLog('Attempted to remove the unregistered request', name, this.channelName);
       continue;
     }
 

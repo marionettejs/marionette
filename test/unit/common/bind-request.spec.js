@@ -127,7 +127,7 @@ describe('bind-requests', function() {
 
   describe('unbindRequests', function() {
     it('removes only the current owner\'s replies without a binding map', function() {
-      const realChannel = new Radio.Channel('owner-scoped-unbind-all');
+      const realChannel = Radio.channel('owner-scoped-unbind-all');
       const firstOwner = {
         name: 'first',
         bindRequests,
@@ -154,7 +154,7 @@ describe('bind-requests', function() {
     });
 
     it('selectively removes caller-owned replies without disturbing other replies', function() {
-      const realChannel = new Radio.Channel('owner-scoped-selective-unbind');
+      const realChannel = Radio.channel('owner-scoped-selective-unbind');
       const sharedReply = function() {
         return this.name;
       };
