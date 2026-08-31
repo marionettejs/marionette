@@ -84,6 +84,55 @@ function getRegionForChild(view, name) {
   return getRequiredRegion(view.getRegion(name), name);
 }
 
+function throwRegionRegistrationConflict(message) {
+  throw new MarionetteError({
+    code: 'MN0030',
+    name: classErrorName,
+    message
+  });
+}
+
+function isSameRegionRegistration(view, region, name) {
+  return region._parentView === view && region._name === name &&
+    getOwnRegion(view._regions, name) === region;
+}
+
+function assertRegionCanRegister(view, region, name) {
+  if (isSameRegionRegistration(view, region, name)) { return; }
+
+  if (region._parentView !== undefined) {
+    throwRegionRegistrationConflict('A Region instance cannot be registered with more than one owner or name.');
+  }
+
+  if (region._isDestroying || region._isDestroyed) {
+    throwRegionRegistrationConflict('A destroying or destroyed Region cannot be registered.');
+  }
+
+  if (getOwnRegion(view._regions, name)) {
+    throwRegionRegistrationConflict(`Region name "${name}" is already registered.`);
+  }
+}
+
+function assertRegionDefinitionsCanRegister(view, definitions) {
+  const seenRegions = new Set();
+
+  eachOwn(definitions, (definition, name) => {
+    if (!(definition instanceof Region)) {
+      if (getOwnRegion(view._regions, name)) {
+        throwRegionRegistrationConflict(`Region name "${name}" is already registered.`);
+      }
+      return;
+    }
+
+    if (seenRegions.has(definition)) {
+      throwRegionRegistrationConflict('A Region instance cannot be registered under more than one name.');
+    }
+
+    seenRegions.add(definition);
+    assertRegionCanRegister(view, definition, name);
+  });
+}
+
 const RegionClassOptions = [
   'allowMissingEl',
   'parentEl',
@@ -484,6 +533,16 @@ assignOwn(Region.prototype, CommonMixin, {
     return !!this.currentView;
   },
 
+  // Returns the View that currently owns this Region, if any.
+  getOwner() {
+    return this._parentView;
+  },
+
+  // Returns this Region's name within its owner, if any.
+  getName() {
+    return this._name;
+  },
+
   // Reset the region by destroying any existing view and restoring its initial element.
   // The next time a view is shown, the region will re-query the DOM for its `el`.
   reset(options) {
@@ -532,7 +591,7 @@ assignOwn(Region.prototype, CommonMixin, {
       destroyTeardown.delete(this);
     }
 
-    if (this._name) {
+    if (this._parentView && this._name !== undefined) {
       this._parentView._removeReferences(this._name);
     }
     delete this._parentView;
@@ -621,6 +680,8 @@ const RegionsMixin = {
     // a user to use the @ui. syntax.
     regions = this.normalizeUIValues(regions, 'el');
 
+    assertRegionDefinitionsCanRegister(this, regions);
+
     // Add the regions definitions to the regions property
     const allRegions = {};
     eachOwn(this.regions, (definition, name) => setRegion(allRegions, definition, name));
@@ -638,16 +699,42 @@ const RegionsMixin = {
     };
 
     const regions = {};
-    eachOwn(regionDefinitions, (definition, name) => {
-      const region = buildRegion(definition, defaults);
-      setRegion(regions, region, name);
-      this._addRegion(region, name);
-    });
+    try {
+      eachOwn(regionDefinitions, (definition, name) => {
+        const region = buildRegion(definition, defaults);
+        this._addRegion(region, name);
+        setRegion(regions, region, name);
+      });
+    } catch (error) {
+      eachOwn(regionDefinitions, (definition, name) => {
+        if (!getOwnRegion(this._regions, name)) {
+          delete this.regions[name];
+        }
+      });
+      throw error;
+    }
     return regions;
   },
 
   _addRegion(region, name) {
+    // Repeating the completed identity is safe even during teardown: this path does not mutate.
+    if (isSameRegionRegistration(this, region, name)) { return; }
+
+    assertRegionCanRegister(this, region, name);
+
     this.triggerMethod('before:add:region', this, name, region);
+
+    // A lifecycle hook may adopt the Region or occupy the name reentrantly.
+    if (isSameRegionRegistration(this, region, name)) { return; }
+
+    try {
+      assertRegionCanRegister(this, region, name);
+    } catch (error) {
+      if (!getOwnRegion(this._regions, name)) {
+        delete this.regions[name];
+      }
+      throw error;
+    }
 
     region._parentView = this;
     region._name = name;

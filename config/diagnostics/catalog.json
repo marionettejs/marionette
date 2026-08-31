@@ -500,6 +500,23 @@
         "runtime"
       ],
       "benchmarkCategory": "view"
+    },
+    {
+      "code": "MN0030",
+      "slug": "region-registration-conflict",
+      "status": "active",
+      "category": "ownership",
+      "severity": "error",
+      "objects": [
+        "Region",
+        "View"
+      ],
+      "remediation": "Register a live, unowned Region under an unused name; remove an existing named Region before replacing it and use a fresh Region instance for a different owner.",
+      "docsAnchor": "/errors/MN0030/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "ownership"
     }
   ]
 }

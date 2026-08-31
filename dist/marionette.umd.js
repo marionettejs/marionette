@@ -1869,6 +1869,46 @@
     }
     return getRequiredRegion(view.getRegion(name), name);
   }
+  function throwRegionRegistrationConflict(message) {
+    throw new MarionetteError({
+      code: 'MN0030',
+      name: classErrorName$2,
+      message
+    });
+  }
+  function isSameRegionRegistration(view, region, name) {
+    return region._parentView === view && region._name === name && getOwnRegion(view._regions, name) === region;
+  }
+  function assertRegionCanRegister(view, region, name) {
+    if (isSameRegionRegistration(view, region, name)) {
+      return;
+    }
+    if (region._parentView !== undefined) {
+      throwRegionRegistrationConflict('A Region instance cannot be registered with more than one owner or name.');
+    }
+    if (region._isDestroying || region._isDestroyed) {
+      throwRegionRegistrationConflict('A destroying or destroyed Region cannot be registered.');
+    }
+    if (getOwnRegion(view._regions, name)) {
+      throwRegionRegistrationConflict(`Region name "${name}" is already registered.`);
+    }
+  }
+  function assertRegionDefinitionsCanRegister(view, definitions) {
+    const seenRegions = new Set();
+    eachOwn(definitions, (definition, name) => {
+      if (!(definition instanceof Region)) {
+        if (getOwnRegion(view._regions, name)) {
+          throwRegionRegistrationConflict(`Region name "${name}" is already registered.`);
+        }
+        return;
+      }
+      if (seenRegions.has(definition)) {
+        throwRegionRegistrationConflict('A Region instance cannot be registered under more than one name.');
+      }
+      seenRegions.add(definition);
+      assertRegionCanRegister(view, definition, name);
+    });
+  }
   const RegionClassOptions = ['allowMissingEl', 'parentEl', 'replaceElement'];
   const Region = function (options) {
     this._setOptions(options, RegionClassOptions);
@@ -2159,6 +2199,12 @@
     hasView() {
       return !!this.currentView;
     },
+    getOwner() {
+      return this._parentView;
+    },
+    getName() {
+      return this._name;
+    },
     reset(options) {
       const authorized = consumeDestroyTeardown(this, 'reset');
       if (!canMutateRegion(this, authorized)) {
@@ -2200,7 +2246,7 @@
       } finally {
         destroyTeardown.delete(this);
       }
-      if (this._name) {
+      if (this._parentView && this._name !== undefined) {
         this._parentView._removeReferences(this._name);
       }
       delete this._parentView;
@@ -2258,6 +2304,7 @@
         return;
       }
       regions = this.normalizeUIValues(regions, 'el');
+      assertRegionDefinitionsCanRegister(this, regions);
       const allRegions = {};
       eachOwn(this.regions, (definition, name) => setRegion(allRegions, definition, name));
       eachOwn(regions, (definition, name) => setRegion(allRegions, definition, name));
@@ -2270,15 +2317,39 @@
         parentEl: () => getValue(this, 'el')
       };
       const regions = {};
-      eachOwn(regionDefinitions, (definition, name) => {
-        const region = buildRegion(definition, defaults);
-        setRegion(regions, region, name);
-        this._addRegion(region, name);
-      });
+      try {
+        eachOwn(regionDefinitions, (definition, name) => {
+          const region = buildRegion(definition, defaults);
+          this._addRegion(region, name);
+          setRegion(regions, region, name);
+        });
+      } catch (error) {
+        eachOwn(regionDefinitions, (definition, name) => {
+          if (!getOwnRegion(this._regions, name)) {
+            delete this.regions[name];
+          }
+        });
+        throw error;
+      }
       return regions;
     },
     _addRegion(region, name) {
+      if (isSameRegionRegistration(this, region, name)) {
+        return;
+      }
+      assertRegionCanRegister(this, region, name);
       this.triggerMethod('before:add:region', this, name, region);
+      if (isSameRegionRegistration(this, region, name)) {
+        return;
+      }
+      try {
+        assertRegionCanRegister(this, region, name);
+      } catch (error) {
+        if (!getOwnRegion(this._regions, name)) {
+          delete this.regions[name];
+        }
+        throw error;
+      }
       region._parentView = this;
       region._name = name;
       this._regions[name] = region;

@@ -16,6 +16,7 @@ Regions maintain the [View's lifecycle](./view.lifecycle.md) while showing or em
 ## Documentation Index
 
 * [Instantiating a Region](#instantiating-a-region)
+* [Reading Region ownership](#reading-region-ownership)
 * [Lifecycle transition contract](#lifecycle-transition-contract)
 * [Defining the Application Region](#defining-the-application-region)
 * [Defining Regions](#defining-regions)
@@ -55,6 +56,33 @@ const myRegion = new Region({ ... });
 
 While regions may be instantiated and useful on their own, their primary use case is through
 the [`Application`](#defining-the-application-region) and [`View`](#defining-regions) classes.
+
+## Reading Region ownership
+
+A Region registered on a View exposes that existing relationship through pure,
+read-only queries. `getOwner()` returns the owning View and `getName()` returns
+the Region's name within that View. Neither query renders the View, resolves the
+Region element, or changes topology. A standalone Region returns `undefined`
+from both methods. Removing a registered Region or completing its destruction
+clears both values. If `before:destroy` throws, the Region remains live and owned.
+
+A Region has one authoritative registration. Re-adding that same Region instance
+under its current owner and name returns it without lifecycle events or topology changes.
+Registering it under a different owner or name, registering a Region whose
+destruction has begun or completed, or replacing an occupied Region name through
+`addRegion` throws [`MN0030`](/errors/MN0030/) before committing the conflicting
+registration. A conflict found before `addRegions` starts rejects the whole batch.
+If a lifecycle hook creates a conflict during ordered processing, entries already
+registered remain in place; the conflicting and later entries are not registered.
+Remove an existing named Region before replacing it, and use a fresh Region instance
+when another View needs a Region.
+
+```javascript
+const contentRegion = myView.getRegion('content');
+
+contentRegion.getOwner() === myView; // true
+contentRegion.getName(); // 'content'
+```
 
 ## Lifecycle transition contract
 
