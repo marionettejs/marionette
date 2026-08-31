@@ -1,14 +1,16 @@
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
-import { chromium, firefox, webkit } from 'playwright';
+import { chromium, firefox, webkit } from '@playwright/test';
 
 const browsers = { chromium, firefox, webkit };
 const distribution = resolve(import.meta.dirname, '../../dist/marionette.umd.js');
+const failures = [];
 
 for (const [browserName, browserType] of Object.entries(browsers)) {
-  const browser = await browserType.launch({ headless: true });
+  let browser;
 
   try {
+    browser = await browserType.launch({ headless: true });
     const page = await browser.newPage();
     await page.setContent('<!doctype html><main id="content"></main>');
     await page.addScriptTag({ path: distribution });
@@ -96,7 +98,13 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
     }, `${browserName}: imported clone attaches once`);
 
     console.log(`${browserName}: attachment lifecycle passed`);
+  } catch (error) {
+    failures.push(new Error(`${browserName}: ${error.message}`, { cause: error }));
   } finally {
-    await browser.close();
+    await browser?.close();
   }
+}
+
+if (failures.length) {
+  throw new AggregateError(failures, 'Attachment lifecycle failed.');
 }
