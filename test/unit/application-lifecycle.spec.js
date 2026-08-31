@@ -165,6 +165,31 @@ describe('Application lifecycle', function() {
     ]);
   });
 
+  it('lets abort listeners supersede the replacement operation', async function() {
+    const readiness = defer();
+    const beforeStop = this.sinon.spy();
+    let destroy;
+    const app = new (Application.extend({
+      onBeforeStart(application, options, context) {
+        context.signal.addEventListener('abort', () => {
+          readiness.resolve();
+          destroy = this.destroy();
+        }, { once: true });
+        return readiness.promise;
+      },
+      onBeforeStop: beforeStop
+    }))();
+
+    const start = app.start();
+    const stop = app.stop();
+
+    expect(await start).to.be.false;
+    expect(await stop).to.be.false;
+    expect(await destroy).to.be.true;
+    expect(beforeStop).to.have.been.calledOnce;
+    expect(app.isDestroyed()).to.be.true;
+  });
+
   it('transfers stop readiness without aborting its signal', async function() {
     const readiness = defer();
     const stopOptions = { source: 'stop' };
@@ -560,6 +585,40 @@ describe('Application lifecycle', function() {
     expect(beforeStop).to.have.been.calledOnce;
     expect(stopEvent).to.have.been.calledOnce;
     expect(app.isRunning()).to.be.false;
+  });
+
+  it('publishes stopped state before abort listener reentry', async function() {
+    const readiness = defer();
+    const restartStarted = defer();
+    const beforeStop = this.sinon.spy();
+    const stopEvent = this.sinon.spy();
+    const onBeforeStart = this.sinon.stub();
+    let destroy;
+    onBeforeStart.onSecondCall().callsFake((application, options, context) => {
+      context.signal.addEventListener('abort', () => {
+        readiness.resolve();
+        destroy = application.destroy();
+      }, { once: true });
+      restartStarted.resolve();
+      return readiness.promise;
+    });
+    const app = new (Application.extend({
+      onBeforeStart,
+      onBeforeStop: beforeStop,
+      onStop: stopEvent
+    }))();
+    await app.start();
+
+    const restart = app.restart();
+    await restartStarted.promise;
+    const stop = app.stop();
+
+    expect(await restart).to.be.false;
+    expect(await stop).to.be.true;
+    expect(await destroy).to.be.true;
+    expect(beforeStop).to.have.been.calledOnce;
+    expect(stopEvent).to.have.been.calledOnce;
+    expect(app.isDestroyed()).to.be.true;
   });
 
   it('shares stop readiness when stop supersedes restart teardown', async function() {

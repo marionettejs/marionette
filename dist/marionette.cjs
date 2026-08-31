@@ -3618,9 +3618,6 @@ function beginOperation(application, kind, state, failureState, callback) {
   const superseded = supersedeOperation(application);
   const deferred = createDeferred();
   const stopReadiness = superseded?.stopReadiness;
-  if (superseded?.readiness && superseded.readiness !== stopReadiness) {
-    superseded.readiness.controller.abort();
-  }
   const operation = {
     ...deferred,
     kind,
@@ -3630,6 +3627,12 @@ function beginOperation(application, kind, state, failureState, callback) {
   };
   application._lifecycleOperation = operation;
   application._lifecycleState = state;
+  if (superseded?.readiness && superseded.readiness !== stopReadiness) {
+    superseded.readiness.controller.abort();
+  }
+  if (!isCurrentOperation(application, operation)) {
+    return deferred.promise;
+  }
   runOperation(application, operation, () => callback(operation));
   return deferred.promise;
 }
@@ -3726,8 +3729,8 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     }
     if (operation?.isStopped) {
       const superseded = supersedeOperation(this);
-      superseded.readiness?.controller.abort();
       this._lifecycleState = STOPPED;
+      superseded.readiness?.controller.abort();
       return Promise.resolve(true);
     }
     if (this._lifecycleState === STOPPED && !operation) {
