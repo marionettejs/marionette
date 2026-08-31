@@ -97,6 +97,9 @@ Marionette determines whether the initial root is already
 [rendered](#rendering-a-view) or [attached](#attaching-a-view). If a View starts
 rendered or attached, its [state](#lifecycle-state-methods) reflects that status, but the
 [related events](./events.class.md#dom-change-events) will not have fired.
+An element owned by template content is detached while that owner document has no
+document element. Showing its View later through an attached Region runs the managed
+attachment lifecycle once for the View and its existing children.
 
 For more information on instantiating a view with pre-rendered DOM, see
 [Pre-rendered Content](./dom.prerendered.md).
