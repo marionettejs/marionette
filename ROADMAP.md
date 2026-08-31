@@ -618,8 +618,8 @@ rather than retained as dormant APIs.
   Backbone-shaped contract is retained or is replaced with an exercised Backbone
   migration. The selected protocol passes source, distribution, packed-package, and
   real-browser tests.
-- Large-list operation-count scenarios pass their documented source, distribution,
-  packed-package, and real-browser gates.
+- Large-list operation-count scenarios pass source, distribution, packed-package, and
+  real-browser tests.
 - Detached-element attachment semantics pass source, distribution, packed-package,
   and real-browser tests.
 - The optimized rendering recipe passes source, distribution, packed-package, and
