@@ -5,11 +5,11 @@ import { assignOwn, setProperty } from '../utils/assign-in.js';
 import MarionetteError from '../utils/error.js';
 import extend from '../utils/extend.js';
 import uniqueId from '../utils/unique-id.js';
-import buildRegion from './common/build-region.js';
 import CommonMixin from '../mixins/common.js';
 import DestroyMixin from '../mixins/destroy.js';
 import RadioMixin from '../mixins/radio.js';
 import Region from './region.js';
+import { buildRegion } from './view-region.js';
 
 const ClassOptions = [
   'channelName',
