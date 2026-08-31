@@ -9,12 +9,6 @@
   })());
 })(this, (function (exports) { 'use strict';
 
-  const proxy = function (method) {
-    return function (context, ...args) {
-      return method.apply(context, args);
-    };
-  };
-
   function setProperty(target, key, value) {
     if (key === '__proto__') {
       Object.defineProperty(target, key, {
@@ -70,199 +64,13 @@
 
   var version = "5.0.0-alpha.2";
 
-  const errorProps = ['code', 'description', 'fileName', 'lineNumber', 'name', 'message', 'number', 'url'];
-  const MarionetteError = extend.call(Error, {
-    urlRoot: `http://marionettejs.com/docs/v${version}/`,
-    url: '',
-    constructor: function (options) {
-      const error = Error.call(this, options.message);
-      const nativeProperties = {};
-      const optionProperties = {};
-      for (const property of errorProps) {
-        const value = error[property];
-        if (property in error) {
-          nativeProperties[property] = value;
-        }
-      }
-      const optionSource = Object(options);
-      for (const property of errorProps) {
-        const value = optionSource[property];
-        if (property in optionSource) {
-          optionProperties[property] = value;
-        }
-      }
-      if (this !== undefined && this !== null) {
-        Object.assign(this, nativeProperties, optionProperties);
-      }
-      this.captureStackTrace(error);
-      this.url = this.urlRoot + this.url;
-    },
-    captureStackTrace(fallbackError) {
-      if (typeof Error.captureStackTrace !== 'function') {
-        this.stack = fallbackError.stack;
-        return;
-      }
-      Error.captureStackTrace(this, MarionetteError);
-    },
-    toString() {
-      return `${this.name}: ${this.message} See: ${this.url}`;
-    }
-  });
-
-  const getObjectTag = Function.call.bind(Object.prototype.toString);
-  function isString(value) {
-    return getObjectTag(value) === '[object String]';
-  }
-
-  const resolveMethod = function (context, method, name) {
-    if (typeof method === 'function') {
-      return method;
-    }
-    const methodName = method;
-    const resolvedMethod = isString(methodName) ? context[methodName] : undefined;
-    if (typeof resolvedMethod !== 'function') {
-      let methodLabel = '<unprintable>';
-      try {
-        methodLabel = String(methodName);
-      } catch {}
-      throw new MarionetteError({
-        code: 'MN0019',
-        message: `The handler "${methodLabel}" for "${name}" must resolve to a function.`
-      });
-    }
-    return resolvedMethod;
-  };
-  const normalizeMethods$1 = function (hash) {
-    if (!hash) {
-      return;
-    }
-    const normalizedHash = {};
-    for (const name of Object.keys(hash)) {
-      setProperty(normalizedHash, name, resolveMethod(this, hash[name], name));
-    }
-    return normalizedHash;
-  };
-
-  const propertyIsEnumerable$1 = Object.prototype.propertyIsEnumerable;
-  function normalizeBindings$1(context, bindings) {
-    const bindingsType = typeof bindings;
-    if (bindings === null || bindingsType !== 'object' && bindingsType !== 'function') {
-      throw new MarionetteError({
-        code: 'MN0009',
-        message: 'Bindings must be an object.',
-        url: 'common.html#bindevents'
-      });
-    }
-    if (propertyIsEnumerable$1.call(bindings, '__proto__')) {
-      throw new MarionetteError({
-        code: 'MN0026',
-        message: 'Entity event maps cannot include an own "__proto__" event name.',
-        url: 'common.html#bindevents'
-      });
-    }
-    return normalizeMethods$1.call(context, bindings);
-  }
-  function bindEvents$1(entity, bindings) {
-    if (!entity || !bindings) {
-      return this;
-    }
-    this.listenTo(entity, normalizeBindings$1(this, bindings));
-    return this;
-  }
-  function unbindEvents$1(entity, bindings) {
-    if (!entity) {
-      return this;
-    }
-    if (!bindings) {
-      this.stopListening(entity);
-      return this;
-    }
-    this.stopListening(entity, normalizeBindings$1(this, bindings));
-    return this;
-  }
-
-  function normalizeBindings(context, bindings) {
-    const bindingsType = typeof bindings;
-    if (bindings === null || bindingsType !== 'object' && bindingsType !== 'function') {
-      throw new MarionetteError({
-        code: 'MN0010',
-        message: 'Bindings must be an object.',
-        url: 'common.html#bindrequests'
-      });
-    }
-    return normalizeMethods$1.call(context, bindings);
-  }
-  function bindRequests$1(channel, bindings) {
-    if (!channel || !bindings) {
-      return this;
-    }
-    channel.reply(normalizeBindings(this, bindings), this);
-    return this;
-  }
-  function unbindRequests$1(channel, bindings) {
-    if (!channel) {
-      return this;
-    }
-    if (!bindings) {
-      channel.stopReplying(null, null, this);
-      return this;
-    }
-    channel.stopReplying(normalizeBindings(this, bindings), this);
-    return this;
-  }
-
-  const getOption$1 = function (optionName) {
-    if (!optionName) {
-      return;
-    }
-    if (this.options && this.options[optionName] !== undefined) {
-      return this.options[optionName];
-    } else {
-      return this[optionName];
-    }
-  };
-
   const MAX_ARRAY_INDEX$1 = Number.MAX_SAFE_INTEGER;
-  const propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
-  const eachRequestedKey = function (keys, iteratee) {
-    if (keys == null) {
-      return;
-    }
-    const candidateLength = keys.length;
-    if (typeof candidateLength === 'number' && candidateLength >= 0 && candidateLength <= MAX_ARRAY_INDEX$1) {
-      const length = keys.length;
-      for (let index = 0; index < length; index++) {
-        iteratee(keys[index]);
-      }
-      return;
-    }
-    const names = Object.keys(keys);
-    for (const name of names) {
-      iteratee(keys[name]);
-    }
-  };
-  const mergeOptions$1 = function (options, keys) {
-    if (!options) {
-      return;
-    }
-    eachRequestedKey(keys, key => {
-      if (typeof key !== 'string' || !propertyIsEnumerable.call(options, key)) {
-        return;
-      }
-      const option = options[key];
-      if (option !== undefined) {
-        setProperty(this, key, option);
-      }
-    });
-  };
-
-  const MAX_ARRAY_INDEX = Number.MAX_SAFE_INTEGER;
   function eachChild(children, iteratee) {
     if (children == null) {
       return;
     }
     const candidateLength = children.length;
-    if (typeof candidateLength === 'number' && candidateLength >= 0 && candidateLength <= MAX_ARRAY_INDEX) {
+    if (typeof candidateLength === 'number' && candidateLength >= 0 && candidateLength <= MAX_ARRAY_INDEX$1) {
       const length = children.length;
       for (let index = 0; index < length; index++) {
         iteratee(children[index]);
@@ -348,28 +156,6 @@
     });
   }
 
-  const splitter = /(^|:)(\w)/gi;
-  const methodCache = Object.create(null);
-  function getEventName(match, prefix, eventName) {
-    return eventName.toUpperCase();
-  }
-  const getOnMethodName = function (event) {
-    if (!methodCache[event]) {
-      methodCache[event] = 'on' + event.replace(splitter, getEventName);
-    }
-    return methodCache[event];
-  };
-  function triggerMethod$1(event, ...args) {
-    const methodName = getOnMethodName(event);
-    const method = getOption$1.call(this, methodName);
-    let result;
-    if (typeof method === 'function') {
-      result = method.apply(this, args);
-    }
-    this.trigger.apply(this, arguments);
-    return result;
-  }
-
   const eventSplitter = /\s+/;
   function buildEventArgs(name, callback, context, listener) {
     if (name && typeof name === 'object') {
@@ -441,6 +227,39 @@
   function uniqueId(prefix) {
     const id = `${++idCounter}`;
     return prefix ? prefix + id : id;
+  }
+
+  const getOption = function (optionName) {
+    if (!optionName) {
+      return;
+    }
+    if (this.options && this.options[optionName] !== undefined) {
+      return this.options[optionName];
+    } else {
+      return this[optionName];
+    }
+  };
+
+  const splitter = /(^|:)(\w)/gi;
+  const methodCache = Object.create(null);
+  function getEventName(match, prefix, eventName) {
+    return eventName.toUpperCase();
+  }
+  const getOnMethodName = function (event) {
+    if (!methodCache[event]) {
+      methodCache[event] = 'on' + event.replace(splitter, getEventName);
+    }
+    return methodCache[event];
+  };
+  function triggerMethod(event, ...args) {
+    const methodName = getOnMethodName(event);
+    const method = getOption.call(this, methodName);
+    let result;
+    if (typeof method === 'function') {
+      result = method.apply(this, args);
+    }
+    this.trigger.apply(this, arguments);
+    return result;
   }
 
   const objectKeys$3 = Object.keys;
@@ -739,7 +558,7 @@
       });
       return this;
     },
-    triggerMethod: triggerMethod$1
+    triggerMethod
   };
 
   function getValue(object, property, fallback) {
@@ -904,20 +723,195 @@
     }
   };
 
+  const MAX_ARRAY_INDEX = Number.MAX_SAFE_INTEGER;
+  const propertyIsEnumerable$1 = Object.prototype.propertyIsEnumerable;
+  const eachRequestedKey = function (keys, iteratee) {
+    if (keys == null) {
+      return;
+    }
+    const candidateLength = keys.length;
+    if (typeof candidateLength === 'number' && candidateLength >= 0 && candidateLength <= MAX_ARRAY_INDEX) {
+      const length = keys.length;
+      for (let index = 0; index < length; index++) {
+        iteratee(keys[index]);
+      }
+      return;
+    }
+    const names = Object.keys(keys);
+    for (const name of names) {
+      iteratee(keys[name]);
+    }
+  };
+  const mergeOptions = function (options, keys) {
+    if (!options) {
+      return;
+    }
+    eachRequestedKey(keys, key => {
+      if (typeof key !== 'string' || !propertyIsEnumerable$1.call(options, key)) {
+        return;
+      }
+      const option = options[key];
+      if (option !== undefined) {
+        setProperty(this, key, option);
+      }
+    });
+  };
+
+  const errorProps = ['code', 'description', 'fileName', 'lineNumber', 'name', 'message', 'number', 'url'];
+  const MarionetteError = extend.call(Error, {
+    urlRoot: `http://marionettejs.com/docs/v${version}/`,
+    url: '',
+    constructor: function (options) {
+      const error = Error.call(this, options.message);
+      const nativeProperties = {};
+      const optionProperties = {};
+      for (const property of errorProps) {
+        const value = error[property];
+        if (property in error) {
+          nativeProperties[property] = value;
+        }
+      }
+      const optionSource = Object(options);
+      for (const property of errorProps) {
+        const value = optionSource[property];
+        if (property in optionSource) {
+          optionProperties[property] = value;
+        }
+      }
+      if (this !== undefined && this !== null) {
+        Object.assign(this, nativeProperties, optionProperties);
+      }
+      this.captureStackTrace(error);
+      this.url = this.urlRoot + this.url;
+    },
+    captureStackTrace(fallbackError) {
+      if (typeof Error.captureStackTrace !== 'function') {
+        this.stack = fallbackError.stack;
+        return;
+      }
+      Error.captureStackTrace(this, MarionetteError);
+    },
+    toString() {
+      return `${this.name}: ${this.message} See: ${this.url}`;
+    }
+  });
+
+  const getObjectTag = Function.call.bind(Object.prototype.toString);
+  function isString(value) {
+    return getObjectTag(value) === '[object String]';
+  }
+
+  const resolveMethod = function (context, method, name) {
+    if (typeof method === 'function') {
+      return method;
+    }
+    const methodName = method;
+    const resolvedMethod = isString(methodName) ? context[methodName] : undefined;
+    if (typeof resolvedMethod !== 'function') {
+      let methodLabel = '<unprintable>';
+      try {
+        methodLabel = String(methodName);
+      } catch {}
+      throw new MarionetteError({
+        code: 'MN0019',
+        message: `The handler "${methodLabel}" for "${name}" must resolve to a function.`
+      });
+    }
+    return resolvedMethod;
+  };
+  const normalizeMethods = function (hash) {
+    if (!hash) {
+      return;
+    }
+    const normalizedHash = {};
+    for (const name of Object.keys(hash)) {
+      setProperty(normalizedHash, name, resolveMethod(this, hash[name], name));
+    }
+    return normalizedHash;
+  };
+
+  const propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
+  function normalizeBindings$1(context, bindings) {
+    const bindingsType = typeof bindings;
+    if (bindings === null || bindingsType !== 'object' && bindingsType !== 'function') {
+      throw new MarionetteError({
+        code: 'MN0009',
+        message: 'Bindings must be an object.',
+        url: 'common.html#bindevents'
+      });
+    }
+    if (propertyIsEnumerable.call(bindings, '__proto__')) {
+      throw new MarionetteError({
+        code: 'MN0026',
+        message: 'Entity event maps cannot include an own "__proto__" event name.',
+        url: 'common.html#bindevents'
+      });
+    }
+    return normalizeMethods.call(context, bindings);
+  }
+  function bindEvents(entity, bindings) {
+    if (!entity || !bindings) {
+      return this;
+    }
+    this.listenTo(entity, normalizeBindings$1(this, bindings));
+    return this;
+  }
+  function unbindEvents(entity, bindings) {
+    if (!entity) {
+      return this;
+    }
+    if (!bindings) {
+      this.stopListening(entity);
+      return this;
+    }
+    this.stopListening(entity, normalizeBindings$1(this, bindings));
+    return this;
+  }
+
+  function normalizeBindings(context, bindings) {
+    const bindingsType = typeof bindings;
+    if (bindings === null || bindingsType !== 'object' && bindingsType !== 'function') {
+      throw new MarionetteError({
+        code: 'MN0010',
+        message: 'Bindings must be an object.',
+        url: 'common.html#bindrequests'
+      });
+    }
+    return normalizeMethods.call(context, bindings);
+  }
+  function bindRequests(channel, bindings) {
+    if (!channel || !bindings) {
+      return this;
+    }
+    channel.reply(normalizeBindings(this, bindings), this);
+    return this;
+  }
+  function unbindRequests(channel, bindings) {
+    if (!channel) {
+      return this;
+    }
+    if (!bindings) {
+      channel.stopReplying(null, null, this);
+      return this;
+    }
+    channel.stopReplying(normalizeBindings(this, bindings), this);
+    return this;
+  }
+
   const CommonMixin = {
     initialize() {},
-    normalizeMethods: normalizeMethods$1,
+    normalizeMethods,
     _setOptions(options, classOptions) {
       this.options = assignOwn({}, getValue(this, 'options'), options);
       this.mergeOptions(options, classOptions);
     },
-    mergeOptions: mergeOptions$1,
-    getOption: getOption$1,
-    bindEvents: bindEvents$1,
-    unbindEvents: unbindEvents$1,
-    bindRequests: bindRequests$1,
-    unbindRequests: unbindRequests$1,
-    triggerMethod: triggerMethod$1
+    mergeOptions,
+    getOption,
+    bindEvents,
+    unbindEvents,
+    bindRequests,
+    unbindRequests,
+    triggerMethod
   };
   assignOwn(CommonMixin, Events, Requests);
 
@@ -3951,14 +3945,6 @@
     }
   });
 
-  const bindEvents = proxy(bindEvents$1);
-  const unbindEvents = proxy(unbindEvents$1);
-  const bindRequests = proxy(bindRequests$1);
-  const unbindRequests = proxy(unbindRequests$1);
-  const mergeOptions = proxy(mergeOptions$1);
-  const getOption = proxy(getOption$1);
-  const normalizeMethods = proxy(normalizeMethods$1);
-  const triggerMethod = proxy(triggerMethod$1);
   const setDomApi = function (mixin) {
     CollectionView.setDomApi(mixin);
     Region.setDomApi(mixin);
@@ -3985,21 +3971,13 @@
   exports.Region = Region;
   exports.VERSION = version;
   exports.View = View;
-  exports.bindEvents = bindEvents;
-  exports.bindRequests = bindRequests;
   exports.extend = extend;
-  exports.getOption = getOption;
   exports.isEnabled = isEnabled;
-  exports.mergeOptions = mergeOptions;
   exports.monitorViewEvents = monitorViewEvents;
-  exports.normalizeMethods = normalizeMethods;
   exports.setDomApi = setDomApi;
   exports.setEnabled = setEnabled;
   exports.setEventDelegator = setEventDelegator;
   exports.setRenderer = setRenderer;
-  exports.triggerMethod = triggerMethod;
-  exports.unbindEvents = unbindEvents;
-  exports.unbindRequests = unbindRequests;
 
 }));
 //# sourceMappingURL=marionette.umd.js.map
