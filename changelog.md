@@ -65,6 +65,9 @@
 * Removed target-first common-method exports from the package root, including
   their generic plain-object adapter; use the corresponding method on each
   Marionette instance
+* Changed `mergeOptions` to require its documented Array of option names with
+  diagnostic code `MN0033`, and removed generic object traversal from private
+  immediate-child propagation
 
 ### v5.0.0-alpha.1
 

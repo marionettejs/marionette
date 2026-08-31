@@ -235,7 +235,8 @@ returned without being invoked.
 ### `mergeOptions`
 
 `mergeOptions(options, keys)` copies selected option values directly onto the
-class instance. Pass `keys` as an array. Only requested own enumerable string
+class instance. `keys` must be an array; other values throw `MarionetteError`
+code `MN0033` when options are present. Only requested own enumerable string
 properties with values other than `undefined` are copied; inherited, symbol,
 and non-enumerable properties are ignored.
 

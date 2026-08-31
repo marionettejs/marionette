@@ -2,15 +2,17 @@ import View from '../../../modules/view';
 import monitorViewEvents from '../../../modules/common/monitor-view-events';
 
 describe('monitorViewEvents', function() {
-  it('ignores nullish child collections', function() {
+  it('ignores a non-Array child collection without traversal', function() {
     const view = new View();
-    let children = null;
-    view._getImmediateChildren = () => children;
+    const child = {
+      _isAttached: false,
+      triggerMethod: this.sinon.spy()
+    };
+    view._getImmediateChildren = () => ({ 0: child, length: 1 });
 
     expect(() => view.trigger('attach', view)).to.not.throw();
-
-    children = undefined;
-    expect(() => view.trigger('attach', view)).to.not.throw();
+    expect(child._isAttached).to.be.false;
+    expect(child.triggerMethod).to.not.have.been.called;
   });
 
   it('traverses the initial child array length with live values', function() {
@@ -46,36 +48,6 @@ describe('monitorViewEvents', function() {
 
     expect(calls).to.deep.equal(['first', 'replacement second']);
     expect(originalSecond._isAttached).to.be.false;
-    expect(appended._isAttached).to.be.false;
-  });
-
-  it('snapshots object child keys while reading their values live', function() {
-    const view = new View();
-    const calls = [];
-    const makeChild = name => ({
-      _isAttached: false,
-      triggerMethod() {
-        calls.push(name);
-      }
-    });
-    const replacementSecond = makeChild('replacement second');
-    const appended = makeChild('appended');
-    const children = {
-      first: {
-        _isAttached: false,
-        triggerMethod() {
-          calls.push('first');
-          children.second = replacementSecond;
-          children.third = appended;
-        }
-      },
-      second: makeChild('original second')
-    };
-    view._getImmediateChildren = () => children;
-
-    view.trigger('attach', view);
-
-    expect(calls).to.deep.equal(['first', 'replacement second']);
     expect(appended._isAttached).to.be.false;
   });
 

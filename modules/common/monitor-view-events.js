@@ -1,24 +1,13 @@
 // DOM Refresh
 // -----------
 
-const MAX_ARRAY_INDEX = Number.MAX_SAFE_INTEGER;
-
 function eachChild(children, iteratee) {
-  if (children == null) { return; }
+  // Do not turn a malformed private child collection into a lifecycle error.
+  if (!Array.isArray(children)) { return; }
 
-  const candidateLength = children.length;
-  if (typeof candidateLength === 'number' && candidateLength >= 0 && candidateLength <= MAX_ARRAY_INDEX) {
-    const length = children.length;
-    for (let index = 0; index < length; index++) {
-      iteratee(children[index]);
-    }
-    return;
-  }
-
-  const names = Object.keys(children);
-  for (let index = 0, length = names.length; index < length; index++) {
-    const name = names[index];
-    iteratee(children[name]);
+  const length = children.length;
+  for (let index = 0; index < length; index++) {
+    iteratee(children[index]);
   }
 }
 
