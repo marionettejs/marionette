@@ -5,6 +5,7 @@ import process from 'node:process';
 import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual, promisify } from 'node:util';
 import { brotliCompress, constants } from 'node:zlib';
+import terser from '@rollup/plugin-terser';
 import { rollup } from 'rollup';
 import {
   canonicalForbiddenExternalImports,
@@ -23,6 +24,21 @@ import {
 } from './budget-amendments.mjs';
 
 const compress = promisify(brotliCompress);
+const consumerScenarioIds = [
+  'root-only',
+  'backbone-only',
+  'jquery-dom-api-only',
+  'root-plus-backbone',
+  'root-plus-jquery',
+];
+const consumerFormatIds = ['esm', 'cjs', 'umd'];
+const consumerCompression = { algorithm: 'brotli', quality: 11 };
+const consumerPeerExternalImports = ['backbone', 'jquery'];
+const consumerToolchain = {
+  rollup: '4.63.0',
+  rollupPluginTerser: '1.0.0',
+  terser: '5.48.0',
+};
 
 function getArgument(args, name, fallback) {
   const index = args.indexOf(name);
@@ -225,6 +241,294 @@ export function findForbiddenExternalImports(externalImports, contract) {
 
 async function sha256(file) {
   return createHash('sha256').update(await readFile(file)).digest('hex');
+}
+
+function sha256Text(value) {
+  return createHash('sha256').update(value).digest('hex');
+}
+
+function canonicalJson(value) {
+  return `${JSON.stringify(value, null, 2)}\n`;
+}
+
+function sameStringInventory(actual, expected) {
+  return Array.isArray(actual) && isDeepStrictEqual(actual, expected);
+}
+
+export function validateConsumerBundleContract(contract, fixture, packageJson, brotliQuality) {
+  const violations = [];
+  if (!contract || contract.schemaVersion !== 1) {
+    return ['consumerBundles must use schemaVersion 1'];
+  }
+  if (contract.status !== 'reporting') {
+    violations.push('consumerBundles status must remain reporting until baselines and ceilings are adopted');
+  }
+  if (fixture?.schemaVersion !== 1 || fixture?.fixtureVersion !== contract.fixture?.version) {
+    violations.push('Consumer bundle fixture metadata does not match the performance contract');
+  }
+  const expectedCompression = { algorithm: 'brotli', quality: brotliQuality };
+  if (!isDeepStrictEqual(fixture?.compression, expectedCompression)) {
+    violations.push(`Consumer bundle compression must be Brotli quality ${brotliQuality}`);
+  }
+  const fixtureRevision = fixture ? sha256Text(canonicalJson(fixture)) : null;
+  if (fixtureRevision !== contract.fixture?.sha256) {
+    violations.push(`Consumer bundle fixture SHA-256 ${fixtureRevision || 'missing'} does not match ${contract.fixture?.sha256 || 'missing'}`);
+  }
+
+  const scenarioIds = fixture?.scenarios?.map(({ id }) => id);
+  if (!sameStringInventory(scenarioIds, consumerScenarioIds)) {
+    violations.push(`Consumer bundle scenario inventory must be ${consumerScenarioIds.join(', ')}`);
+  }
+  const formatIds = fixture?.formats?.map(({ id }) => id);
+  if (!sameStringInventory(formatIds, consumerFormatIds)) {
+    violations.push(`Consumer bundle format inventory must be ${consumerFormatIds.join(', ')}`);
+  }
+  const expectedArtifacts = consumerScenarioIds.flatMap(scenario =>
+    consumerFormatIds.map(format => `${scenario}:${format}`));
+  if (!sameStringInventory(fixture?.expectedArtifacts, expectedArtifacts)) {
+    violations.push(`Consumer bundle expected artifact set must be ${expectedArtifacts.join(', ')}`);
+  }
+  if (fixture?.packageName !== packageJson.name) {
+    violations.push(`Consumer bundle fixture package ${fixture?.packageName || 'missing'} does not match ${packageJson.name}`);
+  }
+
+  const runtimePeers = Object.keys(packageJson.peerDependencies || {})
+    .filter(peer => !peer.startsWith('@types/'))
+    .sort();
+  if (!sameStringInventory(contract.peerExternalImports, runtimePeers)) {
+    violations.push(`Consumer bundle peer externals must be ${runtimePeers.join(', ')}`);
+  }
+  const pinnedTools = {
+    rollup: packageJson.devDependencies?.rollup,
+    rollupPluginTerser: packageJson.devDependencies?.['@rollup/plugin-terser'],
+    terser: packageJson.devDependencies?.terser,
+  };
+  for (const [tool, expectedVersion] of Object.entries(pinnedTools)) {
+    if (contract.toolchain?.[tool] !== expectedVersion) {
+      violations.push(`Locked ${tool} version ${contract.toolchain?.[tool] || 'missing'} does not match ${expectedVersion || 'missing'}`);
+    }
+  }
+
+  const exportedImports = new Set(Object.keys(packageJson.exports || {}).map(subpath => {
+    return subpath === '.' ? packageJson.name : `${packageJson.name}/${subpath.slice(2)}`;
+  }));
+  for (const scenario of fixture?.scenarios || []) {
+    if (!Array.isArray(scenario.publicImports) || !scenario.publicImports.length ||
+        scenario.publicImports.some(publicImport => !exportedImports.has(publicImport))) {
+      violations.push(`Consumer bundle scenario ${scenario.id || 'missing'} has invalid publicImports`);
+    }
+    if (!Array.isArray(scenario.exercisedExports) || !scenario.exercisedExports.length) {
+      violations.push(`Consumer bundle scenario ${scenario.id || 'missing'} must name exercisedExports`);
+    }
+    if (typeof scenario.entry !== 'string' ||
+        typeof scenario.entrySha256 !== 'string' ||
+        !/^[a-f\d]{64}$/.test(scenario.entrySha256)) {
+      violations.push(`Consumer bundle scenario ${scenario.id || 'missing'} has invalid entry metadata`);
+    }
+    if (!Array.isArray(scenario.expectedModules) || !Array.isArray(scenario.expectedExternalImports)) {
+      violations.push(`Consumer bundle scenario ${scenario.id || 'missing'} is missing expected graph metadata`);
+    }
+  }
+  const rootScenario = fixture?.scenarios?.find(({ id }) => id === 'root-only');
+  if (rootScenario && (!sameStringInventory(rootScenario.publicImports, [packageJson.name]) ||
+      !sameStringInventory(rootScenario.expectedModules, [
+        'benchmarks/consumer-bundles/v1/root-only.js',
+        'dist/marionette.js',
+      ]) ||
+      !sameStringInventory(rootScenario.expectedExternalImports, []))) {
+    violations.push('Consumer bundle root-only scenario must remain isolated from opt-in subpaths and peers');
+  }
+
+  return violations;
+}
+
+export function validateCandidateConsumerBundleContract(authority, candidate) {
+  const base = authority?.consumerBundles;
+  const current = candidate?.consumerBundles;
+  if (!base) {
+    if (!current) {
+      return [];
+    }
+    const validBootstrap = sameStringInventory(Object.keys(current).sort(), [
+      'fixture',
+      'peerExternalImports',
+      'schemaVersion',
+      'status',
+      'toolchain',
+    ]) && current.schemaVersion === 1 && current.status === 'reporting' &&
+      sameStringInventory(Object.keys(current.fixture || {}).sort(), [
+        'path',
+        'sha256',
+        'version',
+      ]) && current.fixture.version === 'v1' &&
+      current.fixture.path === 'benchmarks/consumer-bundles/v1/manifest.json' &&
+      typeof current.fixture.sha256 === 'string' &&
+      /^[a-f\d]{64}$/.test(current.fixture.sha256) &&
+      isDeepStrictEqual(current.toolchain, consumerToolchain) &&
+      isDeepStrictEqual(current.peerExternalImports, consumerPeerExternalImports);
+    return validBootstrap ? [] : [
+      'The consumerBundles bootstrap contract is malformed',
+    ];
+  }
+  if (!current) {
+    return ['Candidate performance contract is missing consumerBundles'];
+  }
+  return isDeepStrictEqual(base, current) ? [] : [
+    'Candidate consumerBundles differs from exact-base reporting contract',
+  ];
+}
+
+function consumerPackageResolver(root, packageJson, peerExternalImports) {
+  const packageName = packageJson.name;
+  const importPaths = new Map(Object.entries(packageJson.exports || {}).map(([subpath, value]) => {
+    const publicImport = subpath === '.' ? packageName : `${packageName}/${subpath.slice(2)}`;
+    const paths = collectRuntimePaths(value);
+    const esmPath = [...paths].find(path => path.endsWith('.js') && !path.endsWith('.umd.js'));
+    return [publicImport, esmPath ? resolve(root, esmPath) : null];
+  }));
+
+  return {
+    name: 'consumer-package-resolver',
+    resolveId(source) {
+      if (peerExternalImports.some(peer => source === peer || source.startsWith(`${peer}/`))) {
+        return { id: source, external: true };
+      }
+      if (importPaths.has(source)) {
+        const resolved = importPaths.get(source);
+        if (!resolved) {
+          throw new Error(`No ES module runtime path exists for ${source}`);
+        }
+        return resolved;
+      }
+      return null;
+    },
+  };
+}
+
+function consumerGraphViolations(scenario, modules, externalImports, peerExternalImports) {
+  const violations = [];
+  if (!sameStringInventory(modules, scenario.expectedModules)) {
+    violations.push(`${scenario.id} modules differ from fixture metadata; expected ${scenario.expectedModules.join(', ') || 'none'}; measured ${modules.join(', ') || 'none'}`);
+  }
+  if (!sameStringInventory(externalImports, scenario.expectedExternalImports)) {
+    violations.push(`${scenario.id} external imports differ from fixture metadata; expected ${scenario.expectedExternalImports.join(', ') || 'none'}; measured ${externalImports.join(', ') || 'none'}`);
+  }
+  const undeclaredExternals = externalImports.filter(externalImport =>
+    !peerExternalImports.some(peer => externalImport === peer || externalImport.startsWith(`${peer}/`)));
+  if (undeclaredExternals.length) {
+    violations.push(`${scenario.id} contains non-peer external imports: ${undeclaredExternals.join(', ')}`);
+  }
+  if (scenario.id === 'root-only' && (externalImports.length !== 0 ||
+      modules.some(module => module === 'dist/backbone.js' || module === 'dist/jquery-dom-api.js'))) {
+    violations.push('root-only consumer bundle is not isolated from opt-in subpaths and peers');
+  }
+  return violations;
+}
+
+export async function measureConsumerBundles({ root = '.', contract, brotliQuality } = {}) {
+  const resolvedRoot = resolve(root);
+  const fixturePath = resolve(resolvedRoot, contract.fixture.path);
+  const [fixtureText, packageJson] = await Promise.all([
+    readFile(fixturePath, 'utf8'),
+    readJson(resolve(resolvedRoot, 'package.json')),
+  ]);
+  const fixture = JSON.parse(fixtureText);
+  const violations = validateConsumerBundleContract(
+    contract,
+    fixture,
+    packageJson,
+    brotliQuality
+  );
+  const actualFixtureRevision = sha256Text(fixtureText);
+  if (actualFixtureRevision !== contract.fixture.sha256 &&
+      !violations.some(violation => violation.startsWith('Consumer bundle fixture SHA-256'))) {
+    violations.push(`Consumer bundle fixture SHA-256 ${actualFixtureRevision} does not match ${contract.fixture.sha256}`);
+  }
+  const fixtureRoot = dirname(fixturePath);
+  const artifacts = [];
+
+  for (const scenario of fixture.scenarios || []) {
+    let bundle;
+    try {
+      const entryPath = resolve(fixtureRoot, scenario.entry);
+      const entryRevision = await sha256(entryPath);
+      if (entryRevision !== scenario.entrySha256) {
+        violations.push(`${scenario.id} entry SHA-256 ${entryRevision} does not match ${scenario.entrySha256}`);
+        continue;
+      }
+      bundle = await rollup({
+        input: entryPath,
+        plugins: [
+          consumerPackageResolver(resolvedRoot, packageJson, contract.peerExternalImports),
+          terser(fixture.minify),
+        ],
+        treeshake: fixture.treeshake,
+      });
+      for (const format of fixture.formats || []) {
+        const generated = await bundle.generate({
+          format: format.rollupFormat,
+          exports: 'named',
+          name: format.rollupFormat === 'umd' ? 'MarionetteConsumerBundle' : undefined,
+          globals: {
+            backbone: 'Backbone',
+            jquery: 'jQuery',
+          },
+        });
+        const chunks = generated.output.filter(item => item.type === 'chunk');
+        const code = chunks.map(chunk => chunk.code).join('\n');
+        const modules = [...new Set(chunks.flatMap(chunk => Object.keys(chunk.modules)))]
+          .map(moduleId => normalizePath(relative(resolvedRoot, moduleId)))
+          .sort();
+        const externalImports = [...new Set(chunks.flatMap(chunk => [
+          ...chunk.imports,
+          ...chunk.dynamicImports,
+        ]))].sort();
+        const compressed = await compress(code, {
+          params: { [constants.BROTLI_PARAM_QUALITY]: fixture.compression.quality },
+        });
+        artifacts.push({
+          id: `${scenario.id}:${format.id}`,
+          scenario: scenario.id,
+          format: format.id,
+          status: 'measured',
+          size: compressed.length,
+          modules,
+          externalImports,
+        });
+        violations.push(...consumerGraphViolations(
+          scenario,
+          modules,
+          externalImports,
+          contract.peerExternalImports
+        ));
+      }
+    } catch (error) {
+      violations.push(`Unable to measure consumer bundle ${scenario.id}: ${error.message}`);
+    } finally {
+      await bundle?.close();
+    }
+  }
+
+  const expectedArtifactCount = consumerScenarioIds.length * consumerFormatIds.length;
+  if (artifacts.length !== expectedArtifactCount) {
+    violations.push(`Consumer bundle artifact inventory measured ${artifacts.length}; expected ${expectedArtifactCount}`);
+  }
+  const measuredArtifacts = artifacts.map(({ scenario, format }) => `${scenario}:${format}`);
+  if (!sameStringInventory(measuredArtifacts, fixture.expectedArtifacts)) {
+    violations.push('Consumer bundle measured artifact set differs from fixture metadata');
+  }
+
+  return {
+    schemaVersion: 1,
+    status: contract.status,
+    fixtureVersion: fixture.fixtureVersion,
+    fixtureRevision: actualFixtureRevision,
+    compression: fixture.compression,
+    toolchain: contract.toolchain,
+    peerExternalImports: contract.peerExternalImports,
+    artifacts,
+    violations: [...new Set(violations)],
+  };
 }
 
 export async function validateToolchain(contract, root) {
@@ -478,6 +782,20 @@ export async function measure({
     }
   }
 
+  let consumerBundles = null;
+  if (contract.consumerBundles) {
+    try {
+      consumerBundles = await measureConsumerBundles({
+        root: resolvedRoot,
+        contract: contract.consumerBundles,
+        brotliQuality: quality,
+      });
+      violations.push(...consumerBundles.violations);
+    } catch (error) {
+      violations.push(`Unable to measure consumer bundles: ${error.message}`);
+    }
+  }
+
   let resources = null;
   if (contract.deterministicResources) {
     try {
@@ -504,10 +822,133 @@ export async function measure({
       absoluteCeiling: contract.baseline.absoluteCeilingBytes,
     },
     graphs,
+    consumerBundles,
     resourcesRequired: Boolean(contract.deterministicResources),
     resources,
     violations,
   };
+}
+
+function consumerArtifactIds() {
+  return consumerScenarioIds.flatMap(scenario =>
+    consumerFormatIds.map(format => `${scenario}:${format}`));
+}
+
+function validateConsumerBundleReport(report, label) {
+  const violations = [];
+  if (!report || report.schemaVersion !== 1 || report.status !== 'reporting' ||
+      typeof report.fixtureVersion !== 'string' || !report.fixtureVersion ||
+      typeof report.fixtureRevision !== 'string' ||
+      !/^[a-f\d]{64}$/.test(report.fixtureRevision) ||
+      !Array.isArray(report.artifacts) || !Array.isArray(report.violations)) {
+    return [`${label} consumer bundle report is malformed`];
+  }
+  if (!isDeepStrictEqual(report.compression, consumerCompression) ||
+      !isDeepStrictEqual(report.toolchain, consumerToolchain) ||
+      !isDeepStrictEqual(report.peerExternalImports, consumerPeerExternalImports)) {
+    violations.push(`${label} consumer bundle metadata is not canonical`);
+  }
+
+  const expectedIds = consumerArtifactIds();
+  const actualIds = report.artifacts.map(artifact => artifact?.id);
+  if (!isDeepStrictEqual(actualIds, expectedIds)) {
+    violations.push(`${label} consumer bundle artifact inventory is not canonical`);
+  }
+  for (const artifact of report.artifacts) {
+    const expectedId = `${artifact?.scenario}:${artifact?.format}`;
+    if (artifact?.id !== expectedId || artifact?.status !== 'measured' ||
+        !Number.isSafeInteger(artifact?.size) || artifact.size <= 0) {
+      violations.push(`${label} consumer bundle artifact ${artifact?.id || 'missing'} is malformed`);
+    }
+  }
+  return violations;
+}
+
+export function compareConsumerBundleReports(base, current) {
+  if (!base && !current) {
+    return { bootstrap: false, rows: [], violations: [], unavailable: true };
+  }
+  if (!current) {
+    return {
+      bootstrap: false,
+      rows: [],
+      violations: ['Pull request consumer bundle measurement is missing'],
+    };
+  }
+  const currentReportViolations = validateConsumerBundleReport(current, 'Pull request');
+  if (currentReportViolations.some(violation => violation.endsWith('report is malformed'))) {
+    return {
+      bootstrap: !base,
+      rows: [],
+      violations: currentReportViolations,
+    };
+  }
+  if (!base) {
+    return {
+      bootstrap: true,
+      rows: current.artifacts.map(artifact => ({
+        scenario: artifact.scenario,
+        format: artifact.format,
+        id: artifact.id,
+        baseSize: null,
+        currentSize: artifact.size,
+        deltaBytes: null,
+      })),
+      violations: [...currentReportViolations, ...current.violations],
+    };
+  }
+  const baseReportViolations = validateConsumerBundleReport(base, 'Exact base');
+  if (baseReportViolations.some(violation => violation.endsWith('report is malformed'))) {
+    return {
+      bootstrap: false,
+      rows: [],
+      violations: baseReportViolations,
+    };
+  }
+  if (base.fixtureVersion !== current.fixtureVersion ||
+      base.fixtureRevision !== current.fixtureRevision ||
+      !isDeepStrictEqual(base.compression, current.compression) ||
+      !isDeepStrictEqual(base.toolchain, current.toolchain) ||
+      !isDeepStrictEqual(base.peerExternalImports, current.peerExternalImports)) {
+    return {
+      bootstrap: false,
+      rows: [],
+      violations: [
+        ...baseReportViolations,
+        ...currentReportViolations,
+        'Consumer bundle metadata differs from the exact base',
+      ],
+    };
+  }
+  const baseByKey = new Map(base.artifacts.map(artifact => [
+    artifact.id,
+    artifact,
+  ]));
+  const rows = current.artifacts.map(artifact => {
+    const baseArtifact = baseByKey.get(artifact.id);
+    return {
+      id: artifact.id,
+      scenario: artifact.scenario,
+      format: artifact.format,
+      baseSize: baseArtifact?.size ?? null,
+      currentSize: artifact.size,
+      deltaBytes: baseArtifact ? artifact.size - baseArtifact.size : null,
+    };
+  });
+  const currentKeys = new Set(current.artifacts.map(artifact => artifact.id));
+  const missing = base.artifacts.filter(artifact =>
+    !currentKeys.has(artifact.id));
+  const added = rows.filter(row => row.baseSize == null);
+  const violations = [
+    ...baseReportViolations,
+    ...currentReportViolations,
+    ...base.violations,
+    ...current.violations,
+  ];
+  if (missing.length || added.length) {
+    violations.push('Consumer bundle report inventory differs from the exact base');
+  }
+  return { bootstrap: false, rows, violations };
 }
 
 function graphChange(baseGraph, currentGraph) {
@@ -791,6 +1232,26 @@ async function buildReport(baseFile, currentFile, growthApprovalFile) {
   const cumulativeGrowth = formatChange(base.cumulative.size, current.cumulative.size);
   const phase0Growth = formatChange(current.cumulative.baselineSize, current.cumulative.size);
   const resourceComparison = compareResourceReports(base, current);
+  const consumerComparison = compareConsumerBundleReports(
+    base.consumerBundles,
+    current.consumerBundles
+  );
+  const consumerSection = consumerComparison.unavailable ? [] : [
+    '',
+    '## Canonical consumer bundles',
+    '',
+    '| Scenario | Format | Base | PR | Change |',
+    '| --- | --- | ---: | ---: | ---: |',
+    ...consumerComparison.rows.map(row =>
+      `| ${row.scenario} | ${row.format} | ${formatBytes(row.baseSize)} | ${formatBytes(row.currentSize)} | ${row.deltaBytes == null ? 'Bootstrap' : formatChange(row.baseSize, row.currentSize)} |`),
+    '',
+    consumerComparison.bootstrap ?
+      'Reporting bootstrap only: no consumer-scenario baseline or ceiling is active.' :
+      'Reporting only: consumer-scenario deltas do not enforce a baseline or ceiling yet.',
+    ...(consumerComparison.violations.length ? [
+      `Consumer bundle violations: ${consumerComparison.violations.join('; ')}`,
+    ] : []),
+  ];
   const resourceSection = resourceComparison.unavailable ? [] : [
     '',
     '## Deterministic allocation and retention',
@@ -823,10 +1284,11 @@ async function buildReport(baseFile, currentFile, growthApprovalFile) {
       `Contract violations: ${current.violations.join('; ')}` :
       'All deterministic size and production-graph checks passed against the base authority contract.',
     ...resourceSection,
+    ...consumerSection,
     ...approvalSection,
   ].join('\n');
 
-  return { growthApproval, markdown, resourceComparison };
+  return { consumerComparison, growthApproval, markdown, resourceComparison };
 }
 
 export async function createReport(baseFile, currentFile, growthApprovalFile) {
@@ -845,6 +1307,9 @@ function writeMeasurement(result, json) {
   console.log(`Cumulative: ${formatBytes(result.cumulative.size)} / ${formatBytes(result.cumulative.absoluteCeiling)}`);
   for (const graph of result.graphs) {
     console.log(`${graph.subpath}: ${graph.status === 'measured' ? `${graph.modules.length} internal modules, ${graph.externalImports.length} external imports` : graph.error}`);
+  }
+  if (result.consumerBundles) {
+    console.log(`Consumer bundles: ${result.consumerBundles.artifacts.length} reporting-only scenarios/formats measured from ${result.consumerBundles.fixtureVersion}`);
   }
   if (result.resources) {
     console.log(`Resources: ${Object.keys(result.resources.allocations).length} measured instance shapes; ${result.resources.workload.attachDetachCycles} detach cycles; ${result.resources.workload.mountDestroyCycles} mount/destroy cycles`);
@@ -868,7 +1333,10 @@ export async function main(args = process.argv.slice(2)) {
       readJson(paths[0]),
       readJson(paths[1]),
     ]);
-    const violations = validateCandidateResourceContract(authority, candidate);
+    const violations = [
+      ...validateCandidateResourceContract(authority, candidate),
+      ...validateCandidateConsumerBundleContract(authority, candidate),
+    ];
     for (const violation of violations) {
       console.error(`Performance contract violation: ${violation}`);
     }
@@ -885,6 +1353,7 @@ export async function main(args = process.argv.slice(2)) {
     const report = await buildReport(baseFile, currentFile, growthApprovalFile);
     console.log(report.markdown);
     if (report.resourceComparison.violations.length ||
+        report.consumerComparison.violations.length ||
         (growthApprovalFile && !report.growthApproval.accepted)) {
       process.exitCode = 1;
     }
