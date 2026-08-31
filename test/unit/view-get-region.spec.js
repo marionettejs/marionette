@@ -70,8 +70,6 @@ describe('#getRegion', function() {
     sentinel.textContent = 'Unmanaged content';
     view.el.append(sentinel);
     const html = view.el.innerHTML;
-    const toPrimitive = this.sinon.stub().returns('content');
-    const coercedName = { [Symbol.toPrimitive]: toPrimitive };
 
     const content = view.getRegion('content');
     expect(content).to.be.instanceOf(Region);
@@ -80,9 +78,6 @@ describe('#getRegion', function() {
     expect(view.getRegion('inherited')).to.be.undefined;
     expect(view.getRegion('valueOf')).to.be.undefined;
     expect(view.getRegion('missing')).to.be.undefined;
-    expect(view.getRegion(coercedName)).to.equal(content);
-    expect(toPrimitive).to.have.been.calledOnce;
-    expect(view.getRegion(Object.create(null))).to.be.undefined;
 
     const dynamic = view.addRegion('dynamic', '.dynamic');
     expect(view.getRegion('dynamic')).to.equal(dynamic);

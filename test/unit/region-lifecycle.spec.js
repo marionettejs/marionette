@@ -3,6 +3,7 @@ import _ from 'underscore';
 import CollectionView from '../../modules/collection-view';
 import Region from '../../modules/region';
 import View from '../../modules/view';
+import MarionetteError from '../../utils/error';
 
 describe('Region lifecycle contract', function() {
   'use strict';
@@ -97,19 +98,15 @@ describe('Region lifecycle contract', function() {
     expect(dynamicRegion.getName()).to.be.undefined;
   });
 
-  it('clears ownership for a Region registered under an empty name', function() {
+  it('rejects an empty Region name before changing ownership', function() {
     const owner = new View();
-    const emptyNameRegion = owner.addRegion('', region);
 
-    expect(emptyNameRegion.getOwner()).to.equal(owner);
-    expect(emptyNameRegion.getName()).to.equal('');
-
-    emptyNameRegion.destroy();
-
-    expect(emptyNameRegion.getOwner()).to.be.undefined;
-    expect(emptyNameRegion.getName()).to.be.undefined;
-    expect(owner.hasRegion('')).to.be.false;
-    expect(owner.getRegion('')).to.be.undefined;
+    expect(() => owner.addRegion('', region)).to.throw(MarionetteError).and.include({
+      code: 'MN0032',
+      name: 'RegionError',
+    });
+    expect(region.getOwner()).to.be.undefined;
+    expect(region.getName()).to.be.undefined;
 
     owner.destroy();
   });

@@ -1827,7 +1827,18 @@ function emptyRegion(region, options = {
   region._empty(view, true);
   return region;
 }
+function assertRegionName(name) {
+  if (typeof name === 'string' && name.length > 0) {
+    return;
+  }
+  throw new MarionetteError({
+    code: 'MN0032',
+    name: classErrorName$3,
+    message: 'A Region name must be a non-empty string.'
+  });
+}
 function setRegion(regions, definition, name) {
+  assertRegionName(name);
   Object.defineProperty(regions, name, {
     configurable: true,
     enumerable: true,
@@ -1837,23 +1848,21 @@ function setRegion(regions, definition, name) {
   return regions;
 }
 function getOwnRegion(regions, name) {
-  try {
-    return Object.getOwnPropertyDescriptor(regions, name)?.value;
-  } catch {}
+  assertRegionName(name);
+  return Object.getOwnPropertyDescriptor(regions, name)?.value;
 }
 function getRequiredRegion(region, name) {
   if (region) {
     return region;
   }
-  const type = typeof name;
-  const label = name === null || type !== 'object' && type !== 'function' ? ` "${String(name)}"` : '';
   throw new MarionetteError({
     code: 'MN0020',
     name: classErrorName$3,
-    message: `Region${label} does not exist.`
+    message: `Region "${name}" does not exist.`
   });
 }
 function getRegionForChild(view, name) {
+  assertRegionName(name);
   if (!view._isRendered) {
     view.render();
   }
@@ -2294,6 +2303,7 @@ const RegionsMixin = {
     if (regions == null || Object.keys(regions).length === 0) {
       return;
     }
+    eachOwn(regions, (_, name) => assertRegionName(name));
     regions = this.normalizeUIValues(regions, 'el');
     assertRegionDefinitionsCanRegister(this, regions);
     const allRegions = {};

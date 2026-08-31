@@ -54,6 +54,8 @@
 * Changed Region registration to treat the existing owner/name relationship as
   an idempotent no-op and reject conflicting ownership or names with stable
   diagnostic code `MN0030`
+* Changed named View Region operations to require non-empty string names and
+  reject property-key coercion with stable diagnostic code `MN0032`
 * Changed Application lifecycle operations to return `Promise<boolean>`, added
   `stop`, `restart`, and `isRunning`, and made later incompatible operations
   cancel stale lifecycle success without rejecting ordinary cleanup races;

@@ -113,6 +113,17 @@ try {
   const example = await import(pathToFileURL(examplePath));
   ({ View: ViewClass } = await import('marionette'));
 
+  const nameContractView = new ViewClass({ template: false });
+  try {
+    const collisionRegion = nameContractView.addRegion('__proto__', '.content');
+    assert.equal(nameContractView.getRegion('__proto__'), collisionRegion);
+    assert.throws(() => nameContractView.getRegion(['__proto__']), error => {
+      return error.code === 'MN0032' && error.name === 'RegionError';
+    });
+  } finally {
+    nameContractView.destroy();
+  }
+
   originalShowChildView = ViewClass.prototype.showChildView;
   ViewClass.prototype.showChildView = function(regionName, childView, ...args) {
     let run = currentRun();

@@ -533,6 +533,22 @@
         "runtime"
       ],
       "benchmarkCategory": "ownership"
+    },
+    {
+      "code": "MN0032",
+      "slug": "region-name-invalid",
+      "status": "active",
+      "category": "ownership",
+      "severity": "error",
+      "objects": [
+        "View"
+      ],
+      "remediation": "Pass a non-empty string name to a named Region operation.",
+      "docsAnchor": "/errors/MN0032/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "ownership"
     }
   ]
 }
