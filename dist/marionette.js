@@ -3534,13 +3534,6 @@ Application.extend = extend;
 function isCurrentOperation(application, operation) {
   return application._lifecycleOperation === operation;
 }
-function getOwnChildApp(applications, name) {
-  return applications?.get(name);
-}
-function setChildApp(applications, name, application) {
-  applications.set(name, application);
-  return application;
-}
 function throwApplicationOwnershipConflict(message) {
   throw new MarionetteError({
     code: 'MN0031',
@@ -3552,7 +3545,7 @@ function isTerminal(application) {
   return application._lifecycleState === DESTROYING || application._lifecycleState === DESTROYED;
 }
 function isSameChildApp(owner, name, application) {
-  return application._parentApp === owner && application._name === name && getOwnChildApp(owner._childApps, name) === application;
+  return application._parentApp === owner && application._name === name && owner._childApps?.get(name) === application;
 }
 function assertChildAppCanRegister(owner, name, application) {
   if (typeof name !== 'string' || name.length === 0) {
@@ -3570,7 +3563,7 @@ function assertChildAppCanRegister(owner, name, application) {
   if (application._parentApp !== undefined) {
     throwApplicationOwnershipConflict('An Application instance cannot be registered with more than one owner or name.');
   }
-  if (getOwnChildApp(owner._childApps, name)) {
+  if (owner._childApps?.has(name)) {
     throwApplicationOwnershipConflict(`Child Application name "${name}" is already registered.`);
   }
   let parent = owner;
@@ -3641,7 +3634,7 @@ function supersedeOperation(application) {
     return;
   }
   delete application._lifecycleOperation;
-  operation.resolve(!!operation.isCompleting);
+  operation.resolve(!!operation.didReachTargetState);
   return operation;
 }
 function completeOperation(application, operation) {
@@ -3712,7 +3705,7 @@ async function startApplication(application, operation, options) {
   completeReadiness(operation);
   application._lifecycleState = RUNNING;
   operation.failureState = RUNNING;
-  operation.isCompleting = true;
+  operation.didReachTargetState = true;
   application.triggerMethod('start', application, options);
 }
 async function stopApplication(application, operation, options) {
@@ -3731,15 +3724,15 @@ async function stopApplication(application, operation, options) {
     completeReadiness(operation);
     operation.failureState = STOPPED;
     delete operation.stopReadiness;
-    operation.isStopped = true;
+    operation.didStop = true;
     if (operation.kind === 'stop') {
       application._lifecycleState = STOPPED;
-      operation.isCompleting = true;
+      operation.didReachTargetState = true;
     }
     application.triggerMethod('stop', application, readiness.options);
-    operation.stopResult?.resolve(true);
+    operation.stopDeferred?.resolve(true);
   } catch (error) {
-    operation.stopResult?.reject(error);
+    operation.stopDeferred?.reject(error);
     throw error;
   }
 }
@@ -3761,8 +3754,8 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
       return Promise.resolve(true);
     }
     const failureState = getFailureState(this, operation);
-    return beginOperation(this, 'start', STARTING, failureState, current => {
-      return startApplication(this, current, options);
+    return beginOperation(this, 'start', STARTING, failureState, nextOperation => {
+      return startApplication(this, nextOperation, options);
     });
   },
   stop(options) {
@@ -3774,15 +3767,15 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
       if (!operation?.stopReadiness) {
         return Promise.resolve(true);
       }
-      if (!operation.stopResult) {
-        operation.stopResult = createDeferred();
+      if (!operation.stopDeferred) {
+        operation.stopDeferred = createDeferred();
       }
-      return operation.stopResult.promise;
+      return operation.stopDeferred.promise;
     }
     if (operation?.kind === 'stop') {
       return operation.promise;
     }
-    if (operation?.isStopped) {
+    if (operation?.didStop) {
       const superseded = supersedeOperation(this);
       this._lifecycleState = STOPPED;
       superseded.readiness?.controller.abort();
@@ -3792,8 +3785,8 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
       return Promise.resolve(true);
     }
     const failureState = getFailureState(this, operation);
-    return beginOperation(this, 'stop', STOPPING, failureState, current => {
-      return stopApplication(this, current, options);
+    return beginOperation(this, 'stop', STOPPING, failureState, nextOperation => {
+      return stopApplication(this, nextOperation, options);
     });
   },
   restart(options) {
@@ -3804,16 +3797,16 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     if (operation?.kind === 'restart') {
       return operation.promise;
     }
-    const shouldStop = !operation?.isStopped && this._lifecycleState !== STOPPED;
+    const shouldStop = !operation?.didStop && this._lifecycleState !== STOPPED;
     const failureState = getFailureState(this, operation);
-    return beginOperation(this, 'restart', RESTARTING, failureState, async current => {
+    return beginOperation(this, 'restart', RESTARTING, failureState, async nextOperation => {
       if (shouldStop) {
-        await stopApplication(this, current, options);
-        if (!isCurrentOperation(this, current)) {
+        await stopApplication(this, nextOperation, options);
+        if (!isCurrentOperation(this, nextOperation)) {
           return;
         }
       }
-      await startApplication(this, current, options);
+      await startApplication(this, nextOperation, options);
     });
   },
   destroy(options) {
@@ -3824,24 +3817,24 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     if (operation?.kind === 'destroy') {
       return operation.promise;
     }
-    const shouldStop = !operation?.isStopped && this._lifecycleState !== STOPPED;
+    const shouldStop = !operation?.didStop && this._lifecycleState !== STOPPED;
     const failureState = getFailureState(this, operation);
-    return beginOperation(this, 'destroy', DESTROYING, failureState, async current => {
+    return beginOperation(this, 'destroy', DESTROYING, failureState, async nextOperation => {
       if (shouldStop) {
-        await stopApplication(this, current, options);
+        await stopApplication(this, nextOperation, options);
       }
-      const readiness = beginReadiness(current, options, context => {
+      const readiness = beginReadiness(nextOperation, options, context => {
         return this.triggerMethod('before:destroy', this, options, context);
       });
       await readiness.promise;
-      completeReadiness(current);
+      completeReadiness(nextOperation);
       if (this._childApps) {
         await destroyChildApps(this, options);
       }
       this._isDestroyed = true;
       this._lifecycleState = DESTROYED;
-      current.failureState = DESTROYED;
-      current.isCompleting = true;
+      nextOperation.failureState = DESTROYED;
+      nextOperation.didReachTargetState = true;
       if (this._parentApp) {
         removeChildAppReference(this._parentApp, this._name, this);
       }
@@ -3863,7 +3856,8 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     const children = this._childApps || (this._childApps = new Map());
     application._parentApp = this;
     application._name = name;
-    return setChildApp(children, name, application);
+    children.set(name, application);
+    return application;
   },
   removeChildApp(name, options) {
     const application = this.getChildApp(name);
@@ -3876,7 +3870,7 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     return !!this._childApps?.has(name);
   },
   getChildApp(name) {
-    return getOwnChildApp(this._childApps, name);
+    return this._childApps?.get(name);
   },
   getChildApps() {
     const applications = {};
