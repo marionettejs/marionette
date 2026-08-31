@@ -447,10 +447,10 @@ The stable release then requires:
   construction/destruction, render/rerender, delegation, Region show/empty, and
   ordinary CollectionView work.
 - Large-list operation-count evidence includes at least 1,000 visible children and
-  covers initial
-  render, append one, append many, remove one, reset or clear, targeted update, and
-  destroy. Deterministic cases record created, attached, moved, detached, and
-  destroyed node counts in addition to timing; a real-browser run validates focus,
+  covers initial render, append one, append many, remove one, reset or clear,
+  targeted update, and destroy. Deterministic cases record created, attached, moved,
+  detached, and destroyed node counts in addition to timing; a real-browser run
+  validates focus,
   selection, media, and custom-element connection behavior.
 - External comparative benchmarks are advisory evidence. An accepted result records
   the upstream benchmark revision, exact Marionette commit, complete committed patch
