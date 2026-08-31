@@ -98,6 +98,16 @@ describe('consumer bundle measurements', () => {
       validateConsumerBundleContract(changed, fixture, packageJson, brotliQuality).join('\n'),
       /fixture SHA-256.*does not match.*Locked terser version/s
     );
+
+    const measured = await measureConsumerBundles({
+      root,
+      contract: changed,
+      brotliQuality,
+    });
+    assert.match(
+      measured.violations.join('\n'),
+      /fixture SHA-256.*does not match.*Locked terser version/s
+    );
   });
 
   test('externalizes runtime peers and keeps the root scenario isolated', async() => {
@@ -179,8 +189,12 @@ describe('consumer bundle measurements', () => {
     truncated.artifacts.pop();
     const duplicate = structuredClone(complete);
     duplicate.artifacts[14] = structuredClone(duplicate.artifacts[0]);
-    const metadataDrift = structuredClone(complete);
-    metadataDrift.compression.quality = 10;
+    const metadataDrifts = [
+      report => { report.fixtureRevision = '0'.repeat(64); },
+      report => { report.compression.quality = 10; },
+      report => { report.toolchain.terser = '0.0.0'; },
+      report => { report.peerExternalImports.pop(); },
+    ];
 
     assert.match(
       compareConsumerBundleReports(null, truncated).violations.join('\n'),
@@ -190,9 +204,17 @@ describe('consumer bundle measurements', () => {
       compareConsumerBundleReports(null, duplicate).violations.join('\n'),
       /artifact inventory/
     );
+    for (const mutate of metadataDrifts) {
+      const metadataDrift = structuredClone(complete);
+      mutate(metadataDrift);
+      assert.match(
+        compareConsumerBundleReports(complete, metadataDrift).violations.join('\n'),
+        /metadata differs from the exact base/
+      );
+    }
     assert.match(
-      compareConsumerBundleReports(complete, metadataDrift).violations.join('\n'),
-      /metadata differs from the exact base/
+      compareConsumerBundleReports(complete, null).violations.join('\n'),
+      /measurement is missing/
     );
   });
 
