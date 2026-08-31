@@ -1,0 +1,34 @@
+docs/basics.md
+  s_d6429951fb9231::t_210b599bc3f5ee 72
+  s_d6429951fb9231::t_c8fa54d9ea0d5b 96-101
+  s_d6429951fb9231::t_805d1705689a0d 31-34,107-108,116-121,136,142-144,149,151-158,167
+  s_d6429951fb9231::t_31a6ca68539e85 110-111,129-132,169-177
+  s_d6429951fb9231::t_1b5d98d45aa10e 3-5,9,16,18,21,23-24,27-29,40,50,67,83,88-91,95,103,105-106,109,114-115,125-126,135,137,139,141,145-147,161-166,168,178,180-182,186-188,192-194,197,200,213-214,217,220,234-235,239-242,250,265-267
+  s_d6429951fb9231::t_43a85c377e697b 124
+  s_d6429951fb9231::t_dceae22fa19fe2 127
+test/fixtures/docs-basics-contract/.gitignore
+  s_d6429951fb9231::t_1b5d98d45aa10e 1-3
+test/fixtures/docs-basics-contract/package.json
+  s_d6429951fb9231::t_1b5d98d45aa10e 1-10
+test/fixtures/docs-basics-contract/validate.mjs
+  s_d6429951fb9231::t_1b5d98d45aa10e 1-27,37-40,47,50-56,58-62
+  s_d6429951fb9231::t_31a6ca68539e85 33-34,45-46
+  s_d6429951fb9231::t_805d1705689a0d 28-32,35-36,41-44,48-49
+  s_d6429951fb9231::t_c8fa54d9ea0d5b 57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "21fe4307566c755ea79e0a7ff214c7490b715683",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
