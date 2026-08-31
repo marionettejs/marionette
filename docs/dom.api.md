@@ -51,7 +51,9 @@ append operation.
 ### `getDocumentEl(el)`
 
 Returns `el.ownerDocument.documentElement`. Marionette uses that document root
-when determining whether a View is attached.
+when determining whether a View is attached. Elements inside template content may
+have an owner document without a document element; Marionette treats that missing
+root as detached.
 
 ### `findEl(el, selector)`
 

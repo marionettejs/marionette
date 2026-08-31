@@ -86,8 +86,8 @@ budget.
 - `MnObject` is an optional minimal non-renderable, evented, destroyable convenience;
   `Application` provides an active lifecycle and owned composition. Parentlessness
   identifies the root Application without creating another class.
-- Application parent/child ownership, root View and Region association, asynchronous
-  startup, restart invalidation, and teardown are explicit and testable.
+- Application parent/child ownership, root View and Region association, startup and
+  restart semantics, and teardown are explicit and testable.
 - Ownership and topology are available through public, read-only APIs.
 - Region lookup does not unexpectedly render or mutate application state.
 - Regions own and mount Views. An Application hosted in a Region coordinates a root
@@ -223,10 +223,11 @@ Application. A later stop is idempotent and cannot empty an unrelated replacemen
 View. Restart follows the same stop contract before starting and showing a new root
 View.
 
-Phase 1 must define `start`'s return value, readiness signal, and failure propagation,
-including how overlapping start, stop, and restart calls settle. An invalidated start
-must settle deterministically without exposing stale success or leaving callers
-pending, and migration tests must cover the existing synchronous return contract.
+Phase 1 must define `start`'s return value, readiness and failure semantics, and
+reentrant or overlapping start, stop, and restart behavior under the selected
+synchronous or awaitable contract. If lifecycle work may remain pending, invalidated
+work must settle deterministically without exposing stale success or leaving callers
+pending. Migration tests must cover the existing synchronous return contract.
 
 Owned child Applications follow their owner's start, stop, restart, and destroy
 lifecycle without per-child lifecycle flags. A capability that must outlive its
@@ -246,8 +247,9 @@ and releases its State subscriptions at owner destroy. State composed into View 
 CollectionView persists across render. State composed into Application persists
 across stop and restart. State composed into MnObject persists for the object's
 lifetime. State composed into Behavior persists across its owning View's render and
-ends when the Behavior is destroyed. An invalidated asynchronous start cannot later
-mutate State or owned children. Region does not own State. A Behavior may compose
+ends when the Behavior is destroyed. If the selected lifecycle permits pending
+startup, invalidated startup cannot later mutate State or owned children. Region does
+not own State. A Behavior may compose
 private State when its concern truly owns that state. State shared with its View
 belongs on the View; the Behavior may receive an ordinary reference to that State but
 does not compose, own, or destroy it.
@@ -255,6 +257,81 @@ does not compose, own, or destroy it.
 Appropriate core additions include public read-only ownership accessors, pure Region
 lookup, shared diagnostics, extension hooks with no registered listeners by default,
 and narrowly designed resource ownership.
+
+### API-shape and agent-ergonomics gate
+
+Before stable v5 freezes more runtime surface, the established v3/v4 convenience
+contracts must pass a bounded API-shape audit. Historical behavior is evidence, not
+an automatic compatibility requirement. Each decision must reconstruct the original
+rationale, identify whether the contract is public or merely an internal source
+path, scan representative public code, and exercise the explicit replacement in the
+reference app and agent benchmark. Available app-frontend and Marionette Toolkit
+migrations may reveal implementation or migration problems but do not define the
+public contract.
+
+This roadmap names the public contracts and decision hypotheses so the release gate
+is auditable. Implementation acceptance cases and per-contract work status belong in
+their dedicated GitHub issues.
+
+The current evidence establishes these candidate decisions for validation:
+
+- `Region.show` and `View.showChildView` accept a View-like instance. The v3/v4
+  template, string, and options-object convenience implicitly constructs a base View,
+  hides allocation and ownership, and creates the View-to-Region dependency that led
+  v5 alpha to co-locate both implementations. Unless the public scan or benchmark
+  demonstrates a stronger contract, v5 removes that convenience and documents
+  explicit View construction as the migration.
+- If that display contract is accepted, View, Region, and the declarative Region
+  builder return to honest owner-named modules. `buildRegion` remains an internal
+  helper for declarative Region definitions; one-line forwarding modules and other
+  obsolete internal paths are removed rather than preserved as aliases.
+- Instance `getOption` and `mergeOptions` remain migration candidates to keep because
+  verified public consumers use both and `mergeOptions` provides an explicit
+  constructor option whitelist. New core contracts do not expand their role. The
+  target-first root utility exports, which take the target instance as their first
+  argument instead of calling its method, are separate contracts and are removed when
+  no verified public consumer or benchmark task justifies their duplicate call shape.
+- Lifecycle callback discovery must be explicit and inspectable. The audit tests
+  whether `triggerMethod` should call only instance methods rather than inheriting
+  `getOption`'s constructor-option precedence; an options-based lifecycle handler is
+  retained only with verified public consumer and benchmark evidence.
+- Application lifecycle concurrency is a separate contract decision, not an
+  implementation detail. The current v5 core has no other promise-based public
+  contract, so Application alone does not establish async lifecycle by momentum.
+  Compare the established synchronous lifecycle with an awaitable design against
+  races observed in verified public consumers and representative migrations,
+  migration cost, implementation complexity, and agent discoverability. If async
+  lifecycle wins, define which hooks and notifications are awaited, their failure
+  semantics, and their overlap behavior, then prove the selected state machine.
+  Otherwise retain synchronous lifecycle and keep async orchestration explicit in
+  consumer code.
+- The currently documented model and collection data protocol is an explicit but
+  Backbone-shaped v5 pre-release contract. A benchmark adapter can satisfy it only by
+  reproducing `cid`, `attributes`, `models`, `indexOf`, and exact event payloads.
+  Before stable, v5 either freezes that protocol deliberately or replaces it with one
+  lean canonical adapter contract and an executable Backbone migration. State remains
+  an ownership and local-state concern and does not implicitly solve this data-source
+  decision.
+- Template cloning is a valid optimized rendering technique, not evidence by itself
+  for another renderer API. First measure and document the explicit existing recipe:
+  construct the final imported element in `buildChildView`, pass it to the child View,
+  and use `template: false`. A first-class DOM-node renderer or element factory ships
+  only if public benchmark tasks demonstrate an outcome the existing renderer,
+  `setElement`, and `buildChildView` seams cannot express clearly.
+- Declarative handler maps, `@ui` references, Backbone-style `extend`, dynamic
+  `childView(model)` selection, and centralized DOM adapter and renderer installation
+  remain candidate v5 patterns where current evidence shows they are widely used,
+  deterministic, and statically understandable. Value-or-function and
+  class-or-resolver overloads are assessed individually rather than removed as a
+  category.
+
+The gate passes only when every reviewed contract has one documented canonical form,
+an executable migration where behavior changes, source and package entrypoints that
+name their real owner, no unverified alias or fallback path, and paired agent tasks
+that distinguish the retained form from the removed alternative. These are contract
+discrimination checks; they use the statistical paired-comparable protocol only when
+registered in that benchmark stratum. API-shape changes land as small dedicated
+changes rather than being mixed into unrelated lifecycle or ownership work.
 
 Stable v5 removes Underscore as a required Marionette runtime peer without removing
 the documented, useful Backbone-era ergonomics of `CollectionView.children`. The
@@ -307,10 +384,12 @@ Lint rules, codemods, documentation generators, and benchmark tooling belong out
 the runtime graph. They should consume the same documented rule catalog and public
 metadata rather than encode a second model of Marionette.
 
-Declarative definition helpers, generalized data-source adapters, new CollectionView
-strategies, and renderer integrations remain evidence-dependent. They may be explored
-after the foundation is measurable, but do not block stable v5 without benchmark
-evidence.
+Declarative definition helpers, adapter implementations beyond the required stable
+model and collection data protocol, new CollectionView strategies, and renderer
+integrations remain evidence-dependent. They may be explored after the foundation is
+measurable, but do not block stable v5 without benchmark evidence. Deciding whether
+to freeze or replace the current model and collection data protocol is a Phase 1 gate, not
+a Phase 5 candidate.
 
 ## Runtime cost contract
 
@@ -367,6 +446,18 @@ The stable release then requires:
   percent and no confirmed p95 regression above ten percent for View
   construction/destruction, render/rerender, delegation, Region show/empty, and
   ordinary CollectionView work.
+- Large-list operation-count evidence includes at least 1,000 visible children and
+  covers initial render, append one, append many, remove one, reset or clear,
+  targeted update, and destroy. Deterministic cases record created, attached, moved,
+  detached, and destroyed node counts in addition to timing; a real-browser run
+  validates focus,
+  selection, media, and custom-element connection behavior.
+- External comparative benchmarks are advisory evidence. An accepted result records
+  the upstream benchmark revision, exact Marionette commit, complete committed patch
+  or reproducible diff, browser and hardware profile, commands, and raw samples. A
+  stale framework pin may inform investigation but cannot support an exact-current
+  claim, and a benchmark-specific optimization does not become the default API merely
+  because it is conforming and fast.
 - A timing regression is confirmed only after an independent repeat in the same
   environment. Hosted CI warns at ten percent but does not fail on timing alone.
 - Resource tests run at least 100 attach/detach cycles and prove zero registrations
@@ -412,12 +503,26 @@ instructions, and every release blocker maps to this strategy.
 
 ### Phase 1: Core contracts
 
-- Specify lifecycle state machines and add transition-table or model-based tests.
+- Complete the API-shape and agent-ergonomics gate for existing public contracts
+  before freezing additional Application, State, or extension surface.
+- Before the next v5 alpha, resolve the [detached-element attachment gap][issue-327]
+  and [CollectionView removal-only update gap][issue-328]. Detailed acceptance
+  criteria and browser cases remain in those issues.
+- Select and document the stable model and collection data protocol independently of
+  State. Either deliberately freeze the current Backbone-shaped fields and event
+  payloads or replace them with one lean adapter contract; do not ship both as
+  canonical paths. A correctness fix against the current protocol does not freeze it;
+  re-evaluate CollectionView update bookkeeping against the selected protocol before
+  freezing either implementation.
+- Decide whether Application lifecycle remains synchronous or becomes Marionette's
+  first promise-based public contract, then specify only the selected state machine
+  and add transition-table or model-based tests. Do not freeze an Application-only
+  async convention before the API-shape evidence gate passes.
 - Strengthen Application as the single non-renderable lifecycle and ownership scope,
   with parentlessness identifying the root and child Applications representing nested
-  scopes. Specify deterministic asynchronous startup, stale-start invalidation,
-  restart, root View and Region hosting, canonical child ownership, and teardown
-  without adding a Feature alias or inheritance hierarchy.
+  scopes. Specify deterministic startup and restart semantics under the selected
+  lifecycle contract, root View and Region hosting, canonical child ownership, and
+  teardown without adding a Feature alias or inheritance hierarchy.
 - Separately define and implement State as a lazy first-class object composed into
   MnObject, View, CollectionView, Behavior, or Application without changing Region's
   renderable contract or conflating State with model and collection data.
@@ -463,9 +568,9 @@ development and test fixtures exercise every public helper.
 - Add pay-for-play resource ownership and extension integrations justified by the
   earlier evidence.
 - Run the fixed agent corpus against the complete release candidate.
-- Validate plain Views, Views composed with State, nested Applications, asynchronous
-  Application restart, Application resource cleanup, and shared-host overlays in the
-  reference application.
+- Validate plain Views, Views composed with State, nested Applications, the selected
+  Application startup and restart contract, Application resource cleanup, and
+  shared-host overlays in the reference application.
 - Close correctness, documentation, packaging, browser, and performance gaps exposed
   by the reference application.
 - Complete v5 reference and migration documentation.
@@ -474,8 +579,9 @@ Gate: all stable release criteria below pass.
 
 ### Phase 5: Evidence-dependent candidates
 
-Benchmark declarative definition helpers, generalized data-source and rendering
-seams, alternative CollectionView strategies, and optional integrations. These
+Benchmark declarative definition helpers, adapter implementations beyond whichever
+model and collection data protocol Phase 1 selects, rendering seams, alternative
+CollectionView strategies, and optional integrations. These
 experiments do not block stable v5. Unsuccessful candidates are documented and closed
 rather than retained as dormant APIs.
 
@@ -504,6 +610,23 @@ rather than retained as dormant APIs.
 - No release criterion depends on a private consumer or unpublished fixture.
 - Known migration and behavior differences are documented, and no obsolete v5
   pre-release path is presented as canonical.
+- Every contract in the API-shape and agent-ergonomics gate has an explicit keep or
+  remove decision, an executable migration when behavior changes, paired agent tasks
+  that distinguish the selected form from the rejected alternative, truthful source
+  ownership, and no unverified duplicate root utility or internal forwarding path.
+- If the current model and collection data protocol is retained, it passes
+  compatibility tests. If it is replaced, an executable Backbone migration is
+  exercised. In either case, the selected protocol passes source, distribution,
+  packed-package, and real-browser tests.
+- Large-list operation-count scenarios pass source, distribution, packed-package, and
+  real-browser tests.
+- CollectionView removal-only update semantics pass source, distribution,
+  packed-package, and real-browser tests.
+- Detached-element attachment semantics pass source, distribution, packed-package,
+  and real-browser tests.
+- The existing `buildChildView` plus `setElement` plus `template: false` optimized
+  rendering recipe passes source, distribution, packed-package, and real-browser
+  tests.
 - No unapproved build, lint, type, or test warning remains.
 
 Pre-releases may expose experimental APIs. Before stable, they may be changed or
@@ -528,3 +651,6 @@ Every proposal must answer:
 
 If these questions cannot be answered, the proposal remains a candidate and does not
 block stable v5.
+
+[issue-327]: https://github.com/marionettejs/marionette/issues/327
+[issue-328]: https://github.com/marionettejs/marionette/issues/328
