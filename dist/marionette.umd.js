@@ -3617,6 +3617,7 @@
       return;
     }
     application._lifecycleState = RUNNING;
+    operation.failureState = RUNNING;
     operation.isCompleting = true;
     application.triggerMethod('start', application, options);
   }

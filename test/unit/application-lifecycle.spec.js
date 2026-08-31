@@ -25,7 +25,52 @@ async function expectRejection(promise, expectedError) {
   throw new Error('Expected promise to reject.');
 }
 
+function getState(app) {
+  if (app.isDestroyed()) { return 'destroyed'; }
+  return app.isRunning() ? 'running' : 'stopped';
+}
+
+const lifecycleTransitions = [
+  ['stopped', 'start', true, 'running', ['before:start', 'start']],
+  ['stopped', 'stop', true, 'stopped', []],
+  ['stopped', 'restart', true, 'running', ['before:start', 'start']],
+  ['stopped', 'destroy', true, 'destroyed', ['before:destroy', 'destroy']],
+  ['running', 'start', true, 'running', []],
+  ['running', 'stop', true, 'stopped', ['before:stop', 'stop']],
+  ['running', 'restart', true, 'running', ['before:stop', 'stop', 'before:start', 'start']],
+  ['running', 'destroy', true, 'destroyed', ['before:stop', 'stop', 'before:destroy', 'destroy']],
+  ['destroyed', 'start', false, 'destroyed', []],
+  ['destroyed', 'stop', true, 'destroyed', []],
+  ['destroyed', 'restart', false, 'destroyed', []],
+  ['destroyed', 'destroy', true, 'destroyed', []]
+];
+
 describe('Application lifecycle', function() {
+  for (const [initialState, method, result, finalState, expectedEvents] of lifecycleTransitions) {
+    it(`models ${initialState} -> ${method} -> ${finalState}`, async function() {
+      const events = [];
+      const TestApplication = Application.extend({
+        onBeforeStart() { events.push('before:start'); },
+        onStart() { events.push('start'); },
+        onBeforeStop() { events.push('before:stop'); },
+        onStop() { events.push('stop'); },
+        onBeforeDestroy() { events.push('before:destroy'); },
+        onDestroy() { events.push('destroy'); }
+      });
+      const app = new TestApplication();
+
+      if (initialState === 'running') { await app.start(); }
+      if (initialState === 'destroyed') { await app.destroy(); }
+      events.length = 0;
+
+      expect(await app[method]()).to.equal(result);
+      expect(getState(app)).to.equal(finalState);
+      expect(events).to.deep.equal(expectedEvents);
+
+      if (!app.isDestroyed()) { await app.destroy(); }
+    });
+  }
+
   it('settles start only after asynchronous readiness completes', async function() {
     const readiness = defer();
     const events = [];
@@ -116,6 +161,17 @@ describe('Application lifecycle', function() {
     await expectRejection(app.start(), error);
     expect(app.isRunning()).to.be.false;
     expect(await app.start()).to.be.true;
+    expect(app.isRunning()).to.be.true;
+  });
+
+  it('keeps running when the start completion hook fails', async function() {
+    const error = new Error('start completion failed');
+    const app = new (Application.extend({
+      onStart() { throw error; }
+    }))();
+
+    await expectRejection(app.start(), error);
+
     expect(app.isRunning()).to.be.true;
   });
 
@@ -862,13 +918,4 @@ describe('Application lifecycle', function() {
     expect(stopEvent).to.have.callCount(10);
   });
 
-  it('defines terminal lifecycle calls as deterministic no-ops', async function() {
-    const app = new Application();
-
-    expect(await app.destroy()).to.be.true;
-    expect(await app.destroy()).to.be.true;
-    expect(await app.stop()).to.be.true;
-    expect(await app.start()).to.be.false;
-    expect(await app.restart()).to.be.false;
-  });
 });
