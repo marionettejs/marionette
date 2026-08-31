@@ -1,0 +1,31 @@
+benchmarks/consumer-bundles/v1/root-plus-backbone-jquery.js
+  s_d6429951fb9231::t_cd4b1f16b15775 1-5
+docs/performance-baselines.md
+  s_d6429951fb9231::t_cd4b1f16b15775 34-35,226-228
+scripts/performance/bundle-size.mjs
+  s_d6429951fb9231::t_cd4b1f16b15775 33,256-262,289-291,421,426-427
+benchmarks/consumer-bundles/contract.json
+  s_d6429951fb9231::t_d9c7bf88aa7782 7
+test/performance/consumer-bundles.test.mjs
+  s_d6429951fb9231::t_ff1ff968a13fce 2,31,95,133-135,140,151-156
+  s_d6429951fb9231::t_cd4b1f16b15775 21,24,30,73,83,88-94,100,106-112,137-139,146-150,157,167,181,203-204
+benchmarks/consumer-bundles/v1/manifest.json
+  s_d6429951fb9231::t_c370ec8118664d 48-51,148-170
+  s_d6429951fb9231::t_40bce7b276cee1 171-172
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "9ddc80616563c5bf10c00806444ab43b8c7d07fd",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
