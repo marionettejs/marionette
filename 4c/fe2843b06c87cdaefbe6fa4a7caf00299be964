@@ -1,0 +1,58 @@
+test/unit/collection-view/collection-view-data.spec.js
+  s_d6429951fb9231::t_5f3c8ce2114f28 352-377,410-450
+  s_d6429951fb9231::t_fff26ad99f1cae 329-350
+  s_d6429951fb9231::t_da9c56a0aa42ea 378-409
+  s_d6429951fb9231::t_b1b19af293eea4 287,290
+  s_d6429951fb9231::t_267280e57f5a69 303-328,351
+docs/marionette.collectionview.md
+  s_d6429951fb9231::t_da9c56a0aa42ea 236-238
+  s_d6429951fb9231::t_d96461492cb394 239
+  s_d6429951fb9231::t_fff26ad99f1cae 229-235
+changelog.md
+  s_d6429951fb9231::t_d96461492cb394 11-12
+dist/marionette.min.js
+  s_d6429951fb9231::t_81e413a7ab8502 1
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_5f487e8ca1760f 1
+dist/marionette.js
+  s_d6429951fb9231::t_95c86245099608 2931-2937
+test/fixtures/collection-removal-survivors/validate.mjs
+  s_d6429951fb9231::t_fff26ad99f1cae 19
+  s_d6429951fb9231::t_dde7397954d8dd 1-18,20-48
+package.json
+  s_d6429951fb9231::t_80594151008f83 93
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_fff26ad99f1cae 61
+test/fixtures/collection-removal-survivors/package.json
+  s_d6429951fb9231::t_955416770fbedc 8
+  s_d6429951fb9231::t_dde7397954d8dd 1-7,9-11
+modules/collection-view.js
+  s_d6429951fb9231::t_da9c56a0aa42ea 200-204,209-212
+  s_d6429951fb9231::t_5f3c8ce2114f28 206-208,214
+  s_d6429951fb9231::t_a524ac1d6b045e 205,213,215-220
+test/browser/collection-removal-survivors.mjs
+  s_d6429951fb9231::t_80594151008f83 1-95,97-129,131-168
+  s_d6429951fb9231::t_05936d2821e7df 96,130
+dist/marionette.umd.js
+  s_d6429951fb9231::t_9e6a5ebd91679f 2942-2948
+dist/marionette.cjs
+  s_d6429951fb9231::t_3bd9f046323010 2935-2941
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_a5e9e2947bbe80 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "4cfe2843b06c87cdaefbe6fa4a7caf00299be964",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
