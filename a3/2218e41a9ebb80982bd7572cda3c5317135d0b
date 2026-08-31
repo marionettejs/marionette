@@ -1,0 +1,19 @@
+ROADMAP.md
+  s_d6429951fb9231::t_1a850d3c7ad3d6 89-90,226-230,250-252,521-523,569-571
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "a32218e41a9ebb80982bd7572cda3c5317135d0b",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
