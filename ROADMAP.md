@@ -446,12 +446,12 @@ The stable release then requires:
   percent and no confirmed p95 regression above ten percent for View
   construction/destruction, render/rerender, delegation, Region show/empty, and
   ordinary CollectionView work.
-- Large-list operation-count evidence includes at least 1,000 visible children and covers initial
+- Large-list operation-count evidence includes at least 1,000 visible children and
+  covers initial
   render, append one, append many, remove one, reset or clear, targeted update, and
   destroy. Deterministic cases record created, attached, moved, detached, and
   destroyed node counts in addition to timing; a real-browser run validates focus,
-  selection, media, and custom-element connection behavior. A removal-only update
-  with no active filter and `viewComparator: false` moves no surviving child node.
+  selection, media, and custom-element connection behavior.
 - External comparative benchmarks are advisory evidence. An accepted result records
   the upstream benchmark revision, exact Marionette commit, complete committed patch
   or reproducible diff, browser and hardware profile, commands, and raw samples. A
@@ -505,9 +505,9 @@ instructions, and every release blocker maps to this strategy.
 
 - Complete the API-shape and agent-ergonomics gate for existing public contracts
   before freezing additional Application, State, or extension surface.
-- Before the next v5 alpha, resolve the known detached-element attachment and
-  CollectionView removal-only update correctness gaps. Detailed acceptance criteria
-  and browser cases belong in dedicated GitHub issues created before implementation.
+- Before the next v5 alpha, resolve the [detached-element attachment gap][issue-327]
+  and [CollectionView removal-only update gap][issue-328]. Detailed acceptance
+  criteria and browser cases remain in those issues.
 - Select and document the stable model and collection data protocol independently of
   State. Either deliberately freeze the current Backbone-shaped fields and event
   payloads or replace them with one lean adapter contract; do not ship both as
@@ -646,3 +646,6 @@ Every proposal must answer:
 
 If these questions cannot be answered, the proposal remains a candidate and does not
 block stable v5.
+
+[issue-327]: https://github.com/marionettejs/marionette/issues/327
+[issue-328]: https://github.com/marionettejs/marionette/issues/328
