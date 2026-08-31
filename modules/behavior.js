@@ -31,7 +31,6 @@ const Behavior = function(options, view) {
   // to the view.
   this.view = view;
 
-
   this._setOptions(options, ClassOptions);
   this.cid = uniqueId(this.cidPrefix);
 

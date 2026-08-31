@@ -82,8 +82,8 @@ const ViewMixin = {
     if (!elOption) {
       const el = this.Dom.createElement(getValue(this, 'tagName'));
       const attrs = assignOwn({}, getValue(this, 'attributes'));
-      if (this.id) {attrs.id = getValue(this, 'id');}
-      if (this.className) {attrs.class = getValue(this, 'className');}
+      if (this.id) { attrs.id = getValue(this, 'id'); }
+      if (this.className) { attrs.class = getValue(this, 'className'); }
       this.Dom.setAttributes(el, attrs);
       return el;
     }
@@ -92,7 +92,7 @@ const ViewMixin = {
   },
 
   $(selector) {
-    return this.Dom.findEl(this.el, selector)
+    return this.Dom.findEl(this.el, selector);
   },
 
   _isElAttached() {

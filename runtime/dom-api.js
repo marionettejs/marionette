@@ -1,5 +1,5 @@
 // DomApi
-//  ---------
+// -------
 import { assignOwn, setProperty } from '../utils/assign-in.js';
 
 const objectKeys = Object.keys;
@@ -39,7 +39,7 @@ export default {
 
   // Detach `el` from the DOM without removing listeners
   detachEl(el) {
-    if (el.parentNode) {el.parentNode.removeChild(el);}
+    if (el.parentNode) { el.parentNode.removeChild(el); }
   },
 
   // Remove `oldEl` from the DOM and put `newEl` in its place
@@ -79,7 +79,7 @@ export default {
 
   // Replace the contents of `el` with the `html`
   setContents(el, html) {
-    el.innerHTML = html
+    el.innerHTML = html;
   },
 
   // Sets attributes on a DOM node
