@@ -1,0 +1,24 @@
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_aae2cddd3739bb 77
+docs/view.lifecycle.md
+  s_d6429951fb9231::t_aae2cddd3739bb 73,260-266
+  s_d6429951fb9231::t_c65ae5931c81f9 267
+docs/marionette.behavior.md
+  s_d6429951fb9231::t_aae2cddd3739bb 490-497
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "46099048de6ed6dce99da4d251e94f8ef47b3ef3",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
