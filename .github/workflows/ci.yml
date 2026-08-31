@@ -55,6 +55,12 @@ jobs:
       - name: Verify distributable artifacts
         run: npm run check:dist
 
+      - name: Install supported browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Test supported browsers
+        run: npm run test:browser
+
       - name: Coverage
         run: npm run coverage
 
