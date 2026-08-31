@@ -74,18 +74,30 @@ describe('Application lifecycle', function() {
   it('settles start only after asynchronous readiness completes', async function() {
     const readiness = defer();
     const events = [];
+    let eventContext;
+    let startContext;
     const TestApplication = Application.extend({
-      onBeforeStart(app, options) {
+      onBeforeStart(app, options, context) {
         expect(app).to.equal(this);
         expect(options).to.deep.equal({ source: 'test' });
+        expect(context.signal.aborted).to.be.false;
+        startContext = context;
         events.push('before:start');
         return readiness.promise;
       },
-      onStart() {
+      onStart(app, options) {
+        expect(app).to.equal(this);
+        expect(options).to.deep.equal({ source: 'test' });
+        expect(arguments).to.have.length(2);
         events.push('start');
       }
     });
     const app = new TestApplication();
+    app.on('before:start', (triggeredApp, options, context) => {
+      expect(triggeredApp).to.equal(app);
+      expect(options).to.deep.equal({ source: 'test' });
+      eventContext = context;
+    });
 
     const start = app.start({ source: 'test' });
 
@@ -97,7 +109,69 @@ describe('Application lifecycle', function() {
 
     expect(await start).to.be.true;
     expect(app.isRunning()).to.be.true;
+    expect(eventContext).to.equal(startContext);
+    expect(startContext.signal.aborted).to.be.false;
     expect(events).to.deep.equal(['before:start', 'start']);
+  });
+
+  it('aborts invalidated readiness before replacement readiness starts', async function() {
+    const readiness = defer();
+    const events = [];
+    let firstContext;
+    let startCount = 0;
+    const TestApplication = Application.extend({
+      onBeforeStart(app, options, context) {
+        if (startCount++) {
+          events.push(`before:start:${firstContext.signal.aborted}`);
+          return;
+        }
+
+        firstContext = context;
+        events.push('before:start');
+        context.signal.addEventListener('abort', () => {
+          events.push('abort:start');
+          readiness.resolve();
+        }, { once: true });
+        return readiness.promise;
+      },
+      onBeforeStop(app, options, context) {
+        events.push(`before:stop:${firstContext.signal.aborted}:${context.signal.aborted}`);
+      }
+    });
+    const app = new TestApplication();
+
+    const start = app.start();
+    const restart = app.restart();
+
+    expect(await start).to.be.false;
+    expect(await restart).to.be.true;
+    expect(events).to.deep.equal([
+      'before:start',
+      'abort:start',
+      'before:stop:true:false',
+      'before:start:true'
+    ]);
+  });
+
+  it('transfers stop readiness without aborting its signal', async function() {
+    const readiness = defer();
+    let stopContext;
+    const onBeforeStop = this.sinon.stub().callsFake((app, options, context) => {
+      stopContext = context;
+      return readiness.promise;
+    });
+    const app = new (Application.extend({ onBeforeStop }))();
+    await app.start();
+
+    const stop = app.stop();
+    const restart = app.restart();
+
+    expect(await stop).to.be.false;
+    expect(stopContext.signal.aborted).to.be.false;
+    readiness.resolve();
+    expect(await restart).to.be.true;
+    expect(stopContext.signal.aborted).to.be.false;
+    expect(onBeforeStop).to.have.been.calledOnce;
   });
 
   it('shares a compatible in-flight start and no-ops once running', async function() {
@@ -416,11 +490,13 @@ describe('Application lifecycle', function() {
   it('stops a restart whose new startup is still pending', async function() {
     const restartReadiness = defer();
     const restartStarted = defer();
+    let restartContext;
     const beforeStop = this.sinon.spy();
     const stopEvent = this.sinon.spy();
     const startEvent = this.sinon.spy();
     const onBeforeStart = this.sinon.stub();
-    onBeforeStart.onSecondCall().callsFake(() => {
+    onBeforeStart.onSecondCall().callsFake((app, options, context) => {
+      restartContext = context;
       restartStarted.resolve();
       return restartReadiness.promise;
     });
@@ -439,6 +515,7 @@ describe('Application lifecycle', function() {
 
     expect(await restart).to.be.false;
     expect(await stop).to.be.true;
+    expect(restartContext.signal.aborted).to.be.true;
     restartReadiness.resolve();
     await restartReadiness.promise;
     await Promise.resolve();
@@ -606,7 +683,11 @@ describe('Application lifecycle', function() {
 
   it('shares repeated destroy calls while teardown is in flight', async function() {
     const teardown = defer();
-    const beforeDestroy = this.sinon.stub().returns(teardown.promise);
+    let destroyContext;
+    const beforeDestroy = this.sinon.stub().callsFake((app, options, context) => {
+      destroyContext = context;
+      return teardown.promise;
+    });
     const destroyEvent = this.sinon.spy();
     const app = new (Application.extend({ onBeforeDestroy: beforeDestroy, onDestroy: destroyEvent }))();
 
@@ -617,9 +698,11 @@ describe('Application lifecycle', function() {
     expect(repeated).to.equal(first);
     expect(await stop).to.be.true;
     expect(app.isDestroyed()).to.be.false;
+    expect(destroyContext.signal.aborted).to.be.false;
     teardown.resolve();
     expect(await first).to.be.true;
     expect(app.isDestroyed()).to.be.true;
+    expect(destroyContext.signal.aborted).to.be.false;
     expect(beforeDestroy).to.have.been.calledOnce;
     expect(destroyEvent).to.have.been.calledOnce;
   });

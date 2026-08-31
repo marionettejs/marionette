@@ -40,6 +40,43 @@ function isCurrentOperation(application, operation) {
   return application._lifecycleOperation === operation;
 }
 
+function createDeferred() {
+  let resolve;
+  let reject;
+  const promise = new Promise((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+
+  return { promise, reject, resolve };
+}
+
+function beginReadiness(operation, callback) {
+  const deferred = createDeferred();
+  const controller = new AbortController();
+  const readiness = {
+    ...deferred,
+    context: { signal: controller.signal },
+    controller
+  };
+
+  operation.readiness = readiness;
+
+  try {
+    Promise.resolve(callback(readiness.context)).then(readiness.resolve, readiness.reject);
+  } catch (error) {
+    readiness.reject(error);
+  }
+
+  return readiness;
+}
+
+function completeReadiness(operation, readiness) {
+  if (operation.readiness === readiness) {
+    delete operation.readiness;
+  }
+}
+
 function getFailureState(application, operation) {
   if (operation?.stopReadiness) { return operation.failureState; }
   return application._lifecycleState === RUNNING ? RUNNING : STOPPED;
@@ -82,41 +119,47 @@ function runOperation(application, operation, callback) {
 
 function beginOperation(application, kind, state, failureState, callback) {
   const superseded = supersedeOperation(application);
+  const deferred = createDeferred();
+  const stopReadiness = superseded?.stopReadiness;
 
-  let resolve;
-  let reject;
-  const promise = new Promise((resolvePromise, rejectPromise) => {
-    resolve = resolvePromise;
-    reject = rejectPromise;
-  });
+  if (superseded?.readiness && superseded.readiness !== stopReadiness) {
+    superseded.readiness.controller.abort();
+  }
+
   const operation = {
+    ...deferred,
     kind,
-    promise,
-    reject,
-    resolve,
     failureState,
-    stopReadiness: superseded?.stopReadiness
+    readiness: stopReadiness,
+    stopReadiness
   };
 
   application._lifecycleOperation = operation;
   application._lifecycleState = state;
   runOperation(application, operation, () => callback(operation));
 
-  return promise;
+  return deferred.promise;
 }
 
 async function startApplication(application, operation, options) {
   if (operation.stopReadiness) {
-    await operation.stopReadiness.promise;
+    const readiness = operation.stopReadiness;
+    await readiness.promise;
     if (!isCurrentOperation(application, operation)) { return; }
 
+    completeReadiness(operation, readiness);
     operation.failureState = STOPPED;
     delete operation.stopReadiness;
   }
 
-  await application.triggerMethod('before:start', application, options);
+  const readiness = beginReadiness(operation, context => {
+    return application.triggerMethod('before:start', application, options, context);
+  });
+
+  await readiness.promise;
   if (!isCurrentOperation(application, operation)) { return; }
 
+  completeReadiness(operation, readiness);
   application._lifecycleState = RUNNING;
   operation.failureState = RUNNING;
   operation.isCompleting = true;
@@ -126,25 +169,17 @@ async function startApplication(application, operation, options) {
 async function stopApplication(application, operation, options) {
   try {
     if (!operation.stopReadiness) {
-      let resolve;
-      let reject;
-      const promise = new Promise((resolvePromise, rejectPromise) => {
-        resolve = resolvePromise;
-        reject = rejectPromise;
+      const readiness = beginReadiness(operation, context => {
+        return application.triggerMethod('before:stop', application, options, context);
       });
-      operation.stopReadiness = { promise };
-
-      try {
-        Promise.resolve(application.triggerMethod('before:stop', application, options))
-          .then(resolve, reject);
-      } catch (error) {
-        reject(error);
-      }
+      operation.stopReadiness = readiness;
     }
 
-    await operation.stopReadiness.promise;
+    const readiness = operation.stopReadiness;
+    await readiness.promise;
     if (!isCurrentOperation(application, operation)) { return; }
 
+    completeReadiness(operation, readiness);
     operation.failureState = STOPPED;
     delete operation.stopReadiness;
     operation.isStopped = true;
@@ -198,19 +233,14 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
       if (!operation?.stopReadiness) { return Promise.resolve(true); }
       // Destroy cannot be superseded and starts its stop phase synchronously.
       if (!operation.stopResult) {
-        let resolve;
-        let reject;
-        const promise = new Promise((resolvePromise, rejectPromise) => {
-          resolve = resolvePromise;
-          reject = rejectPromise;
-        });
-        operation.stopResult = { promise, reject, resolve };
+        operation.stopResult = createDeferred();
       }
       return operation.stopResult.promise;
     }
     if (operation?.kind === 'stop') { return operation.promise; }
     if (operation?.isStopped) {
-      supersedeOperation(this);
+      const superseded = supersedeOperation(this);
+      superseded.readiness?.controller.abort();
       this._lifecycleState = STOPPED;
       return Promise.resolve(true);
     }
@@ -254,8 +284,14 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
         await stopApplication(this, current, options);
       }
 
-      await this.triggerMethod('before:destroy', this, options);
+      const readiness = beginReadiness(current, context => {
+        return this.triggerMethod('before:destroy', this, options, context);
+      });
 
+      await readiness.promise;
+      if (!isCurrentOperation(this, current)) { return; }
+
+      completeReadiness(current, readiness);
       this._isDestroyed = true;
       this._lifecycleState = DESTROYED;
       current.failureState = DESTROYED;

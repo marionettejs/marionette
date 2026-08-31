@@ -89,7 +89,12 @@ await myApp.start({ data: { bar: true } });
 [Live example](https://jsfiddle.net/marionettejs/ny59rs7b/)
 
 As shown, the `options` object passed to `start` is forwarded after the
-Application to its lifecycle methods and events.
+Application to its lifecycle methods and events. Readiness methods and
+`before:*` events also receive a context object as the third argument. Its
+`signal` is aborted when a later operation invalidates that readiness. A
+transferred stop phase retains the same context and un-aborted signal. Only the
+Promise returned by the `onBeforeStart`, `onBeforeStop`, or `onBeforeDestroy`
+method delays its lifecycle; event-listener return values are ignored.
 
 ### `before:stop` event
 
@@ -103,7 +108,10 @@ notification and its return value is not awaited.
 
 #### Application `destroy` events
 
-The `Application` class also triggers [Destroy Events](#destroy-and-beforedestroy-events).
+The `Application` class also triggers `before:destroy` and `destroy` as part of
+its [asynchronous lifecycle](./marionette.application.md#application-lifecycle).
+`onBeforeDestroy` is awaited and receives `(application, options, context)`;
+`onDestroy` is a completion notification and receives `(application, options)`.
 
 ## Behavior Events
 
@@ -442,8 +450,10 @@ _and all child views_ of this view. Disabling should be done carefully.
 ### `destroy` and `before:destroy` events
 
 Every class has a `destroy` method which can be used to clean up the instance.
-With the exception of `Behavior`'s each of these methods triggers a `before:destroy`
-and a `destroy` event.
+With the exception of `Behavior`, each class triggers a `before:destroy` and a
+`destroy` event. Application uses the separate asynchronous lifecycle described
+under [Application Events](#application-events); this section describes the
+synchronous owner classes.
 
 As a general rule, `onBeforeDestroy` is the best handler for cleanup as the instance
 and any internally created children are already destroyed by the time `onDestroy` is called.
@@ -462,7 +472,7 @@ it had reached, and later `destroy()` calls do not restart teardown.
 See [`dom:remove`](#domremove-event) or [`before:detach`] for DOM related clean up.
 
 ```javascript
-import { Application, View } from 'backbone.marionette';
+import { View } from 'backbone.marionette';
 
 const MyView = View.extend({
   onBeforeDestroy(options) {
@@ -472,17 +482,7 @@ const MyView = View.extend({
 
 const myView = new MyView();
 
-mvView.destroy({ foo: 'destroy view' });
-
-const MyApp = Application.extend({
-  onBeforeDestroy(options) {
-    console.log(options.foo);
-  }
-});
-
-const myApp = new MyApp();
-
-myApp.destroy({ foo: 'destroy app' });
+myView.destroy({ foo: 'destroy view' });
 ```
 
 #### `CollectionView` `destroy:children` and `before:destroy:children` events

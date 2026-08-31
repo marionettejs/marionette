@@ -81,6 +81,18 @@ awaited. A `before:*` method must not await the same operation whose readiness i
 is defining. `restart` composes the stop and start lifecycles; it does not add a
 parallel restart hook path.
 
+Each readiness method and `before:*` event receives the Application, the
+operation options, and a context object with an [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal):
+`(application, options, { signal })`. When a later operation invalidates
+readiness, Marionette aborts its signal before starting replacement readiness.
+The signal makes cancellation cooperative; the invalidated operation still
+resolves `false` even when a handler ignores it. When a start, restart, or
+destroy operation adopts an in-flight stop phase, it also adopts that phase's
+context and does not abort its signal.
+
+The context belongs to the readiness phase rather than to one caller's Promise.
+Completion methods and events receive only `(application, options)`.
+
 ### Starting an Application
 
 Once configured, await `start(options)` before dispatching work that requires a
@@ -98,8 +110,9 @@ const MyApp = Application.extend({
     console.log('Initialize');
   },
 
-  onBeforeStart(app, options) {
-    this.model = new MyModel(options.data);
+  async onBeforeStart(app, options, { signal }) {
+    const response = await fetch('/api/bootstrap', { signal });
+    this.model = new MyModel(await response.json());
   },
 
   onStart(app, options) {
