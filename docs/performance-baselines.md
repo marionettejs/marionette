@@ -31,7 +31,8 @@ new artifact cannot silently avoid the aggregate budget.
 The roadmap also requires versioned root-only, opt-in-subpath-only, and
 root-plus-subpath consumer scenarios. The public `v1` fixture under
 `benchmarks/consumer-bundles/` now measures root-only, `backbone`-only,
-`jquery-dom-api`-only, root-plus-`backbone`, and root-plus-`jquery-dom-api` imports.
+`jquery-dom-api`-only, root-plus-`backbone`, root-plus-`jquery-dom-api`, and the
+representative root-plus-both-adapters import used by full Backbone/jQuery consumers.
 Each entry pins its source digest, public imports, exercised exports, expected module
 graph, and external imports. The adjacent reporting contract pins the fixture digest,
 current peer set, toolchain, and Brotli quality 11 against the global performance
@@ -222,8 +223,9 @@ The current contract is also validated independently so intentional contract and
 toolchain edits remain internally coherent. Its pinned release profile records Node
 24.19.0, npm 11.17.0, lockfile v3, Ubuntu 24.04 linux-x64, Rollup 4.63.0, jsdom
 30.0.1, Backbone 1.4.0, and the commands that reproduce deterministic and hosted
-checks. The separate consumer-bundle reporting contract pins jQuery 4.0.0,
-`@rollup/plugin-terser` 1.0.0, and Terser 5.48.0 through the package manifest. CI posts artifact,
+checks. The separate consumer-bundle reporting contract pins `@rollup/plugin-terser`
+1.0.0 and Terser 5.48.0. It names jQuery as an externalized runtime peer whose
+4.0.0 version is pinned by the package manifest and lockfile. CI posts artifact,
 cumulative-size, production-graph, and reporting-only consumer-bundle changes through
 the repository's read-only workflow plus the separate comment workflow.
 

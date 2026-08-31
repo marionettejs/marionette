@@ -30,6 +30,7 @@ const consumerScenarioIds = [
   'jquery-dom-api-only',
   'root-plus-backbone',
   'root-plus-jquery',
+  'root-plus-backbone-jquery',
 ];
 const consumerFormatIds = ['esm', 'cjs', 'umd'];
 const consumerCompression = { algorithm: 'brotli', quality: 11 };
@@ -252,7 +253,13 @@ function sameStringInventory(actual, expected) {
   return Array.isArray(actual) && isDeepStrictEqual(actual, expected);
 }
 
-export function validateConsumerBundleContract(contract, fixture, packageJson, brotliQuality) {
+export function validateConsumerBundleContract(
+  contract,
+  fixture,
+  packageJson,
+  brotliQuality,
+  fixtureRevision
+) {
   const violations = [];
   if (!contract || !sameStringInventory(Object.keys(contract).sort(), [
     'fixture',
@@ -278,6 +285,9 @@ export function validateConsumerBundleContract(contract, fixture, packageJson, b
   }
   if (fixture?.schemaVersion !== 1 || fixture?.fixtureVersion !== contract.fixture?.version) {
     violations.push('Consumer bundle fixture metadata does not match the performance contract');
+  }
+  if (fixtureRevision !== contract.fixture.sha256) {
+    violations.push(`Consumer bundle fixture SHA-256 ${fixtureRevision || 'missing'} does not match ${contract.fixture.sha256}`);
   }
   const expectedCompression = { algorithm: 'brotli', quality: brotliQuality };
   if (!isDeepStrictEqual(fixture?.compression, expectedCompression)) {
@@ -408,16 +418,14 @@ export async function measureConsumerBundles({ root = '.', contract, brotliQuali
     readJson(resolve(resolvedRoot, 'package.json')),
   ]);
   const fixture = JSON.parse(fixtureText);
+  const actualFixtureRevision = sha256Text(fixtureText);
   const violations = validateConsumerBundleContract(
     contract,
     fixture,
     packageJson,
-    brotliQuality
+    brotliQuality,
+    actualFixtureRevision
   );
-  const actualFixtureRevision = sha256Text(fixtureText);
-  if (actualFixtureRevision !== contract.fixture.sha256) {
-    violations.push(`Consumer bundle fixture SHA-256 ${actualFixtureRevision} does not match ${contract.fixture.sha256}`);
-  }
   const fixtureRoot = dirname(fixturePath);
   const artifacts = [];
 

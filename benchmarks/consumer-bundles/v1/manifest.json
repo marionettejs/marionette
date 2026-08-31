@@ -45,7 +45,10 @@
     "root-plus-backbone:umd",
     "root-plus-jquery:esm",
     "root-plus-jquery:cjs",
-    "root-plus-jquery:umd"
+    "root-plus-jquery:umd",
+    "root-plus-backbone-jquery:esm",
+    "root-plus-backbone-jquery:cjs",
+    "root-plus-backbone-jquery:umd"
   ],
   "scenarios": [
     {
@@ -140,6 +143,31 @@
         "dist/marionette.js"
       ],
       "expectedExternalImports": [
+        "jquery"
+      ]
+    },
+    {
+      "id": "root-plus-backbone-jquery",
+      "entry": "root-plus-backbone-jquery.js",
+      "entrySha256": "11e8b600de783fa5958e4b5d5abb006df1eb82f8c662d023e4fe6d094b34a8a3",
+      "publicImports": [
+        "marionette",
+        "marionette/backbone",
+        "marionette/jquery-dom-api"
+      ],
+      "exercisedExports": [
+        "*",
+        "default",
+        "default"
+      ],
+      "expectedModules": [
+        "benchmarks/consumer-bundles/v1/root-plus-backbone-jquery.js",
+        "dist/backbone.js",
+        "dist/jquery-dom-api.js",
+        "dist/marionette.js"
+      ],
+      "expectedExternalImports": [
+        "backbone",
         "jquery"
       ]
     }

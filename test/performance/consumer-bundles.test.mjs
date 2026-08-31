@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -17,16 +18,17 @@ const performanceUrl = new URL('../../config/performance.json', import.meta.url)
 const packageUrl = new URL('../../package.json', import.meta.url);
 
 async function canonicalInputs() {
-  const [contract, performance, fixture, packageJson] = await Promise.all([
+  const [contract, performance, fixtureText, packageJson] = await Promise.all([
     readFile(contractUrl, 'utf8').then(JSON.parse),
     readFile(performanceUrl, 'utf8').then(JSON.parse),
-    readFile(fixtureUrl, 'utf8').then(JSON.parse),
+    readFile(fixtureUrl, 'utf8'),
     readFile(packageUrl, 'utf8').then(JSON.parse),
   ]);
   return {
     brotliQuality: performance.baseline.brotliQuality,
     contract,
-    fixture,
+    fixture: JSON.parse(fixtureText),
+    fixtureRevision: createHash('sha256').update(fixtureText).digest('hex'),
     packageJson,
   };
 }
@@ -68,7 +70,7 @@ describe('consumer bundle measurements', () => {
     assert.equal(result.status, 'reporting');
     assert.equal(result.fixtureVersion, 'v1');
     assert.deepEqual(result.compression, { algorithm: 'brotli', quality: 11 });
-    assert.equal(result.artifacts.length, 15);
+    assert.equal(result.artifacts.length, 18);
     assert.deepEqual(
       [...new Set(result.artifacts.map(({ format }) => format))],
       ['esm', 'cjs', 'umd']
@@ -78,24 +80,36 @@ describe('consumer bundle measurements', () => {
   });
 
   test('fails closed when scenario or format inventory is incomplete', async() => {
-    const { brotliQuality, contract, fixture, packageJson } = await canonicalInputs();
+    const { brotliQuality, contract, fixture, fixtureRevision, packageJson } = await canonicalInputs();
     fixture.scenarios.pop();
     fixture.formats.pop();
 
     assert.match(
-      validateConsumerBundleContract(contract, fixture, packageJson, brotliQuality).join('\n'),
-      /scenario inventory.*root-plus-jquery.*format inventory.*umd/s
+      validateConsumerBundleContract(
+        contract,
+        fixture,
+        packageJson,
+        brotliQuality,
+        fixtureRevision
+      ).join('\n'),
+      /scenario inventory.*root-plus-backbone-jquery.*format inventory.*umd/s
     );
   });
 
   test('fails closed on fixture metadata or pinned toolchain drift', async() => {
-    const { brotliQuality, contract, fixture, packageJson } = await canonicalInputs();
+    const { brotliQuality, contract, fixture, fixtureRevision, packageJson } = await canonicalInputs();
     const changed = structuredClone(contract);
     changed.fixture.sha256 = '0'.repeat(64);
     changed.toolchain.terser = '0.0.0';
 
     assert.match(
-      validateConsumerBundleContract(changed, fixture, packageJson, brotliQuality).join('\n'),
+      validateConsumerBundleContract(
+        changed,
+        fixture,
+        packageJson,
+        brotliQuality,
+        fixtureRevision
+      ).join('\n'),
       /Locked terser version/
     );
 
@@ -116,16 +130,31 @@ describe('consumer bundle measurements', () => {
     const rootArtifacts = result.artifacts.filter(({ scenario }) => scenario === 'root-only');
     const backboneArtifacts = result.artifacts.filter(({ scenario }) => scenario === 'backbone-only');
     const jqueryArtifacts = result.artifacts.filter(({ scenario }) => scenario === 'jquery-dom-api-only');
+    const combinedArtifacts = result.artifacts.filter(
+      ({ scenario }) => scenario === 'root-plus-backbone-jquery'
+    );
 
+    assert.equal(rootArtifacts.length, 3);
+    assert.equal(backboneArtifacts.length, 3);
+    assert.equal(jqueryArtifacts.length, 3);
+    assert.equal(combinedArtifacts.length, 3);
     assert.ok(rootArtifacts.every(({ externalImports }) => externalImports.length === 0));
     assert.ok(rootArtifacts.every(({ modules }) =>
       modules.includes('dist/marionette.js') &&
       !modules.includes('dist/backbone.js') &&
       !modules.includes('dist/jquery-dom-api.js')));
-    assert.ok(backboneArtifacts.every(({ externalImports }) =>
-      assert.deepEqual(externalImports, ['backbone']) === undefined));
-    assert.ok(jqueryArtifacts.every(({ externalImports }) =>
-      assert.deepEqual(externalImports, ['jquery']) === undefined));
+    for (const { externalImports } of backboneArtifacts) {
+      assert.deepEqual(externalImports, ['backbone']);
+    }
+    for (const { externalImports } of jqueryArtifacts) {
+      assert.deepEqual(externalImports, ['jquery']);
+    }
+    for (const { externalImports, modules } of combinedArtifacts) {
+      assert.deepEqual(externalImports, ['backbone', 'jquery']);
+      assert.ok(modules.includes('dist/backbone.js'));
+      assert.ok(modules.includes('dist/jquery-dom-api.js'));
+      assert.ok(modules.includes('dist/marionette.js'));
+    }
   });
 
   test('reports deterministic exact-base deltas without enforcing a ceiling', async() => {
@@ -135,7 +164,7 @@ describe('consumer bundle measurements', () => {
     const comparison = compareConsumerBundleReports(base, current);
 
     assert.equal(comparison.bootstrap, false);
-    assert.equal(comparison.rows.length, 15);
+    assert.equal(comparison.rows.length, 18);
     assert.deepEqual(comparison.rows[0], {
       id: 'root-only:esm',
       scenario: 'root-only',
@@ -149,7 +178,7 @@ describe('consumer bundle measurements', () => {
 
   test('rejects malformed reporting authority metadata', async() => {
     const inputs = await canonicalInputs();
-    const { brotliQuality, contract, fixture, packageJson } = inputs;
+    const { brotliQuality, contract, fixture, fixtureRevision, packageJson } = inputs;
     const malformed = [
       { ...contract, unknownAuthority: true },
       { ...contract, schemaVersion: 2 },
@@ -171,7 +200,8 @@ describe('consumer bundle measurements', () => {
         candidate,
         fixture,
         packageJson,
-        brotliQuality
+        brotliQuality,
+        fixtureRevision
       ).length > 0);
     }
 
