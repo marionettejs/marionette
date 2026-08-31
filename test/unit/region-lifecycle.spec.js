@@ -1,5 +1,6 @@
 import _ from 'underscore';
 
+import CollectionView from '../../modules/collection-view';
 import Region from '../../modules/region';
 import View from '../../modules/view';
 
@@ -63,6 +64,93 @@ describe('Region lifecycle contract', function() {
       destroyed: true,
       currentView: undefined,
     });
+  });
+
+  it('reads Region ownership without rendering or mutating topology', function() {
+    expect(region.getOwner()).to.be.undefined;
+    expect(region.getName()).to.be.undefined;
+
+    const owner = new View({
+      regions: {
+        constructor: '.declared',
+      },
+      template() {
+        return '<div class="declared"></div><div class="dynamic"></div>';
+      },
+    });
+    this.sinon.spy(owner, 'render');
+    const declaredRegion = owner.getRegion('constructor');
+    const dynamicRegion = owner.addRegion('toString', '.dynamic');
+
+    expect(declaredRegion.getOwner()).to.equal(owner);
+    expect(declaredRegion.getName()).to.equal('constructor');
+    expect(dynamicRegion.getOwner()).to.equal(owner);
+    expect(dynamicRegion.getName()).to.equal('toString');
+    expect(owner.isRendered()).to.be.false;
+    expect(owner.render).to.not.have.been.called;
+
+    owner.destroy();
+
+    expect(declaredRegion.getOwner()).to.be.undefined;
+    expect(declaredRegion.getName()).to.be.undefined;
+    expect(dynamicRegion.getOwner()).to.be.undefined;
+    expect(dynamicRegion.getName()).to.be.undefined;
+  });
+
+  it('clears ownership for a Region registered under an empty name', function() {
+    const owner = new View();
+    const emptyNameRegion = owner.addRegion('', region);
+
+    expect(emptyNameRegion.getOwner()).to.equal(owner);
+    expect(emptyNameRegion.getName()).to.equal('');
+
+    emptyNameRegion.destroy();
+
+    expect(emptyNameRegion.getOwner()).to.be.undefined;
+    expect(emptyNameRegion.getName()).to.be.undefined;
+    expect(owner.hasRegion('')).to.be.false;
+    expect(owner.getRegion('')).to.be.undefined;
+
+    owner.destroy();
+  });
+
+  it('clears ownership when a View removes its Region', function() {
+    const owner = new View();
+    const ownedRegion = owner.addRegion('content', region);
+
+    expect(owner.removeRegion('content')).to.equal(ownedRegion);
+    expect(ownedRegion.getOwner()).to.be.undefined;
+    expect(ownedRegion.getName()).to.be.undefined;
+  });
+
+  it('keeps an identical registration as a no-op while destruction is in progress', function() {
+    const owner = new View();
+    const ownedRegion = owner.addRegion('content', region);
+
+    ownedRegion.once('before:destroy', currentRegion => {
+      expect(owner.addRegion('content', currentRegion)).to.equal(currentRegion);
+      expect(currentRegion.getOwner()).to.equal(owner);
+      expect(currentRegion.getName()).to.equal('content');
+    });
+
+    ownedRegion.destroy();
+
+    expect(ownedRegion.getOwner()).to.be.undefined;
+    expect(ownedRegion.getName()).to.be.undefined;
+    expect(owner.hasRegion('content')).to.be.false;
+  });
+
+  it('keeps the CollectionView empty Region unnamed and clears its owner', function() {
+    const collectionView = new CollectionView();
+    const emptyRegion = collectionView.getEmptyRegion();
+
+    expect(emptyRegion.getOwner()).to.equal(collectionView);
+    expect(emptyRegion.getName()).to.be.undefined;
+
+    collectionView.destroy();
+
+    expect(emptyRegion.getOwner()).to.be.undefined;
+    expect(emptyRegion.getName()).to.be.undefined;
   });
 
   it('stays empty when a missing element is allowed', function() {
@@ -548,11 +636,16 @@ describe('Region lifecycle contract', function() {
     ownedRegion.on('empty', () => lifecycle.push(['region:empty']));
     ownedRegion.on('destroy', () => lifecycle.push(['region:destroy']));
 
+    expect(ownedRegion.getOwner()).to.equal(owner);
+    expect(ownedRegion.getName()).to.equal('content');
+
     expect(() => ownedRegion.destroy(firstOptions)).to.throw(error);
     expect(ownedRegion.isDestroyed()).to.be.false;
     expect(ownedRegion.currentView).to.equal(child);
     expect(child.isDestroyed()).to.be.false;
     expect(owner.getRegion('content')).to.equal(ownedRegion);
+    expect(ownedRegion.getOwner()).to.equal(owner);
+    expect(ownedRegion.getName()).to.equal('content');
     expect(ownedRegion.stopListening).to.not.have.been.called;
     expect(owner._removeReferences).to.not.have.been.called;
 
@@ -561,6 +654,8 @@ describe('Region lifecycle contract', function() {
     expect(ownedRegion.isDestroyed()).to.be.true;
     expect(child.isDestroyed()).to.be.true;
     expect(owner.getRegion('content')).to.be.undefined;
+    expect(ownedRegion.getOwner()).to.be.undefined;
+    expect(ownedRegion.getName()).to.be.undefined;
     expect(beforeDestroySideEffects).to.equal(2);
     expect(lifecycle).to.deep.equal([
       ['region:before:destroy', firstOptions],

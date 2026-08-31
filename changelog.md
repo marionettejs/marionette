@@ -47,6 +47,11 @@
   `View#emptyRegions` remains a render-triggering mutator
 * Changed `View#getRegion` to return an own registered Region without rendering;
   child View operations now render before dispatching Region lookup overrides
+* Added `Region#getOwner` and `Region#getName` as pure queries over the existing
+  registered View relationship
+* Changed Region registration to treat the existing owner/name relationship as
+  an idempotent no-op and reject conflicting ownership or names with stable
+  diagnostic code `MN0030`
 
 ### v5.0.0-alpha.1
 
