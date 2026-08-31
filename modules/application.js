@@ -124,7 +124,7 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     return this._beginTransition('restart', RESTARTING, async nextTransition => {
       if (shouldStop) {
         await this._stopLifecycle(nextTransition, options);
-        if (!this._isCurrentTransition(nextTransition)) { return; }
+        if (this._lifecycleTransition !== nextTransition) { return; }
       }
       await this._startLifecycle(nextTransition, options);
     });
@@ -161,10 +161,6 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     });
   },
 
-  _isCurrentTransition(transition) {
-    return this._lifecycleTransition === transition;
-  },
-
   _supersedeTransition() {
     const transition = this._lifecycleTransition;
     if (!transition) { return; }
@@ -172,26 +168,6 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     delete this._lifecycleTransition;
     transition.resolve(!!transition.isComplete);
     return transition;
-  },
-
-  // A lifecycle callback may settle after a newer transition supersedes it.
-  // Only the current transition may commit or restore Application state.
-  _runTransition(transition, callback) {
-    (async() => {
-      try {
-        await callback();
-        if (!this._isCurrentTransition(transition)) { return; }
-
-        delete this._lifecycleTransition;
-        transition.resolve(true);
-      } catch (error) {
-        if (!this._isCurrentTransition(transition)) { return; }
-
-        delete this._lifecycleTransition;
-        this._lifecycleState = transition.rollbackState;
-        transition.reject(error);
-      }
-    })();
   },
 
   _beginTransition(type, state, callback) {
@@ -218,8 +194,25 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
       superseded.readiness.controller.abort();
     }
 
-    if (!this._isCurrentTransition(transition)) { return deferred.promise; }
-    this._runTransition(transition, () => callback(transition));
+    if (this._lifecycleTransition !== transition) { return deferred.promise; }
+
+    // A callback may settle after a newer transition supersedes it. Only the
+    // current transition may commit or restore Application state.
+    (async() => {
+      try {
+        await callback(transition);
+        if (this._lifecycleTransition !== transition) { return; }
+
+        delete this._lifecycleTransition;
+        transition.resolve(true);
+      } catch (error) {
+        if (this._lifecycleTransition !== transition) { return; }
+
+        delete this._lifecycleTransition;
+        this._lifecycleState = transition.rollbackState;
+        transition.reject(error);
+      }
+    })();
 
     return deferred.promise;
   },
@@ -251,7 +244,7 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     if (transition.stopReadiness) {
       const readiness = transition.stopReadiness;
       await readiness.promise;
-      if (!this._isCurrentTransition(transition)) { return; }
+      if (this._lifecycleTransition !== transition) { return; }
 
       delete transition.readiness;
       transition.rollbackState = STOPPED;
@@ -261,7 +254,7 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     const readiness = this._beginReadiness(transition, 'before:start', options);
 
     await readiness.promise;
-    if (!this._isCurrentTransition(transition)) { return; }
+    if (this._lifecycleTransition !== transition) { return; }
 
     delete transition.readiness;
     this._lifecycleState = RUNNING;
@@ -282,7 +275,7 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
 
       const readiness = transition.stopReadiness;
       await readiness.promise;
-      if (!this._isCurrentTransition(transition)) { return; }
+      if (this._lifecycleTransition !== transition) { return; }
 
       delete transition.readiness;
       transition.rollbackState = STOPPED;
@@ -301,14 +294,21 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
   },
 
   addChildApp(name, application) {
-    if (this._isTerminal()) { return application; }
+    if (this._lifecycleState === DESTROYING || this._lifecycleState === DESTROYED) {
+      return application;
+    }
 
-    if (application instanceof Application && application._isTerminal()) {
+    if (application instanceof Application &&
+        (application._lifecycleState === DESTROYING ||
+         application._lifecycleState === DESTROYED)) {
       return application;
     }
 
     this._assertChildAppCanRegister(name, application);
-    if (this._isChildApp(name, application)) { return application; }
+    if (application._parentApp === this && application._name === name &&
+        this._childApps?.get(name) === application) {
+      return application;
+    }
 
     const children = this._childApps || (this._childApps = new Map());
     application._parentApp = this;
@@ -356,16 +356,6 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     return this._name;
   },
 
-  _isTerminal() {
-    return this._lifecycleState === DESTROYING ||
-      this._lifecycleState === DESTROYED;
-  },
-
-  _isChildApp(name, application) {
-    return application._parentApp === this && application._name === name &&
-      this._childApps?.get(name) === application;
-  },
-
   _assertChildAppCanRegister(name, application) {
     if (typeof name !== 'string' || name.length === 0) {
       throwApplicationOwnershipConflict('A child Application name must be a non-empty string.');
@@ -375,7 +365,10 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
       throwApplicationOwnershipConflict('A child Application must be an Application instance.');
     }
 
-    if (this._isChildApp(name, application)) { return; }
+    if (application._parentApp === this && application._name === name &&
+        this._childApps?.get(name) === application) {
+      return;
+    }
 
     if (application === this) {
       throwApplicationOwnershipConflict('An Application cannot own itself.');
