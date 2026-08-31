@@ -264,10 +264,10 @@ Before stable v5 freezes more runtime surface, the established v3/v4 convenience
 contracts must pass a bounded API-shape audit. Historical behavior is evidence, not
 an automatic compatibility requirement. Each decision must reconstruct the original
 rationale, identify whether the contract is public or merely an internal source
-path, scan representative public code plus the app-frontend and Marionette Toolkit
-migration fixtures, and exercise the explicit replacement in the reference app and
-agent benchmark. A private consumer may reveal a migration problem but does not by
-itself define the public contract.
+path, scan representative public code, and exercise the explicit replacement in the
+reference app and agent benchmark. Available app-frontend and Marionette Toolkit
+migrations may reveal implementation or migration problems but do not define the
+public contract.
 
 The current evidence establishes these candidate decisions for validation:
 
@@ -282,23 +282,24 @@ The current evidence establishes these candidate decisions for validation:
   helper for declarative Region definitions; one-line forwarding modules and other
   obsolete internal paths are removed rather than preserved as aliases.
 - Instance `getOption` and `mergeOptions` remain migration candidates to keep because
-  verified consumers use both and `mergeOptions` provides an explicit constructor
-  option whitelist. New core contracts do not expand their role. The target-first
-  root utility exports are separate contracts and are removed when no verified public
-  consumer or benchmark task justifies their duplicate call shape.
+  verified public consumers use both and `mergeOptions` provides an explicit
+  constructor option whitelist. New core contracts do not expand their role. The
+  target-first root utility exports are separate contracts and are removed when no
+  verified public consumer or benchmark task justifies their duplicate call shape.
 - Lifecycle callback discovery must be explicit and inspectable. The audit tests
   whether `triggerMethod` should call only instance methods rather than inheriting
   `getOption`'s constructor-option precedence; an options-based lifecycle handler is
-  retained only with verified consumer and benchmark evidence.
+  retained only with verified public consumer and benchmark evidence.
 - Application lifecycle concurrency is a separate contract decision, not an
   implementation detail. The current v5 core has no other promise-based public
   contract, so Application alone does not establish async lifecycle by momentum.
   Compare the established synchronous lifecycle with an awaitable design against
-  verified consumer races, migration cost, implementation complexity, and agent
-  discoverability. If async lifecycle wins, define which hooks and notifications are
-  awaited, their failure semantics, and their overlap behavior, then prove the
-  selected state machine. Otherwise retain synchronous lifecycle and keep async
-  orchestration explicit in consumer code.
+  races observed in verified public consumers and representative migrations,
+  migration cost, implementation complexity, and agent discoverability. If async
+  lifecycle wins, define which hooks and notifications are awaited, their failure
+  semantics, and their overlap behavior, then prove the selected state machine.
+  Otherwise retain synchronous lifecycle and keep async orchestration explicit in
+  consumer code.
 - The currently documented model and collection protocol is an explicit but
   Backbone-shaped v5 pre-release contract. A benchmark adapter can satisfy it only by
   reproducing `cid`, `attributes`, `models`, `indexOf`, and exact event payloads.
@@ -577,8 +578,9 @@ Gate: all stable release criteria below pass.
 
 ### Phase 5: Evidence-dependent candidates
 
-Benchmark declarative definition helpers, generalized data-source and rendering
-seams, alternative CollectionView strategies, and optional integrations. These
+Benchmark declarative definition helpers, adapter implementations beyond the Phase 1
+data protocol, rendering seams, alternative CollectionView strategies, and optional
+integrations. These
 experiments do not block stable v5. Unsuccessful candidates are documented and closed
 rather than retained as dormant APIs.
 
