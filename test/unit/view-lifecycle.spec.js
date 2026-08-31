@@ -43,6 +43,16 @@ describe('View lifecycle contract', function() {
       },
       expected: { rendered: true, attached: true, destroyed: false },
     },
+    {
+      name: 'imported template-content element',
+      create() {
+        const template = document.createElement('template');
+        template.innerHTML = '<section><span>Imported content</span></section>';
+        const el = document.importNode(template.content.firstElementChild, true);
+        return new View({ el, template: false });
+      },
+      expected: { rendered: true, attached: false, destroyed: false },
+    },
   ];
 
   for (const scenario of constructionStates) {
@@ -54,6 +64,43 @@ describe('View lifecycle contract', function() {
       view.destroy();
     });
   }
+
+  it('attaches a View and its child once after leaving template content', function() {
+    this.setFixtures('<div id="template-content-region"></div>');
+    const template = document.createElement('template');
+    template.innerHTML = '<section><div class="child-region"></div></section>';
+    const root = template.content.firstElementChild;
+    const ParentView = View.extend({
+      el: root,
+      template: false,
+      regions: { child: '.child-region' },
+    });
+    const parent = new ParentView();
+    const child = new View({ template: () => '<span>Child</span>' });
+    const parentAttach = this.sinon.spy();
+    const childAttach = this.sinon.spy();
+    parent.on('attach', parentAttach);
+    child.on('attach', childAttach);
+
+    expect(root.ownerDocument.documentElement).to.be.null;
+    expect(state(parent)).to.deep.equal({ rendered: true, attached: false, destroyed: false });
+
+    parent.showChildView('child', child);
+
+    expect(state(child)).to.deep.equal({ rendered: true, attached: false, destroyed: false });
+    expect(parentAttach).to.not.have.been.called;
+    expect(childAttach).to.not.have.been.called;
+
+    const region = new Region({ el: '#template-content-region' });
+    region.show(parent);
+
+    expect(state(parent)).to.deep.equal({ rendered: true, attached: true, destroyed: false });
+    expect(state(child)).to.deep.equal({ rendered: true, attached: true, destroyed: false });
+    expect(parentAttach).to.have.been.calledOnce;
+    expect(childAttach).to.have.been.calledOnce;
+
+    parent.destroy();
+  });
 
   it('recomputes state when replacing its element while alive', function() {
     this.setFixtures(`
