@@ -123,18 +123,31 @@ budget.
 - State is a first-class, opt-in object composed into MnObject, View, CollectionView,
   Behavior, or Application. Owners without State allocate no state store or
   subscriptions.
+- State is deliberately small and synchronous. It does not implicitly render Views,
+  schedule work, compute derived values, run effects, or persist data.
+- Application is Marionette's only asynchronous lifecycle and orchestration surface.
+  View, Region, CollectionView, rendering, templates, Events, Radio, State mutation,
+  and destroy callbacks remain synchronous and never auto-await callback results.
+- Radio retains its module-global channel registry for v5. Applications may use Radio,
+  but do not own or isolate its channels.
 - Behavior scope, UI resolution, event delegation, dependencies, and teardown are
   explicit and tested.
-- Resource ownership has a canonical opt-in mechanism for timers, listeners,
-  subscriptions, cleanup callbacks, and owned resources.
+- Lifecycle boundaries and callbacks remain the canonical cleanup seam. A resource
+  registry or extension-hook dispatcher is evidence-dependent 5.x work, not a
+  speculative 5.0 contract.
 - Framework invariant failures use a common diagnostic type and stable rule code
   instead of incidental JavaScript exceptions.
 
 ### Precise static information
 
-- Supported package entrypoints ship correct declarations.
+- Supported package entrypoints ship first-party declarations; stable v5 does not
+  rely on DefinitelyTyped for its root API.
 - Public methods, options, events, and lifecycle hooks have useful types and JSDoc.
 - Generated API metadata is checked for drift.
+- A drift-checked public method contract matrix records return value, mutation or
+  rendering behavior, valid lifecycle states, destroying and destroyed behavior,
+  synchronous or asynchronous status, and diagnostic codes without forcing
+  superficial uniformity across unlike methods.
 - Architecture lint rules identify high-value mistakes without executing an app.
 
 ### Executable guidance
@@ -144,6 +157,9 @@ budget.
 - A compact agent-oriented reference describes lifecycle, ownership, regions,
   Applications, State, behaviors, communication, and teardown without inventing a
   separate API.
+- The package ships compact, version-aligned, non-runtime agent material generated
+  from the same public metadata: API and lifecycle tables, diagnostics, migration
+  guidance, and canonical examples and counterexamples.
 - Migration documentation reflects final v5 behavior rather than preserving
   pre-release experiments.
 
@@ -256,6 +272,19 @@ synchronous or awaitable contract. If lifecycle work may remain pending, invalid
 work must settle deterministically without exposing stale success or leaving callers
 pending. Migration tests must cover the existing synchronous return contract.
 
+Application is the one selected promise-based lifecycle boundary. Readiness hooks
+receive the Application and caller options first, preserving Marionette convention,
+plus a standard readiness context with an `AbortSignal`. The context belongs to the
+readiness phase rather than the Promise returned to one caller. Supersession aborts it
+synchronously only when no winning operation adopts that readiness; when restart or
+destroy inherits an in-flight stop phase, it inherits the same context and signal.
+Aborting is ordinary supersession, not failure: it settles the invalidated operation
+according to the documented overlap result, while a hook throw or rejection remains a
+failure. The context does not make arbitrary event callbacks awaitable, and completion
+hooks remain non-awaited notifications. Phase 1 must prove abort and transfer ordering,
+hook arguments, repeated-call sharing, and migration from readiness work that
+previously had no cancellation channel.
+
 Owned child Applications follow their owner's start, stop, restart, and destroy
 lifecycle without per-child lifecycle flags. A capability that must outlive its
 current owner belongs to a longer-lived Application and is passed to the shorter-lived
@@ -281,6 +310,13 @@ private State when its concern truly owns that state. State shared with its View
 belongs on the View; the Behavior may receive an ordinary reference to that State but
 does not compose, own, or destroy it.
 
+The selected State contract has one stable change payload and treats a multi-key write
+as one atomic observer notification. Defaults, reset, nested-write policy, reads and
+writes after destroy, owner cleanup, and any declarative state-event binding are
+specified before implementation. It does not implicitly rerender a View, add effects
+or computed values, schedule asynchronous work, persist data, or replace shared domain
+models. Stateless owners pay zero per-instance allocation and retention cost.
+
 Appropriate core additions include public read-only ownership accessors, pure Region
 lookup, and shared diagnostics. Resource ownership and extension hooks remain
 evidence-dependent 5.x candidates unless required development or test functionality
@@ -303,6 +339,18 @@ their dedicated GitHub issues.
 
 The current evidence establishes these candidate decisions for validation:
 
+- Radio retains its existing module-global registry for v5. Do not add an isolated
+  Radio factory, Application injection, or Application-owned channel lifetime without
+  new public evidence. Documentation must make that process-wide scope explicit.
+- Remove the public global feature-flag surface before stable and select one canonical
+  v5 behavior. Existing per-View and per-trigger controls such as
+  `childViewEventPrefix`, `preventDefault`, and `stopPropagation` express local
+  exceptions. Verify v3/v4 rationale and real consumer migrations, but do not retain
+  arbitrary custom flag names, compatibility aliases, or parallel global semantics.
+- Retain the current root bootstrap and class-level DOM, renderer, and event-delegator
+  configuration. Document installation timing and precedence where unclear; do not
+  redesign these seams without a concrete defect.
+
 - `Region.show` and `View.showChildView` accept a View-like instance. The v3/v4
   template, string, and options-object convenience implicitly constructs a base View,
   hides allocation and ownership, and creates the View-to-Region dependency that led
@@ -323,16 +371,14 @@ The current evidence establishes these candidate decisions for validation:
   whether `triggerMethod` should call only instance methods rather than inheriting
   `getOption`'s constructor-option precedence; an options-based lifecycle handler is
   retained only with verified public consumer and benchmark evidence.
-- Application lifecycle concurrency is a separate contract decision, not an
-  implementation detail. The current v5 core has no other promise-based public
-  contract, so Application alone does not establish async lifecycle by momentum.
-  Compare the established synchronous lifecycle with an awaitable design against
-  races observed in verified public consumers and representative migrations,
-  migration cost, implementation complexity, and agent discoverability. If async
-  lifecycle wins, define which hooks and notifications are awaited, their failure
-  semantics, and their overlap behavior, then prove the selected state machine.
-  Otherwise retain synchronous lifecycle and keep async orchestration explicit in
-  consumer code.
+- Application lifecycle is the selected asynchronous boundary. Only Promises returned
+  by its readiness hooks are awaited; completion hooks and every View, Region,
+  CollectionView, renderer, template, Events, Radio, State, and destroy callback stay
+  synchronous. Publish a sync/async contract matrix and never auto-await an arbitrary
+  callback. Development validation may diagnose accidental Promise returns without
+  changing production semantics. Awaitable Application operations include the
+  cooperative cancellation context defined above rather than merely ignoring stale
+  completion.
 - The remaining Backbone data coupling is narrow rather than architectural. V5 owns
   Events, `extend`, Radio, lifecycle, and DOM delegation; the root runtime does not
   import Backbone, while the optional `marionette/backbone` subpath does. The current
@@ -355,6 +401,12 @@ The current evidence establishes these candidate decisions for validation:
   `collectionEvents`, and genuinely optional Backbone package metadata. If it fails
   those gates, deliberately retain and document the current protocol. State remains an
   owned local-state concern, not the collection data source.
+- The existing optional Backbone import side effect is an acceptable legacy install
+  seam. If the protocol prototype proves an explicit idempotent `installBackbone`
+  operation clearer or safer, select it through the same migration evidence. Do not
+  churn the seam for theoretical import purity, and do not retain both installation
+  forms as canonical without a verified deployment-order requirement and removal
+  condition.
 - Template cloning is a valid optimized rendering technique, not evidence by itself
   for another renderer API. First measure and document the explicit existing recipe:
   construct the final imported element in `buildChildView`, pass it to the child View,
@@ -367,6 +419,9 @@ The current evidence establishes these candidate decisions for validation:
   deterministic, and statically understandable. Value-or-function and
   class-or-resolver overloads are assessed individually rather than removed as a
   category.
+- Maintain or generate the public method contract matrix from executable metadata and
+  use it to find real lifecycle, return, mutation, and diagnostic inconsistencies.
+  Different responsibilities may deliberately have different return styles.
 
 The gate passes only when every reviewed contract has one documented canonical form,
 an executable migration where behavior changes, source and package entrypoints that
@@ -569,6 +624,14 @@ instructions, and every release blocker maps to this strategy.
   as canonical paths. A correctness fix against the current protocol does not freeze
   it; re-evaluate CollectionView update bookkeeping against the selected protocol
   before freezing either implementation.
+- Remove the public global feature-flag surface after verifying its v3/v4 rationale
+  and executable migrations. Freeze one canonical v5 behavior and use existing local
+  View and trigger options for explicit exceptions; do not ship a compatibility flag
+  registry.
+- Retain the module-global Radio architecture and the existing root bootstrap plus
+  class-level DOM, renderer, and event-delegator configuration. Close documentation
+  gaps in process scope, installation timing, and precedence without adding factories,
+  injection, or duplicate configuration paths.
 - Specify Application as Marionette's first promise-based public lifecycle contract
   and add transition-table or model-based tests. Preserve Marionette lifecycle
   signatures with the subject first. Treat Promises returned by `onBeforeStart`,
@@ -583,6 +646,13 @@ instructions, and every release blocker maps to this strategy.
   destruction begins it is terminal, and stale readiness completion cannot mutate
   state or emit an invalidated completion event. Do not add Toolkit's `beforeStart`,
   `triggerStart`, or `finallyStart` extension seams.
+- Give each awaitable Application readiness hook a standard operation context with an
+  `AbortSignal`. Supersession aborts before replacement readiness begins unless the
+  winning operation adopts the in-flight readiness phase; adopted stop readiness keeps
+  the same context and signal. Cancellation follows the ordinary supersession result
+  rather than the failure path. Verify hook arguments, abort and transfer ordering,
+  repeated-call sharing, and migration for consumer readiness work that cooperatively
+  stops on abort.
 - Strengthen Application as the single non-renderable lifecycle and ownership scope,
   with parentlessness identifying the root and child Applications representing nested
   scopes. Specify deterministic startup and restart semantics under the selected
@@ -590,7 +660,11 @@ instructions, and every release blocker maps to this strategy.
   teardown without adding a Feature alias or inheritance hierarchy.
 - Separately define and implement State as a lazy first-class object composed into
   MnObject, View, CollectionView, Behavior, or Application without changing Region's
-  renderable contract or conflating State with model and collection data.
+  renderable contract or conflating State with model and collection data. Keep it
+  synchronous and deliberately small: one stable change payload, atomic multi-key
+  writes, explicit defaults/reset/nested-write/destroy semantics, optional declarative
+  event binding only when justified, and no rendering, effects, computed values,
+  persistence, or scheduling.
 - Make ownership and topology publicly readable without mutation.
 - Harden Region lookup and View/Region ownership semantics.
 - Specify Behavior scope, dependencies, delegation, and teardown.
@@ -609,12 +683,22 @@ substantial remaining departures justified.
 
 ### Phase 2: Static guidance
 
-- Complete declarations, JSDoc, and generated API metadata.
+- Ship readable first-party TypeScript declarations for constructor options,
+  ownership and topology, State, the selected data protocol, Application lifecycle
+  results and operation context, optional Backbone and jQuery adapters, and the
+  public/internal boundary. Prefer structural types over elaborate type-level
+  machinery.
+- Complete JSDoc and generated API metadata, including a drift-checked public method
+  contract matrix for return, mutation/rendering, lifecycle validity, terminal
+  behavior, sync/async status, and diagnostics.
 - Build high-value architecture lint rules using the shared rule catalog.
 - Make examples executable and document canonical View-versus-Application,
   State-versus-domain-data, child-ownership, and overlay-host patterns and
   counterexamples.
-- Publish the compact agent-oriented reference.
+- Publish the compact agent-oriented reference and include its version-aligned API
+  metadata, lifecycle and return tables, diagnostic catalog, migration material, and
+  canonical examples and counterexamples in the package without adding them to a
+  production module graph.
 
 Gate: types, docs, examples, lint rules, and runtime vocabulary agree, and drift checks
 run in CI without loading new production code.
@@ -669,6 +753,9 @@ dormant APIs.
 - Supported entrypoints, declarations, the Chromium/Firefox/WebKit versions and host
   runtimes pinned in the Phase 0 release profile, examples, install fixtures, and 100
   percent line and branch coverage pass CI.
+- First-party declarations cover the root API and supported adapters without requiring
+  DefinitelyTyped, and package-local agent metadata plus the public method contract
+  matrix pass generation and drift checks while remaining outside production graphs.
 - Coverage configuration explicitly includes every production, development, and test
   subpath; adding a subpath cannot silently leave its implementation outside the gate.
 - Stable diagnostic codes and documented machine-readable schemas have been reviewed
@@ -679,6 +766,12 @@ dormant APIs.
 - No release criterion depends on a private consumer or unpublished fixture.
 - Known migration and behavior differences are documented, and no obsolete v5
   pre-release path is presented as canonical.
+- The sync/async matrix names Application readiness as the only awaited lifecycle
+  surface, and Application cancellation tests prove exact abort ordering and ordinary
+  supersession semantics without making other Marionette callbacks awaitable.
+- The public global feature-flag surface is absent; Radio process scope and adapter
+  installation precedence are documented; no duplicate factory, flag registry, or
+  configuration path is presented as canonical.
 - Every contract in the API-shape and agent-ergonomics gate has an explicit keep or
   remove decision, an executable migration when behavior changes, paired agent tasks
   that distinguish the selected form from the rejected alternative, truthful source
