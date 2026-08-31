@@ -339,7 +339,8 @@ their dedicated GitHub issues. Unless a statement explicitly describes current
 source, declarative language records the target v5 contract rather than claiming its
 implementation is already complete.
 
-The current evidence establishes these selected decisions and gated candidates:
+The current evidence establishes these selected decisions, gated candidates, and
+current-evidence findings:
 
 - **Selected:** Radio retains its existing module-global registry for v5. Do not add an isolated
   Radio factory, Application injection, or Application-owned channel lifetime without
