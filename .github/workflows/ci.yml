@@ -56,7 +56,7 @@ jobs:
         run: npm run check:dist
 
       - name: Install supported browsers
-        run: npx playwright install --with-deps chromium firefox webkit
+        run: npx playwright install --with-deps --only-shell --no-progress chromium firefox webkit
 
       - name: Test supported browsers
         run: npm run test:browser
