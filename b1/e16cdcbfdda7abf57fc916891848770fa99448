@@ -1,0 +1,31 @@
+test/fixtures/docs-basics-contract/.gitignore
+  s_d6429951fb9231::t_1b5d98d45aa10e 1-3
+docs/basics.md
+  s_d6429951fb9231::t_81099c96fb5e08 120-121
+  s_d6429951fb9231::t_c8fa54d9ea0d5b 96-101
+  s_d6429951fb9231::t_805d1705689a0d 31-34,107-108,114-119,127,130,136-138,143,145,147-152,161,163
+  s_d6429951fb9231::t_1b5d98d45aa10e 3-5,9,16,18,21,23-24,27-29,40,50,67,83,88-91,95,103,105-106,109,112-113,123-124,129,131,133,135,139-141,155-160,162,164,166-168,172-174,178-180,183,186,199-200,203,206,220-221,225-228,236,251-253
+  s_d6429951fb9231::t_210b599bc3f5ee 72
+test/fixtures/docs-basics-contract/package.json
+  s_d6429951fb9231::t_1b5d98d45aa10e 1-10
+test/fixtures/docs-basics-contract/validate.mjs
+  s_d6429951fb9231::t_1b5d98d45aa10e 1-27,35-38,43,46-52,54-58
+  s_d6429951fb9231::t_805d1705689a0d 28-34,39-42,44-45
+  s_d6429951fb9231::t_c8fa54d9ea0d5b 53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "b1e16cdcbfdda7abf57fc916891848770fa99448",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
