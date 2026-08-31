@@ -30,6 +30,8 @@ try {
     classNameBeforeRender,
     defaultCalls,
     overrideCalls,
+    templateContext,
+    templateData,
     view,
   } = await import(pathToFileURL(examplePath));
 
@@ -40,6 +42,8 @@ try {
   assert.equal(view.getOption('enabled'), false, 'false must remain an intentional constructor override');
   assert.equal(view.getOption('count'), 0, 'zero must remain an intentional constructor override');
   assert.equal(view.getOption('label'), null, 'null must remain an intentional constructor override');
+  assert.equal(templateContext, undefined, 'template must not receive the view as its context');
+  assert.deepEqual(templateData, {}, 'template must receive serialized data');
   assert.equal(overrideCalls, 1, 'the constructor trigger map must replace the class trigger map');
   assert.equal(defaultCalls, 0, 'the replaced class trigger must not remain active');
   assert.equal(cancelCalls, 0, 'a class-only trigger must not be merged into the constructor map');
@@ -50,6 +54,7 @@ try {
   );
 
   view.destroy();
+  assert.equal(view.isDestroyed(), true, 'destroy must cleanly release the view');
 } finally {
   dom.window.close();
   delete globalThis.document;

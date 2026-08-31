@@ -93,10 +93,12 @@ an attached entity.
 ### Functions Returning Values
 
 Many configuration attributes accept either a value or a function returning
-that value. The consuming feature calls the function with the Marionette
-instance as `this`. Resolution timing is part of each attribute's contract; do
-not assume every function runs during construction or that every result is
-cached for the object's lifetime.
+that value. Attributes documented as value callbacks call the function with
+the Marionette instance as `this`. A `template` function is the renderer itself
+and instead receives serialized data as its argument; it does not receive the
+View as `this`. Resolution timing is part of each attribute's contract; do not
+assume every function runs during construction or that every result is cached
+for the object's lifetime.
 
 <!-- executable-example: basics-class-configuration -->
 ```javascript
@@ -105,6 +107,8 @@ import { View } from 'marionette';
 let cancelCalls = 0;
 let defaultCalls = 0;
 let overrideCalls = 0;
+let templateContext;
+let templateData;
 
 const MyView = View.extend({
   options() {
@@ -122,7 +126,11 @@ const MyView = View.extend({
     return `notice-${this.getOption('tone')}`;
   },
 
-  template: () => '<button class="save">Save</button><button class="cancel">Cancel</button>',
+  template(data) {
+    templateContext = this;
+    templateData = data;
+    return '<button class="save">Save</button><button class="cancel">Cancel</button>';
+  },
 
   triggers: {
     'click .cancel': 'cancel:default',
@@ -158,7 +166,15 @@ view.render();
 view.el.querySelector('.save').click();
 view.el.querySelector('.cancel').click();
 
-export { cancelCalls, classNameBeforeRender, defaultCalls, overrideCalls, view };
+export {
+  cancelCalls,
+  classNameBeforeRender,
+  defaultCalls,
+  overrideCalls,
+  templateContext,
+  templateData,
+  view
+};
 ```
 
 Here `options()` supplies class defaults, the constructor's `tone` wins, and
