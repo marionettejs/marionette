@@ -441,6 +441,8 @@ assignOwn(Region.prototype, CommonMixin, {
   // Empties the Region without destroying the view
   // Returns the detached view
   detachView() {
+    if (!canMutateRegion(this)) { return; }
+
     const view = this.currentView;
 
     if (!view) {
