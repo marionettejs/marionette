@@ -36,6 +36,9 @@
 * Changed direct `Behavior#delegateEntityEvents` calls once the owning View's
   destruction begins to return the Behavior without resolving maps or binding
   subscriptions
+* Changed base `View#bindUIElements`, `CollectionView#bindUIElements`, and
+  direct `Behavior#bindUIElements` calls once the owning View's destruction
+  begins to return the receiver without resolving or binding UI
 * Changed `View#hasRegion` to check own registered Regions without rendering or
   changing View lifecycle state
 * Changed `View#getRegions` to return a safe Region snapshot without rendering;

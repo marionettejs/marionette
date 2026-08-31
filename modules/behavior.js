@@ -101,6 +101,8 @@ assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, V
   },
 
   bindUIElements() {
+    if (this.view._isDestroying || this.view._isDestroyed) { return this; }
+
     this._bindUIElements();
 
     return this;
