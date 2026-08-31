@@ -24,6 +24,8 @@
   disabled empty-view states
 * Changed the base `Region#show`, `Region#empty`, and `Region#reset`
   implementations to no-op once Region destruction begins
+* Changed `Region#detachView` once destruction begins to return `undefined`
+  without transferring the current View out of Region-owned teardown
 * Changed destroyed `View#render` and `CollectionView#render` calls to return the
   instance without resolving templates or running the render lifecycle
 * Changed base `View#setElement` and `CollectionView#setElement` calls once

@@ -214,6 +214,107 @@ describe('Region lifecycle contract', function() {
     expect(view.isDestroyed()).to.be.true;
   });
 
+  it('does not detach an occupied View once Region destruction begins', function() {
+    const lifecycle = [];
+    const view = new TestView();
+    region.show(view);
+
+    region.on('before:destroy', currentRegion => {
+      expect(currentRegion.detachView()).to.be.undefined;
+      expect(currentRegion.detachView()).to.be.undefined;
+      expect(currentRegion.currentView).to.equal(view);
+      expect(currentRegion.hasView()).to.be.true;
+      expect(lifecycle).to.deep.equal([]);
+    });
+    region.on('before:empty', () => lifecycle.push('before:empty'));
+    region.on('empty', () => lifecycle.push('empty'));
+    view.on('before:detach', () => lifecycle.push('before:detach'));
+    view.on('detach', () => lifecycle.push('detach'));
+    view.on('destroy', () => lifecycle.push('destroy'));
+
+    expect(region.destroy()).to.equal(region);
+
+    expect(lifecycle).to.deep.equal([
+      'before:empty',
+      'before:detach',
+      'detach',
+      'destroy',
+      'empty',
+    ]);
+    expect(region.hasView()).to.be.false;
+    expect(view.isDestroyed()).to.be.true;
+  });
+
+  it('preserves a replaceElement View when terminal detach is attempted', function() {
+    const view = new TestView();
+    region.replaceElement = true;
+    region.show(view);
+    const originalEl = region.el;
+
+    region.on('before:destroy', currentRegion => {
+      expect(currentRegion.detachView()).to.be.undefined;
+      expect(currentRegion.currentView).to.equal(view);
+      expect(currentRegion.isReplaced()).to.be.true;
+      expect(originalEl.isConnected).to.be.false;
+      expect(view.el.isConnected).to.be.true;
+    });
+
+    region.destroy();
+
+    expect(view.isDestroyed()).to.be.true;
+    expect(originalEl.isConnected).to.be.true;
+  });
+
+  it('does not detach through an owner while its Region is destroying', function() {
+    const owner = new View({
+      regions: {
+        content: '.content',
+      },
+      template() {
+        return '<div class="content"></div>';
+      },
+    });
+    const view = new TestView();
+
+    owner.render();
+    const ownedRegion = owner.getRegion('content');
+    ownedRegion.show(view);
+    ownedRegion.on('before:destroy', currentRegion => {
+      expect(owner.detachChildView('content')).to.be.undefined;
+      expect(currentRegion.currentView).to.equal(view);
+    });
+
+    ownedRegion.destroy();
+
+    expect(view.isDestroyed()).to.be.true;
+    expect(owner.getRegion('content')).to.be.undefined;
+    owner.destroy();
+  });
+
+  it('preserves ownership when terminal detach precedes a failed destroy', function() {
+    const error = new Error('stop destroy');
+    const view = new TestView();
+    let shouldThrow = true;
+    region.show(view);
+
+    region.on('before:destroy', currentRegion => {
+      expect(currentRegion.detachView()).to.be.undefined;
+      if (shouldThrow) {
+        shouldThrow = false;
+        throw error;
+      }
+    });
+
+    expect(() => region.destroy()).to.throw(error);
+    expect(region.currentView).to.equal(view);
+    expect(region.hasView()).to.be.true;
+    expect(view.isDestroyed()).to.be.false;
+
+    expect(region.destroy()).to.equal(region);
+    expect(region.hasView()).to.be.false;
+    expect(view.isDestroyed()).to.be.true;
+  });
+
   it('authorizes only the intended reset and empty override chain during destroy', function() {
     const lifecycle = [];
     const ignored = [];

@@ -2116,6 +2116,9 @@ assignOwn(Region.prototype, CommonMixin, {
     this.destroyView(view);
   },
   detachView() {
+    if (!canMutateRegion(this)) {
+      return;
+    }
     const view = this.currentView;
     if (!view) {
       return;
