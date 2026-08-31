@@ -58,6 +58,30 @@ aliases, transitional dual paths, or several equally blessed ways to express the
 ownership or lifecycle relationship. When a pattern is superseded, remove or clearly
 deprecate it instead of teaching both indefinitely.
 
+### Recognizable Marionette source
+
+New v5 production code should read as a deliberate continuation of Marionette rather
+than an unrelated framework implemented inside the repository. Established v3/v4 and
+Toolkit source patterns are evidence about contributor expectations, not a requirement
+to preserve obsolete behavior or dependencies.
+
+- Prefer direct prototype methods, descriptive lifecycle predicates, familiar method
+  ordering, and small helpers whose names explain the framework operation they isolate.
+- Keep state vocabulary semantic and consistent. Private operation bookkeeping must not
+  resemble a new public lifecycle state or rely on vague flags whose meaning changes by
+  call site.
+- Introduce unfamiliar control flow, helper layers, or module structure only when a
+  specific correctness, concurrency, performance, packaging, or dependency-removal
+  requirement warrants it. Record that reason where it can be reconstructed from the
+  owning issue, tests, or a focused source comment.
+- Do not create cosmetic rewrite churn. Correct avoidable authorship drift in focused,
+  behavior-preserving changes with proportionate regression coverage.
+
+Before the stable API and runtime freeze, audit production code added or materially
+rewritten for v5, including work already merged. The public audit inventory records
+which files were assessed, which departures were corrected, and why any substantial
+departure remains warranted.
+
 ### Explicit contracts over inference
 
 Important facts should be discoverable without reading private fields or reverse
@@ -505,6 +529,11 @@ instructions, and every release blocker maps to this strategy.
 
 - Complete the API-shape and agent-ergonomics gate for existing public contracts
   before freezing additional Application, State, or extension surface.
+- Complete the [production-runtime authorship audit][issue-329] for code added or
+  materially rewritten for v5. Correct avoidable drift in naming, state vocabulary,
+  method and helper boundaries, ordering, and control flow; document warranted
+  departures without changing a settled contract merely to reproduce historical
+  implementation details.
 - Before the next v5 alpha, resolve the [detached-element attachment gap][issue-327]
   and [CollectionView removal-only update gap][issue-328]. Detailed acceptance
   criteria and browser cases remain in those issues.
@@ -514,10 +543,11 @@ instructions, and every release blocker maps to this strategy.
   canonical paths. A correctness fix against the current protocol does not freeze it;
   re-evaluate CollectionView update bookkeeping against the selected protocol before
   freezing either implementation.
-- Decide whether Application lifecycle remains synchronous or becomes Marionette's
-  first promise-based public contract, then specify only the selected state machine
-  and add transition-table or model-based tests. Do not freeze an Application-only
-  async convention before the API-shape evidence gate passes.
+- Specify Application as Marionette's first promise-based public lifecycle contract
+  and add transition-table or model-based tests. Preserve Marionette lifecycle
+  signatures with the subject first, await only the Promise returned by
+  `onBeforeStart`, keep `onStart` as the non-awaited completion notification, and do
+  not add Toolkit's `beforeStart`, `triggerStart`, or `finallyStart` extension seams.
 - Strengthen Application as the single non-renderable lifecycle and ownership scope,
   with parentlessness identifying the root and child Applications representing nested
   scopes. Specify deterministic startup and restart semantics under the selected
@@ -537,7 +567,9 @@ instructions, and every release blocker maps to this strategy.
   resource ownership without implementing either runtime path in this phase.
 
 Gate: core invariants are documented, testable through public APIs, and add no
-measurable work to unrelated instances beyond approved budgets.
+measurable work to unrelated instances beyond approved budgets. The public authorship
+audit covers all v5-added or materially rewritten production runtime files, with
+avoidable drift corrected and substantial remaining departures justified.
 
 ### Phase 2: Static guidance
 
@@ -627,6 +659,9 @@ rather than retained as dormant APIs.
 - The existing `buildChildView` plus `setElement` plus `template: false` optimized
   rendering recipe passes source, distribution, packed-package, and real-browser
   tests.
+- The production-runtime authorship audit is complete, its corrective changes are
+  merged, and every substantial departure from established Marionette source patterns
+  has a recorded technical justification.
 - No unapproved build, lint, type, or test warning remains.
 
 Pre-releases may expose experimental APIs. Before stable, they may be changed or
@@ -648,9 +683,12 @@ Every proposal must answer:
 6. What becomes the one canonical pattern, and what obsolete pattern is removed?
 7. Which rule code, documentation, test, and evaluator prove the contract?
 8. What is the rollback or deprecation path if the evidence is negative?
+9. Does the implementation follow established Marionette source patterns, and which
+   concrete requirement warrants each substantial departure?
 
 If these questions cannot be answered, the proposal remains a candidate and does not
 block stable v5.
 
 [issue-327]: https://github.com/marionettejs/marionette/issues/327
 [issue-328]: https://github.com/marionettejs/marionette/issues/328
+[issue-329]: https://github.com/marionettejs/marionette/issues/329
