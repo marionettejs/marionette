@@ -339,43 +339,41 @@ their dedicated GitHub issues. Unless a statement explicitly describes current
 source, declarative language records the target v5 contract rather than claiming its
 implementation is already complete.
 
-The current evidence establishes these selected decisions and gated candidates.
-Direct `retain`, `remove`, and `selected` language records a settled direction;
-`unless`, `if`, and `only if` language marks a remaining evidence gate:
+The current evidence establishes these selected decisions and gated candidates:
 
-- Radio retains its existing module-global registry for v5. Do not add an isolated
+- **Selected:** Radio retains its existing module-global registry for v5. Do not add an isolated
   Radio factory, Application injection, or Application-owned channel lifetime without
   new public evidence. Documentation must make that process-wide scope explicit.
-- Remove the public global feature-flag surface before stable and select one canonical
+- **Selected:** Remove the public global feature-flag surface before stable and select one canonical
   v5 behavior. Existing per-View and per-trigger controls such as
   `childViewEventPrefix`, `preventDefault`, and `stopPropagation` express local
   exceptions. Verify v3/v4 rationale and real consumer migrations, but do not retain
   arbitrary custom flag names, compatibility aliases, or parallel global semantics.
-- Retain the current root bootstrap and class-level DOM, renderer, and event-delegator
+- **Selected:** Retain the current root bootstrap and class-level DOM, renderer, and event-delegator
   configuration. Document installation timing and precedence where unclear; do not
   redesign these seams without a concrete defect.
 
-- `Region.show` and `View.showChildView` accept a View-like instance. The v3/v4
+- **Gated:** `Region.show` and `View.showChildView` accept a View-like instance. The v3/v4
   template, string, and options-object convenience implicitly constructs a base View,
   hides allocation and ownership, and creates the View-to-Region dependency that led
   v5 alpha to co-locate both implementations. Unless the public scan or benchmark
   demonstrates a stronger contract, v5 removes that convenience and documents
   explicit View construction as the migration.
-- If that display contract is accepted, View, Region, and the declarative Region
+- **Gated:** If that display contract is accepted, View, Region, and the declarative Region
   builder return to honest owner-named modules. `buildRegion` remains an internal
   helper for declarative Region definitions; one-line forwarding modules and other
   obsolete internal paths are removed rather than preserved as aliases.
-- Instance `getOption` and `mergeOptions` remain migration candidates to keep because
+- **Gated:** Instance `getOption` and `mergeOptions` remain migration candidates to keep because
   verified public consumers use both and `mergeOptions` provides an explicit
   constructor option whitelist. New core contracts do not expand their role. The
   target-first root utility exports, which take the target instance as their first
   argument instead of calling its method, are separate contracts and are removed when
   no verified public consumer or benchmark task justifies their duplicate call shape.
-- Lifecycle callback discovery must be explicit and inspectable. The audit tests
+- **Gated:** Lifecycle callback discovery must be explicit and inspectable. The audit tests
   whether `triggerMethod` should call only instance methods rather than inheriting
   `getOption`'s constructor-option precedence; an options-based lifecycle handler is
   retained only with verified public consumer and benchmark evidence.
-- Application lifecycle is the selected asynchronous boundary. Only Promises returned
+- **Selected:** Application lifecycle is the selected asynchronous boundary. Only Promises returned
   by its readiness hooks are awaited; completion hooks and every View, Region,
   CollectionView, renderer, template, Events, Radio, State, and destroy callback stay
   synchronous. Publish a sync/async contract matrix and never auto-await an arbitrary
@@ -383,14 +381,15 @@ Direct `retain`, `remove`, and `selected` language records a settled direction;
   changing production semantics. Awaitable Application operations include the
   cooperative cancellation context defined above rather than merely ignoring stale
   completion.
-- The remaining Backbone data coupling is narrow rather than architectural. V5 owns
-  Events, `extend`, Radio, lifecycle, and DOM delegation; the root runtime does not
-  import Backbone, while the optional `marionette/backbone` subpath does. The current
+- **Current evidence:** The remaining Backbone data coupling is narrow rather than
+  architectural. V5 owns Events, `extend`, Radio, lifecycle, and DOM delegation; the
+  root runtime does not import Backbone, while the optional `marionette/backbone`
+  subpath does. The current
   CollectionView and template paths still assume `model.cid`, `model.attributes`,
   `collection.models`, `collection.indexOf(model)`, and exact Backbone `sort`, `reset`,
   and `update` payloads. `modelEvents` and `collectionEvents` require only an emitter
   with `on` and `off` and remain independent declarative bindings.
-- Before stable, prototype one lean canonical data boundary in preference to freezing
+- **Gated:** Before stable, prototype one lean canonical data boundary in preference to freezing
   those Backbone-shaped fields. Its responsibilities are an ordered item snapshot or
   iterable, stable identity or an explicit key for immutable replacement, explicit item
   serialization, and change subscription through normalized change records. Prefer
@@ -398,32 +397,32 @@ Direct `retain`, `remove`, and `selected` language records a settled direction;
   one snapshot rather than combining `models` with `indexOf`. Backbone enters through
   an explicit adapter using this same protocol; do not add implicit Backbone detection,
   per-model wrappers, or a second reconciliation path.
-- Select the lean boundary only if an executable Backbone migration and representative
+- **Gated:** Select the lean boundary only if an executable Backbone migration and representative
   plain-data consumer prove simpler non-Backbone use, preserved child View and DOM
   identity across removal and reorder, large-list cost within budget, no per-model
   wrapper, one reconciliation path, retained emitter-only `modelEvents` and
   `collectionEvents`, and genuinely optional Backbone package metadata. If it fails
   those gates, deliberately retain and document the current protocol. State remains an
   owned local-state concern, not the collection data source.
-- The existing optional Backbone import side effect is an acceptable legacy install
+- **Gated:** The existing optional Backbone import side effect is an acceptable legacy install
   seam. If the protocol prototype proves an explicit idempotent `installBackbone`
   operation clearer or safer, select it through the same migration evidence. Do not
   churn the seam for theoretical import purity, and do not retain both installation
   forms as canonical without a verified deployment-order requirement and removal
   condition.
-- Template cloning is a valid optimized rendering technique, not evidence by itself
+- **Gated:** Template cloning is a valid optimized rendering technique, not evidence by itself
   for another renderer API. First measure and document the explicit existing recipe:
   construct the final imported element in `buildChildView`, pass it to the child View,
   and use `template: false`. A first-class DOM-node renderer or element factory ships
   only if public benchmark tasks demonstrate an outcome the existing renderer,
   `setElement`, and `buildChildView` seams cannot express clearly.
-- Declarative handler maps, `@ui` references, Backbone-style `extend`, dynamic
+- **Gated:** Declarative handler maps, `@ui` references, Backbone-style `extend`, dynamic
   `childView(model)` selection, and centralized DOM adapter and renderer installation
   remain candidate v5 patterns where current evidence shows they are widely used,
   deterministic, and statically understandable. Value-or-function and
   class-or-resolver overloads are assessed individually rather than removed as a
   category.
-- Maintain or generate the public method contract matrix from executable metadata and
+- **Selected:** Maintain or generate the public method contract matrix from executable metadata and
   use it to find real lifecycle, return, mutation, and diagnostic inconsistencies.
   Different responsibilities may deliberately have different return styles.
 
