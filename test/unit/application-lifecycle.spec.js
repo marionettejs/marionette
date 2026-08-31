@@ -138,6 +138,18 @@ describe('Application lifecycle', function() {
     expect(stopEvent).to.have.been.calledOnce;
   });
 
+  it('rejects a synchronous before:stop failure', async function() {
+    const error = new Error('stop failed');
+    const app = new (Application.extend({
+      onBeforeStop() { throw error; }
+    }))();
+    await app.start();
+
+    await expectRejection(app.stop(), error);
+
+    expect(app.isRunning()).to.be.true;
+  });
+
   it('restarts through stop and start in lifecycle order', async function() {
     const events = [];
     const TestApplication = Application.extend({
@@ -153,6 +165,22 @@ describe('Application lifecycle', function() {
     expect(await app.restart()).to.be.true;
 
     expect(events).to.deep.equal(['before:stop', 'stop', 'before:start', 'start']);
+    expect(app.isRunning()).to.be.true;
+  });
+
+  it('shares a compatible in-flight restart', async function() {
+    const stopping = defer();
+    const beforeStop = this.sinon.stub().returns(stopping.promise);
+    const app = new (Application.extend({ onBeforeStop: beforeStop }))();
+    await app.start();
+
+    const first = app.restart();
+    const repeated = app.restart();
+
+    expect(repeated).to.equal(first);
+    stopping.resolve();
+    expect(await first).to.be.true;
+    expect(beforeStop).to.have.been.calledOnce;
     expect(app.isRunning()).to.be.true;
   });
 
@@ -260,15 +288,26 @@ describe('Application lifecycle', function() {
 
   it('stops a restart whose new startup is still pending', async function() {
     const restartReadiness = defer();
+    const restartStarted = defer();
+    const beforeStop = this.sinon.spy();
+    const stopEvent = this.sinon.spy();
     const startEvent = this.sinon.spy();
     const onBeforeStart = this.sinon.stub();
-    onBeforeStart.onSecondCall().returns(restartReadiness.promise);
-    const app = new (Application.extend({ onBeforeStart, onStart: startEvent }))();
+    onBeforeStart.onSecondCall().callsFake(() => {
+      restartStarted.resolve();
+      return restartReadiness.promise;
+    });
+    const app = new (Application.extend({
+      onBeforeStart,
+      onBeforeStop: beforeStop,
+      onStop: stopEvent,
+      onStart: startEvent
+    }))();
     await app.start();
     startEvent.resetHistory();
 
     const restart = app.restart();
-    await Promise.resolve();
+    await restartStarted.promise;
     const stop = app.stop();
 
     expect(await restart).to.be.false;
@@ -278,7 +317,61 @@ describe('Application lifecycle', function() {
     await Promise.resolve();
 
     expect(startEvent).to.not.have.been.called;
+    expect(beforeStop).to.have.been.calledOnce;
+    expect(stopEvent).to.have.been.calledOnce;
     expect(app.isRunning()).to.be.false;
+  });
+
+  it('shares stop readiness when stop supersedes restart teardown', async function() {
+    const stopping = defer();
+    const beforeStop = this.sinon.stub().returns(stopping.promise);
+    const stopEvent = this.sinon.spy();
+    const app = new (Application.extend({ onBeforeStop: beforeStop, onStop: stopEvent }))();
+    await app.start();
+
+    const restart = app.restart();
+    const stop = app.stop();
+
+    expect(await restart).to.be.false;
+    stopping.resolve();
+    expect(await stop).to.be.true;
+    expect(beforeStop).to.have.been.calledOnce;
+    expect(stopEvent).to.have.been.calledOnce;
+    expect(app.isRunning()).to.be.false;
+  });
+
+  it('destroys a restart without repeating its completed stop phase', async function() {
+    const restartReadiness = defer();
+    const restartStarted = defer();
+    const beforeStop = this.sinon.spy();
+    const stopEvent = this.sinon.spy();
+    const onBeforeStart = this.sinon.stub();
+    onBeforeStart.onSecondCall().callsFake(() => {
+      restartStarted.resolve();
+      return restartReadiness.promise;
+    });
+    const app = new (Application.extend({
+      onBeforeStart,
+      onBeforeStop: beforeStop,
+      onStop: stopEvent
+    }))();
+    await app.start();
+
+    const restart = app.restart();
+    await restartStarted.promise;
+    const destroy = app.destroy();
+
+    expect(await restart).to.be.false;
+    expect(await destroy).to.be.true;
+    expect(beforeStop).to.have.been.calledOnce;
+    expect(stopEvent).to.have.been.calledOnce;
+    expect(app.isDestroyed()).to.be.true;
+
+    restartReadiness.resolve();
+    await restartReadiness.promise;
+    await Promise.resolve();
+
+    expect(app.isDestroyed()).to.be.true;
   });
 
   it('lets destroy supersede startup and prevents stale lifecycle work', async function() {
@@ -392,8 +485,10 @@ describe('Application lifecycle', function() {
 
     const first = app.destroy();
     const repeated = app.destroy();
+    const stop = app.stop();
 
     expect(repeated).to.equal(first);
+    expect(await stop).to.be.true;
     expect(app.isDestroyed()).to.be.false;
     teardown.resolve();
     expect(await first).to.be.true;
@@ -418,21 +513,42 @@ describe('Application lifecycle', function() {
     expect(app.isDestroyed()).to.be.false;
   });
 
+  it('resolves stop when destroy fails after completing its stop phase', async function() {
+    const stopping = defer();
+    const error = new Error('destroy failed');
+    const app = new (Application.extend({
+      onBeforeStop() { return stopping.promise; },
+      onBeforeDestroy() { throw error; }
+    }))();
+    await app.start();
+
+    const destroy = app.destroy();
+    const stop = app.stop();
+    const destroyResult = expectRejection(destroy, error);
+
+    stopping.resolve();
+    await destroyResult;
+
+    expect(await stop).to.be.true;
+    expect(app.isRunning()).to.be.false;
+    expect(app.isDestroyed()).to.be.false;
+  });
+
   it('shares stop readiness across a start-stop-destroy overlap', async function() {
-    const startup = defer();
     const stopping = defer();
     const beforeStop = this.sinon.stub().returns(stopping.promise);
     const startEvent = this.sinon.spy();
     const stopEvent = this.sinon.spy();
     const app = new (Application.extend({
-      onBeforeStart() { return startup.promise; },
       onBeforeStop: beforeStop,
       onStart: startEvent,
       onStop: stopEvent
     }))();
+    await app.start();
+    startEvent.resetHistory();
 
-    const start = app.start();
     const stop = app.stop();
+    const start = app.start();
     const destroy = app.destroy();
     const stopDuringDestroy = app.stop();
 
@@ -444,13 +560,29 @@ describe('Application lifecycle', function() {
     expect(await destroy).to.be.true;
     expect(await stopDuringDestroy).to.be.true;
 
-    startup.resolve();
-    await startup.promise;
-    await Promise.resolve();
-
     expect(beforeStop).to.have.been.calledOnce;
     expect(stopEvent).to.have.been.calledOnce;
     expect(startEvent).to.not.have.been.called;
+    expect(app.isDestroyed()).to.be.true;
+  });
+
+  it('resolves stop when destroy completion fails after marking destroyed', async function() {
+    const stopping = defer();
+    const error = new Error('destroy completion failed');
+    const app = new (Application.extend({
+      onBeforeStop() { return stopping.promise; },
+      onDestroy() { throw error; }
+    }))();
+    await app.start();
+
+    const destroy = app.destroy();
+    const stop = app.stop();
+    const destroyResult = expectRejection(destroy, error);
+
+    stopping.resolve();
+    await destroyResult;
+
+    expect(await stop).to.be.true;
     expect(app.isDestroyed()).to.be.true;
   });
 

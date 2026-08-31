@@ -10,6 +10,8 @@ will pass the triggering class instance as the first argument of the event.
 * [Application Events](#application-events)
   * [`before:start` event](#before-start-event)
   * [`start` event](#start-event)
+  * [`before:stop` event](#beforestop-event)
+  * [`stop` event](#stop-event)
 * [Behavior Events](#behavior-events)
   * [`initialize` event](#initialize-event)
   * [Proxied Events](#proxied-events)
@@ -43,7 +45,7 @@ will pass the triggering class instance as the first argument of the event.
 
 ## Application Events
 
-The `Application` object will fire two events:
+The `Application` object fires events for its start and stop lifecycles:
 
 ### `before:start` event
 
@@ -58,7 +60,7 @@ your views and starting `Backbone.history`.
 
 ```javascript
 import Bb from 'backbone';
-import { Application } from 'backbone.marionette';
+import { Application } from 'marionette';
 
 import MyModel from './mymodel';
 import MyView from './myview';
@@ -88,6 +90,16 @@ await myApp.start({ data: { bar: true } });
 
 As shown, the `options` object passed to `start` is forwarded after the
 Application to its lifecycle methods and events.
+
+### `before:stop` event
+
+Fired just before the application is stopped. A Promise returned by
+`onBeforeStop` delays completion of the stop lifecycle.
+
+### `stop` event
+
+Fired after the application has stopped. This event is a completion
+notification and its return value is not awaited.
 
 #### Application `destroy` events
 

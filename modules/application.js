@@ -140,10 +140,11 @@ async function stopApplication(application, operation, options) {
 
   operation.failureState = STOPPED;
   delete operation.stopReadiness;
+  operation.stopped = true;
   if (operation.kind === 'stop') {
     application._lifecycleState = STOPPED;
+    operation.completing = true;
   }
-  operation.completing = true;
   application.triggerMethod('stop', application, options);
 }
 
@@ -192,6 +193,11 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
       });
     }
     if (operation?.kind === 'stop') { return operation.promise; }
+    if (operation?.stopped) {
+      supersedeOperation(this);
+      this._lifecycleState = STOPPED;
+      return Promise.resolve(true);
+    }
     if (this._lifecycleState === STOPPED && !operation) { return Promise.resolve(true); }
     const failureState = this._lifecycleState === RUNNING ? RUNNING : STOPPED;
 
@@ -207,7 +213,7 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
 
     const operation = this._lifecycleOperation;
     if (operation?.kind === 'restart') { return operation.promise; }
-    const shouldStop = this._lifecycleState !== STOPPED || !!(operation && !operation.completing);
+    const shouldStop = !operation?.stopped && this._lifecycleState !== STOPPED;
     const failureState = this._lifecycleState === RUNNING ? RUNNING : STOPPED;
 
     return beginOperation(this, 'restart', RESTARTING, failureState, async current => {
@@ -224,17 +230,15 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
 
     const operation = this._lifecycleOperation;
     if (operation?.kind === 'destroy') { return operation.promise; }
-    const shouldStop = this._lifecycleState !== STOPPED || !!(operation && !operation.completing);
+    const shouldStop = !operation?.stopped && this._lifecycleState !== STOPPED;
     const failureState = this._lifecycleState === RUNNING ? RUNNING : STOPPED;
 
     return beginOperation(this, 'destroy', DESTROYING, failureState, async current => {
       if (shouldStop) {
         await stopApplication(this, current, options);
-        if (!isCurrentOperation(this, current)) { return; }
       }
 
       await this.triggerMethod('before:destroy', this, options);
-      if (!isCurrentOperation(this, current)) { return; }
 
       this._isDestroyed = true;
       this._lifecycleState = DESTROYED;
