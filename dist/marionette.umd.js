@@ -3526,13 +3526,13 @@
   });
 
   const ClassOptions = ['channelName', 'radioEvents', 'radioRequests', 'region', 'regionClass'];
-  const DESTROYED = 'destroyed';
-  const DESTROYING = 'destroying';
-  const RESTARTING = 'restarting';
-  const RUNNING = 'running';
-  const STARTING = 'starting';
   const STOPPED = 'stopped';
+  const STARTING = 'starting';
+  const RUNNING = 'running';
   const STOPPING = 'stopping';
+  const RESTARTING = 'restarting';
+  const DESTROYING = 'destroying';
+  const DESTROYED = 'destroyed';
   const classErrorName = 'ApplicationError';
   const Application = function (options) {
     this._setOptions(options, ClassOptions);
@@ -3542,61 +3542,12 @@
     this.initialize.apply(this, arguments);
   };
   Application.extend = extend;
-  function isCurrentOperation(application, operation) {
-    return application._lifecycleOperation === operation;
-  }
   function throwApplicationOwnershipConflict(message) {
     throw new MarionetteError({
       code: 'MN0031',
       name: classErrorName,
       message
     });
-  }
-  function isTerminal(application) {
-    return application._lifecycleState === DESTROYING || application._lifecycleState === DESTROYED;
-  }
-  function isSameChildApp(owner, name, application) {
-    return application._parentApp === owner && application._name === name && owner._childApps?.get(name) === application;
-  }
-  function assertChildAppCanRegister(owner, name, application) {
-    if (typeof name !== 'string' || name.length === 0) {
-      throwApplicationOwnershipConflict('A child Application name must be a non-empty string.');
-    }
-    if (!(application instanceof Application)) {
-      throwApplicationOwnershipConflict('A child Application must be an Application instance.');
-    }
-    if (isSameChildApp(owner, name, application)) {
-      return;
-    }
-    if (application === owner) {
-      throwApplicationOwnershipConflict('An Application cannot own itself.');
-    }
-    if (application._parentApp !== undefined) {
-      throwApplicationOwnershipConflict('An Application instance cannot be registered with more than one owner or name.');
-    }
-    if (owner._childApps?.has(name)) {
-      throwApplicationOwnershipConflict(`Child Application name "${name}" is already registered.`);
-    }
-    let parent = owner;
-    while (parent) {
-      if (parent === application) {
-        throwApplicationOwnershipConflict('A child Application cannot be an ancestor of its owner.');
-      }
-      parent = parent._parentApp;
-    }
-  }
-  function removeChildAppReference(owner, name, application) {
-    owner._childApps.delete(name);
-    delete application._parentApp;
-    delete application._name;
-    if (owner._childApps.size === 0) {
-      delete owner._childApps;
-    }
-  }
-  async function destroyChildApps(application, options) {
-    for (const child of application._childApps.values()) {
-      await child.destroy(options);
-    }
   }
   function createDeferred() {
     let resolve;
@@ -3611,142 +3562,6 @@
       resolve
     };
   }
-  function beginReadiness(operation, options, callback) {
-    const deferred = createDeferred();
-    const controller = new AbortController();
-    const readiness = {
-      ...deferred,
-      context: {
-        signal: controller.signal
-      },
-      controller,
-      options
-    };
-    operation.readiness = readiness;
-    try {
-      Promise.resolve(callback(readiness.context)).then(readiness.resolve, readiness.reject);
-    } catch (error) {
-      readiness.reject(error);
-    }
-    return readiness;
-  }
-  function completeReadiness(operation) {
-    delete operation.readiness;
-  }
-  function getFailureState(application, operation) {
-    if (operation?.stopReadiness) {
-      return operation.failureState;
-    }
-    return application._lifecycleState === RUNNING ? RUNNING : STOPPED;
-  }
-  function supersedeOperation(application) {
-    const operation = application._lifecycleOperation;
-    if (!operation) {
-      return;
-    }
-    delete application._lifecycleOperation;
-    operation.resolve(!!operation.didReachTargetState);
-    return operation;
-  }
-  function completeOperation(application, operation) {
-    if (!isCurrentOperation(application, operation)) {
-      return;
-    }
-    delete application._lifecycleOperation;
-    operation.resolve(true);
-  }
-  function failOperation(application, operation, error) {
-    if (!isCurrentOperation(application, operation)) {
-      return;
-    }
-    delete application._lifecycleOperation;
-    application._lifecycleState = operation.failureState;
-    operation.reject(error);
-  }
-  function runOperation(application, operation, callback) {
-    (async () => {
-      try {
-        await callback();
-        completeOperation(application, operation);
-      } catch (error) {
-        failOperation(application, operation, error);
-      }
-    })();
-  }
-  function beginOperation(application, kind, state, failureState, callback) {
-    const superseded = supersedeOperation(application);
-    const deferred = createDeferred();
-    const stopReadiness = superseded?.stopReadiness;
-    const operation = {
-      ...deferred,
-      kind,
-      failureState,
-      readiness: stopReadiness,
-      stopReadiness
-    };
-    application._lifecycleOperation = operation;
-    application._lifecycleState = state;
-    if (superseded?.readiness && superseded.readiness !== stopReadiness) {
-      superseded.readiness.controller.abort();
-    }
-    if (!isCurrentOperation(application, operation)) {
-      return deferred.promise;
-    }
-    runOperation(application, operation, () => callback(operation));
-    return deferred.promise;
-  }
-  async function startApplication(application, operation, options) {
-    if (operation.stopReadiness) {
-      const readiness = operation.stopReadiness;
-      await readiness.promise;
-      if (!isCurrentOperation(application, operation)) {
-        return;
-      }
-      completeReadiness(operation);
-      operation.failureState = STOPPED;
-      delete operation.stopReadiness;
-    }
-    const readiness = beginReadiness(operation, options, context => {
-      return application.triggerMethod('before:start', application, options, context);
-    });
-    await readiness.promise;
-    if (!isCurrentOperation(application, operation)) {
-      return;
-    }
-    completeReadiness(operation);
-    application._lifecycleState = RUNNING;
-    operation.failureState = RUNNING;
-    operation.didReachTargetState = true;
-    application.triggerMethod('start', application, options);
-  }
-  async function stopApplication(application, operation, options) {
-    try {
-      if (!operation.stopReadiness) {
-        const readiness = beginReadiness(operation, options, context => {
-          return application.triggerMethod('before:stop', application, options, context);
-        });
-        operation.stopReadiness = readiness;
-      }
-      const readiness = operation.stopReadiness;
-      await readiness.promise;
-      if (!isCurrentOperation(application, operation)) {
-        return;
-      }
-      completeReadiness(operation);
-      operation.failureState = STOPPED;
-      delete operation.stopReadiness;
-      operation.didStop = true;
-      if (operation.kind === 'stop') {
-        application._lifecycleState = STOPPED;
-        operation.didReachTargetState = true;
-      }
-      application.triggerMethod('stop', application, readiness.options);
-      operation.stopDeferred?.resolve(true);
-    } catch (error) {
-      operation.stopDeferred?.reject(error);
-      throw error;
-    }
-  }
   assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     cidPrefix: 'mna',
     _lifecycleState: STOPPED,
@@ -3757,111 +3572,226 @@
       if (this._lifecycleState === DESTROYING || this._lifecycleState === DESTROYED) {
         return Promise.resolve(false);
       }
-      const operation = this._lifecycleOperation;
-      if (operation?.kind === 'start') {
-        return operation.promise;
+      const transition = this._lifecycleTransition;
+      if (transition?.type === 'start') {
+        return transition.promise;
       }
-      if (this._lifecycleState === RUNNING && !operation) {
+      if (this._lifecycleState === RUNNING && !transition) {
         return Promise.resolve(true);
       }
-      const failureState = getFailureState(this, operation);
-      return beginOperation(this, 'start', STARTING, failureState, nextOperation => {
-        return startApplication(this, nextOperation, options);
+      return this._beginTransition('start', STARTING, nextTransition => {
+        return this._startLifecycle(nextTransition, options);
       });
     },
     stop(options) {
       if (this._lifecycleState === DESTROYED) {
         return Promise.resolve(true);
       }
-      const operation = this._lifecycleOperation;
+      const transition = this._lifecycleTransition;
       if (this._lifecycleState === DESTROYING) {
-        if (!operation?.stopReadiness) {
+        if (!transition?.stopReadiness) {
           return Promise.resolve(true);
         }
-        if (!operation.stopDeferred) {
-          operation.stopDeferred = createDeferred();
+        if (!transition.stopDeferred) {
+          transition.stopDeferred = createDeferred();
         }
-        return operation.stopDeferred.promise;
+        return transition.stopDeferred.promise;
       }
-      if (operation?.kind === 'stop') {
-        return operation.promise;
+      if (transition?.type === 'stop') {
+        return transition.promise;
       }
-      if (operation?.didStop) {
-        const superseded = supersedeOperation(this);
+      if (transition?.isStopped) {
+        const superseded = this._supersedeTransition();
         this._lifecycleState = STOPPED;
         superseded.readiness?.controller.abort();
         return Promise.resolve(true);
       }
-      if (this._lifecycleState === STOPPED && !operation) {
+      if (this._lifecycleState === STOPPED && !transition) {
         return Promise.resolve(true);
       }
-      const failureState = getFailureState(this, operation);
-      return beginOperation(this, 'stop', STOPPING, failureState, nextOperation => {
-        return stopApplication(this, nextOperation, options);
+      return this._beginTransition('stop', STOPPING, nextTransition => {
+        return this._stopLifecycle(nextTransition, options);
       });
     },
     restart(options) {
       if (this._lifecycleState === DESTROYING || this._lifecycleState === DESTROYED) {
         return Promise.resolve(false);
       }
-      const operation = this._lifecycleOperation;
-      if (operation?.kind === 'restart') {
-        return operation.promise;
+      const transition = this._lifecycleTransition;
+      if (transition?.type === 'restart') {
+        return transition.promise;
       }
-      const shouldStop = !operation?.didStop && this._lifecycleState !== STOPPED;
-      const failureState = getFailureState(this, operation);
-      return beginOperation(this, 'restart', RESTARTING, failureState, async nextOperation => {
+      const shouldStop = !transition?.isStopped && this._lifecycleState !== STOPPED;
+      return this._beginTransition('restart', RESTARTING, async nextTransition => {
         if (shouldStop) {
-          await stopApplication(this, nextOperation, options);
-          if (!isCurrentOperation(this, nextOperation)) {
+          await this._stopLifecycle(nextTransition, options);
+          if (!this._isCurrentTransition(nextTransition)) {
             return;
           }
         }
-        await startApplication(this, nextOperation, options);
+        await this._startLifecycle(nextTransition, options);
       });
     },
     destroy(options) {
       if (this._lifecycleState === DESTROYED) {
         return Promise.resolve(true);
       }
-      const operation = this._lifecycleOperation;
-      if (operation?.kind === 'destroy') {
-        return operation.promise;
+      const transition = this._lifecycleTransition;
+      if (transition?.type === 'destroy') {
+        return transition.promise;
       }
-      const shouldStop = !operation?.didStop && this._lifecycleState !== STOPPED;
-      const failureState = getFailureState(this, operation);
-      return beginOperation(this, 'destroy', DESTROYING, failureState, async nextOperation => {
+      const shouldStop = !transition?.isStopped && this._lifecycleState !== STOPPED;
+      return this._beginTransition('destroy', DESTROYING, async nextTransition => {
         if (shouldStop) {
-          await stopApplication(this, nextOperation, options);
+          await this._stopLifecycle(nextTransition, options);
         }
-        const readiness = beginReadiness(nextOperation, options, context => {
-          return this.triggerMethod('before:destroy', this, options, context);
-        });
+        const readiness = this._beginReadiness(nextTransition, 'before:destroy', options);
         await readiness.promise;
-        completeReadiness(nextOperation);
+        delete nextTransition.readiness;
         if (this._childApps) {
-          await destroyChildApps(this, options);
+          await this._destroyChildApps(options);
         }
         this._isDestroyed = true;
         this._lifecycleState = DESTROYED;
-        nextOperation.failureState = DESTROYED;
-        nextOperation.didReachTargetState = true;
+        nextTransition.rollbackState = DESTROYED;
+        nextTransition.isComplete = true;
         if (this._parentApp) {
-          removeChildAppReference(this._parentApp, this._name, this);
+          this._parentApp._removeChildAppReference(this._name, this);
         }
         this.triggerMethod('destroy', this, options);
         this.stopListening();
       });
     },
+    _isCurrentTransition(transition) {
+      return this._lifecycleTransition === transition;
+    },
+    _supersedeTransition() {
+      const transition = this._lifecycleTransition;
+      if (!transition) {
+        return;
+      }
+      delete this._lifecycleTransition;
+      transition.resolve(!!transition.isComplete);
+      return transition;
+    },
+    _runTransition(transition, callback) {
+      (async () => {
+        try {
+          await callback();
+          if (!this._isCurrentTransition(transition)) {
+            return;
+          }
+          delete this._lifecycleTransition;
+          transition.resolve(true);
+        } catch (error) {
+          if (!this._isCurrentTransition(transition)) {
+            return;
+          }
+          delete this._lifecycleTransition;
+          this._lifecycleState = transition.rollbackState;
+          transition.reject(error);
+        }
+      })();
+    },
+    _beginTransition(type, state, callback) {
+      const currentTransition = this._lifecycleTransition;
+      const rollbackState = currentTransition?.stopReadiness ? currentTransition.rollbackState : this._lifecycleState === RUNNING ? RUNNING : STOPPED;
+      const superseded = this._supersedeTransition();
+      const deferred = createDeferred();
+      const stopReadiness = superseded?.stopReadiness;
+      const transition = {
+        ...deferred,
+        type,
+        rollbackState,
+        readiness: stopReadiness,
+        stopReadiness
+      };
+      this._lifecycleTransition = transition;
+      this._lifecycleState = state;
+      if (superseded?.readiness && superseded.readiness !== stopReadiness) {
+        superseded.readiness.controller.abort();
+      }
+      if (!this._isCurrentTransition(transition)) {
+        return deferred.promise;
+      }
+      this._runTransition(transition, () => callback(transition));
+      return deferred.promise;
+    },
+    _beginReadiness(transition, eventName, options) {
+      const deferred = createDeferred();
+      const controller = new AbortController();
+      const readiness = {
+        ...deferred,
+        context: {
+          signal: controller.signal
+        },
+        controller,
+        options
+      };
+      transition.readiness = readiness;
+      try {
+        Promise.resolve(this.triggerMethod(eventName, this, options, readiness.context)).then(readiness.resolve, readiness.reject);
+      } catch (error) {
+        readiness.reject(error);
+      }
+      return readiness;
+    },
+    async _startLifecycle(transition, options) {
+      if (transition.stopReadiness) {
+        const readiness = transition.stopReadiness;
+        await readiness.promise;
+        if (!this._isCurrentTransition(transition)) {
+          return;
+        }
+        delete transition.readiness;
+        transition.rollbackState = STOPPED;
+        delete transition.stopReadiness;
+      }
+      const readiness = this._beginReadiness(transition, 'before:start', options);
+      await readiness.promise;
+      if (!this._isCurrentTransition(transition)) {
+        return;
+      }
+      delete transition.readiness;
+      this._lifecycleState = RUNNING;
+      transition.rollbackState = RUNNING;
+      transition.isComplete = true;
+      this.triggerMethod('start', this, options);
+    },
+    async _stopLifecycle(transition, options) {
+      try {
+        if (!transition.stopReadiness) {
+          transition.stopReadiness = this._beginReadiness(transition, 'before:stop', options);
+        }
+        const readiness = transition.stopReadiness;
+        await readiness.promise;
+        if (!this._isCurrentTransition(transition)) {
+          return;
+        }
+        delete transition.readiness;
+        transition.rollbackState = STOPPED;
+        delete transition.stopReadiness;
+        transition.isStopped = true;
+        if (transition.type === 'stop') {
+          this._lifecycleState = STOPPED;
+          transition.isComplete = true;
+        }
+        this.triggerMethod('stop', this, readiness.options);
+        transition.stopDeferred?.resolve(true);
+      } catch (error) {
+        transition.stopDeferred?.reject(error);
+        throw error;
+      }
+    },
     addChildApp(name, application) {
-      if (isTerminal(this)) {
+      if (this._isTerminal()) {
         return application;
       }
-      if (application instanceof Application && isTerminal(application)) {
+      if (application instanceof Application && application._isTerminal()) {
         return application;
       }
-      assertChildAppCanRegister(this, name, application);
-      if (isSameChildApp(this, name, application)) {
+      this._assertChildAppCanRegister(name, application);
+      if (this._isChildApp(name, application)) {
         return application;
       }
       const children = this._childApps || (this._childApps = new Map());
@@ -3902,6 +3832,52 @@
     },
     getName() {
       return this._name;
+    },
+    _isTerminal() {
+      return this._lifecycleState === DESTROYING || this._lifecycleState === DESTROYED;
+    },
+    _isChildApp(name, application) {
+      return application._parentApp === this && application._name === name && this._childApps?.get(name) === application;
+    },
+    _assertChildAppCanRegister(name, application) {
+      if (typeof name !== 'string' || name.length === 0) {
+        throwApplicationOwnershipConflict('A child Application name must be a non-empty string.');
+      }
+      if (!(application instanceof Application)) {
+        throwApplicationOwnershipConflict('A child Application must be an Application instance.');
+      }
+      if (this._isChildApp(name, application)) {
+        return;
+      }
+      if (application === this) {
+        throwApplicationOwnershipConflict('An Application cannot own itself.');
+      }
+      if (application._parentApp !== undefined) {
+        throwApplicationOwnershipConflict('An Application instance cannot be registered with more than one owner or name.');
+      }
+      if (this._childApps?.has(name)) {
+        throwApplicationOwnershipConflict(`Child Application name "${name}" is already registered.`);
+      }
+      let parent = this;
+      while (parent) {
+        if (parent === application) {
+          throwApplicationOwnershipConflict('A child Application cannot be an ancestor of its owner.');
+        }
+        parent = parent._parentApp;
+      }
+    },
+    _removeChildAppReference(name, application) {
+      this._childApps.delete(name);
+      delete application._parentApp;
+      delete application._name;
+      if (this._childApps.size === 0) {
+        delete this._childApps;
+      }
+    },
+    async _destroyChildApps(options) {
+      for (const child of this._childApps.values()) {
+        await child.destroy(options);
+      }
     },
     regionClass: Region,
     _initRegion() {

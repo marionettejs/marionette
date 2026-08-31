@@ -1096,7 +1096,7 @@ describe('Application lifecycle', function() {
     expect(Radio.request(channelName, 'value')).to.be.undefined;
   });
 
-  it('does not retain operation records across repeated start-stop cycles', async function() {
+  it('does not retain transition records across repeated start-stop cycles', async function() {
     const beforeStart = this.sinon.spy();
     const startEvent = this.sinon.spy();
     const beforeStop = this.sinon.spy();
@@ -1111,7 +1111,7 @@ describe('Application lifecycle', function() {
     for (let index = 0; index < 10; index++) {
       expect(await app.start()).to.be.true;
       expect(await app.stop()).to.be.true;
-      expect(Object.hasOwn(app, '_lifecycleOperation')).to.be.false;
+      expect(Object.hasOwn(app, '_lifecycleTransition')).to.be.false;
     }
 
     expect(beforeStart).to.have.callCount(10);
