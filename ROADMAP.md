@@ -301,7 +301,7 @@ The current evidence establishes these candidate decisions for validation:
   semantics, and their overlap behavior, then prove the selected state machine.
   Otherwise retain synchronous lifecycle and keep async orchestration explicit in
   consumer code.
-- The currently documented model and collection protocol is an explicit but
+- The currently documented model and collection data protocol is an explicit but
   Backbone-shaped v5 pre-release contract. A benchmark adapter can satisfy it only by
   reproducing `cid`, `attributes`, `models`, `indexOf`, and exact event payloads.
   Before stable, v5 either freezes that protocol deliberately or replaces it with one
@@ -381,10 +381,10 @@ the runtime graph. They should consume the same documented rule catalog and publ
 metadata rather than encode a second model of Marionette.
 
 Declarative definition helpers, adapter implementations beyond the required stable
-CollectionView data contract, new CollectionView strategies, and renderer
+model and collection data protocol, new CollectionView strategies, and renderer
 integrations remain evidence-dependent. They may be explored after the foundation is
 measurable, but do not block stable v5 without benchmark evidence. Deciding whether
-to freeze or replace the current Backbone-shaped data contract is a Phase 1 gate, not
+to freeze or replace the current model and collection data protocol is a Phase 1 gate, not
 a Phase 5 candidate.
 
 ## Runtime cost contract
@@ -442,7 +442,7 @@ The stable release then requires:
   percent and no confirmed p95 regression above ten percent for View
   construction/destruction, render/rerender, delegation, Region show/empty, and
   ordinary CollectionView work.
-- CollectionView evidence includes at least 1,000 visible children and covers initial
+- Large-list operation-count evidence includes at least 1,000 visible children and covers initial
   render, append one, append many, remove one, reset or clear, targeted update, and
   destroy. Deterministic cases record created, attached, moved, detached, and
   destroyed node counts in addition to timing; a real-browser run validates focus,
@@ -501,15 +501,9 @@ instructions, and every release blocker maps to this strategy.
 
 - Complete the API-shape and agent-ergonomics gate for existing public contracts
   before freezing additional Application, State, or extension surface.
-- Before the next alpha candidate, make native attachment checks return false for a
-  detached Element whose owner document has no document element. Cover direct
-  template-content clones and imported nodes in a real browser, including the exact
-  attach lifecycle after the node later enters the active document.
-- Before the next alpha candidate, restore a targeted CollectionView removal-only
-  update when no filter is active and `viewComparator: false`, without moving or
-  rerendering survivors. Preserve removal events, destruction, empty-view behavior,
-  lifecycle monitoring, focus, and DOM order. Broader fast paths require separate
-  evidence for comparator and filter semantics.
+- Before the next v5 alpha, resolve the known detached-element attachment and
+  CollectionView removal-only update correctness gaps. Detailed acceptance criteria
+  and browser cases belong in their GitHub issues.
 - Select and document the stable model and collection data protocol independently of
   State. Either deliberately freeze the current Backbone-shaped fields and event
   payloads or replace them with one lean adapter contract; do not ship both as
@@ -581,8 +575,8 @@ Gate: all stable release criteria below pass.
 ### Phase 5: Evidence-dependent candidates
 
 Benchmark declarative definition helpers, adapter implementations beyond the Phase 1
-data protocol, rendering seams, alternative CollectionView strategies, and optional
-integrations. These
+model and collection data protocol, rendering seams, alternative CollectionView
+strategies, and optional integrations. These
 experiments do not block stable v5. Unsuccessful candidates are documented and closed
 rather than retained as dormant APIs.
 
@@ -614,8 +608,8 @@ rather than retained as dormant APIs.
 - Every contract in the API-shape and agent-ergonomics gate has an explicit keep or
   remove decision, an exercised migration when removed, truthful source ownership,
   and no unverified duplicate root utility or internal forwarding path.
-- The selected model and collection protocol passes compatibility tests when the
-  Backbone-shaped contract is retained or is replaced with an exercised Backbone
+- The selected model and collection data protocol passes compatibility tests when the
+  current protocol is retained or is replaced with an exercised Backbone
   migration. The selected protocol passes source, distribution, packed-package, and
   real-browser tests.
 - Large-list operation-count scenarios pass source, distribution, packed-package, and
