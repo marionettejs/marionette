@@ -517,6 +517,22 @@
         "runtime"
       ],
       "benchmarkCategory": "ownership"
+    },
+    {
+      "code": "MN0031",
+      "slug": "application-registration-conflict",
+      "status": "active",
+      "category": "ownership",
+      "severity": "error",
+      "objects": [
+        "Application"
+      ],
+      "remediation": "Register a live, unowned Application instance under an unused non-empty string name; use hasChildApp before constructing a dynamic child when allocation must be avoided.",
+      "docsAnchor": "/errors/MN0031/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "ownership"
     }
   ]
 }

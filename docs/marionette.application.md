@@ -18,6 +18,7 @@ The `Application` `cidPrefix` is `mna`.
 
 * [Instantiating An Application](#instantiating-an-application)
 * [Application Lifecycle](#application-lifecycle)
+* [Application Ownership](#application-ownership)
 * [Application Region](#application-region)
 * [Application Region Methods](#application-region-methods)
 
@@ -134,6 +135,52 @@ if (!started) {
   // A later stop, restart, or destroy superseded this startup.
 }
 ```
+
+## Application Ownership
+
+An Application may own named child Applications. A parentless Application is
+the root of its composition tree; independent roots may coexist. Root and child
+Applications have the same class and public API.
+
+`addChildApp(name, application)` registers an existing live,
+parentless Application instance under a non-empty string name and returns that
+instance. Registration does not construct or implicitly start the child. Use
+`hasChildApp(name)` before constructing a dynamic child when duplicate
+allocation matters. Registering the same instance again under its existing
+owner and name is an idempotent no-op. A conflicting owner or name throws
+[`MN0031`](/errors/MN0031/).
+
+Calls to `addChildApp` after either Application's destruction begins
+are lifecycle-safe no-ops and return the supplied value. They do not inspect or
+adopt it.
+
+```javascript
+const root = new Application();
+
+if (!root.hasChildApp('search')) {
+  root.addChildApp('search', new SearchApplication());
+}
+
+const search = root.getChildApp('search');
+
+search.getName(); // 'search'
+search.getParentApp(); // root
+search.getRootApp(); // root
+root.getChildApps(); // { search }
+```
+
+`getChildApps()` returns a fresh snapshot. Changing the snapshot does
+not change ownership. The topology methods are reads; they do not start,
+render, or otherwise mutate an Application.
+
+`removeChildApp(name, options)` destroys the named child and resolves
+with it after destruction. An unknown name resolves with `undefined`. A child
+also removes itself from its parent's topology when destroyed directly. Parent
+destruction first awaits the parent's `before:destroy` readiness, then destroys
+owned children in registration order, and finally emits the parent's `destroy`
+completion. A parent's readiness handler can therefore inspect its live child
+topology. If a child's destroy readiness fails, the parent remains live and
+retains that child so destruction can be retried.
 
 ## Application Region
 
