@@ -70,6 +70,7 @@ following observable transitions:
 | `view.setElement(el)` once destruction begins | Returns the same View before inspecting or replacing the element or changing delegation, DOM, or lifecycle state | Calls during `before:destroy` and repeated calls after destruction are no-ops |
 | `CollectionView#addChildView(view, ...)` once destruction begins | Returns the supplied child before inspecting or taking ownership of it; the caller remains responsible for that child | Repeated calls are no-ops for the destroyed CollectionView |
 | `view.delegateEvents()` or `view.undelegateEvents()` once destruction begins | Returns the same View without changing View or Behavior DOM delegation | Repeated calls are no-ops |
+| `view.bindUIElements()` once destruction begins | Returns the same View without resolving host UI, querying DOM, or binding View or Behavior UI | Repeated calls are no-ops |
 
 Setting `monitorViewEvents: false` on a Region's owning view intentionally disables
 attachment events and automatic `isAttached()` updates for the shown view.
@@ -255,6 +256,14 @@ Once destruction begins, reentrant `destroy()` calls from `before:destroy` or
 `destroy`, and later repeated calls, return the same View without restarting
 teardown. During a normal successful teardown, an attached parent and its owned
 children complete their detach and destroy lifecycles once.
+
+Base `View#bindUIElements()` and `CollectionView#bindUIElements()` calls are
+also terminal no-ops once destruction begins. They do not resolve callable UI,
+query the retained root element, or bind attached Behaviors. A direct
+`Behavior#bindUIElements()` call through a Behavior owned by or retained from
+that host returns the Behavior without binding. `unbindUIElements()` remains
+available for cleanup, and `getUI()` continues to throw `MN0023` when UI is
+unbound.
 
 Marionette establishes a retry boundary only around `before:destroy`. If that
 callback throws, the error propagates, the destruction guard is cleared, and a
