@@ -1,0 +1,71 @@
+modules/view-region.js
+  s_d6429951fb9231::t_a5111495054564 708-716
+  s_d6429951fb9231::t_e495e92fc71827 109-113,115-119,121-127,675
+  s_d6429951fb9231::t_d76507c1b1c254 537
+  s_d6429951fb9231::t_ef883c4e420715 87,91,96-97,99-106,114,120,707
+  s_d6429951fb9231::t_f0b2e5723ded3c 93-95,98
+  s_d6429951fb9231::t_45eaf127494363 528-536
+  s_d6429951fb9231::t_0a6dfc6f9c8566 88-90,92,107-108,703-704
+  s_d6429951fb9231::t_2f5b1f6a53d3a7 586
+  s_d6429951fb9231::t_bd34e23132d594 676
+dist/marionette.min.js
+  s_d6429951fb9231::t_4df1f10d7589a0 1
+config/diagnostics/catalog.json
+  s_d6429951fb9231::t_0a6dfc6f9c8566 503-518
+  s_d6429951fb9231::t_5b189673f0968e 519
+dist/marionette.cjs
+  s_d6429951fb9231::t_f42705ebdffaae 2189-2194
+  s_e1a183878c01ed::t_e10d544ec7c845 2236
+  s_d6429951fb9231::t_56e290ea0d9e54 1865-1898,2294,2315,2317-2324
+changelog.md
+  s_d6429951fb9231::t_45eaf127494363 50-51
+  s_d6429951fb9231::t_0a6dfc6f9c8566 52-53
+docs/marionette.region.md
+  s_d6429951fb9231::t_45eaf127494363 19,60-67,74-79
+  s_d6429951fb9231::t_98918fb55a4583 80
+  s_d6429951fb9231::t_0a6dfc6f9c8566 68-73
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_6fa716121ceddc 89
+dist/marionette.js
+  s_d6429951fb9231::t_cc7566189b4431 1861-1894,2232,2290,2311,2313-2320
+  s_d6429951fb9231::t_61a5ed00fa5817 2185-2190
+test/unit/region-lifecycle.spec.js
+  s_d6429951fb9231::t_45eaf127494363 68-98,599-601,607-608,617-618
+  s_d6429951fb9231::t_3cb64163ae0466 99-115
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_81a7901a251f56 1
+dist/marionette.umd.js
+  s_d6429951fb9231::t_684ca835e129e6 1872-1905,2243,2301,2322,2324-2331
+  s_d6429951fb9231::t_09ba84d3b684f8 2196-2201
+test/unit/view-region-diagnostics.spec.js
+  s_d6429951fb9231::t_a5111495054564 101-126
+  s_d6429951fb9231::t_e495e92fc71827 55-56,63,74-75,77,80-97
+  s_d6429951fb9231::t_3cb64163ae0466 49-54,57-62,64-73,76,78-79,98-100,127-138
+  s_d6429951fb9231::t_ef883c4e420715 139-154
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_05d88064f0808e 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "6301b2a4d0bb39ef8b2b5d93d82420a22e04fc76",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    },
+    "s_e1a183878c01ed": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e4b3d-de5d-70e3-ba78-14db78af3877",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
