@@ -1,0 +1,22 @@
+ROADMAP.md
+  s_d6429951fb9231::t_382c4201790176 291-299,513-516
+  s_d6429951fb9231::t_3b8b6733ef9c77 259-290,313-326,497-498,608-610
+  s_d6429951fb9231::t_a24cc08c2e98d6 300-312,378-383,440-445,499-512,611-613
+  s_d6429951fb9231::t_c00e56657f849c 446-451
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "08bb7b0a5ff4acc4b3f0397f78edeafc5ff0c9b7",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
