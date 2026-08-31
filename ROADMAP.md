@@ -293,9 +293,9 @@ The current evidence establishes these candidate decisions for validation:
   contract, so Application alone does not establish async lifecycle by momentum.
   Compare the established synchronous lifecycle with an awaitable design against
   verified consumer races, migration cost, implementation complexity, and agent
-  discoverability. If async lifecycle wins, document that only `before:*` hooks are
-  awaited while completion notifications remain synchronous, and prove the full
-  overlap state machine. Otherwise retain synchronous lifecycle and keep async
+  discoverability. If async lifecycle wins, define which hooks and notifications are
+  awaited, their failure semantics, and their overlap behavior, then prove the
+  selected state machine. Otherwise retain synchronous lifecycle and keep async
   orchestration explicit in consumer code.
 - The currently documented model and collection protocol is an explicit but
   Backbone-shaped v5 pre-release contract. A benchmark adapter can satisfy it only by
