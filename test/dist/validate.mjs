@@ -33,9 +33,10 @@ function validateRadio(Marionette, name) {
   }
 }
 
-function validateBrowserGlobal(file) {
+async function validateBrowserGlobal(file) {
   const previousMarionette = {};
   const context = {
+    AbortController,
     Marionette: previousMarionette,
   };
 
@@ -50,6 +51,26 @@ function validateBrowserGlobal(file) {
   assert.strictEqual(Marionette.VERSION, packageJson.version, `${file} browser-global version`);
   assert.strictEqual(typeof Marionette.MarionetteError, 'function', `${file} MarionetteError export`);
   assert.strictEqual(typeof Marionette.State, 'function', `${file} State export`);
+  const Application = Marionette.Application.extend({
+    initialize() {
+      this.initialized = true;
+    },
+  });
+  const application = new Application({
+    channelName: `dist-${file}`,
+    state: { ready: true },
+  });
+  const state = application.getState();
+  assert.strictEqual(application.initialized, true, `${file} Application.extend behavior`);
+  assert.strictEqual(application.getState().get('ready'), true, `${file} Application State behavior`);
+  assert.strictEqual(
+    application.getChannel(),
+    Marionette.Radio.channel(`dist-${file}`),
+    `${file} Application Radio behavior`,
+  );
+  await application.destroy();
+  assert.strictEqual(application.isDestroyed(), true, `${file} Application destroy behavior`);
+  assert.strictEqual(state.isDestroyed(), true, `${file} Application State teardown`);
   validateRadio(Marionette, file);
   assert.strictEqual(Marionette.noConflict(), Marionette, `${file} noConflict return value`);
   assert.strictEqual(context.Marionette, previousMarionette, `${file} noConflict restoration`);
@@ -82,8 +103,8 @@ async function validate() {
     );
   }
 
-  validateBrowserGlobal('marionette.umd.js');
-  validateBrowserGlobal('marionette.min.js');
+  await validateBrowserGlobal('marionette.umd.js');
+  await validateBrowserGlobal('marionette.min.js');
 }
 
 validate();

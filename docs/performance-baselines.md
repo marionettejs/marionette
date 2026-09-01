@@ -44,6 +44,11 @@ The current optional Backbone and jQuery peer set is part of fixture `v1`; chang
 that set requires an explicit fixture and contract revision rather than retaining
 obsolete peers.
 
+A separate three-format regression test bundles only `View`, `CollectionView`, and
+`MnObject` from the root entry and verifies that unused Application code is removed.
+It protects named-export tree shaking without changing the reporting-only `v1`
+scenario inventory before issue #127 adopts consumer-scenario governance.
+
 This first slice is reporting-only. It records exact-base deltas but deliberately has
 no consumer-scenario baseline or ceiling, so it cannot approve growth or compensate
 for the aggregate package backstop. A later governance change must adopt an explicit
