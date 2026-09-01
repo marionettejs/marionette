@@ -3912,13 +3912,13 @@
     return view;
   }
   function emptyRootView(application, options) {
-    const region = application._region;
-    if (getRootView(application)) {
-      try {
-        region.empty(options);
-      } finally {
-        getRootView(application);
-      }
+    if (!getRootView(application)) {
+      return;
+    }
+    try {
+      application._region.empty(options);
+    } finally {
+      getRootView(application);
     }
   }
   function createDeferred() {
@@ -4160,9 +4160,11 @@
       return beginOperation(this, 'restart', RESTARTING, failureState, async current => {
         if (shouldStop) {
           await stopApplication(this, current, options);
-          if (!isCurrentOperation(this, current)) {
-            return;
-          }
+        } else {
+          emptyRootView(this, options);
+        }
+        if (!isCurrentOperation(this, current)) {
+          return;
         }
         await startApplication(this, current, options);
       });

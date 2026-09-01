@@ -250,6 +250,24 @@ describe('Application root View ownership', function() {
     await app.destroy();
   });
 
+  it('tears down a stopped root View before restart starts', async function() {
+    const starts = [];
+    const TestApplication = Application.extend({
+      region: '#application-root',
+      onStart() { starts.push(this.getView()); }
+    });
+    const app = new TestApplication();
+    const view = new RootView();
+
+    app.showView(view);
+
+    expect(await app.restart()).to.be.true;
+    expect(view.isDestroyed()).to.be.true;
+    expect(starts).to.deep.equal([undefined]);
+
+    await app.destroy();
+  });
+
   it('destroys a constructed Region and releases its root topology', async function() {
     const app = new Application({ region: '#application-root' });
     const region = app.getRegion();
