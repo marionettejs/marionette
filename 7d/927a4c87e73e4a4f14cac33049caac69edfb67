@@ -1,0 +1,70 @@
+docs/migration-from-v4.md
+  s_d93f45db31dead::t_f778332b736017 29
+  s_d93f45db31dead::t_6dafb73e03cad2 82
+docs/marionette.application.md
+  s_d93f45db31dead::t_6dafb73e03cad2 228-230,254-259,265,295-296,300-303,307
+  s_d93f45db31dead::t_f778332b736017 11,23,31-32,214-224
+  s_d93f45db31dead::t_896c2aff56ee7f 70,260-264,308-310
+  s_d93f45db31dead::t_6891255711467a 225
+modules/application.js
+  s_d93f45db31dead::t_71c69d605b61ed 11,20-21,38-46,397
+  s_d93f45db31dead::t_17d279cdff1f54 208-210,217-219,378-379,450,492-493,503-508,583-585,612-613
+  s_d93f45db31dead::t_c1a0bae89b6b06 190-196,200-201,212-216,608-611
+  s_d93f45db31dead::t_896c2aff56ee7f 443-449
+  s_d93f45db31dead::t_7e6730bc8a0a48 598-599
+  s_d93f45db31dead::t_eb2c8ba4e49b88 603-604
+  s_d93f45db31dead::t_d9b017305ced63 197-199,202-207,211,607,618
+  s_d93f45db31dead::t_7c03ce64aef60f 586
+  s_d93f45db31dead::t_6f6717fc0e4486 600-601
+test/unit/application-root-view.spec.js
+  s_d93f45db31dead::t_7e6730bc8a0a48 29-30
+  s_d93f45db31dead::t_d7b8dd4b191dfa 73-76,79-81,122-134,182,212-227
+  s_d93f45db31dead::t_c1a0bae89b6b06 104-121,183-186,189,191-211,288
+  s_d93f45db31dead::t_e07bddc7240a2a 187-188,190
+  s_d93f45db31dead::t_6c996d54c99e66 169
+  s_d93f45db31dead::t_36f4780ebbb326 166,171-175,178-181,228-229
+  s_d93f45db31dead::t_896c2aff56ee7f 167-168,170,176-177
+  s_d93f45db31dead::t_eb2c8ba4e49b88 282-287,289-301,321
+  s_d93f45db31dead::t_d9b017305ced63 82-103,302-320
+  s_d93f45db31dead::t_08fae2ba9bb6df 1-28,31-72,77-78,135-165,230-281,322
+test/unit/object-application-composition.spec.js
+  s_d93f45db31dead::t_71c69d605b61ed 63,71,82
+  s_d93f45db31dead::t_c1a0bae89b6b06 54
+test/unit/application.spec.js
+  s_d93f45db31dead::t_71c69d605b61ed 64-69,83-84,89-91
+docs/marionette.state.md
+  s_d93f45db31dead::t_f778332b736017 46-49,94-97
+changelog.md
+  s_d93f45db31dead::t_f778332b736017 6-8
+  s_d93f45db31dead::t_6dafb73e03cad2 73-74
+test/unit/application-state.spec.js
+  s_d93f45db31dead::t_1980d0e213c33c 1-120
+dist/marionette.cjs
+  s_d93f45db31dead::t_977cb9ae4478d4 3746,3760-3767,3894-3916,4068-4071,4085,4131-4136,4179,4188-4193,4260-4262,4271-4273,4275-4277,4280-4286,4290
+dist/marionette.js
+  s_d93f45db31dead::t_0fe224acc68d47 3742,3756-3763,3890-3912,4064-4067,4081,4127-4132,4175,4184-4189,4256-4258,4267-4269,4271-4273,4276-4282,4286
+dist/marionette.min.js
+  s_d93f45db31dead::t_60c497730de708 1
+dist/marionette.min.js.map
+  s_d93f45db31dead::t_23c36da0a6c872 1
+dist/marionette.umd.js
+  s_d93f45db31dead::t_325d92f3643d2f 3753,3767-3774,3901-3923,4075-4078,4092,4138-4143,4186,4195-4200,4267-4269,4278-4280,4282-4284,4287-4293,4297
+dist/marionette.umd.js.map
+  s_d93f45db31dead::t_0ae13ba38434d8 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "7d927a4c87e73e4a4f14cac33049caac69edfb67",
+  "prompts": {},
+  "sessions": {
+    "s_d93f45db31dead": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05c69-15cb-71b1-836b-0fdd2f01d1c5",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
