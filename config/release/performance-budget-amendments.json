@@ -123,6 +123,47 @@
       ],
       "rationale": "Authorize a deliberate 75000-byte aggregate development envelope for the remaining v5 alpha runtime work. The exact stack-fallback and unbound-getUI diagnostic prototype proves the previous ceiling is exhausted and grows every main delivery format, while the larger envelope keeps the duplicated-format package sum as a runaway-growth backstop instead of an incentive to byte-golf clean runtime contracts. Exact-base artifact and graph reporting, growth approval, resource checks, and later consumer-scenario budgets remain independent gates.",
       "rollbackCondition": "If the stack-fallback and unbound-getUI prototype is abandoned before consumption, append a governance-only BA0003 revocation. Never edit or delete this authorization. Before beta promotion, review the envelope against the completed core and canonical dependency-inclusive consumer scenarios; if a final runtime implementation exceeds 75000 bytes or changes the authorized positive-delta artifact scope, require a new exact-base budget amendment."
+    },
+    {
+      "kind": "authorization",
+      "id": "BA0004",
+      "target": "aggregate-shipped-package",
+      "previousCeilingBytes": 75000,
+      "proposedCeilingBytes": 75799,
+      "prototypeBaseCommit": "8a325835dee059ec0b2ec4f13205887113aeffd1",
+      "prototypeCommit": "7d927a4c87e73e4a4f14cac33049caac69edfb67",
+      "implementationIssueUrl": "https://github.com/marionettejs/marionette/issues/190",
+      "authorizedArtifactPaths": [
+        "dist/marionette.cjs",
+        "dist/marionette.js",
+        "dist/marionette.min.js",
+        "dist/marionette.umd.js"
+      ],
+      "authorizedNewSubpaths": [],
+      "reports": [
+        {
+          "path": "evidence/performance-budget-amendments/BA0004/base.json",
+          "role": "base",
+          "sha256": "8229294337280e06f2bf612d37ebfa14082da7500b5a7f68552ef1168faa37f8"
+        },
+        {
+          "path": "evidence/performance-budget-amendments/BA0004/prototype.json",
+          "role": "prototype",
+          "sha256": "63f6f44abd2ce99ea33573c67987a14f9011c8ff8439ce49d7be69edada1306a"
+        }
+      ],
+      "prototypeContract": {
+        "path": "evidence/performance-budget-amendments/BA0004/prototype-contract.json",
+        "sha256": "14dc09d94aebc78b776ee17c5a28436e2438b83323326cc5a1244ce2b7d1cec8"
+      },
+      "approvalUrls": [
+        "https://github.com/marionettejs/marionette/pull/351#issuecomment-5494696235"
+      ],
+      "evidenceUrls": [
+        "https://github.com/marionettejs/marionette/issues/127#issuecomment-5494678733"
+      ],
+      "rationale": "Authorize the exact measured distribution cost of completing Application root View and Region ownership together with Application State composition. The prototype uses one Application lifecycle and one existing State mixin, grows only the four established main artifacts, adds no module-graph edge, external import, package subpath, eager stateless allocation, Toolkit lifecycle flag, compatibility alias, or speculative headroom.",
+      "rollbackCondition": "If the Application root ownership and State prototype is abandoned before consumption, append a governance-only BA0004 revocation. Never edit or delete this authorization. If the final implementation exceeds 75799 bytes or changes the authorized positive-delta artifact scope, require a new exact-base budget amendment."
     }
   ]
 }
