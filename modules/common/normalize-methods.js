@@ -32,7 +32,7 @@ const resolveMethod = function(context, method, name) {
 };
 
 const normalizeMethods = function(hash) {
-  if (!hash) { return }
+  if (!hash) { return; }
 
   const normalizedHash = {};
 

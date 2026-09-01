@@ -1,7 +1,7 @@
 // Bind/Unbind Radio Requests
 // -----------------------------------------
 //
-// These methods are used to bind/unbind a backbone.radio request
+// These methods bind/unbind requests on a Radio channel
 // to methods on a target object.
 //
 // The first parameter, `target`, will set the context of the reply method
