@@ -12,6 +12,7 @@ import Behavior from './modules/behavior.js';
 import Region from './modules/region.js';
 import Application from './modules/application.js';
 import Radio from './modules/radio.js';
+import State from './modules/state.js';
 
 import DomApi from './runtime/dom-api.js';
 import MarionetteError from './utils/error.js';
@@ -47,6 +48,7 @@ export {
   Behavior,
   Application,
   Radio,
+  State,
   isEnabled,
   setEnabled,
   monitorViewEvents,

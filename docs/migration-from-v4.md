@@ -10,6 +10,7 @@ Status values describe the v5 outcome:
 - **Preserved**: the supported public behavior remains available.
 - **Changed**: the public behavior remains relevant but has a different contract.
 - **Removed**: the v4 behavior is not supported in v5.
+- **Added**: v5 provides a new public capability with no core v4 equivalent.
 - **Optional**: the behavior is available only through an explicit opt-in.
 - **Renamed**: the capability remains under a different name.
 - **Documented**: the public extension point is retained and called out here.
@@ -25,6 +26,7 @@ Status values describe the v5 outcome:
 | `DEV_MODE` deprecation warnings | `setEnabled('DEV_MODE', true)` enabled deprecation warnings. | The warning capability is removed; `setEnabled('DEV_MODE', true)` no longer enables warnings. | Removed | Remove the flag call. Future deprecations require cataloged diagnostics. |
 | Custom feature flags | `setEnabled` created application-owned flags. | Custom non-empty string names remain supported. Non-string and blank names throw `MN0027` instead of relying on property-key coercion. `isEnabled` returns `false` for those invalid inputs. | Preserved | Existing string-named custom flags require no migration. |
 | Backbone dependency | Backbone was a required runtime dependency and supplied core entity and view behavior. | Marionette core does not import Backbone. | Optional | Install Backbone only for Backbone models or collections. See [Optional Backbone](./optional-backbone.md). |
+| Local State | Core did not provide a first-class local State object; applications commonly used a Backbone model or a separate mixin. | The named `State` export provides a small synchronous local-state object without making it a domain model. | Added | Move local UI or orchestration values to [`State`](./marionette.state.md) when model identity, persistence, validation, and collection membership are not required. Keep domain data in its model or data source. |
 | Explicit Backbone shim | Backbone integration was applied as part of the v4 dependency relationship. | `marionette/backbone` explicitly patches Backbone with Marionette event helpers. | Optional | Import `marionette/backbone` only when the shim is required. See [Using the bundled Backbone shim](./optional-backbone.md#using-the-bundled-backbone-shim). |
 | jQuery dependency | jQuery commonly backed Backbone view and Marionette DOM behavior. | Marionette core does not import jQuery. | Optional | Install jQuery only when using `marionette/jquery-dom-api`. See [jQuery DOM adapter is optional](./installation.md#jquery-dom-adapter-is-optional). |
 | Optional jQuery DomApi | jQuery-backed DOM operations were part of the common v4 stack. | The `marionette/jquery-dom-api` subpath provides explicitly selected jQuery-backed DOM methods and the opt-in `$el` compatibility surface. | Optional | Configure it at app boot with `setDomApi`. See [jQuery DOM compatibility](../upgradeGuide.md#jquery-dom-compatibility). |

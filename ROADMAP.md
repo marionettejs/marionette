@@ -291,10 +291,11 @@ current owner belongs to a longer-lived Application and is passed to the shorter
 Application explicitly.
 
 `State` is a first-class, event-notifying object composed into an eligible owner rather
-than methods mixed into several unrelated classes. Phase 1 selects its concrete API
-after testing the current Toolkit vocabulary against representative plain and
-stateful objects. No State instance, listener, cleanup registration, or owner
-property exists until state is declared, supplied, or first requested. State composed
+than methods mixed into several unrelated classes. Its canonical API lives on State;
+owners expose only `getState()` and do not duplicate Toolkit's keyed getter,
+setter, toggle, presence, or reset wrappers. No State instance, listener,
+cleanup registration, or owner property exists until state is declared,
+supplied, or first requested. State composed
 into a Marionette owner has exactly one owner. Supplying an unowned State transfers
 ownership; supplying an already-owned State for composition fails with a stable
 diagnostic rather than creating shared or borrowed ownership. Shared data belongs in
@@ -310,10 +311,13 @@ private State when its concern truly owns that state. State shared with its View
 belongs on the View; the Behavior may receive an ordinary reference to that State but
 does not compose, own, or destroy it.
 
-The selected State contract has one stable change payload and treats a multi-key write
-as one atomic observer notification. Defaults, reset, nested-write policy, reads and
-writes after destroy, owner cleanup, and any declarative state-event binding are
-specified before implementation. It does not implicitly rerender a View, add effects
+The selected State contract commits every key in a multi-key write before events,
+emits ordered `change:key` events, and then emits one aggregate `change` event per
+write. Both event forms carry the same stable change object with `changed` and
+`previous` maps plus caller metadata. Nested writes complete synchronously as their
+own operations. Defaults, reset, reads after destroy, lifecycle-safe write
+no-ops, owner cleanup, and declarative `stateEvents` are explicit parts of the
+contract. It does not implicitly rerender a View, add effects
 or computed values, schedule asynchronous work, persist data, or replace shared domain
 models. Stateless owners pay zero per-instance allocation and retention cost.
 

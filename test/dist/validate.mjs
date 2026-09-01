@@ -49,6 +49,7 @@ function validateBrowserGlobal(file) {
 
   assert.strictEqual(Marionette.VERSION, packageJson.version, `${file} browser-global version`);
   assert.strictEqual(typeof Marionette.MarionetteError, 'function', `${file} MarionetteError export`);
+  assert.strictEqual(typeof Marionette.State, 'function', `${file} State export`);
   validateRadio(Marionette, file);
   assert.strictEqual(Marionette.noConflict(), Marionette, `${file} noConflict return value`);
   assert.strictEqual(context.Marionette, previousMarionette, `${file} noConflict restoration`);
@@ -63,6 +64,8 @@ async function validate() {
   for (const [name, Marionette] of entrypoints) {
     assert.strictEqual(Marionette.VERSION, packageJson.version, `${name} version`);
     assert.strictEqual(typeof Marionette.MarionetteError, 'function', `${name} MarionetteError export`);
+    assert.strictEqual(typeof Marionette.State, 'function', `${name} State export`);
+    assert.strictEqual(new Marionette.State({ ready: true }).get('ready'), true, `${name} State behavior`);
     validateRadio(Marionette, name);
 
     for (const utilityName of removedRootUtilities) {

@@ -241,10 +241,10 @@ function triggerMethod(event, ...args) {
   return result;
 }
 
-const objectKeys$3 = Object.keys;
+const objectKeys$4 = Object.keys;
 let listening;
 function getKeys$1(object) {
-  return object == null ? [] : objectKeys$3(object);
+  return object == null ? [] : objectKeys$4(object);
 }
 const onApi = function ({
   events,
@@ -576,10 +576,10 @@ function makeCallback(callback) {
   return result;
 }
 
-const objectKeys$2 = Object.keys;
+const objectKeys$3 = Object.keys;
 function getKeys(object) {
   const type = typeof object;
-  return object != null && (type === 'object' || type === 'function') ? objectKeys$2(object) : [];
+  return object != null && (type === 'object' || type === 'function') ? objectKeys$3(object) : [];
 }
 const registerReply = function (requests, name, callback, context) {
   if (Object.hasOwn(requests, name)) {
@@ -908,7 +908,7 @@ var DestroyMixin = {
   }
 };
 
-const objectKeys$1 = Object.keys;
+const objectKeys$2 = Object.keys;
 const _logs = Object.create(null);
 function _partial(channelName) {
   return _logs[channelName] || (_logs[channelName] = log.bind(Radio, channelName));
@@ -956,7 +956,7 @@ assignOwn(Channel.prototype, Events, Requests, {
 });
 const systems = [Events, Requests];
 for (let systemIndex = 0, systemsLength = systems.length; systemIndex < systemsLength; systemIndex++) {
-  const methodNames = objectKeys$1(systems[systemIndex]);
+  const methodNames = objectKeys$2(systems[systemIndex]);
   for (let index = 0, length = methodNames.length; index < length; index++) {
     const methodName = methodNames[index];
     setProperty(Radio, methodName, function (channelName, ...args) {
@@ -967,7 +967,7 @@ for (let systemIndex = 0, systemsLength = systems.length; systemIndex < systemsL
 }
 Radio.reset = function (channelName) {
   if (!arguments.length) {
-    const channelNames = objectKeys$1(_channels);
+    const channelNames = objectKeys$2(_channels);
     for (let index = 0, length = channelNames.length; index < length; index++) {
       _channels[channelNames[index]].reset();
     }
@@ -1522,7 +1522,7 @@ var ViewEventsMixin = {
   }
 };
 
-const objectKeys = Object.keys;
+const objectKeys$1 = Object.keys;
 function setDomApi$1(mixin) {
   this.prototype.Dom = assignOwn({}, this.prototype.Dom, mixin);
   return this;
@@ -1580,7 +1580,7 @@ var DomApi = {
     if (attrs == null || attrsType !== 'object' && attrsType !== 'function') {
       return;
     }
-    const attrNames = objectKeys(attrs);
+    const attrNames = objectKeys$1(attrs);
     for (let index = 0, length = attrNames.length; index < length; index++) {
       const attr = attrNames[index];
       if (attr in el) {
@@ -3913,6 +3913,136 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
   }
 });
 
+const objectKeys = Object.keys;
+function addChange(changedKeys, changed, previous, name, previousValue, value) {
+  changedKeys.push(name);
+  setProperty(changed, name, value);
+  setProperty(previous, name, previousValue);
+}
+function validateKeys(keys) {
+  for (let index = 0, length = keys.length; index < length; index++) {
+    const key = keys[index];
+    if (typeof key !== 'string' || !eventSplitter.test(key)) {
+      continue;
+    }
+    throw new MarionetteError({
+      code: 'MN0034',
+      message: 'State keys cannot contain whitespace.',
+      url: 'marionette.state.html#state-keys'
+    });
+  }
+}
+function updateState(state, attributes, options, removedKeys = []) {
+  if (state._isDestroyed) {
+    return state;
+  }
+  const current = state._attributes;
+  const changed = {};
+  const previous = {};
+  const changedKeys = [];
+  const attributeKeys = objectKeys(attributes);
+  validateKeys(removedKeys);
+  validateKeys(attributeKeys);
+  for (let index = 0, length = removedKeys.length; index < length; index++) {
+    const name = removedKeys[index];
+    if (!Object.hasOwn(current, name)) {
+      continue;
+    }
+    addChange(changedKeys, changed, previous, name, current[name], undefined);
+  }
+  for (let index = 0, length = attributeKeys.length; index < length; index++) {
+    const name = attributeKeys[index];
+    const value = attributes[name];
+    if (Object.hasOwn(current, name) && Object.is(current[name], value)) {
+      continue;
+    }
+    addChange(changedKeys, changed, previous, name, current[name], value);
+  }
+  if (!changedKeys.length) {
+    return state;
+  }
+  for (let index = 0, length = removedKeys.length; index < length; index++) {
+    delete current[removedKeys[index]];
+  }
+  assignOwn(current, attributes);
+  if (options?.silent) {
+    return state;
+  }
+  const change = assignOwn({}, options, {
+    changed,
+    previous
+  });
+  for (let index = 0, length = changedKeys.length; index < length; index++) {
+    const name = changedKeys[index];
+    state.trigger(`change:${name}`, state, changed[name], change);
+  }
+  state.trigger('change', state, change);
+  return state;
+}
+const State = function (attributes) {
+  this.cid = uniqueId(this.cidPrefix);
+  const stateAttributes = assignOwn({}, getValue(this, 'defaults'), attributes);
+  validateKeys(objectKeys(stateAttributes));
+  this._attributes = stateAttributes;
+  this.initialize.apply(this, arguments);
+};
+State.extend = extend;
+assignOwn(State.prototype, Events, {
+  cidPrefix: 'mns',
+  _isDestroyed: false,
+  initialize() {},
+  get(key) {
+    return Object.hasOwn(this._attributes, key) ? this._attributes[key] : undefined;
+  },
+  has(key) {
+    return Object.hasOwn(this._attributes, key);
+  },
+  set(key, value, options) {
+    if (key == null) {
+      return this;
+    }
+    let attributes;
+    if (typeof key === 'object') {
+      attributes = key;
+      options = value;
+    } else {
+      attributes = {
+        [key]: value
+      };
+    }
+    return updateState(this, attributes, options);
+  },
+  unset(key, options) {
+    if (key == null) {
+      return this;
+    }
+    return updateState(this, {}, options, [key]);
+  },
+  reset(attributes = {}, options) {
+    if (this._isDestroyed) {
+      return this;
+    }
+    const nextAttributes = assignOwn({}, getValue(this, 'defaults'), attributes);
+    const removedKeys = objectKeys(this._attributes).filter(key => !Object.hasOwn(nextAttributes, key));
+    return updateState(this, nextAttributes, options, removedKeys);
+  },
+  toJSON() {
+    return assignOwn({}, this._attributes);
+  },
+  isDestroyed() {
+    return this._isDestroyed;
+  },
+  destroy() {
+    if (this._isDestroyed) {
+      return this;
+    }
+    this._isDestroyed = true;
+    this.stopListening();
+    this.off();
+    return this;
+  }
+});
+
 const setDomApi = function (mixin) {
   CollectionView.setDomApi(mixin);
   Region.setDomApi(mixin);
@@ -3928,4 +4058,4 @@ const setEventDelegator = function (delegator) {
   View.setEventDelegator(delegator);
 };
 
-export { Application, Behavior, CollectionView, DomApi, Events, MarionetteError, MarionetteObject as MnObject, Radio, Region, version as VERSION, View, extend, isEnabled, monitorViewEvents, setDomApi, setEnabled, setEventDelegator, setRenderer };
+export { Application, Behavior, CollectionView, DomApi, Events, MarionetteError, MarionetteObject as MnObject, Radio, Region, State, version as VERSION, View, extend, isEnabled, monitorViewEvents, setDomApi, setEnabled, setEventDelegator, setRenderer };

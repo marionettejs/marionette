@@ -91,6 +91,7 @@
               "MnObject",
               "Radio",
               "Region",
+              "State",
               "View"
             ]
           }
@@ -128,6 +129,7 @@
             "lifecycle",
             "ownership",
             "region",
+            "state",
             "view"
           ]
         },
