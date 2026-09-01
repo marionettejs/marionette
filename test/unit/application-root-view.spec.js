@@ -282,7 +282,7 @@ describe('Application root View ownership', function() {
     expect(app.getView()).to.be.undefined;
   });
 
-  for (const failure of ['initialize', 'state', 'stateEvents']) {
+  for (const failure of ['_initRadio', 'initialize', 'state', 'stateEvents']) {
     it(`destroys its constructed Region when ${ failure } throws`, function() {
       const error = new Error(`${ failure } failed`);
       let region;
@@ -297,6 +297,18 @@ describe('Application root View ownership', function() {
 
       expect(() => new BrokenApplication()).to.throw(error);
       expect(region.isDestroyed()).to.be.true;
+    });
+
+    it(`releases its supplied Region when ${ failure } throws`, function() {
+      const error = new Error(`${ failure } failed`);
+      const region = new Region({ el: '#application-root' });
+      const BrokenApplication = Application.extend({
+        [failure]() { throw error; }
+      });
+
+      expect(() => new BrokenApplication({ region })).to.throw(error);
+      expect(region.isDestroyed()).to.be.false;
+      region.destroy();
     });
   }
 
