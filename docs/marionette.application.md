@@ -8,6 +8,7 @@ Region for a view tree.
 - [Common Marionette Functionality](./common.md)
 - [Class Events](./events.class.md#application-events)
 - [Radio API](./radio.md#marionette-integration)
+- [State API](./marionette.state.md#owned-state)
 
 `Application` is an independent class. It does not inherit from `MnObject` and
 does not add an element or render method.
@@ -19,6 +20,7 @@ The `Application` `cidPrefix` is `mna`.
 * [Instantiating An Application](#instantiating-an-application)
 * [Application Lifecycle](#application-lifecycle)
 * [Application Ownership](#application-ownership)
+* [Application State](#application-state)
 * [Application Region](#application-region)
 * [Application Region Methods](#application-region-methods)
 
@@ -26,7 +28,8 @@ The `Application` `cidPrefix` is `mna`.
 
 When instantiating a `Application` there are several properties, if passed,
 that will be attached directly to the instance:
-`channelName`, `radioEvents`, `radioRequests`, `region`, `regionClass`
+`channelName`, `radioEvents`, `radioRequests`, `region`, `regionClass`,
+`stateEvents`
 
 ```javascript
 import { Application } from 'marionette';
@@ -64,7 +67,7 @@ transitions, after stop, and after destroy.
 | Not running | `start(options)` | `before:start`, await readiness, `start` | `true` when running |
 | Running | `start(options)` | No-op | `true` |
 | Running or starting | `stop(options)` | Invalidates startup when needed, then `before:stop`, `stop` | `true` when stopped; the invalidated start resolves `false` |
-| Stopped | `stop(options)` | No-op | `true` |
+| Stopped | `stop(options)` | Empty a root View shown outside startup; otherwise no-op | `true` |
 | Any live, non-destroying state | `restart(options)` | Stop when needed, then start | `true` when running |
 | Running or starting | `destroy(options)` | Stop when needed, then `before:destroy`, `destroy` | `true` when destroyed |
 | Stopped | `destroy(options)` | `before:destroy`, `destroy` | `true` when destroyed |
@@ -208,10 +211,23 @@ destroy joins terminal teardown and may remove that child before parent
 readiness. If child stop or destroy readiness fails, the parent returns to its
 prior stable state and retains that child so destruction can be retried.
 
+## Application State
+
+An Application may compose one lazy, owned [State](./marionette.state.md) for
+local orchestration values. Declare `state`, supply a live unowned State, or
+call `getState()` to activate it. `stateEvents` bindings are established after
+`initialize`, matching other State owners.
+
+Application State persists across stop and restart and is destroyed with the
+Application. Stateless Applications allocate no State or State subscription.
+Asynchronous startup work must use the readiness context's abort signal before
+committing values so an invalidated start cannot apply stale State changes.
+
 ## Application Region
 
-An `Application` provides a single [region](./marionette.region.md) for attaching a view tree.
-The `region` property can be [defined in multiple ways](./marionette.region.md#defining-regions)
+An `Application` coordinates one root View through a single
+[region](./marionette.region.md). The `region` property can be
+[defined in multiple ways](./marionette.region.md#defining-regions).
 
 ```javascript
 import { Application } from 'marionette';
@@ -234,6 +250,18 @@ This will immediately render `RootView` and fire the usual triggers such as
 triggers.
 
 `region` can also be passed as an option during instantiation.
+
+The Application owns a Region that it constructs from a selector, Region class,
+or definition object. Passing an existing Region instance instead borrows that
+host. Stopping the Application empties the host only while it still contains the
+Application's root View. Destroying the Application also destroys a Region it
+constructed, but never destroys a borrowed Region.
+
+If the host Region is emptied, detached, or shows a replacement externally, the
+Application clears its View reference without stopping. Emptying or replacing
+normally destroys the former root View; detaching transfers it alive to the caller.
+A later Application stop does not empty an unrelated replacement. Restart uses the
+same stop behavior before `onStart` may show a new root View.
 
 ### `regionClass`
 
@@ -264,14 +292,19 @@ The Marionette Application provides helper methods for managing its attached reg
 
 ### `getRegion()`
 
-Return the attached [region object](./marionette.region.md) for the Application.
+Return the current host [region object](./marionette.region.md) for the
+Application. The host reference is released when the Application is destroyed.
 
 ### `showView(view)`
 
-Display a `View` instance in the region attached to the Application. This runs the [`View lifecycle`](./view.lifecycle.md).
+Display a `View` instance in the Region attached to the Application and make it
+the Application's root View. This runs the
+[`View lifecycle`](./view.lifecycle.md). The Application itself is never passed
+to `Region#show` and does not become renderable.
 
 ### `getView()`
 
-Return the view currently being displayed in the Application's attached
-`region`. If the Application is not currently displaying a view, this method
-returns `undefined`.
+Return the root View currently coordinated by the Application. If the host was
+emptied, detached, or replaced externally, or the Application is stopped or
+destroyed, this method returns `undefined` even if a borrowed Region now contains
+another View.

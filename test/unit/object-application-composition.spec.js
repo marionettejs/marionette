@@ -51,6 +51,7 @@ describe('Object and Application prototype composition', function() {
       'regionClass',
       '_initRegion',
       'getRegion',
+      '_onRootRegionEmpty',
       'showView',
       'getView'
     ];
@@ -59,7 +60,7 @@ describe('Object and Application prototype composition', function() {
     expect(Object.keys(MnObject.prototype))
       .to.deep.equal(composedKeys([...sharedMixins, StateMixin], objectFinalKeys));
     expect(Object.keys(Application.prototype))
-      .to.deep.equal(composedKeys(sharedMixins, applicationFinalKeys));
+      .to.deep.equal(composedKeys([...sharedMixins, StateMixin], applicationFinalKeys));
     expect(MnObject.prototype._setOptions).to.equal(CommonMixin._setOptions);
     expect(MnObject.prototype.destroy).to.equal(DestroyMixin.destroy);
     expect(MnObject.prototype._initRadio).to.equal(RadioMixin._initRadio);
@@ -67,6 +68,7 @@ describe('Object and Application prototype composition', function() {
     expect(Application.prototype._setOptions).to.equal(CommonMixin._setOptions);
     expect(Application.prototype.destroy).to.not.equal(DestroyMixin.destroy);
     expect(Application.prototype._initRadio).to.equal(RadioMixin._initRadio);
+    expect(Application.prototype.getState).to.equal(StateMixin.getState);
     [CommonMixin, DestroyMixin, RadioMixin].forEach(mixin => {
       Object.keys(mixin).forEach(key => {
         expectAssignmentDescriptor(MnObject.prototype, key, mixin[key]);
@@ -77,6 +79,7 @@ describe('Object and Application prototype composition', function() {
     });
     Object.keys(StateMixin).forEach(key => {
       expectAssignmentDescriptor(MnObject.prototype, key, StateMixin[key]);
+      expectAssignmentDescriptor(Application.prototype, key, StateMixin[key]);
     });
     expectAssignmentDescriptor(MnObject.prototype, 'cidPrefix', 'mno');
     expectAssignmentDescriptor(Application.prototype, 'cidPrefix', 'mna');

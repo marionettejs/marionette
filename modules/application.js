@@ -8,6 +8,7 @@ import uniqueId from '../utils/unique-id.js';
 import CommonMixin from '../mixins/common.js';
 import DestroyMixin from '../mixins/destroy.js';
 import RadioMixin from '../mixins/radio.js';
+import StateMixin from '../mixins/state.js';
 import Region from './region.js';
 import { buildRegion } from './view-region.js';
 
@@ -16,7 +17,8 @@ const ClassOptions = [
   'radioEvents',
   'radioRequests',
   'region',
-  'regionClass'
+  'regionClass',
+  'stateEvents'
 ];
 
 const DESTROYED = 'destroyed';
@@ -33,7 +35,15 @@ const Application = function(options) {
   this.cid = uniqueId(this.cidPrefix);
   this._initRegion();
   this._initRadio();
-  this.initialize.apply(this, arguments);
+  this._initState(options);
+
+  try {
+    this.initialize.apply(this, arguments);
+    this._initStateEvents();
+  } catch (error) {
+    this._destroyState();
+    throw error;
+  }
 };
 
 Application.extend = extend;
@@ -175,6 +185,36 @@ function hasActiveChildApps(application) {
   }
 
   return false;
+}
+
+function clearRootView(application) {
+  const region = application._region;
+
+  region?.off('empty', application._onRootRegionEmpty, application);
+  delete application._view;
+}
+
+function getRootView(application) {
+  const view = application._view;
+
+  if (view && application._region?.currentView !== view) {
+    clearRootView(application);
+    return;
+  }
+
+  return view;
+}
+
+function emptyRootView(application, options) {
+  const region = application._region;
+
+  if (getRootView(application)) {
+    try {
+      region.empty(options);
+    } finally {
+      getRootView(application);
+    }
+  }
 }
 
 function createDeferred() {
@@ -335,6 +375,8 @@ async function stopApplication(application, operation, options) {
       cancelOperation(application, operation);
       return;
     }
+    emptyRootView(application, readiness.options);
+    if (!isCurrentOperation(application, operation)) { return; }
     operation.failureState = STOPPED;
     operation.isStopped = true;
     if (operation.kind === 'stop') {
@@ -352,7 +394,7 @@ async function stopApplication(application, operation, options) {
 // Application Methods
 // --------------
 
-assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
+assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMixin, {
   cidPrefix: 'mna',
 
   _lifecycleState: STOPPED,
@@ -398,7 +440,14 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
       superseded.readiness?.controller.abort();
       return Promise.resolve(true);
     }
-    if (this._lifecycleState === STOPPED && !operation) { return Promise.resolve(true); }
+    if (this._lifecycleState === STOPPED && !operation) {
+      try {
+        emptyRootView(this, options);
+        return Promise.resolve(true);
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    }
     const failureState = getFailureState(this, operation);
 
     return beginOperation(this, 'stop', STOPPING, failureState, current => {
@@ -440,6 +489,8 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
         await stopChildApps(this, current, options);
       }
 
+      emptyRootView(this, options);
+
       const readiness = beginReadiness(current, options, context => {
         return this.triggerMethod('before:destroy', this, options, context);
       });
@@ -449,6 +500,12 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
       if (this._childApps) {
         await destroyChildApps(this, options);
       }
+      const region = this._region;
+      if (this._ownsRegion) {
+        region.destroy(options);
+      }
+      delete this._region;
+      delete this._ownsRegion;
       this._isDestroyed = true;
       this._lifecycleState = DESTROYED;
       current.failureState = DESTROYED;
@@ -523,6 +580,10 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
 
     if (!region) { return; }
 
+    if (!(region instanceof Region)) {
+      this._ownsRegion = true;
+    }
+
     const defaults = {
       regionClass: this.regionClass
     };
@@ -534,14 +595,27 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     return this._region;
   },
 
+  _onRootRegionEmpty() {
+    clearRootView(this);
+  },
+
   showView(view, ...args) {
+    if (isTerminal(this)) { return view; }
+
     const region = this.getRegion();
     region.show(view, ...args);
+    if (region.currentView === view) {
+      if (this._view !== view) {
+        clearRootView(this);
+        region.on('empty', this._onRootRegionEmpty, this);
+      }
+      this._view = view;
+    }
     return view;
   },
 
   getView() {
-    return this.getRegion().currentView;
+    return getRootView(this);
   }
 });
 
