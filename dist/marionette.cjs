@@ -3643,11 +3643,11 @@ const Behavior = function (options, view) {
   this._setOptions(options, ClassOptions$1);
   this.cid = uniqueId(this.cidPrefix);
   this._initViewEvents();
-  this._initState(options);
   this.el = view.el;
   if (view.$el) {
     this.$el = view.$el;
   }
+  this._initState(options);
   this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui'));
   this.listenTo(view, 'all', this.triggerMethod);
   this.initialize.apply(this, arguments);

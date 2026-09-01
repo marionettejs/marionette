@@ -289,6 +289,21 @@ describe('State owner composition', function() {
     view.destroy();
   });
 
+  it('resolves Behavior State after its element is available', function() {
+    let resolvedElement;
+    const StatefulBehavior = Behavior.extend({
+      state() {
+        resolvedElement = this.el;
+        return {};
+      }
+    });
+    const { view } = buildBehavior(StatefulBehavior);
+
+    expect(resolvedElement).to.equal(view.el);
+
+    view.destroy();
+  });
+
   it('keeps State separate between Behaviors on one View', function() {
     const StatefulBehavior = Behavior.extend({ state: { count: 0 } });
     const OwnerView = View.extend({
