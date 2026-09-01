@@ -36,7 +36,7 @@ const onApi = function({ events, name, callback, context, ctx, listener }) {
 };
 
 const onReducer = function(events, { name, callback, context }) {
-  if (!callback) {return events;}
+  if (!callback) { return events; }
   const listener = listening;
   events = onApi({ events, name, callback, context, ctx: this, listener });
 
@@ -48,15 +48,15 @@ const onReducer = function(events, { name, callback, context }) {
   }
 
   return events;
-}
+};
 
 const cleanupListener = function({ obj, listeneeId, listenerId, listeningTo }) {
   delete listeningTo[listeneeId];
-  if (obj._rdListeners) {delete obj._rdListeners[listenerId];}
+  if (obj._rdListeners) { delete obj._rdListeners[listenerId]; }
 };
 
 // The reducing API that removes a callback from the `events` object.
-const offReducer = function(events , { name, callback, context }) {
+const offReducer = function(events, { name, callback, context }) {
   const names = name ? [name] : getKeys(events);
 
   for (let nameIndex = 0, namesLength = names.length; nameIndex < namesLength; nameIndex++) {
@@ -64,7 +64,7 @@ const offReducer = function(events , { name, callback, context }) {
     const handlers = Object.hasOwn(events, key) ? events[key] : undefined;
 
     // Bail out if there are no events stored.
-    if (!handlers) {continue;}
+    if (!handlers) { continue; }
 
     // Find any remaining events.
     const remaining = [];
@@ -83,13 +83,13 @@ const offReducer = function(events , { name, callback, context }) {
       if (handler.listener) {
         const listener = handler.listener;
         listener.count--;
-        if (!listener.count) {cleanupListener(listener);}
+        if (!listener.count) { cleanupListener(listener); }
       }
 
     }
     events[key] = remaining;
 
-    if (!events[key].length) {delete events[key];}
+    if (!events[key].length) { delete events[key]; }
   }
 
   return events;
@@ -118,10 +118,10 @@ const getListener = function(obj, listenerObj) {
   }
 
   return listener;
-}
+};
 
 const listenToApi = function({ name, callback, context, listener }) {
-  if (!callback) {return;}
+  if (!callback) { return; }
 
   const previousListening = listening;
   listening = listener;
@@ -146,7 +146,7 @@ function buildOnceMap(eventArgs, offer) {
   const events = {};
   for (let index = 0, length = eventArgs.length; index < length; index++) {
     const { name, callback } = eventArgs[index];
-    if (!callback) {continue;}
+    if (!callback) { continue; }
     const onceCallback = onceWrap(callback, callbackToRemove => {
       offer(name, callbackToRemove);
     });
@@ -160,8 +160,8 @@ const triggerApi = function({ events, name, args }) {
   const objEvents = Object.hasOwn(events, name) ? events[name] : undefined;
   const registeredAllEvents = Object.hasOwn(events, 'all') ? events.all : undefined;
   const allEvents = (objEvents && registeredAllEvents) ? registeredAllEvents.slice() : registeredAllEvents;
-  if (objEvents) {triggerEvents(objEvents, args);}
-  if (allEvents) {triggerEvents(allEvents, [name].concat(args));}
+  if (objEvents) { triggerEvents(objEvents, args); }
+  if (allEvents) { triggerEvents(allEvents, [name].concat(args)); }
 };
 
 const triggerEvents = function(events, args) {
@@ -195,7 +195,7 @@ const Events = {
   // callbacks for the event. If `name` is null, removes all bound
   // callbacks for all events.
   off(name, callback, context) {
-    if (!this._rdEvents) {return this;}
+    if (!this._rdEvents) { return this; }
 
     // Delete all event listeners and "drop" events.
     if (!name && !context && !callback) {
@@ -223,7 +223,7 @@ const Events = {
   once(name, callback, context) {
     const eventArgs = buildEventArgs(name, callback, context);
     const events = buildOnceMap(eventArgs, this.off.bind(this));
-    if (typeof name === 'string' && context == null) {callback = undefined;}
+    if (typeof name === 'string' && context == null) { callback = undefined; }
 
     return this.on(events, callback, context);
   },
@@ -232,7 +232,7 @@ const Events = {
   // an event in another object... keeping track of what it's listening to
   // for easier unbinding later.
   listenTo(obj, name, callback) {
-    if (!obj) {return this;}
+    if (!obj) { return this; }
 
     const listener = getListener(obj, this);
     const eventArgs = buildEventArgs(name, callback, this, listener);
@@ -255,7 +255,7 @@ const Events = {
   // to every object it's currently listening to.
   stopListening(obj, name, callback) {
     const listeningTo = this._rdListeningTo;
-    if (!listeningTo) {return this;}
+    if (!listeningTo) { return this; }
 
     const eventArgs = buildEventArgs(name, callback, this);
 
@@ -265,7 +265,7 @@ const Events = {
 
       // If listening doesn't exist, this object is not currently
       // listening to obj. Break out early.
-      if (!listener) {break;}
+      if (!listener) { break; }
 
       for (let index = 0, length = eventArgs.length; index < length; index++) {
         const args = eventArgs[index];
@@ -273,7 +273,7 @@ const Events = {
 
         if (listener.interop) {
           listener._rdEvents = offReducer(listener._rdEvents, args);
-          if (!getKeys(listener._rdEvents).length) {cleanupListener(listener);}
+          if (!getKeys(listener._rdEvents).length) { cleanupListener(listener); }
         }
       }
     }
@@ -286,7 +286,7 @@ const Events = {
   // (unless you're listening on `"all"`, which will cause your callback to
   // receive the true name of the event as the first argument).
   trigger(name, ...args) {
-    if (!this._rdEvents) {return this;}
+    if (!this._rdEvents) { return this; }
 
     if (name && typeof name === 'object') {
       const names = getKeys(name);

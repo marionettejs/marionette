@@ -127,7 +127,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     this.children = new ChildViewContainer();
   },
 
-  // Create an region to show the emptyView
+  // Create a region to show the emptyView
   getEmptyRegion() {
     if (this._isDestroyed && this._emptyRegion) { return this._emptyRegion; }
 

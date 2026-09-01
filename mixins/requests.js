@@ -82,7 +82,7 @@ export default {
 
   // Set up a handler for a request
   reply(name, callback, context) {
-    if (dispatchOverload(this, 'reply', name, callback, context)) {return this;}
+    if (dispatchOverload(this, 'reply', name, callback, context)) { return this; }
 
     this._rdRequests = registerReply.call(this, this._rdRequests || {}, name, callback, context);
 
@@ -91,7 +91,7 @@ export default {
 
   // Set up a handler that can only be requested once
   replyOnce(name, callback, context) {
-    if (dispatchOverload(this, 'replyOnce', name, callback, context)) {return this;}
+    if (dispatchOverload(this, 'replyOnce', name, callback, context)) { return this; }
 
     const onceCallback = onceWrap(makeCallback(callback), callbackToRemove => {
       this.stopReplying(name, callbackToRemove);
@@ -102,8 +102,8 @@ export default {
 
   // Remove handler(s)
   stopReplying(name, callback, context) {
-    if (dispatchOverload(this, 'stopReplying', name, callback, context)) {return this;}
-    if (!this._rdRequests) {return this;}
+    if (dispatchOverload(this, 'stopReplying', name, callback, context)) { return this; }
+    if (!this._rdRequests) { return this; }
 
     if (!name && !callback && !context) {
       delete this._rdRequests;

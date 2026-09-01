@@ -425,7 +425,7 @@ describe('Behavior', function() {
     });
   });
 
-  describe('proxyViewProperties', function() {
+  describe('element synchronization', function() {
     let fooBehavior;
     let fooView;
 

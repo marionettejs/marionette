@@ -2,8 +2,8 @@
 export const eventSplitter = /\s+/;
 
 // Iterates over the standard `event, callback` (as well as the fancy multiple
-// space-separated events `"change blur", callback` and jQuery-style event
-// maps `{event: callback}`).
+// space-separated events `"change blur", callback` and event maps
+// `{event: callback}`).
 export default function buildEventArgs(name, callback, context, listener) {
   if (name && typeof name === 'object') {
     const eventContext = context === undefined ? callback : context;
