@@ -1,0 +1,46 @@
+dist/marionette.cjs
+  s_d6429951fb9231::t_a09d47477e8a09 1834-1843,1845,1855-1856,1859,1866,2310
+changelog.md
+  s_d6429951fb9231::t_21e814bf19f1dd 57-58
+dist/marionette.js
+  s_d6429951fb9231::t_b7d2c9bab57b73 1830-1839,1841,1851-1852,1855,1862,2306
+test/unit/region-lifecycle.spec.js
+  s_d6429951fb9231::t_c7e94384244a2a 6
+  s_d6429951fb9231::t_f915959e445bfa 101,104-109
+docs/marionette.region.md
+  s_d6429951fb9231::t_21e814bf19f1dd 186-191
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_21e814bf19f1dd 88
+modules/view-region.js
+  s_d6429951fb9231::t_699b4c5cc4e2c1 686
+  s_d6429951fb9231::t_08670348abc89a 48-57,59-60,71,76,82
+  s_d6429951fb9231::t_d956b5e5891e41 687
+  s_d6429951fb9231::t_5bb6487b114c58 72
+dist/marionette.umd.js
+  s_d6429951fb9231::t_56f47e59462edd 1841-1850,1852,1862-1863,1866,1873,2317
+test/unit/view-region-diagnostics.spec.js
+  s_d6429951fb9231::t_48a06890b3a8f7 25-32,530-539,551-552,554-556,558-562
+  s_d6429951fb9231::t_acf4b1edcff0e1 540
+  s_d6429951fb9231::t_f572ea9c866033 541-543,547-548
+  s_d6429951fb9231::t_7ac02939e8bc52 557
+test/fixtures/docs-view-child-region/validate.mjs
+  s_d6429951fb9231::t_07b41980522015 116-126
+config/diagnostics/catalog.json
+  s_d6429951fb9231::t_08670348abc89a 536-551
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "b6d8f6060f1c90fe3a68cf256fdac810af67991a",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
