@@ -284,9 +284,10 @@ describe('CollectionView Data', function() {
   describe('when only removing models from a collection', function() {
     let myCollectionView;
     let collection;
+    let emptyView;
 
     beforeEach(function() {
-      const emptyView = View.extend({ template: _.template('empty') });
+      emptyView = View.extend({ template: _.template('empty') });
 
       collection = new Backbone.Collection([{ id: 1 }, { id: 2 }, { id: 3 }]);
 
@@ -298,6 +299,257 @@ describe('CollectionView Data', function() {
       collection.remove({ id: 1 });
 
       expect(myCollectionView.el.children).to.have.lengthOf(2);
+    });
+
+    it('does not move or rerender survivors without a comparator or filter', function() {
+      myCollectionView.destroy();
+
+      myCollectionView = new MyCollectionView({
+        collection,
+        emptyView,
+        viewComparator: false
+      });
+      myCollectionView.render();
+
+      const removedView = myCollectionView.children.findByModel(collection.at(1));
+      const survivors = [
+        myCollectionView.children.findByModel(collection.at(0)),
+        myCollectionView.children.findByModel(collection.at(2))
+      ];
+      const survivorNodes = survivors.map(view => view.el);
+
+      this.sinon.spy(removedView, 'destroy');
+      this.sinon.spy(myCollectionView, 'attachHtml');
+
+      collection.remove(removedView.model);
+
+      expect(myCollectionView.attachHtml).to.not.have.been.called;
+      expect([...myCollectionView.el.children]).to.deep.equal(survivorNodes);
+      expect(removedView.destroy).to.have.been.calledOnce;
+    });
+
+    it('removes multiple children without rendering and keeps survivor indexes aligned', function() {
+      myCollectionView.destroy();
+
+      collection = new Backbone.Collection([
+        { id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }
+      ]);
+      myCollectionView = new MyCollectionView({
+        collection,
+        emptyView,
+        viewComparator: false
+      });
+      myCollectionView.render();
+
+      const survivors = [
+        myCollectionView.children.findByModel(collection.get(1)),
+        myCollectionView.children.findByModel(collection.get(3)),
+        myCollectionView.children.findByModel(collection.get(5))
+      ];
+      const beforeRenderChildren = this.sinon.stub();
+      const renderChildren = this.sinon.stub();
+      myCollectionView.on({
+        'before:render:children': beforeRenderChildren,
+        'render:children': renderChildren
+      });
+
+      collection.remove([collection.get(2), collection.get(4)]);
+
+      expect(beforeRenderChildren).to.not.have.been.called;
+      expect(renderChildren).to.not.have.been.called;
+      expect([...myCollectionView.children]).to.deep.equal(survivors);
+      expect(myCollectionView.children.findByIndex(0)).to.equal(survivors[0]);
+      expect(myCollectionView.children.findByIndex(1)).to.equal(survivors[1]);
+      expect(myCollectionView.children.findByIndex(2)).to.equal(survivors[2]);
+      expect([...myCollectionView.el.children])
+        .to.deep.equal(survivors.map(view => view.el));
+    });
+
+    it('does not move survivors when collection sorting is disabled', function() {
+      myCollectionView.destroy();
+
+      myCollectionView = new MyCollectionView({
+        collection,
+        emptyView,
+        sortWithCollection: false
+      });
+      myCollectionView.render();
+
+      const survivorNodes = [
+        myCollectionView.el.children[0],
+        myCollectionView.el.children[2]
+      ];
+      this.sinon.spy(myCollectionView, 'attachHtml');
+
+      collection.remove(collection.at(1));
+
+      expect(myCollectionView.attachHtml).to.not.have.been.called;
+      expect([...myCollectionView.el.children]).to.deep.equal(survivorNodes);
+    });
+
+    it('keeps the render path when a comparator is active', function() {
+      const beforeRenderChildren = this.sinon.stub();
+      const renderChildren = this.sinon.stub();
+      myCollectionView.on({
+        'before:render:children': beforeRenderChildren,
+        'render:children': renderChildren
+      });
+      this.sinon.spy(myCollectionView, 'attachHtml');
+
+      collection.remove(collection.at(1));
+
+      expect(myCollectionView.attachHtml).to.have.been.calledOnce;
+      expect(beforeRenderChildren).to.have.been.calledOnce;
+      expect(renderChildren).to.have.been.calledOnce;
+    });
+
+    it('preserves survivors inside a childViewContainer', function() {
+      myCollectionView.destroy();
+
+      const ChildContainerView = MyCollectionView.extend({
+        template: _.template('<div class="children"></div>'),
+        childViewContainer: '.children'
+      });
+      myCollectionView = new ChildContainerView({
+        collection,
+        emptyView,
+        viewComparator: false
+      });
+      myCollectionView.render();
+
+      const survivorNodes = [
+        myCollectionView.container.children[0],
+        myCollectionView.container.children[2]
+      ];
+
+      collection.remove(collection.at(1));
+
+      expect([...myCollectionView.container.children]).to.deep.equal(survivorNodes);
+    });
+
+    it('keeps the render path when a filter is active', function() {
+      myCollectionView.destroy();
+
+      myCollectionView = new MyCollectionView({
+        collection,
+        emptyView,
+        viewComparator: false,
+        viewFilter() { return true; }
+      });
+      myCollectionView.render();
+      this.sinon.spy(myCollectionView, 'attachHtml');
+
+      collection.remove(collection.at(1));
+
+      expect(myCollectionView.attachHtml).to.have.been.calledOnce;
+    });
+
+    it('keeps the render path when the comparator query is overridden', function() {
+      myCollectionView.destroy();
+
+      const CustomCollectionView = MyCollectionView.extend({
+        viewComparator: false,
+        getComparator() { return false; }
+      });
+      myCollectionView = new CustomCollectionView({ collection, emptyView });
+      myCollectionView.render();
+      this.sinon.spy(myCollectionView, 'attachHtml');
+
+      collection.remove(collection.at(1));
+
+      expect(myCollectionView.attachHtml).to.have.been.calledOnce;
+    });
+
+    it('keeps the render path when the filter query is overridden', function() {
+      myCollectionView.destroy();
+
+      const CustomCollectionView = MyCollectionView.extend({
+        viewComparator: false,
+        getFilter() { return false; }
+      });
+      myCollectionView = new CustomCollectionView({ collection, emptyView });
+      myCollectionView.render();
+      this.sinon.spy(myCollectionView, 'attachHtml');
+
+      collection.remove(collection.at(1));
+
+      expect(myCollectionView.attachHtml).to.have.been.calledOnce;
+    });
+
+    it('keeps the render path when sort is overridden', function() {
+      myCollectionView.destroy();
+
+      const sort = this.sinon.spy(MyCollectionView.prototype, 'sort');
+      const CustomCollectionView = MyCollectionView.extend({
+        viewComparator: false,
+        sort
+      });
+      myCollectionView = new CustomCollectionView({ collection, emptyView });
+      myCollectionView.render();
+      sort.resetHistory();
+
+      collection.remove(collection.at(1));
+
+      expect(sort).to.have.been.calledOnce;
+    });
+
+    it('keeps the render path when filter is overridden', function() {
+      myCollectionView.destroy();
+
+      const filter = this.sinon.spy(MyCollectionView.prototype, 'filter');
+      const CustomCollectionView = MyCollectionView.extend({
+        viewComparator: false,
+        filter
+      });
+      myCollectionView = new CustomCollectionView({ collection, emptyView });
+      myCollectionView.render();
+      filter.resetHistory();
+
+      collection.remove(collection.at(1));
+
+      expect(filter).to.have.been.calledOnce;
+    });
+
+    it('shows the empty view after removing the last child', function() {
+      myCollectionView.destroy();
+
+      collection = new Backbone.Collection([{ id: 1 }]);
+      myCollectionView = new MyCollectionView({
+        collection,
+        emptyView,
+        viewComparator: false
+      });
+      myCollectionView.render();
+
+      collection.remove(collection.at(0));
+
+      expect(myCollectionView.children).to.have.lengthOf(0);
+      expect(myCollectionView.getEmptyRegion().currentView)
+        .to.be.instanceof(emptyView);
+    });
+
+    it('preserves 1,000 visible survivors without reattachment', function() {
+      myCollectionView.destroy();
+
+      collection = new Backbone.Collection(
+        Array.from({ length: 1001 }, (value, id) => ({ id }))
+      );
+      myCollectionView = new MyCollectionView({
+        collection,
+        viewComparator: false
+      });
+      myCollectionView.render();
+
+      const firstNode = myCollectionView.el.firstElementChild;
+      const lastNode = myCollectionView.el.lastElementChild;
+      this.sinon.spy(myCollectionView, 'attachHtml');
+
+      collection.remove(collection.at(500));
+
+      expect(myCollectionView.attachHtml).to.not.have.been.called;
+      expect(myCollectionView.el.children).to.have.lengthOf(1000);
+      expect(myCollectionView.el.firstElementChild).to.equal(firstNode);
+      expect(myCollectionView.el.lastElementChild).to.equal(lastNode);
     });
   });
 

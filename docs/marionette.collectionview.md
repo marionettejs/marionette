@@ -226,6 +226,17 @@ one model into the `children`.
 When a model is removed from the `collection` (or destroyed / deleted), the `CollectionView`
 will destroy and remove that model's child view.
 
+For an already-rendered `CollectionView` with no effective comparator and no
+active `viewFilter`, a removal-only collection update leaves every surviving child
+mounted in place. Set `viewComparator: false`, or set `sortWithCollection: false`
+without supplying another comparator, to disable ordering. The removed child still
+runs its normal removal and destroy lifecycle, but the survivors are not moved,
+rerendered, or included in a `render:children` lifecycle. Updates that add or merge
+models, use sorting or filtering, reveal an empty view, or need to reconcile deferred
+children continue through the normal sort, filter, and render path. A CollectionView
+that overrides `sort`, `filter`, `getComparator`, or `getFilter` also retains the
+normal path so custom update behavior and query timing remain intact.
+
 When the `collection` for the view is sorted, the view by default automatically re-sorts
 its child views unless the `sortWithCollection` attribute on the `CollectionView` is set
 to `false`, or the `viewComparator` is `false`.

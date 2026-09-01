@@ -197,7 +197,31 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
     this._detachChildren(removedViews);
 
-    this.sort();
+    const usesDefaultComparator = this.getComparator === CollectionView.prototype.getComparator;
+    const usesDefaultFilterQuery = this.getFilter === CollectionView.prototype.getFilter;
+    const usesDefaultSort = this.sort === CollectionView.prototype.sort;
+    const usesDefaultFilter = this.filter === CollectionView.prototype.filter;
+    const isUnsorted = this.viewComparator === false ||
+      (!this.viewComparator && !this.sortWithCollection);
+
+    const canRemoveWithoutRender = this._isRendered &&
+      changes.removed.length > 0 &&
+      changes.added.length === 0 &&
+      changes.merged.length === 0 &&
+      usesDefaultComparator &&
+      usesDefaultFilterQuery &&
+      usesDefaultSort &&
+      usesDefaultFilter &&
+      isUnsorted &&
+      !this.viewFilter &&
+      this.children.length === this._children.length &&
+      this._children.length > 0 &&
+      !this._hasUnrenderedViews &&
+      !this._emptyRegion.hasView();
+
+    if (!canRemoveWithoutRender) {
+      this.sort();
+    }
 
     // Destroy removed child views after all of the render is complete
     this._removeChildViews(removedViews);

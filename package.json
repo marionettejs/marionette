@@ -90,7 +90,7 @@
     "size": "npm run build && node scripts/performance/bundle-size.mjs",
     "test": "vitest run",
     "test:agent-benchmark-contract": "node --test test/agent-benchmark/task-contract.test.mjs",
-    "test:browser": "node test/browser/attachment-owner-document.mjs",
+    "test:browser": "node test/browser/attachment-owner-document.mjs && node test/browser/collection-removal-survivors.mjs",
     "test:dist": "node test/dist/validate.mjs",
     "test:fixtures": "node test/fixtures/run.mjs",
     "test:performance": "node --test test/performance/*.test.mjs",
