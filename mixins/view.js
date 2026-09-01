@@ -8,6 +8,7 @@ import isString from '../utils/is-string.js';
 import BehaviorsMixin from './behaviors.js';
 import CommonMixin from './common.js';
 import DelegateEntityEventsMixin from './delegate-entity-events.js';
+import StateMixin from './state.js';
 import TemplateRenderMixin from './template-render.js';
 import UIMixin from './ui.js';
 import ViewEvents from './view-events.js';
@@ -274,6 +275,6 @@ const ViewMixin = {
   }
 };
 
-assignOwn(ViewMixin, BehaviorsMixin, CommonMixin, DelegateEntityEventsMixin, TemplateRenderMixin, UIMixin, ViewEvents);
+assignOwn(ViewMixin, BehaviorsMixin, CommonMixin, DelegateEntityEventsMixin, StateMixin, TemplateRenderMixin, UIMixin, ViewEvents);
 
 export default ViewMixin;

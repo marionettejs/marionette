@@ -586,6 +586,26 @@
         "runtime"
       ],
       "benchmarkCategory": "state"
+    },
+    {
+      "code": "MN0035",
+      "slug": "state-ownership-conflict",
+      "status": "active",
+      "category": "ownership",
+      "severity": "error",
+      "objects": [
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "State",
+        "View"
+      ],
+      "remediation": "Compose only a live, unowned State instance. Keep shared data in an external model, collection, or data source instead of assigning one State to multiple owners.",
+      "docsAnchor": "/errors/MN0035/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "ownership"
     }
   ]
 }

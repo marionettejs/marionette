@@ -71,6 +71,7 @@ const ClassOptions = [
   'id',
   'model',
   'modelEvents',
+  'stateEvents',
   'sortWithCollection',
   'tagName',
   'template',
@@ -95,6 +96,7 @@ const CollectionView = function(options) {
 
   monitorViewEvents(this);
 
+  this._initState(options);
   this._initChildViewStorage();
   this._initBehaviors();
   this._buildEventProxies();
@@ -102,6 +104,8 @@ const CollectionView = function(options) {
   this.initialize.apply(this, arguments);
 
   if (this._isDestroyed || this._isDestroying) { return; }
+
+  this._initStateEvents();
 
   // Init empty region after initialize to preserve the v4 override boundary.
   this.getEmptyRegion();

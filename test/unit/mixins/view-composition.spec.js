@@ -4,6 +4,7 @@ import { setEnabled } from '../../../runtime/features';
 import BehaviorsMixin from '../../../mixins/behaviors';
 import CommonMixin from '../../../mixins/common';
 import DelegateEntityEventsMixin from '../../../mixins/delegate-entity-events';
+import StateMixin from '../../../mixins/state';
 import TemplateRenderMixin from '../../../mixins/template-render';
 import UIMixin from '../../../mixins/ui';
 import ViewMixin from '../../../mixins/view';
@@ -14,6 +15,7 @@ const mixins = [
   BehaviorsMixin,
   CommonMixin,
   DelegateEntityEventsMixin,
+  StateMixin,
   TemplateRenderMixin,
   UIMixin,
   ViewEventsMixin

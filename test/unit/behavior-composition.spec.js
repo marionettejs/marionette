@@ -1,12 +1,19 @@
 import Behavior from '../../modules/behavior';
 import CommonMixin from '../../mixins/common';
 import DelegateEntityEventsMixin from '../../mixins/delegate-entity-events';
+import StateMixin from '../../mixins/state';
 import UIMixin from '../../mixins/ui';
 import ViewEventsMixin from '../../mixins/view-events';
 import extend from '../../utils/extend';
 import { setEventDelegator } from '../../runtime/event-delegator';
 
-const mixins = [CommonMixin, DelegateEntityEventsMixin, UIMixin, ViewEventsMixin];
+const mixins = [
+  CommonMixin,
+  DelegateEntityEventsMixin,
+  StateMixin,
+  UIMixin,
+  ViewEventsMixin
+];
 
 function IsolatedBehavior(overrides = {}) {
   return Behavior.extend({
@@ -47,6 +54,9 @@ describe('Behavior composition', function() {
         _initViewEvents(...args) {
           calls.push(['initViewEvents', this, args]);
         },
+        _initStateEvents(...args) {
+          calls.push(['initStateEvents', this, args]);
+        },
         ui() {
           calls.push(['behaviorUI', this, [...arguments]]);
           return behaviorUI;
@@ -71,6 +81,7 @@ describe('Behavior composition', function() {
           'collectionEvents',
           'events',
           'modelEvents',
+          'stateEvents',
           'triggers',
           'ui'
         ]]],
@@ -79,6 +90,7 @@ describe('Behavior composition', function() {
         ['hostUI', host, []],
         ['listenTo', behavior, [host, 'all', behavior.triggerMethod]],
         ['initialize', behavior, [options, host, 'extra']],
+        ['initStateEvents', behavior, []],
         ['syncElement', behavior, []]
       ]);
       expect(Object.keys(behavior.ui)).to.deep.equal(['first', 'shared', 'last']);

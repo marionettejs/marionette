@@ -86,6 +86,12 @@ describe('marionette object', function() {
         _initRadio(...args) {
           calls.push(['initRadio', this, args]);
         },
+        _initState(...args) {
+          calls.push(['initState', this, args]);
+        },
+        _initStateEvents(...args) {
+          calls.push(['initStateEvents', this, args]);
+        },
         initialize(...args) {
           calls.push(['initialize', this, args]);
         }
@@ -94,10 +100,17 @@ describe('marionette object', function() {
       const orderedObject = new OrderedObject(orderedOptions, 'extra');
 
       expect(calls).to.deep.equal([
-        ['setOptions', orderedObject, [orderedOptions, ['channelName', 'radioEvents', 'radioRequests']]],
+        ['setOptions', orderedObject, [orderedOptions, [
+          'channelName',
+          'radioEvents',
+          'radioRequests',
+          'stateEvents'
+        ]]],
         ['cidPrefix', 'default'],
         ['initRadio', orderedObject, []],
-        ['initialize', orderedObject, [orderedOptions, 'extra']]
+        ['initState', orderedObject, [orderedOptions]],
+        ['initialize', orderedObject, [orderedOptions, 'extra']],
+        ['initStateEvents', orderedObject, []]
       ]);
       expect(orderedObject.cid).to.match(/^ordered\d+$/);
     });

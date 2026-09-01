@@ -3,11 +3,12 @@ import MnObject from '../../modules/object';
 import CommonMixin from '../../mixins/common';
 import DestroyMixin from '../../mixins/destroy';
 import RadioMixin from '../../mixins/radio';
+import StateMixin from '../../mixins/state';
 
-function composedKeys(finalKeys) {
+function composedKeys(mixins, finalKeys) {
   const keys = [];
 
-  [CommonMixin, DestroyMixin, RadioMixin].forEach(mixin => {
+  mixins.forEach(mixin => {
     Object.keys(mixin).forEach(key => {
       if (!keys.includes(key)) { keys.push(key); }
     });
@@ -53,12 +54,16 @@ describe('Object and Application prototype composition', function() {
       'showView',
       'getView'
     ];
+    const sharedMixins = [CommonMixin, DestroyMixin, RadioMixin];
 
-    expect(Object.keys(MnObject.prototype)).to.deep.equal(composedKeys(objectFinalKeys));
-    expect(Object.keys(Application.prototype)).to.deep.equal(composedKeys(applicationFinalKeys));
+    expect(Object.keys(MnObject.prototype))
+      .to.deep.equal(composedKeys([...sharedMixins, StateMixin], objectFinalKeys));
+    expect(Object.keys(Application.prototype))
+      .to.deep.equal(composedKeys(sharedMixins, applicationFinalKeys));
     expect(MnObject.prototype._setOptions).to.equal(CommonMixin._setOptions);
     expect(MnObject.prototype.destroy).to.equal(DestroyMixin.destroy);
     expect(MnObject.prototype._initRadio).to.equal(RadioMixin._initRadio);
+    expect(MnObject.prototype.getState).to.equal(StateMixin.getState);
     expect(Application.prototype._setOptions).to.equal(CommonMixin._setOptions);
     expect(Application.prototype.destroy).to.not.equal(DestroyMixin.destroy);
     expect(Application.prototype._initRadio).to.equal(RadioMixin._initRadio);
@@ -69,6 +74,9 @@ describe('Object and Application prototype composition', function() {
           expectAssignmentDescriptor(Application.prototype, key, mixin[key]);
         }
       });
+    });
+    Object.keys(StateMixin).forEach(key => {
+      expectAssignmentDescriptor(MnObject.prototype, key, StateMixin[key]);
     });
     expectAssignmentDescriptor(MnObject.prototype, 'cidPrefix', 'mno');
     expectAssignmentDescriptor(Application.prototype, 'cidPrefix', 'mna');

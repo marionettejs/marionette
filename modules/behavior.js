@@ -12,6 +12,7 @@ import getValue from '../utils/get-value.js';
 import uniqueId from '../utils/unique-id.js';
 import CommonMixin from '../mixins/common.js';
 import DelegateEntityEventsMixin from '../mixins/delegate-entity-events.js';
+import StateMixin from '../mixins/state.js';
 import UIMixin from '../mixins/ui.js';
 import ViewEventsMixin from '../mixins/view-events.js';
 import { setEventDelegator } from '../runtime/event-delegator.js';
@@ -20,6 +21,7 @@ const ClassOptions = [
   'collectionEvents',
   'events',
   'modelEvents',
+  'stateEvents',
   'triggers',
   'ui'
 ];
@@ -35,6 +37,7 @@ const Behavior = function(options, view) {
   this.cid = uniqueId(this.cidPrefix);
 
   this._initViewEvents();
+  this._initState(options);
   this.el = view.el;
   if (view.$el) {
     this.$el = view.$el;
@@ -54,6 +57,7 @@ const Behavior = function(options, view) {
 
   this.initialize.apply(this, arguments);
 
+  this._initStateEvents();
   this._syncElement();
 };
 
@@ -62,7 +66,7 @@ assignOwn(Behavior, { extend, setEventDelegator });
 // Behavior Methods
 // --------------
 
-assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, ViewEventsMixin, {
+assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateMixin, UIMixin, ViewEventsMixin, {
   cidPrefix: 'mnb',
 
   // proxy behavior $ method to the view
@@ -73,7 +77,9 @@ assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, V
 
   // Stops the behavior from listening to events.
   destroy() {
+    this._isDestroyed = true;
     this._undelegateViewEvents();
+    this._destroyState();
 
     this.stopListening();
 

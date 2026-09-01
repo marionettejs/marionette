@@ -857,6 +857,7 @@ const ViewClassOptions = [
   'modelEvents',
   'regionClass',
   'regions',
+  'stateEvents',
   'tagName',
   'template',
   'templateContext',
@@ -887,6 +888,7 @@ const View = function(options) {
 
   monitorViewEvents(this);
 
+  this._initState(options);
   this._initBehaviors();
   this._initRegions();
   this._buildEventProxies();
@@ -895,6 +897,7 @@ const View = function(options) {
 
   if (this._isDestroyed || this._isDestroying) { return; }
 
+  this._initStateEvents();
   this.delegateEntityEvents();
 
   this._triggerEventOnBehaviors('initialize', this, options);
