@@ -1,0 +1,39 @@
+dist/marionette.cjs
+  s_d6429951fb9231::t_7d9d32eccb9572 1346,1353-1359
+  s_d6429951fb9231::t_71832dbdf7be53 1344-1345,1347-1350
+dist/marionette.min.js
+  s_d6429951fb9231::t_11a3e0248c65d1 1
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_d3f776a30adb0e 1
+dist/marionette.umd.js
+  s_d6429951fb9231::t_68193b5185b433 1353,1360-1366
+  s_d6429951fb9231::t_0c3ee5f6b36168 1351-1352,1354-1357
+mixins/behaviors.js
+  s_d6429951fb9231::t_f98cf396b764a5 83-92,100
+  s_d6429951fb9231::t_43342408ebcb73 95-99,102
+  s_d6429951fb9231::t_8c64d00b338a21 101
+test/unit/state-owner.spec.js
+  s_d6429951fb9231::t_43342408ebcb73 182-184,187-193,196-200,203-204,233
+  s_d6429951fb9231::t_f98cf396b764a5 185-186,194-195,201-202,205-232
+dist/marionette.js
+  s_d6429951fb9231::t_e50ffb4f78f241 1342,1349-1355
+  s_d6429951fb9231::t_a7937f0e663e4e 1340-1341,1343-1346
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_891066a0c95662 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "1ac70f6028bc4a0652e69ab2e47119c443183029",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
