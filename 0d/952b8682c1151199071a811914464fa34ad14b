@@ -1,0 +1,44 @@
+dist/marionette.umd.js
+  s_d93f45db31dead::t_b0f22726d21d8c 3851,3855,3866,3870,4082-4086,4104-4105,4117-4118,4120,4140-4141,4154,4156,4160,4163,4176,4178,4180,4183,4187,4196-4197
+  s_d93f45db31dead::t_f9b9d614734343 3801,3819,4076,4078,4219-4220,4233,4310
+dist/marionette.min.js
+  s_d93f45db31dead::t_2b235556af4062 1
+rollup.config.mjs
+  s_d93f45db31dead::t_a37f9294d2c8ca 8-9
+  s_d93f45db31dead::t_e08885dc14e5a1 6-7,10,60,75,95,113
+test/performance/application-tree-shaking.test.mjs
+  s_d93f45db31dead::t_c10047df9f84ce 1-28,30-66
+  s_d93f45db31dead::t_30e16ee6821b9e 29
+test/dist/validate.mjs
+  s_d93f45db31dead::t_3d9d008d7afc75 39
+  s_d93f45db31dead::t_a37f9294d2c8ca 65
+  s_d93f45db31dead::t_5d3762aa3ad544 36,54-64,66-73,106-107
+dist/marionette.js
+  s_d93f45db31dead::t_f230c82017b6be 3790,3808,4065,4067,4208-4209,4222,4299
+  s_d93f45db31dead::t_526d3fe5a424af 3840,3844,3855,3859,4071-4075,4093-4094,4106-4107,4109,4129-4130,4143,4145,4149,4152,4165,4167,4169,4172,4176,4185-4186
+docs/performance-baselines.md
+  s_d93f45db31dead::t_7b7d73ddaa472d 47-51
+dist/marionette.cjs
+  s_d93f45db31dead::t_e70d36124d27bf 3794,3812,4069,4071,4212-4213,4226,4303
+  s_d93f45db31dead::t_951261516be901 3844,3848,3859,3863,4075-4079,4097-4098,4110-4111,4113,4133-4134,4147,4149,4153,4156,4169,4171,4173,4176,4180,4189-4190
+dist/marionette.min.js.map
+  s_d93f45db31dead::t_303b0c3c9ba3e1 1
+dist/marionette.umd.js.map
+  s_d93f45db31dead::t_eb824516b3eb61 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "0d952b8682c1151199071a811914464fa34ad14b",
+  "prompts": {},
+  "sessions": {
+    "s_d93f45db31dead": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05c69-15cb-71b1-836b-0fdd2f01d1c5",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
