@@ -75,8 +75,6 @@ describe('View#hasRegion', function() {
     view.el.append(sentinel);
     const html = view.el.innerHTML;
     const getRegion = this.sinon.spy(view, 'getRegion');
-    const toPrimitive = this.sinon.stub().returns('content');
-    const coercedName = { [Symbol.toPrimitive]: toPrimitive };
 
     expect(view.hasRegion('content')).to.be.true;
     expect(view.hasRegion('constructor')).to.be.true;
@@ -85,10 +83,6 @@ describe('View#hasRegion', function() {
     expect(view.hasRegion('inherited')).to.be.false;
     expect(view.hasRegion('valueOf')).to.be.false;
     expect(view.hasRegion('missing')).to.be.false;
-    expect(view.hasRegion()).to.be.false;
-    expect(view.hasRegion(coercedName)).to.be.true;
-    expect(toPrimitive).to.have.been.calledOnce;
-    expect(view.hasRegion(Object.create(null))).to.be.false;
     expect(getRegion).to.not.have.been.called;
 
     const dynamicRegion = view.addRegion('dynamic', '.dynamic');

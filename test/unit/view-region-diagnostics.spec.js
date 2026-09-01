@@ -1,6 +1,6 @@
 import { MarionetteError, Region, View } from '../../index';
 
-const requiredOperations = [
+const childOperations = [
   ['showChildView', (view, name) => {
     const childView = new View();
 
@@ -12,6 +12,10 @@ const requiredOperations = [
   }],
   ['detachChildView', (view, name) => view.detachChildView(name)],
   ['getChildView', (view, name) => view.getChildView(name)],
+];
+
+const requiredOperations = [
+  ...childOperations,
   ['removeRegion', (view, name) => view.removeRegion(name)],
 ];
 
@@ -20,6 +24,18 @@ function expectMissingRegionError(view, name, operation) {
     code: 'MN0020',
     name: 'RegionError',
   });
+}
+
+function expectInvalidRegionNameError(callback) {
+  expect(callback).to.throw(MarionetteError).and.include({
+    code: 'MN0032',
+    name: 'RegionError',
+    message: 'A Region name must be a non-empty string.',
+  });
+}
+
+function expectInvalidOperation(view, operation) {
+  expectInvalidRegionNameError(() => operation(view, null));
 }
 
 describe('View named Region diagnostics', function() {
@@ -519,100 +535,50 @@ describe('View named Region diagnostics', function() {
     }
   });
 
-  it('preserves ordinary property-key coercion for own Region names', function() {
-    const coercionView = new View({
-      regions: {
-        'array,name': '.content',
-      },
-      template() {
-        return '<div class="content"></div>';
-      },
-    });
+  it('rejects invalid Region names without coercion across named operations', function() {
+    const toPrimitive = this.sinon.stub().returns('content');
+    const objectName = { [Symbol.toPrimitive]: toPrimitive };
+    const invalidNames = ['', undefined, null, 0, ['content'], objectName, Symbol('content')];
+    const operations = [
+      ['addRegion', name => view.addRegion(name, '.content')],
+      ['getRegion', name => view.getRegion(name)],
+      ['hasRegion', name => view.hasRegion(name)],
+      ...requiredOperations.map(([method, operation]) => [method, name => operation(view, name)]),
+    ];
+
+    for (const name of invalidNames) {
+      for (const [, operation] of operations) {
+        expectInvalidRegionNameError(() => operation(name));
+      }
+    }
+
+    expect(toPrimitive).to.not.have.been.called;
+    expect(view.getRegion('content')).to.be.instanceOf(Region);
+  });
+
+  it('rejects invalid child Region names before rendering', function() {
+    this.sinon.spy(view, 'render');
+
+    for (const [, operation] of childOperations) {
+      expectInvalidOperation(view, operation);
+    }
+
+    expect(view.render).to.not.have.been.called;
+    expect(view.isRendered()).to.be.false;
+  });
+
+  it('rejects an empty declarative Region name before changing the batch', function() {
+    const validRegion = new Region({ el: '.content' });
 
     try {
-      expect(coercionView.getRegion(['array', 'name'])).to.be.instanceOf(Region);
-      expect(coercionView.hasRegion(['array', 'name'])).to.be.true;
+      expectInvalidRegionNameError(() => view.addRegions({
+        valid: validRegion,
+        '': '@ui.missing',
+      }));
+      expect(view.hasRegion('valid')).to.be.false;
+      expect(validRegion.getOwner()).to.be.undefined;
     } finally {
-      coercionView.destroy();
-    }
-  });
-
-  it('coerces a Region name once during lookup', function() {
-    const toPrimitive = this.sinon.stub();
-    toPrimitive.onFirstCall().returns('content');
-    toPrimitive.returns('missing');
-    const name = {
-      [Symbol.toPrimitive]: toPrimitive,
-    };
-
-    expect(view.getRegion(name)).to.be.instanceOf(Region);
-    expect(toPrimitive).to.have.been.calledOnce;
-  });
-
-  it('does not coerce a failed required lookup again for its diagnostic', function() {
-    for (const [, operation] of requiredOperations) {
-      const toPrimitive = this.sinon.stub();
-      toPrimitive.onFirstCall().returns('first-key');
-      toPrimitive.returns('different-key');
-      const name = {
-        [Symbol.toPrimitive]: toPrimitive,
-      };
-      let error;
-
-      try {
-        operation(view, name);
-      } catch (caughtError) {
-        error = caughtError;
-      }
-
-      expect(error).to.be.instanceOf(MarionetteError).and.include({
-        code: 'MN0020',
-        name: 'RegionError',
-      });
-      expect(error.message).not.to.include('different-key');
-      expect(toPrimitive).to.have.been.calledOnce;
-    }
-  });
-
-  it('formats a missing Symbol name in every required-operation diagnostic', function() {
-    const name = Symbol('missing');
-    expect(view.getRegion(name)).to.be.undefined;
-    expect(view.hasRegion(name)).to.be.false;
-
-    for (const [, operation] of requiredOperations) {
-      let error;
-      try {
-        operation(view, name);
-      } catch (caughtError) {
-        error = caughtError;
-      }
-
-      expect(error).to.be.instanceOf(MarionetteError).and.include({
-        code: 'MN0020',
-        name: 'RegionError',
-      });
-      expect(error.message).to.include(String(name));
-    }
-  });
-
-  it('uses a stable diagnostic for a Region name without string coercion', function() {
-    const name = Object.create(null);
-    expect(view.getRegion(name)).to.be.undefined;
-    expect(view.hasRegion(name)).to.be.false;
-
-    for (const [, operation] of requiredOperations) {
-      let error;
-      try {
-        operation(view, name);
-      } catch (caughtError) {
-        error = caughtError;
-      }
-
-      expect(error).to.be.instanceOf(MarionetteError).and.include({
-        code: 'MN0020',
-        name: 'RegionError',
-      });
-      expect(error.message).to.equal('Region does not exist.');
+      validRegion.destroy();
     }
   });
 
