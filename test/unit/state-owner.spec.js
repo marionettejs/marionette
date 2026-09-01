@@ -182,7 +182,8 @@ describe('State owner composition', function() {
   for (const OwnerClass of [View, CollectionView]) {
     it(`destroys earlier Behavior State when ${ OwnerClass.name } Behavior composition fails`, function() {
       const error = new Error('behavior failed');
-      const state = new State();
+      const firstState = new State();
+      const secondState = new State();
       const BrokenBehavior = Behavior.extend({
         initialize() {
           throw error;
@@ -190,15 +191,45 @@ describe('State owner composition', function() {
       });
       const Owner = OwnerClass.extend({
         behaviors: [
-          { behaviorClass: Behavior, state },
+          { behaviorClass: Behavior, state: firstState },
+          { behaviorClass: Behavior, state: secondState },
           BrokenBehavior
         ]
       });
 
       expect(() => new Owner()).to.throw(error);
-      expect(state.isDestroyed()).to.be.true;
+      expect(firstState.isDestroyed()).to.be.true;
+      expect(secondState.isDestroyed()).to.be.true;
     });
   }
+
+  it('continues Behavior rollback and preserves the construction error when destroy throws', function() {
+    const constructionError = new Error('behavior failed');
+    const firstState = new State();
+    const secondState = new State();
+    const ThrowingBehavior = Behavior.extend({
+      destroy() {
+        Behavior.prototype.destroy.call(this);
+        throw new Error('destroy failed');
+      }
+    });
+    const BrokenBehavior = Behavior.extend({
+      initialize() {
+        throw constructionError;
+      }
+    });
+    const Owner = View.extend({
+      behaviors: [
+        { behaviorClass: ThrowingBehavior, state: firstState },
+        { behaviorClass: Behavior, state: secondState },
+        BrokenBehavior
+      ]
+    });
+
+    expect(() => new Owner()).to.throw(constructionError);
+    expect(firstState.isDestroyed()).to.be.true;
+    expect(secondState.isDestroyed()).to.be.true;
+  });
 
   it('reads a State declaration once', function() {
     const state = new State({ ready: true });

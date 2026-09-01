@@ -1337,15 +1337,20 @@ function eachBehavior(behaviors, iteratee) {
     iteratee(behaviors[index]);
   }
 }
+function rollbackBehaviors(behaviors) {
+  for (let index = 0, length = behaviors.length; index < length; index++) {
+    try {
+      behaviors[index].destroy();
+    } catch {}
+  }
+}
 var BehaviorsMixin = {
   _initBehaviors() {
     this._behaviors = [];
     try {
       parseBehaviors(this, getValue(this, 'behaviors'), this._behaviors);
     } catch (error) {
-      try {
-        this._destroyBehaviors();
-      } catch {}
+      rollbackBehaviors(this._behaviors);
       throw error;
     }
   },
