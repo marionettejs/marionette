@@ -1,0 +1,56 @@
+modules/application.js
+  s_d6429951fb9231::t_f56225650630b4 160,163-164
+  s_d93f45db31dead::t_53980f843f6812 132-140,144,146-149,155,159,161-162,301,323,440
+test/unit/application-child-lifecycle.spec.js
+  s_d93f45db31dead::t_5a09878a64dc35 161-254
+  s_d93f45db31dead::t_ee03d69f2ce653 453,480-501
+  s_d6429951fb9231::t_1c5eec580cb21e 285-334,385-407,431-452
+  s_ba8358bd99b935::t_361ce3a77acce5 454
+docs/marionette.application.md
+  s_d93f45db31dead::t_7c3e1afcdcb622 194-197
+  s_d6429951fb9231::t_2d5deed07d928d 206-209
+dist/marionette.cjs
+  s_d93f45db31dead::t_438f8ddf0291bf 3836-3842,3847-3849,3851,3857,3862-3863,3865-3866,3869-3875,4002,4023,4138
+dist/marionette.js
+  s_d93f45db31dead::t_19dd97feeb6fb2 3832-3838,3843-3845,3847,3853,3858-3859,3861-3862,3865-3871,3998,4019,4134
+dist/marionette.min.js
+  s_d93f45db31dead::t_25231dd3058c33 1
+dist/marionette.min.js.map
+  s_d93f45db31dead::t_51b974dca505ec 1
+dist/marionette.umd.js
+  s_d93f45db31dead::t_c4113d97795aea 3843-3849,3854-3856,3858,3864,3869-3870,3872-3873,3876-3882,4009,4030,4145
+dist/marionette.umd.js.map
+  s_d93f45db31dead::t_9ec26450f5380e 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "6710367cb6d9b2757919f5803751fb2c7a8ed851",
+  "prompts": {},
+  "sessions": {
+    "s_ba8358bd99b935": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05ce4-8f95-77b0-a776-896eb0570982",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_d93f45db31dead": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05c69-15cb-71b1-836b-0fdd2f01d1c5",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
