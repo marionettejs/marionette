@@ -5,6 +5,7 @@ docs/migration-from-v4.md
   s_d6429951fb9231::t_2077f18467f7e3 44
 test/fixtures/cjs-node/validate.cjs
   s_d6429951fb9231::t_326fca8488fdfc 6,20-22
+  s_d6429951fb9231::t_82812a2dfdb2b8 19
 test/unit/radio.spec.js
   s_d6429951fb9231::t_a053bcc7723e49 266-268,270,272,276,278
   s_d6429951fb9231::t_2077f18467f7e3 26
@@ -16,6 +17,7 @@ test/unit/common/bind-request.spec.js
   s_d6429951fb9231::t_2077f18467f7e3 130,157
 test/fixtures/esm-node/validate.mjs
   s_d6429951fb9231::t_326fca8488fdfc 7,21-23
+  s_d6429951fb9231::t_82812a2dfdb2b8 20
 docs/radio.md
   s_d6429951fb9231::t_2077f18467f7e3 43-46,131-132
   s_d6429951fb9231::t_6cde5e5c19af66 133
