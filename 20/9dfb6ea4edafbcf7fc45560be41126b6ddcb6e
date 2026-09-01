@@ -1,0 +1,46 @@
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_cacfa9f6e7f2bf 81
+changelog.md
+  s_d6429951fb9231::t_cacfa9f6e7f2bf 71-72
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_6edc6119c39fc9 1
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_78cf6a699796af 1
+modules/application.js
+  s_d6429951fb9231::t_d5531f3d11ea4c 155,157-166,428
+  s_d6429951fb9231::t_61ae809025dde2 67-77,132-146,151-154,224-231,288-290,293,297-300,310-312,318,323-326,355,399
+  s_d6429951fb9231::t_b0114bbdf92553 327
+  s_d6429951fb9231::t_ac68a3d0bcd822 147-150,429
+  s_d6429951fb9231::t_1c72c3e2e9433e 156
+dist/marionette.umd.js
+  s_d6429951fb9231::t_8f7f86cda3315f 3790-3799,3843-3877,3935-3942,3994-3996,3998,4003-4006,4015-4017,4022,4028-4032,4052,4099,4131-4132
+test/unit/application-child-lifecycle.spec.js
+  s_d6429951fb9231::t_ba71f30642ed64 1-172,174,176-183,185-201,203,205-213,215-221,239-263,289-313
+  s_d6429951fb9231::t_82366afb0144eb 173,175,184,202,204,214,222-238
+  s_d6429951fb9231::t_6f98ee13e85099 264-288
+dist/marionette.cjs
+  s_d6429951fb9231::t_edece970223eba 3783-3792,3836-3870,3928-3935,3987-3989,3991,3996-3999,4008-4010,4015,4021-4025,4045,4092,4124-4125
+dist/marionette.js
+  s_d6429951fb9231::t_7a1906816522e2 3779-3788,3832-3866,3924-3931,3983-3985,3987,3992-3995,4004-4006,4011,4017-4021,4041,4088,4120-4121
+docs/marionette.application.md
+  s_d6429951fb9231::t_cacfa9f6e7f2bf 97-105,110,190-194,197-200
+  s_d6429951fb9231::t_91650331f26c26 106-109,201-204
+dist/marionette.min.js
+  s_d6429951fb9231::t_cc43d4467e6678 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "209dfb6ea4edafbcf7fc45560be41126b6ddcb6e",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
