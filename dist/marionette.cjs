@@ -3780,6 +3780,16 @@ function throwApplicationOwnershipConflict(message) {
 function isTerminal(application) {
   return application._lifecycleState === DESTROYING || application._lifecycleState === DESTROYED;
 }
+function hasTerminalOwner(application) {
+  let owner = application._parentApp;
+  while (owner) {
+    if (isTerminal(owner)) {
+      return true;
+    }
+    owner = owner._parentApp;
+  }
+  return false;
+}
 function isSameChildApp(owner, name, application) {
   return application._parentApp === owner && application._name === name && getOwnChildApp(owner._childApps, name) === application;
 }
@@ -3822,6 +3832,41 @@ async function destroyChildApps(application, options) {
   for (const child of application._childApps.values()) {
     await child.destroy(options);
   }
+}
+async function startChildApps(application, options, signal) {
+  if (!application._childApps) {
+    return true;
+  }
+  for (const child of application._childApps.values()) {
+    const started = await child.start(options);
+    if (signal.aborted || !started) {
+      return false;
+    }
+  }
+  return true;
+}
+async function stopChildApps(application, options) {
+  if (!application._childApps) {
+    return true;
+  }
+  for (const child of application._childApps.values()) {
+    let stopped = await child.stop(options);
+    if (!stopped && isTerminal(application)) {
+      stopped = await child.stop(options);
+    }
+    if (!stopped) {
+      return false;
+    }
+  }
+  return true;
+}
+function hasActiveChildApps(application) {
+  for (const child of application._childApps.values()) {
+    if (child._lifecycleState !== STOPPED && child._lifecycleState !== DESTROYED) {
+      return true;
+    }
+  }
+  return false;
 }
 function createDeferred() {
   let resolve;
@@ -3880,6 +3925,11 @@ function completeOperation(application, operation) {
   delete application._lifecycleOperation;
   operation.resolve(true);
 }
+function cancelOperation(application, operation) {
+  delete application._lifecycleOperation;
+  application._lifecycleState = operation.failureState;
+  operation.resolve(false);
+}
 function failOperation(application, operation, error) {
   if (!isCurrentOperation(application, operation)) {
     return;
@@ -3931,14 +3981,19 @@ async function startApplication(application, operation, options) {
     operation.failureState = STOPPED;
     delete operation.stopReadiness;
   }
-  const readiness = beginReadiness(operation, options, context => {
-    return application.triggerMethod('before:start', application, options, context);
+  const readiness = beginReadiness(operation, options, async context => {
+    await application.triggerMethod('before:start', application, options, context);
+    return startChildApps(application, options, context.signal);
   });
-  await readiness.promise;
+  const childrenStarted = await readiness.promise;
   if (!isCurrentOperation(application, operation)) {
     return;
   }
   completeReadiness(operation);
+  if (!childrenStarted) {
+    cancelOperation(application, operation);
+    return;
+  }
   application._lifecycleState = RUNNING;
   operation.failureState = RUNNING;
   operation.isCompleting = true;
@@ -3947,19 +4002,24 @@ async function startApplication(application, operation, options) {
 async function stopApplication(application, operation, options) {
   try {
     if (!operation.stopReadiness) {
-      const readiness = beginReadiness(operation, options, context => {
-        return application.triggerMethod('before:stop', application, options, context);
+      const readiness = beginReadiness(operation, options, async context => {
+        await application.triggerMethod('before:stop', application, options, context);
+        return stopChildApps(application, options);
       });
       operation.stopReadiness = readiness;
     }
     const readiness = operation.stopReadiness;
-    await readiness.promise;
+    const childrenStopped = await readiness.promise;
     if (!isCurrentOperation(application, operation)) {
       return;
     }
     completeReadiness(operation);
-    operation.failureState = STOPPED;
     delete operation.stopReadiness;
+    if (!childrenStopped) {
+      cancelOperation(application, operation);
+      return;
+    }
+    operation.failureState = STOPPED;
     operation.isStopped = true;
     if (operation.kind === 'stop') {
       application._lifecycleState = STOPPED;
@@ -3979,7 +4039,7 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     return this._lifecycleState === RUNNING;
   },
   start(options) {
-    if (this._lifecycleState === DESTROYING || this._lifecycleState === DESTROYED) {
+    if (isTerminal(this) || hasTerminalOwner(this)) {
       return Promise.resolve(false);
     }
     const operation = this._lifecycleOperation;
@@ -4026,7 +4086,7 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     });
   },
   restart(options) {
-    if (this._lifecycleState === DESTROYING || this._lifecycleState === DESTROYED) {
+    if (isTerminal(this) || hasTerminalOwner(this)) {
       return Promise.resolve(false);
     }
     const operation = this._lifecycleOperation;
@@ -4058,6 +4118,8 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
     return beginOperation(this, 'destroy', DESTROYING, failureState, async current => {
       if (shouldStop) {
         await stopApplication(this, current, options);
+      } else if (this._childApps && hasActiveChildApps(this)) {
+        await stopChildApps(this, options);
       }
       const readiness = beginReadiness(current, options, context => {
         return this.triggerMethod('before:destroy', this, options, context);

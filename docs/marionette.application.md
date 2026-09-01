@@ -94,6 +94,20 @@ original options and context, and does not abort its signal.
 The context belongs to the readiness phase rather than to one caller's Promise.
 Completion methods and events receive only `(application, options)`.
 
+Owned child Applications participate in the same operation. After the owner's
+`before:start` readiness, children start sequentially in registration order
+before the owner reaches running and emits `start`. After `before:stop`
+readiness, children stop in that order before the owner reaches stopped and
+emits `stop`. Restart and destroy compose those same phases.
+
+If a direct child operation supersedes an owner-requested child start or stop,
+the owner operation resolves `false`, retains its prior stable state, and does
+not emit its completion event. Children that already reached the requested
+state remain there. `isRunning()` describes that Application, not an aggregate
+of every descendant state; callers receiving `false` can inspect child state
+through the public topology. Once owner destruction begins, descendant `start`
+and `restart` calls resolve `false` so they cannot interrupt terminal teardown.
+
 ### Starting an Application
 
 Once configured, await `start(options)` before dispatching work that requires a
@@ -173,14 +187,21 @@ root.getChildApps(); // { search }
 not change ownership. The topology methods are reads; they do not start,
 render, or otherwise mutate an Application.
 
+Owner lifecycle options are forwarded to each child. A child failure rejects
+the owner operation and leaves the owner in its last committed stable state.
+Children that already reached the requested state remain there; retry visits
+the same registration order, where completed child operations are idempotent.
+
 `removeChildApp(name, options)` destroys the named child and resolves
 with it after destruction. An unknown name resolves with `undefined`. A child
-also removes itself from its parent's topology when destroyed directly. Parent
-destruction first awaits the parent's `before:destroy` readiness, then destroys
-owned children in registration order, and finally emits the parent's `destroy`
-completion. A parent's readiness handler can therefore inspect its live child
-topology. If a child's destroy readiness fails, the parent remains live and
-retains that child so destruction can be retried.
+also removes itself from its parent's topology when destroyed directly. A
+running parent stops its children before `before:destroy`, then destroys owned
+children in registration order and finally emits the parent's `destroy`
+completion. A parent's destroy-readiness handler can therefore inspect its
+stopped, live child topology. A stopped parent also stops any child that was
+started directly before entering destroy readiness. If a child's destroy
+readiness fails, the parent remains live and retains that child so destruction
+can be retried.
 
 ## Application Region
 
