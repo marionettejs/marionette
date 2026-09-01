@@ -37,34 +37,14 @@ assert.equal(extendExample.service.label(), 'special:api');
 assert.equal(extendExample.SpecialService.kind, 'special');
 assert.equal(extendExample.SpecialService.extend, extendExample.extend);
 
-// <!-- executable-example: utils-target-first-proxies -->
-const proxyExample = await importExample('utils-target-first-proxies');
-
-assert.equal(proxyExample.optionValue, false);
-assert.equal(proxyExample.target.selected, 'copied');
-assert.equal(proxyExample.target.ignored, undefined);
-assert.notEqual(proxyExample.normalized, proxyExample.normalizedInput);
-assert.equal(proxyExample.normalized.status, proxyExample.target.onStatus);
-assert.equal(proxyExample.triggerResult, 'READY');
-assert.deepEqual(proxyExample.target.utilityCalls, [
-  'method:ready',
-  'event:ready',
-]);
-assert.deepEqual(proxyExample.target.messages, ['before-cleanup']);
-assert.deepEqual(proxyExample.unrelatedMessages, [
-  'before-cleanup',
-  'after-cleanup',
-]);
-assert.equal(proxyExample.ownerReply, 'before-cleanup');
-assert.equal(proxyExample.ownerReplyAfterCleanup, undefined);
-assert.equal(proxyExample.unrelatedReplyAfterCleanup, 'other');
-
 const packageJson = JSON.parse(
   await readFile(
     resolve(__dirname, 'node_modules/marionette/package.json'),
     'utf8',
   ),
 );
-assert.equal(proxyExample.VERSION, packageJson.version);
 
-proxyExample.Radio.reset();
+// <!-- executable-example: utils-version -->
+const versionExample = await importExample('utils-version');
+
+assert.equal(versionExample.VERSION, packageJson.version);

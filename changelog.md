@@ -62,6 +62,9 @@
   readiness hooks receive an operation context with a cooperative abort signal
 * Added explicit named child Application ownership, pure parent/root/child
   topology queries, and deterministic owner-driven child destruction
+* Removed target-first common-method exports from the package root, including
+  their generic plain-object adapter; use the corresponding method on each
+  Marionette instance
 
 ### v5.0.0-alpha.1
 

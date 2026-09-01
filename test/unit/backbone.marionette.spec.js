@@ -59,90 +59,20 @@ describe('backbone.marionette', function() {
     });
   });
 
-  describe('Proxied Utilities', function() {
-    let context;
+  describe('Common method utilities', function() {
+    it('does not expose duplicate target-first root utilities', function() {
+      const removedUtilities = [
+        'bindEvents',
+        'unbindEvents',
+        'bindRequests',
+        'unbindRequests',
+        'mergeOptions',
+        'getOption',
+        'normalizeMethods',
+        'triggerMethod'
+      ];
 
-    beforeEach(function() {
-      context = new MnObject();
-    });
-
-    it('should proxy bindEvents', function() {
-      const entity = new MnObject();
-      const eventHandler = this.sinon.stub();
-      const events = { 'foo': eventHandler };
-
-      Mn.bindEvents(context, entity, events);
-      entity.trigger('foo');
-
-      expect(eventHandler)
-        .to.have.been.calledOnce
-        .and.calledOn(context);
-    });
-
-    it('should proxy unbindEvents', function() {
-      this.sinon.spy(context, 'stopListening');
-
-      const entity = new MnObject();
-      context.listenTo(entity, 'foo', _.noop);
-
-      Mn.unbindEvents(context, entity);
-
-      expect(context.stopListening)
-        .to.have.been.calledOnce
-        .and.calledOn(context)
-        .and.calledWith(entity);
-    });
-
-    it('should proxy bindRequests', function() {
-      const replyFooStub = this.sinon.stub();
-      const channel = { reply: this.sinon.stub() };
-
-      Mn.bindRequests(context, channel, {'foo': replyFooStub});
-
-      expect(channel.reply)
-        .to.have.been.calledOnce
-        .and.calledWith({'foo': replyFooStub}, context);
-    });
-
-    it('should proxy unbindRequests', function() {
-      const channel = { stopReplying: this.sinon.stub() };
-
-      Mn.unbindRequests(context, channel);
-
-      expect(channel.stopReplying)
-        .to.have.been.calledOnce
-        .and.calledWith(null, null, context);
-    });
-
-    it('should proxy mergeOptions', function() {
-      context.foo = 'bar';
-
-      Mn.mergeOptions(context, { foo: 'baz' }, ['foo']);
-
-      expect(context.foo).to.equal('baz');
-    });
-
-    it('should proxy getOption', function() {
-      context.options.foo = 'bar';
-
-      expect(Mn.getOption(context, 'foo')).to.equal('bar');
-    });
-
-    it('should proxy normalizeMethods', function() {
-      context.onFoo = this.sinon.stub();
-
-      expect(Mn.normalizeMethods(context, { foo: 'onFoo' })).to.deep.equal({ foo: context.onFoo });
-    });
-
-    it('should proxy triggerMethod', function() {
-      context.onFoo = this.sinon.stub();
-
-      Mn.triggerMethod(context, 'foo', 'bar');
-
-      expect(context.onFoo)
-        .to.have.been.calledOnce
-        .and.calledOn(context)
-        .and.calledWith('bar');
+      removedUtilities.forEach(name => expect(Mn).to.not.have.property(name));
     });
   });
 

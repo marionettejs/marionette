@@ -15,6 +15,16 @@ const packageRoot = rootIndex === -1 ?
   resolve(args[rootIndex + 1]);
 const require = createRequire(pathToFileURL(resolve(packageRoot, 'package.json')));
 const packageJson = require(resolve(packageRoot, 'package.json'));
+const removedRootUtilities = [
+  'bindEvents',
+  'unbindEvents',
+  'bindRequests',
+  'unbindRequests',
+  'mergeOptions',
+  'getOption',
+  'normalizeMethods',
+  'triggerMethod',
+];
 
 function validateBrowserGlobal(file) {
   const previousMarionette = {};
@@ -45,6 +55,10 @@ async function validate() {
   for (const [name, Marionette] of entrypoints) {
     assert.strictEqual(Marionette.VERSION, packageJson.version, `${name} version`);
     assert.strictEqual(typeof Marionette.MarionetteError, 'function', `${name} MarionetteError export`);
+
+    for (const utilityName of removedRootUtilities) {
+      assert.strictEqual(Object.hasOwn(Marionette, utilityName), false, `${name} ${utilityName} absence`);
+    }
 
     const object = new Marionette.MnObject();
 

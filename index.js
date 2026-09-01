@@ -1,20 +1,7 @@
-import proxy from './utils/proxy.js';
 import extend from './utils/extend.js';
 import { version as VERSION } from './version.js';
 
-import {
-  bindEvents as _bindEvents,
-  unbindEvents as _unbindEvents
-} from './modules/common/bind-events.js';
-import {
-  bindRequests as _bindRequests,
-  unbindRequests as _unbindRequests
-} from './modules/common/bind-requests.js';
-import _getOption from './modules/common/get-option.js';
-import _mergeOptions from './modules/common/merge-options.js';
 import monitorViewEvents from './modules/common/monitor-view-events.js';
-import _normalizeMethods from './modules/common/normalize-methods.js';
-import _triggerMethod from './modules/common/trigger-method.js';
 
 import Events from './mixins/events.js';
 
@@ -33,18 +20,6 @@ import {
   isEnabled,
   setEnabled
 } from './runtime/features.js';
-
-// Utilities
-
-export const bindEvents = proxy(_bindEvents);
-export const unbindEvents = proxy(_unbindEvents);
-export const bindRequests = proxy(_bindRequests);
-export const unbindRequests = proxy(_unbindRequests);
-export const mergeOptions = proxy(_mergeOptions);
-export const getOption = proxy(_getOption);
-export const normalizeMethods = proxy(_normalizeMethods);
-export const triggerMethod = proxy(_triggerMethod);
-
 
 // Configuration
 

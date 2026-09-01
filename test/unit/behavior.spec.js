@@ -3,7 +3,6 @@ import Behavior from '../../modules/behavior';
 import Region from '../../modules/region';
 import View from '../../modules/view';
 import CollectionView from '../../modules/collection-view';
-import { bindEvents } from '../../index.js';
 
 describe('Behavior', function() {
   describe('when instantiating a behavior with some options', function() {
@@ -899,7 +898,7 @@ describe('Behavior', function() {
       behavior = new Behavior({}, new View());
       fooModel = new Backbone.Model();
 
-      bindEvents(behavior, fooModel, {
+      behavior.bindEvents(fooModel, {
         'change': changeStub
       });
 
