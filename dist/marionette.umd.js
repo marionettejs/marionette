@@ -3750,7 +3750,7 @@
     }
   });
 
-  const ClassOptions = ['channelName', 'radioEvents', 'radioRequests', 'region', 'regionClass'];
+  const ClassOptions = ['channelName', 'radioEvents', 'radioRequests', 'region', 'regionClass', 'stateEvents'];
   const DESTROYED = 'destroyed';
   const DESTROYING = 'destroying';
   const RESTARTING = 'restarting';
@@ -3763,8 +3763,16 @@
     this._setOptions(options, ClassOptions);
     this.cid = uniqueId(this.cidPrefix);
     this._initRegion();
-    this._initRadio();
-    this.initialize.apply(this, arguments);
+    try {
+      this._initRadio();
+      this._initState(options);
+      this.initialize.apply(this, arguments);
+      this._initStateEvents();
+    } catch (error) {
+      this._destroyState();
+      this._ownedRegion?.destroy();
+      throw error;
+    }
   };
   Application.extend = extend;
   function isCurrentOperation(application, operation) {
@@ -3890,6 +3898,29 @@
       }
     }
     return false;
+  }
+  function clearRootView(application) {
+    const region = application._region;
+    region?.off('empty', application._onRootRegionEmpty, application);
+    delete application._view;
+  }
+  function getRootView(application) {
+    const view = application._view;
+    if (view && application._region?.currentView !== view) {
+      clearRootView(application);
+      return;
+    }
+    return view;
+  }
+  function emptyRootView(application, options) {
+    if (!getRootView(application)) {
+      return;
+    }
+    try {
+      application._region.empty(options);
+    } finally {
+      getRootView(application);
+    }
   }
   function createDeferred() {
     let resolve;
@@ -4042,6 +4073,10 @@
         cancelOperation(application, operation);
         return;
       }
+      emptyRootView(application, readiness.options);
+      if (!isCurrentOperation(application, operation)) {
+        return;
+      }
       operation.failureState = STOPPED;
       operation.isStopped = true;
       if (operation.kind === 'stop') {
@@ -4055,7 +4090,7 @@
       throw error;
     }
   }
-  assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
+  assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMixin, {
     cidPrefix: 'mna',
     _lifecycleState: STOPPED,
     isRunning() {
@@ -4101,7 +4136,12 @@
         return Promise.resolve(true);
       }
       if (this._lifecycleState === STOPPED && !operation) {
-        return Promise.resolve(true);
+        try {
+          emptyRootView(this, options);
+          return Promise.resolve(true);
+        } catch (error) {
+          return Promise.reject(error);
+        }
       }
       const failureState = getFailureState(this, operation);
       return beginOperation(this, 'stop', STOPPING, failureState, current => {
@@ -4121,9 +4161,11 @@
       return beginOperation(this, 'restart', RESTARTING, failureState, async current => {
         if (shouldStop) {
           await stopApplication(this, current, options);
-          if (!isCurrentOperation(this, current)) {
-            return;
-          }
+        } else {
+          emptyRootView(this, options);
+        }
+        if (!isCurrentOperation(this, current)) {
+          return;
         }
         await startApplication(this, current, options);
       });
@@ -4144,6 +4186,7 @@
         } else if (this._childApps && hasActiveChildApps(this)) {
           await stopChildApps(this, current, options);
         }
+        emptyRootView(this, options);
         const readiness = beginReadiness(current, options, context => {
           return this.triggerMethod('before:destroy', this, options, context);
         });
@@ -4152,6 +4195,9 @@
         if (this._childApps) {
           await destroyChildApps(this, options);
         }
+        this._ownedRegion?.destroy(options);
+        delete this._region;
+        delete this._ownedRegion;
         this._isDestroyed = true;
         this._lifecycleState = DESTROYED;
         current.failureState = DESTROYED;
@@ -4222,17 +4268,33 @@
         regionClass: this.regionClass
       };
       this._region = buildRegion(region, defaults);
+      if (!(region instanceof Region)) {
+        this._ownedRegion = this._region;
+      }
     },
     getRegion() {
       return this._region;
     },
+    _onRootRegionEmpty() {
+      clearRootView(this);
+    },
     showView(view, ...args) {
+      if (isTerminal(this)) {
+        return view;
+      }
       const region = this.getRegion();
       region.show(view, ...args);
+      if (region.currentView === view) {
+        if (this._view !== view) {
+          clearRootView(this);
+          region.on('empty', this._onRootRegionEmpty, this);
+        }
+        this._view = view;
+      }
       return view;
     },
     getView() {
-      return this.getRegion().currentView;
+      return getRootView(this);
     }
   });
 

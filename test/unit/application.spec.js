@@ -61,6 +61,12 @@ describe('Marionette Application', function() {
           _initRadio(...args) {
             calls.push(['initRadio', this, args]);
           },
+          _initState(...args) {
+            calls.push(['initState', this, args]);
+          },
+          _initStateEvents(...args) {
+            calls.push(['initStateEvents', this, args]);
+          },
           initialize(...args) {
             calls.push(['initialize', this, args]);
           }
@@ -74,12 +80,15 @@ describe('Marionette Application', function() {
             'radioEvents',
             'radioRequests',
             'region',
-            'regionClass'
+            'regionClass',
+            'stateEvents'
           ]]],
           ['cidPrefix', 'default'],
           ['initRegion', orderedApp, []],
           ['initRadio', orderedApp, []],
-          ['initialize', orderedApp, [options, 'extra']]
+          ['initState', orderedApp, [options]],
+          ['initialize', orderedApp, [options, 'extra']],
+          ['initStateEvents', orderedApp, []]
         ]);
         expect(orderedApp.cid).to.match(/^ordered\d+$/);
       });

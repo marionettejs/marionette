@@ -43,10 +43,10 @@ const SelectionState = State.extend({
 
 ## Owned State
 
-`MnObject`, `View`, `CollectionView`, and `Behavior` can own one local State.
-Call `getState()` to create an empty State on first use. An owner that never
-declares, supplies, or requests State has no State instance, State property,
-subscription, or cleanup registration.
+`Application`, `MnObject`, `View`, `CollectionView`, and `Behavior` can own one
+local State. Call `getState()` to create an empty State on first use. An owner
+that never declares, supplies, or requests State has no State instance, State
+property, subscription, or cleanup registration.
 
 Declare initial attributes with the `state` property or constructor option.
 Either may be a function; Marionette calls it once with the owner as `this`.
@@ -91,9 +91,10 @@ const ToggleView = View.extend({
 ```
 
 State on a View or CollectionView persists across render. Behavior State
-persists across its owning View's render. Owner destruction destroys State and
-releases `stateEvents`; late `getState()` calls return a destroyed State whose
-writes are lifecycle-safe no-ops.
+persists across its owning View's render. Application State persists across
+stop and restart. Owner destruction destroys State and releases `stateEvents`;
+late `getState()` calls return a destroyed State whose writes are
+lifecycle-safe no-ops.
 
 ### Supplying a State instance
 
