@@ -1,5 +1,4 @@
 import $ from 'jquery';
-import canonicalBuildRegion from '../../../modules/common/build-region';
 import { buildRegion as ownedBuildRegion } from '../../../modules/view-region';
 import View from '../../../modules/view';
 import Region from '../../../modules/region';
@@ -28,10 +27,6 @@ describe('Region', function() {
       BarRegion = Region.extend({el: barSelector});
 
       BazRegion = Region.extend();
-    });
-
-    it('re-exports the canonical builder', function() {
-      expect(canonicalBuildRegion).to.equal(ownedBuildRegion);
     });
 
     describe('with a selector string', function() {
