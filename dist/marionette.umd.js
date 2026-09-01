@@ -3840,30 +3840,46 @@
       await child.destroy(options);
     }
   }
-  async function startChildApps(application, options, signal) {
+  function canPropagateChildLifecycle(application, operation, signal) {
+    return isCurrentOperation(application, operation) && !signal?.aborted;
+  }
+  function hasStableLifecycleState(application, state) {
+    return application._lifecycleState === state && !application._lifecycleOperation;
+  }
+  async function startChildApps(application, operation, options, signal) {
     if (!application._childApps) {
       return true;
     }
     for (const child of application._childApps.values()) {
+      if (!canPropagateChildLifecycle(application, operation, signal)) {
+        return false;
+      }
       const started = await child.start(options);
-      if (signal.aborted || !started) {
+      if (!canPropagateChildLifecycle(application, operation, signal) || !started || !hasStableLifecycleState(child, RUNNING)) {
         return false;
       }
     }
     return true;
   }
-  async function stopChildApps(application, options) {
+  async function stopChildApps(application, operation, options, signal) {
     if (!application._childApps) {
       return true;
     }
     for (const child of application._childApps.values()) {
-      let stopped = await child.stop(options);
-      if (!stopped && isTerminal(application)) {
-        stopped = await child.stop(options);
-      }
-      if (!stopped) {
+      if (!canPropagateChildLifecycle(application, operation, signal)) {
         return false;
       }
+      const stopped = await child.stop(options);
+      if (!canPropagateChildLifecycle(application, operation, signal)) {
+        return false;
+      }
+      if (stopped && hasStableLifecycleState(child, STOPPED)) {
+        continue;
+      }
+      if (!isTerminal(application)) {
+        return false;
+      }
+      await child.destroy(options);
     }
     return true;
   }
@@ -3990,7 +4006,7 @@
     }
     const readiness = beginReadiness(operation, options, async context => {
       await application.triggerMethod('before:start', application, options, context);
-      return startChildApps(application, options, context.signal);
+      return startChildApps(application, operation, options, context.signal);
     });
     const childrenStarted = await readiness.promise;
     if (!isCurrentOperation(application, operation)) {
@@ -4011,7 +4027,7 @@
       if (!operation.stopReadiness) {
         const readiness = beginReadiness(operation, options, async context => {
           await application.triggerMethod('before:stop', application, options, context);
-          return stopChildApps(application, options);
+          return stopChildApps(application, operation, options, context.signal);
         });
         operation.stopReadiness = readiness;
       }
@@ -4126,7 +4142,7 @@
         if (shouldStop) {
           await stopApplication(this, current, options);
         } else if (this._childApps && hasActiveChildApps(this)) {
-          await stopChildApps(this, options);
+          await stopChildApps(this, current, options);
         }
         const readiness = beginReadiness(current, options, context => {
           return this.triggerMethod('before:destroy', this, options, context);

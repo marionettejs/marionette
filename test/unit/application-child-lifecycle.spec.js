@@ -158,6 +158,100 @@ describe('Application child lifecycle', function() {
     await owner.destroy();
   });
 
+  it('does not start children when before:start supersedes owner startup', async function() {
+    let ownerStop;
+    const childStart = this.sinon.spy();
+    const OwnerApplication = Application.extend({
+      onBeforeStart() {
+        ownerStop = this.stop();
+      }
+    });
+    const ChildApplication = Application.extend({ onStart: childStart });
+    const owner = new OwnerApplication();
+    const child = new ChildApplication();
+    owner.addChildApp('child', child);
+
+    expect(await owner.start()).to.be.false;
+    expect(await ownerStop).to.be.true;
+    expect(owner.isRunning()).to.be.false;
+    expect(child.isRunning()).to.be.false;
+    expect(childStart).to.not.have.been.called;
+
+    await owner.destroy();
+  });
+
+  it('does not stop children when before:stop supersedes owner stop', async function() {
+    let supersedingStart;
+    let shouldSupersede = false;
+    const childStop = this.sinon.spy();
+    const OwnerApplication = Application.extend({
+      onBeforeStop() {
+        if (shouldSupersede) {
+          supersedingStart = this.start();
+        }
+      }
+    });
+    const ChildApplication = Application.extend({ onStop: childStop });
+    const owner = new OwnerApplication();
+    const child = new ChildApplication();
+    owner.addChildApp('child', child);
+    await owner.start();
+    shouldSupersede = true;
+
+    expect(await owner.stop()).to.be.false;
+    expect(await supersedingStart).to.be.true;
+    expect(owner.isRunning()).to.be.true;
+    expect(child.isRunning()).to.be.true;
+    expect(childStop).to.not.have.been.called;
+
+    shouldSupersede = false;
+    await owner.destroy();
+  });
+
+  it('cancels owner startup when child onStart directly stops', async function() {
+    let childStop;
+    const ChildApplication = Application.extend({
+      onStart() {
+        childStop = this.stop();
+      }
+    });
+    const owner = new Application();
+    const child = new ChildApplication();
+    owner.addChildApp('child', child);
+
+    expect(await owner.start()).to.be.false;
+    expect(await childStop).to.be.true;
+    expect(owner.isRunning()).to.be.false;
+    expect(child.isRunning()).to.be.false;
+
+    await owner.destroy();
+  });
+
+  it('cancels owner stop when child onStop directly starts', async function() {
+    let childStart;
+    let shouldRestart = false;
+    const ChildApplication = Application.extend({
+      onStop() {
+        if (shouldRestart) {
+          childStart = this.start();
+        }
+      }
+    });
+    const owner = new Application();
+    const child = new ChildApplication();
+    owner.addChildApp('child', child);
+    await owner.start();
+    shouldRestart = true;
+
+    expect(await owner.stop()).to.be.false;
+    expect(await childStart).to.be.true;
+    expect(owner.isRunning()).to.be.true;
+    expect(child.isRunning()).to.be.true;
+
+    shouldRestart = false;
+    await owner.destroy();
+  });
+
   it('cancels owner startup when a direct child stop supersedes it', async function() {
     const readiness = Promise.withResolvers();
     const childStarting = Promise.withResolvers();
@@ -186,6 +280,56 @@ describe('Application child lifecycle', function() {
     expect(ownerStart).to.not.have.been.called;
 
     await owner.destroy();
+  });
+
+  it('stops a child whose startup is invalidated with its owner', async function() {
+    const readiness = Promise.withResolvers();
+    const childStarting = Promise.withResolvers();
+    const ChildApplication = Application.extend({
+      onBeforeStart(application, options, context) {
+        childStarting.resolve();
+        context.signal.addEventListener('abort', readiness.resolve, { once: true });
+        return readiness.promise;
+      }
+    });
+    const owner = new Application();
+    const child = new ChildApplication();
+    owner.addChildApp('child', child);
+
+    const start = owner.start();
+    await childStarting.promise;
+    const stop = owner.stop();
+
+    expect(await start).to.be.false;
+    expect(await stop).to.be.true;
+    expect(owner.isRunning()).to.be.false;
+    expect(child.isRunning()).to.be.false;
+
+    await owner.destroy();
+  });
+
+  it('destroys a child whose startup is invalidated with its owner', async function() {
+    const readiness = Promise.withResolvers();
+    const childStarting = Promise.withResolvers();
+    const ChildApplication = Application.extend({
+      onBeforeStart(application, options, context) {
+        childStarting.resolve();
+        context.signal.addEventListener('abort', readiness.resolve, { once: true });
+        return readiness.promise;
+      }
+    });
+    const owner = new Application();
+    const child = new ChildApplication();
+    owner.addChildApp('child', child);
+
+    const start = owner.start();
+    await childStarting.promise;
+    const destroy = owner.destroy();
+
+    expect(await start).to.be.false;
+    expect(await destroy).to.be.true;
+    expect(owner.isDestroyed()).to.be.true;
+    expect(child.isDestroyed()).to.be.true;
   });
 
   it('cancels owner stop when a direct child start supersedes it', async function() {
@@ -238,6 +382,29 @@ describe('Application child lifecycle', function() {
     expect(events).to.deep.equal(['child:stop', 'owner:before:destroy']);
   });
 
+  it('rejects stopped owner destroy when an active child stop fails', async function() {
+    const error = new Error('child not ready');
+    let attempt = 0;
+    const ChildApplication = Application.extend({
+      onBeforeStop() {
+        if (!attempt++) { throw error; }
+      }
+    });
+    const owner = new Application();
+    const child = new ChildApplication();
+    owner.addChildApp('child', child);
+    await child.start();
+
+    await expectRejection(owner.destroy(), error);
+    expect(owner.isDestroyed()).to.be.false;
+    expect(owner.isRunning()).to.be.false;
+    expect(child.isRunning()).to.be.true;
+    expect(owner.getChildApp('child')).to.equal(child);
+
+    expect(await owner.destroy()).to.be.true;
+    expect(child.isDestroyed()).to.be.true;
+  });
+
   it('blocks descendant startup after owner destruction begins', async function() {
     const readiness = Promise.withResolvers();
     const childStopping = Promise.withResolvers();
@@ -261,6 +428,30 @@ describe('Application child lifecycle', function() {
     expect(child.isDestroyed()).to.be.true;
   });
 
+  it('blocks grandchild startup after root destruction begins', async function() {
+    const readiness = Promise.withResolvers();
+    const rootDestroying = Promise.withResolvers();
+    const RootApplication = Application.extend({
+      onBeforeDestroy() {
+        rootDestroying.resolve();
+        return readiness.promise;
+      }
+    });
+    const root = new RootApplication();
+    const child = new Application();
+    const grandchild = new Application();
+    root.addChildApp('child', child);
+    child.addChildApp('grandchild', grandchild);
+
+    const destroy = root.destroy();
+    await rootDestroying.promise;
+
+    expect(await grandchild.start()).to.be.false;
+    expect(await grandchild.restart()).to.be.false;
+    readiness.resolve();
+    expect(await destroy).to.be.true;
+  });
+
   it('follows a direct child destroy that supersedes owner-driven stop', async function() {
     const readiness = Promise.withResolvers();
     const childStopping = Promise.withResolvers();
@@ -282,6 +473,28 @@ describe('Application child lifecycle', function() {
     readiness.resolve();
     expect(await childDestroy).to.be.true;
     expect(await ownerDestroy).to.be.true;
+    expect(owner.isDestroyed()).to.be.true;
+    expect(child.isDestroyed()).to.be.true;
+  });
+
+  it('destroys a child that restarts from onStop during owner destroy', async function() {
+    let childStart;
+    let shouldRestart = false;
+    const ChildApplication = Application.extend({
+      onStop() {
+        if (shouldRestart) {
+          childStart = this.start();
+        }
+      }
+    });
+    const owner = new Application();
+    const child = new ChildApplication();
+    owner.addChildApp('child', child);
+    await owner.start();
+    shouldRestart = true;
+
+    expect(await owner.destroy()).to.be.true;
+    expect(await childStart).to.be.false;
     expect(owner.isDestroyed()).to.be.true;
     expect(child.isDestroyed()).to.be.true;
   });

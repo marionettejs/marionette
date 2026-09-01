@@ -191,6 +191,10 @@ Owner lifecycle options are forwarded to each child. A child failure rejects
 the owner operation and leaves the owner in its last committed stable state.
 Children that already reached the requested state remain there; retry visits
 the same registration order, where completed child operations are idempotent.
+An owner transition completes only after every child remains in the requested
+stable state. A direct opposing child operation cancels the owner transition,
+and superseding the owner from `before:start` or `before:stop` prevents the
+stale transition from changing any further children.
 
 `removeChildApp(name, options)` destroys the named child and resolves
 with it after destruction. An unknown name resolves with `undefined`. A child
@@ -199,9 +203,10 @@ running parent stops its children before `before:destroy`, then destroys owned
 children in registration order and finally emits the parent's `destroy`
 completion. A parent's destroy-readiness handler can therefore inspect its
 stopped, live child topology. A stopped parent also stops any child that was
-started directly before entering destroy readiness. If a child's destroy
-readiness fails, the parent remains live and retains that child so destruction
-can be retried.
+started directly before entering destroy readiness. A concurrent direct child
+destroy joins terminal teardown and may remove that child before parent
+readiness. If child stop or destroy readiness fails, the parent returns to its
+prior stable state and retains that child so destruction can be retried.
 
 ## Application Region
 
