@@ -1,0 +1,63 @@
+test/unit/common/monitor-view-events.spec.js
+  s_d6429951fb9231::t_c97b59ea352d08 5
+  s_d6429951fb9231::t_fbb94b7412c92f 7-11,14-15
+dist/marionette.js
+  s_d6429951fb9231::t_ae325a86658360 744-756,758-768
+  s_d6429951fb9231::t_fe3a9b729a806c 57,60-62,757
+dist/marionette.cjs
+  s_d6429951fb9231::t_05fd33f17b6737 61,64-66,761
+  s_d6429951fb9231::t_2a30187f635b59 748-760,762-772
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_523bd7b5f23c4e 54
+  s_d6429951fb9231::t_f479dd57f6e608 55
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_847cbbd09e6011 1
+modules/common/monitor-view-events.js
+  s_d6429951fb9231::t_6ec7604d0c0eee 8-10
+  s_d6429951fb9231::t_5120c09314762c 5
+  s_d6429951fb9231::t_c97b59ea352d08 6
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_eb97af13e860bf 1
+config/diagnostics/catalog.json
+  s_d6429951fb9231::t_b06579c12a9c96 552
+  s_d6429951fb9231::t_6ec7604d0c0eee 553-571
+  s_d6429951fb9231::t_86390172a9aeae 572
+dist/marionette.min.js
+  s_d6429951fb9231::t_f3db7ba71efe22 1
+dist/marionette.umd.js
+  s_d6429951fb9231::t_6fe4537cc3a7fd 68,71-73,768
+  s_d6429951fb9231::t_8bcdd52e9ec1a3 755-767,769-779
+test/unit/common/merge-options.spec.js
+  s_d6429951fb9231::t_2ff13c44d9aa14 118,123-128
+  s_d6429951fb9231::t_c587ad254dc466 17-18,20
+  s_d6429951fb9231::t_b1aa6f4b716579 2
+  s_d6429951fb9231::t_2192e51aa7d4ef 148-153
+  s_d6429951fb9231::t_d62e89893b473a 140
+  s_d6429951fb9231::t_6ec7604d0c0eee 120-122,129-138,141-142
+modules/common/merge-options.js
+  s_d6429951fb9231::t_0b4f7d01709736 9
+  s_d6429951fb9231::t_b1aa6f4b716579 21
+  s_d6429951fb9231::t_79b89bb849ed4e 8
+  s_d6429951fb9231::t_6ec7604d0c0eee 2,10-16,18-20,27
+docs/common.md
+  s_d6429951fb9231::t_2cdfada42f124b 239
+  s_d6429951fb9231::t_6ec7604d0c0eee 238
+changelog.md
+  s_d6429951fb9231::t_b2864ded86dd18 68-70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "a79294ed548580fbc31efbca2806993d058d1551",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
