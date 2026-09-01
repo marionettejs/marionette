@@ -1,0 +1,62 @@
+test/unit/state.spec.js
+  s_d6429951fb9231::t_667b317be344f6 81,83-85,89-90,92-93
+  s_d6429951fb9231::t_5a7c2ecc10392f 46-49,60-63,77-78,82,86-88,130-131
+  s_d6429951fb9231::t_a0ca246a7a6441 91
+  s_d6429951fb9231::t_f7475813c6bc23 22
+  s_d6429951fb9231::t_846edfc723a167 28-43
+  s_d6429951fb9231::t_5e356237ba30dc 127,144
+  s_d6429951fb9231::t_ee91a849a8671c 1-21,23-27,44-45,50-59,64-76,79-80,94-126,128-129,132-143,145-217
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_589d66fde91470 28
+dist/marionette.umd.js
+  s_d6429951fb9231::t_01cb4865911e64 255,258,590,593,922,970,981,1536,1594,3927-4039,4064
+dist/marionette.cjs
+  s_d6429951fb9231::t_5c4a80939ce733 248,251,583,586,915,963,974,1529,1587,3920-4032,4057
+docs/marionette.state.md
+  s_d6429951fb9231::t_ee91a849a8671c 1-26,31-85
+  s_d6429951fb9231::t_5a7c2ecc10392f 27-30
+test/dist/validate.mjs
+  s_d6429951fb9231::t_9aaa84bf34095c 52,67-68
+dist/marionette.js
+  s_d6429951fb9231::t_ec2fa6e4549298 244,247,579,582,911,959,970,1525,1583,3916-4028,4044
+dist/marionette.min.js
+  s_d6429951fb9231::t_48338cdea4ed22 1
+index.js
+  s_d6429951fb9231::t_ee91a849a8671c 15,51
+docs/classes.md
+  s_d6429951fb9231::t_ee91a849a8671c 87-91
+ROADMAP.md
+  s_d6429951fb9231::t_ee91a849a8671c 294,314-317
+  s_d6429951fb9231::t_9aaa84bf34095c 295-298,318-320
+changelog.md
+  s_d6429951fb9231::t_589d66fde91470 3-5
+docs-site/next.json
+  s_d6429951fb9231::t_ee91a849a8671c 15-17
+  s_d6429951fb9231::t_39965d276e5445 14
+test/source/validate.mjs
+  s_d6429951fb9231::t_9aaa84bf34095c 16,18
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_05f7a223cd623e 1
+modules/state.js
+  s_d6429951fb9231::t_ee91a849a8671c 1-70,72-75,77-97,100-132
+  s_d6429951fb9231::t_f7475813c6bc23 71
+  s_d6429951fb9231::t_5a7c2ecc10392f 76,98-99
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_3191c28a45e557 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "4f0c4e6bb6527868bb83b0843443b2999d20d3ca",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
