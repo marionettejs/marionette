@@ -14,8 +14,10 @@
   Behaviors through their owning View's `setElement` method
 * Fixed CollectionView child identity indexes so prototype-collision cids and
   same-cid impostors cannot corrupt ownership or mutate unowned Views
-* Fixed removal-only, unsorted, unfiltered CollectionView updates to preserve
-  surviving child DOM, focus, selection, media, and custom-element connection state
+* Fixed removal-only, unfiltered CollectionView updates with default collection
+  ordering or ordering disabled to preserve surviving child DOM, focus, selection,
+  media, and custom-element connection state without firing sort or child-render
+  lifecycles for unchanged survivors
 * Removed the undocumented alpha-only named `Requests` export; request/reply
   methods remain owned by the built-in `Radio` singleton and its channels
 * Fixed selective `unbindRequests` cleanup to preserve a replacement reply

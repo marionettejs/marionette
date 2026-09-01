@@ -387,7 +387,47 @@ describe('CollectionView Data', function() {
       expect([...myCollectionView.el.children]).to.deep.equal(survivorNodes);
     });
 
-    it('keeps the render path when a comparator is active', function() {
+    it('does not move survivors with the default collection order', function() {
+      const survivorNodes = [
+        myCollectionView.el.children[0],
+        myCollectionView.el.children[2]
+      ];
+      const beforeSort = this.sinon.stub();
+      const sort = this.sinon.stub();
+      myCollectionView.on({
+        'before:sort': beforeSort,
+        sort
+      });
+      this.sinon.spy(myCollectionView, 'attachHtml');
+
+      collection.remove(collection.at(1));
+
+      expect(myCollectionView.attachHtml).to.not.have.been.called;
+      expect(beforeSort).to.not.have.been.called;
+      expect(sort).to.not.have.been.called;
+      expect([...myCollectionView.el.children]).to.deep.equal(survivorNodes);
+    });
+
+    it('keeps default-order bookkeeping aligned for a later addition', function() {
+      collection.remove(collection.at(1));
+      collection.add({ id: 4 });
+
+      const childViews = [...myCollectionView.children];
+      expect(childViews.map(view => view.model)).to.deep.equal(collection.models);
+      expect([...myCollectionView.el.children])
+        .to.deep.equal(childViews.map(view => view.el));
+    });
+
+    it('keeps the render path when a custom comparator is active', function() {
+      myCollectionView.destroy();
+
+      myCollectionView = new MyCollectionView({
+        collection,
+        emptyView,
+        viewComparator: 'id'
+      });
+      myCollectionView.render();
+
       const beforeRenderChildren = this.sinon.stub();
       const renderChildren = this.sinon.stub();
       myCollectionView.on({
@@ -516,8 +556,7 @@ describe('CollectionView Data', function() {
       collection = new Backbone.Collection([{ id: 1 }]);
       myCollectionView = new MyCollectionView({
         collection,
-        emptyView,
-        viewComparator: false
+        emptyView
       });
       myCollectionView.render();
 

@@ -207,22 +207,22 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
     this._detachChildren(removedViews);
 
-    const usesDefaultComparator = this.getComparator === CollectionView.prototype.getComparator;
-    const usesDefaultFilterQuery = this.getFilter === CollectionView.prototype.getFilter;
-    const usesDefaultSort = this.sort === CollectionView.prototype.sort;
-    const usesDefaultFilter = this.filter === CollectionView.prototype.filter;
-    const isUnsorted = this.viewComparator === false ||
-      (!this.viewComparator && !this.sortWithCollection);
+    const isDefaultComparator = this.getComparator === CollectionView.prototype.getComparator;
+    const isDefaultFilterQuery = this.getFilter === CollectionView.prototype.getFilter;
+    const isDefaultSort = this.sort === CollectionView.prototype.sort;
+    const isDefaultFilter = this.filter === CollectionView.prototype.filter;
+    // Removing models preserves survivor order with collection ordering or no ordering.
+    const isRemovalOrderStable = !this.viewComparator;
 
     const canRemoveWithoutRender = this._isRendered &&
       changes.removed.length > 0 &&
       changes.added.length === 0 &&
       changes.merged.length === 0 &&
-      usesDefaultComparator &&
-      usesDefaultFilterQuery &&
-      usesDefaultSort &&
-      usesDefaultFilter &&
-      isUnsorted &&
+      isDefaultComparator &&
+      isDefaultFilterQuery &&
+      isDefaultSort &&
+      isDefaultFilter &&
+      isRemovalOrderStable &&
       !this.viewFilter &&
       this.children.length === this._children.length &&
       this._children.length > 0 &&
