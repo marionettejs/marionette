@@ -1,0 +1,82 @@
+modules/object.js
+  s_d6429951fb9231::t_6f2527929ebccf 26
+  s_d6429951fb9231::t_0fea54ef90033b 10,15-16,24,34
+test/unit/object.spec.js
+  s_d6429951fb9231::t_8532707c7546fb 89-91,103-108,111
+  s_d6429951fb9231::t_da02d85d7fbed5 92-94,112-113
+test/unit/behavior-composition.spec.js
+  s_d6429951fb9231::t_3ffb320717cf9b 4,10-16,84
+  s_d6429951fb9231::t_da02d85d7fbed5 57-59,93
+modules/collection-view.js
+  s_d6429951fb9231::t_0fea54ef90033b 74,99
+  s_d6429951fb9231::t_6f2527929ebccf 108-109
+test/unit/mixins/view-composition.spec.js
+  s_d6429951fb9231::t_3ffb320717cf9b 7,18
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_866947f9ce1089 29
+test/unit/state-owner.spec.js
+  s_d6429951fb9231::t_6f2527929ebccf 202-217,220-221
+  s_d6429951fb9231::t_853efee56d7d15 7-11,13,55-56,107,188-197,200-201,252-259
+  s_d6429951fb9231::t_c2d5bc8f5cd6cd 156-168,171-172
+  s_d6429951fb9231::t_91368b9bcffd05 65-72
+  s_d6429951fb9231::t_2dab2c966e271e 1-6,12,14-23,25-33,35-43,45-53,57-64,73-91,93-106,108-117,119-128,137-148,155,182-183,186-187,234-242,262-287,310-313
+  s_d6429951fb9231::t_92b69dde85505c 260-261
+  s_d6429951fb9231::t_c602108e09307d 222-233
+  s_d6429951fb9231::t_bf52ad090ebf05 152-153,169-170,184-185,198-199,218-219
+  s_d6429951fb9231::t_795b645f18014e 129-136,149-151,154,173-181,243-251,288-309
+  s_d6429951fb9231::t_797cfd54fc807f 24,34,44,54,92
+  s_d6429951fb9231::t_c49749dffd5b59 118
+modules/view-region.js
+  s_d6429951fb9231::t_6f2527929ebccf 900
+  s_d6429951fb9231::t_0fea54ef90033b 860,891
+modules/behavior.js
+  s_d6429951fb9231::t_6f2527929ebccf 60,80
+  s_d6429951fb9231::t_0fea54ef90033b 15,24,40,69,82
+mixins/view.js
+  s_d6429951fb9231::t_0fea54ef90033b 11,278
+config/diagnostics/catalog.json
+  s_d6429951fb9231::t_866947f9ce1089 589-608
+test/unit/object-application-composition.spec.js
+  s_d6429951fb9231::t_3ffb320717cf9b 6,8,11,57,59-62,66,78-79
+  s_d6429951fb9231::t_f5cdc47650739d 80
+docs/marionette.state.md
+  s_d6429951fb9231::t_da02d85d7fbed5 52-53,77-79
+  s_d6429951fb9231::t_866947f9ce1089 44-51,54-76,80-116
+mixins/state.js
+  s_d6429951fb9231::t_866947f9ce1089 9-10
+  s_d6429951fb9231::t_3013bb02551b7f 61,65-67
+  s_d6429951fb9231::t_c2d5bc8f5cd6cd 17,19-20,30
+  s_d6429951fb9231::t_0fea54ef90033b 1-8,11-15,18,21,31,34-50,55-60,62-64,68-72
+  s_d6429951fb9231::t_91368b9bcffd05 16
+  s_d6429951fb9231::t_6f2527929ebccf 22-29,32-33,51-54
+changelog.md
+  s_d6429951fb9231::t_866947f9ce1089 6-8
+dist/marionette.cjs
+  s_d6429951fb9231::t_ab326329471584 1017-1208,1213,1215,1218,1722,1780,1968,2582,2597,2605,3022,3031,3039,3640,3646,3654,3661,3667,3669
+dist/marionette.js
+  s_d6429951fb9231::t_786acce208ebef 1013-1204,1209,1211,1214,1718,1776,1964,2578,2593,2601,3018,3027,3035,3636,3642,3650,3657,3663,3665
+dist/marionette.min.js
+  s_d6429951fb9231::t_0fcca2471b55a9 1
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_9909855be2c4f3 1
+dist/marionette.umd.js
+  s_d6429951fb9231::t_3dc10006d2f547 1024-1215,1220,1222,1225,1729,1787,1975,2589,2604,2612,3029,3038,3046,3647,3653,3661,3668,3674,3676
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_61e33485472bd2 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "ddc58e6c097d8bdb961e7c551a5c0144c9d966c6",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
