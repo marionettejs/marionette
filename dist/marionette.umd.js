@@ -3840,37 +3840,37 @@
       await child.destroy(options);
     }
   }
-  function canPropagateChildLifecycle(application, operation, signal) {
-    return isCurrentOperation(application, operation) && !signal?.aborted;
+  function canPropagateChildLifecycle(application, operation) {
+    return isCurrentOperation(application, operation);
   }
   function hasStableLifecycleState(application, state) {
     return application._lifecycleState === state && !application._lifecycleOperation;
   }
-  async function startChildApps(application, operation, options, signal) {
+  async function startChildApps(application, operation, options) {
     if (!application._childApps) {
       return true;
     }
     for (const child of application._childApps.values()) {
-      if (!canPropagateChildLifecycle(application, operation, signal)) {
+      if (!canPropagateChildLifecycle(application, operation)) {
         return false;
       }
       const started = await child.start(options);
-      if (!canPropagateChildLifecycle(application, operation, signal) || !started || !hasStableLifecycleState(child, RUNNING)) {
+      if (!canPropagateChildLifecycle(application, operation) || !started || !hasStableLifecycleState(child, RUNNING)) {
         return false;
       }
     }
     return true;
   }
-  async function stopChildApps(application, operation, options, signal) {
+  async function stopChildApps(application, operation, options) {
     if (!application._childApps) {
       return true;
     }
     for (const child of application._childApps.values()) {
-      if (!canPropagateChildLifecycle(application, operation, signal)) {
+      if (!canPropagateChildLifecycle(application, operation)) {
         return false;
       }
       const stopped = await child.stop(options);
-      if (!canPropagateChildLifecycle(application, operation, signal)) {
+      if (!canPropagateChildLifecycle(application, operation)) {
         return false;
       }
       if (stopped && hasStableLifecycleState(child, STOPPED)) {
@@ -4006,7 +4006,7 @@
     }
     const readiness = beginReadiness(operation, options, async context => {
       await application.triggerMethod('before:start', application, options, context);
-      return startChildApps(application, operation, options, context.signal);
+      return startChildApps(application, operation, options);
     });
     const childrenStarted = await readiness.promise;
     if (!isCurrentOperation(application, operation)) {
@@ -4027,7 +4027,7 @@
       if (!operation.stopReadiness) {
         const readiness = beginReadiness(operation, options, async context => {
           await application.triggerMethod('before:stop', application, options, context);
-          return stopChildApps(application, operation, options, context.signal);
+          return stopChildApps(application, operation, options);
         });
         operation.stopReadiness = readiness;
       }
