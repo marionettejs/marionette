@@ -28,7 +28,7 @@ const ClassOptions = [
 
 const Behavior = function(options, view) {
   // Setup reference to the view.
-  // this comes in handle when a behavior
+  // this comes in handy when a behavior
   // wants to directly talk up the chain
   // to the view.
   this.view = view;

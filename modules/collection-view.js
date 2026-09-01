@@ -82,7 +82,7 @@ const ClassOptions = [
   'viewFilter'
 ];
 
-// A view that iterates over a Backbone.Collection
+// A view that iterates over a collection
 // and renders an individual child view for each model.
 const CollectionView = function(options) {
   this.cid = uniqueId(this.cidPrefix);
@@ -352,7 +352,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   // Build a `childView` for a model in the collection.
   // Override to customize the build
   buildChildView(child, ChildViewClass, childViewOptions) {
-    const options = assignOwn({model: child}, childViewOptions);
+    const options = assignOwn({ model: child }, childViewOptions);
     return new ChildViewClass(options);
   },
 
@@ -374,9 +374,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     return this.children._views;
   },
 
-  // Overriding Backbone.View's `setElement` to handle
-  // if an el was previously defined. If so, the view might be
-  // attached on setElement.
+  // Handle a previously defined element, which may already be attached.
   setElement(element) {
     if (this._isDestroying || this._isDestroyed) {
       return this;
@@ -471,7 +469,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
   // Sets the view's `viewComparator` and applies the sort if the view is ready.
   // To prevent the render pass `{ preventRender: true }` as the 2nd argument.
-  setComparator(comparator, {preventRender} = {}) {
+  setComparator(comparator, { preventRender } = {}) {
     const comparatorChanged = this.viewComparator !== comparator;
     const shouldSort = comparatorChanged && !preventRender;
 
@@ -493,7 +491,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   // Additionally override this function to provide custom
   // viewComparator logic
   getComparator() {
-    if (this.viewComparator) { return this.viewComparator }
+    if (this.viewComparator) { return this.viewComparator; }
 
     if (!this.sortWithCollection || this.viewComparator === false || !this.collection) {
       return false;
@@ -593,7 +591,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
   // Sets the view's `viewFilter` and applies the filter if the view is ready.
   // To prevent the render pass `{ preventRender: true }` as the 2nd argument.
-  setFilter(filter, {preventRender} = {}) {
+  setFilter(filter, { preventRender } = {}) {
     const filterChanged = this.viewFilter !== filter;
     const shouldRender = filterChanged && !preventRender;
 
@@ -763,7 +761,6 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     }
   },
 
-  //
   _getEmptyViewOptions() {
     const emptyViewOptions = this.emptyViewOptions || this.childViewOptions;
 
@@ -890,7 +887,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     }
   },
 
-  _removeChildView(view, {shouldDetach} = {}) {
+  _removeChildView(view, { shouldDetach } = {}) {
     view.off('destroy', this.removeChildView, this);
 
     if (shouldDetach) {

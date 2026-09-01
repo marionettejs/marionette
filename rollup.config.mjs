@@ -3,6 +3,11 @@ import json from '@rollup/plugin-json';
 import terser from '@rollup/plugin-terser';
 
 const shimExternal = ['backbone', 'marionette'];
+const babelOptions = {
+  babelHelpers: 'bundled',
+  shouldPrintComment: comment => comment.includes('@__PURE__') ||
+    comment.includes('@license') || comment.includes('@preserve') || comment.startsWith('!'),
+};
 const shimMainExternal = {
   name: 'shim-main-external',
   resolveId(source, importer) {
@@ -52,7 +57,7 @@ export default [
       },
     ],
     plugins: [
-      babel({ babelHelpers: 'bundled' }),
+      babel(babelOptions),
     ]
   },
   {
@@ -67,7 +72,7 @@ export default [
       },
     ],
     plugins: [
-      babel({ babelHelpers: 'bundled' }),
+      babel(babelOptions),
       terser(),
     ]
   },
@@ -87,7 +92,7 @@ export default [
     ],
     plugins: [
       shimMainExternal,
-      babel({ babelHelpers: 'bundled' }),
+      babel(babelOptions),
     ]
   },
   {
@@ -105,7 +110,7 @@ export default [
       },
     ],
     plugins: [
-      babel({ babelHelpers: 'bundled' }),
+      babel(babelOptions),
     ]
   },
 ]

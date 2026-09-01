@@ -17,7 +17,7 @@ function getBehaviorClass(options) {
     return { BehaviorClass: options.behaviorClass, options };
   }
 
-  //treat functions as a Behavior constructor
+  // Treat functions as a Behavior constructor.
   if (typeof options === 'function') {
     return { BehaviorClass: options, options: {} };
   }

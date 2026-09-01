@@ -3774,16 +3774,8 @@
       throw error;
     }
   };
-  Application.extend = extend;
   function isCurrentOperation(application, operation) {
     return application._lifecycleOperation === operation;
-  }
-  function getOwnChildApp(applications, name) {
-    return applications?.get(name);
-  }
-  function setChildApp(applications, name, application) {
-    applications.set(name, application);
-    return application;
   }
   function throwApplicationOwnershipConflict(message) {
     throw new MarionetteError({
@@ -3806,7 +3798,7 @@
     return false;
   }
   function isSameChildApp(owner, name, application) {
-    return application._parentApp === owner && application._name === name && getOwnChildApp(owner._childApps, name) === application;
+    return application._parentApp === owner && application._name === name && owner._childApps?.get(name) === application;
   }
   function assertChildAppCanRegister(owner, name, application) {
     if (typeof name !== 'string' || name.length === 0) {
@@ -3824,7 +3816,7 @@
     if (application._parentApp !== undefined) {
       throwApplicationOwnershipConflict('An Application instance cannot be registered with more than one owner or name.');
     }
-    if (getOwnChildApp(owner._childApps, name)) {
+    if (owner._childApps?.has(name)) {
       throwApplicationOwnershipConflict(`Child Application name "${name}" is already registered.`);
     }
     let parent = owner;
@@ -3848,9 +3840,6 @@
       await child.destroy(options);
     }
   }
-  function canPropagateChildLifecycle(application, operation) {
-    return isCurrentOperation(application, operation);
-  }
   function hasStableLifecycleState(application, state) {
     return application._lifecycleState === state && !application._lifecycleOperation;
   }
@@ -3859,11 +3848,11 @@
       return true;
     }
     for (const child of application._childApps.values()) {
-      if (!canPropagateChildLifecycle(application, operation)) {
+      if (!isCurrentOperation(application, operation)) {
         return false;
       }
       const started = await child.start(options);
-      if (!canPropagateChildLifecycle(application, operation) || !started || !hasStableLifecycleState(child, RUNNING)) {
+      if (!isCurrentOperation(application, operation) || !started || !hasStableLifecycleState(child, RUNNING)) {
         return false;
       }
     }
@@ -3874,11 +3863,11 @@
       return true;
     }
     for (const child of application._childApps.values()) {
-      if (!canPropagateChildLifecycle(application, operation)) {
+      if (!isCurrentOperation(application, operation)) {
         return false;
       }
       const stopped = await child.stop(options);
-      if (!canPropagateChildLifecycle(application, operation)) {
+      if (!isCurrentOperation(application, operation)) {
         return false;
       }
       if (stopped && hasStableLifecycleState(child, STOPPED)) {
@@ -4084,13 +4073,17 @@
         operation.isCompleting = true;
       }
       application.triggerMethod('stop', application, readiness.options);
-      operation.stopResult?.resolve(true);
+      operation.stopDeferred?.resolve(true);
     } catch (error) {
-      operation.stopResult?.reject(error);
+      operation.stopDeferred?.reject(error);
       throw error;
     }
   }
-  assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMixin, {
+  var application = /* @__PURE__ */(methods => {
+    Application.extend = extend;
+    assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMixin, methods);
+    return Application;
+  })({
     cidPrefix: 'mna',
     _lifecycleState: STOPPED,
     isRunning() {
@@ -4108,8 +4101,8 @@
         return Promise.resolve(true);
       }
       const failureState = getFailureState(this, operation);
-      return beginOperation(this, 'start', STARTING, failureState, current => {
-        return startApplication(this, current, options);
+      return beginOperation(this, 'start', STARTING, failureState, nextOperation => {
+        return startApplication(this, nextOperation, options);
       });
     },
     stop(options) {
@@ -4121,10 +4114,10 @@
         if (!operation?.stopReadiness) {
           return Promise.resolve(true);
         }
-        if (!operation.stopResult) {
-          operation.stopResult = createDeferred();
+        if (!operation.stopDeferred) {
+          operation.stopDeferred = createDeferred();
         }
-        return operation.stopResult.promise;
+        return operation.stopDeferred.promise;
       }
       if (operation?.kind === 'stop') {
         return operation.promise;
@@ -4144,8 +4137,8 @@
         }
       }
       const failureState = getFailureState(this, operation);
-      return beginOperation(this, 'stop', STOPPING, failureState, current => {
-        return stopApplication(this, current, options);
+      return beginOperation(this, 'stop', STOPPING, failureState, nextOperation => {
+        return stopApplication(this, nextOperation, options);
       });
     },
     restart(options) {
@@ -4158,16 +4151,16 @@
       }
       const shouldStop = !operation?.isStopped && this._lifecycleState !== STOPPED;
       const failureState = getFailureState(this, operation);
-      return beginOperation(this, 'restart', RESTARTING, failureState, async current => {
+      return beginOperation(this, 'restart', RESTARTING, failureState, async nextOperation => {
         if (shouldStop) {
-          await stopApplication(this, current, options);
+          await stopApplication(this, nextOperation, options);
         } else {
           emptyRootView(this, options);
         }
-        if (!isCurrentOperation(this, current)) {
+        if (!isCurrentOperation(this, nextOperation)) {
           return;
         }
-        await startApplication(this, current, options);
+        await startApplication(this, nextOperation, options);
       });
     },
     destroy(options) {
@@ -4180,18 +4173,18 @@
       }
       const shouldStop = !operation?.isStopped && this._lifecycleState !== STOPPED;
       const failureState = getFailureState(this, operation);
-      return beginOperation(this, 'destroy', DESTROYING, failureState, async current => {
+      return beginOperation(this, 'destroy', DESTROYING, failureState, async nextOperation => {
         if (shouldStop) {
-          await stopApplication(this, current, options);
+          await stopApplication(this, nextOperation, options);
         } else if (this._childApps && hasActiveChildApps(this)) {
-          await stopChildApps(this, current, options);
+          await stopChildApps(this, nextOperation, options);
         }
         emptyRootView(this, options);
-        const readiness = beginReadiness(current, options, context => {
+        const readiness = beginReadiness(nextOperation, options, context => {
           return this.triggerMethod('before:destroy', this, options, context);
         });
         await readiness.promise;
-        completeReadiness(current);
+        completeReadiness(nextOperation);
         if (this._childApps) {
           await destroyChildApps(this, options);
         }
@@ -4200,8 +4193,8 @@
         delete this._ownedRegion;
         this._isDestroyed = true;
         this._lifecycleState = DESTROYED;
-        current.failureState = DESTROYED;
-        current.isCompleting = true;
+        nextOperation.failureState = DESTROYED;
+        nextOperation.isCompleting = true;
         if (this._parentApp) {
           removeChildAppReference(this._parentApp, this._name, this);
         }
@@ -4223,7 +4216,8 @@
       const children = this._childApps || (this._childApps = new Map());
       application._parentApp = this;
       application._name = name;
-      return setChildApp(children, name, application);
+      children.set(name, application);
+      return application;
     },
     removeChildApp(name, options) {
       const application = this.getChildApp(name);
@@ -4236,7 +4230,7 @@
       return !!this._childApps?.has(name);
     },
     getChildApp(name) {
-      return getOwnChildApp(this._childApps, name);
+      return this._childApps?.get(name);
     },
     getChildApps() {
       const applications = {};
@@ -4313,7 +4307,7 @@
     View.setEventDelegator(delegator);
   };
 
-  exports.Application = Application;
+  exports.Application = application;
   exports.Behavior = Behavior;
   exports.CollectionView = CollectionView;
   exports.DomApi = DomApi;

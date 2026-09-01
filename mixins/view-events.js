@@ -11,7 +11,7 @@ const delegateEventSplitter = /^(\S+)\s*(.*)$/;
 // 'click:foo'
 function buildViewTrigger(view, triggerDef) {
   if (isString(triggerDef)) {
-    triggerDef = {event: triggerDef};
+    triggerDef = { event: triggerDef };
   }
 
   const eventName = triggerDef.event;

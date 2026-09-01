@@ -11,7 +11,7 @@ function eachChild(children, iteratee) {
   }
 }
 
-// Trigger method on children unless a pure Backbone.View
+// Trigger methods only on children that expose Marionette child traversal.
 function triggerMethodChildren(view, event, shouldTrigger) {
   if (!view._getImmediateChildren) { return; }
   eachChild(view._getImmediateChildren(), child => {

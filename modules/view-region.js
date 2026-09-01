@@ -640,7 +640,7 @@ function buildRegion(definition, defaults) {
 function buildRegionFromObject(defaults, definition) {
   const options = assignOwn({}, defaults, definition);
 
-  const RegionClass = options.regionClass
+  const RegionClass = options.regionClass;
 
   delete options.regionClass;
 
