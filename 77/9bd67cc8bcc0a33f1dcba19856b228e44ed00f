@@ -1,0 +1,54 @@
+modules/radio.js
+  s_d6429951fb9231::t_2077f18467f7e3 30,39,50,60-61,64,68,71,75,77,79,104,112,114,125
+  s_d6429951fb9231::t_dc650032e6d448 1
+dist/marionette.cjs
+  s_d6429951fb9231::t_864630b6a34ce1 927,934,937,945-946,948,950,952-953,967,974,976,985
+docs/radio.md
+  s_d6429951fb9231::t_6cde5e5c19af66 133
+  s_d6429951fb9231::t_2077f18467f7e3 43-46,131-132
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_07631a4733b42a 44-46
+test/dist/validate.mjs
+  s_d6429951fb9231::t_326fca8488fdfc 28-34,52,66
+test/unit/radio-composition.spec.js
+  s_d6429951fb9231::t_519e9160b51695 2,26-28,30-44,46,49,51-63,65-67,69-72,74-75,78-95,97-98,101-110,112,115-118,120-121,123-125,127-146
+test/unit/radio.spec.js
+  s_d6429951fb9231::t_a053bcc7723e49 266-268,270,272,276,278
+  s_d6429951fb9231::t_2077f18467f7e3 26
+dist/marionette.umd.js
+  s_d6429951fb9231::t_34262086389540 934,941,944,952-953,955,957,959-960,974,981,983,992
+test/unit/common/bind-request.spec.js
+  s_d6429951fb9231::t_2077f18467f7e3 130,157
+dist/marionette.js
+  s_d6429951fb9231::t_11c9fe768eeb43 923,930,933,941-942,944,946,948-949,963,970,972,981
+test/fixtures/cjs-node/validate.cjs
+  s_d6429951fb9231::t_326fca8488fdfc 20-22
+  s_d6429951fb9231::t_82812a2dfdb2b8 19
+changelog.md
+  s_d6429951fb9231::t_07631a4733b42a 71-77
+test/fixtures/esm-node/validate.mjs
+  s_d6429951fb9231::t_82812a2dfdb2b8 20
+  s_d6429951fb9231::t_326fca8488fdfc 21-23
+dist/marionette.min.js
+  s_d6429951fb9231::t_50900528c9a623 1
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_e11cac420ec55c 1
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_6b6aff2fc9cd81 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "779bd67cc8bcc0a33f1dcba19856b228e44ed00f",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
