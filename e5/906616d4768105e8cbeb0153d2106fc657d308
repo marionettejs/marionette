@@ -1,0 +1,51 @@
+benchmarks/consumer-bundles/v1/view-list-only.js
+  s_d93f45db31dead::t_5d7fdd28ad98b5 1
+benchmarks/consumer-bundles/v1/manifest.json
+  s_d93f45db31dead::t_cd69711b267f06 37-39,73-86,88
+  s_d93f45db31dead::t_8edea322699ace 87
+  s_d93f45db31dead::t_25e98f1fa2904e 89-90
+scripts/performance/bundle-size.mjs
+  s_d93f45db31dead::t_a37f9294d2c8ca 39-43,416-417
+  s_d93f45db31dead::t_56d17cc989daa1 29,399,418-419,494-495
+test/dist/validate.mjs
+  s_d93f45db31dead::t_a37f9294d2c8ca 65
+  s_d93f45db31dead::t_3d9d008d7afc75 39
+  s_d93f45db31dead::t_5d3762aa3ad544 36,54-64,66-73,106-107
+rollup.config.mjs
+  s_d93f45db31dead::t_a37f9294d2c8ca 8-9
+  s_d93f45db31dead::t_e08885dc14e5a1 6-7,10,60,75,95,113
+docs/performance-baselines.md
+  s_d93f45db31dead::t_6c277b23daec7b 31-34,41,43-44,140
+benchmarks/consumer-bundles/contract.json
+  s_d93f45db31dead::t_80b8248fb06c11 7
+test/performance/consumer-bundles.test.mjs
+  s_d93f45db31dead::t_0dd7ec0929e688 73,131,139,148-152,174
+dist/marionette.cjs
+  s_d93f45db31dead::t_e70d36124d27bf 3794,3812,4072,4074,4078-4083,4093-4095,4097,4100-4102,4109,4111,4114-4115,4117,4119-4120,4122,4128,4136-4138,4145-4147,4149-4151,4153,4157,4160,4167-4169,4171-4173,4175,4177,4180,4184,4193-4194,4216-4217,4230,4307
+dist/marionette.js
+  s_d93f45db31dead::t_f230c82017b6be 3790,3808,4068,4070,4074-4079,4089-4091,4093,4096-4098,4105,4107,4110-4111,4113,4115-4116,4118,4124,4132-4134,4141-4143,4145-4147,4149,4153,4156,4163-4165,4167-4169,4171,4173,4176,4180,4189-4190,4212-4213,4226,4303
+dist/marionette.min.js
+  s_d93f45db31dead::t_de4c2d7c4d61be 1
+dist/marionette.min.js.map
+  s_d93f45db31dead::t_04151369a57172 1
+dist/marionette.umd.js
+  s_d93f45db31dead::t_f9b9d614734343 3801,3819,4079,4081,4085-4090,4100-4102,4104,4107-4109,4116,4118,4121-4122,4124,4126-4127,4129,4135,4143-4145,4152-4154,4156-4158,4160,4164,4167,4174-4176,4178-4180,4182,4184,4187,4191,4200-4201,4223-4224,4237,4314
+dist/marionette.umd.js.map
+  s_d93f45db31dead::t_c19265e2f20d69 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "e5906616d4768105e8cbeb0153d2106fc657d308",
+  "prompts": {},
+  "sessions": {
+    "s_d93f45db31dead": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05c69-15cb-71b1-836b-0fdd2f01d1c5",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
