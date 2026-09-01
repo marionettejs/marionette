@@ -3752,13 +3752,14 @@ const Application = function (options) {
   this._setOptions(options, ClassOptions);
   this.cid = uniqueId(this.cidPrefix);
   this._initRegion();
-  this._initRadio();
-  this._initState(options);
   try {
+    this._initRadio();
+    this._initState(options);
     this.initialize.apply(this, arguments);
     this._initStateEvents();
   } catch (error) {
     this._destroyState();
+    this._ownedRegion?.destroy();
     throw error;
   }
 };
@@ -4183,12 +4184,9 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMix
       if (this._childApps) {
         await destroyChildApps(this, options);
       }
-      const region = this._region;
-      if (this._ownsRegion) {
-        region.destroy(options);
-      }
+      this._ownedRegion?.destroy(options);
       delete this._region;
-      delete this._ownsRegion;
+      delete this._ownedRegion;
       this._isDestroyed = true;
       this._lifecycleState = DESTROYED;
       current.failureState = DESTROYED;
@@ -4255,13 +4253,13 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMix
     if (!region) {
       return;
     }
-    if (!(region instanceof Region)) {
-      this._ownsRegion = true;
-    }
     const defaults = {
       regionClass: this.regionClass
     };
     this._region = buildRegion(region, defaults);
+    if (!(region instanceof Region)) {
+      this._ownedRegion = this._region;
+    }
   },
   getRegion() {
     return this._region;
