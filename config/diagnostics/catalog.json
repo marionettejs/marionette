@@ -570,6 +570,22 @@
         "runtime"
       ],
       "benchmarkCategory": "view"
+    },
+    {
+      "code": "MN0034",
+      "slug": "state-key-invalid",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "State"
+      ],
+      "remediation": "Use State keys that do not contain whitespace.",
+      "docsAnchor": "/errors/MN0034/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "state"
     }
   ]
 }

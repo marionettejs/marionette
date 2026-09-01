@@ -1,5 +1,8 @@
 ### v5.0.0-alpha.2
 
+* Added a small synchronous `State` class for local mutable values with atomic
+  writes, explicit change payloads, reset and destroy semantics, and no
+  Backbone dependency
 * Added optional `marionette/jquery-dom-api` adapter for jQuery-backed DomApi
   operations and opt-in View, CollectionView, and Behavior `$el` compatibility
 * Changed jQuery-wrapped View and CollectionView `el` inputs to fail with the

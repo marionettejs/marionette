@@ -12,6 +12,10 @@
     "route": "next/optional-backbone"
   },
   {
+    "source": "docs/marionette.state.md",
+    "route": "next/state"
+  },
+  {
     "source": "docs/dom.prerendered.md",
     "route": "next/dom.prerendered"
   },
