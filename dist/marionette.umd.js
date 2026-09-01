@@ -1350,7 +1350,15 @@
   }
   var BehaviorsMixin = {
     _initBehaviors() {
-      this._behaviors = parseBehaviors(this, getValue(this, 'behaviors'), []);
+      this._behaviors = [];
+      try {
+        parseBehaviors(this, getValue(this, 'behaviors'), this._behaviors);
+      } catch (error) {
+        try {
+          this._destroyBehaviors();
+        } catch {}
+        throw error;
+      }
     },
     _getBehaviorTriggers() {
       return mergeBehaviorMaps(this._behaviors, behavior => behavior._getTriggers());

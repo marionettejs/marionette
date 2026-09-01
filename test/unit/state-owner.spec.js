@@ -179,6 +179,27 @@ describe('State owner composition', function() {
     owner.destroy();
   });
 
+  for (const OwnerClass of [View, CollectionView]) {
+    it(`destroys earlier Behavior State when ${ OwnerClass.name } Behavior composition fails`, function() {
+      const error = new Error('behavior failed');
+      const state = new State();
+      const BrokenBehavior = Behavior.extend({
+        initialize() {
+          throw error;
+        }
+      });
+      const Owner = OwnerClass.extend({
+        behaviors: [
+          { behaviorClass: Behavior, state },
+          BrokenBehavior
+        ]
+      });
+
+      expect(() => new Owner()).to.throw(error);
+      expect(state.isDestroyed()).to.be.true;
+    });
+  }
+
   it('reads a State declaration once', function() {
     const state = new State({ ready: true });
     const Owner = MnObject.extend({});

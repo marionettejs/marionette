@@ -82,7 +82,18 @@ function eachBehavior(behaviors, iteratee) {
 
 export default {
   _initBehaviors() {
-    this._behaviors = parseBehaviors(this, getValue(this, 'behaviors'), []);
+    this._behaviors = [];
+
+    try {
+      parseBehaviors(this, getValue(this, 'behaviors'), this._behaviors);
+    } catch (error) {
+      try {
+        this._destroyBehaviors();
+      } catch {
+        // Preserve the construction error.
+      }
+      throw error;
+    }
   },
 
   _getBehaviorTriggers() {
