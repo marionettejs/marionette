@@ -1,0 +1,46 @@
+modules/application.js
+  s_d6429951fb9231::t_61ae809025dde2 67-77,132-146,151-154,224-229,286-288,291,295-298,308-310,316,321-324,353,397
+  s_d6429951fb9231::t_d5531f3d11ea4c 155,157-166,426
+  s_d6429951fb9231::t_1c72c3e2e9433e 156
+  s_d6429951fb9231::t_ac68a3d0bcd822 147-150,427
+  s_d6429951fb9231::t_b0114bbdf92553 325
+test/unit/application-child-lifecycle.spec.js
+  s_d6429951fb9231::t_ba71f30642ed64 1-172,174,176-183,185-201,203,205-213,215-221,239-263,289-313
+  s_d6429951fb9231::t_6f98ee13e85099 264-288
+  s_d6429951fb9231::t_82366afb0144eb 173,175,184,202,204,214,222-238
+dist/marionette.min.js
+  s_d6429951fb9231::t_cc43d4467e6678 1
+dist/marionette.cjs
+  s_d6429951fb9231::t_edece970223eba 3783-3792,3836-3870,3928-3932,3984-3986,3988,3993-3996,4005-4007,4012,4018-4022,4042,4089,4121-4122
+changelog.md
+  s_d6429951fb9231::t_cacfa9f6e7f2bf 71-72
+docs/marionette.application.md
+  s_d6429951fb9231::t_91650331f26c26 106-109,201-204
+  s_d6429951fb9231::t_cacfa9f6e7f2bf 97-105,110,190-194,197-200
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_78cf6a699796af 1
+dist/marionette.umd.js
+  s_d6429951fb9231::t_8f7f86cda3315f 3790-3799,3843-3877,3935-3939,3991-3993,3995,4000-4003,4012-4014,4019,4025-4029,4049,4096,4128-4129
+dist/marionette.js
+  s_d6429951fb9231::t_7a1906816522e2 3779-3788,3832-3866,3924-3928,3980-3982,3984,3989-3992,4001-4003,4008,4014-4018,4038,4085,4117-4118
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_cacfa9f6e7f2bf 81
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_5b633639f82323 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "0b77874a7d8239fccdcd2393cab87a730ba7b5ba",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
