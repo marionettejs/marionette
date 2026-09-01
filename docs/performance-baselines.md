@@ -136,9 +136,9 @@ prototype completes root View and constructed-versus-borrowed Region ownership
 together with lazy Application State composition. It grows only the four existing
 main delivery artifacts, adds no production graph edge, external import, package
 subpath, stateless allocation proxy, or speculative headroom, and leaves the 18
-consumer scenarios reporting-only. A later runtime pull request must consume the
-authorization from its merged exact base and obtain independent exact-head growth
-approval.
+consumer scenario/format combinations reporting-only. A later runtime pull request
+must consume the authorization from its merged exact base and obtain independent
+exact-head growth approval.
 
 The approval must come from a different base-allowed maintainer whenever the exact-base
 allowlist contains an eligible alternative. If the pull-request author is the sole
