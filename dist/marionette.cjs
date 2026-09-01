@@ -1014,15 +1014,213 @@ var RadioMixin = {
   }
 };
 
-const ClassOptions$3 = ['channelName', 'radioEvents', 'radioRequests'];
+const objectKeys$1 = Object.keys;
+function addChange(changedKeys, changed, previous, name, previousValue, value) {
+  changedKeys.push(name);
+  setProperty(changed, name, value);
+  setProperty(previous, name, previousValue);
+}
+function validateKeys(keys) {
+  for (let index = 0, length = keys.length; index < length; index++) {
+    const key = keys[index];
+    if (typeof key !== 'string' || !eventSplitter.test(key)) {
+      continue;
+    }
+    throw new MarionetteError({
+      code: 'MN0034',
+      message: 'State keys cannot contain whitespace.',
+      url: 'marionette.state.html#state-keys'
+    });
+  }
+}
+function updateState(state, attributes, options, removedKeys = []) {
+  if (state._isDestroyed) {
+    return state;
+  }
+  const current = state._attributes;
+  const changed = {};
+  const previous = {};
+  const changedKeys = [];
+  const attributeKeys = objectKeys$1(attributes);
+  validateKeys(removedKeys);
+  validateKeys(attributeKeys);
+  for (let index = 0, length = removedKeys.length; index < length; index++) {
+    const name = removedKeys[index];
+    if (!Object.hasOwn(current, name)) {
+      continue;
+    }
+    addChange(changedKeys, changed, previous, name, current[name], undefined);
+  }
+  for (let index = 0, length = attributeKeys.length; index < length; index++) {
+    const name = attributeKeys[index];
+    const value = attributes[name];
+    if (Object.hasOwn(current, name) && Object.is(current[name], value)) {
+      continue;
+    }
+    addChange(changedKeys, changed, previous, name, current[name], value);
+  }
+  if (!changedKeys.length) {
+    return state;
+  }
+  for (let index = 0, length = removedKeys.length; index < length; index++) {
+    delete current[removedKeys[index]];
+  }
+  assignOwn(current, attributes);
+  if (options?.silent) {
+    return state;
+  }
+  const change = assignOwn({}, options, {
+    changed,
+    previous
+  });
+  for (let index = 0, length = changedKeys.length; index < length; index++) {
+    const name = changedKeys[index];
+    state.trigger(`change:${name}`, state, changed[name], change);
+  }
+  state.trigger('change', state, change);
+  return state;
+}
+const State = function (attributes) {
+  this.cid = uniqueId(this.cidPrefix);
+  const stateAttributes = assignOwn({}, getValue(this, 'defaults'), attributes);
+  validateKeys(objectKeys$1(stateAttributes));
+  this._attributes = stateAttributes;
+  this.initialize.apply(this, arguments);
+};
+State.extend = extend;
+assignOwn(State.prototype, Events, {
+  cidPrefix: 'mns',
+  _isDestroyed: false,
+  initialize() {},
+  get(key) {
+    return Object.hasOwn(this._attributes, key) ? this._attributes[key] : undefined;
+  },
+  has(key) {
+    return Object.hasOwn(this._attributes, key);
+  },
+  set(key, value, options) {
+    if (key == null) {
+      return this;
+    }
+    let attributes;
+    if (typeof key === 'object') {
+      attributes = key;
+      options = value;
+    } else {
+      attributes = {
+        [key]: value
+      };
+    }
+    return updateState(this, attributes, options);
+  },
+  unset(key, options) {
+    if (key == null) {
+      return this;
+    }
+    return updateState(this, {}, options, [key]);
+  },
+  reset(attributes = {}, options) {
+    if (this._isDestroyed) {
+      return this;
+    }
+    const nextAttributes = assignOwn({}, getValue(this, 'defaults'), attributes);
+    const removedKeys = objectKeys$1(this._attributes).filter(key => !Object.hasOwn(nextAttributes, key));
+    return updateState(this, nextAttributes, options, removedKeys);
+  },
+  toJSON() {
+    return assignOwn({}, this._attributes);
+  },
+  isDestroyed() {
+    return this._isDestroyed;
+  },
+  destroy() {
+    if (this._isDestroyed) {
+      return this;
+    }
+    this._isDestroyed = true;
+    this.stopListening();
+    this.off();
+    return this;
+  }
+});
+
+function throwStateOwnershipConflict() {
+  throw new MarionetteError({
+    code: 'MN0035',
+    name: 'StateError',
+    message: 'A State instance must be live and unowned before composition.',
+    url: 'marionette.state.html#owned-state'
+  });
+}
+var StateMixin = {
+  _initState(options = {}) {
+    const hasStateOption = options != null && Object.hasOwn(options, 'state');
+    const state = hasStateOption ? options.state : this.state;
+    if (hasStateOption || state !== undefined) {
+      this._stateDefinition = state;
+      this.getState();
+    }
+  },
+  _initStateEvents() {
+    if (this._isDestroyed) {
+      return this;
+    }
+    const stateEvents = getValue(this, 'stateEvents');
+    if (stateEvents) {
+      this.bindEvents(this.getState(), stateEvents);
+    }
+    return this;
+  },
+  getState() {
+    if (this._state) {
+      return this._state;
+    }
+    const hasStateDefinition = Object.hasOwn(this, '_stateDefinition');
+    const definition = getValue(this, hasStateDefinition ? '_stateDefinition' : 'state');
+    delete this._stateDefinition;
+    const state = definition instanceof State ? definition : new State(definition);
+    if (state._owner !== undefined || state.isDestroyed()) {
+      throwStateOwnershipConflict();
+    }
+    state._owner = this;
+    this._state = state;
+    if (this._isDestroyed) {
+      this._destroyState();
+    } else {
+      this.on('destroy', this._destroyState);
+    }
+    return state;
+  },
+  _destroyState() {
+    if (!this._state) {
+      return this;
+    }
+    this.unbindEvents(this._state);
+    delete this._state._owner;
+    if (!this._state.isDestroyed()) {
+      this._state.destroy();
+    }
+    this.off('destroy', this._destroyState);
+    return this;
+  }
+};
+
+const ClassOptions$3 = ['channelName', 'radioEvents', 'radioRequests', 'stateEvents'];
 const MarionetteObject = function (options) {
   this._setOptions(options, ClassOptions$3);
   this.cid = uniqueId(this.cidPrefix);
   this._initRadio();
-  this.initialize.apply(this, arguments);
+  this._initState(options);
+  try {
+    this.initialize.apply(this, arguments);
+    this._initStateEvents();
+  } catch (error) {
+    this._destroyState();
+    throw error;
+  }
 };
 MarionetteObject.extend = extend;
-assignOwn(MarionetteObject.prototype, CommonMixin, DestroyMixin, RadioMixin, {
+assignOwn(MarionetteObject.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMixin, {
   cidPrefix: 'mno'
 });
 
@@ -1143,9 +1341,22 @@ function eachBehavior(behaviors, iteratee) {
     iteratee(behaviors[index]);
   }
 }
+function rollbackBehaviors(behaviors) {
+  for (let index = 0, length = behaviors.length; index < length; index++) {
+    try {
+      behaviors[index].destroy();
+    } catch {}
+  }
+}
 var BehaviorsMixin = {
   _initBehaviors() {
-    this._behaviors = parseBehaviors(this, getValue(this, 'behaviors'), []);
+    this._behaviors = [];
+    try {
+      parseBehaviors(this, getValue(this, 'behaviors'), this._behaviors);
+    } catch (error) {
+      rollbackBehaviors(this._behaviors);
+      throw error;
+    }
   },
   _getBehaviorTriggers() {
     return mergeBehaviorMaps(this._behaviors, behavior => behavior._getTriggers());
@@ -1526,7 +1737,7 @@ var ViewEventsMixin = {
   }
 };
 
-const objectKeys$1 = Object.keys;
+const objectKeys = Object.keys;
 function setDomApi$1(mixin) {
   this.prototype.Dom = assignOwn({}, this.prototype.Dom, mixin);
   return this;
@@ -1584,7 +1795,7 @@ var DomApi = {
     if (attrs == null || attrsType !== 'object' && attrsType !== 'function') {
       return;
     }
-    const attrNames = objectKeys$1(attrs);
+    const attrNames = objectKeys(attrs);
     for (let index = 0, length = attrNames.length; index < length; index++) {
       const attr = attrNames[index];
       if (attr in el) {
@@ -1772,7 +1983,7 @@ const ViewMixin = {
     }
   }
 };
-assignOwn(ViewMixin, BehaviorsMixin, CommonMixin, DelegateEntityEventsMixin, TemplateRenderMixin, UIMixin, ViewEventsMixin);
+assignOwn(ViewMixin, BehaviorsMixin, CommonMixin, DelegateEntityEventsMixin, StateMixin, TemplateRenderMixin, UIMixin, ViewEventsMixin);
 
 function setRenderer$1(renderer) {
   this.prototype._renderHtml = renderer;
@@ -2386,7 +2597,7 @@ const RegionsMixin = {
     return getRegionForChild(this, name).currentView;
   }
 };
-const ViewClassOptions = ['attributes', 'behaviors', 'childViewEventPrefix', 'childViewEvents', 'childViewTriggers', 'className', 'collection', 'collectionEvents', 'el', 'events', 'id', 'model', 'modelEvents', 'regionClass', 'regions', 'tagName', 'template', 'templateContext', 'triggers', 'ui'];
+const ViewClassOptions = ['attributes', 'behaviors', 'childViewEventPrefix', 'childViewEvents', 'childViewTriggers', 'className', 'collection', 'collectionEvents', 'el', 'events', 'id', 'model', 'modelEvents', 'regionClass', 'regions', 'stateEvents', 'tagName', 'template', 'templateContext', 'triggers', 'ui'];
 function childReducer(children, region) {
   if (region.currentView) {
     children.push(region.currentView);
@@ -2401,15 +2612,22 @@ const View = function (options) {
   this._initViewEvents();
   this.setElement(this._getEl());
   monitorViewEvents(this);
-  this._initBehaviors();
-  this._initRegions();
-  this._buildEventProxies();
-  this.initialize.apply(this, arguments);
-  if (this._isDestroyed || this._isDestroying) {
-    return;
+  this._initState(options);
+  try {
+    this._initBehaviors();
+    this._initRegions();
+    this._buildEventProxies();
+    this.initialize.apply(this, arguments);
+    if (this._isDestroyed || this._isDestroying) {
+      return;
+    }
+    this._initStateEvents();
+    this.delegateEntityEvents();
+    this._triggerEventOnBehaviors('initialize', this, options);
+  } catch (error) {
+    this._destroyState();
+    throw error;
   }
-  this.delegateEntityEvents();
-  this._triggerEventOnBehaviors('initialize', this, options);
 };
 assignOwn(View, {
   extend,
@@ -2824,7 +3042,7 @@ function modelAttributesMatcher(predicate) {
 function isClassDefinition(view) {
   return /^class(?:\s|\/[/*])/.test(Function.prototype.toString.call(view));
 }
-const ClassOptions$2 = ['attributes', 'behaviors', 'childView', 'childViewContainer', 'childViewEventPrefix', 'childViewEvents', 'childViewOptions', 'childViewTriggers', 'className', 'collection', 'collectionEvents', 'el', 'emptyView', 'emptyViewOptions', 'events', 'id', 'model', 'modelEvents', 'sortWithCollection', 'tagName', 'template', 'templateContext', 'triggers', 'ui', 'viewComparator', 'viewFilter'];
+const ClassOptions$2 = ['attributes', 'behaviors', 'childView', 'childViewContainer', 'childViewEventPrefix', 'childViewEvents', 'childViewOptions', 'childViewTriggers', 'className', 'collection', 'collectionEvents', 'el', 'emptyView', 'emptyViewOptions', 'events', 'id', 'model', 'modelEvents', 'stateEvents', 'sortWithCollection', 'tagName', 'template', 'templateContext', 'triggers', 'ui', 'viewComparator', 'viewFilter'];
 const CollectionView = function (options) {
   this.cid = uniqueId(this.cidPrefix);
   this._setOptions(options, ClassOptions$2);
@@ -2833,16 +3051,23 @@ const CollectionView = function (options) {
   this._initViewEvents();
   this.setElement(this._getEl());
   monitorViewEvents(this);
-  this._initChildViewStorage();
-  this._initBehaviors();
-  this._buildEventProxies();
-  this.initialize.apply(this, arguments);
-  if (this._isDestroyed || this._isDestroying) {
-    return;
+  this._initState(options);
+  try {
+    this._initChildViewStorage();
+    this._initBehaviors();
+    this._buildEventProxies();
+    this.initialize.apply(this, arguments);
+    if (this._isDestroyed || this._isDestroying) {
+      return;
+    }
+    this._initStateEvents();
+    this.getEmptyRegion();
+    this.delegateEntityEvents();
+    this._triggerEventOnBehaviors('initialize', this, options);
+  } catch (error) {
+    this._destroyState();
+    throw error;
   }
-  this.getEmptyRegion();
-  this.delegateEntityEvents();
-  this._triggerEventOnBehaviors('initialize', this, options);
 };
 assignOwn(CollectionView, {
   extend,
@@ -3440,7 +3665,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   }
 });
 
-const ClassOptions$1 = ['collectionEvents', 'events', 'modelEvents', 'triggers', 'ui'];
+const ClassOptions$1 = ['collectionEvents', 'events', 'modelEvents', 'stateEvents', 'triggers', 'ui'];
 const Behavior = function (options, view) {
   this.view = view;
   this._setOptions(options, ClassOptions$1);
@@ -3450,22 +3675,31 @@ const Behavior = function (options, view) {
   if (view.$el) {
     this.$el = view.$el;
   }
-  this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui'));
-  this.listenTo(view, 'all', this.triggerMethod);
-  this.initialize.apply(this, arguments);
-  this._syncElement();
+  this._initState(options);
+  try {
+    this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui'));
+    this.listenTo(view, 'all', this.triggerMethod);
+    this.initialize.apply(this, arguments);
+    this._initStateEvents();
+    this._syncElement();
+  } catch (error) {
+    this._destroyState();
+    throw error;
+  }
 };
 assignOwn(Behavior, {
   extend,
   setEventDelegator: setEventDelegator$1
 });
-assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, UIMixin, ViewEventsMixin, {
+assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateMixin, UIMixin, ViewEventsMixin, {
   cidPrefix: 'mnb',
   $() {
     return this.view.$.apply(this.view, arguments);
   },
   destroy() {
+    this._isDestroyed = true;
     this._undelegateViewEvents();
+    this._destroyState();
     this.stopListening();
     this.view._removeBehavior(this);
     this._deleteEntityEventHandlers();
@@ -3914,136 +4148,6 @@ assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, {
   },
   getView() {
     return this.getRegion().currentView;
-  }
-});
-
-const objectKeys = Object.keys;
-function addChange(changedKeys, changed, previous, name, previousValue, value) {
-  changedKeys.push(name);
-  setProperty(changed, name, value);
-  setProperty(previous, name, previousValue);
-}
-function validateKeys(keys) {
-  for (let index = 0, length = keys.length; index < length; index++) {
-    const key = keys[index];
-    if (typeof key !== 'string' || !eventSplitter.test(key)) {
-      continue;
-    }
-    throw new MarionetteError({
-      code: 'MN0034',
-      message: 'State keys cannot contain whitespace.',
-      url: 'marionette.state.html#state-keys'
-    });
-  }
-}
-function updateState(state, attributes, options, removedKeys = []) {
-  if (state._isDestroyed) {
-    return state;
-  }
-  const current = state._attributes;
-  const changed = {};
-  const previous = {};
-  const changedKeys = [];
-  const attributeKeys = objectKeys(attributes);
-  validateKeys(removedKeys);
-  validateKeys(attributeKeys);
-  for (let index = 0, length = removedKeys.length; index < length; index++) {
-    const name = removedKeys[index];
-    if (!Object.hasOwn(current, name)) {
-      continue;
-    }
-    addChange(changedKeys, changed, previous, name, current[name], undefined);
-  }
-  for (let index = 0, length = attributeKeys.length; index < length; index++) {
-    const name = attributeKeys[index];
-    const value = attributes[name];
-    if (Object.hasOwn(current, name) && Object.is(current[name], value)) {
-      continue;
-    }
-    addChange(changedKeys, changed, previous, name, current[name], value);
-  }
-  if (!changedKeys.length) {
-    return state;
-  }
-  for (let index = 0, length = removedKeys.length; index < length; index++) {
-    delete current[removedKeys[index]];
-  }
-  assignOwn(current, attributes);
-  if (options?.silent) {
-    return state;
-  }
-  const change = assignOwn({}, options, {
-    changed,
-    previous
-  });
-  for (let index = 0, length = changedKeys.length; index < length; index++) {
-    const name = changedKeys[index];
-    state.trigger(`change:${name}`, state, changed[name], change);
-  }
-  state.trigger('change', state, change);
-  return state;
-}
-const State = function (attributes) {
-  this.cid = uniqueId(this.cidPrefix);
-  const stateAttributes = assignOwn({}, getValue(this, 'defaults'), attributes);
-  validateKeys(objectKeys(stateAttributes));
-  this._attributes = stateAttributes;
-  this.initialize.apply(this, arguments);
-};
-State.extend = extend;
-assignOwn(State.prototype, Events, {
-  cidPrefix: 'mns',
-  _isDestroyed: false,
-  initialize() {},
-  get(key) {
-    return Object.hasOwn(this._attributes, key) ? this._attributes[key] : undefined;
-  },
-  has(key) {
-    return Object.hasOwn(this._attributes, key);
-  },
-  set(key, value, options) {
-    if (key == null) {
-      return this;
-    }
-    let attributes;
-    if (typeof key === 'object') {
-      attributes = key;
-      options = value;
-    } else {
-      attributes = {
-        [key]: value
-      };
-    }
-    return updateState(this, attributes, options);
-  },
-  unset(key, options) {
-    if (key == null) {
-      return this;
-    }
-    return updateState(this, {}, options, [key]);
-  },
-  reset(attributes = {}, options) {
-    if (this._isDestroyed) {
-      return this;
-    }
-    const nextAttributes = assignOwn({}, getValue(this, 'defaults'), attributes);
-    const removedKeys = objectKeys(this._attributes).filter(key => !Object.hasOwn(nextAttributes, key));
-    return updateState(this, nextAttributes, options, removedKeys);
-  },
-  toJSON() {
-    return assignOwn({}, this._attributes);
-  },
-  isDestroyed() {
-    return this._isDestroyed;
-  },
-  destroy() {
-    if (this._isDestroyed) {
-      return this;
-    }
-    this._isDestroyed = true;
-    this.stopListening();
-    this.off();
-    return this;
   }
 });
 

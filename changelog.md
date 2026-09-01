@@ -3,6 +3,9 @@
 * Added a small synchronous `State` class for local mutable values with atomic
   writes, explicit change payloads, reset and destroy semantics, and no
   Backbone dependency
+* Added lazy owned State composition to `MnObject`, `View`, `CollectionView`,
+  and `Behavior` through `getState`, `state`, and `stateEvents`; State mutation
+  remains on the first-class State object
 * Added optional `marionette/jquery-dom-api` adapter for jQuery-backed DomApi
   operations and opt-in View, CollectionView, and Behavior `$el` compatibility
 * Changed jQuery-wrapped View and CollectionView `el` inputs to fail with the

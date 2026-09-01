@@ -41,6 +41,79 @@ const SelectionState = State.extend({
 });
 ```
 
+## Owned State
+
+`MnObject`, `View`, `CollectionView`, and `Behavior` can own one local State.
+Call `getState()` to create an empty State on first use. An owner that never
+declares, supplies, or requests State has no State instance, State property,
+subscription, or cleanup registration.
+
+Declare initial attributes with the `state` property or constructor option.
+Either may be a function; Marionette calls it once with the owner as `this`.
+State is available before the owner's `initialize` method runs.
+
+```javascript
+import { View } from 'marionette';
+
+const ToggleView = View.extend({
+  state: {
+    open: false
+  },
+
+  initialize() {
+    this.getState().set('open', true);
+  }
+});
+```
+
+Owners expose only `getState()`. Read and change local values through the
+returned State; owners do not duplicate `get`, `set`, `has`, `reset`, or
+toggle methods. State remains distinct from the owner's `model`, `collection`,
+`modelEvents`, and `collectionEvents`.
+
+Use `stateEvents` to bind State events to owner methods. The map follows the
+same handler-name and function rules as other Marionette entity event maps.
+Supplying `stateEvents` activates an empty State when no attributes were
+declared. Marionette resolves and binds the map after `initialize`, matching
+other declarative entity event maps; State changes made during `initialize`
+do not dispatch through `stateEvents`.
+
+```javascript
+const ToggleView = View.extend({
+  stateEvents: {
+    'change:open': 'onOpenChange'
+  },
+
+  onOpenChange(state, open) {
+    this.el.hidden = !open;
+  }
+});
+```
+
+State on a View or CollectionView persists across render. Behavior State
+persists across its owning View's render. Owner destruction destroys State and
+releases `stateEvents`; late `getState()` calls return a destroyed State whose
+writes are lifecycle-safe no-ops.
+
+### Supplying a State instance
+
+Pass an existing live, unowned State when a custom State subclass or prepared
+instance is required. Composition transfers ownership. The owner destroys the
+State and releases ownership at teardown.
+
+```javascript
+const state = new SelectionState({ selected: true });
+const view = new View({ state });
+
+view.getState() === state; // true
+```
+
+One State cannot be composed into two owners. A destroyed or already-owned
+State throws [`MN0035`](/errors/MN0035/) before the second composition. Shared
+domain or cross-owner data belongs in a model, collection, or another explicit
+data source rather than an owned State. A Behavior may hold an ordinary
+reference to its View's State, but must not compose or destroy that reference.
+
 ## State keys
 
 Use keys without whitespace. Marionette Events uses whitespace to separate

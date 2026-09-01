@@ -71,6 +71,7 @@ const ClassOptions = [
   'id',
   'model',
   'modelEvents',
+  'stateEvents',
   'sortWithCollection',
   'tagName',
   'template',
@@ -95,20 +96,29 @@ const CollectionView = function(options) {
 
   monitorViewEvents(this);
 
-  this._initChildViewStorage();
-  this._initBehaviors();
-  this._buildEventProxies();
+  this._initState(options);
 
-  this.initialize.apply(this, arguments);
+  try {
+    this._initChildViewStorage();
+    this._initBehaviors();
+    this._buildEventProxies();
 
-  if (this._isDestroyed || this._isDestroying) { return; }
+    this.initialize.apply(this, arguments);
 
-  // Init empty region after initialize to preserve the v4 override boundary.
-  this.getEmptyRegion();
+    if (this._isDestroyed || this._isDestroying) { return; }
 
-  this.delegateEntityEvents();
+    this._initStateEvents();
 
-  this._triggerEventOnBehaviors('initialize', this, options);
+    // Init empty region after initialize to preserve the v4 override boundary.
+    this.getEmptyRegion();
+
+    this.delegateEntityEvents();
+
+    this._triggerEventOnBehaviors('initialize', this, options);
+  } catch (error) {
+    this._destroyState();
+    throw error;
+  }
 };
 
 assignOwn(CollectionView, { extend, setRenderer, setDomApi, setEventDelegator });

@@ -80,9 +80,26 @@ function eachBehavior(behaviors, iteratee) {
   }
 }
 
+function rollbackBehaviors(behaviors) {
+  for (let index = 0, length = behaviors.length; index < length; index++) {
+    try {
+      behaviors[index].destroy();
+    } catch {
+      // Preserve the construction error and continue rolling back.
+    }
+  }
+}
+
 export default {
   _initBehaviors() {
-    this._behaviors = parseBehaviors(this, getValue(this, 'behaviors'), []);
+    this._behaviors = [];
+
+    try {
+      parseBehaviors(this, getValue(this, 'behaviors'), this._behaviors);
+    } catch (error) {
+      rollbackBehaviors(this._behaviors);
+      throw error;
+    }
   },
 
   _getBehaviorTriggers() {
