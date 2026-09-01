@@ -208,6 +208,38 @@ describe('Application child lifecycle', function() {
     await owner.destroy();
   });
 
+  it('does not stop later children after owner stop is superseded', async function() {
+    const readiness = Promise.withResolvers();
+    const childStopping = Promise.withResolvers();
+    const laterChildStop = this.sinon.spy();
+    const ChildApplication = Application.extend({
+      onBeforeStop() {
+        childStopping.resolve();
+        return readiness.promise;
+      }
+    });
+    const owner = new Application();
+    const child = new ChildApplication();
+    const laterChild = new (Application.extend({ onStop: laterChildStop }))();
+    owner.addChildApp('child', child);
+    owner.addChildApp('later', laterChild);
+    await owner.start();
+
+    const stop = owner.stop();
+    await childStopping.promise;
+    const start = owner.start();
+    readiness.resolve();
+
+    expect(await stop).to.be.false;
+    expect(await start).to.be.true;
+    expect(owner.isRunning()).to.be.true;
+    expect(child.isRunning()).to.be.true;
+    expect(laterChild.isRunning()).to.be.true;
+    expect(laterChildStop).to.not.have.been.called;
+
+    await owner.destroy();
+  });
+
   it('cancels owner startup when child onStart directly stops', async function() {
     let childStop;
     const ChildApplication = Application.extend({
