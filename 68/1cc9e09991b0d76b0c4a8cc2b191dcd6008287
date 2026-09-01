@@ -1,6 +1,7 @@
 config/diagnostics/catalog.json
   s_d6429951fb9231::t_86390172a9aeae 572
   s_d6429951fb9231::t_6ec7604d0c0eee 536,553-571
+  s_d6429951fb9231::t_b06579c12a9c96 552
 test/unit/common/merge-options.spec.js
   s_d6429951fb9231::t_c587ad254dc466 17-18,20
   s_d6429951fb9231::t_c97b59ea352d08 118,121-124,126,129
