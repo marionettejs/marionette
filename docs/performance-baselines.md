@@ -112,7 +112,7 @@ the reviewed prototype total without padding, adds no production subpath, and
 does not include allowance for later Underscore work. #254 consumed that
 authorization.
 
-BA0003 authorizes a pending increase from 52,565 to 75,000 bytes as a deliberate
+BA0003 authorized an increase from 52,565 to 75,000 bytes as a deliberate
 development envelope for the remaining v5 alpha runtime work. Its exact-base
 [#134](https://github.com/marionettejs/marionette/issues/134) stack-fallback and
 unbound-`getUI` diagnostic prototype proves that the previous ceiling is exhausted
@@ -125,6 +125,20 @@ and graph reports, exact-head growth approval, resource checks, and adopted cons
 scenario budgets remain independent gates. Before beta promotion, the envelope must
 be reviewed against the completed core and canonical dependency-inclusive consumer
 scenarios; unused headroom does not establish release readiness.
+[PR #257](https://github.com/marionettejs/marionette/pull/257) consumed that
+authorization.
+
+BA0004 authorizes a pending exact-prototype increase from 75,000 to 75,799
+bytes for the remaining production-runtime Application work tracked by
+[#190](https://github.com/marionettejs/marionette/issues/190) and
+[#191](https://github.com/marionettejs/marionette/issues/191). The measured
+prototype completes root View and constructed-versus-borrowed Region ownership
+together with lazy Application State composition. It grows only the four existing
+main delivery artifacts, adds no production graph edge, external import, package
+subpath, stateless allocation proxy, or speculative headroom, and leaves the 18
+consumer scenario/format combinations reporting-only. A later runtime pull request
+must consume the authorization from its merged exact base and obtain independent
+exact-head growth approval.
 
 The approval must come from a different base-allowed maintainer whenever the exact-base
 allowlist contains an eligible alternative. If the pull-request author is the sole
