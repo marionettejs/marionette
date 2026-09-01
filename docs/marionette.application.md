@@ -20,6 +20,7 @@ The `Application` `cidPrefix` is `mna`.
 * [Instantiating An Application](#instantiating-an-application)
 * [Application Lifecycle](#application-lifecycle)
 * [Application Ownership](#application-ownership)
+* [Application and root View communication](#application-and-root-view-communication)
 * [Application State](#application-state)
 * [Application Region](#application-region)
 * [Application Region Methods](#application-region-methods)
@@ -210,6 +211,129 @@ started directly before entering destroy readiness. A concurrent direct child
 destroy joins terminal teardown and may remove that child before parent
 readiness. If child stop or destroy readiness fails, the parent returns to its
 prior stable state and retains that child so destruction can be retried.
+
+The canonical child-Application pattern is explicit construction followed by
+ownership registration. Registration means lifecycle ownership; it is not a
+dormant service registry and it has no per-child lifecycle flags. Put a service
+that must outlive an Application under a longer-lived owner and pass it to the
+shorter-lived child as a dependency.
+
+<!-- executable-example: application-child-ownership -->
+```javascript
+import { Application } from 'marionette';
+
+export const lifecycle = [];
+
+const SearchApplication = Application.extend({
+  onBeforeStart(app, options) {
+    lifecycle.push(`search:before:start:${ options.source }`);
+  },
+
+  onStart(app, options) {
+    lifecycle.push(`search:start:${ options.source }`);
+  },
+
+  onBeforeStop(app, options) {
+    lifecycle.push(`search:before:stop:${ options.source }`);
+  },
+
+  onStop(app, options) {
+    lifecycle.push(`search:stop:${ options.source }`);
+  },
+
+  onDestroy() {
+    lifecycle.push('search:destroy');
+  }
+});
+
+const RootApplication = Application.extend({
+  onBeforeStart(app, options) {
+    lifecycle.push(`root:before:start:${ options.source }`);
+  },
+
+  onStart(app, options) {
+    lifecycle.push(`root:start:${ options.source }`);
+  },
+
+  onBeforeStop(app, options) {
+    lifecycle.push(`root:before:stop:${ options.source }`);
+  },
+
+  onStop(app, options) {
+    lifecycle.push(`root:stop:${ options.source }`);
+  },
+
+  onDestroy() {
+    lifecycle.push('root:destroy');
+  }
+});
+
+export const root = new RootApplication();
+export const search = root.addChildApp('search', new SearchApplication());
+
+export const started = await root.start({ source: 'owner' });
+export const stopped = await root.stop({ source: 'owner' });
+```
+
+## Application and root View communication
+
+Keep the ownership direction visible. The Application constructs the root View,
+passes dependencies and initial values down through its options or public methods,
+and listens to semantic View events for messages back up. The View should not find
+its Application through DOM ancestry or private ownership fields. Use Radio only
+when the sender and receiver do not share this direct ownership boundary.
+
+<!-- executable-example: application-root-view-communication -->
+```javascript
+import { Application, View } from 'marionette';
+
+export const refreshes = [];
+
+const DashboardView = View.extend({
+  initialize(options) {
+    this.initialStatus = options.initialStatus;
+  },
+
+  template() {
+    return '<button class="refresh">Refresh</button><p class="status"></p>';
+  },
+
+  events: {
+    'click .refresh': 'requestRefresh'
+  },
+
+  onRender() {
+    this.showStatus(this.initialStatus);
+  },
+
+  requestRefresh() {
+    this.trigger('refresh:requested', this, { source: 'button' });
+  },
+
+  showStatus(status) {
+    this.el.querySelector('.status').textContent = status;
+  }
+});
+
+const DashboardApplication = Application.extend({
+  region: '#dashboard',
+
+  onStart() {
+    const view = new DashboardView({ initialStatus: 'Idle' });
+    this.listenTo(view, 'refresh:requested', this.refreshDashboard);
+    this.showView(view);
+  },
+
+  refreshDashboard(view, request) {
+    refreshes.push(request);
+    view.showStatus('Updated');
+  }
+});
+
+export const dashboard = new DashboardApplication();
+await dashboard.start();
+export const dashboardView = dashboard.getView();
+```
 
 ## Application State
 

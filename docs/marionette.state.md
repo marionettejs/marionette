@@ -66,6 +66,58 @@ const ToggleView = View.extend({
 });
 ```
 
+A stateless View stays a plain View. Add State only when the value belongs to
+that View's lifetime and is not domain data.
+
+<!-- executable-example: view-local-state -->
+```javascript
+import { View } from 'marionette';
+
+const LabelView = View.extend({
+  template() {
+    return '<span>Account</span>';
+  }
+});
+
+const DisclosureView = View.extend({
+  state: {
+    open: false
+  },
+
+  template() {
+    return '<button class="toggle">Details</button>';
+  },
+
+  events: {
+    'click .toggle': 'toggle'
+  },
+
+  stateEvents: {
+    'change:open': 'showOpenState'
+  },
+
+  onRender() {
+    this.showOpenState(this.getState(), this.getState().get('open'));
+  },
+
+  toggle() {
+    const state = this.getState();
+    state.set('open', !state.get('open'));
+  },
+
+  showOpenState(state, open) {
+    this.el.dataset.open = String(open);
+  }
+});
+
+export const label = new LabelView({
+  el: document.querySelector('#label')
+}).render();
+export const disclosure = new DisclosureView({
+  el: document.querySelector('#disclosure')
+}).render();
+```
+
 Owners expose only `getState()`. Read and change local values through the
 returned State; owners do not duplicate `get`, `set`, `has`, `reset`, or
 toggle methods. State remains distinct from the owner's `model`, `collection`,
@@ -95,6 +147,147 @@ persists across its owning View's render. Application State persists across
 stop and restart. Owner destruction destroys State and releases `stateEvents`;
 late `getState()` calls return a destroyed State whose writes are
 lifecycle-safe no-ops.
+
+Application State follows the Application rather than one rendered View. Use it
+for local orchestration values that must survive stop and restart. Commit values
+from asynchronous readiness work only while its operation signal remains active.
+Application readiness hooks receive an operation context as their third argument;
+its `signal` is a browser `AbortSignal` that Marionette aborts when a later
+operation invalidates that readiness phase.
+
+<!-- executable-example: application-local-state -->
+```javascript
+import { Application } from 'marionette';
+
+export const SessionApplication = Application.extend({
+  state: {
+    phase: 'idle'
+  },
+
+  stateEvents: {
+    'change:phase': 'recordPhase'
+  },
+
+  initialize(options = {}) {
+    this.phases = [];
+    this.loadPhase = options.loadPhase || (phase => Promise.resolve(phase));
+  },
+
+  async onBeforeStart(app, options, { signal }) {
+    const phase = await this.loadPhase(options.phase);
+    if (!signal.aborted) {
+      this.getState().set('phase', phase);
+    }
+  },
+
+  onBeforeStop() {
+    this.getState().set('phase', 'stopped');
+  },
+
+  recordPhase(state, phase) {
+    this.phases.push(phase);
+  }
+});
+
+export const session = new SessionApplication();
+export const sessionState = session.getState();
+export const phases = session.phases;
+
+await session.start({ phase: 'ready' });
+await session.stop();
+await session.start({ phase: 'resumed' });
+
+let resolveStalePhase;
+const stalePhase = new Promise(complete => {
+  resolveStalePhase = complete;
+});
+export const cancelledSession = new SessionApplication({
+  loadPhase() {
+    return stalePhase;
+  }
+});
+export const cancelledState = cancelledSession.getState();
+
+const pendingStart = cancelledSession.start({ phase: 'stale' });
+const replacementStop = cancelledSession.stop();
+resolveStalePhase('stale');
+
+export const pendingStartResult = await pendingStart;
+export const replacementStopResult = await replacementStop;
+```
+
+Behavior State belongs to the Behavior only when the concern is private to that
+Behavior. State shared with its host belongs to the View; the Behavior reads the
+View's State through `this.view.getState()` but does not compose or destroy it.
+Cross-owner or persisted domain data belongs in a model, collection, or another
+explicit data source instead.
+
+<!-- executable-example: behavior-state-ownership -->
+```javascript
+import { Behavior, View } from 'marionette';
+
+const DisclosureBehavior = Behavior.extend({
+  state: {
+    open: false
+  },
+
+  events: {
+    'click .disclosure': 'toggleDisclosure'
+  },
+
+  stateEvents: {
+    'change:open': 'showDisclosureState'
+  },
+
+  toggleDisclosure() {
+    const state = this.getState();
+    state.set('open', !state.get('open'));
+  },
+
+  showDisclosureState(state, open) {
+    this.view.el.dataset.disclosureOpen = String(open);
+  }
+});
+
+const SelectionBehavior = Behavior.extend({
+  events: {
+    'click .selection': 'select'
+  },
+
+  select() {
+    this.view.getState().set('selected', true);
+  }
+});
+
+const SettingsView = View.extend({
+  state: {
+    selected: false
+  },
+
+  stateEvents: {
+    'change:selected': 'showSelectionState'
+  },
+
+  behaviors: [DisclosureBehavior, SelectionBehavior],
+
+  template() {
+    return '<button class="disclosure">Details</button><button class="selection">Select</button>';
+  },
+
+  onRender() {
+    this.el.dataset.disclosureOpen = 'false';
+    this.showSelectionState(this.getState(), this.getState().get('selected'));
+  },
+
+  showSelectionState(state, selected) {
+    this.el.dataset.selected = String(selected);
+  }
+});
+
+export const settings = new SettingsView({
+  el: document.querySelector('#settings')
+}).render();
+```
 
 ### Supplying a State instance
 
