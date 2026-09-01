@@ -40,6 +40,10 @@ Calling `Radio.channel(name)` again with the same name returns the same channel
 instance. A channel name is required. Channel names that match inherited object
 properties, such as `toString`, are treated as ordinary channel names.
 
+Channels are created and owned by the `Radio` singleton. Their constructor and
+the singleton's registry are implementation details; obtain channels only through
+`Radio.channel(name)`.
+
 ## Events
 
 Channels provide event-style messaging with methods including `on`, `once`,
@@ -123,6 +127,9 @@ is made. Disable it explicitly when it is no longer needed:
 ```javascript
 Radio.setDebug(false);
 ```
+
+Radio owns the warning and tuning output path. The former `Radio.log` and
+`Radio.debugLog` extension properties are not part of the built-in v5 API.
 
 ## Channel Lifecycle
 

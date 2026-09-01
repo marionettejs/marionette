@@ -1,4 +1,4 @@
-import { setDebug, debugLog, log } from './common/radio.js';
+import { setDebug, log } from './common/radio.js';
 import Events from '../mixins/events.js';
 import Requests from '../mixins/requests.js';
 
@@ -20,10 +20,6 @@ const Radio = {};
 assignOwn(Radio, {
   setDebug,
 
-  log,
-
-  debugLog,
-
   // Logs all events on this channel to the console. It sets an
   // internal value on the channel telling it we're listening,
   // then sets a listener on the Events
@@ -31,7 +27,7 @@ assignOwn(Radio, {
     const channel = Radio.channel(channelName);
     channel._tunedIn = true;
     channel.on('all', _partial(channelName));
-    return this;
+    return Radio;
   },
 
   // Stop logging all of the activities on this channel to the console
@@ -40,7 +36,7 @@ assignOwn(Radio, {
     channel._tunedIn = false;
     channel.off('all', _partial(channelName));
     delete _logs[channelName];
-    return this;
+    return Radio;
   }
 });
 
@@ -51,7 +47,7 @@ assignOwn(Radio, {
  *
  */
 
-Radio._channels = Object.create(null);
+const _channels = Object.create(null);
 
 Radio.channel = function(channelName) {
   if (!channelName) {
@@ -61,26 +57,26 @@ Radio.channel = function(channelName) {
     });
   }
 
-  if (Radio._channels[channelName]) {
-    return Radio._channels[channelName];
+  if (_channels[channelName]) {
+    return _channels[channelName];
   }
 
-  return (Radio._channels[channelName] = new Radio.Channel(channelName));
+  return (_channels[channelName] = new Channel(channelName));
 };
 
 /*
- * Radio.Channel
+ * Channel
  * ----------------------
  * A Channel is an object that extends from Events,
- * and Radio.Requests.
+ * and Requests.
  *
  */
 
-Radio.Channel = function(channelName) {
+function Channel(channelName) {
   this.channelName = channelName;
-};
+}
 
-assignOwn(Radio.Channel.prototype, Events, Requests, {
+assignOwn(Channel.prototype, Events, Requests, {
 
   // Remove all handlers from the messaging systems of this channel
   reset() {
@@ -105,7 +101,7 @@ for (let systemIndex = 0, systemsLength = systems.length; systemIndex < systemsL
   for (let index = 0, length = methodNames.length; index < length; index++) {
     const methodName = methodNames[index];
     setProperty(Radio, methodName, function(channelName, ...args) {
-      const channel = this.channel(channelName);
+      const channel = Radio.channel(channelName);
       return callHandler(channel[methodName], channel, args);
     });
   }
@@ -113,9 +109,9 @@ for (let systemIndex = 0, systemsLength = systems.length; systemIndex < systemsL
 
 Radio.reset = function(channelName) {
   if (!arguments.length) {
-    const channelNames = objectKeys(this._channels);
+    const channelNames = objectKeys(_channels);
     for (let index = 0, length = channelNames.length; index < length; index++) {
-      this._channels[channelNames[index]].reset();
+      _channels[channelNames[index]].reset();
     }
     return;
   }
@@ -126,7 +122,7 @@ Radio.reset = function(channelName) {
 
   let channel;
   try {
-    channel = this._channels[channelName];
+    channel = _channels[channelName];
   } catch {
     // The stable diagnostic below formats hostile property keys safely.
   }

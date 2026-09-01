@@ -5,7 +5,6 @@ describe('Radio', function() {
   afterEach(function() {
     Radio.setDebug(false);
     Radio.reset();
-    Radio._channels = Object.create(null);
   });
 
   it('requires channel names', function() {
@@ -24,7 +23,7 @@ describe('Radio', function() {
       const channel = Radio.channel(channelName);
       const handler = this.sinon.stub();
 
-      expect(channel).to.be.instanceOf(Radio.Channel);
+      expect(channel.channelName).to.equal(channelName);
       expect(Radio.channel(channelName)).to.equal(channel);
 
       Radio.on(channelName, 'event', handler);
@@ -260,22 +259,23 @@ describe('Radio', function() {
       .to.throw('Radio channel does not exist.')
       .with.property('code', 'MN0021');
 
-    expect(Object.hasOwn(Radio._channels, 'missing')).to.be.false;
     Radio.trigger('existing', 'event');
     expect(handler).to.have.been.calledOnce;
   });
 
-  it('rejects unknown prototype property channel names and resets them once created', function() {
-    ['toString', 'constructor', '__proto__'].forEach(channelName => {
-      expect(() => Radio.reset(channelName)).to.throw().with.property('code', 'MN0021');
+  it('rejects unknown prototype property channel names and resets them once created', async function() {
+    const { default: IsolatedRadio } = await import('../../modules/radio.js?prototype-reset-test');
 
-      const channel = Radio.channel(channelName);
+    ['toString', 'constructor', '__proto__'].forEach(channelName => {
+      expect(() => IsolatedRadio.reset(channelName)).to.throw().with.property('code', 'MN0021');
+
+      const channel = IsolatedRadio.channel(channelName);
       const handler = this.sinon.stub();
       channel.on('event', handler);
 
-      Radio.reset(channelName);
+      IsolatedRadio.reset(channelName);
 
-      expect(Radio.channel(channelName)).to.equal(channel);
+      expect(IsolatedRadio.channel(channelName)).to.equal(channel);
       channel.trigger('event');
       expect(handler).not.to.have.been.called;
     });

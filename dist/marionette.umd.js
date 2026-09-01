@@ -927,23 +927,21 @@
   const Radio = {};
   assignOwn(Radio, {
     setDebug,
-    log,
-    debugLog,
     tuneIn(channelName) {
       const channel = Radio.channel(channelName);
       channel._tunedIn = true;
       channel.on('all', _partial(channelName));
-      return this;
+      return Radio;
     },
     tuneOut(channelName) {
       const channel = Radio.channel(channelName);
       channel._tunedIn = false;
       channel.off('all', _partial(channelName));
       delete _logs[channelName];
-      return this;
+      return Radio;
     }
   });
-  Radio._channels = Object.create(null);
+  const _channels = Object.create(null);
   Radio.channel = function (channelName) {
     if (!channelName) {
       throw new MarionetteError({
@@ -951,15 +949,15 @@
         message: 'You must provide a name for the channel.'
       });
     }
-    if (Radio._channels[channelName]) {
-      return Radio._channels[channelName];
+    if (_channels[channelName]) {
+      return _channels[channelName];
     }
-    return Radio._channels[channelName] = new Radio.Channel(channelName);
+    return _channels[channelName] = new Channel(channelName);
   };
-  Radio.Channel = function (channelName) {
+  function Channel(channelName) {
     this.channelName = channelName;
-  };
-  assignOwn(Radio.Channel.prototype, Events, Requests, {
+  }
+  assignOwn(Channel.prototype, Events, Requests, {
     reset() {
       this.off();
       this.stopListening();
@@ -973,16 +971,16 @@
     for (let index = 0, length = methodNames.length; index < length; index++) {
       const methodName = methodNames[index];
       setProperty(Radio, methodName, function (channelName, ...args) {
-        const channel = this.channel(channelName);
+        const channel = Radio.channel(channelName);
         return callHandler(channel[methodName], channel, args);
       });
     }
   }
   Radio.reset = function (channelName) {
     if (!arguments.length) {
-      const channelNames = objectKeys$1(this._channels);
+      const channelNames = objectKeys$1(_channels);
       for (let index = 0, length = channelNames.length; index < length; index++) {
-        this._channels[channelNames[index]].reset();
+        _channels[channelNames[index]].reset();
       }
       return;
     }
@@ -991,7 +989,7 @@
     }
     let channel;
     try {
-      channel = this._channels[channelName];
+      channel = _channels[channelName];
     } catch {}
     if (!channel) {
       throw new MarionetteError({
