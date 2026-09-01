@@ -64,23 +64,13 @@
 
   var version = "5.0.0-alpha.2";
 
-  const MAX_ARRAY_INDEX$1 = Number.MAX_SAFE_INTEGER;
   function eachChild(children, iteratee) {
-    if (children == null) {
+    if (!Array.isArray(children)) {
       return;
     }
-    const candidateLength = children.length;
-    if (typeof candidateLength === 'number' && candidateLength >= 0 && candidateLength <= MAX_ARRAY_INDEX$1) {
-      const length = children.length;
-      for (let index = 0; index < length; index++) {
-        iteratee(children[index]);
-      }
-      return;
-    }
-    const names = Object.keys(children);
-    for (let index = 0, length = names.length; index < length; index++) {
-      const name = names[index];
-      iteratee(children[name]);
+    const length = children.length;
+    for (let index = 0; index < length; index++) {
+      iteratee(children[index]);
     }
   }
   function triggerMethodChildren(view, event, shouldTrigger) {
@@ -723,40 +713,6 @@
     }
   };
 
-  const MAX_ARRAY_INDEX = Number.MAX_SAFE_INTEGER;
-  const propertyIsEnumerable$1 = Object.prototype.propertyIsEnumerable;
-  const eachRequestedKey = function (keys, iteratee) {
-    if (keys == null) {
-      return;
-    }
-    const candidateLength = keys.length;
-    if (typeof candidateLength === 'number' && candidateLength >= 0 && candidateLength <= MAX_ARRAY_INDEX) {
-      const length = keys.length;
-      for (let index = 0; index < length; index++) {
-        iteratee(keys[index]);
-      }
-      return;
-    }
-    const names = Object.keys(keys);
-    for (const name of names) {
-      iteratee(keys[name]);
-    }
-  };
-  const mergeOptions = function (options, keys) {
-    if (!options) {
-      return;
-    }
-    eachRequestedKey(keys, key => {
-      if (typeof key !== 'string' || !propertyIsEnumerable$1.call(options, key)) {
-        return;
-      }
-      const option = options[key];
-      if (option !== undefined) {
-        setProperty(this, key, option);
-      }
-    });
-  };
-
   const errorProps = ['code', 'description', 'fileName', 'lineNumber', 'name', 'message', 'number', 'url'];
   const MarionetteError = extend.call(Error, {
     urlRoot: `http://marionettejs.com/docs/v${version}/`,
@@ -795,6 +751,31 @@
       return `${this.name}: ${this.message} See: ${this.url}`;
     }
   });
+
+  const propertyIsEnumerable$1 = Object.prototype.propertyIsEnumerable;
+  const mergeOptions = function (options, keys) {
+    if (options == null) {
+      return;
+    }
+    if (!Array.isArray(keys)) {
+      throw new MarionetteError({
+        code: 'MN0033',
+        message: 'The mergeOptions keys argument must be an array.',
+        url: 'common.html#mergeoptions'
+      });
+    }
+    const length = keys.length;
+    for (let index = 0; index < length; index++) {
+      const key = keys[index];
+      if (typeof key !== 'string' || !propertyIsEnumerable$1.call(options, key)) {
+        continue;
+      }
+      const option = options[key];
+      if (option !== undefined) {
+        setProperty(this, key, option);
+      }
+    }
+  };
 
   const getObjectTag = Function.call.bind(Object.prototype.toString);
   function isString(value) {

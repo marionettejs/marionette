@@ -549,6 +549,27 @@
         "runtime"
       ],
       "benchmarkCategory": "ownership"
+    },
+    {
+      "code": "MN0033",
+      "slug": "merge-options-keys-invalid",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "Region",
+        "View"
+      ],
+      "remediation": "Pass requested option names to mergeOptions as an Array.",
+      "docsAnchor": "/errors/MN0033/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "view"
     }
   ]
 }
