@@ -1,0 +1,68 @@
+dist/marionette.cjs
+  s_d6429951fb9231::t_5c4a80939ce733 248,251,583,586,915,963,974,1529,1587,3920-4049,4074
+changelog.md
+  s_d6429951fb9231::t_589d66fde91470 3-5
+dist/marionette.umd.js
+  s_d6429951fb9231::t_01cb4865911e64 255,258,590,593,922,970,981,1536,1594,3927-4056,4081
+test/dist/validate.mjs
+  s_d6429951fb9231::t_9aaa84bf34095c 52,67-68
+dist/marionette.js
+  s_d6429951fb9231::t_ec2fa6e4549298 244,247,579,582,911,959,970,1525,1583,3916-4045,4061
+dist/marionette.umd.js.map
+  s_d6429951fb9231::t_366e08dcb964d9 1
+ROADMAP.md
+  s_d6429951fb9231::t_ee91a849a8671c 294,314-317
+  s_d6429951fb9231::t_9aaa84bf34095c 295-298,318-320
+docs/marionette.state.md
+  s_d6429951fb9231::t_5a7c2ecc10392f 27-30
+  s_d6429951fb9231::t_9ad31ee7f9bf1a 44-50
+  s_d6429951fb9231::t_ee91a849a8671c 1-26,31-43,51-92
+dist/marionette.min.js.map
+  s_d6429951fb9231::t_05f7a223cd623e 1
+index.js
+  s_d6429951fb9231::t_ee91a849a8671c 15,51
+docs-site/next.json
+  s_d6429951fb9231::t_39965d276e5445 14
+  s_d6429951fb9231::t_ee91a849a8671c 15-17
+docs/migration-from-v4.md
+  s_d6429951fb9231::t_9ad31ee7f9bf1a 13
+  s_d6429951fb9231::t_589d66fde91470 29
+dist/marionette.min.js
+  s_d6429951fb9231::t_48338cdea4ed22 1
+modules/state.js
+  s_d6429951fb9231::t_9ad31ee7f9bf1a 5-6,20-32,40,42-44,81-83
+  s_d6429951fb9231::t_ee91a849a8671c 1-4,7-19,33-39,41,45-80,84-90,92-95,97-117,120-152
+  s_d6429951fb9231::t_5a7c2ecc10392f 96,118-119
+  s_d6429951fb9231::t_f7475813c6bc23 91
+docs/classes.md
+  s_d6429951fb9231::t_ee91a849a8671c 87-91
+config/diagnostics/catalog.schema.json
+  s_d6429951fb9231::t_cb684e04f99b09 132
+  s_d6429951fb9231::t_58f65f973d4180 94
+config/diagnostics/catalog.json
+  s_d6429951fb9231::t_cdd27cd475540c 588
+  s_d6429951fb9231::t_9ad31ee7f9bf1a 573-587
+test/source/validate.mjs
+  s_d6429951fb9231::t_9aaa84bf34095c 16,18
+test/unit/state.spec.js
+  s_d6429951fb9231::t_fc881bff036d80 88-90,97,104-122,129
+  s_d6429951fb9231::t_cb684e04f99b09 74-85
+  s_d6429951fb9231::t_30d64b8b4c91d6 1-73,86-87,91-96,98-103,123-125,130-301
+  s_d6429951fb9231::t_66b53337baa661 126-128
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "e53b14f570a372d063fac9449df1a0b2cd99c652",
+  "prompts": {},
+  "sessions": {
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
