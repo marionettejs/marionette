@@ -22,8 +22,14 @@ const MarionetteObject = function(options) {
   this.cid = uniqueId(this.cidPrefix);
   this._initRadio();
   this._initState(options);
-  this.initialize.apply(this, arguments);
-  this._initStateEvents();
+
+  try {
+    this.initialize.apply(this, arguments);
+    this._initStateEvents();
+  } catch (error) {
+    this._destroyState();
+    throw error;
+  }
 };
 
 MarionetteObject.extend = extend;

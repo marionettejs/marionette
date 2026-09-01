@@ -1218,8 +1218,13 @@
     this.cid = uniqueId(this.cidPrefix);
     this._initRadio();
     this._initState(options);
-    this.initialize.apply(this, arguments);
-    this._initStateEvents();
+    try {
+      this.initialize.apply(this, arguments);
+      this._initStateEvents();
+    } catch (error) {
+      this._destroyState();
+      throw error;
+    }
   };
   MarionetteObject.extend = extend;
   assignOwn(MarionetteObject.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMixin, {
@@ -2602,16 +2607,21 @@
     this.setElement(this._getEl());
     monitorViewEvents(this);
     this._initState(options);
-    this._initBehaviors();
-    this._initRegions();
-    this._buildEventProxies();
-    this.initialize.apply(this, arguments);
-    if (this._isDestroyed || this._isDestroying) {
-      return;
+    try {
+      this._initBehaviors();
+      this._initRegions();
+      this._buildEventProxies();
+      this.initialize.apply(this, arguments);
+      if (this._isDestroyed || this._isDestroying) {
+        return;
+      }
+      this._initStateEvents();
+      this.delegateEntityEvents();
+      this._triggerEventOnBehaviors('initialize', this, options);
+    } catch (error) {
+      this._destroyState();
+      throw error;
     }
-    this._initStateEvents();
-    this.delegateEntityEvents();
-    this._triggerEventOnBehaviors('initialize', this, options);
   };
   assignOwn(View, {
     extend,
@@ -3036,17 +3046,22 @@
     this.setElement(this._getEl());
     monitorViewEvents(this);
     this._initState(options);
-    this._initChildViewStorage();
-    this._initBehaviors();
-    this._buildEventProxies();
-    this.initialize.apply(this, arguments);
-    if (this._isDestroyed || this._isDestroying) {
-      return;
+    try {
+      this._initChildViewStorage();
+      this._initBehaviors();
+      this._buildEventProxies();
+      this.initialize.apply(this, arguments);
+      if (this._isDestroyed || this._isDestroying) {
+        return;
+      }
+      this._initStateEvents();
+      this.getEmptyRegion();
+      this.delegateEntityEvents();
+      this._triggerEventOnBehaviors('initialize', this, options);
+    } catch (error) {
+      this._destroyState();
+      throw error;
     }
-    this._initStateEvents();
-    this.getEmptyRegion();
-    this.delegateEntityEvents();
-    this._triggerEventOnBehaviors('initialize', this, options);
   };
   assignOwn(CollectionView, {
     extend,
@@ -3655,11 +3670,16 @@
       this.$el = view.$el;
     }
     this._initState(options);
-    this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui'));
-    this.listenTo(view, 'all', this.triggerMethod);
-    this.initialize.apply(this, arguments);
-    this._initStateEvents();
-    this._syncElement();
+    try {
+      this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui'));
+      this.listenTo(view, 'all', this.triggerMethod);
+      this.initialize.apply(this, arguments);
+      this._initStateEvents();
+      this._syncElement();
+    } catch (error) {
+      this._destroyState();
+      throw error;
+    }
   };
   assignOwn(Behavior, {
     extend,

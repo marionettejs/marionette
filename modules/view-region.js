@@ -889,18 +889,24 @@ const View = function(options) {
   monitorViewEvents(this);
 
   this._initState(options);
-  this._initBehaviors();
-  this._initRegions();
-  this._buildEventProxies();
 
-  this.initialize.apply(this, arguments);
+  try {
+    this._initBehaviors();
+    this._initRegions();
+    this._buildEventProxies();
 
-  if (this._isDestroyed || this._isDestroying) { return; }
+    this.initialize.apply(this, arguments);
 
-  this._initStateEvents();
-  this.delegateEntityEvents();
+    if (this._isDestroyed || this._isDestroying) { return; }
 
-  this._triggerEventOnBehaviors('initialize', this, options);
+    this._initStateEvents();
+    this.delegateEntityEvents();
+
+    this._triggerEventOnBehaviors('initialize', this, options);
+  } catch (error) {
+    this._destroyState();
+    throw error;
+  }
 };
 
 assignOwn(View, { extend, setRenderer, setDomApi, setEventDelegator });

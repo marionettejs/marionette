@@ -43,22 +43,27 @@ const Behavior = function(options, view) {
   }
   this._initState(options);
 
-  // Construct an internal UI hash using the behaviors UI
-  // hash combined and overridden by the view UI hash.
-  // This allows the user to use UI hash elements defined
-  // in the parent view as well as those defined in the behavior.
-  // This order will help the reuse and share of a behavior
-  // between multiple views, while letting a view override
-  // a selector under an UI key.
-  this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui'));
+  try {
+    // Construct an internal UI hash using the behaviors UI
+    // hash combined and overridden by the view UI hash.
+    // This allows the user to use UI hash elements defined
+    // in the parent view as well as those defined in the behavior.
+    // This order will help the reuse and share of a behavior
+    // between multiple views, while letting a view override
+    // a selector under an UI key.
+    this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui'));
 
-  // Proxy view triggers
-  this.listenTo(view, 'all', this.triggerMethod);
+    // Proxy view triggers
+    this.listenTo(view, 'all', this.triggerMethod);
 
-  this.initialize.apply(this, arguments);
+    this.initialize.apply(this, arguments);
 
-  this._initStateEvents();
-  this._syncElement();
+    this._initStateEvents();
+    this._syncElement();
+  } catch (error) {
+    this._destroyState();
+    throw error;
+  }
 };
 
 assignOwn(Behavior, { extend, setEventDelegator });

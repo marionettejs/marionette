@@ -102,6 +102,32 @@ describe('State owner composition', function() {
         definition.destroy(result);
       });
 
+      it('destroys supplied State when initialize throws', function() {
+        const error = new Error('initialize failed');
+        const state = new State();
+        const OwnerClass = definition.OwnerClass.extend({
+          initialize() {
+            throw error;
+          }
+        });
+
+        expect(() => definition.build(OwnerClass, { state })).to.throw(error);
+        expect(state.isDestroyed()).to.be.true;
+      });
+
+      it('destroys supplied State when stateEvents throws', function() {
+        const error = new Error('stateEvents failed');
+        const state = new State();
+        const OwnerClass = definition.OwnerClass.extend({
+          stateEvents() {
+            throw error;
+          }
+        });
+
+        expect(() => definition.build(OwnerClass, { state })).to.throw(error);
+        expect(state.isDestroyed()).to.be.true;
+      });
+
       it('composes a supplied State and destroys it with its owner', function() {
         const state = new State({ ready: true });
         const result = definition.build(undefined, { state });
