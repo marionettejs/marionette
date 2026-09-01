@@ -349,11 +349,13 @@ current-evidence findings:
 - **Selected:** Radio retains its existing module-global registry for v5. Do not add an isolated
   Radio factory, Application injection, or Application-owned channel lifetime without
   new public evidence. Documentation must make that process-wide scope explicit.
-- **Selected:** Remove the public global feature-flag surface before stable and select one canonical
-  v5 behavior. Existing per-View and per-trigger controls such as
-  `childViewEventPrefix`, `preventDefault`, and `stopPropagation` express local
-  exceptions. Verify v3/v4 rationale and real consumer migrations, but do not retain
-  arbitrary custom flag names, compatibility aliases, or parallel global semantics.
+- **Selected:** Retain the documented module-global feature registry for v5 compatibility.
+  Built-in defaults remain limited to `childViewEventPrefix`,
+  `triggersPreventDefault`, and `triggersStopPropagation`; existing per-View and
+  per-trigger options express local exceptions. Custom non-empty string names remain
+  supported for v3/v4 consumers, but new application-owned flags should use
+  application state or configuration instead. `DEV_MODE` is not a built-in v5 feature,
+  and no second flag registry or compatibility alias is added.
 - **Selected:** Retain the current root bootstrap and class-level DOM, renderer, and event-delegator
   configuration. Document installation timing and precedence where unclear; do not
   redesign these seams without a concrete defect.
@@ -394,21 +396,15 @@ current-evidence findings:
   `collection.models`, `collection.indexOf(model)`, and exact Backbone `sort`, `reset`,
   and `update` payloads. `modelEvents` and `collectionEvents` require only an emitter
   with `on` and `off` and remain independent declarative bindings.
-- **Gated:** Before stable, prototype one lean canonical data boundary in preference to freezing
-  those Backbone-shaped fields. Its responsibilities are an ordered item snapshot or
-  iterable, stable identity or an explicit key for immutable replacement, explicit item
-  serialization, and change subscription through normalized change records. Prefer
-  object identity through `Map` or `WeakMap` over requiring `cid`, and obtain order from
-  one snapshot rather than combining `models` with `indexOf`. Backbone enters through
-  an explicit adapter using this same protocol; do not add implicit Backbone detection,
-  per-model wrappers, or a second reconciliation path.
-- **Gated:** Select the lean boundary only if an executable Backbone migration and representative
-  plain-data consumer prove simpler non-Backbone use, preserved child View and DOM
-  identity across removal and reorder, large-list cost within budget, no per-model
-  wrapper, one reconciliation path, retained emitter-only `modelEvents` and
-  `collectionEvents`, and genuinely optional Backbone package metadata. If it fails
-  those gates, deliberately retain and document the current protocol. State remains an
-  owned local-state concern, not the collection data source.
+- **Selected:** Retain the current documented Backbone-shaped model and collection data
+  protocol for 5.0. This selects an interface shape, not a Backbone dependency:
+  Marionette core remains Backbone-optional, and any conforming model, collection, or
+  adapter remains valid. The generalized data-source seam in [#104][issue-104] has no
+  public benchmark failure or second source implementation satisfying its required
+  evidence, so it remains an evidence-dependent 5.x candidate rather than a
+  stable-release blocker. Do not add implicit Backbone detection, per-model wrappers,
+  or a parallel reconciliation path. State remains an owned local-state concern, not
+  the collection data source.
 - **Gated:** The existing optional Backbone import side effect is an acceptable legacy install
   seam. If the protocol prototype proves an explicit idempotent `installBackbone`
   operation clearer or safer, select it through the same migration evidence. Do not
@@ -494,9 +490,9 @@ metadata rather than encode a second model of Marionette.
 Declarative definition helpers, adapter implementations beyond the required stable
 model and collection data protocol, new CollectionView strategies, and renderer
 integrations remain evidence-dependent. They may be explored after the foundation is
-measurable, but do not block stable v5 without benchmark evidence. Deciding whether
-to freeze or replace the current model and collection data protocol is a Phase 1 gate, not
-a Phase 5 candidate.
+measurable, but do not block stable v5 without benchmark evidence. The current
+Backbone-shaped interface protocol is selected for 5.0; generalizing that seam is the
+evidence-dependent 5.x candidate in [#104][issue-104].
 
 ## Runtime cost contract
 
@@ -626,18 +622,14 @@ instructions, and every release blocker maps to this strategy.
 - Before the next v5 alpha, resolve the [detached-element attachment gap][issue-327]
   and [CollectionView removal-only update gap][issue-328]. Detailed acceptance
   criteria and browser cases remain in those issues.
-- Prototype and select the stable model and collection data protocol independently of
-  State. Evaluate the preferred lean boundary against the current Backbone-shaped
-  fields and payloads using the API-shape acceptance evidence above. If it passes,
-  Backbone uses an explicit adapter through the single internal reconciliation path;
-  if it fails, deliberately retain and document the current protocol. Do not ship both
-  as canonical paths. A correctness fix against the current protocol does not freeze
-  it; re-evaluate CollectionView update bookkeeping against the selected protocol
-  before freezing either implementation.
-- Remove the public global feature-flag surface after verifying its v3/v4 rationale
-  and executable migrations. Freeze one canonical v5 behavior and use existing local
-  View and trigger options for explicit exceptions; do not ship a compatibility flag
-  registry.
+- Freeze and document the current Backbone-shaped model and collection protocol for
+  5.0, including its exact identity, serialization, event-payload, and optional package
+  contracts. Keep [#104][issue-104] in the evidence-dependent 5.x phase unless the
+  public benchmark first satisfies that issue's implementation requirements.
+- Retain and document the module-global feature registry selected through the v3/v4
+  compatibility audit. Prefer existing local View and trigger options for framework
+  behavior exceptions; do not add a second registry, alias, or built-in `DEV_MODE`
+  path.
 - Retain the module-global Radio architecture and the existing root bootstrap plus
   class-level DOM, renderer, and event-delegator configuration. Close documentation
   gaps in process scope, installation timing, and precedence without adding factories,
@@ -740,13 +732,12 @@ Gate: all stable release criteria below pass.
 
 ### Phase 5: Evidence-dependent candidates
 
-Benchmark declarative definition helpers, adapter implementations beyond whichever
-model and collection data protocol Phase 1 selects, rendering seams, alternative
-CollectionView strategies, optional integrations, pay-for-play resource ownership,
-and the smallest extension-hook contract justified by a public consumer that cannot
-use lifecycle events and topology APIs. These experiments target 5.x and do not block
-stable v5. Unsuccessful candidates are documented and closed rather than retained as
-dormant APIs.
+Benchmark declarative definition helpers, the generalized data-source seam in
+[#104][issue-104], rendering seams, alternative CollectionView strategies, optional
+integrations, pay-for-play resource ownership, and the smallest extension-hook
+contract justified by a public consumer that cannot use lifecycle events and topology
+APIs. These experiments target 5.x and do not block stable v5. Unsuccessful candidates
+are documented and closed rather than retained as dormant APIs.
 
 ## Stable v5 release criteria
 
@@ -779,18 +770,15 @@ dormant APIs.
 - The sync/async matrix names Application readiness as the only awaited lifecycle
   surface, and Application cancellation tests prove exact abort ordering and ordinary
   supersession semantics without making other Marionette callbacks awaitable.
-- The public global feature-flag surface is absent; Radio process scope and adapter
+- The retained module-global feature registry, Radio process scope, and adapter
   installation precedence are documented; no duplicate factory, flag registry, or
   configuration path is presented as canonical.
 - Every contract in the API-shape and agent-ergonomics gate has an explicit keep or
   remove decision, an executable migration when behavior changes, paired agent tasks
   that distinguish the selected form from the rejected alternative, truthful source
   ownership, and no unverified duplicate root utility or internal forwarding path.
-- If the current model and collection data protocol is retained, it passes
-  compatibility tests. If the lean protocol is selected, its explicit Backbone
-  adapter and plain-data consumer exercise the API-shape acceptance evidence above.
-  In either case, the selected protocol passes source, distribution, packed-package,
-  and real-browser tests.
+- The retained model and collection data protocol passes compatibility, source,
+  distribution, packed-package, and real-browser tests.
 - Large-list operation-count scenarios pass source, distribution, packed-package, and
   real-browser tests.
 - CollectionView removal-only update semantics pass source, distribution,
@@ -834,3 +822,4 @@ block stable v5.
 [issue-328]: https://github.com/marionettejs/marionette/issues/328
 [issue-329]: https://github.com/marionettejs/marionette/issues/329
 [issue-190]: https://github.com/marionettejs/marionette/issues/190
+[issue-104]: https://github.com/marionettejs/marionette/issues/104
