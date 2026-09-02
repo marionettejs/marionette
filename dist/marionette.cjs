@@ -78,8 +78,6 @@ function extend (protoProps, staticProps) {
   return child;
 }
 
-var version = "5.0.0-alpha.2";
-
 function eachChild(children, iteratee) {
   if (!Array.isArray(children)) {
     return;
@@ -268,10 +266,10 @@ function triggerMethod(event, ...args) {
   return result;
 }
 
-const objectKeys$3 = Object.keys;
+const objectKeys$2 = Object.keys;
 let listening;
 function getKeys$1(object) {
-  return object == null ? [] : objectKeys$3(object);
+  return object == null ? [] : objectKeys$2(object);
 }
 const onApi = function ({
   events,
@@ -573,18 +571,73 @@ function getValue(object, property, fallback) {
   return typeof resolvedValue === 'function' ? resolvedValue.call(object) : resolvedValue;
 }
 
-let shouldDebug = false;
-function setDebug(setShouldDebug = true) {
-  shouldDebug = setShouldDebug;
+var TemplateRenderMixin = {
+  _renderTemplate(template) {
+    const data = this.mixinTemplateContext(this.serializeData()) || {};
+    const html = this._renderHtml(template, data);
+    if (typeof html !== 'undefined') {
+      this.attachElContent(html);
+    }
+  },
+  getTemplate() {
+    return this.template;
+  },
+  mixinTemplateContext(serializedData) {
+    const templateContext = getValue(this, 'templateContext');
+    if (!templateContext) {
+      return serializedData;
+    }
+    if (!serializedData) {
+      return templateContext;
+    }
+    return assignOwn({}, serializedData, templateContext);
+  },
+  serializeData() {
+    if (this.model) {
+      return this.serializeModel();
+    }
+    if (this.collection) {
+      return {
+        items: this.serializeCollection()
+      };
+    }
+  },
+  serializeModel() {
+    return this.Data.serialize(this.model);
+  },
+  serializeCollection() {
+    return this.Data.items(this.collection).map(model => this.Data.serialize(model));
+  },
+  _renderHtml(template, data) {
+    return template(data);
+  },
+  attachElContent(html) {
+    this.Dom.setContents(this.el, html);
+  }
+};
+
+function createDebug() {
+  let shouldDebug = false;
+  function setDebug(setShouldDebug = true) {
+    shouldDebug = setShouldDebug;
+  }
+  function debugLog(warning, eventName, channelName) {
+    if (shouldDebug && console && console.warn) {
+      console.warn(debugText(warning, eventName, channelName));
+    }
+  }
+  return {
+    debugLog,
+    setDebug
+  };
 }
 function debugText(warning, eventName, channelName) {
   return warning + (channelName ? ` on the ${channelName} channel` : '') + `: "${eventName}"`;
 }
-function debugLog(warning, eventName, channelName) {
-  if (shouldDebug && console && console.warn) {
-    console.warn(debugText(warning, eventName, channelName));
-  }
-}
+const {
+  debugLog,
+  setDebug
+} = createDebug();
 function log(channelName, eventName, ...args) {
   if (typeof console === 'undefined') {
     return;
@@ -603,14 +656,17 @@ function makeCallback(callback) {
   return result;
 }
 
-const objectKeys$2 = Object.keys;
+const objectKeys$1 = Object.keys;
+function getDebugLog(channel) {
+  return channel._debugLog || debugLog;
+}
 function getKeys(object) {
   const type = typeof object;
-  return object != null && (type === 'object' || type === 'function') ? objectKeys$2(object) : [];
+  return object != null && (type === 'object' || type === 'function') ? objectKeys$1(object) : [];
 }
 const registerReply = function (requests, name, callback, context) {
   if (Object.hasOwn(requests, name)) {
-    debugLog('A request was overwritten', name, this.channelName);
+    getDebugLog(this)('A request was overwritten', name, this.channelName);
   }
   setProperty(requests, name, {
     callback: makeCallback(callback),
@@ -725,9 +781,11 @@ var Requests = {
         return callHandler(handler.callback, handler.context, args);
       }
     }
-    debugLog('An unhandled request was fired', name, channelName);
+    getDebugLog(this)('An unhandled request was fired', name, channelName);
   }
 };
+
+var version = "5.0.0-alpha.2";
 
 const errorProps = ['code', 'description', 'fileName', 'lineNumber', 'name', 'message', 'number', 'url'];
 const MarionetteError = extend.call(Error, {
@@ -952,94 +1010,107 @@ var DestroyMixin = {
   }
 };
 
-const objectKeys$1 = Object.keys;
-const _logs = Object.create(null);
-function _partial(channelName) {
-  return _logs[channelName] || (_logs[channelName] = log.bind(Radio, channelName));
-}
-const Radio = {};
-assignOwn(Radio, {
-  setDebug,
-  tuneIn(channelName) {
-    const channel = Radio.channel(channelName);
-    channel._tunedIn = true;
-    channel.on('all', _partial(channelName));
-    return Radio;
-  },
-  tuneOut(channelName) {
-    const channel = Radio.channel(channelName);
-    channel._tunedIn = false;
-    channel.off('all', _partial(channelName));
-    delete _logs[channelName];
-    return Radio;
+function createRadio(debug = createDebug()) {
+  const objectKeys = Object.keys;
+  const _logs = Object.create(null);
+  function _partial(channelName) {
+    return _logs[channelName] || (_logs[channelName] = log.bind(Radio, channelName));
   }
-});
-const _channels = Object.create(null);
-Radio.channel = function (channelName) {
-  if (!channelName) {
-    throw new MarionetteError({
-      code: 'MN0017',
-      message: 'You must provide a name for the channel.'
-    });
-  }
-  if (_channels[channelName]) {
-    return _channels[channelName];
-  }
-  return _channels[channelName] = new Channel(channelName);
-};
-function Channel(channelName) {
-  this.channelName = channelName;
-}
-assignOwn(Channel.prototype, Events, Requests, {
-  reset() {
-    this.off();
-    this.stopListening();
-    this.stopReplying();
-    return this;
-  }
-});
-const systems = [Events, Requests];
-for (let systemIndex = 0, systemsLength = systems.length; systemIndex < systemsLength; systemIndex++) {
-  const methodNames = objectKeys$1(systems[systemIndex]);
-  for (let index = 0, length = methodNames.length; index < length; index++) {
-    const methodName = methodNames[index];
-    setProperty(Radio, methodName, function (channelName, ...args) {
+  const Radio = {};
+  assignOwn(Radio, {
+    setDebug: debug.setDebug,
+    tuneIn(channelName) {
       const channel = Radio.channel(channelName);
-      return callHandler(channel[methodName], channel, args);
-    });
-  }
-}
-Radio.reset = function (channelName) {
-  if (!arguments.length) {
-    const channelNames = objectKeys$1(_channels);
-    for (let index = 0, length = channelNames.length; index < length; index++) {
-      _channels[channelNames[index]].reset();
+      channel._tunedIn = true;
+      channel.on('all', _partial(channelName));
+      return Radio;
+    },
+    tuneOut(channelName) {
+      const channel = Radio.channel(channelName);
+      channel._tunedIn = false;
+      channel.off('all', _partial(channelName));
+      delete _logs[channelName];
+      return Radio;
     }
-    return;
+  });
+  const _channels = Object.create(null);
+  Radio.channel = function (channelName) {
+    if (!channelName) {
+      throw new MarionetteError({
+        code: 'MN0017',
+        message: 'You must provide a name for the channel.'
+      });
+    }
+    if (_channels[channelName]) {
+      return _channels[channelName];
+    }
+    return _channels[channelName] = new Channel(channelName);
+  };
+  function Channel(channelName) {
+    this.channelName = channelName;
   }
-  if (!channelName) {
-    Radio.channel(channelName);
+  assignOwn(Channel.prototype, Events, Requests, {
+    reset() {
+      this.off();
+      this.stopListening();
+      this.stopReplying();
+      return this;
+    }
+  });
+  Object.defineProperty(Channel.prototype, '_debugLog', {
+    configurable: true,
+    value: debug.debugLog,
+    writable: true
+  });
+  const systems = [Events, Requests];
+  for (let systemIndex = 0, systemsLength = systems.length; systemIndex < systemsLength; systemIndex++) {
+    const methodNames = objectKeys(systems[systemIndex]);
+    for (let index = 0, length = methodNames.length; index < length; index++) {
+      const methodName = methodNames[index];
+      setProperty(Radio, methodName, function (channelName, ...args) {
+        const channel = Radio.channel(channelName);
+        return callHandler(channel[methodName], channel, args);
+      });
+    }
   }
-  let channel;
-  try {
-    channel = _channels[channelName];
-  } catch {}
-  if (!channel) {
-    throw new MarionetteError({
-      code: 'MN0021',
-      message: 'Radio channel does not exist.'
-    });
-  }
-  channel.reset();
-};
+  Radio.reset = function (channelName) {
+    if (!arguments.length) {
+      const channelNames = objectKeys(_channels);
+      for (let index = 0, length = channelNames.length; index < length; index++) {
+        _channels[channelNames[index]].reset();
+      }
+      return;
+    }
+    if (!channelName) {
+      Radio.channel(channelName);
+    }
+    let channel;
+    try {
+      channel = _channels[channelName];
+    } catch {}
+    if (!channel) {
+      throw new MarionetteError({
+        code: 'MN0021',
+        message: 'Radio channel does not exist.'
+      });
+    }
+    channel.reset();
+  };
+  return Radio;
+}
+var Radio = createRadio({
+  debugLog,
+  setDebug
+});
 
 var RadioMixin = {
+  Radio,
   _initRadio() {
     const channelName = getValue(this, 'channelName');
     if (!channelName) {
       return;
     }
-    const channel = this._channel = Radio.channel(channelName);
+    const channel = this._channel = this.Radio.channel(channelName);
     const radioEvents = getValue(this, 'radioEvents');
     this.bindEvents(channel, radioEvents);
     const radioRequests = getValue(this, 'radioRequests');
@@ -1417,51 +1488,6 @@ var DelegateEntityEventsMixin = {
     } else {
       disposeAll(subscriptions);
     }
-  }
-};
-
-var TemplateRenderMixin = {
-  _renderTemplate(template) {
-    const data = this.mixinTemplateContext(this.serializeData()) || {};
-    const html = this._renderHtml(template, data);
-    if (typeof html !== 'undefined') {
-      this.attachElContent(html);
-    }
-  },
-  getTemplate() {
-    return this.template;
-  },
-  mixinTemplateContext(serializedData) {
-    const templateContext = getValue(this, 'templateContext');
-    if (!templateContext) {
-      return serializedData;
-    }
-    if (!serializedData) {
-      return templateContext;
-    }
-    return assignOwn({}, serializedData, templateContext);
-  },
-  serializeData() {
-    if (this.model) {
-      return this.serializeModel();
-    }
-    if (this.collection) {
-      return {
-        items: this.serializeCollection()
-      };
-    }
-  },
-  serializeModel() {
-    return this.Data.serialize(this.model);
-  },
-  serializeCollection() {
-    return this.Data.items(this.collection).map(model => this.Data.serialize(model));
-  },
-  _renderHtml(template, data) {
-    return template(data);
-  },
-  attachElContent(html) {
-    this.Dom.setContents(this.el, html);
   }
 };
 
@@ -2036,6 +2062,9 @@ function setRenderer$1(renderer) {
   return this;
 }
 
+const defaultRuntimeId = {};
+const runtimeId = Symbol('MarionetteRuntime');
+
 const classErrorName$3 = 'RegionError';
 const destroyTeardown = new WeakMap();
 function consumeDestroyTeardown(region, operation) {
@@ -2129,7 +2158,7 @@ function assertRegionCanRegister(view, region, name) {
 function assertRegionDefinitionsCanRegister(view, definitions) {
   const seenRegions = new Set();
   eachOwn(definitions, (definition, name) => {
-    if (!(definition instanceof Region)) {
+    if (!(definition instanceof Region$1)) {
       if (getOwnRegion(view._regions, name)) {
         throwRegionRegistrationConflict(`Region name "${name}" is already registered.`);
       }
@@ -2143,16 +2172,16 @@ function assertRegionDefinitionsCanRegister(view, definitions) {
   });
 }
 const RegionClassOptions = ['allowMissingEl', 'parentEl', 'replaceElement'];
-const Region = function (options) {
+const Region$1 = function (options) {
   this._setOptions(options, RegionClassOptions);
   this.cid = uniqueId(this.cidPrefix);
   this._initEl = this.el = this.getOption('el');
   this._validateEl(this.el);
   this.initialize.apply(this, arguments);
 };
-Region.extend = extend;
-Region.setDomApi = setDomApi$1;
-assignOwn(Region.prototype, CommonMixin, {
+Region$1.extend = extend;
+Region$1.setDomApi = setDomApi$1;
+assignOwn(Region$1.prototype, CommonMixin, {
   Dom: DomApi,
   cidPrefix: 'mnr',
   replaceElement: false,
@@ -2310,7 +2339,8 @@ assignOwn(Region.prototype, CommonMixin, {
       return view;
     }
     const viewOptions = this._getViewOptions(view);
-    return new View(viewOptions);
+    const ViewClass = this.ViewClass || View$1;
+    return new ViewClass(viewOptions);
   },
   _getViewOptions(viewOptions) {
     if (typeof viewOptions === 'function') {
@@ -2495,8 +2525,14 @@ assignOwn(Region.prototype, CommonMixin, {
     return this;
   }
 });
+Object.defineProperty(Region$1.prototype, runtimeId, {
+  value: defaultRuntimeId
+});
 function buildRegion(definition, defaults) {
-  if (definition instanceof Region) {
+  if (definition instanceof Region$1) {
+    if (definition[runtimeId] !== (defaults[runtimeId] || defaultRuntimeId)) {
+      throwRegionRegistrationConflict('A Region instance must belong to the same Marionette runtime as its owner.');
+    }
     return definition;
   }
   if (isString(definition)) {
@@ -2521,11 +2557,15 @@ function buildRegion(definition, defaults) {
 function buildRegionFromObject(defaults, definition) {
   const options = assignOwn({}, defaults, definition);
   const RegionClass = options.regionClass;
+  const RegionRuntimeId = RegionClass.prototype[runtimeId];
+  if (RegionRuntimeId && RegionRuntimeId !== (defaults[runtimeId] || defaultRuntimeId)) {
+    throwRegionRegistrationConflict('A Region class must belong to the same Marionette runtime as its owner.');
+  }
   delete options.regionClass;
   return new RegionClass(options);
 }
 const RegionsMixin = {
-  regionClass: Region,
+  regionClass: Region$1,
   _initRegions() {
     this.regions = this.regions || {};
     this._regions = Object.create(null);
@@ -2553,6 +2593,7 @@ const RegionsMixin = {
   },
   _addRegions(regionDefinitions) {
     const defaults = {
+      [runtimeId]: this[runtimeId],
       regionClass: this.regionClass,
       parentEl: () => getValue(this, 'el')
     };
@@ -2659,7 +2700,7 @@ function childReducer(children, region) {
   }
   return children;
 }
-const View = function (options) {
+const View$1 = function (options) {
   this.cid = uniqueId(this.cidPrefix);
   this._setOptions(options, ViewClassOptions);
   this.preinitialize.apply(this, arguments);
@@ -2683,7 +2724,7 @@ const View = function (options) {
     this._rollbackView(error);
   }
 };
-assignOwn(View, {
+assignOwn(View$1, {
   extend,
   setRenderer: setRenderer$1,
   setDomApi: setDomApi$1,
@@ -2691,7 +2732,7 @@ assignOwn(View, {
   setDataApi: setDataApi$1,
   setStateApi: setStateApi$1
 });
-assignOwn(View.prototype, ViewMixin, RegionsMixin, {
+assignOwn(View$1.prototype, ViewMixin, RegionsMixin, {
   cidPrefix: 'mnv',
   setElement(element) {
     if (this._isDestroying || this._isDestroyed) {
@@ -3228,7 +3269,7 @@ function isClassDefinition(view) {
   return /^class(?:\s|\/[/*])/.test(Function.prototype.toString.call(view));
 }
 const ClassOptions$2 = ['attributes', 'behaviors', 'childView', 'childViewContainer', 'childViewEventPrefix', 'childViewEvents', 'childViewOptions', 'childViewTriggers', 'className', 'collection', 'collectionEvents', 'el', 'emptyView', 'emptyViewOptions', 'events', 'id', 'model', 'modelEvents', 'stateEvents', 'sortWithCollection', 'tagName', 'template', 'templateContext', 'triggers', 'ui', 'viewComparator', 'viewFilter'];
-const CollectionView = function (options) {
+const CollectionView$1 = function (options) {
   this.cid = uniqueId(this.cidPrefix);
   this._setOptions(options, ClassOptions$2);
   this.preinitialize.apply(this, arguments);
@@ -3253,7 +3294,7 @@ const CollectionView = function (options) {
     this._rollbackView(error);
   }
 };
-assignOwn(CollectionView, {
+assignOwn(CollectionView$1, {
   extend,
   setRenderer: setRenderer$1,
   setDomApi: setDomApi$1,
@@ -3261,7 +3302,7 @@ assignOwn(CollectionView, {
   setDataApi: setDataApi$1,
   setStateApi: setStateApi$1
 });
-assignOwn(CollectionView.prototype, ViewMixin, {
+assignOwn(CollectionView$1.prototype, ViewMixin, {
   cidPrefix: 'mncv',
   sortWithCollection: true,
   _initChildViewStorage() {
@@ -3277,7 +3318,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
       this._emptyRegion._setElement(emptyEl);
       return this._emptyRegion;
     }
-    this._emptyRegion = new Region({
+    const RegionClass = this.RegionClass || Region$1;
+    this._emptyRegion = new RegionClass({
       el: emptyEl,
       replaceElement: false
     });
@@ -3461,7 +3503,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     this._children._set(views, true);
   },
   _reconcileChildren(renderViews, addedViews = false) {
-    const canReconcile = this.sort === CollectionView.prototype.sort && this.filter === CollectionView.prototype.filter && this.getComparator === CollectionView.prototype.getComparator && this.getFilter === CollectionView.prototype.getFilter && !this.viewComparator && !this.viewFilter;
+    const canReconcile = this.sort === CollectionView$1.prototype.sort && this.filter === CollectionView$1.prototype.filter && this.getComparator === CollectionView$1.prototype.getComparator && this.getFilter === CollectionView$1.prototype.getFilter && !this.viewComparator && !this.viewFilter;
     if (!canReconcile) {
       for (const view of renderViews) {
         view._isRendered = false;
@@ -4037,7 +4079,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 });
 
 const ClassOptions$1 = ['collectionEvents', 'events', 'modelEvents', 'stateEvents', 'triggers', 'ui'];
-const Behavior = function (options, view) {
+const Behavior$1 = function (options, view) {
   this.view = view;
   this._setOptions(options, ClassOptions$1);
   this.cid = uniqueId(this.cidPrefix);
@@ -4060,12 +4102,12 @@ const Behavior = function (options, view) {
     throw error;
   }
 };
-assignOwn(Behavior, {
+assignOwn(Behavior$1, {
   extend,
   setEventDelegator: setEventDelegator$1,
   setStateApi: setStateApi$1
 });
-assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateMixin, UIMixin, ViewEventsMixin, {
+assignOwn(Behavior$1.prototype, CommonMixin, DelegateEntityEventsMixin, StateMixin, UIMixin, ViewEventsMixin, {
   cidPrefix: 'mnb',
   $() {
     return this.view.$.apply(this.view, arguments);
@@ -4122,7 +4164,7 @@ const STARTING = 'starting';
 const STOPPED = 'stopped';
 const STOPPING = 'stopping';
 const classErrorName = 'ApplicationError';
-const Application = function (options) {
+const Application$1 = function (options) {
   this._setOptions(options, ClassOptions);
   this.cid = uniqueId(this.cidPrefix);
   try {
@@ -4168,8 +4210,11 @@ function assertChildAppCanRegister(owner, name, application) {
   if (typeof name !== 'string' || name.length === 0) {
     throwApplicationOwnershipConflict('A child Application name must be a non-empty string.');
   }
-  if (!(application instanceof Application)) {
+  if (!(application instanceof Application$1)) {
     throwApplicationOwnershipConflict('A child Application must be an Application instance.');
+  }
+  if (application[runtimeId] !== owner[runtimeId]) {
+    throwApplicationOwnershipConflict('A child Application must belong to the same Marionette runtime as its owner.');
   }
   if (isSameChildApp(owner, name, application)) {
     return;
@@ -4443,13 +4488,16 @@ async function stopApplication(application, operation, options) {
     throw error;
   }
 }
-var Application$1 = /* @__PURE__ */(methods => {
-  assignOwn(Application, {
+var ApplicationBase = /* @__PURE__ */(methods => {
+  assignOwn(Application$1, {
     extend,
     setStateApi: setStateApi$1
   });
-  assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMixin, methods);
-  return Application;
+  assignOwn(Application$1.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMixin, methods);
+  Object.defineProperty(Application$1.prototype, runtimeId, {
+    value: defaultRuntimeId
+  });
+  return Application$1;
 })({
   cidPrefix: 'mna',
   _lifecycleState: STOPPED,
@@ -4577,7 +4625,7 @@ var Application$1 = /* @__PURE__ */(methods => {
     if (isTerminal(this)) {
       return application;
     }
-    if (application instanceof Application && isTerminal(application)) {
+    if (application instanceof Application$1 && application[runtimeId] === this[runtimeId] && isTerminal(application)) {
       return application;
     }
     assertChildAppCanRegister(this, name, application);
@@ -4623,17 +4671,18 @@ var Application$1 = /* @__PURE__ */(methods => {
   getName() {
     return this._name;
   },
-  regionClass: Region,
+  regionClass: Region$1,
   _initRegion() {
     const region = this.region;
     if (!region) {
       return;
     }
     const defaults = {
+      [runtimeId]: this[runtimeId],
       regionClass: this.regionClass
     };
     this._region = buildRegion(region, defaults);
-    if (!(region instanceof Region)) {
+    if (!(region instanceof Region$1)) {
       this._ownedRegion = this._region;
     }
   },
@@ -4663,45 +4712,160 @@ var Application$1 = /* @__PURE__ */(methods => {
   }
 });
 
-const setDomApi = function (mixin) {
+function copyApi(api) {
+  return assignOwn({}, api);
+}
+const DefaultDataApi = copyApi(DataApi);
+const DefaultDomApi = copyApi(DomApi);
+const DefaultEventDelegator = copyApi(EventDelegator);
+const DefaultStateApi = copyApi(StateApi);
+function composeClass(BaseClass, properties) {
+  return BaseClass.extend(properties);
+}
+function setClassReference(Class, name, value) {
+  Object.defineProperty(Class.prototype, name, {
+    configurable: true,
+    value,
+    writable: true
+  });
+}
+function setDomApiFor(CollectionView, Region, View, mixin) {
   CollectionView.setDomApi(mixin);
   Region.setDomApi(mixin);
   View.setDomApi(mixin);
-};
-const setDataApi = function (mixin) {
+}
+function setDataApiFor(CollectionView, View, mixin) {
   CollectionView.setDataApi(mixin);
   View.setDataApi(mixin);
-};
-const setStateApi = function (mixin) {
-  Application$1.setStateApi(mixin);
+}
+function setStateApiFor(Application, Behavior, CollectionView, MnObject, View, mixin) {
+  Application.setStateApi(mixin);
   Behavior.setStateApi(mixin);
   CollectionView.setStateApi(mixin);
-  MarionetteObject.setStateApi(mixin);
+  MnObject.setStateApi(mixin);
   View.setStateApi(mixin);
-};
-const setRenderer = function (renderer) {
+}
+function setRendererFor(CollectionView, View, renderer) {
   CollectionView.setRenderer(renderer);
   View.setRenderer(renderer);
-};
-const setEventDelegator = function (delegator) {
+}
+function setEventDelegatorFor(Behavior, CollectionView, View, delegator) {
   Behavior.setEventDelegator(delegator);
   CollectionView.setEventDelegator(delegator);
   View.setEventDelegator(delegator);
-};
+}
+const Region = Region$1;
+const View = View$1;
+const CollectionView = CollectionView$1;
+const Behavior = Behavior$1;
+const MnObject = MarionetteObject;
+const Application = ApplicationBase;
+function setDomApi(mixin) {
+  setDomApiFor(CollectionView, Region, View, mixin);
+}
+function setDataApi(mixin) {
+  setDataApiFor(CollectionView, View, mixin);
+}
+function setStateApi(mixin) {
+  setStateApiFor(Application, Behavior, CollectionView, MnObject, View, mixin);
+}
+function setRenderer(renderer) {
+  setRendererFor(CollectionView, View, renderer);
+}
+function setEventDelegator(delegator) {
+  setEventDelegatorFor(Behavior, CollectionView, View, delegator);
+}
+function createMarionette() {
+  const Data = copyApi(DefaultDataApi);
+  const Dom = copyApi(DefaultDomApi);
+  const Delegator = copyApi(DefaultEventDelegator);
+  const State = copyApi(DefaultStateApi);
+  const runtimeRadio = createRadio();
+  const isolatedRuntimeId = {};
+  const RuntimeRegion = composeClass(Region$1, {
+    Dom
+  });
+  const RuntimeView = composeClass(View$1, {
+    Data,
+    Dom,
+    EventDelegator: Delegator,
+    State,
+    _renderHtml: TemplateRenderMixin._renderHtml,
+    regionClass: RuntimeRegion
+  });
+  const RuntimeCollectionView = composeClass(CollectionView$1, {
+    Data,
+    Dom,
+    EventDelegator: Delegator,
+    State,
+    _renderHtml: TemplateRenderMixin._renderHtml
+  });
+  const RuntimeBehavior = composeClass(Behavior$1, {
+    EventDelegator: Delegator,
+    State
+  });
+  const RuntimeMnObject = composeClass(MarionetteObject, {
+    Radio: runtimeRadio,
+    State
+  });
+  const RuntimeApplication = composeClass(ApplicationBase, {
+    Radio: runtimeRadio,
+    State,
+    regionClass: RuntimeRegion
+  });
+  setClassReference(RuntimeRegion, 'ViewClass', RuntimeView);
+  setClassReference(RuntimeRegion, runtimeId, isolatedRuntimeId);
+  setClassReference(RuntimeView, runtimeId, isolatedRuntimeId);
+  setClassReference(RuntimeCollectionView, 'RegionClass', RuntimeRegion);
+  setClassReference(RuntimeApplication, runtimeId, isolatedRuntimeId);
+  return {
+    Application: RuntimeApplication,
+    Behavior: RuntimeBehavior,
+    CollectionView: RuntimeCollectionView,
+    DataApi: Data,
+    DomApi: Dom,
+    Events,
+    MarionetteError,
+    MnObject: RuntimeMnObject,
+    Radio: runtimeRadio,
+    Region: RuntimeRegion,
+    StateApi: State,
+    VERSION: version,
+    View: RuntimeView,
+    extend,
+    monitorViewEvents,
+    setDataApi(mixin) {
+      setDataApiFor(RuntimeCollectionView, RuntimeView, mixin);
+    },
+    setDomApi(mixin) {
+      setDomApiFor(RuntimeCollectionView, RuntimeRegion, RuntimeView, mixin);
+    },
+    setEventDelegator(delegator) {
+      setEventDelegatorFor(RuntimeBehavior, RuntimeCollectionView, RuntimeView, delegator);
+    },
+    setRenderer(renderer) {
+      setRendererFor(RuntimeCollectionView, RuntimeView, renderer);
+    },
+    setStateApi(mixin) {
+      setStateApiFor(RuntimeApplication, RuntimeBehavior, RuntimeCollectionView, RuntimeMnObject, RuntimeView, mixin);
+    }
+  };
+}
 
-exports.Application = Application$1;
+exports.Application = Application;
 exports.Behavior = Behavior;
 exports.CollectionView = CollectionView;
 exports.DataApi = DataApi;
 exports.DomApi = DomApi;
 exports.Events = Events;
 exports.MarionetteError = MarionetteError;
-exports.MnObject = MarionetteObject;
+exports.MnObject = MnObject;
 exports.Radio = Radio;
 exports.Region = Region;
 exports.StateApi = StateApi;
 exports.VERSION = version;
 exports.View = View;
+exports.createMarionette = createMarionette;
 exports.extend = extend;
 exports.monitorViewEvents = monitorViewEvents;
 exports.setDataApi = setDataApi;

@@ -1,5 +1,9 @@
 ### v5.0.0-alpha.2
 
+* Added optional `createMarionette()` runtime factories with independent class
+  families, mutable adapters, renderer configuration, and Radio channel registries;
+  ordinary named imports remain one default runtime built through the same composition
+  path
 * Made ESM the canonical distribution for new applications while retaining
   CommonJS and both UMD outputs as v5 compatibility distributions; UMD and AMD
   consumers are asked to identify their usage in the public issue tracker before

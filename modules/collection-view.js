@@ -277,7 +277,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
       return this._emptyRegion;
     }
 
-    this._emptyRegion = new Region({ el: emptyEl, replaceElement: false });
+    const RegionClass = this.RegionClass || Region;
+    this._emptyRegion = new RegionClass({ el: emptyEl, replaceElement: false });
 
     this._emptyRegion._parentView = this;
 

@@ -13,6 +13,7 @@ import disposeAll from '../utils/dispose-all.js';
 import Region from './region.js';
 import { buildRegion } from './view-region.js';
 import { setStateApi } from '../runtime/state-api.js';
+import { defaultRuntimeId, runtimeId } from '../runtime/runtime-id.js';
 
 const ClassOptions = [
   'channelName',
@@ -95,6 +96,10 @@ function assertChildAppCanRegister(owner, name, application) {
 
   if (!(application instanceof Application)) {
     throwApplicationOwnershipConflict('A child Application must be an Application instance.');
+  }
+
+  if (application[runtimeId] !== owner[runtimeId]) {
+    throwApplicationOwnershipConflict('A child Application must belong to the same Marionette runtime as its owner.');
   }
 
   if (isSameChildApp(owner, name, application)) { return; }
@@ -393,6 +398,7 @@ async function stopApplication(application, operation, options) {
 export default /* @__PURE__ */ (methods => {
   assignOwn(Application, { extend, setStateApi });
   assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMixin, methods);
+  Object.defineProperty(Application.prototype, runtimeId, { value: defaultRuntimeId });
   return Application;
 })({
   cidPrefix: 'mna',
@@ -528,7 +534,7 @@ export default /* @__PURE__ */ (methods => {
   addChildApp(name, application) {
     if (isTerminal(this)) { return application; }
 
-    if (application instanceof Application && isTerminal(application)) {
+    if (application instanceof Application && application[runtimeId] === this[runtimeId] && isTerminal(application)) {
       return application;
     }
 
@@ -589,6 +595,7 @@ export default /* @__PURE__ */ (methods => {
     if (!region) { return; }
 
     const defaults = {
+      [runtimeId]: this[runtimeId],
       regionClass: this.regionClass
     };
 

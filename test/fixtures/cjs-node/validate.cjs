@@ -3,6 +3,11 @@ const Mn = require('marionette');
 
 assert.strictEqual(typeof Mn.View, 'function');
 assert.strictEqual(typeof Mn.MnObject, 'function');
+assert.strictEqual(typeof Mn.createMarionette, 'function');
+
+const isolated = Mn.createMarionette();
+assert.notStrictEqual(isolated.View, Mn.View);
+assert.notStrictEqual(isolated.Radio, Mn.Radio);
 
 for (const utilityName of [
   'bindEvents',

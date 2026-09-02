@@ -14,6 +14,10 @@ import onceWrap from '../utils/once-wrap.js';
 
 const objectKeys = Object.keys;
 
+function getDebugLog(channel) {
+  return channel._debugLog || debugLog;
+}
+
 function getKeys(object) {
   const type = typeof object;
   return object != null && (type === 'object' || type === 'function') ? objectKeys(object) : [];
@@ -21,7 +25,7 @@ function getKeys(object) {
 
 const registerReply = function(requests, name, callback, context) {
   if (Object.hasOwn(requests, name)) {
-    debugLog('A request was overwritten', name, this.channelName);
+    getDebugLog(this)('A request was overwritten', name, this.channelName);
   }
 
   setProperty(requests, name, {
@@ -161,6 +165,6 @@ export default {
       }
     }
 
-    debugLog('An unhandled request was fired', name, channelName);
+    getDebugLog(this)('An unhandled request was fired', name, channelName);
   },
 };

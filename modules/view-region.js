@@ -18,6 +18,7 @@ import { setEventDelegator } from '../runtime/event-delegator.js';
 import { setRenderer } from '../runtime/renderer.js';
 import { setDataApi } from '../runtime/data-api.js';
 import { setStateApi } from '../runtime/state-api.js';
+import { defaultRuntimeId, runtimeId } from '../runtime/runtime-id.js';
 
 const classErrorName = 'RegionError';
 const destroyTeardown = new WeakMap();
@@ -372,7 +373,8 @@ assignOwn(Region.prototype, CommonMixin, {
 
     const viewOptions = this._getViewOptions(view);
 
-    return new View(viewOptions);
+    const ViewClass = this.ViewClass || View;
+    return new ViewClass(viewOptions);
   },
 
   // This allows for a template or a static string to be
@@ -623,9 +625,14 @@ assignOwn(Region.prototype, CommonMixin, {
   }
 });
 
+Object.defineProperty(Region.prototype, runtimeId, { value: defaultRuntimeId });
+
 // return the region instance from the definition
 function buildRegion(definition, defaults) {
   if (definition instanceof Region) {
+    if (definition[runtimeId] !== (defaults[runtimeId] || defaultRuntimeId)) {
+      throwRegionRegistrationConflict('A Region instance must belong to the same Marionette runtime as its owner.');
+    }
     return definition;
   }
 
@@ -652,6 +659,11 @@ function buildRegionFromObject(defaults, definition) {
   const options = assignOwn({}, defaults, definition);
 
   const RegionClass = options.regionClass;
+
+  const RegionRuntimeId = RegionClass.prototype[runtimeId];
+  if (RegionRuntimeId && RegionRuntimeId !== (defaults[runtimeId] || defaultRuntimeId)) {
+    throwRegionRegistrationConflict('A Region class must belong to the same Marionette runtime as its owner.');
+  }
 
   delete options.regionClass;
 
@@ -715,6 +727,7 @@ const RegionsMixin = {
   // internal method to build and add regions
   _addRegions(regionDefinitions) {
     const defaults = {
+      [runtimeId]: this[runtimeId],
       regionClass: this.regionClass,
       parentEl: () => getValue(this, 'el')
     };
