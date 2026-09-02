@@ -1,0 +1,56 @@
+ROADMAP.md
+  s_d93f45db31dead::t_8d602ae85e229e 481-482,484-486,616-618,770
+test/unit/mixins/behaviors.spec.js
+  s_d93f45db31dead::t_fce1df9cfad696 297-314,359-364
+test/source/validate.mjs
+  s_d93f45db31dead::t_8d602ae85e229e 41,56-82,125-126
+test/unit/backbone.marionette.spec.js
+  s_d93f45db31dead::t_8d602ae85e229e 108-120
+runtime/backbone-data-api.js
+  s_d93f45db31dead::t_fce1df9cfad696 24
+docs/view.rendering.md
+  s_d93f45db31dead::t_8d602ae85e229e 317-318,357,359,366-367
+  s_d93f45db31dead::t_19ceadf6a04848 309,311
+mixins/behaviors.js
+  s_d93f45db31dead::t_fce1df9cfad696 129-131,135,137,155-156
+test/browser/collection-removal-survivors.mjs
+  s_d93f45db31dead::t_8d602ae85e229e 25-26
+test/unit/runtime/data-api.spec.js
+  s_d93f45db31dead::t_fce1df9cfad696 41
+runtime/data-api.js
+  s_d93f45db31dead::t_fce1df9cfad696 23
+test/unit/runtime/backbone-data-api.spec.js
+  s_d93f45db31dead::t_fce1df9cfad696 13
+dist/backbone.cjs
+  s_d93f45db31dead::t_d59e620e595f8f 46
+dist/backbone.js
+  s_d93f45db31dead::t_4a9ad9cf917395 45
+dist/marionette.cjs
+  s_d93f45db31dead::t_393798df6ed0ce 1400-1403,1406,1408,1422-1424,1915
+dist/marionette.js
+  s_d93f45db31dead::t_c4cbcbd5a9e3c6 1396-1399,1402,1404,1418-1420,1911
+dist/marionette.min.js
+  s_d93f45db31dead::t_88f15dd3361039 1
+dist/marionette.min.js.map
+  s_d93f45db31dead::t_21d8e400f56ffc 1
+dist/marionette.umd.js
+  s_d93f45db31dead::t_f3b841d920829c 1407-1410,1413,1415,1429-1431,1922
+dist/marionette.umd.js.map
+  s_d93f45db31dead::t_669f51f0509aa6 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "6204e9007c6a4af3c522b403bd4b3a76c6dca6a9",
+  "prompts": {},
+  "sessions": {
+    "s_d93f45db31dead": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05c69-15cb-71b1-836b-0fdd2f01d1c5",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
