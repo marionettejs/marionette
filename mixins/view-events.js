@@ -1,5 +1,6 @@
 import EventDelegator from '../runtime/event-delegator.js';
 import MarionetteError from '../utils/error.js';
+import disposeAll from '../utils/dispose-all.js';
 import { resolveMethod } from '../modules/common/normalize-methods.js';
 import eachOwn from '../utils/each-own.js';
 import getValue from '../utils/get-value.js';
@@ -41,18 +42,7 @@ export default {
   },
 
   _undelegateViewEvents() {
-    let firstError;
-    const cleanups = this._domEvents.splice(0);
-
-    for (let index = cleanups.length - 1; index >= 0; index--) {
-      try {
-        cleanups[index]();
-      } catch (error) {
-        firstError ||= error;
-      }
-    }
-
-    if (firstError) { throw firstError; }
+    disposeAll(this._domEvents.splice(0));
   },
 
   _rollbackViewEvents() {

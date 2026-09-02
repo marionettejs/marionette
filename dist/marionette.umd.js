@@ -1768,18 +1768,7 @@
       this._domEvents = [];
     },
     _undelegateViewEvents() {
-      let firstError;
-      const cleanups = this._domEvents.splice(0);
-      for (let index = cleanups.length - 1; index >= 0; index--) {
-        try {
-          cleanups[index]();
-        } catch (error) {
-          firstError ||= error;
-        }
-      }
-      if (firstError) {
-        throw firstError;
-      }
+      disposeAll(this._domEvents.splice(0));
     },
     _rollbackViewEvents() {
       try {
@@ -2031,8 +2020,7 @@
       if (this._isDestroyed || this._isDestroying) {
         return this;
       }
-      this._undelegateViewEvents();
-      this._undelegateBehaviorViewEvents();
+      disposeAll([() => this._undelegateBehaviorViewEvents(), () => this._undelegateViewEvents()]);
       return this;
     },
     delegateEntityEvents() {
@@ -2070,31 +2058,32 @@
         this.triggerMethod('before:detach', this);
       }
       this.unbindUIElements();
-      this._undelegateViewEvents();
-      this.Dom.detachEl(this.el);
-      if (shouldTriggerDetach) {
-        this._isAttached = false;
-        this.triggerMethod('detach', this);
-      }
-      this._removeChildren();
-      this._isDestroyed = true;
-      this._isRendered = false;
-      const dataObserverUnsubscribe = this._dataObserverUnsubscribe;
-      delete this._dataObserverUnsubscribe;
-      let dataDisposalError;
-      let hasDataDisposalError = false;
-      try {
-        disposeAll([dataObserverUnsubscribe, () => this._deleteEntityEventHandlers(), () => this._destroyBehaviors(options)]);
-      } catch (error) {
-        dataDisposalError = error;
-        hasDataDisposalError = true;
-      }
-      this.triggerMethod('destroy', this, options);
-      this._triggerEventOnBehaviors('destroy', this, options);
-      this.stopListening();
-      if (hasDataDisposalError) {
-        throw dataDisposalError;
-      }
+      disposeAll([() => {
+        this.Dom.detachEl(this.el);
+        if (shouldTriggerDetach) {
+          this._isAttached = false;
+          this.triggerMethod('detach', this);
+        }
+        this._removeChildren();
+        this._isDestroyed = true;
+        this._isRendered = false;
+        const dataObserverUnsubscribe = this._dataObserverUnsubscribe;
+        delete this._dataObserverUnsubscribe;
+        let dataDisposalError;
+        let hasDataDisposalError = false;
+        try {
+          disposeAll([dataObserverUnsubscribe, () => this._deleteEntityEventHandlers(), () => this._destroyBehaviors(options)]);
+        } catch (error) {
+          dataDisposalError = error;
+          hasDataDisposalError = true;
+        }
+        this.triggerMethod('destroy', this, options);
+        this._triggerEventOnBehaviors('destroy', this, options);
+        this.stopListening();
+        if (hasDataDisposalError) {
+          throw dataDisposalError;
+        }
+      }, () => this._undelegateViewEvents()]);
       return this;
     },
     bindUIElements() {
@@ -3864,11 +3853,7 @@
     },
     destroy() {
       this._isDestroyed = true;
-      this._undelegateViewEvents();
-      this._destroyState();
-      this.stopListening();
-      this.view._removeBehavior(this);
-      this._deleteEntityEventHandlers();
+      disposeAll([() => this._deleteEntityEventHandlers(), () => this.view._removeBehavior(this), () => this.stopListening(), () => this._destroyState(), () => this._undelegateViewEvents()]);
       return this;
     },
     _syncElement() {

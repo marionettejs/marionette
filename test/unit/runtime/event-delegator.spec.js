@@ -2,6 +2,7 @@ import { JSDOM } from 'jsdom';
 import { vi } from 'vitest';
 
 import EventDelegator, { setEventDelegator } from '../../../runtime/event-delegator';
+import Behavior from '../../../modules/behavior';
 import CollectionView from '../../../modules/collection-view';
 import View from '../../../modules/view';
 
@@ -252,6 +253,72 @@ describe('EventDelegator', function() {
 
     expect(firstCleanup).toHaveBeenCalledTimes(1);
     expect(view._domEvents).to.have.lengthOf(0);
+  });
+
+  it('continues undelegating Behavior events when View cleanup throws', function() {
+    const cleanupError = new Error('cleanup failed');
+    const viewCleanup = vi.fn(() => { throw cleanupError; });
+    const behaviorCleanup = vi.fn();
+    const TestBehavior = Behavior.extend({ events: { click() {} } });
+    TestBehavior.setEventDelegator({ delegate: () => behaviorCleanup });
+    const TestView = View.extend({
+      behaviors: [TestBehavior],
+      events: { click() {} }
+    });
+    TestView.setEventDelegator({ delegate: () => viewCleanup });
+    const view = new TestView({ el: rootEl });
+
+    expect(() => view.undelegateEvents()).to.throw(cleanupError);
+    expect(viewCleanup).toHaveBeenCalledTimes(1);
+    expect(behaviorCleanup).toHaveBeenCalledTimes(1);
+
+    view.destroy();
+  });
+
+  it('finishes View teardown when its DOM cleanup throws', function() {
+    const cleanupError = new Error('cleanup failed');
+    const behaviorCleanup = vi.fn();
+    const TestBehavior = Behavior.extend({ events: { click() {} } });
+    TestBehavior.setEventDelegator({ delegate: () => behaviorCleanup });
+    const TestView = View.extend({
+      behaviors: [TestBehavior],
+      events: { click() {} }
+    });
+    TestView.setEventDelegator({
+      delegate: () => () => { throw cleanupError; }
+    });
+    const view = new TestView({ el: rootEl });
+    const behavior = view._behaviors[0];
+    const stopListening = vi.spyOn(view, 'stopListening');
+
+    expect(() => view.destroy()).to.throw(cleanupError);
+    expect(view.isDestroyed()).to.equal(true);
+    expect(behavior._isDestroyed).to.equal(true);
+    expect(behaviorCleanup).toHaveBeenCalledTimes(1);
+    expect(stopListening).toHaveBeenCalledTimes(1);
+    expect(rootEl.isConnected).to.equal(false);
+  });
+
+  it('finishes Behavior teardown when its DOM cleanup throws', function() {
+    const cleanupError = new Error('cleanup failed');
+    const TestBehavior = Behavior.extend({ events: { click() {} } });
+    TestBehavior.setEventDelegator({
+      delegate: () => () => { throw cleanupError; }
+    });
+    const view = new View({ el: rootEl });
+    const behavior = new TestBehavior({}, view);
+    const destroyState = vi.spyOn(behavior, '_destroyState');
+    const stopListening = vi.spyOn(behavior, 'stopListening');
+    const removeBehavior = vi.spyOn(view, '_removeBehavior');
+    const deleteEntityEventHandlers = vi.spyOn(behavior, '_deleteEntityEventHandlers');
+
+    expect(() => behavior.destroy()).to.throw(cleanupError);
+    expect(destroyState).toHaveBeenCalledTimes(1);
+    expect(stopListening).toHaveBeenCalledTimes(1);
+    expect(removeBehavior).toHaveBeenCalledWith(behavior);
+    expect(deleteEntityEventHandlers).toHaveBeenCalledTimes(1);
+
+    view.destroy();
   });
 
   it('uses the current adapter for new registrations and the original cleanup for old ones', function() {

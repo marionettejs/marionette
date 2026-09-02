@@ -191,7 +191,9 @@ before `setElement()` transfers delegation, during destruction, and when
 construction fails. Cleanups run in reverse registration order. Marionette
 attempts every cleanup even if one throws, clears its registry before invoking
 them, and then throws the first cleanup error. A throwing cleanup violates the
-adapter contract; Marionette does not retain it or grow a retry queue.
+adapter contract; Marionette does not retain it or grow a retry queue. View and
+Behavior destruction still completes its remaining lifecycle cleanup before
+propagating that error.
 Constructor rollback likewise attempts every cleanup but preserves the original
 construction error, because the failed instance is not returned to the caller.
 
