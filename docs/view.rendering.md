@@ -311,7 +311,7 @@ import { View } from 'backbone.marionette';
 
 const MyView = View.extend({
   serializeModel() {
-    const data = _.clone(this.model);
+    const data = _.clone(this.Data.serialize(this.model));
 
     // serialize nested model data
     data.subModel = { ...data.subModel };
@@ -358,8 +358,8 @@ import { View } from 'backbone.marionette';
 
 const MyView = View.extend({
   serializeCollection() {
-    return _.map(this.collection, model => {
-      const data = _.clone(model);
+    return _.map(this.Data.items(this.collection), model => {
+      const data = _.clone(this.Data.serialize(model));
 
       // serialize nested model data
       data.subModel = { ...data.subModel };

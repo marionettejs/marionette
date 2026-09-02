@@ -42,7 +42,7 @@ function modelAttributesMatcher(Data, predicate) {
 
     for (let index = 0; index < length; index++) {
       const key = keys[index];
-      if (values[index] !== Data.get(model, key) || !Data.has(model, key)) { return false; }
+      if (!Data.has(model, key) || values[index] !== Data.get(model, key)) { return false; }
     }
     return true;
   };
