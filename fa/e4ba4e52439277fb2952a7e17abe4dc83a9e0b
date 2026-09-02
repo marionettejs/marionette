@@ -1,0 +1,27 @@
+ROADMAP.md
+  s_d93f45db31dead::t_fce539d20c44d7 125-126,307-309,324-326,618-619,699-701,777,883-889
+  s_d93f45db31dead::t_30a2ddc17ce10b 882
+  s_d93f45db31dead::t_49920f45cc9d70 399-403
+  s_d93f45db31dead::t_d8408bc3681c54 776,778-779,788-789,839,841-842
+  s_d93f45db31dead::t_a5d6a6045b55aa 502-508,734-743,981
+  s_d93f45db31dead::t_cd39fd68b5fb8b 161,250,299,305-306,331,398,655,840
+  s_d93f45db31dead::t_4bd5535412c22b 162
+  s_d93f45db31dead::t_7505c809405ade 123-124,127-129,131-133,232-236,251-253,296-298,300-304,310-323,327-330,332-334
+  s_d93f45db31dead::t_4b231e77ff6670 368-369,418-420,494-496,617,656-657,689-690
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "fae4ba4e52439277fb2952a7e17abe4dc83a9e0b",
+  "prompts": {},
+  "sessions": {
+    "s_d93f45db31dead": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05c69-15cb-71b1-836b-0fdd2f01d1c5",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
