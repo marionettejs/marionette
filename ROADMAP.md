@@ -392,8 +392,8 @@ current-evidence findings:
 - **Selected:** V5 owns a neutral DataApi boundary for model identity, value reads,
   serialization, ordered collection items, entity subscriptions, and normalized
   structural collection changes. Core retains that contract, `setDataApi()`, and the
-  dependency-free plain-object and array default. The existing `backbone.js` installer
-  and `runtime/backbone-data-api.js` implementation move together into
+  dependency-free default for plain objects and arrays. The existing `backbone.js`
+  installer and `runtime/backbone-data-api.js` implementation move together into
   `@marionette/adapters/backbone` as one atomic optional integration, keeping `cid`,
   `attributes`, `models`, and Backbone event payloads out of core. This avoids making
   the temporary Backbone-shaped protocol a v5 public contract that would need removal
@@ -643,10 +643,10 @@ instructions, and every release blocker maps to this strategy.
 - Move first-party Backbone and jQuery runtime adapters into a separately published
   `@marionette/adapters` workspace package with only explicit `./backbone` and
   `./dom/jquery` exports. Move the current Backbone installer and Backbone DataApi
-  together behind `./backbone`; do not extract core's DataApi contract, setter, or
-  plain-data default. Remove the old core subpaths rather than forwarding them, keep
-  peers optional and isolated, and make build, package, performance, and release
-  verification require both distributions.
+  together behind `./backbone`; do not extract core's DataApi contract, `setDataApi()`,
+  or its default for plain objects and arrays. Remove the old core subpaths rather
+  than forwarding them, keep peers optional and isolated, and make build, package,
+  performance, and release verification require both distributions.
 - Remove the module-global feature registry as selected through the v3/v4
   compatibility audit. Preserve the canonical default behavior through existing
   local View and trigger options, migrate application-owned values to State or
