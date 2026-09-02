@@ -453,7 +453,7 @@
     {
       "code": "MN0027",
       "slug": "feature-name-invalid",
-      "status": "active",
+      "status": "retired",
       "category": "configuration",
       "severity": "error",
       "objects": [
@@ -461,7 +461,7 @@
         "CollectionView",
         "View"
       ],
-      "remediation": "Pass a non-empty string feature name to setEnabled; documented Marionette names and application-owned names are supported.",
+      "remediation": "The v5 feature registry is removed. Configure child event prefixes per View, trigger behavior per trigger, and application values through State or explicit configuration.",
       "docsAnchor": "/errors/MN0027/",
       "surfaces": [
         "runtime"

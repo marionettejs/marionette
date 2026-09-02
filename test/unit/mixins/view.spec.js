@@ -1,4 +1,3 @@
-import { setEnabled } from '../../../index.js';
 import Backbone from 'backbone';
 import Behavior from '../../../modules/behavior';
 import CollectionView from '../../../modules/collection-view';
@@ -538,37 +537,9 @@ describe('view mixin', function() {
       });
     });
 
-    describe('when childViewEventPrefix flag is false', function() {
-      let myView;
-
-      beforeEach(function() {
-        setEnabled('childViewEventPrefix', false);
-        myView = new View();
-      });
-
-      afterEach(function() {
-        setEnabled('childViewEventPrefix', true);
-      });
-
-      it('should set childViewEventPrefix to false', function() {
-        expect(myView._eventPrefix).to.be.false;
-      });
-    });
-
-    describe('when childViewEventPrefix flag is true', function() {
-      let myView;
-
-      beforeEach(function() {
-        setEnabled('childViewEventPrefix', true);
-        myView = new View();
-      });
-
-      afterEach(function() {
-        setEnabled('childViewEventPrefix', false);
-      });
-
-      it('should set childViewEventPrefix to "childview"', function() {
-        expect(myView._eventPrefix).to.equal('childview:');
+    describe('when childViewEventPrefix is not configured', function() {
+      it('should disable prefixed child event forwarding', function() {
+        expect(new View()._eventPrefix).to.be.false;
       });
     });
 

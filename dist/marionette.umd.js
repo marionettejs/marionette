@@ -1587,25 +1587,6 @@
     }
   };
 
-  const FEATURES = {
-    __proto__: null,
-    childViewEventPrefix: false,
-    triggersStopPropagation: true,
-    triggersPreventDefault: true
-  };
-  function isEnabled(name) {
-    return typeof name === 'string' && !!FEATURES[name];
-  }
-  function setEnabled(name, state) {
-    if (typeof name !== 'string' || !name.trim()) {
-      throw new MarionetteError({
-        code: 'MN0027',
-        message: 'The feature name must be a non-empty string.'
-      });
-    }
-    return FEATURES[name] = state;
-  }
-
   function setEventDelegator$1(mixin) {
     this.prototype.EventDelegator = assignOwn({}, this.prototype.EventDelegator, mixin);
     return this;
@@ -1673,14 +1654,8 @@
       };
     }
     const eventName = triggerDef.event;
-    let shouldPreventDefault = !!triggerDef.preventDefault;
-    if (isEnabled('triggersPreventDefault')) {
-      shouldPreventDefault = triggerDef.preventDefault !== false;
-    }
-    let shouldStopPropagation = !!triggerDef.stopPropagation;
-    if (isEnabled('triggersStopPropagation')) {
-      shouldStopPropagation = triggerDef.stopPropagation !== false;
-    }
+    const shouldPreventDefault = triggerDef.preventDefault !== false;
+    const shouldStopPropagation = triggerDef.stopPropagation !== false;
     return function (event, ...args) {
       if (shouldPreventDefault) {
         event.preventDefault();
@@ -1967,8 +1942,7 @@
       this._eventPrefix = this._getEventPrefix();
     },
     _getEventPrefix() {
-      const defaultPrefix = isEnabled('childViewEventPrefix') ? 'childview' : false;
-      const prefix = getValue(this, 'childViewEventPrefix', defaultPrefix);
+      const prefix = getValue(this, 'childViewEventPrefix', false);
       return prefix === false ? prefix : prefix + ':';
     },
     _proxyChildViewEvents(view) {
@@ -4320,10 +4294,8 @@
   exports.VERSION = version;
   exports.View = View;
   exports.extend = extend;
-  exports.isEnabled = isEnabled;
   exports.monitorViewEvents = monitorViewEvents;
   exports.setDomApi = setDomApi;
-  exports.setEnabled = setEnabled;
   exports.setEventDelegator = setEventDelegator;
   exports.setRenderer = setRenderer;
 
