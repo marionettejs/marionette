@@ -153,30 +153,28 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
           ids: [...collectionView.el.children].map(element => Number(element.dataset.id))
         };
 
-        if (name === 'default collection order') {
-          const nodes = [...collectionView.el.children];
-          collection.models.reverse();
-          collection.trigger('sort', collection);
-          Object.assign(outcome, {
-            reordered: true,
-            nativeStatePreservingMove: typeof collectionView.container.moveBefore === 'function',
-            reorderFocused: document.activeElement === focusedInput,
-            reorderSelectionStart: focusedInput.selectionStart,
-            reorderSelectionEnd: focusedInput.selectionEnd,
-            reorderMediaNodePreserved: focusedView.el.querySelector('video') === media,
-            reorderFirstConnected: firstNode.connectedCount,
-            reorderFocusedConnected: focusedView.el.connectedCount,
-            reorderLastConnected: lastNode.connectedCount,
-            reorderFirstDisconnected: firstNode.disconnectedCount || 0,
-            reorderFocusedDisconnected: focusedView.el.disconnectedCount || 0,
-            reorderLastDisconnected: lastNode.disconnectedCount || 0,
-            reorderMoveCount: (firstNode.movedCount || 0) +
-              (focusedView.el.movedCount || 0) + (lastNode.movedCount || 0),
-            reorderRenderCount: focusedView.renderCount,
-            reorderNodesReversed: [...collectionView.el.children]
-              .every((element, index) => element === nodes[nodes.length - index - 1])
-          });
-        }
+        const nodes = [...collectionView.el.children];
+        collection.models.reverse();
+        collection.trigger('sort', collection);
+        Object.assign(outcome, {
+          reordered: true,
+          nativeStatePreservingMove: typeof collectionView.container.moveBefore === 'function',
+          reorderFocused: document.activeElement === focusedInput,
+          reorderSelectionStart: focusedInput.selectionStart,
+          reorderSelectionEnd: focusedInput.selectionEnd,
+          reorderMediaNodePreserved: focusedView.el.querySelector('video') === media,
+          reorderFirstConnected: firstNode.connectedCount,
+          reorderFocusedConnected: focusedView.el.connectedCount,
+          reorderLastConnected: lastNode.connectedCount,
+          reorderFirstDisconnected: firstNode.disconnectedCount || 0,
+          reorderFocusedDisconnected: focusedView.el.disconnectedCount || 0,
+          reorderLastDisconnected: lastNode.disconnectedCount || 0,
+          reorderMoveCount: (firstNode.movedCount || 0) +
+            (focusedView.el.movedCount || 0) + (lastNode.movedCount || 0),
+          reorderRenderCount: focusedView.renderCount,
+          reorderNodesReversed: [...collectionView.el.children]
+            .every((element, index) => element === nodes[nodes.length - index - 1])
+        });
 
         collectionView.destroy();
 

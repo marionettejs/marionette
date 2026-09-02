@@ -3314,7 +3314,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     if (this._isDestroying || this._isDestroyed) {
       return;
     }
-    if (!this.sortWithCollection || this.viewComparator === false) {
+    if (!this.sortWithCollection) {
       return;
     }
     this._setChildrenFromSnapshot(snapshot);
@@ -3364,7 +3364,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
       return view;
     });
     this._detachChildren(removedViews);
-    if (this.sortWithCollection && this.viewComparator !== false) {
+    if (this.sortWithCollection) {
       this._setChildrenFromSnapshot(snapshot);
     }
     this._reconcileChildren([...(addedViews || []), ...updatedViews], updatedViews.length ? false : addedViews);

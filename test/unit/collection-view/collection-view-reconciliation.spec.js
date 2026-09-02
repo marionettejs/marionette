@@ -109,6 +109,44 @@ describe('CollectionView normalized reconciliation', function() {
     expect(view.children.toArray()).to.deep.equal([views[2], views[0], views[1]]);
     expect([...view.el.children]).to.deep.equal([elements[2], elements[0], elements[1]]);
     expect(views.map(child => child.renderCount)).to.deep.equal([1, 1, 1]);
+
+    view.destroy();
+  });
+
+  it('follows source order without an index comparator', function() {
+    const items = [
+      { id: 1, name: 'one' },
+      { id: 2, name: 'two' },
+      { id: 3, name: 'three' }
+    ];
+    const source = { items };
+    const view = new ListView({ collection: source, viewComparator: false });
+    view.render();
+    const views = items.map(item => view.children.findByModel(item));
+    const elements = views.map(child => child.el);
+    const indexComparator = this.sinon.spy(view, '_viewComparator');
+
+    source.items = [items[2], items[0], items[1]];
+    source.notify({ kind: 'reorder' });
+
+    expect(indexComparator).to.not.have.been.called;
+    expect(view.children.toArray()).to.deep.equal([views[2], views[0], views[1]]);
+    expect([...view.el.children]).to.deep.equal([elements[2], elements[0], elements[1]]);
+    expect(views.map(child => child.renderCount)).to.deep.equal([1, 1, 1]);
+
+    const inserted = { id: 4, name: 'four' };
+    source.items = [items[2], inserted, items[0], items[1]];
+    source.notify({ kind: 'update', added: [inserted], removed: [], updated: [] });
+
+    const insertedView = view.children.findByModel(inserted);
+    expect(indexComparator).to.not.have.been.called;
+    expect(view.children.toArray()).to.deep.equal([
+      views[2], insertedView, views[0], views[1]
+    ]);
+    expect([...view.el.children]).to.deep.equal([
+      elements[2], insertedView.el, elements[0], elements[1]
+    ]);
+    expect(insertedView.renderCount).to.equal(1);
     view.destroy();
   });
 
