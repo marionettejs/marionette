@@ -97,8 +97,8 @@ to accept selector strings.
 
 ## Distribution formats
 
-ES modules are the canonical path for new applications. Use named `import`
-statements so current bundlers can select the package's ESM entry.
+ES modules are the canonical path for new applications. Use `import` syntax so
+package export conditions select the ESM entry, and use Marionette's named exports.
 
 Marionette also ships compatibility distributions throughout v5:
 
