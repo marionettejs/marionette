@@ -3,6 +3,22 @@
 
 import assignIn, { assignOwn } from './assign-in.js';
 
+function defineOwnDataProperties(target, source) {
+  const type = typeof source;
+  if (source == null || type !== 'object' && type !== 'function') { return target; }
+
+  for (const key of Object.keys(source)) {
+    Object.defineProperty(target, key, {
+      configurable: true,
+      enumerable: true,
+      value: source[key],
+      writable: true
+    });
+  }
+
+  return target;
+}
+
 // Borrowed from backbone.js
 export default function(protoProps, staticProps) {
   const parent = this;
@@ -24,7 +40,7 @@ export default function(protoProps, staticProps) {
   // Set the prototype chain to inherit from `parent`, without calling
   // `parent`'s constructor function and add the prototype properties.
   child.prototype = Object.create(parent.prototype);
-  assignOwn(child.prototype, protoProps);
+  defineOwnDataProperties(child.prototype, protoProps);
   child.prototype.constructor = child;
 
   // Set a convenience property in case the parent's prototype is needed
