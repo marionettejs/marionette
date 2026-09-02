@@ -3353,6 +3353,34 @@
       if (this._isDestroying || this._isDestroyed) {
         return;
       }
+      const updateEntries = changes.updated.map(({
+        key,
+        previous,
+        current
+      }) => {
+        const view = this._children.findByKey(key);
+        if (!view) {
+          throwCollectionProtocolError(`No child View exists for updated key "${String(key)}".`);
+        }
+        return {
+          current,
+          previous,
+          view
+        };
+      });
+      const replacementViews = [];
+      try {
+        for (const {
+          current,
+          previous
+        } of updateEntries) {
+          if (previous !== current) {
+            replacementViews.push(this._createChildView(current));
+          }
+        }
+      } catch (error) {
+        disposeAll(replacementViews.map(view => () => this._destroyChildView(view)), error);
+      }
       const removedViews = changes.removed.map(({
         key
       }) => {
@@ -3366,23 +3394,23 @@
         item
       }) => item));
       const replacedViews = [];
-      const updatedViews = changes.updated.map(({
-        key,
+      const updatedViews = [];
+      let replacementIndex = 0;
+      for (const {
+        current,
         previous,
-        current
-      }) => {
-        const view = this._children.findByKey(key);
-        if (!view) {
-          throwCollectionProtocolError(`No child View exists for updated key "${String(key)}".`);
-        }
+        view
+      } of updateEntries) {
         if (previous !== current) {
           this._removeChild(view);
           removedViews.push(view);
-          replacedViews.push(this._addChildModel(current));
-          return;
+          const replacementView = replacementViews[replacementIndex++];
+          this._addChild(replacementView);
+          replacedViews.push(replacementView);
+        } else {
+          updatedViews.push(view);
         }
-        return view;
-      }).filter(Boolean);
+      }
       this._detachChildren(removedViews);
       if (this.sortWithCollection) {
         this._setChildrenFromSnapshot(snapshot);

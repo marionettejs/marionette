@@ -78,7 +78,10 @@ same-key replacement, they are different objects. This distinction lets core
 distinguish a safe in-place render from an identity replacement. Marionette
 destroys and recreates the child View for an immutable same-key replacement so
 constructor options, `initialize`, Behaviors, entity events, and other
-model-dependent state all belong to the current object.
+model-dependent state all belong to the current object. When one observation
+contains multiple replacements, Marionette constructs every replacement before
+removing any existing child. A construction failure destroys the staged Views
+and leaves the current children and DOM intact.
 
 An immutable same-key replacement belongs only in `updated`, not in `removed`
 and `added`. Replacing an item with one that has a different stable key is a
