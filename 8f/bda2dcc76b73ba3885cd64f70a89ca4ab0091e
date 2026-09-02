@@ -1,0 +1,23 @@
+evidence/performance-budget-amendments/BA0005/base.json
+  s_3a0cccbf9b5a9a::t_b2b5470cf4dfdd 1-677
+evidence/performance-budget-amendments/BA0005/prototype-contract.json
+  s_3a0cccbf9b5a9a::t_b2b5470cf4dfdd 1-343
+evidence/performance-budget-amendments/BA0005/prototype.json
+  s_3a0cccbf9b5a9a::t_b2b5470cf4dfdd 1-688
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "8fbda2dcc76b73ba3885cd64f70a89ca4ab0091e",
+  "prompts": {},
+  "sessions": {
+    "s_3a0cccbf9b5a9a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a060cc-eff9-7782-9438-ed00fe71ea1d",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
