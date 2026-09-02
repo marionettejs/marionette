@@ -1,0 +1,55 @@
+test/unit/collection-view/collection-view-lifecycle.spec.js
+  s_d93f45db31dead::t_e472604998332a 473-476,478-485,487-501
+  s_d93f45db31dead::t_0358eef9406f83 477,486
+modules/view-region.js
+  s_d93f45db31dead::t_708a015a761435 600-602,612-615,617
+  s_d93f45db31dead::t_2e4aee017521f9 598
+  s_d93f45db31dead::t_d9d38697777d0c 603
+  s_d93f45db31dead::t_913046e6722510 604,608-609
+  s_d93f45db31dead::t_28c0d97f8efa71 605-607,610
+dist/marionette.umd.js
+  s_d93f45db31dead::t_e6e5f285cb9e57 3752
+  s_d93f45db31dead::t_4d4a1d148deb9c 1272,2555,3753
+  s_d93f45db31dead::t_0233dbadce7ad4 2557,2560-2561,2564-2566,2568-2571,3779-3780,3783
+test/unit/collection-view/collection-view-children.spec.js
+  s_d93f45db31dead::t_3a503495aba51c 578-601
+test/unit/region-lifecycle.spec.js
+  s_d93f45db31dead::t_e472604998332a 690-727
+  s_d93f45db31dead::t_3a503495aba51c 728-765
+utils/dispose-all.js
+  s_d93f45db31dead::t_6bd3c2ae358362 6
+dist/marionette.umd.js.map
+  s_d93f45db31dead::t_e9f8e8ffb94169 1
+dist/marionette.min.js.map
+  s_d93f45db31dead::t_aaf61adffdb80b 1
+dist/marionette.min.js
+  s_d93f45db31dead::t_ab01f6e8edf8aa 1
+dist/marionette.cjs
+  s_d93f45db31dead::t_b55ba515fc3bff 3745
+  s_d93f45db31dead::t_49e9d8e583c9a2 1265,2548,3746
+  s_d93f45db31dead::t_610dae02b4b018 2550,2553-2554,2557-2559,2561-2564,3772-3773,3776
+modules/collection-view.js
+  s_d93f45db31dead::t_3aa2f53c45e972 923-924,926-933
+  s_d93f45db31dead::t_95a06d56a61ecc 885
+  s_d93f45db31dead::t_cd8d6b2b870889 884
+dist/marionette.js
+  s_d93f45db31dead::t_3bff919c05108c 1261,2544,3742
+  s_d93f45db31dead::t_22d0580c806c1b 3741
+  s_d93f45db31dead::t_ba89006c2cce0b 2546,2549-2550,2553-2555,2557-2560,3768-3769,3772
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "895f353562e6afb282f1237df4a15863c4e94330",
+  "prompts": {},
+  "sessions": {
+    "s_d93f45db31dead": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05c69-15cb-71b1-836b-0fdd2f01d1c5",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
