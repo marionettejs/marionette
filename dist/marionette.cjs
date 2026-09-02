@@ -1971,7 +1971,9 @@ const ViewMixin = {
     return !!this._isAttached;
   },
   _rollbackView(error) {
-    disposeAll([() => this.stopListening(), () => this._destroyState(), () => this._rollbackBehaviors(), () => this.undelegateEntityEvents(), () => this._undelegateViewEvents()], error);
+    const dataObserverUnsubscribe = this._dataObserverUnsubscribe;
+    delete this._dataObserverUnsubscribe;
+    disposeAll([() => this.stopListening(), () => this._destroyState(), () => this._rollbackBehaviors(), () => this.undelegateEntityEvents(), () => this._undelegateViewEvents(), () => this._removeChildren(), dataObserverUnsubscribe], error);
   },
   delegateEvents(events) {
     if (this._isDestroying || this._isDestroyed) {
