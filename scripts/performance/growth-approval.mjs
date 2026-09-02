@@ -1,4 +1,5 @@
 import { execFile } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import process from 'node:process';
@@ -11,13 +12,22 @@ import {
 
 const marker = '<!-- marionette-performance-growth-approval:v1 -->';
 const requiredRecordFields = ['approvedPaths', 'evidenceUrls', 'headSha', 'issueUrl', 'schemaVersion'];
-const optionalRecordFields = ['approvedNewArtifacts', 'approvedNewSubpaths'];
+const optionalRecordFields = [
+  'approvedNewArtifacts',
+  'approvedNewSubpaths',
+  'approvedTimingHarnessRevision',
+];
 const recordFields = [...requiredRecordFields, ...optionalRecordFields];
 const allowedAuthorAssociations = new Set(['COLLABORATOR', 'MEMBER', 'OWNER']);
 const bodyLimit = 16 * 1024;
 const execFileAsync = promisify(execFile);
 const pathLimit = 50;
 const evidenceLimit = 20;
+const timingHarnessPath = 'scripts/performance/timing.mjs';
+
+function validSha256(value) {
+  return typeof value === 'string' && /^[a-f\d]{64}$/.test(value);
+}
 
 function diagnostic(code, message, commentUrl) {
   return commentUrl ? { code, commentUrl, message } : { code, message };
@@ -106,6 +116,9 @@ function canonicalRecord(record) {
   if (Object.hasOwn(record, 'approvedNewArtifacts')) {
     canonical.approvedNewArtifacts = record.approvedNewArtifacts;
   }
+  if (Object.hasOwn(record, 'approvedTimingHarnessRevision')) {
+    canonical.approvedTimingHarnessRevision = record.approvedTimingHarnessRevision;
+  }
   canonical.evidenceUrls = record.evidenceUrls;
   return canonical;
 }
@@ -186,7 +199,13 @@ function validateRecord(record, policy) {
   }
   const hasNewSubpaths = Object.hasOwn(record, 'approvedNewSubpaths');
   const hasNewArtifacts = Object.hasOwn(record, 'approvedNewArtifacts');
-  if (!uniqueSortedStrings(record.approvedPaths, pathLimit, hasNewSubpaths && hasNewArtifacts) ||
+  const hasTimingRevision = Object.hasOwn(record, 'approvedTimingHarnessRevision');
+  const allowsEmptyPaths = (hasNewSubpaths && hasNewArtifacts) || hasTimingRevision;
+  if (!uniqueSortedStrings(
+    record.approvedPaths,
+    pathLimit,
+    allowsEmptyPaths
+  ) ||
       !record.approvedPaths.every(validArtifactPath)) {
     diagnostics.push(diagnostic(
       'GROWTH_APPROVAL_PATHS',
@@ -205,6 +224,12 @@ function validateRecord(record, policy) {
     diagnostics.push(diagnostic(
       'GROWTH_APPROVAL_NEW_ARTIFACTS',
       'Approval approvedNewArtifacts must contain sorted, unique safe paths with full non-negative integer Brotli sizes'
+    ));
+  }
+  if (hasTimingRevision && !validSha256(record.approvedTimingHarnessRevision)) {
+    diagnostics.push(diagnostic(
+      'GROWTH_APPROVAL_TIMING_REVISION',
+      'Approval approvedTimingHarnessRevision must be a lowercase 64-character SHA-256'
     ));
   }
   if (!uniqueSortedStrings(record.evidenceUrls, evidenceLimit) ||
@@ -361,7 +386,29 @@ function validForbiddenExternalImportsTransition(authority, candidate) {
   return authority.forbiddenExternalImports.every(value => candidateImports.has(value));
 }
 
-export function validateCandidateGrowthContract(authority, candidate, { budgetAmendment } = {}) {
+function timingHarnessTransition(authority, candidate, timingHarnessRevision) {
+  if (!Object.hasOwn(authority, 'timing')) {
+    return !Object.hasOwn(candidate, 'timing');
+  }
+  if (!validSha256(timingHarnessRevision) ||
+      candidate?.timing?.harnessRevision !== timingHarnessRevision) {
+    return false;
+  }
+  if (isDeepStrictEqual(authority.timing, candidate.timing)) {
+    return true;
+  }
+
+  return isDeepStrictEqual(candidate.timing, {
+    ...authority.timing,
+    harnessRevision: timingHarnessRevision,
+  });
+}
+
+export function validateCandidateGrowthContract(
+  authority,
+  candidate,
+  { budgetAmendment, timingHarnessRevision } = {}
+) {
   const violations = [];
   if (!authority || typeof authority !== 'object' || !candidate || typeof candidate !== 'object') {
     return ['Authority and candidate performance contracts must be objects'];
@@ -388,6 +435,12 @@ export function validateCandidateGrowthContract(authority, candidate, { budgetAm
     if (key === 'toolchain') {
       if (!validReleaseProfileTransition(authority.toolchain, candidate.toolchain)) {
         violations.push('Candidate performance contract changes exact-base toolchain beyond releaseProfile.sha256');
+      }
+      continue;
+    }
+    if (key === 'timing') {
+      if (!timingHarnessTransition(authority, candidate, timingHarnessRevision)) {
+        violations.push('Candidate performance contract timing must match the committed timing harness and may change only harnessRevision');
       }
       continue;
     }
@@ -603,6 +656,7 @@ export function requiredNewProductionApproval({
   budgetAmendment,
   candidateContract,
   currentReport,
+  timingHarnessRevision,
 }) {
   const baseViolations = reportContractViolations(
     baseReport,
@@ -616,6 +670,7 @@ export function requiredNewProductionApproval({
   const effectiveContract = candidateContract || authorityContract;
   const contractViolations = validateCandidateGrowthContract(authorityContract, effectiveContract, {
     budgetAmendment,
+    timingHarnessRevision,
   });
   if (contractViolations.length) {
     throw new Error(contractViolations.join('; '));
@@ -722,11 +777,13 @@ export function validateGrowthApproval({
   policy,
   pullRequestNumber,
   thresholdPercent,
+  timingHarnessRevision,
 }) {
   let required = [];
   let newArtifacts = [];
   let newProductionEnforced = false;
   let newSubpaths = [];
+  let requiredTimingHarnessRevision = null;
   const diagnostics = validateGrowthApprovalPolicy(policy);
   const consumingBudget = budgetAmendment?.status === 'accepted' &&
     budgetAmendment.mode === 'consume';
@@ -743,12 +800,17 @@ export function validateGrowthApproval({
       consumingBudget ? 0 : thresholdPercent
     );
     if (authorityContract) {
+      if (candidateContract &&
+          !isDeepStrictEqual(authorityContract.timing, candidateContract.timing)) {
+        requiredTimingHarnessRevision = candidateContract?.timing?.harnessRevision || null;
+      }
       const validated = requiredNewProductionApproval({
         authorityContract,
         baseReport,
         budgetAmendment,
         candidateContract,
         currentReport,
+        timingHarnessRevision,
       });
       newArtifacts = validated.artifacts;
       newProductionEnforced = validated.enforced;
@@ -780,6 +842,7 @@ export function validateGrowthApproval({
     newProductionEnforced,
     newSubpaths,
     required,
+    requiredTimingHarnessRevision,
     schemaVersion: 1,
     status: 'required',
     thresholdPercent,
@@ -800,7 +863,7 @@ export function validateGrowthApproval({
     result.status = 'blocked';
     return result;
   }
-  if (!required.length && (!newProductionEnforced ||
+  if (!required.length && !requiredTimingHarnessRevision && (!newProductionEnforced ||
       !newArtifacts.length && !newSubpaths.length)) {
     result.status = 'not-required';
     return result;
@@ -884,6 +947,7 @@ export function validateGrowthApproval({
       approvedNewArtifacts: parsed.approval.approvedNewArtifacts,
       approvedNewSubpaths: parsed.approval.approvedNewSubpaths,
       approvedPaths: parsed.approval.approvedPaths,
+      approvedTimingHarnessRevision: parsed.approval.approvedTimingHarnessRevision,
       authorLogin,
       commentId: comment.id,
       commentUrl,
@@ -952,6 +1016,17 @@ export function validateGrowthApproval({
     }
   }
 
+  if ((result.approval.approvedTimingHarnessRevision || null) !==
+      requiredTimingHarnessRevision) {
+    result.status = 'invalid';
+    result.diagnostics.push(diagnostic(
+      'GROWTH_APPROVAL_TIMING_REVISION_MISMATCH',
+      `Approval timing harness revision must be ${requiredTimingHarnessRevision || 'absent'}`,
+      result.approval.commentUrl
+    ));
+    return result;
+  }
+
   const availableEvidence = new Set(evidenceComments.comments
     .filter(comment => comment?.user?.type === 'User' &&
       allowedAuthorAssociations.has(comment?.author_association) &&
@@ -993,6 +1068,24 @@ async function currentCheckoutHead() {
     encoding: 'utf8',
   });
   return stdout.trim();
+}
+
+export async function committedTimingHarnessRevision(checkoutRoot = process.cwd()) {
+  const { stdout: entry } = await execFileAsync(
+    'git',
+    ['ls-tree', 'HEAD', '--', timingHarnessPath],
+    { cwd: checkoutRoot, encoding: 'utf8' }
+  );
+  const match = entry.trim().match(/^100644 blob ([a-f\d]{40})\t(.+)$/);
+  if (!match || match[2] !== timingHarnessPath) {
+    throw new Error(`Committed ${timingHarnessPath} must be a non-executable regular file`);
+  }
+  const { stdout: contents } = await execFileAsync(
+    'git',
+    ['cat-file', 'blob', match[1]],
+    { cwd: checkoutRoot, encoding: null }
+  );
+  return createHash('sha256').update(contents).digest('hex');
 }
 
 function parsePullRequestNumber(value) {
@@ -1037,6 +1130,7 @@ function blockedResult(error, headSha = null) {
     newProductionEnforced: false,
     newSubpaths: [],
     required: [],
+    requiredTimingHarnessRevision: null,
     schemaVersion: 1,
     status: 'blocked',
     thresholdPercent: null,
@@ -1073,6 +1167,7 @@ export async function main(args = process.argv.slice(2)) {
         readJson(getArgument(args, '--comments')),
         readJson(getArgument(args, '--evidence-comments')),
       ]);
+    const timingHarnessRevision = await committedTimingHarnessRevision();
     let hasBudgetAmendmentAuthority = Boolean(identity);
     try {
       await readFile(resolve(
@@ -1112,6 +1207,7 @@ export async function main(args = process.argv.slice(2)) {
       policy: contract.pullRequestGrowthApproval,
       pullRequestNumber,
       thresholdPercent: contract.thresholds?.pullRequestApprovalPercent,
+      timingHarnessRevision,
     });
   } catch (error) {
     result = blockedResult(error, headSha);
