@@ -82,7 +82,6 @@ describe('EventDelegator', function() {
 
     expect(addEventListener).toHaveBeenCalledWith('focus', registeredHandler, true);
     expect(removeEventListener.mock.calls).to.deep.equal([
-      ['focus', registeredHandler, true],
       ['focus', registeredHandler, true]
     ]);
   });
