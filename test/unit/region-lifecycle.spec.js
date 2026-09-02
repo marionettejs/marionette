@@ -687,6 +687,44 @@ describe('Region lifecycle contract', function() {
     owner.destroy();
   });
 
+  it('preserves a reset error when owner reference cleanup also throws', function() {
+    const resetError = new Error('child destroy failed');
+    const referenceError = new Error('owner reference cleanup failed');
+    const owner = new View({
+      regions: {
+        content: '.content',
+      },
+      template() {
+        return '<div class="content"></div>';
+      },
+    });
+    const ThrowingView = TestView.extend({
+      destroy() {
+        TestView.prototype.destroy.call(this);
+        throw resetError;
+      },
+    });
+
+    owner.render();
+    const ownedRegion = owner.getRegion('content');
+    const child = new ThrowingView();
+    const removeReferences = owner._removeReferences;
+    ownedRegion.show(child);
+    this.sinon.stub(owner, '_removeReferences').callsFake(function(name) {
+      removeReferences.call(this, name);
+      throw referenceError;
+    });
+
+    expect(() => ownedRegion.destroy()).to.throw(resetError);
+
+    expect(child.isDestroyed()).to.be.true;
+    expect(owner.getRegion('content')).to.be.undefined;
+    expect(ownedRegion.getOwner()).to.be.undefined;
+    expect(ownedRegion.getName()).to.be.undefined;
+
+    owner.destroy();
+  });
+
   it('ignores show once destruction begins before resolving or mutating ownership', function() {
     const view = new TestView();
     const destroyedView = new TestView();

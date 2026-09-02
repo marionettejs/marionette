@@ -595,21 +595,26 @@ assignOwn(Region.prototype, CommonMixin, {
     this._isDestroyed = true;
 
     const currentView = this.currentView;
-    let isReset = false;
+    let isReset;
     destroyTeardown.set(this, 'reset');
-    try {
-      this.reset(options);
-      isReset = true;
-    } finally {
-      destroyTeardown.delete(this);
-      if (isReset || currentView && this.currentView !== currentView) {
-        if (this._parentView && this._name !== undefined) {
-          this._parentView._removeReferences(this._name);
+    disposeAll([
+      () => {
+        destroyTeardown.delete(this);
+        if (isReset || currentView && this.currentView !== currentView) {
+          const parentView = this._parentView;
+          const name = this._name;
+          delete this._parentView;
+          delete this._name;
+          if (parentView && name !== undefined) {
+            parentView._removeReferences(name);
+          }
         }
-        delete this._parentView;
-        delete this._name;
+      },
+      () => {
+        this.reset(options);
+        isReset = true;
       }
-    }
+    ]);
 
     this.triggerMethod('destroy', this, options);
     this.stopListening();
