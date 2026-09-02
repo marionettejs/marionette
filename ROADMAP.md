@@ -392,7 +392,12 @@ current-evidence findings:
 - **Selected:** V5 owns a neutral DataApi boundary for model identity, value reads,
   serialization, ordered collection items, entity subscriptions, and normalized
   structural collection changes. Core retains that contract, `setDataApi()`, and the
-  dependency-free default for plain objects and arrays. The existing `backbone.js`
+  dependency-free default for plain objects and arrays. Plain arrays are static ordered
+  snapshots: mutating one does not create a live source, and an explicit CollectionView
+  render rebuilds its collection-derived children. A live source exposes its ordered
+  items plus one structural observation hook and reports post-mutation `reorder`,
+  `reset`, or `update` records; CollectionView owns the single reconciliation path for
+  every source. The existing `backbone.js`
   installer and `runtime/backbone-data-api.js` implementation move together into
   `@marionette/adapters/backbone` as one atomic optional integration, keeping `cid`,
   `attributes`, `models`, and Backbone event payloads out of core. This avoids making
@@ -405,6 +410,15 @@ current-evidence findings:
   adapters package has no root barrel, and core does not retain forwarding modules or
   the old `marionette/backbone` and `marionette/jquery-dom-api` paths. Importing one
   adapter must not load the other adapter or its optional peer.
+- **Selected after the first integration candidate:** Complete the native and external
+  live-collection story through the same `@marionette/adapters` package rather than a
+  competing `@marionette/data` package. Provide a small dependency-free observable
+  ordered list that emits exact normalized records, one shared keyed snapshot observer
+  used by Redux Toolkit, Zustand vanilla, and plain-record XState Store sources, and a
+  distinct XState v5 actor integration. External-store packages remain optional peers
+  or fixture dependencies and never enter the core production graph. Exact adapter
+  subpath names freeze only after the package/export audit, but every integration has
+  one explicit import and the package retains no root barrel.
 - **Gated:** Template cloning is a valid optimized rendering technique, not evidence by itself
   for another renderer API. First measure and document the explicit existing recipe:
   construct the final imported element in `buildChildView`, pass it to the child View,
@@ -502,12 +516,13 @@ Lint rules, codemods, documentation generators, and benchmark tooling belong out
 the runtime graph. They should consume the same documented rule catalog and public
 metadata rather than encode a second model of Marionette.
 
-Declarative definition helpers, adapter implementations beyond the separately
-packaged first-party Backbone and jQuery adapters, new CollectionView strategies, and
-renderer integrations remain evidence-dependent. They may be explored after the
-foundation is measurable, but do not block stable v5 without benchmark evidence. The
-neutral DataApi boundary and those first-party compatibility adapters are selected for
-5.0; additional adapters remain evidence-dependent 5.x candidates.
+Declarative definition helpers, adapter implementations beyond the selected
+Backbone, jQuery, native observable-list, keyed snapshot-store, and XState actor
+categories, new CollectionView strategies, and renderer integrations remain
+evidence-dependent. They may be explored after the foundation is measurable, but do
+not block stable v5 without benchmark evidence. The neutral DataApi boundary and the
+named first-party adapter categories above are selected for 5.0; further adapters
+remain evidence-dependent 5.x candidates.
 
 ## Runtime cost contract
 
@@ -638,15 +653,18 @@ instructions, and every release blocker maps to this strategy.
   and [CollectionView removal-only update gap][issue-328]. Detailed acceptance
   criteria and browser cases remain in those issues.
 - Freeze and document the neutral DataApi model and collection protocol for 5.0,
-  including its exact identity, serialization, event-payload, and optional Backbone
-  package contracts. Keep Backbone-specific data shapes out of core.
+  including its exact identity, serialization, event-payload, static-array, live-source,
+  normalized post-mutation record, and optional Backbone package contracts. Keep
+  Backbone-specific data shapes out of core, keep structural collection observation
+  separate from per-item subscriptions, and make unsupported observation explicit
+  rather than returning a silent fake disposer.
 - Move first-party Backbone and jQuery runtime adapters into a separately published
-  `@marionette/adapters` workspace package with only explicit `./backbone` and
-  `./dom/jquery` exports. Move the current Backbone installer and Backbone DataApi
-  together behind `./backbone`; do not extract core's DataApi contract, `setDataApi()`,
-  or its default for plain objects and arrays. Remove the old core subpaths rather
-  than forwarding them, keep peers optional and isolated, and make build, package,
-  performance, and release verification require both distributions.
+  `@marionette/adapters` workspace package, initially with only explicit `./backbone`
+  and `./dom/jquery` exports and no root barrel. Move the current Backbone installer
+  and Backbone DataApi together behind `./backbone`; do not extract core's DataApi
+  contract, `setDataApi()`, or its default for plain objects and arrays. Remove the old
+  core subpaths rather than forwarding them, keep peers optional and isolated, and make
+  build, package, performance, and release verification require both distributions.
 - Remove the module-global feature registry as selected through the v3/v4
   compatibility audit. Preserve the canonical default behavior through existing
   local View and trigger options, migrate application-owned values to State or
@@ -778,6 +796,22 @@ development and test fixtures exercise every public helper.
   probe, and package fixtures. Use that evidence while package topology, source layout,
   declarations, and documentation are completed; do not wait for speculative Phase 5
   APIs before testing the code broadly.
+- After that early candidate is available, complete the selected
+  [collection-data track][issue-376] before the full release candidate. Add the native
+  observable ordered list and the
+  shared immutable-snapshot and XState actor adapters without adding source-specific
+  reconciliation to CollectionView. Verify initial render, exact add/remove, reorder,
+  reset, empty transitions, sorting, filtering, retained-item updates, same-key
+  immutable replacement, pre-render mutation, repeated render, setup rollback,
+  idempotent destruction, late notification, shared-source observation, and reentrant
+  notification behavior through public APIs. Marionette destroys views and its own
+  subscriptions but never stops caller-owned actors.
+- Measure Backbone exact-event, native direct-record, and keyed snapshot updates at
+  representative 1,000- and 10,000-item sizes. Exact-event and native sources must not
+  regress to snapshot diffing; each relevant snapshot notification performs at most
+  one keyed O(n) comparison; unrelated notifications are no-ops; unchanged child Views
+  retain identity; and core plus every optional adapter is measured as a separate
+  production graph and packed import.
 - Run the fixed agent corpus against the complete release candidate.
 - Validate plain Views, Views composed with State, nested Applications, the selected
   Application startup and restart contract, Application cleanup through public
@@ -821,6 +855,11 @@ closed rather than retained as dormant APIs.
   separate required release artifacts. The removed core adapter paths do not resolve,
   and each explicit adapter subpath proves that its unrelated optional peer stays out
   of the graph.
+- Plain arrays are documented and tested as static snapshots, while the native
+  observable list, Backbone, Redux Toolkit, Zustand vanilla, plain-record XState Store,
+  and XState v5 actor cases pass the same normalized CollectionView reconciliation and
+  lifecycle contract. Malformed records, duplicate keys, missing synchronous snapshots,
+  invalid disposers, and unordered selector results produce actionable diagnostics.
 - Coverage configuration explicitly includes every production, development, and test
   subpath; adding a subpath cannot silently leave its implementation outside the gate.
 - Stable diagnostic codes and documented machine-readable schemas have been reviewed
@@ -905,5 +944,6 @@ block stable v5.
 [issue-327]: https://github.com/marionettejs/marionette/issues/327
 [issue-328]: https://github.com/marionettejs/marionette/issues/328
 [issue-329]: https://github.com/marionettejs/marionette/issues/329
+[issue-376]: https://github.com/marionettejs/marionette/issues/376
 [issue-190]: https://github.com/marionettejs/marionette/issues/190
 [issue-104]: https://github.com/marionettejs/marionette/issues/104
