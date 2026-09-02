@@ -775,9 +775,9 @@ const RegionsMixin = {
     const disposers = [];
 
     eachOwn(regions, (region, name) => {
-      disposers.unshift(() => this._removeRegion(region, name));
+      disposers.push(() => this._removeRegion(region, name));
     });
-    disposeAll(disposers);
+    disposeAll(disposers.reverse());
 
     return regions;
   },
