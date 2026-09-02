@@ -349,13 +349,12 @@ current-evidence findings:
 - **Selected:** Radio retains its existing module-global registry for v5. Do not add an isolated
   Radio factory, Application injection, or Application-owned channel lifetime without
   new public evidence. Documentation must make that process-wide scope explicit.
-- **Selected:** Retain the documented module-global feature registry for v5 compatibility.
-  Built-in defaults remain limited to `childViewEventPrefix`,
-  `triggersPreventDefault`, and `triggersStopPropagation`; existing per-View and
-  per-trigger options express local exceptions. Custom non-empty string names remain
-  supported for v3/v4 consumers, but new application-owned flags should use
-  application state or configuration instead. `DEV_MODE` is not a built-in v5 feature,
-  and no second flag registry or compatibility alias is added.
+- **Selected:** Remove the module-global feature registry and its `setEnabled` and
+  `isEnabled` exports. No verified app-frontend or Marionette Toolkit consumer uses
+  the global API. Configure child event prefixes per View, configure default
+  prevention and propagation per trigger, and keep application-owned values in
+  Application State or explicit application configuration. `DEV_MODE` and custom
+  string flags are not retained through aliases or a second registry.
 - **Selected:** Retain the current root bootstrap and class-level DOM, renderer, and event-delegator
   configuration. Document installation timing and precedence where unclear; do not
   redesign these seams without a concrete defect.
@@ -626,10 +625,10 @@ instructions, and every release blocker maps to this strategy.
   5.0, including its exact identity, serialization, event-payload, and optional package
   contracts. Keep [#104][issue-104] in the evidence-dependent 5.x phase unless the
   public benchmark first satisfies that issue's implementation requirements.
-- Retain and document the module-global feature registry selected through the v3/v4
-  compatibility audit. Prefer existing local View and trigger options for framework
-  behavior exceptions; do not add a second registry, alias, or built-in `DEV_MODE`
-  path.
+- Remove the module-global feature registry as selected through the v3/v4
+  compatibility audit. Preserve the canonical default behavior through existing
+  local View and trigger options, migrate application-owned values to State or
+  explicit configuration, and do not add an alias or replacement registry.
 - Retain the module-global Radio architecture and the existing root bootstrap plus
   class-level DOM, renderer, and event-delegator configuration. Close documentation
   gaps in process scope, installation timing, and precedence without adding factories,
@@ -770,9 +769,9 @@ are documented and closed rather than retained as dormant APIs.
 - The sync/async matrix names Application readiness as the only awaited lifecycle
   surface, and Application cancellation tests prove exact abort ordering and ordinary
   supersession semantics without making other Marionette callbacks awaitable.
-- The retained module-global feature registry, Radio process scope, and adapter
-  installation precedence are documented; no duplicate factory, flag registry, or
-  configuration path is presented as canonical.
+- Removal of the module-global feature registry, Radio process scope, and adapter
+  installation precedence are documented; no replacement flag registry, duplicate
+  factory, or configuration path is presented as canonical.
 - Every contract in the API-shape and agent-ergonomics gate has an explicit keep or
   remove decision, an executable migration when behavior changes, paired agent tasks
   that distinguish the selected form from the rejected alternative, truthful source

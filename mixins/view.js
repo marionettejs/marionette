@@ -12,7 +12,6 @@ import StateMixin from './state.js';
 import TemplateRenderMixin from './template-render.js';
 import UIMixin from './ui.js';
 import ViewEvents from './view-events.js';
-import { isEnabled } from '../runtime/features.js';
 import DomApi from '../runtime/dom-api.js';
 
 const classErrorName = 'ViewError';
@@ -241,8 +240,7 @@ const ViewMixin = {
   },
 
   _getEventPrefix() {
-    const defaultPrefix = isEnabled('childViewEventPrefix') ? 'childview' : false;
-    const prefix = getValue(this, 'childViewEventPrefix', defaultPrefix);
+    const prefix = getValue(this, 'childViewEventPrefix', false);
 
     return (prefix === false) ? prefix : prefix + ':';
   },

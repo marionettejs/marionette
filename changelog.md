@@ -28,8 +28,9 @@
 * Fixed callable Behavior `events` and `triggers` to resolve after Behavior
   initialization
 * Fixed CollectionView empty Region construction to occur after `initialize`
-* Changed `setEnabled` to reject non-string and blank feature names with stable
-  diagnostic code `MN0027`; custom string feature names remain supported
+* Removed the module-global feature registry and the `setEnabled` and `isEnabled`
+  exports; configure child event prefixes per View, trigger DOM behavior per
+  trigger, and application-owned values through State or explicit configuration
 * Preserved `emptyView` resolver returns of `undefined`, `null`, or `false` as
   disabled empty-view states
 * Changed the base `Region#show`, `Region#empty`, and `Region#reset`

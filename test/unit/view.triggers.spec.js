@@ -1,5 +1,4 @@
 import Backbone from 'backbone';
-import { setEnabled } from '../../runtime/features';
 import View from '../../modules/view';
 
 describe('view triggers', function() {
@@ -149,7 +148,7 @@ describe('view triggers', function() {
         triggers: {
           'foo': {
             event: 'fooHandler',
-            preventDefault: true,
+            preventDefault: false,
             stopPropagation: false
           }
         }
@@ -160,123 +159,10 @@ describe('view triggers', function() {
       fooEvent = trigger(view, 'foo');
     });
 
-    it('should prevent and dont stop the first view event', function() {
-      expect(fooEvent.defaultPrevented).to.be.true;
+    it('should preserve explicitly disabled DOM behavior', function() {
+      expect(fooEvent.defaultPrevented).to.be.false;
       expect(fooEvent._isPropagationStopped).to.be.false;
     });
   });
 
-  describe('when triggersPreventDefault flag is set to false', function() {
-    beforeEach(function() {
-      setEnabled('triggersPreventDefault', false);
-    });
-
-    afterEach(function() {
-      setEnabled('triggersPreventDefault', true);
-    });
-
-    describe('triggers should not prevent events by default', function() {
-      let TestView;
-      let view;
-
-      beforeEach(function() {
-        TestView = View.extend({triggers: triggersHash});
-        view = new TestView();
-        view.on('fooHandler', fooHandlerStub);
-
-        fooEvent = trigger(view, 'foo');
-      });
-
-      it('should stop propagation by default', function() {
-        expect(fooEvent._isPropagationStopped).to.be.true;
-      });
-
-      it('should not prevent default by default', function() {
-        expect(fooEvent.defaultPrevented).to.be.false;
-      });
-    });
-
-    describe('when triggers items are manually configured', function() {
-      let TestView;
-      let view;
-
-      beforeEach(function() {
-        TestView = View.extend({
-          triggers: {
-            'foo': {
-              event: 'fooHandler',
-              preventDefault: true,
-              stopPropagation: true
-            }
-          }
-        });
-        view = new TestView();
-        view.on('fooHandler', fooHandlerStub);
-
-        fooEvent = trigger(view, 'foo');
-      });
-
-      it('should prevent and stop the first view event', function() {
-        expect(fooEvent.defaultPrevented).to.be.true;
-        expect(fooEvent._isPropagationStopped).to.be.true;
-      });
-    });
-  });
-
-  describe('when triggersStopPropagation flag is set to false', function() {
-    beforeEach(function() {
-      setEnabled('triggersStopPropagation', false);
-    });
-
-    afterEach(function() {
-      setEnabled('triggersStopPropagation', true);
-    });
-
-    describe('triggers should not stop propagation by default', function() {
-      let TestView;
-      let view;
-
-      beforeEach(function() {
-        TestView = View.extend({triggers: triggersHash});
-        view = new TestView();
-        view.on('fooHandler', fooHandlerStub);
-
-        fooEvent = trigger(view, 'foo');
-      });
-
-      it('should stop propagation by default', function() {
-        expect(fooEvent._isPropagationStopped).to.be.false;
-      });
-
-      it('should prevent default by default', function() {
-        expect(fooEvent.defaultPrevented).to.be.true;
-      });
-    });
-
-    describe('when triggers items are manually configured', function() {
-      let TestView;
-      let view;
-
-      beforeEach(function() {
-        TestView = View.extend({
-          triggers: {
-            'foo': {
-              event: 'fooHandler',
-              preventDefault: true,
-              stopPropagation: true
-            }
-          }
-        });
-        view = new TestView();
-        view.on('fooHandler', fooHandlerStub);
-
-        fooEvent = trigger(view, 'foo');
-      });
-
-      it('should prevent and stop the first view event', function() {
-        expect(fooEvent.defaultPrevented).to.be.true;
-        expect(fooEvent._isPropagationStopped).to.be.true;
-      });
-    });
-  });
 });
