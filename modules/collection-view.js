@@ -390,6 +390,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     const removedViews = [];
     const addedViews = [];
     const replacedViews = [];
+    const insertedViews = [];
     const updatedViews = [];
     let replacementIndex = 0;
 
@@ -411,6 +412,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
         this._addChild(view);
         stagedViews.delete(view);
         addedViews.push(view);
+        insertedViews.push(view);
       }
 
       for (const { current, previous, view } of updateEntries) {
@@ -424,6 +426,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
           this._addChild(replacementView);
           stagedViews.delete(replacementView);
           replacedViews.push(replacementView);
+          insertedViews.push(replacementView);
         } else {
           updatedViews.push(view);
         }
@@ -440,7 +443,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     } catch (error) {
       disposeAll([
         () => this._removeChildViews(removedViews),
-        ...[...stagedViews].map(view => () => this._destroyChildView(view))
+        ...[...insertedViews, ...stagedViews]
+          .map(view => () => this._rollbackChildView(view))
       ], error);
     }
 
@@ -1188,6 +1192,14 @@ assignOwn(CollectionView.prototype, ViewMixin, {
       () => this.stopListening(view),
       () => shouldDetach ? this._detachChildView(view) : this._destroyChildView(view)
     ]);
+  },
+
+  _rollbackChildView(view) {
+    view.off('destroy', this.removeChildView, this);
+    this.stopListening(view);
+    this.children._remove(view);
+    this._children._remove(view);
+    this._destroyChildView(view);
   },
 
   _destroyChildView(view) {

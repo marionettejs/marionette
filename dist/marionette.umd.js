@@ -1911,7 +1911,10 @@
     _rollbackView(error) {
       const dataObserverUnsubscribe = this._dataObserverUnsubscribe;
       delete this._dataObserverUnsubscribe;
-      disposeAll([() => this.stopListening(), () => this._destroyState(), () => this._rollbackBehaviors(), () => this.undelegateEntityEvents(), () => this._undelegateViewEvents(), () => this._removeChildren(), dataObserverUnsubscribe], error);
+      try {
+        dataObserverUnsubscribe?.();
+      } catch {}
+      disposeAll([() => this.stopListening(), () => this._destroyState(), () => this._rollbackBehaviors(), () => this.undelegateEntityEvents(), () => this._undelegateViewEvents(), () => this._removeChildren()], error);
     },
     delegateEvents(events) {
       if (this._isDestroying || this._isDestroyed) {
@@ -3393,6 +3396,7 @@
       const removedViews = [];
       const addedViews = [];
       const replacedViews = [];
+      const insertedViews = [];
       const updatedViews = [];
       let replacementIndex = 0;
       try {
@@ -3419,6 +3423,7 @@
           this._addChild(view);
           stagedViews.delete(view);
           addedViews.push(view);
+          insertedViews.push(view);
         }
         for (const {
           current,
@@ -3437,6 +3442,7 @@
             this._addChild(replacementView);
             stagedViews.delete(replacementView);
             replacedViews.push(replacementView);
+            insertedViews.push(replacementView);
           } else {
             updatedViews.push(view);
           }
@@ -3447,7 +3453,7 @@
         }
         this._reconcileChildren([...addedViews, ...replacedViews, ...updatedViews], updatedViews.length || replacedViews.length || !addedViews.length ? false : addedViews);
       } catch (error) {
-        disposeAll([() => this._removeChildViews(removedViews), ...[...stagedViews].map(view => () => this._destroyChildView(view))], error);
+        disposeAll([() => this._removeChildViews(removedViews), ...[...insertedViews, ...stagedViews].map(view => () => this._rollbackChildView(view))], error);
       }
       this._removeChildViews(removedViews);
     },
@@ -3995,6 +4001,13 @@
     } = {}) {
       view.off('destroy', this.removeChildView, this);
       disposeAll([() => this.stopListening(view), () => shouldDetach ? this._detachChildView(view) : this._destroyChildView(view)]);
+    },
+    _rollbackChildView(view) {
+      view.off('destroy', this.removeChildView, this);
+      this.stopListening(view);
+      this.children._remove(view);
+      this._children._remove(view);
+      this._destroyChildView(view);
     },
     _destroyChildView(view) {
       if (view._isDestroyed) {

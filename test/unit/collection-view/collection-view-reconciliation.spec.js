@@ -316,10 +316,12 @@ describe('CollectionView normalized reconciliation', function() {
     const first = { id: 1, name: 'one' };
     const replacement = { id: 1, name: 'replacement' };
     const added = { id: 2, name: 'added' };
+    const failingAddition = { id: 3, name: 'failing addition' };
     const source = { items: [first] };
     const hookError = new Error('add hook failed');
     let stagedReplacement;
     let stagedAddition;
+    let failedAddition;
     const FailureList = ListView.extend({
       buildChildView(model, ChildViewClass, childViewOptions) {
         const child = CollectionView.prototype.buildChildView.call(
@@ -327,25 +329,29 @@ describe('CollectionView normalized reconciliation', function() {
         );
         if (model === replacement) { stagedReplacement = child; }
         if (model === added) { stagedAddition = child; }
+        if (model === failingAddition) { failedAddition = child; }
         return child;
       },
       onBeforeAddChild(collectionView, child) {
-        if (child.model === added) { throw hookError; }
+        if (child.model === failingAddition) { throw hookError; }
       }
     });
     const view = new FailureList({ collection: source });
     view.render();
 
-    source.items = [replacement, added];
+    source.items = [replacement, added, failingAddition];
     expect(() => source.notify({
       kind: 'update',
-      added: [added],
+      added: [added, failingAddition],
       removed: [],
       updated: [{ previous: first, current: replacement }]
     })).to.throw(hookError);
 
     expect(stagedReplacement.isDestroyed()).to.be.true;
     expect(stagedAddition.isDestroyed()).to.be.true;
+    expect(failedAddition.isDestroyed()).to.be.true;
+    expect(view.children.toArray().map(child => child.model)).to.deep.equal([first]);
+    expect(view.el.textContent).to.equal('one');
     view.destroy();
   });
 
