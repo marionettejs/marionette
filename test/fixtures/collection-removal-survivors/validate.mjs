@@ -16,7 +16,6 @@ let attachCount = 0;
 
 const TestCollectionView = CollectionView.extend({
   childView: ChildView,
-  sortWithCollection: false,
 
   attachHtml() {
     attachCount += 1;
