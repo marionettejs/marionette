@@ -330,6 +330,47 @@
       ],
       "rationale": "Authorize the exact measured distribution cost of attempt-all owned child and Region teardown tracked by #371. The prototype preserves forward teardown order and the first cleanup error, continues through CollectionView child, listener, empty Region, and container cleanup, removes completed Region ownership references, and preserves original construction failures during rollback. It grows only the four established main artifacts and adds no graph edge, external import, package subpath, allocation or retention proxy, or speculative headroom.",
       "rollbackCondition": "If the attempt-all teardown prototype is abandoned before consumption, append a governance-only BA0008 revocation. Never edit or delete this authorization. If the final implementation exceeds 79486 bytes or changes the authorized positive-delta artifact scope, require a new exact-base budget amendment."
+    },
+    {
+      "kind": "authorization",
+      "id": "BA0009",
+      "target": "aggregate-shipped-package",
+      "previousCeilingBytes": 79486,
+      "proposedCeilingBytes": 79779,
+      "prototypeBaseCommit": "e62895ab15b4f73c70ba09645a921b4a5d47f944",
+      "prototypeCommit": "735dacf103ad57942b87066348f943227cb6f643",
+      "implementationIssueUrl": "https://github.com/marionettejs/marionette/issues/375",
+      "authorizedArtifactPaths": [
+        "dist/marionette.cjs",
+        "dist/marionette.js",
+        "dist/marionette.min.js",
+        "dist/marionette.umd.js"
+      ],
+      "authorizedNewSubpaths": [],
+      "reports": [
+        {
+          "path": "evidence/performance-budget-amendments/BA0009/base.json",
+          "role": "base",
+          "sha256": "943d852d0e83f88e4b66921f386dcf2e69a8cc009c234e75b8abe3675684be69"
+        },
+        {
+          "path": "evidence/performance-budget-amendments/BA0009/prototype.json",
+          "role": "prototype",
+          "sha256": "247bbddaad332648f37abb0a2792103ac975313f1fbd9e16f07f684600a09384"
+        }
+      ],
+      "prototypeContract": {
+        "path": "evidence/performance-budget-amendments/BA0009/prototype-contract.json",
+        "sha256": "f6624314cb3e209048e69e380a95d5c2ca6cb1b33e054a3e38d0ba1e28a7b212"
+      },
+      "approvalUrls": [
+        "https://github.com/marionettejs/marionette/pull/378#issuecomment-1"
+      ],
+      "evidenceUrls": [
+        "https://github.com/marionettejs/marionette/issues/127#issuecomment-5511426429"
+      ],
+      "rationale": "Authorize the exact measured distribution cost of explicit MnObject and Application owned cleanup tracked by #375. The prototype removes Radio and State cleanup from removable public destroy listeners, rolls back every established owned resource after construction failure, preserves the original error, and keeps public lifecycle timing. It grows only the four established main artifacts and adds no graph edge, external import, package subpath, allocation or retention proxy, or speculative headroom.",
+      "rollbackCondition": "If the explicit owned-cleanup prototype is abandoned before consumption, append a governance-only BA0009 revocation. Never edit or delete this authorization. If the final implementation exceeds 79779 bytes or changes the authorized positive-delta artifact scope, require a new exact-base budget amendment."
     }
   ]
 }
