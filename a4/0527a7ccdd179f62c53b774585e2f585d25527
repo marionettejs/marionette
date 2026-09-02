@@ -1,0 +1,23 @@
+scripts/performance/timing.mjs
+  s_3a0cccbf9b5a9a::t_c42d9f48698d42 111-116,154-165
+test/performance/timing.test.mjs
+  s_3a0cccbf9b5a9a::t_c42d9f48698d42 67,105-108
+config/performance.json
+  s_3a0cccbf9b5a9a::t_73863b743a35fb 306
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "a40527a7ccdd179f62c53b774585e2f585d25527",
+  "prompts": {},
+  "sessions": {
+    "s_3a0cccbf9b5a9a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a060cc-eff9-7782-9438-ed00fe71ea1d",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
