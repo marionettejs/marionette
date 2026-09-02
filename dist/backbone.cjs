@@ -3,27 +3,9 @@
 var Backbone = require('backbone');
 var marionette = require('marionette');
 
-function disposeAll(disposers, error) {
-  let hasError = arguments.length > 1;
-  for (let index = disposers.length - 1; index >= 0; index--) {
-    const disposer = disposers[index];
-    if (!disposer) {
-      continue;
-    }
-    try {
-      disposer();
-    } catch (disposalError) {
-      if (!hasError) {
-        error = disposalError;
-        hasError = true;
-      }
-    }
-  }
-  if (hasError) {
-    throw error;
-  }
+function hasSameModels(collection, models) {
+  return collection.length === models.length && models.every(model => collection.get(model) === model);
 }
-
 function subscribe(entity, eventName, callback, context) {
   let isSubscribed = true;
   entity.on(eventName, callback, context);
@@ -40,10 +22,10 @@ var BackboneDataApi = {
     return model.cid;
   },
   get(model, attribute) {
-    return model.get(attribute);
+    return Object.hasOwn(model.attributes, attribute) ? model.get(attribute) : undefined;
   },
   has(model, attribute) {
-    return Object.hasOwn(Object(model.attributes), attribute);
+    return Object.hasOwn(model.attributes, attribute);
   },
   serialize(model) {
     return model.attributes;
@@ -53,15 +35,19 @@ var BackboneDataApi = {
   },
   subscribe,
   observeCollection(collection, callback, context) {
+    let previousModels = collection.models.slice();
     const onSort = function (currentCollection, options = {}) {
-      if (options.add || options.remove || options.merge) {
+      const hasUnchangedMembership = hasSameModels(currentCollection, previousModels);
+      previousModels = currentCollection.models.slice();
+      if (!hasUnchangedMembership && (options.add || options.remove || options.merge)) {
         return;
       }
       callback.call(context, {
         type: 'reorder'
       });
     };
-    const onReset = function () {
+    const onReset = function (currentCollection) {
+      previousModels = currentCollection.models.slice();
       callback.call(context, {
         type: 'reset'
       });
@@ -69,6 +55,7 @@ var BackboneDataApi = {
     const onUpdate = function (currentCollection, {
       changes
     }) {
+      previousModels = currentCollection.models.slice();
       callback.call(context, {
         type: 'update',
         added: changes.added,
@@ -76,17 +63,17 @@ var BackboneDataApi = {
         updated: changes.merged
       });
     };
-    const subscriptions = [];
-    try {
-      subscriptions.push(subscribe(collection, 'sort', onSort, context));
-      subscriptions.push(subscribe(collection, 'reset', onReset, context));
-      subscriptions.push(subscribe(collection, 'update', onUpdate, context));
-    } catch (error) {
-      disposeAll(subscriptions, error);
-    }
-    return function () {
-      disposeAll(subscriptions);
+    const events = {
+      sort: onSort,
+      reset: onReset,
+      update: onUpdate
     };
+    try {
+      return subscribe(collection, events, context);
+    } catch (error) {
+      collection.off(events, context);
+      throw error;
+    }
   }
 };
 

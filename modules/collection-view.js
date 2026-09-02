@@ -575,7 +575,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
     // Filter by model attribute
     if (isString(viewFilter)) {
-      return view => view.model && this.Data.get(view.model, viewFilter);
+      return view => view.model && this.Data.has(view.model, viewFilter) &&
+        this.Data.get(view.model, viewFilter);
     }
 
     throw new MarionetteError({

@@ -36,6 +36,8 @@ describe('DataApi', function() {
 
     expect(DataApi.key(items[0])).to.equal(items[0]);
     expect(DataApi.get(items[0], 'name')).to.equal('one');
+    expect(DataApi.get({}, 'constructor')).to.be.undefined;
+    expect(DataApi.get({ constructor: 'value' }, 'constructor')).to.equal('value');
     expect(DataApi.has(present, 'value')).to.be.true;
     expect(DataApi.has({}, 'value')).to.be.false;
     expect(DataApi.has({}, 'constructor')).to.be.false;

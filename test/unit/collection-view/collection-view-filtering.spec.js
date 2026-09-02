@@ -111,6 +111,24 @@ describe('CollectionView - Filtering', function() {
         expect(myCollectionView.el.innerHTML).to.equal(nums.join(''));
       });
 
+      it('checks attribute presence before reading it', function() {
+        const presenceView = new MyCollectionView({ viewFilter: 'optional' });
+        presenceView.Data = {
+          get: this.sinon.stub().throws(new Error('missing attribute was read')),
+          has: this.sinon.stub().returns(false),
+        };
+        const filter = presenceView._getFilter();
+        const model = {};
+
+        try {
+          expect(filter({ model })).to.be.false;
+          expect(presenceView.Data.has).to.have.been.calledOnceWith(model, 'optional');
+          expect(presenceView.Data.get).to.not.have.been.called;
+        } finally {
+          presenceView.destroy();
+        }
+      });
+
       it('should call "before:filter" event', function() {
         expect(myCollectionView.onBeforeFilter)
           .to.have.been.calledOnce

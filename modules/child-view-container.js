@@ -37,7 +37,8 @@ function assertCount(count) {
 }
 
 function stringComparator(Data, comparator, view) {
-  return view.model && Data.get(view.model, comparator);
+  return view.model && Data.has(view.model, comparator) ?
+    Data.get(view.model, comparator) : undefined;
 }
 
 function compareCriteria(left, right) {

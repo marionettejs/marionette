@@ -1,4 +1,7 @@
-import disposeAll from '../utils/dispose-all.js';
+function hasSameModels(collection, models) {
+  return collection.length === models.length &&
+    models.every(model => collection.get(model) === model);
+}
 
 function subscribe(entity, eventName, callback, context) {
   let isSubscribed = true;
@@ -17,11 +20,11 @@ export default {
   },
 
   get(model, attribute) {
-    return model.get(attribute);
+    return Object.hasOwn(model.attributes, attribute) ? model.get(attribute) : undefined;
   },
 
   has(model, attribute) {
-    return Object.hasOwn(Object(model.attributes), attribute);
+    return Object.hasOwn(model.attributes, attribute);
   },
 
   serialize(model) {
@@ -35,14 +38,19 @@ export default {
   subscribe,
 
   observeCollection(collection, callback, context) {
+    let previousModels = collection.models.slice();
     const onSort = function(currentCollection, options = {}) {
-      if (options.add || options.remove || options.merge) { return; }
+      const hasUnchangedMembership = hasSameModels(currentCollection, previousModels);
+      previousModels = currentCollection.models.slice();
+      if (!hasUnchangedMembership && (options.add || options.remove || options.merge)) { return; }
       callback.call(context, { type: 'reorder' });
     };
-    const onReset = function() {
+    const onReset = function(currentCollection) {
+      previousModels = currentCollection.models.slice();
       callback.call(context, { type: 'reset' });
     };
     const onUpdate = function(currentCollection, { changes }) {
+      previousModels = currentCollection.models.slice();
       callback.call(context, {
         type: 'update',
         added: changes.added,
@@ -50,19 +58,17 @@ export default {
         updated: changes.merged
       });
     };
-
-    const subscriptions = [];
+    const events = {
+      sort: onSort,
+      reset: onReset,
+      update: onUpdate
+    };
 
     try {
-      subscriptions.push(subscribe(collection, 'sort', onSort, context));
-      subscriptions.push(subscribe(collection, 'reset', onReset, context));
-      subscriptions.push(subscribe(collection, 'update', onUpdate, context));
+      return subscribe(collection, events, context);
     } catch (error) {
-      disposeAll(subscriptions, error);
+      collection.off(events, context);
+      throw error;
     }
-
-    return function() {
-      disposeAll(subscriptions);
-    };
   }
 };

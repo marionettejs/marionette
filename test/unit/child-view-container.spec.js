@@ -1130,6 +1130,21 @@ describe('#ChildViewContainer', function() {
         });
       });
 
+      it('checks attribute presence before reading it', function() {
+        const Data = {
+          key: model => model,
+          get: this.sinon.stub().throws(new Error('missing attribute was read')),
+          has: this.sinon.stub().returns(false),
+        };
+        const presenceContainer = new ChildViewContainer(Data);
+        const model = {};
+        presenceContainer._add(new Backbone.View({ model }));
+
+        expect(() => presenceContainer._sort('optional')).to.not.throw();
+        expect(Data.has).to.have.been.calledOnceWith(model, 'optional');
+        expect(Data.get).to.not.have.been.called;
+      });
+
       describe('when a view does not have a model', function() {
         beforeEach(function() {
           container._add(new Backbone.View());

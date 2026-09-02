@@ -16,11 +16,11 @@ export default {
   },
 
   get(model, attribute) {
-    return model[attribute];
+    return Object.hasOwn(model, attribute) ? model[attribute] : undefined;
   },
 
   has(model, attribute) {
-    return Object.hasOwn(Object(model), attribute);
+    return Object.hasOwn(model, attribute);
   },
 
   serialize(model) {

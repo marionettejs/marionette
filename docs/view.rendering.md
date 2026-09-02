@@ -406,8 +406,9 @@ const MyView = View.extend({
 Additionally context data overwrites the serialized data
 
 ```javascript
+import 'marionette/backbone';
 import _ from 'underscore';
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   template: _.template('<h1>Hello, <%- name %></h1>'),

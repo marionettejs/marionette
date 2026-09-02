@@ -1909,10 +1909,10 @@ var DataApi = {
     return model;
   },
   get(model, attribute) {
-    return model[attribute];
+    return Object.hasOwn(model, attribute) ? model[attribute] : undefined;
   },
   has(model, attribute) {
-    return Object.hasOwn(Object(model), attribute);
+    return Object.hasOwn(model, attribute);
   },
   serialize(model) {
     return model;
@@ -2855,7 +2855,7 @@ function assertCount(count) {
   return count;
 }
 function stringComparator(Data, comparator, view) {
-  return view.model && Data.get(view.model, comparator);
+  return view.model && Data.has(view.model, comparator) ? Data.get(view.model, comparator) : undefined;
 }
 function compareCriteria(left, right) {
   const leftCriteria = left.criteria;
@@ -3528,7 +3528,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
       return modelAttributesMatcher(this.Data, viewFilter);
     }
     if (isString(viewFilter)) {
-      return view => view.model && this.Data.get(view.model, viewFilter);
+      return view => view.model && this.Data.has(view.model, viewFilter) && this.Data.get(view.model, viewFilter);
     }
     throw new MarionetteError({
       code: 'MN0014',
