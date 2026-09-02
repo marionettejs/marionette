@@ -665,6 +665,9 @@ instructions, and every release blocker maps to this strategy.
   contract, `setDataApi()`, or its default for plain objects and arrays. Remove the old
   core subpaths rather than forwarding them, keep peers optional and isolated, and make
   build, package, performance, and release verification require both distributions.
+  Migrate the existing `v1` consumer-bundle entries and manifest to the canonical
+  adapter imports rather than inventing a `v2` solely for this package move, and add
+  negative package fixtures proving the removed core subpaths no longer resolve.
 - Remove the module-global feature registry as selected through the v3/v4
   compatibility audit. Preserve the canonical default behavior through existing
   local View and trigger options, migrate application-owned values to State or
