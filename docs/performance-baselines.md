@@ -177,9 +177,9 @@ continues remaining rollback after cleanup errors, and preserves the original
 construction failure. It grows only the four existing main artifacts, adds no
 production graph edge, external import, package subpath, allocation or retention
 proxy, or speculative headroom, and leaves the optional adapter artifacts unchanged.
-[PR #369](https://github.com/marionettejs/marionette/pull/369) records the pending
-authorization; a later runtime PR must consume it with independent exact-head
-artifact-growth approval.
+[PR #369](https://github.com/marionettejs/marionette/pull/369) recorded the
+authorization. [PR #370](https://github.com/marionettejs/marionette/pull/370)
+consumed it with independent exact-head artifact-growth approval.
 
 BA0008 authorizes an exact-prototype increase from 79,137 to 79,486
 bytes for attempt-all owned child and Region teardown tracked by
@@ -190,9 +190,22 @@ completed Region ownership references, and preserves original construction failu
 during rollback. It grows only the four existing main artifacts, adds no production
 graph edge, external import, package subpath, allocation or retention proxy, or
 speculative headroom, and leaves the optional adapter artifacts unchanged.
-[PR #373](https://github.com/marionettejs/marionette/pull/373) records the pending
-authorization; a later runtime PR must consume it with independent exact-head
-artifact-growth approval.
+[PR #373](https://github.com/marionettejs/marionette/pull/373) recorded the
+authorization. [PR #374](https://github.com/marionettejs/marionette/pull/374)
+consumed it with independent exact-head artifact-growth approval.
+
+BA0009 authorizes an exact-prototype increase from 79,486 to 79,779
+bytes for explicit MnObject and Application owned cleanup tracked by
+[#375](https://github.com/marionettejs/marionette/issues/375). The measured
+prototype removes owned Radio and State cleanup from removable public `destroy`
+listeners, rolls back every established owned resource after construction failure,
+preserves the original construction error, and keeps public lifecycle timing. It
+grows only the four existing main artifacts, adds no production graph edge, external
+import, package subpath, allocation or retention proxy, or speculative headroom, and
+leaves the optional adapter artifacts unchanged.
+[PR #378](https://github.com/marionettejs/marionette/pull/378) records the pending
+ceiling; a later runtime PR must consume it with independent exact-head artifact-growth
+approval.
 
 The approval must come from a different base-allowed maintainer whenever the exact-base
 allowlist contains an eligible alternative. If the pull-request author is the sole
