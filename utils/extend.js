@@ -41,7 +41,12 @@ export default function(protoProps, staticProps) {
   // `parent`'s constructor function and add the prototype properties.
   child.prototype = Object.create(parent.prototype);
   defineOwnDataProperties(child.prototype, protoProps);
-  child.prototype.constructor = child;
+  Object.defineProperty(child.prototype, 'constructor', {
+    configurable: true,
+    enumerable: true,
+    value: child,
+    writable: true
+  });
 
   // Set a convenience property in case the parent's prototype is needed
   // later.

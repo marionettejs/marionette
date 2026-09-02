@@ -52,6 +52,11 @@ describe('extend', function() {
 
   it('owns prototype inputs while preserving the parent prototype chain', function() {
     const Parent = function() {};
+    const constructorSetter = this.sinon.spy();
+    Object.defineProperty(Parent.prototype, 'constructor', {
+      configurable: true,
+      set: constructorSetter
+    });
     Parent.prototype.parentMethod = function() {};
     const protoProps = Object.assign(Object.create({ inheritedMethod() {} }), {
       ownMethod() {}
@@ -63,6 +68,7 @@ describe('extend', function() {
     expect(Child.prototype).to.not.have.property('inheritedMethod');
     expect(Child.prototype.parentMethod).to.equal(Parent.prototype.parentMethod);
     expect(Child.prototype.constructor).to.equal(Child);
+    expect(constructorSetter).to.not.have.been.called;
     expect(Object.getOwnPropertyDescriptor(Child.prototype, 'constructor')).to.deep.equal({
       configurable: true,
       enumerable: true,

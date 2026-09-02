@@ -65,7 +65,12 @@ function extend (protoProps, staticProps) {
   assignOwn(child, staticProps);
   child.prototype = Object.create(parent.prototype);
   defineOwnDataProperties(child.prototype, protoProps);
-  child.prototype.constructor = child;
+  Object.defineProperty(child.prototype, 'constructor', {
+    configurable: true,
+    enumerable: true,
+    value: child,
+    writable: true
+  });
   child.__super__ = parent.prototype;
   return child;
 }
