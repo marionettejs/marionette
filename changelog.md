@@ -10,6 +10,8 @@
   the six-month post-5.0.0 distribution review
 * Added a neutral DataApi for model identity, reads, serialization, ordered
   collection items, entity subscriptions, and structural collection changes
+* Added the optional `@marionette/data` package with observable Model and ordered
+  Collection sources plus matching DataApi and StateApi adapters
 * Changed the default model and collection contract to plain objects and arrays;
   Backbone-specific data and event shapes now remain inside the explicit
   `marionette/backbone` integration

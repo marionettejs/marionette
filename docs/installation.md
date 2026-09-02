@@ -11,6 +11,7 @@ While some integrations are listed here, more resources are available in the int
 * [Peer dependencies](#peer-dependencies)
 * [Quick start](#quick-start)
 * [Independent runtimes](#independent-runtimes)
+* [Observable data sources](#observable-data-sources)
 * [Distribution formats](#distribution-formats)
 * [Backbone is optional](#backbone-is-optional)
 * [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional)
@@ -110,6 +111,20 @@ const IsolatedView = isolated.View.extend({ template: () => 'Independent' });
 ```
 
 See [Runtime isolation](./runtime-isolation.md) for composition and ownership rules.
+
+## Observable data sources
+
+Core's default DataApi supports plain objects and static arrays without a required
+dependency. Install the optional `@marionette/data` package when the application
+wants first-party observable Model and ordered Collection sources:
+
+```bash
+npm install @marionette/data
+```
+
+Configure its adapters before constructing owners. See the
+[`@marionette/data` guide](./data.api.md#optional-marionettedata-sources) for a
+copy-pastable isolated-runtime example.
 
 ## Distribution formats
 

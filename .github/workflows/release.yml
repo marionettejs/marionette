@@ -15,6 +15,7 @@ on:
       - 'dist/**'
       - 'package-lock.json'
       - 'package.json'
+      - 'packages/data/**'
       - 'test/dist/**'
       - 'test/fixtures/**'
       - 'test/release/**'
@@ -71,14 +72,15 @@ jobs:
           --event "${GITHUB_EVENT_NAME}"
 
   build:
-    name: Build verified tarball
+    name: Build verified tarballs
     needs: preflight
     runs-on: ubuntu-24.04
     outputs:
       npm_tag: ${{ steps.artifact.outputs.npm_tag }}
       prerelease: ${{ steps.artifact.outputs.prerelease }}
       tag: ${{ steps.artifact.outputs.tag }}
-      tarball: ${{ steps.artifact.outputs.tarball }}
+      core_tarball: ${{ steps.artifact.outputs.core_tarball }}
+      data_tarball: ${{ steps.artifact.outputs.data_tarball }}
       version: ${{ steps.artifact.outputs.version }}
 
     steps:
@@ -124,7 +126,7 @@ jobs:
       - name: Test built distributables
         run: npm run test:dist
 
-      - name: Pack immutable release artifact
+      - name: Pack immutable release artifacts
         id: artifact
         run: >-
           npm run release:artifact --
@@ -143,11 +145,14 @@ jobs:
       - name: Test exact packed browser artifacts
         run: |
           mkdir -p test/tmp/release-package
-          tar -xzf "release/${{ steps.artifact.outputs.tarball }}" -C test/tmp/release-package
+          tar -xzf "release/${{ steps.artifact.outputs.core_tarball }}" -C test/tmp/release-package
           npm run test:dist -- --root test/tmp/release-package/package
 
       - name: Test exact packed package fixtures
-        run: npm run test:fixtures -- --tarball "release/${{ steps.artifact.outputs.tarball }}"
+        run: >-
+          npm run test:fixtures --
+          --tarball "release/${{ steps.artifact.outputs.core_tarball }}"
+          --data-tarball "release/${{ steps.artifact.outputs.data_tarball }}"
 
       - name: Upload immutable release artifact
         id: upload
@@ -209,7 +214,10 @@ jobs:
           --repository "${{ github.repository }}"
 
       - name: Test exact packed package fixtures
-        run: npm run test:fixtures -- --tarball "release/${{ needs.build.outputs.tarball }}"
+        run: >-
+          npm run test:fixtures --
+          --tarball "release/${{ needs.build.outputs.core_tarball }}"
+          --data-tarball "release/${{ needs.build.outputs.data_tarball }}"
 
   promotion-dry-run:
     name: Promotion dry run
@@ -249,10 +257,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-      - name: Exercise npm publication without publishing
+      - name: Exercise core npm publication without publishing
         run: >-
           npm publish
-          "./release/${{ needs.build.outputs.tarball }}"
+          "./release/${{ needs.build.outputs.core_tarball }}"
+          --dry-run
+          --ignore-scripts
+          --access public
+          --tag "${{ needs.build.outputs.npm_tag }}"
+
+      - name: Exercise data npm publication without publishing
+        run: >-
+          npm publish
+          "./release/${{ needs.build.outputs.data_tarball }}"
           --dry-run
           --ignore-scripts
           --access public
@@ -304,7 +321,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
   publish:
-    name: Publish verified tarball and matching release
+    name: Publish verified tarballs and matching release
     if: >-
       github.event_name == 'workflow_dispatch' &&
       github.repository == 'marionettejs/marionette' &&
@@ -356,11 +373,20 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-      - name: Publish exact tarball with npm provenance
-        if: steps.npm_state.outputs.npm_action == 'publish'
+      - name: Publish exact core tarball with npm provenance
+        if: steps.npm_state.outputs.core_npm_action == 'publish'
         run: >-
           npm publish
-          "./release/${{ needs.build.outputs.tarball }}"
+          "./release/${{ needs.build.outputs.core_tarball }}"
+          --ignore-scripts
+          --access public
+          --tag "${{ needs.build.outputs.npm_tag }}"
+
+      - name: Publish exact data tarball with npm provenance
+        if: steps.npm_state.outputs.data_npm_action == 'publish'
+        run: >-
+          npm publish
+          "./release/${{ needs.build.outputs.data_tarball }}"
           --ignore-scripts
           --access public
           --tag "${{ needs.build.outputs.npm_tag }}"

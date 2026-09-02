@@ -22,6 +22,7 @@ export default [
       'coverage/**',
       'dist/**',
       'node_modules/**',
+      'packages/*/dist/**',
       'version.js',
     ],
   },

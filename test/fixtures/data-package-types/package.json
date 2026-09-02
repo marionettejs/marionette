@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node node_modules/typescript/bin/tsc -p tsconfig.esm.json && node node_modules/typescript/bin/tsc -p tsconfig.cjs.json && node node_modules/typescript-legacy/bin/tsc -p tsconfig.legacy.json"
+  },
+  "dependencies": {
+    "typescript": "7.0.2",
+    "typescript-legacy": "npm:typescript@4.6.4"
+  }
+}

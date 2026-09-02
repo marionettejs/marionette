@@ -1,0 +1,54 @@
+{
+  "name": "@marionette/data",
+  "description": "Observable Model and Collection sources for Marionette",
+  "version": "5.0.0-alpha.2",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/",
+    "readme.md",
+    "license.txt"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "peerDependencies": {
+    "marionette": "5.0.0-alpha.2"
+  },
+  "scripts": {
+    "build": "rollup -c rollup.config.mjs",
+    "prepack": "npm run build"
+  },
+  "keywords": [
+    "marionette",
+    "model",
+    "collection",
+    "observable"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marionettejs/marionette.git",
+    "directory": "packages/data"
+  }
+}
