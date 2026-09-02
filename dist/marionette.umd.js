@@ -4296,7 +4296,12 @@
           await destroyChildApps(this, options);
         }
         const ownedRegion = this._ownedRegion;
-        disposeAll([() => this.stopListening(), () => this.triggerMethod('destroy', this, options), () => this._destroyState(), () => this._destroyRadio(), () => {
+        disposeAll([() => {
+          if (ownedRegion && !ownedRegion.isDestroyed()) {
+            return;
+          }
+          delete this._region;
+          delete this._ownedRegion;
           this._isDestroyed = true;
           this._lifecycleState = DESTROYED;
           nextOperation.failureState = DESTROYED;
@@ -4304,9 +4309,7 @@
           if (this._parentApp) {
             removeChildAppReference(this._parentApp, this._name, this);
           }
-        }, () => {
-          delete this._region;
-          delete this._ownedRegion;
+          disposeAll([() => this.stopListening(), () => this.triggerMethod('destroy', this, options), () => this._destroyState(), () => this._destroyRadio()]);
         }, () => ownedRegion?.destroy(options)]);
       });
     },

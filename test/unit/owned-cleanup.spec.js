@@ -148,7 +148,7 @@ describe('MnObject and Application owned cleanup', function() {
     });
 
     if (OwnerClass === Application) {
-      it('Application attempts remaining cleanup after owned Region destroy throws', async function() {
+      it('Application attempts remaining cleanup after an owned Region finishes with an error', async function() {
         const cleanupError = new Error('region cleanup failed');
         const channelName = 'normal-region-cleanup-error';
         const state = new State();
@@ -183,6 +183,52 @@ describe('MnObject and Application owned cleanup', function() {
         expect(ownedRegion.isDestroyed()).to.be.true;
         expect(state.isDestroyed()).to.be.true;
         expect(state._owner).to.be.undefined;
+        expect(Radio.request(channelName, 'status')).to.be.undefined;
+        expect(onDestroy).to.have.been.calledOnceWith(application, undefined);
+      });
+
+      it('Application retains a live owned Region and retries rejected destruction', async function() {
+        const rejection = new Error('region rejected destruction');
+        const channelName = 'rejected-region-cleanup';
+        const state = new State();
+        const onDestroy = this.sinon.spy();
+        const onBeforeRegionDestroy = this.sinon.stub();
+        onBeforeRegionDestroy.onFirstCall().throws(rejection);
+        let ownedRegion;
+        const RejectingRegion = Region.extend({
+          initialize() { ownedRegion = this; },
+          onBeforeDestroy: onBeforeRegionDestroy
+        });
+        const TestApplication = Application.extend({
+          channelName,
+          region: { el: document.createElement('div') },
+          regionClass: RejectingRegion,
+          radioRequests: { status: 'getStatus' },
+          getStatus() { return 'ready'; }
+        });
+        const application = new TestApplication({ state });
+        application.on('destroy', onDestroy);
+
+        let thrownError;
+        try {
+          await application.destroy();
+        } catch (error) {
+          thrownError = error;
+        }
+
+        expect(thrownError).to.equal(rejection);
+        expect(application.isDestroyed()).to.be.false;
+        expect(application.getRegion()).to.equal(ownedRegion);
+        expect(ownedRegion.isDestroyed()).to.be.false;
+        expect(state.isDestroyed()).to.be.false;
+        expect(state._owner).to.equal(application);
+        expect(Radio.request(channelName, 'status')).to.equal('ready');
+        expect(onDestroy).to.not.have.been.called;
+
+        expect(await application.destroy()).to.be.true;
+        expect(application.isDestroyed()).to.be.true;
+        expect(ownedRegion.isDestroyed()).to.be.true;
+        expect(state.isDestroyed()).to.be.true;
         expect(Radio.request(channelName, 'status')).to.be.undefined;
         expect(onDestroy).to.have.been.calledOnceWith(application, undefined);
       });
