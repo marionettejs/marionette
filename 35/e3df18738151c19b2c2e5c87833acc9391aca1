@@ -1,0 +1,50 @@
+test/performance/growth-approval.test.mjs
+  s_3a0cccbf9b5a9a::t_bbf59c6eca92e9 1181-1188,1200-1204,1206,1572-1607
+  s_d93f45db31dead::t_e862a30174b7ad 1241,1608
+  s_d93f45db31dead::t_b77a97401c8ec5 1218,1227,1235
+  s_d93f45db31dead::t_0d7634d9a0f80d 655,658
+  s_3a0cccbf9b5a9a::t_85cb1cbc0cc942 3,10,31-32,138-146,628-648,659-660,979-997,1087-1153,1176-1180,1189-1192,1194-1196,1198-1199,1205,1207-1209,1219-1226,1228-1234,1236-1240
+  s_d93f45db31dead::t_c2e486a6a04c3f 4,649-654,656-657,1154-1175,1193,1197,1210-1217
+scripts/performance/growth-approval.mjs
+  s_d93f45db31dead::t_b77a97401c8ec5 203,207,1079-1081
+  s_3a0cccbf9b5a9a::t_39ea7435009e1e 1170
+  s_3a0cccbf9b5a9a::t_1ee452a647cbbf 2,15-19,26-30,119-121,202,204-206,208,229-234,389-411,441-446,659,673,780,786,803-806,813,845,866,950,1019-1027
+  s_e46aa7fe703536::t_0ab2c2515321fd 1029
+  s_3a0cccbf9b5a9a::t_19051fbbbe16a9 1028,1073-1078,1082-1090,1133,1210
+docs/performance-baselines.md
+  s_3a0cccbf9b5a9a::t_8f67d76f2e3430 314-332,350-351,353-354
+  s_d93f45db31dead::t_c2e486a6a04c3f 355-358
+  s_d93f45db31dead::t_b77a97401c8ec5 352
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "35e3df18738151c19b2c2e5c87833acc9391aca1",
+  "prompts": {},
+  "sessions": {
+    "s_3a0cccbf9b5a9a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a060cc-eff9-7782-9438-ed00fe71ea1d",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_d93f45db31dead": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05c69-15cb-71b1-836b-0fdd2f01d1c5",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    },
+    "s_e46aa7fe703536": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a060eb-5db6-7ac3-8ed8-6ea657ea47c0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
