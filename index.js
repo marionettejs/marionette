@@ -17,11 +17,6 @@ import State from './modules/state.js';
 import DomApi from './runtime/dom-api.js';
 import MarionetteError from './utils/error.js';
 
-import {
-  isEnabled,
-  setEnabled
-} from './runtime/features.js';
-
 // Configuration
 
 export const setDomApi = function(mixin) {
@@ -49,8 +44,6 @@ export {
   Application,
   Radio,
   State,
-  isEnabled,
-  setEnabled,
   monitorViewEvents,
   Events,
   extend,

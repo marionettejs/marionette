@@ -470,7 +470,7 @@ describe('diagnostic catalog validation', function() {
     expect(markdown).to.contain('| [MN0002](/errors/MN0002/) | retired-operation | retired | error |');
   });
 
-  it('reserves the retired MN0028 and MN0029 identities', async function() {
+  it('reserves retired diagnostic identities', async function() {
     const catalog = JSON.parse(await readFile(
       join(process.cwd(), 'config/diagnostics/catalog.json'),
       'utf8',
@@ -478,10 +478,12 @@ describe('diagnostic catalog validation', function() {
     const retired = catalog.diagnostics.filter(({ status }) => status === 'retired');
 
     expect(retired.map(({ code, slug }) => ({ code, slug }))).to.deep.equal([
+      { code: 'MN0027', slug: 'feature-name-invalid' },
       { code: 'MN0028', slug: 'region-destroyed-operation' },
       { code: 'MN0029', slug: 'view-destroyed-set-element' },
     ]);
     expect(retired.map(({ severity, surfaces }) => ({ severity, surfaces }))).to.deep.equal([
+      { severity: 'error', surfaces: ['runtime'] },
       { severity: 'error', surfaces: ['runtime'] },
       { severity: 'error', surfaces: ['runtime'] },
     ]);

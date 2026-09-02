@@ -1,4 +1,3 @@
-import { isEnabled } from '../runtime/features.js';
 import EventDelegator from '../runtime/event-delegator.js';
 import { resolveMethod } from '../modules/common/normalize-methods.js';
 import eachOwn from '../utils/each-own.js';
@@ -16,17 +15,8 @@ function buildViewTrigger(view, triggerDef) {
 
   const eventName = triggerDef.event;
 
-  let shouldPreventDefault = !!triggerDef.preventDefault;
-
-  if (isEnabled('triggersPreventDefault')) {
-    shouldPreventDefault = triggerDef.preventDefault !== false;
-  }
-
-  let shouldStopPropagation = !!triggerDef.stopPropagation;
-
-  if (isEnabled('triggersStopPropagation')) {
-    shouldStopPropagation = triggerDef.stopPropagation !== false;
-  }
+  const shouldPreventDefault = triggerDef.preventDefault !== false;
+  const shouldStopPropagation = triggerDef.stopPropagation !== false;
 
   return function(event, ...args) {
     if (shouldPreventDefault) {

@@ -1,6 +1,5 @@
 import vm from 'node:vm';
 
-import { setEnabled } from '../../../runtime/features';
 import BehaviorsMixin from '../../../mixins/behaviors';
 import CommonMixin from '../../../mixins/common';
 import DelegateEntityEventsMixin from '../../../mixins/delegate-entity-events';
@@ -224,17 +223,12 @@ describe('ViewMixin owned helpers', function() {
   });
 
   describe('#_getEventPrefix', function() {
-    afterEach(function() {
-      setEnabled('childViewEventPrefix', false);
-    });
-
-    it('uses the feature fallback only when the property is undefined', function() {
-      setEnabled('childViewEventPrefix', true);
+    it('uses the disabled default only when the property is undefined', function() {
       const missing = Object.create(ViewMixin);
       const resolvedUndefined = Object.create(ViewMixin);
       resolvedUndefined.childViewEventPrefix = () => undefined;
 
-      expect(missing._getEventPrefix()).to.equal('childview:');
+      expect(missing._getEventPrefix()).to.be.false;
       expect(resolvedUndefined._getEventPrefix()).to.equal('undefined:');
       for (const [value, expected] of [[false, false], [null, 'null:'], [0, '0:'], ['', ':']]) {
         const view = Object.create(ViewMixin);

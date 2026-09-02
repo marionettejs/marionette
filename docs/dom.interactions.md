@@ -147,10 +147,7 @@ triggers: {
 }
 ```
 
-The global defaults are controlled by
-[`triggersPreventDefault`](./features.md#triggerspreventdefault) and
-[`triggersStopPropagation`](./features.md#triggersstoppropagation). These DOM
-settings do not create an ownership boundary; selectors are still scoped only
+These settings are local to the configured trigger. Selectors remain scoped only
 by the View's root `el`.
 
 For a child owned through a Region, automatic parent handling and forwarding is

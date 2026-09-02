@@ -19,12 +19,6 @@ import Application from '../../modules/application';
 
 import DomApi from '../../runtime/dom-api';
 
-import {
-  isEnabled,
-  setEnabled
-} from '../../runtime/features';
-
-
 describe('backbone.marionette', function() {
   describe('Named Exports', function() {
     const namedExports = {
@@ -34,8 +28,6 @@ describe('backbone.marionette', function() {
       Region,
       Behavior,
       Application,
-      isEnabled,
-      setEnabled,
       monitorViewEvents,
       Events,
       extend,
@@ -68,7 +60,9 @@ describe('backbone.marionette', function() {
         'unbindRequests',
         'mergeOptions',
         'getOption',
+        'isEnabled',
         'normalizeMethods',
+        'setEnabled',
         'triggerMethod'
       ];
 
