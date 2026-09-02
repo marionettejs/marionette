@@ -1,0 +1,42 @@
+runtime/data-api.js
+  s_d93f45db31dead::t_bced6d647d863e 23
+test/unit/runtime/data-api.spec.js
+  s_d93f45db31dead::t_ccc0a720ff8e9b 44-45
+test/unit/collection-view/collection-view-filtering.spec.js
+  s_d93f45db31dead::t_ccc0a720ff8e9b 307-322
+  s_d93f45db31dead::t_e3342d6c65c8ac 323-324
+runtime/backbone-data-api.js
+  s_d93f45db31dead::t_a2416f84a52203 37-40,44-45,48-49
+dist/backbone.cjs
+  s_d93f45db31dead::t_766d59e880d6b1 36-38,46-47,52,55
+dist/backbone.js
+  s_d93f45db31dead::t_7abd4302b5d651 35-37,45-46,51,54
+dist/marionette.cjs
+  s_d93f45db31dead::t_825da11b3144a1 1915
+dist/marionette.js
+  s_d93f45db31dead::t_1b436c5ef28fd0 1911
+dist/marionette.min.js
+  s_d93f45db31dead::t_d77deaebd10db2 1
+dist/marionette.min.js.map
+  s_d93f45db31dead::t_e4b644961b21db 1
+dist/marionette.umd.js
+  s_d93f45db31dead::t_a416cdd26b869e 1922
+dist/marionette.umd.js.map
+  s_d93f45db31dead::t_dbf668cbd298e3 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "a8081aa68964223fd9e9ef34d35dda9108bbbcb3",
+  "prompts": {},
+  "sessions": {
+    "s_d93f45db31dead": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05c69-15cb-71b1-836b-0fdd2f01d1c5",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
