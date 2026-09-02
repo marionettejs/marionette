@@ -892,15 +892,10 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   _removeChildView(view, { shouldDetach } = {}) {
     view.off('destroy', this.removeChildView, this);
 
-    try {
-      if (shouldDetach) {
-        this._detachChildView(view);
-      } else {
-        this._destroyChildView(view);
-      }
-    } finally {
-      this.stopListening(view);
-    }
+    disposeAll([
+      () => this.stopListening(view),
+      () => shouldDetach ? this._detachChildView(view) : this._destroyChildView(view)
+    ]);
   },
 
   _destroyChildView(view) {

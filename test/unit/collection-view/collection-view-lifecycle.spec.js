@@ -448,9 +448,18 @@ describe('CollectionView lifecycle contract', function() {
     const children = collectionView.children.toArray();
     const emptyRegion = collectionView.getEmptyRegion();
     const destroyEmptyRegion = emptyRegion.destroy;
+    const destroyChildren = this.sinon.spy();
+    const stopListening = collectionView.stopListening;
+    collectionView.on('destroy:children', destroyChildren);
+    this.sinon.stub(collectionView, 'stopListening').callsFake(function(view) {
+      const result = stopListening.call(this, view);
+      if (view === children[0]) { throw new Error('stop listening failed'); }
+      return result;
+    });
     this.sinon.stub(emptyRegion, 'destroy').callsFake(function() {
       teardown.push('empty');
-      return destroyEmptyRegion.call(this);
+      destroyEmptyRegion.call(this);
+      throw new Error('empty Region destroy failed');
     });
 
     expect(() => collectionView.destroy()).to.throw(firstError);
@@ -459,5 +468,6 @@ describe('CollectionView lifecycle contract', function() {
     expect(children.every(child => child.isDestroyed())).to.be.true;
     expect(collectionView.children).to.have.lengthOf(0);
     expect(emptyRegion.isDestroyed()).to.be.true;
+    expect(destroyChildren).to.not.have.been.called;
   });
 });
