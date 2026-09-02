@@ -120,14 +120,17 @@ budget.
 - Regions own and mount Views. An Application hosted in a Region coordinates a root
   View; the Application itself never becomes a second Region-renderable object
   category.
-- State is a first-class, opt-in object composed into MnObject, View, CollectionView,
-  Behavior, or Application. Owners without State allocate no state store or
-  subscriptions.
-- State is deliberately small and synchronous. It does not implicitly render Views,
-  schedule work, compute derived values, run effects, or persist data.
+- State composition is a first-class, opt-in relationship between MnObject, View,
+  CollectionView, Behavior, or Application and an explicit state source. `getState()`
+  returns that source unchanged; owners without one allocate no state source or
+  subscription.
+- The source owns storage and mutation semantics. Marionette owns source selection,
+  declarative observation, subscription release, and factory-result disposal without
+  implicitly constructing a store from a plain object.
 - Application is Marionette's only asynchronous lifecycle and orchestration surface.
-  View, Region, CollectionView, rendering, templates, Events, Radio, State mutation,
-  and destroy callbacks remain synchronous and never auto-await callback results.
+  View, Region, CollectionView, rendering, templates, Events, Radio, state-source
+  callbacks, and destroy callbacks remain synchronous and never auto-await callback
+  results.
 - Radio retains its module-global channel registry for v5. Applications may use Radio,
   but do not own or isolate its channels.
 - Behavior scope, UI resolution, event delegation, dependencies, and teardown are
@@ -155,8 +158,8 @@ budget.
 - Documentation names canonical patterns and counterexamples.
 - Examples are run in CI or otherwise verified against the shipped package.
 - A compact agent-oriented reference describes lifecycle, ownership, regions,
-  Applications, State, behaviors, communication, and teardown without inventing a
-  separate API.
+  Applications, state-source composition, native `State`, behaviors, communication, and
+  teardown without inventing a separate API.
 - The package ships compact, version-aligned, non-runtime agent material generated
   from the same public metadata: API and lifecycle tables, diagnostics, migration
   guidance, and canonical examples and counterexamples.
@@ -226,11 +229,11 @@ budget.
 
 ## Architecture boundaries
 
-Core owns the essential View, Region, Behavior, Application, CollectionView, State,
-lifecycle, event, and error contracts and preserves MnObject as an optional
-convenience. Additive APIs are justified when they expose information the runtime
-already maintains or make an existing responsibility explicit without adding work to
-unused instances.
+Core owns the essential View, Region, Behavior, Application, CollectionView,
+state-source composition, lifecycle, event, and error contracts and preserves MnObject
+as an optional convenience. Additive APIs are justified when they expose information
+the runtime already maintains or make an existing responsibility explicit without
+adding work to unused instances.
 
 `MnObject` remains an optional minimal convenience for passive, non-renderable,
 evented objects whose lifetime ends at destroy. It has no start, stop, restart, child
@@ -244,10 +247,10 @@ owned child Applications. An Application without a parent is the root of one
 composition tree; independent roots may coexist on a page. Root status is topology,
 not a reason for an Application subtype.
 
-Application, MnObject, View, CollectionView, State, Region, and Behavior do not form a
-public inheritance hierarchy. They compose first-class collaborators and may satisfy
-small shared protocols or reuse internal implementation without exposing inheritance
-as the application architecture.
+Application, MnObject, View, CollectionView, the native `State` candidate, Region, and
+Behavior do not form a public inheritance hierarchy. They compose first-class
+collaborators and may satisfy small shared protocols or reuse internal implementation
+without exposing inheritance as the application architecture.
 
 An Application may coordinate one root View through a Region it constructs and owns
 or a borrowed host Region it receives from its owner. The Application shows that View
@@ -290,36 +293,46 @@ lifecycle without per-child lifecycle flags. A capability that must outlive its
 current owner belongs to a longer-lived Application and is passed to the shorter-lived
 Application explicitly.
 
-`State` is a first-class, event-notifying object composed into an eligible owner rather
-than methods mixed into several unrelated classes. Its canonical API lives on State;
-owners expose only `getState()` and do not duplicate Toolkit's keyed getter,
-setter, toggle, presence, or reset wrappers. No State instance, listener,
-cleanup registration, or owner property exists until state is declared,
-supplied, or first requested. State composed
-into a Marionette owner has exactly one owner. Supplying an unowned State transfers
-ownership; supplying an already-owned State for composition fails with a stable
-diagnostic rather than creating shared or borrowed ownership. Shared data belongs in
-an external model, collection, or data-source contract. The owner destroys its State
-and releases its State subscriptions at owner destroy. State composed into View or
-CollectionView persists across render. State composed into Application persists
-across stop and restart. State composed into MnObject persists for the object's
-lifetime. State composed into Behavior persists across its owning View's render and
-ends when the Behavior is destroyed. If the selected lifecycle permits pending
-startup, invalidated startup cannot later mutate State or owned children. Region does
-not own State. A Behavior may compose
-private State when its concern truly owns that state. State shared with its View
-belongs on the View; the Behavior may receive an ordinary reference to that State but
-does not compose, own, or destroy it.
+State composition is a first-class owner-to-source relationship rather than a second
+universal model API mixed into unrelated classes. Owners expose only `getState()`,
+which returns the exact configured Backbone model, actor, external store, native
+`State`, or other source. Application code uses that source's native mutation API;
+Marionette does not pretend every source implements keyed setters, reset, or
+`change:key`. A source and an owner-local factory are distinct explicit configuration
+forms. A supplied source is borrowed: Marionette releases only its own subscriptions.
+A factory result is owned: Marionette also disposes it at owner destruction through
+the selected adapter contract. A plain state object never silently selects and
+constructs a store. Borrowing is many-to-one: destroying one owner releases only that
+owner's observation and does not alter the shared source or another borrower's
+observation. A borrower must not outlive its source; borrowing never extends a source's
+independently owned lifetime.
 
-The selected State contract commits every key in a multi-key write before events,
-emits ordered `change:key` events, and then emits one aggregate `change` event per
-write. Both event forms carry the same stable change object with `changed` and
-`previous` maps plus caller metadata. Nested writes complete synchronously as their
-own operations. Defaults, reset, reads after destroy, lifecycle-safe write
-no-ops, owner cleanup, and declarative `stateEvents` are explicit parts of the
-contract. It does not implicitly rerender a View, add effects
-or computed values, schedule asynchronous work, persist data, or replace shared domain
-models. Stateless owners pay zero per-instance allocation and retention cost.
+State-source observation is selected explicitly per owner and remains separate from
+the model and collection DataApi. A View may consume Backbone domain data while using
+an XState actor or another source for orchestration. Marionette owns declarative
+`stateEvents`, deterministic setup timing, constructor rollback, and subscription
+release; the adapter owns how observation is registered, cleaned up, and, for an owned
+factory result, disposed. The protocol does not grow universal create, set, unset,
+reset, or destroy operations that unrelated state systems cannot truthfully share.
+
+A composed source persists across View and CollectionView render, across a Behavior's
+owning View render, across Application stop and restart, and for a MnObject's lifetime.
+Every eligible owner releases its state-source subscriptions at destruction and also
+disposes a factory result it owns. Region does not compose state. A Behavior may create
+a private source through its own factory; a source shared with its View is supplied and
+borrowed rather than jointly owned.
+After Application startup is invalidated, Marionette performs no stale state-source
+work or subscription setup. Owner-provided asynchronous hooks must observe cancellation
+before mutating any source.
+
+The dependency-free native `State` remains an explicitly constructed candidate while
+reference tasks and benchmark evidence are collected. Its current synchronous change
+payload, multi-key write, defaults, reset, nested-write, and destroy semantics are
+native `State` behavior, not a universal adapter protocol. Evidence decides whether it
+earns a permanent public v5 place. The candidate remains synchronous and deliberately
+small: it does not implicitly render Views, schedule work, compute derived values, run
+effects, or persist data. Stateless owners pay zero per-instance allocation and
+retention cost.
 
 Appropriate core additions include public read-only ownership accessors, pure Region
 lookup, and shared diagnostics. Resource ownership and extension hooks remain
@@ -353,8 +366,8 @@ current-evidence findings:
   `isEnabled` exports. No verified app-frontend or Marionette Toolkit consumer uses
   the global API. Configure child event prefixes per View, configure default
   prevention and propagation per trigger, and keep application-owned values in
-  Application State or explicit application configuration. `DEV_MODE` and custom
-  string flags are not retained through aliases or a second registry.
+  an Application-owned state source or explicit application configuration. `DEV_MODE`
+  and custom string flags are not retained through aliases or a second registry.
 - **Selected:** Retain the current root bootstrap and class-level DOM and renderer
   configuration. EventDelegator remains a public runtime adapter parallel to those
   seams, with deterministic global and per-class installation timing. Each registration
@@ -383,12 +396,12 @@ current-evidence findings:
   retained only with verified public consumer and benchmark evidence.
 - **Selected:** Application lifecycle is the selected asynchronous boundary. Only Promises returned
   by its readiness hooks are awaited; completion hooks and every View, Region,
-  CollectionView, renderer, template, Events, Radio, State, and destroy callback stay
-  synchronous. Publish a sync/async contract matrix and never auto-await an arbitrary
-  callback. Development validation may diagnose accidental Promise returns without
-  changing production semantics. Awaitable Application operations include the
-  cooperative cancellation context defined above rather than merely ignoring stale
-  completion.
+  CollectionView, renderer, template, Events, Radio, Marionette-managed state-source
+  callbacks, and destroy callbacks stay synchronous. Publish a sync/async contract
+  matrix and never auto-await an arbitrary callback. Development validation may
+  diagnose accidental Promise returns without changing production semantics.
+  Awaitable Application operations include the cooperative cancellation context
+  defined above rather than merely ignoring stale completion.
 - **Selected:** V5 owns a neutral DataApi boundary for model identity, value reads,
   serialization, ordered collection items, entity subscriptions, and normalized
   structural collection changes. Core retains that contract, `setDataApi()`, and the
@@ -403,8 +416,9 @@ current-evidence findings:
   `attributes`, `models`, and Backbone event payloads out of core. This avoids making
   the temporary Backbone-shaped protocol a v5 public contract that would need removal
   in v6. Do not add implicit Backbone detection, per-model wrappers, or a parallel
-  reconciliation path. State remains an owned local-state concern, not the collection
-  data source.
+  reconciliation path. Per-owner state-source selection and observation remain a
+  separate contract, not the collection data source and not an automatic reuse of the
+  selected DataApi.
 - **Selected:** First-party Backbone and jQuery adapters ship only from explicit
   `@marionette/adapters/backbone` and `@marionette/adapters/dom/jquery` subpaths. The
   adapters package has no root barrel, and core does not retain forwarding modules or
@@ -478,19 +492,21 @@ and shipped subpaths do not import or require it.
 Core does not absorb a statechart runtime, signals runtime, virtual DOM, query layer,
 schema system, router, agent protocol, or inspector UI. Passing the platform
 `AbortSignal` to Application readiness is a bounded lifecycle contract, not a general
-signals runtime. Optional integrations with those systems may adapt to the State or
-data-source contracts without becoming the canonical implementation.
+signals runtime. Optional integrations with those systems may implement the explicit
+state-source observation or collection-data contracts without becoming the canonical
+implementation.
 
 The existing Marionette Toolkit informs migration but does not define a second v5
 object model. Toolkit App responsibilities strengthen the Application contract after
 redesign rather than being copied or renamed to Feature. Toolkit Component does not
 move into core. A Component with one rendered ownership boundary becomes a View and
-composes State only when it owns local mutable state. A floating surface anchored to
-one View but displayed in a shared Region becomes a View coordinated by the documented
-overlay-host pattern. A coordinator with an independent active lifecycle or multiple
-Views and Regions becomes an Application. Static class-level Region injection and
-patches that allow Regions to show non-Views are not canonical v5 patterns. V5 does
-not ship a Toolkit compatibility adapter as part of this public release plan.
+declares a state-source factory only when it owns that source; a supplied source
+remains borrowed. A floating surface anchored to one View but displayed in a shared
+Region becomes a View coordinated by the documented overlay-host pattern. A
+coordinator with an independent active lifecycle or multiple Views and Regions becomes
+an Application. Static class-level Region injection and patches that allow Regions to
+show non-Views are not canonical v5 patterns. V5 does not ship a Toolkit compatibility
+adapter as part of this public release plan.
 
 Root-only concerns such as DOM readiness, global error handling, routing, or service
 bootstrap are collaborators composed at the root, not conditional branches or a root
@@ -599,9 +615,9 @@ The stable release then requires:
 - Allocation tests prove that unused instances have no property, collection,
   subscription, or registry entry for an unused optional capability; opt-in resource
   storage begins only at the first registration.
-- State allocation tests prove that plain MnObject, View, CollectionView, Behavior,
-  and Application instances create no State, state subscription, cleanup
-  registration, or state-owned property. Application child storage is also absent
+- State-source allocation tests prove that plain MnObject, View, CollectionView,
+  Behavior, and Application instances create no source, subscription, cleanup
+  registration, or state-source property. Application child storage is also absent
   until the first child is owned.
 
 Agent-tooling-only changes should produce byte-identical production entrypoints except
@@ -637,8 +653,9 @@ instructions, and every release blocker maps to this strategy.
 ### Phase 1: Core contracts
 
 - Complete the remaining API-shape and agent-ergonomics gate for existing public
-  contracts before freezing State, extension, or additional Application ownership
-  surface. The Application lifecycle-hook decision recorded below settles its target
+  contracts before freezing state-source composition, the native `State` candidate,
+  extension, or additional Application ownership surface. The Application
+  lifecycle-hook decision recorded below settles its target
   shape by retaining core Marionette's subject-first lifecycle convention, meeting the
   verified Toolkit/app-frontend asynchronous-readiness need through that single hook
   path, and rejecting parallel compatibility seams. Executable implementation and
@@ -670,8 +687,8 @@ instructions, and every release blocker maps to this strategy.
   negative package fixtures proving the removed core subpaths no longer resolve.
 - Remove the module-global feature registry as selected through the v3/v4
   compatibility audit. Preserve the canonical default behavior through existing
-  local View and trigger options, migrate application-owned values to State or
-  explicit configuration, and do not add an alias or replacement registry.
+  local View and trigger options, migrate application-owned values to an owned state
+  source or explicit configuration, and do not add an alias or replacement registry.
 - Retain the module-global Radio architecture and the existing root bootstrap plus
   class-level DOM and renderer configuration. Stabilize EventDelegator as a public
   registration and cleanup boundary with exact listener options, attempt-all teardown,
@@ -680,8 +697,9 @@ instructions, and every release blocker maps to this strategy.
   precedence without adding factories, injection, or duplicate configuration paths.
 - Close the related lifecycle leaks before the first integration candidate: failed
   View and CollectionView construction after rendering, failed MnObject and Application
-  construction after Radio registration, public `off()` disabling owned Radio or State
-  cleanup, empty `listenTo` ledgers, and constant `replyOnce` removal by original value.
+  construction after Radio registration, public `off()` disabling owned Radio cleanup,
+  state-source subscription release, or factory-owned source disposal, empty
+  `listenTo` ledgers, and constant `replyOnce` removal by original value.
   Constructor rollback preserves the construction error while attempting every owned
   cleanup exactly once.
 - Keep request/reply adaptation private to Requests: move the constant-or-function
@@ -714,13 +732,16 @@ instructions, and every release blocker maps to this strategy.
   scopes. Specify deterministic startup and restart semantics under the selected
   lifecycle contract, root View and Region hosting, canonical child ownership, and
   teardown without adding a Feature alias or inheritance hierarchy.
-- Separately define and implement State as a lazy first-class object composed into
-  MnObject, View, CollectionView, Behavior, or Application without changing Region's
-  renderable contract or conflating State with model and collection data. Keep it
-  synchronous and deliberately small: one stable change payload, atomic multi-key
-  writes, explicit defaults/reset/nested-write/destroy semantics, optional declarative
-  event binding only when justified, and no rendering, effects, computed values,
-  persistence, or scheduling.
+- Define and implement one pay-for-play [owner-to-state-source composition
+  contract][issue-191] for MnObject, View, CollectionView, Behavior, and Application
+  without changing Region's renderable contract or conflating state with model and
+  collection data. Replace implicit `new State(definition)` with explicit source and
+  per-owner factory forms; return the exact source from `getState()`; treat supplied
+  sources as borrowed and factory results as owned; and route declarative `stateEvents`
+  through an explicitly selected per-owner observation adapter. Keep DataApi
+  read/collection-oriented, do not invent a universal mutation protocol, and retain
+  native `State` only as an explicitly constructed dependency-free candidate until
+  reference tasks and benchmarks decide whether it remains public.
 - Make ownership and topology publicly readable without mutation.
 - Harden Region lookup and View/Region ownership semantics. Lock down parent rerender
   as destructive structural reset: destroy active Region children exactly once before
@@ -753,10 +774,10 @@ substantial remaining departures justified.
 ### Phase 2: Static guidance
 
 - Ship readable first-party TypeScript declarations for constructor options,
-  ownership and topology, State, the selected data protocol, Application lifecycle
-  results and operation context, optional Backbone and jQuery adapters, and the
-  public/internal boundary. Prefer structural types over elaborate type-level
-  machinery.
+  ownership and topology, state sources, factories, observation adapters, the native
+  `State` candidate, the selected data protocol, Application lifecycle results and
+  operation context, optional Backbone and jQuery adapters, and the public/internal
+  boundary. Prefer structural types over elaborate type-level machinery.
 - Treat TypeScript readiness as a release contract: exercise root and every supported
   subpath from ESM and CommonJS fixtures, type adapter configuration and lifecycle
   callbacks precisely, and verify declaration contents in both packed packages.
@@ -765,8 +786,8 @@ substantial remaining departures justified.
   behavior, sync/async status, and diagnostics.
 - Build high-value architecture lint rules using the shared rule catalog.
 - Make examples executable and document canonical View-versus-Application,
-  State-versus-domain-data, child-ownership, and overlay-host patterns and
-  counterexamples.
+  state-source-versus-domain-data, borrowed-versus-factory-owned state,
+  child-ownership, and overlay-host patterns and counterexamples.
 - Document stable layouts and reactive children: render downward for initial
   composition, propagate observable state afterward, and treat a parent rerender as
   structural ownership reset. Cross-link the View, Region, renderer-adapter, and
@@ -816,9 +837,10 @@ development and test fixtures exercise every public helper.
   retain identity; and core plus every optional adapter is measured as a separate
   production graph and packed import.
 - Run the fixed agent corpus against the complete release candidate.
-- Validate plain Views, Views composed with State, nested Applications, the selected
-  Application startup and restart contract, Application cleanup through public
-  lifecycle callbacks, and shared-host overlays in the reference application.
+- Validate plain Views, Views with supplied and factory-owned state sources, the
+  explicit native `State` candidate, nested Applications, the selected Application
+  startup and restart contract, Application cleanup through public lifecycle
+  callbacks, and shared-host overlays in the reference application.
 - Close correctness, documentation, packaging, browser, and performance gaps exposed
   by the reference application.
 - Complete v5 reference and migration documentation.
@@ -858,6 +880,15 @@ closed rather than retained as dormant APIs.
   separate required release artifacts. The removed core adapter paths do not resolve,
   and each explicit adapter subpath proves that its unrelated optional peer stays out
   of the graph.
+- State-source composition accepts only explicit sources and per-owner factories;
+  `getState()` preserves source identity; several owners may borrow one source, and
+  destroying one releases only its observation while the source and other borrowers
+  remain live; public `off()` cannot disable later subscription release or owned-source
+  disposal; every eligible owner releases subscriptions and disposes each factory
+  result exactly once after subscription release; plain objects do not trigger implicit
+  native `State` construction; and model/collection DataApi selection does not choose
+  the state-source adapter. Native `State` remains public only if the reference-task
+  and performance gate supports it.
 - Plain arrays are documented and tested as static snapshots, while the native
   observable list, Backbone, Redux Toolkit, Zustand vanilla, plain-record XState Store,
   and XState v5 actor cases pass the same normalized CollectionView reconciliation and
@@ -949,4 +980,5 @@ block stable v5.
 [issue-329]: https://github.com/marionettejs/marionette/issues/329
 [issue-376]: https://github.com/marionettejs/marionette/issues/376
 [issue-190]: https://github.com/marionettejs/marionette/issues/190
+[issue-191]: https://github.com/marionettejs/marionette/issues/191
 [issue-104]: https://github.com/marionettejs/marionette/issues/104
