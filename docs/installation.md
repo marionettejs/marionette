@@ -10,6 +10,7 @@ While some integrations are listed here, more resources are available in the int
 * [Install](#install)
 * [Peer dependencies](#peer-dependencies)
 * [Quick start](#quick-start)
+* [Distribution formats](#distribution-formats)
 * [Backbone is optional](#backbone-is-optional)
 * [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional)
 * [NPM and Webpack](#quick-start-using-npm-and-webpack)
@@ -93,6 +94,24 @@ await app.start();
 selector strings — pass `document.querySelector('#root')` at the call site. See
 the [upgrade guide](../upgradeGuide.md) for the migration entry. `Region` continues
 to accept selector strings.
+
+## Distribution formats
+
+ES modules are the canonical path for new applications. Use `import` syntax so
+package export conditions select the ESM entry, and use Marionette's named exports.
+
+Marionette also ships compatibility distributions throughout v5:
+
+- CommonJS supports legacy Node and build-tool consumers through
+  `require('marionette')`.
+- Unminified and minified UMD builds support no-bundler, AMD, and
+  `Marionette`-global consumers.
+
+All four ESM, CommonJS, unminified UMD, and minified UMD outputs remain supported
+and distribution-validated for v5. Marionette will not add another format or switch
+to unbundled source modules without measured consumer benefit. Six months after
+v5.0.0 is published, the distribution review is an evidence checkpoint for a
+future major version, not a removal commitment.
 
 ## Backbone is optional
 

@@ -798,6 +798,15 @@ schema fields follow semantic versioning. Deprecations require a removal plan;
 compatibility aliases or dual paths require a verified active consumer or a
 non-atomic persisted-data migration and must name their removal condition.
 
+### Six-month distribution review
+
+Six calendar months after `5.0.0` is published, review the retained distribution
+formats without changing the v5 support contract. Evaluate support reports, public
+code usage, package-size impact, and maintenance cost. UMD is the first removal
+candidate for v6, followed by CommonJS, while ESM remains canonical. Do not promise,
+deprecate, or schedule either removal without evidence from this checkpoint and a
+separate major-version decision.
+
 ## Decision rules for new proposals
 
 Every proposal must answer:

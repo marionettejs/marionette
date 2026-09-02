@@ -20,6 +20,20 @@ Committed `dist/` files remain generated, CI-verified projections. The release j
 builds them once, verifies that the clean checkout is unchanged, and runs
 `npm pack --ignore-scripts` so `prepack` cannot rebuild the release artifact.
 
+## v5 distribution policy
+
+Every v5 stable artifact retains the ESM, CommonJS, unminified UMD, and minified UMD
+outputs and their existing package entrypoints. ESM is canonical for new
+applications; CommonJS and UMD are compatibility distributions. Source,
+distribution, package, and release-artifact validation continue to verify all four.
+
+The v5.0.0 release notes must ask UMD and AMD consumers to identify their usage in
+the public issue tracker. Six months after v5.0.0 is published, maintainers review
+support reports, public-code usage, package-size impact, and maintenance cost. UMD
+is the first removal candidate for v6, followed by CommonJS. The review collects
+evidence for a separate major-version decision and does not itself remove, deprecate,
+or promise removal of either format.
+
 ## Evidence artifact
 
 The canonical Ubuntu release job stores these files together as the immutable
