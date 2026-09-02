@@ -202,9 +202,10 @@ listeners, rolls back every established owned resource after construction failur
 preserves the original construction error, and keeps public lifecycle timing. It
 grows only the four existing main artifacts, adds no production graph edge, external
 import, package subpath, allocation or retention proxy, or speculative headroom, and
-leaves the optional adapter artifacts unchanged. This authorization PR records the
-pending ceiling; a later runtime PR must consume it with independent exact-head
-artifact-growth approval.
+leaves the optional adapter artifacts unchanged.
+[PR #378](https://github.com/marionettejs/marionette/pull/378) records the pending
+ceiling; a later runtime PR must consume it with independent exact-head artifact-growth
+approval.
 
 The approval must come from a different base-allowed maintainer whenever the exact-base
 allowlist contains an eligible alternative. If the pull-request author is the sole
