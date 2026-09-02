@@ -164,6 +164,49 @@
       ],
       "rationale": "Authorize the exact measured distribution cost of completing Application root View and Region ownership together with Application State composition. The prototype uses one Application lifecycle and one existing State mixin, grows only the four established main artifacts, adds no module-graph edge, external import, package subpath, eager stateless allocation, Toolkit lifecycle flag, compatibility alias, or speculative headroom.",
       "rollbackCondition": "If the Application root ownership and State prototype is abandoned before consumption, append a governance-only BA0004 revocation. Never edit or delete this authorization. If the final implementation exceeds 75799 bytes or changes the authorized positive-delta artifact scope, require a new exact-base budget amendment."
+    },
+    {
+      "kind": "authorization",
+      "id": "BA0005",
+      "target": "aggregate-shipped-package",
+      "previousCeilingBytes": 75799,
+      "proposedCeilingBytes": 78665,
+      "prototypeBaseCommit": "a1eafb48b9afd3b23a985fe1af0597b4377f79bc",
+      "prototypeCommit": "c3a627448874faf5ae44c8b6ffc516cdb35961b3",
+      "implementationIssueUrl": "https://github.com/marionettejs/marionette/issues/104",
+      "authorizedArtifactPaths": [
+        "dist/backbone.cjs",
+        "dist/backbone.js",
+        "dist/marionette.cjs",
+        "dist/marionette.js",
+        "dist/marionette.min.js",
+        "dist/marionette.umd.js"
+      ],
+      "authorizedNewSubpaths": [],
+      "reports": [
+        {
+          "path": "evidence/performance-budget-amendments/BA0005/base.json",
+          "role": "base",
+          "sha256": "951a8deff4442f89da1976cee8294f5d35df7f0658ae421197c28db84cdbb316"
+        },
+        {
+          "path": "evidence/performance-budget-amendments/BA0005/prototype.json",
+          "role": "prototype",
+          "sha256": "a152f859667df2d7c3a8d16f77c69cb455d88a82fdf7c543f85a2b62f07605bd"
+        }
+      ],
+      "prototypeContract": {
+        "path": "evidence/performance-budget-amendments/BA0005/prototype-contract.json",
+        "sha256": "c7f1c58e9ae39d655828ad622c85b0ee779ddbdb0427ed19fd598a1bfa4a8c27"
+      },
+      "approvalUrls": [
+        "https://github.com/marionettejs/marionette/pull/362#issuecomment-5506373154"
+      ],
+      "evidenceUrls": [
+        "https://github.com/marionettejs/marionette/issues/127#issuecomment-5506372304"
+      ],
+      "rationale": "Authorize the exact measured distribution cost of the v5 DataApi seam and its Backbone adapter. The prototype centralizes data lookup, identity, observation, and collection updates without speculative padding, a new package subpath, an external import, or growth in the jQuery adapter artifacts. Exact-head artifact-growth and timing-harness approvals remain independent gates for the later runtime pull request.",
+      "rollbackCondition": "If the DataApi prototype is abandoned before consumption, append a governance-only BA0005 revocation. Never edit or delete this authorization. If the final implementation exceeds 78665 bytes or changes the authorized positive-delta artifact scope, require a new exact-base budget amendment."
     }
   ]
 }
