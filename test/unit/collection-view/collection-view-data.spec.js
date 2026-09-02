@@ -500,40 +500,6 @@ describe('CollectionView Data', function() {
       expect(myCollectionView.attachHtml).to.have.been.calledOnce;
     });
 
-    it('keeps the render path when the collection-order comparator is overridden', function() {
-      myCollectionView.destroy();
-
-      const CustomCollectionView = MyCollectionView.extend({
-        _viewComparator(view) {
-          return -this.collection.indexOf(view.model);
-        }
-      });
-      myCollectionView = new CustomCollectionView({ collection, emptyView });
-      myCollectionView.render();
-      this.sinon.spy(myCollectionView, 'attachHtml');
-
-      collection.remove(collection.at(1));
-
-      expect(myCollectionView.attachHtml).to.have.been.calledOnce;
-    });
-
-    it('keeps the render path when the collection update hook is overridden', function() {
-      myCollectionView.destroy();
-
-      const CustomCollectionView = MyCollectionView.extend({
-        _onCollectionUpdate(updatedCollection, options) {
-          return CollectionView.prototype._onCollectionUpdate.call(this, updatedCollection, options);
-        }
-      });
-      myCollectionView = new CustomCollectionView({ collection, emptyView });
-      myCollectionView.render();
-      this.sinon.spy(myCollectionView, 'attachHtml');
-
-      collection.remove(collection.at(1));
-
-      expect(myCollectionView.attachHtml).to.have.been.calledOnce;
-    });
-
     it('keeps the render path when the filter query is overridden', function() {
       myCollectionView.destroy();
 

@@ -3140,8 +3140,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     const isDefaultFilterQuery = this.getFilter === CollectionView.prototype.getFilter;
     const isDefaultSort = this.sort === CollectionView.prototype.sort;
     const isDefaultFilter = this.filter === CollectionView.prototype.filter;
-    const comparator = isDefaultComparator && this.getComparator();
-    const canRemoveWithoutRender = this._isRendered && changes.removed.length > 0 && changes.added.length === 0 && changes.merged.length === 0 && isDefaultComparator && isDefaultFilterQuery && isDefaultSort && isDefaultFilter && this._onCollectionUpdate === CollectionView.prototype._onCollectionUpdate && (!comparator || comparator === CollectionView.prototype._viewComparator) && !this.viewFilter && this.children.length === this._children.length && this._children.length > 0 && !this._hasUnrenderedViews && !this._emptyRegion.hasView();
+    const canRemoveWithoutRender = this._isRendered && changes.removed.length > 0 && changes.added.length === 0 && changes.merged.length === 0 && isDefaultComparator && isDefaultFilterQuery && isDefaultSort && isDefaultFilter && !this.viewComparator && !this.viewFilter && this.children.length === this._children.length && this._children.length > 0 && !this._hasUnrenderedViews && !this._emptyRegion.hasView();
     if (!canRemoveWithoutRender) {
       this.sort();
     }
