@@ -885,13 +885,14 @@ const View = function(options) {
   this.mergeOptions(options, ViewOptions);
 
   this._initViewEvents();
-  this.setElement(this._getEl());
-
-  monitorViewEvents(this);
-
-  this._initState(options);
 
   try {
+    this.setElement(this._getEl());
+
+    monitorViewEvents(this);
+
+    this._initState(options);
+
     this._initBehaviors();
     this._initRegions();
     this._buildEventProxies();
@@ -905,11 +906,13 @@ const View = function(options) {
 
     this._triggerEventOnBehaviors('initialize', this, options);
   } catch (error) {
+    this._rollbackViewEvents();
     try {
       this.undelegateEntityEvents();
     } catch {
       // Preserve the construction error after best-effort rollback.
     }
+    this._rollbackBehaviors();
     this._destroyState();
     throw error;
   }

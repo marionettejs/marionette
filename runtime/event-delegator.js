@@ -1,25 +1,35 @@
 // Event Delegator
 //  ---------
-import { assignOwn } from '../utils/assign-in.js';
+import MarionetteError from '../utils/error.js';
 
 // Static setter
-export function setEventDelegator(mixin) {
-  this.prototype.EventDelegator = assignOwn({}, this.prototype.EventDelegator, mixin);
+export function setEventDelegator(delegator) {
+  if (!delegator || typeof delegator.delegate !== 'function') {
+    throw new MarionetteError({
+      code: 'MN0036',
+      name: 'EventDelegatorError',
+      message: 'EventDelegator must provide a delegate method.',
+      url: 'dom.interactions.html#eventdelegator-adapter'
+    });
+  }
+
+  Object.defineProperty(this.prototype, 'EventDelegator', {
+    configurable: true,
+    enumerable: true,
+    value: delegator,
+    writable: false
+  });
   return this;
 }
 
 export default {
-
-  shouldCapture(eventName) {
-    return ['focus', 'blur'].indexOf(eventName) !== -1;
-  },
-
   // Delegate a matching event from the root element.
-  delegate({ eventName, selector, handler, events, rootEl }) {
-    const shouldCapture = this.shouldCapture(eventName);
+  delegate({ eventName, selector, handler, rootEl }) {
+    const capture = eventName === 'focus' || eventName === 'blur';
+    let eventHandler = handler;
 
     if (selector) {
-      const delegateHandler = function(evt) {
+      eventHandler = function(evt) {
         let node = evt.target;
         for (; node && node !== rootEl; node = node.parentNode) {
           if (node.nodeType === 1 && node.matches(selector)) {
@@ -29,27 +39,10 @@ export default {
           }
         }
       };
-
-      events.push({ eventName, handler: delegateHandler });
-      rootEl.addEventListener(eventName, delegateHandler, shouldCapture);
-
-      return;
     }
 
-    events.push({ eventName, handler });
-    rootEl.addEventListener(eventName, handler, shouldCapture);
-  },
+    rootEl.addEventListener(eventName, eventHandler, capture);
 
-  // Remove every delegated event from the root element.
-  undelegateAll({ events, rootEl }) {
-    if (!rootEl) { return; }
-
-    for (let index = 0, length = events.length; index < length; index++) {
-      const { eventName, handler } = events[index];
-      const shouldCapture = this.shouldCapture(eventName);
-      rootEl.removeEventListener(eventName, handler, shouldCapture);
-    }
-
-    events.length = 0;
+    return () => rootEl.removeEventListener(eventName, eventHandler, capture);
   }
 };

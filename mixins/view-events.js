@@ -1,4 +1,5 @@
 import EventDelegator from '../runtime/event-delegator.js';
+import MarionetteError from '../utils/error.js';
 import { resolveMethod } from '../modules/common/normalize-methods.js';
 import eachOwn from '../utils/each-own.js';
 import getValue from '../utils/get-value.js';
@@ -40,10 +41,26 @@ export default {
   },
 
   _undelegateViewEvents() {
-    this.EventDelegator.undelegateAll({
-      events: this._domEvents,
-      rootEl: this.el
-    });
+    let firstError;
+    const cleanups = this._domEvents.splice(0);
+
+    for (let index = cleanups.length - 1; index >= 0; index--) {
+      try {
+        cleanups[index]();
+      } catch (error) {
+        firstError ||= error;
+      }
+    }
+
+    if (firstError) { throw firstError; }
+  },
+
+  _rollbackViewEvents() {
+    try {
+      this._undelegateViewEvents();
+    } catch {
+      // Preserve the construction or registration error after all cleanups run.
+    }
   },
 
   _delegateViewEvents(view = this, events) {
@@ -53,8 +70,13 @@ export default {
     const delegates = [];
     this._delegateEvents(delegates, uiBindings, events);
     this._delegateTriggers(delegates, uiBindings, view);
-    for (let index = 0; index < delegates.length; index += 2) {
-      this._delegate(delegates[index], delegates[index + 1]);
+    try {
+      for (let index = 0; index < delegates.length; index += 2) {
+        this._delegate(delegates[index], delegates[index + 1]);
+      }
+    } catch (error) {
+      this._rollbackViewEvents();
+      throw error;
     }
   },
 
@@ -78,12 +100,22 @@ export default {
 
   _delegate(handler, key) {
     const match = key.match(delegateEventSplitter);
-    this.EventDelegator.delegate({
+    const cleanup = this.EventDelegator.delegate({
       eventName: match[1],
       selector: match[2],
       handler,
-      events: this._domEvents,
       rootEl: this.el
     });
+
+    if (typeof cleanup !== 'function') {
+      throw new MarionetteError({
+        code: 'MN0036',
+        name: 'EventDelegatorError',
+        message: 'EventDelegator.delegate must return a cleanup function.',
+        url: 'dom.interactions.html#eventdelegator-adapter'
+      });
+    }
+
+    this._domEvents.push(cleanup);
   }
 };

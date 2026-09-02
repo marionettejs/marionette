@@ -1384,9 +1384,13 @@
       try {
         parseBehaviors(this, getValue(this, 'behaviors'), this._behaviors);
       } catch (error) {
-        rollbackBehaviors(this._behaviors);
+        this._rollbackBehaviors();
         throw error;
       }
+    },
+    _rollbackBehaviors() {
+      rollbackBehaviors(this._behaviors || []);
+      this._behaviors = [];
     },
     _getBehaviorTriggers() {
       return mergeBehaviorMaps(this._behaviors, behavior => behavior._getTriggers());
@@ -1695,24 +1699,34 @@
     }
   };
 
-  function setEventDelegator$1(mixin) {
-    this.prototype.EventDelegator = assignOwn({}, this.prototype.EventDelegator, mixin);
+  function setEventDelegator$1(delegator) {
+    if (!delegator || typeof delegator.delegate !== 'function') {
+      throw new MarionetteError({
+        code: 'MN0036',
+        name: 'EventDelegatorError',
+        message: 'EventDelegator must provide a delegate method.',
+        url: 'dom.interactions.html#eventdelegator-adapter'
+      });
+    }
+    Object.defineProperty(this.prototype, 'EventDelegator', {
+      configurable: true,
+      enumerable: true,
+      value: delegator,
+      writable: false
+    });
     return this;
   }
   var EventDelegator = {
-    shouldCapture(eventName) {
-      return ['focus', 'blur'].indexOf(eventName) !== -1;
-    },
     delegate({
       eventName,
       selector,
       handler,
-      events,
       rootEl
     }) {
-      const shouldCapture = this.shouldCapture(eventName);
+      const capture = eventName === 'focus' || eventName === 'blur';
+      let eventHandler = handler;
       if (selector) {
-        const delegateHandler = function (evt) {
+        eventHandler = function (evt) {
           let node = evt.target;
           for (; node && node !== rootEl; node = node.parentNode) {
             if (node.nodeType === 1 && node.matches(selector)) {
@@ -1722,35 +1736,9 @@
             }
           }
         };
-        events.push({
-          eventName,
-          handler: delegateHandler
-        });
-        rootEl.addEventListener(eventName, delegateHandler, shouldCapture);
-        return;
       }
-      events.push({
-        eventName,
-        handler
-      });
-      rootEl.addEventListener(eventName, handler, shouldCapture);
-    },
-    undelegateAll({
-      events,
-      rootEl
-    }) {
-      if (!rootEl) {
-        return;
-      }
-      for (let index = 0, length = events.length; index < length; index++) {
-        const {
-          eventName,
-          handler
-        } = events[index];
-        const shouldCapture = this.shouldCapture(eventName);
-        rootEl.removeEventListener(eventName, handler, shouldCapture);
-      }
-      events.length = 0;
+      rootEl.addEventListener(eventName, eventHandler, capture);
+      return () => rootEl.removeEventListener(eventName, eventHandler, capture);
     }
   };
 
@@ -1780,10 +1768,23 @@
       this._domEvents = [];
     },
     _undelegateViewEvents() {
-      this.EventDelegator.undelegateAll({
-        events: this._domEvents,
-        rootEl: this.el
-      });
+      let firstError;
+      const cleanups = this._domEvents.splice(0);
+      for (let index = cleanups.length - 1; index >= 0; index--) {
+        try {
+          cleanups[index]();
+        } catch (error) {
+          firstError ||= error;
+        }
+      }
+      if (firstError) {
+        throw firstError;
+      }
+    },
+    _rollbackViewEvents() {
+      try {
+        this._undelegateViewEvents();
+      } catch {}
     },
     _delegateViewEvents(view = this, events) {
       if (!events && !this.events && !this.triggers) {
@@ -1793,8 +1794,13 @@
       const delegates = [];
       this._delegateEvents(delegates, uiBindings, events);
       this._delegateTriggers(delegates, uiBindings, view);
-      for (let index = 0; index < delegates.length; index += 2) {
-        this._delegate(delegates[index], delegates[index + 1]);
+      try {
+        for (let index = 0; index < delegates.length; index += 2) {
+          this._delegate(delegates[index], delegates[index + 1]);
+        }
+      } catch (error) {
+        this._rollbackViewEvents();
+        throw error;
       }
     },
     _delegateEvents(delegates, uiBindings, events) {
@@ -1817,13 +1823,21 @@
     },
     _delegate(handler, key) {
       const match = key.match(delegateEventSplitter);
-      this.EventDelegator.delegate({
+      const cleanup = this.EventDelegator.delegate({
         eventName: match[1],
         selector: match[2],
         handler,
-        events: this._domEvents,
         rootEl: this.el
       });
+      if (typeof cleanup !== 'function') {
+        throw new MarionetteError({
+          code: 'MN0036',
+          name: 'EventDelegatorError',
+          message: 'EventDelegator.delegate must return a cleanup function.',
+          url: 'dom.interactions.html#eventdelegator-adapter'
+        });
+      }
+      this._domEvents.push(cleanup);
     }
   };
 
@@ -2754,10 +2768,10 @@
     this.preinitialize.apply(this, arguments);
     this.mergeOptions(options, ViewOptions);
     this._initViewEvents();
-    this.setElement(this._getEl());
-    monitorViewEvents(this);
-    this._initState(options);
     try {
+      this.setElement(this._getEl());
+      monitorViewEvents(this);
+      this._initState(options);
       this._initBehaviors();
       this._initRegions();
       this._buildEventProxies();
@@ -2769,9 +2783,11 @@
       this.delegateEntityEvents();
       this._triggerEventOnBehaviors('initialize', this, options);
     } catch (error) {
+      this._rollbackViewEvents();
       try {
         this.undelegateEntityEvents();
       } catch {}
+      this._rollbackBehaviors();
       this._destroyState();
       throw error;
     }
@@ -3197,10 +3213,10 @@
     this.preinitialize.apply(this, arguments);
     this.mergeOptions(options, ViewOptions);
     this._initViewEvents();
-    this.setElement(this._getEl());
-    monitorViewEvents(this);
-    this._initState(options);
     try {
+      this.setElement(this._getEl());
+      monitorViewEvents(this);
+      this._initState(options);
       this._initChildViewStorage();
       this._initBehaviors();
       this._buildEventProxies();
@@ -3213,9 +3229,11 @@
       this.delegateEntityEvents();
       this._triggerEventOnBehaviors('initialize', this, options);
     } catch (error) {
+      this._rollbackViewEvents();
       try {
         this.undelegateEntityEvents();
       } catch {}
+      this._rollbackBehaviors();
       this._destroyState();
       throw error;
     }
@@ -3829,7 +3847,9 @@
       this._initStateEvents();
       this._syncElement();
     } catch (error) {
+      this._rollbackViewEvents();
       this._destroyState();
+      this.stopListening();
       throw error;
     }
   };

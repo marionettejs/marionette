@@ -62,6 +62,54 @@ describe('View DOM event delegation', function() {
     });
   });
 
+  [
+    ['View', View],
+    ['CollectionView', CollectionView]
+  ].forEach(([name, ViewClass]) => {
+    it(`removes ${ name } DOM handlers when initialize throws`, function() {
+      const root = document.createElement('div');
+      const button = document.createElement('button');
+      const handler = this.sinon.spy();
+      const failure = new Error('initialize failed');
+      root.append(button);
+
+      const FailingView = ViewClass.extend({
+        events: { 'click button': handler },
+        initialize() {
+          throw failure;
+        }
+      });
+
+      expect(() => new FailingView({ el: root })).to.throw(failure);
+      button.click();
+
+      expect(handler).not.to.have.been.called;
+    });
+  });
+
+  it('removes Behavior DOM handlers when its host initialize throws', function() {
+    const root = document.createElement('div');
+    const button = document.createElement('button');
+    const handler = this.sinon.spy();
+    const failure = new Error('initialize failed');
+    root.append(button);
+
+    const TestBehavior = Behavior.extend({
+      events: { 'click button': handler }
+    });
+    const FailingView = View.extend({
+      behaviors: [TestBehavior],
+      initialize() {
+        throw failure;
+      }
+    });
+
+    expect(() => new FailingView({ el: root })).to.throw(failure);
+    button.click();
+
+    expect(handler).not.to.have.been.called;
+  });
+
   it('redelegates an explicit map with View triggers and Behavior handlers', function() {
     this.setFixtures(`
       <div id="view">

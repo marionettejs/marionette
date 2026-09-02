@@ -104,11 +104,27 @@ This is a native DOM contract, not an emulation of jQuery's event system:
   trigger arguments are not forwarded. Put application data in a
   `CustomEvent`'s `detail`, or use Marionette events when positional arguments
   are part of the application contract.
+- Delegated `focus` and `blur` handlers run during capture, before listeners on
+  the target element. A Marionette trigger stops propagation by default, so set
+  `stopPropagation: false` on a focus or blur trigger when the target must also
+  receive the event. Marionette does not translate these names to `focusin` or
+  `focusout`.
 
 The optional jQuery DomApi changes query and DOM-manipulation operations only;
 it does not replace the native EventDelegator. Applications with a verified
-need for different delegation semantics can provide an explicit
-`setEventDelegator` adapter.
+need for different delegation semantics can provide an explicit adapter through
+`setEventDelegator`.
+
+### EventDelegator runtime adapter
+
+An EventDelegator is a complete adapter with one method:
+`delegate({ eventName, selector, handler, rootEl })`. It registers that handler
+and returns an idempotent cleanup function for the exact registration, including
+its original root and listener options. Marionette stores the cleanup and calls
+it during redelegation, `setElement()`, destruction, and failed construction.
+The adapter must register atomically and must not mutate View internals. See the
+EventDelegator Adapter section of the DOM interactions API documentation for
+the complete timing, error, and cleanup contract.
 
 ## Atomic Radio migration
 

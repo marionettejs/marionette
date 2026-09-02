@@ -8,7 +8,8 @@ import { View } from 'marionette';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const docsDir = resolve(__dirname, '../../../docs');
 const docsPath = resolve(docsDir, 'dom.interactions.md');
-const marker = '<!-- executable-example: view-dom-interactions -->';
+const viewMarker = '<!-- executable-example: view-dom-interactions -->';
+const adapterMarker = '<!-- executable-example: event-delegator-adapter -->';
 const markdown = await readFile(docsPath, 'utf8');
 
 const targetAnchors = new Set(
@@ -42,18 +43,25 @@ assert.throws(
   'the source-link guard must reject the known singular filename typo',
 );
 
-assert.equal(markdown.split(marker).length - 1, 1, 'expected one executable example marker');
+function getExample(marker) {
+  assert.equal(markdown.split(marker).length - 1, 1, `expected one ${ marker } marker`);
 
-const markedContent = markdown.slice(markdown.indexOf(marker) + marker.length);
-const codeFence = markedContent.match(/^\s*```javascript\n([\s\S]*?)\n```/);
+  const markedContent = markdown.slice(markdown.indexOf(marker) + marker.length);
+  const codeFence = markedContent.match(/^\s*```javascript\n([\s\S]*?)\n```/);
 
-assert.ok(codeFence, 'expected a JavaScript fence immediately after the marker');
+  assert.ok(codeFence, `expected a JavaScript fence immediately after ${ marker }`);
+  return codeFence[1];
+}
 
 const distDir = resolve(__dirname, 'dist');
 const examplePath = resolve(distDir, 'example.mjs');
+const adapterPath = resolve(distDir, 'adapter.mjs');
 
 await mkdir(distDir, { recursive: true });
-await writeFile(examplePath, `${codeFence[1]}\n`, 'utf8');
+await Promise.all([
+  writeFile(examplePath, `${ getExample(viewMarker) }\n`, 'utf8'),
+  writeFile(adapterPath, `${ getExample(adapterMarker) }\n`, 'utf8'),
+]);
 
 const dom = new JSDOM(`<!doctype html>
   <html>
@@ -206,6 +214,33 @@ function assertStructuralBoundary() {
   assert.equal(childView.isDestroyed(), true, 'fixture cleanup must follow parent-owned child lifecycle');
 }
 
+async function assertEventDelegatorExample() {
+  const { CustomEventDelegator } = await import(pathToFileURL(adapterPath));
+  const root = document.createElement('div');
+  root.innerHTML = '<button class="action">Click text</button>';
+  const button = root.querySelector('.action');
+  let deliveryCount = 0;
+  let delegateTarget;
+  const AdaptedView = View.extend({
+    events: {
+      'click .action'(event) {
+        deliveryCount += 1;
+        delegateTarget = event.delegateTarget;
+      },
+    },
+  });
+  AdaptedView.setEventDelegator(CustomEventDelegator);
+  const view = new AdaptedView({ el: root });
+
+  button.firstChild.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
+  assert.equal(deliveryCount, 1, 'the adapter example must handle a text-node target');
+  assert.equal(delegateTarget, button, 'the adapter example must expose the closest match');
+
+  view.destroy();
+  button.click();
+  assert.equal(deliveryCount, 1, 'the adapter example cleanup must remove its registration');
+}
+
 try {
   const { FormView } = await import(pathToFileURL(examplePath));
 
@@ -216,6 +251,7 @@ try {
 
   assert.notEqual(firstView, secondView, 'each example run must create a fresh View');
   assertStructuralBoundary();
+  await assertEventDelegatorExample();
 } finally {
   dom.window.close();
   delete globalThis.document;

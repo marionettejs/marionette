@@ -97,9 +97,14 @@ export default {
     try {
       parseBehaviors(this, getValue(this, 'behaviors'), this._behaviors);
     } catch (error) {
-      rollbackBehaviors(this._behaviors);
+      this._rollbackBehaviors();
       throw error;
     }
+  },
+
+  _rollbackBehaviors() {
+    rollbackBehaviors(this._behaviors || []);
+    this._behaviors = [];
   },
 
   _getBehaviorTriggers() {
