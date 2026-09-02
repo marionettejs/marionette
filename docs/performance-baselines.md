@@ -203,9 +203,23 @@ preserves the original construction error, and keeps public lifecycle timing. It
 grows only the four existing main artifacts, adds no production graph edge, external
 import, package subpath, allocation or retention proxy, or speculative headroom, and
 leaves the optional adapter artifacts unchanged.
-[PR #378](https://github.com/marionettejs/marionette/pull/378) records the pending
-ceiling; a later runtime PR must consume it with independent exact-head artifact-growth
-approval.
+[PR #378](https://github.com/marionettejs/marionette/pull/378) recorded the
+authorization. [PR #379](https://github.com/marionettejs/marionette/pull/379)
+consumed it with independent exact-head artifact-growth approval.
+
+BA0010 authorizes an increase from 79,779 to 100,000 bytes as a deliberate
+development envelope for the remaining v5 core runtime work. The exact-base
+StateApi and DataApi prototype tracked by
+[#191](https://github.com/marionettejs/marionette/issues/191) proves that the
+previous ceiling is exhausted while adding about 1.4 kB to an individual root
+artifact. The aggregate reports 5,351 bytes because it sums parallel ESM, CommonJS,
+UMD, and minified UMD delivery formats. The proposal restores this metric as a coarse
+runaway-growth backstop after nine authorization rounds; it does not approve new
+subpaths, external imports, eager allocations, retained resources, or bypass
+exact-base artifact and consumer reporting. Before beta promotion, review the
+envelope against the completed core and canonical consumer scenarios.
+[PR #382](https://github.com/marionettejs/marionette/pull/382) records the pending
+ceiling; a later runtime PR must consume it independently.
 
 The approval must come from a different base-allowed maintainer whenever the exact-base
 allowlist contains an eligible alternative. If the pull-request author is the sole
