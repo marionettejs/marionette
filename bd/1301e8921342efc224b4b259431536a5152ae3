@@ -1,0 +1,55 @@
+mixins/view.js
+  s_d93f45db31dead::t_ad0e0a1a8aa334 243
+ROADMAP.md
+  s_d93f45db31dead::t_9909b847552087 352-357,629-631
+  s_d93f45db31dead::t_0f00a3ff4bd110 628,772-774
+test/unit/mixins/view.spec.js
+  s_d93f45db31dead::t_f56bd1b3c77891 540-542
+test/unit/backbone.marionette.spec.js
+  s_d93f45db31dead::t_f56bd1b3c77891 63,65
+mixins/view-events.js
+  s_d93f45db31dead::t_ad0e0a1a8aa334 18-19
+config/diagnostics/catalog.json
+  s_d93f45db31dead::t_9909b847552087 456,464
+changelog.md
+  s_d93f45db31dead::t_9909b847552087 29-31
+docs/migration-from-v4.md
+  s_d93f45db31dead::t_9909b847552087 26
+test/unit/config/diagnostic-catalog.spec.js
+  s_d93f45db31dead::t_34284318daf4b5 473,481
+  s_d93f45db31dead::t_57f73e8daf86be 488
+test/unit/mixins/view-composition.spec.js
+  s_d93f45db31dead::t_f56bd1b3c77891 226,231
+docs/dom.interactions.md
+  s_d93f45db31dead::t_9909b847552087 150
+test/unit/view.triggers.spec.js
+  s_d93f45db31dead::t_88fec2f5022c24 151,162-163
+dist/marionette.cjs
+  s_d93f45db31dead::t_4b8c4ce76fb0c0 1650-1651,1938
+dist/marionette.js
+  s_d93f45db31dead::t_ff94615a498df7 1646-1647,1934,4273
+dist/marionette.min.js
+  s_d93f45db31dead::t_43188094117830 1
+dist/marionette.min.js.map
+  s_d93f45db31dead::t_d0d2028b9a5198 1
+dist/marionette.umd.js
+  s_d93f45db31dead::t_a3e299a1c024c4 1657-1658,1945
+dist/marionette.umd.js.map
+  s_d93f45db31dead::t_4f25362dde4a13 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "bd1301e8921342efc224b4b259431536a5152ae3",
+  "prompts": {},
+  "sessions": {
+    "s_d93f45db31dead": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05c69-15cb-71b1-836b-0fdd2f01d1c5",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
