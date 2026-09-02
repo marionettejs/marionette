@@ -322,7 +322,9 @@
         "path": "evidence/performance-budget-amendments/BA0008/prototype-contract.json",
         "sha256": "a117f353c4e68bdca9fef97640241b877cb79aeb4868b1ef1727e5eab251e1a6"
       },
-      "approvalUrls": [],
+      "approvalUrls": [
+        "https://github.com/marionettejs/marionette/pull/373#issuecomment-5510103233"
+      ],
       "evidenceUrls": [
         "https://github.com/marionettejs/marionette/issues/127#issuecomment-5510089416"
       ],
