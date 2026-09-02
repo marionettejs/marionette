@@ -137,7 +137,7 @@
     "@vitest/coverage-v8": "^4.1.11",
     "ajv": "8.20.0",
     "backbone": "^1.4.0",
-    "browserslist": "4.28.4",
+    "browserslist": "4.28.8",
     "eslint": "10.9.1",
     "eslint-plugin-jsdoc": "63.3.3",
     "globals": "17.11.0",
