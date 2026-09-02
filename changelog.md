@@ -1,5 +1,9 @@
 ### v5.0.0-alpha.2
 
+* Made ESM the canonical distribution for new applications while retaining CJS and
+  both UMD outputs as v5 compatibility distributions; UMD and AMD consumers are
+  asked to identify their usage in the public issue tracker before the six-month
+  post-stable distribution review
 * Added a small synchronous `State` class for local mutable values with atomic
   writes, explicit change payloads, reset and destroy semantics, and no
   Backbone dependency
