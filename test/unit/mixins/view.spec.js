@@ -1,6 +1,7 @@
 import Backbone from 'backbone';
 import Behavior from '../../../modules/behavior';
 import CollectionView from '../../../modules/collection-view';
+import Region from '../../../modules/region';
 import View from '../../../modules/view';
 
 describe('view mixin', function() {
@@ -26,6 +27,98 @@ describe('view mixin', function() {
 
     it('should set _behaviors', function() {
       expect(view._behaviors).to.be.eql([]);
+    });
+  });
+
+  describe('when construction fails after rendering', function() {
+    it('rolls back CollectionView children, DOM, observer, and empty Region', function() {
+      const constructionError = new Error('construction failed');
+      const observerCleanup = this.sinon.spy();
+      const regionDestroy = this.sinon.spy(Region.prototype, 'destroy');
+      const children = [];
+      const ChildView = View.extend({
+        template: () => 'child',
+        initialize() {
+          children.push(this);
+        }
+      });
+      const TestView = CollectionView.extend({
+        childView: ChildView,
+        initialize() {
+          this.render();
+          throw constructionError;
+        }
+      });
+      TestView.setDataApi({
+        observeCollection() {
+          return observerCleanup;
+        }
+      });
+      const rootEl = document.createElement('div');
+
+      expect(() => new TestView({
+        collection: new Backbone.Collection([{}, {}]),
+        el: rootEl
+      })).to.throw(constructionError);
+
+      expect(children).to.have.lengthOf(2);
+      expect(children.every(child => child.isDestroyed())).to.be.true;
+      expect(rootEl).to.have.property('textContent', '');
+      expect(observerCleanup).to.have.been.calledOnce;
+      expect(regionDestroy).to.have.been.calledOnce;
+    });
+
+    it('continues rollback and preserves construction failure when observer cleanup throws', function() {
+      const constructionError = new Error('construction failed');
+      const cleanupError = new Error('cleanup failed');
+      const observerCleanup = this.sinon.stub().throws(cleanupError);
+      const stopListening = this.sinon.spy(CollectionView.prototype, 'stopListening');
+      let child;
+      const ChildView = View.extend({
+        template: () => 'child',
+        initialize() {
+          child = this;
+        }
+      });
+      const TestView = CollectionView.extend({
+        childView: ChildView,
+        initialize() {
+          this.render();
+          throw constructionError;
+        }
+      });
+      TestView.setDataApi({
+        observeCollection() {
+          return observerCleanup;
+        }
+      });
+
+      expect(() => new TestView({ collection: new Backbone.Collection([{}]) }))
+        .to.throw(constructionError);
+
+      expect(child.isDestroyed()).to.be.true;
+      expect(observerCleanup).to.have.been.calledOnce;
+      expect(stopListening).to.have.been.called;
+    });
+
+    it('destroys a View Region child created before construction fails', function() {
+      const constructionError = new Error('construction failed');
+      const rootEl = document.createElement('div');
+      const child = new View({ template: () => 'child' });
+      const TestView = View.extend({
+        regions: { content: '.content' },
+        template: () => '<div class="content"></div>',
+        initialize() {
+          this.render();
+          this.showChildView('content', child);
+          throw constructionError;
+        }
+      });
+
+      expect(() => new TestView({ el: rootEl })).to.throw(constructionError);
+
+      expect(child.isDestroyed()).to.be.true;
+      expect(rootEl.querySelector('.content')).to.have.property('textContent', '');
     });
   });
 
