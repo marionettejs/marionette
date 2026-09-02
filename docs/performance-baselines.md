@@ -145,15 +145,16 @@ consumer scenario/format combinations reporting-only.
 [PR #352](https://github.com/marionettejs/marionette/pull/352) consumed that
 authorization with independent exact-head growth approval.
 
-BA0005 authorizes a pending exact-prototype increase from 75,799 to 78,665
+BA0005 authorized an exact-prototype increase from 75,799 to 78,665
 bytes for the DataApi seam tracked by
 [#104](https://github.com/marionettejs/marionette/issues/104). The measured
 prototype centralizes data lookup, identity, observation, and collection updates
 behind a native default and a Backbone adapter. It grows six existing main and
 Backbone artifacts, adds no package subpath or external import, leaves the jQuery
-adapter artifacts unchanged, and includes no speculative headroom. The later
-runtime pull request must consume the authorization from its merged exact base and
-obtain independent exact-head artifact-growth and timing-harness approvals.
+adapter artifacts unchanged, and includes no speculative headroom.
+[PR #363](https://github.com/marionettejs/marionette/pull/363) consumes the
+authorization from its merged exact base and must obtain independent exact-head
+artifact-growth and timing-harness approvals.
 
 The approval must come from a different base-allowed maintainer whenever the exact-base
 allowlist contains an eligible alternative. If the pull-request author is the sole
