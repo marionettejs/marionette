@@ -1,0 +1,30 @@
+docs/performance-baselines.md
+  s_d93f45db31dead::t_2758d77703fb89 155-156,159-169
+  s_104642983dcc10::t_5245555bba1466 170
+config/release/performance-budget-amendments.json
+  s_d93f45db31dead::t_799d576f703425 210-250
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "d2800ecf0d1e1c229f8aca272adad95fac345bef",
+  "prompts": {},
+  "sessions": {
+    "s_104642983dcc10": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a87cd9c6-fa43-4039-a2f4-4b6010f33907",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_d93f45db31dead": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05c69-15cb-71b1-836b-0fdd2f01d1c5",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
