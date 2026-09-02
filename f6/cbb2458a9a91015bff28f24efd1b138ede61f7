@@ -1,0 +1,21 @@
+config/release/performance-budget-amendments.json
+  s_8acc1a5f7c4467::t_a93cc9fa71135e 374-416
+docs/performance-baselines.md
+  s_8acc1a5f7c4467::t_a93cc9fa71135e 206-222
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "f6cbb2458a9a91015bff28f24efd1b138ede61f7",
+  "prompts": {},
+  "sessions": {
+    "s_8acc1a5f7c4467": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06326-7562-7453-8271-d3c06bc8882c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
