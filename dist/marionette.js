@@ -1969,7 +1969,7 @@ const ViewMixin = {
   _rollbackView(error) {
     const dataObserverUnsubscribe = this._dataObserverUnsubscribe;
     delete this._dataObserverUnsubscribe;
-    disposeAll([() => this.stopListening(), () => this._destroyState(), () => this._rollbackBehaviors(), () => this.undelegateEntityEvents(), () => this._undelegateViewEvents(), dataObserverUnsubscribe, () => this._removeChildren()], error);
+    disposeAll([() => this.stopListening(), () => this._destroyState(), () => this._rollbackBehaviors(), () => this.undelegateEntityEvents(), () => this._undelegateViewEvents(), () => this._removeChildren(), dataObserverUnsubscribe], error);
   },
   delegateEvents(events) {
     if (this._isDestroying || this._isDestroyed) {

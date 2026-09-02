@@ -134,8 +134,8 @@ const ViewMixin = {
       () => this._rollbackBehaviors(),
       () => this.undelegateEntityEvents(),
       () => this._undelegateViewEvents(),
-      dataObserverUnsubscribe,
-      () => this._removeChildren()
+      () => this._removeChildren(),
+      dataObserverUnsubscribe
     ], error);
   },
 

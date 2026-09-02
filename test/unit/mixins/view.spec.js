@@ -36,10 +36,15 @@ describe('view mixin', function() {
       const observerCleanup = this.sinon.spy();
       const regionDestroy = this.sinon.spy(Region.prototype, 'destroy');
       const children = [];
+      const rollbackStates = [];
       const ChildView = View.extend({
         template: () => 'child',
         initialize() {
           children.push(this);
+        },
+        destroy() {
+          rollbackStates.push(observerCleanup.calledOnce);
+          return View.prototype.destroy.call(this);
         }
       });
       const TestView = CollectionView.extend({
@@ -66,6 +71,7 @@ describe('view mixin', function() {
       expect(rootEl).to.have.property('textContent', '');
       expect(observerCleanup).to.have.been.calledOnce;
       expect(regionDestroy).to.have.been.calledOnce;
+      expect(rollbackStates).to.deep.equal([true, true]);
     });
 
     it('continues rollback and preserves construction failure when observer cleanup throws', function() {
