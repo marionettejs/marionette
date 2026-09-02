@@ -517,7 +517,7 @@ the runtime graph. They should consume the same documented rule catalog and publ
 metadata rather than encode a second model of Marionette.
 
 Declarative definition helpers, adapter implementations beyond the selected
-Backbone, jQuery, native observable-list, keyed snapshot-store, and XState actor
+Backbone, jQuery, native observable-list, keyed snapshot observer, and XState actor
 categories, new CollectionView strategies, and renderer integrations remain
 evidence-dependent. They may be explored after the foundation is measurable, but do
 not block stable v5 without benchmark evidence. The neutral DataApi boundary and the
@@ -799,14 +799,14 @@ development and test fixtures exercise every public helper.
 - After that early candidate is available, complete the selected
   [collection-data track][issue-376] before the full release candidate. Add the native
   observable ordered list and the
-  shared immutable-snapshot and XState actor adapters without adding source-specific
+  shared keyed snapshot observer and XState actor adapters without adding source-specific
   reconciliation to CollectionView. Verify initial render, exact add/remove, reorder,
   reset, empty transitions, sorting, filtering, retained-item updates, same-key
   immutable replacement, pre-render mutation, repeated render, setup rollback,
   idempotent destruction, late notification, shared-source observation, and reentrant
   notification behavior through public APIs. Marionette destroys views and its own
   subscriptions but never stops caller-owned actors.
-- Measure Backbone exact-event, native direct-record, and keyed snapshot updates at
+- Measure Backbone exact-event, native direct-record, and keyed snapshot-observer updates at
   representative 1,000- and 10,000-item sizes. Exact-event and native sources must not
   regress to snapshot diffing; each relevant snapshot notification performs at most
   one keyed O(n) comparison; unrelated notifications are no-ops; unchanged child Views
