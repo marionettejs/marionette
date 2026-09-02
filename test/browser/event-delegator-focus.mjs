@@ -47,8 +47,10 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
         }
 
         view.destroy();
+        const afterDestroy = order.length;
+        field.dispatchEvent(new FocusEvent(eventName));
         root.remove();
-        return order;
+        return { afterDestroy, order };
       }
 
       return {
@@ -60,10 +62,10 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
     });
 
     assert.deepEqual(results, {
-      blurDefault: ['trigger'],
-      blurOpen: ['trigger', 'target'],
-      focusDefault: ['trigger'],
-      focusOpen: ['trigger', 'target']
+      blurDefault: { afterDestroy: 1, order: ['trigger', 'target'] },
+      blurOpen: { afterDestroy: 2, order: ['trigger', 'target', 'target'] },
+      focusDefault: { afterDestroy: 1, order: ['trigger', 'target'] },
+      focusOpen: { afterDestroy: 2, order: ['trigger', 'target', 'target'] }
     }, `${ browserName }: delegated focus and blur ordering`);
 
     console.log(`${ browserName }: delegated focus and blur ordering passed`);

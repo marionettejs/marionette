@@ -125,13 +125,29 @@ const ViewMixin = {
     return !!this._isAttached;
   },
 
+  _rollbackView(error) {
+    disposeAll([
+      () => this._destroyState(),
+      () => this._rollbackBehaviors(),
+      () => this.undelegateEntityEvents(),
+      () => this._undelegateViewEvents()
+    ], error);
+  },
+
   delegateEvents(events) {
     if (this._isDestroying || this._isDestroyed) { return this; }
 
     this.undelegateEvents();
     this._buildEventProxies();
-    this._delegateViewEvents(this, events);
-    this._setBehaviorElements();
+    try {
+      this._delegateViewEvents(this, events);
+      this._setBehaviorElements();
+    } catch (error) {
+      disposeAll([
+        () => this._undelegateBehaviorViewEvents(),
+        () => this._undelegateViewEvents()
+      ], error);
+    }
 
     return this;
   },

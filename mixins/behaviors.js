@@ -1,6 +1,7 @@
 import { assignOwn } from '../utils/assign-in.js';
 import eachOwn from '../utils/each-own.js';
 import MarionetteError from '../utils/error.js';
+import disposeAll from '../utils/dispose-all.js';
 import getValue from '../utils/get-value.js';
 
 // MixinOptions
@@ -80,6 +81,13 @@ function eachBehavior(behaviors, iteratee) {
   }
 }
 
+function disposeBehaviors(behaviors, method, options) {
+  if (behaviors == null) { return; }
+
+  const disposers = behaviors.map(behavior => () => behavior[method](options));
+  disposeAll(disposers.reverse());
+}
+
 function rollbackBehaviors(behaviors) {
   for (let index = 0, length = behaviors.length; index < length; index++) {
     try {
@@ -121,7 +129,7 @@ export default {
   },
 
   _undelegateBehaviorViewEvents() {
-    eachBehavior(this._behaviors, behavior => behavior._undelegateViewEvents());
+    disposeBehaviors(this._behaviors, '_undelegateViewEvents');
   },
 
   // delegate modelEvents and collectionEvents
@@ -131,24 +139,7 @@ export default {
 
   // undelegate modelEvents and collectionEvents
   _undelegateBehaviorEntityEvents() {
-    const behaviors = this._behaviors;
-    if (behaviors == null) { return; }
-
-    let error;
-    let hasError = false;
-
-    for (let index = 0, length = behaviors.length; index < length; index++) {
-      try {
-        behaviors[index].undelegateEntityEvents();
-      } catch (undelegateError) {
-        if (!hasError) {
-          error = undelegateError;
-          hasError = true;
-        }
-      }
-    }
-
-    if (hasError) { throw error; }
+    disposeBehaviors(this._behaviors, 'undelegateEntityEvents');
   },
 
   _destroyBehaviors(options) {
@@ -156,23 +147,7 @@ export default {
     // destroying the view.
     // This unbinds event listeners
     // that behaviors have registered for.
-    const behaviors = this._behaviors;
-    if (behaviors == null) { return; }
-
-    let error;
-    let hasError = false;
-    for (let index = 0, length = behaviors.length; index < length; index++) {
-      try {
-        behaviors[index].destroy(options);
-      } catch (destroyError) {
-        if (!hasError) {
-          error = destroyError;
-          hasError = true;
-        }
-      }
-    }
-
-    if (hasError) { throw error; }
+    disposeBehaviors(this._behaviors, 'destroy', options);
   },
 
   // Remove a behavior

@@ -1297,6 +1297,27 @@ function destroyView(view, disableDetachEvents) {
   }
 }
 
+function disposeAll(disposers, error) {
+  let hasError = arguments.length > 1;
+  for (let index = disposers.length - 1; index >= 0; index--) {
+    const disposer = disposers[index];
+    if (!disposer) {
+      continue;
+    }
+    try {
+      disposer();
+    } catch (disposalError) {
+      if (!hasError) {
+        error = disposalError;
+        hasError = true;
+      }
+    }
+  }
+  if (hasError) {
+    throw error;
+  }
+}
+
 function getBehaviorClass(options) {
   if (options.behaviorClass) {
     return {
@@ -1360,6 +1381,13 @@ function eachBehavior(behaviors, iteratee) {
     iteratee(behaviors[index]);
   }
 }
+function disposeBehaviors(behaviors, method, options) {
+  if (behaviors == null) {
+    return;
+  }
+  const disposers = behaviors.map(behavior => () => behavior[method](options));
+  disposeAll(disposers.reverse());
+}
 function rollbackBehaviors(behaviors) {
   for (let index = 0, length = behaviors.length; index < length; index++) {
     try {
@@ -1391,52 +1419,16 @@ var BehaviorsMixin = {
     eachBehavior(this._behaviors, behavior => behavior._syncElement());
   },
   _undelegateBehaviorViewEvents() {
-    eachBehavior(this._behaviors, behavior => behavior._undelegateViewEvents());
+    disposeBehaviors(this._behaviors, '_undelegateViewEvents');
   },
   _delegateBehaviorEntityEvents() {
     eachBehavior(this._behaviors, behavior => behavior.delegateEntityEvents());
   },
   _undelegateBehaviorEntityEvents() {
-    const behaviors = this._behaviors;
-    if (behaviors == null) {
-      return;
-    }
-    let error;
-    let hasError = false;
-    for (let index = 0, length = behaviors.length; index < length; index++) {
-      try {
-        behaviors[index].undelegateEntityEvents();
-      } catch (undelegateError) {
-        if (!hasError) {
-          error = undelegateError;
-          hasError = true;
-        }
-      }
-    }
-    if (hasError) {
-      throw error;
-    }
+    disposeBehaviors(this._behaviors, 'undelegateEntityEvents');
   },
   _destroyBehaviors(options) {
-    const behaviors = this._behaviors;
-    if (behaviors == null) {
-      return;
-    }
-    let error;
-    let hasError = false;
-    for (let index = 0, length = behaviors.length; index < length; index++) {
-      try {
-        behaviors[index].destroy(options);
-      } catch (destroyError) {
-        if (!hasError) {
-          error = destroyError;
-          hasError = true;
-        }
-      }
-    }
-    if (hasError) {
-      throw error;
-    }
+    disposeBehaviors(this._behaviors, 'destroy', options);
   },
   _removeBehavior(behavior) {
     if (this._isDestroyed) {
@@ -1461,27 +1453,6 @@ var BehaviorsMixin = {
     eachBehavior(this._behaviors, behavior => behavior.triggerMethod(eventName, view, options));
   }
 };
-
-function disposeAll(disposers, error) {
-  let hasError = arguments.length > 1;
-  for (let index = disposers.length - 1; index >= 0; index--) {
-    const disposer = disposers[index];
-    if (!disposer) {
-      continue;
-    }
-    try {
-      disposer();
-    } catch (disposalError) {
-      if (!hasError) {
-        error = disposalError;
-        hasError = true;
-      }
-    }
-  }
-  if (hasError) {
-    throw error;
-  }
-}
 
 function subscribeBindings(context, Data, entity, bindings) {
   const eventArgs = buildEventArgs(normalizeBindings$1(context, bindings), context);
@@ -1759,11 +1730,6 @@ var ViewEventsMixin = {
   _undelegateViewEvents() {
     disposeAll(this._domEvents.splice(0));
   },
-  _rollbackViewEvents() {
-    try {
-      this._undelegateViewEvents();
-    } catch {}
-  },
   _delegateViewEvents(view = this, events) {
     if (!events && !this.events && !this.triggers) {
       return;
@@ -1777,8 +1743,7 @@ var ViewEventsMixin = {
         this._delegate(delegates[index], delegates[index + 1]);
       }
     } catch (error) {
-      this._rollbackViewEvents();
-      throw error;
+      disposeAll(this._domEvents.splice(0), error);
     }
   },
   _delegateEvents(delegates, uiBindings, events) {
@@ -1995,14 +1960,21 @@ const ViewMixin = {
   isAttached() {
     return !!this._isAttached;
   },
+  _rollbackView(error) {
+    disposeAll([() => this._destroyState(), () => this._rollbackBehaviors(), () => this.undelegateEntityEvents(), () => this._undelegateViewEvents()], error);
+  },
   delegateEvents(events) {
     if (this._isDestroying || this._isDestroyed) {
       return this;
     }
     this.undelegateEvents();
     this._buildEventProxies();
-    this._delegateViewEvents(this, events);
-    this._setBehaviorElements();
+    try {
+      this._delegateViewEvents(this, events);
+      this._setBehaviorElements();
+    } catch (error) {
+      disposeAll([() => this._undelegateBehaviorViewEvents(), () => this._undelegateViewEvents()], error);
+    }
     return this;
   },
   undelegateEvents() {
@@ -2761,13 +2733,7 @@ const View = function (options) {
     this.delegateEntityEvents();
     this._triggerEventOnBehaviors('initialize', this, options);
   } catch (error) {
-    this._rollbackViewEvents();
-    try {
-      this.undelegateEntityEvents();
-    } catch {}
-    this._rollbackBehaviors();
-    this._destroyState();
-    throw error;
+    this._rollbackView(error);
   }
 };
 assignOwn(View, {
@@ -3207,13 +3173,7 @@ const CollectionView = function (options) {
     this.delegateEntityEvents();
     this._triggerEventOnBehaviors('initialize', this, options);
   } catch (error) {
-    this._rollbackViewEvents();
-    try {
-      this.undelegateEntityEvents();
-    } catch {}
-    this._rollbackBehaviors();
-    this._destroyState();
-    throw error;
+    this._rollbackView(error);
   }
 };
 assignOwn(CollectionView, {
@@ -3825,10 +3785,7 @@ const Behavior = function (options, view) {
     this._initStateEvents();
     this._syncElement();
   } catch (error) {
-    this._rollbackViewEvents();
-    this._destroyState();
-    this.stopListening();
-    throw error;
+    disposeAll([() => this.stopListening(), () => this._destroyState(), () => this._undelegateViewEvents()], error);
   }
 };
 assignOwn(Behavior, {

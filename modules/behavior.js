@@ -62,10 +62,11 @@ const Behavior = function(options, view) {
     this._initStateEvents();
     this._syncElement();
   } catch (error) {
-    this._rollbackViewEvents();
-    this._destroyState();
-    this.stopListening();
-    throw error;
+    disposeAll([
+      () => this.stopListening(),
+      () => this._destroyState(),
+      () => this._undelegateViewEvents()
+    ], error);
   }
 };
 

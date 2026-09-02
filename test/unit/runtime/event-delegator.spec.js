@@ -226,6 +226,49 @@ describe('EventDelegator', function() {
     expect(cleanup).toHaveBeenCalledTimes(1);
   });
 
+  it('rolls back View and Behavior events when Behavior registration fails', function() {
+    const registrationError = new Error('registration failed');
+    const viewCleanups = [vi.fn(), vi.fn()];
+    const firstBehaviorCleanups = [vi.fn(), vi.fn()];
+    const secondBehaviorCleanup = vi.fn();
+    const viewAdapter = {
+      delegate: vi.fn()
+        .mockReturnValueOnce(viewCleanups[0])
+        .mockReturnValueOnce(viewCleanups[1])
+    };
+    const firstBehaviorAdapter = {
+      delegate: vi.fn()
+        .mockReturnValueOnce(firstBehaviorCleanups[0])
+        .mockReturnValueOnce(firstBehaviorCleanups[1])
+    };
+    const secondBehaviorAdapter = {
+      delegate: vi.fn()
+        .mockReturnValueOnce(secondBehaviorCleanup)
+        .mockImplementationOnce(() => { throw registrationError; })
+    };
+    const FirstBehavior = Behavior.extend({ events: { click() {} } });
+    const SecondBehavior = Behavior.extend({ events: { click() {} } });
+    FirstBehavior.setEventDelegator(firstBehaviorAdapter);
+    SecondBehavior.setEventDelegator(secondBehaviorAdapter);
+    const TestView = View.extend({
+      behaviors: [FirstBehavior, SecondBehavior],
+      events: { click() {} }
+    });
+    TestView.setEventDelegator(viewAdapter);
+    const view = new TestView({ el: rootEl });
+
+    expect(() => view.setElement(dom.window.document.createElement('section')))
+      .to.throw(registrationError);
+
+    expect(viewCleanups[1]).toHaveBeenCalledTimes(1);
+    expect(firstBehaviorCleanups[1]).toHaveBeenCalledTimes(1);
+    expect(view._domEvents).to.have.lengthOf(0);
+    expect(view._behaviors[0]._domEvents).to.have.lengthOf(0);
+    expect(view._behaviors[1]._domEvents).to.have.lengthOf(0);
+
+    view.destroy();
+  });
+
   it('attempts every cleanup once and clears failed registrations', function() {
     const cleanupError = new Error('cleanup failed');
     const firstCleanup = vi.fn(() => { throw cleanupError; });

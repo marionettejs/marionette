@@ -906,15 +906,7 @@ const View = function(options) {
 
     this._triggerEventOnBehaviors('initialize', this, options);
   } catch (error) {
-    this._rollbackViewEvents();
-    try {
-      this.undelegateEntityEvents();
-    } catch {
-      // Preserve the construction error after best-effort rollback.
-    }
-    this._rollbackBehaviors();
-    this._destroyState();
-    throw error;
+    this._rollbackView(error);
   }
 };
 

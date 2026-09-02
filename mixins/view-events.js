@@ -45,14 +45,6 @@ export default {
     disposeAll(this._domEvents.splice(0));
   },
 
-  _rollbackViewEvents() {
-    try {
-      this._undelegateViewEvents();
-    } catch {
-      // Preserve the construction or registration error after all cleanups run.
-    }
-  },
-
   _delegateViewEvents(view = this, events) {
     if (!events && !this.events && !this.triggers) { return; }
 
@@ -65,8 +57,7 @@ export default {
         this._delegate(delegates[index], delegates[index + 1]);
       }
     } catch (error) {
-      this._rollbackViewEvents();
-      throw error;
+      disposeAll(this._domEvents.splice(0), error);
     }
   },
 
