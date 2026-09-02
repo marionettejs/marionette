@@ -1267,9 +1267,10 @@
 
   function disposeAll(disposers, error) {
     let hasError = arguments.length > 1;
-    for (let index = disposers.length - 1; index >= 0; index--) {
+    for (let index = disposers.length; index--;) {
+      const disposer = disposers[index];
       try {
-        disposers[index] && disposers[index]();
+        disposer && disposer();
       } catch (disposalError) {
         if (!hasError) {
           error = disposalError;
@@ -2556,7 +2557,7 @@
       destroyTeardown.set(this, 'reset');
       disposeAll([() => {
         destroyTeardown.delete(this);
-        if (isReset || currentView && this.currentView !== currentView) {
+        if (isReset || currentView && currentView !== this.currentView) {
           const parentView = this._parentView;
           const name = this._name;
           delete this._parentView;
@@ -3776,11 +3777,11 @@
         return;
       }
       this.triggerMethod('before:destroy:children', this);
-      const detachContents = this.monitorViewEvents === false && (() => this.Dom.detachContents(this.el));
+      const detach = this.monitorViewEvents === false && (() => this.Dom.detachContents(this.el));
       disposeAll([() => {
         this._children._init();
         this.children._init();
-      }, () => this._removeChildViews(this._children._views), detachContents]);
+      }, () => this._removeChildViews(this._children._views), detach]);
       this.triggerMethod('destroy:children', this);
     }
   });

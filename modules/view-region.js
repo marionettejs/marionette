@@ -600,7 +600,7 @@ assignOwn(Region.prototype, CommonMixin, {
     disposeAll([
       () => {
         destroyTeardown.delete(this);
-        if (isReset || currentView && this.currentView !== currentView) {
+        if (isReset || currentView && currentView !== this.currentView) {
           const parentView = this._parentView;
           const name = this._name;
           delete this._parentView;

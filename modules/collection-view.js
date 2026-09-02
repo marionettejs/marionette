@@ -920,7 +920,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     }
 
     this.triggerMethod('before:destroy:children', this);
-    const detachContents = this.monitorViewEvents === false &&
+    const detach = this.monitorViewEvents === false &&
       (() => this.Dom.detachContents(this.el));
 
     disposeAll([
@@ -929,7 +929,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
         this.children._init();
       },
       () => this._removeChildViews(this._children._views),
-      detachContents
+      detach
     ]);
 
     this.triggerMethod('destroy:children', this);
