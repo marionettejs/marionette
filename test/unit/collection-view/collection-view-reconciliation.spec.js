@@ -1,4 +1,5 @@
 import CollectionView from '../../../modules/collection-view';
+import Behavior from '../../../modules/behavior';
 import View from '../../../modules/view';
 import MarionetteError from '../../../utils/error';
 
@@ -150,22 +151,48 @@ describe('CollectionView normalized reconciliation', function() {
     view.destroy();
   });
 
-  it('preserves a child View, replaces its model, rebinds modelEvents, and renders it', function() {
+  it('recreates a child View for an immutable same-key replacement', function() {
     const previous = { id: 1, name: 'before' };
+    const sibling = { id: 2, name: 'sibling' };
     const current = { id: 1, name: 'after' };
-    const source = { items: [previous] };
-    const handler = this.sinon.spy();
-    const TestChild = ChildView.extend({
+    const source = { items: [previous, sibling] };
+    const childHandler = this.sinon.spy();
+    const behaviorHandler = this.sinon.spy();
+    const behaviorDestroyed = this.sinon.spy();
+    const behaviors = [];
+    const TrackingBehavior = Behavior.extend({
+      initialize() {
+        this.initialModel = this.view.model;
+        behaviors.push(this);
+      },
       modelEvents: { changed: 'onChanged' },
-      onChanged: handler
+      onChanged: behaviorHandler,
+      onDestroy: behaviorDestroyed
+    });
+    const TestChild = ChildView.extend({
+      behaviors: [TrackingBehavior],
+      initialize() {
+        this.initializedModel = this.model;
+        this.optionsModel = this.options.model;
+      },
+      modelEvents: { changed: 'onChanged' },
+      onChanged: childHandler,
+      template: model => `<input value="${ model.name }">`
     });
     TestChild.setDataApi(Adapter);
-    const TestList = ListView.extend({ childView: TestChild });
+    const TestList = ListView.extend({
+      childView: TestChild,
+      viewComparator: child => child.model.name,
+      viewFilter: child => child.model.name !== 'hidden'
+    });
     const view = new TestList({ collection: source });
     view.render();
-    const child = view.children.findByModel(previous);
+    document.body.appendChild(view.el);
+    const previousChild = view.children.findByModel(previous);
+    const previousInput = previousChild.el.querySelector('input');
+    previousInput.focus();
 
-    source.items = [current];
+    source.items = [current, sibling];
     source.notify({
       kind: 'update',
       added: [],
@@ -173,14 +200,25 @@ describe('CollectionView normalized reconciliation', function() {
       updated: [{ previous, current }]
     });
 
-    expect(view.children.findByModel(current)).to.equal(child);
-    expect(child.model).to.equal(current);
-    expect(child.renderCount).to.equal(2);
-    expect(child.el.textContent).to.equal('after');
+    const currentChild = view.children.findByModel(current);
+    const currentBehavior = behaviors.find(behavior => behavior.initialModel === current);
+    expect(currentChild).to.not.equal(previousChild);
+    expect(previousChild.isDestroyed()).to.be.true;
+    expect(currentChild.model).to.equal(current);
+    expect(currentChild.optionsModel).to.equal(current);
+    expect(currentChild.initializedModel).to.equal(current);
+    expect(currentBehavior.initialModel).to.equal(current);
+    expect(behaviorDestroyed).to.have.been.calledOnce;
+    expect(currentChild.renderCount).to.equal(1);
+    expect(currentChild.el.querySelector('input').value).to.equal('after');
+    expect(view.children.toArray().map(child => child.model)).to.deep.equal([current, sibling]);
+    expect(previousInput.isConnected).to.be.false;
+    expect(document.activeElement).to.not.equal(previousInput);
 
     emit(previous, 'changed', previous);
     emit(current, 'changed', current);
-    expect(handler).to.have.been.calledOnce.and.calledWith(current);
+    expect(childHandler).to.have.been.calledOnce.and.calledWith(current);
+    expect(behaviorHandler).to.have.been.calledOnce.and.calledWith(current);
     view.destroy();
   });
 
@@ -329,15 +367,16 @@ describe('CollectionView normalized reconciliation', function() {
     view.destroy();
   });
 
-  it('rebinds a same-key replacement even when its child is filtered out', function() {
+  it('recreates a same-key replacement even when its child is filtered out', function() {
     const previous = { id: 1, name: 'before' };
     const current = { id: 1, name: 'after' };
     const source = { items: [previous] };
     const FilteredList = ListView.extend({ viewFilter: () => false });
     const view = new FilteredList({ collection: source });
-    let child;
-    view.on('add:child', (collectionView, addedChild) => { child = addedChild; });
+    const children = [];
+    view.on('add:child', (collectionView, addedChild) => { children.push(addedChild); });
     view.render();
+    const previousChild = children[0];
 
     source.items = [current];
     source.notify({
@@ -347,10 +386,67 @@ describe('CollectionView normalized reconciliation', function() {
       updated: [{ previous, current }]
     });
 
-    expect(child.model).to.equal(current);
-    expect(view.children.hasView(child)).to.be.false;
-    expect(child.renderCount).to.be.undefined;
+    const currentChild = children[1];
+    expect(previousChild.isDestroyed()).to.be.true;
+    expect(currentChild).to.not.equal(previousChild);
+    expect(currentChild.model).to.equal(current);
+    expect(view.children.hasView(currentChild)).to.be.false;
+    expect(currentChild.renderCount).to.be.undefined;
     view.destroy();
+  });
+
+  it('queues synchronous structural notifications and keeps later updates coherent', function() {
+    const first = { id: 1, name: 'one' };
+    const second = { id: 2, name: 'two' };
+    const third = { id: 3, name: 'three' };
+    const source = { items: [first] };
+    const ReentrantList = ListView.extend({
+      onAddChild(collectionView, child) {
+        if (child.model !== second) { return; }
+        source.items = [first, second, third];
+        source.notify({ kind: 'update', added: [third], removed: [], updated: [] });
+      }
+    });
+    const view = new ReentrantList({ collection: source });
+    view.render();
+
+    source.items = [first, second];
+    source.notify({ kind: 'update', added: [second], removed: [], updated: [] });
+
+    expect(view.children.toArray().map(child => child.model))
+      .to.deep.equal([first, second, third]);
+    expect(view.el.textContent).to.equal('onetwothree');
+
+    source.items = [second, third];
+    source.notify({ kind: 'update', added: [], removed: [first], updated: [] });
+
+    expect(view.children.toArray().map(child => child.model)).to.deep.equal([second, third]);
+    expect(view.el.textContent).to.equal('twothree');
+    view.destroy();
+  });
+
+  it('drops a queued structural update after reentrant destruction', function() {
+    const first = { id: 1, name: 'one' };
+    const second = { id: 2, name: 'two' };
+    const third = { id: 3, name: 'three' };
+    const source = { items: [first] };
+    const ReentrantList = ListView.extend({
+      onAddChild(collectionView, child) {
+        if (child.model !== second) { return; }
+        source.items = [first, second, third];
+        source.notify({ kind: 'update', added: [third], removed: [], updated: [] });
+        collectionView.destroy();
+      }
+    });
+    const view = new ReentrantList({ collection: source });
+    view.render();
+
+    source.items = [first, second];
+    expect(() => source.notify({
+      kind: 'update', added: [second], removed: [], updated: []
+    })).to.not.throw();
+
+    expect(view.isDestroyed()).to.be.true;
   });
 
   it('does not render an added child that is filtered out', function() {

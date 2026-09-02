@@ -141,7 +141,8 @@ describe('plain data integration', function() {
     });
     expect(view.children.pluck('model')).to.deep.equal(collection.items);
     expect(view.children.findByModel(replacement).model).to.equal(replacement);
-    expect(view.children.findByModel(replacement)).to.equal(originalView);
+    expect(view.children.findByModel(replacement)).to.not.equal(originalView);
+    expect(originalView.isDestroyed()).to.be.true;
 
     const reset = { id: 3, name: 'reset' };
     collection.items = [reset];

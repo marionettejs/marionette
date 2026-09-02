@@ -75,14 +75,21 @@ Marionette must rebuild every child. `update` supplies exact added and removed
 item instances. Each `updated` entry contains the previous and current item for
 one stable key. For an in-place update, `previous === current`. For an immutable
 same-key replacement, they are different objects. This distinction lets core
-preserve the child View while replacing its `model`, rebinding `modelEvents`,
-and rendering the child against the new object.
+distinguish a safe in-place render from an identity replacement. Marionette
+destroys and recreates the child View for an immutable same-key replacement so
+constructor options, `initialize`, Behaviors, entity events, and other
+model-dependent state all belong to the current object.
 
 An immutable same-key replacement belongs only in `updated`, not in `removed`
 and `added`. Replacing an item with one that has a different stable key is a
 removal plus an addition; changing the key of a retained item is invalid. The
 post-mutation `items()` snapshot is authoritative and must agree with the record. Missing,
 duplicate, or unstable keys and malformed records throw `MN0039`.
+
+Observers may notify synchronously from CollectionView lifecycle hooks. Core
+commits each validated snapshot before invoking those hooks and drains nested
+notifications in order, so the next record is always checked against the source
+state that preceded it.
 
 All three record types enter one CollectionView reconciliation path. Additions
 create only their child Views; removals destroy only theirs; reorder moves

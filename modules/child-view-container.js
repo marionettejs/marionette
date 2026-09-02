@@ -390,16 +390,6 @@ Object.assign(Container.prototype, {
     return this._indexByModel.get(key);
   },
 
-  _replaceModel(view, model, key) {
-    const previousKey = this._keyByView.get(view);
-    // Collection reconciliation guarantees replacements preserve their stable key.
-    this._indexByModel.delete(previousKey);
-
-    view.model = model;
-    this._indexByModel.set(key, view);
-    this._keyByView.set(view, key);
-  },
-
   // Find a view by index.
   findByIndex(index) {
     return this._views[index];

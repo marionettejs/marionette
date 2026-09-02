@@ -300,16 +300,34 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     const previous = this._collectionSnapshot;
     const current = buildCollectionSnapshot(this.Data, this.collection, previous.entries);
     const normalized = normalizeCollectionChange(change, previous, current);
+    const notification = { change: normalized, snapshot: current };
 
-    if (normalized.kind === 'reorder') {
-      this._onCollectionReorder(current);
-    } else if (normalized.kind === 'reset') {
-      this._onCollectionReset(current);
-    } else {
-      this._onCollectionUpdate(normalized, current);
+    // Commit before invoking hooks so a synchronous source mutation is
+    // normalized against the snapshot that caused those hooks.
+    this._collectionSnapshot = current;
+    if (this._collectionChangeQueue) {
+      this._collectionChangeQueue.push(notification);
+      return;
     }
 
-    this._collectionSnapshot = current;
+    const queue = this._collectionChangeQueue = [];
+    let pending = notification;
+
+    try {
+      while (pending) {
+        const { change: pendingChange, snapshot } = pending;
+        if (pendingChange.kind === 'reorder') {
+          this._onCollectionReorder(snapshot);
+        } else if (pendingChange.kind === 'reset') {
+          this._onCollectionReset(snapshot);
+        } else {
+          this._onCollectionUpdate(pendingChange, snapshot);
+        }
+        pending = queue.shift();
+      }
+    } finally {
+      delete this._collectionChangeQueue;
+    }
   },
 
   // Internal method. This checks for any changes in the order of the collection.
@@ -340,14 +358,14 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     if (this._isDestroying || this._isDestroyed) { return; }
 
     // Remove first since it'll be a shorter array lookup.
-    const removedViews = changes.removed.length && changes.removed.map(({ key }) => {
+    const removedViews = changes.removed.map(({ key }) => {
       const view = this._children.findByKey(key);
       if (view) { this._removeChild(view); }
       return view;
     }).filter(Boolean);
 
-    const addedViews = changes.added.length &&
-      this._addChildModels(changes.added.map(({ item }) => item));
+    const addedViews = this._addChildModels(changes.added.map(({ item }) => item));
+    const replacedViews = [];
 
     const updatedViews = changes.updated.map(({ key, previous, current }) => {
       const view = this._children.findByKey(key);
@@ -356,24 +374,22 @@ assignOwn(CollectionView.prototype, ViewMixin, {
       }
 
       if (previous !== current) {
-        view.undelegateEntityEvents?.();
-        this._children._replaceModel(view, current, key);
-        if (this.children.hasView(view)) {
-          this.children._replaceModel(view, current, key);
-        }
-        view.delegateEntityEvents?.();
+        this._removeChild(view);
+        removedViews.push(view);
+        replacedViews.push(this._addChildModel(current));
+        return;
       }
 
       return view;
-    });
+    }).filter(Boolean);
 
     this._detachChildren(removedViews);
     if (this.sortWithCollection) {
       this._setChildrenFromSnapshot(snapshot);
     }
     this._reconcileChildren(
-      [...(addedViews || []), ...updatedViews],
-      updatedViews.length ? false : addedViews
+      [...addedViews, ...replacedViews, ...updatedViews],
+      updatedViews.length || replacedViews.length || !addedViews.length ? false : addedViews
     );
 
     // Destroy removed child views after all of the render is complete
@@ -415,9 +431,13 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   },
 
   _renderReconciledChildren(renderViews) {
+    const renderViewSet = new Set(renderViews);
     if (this._hasUnrenderedViews) {
       for (const view of this.children) {
-        if (!view._isRendered && !renderViews.includes(view)) { renderViews.push(view); }
+        if (!view._isRendered && !renderViewSet.has(view)) {
+          renderViews.push(view);
+          renderViewSet.add(view);
+        }
       }
       delete this._hasUnrenderedViews;
     }
@@ -829,8 +849,6 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   },
 
   _detachChildren(detachingViews) {
-    if (!detachingViews) { return; }
-
     const length = detachingViews.length;
     for (let index = 0; index < length; index++) {
       this._detachChildView(detachingViews[index]);
@@ -1107,8 +1125,6 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   },
 
   _removeChildViews(views) {
-    if (!views) { return; }
-
     const disposers = views.map(view => () => this._removeChildView(view));
     disposeAll(disposers.reverse());
   },

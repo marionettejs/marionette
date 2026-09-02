@@ -13,9 +13,9 @@
 * Replaced the alpha concrete `State` with exact state-source composition and an
   independent StateApi observation contract; supplied sources are borrowed,
   `createState(options)` results are owned, and the lazy default is a plain object
-* Changed CollectionView structural updates to distinguish in-place updates from
-  immutable same-key replacements, rebind child model events, and move survivor
-  nodes without recreating or rerendering their Views
+* Changed CollectionView structural updates to render in-place updates, recreate
+  child Views for immutable same-key replacements, drain reentrant observations,
+  and move survivor nodes without recreating or rerendering unchanged Views
 * Added optional `marionette/jquery-dom-api` adapter for jQuery-backed DomApi
   operations and opt-in View, CollectionView, and Behavior `$el` compatibility
 * Changed jQuery-wrapped View and CollectionView `el` inputs to fail with the
