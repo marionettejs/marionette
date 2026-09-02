@@ -1,0 +1,149 @@
+test/unit/state-owner.spec.js
+  s_8acc1a5f7c4467::t_5b79e8b0d15c45 163-175
+  s_8acc1a5f7c4467::t_d926bce2b994ee 176-177,182-184,186-188
+  s_8acc1a5f7c4467::t_592de34d71b26f 178-181
+  s_8acc1a5f7c4467::t_3bc7c0cc85c3c2 71-96,318-324
+  s_8acc1a5f7c4467::t_b742904cf15ae3 331
+  s_8acc1a5f7c4467::t_b9b1cf83b8c905 303-315
+  s_8acc1a5f7c4467::t_5dbf710caf25e7 332
+modules/collection-view.js
+  s_8acc1a5f7c4467::t_8a7a2ed2cdefd6 34,76,706
+  s_8acc1a5f7c4467::t_3bc7c0cc85c3c2 461-462
+  s_8acc1a5f7c4467::t_b9b1cf83b8c905 467-473,475,477-484,486-488,494,502,938-939
+  s_8acc1a5f7c4467::t_8b2644a3578a7a 527-529,532-541
+  s_8acc1a5f7c4467::t_5dbf710caf25e7 476
+  s_8acc1a5f7c4467::t_d494d25afbfd51 346
+test/unit/collection-view/collection-view-reconciliation.spec.js
+  s_8acc1a5f7c4467::t_d926bce2b994ee 37-48,506-583,585-595,597-601,604,606-614,772,775-836
+  s_8acc1a5f7c4467::t_bef0b4e542f733 837
+  s_8acc1a5f7c4467::t_1e12da24cffe53 662-664,755-762,767-771,772-774
+  s_8acc1a5f7c4467::t_d494d25afbfd51 117-136
+  s_8acc1a5f7c4467::t_0fe85a8a0cad06 113
+  s_8acc1a5f7c4467::t_c303356e41f52f 137-150
+  s_8acc1a5f7c4467::t_b8fc7bc0ffda32 114-116
+test/unit/utils/subscribe-bindings.spec.js
+  s_8acc1a5f7c4467::t_5b79e8b0d15c45 1-30
+dist/marionette.cjs
+  s_8acc1a5f7c4467::t_71a7754b36023a 3124,3169,3684
+  s_8acc1a5f7c4467::t_a5d3bb549b448d 1221,3500-3501
+  s_8acc1a5f7c4467::t_c975fba82f3760 1194-1196,3505,3507-3519,3526,3534,3553-3555,3557-3566,3847
+  s_8acc1a5f7c4467::t_4e04205b0b1068 3384
+dist/marionette.js
+  s_8acc1a5f7c4467::t_cc0c8e797bf60a 3120,3165,3680
+  s_8acc1a5f7c4467::t_9e9377448b6bb1 1217,3496-3497
+  s_8acc1a5f7c4467::t_8f752322e88a74 1190-1192,3501,3503-3515,3522,3530,3549-3551,3553-3562,3843
+  s_8acc1a5f7c4467::t_579b9c11f1bd0e 3380
+dist/marionette.umd.js
+  s_8acc1a5f7c4467::t_b2167a66e7a343 3131,3176,3691
+  s_8acc1a5f7c4467::t_b9e36f43802f0c 1228,3507-3508
+  s_8acc1a5f7c4467::t_be2e6208ca2084 1201-1203,3512,3514-3526,3533,3541,3560-3562,3564-3573,3854
+  s_8acc1a5f7c4467::t_4acbd5b4960c8c 3391
+config/diagnostics/catalog.schema.json
+  s_8acc1a5f7c4467::t_b742904cf15ae3 94
+mixins/state.js
+  s_8acc1a5f7c4467::t_3bc7c0cc85c3c2 47
+  s_8acc1a5f7c4467::t_694cae1b990c6f 10-11
+  s_8acc1a5f7c4467::t_b9b1cf83b8c905 12-13
+test/unit/runtime/dom-api.spec.js
+  s_8acc1a5f7c4467::t_3bc7c0cc85c3c2 259-271
+config/diagnostics/catalog.json
+  s_8acc1a5f7c4467::t_3bc7c0cc85c3c2 581,583,602
+test/unit/runtime/state-api.spec.js
+  s_8acc1a5f7c4467::t_43c4669f6f0332 1
+  s_8acc1a5f7c4467::t_3bc7c0cc85c3c2 2
+  s_8acc1a5f7c4467::t_b9b1cf83b8c905 12-20,22-25,27-30
+test/unit/backbone.marionette.spec.js
+  s_8acc1a5f7c4467::t_3bc7c0cc85c3c2 139-147,150-161,163-169
+  s_8acc1a5f7c4467::t_b9b1cf83b8c905 112-114,130-132
+test/unit/collection-view/collection-view-data.spec.js
+  s_8acc1a5f7c4467::t_8b2644a3578a7a 240
+  s_8acc1a5f7c4467::t_0dc0ca78397866 3,238-239,247-249,271-273,322-323,327-328,333,384,388,403,407,443,486,502,518,586,590
+docs/marionette.state.md
+  s_8acc1a5f7c4467::t_b9b1cf83b8c905 179-181
+docs/data.api.md
+  s_8acc1a5f7c4467::t_b9b1cf83b8c905 89-91
+ROADMAP.md
+  s_8acc1a5f7c4467::t_b9b1cf83b8c905 298-299,775-776
+test/unit/owned-cleanup.spec.js
+  s_8acc1a5f7c4467::t_b3ee64d7fe6f3d 287,294,312,322,328,330,341,366,371-374,387,389,394
+test/browser/collection-removal-survivors.mjs
+  s_8acc1a5f7c4467::t_d494d25afbfd51 156-177
+test/unit/collection-view/collection-view-sorting.spec.js
+  s_8acc1a5f7c4467::t_868bbd6b00aad0 87,88-90,93,96
+docs/marionette.collectionview.md
+  s_8acc1a5f7c4467::t_87d02cbdc53cd3 241-244,931-933,977,984,988
+scripts/checks/dist.mjs
+  s_8acc1a5f7c4467::t_449fe82c75537a 6,25,32,59
+test/unit/data-package/api-integration.spec.js
+  s_8acc1a5f7c4467::t_449fe82c75537a 1-84,90-94
+  s_8acc1a5f7c4467::t_bacc4cf8aa561e 85-89
+packages/data/package.json
+  s_8acc1a5f7c4467::t_0aa6edf284c7ff 3
+  s_8acc1a5f7c4467::t_05520b917bebcf 25-27,30
+  s_8acc1a5f7c4467::t_418cef912e383f 1-2,4-24,28-29,31-44
+test/source/validate.mjs
+  s_8acc1a5f7c4467::t_05520b917bebcf 22
+test/dist/validate.mjs
+  s_8acc1a5f7c4467::t_e4921961d8d4d3 53
+  s_8acc1a5f7c4467::t_05520b917bebcf 93
+packages/data/src/observers.js
+  s_8acc1a5f7c4467::t_418cef912e383f 1-32
+package.json
+  s_8acc1a5f7c4467::t_449fe82c75537a 72-73
+  s_8acc1a5f7c4467::t_05520b917bebcf 99
+packages/data/license.txt
+  s_8acc1a5f7c4467::t_418cef912e383f 1-19
+eslint.config.mjs
+  s_8acc1a5f7c4467::t_48ce87f414f767 25
+packages/data/src/index.js
+  s_8acc1a5f7c4467::t_05520b917bebcf 1-2,6
+  s_8acc1a5f7c4467::t_418cef912e383f 3-5
+packages/data/readme.md
+  s_8acc1a5f7c4467::t_418cef912e383f 1-2,5-21
+  s_8acc1a5f7c4467::t_0aa6edf284c7ff 3-4
+packages/data/rollup.config.mjs
+  s_8acc1a5f7c4467::t_418cef912e383f 1-10,12-24
+  s_8acc1a5f7c4467::t_05520b917bebcf 11
+vitest.config.js
+  s_8acc1a5f7c4467::t_449fe82c75537a 24
+  s_8acc1a5f7c4467::t_e4921961d8d4d3 2,5-9
+test/unit/data-package/model.spec.js
+  s_8acc1a5f7c4467::t_449fe82c75537a 1-50,61-98
+  s_8acc1a5f7c4467::t_bacc4cf8aa561e 51-60
+packages/data/src/collection.js
+  s_8acc1a5f7c4467::t_418cef912e383f 2-31,34-80,85-86,88-89,92-255,260-261
+  s_8acc1a5f7c4467::t_0aec66a76775ec 32-33
+  s_8acc1a5f7c4467::t_0aa6edf284c7ff 81-84,87,90-91
+  s_8acc1a5f7c4467::t_f4e5f4a2d57abe 256-259
+  s_8acc1a5f7c4467::t_05520b917bebcf 1
+packages/data/src/model.js
+  s_8acc1a5f7c4467::t_418cef912e383f 2-4,10-50,52-86,88-109
+  s_8acc1a5f7c4467::t_05520b917bebcf 1,5-9,51,87
+packages/data/src/api.js
+  s_8acc1a5f7c4467::t_418cef912e383f 1-51
+test/unit/data-package/collection.spec.js
+  s_8acc1a5f7c4467::t_e200a7e0807beb 181-182
+  s_8acc1a5f7c4467::t_449fe82c75537a 1-58,84-146,151-152,172-180,183-186,196-202
+  s_8acc1a5f7c4467::t_0aa6edf284c7ff 59-68
+  s_8acc1a5f7c4467::t_bacc4cf8aa561e 69-83,147-150,153-171,187-195
+packages/data/dist/index.cjs
+  s_8acc1a5f7c4467::t_c8006a1840b095 1-502
+packages/data/dist/index.js
+  s_8acc1a5f7c4467::t_0dd223fd080777 1-496
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "10afdbca5e84289fba3a1427bf0b2f44370c295a",
+  "prompts": {},
+  "sessions": {
+    "s_8acc1a5f7c4467": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06326-7562-7453-8271-d3c06bc8882c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
