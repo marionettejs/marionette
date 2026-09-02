@@ -218,8 +218,9 @@ runaway-growth backstop after nine authorization rounds; it does not approve new
 subpaths, external imports, eager allocations, retained resources, or bypass
 exact-base artifact and consumer reporting. Before beta promotion, review the
 envelope against the completed core and canonical consumer scenarios.
-[PR #382](https://github.com/marionettejs/marionette/pull/382) records the pending
-ceiling; a later runtime PR must consume it independently.
+[PR #382](https://github.com/marionettejs/marionette/pull/382) authorized the
+development envelope. [PR #381](https://github.com/marionettejs/marionette/pull/381)
+consumed it with independent exact-head artifact-growth approval.
 
 The approval must come from a different base-allowed maintainer whenever the exact-base
 allowlist contains an eligible alternative. If the pull-request author is the sole
