@@ -598,6 +598,8 @@ assignOwn(Region.prototype, CommonMixin, {
     let isReset;
     destroyTeardown.set(this, 'reset');
     disposeAll([
+      () => this.stopListening(),
+      () => this.triggerMethod('destroy', this, options),
       () => {
         destroyTeardown.delete(this);
         if (isReset || currentView && currentView !== this.currentView) {
@@ -615,9 +617,6 @@ assignOwn(Region.prototype, CommonMixin, {
         isReset = true;
       }
     ]);
-
-    this.triggerMethod('destroy', this, options);
-    this.stopListening();
 
     return this;
   }

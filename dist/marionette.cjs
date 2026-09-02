@@ -2542,7 +2542,7 @@ assignOwn(Region.prototype, CommonMixin, {
     const currentView = this.currentView;
     let isReset;
     destroyTeardown.set(this, 'reset');
-    disposeAll([() => {
+    disposeAll([() => this.stopListening(), () => this.triggerMethod('destroy', this, options), () => {
       destroyTeardown.delete(this);
       if (isReset || currentView && currentView !== this.currentView) {
         const parentView = this._parentView;
@@ -2557,8 +2557,6 @@ assignOwn(Region.prototype, CommonMixin, {
       this.reset(options);
       isReset = true;
     }]);
-    this.triggerMethod('destroy', this, options);
-    this.stopListening();
     return this;
   }
 });

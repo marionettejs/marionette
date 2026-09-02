@@ -567,6 +567,7 @@ describe('Region lifecycle contract', function() {
       const beforeEmpty = this.sinon.spy();
       const empty = this.sinon.spy();
       const destroy = this.sinon.spy();
+      this.sinon.spy(ownedRegion, 'stopListening');
       ownedRegion.on('before:empty', beforeEmpty);
       ownedRegion.on('empty', empty);
       ownedRegion.on('destroy', destroy);
@@ -588,7 +589,8 @@ describe('Region lifecycle contract', function() {
       expect(owner.hasRegion('content')).to.be.true;
       expect(beforeEmpty).to.not.have.been.called;
       expect(empty).to.not.have.been.called;
-      expect(destroy).to.not.have.been.called;
+      expect(destroy).to.have.been.calledOnceWith(ownedRegion, undefined);
+      expect(ownedRegion.stopListening).to.have.been.calledOnce;
 
       const regionEl = owner.el.querySelector('.content');
       const sentinel = document.createElement('span');
@@ -611,7 +613,8 @@ describe('Region lifecycle contract', function() {
       expect(sentinel.textContent).to.equal('unmanaged');
       expect(beforeEmpty).to.not.have.been.called;
       expect(empty).to.not.have.been.called;
-      expect(destroy).to.not.have.been.called;
+      expect(destroy).to.have.been.calledOnce;
+      expect(ownedRegion.stopListening).to.have.been.calledOnce;
 
       view.destroy();
       owner.destroy();
