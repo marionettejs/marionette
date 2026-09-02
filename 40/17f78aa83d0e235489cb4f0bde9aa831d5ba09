@@ -1,0 +1,49 @@
+changelog.md
+  s_d93f45db31dead::t_b9edd722c34172 17-20
+dist/marionette.cjs
+  s_104642983dcc10::t_0e6204cfbef8f4 3140-3144
+dist/marionette.js
+  s_104642983dcc10::t_27e999c568b7d9 3136-3140
+dist/marionette.min.js
+  s_104642983dcc10::t_dc7e20b811fc37 1
+dist/marionette.min.js.map
+  s_104642983dcc10::t_cec65d3c6748bd 1
+dist/marionette.umd.js
+  s_104642983dcc10::t_9232eee9774489 3147-3151
+dist/marionette.umd.js.map
+  s_104642983dcc10::t_55c6d929561054 1
+docs/marionette.collectionview.md
+  s_d93f45db31dead::t_77906035888fb3 229-239
+docs/migration-from-v4.md
+  s_d93f45db31dead::t_1ef33ce210ae32 68
+modules/collection-view.js
+  s_d93f45db31dead::t_4b171461c0b659 210-213,219-223
+test/browser/collection-removal-survivors.mjs
+  s_d93f45db31dead::t_55ff82e51b15cb 22,51-90,95-135,138-166
+test/unit/collection-view/collection-view-data.spec.js
+  s_d93f45db31dead::t_3c41544f9ad23f 390-430,559
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "4017f78aa83d0e235489cb4f0bde9aa831d5ba09",
+  "prompts": {},
+  "sessions": {
+    "s_104642983dcc10": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a87cd9c6-fa43-4039-a2f4-4b6010f33907",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_d93f45db31dead": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05c69-15cb-71b1-836b-0fdd2f01d1c5",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
