@@ -17,6 +17,9 @@
   child Views for immutable same-key replacements, drain reentrant observations,
   recover the latest source after reconciliation hook failures, and move survivor
   nodes without recreating or rerendering unchanged Views
+* Changed `viewComparator: false` to disable presentation sorting while
+  `sortWithCollection` continues reconciling structural changes to source order;
+  use `sortWithCollection: false` to preserve manually managed child order
 * Added optional `marionette/jquery-dom-api` adapter for jQuery-backed DomApi
   operations and opt-in View, CollectionView, and Behavior `$el` compatibility
 * Changed jQuery-wrapped View and CollectionView `el` inputs to fail with the
