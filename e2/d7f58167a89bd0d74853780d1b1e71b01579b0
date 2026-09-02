@@ -1,0 +1,19 @@
+docs/performance-baselines.md
+  s_8acc1a5f7c4467::t_2b8d6fcb1741ca 215-216
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "e2d7f58167a89bd0d74853780d1b1e71b01579b0",
+  "prompts": {},
+  "sessions": {
+    "s_8acc1a5f7c4467": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06326-7562-7453-8271-d3c06bc8882c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
