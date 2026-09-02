@@ -387,23 +387,15 @@ current-evidence findings:
   changing production semantics. Awaitable Application operations include the
   cooperative cancellation context defined above rather than merely ignoring stale
   completion.
-- **Current evidence:** The remaining Backbone data coupling is narrow rather than
-  architectural. V5 owns Events, `extend`, Radio, lifecycle, and DOM delegation; the
-  root runtime does not import Backbone, while the optional `marionette/backbone`
-  subpath does. The current
-  CollectionView and template paths still assume `model.cid`, `model.attributes`,
-  `collection.models`, `collection.indexOf(model)`, and exact Backbone `sort`, `reset`,
-  and `update` payloads. `modelEvents` and `collectionEvents` require only an emitter
-  with `on` and `off` and remain independent declarative bindings.
-- **Selected:** Retain the current documented Backbone-shaped model and collection data
-  protocol for 5.0. This selects an interface shape, not a Backbone dependency:
-  Marionette core remains Backbone-optional, and any conforming model, collection, or
-  adapter remains valid. The generalized data-source seam in [#104][issue-104] has no
-  public benchmark failure or second source implementation satisfying its required
-  evidence, so it remains an evidence-dependent 5.x candidate rather than a
-  stable-release blocker. Do not add implicit Backbone detection, per-model wrappers,
-  or a parallel reconciliation path. State remains an owned local-state concern, not
-  the collection data source.
+- **Selected:** V5 owns a neutral DataApi boundary for model identity, value reads,
+  serialization, ordered collection items, entity subscriptions, and normalized
+  structural collection changes. Plain objects and arrays are the default. The
+  optional `marionette/backbone` integration installs the Backbone adapter, keeping
+  `cid`, `attributes`, `models`, and Backbone event payloads out of core. This avoids
+  making the temporary Backbone-shaped protocol a v5 public contract that would need
+  removal in v6. Do not add implicit Backbone detection, per-model wrappers, or a
+  parallel reconciliation path. State remains an owned local-state concern, not the
+  collection data source.
 - **Gated:** The existing optional Backbone import side effect is an acceptable legacy install
   seam. If the protocol prototype proves an explicit idempotent `installBackbone`
   operation clearer or safer, select it through the same migration evidence. Do not

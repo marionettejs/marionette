@@ -126,7 +126,21 @@ export default {
 
   // undelegate modelEvents and collectionEvents
   _undelegateBehaviorEntityEvents() {
-    eachBehavior(this._behaviors, behavior => behavior.undelegateEntityEvents());
+    let error;
+    let hasError = false;
+
+    for (let index = 0, length = this._behaviors.length; index < length; index++) {
+      try {
+        this._behaviors[index].undelegateEntityEvents();
+      } catch (undelegateError) {
+        if (!hasError) {
+          error = undelegateError;
+          hasError = true;
+        }
+      }
+    }
+
+    if (hasError) { throw error; }
   },
 
   _destroyBehaviors(options) {
@@ -134,7 +148,21 @@ export default {
     // destroying the view.
     // This unbinds event listeners
     // that behaviors have registered for.
-    eachBehavior(this._behaviors, behavior => behavior.destroy(options));
+    const behaviors = this._behaviors;
+    let error;
+    let hasError = false;
+    for (let index = 0, length = behaviors.length; index < length; index++) {
+      try {
+        behaviors[index].destroy(options);
+      } catch (destroyError) {
+        if (!hasError) {
+          error = destroyError;
+          hasError = true;
+        }
+      }
+    }
+
+    if (hasError) { throw error; }
   },
 
   // Remove a behavior

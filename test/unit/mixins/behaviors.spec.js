@@ -271,8 +271,8 @@ describe('Behaviors Mixin', function() {
       FooBehavior = Behavior.extend({});
       BarBehavior = Behavior.extend({});
 
-      this.sinon.spy(FooBehavior.prototype, 'undelegateEntityEvents');
-      this.sinon.spy(BarBehavior.prototype, 'undelegateEntityEvents');
+      this.sinon.stub(FooBehavior.prototype, 'undelegateEntityEvents');
+      this.sinon.stub(BarBehavior.prototype, 'undelegateEntityEvents');
 
       behaviorsInstance.behaviors = {foo: FooBehavior, bar: BarBehavior};
       behaviorsInstance._initBehaviors();
@@ -281,6 +281,16 @@ describe('Behaviors Mixin', function() {
     it('should invoke undelegateEntityEvents', function() {
       behaviorsInstance._undelegateBehaviorEntityEvents();
 
+      expect(FooBehavior.prototype.undelegateEntityEvents).to.have.been.calledOnce;
+      expect(BarBehavior.prototype.undelegateEntityEvents).to.have.been.calledOnce;
+    });
+
+    it('should attempt every Behavior before rethrowing the first error', function() {
+      const error = new Error('foo undelegate failed');
+      FooBehavior.prototype.undelegateEntityEvents.throws(error);
+      BarBehavior.prototype.undelegateEntityEvents.throws(new Error('bar undelegate failed'));
+
+      expect(() => behaviorsInstance._undelegateBehaviorEntityEvents()).to.throw(error);
       expect(FooBehavior.prototype.undelegateEntityEvents).to.have.been.calledOnce;
       expect(BarBehavior.prototype.undelegateEntityEvents).to.have.been.calledOnce;
     });
@@ -315,6 +325,16 @@ describe('Behaviors Mixin', function() {
     it('should invoke destroy without arguments', function() {
       behaviorsInstance._destroyBehaviors();
 
+      expect(FooBehavior.prototype.destroy).to.have.been.calledOnce;
+      expect(BarBehavior.prototype.destroy).to.have.been.calledOnce;
+    });
+
+    it('should attempt every destroy before rethrowing the first error', function() {
+      const error = new Error('foo destroy failed');
+      FooBehavior.prototype.destroy.throws(error);
+      BarBehavior.prototype.destroy.throws(new Error('bar destroy failed'));
+
+      expect(() => behaviorsInstance._destroyBehaviors()).to.throw(error);
       expect(FooBehavior.prototype.destroy).to.have.been.calledOnce;
       expect(BarBehavior.prototype.destroy).to.have.been.calledOnce;
     });

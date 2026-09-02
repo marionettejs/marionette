@@ -15,6 +15,7 @@ import ViewMixin, { ViewOptions } from '../mixins/view.js';
 import { setDomApi } from '../runtime/dom-api.js';
 import { setEventDelegator } from '../runtime/event-delegator.js';
 import { setRenderer } from '../runtime/renderer.js';
+import { setDataApi } from '../runtime/data-api.js';
 
 const classErrorName = 'CollectionViewError';
 
@@ -27,7 +28,7 @@ function isEmptyViewClass(view) {
     (destroy ? typeof destroy === 'function' : typeof view.prototype.remove === 'function');
 }
 
-function modelAttributesMatcher(predicate) {
+function modelAttributesMatcher(Data, predicate) {
   const keys = Object.keys(predicate);
   const length = keys.length;
   const values = Array(length);
@@ -36,13 +37,12 @@ function modelAttributesMatcher(predicate) {
   }
 
   return function(view) {
-    const attributes = view.model && view.model.attributes;
-    if (attributes == null) { return length === 0; }
+    const model = view.model;
+    if (model == null) { return length === 0; }
 
-    const object = Object(attributes);
     for (let index = 0; index < length; index++) {
       const key = keys[index];
-      if (values[index] !== object[key] || !(key in object)) { return false; }
+      if (values[index] !== Data.get(model, key) || !Data.has(model, key)) { return false; }
     }
     return true;
   };
@@ -116,12 +116,17 @@ const CollectionView = function(options) {
 
     this._triggerEventOnBehaviors('initialize', this, options);
   } catch (error) {
+    try {
+      this.undelegateEntityEvents();
+    } catch {
+      // Preserve the construction error after best-effort rollback.
+    }
     this._destroyState();
     throw error;
   }
 };
 
-assignOwn(CollectionView, { extend, setRenderer, setDomApi, setEventDelegator });
+assignOwn(CollectionView, { extend, setRenderer, setDomApi, setEventDelegator, setDataApi });
 
 assignOwn(CollectionView.prototype, ViewMixin, {
   cidPrefix: 'mncv',
@@ -133,8 +138,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   // `_children` represents all child views
   // `children` represents only views filtered to be shown
   _initChildViewStorage() {
-    this._children = new ChildViewContainer();
-    this.children = new ChildViewContainer();
+    this._children = new ChildViewContainer(this.Data);
+    this.children = new ChildViewContainer(this.Data);
   },
 
   // Create a region to show the emptyView
@@ -157,30 +162,34 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
   // Configured the initial events that the collection view binds to.
   _initialEvents() {
-    if (this._isRendered) { return; }
+    if (this._isRendered || this._dataObserverUnsubscribe) { return; }
 
-    this.listenTo(this.collection, {
-      'sort': this._onCollectionSort,
-      'reset': this._onCollectionReset,
-      'update': this._onCollectionUpdate
-    });
+    this._dataObserverUnsubscribe = this.Data.observeCollection(
+      this.collection,
+      this._onCollectionChange,
+      this
+    );
+  },
+
+  _onCollectionChange(change) {
+    if (change.type === 'reorder') {
+      this._onCollectionReorder();
+    } else if (change.type === 'reset') {
+      this._onCollectionReset();
+    } else if (change.type === 'update') {
+      this._onCollectionUpdate(change);
+    }
   },
 
   // Internal method. This checks for any changes in the order of the collection.
   // If the index of any view doesn't match, it will re-sort.
-  _onCollectionSort(collection, { add, merge, remove }) {
+  _onCollectionReorder() {
     if (this._isDestroying || this._isDestroyed) { return; }
 
     if (!this.sortWithCollection || this.viewComparator === false) {
       return;
     }
 
-    // If the data is changing we will handle the sort later in `_onCollectionUpdate`
-    if (add || remove || merge) {
-      return;
-    }
-
-    // If the only thing happening here is sorting, sort.
     this.sort();
   },
 
@@ -189,16 +198,14 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
     this._destroyChildren();
 
-    this._addChildModels(this.collection.models);
+    this._addChildModels(this.Data.items(this.collection));
 
     this.sort();
   },
 
   // Handle collection update model additions and  removals
-  _onCollectionUpdate(collection, options) {
+  _onCollectionUpdate(changes) {
     if (this._isDestroying || this._isDestroyed) { return; }
-
-    const changes = options.changes;
 
     // Remove first since it'll be a shorter array lookup.
     const removedViews = changes.removed.length && this._removeChildModels(changes.removed);
@@ -215,7 +222,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     const canRemoveWithoutRender = this._isRendered &&
       changes.removed.length > 0 &&
       changes.added.length === 0 &&
-      changes.merged.length === 0 &&
+      changes.updated.length === 0 &&
       isDefaultComparator &&
       isDefaultFilterQuery &&
       isDefaultSort &&
@@ -404,7 +411,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     this._destroyChildren();
 
     if (this.collection) {
-      this._addChildModels(this.collection.models);
+      this._addChildModels(this.Data.items(this.collection));
       this._initialEvents();
     }
 
@@ -501,7 +508,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   // Default internal view comparator that order the views by
   // the order of the collection
   _viewComparator(view) {
-    return this.collection.indexOf(view.model);
+    return this.Data.items(this.collection).indexOf(view.model);
   },
 
   // This method filters the children views and renders the results
@@ -563,14 +570,12 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
     // Support filter predicates `{ fooFlag: true }`
     if (typeof viewFilter === 'object' && !Array.isArray(viewFilter)) {
-      return modelAttributesMatcher(viewFilter);
+      return modelAttributesMatcher(this.Data, viewFilter);
     }
 
     // Filter by model attribute
     if (isString(viewFilter)) {
-      return function(view) {
-        return view.model && view.model.get(viewFilter);
-      };
+      return view => view.model && this.Data.get(view.model, viewFilter);
     }
 
     throw new MarionetteError({

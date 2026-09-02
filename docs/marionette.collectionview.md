@@ -623,13 +623,6 @@ Find a view by model.
 const bView = myCollectionView.children.findByModel(buttonView.model);
 ```
 
-#### CollectionView `children`'s: `findByModelCid`
-Find a view by model cid.
-
-```javascript
-const bView = myCollectionView.children.findByModelCid(buttonView.model.cid);
-```
-
 #### CollectionView `children`'s: `findByIndex`
 
 Find by numeric index (unstable)

@@ -8,7 +8,9 @@ const fixtureRoot = import.meta.dirname;
 const packageJson = JSON.parse(readFileSync(resolve(fixtureRoot, 'node_modules/marionette/package.json')));
 
 assert.equal(existsSync(resolve(fixtureRoot, 'node_modules/underscore')), false);
+assert.equal(existsSync(resolve(fixtureRoot, 'node_modules/backbone')), false);
 assert.equal(Object.hasOwn(packageJson.peerDependencies, 'underscore'), false);
+assert.equal(packageJson.peerDependenciesMeta.backbone.optional, true);
 
 const cjs = require('marionette');
 const esm = await import('marionette');

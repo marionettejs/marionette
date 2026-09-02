@@ -22,6 +22,35 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
     const results = await page.evaluate(() => {
       Object.assign(Backbone.Model.prototype, Marionette.Events);
       Object.assign(Backbone.Collection.prototype, Marionette.Events);
+      Marionette.setDataApi({
+        key: model => model.cid,
+        get: (model, attribute) => model.get(attribute),
+        has: (model, attribute) => attribute in model.attributes,
+        serialize: model => model.attributes,
+        items: collection => collection.models,
+        observeCollection(collection, callback, context) {
+          const onSort = (currentCollection, options = {}) => {
+            if (!options.add && !options.remove && !options.merge) {
+              callback.call(context, { type: 'reorder' });
+            }
+          };
+          const onReset = () => callback.call(context, { type: 'reset' });
+          const onUpdate = (currentCollection, { changes }) => callback.call(context, {
+            type: 'update',
+            added: changes.added,
+            removed: changes.removed,
+            updated: changes.merged
+          });
+          collection.on('sort', onSort, context);
+          collection.on('reset', onReset, context);
+          collection.on('update', onUpdate, context);
+          return () => {
+            collection.off('sort', onSort, context);
+            collection.off('reset', onReset, context);
+            collection.off('update', onUpdate, context);
+          };
+        }
+      });
 
       class SurvivorElement extends HTMLElement {
         connectedCallback() {

@@ -18,7 +18,7 @@ describe('#addChildView after destruction begins', function() {
     const sort = this.sinon.spy(parent, 'sort');
     const destroyChildren = this.sinon.spy(parent, '_destroyChildren');
 
-    parent._onCollectionSort(parent.collection, {});
+    parent._onCollectionReorder();
     parent._onCollectionReset();
 
     expect(sort).to.not.have.been.called;

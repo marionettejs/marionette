@@ -18,6 +18,7 @@ import Region from '../../modules/region';
 import Application from '../../modules/application';
 
 import DomApi from '../../runtime/dom-api';
+import DataApi from '../../runtime/data-api';
 
 describe('backbone.marionette', function() {
   describe('Named Exports', function() {
@@ -32,6 +33,7 @@ describe('backbone.marionette', function() {
       Events,
       extend,
       DomApi,
+      DataApi,
     };
 
     _.each(namedExports, (val, key) => {
@@ -89,6 +91,28 @@ describe('backbone.marionette', function() {
         expect(Class.setDomApi)
           .to.be.calledOnce
           .and.calledWith(fakeDomApi);
+      });
+    });
+  });
+
+  describe('#setDataApi', function() {
+    const DataClasses = {
+      CollectionView,
+      View
+    };
+
+    const fakeDataApi = {
+      foo: 'bar'
+    };
+
+    _.each(DataClasses, function(Class, key) {
+      it(`should setDataApi on ${ key }`, function() {
+        this.sinon.spy(Class, 'setDataApi');
+        Mn.setDataApi(fakeDataApi);
+
+        expect(Class.setDataApi)
+          .to.be.calledOnce
+          .and.calledWith(fakeDataApi);
       });
     });
   });

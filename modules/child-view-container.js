@@ -1,4 +1,5 @@
 import MarionetteError from '../utils/error.js';
+import DataApi from '../runtime/data-api.js';
 
 const classErrorName = 'CollectionViewError';
 
@@ -8,7 +9,8 @@ function createIndex() {
 
 // Provide a container to store, retrieve and
 // shut down child views.
-const Container = function() {
+const Container = function(dataApi = DataApi) {
+  this.Data = dataApi;
   this._init();
 };
 
@@ -34,8 +36,8 @@ function assertCount(count) {
   return count;
 }
 
-function stringComparator(comparator, view) {
-  return view.model && view.model.get(comparator);
+function stringComparator(Data, comparator, view) {
+  return view.model && Data.get(view.model, comparator);
 }
 
 function compareCriteria(left, right) {
@@ -292,13 +294,13 @@ Object.assign(Container.prototype, {
   _init() {
     this._views = [];
     this._viewsByCid = createIndex();
-    this._indexByModel = createIndex();
+    this._indexByModel = new Map();
     this._updateLength();
   },
 
   // Add a view to this container. Stores the view
   // by `cid` and makes it searchable by the model
-  // cid (and model itself). Additionally it stores
+  // identity supplied by DataApi. Additionally it stores
   // the view by index in the _views array
   _add(view, index = this._views.length) {
     this._addViewIndexes(view);
@@ -315,14 +317,14 @@ Object.assign(Container.prototype, {
 
     // index it by model
     if (view.model) {
-      this._indexByModel[view.model.cid] = view;
+      this._indexByModel.set(this.Data.key(view.model), view);
     }
   },
 
   // Sort (mutate) and return the array of the child views.
   _sort(comparator, context) {
     if (typeof comparator === 'string') {
-      return this._sortBy(view => stringComparator(comparator, view));
+      return this._sortBy(view => stringComparator(this.Data, comparator, view));
     }
 
     if (comparator.length === 1) {
@@ -350,7 +352,7 @@ Object.assign(Container.prototype, {
 
     if (shouldReset) {
       this._viewsByCid = createIndex();
-      this._indexByModel = createIndex();
+      this._indexByModel = new Map();
 
       for (const view of views) {
         this._addViewIndexes(view);
@@ -375,14 +377,8 @@ Object.assign(Container.prototype, {
   },
 
   // Find a view by the model that was attached to it.
-  // Uses the model's `cid` to find it.
   findByModel(model) {
-    return this.findByModelCid(model.cid);
-  },
-
-  // Find a view by the `cid` of the model that was attached to it.
-  findByModelCid(modelCid) {
-    return this._indexByModel[modelCid];
+    return this._indexByModel.get(this.Data.key(model));
   },
 
   // Find a view by index.
@@ -411,8 +407,11 @@ Object.assign(Container.prototype, {
     }
 
     // delete model index
-    if (view.model && this._indexByModel[view.model.cid] === view) {
-      delete this._indexByModel[view.model.cid];
+    if (view.model) {
+      const modelKey = this.Data.key(view.model);
+      if (this._indexByModel.get(modelKey) === view) {
+        this._indexByModel.delete(modelKey);
+      }
     }
 
     // remove the view from the container

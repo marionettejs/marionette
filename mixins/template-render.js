@@ -61,12 +61,12 @@ export default {
   // for being displayed in the template. Override this if
   // you need a custom transformation for your view's model
   serializeModel() {
-    return this.model.attributes;
+    return this.Data.serialize(this.model);
   },
 
   // Serialize a collection
   serializeCollection() {
-    return this.collection.models.map(model => model.attributes);
+    return this.Data.items(this.collection).map(model => this.Data.serialize(model));
   },
 
   // Renders the data into the template

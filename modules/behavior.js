@@ -132,7 +132,7 @@ assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateMixin
   delegateEntityEvents() {
     if (this.view._isDestroying || this.view._isDestroyed) { return this; }
 
-    this._delegateEntityEvents(this.view.model, this.view.collection);
+    this._delegateEntityEvents(this.view.model, this.view.collection, this.view.Data);
 
     return this;
   },

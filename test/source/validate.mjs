@@ -14,6 +14,8 @@ const { default: jqueryDomApi } = await import('../../jquery-dom-api.js');
 assert.equal(typeof Marionette.View, 'function');
 assert.equal(typeof Marionette.Region, 'function');
 assert.equal(typeof Marionette.State, 'function');
+assert.equal(typeof Marionette.DataApi, 'object');
+assert.equal(typeof Marionette.setDataApi, 'function');
 assert.equal(typeof Marionette.MarionetteError, 'function');
 assert.equal(new Marionette.State({ ready: true }).get('ready'), true);
 assert.ok(new Marionette.MarionetteError({ message: 'fixture' }) instanceof Error);
@@ -35,6 +37,8 @@ const productionFiles = [
   'version.js',
 ];
 const underscoreImport = /(?:\bfrom\s+|\bimport\s*(?:\(\s*)?|\brequire\s*\(\s*)['"]underscore(?:\/[^'"]*)?['"]/;
+const backboneImport = /(?:\bfrom\s+|\bimport\s*(?:\(\s*)?|\brequire\s*\(\s*)['"]backbone(?:\/[^'"]*)?['"]/;
+const backboneDataAccess = /\bmodel\.(?:attributes|cid|get)\b|\bcollection\.(?:indexOf|models)\b|\boptions\.changes\b/;
 
 for (const source of [
   'import \'underscore\';',
@@ -64,6 +68,9 @@ for (const directory of ['modules', 'mixins', 'utils']) {
 }
 
 assert.equal(Object.hasOwn(packageJson.peerDependencies, 'underscore'), false);
+assert.equal(packageJson.peerDependencies.backbone, '^1.4.0');
+assert.equal(packageJson.peerDependenciesMeta.backbone.optional, true);
+assert.equal(Object.hasOwn(packageJson.dependencies || {}, 'backbone'), false);
 assert.equal(packageJson.peerDependencies.jquery, '^4.0.0');
 assert.equal(packageJson.peerDependenciesMeta.jquery.optional, true);
 assert.equal(Object.hasOwn(packageJson.dependencies || {}, 'jquery'), false);
@@ -73,6 +80,23 @@ for (const file of productionFiles) {
   assert.doesNotMatch(
     readFileSync(resolve(root, file), 'utf8'),
     underscoreImport
+  );
+}
+
+for (const file of productionFiles.filter(candidate => candidate !== 'backbone.js')) {
+  assert.doesNotMatch(
+    readFileSync(resolve(root, file), 'utf8'),
+    backboneImport,
+    `${file} must not import Backbone`
+  );
+}
+
+for (const file of productionFiles.filter(candidate =>
+  candidate !== 'backbone.js' && candidate !== 'runtime/backbone-data-api.js')) {
+  assert.doesNotMatch(
+    readFileSync(resolve(root, file), 'utf8'),
+    backboneDataAccess,
+    `${file} must access application data through DataApi`
   );
 }
 

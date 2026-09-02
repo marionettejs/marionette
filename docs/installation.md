@@ -38,7 +38,7 @@ optional integrations.
 
 | Peer | Required? | When you need it |
 |---|---|---|
-| `backbone` `^1.4.0` | Optional | Only if your app uses Backbone models/collections, or imports the bundled `marionette/backbone` shim. See [Backbone is optional](#backbone-is-optional). |
+| `backbone` `^1.4.0` | Optional | Only if your app imports the bundled `marionette/backbone` integration. See [Backbone is optional](#backbone-is-optional). |
 | `@types/backbone` `^1.4.23` | Optional | TypeScript declarations for `marionette/backbone`. JavaScript consumers do not need it. |
 | `jquery` `^4.0.0` | Optional | Only if your app uses the `marionette/jquery-dom-api` adapter. See [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional). |
 | `@types/jquery` `^4.0.1` | Optional | TypeScript declarations for `marionette/jquery-dom-api`. JavaScript consumers do not need it. |
@@ -46,7 +46,7 @@ optional integrations.
 Optional peers are installed only when you opt into them:
 
 ```bash
-# Only if you use Backbone models/collections or the bundled shim
+# Only if you use the bundled Backbone integration
 npm install backbone
 
 # Only if you use the jQuery DomApi adapter
@@ -115,13 +115,16 @@ future major version, not a removal commitment.
 
 ## Backbone is optional
 
-Starting with v5, Marionette core does not depend on Backbone at runtime. Backbone is one valid implementation of the model and collection contracts Marionette consumes; any object that satisfies those contracts works equally well. Applications that want the v4-style Backbone integration can opt in with a side-effect import of the bundled shim:
+Starting with v5, Marionette core does not depend on Backbone at runtime. Plain
+objects and arrays use the default DataApi. Applications using Backbone must
+select its data and event integration at application boot:
 
 ```javascript
 import 'marionette/backbone';
 ```
 
-See [Optional Backbone](./optional-backbone.md) for the model/collection protocol and a small non-Backbone adapter example.
+See [Data API](./data.api.md) for the neutral runtime contract and
+[Optional Backbone](./optional-backbone.md) for the bundled integration.
 
 ## jQuery DOM adapter is optional
 

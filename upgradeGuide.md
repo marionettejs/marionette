@@ -4,6 +4,23 @@ See the [v4-to-v5 compatibility ledger](docs/migration-from-v4.md) for the
 current public behavior boundary. Final migration documentation is tracked in
 [issue #147](https://github.com/marionettejs/marionette/issues/147).
 
+## Configure model and collection data
+
+- Marionette core no longer reads Backbone-specific `cid`, `attributes`, `get`,
+  `models`, `indexOf`, or structural event payloads.
+- Plain object models and array collections work through the default DataApi.
+- Applications using Backbone must select its integration once at boot:
+
+  ```js
+  import 'marionette/backbone';
+  import Backbone from 'backbone';
+  ```
+
+- Other data sources can configure `setDataApi` with identity, read,
+  serialization, ordered-item, subscription, and collection-observation methods.
+  See [Data API](docs/data.api.md).
+- Replace `children.findByModelCid(cid)` with `children.findByModel(model)`.
+
 ## Underscore is no longer a peer dependency
 
 - Marionette v5 core does not import or declare Underscore as a peer dependency.
