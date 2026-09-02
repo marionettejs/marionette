@@ -248,6 +248,47 @@
       ],
       "rationale": "Authorize the exact measured distribution cost of stabilizing the public EventDelegator cleanup protocol and constructor-failure rollback tracked by #147. The prototype replaces mutable private listener records with opaque idempotent cleanup, preserves registration-time capture, covers native focus ordering and optional jQuery compatibility, grows only the four established main artifacts, and adds no graph edge, external import, package subpath, eager allocation, retained resource, or speculative headroom.",
       "rollbackCondition": "If the EventDelegator contract prototype is abandoned before consumption, append a governance-only BA0006 revocation. Never edit or delete this authorization. If the final implementation exceeds 79084 bytes or changes the authorized positive-delta artifact scope, require a new exact-base budget amendment."
+    },
+    {
+      "kind": "authorization",
+      "id": "BA0007",
+      "target": "aggregate-shipped-package",
+      "previousCeilingBytes": 79084,
+      "proposedCeilingBytes": 79137,
+      "prototypeBaseCommit": "1c38284d03f4ab0a00faef9209fd514d211904d7",
+      "prototypeCommit": "5714bee19c57d738e94bd724168bb28e9dec388b",
+      "implementationIssueUrl": "https://github.com/marionettejs/marionette/issues/366",
+      "authorizedArtifactPaths": [
+        "dist/marionette.cjs",
+        "dist/marionette.js",
+        "dist/marionette.min.js",
+        "dist/marionette.umd.js"
+      ],
+      "authorizedNewSubpaths": [],
+      "reports": [
+        {
+          "path": "evidence/performance-budget-amendments/BA0007/base.json",
+          "role": "base",
+          "sha256": "4978702ebc1bd26c6771563ce70bfc0cdcf9805376591e2009362c2b0d53effd"
+        },
+        {
+          "path": "evidence/performance-budget-amendments/BA0007/prototype.json",
+          "role": "prototype",
+          "sha256": "cfb0451672c34379d03ec10d6a3c186912e4f3db373bbdc73b9c2b6499ba9747"
+        }
+      ],
+      "prototypeContract": {
+        "path": "evidence/performance-budget-amendments/BA0007/prototype-contract.json",
+        "sha256": "004ce4407457000cf04c47088fa8f9712c63f1c42b8e761577132e6b47272e7b"
+      },
+      "approvalUrls": [
+        "https://github.com/marionettejs/marionette/pull/369#issuecomment-5509104519"
+      ],
+      "evidenceUrls": [
+        "https://github.com/marionettejs/marionette/issues/127#issuecomment-5509104242"
+      ],
+      "rationale": "Authorize the exact measured distribution cost of complete failed-constructor rollback tracked by #366. The prototype destroys child Views and Regions created by render during initialize, removes their DOM, disposes the collection observer exactly once, continues remaining rollback after cleanup errors, and preserves the original construction failure. It grows only the four established main artifacts and adds no graph edge, external import, package subpath, allocation or retention proxy, or speculative headroom.",
+      "rollbackCondition": "If the constructor rollback prototype is abandoned before consumption, append a governance-only BA0007 revocation. Never edit or delete this authorization. If the final implementation exceeds 79137 bytes or changes the authorized positive-delta artifact scope, require a new exact-base budget amendment."
     }
   ]
 }
