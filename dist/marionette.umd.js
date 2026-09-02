@@ -919,6 +919,24 @@
   };
   assignOwn(CommonMixin, Events, Requests);
 
+  function disposeAll(disposers, error) {
+    let hasError = arguments.length > 1;
+    for (let index = disposers.length; index--;) {
+      const disposer = disposers[index];
+      try {
+        disposer && disposer();
+      } catch (disposalError) {
+        if (!hasError) {
+          error = disposalError;
+          hasError = true;
+        }
+      }
+    }
+    if (hasError) {
+      throw error;
+    }
+  }
+
   var DestroyMixin = {
     _isDestroyed: false,
     isDestroyed() {
@@ -936,8 +954,7 @@
         throw error;
       }
       this._isDestroyed = true;
-      this.triggerMethod('destroy', this, options);
-      this.stopListening();
+      disposeAll([() => this.stopListening(), () => this.triggerMethod('destroy', this, options), () => this._destroyState?.(), () => this._destroyRadio?.()]);
       return this;
     }
   };
@@ -1034,10 +1051,14 @@
       this.bindEvents(channel, radioEvents);
       const radioRequests = getValue(this, 'radioRequests');
       this.bindRequests(channel, radioRequests);
-      this.on('destroy', this._destroyRadio);
     },
     _destroyRadio() {
-      this._channel.stopReplying(null, null, this);
+      const channel = this._channel;
+      if (!channel) {
+        return this;
+      }
+      disposeAll([() => this.stopListening(channel), () => channel.stopReplying(null, null, this)]);
+      return this;
     },
     getChannel() {
       return this._channel;
@@ -1216,21 +1237,21 @@
       this._state = state;
       if (this._isDestroyed) {
         this._destroyState();
-      } else {
-        this.on('destroy', this._destroyState);
       }
       return state;
     },
     _destroyState() {
-      if (!this._state) {
+      const state = this._state;
+      if (!state) {
         return this;
       }
-      this.unbindEvents(this._state);
-      delete this._state._owner;
-      if (!this._state.isDestroyed()) {
-        this._state.destroy();
-      }
-      this.off('destroy', this._destroyState);
+      disposeAll([() => {
+        if (!state.isDestroyed()) {
+          state.destroy();
+        }
+      }, () => {
+        delete state._owner;
+      }, () => this.unbindEvents(state)]);
       return this;
     }
   };
@@ -1239,14 +1260,13 @@
   const MarionetteObject = function (options) {
     this._setOptions(options, ClassOptions$3);
     this.cid = uniqueId(this.cidPrefix);
-    this._initRadio();
-    this._initState(options);
     try {
+      this._initRadio();
+      this._initState(options);
       this.initialize.apply(this, arguments);
       this._initStateEvents();
     } catch (error) {
-      this._destroyState();
-      throw error;
+      disposeAll([() => this.stopListening(), () => this._destroyRadio(), () => this._destroyState()], error);
     }
   };
   MarionetteObject.extend = extend;
@@ -1263,24 +1283,6 @@
       iteratee(object[key], key, object);
     }
     return object;
-  }
-
-  function disposeAll(disposers, error) {
-    let hasError = arguments.length > 1;
-    for (let index = disposers.length; index--;) {
-      const disposer = disposers[index];
-      try {
-        disposer && disposer();
-      } catch (disposalError) {
-        if (!hasError) {
-          error = disposalError;
-          hasError = true;
-        }
-      }
-    }
-    if (hasError) {
-      throw error;
-    }
   }
 
   function isView(view) {
@@ -2031,36 +2033,28 @@
         delete this._isDestroying;
         throw error;
       }
-      if (shouldTriggerDetach) {
-        this.triggerMethod('before:detach', this);
-      }
-      this.unbindUIElements();
-      disposeAll([() => {
-        this.Dom.detachEl(this.el);
-        if (shouldTriggerDetach) {
-          this._isAttached = false;
-          this.triggerMethod('detach', this);
-        }
-        this._removeChildren();
-        this._isDestroyed = true;
-        this._isRendered = false;
+      let didDetachEl = false;
+      disposeAll([() => this.stopListening(), () => this._triggerEventOnBehaviors('destroy', this, options), () => this.triggerMethod('destroy', this, options), () => this._destroyState(), () => this._destroyBehaviors(options), () => this._deleteEntityEventHandlers(), () => {
         const dataObserverUnsubscribe = this._dataObserverUnsubscribe;
         delete this._dataObserverUnsubscribe;
-        let dataDisposalError;
-        let hasDataDisposalError = false;
-        try {
-          disposeAll([dataObserverUnsubscribe, () => this._deleteEntityEventHandlers(), () => this._destroyBehaviors(options)]);
-        } catch (error) {
-          dataDisposalError = error;
-          hasDataDisposalError = true;
+        dataObserverUnsubscribe?.();
+      }, () => {
+        this._isDestroyed = true;
+        this._isRendered = false;
+      }, () => this._removeChildren(), () => {
+        if (!shouldTriggerDetach || !didDetachEl) {
+          return;
         }
-        this.triggerMethod('destroy', this, options);
-        this._triggerEventOnBehaviors('destroy', this, options);
-        this.stopListening();
-        if (hasDataDisposalError) {
-          throw dataDisposalError;
+        this._isAttached = false;
+        this.triggerMethod('detach', this);
+      }, () => {
+        this.Dom.detachEl(this.el);
+        didDetachEl = true;
+      }, () => this._undelegateViewEvents(), () => this.unbindUIElements(), () => {
+        if (shouldTriggerDetach) {
+          this.triggerMethod('before:detach', this);
         }
-      }, () => this._undelegateViewEvents()]);
+      }]);
       return this;
     },
     bindUIElements() {
@@ -2555,7 +2549,7 @@
       const currentView = this.currentView;
       let isReset;
       destroyTeardown.set(this, 'reset');
-      disposeAll([() => {
+      disposeAll([() => this.stopListening(), () => this.triggerMethod('destroy', this, options), () => {
         destroyTeardown.delete(this);
         if (isReset || currentView && currentView !== this.currentView) {
           const parentView = this._parentView;
@@ -2570,8 +2564,6 @@
         this.reset(options);
         isReset = true;
       }]);
-      this.triggerMethod('destroy', this, options);
-      this.stopListening();
       return this;
     }
   });
@@ -3874,16 +3866,17 @@
   const Application = function (options) {
     this._setOptions(options, ClassOptions);
     this.cid = uniqueId(this.cidPrefix);
-    this._initRegion();
     try {
+      this._initRegion();
       this._initRadio();
       this._initState(options);
       this.initialize.apply(this, arguments);
       this._initStateEvents();
     } catch (error) {
-      this._destroyState();
-      this._ownedRegion?.destroy();
-      throw error;
+      const ownedRegion = this._ownedRegion;
+      delete this._region;
+      delete this._ownedRegion;
+      disposeAll([() => this.stopListening(), () => ownedRegion?.destroy(), () => this._destroyRadio(), () => this._destroyState()], error);
     }
   };
   function isCurrentOperation(application, operation) {
@@ -4300,18 +4293,22 @@
         if (this._childApps) {
           await destroyChildApps(this, options);
         }
-        this._ownedRegion?.destroy(options);
-        delete this._region;
-        delete this._ownedRegion;
-        this._isDestroyed = true;
-        this._lifecycleState = DESTROYED;
-        nextOperation.failureState = DESTROYED;
-        nextOperation.isCompleting = true;
-        if (this._parentApp) {
-          removeChildAppReference(this._parentApp, this._name, this);
-        }
-        this.triggerMethod('destroy', this, options);
-        this.stopListening();
+        const ownedRegion = this._ownedRegion;
+        disposeAll([() => {
+          if (ownedRegion && !ownedRegion.isDestroyed()) {
+            return;
+          }
+          delete this._region;
+          delete this._ownedRegion;
+          this._isDestroyed = true;
+          this._lifecycleState = DESTROYED;
+          nextOperation.failureState = DESTROYED;
+          nextOperation.isCompleting = true;
+          if (this._parentApp) {
+            removeChildAppReference(this._parentApp, this._name, this);
+          }
+          disposeAll([() => this.stopListening(), () => this.triggerMethod('destroy', this, options), () => this._destroyState(), () => this._destroyRadio()]);
+        }, () => ownedRegion?.destroy(options)]);
       });
     },
     addChildApp(name, application) {

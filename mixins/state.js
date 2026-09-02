@@ -1,6 +1,7 @@
 import getValue from '../utils/get-value.js';
 import MarionetteError from '../utils/error.js';
 import State from '../modules/state.js';
+import disposeAll from '../utils/dispose-all.js';
 
 function throwStateOwnershipConflict() {
   throw new MarionetteError({
@@ -50,22 +51,22 @@ export default {
 
     if (this._isDestroyed) {
       this._destroyState();
-    } else {
-      this.on('destroy', this._destroyState);
     }
 
     return state;
   },
 
   _destroyState() {
-    if (!this._state) { return this; }
+    const state = this._state;
+    if (!state) { return this; }
 
-    this.unbindEvents(this._state);
-    delete this._state._owner;
-    if (!this._state.isDestroyed()) {
-      this._state.destroy();
-    }
-    this.off('destroy', this._destroyState);
+    disposeAll([
+      () => {
+        if (!state.isDestroyed()) { state.destroy(); }
+      },
+      () => { delete state._owner; },
+      () => this.unbindEvents(state)
+    ]);
 
     return this;
   }

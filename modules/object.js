@@ -8,6 +8,7 @@ import CommonMixin from '../mixins/common.js';
 import DestroyMixin from '../mixins/destroy.js';
 import RadioMixin from '../mixins/radio.js';
 import StateMixin from '../mixins/state.js';
+import disposeAll from '../utils/dispose-all.js';
 
 const ClassOptions = [
   'channelName',
@@ -20,15 +21,18 @@ const ClassOptions = [
 const MarionetteObject = function(options) {
   this._setOptions(options, ClassOptions);
   this.cid = uniqueId(this.cidPrefix);
-  this._initRadio();
-  this._initState(options);
 
   try {
+    this._initRadio();
+    this._initState(options);
     this.initialize.apply(this, arguments);
     this._initStateEvents();
   } catch (error) {
-    this._destroyState();
-    throw error;
+    disposeAll([
+      () => this.stopListening(),
+      () => this._destroyRadio(),
+      () => this._destroyState()
+    ], error);
   }
 };
 

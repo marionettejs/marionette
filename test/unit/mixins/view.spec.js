@@ -2,6 +2,7 @@ import Backbone from 'backbone';
 import Behavior from '../../../modules/behavior';
 import CollectionView from '../../../modules/collection-view';
 import Region from '../../../modules/region';
+import State from '../../../modules/state';
 import View from '../../../modules/view';
 
 describe('view mixin', function() {
@@ -352,6 +353,44 @@ describe('view mixin', function() {
       expect(observerUnsubscribe).to.have.been.calledOnce;
       expect(stopListening).to.have.been.calledOn(view);
     });
+  });
+
+  describe('when view teardown fails', function() {
+    for (const failure of ['detachEl', 'detach', 'removeChildren']) {
+      it(`attempts remaining owned cleanup after ${ failure } throws`, function() {
+        const error = new Error(`${ failure } failed`);
+        const state = new State();
+        const onDestroy = this.sinon.spy();
+        const baseDom = View.prototype.Dom;
+        const TestView = View.extend({
+          Dom: {
+            ...baseDom,
+            detachEl(el) {
+              if (failure === 'detachEl') { throw error; }
+              return baseDom.detachEl(el);
+            }
+          },
+          onDetach() {
+            if (failure === 'detach') { throw error; }
+          },
+          onDestroy
+        });
+        const view = new TestView({ state });
+        const stopListening = this.sinon.spy(view, 'stopListening');
+        view._isAttached = true;
+
+        if (failure === 'removeChildren') {
+          this.sinon.stub(view, '_removeChildren').throws(error);
+        }
+
+        expect(() => view.destroy()).to.throw(error);
+        expect(view.isDestroyed()).to.be.true;
+        expect(state.isDestroyed()).to.be.true;
+        expect(state._owner).to.be.undefined;
+        expect(onDestroy).to.have.been.calledOnce;
+        expect(stopListening).to.have.been.called;
+      });
+    }
   });
 
   describe('when destroying a view', function() {

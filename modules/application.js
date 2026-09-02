@@ -9,6 +9,7 @@ import CommonMixin from '../mixins/common.js';
 import DestroyMixin from '../mixins/destroy.js';
 import RadioMixin from '../mixins/radio.js';
 import StateMixin from '../mixins/state.js';
+import disposeAll from '../utils/dispose-all.js';
 import Region from './region.js';
 import { buildRegion } from './view-region.js';
 
@@ -33,17 +34,23 @@ const classErrorName = 'ApplicationError';
 const Application = function(options) {
   this._setOptions(options, ClassOptions);
   this.cid = uniqueId(this.cidPrefix);
-  this._initRegion();
 
   try {
+    this._initRegion();
     this._initRadio();
     this._initState(options);
     this.initialize.apply(this, arguments);
     this._initStateEvents();
   } catch (error) {
-    this._destroyState();
-    this._ownedRegion?.destroy();
-    throw error;
+    const ownedRegion = this._ownedRegion;
+    delete this._region;
+    delete this._ownedRegion;
+    disposeAll([
+      () => this.stopListening(),
+      () => ownedRegion?.destroy(),
+      () => this._destroyRadio(),
+      () => this._destroyState()
+    ], error);
   }
 };
 
@@ -492,18 +499,28 @@ export default /* @__PURE__ */ (methods => {
       if (this._childApps) {
         await destroyChildApps(this, options);
       }
-      this._ownedRegion?.destroy(options);
-      delete this._region;
-      delete this._ownedRegion;
-      this._isDestroyed = true;
-      this._lifecycleState = DESTROYED;
-      nextOperation.failureState = DESTROYED;
-      nextOperation.isCompleting = true;
-      if (this._parentApp) {
-        removeChildAppReference(this._parentApp, this._name, this);
-      }
-      this.triggerMethod('destroy', this, options);
-      this.stopListening();
+      const ownedRegion = this._ownedRegion;
+      disposeAll([
+        () => {
+          if (ownedRegion && !ownedRegion.isDestroyed()) { return; }
+          delete this._region;
+          delete this._ownedRegion;
+          this._isDestroyed = true;
+          this._lifecycleState = DESTROYED;
+          nextOperation.failureState = DESTROYED;
+          nextOperation.isCompleting = true;
+          if (this._parentApp) {
+            removeChildAppReference(this._parentApp, this._name, this);
+          }
+          disposeAll([
+            () => this.stopListening(),
+            () => this.triggerMethod('destroy', this, options),
+            () => this._destroyState(),
+            () => this._destroyRadio()
+          ]);
+        },
+        () => ownedRegion?.destroy(options)
+      ]);
     });
   },
 
