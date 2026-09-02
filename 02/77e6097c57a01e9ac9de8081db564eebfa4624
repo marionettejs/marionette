@@ -1,0 +1,38 @@
+ROADMAP.md
+  s_d93f45db31dead::t_d5e1a45540d4ea 801-809
+docs/migration-from-v4.md
+  s_d93f45db31dead::t_d5e1a45540d4ea 50-52
+docs/installation.md
+  s_d93f45db31dead::t_fef1402805746d 112-114
+  s_d93f45db31dead::t_d5e1a45540d4ea 13,98-111
+  s_3a0cccbf9b5a9a::t_928ac838d7f8ef 115
+docs/release-promotion.md
+  s_d93f45db31dead::t_75177c339cedc0 31-35
+  s_d93f45db31dead::t_d5e1a45540d4ea 23-30,36
+changelog.md
+  s_d93f45db31dead::t_d5e1a45540d4ea 3-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "0277e6097c57a01e9ac9de8081db564eebfa4624",
+  "prompts": {},
+  "sessions": {
+    "s_3a0cccbf9b5a9a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a060cc-eff9-7782-9438-ed00fe71ea1d",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_d93f45db31dead": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05c69-15cb-71b1-836b-0fdd2f01d1c5",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
