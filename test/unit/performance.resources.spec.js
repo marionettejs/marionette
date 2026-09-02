@@ -177,9 +177,9 @@ describe('Phase 0 deterministic resource baselines', function() {
       expect(interopRegistrations(collectionView, collection))
         .to.equal(shapes.externalRegistrationsAfterDestroy);
       expect(ledgerEntries(collection._rdListeners))
-        .to.equal(shapes.externalListenerOwnersWhileMounted);
+        .to.equal(shapes.externalListenerOwnersAfterDestroy);
       expect(ledgerEntries(collectionView._rdListeningTo))
-        .to.equal(shapes.collectionViewListeningToWhileMounted);
+        .to.equal(0);
       collectionView.destroy();
 
       expectEmptyChildContainer(collectionView._children, shapes.childContainerEntriesAfterDestroy);
@@ -207,9 +207,9 @@ describe('Phase 0 deterministic resource baselines', function() {
       expect(interopRegistrations(behavior, model))
         .to.equal(shapes.externalRegistrationsAfterDestroy);
       expect(ledgerEntries(model._rdListeners))
-        .to.equal(shapes.externalListenerOwnersWhileMounted);
+        .to.equal(shapes.externalListenerOwnersAfterDestroy);
       expect(ledgerEntries(behavior._rdListeningTo))
-        .to.equal(shapes.behaviorListeningToWhileMounted);
+        .to.equal(1);
       behaviorView.destroy();
 
       expect(backboneRegistrations(model, behaviorView))
