@@ -300,6 +300,19 @@ describe('state source composition', function() {
     collectionView.destroy();
   });
 
+  it('reads a supplied state option once', function() {
+    const source = {};
+    const options = {};
+    const getStateOption = this.sinon.stub().returns(source);
+    Object.defineProperty(options, 'state', { get: getStateOption });
+
+    const owner = new MnObject(options);
+
+    expect(getStateOption).to.have.been.calledOnce;
+    expect(owner.getState()).to.equal(source);
+    owner.destroy();
+  });
+
   it('keeps Behavior state for the Behavior lifecycle', function() {
     const source = {};
     const onDestroy = this.sinon.spy();
@@ -316,6 +329,7 @@ describe('state source composition', function() {
     expect(behavior.getState()).to.equal(source);
     view.destroy();
     expect(onDestroy).to.have.been.calledOnce;
+    expect(behavior._isDestroyed).to.be.true;
   });
 
   it('does not compose state into Region', function() {

@@ -176,6 +176,9 @@ const Disclosure = Behavior.extend({
     const state = this.getState();
     state.open = !state.open;
     this.view.render();
+  },
+  onRender() {
+    this.view.el.dataset.disclosureOpen = String(this.getState().open);
   }
 });
 
@@ -191,14 +194,11 @@ const Settings = View.extend({
     this.render();
   },
   onRender() {
-    const [disclosure] = this._behaviors;
-    this.el.dataset.disclosureOpen = String(disclosure.getState().open);
     this.el.dataset.selected = String(this.getState().selected);
   }
 });
 
 export const settings = new Settings().render();
-export const disclosure = settings._behaviors[0];
 ```
 
 A Behavior that receives its View's source through `state` borrows it. A

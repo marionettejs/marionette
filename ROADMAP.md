@@ -295,8 +295,8 @@ Application explicitly.
 
 State composition is a first-class owner-to-source relationship rather than a second
 universal model API mixed into unrelated classes. Owners expose only `getState()`,
-which returns the exact configured Backbone model, actor, external store, native
-`State`, or other source. Application code uses that source's native mutation API;
+which returns the exact configured Backbone model, actor, external store, custom
+observable, or other source. Application code uses that source's native mutation API;
 Marionette does not pretend every source implements keyed setters, reset, or
 `change:key`. A source and an owner-local factory are distinct explicit configuration
 forms. A supplied source is borrowed: Marionette releases only its own subscriptions.
@@ -769,8 +769,8 @@ substantial remaining departures justified.
 ### Phase 2: Static guidance
 
 - Ship readable first-party TypeScript declarations for constructor options,
-  ownership and topology, state sources, factories, observation adapters, the native
-  `State` candidate, the selected data protocol, Application lifecycle results and
+  ownership and topology, state sources, factories, observation adapters, the
+  selected data protocol, Application lifecycle results and
   operation context, optional Backbone and jQuery adapters, and the public/internal
   boundary. Prefer structural types over elaborate type-level machinery.
 - Treat TypeScript readiness as a release contract: exercise root and every supported

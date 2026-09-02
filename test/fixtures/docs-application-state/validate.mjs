@@ -138,7 +138,6 @@ try {
   behaviorState.settings.el.querySelector('.disclosure').click();
   behaviorState.settings.el.querySelector('.selection').click();
 
-  assert.equal(behaviorState.disclosure.getState().open, true, 'private Behavior state must persist across host render');
   assert.equal(behaviorState.settings.el.dataset.disclosureOpen, 'true', 'host render must reflect private Behavior state');
   assert.equal(behaviorState.settings.getState().selected, true, 'View state must remain exact');
   assert.equal(behaviorState.settings.el.dataset.selected, 'true', 'host render must reflect View state');

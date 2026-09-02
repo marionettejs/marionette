@@ -1,5 +1,6 @@
 // Anything related to Bb.collection events
 
+import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
 import CollectionView from '../../../modules/collection-view';
@@ -234,16 +235,18 @@ describe('CollectionView Data', function() {
         this.sinon.stub(myCollectionView, 'attachHtml');
         collection.add([{ id: 4 }, { id: 5 }]);
 
-        expect(myCollectionView.attachHtml).to.not.have.been.called;
-        expect(myCollectionView.el.children).to.have.lengthOf(5);
+        const callArgs = myCollectionView.attachHtml.args[0];
+        const attachHtmlEls = callArgs[0];
+        expect($(attachHtmlEls).children()).to.have.lengthOf(2);
       });
 
       it('should append to the el', function() {
         this.sinon.stub(myCollectionView, 'attachHtml');
         collection.add([{ id: 4 }, { id: 5 }]);
 
-        expect(myCollectionView.attachHtml).to.not.have.been.called;
-        expect(myCollectionView.el.children).to.have.lengthOf(5);
+        const callArgs = myCollectionView.attachHtml.args[0];
+        const el = callArgs[1];
+        expect(el).to.equal(myCollectionView.el);
       });
 
       it('should still have all children attached', function() {
@@ -265,8 +268,9 @@ describe('CollectionView Data', function() {
         this.sinon.stub(myCollectionView, 'attachHtml');
         collection.add([{ id: 4 }, { id: 5 }]);
 
-        expect(myCollectionView.attachHtml).to.not.have.been.called;
-        expect(myCollectionView.el.children).to.have.lengthOf(5);
+        const callArgs = myCollectionView.attachHtml.args[0];
+        const attachHtmlEls = callArgs[0];
+        expect($(attachHtmlEls).children()).to.have.lengthOf(2);
       });
 
       it('should still have all children attached', function() {
@@ -315,16 +319,18 @@ describe('CollectionView Data', function() {
       const survivorNodes = survivors.map(view => view.el);
 
       this.sinon.spy(removedView, 'destroy');
-      this.sinon.spy(myCollectionView, 'attachHtml');
+      this.sinon.spy(myCollectionView.Dom, 'moveEl');
+      survivors.forEach(view => this.sinon.spy(view, 'render'));
 
       collection.remove(removedView.model);
 
-      expect(myCollectionView.attachHtml).to.not.have.been.called;
+      expect(myCollectionView.Dom.moveEl).to.not.have.been.called;
+      survivors.forEach(view => expect(view.render).to.not.have.been.called);
       expect([...myCollectionView.el.children]).to.deep.equal(survivorNodes);
       expect(removedView.destroy).to.have.been.calledOnce;
     });
 
-    it('removes multiple children without rendering and keeps survivor indexes aligned', function() {
+    it('reconciles multiple removals and keeps survivor indexes aligned', function() {
       myCollectionView.destroy();
 
       collection = new Backbone.Collection([
@@ -375,11 +381,11 @@ describe('CollectionView Data', function() {
         myCollectionView.el.children[0],
         myCollectionView.el.children[2]
       ];
-      this.sinon.spy(myCollectionView, 'attachHtml');
+      this.sinon.spy(myCollectionView.Dom, 'moveEl');
 
       collection.remove(collection.at(1));
 
-      expect(myCollectionView.attachHtml).to.not.have.been.called;
+      expect(myCollectionView.Dom.moveEl).to.not.have.been.called;
       expect([...myCollectionView.el.children]).to.deep.equal(survivorNodes);
     });
 
@@ -394,11 +400,11 @@ describe('CollectionView Data', function() {
         'before:sort': beforeSort,
         sort
       });
-      this.sinon.spy(myCollectionView, 'attachHtml');
+      this.sinon.spy(myCollectionView.Dom, 'moveEl');
 
       collection.remove(collection.at(1));
 
-      expect(myCollectionView.attachHtml).to.not.have.been.called;
+      expect(myCollectionView.Dom.moveEl).to.not.have.been.called;
       expect(beforeSort).to.have.been.calledOnce;
       expect(sort).to.have.been.calledOnce;
       expect([...myCollectionView.el.children]).to.deep.equal(survivorNodes);
@@ -434,7 +440,7 @@ describe('CollectionView Data', function() {
 
       collection.remove(collection.at(1));
 
-      expect(myCollectionView.attachHtml).to.not.have.been.called;
+      expect(myCollectionView.attachHtml).to.have.been.calledOnce;
       expect(beforeRenderChildren).to.have.been.calledOnce;
       expect(renderChildren).to.have.been.calledOnce;
     });
@@ -477,7 +483,7 @@ describe('CollectionView Data', function() {
 
       collection.remove(collection.at(1));
 
-      expect(myCollectionView.attachHtml).to.not.have.been.called;
+      expect(myCollectionView.attachHtml).to.have.been.calledOnce;
     });
 
     it('keeps the render path when the comparator query is overridden', function() {
@@ -493,7 +499,7 @@ describe('CollectionView Data', function() {
 
       collection.remove(collection.at(1));
 
-      expect(myCollectionView.attachHtml).to.not.have.been.called;
+      expect(myCollectionView.attachHtml).to.have.been.calledOnce;
     });
 
     it('keeps the render path when the filter query is overridden', function() {
@@ -509,7 +515,7 @@ describe('CollectionView Data', function() {
 
       collection.remove(collection.at(1));
 
-      expect(myCollectionView.attachHtml).to.not.have.been.called;
+      expect(myCollectionView.attachHtml).to.have.been.calledOnce;
     });
 
     it('keeps the render path when sort is overridden', function() {
@@ -577,11 +583,11 @@ describe('CollectionView Data', function() {
 
       const firstNode = myCollectionView.el.firstElementChild;
       const lastNode = myCollectionView.el.lastElementChild;
-      this.sinon.spy(myCollectionView, 'attachHtml');
+      this.sinon.spy(myCollectionView.Dom, 'moveEl');
 
       collection.remove(collection.at(500));
 
-      expect(myCollectionView.attachHtml).to.not.have.been.called;
+      expect(myCollectionView.Dom.moveEl).to.not.have.been.called;
       expect(myCollectionView.el.children).to.have.lengthOf(1000);
       expect(myCollectionView.el.firstElementChild).to.equal(firstNode);
       expect(myCollectionView.el.lastElementChild).to.equal(lastNode);

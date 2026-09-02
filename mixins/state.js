@@ -7,9 +7,10 @@ const StateMixin = {
   State: StateApi,
 
   _initState(options = {}) {
-    const hasStateOption = options != null && Object.hasOwn(options, 'state') &&
-      options.state !== undefined;
-    const state = hasStateOption ? options.state : this.state;
+    const stateOption = options != null && Object.hasOwn(options, 'state') ?
+      options.state : undefined;
+    const hasStateOption = stateOption !== undefined;
+    const state = hasStateOption ? stateOption : this.state;
 
     if (hasStateOption || state !== undefined) {
       this._state = state;

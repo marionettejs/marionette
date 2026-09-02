@@ -79,8 +79,9 @@ preserve the child View while replacing its `model`, rebinding `modelEvents`,
 and rendering the child against the new object.
 
 An immutable same-key replacement belongs only in `updated`, not in `removed`
-and `added`. An identity change is a removal plus an addition. The post-mutation
-`items()` snapshot is authoritative and must agree with the record. Missing,
+and `added`. Replacing an item with one that has a different stable key is a
+removal plus an addition; changing the key of a retained item is invalid. The
+post-mutation `items()` snapshot is authoritative and must agree with the record. Missing,
 duplicate, or unstable keys and malformed records throw `MN0039`.
 
 All three record types enter one CollectionView reconciliation path. Additions

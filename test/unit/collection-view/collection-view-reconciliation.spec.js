@@ -279,7 +279,7 @@ describe('CollectionView normalized reconciliation', function() {
     const view = new ListView({ collection: source });
     view.render();
     const child = view.children.first();
-    view._children._remove(child);
+    view.removeChildView(child);
 
     expect(() => source.notify({
       kind: 'update',
@@ -297,8 +297,9 @@ describe('CollectionView normalized reconciliation', function() {
     const source = { items: [previous] };
     const FilteredList = ListView.extend({ viewFilter: () => false });
     const view = new FilteredList({ collection: source });
+    let child;
+    view.on('add:child', (collectionView, addedChild) => { child = addedChild; });
     view.render();
-    const child = view._children.findByModel(previous);
 
     source.items = [current];
     source.notify({
@@ -308,8 +309,32 @@ describe('CollectionView normalized reconciliation', function() {
       updated: [{ previous, current }]
     });
 
-    expect(view._children.findByModel(current)).to.equal(child);
+    expect(child.model).to.equal(current);
     expect(view.children.hasView(child)).to.be.false;
+    expect(child.renderCount).to.be.undefined;
+    view.destroy();
+  });
+
+  it('does not render an added child that is filtered out', function() {
+    const first = { id: 1, name: 'one' };
+    const hidden = { id: 2, name: 'hidden' };
+    const source = { items: [first] };
+    const FilteredList = ListView.extend({
+      viewFilter(child) { return child.model.id === 1; }
+    });
+    const view = new FilteredList({ collection: source });
+    let child;
+    view.on('add:child', (collectionView, addedChild) => {
+      if (addedChild.model === hidden) { child = addedChild; }
+    });
+    view.render();
+
+    source.items = [first, hidden];
+    source.notify({ kind: 'update', added: [hidden], removed: [], updated: [] });
+
+    expect(view.children.hasView(child)).to.be.false;
+    expect(child.renderCount).to.be.undefined;
+    expect(view.el.textContent).to.equal('one');
     view.destroy();
   });
 
@@ -390,7 +415,6 @@ describe('CollectionView normalized reconciliation', function() {
 
     source.items = [];
     staleNotify({ kind: 'reset' });
-    view._onCollectionUpdate();
     expect(child.destroyCount).to.equal(1);
   });
 

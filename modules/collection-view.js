@@ -371,7 +371,10 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     if (this.sortWithCollection && this.viewComparator !== false) {
       this._setChildrenFromSnapshot(snapshot);
     }
-    this._reconcileChildren([...(addedViews || []), ...updatedViews]);
+    this._reconcileChildren(
+      [...(addedViews || []), ...updatedViews],
+      updatedViews.length ? false : addedViews
+    );
 
     // Destroy removed child views after all of the render is complete
     this._removeChildViews(removedViews);
@@ -387,23 +390,38 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     this._children._set(views, true);
   },
 
-  _reconcileChildren(renderViews) {
+  _reconcileChildren(renderViews, addedViews = false) {
+    const canReconcile = this.sort === CollectionView.prototype.sort &&
+      this.filter === CollectionView.prototype.filter &&
+      this.getComparator === CollectionView.prototype.getComparator &&
+      this.getFilter === CollectionView.prototype.getFilter &&
+      !this.viewComparator &&
+      !this.viewFilter;
+
+    if (!canReconcile) {
+      for (const view of renderViews) { view._isRendered = false; }
+      this._addedViews = addedViews;
+      this._reconcileFallback = true;
+      this.sort();
+      if (this._reconcileFallback) {
+        delete this._reconcileFallback;
+        this._renderChildren();
+      }
+      return;
+    }
+
     this._reconcileRenderViews = renderViews;
     this.sort();
-
-    if (this._reconcileRenderViews) {
-      delete this._reconcileRenderViews;
-      this._renderReconciledChildren(renderViews);
-    }
   },
 
   _renderReconciledChildren(renderViews) {
     if (this._hasUnrenderedViews) {
-      for (const view of this._children) {
+      for (const view of this.children) {
         if (!view._isRendered && !renderViews.includes(view)) { renderViews.push(view); }
       }
       delete this._hasUnrenderedViews;
     }
+    renderViews = renderViews.filter(view => this.children.hasView(view));
     this.triggerMethod('before:render:children', this, renderViews);
     if (this.isEmpty()) {
       this._showEmptyView();
@@ -428,28 +446,21 @@ assignOwn(CollectionView.prototype, ViewMixin, {
         renderView(view);
       }
 
-      const attaching = [];
-      const shouldTriggerAttach = this._isAttached && this.monitorViewEvents !== false;
-      for (const view of views) {
-        if (view.el.parentNode === this.container) { continue; }
-        if (shouldTriggerAttach) { view.triggerMethod('before:attach', view); }
-        attaching.push(view);
+      const attaching = views.filter(view => view.el.parentNode !== this.container);
+      if (attaching.length) {
+        this._attachChildren(this._getBuffer(attaching), attaching);
       }
 
-      let before = null;
-      for (let index = views.length; index--;) {
-        const view = views[index];
-        if (view.el.parentNode !== this.container || view.el.nextSibling !== before) {
-          this.Dom.moveEl(view.el, this.container, before);
-        }
-        view._isShown = true;
-        before = view.el;
-      }
-
-      for (const view of attaching) {
-        if (shouldTriggerAttach) {
-          view._isAttached = true;
-          view.triggerMethod('attach', view);
+      if (attaching.every(view => view.el.parentNode === this.container)) {
+        const attachingSet = new Set(attaching);
+        let before = null;
+        for (let index = views.length; index--;) {
+          const view = views[index];
+          if (!attachingSet.has(view) && view.el.nextSibling !== before) {
+            this.Dom.moveEl(view.el, this.container, before);
+          }
+          view._isShown = true;
+          before = view.el;
         }
       }
 
@@ -848,6 +859,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   },
 
   _renderChildren() {
+    delete this._reconcileFallback;
+
     if (this._reconcileRenderViews) {
       const renderViews = this._reconcileRenderViews;
       delete this._reconcileRenderViews;

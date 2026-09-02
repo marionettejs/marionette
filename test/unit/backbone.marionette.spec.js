@@ -109,7 +109,9 @@ describe('backbone.marionette', function() {
 
     _.each(DataClasses, function(Class, key) {
       it(`should setDataApi on ${ key }`, function() {
-        this.sinon.stub(Class, 'setDataApi').returns(Class);
+        _.each(DataClasses, DataClass => {
+          this.sinon.stub(DataClass, 'setDataApi').returns(DataClass);
+        });
         Mn.setDataApi(fakeDataApi);
 
         expect(Class.setDataApi)
@@ -125,7 +127,9 @@ describe('backbone.marionette', function() {
 
     _.each(StateClasses, function(Class, key) {
       it(`should setStateApi on ${ key }`, function() {
-        this.sinon.stub(Class, 'setStateApi').returns(Class);
+        _.each(StateClasses, StateClass => {
+          this.sinon.stub(StateClass, 'setStateApi').returns(StateClass);
+        });
         Mn.setStateApi(fakeStateApi);
         expect(Class.setStateApi).to.be.calledOnce.and.calledWith(fakeStateApi);
       });
