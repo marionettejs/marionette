@@ -36,6 +36,24 @@ function assignIn(target, ...sources) {
   return assign(target, sources, false);
 }
 
+function defineOwnDataProperties(target, source) {
+  const type = typeof source;
+  if (source == null || type !== 'object' && type !== 'function') {
+    return target;
+  }
+  for (const key of Object.keys(source)) {
+    if (!Object.hasOwn(source, key)) {
+      continue;
+    }
+    Object.defineProperty(target, key, {
+      configurable: true,
+      enumerable: true,
+      value: source[key],
+      writable: true
+    });
+  }
+  return target;
+}
 function extend (protoProps, staticProps) {
   const parent = this;
   let child;
@@ -49,8 +67,13 @@ function extend (protoProps, staticProps) {
   assignIn(child, parent);
   assignOwn(child, staticProps);
   child.prototype = Object.create(parent.prototype);
-  assignOwn(child.prototype, protoProps);
-  child.prototype.constructor = child;
+  defineOwnDataProperties(child.prototype, protoProps);
+  Object.defineProperty(child.prototype, 'constructor', {
+    configurable: true,
+    enumerable: true,
+    value: child,
+    writable: true
+  });
   child.__super__ = parent.prototype;
   return child;
 }

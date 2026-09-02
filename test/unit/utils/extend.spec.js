@@ -4,6 +4,7 @@ import {
   CollectionView,
   MnObject,
   Region,
+  State,
   View,
   extend
 } from '../../../index';
@@ -51,6 +52,11 @@ describe('extend', function() {
 
   it('owns prototype inputs while preserving the parent prototype chain', function() {
     const Parent = function() {};
+    const constructorSetter = this.sinon.spy();
+    Object.defineProperty(Parent.prototype, 'constructor', {
+      configurable: true,
+      set: constructorSetter
+    });
     Parent.prototype.parentMethod = function() {};
     const protoProps = Object.assign(Object.create({ inheritedMethod() {} }), {
       ownMethod() {}
@@ -62,7 +68,83 @@ describe('extend', function() {
     expect(Child.prototype).to.not.have.property('inheritedMethod');
     expect(Child.prototype.parentMethod).to.equal(Parent.prototype.parentMethod);
     expect(Child.prototype.constructor).to.equal(Child);
+    expect(constructorSetter).to.not.have.been.called;
+    expect(Object.getOwnPropertyDescriptor(Child.prototype, 'constructor')).to.deep.equal({
+      configurable: true,
+      enumerable: true,
+      value: Child,
+      writable: true
+    });
     expect(Child.__super__).to.equal(Parent.prototype);
+  });
+
+  it('defines child overrides without dispatching through parent setters', function() {
+    const Parent = function() {};
+    const setter = this.sinon.spy();
+    Object.defineProperty(Parent.prototype, 'status', {
+      configurable: true,
+      set: setter
+    });
+
+    const Child = extend.call(Parent, { status: 'child' });
+    const descriptor = Object.getOwnPropertyDescriptor(Child.prototype, 'status');
+
+    expect(setter).to.not.have.been.called;
+    expect(descriptor).to.deep.equal({
+      configurable: true,
+      enumerable: true,
+      value: 'child',
+      writable: true
+    });
+  });
+
+  it('shadows a getter-only inherited property', function() {
+    const Parent = function() {};
+    Object.defineProperty(Parent.prototype, 'status', {
+      configurable: true,
+      get() { return 'parent'; }
+    });
+
+    const Child = extend.call(Parent, { status: 'child' });
+
+    expect(Object.hasOwn(Child.prototype, 'status')).to.be.true;
+    expect(Child.prototype.status).to.equal('child');
+  });
+
+  it('eagerly copies an enumerable accessor value into a data property', function() {
+    const protoProps = {};
+    const getter = this.sinon.stub().returns('snapshot');
+    Object.defineProperty(protoProps, 'status', {
+      enumerable: true,
+      get: getter
+    });
+
+    const Child = extend.call(function() {}, protoProps);
+    const descriptor = Object.getOwnPropertyDescriptor(Child.prototype, 'status');
+
+    expect(getter).to.have.been.calledOnce;
+    expect(descriptor).to.deep.equal({
+      configurable: true,
+      enumerable: true,
+      value: 'snapshot',
+      writable: true
+    });
+  });
+
+  it('does not copy an inherited value after an own key is deleted', function() {
+    const protoProps = Object.create({ status: 'inherited' });
+    Object.defineProperty(protoProps, 'removeStatus', {
+      enumerable: true,
+      get() {
+        delete protoProps.status;
+        return true;
+      }
+    });
+    protoProps.status = 'own';
+
+    const Child = extend.call(function() {}, protoProps);
+
+    expect(Child.prototype).to.not.have.own.property('status');
   });
 
   it('copies inherited parent statics, then own static inputs', function() {
@@ -134,7 +216,7 @@ describe('extend', function() {
   });
 
   it('backs every exported Marionette pseudo-class', function() {
-    const classes = { Application, Behavior, CollectionView, MnObject, Region, View };
+    const classes = { Application, Behavior, CollectionView, MnObject, Region, State, View };
 
     Object.entries(classes).forEach(([name, Parent]) => {
       const staticProps = Object.assign(Object.create({ inherited: 'ignored' }), {
