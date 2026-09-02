@@ -1,0 +1,45 @@
+docs/data.api.md
+  s_792d54449de682::t_c9e0189c325442 78-81,89-92
+  s_792d54449de682::t_7b36568fda00a0 93
+evidence/state-data-regression-ledger.md
+  s_792d54449de682::t_76c62456c23d02 1-21,24-29
+  s_792d54449de682::t_c9e0189c325442 22-23
+test/unit/collection-view/collection-view-reconciliation.spec.js
+  s_792d54449de682::t_a5791780f70ddd 204
+  s_792d54449de682::t_caca5086410ab2 428-451
+  s_792d54449de682::t_3ee72068346095 2,154,156,158-171,173-177,179-180,183-187,190-193,195,203,205-216,220-221,370,376-377,379,389-424
+test/unit/data-api-integration.spec.js
+  s_792d54449de682::t_153f3ad101f00d 144-145
+changelog.md
+  s_792d54449de682::t_c9e0189c325442 16-18
+modules/collection-view.js
+  s_792d54449de682::t_c34630183541f3 303,305-310,313-330,361,367-368,377-380,384,391-392,434,437-440
+dist/marionette.cjs
+  s_792d54449de682::t_172b5dae307e99 3297-3300,3302-3325,3349,3358,3361,3372-3375,3378,3383,3414,3417,3419
+dist/marionette.js
+  s_792d54449de682::t_021c1850a434b6 3293-3296,3298-3321,3345,3354,3357,3368-3371,3374,3379,3410,3413,3415
+dist/marionette.min.js
+  s_792d54449de682::t_655fd9f0db0cdc 1
+dist/marionette.min.js.map
+  s_792d54449de682::t_1d1c01050a351c 1
+dist/marionette.umd.js
+  s_792d54449de682::t_9a723eba679d3d 3304-3307,3309-3332,3356,3365,3368,3379-3382,3385,3390,3421,3424,3426
+dist/marionette.umd.js.map
+  s_792d54449de682::t_d86e1697713fa8 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "338568310efb228a03744adae6a37bd5b164174e",
+  "prompts": {},
+  "sessions": {
+    "s_792d54449de682": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a063d4-3f21-7e72-bd01-96fa87903ed1",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
