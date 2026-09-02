@@ -3,9 +3,6 @@
 var Backbone = require('backbone');
 var marionette = require('marionette');
 
-function hasSameModels(collection, models) {
-  return collection.length === models.length && models.every(model => collection.get(model) === model);
-}
 function subscribe(entity, eventName, callback, context) {
   let isSubscribed = true;
   entity.on(eventName, callback, context);
@@ -36,9 +33,9 @@ var BackboneDataApi = {
   subscribe,
   observeCollection(collection, callback, context) {
     let previousModels = collection.models.slice();
-    const onSort = function (currentCollection, options = {}) {
-      const hasUnchangedMembership = hasSameModels(currentCollection, previousModels);
-      previousModels = currentCollection.models.slice();
+    const onSort = function (_, options = {}) {
+      const hasUnchangedMembership = collection.length === previousModels.length && previousModels.every(model => collection.get(model) === model);
+      previousModels = collection.models.slice();
       if (!hasUnchangedMembership && (options.add || options.remove || options.merge)) {
         return;
       }
@@ -46,16 +43,16 @@ var BackboneDataApi = {
         type: 'reorder'
       });
     };
-    const onReset = function (currentCollection) {
-      previousModels = currentCollection.models.slice();
+    const onReset = function () {
+      previousModels = collection.models.slice();
       callback.call(context, {
         type: 'reset'
       });
     };
-    const onUpdate = function (currentCollection, {
+    const onUpdate = function (_, {
       changes
     }) {
-      previousModels = currentCollection.models.slice();
+      previousModels = collection.models.slice();
       callback.call(context, {
         type: 'update',
         added: changes.added,

@@ -1,8 +1,3 @@
-function hasSameModels(collection, models) {
-  return collection.length === models.length &&
-    models.every(model => collection.get(model) === model);
-}
-
 function subscribe(entity, eventName, callback, context) {
   let isSubscribed = true;
   entity.on(eventName, callback, context);
@@ -39,18 +34,19 @@ export default {
 
   observeCollection(collection, callback, context) {
     let previousModels = collection.models.slice();
-    const onSort = function(currentCollection, options = {}) {
-      const hasUnchangedMembership = hasSameModels(currentCollection, previousModels);
-      previousModels = currentCollection.models.slice();
+    const onSort = function(_, options = {}) {
+      const hasUnchangedMembership = collection.length === previousModels.length &&
+        previousModels.every(model => collection.get(model) === model);
+      previousModels = collection.models.slice();
       if (!hasUnchangedMembership && (options.add || options.remove || options.merge)) { return; }
       callback.call(context, { type: 'reorder' });
     };
-    const onReset = function(currentCollection) {
-      previousModels = currentCollection.models.slice();
+    const onReset = function() {
+      previousModels = collection.models.slice();
       callback.call(context, { type: 'reset' });
     };
-    const onUpdate = function(currentCollection, { changes }) {
-      previousModels = currentCollection.models.slice();
+    const onUpdate = function(_, { changes }) {
+      previousModels = collection.models.slice();
       callback.call(context, {
         type: 'update',
         added: changes.added,

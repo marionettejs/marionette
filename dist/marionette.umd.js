@@ -1919,7 +1919,7 @@
       return Object.hasOwn(model, attribute) ? model[attribute] : undefined;
     },
     has(model, attribute) {
-      return Object.hasOwn(model, attribute);
+      return Object.hasOwn(Object(model), attribute);
     },
     serialize(model) {
       return model;
