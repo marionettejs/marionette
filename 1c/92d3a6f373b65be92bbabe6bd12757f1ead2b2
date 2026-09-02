@@ -1,0 +1,42 @@
+test/unit/collection-view/collection-view-lifecycle.spec.js
+  s_d93f45db31dead::t_e472604998332a 473-476,478-485,487-501
+  s_d93f45db31dead::t_0358eef9406f83 477,486
+test/unit/region-lifecycle.spec.js
+  s_d93f45db31dead::t_e472604998332a 690-727
+modules/collection-view.js
+  s_d93f45db31dead::t_93492ebc1a9234 937
+  s_d93f45db31dead::t_708a015a761435 932-934,936
+  s_d93f45db31dead::t_3aadb786c279b1 927-928
+  s_d93f45db31dead::t_e472604998332a 930-931,935,938
+dist/marionette.cjs
+  s_d93f45db31dead::t_610dae02b4b018 2554,2557-2558,2561-2563,2565-2568,3780-3781,3784
+dist/marionette.min.js
+  s_d93f45db31dead::t_ab01f6e8edf8aa 1
+dist/marionette.min.js.map
+  s_d93f45db31dead::t_aaf61adffdb80b 1
+dist/marionette.umd.js
+  s_d93f45db31dead::t_0233dbadce7ad4 2561,2564-2565,2568-2570,2572-2575,3787-3788,3791
+modules/view-region.js
+  s_d93f45db31dead::t_c86c000a634064 604-609
+  s_d93f45db31dead::t_708a015a761435 600-603,610,612-615,617
+dist/marionette.js
+  s_d93f45db31dead::t_ba89006c2cce0b 2550,2553-2554,2557-2559,2561-2564,3776-3777,3780
+dist/marionette.umd.js.map
+  s_d93f45db31dead::t_98f293bb7ad7bc 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "1c92d3a6f373b65be92bbabe6bd12757f1ead2b2",
+  "prompts": {},
+  "sessions": {
+    "s_d93f45db31dead": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05c69-15cb-71b1-836b-0fdd2f01d1c5",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
