@@ -391,13 +391,15 @@ current-evidence findings:
   completion.
 - **Selected:** V5 owns a neutral DataApi boundary for model identity, value reads,
   serialization, ordered collection items, entity subscriptions, and normalized
-  structural collection changes. Plain objects and arrays are the default. The
-  optional `@marionette/adapters/backbone` integration installs the Backbone adapter,
-  keeping `cid`, `attributes`, `models`, and Backbone event payloads out of core. This
-  avoids making the temporary Backbone-shaped protocol a v5 public contract that would
-  need removal in v6. Do not add implicit Backbone detection, per-model wrappers, or a
-  parallel reconciliation path. State remains an owned local-state concern, not the
-  collection data source.
+  structural collection changes. Core retains that contract, `setDataApi()`, and the
+  dependency-free plain-object and array default. The existing `backbone.js` installer
+  and `runtime/backbone-data-api.js` implementation move together into
+  `@marionette/adapters/backbone` as one atomic optional integration, keeping `cid`,
+  `attributes`, `models`, and Backbone event payloads out of core. This avoids making
+  the temporary Backbone-shaped protocol a v5 public contract that would need removal
+  in v6. Do not add implicit Backbone detection, per-model wrappers, or a parallel
+  reconciliation path. State remains an owned local-state concern, not the collection
+  data source.
 - **Selected:** First-party Backbone and jQuery adapters ship only from explicit
   `@marionette/adapters/backbone` and `@marionette/adapters/dom/jquery` subpaths. The
   adapters package has no root barrel, and core does not retain forwarding modules or
@@ -640,8 +642,10 @@ instructions, and every release blocker maps to this strategy.
   package contracts. Keep Backbone-specific data shapes out of core.
 - Move first-party Backbone and jQuery runtime adapters into a separately published
   `@marionette/adapters` workspace package with only explicit `./backbone` and
-  `./dom/jquery` exports. Remove the old core subpaths rather than forwarding them,
-  keep peers optional and isolated, and make build, package, performance, and release
+  `./dom/jquery` exports. Move the current Backbone installer and Backbone DataApi
+  together behind `./backbone`; do not extract core's DataApi contract, setter, or
+  plain-data default. Remove the old core subpaths rather than forwarding them, keep
+  peers optional and isolated, and make build, package, performance, and release
   verification require both distributions.
 - Remove the module-global feature registry as selected through the v3/v4
   compatibility audit. Preserve the canonical default behavior through existing
