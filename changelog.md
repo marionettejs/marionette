@@ -15,7 +15,8 @@
   `createState(options)` results are owned, and the lazy default is a plain object
 * Changed CollectionView structural updates to render in-place updates, recreate
   child Views for immutable same-key replacements, drain reentrant observations,
-  and move survivor nodes without recreating or rerendering unchanged Views
+  recover the latest source after reconciliation hook failures, and move survivor
+  nodes without recreating or rerendering unchanged Views
 * Added optional `marionette/jquery-dom-api` adapter for jQuery-backed DomApi
   operations and opt-in View, CollectionView, and Behavior `$el` compatibility
 * Changed jQuery-wrapped View and CollectionView `el` inputs to fail with the

@@ -312,6 +312,115 @@ describe('CollectionView normalized reconciliation', function() {
     view.destroy();
   });
 
+  it('destroys staged replacements when a later add hook fails', function() {
+    const first = { id: 1, name: 'one' };
+    const replacement = { id: 1, name: 'replacement' };
+    const added = { id: 2, name: 'added' };
+    const source = { items: [first] };
+    const hookError = new Error('add hook failed');
+    let stagedReplacement;
+    let stagedAddition;
+    const FailureList = ListView.extend({
+      buildChildView(model, ChildViewClass, childViewOptions) {
+        const child = CollectionView.prototype.buildChildView.call(
+          this, model, ChildViewClass, childViewOptions
+        );
+        if (model === replacement) { stagedReplacement = child; }
+        if (model === added) { stagedAddition = child; }
+        return child;
+      },
+      onBeforeAddChild(collectionView, child) {
+        if (child.model === added) { throw hookError; }
+      }
+    });
+    const view = new FailureList({ collection: source });
+    view.render();
+
+    source.items = [replacement, added];
+    expect(() => source.notify({
+      kind: 'update',
+      added: [added],
+      removed: [],
+      updated: [{ previous: first, current: replacement }]
+    })).to.throw(hookError);
+
+    expect(stagedReplacement.isDestroyed()).to.be.true;
+    expect(stagedAddition.isDestroyed()).to.be.true;
+    view.destroy();
+  });
+
+  it('recovers the latest source snapshot after a reconciliation hook fails', function() {
+    const first = { id: 1, name: 'one' };
+    const second = { id: 2, name: 'two' };
+    const third = { id: 3, name: 'three' };
+    const fourth = { id: 4, name: 'four' };
+    const source = { items: [first] };
+    const hookError = new Error('add hook failed');
+    let shouldFail = true;
+    const RecoveringList = ListView.extend({
+      onBeforeAddChild(collectionView, child) {
+        if (!shouldFail || child.model !== second) { return; }
+        shouldFail = false;
+        source.items = [first, second, third];
+        source.notify({ kind: 'update', added: [third], removed: [], updated: [] });
+        throw hookError;
+      }
+    });
+    const view = new RecoveringList({ collection: source });
+    view.render();
+
+    source.items = [first, second];
+    expect(() => source.notify({
+      kind: 'update', added: [second], removed: [], updated: []
+    })).to.throw(hookError);
+
+    source.items = [first, second, third, fourth];
+    expect(() => source.notify({
+      kind: 'update', added: [fourth], removed: [], updated: []
+    })).to.not.throw();
+    expect(view.children.toArray().map(child => child.model))
+      .to.deep.equal([first, second, third, fourth]);
+    expect(view.el.textContent).to.equal('onetwothreefour');
+    view.destroy();
+  });
+
+  ['removal', 'replacement'].forEach(changeType => {
+    it(`keeps a managed child when a before-remove hook rejects ${ changeType }`, function() {
+      const first = { id: 1, name: 'one' };
+      const replacement = { id: 1, name: 'replacement' };
+      const source = { items: [first] };
+      const hookError = new Error('before remove failed');
+      let shouldFail = true;
+      const FailureList = ListView.extend({
+        onBeforeRemoveChild() {
+          if (!shouldFail) { return; }
+          shouldFail = false;
+          throw hookError;
+        }
+      });
+      const view = new FailureList({ collection: source });
+      view.render();
+      const originalChild = view.children.findByModel(first);
+      const isReplacement = changeType === 'replacement';
+
+      source.items = isReplacement ? [replacement] : [];
+      expect(() => source.notify({
+        kind: 'update',
+        added: [],
+        removed: isReplacement ? [] : [first],
+        updated: isReplacement ? [{ previous: first, current: replacement }] : []
+      })).to.throw(hookError);
+
+      expect(view.children.findByModel(first)).to.equal(originalChild);
+      expect(originalChild.isDestroyed()).to.be.false;
+      source.notify({ kind: 'reset' });
+      expect(view.children.toArray().map(child => child.model))
+        .to.deep.equal(isReplacement ? [replacement] : []);
+      expect(originalChild.isDestroyed()).to.be.true;
+      view.destroy();
+    });
+  });
+
   it('treats reset as destructive whole-list replacement', function() {
     const first = { id: 1, name: 'one' };
     const source = { items: [first] };
@@ -544,7 +653,14 @@ describe('CollectionView normalized reconciliation', function() {
     const second = { id: 2, name: 'two' };
     const third = { id: 3, name: 'three' };
     const source = { items: [first] };
+    let thirdBuilds = 0;
     const ReentrantList = ListView.extend({
+      buildChildView(model, ChildViewClass, childViewOptions) {
+        if (model === third) { thirdBuilds++ }
+        return CollectionView.prototype.buildChildView.call(
+          this, model, ChildViewClass, childViewOptions
+        );
+      },
       onAddChild(collectionView, child) {
         if (child.model !== second) { return; }
         source.items = [first, second, third];
@@ -561,6 +677,32 @@ describe('CollectionView normalized reconciliation', function() {
     })).to.not.throw();
 
     expect(view.isDestroyed()).to.be.true;
+    expect(thirdBuilds).to.equal(0);
+    expect(view.children.length).to.equal(0);
+    expect(view.el.textContent).to.equal('');
+  });
+
+  it('unsubscribes collection observation before failed-construction child cleanup', function() {
+    const first = { id: 1, name: 'one' };
+    const source = { items: [first] };
+    const constructionError = new Error('initialize failed');
+    const onDestroy = this.sinon.spy(() => {
+      expect(source.notify).to.be.undefined;
+      source.items = [];
+      source.notify?.({ kind: 'update', added: [], removed: [first], updated: [] });
+    });
+    const CleanupChild = ChildView.extend({ onDestroy });
+    CleanupChild.setDataApi(Adapter);
+    const BrokenList = ListView.extend({
+      childView: CleanupChild,
+      initialize() {
+        this.render();
+        throw constructionError;
+      }
+    });
+
+    expect(() => new BrokenList({ collection: source })).to.throw(constructionError);
+    expect(onDestroy).to.have.been.calledOnce;
   });
 
   it('does not render an added child that is filtered out', function() {
