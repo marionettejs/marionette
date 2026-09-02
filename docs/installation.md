@@ -10,6 +10,7 @@ While some integrations are listed here, more resources are available in the int
 * [Install](#install)
 * [Peer dependencies](#peer-dependencies)
 * [Quick start](#quick-start)
+* [Independent runtimes](#independent-runtimes)
 * [Distribution formats](#distribution-formats)
 * [Backbone is optional](#backbone-is-optional)
 * [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional)
@@ -94,6 +95,21 @@ await app.start();
 selector strings — pass `document.querySelector('#root')` at the call site. See
 the [upgrade guide](../upgradeGuide.md) for the migration entry. `Region` continues
 to accept selector strings.
+
+## Independent runtimes
+
+The named root exports form one default runtime. Use `createMarionette()` only when
+independent applications in the same process need isolated classes, adapters,
+renderer configuration, or Radio channels:
+
+```javascript
+import { createMarionette } from 'marionette';
+
+const isolated = createMarionette();
+const IsolatedView = isolated.View.extend({ template: () => 'Independent' });
+```
+
+See [Runtime isolation](./runtime-isolation.md) for composition and ownership rules.
 
 ## Distribution formats
 

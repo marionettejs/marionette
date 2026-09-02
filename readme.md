@@ -51,6 +51,7 @@ See [installation](docs/installation.md) for package entrypoints and supported s
 
 - [Documentation index](docs/readme.md)
 - [Installation and package entrypoints](docs/installation.md)
+- [Runtime isolation](docs/runtime-isolation.md)
 - [Optional Backbone integration](docs/optional-backbone.md)
 - [Data API](docs/data.api.md)
 - [State sources and StateApi](docs/marionette.state.md)

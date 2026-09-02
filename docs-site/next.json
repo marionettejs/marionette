@@ -8,6 +8,10 @@
     "route": "next/installation"
   },
   {
+    "source": "docs/runtime-isolation.md",
+    "route": "next/runtime-isolation"
+  },
+  {
     "source": "docs/optional-backbone.md",
     "route": "next/optional-backbone"
   },

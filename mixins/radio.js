@@ -10,6 +10,8 @@ import getValue from '../utils/get-value.js';
 
 export default {
 
+  Radio,
+
   _initRadio() {
     const channelName = getValue(this, 'channelName');
 
@@ -17,7 +19,7 @@ export default {
       return;
     }
 
-    const channel = this._channel = Radio.channel(channelName);
+    const channel = this._channel = this.Radio.channel(channelName);
 
     const radioEvents = getValue(this, 'radioEvents');
     this.bindEvents(channel, radioEvents);

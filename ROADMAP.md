@@ -131,8 +131,8 @@ budget.
   View, Region, CollectionView, rendering, templates, Events, Radio, state-source
   callbacks, and destroy callbacks remain synchronous and never auto-await callback
   results.
-- Radio retains its module-global channel registry for v5. Applications may use Radio,
-  but do not own or isolate its channels.
+- Root imports share one default Radio registry. Each explicit `createMarionette()`
+  runtime owns an isolated class family, adapter configuration, and Radio registry.
 - Behavior scope, UI resolution, event delegation, dependencies, and teardown are
   explicit and tested.
 - Lifecycle boundaries and callbacks remain the canonical cleanup seam. A resource
@@ -355,18 +355,20 @@ implementation is already complete.
 The current evidence establishes these selected decisions, gated candidates, and
 current-evidence findings:
 
-- **Selected:** Radio retains its existing module-global registry for v5. Do not add an isolated
-  Radio factory, Application injection, or Application-owned channel lifetime without
-  new public evidence. Documentation must make that process-wide scope explicit.
+- **Selected:** Root imports retain one default Radio registry and class family.
+  Optional `createMarionette()` calls create isolated class families, mutable adapter
+  configuration, renderers, and Radio registries. Applications do not own or reset
+  Radio channels implicitly; the selected runtime owns their registry lifetime.
 - **Selected:** Remove the module-global feature registry and its `setEnabled` and
   `isEnabled` exports. No verified app-frontend or Marionette Toolkit consumer uses
   the global API. Configure child event prefixes per View, configure default
   prevention and propagation per trigger, and keep application-owned values in
   an Application-owned state source or explicit application configuration. `DEV_MODE`
   and custom string flags are not retained through aliases or a second registry.
-- **Selected:** Retain the current root bootstrap and class-level DOM and renderer
-  configuration. EventDelegator remains a public runtime adapter parallel to those
-  seams, with deterministic global and per-class installation timing. Each registration
+- **Selected:** Build every optional `createMarionette()` result from the canonical
+  default root class contracts and shared configuration helpers. Retain class-level DOM and renderer
+  configuration, isolated per class family. EventDelegator remains a public runtime
+  adapter parallel to those seams, with deterministic runtime and per-class installation timing. Each registration
   returns an opaque cleanup operation that Marionette owns and invokes at most once;
   cleanup continues through sibling operations even when one throws.
 
@@ -685,12 +687,13 @@ instructions, and every release blocker maps to this strategy.
   compatibility audit. Preserve the canonical default behavior through existing
   local View and trigger options, migrate application-owned values to an owned state
   source or explicit configuration, and do not add an alias or replacement registry.
-- Retain the module-global Radio architecture and the existing root bootstrap plus
-  class-level DOM and renderer configuration. Stabilize EventDelegator as a public
+- Retain one default root runtime and provide optional `createMarionette()` isolation
+  for class families, mutable adapters, renderers, and Radio registries. Stabilize EventDelegator as a public
   registration and cleanup boundary with exact listener options, attempt-all teardown,
   constructor-failure rollback, native focus/blur ordering, and executable optional
   jQuery evidence. Close documentation gaps in process scope, installation timing, and
-  precedence without adding factories, injection, or duplicate configuration paths.
+  precedence without adding EventDelegator-specific factories, injection, or duplicate
+  configuration paths.
 - Close the related lifecycle leaks before the first integration candidate: failed
   View and CollectionView construction after rendering, failed MnObject and Application
   construction after Radio registration, public `off()` disabling owned Radio cleanup,
@@ -846,10 +849,9 @@ Gate: all stable release criteria below pass.
 Benchmark declarative definition helpers, renderer lifecycle extensions, alternative
 CollectionView strategies, optional integrations, pay-for-play resource ownership,
 and the smallest extension-hook contract justified by a public consumer that cannot
-use lifecycle events and topology APIs. Evaluate an opt-in `createMarionette()` only
-with evidence that independently configured class families and Radio registries justify
-its default-path cost and cross-isolation complexity; the selected 5.0 contract remains
-the module-global default unless that gate passes before freeze. These experiments
+use lifecycle events and topology APIs. The selected opt-in `createMarionette()` keeps
+the default root runtime while providing measured class-family and Radio isolation;
+future runtime factory expansion still requires evidence. These experiments
 target 5.x and do not block stable v5. Unsuccessful candidates are documented and
 closed rather than retained as dormant APIs.
 
@@ -901,9 +903,10 @@ closed rather than retained as dormant APIs.
 - The sync/async matrix names Application readiness as the only awaited lifecycle
   surface, and Application cancellation tests prove exact abort ordering and ordinary
   supersession semantics without making other Marionette callbacks awaitable.
-- Removal of the module-global feature registry, Radio process scope, and adapter
-  installation precedence are documented; no replacement flag registry, duplicate
-  factory, or configuration path is presented as canonical.
+- Removal of the module-global feature registry, default-versus-isolated Radio scope,
+  runtime-local adapter installation precedence, and the canonical `createMarionette()`
+  factory are documented; no replacement flag registry or duplicate factory
+  path is presented as canonical.
 - Every contract in the API-shape and agent-ergonomics gate has an explicit keep or
   remove decision, an executable migration when behavior changes, paired agent tasks
   that distinguish the selected form from the rejected alternative, truthful source

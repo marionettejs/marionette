@@ -3,6 +3,7 @@
 Use these repository guides for the v5 pre-release:
 
 - [Installation and package entrypoints](installation.md)
+- [Runtime isolation](runtime-isolation.md)
 - [Optional Backbone integration](optional-backbone.md)
 - [Data API](data.api.md)
 - [State sources and StateApi](marionette.state.md)

@@ -1,6 +1,6 @@
 # Radio
 
-Marionette includes `Radio`, a global, namespaced message bus for
+Marionette includes `Radio`, a namespaced message bus for
 communication between otherwise unrelated parts of an application. Import it
 directly from Marionette:
 
@@ -133,8 +133,10 @@ Radio owns the warning and tuning output path. The former `Radio.log` and
 
 ## Channel Lifecycle
 
-Channels are shared by name and remain available for the lifetime of the Radio
-module. Clean up handlers when their owning object or feature is destroyed:
+Channels are shared by name within their Radio runtime and remain available for that
+runtime's lifetime. Root imports use one default Radio. Each
+[`createMarionette()`](./runtime-isolation.md) call returns an isolated Radio and
+channel registry. Clean up handlers when their owning object or feature is destroyed:
 
 ```javascript
 import { MnObject, Radio } from 'marionette';
