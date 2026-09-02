@@ -32,7 +32,7 @@ describe('Behavior', function() {
     }
 
     it('should set EventDelegator on behavior delegated events', function() {
-      const delegate = this.sinon.stub();
+      const delegate = this.sinon.stub().returns(() => {});
       const MyBehavior = Behavior.extend({
         events: {
           'click .foo': 'onFooClick'

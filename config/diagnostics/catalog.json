@@ -606,6 +606,24 @@
         "runtime"
       ],
       "benchmarkCategory": "ownership"
+    },
+    {
+      "code": "MN0036",
+      "slug": "event-delegator-contract-invalid",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Behavior",
+        "CollectionView",
+        "View"
+      ],
+      "remediation": "Configure a complete EventDelegator with a callable delegate method that returns an idempotent cleanup function for every registration.",
+      "docsAnchor": "/errors/MN0036/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "cleanup"
     }
   ]
 }

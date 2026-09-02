@@ -1308,6 +1308,27 @@
     }
   }
 
+  function disposeAll(disposers, error) {
+    let hasError = arguments.length > 1;
+    for (let index = disposers.length - 1; index >= 0; index--) {
+      const disposer = disposers[index];
+      if (!disposer) {
+        continue;
+      }
+      try {
+        disposer();
+      } catch (disposalError) {
+        if (!hasError) {
+          error = disposalError;
+          hasError = true;
+        }
+      }
+    }
+    if (hasError) {
+      throw error;
+    }
+  }
+
   function getBehaviorClass(options) {
     if (options.behaviorClass) {
       return {
@@ -1371,6 +1392,12 @@
       iteratee(behaviors[index]);
     }
   }
+  function disposeBehaviors(behaviors, method, options) {
+    if (behaviors == null) {
+      return;
+    }
+    disposeAll(behaviors.map(behavior => () => behavior[method](options)).reverse());
+  }
   function rollbackBehaviors(behaviors) {
     for (let index = 0, length = behaviors.length; index < length; index++) {
       try {
@@ -1384,9 +1411,13 @@
       try {
         parseBehaviors(this, getValue(this, 'behaviors'), this._behaviors);
       } catch (error) {
-        rollbackBehaviors(this._behaviors);
+        this._rollbackBehaviors();
         throw error;
       }
+    },
+    _rollbackBehaviors() {
+      rollbackBehaviors(this._behaviors || []);
+      this._behaviors = [];
     },
     _getBehaviorTriggers() {
       return mergeBehaviorMaps(this._behaviors, behavior => behavior._getTriggers());
@@ -1398,52 +1429,16 @@
       eachBehavior(this._behaviors, behavior => behavior._syncElement());
     },
     _undelegateBehaviorViewEvents() {
-      eachBehavior(this._behaviors, behavior => behavior._undelegateViewEvents());
+      disposeBehaviors(this._behaviors, '_undelegateViewEvents');
     },
     _delegateBehaviorEntityEvents() {
       eachBehavior(this._behaviors, behavior => behavior.delegateEntityEvents());
     },
     _undelegateBehaviorEntityEvents() {
-      const behaviors = this._behaviors;
-      if (behaviors == null) {
-        return;
-      }
-      let error;
-      let hasError = false;
-      for (let index = 0, length = behaviors.length; index < length; index++) {
-        try {
-          behaviors[index].undelegateEntityEvents();
-        } catch (undelegateError) {
-          if (!hasError) {
-            error = undelegateError;
-            hasError = true;
-          }
-        }
-      }
-      if (hasError) {
-        throw error;
-      }
+      disposeBehaviors(this._behaviors, 'undelegateEntityEvents');
     },
     _destroyBehaviors(options) {
-      const behaviors = this._behaviors;
-      if (behaviors == null) {
-        return;
-      }
-      let error;
-      let hasError = false;
-      for (let index = 0, length = behaviors.length; index < length; index++) {
-        try {
-          behaviors[index].destroy(options);
-        } catch (destroyError) {
-          if (!hasError) {
-            error = destroyError;
-            hasError = true;
-          }
-        }
-      }
-      if (hasError) {
-        throw error;
-      }
+      disposeBehaviors(this._behaviors, 'destroy', options);
     },
     _removeBehavior(behavior) {
       if (this._isDestroyed) {
@@ -1468,27 +1463,6 @@
       eachBehavior(this._behaviors, behavior => behavior.triggerMethod(eventName, view, options));
     }
   };
-
-  function disposeAll(disposers, error) {
-    let hasError = arguments.length > 1;
-    for (let index = disposers.length - 1; index >= 0; index--) {
-      const disposer = disposers[index];
-      if (!disposer) {
-        continue;
-      }
-      try {
-        disposer();
-      } catch (disposalError) {
-        if (!hasError) {
-          error = disposalError;
-          hasError = true;
-        }
-      }
-    }
-    if (hasError) {
-      throw error;
-    }
-  }
 
   function subscribeBindings(context, Data, entity, bindings) {
     const eventArgs = buildEventArgs(normalizeBindings$1(context, bindings), context);
@@ -1695,24 +1669,34 @@
     }
   };
 
-  function setEventDelegator$1(mixin) {
-    this.prototype.EventDelegator = assignOwn({}, this.prototype.EventDelegator, mixin);
+  function setEventDelegator$1(delegator) {
+    if (!delegator || typeof delegator.delegate !== 'function') {
+      throw new MarionetteError({
+        code: 'MN0036',
+        name: 'EventDelegatorError',
+        message: 'EventDelegator must provide a delegate method.',
+        url: 'dom.interactions.html#eventdelegator-adapter'
+      });
+    }
+    Object.defineProperty(this.prototype, 'EventDelegator', {
+      configurable: true,
+      enumerable: true,
+      value: delegator,
+      writable: false
+    });
     return this;
   }
   var EventDelegator = {
-    shouldCapture(eventName) {
-      return ['focus', 'blur'].indexOf(eventName) !== -1;
-    },
     delegate({
       eventName,
       selector,
       handler,
-      events,
       rootEl
     }) {
-      const shouldCapture = this.shouldCapture(eventName);
+      const capture = eventName === 'focus' || eventName === 'blur';
+      let eventHandler = handler;
       if (selector) {
-        const delegateHandler = function (evt) {
+        eventHandler = function (evt) {
           let node = evt.target;
           for (; node && node !== rootEl; node = node.parentNode) {
             if (node.nodeType === 1 && node.matches(selector)) {
@@ -1722,35 +1706,16 @@
             }
           }
         };
-        events.push({
-          eventName,
-          handler: delegateHandler
-        });
-        rootEl.addEventListener(eventName, delegateHandler, shouldCapture);
-        return;
       }
-      events.push({
-        eventName,
-        handler
-      });
-      rootEl.addEventListener(eventName, handler, shouldCapture);
-    },
-    undelegateAll({
-      events,
-      rootEl
-    }) {
-      if (!rootEl) {
-        return;
-      }
-      for (let index = 0, length = events.length; index < length; index++) {
-        const {
-          eventName,
-          handler
-        } = events[index];
-        const shouldCapture = this.shouldCapture(eventName);
-        rootEl.removeEventListener(eventName, handler, shouldCapture);
-      }
-      events.length = 0;
+      rootEl.addEventListener(eventName, eventHandler, capture);
+      let isRemoved;
+      return () => {
+        if (isRemoved) {
+          return;
+        }
+        isRemoved = true;
+        rootEl.removeEventListener(eventName, eventHandler, capture);
+      };
     }
   };
 
@@ -1780,10 +1745,7 @@
       this._domEvents = [];
     },
     _undelegateViewEvents() {
-      this.EventDelegator.undelegateAll({
-        events: this._domEvents,
-        rootEl: this.el
-      });
+      disposeAll(this._domEvents.splice(0));
     },
     _delegateViewEvents(view = this, events) {
       if (!events && !this.events && !this.triggers) {
@@ -1793,8 +1755,12 @@
       const delegates = [];
       this._delegateEvents(delegates, uiBindings, events);
       this._delegateTriggers(delegates, uiBindings, view);
-      for (let index = 0; index < delegates.length; index += 2) {
-        this._delegate(delegates[index], delegates[index + 1]);
+      try {
+        for (let index = 0; index < delegates.length; index += 2) {
+          this._delegate(delegates[index], delegates[index + 1]);
+        }
+      } catch (error) {
+        disposeAll(this._domEvents.splice(0), error);
       }
     },
     _delegateEvents(delegates, uiBindings, events) {
@@ -1817,13 +1783,21 @@
     },
     _delegate(handler, key) {
       const match = key.match(delegateEventSplitter);
-      this.EventDelegator.delegate({
+      const cleanup = this.EventDelegator.delegate({
         eventName: match[1],
         selector: match[2],
         handler,
-        events: this._domEvents,
         rootEl: this.el
       });
+      if (typeof cleanup !== 'function') {
+        throw new MarionetteError({
+          code: 'MN0036',
+          name: 'EventDelegatorError',
+          message: 'EventDelegator.delegate must return a cleanup function.',
+          url: 'dom.interactions.html#eventdelegator-adapter'
+        });
+      }
+      this._domEvents.push(cleanup);
     }
   };
 
@@ -2003,22 +1977,28 @@
     isAttached() {
       return !!this._isAttached;
     },
+    _rollbackView(error) {
+      disposeAll([() => this.stopListening(), () => this._destroyState(), () => this._rollbackBehaviors(), () => this.undelegateEntityEvents(), () => this._undelegateViewEvents()], error);
+    },
     delegateEvents(events) {
       if (this._isDestroying || this._isDestroyed) {
         return this;
       }
       this.undelegateEvents();
       this._buildEventProxies();
-      this._delegateViewEvents(this, events);
-      this._setBehaviorElements();
+      try {
+        this._delegateViewEvents(this, events);
+        this._setBehaviorElements();
+      } catch (error) {
+        disposeAll([() => this._undelegateBehaviorViewEvents(), () => this._undelegateViewEvents()], error);
+      }
       return this;
     },
     undelegateEvents() {
       if (this._isDestroyed || this._isDestroying) {
         return this;
       }
-      this._undelegateViewEvents();
-      this._undelegateBehaviorViewEvents();
+      disposeAll([() => this._undelegateBehaviorViewEvents(), () => this._undelegateViewEvents()]);
       return this;
     },
     delegateEntityEvents() {
@@ -2056,31 +2036,32 @@
         this.triggerMethod('before:detach', this);
       }
       this.unbindUIElements();
-      this._undelegateViewEvents();
-      this.Dom.detachEl(this.el);
-      if (shouldTriggerDetach) {
-        this._isAttached = false;
-        this.triggerMethod('detach', this);
-      }
-      this._removeChildren();
-      this._isDestroyed = true;
-      this._isRendered = false;
-      const dataObserverUnsubscribe = this._dataObserverUnsubscribe;
-      delete this._dataObserverUnsubscribe;
-      let dataDisposalError;
-      let hasDataDisposalError = false;
-      try {
-        disposeAll([dataObserverUnsubscribe, () => this._deleteEntityEventHandlers(), () => this._destroyBehaviors(options)]);
-      } catch (error) {
-        dataDisposalError = error;
-        hasDataDisposalError = true;
-      }
-      this.triggerMethod('destroy', this, options);
-      this._triggerEventOnBehaviors('destroy', this, options);
-      this.stopListening();
-      if (hasDataDisposalError) {
-        throw dataDisposalError;
-      }
+      disposeAll([() => {
+        this.Dom.detachEl(this.el);
+        if (shouldTriggerDetach) {
+          this._isAttached = false;
+          this.triggerMethod('detach', this);
+        }
+        this._removeChildren();
+        this._isDestroyed = true;
+        this._isRendered = false;
+        const dataObserverUnsubscribe = this._dataObserverUnsubscribe;
+        delete this._dataObserverUnsubscribe;
+        let dataDisposalError;
+        let hasDataDisposalError = false;
+        try {
+          disposeAll([dataObserverUnsubscribe, () => this._deleteEntityEventHandlers(), () => this._destroyBehaviors(options)]);
+        } catch (error) {
+          dataDisposalError = error;
+          hasDataDisposalError = true;
+        }
+        this.triggerMethod('destroy', this, options);
+        this._triggerEventOnBehaviors('destroy', this, options);
+        this.stopListening();
+        if (hasDataDisposalError) {
+          throw dataDisposalError;
+        }
+      }, () => this._undelegateViewEvents()]);
       return this;
     },
     bindUIElements() {
@@ -2754,10 +2735,10 @@
     this.preinitialize.apply(this, arguments);
     this.mergeOptions(options, ViewOptions);
     this._initViewEvents();
-    this.setElement(this._getEl());
-    monitorViewEvents(this);
-    this._initState(options);
     try {
+      this.setElement(this._getEl());
+      monitorViewEvents(this);
+      this._initState(options);
       this._initBehaviors();
       this._initRegions();
       this._buildEventProxies();
@@ -2769,11 +2750,7 @@
       this.delegateEntityEvents();
       this._triggerEventOnBehaviors('initialize', this, options);
     } catch (error) {
-      try {
-        this.undelegateEntityEvents();
-      } catch {}
-      this._destroyState();
-      throw error;
+      this._rollbackView(error);
     }
   };
   assignOwn(View, {
@@ -3197,10 +3174,10 @@
     this.preinitialize.apply(this, arguments);
     this.mergeOptions(options, ViewOptions);
     this._initViewEvents();
-    this.setElement(this._getEl());
-    monitorViewEvents(this);
-    this._initState(options);
     try {
+      this.setElement(this._getEl());
+      monitorViewEvents(this);
+      this._initState(options);
       this._initChildViewStorage();
       this._initBehaviors();
       this._buildEventProxies();
@@ -3213,11 +3190,7 @@
       this.delegateEntityEvents();
       this._triggerEventOnBehaviors('initialize', this, options);
     } catch (error) {
-      try {
-        this.undelegateEntityEvents();
-      } catch {}
-      this._destroyState();
-      throw error;
+      this._rollbackView(error);
     }
   };
   assignOwn(CollectionView, {
@@ -3829,7 +3802,9 @@
       this._initStateEvents();
       this._syncElement();
     } catch (error) {
-      this._destroyState();
+      try {
+        this.destroy();
+      } catch {}
       throw error;
     }
   };
@@ -3844,11 +3819,7 @@
     },
     destroy() {
       this._isDestroyed = true;
-      this._undelegateViewEvents();
-      this._destroyState();
-      this.stopListening();
-      this.view._removeBehavior(this);
-      this._deleteEntityEventHandlers();
+      disposeAll([() => this._deleteEntityEventHandlers(), () => this.view._removeBehavior(this), () => this.stopListening(), () => this._destroyState(), () => this._undelegateViewEvents()]);
       return this;
     },
     _syncElement() {

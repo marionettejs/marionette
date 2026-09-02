@@ -168,7 +168,9 @@ describe('backbone.marionette', function() {
     };
 
     const fakeEventDelegator = {
-      foo: 'bar'
+      delegate() {
+        return function cleanup() {};
+      }
     };
 
     _.each(DelegatorClasses, function(Class, key) {

@@ -165,8 +165,8 @@ failed View, CollectionView, and Behavior construction. It grows only the four
 existing main artifacts, adds no production graph edge, external import, package
 subpath, allocation or retention proxy, or speculative headroom, and leaves the
 optional adapter artifacts unchanged. [PR #364](https://github.com/marionettejs/marionette/pull/364)
-records the pending authorization; a later runtime PR must consume it with an
-independent exact-head artifact-growth approval.
+recorded the authorization. [PR #365](https://github.com/marionettejs/marionette/pull/365)
+consumed it with independent exact-head artifact-growth approval.
 
 The approval must come from a different base-allowed maintainer whenever the exact-base
 allowlist contains an eligible alternative. If the pull-request author is the sole

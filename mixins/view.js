@@ -125,13 +125,30 @@ const ViewMixin = {
     return !!this._isAttached;
   },
 
+  _rollbackView(error) {
+    disposeAll([
+      () => this.stopListening(),
+      () => this._destroyState(),
+      () => this._rollbackBehaviors(),
+      () => this.undelegateEntityEvents(),
+      () => this._undelegateViewEvents()
+    ], error);
+  },
+
   delegateEvents(events) {
     if (this._isDestroying || this._isDestroyed) { return this; }
 
     this.undelegateEvents();
     this._buildEventProxies();
-    this._delegateViewEvents(this, events);
-    this._setBehaviorElements();
+    try {
+      this._delegateViewEvents(this, events);
+      this._setBehaviorElements();
+    } catch (error) {
+      disposeAll([
+        () => this._undelegateBehaviorViewEvents(),
+        () => this._undelegateViewEvents()
+      ], error);
+    }
 
     return this;
   },
@@ -139,8 +156,10 @@ const ViewMixin = {
   undelegateEvents() {
     if (this._isDestroyed || this._isDestroying) { return this; }
 
-    this._undelegateViewEvents();
-    this._undelegateBehaviorViewEvents();
+    disposeAll([
+      () => this._undelegateBehaviorViewEvents(),
+      () => this._undelegateViewEvents()
+    ]);
 
     return this;
   },
@@ -194,44 +213,47 @@ const ViewMixin = {
 
     // unbind UI elements
     this.unbindUIElements();
-    this._undelegateViewEvents();
+    disposeAll([
+      () => {
+        // remove the view from the DOM
+        this.Dom.detachEl(this.el);
 
-    // remove the view from the DOM
-    this.Dom.detachEl(this.el);
+        if (shouldTriggerDetach) {
+          this._isAttached = false;
+          this.triggerMethod('detach', this);
+        }
 
-    if (shouldTriggerDetach) {
-      this._isAttached = false;
-      this.triggerMethod('detach', this);
-    }
+        // remove children after the remove to prevent extra paints
+        this._removeChildren();
 
-    // remove children after the remove to prevent extra paints
-    this._removeChildren();
+        this._isDestroyed = true;
+        this._isRendered = false;
 
-    this._isDestroyed = true;
-    this._isRendered = false;
+        const dataObserverUnsubscribe = this._dataObserverUnsubscribe;
+        delete this._dataObserverUnsubscribe;
+        let dataDisposalError;
+        let hasDataDisposalError = false;
 
-    const dataObserverUnsubscribe = this._dataObserverUnsubscribe;
-    delete this._dataObserverUnsubscribe;
-    let dataDisposalError;
-    let hasDataDisposalError = false;
+        try {
+          disposeAll([
+            dataObserverUnsubscribe,
+            () => this._deleteEntityEventHandlers(),
+            () => this._destroyBehaviors(options)
+          ]);
+        } catch (error) {
+          dataDisposalError = error;
+          hasDataDisposalError = true;
+        }
 
-    try {
-      disposeAll([
-        dataObserverUnsubscribe,
-        () => this._deleteEntityEventHandlers(),
-        () => this._destroyBehaviors(options)
-      ]);
-    } catch (error) {
-      dataDisposalError = error;
-      hasDataDisposalError = true;
-    }
+        this.triggerMethod('destroy', this, options);
+        this._triggerEventOnBehaviors('destroy', this, options);
 
-    this.triggerMethod('destroy', this, options);
-    this._triggerEventOnBehaviors('destroy', this, options);
+        this.stopListening();
 
-    this.stopListening();
-
-    if (hasDataDisposalError) { throw dataDisposalError; }
+        if (hasDataDisposalError) { throw dataDisposalError; }
+      },
+      () => this._undelegateViewEvents()
+    ]);
 
     return this;
   },

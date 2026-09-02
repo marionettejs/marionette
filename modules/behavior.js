@@ -16,6 +16,7 @@ import StateMixin from '../mixins/state.js';
 import UIMixin from '../mixins/ui.js';
 import ViewEventsMixin from '../mixins/view-events.js';
 import { setEventDelegator } from '../runtime/event-delegator.js';
+import disposeAll from '../utils/dispose-all.js';
 
 const ClassOptions = [
   'collectionEvents',
@@ -61,7 +62,11 @@ const Behavior = function(options, view) {
     this._initStateEvents();
     this._syncElement();
   } catch (error) {
-    this._destroyState();
+    try {
+      this.destroy();
+    } catch {
+      // Preserve the construction error after best-effort teardown.
+    }
     throw error;
   }
 };
@@ -83,14 +88,13 @@ assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateMixin
   // Stops the behavior from listening to events.
   destroy() {
     this._isDestroyed = true;
-    this._undelegateViewEvents();
-    this._destroyState();
-
-    this.stopListening();
-
-    this.view._removeBehavior(this);
-
-    this._deleteEntityEventHandlers();
+    disposeAll([
+      () => this._deleteEntityEventHandlers(),
+      () => this.view._removeBehavior(this),
+      () => this.stopListening(),
+      () => this._destroyState(),
+      () => this._undelegateViewEvents()
+    ]);
 
     return this;
   },

@@ -2,31 +2,32 @@ import { JSDOM } from 'jsdom';
 import { vi } from 'vitest';
 
 import EventDelegator, { setEventDelegator } from '../../../runtime/event-delegator';
+import Behavior from '../../../modules/behavior';
+import CollectionView from '../../../modules/collection-view';
+import State from '../../../modules/state';
 import View from '../../../modules/view';
 
 describe('EventDelegator', function() {
+  let cleanups;
   let dom;
-  let events;
   let rootEl;
 
   beforeEach(function() {
     dom = new JSDOM('<div id="root"></div>', { url: 'http://localhost' });
-    events = [];
+    cleanups = [];
     rootEl = dom.window.document.getElementById('root');
   });
 
   afterEach(function() {
-    EventDelegator.undelegateAll({ events, rootEl });
+    for (let index = cleanups.length - 1; index >= 0; index--) {
+      cleanups[index]();
+    }
   });
 
   function delegate(eventName, selector, handler) {
-    EventDelegator.delegate({
-      eventName,
-      selector,
-      handler,
-      events,
-      rootEl
-    });
+    const cleanup = EventDelegator.delegate({ eventName, selector, handler, rootEl });
+    cleanups.push(cleanup);
+    return cleanup;
   }
 
   function dispatchClick(node) {
@@ -34,140 +35,56 @@ describe('EventDelegator', function() {
   }
 
   describe('#setEventDelegator', function() {
-    it('overlays own enumerable string properties and returns the current class', function() {
-      const inherited = { inheritedMixin: true };
-      const mixin = Object.assign(Object.create(inherited), { shared: 'mixin', mixin: true });
-      const symbol = Symbol('ignored');
-      const protoValue = { polluted: true };
-      mixin[symbol] = true;
-      Object.defineProperty(mixin, 'hidden', { enumerable: false, value: true });
-      Object.defineProperty(mixin, '__proto__', { enumerable: true, value: protoValue });
-
-      const MyObject = function() {};
-      MyObject.prototype.EventDelegator = Object.assign(
-        Object.create({ inheritedBase: true }),
-        { base: true, shared: 'base' }
-      );
-      MyObject.setEventDelegator = setEventDelegator;
-
-      expect(MyObject.setEventDelegator(mixin)).to.equal(MyObject);
-      expect(MyObject.prototype.EventDelegator)
-        .to.include({ base: true, shared: 'mixin', mixin: true });
-      expect(MyObject.prototype.EventDelegator).to.not.have.property('inheritedBase');
-      expect(MyObject.prototype.EventDelegator).to.not.have.property('inheritedMixin');
-      expect(MyObject.prototype.EventDelegator).to.not.have.property('hidden');
-      expect(MyObject.prototype.EventDelegator).to.not.have.property(symbol);
-      expect(Object.getPrototypeOf(MyObject.prototype.EventDelegator)).to.equal(Object.prototype);
-      expect(Object.hasOwn(MyObject.prototype.EventDelegator, '__proto__')).to.be.true;
-      expect(Object.getOwnPropertyDescriptor(MyObject.prototype.EventDelegator, '__proto__').value)
-        .to.equal(protoValue);
-    });
-
-    it('isolates repeated overlays to the receiving class', function() {
+    it('installs a complete adapter as an own data property and returns the class', function() {
       const Parent = function() {};
-      Parent.prototype.EventDelegator = { base: true };
+      const original = { delegate() {} };
+      const replacement = { delegate() {} };
+      Parent.prototype.EventDelegator = original;
+      Parent.setEventDelegator = setEventDelegator;
 
       const Child = function() {};
       Child.prototype = Object.create(Parent.prototype);
       Child.setEventDelegator = setEventDelegator;
 
-      Child.setEventDelegator({ first: true });
-      const firstOverlay = Child.prototype.EventDelegator;
-      Child.setEventDelegator({ second: true });
+      expect(Child.setEventDelegator(replacement)).to.equal(Child);
+      expect(Object.getOwnPropertyDescriptor(Child.prototype, 'EventDelegator')).to.deep.equal({
+        configurable: true,
+        enumerable: true,
+        value: replacement,
+        writable: false
+      });
+      expect(Parent.prototype.EventDelegator).to.equal(original);
+    });
 
-      expect(Child.prototype.EventDelegator).to.include({ base: true, first: true, second: true });
-      expect(Child.prototype.EventDelegator).to.not.equal(firstOverlay);
-      expect(Parent.prototype.EventDelegator).to.deep.equal({ base: true });
+    it('rejects an incomplete adapter without changing the current adapter', function() {
+      const MyObject = function() {};
+      const original = { delegate() {} };
+      MyObject.prototype.EventDelegator = original;
+      MyObject.setEventDelegator = setEventDelegator;
+
+      for (const invalid of [undefined, null, {}, { delegate: true }]) {
+        expect(() => MyObject.setEventDelegator(invalid))
+          .to.throw('EventDelegator must provide a delegate method.')
+          .with.property('code', 'MN0036');
+        expect(MyObject.prototype.EventDelegator).to.equal(original);
+      }
     });
   });
 
-  describe('#undelegateAll', function() {
-    it('removes each registered handler in order with the expected capture flag', function() {
-      const clickHandler = vi.fn();
-      const focusHandler = vi.fn();
-      const removeEventListener = vi.fn();
-      const eventRoot = { removeEventListener };
-      const registeredEvents = [
-        { eventName: 'click', handler: clickHandler },
-        { eventName: 'focus', handler: focusHandler }
-      ];
+  it('returns idempotent cleanup with the registration-time capture mode', function() {
+    const handler = vi.fn();
+    const addEventListener = vi.spyOn(rootEl, 'addEventListener');
+    const removeEventListener = vi.spyOn(rootEl, 'removeEventListener');
+    const cleanup = delegate('focus', '.foo', handler);
+    const registeredHandler = addEventListener.mock.calls[0][1];
 
-      EventDelegator.undelegateAll({ events: registeredEvents, rootEl: eventRoot });
+    cleanup();
+    cleanup();
 
-      expect(removeEventListener.mock.calls).to.deep.equal([
-        ['click', clickHandler, false],
-        ['focus', focusHandler, true]
-      ]);
-      expect(removeEventListener.mock.instances).to.deep.equal([eventRoot, eventRoot]);
-      expect(registeredEvents).to.have.lengthOf(0);
-    });
-
-    it('uses the initial length while reading later registrations at removal time', function() {
-      const firstHandler = vi.fn();
-      const originalSecondHandler = vi.fn();
-      const replacementHandler = vi.fn();
-      const appendedHandler = vi.fn();
-      const registeredEvents = [
-        { eventName: 'first', handler: firstHandler },
-        { eventName: 'second', handler: originalSecondHandler }
-      ];
-      const removeEventListener = vi.fn(function() {
-        if (removeEventListener.mock.calls.length === 1) {
-          registeredEvents[1] = { eventName: 'replacement', handler: replacementHandler };
-          registeredEvents.push({ eventName: 'appended', handler: appendedHandler });
-        }
-      });
-
-      EventDelegator.undelegateAll({
-        events: registeredEvents,
-        rootEl: { removeEventListener }
-      });
-
-      expect(removeEventListener.mock.calls).to.deep.equal([
-        ['first', firstHandler, false],
-        ['replacement', replacementHandler, false]
-      ]);
-      expect(registeredEvents).to.have.lengthOf(0);
-    });
-
-    it('treats sparse registrations as dense and leaves the registry on failure', function() {
-      const firstHandler = vi.fn();
-      const lastHandler = vi.fn();
-      const registeredEvents = new Array(3);
-      registeredEvents[0] = { eventName: 'first', handler: firstHandler };
-      registeredEvents[2] = { eventName: 'last', handler: lastHandler };
-      const removeEventListener = vi.fn();
-
-      expect(() => EventDelegator.undelegateAll({
-        events: registeredEvents,
-        rootEl: { removeEventListener }
-      })).to.throw(TypeError);
-
-      expect(removeEventListener.mock.calls).to.deep.equal([
-        ['first', firstHandler, false]
-      ]);
-      expect(registeredEvents).to.have.lengthOf(3);
-    });
-
-    it('stops at a removal error and leaves the registry intact for retry', function() {
-      const registeredEvents = [
-        { eventName: 'first', handler: vi.fn() },
-        { eventName: 'second', handler: vi.fn() },
-        { eventName: 'third', handler: vi.fn() }
-      ];
-      const failure = new Error('remove failed');
-      const removeEventListener = vi.fn(function(eventName) {
-        if (eventName === 'second') { throw failure; }
-      });
-
-      expect(() => EventDelegator.undelegateAll({
-        events: registeredEvents,
-        rootEl: { removeEventListener }
-      })).to.throw(failure);
-
-      expect(removeEventListener).toHaveBeenCalledTimes(2);
-      expect(registeredEvents).to.have.lengthOf(3);
-    });
+    expect(addEventListener).toHaveBeenCalledWith('focus', registeredHandler, true);
+    expect(removeEventListener.mock.calls).to.deep.equal([
+      ['focus', registeredHandler, true]
+    ]);
   });
 
   it('handles delegated clicks on matching elements and their descendants', function() {
@@ -185,6 +102,17 @@ describe('EventDelegator', function() {
     expect(handler).toHaveBeenCalledTimes(2);
     expect(handler.mock.calls[0][0].delegateTarget).to.equal(button);
     expect(handler.mock.calls[1][0].delegateTarget).to.equal(button);
+  });
+
+  it('handles direct events without changing delegateTarget', function() {
+    const handler = vi.fn();
+    const event = new dom.window.MouseEvent('click', { bubbles: true });
+    delegate('click', '', handler);
+
+    rootEl.dispatchEvent(event);
+
+    expect(handler).toHaveBeenCalledWith(event);
+    expect(event.delegateTarget).to.be.undefined;
   });
 
   it('does not emulate delegated mouseenter bubbling', function() {
@@ -233,9 +161,7 @@ describe('EventDelegator', function() {
     rootEl.innerHTML = '<button class="foo">click text</button>';
     delegate('click', '.foo', handler);
 
-    expect(function() {
-      dispatchClick(rootEl.querySelector('.foo').firstChild);
-    }).to.not.throw();
+    expect(() => dispatchClick(rootEl.querySelector('.foo').firstChild)).to.not.throw();
     expect(handler).toHaveBeenCalledTimes(1);
   });
 
@@ -251,26 +177,318 @@ describe('EventDelegator', function() {
     expect(handler.mock.calls[0][0].delegateTarget).to.equal(rootEl.querySelector('button'));
   });
 
-  it('delegates focus events during capture', function() {
-    const handler = vi.fn();
+  ['focus', 'blur'].forEach(eventName => {
+    it(`delegates ${ eventName } events during capture`, function() {
+      const handler = vi.fn();
 
-    rootEl.innerHTML = '<input class="foo">';
-    delegate('focus', '.foo', handler);
+      rootEl.innerHTML = '<input class="foo">';
+      delegate(eventName, '.foo', handler);
 
-    rootEl.querySelector('input').dispatchEvent(new dom.window.FocusEvent('focus'));
+      rootEl.querySelector('input').dispatchEvent(new dom.window.FocusEvent(eventName));
 
-    expect(handler).toHaveBeenCalledTimes(1);
+      expect(handler).toHaveBeenCalledTimes(1);
+    });
   });
 
-  it('delegates blur events during capture', function() {
-    const handler = vi.fn();
+  it('rolls back earlier registrations when a later registration fails', function() {
+    const registrationError = new Error('registration failed');
+    const cleanup = vi.fn();
+    const adapter = {
+      delegate: vi.fn()
+        .mockReturnValueOnce(cleanup)
+        .mockImplementationOnce(() => { throw registrationError; })
+    };
+    const TestView = View.extend({
+      events: {
+        click() {},
+        focus() {}
+      }
+    });
+    TestView.setEventDelegator(adapter);
 
-    rootEl.innerHTML = '<input class="foo">';
-    delegate('blur', '.foo', handler);
+    expect(() => new TestView({ el: rootEl })).to.throw(registrationError);
+    expect(cleanup).toHaveBeenCalledTimes(1);
+  });
 
-    rootEl.querySelector('input').dispatchEvent(new dom.window.FocusEvent('blur'));
+  it('preserves a construction error when its DOM cleanup throws', function() {
+    const constructionError = new Error('construction failed');
+    const cleanupError = new Error('cleanup failed');
+    const cleanup = vi.fn(() => { throw cleanupError; });
+    const TestView = View.extend({
+      events: { click() {} },
+      initialize() {
+        throw constructionError;
+      }
+    });
+    TestView.setEventDelegator({ delegate: () => cleanup });
 
-    expect(handler).toHaveBeenCalledTimes(1);
+    expect(() => new TestView({ el: rootEl })).to.throw(constructionError);
+    expect(cleanup).toHaveBeenCalledTimes(1);
+  });
+
+  function testFailedConstructionListeners(name, ViewClass) {
+    it(`stops arbitrary ${ name } listeners when construction fails`, function() {
+      const constructionError = new Error('construction failed');
+      const source = new State();
+      const handler = vi.fn();
+      const TestView = ViewClass.extend({
+        initialize() {
+          this.listenTo(source, 'change', handler);
+          throw constructionError;
+        }
+      });
+
+      expect(() => new TestView({ el: rootEl })).to.throw(constructionError);
+      source.trigger('change');
+
+      expect(handler).not.toHaveBeenCalled();
+    });
+  }
+
+  testFailedConstructionListeners('View', View);
+  testFailedConstructionListeners('CollectionView', CollectionView);
+
+  it('disposes Behavior entity subscriptions when construction fails', function() {
+    const constructionError = new Error('construction failed');
+    const unsubscribe = vi.fn();
+    const TestBehavior = Behavior.extend({
+      modelEvents: { change() {} },
+      initialize() {
+        this.delegateEntityEvents();
+        throw constructionError;
+      }
+    });
+    const TestView = View.extend({ behaviors: [TestBehavior] });
+    TestView.setDataApi({ subscribe: () => unsubscribe });
+
+    expect(() => new TestView({ el: rootEl, model: {} })).to.throw(constructionError);
+
+    expect(unsubscribe).toHaveBeenCalledTimes(1);
+  });
+
+  it('rolls back View and Behavior events when Behavior registration fails', function() {
+    const registrationError = new Error('registration failed');
+    const viewCleanups = [vi.fn(), vi.fn()];
+    const firstBehaviorCleanups = [vi.fn(), vi.fn()];
+    const secondBehaviorCleanup = vi.fn();
+    const viewAdapter = {
+      delegate: vi.fn()
+        .mockReturnValueOnce(viewCleanups[0])
+        .mockReturnValueOnce(viewCleanups[1])
+    };
+    const firstBehaviorAdapter = {
+      delegate: vi.fn()
+        .mockReturnValueOnce(firstBehaviorCleanups[0])
+        .mockReturnValueOnce(firstBehaviorCleanups[1])
+    };
+    const secondBehaviorAdapter = {
+      delegate: vi.fn()
+        .mockReturnValueOnce(secondBehaviorCleanup)
+        .mockImplementationOnce(() => { throw registrationError; })
+    };
+    const FirstBehavior = Behavior.extend({ events: { click() {} } });
+    const SecondBehavior = Behavior.extend({ events: { click() {} } });
+    FirstBehavior.setEventDelegator(firstBehaviorAdapter);
+    SecondBehavior.setEventDelegator(secondBehaviorAdapter);
+    const TestView = View.extend({
+      behaviors: [FirstBehavior, SecondBehavior],
+      events: { click() {} }
+    });
+    TestView.setEventDelegator(viewAdapter);
+    const view = new TestView({ el: rootEl });
+
+    expect(() => view.setElement(dom.window.document.createElement('section')))
+      .to.throw(registrationError);
+
+    expect(viewCleanups[1]).toHaveBeenCalledTimes(1);
+    expect(firstBehaviorCleanups[1]).toHaveBeenCalledTimes(1);
+    expect(view._domEvents).to.have.lengthOf(0);
+    expect(view._behaviors[0]._domEvents).to.have.lengthOf(0);
+    expect(view._behaviors[1]._domEvents).to.have.lengthOf(0);
+
+    view.destroy();
+    view.destroy();
+
+    for (const cleanup of [...viewCleanups, ...firstBehaviorCleanups]) {
+      expect(cleanup).toHaveBeenCalledTimes(1);
+    }
+    expect(secondBehaviorCleanup).toHaveBeenCalledTimes(1);
+  });
+
+  it('cleans Behavior events in registration order', function() {
+    const order = [];
+    const behaviors = [0, 1, 2].map(index => {
+      const TestBehavior = Behavior.extend({ events: { click() {} } });
+      TestBehavior.setEventDelegator({
+        delegate: () => () => order.push(index)
+      });
+      return TestBehavior;
+    });
+    const TestView = View.extend({ behaviors });
+    const view = new TestView({ el: rootEl });
+
+    view.undelegateEvents();
+
+    expect(order).to.deep.equal([0, 1, 2]);
+    view.destroy();
+  });
+
+  it('attempts every cleanup once and clears failed registrations', function() {
+    const cleanupError = new Error('cleanup failed');
+    const firstCleanup = vi.fn(() => { throw cleanupError; });
+    const secondCleanup = vi.fn();
+    const adapter = {
+      delegate: vi.fn()
+        .mockReturnValueOnce(firstCleanup)
+        .mockReturnValueOnce(secondCleanup)
+    };
+    const TestView = View.extend({
+      events: {
+        click() {},
+        focus() {}
+      }
+    });
+    TestView.setEventDelegator(adapter);
+    const view = new TestView({ el: rootEl });
+
+    expect(() => view.undelegateEvents()).to.throw(cleanupError);
+    expect(secondCleanup).toHaveBeenCalledTimes(1);
+    expect(firstCleanup).toHaveBeenCalledTimes(1);
+    expect(view._domEvents).to.have.lengthOf(0);
+
+    view.undelegateEvents();
+
+    expect(firstCleanup).toHaveBeenCalledTimes(1);
+    expect(view._domEvents).to.have.lengthOf(0);
+  });
+
+  it('continues undelegating Behavior events when View cleanup throws', function() {
+    const cleanupError = new Error('cleanup failed');
+    const viewCleanup = vi.fn(() => { throw cleanupError; });
+    const behaviorCleanup = vi.fn();
+    const TestBehavior = Behavior.extend({ events: { click() {} } });
+    TestBehavior.setEventDelegator({ delegate: () => behaviorCleanup });
+    const TestView = View.extend({
+      behaviors: [TestBehavior],
+      events: { click() {} }
+    });
+    TestView.setEventDelegator({ delegate: () => viewCleanup });
+    const view = new TestView({ el: rootEl });
+
+    expect(() => view.undelegateEvents()).to.throw(cleanupError);
+    expect(viewCleanup).toHaveBeenCalledTimes(1);
+    expect(behaviorCleanup).toHaveBeenCalledTimes(1);
+
+    view.destroy();
+  });
+
+  it('finishes View teardown when its DOM cleanup throws', function() {
+    const cleanupError = new Error('cleanup failed');
+    const behaviorCleanup = vi.fn();
+    const TestBehavior = Behavior.extend({ events: { click() {} } });
+    TestBehavior.setEventDelegator({ delegate: () => behaviorCleanup });
+    const TestView = View.extend({
+      behaviors: [TestBehavior],
+      events: { click() {} }
+    });
+    TestView.setEventDelegator({
+      delegate: () => () => { throw cleanupError; }
+    });
+    const view = new TestView({ el: rootEl });
+    const behavior = view._behaviors[0];
+    const stopListening = vi.spyOn(view, 'stopListening');
+
+    expect(() => view.destroy()).to.throw(cleanupError);
+    expect(view.isDestroyed()).to.equal(true);
+    expect(behavior._isDestroyed).to.equal(true);
+    expect(behaviorCleanup).toHaveBeenCalledTimes(1);
+    expect(stopListening).toHaveBeenCalledTimes(1);
+    expect(rootEl.isConnected).to.equal(false);
+  });
+
+  it('finishes Behavior teardown when its DOM cleanup throws', function() {
+    const cleanupError = new Error('cleanup failed');
+    const TestBehavior = Behavior.extend({ events: { click() {} } });
+    TestBehavior.setEventDelegator({
+      delegate: () => () => { throw cleanupError; }
+    });
+    const view = new View({ el: rootEl });
+    const behavior = new TestBehavior({}, view);
+    const destroyState = vi.spyOn(behavior, '_destroyState');
+    const stopListening = vi.spyOn(behavior, 'stopListening');
+    const removeBehavior = vi.spyOn(view, '_removeBehavior');
+    const deleteEntityEventHandlers = vi.spyOn(behavior, '_deleteEntityEventHandlers');
+
+    expect(() => behavior.destroy()).to.throw(cleanupError);
+    expect(destroyState).toHaveBeenCalledTimes(1);
+    expect(stopListening).toHaveBeenCalledTimes(1);
+    expect(removeBehavior).toHaveBeenCalledWith(behavior);
+    expect(deleteEntityEventHandlers).toHaveBeenCalledTimes(1);
+
+    view.destroy();
+  });
+
+  it('finishes View teardown when Behavior DOM cleanup throws', function() {
+    const cleanupError = new Error('cleanup failed');
+    const TestBehavior = Behavior.extend({ events: { click() {} } });
+    TestBehavior.setEventDelegator({
+      delegate: () => () => { throw cleanupError; }
+    });
+    const TestView = View.extend({ behaviors: [TestBehavior] });
+    const view = new TestView({ el: rootEl });
+    const state = view.getState();
+    const onDestroy = vi.fn();
+    const stopListening = vi.spyOn(view, 'stopListening');
+    view.on('destroy', onDestroy);
+
+    expect(() => view.destroy()).to.throw(cleanupError);
+    expect(view.isDestroyed()).to.equal(true);
+    expect(state.isDestroyed()).to.equal(true);
+    expect(onDestroy).toHaveBeenCalledTimes(1);
+    expect(stopListening).toHaveBeenCalled();
+    expect(rootEl.isConnected).to.equal(false);
+  });
+
+  it('uses the current adapter for new registrations and the original cleanup for old ones', function() {
+    const firstCleanup = vi.fn();
+    const secondCleanup = vi.fn();
+    const firstAdapter = { delegate: vi.fn(() => firstCleanup) };
+    const secondAdapter = { delegate: vi.fn(() => secondCleanup) };
+    const TestView = View.extend({ events: { click() {} } });
+    TestView.setEventDelegator(firstAdapter);
+    const view = new TestView({ el: rootEl });
+
+    TestView.setEventDelegator(secondAdapter);
+    view.undelegateEvents();
+    view.delegateEvents();
+
+    expect(firstCleanup).toHaveBeenCalledTimes(1);
+    expect(firstAdapter.delegate).toHaveBeenCalledTimes(1);
+    expect(secondAdapter.delegate).toHaveBeenCalledTimes(1);
+    expect(view._domEvents).to.deep.equal([secondCleanup]);
+  });
+
+  it('uses a class adapter for CollectionView registration and destruction', function() {
+    const cleanup = vi.fn();
+    const adapter = { delegate: vi.fn(() => cleanup) };
+    const TestCollectionView = CollectionView.extend({ events: { click() {} } });
+    TestCollectionView.setEventDelegator(adapter);
+    const view = new TestCollectionView({ el: rootEl });
+
+    view.destroy();
+    view.destroy();
+
+    expect(adapter.delegate).toHaveBeenCalledTimes(1);
+    expect(cleanup).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects an adapter that does not return cleanup', function() {
+    const TestView = View.extend({ events: { click() {} } });
+    TestView.setEventDelegator({ delegate() {} });
+
+    expect(() => new TestView({ el: rootEl }))
+      .to.throw('EventDelegator.delegate must return a cleanup function.')
+      .with.property('code', 'MN0036');
   });
 
   it('removes handlers without leaks across setElement swaps', function() {

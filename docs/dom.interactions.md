@@ -5,10 +5,8 @@ a root DOM element, `el`. Core uses the browser DOM API by default: `view.$()`
 and bound `getUI()` values are native `NodeList` instances, and delegated
 handlers receive native DOM events.
 
-`View`, `CollectionView`, and `Behavior` support partial event-delegator
-overrides through their static `setEventDelegator` method. The current
-delegator and supplied overlay contribute own enumerable string properties
-only. Inherited, symbol, and non-enumerable properties are ignored.
+`View`, `CollectionView`, and `Behavior` use the public EventDelegator runtime
+adapter described below. Core provides a native DOM adapter by default.
 
 ## DOM Ownership Boundaries
 
@@ -126,6 +124,117 @@ methods return the View, and both are no-ops after destruction has started.
 Replacing `el` with `setElement()` dispatches through both public methods, so a
 subclass override remains responsible for delegating to the base method when it
 wants Marionette's cleanup and redelegation.
+
+## EventDelegator Adapter
+
+An EventDelegator owns how one normalized `events` or `triggers` declaration is
+registered and removed. Marionette still owns declaration resolution, handler
+context, UI normalization, and the timing of registration and cleanup.
+
+Configure every View, CollectionView, and Behavior class with the root setter:
+
+```javascript
+import { setEventDelegator } from 'marionette';
+
+setEventDelegator(MyEventDelegator);
+```
+
+Or configure one class hierarchy through its static setter:
+
+```javascript
+const InstrumentedView = View.extend({});
+InstrumentedView.setEventDelegator(MyEventDelegator);
+```
+
+The supplied object is a complete adapter, not a partial overlay. It must
+provide this method. This example retains native selector and focus behavior;
+an instrumentation adapter could record around the same registration:
+
+<!-- executable-example: event-delegator-adapter -->
+```javascript
+export const CustomEventDelegator = {
+  delegate({ eventName, selector, handler, rootEl }) {
+    const capture = eventName === 'focus' || eventName === 'blur';
+    const listener = selector ? event => {
+      const target = event.target.nodeType === 1 ?
+        event.target : event.target.parentElement;
+      const match = target && target.closest(selector);
+
+      if (match && match !== rootEl && rootEl.contains(match)) {
+        event.delegateTarget = match;
+        return handler(event);
+      }
+    } : handler;
+
+    rootEl.addEventListener(eventName, listener, capture);
+    return () => rootEl.removeEventListener(eventName, listener, capture);
+  }
+};
+```
+
+The arguments are:
+
+* `eventName`: the first non-whitespace token in the declaration key.
+* `selector`: the remaining selector, or an empty string for a direct handler.
+* `handler`: Marionette's normalized callback. The adapter must preserve its
+  arguments and return behavior.
+* `rootEl`: the View or CollectionView's current `el`. A Behavior receives its
+  host View's current `el`.
+
+`delegate` must return an idempotent cleanup function that removes exactly the
+registration it created, including its original root, listener, namespace, and
+capture/options policy. Marionette owns and stores that opaque cleanup. The
+adapter must not mutate View internals.
+
+Marionette invokes each returned cleanup at most once when `undelegateEvents()` refreshes declarations,
+before `setElement()` transfers delegation, during destruction, and when
+construction fails. Cleanups run in reverse registration order. Marionette
+attempts every cleanup even if one throws, clears its registry before invoking
+them, and then throws the first cleanup error. A throwing cleanup violates the
+adapter contract; Marionette does not retain it or grow a retry queue. View and
+Behavior destruction still completes its remaining lifecycle cleanup before
+propagating that error.
+Constructor rollback likewise attempts every cleanup but preserves the original
+construction error, because the failed instance is not returned to the caller.
+
+Registration must be atomic: if `delegate` throws, that call must not leave a
+registration behind. If a later declaration fails, Marionette invokes every
+cleanup already returned during that delegation pass and rethrows the original
+registration error. An incomplete adapter or a non-function cleanup throws
+[`MN0036`](/errors/MN0036/).
+
+Adapter selection occurs at registration time. Changing a global or per-class
+adapter does not reinterpret existing registrations; their original opaque
+cleanups remain authoritative. The newly configured adapter is used the next
+time declarations are delegated, including a new instance, an explicit
+`delegateEvents()` call, or `setElement()`. A per-class setter creates an own
+adapter override for that class hierarchy, so a later root setter does not
+replace it.
+
+The native adapter uses `addEventListener`. Selector declarations walk from a
+text or element target to the closest matching descendant of `rootEl` and set
+`event.delegateTarget` to that match. Native event names are literal:
+namespaces such as `click.menu` are not interpreted, and non-bubbling events
+such as `mouseenter` are not emulated.
+
+Delegated native `focus` and `blur` use capture because those events do not
+bubble. The delegated handler therefore runs before a target-element listener.
+A Marionette trigger stops propagation by default, which prevents the event
+from reaching that target listener. Set `stopPropagation: false` on that
+trigger when the target must also observe the focus or blur event; the
+Marionette trigger still runs first. Marionette does not silently translate
+these declarations to `focusin` or `focusout`.
+
+A jQuery adapter can implement the same protocol with paired `.on()` and
+`.off()` calls. Compatibility tests exercise that protocol, but v5 does not yet
+ship a jQuery EventDelegator; the separately packaged first-party adapters work
+will decide whether to publish one through an explicit optional subpath. Such
+an adapter can support jQuery-specific namespaces, programmatic dispatch, and
+delegated focus behavior without adding jQuery to the core production graph.
+React and Vue normally own events within the subtree they
+render; integrate those subtrees through explicit DOM and lifecycle ownership
+boundaries instead of replacing Marionette's EventDelegator with a React or Vue
+adapter.
 
 ## View `triggers`
 
