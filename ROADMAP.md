@@ -355,9 +355,11 @@ current-evidence findings:
   prevention and propagation per trigger, and keep application-owned values in
   Application State or explicit application configuration. `DEV_MODE` and custom
   string flags are not retained through aliases or a second registry.
-- **Selected:** Retain the current root bootstrap and class-level DOM, renderer, and event-delegator
-  configuration. Document installation timing and precedence where unclear; do not
-  redesign these seams without a concrete defect.
+- **Selected:** Retain the current root bootstrap and class-level DOM and renderer
+  configuration. EventDelegator remains a public runtime adapter parallel to those
+  seams, with deterministic global and per-class installation timing. Each registration
+  returns an opaque cleanup operation that Marionette owns, invokes at most once, and
+  attempts alongside sibling cleanup even when one operation throws.
 
 - **Gated:** `Region.show` and `View.showChildView` accept a View-like instance. The v3/v4
   template, string, and options-object convenience implicitly constructs a base View,
@@ -390,24 +392,43 @@ current-evidence findings:
 - **Selected:** V5 owns a neutral DataApi boundary for model identity, value reads,
   serialization, ordered collection items, entity subscriptions, and normalized
   structural collection changes. Plain objects and arrays are the default. The
-  optional `marionette/backbone` integration installs the Backbone adapter, keeping
-  `cid`, `attributes`, `models`, and Backbone event payloads out of core. This avoids
-  making the temporary Backbone-shaped protocol a v5 public contract that would need
-  removal in v6. Do not add implicit Backbone detection, per-model wrappers, or a
+  optional `@marionette/adapters/backbone` integration installs the Backbone adapter,
+  keeping `cid`, `attributes`, `models`, and Backbone event payloads out of core. This
+  avoids making the temporary Backbone-shaped protocol a v5 public contract that would
+  need removal in v6. Do not add implicit Backbone detection, per-model wrappers, or a
   parallel reconciliation path. State remains an owned local-state concern, not the
   collection data source.
-- **Gated:** The existing optional Backbone import side effect is an acceptable legacy install
-  seam. If the protocol prototype proves an explicit idempotent `installBackbone`
-  operation clearer or safer, select it through the same migration evidence. Do not
-  churn the seam for theoretical import purity, and do not retain both installation
-  forms as canonical without a verified deployment-order requirement and removal
-  condition.
+- **Selected:** First-party Backbone and jQuery adapters ship only from explicit
+  `@marionette/adapters/backbone` and `@marionette/adapters/dom/jquery` subpaths. The
+  adapters package has no root barrel, and core does not retain forwarding modules or
+  the old `marionette/backbone` and `marionette/jquery-dom-api` paths. Importing one
+  adapter must not load the other adapter or its optional peer.
 - **Gated:** Template cloning is a valid optimized rendering technique, not evidence by itself
   for another renderer API. First measure and document the explicit existing recipe:
   construct the final imported element in `buildChildView`, pass it to the child View,
   and use `template: false`. A first-class DOM-node renderer or element factory ships
   only if public benchmark tasks demonstrate an outcome the existing renderer,
   `setElement`, and `buildChildView` seams cannot express clearly.
+- **Selected:** A parent View rerender is a structural DOM and ownership reset. After
+  the first render, Marionette resets Regions and destroys their active child Views
+  before the renderer commits new parent output, then re-resolves Region elements from
+  the new DOM. Marionette does not implicitly preserve, key, detach, reconcile, or
+  remount Region children. Long-lived children receive observable state and own their
+  presentation invalidation; parents own composition. Explicit `detachChildView`,
+  parent render, and `showChildView` is the uncommon ownership-transfer escape hatch.
+- **Selected:** Marionette's first-class renderer category is synchronous and
+  container-scoped: Marionette owns a stable `view.el`, and the renderer commits within
+  that boundary when `View#render()` is called. HTML, native DOM/template cloning,
+  Morphdom or Idiomorph, Lit, and a retained VDOM fixture should prove the category.
+  Autonomous component runtimes such as React, Vue, Svelte, Solid, and Preact own an
+  exclusive hosted subtree inside a Marionette host View; Marionette does not coordinate
+  their internal scheduling, lifecycle, refs, effects, or child ownership.
+- **Gated:** Formalize the existing callable renderer as the immediate contract. Add
+  `connect`, `disconnect`, or `dispose` protocol surface only when lifecycle fixtures
+  prove that ordinary View attach, detach, destroy, and `setElement()` boundaries
+  cannot provide exact cleanup for at least two first-class container renderers. Do not
+  add asynchronous render completion, `view.el` replacement, shared subtree ownership,
+  renderer-managed Regions, or Region-preservation modes.
 - **Gated:** Declarative handler maps, `@ui` references, Backbone-style `extend`, dynamic
   `childView(model)` selection, and centralized DOM adapter and renderer installation
   remain candidate v5 patterns where current evidence shows they are widely used,
@@ -478,12 +499,12 @@ Lint rules, codemods, documentation generators, and benchmark tooling belong out
 the runtime graph. They should consume the same documented rule catalog and public
 metadata rather than encode a second model of Marionette.
 
-Declarative definition helpers, adapter implementations beyond the selected neutral
-DataApi and bundled Backbone adapter, new CollectionView strategies, and renderer
-integrations remain evidence-dependent. They may be explored after the foundation is
-measurable, but do not block stable v5 without benchmark evidence. The neutral DataApi
-boundary is selected for 5.0; additional adapters remain evidence-dependent 5.x
-candidates.
+Declarative definition helpers, adapter implementations beyond the separately
+packaged first-party Backbone and jQuery adapters, new CollectionView strategies, and
+renderer integrations remain evidence-dependent. They may be explored after the
+foundation is measurable, but do not block stable v5 without benchmark evidence. The
+neutral DataApi boundary and those first-party compatibility adapters are selected for
+5.0; additional adapters remain evidence-dependent 5.x candidates.
 
 ## Runtime cost contract
 
@@ -616,14 +637,31 @@ instructions, and every release blocker maps to this strategy.
 - Freeze and document the neutral DataApi model and collection protocol for 5.0,
   including its exact identity, serialization, event-payload, and optional Backbone
   package contracts. Keep Backbone-specific data shapes out of core.
+- Move first-party Backbone and jQuery runtime adapters into a separately published
+  `@marionette/adapters` workspace package with only explicit `./backbone` and
+  `./dom/jquery` exports. Remove the old core subpaths rather than forwarding them,
+  keep peers optional and isolated, and make build, package, performance, and release
+  verification require both distributions.
 - Remove the module-global feature registry as selected through the v3/v4
   compatibility audit. Preserve the canonical default behavior through existing
   local View and trigger options, migrate application-owned values to State or
   explicit configuration, and do not add an alias or replacement registry.
 - Retain the module-global Radio architecture and the existing root bootstrap plus
-  class-level DOM, renderer, and event-delegator configuration. Close documentation
-  gaps in process scope, installation timing, and precedence without adding factories,
-  injection, or duplicate configuration paths.
+  class-level DOM and renderer configuration. Stabilize EventDelegator as a public
+  registration and cleanup boundary with exact listener options, attempt-all teardown,
+  constructor-failure rollback, native focus/blur ordering, and executable optional
+  jQuery evidence. Close documentation gaps in process scope, installation timing, and
+  precedence without adding factories, injection, or duplicate configuration paths.
+- Close the related lifecycle leaks before the first integration candidate: failed
+  View and CollectionView construction after rendering, failed MnObject and Application
+  construction after Radio registration, public `off()` disabling owned Radio or State
+  cleanup, empty `listenTo` ledgers, and constant `replyOnce` removal by original value.
+  Constructor rollback preserves the construction error while attempting every owned
+  cleanup exactly once.
+- Keep request/reply adaptation private to Requests: move the constant-or-function
+  callback helper into `mixins/requests.js`, preserve constant replies and original
+  identity, and remove the obsolete utility. Remove `RequestsMixin` from `CommonMixin`;
+  let `EventsMixin` supply `triggerMethod` without a duplicate CommonMixin entry.
 - Specify Application as Marionette's first promise-based public lifecycle contract
   and add transition-table or model-based tests. Preserve Marionette lifecycle
   signatures with the subject first. Treat Promises returned by `onBeforeStart`,
@@ -658,7 +696,16 @@ instructions, and every release blocker maps to this strategy.
   event binding only when justified, and no rendering, effects, computed values,
   persistence, or scheduling.
 - Make ownership and topology publicly readable without mutation.
-- Harden Region lookup and View/Region ownership semantics.
+- Harden Region lookup and View/Region ownership semantics. Lock down parent rerender
+  as destructive structural reset: destroy active Region children exactly once before
+  renderer commit, re-resolve Region elements afterward, preserve an explicitly
+  detached View only through caller-owned transfer, and prevent stale Region or adapter
+  callbacks from mutating destroyed children.
+- Formalize the synchronous callable renderer and its stable-element ownership boundary,
+  then run HTML, native DOM/template-clone, Morphdom or Idiomorph, Lit, and retained-VDOM
+  conformance through rerender, attach/detach/reattach, `setElement()`, destruction, and
+  post-destroy collection. Expand the adapter protocol only for lifecycle gaps those
+  fixtures prove cannot be solved by existing View boundaries.
 - Specify Behavior scope, dependencies, delegation, and teardown.
 - Introduce the shared diagnostic type, code catalog, and error semantics.
 - Remove Underscore as a required runtime peer while preserving the documented
@@ -666,6 +713,10 @@ instructions, and every release blocker maps to this strategy.
   explicit, and validating optional Backbone integration (#241).
 - Specify the requirements and cost boundaries for later opt-in extension hooks and
   resource ownership without implementing either runtime path in this phase.
+- After runtime and package contracts stop moving, relocate core production modules
+  under `src/` as one deliberate taxonomy change, including `MarionetteError` at
+  `src/modules/error.js`. Update build inputs, coverage, fixtures, source links, and
+  declarations atomically; do not retain forwarding source paths.
 
 Gate: core invariants are documented, testable through public APIs, and add no
 measurable work to unrelated instances beyond approved budgets. The public authorship
@@ -680,6 +731,9 @@ substantial remaining departures justified.
   results and operation context, optional Backbone and jQuery adapters, and the
   public/internal boundary. Prefer structural types over elaborate type-level
   machinery.
+- Treat TypeScript readiness as a release contract: exercise root and every supported
+  subpath from ESM and CommonJS fixtures, type adapter configuration and lifecycle
+  callbacks precisely, and verify declaration contents in both packed packages.
 - Complete JSDoc and generated API metadata, including a drift-checked public method
   contract matrix for return, mutation/rendering, lifecycle validity, terminal
   behavior, sync/async status, and diagnostics.
@@ -687,6 +741,10 @@ substantial remaining departures justified.
 - Make examples executable and document canonical View-versus-Application,
   State-versus-domain-data, child-ownership, and overlay-host patterns and
   counterexamples.
+- Document stable layouts and reactive children: render downward for initial
+  composition, propagate observable state afterward, and treat a parent rerender as
+  structural ownership reset. Cross-link the View, Region, renderer-adapter, and
+  migration guidance rather than duplicating the contract.
 - Publish the compact agent-oriented reference and include its version-aligned API
   metadata, lifecycle and return tables, diagnostic catalog, migration material, and
   canonical examples and counterexamples in the package without adding them to a
@@ -710,6 +768,11 @@ development and test fixtures exercise every public helper.
 
 ### Phase 4: Integration and benchmark closure
 
+- Once the remaining runtime correctness blockers close, pack an unpublished early
+  integration candidate for the benchmark, Toolkit migration, app-frontend migration
+  probe, and package fixtures. Use that evidence while package topology, source layout,
+  declarations, and documentation are completed; do not wait for speculative Phase 5
+  APIs before testing the code broadly.
 - Run the fixed agent corpus against the complete release candidate.
 - Validate plain Views, Views composed with State, nested Applications, the selected
   Application startup and restart contract, Application cleanup through public
@@ -717,17 +780,19 @@ development and test fixtures exercise every public helper.
 - Close correctness, documentation, packaging, browser, and performance gaps exposed
   by the reference application.
 - Complete v5 reference and migration documentation.
-
 Gate: all stable release criteria below pass.
 
 ### Phase 5: Evidence-dependent candidates
 
-Benchmark declarative definition helpers, the generalized data-source seam in
-[#104][issue-104], rendering seams, alternative CollectionView strategies, optional
-integrations, pay-for-play resource ownership, and the smallest extension-hook
-contract justified by a public consumer that cannot use lifecycle events and topology
-APIs. These experiments target 5.x and do not block stable v5. Unsuccessful candidates
-are documented and closed rather than retained as dormant APIs.
+Benchmark declarative definition helpers, renderer lifecycle extensions, alternative
+CollectionView strategies, optional integrations, pay-for-play resource ownership,
+and the smallest extension-hook contract justified by a public consumer that cannot
+use lifecycle events and topology APIs. Evaluate an opt-in `createMarionette()` only
+with evidence that independently configured class families and Radio registries justify
+its default-path cost and cross-isolation complexity; the selected 5.0 contract remains
+the module-global default unless that gate passes before freeze. These experiments
+target 5.x and do not block stable v5. Unsuccessful candidates are documented and
+closed rather than retained as dormant APIs.
 
 ## Stable v5 release criteria
 
@@ -747,6 +812,10 @@ are documented and closed rather than retained as dormant APIs.
 - First-party declarations cover the root API and supported adapters without requiring
   DefinitelyTyped, and package-local agent metadata plus the public method contract
   matrix pass generation and drift checks while remaining outside production graphs.
+- Core and `@marionette/adapters` pack, install, type-check, measure, and verify as
+  separate required release artifacts. The removed core adapter paths do not resolve,
+  and each explicit adapter subpath proves that its unrelated optional peer stays out
+  of the graph.
 - Coverage configuration explicitly includes every production, development, and test
   subpath; adding a subpath cannot silently leave its implementation outside the gate.
 - Stable diagnostic codes and documented machine-readable schemas have been reviewed
@@ -769,6 +838,14 @@ are documented and closed rather than retained as dormant APIs.
   ownership, and no unverified duplicate root utility or internal forwarding path.
 - The selected neutral DataApi protocol passes compatibility, source,
   distribution, packed-package, and real-browser tests.
+- Parent rerender conformance proves active Region children are destroyed exactly once
+  before both default and custom renderer commits, Region elements resolve from the new
+  DOM, explicit detach transfers ownership, and stale callbacks cannot mutate destroyed
+  children. View, Region, renderer, and migration documentation teach the same rule.
+- Renderer conformance proves synchronous commit within stable `view.el`, exact cleanup
+  through attach/detach, `setElement()`, and destroy, and post-destroy collection for the
+  selected first-class renderer category without loading optional renderer dependencies
+  into core.
 - Large-list operation-count scenarios pass source, distribution, packed-package, and
   real-browser tests.
 - CollectionView removal-only update semantics pass source, distribution,
@@ -781,6 +858,9 @@ are documented and closed rather than retained as dormant APIs.
 - The production-runtime authorship audit is complete, its corrective changes are
   merged, and every substantial departure from established Marionette source patterns
   has a recorded technical justification.
+- Core production source has one documented `src/` taxonomy, no obsolete forwarding
+  paths, and build, coverage, declarations, source links, and package fixtures agree on
+  `src/modules/error.js` as the `MarionetteError` owner.
 - No unapproved build, lint, type, or test warning remains.
 
 Pre-releases may expose experimental APIs. Before stable, they may be changed or
