@@ -212,8 +212,8 @@ development envelope for the remaining v5 core runtime work. The exact-base
 StateApi and DataApi prototype tracked by
 [#191](https://github.com/marionettejs/marionette/issues/191) proves that the
 previous ceiling is exhausted while adding about 1.4 kB to an individual root
-artifact. The aggregate reports 5,351 bytes because it sums parallel ESM, CommonJS,
-UMD, and minified UMD delivery formats. The proposal restores this metric as a coarse
+artifact. The aggregate grows by 5,351 bytes across parallel ESM, CommonJS, UMD, and
+minified UMD delivery formats. The proposal restores this metric as a coarse
 runaway-growth backstop after nine authorization rounds; it does not approve new
 subpaths, external imports, eager allocations, retained resources, or bypass
 exact-base artifact and consumer reporting. Before beta promotion, review the
