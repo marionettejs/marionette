@@ -33,6 +33,18 @@ function emit(item, eventName, ...args) {
   }
 }
 
+function expectInvalidChange(ListView, initialItems, currentItems, change) {
+  const source = { items: initialItems };
+  const view = new ListView({ collection: source });
+  view.render();
+  source.items = currentItems;
+
+  expect(() => source.notify(change))
+    .to.throw(MarionetteError).and.include({ code: 'MN0039' });
+
+  view.destroy();
+}
+
 describe('CollectionView normalized reconciliation', function() {
   let Adapter;
   let ChildView;
@@ -189,6 +201,178 @@ describe('CollectionView normalized reconciliation', function() {
     view.destroy();
   });
 
+  it('diagnoses malformed collection snapshots and structural records', function() {
+    const InvalidItemsList = ListView.extend({});
+    InvalidItemsList.setDataApi({ items() { return {}; } });
+    const invalidItemsView = new InvalidItemsList({ collection: {} });
+    expect(() => invalidItemsView.render())
+      .to.throw(MarionetteError).and.include({ code: 'MN0039' });
+    invalidItemsView.destroy();
+
+    const first = { id: 1, name: 'one' };
+    const second = { id: 2, name: 'two' };
+    const third = { id: 3, name: 'three' };
+
+    expectInvalidChange(ListView, [first], [first], null);
+    expectInvalidChange(ListView, [first], [first], { kind: 'unknown' });
+    expectInvalidChange(ListView, [first], [first, second], { kind: 'reorder' });
+
+    expectInvalidChange(ListView, [first], [first], { kind: 'update' });
+    expectInvalidChange(ListView, [first], [first], {
+      kind: 'update', added: [], updated: []
+    });
+    expectInvalidChange(ListView, [first], [first], {
+      kind: 'update', added: [], removed: []
+    });
+
+    expectInvalidChange(ListView, [first], [first, second], {
+      kind: 'update', added: [], removed: [], updated: []
+    });
+    expectInvalidChange(ListView, [first], [first, second], {
+      kind: 'update', added: [third], removed: [], updated: []
+    });
+    expectInvalidChange(ListView, [first, second], [second], {
+      kind: 'update', added: [], removed: [], updated: []
+    });
+  });
+
+  it('diagnoses malformed and incomplete updated entries', function() {
+    const first = { id: 1, name: 'one' };
+    const second = { id: 2, name: 'two' };
+    const replacement = { id: 1, name: 'replacement' };
+    const validUpdate = { kind: 'update', added: [], removed: [] };
+
+    for (const updated of [[null], [{}], [{ previous: first }]]) {
+      expectInvalidChange(ListView, [first], [first], { ...validUpdate, updated });
+    }
+
+    expectInvalidChange(ListView, [first], [first], {
+      ...validUpdate,
+      updated: [{ previous: {}, current: first }]
+    });
+    expectInvalidChange(ListView, [first], [first], {
+      ...validUpdate,
+      updated: [{ previous: first, current: {} }]
+    });
+    expectInvalidChange(ListView, [first], [first, second], {
+      kind: 'update',
+      added: [second],
+      removed: [],
+      updated: [{ previous: first, current: second }]
+    });
+    expectInvalidChange(ListView, [first], [first], {
+      ...validUpdate,
+      updated: [
+        { previous: first, current: first },
+        { previous: first, current: first }
+      ]
+    });
+    expectInvalidChange(ListView, [first], [replacement], {
+      ...validUpdate,
+      updated: []
+    });
+  });
+
+  it('diagnoses an update whose child View is missing', function() {
+    const item = { id: 1, name: 'one' };
+    const source = { items: [item] };
+    const view = new ListView({ collection: source });
+    view.render();
+    const child = view.children.first();
+    view._children._remove(child);
+
+    expect(() => source.notify({
+      kind: 'update',
+      added: [],
+      removed: [],
+      updated: [{ previous: item, current: item }]
+    })).to.throw(MarionetteError).and.include({ code: 'MN0039' });
+
+    view.destroy();
+  });
+
+  it('rebinds a same-key replacement even when its child is filtered out', function() {
+    const previous = { id: 1, name: 'before' };
+    const current = { id: 1, name: 'after' };
+    const source = { items: [previous] };
+    const FilteredList = ListView.extend({ viewFilter: () => false });
+    const view = new FilteredList({ collection: source });
+    view.render();
+    const child = view._children.findByModel(previous);
+
+    source.items = [current];
+    source.notify({
+      kind: 'update',
+      added: [],
+      removed: [],
+      updated: [{ previous, current }]
+    });
+
+    expect(view._children.findByModel(current)).to.equal(child);
+    expect(view.children.hasView(child)).to.be.false;
+    view.destroy();
+  });
+
+  it('renders reconciled children when an overridden sort does not render them', function() {
+    const item = { id: 1, name: 'before' };
+    const source = { items: [item] };
+    const view = new ListView({ collection: source });
+    view.render();
+    const child = view.children.first();
+    view.sort = () => view;
+
+    item.name = 'after';
+    source.notify({
+      kind: 'update',
+      added: [],
+      removed: [],
+      updated: [{ previous: item, current: item }]
+    });
+
+    expect(child.renderCount).to.equal(2);
+    expect(child.el.textContent).to.equal('after');
+    view.destroy();
+  });
+
+  it('restores focused controls and their text selection after DOM moves', function() {
+    for (const control of ['input', 'button']) {
+      const items = [
+        { id: 1, name: 'one' },
+        { id: 2, name: 'two' }
+      ];
+      const FocusChild = ChildView.extend({
+        template: model => `<${ control }>${ model.name }</${ control }>`
+      });
+      FocusChild.setDataApi(Adapter);
+      const FocusList = ListView.extend({ childView: FocusChild });
+      const source = { items };
+      const view = new FocusList({ collection: source });
+      view.render();
+      document.body.appendChild(view.el);
+      const activeElement = view.children.first().el.querySelector(control);
+      activeElement.focus();
+      if (control === 'input') { activeElement.setSelectionRange(0, 0, 'forward'); }
+      view.Dom = {
+        ...view.Dom,
+        moveEl(el, parent, before) {
+          parent.insertBefore(el, before);
+          activeElement.blur();
+        }
+      };
+
+      source.items = [items[1], items[0]];
+      source.notify({ kind: 'reorder' });
+
+      expect(document.activeElement).to.equal(activeElement);
+      if (control === 'input') {
+        expect(activeElement.selectionStart).to.equal(0);
+        expect(activeElement.selectionEnd).to.equal(0);
+        expect(activeElement.selectionDirection).to.equal('forward');
+      }
+      view.destroy();
+    }
+  });
+
   it('ignores stale observer callbacks after destruction', function() {
     const source = { items: [{ id: 1, name: 'one' }] };
     let staleNotify;
@@ -206,6 +390,7 @@ describe('CollectionView normalized reconciliation', function() {
 
     source.items = [];
     staleNotify({ kind: 'reset' });
+    view._onCollectionUpdate();
     expect(child.destroyCount).to.equal(1);
   });
 

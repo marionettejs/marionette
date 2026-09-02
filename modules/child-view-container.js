@@ -392,9 +392,7 @@ Object.assign(Container.prototype, {
 
   _replaceModel(view, model, key) {
     const previousKey = this._keyByView.get(view);
-    if (this._indexByModel.get(previousKey) === view) {
-      this._indexByModel.delete(previousKey);
-    }
+    this._indexByModel.delete(previousKey);
 
     view.model = model;
     this._indexByModel.set(key, view);

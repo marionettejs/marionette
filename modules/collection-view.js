@@ -31,7 +31,7 @@ function throwCollectionProtocolError(message) {
   });
 }
 
-function buildCollectionSnapshot(Data, collection, previous = []) {
+function buildCollectionSnapshot(Data, collection, previous) {
   const items = Data.items(collection);
   if (!Array.isArray(items)) {
     throwCollectionProtocolError('DataApi.items() must return an ordered array snapshot.');
@@ -73,7 +73,7 @@ function sameItems(actual, expected) {
     if (!remaining.delete(item)) { return false; }
   }
 
-  return remaining.size === 0;
+  return true;
 }
 
 function normalizeCollectionChange(change, previous, current) {
@@ -464,25 +464,6 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     this.triggerMethod('render:children', this, renderViews);
   },
 
-  _removeChildModels(models) {
-    const views = [];
-    const length = models.length;
-    for (let index = 0; index < length; index++) {
-      const removeView = this._removeChildModel(models[index]);
-
-      if (removeView) { views.push(removeView); }
-    }
-    return views;
-  },
-
-  _removeChildModel(model) {
-    const view = this._children.findByModel(model);
-
-    if (view) { this._removeChild(view); }
-
-    return view;
-  },
-
   _removeChild(view) {
     this.triggerMethod('before:remove:child', this, view);
 
@@ -492,7 +473,6 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     this.triggerMethod('remove:child', this, view);
   },
 
-  // Added views are returned for consistency with _removeChildModels
   _addChildModels(models) {
     const length = models.length;
     const views = Array(length);
@@ -633,7 +613,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     this._destroyChildren();
 
     if (this.collection) {
-      this._collectionSnapshot = buildCollectionSnapshot(this.Data, this.collection);
+      this._collectionSnapshot = buildCollectionSnapshot(this.Data, this.collection, []);
       this._addChildModels(this._collectionSnapshot.entries.map(entry => entry.item));
       this._initialEvents();
     }

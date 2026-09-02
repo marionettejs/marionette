@@ -3033,9 +3033,7 @@ Object.assign(Container.prototype, {
   },
   _replaceModel(view, model, key) {
     const previousKey = this._keyByView.get(view);
-    if (this._indexByModel.get(previousKey) === view) {
-      this._indexByModel.delete(previousKey);
-    }
+    this._indexByModel.delete(previousKey);
     view.model = model;
     this._indexByModel.set(key, view);
     this._keyByView.set(view, key);
@@ -3085,7 +3083,7 @@ function throwCollectionProtocolError(message) {
     url: 'data.api.html#collection-observations'
   });
 }
-function buildCollectionSnapshot(Data, collection, previous = []) {
+function buildCollectionSnapshot(Data, collection, previous) {
   const items = Data.items(collection);
   if (!Array.isArray(items)) {
     throwCollectionProtocolError('DataApi.items() must return an ordered array snapshot.');
@@ -3130,7 +3128,7 @@ function sameItems(actual, expected) {
       return false;
     }
   }
-  return remaining.size === 0;
+  return true;
 }
 function normalizeCollectionChange(change, previous, current) {
   if (!change || typeof change !== 'object') {
@@ -3451,24 +3449,6 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     }
     this.triggerMethod('render:children', this, renderViews);
   },
-  _removeChildModels(models) {
-    const views = [];
-    const length = models.length;
-    for (let index = 0; index < length; index++) {
-      const removeView = this._removeChildModel(models[index]);
-      if (removeView) {
-        views.push(removeView);
-      }
-    }
-    return views;
-  },
-  _removeChildModel(model) {
-    const view = this._children.findByModel(model);
-    if (view) {
-      this._removeChild(view);
-    }
-    return view;
-  },
   _removeChild(view) {
     this.triggerMethod('before:remove:child', this, view);
     this.children._remove(view);
@@ -3573,7 +3553,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     this.triggerMethod('before:render', this);
     this._destroyChildren();
     if (this.collection) {
-      this._collectionSnapshot = buildCollectionSnapshot(this.Data, this.collection);
+      this._collectionSnapshot = buildCollectionSnapshot(this.Data, this.collection, []);
       this._addChildModels(this._collectionSnapshot.entries.map(entry => entry.item));
       this._initialEvents();
     }

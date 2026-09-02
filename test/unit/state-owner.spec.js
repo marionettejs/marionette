@@ -134,6 +134,32 @@ describe('state source composition', function() {
     expect(disposeOwned).to.have.been.calledOnce.and.calledWith(source);
   });
 
+  it('immediately disposes owned state first requested after destruction', function() {
+    const source = createSource();
+    const disposeOwned = this.sinon.spy();
+    const Owner = MnObject.extend({ createState() { return source; } });
+    Owner.setStateApi(createStateApi(disposeOwned));
+    const owner = new Owner();
+
+    owner.destroy();
+
+    expect(owner.getState()).to.equal(source);
+    expect(disposeOwned).to.have.been.calledOnce.and.calledWith(source);
+  });
+
+  it('does not initialize state events after destruction', function() {
+    const subscribe = this.sinon.spy();
+    const Owner = MnObject.extend({
+      stateEvents: { change() {} },
+      initialize() { this.destroy(); }
+    });
+    Owner.setStateApi({ subscribe });
+    const owner = new Owner();
+
+    expect(owner.isDestroyed()).to.be.true;
+    expect(subscribe).to.not.have.been.called;
+  });
+
   it('rolls back subscriptions before owned disposal when a later binding fails', function() {
     const error = new Error('second binding failed');
     const calls = [];
