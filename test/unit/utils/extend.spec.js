@@ -131,6 +131,22 @@ describe('extend', function() {
     });
   });
 
+  it('does not copy an inherited value after an own key is deleted', function() {
+    const protoProps = Object.create({ status: 'inherited' });
+    Object.defineProperty(protoProps, 'removeStatus', {
+      enumerable: true,
+      get() {
+        delete protoProps.status;
+        return true;
+      }
+    });
+    protoProps.status = 'own';
+
+    const Child = extend.call(function() {}, protoProps);
+
+    expect(Child.prototype).to.not.have.own.property('status');
+  });
+
   it('copies inherited parent statics, then own static inputs', function() {
     const Parent = function() {};
     const inheritedParentStatics = Object.assign(Object.create(Function.prototype), {

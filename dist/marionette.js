@@ -38,6 +38,9 @@ function defineOwnDataProperties(target, source) {
     return target;
   }
   for (const key of Object.keys(source)) {
+    if (!Object.hasOwn(source, key)) {
+      continue;
+    }
     Object.defineProperty(target, key, {
       configurable: true,
       enumerable: true,
