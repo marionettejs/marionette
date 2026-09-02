@@ -133,7 +133,7 @@ scenarios; unused headroom does not establish release readiness.
 [PR #257](https://github.com/marionettejs/marionette/pull/257) consumed that
 authorization.
 
-BA0004 authorizes a pending exact-prototype increase from 75,000 to 75,799
+BA0004 authorized an exact-prototype increase from 75,000 to 75,799
 bytes for the remaining production-runtime Application work tracked by
 [#190](https://github.com/marionettejs/marionette/issues/190) and
 [#191](https://github.com/marionettejs/marionette/issues/191). The measured
@@ -141,9 +141,19 @@ prototype completes root View and constructed-versus-borrowed Region ownership
 together with lazy Application State composition. It grows only the four existing
 main delivery artifacts, adds no production graph edge, external import, package
 subpath, stateless allocation proxy, or speculative headroom, and leaves the 18
-consumer scenario/format combinations reporting-only. A later runtime pull request
-must consume the authorization from its merged exact base and obtain independent
-exact-head growth approval.
+consumer scenario/format combinations reporting-only.
+[PR #352](https://github.com/marionettejs/marionette/pull/352) consumed that
+authorization with independent exact-head growth approval.
+
+BA0005 authorizes a pending exact-prototype increase from 75,799 to 78,665
+bytes for the DataApi seam tracked by
+[#104](https://github.com/marionettejs/marionette/issues/104). The measured
+prototype centralizes data lookup, identity, observation, and collection updates
+behind a native default and a Backbone adapter. It grows six existing main and
+Backbone artifacts, adds no package subpath or external import, leaves the jQuery
+adapter artifacts unchanged, and includes no speculative headroom. The later
+runtime pull request must consume the authorization from its merged exact base and
+obtain independent exact-head artifact-growth and timing-harness approvals.
 
 The approval must come from a different base-allowed maintainer whenever the exact-base
 allowlist contains an eligible alternative. If the pull-request author is the sole
