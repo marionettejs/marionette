@@ -211,8 +211,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     const isDefaultFilterQuery = this.getFilter === CollectionView.prototype.getFilter;
     const isDefaultSort = this.sort === CollectionView.prototype.sort;
     const isDefaultFilter = this.filter === CollectionView.prototype.filter;
-    // Removing models preserves survivor order with collection ordering or no ordering.
-    const isRemovalOrderStable = !this.viewComparator;
+    const comparator = isDefaultComparator && this.getComparator();
 
     const canRemoveWithoutRender = this._isRendered &&
       changes.removed.length > 0 &&
@@ -222,7 +221,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
       isDefaultFilterQuery &&
       isDefaultSort &&
       isDefaultFilter &&
-      isRemovalOrderStable &&
+      this._onCollectionUpdate === CollectionView.prototype._onCollectionUpdate &&
+      (!comparator || comparator === CollectionView.prototype._viewComparator) &&
       !this.viewFilter &&
       this.children.length === this._children.length &&
       this._children.length > 0 &&
