@@ -87,7 +87,6 @@ export function assertHarnessRevision(source, expectedRevision) {
 async function loadRuntime(root, dependencyRoot) {
   const requireFromRoot = createRequire(resolve(dependencyRoot, 'package.json'));
   const { JSDOM } = requireFromRoot('jsdom');
-  const Backbone = requireFromRoot('backbone');
   const dom = new JSDOM('<!doctype html><html><body></body></html>');
   const previousWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
   const previousDocument = Object.getOwnPropertyDescriptor(globalThis, 'document');
@@ -109,9 +108,12 @@ async function loadRuntime(root, dependencyRoot) {
   };
 
   try {
-    const runtimeUrl = pathToFileURL(resolve(root, 'dist/marionette.js'));
-    runtimeUrl.searchParams.set('performance-run', `${process.pid}-${Date.now()}`);
-    const Marionette = await import(runtimeUrl.href);
+    const { default: Backbone } = await import(
+      pathToFileURL(resolve(root, 'dist/backbone.js')).href
+    );
+    const Marionette = await import(
+      pathToFileURL(resolve(root, 'dist/marionette.js')).href
+    );
 
     return { Backbone, Marionette, cleanup };
   } catch (error) {
@@ -149,6 +151,18 @@ function createCases({ Backbone, Marionette }) {
     template: false,
   });
   const collectionModels = Array.from({ length: 10 }, (_, id) => ({ id }));
+  const probeCollection = new Backbone.Collection();
+  const probeView = new CollectionView({ childView: ChildView, collection: probeCollection });
+  probeView.render();
+  const probeModel = probeCollection.add({ id: 'probe' });
+  if (probeView.children.length !== 1) {
+    throw new Error('Timing harness did not observe a Backbone collection addition');
+  }
+  probeCollection.remove(probeModel);
+  if (probeView.children.length !== 0) {
+    throw new Error('Timing harness did not observe a Backbone collection removal');
+  }
+  probeView.destroy();
 
   return new Map([
     ['view-construct-destroy', iterations => {
