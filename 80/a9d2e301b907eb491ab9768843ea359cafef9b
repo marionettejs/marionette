@@ -1,0 +1,19 @@
+docs/marionette.collectionview.md
+  s_8acc1a5f7c4467::t_e87b6778a5fcd7 971,973-974,983,987
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "80a9d2e301b907eb491ab9768843ea359cafef9b",
+  "prompts": {},
+  "sessions": {
+    "s_8acc1a5f7c4467": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06326-7562-7453-8271-d3c06bc8882c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
