@@ -575,6 +575,30 @@ describe('CollectionView Children', function() {
       expect(myCollectionView.onRemoveChild).to.not.have.been.called;
     });
 
+    it('preserves a detach error while attempting listener cleanup', function() {
+      const detachError = new Error('detach failed');
+      const order = [];
+      const detachView = myCollectionView.children.first();
+      const detachChildView = this.sinon.stub(myCollectionView, '_detachChildView')
+        .callsFake(() => {
+          order.push('detach');
+          throw detachError;
+        });
+      const stopListening = this.sinon.stub(myCollectionView, 'stopListening')
+        .callsFake(() => {
+          order.push('stopListening');
+          throw new Error('stop listening failed');
+        });
+
+      expect(() => myCollectionView.removeChildView(detachView, { shouldDetach: true }))
+        .to.throw(detachError);
+
+      expect(order).to.deep.equal(['detach', 'stopListening']);
+      detachChildView.restore();
+      stopListening.restore();
+      myCollectionView.removeChildView(detachView);
+    });
+
     // Used only by #detachChildView
     describe('when called with shouldDetach', function() {
       let detachView;
