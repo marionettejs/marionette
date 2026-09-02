@@ -1,0 +1,29 @@
+ROADMAP.md
+  s_d93f45db31dead::t_d8408bc3681c54 777,779-780,789-790,840,842-843
+  s_d93f45db31dead::t_4bd5535412c22b 162
+  s_d93f45db31dead::t_fce539d20c44d7 125-126,324-326,619-620,700-702,778,884-886
+  s_d93f45db31dead::t_220ba49916e96b 318-323
+  s_d93f45db31dead::t_cd39fd68b5fb8b 161,250,299,305-306,331,399,656,841
+  s_d93f45db31dead::t_49920f45cc9d70 400-404
+  s_d93f45db31dead::t_7505c809405ade 123-124,127-129,131-133,232-236,251-253,296-298,300-304,309-317,327-330
+  s_d93f45db31dead::t_a5d6a6045b55aa 503-509,735-744,983
+  s_d93f45db31dead::t_4b231e77ff6670 369-370,419-421,495-497,618,657-658,690-691
+  s_d93f45db31dead::t_30a2ddc17ce10b 883
+  s_d93f45db31dead::t_9797ce63f0b44f 307-308,332-335,887-891
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "118b47ef2ca3281cefd76a8373df8c0d90345292",
+  "prompts": {},
+  "sessions": {
+    "s_d93f45db31dead": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05c69-15cb-71b1-836b-0fdd2f01d1c5",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
