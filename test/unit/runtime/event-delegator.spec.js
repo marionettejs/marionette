@@ -267,6 +267,30 @@ describe('EventDelegator', function() {
     expect(view._behaviors[1]._domEvents).to.have.lengthOf(0);
 
     view.destroy();
+    view.destroy();
+
+    for (const cleanup of [...viewCleanups, ...firstBehaviorCleanups]) {
+      expect(cleanup).toHaveBeenCalledTimes(1);
+    }
+    expect(secondBehaviorCleanup).toHaveBeenCalledTimes(1);
+  });
+
+  it('cleans Behavior events in registration order', function() {
+    const order = [];
+    const behaviors = [0, 1, 2].map(index => {
+      const TestBehavior = Behavior.extend({ events: { click() {} } });
+      TestBehavior.setEventDelegator({
+        delegate: () => () => order.push(index)
+      });
+      return TestBehavior;
+    });
+    const TestView = View.extend({ behaviors });
+    const view = new TestView({ el: rootEl });
+
+    view.undelegateEvents();
+
+    expect(order).to.deep.equal([0, 1, 2]);
+    view.destroy();
   });
 
   it('attempts every cleanup once and clears failed registrations', function() {
@@ -411,6 +435,7 @@ describe('EventDelegator', function() {
     TestCollectionView.setEventDelegator(adapter);
     const view = new TestCollectionView({ el: rootEl });
 
+    view.destroy();
     view.destroy();
 
     expect(adapter.delegate).toHaveBeenCalledTimes(1);

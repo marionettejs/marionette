@@ -47,10 +47,10 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
         }
 
         view.destroy();
-        const afterDestroy = order.length;
+        const beforePostDestroyDispatch = [...order];
         field.dispatchEvent(new FocusEvent(eventName));
         root.remove();
-        return { afterDestroy, order };
+        return { beforePostDestroyDispatch, afterPostDestroyDispatch: order };
       }
 
       return {
@@ -62,13 +62,25 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
     });
 
     assert.deepEqual(results, {
-      blurDefault: { afterDestroy: 1, order: ['trigger', 'target'] },
-      blurOpen: { afterDestroy: 2, order: ['trigger', 'target', 'target'] },
-      focusDefault: { afterDestroy: 1, order: ['trigger', 'target'] },
-      focusOpen: { afterDestroy: 2, order: ['trigger', 'target', 'target'] }
-    }, `${ browserName }: delegated focus and blur ordering`);
+      blurDefault: {
+        beforePostDestroyDispatch: ['trigger'],
+        afterPostDestroyDispatch: ['trigger', 'target']
+      },
+      blurOpen: {
+        beforePostDestroyDispatch: ['trigger', 'target'],
+        afterPostDestroyDispatch: ['trigger', 'target', 'target']
+      },
+      focusDefault: {
+        beforePostDestroyDispatch: ['trigger'],
+        afterPostDestroyDispatch: ['trigger', 'target']
+      },
+      focusOpen: {
+        beforePostDestroyDispatch: ['trigger', 'target'],
+        afterPostDestroyDispatch: ['trigger', 'target', 'target']
+      }
+    }, `${ browserName }: delegated focus and blur ordering and teardown`);
 
-    console.log(`${ browserName }: delegated focus and blur ordering passed`);
+    console.log(`${ browserName }: delegated focus and blur ordering and teardown passed`);
   } catch (error) {
     failures.push(new Error(`${ browserName }: ${ error.message }`, { cause: error }));
   } finally {
