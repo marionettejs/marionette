@@ -1,0 +1,22 @@
+docs/performance-baselines.md
+  s_d93f45db31dead::t_ca8491781f0204 154-157
+  s_d93f45db31dead::t_6c17b679032b69 148
+config/performance.json
+  s_d93f45db31dead::t_6c17b679032b69 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "def3d75d5451dcad179b056de56ab9ac5fa06dca",
+  "prompts": {},
+  "sessions": {
+    "s_d93f45db31dead": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05c69-15cb-71b1-836b-0fdd2f01d1c5",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
