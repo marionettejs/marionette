@@ -1,12 +1,11 @@
 export default function disposeAll(disposers, error) {
   let hasError = arguments.length > 1;
 
-  for (let index = disposers.length - 1; index >= 0; index--) {
+  // Dispose in reverse registration order.
+  for (let index = disposers.length; index--;) {
     const disposer = disposers[index];
-    if (!disposer) { continue; }
-
     try {
-      disposer();
+      disposer && disposer();
     } catch (disposalError) {
       if (!hasError) {
         error = disposalError;

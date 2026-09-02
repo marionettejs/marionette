@@ -1258,6 +1258,24 @@ function eachOwn(object, iteratee) {
   return object;
 }
 
+function disposeAll(disposers, error) {
+  let hasError = arguments.length > 1;
+  for (let index = disposers.length; index--;) {
+    const disposer = disposers[index];
+    try {
+      disposer && disposer();
+    } catch (disposalError) {
+      if (!hasError) {
+        error = disposalError;
+        hasError = true;
+      }
+    }
+  }
+  if (hasError) {
+    throw error;
+  }
+}
+
 function isView(view) {
   return view.render && (view.destroy || view.remove);
 }
@@ -1298,27 +1316,6 @@ function destroyView(view, disableDetachEvents) {
   view._isDestroyed = true;
   if (!view.supportsDestroyLifecycle) {
     view.triggerMethod('destroy', view);
-  }
-}
-
-function disposeAll(disposers, error) {
-  let hasError = arguments.length > 1;
-  for (let index = disposers.length - 1; index >= 0; index--) {
-    const disposer = disposers[index];
-    if (!disposer) {
-      continue;
-    }
-    try {
-      disposer();
-    } catch (disposalError) {
-      if (!hasError) {
-        error = disposalError;
-        hasError = true;
-      }
-    }
-  }
-  if (hasError) {
-    throw error;
   }
 }
 
@@ -2548,17 +2545,24 @@ assignOwn(Region.prototype, CommonMixin, {
       throw error;
     }
     this._isDestroyed = true;
+    const currentView = this.currentView;
+    let isReset;
     destroyTeardown.set(this, 'reset');
-    try {
-      this.reset(options);
-    } finally {
+    disposeAll([() => {
       destroyTeardown.delete(this);
-    }
-    if (this._parentView && this._name !== undefined) {
-      this._parentView._removeReferences(this._name);
-    }
-    delete this._parentView;
-    delete this._name;
+      if (isReset || currentView && currentView !== this.currentView) {
+        const parentView = this._parentView;
+        const name = this._name;
+        delete this._parentView;
+        delete this._name;
+        if (parentView && name !== undefined) {
+          parentView._removeReferences(name);
+        }
+      }
+    }, () => {
+      this.reset(options);
+      isReset = true;
+    }]);
     this.triggerMethod('destroy', this, options);
     this.stopListening();
     return this;
@@ -2671,7 +2675,11 @@ const RegionsMixin = {
   },
   removeRegions() {
     const regions = this._getRegions();
-    eachOwn(this._regions, (region, name) => this._removeRegion(region, name));
+    const disposers = [];
+    eachOwn(regions, (region, name) => {
+      disposers.push(() => this._removeRegion(region, name));
+    });
+    disposeAll(disposers.reverse());
     return regions;
   },
   _removeRegion(region, name) {
@@ -3735,21 +3743,14 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     if (!views) {
       return;
     }
-    const length = views.length;
-    for (let index = 0; index < length; index++) {
-      this._removeChildView(views[index]);
-    }
+    const disposers = views.map(view => () => this._removeChildView(view));
+    disposeAll(disposers.reverse());
   },
   _removeChildView(view, {
     shouldDetach
   } = {}) {
     view.off('destroy', this.removeChildView, this);
-    if (shouldDetach) {
-      this._detachChildView(view);
-    } else {
-      this._destroyChildView(view);
-    }
-    this.stopListening(view);
+    disposeAll([() => this.stopListening(view), () => shouldDetach ? this._detachChildView(view) : this._destroyChildView(view)]);
   },
   _destroyChildView(view) {
     if (view._isDestroyed) {
@@ -3759,22 +3760,21 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     destroyView(view, shouldDisableEvents);
   },
   _removeChildren() {
-    this._destroyChildren();
     const emptyRegion = this.getEmptyRegion();
-    emptyRegion.destroy();
-    delete this._addedViews;
+    disposeAll([() => {
+      delete this._addedViews;
+    }, () => emptyRegion.destroy(), () => this._destroyChildren()]);
   },
   _destroyChildren() {
     if (!this._children.length) {
       return;
     }
     this.triggerMethod('before:destroy:children', this);
-    if (this.monitorViewEvents === false) {
-      this.Dom.detachContents(this.el);
-    }
-    this._removeChildViews(this._children._views);
-    this._children._init();
-    this.children._init();
+    const detach = this.monitorViewEvents === false && (() => this.Dom.detachContents(this.el));
+    disposeAll([() => {
+      this._children._init();
+      this.children._init();
+    }, () => this._removeChildViews(this._children._views), detach]);
     this.triggerMethod('destroy:children', this);
   }
 });

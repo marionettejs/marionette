@@ -530,4 +530,50 @@ describe('View lifecycle contract', function() {
 
     region.destroy();
   });
+
+  it('attempts every owned Region when an earlier child destroy throws', function() {
+    const firstError = new Error('first Region child destroy failed');
+    const secondError = new Error('second Region child destroy failed');
+    const teardown = [];
+    const parent = new View({
+      regions: {
+        first: '.first',
+        second: '.second',
+        third: '.third',
+      },
+      template: () => `
+        <div class="first"></div>
+        <div class="second"></div>
+        <div class="third"></div>
+      `,
+    });
+    const ChildView = View.extend({
+      template: false,
+      initialize({ name }) {
+        this.name = name;
+      },
+      destroy() {
+        teardown.push(this.name);
+        View.prototype.destroy.call(this);
+        if (this.name === 'first') { throw firstError; }
+        if (this.name === 'second') { throw secondError; }
+        return this;
+      },
+    });
+
+    parent.render();
+    const regions = parent.getRegions();
+    for (const name of Object.keys(regions)) {
+      parent.showChildView(name, new ChildView({ name }));
+    }
+
+    expect(() => parent.destroy()).to.throw(firstError);
+
+    expect(teardown).to.deep.equal(['first', 'second', 'third']);
+    expect(parent.getRegions()).to.deep.equal({});
+    for (const region of Object.values(regions)) {
+      expect(region.isDestroyed()).to.be.true;
+      expect(region.getOwner()).to.be.undefined;
+    }
+  });
 });

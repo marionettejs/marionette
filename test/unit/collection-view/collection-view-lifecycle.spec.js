@@ -423,4 +423,80 @@ describe('CollectionView lifecycle contract', function() {
 
     region.destroy();
   });
+
+  it('attempts every child and the empty Region when child destruction throws', function() {
+    const firstError = new Error('first child destroy failed');
+    const secondError = new Error('second child destroy failed');
+    const teardown = [];
+    const ThrowingChildView = View.extend({
+      template: false,
+      destroy() {
+        const id = this.model.id;
+        teardown.push(id);
+        View.prototype.destroy.call(this);
+        if (id === 1) { throw firstError; }
+        if (id === 2) { throw secondError; }
+        return this;
+      },
+    });
+    const collectionView = new CollectionView({
+      collection: new Backbone.Collection([{ id: 1 }, { id: 2 }, { id: 3 }]),
+      childView: ThrowingChildView,
+    });
+
+    collectionView.render();
+    const children = collectionView.children.toArray();
+    const emptyRegion = collectionView.getEmptyRegion();
+    const destroyEmptyRegion = emptyRegion.destroy;
+    const destroyChildren = this.sinon.spy();
+    const stopListening = collectionView.stopListening;
+    collectionView.on('destroy:children', destroyChildren);
+    this.sinon.stub(collectionView, 'stopListening').callsFake(function(view) {
+      const result = stopListening.call(this, view);
+      if (view === children[0]) { throw new Error('stop listening failed'); }
+      return result;
+    });
+    this.sinon.stub(emptyRegion, 'destroy').callsFake(function() {
+      teardown.push('empty');
+      destroyEmptyRegion.call(this);
+      throw new Error('empty Region destroy failed');
+    });
+
+    expect(() => collectionView.destroy()).to.throw(firstError);
+
+    expect(teardown).to.deep.equal([1, 2, 3, 'empty']);
+    expect(children.every(child => child.isDestroyed())).to.be.true;
+    expect(collectionView.children).to.have.lengthOf(0);
+    expect(emptyRegion.isDestroyed()).to.be.true;
+    expect(destroyChildren).to.not.have.been.called;
+  });
+
+  it('attempts child teardown when bulk DOM detach throws', function() {
+    const detachError = new Error('detach contents failed');
+    const teardown = [];
+    const TrackingChildView = View.extend({
+      template: false,
+      destroy() {
+        teardown.push(this.model.id);
+        return View.prototype.destroy.call(this);
+      },
+    });
+    const collectionView = new CollectionView({
+      collection: new Backbone.Collection([{ id: 1 }, { id: 2 }]),
+      childView: TrackingChildView,
+      monitorViewEvents: false,
+    });
+
+    collectionView.render();
+    const children = collectionView.children.toArray();
+    const emptyRegion = collectionView.getEmptyRegion();
+    this.sinon.stub(collectionView.Dom, 'detachContents').throws(detachError);
+
+    expect(() => collectionView.destroy()).to.throw(detachError);
+
+    expect(teardown).to.deep.equal([1, 2]);
+    expect(children.every(child => child.isDestroyed())).to.be.true;
+    expect(collectionView.children).to.have.lengthOf(0);
+    expect(emptyRegion.isDestroyed()).to.be.true;
+  });
 });
