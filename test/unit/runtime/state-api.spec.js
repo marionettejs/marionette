@@ -1,4 +1,5 @@
-import StateApi, { setStateApi } from '../../../runtime/state-api';
+import StateApi from '../../../runtime/state-api';
+import MnObject from '../../../modules/object';
 import MarionetteError from '../../../utils/error';
 
 describe('StateApi', function() {
@@ -9,16 +10,21 @@ describe('StateApi', function() {
   });
 
   it('isolates repeated class-level overlays', function() {
-    const Parent = function() {};
-    Parent.prototype.State = StateApi;
-    const Child = function() {};
-    Child.prototype = Object.create(Parent.prototype);
-    Child.setStateApi = setStateApi;
+    const source = {};
+    const subscribe = this.sinon.stub().returns(() => {});
+    const disposeOwned = this.sinon.spy();
+    const Parent = MnObject.extend({ stateEvents: { change() {} } });
+    const Child = Parent.extend({ createState() { return source; } });
+    Child.setStateApi({ subscribe });
+    Child.setStateApi({ disposeOwned });
 
-    Child.setStateApi({ first: true });
-    Child.setStateApi({ second: true });
+    const child = new Child();
+    expect(subscribe).to.have.been.calledOnce;
+    child.destroy();
+    expect(disposeOwned).to.have.been.calledOnceWith(source);
 
-    expect(Child.prototype.State).to.include({ first: true, second: true });
-    expect(Parent.prototype.State).to.equal(StateApi);
+    expect(() => new Parent())
+      .to.throw(MarionetteError)
+      .and.include({ code: 'MN0037' });
   });
 });

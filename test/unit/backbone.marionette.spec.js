@@ -107,22 +107,9 @@ describe('backbone.marionette', function() {
       foo: 'bar'
     };
 
-    let collectionViewData;
-    let viewData;
-
-    beforeEach(function() {
-      collectionViewData = CollectionView.prototype.Data;
-      viewData = View.prototype.Data;
-    });
-
-    afterEach(function() {
-      CollectionView.prototype.Data = collectionViewData;
-      View.prototype.Data = viewData;
-    });
-
     _.each(DataClasses, function(Class, key) {
       it(`should setDataApi on ${ key }`, function() {
-        this.sinon.spy(Class, 'setDataApi');
+        this.sinon.stub(Class, 'setDataApi').returns(Class);
         Mn.setDataApi(fakeDataApi);
 
         expect(Class.setDataApi)
@@ -135,42 +122,47 @@ describe('backbone.marionette', function() {
   describe('#setStateApi', function() {
     const StateClasses = { Application, Behavior, CollectionView, MnObject, View };
     const fakeStateApi = { subscribe() {} };
-    const originals = new Map();
-
-    beforeEach(function() {
-      for (const Class of Object.values(StateClasses)) {
-        originals.set(Class, Class.prototype.State);
-      }
-    });
-
-    afterEach(function() {
-      for (const [Class, State] of originals) { Class.prototype.State = State; }
-      originals.clear();
-    });
 
     _.each(StateClasses, function(Class, key) {
       it(`should setStateApi on ${ key }`, function() {
-        this.sinon.spy(Class, 'setStateApi');
+        this.sinon.stub(Class, 'setStateApi').returns(Class);
         Mn.setStateApi(fakeStateApi);
         expect(Class.setStateApi).to.be.calledOnce.and.calledWith(fakeStateApi);
       });
     });
 
     it('allows one combined adapter or independent adapter objects', function() {
-      const CombinedView = View.extend({});
-      const combined = { subscribe() {}, items() {} };
+      const combinedSubscribe = this.sinon.stub().returns(() => {});
+      const CombinedView = View.extend({
+        stateEvents: { change() {} },
+        template: data => data.label
+      });
+      const combined = {
+        subscribe: combinedSubscribe,
+        serialize() { return { label: 'combined' }; }
+      };
       CombinedView.setStateApi(combined);
       CombinedView.setDataApi(combined);
-      expect(CombinedView.prototype.State.subscribe).to.equal(combined.subscribe);
-      expect(CombinedView.prototype.Data.items).to.equal(combined.items);
+      const combinedSource = {};
+      const combinedView = new CombinedView({ state: combinedSource, model: {} });
+      combinedView.render();
+      expect(combinedSubscribe).to.have.been.calledWith(combinedSource);
+      expect(combinedView.el.textContent).to.equal('combined');
+      combinedView.destroy();
 
-      const SplitView = View.extend({});
-      const stateSubscribe = function() {};
-      const dataSubscribe = function() {};
+      const stateSubscribe = this.sinon.stub().returns(() => {});
+      const SplitView = View.extend({
+        stateEvents: { change() {} },
+        template: data => data.label
+      });
       SplitView.setStateApi({ subscribe: stateSubscribe });
-      SplitView.setDataApi({ subscribe: dataSubscribe });
-      expect(SplitView.prototype.State.subscribe).to.equal(stateSubscribe);
-      expect(SplitView.prototype.Data.subscribe).to.equal(dataSubscribe);
+      SplitView.setDataApi({ serialize() { return { label: 'split' }; } });
+      const splitSource = {};
+      const splitView = new SplitView({ state: splitSource, model: {} });
+      splitView.render();
+      expect(stateSubscribe).to.have.been.calledWith(splitSource);
+      expect(splitView.el.textContent).to.equal('split');
+      splitView.destroy();
     });
   });
 

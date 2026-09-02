@@ -68,6 +68,32 @@ describe('state source composition', function() {
     owner.destroy();
   });
 
+  it('treats an explicit undefined state as no supplied source', function() {
+    const owner = new MnObject({ state: undefined });
+
+    expect(owner.getState()).to.deep.equal({});
+    owner.destroy();
+  });
+
+  it('retries a failed state factory with its original options', function() {
+    const error = new Error('state unavailable');
+    const options = { marker: true };
+    const source = {};
+    let attempts = 0;
+    const Owner = MnObject.extend({
+      createState(factoryOptions) {
+        expect(factoryOptions).to.equal(options);
+        if (!attempts++) { throw error; }
+        return source;
+      }
+    });
+    const owner = new Owner(options);
+
+    expect(() => owner.getState()).to.throw(error);
+    expect(owner.getState()).to.equal(source);
+    owner.destroy();
+  });
+
   it('lets multiple owners borrow one source and release only their subscriptions', function() {
     const source = createSource();
     const StatefulObject = MnObject.extend({
@@ -276,15 +302,20 @@ describe('state source composition', function() {
 
   it('keeps Behavior state for the Behavior lifecycle', function() {
     const source = {};
-    const StatefulBehavior = Behavior.extend({ state: source });
+    const onDestroy = this.sinon.spy();
+    let behavior;
+    const StatefulBehavior = Behavior.extend({
+      state: source,
+      initialize() { behavior = this; },
+      onDestroy
+    });
     const OwnerView = View.extend({ behaviors: [StatefulBehavior], template: false });
     const view = new OwnerView();
-    const [behavior] = view._behaviors;
 
     view.render();
     expect(behavior.getState()).to.equal(source);
     view.destroy();
-    expect(behavior._isDestroyed).to.be.true;
+    expect(onDestroy).to.have.been.calledOnce;
   });
 
   it('does not compose state into Region', function() {

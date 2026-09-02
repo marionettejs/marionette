@@ -256,6 +256,19 @@ describe('DomApi', function() {
 
       expect(parent.moveBefore).to.have.been.calledOnceWith(second, first);
     });
+
+    it('uses insertBefore for an attached child without moveBefore', function() {
+      const parent = document.createElement('div');
+      const first = document.createElement('span');
+      const second = document.createElement('span');
+      parent.append(first, second);
+      this.sinon.spy(parent, 'insertBefore');
+
+      DomApi.moveEl(second, parent, first);
+
+      expect(parent.insertBefore).to.have.been.calledOnceWith(second, first);
+      expect([...parent.children]).to.deep.equal([second, first]);
+    });
   });
 
   describe('#setContents', function() {

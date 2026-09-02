@@ -578,9 +578,9 @@
       "category": "configuration",
       "severity": "error",
       "objects": [
-        "State"
+        "StateApi"
       ],
-      "remediation": "Use State keys that do not contain whitespace.",
+      "remediation": "The concrete v5 alpha State key validation is removed. Use the selected source's native key contract.",
       "docsAnchor": "/errors/MN0034/",
       "surfaces": [
         "runtime"
@@ -597,10 +597,9 @@
         "Behavior",
         "CollectionView",
         "MnObject",
-        "State",
         "View"
       ],
-      "remediation": "Compose only a live, unowned State instance. Keep shared data in an external model, collection, or data source instead of assigning one State to multiple owners.",
+      "remediation": "The concrete v5 alpha State ownership rule is removed. Supplied sources are borrowed and may be shared by multiple owners; createState results are owned and disposed by their owner.",
       "docsAnchor": "/errors/MN0035/",
       "surfaces": [
         "runtime"

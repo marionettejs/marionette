@@ -1127,7 +1127,7 @@
   const StateMixin = {
     State: StateApi,
     _initState(options = {}) {
-      const hasStateOption = options != null && Object.hasOwn(options, 'state');
+      const hasStateOption = options != null && Object.hasOwn(options, 'state') && options.state !== undefined;
       const state = hasStateOption ? options.state : this.state;
       if (hasStateOption || state !== undefined) {
         this._state = state;
@@ -1152,8 +1152,8 @@
         return this._state;
       }
       const options = this._stateOptions;
-      delete this._stateOptions;
       const state = this.createState(options);
+      delete this._stateOptions;
       this._state = state;
       this._ownsState = true;
       if (this._isDestroyed) {
@@ -3380,7 +3380,8 @@
       const sourceViews = snapshot.entries.map(({
         key
       }) => this._children.findByKey(key)).filter(Boolean);
-      const manualViews = this._children._views.filter(view => !sourceViews.includes(view));
+      const sourceViewSet = new Set(sourceViews);
+      const manualViews = this._children._views.filter(view => !sourceViewSet.has(view));
       const views = sourceViews.concat(manualViews);
       this._children._set(views, true);
     },

@@ -7,7 +7,8 @@ const StateMixin = {
   State: StateApi,
 
   _initState(options = {}) {
-    const hasStateOption = options != null && Object.hasOwn(options, 'state');
+    const hasStateOption = options != null && Object.hasOwn(options, 'state') &&
+      options.state !== undefined;
     const state = hasStateOption ? options.state : this.state;
 
     if (hasStateOption || state !== undefined) {
@@ -41,8 +42,8 @@ const StateMixin = {
     if (Object.hasOwn(this, '_state')) { return this._state; }
 
     const options = this._stateOptions;
-    delete this._stateOptions;
     const state = this.createState(options);
+    delete this._stateOptions;
     this._state = state;
     this._ownsState = true;
 
