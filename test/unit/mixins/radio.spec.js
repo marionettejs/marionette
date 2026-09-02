@@ -150,8 +150,6 @@ describe('Radio Mixin on Marionette.Object', function() {
       calls.push(['channel', channelName]);
       return channelFoo;
     });
-    this.sinon.stub(radioObject, 'on').callsFake(() => calls.push(['on']));
-
     radioObject.initialize();
 
     expect(calls).to.deep.equal([
@@ -160,8 +158,7 @@ describe('Radio Mixin on Marionette.Object', function() {
       ['radioEvents', true, 0],
       ['bindEvents'],
       ['radioRequests', true, 0],
-      ['bindRequests'],
-      ['on']
+      ['bindRequests']
     ]);
     [radioObject.channelName, radioObject.radioEvents, radioObject.radioRequests]
       .forEach(option => {
@@ -181,16 +178,13 @@ describe('Radio Mixin on Marionette.Object', function() {
       }
     });
     radioObject.radioRequests = radioRequests;
-    this.sinon.spy(radioObject, 'on');
-
     expect(() => radioObject.initialize()).to.throw(error);
     expect(radioObject.bindEvents).to.not.have.been.called;
     expect(radioRequests).to.not.have.been.called;
     expect(radioObject.bindRequests).to.not.have.been.called;
-    expect(radioObject.on).to.not.have.been.called;
   });
 
-  describe('when an Object is destroyed', function() {
+  describe('when an owner destroys its Radio resources', function() {
     let fooChannel;
 
     beforeEach(function() {
@@ -201,7 +195,7 @@ describe('Radio Mixin on Marionette.Object', function() {
 
       this.sinon.spy(fooChannel, 'stopReplying');
 
-      radioObject.trigger('destroy');
+      radioObject._destroyRadio();
     });
 
     it('should stopReplying to the object', function() {

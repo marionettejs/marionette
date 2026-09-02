@@ -1,4 +1,5 @@
 import Radio from '../modules/radio.js';
+import disposeAll from '../utils/dispose-all.js';
 import getValue from '../utils/get-value.js';
 
 
@@ -23,12 +24,18 @@ export default {
 
     const radioRequests = getValue(this, 'radioRequests');
     this.bindRequests(channel, radioRequests);
-
-    this.on('destroy', this._destroyRadio);
   },
 
   _destroyRadio() {
-    this._channel.stopReplying(null, null, this);
+    const channel = this._channel;
+    if (!channel) { return this; }
+
+    disposeAll([
+      () => this.stopListening(channel),
+      () => channel.stopReplying(null, null, this)
+    ]);
+
+    return this;
   },
 
   getChannel() {

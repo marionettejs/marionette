@@ -1,3 +1,5 @@
+import disposeAll from '../utils/dispose-all.js';
+
 export default {
   _isDestroyed: false,
 
@@ -15,8 +17,12 @@ export default {
       throw error;
     }
     this._isDestroyed = true;
-    this.triggerMethod('destroy', this, options);
-    this.stopListening();
+    disposeAll([
+      () => this.stopListening(),
+      () => this.triggerMethod('destroy', this, options),
+      () => this._destroyState?.(),
+      () => this._destroyRadio?.()
+    ]);
 
     return this;
   }

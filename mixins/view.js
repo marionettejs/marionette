@@ -249,12 +249,18 @@ const ViewMixin = {
           hasDataDisposalError = true;
         }
 
-        this.triggerMethod('destroy', this, options);
-        this._triggerEventOnBehaviors('destroy', this, options);
+        const finalDisposers = [
+          () => this.stopListening(),
+          () => this._triggerEventOnBehaviors('destroy', this, options),
+          () => this.triggerMethod('destroy', this, options),
+          () => this._destroyState()
+        ];
 
-        this.stopListening();
-
-        if (hasDataDisposalError) { throw dataDisposalError; }
+        if (hasDataDisposalError) {
+          disposeAll(finalDisposers, dataDisposalError);
+        } else {
+          disposeAll(finalDisposers);
+        }
       },
       () => this._undelegateViewEvents()
     ]);
