@@ -9,6 +9,7 @@ import DestroyMixin from '../mixins/destroy.js';
 import RadioMixin from '../mixins/radio.js';
 import StateMixin from '../mixins/state.js';
 import disposeAll from '../utils/dispose-all.js';
+import { setStateApi } from '../runtime/state-api.js';
 
 const ClassOptions = [
   'channelName',
@@ -36,7 +37,7 @@ const MarionetteObject = function(options) {
   }
 };
 
-MarionetteObject.extend = extend;
+assignOwn(MarionetteObject, { extend, setStateApi });
 
 // Object Methods
 // --------------

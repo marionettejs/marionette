@@ -1,6 +1,5 @@
 // Anything related to Bb.collection events
 
-import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
 import CollectionView from '../../../modules/collection-view';
@@ -235,18 +234,16 @@ describe('CollectionView Data', function() {
         this.sinon.stub(myCollectionView, 'attachHtml');
         collection.add([{ id: 4 }, { id: 5 }]);
 
-        const callArgs = myCollectionView.attachHtml.args[0];
-        const attachHtmlEls = callArgs[0];
-        expect($(attachHtmlEls).children()).to.have.lengthOf(5);
+        expect(myCollectionView.attachHtml).to.not.have.been.called;
+        expect(myCollectionView.el.children).to.have.lengthOf(5);
       });
 
       it('should append to the el', function() {
         this.sinon.stub(myCollectionView, 'attachHtml');
         collection.add([{ id: 4 }, { id: 5 }]);
 
-        const callArgs = myCollectionView.attachHtml.args[0];
-        const el = callArgs[1];
-        expect(el).to.equal(myCollectionView.el);
+        expect(myCollectionView.attachHtml).to.not.have.been.called;
+        expect(myCollectionView.el.children).to.have.lengthOf(5);
       });
 
       it('should still have all children attached', function() {
@@ -268,9 +265,8 @@ describe('CollectionView Data', function() {
         this.sinon.stub(myCollectionView, 'attachHtml');
         collection.add([{ id: 4 }, { id: 5 }]);
 
-        const callArgs = myCollectionView.attachHtml.args[0];
-        const attachHtmlEls = callArgs[0];
-        expect($(attachHtmlEls).children()).to.have.lengthOf(2);
+        expect(myCollectionView.attachHtml).to.not.have.been.called;
+        expect(myCollectionView.el.children).to.have.lengthOf(5);
       });
 
       it('should still have all children attached', function() {
@@ -355,8 +351,8 @@ describe('CollectionView Data', function() {
 
       collection.remove([collection.get(2), collection.get(4)]);
 
-      expect(beforeRenderChildren).to.not.have.been.called;
-      expect(renderChildren).to.not.have.been.called;
+      expect(beforeRenderChildren).to.have.been.calledOnce;
+      expect(renderChildren).to.have.been.calledOnce;
       expect([...myCollectionView.children]).to.deep.equal(survivors);
       expect(myCollectionView.children.findByIndex(0)).to.equal(survivors[0]);
       expect(myCollectionView.children.findByIndex(1)).to.equal(survivors[1]);
@@ -403,8 +399,8 @@ describe('CollectionView Data', function() {
       collection.remove(collection.at(1));
 
       expect(myCollectionView.attachHtml).to.not.have.been.called;
-      expect(beforeSort).to.not.have.been.called;
-      expect(sort).to.not.have.been.called;
+      expect(beforeSort).to.have.been.calledOnce;
+      expect(sort).to.have.been.calledOnce;
       expect([...myCollectionView.el.children]).to.deep.equal(survivorNodes);
     });
 
@@ -438,7 +434,7 @@ describe('CollectionView Data', function() {
 
       collection.remove(collection.at(1));
 
-      expect(myCollectionView.attachHtml).to.have.been.calledOnce;
+      expect(myCollectionView.attachHtml).to.not.have.been.called;
       expect(beforeRenderChildren).to.have.been.calledOnce;
       expect(renderChildren).to.have.been.calledOnce;
     });
@@ -481,7 +477,7 @@ describe('CollectionView Data', function() {
 
       collection.remove(collection.at(1));
 
-      expect(myCollectionView.attachHtml).to.have.been.calledOnce;
+      expect(myCollectionView.attachHtml).to.not.have.been.called;
     });
 
     it('keeps the render path when the comparator query is overridden', function() {
@@ -497,7 +493,7 @@ describe('CollectionView Data', function() {
 
       collection.remove(collection.at(1));
 
-      expect(myCollectionView.attachHtml).to.have.been.calledOnce;
+      expect(myCollectionView.attachHtml).to.not.have.been.called;
     });
 
     it('keeps the render path when the filter query is overridden', function() {
@@ -513,7 +509,7 @@ describe('CollectionView Data', function() {
 
       collection.remove(collection.at(1));
 
-      expect(myCollectionView.attachHtml).to.have.been.calledOnce;
+      expect(myCollectionView.attachHtml).to.not.have.been.called;
     });
 
     it('keeps the render path when sort is overridden', function() {

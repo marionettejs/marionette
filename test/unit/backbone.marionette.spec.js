@@ -19,6 +19,7 @@ import Application from '../../modules/application';
 
 import DomApi from '../../runtime/dom-api';
 import DataApi from '../../runtime/data-api';
+import StateApi from '../../runtime/state-api';
 
 describe('backbone.marionette', function() {
   describe('Named Exports', function() {
@@ -34,6 +35,7 @@ describe('backbone.marionette', function() {
       extend,
       DomApi,
       DataApi,
+      StateApi,
     };
 
     _.each(namedExports, (val, key) => {
@@ -127,6 +129,48 @@ describe('backbone.marionette', function() {
           .to.be.calledOnce
           .and.calledWith(fakeDataApi);
       });
+    });
+  });
+
+  describe('#setStateApi', function() {
+    const StateClasses = { Application, Behavior, CollectionView, MnObject, View };
+    const fakeStateApi = { subscribe() {} };
+    const originals = new Map();
+
+    beforeEach(function() {
+      for (const Class of Object.values(StateClasses)) {
+        originals.set(Class, Class.prototype.State);
+      }
+    });
+
+    afterEach(function() {
+      for (const [Class, State] of originals) { Class.prototype.State = State; }
+      originals.clear();
+    });
+
+    _.each(StateClasses, function(Class, key) {
+      it(`should setStateApi on ${ key }`, function() {
+        this.sinon.spy(Class, 'setStateApi');
+        Mn.setStateApi(fakeStateApi);
+        expect(Class.setStateApi).to.be.calledOnce.and.calledWith(fakeStateApi);
+      });
+    });
+
+    it('allows one combined adapter or independent adapter objects', function() {
+      const CombinedView = View.extend({});
+      const combined = { subscribe() {}, items() {} };
+      CombinedView.setStateApi(combined);
+      CombinedView.setDataApi(combined);
+      expect(CombinedView.prototype.State.subscribe).to.equal(combined.subscribe);
+      expect(CombinedView.prototype.Data.items).to.equal(combined.items);
+
+      const SplitView = View.extend({});
+      const stateSubscribe = function() {};
+      const dataSubscribe = function() {};
+      SplitView.setStateApi({ subscribe: stateSubscribe });
+      SplitView.setDataApi({ subscribe: dataSubscribe });
+      expect(SplitView.prototype.State.subscribe).to.equal(stateSubscribe);
+      expect(SplitView.prototype.Data.subscribe).to.equal(dataSubscribe);
     });
   });
 

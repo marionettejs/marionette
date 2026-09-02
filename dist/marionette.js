@@ -264,10 +264,10 @@ function triggerMethod(event, ...args) {
   return result;
 }
 
-const objectKeys$4 = Object.keys;
+const objectKeys$3 = Object.keys;
 let listening;
 function getKeys$1(object) {
-  return object == null ? [] : objectKeys$4(object);
+  return object == null ? [] : objectKeys$3(object);
 }
 const onApi = function ({
   events,
@@ -599,10 +599,10 @@ function makeCallback(callback) {
   return result;
 }
 
-const objectKeys$3 = Object.keys;
+const objectKeys$2 = Object.keys;
 function getKeys(object) {
   const type = typeof object;
-  return object != null && (type === 'object' || type === 'function') ? objectKeys$3(object) : [];
+  return object != null && (type === 'object' || type === 'function') ? objectKeys$2(object) : [];
 }
 const registerReply = function (requests, name, callback, context) {
   if (Object.hasOwn(requests, name)) {
@@ -948,7 +948,7 @@ var DestroyMixin = {
   }
 };
 
-const objectKeys$2 = Object.keys;
+const objectKeys$1 = Object.keys;
 const _logs = Object.create(null);
 function _partial(channelName) {
   return _logs[channelName] || (_logs[channelName] = log.bind(Radio, channelName));
@@ -996,7 +996,7 @@ assignOwn(Channel.prototype, Events, Requests, {
 });
 const systems = [Events, Requests];
 for (let systemIndex = 0, systemsLength = systems.length; systemIndex < systemsLength; systemIndex++) {
-  const methodNames = objectKeys$2(systems[systemIndex]);
+  const methodNames = objectKeys$1(systems[systemIndex]);
   for (let index = 0, length = methodNames.length; index < length; index++) {
     const methodName = methodNames[index];
     setProperty(Radio, methodName, function (channelName, ...args) {
@@ -1007,7 +1007,7 @@ for (let systemIndex = 0, systemsLength = systems.length; systemIndex < systemsL
 }
 Radio.reset = function (channelName) {
   if (!arguments.length) {
-    const channelNames = objectKeys$2(_channels);
+    const channelNames = objectKeys$1(_channels);
     for (let index = 0, length = channelNames.length; index < length; index++) {
       _channels[channelNames[index]].reset();
     }
@@ -1054,151 +1054,76 @@ var RadioMixin = {
   }
 };
 
-const objectKeys$1 = Object.keys;
-function addChange(changedKeys, changed, previous, name, previousValue, value) {
-  changedKeys.push(name);
-  setProperty(changed, name, value);
-  setProperty(previous, name, previousValue);
+function setStateApi$1(mixin) {
+  this.prototype.State = assignOwn({}, this.prototype.State, mixin);
+  return this;
 }
-function validateKeys(keys) {
-  for (let index = 0, length = keys.length; index < length; index++) {
-    const key = keys[index];
-    if (typeof key !== 'string' || !eventSplitter.test(key)) {
-      continue;
-    }
+var StateApi = {
+  subscribe() {
     throw new MarionetteError({
-      code: 'MN0034',
-      message: 'State keys cannot contain whitespace.',
-      url: 'marionette.state.html#state-keys'
+      code: 'MN0037',
+      name: 'StateApiError',
+      message: 'The default StateApi cannot observe stateEvents. Configure a StateApi that supports this state source or remove stateEvents.',
+      url: 'marionette.state.html#state-events'
     });
   }
-}
-function updateState(state, attributes, options, removedKeys = []) {
-  if (state._isDestroyed) {
-    return state;
-  }
-  const current = state._attributes;
-  const changed = {};
-  const previous = {};
-  const changedKeys = [];
-  const attributeKeys = objectKeys$1(attributes);
-  validateKeys(removedKeys);
-  validateKeys(attributeKeys);
-  for (let index = 0, length = removedKeys.length; index < length; index++) {
-    const name = removedKeys[index];
-    if (!Object.hasOwn(current, name)) {
-      continue;
-    }
-    addChange(changedKeys, changed, previous, name, current[name], undefined);
-  }
-  for (let index = 0, length = attributeKeys.length; index < length; index++) {
-    const name = attributeKeys[index];
-    const value = attributes[name];
-    if (Object.hasOwn(current, name) && Object.is(current[name], value)) {
-      continue;
-    }
-    addChange(changedKeys, changed, previous, name, current[name], value);
-  }
-  if (!changedKeys.length) {
-    return state;
-  }
-  for (let index = 0, length = removedKeys.length; index < length; index++) {
-    delete current[removedKeys[index]];
-  }
-  assignOwn(current, attributes);
-  if (options?.silent) {
-    return state;
-  }
-  const change = assignOwn({}, options, {
-    changed,
-    previous
-  });
-  for (let index = 0, length = changedKeys.length; index < length; index++) {
-    const name = changedKeys[index];
-    state.trigger(`change:${name}`, state, changed[name], change);
-  }
-  state.trigger('change', state, change);
-  return state;
-}
-const State = function (attributes) {
-  this.cid = uniqueId(this.cidPrefix);
-  const stateAttributes = assignOwn({}, getValue(this, 'defaults'), attributes);
-  validateKeys(objectKeys$1(stateAttributes));
-  this._attributes = stateAttributes;
-  this.initialize.apply(this, arguments);
 };
-State.extend = extend;
-assignOwn(State.prototype, Events, {
-  cidPrefix: 'mns',
-  _isDestroyed: false,
-  initialize() {},
-  get(key) {
-    return Object.hasOwn(this._attributes, key) ? this._attributes[key] : undefined;
-  },
-  has(key) {
-    return Object.hasOwn(this._attributes, key);
-  },
-  set(key, value, options) {
-    if (key == null) {
-      return this;
-    }
-    let attributes;
-    if (typeof key === 'object') {
-      attributes = key;
-      options = value;
-    } else {
-      attributes = {
-        [key]: value
-      };
-    }
-    return updateState(this, attributes, options);
-  },
-  unset(key, options) {
-    if (key == null) {
-      return this;
-    }
-    return updateState(this, {}, options, [key]);
-  },
-  reset(attributes = {}, options) {
-    if (this._isDestroyed) {
-      return this;
-    }
-    const nextAttributes = assignOwn({}, getValue(this, 'defaults'), attributes);
-    const removedKeys = objectKeys$1(this._attributes).filter(key => !Object.hasOwn(nextAttributes, key));
-    return updateState(this, nextAttributes, options, removedKeys);
-  },
-  toJSON() {
-    return assignOwn({}, this._attributes);
-  },
-  isDestroyed() {
-    return this._isDestroyed;
-  },
-  destroy() {
-    if (this._isDestroyed) {
-      return this;
-    }
-    this._isDestroyed = true;
-    this.stopListening();
-    this.off();
-    return this;
-  }
-});
 
-function throwStateOwnershipConflict() {
-  throw new MarionetteError({
-    code: 'MN0035',
-    name: 'StateError',
-    message: 'A State instance must be live and unowned before composition.',
-    url: 'marionette.state.html#owned-state'
-  });
+function normalizeDisposer(disposer, methodName) {
+  if (typeof disposer !== 'function') {
+    throw new MarionetteError({
+      code: 'MN0038',
+      name: 'AdapterError',
+      message: `${methodName}() must return a cleanup function.`,
+      url: 'data.api.html#adapter-cleanup'
+    });
+  }
+  let isDisposed = false;
+  return function () {
+    if (isDisposed) {
+      return;
+    }
+    isDisposed = true;
+    disposer();
+  };
 }
-var StateMixin = {
+function subscribeBindings(context, Api, source, bindings, apiName) {
+  const eventArgs = buildEventArgs(normalizeBindings$1(context, bindings), context);
+  const subscriptions = [];
+  try {
+    for (let index = 0; index < eventArgs.length; index++) {
+      const {
+        name,
+        callback,
+        context: eventContext
+      } = eventArgs[index];
+      const disposer = Api.subscribe(source, name, callback, eventContext);
+      subscriptions.push(normalizeDisposer(disposer, `${apiName}.subscribe`));
+    }
+  } catch (error) {
+    disposeAll(subscriptions, error);
+  }
+  let isDisposed = false;
+  return function () {
+    if (isDisposed) {
+      return;
+    }
+    isDisposed = true;
+    disposeAll(subscriptions);
+  };
+}
+
+const StateMixin = {
+  State: StateApi,
   _initState(options = {}) {
     const hasStateOption = options != null && Object.hasOwn(options, 'state');
     const state = hasStateOption ? options.state : this.state;
     if (hasStateOption || state !== undefined) {
-      this._stateDefinition = state;
-      this.getState();
+      this._state = state;
+      return;
+    }
+    if (this.createState !== StateMixin.createState) {
+      this._stateOptions = options;
     }
   },
   _initStateEvents() {
@@ -1207,41 +1132,40 @@ var StateMixin = {
     }
     const stateEvents = getValue(this, 'stateEvents');
     if (stateEvents) {
-      this.bindEvents(this.getState(), stateEvents);
+      this._stateEventUnsubscribe = subscribeBindings(this, this.State, this.getState(), stateEvents, 'StateApi');
     }
     return this;
   },
   getState() {
-    if (this._state) {
+    if (Object.hasOwn(this, '_state')) {
       return this._state;
     }
-    const hasStateDefinition = Object.hasOwn(this, '_stateDefinition');
-    const definition = getValue(this, hasStateDefinition ? '_stateDefinition' : 'state');
-    delete this._stateDefinition;
-    const state = definition instanceof State ? definition : new State(definition);
-    if (state._owner !== undefined || state.isDestroyed()) {
-      throwStateOwnershipConflict();
-    }
-    state._owner = this;
+    const options = this._stateOptions;
+    delete this._stateOptions;
+    const state = this.createState(options);
     this._state = state;
+    this._ownsState = true;
     if (this._isDestroyed) {
       this._destroyState();
     }
     return state;
   },
   _destroyState() {
-    const state = this._state;
-    if (!state) {
+    if (!Object.hasOwn(this, '_state') || this._stateReleased) {
       return this;
     }
-    disposeAll([() => {
-      if (!state.isDestroyed()) {
-        state.destroy();
-      }
-    }, () => {
-      delete state._owner;
-    }, () => this.unbindEvents(state)]);
+    const state = this._state;
+    const unsubscribe = this._stateEventUnsubscribe;
+    const ownsState = this._ownsState;
+    const disposeOwned = this.State.disposeOwned;
+    this._stateReleased = true;
+    delete this._stateEventUnsubscribe;
+    delete this._ownsState;
+    disposeAll([ownsState && typeof disposeOwned === 'function' && (() => disposeOwned.call(this.State, state)), unsubscribe]);
     return this;
+  },
+  createState() {
+    return {};
   }
 };
 
@@ -1258,7 +1182,10 @@ const MarionetteObject = function (options) {
     disposeAll([() => this.stopListening(), () => this._destroyRadio(), () => this._destroyState()], error);
   }
 };
-MarionetteObject.extend = extend;
+assignOwn(MarionetteObject, {
+  extend,
+  setStateApi: setStateApi$1
+});
 assignOwn(MarionetteObject.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMixin, {
   cidPrefix: 'mno'
 });
@@ -1452,38 +1379,19 @@ var BehaviorsMixin = {
   }
 };
 
-function subscribeBindings(context, Data, entity, bindings) {
-  const eventArgs = buildEventArgs(normalizeBindings$1(context, bindings), context);
-  const subscriptions = [];
-  try {
-    for (let index = 0; index < eventArgs.length; index++) {
-      const {
-        name,
-        callback,
-        context: eventContext
-      } = eventArgs[index];
-      subscriptions.push(Data.subscribe(entity, name, callback, eventContext));
-    }
-  } catch (error) {
-    disposeAll(subscriptions, error);
-  }
-  return function () {
-    disposeAll(subscriptions);
-  };
-}
 var DelegateEntityEventsMixin = {
   _delegateEntityEvents(model, collection, Data) {
     try {
       if (model) {
         this._modelEvents = getValue(this, 'modelEvents');
         if (this._modelEvents) {
-          this._modelEventUnsubscribe = subscribeBindings(this, Data, model, this._modelEvents);
+          this._modelEventUnsubscribe = subscribeBindings(this, Data, model, this._modelEvents, 'DataApi');
         }
       }
       if (collection) {
         this._collectionEvents = getValue(this, 'collectionEvents');
         if (this._collectionEvents) {
-          this._collectionEventUnsubscribe = subscribeBindings(this, Data, collection, this._collectionEvents);
+          this._collectionEventUnsubscribe = subscribeBindings(this, Data, collection, this._collectionEvents, 'DataApi');
         }
       }
     } catch (error) {
@@ -1860,6 +1768,13 @@ var DomApi = {
   appendContents(el, contents) {
     el.appendChild(contents);
   },
+  moveEl(el, parent, before = null) {
+    if (el.parentNode === parent && typeof parent.moveBefore === 'function') {
+      parent.moveBefore(el, before);
+      return;
+    }
+    parent.insertBefore(el, before);
+  },
   hasContents(el) {
     return !!el && el.hasChildNodes();
   },
@@ -1890,6 +1805,14 @@ var DataApi = {
     return collection;
   },
   subscribe(entity, eventName, callback, context) {
+    if (typeof entity?.on !== 'function' || typeof entity?.off !== 'function') {
+      throw new MarionetteError({
+        code: 'MN0037',
+        name: 'DataApiError',
+        message: 'The default DataApi cannot observe modelEvents or collectionEvents on a plain value. Configure a DataApi that supports this source or remove the event map.',
+        url: 'data.api.html#entity-events'
+      });
+    }
     let isSubscribed = true;
     entity.on(eventName, callback, context);
     return function () {
@@ -1900,8 +1823,16 @@ var DataApi = {
       entity.off(eventName, callback, context);
     };
   },
-  observeCollection() {
-    return noop;
+  observeCollection(collection) {
+    if (Array.isArray(collection)) {
+      return noop;
+    }
+    throw new MarionetteError({
+      code: 'MN0037',
+      name: 'DataApiError',
+      message: 'The default DataApi can observe only static plain arrays. Configure a DataApi that supports this collection source.',
+      url: 'data.api.html#collection-observations'
+    });
   }
 };
 
@@ -2749,7 +2680,8 @@ assignOwn(View, {
   setRenderer: setRenderer$1,
   setDomApi: setDomApi$1,
   setEventDelegator: setEventDelegator$1,
-  setDataApi: setDataApi$1
+  setDataApi: setDataApi$1,
+  setStateApi: setStateApi$1
 });
 assignOwn(View.prototype, ViewMixin, RegionsMixin, {
   cidPrefix: 'mnv',
@@ -3036,6 +2968,7 @@ Object.assign(Container.prototype, {
     this._views = [];
     this._viewsByCid = createIndex();
     this._indexByModel = new Map();
+    this._keyByView = new Map();
     this._updateLength();
   },
   _add(view, index = this._views.length) {
@@ -3046,7 +2979,9 @@ Object.assign(Container.prototype, {
   _addViewIndexes(view) {
     this._viewsByCid[view.cid] = view;
     if (view.model) {
-      this._indexByModel.set(this.Data.key(view.model), view);
+      const key = this.Data.key(view.model);
+      this._indexByModel.set(key, view);
+      this._keyByView.set(view, key);
     }
   },
   _sort(comparator, context) {
@@ -3069,6 +3004,7 @@ Object.assign(Container.prototype, {
     if (shouldReset) {
       this._viewsByCid = createIndex();
       this._indexByModel = new Map();
+      this._keyByView = new Map();
       for (const view of views) {
         this._addViewIndexes(view);
       }
@@ -3088,6 +3024,18 @@ Object.assign(Container.prototype, {
   findByModel(model) {
     return this._indexByModel.get(this.Data.key(model));
   },
+  findByKey(key) {
+    return this._indexByModel.get(key);
+  },
+  _replaceModel(view, model, key) {
+    const previousKey = this._keyByView.get(view);
+    if (this._indexByModel.get(previousKey) === view) {
+      this._indexByModel.delete(previousKey);
+    }
+    view.model = model;
+    this._indexByModel.set(key, view);
+    this._keyByView.set(view, key);
+  },
   findByIndex(index) {
     return this._views[index];
   },
@@ -3105,10 +3053,11 @@ Object.assign(Container.prototype, {
       return;
     }
     if (view.model) {
-      const modelKey = this.Data.key(view.model);
+      const modelKey = this._keyByView.get(view);
       if (this._indexByModel.get(modelKey) === view) {
         this._indexByModel.delete(modelKey);
       }
+      this._keyByView.delete(view);
     }
     delete this._viewsByCid[view.cid];
     const index = this.findIndexByView(view);
@@ -3124,6 +3073,127 @@ Container.prototype[Symbol.iterator] = function () {
 };
 
 const classErrorName$1 = 'CollectionViewError';
+function throwCollectionProtocolError(message) {
+  throw new MarionetteError({
+    code: 'MN0039',
+    name: classErrorName$1,
+    message,
+    url: 'data.api.html#collection-observations'
+  });
+}
+function buildCollectionSnapshot(Data, collection, previous = []) {
+  const items = Data.items(collection);
+  if (!Array.isArray(items)) {
+    throwCollectionProtocolError('DataApi.items() must return an ordered array snapshot.');
+  }
+  const previousKeys = new Map(previous.map(entry => [entry.item, entry.key]));
+  const keys = new Map();
+  const itemEntries = new Map();
+  const snapshot = Array(items.length);
+  for (let index = 0; index < items.length; index++) {
+    const item = items[index];
+    const key = Data.key(item);
+    if (key == null) {
+      throwCollectionProtocolError(`DataApi.key() returned a missing key for item at index ${index}.`);
+    }
+    if (keys.has(key)) {
+      throwCollectionProtocolError(`DataApi.key() returned duplicate key "${String(key)}".`);
+    }
+    if (previousKeys.has(item) && !Object.is(previousKeys.get(item), key)) {
+      throwCollectionProtocolError('DataApi.key() changed while an item remained in the CollectionView.');
+    }
+    const entry = {
+      item,
+      key
+    };
+    snapshot[index] = entry;
+    keys.set(key, entry);
+    itemEntries.set(item, entry);
+  }
+  return {
+    entries: snapshot,
+    items: itemEntries,
+    keys
+  };
+}
+function sameItems(actual, expected) {
+  if (actual.length !== expected.length) {
+    return false;
+  }
+  const remaining = new Set(expected);
+  for (const item of actual) {
+    if (!remaining.delete(item)) {
+      return false;
+    }
+  }
+  return remaining.size === 0;
+}
+function normalizeCollectionChange(change, previous, current) {
+  if (!change || typeof change !== 'object') {
+    throwCollectionProtocolError('DataApi.observeCollection() must notify with a structural change record.');
+  }
+  if (change.kind === 'reset') {
+    return {
+      kind: 'reset'
+    };
+  }
+  if (change.kind !== 'reorder' && change.kind !== 'update') {
+    throwCollectionProtocolError(`Unknown collection change kind "${String(change.kind)}".`);
+  }
+  const added = current.entries.filter(entry => !previous.keys.has(entry.key));
+  const removed = previous.entries.filter(entry => !current.keys.has(entry.key));
+  const replacements = current.entries.filter(entry => previous.keys.has(entry.key) && previous.keys.get(entry.key).item !== entry.item).map(entry => ({
+    key: entry.key,
+    previous: previous.keys.get(entry.key).item,
+    current: entry.item
+  }));
+  if (change.kind === 'reorder') {
+    if (added.length || removed.length || replacements.length) {
+      throwCollectionProtocolError('A reorder record cannot add, remove, or replace items.');
+    }
+    return {
+      kind: 'reorder'
+    };
+  }
+  if (!Array.isArray(change.added) || !Array.isArray(change.removed) || !Array.isArray(change.updated)) {
+    throwCollectionProtocolError('An update record requires added, removed, and updated arrays.');
+  }
+  if (!sameItems(change.added, added.map(entry => entry.item)) || !sameItems(change.removed, removed.map(entry => entry.item))) {
+    throwCollectionProtocolError('An update record must match the source snapshot additions and removals.');
+  }
+  const updated = [];
+  const updatedKeys = new Set();
+  for (const pair of change.updated) {
+    if (!pair || typeof pair !== 'object' || !Object.hasOwn(pair, 'previous') || !Object.hasOwn(pair, 'current')) {
+      throwCollectionProtocolError('Each updated entry must contain previous and current items.');
+    }
+    const previousEntry = previous.items.get(pair.previous);
+    const currentEntry = current.items.get(pair.current);
+    if (!previousEntry || !currentEntry || !Object.is(previousEntry.key, currentEntry.key)) {
+      throwCollectionProtocolError('Each updated entry must preserve one existing stable key.');
+    }
+    if (updatedKeys.has(currentEntry.key)) {
+      throwCollectionProtocolError('An update record cannot update the same key more than once.');
+    }
+    updatedKeys.add(currentEntry.key);
+    updated.push({
+      key: currentEntry.key,
+      previous: pair.previous,
+      current: pair.current
+    });
+  }
+  for (const replacement of replacements) {
+    if (!updatedKeys.has(replacement.key)) {
+      throwCollectionProtocolError('A same-key replacement must appear in the updated array.');
+    }
+  }
+  return {
+    kind: 'update',
+    added,
+    removed,
+    updated
+  };
+}
 function isEmptyViewClass(view) {
   if (typeof view !== 'function' || !view.prototype) {
     return false;
@@ -3189,7 +3259,8 @@ assignOwn(CollectionView, {
   setRenderer: setRenderer$1,
   setDomApi: setDomApi$1,
   setEventDelegator: setEventDelegator$1,
-  setDataApi: setDataApi$1
+  setDataApi: setDataApi$1,
+  setStateApi: setStateApi$1
 });
 assignOwn(CollectionView.prototype, ViewMixin, {
   cidPrefix: 'mncv',
@@ -3218,50 +3289,163 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     if (this._isRendered || this._dataObserverUnsubscribe) {
       return;
     }
-    this._dataObserverUnsubscribe = this.Data.observeCollection(this.collection, this._onCollectionChange, this);
+    this._dataObserverUnsubscribe = normalizeDisposer(this.Data.observeCollection(this.collection, this._onCollectionChange, this), 'DataApi.observeCollection');
   },
   _onCollectionChange(change) {
-    if (change.type === 'reorder') {
-      this._onCollectionReorder();
-    } else if (change.type === 'reset') {
-      this._onCollectionReset();
-    } else if (change.type === 'update') {
-      this._onCollectionUpdate(change);
+    if (this._isDestroying || this._isDestroyed) {
+      return;
     }
+    const previous = this._collectionSnapshot;
+    const current = buildCollectionSnapshot(this.Data, this.collection, previous.entries);
+    const normalized = normalizeCollectionChange(change, previous, current);
+    if (normalized.kind === 'reorder') {
+      this._onCollectionReorder(current);
+    } else if (normalized.kind === 'reset') {
+      this._onCollectionReset(current);
+    } else {
+      this._onCollectionUpdate(normalized, current);
+    }
+    this._collectionSnapshot = current;
   },
-  _onCollectionReorder() {
+  _onCollectionReorder(snapshot) {
     if (this._isDestroying || this._isDestroyed) {
       return;
     }
     if (!this.sortWithCollection || this.viewComparator === false) {
       return;
     }
-    this.sort();
+    this._setChildrenFromSnapshot(snapshot);
+    this._reconcileChildren([]);
   },
-  _onCollectionReset() {
+  _onCollectionReset(snapshot) {
     if (this._isDestroying || this._isDestroyed) {
       return;
     }
     this._destroyChildren();
-    this._addChildModels(this.Data.items(this.collection));
+    this._addChildModels(snapshot.entries.map(entry => entry.item));
     this.sort();
   },
-  _onCollectionUpdate(changes) {
+  _onCollectionUpdate(changes, snapshot) {
     if (this._isDestroying || this._isDestroyed) {
       return;
     }
-    const removedViews = changes.removed.length && this._removeChildModels(changes.removed);
-    this._addedViews = changes.added.length && this._addChildModels(changes.added);
+    const removedViews = changes.removed.length && changes.removed.map(({
+      key
+    }) => {
+      const view = this._children.findByKey(key);
+      if (view) {
+        this._removeChild(view);
+      }
+      return view;
+    }).filter(Boolean);
+    const addedViews = changes.added.length && this._addChildModels(changes.added.map(({
+      item
+    }) => item));
+    const updatedViews = changes.updated.map(({
+      key,
+      previous,
+      current
+    }) => {
+      const view = this._children.findByKey(key);
+      if (!view) {
+        throwCollectionProtocolError(`No child View exists for updated key "${String(key)}".`);
+      }
+      if (previous !== current) {
+        view.undelegateEntityEvents?.();
+        this._children._replaceModel(view, current, key);
+        if (this.children.hasView(view)) {
+          this.children._replaceModel(view, current, key);
+        }
+        view.delegateEntityEvents?.();
+      }
+      return view;
+    });
     this._detachChildren(removedViews);
-    const isDefaultComparator = this.getComparator === CollectionView.prototype.getComparator;
-    const isDefaultFilterQuery = this.getFilter === CollectionView.prototype.getFilter;
-    const isDefaultSort = this.sort === CollectionView.prototype.sort;
-    const isDefaultFilter = this.filter === CollectionView.prototype.filter;
-    const canRemoveWithoutRender = this._isRendered && changes.removed.length > 0 && changes.added.length === 0 && changes.updated.length === 0 && isDefaultComparator && isDefaultFilterQuery && isDefaultSort && isDefaultFilter && !this.viewComparator && !this.viewFilter && this.children.length === this._children.length && this._children.length > 0 && !this._hasUnrenderedViews && !this._emptyRegion.hasView();
-    if (!canRemoveWithoutRender) {
-      this.sort();
+    if (this.sortWithCollection && this.viewComparator !== false) {
+      this._setChildrenFromSnapshot(snapshot);
     }
+    this._reconcileChildren([...(addedViews || []), ...updatedViews]);
     this._removeChildViews(removedViews);
+  },
+  _setChildrenFromSnapshot(snapshot) {
+    const sourceViews = snapshot.entries.map(({
+      key
+    }) => this._children.findByKey(key)).filter(Boolean);
+    const manualViews = this._children._views.filter(view => !sourceViews.includes(view));
+    const views = sourceViews.concat(manualViews);
+    this._children._set(views, true);
+  },
+  _reconcileChildren(renderViews) {
+    this._reconcileRenderViews = renderViews;
+    this.sort();
+    if (this._reconcileRenderViews) {
+      delete this._reconcileRenderViews;
+      this._renderReconciledChildren(renderViews);
+    }
+  },
+  _renderReconciledChildren(renderViews) {
+    if (this._hasUnrenderedViews) {
+      for (const view of this._children) {
+        if (!view._isRendered && !renderViews.includes(view)) {
+          renderViews.push(view);
+        }
+      }
+      delete this._hasUnrenderedViews;
+    }
+    this.triggerMethod('before:render:children', this, renderViews);
+    if (this.isEmpty()) {
+      this._showEmptyView();
+    } else {
+      this._destroyEmptyView();
+      const views = this.children._views;
+      const documentEl = this.container.ownerDocument;
+      const activeElement = documentEl.activeElement;
+      const shouldRestoreFocus = activeElement && views.some(view => view.el === activeElement || view.el.contains(activeElement));
+      const selection = shouldRestoreFocus && typeof activeElement.selectionStart === 'number' && {
+        end: activeElement.selectionEnd,
+        start: activeElement.selectionStart,
+        direction: activeElement.selectionDirection
+      };
+      for (const view of renderViews) {
+        view._isRendered = false;
+        renderView(view);
+      }
+      const attaching = [];
+      const shouldTriggerAttach = this._isAttached && this.monitorViewEvents !== false;
+      for (const view of views) {
+        if (view.el.parentNode === this.container) {
+          continue;
+        }
+        if (shouldTriggerAttach) {
+          view.triggerMethod('before:attach', view);
+        }
+        attaching.push(view);
+      }
+      let before = null;
+      for (let index = views.length; index--;) {
+        const view = views[index];
+        if (view.el.parentNode !== this.container || view.el.nextSibling !== before) {
+          this.Dom.moveEl(view.el, this.container, before);
+        }
+        view._isShown = true;
+        before = view.el;
+      }
+      for (const view of attaching) {
+        if (shouldTriggerAttach) {
+          view._isAttached = true;
+          view.triggerMethod('attach', view);
+        }
+      }
+      if (shouldRestoreFocus && activeElement.isConnected && documentEl.activeElement !== activeElement) {
+        activeElement.focus({
+          preventScroll: true
+        });
+        if (selection) {
+          activeElement.setSelectionRange(selection.start, selection.end, selection.direction);
+        }
+      }
+    }
+    this.triggerMethod('render:children', this, renderViews);
   },
   _removeChildModels(models) {
     const views = [];
@@ -3385,7 +3569,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     this.triggerMethod('before:render', this);
     this._destroyChildren();
     if (this.collection) {
-      this._addChildModels(this.Data.items(this.collection));
+      this._collectionSnapshot = buildCollectionSnapshot(this.Data, this.collection);
+      this._addChildModels(this._collectionSnapshot.entries.map(entry => entry.item));
       this._initialEvents();
     }
     const template = this.getTemplate();
@@ -3550,6 +3735,12 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     this.Dom.detachEl(view.el);
   },
   _renderChildren() {
+    if (this._reconcileRenderViews) {
+      const renderViews = this._reconcileRenderViews;
+      delete this._reconcileRenderViews;
+      this._renderReconciledChildren(renderViews);
+      return;
+    }
     if (this._hasUnrenderedViews) {
       delete this._addedViews;
       delete this._hasUnrenderedViews;
@@ -3793,7 +3984,8 @@ const Behavior = function (options, view) {
 };
 assignOwn(Behavior, {
   extend,
-  setEventDelegator: setEventDelegator$1
+  setEventDelegator: setEventDelegator$1,
+  setStateApi: setStateApi$1
 });
 assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateMixin, UIMixin, ViewEventsMixin, {
   cidPrefix: 'mnb',
@@ -3852,7 +4044,7 @@ const STARTING = 'starting';
 const STOPPED = 'stopped';
 const STOPPING = 'stopping';
 const classErrorName = 'ApplicationError';
-const Application = function (options) {
+const Application$1 = function (options) {
   this._setOptions(options, ClassOptions);
   this.cid = uniqueId(this.cidPrefix);
   try {
@@ -3898,7 +4090,7 @@ function assertChildAppCanRegister(owner, name, application) {
   if (typeof name !== 'string' || name.length === 0) {
     throwApplicationOwnershipConflict('A child Application name must be a non-empty string.');
   }
-  if (!(application instanceof Application)) {
+  if (!(application instanceof Application$1)) {
     throwApplicationOwnershipConflict('A child Application must be an Application instance.');
   }
   if (isSameChildApp(owner, name, application)) {
@@ -4173,10 +4365,13 @@ async function stopApplication(application, operation, options) {
     throw error;
   }
 }
-var application = /* @__PURE__ */(methods => {
-  Application.extend = extend;
-  assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMixin, methods);
-  return Application;
+var Application = /* @__PURE__ */(methods => {
+  assignOwn(Application$1, {
+    extend,
+    setStateApi: setStateApi$1
+  });
+  assignOwn(Application$1.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMixin, methods);
+  return Application$1;
 })({
   cidPrefix: 'mna',
   _lifecycleState: STOPPED,
@@ -4304,7 +4499,7 @@ var application = /* @__PURE__ */(methods => {
     if (isTerminal(this)) {
       return application;
     }
-    if (application instanceof Application && isTerminal(application)) {
+    if (application instanceof Application$1 && isTerminal(application)) {
       return application;
     }
     assertChildAppCanRegister(this, name, application);
@@ -4399,6 +4594,13 @@ const setDataApi = function (mixin) {
   CollectionView.setDataApi(mixin);
   View.setDataApi(mixin);
 };
+const setStateApi = function (mixin) {
+  Application.setStateApi(mixin);
+  Behavior.setStateApi(mixin);
+  CollectionView.setStateApi(mixin);
+  MarionetteObject.setStateApi(mixin);
+  View.setStateApi(mixin);
+};
 const setRenderer = function (renderer) {
   CollectionView.setRenderer(renderer);
   View.setRenderer(renderer);
@@ -4409,4 +4611,4 @@ const setEventDelegator = function (delegator) {
   View.setEventDelegator(delegator);
 };
 
-export { application as Application, Behavior, CollectionView, DataApi, DomApi, Events, MarionetteError, MarionetteObject as MnObject, Radio, Region, State, version as VERSION, View, extend, monitorViewEvents, setDataApi, setDomApi, setEventDelegator, setRenderer };
+export { Application, Behavior, CollectionView, DataApi, DomApi, Events, MarionetteError, MarionetteObject as MnObject, Radio, Region, StateApi, version as VERSION, View, extend, monitorViewEvents, setDataApi, setDomApi, setEventDelegator, setRenderer, setStateApi };

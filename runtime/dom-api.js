@@ -104,6 +104,16 @@ export default {
     el.appendChild(contents);
   },
 
+  // Move a child without disconnecting it when the platform supports moveBefore.
+  moveEl(el, parent, before = null) {
+    if (el.parentNode === parent && typeof parent.moveBefore === 'function') {
+      parent.moveBefore(el, before);
+      return;
+    }
+
+    parent.insertBefore(el, before);
+  },
+
   // Does the el have child nodes
   hasContents(el) {
     return !!el && el.hasChildNodes();

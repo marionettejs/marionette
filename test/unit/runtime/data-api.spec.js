@@ -1,4 +1,5 @@
 import DataApi, { setDataApi } from '../../../runtime/data-api';
+import MarionetteError from '../../../utils/error';
 
 describe('DataApi', function() {
   describe('#setDataApi', function() {
@@ -60,7 +61,17 @@ describe('DataApi', function() {
   });
 
   it('treats plain collections as non-observable', function() {
-    expect(DataApi.observeCollection()).to.be.a('function');
-    expect(() => DataApi.observeCollection()()).to.not.throw();
+    const unsubscribe = DataApi.observeCollection([]);
+    expect(unsubscribe).to.be.a('function');
+    expect(() => unsubscribe()).to.not.throw();
+  });
+
+  it('diagnoses event observation on plain values', function() {
+    expect(() => DataApi.subscribe({}, 'change', () => {}))
+      .to.throw(MarionetteError)
+      .and.include({ code: 'MN0037' });
+    expect(() => DataApi.observeCollection({ items: [] }, () => {}))
+      .to.throw(MarionetteError)
+      .and.include({ code: 'MN0037' });
   });
 });

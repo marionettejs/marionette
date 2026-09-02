@@ -30,14 +30,15 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
         items: collection => collection.models,
         observeCollection(collection, callback, context) {
           const onUpdate = (currentCollection, { changes }) => callback.call(context, {
-            type: 'update',
+            kind: 'update',
             added: changes.added,
             removed: changes.removed,
-            updated: changes.merged
+            updated: changes.merged.map(model => ({ previous: model, current: model }))
           });
-          collection.on('update', onUpdate, context);
+          const onSort = () => callback.call(context, { kind: 'reorder' });
+          collection.on({ update: onUpdate, sort: onSort }, context);
           return () => {
-            collection.off('update', onUpdate, context);
+            collection.off({ update: onUpdate, sort: onSort }, context);
           };
         }
       });
@@ -49,6 +50,10 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
 
         disconnectedCallback() {
           this.disconnectedCount = (this.disconnectedCount || 0) + 1;
+        }
+
+        connectedMoveCallback() {
+          this.movedCount = (this.movedCount || 0) + 1;
         }
       }
 
@@ -148,6 +153,31 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
           ids: [...collectionView.el.children].map(element => Number(element.dataset.id))
         };
 
+        if (name === 'default collection order') {
+          const nodes = [...collectionView.el.children];
+          collection.models.reverse();
+          collection.trigger('sort', collection);
+          Object.assign(outcome, {
+            reordered: true,
+            nativeStatePreservingMove: typeof collectionView.container.moveBefore === 'function',
+            reorderFocused: document.activeElement === focusedInput,
+            reorderSelectionStart: focusedInput.selectionStart,
+            reorderSelectionEnd: focusedInput.selectionEnd,
+            reorderMediaNodePreserved: focusedView.el.querySelector('video') === media,
+            reorderFirstConnected: firstNode.connectedCount,
+            reorderFocusedConnected: focusedView.el.connectedCount,
+            reorderLastConnected: lastNode.connectedCount,
+            reorderFirstDisconnected: firstNode.disconnectedCount || 0,
+            reorderFocusedDisconnected: focusedView.el.disconnectedCount || 0,
+            reorderLastDisconnected: lastNode.disconnectedCount || 0,
+            reorderMoveCount: (firstNode.movedCount || 0) +
+              (focusedView.el.movedCount || 0) + (lastNode.movedCount || 0),
+            reorderRenderCount: focusedView.renderCount,
+            reorderNodesReversed: [...collectionView.el.children]
+              .every((element, index) => element === nodes[nodes.length - index - 1])
+          });
+        }
+
         collectionView.destroy();
 
         return { name, outcome };
@@ -180,6 +210,24 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
         Array.from({ length: 1001 }, (value, id) => id).filter(id => id !== 500),
         `${scenario}: DOM order follows collection order`
       );
+
+      if (result.reordered) {
+        assert.equal(result.reorderFocused, true, `${scenario}: reorder preserves focus`);
+        assert.equal(result.reorderSelectionStart, 2, `${scenario}: reorder preserves selection start`);
+        assert.equal(result.reorderSelectionEnd, 8, `${scenario}: reorder preserves selection end`);
+        assert.equal(result.reorderMediaNodePreserved, true, `${scenario}: reorder preserves media node`);
+        if (result.nativeStatePreservingMove) {
+          assert.equal(result.reorderFirstConnected, result.expectedFirstConnected, `${scenario}: native move does not reconnect first survivor`);
+          assert.equal(result.reorderFocusedConnected, result.expectedFocusedConnected, `${scenario}: native move does not reconnect focused survivor`);
+          assert.equal(result.reorderLastConnected, result.expectedLastConnected, `${scenario}: native move does not reconnect last survivor`);
+          assert.equal(result.reorderFirstDisconnected, 0, `${scenario}: native move does not disconnect first survivor`);
+          assert.equal(result.reorderFocusedDisconnected, 0, `${scenario}: native move does not disconnect focused survivor`);
+          assert.equal(result.reorderLastDisconnected, 0, `${scenario}: native move does not disconnect last survivor`);
+          assert.ok(result.reorderMoveCount > 0, `${scenario}: native move uses connectedMoveCallback`);
+        }
+        assert.equal(result.reorderRenderCount, 1, `${scenario}: reorder does not rerender survivor`);
+        assert.equal(result.reorderNodesReversed, true, `${scenario}: reorder moves existing nodes`);
+      }
 
       console.log(`${scenario}: removal-only survivor state passed`);
     }

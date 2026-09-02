@@ -39,19 +39,19 @@ export default {
         previousModels.every(model => collection.get(model) === model);
       previousModels = collection.models.slice();
       if (!hasUnchangedMembership && (options.add || options.remove || options.merge)) { return; }
-      callback.call(context, { type: 'reorder' });
+      callback.call(context, { kind: 'reorder' });
     };
     const onReset = function() {
       previousModels = collection.models.slice();
-      callback.call(context, { type: 'reset' });
+      callback.call(context, { kind: 'reset' });
     };
     const onUpdate = function(_, { changes }) {
       previousModels = collection.models.slice();
       callback.call(context, {
-        type: 'update',
+        kind: 'update',
         added: changes.added,
         removed: changes.removed,
-        updated: changes.merged
+        updated: changes.merged.map(model => ({ previous: model, current: model }))
       });
     };
     const events = {

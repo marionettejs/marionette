@@ -113,71 +113,45 @@ try {
   viewState = await import(pathToFileURL(examples.viewState));
 
   assert.equal(viewState.label.el.textContent, 'Account', 'the stateless View must render normally');
-  assert.equal(viewState.disclosure.getState().get('open'), false, 'the View must own its initial local State');
-  assert.equal(viewState.disclosure.el.dataset.open, 'false', 'render must reflect initial State');
+  assert.equal(viewState.disclosure.getState().open, false, 'the View must own its initial plain-object state');
+  assert.equal(viewState.disclosure.el.dataset.open, 'false', 'render must reflect initial state');
 
   viewState.disclosure.el.querySelector('.toggle').click();
 
-  assert.equal(viewState.disclosure.getState().get('open'), true, 'the View event must update its State');
-  assert.equal(viewState.disclosure.el.dataset.open, 'true', 'the State event must update the View');
+  assert.equal(viewState.disclosure.getState().open, true, 'the View event must update its exact source');
+  assert.equal(viewState.disclosure.el.dataset.open, 'true', 'explicit render must reflect plain-object state');
 
   applicationState = await import(pathToFileURL(examples.applicationState));
-  const { State } = await import('marionette');
 
   assert.equal(applicationState.session.isRunning(), true, 'the Session Application must finish restarted');
-  assert.ok(applicationState.sessionState instanceof State, 'State must be exported from the packed root entrypoint');
-  assert.equal(applicationState.session.getState(), applicationState.sessionState, 'Application State must persist across stop and restart');
-  assert.equal(applicationState.sessionState.get('phase'), 'resumed', 'the restarted Application must commit current readiness State');
-  assert.deepEqual(applicationState.phases, ['ready', 'stopped', 'resumed'], 'State events must observe each lifecycle-owned phase');
-  assert.equal(applicationState.pendingStartResult, false, 'stop must supersede the pending start');
-  assert.equal(applicationState.replacementStopResult, true, 'the replacement stop must complete');
-  assert.equal(applicationState.cancelledState.get('phase'), 'stopped', 'stale startup must not overwrite State after cancellation');
+  assert.equal(applicationState.session.getState(), applicationState.sessionState, 'Application state must persist across stop and restart');
+  assert.equal(applicationState.sessionState.phase, 'ready', 'restart must commit current plain-object state');
+  assert.equal(applicationState.started, true, 'initial start must complete');
+  assert.equal(applicationState.stopped, true, 'stop must complete');
+  assert.equal(applicationState.restarted, true, 'restart must complete');
 
-  const destroyedBehaviorStates = new Set();
-  const destroyState = State.prototype.destroy;
-  State.prototype.destroy = function() {
-    destroyedBehaviorStates.add(this);
-    return destroyState.call(this);
-  };
+  behaviorState = await import(pathToFileURL(examples.behaviorState));
 
-  try {
-    behaviorState = await import(pathToFileURL(examples.behaviorState));
+  assert.equal(behaviorState.settings.el.dataset.disclosureOpen, 'false', 'the host must reflect private Behavior state initially');
+  assert.equal(behaviorState.settings.el.dataset.selected, 'false', 'the host must reflect View state initially');
 
-    assert.equal(behaviorState.settings.el.dataset.disclosureOpen, 'false', 'the host must reflect private Behavior State initially');
-    assert.equal(behaviorState.settings.el.dataset.selected, 'false', 'the host must reflect shared View State initially');
+  behaviorState.settings.el.querySelector('.disclosure').click();
+  behaviorState.settings.el.querySelector('.selection').click();
 
-    behaviorState.settings.el.querySelector('.disclosure').click();
-    behaviorState.settings.el.querySelector('.selection').click();
-
-    assert.equal(behaviorState.settings.el.dataset.disclosureOpen, 'true', 'private Behavior State must update its host through the Behavior');
-    assert.equal(behaviorState.settings.getState().get('selected'), true, 'shared State must belong to the host View');
-    assert.equal(behaviorState.settings.el.dataset.selected, 'true', 'shared View State must notify the host');
-
-    const settingsState = behaviorState.settings.getState();
-    behaviorState.settings.destroy();
-
-    assert.equal(settingsState.isDestroyed(), true, 'host destroy must destroy shared View State');
-    assert.equal(destroyedBehaviorStates.size, 2, 'host destroy must destroy shared View and private Behavior State');
-  } finally {
-    State.prototype.destroy = destroyState;
-  }
+  assert.equal(behaviorState.disclosure.getState().open, true, 'private Behavior state must persist across host render');
+  assert.equal(behaviorState.settings.el.dataset.disclosureOpen, 'true', 'host render must reflect private Behavior state');
+  assert.equal(behaviorState.settings.getState().selected, true, 'View state must remain exact');
+  assert.equal(behaviorState.settings.el.dataset.selected, 'true', 'host render must reflect View state');
 } finally {
   if (applicationState?.session && !applicationState.session.isDestroyed()) {
     await applicationState.session.destroy();
-    assert.equal(applicationState.sessionState.isDestroyed(), true, 'Application destroy must destroy owned State');
-  }
-  if (applicationState?.cancelledSession && !applicationState.cancelledSession.isDestroyed()) {
-    await applicationState.cancelledSession.destroy();
-    assert.equal(applicationState.cancelledState.isDestroyed(), true, 'cancelled Application teardown must destroy owned State');
   }
   behaviorState?.settings?.destroy();
   if (viewState?.label && !viewState.label.isDestroyed()) {
     viewState.label.destroy();
   }
   if (viewState?.disclosure && !viewState.disclosure.isDestroyed()) {
-    const disclosureState = viewState.disclosure.getState();
     viewState.disclosure.destroy();
-    assert.equal(disclosureState.isDestroyed(), true, 'View destroy must destroy owned State');
   }
   if (applicationView?.dashboard && !applicationView.dashboard.isDestroyed()) {
     const dashboardView = applicationView.dashboardView;

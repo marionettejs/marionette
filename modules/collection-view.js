@@ -17,8 +17,129 @@ import { setDomApi } from '../runtime/dom-api.js';
 import { setEventDelegator } from '../runtime/event-delegator.js';
 import { setRenderer } from '../runtime/renderer.js';
 import { setDataApi } from '../runtime/data-api.js';
+import { setStateApi } from '../runtime/state-api.js';
+import { normalizeDisposer } from '../utils/subscribe-bindings.js';
 
 const classErrorName = 'CollectionViewError';
+
+function throwCollectionProtocolError(message) {
+  throw new MarionetteError({
+    code: 'MN0039',
+    name: classErrorName,
+    message,
+    url: 'data.api.html#collection-observations'
+  });
+}
+
+function buildCollectionSnapshot(Data, collection, previous = []) {
+  const items = Data.items(collection);
+  if (!Array.isArray(items)) {
+    throwCollectionProtocolError('DataApi.items() must return an ordered array snapshot.');
+  }
+
+  const previousKeys = new Map(previous.map(entry => [entry.item, entry.key]));
+  const keys = new Map();
+  const itemEntries = new Map();
+  const snapshot = Array(items.length);
+
+  for (let index = 0; index < items.length; index++) {
+    const item = items[index];
+    const key = Data.key(item);
+
+    if (key == null) {
+      throwCollectionProtocolError(`DataApi.key() returned a missing key for item at index ${ index }.`);
+    }
+    if (keys.has(key)) {
+      throwCollectionProtocolError(`DataApi.key() returned duplicate key "${ String(key) }".`);
+    }
+    if (previousKeys.has(item) && !Object.is(previousKeys.get(item), key)) {
+      throwCollectionProtocolError('DataApi.key() changed while an item remained in the CollectionView.');
+    }
+
+    const entry = { item, key };
+    snapshot[index] = entry;
+    keys.set(key, entry);
+    itemEntries.set(item, entry);
+  }
+
+  return { entries: snapshot, items: itemEntries, keys };
+}
+
+function sameItems(actual, expected) {
+  if (actual.length !== expected.length) { return false; }
+  const remaining = new Set(expected);
+
+  for (const item of actual) {
+    if (!remaining.delete(item)) { return false; }
+  }
+
+  return remaining.size === 0;
+}
+
+function normalizeCollectionChange(change, previous, current) {
+  if (!change || typeof change !== 'object') {
+    throwCollectionProtocolError('DataApi.observeCollection() must notify with a structural change record.');
+  }
+  if (change.kind === 'reset') { return { kind: 'reset' }; }
+  if (change.kind !== 'reorder' && change.kind !== 'update') {
+    throwCollectionProtocolError(`Unknown collection change kind "${ String(change.kind) }".`);
+  }
+
+  const added = current.entries.filter(entry => !previous.keys.has(entry.key));
+  const removed = previous.entries.filter(entry => !current.keys.has(entry.key));
+  const replacements = current.entries
+    .filter(entry => previous.keys.has(entry.key) && previous.keys.get(entry.key).item !== entry.item)
+    .map(entry => ({
+      key: entry.key,
+      previous: previous.keys.get(entry.key).item,
+      current: entry.item
+    }));
+
+  if (change.kind === 'reorder') {
+    if (added.length || removed.length || replacements.length) {
+      throwCollectionProtocolError('A reorder record cannot add, remove, or replace items.');
+    }
+    return { kind: 'reorder' };
+  }
+
+  if (!Array.isArray(change.added) || !Array.isArray(change.removed) ||
+      !Array.isArray(change.updated)) {
+    throwCollectionProtocolError('An update record requires added, removed, and updated arrays.');
+  }
+  if (!sameItems(change.added, added.map(entry => entry.item)) ||
+      !sameItems(change.removed, removed.map(entry => entry.item))) {
+    throwCollectionProtocolError('An update record must match the source snapshot additions and removals.');
+  }
+
+  const updated = [];
+  const updatedKeys = new Set();
+  for (const pair of change.updated) {
+    if (!pair || typeof pair !== 'object' ||
+        !Object.hasOwn(pair, 'previous') || !Object.hasOwn(pair, 'current')) {
+      throwCollectionProtocolError('Each updated entry must contain previous and current items.');
+    }
+
+    const previousEntry = previous.items.get(pair.previous);
+    const currentEntry = current.items.get(pair.current);
+    if (!previousEntry || !currentEntry || !Object.is(previousEntry.key, currentEntry.key)) {
+      throwCollectionProtocolError('Each updated entry must preserve one existing stable key.');
+    }
+    if (updatedKeys.has(currentEntry.key)) {
+      throwCollectionProtocolError('An update record cannot update the same key more than once.');
+    }
+
+    updatedKeys.add(currentEntry.key);
+    updated.push({ key: currentEntry.key, previous: pair.previous, current: pair.current });
+  }
+
+  for (const replacement of replacements) {
+    if (!updatedKeys.has(replacement.key)) {
+      throwCollectionProtocolError('A same-key replacement must appear in the updated array.');
+    }
+  }
+
+  return { kind: 'update', added, removed, updated };
+}
 
 function isEmptyViewClass(view) {
   if (typeof view !== 'function' || !view.prototype) { return false; }
@@ -122,7 +243,14 @@ const CollectionView = function(options) {
   }
 };
 
-assignOwn(CollectionView, { extend, setRenderer, setDomApi, setEventDelegator, setDataApi });
+assignOwn(CollectionView, {
+  extend,
+  setRenderer,
+  setDomApi,
+  setEventDelegator,
+  setDataApi,
+  setStateApi
+});
 
 assignOwn(CollectionView.prototype, ViewMixin, {
   cidPrefix: 'mncv',
@@ -160,82 +288,180 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   _initialEvents() {
     if (this._isRendered || this._dataObserverUnsubscribe) { return; }
 
-    this._dataObserverUnsubscribe = this.Data.observeCollection(
-      this.collection,
-      this._onCollectionChange,
-      this
+    this._dataObserverUnsubscribe = normalizeDisposer(
+      this.Data.observeCollection(this.collection, this._onCollectionChange, this),
+      'DataApi.observeCollection'
     );
   },
 
   _onCollectionChange(change) {
-    if (change.type === 'reorder') {
-      this._onCollectionReorder();
-    } else if (change.type === 'reset') {
-      this._onCollectionReset();
-    } else if (change.type === 'update') {
-      this._onCollectionUpdate(change);
+    if (this._isDestroying || this._isDestroyed) { return; }
+
+    const previous = this._collectionSnapshot;
+    const current = buildCollectionSnapshot(this.Data, this.collection, previous.entries);
+    const normalized = normalizeCollectionChange(change, previous, current);
+
+    if (normalized.kind === 'reorder') {
+      this._onCollectionReorder(current);
+    } else if (normalized.kind === 'reset') {
+      this._onCollectionReset(current);
+    } else {
+      this._onCollectionUpdate(normalized, current);
     }
+
+    this._collectionSnapshot = current;
   },
 
   // Internal method. This checks for any changes in the order of the collection.
   // If the index of any view doesn't match, it will re-sort.
-  _onCollectionReorder() {
+  _onCollectionReorder(snapshot) {
     if (this._isDestroying || this._isDestroyed) { return; }
 
     if (!this.sortWithCollection || this.viewComparator === false) {
       return;
     }
 
-    this.sort();
+    this._setChildrenFromSnapshot(snapshot);
+    this._reconcileChildren([]);
   },
 
-  _onCollectionReset() {
+  _onCollectionReset(snapshot) {
     if (this._isDestroying || this._isDestroyed) { return; }
 
     this._destroyChildren();
 
-    this._addChildModels(this.Data.items(this.collection));
+    this._addChildModels(snapshot.entries.map(entry => entry.item));
 
     this.sort();
   },
 
   // Handle collection update model additions and  removals
-  _onCollectionUpdate(changes) {
+  _onCollectionUpdate(changes, snapshot) {
     if (this._isDestroying || this._isDestroyed) { return; }
 
     // Remove first since it'll be a shorter array lookup.
-    const removedViews = changes.removed.length && this._removeChildModels(changes.removed);
+    const removedViews = changes.removed.length && changes.removed.map(({ key }) => {
+      const view = this._children.findByKey(key);
+      if (view) { this._removeChild(view); }
+      return view;
+    }).filter(Boolean);
 
-    this._addedViews = changes.added.length && this._addChildModels(changes.added);
+    const addedViews = changes.added.length &&
+      this._addChildModels(changes.added.map(({ item }) => item));
+
+    const updatedViews = changes.updated.map(({ key, previous, current }) => {
+      const view = this._children.findByKey(key);
+      if (!view) {
+        throwCollectionProtocolError(`No child View exists for updated key "${ String(key) }".`);
+      }
+
+      if (previous !== current) {
+        view.undelegateEntityEvents?.();
+        this._children._replaceModel(view, current, key);
+        if (this.children.hasView(view)) {
+          this.children._replaceModel(view, current, key);
+        }
+        view.delegateEntityEvents?.();
+      }
+
+      return view;
+    });
 
     this._detachChildren(removedViews);
-
-    const isDefaultComparator = this.getComparator === CollectionView.prototype.getComparator;
-    const isDefaultFilterQuery = this.getFilter === CollectionView.prototype.getFilter;
-    const isDefaultSort = this.sort === CollectionView.prototype.sort;
-    const isDefaultFilter = this.filter === CollectionView.prototype.filter;
-
-    const canRemoveWithoutRender = this._isRendered &&
-      changes.removed.length > 0 &&
-      changes.added.length === 0 &&
-      changes.updated.length === 0 &&
-      isDefaultComparator &&
-      isDefaultFilterQuery &&
-      isDefaultSort &&
-      isDefaultFilter &&
-      !this.viewComparator &&
-      !this.viewFilter &&
-      this.children.length === this._children.length &&
-      this._children.length > 0 &&
-      !this._hasUnrenderedViews &&
-      !this._emptyRegion.hasView();
-
-    if (!canRemoveWithoutRender) {
-      this.sort();
+    if (this.sortWithCollection && this.viewComparator !== false) {
+      this._setChildrenFromSnapshot(snapshot);
     }
+    this._reconcileChildren([...(addedViews || []), ...updatedViews]);
 
     // Destroy removed child views after all of the render is complete
     this._removeChildViews(removedViews);
+  },
+
+  _setChildrenFromSnapshot(snapshot) {
+    const sourceViews = snapshot.entries
+      .map(({ key }) => this._children.findByKey(key))
+      .filter(Boolean);
+    const manualViews = this._children._views.filter(view => !sourceViews.includes(view));
+    const views = sourceViews.concat(manualViews);
+    this._children._set(views, true);
+  },
+
+  _reconcileChildren(renderViews) {
+    this._reconcileRenderViews = renderViews;
+    this.sort();
+
+    if (this._reconcileRenderViews) {
+      delete this._reconcileRenderViews;
+      this._renderReconciledChildren(renderViews);
+    }
+  },
+
+  _renderReconciledChildren(renderViews) {
+    if (this._hasUnrenderedViews) {
+      for (const view of this._children) {
+        if (!view._isRendered && !renderViews.includes(view)) { renderViews.push(view); }
+      }
+      delete this._hasUnrenderedViews;
+    }
+    this.triggerMethod('before:render:children', this, renderViews);
+    if (this.isEmpty()) {
+      this._showEmptyView();
+    } else {
+      this._destroyEmptyView();
+
+      const views = this.children._views;
+      const documentEl = this.container.ownerDocument;
+      const activeElement = documentEl.activeElement;
+      const shouldRestoreFocus = activeElement && views.some(view =>
+        view.el === activeElement || view.el.contains(activeElement)
+      );
+      const selection = shouldRestoreFocus &&
+        typeof activeElement.selectionStart === 'number' && {
+        end: activeElement.selectionEnd,
+        start: activeElement.selectionStart,
+        direction: activeElement.selectionDirection
+      };
+
+      for (const view of renderViews) {
+        view._isRendered = false;
+        renderView(view);
+      }
+
+      const attaching = [];
+      const shouldTriggerAttach = this._isAttached && this.monitorViewEvents !== false;
+      for (const view of views) {
+        if (view.el.parentNode === this.container) { continue; }
+        if (shouldTriggerAttach) { view.triggerMethod('before:attach', view); }
+        attaching.push(view);
+      }
+
+      let before = null;
+      for (let index = views.length; index--;) {
+        const view = views[index];
+        if (view.el.parentNode !== this.container || view.el.nextSibling !== before) {
+          this.Dom.moveEl(view.el, this.container, before);
+        }
+        view._isShown = true;
+        before = view.el;
+      }
+
+      for (const view of attaching) {
+        if (shouldTriggerAttach) {
+          view._isAttached = true;
+          view.triggerMethod('attach', view);
+        }
+      }
+
+      if (shouldRestoreFocus && activeElement.isConnected &&
+          documentEl.activeElement !== activeElement) {
+        activeElement.focus({ preventScroll: true });
+        if (selection) {
+          activeElement.setSelectionRange(selection.start, selection.end, selection.direction);
+        }
+      }
+    }
+
+    this.triggerMethod('render:children', this, renderViews);
   },
 
   _removeChildModels(models) {
@@ -407,7 +633,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     this._destroyChildren();
 
     if (this.collection) {
-      this._addChildModels(this.Data.items(this.collection));
+      this._collectionSnapshot = buildCollectionSnapshot(this.Data, this.collection);
+      this._addChildModels(this._collectionSnapshot.entries.map(entry => entry.item));
       this._initialEvents();
     }
 
@@ -640,6 +867,13 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   },
 
   _renderChildren() {
+    if (this._reconcileRenderViews) {
+      const renderViews = this._reconcileRenderViews;
+      delete this._reconcileRenderViews;
+      this._renderReconciledChildren(renderViews);
+      return;
+    }
+
     // If there are unrendered views prevent add to end perf
     if (this._hasUnrenderedViews) {
       delete this._addedViews;

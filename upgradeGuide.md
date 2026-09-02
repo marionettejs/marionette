@@ -19,6 +19,10 @@ current public behavior boundary. Final migration documentation is tracked in
 - Other data sources can configure `setDataApi` with identity, read,
   serialization, ordered-item, subscription, and collection-observation methods.
   See [Data API](docs/data.api.md).
+- State owners return the exact supplied source from `getState()`. Use
+  `createState(options)` for an owned source, and configure `setStateApi` when
+  declarative `stateEvents` need observation. The v5 alpha concrete `State`
+  export is removed. See [State sources and StateApi](docs/marionette.state.md).
 - Replace `children.findByModelCid(cid)` with `children.findByModel(model)`.
 
 ## Underscore is no longer a peer dependency

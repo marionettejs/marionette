@@ -84,9 +84,9 @@ An `Application` can have a single [region](./marionette.application.md#applicat
 - [Class Events](./events.class.md#mnobject-events)
 - [Radio API](./radio.md#marionette-integration).
 
-### [Marionette.State](marionette.state.md)
+### [State sources and StateApi](marionette.state.md)
 
-`State` stores small local mutable values and emits synchronous change events.
+Eligible owners compose exact state sources and observe them through StateApi.
 It is independent from Backbone models and collections.
 
 ## Routing in Marionette

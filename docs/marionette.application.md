@@ -335,17 +335,18 @@ await dashboard.start();
 export const dashboardView = dashboard.getView();
 ```
 
-## Application State
+## Application state
 
-An Application may compose one lazy, owned [State](./marionette.state.md) for
-local orchestration values. Declare `state`, supply a live unowned State, or
-call `getState()` to activate it. `stateEvents` bindings are established after
-`initialize`, matching other State owners.
+An Application may compose one [state source](./marionette.state.md). A supplied
+`state` is borrowed; a `createState(options)` result is owned. `getState()`
+returns the exact source, and `stateEvents` are installed through the selected
+StateApi after `initialize`.
 
-Application State persists across stop and restart and is destroyed with the
-Application. Stateless Applications allocate no State or State subscription.
-Asynchronous startup work must use the readiness context's abort signal before
-committing values so an invalidated start cannot apply stale State changes.
+Application state persists across stop and restart. Destruction releases its
+subscriptions, then disposes an owned factory result through StateApi.
+Stateless Applications allocate no source or subscription. Asynchronous startup
+work must use the readiness context's abort signal before committing values so
+invalidated startup cannot apply stale changes.
 
 ## Application Region
 

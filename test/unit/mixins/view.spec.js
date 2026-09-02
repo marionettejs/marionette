@@ -2,7 +2,6 @@ import Backbone from 'backbone';
 import Behavior from '../../../modules/behavior';
 import CollectionView from '../../../modules/collection-view';
 import Region from '../../../modules/region';
-import State from '../../../modules/state';
 import View from '../../../modules/view';
 
 describe('view mixin', function() {
@@ -359,7 +358,8 @@ describe('view mixin', function() {
     for (const failure of ['detachEl', 'detach', 'removeChildren']) {
       it(`attempts remaining owned cleanup after ${ failure } throws`, function() {
         const error = new Error(`${ failure } failed`);
-        const state = new State();
+        const state = {};
+        const disposeOwned = this.sinon.spy();
         const onDestroy = this.sinon.spy();
         const baseDom = View.prototype.Dom;
         const TestView = View.extend({
@@ -375,7 +375,10 @@ describe('view mixin', function() {
           },
           onDestroy
         });
-        const view = new TestView({ state });
+        TestView.prototype.createState = () => state;
+        TestView.setStateApi({ disposeOwned });
+        const view = new TestView();
+        view.getState();
         const stopListening = this.sinon.spy(view, 'stopListening');
         view._isAttached = true;
 
@@ -385,8 +388,7 @@ describe('view mixin', function() {
 
         expect(() => view.destroy()).to.throw(error);
         expect(view.isDestroyed()).to.be.true;
-        expect(state.isDestroyed()).to.be.true;
-        expect(state._owner).to.be.undefined;
+        expect(disposeOwned).to.have.been.calledOnceWith(state);
         expect(onDestroy).to.have.been.calledOnce;
         expect(stopListening).to.have.been.called;
       });

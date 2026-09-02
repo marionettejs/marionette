@@ -5,9 +5,10 @@ require Backbone-shaped `cid`, `attributes`, `get`, `models`, or collection
 event payloads.
 
 The default adapter treats models as plain objects and collections as ordered
-arrays. It supports Marionette-compatible `on` and `off` methods for
-`modelEvents` and `collectionEvents`, but it does not observe array mutations.
-Call `render()` after changing a plain array.
+arrays. Plain arrays are static snapshots: mutating one does not notify
+Marionette. Call `render()` after changing a plain array. Declaring
+`modelEvents` or `collectionEvents` for an unobservable plain value throws
+`MN0037` instead of manufacturing an event system.
 
 ```javascript
 import { CollectionView, View } from 'marionette';
@@ -49,32 +50,44 @@ Marionette does not mutate that array.
 `subscribe()` preserves the source event's arguments. Marionette invokes every
 returned disposer during explicit undelegation or owner destruction. If one
 subscription fails while a declarative event map is being installed, Marionette
-disposes the subscriptions already installed for that map.
+disposes the subscriptions already installed for that map. A non-function
+disposer throws `MN0038`; core wraps valid disposers so cleanup is idempotent.
 
 ## Collection observations
 
 `observeCollection()` reports one of three normalized records:
 
 ```javascript
-{ type: 'reorder' }
-{ type: 'reset' }
+{ kind: 'reorder' }
+{ kind: 'reset' }
 {
-  type: 'update',
+  kind: 'update',
   added: [],
   removed: [],
-  updated: []
+  updated: [
+    { previous: previousItem, current: currentItem }
+  ]
 }
 ```
 
 `reorder` means item order changed without membership changing. `reset` means
 Marionette must rebuild every child. `update` supplies exact added and removed
-item instances; `updated` contains existing items whose values may affect
-sorting or filtering.
+item instances. Each `updated` entry contains the previous and current item for
+one stable key. For an in-place update, `previous === current`. For an immutable
+same-key replacement, they are different objects. This distinction lets core
+preserve the child View while replacing its `model`, rebinding `modelEvents`,
+and rendering the child against the new object.
 
-When an immutable source replaces an object, report the previous object in
-`removed` and the replacement in `added`, even when both have the same logical
-key. The child View must receive the replacement object rather than retain the
-old reference.
+An immutable same-key replacement belongs only in `updated`, not in `removed`
+and `added`. An identity change is a removal plus an addition. The post-mutation
+`items()` snapshot is authoritative and must agree with the record. Missing,
+duplicate, or unstable keys and malformed records throw `MN0039`.
+
+All three record types enter one CollectionView reconciliation path. Additions
+create only their child Views; removals destroy only theirs; reorder moves
+survivor elements without rerendering them; and reset is the explicitly
+destructive whole-list operation. Presentation comparators may sort the child
+Views independently of the source's canonical order.
 
 ## Configuring an adapter
 
@@ -94,6 +107,10 @@ must use compatible adapters.
 Behaviors use their owning View's adapter. The original model or collection is
 always passed to Views, Behaviors, callbacks, and templates; DataApi does not
 wrap application data.
+
+DataApi and [StateApi](./marionette.state.md#stateapi) are selected
+independently. One adapter object may implement both contracts, but configuring
+one role never selects the other.
 
 Applications using Backbone should import the bundled integration instead of
 configuring these methods individually. See [Optional Backbone](./optional-backbone.md).

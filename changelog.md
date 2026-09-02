@@ -10,12 +10,12 @@
   Backbone-specific data and event shapes now remain inside the explicit
   `marionette/backbone` integration
 * Removed `children.findByModelCid`; `findByModel` uses the configured DataApi key
-* Added a small synchronous `State` class for local mutable values with atomic
-  writes, explicit change payloads, reset and destroy semantics, and no
-  Backbone dependency
-* Added lazy owned State composition to `Application`, `MnObject`, `View`,
-  `CollectionView`, and `Behavior` through `getState`, `state`, and
-  `stateEvents`; State mutation remains on the first-class State object
+* Replaced the alpha concrete `State` with exact state-source composition and an
+  independent StateApi observation contract; supplied sources are borrowed,
+  `createState(options)` results are owned, and the lazy default is a plain object
+* Changed CollectionView structural updates to distinguish in-place updates from
+  immutable same-key replacements, rebind child model events, and move survivor
+  nodes without recreating or rerendering their Views
 * Added optional `marionette/jquery-dom-api` adapter for jQuery-backed DomApi
   operations and opt-in View, CollectionView, and Behavior `$el` compatibility
 * Changed jQuery-wrapped View and CollectionView `el` inputs to fail with the
@@ -40,7 +40,7 @@
 * Fixed CollectionView empty Region construction to occur after `initialize`
 * Removed the module-global feature registry and the `setEnabled` and `isEnabled`
   exports; configure child event prefixes per View, trigger DOM behavior per
-  trigger, and application-owned values through State or explicit configuration
+  trigger, and application-owned values through a state source or explicit configuration
 * Preserved `emptyView` resolver returns of `undefined`, `null`, or `false` as
   disabled empty-view states
 * Changed the base `Region#show`, `Region#empty`, and `Region#reset`

@@ -40,13 +40,13 @@ var BackboneDataApi = {
         return;
       }
       callback.call(context, {
-        type: 'reorder'
+        kind: 'reorder'
       });
     };
     const onReset = function () {
       previousModels = collection.models.slice();
       callback.call(context, {
-        type: 'reset'
+        kind: 'reset'
       });
     };
     const onUpdate = function (_, {
@@ -54,10 +54,13 @@ var BackboneDataApi = {
     }) {
       previousModels = collection.models.slice();
       callback.call(context, {
-        type: 'update',
+        kind: 'update',
         added: changes.added,
         removed: changes.removed,
-        updated: changes.merged
+        updated: changes.merged.map(model => ({
+          previous: model,
+          current: model
+        }))
       });
     };
     const events = {

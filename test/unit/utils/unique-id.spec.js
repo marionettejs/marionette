@@ -4,7 +4,6 @@ import Behavior from '../../../modules/behavior';
 import CollectionView from '../../../modules/collection-view';
 import MnObject from '../../../modules/object';
 import Region from '../../../modules/region';
-import State from '../../../modules/state';
 import View from '../../../modules/view';
 import uniqueId from '../../../utils/unique-id';
 
@@ -44,25 +43,22 @@ describe('uniqueId', function() {
     const SharedCollectionView = CollectionView.extend({ cidPrefix });
     const SharedRegion = Region.extend({ cidPrefix });
     const SharedBehavior = Behavior.extend({ cidPrefix });
-    const SharedState = State.extend({ cidPrefix });
     const hostView = new SharedView();
     const object = new SharedObject();
     const application = new SharedApplication();
     const collectionView = new SharedCollectionView();
     const region = new SharedRegion({ el: document.createElement('div') });
     const behavior = new SharedBehavior({}, hostView);
-    const state = new SharedState();
     const ids = [
       hostView.cid,
       object.cid,
       application.cid,
       collectionView.cid,
       region.cid,
-      behavior.cid,
-      state.cid
+      behavior.cid
     ];
 
-    expect(ids).to.have.length(7);
+    expect(ids).to.have.length(6);
     expect(new Set(ids)).to.have.property('size', ids.length);
     ids.forEach(id => expect(id).to.match(/^shared\d+$/));
   });

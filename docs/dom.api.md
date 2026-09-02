@@ -80,6 +80,16 @@ element twice or an unattached `oldEl` is a no-op.
 Swaps the positions of two attached elements. Passing the same element twice
 or an element without a parent is a no-op.
 
+### `moveEl(el, parent, before)`
+
+Moves `el` within `parent` before the optional reference node. The native
+adapter uses `moveBefore` for already-attached children when available so
+CollectionView reorder preserves focus, selection, media, and custom-element
+connection state. It falls back to `insertBefore` for initial attachment and
+older DOM implementations; CollectionView restores focused text selection after
+that fallback, while older platforms may still run custom-element connection
+callbacks for the move.
+
 ### `setContents(el, html)`
 
 Replaces the contents of `el` by assigning `html` to `el.innerHTML`.

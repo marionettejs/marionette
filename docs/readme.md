@@ -5,6 +5,7 @@ Use these repository guides for the v5 pre-release:
 - [Installation and package entrypoints](installation.md)
 - [Optional Backbone integration](optional-backbone.md)
 - [Data API](data.api.md)
+- [State sources and StateApi](marionette.state.md)
 - [Pre-rendered DOM](dom.prerendered.md)
 - [Phase 0 performance baselines](performance-baselines.md)
 - [v4-to-v5 compatibility ledger](migration-from-v4.md)

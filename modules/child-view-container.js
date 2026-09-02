@@ -296,6 +296,7 @@ Object.assign(Container.prototype, {
     this._views = [];
     this._viewsByCid = createIndex();
     this._indexByModel = new Map();
+    this._keyByView = new Map();
     this._updateLength();
   },
 
@@ -318,7 +319,9 @@ Object.assign(Container.prototype, {
 
     // index it by model
     if (view.model) {
-      this._indexByModel.set(this.Data.key(view.model), view);
+      const key = this.Data.key(view.model);
+      this._indexByModel.set(key, view);
+      this._keyByView.set(view, key);
     }
   },
 
@@ -354,6 +357,7 @@ Object.assign(Container.prototype, {
     if (shouldReset) {
       this._viewsByCid = createIndex();
       this._indexByModel = new Map();
+      this._keyByView = new Map();
 
       for (const view of views) {
         this._addViewIndexes(view);
@@ -380,6 +384,21 @@ Object.assign(Container.prototype, {
   // Find a view by the model that was attached to it.
   findByModel(model) {
     return this._indexByModel.get(this.Data.key(model));
+  },
+
+  findByKey(key) {
+    return this._indexByModel.get(key);
+  },
+
+  _replaceModel(view, model, key) {
+    const previousKey = this._keyByView.get(view);
+    if (this._indexByModel.get(previousKey) === view) {
+      this._indexByModel.delete(previousKey);
+    }
+
+    view.model = model;
+    this._indexByModel.set(key, view);
+    this._keyByView.set(view, key);
   },
 
   // Find a view by index.
@@ -409,10 +428,11 @@ Object.assign(Container.prototype, {
 
     // delete model index
     if (view.model) {
-      const modelKey = this.Data.key(view.model);
+      const modelKey = this._keyByView.get(view);
       if (this._indexByModel.get(modelKey) === view) {
         this._indexByModel.delete(modelKey);
       }
+      this._keyByView.delete(view);
     }
 
     // remove the view from the container

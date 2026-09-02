@@ -57,15 +57,15 @@ describe('BackboneDataApi', function() {
     });
 
     expect(callback).to.have.callCount(5);
-    expect(callback.firstCall).to.have.been.calledWithExactly({ type: 'reorder' });
-    expect(callback.secondCall).to.have.been.calledWithExactly({ type: 'reorder' });
-    expect(callback.thirdCall).to.have.been.calledWithExactly({ type: 'reorder' });
-    expect(callback.getCall(3)).to.have.been.calledWithExactly({ type: 'reset' });
+    expect(callback.firstCall).to.have.been.calledWithExactly({ kind: 'reorder' });
+    expect(callback.secondCall).to.have.been.calledWithExactly({ kind: 'reorder' });
+    expect(callback.thirdCall).to.have.been.calledWithExactly({ kind: 'reorder' });
+    expect(callback.getCall(3)).to.have.been.calledWithExactly({ kind: 'reset' });
     expect(callback.lastCall).to.have.been.calledWithExactly({
-      type: 'update',
+      kind: 'update',
       added: [added],
       removed: [removed],
-      updated: [updated]
+      updated: [{ previous: updated, current: updated }]
     });
 
     unsubscribe();
@@ -82,7 +82,7 @@ describe('BackboneDataApi', function() {
 
     collection.set([second, first]);
 
-    expect(callback).to.have.been.calledOnce.and.calledWithExactly({ type: 'reorder' });
+    expect(callback).to.have.been.calledOnce.and.calledWithExactly({ kind: 'reorder' });
     unsubscribe();
   });
 
