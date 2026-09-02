@@ -371,6 +371,49 @@
       ],
       "rationale": "Authorize the exact measured distribution cost of explicit MnObject and Application owned cleanup tracked by #375. The prototype removes Radio and State cleanup from removable public destroy listeners, rolls back every established owned resource after construction failure, preserves the original error, and keeps public lifecycle timing. It grows only the four established main artifacts and adds no graph edge, external import, package subpath, allocation or retention proxy, or speculative headroom.",
       "rollbackCondition": "If the explicit owned-cleanup prototype is abandoned before consumption, append a governance-only BA0009 revocation. Never edit or delete this authorization. If the final implementation exceeds 79779 bytes or changes the authorized positive-delta artifact scope, require a new exact-base budget amendment."
+    },
+    {
+      "kind": "authorization",
+      "id": "BA0010",
+      "target": "aggregate-shipped-package",
+      "previousCeilingBytes": 79779,
+      "proposedCeilingBytes": 100000,
+      "prototypeBaseCommit": "e89cb4acdaf16e8b7d962b2a14d6df95916c8520",
+      "prototypeCommit": "d091d7a2521b22a0fda109ede8c2d555d9f57a2b",
+      "implementationIssueUrl": "https://github.com/marionettejs/marionette/issues/191",
+      "authorizedArtifactPaths": [
+        "dist/backbone.cjs",
+        "dist/backbone.js",
+        "dist/marionette.cjs",
+        "dist/marionette.js",
+        "dist/marionette.min.js",
+        "dist/marionette.umd.js"
+      ],
+      "authorizedNewSubpaths": [],
+      "reports": [
+        {
+          "path": "evidence/performance-budget-amendments/BA0010/base.json",
+          "role": "base",
+          "sha256": "7592a2f6fbfecb756cae567355c2452400cac7fd9b9b55eb0896592c19923f85"
+        },
+        {
+          "path": "evidence/performance-budget-amendments/BA0010/prototype.json",
+          "role": "prototype",
+          "sha256": "d597426d0468267ff21ea8fde50b90e557dc50864610d8cfa1ca95621bbf8c54"
+        }
+      ],
+      "prototypeContract": {
+        "path": "evidence/performance-budget-amendments/BA0010/prototype-contract.json",
+        "sha256": "bf8ccea3760724d3d426b57b0a6778e34715479571fd973d581515e52bc38c22"
+      },
+      "approvalUrls": [
+        "https://github.com/marionettejs/marionette/pull/382#issuecomment-5514320166"
+      ],
+      "evidenceUrls": [
+        "https://github.com/marionettejs/marionette/issues/127#issuecomment-5514307943"
+      ],
+      "rationale": "Authorize a deliberate 100000-byte aggregate development envelope for the remaining v5 core runtime work. The StateApi and DataApi prototype proves the current ceiling is exhausted while adding about 1.4 kB to an individual root artifact; the aggregate reports 5351 bytes because it sums parallel delivery formats. The larger envelope restores this metric as a coarse runaway-growth backstop after nine authorization rounds, without approving new subpaths, external imports, eager allocations, retained resources, or bypassing exact-base artifact and consumer reporting.",
+      "rollbackCondition": "If the StateApi and DataApi architecture is abandoned before consumption, append a governance-only BA0010 revocation. Never edit or delete this authorization. Before beta promotion, review the envelope against the completed core and canonical consumer scenarios. If a final runtime implementation exceeds 100000 bytes or changes the authorized positive-delta artifact scope, require a new exact-base budget amendment."
     }
   ]
 }
