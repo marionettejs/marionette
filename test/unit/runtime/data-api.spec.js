@@ -38,6 +38,7 @@ describe('DataApi', function() {
     expect(DataApi.get(items[0], 'name')).to.equal('one');
     expect(DataApi.has(present, 'value')).to.be.true;
     expect(DataApi.has({}, 'value')).to.be.false;
+    expect(DataApi.has({}, 'constructor')).to.be.false;
     expect(DataApi.serialize(items[0])).to.equal(items[0]);
     expect(DataApi.items(items)).to.equal(items);
   });

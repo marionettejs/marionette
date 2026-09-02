@@ -306,15 +306,16 @@ const myView = new MyView({ model: { name: 'world' } });
 How the `model` is serialized can also be customized per view.
 
 ```javascript
+import 'marionette/backbone';
 import _ from 'underscore';
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   serializeModel() {
     const data = _.clone(this.Data.serialize(this.model));
 
-    // serialize nested model data
-    data.subModel = { ...data.subModel };
+    // serialize a nested Backbone model through the configured adapter
+    data.subModel = this.Data.serialize(data.subModel);
 
     return data;
   }
@@ -353,16 +354,17 @@ const myView = new MyView({ collection });
 How the `collection` is serialized can also be customized per view.
 
 ```javascript
+import 'marionette/backbone';
 import _ from 'underscore';
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   serializeCollection() {
     return _.map(this.Data.items(this.collection), model => {
       const data = _.clone(this.Data.serialize(model));
 
-      // serialize nested model data
-      data.subModel = { ...data.subModel };
+      // serialize a nested Backbone model through the configured adapter
+      data.subModel = this.Data.serialize(data.subModel);
 
       return data;
     });

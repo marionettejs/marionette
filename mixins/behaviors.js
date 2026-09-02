@@ -126,12 +126,15 @@ export default {
 
   // undelegate modelEvents and collectionEvents
   _undelegateBehaviorEntityEvents() {
+    const behaviors = this._behaviors;
+    if (behaviors == null) { return; }
+
     let error;
     let hasError = false;
 
-    for (let index = 0, length = this._behaviors.length; index < length; index++) {
+    for (let index = 0, length = behaviors.length; index < length; index++) {
       try {
-        this._behaviors[index].undelegateEntityEvents();
+        behaviors[index].undelegateEntityEvents();
       } catch (undelegateError) {
         if (!hasError) {
           error = undelegateError;
@@ -149,6 +152,8 @@ export default {
     // This unbinds event listeners
     // that behaviors have registered for.
     const behaviors = this._behaviors;
+    if (behaviors == null) { return; }
+
     let error;
     let hasError = false;
     for (let index = 0, length = behaviors.length; index < length; index++) {

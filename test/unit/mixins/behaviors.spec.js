@@ -294,6 +294,24 @@ describe('Behaviors Mixin', function() {
       expect(FooBehavior.prototype.undelegateEntityEvents).to.have.been.calledOnce;
       expect(BarBehavior.prototype.undelegateEntityEvents).to.have.been.calledOnce;
     });
+
+    it('should finish the original Behavior snapshot when one removes itself', function() {
+      const fooBehavior = behaviorsInstance._behaviors[0];
+      FooBehavior.prototype.undelegateEntityEvents.callsFake(() => {
+        behaviorsInstance._removeBehavior(fooBehavior);
+      });
+
+      behaviorsInstance._undelegateBehaviorEntityEvents();
+
+      expect(FooBehavior.prototype.undelegateEntityEvents).to.have.been.calledOnce;
+      expect(BarBehavior.prototype.undelegateEntityEvents).to.have.been.calledOnce;
+    });
+
+    it('should allow rollback before Behaviors are initialized', function() {
+      delete behaviorsInstance._behaviors;
+
+      expect(() => behaviorsInstance._undelegateBehaviorEntityEvents()).to.not.throw();
+    });
   });
 
   describe('#_destroyBehaviors', function() {
@@ -337,6 +355,12 @@ describe('Behaviors Mixin', function() {
       expect(() => behaviorsInstance._destroyBehaviors()).to.throw(error);
       expect(FooBehavior.prototype.destroy).to.have.been.calledOnce;
       expect(BarBehavior.prototype.destroy).to.have.been.calledOnce;
+    });
+
+    it('should allow teardown before Behaviors are initialized', function() {
+      delete behaviorsInstance._behaviors;
+
+      expect(() => behaviorsInstance._destroyBehaviors()).to.not.throw();
     });
   });
 

@@ -105,6 +105,19 @@ describe('backbone.marionette', function() {
       foo: 'bar'
     };
 
+    let collectionViewData;
+    let viewData;
+
+    beforeEach(function() {
+      collectionViewData = CollectionView.prototype.Data;
+      viewData = View.prototype.Data;
+    });
+
+    afterEach(function() {
+      CollectionView.prototype.Data = collectionViewData;
+      View.prototype.Data = viewData;
+    });
+
     _.each(DataClasses, function(Class, key) {
       it(`should setDataApi on ${ key }`, function() {
         this.sinon.spy(Class, 'setDataApi');

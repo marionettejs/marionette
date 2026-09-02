@@ -20,7 +20,7 @@ export default {
   },
 
   has(model, attribute) {
-    return attribute in Object(model);
+    return Object.hasOwn(Object(model), attribute);
   },
 
   serialize(model) {

@@ -21,7 +21,7 @@ export default {
   },
 
   has(model, attribute) {
-    return attribute in Object(model.attributes);
+    return Object.hasOwn(Object(model.attributes), attribute);
   },
 
   serialize(model) {

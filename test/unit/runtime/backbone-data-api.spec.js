@@ -10,6 +10,7 @@ describe('BackboneDataApi', function() {
     expect(BackboneDataApi.get(model, 'title')).to.equal('one');
     expect(BackboneDataApi.has(model, 'present')).to.be.true;
     expect(BackboneDataApi.has(model, 'missing')).to.be.false;
+    expect(BackboneDataApi.has(model, 'constructor')).to.be.false;
     expect(BackboneDataApi.serialize(model)).to.equal(model.attributes);
     expect(BackboneDataApi.items(collection)).to.equal(collection.models);
   });

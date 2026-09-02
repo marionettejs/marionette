@@ -1397,11 +1397,15 @@ var BehaviorsMixin = {
     eachBehavior(this._behaviors, behavior => behavior.delegateEntityEvents());
   },
   _undelegateBehaviorEntityEvents() {
+    const behaviors = this._behaviors;
+    if (behaviors == null) {
+      return;
+    }
     let error;
     let hasError = false;
-    for (let index = 0, length = this._behaviors.length; index < length; index++) {
+    for (let index = 0, length = behaviors.length; index < length; index++) {
       try {
-        this._behaviors[index].undelegateEntityEvents();
+        behaviors[index].undelegateEntityEvents();
       } catch (undelegateError) {
         if (!hasError) {
           error = undelegateError;
@@ -1415,6 +1419,9 @@ var BehaviorsMixin = {
   },
   _destroyBehaviors(options) {
     const behaviors = this._behaviors;
+    if (behaviors == null) {
+      return;
+    }
     let error;
     let hasError = false;
     for (let index = 0, length = behaviors.length; index < length; index++) {
@@ -1905,7 +1912,7 @@ var DataApi = {
     return model[attribute];
   },
   has(model, attribute) {
-    return attribute in Object(model);
+    return Object.hasOwn(Object(model), attribute);
   },
   serialize(model) {
     return model;

@@ -478,12 +478,12 @@ Lint rules, codemods, documentation generators, and benchmark tooling belong out
 the runtime graph. They should consume the same documented rule catalog and public
 metadata rather than encode a second model of Marionette.
 
-Declarative definition helpers, adapter implementations beyond the required stable
-model and collection data protocol, new CollectionView strategies, and renderer
+Declarative definition helpers, adapter implementations beyond the selected neutral
+DataApi and bundled Backbone adapter, new CollectionView strategies, and renderer
 integrations remain evidence-dependent. They may be explored after the foundation is
-measurable, but do not block stable v5 without benchmark evidence. The current
-Backbone-shaped interface protocol is selected for 5.0; generalizing that seam is the
-evidence-dependent 5.x candidate in [#104][issue-104].
+measurable, but do not block stable v5 without benchmark evidence. The neutral DataApi
+boundary is selected for 5.0; additional adapters remain evidence-dependent 5.x
+candidates.
 
 ## Runtime cost contract
 
@@ -613,10 +613,9 @@ instructions, and every release blocker maps to this strategy.
 - Before the next v5 alpha, resolve the [detached-element attachment gap][issue-327]
   and [CollectionView removal-only update gap][issue-328]. Detailed acceptance
   criteria and browser cases remain in those issues.
-- Freeze and document the current Backbone-shaped model and collection protocol for
-  5.0, including its exact identity, serialization, event-payload, and optional package
-  contracts. Keep [#104][issue-104] in the evidence-dependent 5.x phase unless the
-  public benchmark first satisfies that issue's implementation requirements.
+- Freeze and document the neutral DataApi model and collection protocol for 5.0,
+  including its exact identity, serialization, event-payload, and optional Backbone
+  package contracts. Keep Backbone-specific data shapes out of core.
 - Remove the module-global feature registry as selected through the v3/v4
   compatibility audit. Preserve the canonical default behavior through existing
   local View and trigger options, migrate application-owned values to State or
@@ -768,7 +767,7 @@ are documented and closed rather than retained as dormant APIs.
   remove decision, an executable migration when behavior changes, paired agent tasks
   that distinguish the selected form from the rejected alternative, truthful source
   ownership, and no unverified duplicate root utility or internal forwarding path.
-- The retained model and collection data protocol passes compatibility, source,
+- The selected neutral DataApi protocol passes compatibility, source,
   distribution, packed-package, and real-browser tests.
 - Large-list operation-count scenarios pass source, distribution, packed-package, and
   real-browser tests.

@@ -38,7 +38,7 @@ const productionFiles = [
 ];
 const underscoreImport = /(?:\bfrom\s+|\bimport\s*(?:\(\s*)?|\brequire\s*\(\s*)['"]underscore(?:\/[^'"]*)?['"]/;
 const backboneImport = /(?:\bfrom\s+|\bimport\s*(?:\(\s*)?|\brequire\s*\(\s*)['"]backbone(?:\/[^'"]*)?['"]/;
-const backboneDataAccess = /\bmodel\.(?:attributes|cid|get)\b|\bcollection\.(?:indexOf|models)\b|\boptions\.changes\b/;
+const knownBackboneDataAccess = /\bmodel\.(?:attributes|cid|get)\b|\bcollection\.(?:indexOf|models)\b|\boptions\.changes\b/;
 
 for (const source of [
   'import \'underscore\';',
@@ -51,6 +51,33 @@ for (const source of [
 
 for (const source of ['const packageName = \'underscore\';', 'import \'./underscore.js\';']) {
   assert.doesNotMatch(source, underscoreImport);
+}
+
+for (const source of [
+  'import Backbone from \'backbone\';',
+  'await import("backbone/modules/model.js");',
+  'require("backbone");',
+]) {
+  assert.match(source, backboneImport);
+}
+
+for (const source of ['const packageName = \'backbone\';', 'import \'./backbone.js\';']) {
+  assert.doesNotMatch(source, backboneImport);
+}
+
+for (const source of [
+  'model.attributes',
+  'model.cid',
+  'model.get("name")',
+  'collection.indexOf(model)',
+  'collection.models',
+  'options.changes',
+]) {
+  assert.match(source, knownBackboneDataAccess);
+}
+
+for (const source of ['Data.get(model, "name")', 'Data.items(collection)', 'change.updated']) {
+  assert.doesNotMatch(source, knownBackboneDataAccess);
 }
 
 for (const file of readdirSync(resolve(root, 'runtime'), { recursive: true })) {
@@ -95,8 +122,8 @@ for (const file of productionFiles.filter(candidate =>
   candidate !== 'backbone.js' && candidate !== 'runtime/backbone-data-api.js')) {
   assert.doesNotMatch(
     readFileSync(resolve(root, file), 'utf8'),
-    backboneDataAccess,
-    `${file} must access application data through DataApi`
+    knownBackboneDataAccess,
+    `${file} must not use known Backbone data access patterns outside DataApi`
   );
 }
 

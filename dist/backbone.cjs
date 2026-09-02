@@ -43,7 +43,7 @@ var BackboneDataApi = {
     return model.get(attribute);
   },
   has(model, attribute) {
-    return attribute in Object(model.attributes);
+    return Object.hasOwn(Object(model.attributes), attribute);
   },
   serialize(model) {
     return model.attributes;
