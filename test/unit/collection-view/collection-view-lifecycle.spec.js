@@ -423,4 +423,41 @@ describe('CollectionView lifecycle contract', function() {
 
     region.destroy();
   });
+
+  it('attempts every child and the empty Region when child destruction throws', function() {
+    const firstError = new Error('first child destroy failed');
+    const secondError = new Error('second child destroy failed');
+    const teardown = [];
+    const ThrowingChildView = View.extend({
+      template: false,
+      destroy() {
+        const id = this.model.id;
+        teardown.push(id);
+        View.prototype.destroy.call(this);
+        if (id === 1) { throw firstError; }
+        if (id === 2) { throw secondError; }
+        return this;
+      },
+    });
+    const collectionView = new CollectionView({
+      collection: new Backbone.Collection([{ id: 1 }, { id: 2 }, { id: 3 }]),
+      childView: ThrowingChildView,
+    });
+
+    collectionView.render();
+    const children = collectionView.children.toArray();
+    const emptyRegion = collectionView.getEmptyRegion();
+    const destroyEmptyRegion = emptyRegion.destroy;
+    this.sinon.stub(emptyRegion, 'destroy').callsFake(function() {
+      teardown.push('empty');
+      return destroyEmptyRegion.call(this);
+    });
+
+    expect(() => collectionView.destroy()).to.throw(firstError);
+
+    expect(teardown).to.deep.equal([1, 2, 3, 'empty']);
+    expect(children.every(child => child.isDestroyed())).to.be.true;
+    expect(collectionView.children).to.have.lengthOf(0);
+    expect(emptyRegion.isDestroyed()).to.be.true;
+  });
 });

@@ -107,6 +107,43 @@ describe('view mixin', function() {
       expect(stopListening).to.have.been.called;
     });
 
+    it('attempts every CollectionView child while preserving the construction error', function() {
+      const constructionError = new Error('construction failed');
+      const teardown = [];
+      let failedView;
+      let children;
+      let emptyRegion;
+      const ChildView = View.extend({
+        template: false,
+        destroy() {
+          const id = this.model.id;
+          teardown.push(id);
+          View.prototype.destroy.call(this);
+          if (id === 1) { throw new Error('child destroy failed'); }
+          return this;
+        }
+      });
+      const TestView = CollectionView.extend({
+        childView: ChildView,
+        initialize() {
+          failedView = this;
+          this.render();
+          children = this.children.toArray();
+          emptyRegion = this.getEmptyRegion();
+          throw constructionError;
+        }
+      });
+
+      expect(() => new TestView({
+        collection: new Backbone.Collection([{ id: 1 }, { id: 2 }, { id: 3 }])
+      })).to.throw(constructionError);
+
+      expect(teardown).to.deep.equal([1, 2, 3]);
+      expect(children.every(child => child.isDestroyed())).to.be.true;
+      expect(failedView.children).to.have.lengthOf(0);
+      expect(emptyRegion.isDestroyed()).to.be.true;
+    });
+
     it('destroys a View Region child created before construction fails', function() {
       const constructionError = new Error('construction failed');
       const rootEl = document.createElement('div');

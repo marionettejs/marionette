@@ -8,6 +8,7 @@ import extend from '../utils/extend.js';
 import getValue from '../utils/get-value.js';
 import isString from '../utils/is-string.js';
 import uniqueId from '../utils/unique-id.js';
+import disposeAll from '../utils/dispose-all.js';
 import monitorViewEvents from './common/monitor-view-events.js';
 import { renderView, destroyView, isView } from './common/view.js';
 import CommonMixin from '../mixins/common.js';
@@ -593,18 +594,22 @@ assignOwn(Region.prototype, CommonMixin, {
     }
     this._isDestroyed = true;
 
+    const currentView = this.currentView;
+    let isReset = false;
     destroyTeardown.set(this, 'reset');
     try {
       this.reset(options);
+      isReset = true;
     } finally {
       destroyTeardown.delete(this);
+      if (isReset || currentView && this.currentView !== currentView) {
+        if (this._parentView && this._name !== undefined) {
+          this._parentView._removeReferences(this._name);
+        }
+        delete this._parentView;
+        delete this._name;
+      }
     }
-
-    if (this._parentView && this._name !== undefined) {
-      this._parentView._removeReferences(this._name);
-    }
-    delete this._parentView;
-    delete this._name;
 
     this.triggerMethod('destroy', this, options);
     this.stopListening();
@@ -767,8 +772,12 @@ const RegionsMixin = {
   // Remove all regions from the View
   removeRegions() {
     const regions = this._getRegions();
+    const disposers = [];
 
-    eachOwn(this._regions, (region, name) => this._removeRegion(region, name));
+    eachOwn(regions, (region, name) => {
+      disposers.unshift(() => this._removeRegion(region, name));
+    });
+    disposeAll(disposers);
 
     return regions;
   },

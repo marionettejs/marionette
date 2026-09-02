@@ -7,6 +7,7 @@ import getValue from '../utils/get-value.js';
 import isString from '../utils/is-string.js';
 import uniqueId from '../utils/unique-id.js';
 import MarionetteError from '../utils/error.js';
+import disposeAll from '../utils/dispose-all.js';
 import { renderView, destroyView, isViewClass } from './common/view.js';
 import monitorViewEvents from './common/monitor-view-events.js';
 import ChildViewContainer from './child-view-container.js';
@@ -880,22 +881,26 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   _removeChildViews(views) {
     if (!views) { return; }
 
-    const length = views.length;
-    for (let index = 0; index < length; index++) {
-      this._removeChildView(views[index]);
+    const disposers = [];
+    for (let index = views.length - 1; index >= 0; index--) {
+      const view = views[index];
+      disposers.push(() => this._removeChildView(view));
     }
+    disposeAll(disposers);
   },
 
   _removeChildView(view, { shouldDetach } = {}) {
     view.off('destroy', this.removeChildView, this);
 
-    if (shouldDetach) {
-      this._detachChildView(view);
-    } else {
-      this._destroyChildView(view);
+    try {
+      if (shouldDetach) {
+        this._detachChildView(view);
+      } else {
+        this._destroyChildView(view);
+      }
+    } finally {
+      this.stopListening(view);
     }
-
-    this.stopListening(view);
   },
 
   _destroyChildView(view) {
@@ -909,10 +914,12 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
   // called by ViewMixin destroy
   _removeChildren() {
-    this._destroyChildren();
     const emptyRegion = this.getEmptyRegion();
-    emptyRegion.destroy();
-    delete this._addedViews;
+    disposeAll([
+      () => { delete this._addedViews; },
+      () => emptyRegion.destroy(),
+      () => this._destroyChildren()
+    ]);
   },
 
   // Destroy the child views that this collection view is holding on to, if any
@@ -926,11 +933,13 @@ assignOwn(CollectionView.prototype, ViewMixin, {
       this.Dom.detachContents(this.el);
     }
 
-    this._removeChildViews(this._children._views);
-
-    // After all children have been destroyed re-init the container
-    this._children._init();
-    this.children._init();
+    try {
+      this._removeChildViews(this._children._views);
+    } finally {
+      // After all children have been attempted re-init the container
+      this._children._init();
+      this.children._init();
+    }
 
     this.triggerMethod('destroy:children', this);
   }
