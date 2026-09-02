@@ -168,6 +168,19 @@ optional adapter artifacts unchanged. [PR #364](https://github.com/marionettejs/
 recorded the authorization. [PR #365](https://github.com/marionettejs/marionette/pull/365)
 consumed it with independent exact-head artifact-growth approval.
 
+BA0007 authorizes an exact-prototype increase from 79,084 to 79,137
+bytes for complete failed-constructor rollback tracked by
+[#366](https://github.com/marionettejs/marionette/issues/366). The measured
+prototype destroys child Views and Regions created by rendering during
+`initialize()`, removes their DOM, disposes the collection observer exactly once,
+continues remaining rollback after cleanup errors, and preserves the original
+construction failure. It grows only the four existing main artifacts, adds no
+production graph edge, external import, package subpath, allocation or retention
+proxy, or speculative headroom, and leaves the optional adapter artifacts unchanged.
+[PR #369](https://github.com/marionettejs/marionette/pull/369) records the pending
+authorization; a later runtime PR must consume it with independent exact-head
+artifact-growth approval.
+
 The approval must come from a different base-allowed maintainer whenever the exact-base
 allowlist contains an eligible alternative. If the pull-request author is the sole
 allowlisted maintainer, that maintainer may provide the canonical exact-head
