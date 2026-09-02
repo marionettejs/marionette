@@ -181,6 +181,18 @@ proxy, or speculative headroom, and leaves the optional adapter artifacts unchan
 authorization; a later runtime PR must consume it with independent exact-head
 artifact-growth approval.
 
+BA0008 authorizes an exact-prototype increase from 79,137 to 79,486
+bytes for attempt-all owned child and Region teardown tracked by
+[#371](https://github.com/marionettejs/marionette/issues/371). The measured
+prototype preserves forward teardown order and the first cleanup error, continues
+through CollectionView child, listener, empty Region, and container cleanup, removes
+completed Region ownership references, and preserves original construction failures
+during rollback. It grows only the four existing main artifacts, adds no production
+graph edge, external import, package subpath, allocation or retention proxy, or
+speculative headroom, and leaves the optional adapter artifacts unchanged. The
+pending governance pull request records the authorization; a later runtime PR must
+consume it with independent exact-head artifact-growth approval.
+
 The approval must come from a different base-allowed maintainer whenever the exact-base
 allowlist contains an eligible alternative. If the pull-request author is the sole
 allowlisted maintainer, that maintainer may provide the canonical exact-head
