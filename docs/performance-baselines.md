@@ -311,6 +311,25 @@ fields:
 ```
 ````
 
+A timing-harness-only record also leaves `approvedPaths` empty and binds the
+candidate contract to the SHA-256 of the committed harness file:
+
+````markdown
+<!-- marionette-performance-growth-approval:v1 -->
+```json
+{
+  "schemaVersion": 1,
+  "headSha": "0123456789abcdef0123456789abcdef01234567",
+  "issueUrl": "https://github.com/marionettejs/marionette/issues/127",
+  "approvedPaths": [],
+  "approvedTimingHarnessRevision": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "evidenceUrls": [
+    "https://github.com/marionettejs/marionette/issues/127#issuecomment-123456789"
+  ]
+}
+```
+````
+
 `approvedNewArtifacts` is empty when a new public subpath aliases an already tracked
 runtime artifact. The new subpath still requires exact-head approval even though it
 adds zero artifact bytes. Conversely, a new runtime artifact without a corresponding
@@ -328,7 +347,15 @@ well-formed `forbiddenExternalImports` list or add entries to an existing list, 
 cannot remove or replace an existing forbidden import. This is a tightening-only
 transition: Phase 0 `baselineExternalImports` remain immutable historical observations,
 not current allowlists. A candidate cannot change the base thresholds, allowlist,
-baseline, ceiling, forbidden modules, resource contract, timing contract, or any
+baseline, ceiling, forbidden modules, resource contract, or timing workloads. It may
+replace only `timing.harnessRevision` when that value is a lowercase SHA-256 matching
+the non-executable regular file committed at `scripts/performance/timing.mjs`. That transition always
+requires an exact-head approval whose `approvedTimingHarnessRevision` exactly matches;
+missing, stale, extra, or mismatched timing revisions fail closed. No caller-selected
+path or candidate-owned validator determines the digest. CI loads the evaluator and
+allowed-maintainer policy from the exact pull request base, reads the harness blob from
+the exact candidate `HEAD`, and obtains the approval record from the pull request's
+GitHub comment snapshot rather than a candidate-owned file. A candidate cannot change any
 existing artifact or graph. The only permitted toolchain transition is a valid SHA-256
 revision at `toolchain.releaseProfile.sha256`; every other toolchain field remains
 exact-base, and the candidate report must prove that digest matches the actual

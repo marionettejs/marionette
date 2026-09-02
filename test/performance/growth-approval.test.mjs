@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { chmod, mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, test } from 'node:test';
 import {
+  committedTimingHarnessRevision,
   formatGrowthApprovalComment,
   parseGrowthApprovalComment,
   requiredArtifactGrowth,
@@ -26,6 +28,8 @@ const policy = {
   trackingIssueUrl: 'https://github.com/marionettejs/marionette/issues/127',
   allowedLogins: ['paulfalgout'],
 };
+const authorityTimingRevision = 'c'.repeat(64);
+const candidateTimingRevision = 'd'.repeat(64);
 
 function report(artifacts, graphs = []) {
   return { artifacts, graphs };
@@ -128,6 +132,15 @@ function candidateAliasContract() {
     baselineModules: [],
     baselineExternalImports: [],
   });
+  return contract;
+}
+
+function timingContract(revision = authorityTimingRevision) {
+  const contract = growthContract();
+  contract.timing = {
+    harnessRevision: revision,
+    cases: [{ id: 'render', iterations: 10 }],
+  };
   return contract;
 }
 
@@ -612,6 +625,39 @@ describe('exact-head performance growth approval contract', () => {
     }
   });
 
+  test('permits only a committed timing harness revision transition', () => {
+    const authority = timingContract();
+    const candidate = timingContract(candidateTimingRevision);
+
+    assert.deepEqual(validateCandidateGrowthContract(authority, candidate, {
+      timingHarnessRevision: candidateTimingRevision,
+    }), []);
+
+    const changedCase = timingContract(candidateTimingRevision);
+    changedCase.timing.cases[0].iterations = 1;
+    assert.match(validateCandidateGrowthContract(authority, changedCase, {
+      timingHarnessRevision: candidateTimingRevision,
+    }).join('\n'), /may change only harnessRevision/);
+
+    assert.match(validateCandidateGrowthContract(authority, candidate, {
+      timingHarnessRevision: authorityTimingRevision,
+    }).join('\n'), /match the committed timing harness/);
+
+    assert.match(validateCandidateGrowthContract(authority, authority, {
+      timingHarnessRevision: candidateTimingRevision,
+    }).join('\n'), /match the committed timing harness/);
+
+    assert.deepEqual(validateCandidateGrowthContract(growthContract(), growthContract(), {
+      timingHarnessRevision: candidateTimingRevision,
+    }), []);
+    assert.match(validateCandidateGrowthContract(growthContract(), candidate, {
+      timingHarnessRevision: candidateTimingRevision,
+    }).join('\n'), /top-level fields differ/);
+    assert.match(validateCandidateGrowthContract(authority, growthContract(), {
+      timingHarnessRevision: candidateTimingRevision,
+    }).join('\n'), /top-level fields differ/);
+  });
+
   test('requires the candidate report to prove the release-profile digest', () => {
     const candidateContract = growthContract();
     candidateContract.toolchain.releaseProfile.sha256 = 'b'.repeat(64);
@@ -930,6 +976,25 @@ describe('exact-head performance growth approval contract', () => {
     assert.equal(Object.hasOwn(approvalRecord(), 'approvedNewArtifacts'), false);
   });
 
+  test('formats and parses a canonical timing-only approval', () => {
+    const record = approvalRecord([]);
+    record.approvedTimingHarnessRevision = candidateTimingRevision;
+
+    assert.deepEqual(parseGrowthApprovalComment(formatGrowthApprovalComment(record), policy), {
+      matched: true,
+      approval: record,
+    });
+
+    for (const revision of ['D'.repeat(64), 'd'.repeat(63), 1]) {
+      const malformed = { ...record, approvedTimingHarnessRevision: revision };
+      assert.equal(
+        parseGrowthApprovalComment(formatGrowthApprovalComment(malformed), policy)
+          .diagnostics[0].code,
+        'GROWTH_APPROVAL_TIMING_REVISION'
+      );
+    }
+  });
+
   test('rejects ambiguous formatting, fields, paths, and evidence', () => {
     const record = approvalRecord();
     const noncanonical = `${formatGrowthApprovalComment(record)}\nextra`;
@@ -1017,6 +1082,161 @@ describe('exact-head performance growth approval contract', () => {
     assert.deepEqual(result.diagnostics, []);
     assert.equal(result.approval.authorLogin, 'paulfalgout');
     assert.deepEqual(result.approval.approvedPaths, ['dist/over.js']);
+  });
+
+  test('requires an exact-head approval for a timing harness revision', () => {
+    const authorityContract = timingContract();
+    const candidateContract = timingContract(candidateTimingRevision);
+    const options = {
+      authorityContract,
+      baseReport: productionReport(),
+      candidateContract,
+      currentReport: productionReport(),
+      evidenceComments: evidenceSnapshot(),
+      headSha,
+      policy,
+      pullRequestNumber,
+      thresholdPercent: 1,
+      timingHarnessRevision: candidateTimingRevision,
+    };
+    const record = approvalRecord([]);
+    record.approvedTimingHarnessRevision = candidateTimingRevision;
+
+    const missing = validateGrowthApproval({ ...options, comments: snapshot([]) });
+    assert.equal(missing.status, 'required');
+    assert.equal(missing.requiredTimingHarnessRevision, candidateTimingRevision);
+
+    const approved = validateGrowthApproval({
+      ...options,
+      comments: snapshot([comment(record)]),
+    });
+    assert.equal(approved.status, 'approved');
+
+    const wrong = { ...record, approvedTimingHarnessRevision: authorityTimingRevision };
+    const mismatched = validateGrowthApproval({
+      ...options,
+      comments: snapshot([comment(wrong)]),
+    });
+    assert.equal(mismatched.status, 'invalid');
+    assert.equal(
+      mismatched.diagnostics[0].code,
+      'GROWTH_APPROVAL_TIMING_REVISION_MISMATCH'
+    );
+
+    const digestMismatch = validateGrowthApproval({
+      ...options,
+      comments: snapshot([comment(record)]),
+      timingHarnessRevision: authorityTimingRevision,
+    });
+    assert.equal(digestMismatch.status, 'blocked');
+    assert.equal(digestMismatch.diagnostics[0].code, 'GROWTH_APPROVAL_REPORT');
+  });
+
+  test('rejects an extra timing revision on an artifact-growth approval', () => {
+    const record = approvalRecord(['dist/main.js']);
+    record.approvedTimingHarnessRevision = candidateTimingRevision;
+    const result = validateGrowthApproval({
+      authorityContract: timingContract(),
+      baseReport: productionReport(),
+      candidateContract: timingContract(),
+      comments: snapshot([comment(record)]),
+      currentReport: grownProductionReport(),
+      evidenceComments: evidenceSnapshot(),
+      headSha,
+      policy,
+      pullRequestNumber,
+      thresholdPercent: 1,
+      timingHarnessRevision: authorityTimingRevision,
+    });
+
+    assert.equal(result.status, 'invalid');
+    assert.equal(result.diagnostics[0].code, 'GROWTH_APPROVAL_TIMING_REVISION_MISMATCH');
+  });
+
+  test('accepts one approval for simultaneous artifact and timing growth', () => {
+    const record = approvalRecord(['dist/main.js']);
+    record.approvedTimingHarnessRevision = candidateTimingRevision;
+    const result = validateGrowthApproval({
+      authorityContract: timingContract(),
+      baseReport: productionReport(),
+      candidateContract: timingContract(candidateTimingRevision),
+      comments: snapshot([comment(record)]),
+      currentReport: grownProductionReport(),
+      evidenceComments: evidenceSnapshot(),
+      headSha,
+      policy,
+      pullRequestNumber,
+      thresholdPercent: 1,
+      timingHarnessRevision: candidateTimingRevision,
+    });
+
+    assert.equal(result.status, 'approved');
+    assert.deepEqual(result.approval.approvedPaths, ['dist/main.js']);
+    assert.equal(result.approval.approvedTimingHarnessRevision, candidateTimingRevision);
+  });
+
+  test('hashes only a committed regular timing harness file', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-timing-harness-'));
+    const harnessPath = join(fixtureRoot, 'scripts/performance/timing.mjs');
+    const runGit = args => {
+      const result = spawnSync('git', args, {
+        cwd: fixtureRoot,
+        encoding: 'utf8',
+      });
+      assert.equal(result.status, 0, result.stderr);
+      return result;
+    };
+
+    try {
+      await mkdir(join(fixtureRoot, 'scripts/performance'), { recursive: true });
+      await writeFile(harnessPath, 'export default true;\n');
+      await assert.rejects(committedTimingHarnessRevision(fixtureRoot));
+      runGit(['init']);
+      runGit(['config', 'user.email', 'test@example.com']);
+      runGit(['config', 'user.name', 'Test']);
+      runGit(['config', 'core.filemode', 'true']);
+      runGit(['add', '.']);
+      runGit(['commit', '-m', 'fixture']);
+
+      assert.equal(
+        await committedTimingHarnessRevision(fixtureRoot),
+        createHash('sha256').update('export default true;\n').digest('hex')
+      );
+
+      await writeFile(harnessPath, 'export default false;\n');
+      assert.equal(
+        await committedTimingHarnessRevision(fixtureRoot),
+        createHash('sha256').update('export default true;\n').digest('hex')
+      );
+
+      await writeFile(harnessPath, 'export default true;\n');
+      await chmod(harnessPath, 0o755);
+      runGit(['add', '--all']);
+      runGit(['commit', '-m', 'executable']);
+      await assert.rejects(
+        committedTimingHarnessRevision(fixtureRoot),
+        /must be a non-executable regular file/
+      );
+
+      await rm(harnessPath);
+      await symlink('../target.mjs', harnessPath);
+      runGit(['add', '--all']);
+      runGit(['commit', '-m', 'symlink']);
+      await assert.rejects(
+        committedTimingHarnessRevision(fixtureRoot),
+        /must be a non-executable regular file/
+      );
+
+      await rm(harnessPath);
+      runGit(['add', '--all']);
+      runGit(['commit', '-m', 'missing']);
+      await assert.rejects(
+        committedTimingHarnessRevision(fixtureRoot),
+        /must be a non-executable regular file/
+      );
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
   });
 
   test('accepts one exact-head approval for the exact new subpath and full artifact size', () => {
@@ -1348,6 +1568,43 @@ describe('exact-head performance growth approval contract', () => {
       ]);
       assert.equal(newSubpath.status, 0);
       assert.deepEqual(JSON.parse(newSubpath.stdout).newSubpaths, ['./feature']);
+
+      const committedRevision = await committedTimingHarnessRevision(root);
+      const timingApproval = approvalRecord([]);
+      timingApproval.headSha = checkoutHead;
+      timingApproval.approvedTimingHarnessRevision = committedRevision;
+      await Promise.all([
+        writeFile(paths.contract, JSON.stringify(timingContract())),
+        writeFile(paths.candidate, JSON.stringify(timingContract(committedRevision))),
+        writeFile(paths.base, JSON.stringify(productionReport())),
+        writeFile(paths.current, JSON.stringify(productionReport())),
+        writeFile(paths.comments, JSON.stringify(snapshot([comment(timingApproval)]))),
+      ]);
+      const timingApproved = runCli([
+        ...args,
+        '--candidate-contract', paths.candidate,
+      ]);
+      assert.equal(timingApproved.status, 0);
+      assert.equal(JSON.parse(timingApproved.stdout).status, 'approved');
+
+      const wrongRevision = 'e'.repeat(64);
+      const wrongTimingApproval = approvalRecord([]);
+      wrongTimingApproval.headSha = checkoutHead;
+      wrongTimingApproval.approvedTimingHarnessRevision = wrongRevision;
+      await Promise.all([
+        writeFile(paths.candidate, JSON.stringify(timingContract(wrongRevision))),
+        writeFile(paths.comments, JSON.stringify(snapshot([comment(wrongTimingApproval)]))),
+      ]);
+      const timingBlocked = runCli([
+        ...args,
+        '--candidate-contract', paths.candidate,
+      ]);
+      assert.equal(timingBlocked.status, 1);
+      assert.equal(JSON.parse(timingBlocked.stdout).status, 'blocked');
+      assert.match(
+        JSON.parse(timingBlocked.stdout).diagnostics[0].message,
+        /match the committed timing harness/
+      );
 
       await Promise.all([
         writeFile(paths.contract, JSON.stringify(growthContract())),
