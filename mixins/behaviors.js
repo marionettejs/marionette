@@ -84,8 +84,7 @@ function eachBehavior(behaviors, iteratee) {
 function disposeBehaviors(behaviors, method, options) {
   if (behaviors == null) { return; }
 
-  const disposers = behaviors.map(behavior => () => behavior[method](options));
-  disposeAll(disposers.reverse());
+  disposeAll(behaviors.map(behavior => () => behavior[method](options)).reverse());
 }
 
 function rollbackBehaviors(behaviors) {

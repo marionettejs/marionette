@@ -43,11 +43,6 @@ export default {
 
     rootEl.addEventListener(eventName, eventHandler, capture);
 
-    let isActive = true;
-    return () => {
-      if (!isActive) { return; }
-      isActive = false;
-      rootEl.removeEventListener(eventName, eventHandler, capture);
-    };
+    return () => rootEl.removeEventListener(eventName, eventHandler, capture);
   }
 };

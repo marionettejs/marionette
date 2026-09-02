@@ -4,6 +4,7 @@ import { vi } from 'vitest';
 import EventDelegator, { setEventDelegator } from '../../../runtime/event-delegator';
 import Behavior from '../../../modules/behavior';
 import CollectionView from '../../../modules/collection-view';
+import State from '../../../modules/state';
 import View from '../../../modules/view';
 
 describe('EventDelegator', function() {
@@ -70,14 +71,13 @@ describe('EventDelegator', function() {
     });
   });
 
-  it('returns idempotent cleanup with the registration-time capture mode', function() {
+  it('returns per-registration cleanup with the registration-time capture mode', function() {
     const handler = vi.fn();
     const addEventListener = vi.spyOn(rootEl, 'addEventListener');
     const removeEventListener = vi.spyOn(rootEl, 'removeEventListener');
     const cleanup = delegate('focus', '.foo', handler);
     const registeredHandler = addEventListener.mock.calls[0][1];
 
-    cleanup();
     cleanup();
 
     expect(addEventListener).toHaveBeenCalledWith('focus', registeredHandler, true);
@@ -223,6 +223,46 @@ describe('EventDelegator', function() {
 
     expect(() => new TestView({ el: rootEl })).to.throw(constructionError);
     expect(cleanup).toHaveBeenCalledTimes(1);
+  });
+
+  function testFailedConstructionListeners(name, ViewClass) {
+    it(`stops arbitrary ${ name } listeners when construction fails`, function() {
+      const constructionError = new Error('construction failed');
+      const source = new State();
+      const handler = vi.fn();
+      const TestView = ViewClass.extend({
+        initialize() {
+          this.listenTo(source, 'change', handler);
+          throw constructionError;
+        }
+      });
+
+      expect(() => new TestView({ el: rootEl })).to.throw(constructionError);
+      source.trigger('change');
+
+      expect(handler).not.toHaveBeenCalled();
+    });
+  }
+
+  testFailedConstructionListeners('View', View);
+  testFailedConstructionListeners('CollectionView', CollectionView);
+
+  it('disposes Behavior entity subscriptions when construction fails', function() {
+    const constructionError = new Error('construction failed');
+    const unsubscribe = vi.fn();
+    const TestBehavior = Behavior.extend({
+      modelEvents: { change() {} },
+      initialize() {
+        this.delegateEntityEvents();
+        throw constructionError;
+      }
+    });
+    const TestView = View.extend({ behaviors: [TestBehavior] });
+    TestView.setDataApi({ subscribe: () => unsubscribe });
+
+    expect(() => new TestView({ el: rootEl, model: {} })).to.throw(constructionError);
+
+    expect(unsubscribe).toHaveBeenCalledTimes(1);
   });
 
   it('rolls back View and Behavior events when Behavior registration fails', function() {

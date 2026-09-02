@@ -1396,8 +1396,7 @@
     if (behaviors == null) {
       return;
     }
-    const disposers = behaviors.map(behavior => () => behavior[method](options));
-    disposeAll(disposers.reverse());
+    disposeAll(behaviors.map(behavior => () => behavior[method](options)).reverse());
   }
   function rollbackBehaviors(behaviors) {
     for (let index = 0, length = behaviors.length; index < length; index++) {
@@ -1709,14 +1708,7 @@
         };
       }
       rootEl.addEventListener(eventName, eventHandler, capture);
-      let isActive = true;
-      return () => {
-        if (!isActive) {
-          return;
-        }
-        isActive = false;
-        rootEl.removeEventListener(eventName, eventHandler, capture);
-      };
+      return () => rootEl.removeEventListener(eventName, eventHandler, capture);
     }
   };
 
@@ -1979,7 +1971,7 @@
       return !!this._isAttached;
     },
     _rollbackView(error) {
-      disposeAll([() => this._destroyState(), () => this._rollbackBehaviors(), () => this.undelegateEntityEvents(), () => this._undelegateViewEvents()], error);
+      disposeAll([() => this.stopListening(), () => this._destroyState(), () => this._rollbackBehaviors(), () => this.undelegateEntityEvents(), () => this._undelegateViewEvents()], error);
     },
     delegateEvents(events) {
       if (this._isDestroying || this._isDestroyed) {
@@ -3803,7 +3795,10 @@
       this._initStateEvents();
       this._syncElement();
     } catch (error) {
-      disposeAll([() => this.stopListening(), () => this._destroyState(), () => this._undelegateViewEvents()], error);
+      try {
+        this.destroy();
+      } catch {}
+      throw error;
     }
   };
   assignOwn(Behavior, {

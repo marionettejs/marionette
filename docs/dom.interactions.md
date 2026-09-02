@@ -181,12 +181,12 @@ The arguments are:
 * `rootEl`: the View or CollectionView's current `el`. A Behavior receives its
   host View's current `el`.
 
-`delegate` must return an idempotent cleanup function that removes exactly the
+`delegate` must return a cleanup function that removes exactly the
 registration it created, including its original root, listener, namespace, and
 capture/options policy. Marionette owns and stores that opaque cleanup. The
 adapter must not mutate View internals.
 
-Marionette invokes cleanups when `undelegateEvents()` refreshes declarations,
+Marionette invokes each returned cleanup at most once when `undelegateEvents()` refreshes declarations,
 before `setElement()` transfers delegation, during destruction, and when
 construction fails. Cleanups run in reverse registration order. Marionette
 attempts every cleanup even if one throws, clears its registry before invoking

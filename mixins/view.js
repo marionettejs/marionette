@@ -127,6 +127,7 @@ const ViewMixin = {
 
   _rollbackView(error) {
     disposeAll([
+      () => this.stopListening(),
       () => this._destroyState(),
       () => this._rollbackBehaviors(),
       () => this.undelegateEntityEvents(),
