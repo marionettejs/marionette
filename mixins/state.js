@@ -1,25 +1,24 @@
 import getValue from '../utils/get-value.js';
-import MarionetteError from '../utils/error.js';
-import State from '../modules/state.js';
 import disposeAll from '../utils/dispose-all.js';
+import StateApi from '../runtime/state-api.js';
+import subscribeBindings from '../utils/subscribe-bindings.js';
 
-function throwStateOwnershipConflict() {
-  throw new MarionetteError({
-    code: 'MN0035',
-    name: 'StateError',
-    message: 'A State instance must be live and unowned before composition.',
-    url: 'marionette.state.html#owned-state'
-  });
-}
+const StateMixin = {
+  State: StateApi,
 
-export default {
   _initState(options = {}) {
-    const hasStateOption = options != null && Object.hasOwn(options, 'state');
-    const state = hasStateOption ? options.state : this.state;
+    const stateOption = options != null && Object.hasOwn(options, 'state') ?
+      options.state : undefined;
+    const hasStateOption = stateOption !== undefined;
+    const state = hasStateOption ? stateOption : this.state;
 
     if (hasStateOption || state !== undefined) {
-      this._stateDefinition = state;
-      this.getState();
+      this._state = state;
+      return;
+    }
+
+    if (this.createState !== StateMixin.createState) {
+      this._stateOptions = options;
     }
   },
 
@@ -28,26 +27,26 @@ export default {
 
     const stateEvents = getValue(this, 'stateEvents');
     if (stateEvents) {
-      this.bindEvents(this.getState(), stateEvents);
+      this._stateEventUnsubscribe = subscribeBindings(
+        this,
+        this.State,
+        this.getState(),
+        stateEvents,
+        'StateApi'
+      );
     }
 
     return this;
   },
 
   getState() {
-    if (this._state) { return this._state; }
+    if (Object.hasOwn(this, '_state')) { return this._state; }
 
-    const hasStateDefinition = Object.hasOwn(this, '_stateDefinition');
-    const definition = getValue(this, hasStateDefinition ? '_stateDefinition' : 'state');
-    delete this._stateDefinition;
-
-    const state = definition instanceof State ? definition : new State(definition);
-    if (state._owner !== undefined || state.isDestroyed()) {
-      throwStateOwnershipConflict();
-    }
-
-    state._owner = this;
+    const options = this._stateOptions;
+    const state = this.createState(options);
+    delete this._stateOptions;
     this._state = state;
+    this._ownsState = true;
 
     if (this._isDestroyed) {
       this._destroyState();
@@ -57,17 +56,28 @@ export default {
   },
 
   _destroyState() {
+    if (!Object.hasOwn(this, '_state') || this._stateReleased) { return this; }
+
     const state = this._state;
-    if (!state) { return this; }
+    const unsubscribe = this._stateEventUnsubscribe;
+    const ownsState = this._ownsState;
+    const disposeOwned = this.State.disposeOwned;
+
+    this._stateReleased = true;
+    delete this._stateEventUnsubscribe;
+    delete this._ownsState;
 
     disposeAll([
-      () => {
-        if (!state.isDestroyed()) { state.destroy(); }
-      },
-      () => { delete state._owner; },
-      () => this.unbindEvents(state)
+      ownsState && typeof disposeOwned === 'function' && (() => disposeOwned.call(this.State, state)),
+      unsubscribe
     ]);
 
     return this;
+  },
+
+  createState() {
+    return {};
   }
 };
+
+export default StateMixin;

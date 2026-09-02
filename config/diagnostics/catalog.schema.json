@@ -91,7 +91,7 @@
               "MnObject",
               "Radio",
               "Region",
-              "State",
+              "StateApi",
               "View"
             ]
           }

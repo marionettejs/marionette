@@ -53,6 +53,7 @@ See [installation](docs/installation.md) for package entrypoints and supported s
 - [Installation and package entrypoints](docs/installation.md)
 - [Optional Backbone integration](docs/optional-backbone.md)
 - [Data API](docs/data.api.md)
+- [State sources and StateApi](docs/marionette.state.md)
 - [Pre-rendered DOM](docs/dom.prerendered.md)
 - [Phase 0 performance baselines](docs/performance-baselines.md)
 - [v4-to-v5 compatibility ledger](docs/migration-from-v4.md)

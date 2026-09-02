@@ -233,6 +233,44 @@ describe('DomApi', function() {
     });
   });
 
+  describe('#moveEl', function() {
+    it('uses insertBefore to attach a new child at the requested position', function() {
+      const parent = document.createElement('div');
+      const first = document.createElement('span');
+      const second = document.createElement('span');
+      parent.append(first);
+
+      DomApi.moveEl(second, parent, first);
+
+      expect([...parent.children]).to.deep.equal([second, first]);
+    });
+
+    it('uses state-preserving moveBefore for an attached child when available', function() {
+      const parent = document.createElement('div');
+      const first = document.createElement('span');
+      const second = document.createElement('span');
+      parent.append(first, second);
+      parent.moveBefore = this.sinon.spy();
+
+      DomApi.moveEl(second, parent, first);
+
+      expect(parent.moveBefore).to.have.been.calledOnceWith(second, first);
+    });
+
+    it('uses insertBefore for an attached child without moveBefore', function() {
+      const parent = document.createElement('div');
+      const first = document.createElement('span');
+      const second = document.createElement('span');
+      parent.append(first, second);
+      this.sinon.spy(parent, 'insertBefore');
+
+      DomApi.moveEl(second, parent, first);
+
+      expect(parent.insertBefore).to.have.been.calledOnceWith(second, first);
+      expect([...parent.children]).to.deep.equal([second, first]);
+    });
+  });
+
   describe('#setContents', function() {
     let domEl;
 

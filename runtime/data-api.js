@@ -1,6 +1,7 @@
 // Data API
 // --------
 import { assignOwn } from '../utils/assign-in.js';
+import MarionetteError from '../utils/error.js';
 
 const noop = function() {};
 
@@ -32,6 +33,15 @@ export default {
   },
 
   subscribe(entity, eventName, callback, context) {
+    if (typeof entity?.on !== 'function' || typeof entity?.off !== 'function') {
+      throw new MarionetteError({
+        code: 'MN0037',
+        name: 'DataApiError',
+        message: 'The default DataApi cannot observe modelEvents or collectionEvents on a plain value. Configure a DataApi that supports this source or remove the event map.',
+        url: 'data.api.html#entity-events'
+      });
+    }
+
     let isSubscribed = true;
     entity.on(eventName, callback, context);
 
@@ -42,7 +52,14 @@ export default {
     };
   },
 
-  observeCollection() {
-    return noop;
+  observeCollection(collection) {
+    if (Array.isArray(collection)) { return noop; }
+
+    throw new MarionetteError({
+      code: 'MN0037',
+      name: 'DataApiError',
+      message: 'The default DataApi can observe only static plain arrays. Configure a DataApi that supports this collection source.',
+      url: 'data.api.html#collection-observations'
+    });
   }
 };

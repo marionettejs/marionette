@@ -80,19 +80,20 @@ describe('CollectionView - Sorting', function() {
 
       describe('when resorting the collection', function() {
         beforeEach(function() {
-          this.sinon.spy(myCollectionView, 'sort');
           collection.comparator = 'sort';
           collection.sort();
         });
 
-        it('should not call sort', function() {
-          expect(myCollectionView.sort).to.not.be.called;
+        it('should reconcile the source order without sort events', function() {
+          expect(myCollectionView.onBeforeSort).to.not.have.been.called;
+          expect(myCollectionView.onSort).to.not.have.been.called;
+          expect(myCollectionView.el.textContent).to.equal(sortText);
         });
 
-        it('should not resort the children on sort', function() {
+        it('should not apply a presentation sort', function() {
           myCollectionView.sort();
 
-          expect(myCollectionView.el.textContent).to.equal(noSortText);
+          expect(myCollectionView.el.textContent).to.equal(sortText);
         });
       });
     });

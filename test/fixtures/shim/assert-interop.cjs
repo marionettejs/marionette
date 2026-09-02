@@ -47,7 +47,7 @@ module.exports = function assertInterop({
   const addedModel = collection.add({ id: 2, name: 'second' });
 
   assert.deepStrictEqual(structuralChanges, [{
-    type: 'update',
+    kind: 'update',
     added: [addedModel],
     removed: [],
     updated: [],

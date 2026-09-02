@@ -12,6 +12,7 @@ import StateMixin from '../mixins/state.js';
 import disposeAll from '../utils/dispose-all.js';
 import Region from './region.js';
 import { buildRegion } from './view-region.js';
+import { setStateApi } from '../runtime/state-api.js';
 
 const ClassOptions = [
   'channelName',
@@ -390,7 +391,7 @@ async function stopApplication(application, operation, options) {
 // Keep prototype composition inside the exported initialization boundary so an
 // unused Application can be removed without treating its local mutations as global.
 export default /* @__PURE__ */ (methods => {
-  Application.extend = extend;
+  assignOwn(Application, { extend, setStateApi });
   assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMixin, methods);
   return Application;
 })({

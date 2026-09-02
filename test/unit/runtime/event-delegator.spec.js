@@ -4,7 +4,7 @@ import { vi } from 'vitest';
 import EventDelegator, { setEventDelegator } from '../../../runtime/event-delegator';
 import Behavior from '../../../modules/behavior';
 import CollectionView from '../../../modules/collection-view';
-import State from '../../../modules/state';
+import MnObject from '../../../modules/object';
 import View from '../../../modules/view';
 
 describe('EventDelegator', function() {
@@ -229,7 +229,7 @@ describe('EventDelegator', function() {
   function testFailedConstructionListeners(name, ViewClass) {
     it(`stops arbitrary ${ name } listeners when construction fails`, function() {
       const constructionError = new Error('construction failed');
-      const source = new State();
+      const source = new MnObject();
       const handler = vi.fn();
       const TestView = ViewClass.extend({
         initialize() {
@@ -443,7 +443,7 @@ describe('EventDelegator', function() {
 
     expect(() => view.destroy()).to.throw(cleanupError);
     expect(view.isDestroyed()).to.equal(true);
-    expect(state.isDestroyed()).to.equal(true);
+    expect(state).to.deep.equal({});
     expect(onDestroy).toHaveBeenCalledTimes(1);
     expect(stopListening).toHaveBeenCalled();
     expect(rootEl.isConnected).to.equal(false);

@@ -1,25 +1,6 @@
 import getValue from '../utils/get-value.js';
-import buildEventArgs from '../utils/build-event-args.js';
 import disposeAll from '../utils/dispose-all.js';
-import { normalizeBindings } from '../modules/common/bind-events.js';
-
-function subscribeBindings(context, Data, entity, bindings) {
-  const eventArgs = buildEventArgs(normalizeBindings(context, bindings), context);
-  const subscriptions = [];
-
-  try {
-    for (let index = 0; index < eventArgs.length; index++) {
-      const { name, callback, context: eventContext } = eventArgs[index];
-      subscriptions.push(Data.subscribe(entity, name, callback, eventContext));
-    }
-  } catch (error) {
-    disposeAll(subscriptions, error);
-  }
-
-  return function() {
-    disposeAll(subscriptions);
-  };
-}
+import subscribeBindings from '../utils/subscribe-bindings.js';
 
 // MixinOptions
 // - collectionEvents
@@ -32,7 +13,13 @@ export default {
       if (model) {
         this._modelEvents = getValue(this, 'modelEvents');
         if (this._modelEvents) {
-          this._modelEventUnsubscribe = subscribeBindings(this, Data, model, this._modelEvents);
+          this._modelEventUnsubscribe = subscribeBindings(
+            this,
+            Data,
+            model,
+            this._modelEvents,
+            'DataApi'
+          );
         }
       }
 
@@ -43,7 +30,8 @@ export default {
             this,
             Data,
             collection,
-            this._collectionEvents
+            this._collectionEvents,
+            'DataApi'
           );
         }
       }

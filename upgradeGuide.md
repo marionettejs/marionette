@@ -19,7 +19,23 @@ current public behavior boundary. Final migration documentation is tracked in
 - Other data sources can configure `setDataApi` with identity, read,
   serialization, ordered-item, subscription, and collection-observation methods.
   See [Data API](docs/data.api.md).
+- State owners return the exact supplied source from `getState()`. Use
+  `createState(options)` for an owned source, and configure `setStateApi` when
+  declarative `stateEvents` need observation. The v5 alpha concrete `State`
+  export is removed. See [State sources and StateApi](docs/marionette.state.md).
 - Replace `children.findByModelCid(cid)` with `children.findByModel(model)`.
+
+## CollectionView source order and presentation sorting
+
+- A normalized DataApi `reorder` or `update` keeps keyed children aligned with
+  the collection source order while `sortWithCollection` is enabled.
+- `viewComparator: false` disables the separate presentation comparator; it no
+  longer freezes the current child order against structural source changes.
+- Set `sortWithCollection: false` when a CollectionView must preserve manually
+  managed child order instead of following the source.
+- An immutable update that replaces an item with a different object at the same
+  stable key recreates that child View. Do not retain references to the old
+  child across such an update.
 
 ## Underscore is no longer a peer dependency
 

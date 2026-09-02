@@ -17,6 +17,7 @@ import DomApi, { setDomApi } from '../runtime/dom-api.js';
 import { setEventDelegator } from '../runtime/event-delegator.js';
 import { setRenderer } from '../runtime/renderer.js';
 import { setDataApi } from '../runtime/data-api.js';
+import { setStateApi } from '../runtime/state-api.js';
 
 const classErrorName = 'RegionError';
 const destroyTeardown = new WeakMap();
@@ -923,7 +924,7 @@ const View = function(options) {
   }
 };
 
-assignOwn(View, { extend, setRenderer, setDomApi, setEventDelegator, setDataApi });
+assignOwn(View, { extend, setRenderer, setDomApi, setEventDelegator, setDataApi, setStateApi });
 
 assignOwn(View.prototype, ViewMixin, RegionsMixin, {
   cidPrefix: 'mnv',

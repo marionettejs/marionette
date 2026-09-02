@@ -17,6 +17,7 @@ import UIMixin from '../mixins/ui.js';
 import ViewEventsMixin from '../mixins/view-events.js';
 import { setEventDelegator } from '../runtime/event-delegator.js';
 import disposeAll from '../utils/dispose-all.js';
+import { setStateApi } from '../runtime/state-api.js';
 
 const ClassOptions = [
   'collectionEvents',
@@ -71,7 +72,7 @@ const Behavior = function(options, view) {
   }
 };
 
-assignOwn(Behavior, { extend, setEventDelegator });
+assignOwn(Behavior, { extend, setEventDelegator, setStateApi });
 
 // Behavior Methods
 // --------------

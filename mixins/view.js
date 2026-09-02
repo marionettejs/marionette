@@ -128,14 +128,22 @@ const ViewMixin = {
   _rollbackView(error) {
     const dataObserverUnsubscribe = this._dataObserverUnsubscribe;
     delete this._dataObserverUnsubscribe;
+
+    // Construction rollback is not yet guarded by _isDestroying. Release the
+    // collection observer before child cleanup can synchronously mutate it.
+    try {
+      dataObserverUnsubscribe?.();
+    } catch {
+      // Preserve the construction error while continuing best-effort cleanup.
+    }
+
     disposeAll([
       () => this.stopListening(),
       () => this._destroyState(),
       () => this._rollbackBehaviors(),
       () => this.undelegateEntityEvents(),
       () => this._undelegateViewEvents(),
-      () => this._removeChildren(),
-      dataObserverUnsubscribe
+      () => this._removeChildren()
     ], error);
   },
 

@@ -50,7 +50,9 @@ async function validateBrowserGlobal(file) {
 
   assert.strictEqual(Marionette.VERSION, packageJson.version, `${file} browser-global version`);
   assert.strictEqual(typeof Marionette.MarionetteError, 'function', `${file} MarionetteError export`);
-  assert.strictEqual(typeof Marionette.State, 'function', `${file} State export`);
+  assert.strictEqual(Object.hasOwn(Marionette, 'State'), false, `${file} State absence`);
+  assert.strictEqual(typeof Marionette.StateApi, 'object', `${file} StateApi export`);
+  assert.strictEqual(typeof Marionette.setStateApi, 'function', `${file} setStateApi export`);
   assert.strictEqual(typeof Marionette.DataApi, 'object', `${file} DataApi export`);
   assert.strictEqual(typeof Marionette.setDataApi, 'function', `${file} setDataApi export`);
   const Application = Marionette.Application.extend({
@@ -64,7 +66,7 @@ async function validateBrowserGlobal(file) {
   });
   const state = application.getState();
   assert.strictEqual(application.initialized, true, `${file} Application.extend behavior`);
-  assert.strictEqual(application.getState().get('ready'), true, `${file} Application State behavior`);
+  assert.strictEqual(application.getState().ready, true, `${file} Application state behavior`);
   assert.strictEqual(
     application.getChannel(),
     Marionette.Radio.channel(`dist-${file}`),
@@ -72,7 +74,7 @@ async function validateBrowserGlobal(file) {
   );
   await application.destroy();
   assert.strictEqual(application.isDestroyed(), true, `${file} Application destroy behavior`);
-  assert.strictEqual(state.isDestroyed(), true, `${file} Application State teardown`);
+  assert.strictEqual(state.ready, true, `${file} borrowed Application state survives teardown`);
   validateRadio(Marionette, file);
   assert.strictEqual(Marionette.noConflict(), Marionette, `${file} noConflict return value`);
   assert.strictEqual(context.Marionette, previousMarionette, `${file} noConflict restoration`);
@@ -87,7 +89,9 @@ async function validate() {
   for (const [name, Marionette] of entrypoints) {
     assert.strictEqual(Marionette.VERSION, packageJson.version, `${name} version`);
     assert.strictEqual(typeof Marionette.MarionetteError, 'function', `${name} MarionetteError export`);
-    assert.strictEqual(typeof Marionette.State, 'function', `${name} State export`);
+    assert.strictEqual(Object.hasOwn(Marionette, 'State'), false, `${name} State absence`);
+    assert.strictEqual(typeof Marionette.StateApi, 'object', `${name} StateApi export`);
+    assert.strictEqual(typeof Marionette.setStateApi, 'function', `${name} setStateApi export`);
     assert.strictEqual(typeof Marionette.DataApi, 'object', `${name} DataApi export`);
     assert.strictEqual(typeof Marionette.setDataApi, 'function', `${name} setDataApi export`);
     assert.strictEqual(Marionette.View.prototype.Data, Marionette.DataApi, `${name} plain View DataApi`);
@@ -100,7 +104,8 @@ async function validate() {
     assert.strictEqual(Marionette.DataApi.key(plainModel), plainModel, `${name} plain identity`);
     assert.strictEqual(Marionette.DataApi.get(plainModel, 'name'), 'plain', `${name} plain read`);
     assert.strictEqual(Marionette.DataApi.items([plainModel])[0], plainModel, `${name} plain items`);
-    assert.strictEqual(new Marionette.State({ ready: true }).get('ready'), true, `${name} State behavior`);
+    const state = { ready: true };
+    assert.strictEqual(new Marionette.MnObject({ state }).getState(), state, `${name} exact state source`);
     validateRadio(Marionette, name);
 
     for (const utilityName of removedRootUtilities) {

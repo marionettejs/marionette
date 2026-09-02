@@ -17,8 +17,129 @@ import { setDomApi } from '../runtime/dom-api.js';
 import { setEventDelegator } from '../runtime/event-delegator.js';
 import { setRenderer } from '../runtime/renderer.js';
 import { setDataApi } from '../runtime/data-api.js';
+import { setStateApi } from '../runtime/state-api.js';
+import { normalizeDisposer } from '../utils/subscribe-bindings.js';
 
 const classErrorName = 'CollectionViewError';
+
+function throwCollectionProtocolError(message) {
+  throw new MarionetteError({
+    code: 'MN0039',
+    name: classErrorName,
+    message,
+    url: 'data.api.html#collection-observations'
+  });
+}
+
+function buildCollectionSnapshot(Data, collection, previous) {
+  const items = Data.items(collection);
+  if (!Array.isArray(items)) {
+    throwCollectionProtocolError('DataApi.items() must return an ordered array snapshot.');
+  }
+
+  const previousKeys = new Map(previous.map(entry => [entry.item, entry.key]));
+  const keys = new Map();
+  const itemEntries = new Map();
+  const snapshot = Array(items.length);
+
+  for (let index = 0; index < items.length; index++) {
+    const item = items[index];
+    const key = Data.key(item);
+
+    if (key == null) {
+      throwCollectionProtocolError(`DataApi.key() returned a missing key for item at index ${ index }.`);
+    }
+    if (keys.has(key)) {
+      throwCollectionProtocolError(`DataApi.key() returned duplicate key "${ String(key) }".`);
+    }
+    if (previousKeys.has(item) && !Object.is(previousKeys.get(item), key)) {
+      throwCollectionProtocolError('DataApi.key() changed while an item remained in the CollectionView.');
+    }
+
+    const entry = { item, key };
+    snapshot[index] = entry;
+    keys.set(key, entry);
+    itemEntries.set(item, entry);
+  }
+
+  return { entries: snapshot, items: itemEntries, keys };
+}
+
+function sameItems(actual, expected) {
+  if (actual.length !== expected.length) { return false; }
+  const remaining = new Set(expected);
+
+  for (const item of actual) {
+    if (!remaining.delete(item)) { return false; }
+  }
+
+  return true;
+}
+
+function normalizeCollectionChange(change, previous, current) {
+  if (!change || typeof change !== 'object') {
+    throwCollectionProtocolError('DataApi.observeCollection() must notify with a structural change record.');
+  }
+  if (change.kind === 'reset') { return { kind: 'reset' }; }
+  if (change.kind !== 'reorder' && change.kind !== 'update') {
+    throwCollectionProtocolError(`Unknown collection change kind "${ String(change.kind) }".`);
+  }
+
+  const added = current.entries.filter(entry => !previous.keys.has(entry.key));
+  const removed = previous.entries.filter(entry => !current.keys.has(entry.key));
+  const replacements = current.entries
+    .filter(entry => previous.keys.has(entry.key) && previous.keys.get(entry.key).item !== entry.item)
+    .map(entry => ({
+      key: entry.key,
+      previous: previous.keys.get(entry.key).item,
+      current: entry.item
+    }));
+
+  if (change.kind === 'reorder') {
+    if (added.length || removed.length || replacements.length) {
+      throwCollectionProtocolError('A reorder record cannot add, remove, or replace items.');
+    }
+    return { kind: 'reorder' };
+  }
+
+  if (!Array.isArray(change.added) || !Array.isArray(change.removed) ||
+      !Array.isArray(change.updated)) {
+    throwCollectionProtocolError('An update record requires added, removed, and updated arrays.');
+  }
+  if (!sameItems(change.added, added.map(entry => entry.item)) ||
+      !sameItems(change.removed, removed.map(entry => entry.item))) {
+    throwCollectionProtocolError('An update record must match the source snapshot additions and removals.');
+  }
+
+  const updated = [];
+  const updatedKeys = new Set();
+  for (const pair of change.updated) {
+    if (!pair || typeof pair !== 'object' ||
+        !Object.hasOwn(pair, 'previous') || !Object.hasOwn(pair, 'current')) {
+      throwCollectionProtocolError('Each updated entry must contain previous and current items.');
+    }
+
+    const previousEntry = previous.items.get(pair.previous);
+    const currentEntry = current.items.get(pair.current);
+    if (!previousEntry || !currentEntry || !Object.is(previousEntry.key, currentEntry.key)) {
+      throwCollectionProtocolError('Each updated entry must preserve one existing stable key.');
+    }
+    if (updatedKeys.has(currentEntry.key)) {
+      throwCollectionProtocolError('An update record cannot update the same key more than once.');
+    }
+
+    updatedKeys.add(currentEntry.key);
+    updated.push({ key: currentEntry.key, previous: pair.previous, current: pair.current });
+  }
+
+  for (const replacement of replacements) {
+    if (!updatedKeys.has(replacement.key)) {
+      throwCollectionProtocolError('A same-key replacement must appear in the updated array.');
+    }
+  }
+
+  return { kind: 'update', added, removed, updated };
+}
 
 function isEmptyViewClass(view) {
   if (typeof view !== 'function' || !view.prototype) { return false; }
@@ -122,7 +243,14 @@ const CollectionView = function(options) {
   }
 };
 
-assignOwn(CollectionView, { extend, setRenderer, setDomApi, setEventDelegator, setDataApi });
+assignOwn(CollectionView, {
+  extend,
+  setRenderer,
+  setDomApi,
+  setEventDelegator,
+  setDataApi,
+  setStateApi
+});
 
 assignOwn(CollectionView.prototype, ViewMixin, {
   cidPrefix: 'mncv',
@@ -160,101 +288,269 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   _initialEvents() {
     if (this._isRendered || this._dataObserverUnsubscribe) { return; }
 
-    this._dataObserverUnsubscribe = this.Data.observeCollection(
-      this.collection,
-      this._onCollectionChange,
-      this
+    this._dataObserverUnsubscribe = normalizeDisposer(
+      this.Data.observeCollection(this.collection, this._onCollectionChange, this),
+      'DataApi.observeCollection'
     );
   },
 
   _onCollectionChange(change) {
-    if (change.type === 'reorder') {
-      this._onCollectionReorder();
-    } else if (change.type === 'reset') {
-      this._onCollectionReset();
-    } else if (change.type === 'update') {
-      this._onCollectionUpdate(change);
+    if (this._isDestroying || this._isDestroyed) { return; }
+
+    const previous = this._collectionObservedSnapshot || this._collectionSnapshot;
+    const current = buildCollectionSnapshot(this.Data, this.collection, previous.entries);
+    const normalized = this._collectionNeedsReset ? { kind: 'reset' } :
+      normalizeCollectionChange(change, previous, current);
+    const notification = { change: normalized, snapshot: current };
+
+    // Nested notifications normalize against the latest observed source while
+    // the committed snapshot advances only after reconciliation succeeds.
+    this._collectionObservedSnapshot = current;
+    if (this._collectionChangeQueue) {
+      this._collectionChangeQueue.push(notification);
+      return;
+    }
+
+    const queue = this._collectionChangeQueue = [];
+    let pending = notification;
+
+    try {
+      while (pending) {
+        const { change: pendingChange, snapshot } = pending;
+        if (pendingChange.kind === 'reorder') {
+          this._onCollectionReorder(snapshot);
+        } else if (pendingChange.kind === 'reset') {
+          this._onCollectionReset(snapshot);
+        } else {
+          this._onCollectionUpdate(pendingChange, snapshot);
+        }
+        this._collectionSnapshot = snapshot;
+        pending = queue.shift();
+      }
+      delete this._collectionNeedsReset;
+    } catch (error) {
+      this._collectionNeedsReset = true;
+      throw error;
+    } finally {
+      delete this._collectionChangeQueue;
+      delete this._collectionObservedSnapshot;
     }
   },
 
   // Internal method. This checks for any changes in the order of the collection.
   // If the index of any view doesn't match, it will re-sort.
-  _onCollectionReorder() {
+  _onCollectionReorder(snapshot) {
     if (this._isDestroying || this._isDestroyed) { return; }
 
-    if (!this.sortWithCollection || this.viewComparator === false) {
+    if (!this.sortWithCollection) {
       return;
     }
 
-    this.sort();
+    this._setChildrenFromSnapshot(snapshot);
+    this._reconcileChildren([]);
   },
 
-  _onCollectionReset() {
+  _onCollectionReset(snapshot) {
     if (this._isDestroying || this._isDestroyed) { return; }
 
     this._destroyChildren();
 
-    this._addChildModels(this.Data.items(this.collection));
+    this._addChildModels(snapshot.entries.map(entry => entry.item));
 
     this.sort();
   },
 
   // Handle collection update model additions and  removals
-  _onCollectionUpdate(changes) {
+  _onCollectionUpdate(changes, snapshot) {
     if (this._isDestroying || this._isDestroyed) { return; }
 
-    // Remove first since it'll be a shorter array lookup.
-    const removedViews = changes.removed.length && this._removeChildModels(changes.removed);
+    const updateEntries = changes.updated.map(({ key, previous, current }) => {
+      const view = this._children.findByKey(key);
+      if (!view) {
+        throwCollectionProtocolError(`No child View exists for updated key "${ String(key) }".`);
+      }
+      return { current, previous, view };
+    });
+    const replacementViews = [];
 
-    this._addedViews = changes.added.length && this._addChildModels(changes.added);
+    try {
+      for (const { current, previous } of updateEntries) {
+        if (previous !== current) {
+          replacementViews.push(this._createChildView(current));
+        }
+      }
+    } catch (error) {
+      disposeAll(
+        replacementViews.map(view => () => this._destroyChildView(view)),
+        error
+      );
+    }
 
-    this._detachChildren(removedViews);
+    const stagedViews = new Set(replacementViews);
+    const removedViews = [];
+    const addedViews = [];
+    const replacedViews = [];
+    const insertedViews = [];
+    const updatedViews = [];
+    let replacementIndex = 0;
 
-    const isDefaultComparator = this.getComparator === CollectionView.prototype.getComparator;
-    const isDefaultFilterQuery = this.getFilter === CollectionView.prototype.getFilter;
-    const isDefaultSort = this.sort === CollectionView.prototype.sort;
-    const isDefaultFilter = this.filter === CollectionView.prototype.filter;
+    try {
+      // Remove first since it'll be a shorter array lookup.
+      for (const { key } of changes.removed) {
+        const view = this._children.findByKey(key);
+        if (!view) { continue; }
+        try {
+          this._removeChild(view);
+        } finally {
+          if (!this._children.hasView(view)) { removedViews.push(view); }
+        }
+      }
 
-    const canRemoveWithoutRender = this._isRendered &&
-      changes.removed.length > 0 &&
-      changes.added.length === 0 &&
-      changes.updated.length === 0 &&
-      isDefaultComparator &&
-      isDefaultFilterQuery &&
-      isDefaultSort &&
-      isDefaultFilter &&
-      !this.viewComparator &&
-      !this.viewFilter &&
-      this.children.length === this._children.length &&
-      this._children.length > 0 &&
-      !this._hasUnrenderedViews &&
-      !this._emptyRegion.hasView();
+      for (const { item } of changes.added) {
+        const view = this._createChildView(item);
+        stagedViews.add(view);
+        this._addChild(view);
+        stagedViews.delete(view);
+        addedViews.push(view);
+        insertedViews.push(view);
+      }
 
-    if (!canRemoveWithoutRender) {
-      this.sort();
+      for (const { current, previous, view } of updateEntries) {
+        if (previous !== current) {
+          const childIndex = this._children.findIndexByView(view);
+          try {
+            this._removeChild(view);
+          } finally {
+            if (!this._children.hasView(view)) { removedViews.push(view); }
+          }
+          const replacementView = replacementViews[replacementIndex++];
+          this._addChild(replacementView, childIndex);
+          stagedViews.delete(replacementView);
+          replacedViews.push(replacementView);
+          insertedViews.push(replacementView);
+        } else {
+          updatedViews.push(view);
+        }
+      }
+
+      this._detachChildren(removedViews);
+      if (this.sortWithCollection) {
+        this._setChildrenFromSnapshot(snapshot);
+      }
+      this._reconcileChildren(
+        [...addedViews, ...replacedViews, ...updatedViews],
+        updatedViews.length || replacedViews.length || !addedViews.length ? false : addedViews
+      );
+    } catch (error) {
+      disposeAll([
+        () => this._removeChildViews(removedViews),
+        ...[...insertedViews, ...stagedViews]
+          .map(view => () => this._rollbackChildView(view))
+      ], error);
     }
 
     // Destroy removed child views after all of the render is complete
     this._removeChildViews(removedViews);
   },
 
-  _removeChildModels(models) {
-    const views = [];
-    const length = models.length;
-    for (let index = 0; index < length; index++) {
-      const removeView = this._removeChildModel(models[index]);
-
-      if (removeView) { views.push(removeView); }
-    }
-    return views;
+  _setChildrenFromSnapshot(snapshot) {
+    const sourceViews = snapshot.entries
+      .map(({ key }) => this._children.findByKey(key))
+      .filter(Boolean);
+    const sourceViewSet = new Set(sourceViews);
+    const manualViews = this._children._views.filter(view => !sourceViewSet.has(view));
+    const views = sourceViews.concat(manualViews);
+    this._children._set(views, true);
   },
 
-  _removeChildModel(model) {
-    const view = this._children.findByModel(model);
+  _reconcileChildren(renderViews, addedViews = false) {
+    const canReconcile = this.sort === CollectionView.prototype.sort &&
+      this.filter === CollectionView.prototype.filter &&
+      this.getComparator === CollectionView.prototype.getComparator &&
+      this.getFilter === CollectionView.prototype.getFilter &&
+      !this.viewComparator &&
+      !this.viewFilter;
 
-    if (view) { this._removeChild(view); }
+    if (!canReconcile) {
+      for (const view of renderViews) { view._isRendered = false; }
+      this._addedViews = addedViews;
+      this._reconcileFallback = true;
+      this.sort();
+      if (this._reconcileFallback) {
+        delete this._reconcileFallback;
+        this._renderChildren();
+      }
+      return;
+    }
 
-    return view;
+    this._reconcileRenderViews = renderViews;
+    this.sort();
+  },
+
+  _renderReconciledChildren(renderViews) {
+    const renderViewSet = new Set(renderViews);
+    if (this._hasUnrenderedViews) {
+      for (const view of this.children) {
+        if (!view._isRendered && !renderViewSet.has(view)) {
+          renderViews.push(view);
+          renderViewSet.add(view);
+        }
+      }
+      delete this._hasUnrenderedViews;
+    }
+    renderViews = renderViews.filter(view => this.children.hasView(view));
+    this.triggerMethod('before:render:children', this, renderViews);
+    if (this.isEmpty()) {
+      this._showEmptyView();
+    } else {
+      this._destroyEmptyView();
+
+      const views = this.children._views;
+      const documentEl = this.container.ownerDocument;
+      const activeElement = documentEl.activeElement;
+      const shouldRestoreFocus = activeElement && views.some(view =>
+        view.el === activeElement || view.el.contains(activeElement)
+      );
+      const selection = shouldRestoreFocus &&
+        typeof activeElement.selectionStart === 'number' && {
+        end: activeElement.selectionEnd,
+        start: activeElement.selectionStart,
+        direction: activeElement.selectionDirection
+      };
+
+      for (const view of renderViews) {
+        view._isRendered = false;
+        renderView(view);
+      }
+
+      const attaching = views.filter(view => view.el.parentNode !== this.container);
+      if (attaching.length) {
+        this._attachChildren(this._getBuffer(attaching), attaching);
+      }
+
+      if (attaching.every(view => view.el.parentNode === this.container)) {
+        const attachingSet = new Set(attaching);
+        let before = null;
+        for (let index = views.length; index--;) {
+          const view = views[index];
+          if (!attachingSet.has(view) && view.el.nextSibling !== before) {
+            this.Dom.moveEl(view.el, this.container, before);
+          }
+          view._isShown = true;
+          before = view.el;
+        }
+      }
+
+      if (shouldRestoreFocus && activeElement.isConnected &&
+          documentEl.activeElement !== activeElement) {
+        activeElement.focus({ preventScroll: true });
+        if (selection) {
+          activeElement.setSelectionRange(selection.start, selection.end, selection.direction);
+        }
+      }
+    }
+
+    this.triggerMethod('render:children', this, renderViews);
   },
 
   _removeChild(view) {
@@ -266,7 +562,6 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     this.triggerMethod('remove:child', this, view);
   },
 
-  // Added views are returned for consistency with _removeChildModels
   _addChildModels(models) {
     const length = models.length;
     const views = Array(length);
@@ -407,7 +702,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     this._destroyChildren();
 
     if (this.collection) {
-      this._addChildModels(this.Data.items(this.collection));
+      this._collectionSnapshot = buildCollectionSnapshot(this.Data, this.collection, []);
+      this._addChildModels(this._collectionSnapshot.entries.map(entry => entry.item));
       this._initialEvents();
     }
 
@@ -610,8 +906,6 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   },
 
   _detachChildren(detachingViews) {
-    if (!detachingViews) { return; }
-
     const length = detachingViews.length;
     for (let index = 0; index < length; index++) {
       this._detachChildView(detachingViews[index]);
@@ -640,6 +934,15 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   },
 
   _renderChildren() {
+    delete this._reconcileFallback;
+
+    if (this._reconcileRenderViews) {
+      const renderViews = this._reconcileRenderViews;
+      delete this._reconcileRenderViews;
+      this._renderReconciledChildren(renderViews);
+      return;
+    }
+
     // If there are unrendered views prevent add to end perf
     if (this._hasUnrenderedViews) {
       delete this._addedViews;
@@ -879,8 +1182,6 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   },
 
   _removeChildViews(views) {
-    if (!views) { return; }
-
     const disposers = views.map(view => () => this._removeChildView(view));
     disposeAll(disposers.reverse());
   },
@@ -892,6 +1193,20 @@ assignOwn(CollectionView.prototype, ViewMixin, {
       () => this.stopListening(view),
       () => shouldDetach ? this._detachChildView(view) : this._destroyChildView(view)
     ]);
+  },
+
+  _rollbackChildView(view) {
+    view.off('destroy', this.removeChildView, this);
+    this.stopListening(view);
+    try {
+      if (this._children.hasView(view)) {
+        this._removeChild(view);
+      }
+    } finally {
+      this.children._remove(view);
+      this._children._remove(view);
+      this._destroyChildView(view);
+    }
   },
 
   _destroyChildView(view) {

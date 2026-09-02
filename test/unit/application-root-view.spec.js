@@ -282,7 +282,7 @@ describe('Application root View ownership', function() {
     expect(app.getView()).to.be.undefined;
   });
 
-  for (const failure of ['_initRadio', 'initialize', 'state', 'stateEvents']) {
+  for (const failure of ['_initRadio', 'initialize', 'createState', 'stateEvents']) {
     it(`destroys its constructed Region when ${ failure } throws`, function() {
       const error = new Error(`${ failure } failed`);
       let region;
@@ -292,6 +292,7 @@ describe('Application root View ownership', function() {
       const BrokenApplication = Application.extend({
         region: '#application-root',
         regionClass: TrackingRegion,
+        stateEvents: failure === 'createState' ? { change() {} } : undefined,
         [failure]() { throw error; }
       });
 
@@ -303,6 +304,7 @@ describe('Application root View ownership', function() {
       const error = new Error(`${ failure } failed`);
       const region = new Region({ el: '#application-root' });
       const BrokenApplication = Application.extend({
+        stateEvents: failure === 'createState' ? { change() {} } : undefined,
         [failure]() { throw error; }
       });
 

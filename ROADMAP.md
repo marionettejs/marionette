@@ -158,8 +158,8 @@ budget.
 - Documentation names canonical patterns and counterexamples.
 - Examples are run in CI or otherwise verified against the shipped package.
 - A compact agent-oriented reference describes lifecycle, ownership, regions,
-  Applications, state-source composition, native `State`, behaviors, communication, and
-  teardown without inventing a separate API.
+  Applications, state-source composition, behaviors, communication, and teardown
+  without inventing a separate API.
 - The package ships compact, version-aligned, non-runtime agent material generated
   from the same public metadata: API and lifecycle tables, diagnostics, migration
   guidance, and canonical examples and counterexamples.
@@ -247,8 +247,8 @@ owned child Applications. An Application without a parent is the root of one
 composition tree; independent roots may coexist on a page. Root status is topology,
 not a reason for an Application subtype.
 
-Application, MnObject, View, CollectionView, the native `State` candidate, Region, and
-Behavior do not form a public inheritance hierarchy. They compose first-class
+Application, MnObject, View, CollectionView, Region, and Behavior do not form a public
+inheritance hierarchy. They compose first-class
 collaborators and may satisfy small shared protocols or reuse internal implementation
 without exposing inheritance as the application architecture.
 
@@ -295,8 +295,8 @@ Application explicitly.
 
 State composition is a first-class owner-to-source relationship rather than a second
 universal model API mixed into unrelated classes. Owners expose only `getState()`,
-which returns the exact configured Backbone model, actor, external store, native
-`State`, or other source. Application code uses that source's native mutation API;
+which returns the exact configured Backbone model, actor, external store, custom
+observable, or other source. Application code uses that source's native mutation API;
 Marionette does not pretend every source implements keyed setters, reset, or
 `change:key`. A source and an owner-local factory are distinct explicit configuration
 forms. A supplied source is borrowed: Marionette releases only its own subscriptions.
@@ -325,14 +325,10 @@ After Application startup is invalidated, Marionette performs no stale state-sou
 work or subscription setup. Owner-provided asynchronous hooks must observe cancellation
 before mutating any source.
 
-The dependency-free native `State` remains an explicitly constructed candidate while
-reference tasks and benchmark evidence are collected. Its current synchronous change
-payload, multi-key write, defaults, reset, nested-write, and destroy semantics are
-native `State` behavior, not a universal adapter protocol. Evidence decides whether it
-earns a permanent public v5 place. The candidate remains synchronous and deliberately
-small: it does not implicitly render Views, schedule work, compute derived values, run
-effects, or persist data. Stateless owners pay zero per-instance allocation and
-retention cost.
+The dependency-free core default is an exact plain object. It is deliberately
+non-observable and gains no model-shaped mutation API. The earlier concrete `State`
+candidate and export are removed rather than retained as a transitional alias.
+Stateless owners pay zero per-instance allocation and retention cost.
 
 Appropriate core additions include public read-only ownership accessors, pure Region
 lookup, and shared diagnostics. Resource ownership and extension hooks remain
@@ -424,15 +420,12 @@ current-evidence findings:
   adapters package has no root barrel, and core does not retain forwarding modules or
   the old `marionette/backbone` and `marionette/jquery-dom-api` paths. Importing one
   adapter must not load the other adapter or its optional peer.
-- **Selected after the first integration candidate:** Complete the native and external
-  live-collection story through the same `@marionette/adapters` package rather than a
-  competing `@marionette/data` package. Provide a small dependency-free observable
-  ordered list that emits exact normalized records, one shared keyed snapshot observer
-  used by Redux Toolkit, Zustand vanilla, and plain-record XState Store sources, and a
-  distinct XState v5 actor integration. External-store packages remain optional peers
-  or fixture dependencies and never enter the core production graph. Exact adapter
-  subpath names freeze only after the package/export audit, but every integration has
-  one explicit import and the package retains no root barrel.
+- **Selected sequencing:** Freeze core StateApi/DataApi ownership, observation,
+  declarative event-map, and normalized CollectionView reconciliation contracts first.
+  Add the optional `@marionette/data` Model, Collection, `triggerMethod`, StateApi, and
+  DataApi implementation second. Add Backbone, XState, Redux, and Zustand provider
+  adapters afterward. External-store packages remain optional peers or fixture
+  dependencies and never enter the core production graph.
 - **Gated:** Template cloning is a valid optimized rendering technique, not evidence by itself
   for another renderer API. First measure and document the explicit existing recipe:
   construct the final imported element in `buildChildView`, pass it to the child View,
@@ -653,8 +646,8 @@ instructions, and every release blocker maps to this strategy.
 ### Phase 1: Core contracts
 
 - Complete the remaining API-shape and agent-ergonomics gate for existing public
-  contracts before freezing state-source composition, the native `State` candidate,
-  extension, or additional Application ownership surface. The Application
+  contracts while freezing state-source composition, StateApi/DataApi observation,
+  normalized reconciliation, extension, and additional Application ownership. The Application
   lifecycle-hook decision recorded below settles its target
   shape by retaining core Marionette's subject-first lifecycle convention, meeting the
   verified Toolkit/app-frontend asynchronous-readiness need through that single hook
@@ -675,7 +668,10 @@ instructions, and every release blocker maps to this strategy.
   Backbone-specific data shapes out of core, keep structural collection observation
   separate from per-item subscriptions, and make unsupported observation explicit
   rather than returning a silent fake disposer.
-- Move first-party Backbone and jQuery runtime adapters into a separately published
+- Implement the optional `@marionette/data` Model, Collection, `triggerMethod`,
+  StateApi, and DataApi only after the neutral core contracts above close. Keep that
+  concrete reactive implementation outside core.
+- After `@marionette/data`, move first-party Backbone and jQuery runtime adapters into a separately published
   `@marionette/adapters` workspace package, initially with only explicit `./backbone`
   and `./dom/jquery` exports and no root barrel. Move the current Backbone installer
   and Backbone DataApi together behind `./backbone`; do not extract core's DataApi
@@ -739,9 +735,8 @@ instructions, and every release blocker maps to this strategy.
   per-owner factory forms; return the exact source from `getState()`; treat supplied
   sources as borrowed and factory results as owned; and route declarative `stateEvents`
   through an explicitly selected per-owner observation adapter. Keep DataApi
-  read/collection-oriented, do not invent a universal mutation protocol, and retain
-  native `State` only as an explicitly constructed dependency-free candidate until
-  reference tasks and benchmarks decide whether it remains public.
+  read/collection-oriented, do not invent a universal mutation protocol, and remove
+  the obsolete concrete `State` implementation, export, tests, and documentation.
 - Make ownership and topology publicly readable without mutation.
 - Harden Region lookup and View/Region ownership semantics. Lock down parent rerender
   as destructive structural reset: destroy active Region children exactly once before
@@ -774,8 +769,8 @@ substantial remaining departures justified.
 ### Phase 2: Static guidance
 
 - Ship readable first-party TypeScript declarations for constructor options,
-  ownership and topology, state sources, factories, observation adapters, the native
-  `State` candidate, the selected data protocol, Application lifecycle results and
+  ownership and topology, state sources, factories, observation adapters, the
+  selected data protocol, Application lifecycle results and
   operation context, optional Backbone and jQuery adapters, and the public/internal
   boundary. Prefer structural types over elaborate type-level machinery.
 - Treat TypeScript readiness as a release contract: exercise root and every supported
@@ -837,8 +832,8 @@ development and test fixtures exercise every public helper.
   retain identity; and core plus every optional adapter is measured as a separate
   production graph and packed import.
 - Run the fixed agent corpus against the complete release candidate.
-- Validate plain Views, Views with supplied and factory-owned state sources, the
-  explicit native `State` candidate, nested Applications, the selected Application
+- Validate plain Views, Views with supplied and factory-owned state sources, nested
+  Applications, the selected Application
   startup and restart contract, Application cleanup through public lifecycle
   callbacks, and shared-host overlays in the reference application.
 - Close correctness, documentation, packaging, browser, and performance gaps exposed
@@ -885,13 +880,12 @@ closed rather than retained as dormant APIs.
   destroying one releases only its observation while the source and other borrowers
   remain live; public `off()` cannot disable later subscription release or owned-source
   disposal; every eligible owner releases subscriptions and disposes each factory
-  result exactly once after subscription release; plain objects do not trigger implicit
-  native `State` construction; and model/collection DataApi selection does not choose
-  the state-source adapter. Native `State` remains public only if the reference-task
-  and performance gate supports it.
-- Plain arrays are documented and tested as static snapshots, while the native
-  observable list, Backbone, Redux Toolkit, Zustand vanilla, plain-record XState Store,
-  and XState v5 actor cases pass the same normalized CollectionView reconciliation and
+  result exactly once after subscription release; plain objects remain exact and do not
+  trigger implicit store construction; and model/collection DataApi selection does not
+  choose the state-source adapter.
+- Plain arrays are documented and tested as static snapshots. The later
+  `@marionette/data` collection plus Backbone, Redux Toolkit, Zustand vanilla,
+  plain-record XState Store, and XState v5 actor adapters must pass the same normalized CollectionView reconciliation and
   lifecycle contract. Malformed records, duplicate keys, missing synchronous snapshots,
   invalid disposers, and unordered selector results produce actionable diagnostics.
 - Coverage configuration explicitly includes every production, development, and test

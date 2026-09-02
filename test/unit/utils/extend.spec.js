@@ -4,7 +4,6 @@ import {
   CollectionView,
   MnObject,
   Region,
-  State,
   View,
   extend
 } from '../../../index';
@@ -216,7 +215,7 @@ describe('extend', function() {
   });
 
   it('backs every exported Marionette pseudo-class', function() {
-    const classes = { Application, Behavior, CollectionView, MnObject, Region, State, View };
+    const classes = { Application, Behavior, CollectionView, MnObject, Region, View };
 
     Object.entries(classes).forEach(([name, Parent]) => {
       const staticProps = Object.assign(Object.create({ inherited: 'ignored' }), {

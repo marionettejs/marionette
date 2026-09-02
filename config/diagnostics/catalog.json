@@ -574,13 +574,13 @@
     {
       "code": "MN0034",
       "slug": "state-key-invalid",
-      "status": "active",
+      "status": "retired",
       "category": "configuration",
       "severity": "error",
       "objects": [
-        "State"
+        "StateApi"
       ],
-      "remediation": "Use State keys that do not contain whitespace.",
+      "remediation": "The concrete v5 alpha State key validation is removed. Use the selected source's native key contract.",
       "docsAnchor": "/errors/MN0034/",
       "surfaces": [
         "runtime"
@@ -590,17 +590,16 @@
     {
       "code": "MN0035",
       "slug": "state-ownership-conflict",
-      "status": "active",
+      "status": "retired",
       "category": "ownership",
       "severity": "error",
       "objects": [
         "Behavior",
         "CollectionView",
         "MnObject",
-        "State",
         "View"
       ],
-      "remediation": "Compose only a live, unowned State instance. Keep shared data in an external model, collection, or data source instead of assigning one State to multiple owners.",
+      "remediation": "The concrete v5 alpha State ownership rule is removed. Supplied sources are borrowed and may be shared by multiple owners; createState results are owned and disposed by their owner.",
       "docsAnchor": "/errors/MN0035/",
       "surfaces": [
         "runtime"
@@ -624,6 +623,62 @@
         "runtime"
       ],
       "benchmarkCategory": "cleanup"
+    },
+    {
+      "code": "MN0037",
+      "slug": "adapter-observation-unsupported",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "View"
+      ],
+      "remediation": "Configure a StateApi or DataApi that can observe the selected source, or remove the declarative event map.",
+      "docsAnchor": "/errors/MN0037/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "state"
+    },
+    {
+      "code": "MN0038",
+      "slug": "adapter-cleanup-invalid",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "View"
+      ],
+      "remediation": "Return a cleanup function from every StateApi.subscribe, DataApi.subscribe, and DataApi.observeCollection call.",
+      "docsAnchor": "/errors/MN0038/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "cleanup"
+    },
+    {
+      "code": "MN0039",
+      "slug": "collection-data-contract-invalid",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "CollectionView"
+      ],
+      "remediation": "Return an ordered array with unique stable keys and emit a valid reorder, reset, or update structural record.",
+      "docsAnchor": "/errors/MN0039/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "collection-view"
     }
   ]
 }

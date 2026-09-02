@@ -238,9 +238,10 @@ path. A CollectionView that overrides `sort`, `filter`, `getComparator`, or
 `getFilter` also retains the normal path so custom update behavior and query timing
 remain intact.
 
-When the `collection` for the view is sorted, the view by default automatically re-sorts
-its child views unless the `sortWithCollection` attribute on the `CollectionView` is set
-to `false`, or the `viewComparator` is `false`.
+When the `collection` for the view is sorted, the view by default reconciles its child
+views to the collection's source order unless the `sortWithCollection` attribute on the
+`CollectionView` is set to `false`. Setting `viewComparator: false` disables a separate
+presentation sort; it does not disable keyed source-order reconciliation.
 
 ```javascript
 import Backbone from 'backbone';
@@ -927,8 +928,9 @@ myColView.children.last().model.get('name'); // "first"
 The `sort` method will loop through the `CollectionView` `children` prior to filtering
 and sort them with the [`viewComparator`](#defining-the-viewcomparator).
 By default, if a `viewComparator` is not set, the `CollectionView` will sort
-the views by the order of the models in the `collection`. If set to `false` view
-sorting will be disabled.
+the views by the order of the models in the `collection`. If set to `false`,
+presentation sorting is disabled. Normalized collection observations still reconcile
+the keyed children to source order when `sortWithCollection` is enabled.
 
 This method is called internally when rendering and
 [`sort` and `before:sort` events](./events.class.md#sort-and-beforesort-events)
@@ -966,23 +968,24 @@ const myCollection = new Backbone.Collection([
 
 myCollection.comparator = 'id';
 
-const mySortedColView = new CollectionView({
+const myDescendingView = new CollectionView({
   //...
-  collection: myCollection
+  collection: myCollection,
+  viewComparator: childView => -childView.model.id
 });
 
-const myUnsortedColView = new CollectionView({
+const mySourceOrderView = new CollectionView({
   //...
   collection: myCollection,
   viewComparator: false
 });
 
-mySortedColView.render(); // 1 4 3 2
-myUnsortedColView.render(); // 1 4 3 2
+myDescendingView.render(); // 4 3 2 1
+mySourceOrderView.render(); // 1 4 3 2
 
 myCollection.sort();
-// mySortedColView auto-renders 1 2 3 4
-// myUnsortedColView has no change
+// myDescendingView remains 4 3 2 1
+// mySourceOrderView reconciles to source order: 1 2 3 4
 ```
 
 The `viewComparator` can take any of the acceptable `Backbone.Collection`

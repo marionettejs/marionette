@@ -19,6 +19,7 @@ import Application from '../../modules/application';
 
 import DomApi from '../../runtime/dom-api';
 import DataApi from '../../runtime/data-api';
+import StateApi from '../../runtime/state-api';
 
 describe('backbone.marionette', function() {
   describe('Named Exports', function() {
@@ -34,6 +35,7 @@ describe('backbone.marionette', function() {
       extend,
       DomApi,
       DataApi,
+      StateApi,
     };
 
     _.each(namedExports, (val, key) => {
@@ -105,28 +107,66 @@ describe('backbone.marionette', function() {
       foo: 'bar'
     };
 
-    let collectionViewData;
-    let viewData;
-
-    beforeEach(function() {
-      collectionViewData = CollectionView.prototype.Data;
-      viewData = View.prototype.Data;
-    });
-
-    afterEach(function() {
-      CollectionView.prototype.Data = collectionViewData;
-      View.prototype.Data = viewData;
-    });
-
     _.each(DataClasses, function(Class, key) {
       it(`should setDataApi on ${ key }`, function() {
-        this.sinon.spy(Class, 'setDataApi');
+        _.each(DataClasses, DataClass => {
+          this.sinon.stub(DataClass, 'setDataApi').returns(DataClass);
+        });
         Mn.setDataApi(fakeDataApi);
 
         expect(Class.setDataApi)
           .to.be.calledOnce
           .and.calledWith(fakeDataApi);
       });
+    });
+  });
+
+  describe('#setStateApi', function() {
+    const StateClasses = { Application, Behavior, CollectionView, MnObject, View };
+    const fakeStateApi = { subscribe() {} };
+
+    _.each(StateClasses, function(Class, key) {
+      it(`should setStateApi on ${ key }`, function() {
+        _.each(StateClasses, StateClass => {
+          this.sinon.stub(StateClass, 'setStateApi').returns(StateClass);
+        });
+        Mn.setStateApi(fakeStateApi);
+        expect(Class.setStateApi).to.be.calledOnce.and.calledWith(fakeStateApi);
+      });
+    });
+
+    it('allows one combined adapter or independent adapter objects', function() {
+      const combinedSubscribe = this.sinon.stub().returns(() => {});
+      const CombinedView = View.extend({
+        stateEvents: { change() {} },
+        template: data => data.label
+      });
+      const combined = {
+        subscribe: combinedSubscribe,
+        serialize() { return { label: 'combined' }; }
+      };
+      CombinedView.setStateApi(combined);
+      CombinedView.setDataApi(combined);
+      const combinedSource = {};
+      const combinedView = new CombinedView({ state: combinedSource, model: {} });
+      combinedView.render();
+      expect(combinedSubscribe).to.have.been.calledWith(combinedSource);
+      expect(combinedView.el.textContent).to.equal('combined');
+      combinedView.destroy();
+
+      const stateSubscribe = this.sinon.stub().returns(() => {});
+      const SplitView = View.extend({
+        stateEvents: { change() {} },
+        template: data => data.label
+      });
+      SplitView.setStateApi({ subscribe: stateSubscribe });
+      SplitView.setDataApi({ serialize() { return { label: 'split' }; } });
+      const splitSource = {};
+      const splitView = new SplitView({ state: splitSource, model: {} });
+      splitView.render();
+      expect(stateSubscribe).to.have.been.calledWith(splitSource);
+      expect(splitView.el.textContent).to.equal('split');
+      splitView.destroy();
     });
   });
 

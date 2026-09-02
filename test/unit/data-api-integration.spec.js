@@ -1,6 +1,7 @@
 import DataApi from '../../runtime/data-api';
 import CollectionView from '../../modules/collection-view';
 import View from '../../modules/view';
+import MarionetteError from '../../utils/error';
 
 describe('plain data integration', function() {
   const PlainView = View.extend({
@@ -80,6 +81,26 @@ describe('plain data integration', function() {
     expect(view.children.pluck('model')).to.deep.equal(collection);
   });
 
+  it('diagnoses declarative events on unobservable plain data', function() {
+    const ModelEventsView = PlainView.extend({ modelEvents: { change() {} } });
+    ModelEventsView.setDataApi(DataApi);
+    expect(() => new ModelEventsView({ model: {} }))
+      .to.throw(MarionetteError).and.include({ code: 'MN0037' });
+
+    const CollectionEventsView = PlainView.extend({ collectionEvents: { add() {} } });
+    CollectionEventsView.setDataApi(DataApi);
+    expect(() => new CollectionEventsView({ collection: [] }))
+      .to.throw(MarionetteError).and.include({ code: 'MN0037' });
+  });
+
+  it('diagnoses an invalid DataApi entity disposer', function() {
+    const InvalidView = PlainView.extend({ modelEvents: { change() {} } });
+    InvalidView.setDataApi({ subscribe() {} });
+
+    expect(() => new InvalidView({ model: {} }))
+      .to.throw(MarionetteError).and.include({ code: 'MN0038' });
+  });
+
   it('integrates a neutral observable collection adapter', function() {
     const first = { id: 1, name: 'one' };
     const second = { id: 2, name: 'two' };
@@ -105,22 +126,27 @@ describe('plain data integration', function() {
     const view = new ObservableCollectionView({ collection });
     view.render();
 
-    emit({ type: 'unknown' });
-    expect(view.children.pluck('model')).to.deep.equal([first, second]);
-
     collection.items.reverse();
-    emit({ type: 'reorder' });
+    emit({ kind: 'reorder' });
     expect(view.children.pluck('model')).to.deep.equal([second, first]);
 
     const replacement = { id: 1, name: 'replacement' };
     collection.items = [replacement, second];
-    emit({ type: 'update', added: [replacement], removed: [first], updated: [] });
+    const originalView = view.children.findByModel(first);
+    emit({
+      kind: 'update',
+      added: [],
+      removed: [],
+      updated: [{ previous: first, current: replacement }]
+    });
     expect(view.children.pluck('model')).to.deep.equal(collection.items);
     expect(view.children.findByModel(replacement).model).to.equal(replacement);
+    expect(view.children.findByModel(replacement)).to.not.equal(originalView);
+    expect(originalView.isDestroyed()).to.be.true;
 
     const reset = { id: 3, name: 'reset' };
     collection.items = [reset];
-    emit({ type: 'reset' });
+    emit({ kind: 'reset' });
     expect(view.children.pluck('model')).to.deep.equal([reset]);
 
     view.destroy();

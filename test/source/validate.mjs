@@ -13,11 +13,14 @@ const { default: jqueryDomApi } = await import('../../jquery-dom-api.js');
 
 assert.equal(typeof Marionette.View, 'function');
 assert.equal(typeof Marionette.Region, 'function');
-assert.equal(typeof Marionette.State, 'function');
+assert.equal(Object.hasOwn(Marionette, 'State'), false);
+assert.equal(typeof Marionette.StateApi, 'object');
+assert.equal(typeof Marionette.setStateApi, 'function');
 assert.equal(typeof Marionette.DataApi, 'object');
 assert.equal(typeof Marionette.setDataApi, 'function');
 assert.equal(typeof Marionette.MarionetteError, 'function');
-assert.equal(new Marionette.State({ ready: true }).get('ready'), true);
+const plainState = { ready: true };
+assert.equal(new Marionette.MnObject({ state: plainState }).getState(), plainState);
 assert.ok(new Marionette.MarionetteError({ message: 'fixture' }) instanceof Error);
 assert.equal(Backbone.Model.prototype.triggerMethod, Marionette.Events.triggerMethod);
 assert.equal(typeof jqueryDomApi.findEl, 'function');

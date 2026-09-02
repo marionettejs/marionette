@@ -237,7 +237,7 @@ describe('CollectionView Data', function() {
 
         const callArgs = myCollectionView.attachHtml.args[0];
         const attachHtmlEls = callArgs[0];
-        expect($(attachHtmlEls).children()).to.have.lengthOf(5);
+        expect($(attachHtmlEls).children()).to.have.lengthOf(2);
       });
 
       it('should append to the el', function() {
@@ -319,16 +319,18 @@ describe('CollectionView Data', function() {
       const survivorNodes = survivors.map(view => view.el);
 
       this.sinon.spy(removedView, 'destroy');
-      this.sinon.spy(myCollectionView, 'attachHtml');
+      this.sinon.spy(myCollectionView.Dom, 'moveEl');
+      survivors.forEach(view => this.sinon.spy(view, 'render'));
 
       collection.remove(removedView.model);
 
-      expect(myCollectionView.attachHtml).to.not.have.been.called;
+      expect(myCollectionView.Dom.moveEl).to.not.have.been.called;
+      survivors.forEach(view => expect(view.render).to.not.have.been.called);
       expect([...myCollectionView.el.children]).to.deep.equal(survivorNodes);
       expect(removedView.destroy).to.have.been.calledOnce;
     });
 
-    it('removes multiple children without rendering and keeps survivor indexes aligned', function() {
+    it('reconciles multiple removals and keeps survivor indexes aligned', function() {
       myCollectionView.destroy();
 
       collection = new Backbone.Collection([
@@ -355,8 +357,8 @@ describe('CollectionView Data', function() {
 
       collection.remove([collection.get(2), collection.get(4)]);
 
-      expect(beforeRenderChildren).to.not.have.been.called;
-      expect(renderChildren).to.not.have.been.called;
+      expect(beforeRenderChildren).to.have.been.calledOnce;
+      expect(renderChildren).to.have.been.calledOnce;
       expect([...myCollectionView.children]).to.deep.equal(survivors);
       expect(myCollectionView.children.findByIndex(0)).to.equal(survivors[0]);
       expect(myCollectionView.children.findByIndex(1)).to.equal(survivors[1]);
@@ -379,11 +381,11 @@ describe('CollectionView Data', function() {
         myCollectionView.el.children[0],
         myCollectionView.el.children[2]
       ];
-      this.sinon.spy(myCollectionView, 'attachHtml');
+      this.sinon.spy(myCollectionView.Dom, 'moveEl');
 
       collection.remove(collection.at(1));
 
-      expect(myCollectionView.attachHtml).to.not.have.been.called;
+      expect(myCollectionView.Dom.moveEl).to.not.have.been.called;
       expect([...myCollectionView.el.children]).to.deep.equal(survivorNodes);
     });
 
@@ -398,13 +400,13 @@ describe('CollectionView Data', function() {
         'before:sort': beforeSort,
         sort
       });
-      this.sinon.spy(myCollectionView, 'attachHtml');
+      this.sinon.spy(myCollectionView.Dom, 'moveEl');
 
       collection.remove(collection.at(1));
 
-      expect(myCollectionView.attachHtml).to.not.have.been.called;
-      expect(beforeSort).to.not.have.been.called;
-      expect(sort).to.not.have.been.called;
+      expect(myCollectionView.Dom.moveEl).to.not.have.been.called;
+      expect(beforeSort).to.have.been.calledOnce;
+      expect(sort).to.have.been.calledOnce;
       expect([...myCollectionView.el.children]).to.deep.equal(survivorNodes);
     });
 
@@ -581,11 +583,11 @@ describe('CollectionView Data', function() {
 
       const firstNode = myCollectionView.el.firstElementChild;
       const lastNode = myCollectionView.el.lastElementChild;
-      this.sinon.spy(myCollectionView, 'attachHtml');
+      this.sinon.spy(myCollectionView.Dom, 'moveEl');
 
       collection.remove(collection.at(500));
 
-      expect(myCollectionView.attachHtml).to.not.have.been.called;
+      expect(myCollectionView.Dom.moveEl).to.not.have.been.called;
       expect(myCollectionView.el.children).to.have.lengthOf(1000);
       expect(myCollectionView.el.firstElementChild).to.equal(firstNode);
       expect(myCollectionView.el.lastElementChild).to.equal(lastNode);
