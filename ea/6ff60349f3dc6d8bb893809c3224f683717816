@@ -1,0 +1,89 @@
+test/fixtures/docs-view-dom-interactions/validate.mjs
+  s_d93f45db31dead::t_7761ee7a745bc5 11-12,46-47,49-50,52-54,58,61-64,217-243,254
+docs/migration-from-v4.md
+  s_d93f45db31dead::t_c3f5a800e619c6 106
+  s_d93f45db31dead::t_00e68e452a3db8 107
+  s_d93f45db31dead::t_3c4699bf56964d 113
+modules/collection-view.js
+  s_d93f45db31dead::t_d542452ba83d91 120
+  s_d93f45db31dead::t_928c14f0142fbf 96-97,99-101,126
+upgradeGuide.md
+  s_d93f45db31dead::t_956a9bbfeb4d6b 107-111,115
+  s_d93f45db31dead::t_c3f5a800e619c6 116-127
+test/unit/view-dom-delegation.spec.js
+  s_d93f45db31dead::t_f27bb32d326f62 65-112
+test/unit/runtime/event-delegator-jquery-compat.spec.js
+  s_d93f45db31dead::t_d1be951d11f613 1-61
+runtime/event-delegator.js
+  s_d93f45db31dead::t_928c14f0142fbf 6-7,14-19,21,27,29,32,44,46
+  s_d93f45db31dead::t_d542452ba83d91 28
+  s_d93f45db31dead::t_9916a40fd70dc8 3,8-13
+  s_d93f45db31dead::t_00e68e452a3db8 20
+config/diagnostics/catalog.json
+  s_d93f45db31dead::t_9916a40fd70dc8 609-626
+modules/behavior.js
+  s_d93f45db31dead::t_d542452ba83d91 64
+  s_d93f45db31dead::t_928c14f0142fbf 66
+package.json
+  s_d93f45db31dead::t_800e4d796548ca 93
+test/unit/runtime/event-delegator.spec.js
+  s_d93f45db31dead::t_e55ece8229b164 5,212-222,224-227,274-286
+  s_d93f45db31dead::t_00e68e452a3db8 52,228,249,253
+  s_d93f45db31dead::t_830cab94598909 9,15,20-22,26-28,36,38-41,47-51,54,57-61,63-64,67-68,72-88,106-116,163,180-181,183-184,186,188-189,192-206,208-210,229-248,250-252,254-273,287-293
+  s_d93f45db31dead::t_240af23cba6104 179
+  s_d93f45db31dead::t_9916a40fd70dc8 65-66,294-295
+test/browser/event-delegator-focus.mjs
+  s_d93f45db31dead::t_800e4d796548ca 1-79
+modules/view-region.js
+  s_d93f45db31dead::t_928c14f0142fbf 889-890,892-894,915
+  s_d93f45db31dead::t_d542452ba83d91 909
+test/unit/behavior.spec.js
+  s_d93f45db31dead::t_38ab4e054945b7 35
+test/unit/backbone.marionette.spec.js
+  s_d93f45db31dead::t_47d2297bf0baa7 171-173
+mixins/view-events.js
+  s_d93f45db31dead::t_d542452ba83d91 58-63,78
+  s_d93f45db31dead::t_928c14f0142fbf 44,46,48,50-55,73-77,79,103,109-110,117-119
+  s_d93f45db31dead::t_00e68e452a3db8 45,47,49
+  s_d93f45db31dead::t_9916a40fd70dc8 2,111-116
+  s_d93f45db31dead::t_332ed26f44a20d 56-57
+docs/dom.interactions.md
+  s_d93f45db31dead::t_3c4699bf56964d 8-9,128-149,152,154,173-191,197-200,203-226,233-235
+  s_d93f45db31dead::t_7761ee7a745bc5 150-151,153,155-172
+  s_d93f45db31dead::t_00e68e452a3db8 192-196,227-232
+  s_d93f45db31dead::t_9916a40fd70dc8 201-202
+  s_d93f45db31dead::t_d6eb5da879114b 236
+mixins/behaviors.js
+  s_d93f45db31dead::t_928c14f0142fbf 100,105-107
+  s_e46aa7fe703536::t_a95d1d9714dce6 108-109
+dist/marionette.cjs
+  s_d93f45db31dead::t_0df79d5c43b632 1380,1384-1387,1695-1709,1719-1720,1722,1733-1734,1764-1780,1790-1796,1819,1825-1833,2765-2767,2779,2783,3210-3212,3225,3229,3843,3845
+dist/marionette.js
+  s_d93f45db31dead::t_0364eebc85f2f2 1376,1380-1383,1691-1705,1715-1716,1718,1729-1730,1760-1776,1786-1792,1815,1821-1829,2761-2763,2775,2779,3206-3208,3221,3225,3839,3841
+dist/marionette.umd.js
+  s_d93f45db31dead::t_fe2e7565a50ef5 1387,1391-1394,1702-1716,1726-1727,1729,1740-1741,1771-1787,1797-1803,1826,1832-1840,2772-2774,2786,2790,3217-3219,3232,3236,3850,3852
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "ea6ff60349f3dc6d8bb893809c3224f683717816",
+  "prompts": {},
+  "sessions": {
+    "s_d93f45db31dead": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05c69-15cb-71b1-836b-0fdd2f01d1c5",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_e46aa7fe703536": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a060eb-5db6-7ac3-8ed8-6ea657ea47c0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
