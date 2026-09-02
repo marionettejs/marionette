@@ -207,6 +207,47 @@
       ],
       "rationale": "Authorize the exact measured distribution cost of the v5 DataApi seam and its Backbone adapter. The prototype centralizes data lookup, identity, observation, and collection updates without speculative padding, a new package subpath, an external import, or growth in the jQuery adapter artifacts. Exact-head artifact-growth and timing-harness approvals remain independent gates for the later runtime pull request.",
       "rollbackCondition": "If the DataApi prototype is abandoned before consumption, append a governance-only BA0005 revocation. Never edit or delete this authorization. If the final implementation exceeds 78665 bytes or changes the authorized positive-delta artifact scope, require a new exact-base budget amendment."
+    },
+    {
+      "kind": "authorization",
+      "id": "BA0006",
+      "target": "aggregate-shipped-package",
+      "previousCeilingBytes": 78665,
+      "proposedCeilingBytes": 79084,
+      "prototypeBaseCommit": "f1775db84752578c85b7d9c19447dccac7847673",
+      "prototypeCommit": "06d0a0f64419ac7f23e41a977a12250e16172be5",
+      "implementationIssueUrl": "https://github.com/marionettejs/marionette/issues/147",
+      "authorizedArtifactPaths": [
+        "dist/marionette.cjs",
+        "dist/marionette.js",
+        "dist/marionette.min.js",
+        "dist/marionette.umd.js"
+      ],
+      "authorizedNewSubpaths": [],
+      "reports": [
+        {
+          "path": "evidence/performance-budget-amendments/BA0006/base.json",
+          "role": "base",
+          "sha256": "23766b720336fe04699c5b1e79c16836e399edf28715007231f2e9be90fcd9b9"
+        },
+        {
+          "path": "evidence/performance-budget-amendments/BA0006/prototype.json",
+          "role": "prototype",
+          "sha256": "535650bd6bd25b49d786cd8c9edb3b1a599c45a305fc9dad51287ff625c54505"
+        }
+      ],
+      "prototypeContract": {
+        "path": "evidence/performance-budget-amendments/BA0006/prototype-contract.json",
+        "sha256": "b8b1cb69354ae2b0c4323658c51a9c6237a834965697c4816522e9f6924eac2b"
+      },
+      "approvalUrls": [
+        "https://github.com/marionettejs/marionette/pull/364#issuecomment-5507916243"
+      ],
+      "evidenceUrls": [
+        "https://github.com/marionettejs/marionette/issues/127#issuecomment-5507898660"
+      ],
+      "rationale": "Authorize the exact measured distribution cost of stabilizing the public EventDelegator cleanup protocol and constructor-failure rollback tracked by #147. The prototype replaces mutable private listener records with opaque idempotent cleanup, preserves registration-time capture, covers native focus ordering and optional jQuery compatibility, grows only the four established main artifacts, and adds no graph edge, external import, package subpath, eager allocation, retained resource, or speculative headroom.",
+      "rollbackCondition": "If the EventDelegator contract prototype is abandoned before consumption, append a governance-only BA0006 revocation. Never edit or delete this authorization. If the final implementation exceeds 79084 bytes or changes the authorized positive-delta artifact scope, require a new exact-base budget amendment."
     }
   ]
 }

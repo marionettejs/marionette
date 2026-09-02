@@ -152,9 +152,21 @@ prototype centralizes data lookup, identity, observation, and collection updates
 behind a native default and a Backbone adapter. It grows six existing main and
 Backbone artifacts, adds no package subpath or external import, leaves the jQuery
 adapter artifacts unchanged, and includes no speculative headroom.
-[PR #363](https://github.com/marionettejs/marionette/pull/363) consumes the
-authorization from its merged exact base and must obtain independent exact-head
+[PR #363](https://github.com/marionettejs/marionette/pull/363) consumed the
+authorization from its merged exact base with independent exact-head
 artifact-growth and timing-harness approvals.
+
+BA0006 authorizes an exact-prototype increase from 78,665 to 79,084
+bytes for the stable EventDelegator contract tracked by
+[#147](https://github.com/marionettejs/marionette/issues/147). The measured
+prototype replaces mutable listener records with opaque idempotent cleanup,
+preserves registration-time listener options, and rolls back DOM listeners from
+failed View, CollectionView, and Behavior construction. It grows only the four
+existing main artifacts, adds no production graph edge, external import, package
+subpath, allocation or retention proxy, or speculative headroom, and leaves the
+optional adapter artifacts unchanged. [PR #364](https://github.com/marionettejs/marionette/pull/364)
+records the pending authorization; a later runtime PR must consume it with an
+independent exact-head artifact-growth approval.
 
 The approval must come from a different base-allowed maintainer whenever the exact-base
 allowlist contains an eligible alternative. If the pull-request author is the sole
