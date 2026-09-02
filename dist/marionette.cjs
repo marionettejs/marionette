@@ -1701,7 +1701,14 @@ var EventDelegator = {
       };
     }
     rootEl.addEventListener(eventName, eventHandler, capture);
-    return () => rootEl.removeEventListener(eventName, eventHandler, capture);
+    let isRemoved;
+    return () => {
+      if (isRemoved) {
+        return;
+      }
+      isRemoved = true;
+      rootEl.removeEventListener(eventName, eventHandler, capture);
+    };
   }
 };
 

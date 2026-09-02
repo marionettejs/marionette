@@ -71,13 +71,14 @@ describe('EventDelegator', function() {
     });
   });
 
-  it('returns per-registration cleanup with the registration-time capture mode', function() {
+  it('returns idempotent cleanup with the registration-time capture mode', function() {
     const handler = vi.fn();
     const addEventListener = vi.spyOn(rootEl, 'addEventListener');
     const removeEventListener = vi.spyOn(rootEl, 'removeEventListener');
     const cleanup = delegate('focus', '.foo', handler);
     const registeredHandler = addEventListener.mock.calls[0][1];
 
+    cleanup();
     cleanup();
 
     expect(addEventListener).toHaveBeenCalledWith('focus', registeredHandler, true);

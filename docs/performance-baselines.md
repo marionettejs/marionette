@@ -159,7 +159,7 @@ artifact-growth and timing-harness approvals.
 BA0006 authorizes an exact-prototype increase from 78,665 to 79,084
 bytes for the stable EventDelegator contract tracked by
 [#147](https://github.com/marionettejs/marionette/issues/147). The measured
-prototype replaces mutable listener records with opaque per-registration cleanup,
+prototype replaces mutable listener records with opaque idempotent cleanup,
 preserves registration-time listener options, and rolls back DOM listeners from
 failed View, CollectionView, and Behavior construction. It grows only the four
 existing main artifacts, adds no production graph edge, external import, package
