@@ -3110,12 +3110,11 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     const removedViews = changes.removed.length && this._removeChildModels(changes.removed);
     this._addedViews = changes.added.length && this._addChildModels(changes.added);
     this._detachChildren(removedViews);
-    const usesDefaultComparator = this.getComparator === CollectionView.prototype.getComparator;
-    const usesDefaultFilterQuery = this.getFilter === CollectionView.prototype.getFilter;
-    const usesDefaultSort = this.sort === CollectionView.prototype.sort;
-    const usesDefaultFilter = this.filter === CollectionView.prototype.filter;
-    const isUnsorted = this.viewComparator === false || !this.viewComparator && !this.sortWithCollection;
-    const canRemoveWithoutRender = this._isRendered && changes.removed.length > 0 && changes.added.length === 0 && changes.merged.length === 0 && usesDefaultComparator && usesDefaultFilterQuery && usesDefaultSort && usesDefaultFilter && isUnsorted && !this.viewFilter && this.children.length === this._children.length && this._children.length > 0 && !this._hasUnrenderedViews && !this._emptyRegion.hasView();
+    const isDefaultComparator = this.getComparator === CollectionView.prototype.getComparator;
+    const isDefaultFilterQuery = this.getFilter === CollectionView.prototype.getFilter;
+    const isDefaultSort = this.sort === CollectionView.prototype.sort;
+    const isDefaultFilter = this.filter === CollectionView.prototype.filter;
+    const canRemoveWithoutRender = this._isRendered && changes.removed.length > 0 && changes.added.length === 0 && changes.merged.length === 0 && isDefaultComparator && isDefaultFilterQuery && isDefaultSort && isDefaultFilter && !this.viewComparator && !this.viewFilter && this.children.length === this._children.length && this._children.length > 0 && !this._hasUnrenderedViews && !this._emptyRegion.hasView();
     if (!canRemoveWithoutRender) {
       this.sort();
     }
