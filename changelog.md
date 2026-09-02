@@ -4,6 +4,12 @@
   CommonJS and both UMD outputs as v5 compatibility distributions; UMD and AMD
   consumers are asked to identify their usage in the public issue tracker before
   the six-month post-5.0.0 distribution review
+* Added a neutral DataApi for model identity, reads, serialization, ordered
+  collection items, entity subscriptions, and structural collection changes
+* Changed the default model and collection contract to plain objects and arrays;
+  Backbone-specific data and event shapes now remain inside the explicit
+  `marionette/backbone` integration
+* Removed `children.findByModelCid`; `findByModel` uses the configured DataApi key
 * Added a small synchronous `State` class for local mutable values with atomic
   writes, explicit change payloads, reset and destroy semantics, and no
   Backbone dependency

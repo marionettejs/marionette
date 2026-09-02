@@ -1,5 +1,6 @@
 import { createRequire } from 'module';
 import { JSDOM } from 'jsdom';
+import DataApi from '../../runtime/data-api';
 
 const require = createRequire(import.meta.url);
 
@@ -55,6 +56,7 @@ describe('Backbone shim', function() {
     };
 
     const eventsPrototype = Object.getPrototypeOf(Marionette.Events);
+    Marionette.setDataApi(DataApi);
     Object.setPrototypeOf(Marionette.Events, { inheritedShimPollution: true });
     try {
       ShimmedBackbone = (await import('../../backbone.js')).default;
@@ -77,6 +79,15 @@ describe('Backbone shim', function() {
     expect(Backbone.triggerMethod).to.equal(namespaceMethods.triggerMethod);
     expect(Backbone.bindEvents).to.equal(namespaceMethods.bindEvents);
     expect(Backbone.stopListening).to.equal(namespaceMethods.stopListening);
+  });
+
+  it('configures the Backbone data adapter', function() {
+    const model = new Backbone.Model({ title: 'configured' });
+    const collection = new Backbone.Collection([model]);
+
+    expect(Marionette.View.prototype.Data.key(model)).to.equal(model.cid);
+    expect(Marionette.View.prototype.Data.serialize(model)).to.equal(model.attributes);
+    expect(Marionette.CollectionView.prototype.Data.items(collection)).to.equal(collection.models);
   });
 
   it('does not mix Marionette Events into Backbone.History', function() {

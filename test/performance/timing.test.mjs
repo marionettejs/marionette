@@ -64,7 +64,7 @@ describe('hosted timing report math', () => {
     try {
       await assert.rejects(
         measure({ root: fixtureRoot, configPath, dependencyRoot: root }),
-        /dist\/marionette\.js/
+        /dist\/backbone\.js/
       );
       assert.deepEqual(Object.getOwnPropertyDescriptor(globalThis, 'window'), windowDescriptor);
       assert.deepEqual(Object.getOwnPropertyDescriptor(globalThis, 'document'), documentDescriptor);
@@ -102,6 +102,10 @@ describe('hosted timing report math', () => {
     try {
       await mkdir(join(fixtureRoot, 'dist'));
       await writeFile(join(fixtureRoot, 'package.json'), '{"type":"module"}\n');
+      await writeFile(
+        join(fixtureRoot, 'dist/backbone.js'),
+        'export default { Collection: class Collection {} };\n'
+      );
       await writeFile(
         join(fixtureRoot, 'dist/marionette.js'),
         'export const View = { extend() { throw new Error("Timing case construction failed"); } };\n' +

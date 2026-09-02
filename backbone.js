@@ -1,5 +1,8 @@
 import Backbone from 'backbone';
-import { Events } from './index.js';
+import { Events, setDataApi } from './index.js';
+import BackboneDataApi from './runtime/backbone-data-api.js';
+
+setDataApi(BackboneDataApi);
 
 const prototypes = [
   Backbone.Model.prototype,

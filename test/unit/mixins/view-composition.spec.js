@@ -24,6 +24,7 @@ const directKeys = [
   'tagName',
   'preinitialize',
   'Dom',
+  'Data',
   '_validateEl',
   '_getEl',
   '$',

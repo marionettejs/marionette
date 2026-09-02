@@ -22,6 +22,25 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
     const results = await page.evaluate(() => {
       Object.assign(Backbone.Model.prototype, Marionette.Events);
       Object.assign(Backbone.Collection.prototype, Marionette.Events);
+      // Install only the operations this DOM regression exercises. The complete
+      // Backbone adapter contract and rollback behavior have focused unit coverage.
+      Marionette.setDataApi({
+        key: model => model.cid,
+        serialize: model => model.attributes,
+        items: collection => collection.models,
+        observeCollection(collection, callback, context) {
+          const onUpdate = (currentCollection, { changes }) => callback.call(context, {
+            type: 'update',
+            added: changes.added,
+            removed: changes.removed,
+            updated: changes.merged
+          });
+          collection.on('update', onUpdate, context);
+          return () => {
+            collection.off('update', onUpdate, context);
+          };
+        }
+      });
 
       class SurvivorElement extends HTMLElement {
         connectedCallback() {

@@ -1,9 +1,9 @@
 # Entity events
 
 [`View`, `CollectionView`, and `Behavior`](./classes.md) can declaratively
-listen to events from an attached `model` or `collection`. Marionette only
-requires the entity to satisfy its [event-emitter protocol](./optional-backbone.md#listener-side-vs-emitter-side);
-Backbone is optional.
+listen to events from an attached `model` or `collection`. The configured
+[`DataApi.subscribe()`](./data.api.md#adapter-contract) owns the entity's
+subscription and teardown mechanics; Backbone is optional.
 
 ## Handler ownership and arguments
 
@@ -141,11 +141,11 @@ support every prototype-collision name.
 
 ## Backbone entities
 
-A plain `Backbone.Model` or `Backbone.Collection` satisfies the emitter protocol
-for View and Behavior entity events; the shim is not required solely to use
-`modelEvents` or `collectionEvents`. When an application needs unified Marionette
-event bookkeeping across Backbone listeners too, import the optional shim before
-constructing entities or registering subscriptions:
+A plain `Backbone.Model` or `Backbone.Collection` satisfies the default
+subscription protocol for event-only use. The canonical Backbone setup is still
+to import the integration before constructing entities or Views; it also selects
+Backbone identity, reads, serialization, collection contents, structural
+observations, and unified listener bookkeeping:
 
 ```javascript
 import 'marionette/backbone';
@@ -156,5 +156,4 @@ const model = new Backbone.Model();
 const view = new View({ model });
 ```
 
-See [Optional Backbone](./optional-backbone.md#using-the-bundled-backbone-shim)
-for the shim's exact boundary.
+See [Optional Backbone](./optional-backbone.md) for the integration's exact boundary.

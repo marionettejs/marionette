@@ -6,7 +6,7 @@ results in the DOM.
 
 ```javascript
 import _ from 'underscore';
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   tagName: 'h1',
@@ -47,7 +47,7 @@ return an HTML string. Marionette's dependency Underscore comes with an HTML str
 
 ```javascript
 import _ from 'underscore';
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   template: _.template('<h1>Hello, world</h1>')
@@ -251,7 +251,8 @@ from the default this may be a useful resource: https://github.com/blikblum/mari
 
 ## Serializing Data
 
-Marionette will automatically serialize the data from its `model` or `collection` for the template to use
+Marionette will automatically serialize the data from its `model` or `collection` through the configured
+[`DataApi`](./data.api.md) for the template to use
 at [rendering](#rendering-the-template). You can override this logic and provide serialization of other
 data with the `serializeData` method. The method is called with no arguments, but has the context of the
 view and should return a javascript object for the template to consume. If `serializeData` does not return
@@ -286,25 +287,18 @@ Instead use `templateContext` to [add context data to your template](#adding-con
 
 ### Serializing a Model
 
-If the view has a `model` it will pass that model's attributes
-to the template.
+If the view has a `model`, it passes `DataApi.serialize(model)` to the template.
+The default adapter returns the original plain object.
 
 ```javascript
 import _ from 'underscore';
-import Backbone from 'backbone';
-import { View } from 'backbone.marionette';
-
-const MyModel = Backbone.Model.extend({
-  defaults: {
-    name: 'world'
-  }
-});
+import { View } from 'marionette';
 
 const MyView = View.extend({
   template: _.template('<h1>Hello, <%- name %></h1>')
 });
 
-const myView = new MyView({ model: new MyModel() });
+const myView = new MyView({ model: { name: 'world' } });
 ```
 
 [Live example](https://jsfiddle.net/marionettejs/warfa6rL/)
@@ -312,15 +306,16 @@ const myView = new MyView({ model: new MyModel() });
 How the `model` is serialized can also be customized per view.
 
 ```javascript
+import 'marionette/backbone';
 import _ from 'underscore';
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   serializeModel() {
-    const data = _.clone(this.model.attributes);
+    const data = _.clone(this.Data.serialize(this.model));
 
-    // serialize nested model data
-    data.sub_model = data.sub_model.attributes;
+    // serialize a nested Backbone model through the configured adapter
+    data.subModel = this.Data.serialize(data.subModel);
 
     return data;
   }
@@ -329,13 +324,13 @@ const MyView = View.extend({
 
 ### Serializing a Collection
 
-If the view does not have a `model` but has a `collection` the collection's models will
-be serialized to an array provided as an `items` attribute to the template.
+If the view does not have a `model` but has a `collection`, DataApi supplies its
+ordered items and serializes each one into an array provided as an `items`
+attribute to the template.
 
 ```javascript
 import _ from 'underscore';
-import Backbone from 'backbone';
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   template: _.template(`
@@ -347,9 +342,9 @@ const MyView = View.extend({
   `)
 });
 
-const collection = new Backbone.Collection([
+const collection = [
   {name: 'Steve'}, {name: 'Helen'}
-]);
+];
 
 const myView = new MyView({ collection });
 ```
@@ -359,16 +354,17 @@ const myView = new MyView({ collection });
 How the `collection` is serialized can also be customized per view.
 
 ```javascript
+import 'marionette/backbone';
 import _ from 'underscore';
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   serializeCollection() {
-    return _.map(this.collection.models, model => {
-      const data = _.clone(model.attributes);
+    return _.map(this.Data.items(this.collection), model => {
+      const data = _.clone(this.Data.serialize(model));
 
-      // serialize nested model data
-      data.sub_model = data.sub_model.attributes;
+      // serialize a nested Backbone model through the configured adapter
+      data.subModel = this.Data.serialize(data.subModel);
 
       return data;
     });
@@ -410,14 +406,15 @@ const MyView = View.extend({
 Additionally context data overwrites the serialized data
 
 ```javascript
+import 'marionette/backbone';
 import _ from 'underscore';
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   template: _.template('<h1>Hello, <%- name %></h1>'),
   templateContext() {
     return {
-      name: this.model.get('name').toUpperCase()
+      name: this.Data.get(this.model, 'name').toUpperCase()
     };
   }
 });

@@ -13,6 +13,8 @@ import TemplateRenderMixin from './template-render.js';
 import UIMixin from './ui.js';
 import ViewEvents from './view-events.js';
 import DomApi from '../runtime/dom-api.js';
+import DataApi from '../runtime/data-api.js';
+import disposeAll from '../utils/dispose-all.js';
 
 const classErrorName = 'ViewError';
 
@@ -58,6 +60,8 @@ const ViewMixin = {
   preinitialize() {},
 
   Dom: DomApi,
+
+  Data: DataApi,
 
   _validateEl(el) {
     const stringEl = isString(el);
@@ -145,20 +149,29 @@ const ViewMixin = {
   delegateEntityEvents() {
     if (this._isDestroyed || this._isDestroying) { return this; }
 
-    this._delegateEntityEvents(this.model, this.collection);
+    try {
+      this._delegateEntityEvents(this.model, this.collection, this.Data);
 
-    // bind each behaviors model and collection events
-    this._delegateBehaviorEntityEvents();
+      // bind each behaviors model and collection events
+      this._delegateBehaviorEntityEvents();
+    } catch (error) {
+      try {
+        this.undelegateEntityEvents();
+      } catch {
+        // Preserve the subscription error after best-effort rollback.
+      }
+      throw error;
+    }
 
     return this;
   },
 
   // Handle unbinding `modelEvents`, and `collectionEvents` configuration
   undelegateEntityEvents() {
-    this._undelegateEntityEvents(this.model, this.collection);
-
-    // unbind each behaviors model and collection events
-    this._undelegateBehaviorEntityEvents();
+    disposeAll([
+      () => this._undelegateBehaviorEntityEvents(),
+      () => this._undelegateEntityEvents()
+    ]);
 
     return this;
   },
@@ -197,15 +210,28 @@ const ViewMixin = {
     this._isDestroyed = true;
     this._isRendered = false;
 
-    // Destroy behaviors after _isDestroyed flag
-    this._destroyBehaviors(options);
+    const dataObserverUnsubscribe = this._dataObserverUnsubscribe;
+    delete this._dataObserverUnsubscribe;
+    let dataDisposalError;
+    let hasDataDisposalError = false;
 
-    this._deleteEntityEventHandlers();
+    try {
+      disposeAll([
+        dataObserverUnsubscribe,
+        () => this._deleteEntityEventHandlers(),
+        () => this._destroyBehaviors(options)
+      ]);
+    } catch (error) {
+      dataDisposalError = error;
+      hasDataDisposalError = true;
+    }
 
     this.triggerMethod('destroy', this, options);
     this._triggerEventOnBehaviors('destroy', this, options);
 
     this.stopListening();
+
+    if (hasDataDisposalError) { throw dataDisposalError; }
 
     return this;
   },

@@ -61,5 +61,6 @@ function unbindEvents(entity, bindings) {
 // Export Public API
 export {
   bindEvents,
+  normalizeBindings,
   unbindEvents
 };

@@ -12,6 +12,10 @@
     "route": "next/optional-backbone"
   },
   {
+    "source": "docs/data.api.md",
+    "route": "next/data-api"
+  },
+  {
     "source": "docs/marionette.state.md",
     "route": "next/state"
   },

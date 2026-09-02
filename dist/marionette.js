@@ -1393,10 +1393,46 @@ var BehaviorsMixin = {
     eachBehavior(this._behaviors, behavior => behavior.delegateEntityEvents());
   },
   _undelegateBehaviorEntityEvents() {
-    eachBehavior(this._behaviors, behavior => behavior.undelegateEntityEvents());
+    const behaviors = this._behaviors;
+    if (behaviors == null) {
+      return;
+    }
+    let error;
+    let hasError = false;
+    for (let index = 0, length = behaviors.length; index < length; index++) {
+      try {
+        behaviors[index].undelegateEntityEvents();
+      } catch (undelegateError) {
+        if (!hasError) {
+          error = undelegateError;
+          hasError = true;
+        }
+      }
+    }
+    if (hasError) {
+      throw error;
+    }
   },
   _destroyBehaviors(options) {
-    eachBehavior(this._behaviors, behavior => behavior.destroy(options));
+    const behaviors = this._behaviors;
+    if (behaviors == null) {
+      return;
+    }
+    let error;
+    let hasError = false;
+    for (let index = 0, length = behaviors.length; index < length; index++) {
+      try {
+        behaviors[index].destroy(options);
+      } catch (destroyError) {
+        if (!hasError) {
+          error = destroyError;
+          hasError = true;
+        }
+      }
+    }
+    if (hasError) {
+      throw error;
+    }
   },
   _removeBehavior(behavior) {
     if (this._isDestroyed) {
@@ -1422,30 +1458,79 @@ var BehaviorsMixin = {
   }
 };
 
+function disposeAll(disposers, error) {
+  let hasError = arguments.length > 1;
+  for (let index = disposers.length - 1; index >= 0; index--) {
+    const disposer = disposers[index];
+    if (!disposer) {
+      continue;
+    }
+    try {
+      disposer();
+    } catch (disposalError) {
+      if (!hasError) {
+        error = disposalError;
+        hasError = true;
+      }
+    }
+  }
+  if (hasError) {
+    throw error;
+  }
+}
+
+function subscribeBindings(context, Data, entity, bindings) {
+  const eventArgs = buildEventArgs(normalizeBindings$1(context, bindings), context);
+  const subscriptions = [];
+  try {
+    for (let index = 0; index < eventArgs.length; index++) {
+      const {
+        name,
+        callback,
+        context: eventContext
+      } = eventArgs[index];
+      subscriptions.push(Data.subscribe(entity, name, callback, eventContext));
+    }
+  } catch (error) {
+    disposeAll(subscriptions, error);
+  }
+  return function () {
+    disposeAll(subscriptions);
+  };
+}
 var DelegateEntityEventsMixin = {
-  _delegateEntityEvents(model, collection) {
-    if (model) {
-      this._modelEvents = getValue(this, 'modelEvents');
-      this.bindEvents(model, this._modelEvents);
-    }
-    if (collection) {
-      this._collectionEvents = getValue(this, 'collectionEvents');
-      this.bindEvents(collection, this._collectionEvents);
-    }
-  },
-  _undelegateEntityEvents(model, collection) {
-    if (this._modelEvents) {
-      this.unbindEvents(model, this._modelEvents);
-      delete this._modelEvents;
-    }
-    if (this._collectionEvents) {
-      this.unbindEvents(collection, this._collectionEvents);
-      delete this._collectionEvents;
+  _delegateEntityEvents(model, collection, Data) {
+    try {
+      if (model) {
+        this._modelEvents = getValue(this, 'modelEvents');
+        if (this._modelEvents) {
+          this._modelEventUnsubscribe = subscribeBindings(this, Data, model, this._modelEvents);
+        }
+      }
+      if (collection) {
+        this._collectionEvents = getValue(this, 'collectionEvents');
+        if (this._collectionEvents) {
+          this._collectionEventUnsubscribe = subscribeBindings(this, Data, collection, this._collectionEvents);
+        }
+      }
+    } catch (error) {
+      this._deleteEntityEventHandlers(error);
     }
   },
-  _deleteEntityEventHandlers() {
+  _undelegateEntityEvents() {
+    this._deleteEntityEventHandlers();
+  },
+  _deleteEntityEventHandlers(error) {
+    const subscriptions = [this._modelEventUnsubscribe, this._collectionEventUnsubscribe];
+    delete this._modelEventUnsubscribe;
+    delete this._collectionEventUnsubscribe;
     delete this._modelEvents;
     delete this._collectionEvents;
+    if (arguments.length) {
+      disposeAll(subscriptions, error);
+    } else {
+      disposeAll(subscriptions);
+    }
   }
 };
 
@@ -1481,10 +1566,10 @@ var TemplateRenderMixin = {
     }
   },
   serializeModel() {
-    return this.model.attributes;
+    return this.Data.serialize(this.model);
   },
   serializeCollection() {
-    return this.collection.models.map(model => model.attributes);
+    return this.Data.items(this.collection).map(model => this.Data.serialize(model));
   },
   _renderHtml(template, data) {
     return template(data);
@@ -1810,6 +1895,43 @@ var DomApi = {
   }
 };
 
+const noop = function () {};
+function setDataApi$1(mixin) {
+  this.prototype.Data = assignOwn({}, this.prototype.Data, mixin);
+  return this;
+}
+var DataApi = {
+  key(model) {
+    return model;
+  },
+  get(model, attribute) {
+    return Object.hasOwn(model, attribute) ? model[attribute] : undefined;
+  },
+  has(model, attribute) {
+    return Object.hasOwn(Object(model), attribute);
+  },
+  serialize(model) {
+    return model;
+  },
+  items(collection) {
+    return collection;
+  },
+  subscribe(entity, eventName, callback, context) {
+    let isSubscribed = true;
+    entity.on(eventName, callback, context);
+    return function () {
+      if (!isSubscribed) {
+        return;
+      }
+      isSubscribed = false;
+      entity.off(eventName, callback, context);
+    };
+  },
+  observeCollection() {
+    return noop;
+  }
+};
+
 const classErrorName$4 = 'ViewError';
 function isJQueryCollection(el) {
   return el != null && typeof el === 'object' && typeof el.jquery === 'string' && typeof el.get === 'function';
@@ -1819,6 +1941,7 @@ const ViewMixin = {
   tagName: 'div',
   preinitialize() {},
   Dom: DomApi,
+  Data: DataApi,
   _validateEl(el) {
     const stringEl = isString(el);
     if (!stringEl && !isJQueryCollection(el)) {
@@ -1891,13 +2014,19 @@ const ViewMixin = {
     if (this._isDestroyed || this._isDestroying) {
       return this;
     }
-    this._delegateEntityEvents(this.model, this.collection);
-    this._delegateBehaviorEntityEvents();
+    try {
+      this._delegateEntityEvents(this.model, this.collection, this.Data);
+      this._delegateBehaviorEntityEvents();
+    } catch (error) {
+      try {
+        this.undelegateEntityEvents();
+      } catch {}
+      throw error;
+    }
     return this;
   },
   undelegateEntityEvents() {
-    this._undelegateEntityEvents(this.model, this.collection);
-    this._undelegateBehaviorEntityEvents();
+    disposeAll([() => this._undelegateBehaviorEntityEvents(), () => this._undelegateEntityEvents()]);
     return this;
   },
   destroy(options) {
@@ -1925,11 +2054,22 @@ const ViewMixin = {
     this._removeChildren();
     this._isDestroyed = true;
     this._isRendered = false;
-    this._destroyBehaviors(options);
-    this._deleteEntityEventHandlers();
+    const dataObserverUnsubscribe = this._dataObserverUnsubscribe;
+    delete this._dataObserverUnsubscribe;
+    let dataDisposalError;
+    let hasDataDisposalError = false;
+    try {
+      disposeAll([dataObserverUnsubscribe, () => this._deleteEntityEventHandlers(), () => this._destroyBehaviors(options)]);
+    } catch (error) {
+      dataDisposalError = error;
+      hasDataDisposalError = true;
+    }
     this.triggerMethod('destroy', this, options);
     this._triggerEventOnBehaviors('destroy', this, options);
     this.stopListening();
+    if (hasDataDisposalError) {
+      throw dataDisposalError;
+    }
     return this;
   },
   bindUIElements() {
@@ -2618,6 +2758,9 @@ const View = function (options) {
     this.delegateEntityEvents();
     this._triggerEventOnBehaviors('initialize', this, options);
   } catch (error) {
+    try {
+      this.undelegateEntityEvents();
+    } catch {}
     this._destroyState();
     throw error;
   }
@@ -2626,7 +2769,8 @@ assignOwn(View, {
   extend,
   setRenderer: setRenderer$1,
   setDomApi: setDomApi$1,
-  setEventDelegator: setEventDelegator$1
+  setEventDelegator: setEventDelegator$1,
+  setDataApi: setDataApi$1
 });
 assignOwn(View.prototype, ViewMixin, RegionsMixin, {
   cidPrefix: 'mnv',
@@ -2683,7 +2827,8 @@ const classErrorName$2 = 'CollectionViewError';
 function createIndex() {
   return Object.create(null);
 }
-const Container = function () {
+const Container = function (dataApi = DataApi) {
+  this.Data = dataApi;
   this._init();
 };
 function assertFunction(callback) {
@@ -2705,8 +2850,8 @@ function assertCount(count) {
   }
   return count;
 }
-function stringComparator(comparator, view) {
-  return view.model && view.model.get(comparator);
+function stringComparator(Data, comparator, view) {
+  return view.model && Data.has(view.model, comparator) ? Data.get(view.model, comparator) : undefined;
 }
 function compareCriteria(left, right) {
   const leftCriteria = left.criteria;
@@ -2911,7 +3056,7 @@ Object.assign(Container.prototype, {
   _init() {
     this._views = [];
     this._viewsByCid = createIndex();
-    this._indexByModel = createIndex();
+    this._indexByModel = new Map();
     this._updateLength();
   },
   _add(view, index = this._views.length) {
@@ -2922,12 +3067,12 @@ Object.assign(Container.prototype, {
   _addViewIndexes(view) {
     this._viewsByCid[view.cid] = view;
     if (view.model) {
-      this._indexByModel[view.model.cid] = view;
+      this._indexByModel.set(this.Data.key(view.model), view);
     }
   },
   _sort(comparator, context) {
     if (typeof comparator === 'string') {
-      return this._sortBy(view => stringComparator(comparator, view));
+      return this._sortBy(view => stringComparator(this.Data, comparator, view));
     }
     if (comparator.length === 1) {
       return this._sortBy(comparator, context);
@@ -2944,7 +3089,7 @@ Object.assign(Container.prototype, {
     this._views.push.apply(this._views, views.slice(0));
     if (shouldReset) {
       this._viewsByCid = createIndex();
-      this._indexByModel = createIndex();
+      this._indexByModel = new Map();
       for (const view of views) {
         this._addViewIndexes(view);
       }
@@ -2962,10 +3107,7 @@ Object.assign(Container.prototype, {
     this._views[view2Index] = swapView;
   },
   findByModel(model) {
-    return this.findByModelCid(model.cid);
-  },
-  findByModelCid(modelCid) {
-    return this._indexByModel[modelCid];
+    return this._indexByModel.get(this.Data.key(model));
   },
   findByIndex(index) {
     return this._views[index];
@@ -2983,8 +3125,11 @@ Object.assign(Container.prototype, {
     if (!this.hasView(view)) {
       return;
     }
-    if (view.model && this._indexByModel[view.model.cid] === view) {
-      delete this._indexByModel[view.model.cid];
+    if (view.model) {
+      const modelKey = this.Data.key(view.model);
+      if (this._indexByModel.get(modelKey) === view) {
+        this._indexByModel.delete(modelKey);
+      }
     }
     delete this._viewsByCid[view.cid];
     const index = this.findIndexByView(view);
@@ -3010,7 +3155,7 @@ function isEmptyViewClass(view) {
   } = view.prototype;
   return typeof render === 'function' && (destroy ? typeof destroy === 'function' : typeof view.prototype.remove === 'function');
 }
-function modelAttributesMatcher(predicate) {
+function modelAttributesMatcher(Data, predicate) {
   const keys = Object.keys(predicate);
   const length = keys.length;
   const values = Array(length);
@@ -3018,14 +3163,13 @@ function modelAttributesMatcher(predicate) {
     values[index] = predicate[keys[index]];
   }
   return function (view) {
-    const attributes = view.model && view.model.attributes;
-    if (attributes == null) {
+    const model = view.model;
+    if (model == null) {
       return length === 0;
     }
-    const object = Object(attributes);
     for (let index = 0; index < length; index++) {
       const key = keys[index];
-      if (values[index] !== object[key] || !(key in object)) {
+      if (!Data.has(model, key) || values[index] !== Data.get(model, key)) {
         return false;
       }
     }
@@ -3058,6 +3202,9 @@ const CollectionView = function (options) {
     this.delegateEntityEvents();
     this._triggerEventOnBehaviors('initialize', this, options);
   } catch (error) {
+    try {
+      this.undelegateEntityEvents();
+    } catch {}
     this._destroyState();
     throw error;
   }
@@ -3066,14 +3213,15 @@ assignOwn(CollectionView, {
   extend,
   setRenderer: setRenderer$1,
   setDomApi: setDomApi$1,
-  setEventDelegator: setEventDelegator$1
+  setEventDelegator: setEventDelegator$1,
+  setDataApi: setDataApi$1
 });
 assignOwn(CollectionView.prototype, ViewMixin, {
   cidPrefix: 'mncv',
   sortWithCollection: true,
   _initChildViewStorage() {
-    this._children = new Container();
-    this.children = new Container();
+    this._children = new Container(this.Data);
+    this.children = new Container(this.Data);
   },
   getEmptyRegion() {
     if (this._isDestroyed && this._emptyRegion) {
@@ -3092,27 +3240,25 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     return this._emptyRegion;
   },
   _initialEvents() {
-    if (this._isRendered) {
+    if (this._isRendered || this._dataObserverUnsubscribe) {
       return;
     }
-    this.listenTo(this.collection, {
-      'sort': this._onCollectionSort,
-      'reset': this._onCollectionReset,
-      'update': this._onCollectionUpdate
-    });
+    this._dataObserverUnsubscribe = this.Data.observeCollection(this.collection, this._onCollectionChange, this);
   },
-  _onCollectionSort(collection, {
-    add,
-    merge,
-    remove
-  }) {
+  _onCollectionChange(change) {
+    if (change.type === 'reorder') {
+      this._onCollectionReorder();
+    } else if (change.type === 'reset') {
+      this._onCollectionReset();
+    } else if (change.type === 'update') {
+      this._onCollectionUpdate(change);
+    }
+  },
+  _onCollectionReorder() {
     if (this._isDestroying || this._isDestroyed) {
       return;
     }
     if (!this.sortWithCollection || this.viewComparator === false) {
-      return;
-    }
-    if (add || remove || merge) {
       return;
     }
     this.sort();
@@ -3122,14 +3268,13 @@ assignOwn(CollectionView.prototype, ViewMixin, {
       return;
     }
     this._destroyChildren();
-    this._addChildModels(this.collection.models);
+    this._addChildModels(this.Data.items(this.collection));
     this.sort();
   },
-  _onCollectionUpdate(collection, options) {
+  _onCollectionUpdate(changes) {
     if (this._isDestroying || this._isDestroyed) {
       return;
     }
-    const changes = options.changes;
     const removedViews = changes.removed.length && this._removeChildModels(changes.removed);
     this._addedViews = changes.added.length && this._addChildModels(changes.added);
     this._detachChildren(removedViews);
@@ -3137,7 +3282,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     const isDefaultFilterQuery = this.getFilter === CollectionView.prototype.getFilter;
     const isDefaultSort = this.sort === CollectionView.prototype.sort;
     const isDefaultFilter = this.filter === CollectionView.prototype.filter;
-    const canRemoveWithoutRender = this._isRendered && changes.removed.length > 0 && changes.added.length === 0 && changes.merged.length === 0 && isDefaultComparator && isDefaultFilterQuery && isDefaultSort && isDefaultFilter && !this.viewComparator && !this.viewFilter && this.children.length === this._children.length && this._children.length > 0 && !this._hasUnrenderedViews && !this._emptyRegion.hasView();
+    const canRemoveWithoutRender = this._isRendered && changes.removed.length > 0 && changes.added.length === 0 && changes.updated.length === 0 && isDefaultComparator && isDefaultFilterQuery && isDefaultSort && isDefaultFilter && !this.viewComparator && !this.viewFilter && this.children.length === this._children.length && this._children.length > 0 && !this._hasUnrenderedViews && !this._emptyRegion.hasView();
     if (!canRemoveWithoutRender) {
       this.sort();
     }
@@ -3265,7 +3410,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     this.triggerMethod('before:render', this);
     this._destroyChildren();
     if (this.collection) {
-      this._addChildModels(this.collection.models);
+      this._addChildModels(this.Data.items(this.collection));
       this._initialEvents();
     }
     const template = this.getTemplate();
@@ -3333,7 +3478,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     return this._viewComparator;
   },
   _viewComparator(view) {
-    return this.collection.indexOf(view.model);
+    return this.Data.items(this.collection).indexOf(view.model);
   },
   filter() {
     if (this._isDestroyed) {
@@ -3376,12 +3521,10 @@ assignOwn(CollectionView.prototype, ViewMixin, {
       return viewFilter;
     }
     if (typeof viewFilter === 'object' && !Array.isArray(viewFilter)) {
-      return modelAttributesMatcher(viewFilter);
+      return modelAttributesMatcher(this.Data, viewFilter);
     }
     if (isString(viewFilter)) {
-      return function (view) {
-        return view.model && view.model.get(viewFilter);
-      };
+      return view => view.model && this.Data.has(view.model, viewFilter) && this.Data.get(view.model, viewFilter);
     }
     throw new MarionetteError({
       code: 'MN0014',
@@ -3726,7 +3869,7 @@ assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateMixin
     if (this.view._isDestroying || this.view._isDestroyed) {
       return this;
     }
-    this._delegateEntityEvents(this.view.model, this.view.collection);
+    this._delegateEntityEvents(this.view.model, this.view.collection, this.view.Data);
     return this;
   },
   undelegateEntityEvents() {
@@ -4282,6 +4425,10 @@ const setDomApi = function (mixin) {
   Region.setDomApi(mixin);
   View.setDomApi(mixin);
 };
+const setDataApi = function (mixin) {
+  CollectionView.setDataApi(mixin);
+  View.setDataApi(mixin);
+};
 const setRenderer = function (renderer) {
   CollectionView.setRenderer(renderer);
   View.setRenderer(renderer);
@@ -4292,4 +4439,4 @@ const setEventDelegator = function (delegator) {
   View.setEventDelegator(delegator);
 };
 
-export { application as Application, Behavior, CollectionView, DomApi, Events, MarionetteError, MarionetteObject as MnObject, Radio, Region, State, version as VERSION, View, extend, monitorViewEvents, setDomApi, setEventDelegator, setRenderer };
+export { application as Application, Behavior, CollectionView, DataApi, DomApi, Events, MarionetteError, MarionetteObject as MnObject, Radio, Region, State, version as VERSION, View, extend, monitorViewEvents, setDataApi, setDomApi, setEventDelegator, setRenderer };

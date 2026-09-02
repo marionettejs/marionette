@@ -15,6 +15,7 @@ import Radio from './modules/radio.js';
 import State from './modules/state.js';
 
 import DomApi from './runtime/dom-api.js';
+import DataApi from './runtime/data-api.js';
 import MarionetteError from './utils/error.js';
 
 // Configuration
@@ -23,6 +24,10 @@ export const setDomApi = function(mixin) {
   CollectionView.setDomApi(mixin);
   Region.setDomApi(mixin);
   View.setDomApi(mixin);
+};
+export const setDataApi = function(mixin) {
+  CollectionView.setDataApi(mixin);
+  View.setDataApi(mixin);
 };
 export const setRenderer = function(renderer) {
   CollectionView.setRenderer(renderer);
@@ -48,6 +53,7 @@ export {
   Events,
   extend,
   DomApi,
+  DataApi,
   MarionetteError,
   VERSION,
 };

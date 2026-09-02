@@ -4,7 +4,7 @@
     "sourceCommit": "31151c9cb5cb1e11d30da4332f58ca8b56cf2fe4",
     "brotliQuality": 11,
     "totalBrotliBytes": 49500,
-    "absoluteCeilingBytes": 75799
+    "absoluteCeilingBytes": 78665
   },
   "toolchain": {
     "releaseProfile": {
@@ -303,7 +303,7 @@
   },
   "timing": {
     "harnessSchemaVersion": 1,
-    "harnessRevision": "271128bee00c66b3168424d65220dbe6c5dbea1f336082c21b45a07a344bb1d9",
+    "harnessRevision": "d6dc4c26b48c83ce4ecfd073c99f614f7e2974bd8be145e6859baaea4b540def",
     "sampleCount": 20,
     "warmupBatches": 5,
     "cases": [

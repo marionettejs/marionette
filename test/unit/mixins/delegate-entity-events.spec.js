@@ -1,174 +1,180 @@
-import _ from 'underscore';
-import Backbone from 'backbone';
 import DelegateEntityEventsMixin from '../../../mixins/delegate-entity-events';
+import normalizeMethods from '../../../modules/common/normalize-methods';
 
 describe('delegate entity events mixin', function() {
   let obj;
   let model;
   let collection;
+  let modelUnsubscribe;
+  let collectionUnsubscribe;
 
   beforeEach(function() {
-    obj = _.extend({
-      bindEvents: this.sinon.stub(),
-      unbindEvents: this.sinon.stub(),
-    }, DelegateEntityEventsMixin);
+    model = { type: 'model' };
+    collection = { type: 'collection' };
+    modelUnsubscribe = this.sinon.spy();
+    collectionUnsubscribe = this.sinon.spy();
 
-    model = new Backbone.Model();
-    collection = new Backbone.Collection();
+    obj = Object.assign({
+      normalizeMethods,
+      onModel: this.sinon.spy(),
+      onCollection: this.sinon.spy(),
+      Data: {
+        subscribe: this.sinon.stub()
+      }
+    }, DelegateEntityEventsMixin);
+    obj.Data.subscribe.withArgs(model).returns(modelUnsubscribe);
+    obj.Data.subscribe.withArgs(collection).returns(collectionUnsubscribe);
   });
 
   describe('#_delegateEntityEvents', function() {
-    describe('when passed a model', function() {
-      describe('when modelEvents is an object', function() {
-        beforeEach(function() {
-          obj.modelEvents = { foo: 'onFoo' };
-          obj._delegateEntityEvents(model);
-        });
+    it('subscribes resolved handlers through DataApi', function() {
+      obj.modelEvents = { change: 'onModel' };
+      obj.collectionEvents = { update: 'onCollection' };
 
-        it('should cache modelEvents', function() {
-          expect(obj._modelEvents).to.equal(obj.modelEvents);
-        });
+      obj._delegateEntityEvents(model, collection, obj.Data);
 
-        it('should call bindEvents', function() {
-          expect(obj.bindEvents)
-            .to.have.been.calledOnce
-            .to.have.been.calledWith(model, obj.modelEvents);
-        });
-      });
-
-      describe('when modelEvents is a method', function() {
-        const modelEvents = { foo: 'onFoo' };
-
-        beforeEach(function() {
-          obj.modelEvents = this.sinon.stub().returns(modelEvents);
-          obj._delegateEntityEvents(model);
-        });
-
-        it('should cache modelEvents', function() {
-          expect(obj._modelEvents).to.equal(modelEvents);
-          expect(obj.modelEvents)
-            .to.have.been.calledOnce
-            .and.calledOn(obj)
-            .and.calledWithExactly();
-        });
-
-        it('should call bindEvents', function() {
-          expect(obj.bindEvents)
-            .to.have.been.calledOnce
-            .to.have.been.calledWith(model, modelEvents);
-        });
-      });
+      expect(obj.Data.subscribe.firstCall).to.have.been.calledWithExactly(
+        model,
+        'change',
+        obj.onModel,
+        obj
+      );
+      expect(obj.Data.subscribe.secondCall).to.have.been.calledWithExactly(
+        collection,
+        'update',
+        obj.onCollection,
+        obj
+      );
+      expect(obj._modelEvents).to.equal(obj.modelEvents);
+      expect(obj._collectionEvents).to.equal(obj.collectionEvents);
     });
 
-    describe('when passed a collection', function() {
-      describe('when collectionEvents is an object', function() {
-        beforeEach(function() {
-          obj.collectionEvents = { foo: 'onFoo' };
-          obj._delegateEntityEvents(null, collection);
-        });
+    it('resolves callable maps once', function() {
+      const modelEvents = { change: 'onModel' };
+      obj.modelEvents = this.sinon.stub().returns(modelEvents);
 
-        it('should cache collectionEvents', function() {
-          expect(obj._collectionEvents).to.equal(obj.collectionEvents);
-        });
+      obj._delegateEntityEvents(model, null, obj.Data);
 
-        it('should call bindEvents', function() {
-          expect(obj.bindEvents)
-            .to.have.been.calledOnce
-            .to.have.been.calledWith(collection, obj.collectionEvents);
-        });
-      });
-
-      describe('when collectionEvents is a method', function() {
-        const collectionEvents = { foo: 'onFoo' };
-
-        beforeEach(function() {
-          obj.collectionEvents = this.sinon.stub().returns(collectionEvents);
-          obj._delegateEntityEvents(null, collection);
-        });
-
-        it('should cache collectionEvents', function() {
-          expect(obj._collectionEvents).to.equal(collectionEvents);
-          expect(obj.collectionEvents)
-            .to.have.been.calledOnce
-            .and.calledOn(obj)
-            .and.calledWithExactly();
-        });
-
-        it('should call bindEvents', function() {
-          expect(obj.bindEvents)
-            .to.have.been.calledOnce
-            .to.have.been.calledWith(collection, collectionEvents);
-        });
-      });
+      expect(obj.modelEvents).to.have.been.calledOnce.and.calledOn(obj).and.calledWithExactly();
+      expect(obj.Data.subscribe).to.have.been.calledOnce;
     });
 
-    describe('when entities are not passed', function() {
-      beforeEach(function() {
-        obj._delegateEntityEvents();
-      });
+    it('expands space-separated event names', function() {
+      obj.modelEvents = { 'change reset': 'onModel' };
 
-      it('should not call bindEvents', function() {
-        expect(obj.bindEvents).to.not.have.been.called;
-      });
+      obj._delegateEntityEvents(model, null, obj.Data);
 
-      it('should not cache event handlers', function() {
-        expect(obj).to.not.have.property('_modelEvents');
-        expect(obj).to.not.have.property('_collectionEvents');
-      });
+      expect(obj.Data.subscribe).to.have.callCount(2);
+      expect(obj.Data.subscribe.firstCall.args[1]).to.equal('change');
+      expect(obj.Data.subscribe.secondCall.args[1]).to.equal('reset');
+    });
+
+    it('does not subscribe absent entities or event maps', function() {
+      obj._delegateEntityEvents(model, collection, obj.Data);
+      obj._delegateEntityEvents(null, null, obj.Data);
+
+      expect(obj.Data.subscribe).to.not.have.been.called;
+      expect(obj).to.not.have.property('_modelEventUnsubscribe');
+      expect(obj).to.not.have.property('_collectionEventUnsubscribe');
+    });
+
+    it('disposes completed subscriptions when a later subscription fails', function() {
+      const error = new Error('subscribe failed');
+      obj.modelEvents = { 'first second': 'onModel' };
+      obj.Data.subscribe.resetBehavior();
+      obj.Data.subscribe.onFirstCall().returns(modelUnsubscribe);
+      obj.Data.subscribe.onSecondCall().throws(error);
+
+      expect(() => obj._delegateEntityEvents(model, null, obj.Data)).to.throw(error);
+      expect(modelUnsubscribe).to.have.been.calledOnce;
+    });
+
+    it('preserves setup failure when rollback also fails', function() {
+      const error = new Error('subscribe failed');
+      modelUnsubscribe = this.sinon.stub().throws(new Error('dispose failed'));
+      obj.modelEvents = { 'first second': 'onModel' };
+      obj.Data.subscribe.resetBehavior();
+      obj.Data.subscribe.onFirstCall().returns(modelUnsubscribe);
+      obj.Data.subscribe.onSecondCall().throws(error);
+
+      expect(() => obj._delegateEntityEvents(model, null, obj.Data)).to.throw(error);
+      expect(modelUnsubscribe).to.have.been.calledOnce;
+    });
+
+    it('disposes model subscriptions when collection subscription fails', function() {
+      const error = new Error('collection subscribe failed');
+      obj.modelEvents = { change: 'onModel' };
+      obj.collectionEvents = { update: 'onCollection' };
+      obj.Data.subscribe.withArgs(collection).throws(error);
+
+      expect(() => obj._delegateEntityEvents(model, collection, obj.Data)).to.throw(error);
+      expect(modelUnsubscribe).to.have.been.calledOnce;
+      expect(obj).to.not.have.property('_modelEventUnsubscribe');
+      expect(obj).to.not.have.property('_collectionEventUnsubscribe');
+    });
+
+    it('preserves a falsy subscription error after rollback', function() {
+      obj.modelEvents = { change: 'onModel' };
+      obj.collectionEvents = { update: 'onCollection' };
+      obj.Data.subscribe.withArgs(collection).callsFake(() => { throw null; });
+      let caught = false;
+
+      try {
+        obj._delegateEntityEvents(model, collection, obj.Data);
+      } catch (error) {
+        caught = true;
+        expect(error).to.equal(null);
+      }
+
+      expect(caught).to.be.true;
+      expect(modelUnsubscribe).to.have.been.calledOnce;
+      expect(obj).to.not.have.property('_modelEventUnsubscribe');
     });
   });
 
   describe('#_undelegateEntityEvents', function() {
-    describe('when modelEvents have been cached', function() {
-      beforeEach(function() {
-        obj._modelEvents = 'foo';
-        obj._undelegateEntityEvents(model, collection);
-      });
+    it('disposes model and collection subscriptions once', function() {
+      obj.modelEvents = { change: 'onModel' };
+      obj.collectionEvents = { update: 'onCollection' };
+      obj._delegateEntityEvents(model, collection, obj.Data);
 
-      it('should call unbindEvents', function() {
-        expect(obj.unbindEvents)
-          .to.have.been.calledOnce
-          .to.have.been.calledWith(model, 'foo');
-      });
+      obj._undelegateEntityEvents(model, collection);
+      obj._undelegateEntityEvents(model, collection);
 
-      it('should remove the cache', function() {
-        expect(obj).to.not.have.property('_modelEvents');
-      });
-    });
-
-    describe('when collectionEvents have been cached', function() {
-      beforeEach(function() {
-        obj._collectionEvents = 'foo';
-        obj._undelegateEntityEvents(model, collection);
-      });
-
-      it('should call unbindEvents', function() {
-        expect(obj.unbindEvents)
-          .to.have.been.calledOnce
-          .to.have.been.calledWith(collection, 'foo');
-      });
-
-      it('should remove the cache', function() {
-        expect(obj).to.not.have.property('_collectionEvents');
-      });
-    });
-
-    describe('when no events are cached', function() {
-      it('should not call unbindEvents', function() {
-        obj._undelegateEntityEvents(model, collection);
-        expect(obj.unbindEvents).to.not.have.been.called;
-      });
+      expect(modelUnsubscribe).to.have.been.calledOnce;
+      expect(collectionUnsubscribe).to.have.been.calledOnce;
+      expect(obj).to.not.have.property('_modelEvents');
+      expect(obj).to.not.have.property('_collectionEvents');
     });
   });
 
-  describe('_deleteEntityEventHandlers', function() {
-    it('should remove cached handlers', function() {
-      obj._modelEvents = 'foo';
-      obj._collectionEvents = 'bar';
+  describe('#_deleteEntityEventHandlers', function() {
+    it('disposes subscriptions before removing cached maps', function() {
+      obj.modelEvents = { change: 'onModel' };
+      obj.collectionEvents = { update: 'onCollection' };
+      obj._delegateEntityEvents(model, collection, obj.Data);
+
       obj._deleteEntityEventHandlers();
 
+      expect(modelUnsubscribe).to.have.been.calledOnce;
+      expect(collectionUnsubscribe).to.have.been.calledOnce;
       expect(obj).to.not.have.property('_modelEvents');
       expect(obj).to.not.have.property('_collectionEvents');
+    });
+
+    it('attempts every disposer before rethrowing the first teardown error', function() {
+      const error = new Error('collection dispose failed');
+      obj.modelEvents = { change: 'onModel' };
+      obj.collectionEvents = { update: 'onCollection' };
+      collectionUnsubscribe = this.sinon.stub().throws(error);
+      obj.Data.subscribe.withArgs(collection).returns(collectionUnsubscribe);
+      obj._delegateEntityEvents(model, collection, obj.Data);
+
+      expect(() => obj._deleteEntityEventHandlers()).to.throw(error);
+      expect(modelUnsubscribe).to.have.been.calledOnce;
+      expect(collectionUnsubscribe).to.have.been.calledOnce;
+      expect(obj).to.not.have.property('_modelEventUnsubscribe');
+      expect(obj).to.not.have.property('_collectionEventUnsubscribe');
     });
   });
 });

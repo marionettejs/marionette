@@ -15,6 +15,7 @@ import ViewMixin, { ViewOptions } from '../mixins/view.js';
 import DomApi, { setDomApi } from '../runtime/dom-api.js';
 import { setEventDelegator } from '../runtime/event-delegator.js';
 import { setRenderer } from '../runtime/renderer.js';
+import { setDataApi } from '../runtime/data-api.js';
 
 const classErrorName = 'RegionError';
 const destroyTeardown = new WeakMap();
@@ -904,12 +905,17 @@ const View = function(options) {
 
     this._triggerEventOnBehaviors('initialize', this, options);
   } catch (error) {
+    try {
+      this.undelegateEntityEvents();
+    } catch {
+      // Preserve the construction error after best-effort rollback.
+    }
     this._destroyState();
     throw error;
   }
 };
 
-assignOwn(View, { extend, setRenderer, setDomApi, setEventDelegator });
+assignOwn(View, { extend, setRenderer, setDomApi, setEventDelegator, setDataApi });
 
 assignOwn(View.prototype, ViewMixin, RegionsMixin, {
   cidPrefix: 'mnv',

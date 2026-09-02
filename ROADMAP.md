@@ -387,23 +387,15 @@ current-evidence findings:
   changing production semantics. Awaitable Application operations include the
   cooperative cancellation context defined above rather than merely ignoring stale
   completion.
-- **Current evidence:** The remaining Backbone data coupling is narrow rather than
-  architectural. V5 owns Events, `extend`, Radio, lifecycle, and DOM delegation; the
-  root runtime does not import Backbone, while the optional `marionette/backbone`
-  subpath does. The current
-  CollectionView and template paths still assume `model.cid`, `model.attributes`,
-  `collection.models`, `collection.indexOf(model)`, and exact Backbone `sort`, `reset`,
-  and `update` payloads. `modelEvents` and `collectionEvents` require only an emitter
-  with `on` and `off` and remain independent declarative bindings.
-- **Selected:** Retain the current documented Backbone-shaped model and collection data
-  protocol for 5.0. This selects an interface shape, not a Backbone dependency:
-  Marionette core remains Backbone-optional, and any conforming model, collection, or
-  adapter remains valid. The generalized data-source seam in [#104][issue-104] has no
-  public benchmark failure or second source implementation satisfying its required
-  evidence, so it remains an evidence-dependent 5.x candidate rather than a
-  stable-release blocker. Do not add implicit Backbone detection, per-model wrappers,
-  or a parallel reconciliation path. State remains an owned local-state concern, not
-  the collection data source.
+- **Selected:** V5 owns a neutral DataApi boundary for model identity, value reads,
+  serialization, ordered collection items, entity subscriptions, and normalized
+  structural collection changes. Plain objects and arrays are the default. The
+  optional `marionette/backbone` integration installs the Backbone adapter, keeping
+  `cid`, `attributes`, `models`, and Backbone event payloads out of core. This avoids
+  making the temporary Backbone-shaped protocol a v5 public contract that would need
+  removal in v6. Do not add implicit Backbone detection, per-model wrappers, or a
+  parallel reconciliation path. State remains an owned local-state concern, not the
+  collection data source.
 - **Gated:** The existing optional Backbone import side effect is an acceptable legacy install
   seam. If the protocol prototype proves an explicit idempotent `installBackbone`
   operation clearer or safer, select it through the same migration evidence. Do not
@@ -486,12 +478,12 @@ Lint rules, codemods, documentation generators, and benchmark tooling belong out
 the runtime graph. They should consume the same documented rule catalog and public
 metadata rather than encode a second model of Marionette.
 
-Declarative definition helpers, adapter implementations beyond the required stable
-model and collection data protocol, new CollectionView strategies, and renderer
+Declarative definition helpers, adapter implementations beyond the selected neutral
+DataApi and bundled Backbone adapter, new CollectionView strategies, and renderer
 integrations remain evidence-dependent. They may be explored after the foundation is
-measurable, but do not block stable v5 without benchmark evidence. The current
-Backbone-shaped interface protocol is selected for 5.0; generalizing that seam is the
-evidence-dependent 5.x candidate in [#104][issue-104].
+measurable, but do not block stable v5 without benchmark evidence. The neutral DataApi
+boundary is selected for 5.0; additional adapters remain evidence-dependent 5.x
+candidates.
 
 ## Runtime cost contract
 
@@ -621,10 +613,9 @@ instructions, and every release blocker maps to this strategy.
 - Before the next v5 alpha, resolve the [detached-element attachment gap][issue-327]
   and [CollectionView removal-only update gap][issue-328]. Detailed acceptance
   criteria and browser cases remain in those issues.
-- Freeze and document the current Backbone-shaped model and collection protocol for
-  5.0, including its exact identity, serialization, event-payload, and optional package
-  contracts. Keep [#104][issue-104] in the evidence-dependent 5.x phase unless the
-  public benchmark first satisfies that issue's implementation requirements.
+- Freeze and document the neutral DataApi model and collection protocol for 5.0,
+  including its exact identity, serialization, event-payload, and optional Backbone
+  package contracts. Keep Backbone-specific data shapes out of core.
 - Remove the module-global feature registry as selected through the v3/v4
   compatibility audit. Preserve the canonical default behavior through existing
   local View and trigger options, migrate application-owned values to State or
@@ -776,7 +767,7 @@ are documented and closed rather than retained as dormant APIs.
   remove decision, an executable migration when behavior changes, paired agent tasks
   that distinguish the selected form from the rejected alternative, truthful source
   ownership, and no unverified duplicate root utility or internal forwarding path.
-- The retained model and collection data protocol passes compatibility, source,
+- The selected neutral DataApi protocol passes compatibility, source,
   distribution, packed-package, and real-browser tests.
 - Large-list operation-count scenarios pass source, distribution, packed-package, and
   real-browser tests.

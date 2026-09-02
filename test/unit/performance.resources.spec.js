@@ -27,6 +27,7 @@ function interopRegistrations(listener, emitter) {
 }
 
 function ledgerEntries(ledger) {
+  if (ledger instanceof Map) { return ledger.size; }
   return Object.keys(ledger || {}).length;
 }
 
@@ -174,11 +175,11 @@ describe('Phase 0 deterministic resource baselines', function() {
       expect(backboneRegistrations(collection, collectionView))
         .to.equal(shapes.collectionRegistrationsWhileMounted);
       expect(interopRegistrations(collectionView, collection))
-        .to.equal(shapes.collectionRegistrationsWhileMounted);
+        .to.equal(shapes.externalRegistrationsAfterDestroy);
       expect(ledgerEntries(collection._rdListeners))
         .to.equal(shapes.externalListenerOwnersAfterDestroy);
       expect(ledgerEntries(collectionView._rdListeningTo))
-        .to.equal(shapes.collectionViewListeningToWhileMounted);
+        .to.equal(0);
       collectionView.destroy();
 
       expectEmptyChildContainer(collectionView._children, shapes.childContainerEntriesAfterDestroy);
@@ -204,11 +205,11 @@ describe('Phase 0 deterministic resource baselines', function() {
       expect(backboneRegistrations(model, behavior))
         .to.equal(shapes.modelRegistrationsWhileMounted);
       expect(interopRegistrations(behavior, model))
-        .to.equal(shapes.modelRegistrationsWhileMounted);
+        .to.equal(shapes.externalRegistrationsAfterDestroy);
       expect(ledgerEntries(model._rdListeners))
         .to.equal(shapes.externalListenerOwnersAfterDestroy);
       expect(ledgerEntries(behavior._rdListeningTo))
-        .to.equal(shapes.behaviorListeningToWhileMounted);
+        .to.equal(1);
       behaviorView.destroy();
 
       expect(backboneRegistrations(model, behaviorView))

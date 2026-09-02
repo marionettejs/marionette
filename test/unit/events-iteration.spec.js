@@ -263,5 +263,21 @@ describe('Events owned iteration', function() {
         ['off', target, 'event', callback, listener]
       ]);
     });
+
+    it('retains interop bookkeeping until the last named event is removed', function() {
+      const listener = createEmitter();
+      const target = createEmitter();
+      const callback = function() {};
+      target.on = function() {};
+      target.off = function() {};
+
+      listener.listenTo(target, 'first second', callback);
+      listener.stopListening(target, 'first', callback);
+
+      expect(listener._rdListeningTo).to.have.property(target._rdListenId);
+
+      listener.stopListening(target, 'second', callback);
+      expect(listener._rdListeningTo).to.eql({});
+    });
   });
 });

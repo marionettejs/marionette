@@ -1,5 +1,6 @@
 import Backbone from 'backbone';
 import ChildViewContainer from '../../modules/child-view-container';
+import BackboneDataApi from '../../runtime/backbone-data-api';
 
 describe('#ChildViewContainer', function() {
 
@@ -782,7 +783,7 @@ describe('#ChildViewContainer', function() {
     it('should empty all of the view buffers', function() {
       expect(container._views).to.deep.equal([]);
       expect(container._viewsByCid).to.deep.equal({});
-      expect(container._indexByModel).to.deep.equal({});
+      expect(container._indexByModel).to.deep.equal(new Map());
     });
 
     it('should update length to 0', function() {
@@ -792,7 +793,7 @@ describe('#ChildViewContainer', function() {
 
   describe('#_add', function() {
     it('indexes prototype-collision view and model cids as ordinary keys', function() {
-      const container = new ChildViewContainer();
+      const container = new ChildViewContainer(BackboneDataApi);
       const views = ['constructor', 'toString', '__proto__'].map(cid => {
         const model = new Backbone.Model();
         model.cid = cid;
@@ -804,7 +805,7 @@ describe('#ChildViewContainer', function() {
 
       views.forEach(view => {
         expect(container.findByCid(view.cid)).to.equal(view);
-        expect(container.findByModelCid(view.model.cid)).to.equal(view);
+        expect(container.findByModel(view.model)).to.equal(view);
         expect(container.hasView(view)).to.be.true;
       });
     });
@@ -818,7 +819,7 @@ describe('#ChildViewContainer', function() {
       beforeEach(function() {
         view = new Backbone.View();
 
-        container = new ChildViewContainer();
+        container = new ChildViewContainer(BackboneDataApi);
 
         container._add(view);
 
@@ -944,6 +945,18 @@ describe('#ChildViewContainer', function() {
   });
 
   describe('#_remove', function() {
+    it('preserves a later child that currently owns the same data key', function() {
+      const container = new ChildViewContainer({ key: model => model.id });
+      const first = new Backbone.View({ model: { id: 1 } });
+      const second = new Backbone.View({ model: { id: 1 } });
+      container._add(first);
+      container._add(second);
+
+      container._remove(first);
+
+      expect(container.findByModel(second.model)).to.equal(second);
+    });
+
     describe('when removing a view that has a model', function() {
       let container;
       let view;
@@ -1089,7 +1102,7 @@ describe('#ChildViewContainer', function() {
           { text: 'baz' }
         ]);
 
-        container = new ChildViewContainer();
+        container = new ChildViewContainer(BackboneDataApi);
 
         collection.each(model => {
           const view = new Backbone.View({ model });
@@ -1115,6 +1128,21 @@ describe('#ChildViewContainer', function() {
         this.modelGetSpies.forEach(get => {
           expect(get).to.have.been.calledOnce.and.calledWithExactly('text');
         });
+      });
+
+      it('checks attribute presence before reading it', function() {
+        const Data = {
+          key: model => model,
+          get: this.sinon.stub().throws(new Error('missing attribute was read')),
+          has: this.sinon.stub().returns(false),
+        };
+        const presenceContainer = new ChildViewContainer(Data);
+        const model = {};
+        presenceContainer._add(new Backbone.View({ model }));
+
+        expect(() => presenceContainer._sort('optional')).to.not.throw();
+        expect(Data.has).to.have.been.calledOnceWith(model, 'optional');
+        expect(Data.get).to.not.have.been.called;
       });
 
       describe('when a view does not have a model', function() {

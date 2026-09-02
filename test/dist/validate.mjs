@@ -51,6 +51,8 @@ async function validateBrowserGlobal(file) {
   assert.strictEqual(Marionette.VERSION, packageJson.version, `${file} browser-global version`);
   assert.strictEqual(typeof Marionette.MarionetteError, 'function', `${file} MarionetteError export`);
   assert.strictEqual(typeof Marionette.State, 'function', `${file} State export`);
+  assert.strictEqual(typeof Marionette.DataApi, 'object', `${file} DataApi export`);
+  assert.strictEqual(typeof Marionette.setDataApi, 'function', `${file} setDataApi export`);
   const Application = Marionette.Application.extend({
     initialize() {
       this.initialized = true;
@@ -86,6 +88,18 @@ async function validate() {
     assert.strictEqual(Marionette.VERSION, packageJson.version, `${name} version`);
     assert.strictEqual(typeof Marionette.MarionetteError, 'function', `${name} MarionetteError export`);
     assert.strictEqual(typeof Marionette.State, 'function', `${name} State export`);
+    assert.strictEqual(typeof Marionette.DataApi, 'object', `${name} DataApi export`);
+    assert.strictEqual(typeof Marionette.setDataApi, 'function', `${name} setDataApi export`);
+    assert.strictEqual(Marionette.View.prototype.Data, Marionette.DataApi, `${name} plain View DataApi`);
+    assert.strictEqual(
+      Marionette.CollectionView.prototype.Data,
+      Marionette.DataApi,
+      `${name} plain CollectionView DataApi`,
+    );
+    const plainModel = { name: 'plain' };
+    assert.strictEqual(Marionette.DataApi.key(plainModel), plainModel, `${name} plain identity`);
+    assert.strictEqual(Marionette.DataApi.get(plainModel, 'name'), 'plain', `${name} plain read`);
+    assert.strictEqual(Marionette.DataApi.items([plainModel])[0], plainModel, `${name} plain items`);
     assert.strictEqual(new Marionette.State({ ready: true }).get('ready'), true, `${name} State behavior`);
     validateRadio(Marionette, name);
 
