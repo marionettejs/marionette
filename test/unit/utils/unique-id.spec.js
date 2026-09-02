@@ -4,6 +4,7 @@ import Behavior from '../../../modules/behavior';
 import CollectionView from '../../../modules/collection-view';
 import MnObject from '../../../modules/object';
 import Region from '../../../modules/region';
+import State from '../../../modules/state';
 import View from '../../../modules/view';
 import uniqueId from '../../../utils/unique-id';
 
@@ -12,7 +13,7 @@ function suffix(id) {
 }
 
 describe('uniqueId', function() {
-  it('increments one shared sequence and prepends truthy prefixes', function() {
+  it('increments one shared sequence and prepends string prefixes', function() {
     const first = uniqueId('first');
     const second = uniqueId('second');
 
@@ -31,51 +32,8 @@ describe('uniqueId', function() {
     expect(suffix(after)).to.equal(suffix(before) + 1);
   });
 
-  it('returns only the id for falsey prefixes', function() {
-    const prefixes = [undefined, null, false, 0, '', NaN, 0n];
-    const ids = prefixes.map(prefix => uniqueId(prefix));
-
-    ids.forEach(id => expect(id).to.match(/^\d+$/));
-    ids.slice(1).forEach((id, index) => {
-      expect(Number(id)).to.equal(Number(ids[index]) + 1);
-    });
-  });
-
-  it('uses normal addition coercion after consuming the id', function() {
-    const hints = [];
-    const prefix = {
-      [Symbol.toPrimitive](hint) {
-        hints.push(hint);
-        return 'coerced';
-      }
-    };
-
-    expect(uniqueId(prefix)).to.match(/^coerced\d+$/);
-    expect(hints).to.deep.equal(['default']);
-  });
-
-  it('propagates prefix coercion errors after consuming the id', function() {
-    const before = uniqueId('before');
-    const error = new Error('prefix coercion failed');
-    const prefix = {
-      [Symbol.toPrimitive]() {
-        throw error;
-      }
-    };
-
-    expect(() => uniqueId(prefix)).to.throw(error);
-    const after = uniqueId('after');
-
-    expect(suffix(after)).to.equal(suffix(before) + 2);
-  });
-
-  it('consumes the id before a Symbol prefix throws', function() {
-    const before = uniqueId('before');
-
-    expect(() => uniqueId(Symbol('prefix'))).to.throw(TypeError);
-    const after = uniqueId('after');
-
-    expect(suffix(after)).to.equal(suffix(before) + 2);
+  it('returns only the id without a prefix', function() {
+    expect(uniqueId()).to.match(/^\d+$/);
   });
 
   it('keeps custom-prefix ids unique across Marionette types', function() {
@@ -86,22 +44,25 @@ describe('uniqueId', function() {
     const SharedCollectionView = CollectionView.extend({ cidPrefix });
     const SharedRegion = Region.extend({ cidPrefix });
     const SharedBehavior = Behavior.extend({ cidPrefix });
+    const SharedState = State.extend({ cidPrefix });
     const hostView = new SharedView();
     const object = new SharedObject();
     const application = new SharedApplication();
     const collectionView = new SharedCollectionView();
     const region = new SharedRegion({ el: document.createElement('div') });
     const behavior = new SharedBehavior({}, hostView);
+    const state = new SharedState();
     const ids = [
       hostView.cid,
       object.cid,
       application.cid,
       collectionView.cid,
       region.cid,
-      behavior.cid
+      behavior.cid,
+      state.cid
     ];
 
-    expect(ids).to.have.length(6);
+    expect(ids).to.have.length(7);
     expect(new Set(ids)).to.have.property('size', ids.length);
     ids.forEach(id => expect(id).to.match(/^shared\d+$/));
   });
