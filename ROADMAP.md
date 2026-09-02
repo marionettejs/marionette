@@ -358,8 +358,8 @@ current-evidence findings:
 - **Selected:** Retain the current root bootstrap and class-level DOM and renderer
   configuration. EventDelegator remains a public runtime adapter parallel to those
   seams, with deterministic global and per-class installation timing. Each registration
-  returns an opaque cleanup operation that Marionette owns, invokes at most once, and
-  attempts alongside sibling cleanup even when one operation throws.
+  returns an opaque cleanup operation that Marionette owns and invokes at most once;
+  cleanup continues through sibling operations even when one throws.
 
 - **Gated:** `Region.show` and `View.showChildView` accept a View-like instance. The v3/v4
   template, string, and options-object convenience implicitly constructs a base View,
@@ -414,8 +414,9 @@ current-evidence findings:
   before the renderer commits new parent output, then re-resolves Region elements from
   the new DOM. Marionette does not implicitly preserve, key, detach, reconcile, or
   remount Region children. Long-lived children receive observable state and own their
-  presentation invalidation; parents own composition. Explicit `detachChildView`,
-  parent render, and `showChildView` is the uncommon ownership-transfer escape hatch.
+  presentation invalidation; parents own composition. The explicit sequence
+  `detachChildView` → parent render → `showChildView` is the uncommon
+  ownership-transfer escape hatch.
 - **Selected:** Marionette's first-class renderer category is synchronous and
   container-scoped: Marionette owns a stable `view.el`, and the renderer commits within
   that boundary when `View#render()` is called. HTML, native DOM/template cloning,
