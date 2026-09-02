@@ -2033,36 +2033,28 @@
         delete this._isDestroying;
         throw error;
       }
-      if (shouldTriggerDetach) {
-        this.triggerMethod('before:detach', this);
-      }
-      this.unbindUIElements();
-      disposeAll([() => {
-        this.Dom.detachEl(this.el);
-        if (shouldTriggerDetach) {
-          this._isAttached = false;
-          this.triggerMethod('detach', this);
-        }
-        this._removeChildren();
-        this._isDestroyed = true;
-        this._isRendered = false;
+      let didDetachEl = false;
+      disposeAll([() => this.stopListening(), () => this._triggerEventOnBehaviors('destroy', this, options), () => this.triggerMethod('destroy', this, options), () => this._destroyState(), () => this._destroyBehaviors(options), () => this._deleteEntityEventHandlers(), () => {
         const dataObserverUnsubscribe = this._dataObserverUnsubscribe;
         delete this._dataObserverUnsubscribe;
-        let dataDisposalError;
-        let hasDataDisposalError = false;
-        try {
-          disposeAll([dataObserverUnsubscribe, () => this._deleteEntityEventHandlers(), () => this._destroyBehaviors(options)]);
-        } catch (error) {
-          dataDisposalError = error;
-          hasDataDisposalError = true;
+        dataObserverUnsubscribe?.();
+      }, () => {
+        this._isDestroyed = true;
+        this._isRendered = false;
+      }, () => this._removeChildren(), () => {
+        if (!shouldTriggerDetach || !didDetachEl) {
+          return;
         }
-        const finalDisposers = [() => this.stopListening(), () => this._triggerEventOnBehaviors('destroy', this, options), () => this.triggerMethod('destroy', this, options), () => this._destroyState()];
-        if (hasDataDisposalError) {
-          disposeAll(finalDisposers, dataDisposalError);
-        } else {
-          disposeAll(finalDisposers);
+        this._isAttached = false;
+        this.triggerMethod('detach', this);
+      }, () => {
+        this.Dom.detachEl(this.el);
+        didDetachEl = true;
+      }, () => this._undelegateViewEvents(), () => this.unbindUIElements(), () => {
+        if (shouldTriggerDetach) {
+          this.triggerMethod('before:detach', this);
         }
-      }, () => this._undelegateViewEvents()]);
+      }]);
       return this;
     },
     bindUIElements() {
@@ -4303,17 +4295,19 @@
         if (this._childApps) {
           await destroyChildApps(this, options);
         }
-        this._ownedRegion?.destroy(options);
-        delete this._region;
-        delete this._ownedRegion;
-        this._isDestroyed = true;
-        this._lifecycleState = DESTROYED;
-        nextOperation.failureState = DESTROYED;
-        nextOperation.isCompleting = true;
-        if (this._parentApp) {
-          removeChildAppReference(this._parentApp, this._name, this);
-        }
-        disposeAll([() => this.stopListening(), () => this.triggerMethod('destroy', this, options), () => this._destroyState(), () => this._destroyRadio()]);
+        const ownedRegion = this._ownedRegion;
+        disposeAll([() => this.stopListening(), () => this.triggerMethod('destroy', this, options), () => this._destroyState(), () => this._destroyRadio(), () => {
+          this._isDestroyed = true;
+          this._lifecycleState = DESTROYED;
+          nextOperation.failureState = DESTROYED;
+          nextOperation.isCompleting = true;
+          if (this._parentApp) {
+            removeChildAppReference(this._parentApp, this._name, this);
+          }
+        }, () => {
+          delete this._region;
+          delete this._ownedRegion;
+        }, () => ownedRegion?.destroy(options)]);
       });
     },
     addChildApp(name, application) {

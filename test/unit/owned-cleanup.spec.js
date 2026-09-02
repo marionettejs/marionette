@@ -68,7 +68,23 @@ describe('MnObject and Application owned cleanup', function() {
       const Owner = OwnerClass.extend({
         channelName,
         radioRequests: { status: 'getStatus' },
-        getStatus() { return 'ready'; }
+        getStatus() { return 'ready'; },
+        onBeforeDestroy() {
+          lifecycle.push([
+            'onBeforeDestroy',
+            this.isDestroyed(),
+            state.isDestroyed(),
+            Radio.request(channelName, 'status')
+          ]);
+        },
+        onDestroy() {
+          lifecycle.push([
+            'onDestroy',
+            this.isDestroyed(),
+            state.isDestroyed(),
+            Radio.request(channelName, 'status')
+          ]);
+        }
       });
       const owner = new Owner({ state });
 
@@ -80,7 +96,7 @@ describe('MnObject and Application owned cleanup', function() {
           Radio.request(channelName, 'status')
         ]);
       });
-      owner.on('destroy', currentOwner => {
+      owner.listenTo(owner, 'destroy', currentOwner => {
         lifecycle.push([
           'destroy',
           currentOwner.isDestroyed(),
@@ -92,7 +108,9 @@ describe('MnObject and Application owned cleanup', function() {
       await destroy(owner);
 
       expect(lifecycle).to.deep.equal([
+        ['onBeforeDestroy', false, false, 'ready'],
         ['before:destroy', false, false, 'ready'],
+        ['onDestroy', true, true, undefined],
         ['destroy', true, true, undefined]
       ]);
     });
@@ -128,6 +146,47 @@ describe('MnObject and Application owned cleanup', function() {
       expect(Radio.request(channelName, 'status')).to.be.undefined;
       expect(onDestroy).to.have.been.calledOnceWith(owner, undefined);
     });
+
+    if (OwnerClass === Application) {
+      it('Application attempts remaining cleanup after owned Region destroy throws', async function() {
+        const cleanupError = new Error('region cleanup failed');
+        const channelName = 'normal-region-cleanup-error';
+        const state = new State();
+        const onDestroy = this.sinon.spy();
+        let ownedRegion;
+        const ThrowingRegion = Region.extend({
+          initialize() { ownedRegion = this; },
+          destroy() {
+            Region.prototype.destroy.apply(this, arguments);
+            throw cleanupError;
+          }
+        });
+        const TestApplication = Application.extend({
+          channelName,
+          region: { el: document.createElement('div') },
+          regionClass: ThrowingRegion,
+          radioRequests: { status: 'getStatus' },
+          getStatus() { return 'ready'; }
+        });
+        const application = new TestApplication({ state });
+        application.on('destroy', onDestroy);
+
+        let thrownError;
+        try {
+          await application.destroy();
+        } catch (error) {
+          thrownError = error;
+        }
+
+        expect(thrownError).to.equal(cleanupError);
+        expect(application.isDestroyed()).to.be.true;
+        expect(ownedRegion.isDestroyed()).to.be.true;
+        expect(state.isDestroyed()).to.be.true;
+        expect(state._owner).to.be.undefined;
+        expect(Radio.request(channelName, 'status')).to.be.undefined;
+        expect(onDestroy).to.have.been.calledOnceWith(application, undefined);
+      });
+    }
 
     for (const failure of ['_initRadio', '_initState', 'initialize', 'stateEvents']) {
       it(`${ name } rolls back owned resources when ${ failure } fails`, function() {
