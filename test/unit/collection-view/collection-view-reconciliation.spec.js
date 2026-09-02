@@ -244,6 +244,28 @@ describe('CollectionView normalized reconciliation', function() {
     view.destroy();
   });
 
+  it('preserves manual child order for an immutable same-key replacement', function() {
+    const previous = { id: 1, name: 'before' };
+    const second = { id: 2, name: 'second' };
+    const third = { id: 3, name: 'third' };
+    const current = { id: 1, name: 'after' };
+    const source = { items: [previous, second, third] };
+    const view = new ListView({ collection: source, sortWithCollection: false });
+    view.render();
+
+    source.items = [current, second, third];
+    source.notify({
+      kind: 'update',
+      added: [],
+      removed: [],
+      updated: [{ previous, current }]
+    });
+
+    expect(view.children.toArray().map(child => child.model)).to.deep.equal([current, second, third]);
+    expect(view.el.textContent).to.equal('aftersecondthird');
+    view.destroy();
+  });
+
   it('renders in-place updates through the same path', function() {
     const item = { id: 1, name: 'before' };
     const source = { items: [item] };
@@ -322,6 +344,7 @@ describe('CollectionView normalized reconciliation', function() {
     let stagedReplacement;
     let stagedAddition;
     let failedAddition;
+    const lifecycle = [];
     const FailureList = ListView.extend({
       buildChildView(model, ChildViewClass, childViewOptions) {
         const child = CollectionView.prototype.buildChildView.call(
@@ -333,11 +356,22 @@ describe('CollectionView normalized reconciliation', function() {
         return child;
       },
       onBeforeAddChild(collectionView, child) {
+        lifecycle.push(`before:add:${ child.model.name }`);
         if (child.model === failingAddition) { throw hookError; }
+      },
+      onAddChild(collectionView, child) {
+        lifecycle.push(`add:${ child.model.name }`);
+      },
+      onBeforeRemoveChild(collectionView, child) {
+        lifecycle.push(`before:remove:${ child.model.name }`);
+      },
+      onRemoveChild(collectionView, child) {
+        lifecycle.push(`remove:${ child.model.name }`);
       }
     });
     const view = new FailureList({ collection: source });
     view.render();
+    lifecycle.length = 0;
 
     source.items = [replacement, added, failingAddition];
     expect(() => source.notify({
@@ -352,6 +386,13 @@ describe('CollectionView normalized reconciliation', function() {
     expect(failedAddition.isDestroyed()).to.be.true;
     expect(view.children.toArray().map(child => child.model)).to.deep.equal([first]);
     expect(view.el.textContent).to.equal('one');
+    expect(lifecycle).to.deep.equal([
+      'before:add:added',
+      'add:added',
+      'before:add:failing addition',
+      'before:remove:added',
+      'remove:added'
+    ]);
     view.destroy();
   });
 

@@ -417,13 +417,14 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
       for (const { current, previous, view } of updateEntries) {
         if (previous !== current) {
+          const childIndex = this._children.findIndexByView(view);
           try {
             this._removeChild(view);
           } finally {
             if (!this._children.hasView(view)) { removedViews.push(view); }
           }
           const replacementView = replacementViews[replacementIndex++];
-          this._addChild(replacementView);
+          this._addChild(replacementView, childIndex);
           stagedViews.delete(replacementView);
           replacedViews.push(replacementView);
           insertedViews.push(replacementView);
@@ -1197,9 +1198,15 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   _rollbackChildView(view) {
     view.off('destroy', this.removeChildView, this);
     this.stopListening(view);
-    this.children._remove(view);
-    this._children._remove(view);
-    this._destroyChildView(view);
+    try {
+      if (this._children.hasView(view)) {
+        this._removeChild(view);
+      }
+    } finally {
+      this.children._remove(view);
+      this._children._remove(view);
+      this._destroyChildView(view);
+    }
   },
 
   _destroyChildView(view) {
