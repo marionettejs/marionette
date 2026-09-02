@@ -321,6 +321,27 @@ describe('EventDelegator', function() {
     view.destroy();
   });
 
+  it('finishes View teardown when Behavior DOM cleanup throws', function() {
+    const cleanupError = new Error('cleanup failed');
+    const TestBehavior = Behavior.extend({ events: { click() {} } });
+    TestBehavior.setEventDelegator({
+      delegate: () => () => { throw cleanupError; }
+    });
+    const TestView = View.extend({ behaviors: [TestBehavior] });
+    const view = new TestView({ el: rootEl });
+    const state = view.getState();
+    const onDestroy = vi.fn();
+    const stopListening = vi.spyOn(view, 'stopListening');
+    view.on('destroy', onDestroy);
+
+    expect(() => view.destroy()).to.throw(cleanupError);
+    expect(view.isDestroyed()).to.equal(true);
+    expect(state.isDestroyed()).to.equal(true);
+    expect(onDestroy).toHaveBeenCalledTimes(1);
+    expect(stopListening).toHaveBeenCalled();
+    expect(rootEl.isConnected).to.equal(false);
+  });
+
   it('uses the current adapter for new registrations and the original cleanup for old ones', function() {
     const firstCleanup = vi.fn();
     const secondCleanup = vi.fn();
