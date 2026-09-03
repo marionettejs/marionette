@@ -1,0 +1,227 @@
+test/fixtures/data-package-types/package.json
+  s_792d54449de682::t_b4239e7f5d8cdc 1-10
+packages/data/package.json
+  s_792d54449de682::t_cfb18d2a09cd17 29-31
+  s_8acc1a5f7c4467::t_0aa6edf284c7ff 3
+  s_8acc1a5f7c4467::t_418cef912e383f 1-2,4-7,9-10,19-28,32-34,38-39,41-54
+  s_8acc1a5f7c4467::t_05520b917bebcf 35-37,40
+  s_792d54449de682::t_ca9acea02033be 8,11-18
+packages/data/dist/index.d.mts
+  s_792d54449de682::t_ca9acea02033be 1-151
+packages/data/dist/index.cjs
+  s_8acc1a5f7c4467::t_c8006a1840b095 1-645
+test/fixtures/data-package-vite/src/main.js
+  s_792d54449de682::t_b4239e7f5d8cdc 1-11
+packages/data/src/index.js
+  s_8acc1a5f7c4467::t_418cef912e383f 3-5
+  s_8acc1a5f7c4467::t_05520b917bebcf 1-2,6
+packages/data/src/dispose-all.js
+  s_792d54449de682::t_42f8dbfc6713da 1-16
+packages/data/dist/index.js
+  s_8acc1a5f7c4467::t_0dd223fd080777 1-639
+packages/data/src/observers.js
+  s_792d54449de682::t_8d3fcfd3c905dc 4-6
+  s_792d54449de682::t_42f8dbfc6713da 33
+  s_8acc1a5f7c4467::t_418cef912e383f 1-3,7-32,34
+test/unit/data-package/model.spec.js
+  s_792d54449de682::t_3bfd4c93bcd698 142-143,151-153,164-178
+  s_792d54449de682::t_af495f161b2a58 78-91
+  s_792d54449de682::t_84768c3d522c7e 21-27,156-163
+  s_792d54449de682::t_ef85cdce204c90 219-224,226-229,232-248
+  s_8acc1a5f7c4467::t_449fe82c75537a 2-20,28-57,183-218,249
+  s_792d54449de682::t_8d3fcfd3c905dc 70-77,92-104,116-139,179-180
+  s_792d54449de682::t_7329a8034267a4 60,67
+  s_792d54449de682::t_e5e2cd56727d24 1
+  s_8acc1a5f7c4467::t_bacc4cf8aa561e 58-59,61-66,68-69
+  s_792d54449de682::t_2051aa5fb70d5d 105-115
+  s_792d54449de682::t_7b30dcdb38f798 148-150
+  s_792d54449de682::t_e7b132fc0ae4c7 225,230-231
+  s_792d54449de682::t_5c5ec0d5b291ee 140-141,144-147,154-155,181-182
+test/fixtures/data-package-types/tsconfig.json
+  s_792d54449de682::t_b4239e7f5d8cdc 1-12
+scripts/release/build-artifact.mjs
+  s_792d54449de682::t_028b7d7bfb7d59 113
+  s_792d54449de682::t_2dbaf922812b6e 87-90,103-108,110-112,114-122,124-152,165-166,170-171,214-219,226-229
+scripts/release/verify-artifact.mjs
+  s_792d54449de682::t_2deee7b4641f96 71,86-92,105-146,177,179,183-185,196-197
+  s_792d54449de682::t_6c72a69c8ec6db 93-103
+scripts/release/publish-github.mjs
+  s_792d54449de682::t_b887b5ece367e3 65-68
+  s_792d54449de682::t_6c72a69c8ec6db 3,69-77,101-112,114,121,148,175,269,297
+  s_792d54449de682::t_75233ef8c4d182 62-64,79-82,248-249
+packages/data/readme.md
+  s_792d54449de682::t_cfb18d2a09cd17 3-9,15-17,21,28,40-41
+  s_792d54449de682::t_442cd312551225 29-32,39
+  s_8acc1a5f7c4467::t_418cef912e383f 1-2,11,13-14,18-20,22-27
+  s_792d54449de682::t_3077c6e9b6f381 10
+  s_792d54449de682::t_7b30dcdb38f798 42-44
+  s_792d54449de682::t_41a74c92da8324 12
+  s_792d54449de682::t_caaa8e5f930a68 33-38
+packages/data/src/assign-own.js
+  s_792d54449de682::t_7329a8034267a4 16-17
+  s_792d54449de682::t_5c5ec0d5b291ee 2-15,18-25
+  s_792d54449de682::t_ce6c41a34c80e9 1
+scripts/checks/dist.mjs
+  s_8acc1a5f7c4467::t_449fe82c75537a 6,25,32,59
+test/fixtures/data-package-types/validate.mts
+  s_792d54449de682::t_b4239e7f5d8cdc 1-31
+scripts/release/github-release.mjs
+  s_792d54449de682::t_6c72a69c8ec6db 1,3
+package.json
+  s_8acc1a5f7c4467::t_449fe82c75537a 72-73
+  s_792d54449de682::t_1fc13aa17c1fc7 91-92
+  s_8acc1a5f7c4467::t_05520b917bebcf 100
+packages/data/rollup.config.mjs
+  s_8acc1a5f7c4467::t_05520b917bebcf 11
+  s_8acc1a5f7c4467::t_418cef912e383f 1-10,12-24
+docs/installation.md
+  s_792d54449de682::t_75c71c6354d4ed 128
+  s_792d54449de682::t_b887b5ece367e3 14,115-127
+test/fixtures/data-package-vite/package.json
+  s_792d54449de682::t_b4239e7f5d8cdc 1-14
+test/unit/data-package/api-integration.spec.js
+  s_792d54449de682::t_b36b8842201bae 106-109
+  s_792d54449de682::t_cfb18d2a09cd17 1,6-9,37-39,43,49
+  s_8acc1a5f7c4467::t_bacc4cf8aa561e 87-91
+  s_792d54449de682::t_84768c3d522c7e 95-105
+  s_792d54449de682::t_54fee5e06d05a6 27-30
+  s_8acc1a5f7c4467::t_449fe82c75537a 2-5,10-26,31-36,40-42,44-48,50-86,92-94,110-111
+test/fixtures/data-package-esm/validate.mjs
+  s_792d54449de682::t_1d4d2fe6ca8a26 14-25,29-30,33-37
+  s_792d54449de682::t_2051aa5fb70d5d 31-32
+  s_792d54449de682::t_07630d9ad7f84b 1-13,38-39
+  s_792d54449de682::t_07328a3adbad7a 26-28
+eslint.config.mjs
+  s_8acc1a5f7c4467::t_48ce87f414f767 25
+docs/data.api.md
+  s_792d54449de682::t_cfb18d2a09cd17 128-137,139-149,157-158
+  s_792d54449de682::t_caaa8e5f930a68 150-156
+  s_792d54449de682::t_41a74c92da8324 138
+test/fixtures/data-package-cjs/validate.cjs
+  s_792d54449de682::t_1d4d2fe6ca8a26 14-25,29-30,33-37
+  s_792d54449de682::t_07328a3adbad7a 26-28
+  s_792d54449de682::t_07630d9ad7f84b 1-13,38-39
+  s_792d54449de682::t_2051aa5fb70d5d 31-32
+packages/data/src/api.js
+  s_8acc1a5f7c4467::t_418cef912e383f 1-30,33-46,48-52
+  s_792d54449de682::t_caaa8e5f930a68 31-32
+  s_792d54449de682::t_b36b8842201bae 47
+packages/data/src/model.js
+  s_8acc1a5f7c4467::t_05520b917bebcf 24-28,129
+  s_792d54449de682::t_2051aa5fb70d5d 37
+  s_792d54449de682::t_af495f161b2a58 51-53
+  s_792d54449de682::t_5c5ec0d5b291ee 1,6-18,20-23,66
+  s_792d54449de682::t_7b30dcdb38f798 59-62,64-65
+  s_792d54449de682::t_8d3fcfd3c905dc 19
+  s_8acc1a5f7c4467::t_418cef912e383f 4-5,35-36,38-43,46-50,55-58,67-85,96-128,130-144,151-155
+  s_792d54449de682::t_42f8dbfc6713da 3,86-95,145-147,150
+  s_792d54449de682::t_caaa8e5f930a68 29-34,63,148-149
+  s_792d54449de682::t_ce6c41a34c80e9 2,44-45,54
+test/release/promotion.test.mjs
+  s_792d54449de682::t_7270dd24cd2744 69-86,173-188
+  s_792d54449de682::t_ee0ce4d5d5f594 49,54,93,99
+  s_792d54449de682::t_6c72a69c8ec6db 147-149,155
+  s_792d54449de682::t_7d4e0a670a1840 45-48,50,52-53,55-57,89-92,94-95,97-98,100-103
+  s_d6429951fb9231::t_940954690e060b 189
+test/fixtures/run.mjs
+  s_792d54449de682::t_07630d9ad7f84b 68,88-109,129-131
+packages/data/dist/index.d.cts
+  s_792d54449de682::t_ca9acea02033be 1-151
+evidence/state-data-regression-ledger.md
+  s_792d54449de682::t_8d3fcfd3c905dc 17
+  s_792d54449de682::t_b4239e7f5d8cdc 27
+test/fixtures/data-package-types/tsconfig.cjs.json
+  s_792d54449de682::t_b4239e7f5d8cdc 1-6
+packages/data/src/collection.js
+  s_8acc1a5f7c4467::t_0aec66a76775ec 61-62
+  s_792d54449de682::t_5c5ec0d5b291ee 1-2,4,20-32,208-209,211
+  s_8acc1a5f7c4467::t_0aa6edf284c7ff 153-156,159,161-162
+  s_8acc1a5f7c4467::t_418cef912e383f 5-15,33,35-38,50-60,63-65,75-77,116-130,132-149,151-152,157-158,160,163-164,166-172,175,177-181,183-190,194-196,199,201-205,207,212-221,223-227,231-232,234-254,256-271,273-274,278-290,292-306,309-337,345-347,352-353
+  s_792d54449de682::t_b6baf71b19a4f8 228-230
+  s_8acc1a5f7c4467::t_f4e5f4a2d57abe 348-351
+  s_792d54449de682::t_79f6e4050fb3c1 173-174,176,197-198,200
+  s_792d54449de682::t_42f8dbfc6713da 3,39-49,275-277,338-344
+  s_792d54449de682::t_2051aa5fb70d5d 16-19,34,131,150,182,206,222,255,272,291,307-308
+  s_792d54449de682::t_8d3fcfd3c905dc 68,70-73,82-114,165,191-193,210,233
+  s_792d54449de682::t_fd2322d05a6845 66-67,69,74,78-81,115
+readme.md
+  s_792d54449de682::t_b887b5ece367e3 42
+scripts/release/check-targets.mjs
+  s_792d54449de682::t_18e93421c5ed59 51-53,64-91,93-95,97,143-149,154-157,164-165,175-180
+  s_792d54449de682::t_b887b5ece367e3 54-57
+vitest.config.js
+  s_8acc1a5f7c4467::t_e4921961d8d4d3 2,5-9
+  s_8acc1a5f7c4467::t_449fe82c75537a 24
+test/fixtures/data-package-esm/package.json
+  s_792d54449de682::t_07630d9ad7f84b 1-7
+changelog.md
+  s_792d54449de682::t_b887b5ece367e3 13-14
+packages/data/license.txt
+  s_792d54449de682::t_caaa8e5f930a68 1-3
+  s_792d54449de682::t_52026c0a3c91e1 12-13,20-21
+  s_8acc1a5f7c4467::t_418cef912e383f 5-11,14-19
+  s_792d54449de682::t_b25b344210c589 4
+scripts/performance/data-package-size.mjs
+  s_792d54449de682::t_a442618ba8a837 2,46-49
+  s_792d54449de682::t_1fc13aa17c1fc7 1,3-38,40-45,50-60
+  s_792d54449de682::t_caaa8e5f930a68 39
+test/unit/data-package/collection.spec.js
+  s_8acc1a5f7c4467::t_bacc4cf8aa561e 126-138,283-286,289-307,324-332
+  s_8acc1a5f7c4467::t_449fe82c75537a 1-49,51-57,59-60,174,190-236,240,271-273,275-282,287-288,308-316,319-322,334-338,367-368
+  s_792d54449de682::t_3bfd4c93bcd698 187
+  s_792d54449de682::t_7b30dcdb38f798 237-239,242-257
+  s_792d54449de682::t_84768c3d522c7e 258-270
+  s_792d54449de682::t_2051aa5fb70d5d 141-168,323,333
+  s_792d54449de682::t_ef85cdce204c90 274,339-366
+  s_8acc1a5f7c4467::t_e200a7e0807beb 317-318
+  s_792d54449de682::t_5c5ec0d5b291ee 176-186,188-189
+  s_792d54449de682::t_8d3fcfd3c905dc 81-109,111-117,119-122,124-125,139-140,169-173
+  s_8acc1a5f7c4467::t_0aa6edf284c7ff 61-70
+  s_792d54449de682::t_79f6e4050fb3c1 50,58
+  s_792d54449de682::t_fd2322d05a6845 71-80
+  s_792d54449de682::t_5d38ea73eff25d 175,241
+  s_792d54449de682::t_f592652ea9bb65 110,118,123
+test/fixtures/data-package-vite/index.html
+  s_792d54449de682::t_b4239e7f5d8cdc 1-11
+test/fixtures/data-package-types/tsconfig.esm.json
+  s_792d54449de682::t_b4239e7f5d8cdc 1-6
+test/fixtures/data-package-types/validate.cts
+  s_792d54449de682::t_b4239e7f5d8cdc 1-31
+test/fixtures/data-package-cjs/package.json
+  s_792d54449de682::t_07630d9ad7f84b 1-6
+.github/workflows/release.yml
+  s_792d54449de682::t_7a9fce4c8fac95 18,75,82-83,129,148,152-155,217-220,260,263-267,269,272,324,376-383,385-386,389
+  s_d6429951fb9231::t_7740cf4bcd1bc0 268,270-271,384
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "a918c6e7e373d002d8a01e9ebdeec4f5f33aac1b",
+  "prompts": {},
+  "sessions": {
+    "s_792d54449de682": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a063d4-3f21-7e72-bd01-96fa87903ed1",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    },
+    "s_8acc1a5f7c4467": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06326-7562-7453-8271-d3c06bc8882c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
