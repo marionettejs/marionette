@@ -63,12 +63,13 @@ if (evidence.schemaVersion !== 2 || !Array.isArray(evidence.packages)) {
   throw new Error(`Unsupported evidence schemaVersion ${evidence.schemaVersion}.`);
 }
 const packageIds = evidence.packages.map(packageEvidence => packageEvidence.id);
-if (JSON.stringify(packageIds) !== JSON.stringify(['core', 'data'])) {
+if (JSON.stringify(packageIds) !== JSON.stringify(['core', 'data', 'adapters'])) {
   throw new Error(`Unexpected release package order: ${packageIds.join(', ')}.`);
 }
 const packageNames = new Map([
   ['core', 'marionette'],
   ['data', '@marionette/data'],
+  ['adapters', '@marionette/adapters'],
 ]);
 for (const packageEvidence of evidence.packages) {
   if (packageEvidence.name !== packageNames.get(packageEvidence.id)) {

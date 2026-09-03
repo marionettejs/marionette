@@ -62,7 +62,8 @@ remain unsupported until issue #127 separately adopts their initial baselines an
 ceilings.
 
 The same command asks Rollup for the actual internal modules and external imports of
-`.`, `./backbone`, and `./jquery-dom-api`. It records graph changes and fails if test,
+`.`, `@marionette/adapters/backbone`, and `@marionette/adapters/dom/jquery`. It
+records graph changes and fails if test,
 documentation, benchmark, release, or diagnostic tooling enters a production graph.
 Each graph output must be exported by that exact package subpath and have one unique
 Rollup producer with the single declared input, so the measured graph is the shipped graph.

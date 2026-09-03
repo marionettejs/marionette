@@ -77,22 +77,22 @@
     },
     {
       "name": "Backbone shim ES module",
-      "path": "dist/backbone.js",
+      "path": "packages/adapters/dist/backbone.js",
       "baselineBrotliBytes": 121
     },
     {
       "name": "Backbone shim CommonJS",
-      "path": "dist/backbone.cjs",
+      "path": "packages/adapters/dist/backbone.cjs",
       "baselineBrotliBytes": 135
     },
     {
       "name": "jQuery DomApi ES module",
-      "path": "dist/jquery-dom-api.js",
+      "path": "packages/adapters/dist/dom/jquery.js",
       "baselineBrotliBytes": 169
     },
     {
       "name": "jQuery DomApi CommonJS",
-      "path": "dist/jquery-dom-api.cjs",
+      "path": "packages/adapters/dist/dom/jquery.cjs",
       "baselineBrotliBytes": 169
     }
   ],
@@ -148,11 +148,12 @@
       ]
     },
     {
-      "subpath": "./backbone",
-      "input": "backbone.js",
-      "output": "dist/backbone.js",
+      "subpath": "@marionette/adapters/backbone",
+      "input": "packages/adapters/src/backbone.js",
+      "output": "packages/adapters/dist/backbone.js",
       "baselineModules": [
-        "backbone.js"
+        "packages/adapters/src/backbone-api.js",
+        "packages/adapters/src/backbone.js"
       ],
       "baselineExternalImports": [
         "backbone",
@@ -161,17 +162,47 @@
       ]
     },
     {
-      "subpath": "./jquery-dom-api",
-      "input": "jquery-dom-api.js",
-      "output": "dist/jquery-dom-api.js",
+      "subpath": "@marionette/adapters/dom/jquery",
+      "input": "packages/adapters/src/dom/jquery.js",
+      "output": "packages/adapters/dist/dom/jquery.js",
       "baselineModules": [
-        "jquery-dom-api.js"
+        "packages/adapters/src/dom/jquery.js"
       ],
       "baselineExternalImports": [
         "jquery"
       ]
     }
   ],
+  "relocations": {
+    "runtimeArtifacts": [
+      {
+        "from": "dist/backbone.cjs",
+        "to": "packages/adapters/dist/backbone.cjs"
+      },
+      {
+        "from": "dist/backbone.js",
+        "to": "packages/adapters/dist/backbone.js"
+      },
+      {
+        "from": "dist/jquery-dom-api.cjs",
+        "to": "packages/adapters/dist/dom/jquery.cjs"
+      },
+      {
+        "from": "dist/jquery-dom-api.js",
+        "to": "packages/adapters/dist/dom/jquery.js"
+      }
+    ],
+    "productionGraphs": [
+      {
+        "from": "./backbone",
+        "to": "@marionette/adapters/backbone"
+      },
+      {
+        "from": "./jquery-dom-api",
+        "to": "@marionette/adapters/dom/jquery"
+      }
+    ]
+  },
   "forbiddenExternalImports": [
     "underscore"
   ],
@@ -303,7 +334,7 @@
   },
   "timing": {
     "harnessSchemaVersion": 1,
-    "harnessRevision": "d6dc4c26b48c83ce4ecfd073c99f614f7e2974bd8be145e6859baaea4b540def",
+    "harnessRevision": "20d861aca94353297814e6bd933b4d3379b842c5385fbe8bcd32eac6ce9f0c14",
     "sampleCount": 20,
     "warmupBatches": 5,
     "cases": [

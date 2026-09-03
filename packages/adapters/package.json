@@ -1,0 +1,80 @@
+{
+  "name": "@marionette/adapters",
+  "description": "First-party Backbone and jQuery adapters for Marionette",
+  "version": "5.0.0-alpha.2",
+  "type": "module",
+  "exports": {
+    "./backbone": {
+      "import": {
+        "types": "./dist/backbone.d.mts",
+        "default": "./dist/backbone.js"
+      },
+      "require": {
+        "types": "./dist/backbone.d.cts",
+        "default": "./dist/backbone.cjs"
+      },
+      "default": "./dist/backbone.js"
+    },
+    "./dom/jquery": {
+      "import": {
+        "types": "./dist/dom/jquery.d.mts",
+        "default": "./dist/dom/jquery.js"
+      },
+      "require": {
+        "types": "./dist/dom/jquery.d.cts",
+        "default": "./dist/dom/jquery.cjs"
+      },
+      "default": "./dist/dom/jquery.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/",
+    "readme.md",
+    "license.txt"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "peerDependencies": {
+    "@types/backbone": "^1.4.23",
+    "@types/jquery": "^4.0.1",
+    "backbone": "^1.4.0",
+    "jquery": "^4.0.0",
+    "marionette": "5.0.0-alpha.2"
+  },
+  "peerDependenciesMeta": {
+    "@types/backbone": {
+      "optional": true
+    },
+    "@types/jquery": {
+      "optional": true
+    },
+    "backbone": {
+      "optional": true
+    },
+    "jquery": {
+      "optional": true
+    }
+  },
+  "scripts": {
+    "build": "rollup -c rollup.config.mjs",
+    "prepack": "npm run build"
+  },
+  "keywords": [
+    "backbone",
+    "jquery",
+    "marionette",
+    "adapter"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marionettejs/marionette.git",
+    "directory": "packages/adapters"
+  }
+}

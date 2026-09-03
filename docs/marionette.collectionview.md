@@ -244,9 +244,11 @@ views to the collection's source order unless the `sortWithCollection` attribute
 presentation sort; it does not disable keyed source-order reconciliation.
 
 ```javascript
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { View, CollectionView } from 'marionette';
+import { CollectionView, setDataApi, View } from 'marionette';
+
+setDataApi(BackboneApi);
 
 const collection = new Backbone.Collection();
 
@@ -350,9 +352,11 @@ the ability to customize per `Model` `ChildViews`.
 
 ```javascript
 import _ from 'underscore';
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { View, CollectionView } from 'marionette';
+import { CollectionView, setDataApi, View } from 'marionette';
+
+setDataApi(BackboneApi);
 
 const FooView = View.extend({
   template: _.template('foo')
@@ -418,11 +422,13 @@ if you need to determine _which_ View class to instantiate.
 
 ```javascript
 import _ from 'underscore';
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { CollectionView } from 'marionette';
+import { CollectionView, setDataApi } from 'marionette';
 import MyListView from './my-list-view';
 import MyView from './my-view';
+
+setDataApi(BackboneApi);
 
 const MyCollectionView = CollectionView.extend({
   childView(child) {
@@ -772,9 +778,11 @@ The former undocumented Underscore aliases `forEach`, `detect`, `select`, `all`,
 `filter`, `every`, `some`, and `contains`, respectively.
 
 ```javascript
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { CollectionView } from 'marionette';
+import { CollectionView, setDataApi } from 'marionette';
+
+setDataApi(BackboneApi);
 
 const collectionView = new CollectionView({
   collection: new Backbone.Collection()
@@ -906,10 +914,12 @@ This can be useful when sorting is arbitrary or is not performant.
 If one child is in the `el` but the other is not, [filter](#filtering-the-children) will be called.
 
 ```javascript
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { CollectionView } from 'marionette';
+import { CollectionView, setDataApi } from 'marionette';
 import MyChildView from './my-child-view';
+
+setDataApi(BackboneApi);
 
 const collection = new Backbone.Collection([
   { name: 'first' },
@@ -961,9 +971,11 @@ const myCollectionView = new CollectionView({
 ```
 
 ```javascript
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { CollectionView } from 'marionette';
+import { CollectionView, setDataApi } from 'marionette';
+
+setDataApi(BackboneApi);
 
 const myCollection = new Backbone.Collection([
   { id: 1 },
@@ -1013,8 +1025,10 @@ the child order.
 Override this method to determine which `viewComparator` to use.
 
 ```javascript
-import 'marionette/backbone';
-import { CollectionView } from 'marionette';
+import BackboneApi from '@marionette/adapters/backbone';
+import { CollectionView, setDataApi } from 'marionette';
+
+setDataApi(BackboneApi);
 
 const MyCollectionView = CollectionView.extend({
   sortAsc(model) {
@@ -1083,9 +1097,11 @@ in the DOM. This behavior can be disabled by specifying `{sortWithCollection: fa
 on initialize or on the view definiton.
 
 ```javascript
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { CollectionView } from 'marionette';
+import { CollectionView, setDataApi } from 'marionette';
+
+setDataApi(BackboneApi);
 
 const myCollection = new Backbone.Collection([
   { id: 1 },
@@ -1153,9 +1169,11 @@ length, visits every index densely, and does not visit entries appended during
 that pass.
 
 ```javascript
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { CollectionView } from 'marionette';
+import { CollectionView, setDataApi } from 'marionette';
+
+setDataApi(BackboneApi);
 
 const cv = new CollectionView({
   childView: SomeChildView,
@@ -1187,9 +1205,11 @@ must compare strictly equal; nested objects therefore match by identity. Arrays
 are not predicate objects.
 
 ```javascript
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { CollectionView } from 'marionette';
+import { CollectionView, setDataApi } from 'marionette';
+
+setDataApi(BackboneApi);
 
 const cv = new CollectionView({
   childView: SomeChildView,
@@ -1215,9 +1235,11 @@ The `viewFilter` string represents the view's model attribute and will filter
 truthy values.
 
 ```javascript
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { CollectionView } from 'marionette';
+import { CollectionView, setDataApi } from 'marionette';
+
+setDataApi(BackboneApi);
 
 const cv = new CollectionView({
   childView: SomeChildView,
@@ -1244,8 +1266,10 @@ Override this function to programatically decide which
 `viewFilter` to use when `filter` is called.
 
 ```javascript
-import 'marionette/backbone';
-import { CollectionView } from 'marionette';
+import BackboneApi from '@marionette/adapters/backbone';
+import { CollectionView, setDataApi } from 'marionette';
+
+setDataApi(BackboneApi);
 
 const MyCollectionView = CollectionView.extend({
   summaryFilter(view) {
@@ -1267,8 +1291,10 @@ Passing `{ preventRender: true }` in the options argument will prevent the view
 being rendered.
 
 ```javascript
-import 'marionette/backbone';
-import { CollectionView } from 'marionette';
+import BackboneApi from '@marionette/adapters/backbone';
+import { CollectionView, setDataApi } from 'marionette';
+
+setDataApi(BackboneApi);
 
 const cv = new CollectionView({
   collection: someCollection
@@ -1293,8 +1319,10 @@ This function is actually an alias of `setFilter(null, options)`. It is useful
 for removing filters. `removeFilter` also accepts `preventRender` as a option.
 
 ```javascript
-import 'marionette/backbone';
-import { CollectionView } from 'marionette';
+import BackboneApi from '@marionette/adapters/backbone';
+import { CollectionView, setDataApi } from 'marionette';
+
+setDataApi(BackboneApi);
 
 const cv = new CollectionView({
   collection: someCollection

@@ -1,23 +1,27 @@
 import Backbone from 'backbone';
-import BackboneDataApi from '../../../runtime/backbone-data-api';
+import BackboneApi from '../../../packages/adapters/src/backbone-api';
 
-describe('BackboneDataApi', function() {
+describe('BackboneApi', function() {
   it('maps Backbone model and collection data', function() {
     const model = new Backbone.Model({ present: undefined, title: 'one' });
     const collection = new Backbone.Collection([model]);
 
-    expect(BackboneDataApi.key(model)).to.equal(model.cid);
-    expect(BackboneDataApi.get(model, 'title')).to.equal('one');
-    expect(BackboneDataApi.get(model, 'constructor')).to.be.undefined;
-    expect(BackboneDataApi.has(model, 'constructor')).to.be.false;
+    expect(BackboneApi.key(model)).to.equal(model.cid);
+    expect(BackboneApi.get(model, 'title')).to.equal('one');
+    expect(BackboneApi.get(model, 'constructor')).to.be.undefined;
+    expect(BackboneApi.has(model, 'constructor')).to.be.false;
     model.set('constructor', 'value');
-    expect(BackboneDataApi.get(model, 'constructor')).to.equal('value');
-    expect(BackboneDataApi.has(model, 'constructor')).to.be.true;
-    expect(BackboneDataApi.has(model, 'present')).to.be.true;
-    expect(BackboneDataApi.has(model, 'missing')).to.be.false;
-    expect(BackboneDataApi.serialize(model)).to.equal(model.attributes);
-    expect(BackboneDataApi.models(collection)).to.equal(collection.models);
-    expect(BackboneDataApi.items).to.be.undefined;
+    expect(BackboneApi.get(model, 'constructor')).to.equal('value');
+    expect(BackboneApi.has(model, 'constructor')).to.be.true;
+    expect(BackboneApi.has(model, 'present')).to.be.true;
+    expect(BackboneApi.has(model, 'missing')).to.be.false;
+    expect(BackboneApi.serialize(model)).to.equal(model.attributes);
+    const models = BackboneApi.models(collection);
+    expect(models).to.deep.equal(collection.models);
+    expect(models).to.not.equal(collection.models);
+    models.length = 0;
+    expect(BackboneApi.models(collection)).to.deep.equal([model]);
+    expect(BackboneApi.items).to.be.undefined;
   });
 
   it('subscribes with context and returns an idempotent cleanup function', function() {
@@ -25,7 +29,7 @@ describe('BackboneDataApi', function() {
     const context = {};
     const callback = this.sinon.spy();
     const off = this.sinon.spy(model, 'off');
-    const cleanup = BackboneDataApi.subscribe(model, 'change', callback, context);
+    const cleanup = BackboneApi.subscribe(model, 'change', callback, context);
 
     model.trigger('change', model);
     cleanup();
@@ -36,13 +40,37 @@ describe('BackboneDataApi', function() {
     expect(off).to.have.been.calledOnce.and.calledWith('change', callback, context);
   });
 
+  it('rolls back an entity subscription when setup fails', function() {
+    const error = new Error('subscribe failed');
+    const entity = {
+      on: this.sinon.stub().throws(error),
+      off: this.sinon.spy()
+    };
+
+    expect(() => BackboneApi.subscribe(entity, 'change', () => {})).to.throw(error);
+    expect(entity.off).to.have.been.calledOnce;
+  });
+
+  it('leaves owned Backbone state source lifecycle to the caller', function() {
+    const model = new Backbone.Model();
+    const destroy = this.sinon.spy(model, 'destroy');
+    const stopListening = this.sinon.spy(model, 'stopListening');
+    const off = this.sinon.spy(model, 'off');
+
+    BackboneApi.disposeOwned(model);
+
+    expect(stopListening).to.not.have.been.called;
+    expect(off).to.not.have.been.called;
+    expect(destroy).to.not.have.been.called;
+  });
+
   it('normalizes structural collection events and disposes them', function() {
     const collection = new Backbone.Collection();
     const callback = this.sinon.spy();
     const added = new Backbone.Model();
     const removed = new Backbone.Model();
     const updated = new Backbone.Model();
-    const cleanup = BackboneDataApi.observeCollection(collection, callback);
+    const cleanup = BackboneApi.observeCollection(collection, callback);
 
     collection.trigger('sort', collection);
     collection.add(added, { silent: true });
@@ -79,7 +107,7 @@ describe('BackboneDataApi', function() {
     const second = new Backbone.Model({ id: 2 });
     const collection = new Backbone.Collection([first, second]);
     const callback = this.sinon.spy();
-    const cleanup = BackboneDataApi.observeCollection(collection, callback);
+    const cleanup = BackboneApi.observeCollection(collection, callback);
 
     collection.set([second, first]);
 
@@ -97,7 +125,7 @@ describe('BackboneDataApi', function() {
       off: this.sinon.spy()
     };
 
-    expect(() => BackboneDataApi.observeCollection(collection, () => {})).to.throw(error);
+    expect(() => BackboneApi.observeCollection(collection, () => {})).to.throw(error);
     expect(collection.on).to.have.been.calledOnce;
     expect(collection.off).to.have.been.calledOnce;
     expect(collection.off.firstCall.args[0]).to.have.all.keys('sort', 'reset', 'update');

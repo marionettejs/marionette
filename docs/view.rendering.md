@@ -154,10 +154,12 @@ and the second argument is the data to be rendered into the template.
 Here's an example that allows for the `template` of a view to be an underscore template string.
 
 ```javascript
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
 import _ from 'underscore';
-import { View } from 'marionette';
+import { setDataApi, View } from 'marionette';
+
+setDataApi(BackboneApi);
 
 View.setRenderer(function(template, data) {
   return _.template(template)(data);
@@ -309,9 +311,11 @@ const myView = new MyView({ model: { name: 'world' } });
 How the `model` is serialized can also be customized per view.
 
 ```javascript
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import _ from 'underscore';
-import { View } from 'marionette';
+import { setDataApi, View } from 'marionette';
+
+setDataApi(BackboneApi);
 
 const MyView = View.extend({
   serializeModel() {
@@ -357,9 +361,11 @@ const myView = new MyView({ collection });
 How the `collection` is serialized can also be customized per view.
 
 ```javascript
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import _ from 'underscore';
-import { View } from 'marionette';
+import { setDataApi, View } from 'marionette';
+
+setDataApi(BackboneApi);
 
 const MyView = View.extend({
   serializeCollection() {
@@ -409,9 +415,11 @@ const MyView = View.extend({
 Additionally context data overwrites the serialized data
 
 ```javascript
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import _ from 'underscore';
-import { View } from 'marionette';
+import { setDataApi, View } from 'marionette';
+
+setDataApi(BackboneApi);
 
 const MyView = View.extend({
   template: _.template('<h1>Hello, <%- name %></h1>'),
@@ -428,10 +436,12 @@ by your templating solution. For instance with handlebars a method is called wit
 the data passed to the template.
 
 ```javascript
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import Handlebars from 'handlebars';
 import Backbone from 'backbone';
-import { View } from 'marionette';
+import { setDataApi, View } from 'marionette';
+
+setDataApi(BackboneApi);
 
 const MyView = View.extend({
   template: Handlebars.compile(`
@@ -466,10 +476,12 @@ into the template, template context mixes in other needed data, or in some cases
 computations that go beyond simply "serializing" the view's `model` or `collection`
 
 ```javascript
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import _ from 'underscore';
-import { CollectionView } from 'marionette';
+import { CollectionView, setDataApi } from 'marionette';
 import GroupView from './group-view';
+
+setDataApi(BackboneApi);
 
 const MyCollectionView = CollectionView.extend({
   tagName: 'div',

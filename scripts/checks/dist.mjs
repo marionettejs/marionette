@@ -3,7 +3,7 @@ import { devNull } from 'os';
 
 const result = spawnSync(
   'git',
-  ['status', '--short', '--untracked-files=all', '--', 'dist', 'packages/data/dist', 'version.js'],
+  ['status', '--short', '--untracked-files=all', '--', 'dist', 'packages/adapters/dist', 'packages/data/dist', 'version.js'],
   { encoding: 'utf8' },
 );
 
@@ -22,14 +22,14 @@ if (result.stdout) {
 
   const trackedDiff = spawnSync(
     'git',
-    ['diff', '--no-ext-diff', '--unified=1', 'HEAD', '--', 'dist', 'packages/data/dist', 'version.js'],
+    ['diff', '--no-ext-diff', '--unified=1', 'HEAD', '--', 'dist', 'packages/adapters/dist', 'packages/data/dist', 'version.js'],
     { encoding: 'utf8', maxBuffer: 1024 * 1024 },
   );
 
   let diagnostic = trackedDiff.error ? '' : trackedDiff.stdout;
   const untracked = spawnSync(
     'git',
-    ['ls-files', '--others', '--exclude-standard', '-z', '--', 'dist', 'packages/data/dist', 'version.js'],
+    ['ls-files', '--others', '--exclude-standard', '-z', '--', 'dist', 'packages/adapters/dist', 'packages/data/dist', 'version.js'],
     { encoding: 'utf8' },
   );
 

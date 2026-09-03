@@ -17,28 +17,6 @@
       "require": "./dist/marionette.cjs",
       "default": "./dist/marionette.js"
     },
-    "./backbone": {
-      "import": {
-        "types": "./dist/backbone.d.mts",
-        "default": "./dist/backbone.js"
-      },
-      "require": {
-        "types": "./dist/backbone.d.cts",
-        "default": "./dist/backbone.cjs"
-      },
-      "default": "./dist/backbone.js"
-    },
-    "./jquery-dom-api": {
-      "import": {
-        "types": "./dist/jquery-dom-api.d.mts",
-        "default": "./dist/jquery-dom-api.js"
-      },
-      "require": {
-        "types": "./dist/jquery-dom-api.d.cts",
-        "default": "./dist/jquery-dom-api.cjs"
-      },
-      "default": "./dist/jquery-dom-api.js"
-    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -48,10 +26,7 @@
     "changelog.md",
     "upgradeGuide.md"
   ],
-  "sideEffects": [
-    "./dist/backbone.js",
-    "./dist/backbone.cjs"
-  ],
+  "sideEffects": false,
   "browserslist": [
     "baseline widely available"
   ],
@@ -69,7 +44,8 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "rollup -c rollup.config.mjs --noConflict && npm run build:data",
+    "build": "rollup -c rollup.config.mjs --noConflict && npm run build:data && npm run build:adapters",
+    "build:adapters": "npm --prefix packages/adapters run build",
     "build:data": "npm --prefix packages/data run build",
     "check:browser-profile": "node scripts/checks/browser-profile.mjs",
     "check:diagnostics": "node scripts/diagnostics/check-catalog.mjs",
@@ -88,11 +64,12 @@
     "release:github": "node scripts/release/publish-github.mjs",
     "release:targets": "node scripts/release/check-targets.mjs",
     "release:verify": "node scripts/release/verify-artifact.mjs",
-    "size": "npm run build && node scripts/performance/bundle-size.mjs && npm run size:data",
+    "size": "npm run build && node scripts/performance/bundle-size.mjs && npm run size:data && npm run size:adapters",
+    "size:adapters": "node scripts/performance/adapters-package-size.mjs",
     "size:data": "node scripts/performance/data-package-size.mjs",
     "test": "vitest run",
     "test:agent-benchmark-contract": "node --test test/agent-benchmark/task-contract.test.mjs",
-    "test:browser": "node test/browser/attachment-owner-document.mjs && node test/browser/collection-removal-survivors.mjs && node test/browser/data-package.mjs && node test/browser/event-delegator-focus.mjs",
+    "test:browser": "node test/browser/adapters-package.mjs && node test/browser/attachment-owner-document.mjs && node test/browser/collection-removal-survivors.mjs && node test/browser/data-package.mjs && node test/browser/event-delegator-focus.mjs",
     "test:dist": "node test/dist/validate.mjs",
     "test:fixtures": "node test/fixtures/run.mjs",
     "test:performance": "node --test test/performance/*.test.mjs",
@@ -109,26 +86,6 @@
     "url": "https://github.com/marionettejs/marionette.git"
   },
   "github": "https://github.com/marionettejs/marionette",
-  "peerDependencies": {
-    "@types/backbone": "^1.4.23",
-    "@types/jquery": "^4.0.1",
-    "backbone": "^1.4.0",
-    "jquery": "^4.0.0"
-  },
-  "peerDependenciesMeta": {
-    "backbone": {
-      "optional": true
-    },
-    "jquery": {
-      "optional": true
-    },
-    "@types/backbone": {
-      "optional": true
-    },
-    "@types/jquery": {
-      "optional": true
-    }
-  },
   "devDependencies": {
     "@babel/core": "7.29.7",
     "@babel/preset-env": "7.29.7",

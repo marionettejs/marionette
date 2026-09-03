@@ -35,34 +35,36 @@ npm install marionette
 
 ## Peer dependencies
 
-Marionette v5 core has no required peer dependencies. The declared peers are
-optional integrations.
+Marionette v5 core has no peer dependencies. The separate
+`@marionette/adapters` package requires the matching Marionette version and
+declares the integration-specific peers as optional.
 
 | Peer | Required? | When you need it |
 |---|---|---|
-| `backbone` `^1.4.0` | Optional | Only if your app imports the bundled `marionette/backbone` integration. See [Backbone is optional](#backbone-is-optional). |
-| `@types/backbone` `^1.4.23` | Optional | TypeScript declarations for `marionette/backbone`. JavaScript consumers do not need it. |
-| `jquery` `^4.0.0` | Optional | Only if your app uses the `marionette/jquery-dom-api` adapter. See [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional). |
-| `@types/jquery` `^4.0.1` | Optional | TypeScript declarations for `marionette/jquery-dom-api`. JavaScript consumers do not need it. |
+| `marionette` `5.0.0-alpha.2` | Required | The matching core runtime configured with an adapter. |
+| `backbone` `^1.4.0` | Optional | Only if your app imports `@marionette/adapters/backbone`. See [Backbone is optional](#backbone-is-optional). |
+| `@types/backbone` `^1.4.23` | Optional | TypeScript declarations for `@marionette/adapters/backbone`. JavaScript consumers do not need it. |
+| `jquery` `^4.0.0` | Optional | Only if your app uses the `@marionette/adapters/dom/jquery` adapter. See [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional). |
+| `@types/jquery` `^4.0.1` | Optional | TypeScript declarations for `@marionette/adapters/dom/jquery`. JavaScript consumers do not need it. |
 
 Optional peers are installed only when you opt into them:
 
 ```bash
-# Only if you use the bundled Backbone integration
-npm install backbone
+# Only if you use the Backbone integration
+npm install @marionette/adapters backbone
 
 # Only if you use the jQuery DomApi adapter
-npm install jquery
+npm install @marionette/adapters jquery
 ```
 
 Npm does not install missing optional peers. TypeScript consumers of an optional
 subpath must install its matching type package explicitly:
 
 ```bash
-# Only if TypeScript imports marionette/backbone
+# Only if TypeScript imports @marionette/adapters/backbone
 npm install --save-dev @types/backbone@^1.4.23
 
-# Only if TypeScript imports marionette/jquery-dom-api
+# Only if TypeScript imports @marionette/adapters/dom/jquery
 npm install --save-dev @types/jquery@^4.0.1
 ```
 
@@ -151,11 +153,15 @@ objects and arrays use the default DataApi. Applications using Backbone must
 select its data and event integration at application boot:
 
 ```javascript
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
+import { setDataApi, setStateApi } from 'marionette';
+
+setDataApi(BackboneApi);
+setStateApi(BackboneApi);
 ```
 
 See [Data API](./data.api.md) for the neutral runtime contract and
-[Optional Backbone](./optional-backbone.md) for the bundled integration.
+[Optional Backbone](./optional-backbone.md) for the integration.
 
 ## jQuery DOM adapter is optional
 
@@ -164,11 +170,11 @@ methods, and `view.$(selector)` returns a `NodeList`.
 
 Applications that want jQuery-shaped results from Marionette's DOM helpers —
 for example, `view.$(selector)` returning a jQuery collection — can opt into
-the optional `marionette/jquery-dom-api` adapter at app boot:
+the optional `@marionette/adapters/dom/jquery` adapter at app boot:
 
 ```javascript
 import { setDomApi } from 'marionette';
-import JQueryDomApi from 'marionette/jquery-dom-api';
+import JQueryDomApi from '@marionette/adapters/dom/jquery';
 
 setDomApi(JQueryDomApi);
 ```

@@ -49,11 +49,7 @@ ordinary imports do not create a runtime per View or Application instance. Class
 setters remain subclass-local within either form.
 
 Configure object-style adapters against the selected runtime's setters. For example,
-pass the `marionette/jquery-dom-api` export to `isolated.setDomApi()`. The current
-side-effect-only `marionette/backbone` installer configures the default runtime only;
-the separately packaged Backbone adapter planned after `@marionette/data` will make
-that integration selectable for isolated runtimes. No implicit adapter configuration
-crosses runtime boundaries. Until that adapter ships, an isolated runtime given a
-Backbone collection fails with `MN0037`, while a Backbone model uses the plain-object
-default and its attributes are not read from `model.attributes`. Keep Backbone data
-on the default runtime during this temporary packaging gap.
+pass the `@marionette/adapters/dom/jquery` export to `isolated.setDomApi()`.
+Likewise, pass the `@marionette/adapters/backbone` export to the isolated
+runtime's `setDataApi()` and `setStateApi()` methods when it consumes Backbone
+data or state. No implicit adapter configuration crosses runtime boundaries.

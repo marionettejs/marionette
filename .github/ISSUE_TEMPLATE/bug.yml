@@ -57,7 +57,7 @@ body:
       description: Select any surfaces that are involved in the reproduction.
       options:
         - label: Backbone models, collections, events, or views
-        - label: Backbone shim via `marionette/backbone`
+        - label: Backbone integration via `@marionette/adapters/backbone`
         - label: jQuery DomApi adapter
         - label: Custom DomApi
         - label: Radio or Requests

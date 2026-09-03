@@ -16,6 +16,7 @@ on:
       - 'package-lock.json'
       - 'package.json'
       - 'packages/data/**'
+      - 'packages/adapters/**'
       - 'test/dist/**'
       - 'test/fixtures/**'
       - 'test/release/**'
@@ -81,6 +82,7 @@ jobs:
       tag: ${{ steps.artifact.outputs.tag }}
       core_tarball: ${{ steps.artifact.outputs.core_tarball }}
       data_tarball: ${{ steps.artifact.outputs.data_tarball }}
+      adapters_tarball: ${{ steps.artifact.outputs.adapters_tarball }}
       version: ${{ steps.artifact.outputs.version }}
 
     steps:
@@ -153,6 +155,7 @@ jobs:
           npm run test:fixtures --
           --tarball "release/${{ steps.artifact.outputs.core_tarball }}"
           --data-tarball "release/${{ steps.artifact.outputs.data_tarball }}"
+          --adapters-tarball "release/${{ steps.artifact.outputs.adapters_tarball }}"
 
       - name: Upload immutable release artifact
         id: upload
@@ -218,6 +221,7 @@ jobs:
           npm run test:fixtures --
           --tarball "release/${{ needs.build.outputs.core_tarball }}"
           --data-tarball "release/${{ needs.build.outputs.data_tarball }}"
+          --adapters-tarball "release/${{ needs.build.outputs.adapters_tarball }}"
 
   promotion-dry-run:
     name: Promotion dry run
@@ -270,6 +274,15 @@ jobs:
         run: >-
           npm publish
           "./release/${{ needs.build.outputs.data_tarball }}"
+          --dry-run
+          --ignore-scripts
+          --access public
+          --tag "${{ needs.build.outputs.npm_tag }}"
+
+      - name: Exercise adapters npm publication without publishing
+        run: >-
+          npm publish
+          "./release/${{ needs.build.outputs.adapters_tarball }}"
           --dry-run
           --ignore-scripts
           --access public
@@ -387,6 +400,15 @@ jobs:
         run: >-
           npm publish
           "./release/${{ needs.build.outputs.data_tarball }}"
+          --ignore-scripts
+          --access public
+          --tag "${{ needs.build.outputs.npm_tag }}"
+
+      - name: Publish exact adapters tarball with npm provenance
+        if: steps.npm_state.outputs.adapters_npm_action == 'publish'
+        run: >-
+          npm publish
+          "./release/${{ needs.build.outputs.adapters_tarball }}"
           --ignore-scripts
           --access public
           --tag "${{ needs.build.outputs.npm_tag }}"

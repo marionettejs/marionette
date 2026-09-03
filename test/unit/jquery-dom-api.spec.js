@@ -6,7 +6,7 @@ import {
   Region,
   View
 } from '../../index';
-import JQueryDomApi from '../../jquery-dom-api';
+import JQueryDomApi from '../../packages/adapters/src/dom/jquery';
 
 describe('jQuery DomApi adapter', function() {
   it('allows the core ESM graph to bundle without circular dependencies or importing jQuery', async function() {

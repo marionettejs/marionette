@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import process from 'node:process';
 import { pathToFileURL } from 'node:url';
 import { readFile } from 'node:fs/promises';
+import { loadBackboneRuntime } from './load-runtime.mjs';
 
 function getArgument(args, name, fallback) {
   const index = args.indexOf(name);
@@ -108,12 +109,7 @@ async function loadRuntime(root, dependencyRoot) {
   };
 
   try {
-    const { default: Backbone } = await import(
-      pathToFileURL(resolve(root, 'dist/backbone.js')).href
-    );
-    const Marionette = await import(
-      pathToFileURL(resolve(root, 'dist/marionette.js')).href
-    );
+    const { Backbone, Marionette } = await loadBackboneRuntime(root, dependencyRoot);
 
     return { Backbone, Marionette, cleanup };
   } catch (error) {

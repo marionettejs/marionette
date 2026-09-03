@@ -1,6 +1,6 @@
 import $ from 'jquery';
 
-var jqueryDomApi = {
+var jquery = {
   findEl(el, selector) {
     return $(el).find(selector);
   },
@@ -21,4 +21,4 @@ var jqueryDomApi = {
   }
 };
 
-export { jqueryDomApi as default };
+export { jquery as default };

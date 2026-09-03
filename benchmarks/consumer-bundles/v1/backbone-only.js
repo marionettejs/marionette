@@ -1,1 +1,1 @@
-export { default as Backbone } from 'marionette/backbone';
+export { default as BackboneApi } from '@marionette/adapters/backbone';

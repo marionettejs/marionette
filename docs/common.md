@@ -47,7 +47,7 @@ new MyObject({ foo: 'bar' }, 'baz'); // logs "bar" "bar" "baz"
 Marionette classes include Marionette's owned [Events API](./events.md). Each
 class can emit events and listen to other objects that implement the compatible
 event interface. Backbone interoperability is available through the explicit
-[`marionette/backbone` shim](./events.md#backbone-interop); the
+[`@marionette/adapters/backbone` integration](./events.md#backbone-interop); the
 core Events API does not require Backbone.
 
 The Events API should not be confused with [view `events`](./dom.interactions.md#view-events),
@@ -94,8 +94,8 @@ returns the listening object.
 
 Marionette classes and [Radio](./radio.md) channels implement the required
 event interface. Backbone models, collections, and other Backbone emitters can
-participate after installing the explicit
-[`marionette/backbone` shim](./events.md#backbone-interop).
+participate after configuring the explicit
+[`@marionette/adapters/backbone` integration](./events.md#backbone-interop).
 
 An invalid binding map throws `MarionetteError` code `MN0009`. An own
 enumerable `__proto__` event name is rejected with code `MN0026` before any

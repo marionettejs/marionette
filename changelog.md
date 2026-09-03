@@ -14,9 +14,15 @@
   `DataApi.models(collection)` without a compatibility alias
 * Added the optional `@marionette/data` package with observable Model and ordered
   Collection sources plus matching DataApi and StateApi adapters
+* Added the optional `@marionette/adapters` package with explicit Backbone and
+  jQuery subpaths and no root barrel; removed the previous core adapter subpaths.
+  The Backbone integration configures DataApi and StateApi explicitly while
+  preserving native Backbone objects, prototypes, listeners, and event methods;
+  its `models()` method returns a copied ordered snapshot rather than exposing
+  Backbone's mutable internal collection array
 * Changed the default model and collection contract to plain objects and arrays;
   Backbone-specific data and event shapes now remain inside the explicit
-  `marionette/backbone` integration
+  `@marionette/adapters/backbone` integration
 * Removed `children.findByModelCid`; `findByModel` uses the configured DataApi key
 * Replaced the alpha concrete `State` with exact state-source composition and an
   independent StateApi observation contract; supplied sources are borrowed,
@@ -28,7 +34,8 @@
 * Changed `viewComparator: false` to disable presentation sorting while
   `sortWithCollection` continues reconciling structural changes to source order;
   use `sortWithCollection: false` to preserve manually managed child order
-* Added optional `marionette/jquery-dom-api` adapter for jQuery-backed DomApi
+* Moved the optional jQuery-backed DomApi integration to
+  `@marionette/adapters/dom/jquery`
   operations and opt-in View, CollectionView, and Behavior `$el` compatibility
 * Changed jQuery-wrapped View and CollectionView `el` inputs to fail with the
   same `MN0001` migration diagnostic as selector strings

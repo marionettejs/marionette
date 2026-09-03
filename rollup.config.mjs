@@ -2,26 +2,11 @@ import babel from '@rollup/plugin-babel';
 import json from '@rollup/plugin-json';
 import terser from '@rollup/plugin-terser';
 
-const shimExternal = ['backbone', 'marionette'];
 const babelOptions = {
   babelHelpers: 'bundled',
   shouldPrintComment: comment => comment.includes('@__PURE__') ||
     comment.includes('@license') || comment.includes('@preserve') || comment.startsWith('!'),
 };
-const shimMainExternal = {
-  name: 'shim-main-external',
-  resolveId(source, importer) {
-    const normalizedImporter = importer && importer.replace(/\\/g, '/');
-
-    // Keep the built shim pointed at the package entry instead of bundling Marionette.
-    if (source === './index.js' && normalizedImporter && normalizedImporter.endsWith('/backbone.js')) {
-      return { id: 'marionette', external: true };
-    }
-
-    return null;
-  },
-};
-
 export default [
   {
     input: 'build/version.js',
@@ -74,43 +59,6 @@ export default [
     plugins: [
       babel(babelOptions),
       terser(),
-    ]
-  },
-  {
-    input: 'backbone.js',
-    external: shimExternal,
-    output: [
-      {
-        file: 'dist/backbone.js',
-        format: 'es',
-      },
-      {
-        file: 'dist/backbone.cjs',
-        format: 'cjs',
-        exports: 'default',
-      },
-    ],
-    plugins: [
-      shimMainExternal,
-      babel(babelOptions),
-    ]
-  },
-  {
-    input: 'jquery-dom-api.js',
-    external: ['jquery'],
-    output: [
-      {
-        file: 'dist/jquery-dom-api.js',
-        format: 'es',
-      },
-      {
-        file: 'dist/jquery-dom-api.cjs',
-        format: 'cjs',
-        exports: 'default',
-      },
-    ],
-    plugins: [
-      babel(babelOptions),
     ]
   },
 ]

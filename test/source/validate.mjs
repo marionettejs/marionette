@@ -3,13 +3,13 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { JSDOM } from 'jsdom';
 
-import Backbone from '../../backbone.js';
+import BackboneApi from '../../packages/adapters/src/backbone-api.js';
 import * as Marionette from '../../index.js';
 
 const dom = new JSDOM('<!doctype html>');
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
-const { default: jqueryDomApi } = await import('../../jquery-dom-api.js');
+const { default: jqueryDomApi } = await import('../../packages/adapters/src/dom/jquery.js');
 
 assert.equal(typeof Marionette.View, 'function');
 assert.equal(typeof Marionette.Region, 'function');
@@ -22,20 +22,19 @@ assert.equal(typeof Marionette.MarionetteError, 'function');
 const plainState = { ready: true };
 assert.equal(new Marionette.MnObject({ state: plainState }).getState(), plainState);
 assert.ok(new Marionette.MarionetteError({ message: 'fixture' }) instanceof Error);
-assert.equal(Backbone.Model.prototype.triggerMethod, Marionette.Events.triggerMethod);
+assert.equal(typeof BackboneApi.observeCollection, 'function');
 assert.equal(typeof jqueryDomApi.findEl, 'function');
 assert.equal(typeof jqueryDomApi.setContents, 'function');
 assert.equal(typeof jqueryDomApi.wrapEl, 'function');
 
 const root = resolve(import.meta.dirname, '../..');
 const packageJson = JSON.parse(readFileSync(resolve(root, 'package.json')));
+const adaptersPackageJson = JSON.parse(readFileSync(resolve(root, 'packages/adapters/package.json')));
 const nonDeclarativeConfigFiles = readdirSync(resolve(root, 'config'), { recursive: true })
   .filter(file => statSync(resolve(root, 'config', file)).isFile())
   .filter(file => !file.endsWith('.json'));
 const productionFiles = [
   'index.js',
-  'backbone.js',
-  'jquery-dom-api.js',
   'build/version.js',
   'version.js',
 ];
@@ -97,13 +96,13 @@ for (const directory of ['modules', 'mixins', 'utils']) {
   }
 }
 
-assert.equal(Object.hasOwn(packageJson.peerDependencies, 'underscore'), false);
-assert.equal(packageJson.peerDependencies.backbone, '^1.4.0');
-assert.equal(packageJson.peerDependenciesMeta.backbone.optional, true);
+assert.equal(Object.hasOwn(packageJson.peerDependencies || {}, 'underscore'), false);
+assert.equal(Object.hasOwn(packageJson.peerDependencies || {}, 'backbone'), false);
 assert.equal(Object.hasOwn(packageJson.dependencies || {}, 'backbone'), false);
-assert.equal(packageJson.peerDependencies.jquery, '^4.0.0');
-assert.equal(packageJson.peerDependenciesMeta.jquery.optional, true);
+assert.equal(Object.hasOwn(packageJson.peerDependencies || {}, 'jquery'), false);
 assert.equal(Object.hasOwn(packageJson.dependencies || {}, 'jquery'), false);
+assert.equal(adaptersPackageJson.version, packageJson.version);
+assert.equal(adaptersPackageJson.peerDependencies.marionette, packageJson.version);
 assert.deepEqual(nonDeclarativeConfigFiles, []);
 
 for (const file of productionFiles) {
@@ -113,7 +112,7 @@ for (const file of productionFiles) {
   );
 }
 
-for (const file of productionFiles.filter(candidate => candidate !== 'backbone.js')) {
+for (const file of productionFiles) {
   assert.doesNotMatch(
     readFileSync(resolve(root, file), 'utf8'),
     backboneImport,
@@ -121,8 +120,7 @@ for (const file of productionFiles.filter(candidate => candidate !== 'backbone.j
   );
 }
 
-for (const file of productionFiles.filter(candidate =>
-  candidate !== 'backbone.js' && candidate !== 'runtime/backbone-data-api.js')) {
+for (const file of productionFiles) {
   assert.doesNotMatch(
     readFileSync(resolve(root, file), 'utf8'),
     knownBackboneDataAccess,

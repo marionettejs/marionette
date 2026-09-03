@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { loadBackboneRuntime } from './load-runtime.mjs';
 
 let runtimeLoaded = false;
 
@@ -112,12 +112,7 @@ async function loadRuntime(root) {
     globalThis.window = dom.window;
     globalThis.document = dom.window.document;
 
-    const backboneUrl = pathToFileURL(resolve(root, 'dist/backbone.js'));
-    const runtimeUrl = pathToFileURL(resolve(root, 'dist/marionette.js'));
-    const [{ default: Backbone }, Marionette] = await Promise.all([
-      import(backboneUrl.href),
-      import(runtimeUrl.href),
-    ]);
+    const { Backbone, Marionette } = await loadBackboneRuntime(root);
 
     return { Backbone, Marionette, cleanup };
   } catch (error) {

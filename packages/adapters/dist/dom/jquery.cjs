@@ -2,7 +2,7 @@
 
 var $ = require('jquery');
 
-var jqueryDomApi = {
+var jquery = {
   findEl(el, selector) {
     return $(el).find(selector);
   },
@@ -23,4 +23,4 @@ var jqueryDomApi = {
   }
 };
 
-module.exports = jqueryDomApi;
+module.exports = jquery;

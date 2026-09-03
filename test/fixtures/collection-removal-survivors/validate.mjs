@@ -6,10 +6,14 @@ const dom = new JSDOM('<!doctype html><html><body></body></html>');
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
 
-const [{ CollectionView, View }, { default: Backbone }] = await Promise.all([
+const [{ CollectionView, View, setDataApi, setStateApi }, { default: BackboneApi }, { default: Backbone }] = await Promise.all([
   import('marionette'),
-  import('marionette/backbone'),
+  import('@marionette/adapters/backbone'),
+  import('backbone'),
 ]);
+
+setDataApi(BackboneApi);
+setStateApi(BackboneApi);
 
 const ChildView = View.extend({ template: false });
 let attachCount = 0;

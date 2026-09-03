@@ -1,6 +1,11 @@
 function subscribe(entity, eventName, callback, context) {
   let isSubscribed = true;
-  entity.on(eventName, callback, context);
+  try {
+    entity.on(eventName, callback, context);
+  } catch (error) {
+    entity.off(eventName, callback, context);
+    throw error;
+  }
 
   return function() {
     if (!isSubscribed) { return; }
@@ -9,7 +14,7 @@ function subscribe(entity, eventName, callback, context) {
   };
 }
 
-export default {
+const BackboneApi = {
   key(model) {
     return model.cid;
   },
@@ -27,10 +32,16 @@ export default {
   },
 
   models(collection) {
-    return collection.models;
+    return collection.models.slice();
   },
 
   subscribe,
+
+  // Backbone has no source-wide disposal that preserves caller-owned listeners,
+  // and Model#destroy may perform persistence.
+  disposeOwned(source) {
+    void source;
+  },
 
   observeCollection(collection, callback, context) {
     let previousModels = collection.models.slice();
@@ -60,11 +71,8 @@ export default {
       update: onUpdate
     };
 
-    try {
-      return subscribe(collection, events, context);
-    } catch (error) {
-      collection.off(events, context);
-      throw error;
-    }
+    return subscribe(collection, events, context);
   }
 };
+
+export default BackboneApi;

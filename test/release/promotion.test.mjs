@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { after, test } from 'node:test';
 import { publishDraftRelease } from '../../scripts/release/github-release.mjs';
+import { decideNpmActions } from '../../scripts/release/npm-actions.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 const temporaryDirectories = [];
@@ -54,6 +55,11 @@ test('release artifact verification rejects Windows drive-relative names', async
         name: '@marionette/data',
         tarball: { file: 'data.tgz' },
       },
+      {
+        id: 'adapters',
+        name: '@marionette/adapters',
+        tarball: { file: 'adapters.tgz' },
+      },
     ],
   }, true);
 
@@ -72,6 +78,7 @@ test('release artifact verification binds package ids to names', async function(
     packages: [
       { id: 'core', name: '@marionette/data' },
       { id: 'data', name: 'marionette' },
+      { id: 'adapters', name: '@marionette/adapters' },
     ],
   }, true);
 
@@ -90,6 +97,7 @@ test('release target checks bind package ids to names before network access', as
     packages: [
       { id: 'core', name: '@marionette/data' },
       { id: 'data', name: 'marionette' },
+      { id: 'adapters', name: '@marionette/adapters' },
     ],
   });
 
@@ -100,6 +108,27 @@ test('release target checks bind package ids to names before network access', as
 
   assert.equal(result.status, 1);
   assert.match(result.stderr, /Unexpected core package name/);
+});
+
+test('npm publication decisions cover every release package', function() {
+  const decisions = decideNpmActions([
+    { packageEvidence: { id: 'core' }, packageName: 'marionette', state: 'exact' },
+    { packageEvidence: { id: 'data' }, packageName: '@marionette/data', state: 'available' },
+    { packageEvidence: { id: 'adapters' }, packageName: '@marionette/adapters', state: 'available' },
+  ]);
+
+  assert.deepEqual(decisions, [
+    { name: 'core_npm_action', value: 'skip' },
+    { name: 'data_npm_action', value: 'publish' },
+    { name: 'adapters_npm_action', value: 'publish' },
+  ]);
+});
+
+test('npm publication decisions reject conflicting package integrity', function() {
+  assert.throws(() => decideNpmActions([
+    { packageEvidence: { id: 'core' }, packageName: 'marionette', state: 'exact' },
+    { packageEvidence: { id: 'adapters' }, packageName: '@marionette/adapters', state: 'conflict' },
+  ]), /@marionette\/adapters exists with different integrity/);
 });
 
 test('GitHub release planning rejects Windows drive-relative names', async function() {
@@ -117,6 +146,12 @@ test('GitHub release planning rejects Windows drive-relative names', async funct
         name: '@marionette/data',
         tarball: { file: 'data.tgz' },
         manifestReport: { file: 'data-package-manifest.json' },
+      },
+      {
+        id: 'adapters',
+        name: '@marionette/adapters',
+        tarball: { file: 'adapters.tgz' },
+        manifestReport: { file: 'adapters-package-manifest.json' },
       },
     ],
     reports: {

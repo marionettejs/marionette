@@ -16,13 +16,15 @@ const fixtureUrl = new URL('../../benchmarks/consumer-bundles/v1/manifest.json',
 const contractUrl = new URL('../../benchmarks/consumer-bundles/contract.json', import.meta.url);
 const performanceUrl = new URL('../../config/performance.json', import.meta.url);
 const packageUrl = new URL('../../package.json', import.meta.url);
+const adaptersPackageUrl = new URL('../../packages/adapters/package.json', import.meta.url);
 
 async function canonicalInputs() {
-  const [contract, performance, fixtureText, packageJson] = await Promise.all([
+  const [contract, performance, fixtureText, packageJson, adaptersPackageJson] = await Promise.all([
     readFile(contractUrl, 'utf8').then(JSON.parse),
     readFile(performanceUrl, 'utf8').then(JSON.parse),
     readFile(fixtureUrl, 'utf8'),
     readFile(packageUrl, 'utf8').then(JSON.parse),
+    readFile(adaptersPackageUrl, 'utf8').then(JSON.parse),
   ]);
   return {
     brotliQuality: performance.baseline.brotliQuality,
@@ -30,6 +32,7 @@ async function canonicalInputs() {
     fixture: JSON.parse(fixtureText),
     fixtureRevision: createHash('sha256').update(fixtureText).digest('hex'),
     packageJson,
+    packageJsons: [packageJson, adaptersPackageJson],
   };
 }
 
@@ -80,7 +83,7 @@ describe('consumer bundle measurements', () => {
   });
 
   test('fails closed when scenario or format inventory is incomplete', async() => {
-    const { brotliQuality, contract, fixture, fixtureRevision, packageJson } = await canonicalInputs();
+    const { brotliQuality, contract, fixture, fixtureRevision, packageJson, packageJsons } = await canonicalInputs();
     fixture.scenarios.pop();
     fixture.formats.pop();
 
@@ -90,14 +93,15 @@ describe('consumer bundle measurements', () => {
         fixture,
         packageJson,
         brotliQuality,
-        fixtureRevision
+        fixtureRevision,
+        packageJsons,
       ).join('\n'),
       /scenario inventory.*root-plus-backbone-jquery.*format inventory.*umd/s
     );
   });
 
   test('fails closed on fixture metadata or pinned toolchain drift', async() => {
-    const { brotliQuality, contract, fixture, fixtureRevision, packageJson } = await canonicalInputs();
+    const { brotliQuality, contract, fixture, fixtureRevision, packageJson, packageJsons } = await canonicalInputs();
     const changed = structuredClone(contract);
     changed.fixture.sha256 = '0'.repeat(64);
     changed.toolchain.terser = '0.0.0';
@@ -108,7 +112,8 @@ describe('consumer bundle measurements', () => {
         fixture,
         packageJson,
         brotliQuality,
-        fixtureRevision
+        fixtureRevision,
+        packageJsons,
       ).join('\n'),
       /Locked terser version/
     );
@@ -122,7 +127,7 @@ describe('consumer bundle measurements', () => {
     assert.match(measured.violations.join('\n'), /Locked terser version/);
   });
 
-  test('externalizes runtime peers and keeps the root scenario isolated', async() => {
+  test('tracks runtime peers and keeps the root scenario isolated', async() => {
     const result = await measureConsumerBundles({
       root,
       ...measurementOptions(await canonicalInputs()),
@@ -141,18 +146,18 @@ describe('consumer bundle measurements', () => {
     assert.ok(rootArtifacts.every(({ externalImports }) => externalImports.length === 0));
     assert.ok(rootArtifacts.every(({ modules }) =>
       modules.includes('dist/marionette.js') &&
-      !modules.includes('dist/backbone.js') &&
-      !modules.includes('dist/jquery-dom-api.js')));
+      !modules.includes('packages/adapters/dist/backbone.js') &&
+      !modules.includes('packages/adapters/dist/dom/jquery.js')));
     for (const { externalImports } of backboneArtifacts) {
-      assert.deepEqual(externalImports, ['backbone']);
+      assert.deepEqual(externalImports, []);
     }
     for (const { externalImports } of jqueryArtifacts) {
       assert.deepEqual(externalImports, ['jquery']);
     }
     for (const { externalImports, modules } of combinedArtifacts) {
-      assert.deepEqual(externalImports, ['backbone', 'jquery']);
-      assert.ok(modules.includes('dist/backbone.js'));
-      assert.ok(modules.includes('dist/jquery-dom-api.js'));
+      assert.deepEqual(externalImports, ['jquery']);
+      assert.ok(modules.includes('packages/adapters/dist/backbone.js'));
+      assert.ok(modules.includes('packages/adapters/dist/dom/jquery.js'));
       assert.ok(modules.includes('dist/marionette.js'));
     }
   });
@@ -178,7 +183,7 @@ describe('consumer bundle measurements', () => {
 
   test('rejects malformed reporting authority metadata', async() => {
     const inputs = await canonicalInputs();
-    const { brotliQuality, contract, fixture, fixtureRevision, packageJson } = inputs;
+    const { brotliQuality, contract, fixture, fixtureRevision, packageJson, packageJsons } = inputs;
     const malformed = [
       { ...contract, unknownAuthority: true },
       { ...contract, schemaVersion: 2 },
@@ -201,7 +206,8 @@ describe('consumer bundle measurements', () => {
         fixture,
         packageJson,
         brotliQuality,
-        fixtureRevision
+        fixtureRevision,
+        packageJsons,
       ).length > 0);
     }
 
@@ -254,6 +260,18 @@ describe('consumer bundle measurements', () => {
         mkdir(join(fixtureRoot, 'benchmarks/consumer-bundles'), { recursive: true }),
         cp(join(root, 'dist'), join(fixtureRoot, 'dist'), { recursive: true }),
         writeFile(join(fixtureRoot, 'package.json'), JSON.stringify(inputs.packageJson)),
+      ]);
+      await mkdir(join(fixtureRoot, 'packages/adapters'), { recursive: true });
+      await Promise.all([
+        cp(
+          join(root, 'packages/adapters/dist'),
+          join(fixtureRoot, 'packages/adapters/dist'),
+          { recursive: true },
+        ),
+        writeFile(
+          join(fixtureRoot, 'packages/adapters/package.json'),
+          JSON.stringify(inputs.packageJsons[1]),
+        ),
       ]);
       await cp(
         join(root, 'benchmarks/consumer-bundles/v1'),

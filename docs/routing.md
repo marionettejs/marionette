@@ -7,12 +7,16 @@ can coordinate Marionette objects without a Marionette-specific adapter.
 ## Using `Backbone.Router`
 
 Applications that choose Backbone can load the
-[bundled Backbone shim](./optional-backbone.md#using-the-bundled-backbone-shim)
+[optional Backbone adapter](./optional-backbone.md)
 before constructing routers:
 
 ```javascript
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
+import { setDataApi, setStateApi } from 'marionette';
+
+setDataApi(BackboneApi);
+setStateApi(BackboneApi);
 
 const Router = Backbone.Router.extend({
   routes: {
@@ -28,10 +32,9 @@ new Router();
 Backbone.history.start();
 ```
 
-The shim preserves the identity of [`Backbone.Router`](https://backbonejs.org/#Router)
-and adds Marionette's `Events` methods to its prototype. It does not add a
-Marionette router or patch `Backbone.History`; routing and history behavior remain
-Backbone contracts.
+The integration does not modify [`Backbone.Router`](https://backbonejs.org/#Router)
+or `Backbone.History`; routing, history, and their native event behavior remain
+Backbone contracts. Marionette does not add a separate router.
 
 ## Using Other Routers
 

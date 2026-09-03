@@ -9,8 +9,9 @@ const packageJson = JSON.parse(readFileSync(resolve(fixtureRoot, 'node_modules/m
 
 assert.equal(existsSync(resolve(fixtureRoot, 'node_modules/underscore')), false);
 assert.equal(existsSync(resolve(fixtureRoot, 'node_modules/backbone')), false);
-assert.equal(Object.hasOwn(packageJson.peerDependencies, 'underscore'), false);
-assert.equal(packageJson.peerDependenciesMeta.backbone.optional, true);
+assert.equal(Object.hasOwn(packageJson.peerDependencies || {}, 'underscore'), false);
+assert.equal(Object.hasOwn(packageJson.peerDependencies || {}, 'backbone'), false);
+assert.equal(Object.hasOwn(packageJson.peerDependencies || {}, 'jquery'), false);
 
 const cjs = require('marionette');
 const esm = await import('marionette');

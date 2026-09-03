@@ -162,13 +162,16 @@ their tracked `listenTo` relationships during destruction.
 
 ### Backbone interop
 
-Backbone is optional. When an application uses Backbone entities, import the
-explicit shim before constructing them:
+Backbone is optional. When an application uses Backbone entities, configure the
+explicit integration before constructing them:
 
 ```javascript
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { View } from 'marionette';
+import { setDataApi, setStateApi, View } from 'marionette';
+
+setDataApi(BackboneApi);
+setStateApi(BackboneApi);
 
 const model = new Backbone.Model();
 const view = new View();
@@ -178,12 +181,11 @@ view.listenTo(model, 'change', () => {
 });
 ```
 
-The shim applies Marionette's `Events` mixin to supported Backbone instance
-prototypes. It does not add Marionette event helpers to the `Backbone`
-namespace. Import it before creating Backbone instances so all subscriptions
-use the same bookkeeping. Handlers registered before the shim import remain in
-Backbone's `_events` store and will not fire after the shim replaces the
-prototype event methods; recreate those subscriptions after importing the shim.
+The integration subscribes through Backbone's native event methods. It does not
+modify Backbone objects or prototypes, so existing listeners and Backbone's
+own listener bookkeeping remain intact. Marionette `listenTo` and
+`stopListening` interoperate with native Backbone objects, and Backbone can
+likewise listen to Marionette evented objects.
 
 ### Event names
 
@@ -418,10 +420,12 @@ The default value for `childViewEventPrefix` is `false`. Setting this property t
 `false` will disable [automatic event bubbling](#event-bubbling).
 
 ```javascript
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { CollectionView } from 'marionette';
+import { CollectionView, setDataApi } from 'marionette';
 import MyChildView from './my-child-view';
+
+setDataApi(BackboneApi);
 
 const myCollection = new Backbone.Collection([{}]);
 

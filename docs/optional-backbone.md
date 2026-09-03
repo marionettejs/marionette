@@ -1,27 +1,35 @@
 # Optional Backbone
 
 Marionette v5 core does not import Backbone. Plain objects and arrays use the
-default [Data API](./data.api.md), while applications that use Backbone select
-the bundled integration explicitly:
+default [Data API](./data.api.md), while applications that use Backbone install
+the separate adapters package and select its integration explicitly:
 
-```javascript
-import 'marionette/backbone';
-import Backbone from 'backbone';
-import { CollectionView, View } from 'marionette';
+```sh
+npm install @marionette/adapters backbone
 ```
 
-Import `marionette/backbone` once at application boot, before constructing
-models, collections, Views, or registering subscriptions.
+```javascript
+import BackboneApi from '@marionette/adapters/backbone';
+import Backbone from 'backbone';
+import { CollectionView, setDataApi, setStateApi, View } from 'marionette';
+
+setDataApi(BackboneApi);
+setStateApi(BackboneApi);
+```
+
+Configure `BackboneApi` once at application boot, before constructing models,
+collections, Views, or registering subscriptions. For an isolated runtime, call
+that runtime's `setDataApi()` and `setStateApi()` methods instead of the root
+setters.
 
 ## What the integration does
 
-The integration performs two related operations:
+The integration supplies one combined adapter object for two related contracts:
 
-1. It configures Marionette's DataApi to translate Backbone data and structural
+1. As a DataApi adapter, it translates Backbone data and structural
    collection events.
-2. It installs Marionette's Events implementation on `Backbone.Model`,
-   `Backbone.Collection`, `Backbone.View`, and `Backbone.Router` so listener-side
-   bookkeeping is consistent across both libraries.
+2. As a StateApi adapter, it subscribes to Backbone state events while leaving
+   owned Backbone state caller-controlled.
 
 The data adapter maps:
 
@@ -42,27 +50,31 @@ The original Backbone model or collection remains the value stored on a View
 and passed to callbacks. The integration does not wrap entities or allocate a
 second model graph.
 
-## Module identity and load order
+## Native event identity and load order
 
-The `marionette/backbone` default export and CommonJS value are the exact
-`backbone` module object. The integration preserves the identity of Backbone's
-constructors and prototypes:
+The integration uses Backbone's native `on()`, `off()`, `listenTo()`, and
+`stopListening()` behavior. It does not modify the Backbone namespace,
+constructors, prototypes, or event stores, and it does not add `triggerMethod`.
+Listeners registered before adapter configuration continue to work afterward:
 
 ```javascript
-import IntegratedBackbone from 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
+import { setDataApi, setStateApi } from 'marionette';
 
-IntegratedBackbone === Backbone; // true
+const model = new Backbone.Model();
+model.on('change', onChange);
+
+setDataApi(BackboneApi);
+setStateApi(BackboneApi);
+model.set('ready', true); // onChange still runs
 ```
 
-Backbone may resolve before the integration module, but the canonical order is
-to import `marionette/backbone` first. Event handlers registered before the
-integration loads remain in Backbone's previous private event store and are not
-migrated. Recreate those subscriptions after loading the integration.
-
-The integration does not patch the `Backbone` namespace or `Backbone.History`.
-It also cannot coordinate multiple physical Backbone installations; consumers
-must share the package's supported Backbone peer instance.
+Destroying a Marionette owner unsubscribes its adapter-managed event handlers.
+The adapter leaves an owned Backbone state source and its caller-owned listeners
+intact because Backbone has no source-wide disposal operation that can preserve
+them. It does not call `stopListening()`, `off()`, or persistence-capable
+`Backbone.Model#destroy()` on that source.
 
 ## Applications without Backbone
 
