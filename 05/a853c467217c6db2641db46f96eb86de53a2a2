@@ -1,0 +1,22 @@
+test/performance/contract.test.mjs
+  s_792d54449de682::t_7902682383c702 933-936
+  s_792d54449de682::t_7565aa2ca60636 937-940
+.github/workflows/ci.yml
+  s_792d54449de682::t_7902682383c702 260,266
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "05a853c467217c6db2641db46f96eb86de53a2a2",
+  "prompts": {},
+  "sessions": {
+    "s_792d54449de682": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a063d4-3f21-7e72-bd01-96fa87903ed1",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
