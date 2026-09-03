@@ -1,0 +1,27 @@
+ROADMAP.md
+  s_792d54449de682::t_24fa5f7b68b39c 474-478
+test/unit/view.renderer.spec.js
+  s_792d54449de682::t_24fa5f7b68b39c 86-92,94,96-103,105-106
+  s_792d54449de682::t_2d0e60a116497a 93,95,104
+docs/view.rendering.md
+  s_792d54449de682::t_28ac3bd8d5cccf 241,243
+  s_792d54449de682::t_24fa5f7b68b39c 152-155,157-160,212-213,216,218,231-235,244,246-247,250-261,265-268
+  s_792d54449de682::t_c48145ebd4aeb7 269
+  s_792d54449de682::t_b644e700188dd6 156
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "a4c3ec9499f4e277192ce8ea4cca63d4f82fdfde",
+  "prompts": {},
+  "sessions": {
+    "s_792d54449de682": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a063d4-3f21-7e72-bd01-96fa87903ed1",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
