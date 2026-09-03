@@ -49,6 +49,10 @@
   lifecycles for unchanged survivors
 * Removed the undocumented alpha-only named `Requests` export; request/reply
   methods remain owned by the built-in `Radio` singleton and its channels
+* Removed the alpha-only request/reply methods from `Application`, `Behavior`,
+  `CollectionView`, `MnObject`, `Region`, and `View`; use `Radio.channel(name)`,
+  the top-level `Radio` API, or an owner's `bindRequests`/`radioRequests`
+  integration instead
 * Fixed selective `unbindRequests` cleanup to preserve a replacement reply
   owned by another object
 * Fixed Radio circular dependency with log and debug

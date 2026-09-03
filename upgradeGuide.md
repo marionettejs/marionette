@@ -192,6 +192,23 @@ Replace `Radio.DEBUG = true` with `Radio.setDebug()` and disable it with
 `Radio.setDebug(false)`. The v4 `Radio.Requests` mixin is removed; use request
 methods on `Radio.channel(name)` or on the top-level built-in `Radio` API.
 
+Request/reply methods are not mixed into `Application`, `Behavior`,
+`CollectionView`, `MnObject`, `Region`, or `View` instances. Replace an
+alpha-only instance call with an explicit channel:
+
+```js
+// before
+view.reply('status:current', getStatus);
+
+// v5
+Radio.channel('status').reply('status:current', getStatus);
+```
+
+Use `radioRequests` on `Application` or `MnObject` for declarative replies on
+their configured channel. Any owner can use `bindRequests(channel, bindings)`
+when it receives the channel explicitly; owned cleanup then removes only that
+owner's replies.
+
 ## `detachContents` policy
 
 - The default native DomApi `detachContents(el)` clears the element via

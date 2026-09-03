@@ -1,7 +1,6 @@
 import _ from 'underscore';
 import CommonMixin from '../../../mixins/common';
 import EventsMixin from '../../../mixins/events';
-import RequestsMixin from '../../../mixins/requests';
 
 describe('Common Mixin', function() {
   describe('#setOptions', function() {
@@ -93,10 +92,9 @@ describe('Common Mixin', function() {
         'bindEvents',
         'unbindEvents',
         'bindRequests',
-        'unbindRequests',
-        'triggerMethod'
+        'unbindRequests'
       ];
-      const composedKeys = [...Object.keys(EventsMixin), ...Object.keys(RequestsMixin)]
+      const composedKeys = Object.keys(EventsMixin)
         .filter(methodName => !baseKeys.includes(methodName));
 
       expect(Object.keys(CommonMixin)).to.deep.equal([...baseKeys, ...composedKeys]);
@@ -106,16 +104,20 @@ describe('Common Mixin', function() {
       expect(CommonMixin).to.not.have.own.property('__proto__');
     });
 
-    it('keeps each event and request method identity with assignment descriptors', function() {
-      [EventsMixin, RequestsMixin].forEach(mixin => {
-        Object.keys(mixin).forEach(methodName => {
-          expect(Object.getOwnPropertyDescriptor(CommonMixin, methodName)).to.deep.equal({
-            configurable: true,
-            enumerable: true,
-            value: mixin[methodName],
-            writable: true
-          });
+    it('keeps each event method identity with assignment descriptors', function() {
+      Object.keys(EventsMixin).forEach(methodName => {
+        expect(Object.getOwnPropertyDescriptor(CommonMixin, methodName)).to.deep.equal({
+          configurable: true,
+          enumerable: true,
+          value: EventsMixin[methodName],
+          writable: true
         });
+      });
+    });
+
+    it('does not compose the Radio channel request API', function() {
+      ['reply', 'replyOnce', 'stopReplying', 'request'].forEach(methodName => {
+        expect(CommonMixin).to.not.have.property(methodName);
       });
     });
 
@@ -144,25 +146,19 @@ describe('Common Mixin', function() {
 
     it('does not compose inherited enumerable source pollution', async function() {
       const eventsPrototype = Object.getPrototypeOf(EventsMixin);
-      const requestsPrototype = Object.getPrototypeOf(RequestsMixin);
       Object.setPrototypeOf(EventsMixin, { inheritedEventPollution() {} });
-      Object.setPrototypeOf(RequestsMixin, { inheritedRequestPollution() {} });
 
       let IsolatedCommonMixin;
       try {
         expect(Object.hasOwn(EventsMixin, 'inheritedEventPollution')).to.equal(false);
-        expect(Object.hasOwn(RequestsMixin, 'inheritedRequestPollution')).to.equal(false);
         expect(EventsMixin.inheritedEventPollution).to.be.a('function');
-        expect(RequestsMixin.inheritedRequestPollution).to.be.a('function');
         ({ default: IsolatedCommonMixin } = await import('../../../mixins/common.js?composition-test'));
       } finally {
         Object.setPrototypeOf(EventsMixin, eventsPrototype);
-        Object.setPrototypeOf(RequestsMixin, requestsPrototype);
       }
 
       expect(IsolatedCommonMixin).to.not.equal(CommonMixin);
       expect(IsolatedCommonMixin).to.not.have.own.property('inheritedEventPollution');
-      expect(IsolatedCommonMixin).to.not.have.own.property('inheritedRequestPollution');
     });
   });
 });

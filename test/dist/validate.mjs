@@ -33,6 +33,18 @@ function validateRadio(Marionette, name) {
   }
 }
 
+function validateRequestBoundary(Marionette, name) {
+  for (const className of ['Application', 'Behavior', 'CollectionView', 'MnObject', 'Region', 'View']) {
+    for (const methodName of ['reply', 'replyOnce', 'stopReplying', 'request']) {
+      assert.strictEqual(
+        methodName in Marionette[className].prototype,
+        false,
+        `${name} ${className}.${methodName} absence`,
+      );
+    }
+  }
+}
+
 async function validateBrowserGlobal(file) {
   const previousMarionette = {};
   const context = {
@@ -76,6 +88,7 @@ async function validateBrowserGlobal(file) {
   assert.strictEqual(application.isDestroyed(), true, `${file} Application destroy behavior`);
   assert.strictEqual(state.ready, true, `${file} borrowed Application state survives teardown`);
   validateRadio(Marionette, file);
+  validateRequestBoundary(Marionette, file);
   assert.strictEqual(Marionette.noConflict(), Marionette, `${file} noConflict return value`);
   assert.strictEqual(context.Marionette, previousMarionette, `${file} noConflict restoration`);
 }
@@ -108,6 +121,7 @@ async function validate() {
     const state = { ready: true };
     assert.strictEqual(new Marionette.MnObject({ state }).getState(), state, `${name} exact state source`);
     validateRadio(Marionette, name);
+    validateRequestBoundary(Marionette, name);
 
     for (const utilityName of removedRootUtilities) {
       assert.strictEqual(Object.hasOwn(Marionette, utilityName), false, `${name} ${utilityName} absence`);
