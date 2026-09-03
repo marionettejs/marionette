@@ -45,8 +45,6 @@ describe('Object and Application prototype composition', function() {
       'hasChildApp',
       'getChildApp',
       'getChildApps',
-      'getParentApp',
-      'getRootApp',
       'getName',
       'regionClass',
       '_initRegion',
@@ -61,6 +59,8 @@ describe('Object and Application prototype composition', function() {
       .to.deep.equal(composedKeys([...sharedMixins, StateMixin], objectFinalKeys));
     expect(Object.keys(Application.prototype))
       .to.deep.equal(composedKeys([...sharedMixins, StateMixin], applicationFinalKeys));
+    expect(Application.prototype).to.not.have.property('getParentApp');
+    expect(Application.prototype).to.not.have.property('getRootApp');
     expect(MnObject.prototype._setOptions).to.equal(CommonMixin._setOptions);
     expect(MnObject.prototype.destroy).to.equal(DestroyMixin.destroy);
     expect(MnObject.prototype._initRadio).to.equal(RadioMixin._initRadio);

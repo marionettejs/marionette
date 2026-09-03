@@ -156,9 +156,10 @@ if (!started) {
 
 ## Application Ownership
 
-An Application may own named child Applications. A parentless Application is
-the root of its composition tree; independent roots may coexist. Root and child
-Applications have the same class and public API.
+An Application may own named child Applications. Ownership is one-way: an
+Application locates and controls its children, while children receive required
+collaborators explicitly. Internal parent references exist only to enforce
+lifecycle and unlink children safely; upward lookup is not public API.
 
 `addChildApp(name, application)` registers an existing live,
 parentless Application instance under a non-empty string name and returns that
@@ -182,14 +183,12 @@ if (!root.hasChildApp('search')) {
 const search = root.getChildApp('search');
 
 search.getName(); // 'search'
-search.getParentApp(); // root
-search.getRootApp(); // root
 root.getChildApps(); // { search }
 ```
 
 `getChildApps()` returns a fresh snapshot. Changing the snapshot does
-not change ownership. The topology methods are reads; they do not start,
-render, or otherwise mutate an Application.
+not change ownership. Child lookup methods are reads; they do not start, render,
+or otherwise mutate an Application.
 
 Owner lifecycle options are forwarded to each child. A child failure rejects
 the owner operation and leaves the owner in its last committed stable state.

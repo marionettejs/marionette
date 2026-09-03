@@ -89,8 +89,9 @@
   `stop`, `restart`, and `isRunning`, and made later incompatible operations
   cancel stale lifecycle success without rejecting ordinary cleanup races;
   readiness hooks receive an operation context with a cooperative abort signal
-* Added explicit named child Application ownership, pure parent/root/child
-  topology queries, and deterministic owner-driven child destruction
+* Added explicit named child Application ownership, pure owner-side child
+  queries, and deterministic owner-driven child destruction; parent references
+  remain private lifecycle state rather than public upward lookup
 * Changed owned child Applications to start and stop sequentially with their
   owner while conflicting direct child operations cancel owner completion
 * Changed Application root View teardown to empty only its current View on stop,

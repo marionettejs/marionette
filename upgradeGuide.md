@@ -23,6 +23,9 @@ current public behavior boundary. Final migration documentation is tracked in
   `createState(options)` for an owned source, and configure `setStateApi` when
   declarative `stateEvents` need observation. The v5 alpha concrete `State`
   export is removed. See [State sources and StateApi](docs/marionette.state.md).
+- `Application#getParentApp()` and `Application#getRootApp()` are removed. Pass
+  required collaborators to child Applications explicitly when constructing
+  them instead of traversing upward.
 - Replace `children.findByModelCid(cid)` with `children.findByModel(model)`.
 
 ## CollectionView source order and presentation sorting
