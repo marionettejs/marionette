@@ -87,7 +87,7 @@ await myApp.start({ data: { bar: true } });
 ```
 
 As shown, the `options` object passed to `start` is forwarded after the
-Application to its lifecycle methods and events. Readiness methods and
+Application to its lifecycle hooks and events. Readiness hooks and
 `before:*` events also receive a context object as the third argument. Its
 `signal` is aborted when a later operation invalidates that readiness. A
 transferred stop phase retains its original options, context, and un-aborted
@@ -121,7 +121,7 @@ the last event to occur is an `initialize` event on the behavior which is passed
 the view instance and any options passed to the view at instantiation.
 
 ```javascript
-import { Behavior, View } from 'backbone.marionette';
+import { Behavior, View } from 'marionette';
 
 const MyBehavior = Behavior.extend({
   onInitialize(view, options) {
@@ -163,7 +163,7 @@ A view may or may not be rendered during `before:show`, but a view will be rende
 The `show` events will receive the region instance, the view being shown, and any options passed to `region.show`.
 
 ```javascript
-import { Region, View } from 'backbone.marionette';
+import { Region, View } from 'marionette';
 
 const MyRegion = Region.extend({
   onBeforeShow(myRegion, view, options) {
@@ -198,7 +198,7 @@ but will be detached or destroyed during the `empty`.
 The empty events will receive the region instance, the view leaving the region.
 
 ```javascript
-import { Region, View } from 'backbone.marionette';
+import { Region, View } from 'marionette';
 
 const MyRegion = Region.extend({
   onBeforeEmpty(myRegion, view) {
@@ -252,7 +252,7 @@ The `CollectionView` triggers unique events specifically related to child manage
 
 These events fire before (`before:add:child`) and after (`add:child`) each child view
 is instantiated and added to the [`children`](./collectionview.md#collectionviews-children).
-These will fire once for each item in the attached collection or for any view added using
+These will fire once for each model in the attached collection or for any view added using
 [`addChildView`](./collectionview.md#adding-a-child-view).
 
 ### `remove:child` and `before:remove:child` events
@@ -323,7 +323,7 @@ The `CollectionView` uses a region internally that can be used to know when the 
 See [Region Events](#region-events).
 
 ```javascript
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 
 const MyView = CollectionView.extend({
   emptyView: MyEmptyView
@@ -356,7 +356,7 @@ Reflects when a view's template is being rendered into its `el`.
 render _generally_ occurs prior to the view attaching to the DOM.
 
 ```javascript
-import { View, CollectionView } from 'backbone.marionette';
+import { View, CollectionView } from 'marionette';
 import MyChildView from './MyChildView';
 
 const MyView = View.extend({
@@ -434,7 +434,7 @@ In some cases it may be a useful performance improvement to disable this functio
 Doing so is as easy as setting `monitorViewEvents: false` on the view class.
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const NonMonitoredView = View.extend({
   monitorViewEvents: false
@@ -471,7 +471,7 @@ it had reached, and later `destroy()` calls do not restart teardown.
 See [`dom:remove`](#domremove-event) or [`before:detach`] for DOM related clean up.
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   onBeforeDestroy(options) {
@@ -500,7 +500,7 @@ This API is not available to `Backbone.View`s so in order to support `Backbone.V
 
 This can be done for an individual view definition:
 ```javascript
-import { Events } from 'backbone.marionette';
+import { Events } from 'marionette';
 
 const MyBbView = Backbone.View.extend(Events);
 ```
@@ -519,7 +519,7 @@ events, the related flag should be set to `true` to avoid Marionette duplicating
 
 ```javascript
 // Add support for triggerMethod
-import { Events } from 'backbone.marionette';
+import { Events } from 'marionette';
 
 _.extend(Backbone.View.prototype, Events);
 
@@ -556,7 +556,7 @@ added. This will include all [DOM Change Events](#dom-change-events) other than 
 
 You can add the view events monitor to any non-Marionette view:
 ```javascript
-import { monitorViewEvents, Events } from 'backbone.marionette';
+import { monitorViewEvents, Events } from 'marionette';
 
 // Add support for triggerMethod
 _.extend(Backbone.View.prototype, Events);

@@ -40,9 +40,9 @@ export const DataApi = {
     return model instanceof Model ? model.toJSON() : model;
   },
 
-  items(collection) {
+  models(collection) {
     if (!(collection instanceof Collection)) {
-      throw new TypeError('@marionette/data DataApi.items() requires a Collection.');
+      throw new TypeError('@marionette/data DataApi.models() requires a Collection.');
     }
     return collection.models.slice();
   },

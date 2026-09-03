@@ -50,7 +50,7 @@ Compatible repeated calls share the in-flight Promise. Before destruction
 begins, the latest incompatible operation wins: for example, `stop()` during
 startup resolves the earlier `start()` as `false`, completes the stop lifecycle,
 and prevents a stale `start` event. A `start()` that supersedes an in-flight
-stop waits for the already-running stop-readiness hook before beginning startup;
+stop waits for the already-running `onBeforeStop` readiness hook before beginning startup;
 it does not emit the invalidated `stop` completion. Once destruction begins it is terminal;
 `start()` and `restart()` resolve `false`, while `stop()` follows the active
 teardown until it has reached a stopped or destroyed state. Completion of an
@@ -86,7 +86,7 @@ awaited. A `before:*` method must not await the same operation whose readiness i
 is defining. `restart` composes the stop and start lifecycles; it does not add a
 parallel restart hook path.
 
-Each readiness method and `before:*` event receives the Application, the
+Each readiness hook and `before:*` event receives the Application, the
 operation options, and a context object with an [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal):
 `(application, options, { signal })`. When a later operation invalidates
 readiness, Marionette aborts its signal before starting replacement readiness.
@@ -109,7 +109,7 @@ the owner operation resolves `false`, retains its prior stable state, and does
 not emit its completion event. Children that already reached the requested
 state remain there. `isRunning()` describes that Application, not an aggregate
 of every descendant state; callers receiving `false` can inspect child state
-through the public topology. Once owner destruction begins, descendant `start`
+through the public hierarchy. Once owner destruction begins, descendant `start`
 and `restart` calls resolve `false` so they cannot interrupt terminal teardown.
 
 ### Starting an Application
@@ -201,11 +201,11 @@ stale transition from changing any further children.
 
 `removeChildApp(name, options)` destroys the named child and resolves
 with it after destruction. An unknown name resolves with `undefined`. A child
-also removes itself from its parent's topology when destroyed directly. A
+also removes itself from its parent's child hierarchy when destroyed directly. A
 running parent stops its children before `before:destroy`, then destroys owned
 children in registration order and finally emits the parent's `destroy`
-completion. A parent's destroy-readiness handler can therefore inspect its
-stopped, live child topology. A stopped parent also stops any child that was
+completion. A parent's `onBeforeDestroy` readiness hook can therefore inspect its
+stopped, live children. A stopped parent also stops any child that was
 started directly before entering destroy readiness. A concurrent direct child
 destroy joins terminal teardown and may remove that child before parent
 readiness. If child stop or destroy readiness fails, the parent returns to its
@@ -342,7 +342,7 @@ returns the exact source, and `stateEvents` are installed through the selected
 StateApi after `initialize`.
 
 Application state persists across stop and restart. Destruction releases its
-subscriptions, then disposes an owned factory result through StateApi.
+subscriptions, then disposes its owned state source through StateApi.
 Stateless Applications allocate no source or subscription. Asynchronous startup
 work must use the readiness context's abort signal before committing values so
 invalidated startup cannot apply stale changes.

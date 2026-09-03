@@ -1152,29 +1152,29 @@ describe('region', function() {
   });
 
   describe('when removing a region', function() {
-    let itemView;
+    let ownerView;
     let region;
 
     beforeEach(function() {
       this.setFixtures('<div id="region"></div><div id="region2"></div>');
 
-      itemView = new View();
-      itemView.template = function() {
+      ownerView = new View();
+      ownerView.template = function() {
         return 'content';
       };
-      itemView.addRegions({
+      ownerView.addRegions({
         MyRegion: '#region',
         anotherRegion: '#region2'
       });
 
-      region = itemView.getRegion('MyRegion');
+      region = ownerView.getRegion('MyRegion');
       this.sinon.spy(region, 'empty');
 
-      itemView.removeRegion('MyRegion');
+      ownerView.removeRegion('MyRegion');
     });
 
     it('should be removed from the view', function() {
-      expect(itemView.getRegion('MyRegion')).to.be.undefined;
+      expect(ownerView.getRegion('MyRegion')).to.be.undefined;
     });
 
     it('should call "empty" of the region', function() {

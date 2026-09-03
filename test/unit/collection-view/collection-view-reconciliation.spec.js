@@ -5,11 +5,11 @@ import MarionetteError from '../../../utils/error';
 
 function createAdapter() {
   return {
-    key(item) { return item.id; },
-    get(item, property) { return item[property]; },
-    has(item, property) { return Object.hasOwn(item, property); },
-    serialize(item) { return item; },
-    items(source) { return source.items; },
+    key(model) { return model.id; },
+    get(model, property) { return model[property]; },
+    has(model, property) { return Object.hasOwn(model, property); },
+    serialize(model) { return model; },
+    models(source) { return source.models; },
     subscribe(source, eventName, callback, context) {
       source.listeners ||= new Map();
       const listeners = source.listeners.get(eventName) || [];
@@ -28,17 +28,17 @@ function createAdapter() {
   };
 }
 
-function emit(item, eventName, ...args) {
-  for (const listener of item.listeners?.get(eventName) || []) {
+function emit(model, eventName, ...args) {
+  for (const listener of model.listeners?.get(eventName) || []) {
     listener.callback.apply(listener.context, args);
   }
 }
 
-function expectInvalidChange(ListView, initialItems, currentItems, change) {
-  const source = { items: initialItems };
+function expectInvalidChange(ListView, initialModels, currentModels, change) {
+  const source = { models: initialModels };
   const view = new ListView({ collection: source });
   view.render();
-  source.items = currentItems;
+  source.models = currentModels;
 
   expect(() => source.notify(change))
     .to.throw(MarionetteError).and.include({ code: 'MN0039' });
@@ -66,14 +66,14 @@ describe('CollectionView normalized reconciliation', function() {
   it('adds and removes only affected child Views', function() {
     const first = { id: 1, name: 'one' };
     const second = { id: 2, name: 'two' };
-    const source = { items: [first, second] };
+    const source = { models: [first, second] };
     const view = new ListView({ collection: source });
     view.render();
     const firstView = view.children.findByModel(first);
     const secondView = view.children.findByModel(second);
     const third = { id: 3, name: 'three' };
 
-    source.items = [first, second, third];
+    source.models = [first, second, third];
     source.notify({ kind: 'update', added: [third], removed: [], updated: [] });
     const thirdView = view.children.findByModel(third);
 
@@ -83,7 +83,7 @@ describe('CollectionView normalized reconciliation', function() {
     expect(secondView.renderCount).to.equal(1);
     expect(thirdView.renderCount).to.equal(1);
 
-    source.items = [first, third];
+    source.models = [first, third];
     source.notify({ kind: 'update', added: [], removed: [second], updated: [] });
 
     expect(firstView.isDestroyed()).to.be.false;
@@ -93,18 +93,18 @@ describe('CollectionView normalized reconciliation', function() {
   });
 
   it('moves survivor elements on reorder without recreating or rendering their Views', function() {
-    const items = [
+    const models = [
       { id: 1, name: 'one' },
       { id: 2, name: 'two' },
       { id: 3, name: 'three' }
     ];
-    const source = { items };
+    const source = { models };
     const view = new ListView({ collection: source });
     view.render();
-    const views = items.map(item => view.children.findByModel(item));
+    const views = models.map(model => view.children.findByModel(model));
     const elements = views.map(child => child.el);
 
-    source.items = [items[2], items[0], items[1]];
+    source.models = [models[2], models[0], models[1]];
     source.notify({ kind: 'reorder' });
 
     expect(view.children.toArray()).to.deep.equal([views[2], views[0], views[1]]);
@@ -115,19 +115,19 @@ describe('CollectionView normalized reconciliation', function() {
   });
 
   it('follows source order without an index comparator', function() {
-    const items = [
+    const models = [
       { id: 1, name: 'one' },
       { id: 2, name: 'two' },
       { id: 3, name: 'three' }
     ];
-    const source = { items };
+    const source = { models };
     const view = new ListView({ collection: source, viewComparator: false });
     view.render();
-    const views = items.map(item => view.children.findByModel(item));
+    const views = models.map(model => view.children.findByModel(model));
     const elements = views.map(child => child.el);
     const indexComparator = this.sinon.spy(view, '_viewComparator');
 
-    source.items = [items[2], items[0], items[1]];
+    source.models = [models[2], models[0], models[1]];
     source.notify({ kind: 'reorder' });
 
     expect(indexComparator).to.not.have.been.called;
@@ -136,7 +136,7 @@ describe('CollectionView normalized reconciliation', function() {
     expect(views.map(child => child.renderCount)).to.deep.equal([1, 1, 1]);
 
     const inserted = { id: 4, name: 'four' };
-    source.items = [items[2], inserted, items[0], items[1]];
+    source.models = [models[2], inserted, models[0], models[1]];
     source.notify({ kind: 'update', added: [inserted], removed: [], updated: [] });
 
     const insertedView = view.children.findByModel(inserted);
@@ -155,7 +155,7 @@ describe('CollectionView normalized reconciliation', function() {
     const previous = { id: 1, name: 'before' };
     const sibling = { id: 2, name: 'sibling' };
     const current = { id: 1, name: 'after' };
-    const source = { items: [previous, sibling] };
+    const source = { models: [previous, sibling] };
     const childHandler = this.sinon.spy();
     const behaviorHandler = this.sinon.spy();
     const behaviorDestroyed = this.sinon.spy();
@@ -207,7 +207,7 @@ describe('CollectionView normalized reconciliation', function() {
     previousInput.focus();
     lifecycle.length = 0;
 
-    source.items = [current, sibling];
+    source.models = [current, sibling];
     source.notify({
       kind: 'update',
       added: [],
@@ -249,11 +249,11 @@ describe('CollectionView normalized reconciliation', function() {
     const second = { id: 2, name: 'second' };
     const third = { id: 3, name: 'third' };
     const current = { id: 1, name: 'after' };
-    const source = { items: [previous, second, third] };
+    const source = { models: [previous, second, third] };
     const view = new ListView({ collection: source, sortWithCollection: false });
     view.render();
 
-    source.items = [current, second, third];
+    source.models = [current, second, third];
     source.notify({
       kind: 'update',
       added: [],
@@ -267,18 +267,18 @@ describe('CollectionView normalized reconciliation', function() {
   });
 
   it('renders in-place updates through the same path', function() {
-    const item = { id: 1, name: 'before' };
-    const source = { items: [item] };
+    const model = { id: 1, name: 'before' };
+    const source = { models: [model] };
     const view = new ListView({ collection: source });
     view.render();
-    const child = view.children.findByModel(item);
+    const child = view.children.findByModel(model);
 
-    item.name = 'after';
+    model.name = 'after';
     source.notify({
       kind: 'update',
       added: [],
       removed: [],
-      updated: [{ previous: item, current: item }]
+      updated: [{ previous: model, current: model }]
     });
 
     expect(child.renderCount).to.equal(2);
@@ -291,7 +291,7 @@ describe('CollectionView normalized reconciliation', function() {
     const second = { id: 2, name: 'two' };
     const firstReplacement = { id: 1, name: 'first replacement' };
     const secondReplacement = { id: 2, name: 'second replacement' };
-    const source = { items: [first, second] };
+    const source = { models: [first, second] };
     const constructionError = new Error('replacement construction failed');
     let shouldFail = true;
     let stagedChild;
@@ -310,7 +310,7 @@ describe('CollectionView normalized reconciliation', function() {
     const originalChildren = view.children.toArray();
     const originalElements = originalChildren.map(child => child.el);
 
-    source.items = [firstReplacement, secondReplacement];
+    source.models = [firstReplacement, secondReplacement];
     expect(() => source.notify({
       kind: 'update',
       added: [],
@@ -339,7 +339,7 @@ describe('CollectionView normalized reconciliation', function() {
     const replacement = { id: 1, name: 'replacement' };
     const added = { id: 2, name: 'added' };
     const failingAddition = { id: 3, name: 'failing addition' };
-    const source = { items: [first] };
+    const source = { models: [first] };
     const hookError = new Error('add hook failed');
     let stagedReplacement;
     let stagedAddition;
@@ -373,7 +373,7 @@ describe('CollectionView normalized reconciliation', function() {
     view.render();
     lifecycle.length = 0;
 
-    source.items = [replacement, added, failingAddition];
+    source.models = [replacement, added, failingAddition];
     expect(() => source.notify({
       kind: 'update',
       added: [added, failingAddition],
@@ -401,14 +401,14 @@ describe('CollectionView normalized reconciliation', function() {
     const second = { id: 2, name: 'two' };
     const third = { id: 3, name: 'three' };
     const fourth = { id: 4, name: 'four' };
-    const source = { items: [first] };
+    const source = { models: [first] };
     const hookError = new Error('add hook failed');
     let shouldFail = true;
     const RecoveringList = ListView.extend({
       onBeforeAddChild(collectionView, child) {
         if (!shouldFail || child.model !== second) { return; }
         shouldFail = false;
-        source.items = [first, second, third];
+        source.models = [first, second, third];
         source.notify({ kind: 'update', added: [third], removed: [], updated: [] });
         throw hookError;
       }
@@ -416,12 +416,12 @@ describe('CollectionView normalized reconciliation', function() {
     const view = new RecoveringList({ collection: source });
     view.render();
 
-    source.items = [first, second];
+    source.models = [first, second];
     expect(() => source.notify({
       kind: 'update', added: [second], removed: [], updated: []
     })).to.throw(hookError);
 
-    source.items = [first, second, third, fourth];
+    source.models = [first, second, third, fourth];
     expect(() => source.notify({
       kind: 'update', added: [fourth], removed: [], updated: []
     })).to.not.throw();
@@ -435,7 +435,7 @@ describe('CollectionView normalized reconciliation', function() {
     it(`keeps a managed child when a before-remove hook rejects ${ changeType }`, function() {
       const first = { id: 1, name: 'one' };
       const replacement = { id: 1, name: 'replacement' };
-      const source = { items: [first] };
+      const source = { models: [first] };
       const hookError = new Error('before remove failed');
       let shouldFail = true;
       const FailureList = ListView.extend({
@@ -450,7 +450,7 @@ describe('CollectionView normalized reconciliation', function() {
       const originalChild = view.children.findByModel(first);
       const isReplacement = changeType === 'replacement';
 
-      source.items = isReplacement ? [replacement] : [];
+      source.models = isReplacement ? [replacement] : [];
       expect(() => source.notify({
         kind: 'update',
         added: [],
@@ -470,13 +470,13 @@ describe('CollectionView normalized reconciliation', function() {
 
   it('treats reset as destructive whole-list replacement', function() {
     const first = { id: 1, name: 'one' };
-    const source = { items: [first] };
+    const source = { models: [first] };
     const view = new ListView({ collection: source });
     view.render();
     const firstView = view.children.findByModel(first);
     const replacement = { id: 1, name: 'replacement' };
 
-    source.items = [replacement];
+    source.models = [replacement];
     source.notify({ kind: 'reset' });
 
     expect(firstView.isDestroyed()).to.be.true;
@@ -486,30 +486,31 @@ describe('CollectionView normalized reconciliation', function() {
 
   it('diagnoses duplicate, missing, and unstable keys', function() {
     const duplicate = { id: 1, name: 'duplicate' };
-    expect(() => new ListView({ collection: { items: [duplicate, duplicate] } }).render())
+    expect(() => new ListView({ collection: { models: [duplicate, duplicate] } }).render())
       .to.throw(MarionetteError).and.include({ code: 'MN0039' });
 
     const missing = { name: 'missing' };
-    expect(() => new ListView({ collection: { items: [missing] } }).render())
+    expect(() => new ListView({ collection: { models: [missing] } }).render())
       .to.throw(MarionetteError).and.include({ code: 'MN0039' });
 
-    const item = { id: 1, name: 'unstable' };
-    const source = { items: [item] };
+    const model = { id: 1, name: 'unstable' };
+    const source = { models: [model] };
     const view = new ListView({ collection: source });
     view.render();
-    item.id = 2;
+    model.id = 2;
     expect(() => source.notify({ kind: 'reorder' }))
       .to.throw(MarionetteError).and.include({ code: 'MN0039' });
     view.destroy();
   });
 
   it('diagnoses malformed collection snapshots and structural records', function() {
-    const InvalidItemsList = ListView.extend({});
-    InvalidItemsList.setDataApi({ items() { return {}; } });
-    const invalidItemsView = new InvalidItemsList({ collection: {} });
-    expect(() => invalidItemsView.render())
-      .to.throw(MarionetteError).and.include({ code: 'MN0039' });
-    invalidItemsView.destroy();
+    const InvalidModelsList = ListView.extend({});
+    InvalidModelsList.setDataApi({ models() { return {}; } });
+    const invalidModelsView = new InvalidModelsList({ collection: {} });
+    expect(() => invalidModelsView.render())
+      .to.throw(MarionetteError, 'DataApi.models() must return an ordered model snapshot.')
+      .and.include({ code: 'MN0039' });
+    invalidModelsView.destroy();
 
     const first = { id: 1, name: 'one' };
     const second = { id: 2, name: 'two' };
@@ -576,8 +577,8 @@ describe('CollectionView normalized reconciliation', function() {
   });
 
   it('diagnoses an update whose child View is missing', function() {
-    const item = { id: 1, name: 'one' };
-    const source = { items: [item] };
+    const model = { id: 1, name: 'one' };
+    const source = { models: [model] };
     const view = new ListView({ collection: source });
     view.render();
     const child = view.children.first();
@@ -587,7 +588,7 @@ describe('CollectionView normalized reconciliation', function() {
       kind: 'update',
       added: [],
       removed: [],
-      updated: [{ previous: item, current: item }]
+      updated: [{ previous: model, current: model }]
     })).to.throw(MarionetteError).and.include({ code: 'MN0039' });
 
     view.destroy();
@@ -596,7 +597,7 @@ describe('CollectionView normalized reconciliation', function() {
   it('recreates a same-key replacement even when its child is filtered out', function() {
     const previous = { id: 1, name: 'before' };
     const current = { id: 1, name: 'after' };
-    const source = { items: [previous] };
+    const source = { models: [previous] };
     const FilteredList = ListView.extend({ viewFilter: () => false });
     const view = new FilteredList({ collection: source });
     const children = [];
@@ -604,7 +605,7 @@ describe('CollectionView normalized reconciliation', function() {
     view.render();
     const previousChild = children[0];
 
-    source.items = [current];
+    source.models = [current];
     source.notify({
       kind: 'update',
       added: [],
@@ -627,17 +628,17 @@ describe('CollectionView normalized reconciliation', function() {
     const third = { id: 3, name: 'three' };
     const fourth = { id: 4, name: 'four' };
     const fifth = { id: 5, name: 'five' };
-    const source = { items: [first] };
+    const source = { models: [first] };
     const ReentrantList = ListView.extend({
       onAddChild(collectionView, child) {
         if (child.model === second) {
-          source.items = [first, second, third];
+          source.models = [first, second, third];
           source.notify({ kind: 'update', added: [third], removed: [], updated: [] });
         } else if (child.model === third) {
-          source.items = [first, second, third, fourth];
+          source.models = [first, second, third, fourth];
           source.notify({ kind: 'update', added: [fourth], removed: [], updated: [] });
         } else if (child.model === fourth) {
-          source.items = [first, second, third, fourth, fifth];
+          source.models = [first, second, third, fourth, fifth];
           source.notify({ kind: 'update', added: [fifth], removed: [], updated: [] });
         }
       }
@@ -645,14 +646,14 @@ describe('CollectionView normalized reconciliation', function() {
     const view = new ReentrantList({ collection: source });
     view.render();
 
-    source.items = [first, second];
+    source.models = [first, second];
     source.notify({ kind: 'update', added: [second], removed: [], updated: [] });
 
     expect(view.children.toArray().map(child => child.model))
       .to.deep.equal([first, second, third, fourth, fifth]);
     expect(view.el.textContent).to.equal('onetwothreefourfive');
 
-    source.items = [second, third, fifth];
+    source.models = [second, third, fifth];
     source.notify({
       kind: 'update', added: [], removed: [first, fourth], updated: []
     });
@@ -666,13 +667,13 @@ describe('CollectionView normalized reconciliation', function() {
     const first = { id: 1, name: 'one' };
     const second = { id: 2, name: 'two' };
     const replacement = { id: 2, name: 'replacement' };
-    const source = { items: [first] };
+    const source = { models: [first] };
     let addedChild;
     const ReentrantList = ListView.extend({
       onAddChild(collectionView, child) {
         if (child.model !== second) { return; }
         addedChild = child;
-        source.items = [first, replacement];
+        source.models = [first, replacement];
         source.notify({
           kind: 'update',
           added: [],
@@ -684,7 +685,7 @@ describe('CollectionView normalized reconciliation', function() {
     const view = new ReentrantList({ collection: source });
     view.render();
 
-    source.items = [first, second];
+    source.models = [first, second];
     source.notify({ kind: 'update', added: [second], removed: [], updated: [] });
 
     const replacementChild = view.children.findByModel(replacement);
@@ -699,7 +700,7 @@ describe('CollectionView normalized reconciliation', function() {
     const first = { id: 1, name: 'one' };
     const second = { id: 2, name: 'two' };
     const third = { id: 3, name: 'three' };
-    const source = { items: [first] };
+    const source = { models: [first] };
     let thirdBuilds = 0;
     const ReentrantList = ListView.extend({
       buildChildView(model, ChildViewClass, childViewOptions) {
@@ -710,7 +711,7 @@ describe('CollectionView normalized reconciliation', function() {
       },
       onAddChild(collectionView, child) {
         if (child.model !== second) { return; }
-        source.items = [first, second, third];
+        source.models = [first, second, third];
         source.notify({ kind: 'update', added: [third], removed: [], updated: [] });
         collectionView.destroy();
       }
@@ -718,7 +719,7 @@ describe('CollectionView normalized reconciliation', function() {
     const view = new ReentrantList({ collection: source });
     view.render();
 
-    source.items = [first, second];
+    source.models = [first, second];
     expect(() => source.notify({
       kind: 'update', added: [second], removed: [], updated: []
     })).to.not.throw();
@@ -729,13 +730,13 @@ describe('CollectionView normalized reconciliation', function() {
     expect(view.el.textContent).to.equal('');
   });
 
-  it('unsubscribes collection observation before failed-construction child cleanup', function() {
+  it('releases collection observation before failed-construction child cleanup', function() {
     const first = { id: 1, name: 'one' };
-    const source = { items: [first] };
+    const source = { models: [first] };
     const constructionError = new Error('initialize failed');
     const onDestroy = this.sinon.spy(() => {
       expect(source.notify).to.be.undefined;
-      source.items = [];
+      source.models = [];
       source.notify?.({ kind: 'update', added: [], removed: [first], updated: [] });
     });
     const CleanupChild = ChildView.extend({ onDestroy });
@@ -755,7 +756,7 @@ describe('CollectionView normalized reconciliation', function() {
   it('does not render an added child that is filtered out', function() {
     const first = { id: 1, name: 'one' };
     const hidden = { id: 2, name: 'hidden' };
-    const source = { items: [first] };
+    const source = { models: [first] };
     const FilteredList = ListView.extend({
       viewFilter(child) { return child.model.id === 1; }
     });
@@ -766,7 +767,7 @@ describe('CollectionView normalized reconciliation', function() {
     });
     view.render();
 
-    source.items = [first, hidden];
+    source.models = [first, hidden];
     source.notify({ kind: 'update', added: [hidden], removed: [], updated: [] });
 
     expect(view.children.hasView(child)).to.be.false;
@@ -776,19 +777,19 @@ describe('CollectionView normalized reconciliation', function() {
   });
 
   it('renders reconciled children when an overridden sort does not render them', function() {
-    const item = { id: 1, name: 'before' };
-    const source = { items: [item] };
+    const model = { id: 1, name: 'before' };
+    const source = { models: [model] };
     const view = new ListView({ collection: source });
     view.render();
     const child = view.children.first();
     view.sort = () => view;
 
-    item.name = 'after';
+    model.name = 'after';
     source.notify({
       kind: 'update',
       added: [],
       removed: [],
-      updated: [{ previous: item, current: item }]
+      updated: [{ previous: model, current: model }]
     });
 
     expect(child.renderCount).to.equal(2);
@@ -798,7 +799,7 @@ describe('CollectionView normalized reconciliation', function() {
 
   it('restores focused controls and their text selection after DOM moves', function() {
     for (const control of ['input', 'button']) {
-      const items = [
+      const models = [
         { id: 1, name: 'one' },
         { id: 2, name: 'two' }
       ];
@@ -807,7 +808,7 @@ describe('CollectionView normalized reconciliation', function() {
       });
       FocusChild.setDataApi(Adapter);
       const FocusList = ListView.extend({ childView: FocusChild });
-      const source = { items };
+      const source = { models };
       const view = new FocusList({ collection: source });
       view.render();
       document.body.appendChild(view.el);
@@ -822,7 +823,7 @@ describe('CollectionView normalized reconciliation', function() {
         }
       };
 
-      source.items = [items[1], items[0]];
+      source.models = [models[1], models[0]];
       source.notify({ kind: 'reorder' });
 
       expect(document.activeElement).to.equal(activeElement);
@@ -836,7 +837,7 @@ describe('CollectionView normalized reconciliation', function() {
   });
 
   it('ignores stale observer callbacks after destruction', function() {
-    const source = { items: [{ id: 1, name: 'one' }] };
+    const source = { models: [{ id: 1, name: 'one' }] };
     let staleNotify;
     const StaleList = ListView.extend({});
     StaleList.setDataApi({
@@ -850,15 +851,15 @@ describe('CollectionView normalized reconciliation', function() {
     const child = view.children.first();
     view.destroy();
 
-    source.items = [];
+    source.models = [];
     staleNotify({ kind: 'reset' });
     expect(child.destroyCount).to.equal(1);
   });
 
-  it('diagnoses an invalid structural observer disposer', function() {
+  it('diagnoses an invalid structural observer cleanup value', function() {
     const InvalidList = ListView.extend({});
     InvalidList.setDataApi({ observeCollection() {} });
-    const view = new InvalidList({ collection: { items: [] } });
+    const view = new InvalidList({ collection: { models: [] } });
 
     expect(() => view.render()).to.throw(MarionetteError).and.include({ code: 'MN0038' });
     view.destroy();

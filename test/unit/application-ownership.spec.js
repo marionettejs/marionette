@@ -14,7 +14,7 @@ async function expectRejection(promise, expectedError) {
 }
 
 describe('Application ownership', function() {
-  it('keeps independent roots free of child storage', async function() {
+  it('keeps separate root Applications free of child storage', async function() {
     const first = new Application();
     const second = new Application();
 
@@ -96,7 +96,7 @@ describe('Application ownership', function() {
     await owner.destroy();
   });
 
-  it('rejects invalid ownership without changing topology', async function() {
+  it('rejects invalid ownership without changing the hierarchy', async function() {
     const owner = new Application();
     const otherOwner = new Application();
     const child = new Application();
@@ -219,7 +219,7 @@ describe('Application ownership', function() {
     await owner.destroy();
   });
 
-  it('clears topology before a child destroy completion hook', async function() {
+  it('clears child ownership before a destroy completion hook', async function() {
     const owner = new Application();
     const completionError = new Error('completion failed');
     let child;

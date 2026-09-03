@@ -28,7 +28,7 @@ export default {
     return model;
   },
 
-  items(collection) {
+  models(collection) {
     return collection;
   },
 

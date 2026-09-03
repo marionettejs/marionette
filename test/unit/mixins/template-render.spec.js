@@ -252,7 +252,7 @@ describe('template-render', function() {
         expect(renderer.serializeCollection).to.be.calledOnce;
       });
 
-      it('should send the collection data on items to the renderer', function() {
+      it('should send collection data on the established `items` template property', function() {
         expect(renderer._renderHtml)
           .to.be.calledOnce
           .and.calledWith(renderer.template, { items: [{ id: 1 },{ id: 2 }] });

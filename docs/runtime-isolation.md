@@ -7,7 +7,7 @@ can continue importing and configuring those exports directly:
 import { View, Radio, setRenderer } from 'marionette';
 ```
 
-`createMarionette()` creates an independent class family for applications that need
+`createMarionette()` creates an isolated runtime for applications that need
 more than one Marionette configuration in the same JavaScript process:
 
 ```javascript
@@ -27,13 +27,13 @@ Each call returns its own `Application`, `Behavior`, `CollectionView`, `MnObject
 `Region`, and `View` classes. It also owns independent `DataApi`, `DomApi`,
 `StateApi`, EventDelegator configuration, renderer configuration, and `Radio`
 channel registry. Changing one runtime does not change the default runtime or another
-factory result.
+isolated runtime.
 
 New runtimes start from Marionette's built-in adapter and renderer defaults, not from
-later configuration applied to the root runtime. Apply shared application
+later configuration applied to the default runtime. Apply shared application
 configuration explicitly to each runtime that needs it.
 
-Implicit composition stays inside the class family. Declarative Regions, the default
+Implicit composition stays inside the selected runtime. Declarative Regions, the default
 View created by `Region#show`, CollectionView's empty Region, and Application's root
 Region use the owning runtime's classes. A Region or child Application from another
 runtime is rejected as an ownership conflict; construct it from the receiver's

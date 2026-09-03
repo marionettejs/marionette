@@ -1,4 +1,4 @@
-describe('itemView - dynamic regions', function() {
+describe('view - dynamic regions', function() {
   'use strict';
 
   let BBView;

@@ -25,22 +25,22 @@ describe('destroying views', function() {
     });
 
     it('should mark the view as destroyed', function() {
-      expect(view).to.have.property('_isDestroyed', true);
+      expect(view.isDestroyed()).to.equal(true);
     });
   });
 
   describe('when destroying a Marionette.View multiple times', function() {
     let onBeforeDestroyStub;
-    let itemView;
+    let view;
 
     beforeEach(function() {
       onBeforeDestroyStub = this.sinon.stub();
 
-      itemView = new View();
-      itemView.onBeforeDestroy = onBeforeDestroyStub;
+      view = new View();
+      view.onBeforeDestroy = onBeforeDestroyStub;
 
-      itemView.destroy();
-      itemView.destroy();
+      view.destroy();
+      view.destroy();
     });
 
     it('should only run the destroying code once', function() {
@@ -48,7 +48,7 @@ describe('destroying views', function() {
     });
 
     it('should mark the view as destroyed', function() {
-      expect(itemView).to.have.property('_isDestroyed', true);
+      expect(view.isDestroyed()).to.equal(true);
     });
   });
 });

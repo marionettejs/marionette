@@ -24,7 +24,7 @@ describe('plain data integration', function() {
     expect(view.serializeModel()).to.equal(model);
   });
 
-  it('renders and indexes plain collection items by reference', function() {
+  it('renders and indexes plain collection models by reference', function() {
     const collection = [
       { cid: 'same', name: 'one' },
       { cid: 'same', name: 'two' }
@@ -42,7 +42,8 @@ describe('plain data integration', function() {
   it('serializes a plain array for a View template', function() {
     const collection = [{ name: 'one' }, { name: 'two' }];
     const PlainListView = View.extend({
-      template: ({ items }) => items.map(item => item.name).join(',')
+      // `items` is the established serialized collection template property.
+      template: ({ items }) => items.map(model => model.name).join(',')
     });
     PlainListView.setDataApi(DataApi);
     const plainView = new PlainListView({ collection });
@@ -93,7 +94,7 @@ describe('plain data integration', function() {
       .to.throw(MarionetteError).and.include({ code: 'MN0037' });
   });
 
-  it('diagnoses an invalid DataApi entity disposer', function() {
+  it('diagnoses an invalid DataApi entity cleanup value', function() {
     const InvalidView = PlainView.extend({ modelEvents: { change() {} } });
     InvalidView.setDataApi({ subscribe() {} });
 
@@ -104,7 +105,7 @@ describe('plain data integration', function() {
   it('integrates a neutral observable collection adapter', function() {
     const first = { id: 1, name: 'one' };
     const second = { id: 2, name: 'two' };
-    const collection = { items: [first, second] };
+    const collection = { models: [first, second] };
     const observerDisposed = this.sinon.spy();
     let emit;
     const ObservableCollectionView = PlainCollectionView.extend({});
@@ -113,8 +114,8 @@ describe('plain data integration', function() {
       key(model) {
         return model.id;
       },
-      items(source) {
-        return source.items;
+      models(source) {
+        return source.models;
       },
       observeCollection(source, callback, context) {
         expect(source).to.equal(collection);
@@ -126,12 +127,12 @@ describe('plain data integration', function() {
     const view = new ObservableCollectionView({ collection });
     view.render();
 
-    collection.items.reverse();
+    collection.models.reverse();
     emit({ kind: 'reorder' });
     expect(view.children.pluck('model')).to.deep.equal([second, first]);
 
     const replacement = { id: 1, name: 'replacement' };
-    collection.items = [replacement, second];
+    collection.models = [replacement, second];
     const originalView = view.children.findByModel(first);
     emit({
       kind: 'update',
@@ -139,13 +140,13 @@ describe('plain data integration', function() {
       removed: [],
       updated: [{ previous: first, current: replacement }]
     });
-    expect(view.children.pluck('model')).to.deep.equal(collection.items);
+    expect(view.children.pluck('model')).to.deep.equal(collection.models);
     expect(view.children.findByModel(replacement).model).to.equal(replacement);
     expect(view.children.findByModel(replacement)).to.not.equal(originalView);
     expect(originalView.isDestroyed()).to.be.true;
 
     const reset = { id: 3, name: 'reset' };
-    collection.items = [reset];
+    collection.models = [reset];
     emit({ kind: 'reset' });
     expect(view.children.pluck('model')).to.deep.equal([reset]);
 

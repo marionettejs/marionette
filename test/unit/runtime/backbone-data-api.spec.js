@@ -16,19 +16,20 @@ describe('BackboneDataApi', function() {
     expect(BackboneDataApi.has(model, 'present')).to.be.true;
     expect(BackboneDataApi.has(model, 'missing')).to.be.false;
     expect(BackboneDataApi.serialize(model)).to.equal(model.attributes);
-    expect(BackboneDataApi.items(collection)).to.equal(collection.models);
+    expect(BackboneDataApi.models(collection)).to.equal(collection.models);
+    expect(BackboneDataApi.items).to.be.undefined;
   });
 
-  it('subscribes with context and returns an idempotent disposer', function() {
+  it('subscribes with context and returns an idempotent cleanup function', function() {
     const model = new Backbone.Model();
     const context = {};
     const callback = this.sinon.spy();
     const off = this.sinon.spy(model, 'off');
-    const unsubscribe = BackboneDataApi.subscribe(model, 'change', callback, context);
+    const cleanup = BackboneDataApi.subscribe(model, 'change', callback, context);
 
     model.trigger('change', model);
-    unsubscribe();
-    unsubscribe();
+    cleanup();
+    cleanup();
     model.trigger('change', model);
 
     expect(callback).to.have.been.calledOnce.and.calledOn(context).and.calledWith(model);
@@ -41,7 +42,7 @@ describe('BackboneDataApi', function() {
     const added = new Backbone.Model();
     const removed = new Backbone.Model();
     const updated = new Backbone.Model();
-    const unsubscribe = BackboneDataApi.observeCollection(collection, callback);
+    const cleanup = BackboneDataApi.observeCollection(collection, callback);
 
     collection.trigger('sort', collection);
     collection.add(added, { silent: true });
@@ -68,7 +69,7 @@ describe('BackboneDataApi', function() {
       updated: [{ previous: updated, current: updated }]
     });
 
-    unsubscribe();
+    cleanup();
     collection.trigger('reset', collection, {});
     expect(callback).to.have.callCount(5);
   });
@@ -78,12 +79,12 @@ describe('BackboneDataApi', function() {
     const second = new Backbone.Model({ id: 2 });
     const collection = new Backbone.Collection([first, second]);
     const callback = this.sinon.spy();
-    const unsubscribe = BackboneDataApi.observeCollection(collection, callback);
+    const cleanup = BackboneDataApi.observeCollection(collection, callback);
 
     collection.set([second, first]);
 
     expect(callback).to.have.been.calledOnce.and.calledWithExactly({ kind: 'reorder' });
-    unsubscribe();
+    cleanup();
   });
 
   it('rolls back structural subscriptions when setup fails', function() {

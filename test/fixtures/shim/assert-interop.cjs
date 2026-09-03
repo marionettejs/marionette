@@ -28,7 +28,7 @@ module.exports = function assertInterop({
   assert.strictEqual(collection.get(model.id), model);
   assert.strictEqual(Marionette.View.prototype.Data.key(model), model.cid);
   assert.strictEqual(Marionette.View.prototype.Data.serialize(model), model.attributes);
-  assert.strictEqual(Marionette.CollectionView.prototype.Data.items(collection), collection.models);
+  assert.strictEqual(Marionette.CollectionView.prototype.Data.models(collection), collection.models);
 
   const structuralChanges = [];
   const stopObserving = Marionette.CollectionView.prototype.Data.observeCollection(

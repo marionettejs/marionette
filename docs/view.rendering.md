@@ -58,7 +58,7 @@ function:
 
 ```javascript
 import Handlebars from 'handlebars';
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   template: Handlebars.compile('<h1>Hello, {{ name }}')
@@ -83,12 +83,13 @@ view to define the view's template, but in some circumstances you may want to se
 conditionally.
 
 ```javascript
-import { View } from 'backbone.marionette';
+import _ from 'underscore';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   template: _.template('Hello World!'),
   getTemplate() {
-    if (this.model.has('user')) {
+    if (this.Data.has(this.model, 'user')) {
       return _.template('Hello User!');
     }
 
@@ -109,7 +110,7 @@ In this case setting `template` to `false` will prevent the template render. In 
 it will also prevent the [`render` events](./events.class.md#render-and-beforerender-events).
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyIconButtonView = View.extend({
   template: false,
@@ -131,7 +132,7 @@ to the template function and returns the html string it generates.
 
 The current default renderer is essentially the following:
 ```javascript
-import { View, CollectionView } from 'backbone.marionette';
+import { View, CollectionView } from 'marionette';
 
 function renderer(template, data) {
   return template(data);
@@ -153,8 +154,10 @@ and the second argument is the data to be rendered into the template.
 Here's an example that allows for the `template` of a view to be an underscore template string.
 
 ```javascript
+import 'marionette/backbone';
+import Backbone from 'backbone';
 import _ from 'underscore';
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 View.setRenderer(function(template, data) {
   return _.template(template)(data);
@@ -224,7 +227,7 @@ the DOM or otherwise it will set the view's `el` to the result of the template. 
 
 ```javascript
 import morphdom from 'morphdom';
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const VDomView = View.extend();
 
@@ -260,7 +263,7 @@ data the template may still receive [added context](#adding-context-data) or an 
 
 ```javascript
 import _ from 'underscore';
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   template: _.template(`
@@ -325,7 +328,7 @@ const MyView = View.extend({
 ### Serializing a Collection
 
 If the view does not have a `model` but has a `collection`, DataApi supplies its
-ordered items and serializes each one into an array provided as an `items`
+ordered models and serializes each one into an array provided as an `items`
 attribute to the template.
 
 ```javascript
@@ -335,8 +338,8 @@ import { View } from 'marionette';
 const MyView = View.extend({
   template: _.template(`
     <ul>
-    <% _.each(items, function(item) { %>
-      <li><%- item.name %></li>
+    <% _.each(items, function(model) { %>
+      <li><%- model.name %></li>
     <% }) %>
     </ul>
   `)
@@ -360,7 +363,7 @@ import { View } from 'marionette';
 
 const MyView = View.extend({
   serializeCollection() {
-    return _.map(this.Data.items(this.collection), model => {
+    return _.map(this.Data.models(this.collection), model => {
       const data = _.clone(this.Data.serialize(model));
 
       // serialize a nested Backbone model through the configured adapter
@@ -393,7 +396,7 @@ original object through unchanged.
 
 ```javascript
 import _ from 'underscore';
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   template: _.template('<h1>Hello, <%- name %></h1>'),
@@ -425,9 +428,10 @@ by your templating solution. For instance with handlebars a method is called wit
 the data passed to the template.
 
 ```javascript
+import 'marionette/backbone';
 import Handlebars from 'handlebars';
 import Backbone from 'backbone';
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   template: Handlebars.compile(`
@@ -441,13 +445,13 @@ const MyView = View.extend({
       // Because of Handlebars `this` here is the data object
       // passed to the template which is the result of the
       // templateContext mixed with the serialized data of the view
-      return this.isDr() ? `Dr. { this.name }` : this.name;
+      return this.isDr() ? `Dr. ${this.name}` : this.name;
     }
   }
 });
 
 const myView = new MyView({
-  model: new Backbone.Model({ degree: 'masters', name: 'Joe' });
+  model: new Backbone.Model({ degree: 'masters', name: 'Joe' })
 });
 ```
 
@@ -462,8 +466,9 @@ into the template, template context mixes in other needed data, or in some cases
 computations that go beyond simply "serializing" the view's `model` or `collection`
 
 ```javascript
-import _ from 'underscore'
-import { CollectionView } from 'backbone.marionette';
+import 'marionette/backbone';
+import _ from 'underscore';
+import { CollectionView } from 'marionette';
 import GroupView from './group-view';
 
 const MyCollectionView = CollectionView.extend({

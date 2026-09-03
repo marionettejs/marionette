@@ -41,7 +41,7 @@ describe('state source composition', function() {
 
       expect(Object.hasOwn(owner, '_state')).to.be.false;
       expect(Object.hasOwn(owner, '_stateOptions')).to.be.false;
-      expect(Object.hasOwn(owner, '_stateEventUnsubscribe')).to.be.false;
+      expect(Object.hasOwn(owner, '_stateEventCleanup')).to.be.false;
 
       const state = owner.getState();
       expect(state).to.deep.equal({});
@@ -118,7 +118,7 @@ describe('state source composition', function() {
     expect(source.listeners.get('changed')).to.be.empty;
   });
 
-  it('releases owned subscriptions before disposing the factory result exactly once', function() {
+  it('releases owned subscriptions before disposing the owned source exactly once', function() {
     const calls = [];
     const source = createSource();
     const options = {};
@@ -131,7 +131,7 @@ describe('state source composition', function() {
       onTransition() {}
     });
     Owner.setStateApi({
-      subscribe() { return () => calls.push('unsubscribe'); },
+      subscribe() { return () => calls.push('cleanup'); },
       disposeOwned() { calls.push('dispose'); }
     });
     const owner = new Owner(options);
@@ -140,7 +140,7 @@ describe('state source composition', function() {
     owner.off();
     owner.destroy();
     owner.destroy();
-    expect(calls).to.deep.equal(['unsubscribe', 'dispose']);
+    expect(calls).to.deep.equal(['cleanup', 'dispose']);
   });
 
   it('rolls back an owned factory source after initialize fails', function() {
@@ -197,13 +197,13 @@ describe('state source composition', function() {
     Owner.setStateApi({
       subscribe(source, eventName) {
         if (eventName === 'second') { throw error; }
-        return () => calls.push('unsubscribe');
+        return () => calls.push('cleanup');
       },
       disposeOwned() { calls.push('dispose'); }
     });
 
     expect(() => new Owner()).to.throw(error);
-    expect(calls).to.deep.equal(['unsubscribe', 'dispose']);
+    expect(calls).to.deep.equal(['cleanup', 'dispose']);
   });
 
   for (const OwnerClass of [View, CollectionView]) {
@@ -217,13 +217,13 @@ describe('state source composition', function() {
         modelEvents: { change() {} }
       });
       Owner.setStateApi({
-        subscribe() { return () => calls.push('unsubscribe'); },
+        subscribe() { return () => calls.push('cleanup'); },
         disposeOwned() { calls.push('dispose'); }
       });
       Owner.setDataApi({ subscribe() { throw error; } });
 
       expect(() => new Owner({ model: {} })).to.throw(error);
-      expect(calls).to.deep.equal(['unsubscribe', 'dispose']);
+      expect(calls).to.deep.equal(['cleanup', 'dispose']);
     });
   }
 
@@ -237,13 +237,13 @@ describe('state source composition', function() {
       _syncElement() { throw error; }
     });
     Owner.setStateApi({
-      subscribe() { return () => calls.push('unsubscribe'); },
+      subscribe() { return () => calls.push('cleanup'); },
       disposeOwned() { calls.push('dispose'); }
     });
     const view = new View();
 
     expect(() => new Owner({}, view)).to.throw(error);
-    expect(calls).to.deep.equal(['unsubscribe', 'dispose']);
+    expect(calls).to.deep.equal(['cleanup', 'dispose']);
     view.destroy();
   });
 
@@ -274,7 +274,7 @@ describe('state source composition', function() {
       .and.include({ code: 'MN0037' });
   });
 
-  it('diagnoses an invalid StateApi disposer and still disposes an owned source', function() {
+  it('diagnoses an invalid StateApi cleanup value and still disposes an owned source', function() {
     const disposeOwned = this.sinon.spy();
     const Owner = MnObject.extend({
       createState() { return createSource(); },

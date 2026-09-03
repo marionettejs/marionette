@@ -27,7 +27,7 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
       Marionette.setDataApi({
         key: model => model.cid,
         serialize: model => model.attributes,
-        items: collection => collection.models,
+        models: collection => collection.models,
         observeCollection(collection, callback, context) {
           const onUpdate = (currentCollection, { changes }) => callback.call(context, {
             kind: 'update',

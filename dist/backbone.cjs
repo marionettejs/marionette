@@ -27,7 +27,7 @@ var BackboneDataApi = {
   serialize(model) {
     return model.attributes;
   },
-  items(collection) {
+  models(collection) {
     return collection.models;
   },
   subscribe,

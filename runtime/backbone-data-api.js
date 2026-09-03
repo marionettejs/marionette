@@ -26,7 +26,7 @@ export default {
     return model.attributes;
   },
 
-  items(collection) {
+  models(collection) {
     return collection.models;
   },
 

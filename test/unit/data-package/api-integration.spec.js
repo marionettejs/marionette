@@ -70,7 +70,7 @@ describe('@marionette/data Marionette integration', function() {
   });
 
   it('validates incompatible adapter inputs and disposes subscriptions once', function() {
-    expect(() => DataApi.items([])).to.throw(TypeError, 'requires a Collection');
+    expect(() => DataApi.models([])).to.throw(TypeError, 'requires a Collection');
     expect(() => DataApi.observeCollection({}, () => {})).to.throw(TypeError, 'own Collection');
     expect(() => DataApi.observeCollection(new Collection(), null)).to.throw(TypeError, 'with a callback');
     expect(() => DataApi.subscribe({}, 'change', () => {})).to.throw(TypeError, 'on() and off()');
@@ -104,8 +104,9 @@ describe('@marionette/data Marionette integration', function() {
     expect(DataApi.has(collision, 'constructor')).to.be.true;
     expect(DataApi.has(collision, 'toString')).to.be.true;
     const packageCollection = new Collection([packageModel]);
-    expect(DataApi.items(packageCollection)).to.deep.equal([packageModel]);
-    expect(DataApi.items(packageCollection)).to.not.equal(packageCollection.models);
+    expect(DataApi.models(packageCollection)).to.deep.equal([packageModel]);
+    expect(DataApi.models(packageCollection)).to.not.equal(packageCollection.models);
+    expect(DataApi.items).to.be.undefined;
     packageCollection.destroy();
   });
 });

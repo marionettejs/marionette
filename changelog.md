@@ -9,7 +9,9 @@
   consumers are asked to identify their usage in the public issue tracker before
   the six-month post-5.0.0 distribution review
 * Added a neutral DataApi for model identity, reads, serialization, ordered
-  collection items, entity subscriptions, and structural collection changes
+  model snapshots, entity subscriptions, and structural collection changes
+* Renamed the pre-stable `DataApi.items(collection)` method to
+  `DataApi.models(collection)` without a compatibility alias
 * Added the optional `@marionette/data` package with observable Model and ordered
   Collection sources plus matching DataApi and StateApi adapters
 * Changed the default model and collection contract to plain objects and arrays;

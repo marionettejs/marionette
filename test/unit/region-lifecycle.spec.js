@@ -67,7 +67,7 @@ describe('Region lifecycle contract', function() {
     });
   });
 
-  it('reads Region ownership without rendering or mutating topology', function() {
+  it('reads Region ownership without rendering or mutating it', function() {
     expect(region.getOwner()).to.be.undefined;
     expect(region.getName()).to.be.undefined;
 

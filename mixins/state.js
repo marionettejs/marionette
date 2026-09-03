@@ -27,7 +27,7 @@ const StateMixin = {
 
     const stateEvents = getValue(this, 'stateEvents');
     if (stateEvents) {
-      this._stateEventUnsubscribe = subscribeBindings(
+      this._stateEventCleanup = subscribeBindings(
         this,
         this.State,
         this.getState(),
@@ -59,17 +59,17 @@ const StateMixin = {
     if (!Object.hasOwn(this, '_state') || this._stateReleased) { return this; }
 
     const state = this._state;
-    const unsubscribe = this._stateEventUnsubscribe;
+    const cleanup = this._stateEventCleanup;
     const ownsState = this._ownsState;
     const disposeOwned = this.State.disposeOwned;
 
     this._stateReleased = true;
-    delete this._stateEventUnsubscribe;
+    delete this._stateEventCleanup;
     delete this._ownsState;
 
     disposeAll([
       ownsState && typeof disposeOwned === 'function' && (() => disposeOwned.call(this.State, state)),
-      unsubscribe
+      cleanup
     ]);
 
     return this;

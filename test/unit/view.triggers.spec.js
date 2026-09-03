@@ -139,7 +139,7 @@ describe('view triggers', function() {
     });
   });
 
-  describe('when triggers items are manually configured', function() {
+  describe('when trigger entries are manually configured', function() {
     let TestView;
     let view;
 

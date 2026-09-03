@@ -88,13 +88,13 @@ The same can be done with `CollectionView`:
 
 ```javascript
 import { CollectionView } from 'marionette';
-import ItemView from './item-view';
+import RowView from './row-view';
 
 const MyList = CollectionView.extend({
   el() {
     return document.querySelector('#base-table');
   },
-  childView: ItemView,
+  childView: RowView,
   childViewContainer: 'tbody',
   buildChildView(model, ChildView) {
     const index = this.collection.indexOf(model);

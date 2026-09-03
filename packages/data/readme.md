@@ -25,6 +25,7 @@ const view = new Marionette.CollectionView({ collection, state });
 `kind: 'reset'` records through `DataApi.observeCollection()`. `Model` and
 `Collection` expose `on()`, `once()`, `off()`, `trigger()`, and
 `triggerMethod()` for Marionette entity event maps.
+`DataApi.models(collection)` returns the current ordered model snapshot.
 
 `Model` provides `get`, `has`, `set`, `unset`, `clear`, `reset`, `toJSON`, and
 `destroy`. `Collection` provides ordered `at`, `get`, `indexOf`, iteration,
@@ -38,7 +39,7 @@ prototype method, or a prototype getter. Native class fields initialize after
 `super()` returns, so a `defaults = { ... }` field cannot seed construction.
 
 Model identity is stable while a Model belongs to a Collection. Duplicate
-instances or ids are rejected before a reset or replacement changes the
-ordered snapshot; `add` ignores an instance or id that is already present. The
+instances or ids are rejected before a reset or replacement changes the ordered
+model snapshot; `add` ignores an instance or id that is already present. The
 package does not provide persistence, REST synchronization, validation, or
 implicit Backbone compatibility.

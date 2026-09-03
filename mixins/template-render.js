@@ -66,7 +66,7 @@ export default {
 
   // Serialize a collection
   serializeCollection() {
-    return this.Data.items(this.collection).map(model => this.Data.serialize(model));
+    return this.Data.models(this.collection).map(model => this.Data.serialize(model));
   },
 
   // Renders the data into the template

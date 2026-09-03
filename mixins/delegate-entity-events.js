@@ -13,7 +13,7 @@ export default {
       if (model) {
         this._modelEvents = getValue(this, 'modelEvents');
         if (this._modelEvents) {
-          this._modelEventUnsubscribe = subscribeBindings(
+          this._modelEventCleanup = subscribeBindings(
             this,
             Data,
             model,
@@ -26,7 +26,7 @@ export default {
       if (collection) {
         this._collectionEvents = getValue(this, 'collectionEvents');
         if (this._collectionEvents) {
-          this._collectionEventUnsubscribe = subscribeBindings(
+          this._collectionEventCleanup = subscribeBindings(
             this,
             Data,
             collection,
@@ -48,12 +48,12 @@ export default {
   // Remove cached event handlers
   _deleteEntityEventHandlers(error) {
     const subscriptions = [
-      this._modelEventUnsubscribe,
-      this._collectionEventUnsubscribe
+      this._modelEventCleanup,
+      this._collectionEventCleanup
     ];
 
-    delete this._modelEventUnsubscribe;
-    delete this._collectionEventUnsubscribe;
+    delete this._modelEventCleanup;
+    delete this._collectionEventCleanup;
     delete this._modelEvents;
     delete this._collectionEvents;
 

@@ -13,14 +13,14 @@ Marionette. Call `render()` after changing a plain array. Declaring
 ```javascript
 import { CollectionView, View } from 'marionette';
 
-const ItemView = View.extend({
+const ChildView = View.extend({
   tagName: 'li',
-  template: item => item.name
+  template: model => model.name
 });
 
-const ListView = CollectionView.extend({ childView: ItemView });
-const items = [{ name: 'one' }, { name: 'two' }];
-const list = new ListView({ collection: items });
+const ListView = CollectionView.extend({ childView: ChildView });
+const models = [{ name: 'one' }, { name: 'two' }];
+const list = new ListView({ collection: models });
 
 list.render();
 ```
@@ -35,23 +35,24 @@ An adapter supplies seven methods:
 | `get(model, attribute)` | Read one named value for string comparators and filters. |
 | `has(model, attribute)` | Distinguish a missing value from a present value of `undefined`. |
 | `serialize(model)` | Return the data passed to a template. |
-| `items(collection)` | Return the collection's current ordered array snapshot. |
-| `subscribe(entity, eventName, callback, context)` | Subscribe to an application entity event and return an idempotent disposer. |
-| `observeCollection(collection, callback, context)` | Observe structural collection changes and return an idempotent disposer. |
+| `models(collection)` | Return the collection's current ordered model snapshot. |
+| `subscribe(entity, eventName, callback, context)` | Subscribe to an application entity event and return an idempotent cleanup function. |
+| `observeCollection(collection, callback, context)` | Observe structural collection changes and return an idempotent cleanup function. |
 
-`key()` must remain stable while an item belongs to a CollectionView and must be
-unique among the items currently owned by that CollectionView. The default
+`key()` must remain stable while a model belongs to a CollectionView and must be
+unique among the models currently owned by that CollectionView. The default
 adapter uses object identity. Adapters for immutable sources may use a stable
 source identity instead.
 
-`items()` must return an ordered array after the source mutation is complete.
+`models()` must return an ordered model snapshot after the source mutation is complete.
 Marionette does not mutate that array.
 
 `subscribe()` preserves the source event's arguments. Marionette invokes every
-returned disposer during explicit undelegation or owner destruction. If one
-subscription fails while a declarative event map is being installed, Marionette
-disposes the subscriptions already installed for that map. A non-function
-disposer throws `MN0038`; core wraps valid disposers so cleanup is idempotent.
+returned cleanup function during explicit undelegation or owner destruction. If
+one subscription fails while a declarative event map is being installed,
+Marionette releases the subscriptions already installed for that map. A
+non-function cleanup value throws `MN0038`; core wraps valid cleanup functions so
+cleanup is idempotent.
 
 ## Collection observations
 
@@ -65,14 +66,14 @@ disposer throws `MN0038`; core wraps valid disposers so cleanup is idempotent.
   added: [],
   removed: [],
   updated: [
-    { previous: previousItem, current: currentItem }
+    { previous: previousModel, current: currentModel }
   ]
 }
 ```
 
-`reorder` means item order changed without membership changing. `reset` means
+`reorder` means model order changed without membership changing. `reset` means
 Marionette must rebuild every child. `update` supplies exact added and removed
-item instances. Each `updated` entry contains the previous and current item for
+model instances. Each `updated` entry contains the previous and current model for
 one stable key. For an in-place update, `previous === current`. For an immutable
 same-key replacement, they are different objects. This distinction lets core
 distinguish a safe in-place render from an identity replacement. Marionette
@@ -86,10 +87,11 @@ Views are removed and destroyed, and the next structural notification rebuilds
 from the latest source snapshot before incremental reconciliation resumes.
 
 An immutable same-key replacement belongs only in `updated`, not in `removed`
-and `added`. Replacing an item with one that has a different stable key is a
-removal plus an addition; changing the key of a retained item is invalid. The
-post-mutation `items()` snapshot is authoritative and must agree with the record. Missing,
-duplicate, or unstable keys and malformed records throw `MN0039`.
+and `added`. Replacing a model with one that has a different stable key is a
+removal plus an addition; changing the key of a retained model is invalid. The
+post-mutation `models()` snapshot is authoritative and must agree with the
+record. Missing, duplicate, or unstable keys and malformed records throw
+`MN0039`.
 
 Observers may notify synchronously from CollectionView lifecycle hooks. Core
 commits each validated snapshot before invoking those hooks and drains nested

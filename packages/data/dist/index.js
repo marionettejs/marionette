@@ -240,11 +240,11 @@ function releaseObservers(collection) {
   collectionObservers.delete(collection);
 }
 
-function asArray(items) {
-  if (items == null) {
+function asArray(models) {
+  if (models == null) {
     return [];
   }
-  return Array.isArray(items) ? items : [items];
+  return Array.isArray(models) ? models : [models];
 }
 function normalizeOptions(options) {
   return options == null ? {} : options;
@@ -309,9 +309,9 @@ assignOwn(Collection.prototype, Events, {
   model: Model,
   _isDestroyed: false,
   initialize() {},
-  _prepareModel(item) {
+  _prepareModel(model) {
     const ModelClass = this.model;
-    return item instanceof ModelClass ? item : new ModelClass(item);
+    return model instanceof ModelClass ? model : new ModelClass(model);
   },
   _bindModel(model) {
     try {
@@ -390,23 +390,23 @@ assignOwn(Collection.prototype, Events, {
   map(callback, context) {
     return this.models.map(callback, context);
   },
-  add(items, options = {}) {
+  add(models, options = {}) {
     options = normalizeOptions(options);
     if (this._isDestroyed) {
-      return Array.isArray(items) ? [] : undefined;
+      return Array.isArray(models) ? [] : undefined;
     }
     const added = [];
     const knownModels = new Set(this.models);
     const knownIds = new Set(this.models.filter(model => model.id != null).map(model => model.id));
-    for (const item of asArray(items)) {
-      if (!(item instanceof this.model) && item != null && typeof item === 'object') {
+    for (const candidate of asArray(models)) {
+      if (!(candidate instanceof this.model) && candidate != null && typeof candidate === 'object') {
         const idAttribute = this.model.prototype.idAttribute;
-        const rawId = Object.hasOwn(item, idAttribute) ? item[idAttribute] : undefined;
+        const rawId = Object.hasOwn(candidate, idAttribute) ? candidate[idAttribute] : undefined;
         if (rawId != null && knownIds.has(rawId)) {
           continue;
         }
       }
-      const model = this._prepareModel(item);
+      const model = this._prepareModel(candidate);
       if (knownModels.has(model) || model.id != null && knownIds.has(model.id)) {
         continue;
       }
@@ -417,7 +417,7 @@ assignOwn(Collection.prototype, Events, {
       }
     }
     if (!added.length) {
-      return Array.isArray(items) ? added : undefined;
+      return Array.isArray(models) ? added : undefined;
     }
     this._bindModels(added);
     const at = Number.isInteger(options.at) ? Math.max(0, Math.min(options.at, this.models.length)) : this.models.length;
@@ -439,23 +439,23 @@ assignOwn(Collection.prototype, Events, {
         changes: change
       });
     }
-    return Array.isArray(items) ? added : added[0];
+    return Array.isArray(models) ? added : added[0];
   },
-  remove(items, options = {}) {
+  remove(models, options = {}) {
     options = normalizeOptions(options);
     if (this._isDestroyed) {
-      return Array.isArray(items) ? [] : undefined;
+      return Array.isArray(models) ? [] : undefined;
     }
     const removed = [];
-    for (const item of asArray(items)) {
-      const model = this.get(item);
+    for (const candidate of asArray(models)) {
+      const model = this.get(candidate);
       if (!model || removed.includes(model)) {
         continue;
       }
       removed.push(model);
     }
     if (!removed.length) {
-      return Array.isArray(items) ? removed : undefined;
+      return Array.isArray(models) ? removed : undefined;
     }
     const nextModels = this.models.filter(model => !removed.includes(model));
     this._replaceBindings(this.models, nextModels);
@@ -477,17 +477,17 @@ assignOwn(Collection.prototype, Events, {
         changes: change
       });
     }
-    return Array.isArray(items) ? removed : removed[0];
+    return Array.isArray(models) ? removed : removed[0];
   },
-  reset(items = [], options = {}) {
+  reset(models = [], options = {}) {
     options = normalizeOptions(options);
     if (this._isDestroyed) {
       return this;
     }
-    const models = asArray(items).map(item => this._prepareModel(item));
-    assertUniqueModels(models);
-    this._replaceBindings(this.models, models);
-    this.models = models;
+    const preparedModels = asArray(models).map(model => this._prepareModel(model));
+    assertUniqueModels(preparedModels);
+    this._replaceBindings(this.models, preparedModels);
+    this.models = preparedModels;
     this.length = this.models.length;
     if (!options.silent) {
       this._notify({
@@ -538,10 +538,10 @@ assignOwn(Collection.prototype, Events, {
     }
     return currentModel;
   },
-  touch(item, options = {}) {
+  touch(model, options = {}) {
     options = normalizeOptions(options);
-    const model = this.get(item);
-    if (!model || this._isDestroyed) {
+    const currentModel = this.get(model);
+    if (!currentModel || this._isDestroyed) {
       return undefined;
     }
     if (!options.silent) {
@@ -550,8 +550,8 @@ assignOwn(Collection.prototype, Events, {
         added: [],
         removed: [],
         updated: [{
-          previous: model,
-          current: model
+          previous: currentModel,
+          current: currentModel
         }]
       };
       this._notify(change);
@@ -560,31 +560,31 @@ assignOwn(Collection.prototype, Events, {
         changes: change
       });
     }
-    return model;
+    return currentModel;
   },
-  move(item, index, options = {}) {
+  move(model, index, options = {}) {
     options = normalizeOptions(options);
-    const model = this.get(item);
-    if (!model || this._isDestroyed) {
+    const currentModel = this.get(model);
+    if (!currentModel || this._isDestroyed) {
       return undefined;
     }
     if (!Number.isInteger(index)) {
       throw new TypeError('@marionette/data Collection.move() requires an integer index.');
     }
-    const previousIndex = this.models.indexOf(model);
+    const previousIndex = this.models.indexOf(currentModel);
     const nextIndex = Math.max(0, Math.min(index, this.models.length - 1));
     if (previousIndex === nextIndex) {
-      return model;
+      return currentModel;
     }
     this.models.splice(previousIndex, 1);
-    this.models.splice(nextIndex, 0, model);
+    this.models.splice(nextIndex, 0, currentModel);
     if (!options.silent) {
       this._notify({
         kind: 'reorder'
       });
       this.triggerMethod('reorder', this, options);
     }
-    return model;
+    return currentModel;
   },
   swap(first, second, options = {}) {
     options = normalizeOptions(options);
@@ -685,9 +685,9 @@ const DataApi = {
   serialize(model) {
     return model instanceof Model ? model.toJSON() : model;
   },
-  items(collection) {
+  models(collection) {
     if (!(collection instanceof Collection)) {
-      throw new TypeError('@marionette/data DataApi.items() requires a Collection.');
+      throw new TypeError('@marionette/data DataApi.models() requires a Collection.');
     }
     return collection.models.slice();
   },
