@@ -4,6 +4,32 @@ See the [v4-to-v5 compatibility ledger](docs/migration-from-v4.md) for the
 current public behavior boundary. Final migration documentation is tracked in
 [issue #147](https://github.com/marionettejs/marionette/issues/147).
 
+## Construct Views before showing them
+
+`Region#show` and `View#showChildView` require a View-like instance in v5. They no
+longer construct a hidden base View from a template function, string, or View-options
+object. Make the allocation and ownership explicit:
+
+```js
+import { View } from 'marionette';
+
+// v4
+parent.showChildView('heading', 'Edit program');
+parent.showChildView('content', {
+  template,
+  templateContext: { section: 'main' }
+});
+
+// v5
+parent.showChildView('heading', new View({
+  template: () => 'Edit program'
+}));
+parent.showChildView('content', new View({
+  template,
+  templateContext: { section: 'main' }
+}));
+```
+
 ## Configure model and collection data
 
 - Marionette core no longer reads Backbone-specific `cid`, `attributes`, `get`,

@@ -378,13 +378,13 @@ current-evidence findings:
   returns an opaque cleanup operation that Marionette owns and invokes at most once;
   cleanup continues through sibling operations even when one throws.
 
-- **Gated:** `Region.show` and `View.showChildView` accept a View-like instance. The v3/v4
-  template, string, and options-object convenience implicitly constructs a base View,
-  hides allocation and ownership, and creates the View-to-Region dependency that led
-  v5 alpha to co-locate both implementations. Unless the public scan or benchmark
-  demonstrates a stronger contract, v5 removes that convenience and documents
-  explicit View construction as the migration.
-- **Gated:** If that display contract is accepted, View, Region, and the declarative Region
+- **Selected:** `Region.show` and `View.showChildView` accept only a View-like instance.
+  The v3/v4 template, string, and options-object convenience implicitly constructed a
+  base View and hid allocation and ownership. The representative consumer scan found
+  one options-object and three string uses in app-frontend, no use in Marionette
+  Toolkit, and no use in the agent benchmark; every found use has a direct explicit
+  View construction migration. v5 removes the convenience without an alias.
+- **Gated:** With that display contract selected, View, Region, and the declarative Region
   builder return to honest owner-named modules. `buildRegion` remains an internal
   helper for declarative Region definitions; one-line forwarding modules and other
   obsolete internal paths are removed rather than preserved as aliases.

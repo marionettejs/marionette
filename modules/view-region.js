@@ -349,11 +349,11 @@ assignOwn(Region.prototype, CommonMixin, {
   },
 
   _getView(view) {
-    if (!view) {
+    if (!isView(view)) {
       throw new MarionetteError({
         code: 'MN0006',
         name: classErrorName,
-        message: 'The view passed is undefined and therefore invalid. You must pass a view instance to show.',
+        message: 'The value passed to show must be a View-like instance. Construct the View before calling show.',
         url: 'marionette.region.html#showing-a-view'
       });
     }
@@ -367,30 +367,7 @@ assignOwn(Region.prototype, CommonMixin, {
       });
     }
 
-    if (isView(view)) {
-      return view;
-    }
-
-    const viewOptions = this._getViewOptions(view);
-
-    const ViewClass = this.ViewClass || View;
-    return new ViewClass(viewOptions);
-  },
-
-  // This allows for a template or a static string to be
-  // used as a template
-  _getViewOptions(viewOptions) {
-    if (typeof viewOptions === 'function') {
-      return { template: viewOptions };
-    }
-
-    if (viewOptions !== null && typeof viewOptions === 'object') {
-      return viewOptions;
-    }
-
-    const template = function() { return viewOptions; };
-
-    return { template };
+    return view;
   },
 
   // Override this method to change how the region finds the DOM element that it manages. Return

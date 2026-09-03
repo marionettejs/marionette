@@ -14,6 +14,9 @@
   `DataApi.models(collection)` without a compatibility alias
 * Renamed the pre-stable serialized collection template property from `items` to
   `models` without a compatibility alias
+* Changed `Region#show` and `View#showChildView` to require an explicitly
+  constructed View-like instance; template functions, strings, and View-options
+  objects no longer allocate a hidden base View
 * Added the optional `@marionette/data` package with observable Model and ordered
   Collection sources plus matching DataApi and StateApi adapters
 * Added the optional `@marionette/adapters` package with explicit Backbone and

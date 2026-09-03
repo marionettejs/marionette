@@ -94,7 +94,7 @@
       "objects": [
         "Region"
       ],
-      "remediation": "Pass a View instance, template function or string, or view-options object to Region#show.",
+      "remediation": "Construct a View-like instance explicitly and pass it to Region#show or View#showChildView.",
       "docsAnchor": "/errors/MN0006/",
       "surfaces": [
         "runtime"

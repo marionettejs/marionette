@@ -135,7 +135,7 @@ describe('createMarionette', function() {
     secondObject.destroy();
   });
 
-  it('uses the runtime View, Region, and Application family for implicit composition', async function() {
+  it('uses the runtime View, Region, and Application family for composition', async function() {
     const first = Marionette.createMarionette();
     const second = Marionette.createMarionette();
     const root = document.createElement('div');
@@ -150,7 +150,12 @@ describe('createMarionette', function() {
     expect(region).to.be.instanceOf(first.Region);
     expect(region).to.not.be.instanceOf(second.Region);
 
-    region.show('implicit');
+    expect(() => region.show('implicit'))
+      .to.throw(first.MarionetteError).and.include({ code: 'MN0006' });
+
+    const childView = new first.View({ template: () => 'explicit' });
+    region.show(childView);
+    expect(region.currentView).to.equal(childView);
     expect(region.currentView).to.be.instanceOf(first.View);
     expect(region.currentView).to.not.be.instanceOf(second.View);
 

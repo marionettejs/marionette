@@ -142,7 +142,6 @@ export default function createMarionette() {
     regionClass: RuntimeRegion
   });
 
-  setClassReference(RuntimeRegion, 'ViewClass', RuntimeView);
   setClassReference(RuntimeRegion, runtimeId, isolatedRuntimeId);
   setClassReference(RuntimeView, runtimeId, isolatedRuntimeId);
   setClassReference(RuntimeCollectionView, 'RegionClass', RuntimeRegion);
