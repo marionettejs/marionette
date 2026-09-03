@@ -21,9 +21,17 @@ current public behavior boundary. Final migration documentation is tracked in
   ```
 - Applications using Backbone must select its integration once at boot:
 
+  ```sh
+  npm install @marionette/adapters backbone
+  ```
+
   ```js
-  import 'marionette/backbone';
+  import BackboneApi from '@marionette/adapters/backbone';
   import Backbone from 'backbone';
+  import { setDataApi, setStateApi } from 'marionette';
+
+  setDataApi(BackboneApi);
+  setStateApi(BackboneApi);
   ```
 
 - Other data sources can configure `setDataApi` with methods for identity,
@@ -57,8 +65,8 @@ current public behavior boundary. Final migration documentation is tracked in
 - Remove an explicit Underscore installation if it existed only for Marionette.
   Keep it as an application dependency when your own code uses it, such as an
   `_.template` supplied to a View.
-- The optional Backbone shim relies on Backbone's own declared Underscore
-  dependency.
+- Applications using Backbone still receive Underscore through Backbone's own
+  declared dependency; the Marionette integration does not import it.
 
 ## View `el` is element-only
 
@@ -90,11 +98,15 @@ current public behavior boundary. Final migration documentation is tracked in
 - v5 core does not depend on jQuery and the native DomApi does not create
   `view.$el`.
 - Apps that need the v4 jQuery compatibility surface can opt into the
-  `marionette/jquery-dom-api` adapter:
+  `@marionette/adapters/dom/jquery` adapter:
+
+  ```sh
+  npm install @marionette/adapters jquery
+  ```
 
   ```js
   import { setDomApi } from 'marionette';
-  import JQueryDomApi from 'marionette/jquery-dom-api';
+  import JQueryDomApi from '@marionette/adapters/dom/jquery';
 
   setDomApi(JQueryDomApi);
   ```
@@ -199,7 +211,7 @@ methods on `Radio.channel(name)` or on the top-level built-in `Radio` API.
 
   ```js
   import { setDomApi } from 'marionette';
-  import JQueryDomApi from 'marionette/jquery-dom-api';
+  import JQueryDomApi from '@marionette/adapters/dom/jquery';
 
   setDomApi(JQueryDomApi);
   ```

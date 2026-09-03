@@ -66,6 +66,7 @@ mkdirSync(packDir, { recursive: true });
 try {
   const suppliedTarball = readArgument('--tarball');
   const suppliedDataTarball = readArgument('--data-tarball');
+  const suppliedAdaptersTarball = readArgument('--adapters-tarball');
   let tarballPath;
   if (suppliedTarball) {
     tarballPath = resolve(rootDir, suppliedTarball);
@@ -107,6 +108,38 @@ try {
     dataTarballPath = resolve(packDir, packedDataTarballs[0]);
   }
 
+  let adaptersTarballPath;
+  if (suppliedAdaptersTarball) {
+    adaptersTarballPath = resolve(rootDir, suppliedAdaptersTarball);
+    if (!existsSync(adaptersTarballPath)) {
+      throw new Error(`Packed adapters tarball does not exist: ${adaptersTarballPath}`);
+    }
+  } else {
+    const existingTarballs = new Set(readdirSync(packDir));
+    runNpm([
+      'pack',
+      resolve(rootDir, 'packages/adapters'),
+      '--pack-destination',
+      packDir,
+    ]);
+    const packedAdaptersTarballs = readdirSync(packDir)
+      .filter(fileName => fileName.endsWith('.tgz') && !existingTarballs.has(fileName));
+    if (packedAdaptersTarballs.length !== 1) {
+      throw new Error(`Expected one packed adapters tarball, found ${packedAdaptersTarballs.length}`);
+    }
+    adaptersTarballPath = resolve(packDir, packedAdaptersTarballs[0]);
+  }
+
+  const adapterFixtures = new Set([
+    'adapters-package-vite',
+    'backbone-adapter',
+    'backbone-adapter-types',
+    'cjs-adapters',
+    'collection-removal-survivors',
+    'jquery-dom-api',
+    'jquery-dom-api-types',
+  ]);
+
   for (const fixtureName of fixtures) {
     const fixtureSourceDir = resolve(__dirname, fixtureName);
     const externalFixture = fixtureName === 'core-no-underscore';
@@ -127,7 +160,8 @@ try {
       cleanFixture(fixtureDir);
       runNpm(['install'], { cwd: fixtureDir });
       const tarballs = fixtureName.startsWith('data-package-') ?
-        [tarballPath, dataTarballPath] : [tarballPath];
+        [tarballPath, dataTarballPath] : adapterFixtures.has(fixtureName) ?
+          [tarballPath, adaptersTarballPath] : [tarballPath];
       runNpm(['install', '--no-save', ...tarballs], { cwd: fixtureDir });
       runNpm(['run', 'validate'], { cwd: fixtureDir });
     } finally {

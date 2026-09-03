@@ -2,7 +2,7 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 
 import TemplateRenderMixin from '../../../mixins/template-render';
-import BackboneDataApi from '../../../runtime/backbone-data-api';
+import BackboneApi from '../../../packages/adapters/src/backbone-api';
 
 describe('template-render', function() {
   let renderer;
@@ -16,7 +16,7 @@ describe('template-render', function() {
       Dom: {
         setContents: this.sinon.stub()
       },
-      Data: BackboneDataApi
+      Data: BackboneApi
     }, TemplateRenderMixin);
   });
 

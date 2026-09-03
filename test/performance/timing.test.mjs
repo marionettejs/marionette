@@ -64,7 +64,7 @@ describe('hosted timing report math', () => {
     try {
       await assert.rejects(
         measure({ root: fixtureRoot, configPath, dependencyRoot: root }),
-        /dist\/backbone\.js/
+        /dist\/marionette\.js|packages\/adapters\/dist\/backbone\.js/
       );
       assert.deepEqual(Object.getOwnPropertyDescriptor(globalThis, 'window'), windowDescriptor);
       assert.deepEqual(Object.getOwnPropertyDescriptor(globalThis, 'document'), documentDescriptor);
@@ -100,18 +100,23 @@ describe('hosted timing report math', () => {
     const documentDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'document');
 
     try {
-      await mkdir(join(fixtureRoot, 'dist'));
+      await Promise.all([
+        mkdir(join(fixtureRoot, 'dist'), { recursive: true }),
+        mkdir(join(fixtureRoot, 'packages/adapters/dist'), { recursive: true }),
+      ]);
       await writeFile(join(fixtureRoot, 'package.json'), '{"type":"module"}\n');
       await writeFile(
-        join(fixtureRoot, 'dist/backbone.js'),
-        'export default { Collection: class Collection {} };\n'
-      );
-      await writeFile(
         join(fixtureRoot, 'dist/marionette.js'),
+        'export function setDataApi() {}\n' +
+        'export function setStateApi() {}\n' +
         'export const View = { extend() { throw new Error("Timing case construction failed"); } };\n' +
         'export const Behavior = {};\n' +
         'export const CollectionView = {};\n' +
         'export const Region = {};\n'
+      );
+      await writeFile(
+        join(fixtureRoot, 'packages/adapters/dist/backbone.js'),
+        'export default {};\n'
       );
       await assert.rejects(
         measure({

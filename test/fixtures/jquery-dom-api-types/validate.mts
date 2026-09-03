@@ -1,4 +1,4 @@
-import JQueryDomApi from 'marionette/jquery-dom-api';
+import JQueryDomApi from '@marionette/adapters/dom/jquery';
 
 const host = document.createElement('div');
 const fragment = document.createDocumentFragment();

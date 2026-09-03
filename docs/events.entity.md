@@ -142,15 +142,18 @@ support every prototype-collision name.
 ## Backbone entities
 
 A plain `Backbone.Model` or `Backbone.Collection` satisfies the default
-subscription protocol for event-only use. The canonical Backbone setup is still
-to import the integration before constructing entities or Views; it also selects
-Backbone identity, reads, serialization, ordered model snapshots, structural
-observations, and unified listener bookkeeping:
+subscription protocol for event-only use. The canonical Backbone setup
+configures the integration before constructing models, collections, or Views;
+it also selects Backbone identity, reads, serialization, ordered model
+snapshots, and structural observations:
 
 ```javascript
-import 'marionette/backbone';
+import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { View } from 'marionette';
+import { setDataApi, setStateApi, View } from 'marionette';
+
+setDataApi(BackboneApi);
+setStateApi(BackboneApi);
 
 const model = new Backbone.Model();
 const view = new View({ model });

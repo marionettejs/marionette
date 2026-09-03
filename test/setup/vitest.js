@@ -13,9 +13,9 @@ import Backbone from 'backbone';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import * as Marionette from '../../index.js';
-import BackboneDataApi from '../../runtime/backbone-data-api.js';
+import BackboneApi from '../../packages/adapters/src/backbone-api.js';
 
-Marionette.setDataApi(BackboneDataApi);
+Marionette.setDataApi(BackboneApi);
 
 chai.use(sinonChai);
 

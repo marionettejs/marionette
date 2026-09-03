@@ -722,8 +722,13 @@ instructions, and every release blocker maps to this strategy.
   concrete reactive implementation outside core.
 - After `@marionette/data`, move first-party Backbone and jQuery runtime adapters into a separately published
   `@marionette/adapters` workspace package, initially with only explicit `./backbone`
-  and `./dom/jquery` exports and no root barrel. Move the current Backbone installer
-  and Backbone DataApi together behind `./backbone`; do not extract core's DataApi
+  and `./dom/jquery` exports and no root barrel. Replace the mutating Backbone installer
+  with one combined `BackboneApi` behind `./backbone`; consumers pass it explicitly to
+  the selected runtime's `setDataApi()` and `setStateApi()` methods. The integration
+  uses Backbone's native event methods, preserves listeners registered before
+  configuration, returns copied ordered model snapshots, does not modify Backbone
+  objects or prototypes, and never calls
+  `Backbone.Model#destroy()` during owned-state cleanup. Do not extract core's DataApi
   contract, `setDataApi()`, or its default for plain objects and arrays. Remove the old
   core subpaths rather than forwarding them, keep peers optional and isolated, and make
   build, package, performance, and release verification require both distributions.

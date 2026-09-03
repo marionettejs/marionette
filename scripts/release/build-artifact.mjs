@@ -95,6 +95,7 @@ if (requestedSourceCommit && requestedSourceCommit !== sourceCommit) {
 const packageConfigurations = [
   { id: 'core', name: 'marionette', directory: '.', manifestFile: 'core-package-manifest.json' },
   { id: 'data', name: '@marionette/data', directory: 'packages/data', manifestFile: 'data-package-manifest.json' },
+  { id: 'adapters', name: '@marionette/adapters', directory: 'packages/adapters', manifestFile: 'adapters-package-manifest.json' },
 ];
 const packageJson = await readJson('package.json');
 const releaseProfile = await readJson('config/release-profile.json');
@@ -116,6 +117,9 @@ for (const configuration of packageConfigurations) {
   }
   if (manifest.version !== packageJson.version) {
     throw new Error(`${manifest.name} version ${manifest.version} does not match ${packageJson.version}.`);
+  }
+  if (configuration.id === 'adapters' && manifest.peerDependencies?.marionette !== packageJson.version) {
+    throw new Error(`${manifest.name} Marionette peer ${manifest.peerDependencies?.marionette || 'missing'} does not match ${packageJson.version}.`);
   }
 
   const packOutput = run(process.execPath, [

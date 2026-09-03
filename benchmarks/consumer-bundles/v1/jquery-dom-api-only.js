@@ -1,1 +1,1 @@
-export { default as jQueryDomApi } from 'marionette/jquery-dom-api';
+export { default as jQueryDomApi } from '@marionette/adapters/dom/jquery';

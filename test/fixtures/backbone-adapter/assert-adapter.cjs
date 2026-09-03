@@ -1,23 +1,27 @@
 const assert = require('node:assert/strict');
 
 module.exports = function assertInterop({
+  BackboneApi,
   Backbone,
   Marionette,
-  ShimmedBackbone,
   constructors,
+  prototypeDescriptors,
 }) {
-  assert.strictEqual(ShimmedBackbone, Backbone);
   assert.strictEqual(Backbone.Model, constructors.Model);
   assert.strictEqual(Backbone.Collection, constructors.Collection);
   assert.strictEqual(Backbone.View, constructors.View);
   assert.strictEqual(Backbone.Router, constructors.Router);
 
-  for (const Constructor of Object.values(constructors)) {
-    assert.strictEqual(
-      Constructor.prototype.triggerMethod,
-      Marionette.Events.triggerMethod,
+  for (const [name, Constructor] of Object.entries(constructors)) {
+    assert.deepStrictEqual(
+      Object.getOwnPropertyDescriptors(Constructor.prototype),
+      prototypeDescriptors[name],
     );
+    assert.strictEqual(Constructor.prototype.triggerMethod, undefined);
   }
+
+  Marionette.setDataApi(BackboneApi);
+  Marionette.setStateApi(BackboneApi);
 
   const model = new Backbone.Model({ id: 1, name: 'before' });
   const collection = new Backbone.Collection([model]);
@@ -28,7 +32,8 @@ module.exports = function assertInterop({
   assert.strictEqual(collection.get(model.id), model);
   assert.strictEqual(Marionette.View.prototype.Data.key(model), model.cid);
   assert.strictEqual(Marionette.View.prototype.Data.serialize(model), model.attributes);
-  assert.strictEqual(Marionette.CollectionView.prototype.Data.models(collection), collection.models);
+  assert.deepStrictEqual(Marionette.CollectionView.prototype.Data.models(collection), collection.models);
+  assert.strictEqual(Marionette.MnObject.prototype.State.subscribe, BackboneApi.subscribe);
 
   const structuralChanges = [];
   const stopObserving = Marionette.CollectionView.prototype.Data.observeCollection(

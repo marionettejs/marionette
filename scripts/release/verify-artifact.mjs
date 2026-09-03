@@ -83,16 +83,17 @@ function artifactPath(fileName) {
 const checksum = (await readFile(artifactPath('release-evidence.sha512'), 'utf8')).trim();
 assertEqual(checksum, `${sha512(evidenceBytes)}  release-evidence.json`, 'evidence checksum');
 
-if (!Array.isArray(evidence.packages) || evidence.packages.length !== 2) {
-  throw new Error('Release evidence must contain the core and data packages.');
+if (!Array.isArray(evidence.packages) || evidence.packages.length !== 3) {
+  throw new Error('Release evidence must contain the core, data, and adapters packages.');
 }
 const packageIds = evidence.packages.map(packageEvidence => packageEvidence.id);
-if (JSON.stringify(packageIds) !== JSON.stringify(['core', 'data'])) {
+if (JSON.stringify(packageIds) !== JSON.stringify(['core', 'data', 'adapters'])) {
   throw new Error(`Unexpected release package order: ${packageIds.join(', ')}.`);
 }
 const packageNames = new Map([
   ['core', 'marionette'],
   ['data', '@marionette/data'],
+  ['adapters', '@marionette/adapters'],
 ]);
 for (const packageEvidence of evidence.packages) {
   assertEqual(

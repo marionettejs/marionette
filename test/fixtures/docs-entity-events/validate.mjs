@@ -151,7 +151,7 @@ try {
   assert.deepEqual(
     backboneStatus,
     { entity: backboneModel, status: 'plain-backbone' },
-    'plain Backbone entities must support entity events without importing the shim',
+    'plain Backbone entities must support entity events without configuring the integration',
   );
   backboneView.destroy();
 } finally {

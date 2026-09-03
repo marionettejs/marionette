@@ -194,12 +194,12 @@ describe('Events parity with Backbone.Events', function() {
     });
   });
 
-  it('preserves the Backbone.Events object when loading the shim', async function() {
+  it('preserves the Backbone.Events object when loading the integration', async function() {
     // Backbone exposes one stable Events mixin object on its namespace:
     // https://github.com/jashkenas/backbone/blob/1.4.0/backbone.js#L71-L84
     const eventsIdentity = Backbone.Events;
-    const { default: ShimmedBackbone } = await import('../../backbone.js');
+    await import('../../packages/adapters/src/backbone.js');
 
-    expect(ShimmedBackbone.Events).to.equal(eventsIdentity);
+    expect(Backbone.Events).to.equal(eventsIdentity);
   });
 });

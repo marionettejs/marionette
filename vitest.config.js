@@ -17,10 +17,9 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
       include: [
-        'backbone.js',
         'index.js',
-        'jquery-dom-api.js',
         'mixins/**/*.js',
+        'packages/adapters/src/**/*.js',
         'modules/**/*.js',
         'packages/data/src/**/*.js',
         'runtime/**/*.js',

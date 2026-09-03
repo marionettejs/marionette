@@ -311,7 +311,7 @@ reject it when the selector is used.
 ## Optional jQuery DOM Adapter
 
 Applications that explicitly configure
-[`marionette/jquery-dom-api`](./installation.md#jquery-dom-adapter-is-optional)
+[`@marionette/adapters/dom/jquery`](./installation.md#jquery-dom-adapter-is-optional)
 before constructing Views receive jQuery collections from query methods. The
 adapter also creates and refreshes `$el` on View and CollectionView instances,
 and each Behavior mirrors its host View's `$el`. Core examples use native

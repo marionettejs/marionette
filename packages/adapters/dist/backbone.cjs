@@ -1,11 +1,13 @@
 'use strict';
 
-var Backbone = require('backbone');
-var marionette = require('marionette');
-
 function subscribe(entity, eventName, callback, context) {
   let isSubscribed = true;
-  entity.on(eventName, callback, context);
+  try {
+    entity.on(eventName, callback, context);
+  } catch (error) {
+    entity.off(eventName, callback, context);
+    throw error;
+  }
   return function () {
     if (!isSubscribed) {
       return;
@@ -14,7 +16,7 @@ function subscribe(entity, eventName, callback, context) {
     entity.off(eventName, callback, context);
   };
 }
-var BackboneDataApi = {
+const BackboneApi = {
   key(model) {
     return model.cid;
   },
@@ -28,9 +30,11 @@ var BackboneDataApi = {
     return model.attributes;
   },
   models(collection) {
-    return collection.models;
+    return collection.models.slice();
   },
   subscribe,
+  disposeOwned(source) {
+  },
   observeCollection(collection, callback, context) {
     let previousModels = collection.models.slice();
     const onSort = function (_, options = {}) {
@@ -68,21 +72,8 @@ var BackboneDataApi = {
       reset: onReset,
       update: onUpdate
     };
-    try {
-      return subscribe(collection, events, context);
-    } catch (error) {
-      collection.off(events, context);
-      throw error;
-    }
+    return subscribe(collection, events, context);
   }
 };
 
-marionette.setDataApi(BackboneDataApi);
-const prototypes = [Backbone.Model.prototype, Backbone.Collection.prototype, Backbone.View.prototype, Backbone.Router.prototype];
-for (const prototype of prototypes) {
-  Object.assign(prototype, marionette.Events);
-  delete prototype.bind;
-  delete prototype.unbind;
-}
-
-module.exports = Backbone;
+module.exports = BackboneApi;

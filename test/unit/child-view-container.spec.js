@@ -1,6 +1,6 @@
 import Backbone from 'backbone';
 import ChildViewContainer from '../../modules/child-view-container';
-import BackboneDataApi from '../../runtime/backbone-data-api';
+import BackboneApi from '../../packages/adapters/src/backbone-api';
 
 describe('#ChildViewContainer', function() {
 
@@ -793,7 +793,7 @@ describe('#ChildViewContainer', function() {
 
   describe('#_add', function() {
     it('indexes prototype-collision view and model cids as ordinary keys', function() {
-      const container = new ChildViewContainer(BackboneDataApi);
+      const container = new ChildViewContainer(BackboneApi);
       const views = ['constructor', 'toString', '__proto__'].map(cid => {
         const model = new Backbone.Model();
         model.cid = cid;
@@ -819,7 +819,7 @@ describe('#ChildViewContainer', function() {
       beforeEach(function() {
         view = new Backbone.View();
 
-        container = new ChildViewContainer(BackboneDataApi);
+        container = new ChildViewContainer(BackboneApi);
 
         container._add(view);
 
@@ -1102,7 +1102,7 @@ describe('#ChildViewContainer', function() {
           { text: 'baz' }
         ]);
 
-        container = new ChildViewContainer(BackboneDataApi);
+        container = new ChildViewContainer(BackboneApi);
 
         collection.each(model => {
           const view = new Backbone.View({ model });

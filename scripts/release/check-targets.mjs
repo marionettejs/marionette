@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { appendFile, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import process from 'node:process';
+import { decideNpmActions } from './npm-actions.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 const args = process.argv.slice(2);
@@ -52,12 +53,13 @@ if (evidence.schemaVersion !== 2 || !Array.isArray(evidence.packages)) {
   throw new Error(`Unsupported evidence schemaVersion ${evidence.schemaVersion}.`);
 }
 const packageIds = evidence.packages.map(packageEvidence => packageEvidence.id);
-if (JSON.stringify(packageIds) !== JSON.stringify(['core', 'data'])) {
+if (JSON.stringify(packageIds) !== JSON.stringify(['core', 'data', 'adapters'])) {
   throw new Error(`Unexpected release package order: ${packageIds.join(', ')}.`);
 }
 const packageNames = new Map([
   ['core', 'marionette'],
   ['data', '@marionette/data'],
+  ['adapters', '@marionette/adapters'],
 ]);
 for (const packageEvidence of evidence.packages) {
   if (packageEvidence.name !== packageNames.get(packageEvidence.id)) {
@@ -150,13 +152,13 @@ if (releaseResult.status === 0) {
 
 await writeOutput('tag_state', tagState);
 await writeOutput('release_state', releaseState);
-for (const { packageEvidence, packageName, state } of npmStates) {
+for (const { packageEvidence, state } of npmStates) {
   await writeOutput(`${packageEvidence.id}_npm_state`, state);
-  if (mode === 'npm-decision') {
-    if (state === 'conflict') {
-      throw new Error(`${packageName} exists with different integrity.`);
-    }
-    await writeOutput(`${packageEvidence.id}_npm_action`, state === 'available' ? 'publish' : 'skip');
+}
+if (mode === 'npm-decision') {
+  const actions = decideNpmActions(npmStates);
+  for (const { name, value } of actions) {
+    await writeOutput(name, value);
   }
 }
 

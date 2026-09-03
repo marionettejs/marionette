@@ -1,12 +1,16 @@
 import assert from 'assert';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { JSDOM } from 'jsdom';
 
 const dom = new JSDOM('<!doctype html><html><body></body></html>');
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
 
+assert.strictEqual(existsSync(resolve(import.meta.dirname, 'node_modules/backbone')), false);
+
 const { View } = await import('marionette');
-const JQueryDomApi = (await import('marionette/jquery-dom-api')).default;
+const JQueryDomApi = (await import('@marionette/adapters/dom/jquery')).default;
 const $ = (await import('jquery')).default;
 
 const JQueryView = View.extend();
