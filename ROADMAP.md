@@ -629,6 +629,46 @@ is allowed. Resource ownership may allocate only after the first registration.
 The package backstop and every adopted consumer-scenario ceiling are independent hard
 gates; passing one does not compensate for failing another.
 
+## Public proving grounds
+
+External examples and benchmarks answer different questions and remain advisory
+unless a later roadmap decision explicitly promotes one into a release gate. Pursue
+them in this order:
+
+1. Finish the Marionette v5 [js-framework-benchmark][js-framework-benchmark]
+   implementation. It supplies the hot keyed-list and retained-memory signal, but its
+   benchmark-specific code does not define idiomatic application structure.
+2. Modernize the existing [Backbone.Marionette TodoMVC example][todomvc-marionette]
+   for v5 and submit it to the maintained [TodoMVC][todomvc] set. This is the highest
+   priority public normal-application artifact: it must demonstrate idiomatic
+   composition, routing and filtering, editable child Views, persistence, collection
+   changes, and lifecycle cleanup while passing TodoMVC's shared behavioral suite.
+3. Build a [RealWorld][realworld] implementation in a dedicated repository following
+   its starter-kit flow. Its shared API, CSS, and end-to-end suite give it the highest
+   architectural evidence value: API requests, authentication, routing, forms, nested
+   screens, error states, and asynchronous replacement exercise lifecycle races,
+   stale-request handling, Region replacement, teardown, and data-adapter ergonomics.
+   Its maintenance cost is accepted only after the smaller TodoMVC reference is current.
+4. Add Marionette to the [Framework Benchmarks weather application][framework-benchmarks]
+   if its maintainers are receptive. Its bundle, load, CPU, memory, build, and code
+   characteristics complement the list-operation focus above.
+5. Track [Speedometer][speedometer-3] rather than optimizing specifically for
+   admission. Maintaining a current, idiomatic TodoMVC implementation is useful
+   groundwork but does not imply inclusion in a browser-vendor-selected workload.
+
+[Builder.io framework-benchmarks][builder-framework-benchmarks] and
+[UIBench][uibench] remain lower-priority investigations. The former uses
+best-effort generated framework code, which makes idiomatic Marionette harder to
+defend; the latter offers useful rendering cases but less current ecosystem reach.
+Standalone bundle-size comparisons do not prove application-framework fitness and
+remain covered by Marionette's own release budgets.
+
+Together the selected proving grounds provide four distinct signals: peak list
+performance, understandable small-application code, realistic application
+architecture, and startup, bundle, and resource cost. Results follow the external
+benchmark evidence rules above and never justify a default API solely because a
+benchmark-specific implementation is fast.
+
 ## Work phases
 
 The phases describe dependency order, not separate releases. Work may overlap only
@@ -988,3 +1028,11 @@ block stable v5.
 [issue-190]: https://github.com/marionettejs/marionette/issues/190
 [issue-191]: https://github.com/marionettejs/marionette/issues/191
 [issue-104]: https://github.com/marionettejs/marionette/issues/104
+[js-framework-benchmark]: https://github.com/krausest/js-framework-benchmark
+[todomvc]: https://github.com/tastejs/todomvc
+[todomvc-marionette]: https://github.com/tastejs/todomvc/tree/master/examples/backbone_marionette
+[realworld]: https://github.com/realworld-apps/realworld
+[framework-benchmarks]: https://github.com/Lissy93/framework-benchmarks
+[speedometer-3]: https://webkit.org/blog/15131/speedometer-3-0-the-best-way-yet-to-measure-browser-performance/
+[builder-framework-benchmarks]: https://github.com/BuilderIO/framework-benchmarks
+[uibench]: https://github.com/localvoid/uibench
