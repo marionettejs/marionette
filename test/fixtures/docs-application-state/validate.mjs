@@ -87,7 +87,6 @@ try {
   assert.equal(ownership.root.isRunning(), false, 'the root must finish stopped');
   assert.equal(ownership.search.isRunning(), false, 'the child must follow its owner stop');
   assert.equal(ownership.root.getChildApp('search'), ownership.search, 'the child must be registered by name');
-  assert.equal(ownership.search.getParentApp(), ownership.root, 'the child must expose its owner');
   assert.deepEqual(ownership.lifecycle, [
     'root:before:start:owner',
     'search:before:start:owner',

@@ -571,18 +571,6 @@ export default /* @__PURE__ */ (methods => {
     return applications;
   },
 
-  getParentApp() {
-    return this._parentApp;
-  },
-
-  getRootApp() {
-    let application = this;
-    while (application._parentApp) {
-      application = application._parentApp;
-    }
-    return application;
-  },
-
   getName() {
     return this._name;
   },
