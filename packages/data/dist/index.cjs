@@ -353,6 +353,22 @@ assignOwn(Collection.prototype, marionette.Events, {
     addModelOwner(model, this, () => releaseOwnedModel(this, model));
   },
   _replaceBindings(previousModels, currentModels) {
+    if (!currentModels.length) {
+      let attemptedIndex = 0;
+      try {
+        for (; attemptedIndex < previousModels.length; attemptedIndex++) {
+          this._unbindModel(previousModels[attemptedIndex]);
+        }
+      } catch (error) {
+        for (; attemptedIndex >= 0; attemptedIndex--) {
+          try {
+            this._restoreModelBinding(previousModels[attemptedIndex]);
+          } catch {}
+        }
+        throw error;
+      }
+      return;
+    }
     const previous = new Set(previousModels);
     const current = new Set(currentModels);
     const added = currentModels.filter(model => !previous.has(model));
