@@ -1,0 +1,56 @@
+test/unit/mixins/template-render.spec.js
+  s_792d54449de682::t_70d5e5f73f10d0 255,258
+  s_792d54449de682::t_3d0d448bf9285b 259
+test/unit/data-api-integration.spec.js
+  s_792d54449de682::t_70d5e5f73f10d0 45
+test/unit/collection-view/collection-view.spec.js
+  s_792d54449de682::t_029c5b2f56f08c 356-368
+docs/terminology.md
+  s_792d54449de682::t_029c5b2f56f08c 22-24
+  s_792d54449de682::t_70d5e5f73f10d0 21,25
+ROADMAP.md
+  s_792d54449de682::t_70d5e5f73f10d0 360-362
+test/dist/validate.mjs
+  s_792d54449de682::t_029c5b2f56f08c 48-61,106,140
+docs/view.rendering.md
+  s_792d54449de682::t_029c5b2f56f08c 336-337
+  s_792d54449de682::t_70d5e5f73f10d0 335,346
+upgradeGuide.md
+  s_792d54449de682::t_70d5e5f73f10d0 22-32
+evidence/terminology-audit.md
+  s_792d54449de682::t_029c5b2f56f08c 7-10,21-22
+mixins/template-render.js
+  s_792d54449de682::t_70d5e5f73f10d0 52,55
+changelog.md
+  s_792d54449de682::t_70d5e5f73f10d0 15-16
+docs/migration-from-v4.md
+  s_792d54449de682::t_029c5b2f56f08c 29
+dist/marionette.cjs
+  s_792d54449de682::t_1182588f6fbb04 601
+dist/marionette.js
+  s_792d54449de682::t_ee83e4d47c4114 597
+dist/marionette.min.js
+  s_792d54449de682::t_10bb297e0074a3 1
+dist/marionette.min.js.map
+  s_792d54449de682::t_493e9c3b81355b 1
+dist/marionette.umd.js
+  s_792d54449de682::t_c5c37dd15e53fa 608
+dist/marionette.umd.js.map
+  s_792d54449de682::t_e6f4733d0539c4 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "1c035ca76c5dd0d0f68aa44335a9694daf09808a",
+  "prompts": {},
+  "sessions": {
+    "s_792d54449de682": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a063d4-3f21-7e72-bd01-96fa87903ed1",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
