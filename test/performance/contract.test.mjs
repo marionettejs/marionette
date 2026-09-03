@@ -895,9 +895,6 @@ describe('performance contract validation', () => {
       .split(/\r?\n/)
       .map(line => line.trim().replace(/\s+/g, ' '))
       .filter(Boolean);
-    const resourceLoaderIndex = commands.findIndex(command =>
-      command.startsWith('export NODE_OPTIONS="--import=$(pwd)/scripts/performance/')
-    );
     const measurementIndex = commands.findIndex(command =>
       command.startsWith('node "${authority_script}"') &&
       command.includes('> "${PERFORMANCE_DIR}/bundle-size-authority.json"')
@@ -919,14 +916,9 @@ describe('performance contract validation', () => {
     assert.ok(commands.includes(
       'approval_script=\'bundle-size-base/scripts/performance/growth-approval.mjs\''
     ));
-    assert.notEqual(resourceLoaderIndex, -1);
     assert.notEqual(measurementIndex, -1);
     assert.notEqual(resourceValidationIndex, -1);
     assert.notEqual(approvalIndex, -1);
-    assert.equal(
-      commands[resourceLoaderIndex],
-      'export NODE_OPTIONS="--import=$(pwd)/scripts/performance/register-exact-base-resource-loader.mjs"'
-    );
     assert.match(
       commands[measurementIndex],
       /^node "\$\{authority_script\}" --config config\/performance\.json --json > "\$\{PERFORMANCE_DIR\}\/bundle-size-authority\.json" \|\| authority_status=\$\?$/
@@ -938,7 +930,14 @@ describe('performance contract validation', () => {
     assert.ok(commands[approvalIndex].includes('--candidate-contract config/performance.json'));
     assert.match(authorityStep, /--authority-contract "\$\{base_contract\}"/);
     assert.match(authorityStep, /--candidate-contract config\/performance\.json/);
-    assert.ok(resourceLoaderIndex < measurementIndex);
+    assert.match(
+      authorityStep,
+      /--report "\$\{PERFORMANCE_DIR\}\/bundle-size-base\.json" "\$\{PERFORMANCE_DIR\}\/bundle-size-authority\.json"/
+    );
+    assert.doesNotMatch(
+      authorityStep,
+      /base-resource-backbone|bridge-consumer-fixture-transition|exact-base-resource-loader|comparison_report/
+    );
     assert.ok(measurementIndex < approvalIndex);
     assert.ok(resourceValidationIndex < approvalIndex);
   });
