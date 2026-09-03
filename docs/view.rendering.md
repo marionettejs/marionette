@@ -332,8 +332,9 @@ const MyView = View.extend({
 ### Serializing a Collection
 
 If the view does not have a `model` but has a `collection`, DataApi supplies its
-ordered models and serializes each one into an array provided as an `items`
-attribute to the template.
+ordered models and serializes each one into an array provided as a `models`
+attribute to the template. These are the results of calling `DataApi.serialize()`
+for each model, not the raw model instances returned by `DataApi.models()`.
 
 ```javascript
 import _ from 'underscore';
@@ -342,8 +343,8 @@ import { View } from 'marionette';
 const MyView = View.extend({
   template: _.template(`
     <ul>
-    <% _.each(items, function(model) { %>
-      <li><%- model.name %></li>
+    <% _.each(models, function(data) { %>
+      <li><%- data.name %></li>
     <% }) %>
     </ul>
   `)

@@ -18,8 +18,10 @@ is necessary to explain a real migration.
 | idempotent cleanup function | Function returned by adapter registration | disposer, unsubscribe as a noun | Internal helpers such as `disposeAll` may retain implementation-oriented names. |
 | `marionette` | Current package imports | `backbone.marionette` | The old package name is valid only in historical migration material. |
 
-Public API names override prose preferences when documenting a retained contract. In
-particular, templates still receive serialized collections on the `items` property,
-while collection adapters expose `DataApi.models(collection)`. The API-shape gate
-must resolve that split before stable v5. Code that must prove a removed API may name
-it in a negative assertion.
+Public API names override prose preferences when documenting a retained contract.
+The shared `models` vocabulary does not erase shape distinctions: `DataApi.models()`
+returns the source's raw ordered model snapshot, while the default
+`serializeCollection()` result contains each model's serialized value. An override
+may return another shape; when no model is present, the template receives that result
+as `models`.
+Code that must prove a removed API may name it in a negative assertion.
