@@ -149,7 +149,15 @@ to a separate library: https://github.com/marionettejs/marionette.templatecache 
 
 You can set the renderer for a view class by using the class method `setRenderer`.
 The renderer accepts two arguments. The first is the template passed to the view,
-and the second argument is the data to be rendered into the template.
+and the second argument is the data to be rendered into the template. Marionette
+invokes the renderer with the View as `this`, so use a regular function when the
+renderer needs access to the View instance.
+
+When the renderer returns anything other than `undefined`, Marionette passes it to
+[`attachElContent`](#customizing-attachelcontent). Returning `undefined` tells
+Marionette that the renderer committed the update itself, so
+`attachElContent` is not called. This supports renderers that retain bindings or
+patch the existing `view.el` without requiring a separate View API.
 
 Here's an example that allows for the `template` of a view to be an underscore template string.
 
@@ -201,13 +209,13 @@ for bundling tools such as [Browserify or Webpack](./installation.md).
 
 ### Rendering to HTML
 
-The default Marionette renders return the HTML as a string. This string is passed to the view's
-`attachElContents` method which in turn uses the DOM API's [`setContents`](./dom.api.md#setcontentsel-html).
+The default Marionette renderer returns the HTML as a string. This string is passed to the view's
+`attachElContent` method which in turn uses the DOM API's [`setContents`](./dom.api.md#setcontentsel-html)
 to set the contents of the view's `el` with DOM from the string.
 
-#### Customizing `attachElContents`
+#### Customizing `attachElContent`
 
-You can modify the way any particular view attaches a compiled template to the `el` by overriding `attachElContents`.
+You can modify the way any particular view attaches a compiled template to the `el` by overriding `attachElContent`.
 This method receives only the results of the view's renderer and is only called if the renderer returned a value.
 
 For instance, perhaps for one particular view you need to bypass the [DOM API](./dom.api.md) and set the html directly:
@@ -220,36 +228,45 @@ attachElContent(html) {
 
 ### Rendering to DOM
 
-Marionette also supports templates that render to DOM instead of html strings by using a custom render.
-
-In the following example the `template` method passed to the renderer will return a DOM element, and then
-if the view is already rendered utilize [morphdom](https://github.com/patrick-steele-idem/morphdom) to patch
-the DOM or otherwise it will set the view's `el` to the result of the template. (Note in this case the view's
-`el` created at instantiation would be overridden).
+Marionette also supports renderers that update DOM directly. The following
+example returns HTML for the first render, then uses
+[morphdom](https://github.com/patrick-steele-idem/morphdom) to patch the
+existing root on later renders. The equality check lets Morphdom skip unchanged
+subtrees.
 
 ```javascript
 import morphdom from 'morphdom';
 import { View } from 'marionette';
 
-const VDomView = View.extend();
+const MorphdomView = View.extend();
 
-VDomView.setRenderer(function(template, data) {
-  const el = template(data);
+MorphdomView.setRenderer(function(template, data) {
+  const html = template(data);
 
-  if (this.isRendered()) {
-    // Patch the view's el contents in the DOM
-    morphdom(this.el, el, { childrenOnly: true });
-    return;
+  if (!this.isRendered()) {
+    return html;
   }
 
-  this.setElement(el.cloneNode(true));
+  const nextEl = this.el.cloneNode();
+  nextEl.innerHTML = html;
+
+  morphdom(this.el, nextEl, {
+    childrenOnly: true,
+    onBeforeElUpdated(fromEl, toEl) {
+      return !fromEl.isEqualNode(toEl);
+    }
+  });
+
+  // The update is already committed, so skip attachElContent().
+  return undefined;
 });
 ```
 
-In this case because the renderer is modifying the `el` directly, there is no need to return the result
-of the template rendering for the view to handle in [`attachElContents`](#customizing-attachelcontents).
-It is certainly an option to return the compiled DOM and modify [`attachElContents`](#customizing-attachelcontents)
-to handle a DOM object instead of a string literal, but in many cases it may be overcomplicated to do so.
+The root element remains owned by the View. Other incremental renderers, such
+as Lit, can use the same contract: commit within `this.el` and return
+`undefined`. Root-level declarations remain separate; reevaluate a dynamic
+`className`, `id`, or `attributes` definition with
+[`renderAttributes()`](./marionette.view.md#refreshing-root-attributes).
 
 There are a variety of possibilities for rendering with Marionette. If you are looking into alternatives
 from the default this may be a useful resource: https://github.com/blikblum/marionette.renderers#renderers
