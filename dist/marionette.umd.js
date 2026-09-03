@@ -623,175 +623,6 @@
     }
   };
 
-  function createDebug() {
-    let shouldDebug = false;
-    function setDebug(setShouldDebug = true) {
-      shouldDebug = setShouldDebug;
-    }
-    function debugLog(warning, eventName, channelName) {
-      if (shouldDebug && console && console.warn) {
-        console.warn(debugText(warning, eventName, channelName));
-      }
-    }
-    return {
-      debugLog,
-      setDebug
-    };
-  }
-  function debugText(warning, eventName, channelName) {
-    return warning + (channelName ? ` on the ${channelName} channel` : '') + `: "${eventName}"`;
-  }
-  const {
-    debugLog,
-    setDebug
-  } = createDebug();
-  function log(channelName, eventName, ...args) {
-    if (typeof console === 'undefined') {
-      return;
-    }
-    console.log(`[${channelName}] "${eventName}"`, args);
-  }
-
-  function makeCallback(callback) {
-    if (typeof callback === 'function') {
-      return callback;
-    }
-    const result = function () {
-      return callback;
-    };
-    result._callback = callback;
-    return result;
-  }
-
-  const objectKeys$1 = Object.keys;
-  function getDebugLog(channel) {
-    return channel._debugLog || debugLog;
-  }
-  function getKeys(object) {
-    const type = typeof object;
-    return object != null && (type === 'object' || type === 'function') ? objectKeys$1(object) : [];
-  }
-  const registerReply = function (requests, name, callback, context) {
-    if (Object.hasOwn(requests, name)) {
-      getDebugLog(this)('A request was overwritten', name, this.channelName);
-    }
-    setProperty(requests, name, {
-      callback: makeCallback(callback),
-      context: context || this
-    });
-    return requests;
-  };
-  const stopReducer = function (requests, {
-    name,
-    callback,
-    context
-  }) {
-    const names = name ? [name] : getKeys(requests);
-    for (let index = 0, length = names.length; index < length; index++) {
-      const key = names[index];
-      const handler = Object.hasOwn(requests, key) ? requests[key] : undefined;
-      if (!handler || callback && callback !== handler.callback && callback !== handler.callback._callback || context && context !== handler.context) {
-        continue;
-      }
-      delete requests[key];
-    }
-    return requests;
-  };
-  function dispatchOverload(receiver, method, name, callback, context) {
-    if (name && typeof name === 'object') {
-      const names = getKeys(name);
-      const mapContext = context || callback;
-      for (let index = 0, length = names.length; index < length; index++) {
-        const key = names[index];
-        receiver[method](key, name[key], mapContext);
-      }
-      return true;
-    }
-    if (name && eventSplitter.test(name)) {
-      const names = name.split(eventSplitter);
-      for (let index = 0, length = names.length; index < length; index++) {
-        receiver[method](names[index], callback, context);
-      }
-      return true;
-    }
-    return false;
-  }
-  var Requests = {
-    reply(name, callback, context) {
-      if (dispatchOverload(this, 'reply', name, callback, context)) {
-        return this;
-      }
-      this._rdRequests = registerReply.call(this, this._rdRequests || {}, name, callback, context);
-      return this;
-    },
-    replyOnce(name, callback, context) {
-      if (dispatchOverload(this, 'replyOnce', name, callback, context)) {
-        return this;
-      }
-      const onceCallback = onceWrap(makeCallback(callback), callbackToRemove => {
-        this.stopReplying(name, callbackToRemove);
-      });
-      return this.reply(name, onceCallback, context);
-    },
-    stopReplying(name, callback, context) {
-      if (dispatchOverload(this, 'stopReplying', name, callback, context)) {
-        return this;
-      }
-      if (!this._rdRequests) {
-        return this;
-      }
-      if (!name && !callback && !context) {
-        delete this._rdRequests;
-        return this;
-      }
-      this._rdRequests = stopReducer.call(this, this._rdRequests, {
-        name,
-        callback,
-        context
-      });
-      return this;
-    },
-    request(name, ...args) {
-      if (name && typeof name === 'object') {
-        const replies = {};
-        const names = getKeys(name);
-        for (let index = 0, length = names.length; index < length; index++) {
-          const key = names[index];
-          const result = this.request(key, name[key], ...args);
-          if (eventSplitter.test(key)) {
-            assignOwn(replies, result);
-          } else {
-            setProperty(replies, key, result);
-          }
-        }
-        return replies;
-      }
-      if (name && eventSplitter.test(name)) {
-        const replies = {};
-        const names = name.split(eventSplitter);
-        for (let index = 0, length = names.length; index < length; index++) {
-          const n = names[index];
-          setProperty(replies, n, this.request(n, ...args));
-        }
-        return replies;
-      }
-      const channelName = this.channelName;
-      const requests = this._rdRequests;
-      if (channelName && this._tunedIn) {
-        log.apply(this, [channelName, name].concat(args));
-      }
-      if (requests) {
-        const hasRequest = Object.hasOwn(requests, name);
-        const handler = hasRequest ? requests[name] : Object.hasOwn(requests, 'default') ? requests.default : undefined;
-        if (handler) {
-          args = hasRequest ? args : arguments;
-          return callHandler(handler.callback, handler.context, args);
-        }
-      }
-      getDebugLog(this)('An unhandled request was fired', name, channelName);
-    }
-  };
-
   var version = "5.0.0-alpha.2";
 
   const errorProps = ['code', 'description', 'fileName', 'lineNumber', 'name', 'message', 'number', 'url'];
@@ -972,10 +803,9 @@
     bindEvents,
     unbindEvents,
     bindRequests,
-    unbindRequests,
-    triggerMethod
+    unbindRequests
   };
-  assignOwn(CommonMixin, Events, Requests);
+  assignOwn(CommonMixin, Events);
 
   function disposeAll(disposers, error) {
     let hasError = arguments.length > 1;
@@ -1014,6 +844,174 @@
       this._isDestroyed = true;
       disposeAll([() => this.stopListening(), () => this.triggerMethod('destroy', this, options), () => this._destroyState?.(), () => this._destroyRadio?.()]);
       return this;
+    }
+  };
+
+  function createDebug() {
+    let shouldDebug = false;
+    function setDebug(setShouldDebug = true) {
+      shouldDebug = setShouldDebug;
+    }
+    function debugLog(warning, eventName, channelName) {
+      if (shouldDebug && console && console.warn) {
+        console.warn(debugText(warning, eventName, channelName));
+      }
+    }
+    return {
+      debugLog,
+      setDebug
+    };
+  }
+  function debugText(warning, eventName, channelName) {
+    return warning + (channelName ? ` on the ${channelName} channel` : '') + `: "${eventName}"`;
+  }
+  const {
+    debugLog,
+    setDebug
+  } = createDebug();
+  function log(channelName, eventName, ...args) {
+    if (typeof console === 'undefined') {
+      return;
+    }
+    console.log(`[${channelName}] "${eventName}"`, args);
+  }
+
+  const objectKeys$1 = Object.keys;
+  function makeCallback(callback) {
+    if (typeof callback === 'function') {
+      return callback;
+    }
+    const result = function () {
+      return callback;
+    };
+    result._callback = callback;
+    return result;
+  }
+  function getDebugLog(channel) {
+    return channel._debugLog || debugLog;
+  }
+  function getKeys(object) {
+    const type = typeof object;
+    return object != null && (type === 'object' || type === 'function') ? objectKeys$1(object) : [];
+  }
+  const registerReply = function (requests, name, callback, context) {
+    if (Object.hasOwn(requests, name)) {
+      getDebugLog(this)('A request was overwritten', name, this.channelName);
+    }
+    setProperty(requests, name, {
+      callback: makeCallback(callback),
+      context: context || this
+    });
+    return requests;
+  };
+  const stopReducer = function (requests, {
+    name,
+    callback,
+    context
+  }) {
+    const names = name ? [name] : getKeys(requests);
+    for (let index = 0, length = names.length; index < length; index++) {
+      const key = names[index];
+      const handler = Object.hasOwn(requests, key) ? requests[key] : undefined;
+      if (!handler || callback && callback !== handler.callback && callback !== handler.callback._callback || context && context !== handler.context) {
+        continue;
+      }
+      delete requests[key];
+    }
+    return requests;
+  };
+  function dispatchOverload(receiver, method, name, callback, context) {
+    if (name && typeof name === 'object') {
+      const names = getKeys(name);
+      const mapContext = context || callback;
+      for (let index = 0, length = names.length; index < length; index++) {
+        const key = names[index];
+        receiver[method](key, name[key], mapContext);
+      }
+      return true;
+    }
+    if (name && eventSplitter.test(name)) {
+      const names = name.split(eventSplitter);
+      for (let index = 0, length = names.length; index < length; index++) {
+        receiver[method](names[index], callback, context);
+      }
+      return true;
+    }
+    return false;
+  }
+  var Requests = {
+    reply(name, callback, context) {
+      if (dispatchOverload(this, 'reply', name, callback, context)) {
+        return this;
+      }
+      this._rdRequests = registerReply.call(this, this._rdRequests || {}, name, callback, context);
+      return this;
+    },
+    replyOnce(name, callback, context) {
+      if (dispatchOverload(this, 'replyOnce', name, callback, context)) {
+        return this;
+      }
+      const onceCallback = onceWrap(makeCallback(callback), callbackToRemove => {
+        this.stopReplying(name, callbackToRemove);
+      });
+      return this.reply(name, onceCallback, context);
+    },
+    stopReplying(name, callback, context) {
+      if (dispatchOverload(this, 'stopReplying', name, callback, context)) {
+        return this;
+      }
+      if (!this._rdRequests) {
+        return this;
+      }
+      if (!name && !callback && !context) {
+        delete this._rdRequests;
+        return this;
+      }
+      this._rdRequests = stopReducer.call(this, this._rdRequests, {
+        name,
+        callback,
+        context
+      });
+      return this;
+    },
+    request(name, ...args) {
+      if (name && typeof name === 'object') {
+        const replies = {};
+        const names = getKeys(name);
+        for (let index = 0, length = names.length; index < length; index++) {
+          const key = names[index];
+          const result = this.request(key, name[key], ...args);
+          if (eventSplitter.test(key)) {
+            assignOwn(replies, result);
+          } else {
+            setProperty(replies, key, result);
+          }
+        }
+        return replies;
+      }
+      if (name && eventSplitter.test(name)) {
+        const replies = {};
+        const names = name.split(eventSplitter);
+        for (let index = 0, length = names.length; index < length; index++) {
+          const n = names[index];
+          setProperty(replies, n, this.request(n, ...args));
+        }
+        return replies;
+      }
+      const channelName = this.channelName;
+      const requests = this._rdRequests;
+      if (channelName && this._tunedIn) {
+        log.apply(this, [channelName, name].concat(args));
+      }
+      if (requests) {
+        const hasRequest = Object.hasOwn(requests, name);
+        const handler = hasRequest ? requests[name] : Object.hasOwn(requests, 'default') ? requests.default : undefined;
+        if (handler) {
+          args = hasRequest ? args : arguments;
+          return callHandler(handler.callback, handler.context, args);
+        }
+      }
+      getDebugLog(this)('An unhandled request was fired', name, channelName);
     }
   };
 

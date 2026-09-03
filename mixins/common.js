@@ -1,11 +1,9 @@
 import { assignOwn } from '../utils/assign-in.js';
 import getValue from '../utils/get-value.js';
 import EventsMixin from './events.js';
-import RequestsMixin from './requests.js';
 import getOption from '../modules/common/get-option.js';
 import mergeOptions from '../modules/common/merge-options.js';
 import normalizeMethods from '../modules/common/normalize-methods.js';
-import triggerMethod from '../modules/common/trigger-method.js';
 import {
   bindEvents,
   unbindEvents
@@ -46,10 +44,8 @@ const CommonMixin = {
 
   // Enable unbinding view's requests.
   unbindRequests,
-
-  triggerMethod
 };
 
-assignOwn(CommonMixin, EventsMixin, RequestsMixin);
+assignOwn(CommonMixin, EventsMixin);
 
 export default CommonMixin;

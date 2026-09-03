@@ -61,6 +61,10 @@ describe('Object and Application prototype composition', function() {
       .to.deep.equal(composedKeys([...sharedMixins, StateMixin], applicationFinalKeys));
     expect(Application.prototype).to.not.have.property('getParentApp');
     expect(Application.prototype).to.not.have.property('getRootApp');
+    ['reply', 'replyOnce', 'stopReplying', 'request'].forEach(methodName => {
+      expect(MnObject.prototype).to.not.have.property(methodName);
+      expect(Application.prototype).to.not.have.property(methodName);
+    });
     expect(MnObject.prototype._setOptions).to.equal(CommonMixin._setOptions);
     expect(MnObject.prototype.destroy).to.equal(DestroyMixin.destroy);
     expect(MnObject.prototype._initRadio).to.equal(RadioMixin._initRadio);

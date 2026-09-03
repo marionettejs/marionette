@@ -2,7 +2,6 @@ import { debugLog, log } from '../modules/common/radio.js';
 import { assignOwn, setProperty } from '../utils/assign-in.js';
 import { eventSplitter } from '../utils/build-event-args.js';
 import callHandler from '../utils/call-handler.js';
-import makeCallback from '../utils/make-callback.js';
 import onceWrap from '../utils/once-wrap.js';
 
 /*
@@ -13,6 +12,16 @@ import onceWrap from '../utils/once-wrap.js';
  */
 
 const objectKeys = Object.keys;
+
+// If callback is not a function return the callback and flag it for removal.
+function makeCallback(callback) {
+  if (typeof callback === 'function') {
+    return callback;
+  }
+  const result = function() { return callback; };
+  result._callback = callback;
+  return result;
+}
 
 function getDebugLog(channel) {
   return channel._debugLog || debugLog;
