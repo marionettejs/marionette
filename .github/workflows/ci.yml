@@ -259,6 +259,8 @@ jobs:
           node "${authority_script}" \
             --report "${PERFORMANCE_DIR}/bundle-size-base.json" "${PERFORMANCE_DIR}/bundle-size-authority.json" \
             --growth-approval "${PERFORMANCE_DIR}/growth-approval.json" \
+            --authority-contract "${base_contract}" \
+            --candidate-contract config/performance.json \
             > "${PERFORMANCE_DIR}/bundle-size-report.md" || report_status=$?
           cat "${PERFORMANCE_DIR}/bundle-size-report.md" >> "${GITHUB_STEP_SUMMARY}"
           if [ "${authority_status}" -ne 0 ] || [ "${candidate_status}" -ne 0 ] || \

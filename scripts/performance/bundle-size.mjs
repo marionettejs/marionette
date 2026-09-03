@@ -9,7 +9,10 @@ import terser from '@rollup/plugin-terser';
 import { rollup } from 'rollup';
 import {
   canonicalForbiddenExternalImports,
+  committedTimingHarnessRevision,
   newProductionReportDelta,
+  relocationTransition,
+  validateCandidateGrowthContract,
   validateGrowthApprovalPolicy,
 } from './growth-approval.mjs';
 import {
@@ -108,10 +111,18 @@ export function collectRuntimePaths(value, paths = new Set()) {
   return paths;
 }
 
-export function runtimeSubpaths(packageJson) {
+function publicSubpath(packageName, subpath) {
+  return subpath === '.' ? packageName : `${packageName}/${subpath.slice(2)}`;
+}
+
+function packageRuntimePath(directory, path) {
+  return normalizePath(directory ? `${directory}/${path}` : path);
+}
+
+export function runtimeSubpaths(packageJson, packageName = null) {
   return Object.entries(packageJson.exports || {})
     .filter(([, value]) => collectRuntimePaths(value).size)
-    .map(([subpath]) => subpath)
+    .map(([subpath]) => packageName ? publicSubpath(packageName, subpath) : subpath)
     .sort();
 }
 
@@ -136,7 +147,13 @@ function difference(left, right) {
   return left.filter(value => !rightSet.has(value));
 }
 
-export function validateContract(contract, packageJson, runtimeFiles, budgetAmendments = null) {
+export function validateContract(
+  contract,
+  packageJson,
+  runtimeFiles,
+  budgetAmendments = null,
+  runtimePackages = [{ directory: '', packageJson }],
+) {
   const violations = [];
   if (contract.schemaVersion !== 1) {
     violations.push(`Unsupported performance schemaVersion ${contract.schemaVersion}`);
@@ -165,12 +182,14 @@ export function validateContract(contract, packageJson, runtimeFiles, budgetAmen
     }
   }
 
-  const declaredPaths = collectRuntimePaths({
-    browser: packageJson.browser,
-    exports: packageJson.exports,
-    main: packageJson.main,
-    module: packageJson.module,
-  });
+  const declaredPaths = new Set(runtimePackages.flatMap(({ directory, packageJson: manifest }) => {
+    return [...collectRuntimePaths({
+      browser: manifest.browser,
+      exports: manifest.exports,
+      main: manifest.main,
+      module: manifest.module,
+    })].map(path => packageRuntimePath(directory, path));
+  }));
   for (const artifact of contract.runtimeArtifacts) {
     if (artifact.additionalShippedArtifact) {
       declaredPaths.add(artifact.path);
@@ -178,7 +197,11 @@ export function validateContract(contract, packageJson, runtimeFiles, budgetAmen
   }
 
   const configuredPaths = contract.runtimeArtifacts.map(({ path }) => path).sort();
-  const discoveredPaths = runtimeFiles.map(path => `dist/${path}`).sort();
+  const discoveredPaths = runtimeFiles.map(path => {
+    const normalized = normalizePath(path);
+    return normalized.startsWith('dist/') || normalized.startsWith('packages/') ?
+      normalized : `dist/${normalized}`;
+  }).sort();
   const missingConfiguration = difference([...declaredPaths].sort(), configuredPaths);
   const undeclaredConfiguration = difference(configuredPaths, [...declaredPaths].sort());
   const missingRuntimeFiles = difference(configuredPaths, discoveredPaths);
@@ -198,14 +221,24 @@ export function validateContract(contract, packageJson, runtimeFiles, budgetAmen
   }
 
   const configuredSubpaths = contract.productionGraphs.map(({ subpath }) => subpath).sort();
-  const exportedSubpaths = runtimeSubpaths(packageJson);
+  const exportedSubpaths = runtimePackages.flatMap(({ directory, packageJson: manifest }) => {
+    return runtimeSubpaths(manifest, directory ? manifest.name : null);
+  }).sort();
   const missingGraphs = difference(exportedSubpaths, configuredSubpaths);
   const extraGraphs = difference(configuredSubpaths, exportedSubpaths);
   if (missingGraphs.length || extraGraphs.length) {
     violations.push(`Production graph subpaths mismatch exports; missing: ${missingGraphs.join(', ') || 'none'}; extra: ${extraGraphs.join(', ') || 'none'}`);
   }
   for (const graph of contract.productionGraphs) {
-    const exportedPaths = collectRuntimePaths(packageJson.exports?.[graph.subpath]);
+    const owningPackage = runtimePackages.find(({ directory, packageJson: manifest }) => {
+      return runtimeSubpaths(manifest, directory ? manifest.name : null).includes(graph.subpath);
+    });
+    const localSubpath = owningPackage && !owningPackage.directory ?
+      graph.subpath : owningPackage ?
+        `./${graph.subpath.slice(owningPackage.packageJson.name.length + 1)}` : null;
+    const exportedPaths = localSubpath ? new Set([...collectRuntimePaths(
+      owningPackage.packageJson.exports?.[localSubpath]
+    )].map(path => packageRuntimePath(owningPackage.directory, path))) : new Set();
     if (!exportedPaths.has(graph.output)) {
       violations.push(
         `Production graph ${graph.subpath} output ${graph.output} is not exported by that subpath`
@@ -258,7 +291,8 @@ export function validateConsumerBundleContract(
   fixture,
   packageJson,
   brotliQuality,
-  fixtureRevision
+  fixtureRevision,
+  packageJsons = [packageJson],
 ) {
   const violations = [];
   if (!contract || !sameStringInventory(Object.keys(contract).sort(), [
@@ -306,12 +340,19 @@ export function validateConsumerBundleContract(
   if (!sameStringInventory(fixture?.expectedArtifacts, expectedArtifacts)) {
     violations.push(`Consumer bundle expected artifact set must be ${expectedArtifacts.join(', ')}`);
   }
-  if (fixture?.packageName !== packageJson.name) {
-    violations.push(`Consumer bundle fixture package ${fixture?.packageName || 'missing'} does not match ${packageJson.name}`);
+  const packageNames = packageJsons.map(manifest => manifest.name);
+  const legacySinglePackage = packageNames.length === 1 &&
+    fixture?.packageName === packageNames[0] && !Object.hasOwn(fixture, 'packageNames');
+  if (!legacySinglePackage && !sameStringInventory(fixture?.packageNames, packageNames)) {
+    violations.push(`Consumer bundle fixture packages must be ${packageNames.join(', ')}`);
   }
 
-  const runtimePeers = Object.keys(packageJson.peerDependencies || {})
+  const internalPackages = new Set(packageNames);
+  const runtimePeers = [...new Set(packageJsons.flatMap(manifest => {
+    return Object.keys(manifest.peerDependencies || {});
+  }))]
     .filter(peer => !peer.startsWith('@types/'))
+    .filter(peer => !internalPackages.has(peer))
     .sort();
   if (!sameStringInventory(contract.peerExternalImports, runtimePeers)) {
     violations.push(`Consumer bundle peer externals must be ${runtimePeers.join(', ')}`);
@@ -330,8 +371,8 @@ export function validateConsumerBundleContract(
     }
   }
 
-  const exportedImports = new Set(Object.keys(packageJson.exports || {}).map(subpath => {
-    return subpath === '.' ? packageJson.name : `${packageJson.name}/${subpath.slice(2)}`;
+  const exportedImports = new Set(packageJsons.flatMap(manifest => {
+    return Object.keys(manifest.exports || {}).map(subpath => publicSubpath(manifest.name, subpath));
   }));
   for (const scenario of fixture?.scenarios || []) {
     if (!Array.isArray(scenario.publicImports) || !scenario.publicImports.length ||
@@ -363,13 +404,14 @@ export function validateConsumerBundleContract(
   return violations;
 }
 
-function consumerPackageResolver(root, packageJson, peerExternalImports) {
-  const packageName = packageJson.name;
-  const importPaths = new Map(Object.entries(packageJson.exports || {}).map(([subpath, value]) => {
-    const publicImport = subpath === '.' ? packageName : `${packageName}/${subpath.slice(2)}`;
-    const paths = collectRuntimePaths(value);
-    const esmPath = [...paths].find(path => path.endsWith('.js') && !path.endsWith('.umd.js'));
-    return [publicImport, esmPath ? resolve(root, esmPath) : null];
+function consumerPackageResolver(root, runtimePackages, peerExternalImports) {
+  const importPaths = new Map(runtimePackages.flatMap(({ directory, packageJson }) => {
+    return Object.entries(packageJson.exports || {}).map(([subpath, value]) => {
+      const publicImport = publicSubpath(packageJson.name, subpath);
+      const paths = collectRuntimePaths(value);
+      const esmPath = [...paths].find(path => path.endsWith('.js') && !path.endsWith('.umd.js'));
+      return [publicImport, esmPath ? resolve(root, directory, esmPath) : null];
+    });
   }));
 
   return {
@@ -404,7 +446,7 @@ function consumerGraphViolations(scenario, modules, externalImports, peerExterna
     violations.push(`${scenario.id} contains non-peer external imports: ${undeclaredExternals.join(', ')}`);
   }
   if (scenario.id === 'root-only' && (externalImports.length !== 0 ||
-      modules.some(module => module === 'dist/backbone.js' || module === 'dist/jquery-dom-api.js'))) {
+      modules.some(module => module.startsWith('packages/adapters/dist/')))) {
     violations.push('root-only consumer bundle is not isolated from opt-in subpaths and peers');
   }
   return violations;
@@ -413,10 +455,19 @@ function consumerGraphViolations(scenario, modules, externalImports, peerExterna
 export async function measureConsumerBundles({ root = '.', contract, brotliQuality } = {}) {
   const resolvedRoot = resolve(root);
   const fixturePath = resolve(resolvedRoot, contract.fixture.path);
-  const [fixtureText, packageJson] = await Promise.all([
+  const [fixtureText, packageJson, adaptersPackageJson] = await Promise.all([
     readFile(fixturePath, 'utf8'),
     readJson(resolve(resolvedRoot, 'package.json')),
+    readJson(resolve(resolvedRoot, 'packages/adapters/package.json')).catch(error => {
+      if (error.code === 'ENOENT') { return null; }
+      throw error;
+    }),
   ]);
+  const runtimePackages = [
+    { directory: '', packageJson },
+    ...(adaptersPackageJson ? [{ directory: 'packages/adapters', packageJson: adaptersPackageJson }] : []),
+  ];
+  const packageJsons = runtimePackages.map(({ packageJson: manifest }) => manifest);
   const fixture = JSON.parse(fixtureText);
   const actualFixtureRevision = sha256Text(fixtureText);
   const violations = validateConsumerBundleContract(
@@ -424,7 +475,8 @@ export async function measureConsumerBundles({ root = '.', contract, brotliQuali
     fixture,
     packageJson,
     brotliQuality,
-    actualFixtureRevision
+    actualFixtureRevision,
+    packageJsons,
   );
   const fixtureRoot = dirname(fixturePath);
   const artifacts = [];
@@ -441,7 +493,7 @@ export async function measureConsumerBundles({ root = '.', contract, brotliQuali
       bundle = await rollup({
         input: entryPath,
         plugins: [
-          consumerPackageResolver(resolvedRoot, packageJson, contract.peerExternalImports),
+          consumerPackageResolver(resolvedRoot, runtimePackages, contract.peerExternalImports),
           terser(fixture.minify),
         ],
         treeshake: fixture.treeshake,
@@ -690,20 +742,40 @@ export async function measure({
     }
   }
   const packageJson = await readJson(resolve(resolvedRoot, 'package.json'));
-  const runtimeFiles = await listRuntimeFiles(resolve(resolvedRoot, 'dist')).catch(error => {
-    if (error.code !== 'ENOENT') {
-      throw error;
-    }
-    return [];
+  const adaptersPackageJson = await readJson(
+    resolve(resolvedRoot, 'packages/adapters/package.json')
+  ).catch(error => {
+    if (error.code === 'ENOENT') { return null; }
+    throw error;
   });
-  const violations = validateContract(contract, packageJson, runtimeFiles, budgetAmendments);
+  const runtimePackages = [
+    { directory: '', packageJson },
+    ...(adaptersPackageJson ? [{
+      directory: 'packages/adapters',
+      packageJson: adaptersPackageJson,
+    }] : []),
+  ];
+  const runtimeFiles = (await Promise.all(runtimePackages.map(async({ directory }) => {
+    const distDirectory = resolve(resolvedRoot, directory, 'dist');
+    const files = await listRuntimeFiles(distDirectory).catch(error => {
+      if (error.code !== 'ENOENT') { throw error; }
+      return [];
+    });
+    return files.map(path => packageRuntimePath(directory, `dist/${path}`));
+  }))).flat().sort();
+  const violations = validateContract(
+    contract,
+    packageJson,
+    runtimeFiles,
+    budgetAmendments,
+    runtimePackages,
+  );
   if (checkToolchain) {
     violations.push(...await validateToolchain(contract, resolvedRoot));
   }
   const quality = contract.baseline.brotliQuality;
   const configuredPaths = new Set(contract.runtimeArtifacts.map(artifact => artifact.path));
   const untrackedArtifacts = runtimeFiles
-    .map(path => `dist/${path}`)
     .filter(path => !configuredPaths.has(path))
     .map(path => ({ name: `Untracked ${path}`, path, untracked: true }));
   const artifactConfigurations = [...contract.runtimeArtifacts, ...untrackedArtifacts];
@@ -716,7 +788,22 @@ export async function measure({
   let configurations;
   try {
     const configUrl = pathToFileURL(resolve(resolvedRoot, 'rollup.config.mjs'));
-    ({ default: configurations } = await import(configUrl.href));
+    const { default: rootConfigurations } = await import(configUrl.href);
+    configurations = [...rootConfigurations];
+    if (adaptersPackageJson) {
+      const adaptersRoot = resolve(resolvedRoot, 'packages/adapters');
+      const adaptersConfigUrl = pathToFileURL(resolve(adaptersRoot, 'rollup.config.mjs'));
+      const { default: adapterConfigurations } = await import(adaptersConfigUrl.href);
+      configurations.push(...adapterConfigurations.map(configuration => ({
+        ...configuration,
+        input: resolveRollupInput(adaptersRoot, configuration.input),
+        output: (Array.isArray(configuration.output) ?
+          configuration.output : [configuration.output]).map(output => ({
+          ...output,
+          file: resolve(adaptersRoot, output.file),
+        })),
+      })));
+    }
   } catch (error) {
     violations.push(`Unable to load production Rollup configuration: ${error.message}`);
     configurations = [];
@@ -750,7 +837,9 @@ export async function measure({
   }
 
   const configuredSubpaths = new Set(contract.productionGraphs.map(graph => graph.subpath));
-  for (const subpath of runtimeSubpaths(packageJson)) {
+  for (const subpath of runtimePackages.flatMap(({ directory, packageJson: manifest }) => {
+    return runtimeSubpaths(manifest, directory ? manifest.name : null);
+  })) {
     if (!configuredSubpaths.has(subpath)) {
       graphs.push({
         subpath,
@@ -1038,7 +1127,7 @@ function sameNewArtifacts(supplied, expected) {
   });
 }
 
-function growthApprovalReport(base, current, supplied) {
+function growthApprovalReport(base, current, supplied, relocationOptions) {
   const thresholdPercent = current.thresholds.pullRequestApprovalPercent;
   const consumingBudget = supplied?.budgetAmendment?.status === 'accepted' &&
     supplied.budgetAmendment.mode === 'consume';
@@ -1052,7 +1141,7 @@ function growthApprovalReport(base, current, supplied) {
     ))
     .filter(Boolean)
     .sort((left, right) => left.path.localeCompare(right.path));
-  const newProduction = newProductionReportDelta(base, current);
+  const newProduction = newProductionReportDelta(base, current, relocationOptions);
   const newProductionPresent = newProduction.artifacts.length || newProduction.subpaths.length;
   const newProductionEnforced = supplied?.newProductionEnforced === true;
   const approvalRequired = required.length || newProductionPresent;
@@ -1178,11 +1267,47 @@ function growthApprovalSection(result) {
   return lines;
 }
 
-async function buildReport(baseFile, currentFile, growthApprovalFile) {
+async function buildReport(
+  baseFile,
+  currentFile,
+  growthApprovalFile,
+  authorityContractFile,
+  candidateContractFile,
+) {
   const base = await readJson(baseFile);
   const current = await readJson(currentFile);
   const suppliedGrowthApproval = growthApprovalFile ? await readJson(growthApprovalFile) : null;
-  const growthApproval = growthApprovalReport(base, current, suppliedGrowthApproval);
+  let relocationOptions;
+  if (suppliedGrowthApproval?.relocations) {
+    if (!authorityContractFile || !candidateContractFile) {
+      throw new Error('Relocation report rendering requires authority and candidate contracts');
+    }
+    const [authorityContract, candidateContract] = await Promise.all([
+      readJson(authorityContractFile),
+      readJson(candidateContractFile),
+    ]);
+    const contractViolations = validateCandidateGrowthContract(
+      authorityContract,
+      candidateContract,
+      {
+        timingHarnessRevision: Object.hasOwn(authorityContract, 'timing') ?
+          await committedTimingHarnessRevision() : undefined,
+      },
+    );
+    if (contractViolations.length) {
+      throw new Error(`Relocation report contract is invalid: ${contractViolations.join('; ')}`);
+    }
+    if (!isDeepStrictEqual(suppliedGrowthApproval.relocations, candidateContract.relocations)) {
+      throw new Error('Growth approval relocations do not match the candidate contract');
+    }
+    relocationOptions = relocationTransition(authorityContract, candidateContract);
+  }
+  const growthApproval = growthApprovalReport(
+    base,
+    current,
+    suppliedGrowthApproval,
+    relocationOptions,
+  );
   const baseByPath = new Map(base.artifacts.map(result => [result.path, result]));
   const approvalRequiredPaths = new Set(growthApproval.required.map(({ path }) => path));
   const newArtifactPaths = new Set(growthApproval.newArtifacts.map(({ path }) => path));
@@ -1274,8 +1399,20 @@ async function buildReport(baseFile, currentFile, growthApprovalFile) {
   return { consumerComparison, growthApproval, markdown, resourceComparison };
 }
 
-export async function createReport(baseFile, currentFile, growthApprovalFile) {
-  return (await buildReport(baseFile, currentFile, growthApprovalFile)).markdown;
+export async function createReport(
+  baseFile,
+  currentFile,
+  growthApprovalFile,
+  authorityContractFile,
+  candidateContractFile,
+) {
+  return (await buildReport(
+    baseFile,
+    currentFile,
+    growthApprovalFile,
+    authorityContractFile,
+    candidateContractFile,
+  )).markdown;
 }
 
 function writeMeasurement(result, json) {
@@ -1332,7 +1469,15 @@ export async function main(args = process.argv.slice(2)) {
   if (reportIndex !== -1) {
     const [baseFile, currentFile] = positionalPaths(args, reportIndex, 2, '--report');
     const growthApprovalFile = getArgument(args, '--growth-approval');
-    const report = await buildReport(baseFile, currentFile, growthApprovalFile);
+    const authorityContractFile = getArgument(args, '--authority-contract');
+    const candidateContractFile = getArgument(args, '--candidate-contract');
+    const report = await buildReport(
+      baseFile,
+      currentFile,
+      growthApprovalFile,
+      authorityContractFile,
+      candidateContractFile,
+    );
     console.log(report.markdown);
     if (report.resourceComparison.violations.length ||
         report.consumerComparison.violations.length ||

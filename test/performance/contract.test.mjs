@@ -169,6 +169,36 @@ describe('performance contract validation', () => {
     assert.ok(violations.includes('Shipped runtime artifacts are untracked: dist/untracked.mjs'));
   });
 
+  test('tracks runtime artifacts and public graphs across separately published packages', () => {
+    const contract = contractFor([
+      'dist/index.mjs',
+      'packages/adapters/dist/backbone.js',
+    ]);
+    contract.productionGraphs.push({
+      subpath: '@marionette/adapters/backbone',
+      output: 'packages/adapters/dist/backbone.js',
+    });
+    const packageJson = {
+      name: 'marionette',
+      exports: { '.': { import: './dist/index.mjs' } },
+    };
+    const adaptersPackageJson = {
+      name: '@marionette/adapters',
+      exports: { './backbone': { import: './dist/backbone.js' } },
+    };
+
+    assert.deepEqual(validateContract(
+      contract,
+      packageJson,
+      ['dist/index.mjs', 'packages/adapters/dist/backbone.js'],
+      null,
+      [
+        { directory: '', packageJson },
+        { directory: 'packages/adapters', packageJson: adaptersPackageJson },
+      ],
+    ), []);
+  });
+
   test('surfaces malformed growth approval policy through contract validation', () => {
     const contract = contractFor();
     contract.pullRequestGrowthApproval.allowedLogins = ['zed', 'alpha'];
@@ -321,6 +351,95 @@ describe('performance contract validation', () => {
       assert.deepEqual(
         result.graphs.find(graph => graph.subpath === './feature').forbiddenExternalImports,
         []
+      );
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
+  test('discovers and measures a separately published adapters package', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-adapters-measurement-'));
+    const contract = contractFor([
+      'dist/index.mjs',
+      'packages/adapters/dist/feature.js',
+    ]);
+    contract.productionGraphs = [
+      {
+        subpath: '.',
+        input: 'index.js',
+        output: 'dist/index.mjs',
+        baselineModules: ['index.js'],
+        baselineExternalImports: [],
+      },
+      {
+        subpath: '@marionette/adapters/feature',
+        input: 'packages/adapters/src/feature.js',
+        output: 'packages/adapters/dist/feature.js',
+        baselineModules: ['packages/adapters/src/feature.js'],
+        baselineExternalImports: [],
+      },
+    ];
+
+    try {
+      await Promise.all([
+        mkdir(join(fixtureRoot, 'dist'), { recursive: true }),
+        mkdir(join(fixtureRoot, 'packages/adapters/dist'), { recursive: true }),
+        mkdir(join(fixtureRoot, 'packages/adapters/src'), { recursive: true }),
+      ]);
+      await Promise.all([
+        writeFile(join(fixtureRoot, 'package.json'), JSON.stringify({
+          name: 'marionette',
+          type: 'module',
+          exports: { '.': { import: './dist/index.mjs' } },
+        })),
+        writeFile(join(fixtureRoot, 'packages/adapters/package.json'), JSON.stringify({
+          name: '@marionette/adapters',
+          type: 'module',
+          exports: { './feature': { import: './dist/feature.js' } },
+        })),
+        writeFile(join(fixtureRoot, 'performance.json'), JSON.stringify(contract)),
+        writeFile(join(fixtureRoot, 'index.js'), 'export const root = true;\n'),
+        writeFile(join(fixtureRoot, 'dist/index.mjs'), 'export const root = true;\n'),
+        writeFile(
+          join(fixtureRoot, 'packages/adapters/src/feature.js'),
+          'export const feature = true;\n',
+        ),
+        writeFile(
+          join(fixtureRoot, 'packages/adapters/dist/feature.js'),
+          'export const feature = true;\n',
+        ),
+        writeFile(
+          join(fixtureRoot, 'rollup.config.mjs'),
+          'export default [{ input: \'index.js\', output: { file: \'dist/index.mjs\', format: \'es\' } }];\n',
+        ),
+        writeFile(
+          join(fixtureRoot, 'packages/adapters/rollup.config.mjs'),
+          'export default [{ input: \'src/feature.js\', output: { file: \'dist/feature.js\', format: \'es\' } }];\n',
+        ),
+      ]);
+
+      const result = await measure({
+        root: fixtureRoot,
+        configPath: join(fixtureRoot, 'performance.json'),
+        checkToolchain: false,
+      });
+      const repeated = await measure({
+        root: fixtureRoot,
+        configPath: join(fixtureRoot, 'performance.json'),
+        checkToolchain: false,
+      });
+      const adapterGraph = result.graphs.find(({ subpath }) =>
+        subpath === '@marionette/adapters/feature');
+      const repeatedAdapterGraph = repeated.graphs.find(({ subpath }) =>
+        subpath === '@marionette/adapters/feature');
+
+      assert.equal(adapterGraph.status, 'measured');
+      assert.equal(repeatedAdapterGraph.status, 'measured');
+      assert.deepEqual(adapterGraph.modules, ['packages/adapters/src/feature.js']);
+      assert.equal(
+        result.artifacts.find(({ path }) =>
+          path === 'packages/adapters/dist/feature.js').status,
+        'measured',
       );
     } finally {
       await rm(fixtureRoot, { recursive: true, force: true });
@@ -511,6 +630,136 @@ describe('performance contract validation', () => {
     }
   });
 
+  test('derives report relocations from validated authority and candidate contracts', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-relocation-report-'));
+    const baseReport = join(fixtureRoot, 'base.json');
+    const currentReport = join(fixtureRoot, 'current.json');
+    const approvalReport = join(fixtureRoot, 'approval.json');
+    const authorityContractFile = join(fixtureRoot, 'authority-contract.json');
+    const candidateContractFile = join(fixtureRoot, 'candidate-contract.json');
+    const authorityContract = contractFor(['dist/main.js']);
+    authorityContract.runtimeArtifacts[0].name = 'Main';
+    authorityContract.runtimeArtifacts[0].baselineBrotliBytes = 100;
+    authorityContract.productionGraphs = [{
+      subpath: '.',
+      input: 'index.js',
+      output: 'dist/main.js',
+      baselineModules: ['index.js'],
+      baselineExternalImports: [],
+    }];
+    const candidateContract = structuredClone(authorityContract);
+    candidateContract.runtimeArtifacts = [{
+      name: 'Main',
+      path: 'packages/adapters/dist/main.js',
+      baselineBrotliBytes: 100,
+    }];
+    candidateContract.productionGraphs = [{
+      subpath: '@marionette/adapters/main',
+      input: 'packages/adapters/src/main.js',
+      output: 'packages/adapters/dist/main.js',
+      baselineModules: ['packages/adapters/src/main.js'],
+      baselineExternalImports: [],
+    }];
+    candidateContract.relocations = {
+      runtimeArtifacts: [{
+        from: 'dist/main.js',
+        to: 'packages/adapters/dist/main.js',
+      }],
+      productionGraphs: [{ from: '.', to: '@marionette/adapters/main' }],
+    };
+    const base = bundleReport(100);
+    base.artifacts[0].path = 'dist/main.js';
+    base.graphs = [{
+      subpath: '.',
+      status: 'measured',
+      modules: ['index.js'],
+      externalImports: [],
+    }];
+    const current = bundleReport(100);
+    current.artifacts[0].path = 'packages/adapters/dist/main.js';
+    current.artifacts[0].status = 'measured';
+    current.graphs = [{
+      subpath: '@marionette/adapters/main',
+      status: 'measured',
+      modules: ['packages/adapters/src/main.js'],
+      externalImports: [],
+      forbiddenModules: [],
+    }];
+    const approval = newSubpathApproval();
+    approval.newSubpaths = ['@marionette/adapters/main'];
+    approval.newArtifacts = [{ path: 'packages/adapters/dist/main.js', size: 100 }];
+    approval.approval.approvedNewSubpaths = approval.newSubpaths;
+    approval.approval.approvedNewArtifacts = approval.newArtifacts;
+    approval.relocations = candidateContract.relocations;
+
+    try {
+      await Promise.all([
+        writeFile(baseReport, JSON.stringify(base)),
+        writeFile(currentReport, JSON.stringify(current)),
+        writeFile(approvalReport, JSON.stringify(approval)),
+        writeFile(authorityContractFile, JSON.stringify(authorityContract)),
+        writeFile(candidateContractFile, JSON.stringify(candidateContract)),
+      ]);
+
+      const report = await createReport(
+        baseReport,
+        currentReport,
+        approvalReport,
+        authorityContractFile,
+        candidateContractFile,
+      );
+      assert.match(report, /New artifact \| Approved/);
+
+      const cli = spawnSync(process.execPath, [
+        join(root, 'scripts/performance/bundle-size.mjs'),
+        '--report', baseReport, currentReport,
+        '--growth-approval', approvalReport,
+        '--authority-contract', authorityContractFile,
+        '--candidate-contract', candidateContractFile,
+      ], { encoding: 'utf8' });
+      assert.equal(cli.status, 0);
+      assert.match(cli.stdout, /New artifact \| Approved/);
+
+      await assert.rejects(
+        createReport(baseReport, currentReport, approvalReport),
+        /requires authority and candidate contracts/,
+      );
+
+      approval.relocations.runtimeArtifacts[0].to = 'packages/adapters/dist/tampered.js';
+      await writeFile(approvalReport, JSON.stringify(approval));
+      await assert.rejects(
+        createReport(
+          baseReport,
+          currentReport,
+          approvalReport,
+          authorityContractFile,
+          candidateContractFile,
+        ),
+        /do not match the candidate contract/,
+      );
+
+      approval.relocations = candidateContract.relocations;
+      candidateContract.relocations.runtimeArtifacts[0].to = 'dist/main.js';
+      approval.relocations = candidateContract.relocations;
+      await Promise.all([
+        writeFile(approvalReport, JSON.stringify(approval)),
+        writeFile(candidateContractFile, JSON.stringify(candidateContract)),
+      ]);
+      await assert.rejects(
+        createReport(
+          baseReport,
+          currentReport,
+          approvalReport,
+          authorityContractFile,
+          candidateContractFile,
+        ),
+        /Relocation report contract is invalid/,
+      );
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
   test('reports approval for a zero-byte new subpath aliasing an existing artifact', async() => {
     const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-new-subpath-alias-'));
     const baseReport = join(fixtureRoot, 'base.json');
@@ -679,6 +928,8 @@ describe('performance contract validation', () => {
       /^node "\$\{authority_script\}" --validate-resource-contract "\$\{base_contract\}" config\/performance\.json \|\| candidate_status=\$\?$/
     );
     assert.ok(commands[approvalIndex].includes('--candidate-contract config/performance.json'));
+    assert.match(authorityStep, /--authority-contract "\$\{base_contract\}"/);
+    assert.match(authorityStep, /--candidate-contract config\/performance\.json/);
     assert.ok(measurementIndex < approvalIndex);
     assert.ok(resourceValidationIndex < approvalIndex);
   });

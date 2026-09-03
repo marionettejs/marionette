@@ -47,7 +47,7 @@ export function canonicalForbiddenExternalImports(values) {
 }
 
 function validSubpath(subpath) {
-  return /^\.\/[A-Za-z0-9][A-Za-z0-9._/-]*$/.test(subpath) &&
+  return /^(?:\.\/[A-Za-z0-9][A-Za-z0-9._/-]*|@[A-Za-z0-9][A-Za-z0-9._-]*\/[A-Za-z0-9][A-Za-z0-9._-]*\/[A-Za-z0-9][A-Za-z0-9._/-]*)$/.test(subpath) &&
     !subpath.includes('//') && !subpath.split('/').includes('..');
 }
 
@@ -68,8 +68,57 @@ function validNewArtifacts(artifacts) {
 }
 
 function validArtifactPath(path) {
-  return /^dist\/[A-Za-z0-9][A-Za-z0-9._/-]*\.(?:c|m)?js$/.test(path) &&
+  return /^(?:dist|packages\/[A-Za-z0-9][A-Za-z0-9._/-]*\/dist)\/[A-Za-z0-9][A-Za-z0-9._/-]*\.(?:c|m)?js$/.test(path) &&
     !path.includes('//') && !path.split('/').includes('..');
+}
+
+export function relocationTransition(authority, candidate) {
+  const empty = { artifactMoves: new Map(), graphMoves: new Map(), violations: [] };
+  if (Object.hasOwn(authority, 'relocations')) {
+    if (!isDeepStrictEqual(authority.relocations, candidate.relocations)) {
+      empty.violations.push('Candidate performance contract changes exact-base relocations');
+    }
+    return empty;
+  }
+  if (!Object.hasOwn(candidate, 'relocations')) {
+    return empty;
+  }
+
+  const relocations = candidate.relocations;
+  if (!exactObjectFields(relocations, ['productionGraphs', 'runtimeArtifacts']) ||
+      !Array.isArray(relocations.runtimeArtifacts) ||
+      !Array.isArray(relocations.productionGraphs)) {
+    return { ...empty, violations: ['Candidate performance relocations are malformed'] };
+  }
+
+  const artifactMoves = new Map();
+  const artifactTargets = new Set();
+  const graphMoves = new Map();
+  const graphTargets = new Set();
+  const violations = [];
+  for (const [index, move] of relocations.runtimeArtifacts.entries()) {
+    if (!exactObjectFields(move, ['from', 'to']) ||
+        !validArtifactPath(move?.from) || !validArtifactPath(move?.to) ||
+        artifactMoves.has(move.from) || artifactTargets.has(move.to) || move.from === move.to ||
+        index > 0 && relocations.runtimeArtifacts[index - 1]?.from >= move.from) {
+      violations.push('Candidate runtime artifact relocations must be unique safe from/to pairs');
+      continue;
+    }
+    artifactMoves.set(move.from, move.to);
+    artifactTargets.add(move.to);
+  }
+  for (const [index, move] of relocations.productionGraphs.entries()) {
+    if (!exactObjectFields(move, ['from', 'to']) ||
+        !(move?.from === '.' || validSubpath(move?.from)) || !validSubpath(move?.to) ||
+        graphMoves.has(move.from) || graphTargets.has(move.to) || move.from === move.to ||
+        index > 0 && relocations.productionGraphs[index - 1]?.from >= move.from) {
+      violations.push('Candidate production graph relocations must be unique safe from/to pairs');
+      continue;
+    }
+    graphMoves.set(move.from, move.to);
+    graphTargets.add(move.to);
+  }
+  return { artifactMoves, graphMoves, violations };
 }
 
 function escapeRegExp(value) {
@@ -415,16 +464,23 @@ export function validateCandidateGrowthContract(
   }
   const authorityKeys = Object.keys(authority).sort();
   const candidateKeys = Object.keys(candidate).sort();
-  const allowedCandidateKeys = Object.hasOwn(authority, 'forbiddenExternalImports') ?
-    authorityKeys : [...authorityKeys, 'forbiddenExternalImports'].sort();
+  const allowedCandidateKeys = new Set(authorityKeys);
+  if (!Object.hasOwn(authority, 'forbiddenExternalImports')) {
+    allowedCandidateKeys.add('forbiddenExternalImports');
+  }
+  if (!Object.hasOwn(authority, 'relocations')) {
+    allowedCandidateKeys.add('relocations');
+  }
   const missingAuthorityKeys = authorityKeys.filter(key => !Object.hasOwn(candidate, key));
-  const unrelatedCandidateKeys = candidateKeys.filter(key => !allowedCandidateKeys.includes(key));
+  const unrelatedCandidateKeys = candidateKeys.filter(key => !allowedCandidateKeys.has(key));
   if (missingAuthorityKeys.length || unrelatedCandidateKeys.length) {
     violations.push('Candidate performance contract top-level fields differ from the exact-base contract');
   }
   if (!validForbiddenExternalImportsTransition(authority, candidate)) {
     violations.push('Candidate performance contract forbiddenExternalImports must be a sorted, unique, non-empty string superset of the exact-base list');
   }
+  const relocation = relocationTransition(authority, candidate);
+  violations.push(...relocation.violations);
   for (const key of authorityKeys) {
     if (key === 'runtimeArtifacts' || key === 'productionGraphs') {
       continue;
@@ -465,8 +521,15 @@ export function validateCandidateGrowthContract(
   const authorityArtifacts = mapBy(authority.runtimeArtifacts, 'path', 'Exact-base runtimeArtifacts');
   const candidateArtifacts = mapBy(candidate.runtimeArtifacts, 'path', 'Candidate runtimeArtifacts');
   violations.push(...authorityArtifacts.violations, ...candidateArtifacts.violations);
+  for (const [from, to] of relocation.artifactMoves) {
+    if (!authorityArtifacts.map.has(from) || candidateArtifacts.map.has(from) ||
+        authorityArtifacts.map.has(to) || !candidateArtifacts.map.has(to)) {
+      violations.push(`Runtime artifact relocation ${from} to ${to} must replace one exact-base artifact`);
+    }
+  }
   for (const [path, artifact] of authorityArtifacts.map) {
-    if (!isDeepStrictEqual(candidateArtifacts.map.get(path), artifact)) {
+    if (!isDeepStrictEqual(candidateArtifacts.map.get(path), artifact) &&
+        !relocation.artifactMoves.has(path)) {
       violations.push(`Candidate performance contract removes or changes exact-base runtime artifact ${path}`);
     }
   }
@@ -474,11 +537,17 @@ export function validateCandidateGrowthContract(
     if (authorityArtifacts.map.has(path)) {
       continue;
     }
+    const movedFrom = [...relocation.artifactMoves]
+      .find(([, target]) => target === path)?.[0];
+    const movedArtifact = movedFrom ? authorityArtifacts.map.get(movedFrom) : null;
     if (!exactObjectFields(artifact, ['baselineBrotliBytes', 'name', 'path']) ||
         typeof artifact.name !== 'string' || !artifact.name || !validArtifactPath(path)) {
       violations.push(`New runtime artifact ${path} must contain only name, path, and baselineBrotliBytes`);
     }
-    if (artifact.baselineBrotliBytes !== 0) {
+    if (movedArtifact && (artifact.name !== movedArtifact.name ||
+        artifact.baselineBrotliBytes !== movedArtifact.baselineBrotliBytes)) {
+      violations.push(`Relocated runtime artifact ${path} must preserve its exact-base name and baseline`);
+    } else if (!movedArtifact && artifact.baselineBrotliBytes !== 0) {
       violations.push(`New runtime artifact ${path} baselineBrotliBytes must be 0`);
     }
   }
@@ -486,8 +555,15 @@ export function validateCandidateGrowthContract(
   const authorityGraphs = mapBy(authority.productionGraphs, 'subpath', 'Exact-base productionGraphs');
   const candidateGraphs = mapBy(candidate.productionGraphs, 'subpath', 'Candidate productionGraphs');
   violations.push(...authorityGraphs.violations, ...candidateGraphs.violations);
+  for (const [from, to] of relocation.graphMoves) {
+    if (!authorityGraphs.map.has(from) || candidateGraphs.map.has(from) ||
+        authorityGraphs.map.has(to) || !candidateGraphs.map.has(to)) {
+      violations.push(`Production graph relocation ${from} to ${to} must replace one exact-base graph`);
+    }
+  }
   for (const [subpath, graph] of authorityGraphs.map) {
-    if (!isDeepStrictEqual(candidateGraphs.map.get(subpath), graph)) {
+    if (!isDeepStrictEqual(candidateGraphs.map.get(subpath), graph) &&
+        !relocation.graphMoves.has(subpath)) {
       violations.push(`Candidate performance contract removes or changes exact-base production graph ${subpath}`);
     }
   }
@@ -495,6 +571,9 @@ export function validateCandidateGrowthContract(
     if (authorityGraphs.map.has(subpath)) {
       continue;
     }
+    const movedFrom = [...relocation.graphMoves]
+      .find(([, target]) => target === subpath)?.[0];
+    const movedGraph = movedFrom ? authorityGraphs.map.get(movedFrom) : null;
     if (!exactObjectFields(graph, [
       'baselineExternalImports',
       'baselineModules',
@@ -505,12 +584,19 @@ export function validateCandidateGrowthContract(
         !validArtifactPath(graph.output)) {
       violations.push(`New production graph ${subpath} has an invalid additive contract shape`);
     }
-    if (!Array.isArray(graph.baselineModules) || graph.baselineModules.length ||
-        !Array.isArray(graph.baselineExternalImports) || graph.baselineExternalImports.length) {
+    if (!Array.isArray(graph.baselineModules) || !Array.isArray(graph.baselineExternalImports) ||
+        (!movedGraph && (graph.baselineModules.length || graph.baselineExternalImports.length))) {
       violations.push(`New production graph ${subpath} Phase 0 module baselines must be empty`);
+    }
+    if (movedGraph &&
+        !isDeepStrictEqual(graph.baselineExternalImports, movedGraph.baselineExternalImports)) {
+      violations.push(`Relocated production graph ${subpath} must preserve its exact-base external-import baseline`);
     }
     if (!candidateArtifacts.map.has(graph.output)) {
       violations.push(`New production graph ${subpath} output must be a tracked runtime artifact`);
+    }
+    if (movedGraph && relocation.artifactMoves.get(movedGraph.output) !== graph.output) {
+      violations.push(`Relocated production graph ${subpath} must use the relocated exact-base output`);
     }
   }
 
@@ -613,16 +699,22 @@ function reportContractViolations(
   return violations;
 }
 
-export function newProductionReportDelta(baseReport, currentReport) {
+export function newProductionReportDelta(
+  baseReport,
+  currentReport,
+  { artifactMoves = new Map(), graphMoves = new Map() } = {},
+) {
   const baseArtifacts = artifactMap(baseReport, 'Exact-base');
   const currentArtifacts = artifactMap(currentReport, 'Pull request');
   const baseGraphs = graphMap(baseReport, 'Exact-base');
   const currentGraphs = graphMap(currentReport, 'Pull request');
-  const missingPaths = [...baseArtifacts.keys()].filter(path => !currentArtifacts.has(path)).sort();
+  const missingPaths = [...baseArtifacts.keys()]
+    .filter(path => !currentArtifacts.has(path) && !artifactMoves.has(path)).sort();
   if (missingPaths.length) {
     throw new Error(`Pull request report is missing exact-base artifacts: ${missingPaths.join(', ')}`);
   }
-  const missingSubpaths = [...baseGraphs.keys()].filter(subpath => !currentGraphs.has(subpath)).sort();
+  const missingSubpaths = [...baseGraphs.keys()]
+    .filter(subpath => !currentGraphs.has(subpath) && !graphMoves.has(subpath)).sort();
   if (missingSubpaths.length) {
     throw new Error(`Pull request report is missing exact-base production graphs: ${missingSubpaths.join(', ')}`);
   }
@@ -685,7 +777,8 @@ export function requiredNewProductionApproval({
   if (currentViolations.length) {
     throw new Error(currentViolations.join('; '));
   }
-  const delta = newProductionReportDelta(baseReport, currentReport);
+  const relocation = relocationTransition(authorityContract, effectiveContract);
+  const delta = newProductionReportDelta(baseReport, currentReport, relocation);
   if (delta.artifacts.length && !delta.subpaths.length) {
     throw new Error('A new runtime artifact cannot be adopted without a new production subpath');
   }
@@ -726,14 +819,19 @@ export function requiredNewProductionApproval({
   return { ...delta, enforced: true };
 }
 
-export function requiredArtifactGrowth(baseReport, currentReport, thresholdPercent) {
+export function requiredArtifactGrowth(
+  baseReport,
+  currentReport,
+  thresholdPercent,
+  { artifactMoves = new Map() } = {},
+) {
   if (!Number.isFinite(thresholdPercent) || thresholdPercent < 0) {
     throw new Error(`Growth approval threshold must be a non-negative number; received ${thresholdPercent}`);
   }
   const baseArtifacts = artifactMap(baseReport, 'Exact-base');
   const currentArtifacts = artifactMap(currentReport, 'Pull request');
   const missingPaths = [...baseArtifacts.keys()]
-    .filter(path => !currentArtifacts.has(path))
+    .filter(path => !currentArtifacts.has(path) && !artifactMoves.has(path))
     .sort();
   if (missingPaths.length) {
     throw new Error(`Pull request report is missing exact-base artifacts: ${missingPaths.join(', ')}`);
@@ -794,10 +892,13 @@ export function validateGrowthApproval({
     ));
   }
   try {
+    const relocation = authorityContract && candidateContract ?
+      relocationTransition(authorityContract, candidateContract) : undefined;
     required = requiredArtifactGrowth(
       baseReport,
       currentReport,
-      consumingBudget ? 0 : thresholdPercent
+      consumingBudget ? 0 : thresholdPercent,
+      relocation,
     );
     if (authorityContract) {
       if (candidateContract &&
@@ -847,6 +948,9 @@ export function validateGrowthApproval({
     status: 'required',
     thresholdPercent,
   };
+  if (candidateContract?.relocations) {
+    result.relocations = candidateContract.relocations;
+  }
   if (!/^[a-f\d]{40}$/.test(headSha || '')) {
     result.diagnostics.push(diagnostic(
       'GROWTH_APPROVAL_PULL_REQUEST_HEAD',
