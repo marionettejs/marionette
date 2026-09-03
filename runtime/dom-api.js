@@ -90,10 +90,32 @@ export default {
     const attrNames = objectKeys(attrs);
     for (let index = 0, length = attrNames.length; index < length; index++) {
       const attr = attrNames[index];
-      if (attr in el) {
-        setProperty(el, attr, attrs[attr]);
+      const attributeName = attr === 'className' ? 'class' :
+        attr === 'htmlFor' ? 'for' : attr;
+      if (attr in el && attr !== 'className') {
+        const value = attrs[attr];
+        if (value != null) {
+          setProperty(el, attr, value);
+          continue;
+        }
+
+        if (attr === '__proto__') {
+          delete el[attr];
+        } else {
+          setProperty(el, attr, null);
+        }
+        // A reflected property assignment may coerce null; removing the DOM
+        // attribute keeps both states cleared.
+        el.removeAttribute(attributeName);
+        continue;
+      }
+
+      const setAttribute = el.setAttribute;
+      const value = attrs[attr];
+      if (value == null) {
+        el.removeAttribute(attributeName);
       } else {
-        el.setAttribute(attr, attrs[attr]);
+        setAttribute.call(el, attributeName, value);
       }
     }
   },

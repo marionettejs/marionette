@@ -449,10 +449,33 @@ current-evidence findings:
   presentation invalidation; parents own composition. The explicit sequence
   `detachChildView` → parent render → `showChildView` is the uncommon
   ownership-transfer escape hatch.
+- **Selected:** `View#renderAttributes()` and `CollectionView#renderAttributes()`
+  explicitly reevaluate and apply the current root `attributes`, `id`, and
+  `className` without rendering content or changing child ownership. The default
+  DomApi removes declared nullish values and leaves omitted keys untouched, so
+  supplied elements need no retained per-View attribute-name registry. In the
+  equal 25-sample local js-framework-benchmark cohort, declarative selection was
+  within measurement noise of the imperative control (5.6 ms versus 5.9 ms).
+  `className` remains the canonical View-level class declaration based on its
+  established Marionette and representative-consumer use; examples do not
+  replace it with a raw `class` entry in `attributes`. The implementation
+  measures 90,127 / 100,000 Brotli-11 bytes across the eight gated artifacts,
+  +489 bytes from exact base `4e4dd33909b07779a08ad022ce8d5bde26991fce`,
+  with no artifact above the one-percent approval threshold.
+  The external result remains advisory until its upstream revision, exact
+  Marionette commit, environment, commands, and raw samples are recorded under
+  the evidence contract below.
 - **Selected:** Marionette's first-class renderer category is synchronous and
   container-scoped: Marionette owns a stable `view.el`, and the renderer commits within
   that boundary when `View#render()` is called. HTML, native DOM/template cloning,
   Morphdom or Idiomorph, Lit, and a retained VDOM fixture should prove the category.
+  The existing callable contract already supports incremental commits: Marionette
+  invokes the renderer with the View as `this`, and a renderer that updates `this.el`
+  may return `undefined` to suppress `attachElContent()`. Before beta, document that
+  first-render/update contract explicitly. First test Morphdom's `isEqualNode`
+  subtree bailout and update the Lit experiment to use `className()` plus
+  `renderAttributes()`; those results determine whether any renderer capability is
+  actually missing.
   Autonomous component runtimes such as React, Vue, Svelte, Solid, and Preact own an
   exclusive hosted subtree inside a Marionette host View; Marionette does not coordinate
   their internal scheduling, lifecycle, refs, effects, or child ownership.
@@ -461,7 +484,10 @@ current-evidence findings:
   prove that ordinary View attach, detach, destroy, and `setElement()` boundaries
   cannot provide exact cleanup for at least two first-class container renderers. Do not
   add asynchronous render completion, `view.el` replacement, shared subtree ownership,
-  renderer-managed Regions, or Region-preservation modes.
+  renderer-managed Regions, or Region-preservation modes. Do not add a third `view`
+  argument for arrow functions or publish an official Lit adapter until measured
+  ergonomics and maintenance evidence justify that surface; neither is required for
+  incremental rendering with the current contract.
 - **Gated:** Declarative handler maps, `@ui` references, Backbone-style `extend`, dynamic
   `childView(model)` selection, and centralized DOM adapter and renderer installation
   remain candidate v5 patterns where current evidence shows they are widely used,

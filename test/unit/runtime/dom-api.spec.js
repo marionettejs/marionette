@@ -331,6 +331,109 @@ describe('DomApi', function() {
       expect(Object.getOwnPropertyDescriptor(el, '__proto__').value).to.equal(protoValue);
     });
 
+    it('removes nullish entries and clears reflected property state', function() {
+      const el = document.createElement('input');
+      el.value = 'property-value';
+      el.checked = true;
+      el.disabled = true;
+      el.setAttribute('value', 'attribute-value');
+      el.setAttribute('checked', '');
+      el.setAttribute('disabled', '');
+      el.setAttribute('data-null', 'remove');
+      el.setAttribute('data-undefined', 'remove');
+      el.setAttribute('data-omitted', 'keep');
+      const inputEvent = this.sinon.spy();
+      const changeEvent = this.sinon.spy();
+      el.addEventListener('input', inputEvent);
+      el.addEventListener('change', changeEvent);
+
+      DomApi.setAttributes(el, {
+        value: null,
+        checked: null,
+        disabled: undefined,
+        'data-null': null,
+        'data-undefined': undefined
+      });
+
+      expect(el.value).to.equal('');
+      expect(el.checked).to.be.false;
+      expect(el.disabled).to.be.false;
+      expect(el.hasAttribute('value')).to.be.false;
+      expect(el.hasAttribute('checked')).to.be.false;
+      expect(el.hasAttribute('disabled')).to.be.false;
+      expect(el.hasAttribute('data-null')).to.be.false;
+      expect(el.hasAttribute('data-undefined')).to.be.false;
+      expect(el.getAttribute('data-omitted')).to.equal('keep');
+      expect(inputEvent).not.to.have.been.called;
+      expect(changeEvent).not.to.have.been.called;
+    });
+
+    it('preserves false, zero, and empty string values', function() {
+      const el = document.createElement('div');
+
+      DomApi.setAttributes(el, {
+        title: false,
+        'data-zero': 0,
+        'data-empty': ''
+      });
+
+      expect(el.title).to.equal('false');
+      expect(el.getAttribute('data-zero')).to.equal('0');
+      expect(el.getAttribute('data-empty')).to.equal('');
+    });
+
+    it('removes className and __proto__ without changing the prototype', function() {
+      const el = document.createElement('div');
+      const elementPrototype = Object.getPrototypeOf(el);
+      const initialAttrs = { className: 'owned' };
+      Object.defineProperty(initialAttrs, '__proto__', {
+        enumerable: true,
+        value: { owned: true }
+      });
+      DomApi.setAttributes(el, initialAttrs);
+      const removalAttrs = { className: null };
+      Object.defineProperty(removalAttrs, '__proto__', {
+        enumerable: true,
+        value: null
+      });
+
+      DomApi.setAttributes(el, removalAttrs);
+
+      expect(el.className).to.equal('');
+      expect(el.hasAttribute('class')).to.be.false;
+      expect(Object.getPrototypeOf(el)).to.equal(elementPrototype);
+      expect(Object.hasOwn(el, '__proto__')).to.be.false;
+    });
+
+    it('sets and removes className on an SVG element through the class attribute', function() {
+      const el = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+
+      DomApi.setAttributes(el, { className: 'owned' });
+
+      expect(el.className.baseVal).to.equal('owned');
+      expect(el.getAttribute('class')).to.equal('owned');
+
+      DomApi.setAttributes(el, { className: null });
+
+      expect(el.className.baseVal).to.equal('');
+      expect(el.hasAttribute('class')).to.be.false;
+      expect(el.hasAttribute('classname')).to.be.false;
+    });
+
+    it('removes the for attribute when clearing htmlFor', function() {
+      const el = document.createElement('label');
+
+      DomApi.setAttributes(el, { htmlFor: 'field' });
+      expect(el.htmlFor).to.equal('field');
+      expect(el.getAttribute('for')).to.equal('field');
+
+      DomApi.setAttributes(el, { htmlFor: null });
+
+      expect(el.htmlFor).to.equal('');
+      expect(el.hasAttribute('for')).to.be.false;
+      expect(el.hasAttribute('htmlfor')).to.be.false;
+    });
+
     it('snapshots keys and checks property membership before reading each value', function() {
       const trace = [];
       const attrs = new Proxy({ existing: 'property', missing: 'attribute' }, {
@@ -405,14 +508,16 @@ describe('DomApi', function() {
           }
         }
       });
-      const el = { setAttribute: this.sinon.stub() };
+      const el = {
+        removeAttribute: this.sinon.stub(),
+        setAttribute: this.sinon.stub()
+      };
 
       DomApi.setAttributes(el, attrs);
 
       expect(reads).to.deep.equal(['first']);
-      expect(el.setAttribute).to.have.been.calledTwice;
-      expect(el.setAttribute.firstCall.args).to.deep.equal(['first', 'first']);
-      expect(el.setAttribute.secondCall.args).to.deep.equal(['second', undefined]);
+      expect(el.setAttribute).to.have.been.calledOnceWithExactly('first', 'first');
+      expect(el.removeAttribute).to.have.been.calledOnceWithExactly('second');
     });
 
     it('treats nullish and primitive attribute inputs as no-ops', function() {

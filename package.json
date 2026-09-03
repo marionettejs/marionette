@@ -69,7 +69,7 @@
     "size:data": "node scripts/performance/data-package-size.mjs",
     "test": "vitest run",
     "test:agent-benchmark-contract": "node --test test/agent-benchmark/task-contract.test.mjs",
-    "test:browser": "node test/browser/adapters-package.mjs && node test/browser/attachment-owner-document.mjs && node test/browser/collection-removal-survivors.mjs && node test/browser/data-package.mjs && node test/browser/event-delegator-focus.mjs",
+    "test:browser": "node test/browser/adapters-package.mjs && node test/browser/attachment-owner-document.mjs && node test/browser/collection-removal-survivors.mjs && node test/browser/data-package.mjs && node test/browser/event-delegator-focus.mjs && node test/browser/view-render-attributes.mjs",
     "test:dist": "node test/dist/validate.mjs",
     "test:fixtures": "node test/fixtures/run.mjs",
     "test:performance": "node --test test/performance/*.test.mjs",

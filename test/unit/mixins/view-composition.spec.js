@@ -27,6 +27,8 @@ const directKeys = [
   'Data',
   '_validateEl',
   '_getEl',
+  '_getAttributes',
+  'renderAttributes',
   '$',
   '_isElAttached',
   'supportsRenderLifecycle',
@@ -106,9 +108,7 @@ describe('ViewMixin owned helpers', function() {
         ['attributes:get', view],
         ['attributes:call', view, []],
         ['id:get', view],
-        ['id:get', view],
         ['id:call', view, []],
-        ['className:get', view],
         ['className:get', view],
         ['className:call', view, []],
         ['setAttributes', view.Dom, element, {
@@ -121,9 +121,8 @@ describe('ViewMixin owned helpers', function() {
       expect(attributes).to.deep.equal({ shared: 'attributes', title: 'owned' });
     });
 
-    it('stops after a failing second id resolution read', function() {
+    it('stops after a failing id resolution', function() {
       const calls = [];
-      let idReads = 0;
       const view = Object.create(ViewMixin);
       view.el = null;
       view.tagName = 'div';
@@ -135,8 +134,7 @@ describe('ViewMixin owned helpers', function() {
       Object.defineProperty(view, 'id', {
         get() {
           calls.push('id');
-          if (++idReads === 2) { throw new Error('id failed'); }
-          return () => 'id';
+          throw new Error('id failed');
         }
       });
       Object.defineProperty(view, 'className', {
@@ -147,10 +145,10 @@ describe('ViewMixin owned helpers', function() {
       });
 
       expect(() => view._getEl()).to.throw('id failed');
-      expect(calls).to.deep.equal(['id', 'id']);
+      expect(calls).to.deep.equal(['id']);
     });
 
-    it('reads falsy id and className guards only once', function() {
+    it('preserves falsy id and className values', function() {
       const calls = [];
       const view = Object.create(ViewMixin);
       view.el = null;
@@ -169,7 +167,11 @@ describe('ViewMixin owned helpers', function() {
 
       view._getEl();
 
-      expect(calls).to.deep.equal(['id', 'className', ['attrs', {}]]);
+      expect(calls).to.deep.equal([
+        'id',
+        'className',
+        ['attrs', { id: 0, class: '' }]
+      ]);
     });
   });
 

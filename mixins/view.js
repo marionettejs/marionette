@@ -85,14 +85,25 @@ const ViewMixin = {
 
     if (!elOption) {
       const el = this.Dom.createElement(getValue(this, 'tagName'));
-      const attrs = assignOwn({}, getValue(this, 'attributes'));
-      if (this.id) { attrs.id = getValue(this, 'id'); }
-      if (this.className) { attrs.class = getValue(this, 'className'); }
-      this.Dom.setAttributes(el, attrs);
+      this.Dom.setAttributes(el, this._getAttributes());
       return el;
     }
 
     return elOption;
+  },
+
+  _getAttributes() {
+    const attrs = assignOwn({}, getValue(this, 'attributes'));
+    if ('id' in this) { attrs.id = getValue(this, 'id'); }
+    if ('className' in this) { attrs.class = getValue(this, 'className'); }
+    return attrs;
+  },
+
+  renderAttributes() {
+    if (this._isDestroying || this._isDestroyed) { return this; }
+
+    this.Dom.setAttributes(this.el, this._getAttributes());
+    return this;
   },
 
   $(selector) {
