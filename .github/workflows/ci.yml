@@ -232,9 +232,6 @@ jobs:
           PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
-          # The exact-base resource probe imports the former filesystem path.
-          # Remove this non-published loader after the relocation reaches the PR base.
-          export NODE_OPTIONS="--import=$(pwd)/scripts/performance/register-exact-base-resource-loader.mjs"
           base_contract='bundle-size-base/config/performance.json'
           authority_script='bundle-size-base/scripts/performance/bundle-size.mjs'
           approval_script='bundle-size-base/scripts/performance/growth-approval.mjs'
@@ -245,17 +242,6 @@ jobs:
           node "${authority_script}" --root bundle-size-base --config "${base_contract}" --json --no-enforce > "${PERFORMANCE_DIR}/bundle-size-base.json"
           authority_status=0
           node "${authority_script}" --config config/performance.json --json > "${PERFORMANCE_DIR}/bundle-size-authority.json" || authority_status=$?
-          comparison_report="${PERFORMANCE_DIR}/bundle-size-authority.json"
-          bridge_status=0
-          if node scripts/performance/bridge-consumer-fixture-transition.mjs \
-            --base-report "${PERFORMANCE_DIR}/bundle-size-base.json" \
-            --current-report "${PERFORMANCE_DIR}/bundle-size-authority.json" \
-            --candidate-contract config/performance.json \
-            --output "${PERFORMANCE_DIR}/bundle-size-comparison.json"; then
-            comparison_report="${PERFORMANCE_DIR}/bundle-size-comparison.json"
-          else
-            bridge_status=$?
-          fi
           candidate_status=0
           node "${authority_script}" --validate-resource-contract "${base_contract}" config/performance.json || candidate_status=$?
           approval_status=0
@@ -271,14 +257,13 @@ jobs:
             > "${PERFORMANCE_DIR}/growth-approval.json" || approval_status=$?
           report_status=0
           node "${authority_script}" \
-            --report "${PERFORMANCE_DIR}/bundle-size-base.json" "${comparison_report}" \
+            --report "${PERFORMANCE_DIR}/bundle-size-base.json" "${PERFORMANCE_DIR}/bundle-size-authority.json" \
             --growth-approval "${PERFORMANCE_DIR}/growth-approval.json" \
             --authority-contract "${base_contract}" \
             --candidate-contract config/performance.json \
             > "${PERFORMANCE_DIR}/bundle-size-report.md" || report_status=$?
           cat "${PERFORMANCE_DIR}/bundle-size-report.md" >> "${GITHUB_STEP_SUMMARY}"
-          if [ "${authority_status}" -ne 0 ] || [ "${bridge_status}" -ne 0 ] || \
-              [ "${candidate_status}" -ne 0 ] || \
+          if [ "${authority_status}" -ne 0 ] || [ "${candidate_status}" -ne 0 ] || \
               [ "${approval_status}" -ne 0 ] || [ "${report_status}" -ne 0 ]; then
             exit 1
           fi
