@@ -471,6 +471,28 @@ describe('CollectionView lifecycle contract', function() {
     expect(destroyChildren).to.not.have.been.called;
   });
 
+  it('preserves a child stopListening error after destroying the child', function() {
+    const stopError = new Error('stop listening failed');
+    const collectionView = new CollectionView({
+      collection: new Backbone.Collection([{ id: 1 }]),
+      childView: ChildView,
+    });
+
+    collectionView.render();
+    const child = collectionView.children.first();
+    const stopListening = collectionView.stopListening;
+    this.sinon.stub(collectionView, 'stopListening').callsFake(function(view, ...args) {
+      const result = stopListening.call(this, view, ...args);
+      if (view === child) { throw stopError; }
+      return result;
+    });
+
+    expect(() => collectionView.destroy()).to.throw(stopError);
+
+    expect(child.isDestroyed()).to.be.true;
+    expect(collectionView.children).to.have.lengthOf(0);
+  });
+
   it('attempts child teardown when bulk DOM detach throws', function() {
     const detachError = new Error('detach contents failed');
     const teardown = [];

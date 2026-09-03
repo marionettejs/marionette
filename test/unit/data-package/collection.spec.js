@@ -168,6 +168,29 @@ describe('@marionette/data Collection', function() {
     expect(forwarded).to.have.been.calledOnce;
   });
 
+  it('restores every binding when an empty reset fails', function() {
+    const first = collection.get(1);
+    const second = collection.get(2);
+    const forwarded = this.sinon.spy();
+    const error = new Error('unbinding failed');
+    const off = second.off.bind(second);
+    const stub = this.sinon.stub(second, 'off').callsFake(function(...args) {
+      off(...args);
+      throw error;
+    });
+    collection.on('change:name', forwarded);
+
+    expect(() => collection.reset()).to.throw(error);
+    stub.restore();
+    first.set('name', 'first');
+    second.set('name', 'second');
+
+    expect(collection.models).to.deep.equal([first, second]);
+    expect(() => first.set('id', 10)).to.throw(TypeError, 'cannot change a Model id');
+    expect(() => second.set('id', 20)).to.throw(TypeError, 'cannot change a Model id');
+    expect(forwarded).to.have.been.calledTwice;
+  });
+
   it('does not duplicate forwarding when unbinding fails before removing the handler', function() {
     const model = collection.get(1);
     const current = new Model({ id: 3 });

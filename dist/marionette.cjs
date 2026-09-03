@@ -4043,14 +4043,45 @@ assignOwn(CollectionView$1.prototype, ViewMixin, {
     return view;
   },
   _removeChildViews(views) {
-    const cleanups = views.map(view => () => this._removeChildView(view));
-    disposeAll(cleanups.reverse());
+    let firstError;
+    let hasError = false;
+    for (const view of views) {
+      try {
+        this._removeChildView(view);
+      } catch (error) {
+        if (!hasError) {
+          firstError = error;
+          hasError = true;
+        }
+      }
+    }
+    if (hasError) {
+      throw firstError;
+    }
   },
   _removeChildView(view, {
     shouldDetach
   } = {}) {
     view.off('destroy', this.removeChildView, this);
-    disposeAll([() => this.stopListening(view), () => shouldDetach ? this._detachChildView(view) : this._destroyChildView(view)]);
+    let firstError;
+    let hasError = false;
+    try {
+      shouldDetach ? this._detachChildView(view) : this._destroyChildView(view);
+    } catch (error) {
+      firstError = error;
+      hasError = true;
+    }
+    try {
+      this.stopListening(view);
+    } catch (error) {
+      if (!hasError) {
+        firstError = error;
+        hasError = true;
+      }
+    }
+    if (hasError) {
+      throw firstError;
+    }
   },
   _rollbackChildView(view) {
     view.off('destroy', this.removeChildView, this);
