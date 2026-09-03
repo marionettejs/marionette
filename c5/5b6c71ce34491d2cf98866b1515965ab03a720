@@ -1,0 +1,42 @@
+test/unit/data-package/collection.spec.js
+  s_792d54449de682::t_a5d1dc7c74e890 136-153
+packages/data/src/collection.js
+  s_792d54449de682::t_a5d1dc7c74e890 118,120-121,124-131,142-146
+modules/child-view-container.js
+  s_792d54449de682::t_170a02bdc00474 357-360
+  s_792d54449de682::t_0d41887563d1c7 311-315
+modules/collection-view.js
+  s_792d54449de682::t_a5d1dc7c74e890 652-653
+dist/marionette.cjs
+  s_792d54449de682::t_611a1e4b9f352e 3039-3043,3069-3072,3667-3669
+dist/marionette.js
+  s_792d54449de682::t_8b2fa0a5574e9f 3035-3039,3065-3068,3663-3665
+dist/marionette.min.js
+  s_792d54449de682::t_8e77111e19add9 1
+dist/marionette.min.js.map
+  s_792d54449de682::t_16e0ba15267d3b 1
+dist/marionette.umd.js
+  s_792d54449de682::t_a0edc163f87428 3046-3050,3076-3079,3674-3676
+dist/marionette.umd.js.map
+  s_792d54449de682::t_93c6663c110f1b 1
+packages/data/dist/index.cjs
+  s_792d54449de682::t_7f6137ad2f7370 340,342-343,346-351,360-363
+packages/data/dist/index.js
+  s_792d54449de682::t_c67bd36422c93c 338,340-341,344-349,358-361
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "c55b6c71ce34491d2cf98866b1515965ab03a720",
+  "prompts": {},
+  "sessions": {
+    "s_792d54449de682": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a063d4-3f21-7e72-bd01-96fa87903ed1",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
