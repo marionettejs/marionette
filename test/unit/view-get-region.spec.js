@@ -295,6 +295,34 @@ for (const operation of childOperations) {
     });
 
     if (operation.method === 'showChildView') {
+      it('rejects legacy implicit View inputs', function() {
+        const view = new View({
+          regions: { content: '.content' },
+          template: () => '<div class="content"></div>',
+        });
+
+        expect(() => view.showChildView('content', { template: () => 'content' }))
+          .to.throw(MarionetteError).and.include({ code: 'MN0006' });
+        expect(view.getChildView('content')).to.be.undefined;
+
+        view.destroy();
+      });
+
+      it('preserves the destroyed View diagnostic', function() {
+        const child = new View();
+        const view = new View({
+          regions: { content: '.content' },
+          template: () => '<div class="content"></div>',
+        });
+        child.destroy();
+
+        expect(() => view.showChildView('content', child))
+          .to.throw(MarionetteError).and.include({ code: 'MN0007' });
+        expect(view.getChildView('content')).to.be.undefined;
+
+        view.destroy();
+      });
+
       it('uses a Region added during render through an aliasing getRegion override', function() {
         const child = new View({ template: false });
         const getRegion = this.sinon.spy(function(name) {

@@ -33,11 +33,10 @@ New runtimes start from Marionette's built-in adapter and renderer defaults, not
 later configuration applied to the default runtime. Apply shared application
 configuration explicitly to each runtime that needs it.
 
-Implicit composition stays inside the selected runtime. Declarative Regions, the default
-View created by `Region#show`, CollectionView's empty Region, and Application's root
-Region use the owning runtime's classes. A Region or child Application from another
-runtime is rejected as an ownership conflict; construct it from the receiver's
-runtime instead.
+Implicit composition stays inside the selected runtime. Declarative Regions,
+CollectionView's empty Region, and Application's root Region use the owning runtime's
+classes. A Region or child Application from another runtime is rejected as an ownership
+conflict; construct it from the receiver's runtime instead.
 
 Isolation controls implicit class composition and mutable runtime configuration. It
 is not a security boundary: explicitly showing a View-like object from another

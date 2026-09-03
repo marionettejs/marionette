@@ -207,114 +207,28 @@ describe('region', function() {
     });
   });
 
-  describe('when showing a template', function() {
-    let myRegion;
+  describe('when showing a value that is not View-like', function() {
+    it('should reject legacy implicit View inputs', function() {
+      const region = new Region({ el: document.createElement('div') });
+      const invalidValues = [
+        undefined,
+        null,
+        '',
+        '<b>Hello World!</b>',
+        _.template('<b>Hello World!</b>'),
+        View,
+        { template: _.template('<b>Hello World!</b>') },
+        { render: true, destroy() {} },
+        { render() {}, remove: true }
+      ];
 
-    beforeEach(function() {
-      this.setFixtures('<div id="region"></div>');
-      myRegion = new Region({
-        el: '#region'
+      invalidValues.forEach(value => {
+        expect(() => region.show(value))
+          .to.throw('The value passed to show must be a View-like instance')
+          .with.property('code', 'MN0006');
       });
 
-      myRegion.show(_.template('<b>Hello World!</b>'));
-    });
-
-    it('should render the template in the region', function() {
-      expect($(myRegion.el)).to.contain.$html('<b>Hello World!</b>');
-    });
-
-    it('should construct the public View', function() {
-      expect(myRegion.currentView.constructor).to.equal(View);
-    });
-
-    it('should construct the public View from a Region subclass', function() {
-      const CustomRegion = Region.extend();
-      const customRegion = new CustomRegion({ el: '#region' });
-
-      customRegion.show(_.template('<b>Hello World!</b>'));
-
-      expect(customRegion.currentView.constructor).to.equal(View);
-    });
-
-    it('should construct the public View from a View subclass region', function() {
-      const OwnerView = View.extend({
-        template: _.template('<div class="child-region"></div>'),
-        regions: {
-          child: '.child-region'
-        }
-      });
-      const owner = new OwnerView();
-
-      owner.render();
-      owner.getRegion('child').show(_.template('<b>Hello World!</b>'));
-
-      expect(owner.getChildView('child').constructor).to.equal(View);
-    });
-  });
-
-  describe('when showing a template with viewOptions', function() {
-    let myRegion;
-
-    beforeEach(function() {
-      this.setFixtures('<div id="region"></div>');
-      myRegion = new Region({
-        el: '#region'
-      });
-
-      myRegion.show({
-        template: _.template('<b>Hello <%- who %>!</b>'),
-        model: new Backbone.Model({ who: 'World' })
-      });
-    });
-
-    it('should render the template in the region', function() {
-      expect($(myRegion.el)).to.contain.$html('<b>Hello World!</b>');
-    });
-
-    it('should construct the public View', function() {
-      expect(myRegion.currentView.constructor).to.equal(View);
-    });
-
-    it('should support nested regions with canonical region classes', function() {
-      const CustomRegion = Region.extend();
-
-      myRegion.show({
-        template: _.template('<div class="default-region"></div><div class="custom-region"></div>'),
-        regions: {
-          defaultRegion: '.default-region',
-          customRegion: {
-            el: '.custom-region',
-            regionClass: CustomRegion
-          }
-        }
-      });
-
-      const view = myRegion.currentView;
-
-      expect(view.constructor).to.equal(View);
-      expect(view.getRegion('defaultRegion').constructor).to.equal(Region);
-      expect(view.getRegion('customRegion')).to.be.instanceof(CustomRegion);
-    });
-  });
-
-  describe('when showing an html string', function() {
-    let myRegion;
-
-    beforeEach(function() {
-      this.setFixtures('<div id="region"></div>');
-      myRegion = new Region({
-        el: '#region'
-      });
-
-      myRegion.show('<b>Hello World!</b>');
-    });
-
-    it('should render the string in the region', function() {
-      expect($(myRegion.el)).to.contain.$html('<b>Hello World!</b>');
-    });
-
-    it('should construct the public View', function() {
-      expect(myRegion.currentView.constructor).to.equal(View);
+      expect(region.hasView()).to.be.false;
     });
   });
 
@@ -1300,28 +1214,6 @@ describe('region', function() {
 
     it('view "destroy" event is triggered once', function() {
       expect(onDestroy).to.have.been.calledOnce;
-    });
-  });
-
-  describe('when showing undefined in a region', function() {
-    let insertUndefined;
-    let region;
-
-    beforeEach(function() {
-      this.setFixtures('<div id="region"></div>');
-
-      region = new Region({
-        el: '#region'
-      });
-
-      insertUndefined = function() {
-        region.show(undefined);
-      }.bind(this);
-    });
-
-    it('should throw an error', function() {
-      const errorMessage = 'The view passed is undefined and therefore invalid. You must pass a view instance to show.';
-      expect(insertUndefined).to.throw(errorMessage).with.property('code', 'MN0006');
     });
   });
 

@@ -32,7 +32,6 @@ Regions maintain the [View's lifecycle](./view.lifecycle.md) while showing or em
   * [Checking whether a region is showing a view](#checking-whether-a-region-is-showing-a-view)
   * [Non-Marionette Views](#non-marionette-views)
     * [Partially-rendered Views](#partially-rendered-views)
-* [Showing a Template](#showing-a-template)
 * [Emptying a Region](#emptying-a-region)
   * [Preserving Existing Views](#preserving-existing-views)
   * [Detaching Existing Views](#detaching-existing-views)
@@ -451,14 +450,28 @@ const childView = new MyChildView();
 myView.showChildView('main', childView, { fooOption: 'bar' });
 ```
 
-Both forms take an `options` object that will be passed to the
-[events fired during `show`](./events.class.md#show-and-beforeshow-events).
+Both forms require a compatible View-like instance. Construct a `View` explicitly
+when displaying a template or static content; Regions do not allocate hidden Views
+from View classes, functions, strings, or option objects. The
+[non-Marionette View contract](#non-marionette-views) remains supported.
+
+```javascript
+import { View } from 'marionette';
+
+myView.showChildView('header', new View({
+  template: () => 'Welcome to the site'
+}));
+```
+
+The argument after the View instance in `Region#show(view, options)` and
+`View#showChildView(name, view, options)` is a separate show-options object passed
+to the [events fired during `show`](./events.class.md#show-and-beforeshow-events).
 
 For more information on `showChildView` and `getChildView`, see the
 [Documentation for Views](./marionette.view.md#managing-children)
 
 **Errors**
-- An error will be thrown if the view is falsy or destroyed.
+- An error will be thrown if the value is not View-like or is destroyed.
 - An error will be thrown if the view is already shown in a Region or CollectionView.
 
 ### Checking whether a region is showing a view
@@ -517,25 +530,6 @@ const MyParentView = View.extend({
 
 As you can see above, you can listen to [Lifecycle Events](./view.lifecycle.md)
 on `Backbone.View` and Marionette will fire the events for you.
-
-## Showing a Template
-
-You can show a template or a string directly into a region. Additionally you can pass an object
-literal containing a template and any other view options. Under the hood a `Marionette.View` is
-instantiated using the template.
-
-```javascript
-const myView = new MyView();
-
-myView.showChildView('main', {
-  template: _.template('This is the <%- section %> page'),
-  templateContext: { section: 'main' }
-});
-
-myView.showChildView('header', _.template('Welcome to the site'));
-
-myView.getRegion('other').show('This text is in another region');
-```
 
 ## Emptying a Region
 

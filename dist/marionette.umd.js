@@ -1283,7 +1283,7 @@
   }
 
   function isView(view) {
-    return view.render && (view.destroy || view.remove);
+    return typeof view?.render === 'function' && (typeof view.destroy === 'function' || typeof view.remove === 'function');
   }
   function isViewClass(ViewClass) {
     return ViewClass.prototype.render && (ViewClass.prototype.destroy || ViewClass.prototype.remove);
@@ -2324,11 +2324,11 @@
       return true;
     },
     _getView(view) {
-      if (!view) {
+      if (!isView(view)) {
         throw new MarionetteError({
           code: 'MN0006',
           name: classErrorName$3,
-          message: 'The view passed is undefined and therefore invalid. You must pass a view instance to show.',
+          message: 'The value passed to show must be a View-like instance. Construct the View before calling show.',
           url: 'marionette.region.html#showing-a-view'
         });
       }
@@ -2340,28 +2340,7 @@
           url: 'marionette.region.html#showing-a-view'
         });
       }
-      if (isView(view)) {
-        return view;
-      }
-      const viewOptions = this._getViewOptions(view);
-      const ViewClass = this.ViewClass || View$1;
-      return new ViewClass(viewOptions);
-    },
-    _getViewOptions(viewOptions) {
-      if (typeof viewOptions === 'function') {
-        return {
-          template: viewOptions
-        };
-      }
-      if (viewOptions !== null && typeof viewOptions === 'object') {
-        return viewOptions;
-      }
-      const template = function () {
-        return viewOptions;
-      };
-      return {
-        template
-      };
+      return view;
     },
     getEl(el) {
       const context = getValue(this, 'parentEl');
@@ -4808,7 +4787,6 @@
       State,
       regionClass: RuntimeRegion
     });
-    setClassReference(RuntimeRegion, 'ViewClass', RuntimeView);
     setClassReference(RuntimeRegion, runtimeId, isolatedRuntimeId);
     setClassReference(RuntimeView, runtimeId, isolatedRuntimeId);
     setClassReference(RuntimeCollectionView, 'RegionClass', RuntimeRegion);

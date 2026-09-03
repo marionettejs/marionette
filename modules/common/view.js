@@ -1,5 +1,6 @@
 export function isView(view) {
-  return view.render && (view.destroy || view.remove);
+  return typeof view?.render === 'function' &&
+    (typeof view.destroy === 'function' || typeof view.remove === 'function');
 }
 
 export function isViewClass(ViewClass) {
