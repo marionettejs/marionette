@@ -12,6 +12,10 @@
     "route": "next/runtime-isolation"
   },
   {
+    "source": "docs/terminology.md",
+    "route": "next/terminology"
+  },
+  {
     "source": "docs/optional-backbone.md",
     "route": "next/optional-backbone"
   },

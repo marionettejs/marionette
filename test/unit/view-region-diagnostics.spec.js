@@ -62,7 +62,7 @@ describe('View named Region diagnostics', function() {
     });
   });
 
-  it('rejects ownership and name conflicts with MN0030 before changing topology', function() {
+  it('rejects ownership and name conflicts with MN0030 before changing ownership', function() {
     const firstOwner = new View();
     const secondOwner = new View();
     const ownedRegion = firstOwner.addRegion('first', new Region({ el: '.first' }));

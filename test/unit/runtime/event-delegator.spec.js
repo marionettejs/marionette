@@ -250,7 +250,7 @@ describe('EventDelegator', function() {
 
   it('disposes Behavior entity subscriptions when construction fails', function() {
     const constructionError = new Error('construction failed');
-    const unsubscribe = vi.fn();
+    const cleanup = vi.fn();
     const TestBehavior = Behavior.extend({
       modelEvents: { change() {} },
       initialize() {
@@ -259,11 +259,11 @@ describe('EventDelegator', function() {
       }
     });
     const TestView = View.extend({ behaviors: [TestBehavior] });
-    TestView.setDataApi({ subscribe: () => unsubscribe });
+    TestView.setDataApi({ subscribe: () => cleanup });
 
     expect(() => new TestView({ el: rootEl, model: {} })).to.throw(constructionError);
 
-    expect(unsubscribe).toHaveBeenCalledTimes(1);
+    expect(cleanup).toHaveBeenCalledTimes(1);
   });
 
   it('rolls back View and Behavior events when Behavior registration fails', function() {

@@ -87,7 +87,7 @@ describe('Backbone shim', function() {
 
     expect(Marionette.View.prototype.Data.key(model)).to.equal(model.cid);
     expect(Marionette.View.prototype.Data.serialize(model)).to.equal(model.attributes);
-    expect(Marionette.CollectionView.prototype.Data.items(collection)).to.equal(collection.models);
+    expect(Marionette.CollectionView.prototype.Data.models(collection)).to.equal(collection.models);
   });
 
   it('does not mix Marionette Events into Backbone.History', function() {

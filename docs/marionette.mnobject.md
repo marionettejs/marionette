@@ -142,14 +142,14 @@ const Selections = MnObject.extend({
     this.selections = {};
   },
 
-  select(key, item) {
-    this.selections[key] = item;
-    this.triggerMethod('select', key, item);
+  select(key, selection) {
+    this.selections[key] = selection;
+    this.triggerMethod('select', key, selection);
   },
 
-  deselect(key, item) {
+  deselect(key, selection) {
     delete this.selections[key];
-    this.triggerMethod('deselect', key, item);
+    this.triggerMethod('deselect', key, selection);
   }
 
 });
@@ -158,8 +158,8 @@ const selections = new Selections();
 const truck = { name: 'Dump truck' };
 
 // use the inherited Events API
-selections.on('select', function(key, item) {
-  console.log(item);
+selections.on('select', function(key, selection) {
+  console.log(selection);
 });
 
 selections.select('toy', truck);

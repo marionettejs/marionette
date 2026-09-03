@@ -790,12 +790,12 @@ const RegionsMixin = {
   // Remove all regions from the View
   removeRegions() {
     const regions = this._getRegions();
-    const disposers = [];
+    const cleanups = [];
 
     eachOwn(regions, (region, name) => {
-      disposers.push(() => this._removeRegion(region, name));
+      cleanups.push(() => this._removeRegion(region, name));
     });
-    disposeAll(disposers.reverse());
+    disposeAll(cleanups.reverse());
 
     return regions;
   },

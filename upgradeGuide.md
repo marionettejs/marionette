@@ -9,6 +9,16 @@ current public behavior boundary. Final migration documentation is tracked in
 - Marionette core no longer reads Backbone-specific `cid`, `attributes`, `get`,
   `models`, `indexOf`, or structural event payloads.
 - Plain object models and array collections work through the default DataApi.
+- `DataApi.models(collection)` replaces the pre-stable
+  `DataApi.items(collection)` name without a compatibility alias.
+
+  ```js
+  // before
+  const models = DataApi.items(collection);
+
+  // v5
+  const models = DataApi.models(collection);
+  ```
 - Applications using Backbone must select its integration once at boot:
 
   ```js
@@ -16,8 +26,9 @@ current public behavior boundary. Final migration documentation is tracked in
   import Backbone from 'backbone';
   ```
 
-- Other data sources can configure `setDataApi` with identity, read,
-  serialization, ordered-item, subscription, and collection-observation methods.
+- Other data sources can configure `setDataApi` with methods for identity,
+  reads, serialization, ordered model snapshots, subscriptions, and collection
+  observation.
   See [Data API](docs/data.api.md).
 - State owners return the exact supplied source from `getState()`. Use
   `createState(options)` for an owned source, and configure `setStateApi` when
@@ -36,7 +47,7 @@ current public behavior boundary. Final migration documentation is tracked in
   longer freezes the current child order against structural source changes.
 - Set `sortWithCollection: false` when a CollectionView must preserve manually
   managed child order instead of following the source.
-- An immutable update that replaces an item with a different object at the same
+- An immutable update that replaces a model with a different object at the same
   stable key recreates that child View. Do not retain references to the old
   child across such an update.
 

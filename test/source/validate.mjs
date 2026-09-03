@@ -79,7 +79,7 @@ for (const source of [
   assert.match(source, knownBackboneDataAccess);
 }
 
-for (const source of ['Data.get(model, "name")', 'Data.items(collection)', 'change.updated']) {
+for (const source of ['Data.get(model, "name")', 'Data.models(collection)', 'change.updated']) {
   assert.doesNotMatch(source, knownBackboneDataAccess);
 }
 

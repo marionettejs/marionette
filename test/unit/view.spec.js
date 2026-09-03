@@ -2,7 +2,7 @@ import Backbone from 'backbone';
 import Region from '../../modules/region';
 import View from '../../modules/view';
 
-describe('item view', function() {
+describe('view', function() {
   'use strict';
 
   let modelData;
@@ -202,7 +202,7 @@ describe('item view', function() {
   });
 
 
-  describe('when destroying an item view', function() {
+  describe('when destroying a view', function() {
     let onBeforeDestroyStub;
     let onDestroyStub;
     let TestView;

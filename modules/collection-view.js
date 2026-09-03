@@ -18,7 +18,7 @@ import { setEventDelegator } from '../runtime/event-delegator.js';
 import { setRenderer } from '../runtime/renderer.js';
 import { setDataApi } from '../runtime/data-api.js';
 import { setStateApi } from '../runtime/state-api.js';
-import { normalizeDisposer } from '../utils/subscribe-bindings.js';
+import { normalizeCleanup } from '../utils/subscribe-bindings.js';
 
 const classErrorName = 'CollectionViewError';
 
@@ -32,45 +32,45 @@ function throwCollectionProtocolError(message) {
 }
 
 function buildCollectionSnapshot(Data, collection, previous) {
-  const items = Data.items(collection);
-  if (!Array.isArray(items)) {
-    throwCollectionProtocolError('DataApi.items() must return an ordered array snapshot.');
+  const models = Data.models(collection);
+  if (!Array.isArray(models)) {
+    throwCollectionProtocolError('DataApi.models() must return an ordered model snapshot.');
   }
 
-  const previousKeys = new Map(previous.map(entry => [entry.item, entry.key]));
+  const previousKeys = new Map(previous.map(entry => [entry.model, entry.key]));
   const keys = new Map();
-  const itemEntries = new Map();
-  const snapshot = Array(items.length);
+  const modelEntries = new Map();
+  const snapshot = Array(models.length);
 
-  for (let index = 0; index < items.length; index++) {
-    const item = items[index];
-    const key = Data.key(item);
+  for (let index = 0; index < models.length; index++) {
+    const model = models[index];
+    const key = Data.key(model);
 
     if (key == null) {
-      throwCollectionProtocolError(`DataApi.key() returned a missing key for item at index ${ index }.`);
+      throwCollectionProtocolError(`DataApi.key() returned a missing key for model at index ${ index }.`);
     }
     if (keys.has(key)) {
       throwCollectionProtocolError(`DataApi.key() returned duplicate key "${ String(key) }".`);
     }
-    if (previousKeys.has(item) && !Object.is(previousKeys.get(item), key)) {
-      throwCollectionProtocolError('DataApi.key() changed while an item remained in the CollectionView.');
+    if (previousKeys.has(model) && !Object.is(previousKeys.get(model), key)) {
+      throwCollectionProtocolError('DataApi.key() changed while a model remained in the CollectionView.');
     }
 
-    const entry = { item, key };
+    const entry = { model, key };
     snapshot[index] = entry;
     keys.set(key, entry);
-    itemEntries.set(item, entry);
+    modelEntries.set(model, entry);
   }
 
-  return { entries: snapshot, items: itemEntries, keys };
+  return { entries: snapshot, models: modelEntries, keys };
 }
 
-function sameItems(actual, expected) {
+function sameModels(actual, expected) {
   if (actual.length !== expected.length) { return false; }
   const remaining = new Set(expected);
 
-  for (const item of actual) {
-    if (!remaining.delete(item)) { return false; }
+  for (const model of actual) {
+    if (!remaining.delete(model)) { return false; }
   }
 
   return true;
@@ -88,16 +88,16 @@ function normalizeCollectionChange(change, previous, current) {
   const added = current.entries.filter(entry => !previous.keys.has(entry.key));
   const removed = previous.entries.filter(entry => !current.keys.has(entry.key));
   const replacements = current.entries
-    .filter(entry => previous.keys.has(entry.key) && previous.keys.get(entry.key).item !== entry.item)
+    .filter(entry => previous.keys.has(entry.key) && previous.keys.get(entry.key).model !== entry.model)
     .map(entry => ({
       key: entry.key,
-      previous: previous.keys.get(entry.key).item,
-      current: entry.item
+      previous: previous.keys.get(entry.key).model,
+      current: entry.model
     }));
 
   if (change.kind === 'reorder') {
     if (added.length || removed.length || replacements.length) {
-      throwCollectionProtocolError('A reorder record cannot add, remove, or replace items.');
+      throwCollectionProtocolError('A reorder record cannot add, remove, or replace models.');
     }
     return { kind: 'reorder' };
   }
@@ -106,8 +106,8 @@ function normalizeCollectionChange(change, previous, current) {
       !Array.isArray(change.updated)) {
     throwCollectionProtocolError('An update record requires added, removed, and updated arrays.');
   }
-  if (!sameItems(change.added, added.map(entry => entry.item)) ||
-      !sameItems(change.removed, removed.map(entry => entry.item))) {
+  if (!sameModels(change.added, added.map(entry => entry.model)) ||
+      !sameModels(change.removed, removed.map(entry => entry.model))) {
     throwCollectionProtocolError('An update record must match the source snapshot additions and removals.');
   }
 
@@ -116,11 +116,11 @@ function normalizeCollectionChange(change, previous, current) {
   for (const pair of change.updated) {
     if (!pair || typeof pair !== 'object' ||
         !Object.hasOwn(pair, 'previous') || !Object.hasOwn(pair, 'current')) {
-      throwCollectionProtocolError('Each updated entry must contain previous and current items.');
+      throwCollectionProtocolError('Each updated entry must contain previous and current models.');
     }
 
-    const previousEntry = previous.items.get(pair.previous);
-    const currentEntry = current.items.get(pair.current);
+    const previousEntry = previous.models.get(pair.previous);
+    const currentEntry = current.models.get(pair.current);
     if (!previousEntry || !currentEntry || !Object.is(previousEntry.key, currentEntry.key)) {
       throwCollectionProtocolError('Each updated entry must preserve one existing stable key.');
     }
@@ -287,9 +287,9 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
   // Configured the initial events that the collection view binds to.
   _initialEvents() {
-    if (this._isRendered || this._dataObserverUnsubscribe) { return; }
+    if (this._isRendered || this._dataObserverCleanup) { return; }
 
-    this._dataObserverUnsubscribe = normalizeDisposer(
+    this._dataObserverCleanup = normalizeCleanup(
       this.Data.observeCollection(this.collection, this._onCollectionChange, this),
       'DataApi.observeCollection'
     );
@@ -356,7 +356,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
     this._destroyChildren();
 
-    this._addChildModels(snapshot.entries.map(entry => entry.item));
+    this._addChildModels(snapshot.entries.map(entry => entry.model));
 
     this.sort();
   },
@@ -407,8 +407,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
         }
       }
 
-      for (const { item } of changes.added) {
-        const view = this._createChildView(item);
+      for (const { model } of changes.added) {
+        const view = this._createChildView(model);
         stagedViews.add(view);
         this._addChild(view);
         stagedViews.delete(view);
@@ -704,7 +704,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
     if (this.collection) {
       this._collectionSnapshot = buildCollectionSnapshot(this.Data, this.collection, []);
-      this._addChildModels(this._collectionSnapshot.entries.map(entry => entry.item));
+      this._addChildModels(this._collectionSnapshot.entries.map(entry => entry.model));
       this._initialEvents();
     }
 
@@ -801,7 +801,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   // Default internal view comparator that order the views by
   // the order of the collection
   _viewComparator(view) {
-    return this.Data.items(this.collection).indexOf(view.model);
+    return this.Data.models(this.collection).indexOf(view.model);
   },
 
   // This method filters the children views and renders the results
@@ -1183,8 +1183,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   },
 
   _removeChildViews(views) {
-    const disposers = views.map(view => () => this._removeChildView(view));
-    disposeAll(disposers.reverse());
+    const cleanups = views.map(view => () => this._removeChildView(view));
+    disposeAll(cleanups.reverse());
   },
 
   _removeChildView(view, { shouldDetach } = {}) {

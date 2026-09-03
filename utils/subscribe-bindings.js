@@ -3,8 +3,8 @@ import disposeAll from './dispose-all.js';
 import MarionetteError from './error.js';
 import { normalizeBindings } from '../modules/common/bind-events.js';
 
-export function normalizeDisposer(disposer, methodName) {
-  if (typeof disposer !== 'function') {
+export function normalizeCleanup(cleanup, methodName) {
+  if (typeof cleanup !== 'function') {
     throw new MarionetteError({
       code: 'MN0038',
       name: 'AdapterError',
@@ -17,7 +17,7 @@ export function normalizeDisposer(disposer, methodName) {
   return function() {
     if (isDisposed) { return; }
     isDisposed = true;
-    disposer();
+    cleanup();
   };
 }
 
@@ -28,8 +28,8 @@ export default function subscribeBindings(context, Api, source, bindings, apiNam
   try {
     for (let index = 0; index < eventArgs.length; index++) {
       const { name, callback, context: eventContext } = eventArgs[index];
-      const disposer = Api.subscribe(source, name, callback, eventContext);
-      subscriptions.push(normalizeDisposer(disposer, `${ apiName }.subscribe`));
+      const cleanup = Api.subscribe(source, name, callback, eventContext);
+      subscriptions.push(normalizeCleanup(cleanup, `${ apiName }.subscribe`));
     }
   } catch (error) {
     disposeAll(subscriptions, error);

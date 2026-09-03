@@ -93,11 +93,11 @@ export declare class Collection<M extends Model = Model> implements EventSource,
   indexOf(model: M): number;
   forEach(callback: (model: M, index: number, models: M[]) => void, context?: unknown): void;
   map<Result>(callback: (model: M, index: number, models: M[]) => Result, context?: unknown): Result[];
-  add(item: ModelInput<M> | null, options?: MutationOptions | null): M | undefined;
-  add(items: ReadonlyArray<ModelInput<M>>, options?: MutationOptions | null): M[];
+  add(model: ModelInput<M> | null, options?: MutationOptions | null): M | undefined;
+  add(models: ReadonlyArray<ModelInput<M>>, options?: MutationOptions | null): M[];
   remove(identity: unknown, options?: MutationOptions | null): M | undefined;
   remove(identities: ReadonlyArray<unknown>, options?: MutationOptions | null): M[];
-  reset(items?: ModelInput<M> | ReadonlyArray<ModelInput<M>> | null, options?: MutationOptions | null): this;
+  reset(models?: ModelInput<M> | ReadonlyArray<ModelInput<M>> | null, options?: MutationOptions | null): this;
   replace(previous: unknown, current: ModelInput<M>, options?: MutationOptions | null): M | undefined;
   touch(identity: unknown, options?: MutationOptions | null): M | undefined;
   move(identity: unknown, index: number, options?: MutationOptions | null): M | undefined;
@@ -123,7 +123,7 @@ export declare const DataApi: {
   get(model: Model | Record<PropertyKey, unknown> | null | undefined, property: PropertyKey): unknown;
   has(model: Model | Record<PropertyKey, unknown> | null | undefined, property: PropertyKey): boolean;
   serialize(model: unknown): unknown;
-  items<M extends Model>(collection: Collection<M>): M[];
+  models<M extends Model>(collection: Collection<M>): M[];
   subscribe(
     source: EventSource,
     eventName: string,

@@ -12,7 +12,7 @@ const model = new Model<Attributes>({ id: 1, label: 'one' });
 const collection = new Collection<Model<Attributes>>([model]);
 const first: Model<Attributes> | undefined = collection.get(1);
 const label: string | undefined = model.get('label');
-const models: Array<Model<Attributes>> = DataApi.items(collection);
+const models: Array<Model<Attributes>> = DataApi.models(collection);
 const stopCollection = DataApi.observeCollection(collection, (change: CollectionChange<Model<Attributes>>) => {
   const kind: 'reset' | 'reorder' | 'update' = change.kind;
   void kind;

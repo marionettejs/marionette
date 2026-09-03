@@ -63,7 +63,7 @@ that will be attached directly to the instance:
 `triggers`, `ui`, `viewComparator`, `viewFilter`
 
 ```javascript
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 
 const myCollectionView = new CollectionView({ ... });
 ```
@@ -79,7 +79,7 @@ children in the collection and renders them individually as a
 `childView`.
 
 ```javascript
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 
 const MyCollectionView = CollectionView.extend({...});
 
@@ -105,7 +105,7 @@ to set the `childViewContainer` to be a selector for an element within
 the template for child view attachment.
 
 ```javascript
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 
 const MyCollectionView = CollectionView.extend({
   childViewContainer: '.js-widgets',
@@ -244,8 +244,9 @@ views to the collection's source order unless the `sortWithCollection` attribute
 presentation sort; it does not disable keyed source-order reconciliation.
 
 ```javascript
+import 'marionette/backbone';
 import Backbone from 'backbone';
-import { View, CollectionView } from 'backbone.marionette';
+import { View, CollectionView } from 'marionette';
 
 const collection = new Backbone.Collection();
 
@@ -292,7 +293,7 @@ You can override this by specifying an `attachHtml` method in your
 view definition. This method takes two parameters and has no return value.
 
 ```javascript
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 
 CollectionView.extend({
 
@@ -330,7 +331,7 @@ a Backbone view class definition, not an instance. It can be any
 `CollectionView`.
 
 ```javascript
-import { View, CollectionView } from 'backbone.marionette';
+import { View, CollectionView } from 'marionette';
 
 const MyChildView = View.extend({});
 
@@ -349,8 +350,9 @@ the ability to customize per `Model` `ChildViews`.
 
 ```javascript
 import _ from 'underscore';
+import 'marionette/backbone';
 import Backbone from 'backbone';
-import { View, CollectionView } from 'backbone.marionette';
+import { View, CollectionView } from 'marionette';
 
 const FooView = View.extend({
   template: _.template('foo')
@@ -362,10 +364,10 @@ const BarView = View.extend({
 
 const MyCollectionView = CollectionView.extend({
   collection: new Backbone.Collection(),
-  childView(item) {
+  childView(model) {
     // Choose which view class to render,
-    // depending on the properties of the item model
-    if  (item.get('isFoo')) {
+    // depending on the properties of the model
+    if  (model.get('isFoo')) {
       return FooView;
     }
     else {
@@ -416,8 +418,9 @@ if you need to determine _which_ View class to instantiate.
 
 ```javascript
 import _ from 'underscore';
+import 'marionette/backbone';
 import Backbone from 'backbone';
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 import MyListView from './my-list-view';
 import MyView from './my-view';
 
@@ -456,7 +459,7 @@ literal. This will be passed to the constructor of your childView as part
 of the `options`.
 
 ```javascript
-import { View, CollectionView } from 'backbone.marionette';
+import { View, CollectionView } from 'marionette';
 
 const ChildView = View.extend({
   initialize(options) {
@@ -482,7 +485,7 @@ provided directly or returned by a function, only the object's own enumerable
 string properties are copied.
 
 ```javascript
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 
 const MyCollectionView = CollectionView.extend({
   childViewOptions(model) {
@@ -516,7 +519,7 @@ resolver propagate unchanged.
 
 ```javascript
 import _ from 'underscore';
-import { View, CollectionView } from 'backbone.marionette';
+import { View, CollectionView } from 'marionette';
 
 const MyEmptyView = View.extend({
   template: _.template('Nothing to display.')
@@ -554,7 +557,7 @@ It can be provided as an object literal or as a function.
 If `emptyViewOptions` aren't provided the `CollectionView` will default to passing the `childViewOptions` to the `emptyView`.
 
 ```javascript
-import { View, CollectionView } from 'backbone.marionette';
+import { View, CollectionView } from 'marionette';
 
 const EmptyView = View.extend({
   initialize(options){
@@ -577,7 +580,7 @@ If you want to control when the empty view is rendered, you can override
 `isEmpty`:
 
 ```javascript
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 
 const MyCollectionView = CollectionView.extend({
   isEmpty() {
@@ -592,7 +595,7 @@ The default implementation of `isEmpty` returns `!this.children.length`.
 You can also use this method to determine when the empty view was shown:
 
 ```javascript
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 
 const MyCollectionView = CollectionView.extend({
   // ...
@@ -769,6 +772,7 @@ The former undocumented Underscore aliases `forEach`, `detect`, `select`, `all`,
 `filter`, `every`, `some`, and `contains`, respectively.
 
 ```javascript
+import 'marionette/backbone';
 import Backbone from 'backbone';
 import { CollectionView } from 'marionette';
 
@@ -809,17 +813,17 @@ It returns the added view.
 ```javascript
 import { CollectionView, View } from 'marionette';
 
-const ItemView = View.extend({
+const ChildView = View.extend({
   tagName: 'li',
   template() {
-    return 'Item';
+    return 'Model';
   }
 });
 
 export function runChildOwnershipLifecycle() {
   const collectionView = new CollectionView({ tagName: 'ul' });
-  const reusableChild = new ItemView();
-  const remainingChild = new ItemView();
+  const reusableChild = new ChildView();
+  const remainingChild = new ChildView();
 
   collectionView.render();
   collectionView.addChildView(reusableChild);
@@ -851,7 +855,7 @@ If you wish to add a child view to the children without the collectionview rende
 the children use the `preventRender` option.
 
 ```javascript
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 import ButtonView from './button-view';
 
 const myCollectionView = new CollectionView({...});
@@ -873,7 +877,7 @@ This method accepts the child view instance to remove as its parameter. It retur
 the removed view.
 
 ```javascript
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 
 const MyCollectionView = CollectionView.extend({
   onChildViewFooEvent(childView, model) {
@@ -902,8 +906,9 @@ This can be useful when sorting is arbitrary or is not performant.
 If one child is in the `el` but the other is not, [filter](#filtering-the-children) will be called.
 
 ```javascript
+import 'marionette/backbone';
 import Backbone from 'backbone';
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 import MyChildView from './my-child-view';
 
 const collection = new Backbone.Collection([
@@ -947,7 +952,7 @@ on initialize.
 underlying Backbone collection uses.
 
 ```javascript
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 
 const myCollectionView = new CollectionView({
   collection: someCollection,
@@ -956,8 +961,9 @@ const myCollectionView = new CollectionView({
 ```
 
 ```javascript
+import 'marionette/backbone';
 import Backbone from 'backbone';
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 
 const myCollection = new Backbone.Collection([
   { id: 1 },
@@ -1007,7 +1013,8 @@ the child order.
 Override this method to determine which `viewComparator` to use.
 
 ```javascript
-import { CollectionView } from 'backbone.marionette';
+import 'marionette/backbone';
+import { CollectionView } from 'marionette';
 
 const MyCollectionView = CollectionView.extend({
   sortAsc(model) {
@@ -1034,7 +1041,7 @@ attribute and re-sorts. Passing `{ preventRender: true }` in the options argumen
 will prevent the view being rendered.
 
 ```javascript
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 
 const cv = new CollectionView({
   collection: someCollection
@@ -1055,7 +1062,7 @@ This function is actually an alias of `setComparator(null, options)`. It is usef
 for removing the comparator. `removeComparator` also accepts `preventRender` as a option.
 
 ```javascript
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 
 const cv = new CollectionView({
   collection: someCollection
@@ -1076,8 +1083,9 @@ in the DOM. This behavior can be disabled by specifying `{sortWithCollection: fa
 on initialize or on the view definiton.
 
 ```javascript
+import 'marionette/backbone';
 import Backbone from 'backbone';
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 
 const myCollection = new Backbone.Collection([
   { id: 1 },
@@ -1145,13 +1153,14 @@ length, visits every index densely, and does not visit entries appended during
 that pass.
 
 ```javascript
+import 'marionette/backbone';
 import Backbone from 'backbone';
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 
 const cv = new CollectionView({
   childView: SomeChildView,
   emptyView: SomeEmptyView,
-  collection: new Bb.Collection([
+  collection: new Backbone.Collection([
     { value: 1 },
     { value: 2 },
     { value: 3 },
@@ -1178,13 +1187,14 @@ must compare strictly equal; nested objects therefore match by identity. Arrays
 are not predicate objects.
 
 ```javascript
+import 'marionette/backbone';
 import Backbone from 'backbone';
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 
 const cv = new CollectionView({
   childView: SomeChildView,
   emptyView: SomeEmptyView,
-  collection: new Bb.Collection([
+  collection: new Backbone.Collection([
     { value: 1 },
     { value: 2 },
     { value: 3 },
@@ -1205,13 +1215,14 @@ The `viewFilter` string represents the view's model attribute and will filter
 truthy values.
 
 ```javascript
+import 'marionette/backbone';
 import Backbone from 'backbone';
-import { CollectionView } from 'backbone.marionette';
+import { CollectionView } from 'marionette';
 
 const cv = new CollectionView({
   childView: SomeChildView,
   emptyView: SomeEmptyView,
-  collection: new Bb.Collection([
+  collection: new Backbone.Collection([
     { value: 0 },
     { value: 1 },
     { value: 2 },
@@ -1233,7 +1244,8 @@ Override this function to programatically decide which
 `viewFilter` to use when `filter` is called.
 
 ```javascript
-import { CollectionView } from 'backbone.marionette';
+import 'marionette/backbone';
+import { CollectionView } from 'marionette';
 
 const MyCollectionView = CollectionView.extend({
   summaryFilter(view) {
@@ -1255,7 +1267,8 @@ Passing `{ preventRender: true }` in the options argument will prevent the view
 being rendered.
 
 ```javascript
-import { CollectionView } from 'backbone.marionette';
+import 'marionette/backbone';
+import { CollectionView } from 'marionette';
 
 const cv = new CollectionView({
   collection: someCollection
@@ -1280,7 +1293,8 @@ This function is actually an alias of `setFilter(null, options)`. It is useful
 for removing filters. `removeFilter` also accepts `preventRender` as a option.
 
 ```javascript
-import { CollectionView } from 'backbone.marionette';
+import 'marionette/backbone';
+import { CollectionView } from 'marionette';
 
 const cv = new CollectionView({
   collection: someCollection

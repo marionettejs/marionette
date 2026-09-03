@@ -268,7 +268,7 @@ describe('Application root View ownership', function() {
     await app.destroy();
   });
 
-  it('destroys a constructed Region and releases its root topology', async function() {
+  it('destroys a constructed Region and releases its root View ownership', async function() {
     const app = new Application({ region: '#application-root' });
     const region = app.getRegion();
     const view = new RootView();

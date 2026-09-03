@@ -36,8 +36,8 @@ only when the framework exposes and documents its actual contracts.
 
 Marionette applies those properties at two composition levels. Views own rendered
 UI and Regions own where Views are displayed. Applications own independently active,
-non-renderable capabilities. An Application without a parent is the root of one
-composition tree; a child Application is a nested application scope.
+non-renderable capabilities. An Application without a parent is a root Application;
+a child Application is a nested application scope in its owner's hierarchy.
 
 The goal is not to turn Marionette into an autonomous coding product or compete with
 renderer-centric frameworks. The goal is to make Marionette applications easy to
@@ -115,7 +115,7 @@ budget.
   identifies the root Application without creating another class.
 - Application parent/child ownership, root View and Region association, startup and
   restart semantics, and teardown are explicit and testable.
-- Ownership and topology are available through public, read-only APIs.
+- Ownership and hierarchy are available through public, read-only APIs.
 - Region lookup does not unexpectedly render or mutate application state.
 - Regions own and mount Views. An Application hosted in a Region coordinates a root
   View; the Application itself never becomes a second Region-renderable object
@@ -131,8 +131,9 @@ budget.
   View, Region, CollectionView, rendering, templates, Events, Radio, state-source
   callbacks, and destroy callbacks remain synchronous and never auto-await callback
   results.
-- Root imports share one default Radio registry. Each explicit `createMarionette()`
-  runtime owns an isolated class family, adapter configuration, and Radio registry.
+- Root imports share one default Radio registry. Each explicit isolated runtime from
+  `createMarionette()` owns its runtime classes, adapter configuration, and Radio
+  registry.
 - Behavior scope, UI resolution, event delegation, dependencies, and teardown are
   explicit and tested.
 - Lifecycle boundaries and callbacks remain the canonical cleanup seam. A resource
@@ -170,10 +171,10 @@ budget.
 
 - Development validation reports rule codes with actionable context and is removable
   from production builds.
-- A topology inspector is read-only, explicitly enabled, and imported from a separate
+- A hierarchy inspector is read-only, explicitly enabled, and imported from a separate
   development subpath.
 - Test helpers are runner-neutral, imported from a separate test subpath, and verify
-  lifecycle, topology, and cleanup without private-field access.
+  lifecycle, hierarchy, and cleanup without private-field access.
 - Machine-readable output includes a schema version. Only documented fields are
   stable; ordering and presentation-only fields are not accidental contracts.
 
@@ -242,10 +243,10 @@ it. Plain classes and functions remain canonical when those combined Marionette
 conventions are unnecessary. V5 does not rename MnObject or introduce a replacement
 class merely to restate this generic contract.
 
-`Application` is an independent first-class object with start, stop, restart, and
-owned child Applications. An Application without a parent is the root of one
-composition tree; independent roots may coexist on a page. Root status is topology,
-not a reason for an Application subtype.
+`Application` is a first-class object with start, stop, restart, and owned child
+Applications. An Application without a parent is a root Application; separate root
+Applications may coexist on a page. Root status describes its place in the
+Application hierarchy, not a reason for an Application subtype.
 
 Application, MnObject, View, CollectionView, Region, and Behavior do not form a public
 inheritance hierarchy. They compose first-class
@@ -300,8 +301,9 @@ observable, or other source. Application code uses that source's native mutation
 Marionette does not pretend every source implements keyed setters, reset, or
 `change:key`. A source and an owner-local factory are distinct explicit configuration
 forms. A supplied source is borrowed: Marionette releases only its own subscriptions.
-A factory result is owned: Marionette also disposes it at owner destruction through
-the selected adapter contract. A plain state object never silently selects and
+An owner-local factory creates an owned source: Marionette also disposes that
+source at owner destruction through the selected adapter contract. A plain state
+object never silently selects and
 constructs a store. Borrowing is many-to-one: destroying one owner releases only that
 owner's observation and does not alter the shared source or another borrower's
 observation. A borrower must not outlive its source; borrowing never extends a source's
@@ -312,13 +314,13 @@ the model and collection DataApi. A View may consume Backbone domain data while 
 an XState actor or another source for orchestration. Marionette owns declarative
 `stateEvents`, deterministic setup timing, constructor rollback, and subscription
 release; the adapter owns how observation is registered, cleaned up, and, for an owned
-factory result, disposed. The protocol does not grow universal create, set, unset,
+owned source, disposed. The protocol does not grow universal create, set, unset,
 reset, or destroy operations that unrelated state systems cannot truthfully share.
 
 A composed source persists across View and CollectionView render, across a Behavior's
 owning View render, across Application stop and restart, and for a MnObject's lifetime.
 Every eligible owner releases its state-source subscriptions at destruction and also
-disposes a factory result it owns. Region does not compose state. A Behavior may create
+disposes the source its factory created. Region does not compose state. A Behavior may create
 a private source through its own factory; a source shared with its View is supplied and
 borrowed rather than jointly owned.
 After Application startup is invalidated, Marionette performs no stale state-source
@@ -333,7 +335,7 @@ Stateless owners pay zero per-instance allocation and retention cost.
 Appropriate core additions include public read-only ownership accessors, pure Region
 lookup, and shared diagnostics. Resource ownership and extension hooks remain
 evidence-dependent 5.x candidates unless required development or test functionality
-cannot be built from public lifecycle events and topology APIs.
+cannot be built from public lifecycle events and Application hierarchy APIs.
 
 ### API-shape and agent-ergonomics gate
 
@@ -355,19 +357,24 @@ implementation is already complete.
 The current evidence establishes these selected decisions, gated candidates, and
 current-evidence findings:
 
-- **Selected:** Root imports retain one default Radio registry and class family.
-  Optional `createMarionette()` calls create isolated class families, mutable adapter
-  configuration, renderers, and Radio registries. Applications do not own or reset
-  Radio channels implicitly; the selected runtime owns their registry lifetime.
+- **Required before API-shape freeze:** Decide the serialized collection template
+  property that is currently named `items`. Its vocabulary must align with the
+  selected `DataApi.models(collection)` contract before stable v5; the split must
+  not survive into a stable release.
+- **Selected:** Root imports retain one default Radio registry and set of runtime
+  classes. Optional `createMarionette()` calls create isolated runtimes with their own
+  runtime classes, mutable adapter configuration, renderers, and Radio registries.
+  Applications do not own or reset Radio channels implicitly; the selected runtime
+  owns its registry lifetime.
 - **Selected:** Remove the module-global feature registry and its `setEnabled` and
   `isEnabled` exports. No verified app-frontend or Marionette Toolkit consumer uses
   the global API. Configure child event prefixes per View, configure default
   prevention and propagation per trigger, and keep application-owned values in
   an Application-owned state source or explicit application configuration. `DEV_MODE`
   and custom string flags are not retained through aliases or a second registry.
-- **Selected:** Build every optional `createMarionette()` result from the canonical
-  default root class contracts and shared configuration helpers. Retain class-level DOM and renderer
-  configuration, isolated per class family. EventDelegator remains a public runtime
+- **Selected:** Build every isolated runtime from the canonical default runtime-class
+  contracts and shared configuration helpers. Retain class-level DOM and renderer
+  configuration within each runtime. EventDelegator remains a public runtime
   adapter parallel to those seams, with deterministic runtime and per-class installation timing. Each registration
   returns an opaque cleanup operation that Marionette owns and invokes at most once;
   cleanup continues through sibling operations even when one throws.
@@ -401,12 +408,12 @@ current-evidence findings:
   Awaitable Application operations include the cooperative cancellation context
   defined above rather than merely ignoring stale completion.
 - **Selected:** V5 owns a neutral DataApi boundary for model identity, value reads,
-  serialization, ordered collection items, entity subscriptions, and normalized
+  serialization, ordered model snapshots, entity subscriptions, and normalized
   structural collection changes. Core retains that contract, `setDataApi()`, and the
   dependency-free default for plain objects and arrays. Plain arrays are static ordered
   snapshots: mutating one does not create a live source, and an explicit CollectionView
   render rebuilds its collection-derived children. A live source exposes its ordered
-  items plus one structural observation hook and reports post-mutation `reorder`,
+  model snapshot plus one structural observation hook and reports post-mutation `reorder`,
   `reset`, or `update` records; CollectionView owns the single reconciliation path for
   every source. The existing `backbone.js`
   installer and `runtime/backbone-data-api.js` implementation move together into
@@ -668,8 +675,8 @@ instructions, and every release blocker maps to this strategy.
   including its exact identity, serialization, event-payload, static-array, live-source,
   normalized post-mutation record, and optional Backbone package contracts. Keep
   Backbone-specific data shapes out of core, keep structural collection observation
-  separate from per-item subscriptions, and make unsupported observation explicit
-  rather than returning a silent fake disposer.
+  separate from per-model subscriptions, and make unsupported observation explicit
+  rather than returning a silent fake cleanup function.
 - Implement the optional `@marionette/data` Model, Collection, `triggerMethod`,
   StateApi, and DataApi only after the neutral core contracts above close. Keep that
   concrete reactive implementation outside core.
@@ -687,8 +694,8 @@ instructions, and every release blocker maps to this strategy.
   compatibility audit. Preserve the canonical default behavior through existing
   local View and trigger options, migrate application-owned values to an owned state
   source or explicit configuration, and do not add an alias or replacement registry.
-- Retain one default root runtime and provide optional `createMarionette()` isolation
-  for class families, mutable adapters, renderers, and Radio registries. Stabilize EventDelegator as a public
+- Retain one default runtime and provide optional `createMarionette()` isolation
+  for runtime classes, mutable adapters, renderers, and Radio registries. Stabilize EventDelegator as a public
   registration and cleanup boundary with exact listener options, attempt-all teardown,
   constructor-failure rollback, native focus/blur ordering, and executable optional
   jQuery evidence. Close documentation gaps in process scope, installation timing, and
@@ -736,11 +743,12 @@ instructions, and every release blocker maps to this strategy.
   without changing Region's renderable contract or conflating state with model and
   collection data. Replace implicit `new State(definition)` with explicit source and
   per-owner factory forms; return the exact source from `getState()`; treat supplied
-  sources as borrowed and factory results as owned; and route declarative `stateEvents`
+  sources as borrowed and sources created by an owner-local factory as owned; and
+  route declarative `stateEvents`
   through an explicitly selected per-owner observation adapter. Keep DataApi
   read/collection-oriented, do not invent a universal mutation protocol, and remove
   the obsolete concrete `State` implementation, export, tests, and documentation.
-- Make ownership and topology publicly readable without mutation.
+- Make ownership and hierarchy publicly readable without mutation.
 - Harden Region lookup and View/Region ownership semantics. Lock down parent rerender
   as destructive structural reset: destroy active Region children exactly once before
   renderer commit, re-resolve Region elements afterward, preserve an explicitly
@@ -772,7 +780,7 @@ substantial remaining departures justified.
 ### Phase 2: Static guidance
 
 - Ship readable first-party TypeScript declarations for constructor options,
-  ownership and topology, state sources, factories, observation adapters, the
+  ownership and hierarchy, state sources, owner-local factories, observation adapters, the
   selected data protocol, Application lifecycle results and
   operation context, optional Backbone and jQuery adapters, and the public/internal
   boundary. Prefer structural types over elaborate type-level machinery.
@@ -801,9 +809,9 @@ run in CI without loading new production code.
 ### Phase 3: Development and test support
 
 - Add removable development validation.
-- Add the optional topology inspector with a versioned output schema.
-- Add runner-neutral lifecycle, topology, and cleanup test helpers.
-- Build development and test support from public lifecycle events and topology APIs.
+- Add the optional hierarchy inspector with a versioned output schema.
+- Add runner-neutral lifecycle, hierarchy, and cleanup test helpers.
+- Build development and test support from public lifecycle events and hierarchy APIs.
   Do not add extension-hook dispatch to 5.0 unless required public `marionette/dev` or
   `marionette/test` functionality is proven impossible without it.
 - Separate and verify production, development, and test package surfaces.
@@ -815,21 +823,21 @@ development and test fixtures exercise every public helper.
 
 - Once the remaining runtime correctness blockers close, pack an unpublished early
   integration candidate for the benchmark, Toolkit migration, app-frontend migration
-  probe, and package fixtures. Use that evidence while package topology, source layout,
+  probe, and package fixtures. Use that evidence while package boundaries, source layout,
   declarations, and documentation are completed; do not wait for speculative Phase 5
   APIs before testing the code broadly.
 - After that early candidate is available, complete the selected
   [collection-data track][issue-376] before the full release candidate. Add the native
-  observable ordered list and the
+  observable ordered collection and the
   shared keyed snapshot observer and XState actor adapters without adding source-specific
   reconciliation to CollectionView. Verify initial render, exact add/remove, reorder,
-  reset, empty transitions, sorting, filtering, retained-item updates, same-key
+  reset, empty transitions, sorting, filtering, retained-model updates, same-key
   immutable replacement, pre-render mutation, repeated render, setup rollback,
   idempotent destruction, late notification, shared-source observation, and reentrant
   notification behavior through public APIs. Marionette destroys views and its own
   subscriptions but never stops caller-owned actors.
 - Measure Backbone exact-event, native direct-record, and keyed snapshot-observer updates at
-  representative 1,000- and 10,000-item sizes. Exact-event and native sources must not
+  representative 1,000- and 10,000-model sizes. Exact-event and native sources must not
   regress to snapshot diffing; each relevant snapshot notification performs at most
   one keyed O(n) comparison; unrelated notifications are no-ops; unchanged child Views
   retain identity; and core plus every optional adapter is measured as a separate
@@ -842,6 +850,7 @@ development and test fixtures exercise every public helper.
 - Close correctness, documentation, packaging, browser, and performance gaps exposed
   by the reference application.
 - Complete v5 reference and migration documentation.
+
 Gate: all stable release criteria below pass.
 
 ### Phase 5: Evidence-dependent candidates
@@ -849,8 +858,8 @@ Gate: all stable release criteria below pass.
 Benchmark declarative definition helpers, renderer lifecycle extensions, alternative
 CollectionView strategies, optional integrations, pay-for-play resource ownership,
 and the smallest extension-hook contract justified by a public consumer that cannot
-use lifecycle events and topology APIs. The selected opt-in `createMarionette()` keeps
-the default root runtime while providing measured class-family and Radio isolation;
+use lifecycle events and hierarchy APIs. The selected opt-in `createMarionette()` keeps
+the default runtime while providing measured runtime-class and Radio isolation;
 future runtime factory expansion still requires evidence. These experiments
 target 5.x and do not block stable v5. Unsuccessful candidates are documented and
 closed rather than retained as dormant APIs.
@@ -889,7 +898,7 @@ closed rather than retained as dormant APIs.
   `@marionette/data` collection plus Backbone, Redux Toolkit, Zustand vanilla,
   plain-record XState Store, and XState v5 actor adapters must pass the same normalized CollectionView reconciliation and
   lifecycle contract. Malformed records, duplicate keys, missing synchronous snapshots,
-  invalid disposers, and unordered selector results produce actionable diagnostics.
+  invalid cleanup values, and unordered selector results produce actionable diagnostics.
 - Coverage configuration explicitly includes every production, development, and test
   subpath; adding a subpath cannot silently leave its implementation outside the gate.
 - Stable diagnostic codes and documented machine-readable schemas have been reviewed

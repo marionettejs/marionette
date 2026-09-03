@@ -30,7 +30,7 @@ The data adapter maps:
 | model identity | `model.cid` |
 | named value read | `model.get(attribute)` |
 | value presence and serialization | `model.attributes` |
-| ordered collection contents | `collection.models` |
+| ordered model snapshot | `collection.models` |
 | application entity events | `entity.on(...)` and `entity.off(...)` |
 | structural observations | `sort`, `reset`, and `update` collection events |
 

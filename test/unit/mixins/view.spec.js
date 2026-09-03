@@ -266,7 +266,7 @@ describe('view mixin', function() {
   describe('when delegating entity events fails', function() {
     it('rolls back host subscriptions when a Behavior subscription fails', function() {
       const error = new Error('behavior subscribe failed');
-      const unsubscribe = this.sinon.spy();
+      const cleanup = this.sinon.spy();
       let subscriptionCount = 0;
       const EntityBehavior = Behavior.extend({ modelEvents: { change: 'onChange' }, onChange() {} });
       const TestView = View.extend({
@@ -278,17 +278,17 @@ describe('view mixin', function() {
         subscribe() {
           subscriptionCount++;
           if (subscriptionCount === 2) { throw error; }
-          return unsubscribe;
+          return cleanup;
         }
       });
 
       expect(() => new TestView({ model: {} })).to.throw(error);
-      expect(unsubscribe).to.have.been.calledOnce;
+      expect(cleanup).to.have.been.calledOnce;
     });
 
     it('rolls back subscriptions when Behavior initialization fails', function() {
       const error = new Error('behavior initialize failed');
-      const unsubscribes = [this.sinon.spy(), this.sinon.spy()];
+      const cleanups = [this.sinon.spy(), this.sinon.spy()];
       let subscriptionCount = 0;
       const EntityBehavior = Behavior.extend({
         modelEvents: { change: 'onChange' },
@@ -304,28 +304,28 @@ describe('view mixin', function() {
       });
       TestView.setDataApi({
         subscribe() {
-          return unsubscribes[subscriptionCount++];
+          return cleanups[subscriptionCount++];
         }
       });
 
       expect(() => new TestView({ model: {} })).to.throw(error);
-      expect(unsubscribes[0]).to.have.been.calledOnce;
-      expect(unsubscribes[1]).to.have.been.calledOnce;
+      expect(cleanups[0]).to.have.been.calledOnce;
+      expect(cleanups[1]).to.have.been.calledOnce;
     });
   });
 
   describe('when data teardown fails', function() {
     it('attempts all Behavior, host, and observer cleanup before rethrowing', function() {
       const error = new Error('behavior dispose failed');
-      const hostUnsubscribe = this.sinon.spy();
-      const behaviorUnsubscribe = this.sinon.stub().throws(error);
-      const laterBehaviorUnsubscribe = this.sinon.spy();
-      const observerUnsubscribe = this.sinon.spy();
+      const hostCleanup = this.sinon.spy();
+      const behaviorCleanup = this.sinon.stub().throws(error);
+      const laterBehaviorCleanup = this.sinon.spy();
+      const observerCleanup = this.sinon.spy();
       const stopListening = this.sinon.spy(CollectionView.prototype, 'stopListening');
-      const unsubscribes = [
-        hostUnsubscribe,
-        behaviorUnsubscribe,
-        laterBehaviorUnsubscribe
+      const cleanups = [
+        hostCleanup,
+        behaviorCleanup,
+        laterBehaviorCleanup
       ];
       let subscriptionCount = 0;
       const EntityBehavior = Behavior.extend({ modelEvents: { change: 'onChange' }, onChange() {} });
@@ -336,20 +336,20 @@ describe('view mixin', function() {
       });
       TestView.setDataApi({
         subscribe() {
-          return unsubscribes[subscriptionCount++];
+          return cleanups[subscriptionCount++];
         },
         observeCollection() {
-          return observerUnsubscribe;
+          return observerCleanup;
         }
       });
       const view = new TestView({ collection: new Backbone.Collection(), model: {} });
       view.render();
 
       expect(() => view.destroy()).to.throw(error);
-      expect(behaviorUnsubscribe).to.have.been.calledOnce;
-      expect(laterBehaviorUnsubscribe).to.have.been.calledOnce;
-      expect(hostUnsubscribe).to.have.been.calledOnce;
-      expect(observerUnsubscribe).to.have.been.calledOnce;
+      expect(behaviorCleanup).to.have.been.calledOnce;
+      expect(laterBehaviorCleanup).to.have.been.calledOnce;
+      expect(hostCleanup).to.have.been.calledOnce;
+      expect(observerCleanup).to.have.been.calledOnce;
       expect(stopListening).to.have.been.calledOn(view);
     });
   });

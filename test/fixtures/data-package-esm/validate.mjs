@@ -8,7 +8,8 @@ runtime.setStateApi(StateApi);
 const model = new Model({ id: 1, label: 'one' });
 const collection = new Collection([model]);
 
-assert.deepEqual(DataApi.items(collection), [model]);
+assert.deepEqual(DataApi.models(collection), [model]);
+assert.equal(DataApi.items, undefined);
 assert.deepEqual(DataApi.serialize(model), { id: 1, label: 'one' });
 assert.equal(typeof triggerMethod, 'function');
 const events = { collection: 0, model: 0, state: 0 };

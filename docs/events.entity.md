@@ -144,7 +144,7 @@ support every prototype-collision name.
 A plain `Backbone.Model` or `Backbone.Collection` satisfies the default
 subscription protocol for event-only use. The canonical Backbone setup is still
 to import the integration before constructing entities or Views; it also selects
-Backbone identity, reads, serialization, collection contents, structural
+Backbone identity, reads, serialization, ordered model snapshots, structural
 observations, and unified listener bookkeeping:
 
 ```javascript

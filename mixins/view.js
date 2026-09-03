@@ -126,13 +126,13 @@ const ViewMixin = {
   },
 
   _rollbackView(error) {
-    const dataObserverUnsubscribe = this._dataObserverUnsubscribe;
-    delete this._dataObserverUnsubscribe;
+    const dataObserverCleanup = this._dataObserverCleanup;
+    delete this._dataObserverCleanup;
 
     // Construction rollback is not yet guarded by _isDestroying. Release the
     // collection observer before child cleanup can synchronously mutate it.
     try {
-      dataObserverUnsubscribe?.();
+      dataObserverCleanup?.();
     } catch {
       // Preserve the construction error while continuing best-effort cleanup.
     }
@@ -228,9 +228,9 @@ const ViewMixin = {
       () => this._destroyBehaviors(options),
       () => this._deleteEntityEventHandlers(),
       () => {
-        const dataObserverUnsubscribe = this._dataObserverUnsubscribe;
-        delete this._dataObserverUnsubscribe;
-        dataObserverUnsubscribe?.();
+        const dataObserverCleanup = this._dataObserverCleanup;
+        delete this._dataObserverCleanup;
+        dataObserverCleanup?.();
       },
       () => {
         this._isDestroyed = true;

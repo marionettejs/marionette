@@ -125,17 +125,17 @@ try {
           collection.add({ id: 2, label: 'two' });
           model.set('label', 'ONE');
           state.set('ready', true);
-          const items = DataApi.items(collection).map(item => item.id);
+          const models = DataApi.models(collection).map(entry => entry.id);
           view.destroy();
           owner.destroy();
           collection.destroy();
 
-          return { calls, items, stateDestroyed: state.isDestroyed() };
+          return { calls, models, stateDestroyed: state.isDestroyed() };
         });
 
         assert.deepEqual(result, {
           calls: { collection: 1, model: 1, state: 1 },
-          items: [1, 2],
+          models: [1, 2],
           stateDestroyed: true
         }, `${browserName}: packed @marionette/data runtime behavior`);
         console.log(`${browserName}: packed @marionette/data runtime passed`);

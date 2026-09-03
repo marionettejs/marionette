@@ -312,11 +312,11 @@ see a quick example:
 ```javascript
 import { View, CollectionView } from 'marionette';
 
-const Item = View.extend({
+const ChildView = View.extend({
   tagName: 'li',
 
   triggers: {
-    'click a': 'select:item'
+    'click a': 'select:model'
   }
 });
 
@@ -324,11 +324,11 @@ const Collection = CollectionView.extend({
   tagName: 'ul',
 
   childViewEvents: {
-    'select:item': 'itemSelected'
+    'select:model': 'modelSelected'
   },
 
-  itemSelected(childView) {
-    console.log('item selected: ' + childView.model.id);
+  modelSelected(childView) {
+    console.log('model selected: ' + childView.model.id);
   }
 });
 ```

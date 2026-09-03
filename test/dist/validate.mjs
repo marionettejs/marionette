@@ -103,7 +103,8 @@ async function validate() {
     const plainModel = { name: 'plain' };
     assert.strictEqual(Marionette.DataApi.key(plainModel), plainModel, `${name} plain identity`);
     assert.strictEqual(Marionette.DataApi.get(plainModel, 'name'), 'plain', `${name} plain read`);
-    assert.strictEqual(Marionette.DataApi.items([plainModel])[0], plainModel, `${name} plain items`);
+    assert.strictEqual(Marionette.DataApi.models([plainModel])[0], plainModel, `${name} plain models`);
+    assert.strictEqual(Marionette.DataApi.items, undefined, `${name} removed DataApi.items`);
     const state = { ready: true };
     assert.strictEqual(new Marionette.MnObject({ state }).getState(), state, `${name} exact state source`);
     validateRadio(Marionette, name);

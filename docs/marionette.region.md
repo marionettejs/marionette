@@ -49,7 +49,7 @@ that will be attached directly to the instance:
 `el`, and `replaceElement`.
 
 ```javascript
-import { Region } from 'backbone.marionette';
+import { Region } from 'marionette';
 
 const myRegion = new Region({ ... });
 ```
@@ -62,12 +62,12 @@ the [`Application`](#defining-the-application-region) and [`View`](#defining-reg
 A Region registered on a View exposes that existing relationship through pure,
 read-only queries. `getOwner()` returns the owning View and `getName()` returns
 the Region's name within that View. Neither query renders the View, resolves the
-Region element, or changes topology. A standalone Region returns `undefined`
+Region element, or changes ownership. A standalone Region returns `undefined`
 from both methods. Removing a registered Region or completing its destruction
 clears both values. If `before:destroy` throws, the Region remains live and owned.
 
 A Region has one authoritative registration. Re-adding that same Region instance
-under its current owner and name returns it without lifecycle events or topology changes.
+under its current owner and name returns it without lifecycle events or ownership changes.
 Registering it under a different owner or name, registering a Region whose
 destruction has begun or completed, or replacing an occupied Region name through
 `addRegion` throws [`MN0030`](/errors/MN0030/) before committing the conflicting
@@ -152,7 +152,7 @@ can be accessed through `getRegion()` or have a view displayed directly with
 `showView()`. Below is a short example:
 
 ```javascript
-import { Application } from 'backbone.marionette';
+import { Application } from 'marionette';
 import SomeView from './view';
 
 const MyApp = Application.extend({
@@ -196,7 +196,7 @@ coercing it to a property key. Ordinary collision names such as `constructor`,
 You can use a CSS selector string to define regions.
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   regions: {
@@ -232,7 +232,7 @@ To overwrite the parent `el` of the region with the rendered contents of the
 inner View, use `replaceElement` as so:
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const OverWriteView = View.extend({
   className: '.new-class'
@@ -265,7 +265,7 @@ these elements are usually very strict on what content they will allow.
 
 
 ```js
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   regions: {
@@ -286,7 +286,7 @@ On a `View` the `regions` attribute can also be a
 [function returning an object](./basics.md#functions-returning-values):
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   regions(){
@@ -302,12 +302,14 @@ const MyView = View.extend({
 If you've created a custom region class, you can use it to define your region.
 
 ```javascript
-import { Application, Region, View } from 'backbone.marionette';
+import { Application, Region, View } from 'marionette';
 
 const MyRegion = Region.extend({
   onShow(){
     // Scroll to the middle
-    this.$el.scrollTop(this.currentView.$el.height() / 2 - this.$el.height() / 2);
+    const viewHeight = this.currentView.el.getBoundingClientRect().height;
+    const regionHeight = this.el.getBoundingClientRect().height;
+    this.el.scrollTop = viewHeight / 2 - regionHeight / 2;
   }
 });
 
@@ -336,7 +338,7 @@ The UI attribute can be useful when setting region selectors - simply use
 the `@ui.` prefix:
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   ui: {
@@ -387,7 +389,7 @@ You can remove all of the regions from a view by calling `removeRegions` or you 
 region by name using `removeRegion`. When a region is removed the region will be destroyed.
 
 ```javascript
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyView = View.extend({
   regions: {
@@ -488,7 +490,7 @@ a regular Marionette View:
 ```javascript
 import _ from 'underscore';
 import Bb from 'backbone';
-import { View } from 'backbone.marionette';
+import { View } from 'marionette';
 
 const MyChildView = Bb.View.extend({
   render() {
@@ -657,12 +659,12 @@ inside region lifecycle events / methods.
 The example will show an message when the region is empty:
 
 ```javascript
-import { Region } from 'backbone.marionette';
+import { Region } from 'marionette';
 
 const EmptyMsgRegion = Region.extend({
   onEmpty() {
     if (!this.isSwappingView()) {
-      this.$el.append('Empty Region');
+      this.el.append('Empty Region');
     }
   }
 });
@@ -678,7 +680,7 @@ parameter - the view to show.
 The default implementation of `attachHtml` is essentially:
 
 ```javascript
-import { Region } from 'backbone.marionette';
+import { Region } from 'marionette';
 
 Region.prototype.attachHtml = function(view){
   this.el.appendChild(view.el);
@@ -697,13 +699,15 @@ This example will make a view slide down from the top of the screen instead of j
 appearing in place:
 
 ```javascript
-import { Region, View } from 'backbone.marionette';
+import $ from 'jquery';
+import { Region, View } from 'marionette';
 
 const ModalRegion = Region.extend({
   attachHtml(view){
     // Some effect to show the view:
-    this.$el.empty().append(view.el);
-    this.$el.hide().slideDown('fast');
+    const $el = $(this.el);
+    $el.empty().append(view.el);
+    $el.hide().slideDown('fast');
   }
 });
 
@@ -726,7 +730,7 @@ from the DOM. This method receives one parameter - the view to remove.
 The default implementation of `removeView` is:
 
 ```javascript
-import { Region } from 'backbone.marionette';
+import { Region } from 'marionette';
 
 Region.prototype.removeView = function(view){
   this.destroyView(view);
@@ -740,20 +744,21 @@ Region.prototype.removeView = function(view){
 This example will animate with a fade effect showing and hiding the view:
 
 ```javascript
-import { Region, View } from 'backbone.marionette';
+import $ from 'jquery';
+import { Region, View } from 'marionette';
 
 const AnimatedRegion = Region.extend({
   attachHtml(view) {
-    view.$el
+    $(view.el)
       .css({display: 'none'})
-      .appendTo(this.$el);
-    if (!this.isSwappingView()) view.$el.fadeIn('slow');
+      .appendTo(this.el);
+    if (!this.isSwappingView()) $(view.el).fadeIn('slow');
   },
 
   removeView(view) {
-    view.$el.fadeOut('slow', () => {
+    $(view.el).fadeOut('slow', () => {
       this.destroyView(view);
-      if (this.currentView) this.currentView.$el.fadeIn('slow');
+      if (this.currentView) $(this.currentView.el).fadeIn('slow');
     });
   }
 });

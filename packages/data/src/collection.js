@@ -8,9 +8,9 @@ import {
   releaseObservers
 } from './observers.js';
 
-function asArray(items) {
-  if (items == null) { return []; }
-  return Array.isArray(items) ? items : [items];
+function asArray(models) {
+  if (models == null) { return []; }
+  return Array.isArray(models) ? models : [models];
 }
 
 function normalizeOptions(options) {
@@ -80,9 +80,9 @@ assignOwn(Collection.prototype, Events, {
 
   initialize() {},
 
-  _prepareModel(item) {
+  _prepareModel(model) {
     const ModelClass = this.model;
-    return item instanceof ModelClass ? item : new ModelClass(item);
+    return model instanceof ModelClass ? model : new ModelClass(model);
   },
 
   _bindModel(model) {
@@ -184,27 +184,27 @@ assignOwn(Collection.prototype, Events, {
     return this.models.map(callback, context);
   },
 
-  add(items, options = {}) {
+  add(models, options = {}) {
     options = normalizeOptions(options);
-    if (this._isDestroyed) { return Array.isArray(items) ? [] : undefined; }
+    if (this._isDestroyed) { return Array.isArray(models) ? [] : undefined; }
     const added = [];
     const knownModels = new Set(this.models);
     const knownIds = new Set(
       this.models.filter(model => model.id != null).map(model => model.id)
     );
-    for (const item of asArray(items)) {
-      if (!(item instanceof this.model) && item != null && typeof item === 'object') {
+    for (const candidate of asArray(models)) {
+      if (!(candidate instanceof this.model) && candidate != null && typeof candidate === 'object') {
         const idAttribute = this.model.prototype.idAttribute;
-        const rawId = Object.hasOwn(item, idAttribute) ? item[idAttribute] : undefined;
+        const rawId = Object.hasOwn(candidate, idAttribute) ? candidate[idAttribute] : undefined;
         if (rawId != null && knownIds.has(rawId)) { continue; }
       }
-      const model = this._prepareModel(item);
+      const model = this._prepareModel(candidate);
       if (knownModels.has(model) || model.id != null && knownIds.has(model.id)) { continue; }
       added.push(model);
       knownModels.add(model);
       if (model.id != null) { knownIds.add(model.id); }
     }
-    if (!added.length) { return Array.isArray(items) ? added : undefined; }
+    if (!added.length) { return Array.isArray(models) ? added : undefined; }
     this._bindModels(added);
 
     const at = Number.isInteger(options.at) ?
@@ -218,19 +218,19 @@ assignOwn(Collection.prototype, Events, {
       for (const model of added) { this.triggerMethod('add', model, this, options); }
       this.triggerMethod('update', this, { ...options, changes: change });
     }
-    return Array.isArray(items) ? added : added[0];
+    return Array.isArray(models) ? added : added[0];
   },
 
-  remove(items, options = {}) {
+  remove(models, options = {}) {
     options = normalizeOptions(options);
-    if (this._isDestroyed) { return Array.isArray(items) ? [] : undefined; }
+    if (this._isDestroyed) { return Array.isArray(models) ? [] : undefined; }
     const removed = [];
-    for (const item of asArray(items)) {
-      const model = this.get(item);
+    for (const candidate of asArray(models)) {
+      const model = this.get(candidate);
       if (!model || removed.includes(model)) { continue; }
       removed.push(model);
     }
-    if (!removed.length) { return Array.isArray(items) ? removed : undefined; }
+    if (!removed.length) { return Array.isArray(models) ? removed : undefined; }
     const nextModels = this.models.filter(model => !removed.includes(model));
     this._replaceBindings(this.models, nextModels);
     this.models = nextModels;
@@ -242,16 +242,16 @@ assignOwn(Collection.prototype, Events, {
       for (const model of removed) { this.triggerMethod('remove', model, this, options); }
       this.triggerMethod('update', this, { ...options, changes: change });
     }
-    return Array.isArray(items) ? removed : removed[0];
+    return Array.isArray(models) ? removed : removed[0];
   },
 
-  reset(items = [], options = {}) {
+  reset(models = [], options = {}) {
     options = normalizeOptions(options);
     if (this._isDestroyed) { return this; }
-    const models = asArray(items).map(item => this._prepareModel(item));
-    assertUniqueModels(models);
-    this._replaceBindings(this.models, models);
-    this.models = models;
+    const preparedModels = asArray(models).map(model => this._prepareModel(model));
+    assertUniqueModels(preparedModels);
+    this._replaceBindings(this.models, preparedModels);
+    this.models = preparedModels;
     this.length = this.models.length;
 
     if (!options.silent) {
@@ -294,40 +294,40 @@ assignOwn(Collection.prototype, Events, {
     return currentModel;
   },
 
-  touch(item, options = {}) {
+  touch(model, options = {}) {
     options = normalizeOptions(options);
-    const model = this.get(item);
-    if (!model || this._isDestroyed) { return undefined; }
+    const currentModel = this.get(model);
+    if (!currentModel || this._isDestroyed) { return undefined; }
     if (!options.silent) {
       const change = {
         kind: 'update',
         added: [],
         removed: [],
-        updated: [{ previous: model, current: model }]
+        updated: [{ previous: currentModel, current: currentModel }]
       };
       this._notify(change);
       this.triggerMethod('update', this, { ...options, changes: change });
     }
-    return model;
+    return currentModel;
   },
 
-  move(item, index, options = {}) {
+  move(model, index, options = {}) {
     options = normalizeOptions(options);
-    const model = this.get(item);
-    if (!model || this._isDestroyed) { return undefined; }
+    const currentModel = this.get(model);
+    if (!currentModel || this._isDestroyed) { return undefined; }
     if (!Number.isInteger(index)) {
       throw new TypeError('@marionette/data Collection.move() requires an integer index.');
     }
-    const previousIndex = this.models.indexOf(model);
+    const previousIndex = this.models.indexOf(currentModel);
     const nextIndex = Math.max(0, Math.min(index, this.models.length - 1));
-    if (previousIndex === nextIndex) { return model; }
+    if (previousIndex === nextIndex) { return currentModel; }
     this.models.splice(previousIndex, 1);
-    this.models.splice(nextIndex, 0, model);
+    this.models.splice(nextIndex, 0, currentModel);
     if (!options.silent) {
       this._notify({ kind: 'reorder' });
       this.triggerMethod('reorder', this, options);
     }
-    return model;
+    return currentModel;
   },
 
   swap(first, second, options = {}) {

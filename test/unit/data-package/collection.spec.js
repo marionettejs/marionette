@@ -20,7 +20,7 @@ describe('@marionette/data Collection', function() {
     expect(collection.length).to.equal(2);
     expect(collection.at(0)).to.equal(collection.get(1));
     expect(collection.indexOf(collection.get(2))).to.equal(1);
-    expect(collection.map(model => model.id)).to.deep.equal([1, 2]);
+    expect(collection.map(entry => entry.id)).to.deep.equal([1, 2]);
     const ids = [];
     collection.forEach(model => ids.push(model.id));
     expect(ids).to.deep.equal([1, 2]);
@@ -127,7 +127,7 @@ describe('@marionette/data Collection', function() {
     this.sinon.stub(fourth, 'on').throws(error);
 
     expect(() => collection.reset([third, fourth])).to.throw(error);
-    expect(collection.map(model => model.id)).to.deep.equal([1, 2]);
+    expect(collection.map(entry => entry.id)).to.deep.equal([1, 2]);
     expect(() => first.set('id', 10)).to.throw(TypeError, 'cannot change a Model id');
     expect(third.set('id', 30)).to.equal(third);
     expect(fourth.set('id', 40)).to.equal(fourth);
@@ -447,7 +447,7 @@ describe('@marionette/data Collection', function() {
     expect(collection.touch(model)).to.be.undefined;
     expect(collection.move(model, 0)).to.be.undefined;
     expect(collection.swap(model, { id: 2 })).to.equal(collection);
-    expect(collection.map(item => item.id)).to.deep.equal([1, 2]);
+    expect(collection.map(entry => entry.id)).to.deep.equal([1, 2]);
 
     expect(destroy).to.have.been.calledOnceWith(collection, { source: 'test' });
     expect(modelChange).to.not.have.been.called;

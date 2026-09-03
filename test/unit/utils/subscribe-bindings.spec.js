@@ -1,9 +1,9 @@
-import subscribeBindings, { normalizeDisposer } from '../../../utils/subscribe-bindings';
+import subscribeBindings, { normalizeCleanup } from '../../../utils/subscribe-bindings';
 
 describe('subscribe bindings', function() {
-  it('normalizes an adapter disposer as idempotent', function() {
+  it('normalizes an adapter cleanup function as idempotent', function() {
     const dispose = this.sinon.spy();
-    const normalized = normalizeDisposer(dispose, 'TestApi.subscribe');
+    const normalized = normalizeCleanup(dispose, 'TestApi.subscribe');
 
     normalized();
     normalized();
@@ -14,7 +14,7 @@ describe('subscribe bindings', function() {
   it('normalizes aggregate binding cleanup as idempotent', function() {
     const dispose = this.sinon.spy();
     const context = { onChange() {} };
-    const unsubscribe = subscribeBindings(
+    const cleanup = subscribeBindings(
       context,
       { subscribe() { return dispose; } },
       {},
@@ -22,8 +22,8 @@ describe('subscribe bindings', function() {
       'TestApi'
     );
 
-    unsubscribe();
-    unsubscribe();
+    cleanup();
+    cleanup();
 
     expect(dispose).to.have.been.calledOnce;
   });
