@@ -471,11 +471,11 @@ current-evidence findings:
   Morphdom or Idiomorph, Lit, and a retained VDOM fixture should prove the category.
   The existing callable contract already supports incremental commits: Marionette
   invokes the renderer with the View as `this`, and a renderer that updates `this.el`
-  may return `undefined` to suppress `attachElContent()`. Before beta, document that
-  first-render/update contract explicitly. First test Morphdom's `isEqualNode`
-  subtree bailout and update the Lit experiment to use `className()` plus
-  `renderAttributes()`; those results determine whether any renderer capability is
-  actually missing.
+  may return `undefined` to suppress `attachElContent()`. The first-render/update
+  contract and Morphdom's `isEqualNode` subtree bailout are documented explicitly.
+  Before beta, measure that bailout and update the Lit experiment to use
+  `className()` plus `renderAttributes()`; those results determine whether any
+  renderer capability is actually missing.
   Autonomous component runtimes such as React, Vue, Svelte, Solid, and Preact own an
   exclusive hosted subtree inside a Marionette host View; Marionette does not coordinate
   their internal scheduling, lifecycle, refs, effects, or child ownership.

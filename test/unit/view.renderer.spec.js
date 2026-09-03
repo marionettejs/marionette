@@ -83,4 +83,25 @@ describe('View.setRenderer', function() {
       });
     });
   });
+
+  it('should invoke the renderer with the View and allow a direct DOM commit', function() {
+    let rendererContext;
+    const RendererView = View.extend({
+      template: _.constant('ignored')
+    });
+
+    RendererView.setRenderer(function(viewTemplate, renderedData) {
+      rendererContext = this;
+      this.el.textContent = `${ viewTemplate() }:${ renderedData.foo }`;
+    });
+
+    const view = new RendererView({ model });
+    const attachElContentSpy = this.sinon.spy(view, 'attachElContent');
+
+    view.render();
+
+    expect(rendererContext).to.equal(view);
+    expect(view.el.textContent).to.equal(`ignored:${ data.foo }`);
+    expect(attachElContentSpy).to.not.have.been.called;
+  });
 });
