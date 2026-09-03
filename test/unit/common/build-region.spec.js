@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { buildRegion as ownedBuildRegion } from '../../../modules/view-region';
+import ownedBuildRegion from '../../../modules/common/build-region';
 import View from '../../../modules/view';
 import Region from '../../../modules/region';
 

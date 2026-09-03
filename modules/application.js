@@ -11,7 +11,7 @@ import RadioMixin from '../mixins/radio.js';
 import StateMixin from '../mixins/state.js';
 import disposeAll from '../utils/dispose-all.js';
 import Region from './region.js';
-import { buildRegion } from './view-region.js';
+import buildRegion from './common/build-region.js';
 import { setStateApi } from '../runtime/state-api.js';
 import { defaultRuntimeId, runtimeId } from '../runtime/runtime-id.js';
 

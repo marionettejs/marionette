@@ -1271,6 +1271,9 @@ function eachOwn(object, iteratee) {
   return object;
 }
 
+const defaultRuntimeId = {};
+const runtimeId = Symbol('MarionetteRuntime');
+
 function isView(view) {
   return typeof view?.render === 'function' && (typeof view.destroy === 'function' || typeof view.remove === 'function');
 }
@@ -1312,6 +1315,498 @@ function destroyView(view, disableDetachEvents) {
   if (!view.supportsDestroyLifecycle) {
     view.triggerMethod('destroy', view);
   }
+}
+
+const objectKeys = Object.keys;
+function setDomApi$1(mixin) {
+  this.prototype.Dom = assignOwn({}, this.prototype.Dom, mixin);
+  return this;
+}
+var DomApi = {
+  createElement(tagName) {
+    return document.createElement(tagName);
+  },
+  createBuffer() {
+    return document.createDocumentFragment();
+  },
+  getDocumentEl(el) {
+    return el.ownerDocument.documentElement;
+  },
+  findEl(el, selector) {
+    return el.querySelectorAll(selector);
+  },
+  hasEl(el, childEl) {
+    return el.contains(childEl && childEl.parentNode);
+  },
+  detachEl(el) {
+    if (el.parentNode) {
+      el.parentNode.removeChild(el);
+    }
+  },
+  replaceEl(newEl, oldEl) {
+    if (newEl === oldEl) {
+      return;
+    }
+    const parent = oldEl.parentNode;
+    if (!parent) {
+      return;
+    }
+    parent.replaceChild(newEl, oldEl);
+  },
+  swapEl(el1, el2) {
+    if (el1 === el2) {
+      return;
+    }
+    const parent1 = el1.parentNode;
+    const parent2 = el2.parentNode;
+    if (!parent1 || !parent2) {
+      return;
+    }
+    const next1 = el1.nextSibling;
+    const next2 = el2.nextSibling;
+    parent1.insertBefore(el2, next1);
+    parent2.insertBefore(el1, next2);
+  },
+  setContents(el, html) {
+    el.innerHTML = html;
+  },
+  setAttributes(el, attrs) {
+    const attrsType = typeof attrs;
+    if (attrs == null || attrsType !== 'object' && attrsType !== 'function') {
+      return;
+    }
+    const attrNames = objectKeys(attrs);
+    for (let index = 0, length = attrNames.length; index < length; index++) {
+      const attr = attrNames[index];
+      if (attr in el) {
+        setProperty(el, attr, attrs[attr]);
+      } else {
+        el.setAttribute(attr, attrs[attr]);
+      }
+    }
+  },
+  appendContents(el, contents) {
+    el.appendChild(contents);
+  },
+  moveEl(el, parent, before = null) {
+    if (el.parentNode === parent && typeof parent.moveBefore === 'function') {
+      parent.moveBefore(el, before);
+      return;
+    }
+    parent.insertBefore(el, before);
+  },
+  hasContents(el) {
+    return !!el && el.hasChildNodes();
+  },
+  detachContents(el) {
+    el.textContent = '';
+  }
+};
+
+const classErrorName$5 = 'RegionError';
+const destroyTeardown = new WeakMap();
+function consumeDestroyTeardown(region, operation) {
+  if (destroyTeardown.get(region) !== operation) {
+    return false;
+  }
+  destroyTeardown.delete(region);
+  return true;
+}
+function canMutateRegion(region, authorized) {
+  return authorized || !region._isDestroying && !region._isDestroyed;
+}
+function emptyRegion(region, options = {
+  allowMissingEl: true
+}) {
+  const view = region.currentView;
+  if (!view) {
+    if (region._ensureElement(options)) {
+      region.detachHtml();
+    }
+    return region;
+  }
+  region._empty(view, true);
+  return region;
+}
+const RegionClassOptions = ['allowMissingEl', 'parentEl', 'replaceElement'];
+const Region$1 = function (options) {
+  this._setOptions(options, RegionClassOptions);
+  this.cid = uniqueId(this.cidPrefix);
+  this._initEl = this.el = this.getOption('el');
+  this._validateEl(this.el);
+  this.initialize.apply(this, arguments);
+};
+Region$1.extend = extend;
+Region$1.setDomApi = setDomApi$1;
+assignOwn(Region$1.prototype, CommonMixin, {
+  Dom: DomApi,
+  cidPrefix: 'mnr',
+  replaceElement: false,
+  _isReplaced: false,
+  _isSwappingView: false,
+  _validateEl(el) {
+    if (!el || isString(el) || el.nodeType === 1) {
+      return;
+    }
+    throw new MarionetteError({
+      code: 'MN0002',
+      name: classErrorName$5,
+      message: 'Region "el" must be a selector string or DOM element.',
+      url: 'marionette.region.html#additional-options'
+    });
+  },
+  show(view, options) {
+    if (!canMutateRegion(this)) {
+      return this;
+    }
+    if (!this._ensureElement(options)) {
+      return;
+    }
+    view = this._getView(view, options);
+    if (view === this.currentView) {
+      return this;
+    }
+    if (view._isShown) {
+      throw new MarionetteError({
+        code: 'MN0003',
+        name: classErrorName$5,
+        message: 'View is already shown in a Region or CollectionView',
+        url: 'marionette.region.html#showing-a-view'
+      });
+    }
+    this._isSwappingView = !!this.currentView;
+    this.triggerMethod('before:show', this, view, options);
+    if (this.currentView || !view._isAttached) {
+      this.empty(options);
+    }
+    this._setupChildView(view);
+    this.currentView = view;
+    renderView(view);
+    this._attachView(view, options);
+    this.triggerMethod('show', this, view, options);
+    this._isSwappingView = false;
+    return this;
+  },
+  _setEl(el) {
+    this._validateEl(el);
+    if (el !== null && typeof el === 'object') {
+      this.el = el;
+      return;
+    }
+    if (!el) {
+      throw new MarionetteError({
+        code: 'MN0004',
+        name: classErrorName$5,
+        message: 'An "el" must be specified for a region.',
+        url: 'marionette.region.html#additional-options'
+      });
+    }
+    this.el = this.getEl(el);
+  },
+  _setElement(el) {
+    if (el === this.el) {
+      return this;
+    }
+    const shouldReplace = this._isReplaced;
+    this._restoreEl();
+    this._setEl(el);
+    if (this.currentView) {
+      const view = this.currentView;
+      if (shouldReplace) {
+        this._replaceEl(view);
+      } else {
+        this.attachHtml(view);
+      }
+    }
+    return this;
+  },
+  _setupChildView(view) {
+    monitorViewEvents(view);
+    this._proxyChildViewEvents(view);
+    view.on('destroy', this._empty, this);
+  },
+  _proxyChildViewEvents(view) {
+    const parentView = this._parentView;
+    if (!parentView) {
+      return;
+    }
+    parentView._proxyChildViewEvents(view);
+  },
+  _shouldDisableMonitoring() {
+    return this._parentView && this._parentView.monitorViewEvents === false;
+  },
+  _isElAttached() {
+    const documentEl = this.Dom.getDocumentEl(this.el);
+    return !!documentEl && this.Dom.hasEl(documentEl, this.el);
+  },
+  _attachView(view, {
+    replaceElement
+  } = {}) {
+    const shouldTriggerAttach = !view._isAttached && this._isElAttached() && !this._shouldDisableMonitoring();
+    const shouldReplaceEl = typeof replaceElement === 'undefined' ? !!getValue(this, 'replaceElement') : !!replaceElement;
+    if (shouldTriggerAttach) {
+      view.triggerMethod('before:attach', view);
+    }
+    if (shouldReplaceEl) {
+      this._replaceEl(view);
+    } else {
+      this.attachHtml(view);
+    }
+    if (shouldTriggerAttach) {
+      view._isAttached = true;
+      view.triggerMethod('attach', view);
+    }
+    view._isShown = true;
+  },
+  _ensureElement(options = {}) {
+    this._setEl(this.el);
+    if (!this.el) {
+      const allowMissingEl = typeof options.allowMissingEl === 'undefined' ? !!getValue(this, 'allowMissingEl') : !!options.allowMissingEl;
+      if (allowMissingEl) {
+        return false;
+      } else {
+        throw new MarionetteError({
+          code: 'MN0005',
+          name: classErrorName$5,
+          message: `An "el" must exist in DOM for this region ${this.cid}`,
+          url: 'marionette.region.html#additional-options'
+        });
+      }
+    }
+    return true;
+  },
+  _getView(view) {
+    if (!isView(view)) {
+      throw new MarionetteError({
+        code: 'MN0006',
+        name: classErrorName$5,
+        message: 'The value passed to show must be a View-like instance. Construct the View before calling show.',
+        url: 'marionette.region.html#showing-a-view'
+      });
+    }
+    if (view._isDestroyed) {
+      throw new MarionetteError({
+        code: 'MN0007',
+        name: classErrorName$5,
+        message: `View (cid: "${view.cid}") has already been destroyed and cannot be used.`,
+        url: 'marionette.region.html#showing-a-view'
+      });
+    }
+    return view;
+  },
+  getEl(el) {
+    const context = getValue(this, 'parentEl');
+    return this.Dom.findEl(context || document, el)[0];
+  },
+  _replaceEl(view) {
+    this._restoreEl();
+    view.on('before:destroy', this._restoreEl, this);
+    this.Dom.replaceEl(view.el, this.el);
+    this._isReplaced = true;
+  },
+  _restoreEl() {
+    if (!this._isReplaced) {
+      return;
+    }
+    const view = this.currentView;
+    if (!view) {
+      return;
+    }
+    this._detachView(view);
+    this._isReplaced = false;
+  },
+  isReplaced() {
+    return !!this._isReplaced;
+  },
+  isSwappingView() {
+    return !!this._isSwappingView;
+  },
+  attachHtml(view) {
+    this.Dom.appendContents(this.el, view.el);
+  },
+  empty(options = {
+    allowMissingEl: true
+  }) {
+    const authorized = consumeDestroyTeardown(this, 'empty');
+    if (!canMutateRegion(this, authorized)) {
+      return this;
+    }
+    return emptyRegion(this, options);
+  },
+  _empty(view, shouldDestroy) {
+    view.off('destroy', this._empty, this);
+    this.triggerMethod('before:empty', this, view);
+    this._restoreEl();
+    delete this.currentView;
+    if (!view._isDestroyed) {
+      if (shouldDestroy) {
+        this.removeView(view);
+      } else {
+        this._detachView(view);
+      }
+      view._isShown = false;
+      this._stopChildViewEvents(view);
+    }
+    this.triggerMethod('empty', this, view);
+  },
+  _stopChildViewEvents(view) {
+    const parentView = this._parentView;
+    if (!parentView) {
+      return;
+    }
+    this._parentView.stopListening(view);
+  },
+  destroyView(view) {
+    if (view._isDestroyed) {
+      return view;
+    }
+    destroyView(view, this._shouldDisableMonitoring());
+    return view;
+  },
+  removeView(view) {
+    this.destroyView(view);
+  },
+  detachView() {
+    if (!canMutateRegion(this)) {
+      return;
+    }
+    const view = this.currentView;
+    if (!view) {
+      return;
+    }
+    this._empty(view);
+    return view;
+  },
+  _detachView(view) {
+    const shouldTriggerDetach = view._isAttached && !this._shouldDisableMonitoring();
+    const shouldRestoreEl = this._isReplaced;
+    if (shouldTriggerDetach) {
+      view.triggerMethod('before:detach', view);
+    }
+    if (shouldRestoreEl) {
+      this.Dom.replaceEl(this.el, view.el);
+    } else {
+      this.detachHtml();
+    }
+    if (shouldTriggerDetach) {
+      view._isAttached = false;
+      view.triggerMethod('detach', view);
+    }
+  },
+  detachHtml() {
+    this.Dom.detachContents(this.el);
+  },
+  hasView() {
+    return !!this.currentView;
+  },
+  getOwner() {
+    return this._parentView;
+  },
+  getName() {
+    return this._name;
+  },
+  reset(options) {
+    const authorized = consumeDestroyTeardown(this, 'reset');
+    if (!canMutateRegion(this, authorized)) {
+      return this;
+    }
+    if (authorized) {
+      destroyTeardown.set(this, 'empty');
+    }
+    try {
+      this.empty(options);
+    } finally {
+      if (authorized && destroyTeardown.get(this) === 'empty') {
+        destroyTeardown.delete(this);
+      }
+    }
+    this.el = this._initEl;
+    delete this.$el;
+    return this;
+  },
+  _isDestroyed: false,
+  isDestroyed() {
+    return this._isDestroyed;
+  },
+  destroy(options) {
+    if (this._isDestroyed || this._isDestroying) {
+      return this;
+    }
+    this._isDestroying = true;
+    try {
+      this.triggerMethod('before:destroy', this, options);
+    } catch (error) {
+      delete this._isDestroying;
+      throw error;
+    }
+    this._isDestroyed = true;
+    const currentView = this.currentView;
+    let isReset;
+    destroyTeardown.set(this, 'reset');
+    disposeAll([() => this.stopListening(), () => this.triggerMethod('destroy', this, options), () => {
+      destroyTeardown.delete(this);
+      if (isReset || currentView && currentView !== this.currentView) {
+        const parentView = this._parentView;
+        const name = this._name;
+        delete this._parentView;
+        delete this._name;
+        if (parentView && name !== undefined) {
+          parentView._removeReferences(name);
+        }
+      }
+    }, () => {
+      this.reset(options);
+      isReset = true;
+    }]);
+    return this;
+  }
+});
+Object.defineProperty(Region$1.prototype, runtimeId, {
+  value: defaultRuntimeId
+});
+
+function throwRegionRegistrationConflict$1(message) {
+  throw new MarionetteError({
+    code: 'MN0030',
+    name: 'RegionError',
+    message
+  });
+}
+function buildRegion(definition, defaults) {
+  if (definition instanceof Region$1) {
+    if (definition[runtimeId] !== (defaults[runtimeId] || defaultRuntimeId)) {
+      throwRegionRegistrationConflict$1('A Region instance must belong to the same Marionette runtime as its owner.');
+    }
+    return definition;
+  }
+  if (isString(definition)) {
+    return buildRegionFromObject(defaults, {
+      el: definition
+    });
+  }
+  if (typeof definition === 'function') {
+    return buildRegionFromObject(defaults, {
+      regionClass: definition
+    });
+  }
+  if (definition !== null && typeof definition === 'object') {
+    return buildRegionFromObject(defaults, definition);
+  }
+  throw new MarionetteError({
+    code: 'MN0008',
+    message: 'Improper region configuration type.',
+    url: 'marionette.region.html#defining-regions'
+  });
+}
+function buildRegionFromObject(defaults, definition) {
+  const options = assignOwn({}, defaults, definition);
+  const RegionClass = options.regionClass;
+  const RegionRuntimeId = RegionClass.prototype[runtimeId];
+  if (RegionRuntimeId && RegionRuntimeId !== (defaults[runtimeId] || defaultRuntimeId)) {
+    throwRegionRegistrationConflict$1('A Region class must belong to the same Marionette runtime as its owner.');
+  }
+  delete options.regionClass;
+  return new RegionClass(options);
 }
 
 function getBehaviorClass(options) {
@@ -1722,92 +2217,6 @@ var ViewEventsMixin = {
   }
 };
 
-const objectKeys = Object.keys;
-function setDomApi$1(mixin) {
-  this.prototype.Dom = assignOwn({}, this.prototype.Dom, mixin);
-  return this;
-}
-var DomApi = {
-  createElement(tagName) {
-    return document.createElement(tagName);
-  },
-  createBuffer() {
-    return document.createDocumentFragment();
-  },
-  getDocumentEl(el) {
-    return el.ownerDocument.documentElement;
-  },
-  findEl(el, selector) {
-    return el.querySelectorAll(selector);
-  },
-  hasEl(el, childEl) {
-    return el.contains(childEl && childEl.parentNode);
-  },
-  detachEl(el) {
-    if (el.parentNode) {
-      el.parentNode.removeChild(el);
-    }
-  },
-  replaceEl(newEl, oldEl) {
-    if (newEl === oldEl) {
-      return;
-    }
-    const parent = oldEl.parentNode;
-    if (!parent) {
-      return;
-    }
-    parent.replaceChild(newEl, oldEl);
-  },
-  swapEl(el1, el2) {
-    if (el1 === el2) {
-      return;
-    }
-    const parent1 = el1.parentNode;
-    const parent2 = el2.parentNode;
-    if (!parent1 || !parent2) {
-      return;
-    }
-    const next1 = el1.nextSibling;
-    const next2 = el2.nextSibling;
-    parent1.insertBefore(el2, next1);
-    parent2.insertBefore(el1, next2);
-  },
-  setContents(el, html) {
-    el.innerHTML = html;
-  },
-  setAttributes(el, attrs) {
-    const attrsType = typeof attrs;
-    if (attrs == null || attrsType !== 'object' && attrsType !== 'function') {
-      return;
-    }
-    const attrNames = objectKeys(attrs);
-    for (let index = 0, length = attrNames.length; index < length; index++) {
-      const attr = attrNames[index];
-      if (attr in el) {
-        setProperty(el, attr, attrs[attr]);
-      } else {
-        el.setAttribute(attr, attrs[attr]);
-      }
-    }
-  },
-  appendContents(el, contents) {
-    el.appendChild(contents);
-  },
-  moveEl(el, parent, before = null) {
-    if (el.parentNode === parent && typeof parent.moveBefore === 'function') {
-      parent.moveBefore(el, before);
-      return;
-    }
-    parent.insertBefore(el, before);
-  },
-  hasContents(el) {
-    return !!el && el.hasChildNodes();
-  },
-  detachContents(el) {
-    el.textContent = '';
-  }
-};
-
 const noop = function () {};
 function setDataApi$1(mixin) {
   this.prototype.Data = assignOwn({}, this.prototype.Data, mixin);
@@ -2056,34 +2465,7 @@ function setRenderer$1(renderer) {
   return this;
 }
 
-const defaultRuntimeId = {};
-const runtimeId = Symbol('MarionetteRuntime');
-
 const classErrorName$3 = 'RegionError';
-const destroyTeardown = new WeakMap();
-function consumeDestroyTeardown(region, operation) {
-  if (destroyTeardown.get(region) !== operation) {
-    return false;
-  }
-  destroyTeardown.delete(region);
-  return true;
-}
-function canMutateRegion(region, authorized) {
-  return authorized || !region._isDestroying && !region._isDestroyed;
-}
-function emptyRegion(region, options = {
-  allowMissingEl: true
-}) {
-  const view = region.currentView;
-  if (!view) {
-    if (region._ensureElement(options)) {
-      region.detachHtml();
-    }
-    return region;
-  }
-  region._empty(view, true);
-  return region;
-}
 function assertRegionName(name) {
   if (typeof name === 'string' && name.length > 0) {
     return;
@@ -2164,378 +2546,6 @@ function assertRegionDefinitionsCanRegister(view, definitions) {
     seenRegions.add(definition);
     assertRegionCanRegister(view, definition, name);
   });
-}
-const RegionClassOptions = ['allowMissingEl', 'parentEl', 'replaceElement'];
-const Region$1 = function (options) {
-  this._setOptions(options, RegionClassOptions);
-  this.cid = uniqueId(this.cidPrefix);
-  this._initEl = this.el = this.getOption('el');
-  this._validateEl(this.el);
-  this.initialize.apply(this, arguments);
-};
-Region$1.extend = extend;
-Region$1.setDomApi = setDomApi$1;
-assignOwn(Region$1.prototype, CommonMixin, {
-  Dom: DomApi,
-  cidPrefix: 'mnr',
-  replaceElement: false,
-  _isReplaced: false,
-  _isSwappingView: false,
-  _validateEl(el) {
-    if (!el || isString(el) || el.nodeType === 1) {
-      return;
-    }
-    throw new MarionetteError({
-      code: 'MN0002',
-      name: classErrorName$3,
-      message: 'Region "el" must be a selector string or DOM element.',
-      url: 'marionette.region.html#additional-options'
-    });
-  },
-  show(view, options) {
-    if (!canMutateRegion(this)) {
-      return this;
-    }
-    if (!this._ensureElement(options)) {
-      return;
-    }
-    view = this._getView(view, options);
-    if (view === this.currentView) {
-      return this;
-    }
-    if (view._isShown) {
-      throw new MarionetteError({
-        code: 'MN0003',
-        name: classErrorName$3,
-        message: 'View is already shown in a Region or CollectionView',
-        url: 'marionette.region.html#showing-a-view'
-      });
-    }
-    this._isSwappingView = !!this.currentView;
-    this.triggerMethod('before:show', this, view, options);
-    if (this.currentView || !view._isAttached) {
-      this.empty(options);
-    }
-    this._setupChildView(view);
-    this.currentView = view;
-    renderView(view);
-    this._attachView(view, options);
-    this.triggerMethod('show', this, view, options);
-    this._isSwappingView = false;
-    return this;
-  },
-  _setEl(el) {
-    this._validateEl(el);
-    if (el !== null && typeof el === 'object') {
-      this.el = el;
-      return;
-    }
-    if (!el) {
-      throw new MarionetteError({
-        code: 'MN0004',
-        name: classErrorName$3,
-        message: 'An "el" must be specified for a region.',
-        url: 'marionette.region.html#additional-options'
-      });
-    }
-    this.el = this.getEl(el);
-  },
-  _setElement(el) {
-    if (el === this.el) {
-      return this;
-    }
-    const shouldReplace = this._isReplaced;
-    this._restoreEl();
-    this._setEl(el);
-    if (this.currentView) {
-      const view = this.currentView;
-      if (shouldReplace) {
-        this._replaceEl(view);
-      } else {
-        this.attachHtml(view);
-      }
-    }
-    return this;
-  },
-  _setupChildView(view) {
-    monitorViewEvents(view);
-    this._proxyChildViewEvents(view);
-    view.on('destroy', this._empty, this);
-  },
-  _proxyChildViewEvents(view) {
-    const parentView = this._parentView;
-    if (!parentView) {
-      return;
-    }
-    parentView._proxyChildViewEvents(view);
-  },
-  _shouldDisableMonitoring() {
-    return this._parentView && this._parentView.monitorViewEvents === false;
-  },
-  _isElAttached() {
-    const documentEl = this.Dom.getDocumentEl(this.el);
-    return !!documentEl && this.Dom.hasEl(documentEl, this.el);
-  },
-  _attachView(view, {
-    replaceElement
-  } = {}) {
-    const shouldTriggerAttach = !view._isAttached && this._isElAttached() && !this._shouldDisableMonitoring();
-    const shouldReplaceEl = typeof replaceElement === 'undefined' ? !!getValue(this, 'replaceElement') : !!replaceElement;
-    if (shouldTriggerAttach) {
-      view.triggerMethod('before:attach', view);
-    }
-    if (shouldReplaceEl) {
-      this._replaceEl(view);
-    } else {
-      this.attachHtml(view);
-    }
-    if (shouldTriggerAttach) {
-      view._isAttached = true;
-      view.triggerMethod('attach', view);
-    }
-    view._isShown = true;
-  },
-  _ensureElement(options = {}) {
-    this._setEl(this.el);
-    if (!this.el) {
-      const allowMissingEl = typeof options.allowMissingEl === 'undefined' ? !!getValue(this, 'allowMissingEl') : !!options.allowMissingEl;
-      if (allowMissingEl) {
-        return false;
-      } else {
-        throw new MarionetteError({
-          code: 'MN0005',
-          name: classErrorName$3,
-          message: `An "el" must exist in DOM for this region ${this.cid}`,
-          url: 'marionette.region.html#additional-options'
-        });
-      }
-    }
-    return true;
-  },
-  _getView(view) {
-    if (!isView(view)) {
-      throw new MarionetteError({
-        code: 'MN0006',
-        name: classErrorName$3,
-        message: 'The value passed to show must be a View-like instance. Construct the View before calling show.',
-        url: 'marionette.region.html#showing-a-view'
-      });
-    }
-    if (view._isDestroyed) {
-      throw new MarionetteError({
-        code: 'MN0007',
-        name: classErrorName$3,
-        message: `View (cid: "${view.cid}") has already been destroyed and cannot be used.`,
-        url: 'marionette.region.html#showing-a-view'
-      });
-    }
-    return view;
-  },
-  getEl(el) {
-    const context = getValue(this, 'parentEl');
-    return this.Dom.findEl(context || document, el)[0];
-  },
-  _replaceEl(view) {
-    this._restoreEl();
-    view.on('before:destroy', this._restoreEl, this);
-    this.Dom.replaceEl(view.el, this.el);
-    this._isReplaced = true;
-  },
-  _restoreEl() {
-    if (!this._isReplaced) {
-      return;
-    }
-    const view = this.currentView;
-    if (!view) {
-      return;
-    }
-    this._detachView(view);
-    this._isReplaced = false;
-  },
-  isReplaced() {
-    return !!this._isReplaced;
-  },
-  isSwappingView() {
-    return !!this._isSwappingView;
-  },
-  attachHtml(view) {
-    this.Dom.appendContents(this.el, view.el);
-  },
-  empty(options = {
-    allowMissingEl: true
-  }) {
-    const authorized = consumeDestroyTeardown(this, 'empty');
-    if (!canMutateRegion(this, authorized)) {
-      return this;
-    }
-    return emptyRegion(this, options);
-  },
-  _empty(view, shouldDestroy) {
-    view.off('destroy', this._empty, this);
-    this.triggerMethod('before:empty', this, view);
-    this._restoreEl();
-    delete this.currentView;
-    if (!view._isDestroyed) {
-      if (shouldDestroy) {
-        this.removeView(view);
-      } else {
-        this._detachView(view);
-      }
-      view._isShown = false;
-      this._stopChildViewEvents(view);
-    }
-    this.triggerMethod('empty', this, view);
-  },
-  _stopChildViewEvents(view) {
-    const parentView = this._parentView;
-    if (!parentView) {
-      return;
-    }
-    this._parentView.stopListening(view);
-  },
-  destroyView(view) {
-    if (view._isDestroyed) {
-      return view;
-    }
-    destroyView(view, this._shouldDisableMonitoring());
-    return view;
-  },
-  removeView(view) {
-    this.destroyView(view);
-  },
-  detachView() {
-    if (!canMutateRegion(this)) {
-      return;
-    }
-    const view = this.currentView;
-    if (!view) {
-      return;
-    }
-    this._empty(view);
-    return view;
-  },
-  _detachView(view) {
-    const shouldTriggerDetach = view._isAttached && !this._shouldDisableMonitoring();
-    const shouldRestoreEl = this._isReplaced;
-    if (shouldTriggerDetach) {
-      view.triggerMethod('before:detach', view);
-    }
-    if (shouldRestoreEl) {
-      this.Dom.replaceEl(this.el, view.el);
-    } else {
-      this.detachHtml();
-    }
-    if (shouldTriggerDetach) {
-      view._isAttached = false;
-      view.triggerMethod('detach', view);
-    }
-  },
-  detachHtml() {
-    this.Dom.detachContents(this.el);
-  },
-  hasView() {
-    return !!this.currentView;
-  },
-  getOwner() {
-    return this._parentView;
-  },
-  getName() {
-    return this._name;
-  },
-  reset(options) {
-    const authorized = consumeDestroyTeardown(this, 'reset');
-    if (!canMutateRegion(this, authorized)) {
-      return this;
-    }
-    if (authorized) {
-      destroyTeardown.set(this, 'empty');
-    }
-    try {
-      this.empty(options);
-    } finally {
-      if (authorized && destroyTeardown.get(this) === 'empty') {
-        destroyTeardown.delete(this);
-      }
-    }
-    this.el = this._initEl;
-    delete this.$el;
-    return this;
-  },
-  _isDestroyed: false,
-  isDestroyed() {
-    return this._isDestroyed;
-  },
-  destroy(options) {
-    if (this._isDestroyed || this._isDestroying) {
-      return this;
-    }
-    this._isDestroying = true;
-    try {
-      this.triggerMethod('before:destroy', this, options);
-    } catch (error) {
-      delete this._isDestroying;
-      throw error;
-    }
-    this._isDestroyed = true;
-    const currentView = this.currentView;
-    let isReset;
-    destroyTeardown.set(this, 'reset');
-    disposeAll([() => this.stopListening(), () => this.triggerMethod('destroy', this, options), () => {
-      destroyTeardown.delete(this);
-      if (isReset || currentView && currentView !== this.currentView) {
-        const parentView = this._parentView;
-        const name = this._name;
-        delete this._parentView;
-        delete this._name;
-        if (parentView && name !== undefined) {
-          parentView._removeReferences(name);
-        }
-      }
-    }, () => {
-      this.reset(options);
-      isReset = true;
-    }]);
-    return this;
-  }
-});
-Object.defineProperty(Region$1.prototype, runtimeId, {
-  value: defaultRuntimeId
-});
-function buildRegion(definition, defaults) {
-  if (definition instanceof Region$1) {
-    if (definition[runtimeId] !== (defaults[runtimeId] || defaultRuntimeId)) {
-      throwRegionRegistrationConflict('A Region instance must belong to the same Marionette runtime as its owner.');
-    }
-    return definition;
-  }
-  if (isString(definition)) {
-    return buildRegionFromObject(defaults, {
-      el: definition
-    });
-  }
-  if (typeof definition === 'function') {
-    return buildRegionFromObject(defaults, {
-      regionClass: definition
-    });
-  }
-  if (definition !== null && typeof definition === 'object') {
-    return buildRegionFromObject(defaults, definition);
-  }
-  throw new MarionetteError({
-    code: 'MN0008',
-    message: 'Improper region configuration type.',
-    url: 'marionette.region.html#defining-regions'
-  });
-}
-function buildRegionFromObject(defaults, definition) {
-  const options = assignOwn({}, defaults, definition);
-  const RegionClass = options.regionClass;
-  const RegionRuntimeId = RegionClass.prototype[runtimeId];
-  if (RegionRuntimeId && RegionRuntimeId !== (defaults[runtimeId] || defaultRuntimeId)) {
-    throwRegionRegistrationConflict('A Region class must belong to the same Marionette runtime as its owner.');
-  }
-  delete options.regionClass;
-  return new RegionClass(options);
 }
 const RegionsMixin = {
   regionClass: Region$1,

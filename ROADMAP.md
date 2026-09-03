@@ -384,10 +384,11 @@ current-evidence findings:
   one options-object and three string uses in app-frontend, no use in Marionette
   Toolkit, and no use in the agent benchmark; every found use has a direct explicit
   View construction migration. v5 removes the convenience without an alias.
-- **Gated:** With that display contract selected, View, Region, and the declarative Region
-  builder return to honest owner-named modules. `buildRegion` remains an internal
-  helper for declarative Region definitions; one-line forwarding modules and other
-  obsolete internal paths are removed rather than preserved as aliases.
+- **Selected:** View and Region live in their owner-named modules. The declarative
+  Region builder lives in `modules/common/build-region.js` as an internal helper;
+  the former combined implementation and one-line forwarding modules are removed
+  rather than preserved as aliases. Immutable performance evidence retains the
+  historical source paths that its exact measurements recorded.
 - **Gated:** Instance `getOption` and `mergeOptions` remain migration candidates to keep because
   verified public consumers use both and `mergeOptions` provides an explicit
   constructor option whitelist. New core contracts do not expand their role. The
