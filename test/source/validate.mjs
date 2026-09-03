@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { relative, resolve } from 'node:path';
 import { JSDOM } from 'jsdom';
+import { rollup } from 'rollup';
 
 import BackboneApi from '../../packages/adapters/src/backbone-api.js';
 import * as Marionette from '../../index.js';
@@ -104,6 +105,20 @@ assert.equal(Object.hasOwn(packageJson.dependencies || {}, 'jquery'), false);
 assert.equal(adaptersPackageJson.version, packageJson.version);
 assert.equal(adaptersPackageJson.peerDependencies.marionette, packageJson.version);
 assert.deepEqual(nonDeclarativeConfigFiles, []);
+
+const regionBundle = await rollup({ input: resolve(root, 'modules/region.js') });
+const regionDependencies = regionBundle.watchFiles.map(file => relative(root, file));
+await regionBundle.close();
+assert.equal(
+  regionDependencies.includes('modules/view.js'),
+  false,
+  'Region must remain independent from View'
+);
+assert.equal(
+  regionDependencies.includes('modules/common/build-region.js'),
+  false,
+  'Region must remain independent from the declarative Region builder'
+);
 
 for (const file of productionFiles) {
   assert.doesNotMatch(

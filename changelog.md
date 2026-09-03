@@ -17,6 +17,8 @@
 * Changed `Region#show` and `View#showChildView` to require an explicitly
   constructed View-like instance; template functions, strings, and View-options
   objects no longer allocate a hidden base View
+* Split the internal View, Region, and declarative Region builder implementations
+  into owner-named modules and removed the obsolete combined source path
 * Added the optional `@marionette/data` package with observable Model and ordered
   Collection sources plus matching DataApi and StateApi adapters
 * Added the optional `@marionette/adapters` package with explicit Backbone and
