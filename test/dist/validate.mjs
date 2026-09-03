@@ -45,6 +45,20 @@ function validateRequestBoundary(Marionette, name) {
   }
 }
 
+function validateCollectionTemplateData(Marionette, name) {
+  const model = { name: 'plain' };
+  const data = Marionette.View.prototype.serializeData.call({
+    collection: [model],
+    Data: Marionette.DataApi,
+    serializeCollection: Marionette.View.prototype.serializeCollection,
+  });
+
+  assert.deepStrictEqual(Object.keys(data), ['models'], `${name} collection template property`);
+  assert.strictEqual(data.models.length, 1, `${name} serialized collection length`);
+  assert.strictEqual(data.models[0], model, `${name} serialized collection value`);
+  assert.strictEqual(Object.hasOwn(data, 'items'), false, `${name} removed collection template items`);
+}
+
 async function validateBrowserGlobal(file) {
   const previousMarionette = {};
   const context = {
@@ -89,6 +103,7 @@ async function validateBrowserGlobal(file) {
   assert.strictEqual(state.ready, true, `${file} borrowed Application state survives teardown`);
   validateRadio(Marionette, file);
   validateRequestBoundary(Marionette, file);
+  validateCollectionTemplateData(Marionette, file);
   assert.strictEqual(Marionette.noConflict(), Marionette, `${file} noConflict return value`);
   assert.strictEqual(context.Marionette, previousMarionette, `${file} noConflict restoration`);
 }
@@ -122,6 +137,7 @@ async function validate() {
     assert.strictEqual(new Marionette.MnObject({ state }).getState(), state, `${name} exact state source`);
     validateRadio(Marionette, name);
     validateRequestBoundary(Marionette, name);
+    validateCollectionTemplateData(Marionette, name);
 
     for (const utilityName of removedRootUtilities) {
       assert.strictEqual(Object.hasOwn(Marionette, utilityName), false, `${name} ${utilityName} absence`);

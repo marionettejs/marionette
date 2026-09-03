@@ -252,10 +252,26 @@ describe('template-render', function() {
         expect(renderer.serializeCollection).to.be.calledOnce;
       });
 
-      it('should send collection data on the established `items` template property', function() {
-        expect(renderer._renderHtml)
+      it('should send collection data on the `models` template property', function() {
+        renderer.template = this.sinon.spy();
+        renderer.render();
+
+        expect(renderer.template)
           .to.be.calledOnce
-          .and.calledWith(renderer.template, { items: [{ id: 1 },{ id: 2 }] });
+          .and.calledWith({ models: [{ id: 1 },{ id: 2 }] });
+        expect(renderer.template.firstCall.args[0]).to.not.have.property('items');
+      });
+
+      it('wraps an overridden serialized collection under models', function() {
+        const serialized = { custom: true };
+        renderer.serializeCollection = this.sinon.stub().returns(serialized);
+        renderer.template = this.sinon.spy();
+
+        renderer.render();
+
+        expect(renderer.template)
+          .to.be.calledOnce
+          .and.calledWith({ models: serialized });
       });
 
       it('preserves model order and attribute object identity', function() {

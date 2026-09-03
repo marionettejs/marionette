@@ -19,6 +19,18 @@ current public behavior boundary. Final migration documentation is tracked in
   // v5
   const models = DataApi.models(collection);
   ```
+- View templates with a collection and no model now receive the result of
+  `serializeCollection()` on the `models` property. By default, that result is an
+  array of serialized values. Replace the pre-stable `items` property without
+  retaining both names.
+
+  ```js
+  // before
+  template: ({ items }) => items.map(renderModel)
+
+  // v5
+  template: ({ models }) => models.map(renderModel)
+  ```
 - Applications using Backbone must select its integration once at boot:
 
   ```sh

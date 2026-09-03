@@ -49,10 +49,10 @@ export default {
     }
 
     // Otherwise, we serialize the collection,
-    // making it available under the `items` property
+    // making it available under the `models` property
     if (this.collection) {
       return {
-        items: this.serializeCollection()
+        models: this.serializeCollection()
       };
     }
   },

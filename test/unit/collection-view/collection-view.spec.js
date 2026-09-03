@@ -353,6 +353,19 @@ describe('CollectionView', function() {
       this.sinon.spy(myCollectionView, 'render');
     });
 
+    it('provides serialized collection data to its template as models', function() {
+      const template = this.sinon.spy(() => '');
+      const view = new CollectionView({
+        collection: new Backbone.Collection(),
+        template,
+      });
+
+      view.render();
+
+      expect(template).to.have.been.calledOnce.and.calledWith({ models: [] });
+      expect(template.firstCall.args[0]).to.not.have.property('items');
+    });
+
     describe('when the view is not destroyed', function() {
       beforeEach(function() {
         myCollectionView.render();

@@ -42,8 +42,7 @@ describe('plain data integration', function() {
   it('serializes a plain array for a View template', function() {
     const collection = [{ name: 'one' }, { name: 'two' }];
     const PlainListView = View.extend({
-      // `items` is the established serialized collection template property.
-      template: ({ items }) => items.map(model => model.name).join(',')
+      template: ({ models }) => models.map(model => model.name).join(',')
     });
     PlainListView.setDataApi(DataApi);
     const plainView = new PlainListView({ collection });

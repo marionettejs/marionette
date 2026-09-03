@@ -357,10 +357,9 @@ implementation is already complete.
 The current evidence establishes these selected decisions, gated candidates, and
 current-evidence findings:
 
-- **Required before API-shape freeze:** Decide the serialized collection template
-  property that is currently named `items`. Its vocabulary must align with the
-  selected `DataApi.models(collection)` contract before stable v5; the split must
-  not survive into a stable release.
+- **Selected:** Rename the pre-stable serialized collection template property from
+  `items` to `models` without an alias so it matches the selected
+  `DataApi.models(collection)` vocabulary before stable v5.
 - **Selected:** Root imports retain one default Radio registry and set of runtime
   classes. Optional `createMarionette()` calls create isolated runtimes with their own
   runtime classes, mutable adapter configuration, renderers, and Radio registries.

@@ -594,7 +594,7 @@ var TemplateRenderMixin = {
     }
     if (this.collection) {
       return {
-        items: this.serializeCollection()
+        models: this.serializeCollection()
       };
     }
   },
