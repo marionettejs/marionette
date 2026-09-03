@@ -65,6 +65,7 @@ mkdirSync(packDir, { recursive: true });
 
 try {
   const suppliedTarball = readArgument('--tarball');
+  const suppliedDataTarball = readArgument('--data-tarball');
   let tarballPath;
   if (suppliedTarball) {
     tarballPath = resolve(rootDir, suppliedTarball);
@@ -82,6 +83,28 @@ try {
     }
 
     tarballPath = resolve(packDir, packedTarballs[0]);
+  }
+
+  let dataTarballPath;
+  if (suppliedDataTarball) {
+    dataTarballPath = resolve(rootDir, suppliedDataTarball);
+    if (!existsSync(dataTarballPath)) {
+      throw new Error(`Packed data tarball does not exist: ${dataTarballPath}`);
+    }
+  } else {
+    const existingTarballs = new Set(readdirSync(packDir));
+    runNpm([
+      'pack',
+      resolve(rootDir, 'packages/data'),
+      '--pack-destination',
+      packDir,
+    ]);
+    const packedDataTarballs = readdirSync(packDir)
+      .filter(fileName => fileName.endsWith('.tgz') && !existingTarballs.has(fileName));
+    if (packedDataTarballs.length !== 1) {
+      throw new Error(`Expected one packed data tarball, found ${packedDataTarballs.length}`);
+    }
+    dataTarballPath = resolve(packDir, packedDataTarballs[0]);
   }
 
   for (const fixtureName of fixtures) {
@@ -103,7 +126,9 @@ try {
 
       cleanFixture(fixtureDir);
       runNpm(['install'], { cwd: fixtureDir });
-      runNpm(['install', '--no-save', tarballPath], { cwd: fixtureDir });
+      const tarballs = fixtureName.startsWith('data-package-') ?
+        [tarballPath, dataTarballPath] : [tarballPath];
+      runNpm(['install', '--no-save', ...tarballs], { cwd: fixtureDir });
       runNpm(['run', 'validate'], { cwd: fixtureDir });
     } finally {
       if (externalFixture) {

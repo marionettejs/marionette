@@ -1,4 +1,5 @@
-export function publishDraftRelease({ editArgs, ensureTag, run }) {
+export function publishDraftRelease({ editArgs, ensureTag, run, verifyAssets = () => {} }) {
+  verifyAssets();
   ensureTag();
   run(editArgs);
 }

@@ -68,7 +68,7 @@ const artifactDir = resolve(root, readArgument('--artifact-dir', 'release'));
 const evidencePath = resolve(artifactDir, 'release-evidence.json');
 const evidenceBytes = await readFile(evidencePath);
 const evidence = JSON.parse(evidenceBytes);
-if (evidence.schemaVersion !== 1) {
+if (evidence.schemaVersion !== 2) {
   throw new Error(`Unsupported evidence schemaVersion ${evidence.schemaVersion}.`);
 }
 
@@ -83,26 +83,67 @@ function artifactPath(fileName) {
 const checksum = (await readFile(artifactPath('release-evidence.sha512'), 'utf8')).trim();
 assertEqual(checksum, `${sha512(evidenceBytes)}  release-evidence.json`, 'evidence checksum');
 
-const tarballPath = artifactPath(evidence.package.tarball.file);
-const tarball = await readFile(tarballPath);
-assertEqual(tarball.length, evidence.package.tarball.size, 'tarball size');
-assertEqual(sha256(tarball), evidence.package.tarball.sha256, 'tarball SHA-256');
-assertEqual(sha512(tarball), evidence.package.tarball.sha512, 'tarball SHA-512');
-assertEqual(
-  `sha512-${createHash('sha512').update(tarball).digest('base64')}`,
-  evidence.package.tarball.integrity,
-  'tarball npm integrity',
-);
+if (!Array.isArray(evidence.packages) || evidence.packages.length !== 2) {
+  throw new Error('Release evidence must contain the core and data packages.');
+}
+const packageIds = evidence.packages.map(packageEvidence => packageEvidence.id);
+if (JSON.stringify(packageIds) !== JSON.stringify(['core', 'data'])) {
+  throw new Error(`Unexpected release package order: ${packageIds.join(', ')}.`);
+}
+const packageNames = new Map([
+  ['core', 'marionette'],
+  ['data', '@marionette/data'],
+]);
+for (const packageEvidence of evidence.packages) {
+  assertEqual(
+    packageEvidence.name,
+    packageNames.get(packageEvidence.id),
+    `${packageEvidence.id} package name`,
+  );
+}
 
-const packageManifestPath = artifactPath(evidence.reports.packageManifest.file);
-const packageManifestBytes = await readFile(packageManifestPath);
-const packageManifest = JSON.parse(packageManifestBytes);
-assertEqual(sha512(packageManifestBytes), evidence.reports.packageManifest.sha512, 'package manifest SHA-512');
-assertEqual(packageManifest.name, evidence.package.name, 'package manifest name');
-assertEqual(packageManifest.version, evidence.package.version, 'package manifest version');
-assertEqual(packageManifest.filename, evidence.package.tarball.file, 'package manifest filename');
-assertEqual(packageManifest.integrity, evidence.package.tarball.integrity, 'package manifest integrity');
-assertEqual(packageManifest.shasum, evidence.package.tarball.shasum, 'package manifest shasum');
+for (const packageEvidence of evidence.packages) {
+  const label = packageEvidence.name;
+  const tarballPath = artifactPath(packageEvidence.tarball.file);
+  const tarball = await readFile(tarballPath);
+  assertEqual(tarball.length, packageEvidence.tarball.size, `${label} tarball size`);
+  assertEqual(sha256(tarball), packageEvidence.tarball.sha256, `${label} tarball SHA-256`);
+  assertEqual(sha512(tarball), packageEvidence.tarball.sha512, `${label} tarball SHA-512`);
+  assertEqual(
+    `sha512-${createHash('sha512').update(tarball).digest('base64')}`,
+    packageEvidence.tarball.integrity,
+    `${label} tarball npm integrity`,
+  );
+
+  const packageManifestBytes = await readFile(artifactPath(packageEvidence.manifestReport.file));
+  const packageManifest = JSON.parse(packageManifestBytes);
+  assertEqual(
+    sha512(packageManifestBytes),
+    packageEvidence.manifestReport.sha512,
+    `${label} package manifest SHA-512`,
+  );
+  assertEqual(packageManifest.name, packageEvidence.name, `${label} package manifest name`);
+  assertEqual(packageManifest.version, packageEvidence.version, `${label} package manifest version`);
+  assertEqual(packageManifest.filename, packageEvidence.tarball.file, `${label} package manifest filename`);
+  assertEqual(packageManifest.integrity, packageEvidence.tarball.integrity, `${label} package manifest integrity`);
+  assertEqual(packageManifest.shasum, packageEvidence.tarball.shasum, `${label} package manifest shasum`);
+
+  const tarPackage = spawnSync('tar', [
+    '-xOf',
+    tarballPath,
+    'package/package.json',
+  ], { encoding: 'utf8', maxBuffer: 1024 * 1024 });
+  if (tarPackage.error) {
+    throw tarPackage.error;
+  }
+  if (tarPackage.status !== 0) {
+    process.stderr.write(tarPackage.stderr);
+    throw new Error(`tar exited with status ${tarPackage.status}.`);
+  }
+  if (JSON.stringify(JSON.parse(tarPackage.stdout)) !== JSON.stringify(packageEvidence.manifest)) {
+    throw new Error(`${label} packed package.json does not match the evidence manifest.`);
+  }
+}
 
 const bundleReportPath = artifactPath(evidence.reports.bundle.file);
 const bundleReportBytes = await readFile(bundleReportPath);
@@ -133,12 +174,15 @@ assertEqual(
   evidence.promotionPolicy.publicationEnabled,
   'publication-enabled policy',
 );
-assertEqual(evidence.release.tag, `v${evidence.package.version}`, 'release tag');
+assertEqual(evidence.release.tag, `v${evidence.release.version}`, 'release tag');
 assertEqual(
-  evidence.package.npmTag,
+  evidence.release.npmTag,
   evidence.release.prerelease ? promotionPolicy.npm.prereleaseTag : promotionPolicy.npm.stableTag,
   'npm dist-tag',
 );
+for (const packageEvidence of evidence.packages) {
+  assertEqual(packageEvidence.version, evidence.release.version, `${packageEvidence.name} release version`);
+}
 
 const expectedCommit = readArgument('--source-commit');
 const expectedRepository = readArgument('--repository');
@@ -149,20 +193,6 @@ if (expectedRepository) {
   assertEqual(evidence.source.repository, expectedRepository, 'source repository');
 }
 
-const tarPackage = spawnSync('tar', [
-  '-xOf',
-  tarballPath,
-  'package/package.json',
-], { encoding: 'utf8', maxBuffer: 1024 * 1024 });
-if (tarPackage.error) {
-  throw tarPackage.error;
+for (const packageEvidence of evidence.packages) {
+  console.log(`Verified ${packageEvidence.tarball.file} at ${packageEvidence.tarball.sha512}.`);
 }
-if (tarPackage.status !== 0) {
-  process.stderr.write(tarPackage.stderr);
-  throw new Error(`tar exited with status ${tarPackage.status}.`);
-}
-if (JSON.stringify(JSON.parse(tarPackage.stdout)) !== JSON.stringify(evidence.package.manifest)) {
-  throw new Error('Packed package.json does not match the evidence manifest.');
-}
-
-console.log(`Verified ${evidence.package.tarball.file} at ${evidence.package.tarball.sha512}.`);

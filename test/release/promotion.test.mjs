@@ -42,12 +42,19 @@ function runScript(file, args) {
 
 test('release artifact verification rejects Windows drive-relative names', async function() {
   const artifactDirectory = await createArtifactDirectory({
-    schemaVersion: 1,
-    package: {
-      tarball: {
-        file: 'C:evil.tgz',
+    schemaVersion: 2,
+    packages: [
+      {
+        id: 'core',
+        name: 'marionette',
+        tarball: { file: 'C:evil.tgz' },
       },
-    },
+      {
+        id: 'data',
+        name: '@marionette/data',
+        tarball: { file: 'data.tgz' },
+      },
+    ],
   }, true);
 
   const result = runScript('scripts/release/verify-artifact.mjs', [
@@ -59,19 +66,62 @@ test('release artifact verification rejects Windows drive-relative names', async
   assert.match(result.stderr, /Release artifact must use a contained file name: C:evil\.tgz/);
 });
 
+test('release artifact verification binds package ids to names', async function() {
+  const artifactDirectory = await createArtifactDirectory({
+    schemaVersion: 2,
+    packages: [
+      { id: 'core', name: '@marionette/data' },
+      { id: 'data', name: 'marionette' },
+    ],
+  }, true);
+
+  const result = runScript('scripts/release/verify-artifact.mjs', [
+    '--artifact-dir',
+    artifactDirectory,
+  ]);
+
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /core package name mismatch/);
+});
+
+test('release target checks bind package ids to names before network access', async function() {
+  const artifactDirectory = await createArtifactDirectory({
+    schemaVersion: 2,
+    packages: [
+      { id: 'core', name: '@marionette/data' },
+      { id: 'data', name: 'marionette' },
+    ],
+  });
+
+  const result = runScript('scripts/release/check-targets.mjs', [
+    '--artifact-dir',
+    artifactDirectory,
+  ]);
+
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Unexpected core package name/);
+});
+
 test('GitHub release planning rejects Windows drive-relative names', async function() {
   const artifactDirectory = await createArtifactDirectory({
-    package: {
-      tarball: {
-        file: 'C:evil.tgz',
+    schemaVersion: 2,
+    packages: [
+      {
+        id: 'core',
+        name: 'marionette',
+        tarball: { file: 'C:evil.tgz' },
+        manifestReport: { file: 'core-package-manifest.json' },
       },
-    },
+      {
+        id: 'data',
+        name: '@marionette/data',
+        tarball: { file: 'data.tgz' },
+        manifestReport: { file: 'data-package-manifest.json' },
+      },
+    ],
     reports: {
       bundle: {
         file: 'bundle-report.json',
-      },
-      packageManifest: {
-        file: 'package-manifest.json',
       },
     },
   });
@@ -112,12 +162,15 @@ test('a verified tag is followed by the public release edit', function() {
     ensureTag() {
       calls.push('tag');
     },
+    verifyAssets() {
+      calls.push('assets');
+    },
     run(args) {
       calls.push(args);
     },
   });
 
-  assert.deepEqual(calls, ['tag', editArgs]);
+  assert.deepEqual(calls, ['assets', 'tag', editArgs]);
 });
 
 test('a failed public release edit propagates after tag validation', function() {
@@ -134,4 +187,25 @@ test('a failed public release edit propagates after tag validation', function() 
     },
   }), error => error === editError);
   assert.equal(tagValidated, true);
+});
+
+test('an asset revalidation failure prevents a draft from becoming public', function() {
+  const assetError = new Error('artifact changed');
+  let editCalled = false;
+  let tagCreated = false;
+
+  assert.throws(() => publishDraftRelease({
+    editArgs: ['release', 'edit', 'v5.0.0', '--draft=false'],
+    ensureTag() {
+      tagCreated = true;
+    },
+    verifyAssets() {
+      throw assetError;
+    },
+    run() {
+      editCalled = true;
+    },
+  }), error => error === assetError);
+  assert.equal(tagCreated, false);
+  assert.equal(editCalled, false);
 });

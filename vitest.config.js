@@ -1,6 +1,13 @@
 import { defineConfig } from 'vitest/config';
+import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
+  resolve: {
+    alias: [{
+      find: /^marionette$/,
+      replacement: fileURLToPath(new URL('./index.js', import.meta.url))
+    }]
+  },
   test: {
     globals: true,
     environment: 'jsdom',
@@ -15,6 +22,7 @@ export default defineConfig({
         'jquery-dom-api.js',
         'mixins/**/*.js',
         'modules/**/*.js',
+        'packages/data/src/**/*.js',
         'runtime/**/*.js',
         'utils/**/*.js',
         'version.js'

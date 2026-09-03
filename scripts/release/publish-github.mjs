@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -58,11 +59,29 @@ const artifactDir = resolve(root, readArgument('--artifact-dir', 'release'));
 const evidenceBytes = await readFile(resolve(artifactDir, 'release-evidence.json'));
 const evidence = JSON.parse(evidenceBytes);
 const policy = JSON.parse(await readFile(resolve(root, 'config/release-promotion.json'), 'utf8'));
+if (evidence.schemaVersion !== 2 || !Array.isArray(evidence.packages)) {
+  throw new Error(`Unsupported evidence schemaVersion ${evidence.schemaVersion}.`);
+}
+const packageIds = evidence.packages.map(packageEvidence => packageEvidence.id);
+if (JSON.stringify(packageIds) !== JSON.stringify(['core', 'data'])) {
+  throw new Error(`Unexpected release package order: ${packageIds.join(', ')}.`);
+}
+const packageNames = new Map([
+  ['core', 'marionette'],
+  ['data', '@marionette/data'],
+]);
+for (const packageEvidence of evidence.packages) {
+  if (packageEvidence.name !== packageNames.get(packageEvidence.id)) {
+    throw new Error(`Unexpected ${packageEvidence.id} package name: ${packageEvidence.name}.`);
+  }
+}
 const assetNames = [
-  evidence.package.tarball.file,
+  ...evidence.packages.flatMap(packageEvidence => [
+    packageEvidence.tarball.file,
+    packageEvidence.manifestReport.file,
+  ]),
   'release-evidence.json',
   'release-evidence.sha512',
-  evidence.reports.packageManifest.file,
   evidence.reports.bundle.file,
 ];
 
@@ -79,25 +98,27 @@ if (new Set(assetNames).size !== assetNames.length) {
   throw new Error('Release artifact contains duplicate asset names.');
 }
 
-async function verifyLocalAssets() {
-  const checksum = (await readFile(artifactPath('release-evidence.sha512'), 'utf8')).trim();
-  if (checksum !== `${sha512(evidenceBytes)}  release-evidence.json`) {
-    throw new Error('Release evidence checksum does not match.');
-  }
-  const expectedHashes = new Map([
-    [evidence.package.tarball.file, evidence.package.tarball.sha512],
-    [evidence.reports.packageManifest.file, evidence.reports.packageManifest.sha512],
-    [evidence.reports.bundle.file, evidence.reports.bundle.sha512],
-  ]);
+const evidenceChecksum = `${sha512(evidenceBytes)}  release-evidence.json`;
+const expectedHashes = new Map([
+  ...evidence.packages.flatMap(packageEvidence => [
+    [packageEvidence.tarball.file, packageEvidence.tarball.sha512],
+    [packageEvidence.manifestReport.file, packageEvidence.manifestReport.sha512],
+  ]),
+  ['release-evidence.json', sha512(evidenceBytes)],
+  ['release-evidence.sha512', sha512(Buffer.from(`${evidenceChecksum}\n`))],
+  [evidence.reports.bundle.file, evidence.reports.bundle.sha512],
+]);
+
+function verifyLocalAssets() {
   for (const [assetName, expectedHash] of expectedHashes) {
-    const bytes = await readFile(artifactPath(assetName));
+    const bytes = readFileSync(artifactPath(assetName));
     if (sha512(bytes) !== expectedHash) {
       throw new Error(`Local release asset differs from the verified evidence: ${assetName}`);
     }
   }
 }
 
-await verifyLocalAssets();
+verifyLocalAssets();
 
 if (mode === 'dry-run') {
   console.log(JSON.stringify({
@@ -124,6 +145,7 @@ const viewArgs = [
 ];
 
 async function verifyRelease(release) {
+  verifyLocalAssets();
   if (release.targetCommitish !== evidence.source.commit) {
     throw new Error('Release targets a different source commit.');
   }
@@ -149,9 +171,8 @@ async function verifyRelease(release) {
       throw new Error('Downloaded release assets do not match the expected manifest.');
     }
     for (const assetName of assetNames) {
-      const local = await readFile(artifactPath(assetName));
       const remote = await readFile(resolve(downloadDir, assetName));
-      if (sha512(local) !== sha512(remote)) {
+      if (sha512(remote) !== expectedHashes.get(assetName)) {
         throw new Error(`Release asset differs from the verified artifact: ${assetName}`);
       }
     }
@@ -224,7 +245,8 @@ if (mode === 'stage') {
   const notes = [
     `Immutable release artifact for ${evidence.source.commit}.`,
     '',
-    `Tarball SHA-512: ${evidence.package.tarball.sha512}`,
+    ...evidence.packages.map(packageEvidence =>
+      `${packageEvidence.name} tarball SHA-512: ${packageEvidence.tarball.sha512}`),
   ].join('\n');
   const createArgs = [
     'release',
@@ -244,6 +266,7 @@ if (mode === 'stage') {
     createArgs.push('--prerelease');
   }
   createArgs.push(...assetPaths);
+  verifyLocalAssets();
   run(createArgs);
   console.log(`Staged draft release ${evidence.release.tag}.`);
   process.exit(0);
@@ -271,5 +294,5 @@ if (evidence.release.prerelease) {
 } else {
   editArgs.push('--latest');
 }
-publishDraftRelease({ editArgs, ensureTag, run });
+publishDraftRelease({ editArgs, ensureTag, run, verifyAssets: verifyLocalAssets });
 console.log(`Published GitHub release ${evidence.release.tag}.`);

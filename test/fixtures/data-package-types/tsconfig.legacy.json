@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "ES2021"
+    ],
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "noEmit": true,
+    "skipLibCheck": false,
+    "strict": true
+  },
+  "files": [
+    "validate.ts"
+  ]
+}

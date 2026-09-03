@@ -48,42 +48,63 @@ if (!['dry-run', 'publish', 'npm-decision', 'verify-npm'].includes(mode)) {
 
 const artifactDir = resolve(root, readArgument('--artifact-dir', 'release'));
 const evidence = JSON.parse(await readFile(resolve(artifactDir, 'release-evidence.json'), 'utf8'));
+if (evidence.schemaVersion !== 2 || !Array.isArray(evidence.packages)) {
+  throw new Error(`Unsupported evidence schemaVersion ${evidence.schemaVersion}.`);
+}
+const packageIds = evidence.packages.map(packageEvidence => packageEvidence.id);
+if (JSON.stringify(packageIds) !== JSON.stringify(['core', 'data'])) {
+  throw new Error(`Unexpected release package order: ${packageIds.join(', ')}.`);
+}
+const packageNames = new Map([
+  ['core', 'marionette'],
+  ['data', '@marionette/data'],
+]);
+for (const packageEvidence of evidence.packages) {
+  if (packageEvidence.name !== packageNames.get(packageEvidence.id)) {
+    throw new Error(`Unexpected ${packageEvidence.id} package name: ${packageEvidence.name}.`);
+  }
+}
 const npmExecPath = process.env.npm_execpath;
 if (!npmExecPath) {
   throw new Error('Run release:targets through npm so the npm CLI can be located.');
 }
 
 const npmAttempts = mode === 'verify-npm' ? 12 : 1;
-let npmState;
-let npmError;
-for (let attempt = 1; attempt <= npmAttempts; attempt += 1) {
-  const npmResult = run(process.execPath, [
-    npmExecPath,
-    'view',
-    `${evidence.package.name}@${evidence.package.version}`,
-    'dist.integrity',
-    '--json',
-  ]);
-  npmError = undefined;
-  if (npmResult.status === 0) {
-    const publishedIntegrity = JSON.parse(npmResult.stdout);
-    npmState = publishedIntegrity === evidence.package.tarball.integrity ? 'exact' : 'conflict';
-  } else if (/E404|404 Not Found/.test(npmResult.stderr)) {
-    npmState = 'available';
-  } else {
-    npmState = 'unavailable';
-    npmError = npmResult;
-  }
+const npmStates = [];
+for (const packageEvidence of evidence.packages) {
+  const packageName = packageNames.get(packageEvidence.id);
+  let state;
+  let npmError;
+  for (let attempt = 1; attempt <= npmAttempts; attempt += 1) {
+    const npmResult = run(process.execPath, [
+      npmExecPath,
+      'view',
+      `${packageName}@${packageEvidence.version}`,
+      'dist.integrity',
+      '--json',
+    ]);
+    npmError = undefined;
+    if (npmResult.status === 0) {
+      const publishedIntegrity = JSON.parse(npmResult.stdout);
+      state = publishedIntegrity === packageEvidence.tarball.integrity ? 'exact' : 'conflict';
+    } else if (/E404|404 Not Found/.test(npmResult.stderr)) {
+      state = 'available';
+    } else {
+      state = 'unavailable';
+      npmError = npmResult;
+    }
 
-  if (npmState === 'exact' || npmState === 'conflict' || attempt === npmAttempts) {
-    break;
+    if (state === 'exact' || state === 'conflict' || attempt === npmAttempts) {
+      break;
+    }
+    console.warn(`${packageName} npm integrity is ${state}; retrying in 5 seconds (${attempt}/${npmAttempts}).`);
+    await new Promise(resolveDelay => setTimeout(resolveDelay, 5000));
   }
-  console.warn(`npm integrity is ${npmState}; retrying in 5 seconds (${attempt}/${npmAttempts}).`);
-  await new Promise(resolveDelay => setTimeout(resolveDelay, 5000));
-}
-if (npmError) {
-  process.stderr.write(npmError.stderr);
-  throw new Error(`npm view exited with status ${npmError.status} after ${npmAttempts} attempts.`);
+  if (npmError) {
+    process.stderr.write(npmError.stderr);
+    throw new Error(`${packageName} npm view exited with status ${npmError.status} after ${npmAttempts} attempts.`);
+  }
+  npmStates.push({ packageEvidence, packageName, state });
 }
 
 const repositoryUrl = `https://github.com/${evidence.source.repository}.git`;
@@ -127,26 +148,31 @@ if (releaseResult.status === 0) {
   throw new Error(`gh api exited with status ${releaseResult.status}.`);
 }
 
-await writeOutput('npm_state', npmState);
 await writeOutput('tag_state', tagState);
 await writeOutput('release_state', releaseState);
-if (mode === 'npm-decision') {
-  if (npmState === 'conflict') {
-    throw new Error('The npm version exists with different integrity.');
+for (const { packageEvidence, packageName, state } of npmStates) {
+  await writeOutput(`${packageEvidence.id}_npm_state`, state);
+  if (mode === 'npm-decision') {
+    if (state === 'conflict') {
+      throw new Error(`${packageName} exists with different integrity.`);
+    }
+    await writeOutput(`${packageEvidence.id}_npm_action`, state === 'available' ? 'publish' : 'skip');
   }
-  await writeOutput('npm_action', npmState === 'available' ? 'publish' : 'skip');
 }
 
 console.log(JSON.stringify({
-  package: `${evidence.package.name}@${evidence.package.version}`,
-  npm: npmState,
+  packages: npmStates.map(({ packageEvidence, packageName, state }) => ({
+    package: `${packageName}@${packageEvidence.version}`,
+    npm: state,
+  })),
   tag: tagState,
   release: releaseState,
 }, null, 2));
 
 if (mode === 'publish') {
   const unavailable = [
-    ['npm version', npmState, ['available', 'exact']],
+    ...npmStates.map(({ packageName, state }) =>
+      [`${packageName} npm version`, state, ['available', 'exact']]),
     ['Git tag', tagState, ['available', 'exact']],
     ['GitHub release', releaseState, ['available', 'exists']],
   ].filter(([, state, allowed]) => !allowed.includes(state));
@@ -156,6 +182,10 @@ if (mode === 'publish') {
     throw new Error(`Publication targets conflict with the verified artifact (${summary}).`);
   }
 }
-if (mode === 'verify-npm' && npmState !== 'exact') {
-  throw new Error(`Published npm integrity is ${npmState}; expected exact.`);
+if (mode === 'verify-npm') {
+  const incomplete = npmStates.filter(({ state }) => state !== 'exact');
+  if (incomplete.length) {
+    throw new Error(`Published npm integrity is not exact for ${incomplete
+      .map(({ packageName }) => packageName).join(', ')}.`);
+  }
 }

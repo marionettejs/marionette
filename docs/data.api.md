@@ -125,5 +125,38 @@ DataApi and [StateApi](./marionette.state.md#stateapi) are selected
 independently. One adapter object may implement both contracts, but configuring
 one role never selects the other.
 
+## Optional `@marionette/data` sources
+
+Install `@marionette/data` with `marionette` when an application wants a small
+first-party observable Model and ordered Collection without Backbone:
+
+```sh
+npm install marionette @marionette/data
+```
+
+```javascript
+import { createMarionette } from 'marionette';
+import { Collection, DataApi, Model, StateApi } from '@marionette/data';
+
+const Marionette = createMarionette();
+Marionette.setDataApi(DataApi);
+Marionette.setStateApi(StateApi);
+
+const state = new Model({ selectedId: null });
+const collection = new Collection([{ id: 1, label: 'one' }]);
+const list = new Marionette.CollectionView({ collection, state });
+```
+
+Unless `{ silent: true }` is passed, the package Collection reports synchronous
+normalized `update`, `reorder`, and `reset` records after each structural
+mutation. `Model.destroy()` and `Collection.destroy()` always emit their
+`destroy` lifecycle events, including with `{ silent: true }`. Model ids cannot
+change while the Model belongs to a Collection, and
+reset or replacement rejects duplicate instances and ids before changing
+membership. Define Model subclass `defaults` on the prototype with
+`Model.extend`, a prototype method, or a prototype getter; a native class field
+initializes too late to seed the base constructor. The package does not provide
+persistence, REST synchronization, validation, or implicit Backbone behavior.
+
 Applications using Backbone should import the bundled integration instead of
 configuring these methods individually. See [Optional Backbone](./optional-backbone.md).
