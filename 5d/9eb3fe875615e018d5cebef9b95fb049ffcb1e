@@ -1,0 +1,252 @@
+vitest.config.js
+  s_792d54449de682::t_11c7db5ab59a85 6-9
+  s_8acc1a5f7c4467::t_449fe82c75537a 25
+  s_8acc1a5f7c4467::t_e4921961d8d4d3 2,5,10
+test/fixtures/data-package-vite/index.html
+  s_792d54449de682::t_b4239e7f5d8cdc 1-11
+test/fixtures/data-package-esm/validate.mjs
+  s_792d54449de682::t_2051aa5fb70d5d 31-32
+  s_792d54449de682::t_1d4d2fe6ca8a26 14-25,29-30,33-37
+  s_792d54449de682::t_07630d9ad7f84b 1-13,38-39
+  s_792d54449de682::t_07328a3adbad7a 26-28
+readme.md
+  s_792d54449de682::t_b887b5ece367e3 42
+packages/data/readme.md
+  s_8acc1a5f7c4467::t_418cef912e383f 1-2,11,13-14,18-20,22-27
+  s_792d54449de682::t_41a74c92da8324 12
+  s_792d54449de682::t_1f3d2b82a9644f 33-34
+  s_792d54449de682::t_cfb18d2a09cd17 3-9,15-17,21,28,40-41
+  s_792d54449de682::t_7b30dcdb38f798 42-44
+  s_792d54449de682::t_442cd312551225 29-32,39
+  s_792d54449de682::t_3077c6e9b6f381 10
+  s_792d54449de682::t_caaa8e5f930a68 35-38
+test/fixtures/data-package-cjs/validate.cjs
+  s_792d54449de682::t_1d4d2fe6ca8a26 14-25,29-30,33-37
+  s_792d54449de682::t_07630d9ad7f84b 1-13,38-39
+  s_792d54449de682::t_07328a3adbad7a 26-28
+  s_792d54449de682::t_2051aa5fb70d5d 31-32
+test/fixtures/run.mjs
+  s_792d54449de682::t_07630d9ad7f84b 68,88-109,129-131
+test/unit/data-package/api-integration.spec.js
+  s_792d54449de682::t_b36b8842201bae 106-109
+  s_792d54449de682::t_54fee5e06d05a6 27-30
+  s_8acc1a5f7c4467::t_bacc4cf8aa561e 87-91
+  s_792d54449de682::t_84768c3d522c7e 95-105
+  s_8acc1a5f7c4467::t_449fe82c75537a 2-5,10-26,31-36,40-42,44-48,50-86,92-94,110-111
+  s_792d54449de682::t_cfb18d2a09cd17 1,6-9,37-39,43,49
+packages/data/src/api.js
+  s_792d54449de682::t_caaa8e5f930a68 31-32
+  s_792d54449de682::t_b36b8842201bae 47
+  s_8acc1a5f7c4467::t_418cef912e383f 1-30,33-46,48-52
+scripts/release/publish-github.mjs
+  s_792d54449de682::t_b887b5ece367e3 65-68
+  s_792d54449de682::t_6c72a69c8ec6db 3,69-77,101-112,114,121,148,175,269,297
+  s_792d54449de682::t_75233ef8c4d182 62-64,79-82,248-249
+test/unit/data-package/collection.spec.js
+  s_792d54449de682::t_1968dff153a73c 132-133,147-148,151-166,193-201,284-285,291
+  s_8acc1a5f7c4467::t_449fe82c75537a 1-49,51-57,59-60,227,243-283,286-290,292,296,327-329,331-338,344-345,365-373,376-379,391-395,424-425
+  s_792d54449de682::t_84768c3d522c7e 314-326
+  s_8acc1a5f7c4467::t_bacc4cf8aa561e 167-179,339-342,346-364,381-389
+  s_792d54449de682::t_982830a051476d 80-88
+  s_8acc1a5f7c4467::t_e200a7e0807beb 374-375
+  s_792d54449de682::t_5d38ea73eff25d 228,297
+  s_8acc1a5f7c4467::t_0aa6edf284c7ff 61-62,64,67-69
+  s_792d54449de682::t_2051aa5fb70d5d 182-192,205-221,380,390
+  s_792d54449de682::t_11c7db5ab59a85 70-79,89-91
+  s_792d54449de682::t_79f6e4050fb3c1 50,58
+  s_792d54449de682::t_8d3fcfd3c905dc 102-130,134-140,142-145,149-150,180-181,222-226
+  s_792d54449de682::t_fd2322d05a6845 92-101
+  s_792d54449de682::t_5c5ec0d5b291ee 229-239,241-242
+  s_792d54449de682::t_f592652ea9bb65 131,141,146
+  s_792d54449de682::t_3bfd4c93bcd698 240
+  s_792d54449de682::t_732bf2843e6f80 63,65-66,202-204,343
+  s_792d54449de682::t_7b30dcdb38f798 293-295,298-313
+  s_792d54449de682::t_ef85cdce204c90 330,396-423
+changelog.md
+  s_792d54449de682::t_b887b5ece367e3 13-14
+scripts/release/build-artifact.mjs
+  s_792d54449de682::t_732bf2843e6f80 75-76
+  s_792d54449de682::t_2dbaf922812b6e 95-98,111-116,118-120,122-130,132-138,140-160,182-183,187-188,231-236,243-246
+  s_792d54449de682::t_028b7d7bfb7d59 121
+  s_792d54449de682::t_b67c90e5faa417 200,205
+  s_d6429951fb9231::t_98f9555625bac4 131
+  s_792d54449de682::t_1f3d2b82a9644f 84,87,90-92,170-173,175-178
+  s_792d54449de682::t_f1d6904ef95b5d 4,70-74,77-78,174
+packages/data/dist/index.js
+  s_8acc1a5f7c4467::t_0dd223fd080777 1-669
+packages/data/src/index.js
+  s_8acc1a5f7c4467::t_418cef912e383f 3-5
+  s_8acc1a5f7c4467::t_05520b917bebcf 1-2,6
+test/fixtures/data-package-types/tsconfig.json
+  s_792d54449de682::t_b4239e7f5d8cdc 1-12
+packages/data/license.txt
+  s_792d54449de682::t_caaa8e5f930a68 1-3
+  s_792d54449de682::t_52026c0a3c91e1 12-13,20-21
+  s_8acc1a5f7c4467::t_418cef912e383f 5-11,14-19
+  s_792d54449de682::t_b25b344210c589 4
+docs/data.api.md
+  s_792d54449de682::t_41a74c92da8324 138
+  s_792d54449de682::t_caaa8e5f930a68 150-156
+  s_792d54449de682::t_cfb18d2a09cd17 128-137,139-149,157-158
+test/fixtures/data-package-cjs/package.json
+  s_792d54449de682::t_07630d9ad7f84b 1-6
+scripts/release/github-release.mjs
+  s_792d54449de682::t_6c72a69c8ec6db 1,3
+packages/data/src/collection.js
+  s_8acc1a5f7c4467::t_0aec66a76775ec 65-66
+  s_792d54449de682::t_b6baf71b19a4f8 251-253
+  s_792d54449de682::t_2051aa5fb70d5d 16-19,38,149,168,205,229,245,278,295,314,330-331
+  s_792d54449de682::t_5c5ec0d5b291ee 1-2,4,24-36,231-232,234
+  s_792d54449de682::t_fd2322d05a6845 70-71,73,78,82-85,133
+  s_792d54449de682::t_11c7db5ab59a85 176-180
+  s_792d54449de682::t_79f6e4050fb3c1 196-197,199,220-221,223
+  s_792d54449de682::t_732bf2843e6f80 260,332,344
+  s_8acc1a5f7c4467::t_f4e5f4a2d57abe 373-376
+  s_8acc1a5f7c4467::t_418cef912e383f 5-15,37,39-42,54-64,67-69,79-81,134-136,138-148,150,152-167,169-170,175,181,183,186-187,189-195,198,200-204,206-213,217-219,222,224-228,230,235-244,246-250,254-255,257-259,261-277,279-294,296-297,301-313,315-329,333-343,345-362,370-372,377-378
+  s_792d54449de682::t_8d3fcfd3c905dc 72,74-77,86-97,111,113-130,132,188,214-216,233,256
+  s_792d54449de682::t_42f8dbfc6713da 3,43-53,298-300,363-369
+  s_792d54449de682::t_1f3d2b82a9644f 20-23,98-110,112,131,137,151
+  s_8acc1a5f7c4467::t_0aa6edf284c7ff 171-174,182,184-185
+test/browser/data-package.mjs
+  s_792d54449de682::t_0053c81ea20317 1-15,17-148,152,155
+  s_792d54449de682::t_732bf2843e6f80 16,149-151,154,157
+  s_792d54449de682::t_80e8a636eea35a 153,156
+test/release/promotion.test.mjs
+  s_792d54449de682::t_ee0ce4d5d5f594 49,54,111,117
+  s_792d54449de682::t_7270dd24cd2744 69-86,191-206
+  s_792d54449de682::t_1968dff153a73c 87-104
+  s_792d54449de682::t_6c72a69c8ec6db 165-167,173
+  s_792d54449de682::t_7d4e0a670a1840 45-48,50,52-53,55-57,107-110,112-113,115-116,118-121
+  s_d6429951fb9231::t_940954690e060b 207
+test/fixtures/data-package-types/validate.mts
+  s_792d54449de682::t_b4239e7f5d8cdc 1-31
+scripts/checks/dist.mjs
+  s_8acc1a5f7c4467::t_449fe82c75537a 6,25,32,59
+scripts/release/verify-artifact.mjs
+  s_792d54449de682::t_6c72a69c8ec6db 93-103
+  s_792d54449de682::t_2deee7b4641f96 71,86-92,105-146,177,179,183-185,196-197
+test/fixtures/data-package-types/tsconfig.esm.json
+  s_792d54449de682::t_b4239e7f5d8cdc 1-6
+evidence/state-data-regression-ledger.md
+  s_792d54449de682::t_8d3fcfd3c905dc 17
+  s_792d54449de682::t_1f3d2b82a9644f 18,28
+packages/data/dist/index.d.mts
+  s_792d54449de682::t_ca9acea02033be 1-151
+test/unit/data-package/model.spec.js
+  s_8acc1a5f7c4467::t_449fe82c75537a 2-20,28-57,183-218,270
+  s_792d54449de682::t_7b30dcdb38f798 148-150
+  s_8acc1a5f7c4467::t_bacc4cf8aa561e 58-59,61-66,68-69
+  s_792d54449de682::t_5c5ec0d5b291ee 140-141,144-147,154-155,181-182
+  s_792d54449de682::t_1968dff153a73c 248-258
+  s_792d54449de682::t_7329a8034267a4 60,67
+  s_792d54449de682::t_e7b132fc0ae4c7 235,240-241
+  s_792d54449de682::t_af495f161b2a58 78-91
+  s_792d54449de682::t_8d3fcfd3c905dc 70-77,92-104,116-139,179-180
+  s_792d54449de682::t_3bfd4c93bcd698 142-143,151-153,164-178
+  s_792d54449de682::t_2051aa5fb70d5d 105-115
+  s_792d54449de682::t_e5e2cd56727d24 1
+  s_792d54449de682::t_84768c3d522c7e 21-27,156-163
+  s_792d54449de682::t_732bf2843e6f80 221-230
+  s_792d54449de682::t_ef85cdce204c90 219-220,231-234,236-239,242-247,259-269
+test/fixtures/data-package-types/tsconfig.cjs.json
+  s_792d54449de682::t_b4239e7f5d8cdc 1-6
+test/fixtures/data-package-vite/package.json
+  s_792d54449de682::t_b4239e7f5d8cdc 1-14
+scripts/release/check-targets.mjs
+  s_792d54449de682::t_1f3d2b82a9644f 58-66
+  s_792d54449de682::t_18e93421c5ed59 51-53,73-100,102-104,106,152-158,163-166,173-174,184-189
+  s_792d54449de682::t_b887b5ece367e3 54-57
+packages/data/src/assign-own.js
+  s_792d54449de682::t_7329a8034267a4 16-17
+  s_792d54449de682::t_ce6c41a34c80e9 1
+  s_792d54449de682::t_5c5ec0d5b291ee 2-15,18-25
+packages/data/src/dispose-all.js
+  s_792d54449de682::t_42f8dbfc6713da 1-16
+docs/installation.md
+  s_792d54449de682::t_b887b5ece367e3 14,115-127
+  s_792d54449de682::t_75c71c6354d4ed 128
+package.json
+  s_792d54449de682::t_1968dff153a73c 95
+  s_8acc1a5f7c4467::t_449fe82c75537a 72-73
+  s_8acc1a5f7c4467::t_05520b917bebcf 100
+  s_792d54449de682::t_1fc13aa17c1fc7 91-92
+packages/data/dist/index.cjs
+  s_8acc1a5f7c4467::t_c8006a1840b095 1-675
+test/fixtures/data-package-types/package.json
+  s_792d54449de682::t_b4239e7f5d8cdc 1-10
+scripts/performance/data-package-size.mjs
+  s_792d54449de682::t_caaa8e5f930a68 39
+  s_792d54449de682::t_a442618ba8a837 2,46-49
+  s_792d54449de682::t_1fc13aa17c1fc7 1,3-38,40-45,50-60
+packages/data/src/observers.js
+  s_8acc1a5f7c4467::t_418cef912e383f 1-3,7-32,34
+  s_792d54449de682::t_8d3fcfd3c905dc 4-6
+  s_792d54449de682::t_42f8dbfc6713da 33
+packages/data/dist/index.d.cts
+  s_792d54449de682::t_ca9acea02033be 1-151
+packages/data/rollup.config.mjs
+  s_8acc1a5f7c4467::t_418cef912e383f 1-10,12-24
+  s_8acc1a5f7c4467::t_05520b917bebcf 11
+packages/data/package.json
+  s_792d54449de682::t_cfb18d2a09cd17 29-31
+  s_792d54449de682::t_ca9acea02033be 8,11-18
+  s_8acc1a5f7c4467::t_418cef912e383f 1-2,4-7,9-10,19-28,32-34,38-39,41-54
+  s_8acc1a5f7c4467::t_0aa6edf284c7ff 3
+  s_8acc1a5f7c4467::t_05520b917bebcf 35-37,40
+test/fixtures/data-package-vite/src/main.js
+  s_792d54449de682::t_b4239e7f5d8cdc 1-11
+test/fixtures/data-package-esm/package.json
+  s_792d54449de682::t_07630d9ad7f84b 1-7
+test/fixtures/data-package-types/validate.cts
+  s_792d54449de682::t_b4239e7f5d8cdc 1-31
+.github/workflows/release.yml
+  s_d6429951fb9231::t_7740cf4bcd1bc0 268,270-271,384
+  s_792d54449de682::t_7a9fce4c8fac95 18,75,82-83,129,148,152-155,217-220,260,263-267,269,272,324,376-383,385-386,389
+eslint.config.mjs
+  s_8acc1a5f7c4467::t_48ce87f414f767 25
+packages/data/src/model.js
+  s_792d54449de682::t_ce6c41a34c80e9 2,49-50,59
+  s_8acc1a5f7c4467::t_418cef912e383f 4-5,40-41,43-48,51-55,60-63,72-90,102-134,137-151,158-162
+  s_792d54449de682::t_732bf2843e6f80 135
+  s_792d54449de682::t_2051aa5fb70d5d 42
+  s_792d54449de682::t_af495f161b2a58 56-58
+  s_792d54449de682::t_5c5ec0d5b291ee 1,6-18,20-23,71
+  s_792d54449de682::t_42f8dbfc6713da 3,91-97,100-101,152-154,157
+  s_792d54449de682::t_8d3fcfd3c905dc 19
+  s_8acc1a5f7c4467::t_05520b917bebcf 24-28,136
+  s_792d54449de682::t_caaa8e5f930a68 29-34,155-156
+  s_792d54449de682::t_1f3d2b82a9644f 35-39,68,98-99
+  s_792d54449de682::t_7b30dcdb38f798 64-67,69-70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "5d9eb3fe875615e018d5cebef9b95fb049ffcb1e",
+  "prompts": {},
+  "sessions": {
+    "s_792d54449de682": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a063d4-3f21-7e72-bd01-96fa87903ed1",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    },
+    "s_8acc1a5f7c4467": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06326-7562-7453-8271-d3c06bc8882c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
