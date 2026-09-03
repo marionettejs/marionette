@@ -1,0 +1,44 @@
+docs/marionette.view.md
+  s_2e7b4a76d7db6d::t_a757e9ae73b67f 86-116
+  s_2e7b4a76d7db6d::t_5494835863d072 28
+docs/dom.api.md
+  s_2e7b4a76d7db6d::t_5494835863d072 105-111
+test/unit/runtime/dom-api.spec.js
+  s_2e7b4a76d7db6d::t_f8c4192c3d64e5 306-363,466-469,474-475
+mixins/view.js
+  s_2e7b4a76d7db6d::t_b67b48b92911ab 86-108
+test/unit/view-render-attributes.spec.js
+  s_2e7b4a76d7db6d::t_f8c4192c3d64e5 1-212
+runtime/dom-api.js
+  s_2e7b4a76d7db6d::t_b67b48b92911ab 94-112,114
+test/unit/mixins/view-composition.spec.js
+  s_2e7b4a76d7db6d::t_a377727a2903ed 30-32,125,138,149,152,171-175
+dist/marionette.cjs
+  s_2e7b4a76d7db6d::t_431da806e45d28 1793-1809,1811,1911-1912,1914-1936
+dist/marionette.js
+  s_2e7b4a76d7db6d::t_fe282fb25eb873 1789-1805,1807,1907-1908,1910-1932
+dist/marionette.min.js
+  s_2e7b4a76d7db6d::t_41294e22f47929 1
+dist/marionette.min.js.map
+  s_2e7b4a76d7db6d::t_9ef15ffe75d544 1
+dist/marionette.umd.js
+  s_2e7b4a76d7db6d::t_43abeb273ef560 1800-1816,1818,1918-1919,1921-1943
+dist/marionette.umd.js.map
+  s_2e7b4a76d7db6d::t_bfd8420c3f54c5 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "70f36dfbaaa4bddd93d1422bf9fe396488fa7814",
+  "prompts": {},
+  "sessions": {
+    "s_2e7b4a76d7db6d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06624-e671-72e0-a410-b917402f5bb1",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
