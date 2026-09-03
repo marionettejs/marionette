@@ -351,35 +351,32 @@ assignOwn(Collection.prototype, Events, {
     addModelOwner(model, this, () => releaseOwnedModel(this, model));
   },
   _replaceBindings(previousModels, currentModels) {
-    if (!currentModels.length) {
-      let attemptedIndex = 0;
-      try {
-        for (; attemptedIndex < previousModels.length; attemptedIndex++) {
-          this._unbindModel(previousModels[attemptedIndex]);
-        }
-      } catch (error) {
-        for (; attemptedIndex >= 0; attemptedIndex--) {
-          try {
-            this._restoreModelBinding(previousModels[attemptedIndex]);
-          } catch {}
-        }
-        throw error;
-      }
-      return;
+    let added = currentModels;
+    let removed = previousModels;
+    if (previousModels.length && currentModels.length) {
+      const previous = new Set(previousModels);
+      const current = new Set(currentModels);
+      added = currentModels.filter(model => !previous.has(model));
+      removed = previousModels.filter(model => !current.has(model));
     }
-    const previous = new Set(previousModels);
-    const current = new Set(currentModels);
-    const added = currentModels.filter(model => !previous.has(model));
-    const removed = previousModels.filter(model => !current.has(model));
     this._bindModels(added);
-    const attempted = [];
+    let attemptedIndex = 0;
     try {
-      for (const model of removed) {
-        attempted.push(model);
-        this._unbindModel(model);
+      for (; attemptedIndex < removed.length; attemptedIndex++) {
+        this._unbindModel(removed[attemptedIndex]);
       }
     } catch (error) {
-      disposeAll([...added.map(model => () => this._unbindModel(model)), ...attempted.map(model => () => this._restoreModelBinding(model))], error);
+      for (; attemptedIndex >= 0; attemptedIndex--) {
+        try {
+          this._restoreModelBinding(removed[attemptedIndex]);
+        } catch {}
+      }
+      for (let index = added.length; index--;) {
+        try {
+          this._unbindModel(added[index]);
+        } catch {}
+      }
+      throw error;
     }
   },
   _onModelEvent(eventName, model, ...args) {

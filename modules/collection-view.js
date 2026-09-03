@@ -1186,6 +1186,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     let firstError;
     let hasError = false;
 
+    // Preserve disposeAll's attempt-all, first-error contract without closures.
     for (const view of views) {
       try {
         this._removeChildView(view);
@@ -1205,6 +1206,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
     let firstError;
     let hasError = false;
+    // Preserve disposeAll's attempt-all, first-error contract without closures.
     try {
       shouldDetach ? this._detachChildView(view) : this._destroyChildView(view);
     } catch (error) {

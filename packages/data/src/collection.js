@@ -133,42 +133,38 @@ assignOwn(Collection.prototype, Events, {
   },
 
   _replaceBindings(previousModels, currentModels) {
-    if (!currentModels.length) {
-      let attemptedIndex = 0;
-      try {
-        for (; attemptedIndex < previousModels.length; attemptedIndex++) {
-          this._unbindModel(previousModels[attemptedIndex]);
-        }
-      } catch (error) {
-        for (; attemptedIndex >= 0; attemptedIndex--) {
-          try {
-            this._restoreModelBinding(previousModels[attemptedIndex]);
-          } catch {
-            // Preserve the unbinding error after best-effort rollback.
-          }
-        }
-        throw error;
-      }
-      return;
+    let added = currentModels;
+    let removed = previousModels;
+    if (previousModels.length && currentModels.length) {
+      const previous = new Set(previousModels);
+      const current = new Set(currentModels);
+      added = currentModels.filter(model => !previous.has(model));
+      removed = previousModels.filter(model => !current.has(model));
     }
 
-    const previous = new Set(previousModels);
-    const current = new Set(currentModels);
-    const added = currentModels.filter(model => !previous.has(model));
-    const removed = previousModels.filter(model => !current.has(model));
-
     this._bindModels(added);
-    const attempted = [];
+    let attemptedIndex = 0;
     try {
-      for (const model of removed) {
-        attempted.push(model);
-        this._unbindModel(model);
+      for (; attemptedIndex < removed.length; attemptedIndex++) {
+        this._unbindModel(removed[attemptedIndex]);
       }
     } catch (error) {
-      disposeAll([
-        ...added.map(model => () => this._unbindModel(model)),
-        ...attempted.map(model => () => this._restoreModelBinding(model))
-      ], error);
+      // Preserve reverse attempt-all rollback and the original unbinding error.
+      for (; attemptedIndex >= 0; attemptedIndex--) {
+        try {
+          this._restoreModelBinding(removed[attemptedIndex]);
+        } catch {
+          // Continue rollback.
+        }
+      }
+      for (let index = added.length; index--;) {
+        try {
+          this._unbindModel(added[index]);
+        } catch {
+          // Continue rollback.
+        }
+      }
+      throw error;
     }
   },
 
