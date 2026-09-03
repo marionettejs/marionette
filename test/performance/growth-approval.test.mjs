@@ -135,6 +135,47 @@ function candidateAliasContract() {
   return contract;
 }
 
+function candidateRelocationContract() {
+  const contract = structuredClone(growthContract());
+  contract.runtimeArtifacts = [{
+    name: 'Main',
+    path: 'packages/adapters/dist/main.js',
+    baselineBrotliBytes: 100,
+  }];
+  contract.productionGraphs = [{
+    subpath: '@marionette/adapters/main',
+    input: 'packages/adapters/src/main.js',
+    output: 'packages/adapters/dist/main.js',
+    baselineModules: ['packages/adapters/src/main.js'],
+    baselineExternalImports: [],
+  }];
+  contract.relocations = {
+    runtimeArtifacts: [{ from: 'dist/main.js', to: 'packages/adapters/dist/main.js' }],
+    productionGraphs: [{ from: '.', to: '@marionette/adapters/main' }],
+  };
+  return contract;
+}
+
+function relocatedProductionReport() {
+  const current = productionReport();
+  current.artifacts = [{
+    name: 'Main',
+    path: 'packages/adapters/dist/main.js',
+    status: 'measured',
+    size: 100,
+  }];
+  current.graphs = [{
+    subpath: '@marionette/adapters/main',
+    input: 'packages/adapters/src/main.js',
+    output: 'packages/adapters/dist/main.js',
+    status: 'measured',
+    modules: ['packages/adapters/src/main.js'],
+    externalImports: [],
+    forbiddenModules: [],
+  }];
+  return current;
+}
+
 function timingContract(revision = authorityTimingRevision) {
   const contract = growthContract();
   contract.timing = {
@@ -329,6 +370,142 @@ describe('exact-head performance growth approval contract', () => {
       enforced: true,
       subpaths: ['./feature'],
     });
+  });
+
+  test('permits an explicit package relocation while requiring exact new-production approval', () => {
+    const authorityContract = growthContract();
+    const candidateContract = candidateRelocationContract();
+    const currentReport = relocatedProductionReport();
+
+    assert.deepEqual(validateCandidateGrowthContract(authorityContract, candidateContract), []);
+    assert.deepEqual(requiredNewProductionApproval({
+      authorityContract,
+      baseReport: productionReport(),
+      candidateContract,
+      currentReport,
+    }), {
+      artifacts: [{ path: 'packages/adapters/dist/main.js', size: 100 }],
+      enforced: true,
+      subpaths: ['@marionette/adapters/main'],
+    });
+
+    const renamed = structuredClone(candidateContract);
+    renamed.runtimeArtifacts[0].name = 'Replacement';
+    assert.match(
+      validateCandidateGrowthContract(authorityContract, renamed).join('\n'),
+      /must preserve its exact-base name and baseline/,
+    );
+
+    const rewrittenExternalBaseline = structuredClone(candidateContract);
+    rewrittenExternalBaseline.productionGraphs[0].baselineExternalImports = ['jquery'];
+    assert.match(
+      validateCandidateGrowthContract(authorityContract, rewrittenExternalBaseline).join('\n'),
+      /must preserve its exact-base external-import baseline/,
+    );
+
+    const missingTarget = structuredClone(candidateContract);
+    missingTarget.runtimeArtifacts = [];
+    assert.match(
+      validateCandidateGrowthContract(authorityContract, missingTarget).join('\n'),
+      /must replace one exact-base artifact/,
+    );
+
+    const selfMove = structuredClone(candidateContract);
+    selfMove.relocations.runtimeArtifacts[0].to = 'dist/main.js';
+    assert.match(
+      validateCandidateGrowthContract(authorityContract, selfMove).join('\n'),
+      /unique safe from\/to pairs/,
+    );
+
+    const duplicateTarget = structuredClone(candidateContract);
+    duplicateTarget.relocations.runtimeArtifacts.push({
+      from: 'dist/other.js',
+      to: 'packages/adapters/dist/main.js',
+    });
+    assert.match(
+      validateCandidateGrowthContract(authorityContract, duplicateTarget).join('\n'),
+      /unique safe from\/to pairs/,
+    );
+
+    const unsorted = structuredClone(candidateContract);
+    unsorted.relocations.runtimeArtifacts = [
+      { from: 'dist/z.js', to: 'packages/adapters/dist/z.js' },
+      ...unsorted.relocations.runtimeArtifacts,
+    ];
+    assert.match(
+      validateCandidateGrowthContract(authorityContract, unsorted).join('\n'),
+      /unique safe from\/to pairs/,
+    );
+
+    const extraneous = structuredClone(candidateContract);
+    extraneous.relocations.runtimeArtifacts.push({
+      from: 'dist/missing.js',
+      to: 'packages/adapters/dist/missing.js',
+    });
+    assert.match(
+      validateCandidateGrowthContract(authorityContract, extraneous).join('\n'),
+      /must replace one exact-base artifact/,
+    );
+
+    const collisionAuthority = structuredClone(authorityContract);
+    collisionAuthority.runtimeArtifacts.push({
+      name: 'Existing',
+      path: 'dist/existing.js',
+      baselineBrotliBytes: 0,
+    });
+    const collision = structuredClone(candidateContract);
+    collision.runtimeArtifacts = [collisionAuthority.runtimeArtifacts[1]];
+    collision.relocations.runtimeArtifacts[0].to = 'dist/existing.js';
+    assert.match(
+      validateCandidateGrowthContract(collisionAuthority, collision).join('\n'),
+      /must replace one exact-base artifact/,
+    );
+
+    const partialAuthority = structuredClone(authorityContract);
+    partialAuthority.runtimeArtifacts.push({
+      name: 'Other',
+      path: 'dist/other.js',
+      baselineBrotliBytes: 0,
+    });
+    assert.match(
+      validateCandidateGrowthContract(partialAuthority, candidateContract).join('\n'),
+      /removes or changes exact-base runtime artifact dist\/other\.js/,
+    );
+  });
+
+  test('does not change the approval output shape when no relocation is declared', () => {
+    const contract = growthContract();
+    const result = validateGrowthApproval({
+      authorityContract: contract,
+      baseReport: productionReport(),
+      candidateContract: structuredClone(contract),
+      comments: snapshot([]),
+      currentReport: productionReport(),
+      evidenceComments: evidenceSnapshot(),
+      headSha,
+      policy,
+      pullRequestNumber,
+      thresholdPercent: 1,
+    });
+
+    assert.equal(result.status, 'not-required');
+    assert.equal(Object.hasOwn(result, 'relocations'), false);
+  });
+
+  test('freezes merged relocation provenance in later candidate contracts', () => {
+    const authority = candidateRelocationContract();
+
+    assert.deepEqual(
+      validateCandidateGrowthContract(authority, structuredClone(authority)),
+      [],
+    );
+
+    const changed = structuredClone(authority);
+    changed.relocations.runtimeArtifacts[0].from = 'dist/other.js';
+    assert.match(
+      validateCandidateGrowthContract(authority, changed).join('\n'),
+      /changes exact-base relocations/,
+    );
   });
 
   test('requires approval when a new public subpath aliases an existing artifact at zero bytes', () => {
