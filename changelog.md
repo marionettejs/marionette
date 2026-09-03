@@ -19,6 +19,9 @@
   objects no longer allocate a hidden base View
 * Split the internal View, Region, and declarative Region builder implementations
   into owner-named modules and removed the obsolete combined source path
+* Added explicit `View#renderAttributes()` and `CollectionView#renderAttributes()`
+  root-attribute refreshes; the default `DomApi.setAttributes` now removes
+  nullish entries while leaving omitted keys untouched
 * Added the optional `@marionette/data` package with observable Model and ordered
   Collection sources plus matching DataApi and StateApi adapters
 * Added the optional `@marionette/adapters` package with explicit Backbone and

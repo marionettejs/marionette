@@ -60,6 +60,7 @@ following observable transitions:
 | `View#render()` with a template function while alive | Runs `before:render` and `render`; rendered becomes `true`; attachment is unchanged | Renders again and runs the render lifecycle again |
 | `View#render()` with `template: false` while alive | Returns the View without running the render lifecycle or changing contents or state | Repeated calls are the same no-op |
 | `CollectionView#render()` while alive | Runs `before:render` and `render`, rebuilds its children, and becomes rendered; attachment is unchanged | Rebuilds the children and runs the render lifecycle again |
+| `view.renderAttributes()` while alive | Applies the current root attribute declarations without changing contents, children, lifecycle events, or state | Reevaluates and applies the declarations again |
 | `View#setElement(el)` while alive | Rendered reflects whether the replacement element has contents; attached reflects whether it is in the document | Recomputes the same state from the current element |
 | `CollectionView#setElement(el)` while alive | Rendered is preserved; attached reflects whether the replacement element is in the document | Preserves rendered and recomputes attached from the current element |
 | `region.show(view)` | Ensures the view is rendered; attached becomes `true` only when the Region is in the document | Showing the current view is a no-op |
@@ -67,6 +68,7 @@ following observable transitions:
 | Re-show a detached view | Rendered stays `true`; attachment reflects the Region | Does not render the view again |
 | `region.empty()` or `view.destroy()` | Rendered and attached become `false`; destroyed becomes `true` | Repeated destroy is a no-op |
 | `view.render()` after destruction | Returns the same View with rendered and attached `false` and destroyed `true` | Repeated calls are no-ops |
+| `view.renderAttributes()` once destruction begins | Returns the same View before resolving declarations or changing the root element or lifecycle state | Repeated calls are no-ops |
 | `view.setElement(el)` once destruction begins | Returns the same View before inspecting or replacing the element or changing delegation, DOM, or lifecycle state | Calls during `before:destroy` and repeated calls after destruction are no-ops |
 | `CollectionView#addChildView(view, ...)` once destruction begins | Returns the supplied child before inspecting or taking ownership of it; the caller remains responsible for that child | Repeated calls are no-ops for the destroyed CollectionView |
 | `view.delegateEvents()` or `view.undelegateEvents()` once destruction begins | Returns the same View without changing View or Behavior DOM delegation | Repeated calls are no-ops |

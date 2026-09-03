@@ -131,6 +131,33 @@ parent.showChildView('content', new View({
   Backbone, so it is preserved. When the mount point is already resolved, pass
   its native element rather than a jQuery collection.
 
+## Refresh View root attributes explicitly
+
+Use `renderAttributes()` when `attributes`, `id`, or `className` changed but the
+View's template content and owned children should remain in place:
+
+```js
+const RowView = View.extend({
+  attributes() {
+    return {
+      'aria-selected': this.selected ? 'true' : 'false'
+    };
+  },
+
+  className() {
+    return this.selected ? 'selected' : null;
+  }
+});
+
+row.selected = true;
+row.renderAttributes();
+```
+
+This explicit refresh is separate from `render()` and emits no render lifecycle
+events. With the default DomApi, `null` and `undefined` remove the named
+attribute and its reflected property state, while omitted keys remain untouched.
+Custom DomApi adapters must implement the same `setAttributes` behavior.
+
 ## jQuery DOM compatibility
 
 - v5 core does not depend on jQuery and the native DomApi does not create

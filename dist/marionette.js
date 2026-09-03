@@ -1378,10 +1378,27 @@ var DomApi = {
     const attrNames = objectKeys(attrs);
     for (let index = 0, length = attrNames.length; index < length; index++) {
       const attr = attrNames[index];
-      if (attr in el) {
-        setProperty(el, attr, attrs[attr]);
+      const attributeName = attr === 'className' ? 'class' : attr === 'htmlFor' ? 'for' : attr;
+      if (attr in el && attr !== 'className') {
+        const value = attrs[attr];
+        if (value != null) {
+          setProperty(el, attr, value);
+          continue;
+        }
+        if (attr === '__proto__') {
+          delete el[attr];
+        } else {
+          setProperty(el, attr, null);
+        }
+        el.removeAttribute(attributeName);
+        continue;
+      }
+      const setAttribute = el.setAttribute;
+      const value = attrs[attr];
+      if (value == null) {
+        el.removeAttribute(attributeName);
       } else {
-        el.setAttribute(attr, attrs[attr]);
+        setAttribute.call(el, attributeName, value);
       }
     }
   },
@@ -2297,17 +2314,27 @@ const ViewMixin = {
     const elOption = getValue(this, 'el');
     if (!elOption) {
       const el = this.Dom.createElement(getValue(this, 'tagName'));
-      const attrs = assignOwn({}, getValue(this, 'attributes'));
-      if (this.id) {
-        attrs.id = getValue(this, 'id');
-      }
-      if (this.className) {
-        attrs.class = getValue(this, 'className');
-      }
-      this.Dom.setAttributes(el, attrs);
+      this.Dom.setAttributes(el, this._getAttributes());
       return el;
     }
     return elOption;
+  },
+  _getAttributes() {
+    const attrs = assignOwn({}, getValue(this, 'attributes'));
+    if ('id' in this) {
+      attrs.id = getValue(this, 'id');
+    }
+    if ('className' in this) {
+      attrs.class = getValue(this, 'className');
+    }
+    return attrs;
+  },
+  renderAttributes() {
+    if (this._isDestroying || this._isDestroyed) {
+      return this;
+    }
+    this.Dom.setAttributes(this.el, this._getAttributes());
+    return this;
   },
   $(selector) {
     return this.Dom.findEl(this.el, selector);

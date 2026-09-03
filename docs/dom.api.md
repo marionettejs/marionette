@@ -100,11 +100,25 @@ Sets each entry in `attrs` on `el`. A key that exists as an element property is
 assigned as a property; other keys use `setAttribute`. The input contributes
 own enumerable string properties only. Inherited, symbol, and non-enumerable
 properties are ignored. A literal own `__proto__` key becomes an own element
-property without changing the element's prototype.
+property without changing the element's prototype. A `null` or `undefined`
+value clears reflected property state and removes the corresponding attribute;
+other values, including `false`, `0`, and an empty string, are assigned normally.
+Keys omitted from `attrs` remain untouched. The `className` and `htmlFor`
+property spellings remove the `class` and `for` attributes respectively, and a
+nullish `__proto__` value removes the safe own property without changing the
+element's prototype.
+
+View-level `className` declarations are normalized to the DOM attribute name
+`class` before this method is called. Direct DomApi calls also normalize a
+`className` key to the `class` attribute so the same set and clear behavior
+works for both HTML and SVG elements.
 
 When `View` or `CollectionView` creates an element, its `attributes` map follows
 the same own-enumerable-string rule. When applied, `id` and `className`
 assignments occur afterward and override the corresponding `attributes` keys.
+[`View#renderAttributes()`](./marionette.view.md#refreshing-root-attributes)
+uses this method for explicit root-attribute refreshes. Custom DomApi adapters
+must preserve the nullish-removal and omitted-key behavior.
 
 ### `appendContents(el, contents)`
 

@@ -25,6 +25,7 @@ A `View` can have [`Region`s](./marionette.region.md) and [`Behavior`s](./marion
 * [Instantiating a View](#instantiating-a-view)
 * [Rendering a View](#rendering-a-view)
   * [Using a View Without a Template](#using-a-view-without-a-template)
+  * [Refreshing Root Attributes](#refreshing-root-attributes)
 * [View Lifecycle and Events](#view-lifecycle-and-events)
 * [Entity Events](#entity-events)
 * [DOM Interactions](#dom-interactions)
@@ -81,6 +82,66 @@ For more detail on how to render templates, see
 By setting [`template` to `false`](./view.rendering.md#using-a-view-without-a-template) you can entirely disable
 the view rendering and events. This may be useful for cases where you only need the `el` or have
 [`prerendered content`](./dom.prerendered.md) that you do not intend to re-render.
+
+### Refreshing Root Attributes
+
+`renderAttributes()` reevaluates a View's declarative `attributes`, `className`,
+and `id`, then applies those values to its existing root element. The method is
+also available on `CollectionView`.
+
+<!-- executable-example: view-render-attributes -->
+```javascript
+import { View } from 'marionette';
+
+const SelectableRow = View.extend({
+  tagName: 'tr',
+
+  attributes() {
+    return {
+      'aria-selected': this.isSelected ? 'true' : 'false'
+    };
+  },
+
+  className() {
+    return this.isSelected ? 'danger' : null;
+  },
+
+  template: false,
+
+  setSelected(isSelected) {
+    this.isSelected = isSelected;
+    return this.renderAttributes();
+  }
+});
+
+const row = new SelectableRow();
+const rootElement = row.el;
+
+row.setSelected(true);
+
+export { rootElement, row };
+```
+
+With the default DomApi, a declared `null` or `undefined` value removes the
+attribute and any reflected property state. Other declared values, including
+`false`, `0`, and an empty string, are applied normally. Omitting a key leaves
+the current element value untouched; Marionette does not retain the names
+returned by an earlier call. `id` and `className` continue to override matching
+keys from `attributes` when they are declared.
+
+Use `className` as the View-level class declaration, as shown above. The
+`attributes` map continues to use raw DOM attribute names for lower-level cases.
+Marionette normalizes the View declaration to the `class` attribute before
+calling the DomApi, including for a supplied SVG root.
+
+`renderAttributes()` returns the View. It does not call the template, emit the
+render lifecycle, replace the root element, rebind `ui` or DOM events, or reset
+Regions. It is not called automatically by `render()`. Calls after destruction
+begins are no-ops and do not resolve the attribute declarations.
+
+When a View uses a supplied `el`, construction still leaves that element's
+attributes unchanged. A later `renderAttributes()` call applies only the keys
+in the current declaration, so unrelated host attributes remain caller-owned.
 
 ## View Lifecycle and Events
 
