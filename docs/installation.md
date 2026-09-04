@@ -60,11 +60,14 @@ npm install @marionette/adapters jquery
 npm install @marionette/adapters @reduxjs/toolkit
 npm install @marionette/adapters zustand
 npm install @marionette/adapters @xstate/store
+
+# Only if you use XState actors
+npm install @marionette/adapters xstate
 ```
 
-The keyed snapshot adapters do not import or declare these store libraries as
-peers. Install only the store package already selected by your application; the
-adapter consumes its public store shape.
+The keyed snapshot and XState actor adapters do not import or declare provider
+libraries as peers. Install only the provider package already selected by your
+application; the adapter consumes its public source shape.
 
 Npm does not install missing optional peers. TypeScript consumers of an optional
 subpath must install its matching type package explicitly:
@@ -137,10 +140,11 @@ Configure its adapters before constructing owners. See the
 [`@marionette/data` guide](./data.api.md#optional-marionettedata-sources) for a
 copy-pastable isolated-runtime example.
 
-Applications that already use Redux Toolkit, Zustand vanilla stores, or XState
-Store can select an ordered model array with an explicit
+Applications that already use Redux Toolkit, Zustand vanilla stores, XState
+Store, or XState actors can select an ordered model array with an explicit
 `@marionette/adapters` subpath. See
-[Keyed snapshot store adapters](./data.api.md#keyed-snapshot-store-adapters).
+[Keyed snapshot store adapters](./data.api.md#keyed-snapshot-store-adapters) and
+[XState actors](./data.api.md#xstate-actors).
 
 ## Distribution formats
 

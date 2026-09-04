@@ -112,6 +112,7 @@
     "terser": "5.48.0",
     "underscore": "^1.13.0",
     "vitest": "^4.1.11",
+    "xstate": "5.32.6",
     "zustand": "5.0.15"
   },
   "allowScripts": {

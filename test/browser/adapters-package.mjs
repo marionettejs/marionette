@@ -47,6 +47,7 @@ try {
     ['/jquery-api.js', resolve(adaptersDirectory, 'package/dist/dom/jquery.js')],
     ['/redux-api.js', resolve(adaptersDirectory, 'package/dist/redux.js')],
     ['/xstate-store-api.js', resolve(adaptersDirectory, 'package/dist/xstate-store.js')],
+    ['/xstate-api.js', resolve(adaptersDirectory, 'package/dist/xstate.js')],
     ['/zustand-api.js', resolve(adaptersDirectory, 'package/dist/zustand.js')],
     ['/jquery.js', resolve(root, 'node_modules/jquery/dist-module/jquery.module.js')],
     ['/underscore.js', resolve(root, 'node_modules/underscore/underscore-umd.js')],
@@ -112,14 +113,16 @@ try {
             { default: JQueryDomApi },
             { default: createReduxDataApi },
             { default: createXStateStoreDataApi },
-            { default: createZustandDataApi }
+            { default: createZustandDataApi },
+            { default: createXStateActorApi }
           ] = await Promise.all([
             import('/marionette.js'),
             import('/backbone-api.js'),
             import('/jquery-api.js'),
             import('/redux-api.js'),
             import('/xstate-store-api.js'),
-            import('/zustand-api.js')
+            import('/zustand-api.js'),
+            import('/xstate-api.js')
           ]);
           const runtime = Marionette.createMarionette();
           runtime.setDataApi(BackboneApi);
@@ -183,7 +186,27 @@ try {
             keyedResults.at(-1).listenersAfterDestroy = listeners.size;
           }
 
+          const childSnapshot = { context: { label: 'child' } };
+          const childActor = {
+            getSnapshot: () => childSnapshot,
+            subscribe: () => ({ unsubscribe() {} }),
+            on: () => ({ unsubscribe() {} }),
+            stop() {}
+          };
+          const parentActor = {
+            getSnapshot: () => ({ context: { children: [childActor] } }),
+            subscribe: () => ({ unsubscribe() {} })
+          };
+          const XStateActorApi = createXStateActorApi({
+            select: snapshot => snapshot.context.children
+          });
+          const actorResult = {
+            context: XStateActorApi.serialize(childActor).label,
+            identity: XStateActorApi.models(parentActor)[0] === childActor
+          };
+
           const output = {
+            actorResult,
             children: view.children.length,
             jqueryText: jqueryResult[0].textContent,
             keyedResults,
@@ -198,6 +221,7 @@ try {
         });
 
         assert.deepEqual(result, {
+          actorResult: { context: 'child', identity: true },
           children: 2,
           jqueryText: 'child',
           keyedResults: [

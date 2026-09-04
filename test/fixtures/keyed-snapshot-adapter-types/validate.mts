@@ -4,6 +4,8 @@ import createReduxDataApi from '@marionette/adapters/redux';
 import createXStateStoreDataApi from '@marionette/adapters/xstate-store';
 import createZustandDataApi from '@marionette/adapters/zustand';
 import { createStore as createZustandStore } from 'zustand/vanilla';
+import createXStateActorApi from '@marionette/adapters/xstate';
+import { createActor, createMachine } from 'xstate';
 
 interface Model {
   id: number;
@@ -41,6 +43,18 @@ const cleanup = [
 ];
 
 cleanup.forEach(dispose => dispose());
+const childActor = createActor(createMachine({ context: { id: 1, label: 'child' } })).start();
+const parentActor = createActor(createMachine({ context: { children: [childActor] } })).start();
+const actorApi = createXStateActorApi({
+  select: (snapshot: ReturnType<typeof parentActor.getSnapshot>) => snapshot.context.children,
+  snapshotEvent: 'actor:snapshot'
+});
+const actorLabel: string | undefined = actorApi.get(childActor, 'label');
+const actorContext = actorApi.serialize(childActor);
+const actorCleanup = actorApi.observeCollection(parentActor, () => {});
+actorCleanup();
+// @ts-expect-error Parent actor sources require getSnapshot() and subscribe().
+actorApi.models({});
 // @ts-expect-error Redux sources require getState() and subscribe().
 reduxApi.models({});
 // @ts-expect-error Zustand sources require getState() and subscribe().
@@ -50,3 +64,5 @@ xstateApi.models({});
 void reduxModels;
 void zustandModels;
 void xstateModels;
+void actorLabel;
+void actorContext;

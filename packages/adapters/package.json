@@ -59,6 +59,17 @@
       },
       "default": "./dist/xstate-store.js"
     },
+    "./xstate": {
+      "import": {
+        "types": "./dist/xstate.d.mts",
+        "default": "./dist/xstate.js"
+      },
+      "require": {
+        "types": "./dist/xstate.d.cts",
+        "default": "./dist/xstate.cjs"
+      },
+      "default": "./dist/xstate.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [

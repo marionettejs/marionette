@@ -10,6 +10,7 @@ assert.equal(existsSync(resolve(import.meta.dirname, 'node_modules/jquery')), fa
 for (const packagePath of [
   '@reduxjs/toolkit',
   '@xstate/store',
+  'xstate',
   'zustand',
 ]) {
   assert.equal(existsSync(resolve(import.meta.dirname, 'node_modules', packagePath)), false);
@@ -33,6 +34,7 @@ assert.throws(
 await Promise.all([
   import('@marionette/adapters/redux'),
   import('@marionette/adapters/xstate-store'),
+  import('@marionette/adapters/xstate'),
   import('@marionette/adapters/zustand'),
 ]);
 
