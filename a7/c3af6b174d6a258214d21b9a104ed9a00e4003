@@ -1,0 +1,36 @@
+scripts/performance/budget-amendments.mjs
+  s_792d54449de682::t_e7c2d9b178e5a9 477-479
+  s_792d54449de682::t_afd78813086099 5,433,445-447,463-476,506
+scripts/performance/growth-approval.mjs
+  s_792d54449de682::t_afd78813086099 12,661,669-671,679-696
+test/performance/contract.test.mjs
+  s_792d54449de682::t_069bd15ea6ad6b 366-369,409-410,414-415,450-454,1390
+  s_792d54449de682::t_c59928e2bff663 572-595
+test/performance/budget-amendment.test.mjs
+  s_792d54449de682::t_d6961a0dbdda67 430-509
+test/performance/growth-approval.test.mjs
+  s_792d54449de682::t_069bd15ea6ad6b 547-595
+scripts/performance/runtime-scope.mjs
+  s_792d54449de682::t_7c51767810794f 1-3
+scripts/performance/bundle-size.mjs
+  s_792d54449de682::t_7c51767810794f 28,258,787-793,901-902,1357-1358,1446
+  s_792d54449de682::t_c59928e2bff663 1349-1356,1402-1404
+docs/performance-baselines.md
+  s_792d54449de682::t_069bd15ea6ad6b 417-419,443-449
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "a7c3af6b174d6a258214d21b9a104ed9a00e4003",
+  "prompts": {},
+  "sessions": {
+    "s_792d54449de682": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a063d4-3f21-7e72-bd01-96fa87903ed1",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
