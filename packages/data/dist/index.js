@@ -335,14 +335,18 @@ assignOwn(Collection.prototype, Events, {
     disposeAll([() => removeModelOwner(model, this), () => Events.off.call(model, 'all', this._onModelEvent, this)], unbindError);
   },
   _bindModels(models) {
-    const bound = [];
+    let boundCount = 0;
     try {
-      for (const model of models) {
-        this._bindModel(model);
-        bound.push(model);
+      for (; boundCount < models.length; boundCount++) {
+        this._bindModel(models[boundCount]);
       }
     } catch (error) {
-      disposeAll(bound.map(model => () => this._unbindModel(model)), error);
+      for (let index = boundCount; index--;) {
+        try {
+          this._unbindModel(models[index]);
+        } catch {}
+      }
+      throw error;
     }
   },
   _restoreModelBinding(model) {

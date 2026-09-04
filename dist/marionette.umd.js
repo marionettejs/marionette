@@ -3043,7 +3043,11 @@
     },
     _add(view, index = this._views.length) {
       this._addViewIndexes(view);
-      this._views.splice(index, 0, view);
+      if (index === this._views.length) {
+        this._views.push(view);
+      } else {
+        this._views.splice(index, 0, view);
+      }
       this._updateLength();
     },
     _addViewIndexes(view) {
@@ -3069,8 +3073,10 @@
       return sortedViews;
     },
     _set(views, shouldReset) {
-      this._views.length = 0;
-      this._views.push.apply(this._views, views.slice(0));
+      if (views !== this._views) {
+        this._views.length = 0;
+        this._views.push.apply(this._views, views);
+      }
       if (shouldReset) {
         this._viewsByCid = createIndex();
         this._indexByModel = new Map();
@@ -3665,7 +3671,9 @@
       return this.childViewOptions;
     },
     buildChildView(child, ChildViewClass, childViewOptions) {
-      const options = assignOwn({
+      const options = childViewOptions == null ? {
+        model: child
+      } : assignOwn({
         model: child
       }, childViewOptions);
       return new ChildViewClass(options);

@@ -649,7 +649,8 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   // Build a `childView` for a model in the collection.
   // Override to customize the build
   buildChildView(child, ChildViewClass, childViewOptions) {
-    const options = assignOwn({ model: child }, childViewOptions);
+    const options = childViewOptions == null ?
+      { model: child } : assignOwn({ model: child }, childViewOptions);
     return new ChildViewClass(options);
   },
 

@@ -133,6 +133,26 @@ describe('@marionette/data Collection', function() {
     expect(fourth.set('id', 40)).to.equal(fourth);
   });
 
+  it('rolls back a partially bound batch into an empty Collection', function() {
+    const empty = new Collection();
+    const first = new Model({ id: 1 });
+    const second = new Model({ id: 2 });
+    const forwarded = this.sinon.spy();
+    const error = new Error('binding failed');
+    const off = this.sinon.stub(first, 'off').throws(new Error('rollback failed'));
+    this.sinon.stub(second, 'on').throws(error);
+    empty.on('change:name', forwarded);
+
+    expect(() => empty.reset([first, second])).to.throw(error);
+    off.restore();
+    first.set('name', 'not forwarded');
+
+    expect(empty.models).to.deep.equal([]);
+    expect(first.set('id', 10)).to.equal(first);
+    expect(forwarded).to.not.have.been.called;
+    empty.destroy();
+  });
+
   it('keeps the previous model when replacement binding fails', function() {
     const previous = collection.get(1);
     const current = new Model({ id: 3 });

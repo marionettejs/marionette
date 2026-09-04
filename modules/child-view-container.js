@@ -308,7 +308,11 @@ Object.assign(Container.prototype, {
     this._addViewIndexes(view);
 
     // add to end by default
-    this._views.splice(index, 0, view);
+    if (index === this._views.length) {
+      this._views.push(view);
+    } else {
+      this._views.splice(index, 0, view);
+    }
 
     this._updateLength();
   },
@@ -350,9 +354,10 @@ Object.assign(Container.prototype, {
   // Replace array contents without overwriting the reference.
   // Should not add/remove views
   _set(views, shouldReset) {
-    this._views.length = 0;
-
-    this._views.push.apply(this._views, views.slice(0));
+    if (views !== this._views) {
+      this._views.length = 0;
+      this._views.push.apply(this._views, views);
+    }
 
     if (shouldReset) {
       this._viewsByCid = createIndex();
