@@ -653,6 +653,13 @@ describe('exact-head performance growth approval contract', () => {
       validateCandidateGrowthContract(growthContract(), resetPhase0)[0],
       /baselineBrotliBytes must be 0/
     );
+
+    const resetGraphPhase0 = candidateGrowthContract();
+    resetGraphPhase0.productionGraphs[1].baselineModules = ['feature.js'];
+    assert.match(
+      validateCandidateGrowthContract(growthContract(), resetGraphPhase0)[0],
+      /Phase 0 module baselines must be empty/
+    );
   });
 
   test('permits only tightening forbidden external imports', () => {

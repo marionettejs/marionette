@@ -127,6 +127,53 @@ DataApi and [StateApi](./marionette.state.md#stateapi) are selected
 independently. One adapter object may implement both contracts, but configuring
 one role never selects the other.
 
+## Keyed snapshot store adapters
+
+`@marionette/adapters` provides explicit DataApi factories for Redux Toolkit,
+Zustand vanilla stores, and XState Store:
+
+| Source | Import |
+| --- | --- |
+| Redux Toolkit | `@marionette/adapters/redux` |
+| Zustand vanilla store | `@marionette/adapters/zustand` |
+| XState Store | `@marionette/adapters/xstate-store` |
+
+Each factory requires a stable model key and a selector that returns the
+current ordered model array. Configure the resulting DataApi on the
+CollectionView class before creating instances:
+
+```javascript
+import createReduxDataApi from '@marionette/adapters/redux';
+import { CollectionView, View } from 'marionette';
+
+const ReduxDataApi = createReduxDataApi({
+  key: todo => todo.id,
+  select: state => state.todos
+});
+
+const TodoView = View.extend({
+  tagName: 'li',
+  template: todo => todo.title
+});
+const TodoList = CollectionView.extend({ childView: TodoView });
+TodoList.setDataApi(ReduxDataApi);
+
+const list = new TodoList({ collection: store });
+```
+
+Use `createZustandDataApi` or `createXStateStoreDataApi` from the corresponding
+subpath with the same options. A selector should return the same array reference
+when an unrelated store notification occurs and retain the same object reference
+for each unchanged model. Return a new ordered array after a structural change.
+
+The adapters subscribe once per observing CollectionView and compare one keyed
+snapshot per relevant notification. They normalize function and
+`{ unsubscribe() }` disposers and never stop or mutate the caller-owned store.
+A new model object with an existing key is an immutable replacement, so
+Marionette destroys the old child View and constructs a new child for the new
+object. These adapters intentionally do not expose a generic snapshot-store
+entry point.
+
 ## Optional `@marionette/data` sources
 
 Install `@marionette/data` with `marionette` when an application wants a small

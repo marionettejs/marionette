@@ -55,7 +55,16 @@ npm install @marionette/adapters backbone
 
 # Only if you use the jQuery DomApi adapter
 npm install @marionette/adapters jquery
+
+# Choose only the keyed snapshot store your application uses
+npm install @marionette/adapters @reduxjs/toolkit
+npm install @marionette/adapters zustand
+npm install @marionette/adapters @xstate/store
 ```
+
+The keyed snapshot adapters do not import or declare these store libraries as
+peers. Install only the store package already selected by your application; the
+adapter consumes its public store shape.
 
 Npm does not install missing optional peers. TypeScript consumers of an optional
 subpath must install its matching type package explicitly:
@@ -127,6 +136,11 @@ npm install @marionette/data
 Configure its adapters before constructing owners. See the
 [`@marionette/data` guide](./data.api.md#optional-marionettedata-sources) for a
 copy-pastable isolated-runtime example.
+
+Applications that already use Redux Toolkit, Zustand vanilla stores, or XState
+Store can select an ordered model array with an explicit
+`@marionette/adapters` subpath. See
+[Keyed snapshot store adapters](./data.api.md#keyed-snapshot-store-adapters).
 
 ## Distribution formats
 

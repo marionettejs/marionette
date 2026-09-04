@@ -18,6 +18,7 @@ function normalizeOptions(options) {
 }
 
 function sameValueZero(left, right) {
+  // Keep this aligned with CollectionView's stable-key equality.
   return left === right || Number.isNaN(left) && Number.isNaN(right);
 }
 

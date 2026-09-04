@@ -138,6 +138,7 @@ try {
     'collection-removal-survivors',
     'jquery-dom-api',
     'jquery-dom-api-types',
+    'keyed-snapshot-adapter-types',
   ]);
 
   for (const fixtureName of fixtures) {
