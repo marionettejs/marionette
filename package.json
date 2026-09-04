@@ -91,10 +91,12 @@
     "@babel/preset-env": "7.29.7",
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.62.1",
+    "@reduxjs/toolkit": "2.12.0",
     "@rollup/plugin-babel": "7.1.0",
     "@rollup/plugin-json": "6.1.0",
     "@rollup/plugin-terser": "1.0.0",
     "@vitest/coverage-v8": "^4.1.11",
+    "@xstate/store": "4.2.3",
     "ajv": "8.20.0",
     "backbone": "^1.4.0",
     "browserslist": "4.28.8",
@@ -109,7 +111,8 @@
     "sinon-chai": "^4.0.0",
     "terser": "5.48.0",
     "underscore": "^1.13.0",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "zustand": "5.0.15"
   },
   "allowScripts": {
     "fsevents@2.3.3": true,

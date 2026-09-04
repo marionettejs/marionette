@@ -37,5 +37,20 @@ export default [
       }
     ],
     plugins: [babel(babelOptions)]
-  }
+  },
+  ...['redux', 'zustand', 'xstate-store'].map(name => ({
+    input: `src/${ name }.js`,
+    output: [
+      {
+        file: `dist/${ name }.js`,
+        format: 'es'
+      },
+      {
+        file: `dist/${ name }.cjs`,
+        format: 'cjs',
+        exports: 'default'
+      }
+    ],
+    plugins: [babel(babelOptions)]
+  }))
 ];

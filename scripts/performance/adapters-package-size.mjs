@@ -15,10 +15,19 @@ const artifacts = [
   ['Backbone adapter CommonJS', 'dist/backbone.cjs'],
   ['jQuery DomApi ES module', 'dist/dom/jquery.js'],
   ['jQuery DomApi CommonJS', 'dist/dom/jquery.cjs'],
+  ['Redux adapter ES module', 'dist/redux.js'],
+  ['Redux adapter CommonJS', 'dist/redux.cjs'],
+  ['Zustand adapter ES module', 'dist/zustand.js'],
+  ['Zustand adapter CommonJS', 'dist/zustand.cjs'],
+  ['XState Store adapter ES module', 'dist/xstate-store.js'],
+  ['XState Store adapter CommonJS', 'dist/xstate-store.cjs'],
 ];
 const expectedExternalImports = [
   [],
   ['jquery'],
+  [],
+  [],
+  [],
 ];
 
 function formatBytes(bytes) {

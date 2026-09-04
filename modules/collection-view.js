@@ -22,6 +22,11 @@ import { normalizeCleanup } from '../utils/subscribe-bindings.js';
 
 const classErrorName = 'CollectionViewError';
 
+function sameValueZero(left, right) {
+  // Keep this aligned with @marionette/data's stable-key equality.
+  return left === right || Object.is(left, right);
+}
+
 function throwCollectionProtocolError(message) {
   throw new MarionetteError({
     code: 'MN0039',
@@ -52,7 +57,7 @@ function buildCollectionSnapshot(Data, collection, previous) {
     if (keys.has(key)) {
       throwCollectionProtocolError(`DataApi.key() returned duplicate key "${ String(key) }".`);
     }
-    if (previousKeys.has(model) && !Object.is(previousKeys.get(model), key)) {
+    if (previousKeys.has(model) && !sameValueZero(previousKeys.get(model), key)) {
       throwCollectionProtocolError('DataApi.key() changed while a model remained in the CollectionView.');
     }
 
@@ -121,7 +126,7 @@ function normalizeCollectionChange(change, previous, current) {
 
     const previousEntry = previous.models.get(pair.previous);
     const currentEntry = current.models.get(pair.current);
-    if (!previousEntry || !currentEntry || !Object.is(previousEntry.key, currentEntry.key)) {
+    if (!previousEntry || !currentEntry || !sameValueZero(previousEntry.key, currentEntry.key)) {
       throwCollectionProtocolError('Each updated entry must preserve one existing stable key.');
     }
     if (updatedKeys.has(currentEntry.key)) {

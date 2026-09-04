@@ -74,7 +74,10 @@ parent.showChildView('content', new View({
 
 - Other data sources can configure `setDataApi` with methods for identity,
   reads, serialization, ordered model snapshots, subscriptions, and collection
-  observation.
+  observation. Applications using Redux Toolkit, Zustand vanilla stores, or
+  XState Store can use the explicit keyed snapshot factories from
+  `@marionette/adapters/redux`, `@marionette/adapters/zustand`, or
+  `@marionette/adapters/xstate-store`.
   See [Data API](docs/data.api.md).
 - State owners return the exact supplied source from `getState()`. Use
   `createState(options)` for an owned source, and configure `setStateApi` when

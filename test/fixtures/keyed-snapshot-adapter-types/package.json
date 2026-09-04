@@ -1,15 +1,14 @@
 {
   "private": true,
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
-    "validate": "node validate.cjs"
+    "validate": "tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json"
   },
   "dependencies": {
     "@reduxjs/toolkit": "2.12.0",
     "@xstate/store": "4.2.3",
-    "backbone": "^1.4.0",
-    "jquery": "^4.0.0",
-    "jsdom": "^30.0.1",
+    "typescript": "7.0.2",
+    "xstate": "5.32.6",
     "zustand": "5.0.15"
   }
 }

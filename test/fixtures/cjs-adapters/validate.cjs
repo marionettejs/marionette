@@ -19,6 +19,9 @@ assert.strictEqual(typeof Backbone.Model.prototype.bind, 'function');
 assert.strictEqual(typeof Backbone.Model.prototype.unbind, 'function');
 
 const JQueryDomApi = require('@marionette/adapters/dom/jquery');
+const createReduxDataApi = require('@marionette/adapters/redux');
+const createXStateStoreDataApi = require('@marionette/adapters/xstate-store');
+const createZustandDataApi = require('@marionette/adapters/zustand');
 const $ = require('jquery');
 const JQueryView = Marionette.View.extend();
 
@@ -34,5 +37,17 @@ assert.ok(result instanceof $);
 assert.strictEqual(result[0].textContent, 'child');
 assert.ok(view.$el instanceof $);
 assert.strictEqual(view.$el[0], el);
+
+for (const createDataApi of [
+  createReduxDataApi,
+  createXStateStoreDataApi,
+  createZustandDataApi
+]) {
+  const DataApi = createDataApi({
+    key: model => model.id,
+    select: snapshot => snapshot.models
+  });
+  assert.strictEqual(DataApi.key({ id: 1 }), 1);
+}
 
 dom.window.close();

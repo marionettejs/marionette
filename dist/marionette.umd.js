@@ -3140,6 +3140,9 @@
   };
 
   const classErrorName$1 = 'CollectionViewError';
+  function sameValueZero(left, right) {
+    return left === right || Object.is(left, right);
+  }
   function throwCollectionProtocolError(message) {
     throw new MarionetteError({
       code: 'MN0039',
@@ -3166,7 +3169,7 @@
       if (keys.has(key)) {
         throwCollectionProtocolError(`DataApi.key() returned duplicate key "${String(key)}".`);
       }
-      if (previousKeys.has(model) && !Object.is(previousKeys.get(model), key)) {
+      if (previousKeys.has(model) && !sameValueZero(previousKeys.get(model), key)) {
         throwCollectionProtocolError('DataApi.key() changed while a model remained in the CollectionView.');
       }
       const entry = {
@@ -3236,7 +3239,7 @@
       }
       const previousEntry = previous.models.get(pair.previous);
       const currentEntry = current.models.get(pair.current);
-      if (!previousEntry || !currentEntry || !Object.is(previousEntry.key, currentEntry.key)) {
+      if (!previousEntry || !currentEntry || !sameValueZero(previousEntry.key, currentEntry.key)) {
         throwCollectionProtocolError('Each updated entry must preserve one existing stable key.');
       }
       if (updatedKeys.has(currentEntry.key)) {

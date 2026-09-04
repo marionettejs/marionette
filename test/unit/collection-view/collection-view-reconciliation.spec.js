@@ -503,6 +503,31 @@ describe('CollectionView normalized reconciliation', function() {
     view.destroy();
   });
 
+  it('uses SameValueZero when validating stable keys', function() {
+    const previous = { id: -0, name: 'before' };
+    const source = { models: [previous] };
+    const view = new ListView({ collection: source });
+    view.render();
+    const previousChild = view.children.findByModel(previous);
+
+    previous.id = 0;
+    source.notify({ kind: 'reorder' });
+    expect(view.children.findByModel(previous)).to.equal(previousChild);
+
+    const current = { id: -0, name: 'after' };
+    source.models = [current];
+    source.notify({
+      kind: 'update',
+      added: [],
+      removed: [],
+      updated: [{ previous, current }]
+    });
+
+    expect(previousChild.isDestroyed()).to.be.true;
+    expect(view.children.findByModel(current)).to.not.equal(previousChild);
+    view.destroy();
+  });
+
   it('diagnoses malformed collection snapshots and structural records', function() {
     const InvalidModelsList = ListView.extend({});
     InvalidModelsList.setDataApi({ models() { return {}; } });
