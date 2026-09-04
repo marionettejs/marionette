@@ -544,6 +544,55 @@ describe('exact-head performance growth approval contract', () => {
     assert.deepEqual(result.newSubpaths, ['./feature']);
   });
 
+  test('keeps optional package additions outside the core cumulative ceiling', () => {
+    const candidateContract = structuredClone(growthContract());
+    candidateContract.runtimeArtifacts.push({
+      name: 'Adapter feature',
+      path: 'packages/adapters/dist/feature.js',
+      baselineBrotliBytes: 0,
+    });
+    candidateContract.productionGraphs.push({
+      subpath: '@marionette/adapters/feature',
+      input: 'packages/adapters/src/feature.js',
+      output: 'packages/adapters/dist/feature.js',
+      baselineModules: [],
+      baselineExternalImports: [],
+    });
+    const currentReport = productionReport();
+    currentReport.artifacts.push({
+      name: 'Adapter feature',
+      path: 'packages/adapters/dist/feature.js',
+      status: 'measured',
+      size: 10,
+    });
+    currentReport.cumulative = {
+      ...currentReport.cumulative,
+      size: 110,
+      coreSize: 100,
+      coreBaselineSize: 100,
+    };
+    currentReport.graphs.push({
+      subpath: '@marionette/adapters/feature',
+      input: 'packages/adapters/src/feature.js',
+      output: 'packages/adapters/dist/feature.js',
+      status: 'measured',
+      modules: ['packages/adapters/src/feature.js'],
+      externalImports: [],
+      forbiddenModules: [],
+    });
+
+    assert.deepEqual(requiredNewProductionApproval({
+      authorityContract: growthContract(),
+      baseReport: productionReport(),
+      candidateContract,
+      currentReport,
+    }), {
+      artifacts: [{ path: 'packages/adapters/dist/feature.js', size: 10 }],
+      enforced: true,
+      subpaths: ['@marionette/adapters/feature'],
+    });
+  });
+
   test('blocks new production additions until candidate-contract activation', () => {
     const currentReport = productionReport({ includeFeature: true });
     currentReport.violations = [

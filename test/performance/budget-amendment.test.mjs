@@ -427,6 +427,86 @@ describe('two-stage performance budget amendments', () => {
     assert.equal(result.requiresExactHeadGrowthApproval, false);
   });
 
+  test('evaluates amendments against core bytes while retaining package measurements', () => {
+    const scopedContract = contract();
+    scopedContract.runtimeArtifacts.push({
+      name: 'Adapter',
+      path: 'packages/adapters/dist/adapter.js',
+      baselineBrotliBytes: 0,
+    });
+    scopedContract.productionGraphs.push({
+      subpath: '@marionette/adapters/adapter',
+      input: 'packages/adapters/src/adapter.js',
+      output: 'packages/adapters/dist/adapter.js',
+      baselineModules: [],
+      baselineExternalImports: [],
+    });
+    const scopedReport = (coreSize, violations = []) => ({
+      ...measuredReport(coreSize),
+      artifacts: [
+        { name: 'Main', path: 'dist/marionette.js', status: 'measured', size: coreSize },
+        {
+          name: 'Adapter',
+          path: 'packages/adapters/dist/adapter.js',
+          status: 'measured',
+          size: 10000,
+        },
+      ],
+      cumulative: {
+        size: coreSize + 10000,
+        baselineSize: 49500,
+        coreSize,
+        coreBaselineSize: 49500,
+        absoluteCeiling: initialCeiling,
+      },
+      graphs: [
+        ...measuredReport(coreSize).graphs,
+        {
+          subpath: '@marionette/adapters/adapter',
+          input: 'packages/adapters/src/adapter.js',
+          output: 'packages/adapters/dist/adapter.js',
+          status: 'measured',
+          modules: ['packages/adapters/src/adapter.js'],
+          externalImports: [],
+          forbiddenModules: [],
+        },
+      ],
+      violations,
+    });
+    const base = scopedReport(51000);
+    const prototype = scopedReport(52000, [
+      `Core package Brotli-11 size 52000 exceeds the absolute ceiling ${initialCeiling}`,
+    ]);
+    const record = amendment();
+    const result = transition({
+      authorityContract: scopedContract,
+      candidateContract: structuredClone(scopedContract),
+      candidateLedger: ledger([record]),
+      changedFiles: [
+        'config/release/performance-budget-amendments.json',
+        'docs/performance-baselines.md',
+        baseReportPath,
+        prototypeContractPath,
+        reportPath,
+      ],
+      evidence: {
+        [baseReportPath]: {
+          schemaVersion: 1,
+          revision: record.prototypeBaseCommit,
+          report: base,
+        },
+        [reportPath]: {
+          schemaVersion: 1,
+          revision: record.prototypeCommit,
+          report: prototype,
+        },
+        [prototypeContractPath]: scopedContract,
+      },
+    });
+
+    assert.equal(result.status, 'accepted', result.diagnostics.join('\n'));
+  });
+
   test('accepts later consumption only from a merged pending authority record', () => {
     const record = amendment();
     const result = transition({

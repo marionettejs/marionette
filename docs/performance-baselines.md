@@ -414,7 +414,9 @@ adds zero artifact bytes. Conversely, a new runtime artifact without a correspon
 new production subpath is invalid rather than independently approvable. Approval binds
 the complete additive artifact set from the same exact head; conditional artifacts such
 as CommonJS outputs need not each be the selected production-graph output, but every
-artifact is named at full size and charged against the cumulative ceiling.
+artifact is named at full size. Separately published package artifacts remain measured,
+reported, and bound to exact-head approval, but they do not consume the core Marionette
+runtime ceiling.
 
 The full lowercase head SHA prevents an approval from surviving a code change. The
 approved path list must exactly match all existing artifacts above the strict
@@ -438,8 +440,13 @@ existing artifact or graph. The only permitted toolchain transition is a valid S
 revision at `toolchain.releaseProfile.sha256`; every other toolchain field remains
 exact-base, and the candidate report must prove that digest matches the actual
 candidate release-profile file. New artifact Phase 0 baselines remain zero, so
-their full size counts against the original absolute ceiling; after adoption, the exact
-merged artifact becomes the comparison base for later pull requests. Unmeasured graphs,
+their full size is reported and requires exact-head approval; after adoption, the exact
+merged artifact becomes the comparison base for later pull requests. The absolute ceiling
+applies only to artifacts shipped from the root `marionette` package. `@marionette/data`,
+`@marionette/adapters`, and future separately published packages retain their own artifact
+measurements and package-specific reports without consuming that core ceiling. Historical
+evidence reports that predate the explicit core totals retain their original aggregate
+interpretation and remain immutable. Unmeasured graphs,
 forbidden modules, removed or renamed base entries, non-integer sizes, report-contract
 drift, and cumulative growth above the ceiling fail closed.
 

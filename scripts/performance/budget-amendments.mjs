@@ -2,6 +2,7 @@ import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { dirname, resolve } from 'node:path';
 import { isDeepStrictEqual, promisify } from 'node:util';
+import { isCoreRuntimeArtifact } from './runtime-scope.mjs';
 
 const ledgerFields = ['entries', 'schemaVersion'];
 const amendmentFields = [
@@ -429,6 +430,7 @@ function measuredReport(report, contract, label, expectedCeiling) {
   const expectedGraphs = mapBy(contract.productionGraphs, 'subpath', `${label} expected graphs`);
   violations.push(...expectedArtifacts.violations, ...expectedGraphs.violations);
   let total = 0;
+  let coreTotal = 0;
   for (const artifact of report.artifacts) {
     if (typeof artifact?.path !== 'string' || artifacts.has(artifact.path) ||
         artifact.status !== 'measured' || !Number.isSafeInteger(artifact.size) || artifact.size < 0) {
@@ -440,6 +442,9 @@ function measuredReport(report, contract, label, expectedCeiling) {
       violations.push(`${label} measured artifact total exceeds the safe integer range`);
     } else {
       total += artifact.size;
+      if (isCoreRuntimeArtifact(artifact.path)) {
+        coreTotal += artifact.size;
+      }
     }
     if (expectedArtifacts.map.get(artifact.path)?.name !== artifact.name) {
       violations.push(`${label} artifact ${artifact.path} does not match its contract name`);
@@ -455,8 +460,23 @@ function measuredReport(report, contract, label, expectedCeiling) {
   if (report?.cumulative?.size !== total) {
     violations.push(`${label} cumulative size does not equal all measured artifacts`);
   }
-  const expectedViolations = total > expectedCeiling ? [
-    `Cumulative Brotli-${contract.baseline.brotliQuality} size ${total} exceeds the absolute ceiling ${expectedCeiling}`,
+  const hasCoreSize = Object.hasOwn(report?.cumulative || {}, 'coreSize');
+  const hasCoreBaselineSize = Object.hasOwn(report?.cumulative || {}, 'coreBaselineSize');
+  const expectedCoreBaselineSize = [...expectedArtifacts.map.entries()]
+    .filter(([path]) => isCoreRuntimeArtifact(path))
+    .reduce((sum, [, artifact]) => sum + artifact.baselineBrotliBytes, 0);
+  if (hasCoreSize !== hasCoreBaselineSize) {
+    violations.push(`${label} core cumulative fields must either both be present or both be absent`);
+  } else if (hasCoreSize &&
+      (report.cumulative.coreSize !== coreTotal ||
+        report.cumulative.coreBaselineSize !== expectedCoreBaselineSize)) {
+    violations.push(`${label} core cumulative fields do not match the measured core artifact set`);
+  }
+  const budgetedTotal = hasCoreSize ? coreTotal : total;
+  const expectedViolations = budgetedTotal > expectedCeiling ? [
+    hasCoreSize ?
+      `Core package Brotli-${contract.baseline.brotliQuality} size ${budgetedTotal} exceeds the absolute ceiling ${expectedCeiling}` :
+      `Cumulative Brotli-${contract.baseline.brotliQuality} size ${budgetedTotal} exceeds the absolute ceiling ${expectedCeiling}`,
   ] : [];
   if (!isDeepStrictEqual(report?.violations, expectedViolations)) {
     violations.push(`${label} violations do not match its measured cumulative result`);
@@ -483,7 +503,7 @@ function measuredReport(report, contract, label, expectedCeiling) {
   if (missingGraphs.length || extraGraphs.length) {
     violations.push(`${label} graph set mismatch; missing: ${missingGraphs.join(', ') || 'none'}; extra: ${extraGraphs.join(', ') || 'none'}`);
   }
-  return { artifacts, subpaths, total, violations };
+  return { artifacts, subpaths, total: budgetedTotal, violations };
 }
 
 function measuredDelta(
