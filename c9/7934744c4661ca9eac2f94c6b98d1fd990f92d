@@ -1,0 +1,126 @@
+packages/adapters/dist/redux.d.cts
+  s_792d54449de682::t_a245ef9e203bc0 1-4,13,15
+  s_792d54449de682::t_4345e1fb6b3757 7-10
+  s_792d54449de682::t_d70279ff5f063a 5-6,11-12,14,16-21
+packages/adapters/dist/xstate-store.d.cts
+  s_792d54449de682::t_d70279ff5f063a 1-6,11-21
+  s_792d54449de682::t_4345e1fb6b3757 7-10
+packages/adapters/dist/redux.cjs
+  s_792d54449de682::t_3e58dbb31065c0 1-172
+test/performance/keyed-snapshot-adapters.test.mjs
+  s_792d54449de682::t_4345e1fb6b3757 1-65
+packages/adapters/src/redux.js
+  s_792d54449de682::t_42b73b48c988b7 1-25
+packages/adapters/src/xstate-store.js
+  s_792d54449de682::t_42b73b48c988b7 1-25
+test/fixtures/cjs-adapters/validate.cjs
+  s_792d54449de682::t_0774658c9b3e68 22-24,41-51
+  s_792d54449de682::t_d0b045b9456281 52
+test/fixtures/keyed-snapshot-adapter-types/tsconfig.esm.json
+  s_792d54449de682::t_0774658c9b3e68 1-6
+scripts/performance/adapters-package-size.mjs
+  s_792d54449de682::t_4345e1fb6b3757 18-23,28-30
+test/fixtures/keyed-snapshot-adapter-types/tsconfig.json
+  s_792d54449de682::t_0774658c9b3e68 1-9
+test/fixtures/keyed-snapshot-adapter-types/tsconfig.cjs.json
+  s_792d54449de682::t_0774658c9b3e68 1-6
+packages/adapters/dist/redux.js
+  s_792d54449de682::t_882a211efab19b 1-170
+test/performance/growth-approval.test.mjs
+  s_792d54449de682::t_9e5fcfe7884df3 656-662
+test/browser/adapters-package.mjs
+  s_792d54449de682::t_40c3d4de43c084 48-50,109-116,119-122,147-185,189,203-207
+packages/adapters/dist/xstate-store.d.mts
+  s_792d54449de682::t_d70279ff5f063a 1-23
+packages/adapters/dist/xstate-store.js
+  s_792d54449de682::t_82e8aed206205f 1-170
+packages/adapters/dist/zustand.js
+  s_792d54449de682::t_4e368d79bcc363 1-170
+upgradeGuide.md
+  s_792d54449de682::t_7dc08f4895ef95 77-80
+packages/adapters/src/zustand.js
+  s_792d54449de682::t_42b73b48c988b7 1-25
+test/fixtures/adapters-package-vite/package.json
+  s_792d54449de682::t_0774658c9b3e68 8-9,12-13
+test/fixtures/adapters-package-vite/src/main.js
+  s_792d54449de682::t_89852fe8f88290 38
+  s_792d54449de682::t_0774658c9b3e68 6-8,25-37
+test/fixtures/keyed-snapshot-adapter-types/validate.mts
+  s_792d54449de682::t_7d766fe411c4b7 44-49
+  s_792d54449de682::t_0774658c9b3e68 1-43,50-52
+test/unit/keyed-snapshot-adapters.spec.js
+  s_792d54449de682::t_7d766fe411c4b7 79,83,85-91,131,136,286-315
+  s_792d54449de682::t_1a58633b29b6ca 18,40,56,76,141-149,155-157,174-185,190-191
+  s_792d54449de682::t_623645b864d71b 140,150-154
+  s_792d54449de682::t_ddacdbfdc953d8 201,212-213
+  s_792d54449de682::t_8dc6c00360df7d 1-17,19-39,41-55,57-75,77-78,80-82,84,92-130,132-135,137-139,158-173,186-189,192-200,202-211,214-285,316-317
+package.json
+  s_792d54449de682::t_c397b80fe30d21 94,99,114-115
+packages/adapters/dist/redux.d.mts
+  s_792d54449de682::t_d70279ff5f063a 5-14,16,18-23
+  s_792d54449de682::t_a245ef9e203bc0 1-4,15,17
+packages/adapters/src/data/keyed-snapshot.js
+  s_792d54449de682::t_ddacdbfdc953d8 8-12
+  s_792d54449de682::t_6c4e1c6a530517 32,37,40,48,60,119
+  s_792d54449de682::t_42b73b48c988b7 1-7,13-31,33-36,38-39,41-47,49-59,61-118,120-136
+packages/adapters/dist/xstate-store.cjs
+  s_792d54449de682::t_9f32bfbc4a2975 1-172
+package-lock.json
+  s_792d54449de682::t_1a018dee809dbe 16,21,36-37,2169-2195,3021-3027,3235-3241,4243-4253,5129-5145,5214-5220,6068-6097
+test/fixtures/run.mjs
+  s_792d54449de682::t_0774658c9b3e68 141
+packages/adapters/dist/zustand.d.mts
+  s_792d54449de682::t_d70279ff5f063a 5-14,16,18-23
+  s_792d54449de682::t_a245ef9e203bc0 1-4,15,17
+packages/adapters/package.json
+  s_792d54449de682::t_d70279ff5f063a 3,29-61,105-108
+test/fixtures/keyed-snapshot-adapter-types/package.json
+  s_792d54449de682::t_e97284dce278a9 11
+  s_792d54449de682::t_0774658c9b3e68 1-10,12-14
+packages/adapters/dist/zustand.d.cts
+  s_792d54449de682::t_a245ef9e203bc0 1-4,13,15
+  s_792d54449de682::t_4345e1fb6b3757 7-10
+  s_792d54449de682::t_d70279ff5f063a 5-6,11-12,14,16-21
+docs/data.api.md
+  s_792d54449de682::t_7dc08f4895ef95 130-141,144-146,148-153,159-176
+  s_792d54449de682::t_b109a5bbdb0160 142-143,147,154-158
+test/fixtures/backbone-adapter/validate.mjs
+  s_792d54449de682::t_41823ddff1b1b6 10-16,25-37
+config/performance.json
+  s_792d54449de682::t_9e5fcfe7884df3 209,216,223
+  s_792d54449de682::t_b4f9b971eaa32d 97-126,204-208,210-215,217-222,224
+test/fixtures/cjs-adapters/package.json
+  s_792d54449de682::t_0774658c9b3e68 8-9,12-13
+packages/adapters/rollup.config.mjs
+  s_792d54449de682::t_42b73b48c988b7 40-55
+packages/adapters/readme.md
+  s_792d54449de682::t_5ce8f3423ed374 78-80
+  s_792d54449de682::t_b109a5bbdb0160 49,56-60
+  s_792d54449de682::t_dfd985606c199c 31-48,50-55,61-77,81,96
+packages/adapters/dist/zustand.cjs
+  s_792d54449de682::t_cbc795c91cc053 1-172
+test/fixtures/keyed-snapshot-adapter-types/validate.cts
+  s_792d54449de682::t_0774658c9b3e68 1-36
+  s_792d54449de682::t_7d766fe411c4b7 37-42
+docs/installation.md
+  s_792d54449de682::t_7dc08f4895ef95 58-62,140-143
+  s_792d54449de682::t_881768d0747807 68
+  s_792d54449de682::t_d13694d7e5f06d 144
+  s_792d54449de682::t_a245ef9e203bc0 65-67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "c97934744c4661ca9eac2f94c6b98d1fd990f92d",
+  "prompts": {},
+  "sessions": {
+    "s_792d54449de682": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a063d4-3f21-7e72-bd01-96fa87903ed1",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
