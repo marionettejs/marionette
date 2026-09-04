@@ -1,0 +1,93 @@
+test/fixtures/cjs-adapters/validate.cjs
+  s_792d54449de682::t_4adac62557ea65 25-26,55-63
+  s_792d54449de682::t_d54438fd562e68 64
+packages/adapters/rollup.config.mjs
+  s_792d54449de682::t_2b23332edf7fb7 41
+packages/adapters/src/data/keyed-snapshot.js
+  s_792d54449de682::t_2b23332edf7fb7 71
+test/fixtures/backbone-adapter/validate.mjs
+  s_792d54449de682::t_4fbb44852b3db8 13,37
+test/performance/keyed-snapshot-adapters.test.mjs
+  s_792d54449de682::t_ecb3332f53831f 4,67-111
+  s_792d54449de682::t_0cc65736264179 112-113
+config/performance.json
+  s_792d54449de682::t_b63cb47b80f3c8 127-136,235-239
+  s_792d54449de682::t_4b833ba696a586 240-241
+docs/data.api.md
+  s_792d54449de682::t_b6f92b5a2775dd 177-219,224-229
+  s_792d54449de682::t_3e546fcd89cf39 220-223
+packages/adapters/src/xstate.js
+  s_792d54449de682::t_b42dbc1644d6e5 6
+  s_792d54449de682::t_01cf781bcfafd6 3,14-16,18,22
+  s_792d54449de682::t_2b23332edf7fb7 1-2,4-5,7-13,17,19-21,23-28,35,37-49,56-59,71
+  s_792d54449de682::t_6e73ee79130617 34,36,60-70
+  s_792d54449de682::t_f34cff04647e69 29-33,50-55
+docs/installation.md
+  s_792d54449de682::t_951d861be651ed 63-64
+  s_792d54449de682::t_54531ce981900e 65,143-144,146-147
+  s_792d54449de682::t_b31eab30cca2f5 68-70
+test/unit/xstate-adapter.spec.js
+  s_792d54449de682::t_c675af53dffa5b 264,266,271,274-275,277-278
+  s_792d54449de682::t_6e73ee79130617 175,183-184,219
+  s_792d54449de682::t_f34cff04647e69 59-60,65,131-134,138,156-170,276,279
+  s_792d54449de682::t_5dbac79543f760 1-58,61-64,66-130,135-137,139-140,142-155,171-174,176-182,185-186,216-218,220-226,230-232,258-263,265,267-268,270,272-273,280-303
+  s_792d54449de682::t_8409104bc04179 141
+  s_792d54449de682::t_4864b4debf6d80 187-215,233-257
+  s_792d54449de682::t_ea359e20ed871c 227-229
+  s_792d54449de682::t_3bc8b63fd31edc 269
+test/fixtures/cjs-adapters/package.json
+  s_792d54449de682::t_4adac62557ea65 13
+packages/adapters/readme.md
+  s_792d54449de682::t_42e45b32a08eaf 95-99
+  s_792d54449de682::t_7a8531c5c4fddf 90-94,100-126,130-142
+  s_792d54449de682::t_3e546fcd89cf39 127-129
+  s_792d54449de682::t_ffd6343497a4df 143
+scripts/performance/adapters-package-size.mjs
+  s_792d54449de682::t_1943de15ad4c89 24-25
+  s_792d54449de682::t_d4f4545b0868df 33
+test/fixtures/adapters-package-vite/package.json
+  s_792d54449de682::t_4adac62557ea65 12
+packages/adapters/package.json
+  s_792d54449de682::t_1943de15ad4c89 62-71
+  s_792d54449de682::t_152ade80a46961 61
+test/fixtures/keyed-snapshot-adapter-types/validate.mts
+  s_792d54449de682::t_92c8120f062c18 49
+  s_792d54449de682::t_4adac62557ea65 7-8,46-48,50-57,67-68
+packages/adapters/dist/xstate.d.cts
+  s_792d54449de682::t_1943de15ad4c89 1-23,25-27,36-38,40,48-51,60-65,67-68
+  s_792d54449de682::t_248f4b0f61593c 24,28-35,39,41-47,52-59,66
+test/fixtures/keyed-snapshot-adapter-types/validate.cts
+  s_792d54449de682::t_92c8120f062c18 42
+  s_792d54449de682::t_4adac62557ea65 7-8,39-41,43-49,56-57
+test/browser/adapters-package.mjs
+  s_792d54449de682::t_4c230b85186c53 50,116-117,124-125,189-207,209,224
+packages/adapters/dist/xstate.d.mts
+  s_792d54449de682::t_248f4b0f61593c 24,28-35,39,41-47,52-59,66
+  s_792d54449de682::t_1943de15ad4c89 1-23,25-27,36-38,40,48-51,60-65,67-68
+test/fixtures/adapters-package-vite/src/main.js
+  s_792d54449de682::t_4adac62557ea65 12-13,48-61
+package-lock.json
+  s_792d54449de682::t_283ba5a08715eb 37,6050-6060
+package.json
+  s_792d54449de682::t_570af74843634a 115
+packages/adapters/dist/xstate.cjs
+  s_792d54449de682::t_625365cd0de137 1-207
+packages/adapters/dist/xstate.js
+  s_792d54449de682::t_0c5be9b06e881e 1-205
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "d8214a74ee131ac575a0a2bf9864807a8786d1e2",
+  "prompts": {},
+  "sessions": {
+    "s_792d54449de682": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a063d4-3f21-7e72-bd01-96fa87903ed1",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
