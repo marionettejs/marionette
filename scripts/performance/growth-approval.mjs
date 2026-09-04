@@ -9,6 +9,7 @@ import {
   evaluateBudgetAmendmentFromCheckouts,
   validateBudgetAmendmentScope,
 } from './budget-amendments.mjs';
+import { isCoreRuntimeArtifact } from './runtime-scope.mjs';
 
 const marker = '<!-- marionette-performance-growth-approval:v1 -->';
 const requiredRecordFields = ['approvedPaths', 'evidenceUrls', 'headSha', 'issueUrl', 'schemaVersion'];
@@ -657,6 +658,7 @@ function reportContractViolations(
     violations.push(`${label} report artifact set mismatch; missing: ${missingArtifacts.join(', ') || 'none'}; extra: ${extraArtifacts.join(', ') || 'none'}`);
   }
   let artifactTotal = 0;
+  let coreArtifactTotal = 0;
   for (const [path, artifact] of reportArtifacts) {
     const expected = expectedArtifacts.map.get(path);
     if (artifact.status !== 'measured' || !Number.isInteger(artifact.size) || artifact.size < 0) {
@@ -664,6 +666,9 @@ function reportContractViolations(
       continue;
     }
     artifactTotal += artifact.size;
+    if (isCoreRuntimeArtifact(path)) {
+      coreArtifactTotal += artifact.size;
+    }
     if (expected && artifact.name !== expected.name) {
       violations.push(`${label} runtime artifact ${path} name does not match its contract`);
     }
@@ -671,8 +676,24 @@ function reportContractViolations(
   if (!Number.isInteger(report?.cumulative?.size) || report.cumulative.size !== artifactTotal) {
     violations.push(`${label} cumulative size does not equal the complete measured artifact set`);
   }
-  if (artifactTotal > expectedCeiling) {
-    violations.push(`${label} cumulative size ${artifactTotal} exceeds the ${ceilingAuthority} cumulative ceiling ${expectedCeiling}`);
+  const hasCoreSize = Object.hasOwn(report?.cumulative || {}, 'coreSize');
+  const hasCoreBaselineSize = Object.hasOwn(report?.cumulative || {}, 'coreBaselineSize');
+  const expectedCoreBaselineSize = [...expectedArtifacts.map.entries()]
+    .filter(([path]) => isCoreRuntimeArtifact(path))
+    .reduce((total, [, artifact]) => total + artifact.baselineBrotliBytes, 0);
+  if (hasCoreSize !== hasCoreBaselineSize) {
+    violations.push(`${label} core cumulative fields must either both be present or both be absent`);
+  } else if (hasCoreSize &&
+      (!Number.isInteger(report.cumulative.coreSize) ||
+        report.cumulative.coreSize !== coreArtifactTotal ||
+        !Number.isInteger(report.cumulative.coreBaselineSize) ||
+        report.cumulative.coreBaselineSize !== expectedCoreBaselineSize)) {
+    violations.push(`${label} core cumulative fields do not match the measured core artifact set`);
+  }
+  const budgetedTotal = hasCoreSize ? coreArtifactTotal : artifactTotal;
+  if (budgetedTotal > expectedCeiling) {
+    const scope = hasCoreSize ? 'core package ' : '';
+    violations.push(`${label} ${scope}cumulative size ${budgetedTotal} exceeds the ${ceilingAuthority} cumulative ceiling ${expectedCeiling}`);
   }
 
   const missingGraphs = [...expectedGraphs.map.keys()]

@@ -363,6 +363,10 @@ describe('performance contract validation', () => {
       'dist/index.mjs',
       'packages/adapters/dist/feature.js',
     ]);
+    contract.runtimeArtifacts[0].baselineBrotliBytes = 100;
+    contract.runtimeArtifacts[1].baselineBrotliBytes = 0;
+    contract.baseline.totalBrotliBytes = 100;
+    contract.baseline.absoluteCeilingBytes = 100;
     contract.productionGraphs = [
       {
         subpath: '.',
@@ -402,11 +406,13 @@ describe('performance contract validation', () => {
         writeFile(join(fixtureRoot, 'dist/index.mjs'), 'export const root = true;\n'),
         writeFile(
           join(fixtureRoot, 'packages/adapters/src/feature.js'),
-          'export const feature = true;\n',
+          `export const feature = '${Array.from({ length: 256 }, (_, index) =>
+            index.toString(36).padStart(2, '0')).join('-')}';\n`,
         ),
         writeFile(
           join(fixtureRoot, 'packages/adapters/dist/feature.js'),
-          'export const feature = true;\n',
+          `export const feature = '${Array.from({ length: 256 }, (_, index) =>
+            index.toString(36).padStart(2, '0')).join('-')}';\n`,
         ),
         writeFile(
           join(fixtureRoot, 'rollup.config.mjs'),
@@ -441,6 +447,11 @@ describe('performance contract validation', () => {
           path === 'packages/adapters/dist/feature.js').status,
         'measured',
       );
+      assert.ok(result.cumulative.size > result.cumulative.absoluteCeiling);
+      assert.ok(result.cumulative.coreSize <= result.cumulative.absoluteCeiling);
+      assert.equal(result.cumulative.coreBaselineSize, 100);
+      assert.equal(result.violations.some(violation =>
+        violation.includes('exceeds the absolute ceiling')), false);
     } finally {
       await rm(fixtureRoot, { recursive: true, force: true });
     }
@@ -553,6 +564,30 @@ describe('performance contract validation', () => {
       const identical = await createReport(baseReport, baseReport);
       assert.match(identical, /\| Main .* \| Not required \|/);
       assert.match(identical, /Status: \*\*Not required\*\*\./);
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
+  test('uses aggregate scope on both sides when the base report has no core totals', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-report-scope-'));
+    const baseReport = join(fixtureRoot, 'base.json');
+    const currentReport = join(fixtureRoot, 'current.json');
+    const base = bundleReport(100);
+    const current = bundleReport(110);
+    current.cumulative.coreSize = 100;
+    current.cumulative.coreBaselineSize = 90;
+
+    try {
+      await Promise.all([
+        writeFile(baseReport, JSON.stringify(base)),
+        writeFile(currentReport, JSON.stringify(current)),
+      ]);
+
+      const result = await createReport(baseReport, currentReport);
+      assert.match(result, /Cumulative Brotli-11: \*\*110 B\*\*.*\+10 B \(\+10\.00%\)/);
+      assert.match(result, /Historical comparison uses aggregate scope/);
+      assert.doesNotMatch(result, /Core package Brotli-11/);
     } finally {
       await rm(fixtureRoot, { recursive: true, force: true });
     }
@@ -1352,7 +1387,7 @@ describe('performance contract validation', () => {
 
     assert.deepEqual(validateCumulativeSize(contract, 10), []);
     assert.deepEqual(validateCumulativeSize(contract, 11), [
-      'Cumulative Brotli-11 size 11 exceeds the absolute ceiling 10'
+      'Core package Brotli-11 size 11 exceeds the absolute ceiling 10'
     ]);
   });
 

@@ -25,6 +25,7 @@ import {
   parseBudgetAmendmentLedger,
   validateBudgetAmendmentLedger,
 } from './budget-amendments.mjs';
+import { isCoreRuntimeArtifact } from './runtime-scope.mjs';
 
 const compress = promisify(brotliCompress);
 const consumerScenarioIds = [
@@ -254,7 +255,7 @@ export function validateCumulativeSize(contract, totalSize) {
     return [];
   }
 
-  return [`Cumulative Brotli-${contract.baseline.brotliQuality} size ${totalSize} exceeds the absolute ceiling ${contract.baseline.absoluteCeilingBytes}`];
+  return [`Core package Brotli-${contract.baseline.brotliQuality} size ${totalSize} exceeds the absolute ceiling ${contract.baseline.absoluteCeilingBytes}`];
 }
 
 export function findForbiddenModules(modules, contract) {
@@ -783,7 +784,13 @@ export async function measure({
     return measureArtifact(resolvedRoot, quality, artifact);
   }));
   const totalSize = artifacts.reduce((total, artifact) => total + (artifact.size || 0), 0);
-  violations.push(...validateCumulativeSize(contract, totalSize));
+  const coreSize = artifacts
+    .filter(artifact => isCoreRuntimeArtifact(artifact.path))
+    .reduce((total, artifact) => total + (artifact.size || 0), 0);
+  const coreBaselineSize = contract.runtimeArtifacts
+    .filter(artifact => isCoreRuntimeArtifact(artifact.path))
+    .reduce((total, artifact) => total + artifact.baselineBrotliBytes, 0);
+  violations.push(...validateCumulativeSize(contract, coreSize));
 
   let configurations;
   try {
@@ -891,6 +898,8 @@ export async function measure({
     cumulative: {
       size: totalSize,
       baselineSize: contract.baseline.totalBrotliBytes,
+      coreSize,
+      coreBaselineSize,
       absoluteCeiling: contract.baseline.absoluteCeilingBytes,
     },
     graphs,
@@ -1337,8 +1346,16 @@ async function buildReport(
         'Approved' : 'Required';
     return `| \`${graph.subpath}\` | ${moduleCount} | ${graph.externalImports.join(', ') || 'None'} | ${change} | ${approval} |`;
   });
-  const cumulativeGrowth = formatChange(base.cumulative.size, current.cumulative.size);
-  const phase0Growth = formatChange(current.cumulative.baselineSize, current.cumulative.size);
+  const hasCoreTotals = [base.cumulative, current.cumulative].every(cumulative =>
+    Object.hasOwn(cumulative, 'coreSize') &&
+    Object.hasOwn(cumulative, 'coreBaselineSize'));
+  const baseCoreSize = hasCoreTotals ? base.cumulative.coreSize : base.cumulative.size;
+  const currentCoreSize = hasCoreTotals ?
+    current.cumulative.coreSize : current.cumulative.size;
+  const coreBaselineSize = hasCoreTotals ?
+    current.cumulative.coreBaselineSize : current.cumulative.baselineSize;
+  const cumulativeGrowth = formatChange(baseCoreSize, currentCoreSize);
+  const phase0Growth = formatChange(coreBaselineSize, currentCoreSize);
   const resourceComparison = compareResourceReports(base, current);
   const consumerComparison = compareConsumerBundleReports(
     base.consumerBundles,
@@ -1382,7 +1399,9 @@ async function buildReport(
     '| --- | ---: | ---: | ---: | --- |',
     ...rows,
     '',
-    `Cumulative Brotli-${current.brotliQuality}: **${formatBytes(current.cumulative.size)}** / ${formatBytes(current.cumulative.absoluteCeiling)} authority-contract ceiling (${cumulativeGrowth} from PR base; ${phase0Growth} from Phase 0).`,
+    hasCoreTotals ?
+      `Core package Brotli-${current.brotliQuality}: **${formatBytes(currentCoreSize)}** / ${formatBytes(current.cumulative.absoluteCeiling)} authority-contract ceiling (${cumulativeGrowth} from PR base; ${phase0Growth} from Phase 0). Optional package artifacts are measured above but do not consume this ceiling.` :
+      `Cumulative Brotli-${current.brotliQuality}: **${formatBytes(currentCoreSize)}** / ${formatBytes(current.cumulative.absoluteCeiling)} authority-contract ceiling (${cumulativeGrowth} from PR base; ${phase0Growth} from Phase 0). Historical comparison uses aggregate scope because the base report has no core totals.`,
     '',
     '| Production subpath | Internal modules | External imports | PR graph change | Approval |',
     '| --- | ---: | --- | --- | --- |',
@@ -1424,7 +1443,7 @@ function writeMeasurement(result, json) {
   for (const artifact of result.artifacts) {
     console.log(`${artifact.name}: ${formatBytes(artifact.size)} (${formatChange(artifact.baselineSize, artifact.size)} from Phase 0)`);
   }
-  console.log(`Cumulative: ${formatBytes(result.cumulative.size)} / ${formatBytes(result.cumulative.absoluteCeiling)}`);
+  console.log(`Core package cumulative: ${formatBytes(result.cumulative.coreSize)} / ${formatBytes(result.cumulative.absoluteCeiling)}`);
   for (const graph of result.graphs) {
     console.log(`${graph.subpath}: ${graph.status === 'measured' ? `${graph.modules.length} internal modules, ${graph.externalImports.length} external imports` : graph.error}`);
   }
