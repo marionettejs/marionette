@@ -925,6 +925,18 @@ describe('#ChildViewContainer', function() {
       expect(container._views).to.equal(originalViews);
     });
 
+    it('should preserve contents when resetting from its own view buffer', function() {
+      container._set(views, true);
+      const currentViews = container._views;
+
+      container._set(currentViews, true);
+
+      expect(container._views).to.equal(currentViews);
+      expect(container.toArray()).to.deep.equal(views);
+      expect(container.hasView(views[0])).to.be.true;
+      expect(container).to.have.lengthOf(2);
+    });
+
     describe('when resetting', function() {
       beforeEach(function() {
         container._set(views, true);

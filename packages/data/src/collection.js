@@ -115,14 +115,21 @@ assignOwn(Collection.prototype, Events, {
   },
 
   _bindModels(models) {
-    const bound = [];
+    let boundCount = 0;
     try {
-      for (const model of models) {
-        this._bindModel(model);
-        bound.push(model);
+      for (; boundCount < models.length; boundCount++) {
+        this._bindModel(models[boundCount]);
       }
     } catch (error) {
-      disposeAll(bound.map(model => () => this._unbindModel(model)), error);
+      // Preserve reverse attempt-all rollback and the original binding error.
+      for (let index = boundCount; index--;) {
+        try {
+          this._unbindModel(models[index]);
+        } catch {
+          // Preserve the binding error after best-effort rollback.
+        }
+      }
+      throw error;
     }
   },
 
