@@ -174,6 +174,59 @@ Marionette destroys the old child View and constructs a new child for the new
 object. These adapters intentionally do not expose a generic snapshot-store
 entry point.
 
+## XState actors
+
+`@marionette/adapters/xstate` supports a parent XState v5 actor whose selected
+ordered collection contains stable child actor references. The adapter uses
+the actor reference itself as `DataApi.key()`, reads and serializes the child
+actor's current `snapshot.context`, and observes the parent through its snapshot
+subscription. A stopped and respawned actor is therefore a new model identity,
+even if it uses the same actor `id`.
+
+```javascript
+import createXStateActorApi from '@marionette/adapters/xstate';
+import { CollectionView, View } from 'marionette';
+
+const XStateActorApi = createXStateActorApi({
+  select: snapshot => snapshot.context.children,
+  snapshotEvent: 'actor:snapshot'
+});
+
+const ChildView = View.extend({
+  template: context => context.label,
+  modelEvents: {
+    'actor:snapshot': 'render',
+    announced: 'onAnnounced'
+  },
+  onAnnounced(event) {
+    console.log(event.label);
+  }
+});
+const ListView = CollectionView.extend({ childView: ChildView });
+ChildView.setDataApi(XStateActorApi);
+ListView.setDataApi(XStateActorApi);
+
+const view = new ListView({ collection: parentActor }).render();
+```
+
+`snapshotEvent` is optional and has no implicit default. When configured, that
+exact event-map name observes `actor.subscribe()` snapshots. Every other name
+is passed unchanged to `actor.on()` and observes an explicitly emitted event;
+events sent to the actor are not surfaced automatically. The selected snapshot
+array should retain its reference for unrelated parent transitions. A newly
+subscribed observer does not receive an already-started actor's current
+snapshot, so initial template data comes from `getSnapshot()`.
+
+`select` is required when the result configures a CollectionView. Omit it when
+only actor model reads, `modelEvents`, or `stateEvents` are needed; that result
+does not define the collection-only `models()` and `observeCollection()` methods.
+
+Set the same adapter on `StateApi` when `stateEvents` should use this event
+vocabulary. Supplied actors are borrowed and never stopped by Marionette. An
+actor returned from `createState()` is owned and is stopped only after its
+Marionette-managed subscriptions are released. The adapter never traverses or
+stops child actors.
+
 ## Optional `@marionette/data` sources
 
 Install `@marionette/data` with `marionette` when an application wants a small

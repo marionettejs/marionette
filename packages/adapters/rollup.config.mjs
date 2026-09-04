@@ -38,7 +38,7 @@ export default [
     ],
     plugins: [babel(babelOptions)]
   },
-  ...['redux', 'zustand', 'xstate-store'].map(name => ({
+  ...['redux', 'zustand', 'xstate-store', 'xstate'].map(name => ({
     input: `src/${ name }.js`,
     output: [
       {

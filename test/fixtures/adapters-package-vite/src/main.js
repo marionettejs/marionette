@@ -9,6 +9,8 @@ import createReduxDataApi from '@marionette/adapters/redux';
 import createXStateStoreDataApi from '@marionette/adapters/xstate-store';
 import createZustandDataApi from '@marionette/adapters/zustand';
 import { createStore as createZustandStore } from 'zustand/vanilla';
+import createXStateActorApi from '@marionette/adapters/xstate';
+import { createActor, createMachine } from 'xstate';
 
 const runtime = createMarionette();
 runtime.setDataApi(BackboneApi);
@@ -43,3 +45,17 @@ for (const [createDataApi, source] of sources) {
   }
   DataApi.observeCollection(source, () => {})();
 }
+
+const childActor = createActor(createMachine({ context: { label: 'child' } })).start();
+const parentActor = createActor(createMachine({ context: { children: [childActor] } })).start();
+const XStateActorApi = createXStateActorApi({
+  select: snapshot => snapshot.context.children,
+  snapshotEvent: 'actor:snapshot'
+});
+if (XStateActorApi.models(parentActor)[0] !== childActor ||
+    XStateActorApi.serialize(childActor).label !== 'child') {
+  throw new Error('XState actor adapter did not preserve actor identity and context.');
+}
+XStateActorApi.observeCollection(parentActor, () => {})();
+childActor.stop();
+parentActor.stop();

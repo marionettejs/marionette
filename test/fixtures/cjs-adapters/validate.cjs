@@ -22,6 +22,8 @@ const JQueryDomApi = require('@marionette/adapters/dom/jquery');
 const createReduxDataApi = require('@marionette/adapters/redux');
 const createXStateStoreDataApi = require('@marionette/adapters/xstate-store');
 const createZustandDataApi = require('@marionette/adapters/zustand');
+const createXStateActorApi = require('@marionette/adapters/xstate');
+const { createActor, createMachine } = require('xstate');
 const $ = require('jquery');
 const JQueryView = Marionette.View.extend();
 
@@ -49,5 +51,15 @@ for (const createDataApi of [
   });
   assert.strictEqual(DataApi.key({ id: 1 }), 1);
 }
+
+const childActor = createActor(createMachine({ context: { label: 'child' } })).start();
+const parentActor = createActor(createMachine({ context: { children: [childActor] } })).start();
+const XStateActorApi = createXStateActorApi({
+  select: snapshot => snapshot.context.children
+});
+assert.strictEqual(XStateActorApi.models(parentActor)[0], childActor);
+assert.strictEqual(XStateActorApi.serialize(childActor).label, 'child');
+childActor.stop();
+parentActor.stop();
 
 dom.window.close();

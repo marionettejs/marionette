@@ -124,6 +124,16 @@
       "name": "XState Store adapter CommonJS",
       "path": "packages/adapters/dist/xstate-store.cjs",
       "baselineBrotliBytes": 0
+    },
+    {
+      "name": "XState actor adapter ES module",
+      "path": "packages/adapters/dist/xstate.js",
+      "baselineBrotliBytes": 0
+    },
+    {
+      "name": "XState actor adapter CommonJS",
+      "path": "packages/adapters/dist/xstate.cjs",
+      "baselineBrotliBytes": 0
     }
   ],
   "productionGraphs": [
@@ -220,6 +230,13 @@
       "subpath": "@marionette/adapters/xstate-store",
       "input": "packages/adapters/src/xstate-store.js",
       "output": "packages/adapters/dist/xstate-store.js",
+      "baselineModules": [],
+      "baselineExternalImports": []
+    },
+    {
+      "subpath": "@marionette/adapters/xstate",
+      "input": "packages/adapters/src/xstate.js",
+      "output": "packages/adapters/dist/xstate.js",
       "baselineModules": [],
       "baselineExternalImports": []
     }

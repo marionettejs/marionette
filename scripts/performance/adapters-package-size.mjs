@@ -21,10 +21,13 @@ const artifacts = [
   ['Zustand adapter CommonJS', 'dist/zustand.cjs'],
   ['XState Store adapter ES module', 'dist/xstate-store.js'],
   ['XState Store adapter CommonJS', 'dist/xstate-store.cjs'],
+  ['XState actor adapter ES module', 'dist/xstate.js'],
+  ['XState actor adapter CommonJS', 'dist/xstate.cjs'],
 ];
 const expectedExternalImports = [
   [],
   ['jquery'],
+  [],
   [],
   [],
   [],

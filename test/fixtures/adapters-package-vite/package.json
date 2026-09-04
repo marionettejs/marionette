@@ -9,6 +9,7 @@
     "@xstate/store": "4.2.3",
     "backbone": "1.4.0",
     "jquery": "4.0.0",
+    "xstate": "5.32.6",
     "vite": "^5.4.0",
     "zustand": "5.0.15"
   },

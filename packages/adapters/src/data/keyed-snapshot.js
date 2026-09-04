@@ -68,7 +68,7 @@ function compareSnapshots(previous, current) {
   return reordered ? { kind: 'reorder' } : undefined;
 }
 
-function normalizeDisposer(disposer, adapterName) {
+export function normalizeDisposer(disposer, adapterName) {
   let dispose;
   if (typeof disposer === 'function') {
     dispose = disposer;

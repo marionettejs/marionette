@@ -87,6 +87,60 @@ store, stop it, or provide a generic snapshot-store abstraction. A consumer
 error propagates through the store notification; the next source notification
 emits a reset so Marionette can rebuild from the latest valid snapshot.
 
+## XState actors
+
+Use the XState actor adapter when a parent actor snapshot contains stable child
+actor references. Actor-reference identity associates each child actor with its
+View; stopping and respawning an actor creates a different model identity even
+when the actors share an `id`. The adapter supports XState `^5.32.6`.
+
+```sh
+npm install marionette @marionette/adapters xstate
+```
+
+```js
+import createXStateActorApi from '@marionette/adapters/xstate';
+import { CollectionView, View } from 'marionette';
+
+const XStateActorApi = createXStateActorApi({
+  select: snapshot => snapshot.context.children,
+  snapshotEvent: 'actor:snapshot'
+});
+
+const ActorView = View.extend({
+  template: context => context.label,
+  modelEvents: {
+    'actor:snapshot': 'render',
+    announced: 'onAnnounced'
+  },
+  onAnnounced(event) {
+    console.log(event.label);
+  }
+});
+const ActorList = CollectionView.extend({ childView: ActorView });
+ActorView.setDataApi(XStateActorApi);
+ActorList.setDataApi(XStateActorApi);
+
+const view = new ActorList({ collection: parentActor }).render();
+```
+
+For a CollectionView, the required selector receives the parent actor's
+synchronous snapshot and returns its ordered child actor references. Omit
+`select` when configuring only actor models or state. Templates receive each child actor's current
+`snapshot.context`. Configure `snapshotEvent` only when declarative
+`modelEvents` or `stateEvents` should observe actor snapshots; the chosen name
+is reserved by that adapter instance. Every other event-map name is passed to
+`actor.on()` and therefore observes an explicitly emitted actor event, not an
+event sent to the actor. Subscribing to an already-started actor does not replay
+its current snapshot, so initial rendering reads `getSnapshot()` directly.
+
+Supplied parent, child, and state actors are borrowed. Destroying a Marionette
+owner releases its subscriptions and Views but does not stop those actors. An
+actor returned by an owner's `createState()` factory is owned; after releasing
+its subscriptions, Marionette calls this adapter's `disposeOwned()` and stops
+that actor. The private keyed snapshot helper is shared implementation only;
+there is no generic snapshot-source package export.
+
 ## jQuery DomApi
 
 ```sh
