@@ -1,0 +1,39 @@
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_24943679ae6876 94-98
+src/mixins/common.ts
+  s_060efbb5bf6218::t_0df1b55b268331 4,17-21,31,57-58
+src/mixins/view.js
+  s_060efbb5bf6218::t_689cf5daec78b9 9
+src/modules/application.js
+  s_060efbb5bf6218::t_ebccebc39e57d8 8
+src/modules/behavior.js
+  s_060efbb5bf6218::t_76ed2ab91ce0be 13
+src/modules/object.ts
+  s_060efbb5bf6218::t_0ac80b7260e33d 7,134-136
+src/modules/region.js
+  s_060efbb5bf6218::t_dc4aebebd29378 13
+test/types/common.cts
+  s_060efbb5bf6218::t_c42ee2e4d83051 1-39
+test/types/common.mts
+  s_060efbb5bf6218::t_611d2f7a53b832 1-39
+test/types/tsconfig.consumer.json
+  s_060efbb5bf6218::t_bd04367ad3da0e 31-33
+test/unit/mixins/common.spec.js
+  s_060efbb5bf6218::t_b6aa0887f6f416 155
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "c79705d50dd427920edd842a9762b6a6e2ad8c61",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
