@@ -1,14 +1,5 @@
 import BehaviorsMixin from '../../../src/mixins/behaviors';
 
-function assignmentDescriptor(value) {
-  return {
-    configurable: true,
-    enumerable: true,
-    value,
-    writable: true
-  };
-}
-
 describe('Behaviors Mixin owned iteration', function() {
   describe('#_initBehaviors', function() {
     it('resolves host and nested declarations on their owners in depth-first order', function() {
@@ -134,91 +125,6 @@ describe('Behaviors Mixin owned iteration', function() {
       expect(() => host._initBehaviors()).to.throw()
         .with.property('code', 'MN0016');
       expect(constructed).to.have.been.calledOnce;
-    });
-  });
-
-  [
-    ['_getBehaviorTriggers', 'triggers', '_getTriggers'],
-    ['_getBehaviorEvents', 'events', '_getEvents']
-  ].forEach(([method, type, getMap]) => {
-    describe(`#${method}`, function() {
-      it(`collects all behavior ${type} before composing own map keys`, function() {
-        const calls = [];
-        const firstProtoValue = { first: true };
-        const secondProtoValue = { second: true };
-        const inheritedMap = {};
-        Object.defineProperty(inheritedMap, 'inherited', {
-          enumerable: true,
-          get() {
-            throw new Error('inherited map value was read');
-          }
-        });
-        const firstMap = Object.create(inheritedMap);
-        Object.defineProperties(firstMap, {
-          first: {
-            enumerable: true,
-            get() {
-              calls.push('read:first');
-              return 'first';
-            }
-          },
-          shared: {
-            enumerable: true,
-            get() {
-              calls.push('read:first-shared');
-              return 'first';
-            }
-          },
-          ['__proto__']: assignmentDescriptor(firstProtoValue)
-        });
-        firstMap[Symbol('ignored')] = 'ignored';
-        const secondMap = {};
-        Object.defineProperties(secondMap, {
-          shared: {
-            enumerable: true,
-            get() {
-              calls.push('read:second-shared');
-              return 'second';
-            }
-          },
-          ['__proto__']: assignmentDescriptor(secondProtoValue)
-        });
-        const firstBehavior = {
-          [getMap]() {
-            calls.push('get:first');
-            return firstMap;
-          }
-        };
-        const secondBehavior = {
-          [getMap]() {
-            calls.push('get:second');
-            return secondMap;
-          }
-        };
-        const host = { ...BehaviorsMixin, _behaviors: [firstBehavior, secondBehavior] };
-
-        const merged = host[method]();
-
-        expect(calls).to.deep.equal([
-          'get:first',
-          'get:second',
-          'read:first',
-          'read:first-shared',
-          'read:second-shared'
-        ]);
-        expect(merged).to.include({ first: 'first', shared: 'second' });
-        expect(merged).to.not.have.property('inherited');
-        expect(Object.getOwnPropertySymbols(merged)).to.deep.equal([]);
-        expect(Object.getPrototypeOf(merged)).to.equal(Object.prototype);
-        expect(Object.getOwnPropertyDescriptor(merged, '__proto__'))
-          .to.deep.equal(assignmentDescriptor(secondProtoValue));
-      });
-
-      it('returns an empty map before behaviors are initialized', function() {
-        const host = { ...BehaviorsMixin };
-
-        expect(host[method]()).to.deep.equal({});
-      });
     });
   });
 

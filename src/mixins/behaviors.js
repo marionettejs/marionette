@@ -1,4 +1,3 @@
-import { assignOwn } from '../utils/assign-in.js';
 import eachOwn from '../utils/each-own.js';
 import MarionetteError from '../modules/error.ts';
 import disposeAll from '../utils/dispose-all.ts';
@@ -55,24 +54,6 @@ function parseBehaviors(view, behaviors, allBehaviors) {
   return allBehaviors;
 }
 
-function mergeBehaviorMaps(behaviors, getMap) {
-  if (behaviors == null) { return {}; }
-
-  const length = behaviors.length;
-  const maps = Array(length);
-
-  for (let index = 0; index < length; index++) {
-    maps[index] = getMap(behaviors[index]);
-  }
-
-  const merged = {};
-  for (let index = 0; index < length; index++) {
-    assignOwn(merged, maps[index]);
-  }
-
-  return merged;
-}
-
 function eachBehavior(behaviors, iteratee) {
   if (behaviors == null) { return; }
 
@@ -112,14 +93,6 @@ export default {
   _rollbackBehaviors() {
     rollbackBehaviors(this._behaviors || []);
     this._behaviors = [];
-  },
-
-  _getBehaviorTriggers() {
-    return mergeBehaviorMaps(this._behaviors, behavior => behavior._getTriggers());
-  },
-
-  _getBehaviorEvents() {
-    return mergeBehaviorMaps(this._behaviors, behavior => behavior._getEvents());
   },
 
   // proxy behavior el to the view's el.
