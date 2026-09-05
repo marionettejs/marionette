@@ -5,7 +5,7 @@ import { assignOwn } from '../utils/assign-in.js';
 import eachOwn from '../utils/each-own.js';
 import MarionetteError from './error.ts';
 import extend from '../utils/extend.ts';
-import getValue from '../utils/get-value.js';
+import getValue from '../utils/get-value.ts';
 import uniqueId from '../utils/unique-id.ts';
 import disposeAll from '../utils/dispose-all.ts';
 import monitorViewEvents from './common/monitor-view-events.js';

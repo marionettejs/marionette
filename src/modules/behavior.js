@@ -8,7 +8,7 @@
 
 import { assignOwn } from '../utils/assign-in.js';
 import extend from '../utils/extend.ts';
-import getValue from '../utils/get-value.js';
+import getValue from '../utils/get-value.ts';
 import uniqueId from '../utils/unique-id.ts';
 import CommonMixin from '../mixins/common.js';
 import DelegateEntityEventsMixin from '../mixins/delegate-entity-events.js';

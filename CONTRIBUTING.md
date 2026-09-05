@@ -102,7 +102,9 @@ ambiguous numeric property aliases return unknown rather than claiming fallback.
 Borrowing these helpers through `Function.call` loses `getOption` result precision
 and `mergeOptions`' optional keys for nullish input; ordinary method calls retain
 those signatures. Dynamic property reads remain local assertion boundaries in
-both helper groups.
+both helper groups. The checked `getValue` helper keeps dynamic property,
+fallback, and callable results unknown; its property-key coercion remains a
+local assertion boundary.
 
 `MarionetteError` checks its fixed constructor and prototype while preserving the
 existing native Error copying and stack behavior. Copied metadata, including

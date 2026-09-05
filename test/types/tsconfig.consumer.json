@@ -24,6 +24,8 @@
     "trigger-method.mts",
     "trigger-method.cts",
     "error.mts",
-    "error.cts"
+    "error.cts",
+    "get-value.mts",
+    "get-value.cts"
   ]
 }
