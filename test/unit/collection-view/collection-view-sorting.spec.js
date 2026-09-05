@@ -311,6 +311,103 @@ describe('CollectionView - Sorting', function() {
     });
   });
 
+  describe('default source ordering', function() {
+    it('reads one source snapshot when sorting an existing list', function() {
+      const view = new MyCollectionView({ collection }).render();
+      const models = this.sinon.spy(view.Data, 'models');
+
+      view.sort();
+
+      expect(models).to.have.been.calledOnceWith(collection);
+      expect(view.el.textContent).to.equal(noSortText);
+      view.destroy();
+    });
+
+    it('reads one snapshot for validation and one for sorting a collection change', function() {
+      const view = new MyCollectionView({ collection }).render();
+      const models = this.sinon.spy(view.Data, 'models');
+      const added = collection.add({ index: 5, sort: 6, altSort: 0 }, { at: 2 });
+
+      expect(models).to.have.been.calledTwice;
+      expect(view.children.findByIndex(2).model).to.equal(added);
+      view.destroy();
+    });
+
+    it('reads the source after before:sort changes its order silently', function() {
+      const view = new MyCollectionView({ collection }).render();
+      view.once('before:sort', () => {
+        collection.comparator = 'sort';
+        collection.sort({ silent: true });
+      });
+
+      view.sort();
+
+      expect(view.el.textContent).to.equal(sortText);
+      view.destroy();
+    });
+
+    it('does not read the source when before:sort destroys the view', function() {
+      const view = new MyCollectionView({ collection }).render();
+      const models = this.sinon.spy(view.Data, 'models');
+      view.once('before:sort', () => view.destroy());
+
+      view.sort();
+
+      expect(models).to.not.have.been.called;
+      expect(view.isDestroyed()).to.be.true;
+    });
+
+    it('preserves an overridden source comparator', function() {
+      const comparator = this.sinon.spy(function(child) {
+        return -child.model.get('index');
+      });
+      const CustomList = MyCollectionView.extend({ _viewComparator: comparator });
+      const view = new CustomList({ collection }).render();
+
+      expect(view.children.map(child => child.model.get('index'))).to.deep.equal([4, 3, 2, 1, 0]);
+      expect(comparator).to.have.been.calledOn(view);
+      view.destroy();
+    });
+
+    it('preserves a replacement of the base prototype comparator', function() {
+      const comparator = this.sinon.stub(CollectionView.prototype, '_viewComparator')
+        .callsFake(function(child) { return -child.model.get('index'); });
+      const view = new MyCollectionView({ collection }).render();
+
+      expect(view.children.map(child => child.model.get('index'))).to.deep.equal([4, 3, 2, 1, 0]);
+      expect(comparator).to.have.been.calledOn(view);
+      view.destroy();
+    });
+
+    it('preserves a getComparator wrapper around the source comparator', function() {
+      const comparator = this.sinon.spy();
+      const CustomList = MyCollectionView.extend({
+        getComparator() {
+          return child => {
+            comparator(child);
+            return -this._viewComparator(child);
+          };
+        }
+      });
+      const view = new CustomList({ collection }).render();
+
+      expect(view.children.map(child => child.model.get('index'))).to.deep.equal([4, 3, 2, 1, 0]);
+      expect(comparator.callCount).to.equal(collection.length);
+      view.destroy();
+    });
+
+    it('keeps children without a source model before the source children', function() {
+      const view = new MyCollectionView({ collection }).render();
+      const child = new View({ template: false });
+
+      view.addChildView(child);
+
+      expect(view.children.first()).to.equal(child);
+      expect(view.children.rest().map(current => current.model)).to.deep.equal(collection.models);
+      view.destroy();
+    });
+  });
+
   describe('#setComparator', function() {
     it('should return the collectionView instance', function() {
       const myCollectionView = new CollectionView();

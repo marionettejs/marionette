@@ -766,6 +766,15 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
     this.triggerMethod('before:sort', this);
 
+    if (viewComparator === defaultViewComparator && this._children.length) {
+      const indexByModel = new Map();
+      const models = this.Data.models(this.collection);
+      for (let index = 0; index < models.length; index++) {
+        indexByModel.set(models[index], index);
+      }
+      viewComparator = view => indexByModel.get(view.model) ?? -1;
+    }
+
     this._children._sort(viewComparator, this);
 
     this.triggerMethod('sort', this);
@@ -1288,5 +1297,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   }
 });
 
+// Prototype overrides must not be mistaken for the built-in comparator.
+const defaultViewComparator = CollectionView.prototype._viewComparator;
 
 export default CollectionView;
