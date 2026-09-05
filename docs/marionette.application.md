@@ -103,6 +103,10 @@ resolves `false` even when a handler ignores it. When a start, restart, or
 destroy operation adopts an in-flight stop phase, it also adopts that phase's
 original options and context, and does not abort its signal.
 
+If a replacement start has already canceled the remaining child stops, that
+stop phase is no longer adopted. A later `stop()`, `restart()`, or `destroy()`
+begins a fresh stop phase with its own options and context.
+
 The context belongs to the readiness phase rather than to one caller's Promise.
 Completion methods and events receive only `(application, options)`.
 
