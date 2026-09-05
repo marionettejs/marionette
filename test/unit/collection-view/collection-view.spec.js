@@ -201,6 +201,44 @@ describe('CollectionView', function() {
       });
     });
 
+    it('resolves a concise childView method for each model', function() {
+      const ChildList = CollectionView.extend({
+        childView(child) {
+          expect(this.collection).to.equal(collection);
+          expect(child).to.equal(model);
+          return MyChildView;
+        }
+      });
+      const view = new ChildList({ collection }).render();
+
+      expect(view.children.first()).to.be.instanceOf(MyChildView);
+      view.destroy();
+    });
+
+    it('resolves an arrow childView factory', function() {
+      const view = new CollectionView({
+        collection,
+        childView: child => child === model ? MyChildView : MyBbChildView
+      }).render();
+
+      expect(view.children.first()).to.be.instanceOf(MyChildView);
+      view.destroy();
+    });
+
+    it('resolves a native class childView method', function() {
+      class ChildList extends CollectionView {
+        childView(child) {
+          expect(this.collection).to.equal(collection);
+          expect(child).to.equal(model);
+          return MyChildView;
+        }
+      }
+      const view = new ChildList({ collection }).render();
+
+      expect(view.children.first()).to.be.instanceOf(MyChildView);
+      view.destroy();
+    });
+
     describe('when childView is not a valid view', function() {
       it('should throw InvalidChildViewError', function() {
         const myCollectionView = new CollectionView({
