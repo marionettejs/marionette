@@ -1,0 +1,23 @@
+src/utils/call-handler.ts
+  s_060efbb5bf6218::t_1774d5f4b513dd 5-8,12
+test/types/events.cts
+  s_060efbb5bf6218::t_0540b10902ec77 51-63
+test/types/events.mts
+  s_060efbb5bf6218::t_cc19e39a841650 51-63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "a91434c152a5869bf9fbcd417f0fe4af7cd39276",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
