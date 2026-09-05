@@ -17,7 +17,7 @@ import UIMixin from '../mixins/ui.js';
 import ViewEventsMixin from '../mixins/view-events.js';
 import { setEventDelegator } from '../runtime/event-delegator.js';
 import disposeAll from '../utils/dispose-all.ts';
-import { setStateApi } from '../runtime/state-api.js';
+import { setStateApi } from '../runtime/state-api.ts';
 
 const ClassOptions = [
   'collectionEvents',

@@ -147,11 +147,17 @@ needed. Explicit replacement-object results remain unfinished in these private
 declarations; public constructor typing must model them without losing the
 ordinary receiver-returning case.
 
-The StateApi setter checks a provider against the class's declared state. It does
-not track later configuration changes or ensure that constructor-supplied state
-matches that provider. For example, a class whose factory produces `{ ready: true }`
-can still receive `{ state: { label: 'Example' } }`; an adapter expecting `ready`
-may then fail. The private declarations do not validate this combination.
+StateApi and DataApi registration checks method shapes while keeping configured
+source inputs opaque. Narrow native, Backbone and actor adapters remain valid;
+registration does not prove that a mutable provider matches a class's current
+or future sources. Inferred `getState()` results remain separate from the
+mutable `State` slot. Configured methods are optional because an explicit
+undefined overlay can remove a capability. Direct calls through a configured
+provider need an explicit local source contract; directly imported adapters retain their concrete types.
+The normalized collection-change protocol still comes from the optional package
+declarations and must be reconciled when public root declarations are packaged.
+This private slice does not add a second protocol definition or change the
+optional packages' supported TypeScript versions.
 
 ## Report a bug
 

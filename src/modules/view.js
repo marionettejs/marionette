@@ -15,8 +15,8 @@ import Region from './region.js';
 import { setEventDelegator } from '../runtime/event-delegator.js';
 import { setRenderer } from '../runtime/renderer.js';
 import { setDomApi } from '../runtime/dom-api.js';
-import { setDataApi } from '../runtime/data-api.js';
-import { setStateApi } from '../runtime/state-api.js';
+import { setDataApi } from '../runtime/data-api.ts';
+import { setStateApi } from '../runtime/state-api.ts';
 import { runtimeId } from '../runtime/runtime-id.js';
 
 const classErrorName = 'RegionError';

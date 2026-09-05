@@ -1,6 +1,6 @@
 import getValue from '../utils/get-value.ts';
 import disposeAll from '../utils/dispose-all.ts';
-import StateApi from '../runtime/state-api.js';
+import StateApi from '../runtime/state-api.ts';
 import subscribeBindings from '../utils/subscribe-bindings.js';
 
 const StateMixin = {

@@ -34,6 +34,8 @@
     "construction.mts",
     "construction.cts",
     "radio.mts",
-    "radio.cts"
+    "radio.cts",
+    "providers.mts",
+    "providers.cts"
   ]
 }
