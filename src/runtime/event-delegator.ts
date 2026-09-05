@@ -17,7 +17,7 @@ export interface EventDelegator {
   delegate: (options: DelegateOptions) => () => void;
 }
 
-interface NativeDelegateOptions {
+export interface NativeDelegateOptions {
   eventName: string;
   selector?: string | null;
   handler: (this: void, event: DelegatedEvent) => unknown;

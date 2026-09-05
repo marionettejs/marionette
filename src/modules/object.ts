@@ -5,9 +5,9 @@ import { assignOwn } from '../utils/assign-in.js';
 import extend from '../utils/extend.ts';
 import uniqueId from '../utils/unique-id.ts';
 import CommonMixin from '../mixins/common.ts';
-import DestroyMixin from '../mixins/destroy.js';
-import RadioMixin from '../mixins/radio.js';
-import StateMixin from '../mixins/state.js';
+import DestroyMixin from '../mixins/destroy.ts';
+import RadioMixin from '../mixins/radio.ts';
+import StateMixin from '../mixins/state.ts';
 import disposeAll from '../utils/dispose-all.ts';
 import { setStateApi } from '../runtime/state-api.ts';
 import type { StateApi } from '../runtime/state-api.ts';
@@ -50,25 +50,52 @@ export interface MnObject<Options extends object = object, State = object> exten
   getChannel(): Channel | undefined;
 }
 
-type Merge<Left, Right> = [Extract<keyof Left, keyof Right>] extends [never]
+export type Merge<Left, Right> = [Extract<keyof Left, keyof Right>] extends [never]
   ? Left & Right : Omit<Left, keyof Right> & Right;
-type ArgumentsFor<Props, Previous extends unknown[]> =
+export type ArgumentsFor<Props, Previous extends unknown[]> =
   Props extends { constructor: (...args: infer Args) => unknown } ? Args :
   Props extends { initialize: (...args: infer Args) => unknown } ? Args : Previous;
-type OptionsFor<Args extends unknown[]> = [NonNullable<Args[0]>] extends [never] ? object :
+export type OptionsFor<Args extends unknown[]> = [NonNullable<Args[0]>] extends [never] ? object :
   NonNullable<Args[0]> extends object ? NonNullable<Args[0]> : object;
-type DefaultOptions<Props> = Props extends { options: infer Options }
+export type DefaultOptions<Props> = Props extends { options: infer Options }
   ? Options extends (...args: never[]) => infer Result ? Result extends object ? Result : object
     : Options extends object ? Options : object
   : object;
-type SuppliedState<Options, Previous> = 'state' extends keyof Options
+export type SuppliedState<Options, Previous> = 'state' extends keyof Options
   ? Exclude<Options['state'], undefined> | (undefined extends Options['state'] ? Previous : never)
   : Previous;
-type StateFor<Props> = SuppliedState<Props,
+export type StateFor<Props> = SuppliedState<Props,
   Props extends { createState: (...args: never[]) => infer State } ? State : object>;
-type Instance<Props, Args extends unknown[], State> =
+export type Instance<Props, Args extends unknown[], State> =
   Merge<MnObject<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State>,
     'options' extends keyof Props ? Omit<Props, 'options'> : Props>;
+
+// A primitive or void return declares ordinary construction. Unknown results
+// cannot promise an instance; only an explicit generic receiver return preserves
+// the complete instance type through later extensions.
+type Returned<Result, Normal> = Result extends object ? Result : Normal;
+export type Constructed<Props, Normal> =
+  Props extends { constructor: infer Constructor extends (...args: never[]) => unknown }
+    ? unknown extends ReturnType<Constructor> ? unknown
+      : Constructor extends <Receiver extends ThisParameterType<Constructor> & object>(
+        this: Receiver, ...args: Parameters<Constructor>
+      ) => Receiver ? Normal : Returned<ReturnType<Constructor>, Normal>
+    : Normal;
+
+// Optional type information avoids inferring through the whole recursive constructor.
+// No property or symbol is created at runtime.
+declare const constructorTypes: unique symbol;
+interface ConstructorTypes {
+  props: object;
+  args: unknown[];
+  state: unknown;
+  statics: object;
+}
+
+export type MetadataFor<Parent> = typeof constructorTypes extends keyof Parent
+  ? NonNullable<Parent[typeof constructorTypes]> extends ConstructorTypes
+    ? NonNullable<Parent[typeof constructorTypes]> : never
+  : never;
 
 export type MnObjectConstructor<
   Props extends object = {},
@@ -76,7 +103,8 @@ export type MnObjectConstructor<
   State = object,
   Statics extends object = {}
 > = {
-  new <Provided extends Args = Args>(...args: Provided): Instance<Props, Provided, SuppliedState<Provided[0], State>>;
+  readonly [constructorTypes]?: { props: Props; args: Args; state: State; statics: Statics };
+  new <Provided extends Args = Args>(...args: Provided): Constructed<Props, Instance<Props, Provided, SuppliedState<Provided[0], State>>>;
   (this: object, ...args: Args): void;
 } & Merge<{
   prototype: Merge<Instance<Props, Args, State>, Props>;
@@ -84,6 +112,7 @@ export type MnObjectConstructor<
   apply(receiver: object, args: Args | IArguments): void;
   setStateApi: typeof setStateApi;
   extend<Added extends object = {}, AddedStatics extends object = {}>(
+    this: Added extends { constructor: (...args: never[]) => unknown } ? object : (this: object, ...args: never[]) => unknown,
     prototypeProperties?: Added & ThisType<Instance<
       Merge<Props, Added>, ArgumentsFor<Merge<Props, Added>, Args>, StateFor<Merge<Props, Added>>
     >>,

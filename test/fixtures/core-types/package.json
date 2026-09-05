@@ -1,0 +1,14 @@
+{
+  "name": "marionette-core-types-fixture",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "tsc -p tsconfig.json && tsc -p tsconfig.bundler.json"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "@types/backbone": "1.4.23",
+    "@types/jquery": "4.0.1",
+    "backbone": "1.4.0"
+  }
+}

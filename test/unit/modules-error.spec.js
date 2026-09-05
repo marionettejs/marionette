@@ -1,4 +1,4 @@
-import { MarionetteError as PublicMarionetteError, VERSION } from '../../src/index.js';
+import { MarionetteError as PublicMarionetteError, VERSION } from '../../src/index.ts';
 import MarionetteError from '../../src/modules/error';
 
 describe('MarionetteError', function() {

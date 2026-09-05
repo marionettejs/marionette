@@ -1,3 +1,4 @@
+import { View, CollectionView, createMarionette, setDomApi } from 'marionette';
 import JQueryDomApi from '@marionette/adapters/dom/jquery';
 
 const host = document.createElement('div');
@@ -21,3 +22,20 @@ JQueryDomApi.addClass('active');
 void result;
 void wrapped;
 void element;
+
+// Configure the installed root and isolated runtimes with the real DOM adapter.
+setDomApi(JQueryDomApi);
+const runtime = createMarionette();
+runtime.setDomApi(JQueryDomApi);
+View.setDomApi(JQueryDomApi);
+runtime.CollectionView.setDomApi(JQueryDomApi);
+const item = new View({ el: host, template: false, model: { label: 'jQuery' } });
+const label: string = item.options.model.label;
+const itemElement: Element = item.el;
+const itemQuery: JQuery<HTMLElement> = JQueryDomApi.findEl(itemElement, '.child');
+const list = new CollectionView({ collection: [{ label: 'jQuery' }], childView: View });
+const isolatedItem = new runtime.View({ template: false });
+const isolatedList = new runtime.CollectionView({ collection: [], childView: runtime.View });
+JQueryDomApi.wrapEl(isolatedItem.el);
+// @ts-expect-error Configured DOM queries must contain elements, not numbers.
+setDomApi({ ...JQueryDomApi, findEl() { return [1]; } });

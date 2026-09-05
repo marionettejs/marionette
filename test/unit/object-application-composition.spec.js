@@ -134,7 +134,7 @@ describe('Object and Application prototype composition', function() {
       commonProtoMutated = true;
 
       ({ default: IsolatedObject } = await import('../../src/modules/object.ts?composition-test'));
-      ({ default: IsolatedApplication } = await import('../../src/modules/application.js?composition-test'));
+      ({ default: IsolatedApplication } = await import('../../src/modules/application.ts?composition-test'));
     } catch (error) {
       primaryFailed = true;
       primaryError = error;

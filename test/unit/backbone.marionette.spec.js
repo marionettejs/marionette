@@ -1,6 +1,6 @@
 import _ from 'underscore';
 
-import * as Mn from '../../src/index.js';
+import * as Mn from '../../src/index.ts';
 
 import {version} from '../../package.json';
 

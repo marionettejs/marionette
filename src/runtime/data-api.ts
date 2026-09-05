@@ -19,7 +19,7 @@ interface DataApiClass {
   prototype: { Data: Partial<DataApi> };
 }
 
-interface DefaultDataApi {
+export interface DefaultDataApi {
   key<Source>(model: Source): Source;
   get(model: NonNullable<unknown>, attribute: unknown): unknown;
   has(model: unknown, attribute: unknown): boolean;

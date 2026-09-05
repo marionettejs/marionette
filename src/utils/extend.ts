@@ -2,6 +2,7 @@
 // -----------------
 
 import assignIn, { assignOwn } from './assign-in.js';
+import type { ArgumentsFor, Instance, Merge, MetadataFor, MnObjectConstructor, StateFor } from '../modules/object.ts';
 
 function defineOwnDataProperties(target: object, source: unknown) {
   const type = typeof source;
@@ -22,7 +23,7 @@ function defineOwnDataProperties(target: object, source: unknown) {
 }
 
 // Borrowed from backbone.js
-export default function(
+function extend(
   this: Function & { prototype: object },
   protoProps?: object,
   staticProps?: object
@@ -60,3 +61,31 @@ export default function(
 
   return child;
 }
+
+// Specialize inherited Function.call without replacing it at runtime.
+declare namespace extend {
+  function call<Parent extends ((...args: never[]) => unknown) & { prototype: object },
+    Added extends object = {}, AddedStatics extends object = {}>(
+    this: typeof extend,
+    parent: Parent & ([MetadataFor<Parent>] extends [never] ? never : unknown),
+    protoProps?: Added & ThisType<Instance<
+      Merge<MetadataFor<Parent>['props'], Added>,
+      ArgumentsFor<Merge<MetadataFor<Parent>['props'], Added>, MetadataFor<Parent>['args']>,
+      StateFor<Merge<MetadataFor<Parent>['props'], Added>>
+    >>,
+    staticProps?: AddedStatics & ThisType<MnObjectConstructor<
+      Merge<MetadataFor<Parent>['props'], Added>,
+      ArgumentsFor<Merge<MetadataFor<Parent>['props'], Added>, MetadataFor<Parent>['args']>,
+      StateFor<Merge<MetadataFor<Parent>['props'], Added>>,
+      Merge<MetadataFor<Parent>['statics'], AddedStatics>
+    >>
+  ): MnObjectConstructor<
+    Merge<MetadataFor<Parent>['props'], Added>,
+    ArgumentsFor<Merge<MetadataFor<Parent>['props'], Added>, MetadataFor<Parent>['args']>,
+    StateFor<Merge<MetadataFor<Parent>['props'], Added>>,
+    Merge<MetadataFor<Parent>['statics'], AddedStatics>
+  >;
+  function call(this: typeof extend, parent: Function & { prototype: object }, protoProps?: object, staticProps?: object): Function;
+}
+
+export default extend;

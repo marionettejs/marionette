@@ -165,9 +165,10 @@ try {
 
       cleanFixture(fixtureDir);
       runNpm(['install'], { cwd: fixtureDir });
-      const tarballs = fixtureName.startsWith('data-package-') ?
-        [tarballPath, dataTarballPath] : adapterFixtures.has(fixtureName) ?
-          [tarballPath, adaptersTarballPath] : [tarballPath];
+      const tarballs = fixtureName === 'core-types' ?
+        [tarballPath, dataTarballPath, adaptersTarballPath] : fixtureName.startsWith('data-package-') ?
+          [tarballPath, dataTarballPath] : adapterFixtures.has(fixtureName) ?
+            [tarballPath, adaptersTarballPath] : [tarballPath];
       runNpm(['install', '--ignore-scripts', '--no-save', ...tarballs], { cwd: fixtureDir });
       runNpm(['run', 'validate'], { cwd: fixtureDir });
     } finally {

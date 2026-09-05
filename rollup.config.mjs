@@ -16,7 +16,7 @@ export default [
     ],
   },
   {
-    input: 'src/index.js',
+    input: 'src/index.ts',
     output: [
       {
         file: 'dist/marionette.umd.js',
@@ -41,7 +41,7 @@ export default [
     ]
   },
   {
-    input: 'src/index.js',
+    input: 'src/index.ts',
     output: [
       {
         file: 'dist/marionette.min.js',

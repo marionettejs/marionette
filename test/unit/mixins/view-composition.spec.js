@@ -342,7 +342,7 @@ describe('ViewMixin owned helpers', function() {
           });
         });
 
-        ({ default: IsolatedViewMixin } = await import('../../../src/mixins/view.js?composition-test'));
+        ({ default: IsolatedViewMixin } = await import('../../../src/mixins/view.ts?composition-test'));
       } catch (error) {
         primaryError = error;
       }

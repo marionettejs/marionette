@@ -1,4 +1,4 @@
-import { createMarionette } from '../../../src/index.js';
+import { createMarionette } from '../../../src/index.ts';
 import { Collection, DataApi, Model, StateApi } from '../../../packages/data/src/index.js';
 
 describe('@marionette/data Marionette integration', function() {

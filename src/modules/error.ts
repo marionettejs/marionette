@@ -18,7 +18,7 @@ export interface MarionetteErrorInstance extends Omit<Error, 'name' | 'message'>
   captureStackTrace(fallbackError: Error): void;
 }
 
-interface MarionetteErrorConstructor {
+export interface MarionetteErrorConstructor {
   new(options: NonNullable<unknown>): MarionetteErrorInstance;
   prototype: MarionetteErrorInstance;
   __super__: Error;

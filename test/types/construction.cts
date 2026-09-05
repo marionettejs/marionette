@@ -51,7 +51,7 @@ const replacedConstructor: number = new ReplacedConstructor('1').code;
 new ReplacedConstructor(1);
 
 const ReturningThis = MnObject.extend({
-  constructor: function(options: { label: string }) {
+  constructor: function<Receiver extends object>(this: Receiver, options: { label: string }): Receiver {
     MnObject.call(this, options);
     return this;
   },

@@ -25,7 +25,7 @@ describe('jQuery DomApi adapter', function() {
     };
 
     const bundle = await bundler.rollup({
-      input: 'src/index.js',
+      input: 'src/index.ts',
       external: ['underscore'],
       plugins: [jqueryBlocker, compile()],
       onwarn(warning, warn) {

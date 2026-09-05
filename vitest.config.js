@@ -5,7 +5,7 @@ export default defineConfig({
   resolve: {
     alias: [{
       find: /^marionette$/,
-      replacement: fileURLToPath(new URL('./src/index.js', import.meta.url))
+      replacement: fileURLToPath(new URL('./src/index.ts', import.meta.url))
     }]
   },
   test: {
