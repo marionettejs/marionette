@@ -545,4 +545,57 @@ describe('@marionette/data Collection', function() {
     expect(forwarded).to.not.have.been.called;
     expect(model.set('id', 5)).to.equal(model);
   });
+
+  [undefined, null, false, 0, ''].forEach(error => {
+    it(`preserves ${String(error)} thrown during unbinding and restores membership`, function() {
+      const model = collection.get(1);
+      const off = model.off;
+      model.off = () => { throw error; };
+      let caught = false;
+      let received;
+
+      try {
+        collection.remove(model);
+      } catch (value) {
+        caught = true;
+        received = value;
+      } finally {
+        model.off = off;
+      }
+
+      expect(caught).to.be.true;
+      expect(received).to.equal(error);
+      expect(collection.get(1)).to.equal(model);
+      expect(collection.length).to.equal(2);
+      const forwarded = this.sinon.spy();
+      collection.on('change:name', forwarded);
+      model.set('name', 'still owned');
+      expect(forwarded).to.have.been.calledOnce;
+    });
+
+    it(`releases model listeners when unbinding throws ${String(error)} during destruction`, function() {
+      const model = collection.get(1);
+      const off = model.off;
+      model.off = () => { throw error; };
+      let caught = false;
+      let received;
+
+      try {
+        collection.destroy();
+      } catch (value) {
+        caught = true;
+        received = value;
+      } finally {
+        model.off = off;
+      }
+
+      expect(caught).to.be.true;
+      expect(received).to.equal(error);
+      const forwarded = this.sinon.spy();
+      collection.on('change:name', forwarded);
+      model.set('name', 'no longer owned');
+      expect(forwarded).not.to.have.been.called;
+      expect(model.set('id', 5)).to.equal(model);
+    });
+  });
 });
