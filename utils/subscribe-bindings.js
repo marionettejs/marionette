@@ -27,6 +27,8 @@ export default function subscribeBindings(context, Api, source, bindings, apiNam
 
   try {
     for (let index = 0; index < eventArgs.length; index++) {
+      if (context._isDestroyed) { break; }
+
       const { name, callback, context: eventContext } = eventArgs[index];
       const cleanup = Api.subscribe(source, name, callback, eventContext);
       subscriptions.push(normalizeCleanup(cleanup, `${ apiName }.subscribe`));
@@ -36,9 +38,12 @@ export default function subscribeBindings(context, Api, source, bindings, apiNam
   }
 
   let isDisposed = false;
-  return function() {
+  const cleanup = function() {
     if (isDisposed) { return; }
     isDisposed = true;
     disposeAll(subscriptions);
   };
+
+  if (context._isDestroyed) { cleanup(); }
+  return cleanup;
 }

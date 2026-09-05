@@ -26,14 +26,24 @@ const StateMixin = {
     if (this._isDestroyed) { return this; }
 
     const stateEvents = getValue(this, 'stateEvents');
-    if (stateEvents) {
-      this._stateEventCleanup = subscribeBindings(
-        this,
-        this.State,
-        this.getState(),
-        stateEvents,
-        'StateApi'
-      );
+    if (stateEvents && !this._isDestroyed) {
+      // A subscription can synchronously destroy its owner before returning cleanup.
+      this._isBindingStateEvents = true;
+      try {
+        this._stateEventCleanup = subscribeBindings(
+          this,
+          this.State,
+          this.getState(),
+          stateEvents,
+          'StateApi'
+        );
+      } catch (error) {
+        delete this._isBindingStateEvents;
+        disposeAll([() => this._destroyState()], error);
+      }
+      delete this._isBindingStateEvents;
+
+      if (this._isDestroyed) { this._destroyState(); }
     }
 
     return this;
@@ -56,7 +66,7 @@ const StateMixin = {
   },
 
   _destroyState() {
-    if (!Object.hasOwn(this, '_state') || this._stateReleased) { return this; }
+    if (this._isBindingStateEvents || !Object.hasOwn(this, '_state') || this._stateReleased) { return this; }
 
     const state = this._state;
     const cleanup = this._stateEventCleanup;

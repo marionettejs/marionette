@@ -92,7 +92,10 @@ calling `owner.off()` cannot disable state-source cleanup.
 
 `disposeOwned` is called only for a `createState()` result, after subscriptions
 are released. It is never called for a supplied or declared `state` source.
-Constructor rollback follows the same ordering.
+Constructor rollback follows the same ordering. If an initial subscription
+notification destroys the owner, Marionette waits for `subscribe` to return its
+cleanup function, releases the subscriptions already acquired, and then disposes
+the owned source. It does not subscribe to the remaining `stateEvents`.
 
 The default StateApi does not pretend a plain object is observable. Declaring
 `stateEvents` for a source it cannot observe throws `MN0037`. A missing cleanup
