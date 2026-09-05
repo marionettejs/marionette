@@ -1,7 +1,9 @@
 # Marionette.Region
 
-Regions provide consistent methods to manage, show and destroy
-views in your applications and views.
+A `Region` gives a changing part of the screen a place to live. Show a view,
+replace it with another, or empty the Region when that part of the interface
+is no longer needed. By default, replacing or emptying a view destroys it;
+the Region remains available for the next view.
 
 `Region` includes:
 - [Common Marionette Functionality](./common.md)

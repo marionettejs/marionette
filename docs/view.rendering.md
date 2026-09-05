@@ -1,26 +1,22 @@
 # View Template Rendering
 
-Unlike [`Backbone.View`](http://backbonejs.org/#View-template), [Marionette views](./classes.md)
-provide a customizable solution for rendering a template with data and placing the
-results in the DOM.
+Give a view a template function, then call `render()` to put its result in the
+view's element. A plain function is enough to get started; template engines
+and custom renderers can fit the same workflow.
 
 ```javascript
-import _ from 'underscore';
 import { View } from 'marionette';
 
 const MyView = View.extend({
   tagName: 'h1',
-  template: _.template('Contents')
+  template: () => 'Contents'
 });
 
 const myView = new MyView();
 myView.render();
 ```
 
-In the above example the contents of the `template` attribute will be rendered inside
-a `<h1>` tag available at `myView.el`.
-
-[Live example](https://jsfiddle.net/marionettejs/h762zjua/)
+This renders `<h1>Contents</h1>`, available at `myView.el`.
 
 ## Documentation Index
 
@@ -42,8 +38,10 @@ a `<h1>` tag available at `myView.el`.
 
 A template is a function that given data returns either an HTML string or DOM.
 [The default renderer](#rendering-the-template) in Marionette expects the template to
-return an HTML string. Marionette's dependency Underscore comes with an HTML string
-[template compiler](http://underscorejs.org/#template).
+return an HTML string. If your application uses Underscore, its
+[template compiler](http://underscorejs.org/#template) can create that function.
+Install Underscore as an application dependency to use the following example;
+Marionette does not include it.
 
 ```javascript
 import _ from 'underscore';

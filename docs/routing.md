@@ -1,14 +1,14 @@
 # Routing in Marionette
 
-Marionette does not export a router, depend on a routing library, or require a
-routing integration protocol. Route handlers are ordinary application code and
-can coordinate Marionette objects without a Marionette-specific adapter.
+Connect your chosen router to the application's ordinary Marionette APIs. Route
+handlers can show a View or start a feature's Application. Marionette does not
+export a router, depend on a routing library, or require a routing adapter.
 
 ## Using `Backbone.Router`
 
-Applications that choose Backbone can load the
-[optional Backbone adapter](./optional-backbone.md)
-before constructing routers:
+Import Backbone directly to use `Backbone.Router`. When the application also
+uses Backbone models, collections, or state, configure the
+[optional Backbone adapter](./optional-backbone.md) as shown here:
 
 ```javascript
 import BackboneApi from '@marionette/adapters/backbone';

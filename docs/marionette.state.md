@@ -1,8 +1,9 @@
 # State sources and StateApi
 
-`Application`, `MnObject`, `View`, `CollectionView`, and `Behavior` can compose
-one state source. Marionette owns the relationship and declarative observation;
-the source owns its values and mutation API. `Region` does not compose state.
+Keep state with the part of the application that uses it. `Application`,
+`MnObject`, `View`, `CollectionView`, and `Behavior` can each hold one state
+source. Marionette manages subscriptions and the cleanup described below; the
+source provides its own values and mutation API. `Region` does not compose state.
 
 `getState()` always returns the exact source. Core never converts a plain object
 into a model, record, Proxy, or observable object.
@@ -24,7 +25,7 @@ for state has no state-source property, subscription, or cleanup registration.
 
 ## Borrowed and owned sources
 
-There are two explicit composition forms:
+Choose how the state source is created and who disposes it:
 
 - `state` is an already-created, borrowed source. Several owners may borrow the
   same source. Destroying one owner releases only its subscriptions and never

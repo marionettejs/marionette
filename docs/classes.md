@@ -1,19 +1,17 @@
 # Marionette Classes
 
-Marionette follows Backbone's [pseudo-class architecture](./basics.md#class-based-inheritance).
-This documentation is meant to provide a comprehensive listing of those classes so that
-the reader can have a high-level view and understand functional similarities between the classes.
-All of these classes share a [common set of functionality](./common.md).
+Each Marionette class has a job: render a piece of interface, manage where it goes,
+repeat it, share an interaction, or coordinate a feature. Start with the job you
+need, then follow the reference for its options and lifecycle.
+
+The classes share [configuration and inheritance patterns](./basics.md#class-based-inheritance)
+and a [common set of methods](./common.md).
 
 ### [Marionette.View](./marionette.view.md)
 
-A `View` is used for managing portions of the DOM via a single parent DOM element or `el`.
-It provides a consistent interface for managing the content of the `el` which is typically
-administered by serializing a `Backbone.Model` or `Backbone.Collection` and rendering
-a template with the serialized data into the `View`s `el`.
-
-The `View` provides event delegation for capturing and handling DOM interactions as well as
-the ability to separate concerns into smaller, managed child views.
+A `View` owns a piece of interface through its root element, `el`. It renders a
+template, handles DOM interactions, and can divide a screen into Regions for child
+Views. Plain objects and function templates work with the default configuration.
 
 `View` includes:
 - [The DOM API](./dom.api.md)
@@ -29,10 +27,10 @@ A `View` can have [`Region`s](#marionetteregion) and [`Behavior`s](#marionettebe
 
 ### [Marionette.CollectionView](./marionette.collectionview.md)
 
-A `CollectionView` like `View` manages a portion of the DOM via a single parent DOM element
-or `el`. This view manages an ordered set of child views that are shown within the view's `el`.
-These children are most often created to match the models of a `Backbone.Collection` though a
-`CollectionView` does not require a `collection` and can manage any set of views.
+A `CollectionView` manages an ordered set of child Views inside its root element.
+Use it for rows, cards, or other repeated content. A plain array supplies a static
+collection; an observable data integration can notify it of changes. You can also
+manage child Views directly without supplying a collection.
 
 `CollectionView` includes:
 - [The DOM API](./dom.api.md)
@@ -48,8 +46,8 @@ A `CollectionView` can have [`Behavior`s](#marionettebehavior).
 
 ### [Marionette.Region](./marionette.region.md)
 
-Regions provide consistent methods to manage, show and destroy views in your
-applications and views.
+A `Region` gives a View a place to appear. Showing a new View renders and attaches
+it; replacing or emptying the Region destroys its current View by default.
 
 `Region` includes:
 - [Class Events](./events.class.md#region-events)
@@ -57,8 +55,8 @@ applications and views.
 
 ### [Marionette.Behavior](marionette.behavior.md)
 
-A `Behavior` provides a clean separation of concerns to your view logic, allowing you to
-share common user-facing operations between your views.
+A `Behavior` shares interaction logic between Views, such as keyboard shortcuts or
+a reusable button action. The host View constructs and cleans up its Behaviors.
 
 `Behavior` includes:
 - [Class Events](./events.class.md#behavior-events)
@@ -67,18 +65,23 @@ share common user-facing operations between your views.
 
 ### [Marionette.Application](marionette.application.md)
 
-An `Application` provides hooks for organizing and initiating other elements and a view tree.
+An `Application` coordinates a feature's asynchronous start, stop, restart, and
+destruction. It can own child Applications and display a View through an optional
+Region. Use it for work that should start and stop together.
 
 `Application` includes:
 - [Class Events](./events.class.md#application-events)
 - [Radio API](./radio.md#marionette-integration)
-- [MnObject's API](./marionette.mnobject.md)
+- [Common Marionette Functionality](./common.md)
+- [State API](./marionette.state.md)
 
 An `Application` can have a single [region](./marionette.application.md#application-region).
 
 ### [Marionette.MnObject](marionette.mnobject.md)
 
-`MnObject` incorporates backbone conventions `initialize`, `cid` and `extend`.
+`MnObject` gives a nonvisual object initialization, events, options, and cleanup.
+Use it when those conventions are useful without an element or an Application's
+asynchronous lifecycle.
 
 `MnObject` includes:
 - [Class Events](./events.class.md#mnobject-events)
@@ -86,13 +89,12 @@ An `Application` can have a single [region](./marionette.application.md#applicat
 
 ### [State sources and StateApi](marionette.state.md)
 
-Eligible owners compose exact state sources and observe them through StateApi.
-It is independent from Backbone models and collections.
+Give a feature or View its own state, or pass in a source it should share.
+`StateApi` connects that source's notifications and cleanup to its owner.
 
 ## Routing in Marionette
 
-Users of versions of Marionette prior to v4 will notice that a router is no longer bundled.
-The [Marionette.AppRouter](https://github.com/marionettejs/marionette.approuter) was extracted
-and the core library will no longer hold an opinion on routing.
+Choose a router that fits your application. Route handlers can start an Application
+or show a View using ordinary application code.
 
 [Continue Reading](./routing.md) about routing in Marionette.

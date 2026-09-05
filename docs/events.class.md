@@ -1,9 +1,14 @@
 # Class Events
 
-Marionette uses [`triggerMethod`](./events.md#triggermethod) internally to trigger various
-events used within the [classes](./classes.md). This provides ['onEvent' binding](./events.md#onevent-binding)
-providing convenient hooks for handling class events. Notably all internally triggered events
-will pass the triggering class instance as the first argument of the event.
+Class events let you respond as a view renders, a Region shows a view, or an
+Application starts and stops. Marionette uses
+[`triggerMethod`](./events.md#triggermethod) to dispatch these events, so you can
+listen to an event or define its matching
+[`onEvent` method](./events.md#onevent-binding).
+
+Arguments depend on the event. Use the signatures below rather than assuming
+the first argument is the instance that triggered it; for example, a Behavior's
+proxied view events receive the host view.
 
 ## Documentation Index
 

@@ -1,8 +1,9 @@
 # Optional Backbone
 
-Marionette v5 core does not import Backbone. Plain objects and arrays use the
-default [Data API](./data.api.md), while applications that use Backbone install
-the separate adapters package and select its integration explicitly:
+Use Backbone models and collections with Marionette by installing the separate
+adapters package and selecting its Backbone integration. Marionette core does
+not import Backbone; plain objects and arrays use the default
+[Data API](./data.api.md).
 
 ```sh
 npm install @marionette/adapters backbone

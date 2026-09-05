@@ -1,9 +1,12 @@
 # Marionette.CollectionView
 
-A `CollectionView` like `View` manages a portion of the DOM via a single parent DOM element
-or `el`. This view manages an ordered set of child views that are shown within the view's `el`.
-These children are most often created to match the models of a `Backbone.Collection` though a
-`CollectionView` does not require a `collection` and can manage any set of views.
+A `CollectionView` manages repeated parts of a screen: rows, cards, or any
+ordered set of child views within a root element, `el`. It creates children
+from a `collection`, or lets you add and remove child views yourself.
+
+Plain arrays work with the default [Data API](./data.api.md). Use an adapter
+when your collection needs to notify the view about changes; mutating a plain
+array does not send those notifications.
 
 `CollectionView` includes:
 - [The DOM API](./dom.api.md)

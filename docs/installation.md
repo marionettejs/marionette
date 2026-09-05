@@ -1,25 +1,24 @@
 # Installing Marionette
 
-As with all JavaScript libraries, there are a number of ways to get started with
-a Marionette application. In this section we'll cover the most common ways.
-While some integrations are listed here, more resources are available in the integrations repo:
-[marionette-integrations](https://github.com/marionettejs/marionette-integrations)
+Install the core package, show a View, then add the integrations your application
+needs. Native DOM APIs, plain objects, and function templates work out of the box.
+
+This guide describes the current v5 source. Published alphas may lag behind it;
+see [contributor setup](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#set-up-the-repository) to build and pack
+an unreleased checkout locally.
 
 ## Documentation Index
 
 * [Install](#install)
 * [Peer dependencies](#peer-dependencies)
 * [Quick start](#quick-start)
+* [TypeScript](#typescript)
 * [Independent runtimes](#independent-runtimes)
 * [Observable data sources](#observable-data-sources)
 * [Distribution formats](#distribution-formats)
 * [Backbone is optional](#backbone-is-optional)
 * [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional)
-* [NPM and Webpack](#quick-start-using-npm-and-webpack)
-* [NPM and Brunch](#quick-start-using-npm-and-brunch)
-* [NPM and Browserify](#quick-start-using-npm-and-browserify)
-* [Browserify and Grunt](#browserify-and-grunt)
-* [Browserify and Gulp](#browserify-and-gulp)
+* [Historical starter projects](#historical-starter-projects)
 * [Current v5 documentation](./readme.md)
 
 ## Install
@@ -90,7 +89,7 @@ Marionette v5 exposes its public API through named ESM imports. There is no
 default-namespace export; use named imports only.
 
 ```js
-import { Application, View, Region } from 'marionette';
+import { Application, View } from 'marionette';
 
 const RootView = View.extend({
   template: () => '<div>Hello, Marionette.</div>'
@@ -110,6 +109,38 @@ await app.start();
 selector strings — pass `document.querySelector('#root')` at the call site. See
 the [upgrade guide](../upgradeGuide.md) for the migration entry. `Region` continues
 to accept selector strings.
+
+## TypeScript
+
+The current v5 source includes declarations for TypeScript 6 and 7, with ESM and
+CommonJS entrypoints. Core needs no separate `@types` package. Annotate `initialize`
+to describe a View's application options; TypeScript uses that signature to check
+construction and `this.options`.
+
+```ts
+import { View } from 'marionette';
+
+const MessageView = View.extend({
+  template: false,
+  initialize(options: { message: string }) {
+    this.el.textContent = options.message;
+  },
+  message(): string {
+    return this.options.message;
+  }
+});
+
+const view = new MessageView({ message: 'Hello, Marionette.' });
+document.body.append(view.render().el);
+```
+
+This View requires a string `message`. Missing options or a numeric message are
+compile errors. `template: false` preserves the text set during initialization.
+
+Named imports work with `NodeNext` or bundler module resolution. The
+[typing guide](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#typescript-source) covers custom constructors
+and the supported combinations of `.extend` and native classes. Optional
+integrations may need their own type packages, listed above.
 
 ## Independent runtimes
 
@@ -203,58 +234,33 @@ keeps the wrapper synchronized with the owning View's `setElement()` calls. See
 the [upgrade guide](../upgradeGuide.md) for the migration entries on jQuery DOM
 compatibility and the `detachContents` policy.
 
-## Quick start using NPM and Webpack
-[NPM](https://www.npmjs.com/) is the package manager for JavaScript.
+## Historical starter projects
 
-Installing with NPM through command-line interface
-```bash
-npm install marionette
-```
+The following projects target `backbone.marionette ~3.0.0`. They remain useful
+references for that generation of Marionette. For v5, start with the package and
+examples above; copying these projects also brings their older dependencies.
 
-[Webpack][webpack] is a build tool that makes it easy to pull your dependencies
-together into a single bundle to be delivered to your browser's `<script>` tag.
-It works particularly well with Marionette and jQuery.
+### Quick start using NPM and Webpack
 
-[Here](https://github.com/marionettejs/marionette-integrations/tree/master/webpack)
-we prepared simple marionettejs skeleton with Webpack.
+[Webpack starter for Marionette v3](https://github.com/marionettejs/marionette-integrations/tree/master/webpack).
 
+### Quick start using NPM and Brunch
 
-## Quick start using NPM and Brunch
+[Brunch starter for Marionette v3](https://github.com/marionettejs/marionette-integrations/tree/master/brunch).
 
-[Brunch][brunch] is fast front-end web app build tool with simple declarative config,
-seamless incremental compilation for rapid development, an opinionated pipeline
-and workflow, and core support for source maps.
+### Quick start using NPM and Browserify
 
-[Here](https://github.com/marionettejs/marionette-integrations/tree/master/brunch)
-we prepared simple marionettejs skeleton with Brunch.
-
-
-## Quick start using NPM and Browserify
-
-[Browserify][browserify] is a build tool that makes it easy to bundle NPM
-modules into your application, so you can `require` them as you would import
-dependencies in any other language.
-
-[Here](https://github.com/marionettejs/marionette-integrations/tree/master/browserify)
-we prepared simple marionettejs skeleton with Browserify.
+[Browserify starter for Marionette v3](https://github.com/marionettejs/marionette-integrations/tree/master/browserify).
 
 ### Browserify and Grunt
 
-[Grunt][grunt] is task runner. [Here](https://github.com/marionettejs/marionette-integrations/tree/master/browserify-grunt) is simple Browserify + Grunt skeleton.
+[Browserify and Grunt starter for Marionette v3](https://github.com/marionettejs/marionette-integrations/tree/master/browserify-grunt).
 
 ### Browserify and Gulp
 
-[Gulp][gulp] is streaming build system. [Here](https://github.com/marionettejs/marionette-integrations/tree/master/browserify-gulp) is simple Browserify + Gulp skeleton.
-
-
-[browserify]: http://browserify.org/
-[webpack]: https://webpack.github.io/
-[brunch]: http://brunch.io/
-[grunt]: http://gruntjs.com/
-[gulp]: http://gulpjs.com/
+[Browserify and Gulp starter for Marionette v3](https://github.com/marionettejs/marionette-integrations/tree/master/browserify-gulp).
 
 ## Getting Started
 
-After installing Marionette you might want to check out the basics.
-
-[Continue reading the current v5 documentation](./readme.md).
+[Choose a class for the job](https://github.com/marionettejs/marionette/blob/master/docs/classes.md), or learn the
+[shared configuration patterns](https://github.com/marionettejs/marionette/blob/master/docs/basics.md).

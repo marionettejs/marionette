@@ -1,12 +1,12 @@
 # Marionette.View
 
-A `View` is used for managing portions of the DOM via a single parent DOM element or `el`.
-It provides a consistent interface for managing the content of the `el` which is typically
-administered by serializing attached model or collection data and rendering a template
-with that data into the `View`'s `el`.
+A `View` manages one part of a screen: its content, DOM interactions, and child
+views. Give it a template and data, and it renders into a root element, `el`.
+Plain objects and native DOM methods work by default.
 
-The `View` provides event delegation for capturing and handling DOM interactions as well as
-the ability to separate concerns into smaller, managed child views.
+Use named [Regions](./marionette.region.md) to give child views a place within
+that element, and [Behaviors](./marionette.behavior.md) to share interaction
+logic across views.
 
 `View` includes:
 - [The DOM API](./dom.api.md)
@@ -317,9 +317,9 @@ render the parent first, when showing a child into a declared selector Region.
 returns `undefined` or `false`, respectively. Operations that require a Region —
 `showChildView`, `detachChildView`, `getChildView`, and `removeRegion` — throw a
 `RegionError` with code [`MN0020`](/errors/MN0020/) when the named Region does not
-exist. A value that cannot be converted to a property key is treated as an
-unknown name.
-Object-valued names are not coerced a second time while formatting the error.
+exist. Region names must be non-empty strings. Other values throw a
+`RegionError` with code [`MN0032`](/errors/MN0032/) without coercion. Child View
+operations reject invalid names before rendering the parent.
 
 ## Efficient Nested View Structures
 

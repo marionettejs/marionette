@@ -1,7 +1,7 @@
 # Runtime isolation
 
-Named imports from `marionette` belong to one default runtime. Existing applications
-can continue importing and configuring those exports directly:
+Use named imports from `marionette` when the application shares one configuration.
+These exports belong to the default runtime:
 
 ```javascript
 import { View, Radio, setRenderer } from 'marionette';

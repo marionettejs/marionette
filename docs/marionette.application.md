@@ -1,8 +1,8 @@
 # Marionette.Application
 
-The `Application` is Marionette's non-renderable lifecycle scope. It provides
-asynchronous start, stop, restart, and destroy coordination plus an optional
-Region for a view tree.
+An `Application` gives a feature a place to start, stop, restart, and clean up.
+It coordinates asynchronous work and child Applications, with an optional
+Region for the feature's view tree.
 
 `Application` includes:
 - [Common Marionette Functionality](./common.md)
