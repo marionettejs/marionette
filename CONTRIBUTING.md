@@ -65,6 +65,27 @@ files. Browser, package-fixture, performance, documentation, source, and release
 remain in their named `test/` suites. Do not introduce a second adjacent-test convention
 or restore obsolete root-level source paths.
 
+## TypeScript source
+
+Converted modules use one canonical `.ts` file. The build checks them with
+TypeScript 6.0.3, then the existing Babel and Rollup pipeline removes annotations
+and produces the distributions. Source linting uses typescript-eslint 8.69.0,
+which supports this compiler and the repository's ESLint version. Keep runtime
+construction and prototype composition unchanged when adding types.
+
+`npm run check:types` checks converted source. `npm run test:types` emits private
+declarations into the ignored `test/tmp/typed-core/` directory and checks ESM and
+CommonJS consumers against them. Both checks run during `npm run build` and
+`npm test`. Coverage and diagnostic discovery include TypeScript source files.
+
+The initial conversion covers `MnObject` and `extend`. Imported JavaScript mixins
+remain unchecked; their public methods have explicit types at the composition
+boundary. These declarations are not a complete core typing contract and are not
+published. The next slice should type the shared mixins at their implementations,
+then reuse those types across classes. Application's asynchronous `destroy` must
+remain distinct from MnObject's synchronous return type. Optional-package consumer
+fixtures retain their separate TypeScript 7 compiler pins.
+
 ## Report a bug
 
 Use the [bug report form](https://github.com/marionettejs/marionette/issues/new/choose)

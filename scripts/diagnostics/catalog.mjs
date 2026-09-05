@@ -1,4 +1,6 @@
 import Ajv from 'ajv';
+import typescriptParser from '@typescript-eslint/parser';
+import compile from '../../build/babel.js';
 import { Linter } from 'eslint';
 import { readFile, readdir } from 'node:fs/promises';
 import { dirname, isAbsolute, relative, resolve } from 'node:path';
@@ -8,7 +10,7 @@ import rollupConfigurations from '../../rollup.config.mjs';
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const defaultSchema = JSON.parse(await readFile(resolve(repositoryRoot, 'config/diagnostics/catalog.schema.json'), 'utf8'));
-const javascriptFilePattern = /\.(?:js|mjs)$/;
+const javascriptFilePattern = /\.(?:js|mjs|ts)$/;
 const javascriptLinter = new Linter();
 
 function inputFiles(input) {
@@ -154,7 +156,9 @@ function visitNodes(node, visitor) {
 
 function parseJavaScript(contents, path, errors) {
   const messages = javascriptLinter.verify(contents, {
+    files: ['**/*.{js,mjs,ts}'],
     languageOptions: {
+      parser: path.endsWith('.ts') ? typescriptParser : undefined,
       ecmaVersion: 'latest',
       sourceType: 'module',
     },
@@ -384,6 +388,7 @@ export async function discoverProductionSources({
   rootDir = repositoryRoot,
 } = {}) {
   const bundle = await rollup({
+    plugins: [compile()],
     external: source => !source.startsWith('.') && !isAbsolute(source),
     input: inputs.map(input => resolve(rootDir, input)),
     onwarn(warning) {

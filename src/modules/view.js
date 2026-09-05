@@ -4,7 +4,7 @@
 import { assignOwn } from '../utils/assign-in.js';
 import eachOwn from '../utils/each-own.js';
 import MarionetteError from './error.js';
-import extend from '../utils/extend.js';
+import extend from '../utils/extend.ts';
 import getValue from '../utils/get-value.js';
 import uniqueId from '../utils/unique-id.js';
 import disposeAll from '../utils/dispose-all.js';

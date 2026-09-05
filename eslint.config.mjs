@@ -1,4 +1,6 @@
 import js from '@eslint/js';
+import typescriptParser from '@typescript-eslint/parser';
+import typescriptPlugin from '@typescript-eslint/eslint-plugin';
 import jsdoc from 'eslint-plugin-jsdoc';
 import globals from 'globals';
 
@@ -24,10 +26,11 @@ export default [
       'node_modules/**',
       'packages/*/dist/**',
       'src/version.js',
+      'test/tmp/**',
     ],
   },
   {
-    files: ['**/*.{cjs,js,mjs}'],
+    files: ['**/*.{cjs,js,mjs}', 'src/**/*.ts'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
@@ -116,6 +119,17 @@ export default [
       'no-new': 'off',
       'object-shorthand': 'off',
       'one-var': ['error', 'never'],
+    },
+  },
+  {
+    files: ['src/**/*.ts'],
+    languageOptions: { parser: typescriptParser },
+    plugins: { '@typescript-eslint': typescriptPlugin },
+    rules: {
+      'no-unused-vars': 'off',
+      'no-shadow': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
+      '@typescript-eslint/no-shadow': 'error',
     },
   },
 ];

@@ -7,7 +7,7 @@
 // into portable logical chunks, keeping your views simple and your code DRY.
 
 import { assignOwn } from '../utils/assign-in.js';
-import extend from '../utils/extend.js';
+import extend from '../utils/extend.ts';
 import getValue from '../utils/get-value.js';
 import uniqueId from '../utils/unique-id.js';
 import CommonMixin from '../mixins/common.js';
