@@ -12,12 +12,16 @@ dist/marionette.umd.js.map
   s_060efbb5bf6218::t_75c35dcf01057d 1
 docs/marionette.application.md
   s_060efbb5bf6218::t_55309841a21d04 41-48
+  s_060efbb5bf6218::t_e692d36006afbb 41-48
 modules/application.js
   s_060efbb5bf6218::t_e92a672e55140c 50-53,55-56,58-59
+  s_060efbb5bf6218::t_e71b5b54c1ada7 50-53,55-56,58-59
 test/unit/application-ownership.spec.js
   s_060efbb5bf6218::t_155a35cb1281e6 419-453
+  s_060efbb5bf6218::t_1ce13bc81f2cd6 419-453
 test/unit/application-root-view.spec.js
   s_060efbb5bf6218::t_5fc44c7437b5ee 372-458
+  s_060efbb5bf6218::t_926fc1dd549f9c 372-458
 ---
 {
   "schema_version": "authorship/3.0.0",
