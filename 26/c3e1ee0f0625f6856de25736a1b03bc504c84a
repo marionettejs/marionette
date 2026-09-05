@@ -1,0 +1,53 @@
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_43e7f97c2eb20e 105-107
+src/mixins/behaviors.js
+  s_060efbb5bf6218::t_b3b78ac934e5af 5
+src/mixins/common.js
+  s_060efbb5bf6218::t_3f17596df73bdd 2
+src/mixins/delegate-entity-events.js
+  s_060efbb5bf6218::t_553818796a795a 1
+src/mixins/radio.js
+  s_060efbb5bf6218::t_29a682bff7a841 3
+src/mixins/state.js
+  s_060efbb5bf6218::t_04bd93d34ce2a2 1
+src/mixins/template-render.js
+  s_060efbb5bf6218::t_137ce7059712da 2
+src/mixins/ui.js
+  s_060efbb5bf6218::t_63d40bcb7c4a8d 4
+src/mixins/view-events.js
+  s_060efbb5bf6218::t_1fd89d6b8e0102 6
+src/mixins/view.js
+  s_060efbb5bf6218::t_4cefa13159d476 6
+src/modules/behavior.js
+  s_060efbb5bf6218::t_833d1722663d17 11
+src/modules/collection-view.js
+  s_060efbb5bf6218::t_c08daa1aa6b1e1 6
+src/modules/region.js
+  s_060efbb5bf6218::t_aa3094e25aa3f4 7
+src/modules/view.js
+  s_060efbb5bf6218::t_d725dc4a31eab8 8
+src/utils/get-value.ts
+  s_060efbb5bf6218::t_26fb2d764495cf 1-2
+test/types/get-value.cts
+  s_060efbb5bf6218::t_7622c0048b8c19 1-36
+test/types/get-value.mts
+  s_060efbb5bf6218::t_97dbc4e16587a9 1-36
+test/types/tsconfig.consumer.json
+  s_060efbb5bf6218::t_5a42d799c4a2fe 27-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "26c3e1ee0f0625f6856de25736a1b03bc504c84a",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
