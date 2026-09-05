@@ -653,6 +653,52 @@ describe('exact-head performance growth approval contract', () => {
     });
   });
 
+  test('binds scoped package-root adoption to both artifacts and the exact head', () => {
+    const candidateContract = growthContract();
+    const currentReport = productionReport();
+    const newArtifacts = ['cjs', 'js'].map(extension => ({
+      path: `packages/data/dist/index.${extension}`, size: 10,
+    }));
+    for (const artifact of newArtifacts) {
+      candidateContract.runtimeArtifacts.push({
+        name: artifact.path, path: artifact.path, baselineBrotliBytes: 0,
+      });
+      currentReport.artifacts.push({ ...artifact, name: artifact.path, status: 'measured' });
+    }
+    const graph = {
+      subpath: '@marionette/data', input: 'packages/data/src/index.js',
+      output: 'packages/data/dist/index.js',
+    };
+    candidateContract.productionGraphs.push({ ...graph, baselineModules: [], baselineExternalImports: [] });
+    currentReport.graphs.push({
+      ...graph, status: 'measured', modules: ['packages/data/src/index.js'],
+      externalImports: ['marionette'], forbiddenModules: [],
+    });
+    currentReport.cumulative = {
+      ...currentReport.cumulative, size: 120, coreSize: 100, coreBaselineSize: 100,
+    };
+    const options = {
+      authorityContract: growthContract(), baseReport: productionReport(),
+      candidateContract, currentReport, evidenceComments: evidenceSnapshot(),
+      headSha, policy, pullRequestNumber, thresholdPercent: 1,
+    };
+    const record = approvalRecord([], { artifacts: newArtifacts, subpaths: ['@marionette/data'] });
+    assert.equal(validateGrowthApproval({ ...options, comments: snapshot([]) }).status, 'required');
+    const approved = validateGrowthApproval({ ...options, comments: snapshot([comment(record)]) });
+    assert.equal(approved.status, 'approved');
+    assert.deepEqual(approved.newArtifacts, newArtifacts);
+    assert.deepEqual(approved.newSubpaths, ['@marionette/data']);
+    assert.notEqual(validateGrowthApproval({
+      ...options, comments: snapshot([comment({ ...record, headSha: 'f'.repeat(40) })]),
+    }).status, 'approved');
+    for (const subpath of ['@marionette', '@marionette/data/', '@marionette//data', '@marionette/../data']) {
+      const invalid = structuredClone(candidateContract);
+      invalid.productionGraphs.at(-1).subpath = subpath;
+      assert.ok(validateCandidateGrowthContract(growthContract(), invalid)
+        .some(message => message.includes('invalid additive contract shape')));
+    }
+  });
+
   test('blocks new production additions until candidate-contract activation', () => {
     const currentReport = productionReport({ includeFeature: true });
     currentReport.violations = [
