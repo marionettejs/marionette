@@ -1,0 +1,107 @@
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_aa5bf7c44e6eea 68-98
+build/babel.js
+  s_060efbb5bf6218::t_a8ef0820e5c2b6 1-15
+docs/marionette.application.md
+  s_060efbb5bf6218::t_c709cd58eadb2b 41-48,106-109
+eslint.config.mjs
+  s_060efbb5bf6218::t_6372a7f36a1353 2-3,29,33,124-136
+package-lock.json
+  s_060efbb5bf6218::t_3d719aeba831ad 13,21-22,38,639-654,1461-1480,3108-3253,3255-3299,3302-3329,5581-5593,5886-5898,5922-5935
+package.json
+  s_060efbb5bf6218::t_9fe013e3c6085e 47,78-81,93,101-102,118
+rollup.config.mjs
+  s_060efbb5bf6218::t_4493dce8691c29 1,40,55
+scripts/diagnostics/catalog.mjs
+  s_060efbb5bf6218::t_0d07486acc7847 2-3,13,159,161,187,391
+src/create-marionette.js
+  s_060efbb5bf6218::t_fb4143a45f3b33 2,6
+src/mixins/behaviors.js
+  s_060efbb5bf6218::t_04b132fd2e273a 4
+src/mixins/delegate-entity-events.js
+  s_060efbb5bf6218::t_5dd54023e8a671 2
+src/mixins/destroy.js
+  s_060efbb5bf6218::t_7b82d57b7d431f 1
+src/mixins/events.js
+  s_060efbb5bf6218::t_4162d9ea2d5178 5
+src/mixins/radio.js
+  s_060efbb5bf6218::t_31d6ea7754cf1e 2
+src/mixins/state.js
+  s_060efbb5bf6218::t_830ffea03f7ae5 2
+src/mixins/view-events.js
+  s_060efbb5bf6218::t_b5e936aecc67c6 3
+src/mixins/view.js
+  s_060efbb5bf6218::t_1eefe4ae280f3b 17
+src/modules/application.js
+  s_060efbb5bf6218::t_33473b59782901 6-7,12,50-53,55,57-59,169-182,187,189,191,323-324,350,354
+src/modules/behavior.js
+  s_060efbb5bf6218::t_758c0577b1747b 10,12,19
+src/modules/collection-view.js
+  s_060efbb5bf6218::t_ef72e45136ce3e 5,8,10
+src/modules/error.js
+  s_060efbb5bf6218::t_7aaef825dff409 4
+src/modules/object.ts
+  s_060efbb5bf6218::t_ea0b3de9a2e358 5-6,11,14-165,174,201-202
+src/modules/region.js
+  s_060efbb5bf6218::t_73ab862aaecc7a 6,9-10
+src/modules/view.js
+  s_060efbb5bf6218::t_58974eb61919ef 7,9-10
+src/utils/dispose-all.ts
+  s_060efbb5bf6218::t_4277ab633c3b3f 1-5
+src/utils/extend.ts
+  s_060efbb5bf6218::t_4f89c35ec7a6c0 6,16,25-29,39,59
+src/utils/subscribe-bindings.js
+  s_060efbb5bf6218::t_baff203d9d32fe 2
+src/utils/unique-id.ts
+  s_060efbb5bf6218::t_ce5c8314cd0273 3
+test/source/validate.mjs
+  s_060efbb5bf6218::t_64b65848e261f7 6,84,99-102
+test/types/consumer.cts
+  s_060efbb5bf6218::t_676bb8143d95a1 1-167
+test/types/consumer.mts
+  s_060efbb5bf6218::t_704b6c21c3b8aa 1-167
+test/types/helpers.cts
+  s_060efbb5bf6218::t_530cfd9a4ecad0 1-28
+test/types/helpers.mts
+  s_060efbb5bf6218::t_f1650722f31e52 1-28
+test/types/run.mjs
+  s_060efbb5bf6218::t_be971f62a7bff8 1-11
+test/types/tsconfig.consumer.json
+  s_060efbb5bf6218::t_1546c0238fc925 1-17
+test/types/tsconfig.declarations.json
+  s_060efbb5bf6218::t_d5d49d5bef051f 1-11
+test/unit/application-child-lifecycle.spec.js
+  s_060efbb5bf6218::t_8dea3ecdbc1b2b 262-381,678-791
+test/unit/application-ownership.spec.js
+  s_060efbb5bf6218::t_b1b81176db380b 419-453
+test/unit/application-root-view.spec.js
+  s_060efbb5bf6218::t_d69447ab4c3bb8 372-507
+test/unit/config/diagnostic-catalog.spec.js
+  s_060efbb5bf6218::t_23be568b2e42f3 247-260,317,321,323-324,332,335
+test/unit/jquery-dom-api.spec.js
+  s_060efbb5bf6218::t_8c9f9c484145f3 2,30
+test/unit/object-application-composition.spec.js
+  s_060efbb5bf6218::t_5fffb50a54c8e6 136
+test/unit/utils/dispose-all.spec.js
+  s_060efbb5bf6218::t_6adc937b0d284d 1-63
+tsconfig.json
+  s_060efbb5bf6218::t_0741d7de870280 1-16
+vitest.config.js
+  s_060efbb5bf6218::t_c9e1398b63d8b8 20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "d9610782f7a057fbd95acfd2baede83311e543a1",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
