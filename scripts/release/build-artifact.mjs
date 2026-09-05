@@ -109,6 +109,10 @@ if (!npmCli) {
   throw new Error('Run release:artifact through npm so the npm CLI can be located.');
 }
 
+// Ignored outputs must be rebuilt from this source before packing.
+run(process.execPath, [npmCli, 'run', 'build']);
+run(process.execPath, [npmCli, 'run', 'test:dist']);
+
 const packages = [];
 for (const configuration of packageConfigurations) {
   const manifest = await readJson(`${configuration.directory}/package.json`);

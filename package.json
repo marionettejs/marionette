@@ -44,12 +44,11 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "rollup -c rollup.config.mjs --noConflict && npm run build:data && npm run build:adapters",
+    "build": "node build/clean.js && rollup -c rollup.config.mjs --noConflict && npm run build:data && npm run build:adapters",
     "build:adapters": "npm --prefix packages/adapters run build",
     "build:data": "npm --prefix packages/data run build",
     "check:browser-profile": "node scripts/checks/browser-profile.mjs",
     "check:diagnostics": "node scripts/diagnostics/check-catalog.mjs",
-    "check:dist": "npm run build && node scripts/checks/dist.mjs",
     "check:docs-examples": "node --test test/docs/executable-examples.test.mjs && node scripts/docs/check-executable-examples.mjs",
     "check:release-promotion": "node scripts/release/preflight.mjs",
     "check:release-profile": "node scripts/checks/release-profile.mjs",
@@ -76,7 +75,7 @@
     "test:release-promotion": "node --test test/release/promotion.test.mjs",
     "test:data": "vitest run test/unit/data-package",
     "test:source": "node test/source/validate.mjs",
-    "prepack": "npm run build && npm run test:dist"
+    "prepare": "npm run build && npm run test:dist"
   },
   "bugs": {
     "url": "https://github.com/marionettejs/marionette/issues"
