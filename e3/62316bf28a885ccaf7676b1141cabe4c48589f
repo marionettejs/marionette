@@ -1,0 +1,25 @@
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_512320261952da 83-85
+config/performance.json
+  s_060efbb5bf6218::t_64adc98a252ff0 156,171
+src/mixins/requests.ts
+  s_060efbb5bf6218::t_263f51a1cb169e 197-200
+test/unit/requests.spec.js
+  s_060efbb5bf6218::t_8cb474904d0068 461-484
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "e362316bf28a885ccaf7676b1141cabe4c48589f",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
