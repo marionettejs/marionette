@@ -958,6 +958,46 @@ describe('two-stage performance budget amendments', () => {
     }).diagnostics.join('\n'), /graph set mismatch/i);
   });
 
+  test('accepts a measured TypeScript graph in prototype evidence', () => {
+    const evidence = evidenceReports();
+    evidence[prototypeContractPath].productionGraphs.push({
+      subpath: './typed',
+      input: 'src/feature.ts',
+      output: 'dist/marionette.js',
+      baselineModules: [],
+      baselineExternalImports: [],
+    });
+    evidence[reportPath].report.graphs.push({
+      subpath: './typed',
+      input: 'src/feature.ts',
+      output: 'dist/marionette.js',
+      status: 'measured',
+      modules: ['src/feature.ts'],
+      externalImports: [],
+      forbiddenModules: [],
+    });
+    const record = amendment({ authorizedNewSubpaths: ['./typed'] });
+    const comments = trustedComments();
+    comments.approval.comments[0].body = formatBudgetAmendmentApproval(record, headSha);
+    const result = transition({
+      candidateLedger: ledger([record]),
+      comments,
+      changedFiles: [
+        'config/release/performance-budget-amendments.json',
+        baseReportPath,
+        prototypeContractPath,
+        reportPath,
+      ],
+      evidence,
+      reportHashes: {
+        [baseReportPath]: baseReportHash,
+        [prototypeContractPath]: prototypeContractHash,
+        [reportPath]: reportHash,
+      },
+    });
+    assert.equal(result.status, 'accepted', result.diagnostics.join('\n'));
+  });
+
   test('rejects unsafe prototype contract and source paths', () => {
     const unsafeContractPath = amendment({
       prototypeContract: {

@@ -372,35 +372,38 @@ describe('exact-head performance growth approval contract', () => {
     });
   });
 
-  test('permits an existing graph input move with a matching measured report', () => {
-    const authorityContract = growthContract();
-    const candidateContract = structuredClone(authorityContract);
-    candidateContract.productionGraphs[0].input = 'src/index.js';
-    const currentReport = productionReport();
-    currentReport.graphs[0].input = 'src/index.js';
-    currentReport.graphs[0].modules = ['src/index.js'];
+  for (const input of ['src/index.js', 'src/index.ts']) {
+    test(`permits a measured graph input move to ${input}`, () => {
+      const authorityContract = growthContract();
+      const candidateContract = structuredClone(authorityContract);
+      candidateContract.productionGraphs[0].input = input;
+      const currentReport = productionReport();
+      currentReport.graphs[0].input = input;
+      currentReport.graphs[0].modules = [input];
 
-    assert.deepEqual(validateCandidateGrowthContract(authorityContract, candidateContract), []);
-    assert.deepEqual(requiredNewProductionApproval({
-      authorityContract,
-      baseReport: productionReport(),
-      candidateContract,
-      currentReport,
-    }), { artifacts: [], subpaths: [], enforced: true });
+      assert.deepEqual(validateCandidateGrowthContract(authorityContract, candidateContract), []);
+      assert.deepEqual(requiredNewProductionApproval({
+        authorityContract,
+        baseReport: productionReport(),
+        candidateContract,
+        currentReport,
+      }), { artifacts: [], subpaths: [], enforced: true });
 
-    currentReport.graphs[0].input = 'index.js';
-    assert.throws(() => requiredNewProductionApproval({
-      authorityContract,
-      baseReport: productionReport(),
-      candidateContract,
-      currentReport,
-    }), /input or output does not match its contract/);
-  });
+      currentReport.graphs[0].input = 'index.js';
+      assert.throws(() => requiredNewProductionApproval({
+        authorityContract,
+        baseReport: productionReport(),
+        candidateContract,
+        currentReport,
+      }), /input or output does not match its contract/);
+    });
+  }
 
   test('rejects unsafe or missing replacement graph inputs', () => {
     const authorityContract = growthContract();
     for (const input of [undefined, null, '', '../index.js', '/src/index.js',
-      'src/../index.js', 'src//index.js', 'src/index.ts']) {
+      'src/../index.js', 'src//index.js', 'src/../index.ts', 'src//index.ts',
+      'src/index.d.ts', 'src/index.tsx']) {
       const candidateContract = structuredClone(authorityContract);
       if (input === undefined) {
         delete candidateContract.productionGraphs[0].input;
