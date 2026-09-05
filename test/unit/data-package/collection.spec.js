@@ -414,6 +414,27 @@ describe('@marionette/data Collection', function() {
     other.destroy();
   });
 
+  it('notifies an owner once when another owner removes the destroyed Model first', function() {
+    const model = collection.get(1);
+    const other = new Collection([model]);
+    const remove = this.sinon.spy();
+    const update = this.sinon.spy();
+    collection.on('remove', remove);
+    collection.on('update', update);
+    other.on('remove', () => collection.remove(model));
+
+    model.destroy();
+
+    expect(collection.get(1)).to.be.undefined;
+    expect(other.get(1)).to.be.undefined;
+    expect(changes).to.deep.equal([
+      { kind: 'update', added: [], removed: [model], updated: [] }
+    ]);
+    expect(remove).to.have.been.calledOnce;
+    expect(update).to.have.been.calledOnce;
+    other.destroy();
+  });
+
   it('removes a destroyed Model from every owner before a destroy handler throws', function() {
     const model = collection.get(1);
     const other = new Collection([model]);
