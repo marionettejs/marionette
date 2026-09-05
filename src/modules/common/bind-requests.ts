@@ -11,10 +11,20 @@
 // The third parameter is a hash of { "request:name": "replyHandler" }
 // configuration. A function can be supplied instead of a string handler name.
 
-import normalizeMethods from './normalize-methods.js';
-import MarionetteError from '../error.js';
+import normalizeMethods from './normalize-methods.ts';
+import MarionetteError from '../error.ts';
+import type { EventMap } from '../../mixins/events.ts';
+import type { Bindings } from './normalize-methods.ts';
 
-function normalizeBindings(context, bindings) {
+interface ReplyChannel {
+  reply(bindings: EventMap, context: unknown): unknown;
+}
+
+interface ReplyOwner {
+  stopReplying(bindings: EventMap | null, context: unknown, owner?: unknown): unknown;
+}
+
+function normalizeBindings(context: unknown, bindings: unknown) {
   const bindingsType = typeof bindings;
   if (bindings === null || (bindingsType !== 'object' && bindingsType !== 'function')) {
     throw new MarionetteError({
@@ -24,10 +34,13 @@ function normalizeBindings(context, bindings) {
     });
   }
 
-  return normalizeMethods.call(context, bindings);
+  // The object/function check above excludes every no-map return.
+  return normalizeMethods.call(context, bindings as Bindings) as EventMap;
 }
 
-function bindRequests(channel, bindings) {
+function bindRequests<Receiver>(
+  this: Receiver, channel?: ReplyChannel | null | false | 0 | 0n | '', bindings?: Bindings | null | false | 0 | 0n | ''
+) {
   if (!channel || !bindings) { return this; }
 
   channel.reply(normalizeBindings(this, bindings), this);
@@ -35,7 +48,9 @@ function bindRequests(channel, bindings) {
   return this;
 }
 
-function unbindRequests(channel, bindings) {
+function unbindRequests<Receiver>(
+  this: Receiver, channel?: ReplyOwner | null | false | 0 | 0n | '', bindings?: Bindings | null | false | 0 | 0n | ''
+) {
   if (!channel) { return this; }
 
   if (!bindings) {

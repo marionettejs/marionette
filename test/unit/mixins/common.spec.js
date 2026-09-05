@@ -152,7 +152,7 @@ describe('Common Mixin', function() {
       try {
         expect(Object.hasOwn(EventsMixin, 'inheritedEventPollution')).to.equal(false);
         expect(EventsMixin.inheritedEventPollution).to.be.a('function');
-        ({ default: IsolatedCommonMixin } = await import('../../../src/mixins/common.js?composition-test'));
+        ({ default: IsolatedCommonMixin } = await import('../../../src/mixins/common.ts?composition-test'));
       } finally {
         Object.setPrototypeOf(EventsMixin, eventsPrototype);
       }

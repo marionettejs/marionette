@@ -1,9 +1,9 @@
-import EventDelegator from '../runtime/event-delegator.js';
-import MarionetteError from '../modules/error.js';
+import EventDelegator from '../runtime/event-delegator.ts';
+import MarionetteError from '../modules/error.ts';
 import disposeAll from '../utils/dispose-all.ts';
-import { resolveMethod } from '../modules/common/normalize-methods.js';
+import { resolveMethod } from '../modules/common/normalize-methods.ts';
 import eachOwn from '../utils/each-own.js';
-import getValue from '../utils/get-value.js';
+import getValue from '../utils/get-value.ts';
 import isString from '../utils/is-string.js';
 
 const delegateEventSplitter = /^(\S+)\s*(.*)$/;

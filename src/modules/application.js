@@ -2,17 +2,17 @@
 // -----------
 
 import { assignOwn, setProperty } from '../utils/assign-in.js';
-import MarionetteError from './error.js';
+import MarionetteError from './error.ts';
 import extend from '../utils/extend.ts';
 import uniqueId from '../utils/unique-id.ts';
-import CommonMixin from '../mixins/common.js';
+import CommonMixin from '../mixins/common.ts';
 import DestroyMixin from '../mixins/destroy.js';
 import RadioMixin from '../mixins/radio.js';
 import StateMixin from '../mixins/state.js';
 import disposeAll from '../utils/dispose-all.ts';
 import Region from './region.js';
 import buildRegion from './common/build-region.js';
-import { setStateApi } from '../runtime/state-api.js';
+import { setStateApi } from '../runtime/state-api.ts';
 import { defaultRuntimeId, runtimeId } from '../runtime/runtime-id.js';
 
 const ClassOptions = [

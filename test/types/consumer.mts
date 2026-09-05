@@ -133,12 +133,12 @@ new Result();
 const InheritedSetter = CustomSetter.extend();
 const inheritedResult: string = InheritedSetter.setStateApi();
 
-// @ts-expect-error The provider must handle the constructor's declared state.
+// Registration checks method shape without claiming the source matches this class.
 Worker.setStateApi({ subscribe(source: { label: string }) { return () => {}; } });
-// @ts-expect-error A provider cannot require a narrower state than the factory produces.
 Worker.setStateApi({ subscribe(source: { ready: true }) { return () => {}; } });
+// @ts-expect-error The mutable provider's source is opaque even when state is inferred.
 worker.State.subscribe({ ready: false }, 'change', () => {});
-// @ts-expect-error The instance provider retains its declared source type.
+// @ts-expect-error An unrelated source also needs an explicit provider contract.
 worker.State.subscribe({ label: 'Other' }, 'change', () => {});
 
 worker.stopListening(worker, { completed() {} });

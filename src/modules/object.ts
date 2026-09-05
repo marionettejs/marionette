@@ -4,55 +4,25 @@
 import { assignOwn } from '../utils/assign-in.js';
 import extend from '../utils/extend.ts';
 import uniqueId from '../utils/unique-id.ts';
-import CommonMixin from '../mixins/common.js';
+import CommonMixin from '../mixins/common.ts';
 import DestroyMixin from '../mixins/destroy.js';
 import RadioMixin from '../mixins/radio.js';
 import StateMixin from '../mixins/state.js';
 import disposeAll from '../utils/dispose-all.ts';
-import { setStateApi } from '../runtime/state-api.js';
-import type { EventCallback, EventMap, EventSource, Events } from '../mixins/events.ts';
+import { setStateApi } from '../runtime/state-api.ts';
+import type { StateApi } from '../runtime/state-api.ts';
+import type getOption from './common/get-option.ts';
+import type mergeOptions from './common/merge-options.ts';
+import type { Channel, RadioApi } from './radio.ts';
+import type { Events } from '../mixins/events.ts';
+import type { Bindings } from './common/normalize-methods.ts';
+import type normalizeMethods from './common/normalize-methods.ts';
+import type { bindEvents, unbindEvents } from './common/bind-events.ts';
+import type { bindRequests, unbindRequests } from './common/bind-requests.ts';
 
-export type Bindings = Record<string, string | EventCallback>;
-
-export interface Channel extends Events {
-  channelName: string;
-  reply(name: string | Record<string, unknown>, callback?: unknown, context?: unknown): this;
-  replyOnce(name: string | Record<string, unknown>, callback?: unknown, context?: unknown): this;
-  stopReplying(name?: string | Record<string, unknown> | null, callback?: unknown, context?: unknown): this;
-  request(name: string, ...args: unknown[]): unknown;
-  request(requests: Record<string, unknown>, ...args: unknown[]): Record<string, unknown>;
-  reset(): this;
-}
-
-export interface RadioApi {
-  setDebug(enabled?: boolean): void;
-  channel(name: string): Channel;
-  on(channel: string, name: string, callback?: EventCallback, context?: unknown): Channel;
-  on(channel: string, events: EventMap, context?: unknown): Channel;
-  once(channel: string, name: string, callback?: EventCallback, context?: unknown): Channel;
-  once(channel: string, events: EventMap, context?: unknown): Channel;
-  off(channel: string, name?: string | null, callback?: EventCallback | null, context?: unknown): Channel;
-  off(channel: string, events: EventMap, context?: unknown): Channel;
-  listenTo(channel: string, source: EventSource, name: string | EventMap, callback?: EventCallback): Channel;
-  listenToOnce(channel: string, source: EventSource, name: string | EventMap, callback?: EventCallback): Channel;
-  stopListening(channel: string, source?: EventSource | null, name?: string | EventMap | null, callback?: EventCallback | null): Channel;
-  trigger(channel: string, name: string, ...args: unknown[]): Channel;
-  trigger(channel: string, events: Record<string, unknown>): Channel;
-  triggerMethod(channel: string, name: string, ...args: unknown[]): unknown;
-  reply(channel: string, name: string | Record<string, unknown>, callback?: unknown, context?: unknown): Channel;
-  replyOnce(channel: string, name: string | Record<string, unknown>, callback?: unknown, context?: unknown): Channel;
-  stopReplying(channel: string, name?: string | Record<string, unknown> | null, callback?: unknown, context?: unknown): Channel;
-  request(channel: string, name: string, ...args: unknown[]): unknown;
-  request(channel: string, requests: Record<string, unknown>, ...args: unknown[]): Record<string, unknown>;
-  reset(name?: string): void;
-  tuneIn(name: string): RadioApi;
-  tuneOut(name: string): RadioApi;
-}
-
-export interface StateApi<Source = unknown> {
-  subscribe: (source: Source, name: string, callback: (...args: unknown[]) => unknown, context?: unknown) => () => void;
-  disposeOwned?: (source: Source) => void;
-}
+export type { Channel, RadioApi } from './radio.ts';
+export type { Bindings } from './common/normalize-methods.ts';
+export type { StateApi } from '../runtime/state-api.ts';
 
 export interface MnObject<Options extends object = object, State = object> extends Events {
   cid: string;
@@ -64,27 +34,24 @@ export interface MnObject<Options extends object = object, State = object> exten
   stateEvents?: Bindings | (() => Bindings);
   state?: unknown;
   Radio: RadioApi;
-  State: StateApi<State>;
+  State: Partial<StateApi<never>>;
   initialize(options?: Options): void;
   getState(): State;
   createState(options?: Options): unknown;
   isDestroyed(): boolean;
   destroy<Receiver>(this: Receiver, options?: unknown): Receiver;
-  getOption<Receiver, Key extends keyof Options | keyof Receiver>(this: Receiver, key: Key):
-    (Key extends keyof Options ? Options[Key] : never) |
-    (Key extends keyof Receiver ? Receiver[Key] : undefined);
-  getOption(key: string): unknown;
-  mergeOptions(options: object | null | undefined, keys: readonly string[]): void;
-  normalizeMethods(bindings: Bindings): EventMap;
-  normalizeMethods(bindings?: null | false): undefined;
-  bindEvents<Receiver>(this: Receiver, source?: EventSource | null, bindings?: Bindings | null): Receiver;
-  unbindEvents<Receiver>(this: Receiver, source?: EventSource | null, bindings?: Bindings | null): Receiver;
-  bindRequests<Receiver>(this: Receiver, channel?: Channel | null, bindings?: Bindings | null): Receiver;
-  unbindRequests<Receiver>(this: Receiver, channel?: Channel | null, bindings?: Bindings | null): Receiver;
+  getOption: typeof getOption;
+  mergeOptions: typeof mergeOptions;
+  normalizeMethods: typeof normalizeMethods;
+  bindEvents: typeof bindEvents;
+  unbindEvents: typeof unbindEvents;
+  bindRequests: typeof bindRequests;
+  unbindRequests: typeof unbindRequests;
   getChannel(): Channel | undefined;
 }
 
-type Merge<Left, Right> = Omit<Left, keyof Right> & Right;
+type Merge<Left, Right> = [Extract<keyof Left, keyof Right>] extends [never]
+  ? Left & Right : Omit<Left, keyof Right> & Right;
 type ArgumentsFor<Props, Previous extends unknown[]> =
   Props extends { constructor: (...args: infer Args) => unknown } ? Args :
   Props extends { initialize: (...args: infer Args) => unknown } ? Args : Previous;
@@ -100,7 +67,8 @@ type SuppliedState<Options, Previous> = 'state' extends keyof Options
 type StateFor<Props> = SuppliedState<Props,
   Props extends { createState: (...args: never[]) => infer State } ? State : object>;
 type Instance<Props, Args extends unknown[], State> =
-  Merge<MnObject<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State>, Omit<Props, 'options'>>;
+  Merge<MnObject<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State>,
+    'options' extends keyof Props ? Omit<Props, 'options'> : Props>;
 
 export type MnObjectConstructor<
   Props extends object = {},
@@ -114,17 +82,17 @@ export type MnObjectConstructor<
   prototype: Merge<Instance<Props, Args, State>, Props>;
   call(receiver: object, ...args: Args): void;
   apply(receiver: object, args: Args | IArguments): void;
-  setStateApi<Constructor>(this: Constructor, api: Partial<StateApi<State>>): Constructor;
+  setStateApi: typeof setStateApi;
   extend<Added extends object = {}, AddedStatics extends object = {}>(
     prototypeProperties?: Added & ThisType<Instance<
-      Merge<Props, Added>, ArgumentsFor<Added, Args>, StateFor<Merge<Props, Added>>
+      Merge<Props, Added>, ArgumentsFor<Merge<Props, Added>, Args>, StateFor<Merge<Props, Added>>
     >>,
     staticProperties?: AddedStatics & ThisType<MnObjectConstructor<
-      Merge<Props, Added>, ArgumentsFor<Added, Args>, StateFor<Merge<Props, Added>>,
+      Merge<Props, Added>, ArgumentsFor<Merge<Props, Added>, Args>, StateFor<Merge<Props, Added>>,
       Merge<Statics, AddedStatics>
     >>
   ): MnObjectConstructor<
-    Merge<Props, Added>, ArgumentsFor<Added, Args>, StateFor<Merge<Props, Added>>,
+    Merge<Props, Added>, ArgumentsFor<Merge<Props, Added>, Args>, StateFor<Merge<Props, Added>>,
     Merge<Statics, AddedStatics>
   >;
 }, Statics>;
@@ -132,7 +100,9 @@ export type MnObjectConstructor<
 interface ObjectInternals {
   cid: string;
   cidPrefix: string;
-  _setOptions(options: object | undefined, names: string[]): void;
+  options?: unknown;
+  mergeOptions: typeof mergeOptions;
+  _setOptions: typeof CommonMixin._setOptions;
   _initRadio(): void;
   _initState(options: object | undefined): void;
   initialize: { apply(receiver: object, args: IArguments): unknown };

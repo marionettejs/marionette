@@ -112,7 +112,7 @@ describe('Radio composition', function() {
         });
       });
 
-      ({ default: IsolatedRadio } = await import('../../src/modules/radio.js?composition-test'));
+      ({ default: IsolatedRadio } = await import('../../src/modules/radio.ts?composition-test'));
     } catch (error) {
       primaryError = error;
     }

@@ -2,18 +2,18 @@
 //  ---------
 
 import { assignOwn } from '../utils/assign-in.js';
-import MarionetteError from '../modules/error.js';
-import getValue from '../utils/get-value.js';
+import MarionetteError from '../modules/error.ts';
+import getValue from '../utils/get-value.ts';
 import isString from '../utils/is-string.js';
 import BehaviorsMixin from './behaviors.js';
-import CommonMixin from './common.js';
+import CommonMixin from './common.ts';
 import DelegateEntityEventsMixin from './delegate-entity-events.js';
 import StateMixin from './state.js';
 import TemplateRenderMixin from './template-render.js';
 import UIMixin from './ui.js';
 import ViewEvents from './view-events.js';
-import DomApi from '../runtime/dom-api.js';
-import DataApi from '../runtime/data-api.js';
+import DomApi from '../runtime/dom-api.ts';
+import DataApi from '../runtime/data-api.ts';
 import disposeAll from '../utils/dispose-all.ts';
 
 const classErrorName = 'ViewError';

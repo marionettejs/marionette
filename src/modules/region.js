@@ -2,16 +2,16 @@
 // ------
 
 import { assignOwn } from '../utils/assign-in.js';
-import MarionetteError from './error.js';
+import MarionetteError from './error.ts';
 import extend from '../utils/extend.ts';
-import getValue from '../utils/get-value.js';
+import getValue from '../utils/get-value.ts';
 import isString from '../utils/is-string.js';
 import uniqueId from '../utils/unique-id.ts';
 import disposeAll from '../utils/dispose-all.ts';
 import monitorViewEvents from './common/monitor-view-events.js';
 import { renderView, destroyView, isView } from './common/view.js';
-import CommonMixin from '../mixins/common.js';
-import DomApi, { setDomApi } from '../runtime/dom-api.js';
+import CommonMixin from '../mixins/common.ts';
+import DomApi, { setDomApi } from '../runtime/dom-api.ts';
 import { defaultRuntimeId, runtimeId } from '../runtime/runtime-id.js';
 
 const classErrorName = 'RegionError';
@@ -24,8 +24,8 @@ function consumeDestroyTeardown(region, operation) {
   return true;
 }
 
-function canMutateRegion(region, authorized) {
-  return authorized || !region._isDestroying && !region._isDestroyed;
+function canMutateRegion(region) {
+  return !region._isDestroying && !region._isDestroyed;
 }
 
 function emptyRegion(region, options = { allowMissingEl: true }) {
@@ -325,8 +325,7 @@ assignOwn(Region.prototype, CommonMixin, {
   // Destroy the current view, if there is one. If there is no current view,
   // it will detach any html inside the region's `el`.
   empty(options = { allowMissingEl: true }) {
-    const authorized = consumeDestroyTeardown(this, 'empty');
-    if (!canMutateRegion(this, authorized)) { return this; }
+    if (!canMutateRegion(this) && !consumeDestroyTeardown(this, 'empty')) { return this; }
 
     return emptyRegion(this, options);
   },
@@ -435,8 +434,11 @@ assignOwn(Region.prototype, CommonMixin, {
   // Reset the region by destroying any existing view and restoring its initial element.
   // The next time a view is shown, the region will re-query the DOM for its `el`.
   reset(options) {
-    const authorized = consumeDestroyTeardown(this, 'reset');
-    if (!canMutateRegion(this, authorized)) { return this; }
+    let authorized = false;
+    if (!canMutateRegion(this)) {
+      authorized = consumeDestroyTeardown(this, 'reset');
+      if (!authorized) { return this; }
+    }
 
     if (authorized) {
       destroyTeardown.set(this, 'empty');

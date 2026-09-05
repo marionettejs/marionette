@@ -128,6 +128,30 @@ describe('@marionette/data Marionette integration', function() {
     collection.destroy();
   });
 
+  it('removes a child once when another collection releases its model first', function() {
+    const runtime = createMarionette();
+    runtime.setDataApi(DataApi);
+    const collection = new Collection([{ id: 1 }, { id: 2 }]);
+    const model = collection.get(1);
+    const other = new Collection([model]);
+    const view = new runtime.CollectionView({
+      collection, childView: runtime.View.extend({ template: false })
+    }).render();
+    const removed = view.children.findByModel(model);
+    const retained = view.children.findByModel(collection.get(2));
+    other.on('remove', () => collection.remove(model));
+
+    model.destroy();
+
+    expect(removed.isDestroyed()).to.be.true;
+    expect(view.children.toArray()).to.deep.equal([retained]);
+    expect(collection.map(entry => entry.id)).to.deep.equal([2]);
+    expect(other.length).to.equal(0);
+    view.destroy();
+    collection.destroy();
+    other.destroy();
+  });
+
   it('supplies modelEvents, collectionEvents, and owned state disposal', function() {
     const runtime = createMarionette();
     runtime.setDataApi(DataApi);

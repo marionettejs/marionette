@@ -1,7 +1,7 @@
 import buildEventArgs from './build-event-args.ts';
 import disposeAll from './dispose-all.ts';
-import MarionetteError from '../modules/error.js';
-import { normalizeBindings } from '../modules/common/bind-events.js';
+import MarionetteError from '../modules/error.ts';
+import { normalizeBindings } from '../modules/common/bind-events.ts';
 
 export function normalizeCleanup(cleanup, methodName) {
   if (typeof cleanup !== 'function') {

@@ -1,5 +1,5 @@
-import MarionetteError from './error.js';
-import DataApi from '../runtime/data-api.js';
+import MarionetteError from './error.ts';
+import DataApi from '../runtime/data-api.ts';
 
 const classErrorName = 'CollectionViewError';
 

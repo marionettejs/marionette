@@ -258,6 +258,84 @@ describe('diagnostic catalog validation', function() {
     }
   });
 
+  const typedConstructors = [
+    '(FrameworkError as unknown as new (options: object) => Error)',
+    '(<new (options: object) => Error>FrameworkError)',
+    '(FrameworkError!)',
+    '(FrameworkError satisfies new (options: object) => Error)',
+    '(FrameworkError<object>)',
+  ];
+
+  it('requires diagnostic codes through erased TypeScript constructor expressions', function() {
+    for (const constructor of typedConstructors) {
+      expect(() => validate(createCatalog(), {
+        runtimeSources: [{
+          contents: `import FrameworkError from './error.js'; new ${constructor}({ message: 'Missing code' });`,
+          path: 'modules/example.ts',
+        }],
+      })).to.throw(
+        DiagnosticCatalogValidationError,
+        'modules/example.ts MarionetteError must declare one literal diagnostic code',
+      );
+    }
+  });
+
+  it('rejects uncataloged codes through erased TypeScript constructor expressions', function() {
+    for (const constructor of typedConstructors) {
+      expect(() => validate(createCatalog(), {
+        runtimeSources: [{
+          contents: `import FrameworkError from './error.js'; new ${constructor}({ code: 'MN9999' });`,
+          path: 'modules/example.ts',
+        }],
+      })).to.throw(
+        DiagnosticCatalogValidationError,
+        'modules/example.ts emits uncataloged diagnostic code MN9999',
+      );
+    }
+  });
+
+  it('accepts cataloged codes through erased TypeScript constructor expressions', function() {
+    for (const constructor of typedConstructors) {
+      const catalog = createCatalog();
+      expect(validate(catalog, {
+        runtimeSources: [{
+          contents: `import FrameworkError from './error.js'; new ${constructor}({ code: 'MN0001' });`,
+          path: 'modules/example.ts',
+        }],
+      })).to.equal(catalog);
+    }
+  });
+
+  it('rejects native errors through erased TypeScript callees', function() {
+    for (const constructor of typedConstructors) {
+      for (const prefix of ['', 'new ']) {
+        expect(() => validate(createCatalog(), {
+          runtimeSources: [{
+            contents: `throw ${prefix}${constructor.replaceAll('FrameworkError', 'TypeError')}('Uncataloged');`,
+            path: 'modules/example.ts',
+          }],
+        })).to.throw(
+          DiagnosticCatalogValidationError,
+          'modules/example.ts must not throw a native TypeError; use MarionetteError with a catalog code',
+        );
+      }
+    }
+  });
+
+  it('rejects native errors through erased TypeScript throw expressions', function() {
+    for (const expression of typedConstructors) {
+      expect(() => validate(createCatalog(), {
+        runtimeSources: [{
+          contents: `throw ${expression.replaceAll('FrameworkError', 'new Error(\'Uncataloged\')')};`,
+          path: 'modules/example.ts',
+        }],
+      })).to.throw(
+        DiagnosticCatalogValidationError,
+        'modules/example.ts must not throw a native Error; use MarionetteError with a catalog code',
+      );
+    }
+  });
+
   it('rejects deliberate native framework errors', function() {
     for (const errorName of ['Error', 'TypeError']) {
       expect(() => validate(createCatalog(), {
