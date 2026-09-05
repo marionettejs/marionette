@@ -1,0 +1,39 @@
+packages/adapters/types/backbone.d.cts
+  s_060efbb5bf6218::t_ec705a9c31e43f 9-14
+packages/adapters/types/backbone.d.mts
+  s_060efbb5bf6218::t_66efebde1cc963 9-14
+packages/data/readme.md
+  s_060efbb5bf6218::t_c441f240bf0efc 46-88
+packages/data/types/index.d.cts
+  s_060efbb5bf6218::t_8ddba000037ecf 1-2,4-13,15,17-19,21-25,35-53,55-123,160-161,198,212,220
+packages/data/types/index.d.mts
+  s_060efbb5bf6218::t_b68ceb2da46b26 1-2,4-13,15,17-19,21-25,35-53,55-123,160-161,198,212,220
+packages/data/types/index.d.ts
+  s_060efbb5bf6218::t_984707f3190e2c 1-2,4-13,15,17-19,21-25,35-53,55-123,160-161,198,212,220
+test/fixtures/backbone-adapter-types/validate.cts
+  s_060efbb5bf6218::t_ad7ab8a5cbb43c 31-44
+test/fixtures/backbone-adapter-types/validate.mts
+  s_060efbb5bf6218::t_6160585ba2c1aa 31-44
+test/fixtures/data-package-types/validate.cts
+  s_060efbb5bf6218::t_c7db24b2151ec2 32-234
+test/fixtures/data-package-types/validate.mts
+  s_060efbb5bf6218::t_ba324792682d1b 32-234
+test/fixtures/data-package-types/validate.ts
+  s_060efbb5bf6218::t_1878e2f06f0fef 32-234
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "b8e99a9eac1496a37789afb9171a6adcf28fb464",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
