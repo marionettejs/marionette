@@ -1,0 +1,71 @@
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_ae0ac1167cb0fb 178-194
+src/create-marionette.js
+  s_060efbb5bf6218::t_d45f906ed976d0 3,5,7,9-10
+src/mixins/behaviors.ts
+  s_060efbb5bf6218::t_2b399888f41fe2 6-35,45-47,62,64,73,79,87,95,101,112,123,129,133,138,143,147,156,160-162,170,174,178
+src/mixins/delegate-entity-events.ts
+  s_060efbb5bf6218::t_fb278e7f25088d 3-16,24,57,62
+src/mixins/state.ts
+  s_060efbb5bf6218::t_3e58155ed53d71 4-21,26,28,42,69-70,85,98
+src/mixins/template-render.ts
+  s_060efbb5bf6218::t_e60faf634307c4 4-23,32,37,47,56,65,83-84,88-90,94,101-102
+src/mixins/ui.ts
+  s_060efbb5bf6218::t_fb61a5f5209d6b 6-16,21-23,35,63,70-71,73,75,77,88,94,100,104,106,110,116,126,133,137-138,147
+src/mixins/view-events.ts
+  s_060efbb5bf6218::t_bc1dcb88e01da0 9-34,39,41,44,46-47,49,66,70,74,78,83,90,94,96,100,103,108-109,115
+src/mixins/view.ts
+  s_060efbb5bf6218::t_834bd0c913cdb2 8,10-14,19-53,56,58,101,118,122-123,130-131,137,140,144-145,148-150,158,164,170,174,196,214,226,247,257,293,309,319,326,331-333,337,340,343,349,354,373
+src/modules/application.js
+  s_060efbb5bf6218::t_fd2c3f36f89fb8 11,13-14
+src/modules/behavior.ts
+  s_060efbb5bf6218::t_2f933a39f9ff38 14-17,22-122,132,157,162,186-187,191,204,219,227,233,238,246-247,253
+src/modules/collection-view.js
+  s_060efbb5bf6218::t_17bf9312148d28 11-12,14-15,21
+src/modules/common/build-region.ts
+  s_060efbb5bf6218::t_e182dd884a6df4 5-6,8-16,25,27,30,34,52-53,57,62,64
+src/modules/common/monitor-view-events.ts
+  s_060efbb5bf6218::t_1de154a3d52a0c 1-2,6,17,25,29,35,39,44,50,56,60,65,70,74,78,84
+src/modules/common/view.ts
+  s_060efbb5bf6218::t_2ab6ede9bfe0ea 1-36,39,43,60
+src/modules/object.ts
+  s_060efbb5bf6218::t_d93fc99395207e 10
+src/modules/region.ts
+  s_060efbb5bf6218::t_e88472ffd671fe 11-12,17-115,117,119,126,130,151,157,160,163-164,177-178,190,234,255,277,288,297,301-303,306,329,349,373,376,379,385,391,409,414,420-421,426,432,453,458,462,473,479,493,501,513-514,519,524,529,535,560,566,578,591,607-608
+src/modules/view.ts
+  s_060efbb5bf6218::t_df1f66858fd2bd 11-14,22-186,189,199,211,216,226,235,243,248,264,267,280,293,299,304-305,309,311,315,321,331-332,339,343,346,348,354,364,393,396,402,404,406-407,414,423,430,435,442,449,453-455,460,464,470,474,508,518,522,538,556,572,586,611,615-617,622
+src/runtime/data-api.ts
+  s_060efbb5bf6218::t_ce2b3811c4dbdb 22
+src/runtime/event-delegator.ts
+  s_060efbb5bf6218::t_f3cf56722f2df9 20
+src/utils/subscribe-bindings.ts
+  s_060efbb5bf6218::t_a1041992b4c283 5-6,8-15,33-37,44
+test/source/validate.mjs
+  s_060efbb5bf6218::t_800199284bfee2 100,106,111
+test/types/presentation.cts
+  s_060efbb5bf6218::t_fea5bffe173d50 1-88
+test/types/presentation.mts
+  s_060efbb5bf6218::t_58198c07d317b6 1-88
+test/types/tsconfig.consumer.json
+  s_060efbb5bf6218::t_7cc451e6e5596b 43-45
+test/unit/behavior-composition.spec.js
+  s_060efbb5bf6218::t_f934691862bbdb 293
+test/unit/mixins/view-composition.spec.js
+  s_060efbb5bf6218::t_37a4f390a0c08c 345
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "9129598a2bf404495d23184166c691dc45b6e964",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
