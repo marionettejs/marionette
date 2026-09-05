@@ -1009,33 +1009,35 @@ describe('two-stage performance budget amendments', () => {
       candidateLedger: ledger([unsafeContractPath]),
     }).diagnostics.join('\n'), /prototypeContract must use a safe immutable JSON path/i);
 
-    const unsafeSource = evidenceReports();
-    unsafeSource[prototypeContractPath].productionGraphs.push({
-      subpath: './unsafe',
-      input: 'modules/../unsafe.js',
-      output: 'dist/marionette.js',
-      baselineModules: [],
-      baselineExternalImports: [],
-    });
-    unsafeSource[reportPath].report.graphs.push({
-      subpath: './unsafe',
-      input: 'modules/../unsafe.js',
-      output: 'dist/marionette.js',
-      status: 'measured',
-      modules: ['unsafe.js'],
-      externalImports: [],
-      forbiddenModules: [],
-    });
-    assert.match(transition({
-      candidateLedger: ledger([amendment({ authorizedNewSubpaths: ['./unsafe'] })]),
-      changedFiles: [
-        'config/release/performance-budget-amendments.json',
-        baseReportPath,
-        prototypeContractPath,
-        reportPath,
-      ],
-      evidence: unsafeSource,
-    }).diagnostics.join('\n'), /new graph .* invalid additive contract/i);
+    for (const input of ['modules/../unsafe.js', 'src/index.d.ts', 'src/index.D.ts']) {
+      const unsafeSource = evidenceReports();
+      unsafeSource[prototypeContractPath].productionGraphs.push({
+        subpath: './unsafe',
+        input: input,
+        output: 'dist/marionette.js',
+        baselineModules: [],
+        baselineExternalImports: [],
+      });
+      unsafeSource[reportPath].report.graphs.push({
+        subpath: './unsafe',
+        input: input,
+        output: 'dist/marionette.js',
+        status: 'measured',
+        modules: ['unsafe.js'],
+        externalImports: [],
+        forbiddenModules: [],
+      });
+      assert.match(transition({
+        candidateLedger: ledger([amendment({ authorizedNewSubpaths: ['./unsafe'] })]),
+        changedFiles: [
+          'config/release/performance-budget-amendments.json',
+          baseReportPath,
+          prototypeContractPath,
+          reportPath,
+        ],
+        evidence: unsafeSource,
+      }).diagnostics.join('\n'), /new graph .* invalid additive contract/i);
+    }
   });
 
   test('requires a consuming implementation to use the authorized measured scope', () => {

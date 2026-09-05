@@ -55,7 +55,7 @@ function validSubpath(subpath) {
 function validSourcePath(path) {
   return typeof path === 'string' &&
     /^[A-Za-z0-9][A-Za-z0-9._/-]*\.(?:js|ts)$/.test(path) &&
-    !path.endsWith('.d.ts') &&
+    !path.toLowerCase().endsWith('.d.ts') &&
     !path.includes('//') && !path.split('/').includes('..');
 }
 

@@ -403,7 +403,7 @@ describe('exact-head performance growth approval contract', () => {
     const authorityContract = growthContract();
     for (const input of [undefined, null, '', '../index.js', '/src/index.js',
       'src/../index.js', 'src//index.js', 'src/../index.ts', 'src//index.ts',
-      'src/index.d.ts', 'src/index.tsx']) {
+      'src/index.d.ts', 'src/index.D.ts', 'src/index.tsx']) {
       const candidateContract = structuredClone(authorityContract);
       if (input === undefined) {
         delete candidateContract.productionGraphs[0].input;
