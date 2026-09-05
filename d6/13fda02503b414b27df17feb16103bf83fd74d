@@ -1,0 +1,59 @@
+src/modules/collection-view.js
+  s_060efbb5bf6218::t_197c477cf4fbdb 19-20
+test/types/providers.cts
+  s_060efbb5bf6218::t_68490ef236eaad 1-109
+  s_060efbb5bf6218::t_021670bcc18650 110-113
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_9a6f86df5d91bf 150-160
+src/modules/application.js
+  s_060efbb5bf6218::t_7deca9540d7d1b 15
+src/mixins/state.js
+  s_060efbb5bf6218::t_d789300da2e278 3
+src/modules/view.js
+  s_060efbb5bf6218::t_1efd707bd1ae58 18-19
+test/types/consumer.cts
+  s_060efbb5bf6218::t_a72f7f274272e3 136,139,141
+src/runtime/state-api.ts
+  s_060efbb5bf6218::t_bce01fc4dbdfb8 6-11,13-14,16,19
+  s_060efbb5bf6218::t_fe3634f816e700 12
+  s_060efbb5bf6218::t_f80aa27c6ba436 17-18,33
+src/create-marionette.js
+  s_060efbb5bf6218::t_5b807249b874dc 14,16
+src/modules/object.ts
+  s_060efbb5bf6218::t_fe3634f816e700 38
+  s_060efbb5bf6218::t_bce01fc4dbdfb8 12-13,25,86
+src/mixins/view.js
+  s_060efbb5bf6218::t_e5edd7779cc764 16
+src/modules/child-view-container.js
+  s_060efbb5bf6218::t_806947beed052d 2
+src/modules/behavior.js
+  s_060efbb5bf6218::t_4db2f4a6a04570 20
+test/types/consumer.mts
+  s_060efbb5bf6218::t_6f022303cb3a6d 136,139,141
+src/runtime/data-api.ts
+  s_060efbb5bf6218::t_fe3634f816e700 5,19,24,29-30
+  s_060efbb5bf6218::t_f80aa27c6ba436 22-23,25-28,31-32,39-40,99
+  s_060efbb5bf6218::t_bce01fc4dbdfb8 6-18,20-21,38,41,47,51-53,56-57,60,64,68,89
+  s_060efbb5bf6218::t_33d7442e0bf7e7 33,69,80,85
+test/types/tsconfig.consumer.json
+  s_060efbb5bf6218::t_a38150905fb582 33,38-39
+test/types/providers.mts
+  s_060efbb5bf6218::t_955111047a4dac 1-109
+  s_060efbb5bf6218::t_ab06512b578458 110-113
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "d613fda02503b414b27df17feb16103bf83fd74d",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
