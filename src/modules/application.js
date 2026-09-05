@@ -53,9 +53,9 @@ const Application = function(options) {
       },
       () => ownedRegion?.destroy(),
       () => clearRootView(this),
-      () => emptyRootView(this),
       () => this._destroyRadio(),
       () => this._destroyState(),
+      () => emptyRootView(this),
       () => this._childApps?.forEach((child, name) => removeChildAppReference(this, name, child))
     ], error);
   }

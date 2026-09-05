@@ -394,6 +394,55 @@ describe('Application root View ownership', function() {
     }
   });
 
+  it('keeps Application State and Radio available during failed-constructor root cleanup', function() {
+    const region = new Region({ el: '#application-root' });
+    const failure = new Error('owner initialization failed');
+    const state = { disposed: false };
+    const selection = { id: 42 };
+    const events = [];
+    let failedOwner;
+    const root = new (RootView.extend({
+      onBeforeDestroy() {
+        events.push({
+          event: 'root:destroy',
+          stateDisposed: failedOwner.getState().disposed,
+          selection: failedOwner.getChannel().request('selection')
+        });
+      }
+    }))();
+    const Owner = Application.extend({
+      channelName: 'constructor-root-cleanup',
+      radioRequests: { selection() { return selection; } },
+      createState() { return state; },
+      initialize() {
+        failedOwner = this;
+        this.getState();
+        this.showView(root);
+        throw failure;
+      }
+    });
+    Owner.setStateApi({
+      disposeOwned(source) {
+        source.disposed = true;
+        events.push({ event: 'state:dispose' });
+      }
+    });
+
+    try {
+      expect(() => new Owner({ region })).to.throw(failure);
+      expect(events).to.deep.equal([
+        { event: 'root:destroy', stateDisposed: false, selection },
+        { event: 'state:dispose' }
+      ]);
+      expect(root.isDestroyed()).to.be.true;
+      expect(state.disposed).to.be.true;
+      expect(failedOwner.getChannel().request('selection')).to.be.undefined;
+      expect(region.isDestroyed()).to.be.false;
+    } finally {
+      region.destroy();
+    }
+  });
+
   it('preserves an external replacement in a borrowed Region when construction fails', function() {
     const region = new Region({ el: '#application-root' });
     const root = new RootView();
