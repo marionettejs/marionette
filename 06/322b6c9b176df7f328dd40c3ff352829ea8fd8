@@ -1,0 +1,26 @@
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_08225e5a766913 89-92,94
+  s_060efbb5bf6218::t_b01963efa13c37 93
+src/modules/object.ts
+  s_060efbb5bf6218::t_20faa23016ee33 32,44,59,67,74-75,88,112-117,124,131,134-135,138,143-146,151
+test/types/consumer.mts
+  s_060efbb5bf6218::t_20faa23016ee33 94-150
+test/types/consumer.cts
+  s_060efbb5bf6218::t_be5ddef2ae49d5 94-150
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "06322b6c9b176df7f328dd40c3ff352829ea8fd8",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
