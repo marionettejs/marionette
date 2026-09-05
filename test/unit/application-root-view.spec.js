@@ -369,4 +369,91 @@ describe('Application root View ownership', function() {
     expect(app.isDestroyed()).to.be.true;
     expect(app.getView()).to.be.undefined;
   });
+  it('releases a coordinated root from a borrowed Region when construction fails', function() {
+    const region = new Region({ el: '#application-root' });
+    const root = new RootView();
+    const failure = new Error('owner initialization failed');
+    let failedOwner;
+    const Owner = Application.extend({
+      initialize() {
+        failedOwner = this;
+        this.showView(root);
+        throw failure;
+      }
+    });
+
+    try {
+      expect(() => new Owner({ region })).to.throw(failure);
+      expect(root.isDestroyed()).to.be.true;
+      expect(region.hasView()).to.be.false;
+      expect(region.isDestroyed()).to.be.false;
+      expect(failedOwner.getRegion()).to.be.undefined;
+      expect(failedOwner.getView()).to.be.undefined;
+    } finally {
+      region.destroy();
+    }
+  });
+
+  it('preserves an external replacement in a borrowed Region when construction fails', function() {
+    const region = new Region({ el: '#application-root' });
+    const root = new RootView();
+    const replacement = new RootView();
+    const failure = new Error('owner initialization failed');
+    const Owner = Application.extend({
+      initialize() {
+        this.showView(root);
+        region.show(replacement);
+        throw failure;
+      }
+    });
+
+    try {
+      expect(() => new Owner({ region })).to.throw(failure);
+      expect(root.isDestroyed()).to.be.true;
+      expect(region.currentView).to.equal(replacement);
+      expect(replacement.isDestroyed()).to.be.false;
+      expect(region.isDestroyed()).to.be.false;
+    } finally {
+      region.destroy();
+    }
+  });
+
+  it('preserves the constructor error and releases host observation when root cleanup fails', async function() {
+    const failure = new Error('owner initialization failed');
+    const cleanupFailure = new Error('root cleanup failed');
+    const child = new Application();
+    const region = new Region({ el: '#application-root' });
+    let failCleanup = true;
+    let failedOwner;
+    const root = new (RootView.extend({
+      onBeforeDestroy() {
+        if (failCleanup) { throw cleanupFailure; }
+      }
+    }))();
+    const Owner = Application.extend({
+      initialize() {
+        failedOwner = this;
+        this.addChildApp('child', child);
+        this.showView(root);
+        throw failure;
+      }
+    });
+    const empty = this.sinon.spy(Owner.prototype, '_onRootRegionEmpty');
+
+    try {
+      expect(() => new Owner({ region })).to.throw(failure);
+      expect(failedOwner.getRegion()).to.be.undefined;
+      expect(child.getName()).to.be.undefined;
+      expect(child.isDestroyed()).to.be.false;
+      failCleanup = false;
+      region.empty();
+      expect(empty).not.to.have.been.called;
+    } finally {
+      failCleanup = false;
+      region.destroy();
+      await failedOwner.destroy();
+      await child.destroy();
+    }
+  });
+
 });
