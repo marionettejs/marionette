@@ -1,0 +1,46 @@
+src/mixins/events.ts
+  s_060efbb5bf6218::t_8bbefd12dc3ec5 1-84,87-210,212-216,219-246
+  s_060efbb5bf6218::t_30d424cd7de968 247-256,259-260
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_809969e7423deb 81-92
+src/create-marionette.js
+  s_060efbb5bf6218::t_f59141c50d93d4 4
+src/mixins/common.js
+  s_060efbb5bf6218::t_d11a300bc04bee 3
+src/mixins/requests.js
+  s_060efbb5bf6218::t_62c5376a71a2be 3-5
+src/modules/object.ts
+  s_060efbb5bf6218::t_f76072324a03b0 13
+src/modules/radio.js
+  s_060efbb5bf6218::t_374f8bd1e21a10 2,6
+src/utils/build-event-args.ts
+  s_060efbb5bf6218::t_976e13fd75353f 1-9,16-24,31
+src/utils/call-handler.ts
+  s_060efbb5bf6218::t_421e65909d3edd 2-8
+src/utils/once-wrap.ts
+  s_060efbb5bf6218::t_95f40cb9a54643 2-10,12,14,21
+src/utils/subscribe-bindings.js
+  s_060efbb5bf6218::t_fc1e6c75d12cec 1
+test/types/events.cts
+  s_060efbb5bf6218::t_081077d9b83831 1-70
+test/types/events.mts
+  s_060efbb5bf6218::t_1b951800622d11 1-70
+test/types/tsconfig.consumer.json
+  s_060efbb5bf6218::t_325694d00445c6 15-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "4e5da0c65a927884d5c52e340c3acb1d38404806",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
