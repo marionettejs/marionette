@@ -1,8 +1,9 @@
 # Data API
 
-Marionette v5 reads models and collections through `DataApi`. Core does not
-require Backbone-shaped `cid`, `attributes`, `get`, `models`, or collection
-event payloads.
+Display plain objects and arrays directly, or connect your data library through
+`DataApi`. The adapter tells Marionette how to read models, obtain collection
+order, and observe changes. Core does not require Backbone-shaped `cid`,
+`attributes`, `get`, `models`, or collection event payloads.
 
 The default adapter treats models as plain objects and collections as ordered
 arrays. Plain arrays are static snapshots: mutating one does not notify
@@ -119,9 +120,11 @@ and `CollectionView`. `View.setDataApi()` and `CollectionView.setDataApi()` can
 configure a subclass independently. A CollectionView and its child View class
 must use compatible adapters.
 
-Behaviors use their owning View's adapter. The original model or collection is
-always passed to Views, Behaviors, callbacks, and templates; DataApi does not
-wrap application data.
+Behaviors use their owning View's adapter. Views and Behaviors work with the
+original model or collection, and event callbacks receive the source's native
+arguments. DataApi does not wrap application sources. Templates receive the
+data prepared by `serializeModel()` or `serializeCollection()`; see
+[Rendering](https://github.com/marionettejs/marionette/blob/master/docs/view.rendering.md).
 
 DataApi and [StateApi](./marionette.state.md#stateapi) are selected
 independently. One adapter object may implement both contracts, but configuring

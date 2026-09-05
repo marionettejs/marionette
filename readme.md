@@ -2,18 +2,41 @@
 <p align="center">
   <img title="Marionette" alt="Marionette logo" src="https://github.com/marionettejs/marionette/raw/master/marionette-logo.png" />
 </p>
-<p align="center">Explicit Views, Regions, lifecycle, and application structure.</p>
+<p align="center">Pull a few strings. Give your interface some structure.</p>
 <p align="center">
   <a href="https://github.com/marionettejs/marionette/actions/workflows/ci.yml"><img src="https://github.com/marionettejs/marionette/actions/workflows/ci.yml/badge.svg?branch=master" alt="CI status" /></a>
   <a href="https://www.npmjs.com/package/marionette"><img src="https://img.shields.io/npm/v/marionette.svg" alt="npm version" /></a>
 </p>
 
-Marionette is a lightweight application framework for building structured interfaces
-with deterministic lifecycle, named composition boundaries, and explicit ownership.
-It works with native DOM APIs by default. Backbone models and collections and a jQuery
-DOM adapter are available as optional integrations.
+Marionette is a JavaScript library for building interfaces whose parts have clear
+jobs. Views render content and handle interactions. Regions give those Views a place
+to appear, change, and leave. Applications bring features together and coordinate
+the work that starts and stops with them.
 
-The current v5 pre-release is under active development. Stable v5 will ship only after
+Start with native DOM APIs, plain objects, and function templates. Choose other data,
+state, and rendering tools as your application needs them.
+
+## A place for the next change
+
+Adding a detail panel, updating a list, or stopping a feature should have a
+recognizable approach:
+
+- **Build a screen** with a [View](docs/marionette.view.md).
+- **Replace part of it** through a named [Region](docs/marionette.region.md).
+- **Repeat rows or cards** with a [CollectionView](docs/marionette.collectionview.md).
+- **Share an interaction** through a [Behavior](docs/marionette.behavior.md).
+- **Start and stop a feature** with an [Application](docs/marionette.application.md).
+
+Those same patterns give an agent a place to make a change and give you something
+specific to review. Marionette v5 is being developed with agent-led work in mind:
+consistent APIs, public types, and guidance that connects a task to the code it needs.
+
+We're optimistic about agents. We've also read the diffs.
+
+## Trying v5
+
+The v5 pre-release is under active development. These guides describe the current
+source; published alphas can lag behind it. Stable v5 will ship only after
 the public correctness, agent-development, packaging, browser, and performance gates
 in the [project roadmap](ROADMAP.md) pass.
 
@@ -52,13 +75,11 @@ See [installation](docs/installation.md) for package entrypoints and supported s
 
 - [Documentation index](docs/readme.md)
 - [Installation and package entrypoints](docs/installation.md)
-- [Runtime isolation](docs/runtime-isolation.md)
-- [Optional Backbone integration](docs/optional-backbone.md)
-- [Data API](docs/data.api.md)
-- [State sources and StateApi](docs/marionette.state.md)
-- [Pre-rendered DOM](docs/dom.prerendered.md)
-- [Phase 0 performance baselines](docs/performance-baselines.md)
-- [v4-to-v5 compatibility ledger](docs/migration-from-v4.md)
+- [Classes and their jobs](docs/classes.md)
+- [Rendering and templates](docs/view.rendering.md)
+- [State and observation](docs/marionette.state.md)
+- [Data and integrations](docs/data.api.md)
+- [Lifecycle and cleanup](docs/view.lifecycle.md)
 - [Upgrade guide](upgradeGuide.md)
 
 The API reference is being reconciled for stable v5 in
@@ -68,9 +89,10 @@ work is complete, the repository's v5 guides above are canonical; the hosted
 
 ## Development
 
-Contributions should start from a focused public issue with an explicit behavior and
-runtime-cost boundary. See [CONTRIBUTING.md](CONTRIBUTING.md) and the
-[agent-ready v5 roadmap](ROADMAP.md).
+Found an awkward API, a missing example, or a bug that survives a convincing test
+suite? Bring a small reproduction. Contributions should start from a focused public
+issue that describes the intended behavior and its runtime cost. See
+[CONTRIBUTING.md](CONTRIBUTING.md) and the [v5 roadmap](ROADMAP.md).
 
 ```sh
 npm ci

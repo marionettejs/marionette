@@ -1,15 +1,15 @@
 # Radio
 
-Marionette includes `Radio`, a namespaced message bus for
-communication between otherwise unrelated parts of an application. Import it
-directly from Marionette:
+Use `Radio` to send events or request values between parts of an application
+that do not need a direct reference to each other. Channels keep those messages
+organized by name. Import Radio directly from Marionette:
 
 ```javascript
 import { Radio } from 'marionette';
 ```
 
-`Backbone.Radio` is no longer a required external dependency. Do not install
-`backbone.radio` for Marionette's Radio API.
+Radio is included in `marionette`; it does not require a separate
+`backbone.radio` installation.
 
 The built-in singleton does not share channels with `backbone.radio`. Migrate
 all application imports atomically, including code that publishes or requests

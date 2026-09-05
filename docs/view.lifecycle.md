@@ -177,7 +177,7 @@ rendered, child Views are best managed in the View's [`initialize`](./common.md#
 
 ### `View` Children
 
-In general the best method for adding a child view to a `View` is to use [`showChildView`](./marionette.view.md#showing-a-view)
+In general the best method for adding a child view to a `View` is to use [`showChildView`](./marionette.view.md#showing-a-child-view)
 in the [`render` event](./events.class.md#render-and-beforerender-events).
 
 View Regions are emptied on each render, so Views shown outside of the `render` event still need to be shown again

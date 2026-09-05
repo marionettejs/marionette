@@ -282,8 +282,8 @@ For more information, see the [DOM interactions documentation](./dom.interaction
 
 ### View entity events
 
-Views can automatically bind to its model or collection with [`modelEvents`](./events.entity.md#model-events)
-and [`collectionEvents`](./events.entity.md#collection-events) respectively.
+Views can automatically bind to its model or collection with [`modelEvents`](./events.entity.md)
+and [`collectionEvents`](./events.entity.md) respectively.
 
 ```javascript
 import { View } from 'marionette';

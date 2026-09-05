@@ -1,8 +1,9 @@
 # Common Marionette Concepts
 
-This document covers the shared configuration patterns used by Marionette's
-classes. Class-specific pages remain the authority for when a particular value
-is read and whether it is read again.
+Learn the configuration patterns once, then use them across Marionette's classes.
+Each class's reference explains when it reads an option and whether it reads it
+again. For checked application options, see the
+[TypeScript example](./installation.md#typescript).
 
 ## Documentation Index
 
@@ -24,9 +25,9 @@ const view = new View();
 const app = new Application();
 ```
 
-V5 has no default namespace export. The package also exposes explicit optional
-integration subpaths; see [Installing Marionette](./installation.md) for the
-current entrypoints and peer-dependency boundaries.
+V5 has no default namespace export. The separate `@marionette/adapters` package
+provides optional integration subpaths; see [Installing Marionette](./installation.md)
+for the entrypoints and their dependencies.
 
 Existing no-bundler applications may serve the published
 `dist/marionette.umd.js` artifact. It exposes the named API on the global

@@ -1,7 +1,9 @@
 # Marionette.MnObject
 
-`MnObject` is Marionette's lightweight base class. It provides `initialize`,
-the Events API, a `cid`, and `extend` without requiring Backbone at runtime.
+Use `MnObject` for objects that need Marionette events and cleanup without a
+DOM element. It provides `initialize`, options, the Events API, a unique `cid`,
+and `extend`, with no Backbone dependency.
+
 `MnObject` includes:
 - [Common Marionette Functionality](./common.md)
 - [Class Events](./events.class.md#mnobject-events)
@@ -74,7 +76,8 @@ Each receives the MnObject followed by the `options` passed to `destroy`.
 While a `destroy()` call is in progress, nested calls from either lifecycle
 event return the same MnObject without restarting teardown. Calls after
 destruction also return the same MnObject without repeating the lifecycle.
-[Applications](./marionette.application.md) share this destruction contract.
+`Application` has an asynchronous destruction lifecycle; see its
+[reference](./marionette.application.md#application-lifecycle).
 `isDestroyed()` is `false` during `before:destroy` and `true` during `destroy`.
 If a `before:destroy` handler throws, its error propagates without marking the
 instance destroyed. After that failed call ends, a later top-level `destroy()`

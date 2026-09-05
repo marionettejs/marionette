@@ -1,7 +1,8 @@
 # Marionette.Behavior
 
-A `Behavior` provides a clean separation of concerns to your view logic,
-allowing you to share common user-facing operations between your views.
+A `Behavior` shares interaction logic across views. It uses its host view's
+DOM and can handle DOM, model, and collection events without giving each
+view another copy of the same handlers.
 
 `Behavior` includes:
 - [Common Marionette Functionality](./common.md)
@@ -9,11 +10,8 @@ allowing you to share common user-facing operations between your views.
 - [DOM Interactions](./dom.interactions.md)
 - [Entity Events](./events.entity.md)
 
-`Behavior`s are particularly good at factoring out the common user, model and
-collection interactions to be utilized across your application. Unlike the other
-Marionette classes, `Behavior`s are not meant to be instantiated directly.
-Instead a `Behavior` should be instantiated by the view it is related to by
-[attaching a behavior class definition to the view](#using-behaviors).
+[Attach a Behavior class to a view](#using-behaviors) through its `behaviors`
+definition. The view constructs the Behavior and manages its lifetime.
 
 ## Documentation Index
 
@@ -60,7 +58,7 @@ const MyView = View.extend({
   },
 
   warnBeforeDestroy() {
-    alert('You are about to destroy all your data!');
+    alert('This view will be removed.');
     this.destroy();
   },
 
@@ -364,8 +362,8 @@ including:
 
 * [`events`](./dom.interactions.md#view-events)
 * [`triggers`](./dom.interactions.md#view-triggers)
-* [`modelEvents`](./events.entity.md#model-events)
-* [`collectionEvents`](./events.entity.md#collection-events)
+* [`modelEvents`](./events.entity.md)
+* [`collectionEvents`](./events.entity.md)
 
 ```javascript
 import { Behavior } from 'marionette';

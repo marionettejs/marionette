@@ -1,7 +1,9 @@
 # Marionette.Region
 
-Regions provide consistent methods to manage, show and destroy
-views in your applications and views.
+A `Region` gives a changing part of the screen a place to live. Show a view,
+replace it with another, or empty the Region when that part of the interface
+is no longer needed. By default, replacing or emptying a view destroys it;
+the Region remains available for the next view.
 
 `Region` includes:
 - [Common Marionette Functionality](./common.md)
@@ -551,7 +553,7 @@ resolving its element, changing the DOM, or emitting empty lifecycle events.
 
 **NOTE** If the region does _not_ currently contain a View it will detach
 any HTML inside the region when emptying. If the region _does_ contain a
-View [any HTML that doesn't belong to the View will remain](./upgrade.md#changes-to-regionshow).
+View, any HTML that doesn't belong to the View will remain.
 
 ### Preserving Existing Views
 
