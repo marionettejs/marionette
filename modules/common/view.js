@@ -4,7 +4,7 @@ export function isView(view) {
 }
 
 export function isViewClass(ViewClass) {
-  return ViewClass.prototype.render && (ViewClass.prototype.destroy || ViewClass.prototype.remove);
+  return ViewClass.prototype?.render && (ViewClass.prototype.destroy || ViewClass.prototype.remove);
 }
 
 export function renderView(view) {
