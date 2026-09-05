@@ -1,0 +1,60 @@
+docs/marionette.collectionview.md
+  s_060efbb5bf6218::t_ac31b496c8e410 3-9
+docs/classes.md
+  s_060efbb5bf6218::t_01657f3a45caa8 3-5,7-8,10,12-14,30-33,49-50,58-59,68-70,75-76,82-84,92-93,97-98
+docs/marionette.region.md
+  s_060efbb5bf6218::t_ac31b496c8e410 3-6
+docs/marionette.view.md
+  s_060efbb5bf6218::t_ac31b496c8e410 3-5,7-9,320-322
+docs/marionette.behavior.md
+  s_060efbb5bf6218::t_ac31b496c8e410 3-5,13-14,61
+docs/marionette.application.md
+  s_060efbb5bf6218::t_ac31b496c8e410 3-5
+docs/marionette.mnobject.md
+  s_060efbb5bf6218::t_ac31b496c8e410 3-6
+  s_060efbb5bf6218::t_dc86f018e8f2c5 79-80
+docs/view.rendering.md
+  s_060efbb5bf6218::t_ac31b496c8e410 3-5,12,19,41-44
+docs/basics.md
+  s_060efbb5bf6218::t_01657f3a45caa8 3-6
+  s_060efbb5bf6218::t_3ce614a475dd19 28-30
+docs/installation.md
+  s_060efbb5bf6218::t_3ce614a475dd19 3-8,15,21,92,113-144,237,239-241,243,245,247,249,251,253,257,261,265-266
+docs/readme.md
+  s_060efbb5bf6218::t_01657f3a45caa8 3-31,34,36-44
+  s_060efbb5bf6218::t_e5bae0b0e08ff2 45-46,49-50
+readme.md
+  s_060efbb5bf6218::t_01657f3a45caa8 5,11-14,16-39,78-82,92-95
+docs/events.class.md
+  s_060efbb5bf6218::t_ac31b496c8e410 3-11
+docs/data.api.md
+  s_060efbb5bf6218::t_638c96d54842b7 3-6,123-127
+docs/marionette.state.md
+  s_060efbb5bf6218::t_ba6b73bd1826f9 3-6,28
+docs/optional-backbone.md
+  s_060efbb5bf6218::t_40b50b40520ba7 3-6
+docs/radio.md
+  s_060efbb5bf6218::t_54586ef660cef3 3-5,11-12
+docs/routing.md
+  s_060efbb5bf6218::t_6e3dde8f4c898b 3-5,9-11
+docs/runtime-isolation.md
+  s_060efbb5bf6218::t_0c2f7202f34ce7 3-4
+docs/terminology.md
+  s_060efbb5bf6218::t_0e6c62f73f86fc 1-81
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "ecca76fe1ebeaf647d1edff3d8ac1e24b6f13786",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
