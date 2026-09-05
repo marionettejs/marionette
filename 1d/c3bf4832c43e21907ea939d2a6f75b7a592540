@@ -1,0 +1,27 @@
+docs/performance-baselines.md
+  s_060efbb5bf6218::t_a138c14cf379fa 411-416
+scripts/performance/bundle-size.mjs
+  s_060efbb5bf6218::t_eced36a1caf42c 239-240,753-755,762,805-810,812,816
+scripts/performance/growth-approval.mjs
+  s_060efbb5bf6218::t_ec1a077571398f 51
+test/performance/contract.test.mjs
+  s_060efbb5bf6218::t_e34211bee5a422 202-217,376-451
+test/performance/growth-approval.test.mjs
+  s_060efbb5bf6218::t_ffd1132e3945dc 656-701
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "1dc3bf4832c43e21907ea939d2a6f75b7a592540",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
