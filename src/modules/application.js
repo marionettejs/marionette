@@ -45,13 +45,18 @@ const Application = function(options) {
     this._initStateEvents();
   } catch (error) {
     const ownedRegion = this._ownedRegion;
-    delete this._region;
-    delete this._ownedRegion;
     disposeAll([
       () => this.stopListening(),
+      () => {
+        delete this._region;
+        delete this._ownedRegion;
+      },
       () => ownedRegion?.destroy(),
+      () => clearRootView(this),
       () => this._destroyRadio(),
-      () => this._destroyState()
+      () => this._destroyState(),
+      () => emptyRootView(this),
+      () => this._childApps?.forEach((child, name) => removeChildAppReference(this, name, child))
     ], error);
   }
 };
