@@ -1382,13 +1382,17 @@ var DomApi = {
       if (attr in el && attr !== 'className') {
         const value = attrs[attr];
         if (value != null) {
-          setProperty(el, attr, value);
+          if (attr === '__proto__') {
+            setProperty(el, attr, value);
+          } else if (!Reflect.set(el, attr, value)) {
+            el.setAttribute(attributeName, value);
+          }
           continue;
         }
         if (attr === '__proto__') {
           delete el[attr];
         } else {
-          setProperty(el, attr, null);
+          Reflect.set(el, attr, null);
         }
         el.removeAttribute(attributeName);
         continue;

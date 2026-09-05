@@ -83,6 +83,21 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
       const svgClassSet = svg.className.baseVal;
       selected.Dom.setAttributes(svg, { className: null });
 
+      const form = document.createElement('form');
+      const list = document.createElement('datalist');
+      const input = document.createElement('input');
+      form.id = 'attribute-form';
+      list.id = 'attribute-list';
+      document.body.append(form, list, input);
+      selected.Dom.setAttributes(input, { form: form.id, list: list.id });
+      const inputAssociated = input.form === form && input.list === list;
+      selected.Dom.setAttributes(input, { form: null, list: undefined });
+      const inputCleared = input.form === null && input.list === null &&
+        !input.hasAttribute('form') && !input.hasAttribute('list');
+      input.remove();
+      form.remove();
+      list.remove();
+
       const outcome = {
         rootPreserved: selected.el === selectedRoot,
         focused: document.activeElement === selectedInput,
@@ -100,7 +115,9 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
         initialConnected,
         svgClassSet,
         svgClassCleared: svg.className.baseVal,
-        svgClassAttributeRemoved: !svg.hasAttribute('class')
+        svgClassAttributeRemoved: !svg.hasAttribute('class'),
+        inputAssociated,
+        inputCleared
       };
 
       previous.destroy();
@@ -124,6 +141,8 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
     assert.equal(result.svgClassSet, 'owned', `${browserName}: direct DomApi sets SVG className`);
     assert.equal(result.svgClassCleared, '', `${browserName}: direct DomApi clears SVG className`);
     assert.equal(result.svgClassAttributeRemoved, true, `${browserName}: direct DomApi removes SVG class`);
+    assert.equal(result.inputAssociated, true, `${browserName}: read-only properties use DOM attributes`);
+    assert.equal(result.inputCleared, true, `${browserName}: read-only properties allow attribute removal`);
 
     console.log(`${browserName}: root attribute refresh passed`);
   } catch (error) {
