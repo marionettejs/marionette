@@ -1,0 +1,27 @@
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_0962dadf061e54 127-132
+src/modules/object.ts
+  s_060efbb5bf6218::t_e51abf90c81ef4 101-102
+test/types/native-methods.cts
+  s_060efbb5bf6218::t_d4868f4fb68508 1-61
+test/types/native-methods.mts
+  s_060efbb5bf6218::t_2ddfa28539cdb6 1-61
+test/types/tsconfig.consumer.json
+  s_060efbb5bf6218::t_b61b73d4c2cab9 27,30-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "2b3328b7c982aee61ce314925cbb2d0a0725585d",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
