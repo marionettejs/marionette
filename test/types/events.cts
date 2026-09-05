@@ -48,6 +48,19 @@ callHandler(format, { base: 1 });
 // @ts-expect-error The callback's receiver type is checked.
 callHandler(format, { base: 'wrong' }, [2, 'sum']);
 
+// Default request handlers receive the original arguments, including the name.
+function defaultRequest(name: string, value: number) {
+  function fallback(this: { prefix: string }, requestName: string, requestValue: number) {
+    return `${this.prefix}:${requestName}:${requestValue}`;
+  }
+  const result: string = callHandler(fallback, { prefix: 'request' }, arguments);
+  // @ts-expect-error Forwarding IArguments still checks the callback's receiver.
+  callHandler(fallback, { prefix: 1 }, arguments);
+  // @ts-expect-error Forwarding IArguments preserves the callback's result type.
+  const wrongResult: number = callHandler(fallback, { prefix: 'request' }, arguments);
+  return result;
+}
+
 const once = onceWrap(format, wrapper => {
   const original: typeof format = wrapper._callback;
 });
