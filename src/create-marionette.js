@@ -1,7 +1,7 @@
 import { assignOwn } from './utils/assign-in.js';
 import extend from './utils/extend.ts';
 import monitorViewEvents from './modules/common/monitor-view-events.js';
-import Events from './mixins/events.js';
+import Events from './mixins/events.ts';
 import TemplateRenderMixin from './mixins/template-render.js';
 import MnObjectBase from './modules/object.ts';
 import ViewBase from './modules/view.js';
