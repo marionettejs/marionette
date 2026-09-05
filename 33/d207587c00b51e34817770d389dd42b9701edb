@@ -1,0 +1,21 @@
+scripts/diagnostics/catalog.mjs
+  s_060efbb5bf6218::t_1b9e5d579198cd 177-184,208-216,219
+test/unit/config/diagnostic-catalog.spec.js
+  s_060efbb5bf6218::t_d62c193c4ef4df 261-338
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "33d207587c00b51e34817770d389dd42b9701edb",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
