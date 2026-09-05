@@ -1,5 +1,4 @@
-// Wrap callback in a once. Returns for requests
-// `offCallback` unbinds the `onceWrapper` after it has been called.
+// Unbind before invoking the callback, and return its saved result on later calls.
 type OnceCallback<Context, Args extends unknown[], Result> =
   ((this: Context, ...args: Args) => Result | undefined) & {
     _callback: (this: Context, ...args: Args) => Result;

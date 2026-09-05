@@ -12,7 +12,7 @@ export function createRadio(debug = createDebug()) {
 
   // This is to produce an identical function in both tuneIn and tuneOut,
   // so that Events unregisters it.
-  function _partial(channelName) {
+  function getChannelLog(channelName) {
     return _logs[channelName] || (_logs[channelName] = log.bind(Radio, channelName));
   }
 
@@ -27,7 +27,7 @@ export function createRadio(debug = createDebug()) {
     tuneIn(channelName) {
       const channel = Radio.channel(channelName);
       channel._tunedIn = true;
-      channel.on('all', _partial(channelName));
+      channel.on('all', getChannelLog(channelName));
       return Radio;
     },
 
@@ -35,7 +35,7 @@ export function createRadio(debug = createDebug()) {
     tuneOut(channelName) {
       const channel = Radio.channel(channelName);
       channel._tunedIn = false;
-      channel.off('all', _partial(channelName));
+      channel.off('all', getChannelLog(channelName));
       delete _logs[channelName];
       return Radio;
     }
@@ -130,7 +130,7 @@ export function createRadio(debug = createDebug()) {
     try {
       channel = _channels[channelName];
     } catch {
-    // The stable diagnostic below formats hostile property keys safely.
+      // Use the channel-not-found diagnostic if key coercion throws.
     }
 
     if (!channel) {

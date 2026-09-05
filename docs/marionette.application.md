@@ -103,6 +103,10 @@ resolves `false` even when a handler ignores it. When a start, restart, or
 destroy operation adopts an in-flight stop phase, it also adopts that phase's
 original options and context, and does not abort its signal.
 
+If a replacement start has already canceled the remaining child stops, that
+stop phase is no longer adopted. A later `stop()`, `restart()`, or `destroy()`
+begins a fresh stop phase with its own options and context.
+
 The context belongs to the readiness phase rather than to one caller's Promise.
 Completion methods and events receive only `(application, options)`.
 
@@ -436,7 +440,9 @@ to `Region#show` and does not become renderable.
 
 ### `getView()`
 
-Return the root View currently coordinated by the Application. If the host was
-emptied, detached, or replaced externally, or the Application is stopped or
-destroyed, this method returns `undefined` even if a borrowed Region now contains
-another View.
+Return the root View currently coordinated by the Application. A View shown while
+the Application is stopped, including before startup, is also returned.
+
+If the host Region is emptied, the root View is detached or replaced externally,
+or Application teardown releases it, this method returns `undefined` even if a
+borrowed Region now contains another View.

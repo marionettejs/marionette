@@ -244,6 +244,20 @@ describe('diagnostic catalog validation', function() {
     );
   });
 
+  it('recognizes default and named default TypeScript error imports', function() {
+    for (const binding of ['FrameworkError', '{ default as FrameworkError }']) {
+      expect(() => validate(createCatalog(), {
+        runtimeSources: [{
+          contents: `import ${binding} from '../modules/error.ts';\nthrow new FrameworkError({ message: 'Missing code' });`,
+          path: 'modules/example.ts',
+        }],
+      })).to.throw(
+        DiagnosticCatalogValidationError,
+        'modules/example.ts MarionetteError must declare one literal diagnostic code',
+      );
+    }
+  });
+
   it('rejects deliberate native framework errors', function() {
     for (const errorName of ['Error', 'TypeError']) {
       expect(() => validate(createCatalog(), {
