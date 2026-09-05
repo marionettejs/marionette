@@ -18,9 +18,8 @@ function getKeys(object) {
 // remove with `off`; `trigger`-ing an event fires all callbacks in
 // succession.
 //
-//     var object = {};
-//     _.extend(object, Events);
-//     object.on('expand', function(){ alert('expanded'); });
+//     const object = Object.assign({}, Events);
+//     object.on('expand', function() { alert('expanded'); });
 //     object.trigger('expand');
 //
 
@@ -142,13 +141,13 @@ const listenToApi = function({ name, callback, context, listener }) {
   }
 };
 
-function buildOnceMap(eventArgs, offer) {
+function buildOnceMap(eventArgs, offCallback) {
   const events = {};
   for (let index = 0, length = eventArgs.length; index < length; index++) {
     const { name, callback } = eventArgs[index];
     if (!callback) { continue; }
     const onceCallback = onceWrap(callback, callbackToRemove => {
-      offer(name, callbackToRemove);
+      offCallback(name, callbackToRemove);
     });
     setProperty(events, name, onceCallback);
   }
