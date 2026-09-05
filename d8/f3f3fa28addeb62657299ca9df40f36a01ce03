@@ -1,0 +1,165 @@
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_9f4be56bc34743 81-125,137-171
+packages/data/src/model.js
+  s_060efbb5bf6218::t_88b3f7cef0f083 32-35
+scripts/diagnostics/catalog.mjs
+  s_060efbb5bf6218::t_124decad4f236e 177-184,208-216,219
+src/create-marionette.js
+  s_060efbb5bf6218::t_d4b9d8d3498fdc 12-17
+src/mixins/behaviors.js
+  s_060efbb5bf6218::t_8df793ce80b873 3,5
+src/mixins/common.ts
+  s_060efbb5bf6218::t_49cec7e69807a8 2,4-7,11,15-20,31,57-58
+src/mixins/delegate-entity-events.js
+  s_060efbb5bf6218::t_36c41c69983c5d 1
+src/mixins/events.ts
+  s_060efbb5bf6218::t_43f6f028152a4c 7,29
+src/mixins/radio.js
+  s_060efbb5bf6218::t_6379113e1ce826 1,3
+src/mixins/requests.ts
+  s_060efbb5bf6218::t_027ee2d2d52e0f 1,14-33,37,39,46,50,55,68-70,93-96,121,124,130,141,150,156,158,173,187,197-200,206-213
+src/mixins/state.js
+  s_060efbb5bf6218::t_6544e414b50a8c 1,3
+src/mixins/template-render.js
+  s_060efbb5bf6218::t_776678db722989 2
+src/mixins/ui.js
+  s_060efbb5bf6218::t_d4947625d1b227 1,4
+src/mixins/view-events.js
+  s_060efbb5bf6218::t_d146fe86b1a80d 1-2,4,6
+src/mixins/view.js
+  s_060efbb5bf6218::t_4e729b78f82229 5-6,9,15-16
+src/modules/application.js
+  s_060efbb5bf6218::t_5a232275496091 5,8,15
+src/modules/behavior.js
+  s_060efbb5bf6218::t_ca2e370da58474 11,13,18,20
+src/modules/child-view-container.js
+  s_060efbb5bf6218::t_223999ba1d6df8 1-2
+src/modules/collection-view.js
+  s_060efbb5bf6218::t_884638245ed9a4 6,9,16-20
+src/modules/common/bind-events.ts
+  s_060efbb5bf6218::t_122bc105723338 14-25,29,47-48,51-53,61-63
+src/modules/common/bind-requests.ts
+  s_060efbb5bf6218::t_39cc7989dc357c 14-17,19-27,37-38,41-43,51-53
+src/modules/common/build-region.js
+  s_060efbb5bf6218::t_0e5132195201cb 2
+src/modules/common/get-option.ts
+  s_060efbb5bf6218::t_023c7aae53d7df 1-18,24-29,31-33,35,37
+src/modules/common/merge-options.ts
+  s_060efbb5bf6218::t_c4bd790a49621e 2,7-9,25,30
+src/modules/common/normalize-methods.ts
+  s_060efbb5bf6218::t_c2ca05865c3b13 1,4-8,15-16,20,36,39-42,45,48,52
+src/modules/common/radio.ts
+  s_060efbb5bf6218::t_868f267d856864 11,21,29
+src/modules/common/trigger-method.ts
+  s_060efbb5bf6218::t_9b77c55272b1c5 4-9,15,19,23,38,42,51
+src/modules/error.ts
+  s_060efbb5bf6218::t_10f1d5baef79d7 7-19,21-37,45-48,51,57,71,74-75,80,86
+src/modules/object.ts
+  s_060efbb5bf6218::t_66a2c6abd6022c 7,12-21,23-25,37,43-49,53-54,70-71,85,88,91,95,103-105
+src/modules/radio.ts
+  s_060efbb5bf6218::t_3e7b45f720445a 1,3-5,9,11-58,60,64,68-69,77-78,85-86,92,101,103,115,126,133,139,156,159,161-162,167,177-178,183
+src/modules/region.js
+  s_060efbb5bf6218::t_d8e3010440f27f 5,7,13-14,27-28,328,437-441
+src/modules/view.js
+  s_060efbb5bf6218::t_4566fc512cf473 6,8,15-19
+src/runtime/data-api.ts
+  s_060efbb5bf6218::t_11764f5ba41e3f 4-33,38-41,47,51-53,56-57,60,64,68-69,80,85,89,99
+src/runtime/dom-api.ts
+  s_060efbb5bf6218::t_d4138dafb27cf6 5-28,32-39,46,56,62,67-68,72,77,92,112,117,127,132,149,153,160,165,175,181,184
+src/runtime/event-delegator.ts
+  s_060efbb5bf6218::t_9354610273ba5e 3-29,32-37,58,64,66-67,77,84
+src/runtime/renderer.ts
+  s_060efbb5bf6218::t_412859e7429130 1-7,9-14
+src/runtime/state-api.ts
+  s_060efbb5bf6218::t_c48c29031cff04 4-13,16-19,33
+src/utils/get-value.ts
+  s_060efbb5bf6218::t_52c18b6a027a19 1-2
+src/utils/subscribe-bindings.js
+  s_060efbb5bf6218::t_71c9006098db12 3-4
+src/version.d.ts
+  s_060efbb5bf6218::t_0a71c634b4e19d 1-2
+test/types/bindings.cts
+  s_060efbb5bf6218::t_7bba01efd7ae21 1-105
+test/types/bindings.mts
+  s_060efbb5bf6218::t_d77168040df93d 1-105
+test/types/common.cts
+  s_060efbb5bf6218::t_cf9f93bc798f42 1-39
+test/types/common.mts
+  s_060efbb5bf6218::t_e1f63f1e064ef2 1-39
+test/types/construction.cts
+  s_060efbb5bf6218::t_ccce42d5b022d7 1-64
+test/types/construction.mts
+  s_060efbb5bf6218::t_ed10d5b1453185 1-64
+test/types/consumer.cts
+  s_060efbb5bf6218::t_52731eb8541fbc 136,139,141
+test/types/consumer.mts
+  s_060efbb5bf6218::t_54c3c733da5ffa 136,139,141
+test/types/dom.cts
+  s_060efbb5bf6218::t_ec61a91b7355c6 1-107
+test/types/dom.mts
+  s_060efbb5bf6218::t_a771e8576fbe71 1-107
+test/types/error.cts
+  s_060efbb5bf6218::t_0415a819a3a77d 1-42
+test/types/error.mts
+  s_060efbb5bf6218::t_d31d4c09a73228 1-42
+test/types/get-value.cts
+  s_060efbb5bf6218::t_01db1a2a34a604 1-36
+test/types/get-value.mts
+  s_060efbb5bf6218::t_01f58856729acd 1-36
+test/types/native-methods.cts
+  s_060efbb5bf6218::t_9a5db9ea7e9cea 1-60
+test/types/native-methods.mts
+  s_060efbb5bf6218::t_d4b633b177a759 1-60
+test/types/options.cts
+  s_060efbb5bf6218::t_d09b6d855fcb3e 1-131
+test/types/options.mts
+  s_060efbb5bf6218::t_135472a71f4e7d 1-131
+test/types/providers.cts
+  s_060efbb5bf6218::t_b3afef62ad456c 1-113
+test/types/providers.mts
+  s_060efbb5bf6218::t_f1cc6455ea910b 1-113
+test/types/radio.cts
+  s_060efbb5bf6218::t_916b187b22ba86 1-96
+test/types/radio.mts
+  s_060efbb5bf6218::t_e3639fce0f4d76 1-96
+test/types/requests.cts
+  s_060efbb5bf6218::t_6eee1d89afc4ad 1-47
+test/types/requests.mts
+  s_060efbb5bf6218::t_caffd619377dec 1-47
+test/types/trigger-method.cts
+  s_060efbb5bf6218::t_21230399b40346 1-23
+test/types/trigger-method.mts
+  s_060efbb5bf6218::t_7e72df5af321eb 1-23
+test/types/tsconfig.consumer.json
+  s_060efbb5bf6218::t_7f2413be5c0e5a 17-41
+test/unit/config/diagnostic-catalog.spec.js
+  s_060efbb5bf6218::t_ca4dd8c098bce6 261-338
+test/unit/data-package/api-integration.spec.js
+  s_060efbb5bf6218::t_c6d8dd0c1e0310 131-154
+test/unit/data-package/collection.spec.js
+  s_060efbb5bf6218::t_0b30d073e9e90e 417-437
+test/unit/mixins/common.spec.js
+  s_060efbb5bf6218::t_47c3ed2a79f089 155
+test/unit/radio-composition.spec.js
+  s_060efbb5bf6218::t_c2a8ae23626fd5 115
+test/unit/radio.spec.js
+  s_060efbb5bf6218::t_726ebbc74ca4c5 267
+test/unit/requests.spec.js
+  s_060efbb5bf6218::t_57284e14b15e9f 461-484
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "d8f3f3fa28addeb62657299ca9df40f36a01ce03",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
