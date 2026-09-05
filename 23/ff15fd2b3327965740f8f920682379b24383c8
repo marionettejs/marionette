@@ -1,7 +1,9 @@
 mixins/events.js
   s_098636fa0c962b::t_0af718d8395aad 289-290,297,310,319
+  s_060efbb5bf6218::t_a6c468caa4aa04 289-290,297,310,319
 test/unit/events-parity.spec.js
   s_098636fa0c962b::t_0077e96f573d4e 54-116
+  s_060efbb5bf6218::t_5d17e0fd4efd83 54-116
 dist/marionette.cjs
   s_da04d6c923fc74::t_ba8ad780ab4472 531-532,540,552,560
 dist/marionette.js
@@ -21,6 +23,14 @@ dist/marionette.umd.js.map
   "base_commit_sha": "23ff15fd2b3327965740f8f920682379b24383c8",
   "prompts": {},
   "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
     "s_098636fa0c962b": {
       "agent_id": {
         "tool": "codex",
