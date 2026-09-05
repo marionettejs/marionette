@@ -89,10 +89,15 @@ the original arguments. `Requests` owns the reply and request contracts; its
 registry, constant replies, and dispatch implementation are checked. Request
 payloads and results remain unknown without a schema, and the request-map result
 is typed at the composition boundary. Other JavaScript mixins remain unchecked,
-with their methods typed at the composition boundary. The binding helpers own
-their checked signatures; receivers require only the methods called, while
-method-reference values are validated dynamically. Their string/property reads
-and JavaScript MarionetteError construction remain local assertion boundaries.
+with their methods typed at the composition boundary.
+
+Common owns the checked constructor option setup and reuses its helper signatures.
+Its private `_setOptions` method takes the option list supplied by each constructor;
+resolved option values remain unknown. Its event methods are described at the
+fixed composition boundary after assignment.
+
+The binding helpers own their checked signatures; receivers require only the
+methods called, while method-reference values are validated dynamically.
 Normalization preserves the existing function check, which does not guarantee
 that a handler can be invoked successfully with arbitrary arguments.
 

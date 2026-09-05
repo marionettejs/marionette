@@ -10,7 +10,7 @@ import uniqueId from '../utils/unique-id.ts';
 import disposeAll from '../utils/dispose-all.ts';
 import monitorViewEvents from './common/monitor-view-events.js';
 import { renderView, destroyView, isView } from './common/view.js';
-import CommonMixin from '../mixins/common.js';
+import CommonMixin from '../mixins/common.ts';
 import DomApi, { setDomApi } from '../runtime/dom-api.js';
 import { defaultRuntimeId, runtimeId } from '../runtime/runtime-id.js';
 

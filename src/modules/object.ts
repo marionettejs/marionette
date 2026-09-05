@@ -4,7 +4,7 @@
 import { assignOwn } from '../utils/assign-in.js';
 import extend from '../utils/extend.ts';
 import uniqueId from '../utils/unique-id.ts';
-import CommonMixin from '../mixins/common.js';
+import CommonMixin from '../mixins/common.ts';
 import DestroyMixin from '../mixins/destroy.js';
 import RadioMixin from '../mixins/radio.js';
 import StateMixin from '../mixins/state.js';
@@ -131,7 +131,9 @@ export type MnObjectConstructor<
 interface ObjectInternals {
   cid: string;
   cidPrefix: string;
-  _setOptions(options: object | undefined, names: string[]): void;
+  options?: unknown;
+  mergeOptions: typeof mergeOptions;
+  _setOptions: typeof CommonMixin._setOptions;
   _initRadio(): void;
   _initState(options: object | undefined): void;
   initialize: { apply(receiver: object, args: IArguments): unknown };
