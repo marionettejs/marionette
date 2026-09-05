@@ -12,6 +12,7 @@ dist/marionette.umd.js.map
   s_9f79b2ca591ecb::t_e6963ee58999e7 1
 modules/region.js
   s_5306c88cb2ff0f::t_0de607db0031e4 27-28,328,437-441
+  s_060efbb5bf6218::t_03d8e066531a42 27-28,328,437-441
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -19,6 +20,14 @@ modules/region.js
   "base_commit_sha": "fbd501506ba567f0788b7f2f98994e07a197ef01",
   "prompts": {},
   "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
     "s_5306c88cb2ff0f": {
       "agent_id": {
         "tool": "codex",
