@@ -1,0 +1,41 @@
+mixins/events.js
+  s_098636fa0c962b::t_0af718d8395aad 289-290,297,310,319
+test/unit/events-parity.spec.js
+  s_098636fa0c962b::t_0077e96f573d4e 54-116
+dist/marionette.cjs
+  s_da04d6c923fc74::t_ba8ad780ab4472 531-532,540,552,560
+dist/marionette.js
+  s_da04d6c923fc74::t_0cb3db80624638 527-528,536,548,556
+dist/marionette.min.js
+  s_da04d6c923fc74::t_d9a29cc3dd9808 1
+dist/marionette.min.js.map
+  s_da04d6c923fc74::t_87bcd2ae82e646 1
+dist/marionette.umd.js
+  s_da04d6c923fc74::t_acc6d86d9a39a4 538-539,547,559,567
+dist/marionette.umd.js.map
+  s_da04d6c923fc74::t_99a79f5ce658e1 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "23ff15fd2b3327965740f8f920682379b24383c8",
+  "prompts": {},
+  "sessions": {
+    "s_098636fa0c962b": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0702a-0e3f-78c3-af1f-c71d8900f7fb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_da04d6c923fc74": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "204c8b2d-194c-4372-9634-102164b8a557",
+        "model": "unknown"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
