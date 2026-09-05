@@ -408,6 +408,12 @@ candidate contract to the SHA-256 of the committed harness file:
 ```
 ````
 
+The v1 record format accepts a scoped package root as its package name, such as
+`@marionette/data`, and a package subpath as `@marionette/adapters/backbone`.
+The record fields and version are unchanged. These names still require package
+enrollment in the measured contract, a matching package export, and exact-head
+approval; syntactic acceptance alone does not enroll a package.
+
 `approvedNewArtifacts` is empty when a new public subpath aliases an already tracked
 runtime artifact. The new subpath still requires exact-head approval even though it
 adds zero artifact bytes. Conversely, a new runtime artifact without a corresponding

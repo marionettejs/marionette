@@ -199,6 +199,22 @@ describe('performance contract validation', () => {
     ), []);
   });
 
+  test('rejects a scoped package-root graph without a matching package export', () => {
+    const paths = ['packages/adapters/dist/backbone.js'];
+    const contract = contractFor(paths);
+    contract.productionGraphs[0].subpath = '@marionette/adapters';
+    const packageJson = {
+      name: '@marionette/adapters',
+      exports: { './backbone': { import: './dist/backbone.js' } },
+    };
+    const violations = validateContract(contract, {}, paths, null, [
+      { directory: 'packages/adapters', packageJson },
+    ]);
+
+    assert.ok(violations.includes(
+      'Production graph @marionette/adapters output packages/adapters/dist/backbone.js is not exported by that subpath'));
+  });
+
   test('surfaces malformed growth approval policy through contract validation', () => {
     const contract = contractFor();
     contract.pullRequestGrowthApproval.allowedLogins = ['zed', 'alpha'];
