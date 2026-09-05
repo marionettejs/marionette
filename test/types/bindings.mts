@@ -8,6 +8,8 @@ import type { EventMap, EventSource } from '../tmp/typed-core/src/mixins/events.
 const source = new MnObject();
 const listener = {
   marker: 'listener',
+  handleChange() {},
+  done() {},
   listenTo(_source: EventSource, _bindings: EventMap) {},
   bindEvents,
 };
@@ -27,7 +29,7 @@ listener.bindEvents({}, { changed() {} });
 
 const replyChannel = { reply(_bindings: object, _context: unknown) {} };
 const replyOwner = { stopReplying(_bindings?: object | null, _context?: unknown, _owner?: unknown) {} };
-const owner = { marker: 'reply owner', bindRequests, unbindRequests };
+const owner = { marker: 'reply owner', lookup() {}, bindRequests, unbindRequests };
 declare const channel: Requests;
 owner.bindRequests(channel, { lookup: 'lookup' });
 owner.unbindRequests(channel);
@@ -49,9 +51,10 @@ const promisedMap: EventMap = normalizeMethods(maybeBindings);
 // @ts-expect-error No generic argument can falsely promise a map without input.
 normalizeMethods<object>();
 const callableMap = Object.assign(function() {}, { done: 'done' });
-const callableResult: EventMap = normalizeMethods(callableMap);
+const normalizer = { done() {}, normalizeMethods };
+const callableResult: EventMap = normalizer.normalizeMethods(callableMap);
 const taggedReference = { [Symbol.toStringTag]: 'String', toString() { return 'done'; } };
-normalizeMethods({ boxed: new String('done'), tagged: taggedReference });
+normalizer.normalizeMethods({ boxed: new String('done'), tagged: taggedReference });
 listener.bindEvents(source, callableMap);
 listener.bindEvents(source, false);
 listeningOwner.unbindEvents(source, false);
