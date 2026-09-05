@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import process from 'node:process';
@@ -1259,6 +1259,65 @@ describe('performance contract validation', () => {
       }
     });
   }
+
+  test('measures a moved graph input through the unchanged output producer', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-source-move-'));
+    const contract = contractFor();
+    contract.productionGraphs = [{
+      subpath: '.',
+      input: 'index.js',
+      output: 'dist/index.mjs',
+      baselineModules: ['index.js'],
+      baselineExternalImports: [],
+    }];
+    const configPath = join(fixtureRoot, 'performance.json');
+    const rollupPath = join(fixtureRoot, 'rollup.config.mjs');
+    const rollupConfig = input => `export default [{ input: '${input}', ` +
+      'output: { file: \'dist/index.mjs\', format: \'es\' } }];\n';
+    const measureFixture = () => {
+      const moduleUrl = new URL('../../scripts/performance/bundle-size.mjs', import.meta.url);
+      const options = { root: fixtureRoot, configPath, checkToolchain: false };
+      const result = spawnSync(process.execPath, ['--input-type=module', '-e',
+        `import { measure } from ${JSON.stringify(moduleUrl.href)}; ` +
+        `console.log(JSON.stringify(await measure(${JSON.stringify(options)})));`,
+      ], { encoding: 'utf8' });
+      assert.equal(result.status, 0, result.stderr);
+      return JSON.parse(result.stdout);
+    };
+
+
+    try {
+      await mkdir(join(fixtureRoot, 'dist'));
+      await mkdir(join(fixtureRoot, 'src'));
+      await writeFile(join(fixtureRoot, 'package.json'), JSON.stringify({
+        type: 'module', exports: { '.': { import: './dist/index.mjs' } },
+      }));
+      await writeFile(configPath, JSON.stringify(contract));
+      await writeFile(join(fixtureRoot, 'index.js'), 'export const value = 1;\n');
+      await writeFile(join(fixtureRoot, 'dist/index.mjs'), 'export const value = 1;\n');
+      await writeFile(rollupPath, rollupConfig('index.js'));
+      const before = measureFixture();
+      assert.deepEqual(before.graphs[0].modules, ['index.js']);
+
+      await rename(join(fixtureRoot, 'index.js'), join(fixtureRoot, 'src/index.js'));
+      contract.productionGraphs[0].input = 'src/index.js';
+      await writeFile(configPath, JSON.stringify(contract));
+      const mismatched = measureFixture();
+      assert.equal(mismatched.graphs[0].status, 'measurement-error');
+      assert.match(mismatched.graphs[0].error, /does not use input src\/index\.js/);
+
+      await writeFile(rollupPath, rollupConfig('src/index.js'));
+      const after = measureFixture();
+      assert.equal(after.graphs[0].status, 'measured');
+      assert.deepEqual(after.graphs[0].modules, ['src/index.js']);
+      assert.deepEqual(after.graphs[0].phase0AddedModules, ['src/index.js']);
+      assert.deepEqual(after.graphs[0].phase0RemovedModules, ['index.js']);
+      assert.equal(after.graphs[0].output, before.graphs[0].output);
+      assert.deepEqual(after.artifacts, before.artifacts);
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
 
   test('accepts an equivalent Rollup input alias', async() => {
     const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-performance-input-'));

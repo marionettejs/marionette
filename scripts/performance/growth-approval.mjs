@@ -563,7 +563,10 @@ export function validateCandidateGrowthContract(
     }
   }
   for (const [subpath, graph] of authorityGraphs.map) {
-    if (!isDeepStrictEqual(candidateGraphs.map.get(subpath), graph) &&
+    const candidateGraph = candidateGraphs.map.get(subpath);
+    const sameGraph = validSourcePath(candidateGraph?.input) &&
+      isDeepStrictEqual(candidateGraph, { ...graph, input: candidateGraph.input });
+    if (!sameGraph &&
         !relocation.graphMoves.has(subpath)) {
       violations.push(`Candidate performance contract removes or changes exact-base production graph ${subpath}`);
     }
