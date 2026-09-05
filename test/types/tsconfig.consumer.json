@@ -20,6 +20,8 @@
     "bindings.mts",
     "bindings.cts",
     "options.mts",
-    "options.cts"
+    "options.cts",
+    "trigger-method.mts",
+    "trigger-method.cts"
   ]
 }

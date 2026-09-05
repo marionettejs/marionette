@@ -83,9 +83,10 @@ cleanup, event, option, Radio debug, and entity-binding helpers they use.
 `Events` owns its contract types;
 the compiler checks its registry and listening implementation against each
 overload. The mixin's composed receiver, schema-free callback arguments, and
-JavaScript `triggerMethod` lookup
-remain explicit typing boundaries. `Requests` owns the reply and request contracts;
-its registry, constant replies, and dispatch implementation are checked. Request
+dynamic `triggerMethod` lookup remain explicit typing boundaries. The checked
+`triggerMethod` helper requires a callable `trigger` and preserves forwarding of
+the original arguments. `Requests` owns the reply and request contracts; its
+registry, constant replies, and dispatch implementation are checked. Request
 payloads and results remain unknown without a schema, and the request-map result
 is typed at the composition boundary. Other JavaScript mixins remain unchecked,
 with their methods typed at the composition boundary. The binding helpers own

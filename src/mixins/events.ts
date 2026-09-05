@@ -4,7 +4,7 @@ import callHandler from '../utils/call-handler.ts';
 import onceWrap from '../utils/once-wrap.ts';
 import uniqueId from '../utils/unique-id.ts';
 
-import triggerMethod from '../modules/common/trigger-method.js';
+import triggerMethod from '../modules/common/trigger-method.ts';
 
 export type EventCallback = (...args: never[]) => unknown;
 export type EventMap = Record<string, EventCallback>;
@@ -26,7 +26,7 @@ export interface Events extends EventSource {
   stopListening<Receiver>(this: Receiver, source?: EventSource | null, name?: string | EventMap | null, callback?: EventCallback | null): Receiver;
   trigger<Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver;
   trigger<Receiver>(this: Receiver, events: Record<string, unknown>): Receiver;
-  triggerMethod(name: string, ...args: unknown[]): unknown;
+  triggerMethod: typeof triggerMethod;
 }
 
 type Callback = EventCallback & { _callback?: EventCallback };
