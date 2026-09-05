@@ -1,0 +1,37 @@
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_e0558486d92f4a 81,94-98
+src/create-marionette.js
+  s_060efbb5bf6218::t_6aeeb5b910aa0c 12
+src/mixins/radio.js
+  s_060efbb5bf6218::t_e231f10e4bc4bf 1
+src/modules/object.ts
+  s_060efbb5bf6218::t_e7fda0830cef96 15-16,22
+src/modules/radio.ts
+  s_060efbb5bf6218::t_c385e0a42f74ef 3,5,11-58,60,64,68-69,77-78,85-86,92,101,103,115,126,133,139,156,159,161-162,167,177-178,183
+test/types/radio.cts
+  s_060efbb5bf6218::t_33c10544e5f15a 1-96
+test/types/radio.mts
+  s_060efbb5bf6218::t_b35a1d9961d0ab 1-96
+test/types/tsconfig.consumer.json
+  s_060efbb5bf6218::t_d190d8e5dfe13e 33,36-37
+test/unit/radio-composition.spec.js
+  s_060efbb5bf6218::t_55a2206b2afd94 115
+test/unit/radio.spec.js
+  s_060efbb5bf6218::t_39bff130c8b843 267
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "e863fc684301badfa57f85c4b23ebf37b8f6004d",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
