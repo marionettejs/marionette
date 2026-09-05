@@ -1017,7 +1017,7 @@ describe('performance contract validation', () => {
       join(root, '.github/workflows/release.yml'),
       'utf8'
     );
-    assert.match(releaseWorkflow, /run: npm ci/);
+    assert.match(releaseWorkflow, /npm run release:artifact --/);
     assert.doesNotMatch(releaseWorkflow, /node config\/check-dist\.mjs/);
   });
 

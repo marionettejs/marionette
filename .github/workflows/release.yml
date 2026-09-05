@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/release.yml'
       - '.nvmrc'
+      - '.babelrc'
       - 'scripts/performance/**'
       - 'config/performance.json'
       - 'scripts/checks/**'
