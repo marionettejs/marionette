@@ -1,7 +1,11 @@
 src/modules/collection-view.js
   s_060efbb5bf6218::t_7de1f09098c221 769-777,1300-1301
+  s_060efbb5bf6218::t_6582d0160d7f98 770-777
+  s_060efbb5bf6218::t_35586eb5f125db 769,1300-1301
 test/unit/collection-view/collection-view-sorting.spec.js
   s_060efbb5bf6218::t_2ceaffae4b4e90 314-410
+  s_060efbb5bf6218::t_fc74bc7ca9814a 314-371,382-410
+  s_060efbb5bf6218::t_3c13c80ad2fbf9 372-381
 ---
 {
   "schema_version": "authorship/3.0.0",
