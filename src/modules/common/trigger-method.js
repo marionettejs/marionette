@@ -1,7 +1,7 @@
 // Trigger Method
 // --------------
 
-import getOption from './get-option.js';
+import getOption from './get-option.ts';
 
 // split the event name on the ":"
 const splitter = /(^|:)(\w)/gi;

@@ -10,6 +10,8 @@ import RadioMixin from '../mixins/radio.js';
 import StateMixin from '../mixins/state.js';
 import disposeAll from '../utils/dispose-all.ts';
 import { setStateApi } from '../runtime/state-api.js';
+import type getOption from './common/get-option.ts';
+import type mergeOptions from './common/merge-options.ts';
 import type { Requests } from '../mixins/requests.ts';
 import type { EventCallback, EventMap, EventSource, Events } from '../mixins/events.ts';
 import type { Bindings } from './common/normalize-methods.ts';
@@ -70,11 +72,8 @@ export interface MnObject<Options extends object = object, State = object> exten
   createState(options?: Options): unknown;
   isDestroyed(): boolean;
   destroy<Receiver>(this: Receiver, options?: unknown): Receiver;
-  getOption<Receiver, Key extends keyof Options | keyof Receiver>(this: Receiver, key: Key):
-    (Key extends keyof Options ? Options[Key] : never) |
-    (Key extends keyof Receiver ? Receiver[Key] : undefined);
-  getOption(key: string): unknown;
-  mergeOptions(options: object | null | undefined, keys: readonly string[]): void;
+  getOption: typeof getOption;
+  mergeOptions: typeof mergeOptions;
   normalizeMethods: typeof normalizeMethods;
   bindEvents: typeof bindEvents;
   unbindEvents: typeof unbindEvents;

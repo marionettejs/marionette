@@ -18,6 +18,8 @@
     "requests.mts",
     "requests.cts",
     "bindings.mts",
-    "bindings.cts"
+    "bindings.cts",
+    "options.mts",
+    "options.cts"
   ]
 }
