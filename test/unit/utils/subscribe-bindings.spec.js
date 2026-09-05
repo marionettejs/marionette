@@ -38,6 +38,7 @@ describe('subscribe bindings', function() {
       }
     }, {}, { first: 'onChange', second: 'onChange' }, 'TestApi');
 
+    expect(calls).to.deep.equal(['first', 'cleanup']);
     cleanup();
     expect(calls).to.deep.equal(['first', 'cleanup']);
   });
