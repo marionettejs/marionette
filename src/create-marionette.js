@@ -9,7 +9,7 @@ import CollectionViewBase from './modules/collection-view.js';
 import BehaviorBase from './modules/behavior.js';
 import RegionBase from './modules/region.js';
 import ApplicationBase from './modules/application.js';
-import Radio, { createRadio } from './modules/radio.js';
+import Radio, { createRadio } from './modules/radio.ts';
 import DomApi from './runtime/dom-api.js';
 import DataApi from './runtime/data-api.js';
 import EventDelegator from './runtime/event-delegator.js';

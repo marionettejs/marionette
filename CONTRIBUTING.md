@@ -78,7 +78,7 @@ declarations into the ignored `test/tmp/typed-core/` directory and checks ESM an
 CommonJS consumers against them. Both checks run during `npm run build` and
 `npm test`. Coverage and diagnostic discovery include TypeScript source files.
 
-The conversion covers `MnObject`, `MarionetteError`, `extend`, `Events`, `Requests`, and the ID,
+The conversion covers `MnObject`, `MarionetteError`, `extend`, `Events`, `Requests`, `Radio`, and the ID,
 cleanup, event, option, Radio debug, and entity-binding helpers they use.
 `Events` owns its contract types;
 the compiler checks its registry and listening implementation against each
@@ -90,6 +90,11 @@ registry, constant replies, and dispatch implementation are checked. Request
 payloads and results remain unknown without a schema, and the request-map result
 is typed at the composition boundary. Other JavaScript mixins remain unchecked,
 with their methods typed at the composition boundary.
+
+`Radio` owns its channel and top-level contracts. Forwarded signatures reuse the
+Events and Requests methods, retaining their current overloads and channel returns.
+The dynamic method selection and completed prototype composition are explicit
+typing boundaries.
 
 Common owns the checked constructor option setup and reuses its helper signatures.
 Its private `_setOptions` method takes the option list supplied by each constructor;

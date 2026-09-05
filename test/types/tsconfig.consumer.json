@@ -32,6 +32,8 @@
     "common.mts",
     "common.cts",
     "construction.mts",
-    "construction.cts"
+    "construction.cts",
+    "radio.mts",
+    "radio.cts"
   ]
 }

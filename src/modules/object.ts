@@ -12,44 +12,15 @@ import disposeAll from '../utils/dispose-all.ts';
 import { setStateApi } from '../runtime/state-api.js';
 import type getOption from './common/get-option.ts';
 import type mergeOptions from './common/merge-options.ts';
-import type { Requests } from '../mixins/requests.ts';
-import type { EventCallback, EventMap, EventSource, Events } from '../mixins/events.ts';
+import type { Channel, RadioApi } from './radio.ts';
+import type { Events } from '../mixins/events.ts';
 import type { Bindings } from './common/normalize-methods.ts';
 import type normalizeMethods from './common/normalize-methods.ts';
 import type { bindEvents, unbindEvents } from './common/bind-events.ts';
 import type { bindRequests, unbindRequests } from './common/bind-requests.ts';
 
+export type { Channel, RadioApi } from './radio.ts';
 export type { Bindings } from './common/normalize-methods.ts';
-
-export interface Channel extends Events, Requests {
-  channelName: string;
-  reset(): this;
-}
-
-export interface RadioApi {
-  setDebug(enabled?: boolean): void;
-  channel(name: string): Channel;
-  on(channel: string, name: string, callback?: EventCallback, context?: unknown): Channel;
-  on(channel: string, events: EventMap, context?: unknown): Channel;
-  once(channel: string, name: string, callback?: EventCallback, context?: unknown): Channel;
-  once(channel: string, events: EventMap, context?: unknown): Channel;
-  off(channel: string, name?: string | null, callback?: EventCallback | null, context?: unknown): Channel;
-  off(channel: string, events: EventMap, context?: unknown): Channel;
-  listenTo(channel: string, source: EventSource, name: string | EventMap, callback?: EventCallback): Channel;
-  listenToOnce(channel: string, source: EventSource, name: string | EventMap, callback?: EventCallback): Channel;
-  stopListening(channel: string, source?: EventSource | null, name?: string | EventMap | null, callback?: EventCallback | null): Channel;
-  trigger(channel: string, name: string, ...args: unknown[]): Channel;
-  trigger(channel: string, events: Record<string, unknown>): Channel;
-  triggerMethod(channel: string, name: string, ...args: unknown[]): unknown;
-  reply(channel: string, name: string | Record<string, unknown>, callback?: unknown, context?: unknown): Channel;
-  replyOnce(channel: string, name: string | Record<string, unknown>, callback?: unknown, context?: unknown): Channel;
-  stopReplying(channel: string, name?: string | Record<string, unknown> | null, callback?: unknown, context?: unknown): Channel;
-  request(channel: string, name: string, ...args: unknown[]): unknown;
-  request(channel: string, requests: Record<string, unknown>, ...args: unknown[]): Record<string, unknown>;
-  reset(name?: string): void;
-  tuneIn(name: string): RadioApi;
-  tuneOut(name: string): RadioApi;
-}
 
 export interface StateApi<Source = unknown> {
   subscribe: (source: Source, name: string, callback: (...args: unknown[]) => unknown, context?: unknown) => () => void;
