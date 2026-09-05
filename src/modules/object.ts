@@ -21,17 +21,17 @@ export interface EventSource {
 }
 
 export interface Events extends EventSource {
-  on(name: string, callback?: EventCallback, context?: unknown): this;
-  on(events: EventMap, context?: unknown): this;
-  once(name: string, callback?: EventCallback, context?: unknown): this;
-  once(events: EventMap, context?: unknown): this;
-  off(name?: string | null, callback?: EventCallback | null, context?: unknown): this;
-  off(events: EventMap, context?: unknown): this;
-  listenTo(source: EventSource, name: string | EventMap, callback?: EventCallback): this;
-  listenToOnce(source: EventSource, name: string | EventMap, callback?: EventCallback): this;
-  stopListening(source?: EventSource | null, name?: string | EventMap | null, callback?: EventCallback | null): this;
-  trigger(name: string, ...args: unknown[]): this;
-  trigger(events: Record<string, unknown>): this;
+  on<Receiver>(this: Receiver, name: string, callback?: EventCallback, context?: unknown): Receiver;
+  on<Receiver>(this: Receiver, events: EventMap, context?: unknown): Receiver;
+  once<Receiver>(this: Receiver, name: string, callback?: EventCallback, context?: unknown): Receiver;
+  once<Receiver>(this: Receiver, events: EventMap, context?: unknown): Receiver;
+  off<Receiver>(this: Receiver, name?: string | null, callback?: EventCallback | null, context?: unknown): Receiver;
+  off<Receiver>(this: Receiver, events: EventMap, context?: unknown): Receiver;
+  listenTo<Receiver>(this: Receiver, source: EventSource, name: string | EventMap, callback?: EventCallback): Receiver;
+  listenToOnce<Receiver>(this: Receiver, source: EventSource, name: string | EventMap, callback?: EventCallback): Receiver;
+  stopListening<Receiver>(this: Receiver, source?: EventSource | null, name?: string | EventMap | null, callback?: EventCallback | null): Receiver;
+  trigger<Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver;
+  trigger<Receiver>(this: Receiver, events: Record<string, unknown>): Receiver;
   triggerMethod(name: string, ...args: unknown[]): unknown;
 }
 
@@ -90,18 +90,18 @@ export interface MnObject<Options extends object = object, State = object> exten
   getState(): State;
   createState(options?: Options): unknown;
   isDestroyed(): boolean;
-  destroy(options?: unknown): this;
-  getOption<Key extends keyof Options | keyof this>(key: Key):
+  destroy<Receiver>(this: Receiver, options?: unknown): Receiver;
+  getOption<Receiver, Key extends keyof Options | keyof Receiver>(this: Receiver, key: Key):
     (Key extends keyof Options ? Options[Key] : never) |
-    (Key extends keyof this ? this[Key] : undefined);
+    (Key extends keyof Receiver ? Receiver[Key] : undefined);
   getOption(key: string): unknown;
   mergeOptions(options: object | null | undefined, keys: readonly string[]): void;
   normalizeMethods(bindings: Bindings): EventMap;
   normalizeMethods(bindings?: null | false): undefined;
-  bindEvents(source?: EventSource | null, bindings?: Bindings | null): this;
-  unbindEvents(source?: EventSource | null, bindings?: Bindings | null): this;
-  bindRequests(channel?: Channel | null, bindings?: Bindings | null): this;
-  unbindRequests(channel?: Channel | null, bindings?: Bindings | null): this;
+  bindEvents<Receiver>(this: Receiver, source?: EventSource | null, bindings?: Bindings | null): Receiver;
+  unbindEvents<Receiver>(this: Receiver, source?: EventSource | null, bindings?: Bindings | null): Receiver;
+  bindRequests<Receiver>(this: Receiver, channel?: Channel | null, bindings?: Bindings | null): Receiver;
+  unbindRequests<Receiver>(this: Receiver, channel?: Channel | null, bindings?: Bindings | null): Receiver;
   getChannel(): Channel | undefined;
 }
 
@@ -121,7 +121,7 @@ type SuppliedState<Options, Previous> = 'state' extends keyof Options
 type StateFor<Props> = SuppliedState<Props,
   Props extends { createState: (...args: never[]) => infer State } ? State : object>;
 type Instance<Props, Args extends unknown[], State> =
-  MnObject<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State> & Omit<Props, 'options'>;
+  Merge<MnObject<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State>, Omit<Props, 'options'>>;
 
 export type MnObjectConstructor<
   Props extends object = {},

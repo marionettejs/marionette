@@ -148,3 +148,20 @@ const radioReplies = worker.Radio.request('worker', { label: 'Example' });
 const reply: unknown = radioReplies.label;
 // @ts-expect-error Unspecified reply values stay unknown, not any.
 const uncheckedReply: string = radioReplies.label;
+
+worker.initialize({ label: 'Reinitialized' });
+// @ts-expect-error The initializer override replaces the optional base signature.
+worker.initialize();
+const chainedWorker: typeof worker = worker.on('completed', () => {}).off({ completed() {} }).destroy();
+const nativeWorker = new NativeWorker({ label: 'Native' });
+const chainedNative: typeof nativeWorker = nativeWorker.on({ completed() {} }).destroy();
+const nativeMember: boolean = nativeWorker.destroy().native();
+const completeOption: () => boolean = worker.getOption('complete');
+const nativeOption: () => boolean = nativeWorker.getOption('native');
+
+const CustomDestroy = MnObject.extend({ destroy(reason: string) { return reason.length; } });
+const customDestroyed: number = new CustomDestroy().destroy('finished');
+// @ts-expect-error An override does not retain the optional base destroy signature.
+new CustomDestroy().destroy();
+// @ts-expect-error An override's result does not retain the base self-return type.
+const customSelf: MnObject = new CustomDestroy().destroy('finished');
