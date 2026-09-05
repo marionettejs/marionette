@@ -1,0 +1,21 @@
+modules/application.js
+  s_060efbb5bf6218::t_bf09e660e74127 164-172,177,179
+test/unit/application-child-lifecycle.spec.js
+  s_060efbb5bf6218::t_ae16328decb1fc 558-671
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "6f075459d6eb9c8b82038bde9565e0f573383694",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
