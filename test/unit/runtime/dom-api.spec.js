@@ -434,6 +434,35 @@ describe('DomApi', function() {
       expect(el.hasAttribute('htmlfor')).to.be.false;
     });
 
+    it('sets and removes attributes whose DOM properties are read-only', function() {
+      const form = document.createElement('form');
+      const list = document.createElement('datalist');
+      const input = document.createElement('input');
+      form.id = 'attribute-form';
+      list.id = 'attribute-list';
+      document.body.append(form, list, input);
+
+      try {
+        DomApi.setAttributes(input, { form: form.id, list: list.id });
+
+        expect(input.form).to.equal(form);
+        expect(input.list).to.equal(list);
+        expect(Object.hasOwn(input, 'form')).to.be.false;
+        expect(Object.hasOwn(input, 'list')).to.be.false;
+
+        DomApi.setAttributes(input, { form: null, list: undefined });
+
+        expect(input.form).to.be.null;
+        expect(input.list).to.be.null;
+        expect(input.hasAttribute('form')).to.be.false;
+        expect(input.hasAttribute('list')).to.be.false;
+      } finally {
+        input.remove();
+        form.remove();
+        list.remove();
+      }
+    });
+
     it('snapshots keys and checks property membership before reading each value', function() {
       const trace = [];
       const attrs = new Proxy({ existing: 'property', missing: 'attribute' }, {
