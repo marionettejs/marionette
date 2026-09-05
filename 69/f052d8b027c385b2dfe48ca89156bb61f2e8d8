@@ -12,16 +12,22 @@ dist/marionette.umd.js.map
   s_060efbb5bf6218::t_eebdb1a3ffb034 1
 docs/marionette.state.md
   s_060efbb5bf6218::t_88f9f177f84f42 95-98
+  s_060efbb5bf6218::t_3245cf7aee8498 95-98
 mixins/state.js
   s_060efbb5bf6218::t_42053d1aef2896 29-46,69
+  s_060efbb5bf6218::t_344ee948dccc63 29-46,69
 test/unit/data-api-integration.spec.js
   s_060efbb5bf6218::t_30b925aa12347f 84-106
+  s_060efbb5bf6218::t_15c2d4629f9311 84-106
 test/unit/state-owner.spec.js
   s_060efbb5bf6218::t_b9f26c1d5b0226 146-225
+  s_060efbb5bf6218::t_f02a90513701d0 146-225
 test/unit/utils/subscribe-bindings.spec.js
   s_060efbb5bf6218::t_abc4697231d948 30-44
+  s_060efbb5bf6218::t_1d5c9f1afcbe4d 30-44
 utils/subscribe-bindings.js
   s_060efbb5bf6218::t_9bdf372609e66f 30-31,41,46-48
+  s_060efbb5bf6218::t_3ab3f108a683aa 30-31,41,46-48
 ---
 {
   "schema_version": "authorship/3.0.0",
