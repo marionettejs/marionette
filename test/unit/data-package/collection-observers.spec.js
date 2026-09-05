@@ -11,7 +11,7 @@ describe('@marionette/data collection observers', function() {
     collection.destroy();
   });
 
-  function mutateBeforeSecondObserver(mutate) {
+  function mutateBeforeSecondObserver(mutate, snapshots) {
     let mutated = false;
     DataApi.observeCollection(collection, () => {
       if (mutated) { return; }
@@ -19,7 +19,10 @@ describe('@marionette/data collection observers', function() {
       mutate();
     });
     const changes = [];
-    DataApi.observeCollection(collection, change => changes.push(change));
+    DataApi.observeCollection(collection, change => {
+      changes.push(change);
+      if (snapshots) { snapshots.push(DataApi.models(collection)); }
+    });
     return changes;
   }
 
@@ -107,22 +110,26 @@ describe('@marionette/data collection observers', function() {
   });
 
   it('retains membership changes when an observer also misses a reorder', function() {
-    const changes = mutateBeforeSecondObserver(() => collection.move(3, 0));
+    const snapshots = [];
+    const changes = mutateBeforeSecondObserver(() => collection.move(3, 0), snapshots);
     const third = collection.add({ id: 3 });
 
     expect(changes).to.deep.equal([{
       kind: 'update', added: [third], removed: [], updated: []
     }]);
     expect(collection.at(0)).to.equal(third);
+    expect(snapshots).to.deep.equal([[third, collection.get(1), collection.get(2)]]);
   });
 
   it('retains a nested update when an observer has not received a reorder', function() {
-    const changes = mutateBeforeSecondObserver(() => collection.add({ id: 3 }));
+    const snapshots = [];
+    const changes = mutateBeforeSecondObserver(() => collection.add({ id: 3 }), snapshots);
     collection.move(2, 0);
 
     expect(changes).to.deep.equal([{
       kind: 'update', added: [collection.get(3)], removed: [], updated: []
     }]);
+    expect(snapshots).to.deep.equal([[collection.get(2), collection.get(1), collection.get(3)]]);
   });
 
   it('retains an explicit reset when another change happens during its notification', function() {
