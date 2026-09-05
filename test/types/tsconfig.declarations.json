@@ -7,5 +7,5 @@
     "rootDir": "../..",
     "outDir": "../tmp/typed-core"
   },
-  "include": ["../../src/modules/object.ts", "../../src/utils/extend.ts"]
+  "include": ["../../src/**/*.ts"]
 }
