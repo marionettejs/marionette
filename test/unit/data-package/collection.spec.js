@@ -547,7 +547,8 @@ describe('@marionette/data Collection', function() {
   });
 
   [undefined, null, false, 0, ''].forEach(error => {
-    it(`preserves ${String(error)} thrown during unbinding and restores membership`, function() {
+    const label = error === '' ? 'an empty string' : String(error);
+    it(`preserves ${label} thrown during unbinding and restores membership`, function() {
       const model = collection.get(1);
       const off = model.off;
       model.off = () => { throw error; };
@@ -573,7 +574,7 @@ describe('@marionette/data Collection', function() {
       expect(forwarded).to.have.been.calledOnce;
     });
 
-    it(`releases model listeners when unbinding throws ${String(error)} during destruction`, function() {
+    it(`releases model listeners when unbinding throws ${label} during destruction`, function() {
       const model = collection.get(1);
       const off = model.off;
       model.off = () => { throw error; };
