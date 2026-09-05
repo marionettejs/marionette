@@ -1,0 +1,29 @@
+docs/marionette.state.md
+  s_060efbb5bf6218::t_3245cf7aee8498 95-98
+mixins/state.js
+  s_060efbb5bf6218::t_344ee948dccc63 29-46,69
+test/unit/data-api-integration.spec.js
+  s_060efbb5bf6218::t_15c2d4629f9311 84-106
+test/unit/state-owner.spec.js
+  s_060efbb5bf6218::t_f02a90513701d0 146-225
+test/unit/utils/subscribe-bindings.spec.js
+  s_060efbb5bf6218::t_1d5c9f1afcbe4d 30-44
+utils/subscribe-bindings.js
+  s_060efbb5bf6218::t_3ab3f108a683aa 30-31,41,46-48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "269d830dafc583e9426d5e83c29e14dd3faf4809",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
