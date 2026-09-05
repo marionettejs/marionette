@@ -99,20 +99,15 @@ assignOwn(Collection.prototype, Events, {
   },
 
   _unbindModel(model) {
-    let unbindError;
     try {
       model.off('all', this._onModelEvent, this);
     } catch (error) {
-      unbindError = error;
+      disposeAll([
+        () => removeModelOwner(model, this),
+        () => Events.off.call(model, 'all', this._onModelEvent, this)
+      ], error);
     }
-    if (!unbindError) {
-      removeModelOwner(model, this);
-      return;
-    }
-    disposeAll([
-      () => removeModelOwner(model, this),
-      () => Events.off.call(model, 'all', this._onModelEvent, this)
-    ], unbindError);
+    removeModelOwner(model, this);
   },
 
   _bindModels(models) {
