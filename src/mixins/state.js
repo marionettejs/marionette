@@ -1,5 +1,5 @@
 import getValue from '../utils/get-value.js';
-import disposeAll from '../utils/dispose-all.js';
+import disposeAll from '../utils/dispose-all.ts';
 import StateApi from '../runtime/state-api.js';
 import subscribeBindings from '../utils/subscribe-bindings.js';
 
