@@ -4,6 +4,7 @@ import disposeAll from '../utils/dispose-all.ts';
 import getValue from '../utils/get-value.ts';
 
 export interface BehaviorInstance {
+  _isDestroyed?: boolean;
   behaviors?: unknown;
   destroy(options?: unknown): unknown;
   _syncElement(): unknown;
@@ -59,29 +60,29 @@ function getBehaviorClass(options: BehaviorDefinition) {
   });
 }
 
-function addBehavior(view: BehaviorContainer, behaviorDefinition: BehaviorDefinition, allBehaviors: BehaviorInstance[]) {
+function addBehavior(view: BehaviorContainer, behaviorDefinition: BehaviorDefinition) {
   const { BehaviorClass, options } = getBehaviorClass(behaviorDefinition);
   const behavior = new (BehaviorClass as BehaviorConstruction)(options, view);
-  allBehaviors.push(behavior);
+  if (!behavior._isDestroyed) {
+    view._behaviors!.push(behavior);
+  }
 
-  parseBehaviors(view, getValue(behavior, 'behaviors'), allBehaviors);
+  parseBehaviors(view, getValue(behavior, 'behaviors'));
 }
 
 // Iterate over the behaviors object, for each behavior
 // instantiate it and get its grouped behaviors.
 // This accepts a list of behaviors in either an object or array form
-function parseBehaviors(view: BehaviorContainer, behaviors: unknown, allBehaviors: BehaviorInstance[]) {
+function parseBehaviors(view: BehaviorContainer, behaviors: unknown) {
   if (Array.isArray(behaviors)) {
     for (let index = 0, length = behaviors.length; index < length; index++) {
-      addBehavior(view, behaviors[index], allBehaviors);
+      addBehavior(view, behaviors[index]);
     }
   } else {
     eachOwn(behaviors, (behaviorDefinition: BehaviorDefinition) => {
-      addBehavior(view, behaviorDefinition, allBehaviors);
+      addBehavior(view, behaviorDefinition);
     });
   }
-
-  return allBehaviors;
 }
 
 function eachBehavior(behaviors: BehaviorInstance[] | undefined, iteratee: (behavior: BehaviorInstance) => unknown) {
@@ -113,7 +114,7 @@ export default {
     this._behaviors = [];
 
     try {
-      parseBehaviors(this, getValue(this, 'behaviors'), this._behaviors);
+      parseBehaviors(this, getValue(this, 'behaviors'));
     } catch (error) {
       this._rollbackBehaviors();
       throw error;

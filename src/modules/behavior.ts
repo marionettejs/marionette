@@ -160,6 +160,8 @@ const Behavior = function(this: BehaviorInternals, options: BehaviorOptions | un
     (this.initialize as Function).apply(this, arguments);
 
     this._initStateEvents();
+    if (this._isDestroyed) { return; }
+
     this._syncElement();
   } catch (error) {
     try {
