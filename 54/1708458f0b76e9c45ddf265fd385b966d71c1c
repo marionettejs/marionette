@@ -1,0 +1,31 @@
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_46fb908eaf8798 202-217
+src/create-marionette.js
+  s_060efbb5bf6218::t_c3e734098bbb2a 8
+src/modules/child-view-container.ts
+  s_060efbb5bf6218::t_e11a32d3944eb0 78
+src/modules/collection-view.ts
+  s_060efbb5bf6218::t_507a3dfe3de3f5 23-246,249,254,263-264,270-272,275-276,297,308,312-314,320,323,327,334-335,338-339,343-345,351-352,361,373,382,385,390,396,402,434,438,442,458,493,499,510,518,522,527,532,544-545,572,583,594,604,620-624,686,689,696,720,740,778-779,787,796,798,805,813,821,825-826,835,863-865,867,871,873,881,884,887,901,906,930,958,960,973,982,995-996,1000,1010,1024,1031,1043-1044,1048,1058,1076-1077,1095,1111-1112,1125,1131,1145,1149,1156,1173,1177,1213,1228,1253,1257,1261,1272,1276,1299,1308,1318,1342,1362,1374,1382,1400,1409,1425,1444,1469,1483,1493,1503,1528
+test/types/collection-view.cts
+  s_060efbb5bf6218::t_a72b8777888202 1-131
+test/types/collection-view.mts
+  s_060efbb5bf6218::t_be3cd083b4b5c5 1-131
+test/types/tsconfig.consumer.json
+  s_060efbb5bf6218::t_0870747c1333d0 40-41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "541708458f0b76e9c45ddf265fd385b966d71c1c",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
