@@ -251,7 +251,14 @@ const list = new Marionette.CollectionView({ collection, state });
 
 Unless `{ silent: true }` is passed, the package Collection reports synchronous
 normalized `update`, `reorder`, and `reset` records after each structural
-mutation. `Model.destroy()` and `Collection.destroy()` always emit their
+mutation. If an observer changes the collection again before another observer
+receives the first change, the later observer receives one combined record that
+matches the current collection. An explicit reset remains a reset when combined
+with other changes. A combined `update` can include reordering; observers read
+the current `models()` snapshot for order, just as they do for insertion
+positions in an ordinary update. No separate `reorder` record follows that update.
+
+`Model.destroy()` and `Collection.destroy()` always emit their
 `destroy` lifecycle events, including with `{ silent: true }`. Model ids cannot
 change while the Model belongs to a Collection, and
 reset or replacement rejects duplicate instances and ids before changing
