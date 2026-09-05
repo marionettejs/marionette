@@ -1,0 +1,295 @@
+.github/workflows/release.yml
+  s_060efbb5bf6218::t_f17a2904d7d850 23
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_2bfcb796901f65 42-58
+config/performance.json
+  s_060efbb5bf6218::t_9cb9bb534d734e 142
+dist/marionette.min.js.map
+  s_060efbb5bf6218::t_3f670d1b415d65 1
+dist/marionette.umd.js.map
+  s_060efbb5bf6218::t_4010a2c1c4875b 1
+eslint.config.mjs
+  s_060efbb5bf6218::t_7b70ada4537419 26
+rollup.config.mjs
+  s_060efbb5bf6218::t_d7d207ea3f3709 15,24,49
+scripts/checks/dist.mjs
+  s_060efbb5bf6218::t_45e25ee8b190a7 6,25,32,59
+scripts/diagnostics/catalog.mjs
+  s_060efbb5bf6218::t_989ad0ab9eeeae 183
+src/create-marionette.js
+  s_060efbb5bf6218::t_375d45f29a7bdb 17
+src/mixins/behaviors.js
+  s_060efbb5bf6218::t_22b3032a141e50 3
+src/mixins/ui.js
+  s_060efbb5bf6218::t_1ba545394f2be0 1
+src/mixins/view-events.js
+  s_060efbb5bf6218::t_2fe68aa055b84b 2
+src/mixins/view.js
+  s_060efbb5bf6218::t_ffd60984286826 5
+src/modules/application.js
+  s_060efbb5bf6218::t_2c0f30b6647d79 5
+src/modules/child-view-container.js
+  s_060efbb5bf6218::t_eced4cc01f557c 1
+src/modules/collection-view.js
+  s_060efbb5bf6218::t_db103b3d924362 9
+src/modules/common/bind-events.js
+  s_060efbb5bf6218::t_11e62fbcff6655 15
+src/modules/common/bind-requests.js
+  s_060efbb5bf6218::t_a5936ea6a1c1b8 15
+src/modules/common/build-region.js
+  s_060efbb5bf6218::t_5d69cf26d2f940 2
+src/modules/common/merge-options.js
+  s_060efbb5bf6218::t_679b2f3bc44c22 2
+src/modules/common/normalize-methods.js
+  s_060efbb5bf6218::t_e96ecc035b1737 1
+src/modules/error.js
+  s_060efbb5bf6218::t_44f6acd82c2a20 4
+src/modules/radio.js
+  s_060efbb5bf6218::t_ac71ceac831e31 7
+src/modules/region.js
+  s_060efbb5bf6218::t_ce35916e8ac012 5
+src/modules/view.js
+  s_060efbb5bf6218::t_9042fc347ff583 6
+src/runtime/data-api.js
+  s_060efbb5bf6218::t_b3e8f51cc58838 4
+src/runtime/event-delegator.js
+  s_060efbb5bf6218::t_e3da2180cbb30e 3
+src/runtime/state-api.js
+  s_060efbb5bf6218::t_fe105e93ddd60f 4
+src/utils/subscribe-bindings.js
+  s_060efbb5bf6218::t_91e2cfcd2f077a 3
+test/setup/vitest.js
+  s_060efbb5bf6218::t_cb467563d5cdb4 15
+test/source/validate.mjs
+  s_060efbb5bf6218::t_0362e9e8573ba2 8,37,82,84,97,101,106
+test/unit/application-child-lifecycle.spec.js
+  s_060efbb5bf6218::t_b4289ab57a6d98 3
+test/unit/application-lifecycle.spec.js
+  s_060efbb5bf6218::t_9d425135b97145 3-4
+test/unit/application-ownership.spec.js
+  s_060efbb5bf6218::t_1520bdd3d6433a 3
+test/unit/application-root-view.spec.js
+  s_060efbb5bf6218::t_44cd6b00951019 5-7
+test/unit/application-state.spec.js
+  s_060efbb5bf6218::t_df3d2a363ec14d 1
+test/unit/application.spec.js
+  s_060efbb5bf6218::t_1c9171f153f020 4-5
+test/unit/backbone-adapter.spec.js
+  s_060efbb5bf6218::t_af9a43d90d4237 2
+test/unit/backbone.marionette.spec.js
+  s_060efbb5bf6218::t_6d623598c608a8 3,7,9,11,13-18,20-22
+test/unit/behavior-communication-contract.spec.js
+  s_060efbb5bf6218::t_20ae8eb3161e67 1-2
+test/unit/behavior-composition.spec.js
+  s_060efbb5bf6218::t_f49fa76b4a7a24 1-8,293
+test/unit/behavior-dependencies-contract.spec.js
+  s_060efbb5bf6218::t_40e81313645eed 1-3
+test/unit/behavior-dom-delegation-contract.spec.js
+  s_060efbb5bf6218::t_76ac73e3ddfb17 1-3
+test/unit/behavior-lifecycle.spec.js
+  s_060efbb5bf6218::t_5dff67a75cdbd2 3-6
+test/unit/behavior-ui-contract.spec.js
+  s_060efbb5bf6218::t_dd9de9a48f706f 1-3
+test/unit/behavior.spec.js
+  s_060efbb5bf6218::t_2c40500919ddb8 2-5
+test/unit/child-view-container.spec.js
+  s_060efbb5bf6218::t_872f0da1ff0f39 2
+test/unit/collection-view/collection-view-children.spec.js
+  s_060efbb5bf6218::t_90d5b485ac1da2 6-9
+test/unit/collection-view/collection-view-childviewcontainer.spec.js
+  s_060efbb5bf6218::t_568065e447cc2f 3-4
+test/unit/collection-view/collection-view-data.spec.js
+  s_060efbb5bf6218::t_970b9494aeedd4 6-7
+test/unit/collection-view/collection-view-empty.spec.js
+  s_060efbb5bf6218::t_bba12e5652874a 5-9
+test/unit/collection-view/collection-view-filtering.spec.js
+  s_060efbb5bf6218::t_e61ce05d45e66f 5-8
+test/unit/collection-view/collection-view-lifecycle.spec.js
+  s_060efbb5bf6218::t_0df0642198114e 3-5
+test/unit/collection-view/collection-view-reconciliation.spec.js
+  s_060efbb5bf6218::t_7a5e9264a7a9fd 1-4
+test/unit/collection-view/collection-view-sorting.spec.js
+  s_060efbb5bf6218::t_a7ce471ed769d6 5-6
+test/unit/collection-view/collection-view-viewmixin.spec.js
+  s_060efbb5bf6218::t_8c2e84e8697d7e 5-6
+test/unit/collection-view/collection-view.spec.js
+  s_060efbb5bf6218::t_432eb3f335da26 6-8
+test/unit/common/bind-events.spec.js
+  s_060efbb5bf6218::t_97f2628855c570 1
+test/unit/common/bind-request.spec.js
+  s_060efbb5bf6218::t_3a96657818e326 1-2
+test/unit/common/build-region.spec.js
+  s_060efbb5bf6218::t_f814f43538d3ab 2-4
+test/unit/common/get-option.spec.js
+  s_060efbb5bf6218::t_15887c7dcac684 1
+test/unit/common/merge-options.spec.js
+  s_060efbb5bf6218::t_c8e46710131409 1-2
+test/unit/common/monitor-view-events.spec.js
+  s_060efbb5bf6218::t_e7c3f60db68390 1-2
+test/unit/common/normalize-methods.spec.js
+  s_060efbb5bf6218::t_b967aa267a6f57 3
+test/unit/common/trigger-method.spec.js
+  s_060efbb5bf6218::t_2f00bcb54e22d8 1
+test/unit/common/view.spec.js
+  s_060efbb5bf6218::t_20b83a4fa6dc6e 3
+test/unit/config/diagnostic-catalog.spec.js
+  s_060efbb5bf6218::t_9bcb4cf15256fe 226,238
+test/unit/create-marionette.spec.js
+  s_060efbb5bf6218::t_549d4f5c8858c5 1
+test/unit/data-api-integration.spec.js
+  s_060efbb5bf6218::t_24631ea0701af0 1-4
+test/unit/data-package/api-integration.spec.js
+  s_060efbb5bf6218::t_4d5c3de29f5078 1
+test/unit/destroyed-add-child-view.spec.js
+  s_060efbb5bf6218::t_c2ebba54f7b011 2-4
+test/unit/destroyed-bind-ui-elements.spec.js
+  s_060efbb5bf6218::t_7174d4deb66444 1-4
+test/unit/destroyed-set-element.spec.js
+  s_060efbb5bf6218::t_bf26bf3acd31b8 1-4
+test/unit/destroying-views.spec.js
+  s_060efbb5bf6218::t_86784c188de43e 1
+test/unit/events-iteration.spec.js
+  s_060efbb5bf6218::t_8b0cd9fa83470e 1
+test/unit/events-parity.spec.js
+  s_060efbb5bf6218::t_1ee6b80db4d28a 4
+test/unit/get-immediate-children.spec.js
+  s_060efbb5bf6218::t_15713bb32e761e 1
+test/unit/jquery-dom-api.spec.js
+  s_060efbb5bf6218::t_6f5c6f2cca1c92 8,27
+test/unit/keyed-snapshot-adapters.spec.js
+  s_060efbb5bf6218::t_c457dbb4f99e10 4
+test/unit/mixins/behaviors-composition.spec.js
+  s_060efbb5bf6218::t_6e4da652e5046f 1
+test/unit/mixins/behaviors.spec.js
+  s_060efbb5bf6218::t_bd5c0d53803d7f 5-6
+test/unit/mixins/common.spec.js
+  s_060efbb5bf6218::t_2536a9502a1cd7 2-3,155
+test/unit/mixins/delegate-entity-events.spec.js
+  s_060efbb5bf6218::t_cf13ef556df840 1-2
+test/unit/mixins/destroy.spec.js
+  s_060efbb5bf6218::t_b98fcfe4beba6b 2-4
+test/unit/mixins/events.spec.js
+  s_060efbb5bf6218::t_adda92f6dd0b5a 2
+test/unit/mixins/radio.spec.js
+  s_060efbb5bf6218::t_751fc4d2073d89 2-4
+test/unit/mixins/template-render.spec.js
+  s_060efbb5bf6218::t_809993a28b3728 4
+test/unit/mixins/ui.spec.js
+  s_060efbb5bf6218::t_3af0f1c77170fe 1-2
+test/unit/mixins/view-composition.spec.js
+  s_060efbb5bf6218::t_8dadd816fc70d1 3-11,345
+test/unit/mixins/view-events.spec.js
+  s_060efbb5bf6218::t_91c4af3f377c74 1
+test/unit/mixins/view.spec.js
+  s_060efbb5bf6218::t_022d50c7268b75 2-5
+test/unit/modules-error.spec.js
+  s_060efbb5bf6218::t_11a16112acc8ef 1-2
+test/unit/object-application-composition.spec.js
+  s_060efbb5bf6218::t_d233bcb538b3dc 1-6,136-137
+test/unit/object.spec.js
+  s_060efbb5bf6218::t_603b69639f77a7 1
+test/unit/on-attach.spec.js
+  s_060efbb5bf6218::t_12b9abb5b6d36d 2-3
+test/unit/on-dom-refresh.spec.js
+  s_060efbb5bf6218::t_d7b59416089150 4-6
+test/unit/on-dom-remove.spec.js
+  s_060efbb5bf6218::t_f1e23c33aff6ca 4-6
+test/unit/owned-cleanup.spec.js
+  s_060efbb5bf6218::t_b131184cd01392 1-5
+test/unit/performance.resources.spec.js
+  s_060efbb5bf6218::t_950e805500dd65 3-7
+test/unit/radio-composition.spec.js
+  s_060efbb5bf6218::t_f3eaec0e09de2f 1-4,115
+test/unit/radio.spec.js
+  s_060efbb5bf6218::t_8aba9d1b3d7735 1-2,267
+test/unit/region-detach-contents.spec.js
+  s_060efbb5bf6218::t_8c30b991bc990c 3
+test/unit/region-el-validation.spec.js
+  s_060efbb5bf6218::t_d298e6f8368b77 3-5
+test/unit/region-lifecycle.spec.js
+  s_060efbb5bf6218::t_5474a4b61d6dc5 3-6
+test/unit/region.spec.js
+  s_060efbb5bf6218::t_b7a7601ba26f21 4-7
+test/unit/requests.spec.js
+  s_060efbb5bf6218::t_7093d50f329fa5 1-2
+test/unit/runtime/data-api.spec.js
+  s_060efbb5bf6218::t_15eaf6e14ceb46 1-2
+test/unit/runtime/dom-api.spec.js
+  s_060efbb5bf6218::t_7e5c4e183b6303 3
+test/unit/runtime/event-delegator-jquery-compat.spec.js
+  s_060efbb5bf6218::t_c6b651c95fb9ab 3
+test/unit/runtime/event-delegator.spec.js
+  s_060efbb5bf6218::t_7d86d11d016108 4-8
+test/unit/runtime/renderer.spec.js
+  s_060efbb5bf6218::t_1e928fba14a7bd 1
+test/unit/runtime/state-api.spec.js
+  s_060efbb5bf6218::t_14cac4b4331609 1-3
+test/unit/state-owner.spec.js
+  s_060efbb5bf6218::t_7e087ef222a5f4 1-7
+test/unit/ui-binding-diagnostics.spec.js
+  s_060efbb5bf6218::t_2f08a6b4b97864 1-4
+test/unit/utils/assign-in.spec.js
+  s_060efbb5bf6218::t_96c3050dad40ce 1
+test/unit/utils/build-event-args.spec.js
+  s_060efbb5bf6218::t_53dec35a6cbc58 1
+test/unit/utils/call-handler.spec.js
+  s_060efbb5bf6218::t_7e099a05e2327f 1
+test/unit/utils/each-own.spec.js
+  s_060efbb5bf6218::t_845404f64525cc 3
+test/unit/utils/extend.spec.js
+  s_060efbb5bf6218::t_96152390616786 9
+test/unit/utils/get-value.spec.js
+  s_060efbb5bf6218::t_234ed0da521d2d 3
+test/unit/utils/is-string.spec.js
+  s_060efbb5bf6218::t_5202c73d0adb23 4
+test/unit/utils/once-wrap.spec.js
+  s_060efbb5bf6218::t_2fc988eaa60201 1
+test/unit/utils/subscribe-bindings.spec.js
+  s_060efbb5bf6218::t_3afc38c814a1f8 1
+test/unit/utils/unique-id.spec.js
+  s_060efbb5bf6218::t_e325e731bca5f3 2-8
+test/unit/view-constructor-options.spec.js
+  s_060efbb5bf6218::t_77d20948cb94e5 2-3
+test/unit/view-dom-delegation.spec.js
+  s_060efbb5bf6218::t_58aa4f101116d7 1-3
+test/unit/view-el.spec.js
+  s_060efbb5bf6218::t_280e3931a89984 3-5
+test/unit/view-get-region.spec.js
+  s_060efbb5bf6218::t_3c6faad3c2a4b7 1
+test/unit/view-get-regions.spec.js
+  s_060efbb5bf6218::t_8fa55b1044f290 1
+test/unit/view-has-region.spec.js
+  s_060efbb5bf6218::t_1c947cc557d8bc 1
+test/unit/view-lifecycle.spec.js
+  s_060efbb5bf6218::t_bc090e1f483e49 1-2
+test/unit/view-region-diagnostics.spec.js
+  s_060efbb5bf6218::t_f95f9637073fbb 1
+test/unit/view-render-attributes.spec.js
+  s_060efbb5bf6218::t_1d23ddc868fd5c 3-4
+test/unit/view.renderer.spec.js
+  s_060efbb5bf6218::t_6127322bf8ed47 3
+test/unit/view.spec.js
+  s_060efbb5bf6218::t_0279f546c32d1a 2-3
+test/unit/view.triggers.spec.js
+  s_060efbb5bf6218::t_5ac3271b3c4aaa 2
+test/unit/xstate-adapter.spec.js
+  s_060efbb5bf6218::t_d90206253ad629 2
+vitest.config.js
+  s_060efbb5bf6218::t_0b541f28edab3b 8,20,22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "fa99db0a32f99b0883712576349da24a5dad0144",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
