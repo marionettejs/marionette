@@ -16,6 +16,8 @@
     "events.mts",
     "events.cts",
     "requests.mts",
-    "requests.cts"
+    "requests.cts",
+    "bindings.mts",
+    "bindings.cts"
   ]
 }

@@ -11,15 +11,25 @@
 // configuration. Multiple handlers can be separated by a space. A
 // function can be supplied instead of a string handler name.
 
-import normalizeMethods from './normalize-methods.js';
+import normalizeMethods from './normalize-methods.ts';
 import MarionetteError from '../error.js';
+import type { EventMap, EventSource } from '../../mixins/events.ts';
+import type { Bindings } from './normalize-methods.ts';
+
+interface Listener {
+  listenTo(source: EventSource, bindings: EventMap): unknown;
+}
+
+interface ListeningOwner {
+  stopListening(source: EventSource, bindings?: EventMap): unknown;
+}
 
 const propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
 
-function normalizeBindings(context, bindings) {
+function normalizeBindings(context: unknown, bindings: unknown) {
   const bindingsType = typeof bindings;
   if (bindings === null || (bindingsType !== 'object' && bindingsType !== 'function')) {
-    throw new MarionetteError({
+    throw new (MarionetteError as unknown as new (options: object) => Error)({
       code: 'MN0009',
       message: 'Bindings must be an object.',
       url: 'common.html#bindevents'
@@ -27,17 +37,20 @@ function normalizeBindings(context, bindings) {
   }
 
   if (propertyIsEnumerable.call(bindings, '__proto__')) {
-    throw new MarionetteError({
+    throw new (MarionetteError as unknown as new (options: object) => Error)({
       code: 'MN0026',
       message: 'Entity event maps cannot include an own "__proto__" event name.',
       url: 'common.html#bindevents'
     });
   }
 
-  return normalizeMethods.call(context, bindings);
+  // The object/function check above excludes every no-map return.
+  return normalizeMethods.call(context, bindings as Bindings) as EventMap;
 }
 
-function bindEvents(entity, bindings) {
+function bindEvents<Receiver extends Listener>(
+  this: Receiver, entity?: EventSource | null | false | 0 | 0n | '', bindings?: Bindings | null | false | 0 | 0n | ''
+) {
   if (!entity || !bindings) { return this; }
 
   this.listenTo(entity, normalizeBindings(this, bindings));
@@ -45,7 +58,9 @@ function bindEvents(entity, bindings) {
   return this;
 }
 
-function unbindEvents(entity, bindings) {
+function unbindEvents<Receiver extends ListeningOwner>(
+  this: Receiver, entity?: EventSource | null | false | 0 | 0n | '', bindings?: Bindings | null | false | 0 | 0n | ''
+) {
   if (!entity) { return this; }
 
   if (!bindings) {
