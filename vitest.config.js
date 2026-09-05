@@ -17,7 +17,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
       include: [
-        'src/**/*.js',
+        'src/**/*.{js,ts}',
         'packages/adapters/src/**/*.js',
         'packages/data/src/**/*.js'
       ],

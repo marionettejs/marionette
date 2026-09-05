@@ -14,7 +14,7 @@ import UIMixin from './ui.js';
 import ViewEvents from './view-events.js';
 import DomApi from '../runtime/dom-api.js';
 import DataApi from '../runtime/data-api.js';
-import disposeAll from '../utils/dispose-all.js';
+import disposeAll from '../utils/dispose-all.ts';
 
 const classErrorName = 'ViewError';
 

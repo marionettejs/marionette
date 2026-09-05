@@ -3,6 +3,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
 import { JSDOM } from 'jsdom';
 import { rollup } from 'rollup';
+import compile from '../../build/babel.js';
 
 import BackboneApi from '../../packages/adapters/src/backbone-api.js';
 import * as Marionette from '../../src/index.js';
@@ -80,7 +81,7 @@ for (const source of ['Data.get(model, "name")', 'Data.models(collection)', 'cha
 }
 
 for (const file of readdirSync(resolve(root, 'src'), { recursive: true })) {
-  if (file.endsWith('.js')) {
+  if (/\.[jt]s$/.test(file)) {
     productionFiles.push(`src/${file}`);
   }
 }
@@ -95,7 +96,10 @@ assert.equal(adaptersPackageJson.version, packageJson.version);
 assert.equal(adaptersPackageJson.peerDependencies.marionette, packageJson.version);
 assert.deepEqual(nonDeclarativeConfigFiles, []);
 
-const regionBundle = await rollup({ input: resolve(root, 'src/modules/region.js') });
+const regionBundle = await rollup({
+  input: resolve(root, 'src/modules/region.js'),
+  plugins: [compile()],
+});
 const regionDependencies = regionBundle.watchFiles.map(file => relative(root, file));
 await regionBundle.close();
 assert.equal(

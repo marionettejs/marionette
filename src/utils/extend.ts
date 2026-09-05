@@ -3,7 +3,7 @@
 
 import assignIn, { assignOwn } from './assign-in.js';
 
-function defineOwnDataProperties(target, source) {
+function defineOwnDataProperties(target: object, source: unknown) {
   const type = typeof source;
   if (source == null || type !== 'object' && type !== 'function') { return target; }
 
@@ -13,7 +13,7 @@ function defineOwnDataProperties(target, source) {
     Object.defineProperty(target, key, {
       configurable: true,
       enumerable: true,
-      value: source[key],
+      value: (source as Record<string, unknown>)[key],
       writable: true
     });
   }
@@ -22,7 +22,11 @@ function defineOwnDataProperties(target, source) {
 }
 
 // Borrowed from backbone.js
-export default function(protoProps, staticProps) {
+export default function(
+  this: Function & { prototype: object },
+  protoProps?: object,
+  staticProps?: object
+) {
   const parent = this;
   let child;
 
@@ -32,7 +36,7 @@ export default function(protoProps, staticProps) {
   if (protoProps && Object.hasOwn(protoProps, 'constructor')) {
     child = protoProps.constructor;
   } else {
-    child = function() { return parent.apply(this, arguments); };
+    child = function(this: object) { return parent.apply(this, arguments); };
   }
 
   // Add static properties to the constructor function, if supplied.
@@ -52,7 +56,7 @@ export default function(protoProps, staticProps) {
 
   // Set a convenience property in case the parent's prototype is needed
   // later.
-  child.__super__ = parent.prototype;
+  (child as Function & { __super__: object }).__super__ = parent.prototype;
 
   return child;
 }

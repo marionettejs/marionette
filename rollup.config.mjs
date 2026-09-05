@@ -1,12 +1,7 @@
-import babel from '@rollup/plugin-babel';
+import compile from './build/babel.js';
 import json from '@rollup/plugin-json';
 import terser from '@rollup/plugin-terser';
 
-const babelOptions = {
-  babelHelpers: 'bundled',
-  shouldPrintComment: comment => comment.includes('@__PURE__') ||
-    comment.includes('@license') || comment.includes('@preserve') || comment.startsWith('!'),
-};
 export default [
   {
     input: 'build/version.js',
@@ -42,7 +37,7 @@ export default [
       },
     ],
     plugins: [
-      babel(babelOptions),
+      compile(),
     ]
   },
   {
@@ -57,7 +52,7 @@ export default [
       },
     ],
     plugins: [
-      babel(babelOptions),
+      compile(),
       terser(),
     ]
   },

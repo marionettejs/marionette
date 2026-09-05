@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import compile from '../../build/babel.js';
 import {
   Behavior,
   CollectionView,
@@ -26,7 +27,7 @@ describe('jQuery DomApi adapter', function() {
     const bundle = await bundler.rollup({
       input: 'src/index.js',
       external: ['underscore'],
-      plugins: [jqueryBlocker],
+      plugins: [jqueryBlocker, compile()],
       onwarn(warning, warn) {
         warnings.push(warning);
         warn(warning);
