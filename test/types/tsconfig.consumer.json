@@ -26,6 +26,8 @@
     "error.mts",
     "error.cts",
     "get-value.mts",
-    "get-value.cts"
+    "get-value.cts",
+    "native-methods.mts",
+    "native-methods.cts"
   ]
 }

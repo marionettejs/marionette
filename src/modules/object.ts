@@ -98,7 +98,8 @@ type SuppliedState<Options, Previous> = 'state' extends keyof Options
 type StateFor<Props> = SuppliedState<Props,
   Props extends { createState: (...args: never[]) => infer State } ? State : object>;
 type Instance<Props, Args extends unknown[], State> =
-  Merge<MnObject<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State>, Omit<Props, 'options'>>;
+  Merge<MnObject<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State>,
+    'options' extends keyof Props ? Omit<Props, 'options'> : Props>;
 
 export type MnObjectConstructor<
   Props extends object = {},
