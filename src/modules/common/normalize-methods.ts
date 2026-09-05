@@ -1,4 +1,4 @@
-import MarionetteError from '../error.js';
+import MarionetteError from '../error.ts';
 import { setProperty } from '../../utils/assign-in.js';
 import isString from '../../utils/is-string.js';
 import type { EventCallback, EventMap } from '../../mixins/events.ts';
@@ -27,7 +27,7 @@ const resolveMethod = function(context: unknown, method: unknown, name: string):
       // Preserve the stable fallback for values without string coercion.
     }
 
-    throw new (MarionetteError as unknown as new (options: object) => Error)({
+    throw new MarionetteError({
       code: 'MN0019',
       message: `The handler "${methodLabel}" for "${name}" must resolve to a function.`
     });

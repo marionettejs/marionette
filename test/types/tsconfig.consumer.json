@@ -20,6 +20,18 @@
     "bindings.mts",
     "bindings.cts",
     "options.mts",
-    "options.cts"
+    "options.cts",
+    "trigger-method.mts",
+    "trigger-method.cts",
+    "error.mts",
+    "error.cts",
+    "get-value.mts",
+    "get-value.cts",
+    "native-methods.mts",
+    "native-methods.cts",
+    "common.mts",
+    "common.cts",
+    "construction.mts",
+    "construction.cts"
   ]
 }

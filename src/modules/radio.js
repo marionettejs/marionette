@@ -4,7 +4,7 @@ import Requests from '../mixins/requests.ts';
 
 import { assignOwn, setProperty } from '../utils/assign-in.js';
 import callHandler from '../utils/call-handler.ts';
-import MarionetteError from './error.js';
+import MarionetteError from './error.ts';
 
 export function createRadio(debug = createDebug()) {
   const objectKeys = Object.keys;

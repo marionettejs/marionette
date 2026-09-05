@@ -2,15 +2,15 @@
 // ------
 
 import { assignOwn } from '../utils/assign-in.js';
-import MarionetteError from './error.js';
+import MarionetteError from './error.ts';
 import extend from '../utils/extend.ts';
-import getValue from '../utils/get-value.js';
+import getValue from '../utils/get-value.ts';
 import isString from '../utils/is-string.js';
 import uniqueId from '../utils/unique-id.ts';
 import disposeAll from '../utils/dispose-all.ts';
 import monitorViewEvents from './common/monitor-view-events.js';
 import { renderView, destroyView, isView } from './common/view.js';
-import CommonMixin from '../mixins/common.js';
+import CommonMixin from '../mixins/common.ts';
 import DomApi, { setDomApi } from '../runtime/dom-api.js';
 import { defaultRuntimeId, runtimeId } from '../runtime/runtime-id.js';
 

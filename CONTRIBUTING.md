@@ -78,30 +78,46 @@ declarations into the ignored `test/tmp/typed-core/` directory and checks ESM an
 CommonJS consumers against them. Both checks run during `npm run build` and
 `npm test`. Coverage and diagnostic discovery include TypeScript source files.
 
-The conversion covers `MnObject`, `extend`, `Events`, `Requests`, and the ID,
+The conversion covers `MnObject`, `MarionetteError`, `extend`, `Events`, `Requests`, and the ID,
 cleanup, event, option, Radio debug, and entity-binding helpers they use.
 `Events` owns its contract types;
 the compiler checks its registry and listening implementation against each
 overload. The mixin's composed receiver, schema-free callback arguments, and
-JavaScript `triggerMethod` lookup
-remain explicit typing boundaries. `Requests` owns the reply and request contracts;
-its registry, constant replies, and dispatch implementation are checked. Request
+dynamic `triggerMethod` lookup remain explicit typing boundaries. The checked
+`triggerMethod` helper requires a callable `trigger` and preserves forwarding of
+the original arguments. `Requests` owns the reply and request contracts; its
+registry, constant replies, and dispatch implementation are checked. Request
 payloads and results remain unknown without a schema, and the request-map result
 is typed at the composition boundary. Other JavaScript mixins remain unchecked,
-with their methods typed at the composition boundary. The binding helpers own
-their checked signatures; receivers require only the methods called, while
-method-reference values are validated dynamically. Their string/property reads
-and JavaScript MarionetteError construction remain local assertion boundaries.
+with their methods typed at the composition boundary.
+
+Common owns the checked constructor option setup and reuses its helper signatures.
+Its private `_setOptions` method takes the option list supplied by each constructor;
+resolved option values remain unknown. Its event methods are described at the
+fixed composition boundary after assignment.
+
+The binding helpers own their checked signatures; receivers require only the
+methods called, while method-reference values are validated dynamically.
 Normalization preserves the existing function check, which does not guarantee
 that a handler can be invoked successfully with arbitrary arguments.
 
 The option helpers own checked signatures for defined-option precedence,
 undefined fallback, and conditional copying. Broad or primitive options and
 ambiguous numeric property aliases return unknown rather than claiming fallback.
-Dynamic property reads and JavaScript MarionetteError construction remain local
-assertion boundaries. Borrowing these helpers through Function.call loses
-getOption result precision and mergeOptions' optional keys for nullish input;
-ordinary method calls retain those signatures.
+Borrowing these helpers through `Function.call` loses `getOption` result precision
+and `mergeOptions`' optional keys for nullish input; ordinary method calls retain
+those signatures. Dynamic property reads remain local assertion boundaries in
+both helper groups. The checked `getValue` helper keeps dynamic property,
+fallback, and callable results unknown; its property-key coercion remains a
+local assertion boundary.
+
+`MarionetteError` checks its fixed constructor and prototype while preserving the
+existing native Error copying and stack behavior. Copied metadata, including
+name and message, remains unknown because supplied values are retained verbatim.
+Its known constructor composition has one local assertion; this does not make
+standalone `extend` generically constructible or publish a complete error type.
+The declaration for generated `src/version.js` lets source checks run before
+Rollup creates that module from the package version.
 
 These declarations are not a complete core typing contract and are not published.
 Continue typing shared mixins at their implementations, then reuse those types
@@ -112,6 +128,19 @@ their separate TypeScript 7 compiler pins.
 Class `.extend` is exercised by these fixtures. The standalone `extend` export
 still has a conservative `Function` return type in the private declarations; its
 public constructor typing remains unfinished.
+
+Native subclasses can override root methods and methods preserved through
+additive `.extend` calls when no overlapping keys require remapping. Prototype
+`options` and overlapping merges still use mapped types that can lose TypeScript
+method declarations. Those native overrides remain incomplete in the private
+types; function-valued properties remain distinct from methods.
+
+Custom constructors retain their argument types through inherited `initialize`
+overrides, and ordinary constructors returning `this` retain instance inference.
+Authors remain responsible for calling the parent when its initialization is
+needed. Explicit replacement-object results remain unfinished in these private
+declarations; public constructor typing must model them without losing the
+ordinary receiver-returning case.
 
 The StateApi setter checks a provider against the class's declared state. It does
 not track later configuration changes or ensure that constructor-supplied state

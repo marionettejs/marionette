@@ -1,5 +1,5 @@
 import { assignOwn } from '../utils/assign-in.js';
-import getValue from '../utils/get-value.js';
+import getValue from '../utils/get-value.ts';
 
 // MixinOptions
 // - template

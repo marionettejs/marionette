@@ -1,4 +1,4 @@
-import getValue from '../utils/get-value.js';
+import getValue from '../utils/get-value.ts';
 import disposeAll from '../utils/dispose-all.ts';
 import subscribeBindings from '../utils/subscribe-bindings.js';
 

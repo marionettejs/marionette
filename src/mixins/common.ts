@@ -1,6 +1,7 @@
 import { assignOwn } from '../utils/assign-in.js';
-import getValue from '../utils/get-value.js';
+import getValue from '../utils/get-value.ts';
 import EventsMixin from './events.ts';
+import type { Events } from './events.ts';
 import getOption from '../modules/common/get-option.ts';
 import mergeOptions from '../modules/common/merge-options.ts';
 import normalizeMethods from '../modules/common/normalize-methods.ts';
@@ -13,6 +14,11 @@ import {
   unbindRequests
 } from '../modules/common/bind-requests.ts';
 
+interface OptionsTarget {
+  options?: unknown;
+  mergeOptions: (options: unknown, classOptions: readonly unknown[]) => unknown;
+}
+
 const CommonMixin = {
 
   // This is a noop method intended to be overridden
@@ -22,7 +28,7 @@ const CommonMixin = {
   // events=>function references/names to a hash of events=>function references
   normalizeMethods,
 
-  _setOptions(options, classOptions) {
+  _setOptions(this: OptionsTarget, options: unknown, classOptions: readonly unknown[]) {
     this.options = assignOwn({}, getValue(this, 'options'), options);
     this.mergeOptions(options, classOptions);
   },
@@ -48,4 +54,5 @@ const CommonMixin = {
 
 assignOwn(CommonMixin, EventsMixin);
 
-export default CommonMixin;
+// Event methods are assigned above without replacing the helper methods.
+export default CommonMixin as typeof CommonMixin & Events;

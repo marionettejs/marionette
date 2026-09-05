@@ -3,10 +3,10 @@
 
 import { assignOwn } from '../utils/assign-in.js';
 import extend from '../utils/extend.ts';
-import getValue from '../utils/get-value.js';
+import getValue from '../utils/get-value.ts';
 import isString from '../utils/is-string.js';
 import uniqueId from '../utils/unique-id.ts';
-import MarionetteError from './error.js';
+import MarionetteError from './error.ts';
 import disposeAll from '../utils/dispose-all.ts';
 import { renderView, destroyView, isViewClass } from './common/view.js';
 import monitorViewEvents from './common/monitor-view-events.js';

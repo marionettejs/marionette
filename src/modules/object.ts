@@ -4,7 +4,7 @@
 import { assignOwn } from '../utils/assign-in.js';
 import extend from '../utils/extend.ts';
 import uniqueId from '../utils/unique-id.ts';
-import CommonMixin from '../mixins/common.js';
+import CommonMixin from '../mixins/common.ts';
 import DestroyMixin from '../mixins/destroy.js';
 import RadioMixin from '../mixins/radio.js';
 import StateMixin from '../mixins/state.js';
@@ -82,7 +82,8 @@ export interface MnObject<Options extends object = object, State = object> exten
   getChannel(): Channel | undefined;
 }
 
-type Merge<Left, Right> = Omit<Left, keyof Right> & Right;
+type Merge<Left, Right> = [Extract<keyof Left, keyof Right>] extends [never]
+  ? Left & Right : Omit<Left, keyof Right> & Right;
 type ArgumentsFor<Props, Previous extends unknown[]> =
   Props extends { constructor: (...args: infer Args) => unknown } ? Args :
   Props extends { initialize: (...args: infer Args) => unknown } ? Args : Previous;
@@ -98,7 +99,8 @@ type SuppliedState<Options, Previous> = 'state' extends keyof Options
 type StateFor<Props> = SuppliedState<Props,
   Props extends { createState: (...args: never[]) => infer State } ? State : object>;
 type Instance<Props, Args extends unknown[], State> =
-  Merge<MnObject<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State>, Omit<Props, 'options'>>;
+  Merge<MnObject<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State>,
+    'options' extends keyof Props ? Omit<Props, 'options'> : Props>;
 
 export type MnObjectConstructor<
   Props extends object = {},
@@ -115,14 +117,14 @@ export type MnObjectConstructor<
   setStateApi<Constructor>(this: Constructor, api: Partial<StateApi<State>>): Constructor;
   extend<Added extends object = {}, AddedStatics extends object = {}>(
     prototypeProperties?: Added & ThisType<Instance<
-      Merge<Props, Added>, ArgumentsFor<Added, Args>, StateFor<Merge<Props, Added>>
+      Merge<Props, Added>, ArgumentsFor<Merge<Props, Added>, Args>, StateFor<Merge<Props, Added>>
     >>,
     staticProperties?: AddedStatics & ThisType<MnObjectConstructor<
-      Merge<Props, Added>, ArgumentsFor<Added, Args>, StateFor<Merge<Props, Added>>,
+      Merge<Props, Added>, ArgumentsFor<Merge<Props, Added>, Args>, StateFor<Merge<Props, Added>>,
       Merge<Statics, AddedStatics>
     >>
   ): MnObjectConstructor<
-    Merge<Props, Added>, ArgumentsFor<Added, Args>, StateFor<Merge<Props, Added>>,
+    Merge<Props, Added>, ArgumentsFor<Merge<Props, Added>, Args>, StateFor<Merge<Props, Added>>,
     Merge<Statics, AddedStatics>
   >;
 }, Statics>;
@@ -130,7 +132,9 @@ export type MnObjectConstructor<
 interface ObjectInternals {
   cid: string;
   cidPrefix: string;
-  _setOptions(options: object | undefined, names: string[]): void;
+  options?: unknown;
+  mergeOptions: typeof mergeOptions;
+  _setOptions: typeof CommonMixin._setOptions;
   _initRadio(): void;
   _initState(options: object | undefined): void;
   initialize: { apply(receiver: object, args: IArguments): unknown };

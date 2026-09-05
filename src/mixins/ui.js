@@ -1,7 +1,7 @@
-import MarionetteError from '../modules/error.js';
+import MarionetteError from '../modules/error.ts';
 import { setProperty } from '../utils/assign-in.js';
 import eachOwn from '../utils/each-own.js';
-import getValue from '../utils/get-value.js';
+import getValue from '../utils/get-value.ts';
 import isString from '../utils/is-string.js';
 // allows for the use of the @ui. syntax within
 // a given key for triggers and events

@@ -1,5 +1,5 @@
 import { setProperty } from '../../utils/assign-in.js';
-import MarionetteError from '../error.js';
+import MarionetteError from '../error.ts';
 
 const propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
 
@@ -10,7 +10,7 @@ function mergeOptions(this: unknown, options?: unknown, keys?: unknown): void {
   if (options == null) { return; }
 
   if (!Array.isArray(keys)) {
-    throw new (MarionetteError as unknown as new (options: object) => Error)({
+    throw new MarionetteError({
       code: 'MN0033',
       message: 'The mergeOptions keys argument must be an array.',
       url: 'common.html#mergeoptions'
