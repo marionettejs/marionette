@@ -1,0 +1,51 @@
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_9394420b6245e0 150-160
+src/create-marionette.js
+  s_060efbb5bf6218::t_c87218f07eeb8d 14,16
+src/mixins/state.js
+  s_060efbb5bf6218::t_2f325d8d220ba3 3
+src/mixins/view.js
+  s_060efbb5bf6218::t_acf47dd856d1b5 16
+src/modules/application.js
+  s_060efbb5bf6218::t_a163ea4b78c7d2 15
+src/modules/behavior.js
+  s_060efbb5bf6218::t_e43c1381957166 20
+src/modules/child-view-container.js
+  s_060efbb5bf6218::t_120377dc42d58f 2
+src/modules/collection-view.js
+  s_060efbb5bf6218::t_34d4ea7cf40a47 19-20
+src/modules/object.ts
+  s_060efbb5bf6218::t_7687b5a75d56ee 12-13,25,37,85
+src/modules/view.js
+  s_060efbb5bf6218::t_6bdf45cf366c85 18-19
+src/runtime/data-api.ts
+  s_060efbb5bf6218::t_bf9bc5df174694 5-33,38-41,47,51-53,56-57,60,64,68-69,80,85,89,99
+src/runtime/state-api.ts
+  s_060efbb5bf6218::t_1d91a780832228 6-14,16-19,33
+test/types/consumer.cts
+  s_060efbb5bf6218::t_c24d0fd64c784b 136,139,141
+test/types/consumer.mts
+  s_060efbb5bf6218::t_f831c0c0d3f927 136,139,141
+test/types/providers.cts
+  s_060efbb5bf6218::t_5699a80e3ec624 1-113
+test/types/providers.mts
+  s_060efbb5bf6218::t_58525f00a814c0 1-113
+test/types/tsconfig.consumer.json
+  s_060efbb5bf6218::t_aa1c080b242a9a 37-39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "40f8c18adb25eb4db8dbcb1387877853c6e0320e",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
