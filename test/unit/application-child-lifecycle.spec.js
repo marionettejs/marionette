@@ -721,14 +721,14 @@ describe('Application child lifecycle', function() {
         const previous = owner[earlier](firstOptions);
         await entered.promise;
         const current = owner[later](laterOptions);
-        const followingStop = [];
+        const operations = [previous, current];
         if (later === 'destroy') {
-          owner.stop().then(value => followingStop.push(value));
+          operations.push(owner.stop());
         }
         stopping.resolve();
-        const results = await Promise.all([previous, current]);
+        const [previousResult, currentResult, ...followingStop] = await Promise.all(operations);
         const outcome = {
-          results,
+          results: [previousResult, currentResult],
           running: [owner, first, second].map(app => app.isRunning()),
           destroyed: [owner, first, second].map(app => app.isDestroyed()),
           stopped: [...stopped],
