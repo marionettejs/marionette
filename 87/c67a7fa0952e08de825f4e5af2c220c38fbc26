@@ -1,0 +1,21 @@
+docs/performance-baselines.md
+  s_060efbb5bf6218::t_606977757ddd8a 411-416
+test/performance/contract.test.mjs
+  s_060efbb5bf6218::t_fc06b4f5b88585 202-217
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "87c67a7fa0952e08de825f4e5af2c220c38fbc26",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
