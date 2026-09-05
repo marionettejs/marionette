@@ -67,6 +67,9 @@ try {
   const suppliedTarball = readArgument('--tarball');
   const suppliedDataTarball = readArgument('--data-tarball');
   const suppliedAdaptersTarball = readArgument('--adapters-tarball');
+  if (!suppliedTarball || !suppliedDataTarball || !suppliedAdaptersTarball) {
+    runNpm(['run', 'build']);
+  }
   let tarballPath;
   if (suppliedTarball) {
     tarballPath = resolve(rootDir, suppliedTarball);
@@ -74,7 +77,7 @@ try {
       throw new Error(`Packed tarball does not exist: ${tarballPath}`);
     }
   } else {
-    runNpm(['pack', '--pack-destination', packDir]);
+    runNpm(['pack', '--ignore-scripts', '--pack-destination', packDir]);
 
     const packedTarballs = readdirSync(packDir)
       .filter(fileName => fileName.endsWith('.tgz'));
@@ -96,6 +99,7 @@ try {
     const existingTarballs = new Set(readdirSync(packDir));
     runNpm([
       'pack',
+      '--ignore-scripts',
       resolve(rootDir, 'packages/data'),
       '--pack-destination',
       packDir,
@@ -118,6 +122,7 @@ try {
     const existingTarballs = new Set(readdirSync(packDir));
     runNpm([
       'pack',
+      '--ignore-scripts',
       resolve(rootDir, 'packages/adapters'),
       '--pack-destination',
       packDir,
@@ -163,7 +168,7 @@ try {
       const tarballs = fixtureName.startsWith('data-package-') ?
         [tarballPath, dataTarballPath] : adapterFixtures.has(fixtureName) ?
           [tarballPath, adaptersTarballPath] : [tarballPath];
-      runNpm(['install', '--no-save', ...tarballs], { cwd: fixtureDir });
+      runNpm(['install', '--ignore-scripts', '--no-save', ...tarballs], { cwd: fixtureDir });
       runNpm(['run', 'validate'], { cwd: fixtureDir });
     } finally {
       if (externalFixture) {
