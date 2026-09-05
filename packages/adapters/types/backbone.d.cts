@@ -8,6 +8,12 @@ declare const BackboneApi: {
   models<TModel extends Backbone.Model>(collection: Backbone.Collection<TModel>): TModel[];
   subscribe(
     entity: Backbone.Events,
+    events: Backbone.EventMap,
+    context?: unknown,
+    explicitContext?: unknown,
+  ): () => void;
+  subscribe(
+    entity: Backbone.Events,
     eventName: string | Backbone.EventMap,
     callback?: Backbone.EventHandler,
     context?: unknown,

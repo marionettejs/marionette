@@ -73,13 +73,15 @@ and produces the distributions. Source linting uses typescript-eslint 8.69.0,
 which supports this compiler and the repository's ESLint version. Keep runtime
 construction and prototype composition unchanged when adding types.
 
-`npm run check:types` checks converted source. `npm run test:types` emits private
+`npm run check:types` checks canonical source. `npm run build:types` emits the
+published ESM and CommonJS declarations. `npm run test:types` emits private
 declarations into the ignored `test/tmp/typed-core/` directory and checks ESM and
 CommonJS consumers against them. Both checks run during `npm run build` and
 `npm test`. Coverage and diagnostic discovery include TypeScript source files.
 
-The conversion covers `MnObject`, `MarionetteError`, `extend`, `Events`, `Requests`, `Radio`, and the ID,
-cleanup, event, option, Radio debug, and entity-binding helpers they use.
+The conversion covers all six public classes, the isolated runtime factory,
+`MarionetteError`, `extend`, `Events`, `Requests`, `Radio`, and their shared mixins
+and helpers.
 `Events` owns its contract types;
 the compiler checks its registry and listening implementation against each
 overload. The mixin's composed receiver, schema-free callback arguments, and
@@ -88,8 +90,8 @@ dynamic `triggerMethod` lookup remain explicit typing boundaries. The checked
 the original arguments. `Requests` owns the reply and request contracts; its
 registry, constant replies, and dispatch implementation are checked. Request
 payloads and results remain unknown without a schema, and the request-map result
-is typed at the composition boundary. Other JavaScript mixins remain unchecked,
-with their methods typed at the composition boundary.
+is typed at the composition boundary. Dynamic prototype composition retains
+local assertions where the compiler cannot follow the runtime assignment.
 
 `Radio` owns its channel and top-level contracts. Forwarded signatures reuse the
 Events and Requests methods, retaining their current overloads and channel returns.
@@ -120,32 +122,63 @@ local assertion boundary.
 existing native Error copying and stack behavior. Copied metadata, including
 name and message, remains unknown because supplied values are retained verbatim.
 Its known constructor composition has one local assertion; this does not make
-standalone `extend` generically constructible or publish a complete error type.
+standalone `extend` generically constructible.
 The declaration for generated `src/version.js` lets source checks run before
 Rollup creates that module from the package version.
 
-These declarations are not a complete core typing contract and are not published.
-Continue typing shared mixins at their implementations, then reuse those types
-across classes. Application's asynchronous `destroy` must remain distinct from
-MnObject's synchronous return type. Optional-package consumer fixtures retain
-their separate TypeScript 7 compiler pins.
+The package root exports the public values and their type-only contracts.
+Installed-package fixtures check ESM, CommonJS and bundler resolution with strict
+library checking. Core declarations support TypeScript 6 and 7; optional-package
+fixtures also retain their existing TypeScript 4.6 entry checks. Keep shared
+contracts at their implementations and reuse them across classes. Application's
+asynchronous `destroy` remains distinct from MnObject's synchronous return type.
 
-Class `.extend` is exercised by these fixtures. The standalone `extend` export
-still has a conservative `Function` return type in the private declarations; its
-public constructor typing remains unfinished.
+Class `.extend` and standalone `extend.call` are exercised by these fixtures.
+Standalone calls reuse a known callable MnObject constructor's type parameters
+through an optional, private symbol key. No metadata property or symbol is
+created at runtime. An ambient declaration specializes the inherited
+`Function.call` signature without installing a wrapper. Arbitrary parents and
+native classes keep the conservative `Function` result; native classes do not
+satisfy the callable-parent contract even when they inherit type metadata.
+Standalone specialization for other constructor families remains separate.
 
 Native subclasses can override root methods and methods preserved through
-additive `.extend` calls when no overlapping keys require remapping. Prototype
-`options` and overlapping merges still use mapped types that can lose TypeScript
-method declarations. Those native overrides remain incomplete in the private
-types; function-valued properties remain distinct from methods.
+additive `.extend` calls. Shared visual fluent methods retain their receiver and
+method declarations even after overlapping prototype configuration. Other mixed
+`.extend`/native overrides can still encounter TypeScript's mapped method/property
+distinction, particularly with prototype `options` factories. Define those
+overrides through `.extend`, or start the native subclass from the public base.
+The types do not claim unrestricted mixing of both inheritance forms.
+
+The default `.extend` constructor forwards through `parent.apply`, so it requires
+a callable parent. A native class can be constructed directly, but its inherited
+`.extend` needs an explicit constructor to avoid that forwarding path. The
+declarations reject default forwarding from native classes and preserve the
+explicit-constructor form.
 
 Custom constructors retain their argument types through inherited `initialize`
-overrides, and ordinary constructors returning `this` retain instance inference.
-Authors remain responsible for calling the parent when its initialization is
-needed. Explicit replacement-object results remain unfinished in these private
-declarations; public constructor typing must model them without losing the
-ordinary receiver-returning case.
+overrides. Known object returns replace the constructed instance type, including
+for forwarding descendants. Ambiguous inferred or unknown returns remain unknown;
+unannotated `return this` cannot be distinguished from conditional replacement.
+A receiver-preserving constructor can declare its checked identity contract:
+
+```ts
+constructor: function<Receiver extends object>(
+  this: Receiver, options: {label: string}
+): Receiver {
+  MnObject.call(this, options);
+  return this;
+}
+```
+
+This retains added descendant methods without changing runtime construction.
+Authors remain responsible for calling the parent when initialization is needed.
+Void and primitive return signatures declare ordinary, non-replacement
+construction. TypeScript can erase a returned value through a void annotation;
+that annotation is a caller contract, not proof that the function cannot return
+an object. The rule does not recover erased return information or change native
+class/mapped-method representation. Direct call/apply result typing remains
+separate from the `new` result contract.
 
 StateApi and DataApi registration checks method shapes while keeping configured
 source inputs opaque. Narrow native, Backbone and actor adapters remain valid;
@@ -168,7 +201,34 @@ including the browser's nullable `contains` argument. Event delegation narrows
 nodes only after the existing node-type check. These boundaries add no runtime
 conversion or guard. Renderer registration preserves narrow callbacks without
 promising their template/data/receiver match; its omitted argument still clears
-the renderer. Full View/UI and template-mixin declarations remain separate.
+the renderer. Public package exports remain separate.
+
+Application owns its checked lifecycle operations, deferred results, readiness
+contexts, child ownership and root-view coordination. Readiness callbacks receive
+a concrete AbortSignal; lifecycle options and dynamic event results remain unknown.
+Its asynchronous destroy returns Promise<boolean> and replaces the synchronous
+DestroyMixin method during prototype composition. Child listings are name-keyed
+objects, lookups may be absent, and showView returns the supplied view synchronously.
+The private readiness and operation types describe existing sequencing; they add
+no cancellation guard, Promise wrapper, or mutable provider correlation.
+
+Region, View, Behavior, and their shared presentation mixins now own checked source
+contracts. Foreign child views and Behavior hosts require the lifecycle and query
+capabilities the implementation actually calls, without acquiring MnObject's
+Radio API. Behavior construction still requires its host even when an initializer
+only declares options. Region lookups, detachment, and empty additions retain their
+possible undefined results.
+
+View query and wrapper types describe an explicitly configured base class. Native
+queries expose Elements through an array-like result; applications using the jQuery
+adapter can declare a ViewConstructor with JQuery query and wrapper types. Calling
+a mutable adapter setter does not infer that contract through every existing alias.
+Presentation fixtures cover fluent chains, ordinary native lifecycle overrides
+and replacement methods. Inherited fluent signatures are removed when a method is
+replaced, so an override cannot accidentally retain the previous return type.
+The mixed-inheritance limitation described above remains a compiler boundary;
+these declarations do not change prototype assignment or lifecycle timing.
+
 
 ## Report a bug
 

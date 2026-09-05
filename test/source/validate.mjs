@@ -6,7 +6,7 @@ import { rollup } from 'rollup';
 import compile from '../../build/babel.js';
 
 import BackboneApi from '../../packages/adapters/src/backbone-api.js';
-import * as Marionette from '../../src/index.js';
+import * as Marionette from '../../src/index.ts';
 
 const dom = new JSDOM('<!doctype html>');
 globalThis.window = dom.window;
@@ -97,18 +97,18 @@ assert.equal(adaptersPackageJson.peerDependencies.marionette, packageJson.versio
 assert.deepEqual(nonDeclarativeConfigFiles, []);
 
 const regionBundle = await rollup({
-  input: resolve(root, 'src/modules/region.js'),
+  input: resolve(root, 'src/modules/region.ts'),
   plugins: [compile()],
 });
 const regionDependencies = regionBundle.watchFiles.map(file => relative(root, file));
 await regionBundle.close();
 assert.equal(
-  regionDependencies.includes('src/modules/view.js'),
+  regionDependencies.includes('src/modules/view.ts'),
   false,
   'Region must remain independent from View'
 );
 assert.equal(
-  regionDependencies.includes('src/modules/common/build-region.js'),
+  regionDependencies.includes('src/modules/common/build-region.ts'),
   false,
   'Region must remain independent from the declarative Region builder'
 );

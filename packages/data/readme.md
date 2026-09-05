@@ -43,3 +43,54 @@ instances or ids are rejected before a reset or replacement changes the ordered
 model snapshot; `add` ignores an instance or id that is already present. The
 package does not provide persistence, REST synchronization, validation, or
 implicit Backbone compatibility.
+
+## TypeScript
+
+The package includes ESM and CommonJS declarations and a TypeScript 4.6-compatible
+entry. `Model.extend` and `Collection.extend` retain added methods, descendants,
+static replacements, and their normal attribute/model constructor inference.
+Event registration accepts typed callbacks and maps; event names do not validate
+payload types. A borrowed `triggerMethod` requires a receiver with a callable
+`trigger` method.
+
+A custom constructor must initialize the receiver itself. An explicit object
+return describes a replacement instance; an unknown result stays unknown. To
+return the initialized receiver while preserving methods added by descendants,
+state that contract explicitly:
+
+```ts
+const Named = Model.extend({
+  constructor: function<Receiver extends Model>(
+    this: Receiver, attributes: { label: string }
+  ): Receiver {
+    Model.call(this, attributes);
+    return this;
+  },
+  label() { return String(this.get('label')); }
+});
+```
+
+The same form works with `Collection`. A constructor declared to return `void`
+or a primitive declares ordinary construction; the caller is responsible for
+honoring that declaration. TypeScript's `void` return erasure can hide an object
+return, so the declarations cannot prove that contract from arbitrary constructor
+implementations. An inferred fixed receiver return does not promise methods
+added by later descendants.
+
+Direct native subclasses remain supported. Calling their inherited `.extend()`
+without an explicit constructor is rejected because that path calls the parent
+with `apply`, which cannot invoke a native class. An explicit constructor skips
+that forwarding path and owns its initialization or replacement result.
+
+TypeScript 4.6 narrows `instanceof` checks for the root constructors and ordinary
+method-only extensions. Its callable-intersection limitation prevents that
+narrowing on extensions with custom statics; directly constructed instances and
+those static members remain typed.
+
+A `Collection.extend({ model: ModelClass })` configuration can convert input
+instances into that model class, and constructor `options.model` can replace the
+configuration. These configured collections conservatively expose the union of
+the configured class and the inferred input or option model. Narrow an item with
+`instanceof ModelClass` before using methods specific to that class. The instance
+`model` constructor has the same conservative result. Collections without a
+prototype `model` override retain their ordinary input and option inference.

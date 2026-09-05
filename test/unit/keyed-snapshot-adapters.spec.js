@@ -1,7 +1,7 @@
 import { configureStore, createSlice } from '@reduxjs/toolkit';
 import { createStore as createXStateStore } from '@xstate/store';
 import { createStore as createZustandStore } from 'zustand/vanilla';
-import { createMarionette } from '../../src/index.js';
+import { createMarionette } from '../../src/index.ts';
 import createReduxDataApi from '../../packages/adapters/src/redux.js';
 import createXStateStoreDataApi from '../../packages/adapters/src/xstate-store.js';
 import createZustandDataApi from '../../packages/adapters/src/zustand.js';

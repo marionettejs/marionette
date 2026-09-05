@@ -1,5 +1,5 @@
 import Backbone from 'backbone';
-import { createMarionette } from '../../src/index.js';
+import { createMarionette } from '../../src/index.ts';
 
 describe('Backbone adapter', function() {
   let BackboneApi;

@@ -1,14 +1,28 @@
-export type EventCallback = (...args: unknown[]) => unknown;
+// Event names do not encode payload types; registration accepts typed handlers.
+export type EventCallback = (...args: never[]) => unknown;
 
-export interface EventSource {
+interface Source {
+  on(name: string, callback?: (...args: unknown[]) => unknown, context?: unknown): unknown;
+  off(name?: string | null, callback?: ((...args: unknown[]) => unknown) | null, context?: unknown): unknown;
+}
+
+interface TriggerTarget {
+  trigger: EventCallback;
+}
+
+export interface EventSource extends Source {
   on(name: string | Record<string, EventCallback>, callback?: EventCallback, context?: unknown): this;
+  on(events: Record<string, EventCallback>, context?: unknown, explicitContext?: unknown): this;
   once(name: string | Record<string, EventCallback>, callback?: EventCallback, context?: unknown): this;
-  off(name?: string, callback?: EventCallback, context?: unknown): this;
+  once(events: Record<string, EventCallback>, context?: unknown, explicitContext?: unknown): this;
+  off(name?: string | null, callback?: EventCallback | null, context?: unknown): this;
+  off(events: Record<string, EventCallback>, context?: unknown, explicitContext?: unknown): this;
   trigger(name: string, ...args: unknown[]): this;
-  triggerMethod(eventName: string, ...args: unknown[]): unknown;
-  listenTo(source: EventSource, name: string | Record<string, EventCallback>, callback?: EventCallback): this;
-  listenToOnce(source: EventSource, name: string | Record<string, EventCallback>, callback?: EventCallback): this;
-  stopListening(source?: EventSource, name?: string, callback?: EventCallback): this;
+  trigger(events: Record<string, unknown>): this;
+  triggerMethod: typeof triggerMethod;
+  listenTo(source: Source | null | undefined, name: string | Record<string, EventCallback>, callback?: EventCallback): this;
+  listenToOnce(source: Source | null | undefined, name: string | Record<string, EventCallback>, callback?: EventCallback): this;
+  stopListening(source?: Source | null, name?: string | Record<string, EventCallback> | null, callback?: EventCallback | null): this;
 }
 
 export type ModelAttributes = Record<string, unknown>;
@@ -18,13 +32,103 @@ export interface MutationOptions {
   [key: string]: unknown;
 }
 
-export declare class Model<Attributes extends ModelAttributes = ModelAttributes> implements EventSource {
-  constructor(attributes?: Partial<Attributes> | null, options?: unknown);
-  static extend(
-    prototypeProperties: Record<PropertyKey, unknown>,
-    staticProperties?: Record<PropertyKey, unknown>
-  ): typeof Model;
+type Merge<Left, Right> = [Extract<keyof Left, keyof Right>] extends [never]
+  ? Left & Right : Omit<Left, keyof Right> & Right;
 
+// Unknown constructor results cannot promise an instance. An explicit generic
+// receiver return preserves descendants; void/primitive returns declare ordinary construction.
+type Returned<Result, Normal> = Result extends object ? Result : Normal;
+type Constructed<Props, Normal> = Props extends { constructor: infer Constructor }
+  ? Constructor extends (...args: never[]) => unknown
+    ? unknown extends ReturnType<Constructor> ? unknown
+      : Constructor extends <Receiver extends ThisParameterType<Constructor> & object>(
+          this: Receiver, ...args: Parameters<Constructor>
+        ) => Receiver ? Normal : Returned<ReturnType<Constructor>, Normal>
+    : Normal
+  : Normal;
+
+interface CallableParent {
+  (...args: never[]): unknown;
+  prototype: object;
+}
+
+type ModelExtend<Base extends ModelAttributes, Props extends object, Statics extends object> = {
+  extend<Added extends { constructor: (...args: never[]) => unknown }, AddedStatics extends object = {}>(
+    this: Function & { prototype: object },
+    prototypeProperties: Added & ThisType<Merge<Model<Base>, Merge<Props, Added>>>,
+    staticProperties?: AddedStatics & ThisType<ModelExtension<Base, Merge<Props, Added>, Merge<Statics, AddedStatics>>>
+  ): ModelExtension<Base, Merge<Props, Added>, Merge<Statics, AddedStatics>>;
+  extend<Added extends object = {}, AddedStatics extends object = {}>(
+    this: CallableParent,
+    prototypeProperties?: Added & ThisType<Merge<Model<Base>, Merge<Props, Added>>>,
+    staticProperties?: AddedStatics & ThisType<ModelExtension<Base, Merge<Props, Added>, Merge<Statics, AddedStatics>>>
+  ): ModelExtension<Base, Merge<Props, Added>, Merge<Statics, AddedStatics>>;
+}['extend'];
+
+type ModelConstructor<Base extends ModelAttributes, Props extends object, Statics extends object> =
+  Props extends { constructor: (...args: infer Args) => unknown }
+    ? {
+        new (...args: Args): Constructed<Props, Merge<Model<Base>, Props>>;
+        (this: ThisParameterType<Props['constructor']>, ...args: Args): ReturnType<Props['constructor']>;
+        prototype: Merge<Model<Base>, Props>;
+        extend: 'extend' extends keyof Statics ? Statics['extend'] : ModelExtend<Base, Props, Statics>;
+      }
+    : {
+        new <Attributes extends Base = Base>(attributes?: Partial<Attributes> | null, options?: unknown): Merge<Model<Attributes>, Props>;
+        (this: object, attributes?: Partial<Base> | null, options?: unknown): void;
+        prototype: Merge<Model<Base>, Props>;
+        extend: 'extend' extends keyof Statics ? Statics['extend'] : ModelExtend<Base, Props, Statics>;
+      };
+
+type ModelExtension<Base extends ModelAttributes, Props extends object, Statics extends object> =
+  [keyof Statics] extends [never] ? ModelConstructor<Base, Props, Statics>
+    : ModelConstructor<Base, Props, Statics> & Omit<Statics, 'prototype' | 'extend'>;
+
+type CollectionExtend<Base extends Model, Props extends object, Statics extends object> = {
+  extend<Added extends { constructor: (...args: never[]) => unknown }, AddedStatics extends object = {}>(
+    this: Function & { prototype: object },
+    prototypeProperties: Added & ThisType<Merge<Collection<Base>, Merge<Props, Added>>>,
+    staticProperties?: AddedStatics & ThisType<CollectionExtension<Base, Merge<Props, Added>, Merge<Statics, AddedStatics>>>
+  ): CollectionExtension<Base, Merge<Props, Added>, Merge<Statics, AddedStatics>>;
+  extend<Added extends object = {}, AddedStatics extends object = {}>(
+    this: CallableParent,
+    prototypeProperties?: Added & ThisType<Merge<Collection<Base>, Merge<Props, Added>>>,
+    staticProperties?: AddedStatics & ThisType<CollectionExtension<Base, Merge<Props, Added>, Merge<Statics, AddedStatics>>>
+  ): CollectionExtension<Base, Merge<Props, Added>, Merge<Statics, AddedStatics>>;
+}['extend'];
+
+// A configured model can replace an input instance. Constructor options may
+// replace that configuration again, so retain both possible model families.
+type ConfiguredModel<Factory> = Factory extends new (...args: never[]) => infer M
+  ? M extends Model ? M : never : never;
+type CollectionInstance<M extends Model, Props extends object> = 'model' extends keyof Props
+  ? Merge<Collection<M | ConfiguredModel<Props['model']>>, Omit<Props, 'model'>>
+  : Merge<Collection<M>, Props>;
+
+type CollectionConstructor<Base extends Model, Props extends object, Statics extends object> =
+  Props extends { constructor: (...args: infer Args) => unknown }
+    ? {
+        new (...args: Args): Constructed<Props, CollectionInstance<Base, Props>>;
+        (this: ThisParameterType<Props['constructor']>, ...args: Args): ReturnType<Props['constructor']>;
+        prototype: Merge<Collection<Base>, Props>;
+        extend: 'extend' extends keyof Statics ? Statics['extend'] : CollectionExtend<Base, Props, Statics>;
+      }
+    : {
+        new <M extends Base = Base>(
+          models?: ModelInput<M> | ReadonlyArray<ModelInput<M>> | null,
+          options?: CollectionOptions<M> | null
+        ): CollectionInstance<M, Props>;
+        (this: object, models?: ModelInput<Base> | ReadonlyArray<ModelInput<Base>> | null, options?: CollectionOptions<Base> | null): void;
+        prototype: Merge<Collection<Base>, Props>;
+        extend: 'extend' extends keyof Statics ? Statics['extend'] : CollectionExtend<Base, Props, Statics>;
+      };
+
+type CollectionExtension<Base extends Model, Props extends object, Statics extends object> =
+  [keyof Statics] extends [never] ? CollectionConstructor<Base, Props, Statics>
+    : CollectionConstructor<Base, Props, Statics> & Omit<Statics, 'prototype' | 'extend'>;
+
+export declare const Model: ModelExtension<ModelAttributes, {}, {}>;
+export interface Model<Attributes extends ModelAttributes = ModelAttributes> extends EventSource {
   attributes: Attributes;
   changed: Partial<Attributes>;
   readonly cid: string;
@@ -43,15 +147,6 @@ export declare class Model<Attributes extends ModelAttributes = ModelAttributes>
   toJSON(): Attributes;
   isDestroyed(): boolean;
   destroy(options?: unknown): this;
-
-  on(name: string | Record<string, EventCallback>, callback?: EventCallback, context?: unknown): this;
-  once(name: string | Record<string, EventCallback>, callback?: EventCallback, context?: unknown): this;
-  off(name?: string, callback?: EventCallback, context?: unknown): this;
-  trigger(name: string, ...args: unknown[]): this;
-  triggerMethod(eventName: string, ...args: unknown[]): unknown;
-  listenTo(source: EventSource, name: string | Record<string, EventCallback>, callback?: EventCallback): this;
-  listenToOnce(source: EventSource, name: string | Record<string, EventCallback>, callback?: EventCallback): this;
-  stopListening(source?: EventSource, name?: string, callback?: EventCallback): this;
 }
 
 export type ModelInput<M extends Model = Model> = M | ModelAttributes;
@@ -70,16 +165,8 @@ export type CollectionChange<M extends Model = Model> =
       updated: Array<{ previous: M; current: M }>;
     };
 
-export declare class Collection<M extends Model = Model> implements EventSource, Iterable<M> {
-  constructor(
-    models?: ModelInput<M> | ReadonlyArray<ModelInput<M>> | null,
-    options?: CollectionOptions<M> | null
-  );
-  static extend(
-    prototypeProperties: Record<PropertyKey, unknown>,
-    staticProperties?: Record<PropertyKey, unknown>
-  ): typeof Collection;
-
+export declare const Collection: CollectionExtension<Model, {}, {}>;
+export interface Collection<M extends Model = Model> extends EventSource, Iterable<M> {
   readonly models: M[];
   readonly length: number;
   model: new (attributes?: ModelAttributes, options?: unknown) => M;
@@ -107,15 +194,6 @@ export declare class Collection<M extends Model = Model> implements EventSource,
   isDestroyed(): boolean;
   destroy(options?: unknown): this;
   [Symbol.iterator](): IterableIterator<M>;
-
-  on(name: string | Record<string, EventCallback>, callback?: EventCallback, context?: unknown): this;
-  once(name: string | Record<string, EventCallback>, callback?: EventCallback, context?: unknown): this;
-  off(name?: string, callback?: EventCallback, context?: unknown): this;
-  trigger(name: string, ...args: unknown[]): this;
-  triggerMethod(eventName: string, ...args: unknown[]): unknown;
-  listenTo(source: EventSource, name: string | Record<string, EventCallback>, callback?: EventCallback): this;
-  listenToOnce(source: EventSource, name: string | Record<string, EventCallback>, callback?: EventCallback): this;
-  stopListening(source?: EventSource, name?: string, callback?: EventCallback): this;
 }
 
 export declare const DataApi: {
@@ -125,7 +203,7 @@ export declare const DataApi: {
   serialize(model: unknown): unknown;
   models<M extends Model>(collection: Collection<M>): M[];
   subscribe(
-    source: EventSource,
+    source: Source,
     eventName: string,
     callback: EventCallback,
     context?: unknown
@@ -139,7 +217,7 @@ export declare const DataApi: {
 
 export declare const StateApi: {
   subscribe(
-    source: EventSource,
+    source: Source,
     eventName: string,
     callback: EventCallback,
     context?: unknown
@@ -147,4 +225,4 @@ export declare const StateApi: {
   disposeOwned(source: { destroy?: () => unknown } | null | undefined): void;
 };
 
-export declare function triggerMethod(this: unknown, eventName: string, ...args: unknown[]): unknown;
+export declare function triggerMethod(this: TriggerTarget, eventName: string, ...args: unknown[]): unknown;

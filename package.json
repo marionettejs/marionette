@@ -11,10 +11,17 @@
   "browser": "dist/marionette.umd.js",
   "main": "dist/marionette.cjs",
   "module": "dist/marionette.js",
+  "types": "dist/types/esm/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/marionette.js",
-      "require": "./dist/marionette.cjs",
+      "import": {
+        "types": "./dist/types/esm/index.d.ts",
+        "default": "./dist/marionette.js"
+      },
+      "require": {
+        "types": "./dist/types/cjs/index.d.ts",
+        "default": "./dist/marionette.cjs"
+      },
       "default": "./dist/marionette.js"
     },
     "./package.json": "./package.json"
@@ -44,7 +51,7 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "npm run check:types && node build/clean.js && rollup -c rollup.config.mjs --noConflict && npm run build:data && npm run build:adapters && npm run test:types",
+    "build": "npm run check:types && node build/clean.js && rollup -c rollup.config.mjs --noConflict && npm run build:data && npm run build:adapters && npm run build:types && npm run test:types",
     "build:adapters": "npm --prefix packages/adapters run build",
     "build:data": "npm --prefix packages/data run build",
     "check:browser-profile": "node scripts/checks/browser-profile.mjs",
@@ -78,7 +85,8 @@
     "prepare": "npm run build && npm run test:dist",
     "check:types": "tsc -p tsconfig.json",
     "pretest": "npm run check:types && npm run test:types",
-    "test:types": "node test/types/run.mjs"
+    "test:types": "node test/types/run.mjs",
+    "build:types": "node build/declarations.mjs"
   },
   "bugs": {
     "url": "https://github.com/marionettejs/marionette/issues"

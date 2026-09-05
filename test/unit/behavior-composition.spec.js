@@ -290,7 +290,7 @@ describe('Behavior composition', function() {
         });
         commonProtoMutated = true;
 
-        ({ default: IsolatedBehaviorClass } = await import('../../src/modules/behavior.js?composition-test'));
+        ({ default: IsolatedBehaviorClass } = await import('../../src/modules/behavior.ts?composition-test'));
       } catch (error) {
         primaryFailed = true;
         primaryError = error;

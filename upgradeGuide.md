@@ -4,6 +4,26 @@ See the [v4-to-v5 compatibility ledger](docs/migration-from-v4.md) for the
 current public behavior boundary. Final migration documentation is tracked in
 [issue #147](https://github.com/marionettejs/marionette/issues/147).
 
+## Use the included TypeScript declarations
+
+The `marionette` package includes declarations for its public exports in ESM and
+CommonJS. Core declarations support TypeScript 6 and 7 with NodeNext or bundler
+resolution. Import instance and configuration types from `marionette`; a separate
+core type package is not needed. Optional packages keep their own declarations
+and compiler support.
+
+Both `.extend()` and direct native subclasses remain available. A native class's
+inherited `.extend()` needs an explicit constructor: default forwarding uses
+`parent.apply`, which cannot call a native class. Some native overrides after
+`.extend()` configuration, especially prototype `options` factories, encounter
+TypeScript's distinction between methods and properties. Define those overrides
+with `.extend()`, or start the native subclass from the public base.
+
+Custom constructors can replace the instance. Their declared object return is
+the constructed type; an unknown return stays unknown. See the
+[constructor typing guidance](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#typescript-source) for preserving
+the receiver through further extensions and the limits of return annotations.
+
 ## Construct Views before showing them
 
 `Region#show` and `View#showChildView` require a View-like instance in v5. They no

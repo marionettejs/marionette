@@ -139,7 +139,7 @@
   "productionGraphs": [
     {
       "subpath": ".",
-      "input": "src/index.js",
+      "input": "src/index.ts",
       "output": "dist/marionette.js",
       "baselineModules": [
         "config/dom.js",
