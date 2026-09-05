@@ -2,7 +2,7 @@
 //  ---------
 
 import { assignOwn } from '../utils/assign-in.js';
-import MarionetteError from '../modules/error.js';
+import MarionetteError from '../modules/error.ts';
 import getValue from '../utils/get-value.js';
 import isString from '../utils/is-string.js';
 import BehaviorsMixin from './behaviors.js';

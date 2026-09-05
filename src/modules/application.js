@@ -2,7 +2,7 @@
 // -----------
 
 import { assignOwn, setProperty } from '../utils/assign-in.js';
-import MarionetteError from './error.js';
+import MarionetteError from './error.ts';
 import extend from '../utils/extend.ts';
 import uniqueId from '../utils/unique-id.ts';
 import CommonMixin from '../mixins/common.js';

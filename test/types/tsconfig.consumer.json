@@ -22,6 +22,8 @@
     "options.mts",
     "options.cts",
     "trigger-method.mts",
-    "trigger-method.cts"
+    "trigger-method.cts",
+    "error.mts",
+    "error.cts"
   ]
 }

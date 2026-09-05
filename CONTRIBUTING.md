@@ -78,7 +78,7 @@ declarations into the ignored `test/tmp/typed-core/` directory and checks ESM an
 CommonJS consumers against them. Both checks run during `npm run build` and
 `npm test`. Coverage and diagnostic discovery include TypeScript source files.
 
-The conversion covers `MnObject`, `extend`, `Events`, `Requests`, and the ID,
+The conversion covers `MnObject`, `MarionetteError`, `extend`, `Events`, `Requests`, and the ID,
 cleanup, event, option, Radio debug, and entity-binding helpers they use.
 `Events` owns its contract types;
 the compiler checks its registry and listening implementation against each
@@ -99,10 +99,18 @@ that a handler can be invoked successfully with arbitrary arguments.
 The option helpers own checked signatures for defined-option precedence,
 undefined fallback, and conditional copying. Broad or primitive options and
 ambiguous numeric property aliases return unknown rather than claiming fallback.
-Dynamic property reads and JavaScript MarionetteError construction remain local
-assertion boundaries. Borrowing these helpers through Function.call loses
-getOption result precision and mergeOptions' optional keys for nullish input;
-ordinary method calls retain those signatures.
+Borrowing these helpers through `Function.call` loses `getOption` result precision
+and `mergeOptions`' optional keys for nullish input; ordinary method calls retain
+those signatures. Dynamic property reads remain local assertion boundaries in
+both helper groups.
+
+`MarionetteError` checks its fixed constructor and prototype while preserving the
+existing native Error copying and stack behavior. Copied metadata, including
+name and message, remains unknown because supplied values are retained verbatim.
+Its known constructor composition has one local assertion; this does not make
+standalone `extend` generically constructible or publish a complete error type.
+The declaration for generated `src/version.js` lets source checks run before
+Rollup creates that module from the package version.
 
 These declarations are not a complete core typing contract and are not published.
 Continue typing shared mixins at their implementations, then reuse those types

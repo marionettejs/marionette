@@ -1,5 +1,5 @@
 import { assignOwn } from '../../utils/assign-in.js';
-import MarionetteError from '../error.js';
+import MarionetteError from '../error.ts';
 import isString from '../../utils/is-string.js';
 import { defaultRuntimeId, runtimeId } from '../../runtime/runtime-id.js';
 import Region from '../region.js';

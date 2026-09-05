@@ -1,6 +1,6 @@
 import { assignOwn } from '../utils/assign-in.js';
 import eachOwn from '../utils/each-own.js';
-import MarionetteError from '../modules/error.js';
+import MarionetteError from '../modules/error.ts';
 import disposeAll from '../utils/dispose-all.ts';
 import getValue from '../utils/get-value.js';
 

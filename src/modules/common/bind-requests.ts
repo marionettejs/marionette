@@ -12,7 +12,7 @@
 // configuration. A function can be supplied instead of a string handler name.
 
 import normalizeMethods from './normalize-methods.ts';
-import MarionetteError from '../error.js';
+import MarionetteError from '../error.ts';
 import type { EventMap } from '../../mixins/events.ts';
 import type { Bindings } from './normalize-methods.ts';
 
@@ -27,7 +27,7 @@ interface ReplyOwner {
 function normalizeBindings(context: unknown, bindings: unknown) {
   const bindingsType = typeof bindings;
   if (bindings === null || (bindingsType !== 'object' && bindingsType !== 'function')) {
-    throw new (MarionetteError as unknown as new (options: object) => Error)({
+    throw new MarionetteError({
       code: 'MN0010',
       message: 'Bindings must be an object.',
       url: 'common.html#bindrequests'
