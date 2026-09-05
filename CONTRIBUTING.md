@@ -80,8 +80,9 @@ CommonJS consumers against them. Both checks run during `npm run build` and
 
 The conversion covers `MnObject`, `extend`, `Events`, `Requests`, and the ID,
 cleanup, event, and Radio debug helpers they use. `Events` owns its contract types;
-the compiler checks its registry and listening implementation against each overload. The mixin's composed
-receiver, schema-free callback arguments, and JavaScript `triggerMethod` lookup
+the compiler checks its registry and listening implementation against each
+overload. The mixin's composed receiver, schema-free callback arguments, and
+JavaScript `triggerMethod` lookup
 remain explicit typing boundaries. `Requests` owns the reply and request contracts;
 its registry, constant replies, and dispatch implementation are checked. Request
 payloads and results remain unknown without a schema, and the request-map result

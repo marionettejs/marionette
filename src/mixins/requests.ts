@@ -194,8 +194,10 @@ export default {
         Object.hasOwn(requests, 'default') ? requests.default : undefined;
 
       if (handler) {
-        args = hasRequest ? args : arguments as unknown as unknown[];
-        return callHandler(handler.callback, handler.context, args);
+        if (hasRequest) {
+          return callHandler(handler.callback, handler.context, args);
+        }
+        return callHandler(handler.callback, handler.context, arguments);
       }
     }
 
