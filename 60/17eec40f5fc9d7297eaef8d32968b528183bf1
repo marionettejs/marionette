@@ -1,0 +1,23 @@
+src/mixins/events.js
+  s_060efbb5bf6218::t_29c6b36fbe8b91 21-22,144,150
+src/modules/radio.js
+  s_060efbb5bf6218::t_fb20867bcabe82 15,30,38,133
+src/utils/once-wrap.js
+  s_060efbb5bf6218::t_a676bd4469c43f 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "6017eec40f5fc9d7297eaef8d32968b528183bf1",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
