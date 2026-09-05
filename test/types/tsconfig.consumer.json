@@ -12,6 +12,8 @@
     "consumer.mts",
     "consumer.cts",
     "helpers.mts",
-    "helpers.cts"
+    "helpers.cts",
+    "events.mts",
+    "events.cts"
   ]
 }

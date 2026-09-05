@@ -1,9 +1,9 @@
 import { createDebug, debugLog, setDebug, log } from './common/radio.js';
-import Events from '../mixins/events.js';
+import Events from '../mixins/events.ts';
 import Requests from '../mixins/requests.js';
 
 import { assignOwn, setProperty } from '../utils/assign-in.js';
-import callHandler from '../utils/call-handler.js';
+import callHandler from '../utils/call-handler.ts';
 import MarionetteError from './error.js';
 
 export function createRadio(debug = createDebug()) {

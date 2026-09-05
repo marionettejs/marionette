@@ -10,30 +10,9 @@ import RadioMixin from '../mixins/radio.js';
 import StateMixin from '../mixins/state.js';
 import disposeAll from '../utils/dispose-all.ts';
 import { setStateApi } from '../runtime/state-api.js';
+import type { EventCallback, EventMap, EventSource, Events } from '../mixins/events.ts';
 
-export type EventCallback = (...args: never[]) => unknown;
-export type EventMap = Record<string, EventCallback>;
 export type Bindings = Record<string, string | EventCallback>;
-
-export interface EventSource {
-  on(name: string, callback?: EventCallback, context?: unknown): unknown;
-  off(name?: string | null, callback?: EventCallback | null, context?: unknown): unknown;
-}
-
-export interface Events extends EventSource {
-  on<Receiver>(this: Receiver, name: string, callback?: EventCallback, context?: unknown): Receiver;
-  on<Receiver>(this: Receiver, events: EventMap, context?: unknown): Receiver;
-  once<Receiver>(this: Receiver, name: string, callback?: EventCallback, context?: unknown): Receiver;
-  once<Receiver>(this: Receiver, events: EventMap, context?: unknown): Receiver;
-  off<Receiver>(this: Receiver, name?: string | null, callback?: EventCallback | null, context?: unknown): Receiver;
-  off<Receiver>(this: Receiver, events: EventMap, context?: unknown): Receiver;
-  listenTo<Receiver>(this: Receiver, source: EventSource, name: string | EventMap, callback?: EventCallback): Receiver;
-  listenToOnce<Receiver>(this: Receiver, source: EventSource, name: string | EventMap, callback?: EventCallback): Receiver;
-  stopListening<Receiver>(this: Receiver, source?: EventSource | null, name?: string | EventMap | null, callback?: EventCallback | null): Receiver;
-  trigger<Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver;
-  trigger<Receiver>(this: Receiver, events: Record<string, unknown>): Receiver;
-  triggerMethod(name: string, ...args: unknown[]): unknown;
-}
 
 export interface Channel extends Events {
   channelName: string;

@@ -1,6 +1,6 @@
 import { assignOwn } from '../utils/assign-in.js';
 import getValue from '../utils/get-value.js';
-import EventsMixin from './events.js';
+import EventsMixin from './events.ts';
 import getOption from '../modules/common/get-option.js';
 import mergeOptions from '../modules/common/merge-options.js';
 import normalizeMethods from '../modules/common/normalize-methods.js';
