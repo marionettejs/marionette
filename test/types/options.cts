@@ -112,3 +112,20 @@ const assumedNumberMethod: () => number = zeroOptions.getOption('valueOf');
 const zeroBigIntOptions = { getOption, options: 0n as const, valueOf() { return {}; } };
 // @ts-expect-error Falsy primitive options skip their inherited methods.
 const assumedBigIntMethod: () => bigint = zeroBigIntOptions.getOption('valueOf');
+
+// Nullish option containers do not make undeclared inherited names known keys.
+const absentOptions = { getOption, label: 1 };
+const undefinedOptions = { getOption, options: undefined, label: 1 };
+const nullOptions = { getOption, options: null, label: 1 };
+const absentFallback: number = absentOptions.getOption('label');
+const undefinedFallback: number = undefinedOptions.getOption('label');
+const nullFallback: number = nullOptions.getOption('label');
+const absentInherited: unknown = absentOptions.getOption('toString');
+const undefinedInherited: unknown = undefinedOptions.getOption('toString');
+const nullInherited: unknown = nullOptions.getOption('toString');
+// @ts-expect-error Undeclared inherited properties are not guaranteed absent.
+const absentInheritedUndefined: undefined = absentOptions.getOption('toString');
+// @ts-expect-error Undefined options do not prove an inherited property absent.
+const undefinedInheritedUndefined: undefined = undefinedOptions.getOption('toString');
+// @ts-expect-error Null options do not prove an inherited property absent.
+const nullInheritedUndefined: undefined = nullOptions.getOption('toString');

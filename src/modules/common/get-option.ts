@@ -6,8 +6,9 @@ type Read<Source, Key extends PropertyKey> = unknown extends Source ? unknown :
         symbol extends keyof Source ? undefined : never) :
       number extends keyof Source ? unknown : Key extends number | `${number}` ? unknown : undefined
     : unknown;
+type Keys<Source> = Source extends object ? keyof Source : never;
 type GetOptionResult<Receiver, Name> = Name extends '' | 0 | 0n | false | null | undefined ? undefined :
-  Name extends PropertyKey ? Name extends keyof Receiver | keyof NonNullable<Read<Receiver, 'options'>>
+  Name extends PropertyKey ? Name extends keyof Receiver | Keys<Read<Receiver, 'options'>>
     ? Exclude<Read<Read<Receiver, 'options'>, Name>, undefined> |
       (undefined extends Read<Read<Receiver, 'options'>, Name> ? Read<Receiver, Name> : never)
     : unknown : never;
