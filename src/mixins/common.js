@@ -3,15 +3,15 @@ import getValue from '../utils/get-value.js';
 import EventsMixin from './events.ts';
 import getOption from '../modules/common/get-option.js';
 import mergeOptions from '../modules/common/merge-options.js';
-import normalizeMethods from '../modules/common/normalize-methods.js';
+import normalizeMethods from '../modules/common/normalize-methods.ts';
 import {
   bindEvents,
   unbindEvents
-} from '../modules/common/bind-events.js';
+} from '../modules/common/bind-events.ts';
 import {
   bindRequests,
   unbindRequests
-} from '../modules/common/bind-requests.js';
+} from '../modules/common/bind-requests.ts';
 
 const CommonMixin = {
 

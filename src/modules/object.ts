@@ -12,8 +12,12 @@ import disposeAll from '../utils/dispose-all.ts';
 import { setStateApi } from '../runtime/state-api.js';
 import type { Requests } from '../mixins/requests.ts';
 import type { EventCallback, EventMap, EventSource, Events } from '../mixins/events.ts';
+import type { Bindings } from './common/normalize-methods.ts';
+import type normalizeMethods from './common/normalize-methods.ts';
+import type { bindEvents, unbindEvents } from './common/bind-events.ts';
+import type { bindRequests, unbindRequests } from './common/bind-requests.ts';
 
-export type Bindings = Record<string, string | EventCallback>;
+export type { Bindings } from './common/normalize-methods.ts';
 
 export interface Channel extends Events, Requests {
   channelName: string;
@@ -71,12 +75,11 @@ export interface MnObject<Options extends object = object, State = object> exten
     (Key extends keyof Receiver ? Receiver[Key] : undefined);
   getOption(key: string): unknown;
   mergeOptions(options: object | null | undefined, keys: readonly string[]): void;
-  normalizeMethods(bindings: Bindings): EventMap;
-  normalizeMethods(bindings?: null | false): undefined;
-  bindEvents<Receiver>(this: Receiver, source?: EventSource | null, bindings?: Bindings | null): Receiver;
-  unbindEvents<Receiver>(this: Receiver, source?: EventSource | null, bindings?: Bindings | null): Receiver;
-  bindRequests<Receiver>(this: Receiver, channel?: Channel | null, bindings?: Bindings | null): Receiver;
-  unbindRequests<Receiver>(this: Receiver, channel?: Channel | null, bindings?: Bindings | null): Receiver;
+  normalizeMethods: typeof normalizeMethods;
+  bindEvents: typeof bindEvents;
+  unbindEvents: typeof unbindEvents;
+  bindRequests: typeof bindRequests;
+  unbindRequests: typeof unbindRequests;
   getChannel(): Channel | undefined;
 }
 
