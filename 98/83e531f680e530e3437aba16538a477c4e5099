@@ -1,0 +1,45 @@
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_6d1b5d2a07e5cd 162-172
+src/create-marionette.js
+  s_060efbb5bf6218::t_6ee20fa85a38b1 13,15
+src/mixins/view-events.js
+  s_060efbb5bf6218::t_e28c8622555694 1
+src/mixins/view.js
+  s_060efbb5bf6218::t_3936e0d9f0e819 15
+src/modules/behavior.js
+  s_060efbb5bf6218::t_3c7033abb020b4 18
+src/modules/collection-view.js
+  s_060efbb5bf6218::t_866821f603d1da 16-18
+src/modules/region.js
+  s_060efbb5bf6218::t_0943b8e5c532ee 14
+src/modules/view.js
+  s_060efbb5bf6218::t_063bf4439104fd 15-17
+src/runtime/dom-api.ts
+  s_060efbb5bf6218::t_ec6bc72385690b 5-28,32-39,46,56,62,67-68,72,77,92,112,117,127,132,149,153,160,165,175,181,184
+src/runtime/event-delegator.ts
+  s_060efbb5bf6218::t_1d2c9f161bf8d2 5-30,32-37,58,64,66-67,77,84
+src/runtime/renderer.ts
+  s_060efbb5bf6218::t_26a0969149bcaf 1-7,9-14
+test/types/dom.cts
+  s_060efbb5bf6218::t_4b08ec41f8e1bf 1-107
+test/types/dom.mts
+  s_060efbb5bf6218::t_18e29c259499b0 1-107
+test/types/tsconfig.consumer.json
+  s_060efbb5bf6218::t_d5d5e974fa9f0f 39-41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "9883e531f680e530e3437aba16538a477c4e5099",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
