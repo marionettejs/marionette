@@ -1,4 +1,4 @@
-import EventDelegator from '../runtime/event-delegator.js';
+import EventDelegator from '../runtime/event-delegator.ts';
 import MarionetteError from '../modules/error.ts';
 import disposeAll from '../utils/dispose-all.ts';
 import { resolveMethod } from '../modules/common/normalize-methods.ts';

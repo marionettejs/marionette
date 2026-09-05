@@ -36,6 +36,8 @@
     "radio.mts",
     "radio.cts",
     "providers.mts",
-    "providers.cts"
+    "providers.cts",
+    "dom.mts",
+    "dom.cts"
   ]
 }

@@ -2,8 +2,39 @@
 //  ---------
 import MarionetteError from '../modules/error.ts';
 
+export interface DelegatedEvent extends Event {
+  delegateTarget?: Element;
+}
+
+export interface DelegateOptions {
+  eventName: string;
+  selector: string;
+  handler: (...args: unknown[]) => unknown;
+  rootEl: Element;
+}
+
+export interface EventDelegator {
+  delegate: (options: DelegateOptions) => () => void;
+}
+
+interface NativeDelegateOptions {
+  eventName: string;
+  selector?: string | null;
+  handler: (this: void, event: DelegatedEvent) => unknown;
+  rootEl: Element;
+}
+
+interface DelegatorClass {
+  prototype: object;
+}
+
 // Static setter
-export function setEventDelegator(delegator) {
+export function setEventDelegator<Receiver extends DelegatorClass, Adapter extends EventDelegator>(
+  this: Receiver, delegator: Adapter
+): Receiver;
+export function setEventDelegator<Receiver extends DelegatorClass>(
+  this: Receiver, delegator: EventDelegator | null | undefined
+): Receiver {
   if (!delegator || typeof delegator.delegate !== 'function') {
     throw new MarionetteError({
       code: 'MN0036',
@@ -24,16 +55,16 @@ export function setEventDelegator(delegator) {
 
 export default {
   // Delegate a matching event from the root element.
-  delegate({ eventName, selector, handler, rootEl }) {
+  delegate({ eventName, selector, handler, rootEl }: NativeDelegateOptions) {
     const capture = eventName === 'focus' || eventName === 'blur';
     let eventHandler = handler;
 
     if (selector) {
       eventHandler = function(evt) {
-        let node = evt.target;
+        let node = evt.target as Node | null;
         for (; node && node !== rootEl; node = node.parentNode) {
-          if (node.nodeType === 1 && node.matches(selector)) {
-            evt.delegateTarget = node;
+          if (node.nodeType === 1 && (node as Element).matches(selector)) {
+            evt.delegateTarget = node as Element;
             handler(evt);
             break;
           }
@@ -43,11 +74,11 @@ export default {
 
     rootEl.addEventListener(eventName, eventHandler, capture);
 
-    let isRemoved;
+    let isRemoved: boolean | undefined;
     return () => {
       if (isRemoved) { return; }
       isRemoved = true;
       rootEl.removeEventListener(eventName, eventHandler, capture);
     };
   }
-};
+} satisfies EventDelegator;

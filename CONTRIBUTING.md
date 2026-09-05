@@ -159,6 +159,17 @@ declarations and must be reconciled when public root declarations are packaged.
 This private slice does not add a second protocol definition or change the
 optional packages' supported TypeScript versions.
 
+The checked DOM contracts keep native exports concrete and configured queries
+array-like. `DomApi<Query, Wrapped, Content>` can express an explicit application
+adapter contract; mutable setters do not establish that contract for existing
+aliases. Partial overlays can remove capabilities with undefined. Native DOM
+attribute assertions describe property lookup and browser string coercion,
+including the browser's nullable `contains` argument. Event delegation narrows
+nodes only after the existing node-type check. These boundaries add no runtime
+conversion or guard. Renderer registration preserves narrow callbacks without
+promising their template/data/receiver match; its omitted argument still clears
+the renderer. Full View/UI and template-mixin declarations remain separate.
+
 ## Report a bug
 
 Use the [bug report form](https://github.com/marionettejs/marionette/issues/new/choose)
