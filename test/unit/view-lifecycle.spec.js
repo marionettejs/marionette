@@ -1,5 +1,5 @@
-import Region from '../../modules/region';
-import View from '../../modules/view';
+import Region from '../../src/modules/region';
+import View from '../../src/modules/view';
 
 function state(view) {
   return {

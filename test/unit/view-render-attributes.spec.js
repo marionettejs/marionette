@@ -1,7 +1,7 @@
 import { JSDOM } from 'jsdom';
 
-import CollectionView from '../../modules/collection-view';
-import View from '../../modules/view';
+import CollectionView from '../../src/modules/collection-view';
+import View from '../../src/modules/view';
 
 describe('View#renderAttributes', function() {
   let document;

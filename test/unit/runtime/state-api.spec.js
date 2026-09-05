@@ -1,6 +1,6 @@
-import StateApi from '../../../runtime/state-api';
-import MnObject from '../../../modules/object';
-import MarionetteError from '../../../utils/error';
+import StateApi from '../../../src/runtime/state-api';
+import MnObject from '../../../src/modules/object';
+import MarionetteError from '../../../src/modules/error';
 
 describe('StateApi', function() {
   it('diagnoses observation with the non-observable plain-object default', function() {

@@ -1,6 +1,6 @@
 import _ from 'underscore';
 
-import eachOwn from '../../../utils/each-own';
+import eachOwn from '../../../src/utils/each-own';
 
 function execute(implementation, createScenario) {
   const { object, trace } = createScenario();

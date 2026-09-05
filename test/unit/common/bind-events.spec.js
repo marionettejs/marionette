@@ -1,4 +1,4 @@
-import { bindEvents, unbindEvents } from '../../../modules/common/bind-events';
+import { bindEvents, unbindEvents } from '../../../src/modules/common/bind-events';
 
 function createProtoBindings(descriptor) {
   const bindings = {};

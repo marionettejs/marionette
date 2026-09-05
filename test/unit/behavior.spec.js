@@ -1,8 +1,8 @@
 import _ from 'underscore';
-import Behavior from '../../modules/behavior';
-import Region from '../../modules/region';
-import View from '../../modules/view';
-import CollectionView from '../../modules/collection-view';
+import Behavior from '../../src/modules/behavior';
+import Region from '../../src/modules/region';
+import View from '../../src/modules/view';
+import CollectionView from '../../src/modules/collection-view';
 
 describe('Behavior', function() {
   describe('when instantiating a behavior with some options', function() {

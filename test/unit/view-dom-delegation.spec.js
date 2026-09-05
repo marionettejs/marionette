@@ -1,6 +1,6 @@
-import Behavior from '../../modules/behavior';
-import CollectionView from '../../modules/collection-view';
-import View from '../../modules/view';
+import Behavior from '../../src/modules/behavior';
+import CollectionView from '../../src/modules/collection-view';
+import View from '../../src/modules/view';
 
 describe('View DOM event delegation', function() {
   [

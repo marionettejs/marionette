@@ -1,6 +1,6 @@
 import _ from 'underscore';
-import View from '../../modules/view';
-import Region from '../../modules/region';
+import View from '../../src/modules/view';
+import Region from '../../src/modules/region';
 
 describe('onAttach', function() {
   const expectTriggerMethod = (method, target, retval, before = null) => {

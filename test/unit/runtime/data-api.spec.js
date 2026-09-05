@@ -1,5 +1,5 @@
-import DataApi, { setDataApi } from '../../../runtime/data-api';
-import MarionetteError from '../../../utils/error';
+import DataApi, { setDataApi } from '../../../src/runtime/data-api';
+import MarionetteError from '../../../src/modules/error';
 
 describe('DataApi', function() {
   describe('#setDataApi', function() {

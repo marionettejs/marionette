@@ -1,4 +1,4 @@
-import Application from '../../modules/application';
+import Application from '../../src/modules/application';
 
 describe('Application state source composition', function() {
   it('preserves borrowed state across stop and restart without disposing it', async function() {

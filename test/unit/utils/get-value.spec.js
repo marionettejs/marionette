@@ -1,6 +1,6 @@
 import _ from 'underscore';
 
-import getValue from '../../../utils/get-value';
+import getValue from '../../../src/utils/get-value';
 
 function execute(implementation, createScenario) {
   const { object, property, fallback, trace = [] } = createScenario();

@@ -22,12 +22,7 @@ on:
       - 'test/release/**'
       - 'build/**'
       - 'rollup.config.mjs'
-      - 'index.js'
-      - 'create-marionette.js'
-      - 'modules/**'
-      - 'mixins/**'
-      - 'runtime/**'
-      - 'utils/**'
+      - 'src/**'
   workflow_dispatch:
     inputs:
       publish:

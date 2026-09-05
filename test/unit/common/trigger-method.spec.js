@@ -1,4 +1,4 @@
-import triggerMethod from '../../../modules/common/trigger-method';
+import triggerMethod from '../../../src/modules/common/trigger-method';
 
 describe('triggerMethod', function() {
   let target;

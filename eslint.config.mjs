@@ -23,7 +23,7 @@ export default [
       'dist/**',
       'node_modules/**',
       'packages/*/dist/**',
-      'version.js',
+      'src/version.js',
     ],
   },
   {

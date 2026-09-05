@@ -1,9 +1,9 @@
-import Application from '../../modules/application';
-import MnObject from '../../modules/object';
-import CommonMixin from '../../mixins/common';
-import DestroyMixin from '../../mixins/destroy';
-import RadioMixin from '../../mixins/radio';
-import StateMixin from '../../mixins/state';
+import Application from '../../src/modules/application';
+import MnObject from '../../src/modules/object';
+import CommonMixin from '../../src/mixins/common';
+import DestroyMixin from '../../src/mixins/destroy';
+import RadioMixin from '../../src/mixins/radio';
+import StateMixin from '../../src/mixins/state';
 
 function composedKeys(mixins, finalKeys) {
   const keys = [];
@@ -133,8 +133,8 @@ describe('Object and Application prototype composition', function() {
       });
       commonProtoMutated = true;
 
-      ({ default: IsolatedObject } = await import('../../modules/object.js?composition-test'));
-      ({ default: IsolatedApplication } = await import('../../modules/application.js?composition-test'));
+      ({ default: IsolatedObject } = await import('../../src/modules/object.js?composition-test'));
+      ({ default: IsolatedApplication } = await import('../../src/modules/application.js?composition-test'));
     } catch (error) {
       primaryFailed = true;
       primaryError = error;

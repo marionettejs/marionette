@@ -1,5 +1,5 @@
 import { assign, createActor, createMachine, emit } from 'xstate';
-import { createMarionette } from '../../index.js';
+import { createMarionette } from '../../src/index.js';
 import createXStateActorApi from '../../packages/adapters/src/xstate.js';
 import createXStateStoreDataApi from '../../packages/adapters/src/xstate-store.js';
 

@@ -12,7 +12,7 @@ import $ from 'jquery';
 import Backbone from 'backbone';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import * as Marionette from '../../index.js';
+import * as Marionette from '../../src/index.js';
 import BackboneApi from '../../packages/adapters/src/backbone-api.js';
 
 Marionette.setDataApi(BackboneApi);

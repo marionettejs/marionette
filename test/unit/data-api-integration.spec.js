@@ -1,7 +1,7 @@
-import DataApi from '../../runtime/data-api';
-import CollectionView from '../../modules/collection-view';
-import View from '../../modules/view';
-import MarionetteError from '../../utils/error';
+import DataApi from '../../src/runtime/data-api';
+import CollectionView from '../../src/modules/collection-view';
+import View from '../../src/modules/view';
+import MarionetteError from '../../src/modules/error';
 
 describe('plain data integration', function() {
   const PlainView = View.extend({

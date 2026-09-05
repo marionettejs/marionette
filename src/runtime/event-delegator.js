@@ -1,6 +1,6 @@
 // Event Delegator
 //  ---------
-import MarionetteError from '../utils/error.js';
+import MarionetteError from '../modules/error.js';
 
 // Static setter
 export function setEventDelegator(delegator) {

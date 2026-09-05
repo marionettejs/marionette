@@ -1,5 +1,5 @@
-import View from '../../../modules/view';
-import UIMixin from '../../../mixins/ui';
+import View from '../../../src/modules/view';
+import UIMixin from '../../../src/mixins/ui';
 
 describe('ui mixin', function() {
   'use strict';

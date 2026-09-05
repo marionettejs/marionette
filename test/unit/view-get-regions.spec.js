@@ -1,4 +1,4 @@
-import { Behavior, Region, View } from '../../index';
+import { Behavior, Region, View } from '../../src/index';
 
 function state(view) {
   return {

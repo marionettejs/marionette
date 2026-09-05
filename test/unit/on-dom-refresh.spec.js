@@ -1,9 +1,9 @@
 import _ from 'underscore';
 import $ from 'jquery';
 import Backbone from 'backbone';
-import Events from '../../mixins/events';
-import View from '../../modules/view';
-import Region from '../../modules/region';
+import Events from '../../src/mixins/events';
+import View from '../../src/modules/view';
+import Region from '../../src/modules/region';
 
 describe('onDomRefresh', function() {
   'use strict';

@@ -1,7 +1,7 @@
 // State API
 // ---------
 import { assignOwn } from '../utils/assign-in.js';
-import MarionetteError from '../utils/error.js';
+import MarionetteError from '../modules/error.js';
 
 // Static setter
 export function setStateApi(mixin) {

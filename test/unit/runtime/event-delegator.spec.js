@@ -1,11 +1,11 @@
 import { JSDOM } from 'jsdom';
 import { vi } from 'vitest';
 
-import EventDelegator, { setEventDelegator } from '../../../runtime/event-delegator';
-import Behavior from '../../../modules/behavior';
-import CollectionView from '../../../modules/collection-view';
-import MnObject from '../../../modules/object';
-import View from '../../../modules/view';
+import EventDelegator, { setEventDelegator } from '../../../src/runtime/event-delegator';
+import Behavior from '../../../src/modules/behavior';
+import CollectionView from '../../../src/modules/collection-view';
+import MnObject from '../../../src/modules/object';
+import View from '../../../src/modules/view';
 
 describe('EventDelegator', function() {
   let cleanups;

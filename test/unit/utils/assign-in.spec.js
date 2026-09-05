@@ -1,4 +1,4 @@
-import assignIn, { assignOwn, setProperty } from '../../../utils/assign-in';
+import assignIn, { assignOwn, setProperty } from '../../../src/utils/assign-in';
 
 function defineProto(object, value) {
   Object.defineProperty(object, '__proto__', {

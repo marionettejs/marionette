@@ -2,9 +2,9 @@
 
 import _ from 'underscore';
 
-import Application from '../../modules/application';
-import Region from '../../modules/region';
-import View from '../../modules/view';
+import Application from '../../src/modules/application';
+import Region from '../../src/modules/region';
+import View from '../../src/modules/view';
 
 const RootView = View.extend({
   template: _.template('<span>root</span>')

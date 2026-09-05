@@ -1,6 +1,6 @@
-import Behavior from '../../modules/behavior';
-import MnObject from '../../modules/object';
-import View from '../../modules/view';
+import Behavior from '../../src/modules/behavior';
+import MnObject from '../../src/modules/object';
+import View from '../../src/modules/view';
 
 describe('Behavior dependency contract', function() {
   it('resolves an injected collaborator and exact host during initialize', function() {

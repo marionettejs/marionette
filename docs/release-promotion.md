@@ -16,7 +16,7 @@ Pull-request output cannot activate the write-capable jobs: those jobs also requ
 manual dispatch from `master` in this repository with the `publish` input enabled,
 followed by approval of the protected `stable-release` environment.
 
-Generated `dist/` files and `version.js` are ignored by Git. `npm ci` runs the
+Generated `dist/` files and `src/version.js` are ignored by Git. `npm ci` runs the
 root `prepare` lifecycle to build all three packages and test the core distributions.
 Artifact construction performs a final clean build and distribution check from the
 verified source commit, then runs `npm pack --ignore-scripts` so packing cannot

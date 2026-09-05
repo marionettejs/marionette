@@ -1,25 +1,25 @@
 import _ from 'underscore';
 
-import * as Mn from '../../index.js';
+import * as Mn from '../../src/index.js';
 
 import {version} from '../../package.json';
 
-import extend from '../../utils/extend';
+import extend from '../../src/utils/extend';
 
-import monitorViewEvents from '../../modules/common/monitor-view-events';
+import monitorViewEvents from '../../src/modules/common/monitor-view-events';
 
-import Events from '../../mixins/events';
+import Events from '../../src/mixins/events';
 
-import MnObject from '../../modules/object';
-import View from '../../modules/view';
-import CollectionView from '../../modules/collection-view';
-import Behavior from '../../modules/behavior';
-import Region from '../../modules/region';
-import Application from '../../modules/application';
+import MnObject from '../../src/modules/object';
+import View from '../../src/modules/view';
+import CollectionView from '../../src/modules/collection-view';
+import Behavior from '../../src/modules/behavior';
+import Region from '../../src/modules/region';
+import Application from '../../src/modules/application';
 
-import DomApi from '../../runtime/dom-api';
-import DataApi from '../../runtime/data-api';
-import StateApi from '../../runtime/state-api';
+import DomApi from '../../src/runtime/dom-api';
+import DataApi from '../../src/runtime/data-api';
+import StateApi from '../../src/runtime/state-api';
 
 describe('backbone.marionette', function() {
   describe('Named Exports', function() {

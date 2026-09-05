@@ -3,7 +3,7 @@
 
 import { assignOwn } from '../utils/assign-in.js';
 import eachOwn from '../utils/each-own.js';
-import MarionetteError from '../utils/error.js';
+import MarionetteError from './error.js';
 import extend from '../utils/extend.js';
 import getValue from '../utils/get-value.js';
 import uniqueId from '../utils/unique-id.js';

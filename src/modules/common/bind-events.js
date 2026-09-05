@@ -12,7 +12,7 @@
 // function can be supplied instead of a string handler name.
 
 import normalizeMethods from './normalize-methods.js';
-import MarionetteError from '../../utils/error.js';
+import MarionetteError from '../error.js';
 
 const propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
 

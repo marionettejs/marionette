@@ -1,6 +1,6 @@
 import vm from 'node:vm';
 
-import View from '../../../modules/view';
+import View from '../../../src/modules/view';
 
 describe('normalizeMethods', function() {
   'use strict';

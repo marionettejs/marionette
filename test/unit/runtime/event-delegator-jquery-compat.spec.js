@@ -1,6 +1,6 @@
 import $ from 'jquery';
 
-import View from '../../../modules/view';
+import View from '../../../src/modules/view';
 
 const JQueryEventDelegator = {
   delegate({ eventName, selector, handler, rootEl }) {

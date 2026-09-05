@@ -1,11 +1,11 @@
 import _ from 'underscore';
-import Application from '../../../modules/application';
-import Behavior from '../../../modules/behavior';
-import CollectionView from '../../../modules/collection-view';
-import MnObject from '../../../modules/object';
-import Region from '../../../modules/region';
-import View from '../../../modules/view';
-import uniqueId from '../../../utils/unique-id';
+import Application from '../../../src/modules/application';
+import Behavior from '../../../src/modules/behavior';
+import CollectionView from '../../../src/modules/collection-view';
+import MnObject from '../../../src/modules/object';
+import Region from '../../../src/modules/region';
+import View from '../../../src/modules/view';
+import uniqueId from '../../../src/utils/unique-id';
 
 function suffix(id) {
   return Number(id.match(/\d+$/)[0]);

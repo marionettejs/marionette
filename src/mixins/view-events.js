@@ -1,5 +1,5 @@
 import EventDelegator from '../runtime/event-delegator.js';
-import MarionetteError from '../utils/error.js';
+import MarionetteError from '../modules/error.js';
 import disposeAll from '../utils/dispose-all.js';
 import { resolveMethod } from '../modules/common/normalize-methods.js';
 import eachOwn from '../utils/each-own.js';

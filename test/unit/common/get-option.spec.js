@@ -1,4 +1,4 @@
-import getOption from '../../../modules/common/get-option';
+import getOption from '../../../src/modules/common/get-option';
 
 describe('get option', function() {
   describe('when calling without arguments', function() {

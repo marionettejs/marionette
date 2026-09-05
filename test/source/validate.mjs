@@ -5,7 +5,7 @@ import { JSDOM } from 'jsdom';
 import { rollup } from 'rollup';
 
 import BackboneApi from '../../packages/adapters/src/backbone-api.js';
-import * as Marionette from '../../index.js';
+import * as Marionette from '../../src/index.js';
 
 const dom = new JSDOM('<!doctype html>');
 globalThis.window = dom.window;
@@ -34,11 +34,7 @@ const adaptersPackageJson = JSON.parse(readFileSync(resolve(root, 'packages/adap
 const nonDeclarativeConfigFiles = readdirSync(resolve(root, 'config'), { recursive: true })
   .filter(file => statSync(resolve(root, 'config', file)).isFile())
   .filter(file => !file.endsWith('.json'));
-const productionFiles = [
-  'index.js',
-  'build/version.js',
-  'version.js',
-];
+const productionFiles = ['build/version.js'];
 const underscoreImport = /(?:\bfrom\s+|\bimport\s*(?:\(\s*)?|\brequire\s*\(\s*)['"]underscore(?:\/[^'"]*)?['"]/;
 const backboneImport = /(?:\bfrom\s+|\bimport\s*(?:\(\s*)?|\brequire\s*\(\s*)['"]backbone(?:\/[^'"]*)?['"]/;
 const knownBackboneDataAccess = /\bmodel\.(?:attributes|cid|get)\b|\bcollection\.(?:indexOf|models)\b|\boptions\.changes\b/;
@@ -83,17 +79,9 @@ for (const source of ['Data.get(model, "name")', 'Data.models(collection)', 'cha
   assert.doesNotMatch(source, knownBackboneDataAccess);
 }
 
-for (const file of readdirSync(resolve(root, 'runtime'), { recursive: true })) {
+for (const file of readdirSync(resolve(root, 'src'), { recursive: true })) {
   if (file.endsWith('.js')) {
-    productionFiles.push(`runtime/${file}`);
-  }
-}
-
-for (const directory of ['modules', 'mixins', 'utils']) {
-  for (const file of readdirSync(resolve(root, directory), { recursive: true })) {
-    if (file.endsWith('.js')) {
-      productionFiles.push(`${directory}/${file}`);
-    }
+    productionFiles.push(`src/${file}`);
   }
 }
 
@@ -107,16 +95,16 @@ assert.equal(adaptersPackageJson.version, packageJson.version);
 assert.equal(adaptersPackageJson.peerDependencies.marionette, packageJson.version);
 assert.deepEqual(nonDeclarativeConfigFiles, []);
 
-const regionBundle = await rollup({ input: resolve(root, 'modules/region.js') });
+const regionBundle = await rollup({ input: resolve(root, 'src/modules/region.js') });
 const regionDependencies = regionBundle.watchFiles.map(file => relative(root, file));
 await regionBundle.close();
 assert.equal(
-  regionDependencies.includes('modules/view.js'),
+  regionDependencies.includes('src/modules/view.js'),
   false,
   'Region must remain independent from View'
 );
 assert.equal(
-  regionDependencies.includes('modules/common/build-region.js'),
+  regionDependencies.includes('src/modules/common/build-region.js'),
   false,
   'Region must remain independent from the declarative Region builder'
 );

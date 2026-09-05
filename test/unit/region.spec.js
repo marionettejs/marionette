@@ -1,10 +1,10 @@
 import _ from 'underscore';
 import $ from 'jquery';
 import Backbone from 'backbone';
-import Events from '../../mixins/events';
-import Region from '../../modules/region';
-import View from '../../modules/view';
-import CollectionView from '../../modules/collection-view';
+import Events from '../../src/mixins/events';
+import Region from '../../src/modules/region';
+import View from '../../src/modules/view';
+import CollectionView from '../../src/modules/collection-view';
 
 describe('region', function() {
   'use strict';

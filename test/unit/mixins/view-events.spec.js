@@ -1,4 +1,4 @@
-import ViewEventsMixin from '../../../mixins/view-events';
+import ViewEventsMixin from '../../../src/mixins/view-events';
 
 function createView(overrides = {}) {
   return {

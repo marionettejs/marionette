@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import Backbone from 'backbone';
-import View from '../../modules/view';
+import View from '../../src/modules/view';
 
 describe('View.setRenderer', function() {
   let ViewClass;

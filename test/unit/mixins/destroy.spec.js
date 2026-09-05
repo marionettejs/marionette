@@ -1,7 +1,7 @@
 import _ from 'underscore';
-import Application from '../../../modules/application';
-import DestroyMixin from '../../../mixins/destroy';
-import MnObject from '../../../modules/object';
+import Application from '../../../src/modules/application';
+import DestroyMixin from '../../../src/mixins/destroy';
+import MnObject from '../../../src/modules/object';
 
 describe('Destroy Mixin', function() {
   let obj;

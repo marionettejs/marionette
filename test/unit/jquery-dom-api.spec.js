@@ -5,7 +5,7 @@ import {
   DomApi,
   Region,
   View
-} from '../../index';
+} from '../../src/index';
 import JQueryDomApi from '../../packages/adapters/src/dom/jquery';
 
 describe('jQuery DomApi adapter', function() {
@@ -24,7 +24,7 @@ describe('jQuery DomApi adapter', function() {
     };
 
     const bundle = await bundler.rollup({
-      input: 'index.js',
+      input: 'src/index.js',
       external: ['underscore'],
       plugins: [jqueryBlocker],
       onwarn(warning, warn) {

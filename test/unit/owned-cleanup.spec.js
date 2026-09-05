@@ -1,8 +1,8 @@
-import Application from '../../modules/application';
-import MnObject from '../../modules/object';
-import Radio from '../../modules/radio';
-import Region from '../../modules/region';
-import Events from '../../mixins/events';
+import Application from '../../src/modules/application';
+import MnObject from '../../src/modules/object';
+import Radio from '../../src/modules/radio';
+import Region from '../../src/modules/region';
+import Events from '../../src/mixins/events';
 
 const ObservableSource = function(attributes = {}) {
   this.attributes = { ...attributes };

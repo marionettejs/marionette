@@ -1,7 +1,7 @@
 import _ from 'underscore';
-import Events from '../../../mixins/events';
-import Radio from '../../../modules/radio';
-import RadioMixin from '../../../mixins/radio';
+import Events from '../../../src/mixins/events';
+import Radio from '../../../src/modules/radio';
+import RadioMixin from '../../../src/mixins/radio';
 
 describe('Radio Mixin on Marionette.Object', function() {
   let radioObject;

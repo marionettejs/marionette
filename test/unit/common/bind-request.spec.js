@@ -1,5 +1,5 @@
-import { bindRequests, unbindRequests } from '../../../modules/common/bind-requests';
-import Radio from '../../../modules/radio';
+import { bindRequests, unbindRequests } from '../../../src/modules/common/bind-requests';
+import Radio from '../../../src/modules/radio';
 
 const acceptedBindingMaps = [
   {},

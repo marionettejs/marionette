@@ -1,5 +1,5 @@
-import Radio from '../../modules/radio';
-import { debugLog, setDebug } from '../../modules/common/radio';
+import Radio from '../../src/modules/radio';
+import { debugLog, setDebug } from '../../src/modules/common/radio';
 
 describe('Radio', function() {
   afterEach(function() {
@@ -264,7 +264,7 @@ describe('Radio', function() {
   });
 
   it('rejects unknown prototype property channel names and resets them once created', async function() {
-    const { default: IsolatedRadio } = await import('../../modules/radio.js?prototype-reset-test');
+    const { default: IsolatedRadio } = await import('../../src/modules/radio.js?prototype-reset-test');
 
     ['toString', 'constructor', '__proto__'].forEach(channelName => {
       expect(() => IsolatedRadio.reset(channelName)).to.throw().with.property('code', 'MN0021');

@@ -1,4 +1,4 @@
-import MarionetteError from '../utils/error.js';
+import MarionetteError from '../modules/error.js';
 import { setProperty } from '../utils/assign-in.js';
 import eachOwn from '../utils/each-own.js';
 import getValue from '../utils/get-value.js';

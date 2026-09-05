@@ -1,4 +1,4 @@
-import EventsMixin from '../../mixins/events';
+import EventsMixin from '../../src/mixins/events';
 
 function createEmitter() {
   return Object.assign({}, EventsMixin);
