@@ -363,7 +363,7 @@ const FooView = View.extend({
 });
 
 const BarView = View.extend({
-  bar
+  template: _.template('bar')
 });
 
 const MyCollectionView = CollectionView.extend({
