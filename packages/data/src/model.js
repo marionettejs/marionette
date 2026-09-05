@@ -29,7 +29,10 @@ function getDefaults(model) {
 function releaseModelOwners(model) {
   const owners = modelOwners.get(model);
   if (!owners) { return; }
-  disposeAll([...owners.values()]);
+  disposeAll([...owners].map(([owner, release]) => () => {
+    // An earlier release can remove the Model from another owner.
+    if (owners.has(owner)) { release(); }
+  }));
 }
 
 function sameIdentity(left, right) {
