@@ -421,8 +421,8 @@ runtime ceiling.
 The full lowercase head SHA prevents an approval from surviving a code change. The
 approved path list must exactly match all existing artifacts above the strict
 greater-than-one-percent threshold. New subpaths and new artifact path/size pairs must
-exactly match the additive candidate contract and measured report. A candidate may
-only add runtime artifact and production graph entries. It may also introduce a
+exactly match the additive candidate contract and measured report. New production requires
+adding runtime artifact and production graph entries. A candidate may also introduce a
 well-formed `forbiddenExternalImports` list or add entries to an existing list, but it
 cannot remove or replace an existing forbidden import. This is a tightening-only
 transition: Phase 0 `baselineExternalImports` remain immutable historical observations,
@@ -436,7 +436,12 @@ path or candidate-owned validator determines the digest. CI loads the evaluator 
 allowed-maintainer policy from the exact pull request base, reads the harness blob from
 the exact candidate `HEAD`, and obtains the approval record from the pull request's
 GitHub comment snapshot rather than a candidate-owned file. A candidate cannot change any
-existing artifact or graph. The only permitted toolchain transition is a valid SHA-256
+existing artifact. An existing graph may change only its repository-relative JavaScript
+input path; its public subpath, output, and historical baselines remain exact-base.
+The measured Rollup producer must use that input for the unchanged output, and the report
+must match the candidate contract. This permits source relocation without changing artifact
+budgets or forbidden-module and import checks. The only permitted toolchain transition
+is a valid SHA-256
 revision at `toolchain.releaseProfile.sha256`; every other toolchain field remains
 exact-base, and the candidate report must prove that digest matches the actual
 candidate release-profile file. New artifact Phase 0 baselines remain zero, so
