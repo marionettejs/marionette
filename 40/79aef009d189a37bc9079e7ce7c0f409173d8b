@@ -1,0 +1,21 @@
+modules/collection-view.js
+  s_060efbb5bf6218::t_35586eb5f125db 769,1300-1301
+test/unit/collection-view/collection-view-sorting.spec.js
+  s_060efbb5bf6218::t_3c13c80ad2fbf9 372-381
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "4079aef009d189a37bc9079e7ce7c0f409173d8b",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
