@@ -29,7 +29,7 @@ export interface Events extends EventSource {
   off(events: EventMap, context?: unknown): this;
   listenTo(source: EventSource, name: string | EventMap, callback?: EventCallback): this;
   listenToOnce(source: EventSource, name: string | EventMap, callback?: EventCallback): this;
-  stopListening(source?: EventSource | null, name?: string | null, callback?: EventCallback | null): this;
+  stopListening(source?: EventSource | null, name?: string | EventMap | null, callback?: EventCallback | null): this;
   trigger(name: string, ...args: unknown[]): this;
   trigger(events: Record<string, unknown>): this;
   triggerMethod(name: string, ...args: unknown[]): unknown;
@@ -41,6 +41,7 @@ export interface Channel extends Events {
   replyOnce(name: string | Record<string, unknown>, callback?: unknown, context?: unknown): this;
   stopReplying(name?: string | Record<string, unknown> | null, callback?: unknown, context?: unknown): this;
   request(name: string, ...args: unknown[]): unknown;
+  request(requests: Record<string, unknown>, ...args: unknown[]): Record<string, unknown>;
   reset(): this;
 }
 
@@ -55,7 +56,7 @@ export interface RadioApi {
   off(channel: string, events: EventMap, context?: unknown): Channel;
   listenTo(channel: string, source: EventSource, name: string | EventMap, callback?: EventCallback): Channel;
   listenToOnce(channel: string, source: EventSource, name: string | EventMap, callback?: EventCallback): Channel;
-  stopListening(channel: string, source?: EventSource | null, name?: string | null, callback?: EventCallback | null): Channel;
+  stopListening(channel: string, source?: EventSource | null, name?: string | EventMap | null, callback?: EventCallback | null): Channel;
   trigger(channel: string, name: string, ...args: unknown[]): Channel;
   trigger(channel: string, events: Record<string, unknown>): Channel;
   triggerMethod(channel: string, name: string, ...args: unknown[]): unknown;
@@ -63,14 +64,15 @@ export interface RadioApi {
   replyOnce(channel: string, name: string | Record<string, unknown>, callback?: unknown, context?: unknown): Channel;
   stopReplying(channel: string, name?: string | Record<string, unknown> | null, callback?: unknown, context?: unknown): Channel;
   request(channel: string, name: string, ...args: unknown[]): unknown;
+  request(channel: string, requests: Record<string, unknown>, ...args: unknown[]): Record<string, unknown>;
   reset(name?: string): void;
   tuneIn(name: string): RadioApi;
   tuneOut(name: string): RadioApi;
 }
 
 export interface StateApi<Source = unknown> {
-  subscribe(source: Source, name: string, callback: (...args: unknown[]) => unknown, context?: unknown): () => void;
-  disposeOwned?(source: Source): void;
+  subscribe: (source: Source, name: string, callback: (...args: unknown[]) => unknown, context?: unknown) => () => void;
+  disposeOwned?: (source: Source) => void;
 }
 
 export interface MnObject<Options extends object = object, State = object> extends Events {
@@ -83,7 +85,7 @@ export interface MnObject<Options extends object = object, State = object> exten
   stateEvents?: Bindings | (() => Bindings);
   state?: unknown;
   Radio: RadioApi;
-  State: StateApi;
+  State: StateApi<State>;
   initialize(options?: Options): void;
   getState(): State;
   createState(options?: Options): unknown;
@@ -107,38 +109,46 @@ type Merge<Left, Right> = Omit<Left, keyof Right> & Right;
 type ArgumentsFor<Props, Previous extends unknown[]> =
   Props extends { constructor: (...args: infer Args) => unknown } ? Args :
   Props extends { initialize: (...args: infer Args) => unknown } ? Args : Previous;
-type OptionsFor<Args extends unknown[]> = NonNullable<Args[0]> extends object
-  ? NonNullable<Args[0]> : object;
+type OptionsFor<Args extends unknown[]> = [NonNullable<Args[0]>] extends [never] ? object :
+  NonNullable<Args[0]> extends object ? NonNullable<Args[0]> : object;
+type DefaultOptions<Props> = Props extends { options: infer Options }
+  ? Options extends (...args: never[]) => infer Result ? Result extends object ? Result : object
+    : Options extends object ? Options : object
+  : object;
 type SuppliedState<Options, Previous> = 'state' extends keyof Options
   ? Exclude<Options['state'], undefined> | (undefined extends Options['state'] ? Previous : never)
   : Previous;
 type StateFor<Props> = SuppliedState<Props,
   Props extends { createState: (...args: never[]) => infer State } ? State : object>;
 type Instance<Props, Args extends unknown[], State> =
-  MnObject<OptionsFor<Args>, State> & Props;
+  MnObject<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State> & Omit<Props, 'options'>;
 
 export type MnObjectConstructor<
   Props extends object = {},
   Args extends unknown[] = [options?: object],
   State = object,
   Statics extends object = {}
-> = Statics & {
+> = {
   new <Provided extends Args = Args>(...args: Provided): Instance<Props, Provided, SuppliedState<Provided[0], State>>;
   (this: object, ...args: Args): void;
-  prototype: Instance<Props, Args, State>;
+} & Merge<{
+  prototype: Merge<Instance<Props, Args, State>, Props>;
   call(receiver: object, ...args: Args): void;
   apply(receiver: object, args: Args | IArguments): void;
-  setStateApi<Source>(api: Partial<StateApi<Source>>): MnObjectConstructor<Props, Args, State, Statics>;
+  setStateApi<Constructor>(this: Constructor, api: Partial<StateApi<State>>): Constructor;
   extend<Added extends object = {}, AddedStatics extends object = {}>(
     prototypeProperties?: Added & ThisType<Instance<
       Merge<Props, Added>, ArgumentsFor<Added, Args>, StateFor<Merge<Props, Added>>
     >>,
-    staticProperties?: AddedStatics
+    staticProperties?: AddedStatics & ThisType<MnObjectConstructor<
+      Merge<Props, Added>, ArgumentsFor<Added, Args>, StateFor<Merge<Props, Added>>,
+      Merge<Statics, AddedStatics>
+    >>
   ): MnObjectConstructor<
     Merge<Props, Added>, ArgumentsFor<Added, Args>, StateFor<Merge<Props, Added>>,
     Merge<Statics, AddedStatics>
   >;
-};
+}, Statics>;
 
 interface ObjectInternals {
   cid: string;

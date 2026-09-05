@@ -86,6 +86,12 @@ then reuse those types across classes. Application's asynchronous `destroy` must
 remain distinct from MnObject's synchronous return type. Optional-package consumer
 fixtures retain their separate TypeScript 7 compiler pins.
 
+The StateApi setter checks a provider against the class's declared state. It does
+not track later configuration changes or ensure that constructor-supplied state
+matches that provider. For example, a class whose factory produces `{ ready: true }`
+can still receive `{ state: { label: 'Example' } }`; an adapter expecting `ready`
+may then fail. The private declarations do not validate this combination.
+
 ## Report a bug
 
 Use the [bug report form](https://github.com/marionettejs/marionette/issues/new/choose)

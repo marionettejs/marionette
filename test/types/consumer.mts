@@ -91,3 +91,60 @@ const DefaultState = Borrowed.extend({ state: undefined });
 const empty: object = new DefaultState().getState();
 // @ts-expect-error Undefined removes the inherited borrowed state.
 new DefaultState().getState().borrowed;
+
+const DefaultOptions = MnObject.extend({ options: { enabled: true } });
+const defaultEnabled: boolean = new DefaultOptions().options.enabled;
+// @ts-expect-error Omitted options produce an object, never an impossible type.
+const impossibleOptions: number = new MnObject().options;
+const OptionsFactory = MnObject.extend({ options() { return { enabled: true }; } });
+const prototypeOptions: boolean = OptionsFactory.prototype.options().enabled;
+const factoryOptions: boolean = new OptionsFactory().options.enabled;
+const explicitOptions: boolean = new OptionsFactory({}).options.enabled;
+const overriddenOptions: string = new OptionsFactory({ enabled: 'override' }).options.enabled;
+// @ts-expect-error The instance holds resolved options, not the factory function.
+new OptionsFactory({}).options();
+const WithOptions = OptionsFactory.extend({
+  initialize(options: { label: string }) {
+    const enabled: boolean = this.options.enabled;
+    const label: string = this.options.label;
+  }
+});
+const inheritedOptions: boolean = new WithOptions({ label: 'Child' }).options.enabled;
+
+const ParentStatics = MnObject.extend({}, {
+  category: 'parent',
+  readCategory() { return this.category; }
+});
+const ChildStatics = ParentStatics.extend({}, {
+  inheritedCategory() { return this.readCategory(); }
+});
+const inheritedCategory: string = ChildStatics.inheritedCategory();
+// @ts-expect-error Inherited static results do not become any.
+const wrongCategory: number = ChildStatics.inheritedCategory();
+const ConfiguredNative = NativeWorker.setStateApi({});
+const configuredNative: boolean = new ConfiguredNative({ label: 'Native' }).native();
+const CustomSetter = MnObject.extend({}, { setStateApi() { return 'custom'; } });
+const customResult: string = CustomSetter.setStateApi();
+// @ts-expect-error The replacement does not preserve the original setter overload.
+CustomSetter.setStateApi({});
+const Result = CustomSetter.setStateApi();
+// @ts-expect-error The replacement returns a string, not a constructor.
+new Result();
+const InheritedSetter = CustomSetter.extend();
+const inheritedResult: string = InheritedSetter.setStateApi();
+
+// @ts-expect-error The provider must handle the constructor's declared state.
+Worker.setStateApi({ subscribe(source: { label: string }) { return () => {}; } });
+// @ts-expect-error A provider cannot require a narrower state than the factory produces.
+Worker.setStateApi({ subscribe(source: { ready: true }) { return () => {}; } });
+worker.State.subscribe({ ready: false }, 'change', () => {});
+// @ts-expect-error The instance provider retains its declared source type.
+worker.State.subscribe({ label: 'Other' }, 'change', () => {});
+
+worker.stopListening(worker, { completed() {} });
+worker.Radio.stopListening('worker', worker, { completed() {} });
+const channelReplies = worker.getChannel()?.request({ label: 'Example' });
+const radioReplies = worker.Radio.request('worker', { label: 'Example' });
+const reply: unknown = radioReplies.label;
+// @ts-expect-error Unspecified reply values stay unknown, not any.
+const uncheckedReply: string = radioReplies.label;
