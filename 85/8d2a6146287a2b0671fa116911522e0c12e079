@@ -1,0 +1,21 @@
+mixins/events.js
+  s_060efbb5bf6218::t_44008faa3ec57b 289-290,297,310,319
+test/unit/events-parity.spec.js
+  s_060efbb5bf6218::t_b7a031a82205ad 54-134
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "858d2a6146287a2b0671fa116911522e0c12e079",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
