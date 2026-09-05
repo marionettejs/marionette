@@ -1,5 +1,4 @@
-// Wrap callback in a once. Returns for requests
-// `offCallback` unbinds the `onceWrapper` after it has been called.
+// Unbind before invoking the callback, and return its saved result on later calls.
 export default function onceWrap(callback, offCallback) {
   let called = false;
   let result;
