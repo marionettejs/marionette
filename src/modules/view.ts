@@ -162,7 +162,7 @@ export type ViewConstructor<Props extends object = {}, Args extends unknown[] = 
 type RegionMap = Record<string, RegionInternals>;
 type RegionDefinitions = Record<string, RegionDefinition>;
 type ViewInternals = ViewInstance & ViewMixinHost & {
-  [runtimeId]: object;
+  [runtimeId]?: object;
   regions: RegionDefinitions;
   _regions: RegionMap;
   _initRegions(): void;

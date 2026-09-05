@@ -3,10 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "validate": "tsc -p tsconfig.json && tsc -p tsconfig.bundler.json"
+    "validate": "node node_modules/typescript/bin/tsc -p tsconfig.json && node node_modules/typescript/bin/tsc -p tsconfig.bundler.json && node node_modules/typescript-7/bin/tsc -p tsconfig.json && node node_modules/typescript-7/bin/tsc -p tsconfig.bundler.json"
   },
   "devDependencies": {
     "typescript": "6.0.3",
+    "typescript-7": "npm:typescript@7.0.2",
     "@types/backbone": "1.4.23",
     "@types/jquery": "4.0.1",
     "backbone": "1.4.0"
