@@ -428,7 +428,9 @@ to `Region#show` and does not become renderable.
 
 ### `getView()`
 
-Return the root View currently coordinated by the Application. If the host was
-emptied, detached, or replaced externally, or the Application is stopped or
-destroyed, this method returns `undefined` even if a borrowed Region now contains
-another View.
+Return the root View currently coordinated by the Application. A View shown while
+the Application is stopped, including before startup, is also returned.
+
+If the host Region is emptied, the root View is detached or replaced externally,
+or Application teardown releases it, this method returns `undefined` even if a
+borrowed Region now contains another View.
