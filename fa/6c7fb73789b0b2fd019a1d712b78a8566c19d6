@@ -8,16 +8,22 @@ dist/marionette.umd.js.map
   s_060efbb5bf6218::t_7bf059ba41d8bb 1
 docs/marionette.state.md
   s_060efbb5bf6218::t_ee85fd94ed88af 95-98
+  s_060efbb5bf6218::t_3245cf7aee8498 95-98
 mixins/state.js
   s_060efbb5bf6218::t_fd7e8aa4510cd9 29-46,69
+  s_060efbb5bf6218::t_344ee948dccc63 29-46,69
 test/unit/data-api-integration.spec.js
   s_060efbb5bf6218::t_af9e1277c153ac 84-106
+  s_060efbb5bf6218::t_15c2d4629f9311 84-106
 test/unit/state-owner.spec.js
   s_060efbb5bf6218::t_f9ac4bbb1c0891 146-225
+  s_060efbb5bf6218::t_f02a90513701d0 146-225
 test/unit/utils/subscribe-bindings.spec.js
   s_060efbb5bf6218::t_2aaaa76a6c0a89 30-44
+  s_060efbb5bf6218::t_1d5c9f1afcbe4d 30-44
 utils/subscribe-bindings.js
   s_060efbb5bf6218::t_e7b846fc0b47e0 30-31,41,46-48
+  s_060efbb5bf6218::t_3ab3f108a683aa 30-31,41,46-48
 dist/marionette.min.js
   s_060efbb5bf6218::t_1747778df2ec4d 1
 dist/marionette.min.js.map
