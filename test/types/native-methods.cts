@@ -16,14 +16,13 @@ class WrongChild extends Parent { greet(): number { return 1; } }
 const Next = Parent.extend({ next(): string { return this.greet(); } });
 class NextChild extends Next { next(): string { return 'next'; } }
 new NextChild({ label: 'example' }).greet();
-// @ts-expect-error inherited methods still pass through Merge's mapped left side
 class InheritedChild extends Next { greet(): string { return 'child'; } }
 const Redefined = Next.extend({ greet(): string { return 'newest'; } });
 class RedefinedChild extends Redefined { greet(): string { return 'child'; } }
 new RedefinedChild({ label: 'example' }).greet();
 
 const Custom = MnObject.extend({
-  constructor(options: { label: string }, count: number) { MnObject.call(this, options); },
+  constructor: function(options: { label: string }, count: number) { MnObject.call(this, options); },
   greet(): string { return 'parent'; }
 });
 class CustomChild extends Custom { greet(): string { return 'child'; } }

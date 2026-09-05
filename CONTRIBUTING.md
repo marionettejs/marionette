@@ -129,11 +129,18 @@ Class `.extend` is exercised by these fixtures. The standalone `extend` export
 still has a conservative `Function` return type in the private declarations; its
 public constructor typing remains unfinished.
 
-Native subclasses can override methods newly declared by `.extend` when the
-prototype has no `options` key. Methods inherited through another `.extend` and
-prototypes with `options` still pass through mapped types that lose TypeScript
-method declarations, so those overrides remain unsupported by these private
-types. Function-valued properties remain distinct from methods.
+Native subclasses can override root methods and methods preserved through
+additive `.extend` calls when no overlapping keys require remapping. Prototype
+`options` and overlapping merges still use mapped types that can lose TypeScript
+method declarations. Those native overrides remain incomplete in the private
+types; function-valued properties remain distinct from methods.
+
+Custom constructors retain their argument types through inherited `initialize`
+overrides, and ordinary constructors returning `this` retain instance inference.
+Authors remain responsible for calling the parent when its initialization is
+needed. Explicit replacement-object results remain unfinished in these private
+declarations; public constructor typing must model them without losing the
+ordinary receiver-returning case.
 
 The StateApi setter checks a provider against the class's declared state. It does
 not track later configuration changes or ensure that constructor-supplied state

@@ -30,6 +30,8 @@
     "native-methods.mts",
     "native-methods.cts",
     "common.mts",
-    "common.cts"
+    "common.cts",
+    "construction.mts",
+    "construction.cts"
   ]
 }
