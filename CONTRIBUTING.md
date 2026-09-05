@@ -78,7 +78,7 @@ declarations into the ignored `test/tmp/typed-core/` directory and checks ESM an
 CommonJS consumers against them. Both checks run during `npm run build` and
 `npm test`. Coverage and diagnostic discovery include TypeScript source files.
 
-The initial conversion covers `MnObject` and `extend`. Imported JavaScript mixins
+The conversion covers `MnObject`, `extend`, `uniqueId`, and `disposeAll`. Imported JavaScript mixins
 remain unchecked; their public methods have explicit types at the composition
 boundary. These declarations are not a complete core typing contract and are not
 published. The next slice should type the shared mixins at their implementations,

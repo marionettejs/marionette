@@ -128,8 +128,10 @@ export default [
     rules: {
       'no-unused-vars': 'off',
       'no-shadow': 'off',
+      'no-redeclare': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
       '@typescript-eslint/no-shadow': 'error',
+      '@typescript-eslint/no-redeclare': 'error',
     },
   },
 ];

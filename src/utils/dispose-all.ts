@@ -1,4 +1,8 @@
-export default function disposeAll(disposers, error) {
+type Disposer = (() => unknown) | false | null | undefined | 0 | 0n | '';
+
+export default function disposeAll(disposers: readonly Disposer[], error: unknown): never;
+export default function disposeAll(disposers: readonly Disposer[]): void;
+export default function disposeAll(disposers: readonly Disposer[], error?: unknown): void {
   let hasError = arguments.length > 1;
 
   // Dispose in reverse registration order.

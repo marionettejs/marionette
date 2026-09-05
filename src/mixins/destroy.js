@@ -1,4 +1,4 @@
-import disposeAll from '../utils/dispose-all.js';
+import disposeAll from '../utils/dispose-all.ts';
 
 export default {
   _isDestroyed: false,

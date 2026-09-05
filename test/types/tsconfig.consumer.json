@@ -8,5 +8,10 @@
     "noEmit": true,
     "types": []
   },
-  "files": ["consumer.mts", "consumer.cts"]
+  "files": [
+    "consumer.mts",
+    "consumer.cts",
+    "helpers.mts",
+    "helpers.cts"
+  ]
 }

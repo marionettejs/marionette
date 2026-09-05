@@ -3,12 +3,12 @@
 
 import { assignOwn } from '../utils/assign-in.js';
 import extend from '../utils/extend.ts';
-import uniqueId from '../utils/unique-id.js';
+import uniqueId from '../utils/unique-id.ts';
 import CommonMixin from '../mixins/common.js';
 import DestroyMixin from '../mixins/destroy.js';
 import RadioMixin from '../mixins/radio.js';
 import StateMixin from '../mixins/state.js';
-import disposeAll from '../utils/dispose-all.js';
+import disposeAll from '../utils/dispose-all.ts';
 import { setStateApi } from '../runtime/state-api.js';
 
 export type EventCallback = (...args: never[]) => unknown;

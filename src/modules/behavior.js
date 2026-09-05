@@ -9,14 +9,14 @@
 import { assignOwn } from '../utils/assign-in.js';
 import extend from '../utils/extend.ts';
 import getValue from '../utils/get-value.js';
-import uniqueId from '../utils/unique-id.js';
+import uniqueId from '../utils/unique-id.ts';
 import CommonMixin from '../mixins/common.js';
 import DelegateEntityEventsMixin from '../mixins/delegate-entity-events.js';
 import StateMixin from '../mixins/state.js';
 import UIMixin from '../mixins/ui.js';
 import ViewEventsMixin from '../mixins/view-events.js';
 import { setEventDelegator } from '../runtime/event-delegator.js';
-import disposeAll from '../utils/dispose-all.js';
+import disposeAll from '../utils/dispose-all.ts';
 import { setStateApi } from '../runtime/state-api.js';
 
 const ClassOptions = [
