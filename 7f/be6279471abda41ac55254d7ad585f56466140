@@ -1,0 +1,59 @@
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_8351b272a7f669 185-194
+rollup.config.mjs
+  s_060efbb5bf6218::t_800d7f2e05f1a8 19,44
+src/create-marionette.ts
+  s_060efbb5bf6218::t_01422ae80c5a46 21-54,63-64,67,75,81,86,94,99,112,116,120,124,128,199,202,205,208,211
+src/index.ts
+  s_060efbb5bf6218::t_a24083299bdcaf 22,47-69
+src/modules/error.ts
+  s_060efbb5bf6218::t_77d8eb47147801 21
+test/setup/vitest.js
+  s_060efbb5bf6218::t_be8599ff441315 15
+test/source/validate.mjs
+  s_060efbb5bf6218::t_18e6ac27ed9350 9
+test/types/facade.cts
+  s_060efbb5bf6218::t_ede588e2a8afd1 1-109
+test/types/facade.mts
+  s_060efbb5bf6218::t_64229ce740c4d4 1-109
+test/types/run.mjs
+  s_060efbb5bf6218::t_66caad9b5f14cc 2,11-13
+test/types/tsconfig.consumer.json
+  s_060efbb5bf6218::t_c9225be5e55758 53-55
+test/unit/backbone-adapter.spec.js
+  s_060efbb5bf6218::t_2471305fb36f53 2
+test/unit/backbone-collection-observers.spec.js
+  s_060efbb5bf6218::t_605d395644e42d 2
+test/unit/backbone.marionette.spec.js
+  s_060efbb5bf6218::t_30b5fb2487775c 3
+test/unit/create-marionette.spec.js
+  s_060efbb5bf6218::t_6c66f772e81fe0 1
+test/unit/data-package/api-integration.spec.js
+  s_060efbb5bf6218::t_fcac9746afe213 1
+test/unit/jquery-dom-api.spec.js
+  s_060efbb5bf6218::t_defe71c3e6b45c 28
+test/unit/keyed-snapshot-adapters.spec.js
+  s_060efbb5bf6218::t_7a1f23abb82d42 4
+test/unit/modules-error.spec.js
+  s_060efbb5bf6218::t_12fc213ee9f182 1
+test/unit/xstate-adapter.spec.js
+  s_060efbb5bf6218::t_6bf6a09db5e931 2
+vitest.config.js
+  s_060efbb5bf6218::t_def4b7634ac86b 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "7fbe6279471abda41ac55254d7ad585f56466140",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
