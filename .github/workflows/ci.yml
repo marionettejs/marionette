@@ -52,9 +52,6 @@ jobs:
       - name: Lint
         run: npm run lint:ci
 
-      - name: Verify distributable artifacts
-        run: npm run check:dist
-
       - name: Install supported browsers
         run: npx playwright install --with-deps --only-shell --no-progress chromium firefox webkit
 
@@ -136,9 +133,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Build current branch
-        run: npm run build
 
       - name: Prepare performance workspace
         id: performance_workspace
@@ -302,9 +296,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Build current branch
-        run: npm run build
 
       - name: Checkout exact pull request base
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

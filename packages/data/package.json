@@ -36,7 +36,7 @@
     "marionette": "5.0.0-alpha.2"
   },
   "scripts": {
-    "build": "rollup -c rollup.config.mjs",
+    "build": "node ../../build/clean.js && rollup -c rollup.config.mjs && node -e \"require('node:fs').cpSync('types', 'dist', { recursive: true })\"",
     "prepack": "npm run build"
   },
   "keywords": [

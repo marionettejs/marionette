@@ -16,9 +16,13 @@ Pull-request output cannot activate the write-capable jobs: those jobs also requ
 manual dispatch from `master` in this repository with the `publish` input enabled,
 followed by approval of the protected `stable-release` environment.
 
-Committed `dist/` files remain generated, CI-verified projections. The release job
-builds them once, verifies that the clean checkout is unchanged, and runs
-`npm pack --ignore-scripts` so `prepack` cannot rebuild the release artifact.
+Generated `dist/` files and `version.js` are ignored by Git. `npm ci` runs the
+root `prepare` lifecycle to build all three packages and test the core distributions.
+Artifact construction performs a final clean build and distribution check from the
+verified source commit, then runs `npm pack --ignore-scripts` so packing cannot
+rebuild those tested outputs. This final build also replaces stale local ignored files. Package fixtures validate the exact tarballs before any
+publication. Handwritten declaration sources live in `packages/*/types/` and are
+copied into each package distribution during its build.
 
 ## v5 distribution policy
 
@@ -60,7 +64,7 @@ dry run:
 1. verifies the pinned release profile and clean source commit;
 2. runs source, lint, coverage, browser-profile, diagnostic, distribution, and
    package checks;
-3. builds once and packs without lifecycle scripts;
+3. performs the final artifact build and packs without lifecycle scripts;
 4. verifies the exact tarball on all supported release hosts;
 5. inspects npm, Git tag, and GitHub release target occupancy;
 6. runs `npm publish <tarball> --dry-run --ignore-scripts` and validates the GitHub
