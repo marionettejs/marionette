@@ -174,6 +174,14 @@ function parseJavaScript(contents, path, errors) {
   return sourceCode.ast;
 }
 
+function unwrapTypeScriptExpression(node) {
+  while (node && ['TSAsExpression', 'TSTypeAssertion', 'TSNonNullExpression',
+    'TSSatisfiesExpression', 'TSInstantiationExpression'].includes(node.type)) {
+    node = node.expression;
+  }
+  return node;
+}
+
 function addRuntimeSourceErrors(runtimeSources, diagnosticsByCode, errors) {
   for (const { contents, path } of runtimeSources) {
     const ast = parseJavaScript(contents, path, errors);
@@ -197,15 +205,18 @@ function addRuntimeSourceErrors(runtimeSources, diagnosticsByCode, errors) {
     }
 
     visitNodes(ast, node => {
-      if (node.type === 'ThrowStatement' &&
-        ['CallExpression', 'NewExpression'].includes(node.argument?.type) &&
-        ['AggregateError', 'Error', 'EvalError', 'RangeError', 'ReferenceError',
-          'SyntaxError', 'TypeError', 'URIError'].includes(node.argument.callee?.name)) {
-        errors.push(`${path} must not throw a native ${node.argument.callee.name}; use MarionetteError with a catalog code`);
-        return;
+      if (node.type === 'ThrowStatement') {
+        const argument = unwrapTypeScriptExpression(node.argument);
+        const callee = unwrapTypeScriptExpression(argument?.callee);
+        if (['CallExpression', 'NewExpression'].includes(argument?.type) &&
+          ['AggregateError', 'Error', 'EvalError', 'RangeError', 'ReferenceError',
+            'SyntaxError', 'TypeError', 'URIError'].includes(callee?.name)) {
+          errors.push(`${path} must not throw a native ${callee.name}; use MarionetteError with a catalog code`);
+          return;
+        }
       }
 
-      if (node.type !== 'NewExpression' || !marionetteErrorBindings.has(node.callee.name)) {
+      if (node.type !== 'NewExpression' || !marionetteErrorBindings.has(unwrapTypeScriptExpression(node.callee)?.name)) {
         return;
       }
 
