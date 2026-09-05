@@ -78,12 +78,16 @@ declarations into the ignored `test/tmp/typed-core/` directory and checks ESM an
 CommonJS consumers against them. Both checks run during `npm run build` and
 `npm test`. Coverage and diagnostic discovery include TypeScript source files.
 
-The conversion covers `MnObject`, `extend`, `Events`, and the ID, cleanup, and
-event helpers they use. `Events` owns its contract types; the compiler checks its
-registry and listening implementation against each overload. The mixin's composed
-receiver, schema-free callback arguments, and JavaScript `triggerMethod` lookup
-remain explicit typing boundaries. Other JavaScript mixins remain unchecked, with
-their methods typed at the composition boundary.
+The conversion covers `MnObject`, `extend`, `Events`, `Requests`, and the ID,
+cleanup, event, and Radio debug helpers they use. `Events` owns its contract types;
+the compiler checks its registry and listening implementation against each
+overload. The mixin's composed receiver, schema-free callback arguments, and
+JavaScript `triggerMethod` lookup
+remain explicit typing boundaries. `Requests` owns the reply and request contracts;
+its registry, constant replies, and dispatch implementation are checked. Request
+payloads and results remain unknown without a schema, and the request-map result
+is typed at the composition boundary. Other JavaScript mixins remain unchecked,
+with their methods typed at the composition boundary.
 
 These declarations are not a complete core typing contract and are not published.
 Continue typing shared mixins at their implementations, then reuse those types

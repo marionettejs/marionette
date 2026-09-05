@@ -1,6 +1,6 @@
-import { createDebug, debugLog, setDebug, log } from './common/radio.js';
+import { createDebug, debugLog, setDebug, log } from './common/radio.ts';
 import Events from '../mixins/events.ts';
-import Requests from '../mixins/requests.js';
+import Requests from '../mixins/requests.ts';
 
 import { assignOwn, setProperty } from '../utils/assign-in.js';
 import callHandler from '../utils/call-handler.ts';

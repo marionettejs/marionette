@@ -458,6 +458,30 @@ describe('Requests', function() {
         .and.calledWithExactly('missing', 1, 2);
     });
 
+    it('reads the selected callback and context once before forwarding either argument list', function() {
+      const context = {};
+      const value = {};
+      const result = {};
+      const callback = this.sinon.stub().returns(result);
+      const reads = [];
+      const registration = {
+        get callback() { reads.push('callback'); return callback; },
+        get context() { reads.push('context'); return context; }
+      };
+      this.requests._rdRequests = { named: registration, default: registration };
+
+      expect(this.requests.request('named', value, 2, 3, 4)).to.equal(result);
+      expect(callback).to.have.been.calledOnce.and.calledOn(context)
+        .and.calledWithExactly(value, 2, 3, 4);
+      expect(reads).to.deep.equal(['callback', 'context']);
+
+      expect(this.requests.request('missing', value, 2, 3, 4)).to.equal(result);
+      expect(callback).to.have.been.calledTwice;
+      expect(callback.secondCall).to.have.been.calledOn(context)
+        .and.calledWithExactly('missing', value, 2, 3, 4);
+      expect(reads).to.deep.equal(['callback', 'context', 'callback', 'context']);
+    });
+
     it('lets an own falsey named entry suppress the default handler', function() {
       const fallback = this.sinon.stub();
       this.requests._rdRequests = {

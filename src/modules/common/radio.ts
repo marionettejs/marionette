@@ -8,7 +8,7 @@ function createDebug() {
     shouldDebug = setShouldDebug;
   }
 
-  function debugLog(warning, eventName, channelName) {
+  function debugLog(warning: string, eventName: string, channelName?: string) {
     if (shouldDebug && console && console.warn) {
       console.warn(debugText(warning, eventName, channelName));
     }
@@ -18,7 +18,7 @@ function createDebug() {
 }
 
 // Format debug text.
-function debugText(warning, eventName, channelName) {
+function debugText(warning: string, eventName: string, channelName?: string) {
   return warning + (channelName ? ` on the ${ channelName } channel` : '') +
     `: "${ eventName }"`;
 }
@@ -26,7 +26,7 @@ function debugText(warning, eventName, channelName) {
 const { debugLog, setDebug } = createDebug();
 
 // Log information about the channel and event
-function log(channelName, eventName, ...args) {
+function log(channelName: string, eventName: string, ...args: unknown[]) {
   /* v8 ignore next: the supported test/runtime environments provide console */
   if (typeof console === 'undefined') { return; }
   console.log(`[${ channelName }] "${ eventName }"`, args);

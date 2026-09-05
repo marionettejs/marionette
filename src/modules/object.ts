@@ -10,17 +10,13 @@ import RadioMixin from '../mixins/radio.js';
 import StateMixin from '../mixins/state.js';
 import disposeAll from '../utils/dispose-all.ts';
 import { setStateApi } from '../runtime/state-api.js';
+import type { Requests } from '../mixins/requests.ts';
 import type { EventCallback, EventMap, EventSource, Events } from '../mixins/events.ts';
 
 export type Bindings = Record<string, string | EventCallback>;
 
-export interface Channel extends Events {
+export interface Channel extends Events, Requests {
   channelName: string;
-  reply(name: string | Record<string, unknown>, callback?: unknown, context?: unknown): this;
-  replyOnce(name: string | Record<string, unknown>, callback?: unknown, context?: unknown): this;
-  stopReplying(name?: string | Record<string, unknown> | null, callback?: unknown, context?: unknown): this;
-  request(name: string, ...args: unknown[]): unknown;
-  request(requests: Record<string, unknown>, ...args: unknown[]): Record<string, unknown>;
   reset(): this;
 }
 
