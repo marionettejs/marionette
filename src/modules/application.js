@@ -166,15 +166,29 @@ async function startChildApps(application, operation, options) {
   return true;
 }
 
+function canStopChildren(application, operation) {
+  if (isCurrentOperation(application, operation)) { return true; }
+
+  // A replacement stop, restart, or destroy continues the adopted stop phase.
+  const current = application._lifecycleOperation;
+  return current?.stopReadiness !== undefined && current.stopReadiness === operation.stopReadiness &&
+    current.kind !== 'start';
+}
+
+function cancelStopReadiness(operation) {
+  operation.stopReadiness.isCanceled = true;
+  return false;
+}
+
 async function stopChildApps(application, operation, options) {
   if (!application._childApps) { return true; }
 
   for (const child of application._childApps.values()) {
-    if (!isCurrentOperation(application, operation)) { return false; }
+    if (!canStopChildren(application, operation)) { return cancelStopReadiness(operation); }
     const stopped = await child.stop(options);
-    if (!isCurrentOperation(application, operation)) { return false; }
+    if (!canStopChildren(application, operation)) { return cancelStopReadiness(operation); }
     if (stopped && hasStableLifecycleState(child, STOPPED)) { continue; }
-    if (!isTerminal(application)) { return false; }
+    if (!isTerminal(application)) { return cancelStopReadiness(operation); }
     await child.destroy(options);
   }
 
@@ -306,7 +320,8 @@ function runOperation(application, operation, callback) {
 function beginOperation(application, kind, state, failureState, callback) {
   const superseded = supersedeOperation(application);
   const deferred = createDeferred();
-  const stopReadiness = superseded?.stopReadiness;
+  // A canceled child traversal cannot be continued by a later operation.
+  const stopReadiness = superseded?.stopReadiness?.isCanceled ? undefined : superseded?.stopReadiness;
 
   const operation = {
     ...deferred,
@@ -332,11 +347,11 @@ function beginOperation(application, kind, state, failureState, callback) {
 async function startApplication(application, operation, options) {
   if (operation.stopReadiness) {
     const readiness = operation.stopReadiness;
-    await readiness.promise;
+    const childrenStopped = await readiness.promise;
     if (!isCurrentOperation(application, operation)) { return; }
 
     completeReadiness(operation);
-    operation.failureState = STOPPED;
+    if (childrenStopped) { operation.failureState = STOPPED; }
     delete operation.stopReadiness;
   }
 
