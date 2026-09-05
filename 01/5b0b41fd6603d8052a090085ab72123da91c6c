@@ -4,10 +4,13 @@ packages/data/dist/index.js
   s_060efbb5bf6218::t_5c9a3c8a282445 74-78
 packages/data/src/model.js
   s_060efbb5bf6218::t_31f5b2b8cf2fd8 32-35
+  s_060efbb5bf6218::t_e7e6454b0affed 32-35
 test/unit/data-package/api-integration.spec.js
   s_060efbb5bf6218::t_b693755cfeff5b 131-154
+  s_060efbb5bf6218::t_901cbd0599fa62 131-154
 test/unit/data-package/collection.spec.js
   s_060efbb5bf6218::t_3acf5ed7ab01fc 417-437
+  s_060efbb5bf6218::t_4aa71f17b31963 417-437
 ---
 {
   "schema_version": "authorship/3.0.0",
