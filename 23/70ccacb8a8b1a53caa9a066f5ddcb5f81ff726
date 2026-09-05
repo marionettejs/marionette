@@ -1,0 +1,25 @@
+docs/optional-backbone.md
+  s_060efbb5bf6218::t_5b57832cf8e445 47-50
+packages/adapters/src/backbone-api.js
+  s_060efbb5bf6218::t_f1bfa477506c16 48-68,72-76,82,86
+test/unit/backbone-collection-observers.spec.js
+  s_060efbb5bf6218::t_a7bfccde9efd8f 1-185
+test/unit/runtime/backbone-api.spec.js
+  s_060efbb5bf6218::t_942caf1be9a9e6 68-71,75-79,81-87,90
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "2370ccacb8a8b1a53caa9a066f5ddcb5f81ff726",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
