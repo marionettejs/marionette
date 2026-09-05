@@ -78,13 +78,18 @@ declarations into the ignored `test/tmp/typed-core/` directory and checks ESM an
 CommonJS consumers against them. Both checks run during `npm run build` and
 `npm test`. Coverage and diagnostic discovery include TypeScript source files.
 
-The conversion covers `MnObject`, `extend`, `uniqueId`, and `disposeAll`. Imported
-JavaScript mixins remain unchecked; their public methods have explicit types at
-the composition boundary. These declarations are not a complete core typing contract and are not
-published. The next slice should type the shared mixins at their implementations,
-then reuse those types across classes. Application's asynchronous `destroy` must
-remain distinct from MnObject's synchronous return type. Optional-package consumer
-fixtures retain their separate TypeScript 7 compiler pins.
+The conversion covers `MnObject`, `extend`, `Events`, and the ID, cleanup, and
+event helpers they use. `Events` owns its contract types; the compiler checks its
+registry and listening implementation against each overload. The mixin's composed
+receiver, schema-free callback arguments, and JavaScript `triggerMethod` lookup
+remain explicit typing boundaries. Other JavaScript mixins remain unchecked, with
+their methods typed at the composition boundary.
+
+These declarations are not a complete core typing contract and are not published.
+Continue typing shared mixins at their implementations, then reuse those types
+across classes. Application's asynchronous `destroy` must remain distinct from
+MnObject's synchronous return type. Optional-package consumer fixtures retain
+their separate TypeScript 7 compiler pins.
 
 Class `.extend` is exercised by these fixtures. The standalone `extend` export
 still has a conservative `Function` return type in the private declarations; its

@@ -1,4 +1,4 @@
-import buildEventArgs from './build-event-args.js';
+import buildEventArgs from './build-event-args.ts';
 import disposeAll from './dispose-all.ts';
 import MarionetteError from '../modules/error.js';
 import { normalizeBindings } from '../modules/common/bind-events.js';
