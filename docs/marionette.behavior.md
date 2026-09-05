@@ -362,8 +362,8 @@ including:
 
 * [`events`](./dom.interactions.md#view-events)
 * [`triggers`](./dom.interactions.md#view-triggers)
-* [`modelEvents`](./events.entity.md#model-events)
-* [`collectionEvents`](./events.entity.md#collection-events)
+* [`modelEvents`](./events.entity.md)
+* [`collectionEvents`](./events.entity.md)
 
 ```javascript
 import { Behavior } from 'marionette';

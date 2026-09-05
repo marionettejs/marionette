@@ -8,7 +8,7 @@ Region for the feature's view tree.
 - [Common Marionette Functionality](./common.md)
 - [Class Events](./events.class.md#application-events)
 - [Radio API](./radio.md#marionette-integration)
-- [State API](./marionette.state.md#owned-state)
+- [State API](./marionette.state.md#borrowed-and-owned-sources)
 
 `Application` is an independent class. It does not inherit from `MnObject` and
 does not add an element or render method.

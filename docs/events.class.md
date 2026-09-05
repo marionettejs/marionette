@@ -155,7 +155,7 @@ with its own destruction. A `destroy` event occurring on the `Behavior` will hav
 ## Region Events
 
 When you show a view inside a region - either using [`region.show(view)`](./marionette.region.md#showing-a-view) or
-[`showChildView('region', view)`](./marionette.view.md#showing-a-view) - the `Region` will emit events around the view
+[`showChildView('region', view)`](./marionette.view.md#showing-a-child-view) - the `Region` will emit events around the view
 events that you can hook into.
 
 The `Region` class also triggers [Destroy Events](#destroy-and-beforedestroy-events).
