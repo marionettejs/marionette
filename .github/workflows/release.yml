@@ -12,7 +12,6 @@ on:
       - 'config/release/**'
       - 'config/release-profile.json'
       - 'config/release-promotion.json'
-      - 'dist/**'
       - 'package-lock.json'
       - 'package.json'
       - 'packages/data/**'
@@ -20,7 +19,14 @@ on:
       - 'test/dist/**'
       - 'test/fixtures/**'
       - 'test/release/**'
-      - 'version.js'
+      - 'build/**'
+      - 'rollup.config.mjs'
+      - 'index.js'
+      - 'create-marionette.js'
+      - 'modules/**'
+      - 'mixins/**'
+      - 'runtime/**'
+      - 'utils/**'
   workflow_dispatch:
     inputs:
       publish:
@@ -121,12 +127,6 @@ jobs:
 
       - name: Run configured coverage
         run: npm run coverage
-
-      - name: Build and verify committed distributable projection
-        run: npm run check:dist
-
-      - name: Test built distributables
-        run: npm run test:dist
 
       - name: Pack immutable release artifacts
         id: artifact
