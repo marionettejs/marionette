@@ -1,5 +1,5 @@
-import Behavior from '../../modules/behavior';
-import View from '../../modules/view';
+import Behavior from '../../src/modules/behavior';
+import View from '../../src/modules/view';
 
 describe('Behavior communication contract', function() {
   it('broadcasts host triggerMethod calls to top-level and nested Behaviors after the host method', function() {

@@ -12,7 +12,7 @@ export default [
     input: 'build/version.js',
     output: [
       {
-        file: 'version.js',
+        file: 'src/version.js',
         format: 'es',
       },
     ],
@@ -21,7 +21,7 @@ export default [
     ],
   },
   {
-    input: 'index.js',
+    input: 'src/index.js',
     output: [
       {
         file: 'dist/marionette.umd.js',
@@ -46,7 +46,7 @@ export default [
     ]
   },
   {
-    input: 'index.js',
+    input: 'src/index.js',
     output: [
       {
         file: 'dist/marionette.min.js',

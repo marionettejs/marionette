@@ -1,4 +1,4 @@
-import MarionetteError from '../../utils/error.js';
+import MarionetteError from '../error.js';
 import { setProperty } from '../../utils/assign-in.js';
 import isString from '../../utils/is-string.js';
 

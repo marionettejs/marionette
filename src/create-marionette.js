@@ -14,7 +14,7 @@ import DomApi from './runtime/dom-api.js';
 import DataApi from './runtime/data-api.js';
 import EventDelegator from './runtime/event-delegator.js';
 import StateApi from './runtime/state-api.js';
-import MarionetteError from './utils/error.js';
+import MarionetteError from './modules/error.js';
 import { version as VERSION } from './version.js';
 import { runtimeId } from './runtime/runtime-id.js';
 

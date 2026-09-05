@@ -1,14 +1,14 @@
 import vm from 'node:vm';
 
-import BehaviorsMixin from '../../../mixins/behaviors';
-import CommonMixin from '../../../mixins/common';
-import DelegateEntityEventsMixin from '../../../mixins/delegate-entity-events';
-import StateMixin from '../../../mixins/state';
-import TemplateRenderMixin from '../../../mixins/template-render';
-import UIMixin from '../../../mixins/ui';
-import ViewMixin from '../../../mixins/view';
-import ViewEventsMixin from '../../../mixins/view-events';
-import MarionetteError from '../../../utils/error';
+import BehaviorsMixin from '../../../src/mixins/behaviors';
+import CommonMixin from '../../../src/mixins/common';
+import DelegateEntityEventsMixin from '../../../src/mixins/delegate-entity-events';
+import StateMixin from '../../../src/mixins/state';
+import TemplateRenderMixin from '../../../src/mixins/template-render';
+import UIMixin from '../../../src/mixins/ui';
+import ViewMixin from '../../../src/mixins/view';
+import ViewEventsMixin from '../../../src/mixins/view-events';
+import MarionetteError from '../../../src/modules/error';
 
 const mixins = [
   BehaviorsMixin,
@@ -342,7 +342,7 @@ describe('ViewMixin owned helpers', function() {
           });
         });
 
-        ({ default: IsolatedViewMixin } = await import('../../../mixins/view.js?composition-test'));
+        ({ default: IsolatedViewMixin } = await import('../../../src/mixins/view.js?composition-test'));
       } catch (error) {
         primaryError = error;
       }

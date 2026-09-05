@@ -1,6 +1,6 @@
 'use strict';
 
-import { Application } from '../../index';
+import { Application } from '../../src/index';
 
 async function expectRejection(promise, expectedError) {
   try {

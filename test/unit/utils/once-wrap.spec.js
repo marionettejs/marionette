@@ -1,4 +1,4 @@
-import onceWrap from '../../../utils/once-wrap';
+import onceWrap from '../../../src/utils/once-wrap';
 
 describe('onceWrap', function() {
   it('unbinds before invoking the callback and memoizes its result', function() {

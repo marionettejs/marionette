@@ -1,11 +1,11 @@
-import Behavior from '../../modules/behavior';
-import CommonMixin from '../../mixins/common';
-import DelegateEntityEventsMixin from '../../mixins/delegate-entity-events';
-import StateMixin from '../../mixins/state';
-import UIMixin from '../../mixins/ui';
-import ViewEventsMixin from '../../mixins/view-events';
-import extend from '../../utils/extend';
-import { setEventDelegator } from '../../runtime/event-delegator';
+import Behavior from '../../src/modules/behavior';
+import CommonMixin from '../../src/mixins/common';
+import DelegateEntityEventsMixin from '../../src/mixins/delegate-entity-events';
+import StateMixin from '../../src/mixins/state';
+import UIMixin from '../../src/mixins/ui';
+import ViewEventsMixin from '../../src/mixins/view-events';
+import extend from '../../src/utils/extend';
+import { setEventDelegator } from '../../src/runtime/event-delegator';
 
 const mixins = [
   CommonMixin,
@@ -290,7 +290,7 @@ describe('Behavior composition', function() {
         });
         commonProtoMutated = true;
 
-        ({ default: IsolatedBehaviorClass } = await import('../../modules/behavior.js?composition-test'));
+        ({ default: IsolatedBehaviorClass } = await import('../../src/modules/behavior.js?composition-test'));
       } catch (error) {
         primaryFailed = true;
         primaryError = error;

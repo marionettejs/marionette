@@ -1,4 +1,4 @@
-import { Behavior, MarionetteError, Region, View } from '../../index';
+import { Behavior, MarionetteError, Region, View } from '../../src/index';
 
 function state(view) {
   return {

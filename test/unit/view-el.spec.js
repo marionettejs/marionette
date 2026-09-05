@@ -1,8 +1,8 @@
 import { JSDOM } from 'jsdom';
 
-import View from '../../modules/view';
-import CollectionView from '../../modules/collection-view';
-import MarionetteError from '../../utils/error';
+import View from '../../src/modules/view';
+import CollectionView from '../../src/modules/collection-view';
+import MarionetteError from '../../src/modules/error';
 
 describe('View el policy', function() {
   let document;

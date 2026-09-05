@@ -1,6 +1,6 @@
 import _ from 'underscore';
-import CommonMixin from '../../../mixins/common';
-import EventsMixin from '../../../mixins/events';
+import CommonMixin from '../../../src/mixins/common';
+import EventsMixin from '../../../src/mixins/events';
 
 describe('Common Mixin', function() {
   describe('#setOptions', function() {
@@ -152,7 +152,7 @@ describe('Common Mixin', function() {
       try {
         expect(Object.hasOwn(EventsMixin, 'inheritedEventPollution')).to.equal(false);
         expect(EventsMixin.inheritedEventPollution).to.be.a('function');
-        ({ default: IsolatedCommonMixin } = await import('../../../mixins/common.js?composition-test'));
+        ({ default: IsolatedCommonMixin } = await import('../../../src/mixins/common.js?composition-test'));
       } finally {
         Object.setPrototypeOf(EventsMixin, eventsPrototype);
       }

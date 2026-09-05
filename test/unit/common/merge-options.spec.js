@@ -1,5 +1,5 @@
-import mergeOptions from '../../../modules/common/merge-options';
-import MarionetteError from '../../../utils/error';
+import mergeOptions from '../../../src/modules/common/merge-options';
+import MarionetteError from '../../../src/modules/error';
 
 describe('mergeOptions', function() {
   let target;

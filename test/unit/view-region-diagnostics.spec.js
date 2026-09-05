@@ -1,4 +1,4 @@
-import { MarionetteError, Region, View } from '../../index';
+import { MarionetteError, Region, View } from '../../src/index';
 
 const childOperations = [
   ['showChildView', (view, name) => {

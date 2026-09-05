@@ -2,11 +2,11 @@
 
 import _ from 'underscore';
 import Backbone from 'backbone';
-import CollectionView from '../../../modules/collection-view';
-import View from '../../../modules/view';
-import Region from '../../../modules/region';
-import Events from '../../../mixins/events';
-import MarionetteError from '../../../utils/error';
+import CollectionView from '../../../src/modules/collection-view';
+import View from '../../../src/modules/view';
+import Region from '../../../src/modules/region';
+import Events from '../../../src/mixins/events';
+import MarionetteError from '../../../src/modules/error';
 
 describe('CollectionView -  Empty', function() {
   let MyEmptyView;

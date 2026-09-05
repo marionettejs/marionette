@@ -30,7 +30,7 @@ npm run performance:timing
 ```
 
 `npm ci` builds the packages and checks the core distributions through `prepare`.
-Generated `dist/` directories and `version.js` are ignored by Git; edit source files
+Generated `dist/` directories and `src/version.js` are ignored by Git; edit source files
 and the handwritten declarations in `packages/*/types/`. After source edits, run
 `npm run build` before distribution or browser checks. The fixture runner builds
 once before packing local packages; supplying all three tarballs skips rebuilding. `npm pack` and npm Git installs
@@ -47,6 +47,23 @@ runner boundary and reproducibility requirements.
 The full coverage and fixture commands take longer than a focused test. Run the
 smallest useful test while developing, then run the checks required by the linked
 issue before requesting review.
+
+## Repository layout
+
+Core production source lives under `src/`:
+
+- `src/modules/` owns framework classes and module-level contracts, including
+  `MarionetteError`;
+- `src/mixins/` owns capabilities composed into those classes;
+- `src/runtime/` owns configurable runtime protocols and defaults;
+- `src/utils/` owns small shared implementation helpers.
+
+Separately published packages keep their production source under
+`packages/<name>/src/`. Unit specs remain under `test/unit/` because Marionette tests
+usually exercise lifecycle, ownership, and composition contracts across several source
+files. Browser, package-fixture, performance, documentation, source, and release tests
+remain in their named `test/` suites. Do not introduce a second adjacent-test convention
+or restore obsolete root-level source paths.
 
 ## Report a bug
 

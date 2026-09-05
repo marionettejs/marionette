@@ -3,10 +3,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
-import CollectionView from '../../../modules/collection-view';
-import ChildViewContainer from '../../../modules/child-view-container';
-import View from '../../../modules/view';
-import Region from '../../../modules/region';
+import CollectionView from '../../../src/modules/collection-view';
+import ChildViewContainer from '../../../src/modules/child-view-container';
+import View from '../../../src/modules/view';
+import Region from '../../../src/modules/region';
 
 
 describe('CollectionView Children', function() {

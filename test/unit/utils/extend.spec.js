@@ -6,7 +6,7 @@ import {
   Region,
   View,
   extend
-} from '../../../index';
+} from '../../../src/index';
 
 function defineProto(object, value) {
   Object.defineProperty(object, '__proto__', {

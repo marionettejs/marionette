@@ -2,8 +2,8 @@
 
 import _ from 'underscore';
 import Backbone from 'backbone';
-import CollectionView from '../../../modules/collection-view';
-import View from '../../../modules/view';
+import CollectionView from '../../../src/modules/collection-view';
+import View from '../../../src/modules/view';
 
 describe('CollectionView - ViewMixin', function() {
 

@@ -1,5 +1,5 @@
 import Backbone from 'backbone';
-import View from '../../modules/view';
+import View from '../../src/modules/view';
 
 describe('view triggers', function() {
   'use strict';

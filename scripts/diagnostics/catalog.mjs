@@ -180,7 +180,7 @@ function addRuntimeSourceErrors(runtimeSources, diagnosticsByCode, errors) {
     const marionetteErrorBindings = new Set(['MarionetteError']);
     for (const node of ast.body) {
       if (node.type !== 'ImportDeclaration' ||
-        !/(?:^|\/)utils\/error\.js$/.test(node.source.value)) {
+        !/(?:^|\/)error\.js$/.test(node.source.value)) {
         continue;
       }
 

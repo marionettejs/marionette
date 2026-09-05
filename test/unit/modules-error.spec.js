@@ -1,5 +1,5 @@
-import { MarionetteError as PublicMarionetteError, VERSION } from '../../../index.js';
-import MarionetteError from '../../../utils/error';
+import { MarionetteError as PublicMarionetteError, VERSION } from '../../src/index.js';
+import MarionetteError from '../../src/modules/error';
 
 describe('MarionetteError', function() {
   it('should be subclass of native Error', function() {

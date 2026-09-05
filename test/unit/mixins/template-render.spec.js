@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import Backbone from 'backbone';
 
-import TemplateRenderMixin from '../../../mixins/template-render';
+import TemplateRenderMixin from '../../../src/mixins/template-render';
 import BackboneApi from '../../../packages/adapters/src/backbone-api';
 
 describe('template-render', function() {

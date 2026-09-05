@@ -1,7 +1,7 @@
 // Error
 // -----
 
-import extend from './extend.js';
+import extend from '../utils/extend.js';
 import {version} from '../version.js';
 
 const errorProps = ['code', 'description', 'fileName', 'lineNumber', 'name', 'message', 'number', 'url'];

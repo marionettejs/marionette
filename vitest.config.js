@@ -5,7 +5,7 @@ export default defineConfig({
   resolve: {
     alias: [{
       find: /^marionette$/,
-      replacement: fileURLToPath(new URL('./index.js', import.meta.url))
+      replacement: fileURLToPath(new URL('./src/index.js', import.meta.url))
     }]
   },
   test: {
@@ -17,14 +17,9 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
       include: [
-        'index.js',
-        'mixins/**/*.js',
+        'src/**/*.js',
         'packages/adapters/src/**/*.js',
-        'modules/**/*.js',
-        'packages/data/src/**/*.js',
-        'runtime/**/*.js',
-        'utils/**/*.js',
-        'version.js'
+        'packages/data/src/**/*.js'
       ],
       thresholds: {
         lines: 100,

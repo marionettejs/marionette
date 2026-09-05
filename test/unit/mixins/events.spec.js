@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import EventsMixin from '../../../mixins/events';
+import EventsMixin from '../../../src/mixins/events';
 
 describe('Events Mixin', function() {
   describe('#trigger with an object map', function() {

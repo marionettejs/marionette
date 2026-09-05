@@ -1,5 +1,5 @@
-import Requests from '../../mixins/requests';
-import { setDebug } from '../../modules/common/radio';
+import Requests from '../../src/mixins/requests';
+import { setDebug } from '../../src/modules/common/radio';
 
 function handler(callback, context) {
   return { callback, context };

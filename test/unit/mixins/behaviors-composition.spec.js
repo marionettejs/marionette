@@ -1,4 +1,4 @@
-import BehaviorsMixin from '../../../mixins/behaviors';
+import BehaviorsMixin from '../../../src/mixins/behaviors';
 
 function assignmentDescriptor(value) {
   return {

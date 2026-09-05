@@ -1,5 +1,5 @@
-import View from '../../../modules/view';
-import monitorViewEvents from '../../../modules/common/monitor-view-events';
+import View from '../../../src/modules/view';
+import monitorViewEvents from '../../../src/modules/common/monitor-view-events';
 
 describe('monitorViewEvents', function() {
   it('ignores a non-Array child collection without traversal', function() {

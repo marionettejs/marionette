@@ -29,4 +29,4 @@ test/tmp
 # Generated package outputs
 /dist/
 /packages/*/dist/
-/version.js
+/src/version.js

@@ -1,8 +1,8 @@
 import { JSDOM } from 'jsdom';
 
-import Region from '../../modules/region';
-import View from '../../modules/view';
-import MarionetteError from '../../utils/error';
+import Region from '../../src/modules/region';
+import View from '../../src/modules/view';
+import MarionetteError from '../../src/modules/error';
 
 describe('Region el validation', function() {
   let document;

@@ -1,9 +1,9 @@
 import Backbone from 'backbone';
 
-import Behavior from '../../modules/behavior';
-import CollectionView from '../../modules/collection-view';
-import Region from '../../modules/region';
-import View from '../../modules/view';
+import Behavior from '../../src/modules/behavior';
+import CollectionView from '../../src/modules/collection-view';
+import Region from '../../src/modules/region';
+import View from '../../src/modules/view';
 
 describe('Behavior lifecycle contract', function() {
   it('initializes around its host View in public lifecycle order', function() {

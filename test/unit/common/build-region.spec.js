@@ -1,7 +1,7 @@
 import $ from 'jquery';
-import ownedBuildRegion from '../../../modules/common/build-region';
-import View from '../../../modules/view';
-import Region from '../../../modules/region';
+import ownedBuildRegion from '../../../src/modules/common/build-region';
+import View from '../../../src/modules/view';
+import Region from '../../../src/modules/region';
 
 describe('Region', function() {
   describe('.buildRegion', function() {

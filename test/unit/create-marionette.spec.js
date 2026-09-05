@@ -1,4 +1,4 @@
-import * as Marionette from '../../index.js';
+import * as Marionette from '../../src/index.js';
 
 describe('createMarionette', function() {
   it('builds the default exports and explicit runtimes through one class-family contract', function() {

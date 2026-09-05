@@ -2,7 +2,7 @@
 // ------
 
 import { assignOwn } from '../utils/assign-in.js';
-import MarionetteError from '../utils/error.js';
+import MarionetteError from './error.js';
 import extend from '../utils/extend.js';
 import getValue from '../utils/get-value.js';
 import isString from '../utils/is-string.js';

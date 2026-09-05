@@ -1,4 +1,4 @@
-import subscribeBindings, { normalizeCleanup } from '../../../utils/subscribe-bindings';
+import subscribeBindings, { normalizeCleanup } from '../../../src/utils/subscribe-bindings';
 
 describe('subscribe bindings', function() {
   it('normalizes an adapter cleanup function as idempotent', function() {

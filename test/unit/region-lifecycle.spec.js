@@ -1,9 +1,9 @@
 import _ from 'underscore';
 
-import CollectionView from '../../modules/collection-view';
-import Region from '../../modules/region';
-import View from '../../modules/view';
-import MarionetteError from '../../utils/error';
+import CollectionView from '../../src/modules/collection-view';
+import Region from '../../src/modules/region';
+import View from '../../src/modules/view';
+import MarionetteError from '../../src/modules/error';
 
 describe('Region lifecycle contract', function() {
   'use strict';

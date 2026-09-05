@@ -1,6 +1,6 @@
 'use strict';
 
-import { Application, MarionetteError } from '../../index';
+import { Application, MarionetteError } from '../../src/index';
 
 async function expectRejection(promise, expectedError) {
   try {

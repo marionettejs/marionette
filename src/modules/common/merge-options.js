@@ -1,5 +1,5 @@
 import { setProperty } from '../../utils/assign-in.js';
-import MarionetteError from '../../utils/error.js';
+import MarionetteError from '../error.js';
 
 const propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
 
