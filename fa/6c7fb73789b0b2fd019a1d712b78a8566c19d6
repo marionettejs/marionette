@@ -1,0 +1,41 @@
+dist/marionette.cjs
+  s_060efbb5bf6218::t_333fe0369e72f4 1168-1170,1183,1190-1193,1215-1226,1245
+dist/marionette.js
+  s_060efbb5bf6218::t_e486be45f5ffcb 1164-1166,1179,1186-1189,1211-1222,1241
+dist/marionette.umd.js
+  s_060efbb5bf6218::t_877180e49446eb 1175-1177,1190,1197-1200,1222-1233,1252
+dist/marionette.umd.js.map
+  s_060efbb5bf6218::t_7bf059ba41d8bb 1
+docs/marionette.state.md
+  s_060efbb5bf6218::t_ee85fd94ed88af 95-98
+mixins/state.js
+  s_060efbb5bf6218::t_fd7e8aa4510cd9 29-46,69
+test/unit/data-api-integration.spec.js
+  s_060efbb5bf6218::t_af9e1277c153ac 84-106
+test/unit/state-owner.spec.js
+  s_060efbb5bf6218::t_f9ac4bbb1c0891 146-225
+test/unit/utils/subscribe-bindings.spec.js
+  s_060efbb5bf6218::t_2aaaa76a6c0a89 30-44
+utils/subscribe-bindings.js
+  s_060efbb5bf6218::t_e7b846fc0b47e0 30-31,41,46-48
+dist/marionette.min.js
+  s_060efbb5bf6218::t_1747778df2ec4d 1
+dist/marionette.min.js.map
+  s_060efbb5bf6218::t_74260ac179b0c8 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "fa6c7fb73789b0b2fd019a1d712b78a8566c19d6",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
