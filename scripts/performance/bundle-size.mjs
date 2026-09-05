@@ -236,7 +236,8 @@ export function validateContract(
     });
     const localSubpath = owningPackage && !owningPackage.directory ?
       graph.subpath : owningPackage ?
-        `./${graph.subpath.slice(owningPackage.packageJson.name.length + 1)}` : null;
+        graph.subpath === owningPackage.packageJson.name ? '.' :
+          `./${graph.subpath.slice(owningPackage.packageJson.name.length + 1)}` : null;
     const exportedPaths = localSubpath ? new Set([...collectRuntimePaths(
       owningPackage.packageJson.exports?.[localSubpath]
     )].map(path => packageRuntimePath(owningPackage.directory, path))) : new Set();
@@ -749,12 +750,16 @@ export async function measure({
     if (error.code === 'ENOENT') { return null; }
     throw error;
   });
+  // Keep old exact-base reports faithful to their original artifact set.
+  const dataPackageJson = contract.productionGraphs.some(({ subpath }) => subpath === '@marionette/data') ?
+    await readJson(resolve(resolvedRoot, 'packages/data/package.json')) : null;
   const runtimePackages = [
     { directory: '', packageJson },
     ...(adaptersPackageJson ? [{
       directory: 'packages/adapters',
       packageJson: adaptersPackageJson,
     }] : []),
+    ...(dataPackageJson ? [{ directory: 'packages/data', packageJson: dataPackageJson }] : []),
   ];
   const runtimeFiles = (await Promise.all(runtimePackages.map(async({ directory }) => {
     const distDirectory = resolve(resolvedRoot, directory, 'dist');
@@ -797,17 +802,18 @@ export async function measure({
     const configUrl = pathToFileURL(resolve(resolvedRoot, 'rollup.config.mjs'));
     const { default: rootConfigurations } = await import(configUrl.href);
     configurations = [...rootConfigurations];
-    if (adaptersPackageJson) {
-      const adaptersRoot = resolve(resolvedRoot, 'packages/adapters');
-      const adaptersConfigUrl = pathToFileURL(resolve(adaptersRoot, 'rollup.config.mjs'));
-      const { default: adapterConfigurations } = await import(adaptersConfigUrl.href);
-      configurations.push(...adapterConfigurations.map(configuration => ({
+    for (const { directory } of runtimePackages.slice(1)) {
+      const packageRoot = resolve(resolvedRoot, directory);
+      const packageConfigUrl = pathToFileURL(resolve(packageRoot, 'rollup.config.mjs'));
+      const { default: packageConfigurations } = await import(packageConfigUrl.href);
+      const packageConfigs = Array.isArray(packageConfigurations) ? packageConfigurations : [packageConfigurations];
+      configurations.push(...packageConfigs.map(configuration => ({
         ...configuration,
-        input: resolveRollupInput(adaptersRoot, configuration.input),
+        input: resolveRollupInput(packageRoot, configuration.input),
         output: (Array.isArray(configuration.output) ?
           configuration.output : [configuration.output]).map(output => ({
           ...output,
-          file: resolve(adaptersRoot, output.file),
+          file: resolve(packageRoot, output.file),
         })),
       })));
     }

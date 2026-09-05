@@ -199,6 +199,22 @@ describe('performance contract validation', () => {
     ), []);
   });
 
+  test('rejects a scoped package-root graph without a matching package export', () => {
+    const paths = ['packages/adapters/dist/backbone.js'];
+    const contract = contractFor(paths);
+    contract.productionGraphs[0].subpath = '@marionette/adapters';
+    const packageJson = {
+      name: '@marionette/adapters',
+      exports: { './backbone': { import: './dist/backbone.js' } },
+    };
+    const violations = validateContract(contract, {}, paths, null, [
+      { directory: 'packages/adapters', packageJson },
+    ]);
+
+    assert.ok(violations.includes(
+      'Production graph @marionette/adapters output packages/adapters/dist/backbone.js is not exported by that subpath'));
+  });
+
   test('surfaces malformed growth approval policy through contract validation', () => {
     const contract = contractFor();
     contract.pullRequestGrowthApproval.allowedLogins = ['zed', 'alpha'];
@@ -352,6 +368,82 @@ describe('performance contract validation', () => {
         result.graphs.find(graph => graph.subpath === './feature').forbiddenExternalImports,
         []
       );
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
+  test('measures the native package root only when its graph is enrolled', async() => {
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-data-measurement-'));
+    const contract = contractFor(['dist/index.mjs']);
+    contract.runtimeArtifacts[0].baselineBrotliBytes = 100;
+    contract.baseline.totalBrotliBytes = 100;
+    contract.baseline.absoluteCeilingBytes = 100;
+    contract.productionGraphs[0] = {
+      subpath: '.', input: 'index.js', output: 'dist/index.mjs',
+      baselineModules: ['index.js'], baselineExternalImports: [],
+    };
+    const options = {
+      root: fixtureRoot, configPath: join(fixtureRoot, 'performance.json'),
+      checkToolchain: false,
+    };
+    try {
+      await Promise.all(['dist', 'packages/data/dist', 'packages/data/src'].map(directory =>
+        mkdir(join(fixtureRoot, directory), { recursive: true })));
+      await Promise.all([
+        writeFile(join(fixtureRoot, 'package.json'), JSON.stringify({
+          name: 'marionette', type: 'module', exports: { '.': './dist/index.mjs' },
+        })),
+        writeFile(join(fixtureRoot, 'packages/data/package.json'),
+          await readFile(join(root, 'packages/data/package.json'))),
+        writeFile(join(fixtureRoot, 'performance.json'), JSON.stringify(contract)),
+        writeFile(join(fixtureRoot, 'index.js'), 'export const root = true;\n'),
+        writeFile(join(fixtureRoot, 'dist/index.mjs'), 'export const root = true;\n'),
+        writeFile(join(fixtureRoot, 'packages/data/src/index.js'),
+          'export { Events } from \'marionette\';\n'),
+        writeFile(join(fixtureRoot, 'packages/data/dist/index.js'),
+          'export { Events } from \'marionette\';\n'),
+        writeFile(join(fixtureRoot, 'packages/data/dist/index.cjs'),
+          'exports.Events = require(\'marionette\').Events;\n'),
+        writeFile(join(fixtureRoot, 'rollup.config.mjs'),
+          'export default [{ input: \'index.js\', output: { file: \'dist/index.mjs\', format: \'es\' } }];\n'),
+        writeFile(join(fixtureRoot, 'packages/data/rollup.config.mjs'),
+          'export default { input: \'src/index.js\', external: [\'marionette\'], output: [' +
+          '{ file: \'dist/index.js\', format: \'es\' }, { file: \'dist/index.cjs\', format: \'cjs\' }] };\n'),
+      ]);
+      const unenrolled = await measure(options);
+      assert.equal(unenrolled.violations.length, 1);
+      assert.match(unenrolled.violations[0], /^Unable to measure consumer bundles: ENOENT:/);
+      assert.deepEqual(unenrolled.artifacts.map(({ path }) => path), ['dist/index.mjs']);
+      assert.deepEqual(unenrolled.graphs.map(({ subpath }) => subpath), ['.']);
+
+      contract.runtimeArtifacts.push(...['js', 'cjs'].map(extension => ({
+        name: `Data ${extension}`, path: `packages/data/dist/index.${extension}`,
+        baselineBrotliBytes: 0,
+      })));
+      contract.productionGraphs.push({
+        subpath: '@marionette/data', input: 'packages/data/src/index.js',
+        output: 'packages/data/dist/index.js', baselineModules: [], baselineExternalImports: [],
+      });
+      await writeFile(options.configPath, JSON.stringify(contract));
+      const enrolled = await measure(options);
+      assert.deepEqual(enrolled.violations, unenrolled.violations);
+      assert.deepEqual(enrolled.artifacts.map(({ path }) => path), [
+        'dist/index.mjs', 'packages/data/dist/index.js', 'packages/data/dist/index.cjs',
+      ]);
+      assert.ok(enrolled.artifacts.every(({ status }) => status === 'measured'));
+      const graph = enrolled.graphs.find(({ subpath }) => subpath === '@marionette/data');
+      assert.equal(graph.status, 'measured');
+      assert.deepEqual(graph.modules, ['packages/data/src/index.js']);
+      assert.deepEqual(graph.externalImports, ['marionette']);
+      assert.equal(enrolled.cumulative.coreSize, unenrolled.cumulative.coreSize);
+      assert.equal(enrolled.cumulative.coreBaselineSize, unenrolled.cumulative.coreBaselineSize);
+      assert.equal(enrolled.cumulative.absoluteCeiling, unenrolled.cumulative.absoluteCeiling);
+
+      await writeFile(join(fixtureRoot, 'packages/data/dist/untracked.js'), 'export const extra = true;\n');
+      const untracked = await measure(options);
+      assert.ok(untracked.violations.includes(
+        'Shipped runtime artifacts are untracked: packages/data/dist/untracked.js'));
     } finally {
       await rm(fixtureRoot, { recursive: true, force: true });
     }
