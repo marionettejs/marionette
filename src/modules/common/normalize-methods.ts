@@ -5,7 +5,7 @@ import type { EventCallback, EventMap } from '../../mixins/events.ts';
 
 // Values are checked when method references are resolved.
 export type Bindings = object;
-type OptionalBindings = Bindings | null | false | 0 | '' | undefined;
+type OptionalBindings = Bindings | null | false | 0 | 0n | '' | undefined;
 
 // Marionette.normalizeMethods
 // ----------------------
@@ -36,7 +36,7 @@ const resolveMethod = function(context: unknown, method: unknown, name: string):
   return resolvedMethod as EventCallback;
 };
 
-function normalizeMethods(this: unknown, hash?: null | false | 0 | ''): undefined;
+function normalizeMethods(this: unknown, hash?: null | false | 0 | 0n | ''): undefined;
 function normalizeMethods(this: unknown, hash: Bindings): EventMap;
 function normalizeMethods(this: unknown, hash?: OptionalBindings): EventMap | undefined;
 function normalizeMethods(this: unknown, hash?: OptionalBindings) {

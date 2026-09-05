@@ -61,16 +61,16 @@ listeningOwner.unbindEvents(source, false);
 owner.bindRequests(replyChannel, false);
 owner.unbindRequests(replyOwner, false);
 
-for (const absentSource of [false, 0, '', null, undefined] as const) {
+for (const absentSource of [false, 0, 0n, '', null, undefined] as const) {
   const bound: typeof listener = listener.bindEvents(absentSource, { changed: 'handleChange' });
   const unbound: typeof listeningOwner = listeningOwner.unbindEvents(absentSource);
   const replied: typeof owner = owner.bindRequests(absentSource, { lookup: 'lookup' });
   const stopped: typeof owner = owner.unbindRequests(absentSource);
 }
-declare const maybeSource: EventSource | false | 0 | '' | null | undefined;
+declare const maybeSource: EventSource | false | 0 | 0n | '' | null | undefined;
 const maybeListener: typeof listener = listener.bindEvents(maybeSource, { changed: 'handleChange' });
 const maybeOwner: typeof listeningOwner = listeningOwner.unbindEvents(maybeSource);
-declare const maybeChannel: Requests | false | 0 | '' | null | undefined;
+declare const maybeChannel: Requests | false | 0 | 0n | '' | null | undefined;
 const maybeReplyOwner: typeof owner = owner.bindRequests(maybeChannel, { lookup: 'lookup' });
 const maybeStoppedOwner: typeof owner = owner.unbindRequests(maybeChannel);
 declare const unsupportedSource: EventSource | true;
@@ -79,3 +79,27 @@ listener.bindEvents(unsupportedSource, { changed: 'handleChange' });
 declare const unsupportedChannel: Requests | true;
 // @ts-expect-error A truthy boolean is not a reply channel.
 owner.bindRequests(unsupportedChannel, { lookup: 'lookup' });
+
+const zeroBigintMap: undefined = normalizeMethods(0n);
+listener.bindEvents(source, 0n);
+listeningOwner.unbindEvents(source, 0n);
+owner.bindRequests(replyChannel, 0n);
+owner.unbindRequests(replyOwner, 0n);
+// @ts-expect-error A truthy bigint is not a binding map.
+normalizeMethods(1n);
+// @ts-expect-error A truthy bigint is not an event source.
+listener.bindEvents(1n, {});
+// @ts-expect-error A truthy bigint is not an event source.
+listeningOwner.unbindEvents(1n);
+// @ts-expect-error A truthy bigint is not a reply channel.
+owner.bindRequests(1n, {});
+// @ts-expect-error A truthy bigint is not a reply channel.
+owner.unbindRequests(1n);
+// @ts-expect-error A truthy bigint is not an event binding map.
+listener.bindEvents(source, 1n);
+// @ts-expect-error A truthy bigint is not an event binding map.
+listeningOwner.unbindEvents(source, 1n);
+// @ts-expect-error A truthy bigint is not a reply binding map.
+owner.bindRequests(replyChannel, 1n);
+// @ts-expect-error A truthy bigint is not a reply binding map.
+owner.unbindRequests(replyOwner, 1n);
