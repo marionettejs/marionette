@@ -1,0 +1,41 @@
+.github/workflows/release.yml
+  s_060efbb5bf6218::t_771711f05ebaa4 22-29
+.gitignore
+  s_060efbb5bf6218::t_0ccec64b32e18d 28-32
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_58d786eec2236f 32-40
+build/clean.js
+  s_060efbb5bf6218::t_494897dd6d0cc4 1,3
+docs/release-promotion.md
+  s_060efbb5bf6218::t_516ad70b925553 19-25,67
+package.json
+  s_060efbb5bf6218::t_ba3f5dd27e9fd1 47,78
+packages/adapters/package.json
+  s_060efbb5bf6218::t_13778fc4add7db 109
+packages/data/package.json
+  s_060efbb5bf6218::t_168dc424ac4429 39
+scripts/release/build-artifact.mjs
+  s_060efbb5bf6218::t_d1d411d80407b2 112-115
+test/fixtures/run.mjs
+  s_060efbb5bf6218::t_3ac7b26a1b315a 70-72,80,102,125,171
+test/performance/contract.test.mjs
+  s_060efbb5bf6218::t_35c226d852cb15 1020
+test/source/validate.mjs
+  s_060efbb5bf6218::t_4dca8b5e9e8cff 105
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "ac8368d04610e242016f095bfa4d13984d3eb10b",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
