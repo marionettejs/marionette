@@ -1165,6 +1165,9 @@ function subscribeBindings(context, Api, source, bindings, apiName) {
   const subscriptions = [];
   try {
     for (let index = 0; index < eventArgs.length; index++) {
+      if (context._isDestroyed) {
+        break;
+      }
       const {
         name,
         callback,
@@ -1177,13 +1180,17 @@ function subscribeBindings(context, Api, source, bindings, apiName) {
     disposeAll(subscriptions, error);
   }
   let isDisposed = false;
-  return function () {
+  const cleanup = function () {
     if (isDisposed) {
       return;
     }
     isDisposed = true;
     disposeAll(subscriptions);
   };
+  if (context._isDestroyed) {
+    cleanup();
+  }
+  return cleanup;
 }
 
 const StateMixin = {
@@ -1205,8 +1212,18 @@ const StateMixin = {
       return this;
     }
     const stateEvents = getValue(this, 'stateEvents');
-    if (stateEvents) {
-      this._stateEventCleanup = subscribeBindings(this, this.State, this.getState(), stateEvents, 'StateApi');
+    if (stateEvents && !this._isDestroyed) {
+      this._isBindingStateEvents = true;
+      try {
+        this._stateEventCleanup = subscribeBindings(this, this.State, this.getState(), stateEvents, 'StateApi');
+      } catch (error) {
+        delete this._isBindingStateEvents;
+        disposeAll([() => this._destroyState()], error);
+      }
+      delete this._isBindingStateEvents;
+      if (this._isDestroyed) {
+        this._destroyState();
+      }
     }
     return this;
   },
@@ -1225,7 +1242,7 @@ const StateMixin = {
     return state;
   },
   _destroyState() {
-    if (!Object.hasOwn(this, '_state') || this._stateReleased) {
+    if (this._isBindingStateEvents || !Object.hasOwn(this, '_state') || this._stateReleased) {
       return this;
     }
     const state = this._state;

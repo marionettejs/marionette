@@ -143,6 +143,86 @@ describe('state source composition', function() {
     expect(calls).to.deep.equal(['cleanup', 'dispose']);
   });
 
+  for (const OwnerClass of [MnObject, View, CollectionView, Behavior]) {
+    it(`${ OwnerClass.name } releases subscriptions acquired while destruction runs`, function() {
+      const calls = [];
+      const source = createSource();
+      const Owner = OwnerClass.extend({
+        createState() { return source; },
+        stateEvents: { first() {}, second() { this.destroy(); }, third() {} }
+      });
+      const api = createStateApi();
+      Owner.setStateApi({
+        subscribe(state, eventName, callback, context) {
+          calls.push(`subscribe:${ eventName }`);
+          const cleanup = api.subscribe(state, eventName, callback, context);
+          callback.call(context);
+          return () => {
+            calls.push(`cleanup:${ eventName }`);
+            cleanup();
+          };
+        },
+        disposeOwned() {
+          calls.push('dispose');
+          expect([...source.listeners.values()].flat()).to.be.empty;
+        }
+      });
+      const view = OwnerClass === Behavior ? new View() : undefined;
+      const owner = new Owner({}, view);
+
+      owner.destroy();
+      expect(owner._isDestroyed).to.be.true;
+      expect(calls).to.deep.equal([
+        'subscribe:first', 'subscribe:second', 'cleanup:second', 'cleanup:first', 'dispose'
+      ]);
+      expect([...source.listeners.values()].flat()).to.be.empty;
+      view?.destroy();
+    });
+  }
+
+  it('preserves a subscription error when destruction also fails to dispose owned state', function() {
+    const error = new Error('subscription failed');
+    const calls = [];
+    const Owner = MnObject.extend({
+      createState() { return createSource(); },
+      stateEvents: { first() {}, second() {} }
+    });
+    Owner.setStateApi({
+      subscribe(source, eventName, callback, context) {
+        if (eventName === 'second') {
+          context.destroy();
+          throw error;
+        }
+        return () => calls.push('cleanup');
+      },
+      disposeOwned() {
+        calls.push('dispose');
+        throw new Error('disposal failed');
+      }
+    });
+
+    expect(() => new Owner()).to.throw(error);
+    expect(calls).to.deep.equal(['cleanup', 'dispose']);
+  });
+
+  it('does not subscribe after a state factory destroys its owner', function() {
+    const subscribe = this.sinon.spy();
+    const disposeOwned = this.sinon.spy();
+    const Owner = MnObject.extend({
+      createState() {
+        this.destroy();
+        return createSource();
+      },
+      stateEvents: { change() {} }
+    });
+    Owner.setStateApi({ subscribe, disposeOwned });
+    const owner = new Owner();
+
+    expect(owner.isDestroyed()).to.be.true;
+    expect(subscribe).not.to.have.been.called;
+    expect(disposeOwned).to.have.been.calledOnce;
+  });
+
   it('rolls back an owned factory source after initialize fails', function() {
     const error = new Error('initialize failed');
     const source = createSource();

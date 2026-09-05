@@ -27,4 +27,19 @@ describe('subscribe bindings', function() {
 
     expect(dispose).to.have.been.calledOnce;
   });
+  it('releases subscriptions when a synchronous callback destroys the context', function() {
+    const calls = [];
+    const context = { onChange() { this._isDestroyed = true; } };
+    const cleanup = subscribeBindings(context, {
+      subscribe(source, name, callback, eventContext) {
+        calls.push(name);
+        callback.call(eventContext);
+        return () => calls.push('cleanup');
+      }
+    }, {}, { first: 'onChange', second: 'onChange' }, 'TestApi');
+
+    cleanup();
+    expect(calls).to.deep.equal(['first', 'cleanup']);
+  });
+
 });
