@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2024",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "skipLibCheck": false,
+    "noEmit": true,
+    "types": []
+  },
+  "files": [
+    "consumer.mts",
+    "consumer.cts",
+    "helpers.mts",
+    "helpers.cts"
+  ]
+}

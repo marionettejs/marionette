@@ -3,13 +3,13 @@
 
 import { assignOwn, setProperty } from '../utils/assign-in.js';
 import MarionetteError from './error.js';
-import extend from '../utils/extend.js';
-import uniqueId from '../utils/unique-id.js';
+import extend from '../utils/extend.ts';
+import uniqueId from '../utils/unique-id.ts';
 import CommonMixin from '../mixins/common.js';
 import DestroyMixin from '../mixins/destroy.js';
 import RadioMixin from '../mixins/radio.js';
 import StateMixin from '../mixins/state.js';
-import disposeAll from '../utils/dispose-all.js';
+import disposeAll from '../utils/dispose-all.ts';
 import Region from './region.js';
 import buildRegion from './common/build-region.js';
 import { setStateApi } from '../runtime/state-api.js';
@@ -45,13 +45,18 @@ const Application = function(options) {
     this._initStateEvents();
   } catch (error) {
     const ownedRegion = this._ownedRegion;
-    delete this._region;
-    delete this._ownedRegion;
     disposeAll([
       () => this.stopListening(),
+      () => {
+        delete this._region;
+        delete this._ownedRegion;
+      },
       () => ownedRegion?.destroy(),
+      () => clearRootView(this),
       () => this._destroyRadio(),
-      () => this._destroyState()
+      () => this._destroyState(),
+      () => emptyRootView(this),
+      () => this._childApps?.forEach((child, name) => removeChildAppReference(this, name, child))
     ], error);
   }
 };
@@ -161,15 +166,29 @@ async function startChildApps(application, operation, options) {
   return true;
 }
 
+function canStopChildren(application, operation) {
+  if (isCurrentOperation(application, operation)) { return true; }
+
+  // A replacement stop, restart, or destroy continues the adopted stop phase.
+  const current = application._lifecycleOperation;
+  return current?.stopReadiness !== undefined && current.stopReadiness === operation.stopReadiness &&
+    current.kind !== 'start';
+}
+
+function cancelStopReadiness(operation) {
+  operation.stopReadiness.isCanceled = true;
+  return false;
+}
+
 async function stopChildApps(application, operation, options) {
   if (!application._childApps) { return true; }
 
   for (const child of application._childApps.values()) {
-    if (!isCurrentOperation(application, operation)) { return false; }
+    if (!canStopChildren(application, operation)) { return cancelStopReadiness(operation); }
     const stopped = await child.stop(options);
-    if (!isCurrentOperation(application, operation)) { return false; }
+    if (!canStopChildren(application, operation)) { return cancelStopReadiness(operation); }
     if (stopped && hasStableLifecycleState(child, STOPPED)) { continue; }
-    if (!isTerminal(application)) { return false; }
+    if (!isTerminal(application)) { return cancelStopReadiness(operation); }
     await child.destroy(options);
   }
 
@@ -301,7 +320,8 @@ function runOperation(application, operation, callback) {
 function beginOperation(application, kind, state, failureState, callback) {
   const superseded = supersedeOperation(application);
   const deferred = createDeferred();
-  const stopReadiness = superseded?.stopReadiness;
+  // A canceled child traversal cannot be continued by a later operation.
+  const stopReadiness = superseded?.stopReadiness?.isCanceled ? undefined : superseded?.stopReadiness;
 
   const operation = {
     ...deferred,
@@ -327,11 +347,11 @@ function beginOperation(application, kind, state, failureState, callback) {
 async function startApplication(application, operation, options) {
   if (operation.stopReadiness) {
     const readiness = operation.stopReadiness;
-    await readiness.promise;
+    const childrenStopped = await readiness.promise;
     if (!isCurrentOperation(application, operation)) { return; }
 
     completeReadiness(operation);
-    operation.failureState = STOPPED;
+    if (childrenStopped) { operation.failureState = STOPPED; }
     delete operation.stopReadiness;
   }
 

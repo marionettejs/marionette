@@ -416,4 +416,39 @@ describe('Application ownership', function() {
     expect(third.isDestroyed()).to.be.true;
     expect(events).to.deep.equal(['first', 'second', 'third']);
   });
+  it('returns registered child instances to the caller when construction fails', async function() {
+    const failure = new Error('owner initialization failed');
+    const first = new Application();
+    const second = new Application();
+    await first.start();
+    const firstDestroy = this.sinon.spy(first, 'destroy');
+    const secondDestroy = this.sinon.spy(second, 'destroy');
+    let failedOwner;
+    const Owner = Application.extend({
+      initialize() {
+        failedOwner = this;
+        this.addChildApp('first', first);
+        this.addChildApp('second', second);
+        throw failure;
+      }
+    });
+    const nextOwner = new Application();
+
+    try {
+      expect(() => new Owner()).to.throw(failure);
+      expect(failedOwner.getChildApps()).to.deep.equal({});
+      expect(first.getName()).to.be.undefined;
+      expect(second.getName()).to.be.undefined;
+      expect(first.isRunning()).to.be.true;
+      expect(second.isRunning()).to.be.false;
+      expect(firstDestroy).not.to.have.been.called;
+      expect(secondDestroy).not.to.have.been.called;
+      expect(nextOwner.addChildApp('first', first)).to.equal(first);
+      expect(nextOwner.addChildApp('second', second)).to.equal(second);
+    } finally {
+      await failedOwner.destroy();
+      await nextOwner.destroy();
+    }
+  });
+
 });

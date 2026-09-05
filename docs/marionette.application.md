@@ -38,6 +38,14 @@ import { Application } from 'marionette';
 const myApplication = new Application({ ... });
 ```
 
+If construction throws, Marionette attempts to release its State and Radio
+resources, its coordinated root View, and any Region it constructed. A borrowed
+Region and any unrelated replacement View remain owned by their caller.
+Child Applications registered during the failed construction are unregistered
+without being stopped or destroyed; their lifetime returns to the caller.
+Cleanup preserves the original construction error and does not undo other
+side effects of `initialize`.
+
 ## Application Lifecycle
 
 `start`, `stop`, `restart`, and `destroy` return a `Promise<boolean>`. The
@@ -94,6 +102,10 @@ The signal makes cancellation cooperative; the invalidated operation still
 resolves `false` even when a handler ignores it. When a start, restart, or
 destroy operation adopts an in-flight stop phase, it also adopts that phase's
 original options and context, and does not abort its signal.
+
+If a replacement start has already canceled the remaining child stops, that
+stop phase is no longer adopted. A later `stop()`, `restart()`, or `destroy()`
+begins a fresh stop phase with its own options and context.
 
 The context belongs to the readiness phase rather than to one caller's Promise.
 Completion methods and events receive only `(application, options)`.

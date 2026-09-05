@@ -2,7 +2,7 @@ import buildEventArgs, { eventSplitter } from '../utils/build-event-args.js';
 import { setProperty } from '../utils/assign-in.js';
 import callHandler from '../utils/call-handler.js';
 import onceWrap from '../utils/once-wrap.js';
-import uniqueId from '../utils/unique-id.js';
+import uniqueId from '../utils/unique-id.ts';
 
 import triggerMethod from '../modules/common/trigger-method.js';
 

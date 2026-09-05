@@ -1,5 +1,5 @@
 import Radio from '../modules/radio.js';
-import disposeAll from '../utils/dispose-all.js';
+import disposeAll from '../utils/dispose-all.ts';
 import getValue from '../utils/get-value.js';
 
 

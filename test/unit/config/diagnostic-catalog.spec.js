@@ -244,6 +244,20 @@ describe('diagnostic catalog validation', function() {
     );
   });
 
+  it('recognizes default and named default TypeScript error imports', function() {
+    for (const binding of ['FrameworkError', '{ default as FrameworkError }']) {
+      expect(() => validate(createCatalog(), {
+        runtimeSources: [{
+          contents: `import ${binding} from '../modules/error.ts';\nthrow new FrameworkError({ message: 'Missing code' });`,
+          path: 'modules/example.ts',
+        }],
+      })).to.throw(
+        DiagnosticCatalogValidationError,
+        'modules/example.ts MarionetteError must declare one literal diagnostic code',
+      );
+    }
+  });
+
   it('rejects deliberate native framework errors', function() {
     for (const errorName of ['Error', 'TypeError']) {
       expect(() => validate(createCatalog(), {
@@ -300,14 +314,14 @@ describe('diagnostic catalog validation', function() {
     }
   });
 
-  it('discovers diagnostics in newly imported production files', async function() {
+  it('discovers diagnostics in newly imported TypeScript production files', async function() {
     const rootDir = await mkdtemp(join(tmpdir(), 'marionette-diagnostics-'));
 
     try {
-      await writeFile(join(rootDir, 'entry.js'), 'import \'./emitter.js\';');
+      await writeFile(join(rootDir, 'entry.js'), 'import \'./emitter.ts\';');
       await writeFile(
-        join(rootDir, 'emitter.js'),
-        'throw new MarionetteError({ code: \'MN9999\' });',
+        join(rootDir, 'emitter.ts'),
+        'const example: string = \'typed\'; throw new MarionetteError({ code: \'MN9999\' });',
       );
 
       const runtimeSources = await discoverProductionSources({
@@ -315,10 +329,10 @@ describe('diagnostic catalog validation', function() {
         rootDir,
       });
 
-      expect(runtimeSources.map(({ path }) => path)).to.include('emitter.js');
+      expect(runtimeSources.map(({ path }) => path)).to.include('emitter.ts');
       expect(() => validate(createCatalog(), { runtimeSources })).to.throw(
         DiagnosticCatalogValidationError,
-        'emitter.js emits uncataloged diagnostic code MN9999',
+        'emitter.ts emits uncataloged diagnostic code MN9999',
       );
     } finally {
       await rm(rootDir, { force: true, recursive: true });
