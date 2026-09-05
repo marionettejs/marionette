@@ -60,3 +60,22 @@ listener.bindEvents(source, false);
 listeningOwner.unbindEvents(source, false);
 owner.bindRequests(replyChannel, false);
 owner.unbindRequests(replyOwner, false);
+
+for (const absentSource of [false, 0, '', null, undefined] as const) {
+  const bound: typeof listener = listener.bindEvents(absentSource, { changed: 'handleChange' });
+  const unbound: typeof listeningOwner = listeningOwner.unbindEvents(absentSource);
+  const replied: typeof owner = owner.bindRequests(absentSource, { lookup: 'lookup' });
+  const stopped: typeof owner = owner.unbindRequests(absentSource);
+}
+declare const maybeSource: EventSource | false | 0 | '' | null | undefined;
+const maybeListener: typeof listener = listener.bindEvents(maybeSource, { changed: 'handleChange' });
+const maybeOwner: typeof listeningOwner = listeningOwner.unbindEvents(maybeSource);
+declare const maybeChannel: Requests | false | 0 | '' | null | undefined;
+const maybeReplyOwner: typeof owner = owner.bindRequests(maybeChannel, { lookup: 'lookup' });
+const maybeStoppedOwner: typeof owner = owner.unbindRequests(maybeChannel);
+declare const unsupportedSource: EventSource | true;
+// @ts-expect-error A truthy boolean is not an event source.
+listener.bindEvents(unsupportedSource, { changed: 'handleChange' });
+declare const unsupportedChannel: Requests | true;
+// @ts-expect-error A truthy boolean is not a reply channel.
+owner.bindRequests(unsupportedChannel, { lookup: 'lookup' });

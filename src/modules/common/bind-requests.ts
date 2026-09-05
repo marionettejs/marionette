@@ -39,7 +39,7 @@ function normalizeBindings(context: unknown, bindings: unknown) {
 }
 
 function bindRequests<Receiver>(
-  this: Receiver, channel?: ReplyChannel | null, bindings?: Bindings | null | false | 0 | ''
+  this: Receiver, channel?: ReplyChannel | null | false | 0 | '', bindings?: Bindings | null | false | 0 | ''
 ) {
   if (!channel || !bindings) { return this; }
 
@@ -49,7 +49,7 @@ function bindRequests<Receiver>(
 }
 
 function unbindRequests<Receiver>(
-  this: Receiver, channel?: ReplyOwner | null, bindings?: Bindings | null | false | 0 | ''
+  this: Receiver, channel?: ReplyOwner | null | false | 0 | '', bindings?: Bindings | null | false | 0 | ''
 ) {
   if (!channel) { return this; }
 

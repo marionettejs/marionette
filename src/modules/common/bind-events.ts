@@ -49,7 +49,7 @@ function normalizeBindings(context: unknown, bindings: unknown) {
 }
 
 function bindEvents<Receiver extends Listener>(
-  this: Receiver, entity?: EventSource | null, bindings?: Bindings | null | false | 0 | ''
+  this: Receiver, entity?: EventSource | null | false | 0 | '', bindings?: Bindings | null | false | 0 | ''
 ) {
   if (!entity || !bindings) { return this; }
 
@@ -59,7 +59,7 @@ function bindEvents<Receiver extends Listener>(
 }
 
 function unbindEvents<Receiver extends ListeningOwner>(
-  this: Receiver, entity?: EventSource | null, bindings?: Bindings | null | false | 0 | ''
+  this: Receiver, entity?: EventSource | null | false | 0 | '', bindings?: Bindings | null | false | 0 | ''
 ) {
   if (!entity) { return this; }
 
