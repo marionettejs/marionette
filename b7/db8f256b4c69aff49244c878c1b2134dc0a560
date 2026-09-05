@@ -1,0 +1,43 @@
+package-lock.json
+  s_060efbb5bf6218::t_787ea939df992e 35,3083-3422,6006-6040
+package.json
+  s_060efbb5bf6218::t_f64691448d0145 78-79,113
+src/modules/object.ts
+  s_060efbb5bf6218::t_a05564ce0fad62 14-71,80,107-108
+src/utils/extend.ts
+  s_060efbb5bf6218::t_bcaf4e03bca197 6,16,25-29,39,59
+test/types/prototype/README.md
+  s_060efbb5bf6218::t_66be7737780020 1-80
+test/types/prototype/consumer.cts
+  s_060efbb5bf6218::t_adcc6b7886263b 1-61
+test/types/prototype/consumer.mts
+  s_060efbb5bf6218::t_87425137047bd4 1-61
+test/types/prototype/native-bases.ts
+  s_060efbb5bf6218::t_e69a876e5d9859 1-40
+test/types/prototype/native-comparison.mts
+  s_060efbb5bf6218::t_e6e5ee237cabef 1-94
+test/types/prototype/native-runtime.mjs
+  s_060efbb5bf6218::t_098541f078411b 1-53
+test/types/prototype/run.mjs
+  s_060efbb5bf6218::t_d94502ae8fd0b3 1-16
+test/types/prototype/runtime.mjs
+  s_060efbb5bf6218::t_e83d88c4e9ded8 1-36
+test/types/prototype/tsconfig.json
+  s_060efbb5bf6218::t_7d81d0ce5ffef0 1-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "b7db8f256b4c69aff49244c878c1b2134dc0a560",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
