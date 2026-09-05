@@ -1,0 +1,19 @@
+CONTRIBUTING.md
+  s_21a28c4e69a102::t_f82f8e42887a57 81-83,89-92
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "6581f890aeb404d0b4fe83daa7222247edc48c16",
+  "prompts": {},
+  "sessions": {
+    "s_21a28c4e69a102": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a070d0-c9a5-7960-a134-1be904f7c1cf",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
