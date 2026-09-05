@@ -6,10 +6,13 @@ packages/data/dist/index.js
   s_0b0ea68fe92730::t_ca8e09de37744f 207-285,295-297,306-307,315-341,345-350
 packages/data/src/observers.js
   s_060efbb5bf6218::t_fb290f8367cc00 3-52,61,68-69,79-106,111-116
+  s_060efbb5bf6218::t_ec2e4e4c02c30c 3-5,7-20,22-36,40-44,46,49-50,61,69,80,82-89,94-99,105,112-115
 test/unit/data-package/api-integration.spec.js
   s_060efbb5bf6218::t_3981edbfb6e9b5 36-130
+  s_060efbb5bf6218::t_4d467118615e01 102-130
 test/unit/data-package/collection-observers.spec.js
   s_060efbb5bf6218::t_4f03aec21587a1 1-174
+  s_060efbb5bf6218::t_47870f3957f4ed 85-97
 ---
 {
   "schema_version": "authorship/3.0.0",
