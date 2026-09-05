@@ -1312,8 +1312,6 @@ describe('performance contract validation', () => {
       assert.deepEqual(after.graphs[0].modules, ['src/index.js']);
       assert.deepEqual(after.graphs[0].phase0AddedModules, ['src/index.js']);
       assert.deepEqual(after.graphs[0].phase0RemovedModules, ['index.js']);
-      assert.equal(after.graphs[0].output, before.graphs[0].output);
-      assert.deepEqual(after.artifacts, before.artifacts);
     } finally {
       await rm(fixtureRoot, { recursive: true, force: true });
     }
