@@ -76,6 +76,13 @@ emitter.trigger({
 });
 ```
 
+During a multi-name or mapped `trigger` call, calling `off()` from a handler
+removes subscriptions for subsequent calls but does not cancel the remaining
+event names in the current call. For example, `off()` inside a `start` handler
+still allows the existing `stop` handlers in `trigger('start stop')` to run.
+Calling `off('stop', handler)` inside `start` instead removes that handler before
+`stop` is dispatched. A nested `trigger` call uses the current subscriptions.
+
 `once` registers its generated callback through the object's overridable
 `on` method, and `listenToOnce` registers through overridable `listenTo`.
 This preserves the extension points used by event-lifecycle mixins. Likewise,
