@@ -1,0 +1,39 @@
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_e1e4d2895fcfad 82-83,91-96
+src/mixins/common.js
+  s_060efbb5bf6218::t_fb9141a90fe817 6,10,14
+src/mixins/view-events.js
+  s_060efbb5bf6218::t_5ddf567aca447e 4
+src/modules/common/bind-events.ts
+  s_060efbb5bf6218::t_774d2fb58d95fb 14,16-25,29,32,40,47-48,51-53,61-63
+src/modules/common/bind-requests.ts
+  s_060efbb5bf6218::t_5cba0ecb8dbff8 14,16-17,19-27,30,37-38,41-43,51-53
+src/modules/common/normalize-methods.ts
+  s_060efbb5bf6218::t_edf64891d84595 4-8,15-16,20,30,36,39-42,45,48,52
+src/modules/object.ts
+  s_060efbb5bf6218::t_0f23540943ee59 15-18,20,78-82
+src/utils/subscribe-bindings.js
+  s_060efbb5bf6218::t_341078fcfd7ead 4
+test/types/bindings.cts
+  s_060efbb5bf6218::t_f0b4a6bb36e264 1-59
+test/types/bindings.mts
+  s_060efbb5bf6218::t_0194a80346f6c9 1-59
+test/types/tsconfig.consumer.json
+  s_060efbb5bf6218::t_2e3951a038542d 19-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "0e6ad1ed40e51ce0fa307131e4751fc5b3a57537",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
