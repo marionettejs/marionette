@@ -25,3 +25,8 @@ test/tmp
 
 # Users Environment Variables
 .lock-wscript
+
+# Generated package outputs
+/dist/
+/packages/*/dist/
+/version.js

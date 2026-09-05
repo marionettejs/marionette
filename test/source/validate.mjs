@@ -102,6 +102,7 @@ assert.equal(Object.hasOwn(packageJson.peerDependencies || {}, 'backbone'), fals
 assert.equal(Object.hasOwn(packageJson.dependencies || {}, 'backbone'), false);
 assert.equal(Object.hasOwn(packageJson.peerDependencies || {}, 'jquery'), false);
 assert.equal(Object.hasOwn(packageJson.dependencies || {}, 'jquery'), false);
+assert.equal(Marionette.VERSION, packageJson.version);
 assert.equal(adaptersPackageJson.version, packageJson.version);
 assert.equal(adaptersPackageJson.peerDependencies.marionette, packageJson.version);
 assert.deepEqual(nonDeclarativeConfigFiles, []);

@@ -29,6 +29,15 @@ npm run size
 npm run performance:timing
 ```
 
+`npm ci` builds the packages and checks the core distributions through `prepare`.
+Generated `dist/` directories and `version.js` are ignored by Git; edit source files
+and the handwritten declarations in `packages/*/types/`. After source edits, run
+`npm run build` before distribution or browser checks. The fixture runner builds
+once before packing local packages; supplying all three tarballs skips rebuilding. `npm pack` and npm Git installs
+run `prepare` automatically; installing a published tarball uses its compiled files.
+If npm uses `strict-allow-scripts`, approve Marionette's `prepare` lifecycle for a
+Git dependency. Tarball consumers can deny scripts because the package is prebuilt.
+
 `npm run size` enforces the deterministic Phase 0 size and production-module-graph
 contract. `npm run performance:timing` records informative timing on ordinary
 development or hosted machines; it is not a release timing gate. See the
