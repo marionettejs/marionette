@@ -1,0 +1,23 @@
+src/mixins/behaviors.ts
+  s_060efbb5bf6218::t_b7d8ebb8f3fede 7,63,66-68,70,76,79,83,117
+src/modules/behavior.ts
+  s_060efbb5bf6218::t_9a29ed81f59c8d 163-164
+test/unit/behavior-initialize-cleanup.spec.js
+  s_060efbb5bf6218::t_11fb1af475cc83 1-156
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "b0db1ff8b0431d18750c816779f770476d28b39d",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
