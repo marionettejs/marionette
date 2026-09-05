@@ -1,0 +1,109 @@
+test/types/consumer.mts
+  s_060efbb5bf6218::t_066933da96b9de 1-81
+  s_060efbb5bf6218::t_e8a7eee681a4a7 82-93
+test/source/validate.mjs
+  s_d6429951fb9231::t_4cc957ea65c398 84
+  s_060efbb5bf6218::t_4b62fbfb7ed2b5 99-102
+  s_060efbb5bf6218::t_2df9ffd3156cfb 6
+scripts/diagnostics/catalog.mjs
+  s_d6429951fb9231::t_90ea9be9128419 13
+  s_060efbb5bf6218::t_4c215651cf6a96 2-3,159,161,391
+src/modules/object.ts
+  s_060efbb5bf6218::t_066933da96b9de 5,14-78,80-86,89,92-103,112-114,126,129,131-133
+  s_060efbb5bf6218::t_a05564ce0fad62 79,87-88,90-91,104-111,117-125,127-128,130,135-137,139-155,164,191-192
+  s_060efbb5bf6218::t_e8a7eee681a4a7 115-116,134,138
+package-lock.json
+  s_d6429951fb9231::t_5cd66a315cdcff 649,1473-1475
+  s_060efbb5bf6218::t_787ea939df992e 38,643-645,647-648,650-651,653-654,1465-1467,1476-1477,1479-1480,3131-3253,3255-3299,3302-3329,5585,5587,5589-5590,5592-5593,5890-5892,5894-5895,5898,5922-5935
+  s_d6429951fb9231::t_0aa3c8bae949f1 5897
+  s_d6429951fb9231::t_634e4b45b78795 3108-3130
+  s_060efbb5bf6218::t_86e94b069113fb 13,21-22,639-642,646,652,1461-1464,1468-1472,1478,5581-5584,5586,5588,5591,5886-5889,5893,5896
+package.json
+  s_060efbb5bf6218::t_f64691448d0145 78-81,93,101-102,118
+  s_060efbb5bf6218::t_ba3f5dd27e9fd1 47
+src/modules/behavior.js
+  s_d6429951fb9231::t_6909eb69b57479 10
+src/modules/error.js
+  s_060efbb5bf6218::t_3cfda94e823818 4
+eslint.config.mjs
+  s_d6429951fb9231::t_781ed77cbb169e 33
+  s_d6429951fb9231::t_de10dc4b50d8a1 133-134
+  s_060efbb5bf6218::t_86c2f9669be882 2-3,29,124-132
+src/create-marionette.js
+  s_792d54449de682::t_942c1307256cb9 2,6
+src/modules/collection-view.js
+  s_d6429951fb9231::t_dfd737a6722879 5
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_a61ef9e762cd1a 68-88
+rollup.config.mjs
+  s_d93f45db31dead::t_e08885dc14e5a1 40,55
+  s_060efbb5bf6218::t_6b603d786ee52a 1
+vitest.config.js
+  s_060efbb5bf6218::t_76afcb766124e4 20
+test/unit/config/diagnostic-catalog.spec.js
+  s_d6429951fb9231::t_bea9d26dcdcdba 303,307,309-310,318,321
+src/utils/extend.ts
+  s_060efbb5bf6218::t_bcaf4e03bca197 6,16,25-29,39,59
+test/unit/jquery-dom-api.spec.js
+  s_060efbb5bf6218::t_60576e1f437fe0 2,30
+test/unit/object-application-composition.spec.js
+  s_060efbb5bf6218::t_b2a8999b258a8c 136
+src/modules/application.js
+  s_d6429951fb9231::t_48eeea79b5c2b6 6
+build/babel.js
+  s_060efbb5bf6218::t_02d19d78fe607c 1-15
+src/modules/region.js
+  s_060efbb5bf6218::t_13c97197bfac71 6
+src/modules/view.js
+  s_060efbb5bf6218::t_9fda2474e5ba66 7
+test/types/consumer.cts
+  s_060efbb5bf6218::t_39d27e9c9f36c0 1-93
+test/types/run.mjs
+  s_060efbb5bf6218::t_78f51a110946f6 1-9
+test/types/tsconfig.consumer.json
+  s_060efbb5bf6218::t_5a701635d64fc7 1-12
+test/types/tsconfig.declarations.json
+  s_060efbb5bf6218::t_7ece72b5c08355 1-11
+tsconfig.json
+  s_060efbb5bf6218::t_87498927de897f 1-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "c1a113e7564c9c30f7896acf024746c0bffb2f77",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": null
+    },
+    "s_792d54449de682": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a063d4-3f21-7e72-bd01-96fa87903ed1",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_d6429951fb9231": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a03eb3-6aa8-7fe0-91bd-98039115289c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_d93f45db31dead": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05c69-15cb-71b1-836b-0fdd2f01d1c5",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
