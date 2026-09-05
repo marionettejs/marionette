@@ -33,6 +33,101 @@ describe('@marionette/data Marionette integration', function() {
     view.destroy();
   });
 
+  it('updates both CollectionViews when the first adds a model during add:child', function() {
+    const runtime = createMarionette();
+    runtime.setDataApi(DataApi);
+    const List = runtime.CollectionView.extend({
+      childView: runtime.View.extend({ template: false })
+    });
+    const collection = new Collection([{ id: 1 }]);
+    const first = new List({ collection }).render();
+    const second = new List({ collection }).render();
+    const retained = second.children.findByModel(collection.get(1));
+    first.on('add:child', (_, child) => {
+      if (child.model.id === 2) { collection.add({ id: 3 }); }
+    });
+
+    collection.add({ id: 2 });
+
+    expect(first.children.map(child => child.model.id)).to.deep.equal([1, 2, 3]);
+    expect(second.children.map(child => child.model.id)).to.deep.equal([1, 2, 3]);
+    expect(second.children.findByModel(collection.get(1))).to.equal(retained);
+    first.destroy();
+    second.destroy();
+    collection.destroy();
+  });
+
+  it('preserves child order when an earlier observer reorders a pending addition', function() {
+    const runtime = createMarionette();
+    runtime.setDataApi(DataApi);
+    const collection = new Collection([{ id: 1 }, { id: 2 }]);
+    const stop = DataApi.observeCollection(collection, change => {
+      if (change.kind === 'update') { collection.move(3, 0); }
+    });
+    const view = new runtime.CollectionView({
+      collection, childView: runtime.View.extend({ template: false })
+    }).render();
+    const retained = view.children.findByModel(collection.get(1));
+
+    collection.add({ id: 3 });
+
+    expect(view.children.map(child => child.model.id)).to.deep.equal([3, 1, 2]);
+    expect(view.children.findByModel(collection.get(1))).to.equal(retained);
+    stop();
+    view.destroy();
+    collection.destroy();
+  });
+
+  it('catches up an untouched CollectionView after an earlier observer throws', function() {
+    const runtime = createMarionette();
+    runtime.setDataApi(DataApi);
+    const collection = new Collection([{ id: 1 }]);
+    const error = new Error('earlier observer failed');
+    const stop = DataApi.observeCollection(collection, () => { throw error; });
+    const view = new runtime.CollectionView({
+      collection, childView: runtime.View.extend({ template: false })
+    }).render();
+    const retained = view.children.findByModel(collection.get(1));
+
+    expect(() => collection.add({ id: 2 })).to.throw(error);
+    stop();
+    collection.add({ id: 3 });
+
+    expect(view.children.map(child => child.model.id)).to.deep.equal([1, 2, 3]);
+    expect(view.children.findByModel(collection.get(1))).to.equal(retained);
+    view.destroy();
+    collection.destroy();
+  });
+
+  it('retains a removed model key when an earlier observer changes its id', function() {
+    const runtime = createMarionette();
+    runtime.setDataApi(DataApi);
+    const collection = new Collection([{ id: 1 }, { id: 2 }]);
+    const previous = collection.get(1);
+    let changed = false;
+    const stop = DataApi.observeCollection(collection, () => {
+      if (changed) { return; }
+      changed = true;
+      previous.set('id', 10);
+      collection.add({ id: 1 });
+    });
+    const view = new runtime.CollectionView({
+      collection, childView: runtime.View.extend({ template: false })
+    }).render();
+    const previousChild = view.children.findByModel(previous);
+    const retained = view.children.findByModel(collection.get(2));
+
+    collection.remove(previous);
+
+    expect(view.children.map(child => child.model.id)).to.deep.equal([2, 1]);
+    expect(previousChild.isDestroyed()).to.be.true;
+    expect(view.children.findByModel(collection.get(1))).to.not.equal(previousChild);
+    expect(view.children.findByModel(collection.get(2))).to.equal(retained);
+    stop();
+    view.destroy();
+    collection.destroy();
+  });
+
   it('supplies modelEvents, collectionEvents, and owned state disposal', function() {
     const runtime = createMarionette();
     runtime.setDataApi(DataApi);
