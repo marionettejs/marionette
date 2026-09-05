@@ -24,8 +24,8 @@ function consumeDestroyTeardown(region, operation) {
   return true;
 }
 
-function canMutateRegion(region, authorized) {
-  return authorized || !region._isDestroying && !region._isDestroyed;
+function canMutateRegion(region) {
+  return !region._isDestroying && !region._isDestroyed;
 }
 
 function emptyRegion(region, options = { allowMissingEl: true }) {
@@ -325,8 +325,7 @@ assignOwn(Region.prototype, CommonMixin, {
   // Destroy the current view, if there is one. If there is no current view,
   // it will detach any html inside the region's `el`.
   empty(options = { allowMissingEl: true }) {
-    const authorized = consumeDestroyTeardown(this, 'empty');
-    if (!canMutateRegion(this, authorized)) { return this; }
+    if (!canMutateRegion(this) && !consumeDestroyTeardown(this, 'empty')) { return this; }
 
     return emptyRegion(this, options);
   },
@@ -435,8 +434,11 @@ assignOwn(Region.prototype, CommonMixin, {
   // Reset the region by destroying any existing view and restoring its initial element.
   // The next time a view is shown, the region will re-query the DOM for its `el`.
   reset(options) {
-    const authorized = consumeDestroyTeardown(this, 'reset');
-    if (!canMutateRegion(this, authorized)) { return this; }
+    let authorized = false;
+    if (!canMutateRegion(this)) {
+      authorized = consumeDestroyTeardown(this, 'reset');
+      if (!authorized) { return this; }
+    }
 
     if (authorized) {
       destroyTeardown.set(this, 'empty');
