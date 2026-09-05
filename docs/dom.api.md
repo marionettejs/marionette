@@ -97,7 +97,10 @@ Replaces the contents of `el` by assigning `html` to `el.innerHTML`.
 ### `setAttributes(el, attrs)`
 
 Sets each entry in `attrs` on `el`. A key that exists as an element property is
-assigned as a property; other keys use `setAttribute`. The input contributes
+assigned as a property when writable; read-only properties and other keys use
+`setAttribute`. For example, `form` and `list` set the attributes that associate
+an input with a form or datalist. Attribute names are not restricted to known
+HTML attributes. The input contributes
 own enumerable string properties only. Inherited, symbol, and non-enumerable
 properties are ignored. A literal own `__proto__` key becomes an own element
 property without changing the element's prototype. A `null` or `undefined`
