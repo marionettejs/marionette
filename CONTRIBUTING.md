@@ -78,7 +78,7 @@ declarations into the ignored `test/tmp/typed-core/` directory and checks ESM an
 CommonJS consumers against them. Both checks run during `npm run build` and
 `npm test`. Coverage and diagnostic discovery include TypeScript source files.
 
-The conversion covers `MnObject`, `MarionetteError`, `extend`, `Events`, `Requests`, and the ID,
+The conversion covers `MnObject`, `MarionetteError`, `extend`, `Events`, `Requests`, `Radio`, and the ID,
 cleanup, event, option, Radio debug, and entity-binding helpers they use.
 `Events` owns its contract types;
 the compiler checks its registry and listening implementation against each
@@ -90,6 +90,11 @@ registry, constant replies, and dispatch implementation are checked. Request
 payloads and results remain unknown without a schema, and the request-map result
 is typed at the composition boundary. Other JavaScript mixins remain unchecked,
 with their methods typed at the composition boundary.
+
+`Radio` owns its channel and top-level contracts. Forwarded signatures reuse the
+Events and Requests methods, retaining their current overloads and channel returns.
+The dynamic method selection and completed prototype composition are explicit
+typing boundaries.
 
 Common owns the checked constructor option setup and reuses its helper signatures.
 Its private `_setOptions` method takes the option list supplied by each constructor;
@@ -142,11 +147,28 @@ needed. Explicit replacement-object results remain unfinished in these private
 declarations; public constructor typing must model them without losing the
 ordinary receiver-returning case.
 
-The StateApi setter checks a provider against the class's declared state. It does
-not track later configuration changes or ensure that constructor-supplied state
-matches that provider. For example, a class whose factory produces `{ ready: true }`
-can still receive `{ state: { label: 'Example' } }`; an adapter expecting `ready`
-may then fail. The private declarations do not validate this combination.
+StateApi and DataApi registration checks method shapes while keeping configured
+source inputs opaque. Narrow native, Backbone and actor adapters remain valid;
+registration does not prove that a mutable provider matches a class's current
+or future sources. Inferred `getState()` results remain separate from the
+mutable `State` slot. Configured methods are optional because an explicit
+undefined overlay can remove a capability. Direct calls through a configured
+provider need an explicit local source contract; directly imported adapters retain their concrete types.
+The normalized collection-change protocol still comes from the optional package
+declarations and must be reconciled when public root declarations are packaged.
+This private slice does not add a second protocol definition or change the
+optional packages' supported TypeScript versions.
+
+The checked DOM contracts keep native exports concrete and configured queries
+array-like. `DomApi<Query, Wrapped, Content>` can express an explicit application
+adapter contract; mutable setters do not establish that contract for existing
+aliases. Partial overlays can remove capabilities with undefined. Native DOM
+attribute assertions describe property lookup and browser string coercion,
+including the browser's nullable `contains` argument. Event delegation narrows
+nodes only after the existing node-type check. These boundaries add no runtime
+conversion or guard. Renderer registration preserves narrow callbacks without
+promising their template/data/receiver match; its omitted argument still clears
+the renderer. Full View/UI and template-mixin declarations remain separate.
 
 ## Report a bug
 

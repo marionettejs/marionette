@@ -12,7 +12,7 @@ import StateMixin from '../mixins/state.js';
 import disposeAll from '../utils/dispose-all.ts';
 import Region from './region.js';
 import buildRegion from './common/build-region.js';
-import { setStateApi } from '../runtime/state-api.js';
+import { setStateApi } from '../runtime/state-api.ts';
 import { defaultRuntimeId, runtimeId } from '../runtime/runtime-id.js';
 
 const ClassOptions = [

@@ -1,4 +1,4 @@
-import Radio from '../modules/radio.js';
+import Radio from '../modules/radio.ts';
 import disposeAll from '../utils/dispose-all.ts';
 import getValue from '../utils/get-value.ts';
 
