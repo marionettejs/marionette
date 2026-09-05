@@ -553,7 +553,7 @@ resolving its element, changing the DOM, or emitting empty lifecycle events.
 
 **NOTE** If the region does _not_ currently contain a View it will detach
 any HTML inside the region when emptying. If the region _does_ contain a
-View [any HTML that doesn't belong to the View will remain](./upgrade.md#changes-to-regionshow).
+View, any HTML that doesn't belong to the View will remain.
 
 ### Preserving Existing Views
 
