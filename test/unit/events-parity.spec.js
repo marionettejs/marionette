@@ -51,6 +51,87 @@ describe('Events parity with Backbone.Events', function() {
     });
   });
 
+  const dispatchChanges = [
+    ['clears all handlers', emitter => emitter.off()],
+    ['removes the next event', emitter => emitter.off('beta')],
+    ['adds a handler to the next event', (emitter, calls) => {
+      emitter.on('beta', () => calls.push('added'));
+    }],
+    ['replaces the event registry', (emitter, calls) => {
+      emitter.off();
+      emitter.on('beta', () => calls.push('replacement'));
+    }],
+  ];
+
+  for (const [name, change] of dispatchChanges) {
+    it(`preserves multi-event dispatch when a handler ${name}`, function() {
+      expectParity(emitter => {
+        const calls = [];
+        emitter.on('alpha', () => {
+          calls.push('alpha');
+          change(emitter, calls);
+        });
+        emitter.on('beta', () => calls.push('beta'));
+
+        emitter.trigger('alpha beta');
+        emitter.trigger('beta');
+
+        return calls;
+      });
+    });
+  }
+
+  it('preserves once-map dispatch when the first handler clears all events', function() {
+    expectParity(emitter => {
+      const calls = [];
+      emitter.once({
+        alpha() {
+          calls.push('alpha');
+          emitter.off();
+        },
+        beta() { calls.push('beta'); },
+      });
+
+      emitter.trigger('alpha beta');
+      emitter.trigger('alpha beta');
+
+      return calls;
+    });
+  });
+
+  it('uses a replacement registry for nested dispatch without changing the outer dispatch', function() {
+    expectParity(emitter => {
+      const calls = [];
+      emitter.once('alpha', () => {
+        calls.push('alpha');
+        emitter.off();
+        emitter.on('beta', value => calls.push(['replacement', value]));
+        emitter.trigger('beta', 'nested');
+      });
+      emitter.on('beta', value => calls.push(['original', value]));
+
+      emitter.trigger('alpha beta', 'outer');
+      emitter.trigger('beta', 'later');
+
+      return calls;
+    });
+  });
+
+  it('keeps mapped trigger values when the first handler clears all events', function() {
+    const emitter = createEmitter(EventsMixin);
+    const calls = [];
+    emitter.on('alpha', value => {
+      calls.push(['alpha', value]);
+      emitter.off();
+    });
+    emitter.on('beta', value => calls.push(['beta', value]));
+
+    emitter.trigger({ alpha: 1, beta: 2 });
+    emitter.trigger('beta', 3);
+
+    expect(calls).to.deep.equal([['alpha', 1], ['beta', 2]]);
+  });
+
   it('removes a once handler before a reentrant trigger', function() {
     // Backbone once wrappers remove themselves before invoking the callback:
     // https://github.com/jashkenas/backbone/blob/1.4.0/backbone.js#L270-L299

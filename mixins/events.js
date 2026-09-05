@@ -286,14 +286,15 @@ const Events = {
   // (unless you're listening on `"all"`, which will cause your callback to
   // receive the true name of the event as the first argument).
   trigger(name, ...args) {
-    if (!this._rdEvents) { return this; }
+    const events = this._rdEvents;
+    if (!events) { return this; }
 
     if (name && typeof name === 'object') {
       const names = getKeys(name);
       for (let index = 0, length = names.length; index < length; index++) {
         const key = names[index];
         triggerApi({
-          events: this._rdEvents,
+          events,
           name: key,
           args: [name[key]],
         });
@@ -306,7 +307,7 @@ const Events = {
       for (let index = 0, length = names.length; index < length; index++) {
         const n = names[index];
         triggerApi({
-          events: this._rdEvents,
+          events,
           name: n,
           args,
         });
@@ -315,7 +316,7 @@ const Events = {
     }
 
     triggerApi({
-      events: this._rdEvents,
+      events,
       name,
       args,
     });
