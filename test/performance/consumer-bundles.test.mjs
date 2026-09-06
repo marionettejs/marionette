@@ -162,6 +162,74 @@ describe('consumer bundle measurements', () => {
     }
   });
 
+  test('keeps canonical peers declared and rejects required peers outside v1', async() => {
+    const { brotliQuality, contract, fixture, fixtureRevision, packageJson, packageJsons } = await canonicalInputs();
+    const adapters = packageJsons[1];
+    delete adapters.peerDependencies.backbone;
+    assert.match(validateConsumerBundleContract(
+      contract, fixture, packageJson, brotliQuality, fixtureRevision, packageJsons,
+    ).join('\n'), /not declared runtime peers: backbone/);
+
+    adapters.peerDependencies.backbone = '^1.4.0';
+    adapters.peerDependencies.morphdom = '^2.7.8';
+    delete adapters.peerDependenciesMeta.morphdom;
+    assert.match(validateConsumerBundleContract(
+      contract, fixture, packageJson, brotliQuality, fixtureRevision, packageJsons,
+    ).join('\n'), /outside consumer bundle v1 must be optional: morphdom/);
+
+    adapters.peerDependenciesMeta.morphdom = { optional: true };
+    packageJson.peerDependencies = { ...packageJson.peerDependencies, morphdom: '^2.7.8' };
+    assert.match(validateConsumerBundleContract(
+      contract, fixture, packageJson, brotliQuality, fixtureRevision, packageJsons,
+    ).join('\n'), /outside consumer bundle v1 must be optional: morphdom/);
+  });
+
+  test('rejects expanding frozen peer authority even for a declared optional peer', async() => {
+    const { brotliQuality, contract, fixture, fixtureRevision, packageJson, packageJsons } = await canonicalInputs();
+    packageJsons[1].peerDependencies.morphdom = '^2.7.8';
+    packageJsons[1].peerDependenciesMeta.morphdom = { optional: true };
+    contract.peerExternalImports.push('morphdom');
+
+    assert.match(validateConsumerBundleContract(
+      contract, fixture, packageJson, brotliQuality, fixtureRevision, packageJsons,
+    ).join('\n'), /peer externals must be backbone, jquery/);
+  });
+
+  test('allows unrelated optional peers only while frozen scenarios do not import them', async() => {
+    const inputs = await canonicalInputs();
+    inputs.packageJsons[1].peerDependencies.morphdom = '^2.7.8';
+    inputs.packageJsons[1].peerDependenciesMeta.morphdom = { optional: true };
+    const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-consumer-peer-'));
+    try {
+      await Promise.all([
+        mkdir(join(fixtureRoot, 'benchmarks/consumer-bundles'), { recursive: true }),
+        mkdir(join(fixtureRoot, 'packages/adapters'), { recursive: true }),
+        cp(join(root, 'dist'), join(fixtureRoot, 'dist'), { recursive: true }),
+        writeFile(join(fixtureRoot, 'package.json'), JSON.stringify(inputs.packageJson)),
+      ]);
+      await Promise.all([
+        cp(join(root, 'packages/adapters/dist'), join(fixtureRoot, 'packages/adapters/dist'), { recursive: true }),
+        cp(join(root, 'benchmarks/consumer-bundles/v1'), join(fixtureRoot, 'benchmarks/consumer-bundles/v1'), { recursive: true }),
+        writeFile(join(fixtureRoot, 'packages/adapters/package.json'), JSON.stringify(inputs.packageJsons[1])),
+      ]);
+
+      const options = { root: fixtureRoot, ...measurementOptions(inputs) };
+      const unusedPeer = await measureConsumerBundles(options);
+      assert.equal(unusedPeer.artifacts.length, 18);
+      assert.deepEqual(unusedPeer.peerExternalImports, ['backbone', 'jquery']);
+      assert.deepEqual(unusedPeer.violations, []);
+
+      const jqueryPath = join(fixtureRoot, 'packages/adapters/dist/dom/jquery.js');
+      await writeFile(jqueryPath, `import 'morphdom';\n${await readFile(jqueryPath, 'utf8')}`);
+      const importedPeer = await measureConsumerBundles(options);
+      assert.ok(importedPeer.artifacts.some(({ externalImports }) => externalImports.includes('morphdom')));
+      assert.match(importedPeer.violations.join('\n'), /external imports differ from fixture metadata/);
+      assert.match(importedPeer.violations.join('\n'), /non-peer external imports: morphdom/);
+    } finally {
+      await rm(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+
   test('reports deterministic exact-base deltas without enforcing a ceiling', async() => {
     const inputs = await canonicalInputs();
     const base = consumerReport(inputs);
