@@ -1,0 +1,26 @@
+import { execFileSync } from 'node:child_process';
+import { cpSync, mkdtempSync, rmSync } from 'node:fs';
+import { createRequire, findPackageJSON } from 'node:module';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+
+const require = createRequire(import.meta.url);
+
+// Copy only the selected renderer alongside the installed tarball contents.
+// An external directory prevents resolution through the repository's dependencies.
+for (const renderer of ['morphdom', 'lit-html']) {
+  const directory = mkdtempSync(join(tmpdir(), 'marionette-renderer-fixture-'));
+  try {
+    for (const name of ['marionette', '@marionette/adapters', renderer]) {
+      const packageFile = findPackageJSON(name, import.meta.url);
+      cpSync(dirname(packageFile), join(directory, 'node_modules', name), { recursive: true });
+    }
+    cpSync(new URL('./runtime.mjs', import.meta.url), join(directory, 'runtime.mjs'));
+    for (const format of ['esm', 'cjs']) {
+      execFileSync(process.execPath, [join(directory, 'runtime.mjs'), renderer, format,
+        require.resolve('jsdom')], { stdio: 'inherit' });
+    }
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+}

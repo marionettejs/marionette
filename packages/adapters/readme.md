@@ -2,7 +2,10 @@
 
 First-party optional integrations for Marionette v5. The package intentionally
 has no root export: import only the adapter and optional peer your application
-uses.
+uses. Installing this package does not install every provider. The adapters have
+separate module graphs and no import-time installation; unused integrations stay
+out of the application bundle. Source is grouped by data, DOM, and rendering,
+while each integration remains an explicit package subpath.
 
 ## Backbone
 
@@ -156,3 +159,82 @@ JQueryView.setDomApi(JQueryDomApi);
 ```
 
 Importing an adapter subpath does not load any other adapter or optional peer.
+
+## Rendering
+
+The render adapters update a View's contents synchronously and keep its `el`
+in place. Marionette still owns View events, attachment, destruction, and
+Regions. A parent render still destroys its Region children before updating the
+parent template; incremental rendering does not preserve those child Views.
+Keep Region placeholders empty in your templates so the renderer and Region do
+not both manage the same contents.
+
+Each integration has one installer that configures the pieces it needs. Both
+retain the View class's existing DomApi, including a previously installed
+jQuery DomApi. Morphdom installs only a renderer; Lit also installs directive
+lifetime handling.
+
+### Morphdom
+
+```sh
+npm install marionette @marionette/adapters morphdom
+```
+
+```js
+import { View } from 'marionette';
+import setMorphdomRenderer from '@marionette/adapters/render/morphdom';
+
+const MessageView = View.extend({
+  template: () => '<p id="message">Hello again.</p>'
+});
+setMorphdomRenderer(MessageView);
+```
+
+The template returns an HTML string containing the View's contents. Morphdom
+matches children using its normal rules, including element IDs. The adapter
+always uses `childrenOnly`, leaving the root's attributes under Marionette's
+control. Use `renderAttributes()` to refresh those attributes.
+
+### Lit HTML
+
+```sh
+npm install marionette @marionette/adapters lit-html
+```
+
+```js
+import { View } from 'marionette';
+import { html } from 'lit-html';
+import setLitHtmlRenderer from '@marionette/adapters/render/lit-html';
+
+const MessageView = View.extend({
+  template: ({ message }) => html`<p>${message}</p>`,
+  templateContext: { message: 'Hello again.' }
+});
+setLitHtmlRenderer(MessageView);
+```
+
+Install on a View subclass before creating its instances. The installer returns
+the same class; installing twice on that class leaves the original installation
+in place. Further subclasses inherit it. An override of `setElement()` or
+`destroy()` must call the parent method, as with other View lifecycle overrides.
+
+Lit needs this installer because its async directives can own subscriptions and
+other resources. The adapter connects and disconnects those directives with
+Marionette's `attach` and `detach` events. It also wraps the public `setElement()`
+and `destroy()` methods to release resources and remove rendered contents when
+the View changes roots or is destroyed. Keeping the same element preserves its
+contents; a cancelled destruction leaves them active. Removing event listeners
+with `off()` does not disable terminal cleanup, but removing all lifecycle
+listeners also removes attachment notifications. Manage attachment through
+Marionette Regions so the framework can report it. Keep `monitorViewEvents`
+enabled on the View and its ancestors; disabling those notifications also
+disables directive connection tracking. A failed constructor releases directives
+created during initialization through Marionette's construction rollback.
+
+The first explicit render replaces any preexisting contents; this is not a
+hydration adapter. Lit then updates its own marked range inside `view.el`, with
+the View as the event-handler host. Call `view.render()` before showing a View
+whose existing element already has contents if you want to replace those
+contents immediately. Do not independently replace a Lit View's contents or
+switch its renderer after rendering: Lit owns the nodes and markers until the
+adapter releases them.

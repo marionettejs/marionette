@@ -1,6 +1,6 @@
 {
   "name": "@marionette/adapters",
-  "description": "First-party data and DOM adapters for Marionette",
+  "description": "Optional data, DOM and rendering integrations for Marionette",
   "version": "5.0.0-alpha.2",
   "type": "module",
   "exports": {
@@ -70,7 +70,29 @@
       },
       "default": "./dist/xstate.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./render/morphdom": {
+      "import": {
+        "types": "./dist/types/esm/render/morphdom.d.ts",
+        "default": "./dist/render/morphdom.js"
+      },
+      "require": {
+        "types": "./dist/types/cjs/render/morphdom.d.ts",
+        "default": "./dist/render/morphdom.cjs"
+      },
+      "default": "./dist/render/morphdom.js"
+    },
+    "./render/lit-html": {
+      "import": {
+        "types": "./dist/types/esm/render/lit-html.d.ts",
+        "default": "./dist/render/lit-html.js"
+      },
+      "require": {
+        "types": "./dist/types/cjs/render/lit-html.d.ts",
+        "default": "./dist/render/lit-html.cjs"
+      },
+      "default": "./dist/render/lit-html.js"
+    }
   },
   "files": [
     "dist/",
@@ -89,7 +111,9 @@
     "@types/jquery": "^4.0.1",
     "backbone": "^1.4.0",
     "jquery": "^4.0.0",
-    "marionette": "5.0.0-alpha.2"
+    "marionette": "5.0.0-alpha.2",
+    "morphdom": "^2.7.8",
+    "lit-html": "^3.3.3"
   },
   "peerDependenciesMeta": {
     "@types/backbone": {
@@ -102,6 +126,12 @@
       "optional": true
     },
     "jquery": {
+      "optional": true
+    },
+    "morphdom": {
+      "optional": true
+    },
+    "lit-html": {
       "optional": true
     }
   },
