@@ -2,7 +2,7 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 
 import TemplateRenderMixin from '../../../src/mixins/template-render';
-import BackboneApi from '../../../packages/adapters/src/backbone-api';
+import BackboneApi from '../../../packages/adapters/src/data/backbone.ts';
 
 describe('template-render', function() {
   let renderer;

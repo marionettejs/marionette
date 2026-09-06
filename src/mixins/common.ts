@@ -1,4 +1,4 @@
-import { assignOwn } from '../utils/assign-in.js';
+import { assignOwn } from '../utils/assign-in.ts';
 import getValue from '../utils/get-value.ts';
 import EventsMixin from './events.ts';
 import type { Events } from './events.ts';

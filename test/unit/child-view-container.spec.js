@@ -1,6 +1,6 @@
 import Backbone from 'backbone';
 import ChildViewContainer from '../../src/modules/child-view-container';
-import BackboneApi from '../../packages/adapters/src/backbone-api';
+import BackboneApi from '../../packages/adapters/src/data/backbone.ts';
 
 describe('#ChildViewContainer', function() {
 

@@ -1,4 +1,4 @@
-import { Collection, Model, triggerMethod } from '../../../packages/data/src/index.js';
+import { Collection, Model, triggerMethod } from '../../../packages/data/src/index.ts';
 
 describe('@marionette/data Model', function() {
   it('initializes defaults, identity, attributes, and subclasses', function() {

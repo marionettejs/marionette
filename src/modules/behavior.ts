@@ -6,7 +6,7 @@
 // Behaviors allow you to blackbox View specific interactions
 // into portable logical chunks, keeping your views simple and your code DRY.
 
-import { assignOwn } from '../utils/assign-in.js';
+import { assignOwn } from '../utils/assign-in.ts';
 import extend from '../utils/extend.ts';
 import getValue from '../utils/get-value.ts';
 import uniqueId from '../utils/unique-id.ts';

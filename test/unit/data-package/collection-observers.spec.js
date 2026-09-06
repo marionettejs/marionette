@@ -1,4 +1,4 @@
-import { Collection, DataApi, Model } from '../../../packages/data/src/index.js';
+import { Collection, DataApi, Model } from '../../../packages/data/src/index.ts';
 
 describe('@marionette/data collection observers', function() {
   let collection;

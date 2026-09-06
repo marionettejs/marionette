@@ -1,8 +1,8 @@
 // View
 // ----
 
-import { assignOwn } from '../utils/assign-in.js';
-import eachOwn from '../utils/each-own.js';
+import { assignOwn } from '../utils/assign-in.ts';
+import eachOwn from '../utils/each-own.ts';
 import MarionetteError from './error.ts';
 import extend from '../utils/extend.ts';
 import getValue from '../utils/get-value.ts';
@@ -17,7 +17,7 @@ import { setRenderer } from '../runtime/renderer.ts';
 import { setDomApi } from '../runtime/dom-api.ts';
 import { setDataApi } from '../runtime/data-api.ts';
 import { setStateApi } from '../runtime/state-api.ts';
-import { runtimeId } from '../runtime/runtime-id.js';
+import { runtimeId } from '../runtime-id.ts';
 
 import type { ViewMixinHost } from '../mixins/view.ts';
 import type { DOMEvents, DOMTriggers } from '../mixins/view-events.ts';

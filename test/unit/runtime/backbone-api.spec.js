@@ -1,5 +1,5 @@
 import Backbone from 'backbone';
-import BackboneApi from '../../../packages/adapters/src/backbone-api';
+import BackboneApi from '../../../packages/adapters/src/data/backbone.ts';
 
 describe('BackboneApi', function() {
   it('maps Backbone model and collection data', function() {

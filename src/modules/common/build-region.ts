@@ -1,7 +1,7 @@
-import { assignOwn } from '../../utils/assign-in.js';
+import { assignOwn } from '../../utils/assign-in.ts';
 import MarionetteError from '../error.ts';
-import isString from '../../utils/is-string.js';
-import { defaultRuntimeId, runtimeId } from '../../runtime/runtime-id.js';
+import isString from '../../utils/is-string.ts';
+import { defaultRuntimeId, runtimeId } from '../../runtime-id.ts';
 import Region from '../region.ts';
 import type { RegionInstance, RegionInternals, RegionOptions } from '../region.ts';
 

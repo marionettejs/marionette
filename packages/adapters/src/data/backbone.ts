@@ -1,37 +1,45 @@
-function subscribe(entity, eventName, callback, context) {
+import type * as Backbone from 'backbone';
+
+function subscribe(entity: Backbone.Events, events: Backbone.EventMap,
+  context?: unknown, explicitContext?: unknown): () => void;
+function subscribe(entity: Backbone.Events, eventName: string | Backbone.EventMap,
+  callback?: Backbone.EventHandler, context?: unknown): () => void;
+function subscribe(entity: Backbone.Events, eventName: string | Backbone.EventMap,
+  callback?: unknown, context?: unknown): () => void {
+  // Backbone accepts event maps at runtime; its Events declarations only expose strings.
   let isSubscribed = true;
   try {
-    entity.on(eventName, callback, context);
+    entity.on(eventName as string, callback as Backbone.EventHandler, context);
   } catch (error) {
-    entity.off(eventName, callback, context);
+    entity.off(eventName as string, callback as Backbone.EventHandler, context);
     throw error;
   }
 
   return function() {
     if (!isSubscribed) { return; }
     isSubscribed = false;
-    entity.off(eventName, callback, context);
+    entity.off(eventName as string, callback as Backbone.EventHandler, context);
   };
 }
 
 const BackboneApi = {
-  key(model) {
+  key(model: Backbone.Model): string {
     return model.cid;
   },
 
-  get(model, attribute) {
+  get(model: Backbone.Model, attribute: string): unknown {
     return Object.hasOwn(model.attributes, attribute) ? model.get(attribute) : undefined;
   },
 
-  has(model, attribute) {
+  has(model: Backbone.Model, attribute: string): boolean {
     return Object.hasOwn(model.attributes, attribute);
   },
 
-  serialize(model) {
+  serialize(model: Backbone.Model): Backbone.ObjectHash {
     return model.attributes;
   },
 
-  models(collection) {
+  models<TModel extends Backbone.Model>(collection: Backbone.Collection<TModel>): TModel[] {
     return collection.models.slice();
   },
 
@@ -39,13 +47,15 @@ const BackboneApi = {
 
   // Backbone has no source-wide disposal that preserves caller-owned listeners,
   // and Model#destroy may perform persistence.
-  disposeOwned(source) {
+  disposeOwned(source: Backbone.Events): void {
     void source;
   },
 
-  observeCollection(collection, callback, context) {
+  observeCollection(collection: Backbone.Collection,
+    callback: (change: unknown) => void, context?: unknown): () => void {
     let previousModels = collection.models.slice();
-    const onSort = function(_, options = {}) {
+    const onSort = function(_: Backbone.Collection,
+      options: { add?: boolean; remove?: boolean; merge?: boolean } = {}) {
       const hasUnchangedMembership = collection.length === previousModels.length &&
         previousModels.every(model => collection.get(model) === model);
       previousModels = collection.models.slice();
@@ -56,7 +66,9 @@ const BackboneApi = {
       previousModels = collection.models.slice();
       callback.call(context, { kind: 'reset' });
     };
-    const onUpdate = function(_, { changes }) {
+    const onUpdate = function(_: Backbone.Collection, { changes }: {
+      changes: { added: Backbone.Model[]; removed: Backbone.Model[]; merged: Backbone.Model[] };
+    }) {
       previousModels = collection.models.slice();
       callback.call(context, {
         kind: 'update',

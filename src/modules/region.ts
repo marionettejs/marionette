@@ -1,18 +1,18 @@
 // Region
 // ------
 
-import { assignOwn } from '../utils/assign-in.js';
+import { assignOwn } from '../utils/assign-in.ts';
 import MarionetteError from './error.ts';
 import extend from '../utils/extend.ts';
 import getValue from '../utils/get-value.ts';
-import isString from '../utils/is-string.js';
+import isString from '../utils/is-string.ts';
 import uniqueId from '../utils/unique-id.ts';
 import disposeAll from '../utils/dispose-all.ts';
 import monitorViewEvents from './common/monitor-view-events.ts';
 import { renderView, destroyView, isView } from './common/view.ts';
 import CommonMixin from '../mixins/common.ts';
 import DomApi, { setDomApi } from '../runtime/dom-api.ts';
-import { defaultRuntimeId, runtimeId } from '../runtime/runtime-id.js';
+import { defaultRuntimeId, runtimeId } from '../runtime-id.ts';
 
 
 import type { DomApi as DomProvider } from '../runtime/dom-api.ts';

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import createReduxDataApi from '../../packages/adapters/src/redux.js';
-import createXStateActorApi from '../../packages/adapters/src/xstate.js';
+import createReduxDataApi from '../../packages/adapters/src/data/redux.ts';
+import createXStateActorApi from '../../packages/adapters/src/data/xstate.ts';
 
 function createSource(models) {
   let state = { models };

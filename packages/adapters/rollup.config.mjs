@@ -1,14 +1,8 @@
-import babel from '@rollup/plugin-babel';
-
-const babelOptions = {
-  babelHelpers: 'bundled',
-  shouldPrintComment: comment => comment.includes('@__PURE__') ||
-    comment.includes('@license') || comment.includes('@preserve') || comment.startsWith('!')
-};
+import compile from '../../build/babel.js';
 
 export default [
   {
-    input: 'src/backbone.js',
+    input: 'src/data/backbone.ts',
     output: [
       {
         file: 'dist/backbone.js',
@@ -20,10 +14,10 @@ export default [
         exports: 'default'
       }
     ],
-    plugins: [babel(babelOptions)]
+    plugins: [compile()]
   },
   {
-    input: 'src/dom/jquery.js',
+    input: 'src/dom/jquery.ts',
     external: ['jquery'],
     output: [
       {
@@ -36,10 +30,10 @@ export default [
         exports: 'default'
       }
     ],
-    plugins: [babel(babelOptions)]
+    plugins: [compile()]
   },
   ...['redux', 'zustand', 'xstate-store', 'xstate'].map(name => ({
-    input: `src/${ name }.js`,
+    input: `src/data/${ name }.ts`,
     output: [
       {
         file: `dist/${ name }.js`,
@@ -51,6 +45,6 @@ export default [
         exports: 'default'
       }
     ],
-    plugins: [babel(babelOptions)]
+    plugins: [compile()]
   }))
 ];

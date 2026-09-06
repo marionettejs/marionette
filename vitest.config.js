@@ -18,8 +18,8 @@ export default defineConfig({
       reporter: ['text', 'html', 'lcov'],
       include: [
         'src/**/*.{js,ts}',
-        'packages/adapters/src/**/*.js',
-        'packages/data/src/**/*.js'
+        'packages/adapters/src/**/*.ts',
+        'packages/data/src/**/*.ts'
       ],
       thresholds: {
         lines: 100,

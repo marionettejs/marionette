@@ -1,12 +1,28 @@
-const collectionObservers = new WeakMap();
+import type { ModelInstance as Model } from './model.ts';
+import type { CollectionInstance as Collection, CollectionChange } from './collection.ts';
 
-function modelKey(model) {
+interface ChangeEntry {
+  key: unknown;
+  previous: Model | undefined;
+  current: Model | undefined;
+}
+
+interface Observer {
+  callback: (change: CollectionChange) => void;
+  context: unknown;
+  pending: CollectionChange | undefined;
+  pendingEntries: ChangeEntry[] | undefined;
+}
+
+const collectionObservers = new WeakMap<Collection, Set<Observer>>();
+
+function modelKey(model: Model) {
   return model.id == null ? model.cid : model.id;
 }
 
-function captureChange(change) {
+function captureChange(change: CollectionChange) {
   if (change.kind !== 'update') { return; }
-  const entries = [];
+  const entries: ChangeEntry[] = [];
   for (const model of change.removed) {
     entries.push({ key: modelKey(model), previous: model, current: undefined });
   }
@@ -19,8 +35,8 @@ function captureChange(change) {
   return entries;
 }
 
-function combineChanges(observer, current, currentEntries) {
-  const previous = observer.pending;
+function combineChanges(observer: Observer, current: CollectionChange, currentEntries: ChangeEntry[] | undefined) {
+  const previous = observer.pending!;
   if (previous.kind === 'reset' || current.kind === 'reorder') { return; }
   if (current.kind === 'reset' || previous.kind === 'reorder') {
     observer.pending = current;
@@ -28,15 +44,15 @@ function combineChanges(observer, current, currentEntries) {
     return;
   }
 
-  const changes = new Map(observer.pendingEntries.map(entry => [entry.key, entry]));
-  for (const entry of currentEntries) {
+  const changes = new Map(observer.pendingEntries!.map(entry => [entry.key, entry]));
+  for (const entry of currentEntries!) {
     const previousEntry = changes.get(entry.key);
     changes.set(entry.key, previousEntry ? {
       key: entry.key, previous: previousEntry.previous, current: entry.current
     } : entry);
   }
 
-  const combined = { kind: 'update', added: [], removed: [], updated: [] };
+  const combined: Extract<CollectionChange, { kind: 'update' }> = { kind: 'update', added: [], removed: [], updated: [] };
   for (const { previous: before, current: after } of changes.values()) {
     if (!before) {
       if (after) { combined.added.push(after); }
@@ -50,15 +66,15 @@ function combineChanges(observer, current, currentEntries) {
   observer.pendingEntries = [...changes.values()];
 }
 
-export function observeCollection(collection, callback, context) {
+export function observeCollection<M extends Model>(collection: Collection<M>, callback: (change: CollectionChange<M>) => void, context?: unknown) {
   const type = typeof collection;
   const isObject = collection != null && (type === 'object' || type === 'function');
   if (!isObject || typeof callback !== 'function' || !collectionObservers.has(collection)) {
     throw new TypeError('@marionette/data can observe only its own Collection instances with a callback.');
   }
 
-  const observers = collectionObservers.get(collection);
-  const observer = { callback, context, pending: undefined, pendingEntries: undefined };
+  const observers = collectionObservers.get(collection)!;
+  const observer = { callback, context, pending: undefined, pendingEntries: undefined } as Observer;
   let subscribed = true;
   observers.add(observer);
 
@@ -71,12 +87,12 @@ export function observeCollection(collection, callback, context) {
   };
 }
 
-export function initializeObservers(collection) {
+export function initializeObservers(collection: Collection) {
   collectionObservers.set(collection, new Set());
 }
 
-export function notifyCollection(collection, change) {
-  const observers = collectionObservers.get(collection);
+export function notifyCollection(collection: Collection, change: CollectionChange) {
+  const observers = collectionObservers.get(collection)!;
   if (!observers.size) { return; }
   const currentObservers = [...observers];
   if (currentObservers.length === 1 && !currentObservers[0].pending) {
@@ -107,8 +123,8 @@ export function notifyCollection(collection, change) {
   }
 }
 
-export function releaseObservers(collection) {
-  const observers = collectionObservers.get(collection);
+export function releaseObservers(collection: Collection) {
+  const observers = collectionObservers.get(collection)!;
   for (const observer of observers) {
     observer.pending = undefined;
     observer.pendingEntries = undefined;

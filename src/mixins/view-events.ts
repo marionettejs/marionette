@@ -2,9 +2,9 @@ import EventDelegator from '../runtime/event-delegator.ts';
 import MarionetteError from '../modules/error.ts';
 import disposeAll from '../utils/dispose-all.ts';
 import { resolveMethod } from '../modules/common/normalize-methods.ts';
-import eachOwn from '../utils/each-own.js';
+import eachOwn from '../utils/each-own.ts';
 import getValue from '../utils/get-value.ts';
-import isString from '../utils/is-string.js';
+import isString from '../utils/is-string.ts';
 
 import type { EventCallback } from './events.ts';
 import type { EventDelegator as Delegator, DelegateOptions } from '../runtime/event-delegator.ts';

@@ -1,13 +1,7 @@
-import babel from '@rollup/plugin-babel';
-
-const babelOptions = {
-  babelHelpers: 'bundled',
-  shouldPrintComment: comment => comment.includes('@__PURE__') ||
-    comment.includes('@license') || comment.includes('@preserve') || comment.startsWith('!')
-};
+import compile from '../../build/babel.js';
 
 export default {
-  input: 'src/index.js',
+  input: 'src/index.ts',
   external: ['marionette'],
   output: [
     {
@@ -20,5 +14,5 @@ export default {
       exports: 'named'
     }
   ],
-  plugins: [babel(babelOptions)]
+  plugins: [compile()]
 };

@@ -31,7 +31,8 @@ npm run performance:timing
 
 `npm ci` builds the packages and checks the core distributions through `prepare`.
 Generated `dist/` directories and `src/version.js` are ignored by Git; edit source files
-and the handwritten declarations in `packages/*/types/`. After source edits, run
+and their co-located TypeScript contracts. Declarations are generated for all three
+packages; do not maintain separate handwritten copies. After source edits, run
 `npm run build` before distribution or browser checks. The fixture runner builds
 once before packing local packages; supplying all three tarballs skips rebuilding. `npm pack` and npm Git installs
 run `prepare` automatically; installing a published tarball uses its compiled files.
@@ -56,10 +57,15 @@ Core production source lives under `src/`:
   `MarionetteError`;
 - `src/mixins/` owns capabilities composed into those classes;
 - `src/runtime/` owns configurable runtime protocols and defaults;
-- `src/utils/` owns small shared implementation helpers.
+- `src/utils/` owns small shared implementation helpers;
+- `src/create-marionette.ts` and `src/runtime-id.ts` own runtime construction and
+  private identity. Runtime identity is not a configurable adapter.
 
 Separately published packages keep their production source under
-`packages/<name>/src/`. Unit specs remain under `test/unit/` because Marionette tests
+`packages/<name>/src/`. Data/state integrations live in
+`packages/adapters/src/data/`; DOM integrations live in `src/dom/` within that
+package. Public imports are defined by the package exports, independently of the
+internal source folders. Unit specs remain under `test/unit/` because Marionette tests
 usually exercise lifecycle, ownership, and composition contracts across several source
 files. Browser, package-fixture, performance, documentation, source, and release tests
 remain in their named `test/` suites. Do not introduce a second adjacent-test convention
@@ -67,14 +73,18 @@ or restore obsolete root-level source paths.
 
 ## TypeScript source
 
-Converted modules use one canonical `.ts` file. The build checks them with
+All authored production modules use canonical `.ts` files, including the data and
+adapter packages. The strict configuration has no JavaScript allowance. The build checks them with
 TypeScript 6.0.3, then the existing Babel and Rollup pipeline removes annotations
 and produces the distributions. Source linting uses typescript-eslint 8.69.0,
 which supports this compiler and the repository's ESLint version. Keep runtime
 construction and prototype composition unchanged when adding types.
 
-`npm run check:types` checks canonical source. `npm run build:types` emits the
-published ESM and CommonJS declarations. `npm run test:types` emits private
+`npm run check:types` checks core and optional-package source. `npm run build:types`
+emits core declarations; `build:data` and `build:adapters` emit their packages
+from source after the core declaration build. Every package has generated ESM
+and CommonJS declaration scopes. Adapter CommonJS declarations use export
+assignments because their runtime exports the adapter directly. `npm run test:types` emits private
 declarations into the ignored `test/tmp/typed-core/` directory and checks ESM and
 CommonJS consumers against them. Both checks run during `npm run build` and
 `npm test`. Coverage and diagnostic discovery include TypeScript source files.
@@ -187,10 +197,9 @@ or future sources. Inferred `getState()` results remain separate from the
 mutable `State` slot. Configured methods are optional because an explicit
 undefined overlay can remove a capability. Direct calls through a configured
 provider need an explicit local source contract; directly imported adapters retain their concrete types.
-The normalized collection-change protocol still comes from the optional package
-declarations and must be reconciled when public root declarations are packaged.
-This private slice does not add a second protocol definition or change the
-optional packages' supported TypeScript versions.
+The normalized collection-change protocols are owned by the optional package
+implementations and appear in their generated declarations. Installed-package
+fixtures check composition with core without duplicating protocol definitions.
 
 The checked DOM contracts keep native exports concrete and configured queries
 array-like. `DomApi<Query, Wrapped, Content>` can express an explicit application
