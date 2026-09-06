@@ -1,0 +1,57 @@
+docs/dom.api.md
+  s_060efbb5bf6218::t_2fbdafdd076dbb 141,147,160
+docs/marionette.behavior.md
+  s_060efbb5bf6218::t_0731aeaf872537 470
+docs/marionette.region.md
+  s_060efbb5bf6218::t_23f485fdc89887 35
+docs/migration-from-v4.md
+  s_060efbb5bf6218::t_6b13a2124cdc7b 35,111
+docs/view.rendering.md
+  s_060efbb5bf6218::t_e906604b27bd3b 236,276
+packages/adapters/src/dom/lit-html.ts
+  s_060efbb5bf6218::t_845f634f55791d 30,34
+src/modules/collection-view.ts
+  s_060efbb5bf6218::t_475cac5b22a777 69,385
+src/modules/common/monitor-view-events.ts
+  s_060efbb5bf6218::t_3c3215dcbdba6d 18,60,71
+src/modules/common/view.ts
+  s_060efbb5bf6218::t_e12e98109e5574 21,38
+src/modules/view.ts
+  s_060efbb5bf6218::t_9f12bf543e324e 107,499
+src/runtime/dom-api.ts
+  s_060efbb5bf6218::t_27069935a86b4d 20-21,43-44
+test/contracts/dom-adapters.js
+  s_060efbb5bf6218::t_ac1d7218c3f44f 387,391
+test/fixtures/core-types/consumer.cts
+  s_060efbb5bf6218::t_356314d6f5687d 51-52
+test/fixtures/core-types/consumer.mts
+  s_060efbb5bf6218::t_f203334c83d4dc 51-52
+test/fixtures/dom-adapters-package/validate.cts
+  s_060efbb5bf6218::t_6cd2a389f8b62b 29-30,34
+test/fixtures/dom-adapters-package/validate.mts
+  s_060efbb5bf6218::t_9832f3129c62ca 29-30,34
+test/unit/collection-view/collection-view-children.spec.js
+  s_060efbb5bf6218::t_69e9d41e48bd2d 29-38
+test/unit/region.spec.js
+  s_060efbb5bf6218::t_bc11fbc5fbd1d6 399-400
+test/unit/view.dynamic-regions.spec.js
+  s_060efbb5bf6218::t_4a0ae7e04c5346 4,7-8,37,78,106,139,152,184,235,260,280
+upgradeGuide.md
+  s_060efbb5bf6218::t_98e1b283eead11 387
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "5650d041813a2f52ceab38a846699f18d2264efc",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
