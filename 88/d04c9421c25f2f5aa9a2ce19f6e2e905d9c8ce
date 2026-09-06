@@ -1,0 +1,107 @@
+test/browser/adapters-package.mjs
+  s_060efbb5bf6218::t_81e3fc920c3896 47,113-114,123,145-147
+test/unit/view-fixed-root.spec.js
+  s_060efbb5bf6218::t_eb0ebc3dbc3a58 12-13,15-16,24,30-34,39-42
+config/diagnostics/catalog.json
+  s_060efbb5bf6218::t_98a9f0fb3d38b0 97
+docs/dom.api.md
+  s_060efbb5bf6218::t_203945c441859f 234,237-238,240-244,247-249
+docs/events.class.md
+  s_060efbb5bf6218::t_290bda78a2f50e 47,436,498,500-503,505-507
+docs/installation.md
+  s_060efbb5bf6218::t_c368ac1b3ec390 235-236
+docs/marionette.behavior.md
+  s_060efbb5bf6218::t_d8f9a695eacd3f 471,545-546
+docs/marionette.collectionview.md
+  s_060efbb5bf6218::t_5235904d1a5653 75,333
+docs/marionette.region.md
+  s_060efbb5bf6218::t_9777e1c168485b 455,458,476,498,500-502,506,508-509,511-513,515-516,521-523
+docs/migration-from-v4.md
+  s_060efbb5bf6218::t_1bda0dc30b9745 30,35
+docs/view.lifecycle.md
+  s_060efbb5bf6218::t_97cd0768eb7c49 91-92
+packages/adapters/readme.md
+  s_060efbb5bf6218::t_b4c3f89fd30052 176,179,181-184,187-188
+packages/adapters/rollup.config.mjs
+  s_060efbb5bf6218::t_4896a52fcd96b3 19-20,23-24,27
+src/mixins/behaviors.ts
+  s_060efbb5bf6218::t_96134f470fb96a 5,11,130-131
+src/mixins/view.ts
+  s_060efbb5bf6218::t_de260584fbbc55 207
+src/modules/behavior.ts
+  s_060efbb5bf6218::t_33185c34caa9b3 27,34,64,82,161
+src/modules/collection-view.ts
+  s_060efbb5bf6218::t_1a74a06801a138 66,375,399,867
+src/modules/common/fluent-methods.ts
+  s_060efbb5bf6218::t_ef38d245e8dc78 28
+src/modules/common/monitor-view-events.ts
+  s_060efbb5bf6218::t_37afc62d3f0b53 16,18
+src/modules/common/view.ts
+  s_060efbb5bf6218::t_8ad70fe7df356f 4-7,28,30,34,38,51-52
+src/modules/region.ts
+  s_060efbb5bf6218::t_bd8dc7997787a0 350
+test/contracts/rendering-adapters.js
+  s_060efbb5bf6218::t_8e9cc7a24fed4f 4,55-56,60
+test/fixtures/cjs-adapters/validate.cjs
+  s_060efbb5bf6218::t_c0fcd9b4189dee 21,28-29
+test/fixtures/jquery-dom-api-types/validate.cts
+  s_060efbb5bf6218::t_be06978953bf63 1-2,8-12,54-59
+test/fixtures/jquery-dom-api-types/validate.mts
+  s_060efbb5bf6218::t_f5daef5b5e29b8 1-2,8-12,54-59
+test/fixtures/jquery-dom-api/validate.mjs
+  s_060efbb5bf6218::t_62dce3ebd38590 13,16-17
+test/source/validate.mjs
+  s_060efbb5bf6218::t_0d53ab860f2b0c 30-32
+test/types/collection-view.cts
+  s_060efbb5bf6218::t_11824e426d74fd 74-75
+test/types/collection-view.mts
+  s_060efbb5bf6218::t_3a77fda202d1bb 74-75
+test/types/fixed-root.cts
+  s_060efbb5bf6218::t_637d1dab918b30 1,21-26
+test/types/fixed-root.mts
+  s_060efbb5bf6218::t_8cd861de18caae 1,21-26
+test/unit/behavior-composition.spec.js
+  s_060efbb5bf6218::t_f8256553d03b0a 22-23,65-67,96
+test/unit/collection-view/collection-view-children.spec.js
+  s_060efbb5bf6218::t_a3a854f7c0ecb9 645,653-654
+test/unit/collection-view/collection-view-empty.spec.js
+  s_060efbb5bf6218::t_27a94ef591c789 158-159,182,214,218,226,250,262,270,275,283,289,298,306
+test/unit/collection-view/collection-view.spec.js
+  s_060efbb5bf6218::t_f0edef527ae16b 12,23-24,30,151,164,166-167,170,174,181-182,185,195,222,277,308
+test/unit/common/view.spec.js
+  s_060efbb5bf6218::t_17164dc091cb98 2,5-16,19-29
+test/unit/jquery-dom-api.spec.js
+  s_060efbb5bf6218::t_559cade7ecd233 156-169
+test/unit/mixins/behaviors-composition.spec.js
+  s_060efbb5bf6218::t_8a8c0501ce64b1 163-165
+test/unit/region.spec.js
+  s_060efbb5bf6218::t_2a2dd542947f7a 86-87,207,224,252,256,400,603-604,655-656,705-706,799,832-833,874-875,1150-1151,1156-1157,1163,1168,1183
+test/unit/state-owner.spec.js
+  s_060efbb5bf6218::t_cb564dd9102602 311,317
+test/unit/view-dom-delegation.spec.js
+  s_060efbb5bf6218::t_50914ecae90431 162
+test/unit/view-ownership.spec.js
+  s_060efbb5bf6218::t_d1cf09b78920f3 1-64
+test/unit/view.child-views.spec.js
+  s_060efbb5bf6218::t_4aafb1f2c7413e 256,418
+test/unit/view.dynamic-regions.spec.js
+  s_060efbb5bf6218::t_46d73c60340ae5 7
+upgradeGuide.md
+  s_060efbb5bf6218::t_0a2b1d70850233 27-38,41,219-220,222-225,227-231,233-243,245-246
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "88d04c9421c25f2f5aa9a2ce19f6e2e905d9c8ce",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
