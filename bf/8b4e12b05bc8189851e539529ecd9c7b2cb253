@@ -1,0 +1,61 @@
+docs/dom.api.md
+  s_060efbb5bf6218::t_2724d14c2b5124 11,13-14,100-109,165-179
+docs/view.rendering.md
+  s_060efbb5bf6218::t_e9b7544e4cf045 154-159,218,230,234,264-265
+packages/adapters/readme.md
+  s_060efbb5bf6218::t_02b766651d6d3e 170-171,174-176,196-198,219-220,225-227
+packages/adapters/src/dom/jquery.ts
+  s_060efbb5bf6218::t_afe16a7b77106a 20-21
+packages/adapters/src/render/lit-html.ts
+  s_060efbb5bf6218::t_463b596e30143c 11,15,22,34-35,38-41,55-56,59-62,65,69-71,74,77,79
+packages/adapters/src/render/morphdom.ts
+  s_060efbb5bf6218::t_ea3ccc7f6f8196 6-15,19,23
+src/index.ts
+  s_060efbb5bf6218::t_d614d1ef841087 65
+src/mixins/template-render.ts
+  s_060efbb5bf6218::t_36cf055d1a2459 5,8,38,100
+src/mixins/view.ts
+  s_060efbb5bf6218::t_0a8ebafc47cd26 187,271
+src/modules/collection-view.ts
+  s_060efbb5bf6218::t_25f6ad05024743 911,913-920,922-928,930-932
+src/modules/view.ts
+  s_060efbb5bf6218::t_1b351abc10565b 559,561-566,568-573,575-580,583-585
+src/runtime/dom-api.ts
+  s_060efbb5bf6218::t_d1a479eed2f367 5-10,20,26,119-120
+test/contracts/rendering-adapters.js
+  s_060efbb5bf6218::t_1c8f845cef8162 1,22,25-28,69-71,101,275-278,411-508
+test/fixtures/rendering-adapters-package/runtime.mjs
+  s_060efbb5bf6218::t_24d0ac4c7704ce 44-48
+test/fixtures/rendering-adapters-package/validate.cts
+  s_060efbb5bf6218::t_05f5e32bec6c16 29
+test/fixtures/rendering-adapters-package/validate.mts
+  s_060efbb5bf6218::t_ce22491704ca79 29
+test/types/dom.cts
+  s_060efbb5bf6218::t_4e8502c05f12b8 33-40
+test/types/dom.mts
+  s_060efbb5bf6218::t_b4185cea5adbc1 33-40
+test/unit/dom-disposal.spec.js
+  s_060efbb5bf6218::t_246e813753e7a0 1-78
+test/unit/mixins/template-render.spec.js
+  s_060efbb5bf6218::t_8f2270f6e20a34 78,337
+test/unit/view.renderer.spec.js
+  s_060efbb5bf6218::t_2b95024b2343a7 87,95,100,106-107,109-125
+upgradeGuide.md
+  s_060efbb5bf6218::t_3863ddea972343 27-39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "bf8b4e12b05bc8189851e539529ecd9c7b2cb253",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
