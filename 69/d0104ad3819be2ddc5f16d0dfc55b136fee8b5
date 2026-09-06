@@ -1,0 +1,103 @@
+config/diagnostics/catalog.json
+  s_060efbb5bf6218::t_f7653cb5ae6cd8 650,654,656
+docs/data.api.md
+  s_060efbb5bf6218::t_e6d0a9e39c44cc 51-58,87-88,94-98,101-102
+docs/dom.interactions.md
+  s_060efbb5bf6218::t_ca8a03aab21dc3 188-195
+docs/events.class.md
+  s_060efbb5bf6218::t_079fb64646e360 469-472
+docs/marionette.application.md
+  s_060efbb5bf6218::t_03a7ae038e26e8 41-44
+docs/marionette.mnobject.md
+  s_060efbb5bf6218::t_392e0d28f9358a 82-84
+docs/marionette.region.md
+  s_060efbb5bf6218::t_ca344b30fc13b1 68-69,77-78,598-599
+docs/marionette.state.md
+  s_060efbb5bf6218::t_b6ac469dab6782 88-94,100
+docs/migration-from-v4.md
+  s_060efbb5bf6218::t_ad7a5e196a88fe 82,109
+docs/performance-baselines.md
+  s_060efbb5bf6218::t_fc9e092c57b3a7 3-6
+docs/view.lifecycle.md
+  s_060efbb5bf6218::t_277ddf072bc78a 261-265
+packages/adapters/src/data/backbone.ts
+  s_060efbb5bf6218::t_fd917f22d189cb 11
+packages/adapters/src/data/keyed-snapshot.ts
+  s_060efbb5bf6218::t_1328bac4c056ee 157,160,165
+packages/data/src/collection.ts
+  s_060efbb5bf6218::t_343f59b5eb4114 10,150-155,166-167,184-185,189,194,208,439-443,448
+packages/data/src/model.ts
+  s_060efbb5bf6218::t_1da050033e6c04 87,100-102,104,173-176,227-230
+src/mixins/behaviors.ts
+  s_060efbb5bf6218::t_d30ccc99f6f880 98,106,116,124
+src/mixins/delegate-entity-events.ts
+  s_9ae50bd5823422::t_295af98f12d11c 13,23-31,33,35-43,54,65
+src/mixins/destroy.ts
+  s_9ae50bd5823422::t_3547fa963334ce 20,22-25
+src/mixins/radio.ts
+  s_9ae50bd5823422::t_a6330c776b32e5 45-46
+src/mixins/state.ts
+  s_9ae50bd5823422::t_68e5948b7ce402 45,68,79-82
+src/mixins/view-events.ts
+  s_060efbb5bf6218::t_2eeaadcd5affc7 69-70,80-81
+src/mixins/view.ts
+  s_9ae50bd5823422::t_be8dc44957c261 177-178,186-187,196-199,206-207,218-225,227-239
+src/modules/application.ts
+  s_060efbb5bf6218::t_f15f4b29c906d2 170-174,643-656
+src/modules/behavior.ts
+  s_9ae50bd5823422::t_d9af0ab1c43474 142-159,179-183
+src/modules/collection-view.ts
+  s_060efbb5bf6218::t_42cd8cabe59df1 180-183,263,283,287,290-304,381-386,388,390,392-394,396,398,400,402-403,405,407,456,464,531-533,540-546,548-552,554-563,565,567-569,571-574,1294,1299,1315-1317,1327-1330
+src/modules/common/normalize-methods.ts
+  s_060efbb5bf6218::t_ce2412ca040c14 23
+src/modules/object.ts
+  s_060efbb5bf6218::t_75b3569b970e68 155-158
+src/modules/radio.ts
+  s_060efbb5bf6218::t_57e3bcabb10390 181
+src/modules/region.ts
+  s_9ae50bd5823422::t_02ca711cf98990 562,566-576
+src/modules/view.ts
+  s_9ae50bd5823422::t_eb64c2f415fab3 336-340,373,492-499,501,503,505-507,509,511,513-514,516
+src/utils/subscribe-bindings.ts
+  s_060efbb5bf6218::t_7fe74361d03041 6,10,13-15,17-18
+test/contracts/dom-adapters.js
+  s_060efbb5bf6218::t_5b380a0ba91754 260
+test/unit/collection-view/collection-view-reconciliation.spec.js
+  s_060efbb5bf6218::t_d95c8d42f16bf8 374,539,541-542,544-549,551-563
+test/unit/common/normalize-methods.spec.js
+  s_060efbb5bf6218::t_216890474dfdb4 188,194,200
+test/unit/config/diagnostic-catalog.spec.js
+  s_060efbb5bf6218::t_32499ac523963c 578,586
+test/unit/mixins/delegate-entity-events.spec.js
+  s_060efbb5bf6218::t_0983bb555f6ace 81,89
+test/unit/utils/subscribe-bindings.spec.js
+  s_060efbb5bf6218::t_830cbcaa29785a 1-3,6-22,25-29
+test/unit/view.ui-event-and-triggers.spec.js
+  s_060efbb5bf6218::t_ac24784d31bf16 129
+upgradeGuide.md
+  s_060efbb5bf6218::t_a1671f6c82687a 291-293
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "69d0104ad3819be2ddc5f16d0dfc55b136fee8b5",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_9ae50bd5823422": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fc229-2a48-7dc1-8ca7-47fe79fcec33",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
