@@ -11,7 +11,7 @@ which indicates whether the View is rendered, attached, or destroyed.
   * [`isAttached()`](#isattached)
   * [`isDestroyed()`](#isdestroyed)
 * [Instantiating a View](#instantiating-a-view)
-  * [Using `setElement`](#using-setelement)
+  * [A fixed root element](#a-fixed-root-element)
 * [Rendering a View](#rendering-a-view)
   * [`View` Rendering](#view-rendering)
   * [`CollectionView` Rendering](#collectionview-rendering)
@@ -61,15 +61,12 @@ following observable transitions:
 | `View#render()` with `template: false` while alive | Returns the View without running the render lifecycle or changing contents or state | Repeated calls are the same no-op |
 | `CollectionView#render()` while alive | Runs `before:render` and `render`, rebuilds its children, and becomes rendered; attachment is unchanged | Rebuilds the children and runs the render lifecycle again |
 | `view.renderAttributes()` while alive | Applies the current root attribute declarations without changing contents, children, lifecycle events, or state | Reevaluates and applies the declarations again |
-| `View#setElement(el)` while alive | Rendered reflects whether the replacement element has contents; attached reflects whether it is in the document | Recomputes the same state from the current element |
-| `CollectionView#setElement(el)` while alive | Rendered is preserved; attached reflects whether the replacement element is in the document | Preserves rendered and recomputes attached from the current element |
 | `region.show(view)` | Ensures the view is rendered; attached becomes `true` only when the Region is in the document | Showing the current view is a no-op |
 | `region.detachView()` | Rendered stays `true`; attached becomes `false`; destroyed stays `false` | Returns `undefined` with no transition |
 | Re-show a detached view | Rendered stays `true`; attachment reflects the Region | Does not render the view again |
 | `region.empty()` or `view.destroy()` | Rendered and attached become `false`; destroyed becomes `true` | Repeated destroy is a no-op |
 | `view.render()` after destruction | Returns the same View with rendered and attached `false` and destroyed `true` | Repeated calls are no-ops |
 | `view.renderAttributes()` once destruction begins | Returns the same View before resolving declarations or changing the root element or lifecycle state | Repeated calls are no-ops |
-| `view.setElement(el)` once destruction begins | Returns the same View before inspecting or replacing the element or changing delegation, DOM, or lifecycle state | Calls during `before:destroy` and repeated calls after destruction are no-ops |
 | `CollectionView#addChildView(view, ...)` once destruction begins | Returns the supplied child before inspecting or taking ownership of it; the caller remains responsible for that child | Repeated calls are no-ops for the destroyed CollectionView |
 | `view.delegateEvents()` or `view.undelegateEvents()` once destruction begins | Returns the same View without changing View or Behavior DOM delegation | Repeated calls are no-ops |
 | `view.bindUIElements()` once destruction begins | Returns the same View without resolving host UI, querying DOM, or binding View or Behavior UI | Repeated calls are no-ops |
@@ -90,8 +87,7 @@ collections are not valid View `el` values.
 
 When `el` is omitted, Marionette creates the root element from `tagName` (a
 `div` by default) and applies the resolved `id`, `className`, and `attributes`.
-The element remains the View's root until application code explicitly replaces
-it with [`setElement()`](#using-setelement). Native core does not create `$el`;
+The element remains the View's root for its entire lifetime. Native core does not create `$el`;
 applications that require that compatibility surface can opt into the
 [jQuery base-class helper](./dom.api.md#optional-jquery-adapter).
 
@@ -106,25 +102,17 @@ attachment lifecycle once for the View and its existing children.
 For more information on instantiating a view with pre-rendered DOM, see
 [Pre-rendered Content](./dom.prerendered.md).
 
-### Using `setElement`
+### A fixed root element
 
-While a `View` is alive, `setElement()` replaces its root with a native DOM
-element, recomputes `isRendered()` from the replacement element's contents, and
-recomputes `isAttached()` from whether that element is in the document. A
-`CollectionView` instead preserves its current rendered state and recomputes
-only attachment from the replacement element.
+Choose the root with the constructor's `el` option, or let Marionette create it.
+A View and its Behaviors keep that element for their lifetime. `el` is readonly
+in the public instance types; assigning another element directly is unsupported.
+There is no public `setElement()` method.
 
-Both classes remove their existing View and Behavior DOM delegation and delegate
-it once against the replacement element. They preserve Region and child-view
-ownership, but do not move any owned child's DOM from the old root to the new
-one. A child can therefore remain physically under the old root with its prior
-lifecycle state. Prefer constructing a new owner when existing children would
-otherwise need to be moved or reconciled manually.
-
-Calling the base `View#setElement` or `CollectionView#setElement` once destruction begins
-returns the same instance before inspecting the supplied element or changing delegation,
-DOM, element identity, or lifecycle state. A custom override owns its behavior unless it
-delegates to the guarded base method.
+Rendering changes the root's contents. Moving or detaching a View through a
+Region preserves its root and its child ownership. If another system replaces
+the root, destroy the old View and construct a new View with the new element.
+Keep state that must survive that replacement outside the View.
 
 ## Rendering a View
 
@@ -132,7 +120,7 @@ In Marionette [rendering a view](./view.rendering.md) is changing a view's `el`'
 
 What rendering indicates varies slightly between the two Marionette views.
 
-**Note** Outside an alive View's explicit `setElement()` replacement, once a View is considered
+**Note** Once a View is considered
 rendered it cannot become unrendered until it is [destroyed](#destroying-a-view).
 
 ### `View` Rendering
@@ -203,7 +191,7 @@ for the supported add, remove, detach, sorting, and filtering contracts.
 ## Attaching a View
 
 `isAttached()` is Marionette's monitored lifecycle state, not a live query of
-the physical DOM on every call. Construction and `setElement()` initialize it
+the physical DOM on every call. Construction initializes it
 from the current root element, and Marionette-managed Region and CollectionView
 operations update it while attachment monitoring is enabled.
 The [`attach` event](./events.class.md#attach-and-beforeattach-events) is the

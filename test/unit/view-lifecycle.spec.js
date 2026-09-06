@@ -102,43 +102,6 @@ describe('View lifecycle contract', function() {
     parent.destroy();
   });
 
-  it('recomputes state when replacing its element while alive', function() {
-    this.setFixtures(`
-      <div id="replacement-empty"></div>
-      <div id="replacement-populated"><span>Existing content</span></div>
-    `);
-    const populatedDetached = document.createElement('div');
-    populatedDetached.innerHTML = '<span>Existing content</span>';
-    const replacements = [
-      {
-        el: document.createElement('div'),
-        expected: { rendered: false, attached: false, destroyed: false },
-      },
-      {
-        el: populatedDetached,
-        expected: { rendered: true, attached: false, destroyed: false },
-      },
-      {
-        el: document.querySelector('#replacement-empty'),
-        expected: { rendered: false, attached: true, destroyed: false },
-      },
-      {
-        el: document.querySelector('#replacement-populated'),
-        expected: { rendered: true, attached: true, destroyed: false },
-      },
-    ];
-    const view = new View({ template: false });
-
-    for (const replacement of replacements) {
-      expect(view.setElement(replacement.el)).to.equal(view);
-      expect(state(view)).to.deep.equal(replacement.expected);
-
-      expect(view.setElement(replacement.el)).to.equal(view);
-      expect(state(view)).to.deep.equal(replacement.expected);
-    }
-
-    view.destroy();
-  });
 
   it('treats repeated render calls after destruction as idempotent no-ops', function() {
     const template = this.sinon.spy(() => `
@@ -182,48 +145,6 @@ describe('View lifecycle contract', function() {
     expect(state(child)).to.deep.equal({ rendered: false, attached: false, destroyed: true });
   });
 
-  it('preserves Region ownership without moving child DOM when replacing its element', function() {
-    this.setFixtures('<div id="region-owner"></div>');
-    const oldRoot = document.querySelector('#region-owner');
-    const replacementRoot = document.createElement('div');
-    replacementRoot.innerHTML = '<span>Replacement content</span>';
-    const view = new View({
-      el: oldRoot,
-      template: () => '<div class="child-region"></div>',
-      regions: { child: '.child-region' },
-    });
-    const child = new View({ template: () => '<span>Child</span>' });
-    view.render();
-    view.showChildView('child', child);
-    const region = view.getRegion('child');
-
-    expect(oldRoot.contains(child.el)).to.be.true;
-    expect(state(child)).to.deep.equal({
-      rendered: true,
-      attached: true,
-      destroyed: false,
-    });
-
-    view.setElement(replacementRoot);
-
-    expect(state(view)).to.deep.equal({
-      rendered: true,
-      attached: false,
-      destroyed: false,
-    });
-    expect(view.getRegion('child')).to.equal(region);
-    expect(view.getChildView('child')).to.equal(child);
-    expect(region.currentView).to.equal(child);
-    expect(state(child)).to.deep.equal({
-      rendered: true,
-      attached: true,
-      destroyed: false,
-    });
-    expect(oldRoot.contains(child.el)).to.be.true;
-    expect(replacementRoot.contains(child.el)).to.be.false;
-
-    view.destroy();
-  });
 
   it('propagates nested attachment through detached, reentrant, and repeated transitions', function() {
     this.setFixtures('<div id="nested-lifecycle-region"></div>');

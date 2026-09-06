@@ -144,7 +144,8 @@ type Result<Props, Args extends unknown[], State, Query extends ArrayLike<Elemen
   Omit<CollectionViewInstance<ChildFor<ConfiguredProps<Props, Supplied>>,
     Merge<DefaultOptions<Props>, OptionsFor<Args>>, State,
     SourceFor<ConfiguredProps<Props, Supplied>>, Query>, keyof ViewFluent<{}>>,
-  'options' extends keyof Props ? Omit<ConfiguredProps<Props, Supplied>, 'options'> : ConfiguredProps<Props, Supplied>
+  Extract<'options' | 'el', keyof ConfiguredProps<Props, Supplied>> extends never ?
+    ConfiguredProps<Props, Supplied> : Omit<ConfiguredProps<Props, Supplied>, 'options' | 'el'>
 > & ViewFluent<ConfiguredProps<Props, Supplied>>;
 export type CollectionViewConstructor<Props extends object = {}, Args extends unknown[] = [options?: CollectionViewConfiguration],
   State = unknown, Statics extends object = {}, Query extends ArrayLike<Element> = ArrayLike<Element>> = {
@@ -440,7 +441,12 @@ const CollectionView = function(this: CollectionViewInternals, options?: Collect
   this._initViewEvents();
 
   try {
-    this.setElement(this._getEl());
+    this.el = this._validateEl(this._getEl());
+    this._isAttached = this._isElAttached();
+    this.delegateEvents();
+    if (this._isAttached && this.monitorViewEvents !== false) {
+      this.Dom.onAttach?.(this.el);
+    }
 
     monitorViewEvents(this);
 
@@ -895,32 +901,6 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   // used by ViewMixin's `_childViewEventHandler`
   _getImmediateChildren(this: CollectionViewInternals) {
     return this.children._views;
-  },
-
-  // Handle a previously defined element, which may already be attached.
-  setElement(this: CollectionViewInternals, element: Element) {
-    if (this._isDestroying || this._isDestroyed) {
-      return this;
-    }
-
-    const el = this._validateEl(element);
-    const previous = this.el;
-    const wasAttached = this._isAttached;
-
-    this.undelegateEvents();
-    if (wasAttached && previous !== el && this.monitorViewEvents !== false) {
-      this.Dom.onDetach?.(previous);
-    }
-    this.el = el;
-
-    this._isAttached = this._isElAttached();
-
-    this.delegateEvents();
-    if ((previous !== el || !wasAttached) && this._isAttached && this.monitorViewEvents !== false) {
-      this.Dom.onAttach?.(this.el);
-    }
-
-    return this;
   },
 
   // Render children views.

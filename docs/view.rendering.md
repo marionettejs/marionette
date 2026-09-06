@@ -270,12 +270,11 @@ empty so the renderer and Region do not manage the same contents.
 Lit replaces preexisting contents on its first explicit render. Keep
 `monitorViewEvents` enabled and manage attachment through Regions so directives
 receive connection changes through `Dom.onAttach(el)` and `Dom.onDetach(el)`.
-These notifications also disconnect a previous root during `setElement()`, while
-preserving its contents. With monitoring disabled, the application must notify
-the adapter itself. Lifecycle overrides must call their parent methods;
+The View keeps the same root throughout its lifetime. Automatic directive
+connection management requires monitoring on the View and its ancestors. Lifecycle overrides must call their parent methods;
 avoid independently replacing Lit's contents or switching renderers after rendering.
 See the [render adapter guide](https://github.com/marionettejs/marionette/blob/master/packages/adapters/readme.md#rendering)
-for installation, directive cleanup, and root changes.
+for installation, directive cleanup, and root ownership.
 
 Rendering configuration is separate from data and state integration. Configure
 [`DataApi`](./data.api.md) and [`StateApi`](./marionette.state.md) explicitly when

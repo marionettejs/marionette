@@ -249,8 +249,8 @@ Lit async directives can own subscriptions and other resources. Marionette calls
 `Dom.onAttach(el)` and `Dom.onDetach(el)` through its existing attachment
 monitoring. Lit translates these notifications to its directive connection API.
 Detaching and destroying a View disconnects its directives while preserving
-rendered contents. `setElement()` disconnects the previous root and connects an
-already-attached replacement. A failed constructor disconnects directives
+the View root. A View keeps its initial element for its lifetime.
+A failed constructor disconnects directives
 created on its attached root during initialization.
 
 Keep `monitorViewEvents` enabled on the View and its ancestors and manage

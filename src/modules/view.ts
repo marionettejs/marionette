@@ -68,7 +68,7 @@ export interface ViewInstance<Options extends object = ViewConfiguration, State 
   cid: string;
   cidPrefix: string;
   options: Options;
-  el: Element;
+  readonly el: Element;
   tagName: string | (() => string);
   id?: ViewConfiguration['id'];
   className?: ViewConfiguration['className'];
@@ -134,7 +134,7 @@ type ViewResult<Props, Args extends unknown[], State, Query extends ArrayLike<El
   Extract<keyof ViewInstance, keyof Props> extends never ?
     ViewInstance<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State, Query> & Props :
     Merge<Omit<ViewInstance<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State, Query>, keyof ViewFluent<{}>>,
-      'options' extends keyof Props ? Omit<Props, 'options'> : Props> & ViewFluent<Props>;
+      Extract<'options' | 'el', keyof Props> extends never ? Props : Omit<Props, 'options' | 'el'>> & ViewFluent<Props>;
 export type ViewConstructor<Props extends object = {}, Args extends unknown[] = [options?: ViewConfiguration],
   State = unknown, Statics extends object = {}, Query extends ArrayLike<Element> = ArrayLike<Element>> = {
   new <Provided extends Args = Args>(...args: Provided): Constructed<Props, ViewResult<Props, Provided, SuppliedState<Provided[0], State>, Query>>;
@@ -518,7 +518,14 @@ const View = function(this: ViewInternals, options?: ViewConfiguration) {
   this._initViewEvents();
 
   try {
-    this.setElement(this._getEl());
+    this.el = this._validateEl(this._getEl());
+    this._isRendered = this.Dom.hasContents!(this.el);
+    this._isAttached = this._isElAttached();
+    if (this._isRendered) { this.bindUIElements(); }
+    this.delegateEvents();
+    if (this._isAttached && this.monitorViewEvents !== false) {
+      this.Dom.onAttach?.(this.el);
+    }
 
     monitorViewEvents(this);
 
@@ -545,36 +552,6 @@ assignOwn(View, { extend, setRenderer, setDomApi, setEventDelegator, setDataApi,
 
 assignOwn(View.prototype, ViewMixin, RegionsMixin, {
   cidPrefix: 'mnv',
-
-  setElement(this: ViewInternals, element: Element) {
-    if (this._isDestroying || this._isDestroyed) {
-      return this;
-    }
-
-    const el = this._validateEl(element);
-    const previous = this.el;
-    const wasAttached = this._isAttached;
-
-    this.undelegateEvents();
-    if (wasAttached && previous !== el && this.monitorViewEvents !== false) {
-      this.Dom.onDetach?.(previous);
-    }
-    this.el = el;
-
-    this._isRendered = this.Dom.hasContents!(this.el);
-    this._isAttached = this._isElAttached();
-
-    if (this._isRendered) {
-      this.bindUIElements();
-    }
-
-    this.delegateEvents();
-    if ((previous !== el || !wasAttached) && this._isAttached && this.monitorViewEvents !== false) {
-      this.Dom.onAttach?.(this.el);
-    }
-
-    return this;
-  },
 
   // If a template is available, renders it into the view's `el`
   // Re-inits regions and binds UI.

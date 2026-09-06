@@ -5,7 +5,6 @@ import type { SupportedView } from './view.ts';
 // Keep inherited methods as declarations: mapping them through Omit loses
 // polymorphic this and turns native method overrides into property overrides.
 type Inherited<Props, Method> = Extract<keyof Method, keyof Props> extends never ? Method : {};
-interface SetElement { setElement(element: Element): this; }
 interface Render { render(): this; }
 interface RenderAttributes { renderAttributes(): this; }
 interface Destroy<Options = unknown> { destroy(options?: Options): this; }
@@ -21,7 +20,7 @@ interface Show { show(view: SupportedView, options?: ShowOptions): this | undefi
 interface Empty { empty(options?: ShowOptions): this; }
 interface Reset { reset(options?: ShowOptions): this; }
 
-export type ViewFluent<Props> = Inherited<Props, SetElement> & Inherited<Props, Render> &
+export type ViewFluent<Props> = Inherited<Props, Render> &
   Inherited<Props, RenderAttributes> & Inherited<Props, Destroy> & Inherited<Props, DelegateEvents> &
   Inherited<Props, UndelegateEvents> & Inherited<Props, DelegateEntityEvents> &
   Inherited<Props, UndelegateEntityEvents> & Inherited<Props, BindUIElements> & Inherited<Props, UnbindUIElements>;

@@ -121,9 +121,8 @@ View triggers and Behavior events and triggers remain active. The method first
 removes existing handlers, so repeated calls do not duplicate them.
 `view.undelegateEvents()` removes the View and Behavior DOM handlers. Both
 methods return the View, and both are no-ops after destruction has started.
-Replacing `el` with `setElement()` dispatches through both public methods, so a
-subclass override remains responsible for delegating to the base method when it
-wants Marionette's cleanup and redelegation.
+Construction calls `delegateEvents()`. A subclass override remains responsible
+for delegating to the base method when it wants Marionette's cleanup and redelegation.
 
 ## EventDelegator Adapter
 
@@ -187,7 +186,7 @@ capture/options policy. Marionette owns and stores that opaque cleanup. The
 adapter must not mutate View internals.
 
 Marionette invokes each returned cleanup at most once when `undelegateEvents()` refreshes declarations,
-before `setElement()` transfers delegation, during destruction, and when
+during destruction, and when
 construction fails. Cleanups run in reverse registration order. Marionette
 attempts every cleanup even if one throws, clears its registry before invoking
 them, and then throws the first cleanup error. A throwing cleanup violates the
@@ -207,7 +206,7 @@ Adapter selection occurs at registration time. Changing a global or per-class
 adapter does not reinterpret existing registrations; their original opaque
 cleanups remain authoritative. The newly configured adapter is used the next
 time declarations are delegated, including a new instance, an explicit
-`delegateEvents()` call, or `setElement()`. A per-class setter creates an own
+`delegateEvents()` call. A per-class setter creates an own
 adapter override for that class hierarchy, so a later root setter does not
 replace it.
 

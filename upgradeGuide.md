@@ -129,6 +129,20 @@ parent.showChildView('content', new View({
 - Applications using Backbone still receive Underscore through Backbone's own
   declared dependency; the Marionette integration does not import it.
 
+## View roots are fixed at construction
+
+`View#setElement()` and `CollectionView#setElement()` are removed. Choose the
+root through `new View({ el })` or `new CollectionView({ el })`; both also accept
+an `el` factory. Without an `el`, Marionette creates one from `tagName`.
+The public instance `el` is readonly. Direct reassignment is unsupported.
+
+Render into the existing root and use Regions to move or detach the View.
+When another system replaces the root, destroy the old View and create a new
+owner for the replacement element. Keep persistent state in the model or an
+externally owned state source. Custom `setElement()` overrides are no longer
+called during construction; move initialization to `initialize()` or an `el`
+factory, as appropriate.
+
 ## View `el` is element-only
 
 - `View` (and `CollectionView`) accept a DOM element for `el` in v5. Selector
@@ -136,8 +150,7 @@ parent.showChildView('content', new View({
 - v4 inherited string-`el` resolution from `Backbone.View._ensureElement`, which
   used jQuery to look up the selector. v5 drops `Backbone.View` inheritance and
   the default jQuery dependency, so the string-resolution path goes with them.
-- v5 now throws a `ViewError` with a migration hint on construction (or
-  `setElement`) when a string is passed, instead of silently storing the raw
+- v5 now throws a `ViewError` with a migration hint on construction when a string is passed, instead of silently storing the raw
   string as `view.el` and failing later in DOM code.
 - Migration: resolve at the call site.
 
@@ -212,9 +225,9 @@ ARIA attributes such as `aria-selected: false` therefore retain `"false"`.
 - The adapter imports `jquery`, so jQuery is an optional peer dependency only for
   consumers that opt into these subpaths.
 - Extend these application base classes wherever `$el` is needed. The helper
-  installs a read-only `$el` getter on a new subclass; the wrapper follows `el`
-  after `setElement()`. `view.$(selector)` also returns a jQuery collection.
-  Change the root through `setElement(el)`; assigning `$el` directly is unsupported.
+  installs a read-only `$el` getter on a new subclass for its fixed root element.
+  `view.$(selector)` also returns a jQuery collection. Assigning `$el` directly
+  is unsupported.
   The core View, CollectionView, and Behavior types no longer take a `Wrapped`
   generic parameter. For example, `ViewInstance<Options, State, Query, Wrapped>`
   becomes `ViewInstance<Options, State, Query>`. `DomApi<Query, Wrapped, Content>`
@@ -269,7 +282,7 @@ An EventDelegator is a complete adapter with one method:
 `delegate({ eventName, selector, handler, rootEl })`. It registers that handler
 and returns an idempotent cleanup function for the exact registration, including
 its original root and listener options. Marionette stores the cleanup and calls
-it at most once during redelegation, `setElement()`, destruction, or failed construction.
+it at most once during redelegation, destruction, or failed construction.
 The adapter must register atomically and must not mutate View internals. See the
 EventDelegator Adapter section of the DOM interactions API documentation for
 the complete timing, error, and cleanup contract.

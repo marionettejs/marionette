@@ -1,7 +1,6 @@
 import { JSDOM } from 'jsdom';
 
 import View from '../../src/modules/view';
-import CollectionView from '../../src/modules/collection-view';
 import MarionetteError from '../../src/modules/error';
 
 describe('View el policy', function() {
@@ -102,15 +101,4 @@ describe('View el policy', function() {
     expectStringElThrow(() => new View({ el: () => '#root' }));
   });
 
-  it('throws a ViewError when setElement receives a string', function() {
-    const view = new View({ el: document.getElementById('root') });
-
-    expectStringElThrow(() => view.setElement('#other'));
-  });
-
-  it('throws a ViewError when CollectionView setElement receives a string', function() {
-    const cv = new CollectionView({ el: document.getElementById('root') });
-
-    expectStringElThrow(() => cv.setElement('#other'));
-  });
 });

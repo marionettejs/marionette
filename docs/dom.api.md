@@ -141,14 +141,13 @@ the fast, jQuery-free default.
 ### `onAttach(el)`
 
 Notify the adapter that its element's contents are active. Called through View
-attachment monitoring and when `setElement()` adopts an attached root. The
+attachment monitoring and when construction adopts an attached root. The
 native implementation does nothing; Lit reconnects its directives.
 
 ### `onDetach(el)`
 
 Notify the adapter that its element's contents are inactive. Called through View
-detachment monitoring, when `setElement()` releases an attached root, and when
-construction fails after initializing an attached root. This notification does
+detachment monitoring and when construction fails after initializing an attached root. This notification does
 not remove or empty the element. The native implementation does nothing; Lit
 disconnects its directives while retaining its rendered contents.
 

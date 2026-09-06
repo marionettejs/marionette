@@ -49,11 +49,11 @@ describe('jQuery DomApi adapter', function() {
   });
 
   it('leaves the original classes and DOM methods unchanged', function() {
-    const setElement = View.prototype.setElement;
+    const delegateEvents = View.prototype.delegateEvents;
     const JQueryView = withJQuery(View);
     const view = new JQueryView();
     expect(View.prototype).to.not.have.property('$el');
-    expect(JQueryView.prototype.setElement).to.equal(setElement);
+    expect(JQueryView.prototype.delegateEvents).to.equal(delegateEvents);
     expect(DomApi).to.not.have.property('wrapEl');
     expect(view.$el).to.equal(view.$el);
     view.destroy();
@@ -108,17 +108,6 @@ describe('jQuery DomApi adapter', function() {
     expect(view.$el[0]).to.equal(view.el);
   });
 
-  it('refreshes $el when setElement changes the view element', function() {
-    const JQueryView = withJQuery(View);
-    const firstEl = document.createElement('div');
-    const secondEl = document.createElement('section');
-    const view = new JQueryView({ el: firstEl });
-
-    view.setElement(secondEl);
-
-    expect(view.el).to.equal(secondEl);
-    expect(view.$el[0]).to.equal(secondEl);
-  });
 
   [
     ['View', View],
@@ -154,17 +143,15 @@ describe('jQuery DomApi adapter', function() {
     });
 
     const view = new JQueryView();
-    const nextEl = document.createElement('section');
 
     expect(behavior.$el).to.equal(view.$el);
     expect(behavior.$el[0]).to.equal(view.el);
     expect(initializedEl).to.equal(view.el);
     expect(initialized$El).to.equal(view.$el);
 
-    view.setElement(nextEl);
 
     expect(behavior.$el).to.equal(view.$el);
-    expect(behavior.$el[0]).to.equal(nextEl);
+    expect(behavior.$el[0]).to.equal(view.el);
   });
 
   it('detaches elements without removing listeners with the jQuery DomApi', function() {

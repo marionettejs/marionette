@@ -348,17 +348,7 @@ describe('CollectionView', function() {
     });
   });
 
-  describe('#setElement', function() {
-
-    it('should return the collectionView instance', function() {
-      const myCollectionView = new CollectionView();
-      this.sinon.spy(myCollectionView, 'setElement');
-
-      myCollectionView.setElement();
-
-      expect(myCollectionView.setElement).to.have.returned(myCollectionView);
-    });
-
+  describe('element initialization', function() {
 
     describe('when the view does not have an attach el', function() {
       it('should not mark the view as attached', function() {

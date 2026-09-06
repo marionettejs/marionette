@@ -119,28 +119,11 @@ async function loadRuntime(root, dependencyRoot) {
 }
 
 function createCases({ Backbone, Marionette }) {
-  const { Behavior, CollectionView, Region, View } = Marionette;
+  const { CollectionView, Region, View } = Marionette;
   const PlainView = View.extend({ template: false });
   const RenderView = View.extend({
     template: data => `<span>${data.value || ''}</span>`,
     templateContext: { value: 'benchmark' },
-  });
-  const EventView = View.extend({
-    events: {
-      'click button': 'onClick'
-    },
-    onClick() {},
-    template: false,
-  });
-  const TimedBehavior = Behavior.extend({
-    events: {
-      'click button': 'onClick'
-    },
-    onClick() {},
-  });
-  const BehaviorView = View.extend({
-    behaviors: [TimedBehavior],
-    template: false,
   });
   const ChildView = View.extend({
     tagName: 'li',
@@ -174,20 +157,9 @@ function createCases({ Backbone, Marionette }) {
         view.destroy();
       }
     }],
-    ['view-set-element-destroy', iterations => {
-      for (let index = 0; index < iterations; index += 1) {
-        const view = new EventView();
-        view.setElement(view.el);
-        view.destroy();
-      }
-    }],
-    ['behavior-view-set-element-destroy', iterations => {
-      for (let index = 0; index < iterations; index += 1) {
-        const view = new BehaviorView();
-        view.setElement(view.el);
-        view.destroy();
-      }
-    }],
+    // Keep historical workload IDs visible without timing a removed API.
+    ['view-set-element-destroy', null],
+    ['behavior-view-set-element-destroy', null],
     ['region-show-empty', iterations => {
       const region = new Region({ el: document.createElement('div') });
       for (let index = 0; index < iterations; index += 1) {
@@ -235,6 +207,11 @@ export async function measure({
     const cases = createCases(runtime);
     for (const caseConfig of contract.timing.cases) {
       const run = cases.get(caseConfig.id);
+      if (run === null) {
+        results.push({ id: caseConfig.id, status: 'retired',
+          reason: 'View roots are fixed at construction; setElement was removed.' });
+        continue;
+      }
       if (!run) {
         throw new Error(`No timing case implements ${caseConfig.id}`);
       }
@@ -293,6 +270,10 @@ export async function createReport(baseFile, currentFile) {
 
   for (const result of current.cases) {
     const baseResult = baseCases.get(result.id);
+    if (result.status === 'retired') {
+      rows.push(`| ${result.id} | ${baseResult?.medianNanoseconds === undefined ? '—' : formatTime(baseResult.medianNanoseconds)} | Retired | ${baseResult?.p95Nanoseconds === undefined ? '—' : formatTime(baseResult.p95Nanoseconds)} | ${result.reason} |`);
+      continue;
+    }
     if (!baseResult) {
       rows.push(`| ${result.id} | New | ${formatTime(result.medianNanoseconds)} | New | ${formatTime(result.p95Nanoseconds)} |`);
       continue;
@@ -331,6 +312,10 @@ export async function main(args = process.argv.slice(2)) {
       console.log(JSON.stringify(report, null, 2));
     } else {
       for (const result of report.cases) {
+        if (result.status === 'retired') {
+          console.log(`${result.id}: retired — ${result.reason}`);
+          continue;
+        }
         console.log(`${result.id}: median ${formatTime(result.medianNanoseconds)}, p95 ${formatTime(result.p95Nanoseconds)}`);
       }
     }

@@ -825,12 +825,6 @@ describe('view mixin', function() {
         expect(fooView.destroy).to.have.returned(fooView);
       });
 
-      it('setElement should return the view', function() {
-        this.sinon.spy(fooView, 'setElement');
-        fooView.setElement(fooView.el);
-
-        expect(fooView.setElement).to.have.returned(fooView);
-      });
 
       it('delegateEntityEvents should return the view', function() {
         this.sinon.spy(fooView, 'delegateEntityEvents');

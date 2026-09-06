@@ -16,7 +16,7 @@ const runtime = createMarionette();
 const LitView = runtime.View.extend({ template: () => html`<p>lit</p>` });
 const litClass: typeof LitView = LitView.setDomApi(LitDomApi);
 const litView = new litClass();
-litView.render().setElement(document.createElement('article')).destroy();
+litView.render().destroy();
 
 class NativeView extends View {
   template = () => html`<p>native</p>`;

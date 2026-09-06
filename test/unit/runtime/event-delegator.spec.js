@@ -297,7 +297,7 @@ describe('EventDelegator', function() {
     TestView.setEventDelegator(viewAdapter);
     const view = new TestView({ el: rootEl });
 
-    expect(() => view.setElement(dom.window.document.createElement('section')))
+    expect(() => view.delegateEvents())
       .to.throw(registrationError);
 
     expect(viewCleanups[1]).toHaveBeenCalledTimes(1);
@@ -491,34 +491,19 @@ describe('EventDelegator', function() {
       .with.property('code', 'MN0036');
   });
 
-  it('removes handlers without leaks across setElement swaps', function() {
+  it('removes handlers without leaks across repeated delegation', function() {
     const handler = vi.fn();
-
     rootEl.innerHTML = '<button class="foo">first</button>';
-    const otherEl = dom.window.document.createElement('div');
-    otherEl.innerHTML = '<button class="foo">second</button>';
-
-    const view = new View({
-      el: rootEl,
-      events: {
-        'click .foo': handler
-      }
-    });
-
-    view.setElement(otherEl);
+    const view = new View({ el: rootEl, events: { 'click .foo': handler } });
+    view.delegateEvents();
     dispatchClick(rootEl.querySelector('.foo'));
-    dispatchClick(otherEl.querySelector('.foo'));
-
-    view.setElement(rootEl);
-    dispatchClick(otherEl.querySelector('.foo'));
+    view.delegateEvents();
     dispatchClick(rootEl.querySelector('.foo'));
-
     expect(handler).toHaveBeenCalledTimes(2);
-
-    view._undelegateViewEvents();
+    view.undelegateEvents();
     dispatchClick(rootEl.querySelector('.foo'));
-
     expect(handler).toHaveBeenCalledTimes(2);
     expect(view._domEvents).to.have.lengthOf(0);
+    view.destroy();
   });
 });

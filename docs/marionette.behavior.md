@@ -543,13 +543,11 @@ Behavior. A Behavior's `el` is the host's current `el`, and its `$()` lookup
 delegates to the host so that results stay scoped to that element. Native core
 does not create `$el`. With the optional
 [jQuery base-class helper](./dom.api.md#optional-jquery-adapter), a Behavior's
-`$el` getter follows its `el`, including after `setElement()` on the host.
+`$el` getter wraps the host's root element.
 
-Calling the host's `setElement()` automatically moves its Behaviors to the new
-element. Their delegated DOM handlers are removed from the old element and
-attached once to the current element, including after repeated calls or swaps.
-Destroying the host removes the final delegated handlers. Application code
-does not need to retarget the Behavior separately.
+The host and its Behaviors keep the same root for their lifetime. Rendering can
+replace its contents, and `delegateEvents()` refreshes View and Behavior handlers.
+Destroying the host removes those handlers. Behaviors do not own or replace the root.
 
 Each Behavior can also reference its host through the `view` attribute:
 

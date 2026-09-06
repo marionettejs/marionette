@@ -7,7 +7,7 @@ describe('View DOM event delegation', function() {
     ['View', View],
     ['CollectionView', CollectionView]
   ].forEach(([name, ViewClass]) => {
-    it(`dispatches ${name} element replacement through the public methods in order`, function() {
+    it(`initializes ${name} delegation through the public methods`, function() {
       const trace = [];
       const DelegatingView = ViewClass.extend({
         undelegateEvents() {
@@ -19,46 +19,13 @@ describe('View DOM event delegation', function() {
           return ViewClass.prototype.delegateEvents.call(this, events);
         }
       });
-      const original = document.createElement('div');
-      const replacement = document.createElement('section');
-      const view = new DelegatingView({ el: original });
-
+      const root = document.createElement('div');
+      const view = new DelegatingView({ el: root });
       expect(trace).to.deep.equal([
-        ['undelegateEvents', original],
-        ['delegateEvents', original, undefined],
-        ['undelegateEvents', original]
+        ['delegateEvents', root, undefined],
+        ['undelegateEvents', root]
       ]);
-
-      trace.length = 0;
-      expect(view.setElement(replacement)).to.equal(view);
-      expect(trace).to.deep.equal([
-        ['undelegateEvents', original],
-        ['delegateEvents', replacement, undefined],
-        ['undelegateEvents', replacement]
-      ]);
-    });
-
-    it(`keeps ${name} delegation intact when element validation fails`, function() {
-      const handler = this.sinon.stub();
-      const original = document.createElement('div');
-      original.innerHTML = '<button class="action"></button>';
-      const view = new ViewClass({
-        el: original,
-        events: { 'click .action': handler }
-      });
-      const delegateSpy = this.sinon.spy(view, 'delegateEvents');
-      const undelegateSpy = this.sinon.spy(view, 'undelegateEvents');
-
-      original.querySelector('.action').click();
-      expect(() => view.setElement('#invalid'))
-        .to.throw()
-        .with.property('code', 'MN0001');
-      original.querySelector('.action').click();
-
-      expect(view.el).to.equal(original);
-      expect(handler).to.have.been.calledTwice;
-      expect(delegateSpy).to.not.have.been.called;
-      expect(undelegateSpy).to.not.have.been.called;
+      view.destroy();
     });
   });
 

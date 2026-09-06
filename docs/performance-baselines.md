@@ -514,6 +514,13 @@ keeps every repository-only executable outside shipped production graphs, while
 
 ## Hosted timing
 
+The historical `view-set-element-destroy` and
+`behavior-view-set-element-destroy` workloads are retired after removal of public
+root replacement. Their authority-contract entries and previous measurements
+remain historical records; the current harness reports `Retired` without samples
+or percentage comparisons. It does not substitute a different operation under
+either name. This harness change requires the existing exact-head approval.
+
 Run the reporting harness with:
 
 ```sh

@@ -445,13 +445,11 @@ describe('Behavior', function() {
     });
 
     it('does not proxy $el with the native DomApi', function() {
-      fooView.setElement(document.createElement('bar'));
 
       expect(fooBehavior).to.not.have.property('$el');
     });
 
     it('should proxy the views el', function() {
-      fooView.setElement(document.createElement('bar'));
 
       expect(fooBehavior.el).to.equal(fooView.el);
     });

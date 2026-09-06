@@ -28,18 +28,13 @@ describe('Behavior DOM delegation contract', function() {
       expect(behavior).to.not.have.property('$el');
       expect(behavior.$('.action')[0]).to.equal(firstHost.querySelector('.first'));
 
-      host.setElement(secondHost);
-
-      expect(behavior.el).to.equal(secondHost);
       expect(behavior.el).to.equal(host.el);
-      expect(behavior.$('.action')).to.have.length(1);
-      expect(behavior.$('.action')[0]).to.equal(secondHost.querySelector('.second'));
-      expect(behavior.$('.action')[0]).to.not.equal(firstHost.querySelector('.first'));
+      expect(behavior.$('.action')[0]).to.not.equal(secondHost.querySelector('.second'));
 
       host.destroy();
     });
 
-    it(`moves one delegated handler with repeated ${hostName} element changes and removes it on destroy`, function() {
+    it(`keeps one handler through ${hostName} redelegation and removes it on destroy`, function() {
       const firstHost = document.createElement('section');
       const secondHost = document.createElement('section');
       firstHost.innerHTML = '<button class="action first">First</button>';
@@ -62,16 +57,16 @@ describe('Behavior DOM delegation contract', function() {
       firstAction.click();
       expect(onAction).to.have.been.calledOnce;
 
-      host.setElement(secondHost);
+      host.delegateEvents();
       firstAction.click();
       secondAction.click();
       expect(onAction).to.have.been.calledTwice;
 
-      host.setElement(secondHost);
-      secondAction.click();
+      host.delegateEvents();
+      firstAction.click();
       expect(onAction).to.have.been.calledThrice;
 
-      host.setElement(firstHost);
+      host.delegateEvents();
       secondAction.click();
       firstAction.click();
       expect(onAction).to.have.callCount(4);

@@ -57,11 +57,11 @@ for (const kind of ['morphdom', 'lit-html']) {
         ui: { button: 'button' }, events: { 'click @ui.button': () => clicks++ }
       });
       const Dom = ViewClass.prototype.Dom;
-      const setElement = ViewClass.prototype.setElement;
+      const delegateEvents = ViewClass.prototype.delegateEvents;
       const destroy = ViewClass.prototype.destroy;
       ViewClass.setDomApi(kind === 'morphdom' ? MorphdomDomApi : LitDomApi);
       check(ViewClass.prototype.Dom.findEl === Dom.findEl, 'Adapter replaced jQuery queries');
-      check(ViewClass.prototype.setElement === setElement && ViewClass.prototype.destroy === destroy,
+      check(ViewClass.prototype.delegateEvents === delegateEvents && ViewClass.prototype.destroy === destroy,
         'Adapter replaced View lifecycle methods');
       const view = new ViewClass();
       region.show(view);
@@ -71,14 +71,13 @@ for (const kind of ['morphdom', 'lit-html']) {
       view.getUI('button')[0].click();
       check(clicks === 1, 'Delegated events failed with jQuery UI bindings');
       region.detachView();
-      const replacement = document.createElement('article');
-      view.setElement(replacement);
+      const root = view.el;
       view.render();
       region.show(view);
-      check(view.$el[0] === replacement, 'setElement lost the jQuery wrapper');
-      check(view.getUI('button').text() === 'jquery', 'Replacement UI lost jQuery behavior');
+      check(view.$el[0] === root, 'Reattachment lost the jQuery wrapper');
+      check(view.getUI('button').text() === 'jquery', 'Reattached UI lost jQuery behavior');
       region.destroy();
-      check(view.isDestroyed() && !replacement.isConnected, 'Combined adapters did not destroy the View');
+      check(view.isDestroyed() && !root.isConnected, 'Combined adapters did not destroy the View');
       element.remove();
     }
   }, {
@@ -135,7 +134,7 @@ for (const kind of ['morphdom', 'lit-html']) {
       element.remove();
     }
   }, {
-    name: `${kind}: moves roots through setElement and destroys after detach/reattach`,
+    name: `${kind}: preserves its root through detach/reattach and destroy`,
     run() {
       const { region, element } = fixture();
       const RendererView = makeView(kind, {
@@ -144,13 +143,12 @@ for (const kind of ['morphdom', 'lit-html']) {
       const view = new RendererView();
       region.show(view);
       check(region.detachView() === view, 'Region detach lost view');
-      const replacement = document.createElement('aside');
-      check(view.setElement(replacement) === view, 'setElement lost fluent return');
+      const root = view.el;
       view.render();
       region.show(view);
-      check(view.el === replacement && view.isAttached(), 'Replacement did not attach');
+      check(view.el === root && view.isAttached(), 'Root identity changed during reattachment');
       region.destroy();
-      check(view.isDestroyed() && !replacement.isConnected, 'View destroy did not detach');
+      check(view.isDestroyed() && !root.isConnected, 'View destroy did not detach');
       element.remove();
     }
   });
@@ -174,46 +172,6 @@ renderingAdapterContracts.push({
     region.destroy();
     check(log.at(-1) === 'disconnected', 'Destroy left resources connected');
     element.remove();
-  }
-}, {
-  name: 'lit-html: setElement disconnects the previous root without clearing its contents',
-  run() {
-    const log = [];
-    const LitView = makeView('lit-html', { template: trackedTemplate(log) });
-    const old = document.createElement('article');
-    document.body.append(old);
-    const view = new LitView({ el: old });
-    view.render();
-    const disconnectCount = () => log.filter(value => value === 'disconnected').length;
-    view.setElement(old);
-    check(disconnectCount() === 0 && old.querySelector('p'), 'Same element was cleared');
-    const next = document.createElement('article');
-    view.setElement(next);
-    check(disconnectCount() === 1, 'Root change did not immediately release resources');
-    check(old.querySelector('p'), 'Root change unnecessarily cleared previous contents');
-    view.triggerMethod('attach', view);
-    check(log.at(-1) === 'disconnected', 'Old attachment listener survived cleanup');
-    view.render();
-    view.destroy();
-    view.setElement(old);
-    check(view.el === next, 'Adapter bypassed destroyed-view setElement guard');
-    check(next.querySelector('p'), 'Destroy unnecessarily cleared contents');
-    old.remove();
-  }
-}, {
-  name: 'lit-html: failed setElement preserves active root and directives',
-  run() {
-    const log = [];
-    const el = document.createElement('article');
-    document.body.append(el);
-    const LitView = makeView('lit-html', { template: trackedTemplate(log) });
-    const view = new LitView({ el });
-    view.render();
-    let threw = false;
-    try { view.setElement('#invalid'); } catch { threw = true; }
-    check(threw && view.el === el, 'Invalid root was accepted');
-    check(log.join() === 'render:true', 'Failed setElement disconnected active contents');
-    view.destroy();
   }
 }, {
   name: 'lit-html: a cancelled destroy retains directives until successful destruction',
@@ -251,17 +209,14 @@ renderingAdapterContracts.push({
   run() {
     const Base = View.extend();
     Base.setDomApi(LitDomApi);
-    const setElement = Base.prototype.setElement;
+    const delegateEvents = Base.prototype.delegateEvents;
     const destroy = Base.prototype.destroy;
     Base.setDomApi(LitDomApi);
-    check(Base.prototype.setElement === setElement && Base.prototype.destroy === destroy,
+    check(Base.prototype.delegateEvents === delegateEvents && Base.prototype.destroy === destroy,
       'Repeated installation wrapped methods again');
-    let roots = 0;
+    let initialized = 0;
     class Native extends Base {
-      setElement(element) {
-        roots++;
-        return super.setElement(element);
-      }
+      initialize() { initialized++; }
     }
     Native.setDomApi(LitDomApi);
     const Child = Base.extend({ template: () => html`<p>child</p>` });
@@ -270,9 +225,7 @@ renderingAdapterContracts.push({
     child.destroy();
     const view = new Native({ template: () => html`<p>child</p>` });
     view.render();
-    view.setElement(document.createElement('section'));
-    view.render();
-    check(roots === 2 && view.el.textContent === 'child', 'Subclass setElement behavior changed');
+    check(initialized === 1 && view.el.textContent === 'child', 'Subclass initialization changed');
     check(view.destroy() === view, 'Subclass destroy lost fluent return');
   }
 }, {
@@ -282,11 +235,10 @@ renderingAdapterContracts.push({
     const first = new LitView();
     first.render();
     const el = first.el;
-    first.setElement(document.createElement('div'));
+    first.destroy();
     const second = new LitView({ el });
     second.render();
     check(el.textContent === 'fresh' && el.querySelectorAll('p').length === 1, 'Stale Lit root survived reuse');
-    first.destroy();
     second.destroy();
   }
 });
@@ -350,7 +302,7 @@ for (const [name, api] of [['native', DomApi], ['jquery', JQueryDomApi],
 
 for (const [name, Base] of [['View', View], ['CollectionView', CollectionView]]) {
   renderingAdapterContracts.push({
-    name: `lit-html: ${name} releases subscriptions across root changes and reuse`,
+    name: `lit-html: ${name} releases subscriptions across detach, reattach, and destruction`,
     run() {
       const subscribers = new Set();
       class Subscription extends AsyncDirective {
@@ -366,17 +318,19 @@ for (const [name, Base] of [['View', View], ['CollectionView', CollectionView]])
       const view = new RenderedView({ el }).render();
       const content = el.firstElementChild;
       check(subscribers.size === 1, 'Attached render did not subscribe');
-      view.setElement(document.createElement('section'));
+      const { region, element } = fixture();
+      region.show(view);
+      region.detachView();
       check(subscribers.size === 0 && el.firstElementChild === content,
-        'Root change must unsubscribe while preserving contents');
-      const replacement = new RenderedView({ el });
-      check(subscribers.size === 1, 'Adopting a rendered root did not reconnect');
-      replacement.render();
-      check(subscribers.size === 1 && el.firstElementChild === content, 'Adoption replaced the existing Lit part');
-      replacement.destroy();
+        'Detach must unsubscribe while preserving contents');
+      region.show(view);
+      check(subscribers.size === 1 && el.firstElementChild === content,
+        'Reattachment must reconnect without replacing contents');
+      region.destroy();
       check(subscribers.size === 0, 'Destroy retained the external subscription');
-      view.render().destroy();
+      new RenderedView().render().destroy();
       check(subscribers.size === 0, 'Never-attached destruction retained a subscription');
+      element.remove();
     }
   }, {
     name: `lit-html: descendants follow ${name} detach and reattach`,
@@ -436,21 +390,10 @@ renderingAdapterContracts.push({
     check(log.join() === 'render:false', 'Monitoring opt-out still notified the adapter');
     LitDomApi.onAttach(view.el);
     check(log.at(-1) === 'reconnected', 'Application could not connect contents');
-    const previous = view.el;
-    const next = document.createElement('article');
-    const nextLog = [];
-    document.body.append(next);
-    LitDomApi.setContents(next, trackedTemplate(nextLog)());
-    LitDomApi.onDetach(next);
-    view.setElement(next);
-    check(log.at(-1) === 'reconnected' && nextLog.at(-1) === 'disconnected',
-      'setElement bypassed the monitoring opt-out');
-    LitDomApi.onDetach(previous);
-    LitDomApi.onAttach(next);
     view.destroy();
-    check(nextLog.at(-1) === 'reconnected', 'Destroy bypassed the monitoring opt-out');
+    check(log.at(-1) === 'reconnected', 'Destroy bypassed the monitoring opt-out');
     LitDomApi.onDetach(view.el);
-    check(nextLog.at(-1) === 'disconnected', 'Application could not disconnect contents');
+    check(log.at(-1) === 'disconnected', 'Application could not disconnect contents');
     region.destroy();
     element.remove();
   }

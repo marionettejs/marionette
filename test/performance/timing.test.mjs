@@ -7,6 +7,7 @@ import { describe, test } from 'node:test';
 import {
   assertHarnessRevision,
   changePercent,
+  createReport,
   harnessRevisionFor,
   measure,
   percentile,
@@ -29,6 +30,25 @@ describe('hosted timing report math', () => {
   test('calculates percentage changes including a zero baseline', () => {
     assert.equal(changePercent(100, 105), 5);
     assert.equal(changePercent(0, 0), 100);
+  });
+
+  test('reports retired workloads without a fabricated timing improvement', async() => {
+    const directory = await mkdtemp(join(tmpdir(), 'marionette-retired-timing-'));
+    const base = join(directory, 'base.json');
+    const current = join(directory, 'current.json');
+    const id = 'view-set-element-destroy';
+    try {
+      await writeFile(base, JSON.stringify({ cases: [{ id, medianNanoseconds: 100, p95Nanoseconds: 200 }] }));
+      await writeFile(current, JSON.stringify({ warningThresholdPercent: 10,
+        cases: [{ id, status: 'retired', reason: 'Root replacement was removed.' }] }));
+      const report = await createReport(base, current);
+      assert.match(report, /100 ns \| Retired \| 200 ns \| Root replacement was removed/);
+      assert.doesNotMatch(report, /NaN|-100|0 ns \(/);
+      await writeFile(base, await readFile(current));
+      assert.match(await createReport(base, current), /— \| Retired \| —/);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
   });
 
   test('accepts only the pinned harness revision', () => {
