@@ -4,14 +4,13 @@ First-party optional integrations for Marionette v5. The package intentionally
 has no root export: import only the adapter and optional peer your application
 uses. Installing this package does not install every provider. The adapters have
 separate module graphs and no import-time installation; unused integrations stay
-out of the application bundle. Source is grouped by data, DOM, and rendering,
+out of the application bundle. Source is grouped into `data` and `dom`,
 while each integration remains an explicit package subpath.
 
 ## Adapter conventions
 
 - `SomethingApi` is an object implementing an existing runtime contract.
 - `createSomethingApi(options)` returns that object when configuration is required.
-- `withSomething(Base)` returns a subclass with additional instance features.
 
 Imports do not configure Marionette. Use the existing `setDomApi`, `setDataApi`,
 and `setStateApi` methods before constructing instances. An integration may
@@ -20,7 +19,10 @@ data and state. Setters overlay supplied methods; the last supplied version of
 a method wins. Configure content rendering after general DOM operations.
 
 Adapters use public APIs and document source ownership and cleanup below.
-The optional jQuery subclass helper adds `$el` on the new subclass only.
+
+Template evaluation is a function configured with `View.setRenderer()`. Projects
+can supply that function directly; it does not need a packaged adapter. Lit and
+Morphdom belong to DomApi because they apply template results to the DOM.
 
 ## Backbone
 
@@ -189,16 +191,16 @@ owns `$el`; no wrapper helper or extra package subpath is needed.
 
 Importing an adapter subpath does not load any other adapter or optional peer.
 
-## Rendering
+## DOM contents
 
-The render adapters update a View's contents synchronously and keep its `el`
+The Morphdom and Lit DOM adapters update a View's contents synchronously and keep its `el`
 in place. Marionette still owns View events, attachment, destruction, and
 Regions. A parent render still destroys its Region children before updating the
 parent template; incremental rendering does not preserve those child Views.
-Keep Region placeholders empty in your templates so the renderer and Region do
+Keep Region placeholders empty in your templates so the adapter and Region do
 not both manage the same contents.
 
-Configure rendering through `ViewClass.setDomApi(adapter)` before creating
+Configure these adapters through `ViewClass.setDomApi(adapter)` before creating
 instances. The adapter overlays only its supplied methods, so unrelated DOM
 operations remain in place. Configure jQuery first if you need its query and
 attachment operations alongside Morphdom or Lit.
@@ -211,7 +213,7 @@ npm install marionette @marionette/adapters morphdom
 
 ```js
 import { View } from 'marionette';
-import MorphdomDomApi from '@marionette/adapters/render/morphdom';
+import MorphdomDomApi from '@marionette/adapters/dom/morphdom';
 
 const MessageView = View.extend({
   template: () => '<p id="message">Hello again.</p>'
@@ -234,7 +236,7 @@ npm install marionette @marionette/adapters lit-html
 ```js
 import { View } from 'marionette';
 import { html } from 'lit-html';
-import LitDomApi from '@marionette/adapters/render/lit-html';
+import LitDomApi from '@marionette/adapters/dom/lit-html';
 
 const MessageView = View.extend({
   template: ({ message }) => html`<p>${message}</p>`,
@@ -244,7 +246,7 @@ MessageView.setDomApi(LitDomApi);
 ```
 
 Configure a View subclass before creating its instances. Further subclasses
-inherit the adapter. Neither rendering adapter modifies View methods or needs
+inherit the adapter. Neither DOM adapter modifies View methods or needs
 a View reference: template evaluation stays in the renderer and the returned
 value goes to `Dom.setContents(el, value)`.
 

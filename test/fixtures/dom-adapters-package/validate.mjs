@@ -6,18 +6,18 @@ import { dirname, join } from 'node:path';
 
 const require = createRequire(import.meta.url);
 
-// Copy only the selected renderer alongside the installed tarball contents.
+// Copy only the selected provider alongside the installed tarball contents.
 // An external directory prevents resolution through the repository's dependencies.
-for (const renderer of ['morphdom', 'lit-html']) {
-  const directory = mkdtempSync(join(tmpdir(), 'marionette-renderer-fixture-'));
+for (const provider of ['morphdom', 'lit-html']) {
+  const directory = mkdtempSync(join(tmpdir(), 'marionette-provider-fixture-'));
   try {
-    for (const name of ['marionette', '@marionette/adapters', renderer]) {
+    for (const name of ['marionette', '@marionette/adapters', provider]) {
       const packageFile = findPackageJSON(name, import.meta.url);
       cpSync(dirname(packageFile), join(directory, 'node_modules', name), { recursive: true });
     }
     cpSync(new URL('./runtime.mjs', import.meta.url), join(directory, 'runtime.mjs'));
     for (const format of ['esm', 'cjs']) {
-      execFileSync(process.execPath, [join(directory, 'runtime.mjs'), renderer, format,
+      execFileSync(process.execPath, [join(directory, 'runtime.mjs'), provider, format,
         require.resolve('jsdom')], { stdio: 'inherit' });
     }
   } finally {

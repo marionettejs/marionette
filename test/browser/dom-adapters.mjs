@@ -11,15 +11,15 @@ const litRoot = dirname(fileURLToPath(import.meta.resolve('lit-html')));
 const morphdom = resolve(dirname(fileURLToPath(import.meta.resolve('morphdom'))), 'morphdom-esm.js');
 const jquery = resolve(dirname(fileURLToPath(import.meta.resolve('jquery'))), '../jquery.module.js');
 const bundle = await rollup({
-  input: resolve(root, 'test/contracts/rendering-adapters.js'),
+  input: resolve(root, 'test/contracts/dom-adapters.js'),
   external: id => id === 'lit-html' || id.startsWith('lit-html/') || id === 'morphdom' || id === 'jquery',
   plugins: [{
     name: 'distribution-contracts',
     resolveId(source) {
       const entries = {
         '../../src/index.ts': 'dist/marionette.js',
-        '../../packages/adapters/src/render/morphdom.ts': 'packages/adapters/dist/render/morphdom.js',
-        '../../packages/adapters/src/render/lit-html.ts': 'packages/adapters/dist/render/lit-html.js',
+        '../../packages/adapters/src/dom/morphdom.ts': 'packages/adapters/dist/dom/morphdom.js',
+        '../../packages/adapters/src/dom/lit-html.ts': 'packages/adapters/dist/dom/lit-html.js',
         '../../packages/adapters/src/dom/jquery.ts': 'packages/adapters/dist/dom/jquery.js',
       };
       if (entries[source]) { return resolve(root, entries[source]); }
@@ -68,15 +68,15 @@ try {
       const page = await browser.newPage();
       await page.goto(`http://127.0.0.1:${server.address().port}`);
       const results = await page.evaluate(async() => {
-        const { renderingAdapterContracts } = await import('/contracts.js');
-        return renderingAdapterContracts.map(({ name, run }) => {
+        const { domAdapterContracts } = await import('/contracts.js');
+        return domAdapterContracts.map(({ name, run }) => {
           try { run(); return { name, passed: true }; } catch (error) { return { name, passed: false, error: error.stack }; }
         });
       });
       for (const result of results) {
         assert.equal(result.passed, true, `${browserName}: ${result.name}\n${result.error || ''}`);
       }
-      console.log(`${browserName}: ${results.length} rendering adapter contracts passed`);
+      console.log(`${browserName}: ${results.length} DOM adapter contracts passed`);
     } catch (error) {
       failures.push(new Error(`${browserName}: ${error.message}`, { cause: error }));
     } finally {
@@ -86,4 +86,4 @@ try {
 } finally {
   await new Promise(done => server.close(done));
 }
-if (failures.length) { throw new AggregateError(failures, 'Rendering adapter contracts failed.'); }
+if (failures.length) { throw new AggregateError(failures, 'DOM adapter contracts failed.'); }

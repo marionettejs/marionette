@@ -4,6 +4,10 @@ Give a view a template function, then call `render()` to put its result in the
 view's element. A plain function is enough to get started; template engines
 and custom renderers can fit the same workflow.
 
+The renderer evaluates the template; DomApi applies the result to the element.
+Projects can configure template evaluation with `setRenderer()` directly. Lit
+and Morphdom are DOM adapters configured with `setDomApi()`.
+
 ```javascript
 import { View } from 'marionette';
 
@@ -237,7 +241,7 @@ For HTML string templates:
 
 ```javascript
 import { View } from 'marionette';
-import MorphdomDomApi from '@marionette/adapters/render/morphdom';
+import MorphdomDomApi from '@marionette/adapters/dom/morphdom';
 
 const MessageView = View.extend({
   template: () => '<p id="message">Hello again.</p>'
@@ -252,7 +256,7 @@ select the Lit DOM adapter:
 ```javascript
 import { View } from 'marionette';
 import { html } from 'lit-html';
-import LitDomApi from '@marionette/adapters/render/lit-html';
+import LitDomApi from '@marionette/adapters/dom/lit-html';
 
 const MessageView = View.extend({
   template: ({ message }) => html`<p>${message}</p>`,
@@ -272,7 +276,7 @@ Lit replaces preexisting contents on its first explicit render. Keep
 receive connection changes through `Dom.onAttach(el)` and `Dom.onDetach(el)`.
 The View keeps the same root throughout its lifetime. Automatic directive
 connection management requires monitoring on the View and its ancestors. Lifecycle overrides must call their parent methods;
-avoid independently replacing Lit's contents or switching renderers after rendering.
+avoid independently replacing Lit's contents or switching DOM adapters after rendering.
 See the [render adapter guide](https://github.com/marionettejs/marionette/blob/master/packages/adapters/readme.md#rendering)
 for installation, directive cleanup, and root ownership.
 

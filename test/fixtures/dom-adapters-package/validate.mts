@@ -1,7 +1,7 @@
 import { View, createMarionette } from 'marionette';
 import { html } from 'lit-html';
-import MorphdomDomApi from '@marionette/adapters/render/morphdom';
-import LitDomApi from '@marionette/adapters/render/lit-html';
+import MorphdomDomApi from '@marionette/adapters/dom/morphdom';
+import LitDomApi from '@marionette/adapters/dom/lit-html';
 
 const MorphView = View.extend({
   template: () => '<p>morphdom</p>',

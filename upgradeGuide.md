@@ -364,13 +364,15 @@ owner's replies.
 - The optional jQuery adapter is described in the
   [installation guide](docs/installation.md#jquery-dom-adapter-is-optional).
 
-### Rendering adapter setup
+### DOM adapter setup
 
-Rendering adapters now export DOM operation objects rather than class installers:
+Morphdom and Lit now live under `@marionette/adapters/dom/` and export DOM
+operation objects rather than class installers. Update imports from the former
+`render` directory; those package subpaths are removed.
 
 ```js
-import MorphdomDomApi from '@marionette/adapters/render/morphdom';
-import LitDomApi from '@marionette/adapters/render/lit-html';
+import MorphdomDomApi from '@marionette/adapters/dom/morphdom';
+import LitDomApi from '@marionette/adapters/dom/lit-html';
 
 MorphView.setDomApi(MorphdomDomApi);
 LitView.setDomApi(LitDomApi);
@@ -382,7 +384,7 @@ and Lit adapters; it no longer signals a renderer that performed its own DOM
 update. Put direct DOM updates in `setContents` instead.
 
 Lit uses element-only `onAttach` and `onDetach` hooks and no longer patches View
-lifecycle methods. Destruction and root replacement disconnect directives without
+lifecycle methods. Detachment and destruction disconnect directives without
 emptying their DOM. With attachment monitoring disabled, deliver these
 notifications from application code. Lit event handlers use the element as their
 receiver rather than the View; use a closure for View access.

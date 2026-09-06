@@ -1,6 +1,6 @@
 import { View, CollectionView, Region, DomApi } from '../../src/index.ts';
-import MorphdomDomApi from '../../packages/adapters/src/render/morphdom.ts';
-import LitDomApi from '../../packages/adapters/src/render/lit-html.ts';
+import MorphdomDomApi from '../../packages/adapters/src/dom/morphdom.ts';
+import LitDomApi from '../../packages/adapters/src/dom/lit-html.ts';
 import $ from 'jquery';
 import JQueryDomApi from '../../packages/adapters/src/dom/jquery.ts';
 import { html } from 'lit-html';
@@ -44,10 +44,10 @@ function trackedTemplate(log) {
   return () => html`<p>${resource()}</p>`;
 }
 
-export const renderingAdapterContracts = [];
+export const domAdapterContracts = [];
 
 for (const kind of ['morphdom', 'lit-html']) {
-  renderingAdapterContracts.push({
+  domAdapterContracts.push({
     name: `${kind}: composes with a preselected jQuery DomApi`,
     run() {
       const { region, element } = fixture();
@@ -156,7 +156,7 @@ for (const kind of ['morphdom', 'lit-html']) {
   });
 }
 
-renderingAdapterContracts.push({
+domAdapterContracts.push({
   name: 'lit-html: connects and disconnects directives through Region attachment',
   run() {
     const log = [];
@@ -245,7 +245,7 @@ renderingAdapterContracts.push({
   }
 });
 
-renderingAdapterContracts.push({
+domAdapterContracts.push({
   name: 'lit-html: destroy releases subscriptions after the first content render throws',
   run() {
     const subscribers = new Set();
@@ -274,7 +274,7 @@ renderingAdapterContracts.push({
   }
 });
 
-renderingAdapterContracts.push({
+domAdapterContracts.push({
   name: 'lit-html: failed construction releases rendered directives',
   run() {
     const log = [];
@@ -294,7 +294,7 @@ renderingAdapterContracts.push({
   }
 });
 
-renderingAdapterContracts.push({
+domAdapterContracts.push({
   name: 'lit-html: a reentrant destroy does not release directives before the outer destroy commits',
   run() {
     const log = [];
@@ -314,7 +314,7 @@ renderingAdapterContracts.push({
 });
 for (const [name, api] of [['native', DomApi], ['jquery', JQueryDomApi],
   ['morphdom', MorphdomDomApi], ['lit-html', LitDomApi]]) {
-  renderingAdapterContracts.push({
+  domAdapterContracts.push({
     name: `${name}: undefined template output renders empty initially and clears previous contents`,
     run() {
       const RenderedView = View.extend({ template: () => 'previous' });
@@ -332,7 +332,7 @@ for (const [name, api] of [['native', DomApi], ['jquery', JQueryDomApi],
 }
 
 for (const [name, Base] of [['View', View], ['CollectionView', CollectionView]]) {
-  renderingAdapterContracts.push({
+  domAdapterContracts.push({
     name: `lit-html: ${name} releases subscriptions across detach, reattach, and destruction`,
     run() {
       const subscribers = new Set();
@@ -391,7 +391,7 @@ for (const [name, Base] of [['View', View], ['CollectionView', CollectionView]])
   });
 }
 
-renderingAdapterContracts.push({
+domAdapterContracts.push({
   name: 'lit-html: a View can adopt contents rendered directly by the DOM adapter',
   run() {
     const log = [];

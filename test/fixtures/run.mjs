@@ -144,7 +144,7 @@ try {
     'jquery-dom-api',
     'jquery-dom-api-types',
     'keyed-snapshot-adapter-types',
-    'rendering-adapters-package',
+    'dom-adapters-package',
   ]);
 
   for (const fixtureName of fixtures) {

@@ -137,22 +137,22 @@
     },
     {
       "name": "Morphdom renderer ES module",
-      "path": "packages/adapters/dist/render/morphdom.js",
+      "path": "packages/adapters/dist/dom/morphdom.js",
       "baselineBrotliBytes": 0
     },
     {
       "name": "Morphdom renderer CommonJS",
-      "path": "packages/adapters/dist/render/morphdom.cjs",
+      "path": "packages/adapters/dist/dom/morphdom.cjs",
       "baselineBrotliBytes": 0
     },
     {
       "name": "Lit HTML renderer ES module",
-      "path": "packages/adapters/dist/render/lit-html.js",
+      "path": "packages/adapters/dist/dom/lit-html.js",
       "baselineBrotliBytes": 0
     },
     {
       "name": "Lit HTML renderer CommonJS",
-      "path": "packages/adapters/dist/render/lit-html.cjs",
+      "path": "packages/adapters/dist/dom/lit-html.cjs",
       "baselineBrotliBytes": 0
     }
   ],
@@ -261,16 +261,16 @@
       "baselineExternalImports": []
     },
     {
-      "subpath": "@marionette/adapters/render/morphdom",
-      "input": "packages/adapters/src/render/morphdom.ts",
-      "output": "packages/adapters/dist/render/morphdom.js",
+      "subpath": "@marionette/adapters/dom/morphdom",
+      "input": "packages/adapters/src/dom/morphdom.ts",
+      "output": "packages/adapters/dist/dom/morphdom.js",
       "baselineModules": [],
       "baselineExternalImports": []
     },
     {
-      "subpath": "@marionette/adapters/render/lit-html",
-      "input": "packages/adapters/src/render/lit-html.ts",
-      "output": "packages/adapters/dist/render/lit-html.js",
+      "subpath": "@marionette/adapters/dom/lit-html",
+      "input": "packages/adapters/src/dom/lit-html.ts",
+      "output": "packages/adapters/dist/dom/lit-html.js",
       "baselineModules": [],
       "baselineExternalImports": []
     }

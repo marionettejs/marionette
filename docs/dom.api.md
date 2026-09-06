@@ -9,7 +9,7 @@ adapter can replace only the operations an application needs; all omitted
 methods continue to use the inherited adapter.
 
 A renderer evaluates templates; `Dom.setContents` applies their output. The optional
-[Morphdom and Lit HTML render adapters](./view.rendering.md#rendering-to-dom)
+[Morphdom and Lit HTML DOM adapters](./view.rendering.md#rendering-to-dom)
 preserve the selected DomApi; installing one does not select a data or state
 adapter.
 

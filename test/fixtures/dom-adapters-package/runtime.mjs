@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 
-const [renderer, format, jsdomPath] = process.argv.slice(2);
+const [provider, format, jsdomPath] = process.argv.slice(2);
 const require = createRequire(import.meta.url);
 const { JSDOM } = await import(pathToFileURL(jsdomPath).href);
 const dom = new JSDOM('<!doctype html><body><main></main></body>');
@@ -12,19 +12,19 @@ for (const name of ['window', 'document', 'Node', 'Element', 'HTMLElement', 'Doc
 
 try {
   for (const peer of ['backbone', 'jquery', 'redux', 'zustand', 'xstate', '@xstate/store',
-    renderer === 'lit-html' ? 'morphdom' : 'lit-html']) {
+    provider === 'lit-html' ? 'morphdom' : 'lit-html']) {
     assert.throws(() => require.resolve(peer), { code: 'MODULE_NOT_FOUND' }, `${peer} leaked into fixture`);
   }
 
   const { View, Region } = format === 'esm' ? await import('marionette') : require('marionette');
-  const specifier = `@marionette/adapters/render/${renderer}`;
+  const specifier = `@marionette/adapters/dom/${provider}`;
   const adapter = format === 'esm' ? (await import(specifier)).default : require(specifier);
   assert.equal(typeof adapter.setContents, 'function', `${format} adapter did not export DOM operations`);
 
   const log = [];
   let value = 'first';
   let template = () => `<button id="survivor">${value}</button>`;
-  if (renderer === 'lit-html') {
+  if (provider === 'lit-html') {
     const { html } = await import('lit-html');
     const { AsyncDirective } = await import('lit-html/async-directive.js');
     const { directive } = await import('lit-html/directive.js');
@@ -60,11 +60,11 @@ try {
   region.destroy();
   assert.equal(view.isDestroyed(), true);
   assert.equal(root.isConnected, false);
-  if (renderer === 'lit-html') {
+  if (provider === 'lit-html') {
     assert.deepEqual(log, ['connected', 'disconnected', 'connected', 'disconnected']);
     assert.equal(root.querySelector('button'), button);
   }
-  console.log(`Validated isolated ${renderer} ${format} package`);
+  console.log(`Validated isolated ${provider} ${format} package`);
 } finally {
   dom.window.close();
 }

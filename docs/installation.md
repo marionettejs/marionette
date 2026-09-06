@@ -18,7 +18,7 @@ an unreleased checkout locally.
 * [Distribution formats](#distribution-formats)
 * [Backbone is optional](#backbone-is-optional)
 * [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional)
-* [Rendering adapters are optional](#rendering-adapters-are-optional)
+* [DOM content adapters are optional](#dom-content-adapters-are-optional)
 * [Historical starter projects](#historical-starter-projects)
 * [Current v5 documentation](./readme.md)
 
@@ -46,8 +46,8 @@ declares the integration-specific peers as optional.
 | `@types/backbone` `^1.4.23` | Optional | TypeScript declarations for `@marionette/adapters/backbone`. JavaScript consumers do not need it. |
 | `jquery` `^4.0.0` | Optional | Only if your app uses the `@marionette/adapters/dom/jquery` adapter. See [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional). |
 | `@types/jquery` `^4.0.1` | Optional | TypeScript declarations for `@marionette/adapters/dom/jquery`. JavaScript consumers do not need it. |
-| `morphdom` `^2.7.8` | Optional | Only if your app imports `@marionette/adapters/render/morphdom`. |
-| `lit-html` `^3.3.3` | Optional | Only if your app imports `@marionette/adapters/render/lit-html`. |
+| `morphdom` `^2.7.8` | Optional | Only if your app imports `@marionette/adapters/dom/morphdom`. |
+| `lit-html` `^3.3.3` | Optional | Only if your app imports `@marionette/adapters/dom/lit-html`. |
 
 Optional peers are installed only when you opt into them:
 
@@ -236,10 +236,10 @@ adapter. If existing code also uses `$el`, assign `this.$el = $(this.el)` in
 its View, CollectionView, or Behavior `initialize()` method. See the [upgrade guide](../upgradeGuide.md) for the migration entries on jQuery DOM
 compatibility and the `detachContents` policy.
 
-## Rendering adapters are optional
+## DOM content adapters are optional
 
 Use the same `@marionette/adapters` package for incremental rendering. Install
-only the template renderer you select:
+only the DOM library you select:
 
 ```bash
 npm install @marionette/adapters morphdom
@@ -247,8 +247,8 @@ npm install @marionette/adapters morphdom
 npm install @marionette/adapters lit-html
 ```
 
-Import `MorphdomDomApi` from `@marionette/adapters/render/morphdom`, or
-`LitDomApi` from `@marionette/adapters/render/lit-html`, and pass it to
+Import `MorphdomDomApi` from `@marionette/adapters/dom/morphdom`, or
+`LitDomApi` from `@marionette/adapters/dom/lit-html`, and pass it to
 `ViewClass.setDomApi()` before creating instances. Each adapter preserves unrelated
 DOM operations. Lit supplies the attachment hooks its directives need. DataApi and StateApi
 configuration remains explicit and separate.
