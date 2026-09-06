@@ -77,3 +77,10 @@ const preservedLabel: string = configuredInstance.getLabel();
 const preservedCategory: string = WrappedConfigured.category;
 // @ts-expect-error The helper preserves required constructor options.
 new WrappedConfigured();
+
+void isolatedWrapped;
+void query;
+void modelLabel;
+void staticKind;
+void preservedLabel;
+void preservedCategory;

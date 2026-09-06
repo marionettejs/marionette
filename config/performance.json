@@ -289,9 +289,7 @@
       "input": "packages/adapters/src/dom/jquery-view.ts",
       "output": "packages/adapters/dist/dom/jquery-view.js",
       "baselineModules": [],
-      "baselineExternalImports": [
-        "jquery"
-      ]
+      "baselineExternalImports": []
     }
   ],
   "relocations": {

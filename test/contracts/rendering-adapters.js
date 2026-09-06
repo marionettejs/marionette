@@ -332,10 +332,13 @@ renderingAdapterContracts.push({
 for (const [name, api] of [['native', DomApi], ['jquery', JQueryDomApi],
   ['morphdom', MorphdomDomApi], ['lit-html', LitDomApi]]) {
   renderingAdapterContracts.push({
-    name: `${name}: undefined template output clears previous contents`,
+    name: `${name}: undefined template output renders empty initially and clears previous contents`,
     run() {
       const RenderedView = View.extend({ template: () => 'previous' });
       RenderedView.setDomApi(api);
+      const empty = new RenderedView({ template: () => undefined }).render();
+      check(empty.isRendered() && empty.el.textContent === '', 'Initial empty render did not complete');
+      empty.destroy();
       const view = new RenderedView().render();
       view.template = () => undefined;
       view.render();
