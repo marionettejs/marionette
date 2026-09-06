@@ -356,8 +356,22 @@ export function validateConsumerBundleContract(
     .filter(peer => !peer.startsWith('@types/'))
     .filter(peer => !internalPackages.has(peer))
     .sort();
-  if (!sameStringInventory(contract.peerExternalImports, runtimePeers)) {
-    violations.push(`Consumer bundle peer externals must be ${runtimePeers.join(', ')}`);
+  if (!sameStringInventory(contract.peerExternalImports, consumerPeerExternalImports)) {
+    violations.push(`Consumer bundle peer externals must be ${consumerPeerExternalImports.join(', ')}`);
+  }
+  const missingPeers = difference(consumerPeerExternalImports, runtimePeers);
+  if (missingPeers.length) {
+    violations.push(`Consumer bundle peers are not declared runtime peers: ${missingPeers.join(', ')}`);
+  }
+  // Other integrations may add optional peers without changing the frozen v1
+  // scenarios. Exact measured graph checks still reject their runtime imports.
+  const additionalRequiredPeers = [...new Set(packageJsons.flatMap(manifest => {
+    return Object.keys(manifest.peerDependencies || {}).filter(peer =>
+      runtimePeers.includes(peer) && !consumerPeerExternalImports.includes(peer) &&
+      manifest.peerDependenciesMeta?.[peer]?.optional !== true);
+  }))].sort();
+  if (additionalRequiredPeers.length) {
+    violations.push(`Runtime peers outside consumer bundle v1 must be optional: ${additionalRequiredPeers.join(', ')}`);
   }
   if (!isDeepStrictEqual(contract.toolchain, consumerToolchain)) {
     violations.push('Consumer bundle toolchain metadata is not canonical');
