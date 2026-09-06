@@ -1,0 +1,99 @@
+config/performance.json
+  s_060efbb5bf6218::t_322fe30c865496 157-166,286-294
+docs/dom.api.md
+  s_060efbb5bf6218::t_9c8d2e3f190718 11,13-14,100-101,141-159,230-247
+docs/dom.interactions.md
+  s_060efbb5bf6218::t_3baa4d6395dcf5 316-317
+docs/installation.md
+  s_060efbb5bf6218::t_6428f66cc69664 235-237,251-254
+docs/marionette.behavior.md
+  s_060efbb5bf6218::t_50507d1b30b764 470-471,544-546
+docs/migration-from-v4.md
+  s_060efbb5bf6218::t_bc634d543354c9 34-35
+docs/view.lifecycle.md
+  s_060efbb5bf6218::t_b21090aacfc9c8 96
+docs/view.rendering.md
+  s_060efbb5bf6218::t_d2653c1c565e89 154-159,218,224,230,233-234,240,245,249-250,255,261,264-265,272-275
+packages/adapters/package.json
+  s_060efbb5bf6218::t_5c10c14bd126e7 95-105
+packages/adapters/readme.md
+  s_060efbb5bf6218::t_50796ddfde3e05 10-24,176-187,197,199-202,212,217,222-223,234,240,243-268
+packages/adapters/rollup.config.mjs
+  s_060efbb5bf6218::t_488785838475c6 19-20,23-24,27
+packages/adapters/src/dom/jquery-view.ts
+  s_060efbb5bf6218::t_88727a37e1fcb7 1-43
+packages/adapters/src/render/lit-html.ts
+  s_060efbb5bf6218::t_f8a7aa3e9a0fa9 11-22,25-26,28-30,32-35
+packages/adapters/src/render/morphdom.ts
+  s_060efbb5bf6218::t_bf46f8a861a129 6-12,14-18
+scripts/performance/adapters-package-size.mjs
+  s_060efbb5bf6218::t_6f0e601627677b 18-19,36
+src/index.ts
+  s_060efbb5bf6218::t_15e8740737a716 65
+src/mixins/template-render.ts
+  s_060efbb5bf6218::t_70116ed35a4fd3 5,8,100
+src/mixins/view.ts
+  s_060efbb5bf6218::t_39351232cbff3c 36,193-198
+src/modules/behavior.ts
+  s_060efbb5bf6218::t_a69fce314e7696 33,59
+src/modules/collection-view.ts
+  s_060efbb5bf6218::t_06ec3ff340709d 61,75,87-88,100,112,138,143,146,150-151,154,165,167,169,907-908,911-913,916,918-920
+src/modules/common/monitor-view-events.ts
+  s_060efbb5bf6218::t_56fe489a1683b2 61,72
+src/modules/common/view.ts
+  s_060efbb5bf6218::t_d26ef9b708a549 1,11
+src/modules/view.ts
+  s_060efbb5bf6218::t_6e48cc08c1ecf8 67,93,133,135-136,139-140,143,154,156,158,555-556,559-561,564-565,567-568,571-573
+src/runtime/dom-api.ts
+  s_060efbb5bf6218::t_3c6c7e72ee7f47 5,14,20-21,42-45
+test/browser/adapters-package.mjs
+  s_060efbb5bf6218::t_4f8939d6678617 47,113,143
+test/browser/rendering-adapters.mjs
+  s_060efbb5bf6218::t_6555b348a40529 23-24
+test/contracts/rendering-adapters.js
+  s_060efbb5bf6218::t_a6a4dba6a1315d 1-4,23-24,55,62-63,65,179,193,200,247,253,256,266,279,309,329,332-343,345-346,348,350,352-360,362-376,379,381-401,407,409-418,420-423,425-426,429-430,432-450
+test/fixtures/cjs-adapters/validate.cjs
+  s_060efbb5bf6218::t_5ec6054458ac0a 21,28
+test/fixtures/jquery-dom-api-types/validate.cts
+  s_060efbb5bf6218::t_ddebc2d5b54172 1-2,8-9,45,48-79
+test/fixtures/jquery-dom-api-types/validate.mts
+  s_060efbb5bf6218::t_fc36421cc63bdf 1-2,8-9,45,48-79
+test/fixtures/jquery-dom-api/validate.mjs
+  s_060efbb5bf6218::t_72189ed9342545 13,16
+test/fixtures/rendering-adapters-package/runtime.mjs
+  s_060efbb5bf6218::t_fcfa70c33a9f0c 21-22,43-44,65
+test/fixtures/rendering-adapters-package/validate.cts
+  s_060efbb5bf6218::t_fbac394321d8ad 3-4,10,17,24,27-36
+test/fixtures/rendering-adapters-package/validate.mts
+  s_060efbb5bf6218::t_aa5e1e3b97b202 3-4,10,17,24,27-36
+test/source/validate.mjs
+  s_060efbb5bf6218::t_d3a59208d47c2e 30-34
+test/types/dom.cts
+  s_060efbb5bf6218::t_65d9e1fccd5ee4 54
+test/types/dom.mts
+  s_060efbb5bf6218::t_cb4af3d71b7c05 54
+test/unit/jquery-dom-api.spec.js
+  s_060efbb5bf6218::t_01a7fa20dcd8f7 11,51-60,62-68,86,103,112,146-147
+test/unit/mixins/template-render.spec.js
+  s_060efbb5bf6218::t_0a327c25320af4 337
+test/unit/view.renderer.spec.js
+  s_060efbb5bf6218::t_309ee8461472bc 87
+upgradeGuide.md
+  s_060efbb5bf6218::t_18a0e88b68bd9c 197,204-205,207-209,213-219,342-364
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "9576917a3a71a76b85710c23c46a093df671370c",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
