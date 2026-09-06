@@ -190,9 +190,17 @@ row.renderAttributes();
 ```
 
 This explicit refresh is separate from `render()` and emits no render lifecycle
-events. With the default DomApi, `null` and `undefined` remove the named
-attribute and its reflected property state, while omitted keys remain untouched.
-Custom DomApi adapters must implement the same `setAttributes` behavior.
+events. With the default DomApi, only explicit `null` removes a named attribute;
+`undefined` and omitted keys leave existing attributes untouched. Custom DomApi
+adapters must implement the same `setAttributes` behavior.
+
+Attribute maps use DOM attribute names (`class`, `for`), not property names
+(`className`, `htmlFor`). The View-level `className` option still works. Earlier
+v5 alphas also assigned matching element properties; v5 now applies attributes
+only. Update live form values and custom element properties explicitly on `el`.
+For boolean HTML attributes, use `disabled: isDisabled ? '' : null` instead of
+`disabled: isDisabled`. Other values, including `false`, are converted to strings;
+ARIA attributes such as `aria-selected: false` therefore retain `"false"`.
 
 ## jQuery DOM compatibility
 

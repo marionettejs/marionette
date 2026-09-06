@@ -27,7 +27,7 @@ describe('View#renderAttributes', function() {
     ['View', View],
     ['CollectionView', CollectionView]
   ].forEach(([name, ViewClass]) => {
-    it(`refreshes ${ name } root declarations with explicit nullish removal`, function() {
+    it(`refreshes ${ name } root declarations with explicit null removal`, function() {
       const state = {
         className: 'initial-class',
         empty: 'initial',
@@ -36,7 +36,7 @@ describe('View#renderAttributes', function() {
         includeOmitted: true,
         nullValue: 'remove-with-null',
         title: 'initial-title',
-        undefinedValue: 'remove-with-undefined',
+        undefinedValue: 'keep-with-undefined',
         zero: 'initial'
       };
       const DynamicView = ViewClass.extend({
@@ -89,7 +89,7 @@ describe('View#renderAttributes', function() {
       expect(root.id).to.equal('0');
       expect(root.hasAttribute('class')).to.be.false;
       expect(root.hasAttribute('data-null')).to.be.false;
-      expect(root.hasAttribute('data-undefined')).to.be.false;
+      expect(root.getAttribute('data-undefined')).to.equal('keep-with-undefined');
       expect(root.getAttribute('data-omitted')).to.equal('keep');
       expect(root.getAttribute('data-false')).to.equal('false');
       expect(root.getAttribute('data-zero')).to.equal('0');
@@ -98,7 +98,7 @@ describe('View#renderAttributes', function() {
       expect(view.isRendered()).to.be.false;
       expect(view).not.to.have.property('_renderedAttributeNames');
 
-      state.id = undefined;
+      state.id = null;
       state.className = '';
       view.renderAttributes();
 
@@ -138,6 +138,10 @@ describe('View#renderAttributes', function() {
     expect(root.getAttribute('data-managed')).to.equal('applied');
     expect(root.getAttribute('data-unrelated')).to.equal('keep');
 
+    state.managed = undefined;
+    view.renderAttributes();
+    expect(root.getAttribute('data-managed')).to.equal('applied');
+
     state.managed = null;
     view.renderAttributes();
 
@@ -167,9 +171,9 @@ describe('View#renderAttributes', function() {
     expect(root.className.baseVal).to.equal('');
   });
 
-  it('safely refreshes and removes an own __proto__ declaration', function() {
+  it('refreshes an own __proto__ attribute without changing element properties', function() {
     const elementPrototype = Object.getPrototypeOf(document.createElement('div'));
-    let protoValue = { polluted: true };
+    let protoValue = 'ordinary attribute';
     const AttributeView = View.extend({
       attributes() {
         return Object.defineProperty({}, '__proto__', {
@@ -181,15 +185,15 @@ describe('View#renderAttributes', function() {
     const view = new AttributeView();
 
     expect(Object.getPrototypeOf(view.el)).to.equal(elementPrototype);
-    expect(Object.hasOwn(view.el, '__proto__')).to.be.true;
-    expect(Object.getOwnPropertyDescriptor(view.el, '__proto__').value).to.equal(protoValue);
+    expect(Object.hasOwn(view.el, '__proto__')).to.be.false;
+    expect(view.el.getAttribute('__proto__')).to.equal(protoValue);
 
     protoValue = null;
     view.renderAttributes();
 
     expect(Object.getPrototypeOf(view.el)).to.equal(elementPrototype);
     expect(Object.hasOwn(view.el, '__proto__')).to.be.false;
-    expect(Object.prototype).not.to.have.property('polluted');
+    expect(view.el.hasAttribute('__proto__')).to.be.false;
   });
 
   it('does not evaluate declarations while destroying or destroyed', function() {

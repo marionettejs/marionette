@@ -79,9 +79,9 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
       selected.el.querySelector('button').click();
 
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      selected.Dom.setAttributes(svg, { className: 'owned' });
+      selected.Dom.setAttributes(svg, { class: 'owned' });
       const svgClassSet = svg.className.baseVal;
-      selected.Dom.setAttributes(svg, { className: null });
+      selected.Dom.setAttributes(svg, { class: null });
 
       const form = document.createElement('form');
       const list = document.createElement('datalist');
@@ -91,14 +91,29 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
       document.body.append(form, list, input);
       selected.Dom.setAttributes(input, { form: form.id, list: list.id });
       const inputAssociated = input.form === form && input.list === list;
-      selected.Dom.setAttributes(input, { form: null, list: undefined });
+      selected.Dom.setAttributes(input, { form: null, list: null });
       const inputCleared = input.form === null && input.list === null &&
         !input.hasAttribute('form') && !input.hasAttribute('list');
       input.remove();
       form.remove();
       list.remove();
 
+      const host = document.createElement('button');
+      host.setAttribute('data-external', 'keep');
+      host.setAttribute('title', 'host title');
+      host.disabled = true;
+      const HostView = Marionette.View.extend({
+        attributes: { title: undefined, disabled: null, 'aria-pressed': false }
+      });
+      const hostView = new HostView({ el: host });
+      hostView.renderAttributes();
+      const hostAttributesPreserved = host.getAttribute('data-external') === 'keep' &&
+        host.getAttribute('title') === 'host title' && !host.disabled &&
+        host.getAttribute('aria-pressed') === 'false';
+      hostView.destroy();
+
       const outcome = {
+        hostAttributesPreserved,
         rootPreserved: selected.el === selectedRoot,
         focused: document.activeElement === selectedInput,
         selectionStart: selectedInput.selectionStart,
@@ -125,6 +140,7 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
       return outcome;
     });
 
+    assert.equal(result.hostAttributesPreserved, true, `${browserName}: explicit refresh preserves unmanaged attributes`);
     assert.equal(result.rootPreserved, true, `${browserName}: root identity is preserved`);
     assert.equal(result.focused, true, `${browserName}: focus is preserved`);
     assert.equal(result.selectionStart, 2, `${browserName}: selection start is preserved`);
@@ -138,8 +154,8 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
     assert.equal(result.clickCount, 1, `${browserName}: delegated events remain bound`);
     assert.equal(result.connectedCount, result.initialConnected, `${browserName}: root is not reconnected`);
     assert.equal(result.disconnectedCount, 0, `${browserName}: root is not disconnected`);
-    assert.equal(result.svgClassSet, 'owned', `${browserName}: direct DomApi sets SVG className`);
-    assert.equal(result.svgClassCleared, '', `${browserName}: direct DomApi clears SVG className`);
+    assert.equal(result.svgClassSet, 'owned', `${browserName}: direct DomApi sets SVG class`);
+    assert.equal(result.svgClassCleared, '', `${browserName}: direct DomApi clears SVG class`);
     assert.equal(result.svgClassAttributeRemoved, true, `${browserName}: direct DomApi removes SVG class`);
     assert.equal(result.inputAssociated, true, `${browserName}: read-only properties use DOM attributes`);
     assert.equal(result.inputCleared, true, `${browserName}: read-only properties allow attribute removal`);

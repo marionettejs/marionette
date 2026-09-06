@@ -290,151 +290,109 @@ describe('DomApi', function() {
   });
 
   describe('#setAttributes', function() {
-    it('assigns existing properties and sets other attributes', function() {
-      const el = {
-        existing: 'old',
-        setAttribute: this.sinon.stub()
-      };
-
-      DomApi.setAttributes(el, { existing: 'new', missing: 'attribute' });
-
-      expect(el.existing).to.equal('new');
-      expect(el.setAttribute).to.have.been.calledOnce
-        .and.calledWithExactly('missing', 'attribute');
-    });
-
-    it('uses only own enumerable string keys and safely assigns __proto__', function() {
-      const symbol = Symbol('ignored');
-      const protoValue = { polluted: true };
+    it('applies own enumerable attributes without assigning element properties', function() {
+      const el = document.createElement('div');
+      const prototype = Object.getPrototypeOf(el);
       const attrs = Object.assign(Object.create({ inherited: 'ignored' }), {
         title: 'owned',
-        'data-owned': 'owned',
-        [symbol]: 'ignored'
+        constructor: 'ordinary attribute',
+        [Symbol('ignored')]: 'ignored'
       });
       Object.defineProperty(attrs, 'hidden', { value: 'ignored' });
-      Object.defineProperty(attrs, '__proto__', {
-        enumerable: true,
-        value: protoValue
-      });
-      const el = document.createElement('div');
-      const elementPrototype = Object.getPrototypeOf(el);
+      Object.defineProperty(attrs, '__proto__', { enumerable: true, value: 'ordinary attribute' });
 
       DomApi.setAttributes(el, attrs);
 
-      expect(el.title).to.equal('owned');
-      expect(el.dataset.owned).to.equal('owned');
-      expect(el.getAttribute('inherited')).to.be.null;
-      expect(el.getAttribute('hidden')).to.be.null;
-      expect(el[symbol]).to.be.undefined;
-      expect(Object.getPrototypeOf(el)).to.equal(elementPrototype);
-      expect(Object.hasOwn(el, '__proto__')).to.be.true;
-      expect(Object.getOwnPropertyDescriptor(el, '__proto__').value).to.equal(protoValue);
+      expect(el.getAttribute('title')).to.equal('owned');
+      expect(el.getAttribute('constructor')).to.equal('ordinary attribute');
+      expect(el.getAttribute('__proto__')).to.equal('ordinary attribute');
+      expect(el.hasAttribute('inherited')).to.be.false;
+      expect(el.hasAttribute('hidden')).to.be.false;
+      expect(el.attributes.length).to.equal(3);
+      expect(Object.getPrototypeOf(el)).to.equal(prototype);
+      expect(Object.hasOwn(el, '__proto__')).to.be.false;
+      expect(el.constructor).to.equal(prototype.constructor);
     });
 
-    it('removes nullish entries and clears reflected property state', function() {
-      const el = document.createElement('input');
-      el.value = 'property-value';
-      el.checked = true;
-      el.disabled = true;
-      el.setAttribute('value', 'attribute-value');
-      el.setAttribute('checked', '');
-      el.setAttribute('disabled', '');
-      el.setAttribute('data-null', 'remove');
-      el.setAttribute('data-undefined', 'remove');
-      el.setAttribute('data-omitted', 'keep');
-      const inputEvent = this.sinon.spy();
-      const changeEvent = this.sinon.spy();
-      el.addEventListener('input', inputEvent);
-      el.addEventListener('change', changeEvent);
-
-      DomApi.setAttributes(el, {
-        value: null,
-        checked: null,
-        disabled: undefined,
-        'data-null': null,
-        'data-undefined': undefined
-      });
-
-      expect(el.value).to.equal('');
-      expect(el.checked).to.be.false;
-      expect(el.disabled).to.be.false;
-      expect(el.hasAttribute('value')).to.be.false;
-      expect(el.hasAttribute('checked')).to.be.false;
-      expect(el.hasAttribute('disabled')).to.be.false;
-      expect(el.hasAttribute('data-null')).to.be.false;
-      expect(el.hasAttribute('data-undefined')).to.be.false;
-      expect(el.getAttribute('data-omitted')).to.equal('keep');
-      expect(inputEvent).not.to.have.been.called;
-      expect(changeEvent).not.to.have.been.called;
-    });
-
-    it('preserves false, zero, and empty string values', function() {
+    it('removes only null attributes and leaves undefined and omitted attributes untouched', function() {
       const el = document.createElement('div');
+      el.setAttribute('title', 'remove');
+      el.setAttribute('data-remove', 'remove');
+      el.setAttribute('data-keep', 'keep');
+
+      DomApi.setAttributes(el, { title: null, 'data-remove': undefined });
+
+      expect(el.hasAttribute('title')).to.be.false;
+      expect(el.getAttribute('data-remove')).to.equal('remove');
+      expect(el.getAttribute('data-keep')).to.equal('keep');
+    });
+
+    it('sets literal values and removes boolean attributes only for null', function() {
+      const el = document.createElement('button');
 
       DomApi.setAttributes(el, {
-        title: false,
+        disabled: '',
+        'aria-pressed': false,
+        'data-active': false,
         'data-zero': 0,
         'data-empty': ''
       });
 
-      expect(el.title).to.equal('false');
+      expect(el.disabled).to.be.true;
+      expect(el.getAttribute('aria-pressed')).to.equal('false');
+      expect(el.getAttribute('data-active')).to.equal('false');
       expect(el.getAttribute('data-zero')).to.equal('0');
       expect(el.getAttribute('data-empty')).to.equal('');
+
+      DomApi.setAttributes(el, { disabled: false });
+      expect(el.disabled).to.be.true;
+      expect(el.getAttribute('disabled')).to.equal('false');
+
+      DomApi.setAttributes(el, { disabled: null });
+      expect(el.disabled).to.be.false;
+      expect(el.hasAttribute('disabled')).to.be.false;
     });
 
-    it('removes className and __proto__ without changing the prototype', function() {
-      const el = document.createElement('div');
-      const elementPrototype = Object.getPrototypeOf(el);
-      const initialAttrs = { className: 'owned' };
-      Object.defineProperty(initialAttrs, '__proto__', {
-        enumerable: true,
-        value: { owned: true }
-      });
-      DomApi.setAttributes(el, initialAttrs);
-      const removalAttrs = { className: null };
-      Object.defineProperty(removalAttrs, '__proto__', {
-        enumerable: true,
-        value: null
-      });
+    it('uses attribute names for SVG classes and label associations', function() {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      const label = document.createElement('label');
 
-      DomApi.setAttributes(el, removalAttrs);
+      DomApi.setAttributes(svg, { class: 'owned' });
+      DomApi.setAttributes(label, { for: 'field' });
+      expect(svg.className.baseVal).to.equal('owned');
+      expect(label.htmlFor).to.equal('field');
 
-      expect(el.className).to.equal('');
-      expect(el.hasAttribute('class')).to.be.false;
-      expect(Object.getPrototypeOf(el)).to.equal(elementPrototype);
-      expect(Object.hasOwn(el, '__proto__')).to.be.false;
+      DomApi.setAttributes(svg, { class: null });
+      DomApi.setAttributes(label, { for: null });
+      expect(svg.hasAttribute('class')).to.be.false;
+      expect(label.hasAttribute('for')).to.be.false;
     });
 
-    it('sets and removes className on an SVG element through the class attribute', function() {
-      const el = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    it('sets input defaults without overwriting live input state', function() {
+      const text = document.createElement('input');
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = false;
+      text.value = 'edited';
 
-      DomApi.setAttributes(el, { className: 'owned' });
+      DomApi.setAttributes(checkbox, { checked: '' });
+      DomApi.setAttributes(text, { value: 'default' });
 
-      expect(el.className.baseVal).to.equal('owned');
-      expect(el.getAttribute('class')).to.equal('owned');
+      expect(checkbox.defaultChecked).to.be.true;
+      expect(text.defaultValue).to.equal('default');
+      expect(checkbox.checked).to.be.false;
+      expect(text.value).to.equal('edited');
 
-      DomApi.setAttributes(el, { className: null });
+      DomApi.setAttributes(checkbox, { checked: null });
+      DomApi.setAttributes(text, { value: null });
 
-      expect(el.className.baseVal).to.equal('');
-      expect(el.hasAttribute('class')).to.be.false;
-      expect(el.hasAttribute('classname')).to.be.false;
+      expect(checkbox.hasAttribute('checked')).to.be.false;
+      expect(text.hasAttribute('value')).to.be.false;
+      expect(checkbox.checked).to.be.false;
+      expect(text.value).to.equal('edited');
     });
 
-    it('removes the for attribute when clearing htmlFor', function() {
-      const el = document.createElement('label');
-
-      DomApi.setAttributes(el, { htmlFor: 'field' });
-      expect(el.htmlFor).to.equal('field');
-      expect(el.getAttribute('for')).to.equal('field');
-
-      DomApi.setAttributes(el, { htmlFor: null });
-
-      expect(el.htmlFor).to.equal('');
-      expect(el.hasAttribute('for')).to.be.false;
-      expect(el.hasAttribute('htmlfor')).to.be.false;
-    });
-
-    it('sets and removes attributes whose DOM properties are read-only', function() {
+    it('sets and removes input form and datalist associations', function() {
       const form = document.createElement('form');
       const list = document.createElement('datalist');
       const input = document.createElement('input');
@@ -444,14 +402,10 @@ describe('DomApi', function() {
 
       try {
         DomApi.setAttributes(input, { form: form.id, list: list.id });
-
         expect(input.form).to.equal(form);
         expect(input.list).to.equal(list);
-        expect(Object.hasOwn(input, 'form')).to.be.false;
-        expect(Object.hasOwn(input, 'list')).to.be.false;
 
-        DomApi.setAttributes(input, { form: null, list: undefined });
-
+        DomApi.setAttributes(input, { form: null, list: null });
         expect(input.form).to.be.null;
         expect(input.list).to.be.null;
         expect(input.hasAttribute('form')).to.be.false;
@@ -463,276 +417,38 @@ describe('DomApi', function() {
       }
     });
 
-    it('snapshots keys and checks property membership before reading each value', function() {
-      const trace = [];
-      const attrs = new Proxy({ existing: 'property', missing: 'attribute' }, {
-        get(target, property, receiver) {
-          trace.push(`attrs:get:${String(property)}`);
-          return Reflect.get(target, property, receiver);
-        },
-        getOwnPropertyDescriptor(target, property) {
-          trace.push(`attrs:descriptor:${String(property)}`);
-          return Reflect.getOwnPropertyDescriptor(target, property);
-        },
-        ownKeys(target) {
-          trace.push('attrs:keys');
-          return Reflect.ownKeys(target);
-        }
-      });
-      const el = new Proxy({
-        existing: 'old',
-        setAttribute(name, value) {
-          trace.push(`el:setAttribute:${name}:${value}`);
-        }
-      }, {
-        get(target, property, receiver) {
-          trace.push(`el:get:${String(property)}`);
-          return Reflect.get(target, property, receiver);
-        },
-        has(target, property) {
-          trace.push(`el:has:${String(property)}`);
-          return Reflect.has(target, property);
-        },
-        set(target, property, value, receiver) {
-          trace.push(`el:set:${String(property)}:${value}`);
-          return Reflect.set(target, property, value, receiver);
-        }
-      });
+    it('reads each attribute value once', function() {
+      const el = document.createElement('div');
+      const get = this.sinon.stub().returns('title');
+      const attrs = Object.defineProperty({}, 'title', { enumerable: true, get });
 
       DomApi.setAttributes(el, attrs);
 
-      expect(trace).to.deep.equal([
-        'attrs:keys',
-        'attrs:descriptor:existing',
-        'attrs:descriptor:missing',
-        'el:has:existing',
-        'attrs:get:existing',
-        'el:set:existing:property',
-        'el:has:missing',
-        'el:get:setAttribute',
-        'attrs:get:missing',
-        'el:setAttribute:missing:attribute'
-      ]);
+      expect(get).to.have.been.calledOnce;
+      expect(el.getAttribute('title')).to.equal('title');
     });
 
-    it('uses the snapshotted key order while reading later values lazily', function() {
-      const reads = [];
-      const attrs = {};
-      Object.defineProperties(attrs, {
-        first: {
-          enumerable: true,
-          get() {
-            reads.push('first');
-            attrs.third = 'late';
-            delete attrs.second;
-            return 'first';
-          }
-        },
-        second: {
-          configurable: true,
-          enumerable: true,
-          get() {
-            reads.push('second');
-            return 'second';
-          }
-        }
-      });
-      const el = {
-        removeAttribute: this.sinon.stub(),
-        setAttribute: this.sinon.stub()
-      };
-
-      DomApi.setAttributes(el, attrs);
-
-      expect(reads).to.deep.equal(['first']);
-      expect(el.setAttribute).to.have.been.calledOnceWithExactly('first', 'first');
-      expect(el.removeAttribute).to.have.been.calledOnceWithExactly('second');
-    });
-
-    it('treats nullish and primitive attribute inputs as no-ops', function() {
-      const el = new Proxy({}, {
-        get() {
-          throw new Error('element read');
-        },
-        has() {
-          throw new Error('element membership');
-        }
-      });
-
+    it('ignores nullish and primitive attribute maps', function() {
+      const el = document.createElement('div');
       [null, undefined, 'attrs', 1, true, Symbol('attrs'), 1n]
-        .forEach(attrs => expect(() => DomApi.setAttributes(el, attrs)).not.to.throw());
+        .forEach(attrs => DomApi.setAttributes(el, attrs));
+      expect(el.attributes.length).to.equal(0);
     });
 
-    it('iterates own enumerable properties on callable attribute maps', function() {
-      const attrs = function() {};
-      attrs.title = 'callable';
-      const el = { title: 'old', setAttribute: this.sinon.stub() };
-
-      DomApi.setAttributes(el, attrs);
-
-      expect(el.title).to.equal('callable');
-      expect(el.setAttribute).not.to.have.been.called;
-    });
-
-    it('retains Object.keys behavior for boxed strings and sparse arrays', function() {
-      const el = { setAttribute: this.sinon.stub() };
-      const sparseAttrs = [];
-      sparseAttrs[0] = 'first';
-      sparseAttrs[2] = 'third';
-
-      DomApi.setAttributes(el, Object('ab'));
-      DomApi.setAttributes(el, sparseAttrs);
-
-      expect(el.setAttribute.callCount).to.equal(4);
-      expect(el.setAttribute.getCalls().map(call => call.args)).to.deep.equal([
-        ['0', 'a'],
-        ['1', 'b'],
-        ['0', 'first'],
-        ['2', 'third']
-      ]);
-    });
-
-    it('treats own length and built-in names as ordinary attribute-map keys', function() {
-      const attrs = {
-        length: 'ordinary',
-        constructor: 'constructor value',
-        toString: 'toString value'
-      };
-      const el = { setAttribute: this.sinon.stub() };
-
-      DomApi.setAttributes(el, attrs);
-
-      expect(el.setAttribute).to.have.been.calledOnceWithExactly('length', 'ordinary');
-      expect(el).to.have.own.property('constructor', 'constructor value');
-      expect(el).to.have.own.property('toString', 'toString value');
-    });
-
-    it('uses the Object.keys intrinsic captured when the module loads', function() {
-      const originalKeys = Object.keys;
-      const el = { title: 'old', setAttribute: this.sinon.stub() };
-
-      try {
-        Object.keys = () => { throw new Error('patched Object.keys'); };
-        DomApi.setAttributes(el, { title: 'captured' });
-      } finally {
-        Object.keys = originalKeys;
-      }
-
-      expect(el.title).to.equal('captured');
-    });
-
-    it('propagates membership errors without reading the attribute value', function() {
-      const valueGetter = this.sinon.stub().returns('value');
-      const attrs = Object.defineProperty({}, 'title', {
-        enumerable: true,
-        get: valueGetter
-      });
-      const error = new Error('membership failed');
-      const el = new Proxy({}, {
-        has() {
-          throw error;
-        }
-      });
-
-      expect(() => DomApi.setAttributes(el, attrs)).to.throw(error);
-      expect(valueGetter).not.to.have.been.called;
-    });
-
-    it('propagates setAttribute lookup errors without reading the attribute value', function() {
-      const valueGetter = this.sinon.stub().returns('value');
-      const attrs = Object.defineProperty({}, 'missing', {
-        enumerable: true,
-        get: valueGetter
-      });
-      const error = new Error('setAttribute lookup failed');
-      const el = Object.defineProperty({}, 'setAttribute', {
-        get() {
-          throw error;
-        }
-      });
-
-      expect(() => DomApi.setAttributes(el, attrs)).to.throw(error);
-      expect(valueGetter).not.to.have.been.called;
-    });
-
-    it('propagates attribute getter errors before writing the property', function() {
+    it('propagates attribute getter errors', function() {
+      const el = document.createElement('div');
       const error = new Error('attribute read failed');
       const attrs = Object.defineProperty({}, 'title', {
         enumerable: true,
-        get() {
-          throw error;
-        }
-      });
-      const propertySetter = this.sinon.stub();
-      const el = Object.defineProperties({}, {
-        setAttribute: { value: this.sinon.stub() },
-        title: { set: propertySetter }
+        get() { throw error; }
       });
 
       expect(() => DomApi.setAttributes(el, attrs)).to.throw(error);
-      expect(propertySetter).not.to.have.been.called;
     });
 
-    it('propagates property write errors after reading the attribute value', function() {
-      const valueGetter = this.sinon.stub().returns('value');
-      const attrs = Object.defineProperty({}, 'title', {
-        enumerable: true,
-        get: valueGetter
-      });
-      const error = new Error('property write failed');
-      const el = Object.defineProperties({}, {
-        setAttribute: { value: this.sinon.stub() },
-        title: {
-          set() {
-            throw error;
-          }
-        }
-      });
-
-      expect(() => DomApi.setAttributes(el, attrs)).to.throw(error);
-      expect(valueGetter).to.have.been.calledOnce;
-    });
-
-    it('propagates __proto__ definition errors after reading the attribute value', function() {
-      const valueGetter = this.sinon.stub().returns('value');
-      const attrs = Object.defineProperty({}, '__proto__', {
-        enumerable: true,
-        get: valueGetter
-      });
-      const error = new Error('property definition failed');
-      const el = new Proxy({}, {
-        defineProperty() {
-          throw error;
-        }
-      });
-
-      expect(() => DomApi.setAttributes(el, attrs)).to.throw(error);
-      expect(valueGetter).to.have.been.calledOnce;
-    });
-
-    it('stops before a later value when the first setAttribute call throws', function() {
-      const valueGetter = this.sinon.stub().returns('value');
-      const laterGetter = this.sinon.stub().returns('later');
-      const attrs = Object.defineProperties({}, {
-        missing: {
-          enumerable: true,
-          get: valueGetter
-        },
-        later: {
-          enumerable: true,
-          get: laterGetter
-        }
-      });
-      const error = new Error('setAttribute failed');
-      const el = {
-        setAttribute() {
-          throw error;
-        }
-      };
-
-      expect(() => DomApi.setAttributes(el, attrs)).to.throw(error);
-      expect(valueGetter).to.have.been.calledOnce;
-      expect(laterGetter).not.to.have.been.called;
+    it('propagates invalid attribute name errors', function() {
+      const el = document.createElement('div');
+      expect(() => DomApi.setAttributes(el, { 'invalid name': 'value' })).to.throw();
     });
   });
 

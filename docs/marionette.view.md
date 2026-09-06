@@ -122,12 +122,15 @@ row.setSelected(true);
 export { rootElement, row };
 ```
 
-With the default DomApi, a declared `null` or `undefined` value removes the
-attribute and any reflected property state. Other declared values, including
-`false`, `0`, and an empty string, are applied normally. Omitting a key leaves
-the current element value untouched; Marionette does not retain the names
-returned by an earlier call. `id` and `className` continue to override matching
-keys from `attributes` when they are declared.
+With the default DomApi, only an explicit `null` removes an attribute.
+An `undefined` value or omitted key leaves the existing attribute untouched;
+Marionette does not retain the names returned by an earlier call. Other values,
+including `false`, `0`, and an empty string, use the browser's attribute string
+conversion. For boolean HTML attributes, declare `disabled: isDisabled ? '' : null`;
+`disabled: false` still creates a present attribute and disables the element.
+`id` and `className` continue to override matching keys from `attributes` when
+they are declared. Live form properties such as `input.value` and `input.checked`
+should be updated explicitly, separately from their default-value attributes.
 
 Use `className` as the View-level class declaration, as shown above. The
 `attributes` map continues to use raw DOM attribute names for lower-level cases.

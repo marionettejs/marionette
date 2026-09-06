@@ -38,9 +38,9 @@ describe('View el policy', function() {
     expect(view.el.className).to.equal('foo');
   });
 
-  it('uses only own enumerable attributes and safely applies __proto__', function() {
+  it('uses own enumerable attributes without changing element properties', function() {
     const symbol = Symbol('ignored');
-    const protoValue = { polluted: true };
+    const protoValue = 'ordinary attribute';
     const attributeHash = Object.assign(Object.create({ 'data-inherited': 'ignored' }), {
       class: 'attribute-class',
       id: 'attribute-id',
@@ -72,8 +72,8 @@ describe('View el policy', function() {
     expect(view.el.id).to.equal('canonical-id');
     expect(view.el.className).to.equal('canonical-class');
     expect(Object.getPrototypeOf(view.el)).to.equal(elementPrototype);
-    expect(Object.hasOwn(view.el, '__proto__')).to.be.true;
-    expect(Object.getOwnPropertyDescriptor(view.el, '__proto__').value).to.equal(protoValue);
+    expect(Object.hasOwn(view.el, '__proto__')).to.be.false;
+    expect(view.el.getAttribute('__proto__')).to.equal(protoValue);
   });
 
   it('accepts a function-valued el that returns a DOM element', function() {

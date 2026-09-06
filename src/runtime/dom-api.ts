@@ -1,6 +1,6 @@
 // DomApi
 // -------
-import { assignOwn, setProperty } from '../utils/assign-in.ts';
+import { assignOwn } from '../utils/assign-in.ts';
 
 export interface DomContentHost {
   isAttached(): boolean;
@@ -30,10 +30,6 @@ export interface DomApi<Query extends ArrayLike<Element> = ArrayLike<Element>, W
 interface DomApiClass {
   prototype: { Dom?: Partial<DomApi> };
 }
-
-type AttributeElement = Element & { __proto__?: unknown };
-
-const objectKeys = Object.keys;
 
 // Static setter
 export function setDomApi<Receiver extends { prototype: object }, Mixin extends object>(
@@ -121,43 +117,18 @@ export default {
   },
 
   // Sets attributes on a DOM node
-  setAttributes(el: AttributeElement, attrs: unknown) {
+  setAttributes(el: Element, attrs: unknown) {
     const attrsType = typeof attrs;
     if (attrs == null || attrsType !== 'object' && attrsType !== 'function') { return; }
 
-    const attrNames = objectKeys(attrs);
+    const attrNames = Object.keys(attrs);
     for (let index = 0, length = attrNames.length; index < length; index++) {
       const attr = attrNames[index];
-      const attributeName = attr === 'className' ? 'class' :
-        attr === 'htmlFor' ? 'for' : attr;
-      if (attr in el && attr !== 'className') {
-        const value = (attrs as Record<string, unknown>)[attr];
-        if (value != null) {
-          if (attr === '__proto__') {
-            setProperty(el, attr, value);
-          } else if (!Reflect.set(el, attr, value)) {
-            el.setAttribute(attributeName, value as string);
-          }
-          continue;
-        }
-
-        if (attr === '__proto__') {
-          delete el[attr];
-        } else {
-          Reflect.set(el, attr, null);
-        }
-        // A reflected property assignment may coerce null; removing the DOM
-        // attribute keeps both states cleared.
-        el.removeAttribute(attributeName);
-        continue;
-      }
-
-      const setAttribute = el.setAttribute;
       const value = (attrs as Record<string, unknown>)[attr];
-      if (value == null) {
-        el.removeAttribute(attributeName);
-      } else {
-        setAttribute.call(el, attributeName, value as string);
+      if (value === null) {
+        el.removeAttribute(attr);
+      } else if (value !== undefined) {
+        el.setAttribute(attr, value as string);
       }
     }
   },

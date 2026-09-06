@@ -110,32 +110,28 @@ preserve `el` itself.
 
 ### `setAttributes(el, attrs)`
 
-Sets each entry in `attrs` on `el`. A key that exists as an element property is
-assigned as a property when writable; read-only properties and other keys use
-`setAttribute`. For example, `form` and `list` set the attributes that associate
-an input with a form or datalist. Attribute names are not restricted to known
-HTML attributes. The input contributes
-own enumerable string properties only. Inherited, symbol, and non-enumerable
-properties are ignored. A literal own `__proto__` key becomes an own element
-property without changing the element's prototype. A `null` or `undefined`
-value clears reflected property state and removes the corresponding attribute;
-other values, including `false`, `0`, and an empty string, are assigned normally.
-Keys omitted from `attrs` remain untouched. The `className` and `htmlFor`
-property spellings remove the `class` and `for` attributes respectively, and a
-nullish `__proto__` value removes the safe own property without changing the
-element's prototype.
+Applies own enumerable string keys from `attrs` as DOM attributes using
+`setAttribute`. Use attribute names such as `class` and `for`. View-level
+`className` is converted to `class` before this method is called.
 
-View-level `className` declarations are normalized to the DOM attribute name
-`class` before this method is called. Direct DomApi calls also normalize a
-`className` key to the `class` attribute so the same set and clear behavior
-works for both HTML and SVG elements.
+An explicit `null` removes an attribute. An `undefined` value or omitted key
+leaves the existing attribute untouched. Other values use the browser's string
+conversion, including `false`, `0`, and an empty string. For boolean HTML
+attributes, use `disabled: isDisabled ? '' : null`: the string `"false"` still
+means the attribute is present. ARIA and data attributes can use `false` to set
+`"false"`.
 
-When `View` or `CollectionView` creates an element, its `attributes` map follows
-the same own-enumerable-string rule. When applied, `id` and `className`
-assignments occur afterward and override the corresponding `attributes` keys.
+This method does not assign JavaScript properties. Set live form values or
+custom element properties explicitly on the element; `value` and `checked`
+attributes describe input defaults. Attribute changes still have the browser's
+normal effects on reflected properties.
+
+When `View` or `CollectionView` creates an element, `id` and `className`
+declarations override matching entries in `attributes`.
 [`View#renderAttributes()`](./marionette.view.md#refreshing-root-attributes)
-uses this method for explicit root-attribute refreshes. Custom DomApi adapters
-must preserve the nullish-removal and omitted-key behavior.
+applies the current declarations to an existing element without tracking prior
+keys. Custom DomApi adapters must preserve explicit-null removal and leave
+undefined and omitted entries untouched.
 
 ### `appendContents(el, contents)`
 
