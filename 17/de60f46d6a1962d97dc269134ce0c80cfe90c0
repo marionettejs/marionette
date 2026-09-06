@@ -1,0 +1,39 @@
+.github/workflows/ci.yml
+  s_060efbb5bf6218::t_a883c636682cd5 149,152-155,157-165,170,174-177,179
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_dc262c9c8e6c86 42-46
+ROADMAP.md
+  s_060efbb5bf6218::t_2f17797fe224c2 948
+config/performance.json
+  s_060efbb5bf6218::t_ffe934dee261df 6,41,126,131,136,141
+docs/performance-baselines.md
+  s_060efbb5bf6218::t_19bf77d865c3e9 1-72
+scripts/performance/adapters-package-size.mjs
+  s_060efbb5bf6218::t_4a122b2c1ddd20 26-29
+scripts/performance/bundle-size.mjs
+  s_060efbb5bf6218::t_56db05046bf383 148-151,1049,1053,1055-1056,1058-1062,1068,1100-1101,1106,1108-1109,1111-1113,1115-1116,1120-1121,1126,1129-1130,1142,1167,1169-1170
+scripts/performance/resources.mjs
+  s_060efbb5bf6218::t_a0752db470745d 327,341,405
+test/performance/ci-report.test.mjs
+  s_060efbb5bf6218::t_9b4cc1c45e2195 1-57
+test/performance/contract.test.mjs
+  s_060efbb5bf6218::t_ffcff7dad482a6 106-114,163,418,420,499-502,504-507,509-512,514-524,526-527
+test/performance/resources.test.mjs
+  s_060efbb5bf6218::t_93b0dbdd9d2c9a 63,76-78,94-95,139,164-165,174
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "17de60f46d6a1962d97dc269134ce0c80cfe90c0",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
