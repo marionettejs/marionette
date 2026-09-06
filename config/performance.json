@@ -134,6 +134,26 @@
       "name": "XState actor adapter CommonJS",
       "path": "packages/adapters/dist/xstate.cjs",
       "baselineBrotliBytes": 0
+    },
+    {
+      "name": "Morphdom renderer ES module",
+      "path": "packages/adapters/dist/render/morphdom.js",
+      "baselineBrotliBytes": 0
+    },
+    {
+      "name": "Morphdom renderer CommonJS",
+      "path": "packages/adapters/dist/render/morphdom.cjs",
+      "baselineBrotliBytes": 0
+    },
+    {
+      "name": "Lit HTML renderer ES module",
+      "path": "packages/adapters/dist/render/lit-html.js",
+      "baselineBrotliBytes": 0
+    },
+    {
+      "name": "Lit HTML renderer CommonJS",
+      "path": "packages/adapters/dist/render/lit-html.cjs",
+      "baselineBrotliBytes": 0
     }
   ],
   "productionGraphs": [
@@ -237,6 +257,20 @@
       "subpath": "@marionette/adapters/xstate",
       "input": "packages/adapters/src/data/xstate.ts",
       "output": "packages/adapters/dist/xstate.js",
+      "baselineModules": [],
+      "baselineExternalImports": []
+    },
+    {
+      "subpath": "@marionette/adapters/render/morphdom",
+      "input": "packages/adapters/src/render/morphdom.ts",
+      "output": "packages/adapters/dist/render/morphdom.js",
+      "baselineModules": [],
+      "baselineExternalImports": []
+    },
+    {
+      "subpath": "@marionette/adapters/render/lit-html",
+      "input": "packages/adapters/src/render/lit-html.ts",
+      "output": "packages/adapters/dist/render/lit-html.js",
       "baselineModules": [],
       "baselineExternalImports": []
     }

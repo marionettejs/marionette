@@ -1,0 +1,14 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node node_modules/typescript/bin/tsc -p tsconfig.json && node node_modules/typescript6/bin/tsc -p tsconfig.json && node validate.mjs"
+  },
+  "dependencies": {
+    "jsdom": "30.0.1",
+    "lit-html": "3.3.3",
+    "morphdom": "2.7.8",
+    "typescript": "7.0.2",
+    "typescript6": "npm:typescript@6.0.3"
+  }
+}

@@ -226,48 +226,56 @@ attachElContent(html) {
 
 ### Rendering to DOM
 
-Marionette also supports renderers that update DOM directly. The following
-example returns HTML for the first render, then uses
-[morphdom](https://github.com/patrick-steele-idem/morphdom) to patch the
-existing root on later renders. The equality check lets Morphdom skip unchanged
-subtrees.
+Marionette also supports renderers that update DOM directly. The optional
+`@marionette/adapters` package includes Morphdom and Lit HTML integrations.
+Install only the renderer your application uses and configure a View subclass
+before creating its instances. Both installers retain the class's selected
+DomApi, including the jQuery adapter.
+
+For HTML string templates:
 
 ```javascript
-import morphdom from 'morphdom';
 import { View } from 'marionette';
+import setMorphdomRenderer from '@marionette/adapters/render/morphdom';
 
-const MorphdomView = View.extend();
-
-MorphdomView.setRenderer(function(template, data) {
-  const html = template(data);
-
-  if (!this.isRendered()) {
-    return html;
-  }
-
-  const nextEl = this.el.cloneNode();
-  nextEl.innerHTML = html;
-
-  morphdom(this.el, nextEl, {
-    childrenOnly: true,
-    onBeforeElUpdated(fromEl, toEl) {
-      return !fromEl.isEqualNode(toEl);
-    }
-  });
-
-  // The update is already committed, so skip attachElContent().
-  return undefined;
+const MessageView = View.extend({
+  template: () => '<p id="message">Hello again.</p>'
 });
+setMorphdomRenderer(MessageView);
 ```
 
-The root element remains owned by the View. Other incremental renderers, such
-as Lit, can use the same contract: commit within `this.el` and return
-`undefined`. Root-level declarations remain separate; reevaluate a dynamic
-`className`, `id`, or `attributes` definition with
-[`renderAttributes()`](./marionette.view.md#refreshing-root-attributes).
+Morphdom updates the View's contents using its normal matching rules, including
+element IDs. For Lit templates, use its installer so directive resources follow
+the View's lifecycle:
 
-There are a variety of possibilities for rendering with Marionette. If you are looking into alternatives
-from the default this may be a useful resource: https://github.com/blikblum/marionette.renderers#renderers
+```javascript
+import { View } from 'marionette';
+import { html } from 'lit-html';
+import setLitHtmlRenderer from '@marionette/adapters/render/lit-html';
+
+const MessageView = View.extend({
+  template: ({ message }) => html`<p>${message}</p>`,
+  templateContext: { message: 'Hello again.' }
+});
+setLitHtmlRenderer(MessageView);
+```
+
+Both adapters commit within `view.el` and return `undefined`. The root remains
+owned by the View; refresh its dynamic `className`, `id`, or `attributes` with
+[`renderAttributes()`](./marionette.view.md#refreshing-root-attributes).
+A parent render still destroys its Region children. Keep Region placeholders
+empty so the renderer and Region do not manage the same contents.
+
+Lit replaces preexisting contents on its first explicit render. Keep
+`monitorViewEvents` enabled and manage attachment through Regions so directives
+receive connection changes. Lifecycle overrides must call their parent methods;
+avoid independently replacing Lit's contents or switching renderers after rendering.
+See the [render adapter guide](https://github.com/marionettejs/marionette/blob/master/packages/adapters/readme.md#rendering)
+for installation, directive cleanup, and root changes.
+
+Rendering configuration is separate from data and state integration. Configure
+[`DataApi`](./data.api.md) and [`StateApi`](./marionette.state.md) explicitly when
+your sources need them.
 
 ## Serializing Data
 

@@ -8,6 +8,11 @@ APIs and does not require Backbone or jQuery.
 adapter can replace only the operations an application needs; all omitted
 methods continue to use the inherited adapter.
 
+A renderer controls how a template updates a View's contents. The optional
+[Morphdom and Lit HTML render adapters](./view.rendering.md#rendering-to-dom)
+preserve the selected DomApi; installing one does not select a data or state
+adapter.
+
 ## Element and selector boundaries
 
 `View` and `CollectionView` own a concrete DOM element. Their `el` option must

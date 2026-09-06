@@ -18,6 +18,7 @@ an unreleased checkout locally.
 * [Distribution formats](#distribution-formats)
 * [Backbone is optional](#backbone-is-optional)
 * [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional)
+* [Rendering adapters are optional](#rendering-adapters-are-optional)
 * [Historical starter projects](#historical-starter-projects)
 * [Current v5 documentation](./readme.md)
 
@@ -45,6 +46,8 @@ declares the integration-specific peers as optional.
 | `@types/backbone` `^1.4.23` | Optional | TypeScript declarations for `@marionette/adapters/backbone`. JavaScript consumers do not need it. |
 | `jquery` `^4.0.0` | Optional | Only if your app uses the `@marionette/adapters/dom/jquery` adapter. See [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional). |
 | `@types/jquery` `^4.0.1` | Optional | TypeScript declarations for `@marionette/adapters/dom/jquery`. JavaScript consumers do not need it. |
+| `morphdom` `^2.7.8` | Optional | Only if your app imports `@marionette/adapters/render/morphdom`. |
+| `lit-html` `^3.3.3` | Optional | Only if your app imports `@marionette/adapters/render/lit-html`. |
 
 Optional peers are installed only when you opt into them:
 
@@ -233,6 +236,26 @@ adapter. It restores `$el` on View, CollectionView, and Behavior instances and
 keeps the wrapper synchronized with the owning View's `setElement()` calls. See
 the [upgrade guide](../upgradeGuide.md) for the migration entries on jQuery DOM
 compatibility and the `detachContents` policy.
+
+## Rendering adapters are optional
+
+Use the same `@marionette/adapters` package for incremental rendering. Install
+only the template renderer you select:
+
+```bash
+npm install @marionette/adapters morphdom
+# or
+npm install @marionette/adapters lit-html
+```
+
+Import `setMorphdomRenderer` from `@marionette/adapters/render/morphdom`, or
+`setLitHtmlRenderer` from `@marionette/adapters/render/lit-html`, and call it with
+a View subclass before creating instances. Each installer preserves the selected
+DomApi. Lit also installs directive lifecycle handling. DataApi and StateApi
+configuration remains explicit and separate.
+
+See [Rendering to DOM](https://github.com/marionettejs/marionette/blob/master/docs/view.rendering.md#rendering-to-dom)
+for examples and lifecycle requirements.
 
 ## Historical starter projects
 
