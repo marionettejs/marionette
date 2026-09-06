@@ -15,6 +15,8 @@ export default {
     if (!current) {
       const end = el.ownerDocument.createComment('');
       el.replaceChildren(end);
+      // Retain the part before user directives run so teardown can disconnect
+      // subscriptions even if the first content render throws.
       const part = render(nothing, el as RenderRootNode, {
         isConnected: el.isConnected, renderBefore: end
       });

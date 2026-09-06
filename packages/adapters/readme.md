@@ -221,8 +221,9 @@ MessageView.setDomApi(MorphdomDomApi);
 
 The template returns an HTML string containing the View's contents. Morphdom
 matches children using its normal rules, including element IDs. The adapter
-always uses `childrenOnly`, leaving the root's attributes under Marionette's
-control. Use `renderAttributes()` to refresh those attributes.
+installs HTML directly into an empty root and morphs existing contents using
+`childrenOnly`, leaving the root's attributes under Marionette's control. Use
+`renderAttributes()` to refresh those attributes.
 
 ### Lit HTML
 

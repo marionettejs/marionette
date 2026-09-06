@@ -246,6 +246,35 @@ renderingAdapterContracts.push({
 });
 
 renderingAdapterContracts.push({
+  name: 'lit-html: destroy releases subscriptions after the first content render throws',
+  run() {
+    const subscribers = new Set();
+    const failure = new Error('directive failed');
+    class Subscription extends AsyncDirective {
+      render() { subscribers.add(this); return 'resource'; }
+      disconnected() { subscribers.delete(this); }
+    }
+    class Failure extends AsyncDirective {
+      render() { throw failure; }
+    }
+    const subscription = directive(Subscription);
+    const fail = directive(Failure);
+    const el = document.createElement('article');
+    document.body.append(el);
+    const LitView = makeView('lit-html', {
+      template: () => html`<p>${subscription()}</p><p>${fail()}</p>`
+    });
+    const view = new LitView({ el });
+    let caught;
+    try { view.render(); } catch (error) { caught = error; }
+    check(caught === failure, 'Render replaced the directive error');
+    check(subscribers.size === 1, 'The earlier directive did not subscribe');
+    view.destroy();
+    check(subscribers.size === 0, 'Failed first render retained a subscription');
+  }
+});
+
+renderingAdapterContracts.push({
   name: 'lit-html: failed construction releases rendered directives',
   run() {
     const log = [];

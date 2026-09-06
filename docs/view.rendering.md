@@ -215,7 +215,7 @@ to set the contents of the view's `el` with DOM from the string.
 #### Customizing `attachElContent`
 
 You can modify the way any particular view attaches a compiled template to the `el` by overriding `attachElContent`.
-This method receives only the results of the view's renderer and is only called if the renderer returned a value.
+This method always receives the result of the view's renderer, including `undefined`.
 
 For instance, perhaps for one particular view you need to bypass the [DOM API](./dom.api.md) and set the html directly:
 
