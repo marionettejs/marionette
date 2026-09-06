@@ -1,0 +1,71 @@
+config/performance.json
+  s_060efbb5bf6218::t_95a63170ff3668 456
+docs/dom.api.md
+  s_060efbb5bf6218::t_34d80661910ea3 144,150
+docs/dom.interactions.md
+  s_060efbb5bf6218::t_50f62a71f62662 124-125,189,209
+docs/marionette.behavior.md
+  s_060efbb5bf6218::t_fe7ac5e3eea0b8 546,548-550
+docs/migration-from-v4.md
+  s_060efbb5bf6218::t_3657eb262a613c 41,87,111,126
+docs/performance-baselines.md
+  s_060efbb5bf6218::t_1e16ec6d6f0066 517-523
+docs/view.lifecycle.md
+  s_060efbb5bf6218::t_451a2e0c35fdc6 14,90,105,107-110,112-115,123,194
+docs/view.rendering.md
+  s_060efbb5bf6218::t_9d688c8a6d8c96 273-274,277
+packages/adapters/readme.md
+  s_060efbb5bf6218::t_68d300ac263c47 252-253
+scripts/performance/timing.mjs
+  s_060efbb5bf6218::t_96b08acaefc1fb 122,160-162,210-214,273-276,315-318
+src/modules/collection-view.ts
+  s_060efbb5bf6218::t_f01a383af80d8a 147-148,444-449
+src/modules/common/fluent-methods.ts
+  s_060efbb5bf6218::t_534bfb2edfb627 23
+src/modules/view.ts
+  s_060efbb5bf6218::t_82cf99f48456be 71,137,521-528
+test/contracts/rendering-adapters.js
+  s_060efbb5bf6218::t_f1f8465798ecad 60,64,74,77-78,80,137,146,149,151,212,215,217,219,228,238,305,321-323,325-329,331,333,394,396
+test/fixtures/rendering-adapters-package/validate.cts
+  s_060efbb5bf6218::t_603de4592f1b54 19
+test/fixtures/rendering-adapters-package/validate.mts
+  s_060efbb5bf6218::t_4983a0c48c7178 19
+test/performance/timing.test.mjs
+  s_060efbb5bf6218::t_9e59561e71b236 10,35-53
+test/types/fixed-root.cts
+  s_060efbb5bf6218::t_a82a015f7f4b48 1-19
+test/types/fixed-root.mts
+  s_060efbb5bf6218::t_0e89bd489d8b5c 1-19
+test/types/tsconfig.consumer.json
+  s_060efbb5bf6218::t_51484cf8350357 61-63
+test/unit/behavior-dom-delegation-contract.spec.js
+  s_060efbb5bf6218::t_665b827a0a84ba 32,37,60,65-66,69
+test/unit/collection-view/collection-view.spec.js
+  s_060efbb5bf6218::t_d26df669f4d241 351
+test/unit/jquery-dom-api.spec.js
+  s_060efbb5bf6218::t_6c7396aa1e7da3 52,56,154
+test/unit/runtime/event-delegator.spec.js
+  s_060efbb5bf6218::t_aa7e1fae286ce9 300,494,497-498,500,503,507
+test/unit/view-dom-delegation.spec.js
+  s_060efbb5bf6218::t_e2ed649da35631 10,22-23,25-26,28
+test/unit/view-fixed-root.spec.js
+  s_060efbb5bf6218::t_fb27393241f617 3,6-13,15-17,19-27,29,32-53,55-56
+upgradeGuide.md
+  s_060efbb5bf6218::t_5f46330d776469 132-145,153,228-230,285
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "93bbfb28da05129a77047c2c3e7353e885e1e3b7",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
