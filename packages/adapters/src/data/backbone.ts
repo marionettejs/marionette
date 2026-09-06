@@ -53,23 +53,18 @@ const BackboneApi = {
 
   observeCollection(collection: Backbone.Collection,
     callback: (change: unknown) => void, context?: unknown): () => void {
-    let previousModels = collection.models.slice();
     const onSort = function(_: Backbone.Collection,
       options: { add?: boolean; remove?: boolean; merge?: boolean } = {}) {
-      const hasUnchangedMembership = collection.length === previousModels.length &&
-        previousModels.every(model => collection.get(model) === model);
-      previousModels = collection.models.slice();
-      if (!hasUnchangedMembership && (options.add || options.remove || options.merge)) { return; }
+      // As in v4, handle sorts from add/set through the following update event.
+      if (options.add || options.remove || options.merge) { return; }
       callback.call(context, { kind: 'reorder' });
     };
     const onReset = function() {
-      previousModels = collection.models.slice();
       callback.call(context, { kind: 'reset' });
     };
     const onUpdate = function(_: Backbone.Collection, { changes }: {
       changes: { added: Backbone.Model[]; removed: Backbone.Model[]; merged: Backbone.Model[] };
     }) {
-      previousModels = collection.models.slice();
       callback.call(context, {
         kind: 'update',
         added: changes.added,

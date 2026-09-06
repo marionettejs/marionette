@@ -47,6 +47,16 @@ Backbone's `sort`, `reset`, and `update` payloads are translated to the neutral
 records documented by [`DataApi.observeCollection()`](./data.api.md#collection-observations).
 Those Backbone-specific shapes do not enter Marionette core.
 
+Sort handling follows Marionette v4: the adapter skips `sort` events carrying
+`add`, `remove`, or `merge` flags and handles those mutations through `update`.
+Explicit `collection.sort()` calls still notify the View. The observer does not
+retain or scan a separate membership snapshot to distinguish these events.
+
+This retains a v4 limitation: without a comparator, `collection.set()` that only
+reorders existing model instances emits a flagged `sort` but no `update`, so it
+does not automatically reorder the displayed children. Call the CollectionView's
+`render()` to refresh them after that operation.
+
 The original Backbone model or collection remains the value stored on a View
 and passed to callbacks. The integration does not wrap entities or allocate a
 second model graph.
