@@ -42,17 +42,6 @@ describe('BackboneApi', function() {
     expect(off).to.have.been.calledOnce.and.calledWith('change', callback, context);
   });
 
-  it('rolls back an entity subscription when setup fails', function() {
-    const error = new Error('subscribe failed');
-    const entity = {
-      on: this.sinon.stub().throws(error),
-      off: this.sinon.spy()
-    };
-
-    expect(() => BackboneApi.subscribe(entity, 'change', () => {})).to.throw(error);
-    expect(entity.off).to.have.been.calledOnce;
-  });
-
   it('leaves owned Backbone state source lifecycle to the caller', function() {
     const model = new Backbone.Model();
     const destroy = this.sinon.spy(model, 'destroy');
@@ -149,19 +138,4 @@ describe('BackboneApi', function() {
     cleanup();
   });
 
-  it('rolls back structural subscriptions when setup fails', function() {
-    const error = new Error('reset subscribe failed');
-    const collection = {
-      get: this.sinon.stub(),
-      length: 0,
-      models: [],
-      on: this.sinon.stub().throws(error),
-      off: this.sinon.spy()
-    };
-
-    expect(() => BackboneApi.observeCollection(collection, () => {})).to.throw(error);
-    expect(collection.on).to.have.been.calledOnce;
-    expect(collection.off).to.have.been.calledOnce;
-    expect(collection.off.firstCall.args[0]).to.have.all.keys('sort', 'reset', 'update');
-  });
 });

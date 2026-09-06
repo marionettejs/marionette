@@ -258,13 +258,11 @@ that host returns the Behavior without binding. `unbindUIElements()` remains
 available for cleanup, and `getUI()` continues to throw `MN0023` when UI is
 unbound.
 
-Marionette establishes a retry boundary only around `before:destroy`. If that
-callback throws, the error propagates, the destruction guard is cleared, and a
-later `destroy()` call runs `before:destroy` again before framework cleanup.
-Marionette does not roll back changes made by the throwing callback. If a later
-detach, child, Behavior, or `destroy` callback throws, the error also propagates,
-but teardown may already be partial and another `destroy()` call does not resume
-it. Do not rely on a stable intermediate state after such an error.
+Errors from lifecycle handlers propagate and stop the operation. Destruction
+is not transactional: a throwing `before:destroy` or later cleanup handler does
+not clear the destruction guard, undo completed steps, or make a later
+`destroy()` call resume teardown. Fix the failing handler rather than relying
+on a partially destroyed View.
 
 Successful destruction retains the root `el` object but detaches it. Do not
 infer that all of its contents are retained: owned child Views are removed as

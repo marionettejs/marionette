@@ -7,7 +7,6 @@ import getValue from '../utils/get-value.ts';
 import isString from '../utils/is-string.ts';
 import uniqueId from '../utils/unique-id.ts';
 import MarionetteError from './error.ts';
-import disposeAll from '../utils/dispose-all.ts';
 import { renderView, destroyView, isViewClass } from './common/view.ts';
 import monitorViewEvents from './common/monitor-view-events.ts';
 import ChildViewContainer from './child-view-container.ts';
@@ -18,7 +17,6 @@ import { setEventDelegator } from '../runtime/event-delegator.ts';
 import { setRenderer } from '../runtime/renderer.ts';
 import { setDataApi } from '../runtime/data-api.ts';
 import { setStateApi } from '../runtime/state-api.ts';
-import { normalizeCleanup } from '../utils/subscribe-bindings.ts';
 
 import type { ChildViewContainer as Children, ContainerChild } from './child-view-container.ts';
 import type { ViewFluent } from './common/fluent-methods.ts';
@@ -174,13 +172,15 @@ interface SnapshotEntry {model: unknown; key: unknown;}
 interface Snapshot {
   entries: SnapshotEntry[];
   models: Map<unknown, SnapshotEntry>;
-  keys: Map<unknown, SnapshotEntry>;
 }
 interface Replacement {key: unknown; previous: unknown; current: unknown;}
 interface Update {kind: 'update'; added: SnapshotEntry[]; removed: SnapshotEntry[]; updated: Replacement[];}
 type Change = {kind: 'reset'} | {kind: 'reorder'} | Update;
 interface Notification {change: Change; snapshot: Snapshot;}
-interface RawChange {kind?: unknown; added?: unknown; removed?: unknown; updated?: unknown;}
+type RawChange = {kind: 'reset' | 'reorder'} | {
+  kind: 'update'; added: unknown[]; removed: unknown[];
+  updated: Array<{previous: unknown; current: unknown}>;
+};
 
 type CollectionViewInternals = CollectionViewInstance & ViewMixinHost & {
   Data: DataProvider;
@@ -190,7 +190,6 @@ type CollectionViewInternals = CollectionViewInstance & ViewMixinHost & {
   _emptyRegion?: RegionInternals;
   _collectionSnapshot: Snapshot;
   _collectionObservedSnapshot?: Snapshot;
-  _collectionNeedsReset?: boolean;
   _collectionChangeQueue?: Notification[];
   _addedViews?: CollectionChild[] | false;
   _reconcileRenderViews?: CollectionChild[];
@@ -231,13 +230,11 @@ type CollectionViewInternals = CollectionViewInstance & ViewMixinHost & {
   _destroyEmptyView(): void;
   _removeChildViews(views: CollectionChild[]): void;
   _removeChildView(view: CollectionChild, options?: {shouldDetach?: boolean}): void;
-  _rollbackChildView(view: CollectionChild): void;
   _destroyChildView(view: CollectionChild): void;
   _destroyChildren(): void;
   _getEl(): Element;
   _isElAttached(): boolean;
   _validateEl(element: Element): Element;
-  _rollbackView(error: unknown): never;
 };
 
 const classErrorName = 'CollectionViewError';
@@ -263,7 +260,7 @@ function buildCollectionSnapshot(Data: DataProvider, collection: unknown, previo
   }
 
   const previousKeys = new Map(previous.map(entry => [entry.model, entry.key]));
-  const keys = new Map<unknown, SnapshotEntry>();
+  const keys = new Set<unknown>();
   const modelEntries = new Map<unknown, SnapshotEntry>();
   const snapshot: SnapshotEntry[] = Array(models.length);
 
@@ -283,87 +280,28 @@ function buildCollectionSnapshot(Data: DataProvider, collection: unknown, previo
 
     const entry = { model, key };
     snapshot[index] = entry;
-    keys.set(key, entry);
+    keys.add(key);
     modelEntries.set(model, entry);
   }
 
-  return { entries: snapshot, models: modelEntries, keys };
+  return { entries: snapshot, models: modelEntries };
 }
 
-function sameModels(actual: unknown[], expected: unknown[]) {
-  if (actual.length !== expected.length) { return false; }
-  const remaining = new Set(expected);
+function normalizeCollectionChange(change: RawChange, previous: Snapshot, current: Snapshot): Change {
+  if (change.kind !== 'update') { return change; }
 
-  for (const model of actual) {
-    if (!remaining.delete(model)) { return false; }
-  }
-
-  return true;
-}
-
-function normalizeCollectionChange(change: unknown, previous: Snapshot, current: Snapshot): Change {
-  if (!change || typeof change !== 'object') {
-    throwCollectionProtocolError('DataApi.observeCollection() must notify with a structural change record.');
-  }
-  if ((change as RawChange).kind === 'reset') { return { kind: 'reset' }; }
-  if ((change as RawChange).kind !== 'reorder' && (change as RawChange).kind !== 'update') {
-    throwCollectionProtocolError(`Unknown collection change kind "${ String((change as RawChange).kind) }".`);
-  }
-
-  const added = current.entries.filter(entry => !previous.keys.has(entry.key));
-  const removed = previous.entries.filter(entry => !current.keys.has(entry.key));
-  const replacements = current.entries
-    .filter(entry => previous.keys.has(entry.key) && previous.keys.get(entry.key)!.model !== entry.model)
-    .map(entry => ({
-      key: entry.key,
-      previous: previous.keys.get(entry.key)!.model,
-      current: entry.model
-    }));
-
-  if ((change as RawChange).kind === 'reorder') {
-    if (added.length || removed.length || replacements.length) {
-      throwCollectionProtocolError('A reorder record cannot add, remove, or replace models.');
-    }
-    return { kind: 'reorder' };
-  }
-
-  if (!Array.isArray((change as RawChange).added) || !Array.isArray((change as RawChange).removed) ||
-      !Array.isArray((change as RawChange).updated)) {
-    throwCollectionProtocolError('An update record requires added, removed, and updated arrays.');
-  }
-  if (!sameModels((change as RawChange).added as unknown[], added.map(entry => entry.model)) ||
-      !sameModels((change as RawChange).removed as unknown[], removed.map(entry => entry.model))) {
-    throwCollectionProtocolError('An update record must match the source snapshot additions and removals.');
-  }
-
-  const updated: Replacement[] = [];
-  const updatedKeys = new Set<unknown>();
-  for (const pair of (change as RawChange).updated as unknown[]) {
-    if (!pair || typeof pair !== 'object' ||
-        !Object.hasOwn(pair, 'previous') || !Object.hasOwn(pair, 'current')) {
-      throwCollectionProtocolError('Each updated entry must contain previous and current models.');
-    }
-
-    const previousEntry = previous.models.get((pair as Replacement).previous);
-    const currentEntry = current.models.get((pair as Replacement).current);
-    if (!previousEntry || !currentEntry || !sameValueZero(previousEntry.key, currentEntry.key)) {
-      throwCollectionProtocolError('Each updated entry must preserve one existing stable key.');
-    }
-    if (updatedKeys.has(currentEntry.key)) {
-      throwCollectionProtocolError('An update record cannot update the same key more than once.');
-    }
-
-    updatedKeys.add(currentEntry.key);
-    updated.push({ key: currentEntry.key, previous: (pair as Replacement).previous, current: (pair as Replacement).current });
-  }
-
-  for (const replacement of replacements) {
-    if (!updatedKeys.has(replacement.key)) {
-      throwCollectionProtocolError('A same-key replacement must appear in the updated array.');
-    }
-  }
-
-  return { kind: 'update', added, removed, updated };
+  const added = new Set(change.added);
+  const removed = new Set(change.removed);
+  return {
+    kind: 'update',
+    added: current.entries.filter(entry => added.has(entry.model)),
+    removed: previous.entries.filter(entry => removed.has(entry.model)),
+    updated: change.updated.map(pair => ({
+      key: current.models.get(pair.current)!.key,
+      previous: pair.previous,
+      current: pair.current
+    }))
+  };
 }
 
 function isEmptyViewClass(view: unknown): view is ChildClass<SupportedView> {
@@ -440,37 +378,33 @@ const CollectionView = function(this: CollectionViewInternals, options?: Collect
 
   this._initViewEvents();
 
-  try {
-    this.el = this._validateEl(this._getEl());
-    this._isAttached = this._isElAttached();
-    this.delegateEvents();
-    if (this._isAttached && this.monitorViewEvents !== false) {
-      this.Dom.onAttach?.(this.el);
-    }
-
-    monitorViewEvents(this);
-
-    this._initState(options);
-
-    this._initChildViewStorage();
-    this._initBehaviors();
-    this._buildEventProxies();
-
-    (this.initialize as {apply(receiver: object, args: IArguments): unknown}).apply(this, arguments);
-
-    if (this._isDestroyed || this._isDestroying) { return; }
-
-    this._initStateEvents();
-
-    // Init empty region after initialize to preserve the v4 override boundary.
-    this.getEmptyRegion();
-
-    this.delegateEntityEvents();
-
-    this._triggerEventOnBehaviors('initialize', this, options);
-  } catch (error) {
-    this._rollbackView(error);
+  this.el = this._validateEl(this._getEl());
+  this._isAttached = this._isElAttached();
+  this.delegateEvents();
+  if (this._isAttached && this.monitorViewEvents !== false) {
+    this.Dom.onAttach?.(this.el);
   }
+
+  monitorViewEvents(this);
+
+  this._initState(options);
+
+  this._initChildViewStorage();
+  this._initBehaviors();
+  this._buildEventProxies();
+
+  (this.initialize as {apply(receiver: object, args: IArguments): unknown}).apply(this, arguments);
+
+  if (this._isDestroyed || this._isDestroying) { return; }
+
+  this._initStateEvents();
+
+  // Init empty region after initialize to preserve the v4 override boundary.
+  this.getEmptyRegion();
+
+  this.delegateEntityEvents();
+
+  this._triggerEventOnBehaviors('initialize', this, options);
 };
 
 assignOwn(CollectionView, {
@@ -519,10 +453,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   _initialEvents(this: CollectionViewInternals) {
     if (this._isRendered || this._dataObserverCleanup) { return; }
 
-    this._dataObserverCleanup = normalizeCleanup(
-      this.Data.observeCollection(this.collection as never, this._onCollectionChange, this),
-      'DataApi.observeCollection'
-    );
+    this._dataObserverCleanup = this.Data.observeCollection(this.collection as never, this._onCollectionChange, this);
   },
 
   _onCollectionChange(this: CollectionViewInternals, change: unknown) {
@@ -530,8 +461,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
     const previous = this._collectionObservedSnapshot || this._collectionSnapshot;
     const current = buildCollectionSnapshot(this.Data, this.collection, previous.entries);
-    const normalized: Change = this._collectionNeedsReset ? { kind: 'reset' } :
-      normalizeCollectionChange(change, previous, current);
+    const normalized = normalizeCollectionChange(change as RawChange, previous, current);
     const notification = { change: normalized, snapshot: current };
 
     // Nested notifications normalize against the latest observed source while
@@ -558,10 +488,6 @@ assignOwn(CollectionView.prototype, ViewMixin, {
         this._collectionSnapshot = snapshot;
         pending = queue.shift();
       }
-      delete this._collectionNeedsReset;
-    } catch (error) {
-      this._collectionNeedsReset = true;
-      throw error;
     } finally {
       delete this._collectionChangeQueue;
       delete this._collectionObservedSnapshot;
@@ -602,83 +528,50 @@ assignOwn(CollectionView.prototype, ViewMixin, {
       }
       return { current, previous, view };
     });
-    const replacementViews: CollectionChild[] = [];
-
-    try {
-      for (const { current, previous } of updateEntries) {
-        if (previous !== current) {
-          replacementViews.push(this._createChildView(current));
-        }
-      }
-    } catch (error) {
-      disposeAll(
-        replacementViews.map(view => () => this._destroyChildView(view)),
-        error
-      );
-    }
-
-    const stagedViews = new Set(replacementViews);
+    const replacementViews = updateEntries
+      .filter(({ current, previous }) => current !== previous)
+      .map(({ current }) => this._createChildView(current));
     const removedViews: CollectionChild[] = [];
     const addedViews: CollectionChild[] = [];
     const replacedViews: CollectionChild[] = [];
-    const insertedViews: CollectionChild[] = [];
     const updatedViews: CollectionChild[] = [];
     let replacementIndex = 0;
 
-    try {
-      // Remove first since it'll be a shorter array lookup.
-      for (const { key } of changes.removed) {
-        const view = this._children.findByKey(key);
-        if (!view) { continue; }
-        try {
-          this._removeChild(view);
-        } finally {
-          if (!this._children.hasView(view)) { removedViews.push(view); }
-        }
-      }
-
-      for (const { model } of changes.added) {
-        const view = this._createChildView(model);
-        stagedViews.add(view);
-        this._addChild(view);
-        stagedViews.delete(view);
-        addedViews.push(view);
-        insertedViews.push(view);
-      }
-
-      for (const { current, previous, view } of updateEntries) {
-        if (previous !== current) {
-          const childIndex = this._children.findIndexByView(view);
-          try {
-            this._removeChild(view);
-          } finally {
-            if (!this._children.hasView(view)) { removedViews.push(view); }
-          }
-          const replacementView = replacementViews[replacementIndex++];
-          this._addChild(replacementView, childIndex);
-          stagedViews.delete(replacementView);
-          replacedViews.push(replacementView);
-          insertedViews.push(replacementView);
-        } else {
-          updatedViews.push(view);
-        }
-      }
-
-      this._detachChildren(removedViews);
-      if (this.sortWithCollection) {
-        this._setChildrenFromSnapshot(snapshot);
-      }
-      this._reconcileChildren(
-        [...addedViews, ...replacedViews, ...updatedViews],
-        updatedViews.length || replacedViews.length || !addedViews.length ? false : addedViews
-      );
-    } catch (error) {
-      disposeAll([
-        () => this._removeChildViews(removedViews),
-        ...[...insertedViews, ...stagedViews]
-          .map(view => () => this._rollbackChildView(view))
-      ], error);
+    // Remove first since it'll be a shorter array lookup.
+    for (const { key } of changes.removed) {
+      const view = this._children.findByKey(key);
+      if (!view) { continue; }
+      this._removeChild(view);
+      removedViews.push(view);
     }
+
+    for (const { model } of changes.added) {
+      const view = this._createChildView(model);
+      this._addChild(view);
+      addedViews.push(view);
+    }
+
+    for (const { current, previous, view } of updateEntries) {
+      if (previous !== current) {
+        const childIndex = this._children.findIndexByView(view);
+        this._removeChild(view);
+        removedViews.push(view);
+        const replacementView = replacementViews[replacementIndex++];
+        this._addChild(replacementView, childIndex);
+        replacedViews.push(replacementView);
+      } else {
+        updatedViews.push(view);
+      }
+    }
+
+    this._detachChildren(removedViews);
+    if (this.sortWithCollection) {
+      this._setChildrenFromSnapshot(snapshot);
+    }
+    this._reconcileChildren(
+      [...addedViews, ...replacedViews, ...updatedViews],
+      updatedViews.length || replacedViews.length || !addedViews.length ? false : addedViews
+    );
 
     // Destroy removed child views after all of the render is complete
     this._removeChildViews(removedViews);
@@ -1398,61 +1291,13 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   },
 
   _removeChildViews(this: CollectionViewInternals, views: CollectionChild[]) {
-    let firstError;
-    let hasError = false;
-
-    // Preserve disposeAll's attempt-all, first-error contract without closures.
-    for (const view of views) {
-      try {
-        this._removeChildView(view);
-      } catch (error) {
-        if (!hasError) {
-          firstError = error;
-          hasError = true;
-        }
-      }
-    }
-
-    if (hasError) { throw firstError; }
+    for (const view of views) { this._removeChildView(view); }
   },
 
   _removeChildView(this: CollectionViewInternals, view: CollectionChild, { shouldDetach }: {shouldDetach?: boolean} = {}) {
     view.off('destroy', this.removeChildView, this);
-
-    let firstError;
-    let hasError = false;
-    // Preserve disposeAll's attempt-all, first-error contract without closures.
-    try {
-      shouldDetach ? this._detachChildView(view) : this._destroyChildView(view);
-    } catch (error) {
-      firstError = error;
-      hasError = true;
-    }
-
-    try {
-      this.stopListening(view);
-    } catch (error) {
-      if (!hasError) {
-        firstError = error;
-        hasError = true;
-      }
-    }
-
-    if (hasError) { throw firstError; }
-  },
-
-  _rollbackChildView(this: CollectionViewInternals, view: CollectionChild) {
-    view.off('destroy', this.removeChildView, this);
+    shouldDetach ? this._detachChildView(view) : this._destroyChildView(view);
     this.stopListening(view);
-    try {
-      if (this._children.hasView(view)) {
-        this._removeChild(view);
-      }
-    } finally {
-      this.children._remove(view);
-      this._children._remove(view);
-      this._destroyChildView(view);
-    }
   },
 
   _destroyChildView(this: CollectionViewInternals, view: CollectionChild) {
@@ -1467,11 +1312,9 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   // called by ViewMixin destroy
   _removeChildren(this: CollectionViewInternals) {
     const emptyRegion = this.getEmptyRegion();
-    disposeAll([
-      () => { delete this._addedViews; },
-      () => emptyRegion.destroy(),
-      () => this._destroyChildren()
-    ]);
+    this._destroyChildren();
+    emptyRegion.destroy();
+    delete this._addedViews;
   },
 
   // Destroy the child views that this collection view is holding on to, if any
@@ -1481,17 +1324,10 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     }
 
     this.triggerMethod('before:destroy:children', this);
-    const detach = this.monitorViewEvents === false &&
-      (() => this.Dom.detachContents(this.el));
-
-    disposeAll([
-      () => {
-        this._children._init();
-        this.children._init();
-      },
-      () => this._removeChildViews(this._children._views),
-      detach
-    ]);
+    if (this.monitorViewEvents === false) { this.Dom.detachContents(this.el); }
+    this._removeChildViews(this._children._views);
+    this._children._init();
+    this.children._init();
 
     this.triggerMethod('destroy:children', this);
   }

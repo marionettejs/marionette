@@ -7,7 +7,6 @@ import MarionetteError from './error.ts';
 import extend from '../utils/extend.ts';
 import getValue from '../utils/get-value.ts';
 import uniqueId from '../utils/unique-id.ts';
-import disposeAll from '../utils/dispose-all.ts';
 import monitorViewEvents from './common/monitor-view-events.ts';
 import buildRegion from './common/build-region.ts';
 import ViewMixin, { ViewOptions } from '../mixins/view.ts';
@@ -172,7 +171,6 @@ type ViewInternals = ViewInstance & ViewMixinHost & {
   _isElAttached(): boolean;
   _validateEl(element: Element): Element;
   _getEl(): Element;
-  _rollbackView(error: unknown): void;
 };
 
 const classErrorName = 'RegionError';
@@ -335,20 +333,11 @@ const RegionsMixin = {
     };
 
     const regions: RegionMap = {};
-    try {
-      eachOwn(regionDefinitions, (definition: RegionDefinition, name: string) => {
-        const region = buildRegion(definition, defaults);
-        this._addRegion(region, name);
-        setRegion(regions, region, name);
-      });
-    } catch (error) {
-      eachOwn(regionDefinitions, (definition: RegionDefinition, name: string) => {
-        if (!getOwnRegion(this._regions, name)) {
-          delete this.regions[name];
-        }
-      });
-      throw error;
-    }
+    eachOwn(regionDefinitions, (definition: RegionDefinition, name: string) => {
+      const region = buildRegion(definition, defaults);
+      this._addRegion(region, name);
+      setRegion(regions, region, name);
+    });
     return regions;
   },
 
@@ -359,18 +348,6 @@ const RegionsMixin = {
     assertRegionCanRegister(this, region, name);
 
     this.triggerMethod('before:add:region', this, name, region);
-
-    // A lifecycle hook may adopt the Region or occupy the name reentrantly.
-    if (isSameRegionRegistration(this, region, name)) { return; }
-
-    try {
-      assertRegionCanRegister(this, region, name);
-    } catch (error) {
-      if (!getOwnRegion(this._regions, name)) {
-        delete this.regions[name];
-      }
-      throw error;
-    }
 
     region._parentView = this;
     region._name = name;
@@ -392,12 +369,9 @@ const RegionsMixin = {
   // Remove all regions from the View
   removeRegions(this: ViewInternals) {
     const regions = this._getRegions();
-    const cleanups: Array<() => void> = [];
-
     eachOwn(regions, (region: RegionInternals, name: string) => {
-      cleanups.push(() => this._removeRegion(region as RegionInternals, name));
+      this._removeRegion(region, name);
     });
-    disposeAll(cleanups.reverse());
 
     return regions;
   },
@@ -515,35 +489,31 @@ const View = function(this: ViewInternals, options?: ViewConfiguration) {
 
   this._initViewEvents();
 
-  try {
-    this.el = this._validateEl(this._getEl());
-    this._isRendered = this.Dom.hasContents!(this.el);
-    this._isAttached = this._isElAttached();
-    if (this._isRendered) { this.bindUIElements(); }
-    this.delegateEvents();
-    if (this._isAttached && this.monitorViewEvents !== false) {
-      this.Dom.onAttach?.(this.el);
-    }
-
-    monitorViewEvents(this);
-
-    this._initState(options);
-
-    this._initBehaviors();
-    this._initRegions();
-    this._buildEventProxies();
-
-    (this.initialize as Function).apply(this, arguments);
-
-    if (this._isDestroyed || this._isDestroying) { return; }
-
-    this._initStateEvents();
-    this.delegateEntityEvents();
-
-    this._triggerEventOnBehaviors('initialize', this, options);
-  } catch (error) {
-    this._rollbackView(error);
+  this.el = this._validateEl(this._getEl());
+  this._isRendered = this.Dom.hasContents!(this.el);
+  this._isAttached = this._isElAttached();
+  if (this._isRendered) { this.bindUIElements(); }
+  this.delegateEvents();
+  if (this._isAttached && this.monitorViewEvents !== false) {
+    this.Dom.onAttach?.(this.el);
   }
+
+  monitorViewEvents(this);
+
+  this._initState(options);
+
+  this._initBehaviors();
+  this._initRegions();
+  this._buildEventProxies();
+
+  (this.initialize as Function).apply(this, arguments);
+
+  if (this._isDestroyed || this._isDestroying) { return; }
+
+  this._initStateEvents();
+  this.delegateEntityEvents();
+
+  this._triggerEventOnBehaviors('initialize', this, options);
 };
 
 assignOwn(View, { extend, setRenderer, setDomApi, setEventDelegator, setDataApi, setStateApi });

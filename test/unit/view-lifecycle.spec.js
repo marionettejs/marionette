@@ -102,7 +102,6 @@ describe('View lifecycle contract', function() {
     parent.destroy();
   });
 
-
   it('treats repeated render calls after destruction as idempotent no-ops', function() {
     const template = this.sinon.spy(() => `
       <div class="child-region"></div>
@@ -144,7 +143,6 @@ describe('View lifecycle contract', function() {
     expect(state(view)).to.deep.equal({ rendered: false, attached: false, destroyed: true });
     expect(state(child)).to.deep.equal({ rendered: false, attached: false, destroyed: true });
   });
-
 
   it('propagates nested attachment through detached, reentrant, and repeated transitions', function() {
     this.setFixtures('<div id="nested-lifecycle-region"></div>');
@@ -300,91 +298,6 @@ describe('View lifecycle contract', function() {
     region.destroy();
   });
 
-  it('retries after before:destroy throws and cleans up managed children once', function() {
-    this.setFixtures('<div id="retry-destroy-region"></div>');
-    const error = new Error('before:destroy failed');
-    const firstOptions = { attempt: 1 };
-    const retryOptions = { attempt: 2 };
-    const parent = new View({
-      regions: { child: '.child-region' },
-      template: () => '<div class="child-region"></div>',
-    });
-    const child = new View({ template: () => '<span>Child</span>' });
-    const region = new Region({ el: '#retry-destroy-region' });
-    let beforeDestroySideEffects = 0;
-    const lifecycle = {
-      parentBeforeDestroy: this.sinon.spy(() => {
-        if (++beforeDestroySideEffects === 1) { throw error; }
-      }),
-      parentBeforeDetach: this.sinon.spy(),
-      parentDetach: this.sinon.spy(),
-      parentDestroy: this.sinon.spy(),
-      childBeforeDetach: this.sinon.spy(),
-      childDetach: this.sinon.spy(),
-      childBeforeDestroy: this.sinon.spy(),
-      childDestroy: this.sinon.spy(),
-      regionBeforeEmpty: this.sinon.spy(),
-      regionEmpty: this.sinon.spy(),
-    };
-
-    parent.on({
-      'before:destroy': lifecycle.parentBeforeDestroy,
-      'before:detach': lifecycle.parentBeforeDetach,
-      detach: lifecycle.parentDetach,
-      destroy: lifecycle.parentDestroy,
-    });
-    child.on({
-      'before:detach': lifecycle.childBeforeDetach,
-      detach: lifecycle.childDetach,
-      'before:destroy': lifecycle.childBeforeDestroy,
-      destroy: lifecycle.childDestroy,
-    });
-    region.on({
-      'before:empty': lifecycle.regionBeforeEmpty,
-      empty: lifecycle.regionEmpty,
-    });
-    this.sinon.spy(parent, 'stopListening');
-    this.sinon.spy(child, 'destroy');
-
-    region.show(parent);
-    parent.showChildView('child', child);
-
-    expect(() => parent.destroy(firstOptions)).to.throw(error);
-    expect(state(parent)).to.deep.equal({ rendered: true, attached: true, destroyed: false });
-    expect(state(child)).to.deep.equal({ rendered: true, attached: true, destroyed: false });
-    expect(region.currentView).to.equal(parent);
-    expect(parent.getChildView('child')).to.equal(child);
-    expect(beforeDestroySideEffects).to.equal(1);
-    for (const [name, callback] of Object.entries(lifecycle)) {
-      expect(callback.callCount, name).to.equal(name === 'parentBeforeDestroy' ? 1 : 0);
-    }
-    expect(parent.stopListening).to.not.have.been.called;
-    expect(child.destroy).to.not.have.been.called;
-
-    expect(parent.destroy(retryOptions)).to.equal(parent);
-    expect(parent.destroy()).to.equal(parent);
-    expect(state(parent)).to.deep.equal({ rendered: false, attached: false, destroyed: true });
-    expect(state(child)).to.deep.equal({ rendered: false, attached: false, destroyed: true });
-    expect(region.hasView()).to.be.false;
-    expect(region.currentView).to.be.undefined;
-    expect(beforeDestroySideEffects).to.equal(2);
-    expect(lifecycle.parentBeforeDestroy.getCall(0).args).to.deep.equal([parent, firstOptions]);
-    expect(lifecycle.parentBeforeDestroy.getCall(1).args).to.deep.equal([parent, retryOptions]);
-    expect(lifecycle.parentBeforeDestroy).to.have.been.calledTwice;
-    for (const [name, callback] of Object.entries(lifecycle)) {
-      if (name !== 'parentBeforeDestroy') {
-        expect(callback.callCount, name).to.equal(1);
-      }
-    }
-    expect(parent.stopListening.getCalls().map(call => call.args)).to.deep.equal([
-      [child],
-      [],
-    ]);
-    expect(child.destroy).to.have.been.calledOnce;
-
-    region.destroy();
-  });
-
   it('follows the normal Region-managed transition sequence', function() {
     this.setFixtures('<div id="lifecycle-region"></div>');
     const region = new Region({ el: '#lifecycle-region' });
@@ -452,49 +365,4 @@ describe('View lifecycle contract', function() {
     region.destroy();
   });
 
-  it('attempts every owned Region when an earlier child destroy throws', function() {
-    const firstError = new Error('first Region child destroy failed');
-    const secondError = new Error('second Region child destroy failed');
-    const teardown = [];
-    const parent = new View({
-      regions: {
-        first: '.first',
-        second: '.second',
-        third: '.third',
-      },
-      template: () => `
-        <div class="first"></div>
-        <div class="second"></div>
-        <div class="third"></div>
-      `,
-    });
-    const ChildView = View.extend({
-      template: false,
-      initialize({ name }) {
-        this.name = name;
-      },
-      destroy() {
-        teardown.push(this.name);
-        View.prototype.destroy.call(this);
-        if (this.name === 'first') { throw firstError; }
-        if (this.name === 'second') { throw secondError; }
-        return this;
-      },
-    });
-
-    parent.render();
-    const regions = parent.getRegions();
-    for (const name of Object.keys(regions)) {
-      parent.showChildView(name, new ChildView({ name }));
-    }
-
-    expect(() => parent.destroy()).to.throw(firstError);
-
-    expect(teardown).to.deep.equal(['first', 'second', 'third']);
-    expect(parent.getRegions()).to.deep.equal({});
-    for (const region of Object.values(regions)) {
-      expect(region.isDestroyed()).to.be.true;
-      expect(region.getOwner()).to.be.undefined;
-    }
-  });
 });

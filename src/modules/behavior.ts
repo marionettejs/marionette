@@ -16,7 +16,6 @@ import StateMixin from '../mixins/state.ts';
 import UIMixin from '../mixins/ui.ts';
 import ViewEventsMixin from '../mixins/view-events.ts';
 import { setEventDelegator } from '../runtime/event-delegator.ts';
-import disposeAll from '../utils/dispose-all.ts';
 import { setStateApi } from '../runtime/state-api.ts';
 
 import type { EventSource } from '../mixins/events.ts';
@@ -140,33 +139,24 @@ const Behavior = function(this: BehaviorInternals, options: BehaviorOptions | un
   this.el = view.el;
   this._initState(options);
 
-  try {
-    // Construct an internal UI hash using the behaviors UI
-    // hash combined and overridden by the view UI hash.
-    // This allows the user to use UI hash elements defined
-    // in the parent view as well as those defined in the behavior.
-    // This order will help the reuse and share of a behavior
-    // between multiple views, while letting a view override
-    // a selector under an UI key.
-    this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui')) as UISelectors;
+  // Construct an internal UI hash using the behaviors UI
+  // hash combined and overridden by the view UI hash.
+  // This allows the user to use UI hash elements defined
+  // in the parent view as well as those defined in the behavior.
+  // This order will help the reuse and share of a behavior
+  // between multiple views, while letting a view override
+  // a selector under an UI key.
+  this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui')) as UISelectors;
 
-    // Proxy view triggers
-    this.listenTo(view, 'all', this.triggerMethod);
+  // Proxy view triggers
+  this.listenTo(view, 'all', this.triggerMethod);
 
-    (this.initialize as Function).apply(this, arguments);
+  (this.initialize as Function).apply(this, arguments);
 
-    this._initStateEvents();
-    if (this._isDestroyed) { return; }
+  this._initStateEvents();
+  if (this._isDestroyed) { return; }
 
-    this._delegateViewEvents(this.view);
-  } catch (error) {
-    try {
-      this.destroy();
-    } catch {
-      // Preserve the construction error after best-effort teardown.
-    }
-    throw error;
-  }
+  this._delegateViewEvents(this.view);
 };
 
 assignOwn(Behavior, { extend, setEventDelegator, setStateApi });
@@ -186,13 +176,11 @@ assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateMixin
   // Stops the behavior from listening to events.
   destroy(this: BehaviorInternals) {
     this._isDestroyed = true;
-    disposeAll([
-      () => this._deleteEntityEventHandlers(),
-      () => this.view._removeBehavior(this),
-      () => this.stopListening(),
-      () => this._destroyState(),
-      () => this._undelegateViewEvents()
-    ]);
+    this._undelegateViewEvents();
+    this._destroyState();
+    this.stopListening();
+    this.view._removeBehavior(this);
+    this._deleteEntityEventHandlers();
 
     return this;
   },

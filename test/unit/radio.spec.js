@@ -289,18 +289,6 @@ describe('Radio', function() {
       .with.property('code', 'MN0021');
   });
 
-  it('coerces an unknown object channel name once', function() {
-    const toPrimitive = this.sinon.stub();
-    toPrimitive.onFirstCall().returns('missing');
-    toPrimitive.returns('different');
-    const name = { [Symbol.toPrimitive]: toPrimitive };
-
-    expect(() => Radio.reset(name))
-      .to.throw('Radio channel does not exist.')
-      .with.property('code', 'MN0021');
-    expect(toPrimitive).to.have.been.calledOnce;
-  });
-
   it('rejects a supplied falsy channel name without resetting existing channels', function() {
     const handler = this.sinon.stub();
     Radio.on('existing', 'event', handler);

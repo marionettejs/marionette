@@ -37,7 +37,6 @@ const directKeys = [
   'isRendered',
   '_isAttached',
   'isAttached',
-  '_rollbackView',
   'delegateEvents',
   'undelegateEvents',
   'delegateEntityEvents',

@@ -185,22 +185,14 @@ registration it created, including its original root, listener, namespace, and
 capture/options policy. Marionette owns and stores that opaque cleanup. The
 adapter must not mutate View internals.
 
-Marionette invokes each returned cleanup at most once when `undelegateEvents()` refreshes declarations,
-during destruction, and when
-construction fails. Cleanups run in reverse registration order. Marionette
-attempts every cleanup even if one throws, clears its registry before invoking
-them, and then throws the first cleanup error. A throwing cleanup violates the
-adapter contract; Marionette does not retain it or grow a retry queue. View and
-Behavior destruction still completes its remaining lifecycle cleanup before
-propagating that error.
-Constructor rollback likewise attempts every cleanup but preserves the original
-construction error, because the failed instance is not returned to the caller.
+Marionette invokes the returned cleanups during redelegation or destruction,
+in reverse registration order. Registration and cleanup errors propagate to the
+caller and stop the operation. Core does not roll back failed registration or
+attempt remaining cleanup after a callback throws.
 
-Registration must be atomic: if `delegate` throws, that call must not leave a
-registration behind. If a later declaration fails, Marionette invokes every
-cleanup already returned during that delegation pass and rethrows the original
-registration error. An incomplete adapter or a non-function cleanup throws
-[`MN0036`](/errors/MN0036/).
+An incomplete adapter passed to `setEventDelegator` throws
+[`MN0036`](/errors/MN0036/). Each registration must return a working cleanup;
+core does not validate that return value on every call.
 
 Adapter selection occurs at registration time. Changing a global or per-class
 adapter does not reinterpret existing registrations; their original opaque

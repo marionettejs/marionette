@@ -1,5 +1,9 @@
 # Phase 0 performance baselines
 
+Past approval records below describe the behavior at the approved commit.
+Later source changes may remove that behavior; these records remain unchanged
+as performance-policy history.
+
 Marionette records deterministic production-cost evidence without importing
 benchmark or validation code from a production entrypoint. The machine-readable
 contract is

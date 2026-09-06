@@ -197,16 +197,6 @@ describe('Behaviors Mixin', function() {
       expect(BarBehavior.prototype.undelegateEntityEvents).to.have.been.calledOnce;
     });
 
-    it('should attempt every Behavior before rethrowing the first error', function() {
-      const error = new Error('foo undelegate failed');
-      FooBehavior.prototype.undelegateEntityEvents.throws(error);
-      BarBehavior.prototype.undelegateEntityEvents.throws(new Error('bar undelegate failed'));
-
-      expect(() => behaviorsInstance._undelegateBehaviorEntityEvents()).to.throw(error);
-      expect(FooBehavior.prototype.undelegateEntityEvents).to.have.been.calledOnce;
-      expect(BarBehavior.prototype.undelegateEntityEvents).to.have.been.calledOnce;
-    });
-
     it('should finish the original Behavior snapshot when one removes itself', function() {
       const fooBehavior = behaviorsInstance._behaviors[0];
       FooBehavior.prototype.undelegateEntityEvents.callsFake(() => {
@@ -255,16 +245,6 @@ describe('Behaviors Mixin', function() {
     it('should invoke destroy without arguments', function() {
       behaviorsInstance._destroyBehaviors();
 
-      expect(FooBehavior.prototype.destroy).to.have.been.calledOnce;
-      expect(BarBehavior.prototype.destroy).to.have.been.calledOnce;
-    });
-
-    it('should attempt every destroy before rethrowing the first error', function() {
-      const error = new Error('foo destroy failed');
-      FooBehavior.prototype.destroy.throws(error);
-      BarBehavior.prototype.destroy.throws(new Error('bar destroy failed'));
-
-      expect(() => behaviorsInstance._destroyBehaviors()).to.throw(error);
       expect(FooBehavior.prototype.destroy).to.have.been.calledOnce;
       expect(BarBehavior.prototype.destroy).to.have.been.calledOnce;
     });

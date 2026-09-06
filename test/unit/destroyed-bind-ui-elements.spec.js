@@ -111,35 +111,6 @@ describe('#bindUIElements terminal behavior', function() {
     });
   });
 
-  it('allows binding again after a failed before:destroy clears the terminal gate', function() {
-    let firstAttempt = true;
-    let terminalBindResult;
-    let tracked;
-    tracked = buildHost(this, View, function() {
-      if (!firstAttempt) { return; }
-
-      firstAttempt = false;
-      this.unbindUIElements();
-      terminalBindResult = this.bindUIElements();
-      throw new Error('stop destruction');
-    });
-
-    expect(() => tracked.view.destroy()).to.throw('stop destruction');
-    expect(terminalBindResult).to.equal(tracked.view);
-    expectUnbound(() => tracked.view.getUI('target'));
-    tracked.query.resetHistory();
-    tracked.ui.resetHistory();
-    tracked.bindBehaviorUIElements.resetHistory();
-
-    expect(tracked.view.bindUIElements()).to.equal(tracked.view);
-    expect(tracked.ui).to.have.been.calledOnce;
-    expect(tracked.query).to.have.been.calledThrice;
-    expect(tracked.bindBehaviorUIElements).to.have.been.calledOnce;
-    expect(tracked.view.getUI('target')[0]).to.equal(tracked.view.el.querySelector('.target'));
-
-    tracked.view.destroy();
-  });
-
   it('does not bind retained Behavior UI while its host is destroying', function() {
     let result;
     let tracked;

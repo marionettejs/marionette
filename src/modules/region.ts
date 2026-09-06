@@ -7,7 +7,6 @@ import extend from '../utils/extend.ts';
 import getValue from '../utils/get-value.ts';
 import isString from '../utils/is-string.ts';
 import uniqueId from '../utils/unique-id.ts';
-import disposeAll from '../utils/dispose-all.ts';
 import { renderView, destroyView, isView } from './common/view.ts';
 import CommonMixin from '../mixins/common.ts';
 import DomApi, { setDomApi } from '../runtime/dom-api.ts';
@@ -560,37 +559,21 @@ assignOwn(Region.prototype, CommonMixin, {
   destroy(this: RegionInternals, options?: ShowOptions) {
     if (this._isDestroyed || this._isDestroying) { return this; }
     this._isDestroying = true;
-    try {
-      this.triggerMethod('before:destroy', this, options);
-    } catch (error) {
-      delete this._isDestroying;
-      throw error;
-    }
+    this.triggerMethod('before:destroy', this, options);
     this._isDestroyed = true;
 
-    const currentView = this.currentView;
-    let isReset: boolean | undefined;
     destroyTeardown.set(this, 'reset');
-    disposeAll([
-      () => this.stopListening(),
-      () => this.triggerMethod('destroy', this, options),
-      () => {
-        destroyTeardown.delete(this);
-        if (isReset || currentView && currentView !== this.currentView) {
-          const parentView = this._parentView;
-          const name = this._name;
-          delete this._parentView;
-          delete this._name;
-          if (parentView && name !== undefined) {
-            parentView._removeReferences!(name);
-          }
-        }
-      },
-      () => {
-        this.reset(options);
-        isReset = true;
-      }
-    ]);
+    this.reset(options);
+    destroyTeardown.delete(this);
+    const parentView = this._parentView;
+    const name = this._name;
+    delete this._parentView;
+    delete this._name;
+    if (parentView && name !== undefined) {
+      parentView._removeReferences!(name);
+    }
+    this.triggerMethod('destroy', this, options);
+    this.stopListening();
 
     return this;
   }

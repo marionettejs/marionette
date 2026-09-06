@@ -288,8 +288,9 @@ An EventDelegator is a complete adapter with one method:
 `delegate({ eventName, selector, handler, rootEl })`. It registers that handler
 and returns an idempotent cleanup function for the exact registration, including
 its original root and listener options. Marionette stores the cleanup and calls
-it at most once during redelegation, destruction, or failed construction.
-The adapter must register atomically and must not mutate View internals. See the
+it during redelegation or destruction. Registration and cleanup errors stop the
+operation; failed construction is not rolled back. The adapter must not mutate
+View internals. See the
 EventDelegator Adapter section of the DOM interactions API documentation for
 the complete timing, error, and cleanup contract.
 

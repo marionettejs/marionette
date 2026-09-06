@@ -1,6 +1,5 @@
 import { Events, extend } from 'marionette';
 import assignOwn from './assign-own.ts';
-import disposeAll from './dispose-all.ts';
 import Model, { addModelOwner, removeModelOwner } from './model.ts';
 import {
   initializeObservers,
@@ -8,7 +7,7 @@ import {
   releaseObservers
 } from './observers.ts';
 
-import type { EventCallback, EventSource } from './events.ts';
+import type { EventSource } from './events.ts';
 import type { Merge, Constructed, CallableParent } from './extend-types.ts';
 import type { ModelInstance as ModelType, ModelAttributes, MutationOptions } from './model.ts';
 
@@ -103,10 +102,6 @@ export interface Collection<M extends ModelType = ModelType> extends EventSource
 
 export type CollectionInstance<M extends ModelType = ModelType> = Collection<M>;
 
-type ModelEventBinding = (
-  this: ModelType, name: string, callback: EventCallback, context?: unknown
-) => unknown;
-
 interface CollectionInstanceRuntime extends CollectionInstance {
   models: ModelType[];
   length: number;
@@ -116,7 +111,6 @@ interface CollectionInstanceRuntime extends CollectionInstance {
   _bindModel(model: ModelType): void;
   _unbindModel(model: ModelType): void;
   _bindModels(models: ModelType[]): void;
-  _restoreModelBinding(model: ModelType): void;
   _replaceBindings(previousModels: ModelType[], currentModels: ModelType[]): void;
   _onModelEvent(eventName: string, model: ModelType, ...args: unknown[]): void;
   _notify(change: CollectionChange): void;
@@ -153,18 +147,12 @@ function releaseOwnedModel(collection: CollectionInstanceRuntime, model: ModelTy
   const nextModels = collection.models.filter(current => current !== model);
   const options = {};
   const change: CollectionChange = { kind: 'update', added: [], removed: [model], updated: [] };
-  disposeAll([
-    () => {
-      collection._notify(change);
-      collection.triggerMethod('remove', model, collection, options);
-      collection.triggerMethod('update', collection, { ...options, changes: change });
-    },
-    () => {
-      collection.models = nextModels;
-      collection.length = collection.models.length;
-    },
-    () => collection._unbindModel(model)
-  ]);
+  collection._unbindModel(model);
+  collection.models = nextModels;
+  collection.length = nextModels.length;
+  collection._notify(change);
+  collection.triggerMethod('remove', model, collection, options);
+  collection.triggerMethod('update', collection, { ...options, changes: change });
 }
 
 // The constructor and generic instance interface share the public name.
@@ -175,18 +163,8 @@ export const Collection = function(this: CollectionInstanceRuntime, models: Mode
   this.length = 0;
   if (options.model) { this.model = options.model; }
   initializeObservers(this);
-  try {
-    this.reset(models, { silent: true });
-    this.initialize(models, options);
-  } catch (error) {
-    this._isDestroyed = true;
-    disposeAll([
-      () => this.off(),
-      () => this.stopListening(),
-      () => releaseObservers(this),
-      ...this.models.map(model => () => this._unbindModel(model))
-    ], error);
-  }
+  this.reset(models, { silent: true });
+  this.initialize(models, options);
 } as unknown as CollectionExtension<ModelType, {}, {}>;
 
 (Collection as unknown as { extend: typeof extend }).extend = extend;
@@ -203,52 +181,17 @@ assignOwn(Collection.prototype, Events, {
   },
 
   _bindModel(model: ModelType) {
-    try {
-      model.on('all', this._onModelEvent, this);
-      addModelOwner(model, this, () => releaseOwnedModel(this, model));
-    } catch (error) {
-      disposeAll([
-        () => removeModelOwner(model, this),
-        () => (Events.off as ModelEventBinding).call(model, 'all', this._onModelEvent, this)
-      ], error);
-    }
+    model.on('all', this._onModelEvent, this);
+    addModelOwner(model, this, () => releaseOwnedModel(this, model));
   },
 
   _unbindModel(model: ModelType) {
-    try {
-      model.off('all', this._onModelEvent, this);
-    } catch (error) {
-      disposeAll([
-        () => removeModelOwner(model, this),
-        () => (Events.off as ModelEventBinding).call(model, 'all', this._onModelEvent, this)
-      ], error);
-    }
+    model.off('all', this._onModelEvent, this);
     removeModelOwner(model, this);
   },
 
   _bindModels(models: ModelType[]) {
-    let boundCount = 0;
-    try {
-      for (; boundCount < models.length; boundCount++) {
-        this._bindModel(models[boundCount]);
-      }
-    } catch (error) {
-      // Preserve reverse attempt-all rollback and the original binding error.
-      for (let index = boundCount; index--;) {
-        try {
-          this._unbindModel(models[index]);
-        } catch {
-          // Preserve the binding error after best-effort rollback.
-        }
-      }
-      throw error;
-    }
-  },
-
-  _restoreModelBinding(model: ModelType) {
-    (Events.off as ModelEventBinding).call(model, 'all', this._onModelEvent, this);
-    (Events.on as ModelEventBinding).call(model, 'all', this._onModelEvent, this);
-    addModelOwner(model, this, () => releaseOwnedModel(this, model));
+    for (const model of models) { this._bindModel(model); }
   },
 
   _replaceBindings(previousModels: ModelType[], currentModels: ModelType[]) {
@@ -262,29 +205,7 @@ assignOwn(Collection.prototype, Events, {
     }
 
     this._bindModels(added);
-    let attemptedIndex = 0;
-    try {
-      for (; attemptedIndex < removed.length; attemptedIndex++) {
-        this._unbindModel(removed[attemptedIndex]);
-      }
-    } catch (error) {
-      // Preserve reverse attempt-all rollback and the original unbinding error.
-      for (; attemptedIndex >= 0; attemptedIndex--) {
-        try {
-          this._restoreModelBinding(removed[attemptedIndex]);
-        } catch {
-          // Continue rollback.
-        }
-      }
-      for (let index = added.length; index--;) {
-        try {
-          this._unbindModel(added[index]);
-        } catch {
-          // Continue rollback.
-        }
-      }
-      throw error;
-    }
+    for (const model of removed) { this._unbindModel(model); }
   },
 
   _onModelEvent(eventName: string, model: ModelType, ...args: unknown[]) {
@@ -515,18 +436,16 @@ assignOwn(Collection.prototype, Events, {
   destroy(options?: unknown) {
     if (this._isDestroyed) { return this; }
     this._isDestroyed = true;
-    disposeAll([
-      () => this.off(),
-      () => this.stopListening(),
-      () => this.triggerMethod('destroy', this, options),
-      () => releaseObservers(this),
-      ...this.models.map(model => () => this._unbindModel(model))
-    ]);
+    for (let index = this.models.length; index--;) { this._unbindModel(this.models[index]); }
+    releaseObservers(this);
+    this.triggerMethod('destroy', this, options);
+    this.stopListening();
+    this.off();
     return this;
   }
 } satisfies ThisType<CollectionInstanceRuntime> & Pick<CollectionInstanceRuntime,
   'model' | '_isDestroyed' | 'initialize' | '_prepareModel' | '_bindModel' |
-  '_unbindModel' | '_bindModels' | '_restoreModelBinding' | '_replaceBindings' |
+  '_unbindModel' | '_bindModels' | '_replaceBindings' |
   '_onModelEvent' | '_notify' | 'at' | 'get' | 'indexOf' | 'forEach' | 'map' |
   'reset' | 'replace' | 'touch' | 'move' | 'swap' | 'sort' | 'toJSON' |
   'isDestroyed' | 'destroy'> & {

@@ -78,7 +78,7 @@ describe('delegate entity events mixin', function() {
       expect(obj).to.not.have.property('_collectionEventCleanup');
     });
 
-    it('disposes completed subscriptions when a later subscription fails', function() {
+    it('propagates subscription setup errors', function() {
       const error = new Error('subscribe failed');
       obj.modelEvents = { 'first second': 'onModel' };
       obj.Data.subscribe.resetBehavior();
@@ -86,49 +86,7 @@ describe('delegate entity events mixin', function() {
       obj.Data.subscribe.onSecondCall().throws(error);
 
       expect(() => obj._delegateEntityEvents(model, null, obj.Data)).to.throw(error);
-      expect(modelCleanup).to.have.been.calledOnce;
-    });
-
-    it('preserves setup failure when rollback also fails', function() {
-      const error = new Error('subscribe failed');
-      modelCleanup = this.sinon.stub().throws(new Error('dispose failed'));
-      obj.modelEvents = { 'first second': 'onModel' };
-      obj.Data.subscribe.resetBehavior();
-      obj.Data.subscribe.onFirstCall().returns(modelCleanup);
-      obj.Data.subscribe.onSecondCall().throws(error);
-
-      expect(() => obj._delegateEntityEvents(model, null, obj.Data)).to.throw(error);
-      expect(modelCleanup).to.have.been.calledOnce;
-    });
-
-    it('disposes model subscriptions when collection subscription fails', function() {
-      const error = new Error('collection subscribe failed');
-      obj.modelEvents = { change: 'onModel' };
-      obj.collectionEvents = { update: 'onCollection' };
-      obj.Data.subscribe.withArgs(collection).throws(error);
-
-      expect(() => obj._delegateEntityEvents(model, collection, obj.Data)).to.throw(error);
-      expect(modelCleanup).to.have.been.calledOnce;
-      expect(obj).to.not.have.property('_modelEventCleanup');
-      expect(obj).to.not.have.property('_collectionEventCleanup');
-    });
-
-    it('preserves a falsy subscription error after rollback', function() {
-      obj.modelEvents = { change: 'onModel' };
-      obj.collectionEvents = { update: 'onCollection' };
-      obj.Data.subscribe.withArgs(collection).callsFake(() => { throw null; });
-      let caught = false;
-
-      try {
-        obj._delegateEntityEvents(model, collection, obj.Data);
-      } catch (error) {
-        caught = true;
-        expect(error).to.equal(null);
-      }
-
-      expect(caught).to.be.true;
-      expect(modelCleanup).to.have.been.calledOnce;
-      expect(obj).to.not.have.property('_modelEventCleanup');
+      expect(modelCleanup).to.not.have.been.called;
     });
   });
 
@@ -162,19 +120,5 @@ describe('delegate entity events mixin', function() {
       expect(obj).to.not.have.property('_collectionEvents');
     });
 
-    it('attempts every cleanup function before rethrowing the first teardown error', function() {
-      const error = new Error('collection dispose failed');
-      obj.modelEvents = { change: 'onModel' };
-      obj.collectionEvents = { update: 'onCollection' };
-      collectionCleanup = this.sinon.stub().throws(error);
-      obj.Data.subscribe.withArgs(collection).returns(collectionCleanup);
-      obj._delegateEntityEvents(model, collection, obj.Data);
-
-      expect(() => obj._deleteEntityEventHandlers()).to.throw(error);
-      expect(modelCleanup).to.have.been.calledOnce;
-      expect(collectionCleanup).to.have.been.calledOnce;
-      expect(obj).to.not.have.property('_modelEventCleanup');
-      expect(obj).to.not.have.property('_collectionEventCleanup');
-    });
   });
 });

@@ -176,23 +176,6 @@ domAdapterContracts.push({
     element.remove();
   }
 }, {
-  name: 'lit-html: a cancelled destroy retains directives until successful destruction',
-  run() {
-    const log = [];
-    const el = document.createElement('article');
-    document.body.append(el);
-    const LitView = makeView('lit-html', { template: trackedTemplate(log) });
-    const view = new LitView({ el });
-    view.render();
-    const cancel = () => { throw new Error('cancel'); };
-    view.on('before:destroy', cancel);
-    try { view.destroy(); } catch (error) { check(error.message === 'cancel', 'Wrong error'); }
-    check(!view.isDestroyed() && log.join() === 'render:true', 'Cancelled destroy cleared resources');
-    view.off('before:destroy', cancel);
-    view.destroy();
-    check(log.at(-1) === 'disconnected', 'Successful destroy did not release resources');
-  }
-}, {
   name: 'lit-html: cleanup runs when a terminal destroy handler throws',
   run() {
     const log = [];
@@ -274,25 +257,7 @@ domAdapterContracts.push({
   }
 });
 
-domAdapterContracts.push({
-  name: 'lit-html: failed construction releases rendered directives',
-  run() {
-    const log = [];
-    const el = document.createElement('article');
-    document.body.append(el);
-    const failure = new Error('initialization failed');
-    const LitView = makeView('lit-html', {
-      template: trackedTemplate(log),
-      initialize() { this.render(); throw failure; }
-    });
-    let caught;
-    try { new LitView({ el }); } catch (error) { caught = error; }
-    check(caught === failure, 'Rollback replaced the construction error');
-    check(log.join() === 'render:true,disconnected', 'Failed construction retained directive resources');
-    check(el.querySelector('p'), 'Failed construction unnecessarily cleared borrowed contents');
-    el.remove();
-  }
-});
+domAdapterContracts.push();
 
 domAdapterContracts.push({
   name: 'lit-html: a reentrant destroy does not release directives before the outer destroy commits',

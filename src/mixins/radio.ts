@@ -1,5 +1,4 @@
 import Radio from '../modules/radio.ts';
-import disposeAll from '../utils/dispose-all.ts';
 import getValue from '../utils/get-value.ts';
 import type { Channel, RadioApi } from '../modules/radio.ts';
 import type { Events } from './events.ts';
@@ -43,10 +42,8 @@ export default {
     const channel = this._channel;
     if (!channel) { return this; }
 
-    disposeAll([
-      () => this.stopListening(channel),
-      () => channel.stopReplying(null, null, this)
-    ]);
+    channel.stopReplying(null, null, this);
+    this.stopListening(channel);
 
     return this;
   },

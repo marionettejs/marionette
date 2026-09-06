@@ -1,6 +1,5 @@
 import { Events, extend } from 'marionette';
 import assignOwn, { setProperty } from './assign-own.ts';
-import disposeAll from './dispose-all.ts';
 
 import type { EventSource } from './events.ts';
 import type { Merge, Constructed, CallableParent } from './extend-types.ts';
@@ -85,8 +84,7 @@ export function addModelOwner(model: ModelInstance, owner: object, release: () =
 }
 
 export function removeModelOwner(model: ModelInstance, owner: object) {
-  const owners = modelOwners.get(model);
-  if (!owners) { return; }
+  const owners = modelOwners.get(model)!;
   owners.delete(owner);
   if (!owners.size) { modelOwners.delete(model); }
 }
@@ -99,10 +97,11 @@ function getDefaults(model: ModelRuntime) {
 function releaseModelOwners(model: ModelInstance) {
   const owners = modelOwners.get(model);
   if (!owners) { return; }
-  disposeAll([...owners].map(([owner, release]) => () => {
-    // An earlier release can remove the Model from another owner.
+  const entries = [...owners];
+  for (let index = entries.length; index--;) {
+    const [owner, release] = entries[index];
     if (owners.has(owner)) { release(); }
-  }));
+  }
 }
 
 function sameIdentity(left: unknown, right: unknown) {
@@ -171,18 +170,10 @@ function update<Receiver extends ModelRuntime>(model: Receiver, attributes: Mode
 export const Model = function(this: ModelRuntime, attributes: ModelAttributes | null = {}, options: unknown = {}) {
   this.cid = `mnd${ ++modelId }`;
   this.attributes = {};
-  try {
-    const defaults = getDefaults(this);
-    update(this, assignOwn({}, defaults, attributes), { silent: true });
-    this.changed = {};
-    this.initialize(attributes, options);
-  } catch (error) {
-    disposeAll([
-      () => this.off(),
-      () => this.stopListening(),
-      () => releaseModelOwners(this)
-    ], error);
-  }
+  const defaults = getDefaults(this);
+  update(this, assignOwn({}, defaults, attributes), { silent: true });
+  this.changed = {};
+  this.initialize(attributes, options);
 } as unknown as ModelExtension<ModelAttributes, {}, {}>;
 
 (Model as unknown as { extend: typeof extend }).extend = extend;
@@ -233,12 +224,10 @@ assignOwn(Model.prototype, Events, {
   destroy(options?: unknown) {
     if (this._isDestroyed) { return this; }
     this._isDestroyed = true;
-    disposeAll([
-      () => this.off(),
-      () => this.stopListening(),
-      () => this.triggerMethod('destroy', this, options),
-      () => releaseModelOwners(this)
-    ]);
+    releaseModelOwners(this);
+    this.triggerMethod('destroy', this, options);
+    this.stopListening();
+    this.off();
     return this;
   }
 } satisfies ThisType<ModelRuntime> & Pick<ModelRuntime,

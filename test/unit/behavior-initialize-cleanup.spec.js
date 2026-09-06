@@ -106,43 +106,6 @@ describe('Behavior initialization cleanup', function() {
     expectHostCleanup(['nested', 'last'], ['self', 'nested', 'last']);
   });
 
-  it('cleans up live siblings when a later constructor throws after self-destruction', function() {
-    const failure = new Error('initialization failed');
-    expect(() => showBehaviors([
-      defineBehavior('first'),
-      defineBehavior('self', { initialize() { this.destroy(); } }),
-      defineBehavior('last'),
-      defineBehavior('throws', { initialize() { throw failure; } })
-    ])).to.throw(failure);
-
-    el.firstElementChild.click();
-    expect(clicks).to.deep.equal([]);
-    expect(destroyed).to.have.members(['self', 'throws', 'first', 'last']);
-    expect(destroyed).to.have.lengthOf(4);
-  });
-
-  it('does not rebind after a synchronous state callback destroys the Behavior', function() {
-    let releases = 0;
-    const Stateful = defineBehavior('state', {
-      state: {},
-      stateEvents: { ready: 'onReady' },
-      onReady() { this.destroy(); }
-    });
-    Stateful.setStateApi({
-      subscribe(source, name, callback, context) {
-        callback.call(context);
-        return () => { releases += 1; };
-      }
-    });
-
-    showBehaviors([Stateful, defineBehavior('last')]);
-
-    expect(clicks).to.deep.equal(['last']);
-    expect(releases).to.equal(1);
-    expectHostCleanup(['last'], ['state', 'last']);
-    expect(releases).to.equal(1);
-  });
-
   it('preserves ordinary nested registration order and cleans each Behavior once', function() {
     showBehaviors([
       defineBehavior('first'),

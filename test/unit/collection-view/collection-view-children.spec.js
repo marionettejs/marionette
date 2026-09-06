@@ -8,7 +8,6 @@ import ChildViewContainer from '../../../src/modules/child-view-container';
 import View from '../../../src/modules/view';
 import Region from '../../../src/modules/region';
 
-
 describe('CollectionView Children', function() {
   const collection = new Backbone.Collection([
     { id: 1 },
@@ -573,30 +572,6 @@ describe('CollectionView Children', function() {
       expect(myCollectionView.children._remove).to.not.have.been.called;
       expect(myCollectionView.onBeforeRemoveChild).to.not.have.been.called;
       expect(myCollectionView.onRemoveChild).to.not.have.been.called;
-    });
-
-    it('preserves a detach error while attempting listener cleanup', function() {
-      const detachError = new Error('detach failed');
-      const order = [];
-      const detachView = myCollectionView.children.first();
-      const detachChildView = this.sinon.stub(myCollectionView, '_detachChildView')
-        .callsFake(() => {
-          order.push('detach');
-          throw detachError;
-        });
-      const stopListening = this.sinon.stub(myCollectionView, 'stopListening')
-        .callsFake(() => {
-          order.push('stopListening');
-          throw new Error('stop listening failed');
-        });
-
-      expect(() => myCollectionView.removeChildView(detachView, { shouldDetach: true }))
-        .to.throw(detachError);
-
-      expect(order).to.deep.equal(['detach', 'stopListening']);
-      detachChildView.restore();
-      stopListening.restore();
-      myCollectionView.removeChildView(detachView);
     });
 
     // Used only by #detachChildView

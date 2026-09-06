@@ -647,17 +647,13 @@
     {
       "code": "MN0038",
       "slug": "adapter-cleanup-invalid",
-      "status": "active",
+      "status": "retired",
       "category": "configuration",
       "severity": "error",
       "objects": [
-        "Application",
-        "Behavior",
-        "CollectionView",
-        "MnObject",
-        "View"
+        "CollectionView"
       ],
-      "remediation": "Return a cleanup function from every StateApi.subscribe, DataApi.subscribe, and DataApi.observeCollection call.",
+      "remediation": "DataApi and StateApi adapters must return cleanup functions. Core no longer wraps or validates cleanup on each registration.",
       "docsAnchor": "/errors/MN0038/",
       "surfaces": [
         "runtime"

@@ -20,12 +20,7 @@ const resolveMethod = function(context: unknown, method: unknown, name: string):
     (context as Record<string, unknown>)[methodName as string] : undefined;
 
   if (typeof resolvedMethod !== 'function') {
-    let methodLabel = '<unprintable>';
-    try {
-      methodLabel = String(methodName);
-    } catch {
-      // Preserve the stable fallback for values without string coercion.
-    }
+    const methodLabel = typeof methodName === 'string' ? methodName : '<invalid>';
 
     throw new MarionetteError({
       code: 'MN0019',

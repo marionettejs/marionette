@@ -8,12 +8,7 @@ function subscribe(entity: Backbone.Events, eventName: string | Backbone.EventMa
   callback?: unknown, context?: unknown): () => void {
   // Backbone accepts event maps at runtime; its Events declarations only expose strings.
   let isSubscribed = true;
-  try {
-    entity.on(eventName as string, callback as Backbone.EventHandler, context);
-  } catch (error) {
-    entity.off(eventName as string, callback as Backbone.EventHandler, context);
-    throw error;
-  }
+  entity.on(eventName as string, callback as Backbone.EventHandler, context);
 
   return function() {
     if (!isSubscribed) { return; }

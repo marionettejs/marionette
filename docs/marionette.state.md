@@ -85,22 +85,19 @@ StateApi.subscribe(source, eventName, callback, context);
 StateApi.disposeOwned?.(source);
 ```
 
-`subscribe` receives each `stateEvents` name unchanged and must call the
-provided callback with the source's native payload. Every call must return a
-cleanup function. Marionette makes that cleanup idempotent, retains it outside
-the owner's public event registry, and invokes it exactly once. Therefore
-calling `owner.off()` cannot disable state-source cleanup.
+`subscribe` registers handlers for future events. It receives each `stateEvents`
+name unchanged and calls the provided callback with the source's native payload.
+Every call must return an idempotent cleanup function. Marionette retains it
+outside the owner's public event registry and invokes it during destruction.
+Therefore calling `owner.off()` cannot disable state-source cleanup.
+Subscription setup errors propagate to the caller; event-map registration is
+not rolled back.
 
 `disposeOwned` is called only for a `createState()` result, after subscriptions
 are released. It is never called for a supplied or declared `state` source.
-Constructor rollback follows the same ordering. If an initial subscription
-notification destroys the owner, Marionette waits for `subscribe` to return its
-cleanup function, releases the subscriptions already acquired, and then disposes
-the owned source. It does not subscribe to the remaining `stateEvents`.
 
 The default StateApi does not pretend a plain object is observable. Declaring
-`stateEvents` for a source it cannot observe throws `MN0037`. A missing cleanup
-function throws `MN0038`.
+`stateEvents` for a source it cannot observe throws `MN0037`.
 
 Configure StateApi globally before construction:
 
