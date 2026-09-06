@@ -146,7 +146,9 @@
     "adapter",
     "redux",
     "xstate",
-    "zustand"
+    "zustand",
+    "morphdom",
+    "lit-html"
   ],
   "license": "MIT",
   "repository": {

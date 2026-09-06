@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createServer } from 'node:http';
+import { createServer, request } from 'node:http';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium, firefox, webkit } from '@playwright/test';
@@ -29,16 +29,19 @@ const bundle = await rollup({
 const { output } = await bundle.generate({ format: 'es' });
 await bundle.close();
 
+const litFiles = new Map(['lit-html.js', 'async-directive.js', 'directive.js', 'directive-helpers.js']
+  .map(name => [`/lit/${name}`, resolve(litRoot, name)]));
 const server = createServer(async(req, res) => {
   try {
     res.setHeader('Content-Type', 'text/javascript');
     if (req.url === '/contracts.js') { res.end(output[0].code); return; }
     if (req.url === '/jquery.js') { res.end(await readFile(jquery)); return; }
     if (req.url === '/morphdom.js') { res.end(await readFile(morphdom)); return; }
-    if (req.url.startsWith('/lit/')) {
-      res.end(await readFile(resolve(litRoot, req.url.slice(5))));
+    if (litFiles.has(req.url)) {
+      res.end(await readFile(litFiles.get(req.url)));
       return;
     }
+    if (req.url !== '/') { res.statusCode = 404; res.end(); return; }
     res.setHeader('Content-Type', 'text/html');
     res.end(`<!doctype html><script type="importmap">{"imports":{
       "lit-html":"/lit/lit-html.js","lit-html/":"/lit/","morphdom":"/morphdom.js","jquery":"/jquery.js"
@@ -51,6 +54,13 @@ const server = createServer(async(req, res) => {
 await new Promise(done => server.listen(0, '127.0.0.1', done));
 const failures = [];
 try {
+  const escapedPathStatus = await new Promise((done, reject) => {
+    request({ hostname: '127.0.0.1', port: server.address().port, path: '/lit/../../package.json' }, response => {
+      response.resume();
+      done(response.statusCode);
+    }).on('error', reject).end();
+  });
+  assert.equal(escapedPathStatus, 404, 'Test server exposed a path outside its asset map');
   for (const [browserName, browserType] of Object.entries({ chromium, firefox, webkit })) {
     let browser;
     try {

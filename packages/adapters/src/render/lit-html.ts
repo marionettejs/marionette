@@ -26,6 +26,16 @@ interface LitContents {
 const contents = new WeakMap<LitView, LitContents>();
 const installed = new WeakSet<object>();
 
+function clearPart(current: LitContents): void {
+  const parent = current.end.parentNode as RenderRootNode;
+  try {
+    render(nothing, parent, { renderBefore: current.end });
+  } finally {
+    // The adapter owns the root contents, including Lit's markers.
+    parent.replaceChildren();
+  }
+}
+
 function clearContents(view: LitView): void {
   const current = contents.get(view);
   if (!current) { return; }
@@ -33,11 +43,17 @@ function clearContents(view: LitView): void {
   contents.delete(view);
   view.off('attach', current.attach);
   view.off('detach', current.detach);
-  current.part.setConnected(false);
-  const parent = current.end.parentNode as RenderRootNode;
-  render(nothing, parent, { renderBefore: current.end });
-  parent.removeChild(current.part.startNode!);
-  current.end.remove();
+  try {
+    current.part.setConnected(false);
+  } catch (error) {
+    try {
+      clearPart(current);
+    } catch {
+      // A later directive cleanup must not replace the first failure.
+    }
+    throw error;
+  }
+  clearPart(current);
 }
 
 function renderLitHtml(this: LitView, template: (data: unknown) => unknown, data: unknown): void {

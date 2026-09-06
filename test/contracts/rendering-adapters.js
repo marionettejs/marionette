@@ -374,3 +374,33 @@ renderingAdapterContracts.push({
     check(el.childNodes.length === 0, 'Outer destroy retained Lit contents');
   }
 });
+
+renderingAdapterContracts.push({
+  name: 'lit-html: clears old contents and preserves the first directive cleanup error on root change',
+  run() {
+    const failures = { first: new Error('first cleanup'), second: new Error('second cleanup') };
+    class Resource extends AsyncDirective {
+      render(name) { this.name = name; return name; }
+      disconnected() { throw failures[this.name]; }
+    }
+    const resource = directive(Resource);
+    const LitView = makeView('lit-html', {
+      template: () => html`<p>${resource('first')}${resource('second')}</p>`
+    });
+    const el = document.createElement('article');
+    document.body.append(el);
+    const view = new LitView({ el });
+    view.render();
+    const next = document.createElement('section');
+    let caught;
+    try { view.setElement(next); } catch (error) { caught = error; }
+    check(caught === failures.first, 'Cleanup did not preserve the first failure');
+    check(el.childNodes.length === 0, 'Throwing cleanup retained old DOM or markers');
+    check(view.el === next, 'Root change did not commit');
+    view.template = () => html`<p>recovered</p>`;
+    view.render();
+    check(next.textContent === 'recovered', 'New root could not render after cleanup failure');
+    view.destroy();
+    el.remove();
+  }
+});
