@@ -154,6 +154,16 @@
       "name": "Lit HTML renderer CommonJS",
       "path": "packages/adapters/dist/render/lit-html.cjs",
       "baselineBrotliBytes": 0
+    },
+    {
+      "name": "jQuery View helper ES module",
+      "path": "packages/adapters/dist/dom/jquery-view.js",
+      "baselineBrotliBytes": 0
+    },
+    {
+      "name": "jQuery View helper CommonJS",
+      "path": "packages/adapters/dist/dom/jquery-view.cjs",
+      "baselineBrotliBytes": 0
     }
   ],
   "productionGraphs": [
@@ -273,6 +283,15 @@
       "output": "packages/adapters/dist/render/lit-html.js",
       "baselineModules": [],
       "baselineExternalImports": []
+    },
+    {
+      "subpath": "@marionette/adapters/dom/jquery-view",
+      "input": "packages/adapters/src/dom/jquery-view.ts",
+      "output": "packages/adapters/dist/dom/jquery-view.js",
+      "baselineModules": [],
+      "baselineExternalImports": [
+        "jquery"
+      ]
     }
   ],
   "relocations": {

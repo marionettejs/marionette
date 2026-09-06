@@ -467,9 +467,8 @@ binds. If a stateful host `ui` function returns a different selector then, the h
 binds the later selector while the Behavior continues to bind its construction-time
 selector. Keep `ui` functions deterministic when the host and Behavior share keys.
 
-The Behavior's `el` is also available during `initialize`. When the optional jQuery
-DomApi is selected, `$el` is available at the same point and mirrors the host View's
-wrapper. DOM event and trigger declarations are delegated only after `initialize`
+The Behavior's `el` is also available during `initialize`. Behaviors created
+from the optional `withJQuery(Behavior)` base class also expose `$el` at this point. DOM event and trigger declarations are delegated only after `initialize`
 returns, so callable declarations may safely depend on state established there.
 
 Before binding, `behavior.ui` contains selector strings. A template-rendered `View`
@@ -542,8 +541,9 @@ export const FormView = View.extend({
 The host View or CollectionView owns the DOM boundary for each attached
 Behavior. A Behavior's `el` is the host's current `el`, and its `$()` lookup
 delegates to the host so that results stay scoped to that element. Native core
-does not create `$el`. When the optional jQuery DOM adapter is configured, each
-Behavior mirrors its host View's `$el`, including after `setElement()`.
+does not create `$el`. With the optional
+[jQuery base-class helper](./dom.api.md#optional-jquery-adapter), a Behavior's
+`$el` getter follows its `el`, including after `setElement()` on the host.
 
 Calling the host's `setElement()` automatically moves its Behaviors to the new
 element. Their delegated DOM handlers are removed from the old element and

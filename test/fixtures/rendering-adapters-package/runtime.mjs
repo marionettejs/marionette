@@ -18,8 +18,8 @@ try {
 
   const { View, Region } = format === 'esm' ? await import('marionette') : require('marionette');
   const specifier = `@marionette/adapters/render/${renderer}`;
-  const install = format === 'esm' ? (await import(specifier)).default : require(specifier);
-  assert.equal(typeof install, 'function', `${format} adapter did not export its installer directly`);
+  const adapter = format === 'esm' ? (await import(specifier)).default : require(specifier);
+  assert.equal(typeof adapter.setContents, 'function', `${format} adapter did not export DOM operations`);
 
   const log = [];
   let value = 'first';
@@ -40,12 +40,8 @@ try {
   let clicks = 0;
   const RenderedView = View.extend({ template, events: { 'click button': () => clicks++ } });
   const Dom = RenderedView.prototype.Dom;
-  assert.equal(install(RenderedView), RenderedView);
-  for (const key of Object.keys(Dom)) {
-    if (key !== 'setContents' && key !== 'disposeContents') {
-      assert.equal(RenderedView.prototype.Dom[key], Dom[key], 'Installer replaced an unrelated DOM operation');
-    }
-  }
+  assert.equal(RenderedView.setDomApi(adapter), RenderedView);
+  assert.equal(RenderedView.prototype.Dom.findEl, Dom.findEl, 'Adapter replaced unrelated DOM methods');
   const view = new RenderedView();
   const region = new Region({ el: document.querySelector('main') });
   view.render();
@@ -66,7 +62,7 @@ try {
   assert.equal(root.isConnected, false);
   if (renderer === 'lit-html') {
     assert.deepEqual(log, ['connected', 'disconnected', 'connected', 'disconnected']);
-    assert.equal(root.childNodes.length, 0);
+    assert.equal(root.querySelector('button'), button);
   }
   console.log(`Validated isolated ${renderer} ${format} package`);
 } finally {

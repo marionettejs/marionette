@@ -58,7 +58,7 @@ export interface CollectionViewConfiguration<Child extends CollectionChild = Col
 
 // CollectionView composes ViewMixin, not View's RegionsMixin. Select only the
 // common visual surface; Region ownership and child operations are declared below.
-type VisualMethods<Query extends ArrayLike<Element>, Wrapped> = Pick<ViewInstance<ViewConfiguration, unknown, Query, Wrapped>,
+type VisualMethods<Query extends ArrayLike<Element>> = Pick<ViewInstance<ViewConfiguration, unknown, Query>,
   'cid' | 'cidPrefix' | 'el' | 'tagName' | 'id' | 'className' | 'attributes' |
   'events' | 'triggers' | 'ui' | 'behaviors' | 'childViewEvents' | 'childViewTriggers' |
   'childViewEventPrefix' | 'modelEvents' | 'collectionEvents' | 'stateEvents' |
@@ -72,11 +72,10 @@ type VisualMethods<Query extends ArrayLike<Element>, Wrapped> = Pick<ViewInstanc
 
 export interface CollectionViewInstance<Child extends CollectionChild = CollectionChild,
   Options extends object = CollectionViewConfiguration<Child>, State = unknown, Source = unknown,
-  Query extends ArrayLike<Element> = ArrayLike<Element>, Wrapped = unknown> extends VisualMethods<Query, Wrapped>, ViewFluent<{}> {
+  Query extends ArrayLike<Element> = ArrayLike<Element>> extends VisualMethods<Query>, ViewFluent<{}> {
   options: Options;
   model?: unknown;
   collection?: Source;
-  $el?: Wrapped;
   children: Children<Child>;
   childView?: CollectionViewConfiguration<Child>['childView'];
   childViewOptions?: CollectionViewConfiguration<Child>['childViewOptions'];
@@ -85,8 +84,8 @@ export interface CollectionViewInstance<Child extends CollectionChild = Collecti
   childViewContainer?: CollectionViewConfiguration['childViewContainer'];
   RegionClass?: RegionClass;
   sortWithCollection: boolean;
-  viewComparator?: Comparator<Child, CollectionViewInstance<Child, Options, State, Source, Query, Wrapped>> | MissingChild;
-  viewFilter?: Filter<Child, CollectionViewInstance<Child, Options, State, Source, Query, Wrapped>>;
+  viewComparator?: Comparator<Child, CollectionViewInstance<Child, Options, State, Source, Query>> | MissingChild;
+  viewFilter?: Filter<Child, CollectionViewInstance<Child, Options, State, Source, Query>>;
   preinitialize(options?: Options): void;
   initialize(options?: Options): void;
   createState(options?: Options): unknown;
@@ -98,7 +97,7 @@ export interface CollectionViewInstance<Child extends CollectionChild = Collecti
   isAttached(): boolean;
   getEmptyRegion(): RegionInstance;
   sort<Receiver extends this>(this: Receiver): Receiver;
-  getComparator(): Comparator<Child, CollectionViewInstance<Child, Options, State, Source, Query, Wrapped>> | false;
+  getComparator(): Comparator<Child, CollectionViewInstance<Child, Options, State, Source, Query>> | false;
   setComparator<Receiver extends this>(
     this: Receiver, comparator: (this: Receiver, left: Child, right: Child) => number, options?: ChildRenderOptions
   ): Receiver;
@@ -110,7 +109,7 @@ export interface CollectionViewInstance<Child extends CollectionChild = Collecti
   ): Receiver;
   removeComparator<Receiver extends this>(this: Receiver, options?: ChildRenderOptions): Receiver;
   filter<Receiver extends this>(this: Receiver): Receiver;
-  getFilter(): Filter<Child, CollectionViewInstance<Child, Options, State, Source, Query, Wrapped>>;
+  getFilter(): Filter<Child, CollectionViewInstance<Child, Options, State, Source, Query>>;
   setFilter<Receiver extends this>(this: Receiver, filter: Filter<Child, Receiver>, options?: ChildRenderOptions): Receiver;
   removeFilter<Receiver extends this>(this: Receiver, options?: ChildRenderOptions): Receiver;
   buildChildView<Class extends ChildClass<Child>>(model: unknown, ChildViewClass: Class, options?: object | null): InstanceType<Class>;
@@ -136,23 +135,23 @@ type CopiedOptions<Previous, Options> = {
     (undefined extends Options[Key] ? Key extends keyof Previous ? Previous[Key] : undefined : never);
 };
 type ConfiguredProps<Props, Supplied> = Merge<Props, CopiedOptions<Merge<CollectionViewInstance, Props>, Supplied>>;
-type Result<Props, Args extends unknown[], State, Query extends ArrayLike<Element>, Wrapped,
+type Result<Props, Args extends unknown[], State, Query extends ArrayLike<Element>,
   Supplied extends object = OptionsFor<Args>> =
   Extract<keyof CollectionViewInstance, keyof ConfiguredProps<Props, Supplied>> extends never ?
   CollectionViewInstance<ChildFor<ConfiguredProps<Props, Supplied>>,
     Merge<DefaultOptions<Props>, OptionsFor<Args>>, State,
-    SourceFor<ConfiguredProps<Props, Supplied>>, Query, Wrapped> & ConfiguredProps<Props, Supplied> : Merge<
+    SourceFor<ConfiguredProps<Props, Supplied>>, Query> & ConfiguredProps<Props, Supplied> : Merge<
   Omit<CollectionViewInstance<ChildFor<ConfiguredProps<Props, Supplied>>,
     Merge<DefaultOptions<Props>, OptionsFor<Args>>, State,
-    SourceFor<ConfiguredProps<Props, Supplied>>, Query, Wrapped>, keyof ViewFluent<{}>>,
+    SourceFor<ConfiguredProps<Props, Supplied>>, Query>, keyof ViewFluent<{}>>,
   'options' extends keyof Props ? Omit<ConfiguredProps<Props, Supplied>, 'options'> : ConfiguredProps<Props, Supplied>
 > & ViewFluent<ConfiguredProps<Props, Supplied>>;
 export type CollectionViewConstructor<Props extends object = {}, Args extends unknown[] = [options?: CollectionViewConfiguration],
-  State = unknown, Statics extends object = {}, Query extends ArrayLike<Element> = ArrayLike<Element>, Wrapped = unknown> = {
-  new<Provided extends Args = Args>(...args: Provided): Constructed<Props, Result<Props, Provided, SuppliedState<Provided[0], State>, Query, Wrapped>>;
+  State = unknown, Statics extends object = {}, Query extends ArrayLike<Element> = ArrayLike<Element>> = {
+  new<Provided extends Args = Args>(...args: Provided): Constructed<Props, Result<Props, Provided, SuppliedState<Provided[0], State>, Query>>;
   (this: object, ...args: Args): void;
 } & Merge<{
-  prototype: Result<Props, Args, State, Query, Wrapped>;
+  prototype: Result<Props, Args, State, Query>;
   call(receiver: object, ...args: Args): void;
   apply(receiver: object, args: Args | IArguments): void;
   setRenderer: typeof setRenderer;
@@ -163,11 +162,11 @@ export type CollectionViewConstructor<Props extends object = {}, Args extends un
   extend<Added extends object = {}, AddedStatics extends object = {}>(
     this: Added extends { constructor: (...args: never[]) => unknown } ? object : (this: object, ...args: never[]) => unknown,
     prototypeProperties?: Added & ThisType<Result<Merge<Props, Added>,
-      ArgumentsFor<Merge<Props, Added>, Args>, StateFor<Merge<Props, Added>>, Query, Wrapped, {}>>,
+      ArgumentsFor<Merge<Props, Added>, Args>, StateFor<Merge<Props, Added>>, Query, {}>>,
     staticProperties?: AddedStatics & ThisType<CollectionViewConstructor<Merge<Props, Added>,
-      ArgumentsFor<Merge<Props, Added>, Args>, StateFor<Merge<Props, Added>>, Merge<Statics, AddedStatics>, Query, Wrapped>>
+      ArgumentsFor<Merge<Props, Added>, Args>, StateFor<Merge<Props, Added>>, Merge<Statics, AddedStatics>, Query>>
   ): CollectionViewConstructor<Merge<Props, Added>, ArgumentsFor<Merge<Props, Added>, Args>,
-    StateFor<Merge<Props, Added>>, Merge<Statics, AddedStatics>, Query, Wrapped>;
+    StateFor<Merge<Props, Added>>, Merge<Statics, AddedStatics>, Query>;
 }, Statics>;
 
 interface SnapshotEntry {model: unknown; key: unknown;}
@@ -905,30 +904,20 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     }
 
     const el = this._validateEl(element);
-    const wrappedEl = this.Dom.wrapEl && this.Dom.wrapEl(el);
+    const previous = this.el;
+    const wasAttached = this._isAttached;
 
     this.undelegateEvents();
-    const previous = this.el;
-    this.el = el;
-    try {
-      if (this.Dom.wrapEl) {
-        this.$el = wrappedEl;
-      } else {
-        delete this.$el;
-      }
-
-      this._isAttached = this._isElAttached();
-
-      this.delegateEvents();
-    } catch (error) {
-      if (previous && previous !== el) {
-        disposeAll([() => this.Dom.disposeContents?.(previous)], error);
-      }
-      throw error;
+    if (wasAttached && previous !== el && this.monitorViewEvents !== false) {
+      this.Dom.onDetach?.(previous);
     }
+    this.el = el;
 
-    if (previous && previous !== el) {
-      this.Dom.disposeContents?.(previous);
+    this._isAttached = this._isElAttached();
+
+    this.delegateEvents();
+    if ((previous !== el || !wasAttached) && this._isAttached && this.monitorViewEvents !== false) {
+      this.Dom.onAttach?.(this.el);
     }
 
     return this;

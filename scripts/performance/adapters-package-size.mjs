@@ -15,6 +15,8 @@ const artifacts = [
   ['Backbone adapter CommonJS', 'dist/backbone.cjs'],
   ['jQuery DomApi ES module', 'dist/dom/jquery.js'],
   ['jQuery DomApi CommonJS', 'dist/dom/jquery.cjs'],
+  ['jQuery View helper ES module', 'dist/dom/jquery-view.js'],
+  ['jQuery View helper CommonJS', 'dist/dom/jquery-view.cjs'],
   ['Redux adapter ES module', 'dist/redux.js'],
   ['Redux adapter CommonJS', 'dist/redux.cjs'],
   ['Zustand adapter ES module', 'dist/zustand.js'],
@@ -30,6 +32,7 @@ const artifacts = [
 ];
 const expectedExternalImports = [
   [],
+  ['jquery'],
   ['jquery'],
   [],
   [],

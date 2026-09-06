@@ -34,10 +34,5 @@ export default {
   // `el` itself in the DOM.
   detachContents(el: Element): void {
     $(el).contents().detach();
-  },
-
-  // Wrap the view element for the optional `$el` compatibility surface.
-  wrapEl<TElement extends Element = HTMLElement>(el: TElement): JQuery<TElement> {
-    return $(el);
   }
 };

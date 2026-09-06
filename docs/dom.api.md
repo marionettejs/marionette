@@ -8,10 +8,10 @@ APIs and does not require Backbone or jQuery.
 adapter can replace only the operations an application needs; all omitted
 methods continue to use the inherited adapter.
 
-A renderer evaluates a template; the DOM API applies its result. The optional
+A renderer evaluates templates; `Dom.setContents` applies their output. The optional
 [Morphdom and Lit HTML render adapters](./view.rendering.md#rendering-to-dom)
-replace content operations while retaining the other selected DOM operations.
-Installing one does not select a data or state adapter.
+preserve the selected DomApi; installing one does not select a data or state
+adapter.
 
 ## Element and selector boundaries
 
@@ -97,16 +97,8 @@ callbacks for the move.
 
 ### `setContents(el, html)`
 
-The native implementation replaces the contents of `el` by assigning `html` to
-`el.innerHTML`; `null` and `undefined` clear the contents. Custom adapters can
-accept other content types and update incrementally. This method is always
-called with the template evaluator's result, including `undefined`.
-
-View rendering also passes the View as an optional third argument:
-`setContents(el, content, host)`. Adapters may use this host for template event
-handler context and public attachment notifications (`isAttached`, `on`, `off`).
-Direct DOM API calls can omit it. The operation must finish synchronously and
-preserve `el` itself.
+Replaces the contents of `el` by assigning `html` to `el.innerHTML`.
+`null` and `undefined` produce empty contents.
 
 ### `setAttributes(el, attrs)`
 
@@ -146,6 +138,25 @@ Returns whether `el` exists and has child nodes.
 Removes all children by assigning an empty string to `el.textContent`. This is
 the fast, jQuery-free default.
 
+### `onAttach(el)`
+
+Notify the adapter that its element's contents are active. Called through View
+attachment monitoring and when `setElement()` adopts an attached root. The
+native implementation does nothing; Lit reconnects its directives.
+
+### `onDetach(el)`
+
+Notify the adapter that its element's contents are inactive. Called through View
+detachment monitoring, when `setElement()` releases an attached root, and when
+construction fails after initializing an attached root. This notification does
+not remove or empty the element. The native implementation does nothing; Lit
+disconnects its directives while retaining its rendered contents.
+
+These hooks receive only the element. They follow the existing attachment
+monitoring opt-out: with `monitorViewEvents: false` or monitoring handlers
+removed, applications must deliver the notifications they need themselves.
+`detachContents(el)` remains the operation for physically emptying an element.
+
 ## Using the default API
 
 The native adapter is exported for direct use and for restoring native methods
@@ -157,21 +168,6 @@ import { DomApi, View } from 'marionette';
 const NativeView = View.extend();
 NativeView.setDomApi(DomApi);
 ```
-
-## Optional content disposal
-
-### `disposeContents(el)`
-
-An optional operation for permanently releasing resources associated with an
-element's contents. View and CollectionView call it for the old root after a
-root change, at the end of destruction, and during construction rollback.
-It may run without a prior render; adapters should do nothing when they own no
-resources. Releasing resources should also remove their DOM markers.
-
-Keeping the same root and temporarily detaching a View do not call this operation.
-A cancelled `before:destroy` leaves the contents active. Terminal cleanup continues
-even if another cleanup fails, preserving the first error. A root change commits
-before disposal; a disposal error does not restore the old root.
 
 ## Providing a custom API
 
@@ -231,10 +227,24 @@ setDomApi(JQueryDomApi);
 ```
 
 The optional adapter overrides `findEl`, `detachEl`, `setContents`,
-`appendContents`, and `detachContents`, and supplies `wrapEl`. `View#$()`
-consequently returns a jQuery collection when this adapter is used. Views and
-CollectionViews create and refresh `$el` through `setElement()`, and Behaviors
-mirror their host View's `$el`.
+`appendContents`, and `detachContents`. `View#$()` consequently returns a jQuery
+collection. For code that also needs `$el`, create your application base classes
+with the optional helper:
+
+```javascript
+import { View, CollectionView, Behavior } from 'marionette';
+import withJQuery from '@marionette/adapters/dom/jquery-view';
+
+const JQueryView = withJQuery(View);
+const JQueryCollectionView = withJQuery(CollectionView);
+const JQueryBehavior = withJQuery(Behavior);
+```
+
+The helper returns a new subclass and configures jQuery DOM operations on Views
+and CollectionViews. Its read-only `$el` getter follows the current `el`, including
+on Behaviors after their host changes elements. Use these base classes with
+`.extend()` as usual. The supplied class is unchanged; DomApi has no View setup
+or wrapper operation.
 
 The native adapter does not create `$el`. The jQuery adapter does not replace
 Marionette's event delegator, restore Backbone.View inheritance, or allow

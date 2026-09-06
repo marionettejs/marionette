@@ -33,6 +33,7 @@ export type ViewMixinHost = SharedMixins & BehaviorContainer & EntityEventHost &
     _isDestroyed?: boolean;
     _isRendered?: boolean;
     _isAttached?: boolean;
+    monitorViewEvents?: boolean;
     _disableDetachEvents?: boolean;
     _dataObserverCleanup?: () => void;
     _childViewEvents?: Record<string, EventCallback>;
@@ -184,13 +185,17 @@ const ViewMixin = {
     }
 
     disposeAll([
-      () => this.el && this.Dom.disposeContents?.(this.el),
       () => this.stopListening(),
       () => this._destroyState(),
       () => this._rollbackBehaviors(),
       () => this.undelegateEntityEvents(),
       () => this._undelegateViewEvents(),
-      () => this._removeChildren()
+      () => this._removeChildren(),
+      () => {
+        if (this._isAttached && this.monitorViewEvents !== false) {
+          this.Dom.onDetach?.(this.el);
+        }
+      }
     ], error);
   },
 
@@ -268,7 +273,6 @@ const ViewMixin = {
     }
     let didDetachEl = false;
     disposeAll([
-      () => this.el && this.Dom.disposeContents?.(this.el),
       () => this.stopListening(),
       () => this._triggerEventOnBehaviors('destroy', this, options),
       () => this.triggerMethod('destroy', this, options),

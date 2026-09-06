@@ -1,3 +1,4 @@
+import type { DomApi } from '../../runtime/dom-api.ts';
 import type { EventCallback, EventMap } from '../../mixins/events.ts';
 
 export type RenderableView = { render(): unknown } & (
@@ -7,6 +8,7 @@ export type RenderableView = { render(): unknown } & (
 export interface ViewLifecycle {
   cid?: string;
   el: Element;
+  Dom?: Partial<DomApi>;
   _isRendered?: boolean;
   _isDestroyed?: boolean;
   _isDestroying?: boolean;

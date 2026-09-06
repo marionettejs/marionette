@@ -89,7 +89,6 @@ export type RegionConstructor<Props extends object = {}, Args extends unknown[] 
 export interface RegionInternals extends RegionInstance {
   [runtimeId]: object;
   _initEl?: string | Element | null;
-  $el?: unknown;
   _isReplaced: boolean;
   _isSwappingView: boolean;
   _isDestroying?: boolean;
@@ -551,7 +550,6 @@ assignOwn(Region.prototype, CommonMixin, {
     }
     this.el = this._initEl;
 
-    delete this.$el;
     return this;
   },
 

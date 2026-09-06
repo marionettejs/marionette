@@ -23,22 +23,11 @@ nativeDom.appendContents(el, '<b>contents</b>');
 const array: Element[] = matches;
 // @ts-expect-error Query roots have native querySelectorAll.
 nativeDom.findEl('#root', 'button');
-// @ts-expect-error The native adapter does not provide a wrapper.
-nativeDom.wrapEl(el);
 
 const DomClass = {prototype: {Dom: nativeDom}, setDomApi, label: 'dom class'};
 const sameDomClass: typeof DomClass = DomClass.setDomApi({findEl(root, selector) {return root.querySelectorAll(selector);}});
 DomClass.setDomApi({setContents(root, html: string) {root.innerHTML = html;}});
 DomClass.setDomApi({setContents(root, contents: Node) {root.appendChild(contents);}});
-DomClass.setDomApi({setContents(root, content: unknown, host) {
-  const attached: boolean | undefined = host?.isAttached();
-  host?.on('attach', () => root.setAttribute('data-attached', String(attached)));
-  void content;
-}});
-DomClass.setDomApi({disposeContents(root) {root.replaceChildren();}});
-// @ts-expect-error Disposal receives an Element.
-DomClass.setDomApi({disposeContents(root: string) {void root;}});
-DomClass.setDomApi({wrapEl(root) {return {node: root};}});
 DomClass.setDomApi({findEl: undefined});
 DomClass.setDomApi({metadata: true});
 DomClass.setDomApi(Object.assign(() => {}, {metadata: true}));
@@ -62,10 +51,9 @@ if (configured.setContents) {
   // @ts-expect-error Registration alone does not establish the content/renderer match.
   configured.setContents(el, 'content');
 }
-declare const explicitDom: DomApi<NodeListOf<Element>, {node: Element}, string>;
+declare const explicitDom: DomApi<NodeListOf<Element>, string>;
 explicitDom.setContents(el, 'content');
 explicitDom.findEl(el, 'button').forEach(node => node.remove());
-const wrapper: {node: Element} | undefined = explicitDom.wrapEl?.(el);
 
 const cleanup: () => void = nativeDelegator.delegate({eventName: 'click', rootEl: el, handler(event) {
   event.delegateTarget?.matches('button');

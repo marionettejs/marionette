@@ -58,6 +58,7 @@ function handleBeforeAttach(this: ViewLifecycle) {
 }
 
 function handleAttach(this: ViewLifecycle) {
+  this.Dom?.onAttach?.(this.el);
   triggerMethodChildren(this, 'attach', shouldAttach);
   triggerDOMRefresh(this);
 }
@@ -68,6 +69,7 @@ function handleBeforeDetach(this: ViewLifecycle) {
 }
 
 function handleDetach(this: ViewLifecycle) {
+  this.Dom?.onDetach?.(this.el);
   triggerMethodChildren(this, 'detach', shouldDetach);
 }
 

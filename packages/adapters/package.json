@@ -92,6 +92,17 @@
         "default": "./dist/render/lit-html.cjs"
       },
       "default": "./dist/render/lit-html.js"
+    },
+    "./dom/jquery-view": {
+      "import": {
+        "types": "./dist/types/esm/dom/jquery-view.d.ts",
+        "default": "./dist/dom/jquery-view.js"
+      },
+      "require": {
+        "types": "./dist/types/cjs/dom/jquery-view.d.ts",
+        "default": "./dist/dom/jquery-view.cjs"
+      },
+      "default": "./dist/dom/jquery-view.js"
     }
   },
   "files": [

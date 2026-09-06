@@ -7,6 +7,21 @@ separate module graphs and no import-time installation; unused integrations stay
 out of the application bundle. Source is grouped by data, DOM, and rendering,
 while each integration remains an explicit package subpath.
 
+## Adapter conventions
+
+- `SomethingApi` is an object implementing an existing runtime contract.
+- `createSomethingApi(options)` returns that object when configuration is required.
+- `withSomething(Base)` returns a subclass with additional instance features.
+
+Imports do not configure Marionette. Use the existing `setDomApi`, `setDataApi`,
+and `setStateApi` methods before constructing instances. An integration may
+satisfy more than one contract: Backbone uses the same adapter object for both
+data and state. Setters overlay supplied methods; the last supplied version of
+a method wins. Configure content rendering after general DOM operations.
+
+Adapters use public APIs and document source ownership and cleanup below.
+The optional jQuery subclass helper adds `$el` on the new subclass only.
+
 ## Backbone
 
 ```sh
@@ -158,6 +173,18 @@ const JQueryView = View.extend();
 JQueryView.setDomApi(JQueryDomApi);
 ```
 
+For an application base class that also exposes `$el`:
+
+```js
+import withJQuery from '@marionette/adapters/dom/jquery-view';
+
+const JQueryView = withJQuery(View);
+```
+
+The helper configures the DOM adapter and adds a read-only `$el` getter on a
+new subclass. It also accepts CollectionView and Behavior classes. Use the
+returned class's `.extend()` for application-specific behavior.
+
 Importing an adapter subpath does not load any other adapter or optional peer.
 
 ## Rendering
@@ -167,13 +194,12 @@ in place. Marionette still owns View events, attachment, destruction, and
 Regions. A parent render still destroys its Region children before updating the
 parent template; incremental rendering does not preserve those child Views.
 Keep Region placeholders empty in your templates so the renderer and Region do
-not both manage the same contents. For a CollectionView template, use a dedicated
-`childViewContainer` so child operations do not clear the template's own DOM.
+not both manage the same contents.
 
-Each integration has one installer that configures the pieces it needs. Both
-use `setDomApi` to replace `setContents`, retaining other DOM operations such
-as jQuery queries and wrapping. Lit also supplies `disposeContents` for resource
-cleanup. Neither installer replaces View methods or changes template evaluation.
+Configure rendering through `ViewClass.setDomApi(adapter)` before creating
+instances. The adapter overlays only its supplied methods, so unrelated DOM
+operations remain in place. Configure jQuery first if you need its query and
+attachment operations alongside Morphdom or Lit.
 
 ### Morphdom
 
@@ -183,19 +209,18 @@ npm install marionette @marionette/adapters morphdom
 
 ```js
 import { View } from 'marionette';
-import setMorphdomRenderer from '@marionette/adapters/render/morphdom';
+import MorphdomDomApi from '@marionette/adapters/render/morphdom';
 
 const MessageView = View.extend({
   template: () => '<p id="message">Hello again.</p>'
 });
-setMorphdomRenderer(MessageView);
+MessageView.setDomApi(MorphdomDomApi);
 ```
 
 The template returns an HTML string containing the View's contents. Morphdom
 matches children using its normal rules, including element IDs. The adapter
-installs HTML directly into an empty root and morphs existing contents using
-`childrenOnly`, leaving the root's attributes under Marionette's control. Use
-`renderAttributes()` to refresh those attributes.
+always uses `childrenOnly`, leaving the root's attributes under Marionette's
+control. Use `renderAttributes()` to refresh those attributes.
 
 ### Lit HTML
 
@@ -206,37 +231,38 @@ npm install marionette @marionette/adapters lit-html
 ```js
 import { View } from 'marionette';
 import { html } from 'lit-html';
-import setLitHtmlRenderer from '@marionette/adapters/render/lit-html';
+import LitDomApi from '@marionette/adapters/render/lit-html';
 
 const MessageView = View.extend({
   template: ({ message }) => html`<p>${message}</p>`,
   templateContext: { message: 'Hello again.' }
 });
-setLitHtmlRenderer(MessageView);
+MessageView.setDomApi(LitDomApi);
 ```
 
-Install on a View subclass before creating its instances. The installer returns
-the same class; repeated installation does not wrap methods or add listeners.
-Further subclasses inherit it. An override of `setElement()` or
-`destroy()` must call the parent method, as with other View lifecycle overrides.
+Configure a View subclass before creating its instances. Further subclasses
+inherit the adapter. Neither rendering adapter modifies View methods or needs
+a View reference: template evaluation stays in the renderer and the returned
+value goes to `Dom.setContents(el, value)`.
 
-Lit needs this installer because its async directives can own subscriptions and
-other resources. The adapter connects and disconnects those directives with
-Marionette's `attach` and `detach` events. Marionette calls its
-`DomApi.disposeContents` operation to release resources and remove rendered
-contents when the View changes roots or is destroyed. Keeping the same element preserves its
-contents; a cancelled destruction leaves them active. Removing event listeners
-with `off()` does not disable terminal cleanup, but removing all lifecycle
-listeners also removes attachment notifications. Manage attachment through
-Marionette Regions so the framework can report it. Keep `monitorViewEvents`
-enabled on the View and its ancestors; disabling those notifications also
-disables directive connection tracking. A failed constructor releases directives
-created during initialization through Marionette's construction rollback.
+Lit async directives can own subscriptions and other resources. Marionette calls
+`Dom.onAttach(el)` and `Dom.onDetach(el)` through its existing attachment
+monitoring. Lit translates these notifications to its directive connection API.
+Detaching and destroying a View disconnects its directives while preserving
+rendered contents. `setElement()` disconnects the previous root and connects an
+already-attached replacement. A failed constructor disconnects directives
+created on its attached root during initialization.
 
-The first explicit render replaces any preexisting contents; this is not a
-hydration adapter. Lit then updates its own marked range inside `view.el`, with
-the View as the event-handler host. Call `view.render()` before showing a View
-whose existing element already has contents if you want to replace those
-contents immediately. Do not independently replace a Lit View's contents or
-switch its renderer after rendering: Lit owns the nodes and markers until the
-adapter releases them.
+Keep `monitorViewEvents` enabled on the View and its ancestors and manage
+attachment through Regions. If you disable monitoring or remove its handlers
+with `off()`, the application must call the adapter's attachment methods itself.
+There is no separate hidden cleanup listener. Lifecycle overrides must call
+parent methods, as with other Marionette lifecycle overrides.
+
+The first explicit render replaces preexisting contents; this is not hydration.
+Subsequent renders update Lit's marked range. A disconnected element can be
+adopted by another View using the same adapter without erasing its contents.
+Release the previous owner first; one element cannot have two active View owners.
+Lit event handlers use Lit's normal element receiver; use closures when a
+handler needs application or View state. Do not independently replace Lit's
+contents or switch content adapters after rendering.

@@ -8,6 +8,7 @@ import {
   View
 } from '../../src/index';
 import JQueryDomApi from '../../packages/adapters/src/dom/jquery';
+import withJQuery from '../../packages/adapters/src/dom/jquery-view';
 
 describe('jQuery DomApi adapter', function() {
   it('allows the core ESM graph to bundle without circular dependencies or importing jQuery', async function() {
@@ -43,16 +44,28 @@ describe('jQuery DomApi adapter', function() {
     const view = new View();
     const collectionView = new CollectionView();
 
-    expect(DomApi.wrapEl).to.be.undefined;
     expect(view).to.not.have.property('$el');
     expect(collectionView).to.not.have.property('$el');
   });
 
-  it('provides wrapEl on the jQuery DomApi adapter', function() {
-    const el = document.createElement('div');
+  it('leaves the original classes and DOM methods unchanged', function() {
+    const setElement = View.prototype.setElement;
+    const JQueryView = withJQuery(View);
+    const view = new JQueryView();
+    expect(View.prototype).to.not.have.property('$el');
+    expect(JQueryView.prototype.setElement).to.equal(setElement);
+    expect(DomApi).to.not.have.property('wrapEl');
+    expect(view.$el).to.equal(view.$el);
+    view.destroy();
+  });
 
-    expect(JQueryDomApi.wrapEl(el)).to.be.instanceof($);
-    expect(JQueryDomApi.wrapEl(el)[0]).to.equal(el);
+  it('configures jQuery DOM operations independently of $el', function() {
+    const QueryView = View.extend();
+    QueryView.setDomApi(JQueryDomApi);
+    const view = new QueryView();
+    expect(view.$('span')).to.be.instanceof($);
+    expect(view).to.not.have.property('$el');
+    view.destroy();
   });
 
   it('returns native results from view.$() with the native DomApi', function() {
@@ -70,8 +83,7 @@ describe('jQuery DomApi adapter', function() {
   });
 
   it('returns a jQuery collection from view.$() with the jQuery DomApi', function() {
-    const JQueryView = View.extend();
-    JQueryView.setDomApi(JQueryDomApi);
+    const JQueryView = withJQuery(View);
     const view = new JQueryView({
       el: document.createElement('div')
     });
@@ -88,8 +100,7 @@ describe('jQuery DomApi adapter', function() {
   });
 
   it('creates $el for CollectionView when the jQuery DomApi is active', function() {
-    const JQueryCollectionView = CollectionView.extend();
-    JQueryCollectionView.setDomApi(JQueryDomApi);
+    const JQueryCollectionView = withJQuery(CollectionView);
 
     const view = new JQueryCollectionView();
 
@@ -98,8 +109,7 @@ describe('jQuery DomApi adapter', function() {
   });
 
   it('refreshes $el when setElement changes the view element', function() {
-    const JQueryView = View.extend();
-    JQueryView.setDomApi(JQueryDomApi);
+    const JQueryView = withJQuery(View);
     const firstEl = document.createElement('div');
     const secondEl = document.createElement('section');
     const view = new JQueryView({ el: firstEl });
@@ -129,36 +139,12 @@ describe('jQuery DomApi adapter', function() {
     });
   });
 
-  it('does not mutate a view when wrapEl throws', function() {
-    const oldEl = document.createElement('div');
-    const newEl = document.createElement('section');
-    const error = new Error('wrap failed');
-    const onClick = this.sinon.stub();
-    const view = new View({
-      el: oldEl,
-      events: { click: onClick },
-    });
-    view.Dom = Object.assign({}, view.Dom, {
-      wrapEl() {
-        throw error;
-      },
-    });
-
-    expect(() => view.setElement(newEl)).to.throw(error);
-    expect(view.el).to.equal(oldEl);
-    expect(view).to.not.have.property('$el');
-
-    oldEl.click();
-
-    expect(onClick).to.have.been.calledOnce;
-  });
-
   it('mirrors the host view $el on behaviors', function() {
     let behavior;
     let initializedEl;
     let initialized$El;
-    const JQueryView = View.extend({
-      behaviors: [Behavior.extend({
+    const JQueryView = withJQuery(View).extend({
+      behaviors: [withJQuery(Behavior).extend({
         initialize() {
           behavior = this;
           initializedEl = this.el;
@@ -166,7 +152,6 @@ describe('jQuery DomApi adapter', function() {
         },
       })],
     });
-    JQueryView.setDomApi(JQueryDomApi);
 
     const view = new JQueryView();
     const nextEl = document.createElement('section');

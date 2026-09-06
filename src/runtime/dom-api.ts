@@ -2,13 +2,7 @@
 // -------
 import { assignOwn } from '../utils/assign-in.ts';
 
-export interface DomContentHost {
-  isAttached(): boolean;
-  on(name: string, callback: () => void): unknown;
-  off(name: string, callback: () => void): unknown;
-}
-
-export interface DomApi<Query extends ArrayLike<Element> = ArrayLike<Element>, Wrapped = unknown, Content = never> {
+export interface DomApi<Query extends ArrayLike<Element> = ArrayLike<Element>, Content = never> {
   createElement: (tagName: string) => Element;
   createBuffer: () => DocumentFragment;
   getDocumentEl: (el: Element) => Element | null;
@@ -17,14 +11,14 @@ export interface DomApi<Query extends ArrayLike<Element> = ArrayLike<Element>, W
   detachEl: (el: Element) => void;
   replaceEl: (newEl: Element, oldEl: Element) => void;
   swapEl: (el1: Element, el2: Element) => void;
-  setContents: (el: Element, html: Content, host?: DomContentHost) => void;
+  setContents: (el: Element, html: Content) => void;
   setAttributes: (el: Element, attrs: unknown) => void;
   appendContents: (el: Element | DocumentFragment, contents: Element | DocumentFragment) => void;
   moveEl: (el: Element, parent: Element | DocumentFragment, before?: Node | null) => void;
   hasContents: (el: Node | null | undefined) => boolean;
   detachContents: (el: Element) => void;
-  disposeContents?: (el: Element) => void;
-  wrapEl?: (el: Element) => Wrapped;
+  onAttach: (el: Element) => void;
+  onDetach: (el: Element) => void;
 }
 
 interface DomApiClass {
@@ -45,6 +39,10 @@ export function setDomApi<Receiver extends DomApiClass, Mixin extends object>(
 }
 
 export default {
+  // Native contents do not keep resources tied to attachment.
+  onAttach(_el: Element): void {},
+  onDetach(_el: Element): void {},
+
   // Returns a new HTML DOM node of tagName
   createElement(tagName: string) {
     return document.createElement(tagName);

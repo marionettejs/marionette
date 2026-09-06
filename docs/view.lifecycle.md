@@ -93,7 +93,7 @@ When `el` is omitted, Marionette creates the root element from `tagName` (a
 The element remains the View's root until application code explicitly replaces
 it with [`setElement()`](#using-setelement). Native core does not create `$el`;
 applications that require that compatibility surface can opt into the
-[jQuery DOM adapter](./dom.api.md#optional-jquery-adapter).
+[jQuery base-class helper](./dom.api.md#optional-jquery-adapter).
 
 Marionette determines whether the initial root is already
 [rendered](#rendering-a-view) or [attached](#attaching-a-view). If a View starts

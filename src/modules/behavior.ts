@@ -30,9 +30,8 @@ import type { EntityEventHost } from '../mixins/delegate-entity-events.ts';
 import type { BehaviorInstance as BehaviorLifecycle } from '../mixins/behaviors.ts';
 import type { Constructed, Merge, ArgumentsFor, DefaultOptions, OptionsFor, StateFor, SuppliedState } from './object.ts';
 
-export interface BehaviorHost<Query extends ArrayLike<Element> = ArrayLike<Element>, Wrapped = unknown> extends EventSource {
+export interface BehaviorHost<Query extends ArrayLike<Element> = ArrayLike<Element>> extends EventSource {
   el: Element;
-  $el?: Wrapped;
   ui?: UIBindings | Record<string, Query>;
   model?: unknown;
   collection?: unknown;
@@ -57,13 +56,12 @@ type Common = Omit<typeof CommonMixin, 'initialize'>;
 import type { BehaviorFluent } from './common/fluent-methods.ts';
 
 export interface BehaviorInstance<Options extends object = BehaviorOptions, Host extends BehaviorHost = BehaviorHost, State = unknown,
-  Query extends ArrayLike<Element> = ReturnType<Host['$']>, Wrapped = Host['$el']> extends Common, BehaviorFluent<{}> {
+  Query extends ArrayLike<Element> = ReturnType<Host['$']>> extends Common, BehaviorFluent<{}> {
   cid: string;
   cidPrefix: string;
   options: Options;
   view: Host;
   el: Element;
-  $el?: Wrapped;
   ui?: UIBindings | Record<string, Query>;
   events?: BehaviorOptions['events'];
   triggers?: BehaviorOptions['triggers'];
@@ -139,9 +137,6 @@ const Behavior = function(this: BehaviorInternals, options: BehaviorOptions | un
 
   this._initViewEvents();
   this.el = view.el;
-  if (view.$el) {
-    this.$el = view.$el;
-  }
   this._initState(options);
 
   try {
@@ -205,11 +200,6 @@ assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateMixin
     this._undelegateViewEvents();
 
     this.el = this.view.el;
-    if (this.view.$el) {
-      this.$el = this.view.$el;
-    } else {
-      delete this.$el;
-    }
 
     this._delegateViewEvents(this.view);
 

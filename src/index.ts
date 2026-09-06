@@ -62,7 +62,7 @@ export type { Requests } from './mixins/requests.ts';
 export type { Bindings } from './modules/common/normalize-methods.ts';
 export type { Channel, RadioApi } from './modules/radio.ts';
 export type { MarionetteErrorInstance, MarionetteErrorConstructor } from './modules/error.ts';
-export type { DomApi as DomApiContract, DomContentHost } from './runtime/dom-api.ts';
+export type { DomApi as DomApiContract } from './runtime/dom-api.ts';
 export type { DataApi as DataApiContract } from './runtime/data-api.ts';
 export type { StateApi as StateApiContract } from './runtime/state-api.ts';
 export type { EventDelegator, DelegateOptions, DelegatedEvent } from './runtime/event-delegator.ts';

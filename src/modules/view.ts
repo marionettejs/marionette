@@ -64,12 +64,11 @@ type Common = typeof CommonMixin;
 import type { ViewFluent } from './common/fluent-methods.ts';
 
 export interface ViewInstance<Options extends object = ViewConfiguration, State = unknown,
-  Query extends ArrayLike<Element> = ArrayLike<Element>, Wrapped = unknown> extends Common, ViewFluent<{}> {
+  Query extends ArrayLike<Element> = ArrayLike<Element>> extends Common, ViewFluent<{}> {
   cid: string;
   cidPrefix: string;
   options: Options;
   el: Element;
-  $el?: Wrapped;
   tagName: string | (() => string);
   id?: ViewConfiguration['id'];
   className?: ViewConfiguration['className'];
@@ -91,7 +90,7 @@ export interface ViewInstance<Options extends object = ViewConfiguration, State 
   state?: unknown;
   template?: unknown;
   templateContext?: ViewConfiguration['templateContext'];
-  Dom: Partial<DomApi<Query, Wrapped>>;
+  Dom: Partial<DomApi<Query>>;
   Data: Partial<DataApi>;
   State: Partial<StateApi<never>>;
   EventDelegator: EventDelegator;
@@ -131,17 +130,17 @@ export interface ViewInstance<Options extends object = ViewConfiguration, State 
   getChildView(name: string): SupportedView | undefined;
 }
 
-type ViewResult<Props, Args extends unknown[], State, Query extends ArrayLike<Element>, Wrapped> =
+type ViewResult<Props, Args extends unknown[], State, Query extends ArrayLike<Element>> =
   Extract<keyof ViewInstance, keyof Props> extends never ?
-    ViewInstance<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State, Query, Wrapped> & Props :
-    Merge<Omit<ViewInstance<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State, Query, Wrapped>, keyof ViewFluent<{}>>,
+    ViewInstance<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State, Query> & Props :
+    Merge<Omit<ViewInstance<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State, Query>, keyof ViewFluent<{}>>,
       'options' extends keyof Props ? Omit<Props, 'options'> : Props> & ViewFluent<Props>;
 export type ViewConstructor<Props extends object = {}, Args extends unknown[] = [options?: ViewConfiguration],
-  State = unknown, Statics extends object = {}, Query extends ArrayLike<Element> = ArrayLike<Element>, Wrapped = unknown> = {
-  new <Provided extends Args = Args>(...args: Provided): Constructed<Props, ViewResult<Props, Provided, SuppliedState<Provided[0], State>, Query, Wrapped>>;
+  State = unknown, Statics extends object = {}, Query extends ArrayLike<Element> = ArrayLike<Element>> = {
+  new <Provided extends Args = Args>(...args: Provided): Constructed<Props, ViewResult<Props, Provided, SuppliedState<Provided[0], State>, Query>>;
   (this: object, ...args: Args): void;
 } & Merge<{
-  prototype: ViewResult<Props, Args, State, Query, Wrapped>;
+  prototype: ViewResult<Props, Args, State, Query>;
   call(receiver: object, ...args: Args): void;
   apply(receiver: object, args: Args | IArguments): void;
   setRenderer: typeof setRenderer;
@@ -152,11 +151,11 @@ export type ViewConstructor<Props extends object = {}, Args extends unknown[] = 
   extend<Added extends object = {}, AddedStatics extends object = {}>(
     this: Added extends { constructor: (...args: never[]) => unknown } ? object : (this: object, ...args: never[]) => unknown,
     prototypeProperties?: Added & ThisType<ViewResult<Merge<Props, Added>, ArgumentsFor<Merge<Props, Added>, Args>,
-      StateFor<Merge<Props, Added>>, Query, Wrapped>>,
+      StateFor<Merge<Props, Added>>, Query>>,
     staticProperties?: AddedStatics & ThisType<ViewConstructor<Merge<Props, Added>, ArgumentsFor<Merge<Props, Added>, Args>,
-      StateFor<Merge<Props, Added>>, Merge<Statics, AddedStatics>, Query, Wrapped>>
+      StateFor<Merge<Props, Added>>, Merge<Statics, AddedStatics>, Query>>
   ): ViewConstructor<Merge<Props, Added>, ArgumentsFor<Merge<Props, Added>, Args>,
-    StateFor<Merge<Props, Added>>, Merge<Statics, AddedStatics>, Query, Wrapped>;
+    StateFor<Merge<Props, Added>>, Merge<Statics, AddedStatics>, Query>;
 }, Statics>;
 
 type RegionMap = Record<string, RegionInternals>;
@@ -553,35 +552,25 @@ assignOwn(View.prototype, ViewMixin, RegionsMixin, {
     }
 
     const el = this._validateEl(element);
-    const wrappedEl = this.Dom.wrapEl && this.Dom.wrapEl(el);
+    const previous = this.el;
+    const wasAttached = this._isAttached;
 
     this.undelegateEvents();
-    const previous = this.el;
+    if (wasAttached && previous !== el && this.monitorViewEvents !== false) {
+      this.Dom.onDetach?.(previous);
+    }
     this.el = el;
-    try {
-      if (this.Dom.wrapEl) {
-        this.$el = wrappedEl;
-      } else {
-        delete this.$el;
-      }
 
-      this._isRendered = this.Dom.hasContents!(this.el);
-      this._isAttached = this._isElAttached();
+    this._isRendered = this.Dom.hasContents!(this.el);
+    this._isAttached = this._isElAttached();
 
-      if (this._isRendered) {
-        this.bindUIElements();
-      }
-
-      this.delegateEvents();
-    } catch (error) {
-      if (previous && previous !== el) {
-        disposeAll([() => this.Dom.disposeContents?.(previous)], error);
-      }
-      throw error;
+    if (this._isRendered) {
+      this.bindUIElements();
     }
 
-    if (previous && previous !== el) {
-      this.Dom.disposeContents?.(previous);
+    this.delegateEvents();
+    if ((previous !== el || !wasAttached) && this._isAttached && this.monitorViewEvents !== false) {
+      this.Dom.onAttach?.(this.el);
     }
 
     return this;

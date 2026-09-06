@@ -232,9 +232,9 @@ setDomApi(JQueryDomApi);
 ```
 
 The adapter imports `jquery`, so `jquery` is only required when you install the
-adapter. It restores `$el` on View, CollectionView, and Behavior instances and
-keeps the wrapper synchronized with the owning View's `setElement()` calls. See
-the [upgrade guide](../upgradeGuide.md) for the migration entries on jQuery DOM
+adapter. If existing code also uses `$el`, use the optional
+`withJQuery` base-class helper from `@marionette/adapters/dom/jquery-view` for
+View, CollectionView, and Behavior. See the [upgrade guide](../upgradeGuide.md) for the migration entries on jQuery DOM
 compatibility and the `detachContents` policy.
 
 ## Rendering adapters are optional
@@ -248,10 +248,10 @@ npm install @marionette/adapters morphdom
 npm install @marionette/adapters lit-html
 ```
 
-Import `setMorphdomRenderer` from `@marionette/adapters/render/morphdom`, or
-`setLitHtmlRenderer` from `@marionette/adapters/render/lit-html`, and call it with
-a View subclass before creating instances. Each installer preserves the selected
-DomApi. Lit also installs directive lifecycle handling. DataApi and StateApi
+Import `MorphdomDomApi` from `@marionette/adapters/render/morphdom`, or
+`LitDomApi` from `@marionette/adapters/render/lit-html`, and pass it to
+`ViewClass.setDomApi()` before creating instances. Each adapter preserves unrelated
+DOM operations. Lit supplies the attachment hooks its directives need. DataApi and StateApi
 configuration remains explicit and separate.
 
 See [Rendering to DOM](https://github.com/marionettejs/marionette/blob/master/docs/view.rendering.md#rendering-to-dom)

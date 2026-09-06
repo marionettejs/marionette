@@ -1,6 +1,7 @@
-import { View, Region, CollectionView } from '../../src/index.ts';
-import setMorphdomRenderer from '../../packages/adapters/src/render/morphdom.ts';
-import setLitHtmlRenderer from '../../packages/adapters/src/render/lit-html.ts';
+import { View, CollectionView, Region, DomApi } from '../../src/index.ts';
+import MorphdomDomApi from '../../packages/adapters/src/render/morphdom.ts';
+import LitDomApi from '../../packages/adapters/src/render/lit-html.ts';
+import withJQuery from '../../packages/adapters/src/dom/jquery-view.ts';
 import JQueryDomApi from '../../packages/adapters/src/dom/jquery.ts';
 import { html } from 'lit-html';
 import { AsyncDirective } from 'lit-html/async-directive.js';
@@ -19,13 +20,8 @@ function fixture() {
 function makeView(kind, properties = {}) {
   const ViewClass = View.extend(properties);
   const Dom = ViewClass.prototype.Dom;
-  const evaluate = ViewClass.prototype._renderHtml;
-  const install = kind === 'morphdom' ? setMorphdomRenderer : setLitHtmlRenderer;
-  check(install(ViewClass) === ViewClass, 'Installer lost class identity');
-  check(ViewClass.prototype._renderHtml === evaluate, 'Installer changed template evaluation');
-  check(Object.keys(Dom).filter(key => key !== 'setContents' && key !== 'disposeContents')
-    .every(key => ViewClass.prototype.Dom[key] === Dom[key]),
-  'Installer replaced an existing DOM operation');
+  ViewClass.setDomApi(kind === 'morphdom' ? MorphdomDomApi : LitDomApi);
+  check(ViewClass.prototype.Dom.findEl === Dom.findEl, 'Adapter replaced unrelated DOM methods');
   return ViewClass;
 }
 
@@ -56,19 +52,17 @@ for (const kind of ['morphdom', 'lit-html']) {
     run() {
       const { region, element } = fixture();
       let clicks = 0;
-      const ViewClass = View.extend({
+      const ViewClass = withJQuery(View).extend({
         template: template(kind), serializeData: () => ({ value: 'jquery' }),
         ui: { button: 'button' }, events: { 'click @ui.button': () => clicks++ }
       });
-      ViewClass.setDomApi(JQueryDomApi);
       const Dom = ViewClass.prototype.Dom;
       const setElement = ViewClass.prototype.setElement;
       const destroy = ViewClass.prototype.destroy;
-      const install = kind === 'morphdom' ? setMorphdomRenderer : setLitHtmlRenderer;
-      install(ViewClass);
-      check(ViewClass.prototype.Dom.wrapEl === Dom.wrapEl, 'Installer replaced the jQuery DomApi');
+      ViewClass.setDomApi(kind === 'morphdom' ? MorphdomDomApi : LitDomApi);
+      check(ViewClass.prototype.Dom.findEl === Dom.findEl, 'Adapter replaced jQuery queries');
       check(ViewClass.prototype.setElement === setElement && ViewClass.prototype.destroy === destroy,
-        'Adapter replaced View methods');
+        'Adapter replaced View lifecycle methods');
       const view = new ViewClass();
       region.show(view);
       check(view.$el[0] === view.el && view.$el.jquery, 'jQuery root wrapper was lost');
@@ -182,7 +176,7 @@ renderingAdapterContracts.push({
     element.remove();
   }
 }, {
-  name: 'lit-html: setElement immediately clears old contents and listeners without double release',
+  name: 'lit-html: setElement disconnects the previous root without clearing its contents',
   run() {
     const log = [];
     const LitView = makeView('lit-html', { template: trackedTemplate(log) });
@@ -196,29 +190,15 @@ renderingAdapterContracts.push({
     const next = document.createElement('article');
     view.setElement(next);
     check(disconnectCount() === 1, 'Root change did not immediately release resources');
-    check(!old.childNodes.length, 'Root change retained Lit contents or markers');
+    check(old.querySelector('p'), 'Root change unnecessarily cleared previous contents');
     view.triggerMethod('attach', view);
     check(log.at(-1) === 'disconnected', 'Old attachment listener survived cleanup');
     view.render();
     view.destroy();
     view.setElement(old);
     check(view.el === next, 'Adapter bypassed destroyed-view setElement guard');
-    check(!next.childNodes.length, 'Destroy retained Lit contents');
+    check(next.querySelector('p'), 'Destroy unnecessarily cleared contents');
     old.remove();
-  }
-}, {
-  name: 'lit-html: terminal cleanup survives removing event listeners',
-  run() {
-    const log = [];
-    const el = document.createElement('article');
-    document.body.append(el);
-    const LitView = makeView('lit-html', { template: trackedTemplate(log) });
-    const view = new LitView({ el });
-    view.render();
-    view.off();
-    view.destroy();
-    check(log.at(-1) === 'disconnected', 'off() disabled terminal resource cleanup');
-    check(!el.childNodes.length, 'Terminal cleanup retained Lit contents');
   }
 }, {
   name: 'lit-html: failed setElement preserves active root and directives',
@@ -264,19 +244,16 @@ renderingAdapterContracts.push({
     view.on('destroy', () => { throw new Error('terminal'); });
     try { view.destroy(); } catch (error) { check(error.message === 'terminal', 'Wrong error'); }
     check(view.isDestroyed() && log.at(-1) === 'disconnected', 'Throwing terminal handler leaked resources');
-    check(!el.childNodes.length, 'Throwing terminal handler retained contents');
+    check(el.querySelector('p'), 'Destroy unnecessarily cleared contents');
   }
 }, {
   name: 'lit-html: repeated installation and subclass installation retain public method behavior',
   run() {
     const Base = View.extend();
+    Base.setDomApi(LitDomApi);
     const setElement = Base.prototype.setElement;
     const destroy = Base.prototype.destroy;
-    const rollback = Base.prototype._rollbackView;
-    check(setLitHtmlRenderer(Base) === Base, 'Installer lost class identity');
-    check(Base.prototype.setElement === setElement && Base.prototype.destroy === destroy &&
-      Base.prototype._rollbackView === rollback, 'Installer replaced View methods');
-    setLitHtmlRenderer(Base);
+    Base.setDomApi(LitDomApi);
     check(Base.prototype.setElement === setElement && Base.prototype.destroy === destroy,
       'Repeated installation wrapped methods again');
     let roots = 0;
@@ -286,7 +263,7 @@ renderingAdapterContracts.push({
         return super.setElement(element);
       }
     }
-    setLitHtmlRenderer(Native);
+    Native.setDomApi(LitDomApi);
     const Child = Base.extend({ template: () => html`<p>child</p>` });
     const child = new Child();
     child.render();
@@ -299,7 +276,7 @@ renderingAdapterContracts.push({
     check(view.destroy() === view, 'Subclass destroy lost fluent return');
   }
 }, {
-  name: 'lit-html: disposed elements can be adopted by a new View without stale Lit parts',
+  name: 'lit-html: disconnected elements can be adopted by a new View without stale Lit parts',
   run() {
     const LitView = makeView('lit-html', { template: () => html`<p>fresh</p>` });
     const first = new LitView();
@@ -329,33 +306,7 @@ renderingAdapterContracts.push({
     try { new LitView({ el }); } catch (error) { caught = error; }
     check(caught === failure, 'Rollback replaced the construction error');
     check(log.join() === 'render:true,disconnected', 'Failed construction retained directive resources');
-    check(el.childNodes.length === 0, 'Failed construction retained Lit markers');
-    el.remove();
-  }
-});
-
-renderingAdapterContracts.push({
-  name: 'lit-html: preserves a destroy error when directive cleanup also throws',
-  run() {
-    const failure = new Error('destroy failed');
-    class Resource extends AsyncDirective {
-      render() { return 'resource'; }
-      disconnected() { throw new Error('directive cleanup failed'); }
-    }
-    const resource = directive(Resource);
-    const LitView = makeView('lit-html', {
-      template: () => html`<p>${resource()}</p>`,
-      onDestroy() { throw failure; }
-    });
-    const el = document.createElement('article');
-    document.body.append(el);
-    const view = new LitView({ el });
-    view.render();
-    view.off();
-    let caught;
-    try { view.destroy(); } catch (error) { caught = error; }
-    check(caught === failure, 'Directive cleanup replaced the destroy error');
-    check(view.isDestroyed(), 'Destroy did not reach terminal state');
+    check(el.querySelector('p'), 'Failed construction unnecessarily cleared borrowed contents');
     el.remove();
   }
 });
@@ -375,134 +326,129 @@ renderingAdapterContracts.push({
     });
     view.destroy();
     check(log.join() === 'render:true,disconnected', 'Outer destroy did not release directives exactly once');
-    check(el.childNodes.length === 0, 'Outer destroy retained Lit contents');
+    check(el.querySelector('p'), 'Destroy unnecessarily cleared contents');
   }
 });
-
-renderingAdapterContracts.push({
-  name: 'lit-html: clears old contents and preserves the first directive cleanup error on root change',
-  run() {
-    const failures = { first: new Error('first cleanup'), second: new Error('second cleanup') };
-    class Resource extends AsyncDirective {
-      render(name) { this.name = name; return name; }
-      disconnected() { throw failures[this.name]; }
-    }
-    const resource = directive(Resource);
-    const LitView = makeView('lit-html', {
-      template: () => html`<p>${resource('first')}${resource('second')}</p>`
-    });
-    const el = document.createElement('article');
-    document.body.append(el);
-    const view = new LitView({ el });
-    view.render();
-    const next = document.createElement('section');
-    let caught;
-    try { view.setElement(next); } catch (error) { caught = error; }
-    check(caught === failures.first, 'Cleanup did not preserve the first failure');
-    check(el.childNodes.length === 0, 'Throwing cleanup retained old DOM or markers');
-    check(view.el === next, 'Root change did not commit');
-    view.template = () => html`<p>recovered</p>`;
-    view.render();
-    check(next.textContent === 'recovered', 'New root could not render after cleanup failure');
-    view.destroy();
-    el.remove();
-  }
-});
-
-for (const kind of ['morphdom', 'lit-html']) {
+for (const [name, api] of [['native', DomApi], ['jquery', JQueryDomApi],
+  ['morphdom', MorphdomDomApi], ['lit-html', LitDomApi]]) {
   renderingAdapterContracts.push({
-    name: `${kind}: uses only the public DOM setter and accepts direct DOM calls`,
+    name: `${name}: undefined template output clears previous contents`,
     run() {
-      let api;
-      const target = { setDomApi(value) { api = value; } };
-      const install = kind === 'morphdom' ? setMorphdomRenderer : setLitHtmlRenderer;
-      check(install(target) === target, 'Installer requires more than the DOM setter');
-      const el = document.createElement('article');
-      api.setContents(el, template(kind)({ value: 'first' }));
-      const button = el.querySelector('button');
-      api.setContents(el, template(kind)({ value: 'second' }));
-      check(button === el.querySelector('button') && button.textContent === 'second', 'Update replaced survivor');
-      api.setContents(el, undefined);
-      check(!el.textContent && !el.querySelector('button'), 'Undefined did not clear content');
-      api.setContents(el, undefined);
-      check(!el.textContent, 'Undefined installed text into empty content');
-      api.disposeContents?.(el);
-      api.disposeContents?.(el);
-    }
-  }, {
-    name: `${kind}: preserves custom template evaluation and clears undefined results`,
-    run() {
-      const Child = View.extend({ template: 'custom input' });
-      let value = 'content';
-      const evaluate = input => {
-        check(input === 'custom input', 'Evaluator lost template input');
-        return value === undefined ? undefined : template(kind)({ value });
-      };
-      Child.setRenderer(evaluate);
-      const install = kind === 'morphdom' ? setMorphdomRenderer : setLitHtmlRenderer;
-      install(Child);
-      const view = new Child();
+      const RenderedView = View.extend({ template: () => 'previous' });
+      RenderedView.setDomApi(api);
+      const view = new RenderedView().render();
+      view.template = () => undefined;
       view.render();
-      check(view.el.querySelector('button').textContent === 'content', 'Custom evaluation was replaced');
-      value = undefined;
-      view.render();
-      check(!view.el.querySelector('button'), 'Undefined content skipped the update');
+      check(view.el.textContent === '', 'Undefined output left stale contents');
       view.destroy();
     }
   });
 }
 
-renderingAdapterContracts.push({
-  name: 'lit-html: template event handlers receive the View as their host',
-  run() {
-    let receiver;
-    const Child = makeView('lit-html', {
-      template: () => html`<button @click=${function() { receiver = this; }}>click</button>`
-    });
-    const view = new Child();
-    view.render();
-    view.el.querySelector('button').click();
-    check(receiver === view, 'DOM adapter lost template event host');
-    view.destroy();
-  }
-});
+for (const [name, Base] of [['View', View], ['CollectionView', CollectionView]]) {
+  renderingAdapterContracts.push({
+    name: `lit-html: ${name} releases subscriptions across root changes and reuse`,
+    run() {
+      const subscribers = new Set();
+      class Subscription extends AsyncDirective {
+        render() { if (this.isConnected) { subscribers.add(this); } return 'subscribed'; }
+        reconnected() { subscribers.add(this); }
+        disconnected() { subscribers.delete(this); }
+      }
+      const subscription = directive(Subscription);
+      const RenderedView = Base.extend({ template: () => html`<p>${subscription()}</p>` });
+      RenderedView.setDomApi(LitDomApi);
+      const el = document.createElement('article');
+      document.body.append(el);
+      const view = new RenderedView({ el }).render();
+      const content = el.firstElementChild;
+      check(subscribers.size === 1, 'Attached render did not subscribe');
+      view.setElement(document.createElement('section'));
+      check(subscribers.size === 0 && el.firstElementChild === content,
+        'Root change must unsubscribe while preserving contents');
+      const replacement = new RenderedView({ el });
+      check(subscribers.size === 1, 'Adopting a rendered root did not reconnect');
+      replacement.render();
+      check(subscribers.size === 1 && el.firstElementChild === content, 'Adoption replaced the existing Lit part');
+      replacement.destroy();
+      check(subscribers.size === 0, 'Destroy retained the external subscription');
+      view.render().destroy();
+      check(subscribers.size === 0, 'Never-attached destruction retained a subscription');
+    }
+  }, {
+    name: `lit-html: descendants follow ${name} detach and reattach`,
+    run() {
+      const log = [];
+      const Child = makeView('lit-html', { template: trackedTemplate(log) });
+      const Parent = Base.extend({ template: () => '<section class="child"></section>',
+        regions: { child: '.child' }, childViewContainer: '.child' });
+      const parent = new Parent().render();
+      const child = new Child();
+      if (Base === View) {
+        parent.showChildView('child', child);
+      } else {
+        parent.addChildView(child);
+      }
+      const { region, element } = fixture();
+      region.show(parent);
+      check(log.join() === 'render:false,reconnected', 'Ancestor attachment did not connect child');
+      region.detachView();
+      check(log.at(-1) === 'disconnected', 'Ancestor removal did not disconnect child');
+      region.show(parent);
+      check(log.at(-1) === 'reconnected', 'Ancestor reattachment did not reconnect child');
+      region.destroy();
+      check(log.at(-1) === 'disconnected' && child.isDestroyed(), 'Ancestor destroy retained child resources');
+      element.remove();
+    }
+  });
+}
 
 renderingAdapterContracts.push({
-  name: 'jQuery: undefined template content clears the previous DOM',
-  run() {
-    const Child = View.extend({ template: () => '<p>previous</p>' });
-    Child.setDomApi(JQueryDomApi);
-    const view = new Child();
-    view.render();
-    view.template = () => undefined;
-    view.render();
-    check(view.el.childNodes.length === 0, 'jQuery treated undefined as a getter');
-    view.destroy();
-  }
-});
-
-renderingAdapterContracts.push({
-  name: 'lit-html: CollectionView template resources coexist with a child container',
+  name: 'lit-html: a View can adopt contents rendered directly by the DOM adapter',
   run() {
     const log = [];
-    const tracked = trackedTemplate(log);
-    const Parent = CollectionView.extend({
-      template: () => html`<header>${tracked()}</header><section class="children"></section>`,
-      childViewContainer: '.children'
-    });
-    setLitHtmlRenderer(Parent);
+    const adoptedTemplate = trackedTemplate(log);
+    const el = document.createElement('article');
+    LitDomApi.setContents(el, adoptedTemplate());
+    const content = el.firstElementChild;
+    const LitView = makeView('lit-html', { template: adoptedTemplate });
+    const view = new LitView({ el });
     const { region, element } = fixture();
-    const parent = new Parent();
-    region.show(parent);
-    const child = new View({ template: () => '<p>child</p>' });
-    parent.addChildView(child);
-    check(parent.el.querySelector('.children p'), 'Child did not render in its container');
-    parent.render();
-    check(child.isDestroyed(), 'Parent render did not destroy the old child');
-    check(parent.el.querySelector('header p'), 'Parent template was lost');
+    region.show(view);
+    check(log.join() === 'render:false,reconnected', 'Directly rendered contents missed attachment');
+    view.render();
+    check(el.firstElementChild === content, 'Adoption lost the existing contents');
     region.destroy();
-    check(log.at(-1) === 'disconnected', 'CollectionView retained directive resources');
-    check(parent.el.childNodes.length === 0, 'CollectionView retained Lit markers');
+    check(log.at(-1) === 'disconnected', 'Adopted contents missed disconnection');
+    element.remove();
+  }
+}, {
+  name: 'lit-html: monitoring opt-out leaves connection notifications to the application',
+  run() {
+    const log = [];
+    const LitView = makeView('lit-html', { template: trackedTemplate(log), monitorViewEvents: false });
+    const view = new LitView().render();
+    const { region, element } = fixture();
+    region.show(view);
+    check(log.join() === 'render:false', 'Monitoring opt-out still notified the adapter');
+    LitDomApi.onAttach(view.el);
+    check(log.at(-1) === 'reconnected', 'Application could not connect contents');
+    const previous = view.el;
+    const next = document.createElement('article');
+    const nextLog = [];
+    document.body.append(next);
+    LitDomApi.setContents(next, trackedTemplate(nextLog)());
+    LitDomApi.onDetach(next);
+    view.setElement(next);
+    check(log.at(-1) === 'reconnected' && nextLog.at(-1) === 'disconnected',
+      'setElement bypassed the monitoring opt-out');
+    LitDomApi.onDetach(previous);
+    LitDomApi.onAttach(next);
+    view.destroy();
+    check(nextLog.at(-1) === 'reconnected', 'Destroy bypassed the monitoring opt-out');
+    LitDomApi.onDetach(view.el);
+    check(nextLog.at(-1) === 'disconnected', 'Application could not disconnect contents');
+    region.destroy();
     element.remove();
   }
 });

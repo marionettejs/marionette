@@ -24,19 +24,6 @@ the constructed type; an unknown return stays unknown. See the
 [constructor typing guidance](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#typescript-source) for preserving
 the receiver through further extensions and the limits of return annotations.
 
-## Keep template evaluation separate from DOM updates
-
-`setRenderer` evaluates a template and returns content. Every result, including
-`undefined`, now passes through `attachElContent` to `DomApi.setContents`.
-Returning `undefined` no longer skips the DOM update. Native and jQuery DOM
-adapters treat nullish content as empty.
-
-Move DOM mutation from custom renderers into `setDomApi({ setContents })`.
-Keep compilation or template evaluation in `setRenderer`. The DOM operation
-receives `(el, content, host)`, with the View available as the optional host.
-Adapters with owned resources can also supply `disposeContents(el)`; they
-should not replace View lifecycle methods. See the [DOM API guide](https://github.com/marionettejs/marionette/blob/master/docs/dom.api.md).
-
 ## Construct Views before showing them
 
 `Region#show` and `View#showChildView` require a View-like instance in v5. They no
@@ -207,24 +194,29 @@ ARIA attributes such as `aria-selected: false` therefore retain `"false"`.
 - v5 core does not depend on jQuery and the native DomApi does not create
   `view.$el`.
 - Apps that need the v4 jQuery compatibility surface can opt into the
-  `@marionette/adapters/dom/jquery` adapter:
+  `@marionette/adapters/dom/jquery-view` helper:
 
   ```sh
   npm install @marionette/adapters jquery
   ```
 
   ```js
-  import { setDomApi } from 'marionette';
-  import JQueryDomApi from '@marionette/adapters/dom/jquery';
+  import { View, CollectionView, Behavior } from 'marionette';
+  import withJQuery from '@marionette/adapters/dom/jquery-view';
 
-  setDomApi(JQueryDomApi);
+  const JQueryView = withJQuery(View);
+  const JQueryCollectionView = withJQuery(CollectionView);
+  const JQueryBehavior = withJQuery(Behavior);
   ```
 
 - The adapter imports `jquery`, so jQuery is an optional peer dependency only for
-  consumers that opt into this subpath.
-- With the adapter active before construction, `View` and `CollectionView`
-  create and refresh `$el` through `setElement()`. Behaviors mirror their host
-  View's `$el`. `view.$(selector)` also returns a jQuery collection.
+  consumers that opt into these subpaths.
+- Extend these application base classes wherever `$el` is needed. The helper
+  installs a read-only `$el` getter on a new subclass; the wrapper follows `el`
+  after `setElement()`. `view.$(selector)` also returns a jQuery collection.
+  Change the root through `setElement(el)`; assigning `$el` directly is unsupported.
+  For jQuery DOM operations without `$el`, use `setDomApi(JQueryDomApi)` with
+  `@marionette/adapters/dom/jquery` instead.
 - This does not restore Backbone.View inheritance or allow selector strings as a
   View `el`; resolve View elements explicitly. Region selector strings remain
   supported.
@@ -347,3 +339,26 @@ owner's replies.
 
 - The optional jQuery adapter is described in the
   [installation guide](docs/installation.md#jquery-dom-adapter-is-optional).
+
+### Rendering adapter setup
+
+Rendering adapters now export DOM operation objects rather than class installers:
+
+```js
+import MorphdomDomApi from '@marionette/adapters/render/morphdom';
+import LitDomApi from '@marionette/adapters/render/lit-html';
+
+MorphView.setDomApi(MorphdomDomApi);
+LitView.setDomApi(LitDomApi);
+```
+
+Custom renderers must return their template result. `undefined` is passed to
+`Dom.setContents` and clears contents with the supplied native, jQuery, Morphdom,
+and Lit adapters; it no longer signals a renderer that performed its own DOM
+update. Put direct DOM updates in `setContents` instead.
+
+Lit uses element-only `onAttach` and `onDetach` hooks and no longer patches View
+lifecycle methods. Destruction and root replacement disconnect directives without
+emptying their DOM. With attachment monitoring disabled, deliver these
+notifications from application code. Lit event handlers use the element as their
+receiver rather than the View; use a closure for View access.

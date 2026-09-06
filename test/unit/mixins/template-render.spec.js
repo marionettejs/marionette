@@ -334,7 +334,7 @@ describe('template-render', function() {
 
       expect(renderer.Dom.setContents)
         .to.have.been.calledOnce
-        .and.calledWithExactly('fooEl', 'html', renderer);
+        .and.calledWithExactly('fooEl', 'html');
     });
   })
 });
