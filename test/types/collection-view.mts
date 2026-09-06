@@ -71,8 +71,8 @@ const literalContainer: '.empty' = literal.childViewContainer;
 declare const Foreign: new() => Pick<Events, 'on' | 'off' | 'triggerMethod'> & {
   cid: string; el: HTMLElement; render(): void; remove(): void; marker(): boolean;
 };
-const foreignList = new CollectionView({childView: Foreign});
-const foreignMarker: boolean | undefined = foreignList.children.first()?.marker();
+// @ts-expect-error Managed children require destroy; remove-only legacy Views need a wrapper.
+new CollectionView({childView: Foreign});
 const opaqueSource = {records: rows};
 const opaque = new CollectionView({collection: opaqueSource, childView: Item});
 const opaqueRecords: Row[] | undefined = opaque.collection?.records;

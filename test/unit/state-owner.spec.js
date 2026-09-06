@@ -308,13 +308,13 @@ describe('state source composition', function() {
   }
 
   it('rolls back Behavior state observation when later construction fails', function() {
-    const error = new Error('sync failed');
+    const error = new Error('delegation failed');
     const calls = [];
     const source = createSource();
     const Owner = Behavior.extend({
       createState() { return source; },
       stateEvents: { transition() {} },
-      _syncElement() { throw error; }
+      _delegateViewEvents() { throw error; }
     });
     Owner.setStateApi({
       subscribe() { return () => calls.push('cleanup'); },

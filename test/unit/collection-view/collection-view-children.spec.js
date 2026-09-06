@@ -642,7 +642,7 @@ describe('CollectionView Children', function() {
     });
   });
 
-  // The lifecycle is tested with Backbone.View
+  // Child Views provide their own lifecycle.
   describe('childView lifecycle', function() {
     let myCollectionView;
     let childView;
@@ -650,7 +650,8 @@ describe('CollectionView Children', function() {
     beforeEach(function() {
       myCollectionView = new MyCollectionView();
 
-      const ChildView = Backbone.View.extend({
+      const ChildView = View.extend({
+        template: () => '',
         onBeforeRender: this.sinon.stub(),
         onRender: this.sinon.stub(),
         onBeforeAttach: this.sinon.stub(),

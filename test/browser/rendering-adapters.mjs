@@ -21,7 +21,6 @@ const bundle = await rollup({
         '../../packages/adapters/src/render/morphdom.ts': 'packages/adapters/dist/render/morphdom.js',
         '../../packages/adapters/src/render/lit-html.ts': 'packages/adapters/dist/render/lit-html.js',
         '../../packages/adapters/src/dom/jquery.ts': 'packages/adapters/dist/dom/jquery.js',
-        '../../packages/adapters/src/dom/jquery-view.ts': 'packages/adapters/dist/dom/jquery-view.js'
       };
       if (entries[source]) { return resolve(root, entries[source]); }
     }

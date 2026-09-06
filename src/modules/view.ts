@@ -96,8 +96,6 @@ export interface ViewInstance<Options extends object = ViewConfiguration, State 
   EventDelegator: EventDelegator;
   _renderHtml?: Renderer<never, never, never>;
   monitorViewEvents?: boolean;
-  supportsRenderLifecycle: boolean;
-  supportsDestroyLifecycle: boolean;
   preinitialize(options?: Options): void;
   initialize(options?: Options): void;
   createState(options?: Options): unknown;

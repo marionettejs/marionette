@@ -10,10 +10,11 @@ globalThis.document = dom.window.document;
 assert.strictEqual(existsSync(resolve(import.meta.dirname, 'node_modules/backbone')), false);
 
 const { View } = await import('marionette');
-const withJQuery = (await import('@marionette/adapters/dom/jquery-view')).default;
+const JQueryDomApi = (await import('@marionette/adapters/dom/jquery')).default;
 const $ = (await import('jquery')).default;
 
-const JQueryView = withJQuery(View);
+const JQueryView = View.extend({ initialize() { this.$el = $(this.el); } });
+JQueryView.setDomApi(JQueryDomApi);
 
 const el = document.createElement('div');
 el.innerHTML = '<span class="child">child</span>';

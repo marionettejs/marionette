@@ -15,7 +15,6 @@ interface UndelegateEntityEvents { undelegateEntityEvents(): this; }
 interface BindUIElements { bindUIElements(): this; }
 interface UnbindUIElements { unbindUIElements(): this; }
 interface BehaviorDestroy { destroy(): this; }
-interface SyncElement { _syncElement(): this; }
 interface Show { show(view: SupportedView, options?: ShowOptions): this | undefined; }
 interface Empty { empty(options?: ShowOptions): this; }
 interface Reset { reset(options?: ShowOptions): this; }
@@ -26,6 +25,6 @@ export type ViewFluent<Props> = Inherited<Props, Render> &
   Inherited<Props, UndelegateEntityEvents> & Inherited<Props, BindUIElements> & Inherited<Props, UnbindUIElements>;
 export type BehaviorFluent<Props> = Inherited<Props, BehaviorDestroy> & Inherited<Props, BindUIElements> &
   Inherited<Props, UnbindUIElements> & Inherited<Props, DelegateEntityEvents> &
-  Inherited<Props, UndelegateEntityEvents> & Inherited<Props, SyncElement>;
+  Inherited<Props, UndelegateEntityEvents>;
 export type RegionFluent<Props> = Inherited<Props, Show> & Inherited<Props, Empty> &
   Inherited<Props, Reset> & Inherited<Props, Destroy<ShowOptions>>;

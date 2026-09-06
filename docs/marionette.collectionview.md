@@ -72,7 +72,7 @@ const myCollectionView = new CollectionView({ ... });
 ```
 
 Some of these properties come from Marionette, but many are inherited from
-[`Backbone.View`](http://backbonejs.org/#View-constructor).
+`View` or `CollectionView`.
 
 ## Rendering a CollectionView
 
@@ -330,7 +330,7 @@ Read More:
 When using a `collection` to manage the children of `CollectionView`,
 specify a `childView` for your `CollectionView`. This must be
 a Backbone view class definition, not an instance. It can be any
-`Backbone.View` related class including both Marionette's `View` and
+Marionette View class, including both `View` and
 `CollectionView`.
 
 ```javascript

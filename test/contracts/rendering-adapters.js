@@ -1,7 +1,7 @@
 import { View, CollectionView, Region, DomApi } from '../../src/index.ts';
 import MorphdomDomApi from '../../packages/adapters/src/render/morphdom.ts';
 import LitDomApi from '../../packages/adapters/src/render/lit-html.ts';
-import withJQuery from '../../packages/adapters/src/dom/jquery-view.ts';
+import $ from 'jquery';
 import JQueryDomApi from '../../packages/adapters/src/dom/jquery.ts';
 import { html } from 'lit-html';
 import { AsyncDirective } from 'lit-html/async-directive.js';
@@ -52,10 +52,12 @@ for (const kind of ['morphdom', 'lit-html']) {
     run() {
       const { region, element } = fixture();
       let clicks = 0;
-      const ViewClass = withJQuery(View).extend({
+      const ViewClass = View.extend({
+        initialize() { this.$el = $(this.el); },
         template: template(kind), serializeData: () => ({ value: 'jquery' }),
         ui: { button: 'button' }, events: { 'click @ui.button': () => clicks++ }
       });
+      ViewClass.setDomApi(JQueryDomApi);
       const Dom = ViewClass.prototype.Dom;
       const delegateEvents = ViewClass.prototype.delegateEvents;
       const destroy = ViewClass.prototype.destroy;

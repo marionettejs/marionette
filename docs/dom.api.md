@@ -231,23 +231,22 @@ setDomApi(JQueryDomApi);
 
 The optional adapter overrides `findEl`, `detachEl`, `setContents`,
 `appendContents`, and `detachContents`. `View#$()` consequently returns a jQuery
-collection. For code that also needs `$el`, create your application base classes
-with the optional helper:
+collection. If application code also needs `$el`, initialize it once:
 
 ```javascript
-import { View, CollectionView, Behavior } from 'marionette';
-import withJQuery from '@marionette/adapters/dom/jquery-view';
+import $ from 'jquery';
+import { View } from 'marionette';
 
-const JQueryView = withJQuery(View);
-const JQueryCollectionView = withJQuery(CollectionView);
-const JQueryBehavior = withJQuery(Behavior);
+const JQueryView = View.extend({
+  initialize() {
+    this.$el = $(this.el);
+  }
+});
 ```
 
-The helper returns a new subclass and configures jQuery DOM operations on Views
-and CollectionViews. Its read-only `$el` getter follows the current `el`, including
-on Behaviors after their host changes elements. Use these base classes with
-`.extend()` as usual. The supplied class is unchanged; DomApi has no View setup
-or wrapper operation.
+The root is fixed at construction, so the wrapper remains valid through rendering
+and detach/reattach. CollectionViews and Behaviors can initialize `$el` the same
+way. `$el` is application-owned; the adapter has no wrapper or View setup API.
 
 The native adapter does not create `$el`. The jQuery adapter does not replace
 Marionette's event delegator, restore Backbone.View inheritance, or allow

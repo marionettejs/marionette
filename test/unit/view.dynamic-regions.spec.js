@@ -4,7 +4,7 @@ describe('view - dynamic regions', function() {
   let BBView;
 
   beforeEach(function() {
-    BBView = Backbone.View.extend();
+    BBView = Marionette.View.extend({ template: () => '' });
     _.extend(BBView.prototype, Marionette.Events);
 
     this.template = function() {

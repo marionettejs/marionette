@@ -18,14 +18,15 @@ assert.strictEqual(Backbone.Model.prototype.triggerMethod, undefined);
 assert.strictEqual(typeof Backbone.Model.prototype.bind, 'function');
 assert.strictEqual(typeof Backbone.Model.prototype.unbind, 'function');
 
-const withJQuery = require('@marionette/adapters/dom/jquery-view');
+const JQueryDomApi = require('@marionette/adapters/dom/jquery');
 const createReduxDataApi = require('@marionette/adapters/redux');
 const createXStateStoreDataApi = require('@marionette/adapters/xstate-store');
 const createZustandDataApi = require('@marionette/adapters/zustand');
 const createXStateActorApi = require('@marionette/adapters/xstate');
 const { createActor, createMachine } = require('xstate');
 const $ = require('jquery');
-const JQueryView = withJQuery(Marionette.View);
+const JQueryView = Marionette.View.extend({ initialize() { this.$el = $(this.el); } });
+JQueryView.setDomApi(JQueryDomApi);
 
 const el = document.createElement('div');
 el.innerHTML = '<span class="child">child</span>';

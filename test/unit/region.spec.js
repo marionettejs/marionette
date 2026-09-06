@@ -1,6 +1,5 @@
 import _ from 'underscore';
 import $ from 'jquery';
-import Backbone from 'backbone';
 import Events from '../../src/mixins/events';
 import Region from '../../src/modules/region';
 import View from '../../src/modules/view';
@@ -84,10 +83,8 @@ describe('region', function() {
         el: '#not-existed-region'
       });
 
-      MyView = Backbone.View.extend({
-        render: function() {
-          $(this.el).html('some content');
-        }
+      MyView = View.extend({
+        template: () => 'some content'
       });
       myView = new MyView();
 
@@ -207,7 +204,7 @@ describe('region', function() {
     });
   });
 
-  describe('when showing a value that is not View-like', function() {
+  describe('when showing a value that is not a Marionette View', function() {
     it('should reject legacy implicit View inputs', function() {
       const region = new Region({ el: document.createElement('div') });
       const invalidValues = [
@@ -224,7 +221,7 @@ describe('region', function() {
 
       invalidValues.forEach(value => {
         expect(() => region.show(value))
-          .to.throw('The value passed to show must be a View-like instance')
+          .to.throw('The value passed to show must be a Marionette View instance')
           .with.property('code', 'MN0006');
       });
 
@@ -252,13 +249,11 @@ describe('region', function() {
         onEmpty: sinon.stub(),
       });
 
-      MyView = Backbone.View.extend({
+      MyView = View.extend({
         events: {
           'click': 'onClick'
         },
-        render: function() {
-          $(this.el).html('some content');
-        },
+        template: () => 'some content',
         destroy: function() {},
         onBeforeRender: function() {},
         onRender: sinon.stub(),
@@ -402,7 +397,7 @@ describe('region', function() {
       });
 
       it('should not restore if the "currentView.el" has been remove from the DOM', function() {
-        view.remove();
+        view.destroy();
         region._restoreEl();
         expect(region.currentView.el.parentNode).is.null;
       });
@@ -605,10 +600,8 @@ describe('region', function() {
         }
       });
 
-      SubView = Backbone.View.extend({
-        render: function() {
-          $(this.el).html('some content');
-        },
+      SubView = View.extend({
+        template: () => 'some content',
 
         initialize: function() {
           innerRegionRenderSpy = sinon.stub();
@@ -659,10 +652,8 @@ describe('region', function() {
         el: '#region'
       });
 
-      MyView = Backbone.View.extend({
-        render: function() {
-          $(this.el).html('some content');
-        },
+      MyView = View.extend({
+        template: () => 'some content',
 
         destroy: function() {}
       });
@@ -711,10 +702,8 @@ describe('region', function() {
         el: '#region'
       });
 
-      MyView = Backbone.View.extend({
-        render: function() {
-          $(this.el).html('some content');
-        },
+      MyView = View.extend({
+        template: () => 'some content',
         destroy: function() {},
         attachHtml: function() {}
       });
@@ -752,7 +741,6 @@ describe('region', function() {
     let MyView;
     let view;
     let region;
-
 
     beforeEach(function() {
       MyRegion = Region.extend({
@@ -808,9 +796,7 @@ describe('region', function() {
       });
 
       MyView = View.extend({
-        render: function() {
-          $(this.el).html('some content');
-        }
+        template: () => 'some content'
       });
 
       this.setFixtures('<div id="region"></div>');
@@ -843,10 +829,8 @@ describe('region', function() {
       });
 
       this.setFixtures('<div id="region"></div>');
-      MyView = Backbone.View.extend({
-        render: function() {
-          $(this.el).html('some content');
-        },
+      MyView = View.extend({
+        template: () => 'some content',
 
         destroy: function() {}
       });
@@ -887,10 +871,8 @@ describe('region', function() {
         })
       });
 
-      MyView = Backbone.View.extend({
-        render: function() {
-          $(this.el).html('some content');
-        },
+      MyView = View.extend({
+        template: () => 'some content',
 
         destroy: function() {}
       });
@@ -901,7 +883,6 @@ describe('region', function() {
 
       view = new MyView();
       sinon.spy(view, 'destroy');
-      sinon.spy(view, '_removeElement');
 
       region = new MyRegion();
       sinon.spy(region, 'empty');
@@ -927,9 +908,6 @@ describe('region', function() {
       expect(view.destroy).to.have.been.called;
     });
 
-    it('should not call "_removeElement" directly, on the view', function() {
-      expect(view._removeElement).not.to.have.been.called;
-    });
 
     it('should delete the current view reference', function() {
       expect(region.currentView).to.be.undefined;
@@ -954,54 +932,6 @@ describe('region', function() {
     });
   });
 
-  describe('when destroying the current view and it does not have a "destroy" method', function() {
-    let MyRegion;
-    let MyView;
-    let view;
-    let region;
-
-    beforeEach(function() {
-      MyRegion = Region.extend({
-        el: document.createElement('div')
-      });
-
-      MyView = Backbone.View.extend({
-        render: function() {
-          $(this.el).html('some content');
-        }
-      });
-      _.extend(MyView.prototype, Events);
-
-      view = new MyView();
-      this.sinon.spy(view, '_removeElement');
-      region = new MyRegion();
-      region.show(view);
-      region.empty();
-    });
-
-    it('should call "_removeElement" on the view', function() {
-      expect(view._removeElement).to.have.been.called;
-    });
-
-    it('should set "_isDestroyed" on the view', function() {
-      expect(view._isDestroyed).to.be.true;
-    });
-
-    describe('and then attempting to show the view again in the Region', function() {
-      let showFunction;
-
-      beforeEach(function() {
-        showFunction = function() {
-          region.show(view);
-        };
-      });
-
-      it('should throw an error.', function() {
-        const errorMessage = 'View (cid: "' + view.cid + '") has already been destroyed and cannot be used.';
-        expect(showFunction).to.throw(errorMessage).with.property('code', 'MN0007');
-      });
-    });
-  });
 
   describe('when initializing a region and passing an "el" option', function() {
     let el;
@@ -1217,24 +1147,25 @@ describe('region', function() {
     });
   });
 
-  describe('when showing a Backbone.View child view', function() {
-    let BbView;
+  describe('when showing a Marionette View child view', function() {
+    let OtherView;
     let region;
     let view;
 
     beforeEach(function() {
-      BbView = Backbone.View.extend({
+      OtherView = View.extend({
+        template: () => '',
         onBeforeRender: this.sinon.stub(),
         onRender: this.sinon.stub(),
         onBeforeDestroy: this.sinon.stub(),
         onDestroy: this.sinon.stub()
       });
-      _.extend(BbView.prototype, Events);
+      _.extend(OtherView.prototype, Events);
 
       region = new Region({
         el: document.createElement('div')
       });
-      view = new BbView();
+      view = new OtherView();
       region.show(view);
     });
 
@@ -1249,7 +1180,7 @@ describe('region', function() {
         .and.to.have.been.calledWith(view);
     });
 
-    describe('when emptying while containing the Backbone.View', function() {
+    describe('when emptying while containing the Marionette View', function() {
       beforeEach(function() {
         region.empty();
       });

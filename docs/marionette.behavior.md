@@ -468,7 +468,7 @@ binds the later selector while the Behavior continues to bind its construction-t
 selector. Keep `ui` functions deterministic when the host and Behavior share keys.
 
 The Behavior's `el` is also available during `initialize`. Behaviors created
-from the optional `withJQuery(Behavior)` base class also expose `$el` at this point. DOM event and trigger declarations are delegated only after `initialize`
+can initialize their own `$el` wrapper with `$(this.el)` at this point. DOM event and trigger declarations are delegated only after `initialize`
 returns, so callable declarations may safely depend on state established there.
 
 Before binding, `behavior.ui` contains selector strings. A template-rendered `View`
@@ -542,8 +542,8 @@ The host View or CollectionView owns the DOM boundary for each attached
 Behavior. A Behavior's `el` is the host's current `el`, and its `$()` lookup
 delegates to the host so that results stay scoped to that element. Native core
 does not create `$el`. With the optional
-[jQuery base-class helper](./dom.api.md#optional-jquery-adapter), a Behavior's
-`$el` getter wraps the host's root element.
+[jQuery adapter](./dom.api.md#optional-jquery-adapter), application code can
+assign `this.$el = $(this.el)` once in `initialize()`.
 
 The host and its Behaviors keep the same root for their lifetime. Rendering can
 replace its contents, and `delegateEvents()` refreshes View and Behavior handlers.

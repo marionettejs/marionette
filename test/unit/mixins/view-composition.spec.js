@@ -31,8 +31,6 @@ const directKeys = [
   'renderAttributes',
   '$',
   '_isElAttached',
-  'supportsRenderLifecycle',
-  'supportsDestroyLifecycle',
   '_isDestroyed',
   'isDestroyed',
   '_isRendered',

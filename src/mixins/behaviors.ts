@@ -2,12 +2,13 @@ import eachOwn from '../utils/each-own.ts';
 import MarionetteError from '../modules/error.ts';
 import disposeAll from '../utils/dispose-all.ts';
 import getValue from '../utils/get-value.ts';
+import type { TriggerTarget } from './view-events.ts';
 
 export interface BehaviorInstance {
   _isDestroyed?: boolean;
   behaviors?: unknown;
   destroy(options?: unknown): unknown;
-  _syncElement(): unknown;
+  _delegateViewEvents(view: TriggerTarget): unknown;
   _undelegateViewEvents(options?: unknown): unknown;
   delegateEntityEvents(): unknown;
   undelegateEntityEvents(options?: unknown): unknown;
@@ -126,9 +127,8 @@ export default {
     this._behaviors = [];
   },
 
-  // proxy behavior el to the view's el.
-  _setBehaviorElements(this: BehaviorContainer) {
-    eachBehavior(this._behaviors, behavior => behavior._syncElement());
+  _delegateBehaviorViewEvents(this: BehaviorContainer & TriggerTarget) {
+    eachBehavior(this._behaviors, behavior => behavior._delegateViewEvents(this));
   },
 
   _undelegateBehaviorViewEvents(this: BehaviorContainer) {

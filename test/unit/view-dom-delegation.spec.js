@@ -159,7 +159,7 @@ describe('View DOM event delegation', function() {
     view.destroy();
     const delegateSpy = this.sinon.spy(view, '_delegateViewEvents');
     const undelegateSpy = this.sinon.spy(view, '_undelegateViewEvents');
-    const behaviorSpy = this.sinon.spy(view, '_setBehaviorElements');
+    const behaviorSpy = this.sinon.spy(view, '_delegateBehaviorViewEvents');
 
     expect(view.delegateEvents()).to.equal(view);
     expect(view.undelegateEvents()).to.equal(view);

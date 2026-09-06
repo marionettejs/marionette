@@ -151,8 +151,6 @@ const ViewMixin = {
     return !!documentEl && this.Dom.hasEl!(documentEl, this.el);
   },
 
-  supportsRenderLifecycle: true,
-  supportsDestroyLifecycle: true,
 
   _isDestroyed: false,
 
@@ -206,7 +204,7 @@ const ViewMixin = {
     this._buildEventProxies();
     try {
       this._delegateViewEvents(this, events);
-      this._setBehaviorElements();
+      this._delegateBehaviorViewEvents();
     } catch (error) {
       disposeAll([
         () => this._undelegateBehaviorViewEvents(),

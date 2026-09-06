@@ -8,7 +8,6 @@ import getValue from '../utils/get-value.ts';
 import isString from '../utils/is-string.ts';
 import uniqueId from '../utils/unique-id.ts';
 import disposeAll from '../utils/dispose-all.ts';
-import monitorViewEvents from './common/monitor-view-events.ts';
 import { renderView, destroyView, isView } from './common/view.ts';
 import CommonMixin from '../mixins/common.ts';
 import DomApi, { setDomApi } from '../runtime/dom-api.ts';
@@ -274,8 +273,6 @@ assignOwn(Region.prototype, CommonMixin, {
   },
 
   _setupChildView(this: RegionInternals, view: SupportedView) {
-    monitorViewEvents(view);
-
     this._proxyChildViewEvents(view);
 
     // We need to listen for if a view is destroyed in a way other than through the region.
@@ -350,7 +347,7 @@ assignOwn(Region.prototype, CommonMixin, {
       throw new MarionetteError({
         code: 'MN0006',
         name: classErrorName,
-        message: 'The value passed to show must be a View-like instance. Construct the View before calling show.',
+        message: 'The value passed to show must be a Marionette View instance. Construct the View before calling show.',
         url: 'marionette.region.html#showing-a-view'
       });
     }
@@ -457,7 +454,6 @@ assignOwn(Region.prototype, CommonMixin, {
     this._parentView!.stopListening(view);
   },
 
-  // Non-Marionette safe view.destroy
   destroyView<Child extends SupportedView>(this: RegionInternals, view: Child) {
     if (view._isDestroyed) {
       return view;

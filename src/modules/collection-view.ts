@@ -63,7 +63,7 @@ type VisualMethods<Query extends ArrayLike<Element>> = Pick<ViewInstance<ViewCon
   'events' | 'triggers' | 'ui' | 'behaviors' | 'childViewEvents' | 'childViewTriggers' |
   'childViewEventPrefix' | 'modelEvents' | 'collectionEvents' | 'stateEvents' |
   'state' | 'template' | 'templateContext' | 'Dom' | 'Data' | 'State' | 'EventDelegator' |
-  '_renderHtml' | 'monitorViewEvents' | 'supportsRenderLifecycle' | 'supportsDestroyLifecycle' |
+  '_renderHtml' | 'monitorViewEvents' |
   'getOption' | 'mergeOptions' | 'normalizeMethods' | 'bindEvents' | 'unbindEvents' |
   'bindRequests' | 'unbindRequests' | 'on' | 'off' | 'once' | 'listenTo' | 'listenToOnce' |
   'stopListening' | 'trigger' | 'triggerMethod' | 'normalizeUIString' | 'normalizeUIKeys' |
@@ -372,7 +372,7 @@ function isEmptyViewClass(view: unknown): view is ChildClass<SupportedView> {
   const { render, destroy } = view.prototype;
 
   return typeof render === 'function' &&
-    (destroy ? typeof destroy === 'function' : typeof view.prototype.remove === 'function');
+    typeof destroy === 'function';
 }
 
 function modelAttributesMatcher(Data: DataProvider, predicate: Record<string, unknown>) {
@@ -396,7 +396,7 @@ function modelAttributesMatcher(Data: DataProvider, predicate: Record<string, un
 }
 
 function isClassDefinition(view: Function) {
-  return /^class(?:\s|\/[/*])/.test(Function.prototype.toString.call(view));
+  return !!view.prototype?.render || /^class(?:\s|\/[/*])/.test(Function.prototype.toString.call(view));
 }
 
 const ClassOptions = [
@@ -864,7 +864,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   _getView(this: CollectionViewInternals, view: unknown, child: unknown) {
     if (isViewClass(view as { prototype?: Partial<SupportedView> })) {
       return view as ChildClass;
-    } else if (typeof view === 'function') {
+    } else if (typeof view === 'function' && !isClassDefinition(view)) {
       return (view as (this: CollectionViewInternals, model: unknown) => ChildClass).call(this, child);
     }
   },
@@ -886,8 +886,6 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   },
 
   _setupChildView(this: CollectionViewInternals, view: CollectionChild) {
-    monitorViewEvents(view);
-
     // We need to listen for if a view is destroyed in a way other
     // than through the CollectionView.
     // If this happens we need to remove the reference to the view

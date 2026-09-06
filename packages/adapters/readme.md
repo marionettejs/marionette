@@ -173,17 +173,19 @@ const JQueryView = View.extend();
 JQueryView.setDomApi(JQueryDomApi);
 ```
 
-For an application base class that also exposes `$el`:
+If application code needs `$el`, initialize it once:
 
 ```js
-import withJQuery from '@marionette/adapters/dom/jquery-view';
+import $ from 'jquery';
 
-const JQueryView = withJQuery(View);
+const JQueryView = View.extend({
+  initialize() { this.$el = $(this.el); }
+});
+JQueryView.setDomApi(JQueryDomApi);
 ```
 
-The helper configures the DOM adapter and adds a read-only `$el` getter on a
-new subclass. It also accepts CollectionView and Behavior classes. Use the
-returned class's `.extend()` for application-specific behavior.
+Views, CollectionViews, and Behaviors keep their initial root. The application
+owns `$el`; no wrapper helper or extra package subpath is needed.
 
 Importing an adapter subpath does not load any other adapter or optional peer.
 

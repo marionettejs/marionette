@@ -232,9 +232,8 @@ setDomApi(JQueryDomApi);
 ```
 
 The adapter imports `jquery`, so `jquery` is only required when you install the
-adapter. If existing code also uses `$el`, use the optional
-`withJQuery` base-class helper from `@marionette/adapters/dom/jquery-view` for
-View, CollectionView, and Behavior. See the [upgrade guide](../upgradeGuide.md) for the migration entries on jQuery DOM
+adapter. If existing code also uses `$el`, assign `this.$el = $(this.el)` in
+its View, CollectionView, or Behavior `initialize()` method. See the [upgrade guide](../upgradeGuide.md) for the migration entries on jQuery DOM
 compatibility and the `detachContents` policy.
 
 ## Rendering adapters are optional

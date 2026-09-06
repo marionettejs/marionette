@@ -44,7 +44,7 @@ proxied view events receive the host view.
   * [Advanced Event Settings](#advanced-event-settings)
 * [Destroy Events](#destroy-events)
   * [`destroy` and `before:destroy` events](#destroy-and-beforedestroy-events)
-* [Supporting Backbone Views](#supporting-backbone-views)
+* [Wrapping legacy views](#wrapping-legacy-views)
   * [`Marionette.Events` and `triggerMethod`](#marionetteevents-and-triggermethod)
   * [Lifecycle Events](#lifecycle-events)
 
@@ -433,7 +433,7 @@ prerendered html.
 
 Marionette is able to trigger `attach`/`detach` events down the view tree along with
 triggering the `dom:refresh`/`dom:remove` events because of the view event monitor.
-This monitor starts when a view is created or shown in a region (to handle non-Marionette views).
+This monitor starts when a Marionette View is constructed.
 
 In some cases it may be a useful performance improvement to disable this functionality.
 Doing so is as easy as setting `monitorViewEvents: false` on the view class.
@@ -495,82 +495,13 @@ Similar to `destroy`, `CollectionView` has events for when all of its children
 are destroyed. See [the CollectionView's events](#destroychildren-and-beforedestroychildren-events)
 for more information.
 
-## Supporting Backbone Views
+## Wrapping legacy views
 
-### `Marionette.Events` and `triggerMethod`
+Managed children provide Marionette's render and destroy lifecycle themselves.
+`supportsRenderLifecycle` and `supportsDestroyLifecycle` are removed; Regions and
+CollectionViews do not supply missing lifecycle events or call `remove()` as a
+substitute for `destroy()`.
 
-Internally Marionette uses [`triggerMethod`](./common.md#triggermethod) for event triggering.
-This API is not available to `Backbone.View`s so in order to support `Backbone.View`s in Marionette v4+,
-`Marionette.Events` must be mixed into the non-Marionette view.
-
-This can be done for an individual view definition:
-```javascript
-import { Events } from 'marionette';
-
-const MyBbView = Backbone.View.extend(Events);
-```
-or for all `Backbone.View`s
-```javascript
-_.extend(Backbone.View.prototype, Events);
-```
-
-### Lifecycle Events
-
-#### `render` and `destroy`
-
-To support non-Marionette Views, Marionette uses two flags to determine if it should trigger
-`render` and `destroy` events on the view. If a custom view throws it's own `render` or `destroy`
-events, the related flag should be set to `true` to avoid Marionette duplicating these events.
-
-```javascript
-// Add support for triggerMethod
-import { Events } from 'marionette';
-
-_.extend(Backbone.View.prototype, Events);
-
-const MyCustomView = Backbone.View.extend({
-  supportsRenderLifecycle: true,
-  supportsDestroyLifecycle: true,
-  render() {
-    this.triggerMethod('before:render');
-
-    this.$el.html('render html');
-
-    // Since render is being triggered here set the
-    // supportsRenderLifecycle flag to true to avoid duplication
-    this.triggerMethod('render');
-  },
-  destroy() {
-    this.triggerMethod('before:destroy');
-
-    this.remove();
-
-    // Since destroy is being triggered here set the
-    // supportsDestroyLifecycle flag to true to avoid duplication
-    this.triggerMethod('destroy');
-  }
-});
-```
-
-#### DOM Change Lifecycle Events
-
-As mentioned in [Advanced Event Settings](#advanced-event-settings) some DOM events
-are triggers from the view event monitor that will handle DOM attachment related events
-down the view tree. Backbone View's won't have the functionality unless the monitor is
-added. This will include all [DOM Change Events](#dom-change-events) other than render.
-
-You can add the view events monitor to any non-Marionette view:
-```javascript
-import { monitorViewEvents, Events } from 'marionette';
-
-// Add support for triggerMethod
-_.extend(Backbone.View.prototype, Events);
-
-const MyCustomView = Backbone.View.extend({
-  initialize() {
-    monitorViewEvents(this);
-    // Ideally this happens first prior to any rendering
-    // or attaching that might occur in the initialize
-  }
-});
-```
+Keep non-Marionette views inside a [Marionette wrapper](./marionette.region.md#wrapping-a-non-marionette-view)
+that owns their rendering and cleanup. Mixing `Marionette.Events` into a Backbone
+View does not make it a supported managed child.

@@ -155,8 +155,8 @@ describe('CollectionView -  Empty', function() {
 
   describe('#emptyView', function() {
     const collection = new Backbone.Collection();
-    const BBView = Backbone.View.extend();
-    _.extend(BBView.prototype, Events);
+    const OtherView = View.extend({ template: () => '' });
+    _.extend(OtherView.prototype, Events);
 
     describe('when emptyView is omitted, undefined, null, or false', function() {
       [
@@ -179,7 +179,7 @@ describe('CollectionView -  Empty', function() {
       });
     });
 
-    describe('when emptyView is a type of Backbone.View', function() {
+    describe('when emptyView is a Marionette View subclass', function() {
       it('should show an emptyView from the defined view', function() {
         const MyView = View.extend({ template: _.noop });
         const myCollectionView = new CollectionView({
@@ -211,11 +211,11 @@ describe('CollectionView -  Empty', function() {
       });
     });
 
-    describe('when emptyView is a Backbone.View', function() {
+    describe('when emptyView is a Marionette View', function() {
       it('should show an emptyView from the defined view', function() {
         const myCollectionView = new CollectionView({
           collection,
-          emptyView: BBView
+          emptyView: OtherView
         });
 
         this.sinon.spy(myCollectionView.getEmptyRegion(), 'show');
@@ -223,7 +223,7 @@ describe('CollectionView -  Empty', function() {
 
         expect(myCollectionView.getEmptyRegion().show)
           .to.be.calledOnce
-          .and.calledWith(sinon.match.instanceOf(BBView));
+          .and.calledWith(sinon.match.instanceOf(OtherView));
       });
     });
 
@@ -247,7 +247,7 @@ describe('CollectionView -  Empty', function() {
 
       it('shows the returned view and calls an ordinary resolver on the CollectionView', function() {
         const emptyViewStub = this.sinon.stub();
-        emptyViewStub.returns(BBView);
+        emptyViewStub.returns(OtherView);
 
         const myCollectionView = new CollectionView({
           collection,
@@ -259,7 +259,7 @@ describe('CollectionView -  Empty', function() {
 
         expect(myCollectionView.getEmptyRegion().show)
           .to.be.calledOnce
-          .and.calledWith(sinon.match.instanceOf(BBView));
+          .and.calledWith(sinon.match.instanceOf(OtherView));
         expect(emptyViewStub).to.have.been.calledOnce.and.calledOn(myCollectionView);
         myCollectionView.destroy();
       });
@@ -267,12 +267,12 @@ describe('CollectionView -  Empty', function() {
       it('supports an arrow resolver', function() {
         const myCollectionView = new CollectionView({
           collection,
-          emptyView: () => BBView,
+          emptyView: () => OtherView,
         });
 
         myCollectionView.render();
 
-        expect(myCollectionView.getEmptyRegion().currentView).to.be.instanceOf(BBView);
+        expect(myCollectionView.getEmptyRegion().currentView).to.be.instanceOf(OtherView);
         myCollectionView.destroy();
       });
 
@@ -280,13 +280,13 @@ describe('CollectionView -  Empty', function() {
         const boundContext = {};
         const resolver = function() {
           expect(this).to.equal(boundContext);
-          return BBView;
+          return OtherView;
         }.bind(boundContext);
         const myCollectionView = new CollectionView({ collection, emptyView: resolver });
 
         myCollectionView.render();
 
-        expect(myCollectionView.getEmptyRegion().currentView).to.be.instanceOf(BBView);
+        expect(myCollectionView.getEmptyRegion().currentView).to.be.instanceOf(OtherView);
         myCollectionView.destroy();
       });
 
@@ -295,7 +295,7 @@ describe('CollectionView -  Empty', function() {
         const resolver = {
           resolve() {
             context = this;
-            return BBView;
+            return OtherView;
           },
         }.resolve;
         const myCollectionView = new CollectionView({ collection, emptyView: resolver });
@@ -303,7 +303,7 @@ describe('CollectionView -  Empty', function() {
         myCollectionView.render();
 
         expect(context).to.equal(myCollectionView);
-        expect(myCollectionView.getEmptyRegion().currentView).to.be.instanceOf(BBView);
+        expect(myCollectionView.getEmptyRegion().currentView).to.be.instanceOf(OtherView);
         myCollectionView.destroy();
       });
     });

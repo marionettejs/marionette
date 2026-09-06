@@ -1,3 +1,4 @@
+import Behavior from '../tmp/typed-core/src/modules/behavior.js';
 import View from '../tmp/typed-core/src/modules/view.js';
 import CollectionView from '../tmp/typed-core/src/modules/collection-view.js';
 
@@ -17,3 +18,9 @@ for (const instance of [view, collectionView, extended, native, factory, collect
   // @ts-expect-error Root replacement is no longer a public operation.
   instance.setElement(root);
 }
+
+const behavior = new Behavior({}, view);
+// @ts-expect-error A Behavior shares its host's fixed root.
+behavior.el = root;
+// @ts-expect-error Behavior element retargeting is removed.
+behavior._syncElement();

@@ -24,14 +24,14 @@ import type { DataApi } from '../runtime/data-api.ts';
 import type { StateApi } from '../runtime/state-api.ts';
 import type { EventDelegator } from '../runtime/event-delegator.ts';
 import type { UIHost, UIBindings, UISelectors } from '../mixins/ui.ts';
-import type { ViewEventsHost, DOMEvents, DOMTriggers } from '../mixins/view-events.ts';
+import type { ViewEventsHost, TriggerTarget, DOMEvents, DOMTriggers } from '../mixins/view-events.ts';
 import type { StateHost } from '../mixins/state.ts';
 import type { EntityEventHost } from '../mixins/delegate-entity-events.ts';
 import type { BehaviorInstance as BehaviorLifecycle } from '../mixins/behaviors.ts';
 import type { Constructed, Merge, ArgumentsFor, DefaultOptions, OptionsFor, StateFor, SuppliedState } from './object.ts';
 
 export interface BehaviorHost<Query extends ArrayLike<Element> = ArrayLike<Element>> extends EventSource {
-  el: Element;
+  readonly el: Element;
   ui?: UIBindings | Record<string, Query>;
   model?: unknown;
   collection?: unknown;
@@ -61,7 +61,7 @@ export interface BehaviorInstance<Options extends object = BehaviorOptions, Host
   cidPrefix: string;
   options: Options;
   view: Host;
-  el: Element;
+  readonly el: Element;
   ui?: UIBindings | Record<string, Query>;
   events?: BehaviorOptions['events'];
   triggers?: BehaviorOptions['triggers'];
@@ -79,6 +79,7 @@ export interface BehaviorInstance<Options extends object = BehaviorOptions, Host
   normalizeUIString(value: string, bindings?: UISelectors): string;
   normalizeUIKeys<Value>(hash: Record<string, Value> | null | undefined, bindings?: UISelectors): Record<string, Value>;
   normalizeUIValues<Hash extends object>(hash: Hash, property?: string, bindings?: UISelectors): Hash;
+  _delegateViewEvents(view: TriggerTarget): void;
   _undelegateViewEvents(): void;
 }
 
@@ -157,7 +158,7 @@ const Behavior = function(this: BehaviorInternals, options: BehaviorOptions | un
     this._initStateEvents();
     if (this._isDestroyed) { return; }
 
-    this._syncElement();
+    this._delegateViewEvents(this.view);
   } catch (error) {
     try {
       this.destroy();
@@ -192,16 +193,6 @@ assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateMixin
       () => this._destroyState(),
       () => this._undelegateViewEvents()
     ]);
-
-    return this;
-  },
-
-  _syncElement(this: BehaviorInternals) {
-    this._undelegateViewEvents();
-
-    this.el = this.view.el;
-
-    this._delegateViewEvents(this.view);
 
     return this;
   },

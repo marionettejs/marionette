@@ -88,8 +88,8 @@ collections are not valid View `el` values.
 When `el` is omitted, Marionette creates the root element from `tagName` (a
 `div` by default) and applies the resolved `id`, `className`, and `attributes`.
 The element remains the View's root for its entire lifetime. Native core does not create `$el`;
-applications that require that compatibility surface can opt into the
-[jQuery base-class helper](./dom.api.md#optional-jquery-adapter).
+applications can initialize their own wrapper when using the
+[jQuery adapter](./dom.api.md#optional-jquery-adapter).
 
 Marionette determines whether the initial root is already
 [rendered](#rendering-a-view) or [attached](#attaching-a-view). If a View starts

@@ -16,15 +16,15 @@ export default [
     ],
     plugins: [compile()]
   },
-  ...['jquery', 'jquery-view'].map(name => ({
-    input: `src/dom/${ name }.ts`,
+  {
+    input: 'src/dom/jquery.ts',
     external: ['jquery'],
     output: [
-      { file: `dist/dom/${ name }.js`, format: 'es' },
-      { file: `dist/dom/${ name }.cjs`, format: 'cjs', exports: 'default' }
+      { file: 'dist/dom/jquery.js', format: 'es' },
+      { file: 'dist/dom/jquery.cjs', format: 'cjs', exports: 'default' }
     ],
     plugins: [compile()]
-  })),
+  },
   ...['redux', 'zustand', 'xstate-store', 'xstate'].map(name => ({
     input: `src/data/${ name }.ts`,
     output: [

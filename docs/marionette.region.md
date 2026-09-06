@@ -452,10 +452,10 @@ const childView = new MyChildView();
 myView.showChildView('main', childView, { fooOption: 'bar' });
 ```
 
-Both forms require a compatible View-like instance. Construct a `View` explicitly
+Both forms require a Marionette View instance. Construct a `View` explicitly
 when displaying a template or static content; Regions do not allocate hidden Views
 from View classes, functions, strings, or option objects. The
-[non-Marionette View contract](#non-marionette-views) remains supported.
+[wrapper pattern](#wrapping-a-non-marionette-view) provides explicit ownership for legacy integrations.
 
 ```javascript
 import { View } from 'marionette';
@@ -473,7 +473,7 @@ For more information on `showChildView` and `getChildView`, see the
 [Documentation for Views](./marionette.view.md#managing-children)
 
 **Errors**
-- An error will be thrown if the value is not View-like or is destroyed.
+- An error will be thrown if the value is not a Marionette View or is destroyed.
 - An error will be thrown if the view is already shown in a Region or CollectionView.
 
 ### Checking whether a region is showing a view
@@ -495,43 +495,32 @@ mainRegion.hasView() // true
 If you show a view in a region with an existing view, Marionette will
 [remove the existing View](#emptying-a-region) before showing the new one.
 
-### Non-Marionette Views
+### Wrapping a non-Marionette view
 
-Marionette Regions aren't just for showing Marionette Views - they can also
-display instances of a [`Backbone.View`](http://backbonejs.org/#View).
-To do this, ensure your view defines a `render()` method and just treat it like
-a regular Marionette View:
+Regions and CollectionViews manage Marionette Views. They do not synthesize
+render or destroy events for Backbone Views or fall back to a `remove()` method.
+Keep a legacy integration inside a Marionette owner:
 
 ```javascript
-import _ from 'underscore';
-import Bb from 'backbone';
 import { View } from 'marionette';
+import LegacyView from './legacy-view.js';
 
-const MyChildView = Bb.View.extend({
-  render() {
-    this.$el.append('<p>Some text</p>');
-  },
-
+const LegacyWrapper = View.extend({
+  template: () => '<div class="legacy"></div>',
   onRender() {
-    console.log('Regions also fire Lifecycle events on Backbone.View!');
-  }
-});
-
-const MyParentView = View.extend({
-  regions: {
-    child: '.child-view'
+    this.legacy?.remove();
+    this.legacy = new LegacyView({ el: this.$('.legacy')[0] });
+    this.legacy.render();
   },
-
-  template: _.template('<div class="child-view"></div>'),
-
-  onRender() {
-    this.showChildView('child', new MyChildView());
+  onDestroy() {
+    this.legacy?.remove();
   }
 });
 ```
 
-As you can see above, you can listen to [Lifecycle Events](./view.lifecycle.md)
-on `Backbone.View` and Marionette will fire the events for you.
+Show `new LegacyWrapper()` in the Region. The wrapper owns the legacy instance
+and translates its actual rendering and cleanup API. No global prototype mixin
+or compatibility flags are needed.
 
 ## Emptying a Region
 

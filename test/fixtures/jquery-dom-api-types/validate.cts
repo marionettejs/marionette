@@ -1,11 +1,15 @@
-import withJQuery = require('@marionette/adapters/dom/jquery-view');
-import { Behavior, View, CollectionView, createMarionette, setDomApi } from 'marionette';
+import $ = require('jquery');
+import { View, CollectionView, createMarionette, setDomApi } from 'marionette';
 import JQueryDomApi = require('@marionette/adapters/dom/jquery');
 
 const host = document.createElement('div');
 const fragment = document.createDocumentFragment();
 const result: JQuery<HTMLElement> = JQueryDomApi.findEl(host, '.child');
-const JQueryView = withJQuery(View);
+class JQueryView extends View {
+  declare $el: JQuery<Element>;
+  initialize() { this.$el = $(this.el); }
+}
+JQueryView.setDomApi(JQueryDomApi);
 const wrapped: JQuery<Element> = new JQueryView({ el: host }).$el;
 
 JQueryDomApi.detachEl(host);
@@ -42,45 +46,14 @@ const itemQuery: JQuery<HTMLElement> = JQueryDomApi.findEl(itemElement, '.child'
 const list = new CollectionView({ collection: [{ label: 'jQuery' }], childView: View });
 const isolatedItem = new runtime.View({ template: false });
 const isolatedList = new runtime.CollectionView({ collection: [], childView: runtime.View });
-const isolatedWrapped: JQuery<Element> = new (withJQuery(runtime.View))().$el;
 // @ts-expect-error Configured DOM queries must contain elements, not numbers.
 setDomApi({ ...JQueryDomApi, findEl() { return [1]; } });
 
-const Extended = JQueryView.extend({
-  label: 'item',
-  initialize(options: { model: { label: string } }) { this.$el.addClass(this.label); },
-  activate() { this.$el.addClass('active'); return this; }
-}, { kind: 'jquery' });
-const extended = new Extended({ model: { label: 'typed' } });
-const query: JQuery<Element> = extended.$('button');
-const modelLabel: string = extended.options.model.label;
-const staticKind: string = Extended.kind;
-extended.activate().$el.attr('title', 'active');
-const JQueryList = withJQuery(CollectionView).extend({ childView: Extended });
-new JQueryList({ collection: [] }).$el.addClass('list');
-const JQueryBehavior = withJQuery(Behavior).extend({
-  initialize(options: object) { this.$el.addClass('behavior'); }
-});
-new JQueryBehavior({}, extended).$el.addClass('initialized');
 // @ts-expect-error Native views do not provide $el.
 new View().$el;
-// @ts-expect-error The wrapper follows el and cannot be replaced independently.
-extended.$el = wrapped;
-
-const Configured = View.extend({
-  initialize(options: { label: string }) { this.options.label.toUpperCase(); },
-  getLabel() { return this.options.label; }
-}, { category: 'configured' });
-const WrappedConfigured = withJQuery(Configured);
-const configuredInstance = new WrappedConfigured({ label: 'preserved' });
-const preservedLabel: string = configuredInstance.getLabel();
-const preservedCategory: string = WrappedConfigured.category;
-// @ts-expect-error The helper preserves required constructor options.
-new WrappedConfigured();
-
-void isolatedWrapped;
-void query;
-void modelLabel;
-void staticKind;
-void preservedLabel;
-void preservedCategory;
+wrapped.addClass('application-owned');
+void label;
+void itemQuery;
+void list;
+void isolatedItem;
+void isolatedList;

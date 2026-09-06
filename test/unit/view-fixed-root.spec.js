@@ -9,7 +9,11 @@ for (const [name, Base] of [['View', View], ['CollectionView', CollectionView]])
       const root = document.createElement('section');
       const resolveRoot = this.sinon.stub().returns(root);
       const initialized = [];
+      const clicked = this.sinon.spy();
+      const triggered = this.sinon.spy();
       const TestBehavior = Behavior.extend({
+        events: { 'click button': clicked },
+        triggers: { 'focus button': 'action:focused' },
         initialize() { initialized.push(this.el); }
       });
       const TestView = Base.extend({
@@ -17,15 +21,25 @@ for (const [name, Base] of [['View', View], ['CollectionView', CollectionView]])
         initialize() { initialized.push(this.el); }
       });
       const view = new TestView({ el: resolveRoot, template: () => '<button>Action</button>' });
+      view.on('action:focused', triggered);
       expect(initialized).to.deep.equal([root, root]);
       expect(view).not.to.have.property('setElement');
       view.render();
       view.render();
       view.delegateEvents();
+      const button = root.querySelector('button');
+      button.click();
+      button.dispatchEvent(new Event('focus', { bubbles: true }));
+      expect(clicked).to.have.been.calledOnce;
+      expect(triggered).to.have.been.calledOnce;
       expect(resolveRoot).to.have.been.calledOnce.and.calledOn(view);
       expect(view.el).to.equal(root);
       expect(view._behaviors[0].el).to.equal(root);
       view.destroy();
+      button.click();
+      button.dispatchEvent(new Event('focus', { bubbles: true }));
+      expect(clicked).to.have.been.calledOnce;
+      expect(triggered).to.have.been.calledOnce;
       expect(view.el).to.equal(root);
     });
 

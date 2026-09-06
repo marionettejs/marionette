@@ -24,9 +24,21 @@ the constructed type; an unknown return stays unknown. See the
 [constructor typing guidance](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#typescript-source) for preserving
 the receiver through further extensions and the limits of return annotations.
 
+## Managed children use Marionette's lifecycle
+
+Regions, CollectionView children, and empty Views use Marionette View or
+CollectionView instances. Automatic Backbone View lifecycle adaptation is removed,
+including `supportsRenderLifecycle`, `supportsDestroyLifecycle`, and the fallback
+from `destroy()` to `remove()`.
+
+Wrap an existing non-Marionette view in a Marionette View and own its rendering
+and cleanup explicitly. See the [wrapper example](https://github.com/marionettejs/marionette/blob/master/docs/marionette.region.md#wrapping-a-non-marionette-view).
+Behaviors also keep their initial host element; their internal `_syncElement()`
+retargeting method is removed. Event redelegation still refreshes their handlers.
+
 ## Construct Views before showing them
 
-`Region#show` and `View#showChildView` require a View-like instance in v5. They no
+`Region#show` and `View#showChildView` require a Marionette View instance in v5. They no
 longer construct a hidden base View from a template function, string, or View-options
 object. Make the allocation and ownership explicit:
 
@@ -204,40 +216,34 @@ ARIA attributes such as `aria-selected: false` therefore retain `"false"`.
 
 ## jQuery DOM compatibility
 
-- v5 core does not depend on jQuery and the native DomApi does not create
-  `view.$el`.
-- Apps that need the v4 jQuery compatibility surface can opt into the
-  `@marionette/adapters/dom/jquery-view` helper:
+v5 core does not depend on jQuery and does not create `$el`. Configure the optional
+DOM adapter when the application needs jQuery queries and content operations:
 
-  ```sh
-  npm install @marionette/adapters jquery
-  ```
+```js
+import $ from 'jquery';
+import { View } from 'marionette';
+import JQueryDomApi from '@marionette/adapters/dom/jquery';
 
-  ```js
-  import { View, CollectionView, Behavior } from 'marionette';
-  import withJQuery from '@marionette/adapters/dom/jquery-view';
+const JQueryView = View.extend({
+  initialize() { this.$el = $(this.el); }
+});
+JQueryView.setDomApi(JQueryDomApi);
+```
 
-  const JQueryView = withJQuery(View);
-  const JQueryCollectionView = withJQuery(CollectionView);
-  const JQueryBehavior = withJQuery(Behavior);
-  ```
+Install `@marionette/adapters` and `jquery` for this integration. The fixed root
+makes the application-owned wrapper valid for the View's lifetime. CollectionViews
+and Behaviors can initialize `$el` in the same way. A subclass overriding
+`initialize()` must also perform any setup it needs from its application base.
 
-- The adapter imports `jquery`, so jQuery is an optional peer dependency only for
-  consumers that opt into these subpaths.
-- Extend these application base classes wherever `$el` is needed. The helper
-  installs a read-only `$el` getter on a new subclass for its fixed root element.
-  `view.$(selector)` also returns a jQuery collection. Assigning `$el` directly
-  is unsupported.
-  The core View, CollectionView, and Behavior types no longer take a `Wrapped`
-  generic parameter. For example, `ViewInstance<Options, State, Query, Wrapped>`
-  becomes `ViewInstance<Options, State, Query>`. `DomApi<Query, Wrapped, Content>`
-  becomes `DomApi<Query, Content>`. Let `withJQuery()` infer the `$el` type on
-  your application base class.
-  For jQuery DOM operations without `$el`, use `setDomApi(JQueryDomApi)` with
-  `@marionette/adapters/dom/jquery` instead.
-- This does not restore Backbone.View inheritance or allow selector strings as a
-  View `el`; resolve View elements explicitly. Region selector strings remain
-  supported.
+Core View, CollectionView, and Behavior types no longer take a `Wrapped` generic.
+`ViewInstance<Options, State, Query, Wrapped>` becomes
+`ViewInstance<Options, State, Query>`, and `DomApi<Query, Wrapped, Content>` becomes
+`DomApi<Query, Content>`. Declare `$el: JQuery<Element>` on application subclasses
+that provide it. Use a TypeScript `declare` field so it does not overwrite the
+wrapper initialized by the base constructor.
+
+This integration does not restore Backbone.View inheritance. Resolve selector
+strings or unwrap jQuery collections before supplying a View `el`.
 
 ## Native delegation versus jQuery events
 

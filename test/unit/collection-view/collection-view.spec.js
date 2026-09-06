@@ -9,7 +9,7 @@ import Events from '../../../src/mixins/events';
 
 describe('CollectionView', function() {
   let MyChildView;
-  let MyBbChildView;
+  let OtherChildView;
 
   beforeEach(function() {
     MyChildView = View.extend({
@@ -20,13 +20,14 @@ describe('CollectionView', function() {
       onDestroy: this.sinon.stub(),
     });
 
-    MyBbChildView = Backbone.View.extend({
+    OtherChildView = View.extend({
+      template: () => '',
       onBeforeRender: this.sinon.stub(),
       onRender: this.sinon.stub(),
       onBeforeDestroy: this.sinon.stub(),
       onDestroy: this.sinon.stub(),
     });
-    _.extend(MyBbChildView.prototype, Events);
+    _.extend(OtherChildView.prototype, Events);
   });
 
   describe('#constructor', function() {
@@ -147,7 +148,7 @@ describe('CollectionView', function() {
       });
     });
 
-    describe('when childView is a type of Backbone.View', function() {
+    describe('when childView is a Marionette View subclass', function() {
       it('should build children from the defined view', function() {
         const MyView = View.extend({ template: _.noop });
         const myCollectionView = new CollectionView({
@@ -160,28 +161,28 @@ describe('CollectionView', function() {
       });
     });
 
-    describe('when childView is a Backbone.View', function() {
+    describe('when childView is a Marionette View', function() {
       it('should build children from the defined view', function() {
-        let BBView = Backbone.View.extend();
-        _.extend(BBView.prototype, Events);
+        let OtherView = View.extend({ template: () => '' });
+        _.extend(OtherView.prototype, Events);
         const myCollectionView = new CollectionView({
           collection,
-          childView: BBView
+          childView: OtherView
         });
         myCollectionView.render();
 
-        expect(myCollectionView.buildChildView).to.be.calledWith(model, BBView);
+        expect(myCollectionView.buildChildView).to.be.calledWith(model, OtherView);
       });
     });
 
     describe('when childView is a function returning a view', function() {
       let myCollectionView;
       let childViewStub;
-      let BBView = Backbone.View.extend();
-      _.extend(BBView.prototype, Events);
+      let OtherView = View.extend({ template: () => '' });
+      _.extend(OtherView.prototype, Events);
       beforeEach(function() {
         childViewStub = this.sinon.stub();
-        childViewStub.returns(BBView);
+        childViewStub.returns(OtherView);
 
         myCollectionView = new CollectionView({
           collection,
@@ -191,7 +192,7 @@ describe('CollectionView', function() {
       });
 
       it('should build children from the returned view', function() {
-        expect(myCollectionView.buildChildView).to.be.calledWith(model, BBView);
+        expect(myCollectionView.buildChildView).to.be.calledWith(model, OtherView);
       });
 
       it('should call childView with the model', function() {
@@ -218,7 +219,7 @@ describe('CollectionView', function() {
     it('resolves an arrow childView factory', function() {
       const view = new CollectionView({
         collection,
-        childView: child => child === model ? MyChildView : MyBbChildView
+        childView: child => child === model ? MyChildView : OtherChildView
       }).render();
 
       expect(view.children.first()).to.be.instanceOf(MyChildView);
@@ -273,7 +274,7 @@ describe('CollectionView', function() {
       let childView;
 
       beforeEach(function() {
-        childView = MyBbChildView;
+        childView = OtherChildView;
 
         childViewOptionsStub = this.sinon.stub();
         childViewOptionsStub.returns(childViewOptions);
@@ -304,7 +305,7 @@ describe('CollectionView', function() {
     it('should call buildChildView with arguments', function() {
       const collection = new Backbone.Collection([{ id: 1 }]);
       const model = collection.get(1);
-      const childView = MyBbChildView;
+      const childView = OtherChildView;
       const childViewOptions = {};
 
       this.sinon.spy(CollectionView.prototype, 'buildChildView');
