@@ -1,5 +1,5 @@
 import { debugLog, log } from '../modules/common/radio.ts';
-import { assignOwn, setProperty } from '../utils/assign-in.js';
+import { assignOwn, setProperty } from '../utils/assign-in.ts';
 import { eventSplitter } from '../utils/build-event-args.ts';
 import callHandler from '../utils/call-handler.ts';
 import onceWrap from '../utils/once-wrap.ts';

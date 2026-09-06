@@ -7,7 +7,8 @@
     "moduleResolution": "Node",
     "noEmit": true,
     "skipLibCheck": false,
-    "strict": true
+    "strict": true,
+    "types": []
   },
   "files": [
     "validate.ts"

@@ -13,7 +13,7 @@ import Backbone from 'backbone';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import * as Marionette from '../../src/index.ts';
-import BackboneApi from '../../packages/adapters/src/backbone-api.js';
+import BackboneApi from '../../packages/adapters/src/data/backbone.ts';
 
 Marionette.setDataApi(BackboneApi);
 

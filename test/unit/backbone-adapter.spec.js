@@ -24,7 +24,7 @@ describe('Backbone adapter', function() {
     const onNameChange = (...args) => listenerRegisteredBeforeImport.push(args);
     modelCreatedBeforeImport.on('change:name', onNameChange);
 
-    BackboneApi = (await import('../../packages/adapters/src/backbone.js')).default;
+    BackboneApi = (await import('../../packages/adapters/src/data/backbone.ts')).default;
   });
 
   it('exports one combined StateApi and DataApi adapter', function() {

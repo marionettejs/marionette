@@ -30,7 +30,7 @@ export default [
     ],
   },
   {
-    files: ['**/*.{cjs,js,mjs}', 'src/**/*.ts'],
+    files: ['**/*.{cjs,js,mjs}', 'src/**/*.ts', 'packages/*/src/**/*.ts'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
@@ -122,7 +122,7 @@ export default [
     },
   },
   {
-    files: ['src/**/*.ts'],
+    files: ['src/**/*.ts', 'packages/*/src/**/*.ts'],
     languageOptions: { parser: typescriptParser },
     plugins: { '@typescript-eslint': typescriptPlugin },
     rules: {

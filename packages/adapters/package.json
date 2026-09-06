@@ -6,66 +6,66 @@
   "exports": {
     "./backbone": {
       "import": {
-        "types": "./dist/backbone.d.mts",
+        "types": "./dist/types/esm/data/backbone.d.ts",
         "default": "./dist/backbone.js"
       },
       "require": {
-        "types": "./dist/backbone.d.cts",
+        "types": "./dist/types/cjs/data/backbone.d.ts",
         "default": "./dist/backbone.cjs"
       },
       "default": "./dist/backbone.js"
     },
     "./dom/jquery": {
       "import": {
-        "types": "./dist/dom/jquery.d.mts",
+        "types": "./dist/types/esm/dom/jquery.d.ts",
         "default": "./dist/dom/jquery.js"
       },
       "require": {
-        "types": "./dist/dom/jquery.d.cts",
+        "types": "./dist/types/cjs/dom/jquery.d.ts",
         "default": "./dist/dom/jquery.cjs"
       },
       "default": "./dist/dom/jquery.js"
     },
     "./redux": {
       "import": {
-        "types": "./dist/redux.d.mts",
+        "types": "./dist/types/esm/data/redux.d.ts",
         "default": "./dist/redux.js"
       },
       "require": {
-        "types": "./dist/redux.d.cts",
+        "types": "./dist/types/cjs/data/redux.d.ts",
         "default": "./dist/redux.cjs"
       },
       "default": "./dist/redux.js"
     },
     "./zustand": {
       "import": {
-        "types": "./dist/zustand.d.mts",
+        "types": "./dist/types/esm/data/zustand.d.ts",
         "default": "./dist/zustand.js"
       },
       "require": {
-        "types": "./dist/zustand.d.cts",
+        "types": "./dist/types/cjs/data/zustand.d.ts",
         "default": "./dist/zustand.cjs"
       },
       "default": "./dist/zustand.js"
     },
     "./xstate-store": {
       "import": {
-        "types": "./dist/xstate-store.d.mts",
+        "types": "./dist/types/esm/data/xstate-store.d.ts",
         "default": "./dist/xstate-store.js"
       },
       "require": {
-        "types": "./dist/xstate-store.d.cts",
+        "types": "./dist/types/cjs/data/xstate-store.d.ts",
         "default": "./dist/xstate-store.cjs"
       },
       "default": "./dist/xstate-store.js"
     },
     "./xstate": {
       "import": {
-        "types": "./dist/xstate.d.mts",
+        "types": "./dist/types/esm/data/xstate.d.ts",
         "default": "./dist/xstate.js"
       },
       "require": {
-        "types": "./dist/xstate.d.cts",
+        "types": "./dist/types/cjs/data/xstate.d.ts",
         "default": "./dist/xstate.cjs"
       },
       "default": "./dist/xstate.js"
@@ -106,7 +106,7 @@
     }
   },
   "scripts": {
-    "build": "node ../../build/clean.js && rollup -c rollup.config.mjs && node -e \"require('node:fs').cpSync('types', 'dist', { recursive: true })\"",
+    "build": "node ../../build/clean.js && rollup -c rollup.config.mjs && node ../../build/declarations.mjs adapters",
     "prepack": "npm run build"
   },
   "keywords": [

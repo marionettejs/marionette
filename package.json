@@ -51,7 +51,7 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "npm run check:types && node build/clean.js && rollup -c rollup.config.mjs --noConflict && npm run build:data && npm run build:adapters && npm run build:types && npm run test:types",
+    "build": "npm run check:types && node build/clean.js && rollup -c rollup.config.mjs --noConflict && npm run build:types && npm run build:data && npm run build:adapters && npm run test:types",
     "build:adapters": "npm --prefix packages/adapters run build",
     "build:data": "npm --prefix packages/data run build",
     "check:browser-profile": "node scripts/checks/browser-profile.mjs",
@@ -106,6 +106,8 @@
     "@rollup/plugin-babel": "7.1.0",
     "@rollup/plugin-json": "6.1.0",
     "@rollup/plugin-terser": "1.0.0",
+    "@types/backbone": "1.4.23",
+    "@types/jquery": "4.0.1",
     "@typescript-eslint/eslint-plugin": "8.69.0",
     "@typescript-eslint/parser": "8.69.0",
     "@vitest/coverage-v8": "^4.1.11",

@@ -1,5 +1,5 @@
 import buildEventArgs, { eventSplitter } from '../utils/build-event-args.ts';
-import { setProperty } from '../utils/assign-in.js';
+import { setProperty } from '../utils/assign-in.ts';
 import callHandler from '../utils/call-handler.ts';
 import onceWrap from '../utils/once-wrap.ts';
 import uniqueId from '../utils/unique-id.ts';

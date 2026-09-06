@@ -1,7 +1,7 @@
 // Object
 // ------
 
-import { assignOwn } from '../utils/assign-in.js';
+import { assignOwn } from '../utils/assign-in.ts';
 import extend from '../utils/extend.ts';
 import uniqueId from '../utils/unique-id.ts';
 import CommonMixin from '../mixins/common.ts';

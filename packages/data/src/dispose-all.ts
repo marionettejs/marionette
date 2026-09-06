@@ -1,4 +1,4 @@
-export default function disposeAll(disposers, error) {
+export default function disposeAll(disposers: ReadonlyArray<(() => unknown) | null | undefined>, error?: unknown) {
   let hasError = arguments.length > 1;
 
   for (let index = disposers.length; index--;) {

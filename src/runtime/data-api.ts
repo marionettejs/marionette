@@ -1,6 +1,6 @@
 // Data API
 // --------
-import { assignOwn } from '../utils/assign-in.js';
+import { assignOwn } from '../utils/assign-in.ts';
 import MarionetteError from '../modules/error.ts';
 import type { EventCallback, EventSource } from '../mixins/events.ts';
 

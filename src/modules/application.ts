@@ -1,7 +1,7 @@
 // Application
 // -----------
 
-import { assignOwn, setProperty } from '../utils/assign-in.js';
+import { assignOwn, setProperty } from '../utils/assign-in.ts';
 import MarionetteError from './error.ts';
 import extend from '../utils/extend.ts';
 import uniqueId from '../utils/unique-id.ts';
@@ -13,7 +13,7 @@ import disposeAll from '../utils/dispose-all.ts';
 import Region from './region.ts';
 import buildRegion from './common/build-region.ts';
 import { setStateApi } from '../runtime/state-api.ts';
-import { defaultRuntimeId, runtimeId } from '../runtime/runtime-id.js';
+import { defaultRuntimeId, runtimeId } from '../runtime-id.ts';
 
 import type { RegionInstance, ShowOptions } from './region.ts';
 import type { RegionClass, RegionDefinition } from './common/build-region.ts';

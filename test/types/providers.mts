@@ -1,9 +1,9 @@
 import MnObject from '../tmp/typed-core/src/modules/object.js';
 import defaultState, { setStateApi, type StateApi } from '../tmp/typed-core/src/runtime/state-api.js';
 import defaultData, { setDataApi, type DataApi } from '../tmp/typed-core/src/runtime/data-api.js';
-import type { DataApi as NativeData, StateApi as NativeState, Model, Collection } from '../../packages/data/types/index.js';
-import type createActorApi from '../../packages/adapters/types/xstate.mjs';
-import type createReduxDataApi from '../../packages/adapters/types/redux.mjs';
+import type { DataApi as NativeData, StateApi as NativeState, Model, Collection } from '../../packages/data/dist/types/esm/index.js';
+import type createActorApi from '../../packages/adapters/dist/types/esm/data/xstate.js';
+import type createReduxDataApi from '../../packages/adapters/dist/types/esm/data/redux.js';
 
 const Worker = MnObject.extend({ createState() { return { ready: false }; } });
 const source = { label: 'Example' };

@@ -1,7 +1,7 @@
 import { assign, createActor, createMachine, emit } from 'xstate';
 import { createMarionette } from '../../src/index.ts';
-import createXStateActorApi from '../../packages/adapters/src/xstate.js';
-import createXStateStoreDataApi from '../../packages/adapters/src/xstate-store.js';
+import createXStateActorApi from '../../packages/adapters/src/data/xstate.ts';
+import createXStateStoreDataApi from '../../packages/adapters/src/data/xstate-store.ts';
 
 const childMachine = createMachine({
   context: ({ input }) => ({ id: input.id, label: input.label }),

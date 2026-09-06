@@ -5,13 +5,13 @@ import { JSDOM } from 'jsdom';
 import { rollup } from 'rollup';
 import compile from '../../build/babel.js';
 
-import BackboneApi from '../../packages/adapters/src/backbone-api.js';
+import BackboneApi from '../../packages/adapters/src/data/backbone.ts';
 import * as Marionette from '../../src/index.ts';
 
 const dom = new JSDOM('<!doctype html>');
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
-const { default: jqueryDomApi } = await import('../../packages/adapters/src/dom/jquery.js');
+const { default: jqueryDomApi } = await import('../../packages/adapters/src/dom/jquery.ts');
 
 assert.equal(typeof Marionette.View, 'function');
 assert.equal(typeof Marionette.Region, 'function');

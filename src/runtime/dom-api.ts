@@ -1,6 +1,6 @@
 // DomApi
 // -------
-import { assignOwn, setProperty } from '../utils/assign-in.js';
+import { assignOwn, setProperty } from '../utils/assign-in.ts';
 
 export interface DomApi<Query extends ArrayLike<Element> = ArrayLike<Element>, Wrapped = unknown, Content = never> {
   createElement: (tagName: string) => Element;

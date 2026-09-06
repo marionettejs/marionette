@@ -1,5 +1,5 @@
 import { createMarionette } from '../../../src/index.ts';
-import { Collection, DataApi, Model, StateApi } from '../../../packages/data/src/index.js';
+import { Collection, DataApi, Model, StateApi } from '../../../packages/data/src/index.ts';
 
 describe('@marionette/data Marionette integration', function() {
   it('drives keyed add, removal, reorder, replacement, and reset reconciliation', function() {

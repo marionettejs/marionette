@@ -1,7 +1,7 @@
 // Marionette.extend
 // -----------------
 
-import assignIn, { assignOwn } from './assign-in.js';
+import assignIn, { assignOwn } from './assign-in.ts';
 import type { ArgumentsFor, Instance, Merge, MetadataFor, MnObjectConstructor, StateFor } from '../modules/object.ts';
 
 function defineOwnDataProperties(target: object, source: unknown) {

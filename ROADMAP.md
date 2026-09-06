@@ -385,7 +385,7 @@ current-evidence findings:
   Toolkit, and no use in the agent benchmark; every found use has a direct explicit
   View construction migration. v5 removes the convenience without an alias.
 - **Selected:** View and Region live in their owner-named modules. The declarative
-  Region builder lives in `modules/common/build-region.js` as an internal helper;
+  Region builder lives in `src/modules/common/build-region.ts` as an internal helper;
   the former combined implementation and one-line forwarding modules are removed
   rather than preserved as aliases. Immutable performance evidence retains the
   historical source paths that its exact measurements recorded.
@@ -839,7 +839,7 @@ instructions, and every release blocker maps to this strategy.
   resource ownership without implementing either runtime path in this phase.
 - After runtime and package contracts stop moving, relocate core production modules
   under `src/` as one deliberate taxonomy change, including `MarionetteError` at
-  `src/modules/error.js`. Update build inputs, coverage, fixtures, source links, and
+  `src/modules/error.ts`. Update build inputs, coverage, fixtures, source links, and
   declarations atomically; do not retain forwarding source paths.
 
 Gate: core invariants are documented, testable through public APIs, and add no
@@ -1015,7 +1015,7 @@ closed rather than retained as dormant APIs.
   has a recorded technical justification.
 - Core production source has one documented `src/` taxonomy, no obsolete forwarding
   paths, and build, coverage, declarations, source links, and package fixtures agree on
-  `src/modules/error.js` as the `MarionetteError` owner.
+  `src/modules/error.ts` as the `MarionetteError` owner.
 - No unapproved build, lint, type, or test warning remains.
 
 Pre-releases may expose experimental APIs. Before stable, they may be changed or

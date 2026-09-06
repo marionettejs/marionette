@@ -279,7 +279,7 @@ describe('Events parity with Backbone.Events', function() {
     // Backbone exposes one stable Events mixin object on its namespace:
     // https://github.com/jashkenas/backbone/blob/1.4.0/backbone.js#L71-L84
     const eventsIdentity = Backbone.Events;
-    await import('../../packages/adapters/src/backbone.js');
+    await import('../../packages/adapters/src/data/backbone.ts');
 
     expect(Backbone.Events).to.equal(eventsIdentity);
   });

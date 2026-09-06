@@ -1,6 +1,6 @@
 // State API
 // ---------
-import { assignOwn } from '../utils/assign-in.js';
+import { assignOwn } from '../utils/assign-in.ts';
 import MarionetteError from '../modules/error.ts';
 
 export interface StateApi<Source = unknown> {

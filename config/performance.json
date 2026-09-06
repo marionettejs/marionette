@@ -189,7 +189,7 @@
     },
     {
       "subpath": "@marionette/adapters/backbone",
-      "input": "packages/adapters/src/backbone.js",
+      "input": "packages/adapters/src/data/backbone.ts",
       "output": "packages/adapters/dist/backbone.js",
       "baselineModules": [
         "packages/adapters/src/backbone-api.js",
@@ -203,7 +203,7 @@
     },
     {
       "subpath": "@marionette/adapters/dom/jquery",
-      "input": "packages/adapters/src/dom/jquery.js",
+      "input": "packages/adapters/src/dom/jquery.ts",
       "output": "packages/adapters/dist/dom/jquery.js",
       "baselineModules": [
         "packages/adapters/src/dom/jquery.js"
@@ -214,28 +214,28 @@
     },
     {
       "subpath": "@marionette/adapters/redux",
-      "input": "packages/adapters/src/redux.js",
+      "input": "packages/adapters/src/data/redux.ts",
       "output": "packages/adapters/dist/redux.js",
       "baselineModules": [],
       "baselineExternalImports": []
     },
     {
       "subpath": "@marionette/adapters/zustand",
-      "input": "packages/adapters/src/zustand.js",
+      "input": "packages/adapters/src/data/zustand.ts",
       "output": "packages/adapters/dist/zustand.js",
       "baselineModules": [],
       "baselineExternalImports": []
     },
     {
       "subpath": "@marionette/adapters/xstate-store",
-      "input": "packages/adapters/src/xstate-store.js",
+      "input": "packages/adapters/src/data/xstate-store.ts",
       "output": "packages/adapters/dist/xstate-store.js",
       "baselineModules": [],
       "baselineExternalImports": []
     },
     {
       "subpath": "@marionette/adapters/xstate",
-      "input": "packages/adapters/src/xstate.js",
+      "input": "packages/adapters/src/data/xstate.ts",
       "output": "packages/adapters/dist/xstate.js",
       "baselineModules": [],
       "baselineExternalImports": []

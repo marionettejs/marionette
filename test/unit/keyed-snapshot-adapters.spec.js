@@ -2,9 +2,9 @@ import { configureStore, createSlice } from '@reduxjs/toolkit';
 import { createStore as createXStateStore } from '@xstate/store';
 import { createStore as createZustandStore } from 'zustand/vanilla';
 import { createMarionette } from '../../src/index.ts';
-import createReduxDataApi from '../../packages/adapters/src/redux.js';
-import createXStateStoreDataApi from '../../packages/adapters/src/xstate-store.js';
-import createZustandDataApi from '../../packages/adapters/src/zustand.js';
+import createReduxDataApi from '../../packages/adapters/src/data/redux.ts';
+import createXStateStoreDataApi from '../../packages/adapters/src/data/xstate-store.ts';
+import createZustandDataApi from '../../packages/adapters/src/data/zustand.ts';
 
 const initialModels = () => [
   { id: 1, label: 'one' },

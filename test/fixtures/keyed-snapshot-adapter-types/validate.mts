@@ -1,11 +1,11 @@
 import { View, CollectionView, createMarionette, setDataApi, setStateApi } from 'marionette';
 import { configureStore } from '@reduxjs/toolkit';
 import { createStore as createXStateStore } from '@xstate/store';
-import createReduxDataApi from '@marionette/adapters/redux';
-import createXStateStoreDataApi from '@marionette/adapters/xstate-store';
-import createZustandDataApi from '@marionette/adapters/zustand';
+import createReduxDataApi, { type ReduxDataApiOptions } from '@marionette/adapters/redux';
+import createXStateStoreDataApi, { type XStateStoreDataApiOptions } from '@marionette/adapters/xstate-store';
+import createZustandDataApi, { type ZustandDataApiOptions } from '@marionette/adapters/zustand';
 import { createStore as createZustandStore } from 'zustand/vanilla';
-import createXStateActorApi from '@marionette/adapters/xstate';
+import createXStateActorApi, { type XStateActorApiOptions, type XStateActorEventOptions } from '@marionette/adapters/xstate';
 import { createActor, createMachine } from 'xstate';
 
 interface Model {
@@ -21,18 +21,21 @@ const initialState: State = { models: [{ id: 1, label: 'one' }] };
 const redux = configureStore({ reducer: (state = initialState) => state });
 const zustand = createZustandStore<State>(() => initialState);
 const xstate = createXStateStore({ context: initialState, on: {} });
-const reduxApi = createReduxDataApi({
+const reduxOptions: ReduxDataApiOptions<State, Model, number> = {
   key: (model: Model) => model.id,
   select: (state: State) => state.models
-});
-const zustandApi = createZustandDataApi({
+};
+const reduxApi = createReduxDataApi(reduxOptions);
+const zustandOptions: ZustandDataApiOptions<State, Model, number> = {
   key: (model: Model) => model.id,
   select: (state: State) => state.models
-});
-const xstateApi = createXStateStoreDataApi({
+};
+const zustandApi = createZustandDataApi(zustandOptions);
+const xstateOptions: XStateStoreDataApiOptions<ReturnType<typeof xstate.getSnapshot>, Model, number> = {
   key: (model: Model) => model.id,
   select: (snapshot: ReturnType<typeof xstate.getSnapshot>) => snapshot.context.models
-});
+};
+const xstateApi = createXStateStoreDataApi(xstateOptions);
 
 const reduxModels: readonly Model[] = reduxApi.models(redux);
 const zustandModels: readonly Model[] = zustandApi.models(zustand);
@@ -46,10 +49,12 @@ const cleanup = [
 cleanup.forEach(dispose => dispose());
 const childActor = createActor(createMachine({ context: { id: 1, label: 'child' } })).start();
 const parentActor = createActor(createMachine({ context: { children: [childActor] } })).start();
-const actorApi = createXStateActorApi({
+const actorEvents: XStateActorEventOptions = { snapshotEvent: 'actor:snapshot' };
+const actorOptions: XStateActorApiOptions<ReturnType<typeof parentActor.getSnapshot>, typeof childActor> = {
   select: (snapshot: ReturnType<typeof parentActor.getSnapshot>) => snapshot.context.children,
-  snapshotEvent: 'actor:snapshot'
-});
+  ...actorEvents
+};
+const actorApi = createXStateActorApi(actorOptions);
 const actorLabel: string | undefined = actorApi.get(childActor, 'label');
 const actorContext = actorApi.serialize(childActor);
 const actorCleanup = actorApi.observeCollection(parentActor, () => {});
