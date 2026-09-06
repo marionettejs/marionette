@@ -1,3 +1,4 @@
+import assignIn, { assignOwn } from '../tmp/typed-core/src/utils/assign-in.js';
 import uniqueId from '../tmp/typed-core/src/utils/unique-id.js';
 import disposeAll from '../tmp/typed-core/src/utils/dispose-all.js';
 
@@ -26,3 +27,12 @@ function rethrowUndefined(): never {
 function rethrowFalsy(): never {
   return disposeAll(registrations, false);
 }
+
+const target = { label: 'target' };
+const assigned: typeof target = assignOwn(target, { label: 'assigned' });
+const callable = () => 'value';
+const assignedCallable: typeof callable = assignIn(callable, { label: 'callable' });
+// @ts-expect-error Assignment needs an object target when copying source properties.
+assignOwn(null, { label: 'invalid' });
+// @ts-expect-error Primitive targets cannot receive source properties.
+assignIn('target', { label: 'invalid' });

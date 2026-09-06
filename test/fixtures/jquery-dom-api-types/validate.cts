@@ -10,6 +10,10 @@ JQueryDomApi.detachEl(host);
 JQueryDomApi.setContents(host, '<span>child</span>');
 JQueryDomApi.appendContents(host, fragment);
 JQueryDomApi.appendContents(host, '<span>child</span>');
+JQueryDomApi.appendContents(host, wrapped);
+JQueryDomApi.appendContents(host, [document.createElement('span')]);
+// @ts-expect-error Appended collections must contain DOM nodes.
+JQueryDomApi.appendContents(host, [1]);
 JQueryDomApi.detachContents(host);
 
 // @ts-expect-error findEl returns a jQuery collection, not a DOM element.

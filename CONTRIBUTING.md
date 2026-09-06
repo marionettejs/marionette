@@ -82,7 +82,11 @@ construction and prototype composition unchanged when adding types.
 
 `npm run check:types` checks core and optional-package source. `npm run build:types`
 emits core declarations; `build:data` and `build:adapters` emit their packages
-from source after the core declaration build. Every package has generated ESM
+from source after the core declaration build. On a clean checkout, run
+`npm run build` from the repository root to build all packages in order. Before
+running an optional package build on its own, run `npm run build:types` from the
+root first: the data package's declaration check resolves `marionette` through
+`dist/types/esm/index.d.ts`. Every package has generated ESM
 and CommonJS declaration scopes. Adapter CommonJS declarations use export
 assignments because their runtime exports the adapter directly. `npm run test:types` emits private
 declarations into the ignored `test/tmp/typed-core/` directory and checks ESM and
