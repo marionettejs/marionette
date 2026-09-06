@@ -1,0 +1,35 @@
+docs/dom.api.md
+  s_060efbb5bf6218::t_f0eb0b3cd799b7 113-130,132-134
+docs/marionette.view.md
+  s_060efbb5bf6218::t_dee74ccb00bdff 125-133
+docs/migration-from-v4.md
+  s_060efbb5bf6218::t_aec10947c0a7cb 42
+src/runtime/dom-api.ts
+  s_060efbb5bf6218::t_789567c52cca93 3,120,124,128-131
+test/browser/view-render-attributes.mjs
+  s_060efbb5bf6218::t_5d937bb69f8dee 82,84,94,101-114,116,143,157-158
+test/unit/runtime/dom-api.spec.js
+  s_060efbb5bf6218::t_d7c234710670b3 293-295,298-299,302,306-315,317-321,323-327,330-331,334-336,341-343,347-349,351-353,356-358,360-363,365-368,371-379,381-384,386-387,389-392,395,408,420-423,427-428,431-432,434-435,438-439,443,449-451
+test/unit/view-el.spec.js
+  s_060efbb5bf6218::t_8cb24a8b8dea60 41,43,75-76
+test/unit/view-render-attributes.spec.js
+  s_060efbb5bf6218::t_9c3d8bad28a4c1 30,39,92,101,141-144,174,176,188-189,196
+upgradeGuide.md
+  s_060efbb5bf6218::t_06821ef72e6425 193-203
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "23c94ba301f0caa4460408f47fce4b02f491756d",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
