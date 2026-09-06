@@ -1,0 +1,31 @@
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_6faf40c7ea8190 85-89
+packages/adapters/src/dom/jquery.ts
+  s_060efbb5bf6218::t_cfd8b150d50dd7 26-29
+src/utils/assign-in.ts
+  s_060efbb5bf6218::t_bd8ce75de20f9c 14,28,32
+test/fixtures/jquery-dom-api-types/validate.cts
+  s_060efbb5bf6218::t_ef56b78c24b12a 13-16
+test/fixtures/jquery-dom-api-types/validate.mts
+  s_060efbb5bf6218::t_f63d73e40966b8 13-16
+test/types/helpers.cts
+  s_060efbb5bf6218::t_03af4ed619faa3 1,30-38
+test/types/helpers.mts
+  s_060efbb5bf6218::t_3a45aa36142798 1,30-38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "9e96fe32d7a1c8263a435e3d433e1602c18278ed",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
