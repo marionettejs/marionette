@@ -1,0 +1,77 @@
+config/performance.json
+  s_060efbb5bf6218::t_98b6c5481e0090 137-156,262-275
+docs/dom.api.md
+  s_060efbb5bf6218::t_9eedaa235b5a1a 11-15
+docs/installation.md
+  s_060efbb5bf6218::t_443868ff230d00 21,49-50,240-259
+docs/view.rendering.md
+  s_060efbb5bf6218::t_5031bcca84a082 229-235,239,241-245,247-249,251-254,256-258,260,263-264,266-278
+package-lock.json
+  s_060efbb5bf6218::t_e765263e7d743e 35,37,3130-3136,5063-5072,5163-5169
+package.json
+  s_060efbb5bf6218::t_bb41e60f4f5c58 78,123,125
+packages/adapters/package.json
+  s_060efbb5bf6218::t_5c467ae381e060 3,73-95,114-116,130-135
+packages/adapters/readme.md
+  s_060efbb5bf6218::t_e55e3501d8caca 5-8,162-240
+packages/adapters/rollup.config.mjs
+  s_060efbb5bf6218::t_faaddbe8aef4ac 49-57
+packages/adapters/src/render/lit-html.ts
+  s_21a28c4e69a102::t_e9045d2e73dce7 1-110
+scripts/performance/adapters-package-size.mjs
+  s_060efbb5bf6218::t_50b22fe1f29518 26-29,38-39
+test/browser/rendering-adapters.mjs
+  s_060efbb5bf6218::t_d1ced7669af19e 1-79
+test/contracts/rendering-adapters.js
+  s_060efbb5bf6218::t_457829ba3d26aa 1-376
+test/fixtures/rendering-adapters-package/package.json
+  s_060efbb5bf6218::t_f0dd777b8f3083 1-14
+test/fixtures/rendering-adapters-package/runtime.mjs
+  s_060efbb5bf6218::t_2d085ba7dc823a 1-70
+test/fixtures/rendering-adapters-package/tsconfig.json
+  s_060efbb5bf6218::t_7de70d810b2022 1-18
+test/fixtures/rendering-adapters-package/validate.cts
+  s_060efbb5bf6218::t_6a8062b8ad5913 1-32
+test/fixtures/rendering-adapters-package/validate.mjs
+  s_060efbb5bf6218::t_6c243c75de2722 1-26
+test/fixtures/rendering-adapters-package/validate.mts
+  s_060efbb5bf6218::t_98e508b856734d 1-32
+test/fixtures/run.mjs
+  s_060efbb5bf6218::t_e04854342600b1 147
+test/unit/rendering-adapters.spec.js
+  s_060efbb5bf6218::t_fb7061b1f6a14e 1-5
+packages/adapters/src/render/morphdom.ts
+  s_766b9d2afddcbc::t_ab61fa77135670 1-23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "b41796ae63bd176ffd1382275562e909fd65a2a8",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_21a28c4e69a102": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a070d0-c9a5-7960-a134-1be904f7c1cf",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_766b9d2afddcbc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a07643-21fd-75b3-9358-ef22eff13c8a",
+        "model": "unknown"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
