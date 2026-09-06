@@ -84,7 +84,7 @@ describe('View.setRenderer', function() {
     });
   });
 
-  it('should invoke the renderer with the View and allow a direct DOM commit', function() {
+  it('should pass the renderer result through the DOM API with the View host', function() {
     let rendererContext;
     const RendererView = View.extend({
       template: _.constant('ignored')
@@ -92,16 +92,35 @@ describe('View.setRenderer', function() {
 
     RendererView.setRenderer(function(viewTemplate, renderedData) {
       rendererContext = this;
-      this.el.textContent = `${ viewTemplate() }:${ renderedData.foo }`;
+      return `${ viewTemplate() }:${ renderedData.foo }`;
     });
 
     const view = new RendererView({ model });
     const attachElContentSpy = this.sinon.spy(view, 'attachElContent');
+    const setContentsSpy = this.sinon.spy(view.Dom, 'setContents');
 
     view.render();
 
     expect(rendererContext).to.equal(view);
     expect(view.el.textContent).to.equal(`ignored:${ data.foo }`);
-    expect(attachElContentSpy).to.not.have.been.called;
+    expect(attachElContentSpy).to.have.been.calledOnce;
+    expect(setContentsSpy).to.have.been.calledWith(view.el, 'ignored:bar', view);
   });
+  it('should forward undefined content to the DOM adapter instead of skipping it', function() {
+    const setContents = this.sinon.spy();
+    ViewClass.setDomApi({ setContents });
+    ViewClass.setRenderer(() => undefined);
+    const view = new ViewClass({ template: 'unused' });
+    view.render();
+    expect(setContents).to.have.been.calledOnce.and.calledWith(view.el, undefined, view);
+  });
+
+  it('should clear native contents when the template returns undefined', function() {
+    const view = new View({ template: () => '<p>previous</p>' });
+    view.render();
+    view.template = () => undefined;
+    view.render();
+    expect(view.el.childNodes.length).to.equal(0);
+  });
+
 });

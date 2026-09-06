@@ -17,8 +17,8 @@ export default {
   },
 
   // Replace the contents of `el` with the `html`
-  setContents(el: Element, html: string): void {
-    $(el).html(html);
+  setContents(el: Element, html: string | null | undefined): void {
+    $(el).html(html ?? '');
   },
 
   // Takes the DOM node `el` and appends the DOM node `contents`

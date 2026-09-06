@@ -908,16 +908,28 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     const wrappedEl = this.Dom.wrapEl && this.Dom.wrapEl(el);
 
     this.undelegateEvents();
+    const previous = this.el;
     this.el = el;
-    if (this.Dom.wrapEl) {
-      this.$el = wrappedEl;
-    } else {
-      delete this.$el;
+    try {
+      if (this.Dom.wrapEl) {
+        this.$el = wrappedEl;
+      } else {
+        delete this.$el;
+      }
+
+      this._isAttached = this._isElAttached();
+
+      this.delegateEvents();
+    } catch (error) {
+      if (previous && previous !== el) {
+        disposeAll([() => this.Dom.disposeContents?.(previous)], error);
+      }
+      throw error;
     }
 
-    this._isAttached = this._isElAttached();
-
-    this.delegateEvents();
+    if (previous && previous !== el) {
+      this.Dom.disposeContents?.(previous);
+    }
 
     return this;
   },

@@ -41,7 +41,11 @@ try {
   const RenderedView = View.extend({ template, events: { 'click button': () => clicks++ } });
   const Dom = RenderedView.prototype.Dom;
   assert.equal(install(RenderedView), RenderedView);
-  assert.equal(RenderedView.prototype.Dom, Dom, 'Installer replaced the configured DomApi');
+  for (const key of Object.keys(Dom)) {
+    if (key !== 'setContents' && key !== 'disposeContents') {
+      assert.equal(RenderedView.prototype.Dom[key], Dom[key], 'Installer replaced an unrelated DOM operation');
+    }
+  }
   const view = new RenderedView();
   const region = new Region({ el: document.querySelector('main') });
   view.render();

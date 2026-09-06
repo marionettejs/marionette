@@ -8,10 +8,10 @@ APIs and does not require Backbone or jQuery.
 adapter can replace only the operations an application needs; all omitted
 methods continue to use the inherited adapter.
 
-A renderer controls how a template updates a View's contents. The optional
+A renderer evaluates a template; the DOM API applies its result. The optional
 [Morphdom and Lit HTML render adapters](./view.rendering.md#rendering-to-dom)
-preserve the selected DomApi; installing one does not select a data or state
-adapter.
+replace content operations while retaining the other selected DOM operations.
+Installing one does not select a data or state adapter.
 
 ## Element and selector boundaries
 
@@ -97,7 +97,16 @@ callbacks for the move.
 
 ### `setContents(el, html)`
 
-Replaces the contents of `el` by assigning `html` to `el.innerHTML`.
+The native implementation replaces the contents of `el` by assigning `html` to
+`el.innerHTML`; `null` and `undefined` clear the contents. Custom adapters can
+accept other content types and update incrementally. This method is always
+called with the template evaluator's result, including `undefined`.
+
+View rendering also passes the View as an optional third argument:
+`setContents(el, content, host)`. Adapters may use this host for template event
+handler context and public attachment notifications (`isAttached`, `on`, `off`).
+Direct DOM API calls can omit it. The operation must finish synchronously and
+preserve `el` itself.
 
 ### `setAttributes(el, attrs)`
 
@@ -152,6 +161,21 @@ import { DomApi, View } from 'marionette';
 const NativeView = View.extend();
 NativeView.setDomApi(DomApi);
 ```
+
+## Optional content disposal
+
+### `disposeContents(el)`
+
+An optional operation for permanently releasing resources associated with an
+element's contents. View and CollectionView call it for the old root after a
+root change, at the end of destruction, and during construction rollback.
+It may run without a prior render; adapters should do nothing when they own no
+resources. Releasing resources should also remove their DOM markers.
+
+Keeping the same root and temporarily detaching a View do not call this operation.
+A cancelled `before:destroy` leaves the contents active. Terminal cleanup continues
+even if another cleanup fails, preserving the first error. A root change commits
+before disposal; a disposal error does not restore the old root.
 
 ## Providing a custom API
 

@@ -30,6 +30,14 @@ const DomClass = {prototype: {Dom: nativeDom}, setDomApi, label: 'dom class'};
 const sameDomClass: typeof DomClass = DomClass.setDomApi({findEl(root, selector) {return root.querySelectorAll(selector);}});
 DomClass.setDomApi({setContents(root, html: string) {root.innerHTML = html;}});
 DomClass.setDomApi({setContents(root, contents: Node) {root.appendChild(contents);}});
+DomClass.setDomApi({setContents(root, content: unknown, host) {
+  const attached: boolean | undefined = host?.isAttached();
+  host?.on('attach', () => root.setAttribute('data-attached', String(attached)));
+  void content;
+}});
+DomClass.setDomApi({disposeContents(root) {root.replaceChildren();}});
+// @ts-expect-error Disposal receives an Element.
+DomClass.setDomApi({disposeContents(root: string) {void root;}});
 DomClass.setDomApi({wrapEl(root) {return {node: root};}});
 DomClass.setDomApi({findEl: undefined});
 DomClass.setDomApi({metadata: true});

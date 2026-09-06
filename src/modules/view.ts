@@ -556,21 +556,33 @@ assignOwn(View.prototype, ViewMixin, RegionsMixin, {
     const wrappedEl = this.Dom.wrapEl && this.Dom.wrapEl(el);
 
     this.undelegateEvents();
+    const previous = this.el;
     this.el = el;
-    if (this.Dom.wrapEl) {
-      this.$el = wrappedEl;
-    } else {
-      delete this.$el;
+    try {
+      if (this.Dom.wrapEl) {
+        this.$el = wrappedEl;
+      } else {
+        delete this.$el;
+      }
+
+      this._isRendered = this.Dom.hasContents!(this.el);
+      this._isAttached = this._isElAttached();
+
+      if (this._isRendered) {
+        this.bindUIElements();
+      }
+
+      this.delegateEvents();
+    } catch (error) {
+      if (previous && previous !== el) {
+        disposeAll([() => this.Dom.disposeContents?.(previous)], error);
+      }
+      throw error;
     }
 
-    this._isRendered = this.Dom.hasContents!(this.el);
-    this._isAttached = this._isElAttached();
-
-    if (this._isRendered) {
-      this.bindUIElements();
+    if (previous && previous !== el) {
+      this.Dom.disposeContents?.(previous);
     }
-
-    this.delegateEvents();
 
     return this;
   },

@@ -1,4 +1,4 @@
-import { View, Region } from '../../src/index.ts';
+import { View, Region, CollectionView } from '../../src/index.ts';
 import setMorphdomRenderer from '../../packages/adapters/src/render/morphdom.ts';
 import setLitHtmlRenderer from '../../packages/adapters/src/render/lit-html.ts';
 import JQueryDomApi from '../../packages/adapters/src/dom/jquery.ts';
@@ -19,9 +19,13 @@ function fixture() {
 function makeView(kind, properties = {}) {
   const ViewClass = View.extend(properties);
   const Dom = ViewClass.prototype.Dom;
+  const evaluate = ViewClass.prototype._renderHtml;
   const install = kind === 'morphdom' ? setMorphdomRenderer : setLitHtmlRenderer;
   check(install(ViewClass) === ViewClass, 'Installer lost class identity');
-  check(ViewClass.prototype.Dom === Dom, 'Installer replaced the existing DomApi');
+  check(ViewClass.prototype._renderHtml === evaluate, 'Installer changed template evaluation');
+  check(Object.keys(Dom).filter(key => key !== 'setContents' && key !== 'disposeContents')
+    .every(key => ViewClass.prototype.Dom[key] === Dom[key]),
+  'Installer replaced an existing DOM operation');
   return ViewClass;
 }
 
@@ -62,11 +66,9 @@ for (const kind of ['morphdom', 'lit-html']) {
       const destroy = ViewClass.prototype.destroy;
       const install = kind === 'morphdom' ? setMorphdomRenderer : setLitHtmlRenderer;
       install(ViewClass);
-      check(ViewClass.prototype.Dom === Dom, 'Installer replaced the jQuery DomApi');
-      if (kind === 'morphdom') {
-        check(ViewClass.prototype.setElement === setElement && ViewClass.prototype.destroy === destroy,
-          'Morphdom installed unnecessary lifetime wrappers');
-      }
+      check(ViewClass.prototype.Dom.wrapEl === Dom.wrapEl, 'Installer replaced the jQuery DomApi');
+      check(ViewClass.prototype.setElement === setElement && ViewClass.prototype.destroy === destroy,
+        'Adapter replaced View methods');
       const view = new ViewClass();
       region.show(view);
       check(view.$el[0] === view.el && view.$el.jquery, 'jQuery root wrapper was lost');
@@ -96,8 +98,7 @@ for (const kind of ['morphdom', 'lit-html']) {
       const ViewClass = makeView(kind, {
         template: template(kind),
         serializeData: () => data,
-        events: { 'click button': () => clicks++ },
-        attachElContent() { throw new Error('Direct renderer returned content'); }
+        events: { 'click button': () => clicks++ }
       });
       const view = new ViewClass({ el });
       view.render();
@@ -269,9 +270,12 @@ renderingAdapterContracts.push({
   name: 'lit-html: repeated installation and subclass installation retain public method behavior',
   run() {
     const Base = View.extend();
-    check(setLitHtmlRenderer(Base) === Base, 'Installer lost class identity');
     const setElement = Base.prototype.setElement;
     const destroy = Base.prototype.destroy;
+    const rollback = Base.prototype._rollbackView;
+    check(setLitHtmlRenderer(Base) === Base, 'Installer lost class identity');
+    check(Base.prototype.setElement === setElement && Base.prototype.destroy === destroy &&
+      Base.prototype._rollbackView === rollback, 'Installer replaced View methods');
     setLitHtmlRenderer(Base);
     check(Base.prototype.setElement === setElement && Base.prototype.destroy === destroy,
       'Repeated installation wrapped methods again');
@@ -402,5 +406,103 @@ renderingAdapterContracts.push({
     check(next.textContent === 'recovered', 'New root could not render after cleanup failure');
     view.destroy();
     el.remove();
+  }
+});
+
+for (const kind of ['morphdom', 'lit-html']) {
+  renderingAdapterContracts.push({
+    name: `${kind}: uses only the public DOM setter and accepts direct DOM calls`,
+    run() {
+      let api;
+      const target = { setDomApi(value) { api = value; } };
+      const install = kind === 'morphdom' ? setMorphdomRenderer : setLitHtmlRenderer;
+      check(install(target) === target, 'Installer requires more than the DOM setter');
+      const el = document.createElement('article');
+      api.setContents(el, template(kind)({ value: 'first' }));
+      const button = el.querySelector('button');
+      api.setContents(el, template(kind)({ value: 'second' }));
+      check(button === el.querySelector('button') && button.textContent === 'second', 'Update replaced survivor');
+      api.setContents(el, undefined);
+      check(!el.textContent && !el.querySelector('button'), 'Undefined did not clear content');
+      api.setContents(el, undefined);
+      check(!el.textContent, 'Undefined installed text into empty content');
+      api.disposeContents?.(el);
+      api.disposeContents?.(el);
+    }
+  }, {
+    name: `${kind}: preserves custom template evaluation and clears undefined results`,
+    run() {
+      const Child = View.extend({ template: 'custom input' });
+      let value = 'content';
+      const evaluate = input => {
+        check(input === 'custom input', 'Evaluator lost template input');
+        return value === undefined ? undefined : template(kind)({ value });
+      };
+      Child.setRenderer(evaluate);
+      const install = kind === 'morphdom' ? setMorphdomRenderer : setLitHtmlRenderer;
+      install(Child);
+      const view = new Child();
+      view.render();
+      check(view.el.querySelector('button').textContent === 'content', 'Custom evaluation was replaced');
+      value = undefined;
+      view.render();
+      check(!view.el.querySelector('button'), 'Undefined content skipped the update');
+      view.destroy();
+    }
+  });
+}
+
+renderingAdapterContracts.push({
+  name: 'lit-html: template event handlers receive the View as their host',
+  run() {
+    let receiver;
+    const Child = makeView('lit-html', {
+      template: () => html`<button @click=${function() { receiver = this; }}>click</button>`
+    });
+    const view = new Child();
+    view.render();
+    view.el.querySelector('button').click();
+    check(receiver === view, 'DOM adapter lost template event host');
+    view.destroy();
+  }
+});
+
+renderingAdapterContracts.push({
+  name: 'jQuery: undefined template content clears the previous DOM',
+  run() {
+    const Child = View.extend({ template: () => '<p>previous</p>' });
+    Child.setDomApi(JQueryDomApi);
+    const view = new Child();
+    view.render();
+    view.template = () => undefined;
+    view.render();
+    check(view.el.childNodes.length === 0, 'jQuery treated undefined as a getter');
+    view.destroy();
+  }
+});
+
+renderingAdapterContracts.push({
+  name: 'lit-html: CollectionView template resources coexist with a child container',
+  run() {
+    const log = [];
+    const tracked = trackedTemplate(log);
+    const Parent = CollectionView.extend({
+      template: () => html`<header>${tracked()}</header><section class="children"></section>`,
+      childViewContainer: '.children'
+    });
+    setLitHtmlRenderer(Parent);
+    const { region, element } = fixture();
+    const parent = new Parent();
+    region.show(parent);
+    const child = new View({ template: () => '<p>child</p>' });
+    parent.addChildView(child);
+    check(parent.el.querySelector('.children p'), 'Child did not render in its container');
+    parent.render();
+    check(child.isDestroyed(), 'Parent render did not destroy the old child');
+    check(parent.el.querySelector('header p'), 'Parent template was lost');
+    region.destroy();
+    check(log.at(-1) === 'disconnected', 'CollectionView retained directive resources');
+    check(parent.el.childNodes.length === 0, 'CollectionView retained Lit markers');
+    element.remove();
   }
 });

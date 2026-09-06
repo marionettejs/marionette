@@ -2,6 +2,12 @@
 // -------
 import { assignOwn, setProperty } from '../utils/assign-in.ts';
 
+export interface DomContentHost {
+  isAttached(): boolean;
+  on(name: string, callback: () => void): unknown;
+  off(name: string, callback: () => void): unknown;
+}
+
 export interface DomApi<Query extends ArrayLike<Element> = ArrayLike<Element>, Wrapped = unknown, Content = never> {
   createElement: (tagName: string) => Element;
   createBuffer: () => DocumentFragment;
@@ -11,12 +17,13 @@ export interface DomApi<Query extends ArrayLike<Element> = ArrayLike<Element>, W
   detachEl: (el: Element) => void;
   replaceEl: (newEl: Element, oldEl: Element) => void;
   swapEl: (el1: Element, el2: Element) => void;
-  setContents: (el: Element, html: Content) => void;
+  setContents: (el: Element, html: Content, host?: DomContentHost) => void;
   setAttributes: (el: Element, attrs: unknown) => void;
   appendContents: (el: Element | DocumentFragment, contents: Element | DocumentFragment) => void;
   moveEl: (el: Element, parent: Element | DocumentFragment, before?: Node | null) => void;
   hasContents: (el: Node | null | undefined) => boolean;
   detachContents: (el: Element) => void;
+  disposeContents?: (el: Element) => void;
   wrapEl?: (el: Element) => Wrapped;
 }
 
@@ -109,8 +116,8 @@ export default {
   },
 
   // Replace the contents of `el` with the `html`
-  setContents(el: Element, html: string) {
-    el.innerHTML = html;
+  setContents(el: Element, html: string | null | undefined) {
+    el.innerHTML = html ?? '';
   },
 
   // Sets attributes on a DOM node

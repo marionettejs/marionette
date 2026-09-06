@@ -167,12 +167,13 @@ in place. Marionette still owns View events, attachment, destruction, and
 Regions. A parent render still destroys its Region children before updating the
 parent template; incremental rendering does not preserve those child Views.
 Keep Region placeholders empty in your templates so the renderer and Region do
-not both manage the same contents.
+not both manage the same contents. For a CollectionView template, use a dedicated
+`childViewContainer` so child operations do not clear the template's own DOM.
 
 Each integration has one installer that configures the pieces it needs. Both
-retain the View class's existing DomApi, including a previously installed
-jQuery DomApi. Morphdom installs only a renderer; Lit also installs directive
-lifetime handling.
+use `setDomApi` to replace `setContents`, retaining other DOM operations such
+as jQuery queries and wrapping. Lit also supplies `disposeContents` for resource
+cleanup. Neither installer replaces View methods or changes template evaluation.
 
 ### Morphdom
 
@@ -192,8 +193,9 @@ setMorphdomRenderer(MessageView);
 
 The template returns an HTML string containing the View's contents. Morphdom
 matches children using its normal rules, including element IDs. The adapter
-always uses `childrenOnly`, leaving the root's attributes under Marionette's
-control. Use `renderAttributes()` to refresh those attributes.
+installs HTML directly into an empty root and morphs existing contents using
+`childrenOnly`, leaving the root's attributes under Marionette's control. Use
+`renderAttributes()` to refresh those attributes.
 
 ### Lit HTML
 
@@ -214,15 +216,15 @@ setLitHtmlRenderer(MessageView);
 ```
 
 Install on a View subclass before creating its instances. The installer returns
-the same class; installing twice on that class leaves the original installation
-in place. Further subclasses inherit it. An override of `setElement()` or
+the same class; repeated installation does not wrap methods or add listeners.
+Further subclasses inherit it. An override of `setElement()` or
 `destroy()` must call the parent method, as with other View lifecycle overrides.
 
 Lit needs this installer because its async directives can own subscriptions and
 other resources. The adapter connects and disconnects those directives with
-Marionette's `attach` and `detach` events. It also wraps the public `setElement()`
-and `destroy()` methods to release resources and remove rendered contents when
-the View changes roots or is destroyed. Keeping the same element preserves its
+Marionette's `attach` and `detach` events. Marionette calls its
+`DomApi.disposeContents` operation to release resources and remove rendered
+contents when the View changes roots or is destroyed. Keeping the same element preserves its
 contents; a cancelled destruction leaves them active. Removing event listeners
 with `off()` does not disable terminal cleanup, but removing all lifecycle
 listeners also removes attachment notifications. Manage attachment through

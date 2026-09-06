@@ -184,6 +184,7 @@ const ViewMixin = {
     }
 
     disposeAll([
+      () => this.el && this.Dom.disposeContents?.(this.el),
       () => this.stopListening(),
       () => this._destroyState(),
       () => this._rollbackBehaviors(),
@@ -267,6 +268,7 @@ const ViewMixin = {
     }
     let didDetachEl = false;
     disposeAll([
+      () => this.el && this.Dom.disposeContents?.(this.el),
       () => this.stopListening(),
       () => this._triggerEventOnBehaviors('destroy', this, options),
       () => this.triggerMethod('destroy', this, options),

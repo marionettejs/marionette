@@ -24,6 +24,19 @@ the constructed type; an unknown return stays unknown. See the
 [constructor typing guidance](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#typescript-source) for preserving
 the receiver through further extensions and the limits of return annotations.
 
+## Keep template evaluation separate from DOM updates
+
+`setRenderer` evaluates a template and returns content. Every result, including
+`undefined`, now passes through `attachElContent` to `DomApi.setContents`.
+Returning `undefined` no longer skips the DOM update. Native and jQuery DOM
+adapters treat nullish content as empty.
+
+Move DOM mutation from custom renderers into `setDomApi({ setContents })`.
+Keep compilation or template evaluation in `setRenderer`. The DOM operation
+receives `(el, content, host)`, with the View available as the optional host.
+Adapters with owned resources can also supply `disposeContents(el)`; they
+should not replace View lifecycle methods. See the [DOM API guide](https://github.com/marionettejs/marionette/blob/master/docs/dom.api.md).
+
 ## Construct Views before showing them
 
 `Region#show` and `View#showChildView` require a View-like instance in v5. They no

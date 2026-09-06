@@ -26,7 +26,7 @@ new nativeClass().render().destroy();
 
 // @ts-expect-error An installer takes a View class, not an instance.
 setMorphdomRenderer(morphView);
-// @ts-expect-error Lit needs the View lifecycle, not only a renderer setter.
+// @ts-expect-error Lit also needs the DOM API setter.
 setLitHtmlRenderer({ setRenderer() {} });
 
 void label;

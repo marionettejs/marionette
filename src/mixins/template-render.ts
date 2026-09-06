@@ -2,10 +2,10 @@ import { assignOwn } from '../utils/assign-in.ts';
 import getValue from '../utils/get-value.ts';
 
 import type { DataApi } from '../runtime/data-api.ts';
-import type { DomApi } from '../runtime/dom-api.ts';
+import type { DomApi, DomContentHost } from '../runtime/dom-api.ts';
 import type { Renderer } from '../runtime/renderer.ts';
 
-export interface TemplateHost {
+export interface TemplateHost extends DomContentHost {
   el: Element;
   template?: unknown;
   templateContext?: unknown;
@@ -35,9 +35,7 @@ export default {
 
     // Render and add to el
     const html = (this._renderHtml as Renderer<TemplateHost, unknown, unknown>)(template, data);
-    if (typeof html !== 'undefined') {
-      this.attachElContent(html);
-    }
+    this.attachElContent(html);
   },
 
   // Get the template for this view instance.
@@ -99,6 +97,6 @@ export default {
   // This method can be overridden to optimize rendering,
   // or to render in a non standard way.
   attachElContent(this: TemplateHost, html: unknown) {
-    (this.Dom.setContents as (el: Element, contents: unknown) => void)(this.el, html);
+    (this.Dom.setContents as (el: Element, contents: unknown, host: DomContentHost) => void)(this.el, html, this);
   }
 };
