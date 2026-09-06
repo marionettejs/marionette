@@ -23,7 +23,10 @@ export default {
 
   // Takes the DOM node `el` and appends the DOM node `contents`
   // to the end of the element's contents.
-  appendContents(el: Element | DocumentFragment, contents: Element | DocumentFragment | string): void {
+  appendContents(
+    el: Element | DocumentFragment,
+    contents: JQuery.htmlString | JQuery.TypeOrArray<JQuery.Node | JQuery<JQuery.Node>>
+  ): void {
     $(el).append(contents);
   },
 

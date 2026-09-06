@@ -11,7 +11,7 @@ export function setProperty(target: unknown, key: unknown, value: unknown) {
   }
 }
 
-function assign<Target>(target: Target, sources: readonly unknown[], ownOnly: boolean): Target {
+function assign<Target extends object>(target: Target, sources: readonly unknown[], ownOnly: boolean): Target {
   for (const source of sources) {
     const type = typeof source;
     if (source == null || type !== 'object' && type !== 'function') { continue; }
@@ -25,10 +25,10 @@ function assign<Target>(target: Target, sources: readonly unknown[], ownOnly: bo
   return target;
 }
 
-export function assignOwn<Target>(target: Target, ...sources: unknown[]): Target {
+export function assignOwn<Target extends object>(target: Target, ...sources: unknown[]): Target {
   return assign(target, sources, true);
 }
 
-export default function assignIn<Target>(target: Target, ...sources: unknown[]): Target {
+export default function assignIn<Target extends object>(target: Target, ...sources: unknown[]): Target {
   return assign(target, sources, false);
 }
