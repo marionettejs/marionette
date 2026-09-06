@@ -215,6 +215,11 @@ ARIA attributes such as `aria-selected: false` therefore retain `"false"`.
   installs a read-only `$el` getter on a new subclass; the wrapper follows `el`
   after `setElement()`. `view.$(selector)` also returns a jQuery collection.
   Change the root through `setElement(el)`; assigning `$el` directly is unsupported.
+  The core View, CollectionView, and Behavior types no longer take a `Wrapped`
+  generic parameter. For example, `ViewInstance<Options, State, Query, Wrapped>`
+  becomes `ViewInstance<Options, State, Query>`. `DomApi<Query, Wrapped, Content>`
+  becomes `DomApi<Query, Content>`. Let `withJQuery()` infer the `$el` type on
+  your application base class.
   For jQuery DOM operations without `$el`, use `setDomApi(JQueryDomApi)` with
   `@marionette/adapters/dom/jquery` instead.
 - This does not restore Backbone.View inheritance or allow selector strings as a

@@ -155,6 +155,10 @@ disconnects its directives while retaining its rendered contents.
 These hooks receive only the element. They follow the existing attachment
 monitoring opt-out: with `monitorViewEvents: false` or monitoring handlers
 removed, applications must deliver the notifications they need themselves.
+This includes destruction: `destroy()` still removes the View and its owned
+resources, but does not separately disconnect adapter-managed contents when
+attachment monitoring is disabled. An application rendering Lit into an attached
+root with monitoring disabled must notify `onDetach(el)` when releasing that root.
 `detachContents(el)` remains the operation for physically emptying an element.
 
 ## Using the default API
