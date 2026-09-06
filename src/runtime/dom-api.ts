@@ -17,8 +17,8 @@ export interface DomApi<Query extends ArrayLike<Element> = ArrayLike<Element>, C
   moveEl: (el: Element, parent: Element | DocumentFragment, before?: Node | null) => void;
   hasContents: (el: Node | null | undefined) => boolean;
   detachContents: (el: Element) => void;
-  onAttach: (el: Element) => void;
-  onDetach: (el: Element) => void;
+  notifyAttach: (el: Element) => void;
+  notifyDetach: (el: Element) => void;
 }
 
 interface DomApiClass {
@@ -40,8 +40,8 @@ export function setDomApi<Receiver extends DomApiClass, Mixin extends object>(
 
 export default {
   // Native contents do not keep resources tied to attachment.
-  onAttach(_el: Element): void {},
-  onDetach(_el: Element): void {},
+  notifyAttach(_el: Element): void {},
+  notifyDetach(_el: Element): void {},
 
   // Returns a new HTML DOM node of tagName
   createElement(tagName: string) {

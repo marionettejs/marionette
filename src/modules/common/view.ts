@@ -18,7 +18,7 @@ export interface ViewLifecycle {
   _disableDetachEvents?: boolean;
   monitorViewEvents?: boolean;
   _areViewEventsMonitored?: boolean;
-  _getImmediateChildren?: () => unknown;
+  _getImmediateChildren: () => unknown;
   on(name: string, callback?: EventCallback, context?: unknown): unknown;
   on(events: EventMap, context?: unknown): unknown;
   off(name?: string | null, callback?: EventCallback | null, context?: unknown): unknown;
@@ -35,7 +35,7 @@ export function isView(view: unknown): view is RenderableView {
 }
 
 export function isViewClass(ViewClass: { prototype?: Partial<RenderableView> }) {
-  return ViewClass.prototype?.render && ViewClass.prototype.destroy;
+  return isView(ViewClass.prototype);
 }
 
 export function renderView(view: SupportedView) {

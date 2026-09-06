@@ -233,7 +233,7 @@ attachElContent(html) {
 
 A DOM adapter can update existing content incrementally. The optional
 `@marionette/adapters` package includes Morphdom and Lit HTML integrations.
-Install only the renderer your application uses and configure a View subclass
+Install only the DOM adapter peer your application uses and configure a View subclass
 before creating its instances. `setDomApi` overlays the supplied methods and
 preserves unrelated operations, including jQuery queries.
 
@@ -273,7 +273,7 @@ empty so the renderer and Region do not manage the same contents.
 
 Lit replaces preexisting contents on its first explicit render. Keep
 `monitorViewEvents` enabled and manage attachment through Regions so directives
-receive connection changes through `Dom.onAttach(el)` and `Dom.onDetach(el)`.
+receive connection changes through `Dom.notifyAttach(el)` and `Dom.notifyDetach(el)`.
 The View keeps the same root throughout its lifetime. Automatic directive
 connection management requires monitoring on the View and its ancestors. Lifecycle overrides must call their parent methods;
 avoid independently replacing Lit's contents or switching DOM adapters after rendering.

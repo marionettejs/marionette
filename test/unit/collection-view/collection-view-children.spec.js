@@ -26,6 +26,16 @@ describe('CollectionView Children', function() {
     });
   });
 
+  it('rejects a child class with a non-callable destroy method before construction', function() {
+    const initialize = this.sinon.spy();
+    const InvalidView = View.extend({ destroy: true, initialize });
+    const view = new CollectionView({ collection, childView: InvalidView });
+
+    expect(() => view.render()).to.throw('"childView" must be a view class');
+    expect(initialize).not.to.have.been.called;
+    view.destroy();
+  });
+
   describe('when instantiating a CollectionView', function() {
     let myCollectionView;
 

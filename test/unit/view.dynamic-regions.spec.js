@@ -1,11 +1,11 @@
 describe('view - dynamic regions', function() {
   'use strict';
 
-  let BBView;
+  let TestView;
 
   beforeEach(function() {
-    BBView = Marionette.View.extend({ template: () => '' });
-    _.extend(BBView.prototype, Marionette.Events);
+    TestView = Marionette.View.extend({ template: () => '' });
+    _.extend(TestView.prototype, Marionette.Events);
 
     this.template = function() {
       return '<div id="foo"></div><div id="bar"></div>';
@@ -34,7 +34,7 @@ describe('view - dynamic regions', function() {
 
       this.region = this.layoutView.addRegion('foo', '#foo');
 
-      this.view = new BBView();
+      this.view = new TestView();
       this.layoutView.getRegion('foo').show(this.view);
     });
 
@@ -75,7 +75,7 @@ describe('view - dynamic regions', function() {
 
       this.layoutView.render();
 
-      this.view = new BBView();
+      this.view = new TestView();
       this.layoutView.getRegion('foo').show(this.view);
     });
 
@@ -103,7 +103,7 @@ describe('view - dynamic regions', function() {
       this.layoutView.render();
       this.layoutView.render();
 
-      this.view = new BBView();
+      this.view = new TestView();
       this.layoutView.getRegion('foo').show(this.view);
     });
 
@@ -136,7 +136,7 @@ describe('view - dynamic regions', function() {
       this.layoutView.render();
       this.layoutView.render();
 
-      this.view = new BBView();
+      this.view = new TestView();
       this.layoutView.getRegion('foo').show(this.view);
     });
 
@@ -149,7 +149,7 @@ describe('view - dynamic regions', function() {
     });
 
     it('should set the parent of the region to the layoutView', function() {
-      this.region.show(new BBView());
+      this.region.show(new TestView());
       expect(this.region.el.parentNode).to.equal(this.layoutView.el);
     });
 
@@ -181,7 +181,7 @@ describe('view - dynamic regions', function() {
       this.onRemoveSpy = this.sinon.spy(this.layoutView, 'onRemoveRegion');
 
       this.layoutView.render();
-      this.layoutView.getRegion('foo').show(new BBView());
+      this.layoutView.getRegion('foo').show(new TestView());
       this.region = this.layoutView.getRegion('foo');
 
       this.region.on('empty', this.emptyHandler);
@@ -232,7 +232,7 @@ describe('view - dynamic regions', function() {
       this.layoutView = new this.View();
 
       this.layoutView.render();
-      this.layoutView.getRegion('foo').show(new BBView());
+      this.layoutView.getRegion('foo').show(new TestView());
 
       this.layoutView.removeRegion('foo');
       this.layoutView.render();
@@ -257,7 +257,7 @@ describe('view - dynamic regions', function() {
       this.region = this.layoutView.addRegion('foo', '#foo');
       this.region.on('empty', this.emptyHandler);
 
-      this.view = new BBView();
+      this.view = new TestView();
       this.layoutView.getRegion('foo').show(this.view);
 
       this.layoutView.destroy();
@@ -277,7 +277,7 @@ describe('view - dynamic regions', function() {
       this.view.render();
       this.region = this.view.addRegion('foo', '#foo');
       this.regions = this.view.getRegions();
-      this.region.show(new BBView());
+      this.region.show(new TestView());
 
       this.emptyHandler = this.sinon.stub();
       this.region.on('empty', this.emptyHandler);

@@ -45,8 +45,6 @@ proxied view events receive the host view.
 * [Destroy Events](#destroy-events)
   * [`destroy` and `before:destroy` events](#destroy-and-beforedestroy-events)
 * [Wrapping legacy views](#wrapping-legacy-views)
-  * [`Marionette.Events` and `triggerMethod`](#marionetteevents-and-triggermethod)
-  * [Lifecycle Events](#lifecycle-events)
 
 ## Application Events
 

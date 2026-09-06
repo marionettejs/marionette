@@ -32,7 +32,7 @@ Regions maintain the [View's lifecycle](./view.lifecycle.md) while showing or em
 * [Using Regions on a view](#using-regions-on-a-view)
 * [Showing a View](#showing-a-view)
   * [Checking whether a region is showing a view](#checking-whether-a-region-is-showing-a-view)
-  * [Non-Marionette Views](#non-marionette-views)
+  * [Wrapping a non-Marionette view](#wrapping-a-non-marionette-view)
     * [Partially-rendered Views](#partially-rendered-views)
 * [Emptying a Region](#emptying-a-region)
   * [Preserving Existing Views](#preserving-existing-views)

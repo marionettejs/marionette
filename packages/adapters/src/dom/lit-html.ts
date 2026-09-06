@@ -27,11 +27,11 @@ export default {
     render(value, el as RenderRootNode, { renderBefore: current.end });
   },
 
-  onAttach(el: Element): void {
+  notifyAttach(el: Element): void {
     contents.get(el)?.part.setConnected(true);
   },
 
-  onDetach(el: Element): void {
+  notifyDetach(el: Element): void {
     contents.get(el)?.part.setConnected(false);
   }
 };

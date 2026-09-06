@@ -66,7 +66,7 @@ type VisualMethods<Query extends ArrayLike<Element>> = Pick<ViewInstance<ViewCon
   'bindRequests' | 'unbindRequests' | 'on' | 'off' | 'once' | 'listenTo' | 'listenToOnce' |
   'stopListening' | 'trigger' | 'triggerMethod' | 'normalizeUIString' | 'normalizeUIKeys' |
   'normalizeUIValues' | 'getTemplate' | 'serializeData' | 'serializeModel' | 'serializeCollection' |
-  'mixinTemplateContext' | 'attachElContent' | '_removeBehavior'>;
+  'mixinTemplateContext' | 'attachElContent' | '_removeBehavior' | '_getImmediateChildren'>;
 
 export interface CollectionViewInstance<Child extends CollectionChild = CollectionChild,
   Options extends object = CollectionViewConfiguration<Child>, State = unknown, Source = unknown,
@@ -382,7 +382,7 @@ const CollectionView = function(this: CollectionViewInternals, options?: Collect
   this._isAttached = this._isElAttached();
   this.delegateEvents();
   if (this._isAttached && this.monitorViewEvents !== false) {
-    this.Dom.onAttach?.(this.el);
+    this.Dom.notifyAttach?.(this.el);
   }
 
   monitorViewEvents(this);

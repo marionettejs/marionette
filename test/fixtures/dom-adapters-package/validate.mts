@@ -26,12 +26,12 @@ new nativeClass().render().destroy();
 
 MorphdomDomApi.setContents(document.createElement('div'), undefined);
 LitDomApi.setContents(document.createElement('div'), html`<p>direct</p>`);
-LitDomApi.onAttach(document.createElement('div'));
-LitDomApi.onDetach(document.createElement('div'));
+LitDomApi.notifyAttach(document.createElement('div'));
+LitDomApi.notifyDetach(document.createElement('div'));
 // @ts-expect-error Morphdom takes HTML, not Lit template results.
 MorphdomDomApi.setContents(document.createElement('div'), html`<p>invalid</p>`);
 // @ts-expect-error DOM adapters receive an Element, not a View.
-LitDomApi.onDetach(litView);
+LitDomApi.notifyDetach(litView);
 // @ts-expect-error An adapter is an object, not a class installer.
 LitDomApi(LitView);
 

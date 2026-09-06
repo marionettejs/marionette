@@ -467,7 +467,7 @@ binds. If a stateful host `ui` function returns a different selector then, the h
 binds the later selector while the Behavior continues to bind its construction-time
 selector. Keep `ui` functions deterministic when the host and Behavior share keys.
 
-The Behavior's `el` is also available during `initialize`. Behaviors created
+The Behavior's `el` is also available during `initialize`. Behaviors
 can initialize their own `$el` wrapper with `$(this.el)` at this point. DOM event and trigger declarations are delegated only after `initialize`
 returns, so callable declarations may safely depend on state established there.
 

@@ -384,11 +384,11 @@ domAdapterContracts.push({
     const { region, element } = fixture();
     region.show(view);
     check(log.join() === 'render:false', 'Monitoring opt-out still notified the adapter');
-    LitDomApi.onAttach(view.el);
+    LitDomApi.notifyAttach(view.el);
     check(log.at(-1) === 'reconnected', 'Application could not connect contents');
     view.destroy();
     check(log.at(-1) === 'reconnected', 'Destroy bypassed the monitoring opt-out');
-    LitDomApi.onDetach(view.el);
+    LitDomApi.notifyDetach(view.el);
     check(log.at(-1) === 'disconnected', 'Application could not disconnect contents');
     region.destroy();
     element.remove();

@@ -48,6 +48,8 @@ channel.request('count');
 const emitter = Object.assign({}, Events);
 emitter.on('change', () => {});
 monitorViewEvents(item);
+// @ts-expect-error Child propagation requires the managed View lifecycle.
+monitorViewEvents({ el: item.el, on: item.on, off: item.off, triggerMethod: item.triggerMethod });
 setDataApi({});
 setDomApi({});
 setStateApi({});

@@ -15,7 +15,7 @@ function eachChild(children: unknown, iteratee: (view: ViewLifecycle) => void) {
 
 // Propagate events through the managed child Views.
 function triggerMethodChildren(view: ViewLifecycle, event: string, shouldTrigger: (child: ViewLifecycle) => unknown) {
-  eachChild(view._getImmediateChildren!(), child => {
+  eachChild(view._getImmediateChildren(), child => {
     if (!shouldTrigger(child)) { return; }
     child.triggerMethod(event, child);
   });
@@ -57,7 +57,7 @@ function handleBeforeAttach(this: ViewLifecycle) {
 }
 
 function handleAttach(this: ViewLifecycle) {
-  this.Dom?.onAttach?.(this.el);
+  this.Dom?.notifyAttach?.(this.el);
   triggerMethodChildren(this, 'attach', shouldAttach);
   triggerDOMRefresh(this);
 }
@@ -68,7 +68,7 @@ function handleBeforeDetach(this: ViewLifecycle) {
 }
 
 function handleDetach(this: ViewLifecycle) {
-  this.Dom?.onDetach?.(this.el);
+  this.Dom?.notifyDetach?.(this.el);
   triggerMethodChildren(this, 'detach', shouldDetach);
 }
 

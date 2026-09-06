@@ -396,8 +396,8 @@ describe('region', function() {
         expect(region.currentView).to.be.undefined;
       });
 
-      it('should not restore if the "currentView.el" has been remove from the DOM', function() {
-        view.destroy();
+      it('should not restore if the "currentView.el" has been removed from the DOM', function() {
+        view.el.remove();
         region._restoreEl();
         expect(region.currentView.el.parentNode).is.null;
       });

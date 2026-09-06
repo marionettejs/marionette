@@ -138,13 +138,13 @@ Returns whether `el` exists and has child nodes.
 Removes all children by assigning an empty string to `el.textContent`. This is
 the fast, jQuery-free default.
 
-### `onAttach(el)`
+### `notifyAttach(el)`
 
 Notify the adapter that its element's contents are active. Called through View
 attachment monitoring and when construction adopts an attached root. The
 native implementation does nothing; Lit reconnects its directives.
 
-### `onDetach(el)`
+### `notifyDetach(el)`
 
 Notify the adapter that its element's contents are inactive. Called through View
 detachment monitoring and when construction fails after initializing an attached root. This notification does
@@ -157,7 +157,7 @@ removed, applications must deliver the notifications they need themselves.
 This includes destruction: `destroy()` still removes the View and its owned
 resources, but does not separately disconnect adapter-managed contents when
 attachment monitoring is disabled. An application rendering Lit into an attached
-root with monitoring disabled must notify `onDetach(el)` when releasing that root.
+root with monitoring disabled must notify `notifyDetach(el)` when releasing that root.
 `detachContents(el)` remains the operation for physically emptying an element.
 
 ## Using the default API

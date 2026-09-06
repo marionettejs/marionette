@@ -384,7 +384,7 @@ Custom renderers must return their template result. `undefined` is passed to
 and Lit adapters; it no longer signals a renderer that performed its own DOM
 update. Put direct DOM updates in `setContents` instead.
 
-Lit uses element-only `onAttach` and `onDetach` hooks and no longer patches View
+Lit uses element-only `notifyAttach` and `notifyDetach` hooks and no longer patches View
 lifecycle methods. Detachment and destruction disconnect directives without
 emptying their DOM. With attachment monitoring disabled, deliver these
 notifications from application code. Lit event handlers use the element as their

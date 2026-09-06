@@ -104,6 +104,7 @@ export interface ViewInstance<Options extends object = ViewConfiguration, State 
   isRendered(): boolean;
   isAttached(): boolean;
   _removeBehavior(behavior: BehaviorInstance): void;
+  _getImmediateChildren(): SupportedView[];
   getUI(name: string): Query | undefined;
   normalizeUIString(value: string, bindings?: UISelectors): string;
   normalizeUIKeys<Value>(hash: Record<string, Value> | null | undefined, bindings?: UISelectors): Record<string, Value>;
@@ -495,7 +496,7 @@ const View = function(this: ViewInternals, options?: ViewConfiguration) {
   if (this._isRendered) { this.bindUIElements(); }
   this.delegateEvents();
   if (this._isAttached && this.monitorViewEvents !== false) {
-    this.Dom.onAttach?.(this.el);
+    this.Dom.notifyAttach?.(this.el);
   }
 
   monitorViewEvents(this);
