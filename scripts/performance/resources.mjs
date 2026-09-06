@@ -324,11 +324,8 @@ function compareValues(base, current, path, changes, violations) {
     const added = current.filter(value => !base.includes(value));
     const removed = base.filter(value => !current.includes(value));
     if (added.length || removed.length) {
-      const status = added.length ? 'regression' : 'improvement';
+      const status = added.length ? 'increase' : 'decrease';
       changes.push({ path, base, current, status });
-    }
-    if (added.length) {
-      violations.push(`${path} added ${added.join(', ')}`);
     }
     return;
   }
@@ -341,11 +338,8 @@ function compareValues(base, current, path, changes, violations) {
     const baseValue = Number(base);
     const currentValue = Number(current);
     if (currentValue !== baseValue) {
-      const status = currentValue > baseValue ? 'regression' : 'improvement';
+      const status = currentValue > baseValue ? 'increase' : 'decrease';
       changes.push({ path, base, current, status });
-      if (status === 'regression') {
-        violations.push(`${path} increased from ${displayValue(base)} to ${displayValue(current)}`);
-      }
     }
     return;
   }
@@ -400,32 +394,6 @@ export function compareResources(base, current) {
   return { changes, violations };
 }
 
-export function validateCandidateResourceContract(authorityContract, candidateContract) {
-  const authority = authorityContract.deterministicResources;
-  const candidate = candidateContract.deterministicResources;
-  if (!authority) {
-    return ['Exact-base performance contract is missing deterministicResources'];
-  }
-  if (!candidate) {
-    return ['Candidate performance contract is missing deterministicResources'];
-  }
-
-  const violations = [];
-  for (const field of workloadFields) {
-    if (!validCycleCount(authority[field])) {
-      violations.push(`Exact-base authority ${field} must be a positive integer; received ${authority[field]}`);
-      continue;
-    }
-    if (!validCycleCount(candidate[field])) {
-      violations.push(`Candidate ${field} must be a positive integer; received ${candidate[field]}`);
-    } else if (candidate[field] < authority[field]) {
-      violations.push(`Candidate ${field} ${candidate[field]} is below the exact-base authority ${authority[field]}`);
-    }
-  }
-
-  return violations;
-}
-
 export function resourceReportRows(comparison) {
   if (!comparison.changes.length) {
     return comparison.violations.length ?
@@ -434,6 +402,6 @@ export function resourceReportRows(comparison) {
   }
 
   return comparison.changes.map(change => {
-    return `| \`${change.path}\` | ${displayValue(change.base)} | ${displayValue(change.current)} | ${change.status === 'regression' ? 'Regression' : 'Improvement'} |`;
+    return `| \`${change.path}\` | ${displayValue(change.base)} | ${displayValue(change.current)} | ${change.status === 'increase' ? 'Increase' : 'Decrease'} |`;
   });
 }

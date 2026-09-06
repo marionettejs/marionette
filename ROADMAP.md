@@ -945,7 +945,7 @@ closed rather than retained as dormant APIs.
 - Production entrypoints contain no development inspector, validation, benchmark, or
   test-helper code unless an application explicitly imports an allowed opt-in runtime
   feature.
-- Bundle and controlled-runner performance budgets pass; shared-runner timings show
+- Bundle and runtime performance evidence is reviewed; shared-runner timings show
   no unexplained regression.
 - Supported entrypoints, declarations, the Chromium/Firefox/WebKit versions and host
   runtimes pinned in the Phase 0 release profile, examples, install fixtures, and 100

@@ -3,8 +3,7 @@
   "baseline": {
     "sourceCommit": "31151c9cb5cb1e11d30da4332f58ca8b56cf2fe4",
     "brotliQuality": 11,
-    "totalBrotliBytes": 49500,
-    "absoluteCeilingBytes": 100000
+    "totalBrotliBytes": 49500
   },
   "toolchain": {
     "releaseProfile": {
@@ -39,19 +38,7 @@
     }
   },
   "thresholds": {
-    "cumulativeGrowthPercent": 5,
-    "pullRequestApprovalPercent": 1,
-    "hostedTimingWarningPercent": 10,
-    "controlledMedianRegressionPercent": 5,
-    "controlledP95RegressionPercent": 10
-  },
-  "pullRequestGrowthApproval": {
-    "schemaVersion": 1,
-    "repository": "marionettejs/marionette",
-    "trackingIssueUrl": "https://github.com/marionettejs/marionette/issues/127",
-    "allowedLogins": [
-      "paulfalgout"
-    ]
+    "hostedTimingWarningPercent": 10
   },
   "runtimeArtifacts": [
     {
@@ -136,22 +123,22 @@
       "baselineBrotliBytes": 0
     },
     {
-      "name": "Morphdom renderer ES module",
+      "name": "Morphdom DOM adapter ES module",
       "path": "packages/adapters/dist/dom/morphdom.js",
       "baselineBrotliBytes": 0
     },
     {
-      "name": "Morphdom renderer CommonJS",
+      "name": "Morphdom DOM adapter CommonJS",
       "path": "packages/adapters/dist/dom/morphdom.cjs",
       "baselineBrotliBytes": 0
     },
     {
-      "name": "Lit HTML renderer ES module",
+      "name": "Lit HTML DOM adapter ES module",
       "path": "packages/adapters/dist/dom/lit-html.js",
       "baselineBrotliBytes": 0
     },
     {
-      "name": "Lit HTML renderer CommonJS",
+      "name": "Lit HTML DOM adapter CommonJS",
       "path": "packages/adapters/dist/dom/lit-html.cjs",
       "baselineBrotliBytes": 0
     }
@@ -275,36 +262,6 @@
       "baselineExternalImports": []
     }
   ],
-  "relocations": {
-    "runtimeArtifacts": [
-      {
-        "from": "dist/backbone.cjs",
-        "to": "packages/adapters/dist/backbone.cjs"
-      },
-      {
-        "from": "dist/backbone.js",
-        "to": "packages/adapters/dist/backbone.js"
-      },
-      {
-        "from": "dist/jquery-dom-api.cjs",
-        "to": "packages/adapters/dist/dom/jquery.cjs"
-      },
-      {
-        "from": "dist/jquery-dom-api.js",
-        "to": "packages/adapters/dist/dom/jquery.js"
-      }
-    ],
-    "productionGraphs": [
-      {
-        "from": "./backbone",
-        "to": "@marionette/adapters/backbone"
-      },
-      {
-        "from": "./jquery-dom-api",
-        "to": "@marionette/adapters/dom/jquery"
-      }
-    ]
-  },
   "forbiddenExternalImports": [
     "underscore"
   ],

@@ -23,10 +23,10 @@ const artifacts = [
   ['XState Store adapter CommonJS', 'dist/xstate-store.cjs'],
   ['XState actor adapter ES module', 'dist/xstate.js'],
   ['XState actor adapter CommonJS', 'dist/xstate.cjs'],
-  ['Morphdom renderer ES module', 'dist/dom/morphdom.js'],
-  ['Morphdom renderer CommonJS', 'dist/dom/morphdom.cjs'],
-  ['Lit HTML renderer ES module', 'dist/dom/lit-html.js'],
-  ['Lit HTML renderer CommonJS', 'dist/dom/lit-html.cjs'],
+  ['Morphdom DOM adapter ES module', 'dist/dom/morphdom.js'],
+  ['Morphdom DOM adapter CommonJS', 'dist/dom/morphdom.cjs'],
+  ['Lit HTML DOM adapter ES module', 'dist/dom/lit-html.js'],
+  ['Lit HTML DOM adapter CommonJS', 'dist/dom/lit-html.cjs'],
 ];
 const expectedExternalImports = [
   [],
