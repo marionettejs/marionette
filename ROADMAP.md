@@ -570,59 +570,25 @@ remain evidence-dependent 5.x candidates.
 
 ## Runtime cost contract
 
-Phase 0 records an authoritative baseline after already-approved dependency work.
-The stable release then requires:
+During v5 development, performance measurements inform review without imposing
+an arbitrary aggregate size ceiling or a special approval protocol. The retired
+Phase 0 budget process is historical evidence, not an active release gate.
 
-- Development, test, lint, benchmark, and rule-catalog modules are absent from the
-  production module graph.
-- Optional features add no instance property, collection, subscription, or registry
-  until used.
-- The adopted Phase 0 package-size baseline is immutable: 49,500 Brotli-11 bytes at
-  commit `31151c9cb5cb1e11d30da4332f58ca8b56cf2fe4`. Adding a capability,
-  adopting a production subpath, or approving a larger budget never resets that
-  baseline or rewrites its artifact measurements.
-- CI retains an aggregate shipped-package backstop: the Brotli-11 sum of every
-  shipped JavaScript artifact. Its initial ceiling is 51,975 bytes, five percent
-  above Phase 0. This sum measures distribution footprint across supported delivery
-  formats; it is not the number of bytes loaded by one application. CI also compares
-  every artifact's Brotli-11 measurement and every production module graph with the
-  exact pull request base. Existing-artifact Brotli-11 growth above one percent
-  requires explicit issue approval and evidence.
-- Before a runtime-cost-sensitive capability adds a production subpath or requests a
-  package or consumer-scenario ceiling amendment, an exact-base prototype must record
-  every artifact delta and applicable canonical consumer scenario. Ordinary
-  implementation pull requests remain exact-base measured; forecasts from source
-  lines, module counts, or another feature are not evidence for raising a ceiling.
-- Canonical consumer scenarios use the pinned release toolchain, keep declared peer
-  dependencies external, tree-shake and minify the result, and measure Brotli-11 for
-  the root entrypoint alone, each opt-in production subpath alone, and the root
-  entrypoint combined with each opt-in subpath. Each scenario is a versioned fixture
-  that pins its entry source, exercised exports, bundler and minifier configuration,
-  command, and expected artifact set. Equivalent ESM, CommonJS, and UMD delivery
-  formats remain individually measured and compared with the exact pull request base;
-  consumer scenarios do not sum them as though one application executes every format.
-  A scenario is not adopted until it records a versioned Brotli-11 baseline and an
-  explicit ceiling.
-- Removing an external runtime dependency requires an exact-base complete prototype
-  and a separate dependency-inclusive application-bundle scenario that records both
-  the removed dependency and its owned replacement cost. That evidence may justify a
-  two-stage ceiling amendment when shipped artifacts grow, but it never rewrites the
-  immutable Phase 0 baseline or changes peer-external canonical scenario history.
-- A new production subpath still requires exact-head approval and evidence. Its full
-  set of new shipped artifacts counts against the aggregate package backstop, while
-  its subpath-only and root-plus-subpath scenarios record the cost paid by consumers
-  that opt in. The first merged size of each shipped artifact becomes that artifact's
-  later pull-request comparison base without changing Phase 0.
-- Before any ceiling may change, the performance contract must implement a versioned,
-  two-stage budget-amendment protocol rather than re-baselining. A governance change
-  records the immutable Phase 0 baseline, previous and proposed ceilings, exact
-  prototype commit and scenario reports, approval and evidence URLs, rationale, and
-  rollback condition. Only a later implementation may consume that base-owned
-  authorization; a runtime implementation cannot authorize or raise its own ceiling.
-- On a pinned release runner, there is no confirmed median regression above five
-  percent and no confirmed p95 regression above ten percent for View
-  construction/destruction, render/rerender, delegation, Region show/empty, and
-  ordinary CollectionView work.
+- Production graphs exclude development, test, lint, benchmark, and rule-catalog
+  modules. Optional adapters remain outside consumers that do not import them.
+- CI reports individual core and optional-package artifacts against the exact PR
+  base. Adding or reorganizing an adapter requires ordinary code review and package
+  validation, not a size-budget amendment or exact-head performance approval.
+- Consumer fixtures measure actual public imports with the pinned toolchain.
+  Alternative delivery formats are reported separately. Changed fixtures or tooling
+  make a comparison non-comparable; they do not manufacture a regression.
+- Dependency changes should show the cost of the resulting application bundle,
+  including relevant peers and replacement code. Aggregate distribution size alone
+  does not establish what an application downloads.
+- Revisit enforceable budgets after the v5 API and package boundaries stabilize,
+  using representative consumer bundles and controlled runtime measurements.
+  New budgets need a reason tied to users; the old Phase 0 limits do not reactivate
+  automatically. See [performance measurements](docs/performance-baselines.md).
 - Large-list operation-count evidence includes at least 1,000 visible children and
   covers initial render, append one, append many, remove one, reset or clear,
   targeted update, and destroy. Deterministic cases record created, attached, moved,

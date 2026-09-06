@@ -284,7 +284,7 @@ describe('consumer bundle measurements', () => {
     assert.deepEqual(bootstrap.violations, []);
   });
 
-  test('rejects truncated, duplicate, and metadata-drifted reports', async() => {
+  test('rejects truncated, duplicate, and noncanonical current reports', async() => {
     const inputs = await canonicalInputs();
     const complete = consumerReport(inputs);
     const truncated = structuredClone(complete);
@@ -292,7 +292,6 @@ describe('consumer bundle measurements', () => {
     const duplicate = structuredClone(complete);
     duplicate.artifacts[14] = structuredClone(duplicate.artifacts[0]);
     const metadataDrifts = [
-      report => { report.fixtureRevision = '0'.repeat(64); },
       report => { report.compression.quality = 10; },
       report => { report.toolchain.terser = '0.0.0'; },
       report => { report.peerExternalImports.pop(); },
@@ -311,13 +310,30 @@ describe('consumer bundle measurements', () => {
       mutate(metadataDrift);
       assert.match(
         compareConsumerBundleReports(complete, metadataDrift).violations.join('\n'),
-        /metadata differs from the exact base/
+        /metadata is not canonical/
       );
     }
     assert.match(
       compareConsumerBundleReports(complete, null).violations.join('\n'),
       /measurement is missing/
     );
+  });
+
+  test('reports changed fixtures and older base tooling as non-comparable', async() => {
+    const inputs = await canonicalInputs();
+    const current = consumerReport(inputs);
+    for (const change of [
+      base => { base.toolchain.terser = '0.0.0'; },
+      base => { base.fixtureRevision = '0'.repeat(64); },
+    ]) {
+      const base = structuredClone(current);
+      change(base);
+      const result = compareConsumerBundleReports(base, current);
+      assert.deepEqual(result.violations, []);
+      assert.match(result.reason, /not comparable/);
+      assert.equal(result.rows.length, 18);
+      assert.ok(result.rows.every(row => row.baseSize === null && row.deltaBytes === null));
+    }
   });
 
   test('fails closed when a versioned entry source digest drifts', async() => {

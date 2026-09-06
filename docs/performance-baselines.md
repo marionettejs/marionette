@@ -17,6 +17,8 @@ script, configuration, package exports, and built files.
 The report labels new and removed paths explicitly; a renamed adapter appears as
 one removed path and one new path. It does not claim those paths are comparable.
 The report and underlying JSON measurements are attached to the CI run.
+When consumer fixtures or their tooling change, their sizes are labeled
+non-comparable rather than presented as a regression.
 
 The historical Phase 0 values remain available as context. They are not ceilings.
 Past budget-amendment evidence is retained under `evidence/` for provenance, but

@@ -884,24 +884,26 @@ function consumerArtifactIds() {
     consumerFormatIds.map(format => `${scenario}:${format}`));
 }
 
-function validateConsumerBundleReport(report, label) {
+function validateConsumerBundleReport(report, label, isCurrent) {
   const violations = [];
   if (!report || report.schemaVersion !== 1 || report.status !== 'reporting' ||
       typeof report.fixtureVersion !== 'string' || !report.fixtureVersion ||
       typeof report.fixtureRevision !== 'string' ||
       !/^[a-f\d]{64}$/.test(report.fixtureRevision) ||
+      !report.compression || !report.toolchain || !Array.isArray(report.peerExternalImports) ||
       !Array.isArray(report.artifacts) || !Array.isArray(report.violations)) {
     return [`${label} consumer bundle report is malformed`];
   }
-  if (!isDeepStrictEqual(report.compression, consumerCompression) ||
+  if (isCurrent && (!isDeepStrictEqual(report.compression, consumerCompression) ||
       !isDeepStrictEqual(report.toolchain, consumerToolchain) ||
-      !isDeepStrictEqual(report.peerExternalImports, consumerPeerExternalImports)) {
+      !isDeepStrictEqual(report.peerExternalImports, consumerPeerExternalImports))) {
     violations.push(`${label} consumer bundle metadata is not canonical`);
   }
 
   const expectedIds = consumerArtifactIds();
   const actualIds = report.artifacts.map(artifact => artifact?.id);
-  if (!isDeepStrictEqual(actualIds, expectedIds)) {
+  if (new Set(actualIds).size !== actualIds.length ||
+      isCurrent && !isDeepStrictEqual(actualIds, expectedIds)) {
     violations.push(`${label} consumer bundle artifact inventory is not canonical`);
   }
   for (const artifact of report.artifacts) {
@@ -925,7 +927,7 @@ export function compareConsumerBundleReports(base, current) {
       violations: ['Pull request consumer bundle measurement is missing'],
     };
   }
-  const currentReportViolations = validateConsumerBundleReport(current, 'Pull request');
+  const currentReportViolations = validateConsumerBundleReport(current, 'Pull request', true);
   if (currentReportViolations.some(violation => violation.endsWith('report is malformed'))) {
     return {
       bootstrap: !base,
@@ -947,7 +949,7 @@ export function compareConsumerBundleReports(base, current) {
       violations: [...currentReportViolations, ...current.violations],
     };
   }
-  const baseReportViolations = validateConsumerBundleReport(base, 'Exact base');
+  const baseReportViolations = validateConsumerBundleReport(base, 'Exact base', false);
   if (baseReportViolations.some(violation => violation.endsWith('report is malformed'))) {
     return {
       bootstrap: false,
@@ -962,11 +964,20 @@ export function compareConsumerBundleReports(base, current) {
       !isDeepStrictEqual(base.peerExternalImports, current.peerExternalImports)) {
     return {
       bootstrap: false,
-      rows: [],
+      reason: 'Consumer bundle fixtures or tooling changed; sizes are not comparable.',
+      rows: current.artifacts.map(artifact => ({
+        id: artifact.id,
+        scenario: artifact.scenario,
+        format: artifact.format,
+        baseSize: null,
+        currentSize: artifact.size,
+        deltaBytes: null,
+      })),
       violations: [
         ...baseReportViolations,
         ...currentReportViolations,
-        'Consumer bundle metadata differs from the exact base',
+        ...base.violations,
+        ...current.violations,
       ],
     };
   }
@@ -1079,11 +1090,12 @@ async function buildReport(baseFile, currentFile) {
     '| Scenario | Format | Base | PR | Change |',
     '| --- | --- | ---: | ---: | ---: |',
     ...consumerComparison.rows.map(row =>
-      `| ${row.scenario} | ${row.format} | ${formatBytes(row.baseSize)} | ${formatBytes(row.currentSize)} | ${row.deltaBytes == null ? 'Bootstrap' : formatChange(row.baseSize, row.currentSize)} |`),
+      `| ${row.scenario} | ${row.format} | ${formatBytes(row.baseSize)} | ${formatBytes(row.currentSize)} | ${row.deltaBytes == null ? (consumerComparison.bootstrap ? 'Bootstrap' : 'Not comparable') : formatChange(row.baseSize, row.currentSize)} |`),
     '',
     consumerComparison.bootstrap ?
       'Reporting bootstrap only: no consumer-scenario baseline or ceiling is active.' :
       'Reporting only: consumer-scenario deltas do not enforce a baseline or ceiling yet.',
+    ...(consumerComparison.reason ? [consumerComparison.reason] : []),
     ...(consumerComparison.violations.length ? [
       `Consumer bundle violations: ${consumerComparison.violations.join('; ')}`,
     ] : []),
