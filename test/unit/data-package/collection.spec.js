@@ -25,7 +25,7 @@ describe('@marionette/data Collection', function() {
     collection.forEach(model => ids.push(model.id));
     expect(ids).to.deep.equal([1, 2]);
     expect([...collection].map(model => model.id)).to.deep.equal([1, 2]);
-    expect(collection.toJSON()).to.deep.equal([
+    expect(collection.toArray()).to.deep.equal([
       { id: 1, name: 'one' },
       { id: 2, name: 'two' }
     ]);
@@ -111,8 +111,6 @@ describe('@marionette/data Collection', function() {
     expect(collection.get(null)).to.be.undefined;
     expect(collection.get(undefined)).to.be.undefined;
     expect(collection.remove(undefined)).to.be.undefined;
-    expect(collection.replace(null, { id: 2 })).to.be.undefined;
-    expect(collection.touch(undefined)).to.be.undefined;
     expect(collection.move(null, 0)).to.be.undefined;
     expect(collection.models).to.deep.equal([keyless]);
   });
@@ -124,9 +122,7 @@ describe('@marionette/data Collection', function() {
     expect(collection.get(NaN)).to.equal(model);
     expect(collection.add({ id: NaN })).to.be.undefined;
     model.set('name', 'two');
-    const replacement = collection.replace(NaN, { id: NaN, name: 'three' });
-    expect(changes[0].updated).to.deep.equal([{ previous: model, current: replacement }]);
-    expect(collection.remove(NaN)).to.equal(replacement);
+    expect(collection.remove(NaN)).to.equal(model);
   });
 
   it('treats null construction and mutation options as no options', function() {
@@ -134,44 +130,31 @@ describe('@marionette/data Collection', function() {
     const first = custom.add({ id: 1 }, null);
     const second = custom.add({ id: 2 }, null);
 
-    expect(custom.touch(first, null)).to.equal(first);
     expect(custom.move(first, 1, null)).to.equal(first);
-    expect(custom.swap(first, second, null)).to.equal(custom);
     expect(custom.sort('id', null)).to.equal(custom);
-    expect(custom.replace(first, { id: 3 }, null).id).to.equal(3);
     expect(custom.remove(second, null)).to.equal(second);
     expect(custom.reset([], null)).to.equal(custom);
     custom.destroy();
   });
 
-  it('rejects invalid observation targets with the stable adapter error', function() {
-    for (const target of [null, undefined, 1, 'collection']) {
-      expect(() => DataApi.observeCollection(target, () => {}))
-        .to.throw(TypeError, 'own Collection');
-    }
-  });
-
-  it('rejects duplicate reset and replacement snapshots without changing membership', function() {
+  it('rejects duplicate reset snapshots without changing membership', function() {
     const first = collection.get(1);
     const second = collection.get(2);
 
     expect(() => collection.reset([first, first])).to.throw(TypeError, 'unique instances and ids');
     expect(() => collection.reset([{ id: 3 }, { id: 3 }]))
       .to.throw(TypeError, 'unique instances and ids');
-    expect(() => collection.replace(first, second)).to.throw(TypeError, 'unique instances and ids');
-    expect(() => collection.replace(first, { id: 2 })).to.throw(TypeError, 'unique instances and ids');
     expect(collection.models).to.deep.equal([first, second]);
     expect(changes).to.deep.equal([]);
-    expect(() => first.set('id', 3)).to.throw(TypeError, 'cannot change a Model id');
   });
 
-  it('resets, swaps, moves, and sorts with exact records', function() {
+  it('resets, moves, and sorts with exact records', function() {
     const reset = this.sinon.spy();
     const reorder = this.sinon.spy();
     collection.on('reset', reset);
-    collection.on('reorder', reorder);
+    collection.on('sort', reorder);
 
-    collection.swap(1, 2);
+    collection.move(1, 1);
     expect(collection.map(model => model.id)).to.deep.equal([2, 1]);
     collection.move(2, 1);
     expect(collection.map(model => model.id)).to.deep.equal([1, 2]);
@@ -186,22 +169,6 @@ describe('@marionette/data Collection', function() {
     ]);
     expect(reorder).to.have.callCount(4);
     expect(reset).to.have.been.calledOnceWith(collection);
-  });
-
-  it('reports stable-key replacement separately from identity replacement and touch', function() {
-    const previous = collection.get(1);
-    const current = collection.replace(previous, { id: 1, name: 'ONE' });
-    expect(changes[0]).to.deep.equal({
-      kind: 'update', added: [], removed: [],
-      updated: [{ previous, current }]
-    });
-
-    const replacement = collection.replace(current, { id: 3, name: 'three' });
-    expect(changes[1]).to.deep.equal({
-      kind: 'update', added: [replacement], removed: [current], updated: []
-    });
-    expect(collection.touch(replacement)).to.equal(replacement);
-    expect(changes[2].updated).to.deep.equal([{ previous: replacement, current: replacement }]);
   });
 
   it('re-emits model events without structural notifications', function() {
@@ -220,7 +187,7 @@ describe('@marionette/data Collection', function() {
     expect(changes[0].removed).to.deep.equal([model]);
   });
 
-  it('removes a directly destroyed Model from every owning Collection', function() {
+  it('removes a directly destroyed Model from every containing Collection', function() {
     const model = collection.get(1);
     const other = new Collection([model]);
     const otherChanges = [];
@@ -236,7 +203,38 @@ describe('@marionette/data Collection', function() {
     other.destroy();
   });
 
-  it('notifies an owner once when another owner removes the destroyed Model first', function() {
+  it('forwards model destruction options to collection removal', function() {
+    const model = collection.get(1);
+    const options = { source: 'editor' };
+    const remove = this.sinon.spy();
+    const update = this.sinon.spy();
+    collection.on('remove', remove);
+    collection.on('update', update);
+
+    model.destroy(options);
+
+    expect(remove).to.have.been.calledOnceWith(model, collection, options);
+    expect(update.firstCall.args[1].source).to.equal('editor');
+    expect(changes[0].removed).to.deep.equal([model]);
+  });
+
+  it('honors silent destruction for removal while still forwarding destroy', function() {
+    const model = collection.get(1);
+    const options = { silent: true };
+    const destroy = this.sinon.spy();
+    const remove = this.sinon.spy();
+    collection.on('destroy', destroy);
+    collection.on('remove', remove);
+
+    model.destroy(options);
+
+    expect(collection.get(1)).to.be.undefined;
+    expect(remove).to.not.have.been.called;
+    expect(changes).to.deep.equal([]);
+    expect(destroy).to.have.been.calledOnceWith(model, options);
+  });
+
+  it('notifies a collection once when another collection removes the destroyed Model first', function() {
     const model = collection.get(1);
     const other = new Collection([model]);
     const remove = this.sinon.spy();
@@ -257,38 +255,25 @@ describe('@marionette/data Collection', function() {
     other.destroy();
   });
 
-  it('removes a destroyed Model from every owner before a destroy handler throws', function() {
-    const model = collection.get(1);
-    const other = new Collection([model]);
-    const destructionError = new Error('destruction failed');
-    model.on('destroy', () => { throw destructionError; });
-
-    expect(() => model.destroy()).to.throw(destructionError);
-
-    expect(collection.get(1)).to.be.undefined;
-    expect(other.get(1)).to.be.undefined;
-    other.destroy();
-  });
-
   it('supports silent and no-op mutations', function() {
     const first = collection.get(1);
     expect(collection.move(first, 0)).to.equal(first);
     expect(() => collection.move(first, 1.5)).to.throw(TypeError, 'requires an integer index');
-    expect(collection.swap(first, first)).to.equal(collection);
     expect(collection.move('missing', 0)).to.be.undefined;
-    expect(collection.replace('missing', {})).to.be.undefined;
-    expect(collection.touch('missing')).to.be.undefined;
     expect(collection.remove('missing')).to.be.undefined;
     expect(collection.sort()).to.equal(collection);
     collection.add({ id: 3 }, { silent: true });
     collection.remove(3, { silent: true });
-    collection.touch(first, { silent: true });
     collection.move(first, 1, { silent: true });
-    collection.swap(1, 2, { silent: true });
     collection.sort((left, right) => right.id - left.id, { silent: true });
-    collection.sort((left, right) => right.id - left.id);
     collection.reset([], { silent: true });
     expect(changes).to.deep.equal([]);
+  });
+
+  it('emits sort even when the order remains unchanged, as Backbone does', function() {
+    collection.sort('id');
+    expect(collection.map(model => model.id)).to.deep.equal([1, 2]);
+    expect(changes).to.deep.equal([{ kind: 'reorder' }]);
   });
 
   it('keeps stable order when sorting equal string values', function() {
@@ -300,14 +285,6 @@ describe('@marionette/data Collection', function() {
 
     collection.sort('name');
     expect(collection.map(model => model.id)).to.deep.equal([1, 3, 2]);
-  });
-
-  it('uses cid keys for keyless replacement records', function() {
-    const keyless = new Model({ name: 'one' });
-    collection.reset([keyless], { silent: true });
-
-    expect(collection.replace(keyless, keyless)).to.equal(keyless);
-    expect(changes[0].updated).to.deep.equal([{ previous: keyless, current: keyless }]);
   });
 
   it('releases structural and model observation on idempotent destroy', function() {
@@ -329,47 +306,14 @@ describe('@marionette/data Collection', function() {
     expect(collection.remove(1)).to.be.undefined;
     expect(collection.remove([1])).to.deep.equal([]);
     expect(collection.reset()).to.equal(collection);
-    expect(collection.replace(1, { id: 1 })).to.be.undefined;
-    expect(collection.touch(model)).to.be.undefined;
     expect(collection.move(model, 0)).to.be.undefined;
-    expect(collection.swap(model, { id: 2 })).to.equal(collection);
     expect(collection.map(entry => entry.id)).to.deep.equal([1, 2]);
 
     expect(destroy).to.have.been.calledOnceWith(collection, { source: 'test' });
     expect(modelChange).to.not.have.been.called;
     expect(collection.isDestroyed()).to.be.true;
     expect(changes).to.deep.equal([]);
-    expect(() => DataApi.observeCollection(collection, () => {}))
-      .to.throw(TypeError, 'own Collection');
+    expect(model.isDestroyed()).to.be.false;
   });
 
-  [undefined, null, false, 0, ''].forEach(error => {
-    const label = error === '' ? 'an empty string' : String(error);
-    it(`preserves ${label} thrown during unbinding and restores membership`, function() {
-      const model = collection.get(1);
-      const off = model.off;
-      model.off = () => { throw error; };
-      let caught = false;
-      let received;
-
-      try {
-        collection.remove(model);
-      } catch (value) {
-        caught = true;
-        received = value;
-      } finally {
-        model.off = off;
-      }
-
-      expect(caught).to.be.true;
-      expect(received).to.equal(error);
-      expect(collection.get(1)).to.equal(model);
-      expect(collection.length).to.equal(2);
-      const forwarded = this.sinon.spy();
-      collection.on('change:name', forwarded);
-      model.set('name', 'still owned');
-      expect(forwarded).to.have.been.calledOnce;
-    });
-
-  });
 });

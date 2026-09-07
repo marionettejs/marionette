@@ -3,7 +3,7 @@ import _ from 'underscore';
 import CollectionView from '../../src/modules/collection-view';
 import Region from '../../src/modules/region';
 import View from '../../src/modules/view';
-import MarionetteError from '../../src/modules/error';
+import { MarionetteError } from '@marionette/utils';
 
 describe('Region lifecycle contract', function() {
   'use strict';

@@ -1,7 +1,6 @@
 import { assign, createActor, createMachine, emit } from 'xstate';
 import { createMarionette } from '../../src/index.ts';
 import createXStateActorApi from '../../packages/adapters/src/data/xstate.ts';
-import createXStateStoreDataApi from '../../packages/adapters/src/data/xstate-store.ts';
 
 const childMachine = createMachine({
   context: ({ input }) => ({ id: input.id, label: input.label }),
@@ -124,6 +123,38 @@ describe('XState actor adapter', function() {
     expect(firstObserver).to.have.been.calledOnce;
     expect(secondObserver).to.have.been.calledTwice;
     stopSecond();
+  });
+
+  it('reports a pure actor reorder and ignores equivalent selected arrays', function() {
+    const first = track(createChild(1, 'one'));
+    const second = track(createChild(2, 'two'));
+    const parent = track(createParent([first, second]));
+    const ActorApi = createXStateActorApi({ select: snapshot => snapshot.context.models });
+    const context = {};
+    const callback = this.sinon.spy();
+    const cleanup = ActorApi.observeCollection(parent, callback, context);
+
+    parent.send({ type: 'replace', models: [first, second] });
+    expect(callback).to.not.have.been.called;
+    parent.send({ type: 'replace', models: [second, first] });
+    expect(callback).to.have.been.calledOnce.and.calledOn(context);
+    expect(callback.firstCall.args).to.deep.equal([{ kind: 'reorder' }]);
+    cleanup();
+  });
+
+  it('requires an ordered selection of distinct actor references', function() {
+    const actor = track(createChild(1, 'one'));
+    const parent = track(createParent([actor]));
+    expect(() => createXStateActorApi({ select: 1 }))
+      .to.throw(TypeError, 'requires a selector function');
+    expect(() => createXStateActorApi({ select: () => new Set([actor]) }).models(parent))
+      .to.throw(TypeError, 'selector must return an ordered array');
+    expect(() => createXStateActorApi({ select: () => [actor, actor] })
+      .observeCollection(parent, () => {}))
+      .to.throw(TypeError, 'duplicate actor reference');
+    expect(() => createXStateActorApi({ select: () => [undefined] })
+      .observeCollection(parent, () => {}))
+      .to.throw(TypeError, 'missing actor at index 0');
   });
 
   it('subscribes to snapshots and emitted events with native payloads', function() {
@@ -279,25 +310,4 @@ describe('XState actor adapter', function() {
       .to.throw(TypeError, 'snapshotEvent must be a non-empty string');
   });
 
-  it('uses the keyed snapshot adapter for plain records in a parent actor', function() {
-    const first = { id: 1, label: 'one' };
-    const parent = track(createParent([first]));
-    const DataApi = createXStateStoreDataApi({
-      key: model => model.id,
-      select: snapshot => snapshot.context.models
-    });
-    const callback = this.sinon.spy();
-    const cleanup = DataApi.observeCollection(parent, callback);
-    const second = { id: 2, label: 'two' };
-
-    parent.send({ type: 'replace', models: [first, second] });
-
-    expect(callback).to.have.been.calledOnce.and.calledWith({
-      kind: 'update',
-      added: [second],
-      removed: [],
-      updated: []
-    });
-    cleanup();
-  });
 });

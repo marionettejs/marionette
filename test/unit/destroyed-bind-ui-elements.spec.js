@@ -1,7 +1,7 @@
 import Behavior from '../../src/modules/behavior';
 import CollectionView from '../../src/modules/collection-view';
 import View from '../../src/modules/view';
-import MarionetteError from '../../src/modules/error';
+import { MarionetteError } from '@marionette/utils';
 
 describe('#bindUIElements terminal behavior', function() {
   function buildHost(context, HostClass, onBeforeDestroy) {

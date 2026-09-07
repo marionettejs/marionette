@@ -11,7 +11,7 @@ const require = createRequire(import.meta.url);
 for (const provider of ['morphdom', 'lit-html']) {
   const directory = mkdtempSync(join(tmpdir(), 'marionette-provider-fixture-'));
   try {
-    for (const name of ['marionette', '@marionette/adapters', provider]) {
+    for (const name of ['marionette', '@marionette/utils', '@marionette/adapters', provider]) {
       const packageFile = findPackageJSON(name, import.meta.url);
       cpSync(dirname(packageFile), join(directory, 'node_modules', name), { recursive: true });
     }

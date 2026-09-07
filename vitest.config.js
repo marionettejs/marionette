@@ -4,6 +4,9 @@ import { fileURLToPath } from 'node:url';
 export default defineConfig({
   resolve: {
     alias: [{
+      find: /^@marionette\/utils$/,
+      replacement: fileURLToPath(new URL('./packages/utils/src/index.ts', import.meta.url))
+    }, {
       find: /^marionette$/,
       replacement: fileURLToPath(new URL('./src/index.ts', import.meta.url))
     }]
@@ -19,7 +22,8 @@ export default defineConfig({
       include: [
         'src/**/*.{js,ts}',
         'packages/adapters/src/**/*.ts',
-        'packages/data/src/**/*.ts'
+        'packages/data/src/**/*.ts',
+        'packages/utils/src/**/*.ts'
       ],
       thresholds: {
         lines: 100,

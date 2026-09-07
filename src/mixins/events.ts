@@ -1,18 +1,12 @@
 import buildEventArgs, { eventSplitter } from '../utils/build-event-args.ts';
-import { setProperty } from '../utils/assign-in.ts';
+import { setProperty, triggerMethod } from '@marionette/utils';
 import callHandler from '../utils/call-handler.ts';
 import onceWrap from '../utils/once-wrap.ts';
 import uniqueId from '../utils/unique-id.ts';
 
-import triggerMethod from '../modules/common/trigger-method.ts';
 
-export type EventCallback = (...args: never[]) => unknown;
-export type EventMap = Record<string, EventCallback>;
-
-export interface EventSource {
-  on(name: string, callback?: (...args: unknown[]) => unknown, context?: unknown): unknown;
-  off(name?: string | null, callback?: ((...args: unknown[]) => unknown) | null, context?: unknown): unknown;
-}
+import type { EventCallback, EventMap, EventSource } from '@marionette/utils';
+export type { EventCallback, EventMap, EventSource } from '@marionette/utils';
 
 export interface Events extends EventSource {
   on<Receiver>(this: Receiver, name: string, callback?: EventCallback, context?: unknown): Receiver;

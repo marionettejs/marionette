@@ -5,13 +5,10 @@
     "validate": "vite build"
   },
   "dependencies": {
-    "@reduxjs/toolkit": "2.12.0",
-    "@xstate/store": "4.2.3",
     "backbone": "1.4.0",
     "jquery": "4.0.0",
     "xstate": "5.32.6",
-    "vite": "^5.4.0",
-    "zustand": "5.0.15"
+    "vite": "^5.4.0"
   },
   "allowScripts": {
     "esbuild@0.21.5": true,

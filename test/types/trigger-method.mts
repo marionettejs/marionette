@@ -1,5 +1,5 @@
 import Events from '../tmp/typed-core/src/mixins/events.js';
-import triggerMethod from '../tmp/typed-core/src/modules/common/trigger-method.js';
+import { triggerMethod } from '@marionette/utils';
 
 const target = {
   trigger(_name: string, ..._args: unknown[]) {},

@@ -5,6 +5,7 @@ helpers.
 
 ## Documentation Index
 
+* [Shared helpers](#shared-helpers)
 * [initialize](#initialize)
 * [extend](#extend)
 * [Events API](#events-api)
@@ -17,6 +18,30 @@ helpers.
 * [getOption](#getoption)
 * [mergeOptions](#mergeoptions)
 * [The `options` Property](#the-options-property)
+
+## Shared helpers
+
+The reusable option, binding, and event helpers are also available from
+`@marionette/utils` for components outside Marionette's classes:
+
+```javascript
+import { getOption, normalizeMethods } from '@marionette/utils';
+
+const component = {
+  options: { label: 'Inbox' },
+  getOption,
+  normalizeMethods,
+  onOpen() {}
+};
+
+component.getOption('label'); // 'Inbox'
+component.normalizeMethods({ open: 'onOpen' });
+```
+
+Install `@marionette/utils` directly when importing it in an application. Use the
+same version as Marionette during alpha. Core and native data depend on this
+package and use the same implementations. Helpers that read `this` can be mixed
+into a component or invoked with `.call(component, ...)`.
 
 ### `initialize`
 

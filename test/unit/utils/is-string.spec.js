@@ -1,7 +1,7 @@
 import vm from 'node:vm';
 import _ from 'underscore';
 
-import isString from '../../../src/utils/is-string';
+import isString from '../../../packages/utils/src/is-string.ts';
 
 describe('isString', function() {
   it('matches Underscore string-tag classification', function() {

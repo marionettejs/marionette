@@ -13,6 +13,14 @@ const collection = new Collection<Model<Attributes>>([model]);
 const first: Model<Attributes> | undefined = collection.get(1);
 const label: string | undefined = model.get('label');
 const models: Array<Model<Attributes>> = DataApi.models(collection);
+const plainModel: Attributes = model.toObject();
+const plainModels: Record<string, unknown>[] = collection.toArray();
+void plainModel;
+void plainModels;
+// @ts-expect-error Plain conversion has no implicit JSON hook.
+model.toJSON();
+// @ts-expect-error Native collections do not offer manual invalidation.
+collection.touch(model);
 const stopCollection = DataApi.observeCollection(collection, (change: CollectionChange<Model<Attributes>>) => {
   const kind: 'reset' | 'reorder' | 'update' = change.kind;
   void kind;

@@ -104,6 +104,7 @@ assert.deepEqual(nonDeclarativeConfigFiles, []);
 const regionBundle = await rollup({
   input: resolve(root, 'src/modules/region.ts'),
   plugins: [compile()],
+  external: ['@marionette/utils'],
 });
 const regionDependencies = regionBundle.watchFiles.map(file => relative(root, file));
 await regionBundle.close();

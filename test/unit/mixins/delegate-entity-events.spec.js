@@ -1,5 +1,5 @@
 import DelegateEntityEventsMixin from '../../../src/mixins/delegate-entity-events';
-import normalizeMethods from '../../../src/modules/common/normalize-methods';
+import { normalizeMethods } from '@marionette/utils';
 
 describe('delegate entity events mixin', function() {
   let obj;

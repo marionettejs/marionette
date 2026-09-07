@@ -27,10 +27,9 @@ const view = new Marionette.CollectionView({ collection, state });
 `triggerMethod()` for Marionette entity event maps.
 `DataApi.models(collection)` returns the current ordered model snapshot.
 
-`Model` provides `get`, `has`, `set`, `unset`, `clear`, `reset`, `toJSON`, and
+`Model` provides `get`, `has`, `set`, `unset`, `clear`, `reset`, `toObject`, and
 `destroy`. `Collection` provides ordered `at`, `get`, `indexOf`, iteration,
-`forEach`, `map`, `add`, `remove`, `reset`, `replace`, `touch`, `move`, `swap`,
-`sort`, `toJSON`, and `destroy` operations. Pass `{ silent: true }` to a
+`forEach`, `map`, `add`, `remove`, `reset`, `move`, `sort`, `toArray`, and `destroy` operations. Pass `{ silent: true }` to a
 structural mutation to suppress its normalized record and entity events.
 `destroy()` is the exception and always emits its destruction event.
 
@@ -38,10 +37,36 @@ Define subclass `defaults` on the prototype, for example with `Model.extend`, a
 prototype method, or a prototype getter. Native class fields initialize after
 `super()` returns, so a `defaults = { ... }` field cannot seed construction.
 
-Model identity is stable while a Model belongs to a Collection. Duplicate
-instances or ids are rejected before a reset or replacement changes the ordered
-model snapshot; `add` ignores an instance or id that is already present. The
-package does not provide persistence, REST synchronization, validation, or
+`move(modelOrId, index)` changes list order without removing and re-adding a
+model. This supports drag ordering while retaining child Views and their local
+state. Both `move` and `sort` emit `sort`, translated to a DataApi reorder record.
+Update model attributes with `model.set()` and subscribe through `modelEvents`
+when a child should render after a change.
+
+The native DataApi uses each model's stable `cid` as its key. Application ids may
+change; Collection lookup reads the current ids. Duplicate instances or ids are
+rejected before a reset changes membership; `add` ignores an instance or id
+already present. Applications should keep ids unique when changing them.
+
+A model may belong to multiple Collections. Its `destroy` event removes it from
+each containing Collection, forwarding removal options such as `silent`.
+The destroy event itself still fires. Destroying a Collection releases subscriptions; it
+does not destroy its models.
+
+`model.toObject()` returns a shallow attribute copy. `collection.toArray()` returns
+an array of those plain objects; use `collection.models.slice()` or iteration for
+model instances. Template serialization reads `model.attributes` independently of
+these conversion methods. There is no automatic `toJSON` hook: to serialize the
+plain data, use `JSON.stringify(model.toObject())` or
+`JSON.stringify(collection.toArray())`.
+
+Collection observation uses ordinary synchronous `update`, `reset`, and `sort`
+events. Notifications are not combined or replayed. Complete one structural
+mutation before starting another: schedule mutations from collection listeners
+or child lifecycle handlers after the current notification returns. Errors in
+listeners propagate and abort delivery, as with ordinary model events.
+
+The package does not provide persistence, REST synchronization, validation, or
 implicit Backbone compatibility.
 
 ## TypeScript

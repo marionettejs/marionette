@@ -1,8 +1,5 @@
-import MarionetteError from '../modules/error.ts';
-import { setProperty } from '../utils/assign-in.ts';
+import { MarionetteError, setProperty, getValue, isString } from '@marionette/utils';
 import eachOwn from '../utils/each-own.ts';
-import getValue from '../utils/get-value.ts';
-import isString from '../utils/is-string.ts';
 
 export type UISelectors = Record<string, string>;
 export type UIBindings = UISelectors | (() => UISelectors);

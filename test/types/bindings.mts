@@ -1,7 +1,5 @@
 import MnObject from '../tmp/typed-core/src/modules/object.js';
-import normalizeMethods from '../tmp/typed-core/src/modules/common/normalize-methods.js';
-import { bindEvents, unbindEvents } from '../tmp/typed-core/src/modules/common/bind-events.js';
-import { bindRequests, unbindRequests } from '../tmp/typed-core/src/modules/common/bind-requests.js';
+import { normalizeMethods, bindEvents, unbindEvents, bindRequests, unbindRequests } from '@marionette/utils';
 import type { Requests } from '../tmp/typed-core/src/mixins/requests.js';
 import type { EventMap, EventSource } from '../tmp/typed-core/src/mixins/events.js';
 

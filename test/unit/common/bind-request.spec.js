@@ -1,4 +1,4 @@
-import { bindRequests, unbindRequests } from '../../../src/modules/common/bind-requests';
+import { bindRequests, unbindRequests } from '@marionette/utils';
 import Radio from '../../../src/modules/radio';
 
 const acceptedBindingMaps = [

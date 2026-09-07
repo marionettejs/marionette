@@ -1,7 +1,6 @@
 // State API
 // ---------
-import { assignOwn } from '../utils/assign-in.ts';
-import MarionetteError from '../modules/error.ts';
+import { assignOwn, MarionetteError } from '@marionette/utils';
 
 export interface StateApi<Source = unknown> {
   subscribe: (source: Source, name: string, callback: (...args: unknown[]) => unknown, context?: unknown) => () => void;

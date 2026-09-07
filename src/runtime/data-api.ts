@@ -1,7 +1,6 @@
 // Data API
 // --------
-import { assignOwn } from '../utils/assign-in.ts';
-import MarionetteError from '../modules/error.ts';
+import { assignOwn, MarionetteError } from '@marionette/utils';
 import type { EventCallback, EventSource } from '../mixins/events.ts';
 
 // Configured sources are opaque; registration does not establish a source match.

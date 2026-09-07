@@ -106,10 +106,7 @@ parent.showChildView('content', new View({
 
 - Other data sources can configure `setDataApi` with methods for identity,
   reads, serialization, ordered model snapshots, subscriptions, and collection
-  observation. Applications using Redux Toolkit, Zustand vanilla stores, or
-  XState Store can use the explicit keyed snapshot factories from
-  `@marionette/adapters/redux`, `@marionette/adapters/zustand`, or
-  `@marionette/adapters/xstate-store`.
+  observation. XState actors can use `@marionette/adapters/xstate`.
   See [Data API](docs/data.api.md).
 - State owners return the exact supplied source from `getState()`. Use
   `createState(options)` for an owned source, and configure `setStateApi` when
@@ -119,6 +116,26 @@ parent.showChildView('content', new View({
   required collaborators to child Applications explicitly when constructing
   them instead of traversing upward.
 - Replace `children.findByModelCid(cid)` with `children.findByModel(model)`.
+
+## Native data package
+
+- Use `Model.toObject()` and `Collection.toArray()` for plain attribute data.
+  `toJSON()` is removed from the native package; serialize those plain values
+  explicitly with `JSON.stringify`. Template data comes from attributes and is
+  independent of conversion overrides.
+- `Collection.touch()`, `swap()`, and `replace()` are removed. Update an existing
+  model with `model.set()` and bind child rendering with `modelEvents`. Use
+  `remove`/`add` or `reset` when replacing membership intentionally.
+- `Collection.move(modelOrId, index)` retains existing models and child Views for
+  explicit list ordering. Listen to `sort`, which both `move` and `sort` emit;
+  the native `reorder` event is removed.
+- Native DataApi keys are model `cid` values, so application ids can change
+  without changing child identity. Keep application ids unique for unambiguous
+  collection lookup.
+- Collection notifications now follow ordinary synchronous events. They do not
+  combine nested mutations or recover missed notifications after a listener
+  throws. Schedule structural mutations requested by collection or child
+  lifecycle listeners after the current notification has returned.
 
 ## CollectionView source order and presentation sorting
 
@@ -389,3 +406,14 @@ lifecycle methods. Detachment and destruction disconnect directives without
 emptying their DOM. With attachment monitoring disabled, deliver these
 notifications from application code. Lit event handlers use the element as their
 receiver rather than the View; use a closure for View access.
+
+## Shared utilities
+
+Reusable helpers live in `@marionette/utils`. Core and native data use the same
+implementations; install the matching version directly when importing helpers
+into your own components. Existing public Marionette helper exports still refer
+to those functions. Source-file imports are not package entry points.
+
+Core ESM and CommonJS builds now import `@marionette/utils`. Browser projects
+loading raw ES modules must map that package in their import map, or use a
+bundler. Standalone UMD builds remain self-contained.

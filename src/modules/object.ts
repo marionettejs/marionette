@@ -1,7 +1,7 @@
 // Object
 // ------
 
-import { assignOwn } from '../utils/assign-in.ts';
+import { assignOwn } from '@marionette/utils';
 import extend from '../utils/extend.ts';
 import uniqueId from '../utils/unique-id.ts';
 import CommonMixin from '../mixins/common.ts';
@@ -10,17 +10,23 @@ import RadioMixin from '../mixins/radio.ts';
 import StateMixin from '../mixins/state.ts';
 import { setStateApi } from '../runtime/state-api.ts';
 import type { StateApi } from '../runtime/state-api.ts';
-import type getOption from './common/get-option.ts';
-import type mergeOptions from './common/merge-options.ts';
+import type {
+  getOption,
+  mergeOptions,
+  Bindings,
+  normalizeMethods,
+  bindEvents,
+  unbindEvents,
+  bindRequests,
+  unbindRequests,
+  Merge,
+  Constructed
+} from '@marionette/utils';
 import type { Channel, RadioApi } from './radio.ts';
 import type { Events } from '../mixins/events.ts';
-import type { Bindings } from './common/normalize-methods.ts';
-import type normalizeMethods from './common/normalize-methods.ts';
-import type { bindEvents, unbindEvents } from './common/bind-events.ts';
-import type { bindRequests, unbindRequests } from './common/bind-requests.ts';
 
 export type { Channel, RadioApi } from './radio.ts';
-export type { Bindings } from './common/normalize-methods.ts';
+export type { Bindings } from '@marionette/utils';
 export type { StateApi } from '../runtime/state-api.ts';
 
 export interface MnObject<Options extends object = object, State = object> extends Events {
@@ -49,8 +55,8 @@ export interface MnObject<Options extends object = object, State = object> exten
   getChannel(): Channel | undefined;
 }
 
-export type Merge<Left, Right> = [Extract<keyof Left, keyof Right>] extends [never]
-  ? Left & Right : Omit<Left, keyof Right> & Right;
+export type { Merge, Constructed } from '@marionette/utils';
+
 export type ArgumentsFor<Props, Previous extends unknown[]> =
   Props extends { constructor: (...args: infer Args) => unknown } ? Args :
   Props extends { initialize: (...args: infer Args) => unknown } ? Args : Previous;
@@ -68,18 +74,6 @@ export type StateFor<Props> = SuppliedState<Props,
 export type Instance<Props, Args extends unknown[], State> =
   Merge<MnObject<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State>,
     'options' extends keyof Props ? Omit<Props, 'options'> : Props>;
-
-// A primitive or void return declares ordinary construction. Unknown results
-// cannot promise an instance; only an explicit generic receiver return preserves
-// the complete instance type through later extensions.
-type Returned<Result, Normal> = Result extends object ? Result : Normal;
-export type Constructed<Props, Normal> =
-  Props extends { constructor: infer Constructor extends (...args: never[]) => unknown }
-    ? unknown extends ReturnType<Constructor> ? unknown
-      : Constructor extends <Receiver extends ThisParameterType<Constructor> & object>(
-        this: Receiver, ...args: Parameters<Constructor>
-      ) => Receiver ? Normal : Returned<ReturnType<Constructor>, Normal>
-    : Normal;
 
 // Optional type information avoids inferring through the whole recursive constructor.
 // No property or symbol is created at runtime.

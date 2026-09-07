@@ -40,7 +40,7 @@ const externalImports = [...new Set(generated.output
 const internalModules = bundle.watchFiles.map(path => resolve(path));
 await bundle.close();
 
-if (JSON.stringify(externalImports) !== JSON.stringify(['marionette'])) {
+if (JSON.stringify(externalImports) !== JSON.stringify(['@marionette/utils', 'marionette'])) {
   throw new Error(`@marionette/data external imports changed: ${externalImports.join(', ') || 'none'}.`);
 }
 const foreignModules = internalModules.filter(path => {
@@ -57,4 +57,4 @@ for (const artifact of measured) {
 }
 console.log(`Cumulative @marionette/data: ${formatBytes(measured
   .reduce((total, artifact) => total + artifact.size, 0))}`);
-console.log(`@marionette/data: ${internalModules.length} internal modules, 1 external import`);
+console.log(`@marionette/data: ${internalModules.length} internal modules, ${externalImports.length} external imports`);

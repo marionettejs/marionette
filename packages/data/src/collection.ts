@@ -1,14 +1,8 @@
-import { Events, extend } from 'marionette';
-import assignOwn from './assign-own.ts';
-import Model, { addModelOwner, removeModelOwner } from './model.ts';
-import {
-  initializeObservers,
-  notifyCollection,
-  releaseObservers
-} from './observers.ts';
+import { Events } from 'marionette';
+import { assignOwn, extend } from '@marionette/utils';
+import Model from './model.ts';
 
-import type { EventSource } from './events.ts';
-import type { Merge, Constructed, CallableParent } from './extend-types.ts';
+import type { EventMethods as EventSource, Merge, Constructed, CallableParent } from '@marionette/utils';
 import type { ModelInstance as ModelType, ModelAttributes, MutationOptions } from './model.ts';
 
 type CollectionExtend<Base extends ModelType, Props extends object, Statics extends object> = {
@@ -89,12 +83,9 @@ export interface Collection<M extends ModelType = ModelType> extends EventSource
   remove(identity: unknown, options?: MutationOptions | null): M | undefined;
   remove(identities: ReadonlyArray<unknown>, options?: MutationOptions | null): M[];
   reset(models?: ModelInput<M> | ReadonlyArray<ModelInput<M>> | null, options?: MutationOptions | null): this;
-  replace(previous: unknown, current: ModelInput<M>, options?: MutationOptions | null): M | undefined;
-  touch(identity: unknown, options?: MutationOptions | null): M | undefined;
   move(identity: unknown, index: number, options?: MutationOptions | null): M | undefined;
-  swap(first: unknown, second: unknown, options?: MutationOptions | null): this;
   sort(comparator?: string | ((left: M, right: M) => number), options?: MutationOptions | null): this;
-  toJSON(): ModelAttributes[];
+  toArray(): ModelAttributes[];
   isDestroyed(): boolean;
   destroy(options?: unknown): this;
   [Symbol.iterator](): ReturnType<M[][typeof Symbol.iterator]>;
@@ -113,7 +104,6 @@ interface CollectionInstanceRuntime extends CollectionInstance {
   _bindModels(models: ModelType[]): void;
   _replaceBindings(previousModels: ModelType[], currentModels: ModelType[]): void;
   _onModelEvent(eventName: string, model: ModelType, ...args: unknown[]): void;
-  _notify(change: CollectionChange): void;
 }
 
 function asArray<Input>(models: Input | ReadonlyArray<Input> | null | undefined): ReadonlyArray<Input> {
@@ -126,7 +116,7 @@ function normalizeOptions<Options>(options: Options | null | undefined): Options
 }
 
 function sameValueZero(left: unknown, right: unknown) {
-  // Keep this aligned with CollectionView's stable-key equality.
+  // Match the equality used when deduplicating ids.
   return left === right || Number.isNaN(left) && Number.isNaN(right);
 }
 
@@ -143,18 +133,6 @@ function assertUniqueModels(models: ModelType[]) {
   }
 }
 
-function releaseOwnedModel(collection: CollectionInstanceRuntime, model: ModelType) {
-  const nextModels = collection.models.filter(current => current !== model);
-  const options = {};
-  const change: CollectionChange = { kind: 'update', added: [], removed: [model], updated: [] };
-  collection._unbindModel(model);
-  collection.models = nextModels;
-  collection.length = nextModels.length;
-  collection._notify(change);
-  collection.triggerMethod('remove', model, collection, options);
-  collection.triggerMethod('update', collection, { ...options, changes: change });
-}
-
 // The constructor and generic instance interface share the public name.
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const Collection = function(this: CollectionInstanceRuntime, models: ModelInput | ReadonlyArray<ModelInput> | null = [], options: CollectionOptions | null = {}) {
@@ -162,7 +140,6 @@ export const Collection = function(this: CollectionInstanceRuntime, models: Mode
   this.models = [];
   this.length = 0;
   if (options.model) { this.model = options.model; }
-  initializeObservers(this);
   this.reset(models, { silent: true });
   this.initialize(models, options);
 } as unknown as CollectionExtension<ModelType, {}, {}>;
@@ -182,12 +159,10 @@ assignOwn(Collection.prototype, Events, {
 
   _bindModel(model: ModelType) {
     model.on('all', this._onModelEvent, this);
-    addModelOwner(model, this, () => releaseOwnedModel(this, model));
   },
 
   _unbindModel(model: ModelType) {
     model.off('all', this._onModelEvent, this);
-    removeModelOwner(model, this);
   },
 
   _bindModels(models: ModelType[]) {
@@ -209,11 +184,8 @@ assignOwn(Collection.prototype, Events, {
   },
 
   _onModelEvent(eventName: string, model: ModelType, ...args: unknown[]) {
+    if (eventName === 'destroy') { this.remove(model, args[0] as MutationOptions); }
     this.triggerMethod(eventName, model, ...args);
-  },
-
-  _notify(change: CollectionChange) {
-    notifyCollection(this, change);
   },
 
   at(index: number) {
@@ -269,7 +241,6 @@ assignOwn(Collection.prototype, Events, {
 
     if (!options.silent) {
       const change: CollectionChange = { kind: 'update', added, removed: [], updated: [] };
-      this._notify(change);
       for (const model of added) { this.triggerMethod('add', model, this, options); }
       this.triggerMethod('update', this, { ...options, changes: change });
     }
@@ -287,13 +258,12 @@ assignOwn(Collection.prototype, Events, {
     }
     if (!removed.length) { return Array.isArray(models) ? removed : undefined; }
     const nextModels = this.models.filter(model => !removed.includes(model));
-    this._replaceBindings(this.models, nextModels);
+    for (const model of removed) { this._unbindModel(model); }
     this.models = nextModels;
     this.length = this.models.length;
 
     if (!options.silent) {
       const change: CollectionChange = { kind: 'update', added: [], removed, updated: [] };
-      this._notify(change);
       for (const model of removed) { this.triggerMethod('remove', model, this, options); }
       this.triggerMethod('update', this, { ...options, changes: change });
     }
@@ -310,60 +280,9 @@ assignOwn(Collection.prototype, Events, {
     this.length = this.models.length;
 
     if (!options.silent) {
-      this._notify({ kind: 'reset' });
       this.triggerMethod('reset', this, options);
     }
     return this;
-  },
-
-  replace(previous: unknown, current: ModelInput, options: MutationOptions | null = {}) {
-    options = normalizeOptions(options);
-    if (this._isDestroyed) { return undefined; }
-    const previousModel = this.get(previous);
-    if (!previousModel) { return undefined; }
-    const currentModel = this._prepareModel(current);
-    const index = this.models.indexOf(previousModel);
-    const nextModels = this.models.slice();
-    nextModels[index] = currentModel;
-    assertUniqueModels(nextModels);
-    const previousKey = previousModel.id == null ? previousModel.cid : previousModel.id;
-    const currentKey = currentModel.id == null ? currentModel.cid : currentModel.id;
-    this._replaceBindings([previousModel], [currentModel]);
-    this.models[index] = currentModel;
-
-    if (!options.silent) {
-      const change: CollectionChange = sameValueZero(previousKey, currentKey) ? {
-        kind: 'update',
-        added: [],
-        removed: [],
-        updated: [{ previous: previousModel, current: currentModel }]
-      } : {
-        kind: 'update',
-        added: [currentModel],
-        removed: [previousModel],
-        updated: []
-      };
-      this._notify(change);
-      this.triggerMethod('update', this, { ...options, changes: change });
-    }
-    return currentModel;
-  },
-
-  touch(model: unknown, options: MutationOptions | null = {}) {
-    options = normalizeOptions(options);
-    const currentModel = this.get(model);
-    if (!currentModel || this._isDestroyed) { return undefined; }
-    if (!options.silent) {
-      const change: CollectionChange = {
-        kind: 'update',
-        added: [],
-        removed: [],
-        updated: [{ previous: currentModel, current: currentModel }]
-      };
-      this._notify(change);
-      this.triggerMethod('update', this, { ...options, changes: change });
-    }
-    return currentModel;
   },
 
   move(model: unknown, index: number, options: MutationOptions | null = {}) {
@@ -379,32 +298,14 @@ assignOwn(Collection.prototype, Events, {
     this.models.splice(previousIndex, 1);
     this.models.splice(nextIndex, 0, currentModel);
     if (!options.silent) {
-      this._notify({ kind: 'reorder' });
-      this.triggerMethod('reorder', this, options);
+      this.triggerMethod('sort', this, options);
     }
     return currentModel;
-  },
-
-  swap(first: unknown, second: unknown, options: MutationOptions | null = {}) {
-    options = normalizeOptions(options);
-    const firstModel = this.get(first);
-    const secondModel = this.get(second);
-    if (!firstModel || !secondModel || firstModel === secondModel || this._isDestroyed) { return this; }
-    const firstIndex = this.models.indexOf(firstModel);
-    const secondIndex = this.models.indexOf(secondModel);
-    this.models[firstIndex] = secondModel;
-    this.models[secondIndex] = firstModel;
-    if (!options.silent) {
-      this._notify({ kind: 'reorder' });
-      this.triggerMethod('reorder', this, options);
-    }
-    return this;
   },
 
   sort(this: CollectionInstanceRuntime, comparator: string | ((left: ModelType, right: ModelType) => number) | undefined = this.comparator, options: MutationOptions | null = {}) {
     options = normalizeOptions(options);
     if (this._isDestroyed) { return this; }
-    const previousModels = this.models.slice();
     if (typeof comparator === 'string') {
       this.models.sort((left, right) => {
         // Attribute ordering follows JavaScript relational coercion.
@@ -417,16 +318,14 @@ assignOwn(Collection.prototype, Events, {
     } else {
       return this;
     }
-    if (this.models.every((model, index) => model === previousModels[index])) { return this; }
     if (!options.silent) {
-      this._notify({ kind: 'reorder' });
-      this.triggerMethod('reorder', this, options);
+      this.triggerMethod('sort', this, options);
     }
     return this;
   },
 
-  toJSON() {
-    return this.models.map(model => model.toJSON());
+  toArray() {
+    return this.models.map(model => model.toObject());
   },
 
   isDestroyed() {
@@ -437,7 +336,6 @@ assignOwn(Collection.prototype, Events, {
     if (this._isDestroyed) { return this; }
     this._isDestroyed = true;
     for (let index = this.models.length; index--;) { this._unbindModel(this.models[index]); }
-    releaseObservers(this);
     this.triggerMethod('destroy', this, options);
     this.stopListening();
     this.off();
@@ -446,8 +344,8 @@ assignOwn(Collection.prototype, Events, {
 } satisfies ThisType<CollectionInstanceRuntime> & Pick<CollectionInstanceRuntime,
   'model' | '_isDestroyed' | 'initialize' | '_prepareModel' | '_bindModel' |
   '_unbindModel' | '_bindModels' | '_replaceBindings' |
-  '_onModelEvent' | '_notify' | 'at' | 'get' | 'indexOf' | 'forEach' | 'map' |
-  'reset' | 'replace' | 'touch' | 'move' | 'swap' | 'sort' | 'toJSON' |
+  '_onModelEvent' | 'at' | 'get' | 'indexOf' | 'forEach' | 'map' |
+  'reset' | 'move' | 'sort' | 'toArray' |
   'isDestroyed' | 'destroy'> & {
   add(models: ModelInput | ReadonlyArray<ModelInput> | null, options?: MutationOptions | null): ModelType | ModelType[] | undefined;
   remove(models: unknown, options?: MutationOptions | null): ModelType | ModelType[] | undefined;

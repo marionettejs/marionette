@@ -1,4 +1,4 @@
-import MarionetteError from '../tmp/typed-core/src/modules/error.js';
+import { MarionetteError } from '@marionette/utils';
 
 const error = new MarionetteError({ message: 'example', code: 'MN0001' });
 const inherited = new MarionetteError(Object.create({ code: 'MN0001' }));

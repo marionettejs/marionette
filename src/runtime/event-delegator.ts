@@ -1,6 +1,6 @@
 // Event Delegator
 //  ---------
-import MarionetteError from '../modules/error.ts';
+import { MarionetteError } from '@marionette/utils';
 
 export interface DelegatedEvent extends Event {
   delegateTarget?: Element;

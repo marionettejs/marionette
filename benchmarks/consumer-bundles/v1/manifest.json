@@ -3,7 +3,9 @@
   "fixtureVersion": "v1",
   "packageNames": [
     "marionette",
-    "@marionette/adapters"
+    "@marionette/adapters",
+    "@marionette/data",
+    "@marionette/utils"
   ],
   "compression": {
     "algorithm": "brotli",
@@ -66,7 +68,8 @@
       ],
       "expectedModules": [
         "benchmarks/consumer-bundles/v1/root-only.js",
-        "dist/marionette.js"
+        "dist/marionette.js",
+        "packages/utils/dist/index.js"
       ],
       "expectedExternalImports": []
     },
@@ -119,7 +122,8 @@
       "expectedModules": [
         "benchmarks/consumer-bundles/v1/root-plus-backbone.js",
         "dist/marionette.js",
-        "packages/adapters/dist/backbone.js"
+        "packages/adapters/dist/backbone.js",
+        "packages/utils/dist/index.js"
       ],
       "expectedExternalImports": []
     },
@@ -138,7 +142,8 @@
       "expectedModules": [
         "benchmarks/consumer-bundles/v1/root-plus-jquery.js",
         "dist/marionette.js",
-        "packages/adapters/dist/dom/jquery.js"
+        "packages/adapters/dist/dom/jquery.js",
+        "packages/utils/dist/index.js"
       ],
       "expectedExternalImports": [
         "jquery"
@@ -162,7 +167,8 @@
         "benchmarks/consumer-bundles/v1/root-plus-backbone-jquery.js",
         "dist/marionette.js",
         "packages/adapters/dist/backbone.js",
-        "packages/adapters/dist/dom/jquery.js"
+        "packages/adapters/dist/dom/jquery.js",
+        "packages/utils/dist/index.js"
       ],
       "expectedExternalImports": [
         "jquery"

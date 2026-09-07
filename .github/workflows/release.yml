@@ -15,6 +15,7 @@ on:
       - 'config/release-promotion.json'
       - 'package-lock.json'
       - 'package.json'
+      - 'packages/utils/**'
       - 'packages/data/**'
       - 'packages/adapters/**'
       - 'test/dist/**'
@@ -82,6 +83,7 @@ jobs:
       npm_tag: ${{ steps.artifact.outputs.npm_tag }}
       prerelease: ${{ steps.artifact.outputs.prerelease }}
       tag: ${{ steps.artifact.outputs.tag }}
+      utils_tarball: ${{ steps.artifact.outputs.utils_tarball }}
       core_tarball: ${{ steps.artifact.outputs.core_tarball }}
       data_tarball: ${{ steps.artifact.outputs.data_tarball }}
       adapters_tarball: ${{ steps.artifact.outputs.adapters_tarball }}
@@ -144,11 +146,14 @@ jobs:
         run: |
           mkdir -p test/tmp/release-package
           tar -xzf "release/${{ steps.artifact.outputs.core_tarball }}" -C test/tmp/release-package
+          mkdir -p test/tmp/release-package/package/node_modules/@marionette/utils
+          tar -xzf "release/${{ steps.artifact.outputs.utils_tarball }}" --strip-components=1 -C test/tmp/release-package/package/node_modules/@marionette/utils
           npm run test:dist -- --root test/tmp/release-package/package
 
       - name: Test exact packed package fixtures
         run: >-
           npm run test:fixtures --
+          --utils-tarball "release/${{ steps.artifact.outputs.utils_tarball }}"
           --tarball "release/${{ steps.artifact.outputs.core_tarball }}"
           --data-tarball "release/${{ steps.artifact.outputs.data_tarball }}"
           --adapters-tarball "release/${{ steps.artifact.outputs.adapters_tarball }}"
@@ -215,6 +220,7 @@ jobs:
       - name: Test exact packed package fixtures
         run: >-
           npm run test:fixtures --
+          --utils-tarball "release/${{ needs.build.outputs.utils_tarball }}"
           --tarball "release/${{ needs.build.outputs.core_tarball }}"
           --data-tarball "release/${{ needs.build.outputs.data_tarball }}"
           --adapters-tarball "release/${{ needs.build.outputs.adapters_tarball }}"
@@ -256,6 +262,15 @@ jobs:
         run: npm run release:targets -- --mode dry-run --artifact-dir release
         env:
           GH_TOKEN: ${{ github.token }}
+
+      - name: Exercise utils npm publication without publishing
+        run: >-
+          npm publish
+          "./release/${{ needs.build.outputs.utils_tarball }}"
+          --dry-run
+          --ignore-scripts
+          --access public
+          --tag "${{ needs.build.outputs.npm_tag }}"
 
       - name: Exercise core npm publication without publishing
         run: >-
@@ -381,6 +396,15 @@ jobs:
         run: npm run release:targets -- --mode npm-decision --artifact-dir release
         env:
           GH_TOKEN: ${{ github.token }}
+
+      - name: Publish exact utils tarball with npm provenance
+        if: steps.npm_state.outputs.utils_npm_action == 'publish'
+        run: >-
+          npm publish
+          "./release/${{ needs.build.outputs.utils_tarball }}"
+          --ignore-scripts
+          --access public
+          --tag "${{ needs.build.outputs.npm_tag }}"
 
       - name: Publish exact core tarball with npm provenance
         if: steps.npm_state.outputs.core_npm_action == 'publish'

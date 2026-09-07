@@ -1,7 +1,7 @@
 import CollectionView from '../../../src/modules/collection-view';
 import Behavior from '../../../src/modules/behavior';
 import View from '../../../src/modules/view';
-import MarionetteError from '../../../src/modules/error';
+import { MarionetteError } from '@marionette/utils';
 
 function createAdapter() {
   return {

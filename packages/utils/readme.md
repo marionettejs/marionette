@@ -1,0 +1,60 @@
+# @marionette/utils
+
+The small helpers behind Marionette, available for your own components.
+Marionette and `@marionette/data` import these same implementations.
+
+```bash
+npm install @marionette/utils
+```
+
+During v5 alpha, use the same version for all Marionette packages. Core and data
+install utils automatically as a regular dependency. Add it directly when your
+application imports it.
+
+## Building a component
+
+Methods such as `getOption`, `normalizeMethods`, and `triggerMethod` use their
+receiver as the component. Mix them into a prototype or call them with `.call()`.
+
+```js
+import { Events } from 'marionette';
+import { getOption, normalizeMethods, triggerMethod } from '@marionette/utils';
+
+const component = {
+  ...Events,
+  getOption,
+  normalizeMethods,
+  triggerMethod,
+  options: { label: 'Inbox' },
+  onOpen() {
+    return this.getOption('label');
+  }
+};
+
+component.triggerMethod('open'); // 'Inbox'
+component.normalizeMethods({ open: 'onOpen' });
+```
+
+## Helpers
+
+- `assignOwn(target, ...sources)` copies own enumerable string properties;
+  `assignIn` also copies inherited enumerable string properties.
+- `getValue(object, key, fallback)` reads a value and calls it on the object if it
+  is a function. `getOption` reads from `this.options`, then the receiver.
+- `mergeOptions(options, keys)` copies selected options onto the receiver.
+- `normalizeMethods(map)` resolves method names on the receiver.
+  `resolveMethod(context, method, name)` resolves one handler.
+- `bindEvents`, `unbindEvents`, `bindRequests`, and `unbindRequests` use the
+  receiver's listening methods. `normalizeBindings(context, map)` resolves an
+  event map without subscribing.
+- `triggerMethod(eventName, ...args)` invokes the matching `onEventName` method
+  and triggers the event.
+- `extend` is the function-constructor inheritance helper used by Marionette.
+- `MarionetteError` is the same error constructor exported by Marionette.
+- `isString` recognizes primitive and boxed strings. `setProperty` assigns a
+  property, treating `__proto__` as an own data property.
+
+ES modules, CommonJS, and TypeScript declarations are included. The package has
+no runtime dependencies and declares no side effects. Bundlers can retain only
+the imported helpers. Marionette's standalone UMD bundles include these helpers;
+module consumers share the installed package.

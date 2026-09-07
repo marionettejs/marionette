@@ -4,7 +4,7 @@ import CollectionView from '../../src/modules/collection-view';
 import MnObject from '../../src/modules/object';
 import Region from '../../src/modules/region';
 import View from '../../src/modules/view';
-import MarionetteError from '../../src/modules/error';
+import { MarionetteError } from '@marionette/utils';
 
 function createSource() {
   return { listeners: new Map() };

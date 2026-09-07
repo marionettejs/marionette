@@ -33,6 +33,11 @@ npm install marionette
 > The v4 package name has changed. See the [upgrade guide](../upgradeGuide.md)
 > for migration guidance from earlier releases.
 
+Core and `@marionette/data` automatically install the matching `@marionette/utils`
+version. Applications do not need a separate install unless they import helpers
+directly. During alpha, keep Marionette packages on the same version. See the
+[shared helpers](https://github.com/marionettejs/marionette/blob/master/docs/common.md#shared-helpers) for reusable component helpers.
+
 ## Peer dependencies
 
 Marionette v5 core has no peer dependencies. The separate
@@ -58,18 +63,12 @@ npm install @marionette/adapters backbone
 # Only if you use the jQuery DomApi adapter
 npm install @marionette/adapters jquery
 
-# Choose only the keyed snapshot store your application uses
-npm install @marionette/adapters @reduxjs/toolkit
-npm install @marionette/adapters zustand
-npm install @marionette/adapters @xstate/store
-
 # Only if you use XState actors
 npm install @marionette/adapters xstate
 ```
 
-The keyed snapshot and XState actor adapters do not import or declare provider
-libraries as peers. Install only the provider package already selected by your
-application; the adapter consumes its public source shape.
+The XState actor adapter does not import or declare XState as a peer. Install
+XState alongside the adapter; the adapter consumes its public actor shape.
 
 Npm does not install missing optional peers. TypeScript consumers of an optional
 subpath must install its matching type package explicitly:
@@ -174,10 +173,8 @@ Configure its adapters before constructing owners. See the
 [`@marionette/data` guide](./data.api.md#optional-marionettedata-sources) for a
 copy-pastable isolated-runtime example.
 
-Applications that already use Redux Toolkit, Zustand vanilla stores, XState
-Store, or XState actors can select an ordered model array with an explicit
-`@marionette/adapters` subpath. See
-[Keyed snapshot store adapters](./data.api.md#keyed-snapshot-store-adapters) and
+Applications using XState actors can select an ordered array of child actor
+references through `@marionette/adapters/xstate`. See
 [XState actors](./data.api.md#xstate-actors).
 
 ## Distribution formats

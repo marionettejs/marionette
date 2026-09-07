@@ -5,7 +5,7 @@ import ts from 'typescript';
 
 const root = resolve(import.meta.dirname, '..');
 const packageName = process.argv[2];
-if (packageName && !['data', 'adapters'].includes(packageName)) {
+if (packageName && !['utils', 'data', 'adapters'].includes(packageName)) {
   throw new Error(`Unknown declaration package: ${packageName}`);
 }
 const packageRoot = packageName ? join(root, 'packages', packageName) : root;

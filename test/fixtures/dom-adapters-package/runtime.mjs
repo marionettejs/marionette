@@ -11,7 +11,7 @@ for (const name of ['window', 'document', 'Node', 'Element', 'HTMLElement', 'Doc
 }
 
 try {
-  for (const peer of ['backbone', 'jquery', 'redux', 'zustand', 'xstate', '@xstate/store',
+  for (const peer of ['backbone', 'jquery', 'xstate',
     provider === 'lit-html' ? 'morphdom' : 'lit-html']) {
     assert.throws(() => require.resolve(peer), { code: 'MODULE_NOT_FOUND' }, `${peer} leaked into fixture`);
   }

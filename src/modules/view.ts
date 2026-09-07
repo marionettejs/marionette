@@ -1,11 +1,9 @@
 // View
 // ----
 
-import { assignOwn } from '../utils/assign-in.ts';
+import { assignOwn, MarionetteError, getValue } from '@marionette/utils';
 import eachOwn from '../utils/each-own.ts';
-import MarionetteError from './error.ts';
 import extend from '../utils/extend.ts';
-import getValue from '../utils/get-value.ts';
 import uniqueId from '../utils/unique-id.ts';
 import monitorViewEvents from './common/monitor-view-events.ts';
 import buildRegion from './common/build-region.ts';

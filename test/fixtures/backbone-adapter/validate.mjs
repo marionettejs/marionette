@@ -7,12 +7,7 @@ import { resolve } from 'node:path';
 const require = createRequire(import.meta.url);
 
 assert.equal(existsSync(resolve(import.meta.dirname, 'node_modules/jquery')), false);
-for (const packagePath of [
-  '@reduxjs/toolkit',
-  '@xstate/store',
-  'xstate',
-  'zustand',
-]) {
+for (const packagePath of ['xstate']) {
   assert.equal(existsSync(resolve(import.meta.dirname, 'node_modules', packagePath)), false);
 }
 await assert.rejects(
@@ -32,10 +27,7 @@ assert.throws(
   error => error.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED',
 );
 await Promise.all([
-  import('@marionette/adapters/redux'),
-  import('@marionette/adapters/xstate-store'),
   import('@marionette/adapters/xstate'),
-  import('@marionette/adapters/zustand'),
 ]);
 
 for (const file of [

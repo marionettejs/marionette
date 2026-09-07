@@ -17,12 +17,12 @@ manual dispatch from `master` in this repository with the `publish` input enable
 followed by approval of the protected `stable-release` environment.
 
 Generated `dist/` files and `src/version.js` are ignored by Git. `npm ci` runs the
-root `prepare` lifecycle to build all three packages and test the core distributions.
+root `prepare` lifecycle to build all four packages and test the core distributions.
 Artifact construction performs a final clean build and distribution check from the
 verified source commit, then runs `npm pack --ignore-scripts` so packing cannot
 rebuild those tested outputs. This final build also replaces stale local ignored files. Package fixtures validate the exact tarballs before any
-publication. Handwritten declaration sources live in `packages/*/types/` and are
-copied into each package distribution during its build.
+publication. TypeScript declarations are generated from each package's source. The packages
+are built and published in dependency order: utils, core, data, adapters.
 
 ## v5 distribution policy
 
@@ -83,7 +83,7 @@ that authorization:
 
 1. Create the protected GitHub environment named `stable-release` and require the
    maintainer approval appropriate for the release.
-2. Configure the `marionette` npm package trusted publisher for the
+2. Configure each Marionette npm package's trusted publisher for the
    `marionettejs/marionette` repository, `release.yml` workflow, and
    `stable-release` environment. Allow `npm publish` only.
 3. Confirm the workflow still uses a GitHub-hosted runner, npm 11.5.1 or newer, and

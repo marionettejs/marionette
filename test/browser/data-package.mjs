@@ -16,10 +16,11 @@ const temporaryDirectory = await mkdtemp(join(tmpdir(), 'marionette-data-browser
 try {
   const packDirectory = resolve(temporaryDirectory, 'pack');
   const coreDirectory = resolve(temporaryDirectory, 'core');
+  const utilsDirectory = resolve(temporaryDirectory, 'utils');
   const dataDirectory = resolve(temporaryDirectory, 'data');
   await Promise.all([
     mkdir(packDirectory),
-    mkdir(coreDirectory),
+    mkdir(utilsDirectory), mkdir(coreDirectory),
     mkdir(dataDirectory)
   ]);
 
@@ -40,12 +41,15 @@ try {
     return resolve(packDirectory, results[0].filename);
   }
 
+  const utilsTarball = pack(resolve(root, 'packages/utils'));
+  execFileSync('tar', ['-xzf', utilsTarball, '-C', utilsDirectory]);
   const coreTarball = pack(root);
   const dataTarball = pack(resolve(root, 'packages/data'));
   execFileSync('tar', ['-xzf', coreTarball, '-C', coreDirectory]);
   execFileSync('tar', ['-xzf', dataTarball, '-C', dataDirectory]);
 
   const assets = new Map([
+    ['/utils.js', resolve(utilsDirectory, 'package/dist/index.js')],
     ['/marionette.js', resolve(coreDirectory, 'package/dist/marionette.js')],
     ['/data.js', resolve(dataDirectory, 'package/dist/index.js')]
   ]);
@@ -53,7 +57,7 @@ try {
 <html>
   <head>
     <script type="importmap">
-      { "imports": { "marionette": "/marionette.js" } }
+      { "imports": { "@marionette/utils": "/utils.js", "marionette": "/marionette.js" } }
     </script>
   </head>
   <body></body>

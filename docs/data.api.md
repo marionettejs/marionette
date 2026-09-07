@@ -57,6 +57,12 @@ setup errors propagate to the caller; event-map registration is not rolled back.
 responsible for fulfilling these contracts; core does not wrap or validate each
 returned cleanup.
 
+`model` and `collection` are opaque adapter references. Only `null` and
+`undefined` mean no source; values such as `0`, `false`, and `''` can identify a
+source when the configured adapter supports them. Prefer a stable reference
+whose `get` and `serialize` methods read current values. Item changes can then
+notify existing Views through `subscribe` without replacing their identity.
+
 ## Collection observations
 
 `observeCollection()` reports one of three normalized records:
@@ -131,53 +137,6 @@ data prepared by `serializeModel()` or `serializeCollection()`; see
 DataApi and [StateApi](./marionette.state.md#stateapi) are selected
 independently. One adapter object may implement both contracts, but configuring
 one role never selects the other.
-
-## Keyed snapshot store adapters
-
-`@marionette/adapters` provides explicit DataApi factories for Redux Toolkit,
-Zustand vanilla stores, and XState Store:
-
-| Source | Import |
-| --- | --- |
-| Redux Toolkit | `@marionette/adapters/redux` |
-| Zustand vanilla store | `@marionette/adapters/zustand` |
-| XState Store | `@marionette/adapters/xstate-store` |
-
-Each factory requires a stable model key and a selector that returns the
-current ordered model array. Configure the resulting DataApi on the
-CollectionView class before creating instances:
-
-```javascript
-import createReduxDataApi from '@marionette/adapters/redux';
-import { CollectionView, View } from 'marionette';
-
-const ReduxDataApi = createReduxDataApi({
-  key: todo => todo.id,
-  select: state => state.todos
-});
-
-const TodoView = View.extend({
-  tagName: 'li',
-  template: todo => todo.title
-});
-const TodoList = CollectionView.extend({ childView: TodoView });
-TodoList.setDataApi(ReduxDataApi);
-
-const list = new TodoList({ collection: store });
-```
-
-Use `createZustandDataApi` or `createXStateStoreDataApi` from the corresponding
-subpath with the same options. A selector should return the same array reference
-when an unrelated store notification occurs and retain the same object reference
-for each unchanged model. Return a new ordered array after a structural change.
-
-The adapters subscribe once per observing CollectionView and compare one keyed
-snapshot per relevant notification. They normalize function and
-`{ unsubscribe() }` disposers and never stop or mutate the caller-owned store.
-A new model object with an existing key is an immutable replacement, so
-Marionette destroys the old child View and constructs a new child for the new
-object. These adapters intentionally do not expose a generic snapshot-store
-entry point.
 
 ## XState actors
 
@@ -254,23 +213,36 @@ const collection = new Collection([{ id: 1, label: 'one' }]);
 const list = new Marionette.CollectionView({ collection, state });
 ```
 
-Unless `{ silent: true }` is passed, the package Collection reports synchronous
-normalized `update`, `reorder`, and `reset` records after each structural
-mutation. If an observer changes the collection again before another observer
-receives the first change, the later observer receives one combined record that
-matches the current collection. An explicit reset remains a reset when combined
-with other changes. A combined `update` can include reordering; observers read
-the current `models()` snapshot for order, just as they do for insertion
-positions in an ordinary update. No separate `reorder` record follows that update.
+Unless `{ silent: true }` is passed, the package Collection emits synchronous
+`update`, `sort`, and `reset` events. The adapter translates them directly to
+normalized records. There is no separate observer queue, coalescing, or replay.
+Finish one structural mutation before starting another; schedule mutations from
+collection listeners or child lifecycle handlers after the current notification
+returns. Listener errors propagate and abort delivery.
 
-`Model.destroy()` and `Collection.destroy()` always emit their
-`destroy` lifecycle events, including with `{ silent: true }`. Model ids cannot
-change while the Model belongs to a Collection, and
-reset or replacement rejects duplicate instances and ids before changing
-membership. Define Model subclass `defaults` on the prototype with
-`Model.extend`, a prototype method, or a prototype getter; a native class field
-initializes too late to seed the base constructor. The package does not provide
-persistence, REST synchronization, validation, or implicit Backbone behavior.
+`move(modelOrId, index)` supports explicit list ordering without remove/add
+notifications or child View recreation. It and `sort` emit `sort`. Ordinary
+attribute changes use `model.set()` and child `modelEvents` bindings.
+
+The native adapter keys models by stable `cid`, so changing an application id
+does not replace its child View. Collection lookup uses current ids. Reset
+rejects duplicate instances and ids before changing membership; applications
+should keep ids unique when changing them.
+
+`Model.destroy()` and `Collection.destroy()` always emit their `destroy`
+lifecycle events, including with `{ silent: true }`. A destroyed model removes
+itself from each containing Collection through ordinary event subscriptions.
+Destroying a Collection releases its subscriptions without destroying its models.
+
+Use `Model.toObject()` for a shallow attribute copy and `Collection.toArray()`
+for an array of plain attribute objects. Template serialization reads attributes
+independently. The native package does not implement `toJSON`; pass these plain
+values to `JSON.stringify` explicitly.
+
+Define Model subclass `defaults` on the prototype with `Model.extend`, a prototype
+method, or a prototype getter; a native class field initializes too late to seed
+the base constructor. The package does not provide persistence, REST
+synchronization, validation, or implicit Backbone behavior.
 
 Applications using Backbone should import the bundled integration instead of
 configuring these methods individually. See [Optional Backbone](./optional-backbone.md).

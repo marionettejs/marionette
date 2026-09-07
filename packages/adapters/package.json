@@ -26,39 +26,6 @@
       },
       "default": "./dist/dom/jquery.js"
     },
-    "./redux": {
-      "import": {
-        "types": "./dist/types/esm/data/redux.d.ts",
-        "default": "./dist/redux.js"
-      },
-      "require": {
-        "types": "./dist/types/cjs/data/redux.d.ts",
-        "default": "./dist/redux.cjs"
-      },
-      "default": "./dist/redux.js"
-    },
-    "./zustand": {
-      "import": {
-        "types": "./dist/types/esm/data/zustand.d.ts",
-        "default": "./dist/zustand.js"
-      },
-      "require": {
-        "types": "./dist/types/cjs/data/zustand.d.ts",
-        "default": "./dist/zustand.cjs"
-      },
-      "default": "./dist/zustand.js"
-    },
-    "./xstate-store": {
-      "import": {
-        "types": "./dist/types/esm/data/xstate-store.d.ts",
-        "default": "./dist/xstate-store.js"
-      },
-      "require": {
-        "types": "./dist/types/cjs/data/xstate-store.d.ts",
-        "default": "./dist/xstate-store.cjs"
-      },
-      "default": "./dist/xstate-store.js"
-    },
     "./xstate": {
       "import": {
         "types": "./dist/types/esm/data/xstate.d.ts",
@@ -144,9 +111,7 @@
     "jquery",
     "marionette",
     "adapter",
-    "redux",
     "xstate",
-    "zustand",
     "morphdom",
     "lit-html"
   ],
