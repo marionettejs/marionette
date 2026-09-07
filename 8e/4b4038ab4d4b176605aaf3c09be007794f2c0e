@@ -1,0 +1,21 @@
+ROADMAP.md
+  s_060efbb5bf6218::t_6ef760373a0f7f 3,103-107,316-320,380-382,446-447,459-460,465-466,470-478,482-489,734-738,740-749,792-794,804-807,810-811,865-873,877-878,964-967,974-975,982
+docs/dom.api.md
+  s_060efbb5bf6218::t_6f096170eac0a6 146-147
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "8e4b4038ab4d4b176605aaf3c09be007794f2c0e",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
