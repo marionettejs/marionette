@@ -1,0 +1,30 @@
+docs/marionette.collectionview.md
+  s_060efbb5bf6218::t_1b31639bbc61da 961,966-970
+  s_060efbb5bf6218::t_b8b427cf2f71d0 971
+  s_060efbb5bf6218::t_744c7016c5f9bd 962-965
+test/unit/collection-view/collection-view-sorting.spec.js
+  s_060efbb5bf6218::t_b58c1ed6a8e463 326,331
+src/modules/collection-view.ts
+  s_060efbb5bf6218::t_b8b427cf2f71d0 468,489
+  s_060efbb5bf6218::t_011fc2f4aa9ae2 193,195,447,450-451,453,457,460,469,490,711,713,715-722,726-729
+test/unit/collection-view/collection-view-reconciliation.spec.js
+  s_060efbb5bf6218::t_6a48a38ad05b4d 503-566
+  s_060efbb5bf6218::t_1b31639bbc61da 567-582
+  s_060efbb5bf6218::t_b58c1ed6a8e463 462-502
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "bd09c3b66457af444af80a8454e763528c3efd40",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
