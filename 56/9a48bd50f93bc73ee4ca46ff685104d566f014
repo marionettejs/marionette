@@ -1,0 +1,21 @@
+docs/release-promotion.md
+  s_060efbb5bf6218::t_9bd538881ad281 46-48,50
+scripts/release/build-artifact.mjs
+  s_060efbb5bf6218::t_9bd538881ad281 131
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "569a48bd50f93bc73ee4ca46ff685104d566f014",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
