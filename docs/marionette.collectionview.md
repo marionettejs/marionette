@@ -864,6 +864,9 @@ and sorting and may be difficult to manage in complex situations. Use with care.
 `CollectionView` throws [`MN0003`](/errors/MN0003/). Detach the View from its
 current owner before transferring it.
 
+Filtering a child out or adding it with `preventRender` still leaves it managed
+by that CollectionView. Use `detachChildView()` to transfer it to another owner.
+
 #### `preventRender` option
 
 If you wish to add a child view to the children without the collectionview rendering
@@ -961,6 +964,17 @@ will trigger.
 By default the `CollectionView` will maintain a sorted collection's order
 in the DOM. This behavior can be disabled by specifying `{sortWithCollection: false}`
 on initialize.
+
+Default source ordering uses each notification's captured snapshot. A nested
+notification waits for the current sort, filter, and render pass to finish.
+Calling `sort()` outside a collection notification reads the current source
+after `before:sort`. With the default comparator, manually added children whose
+models are absent from the source stay before the source children.
+
+Custom comparators still determine their own order and data reads. With
+`sortWithCollection` enabled, source order breaks ties and manually added
+children follow source children on ties. With it disabled, ties retain the
+existing child order.
 
 ### Defining the `viewComparator`
 

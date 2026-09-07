@@ -190,9 +190,9 @@ type CollectionViewInternals = CollectionViewInstance & ViewMixinHost & {
   _initChildViewStorage(): void;
   _initialEvents(): void;
   _onCollectionChange(change: unknown): void;
-  _onCollectionReorder(snapshot: Snapshot): void;
+  _onCollectionReorder(): void;
   _onCollectionReset(snapshot: Snapshot): void;
-  _onCollectionUpdate(changes: Update, snapshot: Snapshot): void;
+  _onCollectionUpdate(changes: Update): void;
   _setChildrenFromSnapshot(snapshot: Snapshot): void;
   _removeChild(view: CollectionChild): void;
   _addChildModels(models: unknown[]): CollectionChild[];
@@ -454,21 +454,20 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       return;
     }
 
-    const queue: Notification[] = this._collectionChangeQueue = [];
-    let pending: Notification | undefined = notification;
+    const queue: Notification[] = this._collectionChangeQueue = [notification];
 
     try {
-      while (pending) {
-        const { change: pendingChange, snapshot } = pending;
+      while (queue.length) {
+        const { change: pendingChange, snapshot } = queue[0];
         if (pendingChange.kind === 'reorder') {
-          this._onCollectionReorder(snapshot);
+          this._onCollectionReorder();
         } else if (pendingChange.kind === 'reset') {
           this._onCollectionReset(snapshot);
         } else {
-          this._onCollectionUpdate(pendingChange, snapshot);
+          this._onCollectionUpdate(pendingChange);
         }
         this._collectionSnapshot = snapshot;
-        pending = queue.shift();
+        queue.shift();
       }
     } finally {
       delete this._collectionChangeQueue;
@@ -476,16 +475,14 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     }
   },
 
-  // Internal method. This checks for any changes in the order of the collection.
-  // If the index of any view doesn't match, it will re-sort.
-  _onCollectionReorder(this: CollectionViewInternals, snapshot: Snapshot) {
+  // Follow source reorders unless the CollectionView manages its own order.
+  _onCollectionReorder(this: CollectionViewInternals) {
     if (this._isDestroying || this._isDestroyed) { return; }
 
     if (!this.sortWithCollection) {
       return;
     }
 
-    this._setChildrenFromSnapshot(snapshot);
     this.sort();
   },
 
@@ -499,8 +496,8 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     this.sort();
   },
 
-  // Handle collection update model additions and  removals
-  _onCollectionUpdate(this: CollectionViewInternals, changes: Update, snapshot: Snapshot) {
+  // Handle collection additions, removals, and updated models.
+  _onCollectionUpdate(this: CollectionViewInternals, changes: Update) {
     if (this._isDestroying || this._isDestroyed) { return; }
 
     const updateEntries = changes.updated.map(({ key, previous, current }) => {
@@ -543,9 +540,6 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     }
 
     this._detachChildren(removedViews);
-    if (this.sortWithCollection) {
-      this._setChildrenFromSnapshot(snapshot);
-    }
     for (const view of updatedViews) { view._isRendered = false; }
     this.sort();
 
@@ -652,6 +646,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
   },
 
   _setupChildView(this: CollectionViewInternals, view: CollectionChild) {
+    view._parent = this;
     // We need to listen for if a view is destroyed in a way other
     // than through the CollectionView.
     // If this happens we need to remove the reference to the view
@@ -724,14 +719,25 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     if (!this._children.length) { return; }
 
     let viewComparator = this.getComparator();
+    const notification = this._collectionChangeQueue?.[0];
+
+    if (viewComparator) { this.triggerMethod('before:sort', this); }
+
+    // Source order supplies custom-comparator ties, or the final order when
+    // the comparator is disabled. Reset children are already in source order.
+    if (notification && this.sortWithCollection && viewComparator !== defaultViewComparator &&
+        notification.change.kind !== 'reset') {
+      this._setChildrenFromSnapshot(notification.snapshot);
+    }
 
     if (!viewComparator) { return; }
 
-    this.triggerMethod('before:sort', this);
-
     if (viewComparator === defaultViewComparator && this._children.length) {
       const indexByModel = new Map<unknown, number>();
-      const models = this.Data.models(this.collection as never);
+      // The queue head remains the current notification until rendering ends;
+      // nested notifications must not change this pass's source order.
+      const models = notification ? notification.snapshot.entries.map(entry => entry.model) :
+        this.Data.models(this.collection as never);
       for (let index = 0; index < models.length; index++) {
         indexByModel.set(models[index], index);
       }
@@ -1091,11 +1097,11 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       return view;
     }
 
-    if (view._isShown) {
+    if (view._parent) {
       throw new MarionetteError({
         code: 'MN0003',
         name: classErrorName,
-        message: 'View is already shown in a Region or CollectionView',
+        message: 'View is already managed by a Region or CollectionView',
         url: 'marionette.region.html#showing-a-view'
       });
     }
@@ -1164,6 +1170,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     view.off('destroy', this.removeChildView, this);
     shouldDetach ? this._detachChildView(view) : this._destroyChildView(view);
     this.stopListening(view);
+    delete view._parent;
   },
 
   _destroyChildView(this: CollectionViewInternals, view: CollectionChild) {
