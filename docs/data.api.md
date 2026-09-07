@@ -93,6 +93,12 @@ every same-key replacement View before removing any existing child. A
 replacement-construction or rendering failure propagates to the caller. Core
 does not undo a partial update or promise recovery on the next notification.
 
+An in-place `updated` entry requests a child render. Adapters for mutable models
+with their own change events can leave `updated` empty and let child
+`modelEvents` handle rendering. The Backbone adapter follows this approach:
+merges still update collection order and filtering, without rendering children
+again after their model events have run.
+
 An immutable same-key replacement belongs only in `updated`, not in `removed`
 and `added`. Replacing a model with one that has a different stable key is a
 removal plus an addition; changing the key of a retained model is invalid. The

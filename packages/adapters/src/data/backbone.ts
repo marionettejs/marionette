@@ -64,7 +64,8 @@ const BackboneApi = {
         kind: 'update',
         added: changes.added,
         removed: changes.removed,
-        updated: changes.merged.map(model => ({ previous: model, current: model }))
+        // Merges retain the model; child model events own its rendering, as in v4.
+        updated: []
       });
     };
     const events = {
