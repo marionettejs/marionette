@@ -10,7 +10,9 @@ const collection = new Collection([model]);
 
 assert.deepEqual(DataApi.models(collection), [model]);
 assert.equal(DataApi.items, undefined);
-assert.deepEqual(DataApi.serialize(model), { id: 1, label: 'one' });
+assert.deepEqual(model.toObject(), { id: 1, label: 'one' });
+assert.deepEqual(collection.toArray(), [{ id: 1, label: 'one' }]);
+assert.equal(DataApi.serialize(model), model.attributes);
 assert.equal(typeof triggerMethod, 'function');
 const events = { collection: 0, model: 0, state: 0 };
 const TestView = runtime.View.extend({

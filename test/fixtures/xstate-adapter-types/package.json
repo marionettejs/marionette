@@ -5,10 +5,7 @@
     "validate": "tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json"
   },
   "dependencies": {
-    "@reduxjs/toolkit": "2.12.0",
-    "@xstate/store": "4.2.3",
     "typescript": "7.0.2",
-    "xstate": "5.32.6",
-    "zustand": "5.0.15"
+    "xstate": "5.32.6"
   }
 }

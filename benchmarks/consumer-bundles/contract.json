@@ -4,7 +4,7 @@
   "fixture": {
     "version": "v1",
     "path": "benchmarks/consumer-bundles/v1/manifest.json",
-    "sha256": "3bfbbe21dbbec92e38439bc94df54c58c68c5c39ac554f961179e3b0f1c33f58"
+    "sha256": "7a26f691df96f954e1000df8fcd7eb1a58d668f8939b7ef2a1b9c05ec8db3f21"
   },
   "toolchain": {
     "rollup": "4.63.0",

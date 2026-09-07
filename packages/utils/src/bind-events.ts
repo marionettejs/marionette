@@ -12,8 +12,8 @@
 // function can be supplied instead of a string handler name.
 
 import normalizeMethods from './normalize-methods.ts';
-import MarionetteError from '../error.ts';
-import type { EventMap, EventSource } from '../../mixins/events.ts';
+import MarionetteError from './error.ts';
+import type { EventMap, EventSource } from './events.ts';
 import type { Bindings } from './normalize-methods.ts';
 
 interface Listener {

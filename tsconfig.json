@@ -15,8 +15,12 @@
     "paths": {
       "marionette": [
         "./src/index.ts"
+      ],
+      "@marionette/utils": [
+        "./packages/utils/src/index.ts"
       ]
-    }
+    },
+    "resolveJsonModule": true
   },
   "include": [
     "src/**/*.ts",

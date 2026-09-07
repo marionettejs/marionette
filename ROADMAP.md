@@ -432,7 +432,7 @@ current-evidence findings:
 - **Selected sequencing:** Freeze core StateApi/DataApi ownership, observation,
   declarative event-map, and normalized CollectionView reconciliation contracts first.
   Add the optional `@marionette/data` Model, Collection, `triggerMethod`, StateApi, and
-  DataApi implementation second. Add Backbone, XState, Redux, and Zustand provider
+  DataApi implementation second. Add Backbone and XState actor
   adapters afterward. External-store packages remain optional peers or fixture
   dependencies and never enter the core production graph.
 - **Gated:** Template cloning is a valid optimized rendering technique, not evidence by itself
@@ -932,8 +932,8 @@ closed rather than retained as dormant APIs.
   trigger implicit store construction; and model/collection DataApi selection does not
   choose the state-source adapter.
 - Plain arrays are documented and tested as static snapshots. The later
-  `@marionette/data` collection plus Backbone, Redux Toolkit, Zustand vanilla,
-  plain-record XState Store, and XState v5 actor adapters must pass the same normalized CollectionView reconciliation and
+  `@marionette/data` collection plus Backbone and XState v5 actor adapters
+  must pass the same normalized CollectionView reconciliation and
   lifecycle contract. Malformed records, duplicate keys, missing synchronous snapshots,
   invalid cleanup values, and unordered selector results produce actionable diagnostics.
 - Coverage configuration explicitly includes every production, development, and test

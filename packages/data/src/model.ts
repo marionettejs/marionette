@@ -1,8 +1,7 @@
-import { Events, extend } from 'marionette';
-import assignOwn, { setProperty } from './assign-own.ts';
+import { Events } from 'marionette';
+import { assignOwn, extend, setProperty } from '@marionette/utils';
 
-import type { EventSource } from './events.ts';
-import type { Merge, Constructed, CallableParent } from './extend-types.ts';
+import type { EventMethods as EventSource, Merge, Constructed, CallableParent } from '@marionette/utils';
 
 export type ModelAttributes = Record<string, unknown>;
 export interface MutationOptions {
@@ -58,7 +57,7 @@ export interface Model<Attributes extends ModelAttributes = ModelAttributes> ext
   unset(key: string, options?: MutationOptions | null): this;
   clear(options?: MutationOptions | null): this;
   reset(attributes?: Partial<Attributes>, options?: MutationOptions | null): this;
-  toJSON(): Attributes;
+  toObject(): Attributes;
   isDestroyed(): boolean;
   destroy(options?: unknown): this;
 }
@@ -72,41 +71,10 @@ interface ModelRuntime extends ModelInstance {
 }
 
 let modelId = 0;
-const modelOwners = new WeakMap<ModelInstance, Map<object, () => void>>();
-
-export function addModelOwner(model: ModelInstance, owner: object, release: () => void) {
-  let owners = modelOwners.get(model);
-  if (!owners) {
-    owners = new Map();
-    modelOwners.set(model, owners);
-  }
-  owners.set(owner, release);
-}
-
-export function removeModelOwner(model: ModelInstance, owner: object) {
-  const owners = modelOwners.get(model)!;
-  owners.delete(owner);
-  if (!owners.size) { modelOwners.delete(model); }
-}
 
 function getDefaults(model: ModelRuntime) {
   const defaults = model.defaults;
   return typeof defaults === 'function' ? defaults.call(model) : defaults;
-}
-
-function releaseModelOwners(model: ModelInstance) {
-  const owners = modelOwners.get(model);
-  if (!owners) { return; }
-  const entries = [...owners];
-  for (let index = entries.length; index--;) {
-    const [owner, release] = entries[index];
-    if (owners.has(owner)) { release(); }
-  }
-}
-
-function sameIdentity(left: unknown, right: unknown) {
-  return left == null && right == null || left === right ||
-    Number.isNaN(left) && Number.isNaN(right);
 }
 
 function noChange<Receiver extends ModelRuntime>(model: Receiver) {
@@ -140,14 +108,6 @@ function update<Receiver extends ModelRuntime>(model: Receiver, attributes: Mode
   if (!changedKeys.length) {
     model.changed = changed;
     return model;
-  }
-  if (modelOwners.has(model)) {
-    const currentId = model.get(model.idAttribute);
-    const nextId = removed.includes(model.idAttribute) ? undefined :
-      Object.hasOwn(attributes, model.idAttribute) ? attributes[model.idAttribute] : currentId;
-    if (!sameIdentity(model.id, nextId)) {
-      throw new TypeError('@marionette/data cannot change a Model id while it belongs to a Collection.');
-    }
   }
   for (const key of removed) { delete model.attributes[key]; }
   assignOwn(model.attributes, attributes);
@@ -213,7 +173,7 @@ assignOwn(Model.prototype, Events, {
     return update(this, next, options, removed);
   },
 
-  toJSON() {
+  toObject() {
     return assignOwn({}, this.attributes);
   },
 
@@ -224,7 +184,6 @@ assignOwn(Model.prototype, Events, {
   destroy(options?: unknown) {
     if (this._isDestroyed) { return this; }
     this._isDestroyed = true;
-    releaseModelOwners(this);
     this.triggerMethod('destroy', this, options);
     this.stopListening();
     this.off();
@@ -232,6 +191,6 @@ assignOwn(Model.prototype, Events, {
   }
 } satisfies ThisType<ModelRuntime> & Pick<ModelRuntime,
   'idAttribute' | '_isDestroyed' | 'initialize' | 'get' | 'has' | 'set' |
-  'unset' | 'clear' | 'reset' | 'toJSON' | 'isDestroyed' | 'destroy'>);
+  'unset' | 'clear' | 'reset' | 'toObject' | 'isDestroyed' | 'destroy'>);
 
 export default Model;

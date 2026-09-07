@@ -5,12 +5,9 @@
     "validate": "node validate.cjs"
   },
   "dependencies": {
-    "@reduxjs/toolkit": "2.12.0",
-    "@xstate/store": "4.2.3",
     "backbone": "^1.4.0",
     "jquery": "^4.0.0",
     "jsdom": "^30.0.1",
-    "xstate": "5.32.6",
-    "zustand": "5.0.15"
+    "xstate": "5.32.6"
   }
 }

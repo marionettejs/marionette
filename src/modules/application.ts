@@ -1,8 +1,7 @@
 // Application
 // -----------
 
-import { assignOwn, setProperty } from '../utils/assign-in.ts';
-import MarionetteError from './error.ts';
+import { assignOwn, setProperty, MarionetteError } from '@marionette/utils';
 import extend from '../utils/extend.ts';
 import uniqueId from '../utils/unique-id.ts';
 import CommonMixin from '../mixins/common.ts';
@@ -19,7 +18,7 @@ import type { RegionClass, RegionDefinition } from './common/build-region.ts';
 import type { SupportedView } from './common/view.ts';
 import type { StateApi } from '../runtime/state-api.ts';
 import type { RadioApi, Channel } from './radio.ts';
-import type { Bindings } from './common/normalize-methods.ts';
+import type { Bindings } from '@marionette/utils';
 import type { RadioHost } from '../mixins/radio.ts';
 import type { StateHost } from '../mixins/state.ts';
 import type { Constructed, Merge, ArgumentsFor, DefaultOptions, OptionsFor, StateFor, SuppliedState } from './object.ts';

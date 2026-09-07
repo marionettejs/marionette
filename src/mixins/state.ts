@@ -1,4 +1,4 @@
-import getValue from '../utils/get-value.ts';
+import { getValue } from '@marionette/utils';
 import StateApi from '../runtime/state-api.ts';
 import type { StateApi as StateProvider } from '../runtime/state-api.ts';
 import subscribeBindings from '../utils/subscribe-bindings.ts';

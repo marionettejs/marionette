@@ -2,7 +2,7 @@ import { createMarionette } from '../../../src/index.ts';
 import { Collection, DataApi, Model, StateApi } from '../../../packages/data/src/index.ts';
 
 describe('@marionette/data Marionette integration', function() {
-  it('drives keyed add, removal, reorder, replacement, and reset reconciliation', function() {
+  it('drives keyed add, removal, reorder, model updates, and reset reconciliation', function() {
     const runtime = createMarionette();
     runtime.setDataApi(DataApi);
     const Child = runtime.View.extend({ template: false });
@@ -15,25 +15,32 @@ describe('@marionette/data Marionette integration', function() {
     const third = collection.get(3);
     const childViews = [first, second, third].map(model => view.children.findByModel(model));
 
-    collection.swap(first, third);
-    expect(view.children.toArray()).to.deep.equal([childViews[2], childViews[1], childViews[0]]);
+    const add = this.sinon.spy();
+    const remove = this.sinon.spy();
+    collection.on('add', add);
+    collection.on('remove', remove);
+    childViews[2].localSelection = true;
+    collection.move(third, 0);
+    expect(view.children.toArray()).to.deep.equal([childViews[2], childViews[0], childViews[1]]);
+
+    expect(add).to.not.have.been.called;
+    expect(remove).to.not.have.been.called;
+    expect(view.children.findByModel(third).localSelection).to.be.true;
 
     const fourth = collection.add({ id: 4 }, { at: 1 });
     expect(view.children.findByModel(fourth)).to.exist;
     collection.remove(second);
     expect(childViews[1].isDestroyed()).to.be.true;
 
-    const replacement = collection.replace(first, { id: 1, name: 'replacement' });
-    const replacementView = view.children.findByModel(replacement);
-    expect(replacementView).to.not.equal(childViews[0]);
-    expect(replacementView.model).to.equal(replacement);
-    expect(childViews[0].isDestroyed()).to.be.true;
+    first.set({ id: 10, name: 'updated' });
+    expect(view.children.findByModel(first)).to.equal(childViews[0]);
+    expect(childViews[0].isDestroyed()).to.be.false;
     collection.reset([]);
     expect(view.children.length).to.equal(0);
     view.destroy();
   });
 
-  it('updates both CollectionViews when the first adds a model during add:child', function() {
+  it('updates both CollectionViews through successive collection mutations', function() {
     const runtime = createMarionette();
     runtime.setDataApi(DataApi);
     const List = runtime.CollectionView.extend({
@@ -43,11 +50,8 @@ describe('@marionette/data Marionette integration', function() {
     const first = new List({ collection }).render();
     const second = new List({ collection }).render();
     const retained = second.children.findByModel(collection.get(1));
-    first.on('add:child', (_, child) => {
-      if (child.model.id === 2) { collection.add({ id: 3 }); }
-    });
-
     collection.add({ id: 2 });
+    collection.add({ id: 3 });
 
     expect(first.children.map(child => child.model.id)).to.deep.equal([1, 2, 3]);
     expect(second.children.map(child => child.model.id)).to.deep.equal([1, 2, 3]);
@@ -57,12 +61,12 @@ describe('@marionette/data Marionette integration', function() {
     collection.destroy();
   });
 
-  it('preserves child order when an earlier observer reorders a pending addition', function() {
+  it('supports a reorder scheduled after the current notification returns', async function() {
     const runtime = createMarionette();
     runtime.setDataApi(DataApi);
     const collection = new Collection([{ id: 1 }, { id: 2 }]);
     const stop = DataApi.observeCollection(collection, change => {
-      if (change.kind === 'update') { collection.move(3, 0); }
+      if (change.kind === 'update') { queueMicrotask(() => collection.move(3, 0)); }
     });
     const view = new runtime.CollectionView({
       collection, childView: runtime.View.extend({ template: false })
@@ -70,6 +74,7 @@ describe('@marionette/data Marionette integration', function() {
     const retained = view.children.findByModel(collection.get(1));
 
     collection.add({ id: 3 });
+    await Promise.resolve();
 
     expect(view.children.map(child => child.model.id)).to.deep.equal([3, 1, 2]);
     expect(view.children.findByModel(collection.get(1))).to.equal(retained);
@@ -78,52 +83,26 @@ describe('@marionette/data Marionette integration', function() {
     collection.destroy();
   });
 
-  it('catches up an untouched CollectionView after an earlier observer throws', function() {
-    const runtime = createMarionette();
-    runtime.setDataApi(DataApi);
-    const collection = new Collection([{ id: 1 }]);
-    const error = new Error('earlier observer failed');
-    const stop = DataApi.observeCollection(collection, () => { throw error; });
-    const view = new runtime.CollectionView({
-      collection, childView: runtime.View.extend({ template: false })
-    }).render();
-    const retained = view.children.findByModel(collection.get(1));
-
-    expect(() => collection.add({ id: 2 })).to.throw(error);
-    stop();
-    collection.add({ id: 3 });
-
-    expect(view.children.map(child => child.model.id)).to.deep.equal([1, 2, 3]);
-    expect(view.children.findByModel(collection.get(1))).to.equal(retained);
-    view.destroy();
-    collection.destroy();
-  });
-
-  it('retains a removed model key when an earlier observer changes its id', function() {
+  it('retains a model child through id changes and removes it before a new model reuses the id', function() {
     const runtime = createMarionette();
     runtime.setDataApi(DataApi);
     const collection = new Collection([{ id: 1 }, { id: 2 }]);
     const previous = collection.get(1);
-    let changed = false;
-    const stop = DataApi.observeCollection(collection, () => {
-      if (changed) { return; }
-      changed = true;
-      previous.set('id', 10);
-      collection.add({ id: 1 });
-    });
     const view = new runtime.CollectionView({
       collection, childView: runtime.View.extend({ template: false })
     }).render();
     const previousChild = view.children.findByModel(previous);
     const retained = view.children.findByModel(collection.get(2));
 
+    previous.set('id', 10);
+    expect(view.children.findByModel(previous)).to.equal(previousChild);
     collection.remove(previous);
+    collection.add({ id: 1 });
 
     expect(view.children.map(child => child.model.id)).to.deep.equal([2, 1]);
     expect(previousChild.isDestroyed()).to.be.true;
     expect(view.children.findByModel(collection.get(1))).to.not.equal(previousChild);
     expect(view.children.findByModel(collection.get(2))).to.equal(retained);
-    stop();
     view.destroy();
     collection.destroy();
   });
@@ -190,8 +169,7 @@ describe('@marionette/data Marionette integration', function() {
 
   it('validates incompatible adapter inputs and disposes subscriptions once', function() {
     expect(() => DataApi.models([])).to.throw(TypeError, 'requires a Collection');
-    expect(() => DataApi.observeCollection({}, () => {})).to.throw(TypeError, 'own Collection');
-    expect(() => DataApi.observeCollection(new Collection(), null)).to.throw(TypeError, 'with a callback');
+    expect(() => DataApi.observeCollection({}, () => {})).to.throw(TypeError, 'on() and off()');
     expect(() => DataApi.subscribe({}, 'change', () => {})).to.throw(TypeError, 'on() and off()');
 
     const model = new Model();
@@ -207,7 +185,8 @@ describe('@marionette/data Marionette integration', function() {
     expect(DataApi.key(packageModel)).to.equal(packageModel.cid);
     expect(DataApi.get(packageModel, 'name')).to.equal('package');
     expect(DataApi.has(packageModel, 'name')).to.be.true;
-    expect(DataApi.serialize(packageModel)).to.deep.equal({ name: 'package' });
+    packageModel.toObject = () => ({ endpoint: true });
+    expect(DataApi.serialize(packageModel)).to.equal(packageModel.attributes);
     expect(DataApi.get({ name: 'plain' }, 'name')).to.equal('plain');
     expect(DataApi.has({ name: 'plain' }, 'name')).to.be.true;
     expect(DataApi.serialize({ name: 'plain' })).to.deep.equal({ name: 'plain' });

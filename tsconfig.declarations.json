@@ -6,7 +6,12 @@
     "emitDeclarationOnly": true,
     "rootDir": "src",
     "outDir": "dist/types/esm",
-    "noEmitOnError": true
+    "noEmitOnError": true,
+    "paths": {
+      "@marionette/utils": [
+        "./packages/utils/dist/types/esm/index.d.ts"
+      ]
+    }
   },
   "include": [
     "src/**/*.ts"

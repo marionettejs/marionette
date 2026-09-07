@@ -46,6 +46,12 @@ test('release artifact verification rejects Windows drive-relative names', async
     schemaVersion: 2,
     packages: [
       {
+        id: 'utils',
+        name: '@marionette/utils',
+        tarball: { file: 'C:evil.tgz' },
+        manifestReport: { file: 'utils-package-manifest.json' },
+      },
+      {
         id: 'core',
         name: 'marionette',
         tarball: { file: 'C:evil.tgz' },
@@ -76,6 +82,12 @@ test('release artifact verification binds package ids to names', async function(
   const artifactDirectory = await createArtifactDirectory({
     schemaVersion: 2,
     packages: [
+      {
+        id: 'utils',
+        name: '@marionette/utils',
+        tarball: { file: 'C:evil.tgz' },
+        manifestReport: { file: 'utils-package-manifest.json' },
+      },
       { id: 'core', name: '@marionette/data' },
       { id: 'data', name: 'marionette' },
       { id: 'adapters', name: '@marionette/adapters' },
@@ -95,6 +107,12 @@ test('release target checks bind package ids to names before network access', as
   const artifactDirectory = await createArtifactDirectory({
     schemaVersion: 2,
     packages: [
+      {
+        id: 'utils',
+        name: '@marionette/utils',
+        tarball: { file: 'C:evil.tgz' },
+        manifestReport: { file: 'utils-package-manifest.json' },
+      },
       { id: 'core', name: '@marionette/data' },
       { id: 'data', name: 'marionette' },
       { id: 'adapters', name: '@marionette/adapters' },
@@ -110,14 +128,35 @@ test('release target checks bind package ids to names before network access', as
   assert.match(result.stderr, /Unexpected core package name/);
 });
 
+test('release checks reject evidence that omits the utils dependency', async function() {
+  const artifactDirectory = await createArtifactDirectory({
+    schemaVersion: 2,
+    packages: [
+      { id: 'core', name: 'marionette' },
+      { id: 'data', name: '@marionette/data' },
+      { id: 'adapters', name: '@marionette/adapters' },
+    ],
+  }, true);
+
+  for (const script of ['verify-artifact', 'check-targets', 'publish-github']) {
+    const result = runScript(`scripts/release/${script}.mjs`, [
+      '--artifact-dir', artifactDirectory,
+    ]);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /must contain the utils|Unexpected release package order/);
+  }
+});
+
 test('npm publication decisions cover every release package', function() {
   const decisions = decideNpmActions([
+    { packageEvidence: { id: 'utils' }, packageName: '@marionette/utils', state: 'available' },
     { packageEvidence: { id: 'core' }, packageName: 'marionette', state: 'exact' },
     { packageEvidence: { id: 'data' }, packageName: '@marionette/data', state: 'available' },
     { packageEvidence: { id: 'adapters' }, packageName: '@marionette/adapters', state: 'available' },
   ]);
 
   assert.deepEqual(decisions, [
+    { name: 'utils_npm_action', value: 'publish' },
     { name: 'core_npm_action', value: 'skip' },
     { name: 'data_npm_action', value: 'publish' },
     { name: 'adapters_npm_action', value: 'publish' },
@@ -135,6 +174,12 @@ test('GitHub release planning rejects Windows drive-relative names', async funct
   const artifactDirectory = await createArtifactDirectory({
     schemaVersion: 2,
     packages: [
+      {
+        id: 'utils',
+        name: '@marionette/utils',
+        tarball: { file: 'C:evil.tgz' },
+        manifestReport: { file: 'utils-package-manifest.json' },
+      },
       {
         id: 'core',
         name: 'marionette',

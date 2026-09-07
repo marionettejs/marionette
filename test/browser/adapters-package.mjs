@@ -16,8 +16,9 @@ const temporaryDirectory = await mkdtemp(join(tmpdir(), 'marionette-adapters-bro
 try {
   const packDirectory = resolve(temporaryDirectory, 'pack');
   const coreDirectory = resolve(temporaryDirectory, 'core');
+  const utilsDirectory = resolve(temporaryDirectory, 'utils');
   const adaptersDirectory = resolve(temporaryDirectory, 'adapters');
-  await Promise.all([mkdir(packDirectory), mkdir(coreDirectory), mkdir(adaptersDirectory)]);
+  await Promise.all([mkdir(packDirectory), mkdir(utilsDirectory), mkdir(coreDirectory), mkdir(adaptersDirectory)]);
 
   function pack(source) {
     const output = execFileSync(process.execPath, [
@@ -36,19 +37,19 @@ try {
     return resolve(packDirectory, results[0].filename);
   }
 
+  const utilsTarball = pack(resolve(root, 'packages/utils'));
+  execFileSync('tar', ['-xzf', utilsTarball, '-C', utilsDirectory]);
   const coreTarball = pack(root);
   const adaptersTarball = pack(resolve(root, 'packages/adapters'));
   execFileSync('tar', ['-xzf', coreTarball, '-C', coreDirectory]);
   execFileSync('tar', ['-xzf', adaptersTarball, '-C', adaptersDirectory]);
 
   const assets = new Map([
+    ['/utils.js', resolve(utilsDirectory, 'package/dist/index.js')],
     ['/marionette.js', resolve(coreDirectory, 'package/dist/marionette.js')],
     ['/backbone-api.js', resolve(adaptersDirectory, 'package/dist/backbone.js')],
     ['/jquery-api.js', resolve(adaptersDirectory, 'package/dist/dom/jquery.js')],
-    ['/redux-api.js', resolve(adaptersDirectory, 'package/dist/redux.js')],
-    ['/xstate-store-api.js', resolve(adaptersDirectory, 'package/dist/xstate-store.js')],
     ['/xstate-api.js', resolve(adaptersDirectory, 'package/dist/xstate.js')],
-    ['/zustand-api.js', resolve(adaptersDirectory, 'package/dist/zustand.js')],
     ['/jquery.js', resolve(root, 'node_modules/jquery/dist-module/jquery.module.js')],
     ['/underscore.js', resolve(root, 'node_modules/underscore/underscore-umd.js')],
     ['/backbone.js', resolve(root, 'node_modules/backbone/backbone.js')]
@@ -59,7 +60,7 @@ try {
     <script src="/underscore.js"></script>
     <script src="/backbone.js"></script>
     <script type="importmap">
-      { "imports": { "jquery": "/jquery.js" } }
+      { "imports": { "@marionette/utils": "/utils.js", "jquery": "/jquery.js" } }
     </script>
   </head>
   <body></body>
@@ -112,18 +113,12 @@ try {
             { default: BackboneApi },
             { default: JQueryDomApi },
             { default: $ },
-            { default: createReduxDataApi },
-            { default: createXStateStoreDataApi },
-            { default: createZustandDataApi },
             { default: createXStateActorApi }
           ] = await Promise.all([
             import('/marionette.js'),
             import('/backbone-api.js'),
             import('/jquery-api.js'),
             import('jquery'),
-            import('/redux-api.js'),
-            import('/xstate-store-api.js'),
-            import('/zustand-api.js'),
             import('/xstate-api.js')
           ]);
           const runtime = Marionette.createMarionette();
@@ -150,45 +145,6 @@ try {
           const jqueryView = new JQueryView({ el });
           const jqueryResult = jqueryView.$('.child');
 
-          const keyedResults = [];
-          for (const [createDataApi, readName, objectDisposer] of [
-            [createReduxDataApi, 'getState', false],
-            [createZustandDataApi, 'getState', false],
-            [createXStateStoreDataApi, 'getSnapshot', true]
-          ]) {
-            let snapshot = { models: [{ id: 1 }] };
-            const listeners = new Set();
-            const keyedSource = {
-              [readName]() { return snapshot; },
-              subscribe(listener) {
-                listeners.add(listener);
-                const unsubscribe = () => listeners.delete(listener);
-                return objectDisposer ? { unsubscribe } : unsubscribe;
-              },
-              replace(models) {
-                snapshot = { models };
-                [...listeners].forEach(listener => listener());
-              }
-            };
-            const DataApi = createDataApi({
-              key: item => item.id,
-              select: current => current.models
-            });
-            const keyedRuntime = Marionette.createMarionette();
-            keyedRuntime.setDataApi(DataApi);
-            const KeyedChild = keyedRuntime.View.extend({ template: false });
-            const KeyedList = keyedRuntime.CollectionView.extend({ childView: KeyedChild });
-            const keyedView = new KeyedList({ collection: keyedSource }).render();
-            const firstChild = keyedView.children.first();
-            keyedSource.replace([{ id: 1 }, { id: 2 }]);
-            keyedResults.push({
-              children: keyedView.children.length,
-              replaced: firstChild.isDestroyed()
-            });
-            keyedView.destroy();
-            keyedResults.at(-1).listenersAfterDestroy = listeners.size;
-          }
-
           const childSnapshot = { context: { label: 'child' } };
           const childActor = {
             getSnapshot: () => childSnapshot,
@@ -212,7 +168,6 @@ try {
             actorResult,
             children: view.children.length,
             jqueryText: jqueryResult[0].textContent,
-            keyedResults,
             modelCalls,
             nativeBindPreserved: Backbone.Model.prototype.bind === originalBind,
             preconfigurationCalls,
@@ -227,11 +182,6 @@ try {
           actorResult: { context: 'child', identity: true },
           children: 2,
           jqueryText: 'child',
-          keyedResults: [
-            { children: 2, listenersAfterDestroy: 0, replaced: true },
-            { children: 2, listenersAfterDestroy: 0, replaced: true },
-            { children: 2, listenersAfterDestroy: 0, replaced: true }
-          ],
           modelCalls: 1,
           nativeBindPreserved: true,
           preconfigurationCalls: 1,

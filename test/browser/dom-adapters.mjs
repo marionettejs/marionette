@@ -17,6 +17,7 @@ const bundle = await rollup({
     name: 'distribution-contracts',
     resolveId(source) {
       const entries = {
+        '@marionette/utils': 'packages/utils/dist/index.js',
         '../../src/index.ts': 'dist/marionette.js',
         '../../packages/adapters/src/dom/morphdom.ts': 'packages/adapters/dist/dom/morphdom.js',
         '../../packages/adapters/src/dom/lit-html.ts': 'packages/adapters/dist/dom/lit-html.js',

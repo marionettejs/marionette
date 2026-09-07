@@ -1,5 +1,5 @@
-import createKeyedSnapshotDataApi, { normalizeDisposer } from './keyed-snapshot.ts';
-import type { KeyedSnapshotDataApi } from './keyed-snapshot.ts';
+import createKeyedSnapshotDataApi, { normalizeDisposer } from './internal/keyed-snapshot.ts';
+import type { KeyedSnapshotDataApi } from './internal/keyed-snapshot.ts';
 
 interface XStateSubscription {
   unsubscribe(): void;
@@ -88,7 +88,7 @@ function key<TActor>(actor: TActor): TActor {
 export default function createXStateActorApi<
   TParentSnapshot, TActor extends XStateActor<{ context: object }>
 >(options: XStateActorApiOptions<TParentSnapshot, TActor>): XStateActorApi &
-  Omit<KeyedSnapshotDataApi<XStateSnapshotSource<TParentSnapshot>, TActor, TActor>, 'key'>;
+  KeyedSnapshotDataApi<XStateSnapshotSource<TParentSnapshot>, TActor>;
 export default function createXStateActorApi(options?: XStateActorEventOptions): XStateActorApi;
 export default function createXStateActorApi<
   TParentSnapshot, TActor extends XStateActor<{ context: object }>
@@ -129,7 +129,6 @@ export default function createXStateActorApi<
 
   return Object.assign(createKeyedSnapshotDataApi({
     adapterName,
-    key,
     readSnapshot,
     select,
     subscribe: subscribeSnapshots

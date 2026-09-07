@@ -1,4 +1,4 @@
-import triggerMethod from '../../../src/modules/common/trigger-method';
+import { triggerMethod } from '@marionette/utils';
 
 describe('triggerMethod', function() {
   let target;

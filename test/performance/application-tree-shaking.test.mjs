@@ -23,6 +23,7 @@ async function buildConsumer(format) {
         resolveId(source) {
           if (source === inputId) { return inputId; }
           if (source === 'marionette') { return resolve(root, 'dist/marionette.js'); }
+          if (source === '@marionette/utils') { return resolve(root, 'packages/utils/dist/index.js'); }
         },
         load(id) {
           if (id === inputId) {

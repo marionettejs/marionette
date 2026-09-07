@@ -1,12 +1,9 @@
 // Collection View
 // ---------------
 
-import { assignOwn } from '../utils/assign-in.ts';
+import { assignOwn, getValue, isString, MarionetteError } from '@marionette/utils';
 import extend from '../utils/extend.ts';
-import getValue from '../utils/get-value.ts';
-import isString from '../utils/is-string.ts';
 import uniqueId from '../utils/unique-id.ts';
-import MarionetteError from './error.ts';
 import { renderView, destroyView, isViewClass } from './common/view.ts';
 import monitorViewEvents from './common/monitor-view-events.ts';
 import ChildViewContainer from './child-view-container.ts';
@@ -584,7 +581,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
     const sourceViewSet = new Set(sourceViews);
     const manualViews = this._children._views.filter(view => !sourceViewSet.has(view));
     const views = sourceViews.concat(manualViews);
-    this._children._set(views, true);
+    this._children._set(views);
   },
 
   _reconcileChildren(this: CollectionViewInternals, renderViews: CollectionChild[], addedViews: CollectionChild[] | false = false) {
@@ -801,7 +798,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
     this._destroyChildren();
 
-    if (this.collection) {
+    if (this.collection != null) {
       this._collectionSnapshot = buildCollectionSnapshot(this.Data, this.collection, []);
       this._addChildModels(this._collectionSnapshot.entries.map(entry => entry.model));
       this._initialEvents();
@@ -899,7 +896,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   getComparator(this: CollectionViewInternals) {
     if (this.viewComparator) { return this.viewComparator; }
 
-    if (!this.sortWithCollection || this.viewComparator === false || !this.collection) {
+    if (!this.sortWithCollection || this.viewComparator === false || this.collection == null) {
       return false;
     }
 
@@ -976,7 +973,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
 
     // Filter by model attribute
     if (isString(viewFilter)) {
-      return (view: CollectionChild) => view.model && this.Data.has(view.model as never, viewFilter as string) &&
+      return (view: CollectionChild) => view.model != null && this.Data.has(view.model as never, viewFilter as string) &&
         this.Data.get(view.model as never, viewFilter as never);
     }
 

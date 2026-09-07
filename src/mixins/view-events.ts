@@ -1,8 +1,6 @@
 import EventDelegator from '../runtime/event-delegator.ts';
-import { resolveMethod } from '../modules/common/normalize-methods.ts';
+import { resolveMethod, getValue, isString } from '@marionette/utils';
 import eachOwn from '../utils/each-own.ts';
-import getValue from '../utils/get-value.ts';
-import isString from '../utils/is-string.ts';
 
 import type { EventCallback } from './events.ts';
 import type { EventDelegator as Delegator, DelegateOptions } from '../runtime/event-delegator.ts';

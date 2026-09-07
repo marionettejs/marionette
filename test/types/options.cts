@@ -1,5 +1,4 @@
-import getOption from '../tmp/typed-core/src/modules/common/get-option.js';
-import mergeOptions from '../tmp/typed-core/src/modules/common/merge-options.js';
+import { getOption, mergeOptions } from '@marionette/utils';
 const callback = () => 1;
 const receiver = {
   getOption, mergeOptions, label: 123, fallback: 42, falsey: 'parent', absent: 'parent', '': 'not returned',

@@ -1,4 +1,4 @@
-import getValue from '../tmp/typed-core/src/utils/get-value.js';
+import { getValue } from '@marionette/utils';
 
 const object = {
   value: 'example',

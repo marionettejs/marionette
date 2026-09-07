@@ -379,12 +379,27 @@ export function validateConsumerBundleContract(
       !sameStringInventory(rootScenario.expectedModules, [
         'benchmarks/consumer-bundles/v1/root-only.js',
         'dist/marionette.js',
+        'packages/utils/dist/index.js',
       ]) ||
       !sameStringInventory(rootScenario.expectedExternalImports, []))) {
     violations.push('Consumer bundle root-only scenario must remain isolated from opt-in subpaths and peers');
   }
 
   return violations;
+}
+
+async function readRuntimePackages(root) {
+  const packages = await Promise.all(['', 'packages/adapters', 'packages/data', 'packages/utils']
+    .map(async directory => {
+      try {
+        const packageJson = await readJson(resolve(root, directory, 'package.json'));
+        return { directory, packageJson };
+      } catch (error) {
+        if (directory && error.code === 'ENOENT') { return null; }
+        throw error;
+      }
+    }));
+  return packages.filter(Boolean);
 }
 
 function consumerPackageResolver(root, runtimePackages, peerExternalImports) {
@@ -438,18 +453,11 @@ function consumerGraphViolations(scenario, modules, externalImports, peerExterna
 export async function measureConsumerBundles({ root = '.', contract, brotliQuality } = {}) {
   const resolvedRoot = resolve(root);
   const fixturePath = resolve(resolvedRoot, contract.fixture.path);
-  const [fixtureText, packageJson, adaptersPackageJson] = await Promise.all([
+  const [fixtureText, runtimePackages] = await Promise.all([
     readFile(fixturePath, 'utf8'),
-    readJson(resolve(resolvedRoot, 'package.json')),
-    readJson(resolve(resolvedRoot, 'packages/adapters/package.json')).catch(error => {
-      if (error.code === 'ENOENT') { return null; }
-      throw error;
-    }),
+    readRuntimePackages(resolvedRoot),
   ]);
-  const runtimePackages = [
-    { directory: '', packageJson },
-    ...(adaptersPackageJson ? [{ directory: 'packages/adapters', packageJson: adaptersPackageJson }] : []),
-  ];
+  const packageJson = runtimePackages[0].packageJson;
   const packageJsons = runtimePackages.map(({ packageJson: manifest }) => manifest);
   const fixture = JSON.parse(fixtureText);
   const actualFixtureRevision = sha256Text(fixtureText);
@@ -709,24 +717,8 @@ export async function measure({
   const resolvedRoot = resolve(root);
   const resolvedConfigPath = resolve(configPath);
   const contract = await readJson(resolvedConfigPath);
-  const packageJson = await readJson(resolve(resolvedRoot, 'package.json'));
-  const adaptersPackageJson = await readJson(
-    resolve(resolvedRoot, 'packages/adapters/package.json')
-  ).catch(error => {
-    if (error.code === 'ENOENT') { return null; }
-    throw error;
-  });
-  // Keep old exact-base reports faithful to their original artifact set.
-  const dataPackageJson = contract.productionGraphs.some(({ subpath }) => subpath === '@marionette/data') ?
-    await readJson(resolve(resolvedRoot, 'packages/data/package.json')) : null;
-  const runtimePackages = [
-    { directory: '', packageJson },
-    ...(adaptersPackageJson ? [{
-      directory: 'packages/adapters',
-      packageJson: adaptersPackageJson,
-    }] : []),
-    ...(dataPackageJson ? [{ directory: 'packages/data', packageJson: dataPackageJson }] : []),
-  ];
+  const runtimePackages = await readRuntimePackages(resolvedRoot);
+  const packageJson = runtimePackages[0].packageJson;
   const runtimeFiles = (await Promise.all(runtimePackages.map(async({ directory }) => {
     const distDirectory = resolve(resolvedRoot, directory, 'dist');
     const files = await listRuntimeFiles(distDirectory).catch(error => {

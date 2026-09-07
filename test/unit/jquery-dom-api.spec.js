@@ -24,7 +24,7 @@ describe('jQuery DomApi adapter', function() {
 
     const bundle = await bundler.rollup({
       input: 'src/index.ts',
-      external: ['underscore'],
+      external: ['@marionette/utils'],
       plugins: [jqueryBlocker, compile()],
       onwarn(warning, warn) {
         warnings.push(warning);

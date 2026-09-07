@@ -67,7 +67,8 @@ try {
   const suppliedTarball = readArgument('--tarball');
   const suppliedDataTarball = readArgument('--data-tarball');
   const suppliedAdaptersTarball = readArgument('--adapters-tarball');
-  if (!suppliedTarball || !suppliedDataTarball || !suppliedAdaptersTarball) {
+  const suppliedUtilsTarball = readArgument('--utils-tarball');
+  if (!suppliedTarball || !suppliedDataTarball || !suppliedAdaptersTarball || !suppliedUtilsTarball) {
     runNpm(['run', 'build']);
   }
   let tarballPath;
@@ -135,6 +136,29 @@ try {
     adaptersTarballPath = resolve(packDir, packedAdaptersTarballs[0]);
   }
 
+  let utilsTarballPath;
+  if (suppliedUtilsTarball) {
+    utilsTarballPath = resolve(rootDir, suppliedUtilsTarball);
+    if (!existsSync(utilsTarballPath)) {
+      throw new Error(`Packed utils tarball does not exist: ${utilsTarballPath}`);
+    }
+  } else {
+    const existingTarballs = new Set(readdirSync(packDir));
+    runNpm([
+      'pack',
+      '--ignore-scripts',
+      resolve(rootDir, 'packages/utils'),
+      '--pack-destination',
+      packDir,
+    ]);
+    const packedUtilsTarballs = readdirSync(packDir)
+      .filter(fileName => fileName.endsWith('.tgz') && !existingTarballs.has(fileName));
+    if (packedUtilsTarballs.length !== 1) {
+      throw new Error(`Expected one packed utils tarball, found ${packedUtilsTarballs.length}`);
+    }
+    utilsTarballPath = resolve(packDir, packedUtilsTarballs[0]);
+  }
+
   const adapterFixtures = new Set([
     'adapters-package-vite',
     'backbone-adapter',
@@ -143,7 +167,7 @@ try {
     'collection-removal-survivors',
     'jquery-dom-api',
     'jquery-dom-api-types',
-    'keyed-snapshot-adapter-types',
+    'xstate-adapter-types',
     'dom-adapters-package',
   ]);
 
@@ -170,7 +194,7 @@ try {
         [tarballPath, dataTarballPath, adaptersTarballPath] : fixtureName.startsWith('data-package-') ?
           [tarballPath, dataTarballPath] : adapterFixtures.has(fixtureName) ?
             [tarballPath, adaptersTarballPath] : [tarballPath];
-      runNpm(['install', '--ignore-scripts', '--no-save', ...tarballs], { cwd: fixtureDir });
+      runNpm(['install', '--ignore-scripts', '--no-save', utilsTarballPath, ...tarballs], { cwd: fixtureDir });
       runNpm(['run', 'validate'], { cwd: fixtureDir });
     } finally {
       if (externalFixture) {

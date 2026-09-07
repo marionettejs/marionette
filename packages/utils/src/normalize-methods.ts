@@ -1,7 +1,7 @@
-import MarionetteError from '../error.ts';
-import { setProperty } from '../../utils/assign-in.ts';
-import isString from '../../utils/is-string.ts';
-import type { EventCallback, EventMap } from '../../mixins/events.ts';
+import MarionetteError from './error.ts';
+import { setProperty } from './assign-in.ts';
+import isString from './is-string.ts';
+import type { EventCallback, EventMap } from './events.ts';
 
 // Values are checked when method references are resolved.
 export type Bindings = object;

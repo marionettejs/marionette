@@ -1,5 +1,4 @@
-import { assignOwn } from '../utils/assign-in.ts';
-import getValue from '../utils/get-value.ts';
+import { assignOwn, getValue } from '@marionette/utils';
 
 import type { DataApi } from '../runtime/data-api.ts';
 import type { DomApi } from '../runtime/dom-api.ts';
@@ -62,13 +61,13 @@ export default {
   // it exists, for the template
   serializeData(this: TemplateHost) {
     // If we have a model, we serialize that
-    if (this.model) {
+    if (this.model != null) {
       return this.serializeModel();
     }
 
     // Otherwise, we serialize the collection,
     // making it available under the `models` property
-    if (this.collection) {
+    if (this.collection != null) {
       return {
         models: this.serializeCollection()
       };

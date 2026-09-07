@@ -6,7 +6,7 @@ import CollectionView from '../../../src/modules/collection-view';
 import View from '../../../src/modules/view';
 import Region from '../../../src/modules/region';
 import Events from '../../../src/mixins/events';
-import MarionetteError from '../../../src/modules/error';
+import { MarionetteError } from '@marionette/utils';
 
 describe('CollectionView -  Empty', function() {
   let MyEmptyView;

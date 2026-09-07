@@ -1,6 +1,5 @@
 import eachOwn from '../utils/each-own.ts';
-import MarionetteError from '../modules/error.ts';
-import getValue from '../utils/get-value.ts';
+import { MarionetteError, getValue } from '@marionette/utils';
 import type { TriggerTarget } from './view-events.ts';
 
 export interface BehaviorInstance {

@@ -1,10 +1,7 @@
 // ViewMixin
 //  ---------
 
-import { assignOwn } from '../utils/assign-in.ts';
-import MarionetteError from '../modules/error.ts';
-import getValue from '../utils/get-value.ts';
-import isString from '../utils/is-string.ts';
+import { assignOwn, MarionetteError, getValue, isString } from '@marionette/utils';
 import BehaviorsMixin from './behaviors.ts';
 import CommonMixin from './common.ts';
 import DelegateEntityEventsMixin from './delegate-entity-events.ts';

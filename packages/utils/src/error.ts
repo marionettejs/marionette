@@ -1,8 +1,8 @@
 // Error
 // -----
 
-import extend from '../utils/extend.ts';
-import {version} from '../version.js';
+import extend from './extend.ts';
+import packageJson from '../package.json' with { type: 'json' };
 
 export interface MarionetteErrorInstance extends Omit<Error, 'name' | 'message'> {
   name: unknown;
@@ -35,7 +35,7 @@ type ErrorPrototype = Pick<MarionetteErrorInstance, 'urlRoot' | 'url' | 'capture
 const errorProps = ['code', 'description', 'fileName', 'lineNumber', 'name', 'message', 'number', 'url'] as const;
 
 const MarionetteError: MarionetteErrorConstructor = extend.call(Error, {
-  urlRoot: `http://marionettejs.com/docs/v${version}/`,
+  urlRoot: `http://marionettejs.com/docs/v${packageJson.version}/`,
 
   url: '',
 

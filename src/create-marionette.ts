@@ -1,4 +1,4 @@
-import { assignOwn } from './utils/assign-in.ts';
+import { assignOwn, MarionetteError } from '@marionette/utils';
 import extend from './utils/extend.ts';
 import monitorViewEvents from './modules/common/monitor-view-events.ts';
 import Events from './mixins/events.ts';
@@ -14,7 +14,6 @@ import DomApi from './runtime/dom-api.ts';
 import DataApi from './runtime/data-api.ts';
 import EventDelegator from './runtime/event-delegator.ts';
 import StateApi from './runtime/state-api.ts';
-import MarionetteError from './modules/error.ts';
 import { version as VERSION } from './version.js';
 import { runtimeId } from './runtime-id.ts';
 
@@ -51,8 +50,8 @@ interface DelegatorClass {
   setEventDelegator: typeof ViewBase.setEventDelegator;
 }
 
-function copyApi<Api extends object>(api: Api): Api {
-  return assignOwn({}, api) as Api;
+function copyApi<Api extends object>(api: Api) {
+  return assignOwn({}, api);
 }
 
 const DefaultDataApi = copyApi(DataApi);

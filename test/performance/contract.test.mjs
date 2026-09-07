@@ -252,7 +252,7 @@ describe('performance contract validation', () => {
     }
   });
 
-  test('measures the native package root only when its graph is enrolled', async() => {
+  test('requires every shipped package in the measurement inventory', async() => {
     const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-data-measurement-'));
     const contract = contractFor(['dist/index.mjs']);
     contract.runtimeArtifacts[0].baselineBrotliBytes = 100;
@@ -290,10 +290,12 @@ describe('performance contract validation', () => {
           '{ file: \'dist/index.js\', format: \'es\' }, { file: \'dist/index.cjs\', format: \'cjs\' }] };\n'),
       ]);
       const unenrolled = await measure(options);
-      assert.equal(unenrolled.violations.length, 1);
-      assert.match(unenrolled.violations[0], /^Unable to measure consumer bundles: ENOENT:/);
-      assert.deepEqual(unenrolled.artifacts.map(({ path }) => path), ['dist/index.mjs']);
-      assert.deepEqual(unenrolled.graphs.map(({ subpath }) => subpath), ['.']);
+      assert.match(unenrolled.violations.join('\n'), /Declared runtime artifacts missing from the contract: packages\/data/);
+      assert.match(unenrolled.violations.join('\n'), /Production graph subpaths mismatch exports; missing: @marionette\/data/);
+      assert.deepEqual(unenrolled.artifacts.map(({ path }) => path).sort(), [
+        'dist/index.mjs', 'packages/data/dist/index.cjs', 'packages/data/dist/index.js',
+      ]);
+      assert.ok(unenrolled.graphs.some(graph => graph.subpath === '@marionette/data'));
 
       contract.runtimeArtifacts.push(...['js', 'cjs'].map(extension => ({
         name: `Data ${extension}`, path: `packages/data/dist/index.${extension}`,
@@ -305,7 +307,8 @@ describe('performance contract validation', () => {
       });
       await writeFile(options.configPath, JSON.stringify(contract));
       const enrolled = await measure(options);
-      assert.deepEqual(enrolled.violations, unenrolled.violations);
+      assert.equal(enrolled.violations.length, 1);
+      assert.match(enrolled.violations[0], /^Unable to measure consumer bundles: ENOENT:/);
       assert.deepEqual(enrolled.artifacts.map(({ path }) => path), [
         'dist/index.mjs', 'packages/data/dist/index.js', 'packages/data/dist/index.cjs',
       ]);

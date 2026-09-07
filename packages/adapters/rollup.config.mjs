@@ -25,21 +25,14 @@ export default [
     ],
     plugins: [compile()]
   },
-  ...['redux', 'zustand', 'xstate-store', 'xstate'].map(name => ({
-    input: `src/data/${ name }.ts`,
+  {
+    input: 'src/data/xstate.ts',
     output: [
-      {
-        file: `dist/${ name }.js`,
-        format: 'es'
-      },
-      {
-        file: `dist/${ name }.cjs`,
-        format: 'cjs',
-        exports: 'default'
-      }
+      { file: 'dist/xstate.js', format: 'es' },
+      { file: 'dist/xstate.cjs', format: 'cjs', exports: 'default' }
     ],
     plugins: [compile()]
-  })),
+  },
   ...['morphdom', 'lit-html'].map(name => ({
     input: `src/dom/${ name }.ts`,
     external: [name],

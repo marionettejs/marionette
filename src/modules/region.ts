@@ -1,11 +1,8 @@
 // Region
 // ------
 
-import { assignOwn } from '../utils/assign-in.ts';
-import MarionetteError from './error.ts';
+import { assignOwn, MarionetteError, getValue, isString } from '@marionette/utils';
 import extend from '../utils/extend.ts';
-import getValue from '../utils/get-value.ts';
-import isString from '../utils/is-string.ts';
 import uniqueId from '../utils/unique-id.ts';
 import { renderView, destroyView, isView } from './common/view.ts';
 import CommonMixin from '../mixins/common.ts';

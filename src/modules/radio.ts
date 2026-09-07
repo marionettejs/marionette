@@ -4,9 +4,8 @@ import type { EventCallback, Events as EventsContract } from '../mixins/events.t
 import Requests from '../mixins/requests.ts';
 import type { Requests as RequestsContract } from '../mixins/requests.ts';
 
-import { assignOwn, setProperty } from '../utils/assign-in.ts';
+import { assignOwn, setProperty, MarionetteError } from '@marionette/utils';
 import callHandler from '../utils/call-handler.ts';
-import MarionetteError from './error.ts';
 
 export interface Channel extends EventsContract, RequestsContract {
   channelName: string;

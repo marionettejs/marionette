@@ -2,7 +2,7 @@ import compile from '../../build/babel.js';
 
 export default {
   input: 'src/index.ts',
-  external: ['marionette'],
+  external: ['marionette', '@marionette/utils'],
   output: [
     {
       file: 'dist/index.js',

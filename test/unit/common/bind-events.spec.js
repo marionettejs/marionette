@@ -1,4 +1,4 @@
-import { bindEvents, unbindEvents } from '../../../src/modules/common/bind-events';
+import { bindEvents, unbindEvents } from '@marionette/utils';
 
 function createProtoBindings(descriptor) {
   const bindings = {};

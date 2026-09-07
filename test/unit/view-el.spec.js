@@ -1,7 +1,7 @@
 import { JSDOM } from 'jsdom';
 
 import View from '../../src/modules/view';
-import MarionetteError from '../../src/modules/error';
+import { MarionetteError } from '@marionette/utils';
 
 describe('View el policy', function() {
   let document;

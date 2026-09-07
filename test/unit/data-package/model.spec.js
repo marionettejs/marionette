@@ -15,7 +15,7 @@ describe('@marionette/data Model', function() {
 
     expect(model.cid).to.match(/^mnd\d+$/);
     expect(model.id).to.equal(1);
-    expect(model.toJSON()).to.deep.equal({ enabled: true, id: 1, name: 'one' });
+    expect(model.toObject()).to.deep.equal({ enabled: true, id: 1, name: 'one' });
     expect(model.initializedWith).to.deep.equal([attributes, options]);
     expect(model.initialChanged).to.deep.equal({});
     expect(model.changed).to.deep.equal({});
@@ -54,9 +54,9 @@ describe('@marionette/data Model', function() {
     model.unset('name');
     expect(model.has('name')).to.be.false;
     model.clear({ silent: true });
-    expect(model.toJSON()).to.deep.equal({});
+    expect(model.toObject()).to.deep.equal({});
     model.reset({ id: 3 });
-    expect(model.toJSON()).to.deep.equal({ id: 3 });
+    expect(model.toObject()).to.deep.equal({ id: 3 });
   });
 
   it('treats missing mutation keys and attributes as no-ops', function() {
@@ -75,7 +75,7 @@ describe('@marionette/data Model', function() {
     expect(model.unset('missing')).to.equal(model);
     expect(model.get('missing')).to.be.undefined;
     expect(model.reset({ id: 1 })).to.equal(model);
-    expect(primitive.toJSON()).to.deep.equal({});
+    expect(primitive.toObject()).to.deep.equal({});
   });
 
   it('distinguishes own undefined values from absent values', function() {
@@ -93,7 +93,7 @@ describe('@marionette/data Model', function() {
     expect(model.has('  ')).to.be.true;
     expect(model.get('  ')).to.equal('value');
     expect(model.changed).to.deep.equal({ '  ': 'value' });
-    expect(model.toJSON()).to.deep.equal({ '  ': 'value' });
+    expect(model.toObject()).to.deep.equal({ '  ': 'value' });
   });
 
   it('preserves absence separately from own undefined in change snapshots', function() {
@@ -131,7 +131,7 @@ describe('@marionette/data Model', function() {
     expect(model.unset('first', null)).to.equal(model);
     expect(model.reset({ fourth: 4 }, null)).to.equal(model);
     expect(model.clear(null)).to.equal(model);
-    expect(model.toJSON()).to.deep.equal({});
+    expect(model.toObject()).to.deep.equal({});
   });
 
   it('completes nested writes synchronously as independent changes', function() {
@@ -158,32 +158,21 @@ describe('@marionette/data Model', function() {
     ]);
   });
 
-  it('keeps ids stable while a Model belongs to a Collection', function() {
+  it('keeps collection lookup current when a member id changes', function() {
     const model = new Model({ id: 1 });
     const first = new Collection([model]);
     const second = new Collection([model]);
 
-    expect(() => model.set('id', 2)).to.throw(TypeError, 'cannot change a Model id');
-    expect(() => model.unset('id')).to.throw(TypeError, 'cannot change a Model id');
-    expect(model.id).to.equal(1);
-    model.idAttribute = 'uuid';
-    expect(() => model.set('name', 'blocked')).to.throw(TypeError, 'cannot change a Model id');
-    model.idAttribute = 'id';
-    first.remove(model);
-    expect(() => model.set('id', 2)).to.throw(TypeError, 'cannot change a Model id');
-    second.remove(model);
-    expect(model.set('id', 2)).to.equal(model);
-    expect(model.id).to.equal(2);
-
-    const keyless = new Model({ id: null });
-    const keylessOwner = new Collection([keyless]);
-    expect(keyless.unset('id')).to.equal(keyless);
-    expect(keyless.id).to.be.undefined;
-    expect(keyless.set('id', null)).to.equal(keyless);
-    expect(keyless.id).to.be.null;
-    keylessOwner.destroy();
+    model.set('id', 2);
+    expect(first.get(1)).to.be.undefined;
+    expect(first.get(2)).to.equal(model);
+    expect(second.get(2)).to.equal(model);
+    model.unset('id');
+    expect(first.get(2)).to.be.undefined;
+    expect(first.get(model.cid)).to.equal(model);
     first.destroy();
     second.destroy();
+    expect(model.isDestroyed()).to.be.false;
   });
 
   it('copies an own __proto__ attribute without changing object prototypes', function() {
@@ -192,7 +181,7 @@ describe('@marionette/data Model', function() {
     Object.defineProperty(attributes, '__proto__', { enumerable: true, value });
 
     const model = new Model(attributes);
-    const serialized = model.toJSON();
+    const serialized = model.toObject();
 
     expect(Object.getPrototypeOf(model.attributes)).to.equal(Object.prototype);
     expect(Object.getPrototypeOf(serialized)).to.equal(Object.prototype);

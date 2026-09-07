@@ -1,6 +1,6 @@
 // DomApi
 // -------
-import { assignOwn } from '../utils/assign-in.ts';
+import { assignOwn } from '@marionette/utils';
 
 export interface DomApi<Query extends ArrayLike<Element> = ArrayLike<Element>, Content = never> {
   createElement: (tagName: string) => Element;

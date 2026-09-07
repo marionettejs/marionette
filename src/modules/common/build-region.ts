@@ -1,6 +1,4 @@
-import { assignOwn } from '../../utils/assign-in.ts';
-import MarionetteError from '../error.ts';
-import isString from '../../utils/is-string.ts';
+import { assignOwn, MarionetteError, isString } from '@marionette/utils';
 import { defaultRuntimeId, runtimeId } from '../../runtime-id.ts';
 import Region from '../region.ts';
 import type { RegionInstance, RegionInternals, RegionOptions } from '../region.ts';

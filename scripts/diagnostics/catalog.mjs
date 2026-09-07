@@ -1,5 +1,6 @@
 import Ajv from 'ajv';
 import typescriptParser from '@typescript-eslint/parser';
+import json from '@rollup/plugin-json';
 import compile from '../../build/babel.js';
 import { Linter } from 'eslint';
 import { readFile, readdir } from 'node:fs/promises';
@@ -31,6 +32,7 @@ const productionInputs = [...new Set(rollupConfigurations
     return outputs.some(output => output?.file?.replaceAll('\\', '/').startsWith('dist/'));
   })
   .flatMap(configuration => inputFiles(configuration.input)))];
+productionInputs.push('packages/utils/src/index.ts');
 
 export class DiagnosticCatalogValidationError extends Error {
   constructor(errors) {
@@ -192,13 +194,13 @@ function addRuntimeSourceErrors(runtimeSources, diagnosticsByCode, errors) {
     const marionetteErrorBindings = new Set(['MarionetteError']);
     for (const node of ast.body) {
       if (node.type !== 'ImportDeclaration' ||
-        !/(?:^|\/)error\.(?:js|ts)$/.test(node.source.value)) {
+        !(node.source.value === '@marionette/utils' || /(?:^|\/)error\.(?:js|ts)$/.test(node.source.value))) {
         continue;
       }
 
       for (const specifier of node.specifiers) {
         if (specifier.type === 'ImportDefaultSpecifier' ||
-          (specifier.type === 'ImportSpecifier' && specifier.imported.name === 'default')) {
+          (specifier.type === 'ImportSpecifier' && ['default', 'MarionetteError'].includes(specifier.imported.name))) {
           marionetteErrorBindings.add(specifier.local.name);
         }
       }
@@ -399,7 +401,7 @@ export async function discoverProductionSources({
   rootDir = repositoryRoot,
 } = {}) {
   const bundle = await rollup({
-    plugins: [compile()],
+    plugins: [json(), compile()],
     external: source => !source.startsWith('.') && !isAbsolute(source),
     input: inputs.map(input => resolve(rootDir, input)),
     onwarn(warning) {
@@ -409,7 +411,7 @@ export async function discoverProductionSources({
   });
 
   try {
-    const sources = await Promise.all(bundle.watchFiles.map(async path => ({
+    const sources = await Promise.all(bundle.watchFiles.filter(path => javascriptFilePattern.test(path)).map(async path => ({
       contents: await readFile(path, 'utf8'),
       path,
     })));

@@ -2,7 +2,7 @@
 // --------------
 
 import getOption from './get-option.ts';
-import type { EventCallback } from '../../mixins/events.ts';
+import type { EventCallback } from './events.ts';
 
 interface TriggerTarget {
   trigger: EventCallback;

@@ -1,4 +1,4 @@
-import assignIn, { assignOwn } from '../tmp/typed-core/src/utils/assign-in.js';
+import { assignIn, assignOwn } from '@marionette/utils';
 import uniqueId from '../tmp/typed-core/src/utils/unique-id.js';
 
 const bare: string = uniqueId();

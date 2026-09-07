@@ -8,7 +8,7 @@ import TemplateRenderMixin from '../../../src/mixins/template-render';
 import UIMixin from '../../../src/mixins/ui';
 import ViewMixin from '../../../src/mixins/view';
 import ViewEventsMixin from '../../../src/mixins/view-events';
-import MarionetteError from '../../../src/modules/error';
+import { MarionetteError } from '@marionette/utils';
 
 const mixins = [
   BehaviorsMixin,

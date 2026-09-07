@@ -1,4 +1,4 @@
-import MarionetteError from './error.ts';
+import { MarionetteError } from '@marionette/utils';
 import DataApi, {type DataApi as DataApiContract} from '../runtime/data-api.ts';
 
 export interface ContainerChild {
@@ -126,7 +126,7 @@ function assertCount(count: number) {
 
 // Configured providers remain opaque; their supported model is a runtime contract.
 function stringComparator(Data: ContainerData, comparator: string, view: ContainerChild): unknown {
-  return view.model && Data.has(view.model as never, comparator) ?
+  return view.model != null && Data.has(view.model as never, comparator) ?
     Data.get(view.model as never, comparator as never) : undefined;
 }
 
@@ -447,7 +447,7 @@ Object.assign(Container.prototype, {
     this._viewsByCid[view.cid] = view;
 
     // index it by model
-    if (view.model) {
+    if (view.model != null) {
       const key = this.Data.key(view.model as never);
       this._indexByModel.set(key, view);
       this._keyByView.set(view, key);
@@ -552,7 +552,7 @@ Object.assign(Container.prototype, {
     }
 
     // delete model index
-    if (view.model) {
+    if (view.model != null) {
       const modelKey = this._keyByView.get(view);
       if (this._indexByModel.get(modelKey) === view) {
         this._indexByModel.delete(modelKey);

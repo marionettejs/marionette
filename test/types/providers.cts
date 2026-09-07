@@ -3,7 +3,6 @@ import defaultState, { setStateApi, type StateApi } from '../tmp/typed-core/src/
 import defaultData, { setDataApi, type DataApi } from '../tmp/typed-core/src/runtime/data-api.js';
 import type { DataApi as NativeData, StateApi as NativeState, Model, Collection } from '../../packages/data/dist/types/cjs/index.js';
 import type createActorApi from '../../packages/adapters/dist/types/cjs/data/xstate.js';
-import type createReduxDataApi from '../../packages/adapters/dist/types/cjs/data/redux.js';
 
 const Worker = MnObject.extend({ createState() { return { ready: false }; } });
 const source = { label: 'Example' };
@@ -54,12 +53,10 @@ DataClass.setDataApi({ observeCollection() { return null; } });
 declare const nativeState: typeof NativeState;
 declare const nativeData: typeof NativeData;
 declare const actor: ReturnType<typeof createActorApi>;
-declare const redux: ReturnType<typeof createReduxDataApi<{ rows: { id: number }[] }, { id: number }, number>>;
 Worker.setStateApi(nativeState);
 Worker.setStateApi(actor);
 DataClass.setDataApi(nativeData);
 DataClass.setDataApi(actor);
-DataClass.setDataApi(redux);
 setStateApi.call(Worker, nativeState);
 setDataApi.call(DataClass, nativeData);
 declare const nativeModel: Model<{ name: string }>;

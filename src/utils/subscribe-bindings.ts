@@ -1,5 +1,5 @@
 import buildEventArgs from './build-event-args.ts';
-import { normalizeBindings } from '../modules/common/bind-events.ts';
+import { normalizeBindings } from '@marionette/utils';
 import type { EventCallback } from '../mixins/events.ts';
 import type { StateApi } from '../runtime/state-api.ts';
 

@@ -1,4 +1,4 @@
-import getOption from '../../../src/modules/common/get-option';
+import { getOption } from '@marionette/utils';
 
 describe('get option', function() {
   describe('when calling without arguments', function() {

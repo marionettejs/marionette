@@ -1,72 +1,12 @@
-// Marionette.extend
-// -----------------
-
-import assignIn, { assignOwn } from './assign-in.ts';
+import { extend as sharedExtend } from '@marionette/utils';
 import type { ArgumentsFor, Instance, Merge, MetadataFor, MnObjectConstructor, StateFor } from '../modules/object.ts';
 
-function defineOwnDataProperties(target: object, source: unknown) {
-  const type = typeof source;
-  if (source == null || type !== 'object' && type !== 'function') { return target; }
-
-  for (const key of Object.keys(source)) {
-    if (!Object.hasOwn(source, key)) { continue; }
-
-    Object.defineProperty(target, key, {
-      configurable: true,
-      enumerable: true,
-      value: (source as Record<string, unknown>)[key],
-      writable: true
-    });
-  }
-
-  return target;
-}
-
-// Borrowed from backbone.js
-function extend(
-  this: Function & { prototype: object },
-  protoProps?: object,
-  staticProps?: object
-) {
-  const parent = this;
-  let child;
-
-  // The constructor function for the new subclass is either defined by you
-  // (the "constructor" property in your `extend` definition), or defaulted
-  // by us to simply call the parent constructor.
-  if (protoProps && Object.hasOwn(protoProps, 'constructor')) {
-    child = protoProps.constructor;
-  } else {
-    child = function(this: object) { return parent.apply(this, arguments); };
-  }
-
-  // Add static properties to the constructor function, if supplied.
-  assignIn(child, parent);
-  assignOwn(child, staticProps);
-
-  // Set the prototype chain to inherit from `parent`, without calling
-  // `parent`'s constructor function and add the prototype properties.
-  child.prototype = Object.create(parent.prototype);
-  defineOwnDataProperties(child.prototype, protoProps);
-  Object.defineProperty(child.prototype, 'constructor', {
-    configurable: true,
-    enumerable: true,
-    value: child,
-    writable: true
-  });
-
-  // Set a convenience property in case the parent's prototype is needed
-  // later.
-  (child as Function & { __super__: object }).__super__ = parent.prototype;
-
-  return child;
-}
-
-// Specialize inherited Function.call without replacing it at runtime.
-declare namespace extend {
-  function call<Parent extends ((...args: never[]) => unknown) & { prototype: object },
+// Keep Marionette constructor inference on the shared runtime implementation.
+export interface MarionetteExtend {
+  (this: Function & { prototype: object }, protoProps?: object, staticProps?: object): Function;
+  call<Parent extends ((...args: never[]) => unknown) & { prototype: object },
     Added extends object = {}, AddedStatics extends object = {}>(
-    this: typeof extend,
+    this: MarionetteExtend,
     parent: Parent & ([MetadataFor<Parent>] extends [never] ? never : unknown),
     protoProps?: Added & ThisType<Instance<
       Merge<MetadataFor<Parent>['props'], Added>,
@@ -85,7 +25,8 @@ declare namespace extend {
     StateFor<Merge<MetadataFor<Parent>['props'], Added>>,
     Merge<MetadataFor<Parent>['statics'], AddedStatics>
   >;
-  function call(this: typeof extend, parent: Function & { prototype: object }, protoProps?: object, staticProps?: object): Function;
+  call(this: MarionetteExtend, parent: Function & { prototype: object }, protoProps?: object, staticProps?: object): Function;
 }
 
+const extend = sharedExtend as MarionetteExtend;
 export default extend;

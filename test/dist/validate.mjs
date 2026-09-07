@@ -122,13 +122,16 @@ async function validateBrowserGlobal(file) {
 }
 
 async function validate() {
+  const utilsRoot = resolve(require.resolve('@marionette/utils/package.json'), '..');
   const entrypoints = [
-    ['CommonJS', require(resolve(packageRoot, 'dist/marionette.cjs'))],
-    ['ES module', await import(pathToFileURL(resolve(packageRoot, 'dist/marionette.js')))],
+    ['CommonJS', require(resolve(packageRoot, 'dist/marionette.cjs')), require('@marionette/utils')],
+    ['ES module', await import(pathToFileURL(resolve(packageRoot, 'dist/marionette.js'))),
+      await import(pathToFileURL(resolve(utilsRoot, 'dist/index.js')))],
   ];
 
-  for (const [name, Marionette] of entrypoints) {
+  for (const [name, Marionette, utils] of entrypoints) {
     assert.strictEqual(Marionette.VERSION, packageJson.version, `${name} version`);
+    assert.strictEqual(Marionette.MarionetteError, utils.MarionetteError, `${name} shared error constructor`);
     assert.strictEqual(typeof Marionette.MarionetteError, 'function', `${name} MarionetteError export`);
     assert.strictEqual(Object.hasOwn(Marionette, 'State'), false, `${name} State absence`);
     assert.strictEqual(typeof Marionette.StateApi, 'object', `${name} StateApi export`);

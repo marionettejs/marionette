@@ -1,18 +1,16 @@
-import { assignOwn } from '../utils/assign-in.ts';
-import getValue from '../utils/get-value.ts';
-import EventsMixin from './events.ts';
-import type { Events } from './events.ts';
-import getOption from '../modules/common/get-option.ts';
-import mergeOptions from '../modules/common/merge-options.ts';
-import normalizeMethods from '../modules/common/normalize-methods.ts';
 import {
+  assignOwn,
+  getValue,
+  getOption,
+  mergeOptions,
+  normalizeMethods,
   bindEvents,
-  unbindEvents
-} from '../modules/common/bind-events.ts';
-import {
+  unbindEvents,
   bindRequests,
   unbindRequests
-} from '../modules/common/bind-requests.ts';
+} from '@marionette/utils';
+import EventsMixin from './events.ts';
+import type { Events } from './events.ts';
 
 interface OptionsTarget {
   options?: unknown;
