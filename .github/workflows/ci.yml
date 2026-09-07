@@ -147,6 +147,7 @@ jobs:
           npm run build
 
       - name: Measure and compare bundle sizes
+        id: measure
         run: |
           set -euo pipefail
           base_status=0
@@ -167,7 +168,7 @@ jobs:
           fi
 
       - name: Upload bundle-size report
-        if: always()
+        if: always() && steps.measure.outcome != 'skipped'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bundle-size-report

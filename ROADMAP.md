@@ -616,10 +616,10 @@ Phase 0 budget process is historical evidence, not an active release gate.
 
 Agent-tooling-only changes should produce byte-identical production entrypoints except
 for version and source-map metadata. Core contract improvements may add bytes or work
-when explicitly called, within the budgets above. Exceptional-path diagnostic detail
+when explicitly called, with their cost visible in performance reports. Exceptional-path diagnostic detail
 is allowed. Resource ownership may allocate only after the first registration.
-The package backstop and every adopted consumer-scenario ceiling are independent hard
-gates; passing one does not compensate for failing another.
+Size and allocation changes inform review during v5 development; package correctness
+and measurement validity remain required.
 
 ## Public proving grounds
 

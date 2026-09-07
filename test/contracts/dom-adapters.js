@@ -257,8 +257,6 @@ domAdapterContracts.push({
   }
 });
 
-domAdapterContracts.push();
-
 domAdapterContracts.push({
   name: 'lit-html: a reentrant destroy does not release directives before the outer destroy commits',
   run() {

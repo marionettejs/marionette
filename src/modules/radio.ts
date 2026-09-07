@@ -178,7 +178,7 @@ export function createRadio(debug = createDebug()): RadioApi {
       Radio.channel(channelName as string);
     }
 
-    const channel = typeof channelName === 'string' ? _channels[channelName] : undefined;
+    const channel = _channels[channelName as string];
 
     if (!channel) {
       throw new MarionetteError({

@@ -281,12 +281,15 @@ describe('Radio', function() {
     });
   });
 
-  it('uses stable formatting for an unknown channel name', function() {
-    const name = Object.create(null);
-
-    expect(() => Radio.reset(name))
-      .to.throw('Radio channel does not exist.')
-      .with.property('code', 'MN0021');
+  it('resets channels through the same property lookup used to create them', function() {
+    const name = { toString() { return 'coerced-channel'; } };
+    const channel = Radio.channel(name);
+    const handler = this.sinon.stub();
+    channel.on('event', handler);
+    Radio.reset(name);
+    channel.trigger('event');
+    expect(handler).not.to.have.been.called;
+    expect(Radio.channel('coerced-channel')).to.equal(channel);
   });
 
   it('rejects a supplied falsy channel name without resetting existing channels', function() {

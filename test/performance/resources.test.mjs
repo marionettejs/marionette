@@ -78,6 +78,16 @@ describe('deterministic resource comparison', () => {
     assert.match(resourceReportRows(comparison).join('\n'), /Increase/);
   });
 
+  test('labels renamed inventory entries as changed rather than increased', () => {
+    const base = report();
+    const current = report();
+    current.allocations.View.arrays = ['_renamedBehaviors'];
+    const comparison = compareResources(base, current);
+    assert.deepEqual(comparison.violations, []);
+    assert.equal(comparison.changes[0].status, 'changed');
+    assert.match(resourceReportRows(comparison).join('\n'), /Changed/);
+  });
+
   test('allows and reports removed allocations and lower retention', () => {
     const base = report();
     const current = structuredClone(base);

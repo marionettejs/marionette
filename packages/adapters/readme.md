@@ -251,7 +251,7 @@ a View reference: template evaluation stays in the renderer and the returned
 value goes to `Dom.setContents(el, value)`.
 
 Lit async directives can own subscriptions and other resources. Marionette calls
-`Dom.onAttach(el)` and `Dom.onDetach(el)` through its existing attachment
+`Dom.notifyAttach(el)` and `Dom.notifyDetach(el)` through its existing attachment
 monitoring. Lit translates these notifications to its directive connection API.
 Detaching and destroying a View disconnects its directives while preserving
 the View root. A View keeps its initial element for its lifetime.

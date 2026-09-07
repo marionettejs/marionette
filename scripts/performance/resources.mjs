@@ -324,7 +324,8 @@ function compareValues(base, current, path, changes, violations) {
     const added = current.filter(value => !base.includes(value));
     const removed = base.filter(value => !current.includes(value));
     if (added.length || removed.length) {
-      const status = added.length ? 'increase' : 'decrease';
+      const status = added.length && removed.length ? 'changed' :
+        added.length ? 'increase' : 'decrease';
       changes.push({ path, base, current, status });
     }
     return;
@@ -402,6 +403,6 @@ export function resourceReportRows(comparison) {
   }
 
   return comparison.changes.map(change => {
-    return `| \`${change.path}\` | ${displayValue(change.base)} | ${displayValue(change.current)} | ${change.status === 'increase' ? 'Increase' : 'Decrease'} |`;
+    return `| \`${change.path}\` | ${displayValue(change.base)} | ${displayValue(change.current)} | ${change.status === 'changed' ? 'Changed' : change.status === 'increase' ? 'Increase' : 'Decrease'} |`;
   });
 }

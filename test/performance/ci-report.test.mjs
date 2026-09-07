@@ -13,7 +13,7 @@ for (const failure of ['none', 'base', 'current', 'report']) {
     const directory = await mkdtemp(join(tmpdir(), 'marionette-ci-size-'));
     try {
       const workflow = await readFile(new URL('../../.github/workflows/ci.yml', import.meta.url), 'utf8');
-      const block = workflow.match(/- name: Measure and compare bundle sizes\n {8}run: \|\n([\s\S]*?)(?=\n {6}- name:)/)[1];
+      const block = workflow.match(/- name: Measure and compare bundle sizes\n {8}id: measure\n {8}run: \|\n([\s\S]*?)(?=\n {6}- name:)/)[1];
       const script = block.replace(/^ {10}/gm, '');
       const nodeStub = join(directory, 'node');
       await writeFile(nodeStub, `#!/bin/sh

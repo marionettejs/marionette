@@ -651,7 +651,11 @@
       "category": "configuration",
       "severity": "error",
       "objects": [
-        "CollectionView"
+        "Application",
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "View"
       ],
       "remediation": "DataApi and StateApi adapters must return cleanup functions. Core no longer wraps or validates cleanup on each registration.",
       "docsAnchor": "/errors/MN0038/",
