@@ -636,6 +636,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
   },
 
   _setupChildView(this: CollectionViewInternals, view: CollectionChild) {
+    view._parent = this;
     // We need to listen for if a view is destroyed in a way other
     // than through the CollectionView.
     // If this happens we need to remove the reference to the view
@@ -1086,11 +1087,11 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       return view;
     }
 
-    if (view._isShown) {
+    if (view._parent) {
       throw new MarionetteError({
         code: 'MN0003',
         name: classErrorName,
-        message: 'View is already shown in a Region or CollectionView',
+        message: 'View is already managed by a Region or CollectionView',
         url: 'marionette.region.html#showing-a-view'
       });
     }
@@ -1159,6 +1160,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     view.off('destroy', this.removeChildView, this);
     shouldDetach ? this._detachChildView(view) : this._destroyChildView(view);
     this.stopListening(view);
+    delete view._parent;
   },
 
   _destroyChildView(this: CollectionViewInternals, view: CollectionChild) {
