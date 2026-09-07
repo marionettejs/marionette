@@ -49,7 +49,7 @@ registered with Radio; call its `reset()` to remove its handlers and owned
 listeners. Two standalone channels with the same name are still separate objects.
 `Radio.reset()` only covers channels obtained through `Radio.channel(name)`.
 
-The named `Channel` export is `Radio.Channel`. Use `new runtime.Channel(name)`
+The named `Channel` export is `Radio.Channel`. Use `new isolatedRadio.Channel(name)`
 when a standalone channel should share a particular Radio instance's logging
 configuration. `Requests` adds only request/reply methods to its receiver; it uses
 the default Radio's warning configuration.
