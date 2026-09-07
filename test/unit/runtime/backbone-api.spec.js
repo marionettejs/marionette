@@ -81,7 +81,7 @@ describe('BackboneApi', function() {
       kind: 'update',
       added: [added],
       removed: [removed],
-      updated: [{ previous: updated, current: updated }]
+      updated: []
     });
 
     cleanup();
@@ -128,7 +128,7 @@ describe('BackboneApi', function() {
     expect(callback).to.have.been.calledTwice;
     expect(callback.secondCall.args[0]).to.deep.equal({
       kind: 'update', added: [], removed: [],
-      updated: [{ previous: collection.get(1), current: collection.get(1) }]
+      updated: []
     });
     expect(collection.pluck('id')).to.deep.equal([1, 3, 2]);
 

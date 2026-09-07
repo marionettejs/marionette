@@ -47,6 +47,12 @@ Backbone's `sort`, `reset`, and `update` payloads are translated to the neutral
 records documented by [`DataApi.observeCollection()`](./data.api.md#collection-observations).
 Those Backbone-specific shapes do not enter Marionette core.
 
+As in Marionette v4, child `modelEvents` control rendering after model changes.
+For example, `modelEvents: { change: 'render' }` renders a child when its model
+changes. Collection merges still sort and filter children, but do not request
+another render. Backbone also reports unchanged models as merged, so treating
+every merge as a render request would redraw unchanged children.
+
 Sort handling follows Marionette v4: the adapter skips `sort` events carrying
 `add`, `remove`, or `merge` flags and handles those mutations through `update`.
 Explicit `collection.sort()` calls still notify the View. The observer does not
