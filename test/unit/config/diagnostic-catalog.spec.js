@@ -575,8 +575,10 @@ describe('diagnostic catalog validation', function() {
       { code: 'MN0029', slug: 'view-destroyed-set-element' },
       { code: 'MN0034', slug: 'state-key-invalid' },
       { code: 'MN0035', slug: 'state-ownership-conflict' },
+      { code: 'MN0038', slug: 'adapter-cleanup-invalid' },
     ]);
     expect(retired.map(({ severity, surfaces }) => ({ severity, surfaces }))).to.deep.equal([
+      { severity: 'error', surfaces: ['runtime'] },
       { severity: 'error', surfaces: ['runtime'] },
       { severity: 'error', surfaces: ['runtime'] },
       { severity: 'error', surfaces: ['runtime'] },

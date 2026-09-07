@@ -48,12 +48,14 @@ source identity instead.
 `models()` must return an ordered model snapshot after the source mutation is complete.
 Marionette does not mutate that array.
 
-`subscribe()` preserves the source event's arguments. Marionette invokes every
-returned cleanup function during explicit undelegation or owner destruction. If
-one subscription fails while a declarative event map is being installed,
-Marionette releases the subscriptions already installed for that map. A
-non-function cleanup value throws `MN0038`; core wraps valid cleanup functions so
-cleanup is idempotent.
+`subscribe()` registers handlers for future events and preserves the source event's
+arguments. It must return an idempotent cleanup function. Marionette invokes
+that function during explicit undelegation or owner destruction. Subscription
+setup errors propagate to the caller; event-map registration is not rolled back.
+
+`observeCollection()` also returns an idempotent cleanup function. Adapters are
+responsible for fulfilling these contracts; core does not wrap or validate each
+returned cleanup.
 
 ## Collection observations
 
@@ -82,22 +84,22 @@ destroys and recreates the child View for an immutable same-key replacement so
 constructor options, `initialize`, Behaviors, entity events, and other
 model-dependent state all belong to the current object. Marionette constructs
 every same-key replacement View before removing any existing child. A
-replacement-construction failure destroys the staged Views and leaves the
-current children and DOM intact. If later reconciliation throws, newly created
-Views are removed and destroyed, and the next structural notification rebuilds
-from the latest source snapshot before incremental reconciliation resumes.
+replacement-construction or rendering failure propagates to the caller. Core
+does not undo a partial update or promise recovery on the next notification.
 
 An immutable same-key replacement belongs only in `updated`, not in `removed`
 and `added`. Replacing a model with one that has a different stable key is a
 removal plus an addition; changing the key of a retained model is invalid. The
 post-mutation `models()` snapshot is authoritative and must agree with the
-record. Missing, duplicate, or unstable keys and malformed records throw
-`MN0039`.
+record. Missing, duplicate, or unstable snapshot keys throw `MN0039`. Adapters
+must supply correct change records; core uses those records directly instead of
+recalculating the change to validate them. Added children follow the current
+snapshot order; removed children follow the previous snapshot order, regardless
+of their order in the change record.
 
 Observers may notify synchronously from CollectionView lifecycle hooks. Core
-commits each validated snapshot before invoking those hooks and drains nested
-notifications in order, so the next record is always checked against the source
-state that preceded it.
+captures each source snapshot and drains nested notifications in order, so each
+queued update uses the source state that accompanied it.
 
 All three record types enter one CollectionView reconciliation path. Additions
 create only their child Views; removals destroy only theirs; reorder moves

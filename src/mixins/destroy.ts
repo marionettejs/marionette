@@ -1,4 +1,3 @@
-import disposeAll from '../utils/dispose-all.ts';
 import type { Events } from './events.ts';
 
 export interface DestroyHost extends Pick<Events, 'stopListening' | 'trigger' | 'triggerMethod'> {
@@ -18,19 +17,12 @@ export default {
   destroy<Receiver extends DestroyHost>(this: Receiver, options?: unknown) {
     if (this._isDestroyed || this._isDestroying) { return this; }
     this._isDestroying = true;
-    try {
-      this.triggerMethod('before:destroy', this, options);
-    } catch (error) {
-      delete this._isDestroying;
-      throw error;
-    }
+    this.triggerMethod('before:destroy', this, options);
     this._isDestroyed = true;
-    disposeAll([
-      () => this.stopListening(),
-      () => this.triggerMethod('destroy', this, options),
-      () => this._destroyState?.(),
-      () => this._destroyRadio?.()
-    ]);
+    this._destroyRadio?.();
+    this._destroyState?.();
+    this.triggerMethod('destroy', this, options);
+    this.stopListening();
 
     return this;
   }

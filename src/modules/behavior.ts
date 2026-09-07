@@ -16,7 +16,6 @@ import StateMixin from '../mixins/state.ts';
 import UIMixin from '../mixins/ui.ts';
 import ViewEventsMixin from '../mixins/view-events.ts';
 import { setEventDelegator } from '../runtime/event-delegator.ts';
-import disposeAll from '../utils/dispose-all.ts';
 import { setStateApi } from '../runtime/state-api.ts';
 
 import type { EventSource } from '../mixins/events.ts';
@@ -24,15 +23,14 @@ import type { DataApi } from '../runtime/data-api.ts';
 import type { StateApi } from '../runtime/state-api.ts';
 import type { EventDelegator } from '../runtime/event-delegator.ts';
 import type { UIHost, UIBindings, UISelectors } from '../mixins/ui.ts';
-import type { ViewEventsHost, DOMEvents, DOMTriggers } from '../mixins/view-events.ts';
+import type { ViewEventsHost, TriggerTarget, DOMEvents, DOMTriggers } from '../mixins/view-events.ts';
 import type { StateHost } from '../mixins/state.ts';
 import type { EntityEventHost } from '../mixins/delegate-entity-events.ts';
 import type { BehaviorInstance as BehaviorLifecycle } from '../mixins/behaviors.ts';
 import type { Constructed, Merge, ArgumentsFor, DefaultOptions, OptionsFor, StateFor, SuppliedState } from './object.ts';
 
-export interface BehaviorHost<Query extends ArrayLike<Element> = ArrayLike<Element>, Wrapped = unknown> extends EventSource {
-  el: Element;
-  $el?: Wrapped;
+export interface BehaviorHost<Query extends ArrayLike<Element> = ArrayLike<Element>> extends EventSource {
+  readonly el: Element;
   ui?: UIBindings | Record<string, Query>;
   model?: unknown;
   collection?: unknown;
@@ -57,13 +55,12 @@ type Common = Omit<typeof CommonMixin, 'initialize'>;
 import type { BehaviorFluent } from './common/fluent-methods.ts';
 
 export interface BehaviorInstance<Options extends object = BehaviorOptions, Host extends BehaviorHost = BehaviorHost, State = unknown,
-  Query extends ArrayLike<Element> = ReturnType<Host['$']>, Wrapped = Host['$el']> extends Common, BehaviorFluent<{}> {
+  Query extends ArrayLike<Element> = ReturnType<Host['$']>> extends Common, BehaviorFluent<{}> {
   cid: string;
   cidPrefix: string;
   options: Options;
   view: Host;
-  el: Element;
-  $el?: Wrapped;
+  readonly el: Element;
   ui?: UIBindings | Record<string, Query>;
   events?: BehaviorOptions['events'];
   triggers?: BehaviorOptions['triggers'];
@@ -81,6 +78,7 @@ export interface BehaviorInstance<Options extends object = BehaviorOptions, Host
   normalizeUIString(value: string, bindings?: UISelectors): string;
   normalizeUIKeys<Value>(hash: Record<string, Value> | null | undefined, bindings?: UISelectors): Record<string, Value>;
   normalizeUIValues<Hash extends object>(hash: Hash, property?: string, bindings?: UISelectors): Hash;
+  _delegateViewEvents(view: TriggerTarget): void;
   _undelegateViewEvents(): void;
 }
 
@@ -139,38 +137,26 @@ const Behavior = function(this: BehaviorInternals, options: BehaviorOptions | un
 
   this._initViewEvents();
   this.el = view.el;
-  if (view.$el) {
-    this.$el = view.$el;
-  }
   this._initState(options);
 
-  try {
-    // Construct an internal UI hash using the behaviors UI
-    // hash combined and overridden by the view UI hash.
-    // This allows the user to use UI hash elements defined
-    // in the parent view as well as those defined in the behavior.
-    // This order will help the reuse and share of a behavior
-    // between multiple views, while letting a view override
-    // a selector under an UI key.
-    this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui')) as UISelectors;
+  // Construct an internal UI hash using the behaviors UI
+  // hash combined and overridden by the view UI hash.
+  // This allows the user to use UI hash elements defined
+  // in the parent view as well as those defined in the behavior.
+  // This order will help the reuse and share of a behavior
+  // between multiple views, while letting a view override
+  // a selector under an UI key.
+  this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui')) as UISelectors;
 
-    // Proxy view triggers
-    this.listenTo(view, 'all', this.triggerMethod);
+  // Proxy view triggers
+  this.listenTo(view, 'all', this.triggerMethod);
 
-    (this.initialize as Function).apply(this, arguments);
+  (this.initialize as Function).apply(this, arguments);
 
-    this._initStateEvents();
-    if (this._isDestroyed) { return; }
+  this._initStateEvents();
+  if (this._isDestroyed) { return; }
 
-    this._syncElement();
-  } catch (error) {
-    try {
-      this.destroy();
-    } catch {
-      // Preserve the construction error after best-effort teardown.
-    }
-    throw error;
-  }
+  this._delegateViewEvents(this.view);
 };
 
 assignOwn(Behavior, { extend, setEventDelegator, setStateApi });
@@ -190,28 +176,11 @@ assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateMixin
   // Stops the behavior from listening to events.
   destroy(this: BehaviorInternals) {
     this._isDestroyed = true;
-    disposeAll([
-      () => this._deleteEntityEventHandlers(),
-      () => this.view._removeBehavior(this),
-      () => this.stopListening(),
-      () => this._destroyState(),
-      () => this._undelegateViewEvents()
-    ]);
-
-    return this;
-  },
-
-  _syncElement(this: BehaviorInternals) {
     this._undelegateViewEvents();
-
-    this.el = this.view.el;
-    if (this.view.$el) {
-      this.$el = this.view.$el;
-    } else {
-      delete this.$el;
-    }
-
-    this._delegateViewEvents(this.view);
+    this._destroyState();
+    this.stopListening();
+    this.view._removeBehavior(this);
+    this._deleteEntityEventHandlers();
 
     return this;
   },

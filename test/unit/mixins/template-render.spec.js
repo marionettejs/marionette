@@ -75,7 +75,7 @@ describe('template-render', function() {
       it('should attach content', function() {
         renderer._renderHtml = _.noop;
         renderer.render();
-        expect(renderer.attachElContent).to.not.have.been.called;
+        expect(renderer.attachElContent).to.have.been.calledOnce.and.calledWith(undefined);
       });
     });
   });

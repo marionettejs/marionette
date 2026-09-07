@@ -126,7 +126,7 @@ describe('view ui event trigger configuration', function() {
     View.setEventDelegator({ delegate });
 
     expect(() => new View())
-      .to.throw('The handler "1" for "click" must resolve to a function.')
+      .to.throw('The handler "<invalid>" for "click" must resolve to a function.')
       .with.property('code', 'MN0019');
     expect(delegate).not.to.have.been.called;
   });

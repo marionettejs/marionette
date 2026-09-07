@@ -13,9 +13,8 @@ function eachChild(children: unknown, iteratee: (view: ViewLifecycle) => void) {
   }
 }
 
-// Trigger methods only on children that expose Marionette child traversal.
+// Propagate events through the managed child Views.
 function triggerMethodChildren(view: ViewLifecycle, event: string, shouldTrigger: (child: ViewLifecycle) => unknown) {
-  if (!view._getImmediateChildren) { return; }
   eachChild(view._getImmediateChildren(), child => {
     if (!shouldTrigger(child)) { return; }
     child.triggerMethod(event, child);
@@ -58,6 +57,7 @@ function handleBeforeAttach(this: ViewLifecycle) {
 }
 
 function handleAttach(this: ViewLifecycle) {
+  this.Dom?.notifyAttach?.(this.el);
   triggerMethodChildren(this, 'attach', shouldAttach);
   triggerDOMRefresh(this);
 }
@@ -68,6 +68,7 @@ function handleBeforeDetach(this: ViewLifecycle) {
 }
 
 function handleDetach(this: ViewLifecycle) {
+  this.Dom?.notifyDetach?.(this.el);
   triggerMethodChildren(this, 'detach', shouldDetach);
 }
 

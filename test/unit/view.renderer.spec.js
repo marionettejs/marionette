@@ -84,7 +84,7 @@ describe('View.setRenderer', function() {
     });
   });
 
-  it('should invoke the renderer with the View and allow a direct DOM commit', function() {
+  it('should invoke the renderer with the View and attach its return value', function() {
     let rendererContext;
     const RendererView = View.extend({
       template: _.constant('ignored')
@@ -92,7 +92,7 @@ describe('View.setRenderer', function() {
 
     RendererView.setRenderer(function(viewTemplate, renderedData) {
       rendererContext = this;
-      this.el.textContent = `${ viewTemplate() }:${ renderedData.foo }`;
+      return `${ viewTemplate() }:${ renderedData.foo }`;
     });
 
     const view = new RendererView({ model });
@@ -102,6 +102,6 @@ describe('View.setRenderer', function() {
 
     expect(rendererContext).to.equal(view);
     expect(view.el.textContent).to.equal(`ignored:${ data.foo }`);
-    expect(attachElContentSpy).to.not.have.been.called;
+    expect(attachElContentSpy).to.have.been.calledOnce;
   });
 });

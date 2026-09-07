@@ -39,11 +39,11 @@ run `prepare` automatically; installing a published tarball uses its compiled fi
 If npm uses `strict-allow-scripts`, approve Marionette's `prepare` lifecycle for a
 Git dependency. Tarball consumers can deny scripts because the package is prebuilt.
 
-`npm run size` enforces the deterministic Phase 0 size and production-module-graph
-contract. `npm run performance:timing` records informative timing on ordinary
-development or hosted machines; it is not a release timing gate. See the
-[performance baseline contract](docs/performance-baselines.md) for the controlled
-runner boundary and reproducibility requirements.
+`npm run size` reports bundle sizes and checks production artifacts and module
+graphs. Size growth and new adapters do not require budget approval during v5
+development. `npm run performance:timing` records informative hosted timings.
+See [performance measurements](docs/performance-baselines.md) for reproducibility
+and the checks that still fail on broken artifacts.
 
 The full coverage and fixture commands take longer than a focused test. Run the
 smallest useful test while developing, then run the checks required by the linked

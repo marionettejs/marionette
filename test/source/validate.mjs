@@ -27,7 +27,12 @@ assert.ok(new Marionette.MarionetteError({ message: 'fixture' }) instanceof Erro
 assert.equal(typeof BackboneApi.observeCollection, 'function');
 assert.equal(typeof jqueryDomApi.findEl, 'function');
 assert.equal(typeof jqueryDomApi.setContents, 'function');
-assert.equal(typeof jqueryDomApi.wrapEl, 'function');
+const { default: $ } = await import('jquery');
+const JQueryView = Marionette.View.extend({ initialize() { this.$el = $(this.el); } });
+JQueryView.setDomApi(jqueryDomApi);
+const jqueryView = new JQueryView();
+assert.equal(jqueryView.$el[0], jqueryView.el);
+jqueryView.destroy();
 
 const root = resolve(import.meta.dirname, '../..');
 const packageJson = JSON.parse(readFileSync(resolve(root, 'package.json')));

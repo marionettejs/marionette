@@ -1,10 +1,16 @@
+import $ from 'jquery';
 import { View, CollectionView, createMarionette, setDomApi } from 'marionette';
 import JQueryDomApi from '@marionette/adapters/dom/jquery';
 
 const host = document.createElement('div');
 const fragment = document.createDocumentFragment();
 const result: JQuery<HTMLElement> = JQueryDomApi.findEl(host, '.child');
-const wrapped: JQuery<HTMLElement> = JQueryDomApi.wrapEl(host);
+class JQueryView extends View {
+  declare $el: JQuery<Element>;
+  initialize() { this.$el = $(this.el); }
+}
+JQueryView.setDomApi(JQueryDomApi);
+const wrapped: JQuery<Element> = new JQueryView({ el: host }).$el;
 
 JQueryDomApi.detachEl(host);
 JQueryDomApi.setContents(host, '<span>child</span>');
@@ -40,6 +46,14 @@ const itemQuery: JQuery<HTMLElement> = JQueryDomApi.findEl(itemElement, '.child'
 const list = new CollectionView({ collection: [{ label: 'jQuery' }], childView: View });
 const isolatedItem = new runtime.View({ template: false });
 const isolatedList = new runtime.CollectionView({ collection: [], childView: runtime.View });
-JQueryDomApi.wrapEl(isolatedItem.el);
 // @ts-expect-error Configured DOM queries must contain elements, not numbers.
 setDomApi({ ...JQueryDomApi, findEl() { return [1]; } });
+
+// @ts-expect-error Native views do not provide $el.
+new View().$el;
+wrapped.addClass('application-owned');
+void label;
+void itemQuery;
+void list;
+void isolatedItem;
+void isolatedList;

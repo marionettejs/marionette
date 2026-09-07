@@ -35,9 +35,7 @@ export default {
 
     // Render and add to el
     const html = (this._renderHtml as Renderer<TemplateHost, unknown, unknown>)(template, data);
-    if (typeof html !== 'undefined') {
-      this.attachElContent(html);
-    }
+    this.attachElContent(html);
   },
 
   // Get the template for this view instance.

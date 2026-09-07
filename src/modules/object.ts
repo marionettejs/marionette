@@ -8,7 +8,6 @@ import CommonMixin from '../mixins/common.ts';
 import DestroyMixin from '../mixins/destroy.ts';
 import RadioMixin from '../mixins/radio.ts';
 import StateMixin from '../mixins/state.ts';
-import disposeAll from '../utils/dispose-all.ts';
 import { setStateApi } from '../runtime/state-api.ts';
 import type { StateApi } from '../runtime/state-api.ts';
 import type getOption from './common/get-option.ts';
@@ -153,18 +152,10 @@ const MarionetteObject = function(this: ObjectInternals, options?: object) {
   this._setOptions(options, ClassOptions);
   this.cid = uniqueId(this.cidPrefix);
 
-  try {
-    this._initRadio();
-    this._initState(options);
-    this.initialize.apply(this, arguments);
-    this._initStateEvents();
-  } catch (error) {
-    disposeAll([
-      () => this.stopListening(),
-      () => this._destroyRadio(),
-      () => this._destroyState()
-    ], error);
-  }
+  this._initRadio();
+  this._initState(options);
+  this.initialize.apply(this, arguments);
+  this._initStateEvents();
 };
 
 assignOwn(MarionetteObject, { extend, setStateApi });

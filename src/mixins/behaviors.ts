@@ -1,13 +1,13 @@
 import eachOwn from '../utils/each-own.ts';
 import MarionetteError from '../modules/error.ts';
-import disposeAll from '../utils/dispose-all.ts';
 import getValue from '../utils/get-value.ts';
+import type { TriggerTarget } from './view-events.ts';
 
 export interface BehaviorInstance {
   _isDestroyed?: boolean;
   behaviors?: unknown;
   destroy(options?: unknown): unknown;
-  _syncElement(): unknown;
+  _delegateViewEvents(view: TriggerTarget): unknown;
   _undelegateViewEvents(options?: unknown): unknown;
   delegateEntityEvents(): unknown;
   undelegateEntityEvents(options?: unknown): unknown;
@@ -28,11 +28,9 @@ export interface BehaviorContainer {
   behaviors?: BehaviorDefinitions | (() => BehaviorDefinitions);
   _behaviors?: BehaviorInstance[];
   _isDestroyed?: boolean;
-  _rollbackBehaviors(): void;
 }
 
 type BehaviorConstruction = new (options: unknown, view: unknown) => BehaviorInstance;
-type CleanupMethod = 'destroy' | '_undelegateViewEvents' | 'undelegateEntityEvents';
 
 // MixinOptions
 // - behaviors
@@ -93,46 +91,19 @@ function eachBehavior(behaviors: BehaviorInstance[] | undefined, iteratee: (beha
   }
 }
 
-function disposeBehaviors(behaviors: BehaviorInstance[] | undefined, method: CleanupMethod, options?: unknown) {
-  if (behaviors == null) { return; }
-
-  disposeAll(behaviors.map(behavior => () => behavior[method](options)).reverse());
-}
-
-function rollbackBehaviors(behaviors: BehaviorInstance[]) {
-  for (let index = 0, length = behaviors.length; index < length; index++) {
-    try {
-      behaviors[index].destroy();
-    } catch {
-      // Preserve the construction error and continue rolling back.
-    }
-  }
-}
-
 export default {
   _initBehaviors(this: BehaviorContainer) {
     this._behaviors = [];
 
-    try {
-      parseBehaviors(this, getValue(this, 'behaviors'));
-    } catch (error) {
-      this._rollbackBehaviors();
-      throw error;
-    }
+    parseBehaviors(this, getValue(this, 'behaviors'));
   },
 
-  _rollbackBehaviors(this: BehaviorContainer) {
-    rollbackBehaviors(this._behaviors || []);
-    this._behaviors = [];
-  },
-
-  // proxy behavior el to the view's el.
-  _setBehaviorElements(this: BehaviorContainer) {
-    eachBehavior(this._behaviors, behavior => behavior._syncElement());
+  _delegateBehaviorViewEvents(this: BehaviorContainer & TriggerTarget) {
+    eachBehavior(this._behaviors, behavior => behavior._delegateViewEvents(this));
   },
 
   _undelegateBehaviorViewEvents(this: BehaviorContainer) {
-    disposeBehaviors(this._behaviors, '_undelegateViewEvents');
+    eachBehavior(this._behaviors, behavior => behavior._undelegateViewEvents());
   },
 
   // delegate modelEvents and collectionEvents
@@ -142,7 +113,7 @@ export default {
 
   // undelegate modelEvents and collectionEvents
   _undelegateBehaviorEntityEvents(this: BehaviorContainer) {
-    disposeBehaviors(this._behaviors, 'undelegateEntityEvents');
+    eachBehavior(this._behaviors, behavior => behavior.undelegateEntityEvents());
   },
 
   _destroyBehaviors(this: BehaviorContainer, options?: unknown) {
@@ -150,7 +121,7 @@ export default {
     // destroying the view.
     // This unbinds event listeners
     // that behaviors have registered for.
-    disposeBehaviors(this._behaviors, 'destroy', options);
+    eachBehavior(this._behaviors, behavior => behavior.destroy(options));
   },
 
   // Remove a behavior

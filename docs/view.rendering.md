@@ -4,6 +4,10 @@ Give a view a template function, then call `render()` to put its result in the
 view's element. A plain function is enough to get started; template engines
 and custom renderers can fit the same workflow.
 
+The renderer evaluates the template; DomApi applies the result to the element.
+Projects can configure template evaluation with `setRenderer()` directly. Lit
+and Morphdom are DOM adapters configured with `setDomApi()`.
+
 ```javascript
 import { View } from 'marionette';
 
@@ -151,11 +155,12 @@ and the second argument is the data to be rendered into the template. Marionette
 invokes the renderer with the View as `this`, so use a regular function when the
 renderer needs access to the View instance.
 
-When the renderer returns anything other than `undefined`, Marionette passes it to
-[`attachElContent`](#customizing-attachelcontent). Returning `undefined` tells
-Marionette that the renderer committed the update itself, so
-`attachElContent` is not called. This supports renderers that retain bindings or
-patch the existing `view.el` without requiring a separate View API.
+Marionette passes the renderer's return value to
+[`attachElContent`](#customizing-attachelcontent), which calls `Dom.setContents`.
+The renderer evaluates the template; the DOM adapter applies its result. The
+native, jQuery, and Morphdom adapters treat `null` and `undefined` as empty
+contents. Lit accepts these values as empty content too. Returning `undefined`
+does not bypass content attachment.
 
 Here's an example that allows for the `template` of a view to be an underscore template string.
 
@@ -214,53 +219,53 @@ to set the contents of the view's `el` with DOM from the string.
 #### Customizing `attachElContent`
 
 You can modify the way any particular view attaches a compiled template to the `el` by overriding `attachElContent`.
-This method receives only the results of the view's renderer and is only called if the renderer returned a value.
+This method always receives the result of the view's renderer, including `undefined`.
 
 For instance, perhaps for one particular view you need to bypass the [DOM API](./dom.api.md) and set the html directly:
 
 ```javascript
 attachElContent(html) {
-  this.el.innerHTML = html;
+  this.Dom.setContents(this.el, html);
 }
 ```
 
 ### Rendering to DOM
 
-Marionette also supports renderers that update DOM directly. The optional
+A DOM adapter can update existing content incrementally. The optional
 `@marionette/adapters` package includes Morphdom and Lit HTML integrations.
-Install only the renderer your application uses and configure a View subclass
-before creating its instances. Both installers retain the class's selected
-DomApi, including the jQuery adapter.
+Install only the DOM adapter peer your application uses and configure a View subclass
+before creating its instances. `setDomApi` overlays the supplied methods and
+preserves unrelated operations, including jQuery queries.
 
 For HTML string templates:
 
 ```javascript
 import { View } from 'marionette';
-import setMorphdomRenderer from '@marionette/adapters/render/morphdom';
+import MorphdomDomApi from '@marionette/adapters/dom/morphdom';
 
 const MessageView = View.extend({
   template: () => '<p id="message">Hello again.</p>'
 });
-setMorphdomRenderer(MessageView);
+MessageView.setDomApi(MorphdomDomApi);
 ```
 
 Morphdom updates the View's contents using its normal matching rules, including
-element IDs. For Lit templates, use its installer so directive resources follow
-the View's lifecycle:
+element IDs. Empty roots take the direct HTML insertion path. For Lit templates,
+select the Lit DOM adapter:
 
 ```javascript
 import { View } from 'marionette';
 import { html } from 'lit-html';
-import setLitHtmlRenderer from '@marionette/adapters/render/lit-html';
+import LitDomApi from '@marionette/adapters/dom/lit-html';
 
 const MessageView = View.extend({
   template: ({ message }) => html`<p>${message}</p>`,
   templateContext: { message: 'Hello again.' }
 });
-setLitHtmlRenderer(MessageView);
+MessageView.setDomApi(LitDomApi);
 ```
 
-Both adapters commit within `view.el` and return `undefined`. The root remains
+Both adapters apply template output through `Dom.setContents`. The root remains
 owned by the View; refresh its dynamic `className`, `id`, or `attributes` with
 [`renderAttributes()`](./marionette.view.md#refreshing-root-attributes).
 A parent render still destroys its Region children. Keep Region placeholders
@@ -268,10 +273,12 @@ empty so the renderer and Region do not manage the same contents.
 
 Lit replaces preexisting contents on its first explicit render. Keep
 `monitorViewEvents` enabled and manage attachment through Regions so directives
-receive connection changes. Lifecycle overrides must call their parent methods;
-avoid independently replacing Lit's contents or switching renderers after rendering.
+receive connection changes through `Dom.notifyAttach(el)` and `Dom.notifyDetach(el)`.
+The View keeps the same root throughout its lifetime. Automatic directive
+connection management requires monitoring on the View and its ancestors. Lifecycle overrides must call their parent methods;
+avoid independently replacing Lit's contents or switching DOM adapters after rendering.
 See the [render adapter guide](https://github.com/marionettejs/marionette/blob/master/packages/adapters/readme.md#rendering)
-for installation, directive cleanup, and root changes.
+for installation, directive cleanup, and root ownership.
 
 Rendering configuration is separate from data and state integration. Configure
 [`DataApi`](./data.api.md) and [`StateApi`](./marionette.state.md) explicitly when

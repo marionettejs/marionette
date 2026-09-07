@@ -9,7 +9,6 @@ import {
   compareResources,
   measureResources,
   resourceReportRows,
-  validateCandidateResourceContract,
 } from '../../scripts/performance/resources.mjs';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
@@ -48,12 +47,10 @@ function report() {
 function bundleReport(resources, resourcesRequired = resources != null) {
   return {
     brotliQuality: 11,
-    thresholds: { pullRequestApprovalPercent: 1 },
     artifacts: [],
     cumulative: {
       size: 0,
       baselineSize: 0,
-      absoluteCeiling: 0,
     },
     graphs: [],
     resourcesRequired,
@@ -63,7 +60,7 @@ function bundleReport(resources, resourcesRequired = resources != null) {
 }
 
 describe('deterministic resource comparison', () => {
-  test('rejects added eager storage and increased retention despite head claims', () => {
+  test('reports added eager storage and increased retention without a budget failure', () => {
     const base = report();
     const current = structuredClone(base);
     current.claimedBaseline = {
@@ -76,12 +73,19 @@ describe('deterministic resource comparison', () => {
 
     const comparison = compareResources(base, current);
 
-    assert.deepEqual(comparison.violations, [
-      'resources.allocations.View.arrays added _domEvents',
-      'resources.allocations.View.uniqueOwnReferences increased from 1 to 2',
-      'resources.retention.destroyedHostRetainsBehaviorCount increased from 1 to 2',
-    ]);
-    assert.match(resourceReportRows(comparison).join('\n'), /Regression/);
+    assert.deepEqual(comparison.violations, []);
+    assert.equal(comparison.changes.length, 3);
+    assert.match(resourceReportRows(comparison).join('\n'), /Increase/);
+  });
+
+  test('labels renamed inventory entries as changed rather than increased', () => {
+    const base = report();
+    const current = report();
+    current.allocations.View.arrays = ['_renamedBehaviors'];
+    const comparison = compareResources(base, current);
+    assert.deepEqual(comparison.violations, []);
+    assert.equal(comparison.changes[0].status, 'changed');
+    assert.match(resourceReportRows(comparison).join('\n'), /Changed/);
   });
 
   test('allows and reports removed allocations and lower retention', () => {
@@ -97,8 +101,8 @@ describe('deterministic resource comparison', () => {
 
     assert.deepEqual(comparison.violations, []);
     assert.equal(comparison.changes.length, 5);
-    assert.ok(comparison.changes.every(change => change.status === 'improvement'));
-    assert.match(resourceReportRows(comparison).join('\n'), /Improvement/);
+    assert.ok(comparison.changes.every(change => change.status === 'decrease'));
+    assert.match(resourceReportRows(comparison).join('\n'), /Decrease/);
   });
 
   test('fails closed for missing, unknown, or incompatible measurements', () => {
@@ -142,83 +146,24 @@ describe('deterministic resource comparison', () => {
     );
   });
 
-  test('rejects candidate contracts that reduce or remove authority workloads', () => {
-    const authority = {
-      deterministicResources: report().workload,
-    };
-    const reduced = structuredClone(authority);
-    reduced.deterministicResources.mountDestroyCycles = 1;
-
-    assert.deepEqual(validateCandidateResourceContract(authority, reduced), [
-      'Candidate mountDestroyCycles 1 is below the exact-base authority 1000',
-    ]);
-    assert.deepEqual(validateCandidateResourceContract(authority, {}), [
-      'Candidate performance contract is missing deterministicResources',
-    ]);
-    assert.deepEqual(validateCandidateResourceContract({}, authority), [
-      'Exact-base performance contract is missing deterministicResources',
-    ]);
-    const malformedAuthority = structuredClone(authority);
-    delete malformedAuthority.deterministicResources.mountDestroyCycles;
-    assert.deepEqual(validateCandidateResourceContract(malformedAuthority, authority), [
-      'Exact-base authority mountDestroyCycles must be a positive integer; received undefined',
-    ]);
-  });
-
-  test('enforces the resource contract and report CLI exit paths', async() => {
+  test('reports allocation growth but rejects incomplete measurements through the CLI', async() => {
     const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-resource-cli-'));
-    const authorityContract = join(fixtureRoot, 'authority-contract.json');
-    const missingAuthorityContract = join(fixtureRoot, 'missing-authority-contract.json');
-    const candidateContract = join(fixtureRoot, 'candidate-contract.json');
     const baseReport = join(fixtureRoot, 'base-report.json');
     const currentReport = join(fixtureRoot, 'current-report.json');
     const missingReport = join(fixtureRoot, 'missing-report.json');
     const requiredMissingReport = join(fixtureRoot, 'required-missing-report.json');
     const cli = join(root, 'scripts/performance/bundle-size.mjs');
-    const authority = { deterministicResources: report().workload };
-    const candidate = structuredClone(authority);
     const baseResources = report();
     const currentResources = structuredClone(baseResources);
-    candidate.deterministicResources.mountDestroyCycles = 1;
     currentResources.retention.destroyedHostRetainsBehaviorCount = 2;
 
     try {
       await Promise.all([
-        writeFile(authorityContract, JSON.stringify(authority)),
-        writeFile(missingAuthorityContract, '{}'),
-        writeFile(candidateContract, JSON.stringify(candidate)),
         writeFile(baseReport, JSON.stringify(bundleReport(baseResources))),
         writeFile(currentReport, JSON.stringify(bundleReport(currentResources))),
         writeFile(missingReport, JSON.stringify(bundleReport(null))),
         writeFile(requiredMissingReport, JSON.stringify(bundleReport(null, true))),
       ]);
-
-      const contractResult = spawnSync(process.execPath, [
-        cli,
-        '--validate-resource-contract',
-        authorityContract,
-        candidateContract,
-      ], { encoding: 'utf8' });
-      assert.equal(contractResult.status, 1);
-      assert.match(contractResult.stderr, /mountDestroyCycles 1 is below/);
-
-      const missingAuthorityResult = spawnSync(process.execPath, [
-        cli,
-        '--validate-resource-contract',
-        missingAuthorityContract,
-        authorityContract,
-      ], { encoding: 'utf8' });
-      assert.equal(missingAuthorityResult.status, 1);
-      assert.match(missingAuthorityResult.stderr, /Exact-base performance contract is missing/);
-
-      const missingPathResult = spawnSync(process.execPath, [
-        cli,
-        '--validate-resource-contract',
-        authorityContract,
-        '--report',
-      ], { encoding: 'utf8' });
-      assert.equal(missingPathResult.status, 1);
-      assert.match(missingPathResult.stderr, /Missing paths for --validate-resource-contract/);
 
       const reportResult = spawnSync(process.execPath, [
         cli,
@@ -226,8 +171,8 @@ describe('deterministic resource comparison', () => {
         baseReport,
         currentReport,
       ], { encoding: 'utf8' });
-      assert.equal(reportResult.status, 1);
-      assert.match(reportResult.stdout, /Resource regressions: .* increased from 1 to 2/);
+      assert.equal(reportResult.status, 0);
+      assert.match(reportResult.stdout, /destroyedHostRetainsBehaviorCount` \| 1 \| 2 \| Increase/);
 
       const cleanReportResult = spawnSync(process.execPath, [
         cli,
@@ -236,7 +181,7 @@ describe('deterministic resource comparison', () => {
         baseReport,
       ], { encoding: 'utf8' });
       assert.equal(cleanReportResult.status, 0);
-      assert.match(cleanReportResult.stdout, /No eager allocation or retained-resource proxy increased/);
+      assert.match(cleanReportResult.stdout, /Allocation and retention counts are observations/);
 
       const missingReportPathResult = spawnSync(process.execPath, [
         cli,

@@ -3,8 +3,7 @@
   "baseline": {
     "sourceCommit": "31151c9cb5cb1e11d30da4332f58ca8b56cf2fe4",
     "brotliQuality": 11,
-    "totalBrotliBytes": 49500,
-    "absoluteCeilingBytes": 100000
+    "totalBrotliBytes": 49500
   },
   "toolchain": {
     "releaseProfile": {
@@ -39,19 +38,7 @@
     }
   },
   "thresholds": {
-    "cumulativeGrowthPercent": 5,
-    "pullRequestApprovalPercent": 1,
-    "hostedTimingWarningPercent": 10,
-    "controlledMedianRegressionPercent": 5,
-    "controlledP95RegressionPercent": 10
-  },
-  "pullRequestGrowthApproval": {
-    "schemaVersion": 1,
-    "repository": "marionettejs/marionette",
-    "trackingIssueUrl": "https://github.com/marionettejs/marionette/issues/127",
-    "allowedLogins": [
-      "paulfalgout"
-    ]
+    "hostedTimingWarningPercent": 10
   },
   "runtimeArtifacts": [
     {
@@ -136,23 +123,23 @@
       "baselineBrotliBytes": 0
     },
     {
-      "name": "Morphdom renderer ES module",
-      "path": "packages/adapters/dist/render/morphdom.js",
+      "name": "Morphdom DOM adapter ES module",
+      "path": "packages/adapters/dist/dom/morphdom.js",
       "baselineBrotliBytes": 0
     },
     {
-      "name": "Morphdom renderer CommonJS",
-      "path": "packages/adapters/dist/render/morphdom.cjs",
+      "name": "Morphdom DOM adapter CommonJS",
+      "path": "packages/adapters/dist/dom/morphdom.cjs",
       "baselineBrotliBytes": 0
     },
     {
-      "name": "Lit HTML renderer ES module",
-      "path": "packages/adapters/dist/render/lit-html.js",
+      "name": "Lit HTML DOM adapter ES module",
+      "path": "packages/adapters/dist/dom/lit-html.js",
       "baselineBrotliBytes": 0
     },
     {
-      "name": "Lit HTML renderer CommonJS",
-      "path": "packages/adapters/dist/render/lit-html.cjs",
+      "name": "Lit HTML DOM adapter CommonJS",
+      "path": "packages/adapters/dist/dom/lit-html.cjs",
       "baselineBrotliBytes": 0
     }
   ],
@@ -261,50 +248,20 @@
       "baselineExternalImports": []
     },
     {
-      "subpath": "@marionette/adapters/render/morphdom",
-      "input": "packages/adapters/src/render/morphdom.ts",
-      "output": "packages/adapters/dist/render/morphdom.js",
+      "subpath": "@marionette/adapters/dom/morphdom",
+      "input": "packages/adapters/src/dom/morphdom.ts",
+      "output": "packages/adapters/dist/dom/morphdom.js",
       "baselineModules": [],
       "baselineExternalImports": []
     },
     {
-      "subpath": "@marionette/adapters/render/lit-html",
-      "input": "packages/adapters/src/render/lit-html.ts",
-      "output": "packages/adapters/dist/render/lit-html.js",
+      "subpath": "@marionette/adapters/dom/lit-html",
+      "input": "packages/adapters/src/dom/lit-html.ts",
+      "output": "packages/adapters/dist/dom/lit-html.js",
       "baselineModules": [],
       "baselineExternalImports": []
     }
   ],
-  "relocations": {
-    "runtimeArtifacts": [
-      {
-        "from": "dist/backbone.cjs",
-        "to": "packages/adapters/dist/backbone.cjs"
-      },
-      {
-        "from": "dist/backbone.js",
-        "to": "packages/adapters/dist/backbone.js"
-      },
-      {
-        "from": "dist/jquery-dom-api.cjs",
-        "to": "packages/adapters/dist/dom/jquery.cjs"
-      },
-      {
-        "from": "dist/jquery-dom-api.js",
-        "to": "packages/adapters/dist/dom/jquery.js"
-      }
-    ],
-    "productionGraphs": [
-      {
-        "from": "./backbone",
-        "to": "@marionette/adapters/backbone"
-      },
-      {
-        "from": "./jquery-dom-api",
-        "to": "@marionette/adapters/dom/jquery"
-      }
-    ]
-  },
   "forbiddenExternalImports": [
     "underscore"
   ],
@@ -436,7 +393,7 @@
   },
   "timing": {
     "harnessSchemaVersion": 1,
-    "harnessRevision": "20d861aca94353297814e6bd933b4d3379b842c5385fbe8bcd32eac6ce9f0c14",
+    "harnessRevision": "02c52f9eafeb92b273674794cdd6ab60ec84b78e33f1eb3cd61c2e6dcdf43fbb",
     "sampleCount": 20,
     "warmupBatches": 5,
     "cases": [

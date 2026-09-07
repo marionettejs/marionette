@@ -32,7 +32,7 @@ Regions maintain the [View's lifecycle](./view.lifecycle.md) while showing or em
 * [Using Regions on a view](#using-regions-on-a-view)
 * [Showing a View](#showing-a-view)
   * [Checking whether a region is showing a view](#checking-whether-a-region-is-showing-a-view)
-  * [Non-Marionette Views](#non-marionette-views)
+  * [Wrapping a non-Marionette view](#wrapping-a-non-marionette-view)
     * [Partially-rendered Views](#partially-rendered-views)
 * [Emptying a Region](#emptying-a-region)
   * [Preserving Existing Views](#preserving-existing-views)
@@ -65,7 +65,8 @@ read-only queries. `getOwner()` returns the owning View and `getName()` returns
 the Region's name within that View. Neither query renders the View, resolves the
 Region element, or changes ownership. A standalone Region returns `undefined`
 from both methods. Removing a registered Region or completing its destruction
-clears both values. If `before:destroy` throws, the Region remains live and owned.
+clears both values. A throwing lifecycle hook interrupts teardown without
+rolling back ownership or retrying destruction.
 
 A Region has one authoritative registration. Re-adding that same Region instance
 under its current owner and name returns it without lifecycle events or ownership changes.
@@ -73,8 +74,8 @@ Registering it under a different owner or name, registering a Region whose
 destruction has begun or completed, or replacing an occupied Region name through
 `addRegion` throws [`MN0030`](/errors/MN0030/) before committing the conflicting
 registration. A conflict found before `addRegions` starts rejects the whole batch.
-If a lifecycle hook creates a conflict during ordered processing, entries already
-registered remain in place; the conflicting and later entries are not registered.
+Lifecycle hooks must not re-register the Region or occupy its registration name
+while registration is in progress. Failed batch registration is not rolled back.
 Remove an existing named Region before replacing it, and use a fresh Region instance
 when another View needs a Region.
 
@@ -452,10 +453,10 @@ const childView = new MyChildView();
 myView.showChildView('main', childView, { fooOption: 'bar' });
 ```
 
-Both forms require a compatible View-like instance. Construct a `View` explicitly
+Both forms require a Marionette View instance. Construct a `View` explicitly
 when displaying a template or static content; Regions do not allocate hidden Views
 from View classes, functions, strings, or option objects. The
-[non-Marionette View contract](#non-marionette-views) remains supported.
+[wrapper pattern](#wrapping-a-non-marionette-view) provides explicit ownership for legacy integrations.
 
 ```javascript
 import { View } from 'marionette';
@@ -473,7 +474,7 @@ For more information on `showChildView` and `getChildView`, see the
 [Documentation for Views](./marionette.view.md#managing-children)
 
 **Errors**
-- An error will be thrown if the value is not View-like or is destroyed.
+- An error will be thrown if the value is not a Marionette View or is destroyed.
 - An error will be thrown if the view is already shown in a Region or CollectionView.
 
 ### Checking whether a region is showing a view
@@ -495,43 +496,32 @@ mainRegion.hasView() // true
 If you show a view in a region with an existing view, Marionette will
 [remove the existing View](#emptying-a-region) before showing the new one.
 
-### Non-Marionette Views
+### Wrapping a non-Marionette view
 
-Marionette Regions aren't just for showing Marionette Views - they can also
-display instances of a [`Backbone.View`](http://backbonejs.org/#View).
-To do this, ensure your view defines a `render()` method and just treat it like
-a regular Marionette View:
+Regions and CollectionViews manage Marionette Views. They do not synthesize
+render or destroy events for Backbone Views or fall back to a `remove()` method.
+Keep a legacy integration inside a Marionette owner:
 
 ```javascript
-import _ from 'underscore';
-import Bb from 'backbone';
 import { View } from 'marionette';
+import LegacyView from './legacy-view.js';
 
-const MyChildView = Bb.View.extend({
-  render() {
-    this.$el.append('<p>Some text</p>');
-  },
-
+const LegacyWrapper = View.extend({
+  template: () => '<div class="legacy"></div>',
   onRender() {
-    console.log('Regions also fire Lifecycle events on Backbone.View!');
-  }
-});
-
-const MyParentView = View.extend({
-  regions: {
-    child: '.child-view'
+    this.legacy?.remove();
+    this.legacy = new LegacyView({ el: this.$('.legacy')[0] });
+    this.legacy.render();
   },
-
-  template: _.template('<div class="child-view"></div>'),
-
-  onRender() {
-    this.showChildView('child', new MyChildView());
+  onDestroy() {
+    this.legacy?.remove();
   }
 });
 ```
 
-As you can see above, you can listen to [Lifecycle Events](./view.lifecycle.md)
-on `Backbone.View` and Marionette will fire the events for you.
+Show `new LegacyWrapper()` in the Region. The wrapper owns the legacy instance
+and translates its actual rendering and cleanup API. No global prototype mixin
+or compatibility flags are needed.
 
 ## Emptying a Region
 
@@ -605,10 +595,8 @@ A region can be destroyed which will `reset` the region, destroy its current Vie
 remove it from any parent View's Region lookups, and stop any internal Region listeners.
 Reentrant Region destruction from `before:destroy` or `destroy`, repeated calls,
 and later destruction of the parent View do not repeat the child or Region teardown.
-If `before:destroy` throws, the Region remains live and owned with its current
-View intact. A later `destroy()` call retries `before:destroy` before cleaning up
-that View and ownership once. Errors after `before:destroy` completes do not
-restart teardown.
+A throwing lifecycle hook stops destruction. Later `destroy()` calls do not
+retry hooks or resume partial teardown.
 A destroyed Region should not be reused. Calling `show()`, `empty()`, or `reset()`
 once destruction begins returns the Region before inspecting supplied input,
 resolving the Region element, or changing View ownership, lifecycle state,

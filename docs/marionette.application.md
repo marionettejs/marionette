@@ -38,13 +38,10 @@ import { Application } from 'marionette';
 const myApplication = new Application({ ... });
 ```
 
-If construction throws, Marionette attempts to release its State and Radio
-resources, its coordinated root View, and any Region it constructed. A borrowed
-Region and any unrelated replacement View remain owned by their caller.
-Child Applications registered during the failed construction are unregistered
-without being stopped or destroyed; their lifetime returns to the caller.
-Cleanup preserves the original construction error and does not undo other
-side effects of `initialize`.
+Constructor errors propagate to the caller. Marionette does not undo partially
+completed initialization or automatically release resources from a constructor
+that throws. Application's asynchronous lifecycle has its own cancellation and
+failure contract, described below.
 
 ## Application Lifecycle
 

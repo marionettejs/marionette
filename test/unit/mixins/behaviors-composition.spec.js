@@ -160,9 +160,9 @@ describe('Behaviors Mixin owned iteration', function() {
     });
   });
 
-  describe('#_setBehaviorElements', function() {
-    it('allows element fan-out before behaviors are initialized', function() {
-      expect(() => BehaviorsMixin._setBehaviorElements.call({})).to.not.throw();
+  describe('#_delegateBehaviorViewEvents', function() {
+    it('allows delegation before behaviors are initialized', function() {
+      expect(() => BehaviorsMixin._delegateBehaviorViewEvents.call({})).to.not.throw();
     });
   });
 

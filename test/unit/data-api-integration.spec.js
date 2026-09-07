@@ -81,29 +81,6 @@ describe('plain data integration', function() {
     expect(view.children.pluck('model')).to.deep.equal(collection);
   });
 
-  it('releases entity subscriptions when an initial notification destroys the View', function() {
-    const calls = [];
-    const model = {};
-    const collection = [];
-    const Owner = View.extend({
-      modelEvents: { ready() { this.destroy(); }, change() {} },
-      collectionEvents: { update() {} }
-    });
-    Owner.setDataApi({
-      subscribe(source, eventName, callback, context) {
-        calls.push(eventName);
-        callback.call(context, source);
-        return () => calls.push('cleanup');
-      }
-    });
-    const owner = new Owner({ model, collection });
-
-    expect(owner.isDestroyed()).to.be.true;
-    expect(calls).to.deep.equal(['ready', 'cleanup']);
-    owner.undelegateEntityEvents();
-    expect(calls).to.deep.equal(['ready', 'cleanup']);
-  });
-
   it('diagnoses declarative events on unobservable plain data', function() {
     const ModelEventsView = PlainView.extend({ modelEvents: { change() {} } });
     ModelEventsView.setDataApi(DataApi);
@@ -114,14 +91,6 @@ describe('plain data integration', function() {
     CollectionEventsView.setDataApi(DataApi);
     expect(() => new CollectionEventsView({ collection: [] }))
       .to.throw(MarionetteError).and.include({ code: 'MN0037' });
-  });
-
-  it('diagnoses an invalid DataApi entity cleanup value', function() {
-    const InvalidView = PlainView.extend({ modelEvents: { change() {} } });
-    InvalidView.setDataApi({ subscribe() {} });
-
-    expect(() => new InvalidView({ model: {} }))
-      .to.throw(MarionetteError).and.include({ code: 'MN0038' });
   });
 
   it('integrates a neutral observable collection adapter', function() {

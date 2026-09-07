@@ -7,7 +7,6 @@ import MarionetteError from './error.ts';
 import extend from '../utils/extend.ts';
 import getValue from '../utils/get-value.ts';
 import uniqueId from '../utils/unique-id.ts';
-import disposeAll from '../utils/dispose-all.ts';
 import monitorViewEvents from './common/monitor-view-events.ts';
 import buildRegion from './common/build-region.ts';
 import ViewMixin, { ViewOptions } from '../mixins/view.ts';
@@ -64,12 +63,11 @@ type Common = typeof CommonMixin;
 import type { ViewFluent } from './common/fluent-methods.ts';
 
 export interface ViewInstance<Options extends object = ViewConfiguration, State = unknown,
-  Query extends ArrayLike<Element> = ArrayLike<Element>, Wrapped = unknown> extends Common, ViewFluent<{}> {
+  Query extends ArrayLike<Element> = ArrayLike<Element>> extends Common, ViewFluent<{}> {
   cid: string;
   cidPrefix: string;
   options: Options;
-  el: Element;
-  $el?: Wrapped;
+  readonly el: Element;
   tagName: string | (() => string);
   id?: ViewConfiguration['id'];
   className?: ViewConfiguration['className'];
@@ -91,14 +89,12 @@ export interface ViewInstance<Options extends object = ViewConfiguration, State 
   state?: unknown;
   template?: unknown;
   templateContext?: ViewConfiguration['templateContext'];
-  Dom: Partial<DomApi<Query, Wrapped>>;
+  Dom: Partial<DomApi<Query>>;
   Data: Partial<DataApi>;
   State: Partial<StateApi<never>>;
   EventDelegator: EventDelegator;
   _renderHtml?: Renderer<never, never, never>;
   monitorViewEvents?: boolean;
-  supportsRenderLifecycle: boolean;
-  supportsDestroyLifecycle: boolean;
   preinitialize(options?: Options): void;
   initialize(options?: Options): void;
   createState(options?: Options): unknown;
@@ -108,6 +104,7 @@ export interface ViewInstance<Options extends object = ViewConfiguration, State 
   isRendered(): boolean;
   isAttached(): boolean;
   _removeBehavior(behavior: BehaviorInstance): void;
+  _getImmediateChildren(): SupportedView[];
   getUI(name: string): Query | undefined;
   normalizeUIString(value: string, bindings?: UISelectors): string;
   normalizeUIKeys<Value>(hash: Record<string, Value> | null | undefined, bindings?: UISelectors): Record<string, Value>;
@@ -131,17 +128,17 @@ export interface ViewInstance<Options extends object = ViewConfiguration, State 
   getChildView(name: string): SupportedView | undefined;
 }
 
-type ViewResult<Props, Args extends unknown[], State, Query extends ArrayLike<Element>, Wrapped> =
+type ViewResult<Props, Args extends unknown[], State, Query extends ArrayLike<Element>> =
   Extract<keyof ViewInstance, keyof Props> extends never ?
-    ViewInstance<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State, Query, Wrapped> & Props :
-    Merge<Omit<ViewInstance<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State, Query, Wrapped>, keyof ViewFluent<{}>>,
-      'options' extends keyof Props ? Omit<Props, 'options'> : Props> & ViewFluent<Props>;
+    ViewInstance<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State, Query> & Props :
+    Merge<Omit<ViewInstance<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State, Query>, keyof ViewFluent<{}>>,
+      Extract<'options' | 'el', keyof Props> extends never ? Props : Omit<Props, 'options' | 'el'>> & ViewFluent<Props>;
 export type ViewConstructor<Props extends object = {}, Args extends unknown[] = [options?: ViewConfiguration],
-  State = unknown, Statics extends object = {}, Query extends ArrayLike<Element> = ArrayLike<Element>, Wrapped = unknown> = {
-  new <Provided extends Args = Args>(...args: Provided): Constructed<Props, ViewResult<Props, Provided, SuppliedState<Provided[0], State>, Query, Wrapped>>;
+  State = unknown, Statics extends object = {}, Query extends ArrayLike<Element> = ArrayLike<Element>> = {
+  new <Provided extends Args = Args>(...args: Provided): Constructed<Props, ViewResult<Props, Provided, SuppliedState<Provided[0], State>, Query>>;
   (this: object, ...args: Args): void;
 } & Merge<{
-  prototype: ViewResult<Props, Args, State, Query, Wrapped>;
+  prototype: ViewResult<Props, Args, State, Query>;
   call(receiver: object, ...args: Args): void;
   apply(receiver: object, args: Args | IArguments): void;
   setRenderer: typeof setRenderer;
@@ -152,11 +149,11 @@ export type ViewConstructor<Props extends object = {}, Args extends unknown[] = 
   extend<Added extends object = {}, AddedStatics extends object = {}>(
     this: Added extends { constructor: (...args: never[]) => unknown } ? object : (this: object, ...args: never[]) => unknown,
     prototypeProperties?: Added & ThisType<ViewResult<Merge<Props, Added>, ArgumentsFor<Merge<Props, Added>, Args>,
-      StateFor<Merge<Props, Added>>, Query, Wrapped>>,
+      StateFor<Merge<Props, Added>>, Query>>,
     staticProperties?: AddedStatics & ThisType<ViewConstructor<Merge<Props, Added>, ArgumentsFor<Merge<Props, Added>, Args>,
-      StateFor<Merge<Props, Added>>, Merge<Statics, AddedStatics>, Query, Wrapped>>
+      StateFor<Merge<Props, Added>>, Merge<Statics, AddedStatics>, Query>>
   ): ViewConstructor<Merge<Props, Added>, ArgumentsFor<Merge<Props, Added>, Args>,
-    StateFor<Merge<Props, Added>>, Merge<Statics, AddedStatics>, Query, Wrapped>;
+    StateFor<Merge<Props, Added>>, Merge<Statics, AddedStatics>, Query>;
 }, Statics>;
 
 type RegionMap = Record<string, RegionInternals>;
@@ -175,7 +172,6 @@ type ViewInternals = ViewInstance & ViewMixinHost & {
   _isElAttached(): boolean;
   _validateEl(element: Element): Element;
   _getEl(): Element;
-  _rollbackView(error: unknown): void;
 };
 
 const classErrorName = 'RegionError';
@@ -338,20 +334,11 @@ const RegionsMixin = {
     };
 
     const regions: RegionMap = {};
-    try {
-      eachOwn(regionDefinitions, (definition: RegionDefinition, name: string) => {
-        const region = buildRegion(definition, defaults);
-        this._addRegion(region, name);
-        setRegion(regions, region, name);
-      });
-    } catch (error) {
-      eachOwn(regionDefinitions, (definition: RegionDefinition, name: string) => {
-        if (!getOwnRegion(this._regions, name)) {
-          delete this.regions[name];
-        }
-      });
-      throw error;
-    }
+    eachOwn(regionDefinitions, (definition: RegionDefinition, name: string) => {
+      const region = buildRegion(definition, defaults);
+      this._addRegion(region, name);
+      setRegion(regions, region, name);
+    });
     return regions;
   },
 
@@ -362,18 +349,6 @@ const RegionsMixin = {
     assertRegionCanRegister(this, region, name);
 
     this.triggerMethod('before:add:region', this, name, region);
-
-    // A lifecycle hook may adopt the Region or occupy the name reentrantly.
-    if (isSameRegionRegistration(this, region, name)) { return; }
-
-    try {
-      assertRegionCanRegister(this, region, name);
-    } catch (error) {
-      if (!getOwnRegion(this._regions, name)) {
-        delete this.regions[name];
-      }
-      throw error;
-    }
 
     region._parentView = this;
     region._name = name;
@@ -395,12 +370,9 @@ const RegionsMixin = {
   // Remove all regions from the View
   removeRegions(this: ViewInternals) {
     const regions = this._getRegions();
-    const cleanups: Array<() => void> = [];
-
     eachOwn(regions, (region: RegionInternals, name: string) => {
-      cleanups.push(() => this._removeRegion(region as RegionInternals, name));
+      this._removeRegion(region, name);
     });
-    disposeAll(cleanups.reverse());
 
     return regions;
   },
@@ -518,62 +490,37 @@ const View = function(this: ViewInternals, options?: ViewConfiguration) {
 
   this._initViewEvents();
 
-  try {
-    this.setElement(this._getEl());
-
-    monitorViewEvents(this);
-
-    this._initState(options);
-
-    this._initBehaviors();
-    this._initRegions();
-    this._buildEventProxies();
-
-    (this.initialize as Function).apply(this, arguments);
-
-    if (this._isDestroyed || this._isDestroying) { return; }
-
-    this._initStateEvents();
-    this.delegateEntityEvents();
-
-    this._triggerEventOnBehaviors('initialize', this, options);
-  } catch (error) {
-    this._rollbackView(error);
+  this.el = this._validateEl(this._getEl());
+  this._isRendered = this.Dom.hasContents!(this.el);
+  this._isAttached = this._isElAttached();
+  if (this._isRendered) { this.bindUIElements(); }
+  this.delegateEvents();
+  if (this._isAttached && this.monitorViewEvents !== false) {
+    this.Dom.notifyAttach?.(this.el);
   }
+
+  monitorViewEvents(this);
+
+  this._initState(options);
+
+  this._initBehaviors();
+  this._initRegions();
+  this._buildEventProxies();
+
+  (this.initialize as Function).apply(this, arguments);
+
+  if (this._isDestroyed || this._isDestroying) { return; }
+
+  this._initStateEvents();
+  this.delegateEntityEvents();
+
+  this._triggerEventOnBehaviors('initialize', this, options);
 };
 
 assignOwn(View, { extend, setRenderer, setDomApi, setEventDelegator, setDataApi, setStateApi });
 
 assignOwn(View.prototype, ViewMixin, RegionsMixin, {
   cidPrefix: 'mnv',
-
-  setElement(this: ViewInternals, element: Element) {
-    if (this._isDestroying || this._isDestroyed) {
-      return this;
-    }
-
-    const el = this._validateEl(element);
-    const wrappedEl = this.Dom.wrapEl && this.Dom.wrapEl(el);
-
-    this.undelegateEvents();
-    this.el = el;
-    if (this.Dom.wrapEl) {
-      this.$el = wrappedEl;
-    } else {
-      delete this.$el;
-    }
-
-    this._isRendered = this.Dom.hasContents!(this.el);
-    this._isAttached = this._isElAttached();
-
-    if (this._isRendered) {
-      this.bindUIElements();
-    }
-
-    this.delegateEvents();
-
-    return this;
-  },
 
   // If a template is available, renders it into the view's `el`
   // Re-inits regions and binds UI.

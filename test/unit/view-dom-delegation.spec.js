@@ -7,7 +7,7 @@ describe('View DOM event delegation', function() {
     ['View', View],
     ['CollectionView', CollectionView]
   ].forEach(([name, ViewClass]) => {
-    it(`dispatches ${name} element replacement through the public methods in order`, function() {
+    it(`initializes ${name} delegation through the public methods`, function() {
       const trace = [];
       const DelegatingView = ViewClass.extend({
         undelegateEvents() {
@@ -19,46 +19,13 @@ describe('View DOM event delegation', function() {
           return ViewClass.prototype.delegateEvents.call(this, events);
         }
       });
-      const original = document.createElement('div');
-      const replacement = document.createElement('section');
-      const view = new DelegatingView({ el: original });
-
+      const root = document.createElement('div');
+      const view = new DelegatingView({ el: root });
       expect(trace).to.deep.equal([
-        ['undelegateEvents', original],
-        ['delegateEvents', original, undefined],
-        ['undelegateEvents', original]
+        ['delegateEvents', root, undefined],
+        ['undelegateEvents', root]
       ]);
-
-      trace.length = 0;
-      expect(view.setElement(replacement)).to.equal(view);
-      expect(trace).to.deep.equal([
-        ['undelegateEvents', original],
-        ['delegateEvents', replacement, undefined],
-        ['undelegateEvents', replacement]
-      ]);
-    });
-
-    it(`keeps ${name} delegation intact when element validation fails`, function() {
-      const handler = this.sinon.stub();
-      const original = document.createElement('div');
-      original.innerHTML = '<button class="action"></button>';
-      const view = new ViewClass({
-        el: original,
-        events: { 'click .action': handler }
-      });
-      const delegateSpy = this.sinon.spy(view, 'delegateEvents');
-      const undelegateSpy = this.sinon.spy(view, 'undelegateEvents');
-
-      original.querySelector('.action').click();
-      expect(() => view.setElement('#invalid'))
-        .to.throw()
-        .with.property('code', 'MN0001');
-      original.querySelector('.action').click();
-
-      expect(view.el).to.equal(original);
-      expect(handler).to.have.been.calledTwice;
-      expect(delegateSpy).to.not.have.been.called;
-      expect(undelegateSpy).to.not.have.been.called;
+      view.destroy();
     });
   });
 
@@ -66,48 +33,7 @@ describe('View DOM event delegation', function() {
     ['View', View],
     ['CollectionView', CollectionView]
   ].forEach(([name, ViewClass]) => {
-    it(`removes ${ name } DOM handlers when initialize throws`, function() {
-      const root = document.createElement('div');
-      const button = document.createElement('button');
-      const handler = this.sinon.spy();
-      const failure = new Error('initialize failed');
-      root.append(button);
 
-      const FailingView = ViewClass.extend({
-        events: { 'click button': handler },
-        initialize() {
-          throw failure;
-        }
-      });
-
-      expect(() => new FailingView({ el: root })).to.throw(failure);
-      button.click();
-
-      expect(handler).not.to.have.been.called;
-    });
-  });
-
-  it('removes Behavior DOM handlers when its host initialize throws', function() {
-    const root = document.createElement('div');
-    const button = document.createElement('button');
-    const handler = this.sinon.spy();
-    const failure = new Error('initialize failed');
-    root.append(button);
-
-    const TestBehavior = Behavior.extend({
-      events: { 'click button': handler }
-    });
-    const FailingView = View.extend({
-      behaviors: [TestBehavior],
-      initialize() {
-        throw failure;
-      }
-    });
-
-    expect(() => new FailingView({ el: root })).to.throw(failure);
-    button.click();
-
-    expect(handler).not.to.have.been.called;
   });
 
   it('redelegates an explicit map with View triggers and Behavior handlers', function() {
@@ -192,7 +118,7 @@ describe('View DOM event delegation', function() {
     view.destroy();
     const delegateSpy = this.sinon.spy(view, '_delegateViewEvents');
     const undelegateSpy = this.sinon.spy(view, '_undelegateViewEvents');
-    const behaviorSpy = this.sinon.spy(view, '_setBehaviorElements');
+    const behaviorSpy = this.sinon.spy(view, '_delegateBehaviorViewEvents');
 
     expect(view.delegateEvents()).to.equal(view);
     expect(view.undelegateEvents()).to.equal(view);

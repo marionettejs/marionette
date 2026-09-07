@@ -24,9 +24,21 @@ the constructed type; an unknown return stays unknown. See the
 [constructor typing guidance](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#typescript-source) for preserving
 the receiver through further extensions and the limits of return annotations.
 
+## Managed children use Marionette's lifecycle
+
+Regions, CollectionView children, and empty Views use Marionette View or
+CollectionView instances. Automatic Backbone View lifecycle adaptation is removed,
+including `supportsRenderLifecycle`, `supportsDestroyLifecycle`, and the fallback
+from `destroy()` to `remove()`.
+
+Wrap an existing non-Marionette view in a Marionette View and own its rendering
+and cleanup explicitly. See the [wrapper example](https://github.com/marionettejs/marionette/blob/master/docs/marionette.region.md#wrapping-a-non-marionette-view).
+Behaviors also keep their initial host element; their internal `_syncElement()`
+retargeting method is removed. Event redelegation still refreshes their handlers.
+
 ## Construct Views before showing them
 
-`Region#show` and `View#showChildView` require a View-like instance in v5. They no
+`Region#show` and `View#showChildView` require a Marionette View instance in v5. They no
 longer construct a hidden base View from a template function, string, or View-options
 object. Make the allocation and ownership explicit:
 
@@ -129,6 +141,20 @@ parent.showChildView('content', new View({
 - Applications using Backbone still receive Underscore through Backbone's own
   declared dependency; the Marionette integration does not import it.
 
+## View roots are fixed at construction
+
+`View#setElement()` and `CollectionView#setElement()` are removed. Choose the
+root through `new View({ el })` or `new CollectionView({ el })`; both also accept
+an `el` factory. Without an `el`, Marionette creates one from `tagName`.
+The public instance `el` is readonly. Direct reassignment is unsupported.
+
+Render into the existing root and use Regions to move or detach the View.
+When another system replaces the root, destroy the old View and create a new
+owner for the replacement element. Keep persistent state in the model or an
+externally owned state source. Custom `setElement()` overrides are no longer
+called during construction; move initialization to `initialize()` or an `el`
+factory, as appropriate.
+
 ## View `el` is element-only
 
 - `View` (and `CollectionView`) accept a DOM element for `el` in v5. Selector
@@ -136,8 +162,7 @@ parent.showChildView('content', new View({
 - v4 inherited string-`el` resolution from `Backbone.View._ensureElement`, which
   used jQuery to look up the selector. v5 drops `Backbone.View` inheritance and
   the default jQuery dependency, so the string-resolution path goes with them.
-- v5 now throws a `ViewError` with a migration hint on construction (or
-  `setElement`) when a string is passed, instead of silently storing the raw
+- v5 now throws a `ViewError` with a migration hint on construction when a string is passed, instead of silently storing the raw
   string as `view.el` and failing later in DOM code.
 - Migration: resolve at the call site.
 
@@ -177,36 +202,48 @@ row.renderAttributes();
 ```
 
 This explicit refresh is separate from `render()` and emits no render lifecycle
-events. With the default DomApi, `null` and `undefined` remove the named
-attribute and its reflected property state, while omitted keys remain untouched.
-Custom DomApi adapters must implement the same `setAttributes` behavior.
+events. With the default DomApi, only explicit `null` removes a named attribute;
+`undefined` and omitted keys leave existing attributes untouched. Custom DomApi
+adapters must implement the same `setAttributes` behavior.
+
+Attribute maps use DOM attribute names (`class`, `for`), not property names
+(`className`, `htmlFor`). The View-level `className` option still works. Earlier
+v5 alphas also assigned matching element properties; v5 now applies attributes
+only. Update live form values and custom element properties explicitly on `el`.
+For boolean HTML attributes, use `disabled: isDisabled ? '' : null` instead of
+`disabled: isDisabled`. Other values, including `false`, are converted to strings;
+ARIA attributes such as `aria-selected: false` therefore retain `"false"`.
 
 ## jQuery DOM compatibility
 
-- v5 core does not depend on jQuery and the native DomApi does not create
-  `view.$el`.
-- Apps that need the v4 jQuery compatibility surface can opt into the
-  `@marionette/adapters/dom/jquery` adapter:
+v5 core does not depend on jQuery and does not create `$el`. Configure the optional
+DOM adapter when the application needs jQuery queries and content operations:
 
-  ```sh
-  npm install @marionette/adapters jquery
-  ```
+```js
+import $ from 'jquery';
+import { View } from 'marionette';
+import JQueryDomApi from '@marionette/adapters/dom/jquery';
 
-  ```js
-  import { setDomApi } from 'marionette';
-  import JQueryDomApi from '@marionette/adapters/dom/jquery';
+const JQueryView = View.extend({
+  initialize() { this.$el = $(this.el); }
+});
+JQueryView.setDomApi(JQueryDomApi);
+```
 
-  setDomApi(JQueryDomApi);
-  ```
+Install `@marionette/adapters` and `jquery` for this integration. The fixed root
+makes the application-owned wrapper valid for the View's lifetime. CollectionViews
+and Behaviors can initialize `$el` in the same way. A subclass overriding
+`initialize()` must also perform any setup it needs from its application base.
 
-- The adapter imports `jquery`, so jQuery is an optional peer dependency only for
-  consumers that opt into this subpath.
-- With the adapter active before construction, `View` and `CollectionView`
-  create and refresh `$el` through `setElement()`. Behaviors mirror their host
-  View's `$el`. `view.$(selector)` also returns a jQuery collection.
-- This does not restore Backbone.View inheritance or allow selector strings as a
-  View `el`; resolve View elements explicitly. Region selector strings remain
-  supported.
+Core View, CollectionView, and Behavior types no longer take a `Wrapped` generic.
+`ViewInstance<Options, State, Query, Wrapped>` becomes
+`ViewInstance<Options, State, Query>`, and `DomApi<Query, Wrapped, Content>` becomes
+`DomApi<Query, Content>`. Declare `$el: JQuery<Element>` on application subclasses
+that provide it. Use a TypeScript `declare` field so it does not overwrite the
+wrapper initialized by the base constructor.
+
+This integration does not restore Backbone.View inheritance. Resolve selector
+strings or unwrap jQuery collections before supplying a View `el`.
 
 ## Native delegation versus jQuery events
 
@@ -251,8 +288,9 @@ An EventDelegator is a complete adapter with one method:
 `delegate({ eventName, selector, handler, rootEl })`. It registers that handler
 and returns an idempotent cleanup function for the exact registration, including
 its original root and listener options. Marionette stores the cleanup and calls
-it at most once during redelegation, `setElement()`, destruction, or failed construction.
-The adapter must register atomically and must not mutate View internals. See the
+it during redelegation or destruction. Registration and cleanup errors stop the
+operation; failed construction is not rolled back. The adapter must not mutate
+View internals. See the
 EventDelegator Adapter section of the DOM interactions API documentation for
 the complete timing, error, and cleanup contract.
 
@@ -326,3 +364,28 @@ owner's replies.
 
 - The optional jQuery adapter is described in the
   [installation guide](docs/installation.md#jquery-dom-adapter-is-optional).
+
+### DOM adapter setup
+
+Morphdom and Lit now live under `@marionette/adapters/dom/` and export DOM
+operation objects rather than class installers. Update imports from the former
+`render` directory; those package subpaths are removed.
+
+```js
+import MorphdomDomApi from '@marionette/adapters/dom/morphdom';
+import LitDomApi from '@marionette/adapters/dom/lit-html';
+
+MorphView.setDomApi(MorphdomDomApi);
+LitView.setDomApi(LitDomApi);
+```
+
+Custom renderers must return their template result. `undefined` is passed to
+`Dom.setContents` and clears contents with the supplied native, jQuery, Morphdom,
+and Lit adapters; it no longer signals a renderer that performed its own DOM
+update. Put direct DOM updates in `setContents` instead.
+
+Lit uses element-only `notifyAttach` and `notifyDetach` hooks and no longer patches View
+lifecycle methods. Detachment and destruction disconnect directives without
+emptying their DOM. With attachment monitoring disabled, deliver these
+notifications from application code. Lit event handlers use the element as their
+receiver rather than the View; use a closure for View access.

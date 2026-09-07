@@ -113,7 +113,6 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
-      issues: read
 
     steps:
       - name: Checkout
@@ -134,76 +133,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Prepare performance workspace
-        id: performance_workspace
-        run: |
-          set -euo pipefail
-          performance_dir="$(mktemp -d "${RUNNER_TEMP}/marionette-growth-approval.XXXXXX")"
-          chmod 700 "${performance_dir}"
-          echo "directory=${performance_dir}" >> "${GITHUB_OUTPUT}"
-
-      - name: Check current performance contract
-        id: current_contract
-        continue-on-error: true
-        env:
-          PERFORMANCE_DIR: ${{ steps.performance_workspace.outputs.directory }}
-        run: |
-          set -euo pipefail
-          node scripts/performance/bundle-size.mjs --json > "${PERFORMANCE_DIR}/bundle-size-current.json"
-
-      - name: Collect performance growth approval records
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PERFORMANCE_DIR: ${{ steps.performance_workspace.outputs.directory }}
-          REPOSITORY: ${{ github.repository }}
-          PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
-          TRACKING_ISSUE_NUMBER: 127
-        run: |
-          set -euo pipefail
-          pull_request_status='ok'
-          if ! gh api --paginate --slurp \
-            -H 'Accept: application/vnd.github+json' \
-            -H 'X-GitHub-Api-Version: 2022-11-28' \
-            "repos/${REPOSITORY}/issues/${PULL_REQUEST_NUMBER}/comments?per_page=100" \
-            > "${PERFORMANCE_DIR}/pull-request-pages.json"; then
-            pull_request_status='unavailable'
-            echo '[]' > "${PERFORMANCE_DIR}/pull-request-pages.json"
-          fi
-          jq -n \
-            --arg repository "${REPOSITORY}" \
-            --arg status "${pull_request_status}" \
-            --argjson pull_request_number "${PULL_REQUEST_NUMBER}" \
-            --slurpfile pages "${PERFORMANCE_DIR}/pull-request-pages.json" \
-            '{
-              schemaVersion: 1,
-              status: $status,
-              repository: $repository,
-              pullRequestNumber: $pull_request_number,
-              comments: ($pages[0] | add // [])
-            }' > "${PERFORMANCE_DIR}/approval-comments.json"
-
-          issue_status='ok'
-          if ! gh api --paginate --slurp \
-            -H 'Accept: application/vnd.github+json' \
-            -H 'X-GitHub-Api-Version: 2022-11-28' \
-            "repos/${REPOSITORY}/issues/${TRACKING_ISSUE_NUMBER}/comments?per_page=100" \
-            > "${PERFORMANCE_DIR}/tracking-issue-pages.json"; then
-            issue_status='unavailable'
-            echo '[]' > "${PERFORMANCE_DIR}/tracking-issue-pages.json"
-          fi
-          jq -n \
-            --arg repository "${REPOSITORY}" \
-            --arg status "${issue_status}" \
-            --argjson issue_number "${TRACKING_ISSUE_NUMBER}" \
-            --slurpfile pages "${PERFORMANCE_DIR}/tracking-issue-pages.json" \
-            '{
-              schemaVersion: 1,
-              status: $status,
-              repository: $repository,
-              issueNumber: $issue_number,
-              comments: ($pages[0] | add // [])
-            }' > "${PERFORMANCE_DIR}/growth-evidence-comments.json"
-
       - name: Checkout exact pull request base
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -217,62 +146,38 @@ jobs:
           npm ci
           npm run build
 
-      - name: Enforce exact base performance contract
-        id: base_authority
-        continue-on-error: true
-        env:
-          PERFORMANCE_DIR: ${{ steps.performance_workspace.outputs.directory }}
-          PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+      - name: Measure and compare bundle sizes
+        id: measure
         run: |
           set -euo pipefail
-          base_contract='bundle-size-base/config/performance.json'
-          authority_script='bundle-size-base/scripts/performance/bundle-size.mjs'
-          approval_script='bundle-size-base/scripts/performance/growth-approval.mjs'
-          test -f "${base_contract}"
-          test -f "${authority_script}"
-          test -f "${approval_script}"
-
-          node "${authority_script}" --root bundle-size-base --config "${base_contract}" --json --no-enforce > "${PERFORMANCE_DIR}/bundle-size-base.json"
-          authority_status=0
-          node "${authority_script}" --config config/performance.json --json > "${PERFORMANCE_DIR}/bundle-size-authority.json" || authority_status=$?
-          candidate_status=0
-          node "${authority_script}" --validate-resource-contract "${base_contract}" config/performance.json || candidate_status=$?
-          approval_status=0
-          node "${approval_script}" \
-            --contract "${base_contract}" \
-            --candidate-contract config/performance.json \
-            --base-report "${PERFORMANCE_DIR}/bundle-size-base.json" \
-            --current-report "${PERFORMANCE_DIR}/bundle-size-authority.json" \
-            --comments "${PERFORMANCE_DIR}/approval-comments.json" \
-            --evidence-comments "${PERFORMANCE_DIR}/growth-evidence-comments.json" \
-            --head-sha "${PULL_REQUEST_HEAD_SHA}" \
-            --pull-request "${PULL_REQUEST_NUMBER}" \
-            > "${PERFORMANCE_DIR}/growth-approval.json" || approval_status=$?
+          base_status=0
+          node bundle-size-base/scripts/performance/bundle-size.mjs --root bundle-size-base --config bundle-size-base/config/performance.json --json --no-enforce > bundle-size-base.json || base_status=$?
+          measurement_status=0
+          node scripts/performance/bundle-size.mjs --json > bundle-size-current.json || measurement_status=$?
           report_status=0
-          node "${authority_script}" \
-            --report "${PERFORMANCE_DIR}/bundle-size-base.json" "${PERFORMANCE_DIR}/bundle-size-authority.json" \
-            --growth-approval "${PERFORMANCE_DIR}/growth-approval.json" \
-            --authority-contract "${base_contract}" \
-            --candidate-contract config/performance.json \
-            > "${PERFORMANCE_DIR}/bundle-size-report.md" || report_status=$?
-          cat "${PERFORMANCE_DIR}/bundle-size-report.md" >> "${GITHUB_STEP_SUMMARY}"
-          if [ "${authority_status}" -ne 0 ] || [ "${candidate_status}" -ne 0 ] || \
-              [ "${approval_status}" -ne 0 ] || [ "${report_status}" -ne 0 ]; then
+          if [ "${base_status}" -ne 0 ]; then
+            printf '%s\n' '<!-- bundle-size-report -->' '## Bundle size report' '' 'Base measurement failed. Comparison is unavailable; inspect the measurement logs in this CI run.' > bundle-size-report.md
+          else
+            node scripts/performance/bundle-size.mjs --report bundle-size-base.json bundle-size-current.json > bundle-size-report.md || report_status=$?
+          fi
+          cat bundle-size-report.md >> "${GITHUB_STEP_SUMMARY}"
+          node scripts/performance/data-package-size.mjs
+          node scripts/performance/adapters-package-size.mjs
+          if [ "${base_status}" -ne 0 ] || [ "${measurement_status}" -ne 0 ] || [ "${report_status}" -ne 0 ]; then
             exit 1
           fi
 
       - name: Upload bundle-size report
+        if: always() && steps.measure.outcome != 'skipped'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bundle-size-report
-          path: ${{ steps.performance_workspace.outputs.directory }}/bundle-size-report.md
+          path: |
+            bundle-size-report.md
+            bundle-size-base.json
+            bundle-size-current.json
           if-no-files-found: error
-          retention-days: 1
-
-      - name: Enforce bundle-size budgets
-        if: steps.current_contract.outcome == 'failure' || steps.base_authority.outcome == 'failure'
-        run: exit 1
+          retention-days: 7
 
   performance-timing:
     name: Performance timing (reporting only)

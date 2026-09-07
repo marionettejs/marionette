@@ -25,8 +25,7 @@ const createZustandDataApi = require('@marionette/adapters/zustand');
 const createXStateActorApi = require('@marionette/adapters/xstate');
 const { createActor, createMachine } = require('xstate');
 const $ = require('jquery');
-const JQueryView = Marionette.View.extend();
-
+const JQueryView = Marionette.View.extend({ initialize() { this.$el = $(this.el); } });
 JQueryView.setDomApi(JQueryDomApi);
 
 const el = document.createElement('div');

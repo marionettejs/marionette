@@ -248,29 +248,12 @@ describe('layoutView', function() {
     });
   });
 
-  describe('when showing a childView as a basic Backbone.View', function() {
-    beforeEach(function() {
-      const BBView = Backbone.View.extend();
-      _.extend(BBView.prototype, Marionette.Events);
-
-      this.layoutView = new this.View();
-      this.layoutView.render();
-
-      // create a basic Backbone child view
-      this.childView = new BBView();
-      this.layoutView.showChildView('regionOne', this.childView);
-    });
-
-    it('shows the childview in the region', function() {
-      expect(this.layoutView.getChildView('regionOne')).to.equal(this.childView);
-    });
-  });
 
   describe('when using showChildView with options', function() {
     let options = {myOption: 'some value'};
 
     beforeEach(function() {
-      const BBView = Backbone.View.extend();
+      const BBView = Marionette.View.extend({ template: () => '' });
       _.extend(BBView.prototype, Marionette.Events);
 
       this.layoutView = new this.View().render();
@@ -432,7 +415,7 @@ describe('layoutView', function() {
 
   describe('when re-rendering an already rendered layoutView', function() {
     beforeEach(function() {
-      const BBView = Backbone.View.extend();
+      const BBView = Marionette.View.extend({ template: () => '' });
       _.extend(BBView.prototype, Marionette.Events);
 
       this.ViewBoundRender = this.View.extend({

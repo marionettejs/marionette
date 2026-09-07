@@ -1,6 +1,4 @@
 import EventDelegator from '../runtime/event-delegator.ts';
-import MarionetteError from '../modules/error.ts';
-import disposeAll from '../utils/dispose-all.ts';
 import { resolveMethod } from '../modules/common/normalize-methods.ts';
 import eachOwn from '../utils/each-own.ts';
 import getValue from '../utils/get-value.ts';
@@ -68,7 +66,8 @@ export default {
   },
 
   _undelegateViewEvents(this: Pick<ViewEventsHost, '_domEvents'>) {
-    disposeAll(this._domEvents.splice(0));
+    const cleanups = this._domEvents.splice(0);
+    for (let index = cleanups.length; index--;) { cleanups[index](); }
   },
 
   _delegateViewEvents(this: ViewEventsHost, view: TriggerTarget = this, events?: DOMEvents) {
@@ -78,12 +77,8 @@ export default {
     const delegates: Delegates = [];
     this._delegateEvents(delegates, uiBindings, events);
     this._delegateTriggers(delegates, uiBindings, view);
-    try {
-      for (let index = 0; index < delegates.length; index += 2) {
-        this._delegate(delegates[index] as EventCallback, delegates[index + 1] as string);
-      }
-    } catch (error) {
-      disposeAll(this._domEvents.splice(0), error);
+    for (let index = 0; index < delegates.length; index += 2) {
+      this._delegate(delegates[index] as EventCallback, delegates[index + 1] as string);
     }
   },
 
@@ -113,15 +108,6 @@ export default {
       handler,
       rootEl: this.el
     } as DelegateOptions);
-
-    if (typeof cleanup !== 'function') {
-      throw new MarionetteError({
-        code: 'MN0036',
-        name: 'EventDelegatorError',
-        message: 'EventDelegator.delegate must return a cleanup function.',
-        url: 'dom.interactions.html#eventdelegator-adapter'
-      });
-    }
 
     this._domEvents.push(cleanup);
   }

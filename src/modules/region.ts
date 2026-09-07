@@ -7,8 +7,6 @@ import extend from '../utils/extend.ts';
 import getValue from '../utils/get-value.ts';
 import isString from '../utils/is-string.ts';
 import uniqueId from '../utils/unique-id.ts';
-import disposeAll from '../utils/dispose-all.ts';
-import monitorViewEvents from './common/monitor-view-events.ts';
 import { renderView, destroyView, isView } from './common/view.ts';
 import CommonMixin from '../mixins/common.ts';
 import DomApi, { setDomApi } from '../runtime/dom-api.ts';
@@ -89,7 +87,6 @@ export type RegionConstructor<Props extends object = {}, Args extends unknown[] 
 export interface RegionInternals extends RegionInstance {
   [runtimeId]: object;
   _initEl?: string | Element | null;
-  $el?: unknown;
   _isReplaced: boolean;
   _isSwappingView: boolean;
   _isDestroying?: boolean;
@@ -275,8 +272,6 @@ assignOwn(Region.prototype, CommonMixin, {
   },
 
   _setupChildView(this: RegionInternals, view: SupportedView) {
-    monitorViewEvents(view);
-
     this._proxyChildViewEvents(view);
 
     // We need to listen for if a view is destroyed in a way other than through the region.
@@ -351,7 +346,7 @@ assignOwn(Region.prototype, CommonMixin, {
       throw new MarionetteError({
         code: 'MN0006',
         name: classErrorName,
-        message: 'The value passed to show must be a View-like instance. Construct the View before calling show.',
+        message: 'The value passed to show must be a Marionette View instance. Construct the View before calling show.',
         url: 'marionette.region.html#showing-a-view'
       });
     }
@@ -458,7 +453,6 @@ assignOwn(Region.prototype, CommonMixin, {
     this._parentView!.stopListening(view);
   },
 
-  // Non-Marionette safe view.destroy
   destroyView<Child extends SupportedView>(this: RegionInternals, view: Child) {
     if (view._isDestroyed) {
       return view;
@@ -551,7 +545,6 @@ assignOwn(Region.prototype, CommonMixin, {
     }
     this.el = this._initEl;
 
-    delete this.$el;
     return this;
   },
 
@@ -566,37 +559,21 @@ assignOwn(Region.prototype, CommonMixin, {
   destroy(this: RegionInternals, options?: ShowOptions) {
     if (this._isDestroyed || this._isDestroying) { return this; }
     this._isDestroying = true;
-    try {
-      this.triggerMethod('before:destroy', this, options);
-    } catch (error) {
-      delete this._isDestroying;
-      throw error;
-    }
+    this.triggerMethod('before:destroy', this, options);
     this._isDestroyed = true;
 
-    const currentView = this.currentView;
-    let isReset: boolean | undefined;
     destroyTeardown.set(this, 'reset');
-    disposeAll([
-      () => this.stopListening(),
-      () => this.triggerMethod('destroy', this, options),
-      () => {
-        destroyTeardown.delete(this);
-        if (isReset || currentView && currentView !== this.currentView) {
-          const parentView = this._parentView;
-          const name = this._name;
-          delete this._parentView;
-          delete this._name;
-          if (parentView && name !== undefined) {
-            parentView._removeReferences!(name);
-          }
-        }
-      },
-      () => {
-        this.reset(options);
-        isReset = true;
-      }
-    ]);
+    this.reset(options);
+    destroyTeardown.delete(this);
+    const parentView = this._parentView;
+    const name = this._name;
+    delete this._parentView;
+    delete this._name;
+    if (parentView && name !== undefined) {
+      parentView._removeReferences!(name);
+    }
+    this.triggerMethod('destroy', this, options);
+    this.stopListening();
 
     return this;
   }

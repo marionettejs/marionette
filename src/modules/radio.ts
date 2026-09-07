@@ -178,12 +178,7 @@ export function createRadio(debug = createDebug()): RadioApi {
       Radio.channel(channelName as string);
     }
 
-    let channel;
-    try {
-      channel = _channels[channelName as string];
-    } catch {
-      // Use the channel-not-found diagnostic if key coercion throws.
-    }
+    const channel = _channels[channelName as string];
 
     if (!channel) {
       throw new MarionetteError({

@@ -58,6 +58,8 @@
     "facade.mts",
     "facade.cts",
     "native-parent.mts",
-    "native-parent.cts"
+    "native-parent.cts",
+    "fixed-root.mts",
+    "fixed-root.cts"
   ]
 }

@@ -256,35 +256,6 @@ describe('keyed snapshot adapters', function() {
     cleanup();
   });
 
-  it('forces a reset after a consumer callback fails', function() {
-    const first = { id: 1 };
-    const second = { id: 2 };
-    let state = { models: [first] };
-    let listener;
-    const source = {
-      getState: () => state,
-      subscribe(callback) {
-        listener = callback;
-        return () => {};
-      }
-    };
-    const error = new Error('reconciliation failed');
-    const callback = this.sinon.stub();
-    callback.onFirstCall().throws(error);
-    const DataApi = createReduxDataApi({
-      key: model => model.id,
-      select: current => current.models
-    });
-    DataApi.observeCollection(source, callback);
-
-    state = { models: [first, second] };
-    expect(() => listener()).to.throw(error);
-    listener();
-
-    expect(callback).to.have.been.calledTwice;
-    expect(callback.secondCall).to.have.been.calledWith({ kind: 'reset' });
-  });
-
   it('recovers after an update introduces duplicate keys', function() {
     const first = { id: 1 };
     const second = { id: 2 };

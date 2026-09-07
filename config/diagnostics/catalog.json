@@ -94,7 +94,7 @@
       "objects": [
         "Region"
       ],
-      "remediation": "Construct a View-like instance explicitly and pass it to Region#show or View#showChildView.",
+      "remediation": "Construct a Marionette View instance explicitly and pass it to Region#show or View#showChildView.",
       "docsAnchor": "/errors/MN0006/",
       "surfaces": [
         "runtime"
@@ -647,7 +647,7 @@
     {
       "code": "MN0038",
       "slug": "adapter-cleanup-invalid",
-      "status": "active",
+      "status": "retired",
       "category": "configuration",
       "severity": "error",
       "objects": [
@@ -657,7 +657,7 @@
         "MnObject",
         "View"
       ],
-      "remediation": "Return a cleanup function from every StateApi.subscribe, DataApi.subscribe, and DataApi.observeCollection call.",
+      "remediation": "DataApi and StateApi adapters must return cleanup functions. Core no longer wraps or validates cleanup on each registration.",
       "docsAnchor": "/errors/MN0038/",
       "surfaces": [
         "runtime"

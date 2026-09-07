@@ -111,6 +111,7 @@ try {
             Marionette,
             { default: BackboneApi },
             { default: JQueryDomApi },
+            { default: $ },
             { default: createReduxDataApi },
             { default: createXStateStoreDataApi },
             { default: createZustandDataApi },
@@ -119,6 +120,7 @@ try {
             import('/marionette.js'),
             import('/backbone-api.js'),
             import('/jquery-api.js'),
+            import('jquery'),
             import('/redux-api.js'),
             import('/xstate-store-api.js'),
             import('/zustand-api.js'),
@@ -140,7 +142,8 @@ try {
           collection.add({ id: 2, name: 'second' });
           model.set('name', 'after');
 
-          const JQueryView = runtime.View.extend({ template: false });
+          const JQueryView = runtime.View.extend({ template: false,
+            initialize() { this.$el = $(this.el); } });
           JQueryView.setDomApi(JQueryDomApi);
           const el = document.createElement('section');
           el.innerHTML = '<span class="child">child</span>';

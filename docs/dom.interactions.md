@@ -121,9 +121,8 @@ View triggers and Behavior events and triggers remain active. The method first
 removes existing handlers, so repeated calls do not duplicate them.
 `view.undelegateEvents()` removes the View and Behavior DOM handlers. Both
 methods return the View, and both are no-ops after destruction has started.
-Replacing `el` with `setElement()` dispatches through both public methods, so a
-subclass override remains responsible for delegating to the base method when it
-wants Marionette's cleanup and redelegation.
+Construction calls `delegateEvents()`. A subclass override remains responsible
+for delegating to the base method when it wants Marionette's cleanup and redelegation.
 
 ## EventDelegator Adapter
 
@@ -186,28 +185,20 @@ registration it created, including its original root, listener, namespace, and
 capture/options policy. Marionette owns and stores that opaque cleanup. The
 adapter must not mutate View internals.
 
-Marionette invokes each returned cleanup at most once when `undelegateEvents()` refreshes declarations,
-before `setElement()` transfers delegation, during destruction, and when
-construction fails. Cleanups run in reverse registration order. Marionette
-attempts every cleanup even if one throws, clears its registry before invoking
-them, and then throws the first cleanup error. A throwing cleanup violates the
-adapter contract; Marionette does not retain it or grow a retry queue. View and
-Behavior destruction still completes its remaining lifecycle cleanup before
-propagating that error.
-Constructor rollback likewise attempts every cleanup but preserves the original
-construction error, because the failed instance is not returned to the caller.
+Marionette invokes the returned cleanups during redelegation or destruction,
+in reverse registration order. Registration and cleanup errors propagate to the
+caller and stop the operation. Core does not roll back failed registration or
+attempt remaining cleanup after a callback throws.
 
-Registration must be atomic: if `delegate` throws, that call must not leave a
-registration behind. If a later declaration fails, Marionette invokes every
-cleanup already returned during that delegation pass and rethrows the original
-registration error. An incomplete adapter or a non-function cleanup throws
-[`MN0036`](/errors/MN0036/).
+An incomplete adapter passed to `setEventDelegator` throws
+[`MN0036`](/errors/MN0036/). Each registration must return a working cleanup;
+core does not validate that return value on every call.
 
 Adapter selection occurs at registration time. Changing a global or per-class
 adapter does not reinterpret existing registrations; their original opaque
 cleanups remain authoritative. The newly configured adapter is used the next
 time declarations are delegated, including a new instance, an explicit
-`delegateEvents()` call, or `setElement()`. A per-class setter creates an own
+`delegateEvents()` call. A per-class setter creates an own
 adapter override for that class hierarchy, so a later root setter does not
 replace it.
 
@@ -313,6 +304,6 @@ reject it when the selector is used.
 Applications that explicitly configure
 [`@marionette/adapters/dom/jquery`](./installation.md#jquery-dom-adapter-is-optional)
 before constructing Views receive jQuery collections from query methods. The
-adapter also creates and refreshes `$el` on View and CollectionView instances,
-and each Behavior mirrors its host View's `$el`. Core examples use native
+optional [jQuery base-class helper](./dom.api.md#optional-jquery-adapter) adds
+`$el` on View, CollectionView, and Behavior subclasses. Core examples use native
 collections so the default package remains jQuery-free.

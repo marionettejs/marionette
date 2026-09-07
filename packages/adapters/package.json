@@ -1,6 +1,6 @@
 {
   "name": "@marionette/adapters",
-  "description": "Optional data, DOM and rendering integrations for Marionette",
+  "description": "Optional data and DOM integrations for Marionette",
   "version": "5.0.0-alpha.2",
   "type": "module",
   "exports": {
@@ -71,27 +71,27 @@
       "default": "./dist/xstate.js"
     },
     "./package.json": "./package.json",
-    "./render/morphdom": {
+    "./dom/morphdom": {
       "import": {
-        "types": "./dist/types/esm/render/morphdom.d.ts",
-        "default": "./dist/render/morphdom.js"
+        "types": "./dist/types/esm/dom/morphdom.d.ts",
+        "default": "./dist/dom/morphdom.js"
       },
       "require": {
-        "types": "./dist/types/cjs/render/morphdom.d.ts",
-        "default": "./dist/render/morphdom.cjs"
+        "types": "./dist/types/cjs/dom/morphdom.d.ts",
+        "default": "./dist/dom/morphdom.cjs"
       },
-      "default": "./dist/render/morphdom.js"
+      "default": "./dist/dom/morphdom.js"
     },
-    "./render/lit-html": {
+    "./dom/lit-html": {
       "import": {
-        "types": "./dist/types/esm/render/lit-html.d.ts",
-        "default": "./dist/render/lit-html.js"
+        "types": "./dist/types/esm/dom/lit-html.d.ts",
+        "default": "./dist/dom/lit-html.js"
       },
       "require": {
-        "types": "./dist/types/cjs/render/lit-html.d.ts",
-        "default": "./dist/render/lit-html.cjs"
+        "types": "./dist/types/cjs/dom/lit-html.d.ts",
+        "default": "./dist/dom/lit-html.cjs"
       },
-      "default": "./dist/render/lit-html.js"
+      "default": "./dist/dom/lit-html.js"
     }
   },
   "files": [

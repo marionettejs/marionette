@@ -1,9 +1,7 @@
 import $ from 'jquery';
 import compile from '../../build/babel.js';
 import {
-  Behavior,
   CollectionView,
-  DomApi,
   Region,
   View
 } from '../../src/index';
@@ -43,16 +41,17 @@ describe('jQuery DomApi adapter', function() {
     const view = new View();
     const collectionView = new CollectionView();
 
-    expect(DomApi.wrapEl).to.be.undefined;
     expect(view).to.not.have.property('$el');
     expect(collectionView).to.not.have.property('$el');
   });
 
-  it('provides wrapEl on the jQuery DomApi adapter', function() {
-    const el = document.createElement('div');
-
-    expect(JQueryDomApi.wrapEl(el)).to.be.instanceof($);
-    expect(JQueryDomApi.wrapEl(el)[0]).to.equal(el);
+  it('configures jQuery DOM operations independently of $el', function() {
+    const QueryView = View.extend();
+    QueryView.setDomApi(JQueryDomApi);
+    const view = new QueryView();
+    expect(view.$('span')).to.be.instanceof($);
+    expect(view).to.not.have.property('$el');
+    view.destroy();
   });
 
   it('returns native results from view.$() with the native DomApi', function() {
@@ -67,47 +66,6 @@ describe('jQuery DomApi adapter', function() {
 
     expect(result).to.be.instanceof(window.NodeList);
     expect(result[0]).to.equal(child);
-  });
-
-  it('returns a jQuery collection from view.$() with the jQuery DomApi', function() {
-    const JQueryView = View.extend();
-    JQueryView.setDomApi(JQueryDomApi);
-    const view = new JQueryView({
-      el: document.createElement('div')
-    });
-    const child = document.createElement('span');
-    child.className = 'child';
-    view.el.appendChild(child);
-
-    const result = view.$('.child');
-
-    expect(result).to.be.instanceof($);
-    expect(result[0]).to.equal(child);
-    expect(view.$el).to.be.instanceof($);
-    expect(view.$el[0]).to.equal(view.el);
-  });
-
-  it('creates $el for CollectionView when the jQuery DomApi is active', function() {
-    const JQueryCollectionView = CollectionView.extend();
-    JQueryCollectionView.setDomApi(JQueryDomApi);
-
-    const view = new JQueryCollectionView();
-
-    expect(view.$el).to.be.instanceof($);
-    expect(view.$el[0]).to.equal(view.el);
-  });
-
-  it('refreshes $el when setElement changes the view element', function() {
-    const JQueryView = View.extend();
-    JQueryView.setDomApi(JQueryDomApi);
-    const firstEl = document.createElement('div');
-    const secondEl = document.createElement('section');
-    const view = new JQueryView({ el: firstEl });
-
-    view.setElement(secondEl);
-
-    expect(view.el).to.equal(secondEl);
-    expect(view.$el[0]).to.equal(secondEl);
   });
 
   [
@@ -127,59 +85,6 @@ describe('jQuery DomApi adapter', function() {
       expect(error.message).to.contain('must be a DOM element');
       expect(error.message).to.contain('wrappedEl[0]');
     });
-  });
-
-  it('does not mutate a view when wrapEl throws', function() {
-    const oldEl = document.createElement('div');
-    const newEl = document.createElement('section');
-    const error = new Error('wrap failed');
-    const onClick = this.sinon.stub();
-    const view = new View({
-      el: oldEl,
-      events: { click: onClick },
-    });
-    view.Dom = Object.assign({}, view.Dom, {
-      wrapEl() {
-        throw error;
-      },
-    });
-
-    expect(() => view.setElement(newEl)).to.throw(error);
-    expect(view.el).to.equal(oldEl);
-    expect(view).to.not.have.property('$el');
-
-    oldEl.click();
-
-    expect(onClick).to.have.been.calledOnce;
-  });
-
-  it('mirrors the host view $el on behaviors', function() {
-    let behavior;
-    let initializedEl;
-    let initialized$El;
-    const JQueryView = View.extend({
-      behaviors: [Behavior.extend({
-        initialize() {
-          behavior = this;
-          initializedEl = this.el;
-          initialized$El = this.$el;
-        },
-      })],
-    });
-    JQueryView.setDomApi(JQueryDomApi);
-
-    const view = new JQueryView();
-    const nextEl = document.createElement('section');
-
-    expect(behavior.$el).to.equal(view.$el);
-    expect(behavior.$el[0]).to.equal(view.el);
-    expect(initializedEl).to.equal(view.el);
-    expect(initialized$El).to.equal(view.$el);
-
-    view.setElement(nextEl);
-
-    expect(behavior.$el).to.equal(view.$el);
-    expect(behavior.$el[0]).to.equal(nextEl);
   });
 
   it('detaches elements without removing listeners with the jQuery DomApi', function() {
@@ -247,4 +152,18 @@ describe('jQuery DomApi adapter', function() {
 
     expect(region.el).to.equal(root);
   });
+});
+
+// Applications can keep a wrapper because the root identity does not change.
+it('supports an application-owned $el initialized once', function() {
+  const JQueryView = View.extend({ initialize() { this.$el = $(this.el); } });
+  JQueryView.setDomApi(JQueryDomApi);
+  const view = new JQueryView({ template: () => '<button>Action</button>' });
+  const wrapped = view.$el;
+  view.render();
+  view.render();
+  expect(view.$('button')).to.be.instanceof($);
+  expect(view.$el).to.equal(wrapped);
+  expect(wrapped[0]).to.equal(view.el);
+  view.destroy();
 });

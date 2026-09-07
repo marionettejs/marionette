@@ -19,7 +19,8 @@ function IsolatedBehavior(overrides = {}) {
   return Behavior.extend({
     _setOptions() {},
     _initViewEvents() {},
-    _syncElement() { return this; },
+    _delegateViewEvents() { return this; },
+    _undelegateViewEvents() {},
     listenTo() { return this; },
     ...overrides
   });
@@ -61,8 +62,9 @@ describe('Behavior composition', function() {
           calls.push(['behaviorUI', this, [...arguments]]);
           return behaviorUI;
         },
-        _syncElement(...args) {
-          calls.push(['syncElement', this, args]);
+        _undelegateViewEvents() {},
+        _delegateViewEvents(...args) {
+          calls.push(['delegateViewEvents', this, args]);
           return this;
         },
         listenTo(...args) {
@@ -91,7 +93,7 @@ describe('Behavior composition', function() {
         ['listenTo', behavior, [host, 'all', behavior.triggerMethod]],
         ['initialize', behavior, [options, host, 'extra']],
         ['initStateEvents', behavior, []],
-        ['syncElement', behavior, []]
+        ['delegateViewEvents', behavior, [host]]
       ]);
       expect(Object.keys(behavior.ui)).to.deep.equal(['first', 'shared', 'last']);
       expect(behavior.ui).to.deep.equal({ first: '.first', shared: '.host', last: '.last' });
@@ -224,7 +226,6 @@ describe('Behavior composition', function() {
         'cidPrefix',
         '$',
         'destroy',
-        '_syncElement',
         'bindUIElements',
         'unbindUIElements',
         'getUI',

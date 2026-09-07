@@ -467,9 +467,8 @@ binds. If a stateful host `ui` function returns a different selector then, the h
 binds the later selector while the Behavior continues to bind its construction-time
 selector. Keep `ui` functions deterministic when the host and Behavior share keys.
 
-The Behavior's `el` is also available during `initialize`. When the optional jQuery
-DomApi is selected, `$el` is available at the same point and mirrors the host View's
-wrapper. DOM event and trigger declarations are delegated only after `initialize`
+The Behavior's `el` is also available during `initialize`. Behaviors
+can initialize their own `$el` wrapper with `$(this.el)` at this point. DOM event and trigger declarations are delegated only after `initialize`
 returns, so callable declarations may safely depend on state established there.
 
 Before binding, `behavior.ui` contains selector strings. A template-rendered `View`
@@ -542,14 +541,13 @@ export const FormView = View.extend({
 The host View or CollectionView owns the DOM boundary for each attached
 Behavior. A Behavior's `el` is the host's current `el`, and its `$()` lookup
 delegates to the host so that results stay scoped to that element. Native core
-does not create `$el`. When the optional jQuery DOM adapter is configured, each
-Behavior mirrors its host View's `$el`, including after `setElement()`.
+does not create `$el`. With the optional
+[jQuery adapter](./dom.api.md#optional-jquery-adapter), application code can
+assign `this.$el = $(this.el)` once in `initialize()`.
 
-Calling the host's `setElement()` automatically moves its Behaviors to the new
-element. Their delegated DOM handlers are removed from the old element and
-attached once to the current element, including after repeated calls or swaps.
-Destroying the host removes the final delegated handlers. Application code
-does not need to retarget the Behavior separately.
+The host and its Behaviors keep the same root for their lifetime. Rendering can
+replace its contents, and `delegateEvents()` refreshes View and Behavior handlers.
+Destroying the host removes those handlers. Behaviors do not own or replace the root.
 
 Each Behavior can also reference its host through the `view` attribute:
 

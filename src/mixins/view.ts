@@ -14,7 +14,6 @@ import UIMixin from './ui.ts';
 import ViewEvents from './view-events.ts';
 import DomApi from '../runtime/dom-api.ts';
 import DataApi from '../runtime/data-api.ts';
-import disposeAll from '../utils/dispose-all.ts';
 
 import type { BehaviorContainer } from './behaviors.ts';
 import type { EntityEventHost } from './delegate-entity-events.ts';
@@ -33,6 +32,7 @@ export type ViewMixinHost = SharedMixins & BehaviorContainer & EntityEventHost &
     _isDestroyed?: boolean;
     _isRendered?: boolean;
     _isAttached?: boolean;
+    monitorViewEvents?: boolean;
     _disableDetachEvents?: boolean;
     _dataObserverCleanup?: () => void;
     _childViewEvents?: Record<string, EventCallback>;
@@ -150,8 +150,6 @@ const ViewMixin = {
     return !!documentEl && this.Dom.hasEl!(documentEl, this.el);
   },
 
-  supportsRenderLifecycle: true,
-  supportsDestroyLifecycle: true,
 
   _isDestroyed: false,
 
@@ -171,42 +169,13 @@ const ViewMixin = {
     return !!this._isAttached;
   },
 
-  _rollbackView(this: ViewMixinHost, error: unknown) {
-    const dataObserverCleanup = this._dataObserverCleanup;
-    delete this._dataObserverCleanup;
-
-    // Construction rollback is not yet guarded by _isDestroying. Release the
-    // collection observer before child cleanup can synchronously mutate it.
-    try {
-      dataObserverCleanup?.();
-    } catch {
-      // Preserve the construction error while continuing best-effort cleanup.
-    }
-
-    disposeAll([
-      () => this.stopListening(),
-      () => this._destroyState(),
-      () => this._rollbackBehaviors(),
-      () => this.undelegateEntityEvents(),
-      () => this._undelegateViewEvents(),
-      () => this._removeChildren()
-    ], error);
-  },
-
   delegateEvents(this: ViewMixinHost, events?: DOMEvents) {
     if (this._isDestroying || this._isDestroyed) { return this; }
 
     this.undelegateEvents();
     this._buildEventProxies();
-    try {
-      this._delegateViewEvents(this, events);
-      this._setBehaviorElements();
-    } catch (error) {
-      disposeAll([
-        () => this._undelegateBehaviorViewEvents(),
-        () => this._undelegateViewEvents()
-      ], error);
-    }
+    this._delegateViewEvents(this, events);
+    this._delegateBehaviorViewEvents();
 
     return this;
   },
@@ -214,10 +183,8 @@ const ViewMixin = {
   undelegateEvents(this: ViewMixinHost) {
     if (this._isDestroyed || this._isDestroying) { return this; }
 
-    disposeAll([
-      () => this._undelegateBehaviorViewEvents(),
-      () => this._undelegateViewEvents()
-    ]);
+    this._undelegateViewEvents();
+    this._undelegateBehaviorViewEvents();
 
     return this;
   },
@@ -226,29 +193,18 @@ const ViewMixin = {
   delegateEntityEvents(this: ViewMixinHost) {
     if (this._isDestroyed || this._isDestroying) { return this; }
 
-    try {
-      this._delegateEntityEvents(this.model, this.collection, this.Data);
+    this._delegateEntityEvents(this.model, this.collection, this.Data);
 
-      // bind each behaviors model and collection events
-      this._delegateBehaviorEntityEvents();
-    } catch (error) {
-      try {
-        this.undelegateEntityEvents();
-      } catch {
-        // Preserve the subscription error after best-effort rollback.
-      }
-      throw error;
-    }
+    // bind each behaviors model and collection events
+    this._delegateBehaviorEntityEvents();
 
     return this;
   },
 
   // Handle unbinding `modelEvents`, and `collectionEvents` configuration
   undelegateEntityEvents(this: ViewMixinHost) {
-    disposeAll([
-      () => this._undelegateBehaviorEntityEvents(),
-      () => this._undelegateEntityEvents()
-    ]);
+    this._undelegateEntityEvents();
+    this._undelegateBehaviorEntityEvents();
 
     return this;
   },
@@ -259,48 +215,28 @@ const ViewMixin = {
     this._isDestroying = true;
     const shouldTriggerDetach = this._isAttached && !this._disableDetachEvents;
 
-    try {
-      this.triggerMethod('before:destroy', this, options);
-    } catch (error) {
-      delete this._isDestroying;
-      throw error;
+    this.triggerMethod('before:destroy', this, options);
+    if (shouldTriggerDetach) { this.triggerMethod('before:detach', this); }
+    this.unbindUIElements();
+    this._undelegateViewEvents();
+    this.Dom.detachEl!(this.el);
+    if (shouldTriggerDetach) {
+      this._isAttached = false;
+      this.triggerMethod('detach', this);
     }
-    let didDetachEl = false;
-    disposeAll([
-      () => this.stopListening(),
-      () => this._triggerEventOnBehaviors('destroy', this, options),
-      () => this.triggerMethod('destroy', this, options),
-      () => this._destroyState(),
-      () => this._destroyBehaviors(options),
-      () => this._deleteEntityEventHandlers(),
-      () => {
-        const dataObserverCleanup = this._dataObserverCleanup;
-        delete this._dataObserverCleanup;
-        dataObserverCleanup?.();
-      },
-      () => {
-        this._isDestroyed = true;
-        this._isRendered = false;
-      },
-      // Remove children after the root to prevent extra paints.
-      () => this._removeChildren(),
-      () => {
-        if (!shouldTriggerDetach || !didDetachEl) { return; }
-        this._isAttached = false;
-        this.triggerMethod('detach', this);
-      },
-      () => {
-        this.Dom.detachEl!(this.el);
-        didDetachEl = true;
-      },
-      () => this._undelegateViewEvents(),
-      () => this.unbindUIElements(),
-      () => {
-        if (shouldTriggerDetach) {
-          this.triggerMethod('before:detach', this);
-        }
-      }
-    ]);
+    // Remove children after the root to prevent extra paints.
+    this._removeChildren();
+    this._isDestroyed = true;
+    this._isRendered = false;
+    const dataObserverCleanup = this._dataObserverCleanup;
+    delete this._dataObserverCleanup;
+    dataObserverCleanup?.();
+    this._deleteEntityEventHandlers();
+    this._destroyBehaviors(options);
+    this._destroyState();
+    this.triggerMethod('destroy', this, options);
+    this._triggerEventOnBehaviors('destroy', this, options);
+    this.stopListening();
 
     return this;
   },

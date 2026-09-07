@@ -252,45 +252,4 @@ describe('@marionette/data Model', function() {
     expect(defaults).to.have.been.calledOnce;
   });
 
-  it('releases owned listeners when construction or destruction throws', function() {
-    const source = new Model();
-    const constructionCallback = this.sinon.spy();
-    const constructionError = new Error('construction failed');
-    const cleanupError = new Error('cleanup failed');
-    const BrokenModel = Model.extend({
-      initialize() {
-        this.listenTo(source, 'change', constructionCallback);
-        throw constructionError;
-      },
-      off() { throw cleanupError; }
-    });
-
-    expect(() => new BrokenModel()).to.throw(constructionError);
-    source.set('phase', 'after-construction');
-    expect(constructionCallback).to.not.have.been.called;
-
-    const failedCollection = new Collection();
-    const unbindingError = new Error('unbinding failed');
-    const OwnedDuringConstruction = Model.extend({
-      initialize() {
-        failedCollection.add(this);
-        throw constructionError;
-      },
-      off() { throw unbindingError; }
-    });
-    expect(() => new OwnedDuringConstruction()).to.throw(constructionError);
-    expect(failedCollection.length).to.equal(0);
-    failedCollection.destroy();
-
-    const model = new Model();
-    const destructionCallback = this.sinon.spy();
-    const destructionError = new Error('destruction failed');
-    model.listenTo(source, 'change', destructionCallback);
-    model.on('destroy', () => { throw destructionError; });
-
-    expect(() => model.destroy()).to.throw(destructionError);
-    source.set('phase', 'after-destruction');
-    expect(destructionCallback).to.not.have.been.called;
-    expect(model.isDestroyed()).to.be.true;
-  });
 });

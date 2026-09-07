@@ -34,18 +34,6 @@ function emit(model, eventName, ...args) {
   }
 }
 
-function expectInvalidChange(ListView, initialModels, currentModels, change) {
-  const source = { models: initialModels };
-  const view = new ListView({ collection: source });
-  view.render();
-  source.models = currentModels;
-
-  expect(() => source.notify(change))
-    .to.throw(MarionetteError).and.include({ code: 'MN0039' });
-
-  view.destroy();
-}
-
 describe('CollectionView normalized reconciliation', function() {
   let Adapter;
   let ChildView;
@@ -286,151 +274,6 @@ describe('CollectionView normalized reconciliation', function() {
     view.destroy();
   });
 
-  it('keeps existing children intact when a replacement constructor fails', function() {
-    const first = { id: 1, name: 'one' };
-    const second = { id: 2, name: 'two' };
-    const firstReplacement = { id: 1, name: 'first replacement' };
-    const secondReplacement = { id: 2, name: 'second replacement' };
-    const source = { models: [first, second] };
-    const constructionError = new Error('replacement construction failed');
-    let shouldFail = true;
-    let stagedChild;
-    const FailureList = ListView.extend({
-      buildChildView(model, ChildViewClass, childViewOptions) {
-        if (shouldFail && model === secondReplacement) { throw constructionError; }
-        const child = CollectionView.prototype.buildChildView.call(
-          this, model, ChildViewClass, childViewOptions
-        );
-        if (model === firstReplacement) { stagedChild = child; }
-        return child;
-      }
-    });
-    const view = new FailureList({ collection: source });
-    view.render();
-    const originalChildren = view.children.toArray();
-    const originalElements = originalChildren.map(child => child.el);
-
-    source.models = [firstReplacement, secondReplacement];
-    expect(() => source.notify({
-      kind: 'update',
-      added: [],
-      removed: [],
-      updated: [
-        { previous: first, current: firstReplacement },
-        { previous: second, current: secondReplacement }
-      ]
-    })).to.throw(constructionError);
-
-    expect(stagedChild.isDestroyed()).to.be.true;
-    expect(originalChildren.every(child => !child.isDestroyed())).to.be.true;
-    expect(view.children.toArray()).to.deep.equal(originalChildren);
-    expect([...view.el.children]).to.deep.equal(originalElements);
-
-    shouldFail = false;
-    source.notify({ kind: 'reset' });
-    expect(view.children.toArray().map(child => child.model))
-      .to.deep.equal([firstReplacement, secondReplacement]);
-    expect(originalChildren.every(child => child.isDestroyed())).to.be.true;
-    view.destroy();
-  });
-
-  it('destroys staged replacements when a later add hook fails', function() {
-    const first = { id: 1, name: 'one' };
-    const replacement = { id: 1, name: 'replacement' };
-    const added = { id: 2, name: 'added' };
-    const failingAddition = { id: 3, name: 'failing addition' };
-    const source = { models: [first] };
-    const hookError = new Error('add hook failed');
-    let stagedReplacement;
-    let stagedAddition;
-    let failedAddition;
-    const lifecycle = [];
-    const FailureList = ListView.extend({
-      buildChildView(model, ChildViewClass, childViewOptions) {
-        const child = CollectionView.prototype.buildChildView.call(
-          this, model, ChildViewClass, childViewOptions
-        );
-        if (model === replacement) { stagedReplacement = child; }
-        if (model === added) { stagedAddition = child; }
-        if (model === failingAddition) { failedAddition = child; }
-        return child;
-      },
-      onBeforeAddChild(collectionView, child) {
-        lifecycle.push(`before:add:${ child.model.name }`);
-        if (child.model === failingAddition) { throw hookError; }
-      },
-      onAddChild(collectionView, child) {
-        lifecycle.push(`add:${ child.model.name }`);
-      },
-      onBeforeRemoveChild(collectionView, child) {
-        lifecycle.push(`before:remove:${ child.model.name }`);
-      },
-      onRemoveChild(collectionView, child) {
-        lifecycle.push(`remove:${ child.model.name }`);
-      }
-    });
-    const view = new FailureList({ collection: source });
-    view.render();
-    lifecycle.length = 0;
-
-    source.models = [replacement, added, failingAddition];
-    expect(() => source.notify({
-      kind: 'update',
-      added: [added, failingAddition],
-      removed: [],
-      updated: [{ previous: first, current: replacement }]
-    })).to.throw(hookError);
-
-    expect(stagedReplacement.isDestroyed()).to.be.true;
-    expect(stagedAddition.isDestroyed()).to.be.true;
-    expect(failedAddition.isDestroyed()).to.be.true;
-    expect(view.children.toArray().map(child => child.model)).to.deep.equal([first]);
-    expect(view.el.textContent).to.equal('one');
-    expect(lifecycle).to.deep.equal([
-      'before:add:added',
-      'add:added',
-      'before:add:failing addition',
-      'before:remove:added',
-      'remove:added'
-    ]);
-    view.destroy();
-  });
-
-  it('recovers the latest source snapshot after a reconciliation hook fails', function() {
-    const first = { id: 1, name: 'one' };
-    const second = { id: 2, name: 'two' };
-    const third = { id: 3, name: 'three' };
-    const fourth = { id: 4, name: 'four' };
-    const source = { models: [first] };
-    const hookError = new Error('add hook failed');
-    let shouldFail = true;
-    const RecoveringList = ListView.extend({
-      onBeforeAddChild(collectionView, child) {
-        if (!shouldFail || child.model !== second) { return; }
-        shouldFail = false;
-        source.models = [first, second, third];
-        source.notify({ kind: 'update', added: [third], removed: [], updated: [] });
-        throw hookError;
-      }
-    });
-    const view = new RecoveringList({ collection: source });
-    view.render();
-
-    source.models = [first, second];
-    expect(() => source.notify({
-      kind: 'update', added: [second], removed: [], updated: []
-    })).to.throw(hookError);
-
-    source.models = [first, second, third, fourth];
-    expect(() => source.notify({
-      kind: 'update', added: [fourth], removed: [], updated: []
-    })).to.not.throw();
-    expect(view.children.toArray().map(child => child.model))
-      .to.deep.equal([first, second, third, fourth]);
-    expect(view.el.textContent).to.equal('onetwothreefour');
-    view.destroy();
-  });
-
   ['removal', 'replacement'].forEach(changeType => {
     it(`keeps a managed child when a before-remove hook rejects ${ changeType }`, function() {
       const first = { id: 1, name: 'one' };
@@ -528,7 +371,7 @@ describe('CollectionView normalized reconciliation', function() {
     view.destroy();
   });
 
-  it('diagnoses malformed collection snapshots and structural records', function() {
+  it('diagnoses an unordered collection snapshot', function() {
     const InvalidModelsList = ListView.extend({});
     InvalidModelsList.setDataApi({ models() { return {}; } });
     const invalidModelsView = new InvalidModelsList({ collection: {} });
@@ -537,68 +380,6 @@ describe('CollectionView normalized reconciliation', function() {
       .and.include({ code: 'MN0039' });
     invalidModelsView.destroy();
 
-    const first = { id: 1, name: 'one' };
-    const second = { id: 2, name: 'two' };
-    const third = { id: 3, name: 'three' };
-
-    expectInvalidChange(ListView, [first], [first], null);
-    expectInvalidChange(ListView, [first], [first], { kind: 'unknown' });
-    expectInvalidChange(ListView, [first], [first, second], { kind: 'reorder' });
-
-    expectInvalidChange(ListView, [first], [first], { kind: 'update' });
-    expectInvalidChange(ListView, [first], [first], {
-      kind: 'update', added: [], updated: []
-    });
-    expectInvalidChange(ListView, [first], [first], {
-      kind: 'update', added: [], removed: []
-    });
-
-    expectInvalidChange(ListView, [first], [first, second], {
-      kind: 'update', added: [], removed: [], updated: []
-    });
-    expectInvalidChange(ListView, [first], [first, second], {
-      kind: 'update', added: [third], removed: [], updated: []
-    });
-    expectInvalidChange(ListView, [first, second], [second], {
-      kind: 'update', added: [], removed: [], updated: []
-    });
-  });
-
-  it('diagnoses malformed and incomplete updated entries', function() {
-    const first = { id: 1, name: 'one' };
-    const second = { id: 2, name: 'two' };
-    const replacement = { id: 1, name: 'replacement' };
-    const validUpdate = { kind: 'update', added: [], removed: [] };
-
-    for (const updated of [[null], [{}], [{ previous: first }]]) {
-      expectInvalidChange(ListView, [first], [first], { ...validUpdate, updated });
-    }
-
-    expectInvalidChange(ListView, [first], [first], {
-      ...validUpdate,
-      updated: [{ previous: {}, current: first }]
-    });
-    expectInvalidChange(ListView, [first], [first], {
-      ...validUpdate,
-      updated: [{ previous: first, current: {} }]
-    });
-    expectInvalidChange(ListView, [first], [first, second], {
-      kind: 'update',
-      added: [second],
-      removed: [],
-      updated: [{ previous: first, current: second }]
-    });
-    expectInvalidChange(ListView, [first], [first], {
-      ...validUpdate,
-      updated: [
-        { previous: first, current: first },
-        { previous: first, current: first }
-      ]
-    });
-    expectInvalidChange(ListView, [first], [replacement], {
-      ...validUpdate,
-      updated: []
-    });
   });
 
   it('diagnoses an update whose child View is missing', function() {
@@ -755,27 +536,31 @@ describe('CollectionView normalized reconciliation', function() {
     expect(view.el.textContent).to.equal('');
   });
 
-  it('releases collection observation before failed-construction child cleanup', function() {
+  it('processes added and removed children in snapshot order', function() {
     const first = { id: 1, name: 'one' };
+    const second = { id: 2, name: 'two' };
+    const third = { id: 3, name: 'three' };
     const source = { models: [first] };
-    const constructionError = new Error('initialize failed');
-    const onDestroy = this.sinon.spy(() => {
-      expect(source.notify).to.be.undefined;
-      source.models = [];
-      source.notify?.({ kind: 'update', added: [], removed: [first], updated: [] });
-    });
-    const CleanupChild = ChildView.extend({ onDestroy });
-    CleanupChild.setDataApi(Adapter);
-    const BrokenList = ListView.extend({
-      childView: CleanupChild,
-      initialize() {
-        this.render();
-        throw constructionError;
-      }
-    });
+    const view = new ListView({ collection: source, sortWithCollection: false });
+    const added = [];
+    const removed = [];
+    view.render();
+    view.on('add:child', (owner, child) => added.push(child.model));
+    view.on('remove:child', (owner, child) => removed.push(child.model));
 
-    expect(() => new BrokenList({ collection: source })).to.throw(constructionError);
-    expect(onDestroy).to.have.been.calledOnce;
+    source.models = [third, first, second];
+    source.notify({ kind: 'update', added: [second, third], removed: [], updated: [] });
+
+    expect(added).to.deep.equal([third, second]);
+    expect(view.children.toArray().map(child => child.model)).to.deep.equal([first, third, second]);
+    expect(view.el.textContent).to.equal('onethreetwo');
+
+    source.models = [second];
+    source.notify({ kind: 'update', added: [], removed: [first, third], updated: [] });
+
+    expect(removed).to.deep.equal([third, first]);
+    expect(view.el.textContent).to.equal('two');
+    view.destroy();
   });
 
   it('does not render an added child that is filtered out', function() {
@@ -881,12 +666,4 @@ describe('CollectionView normalized reconciliation', function() {
     expect(child.destroyCount).to.equal(1);
   });
 
-  it('diagnoses an invalid structural observer cleanup value', function() {
-    const InvalidList = ListView.extend({});
-    InvalidList.setDataApi({ observeCollection() {} });
-    const view = new InvalidList({ collection: { models: [] } });
-
-    expect(() => view.render()).to.throw(MarionetteError).and.include({ code: 'MN0038' });
-    view.destroy();
-  });
 });

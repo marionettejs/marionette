@@ -151,26 +151,18 @@ export default function createKeyedSnapshotDataApi<TSource, TSnapshot, TModel, T
     observeCollection(source, notify, context) {
       let selected = getModels(source);
       let observed = buildSnapshot(selected, key, adapterName);
-      let needsReset = false;
 
       const onChange = function() {
         const currentModels = getModels(source);
-        if (currentModels === selected && !needsReset) { return; }
+        if (currentModels === selected) { return; }
 
         const current = buildSnapshot(currentModels, key, adapterName);
-        const change: SnapshotChange<TModel> | undefined = needsReset ? { kind: 'reset' } :
-          compareSnapshots(observed, current);
+        const change: SnapshotChange<TModel> | undefined = compareSnapshots(observed, current);
         selected = currentModels;
         observed = current;
         if (!change) { return; }
 
-        needsReset = false;
-        try {
-          notify.call(context, change);
-        } catch (error) {
-          needsReset = true;
-          throw error;
-        }
+        notify.call(context, change);
       };
 
       return normalizeDisposer(subscribe(source, onChange), adapterName);

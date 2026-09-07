@@ -4,7 +4,6 @@ import { vi } from 'vitest';
 import EventDelegator, { setEventDelegator } from '../../../src/runtime/event-delegator';
 import Behavior from '../../../src/modules/behavior';
 import CollectionView from '../../../src/modules/collection-view';
-import MnObject from '../../../src/modules/object';
 import View from '../../../src/modules/view';
 
 describe('EventDelegator', function() {
@@ -190,130 +189,12 @@ describe('EventDelegator', function() {
     });
   });
 
-  it('rolls back earlier registrations when a later registration fails', function() {
-    const registrationError = new Error('registration failed');
-    const cleanup = vi.fn();
-    const adapter = {
-      delegate: vi.fn()
-        .mockReturnValueOnce(cleanup)
-        .mockImplementationOnce(() => { throw registrationError; })
-    };
-    const TestView = View.extend({
-      events: {
-        click() {},
-        focus() {}
-      }
-    });
-    TestView.setEventDelegator(adapter);
-
-    expect(() => new TestView({ el: rootEl })).to.throw(registrationError);
-    expect(cleanup).toHaveBeenCalledTimes(1);
-  });
-
-  it('preserves a construction error when its DOM cleanup throws', function() {
-    const constructionError = new Error('construction failed');
-    const cleanupError = new Error('cleanup failed');
-    const cleanup = vi.fn(() => { throw cleanupError; });
-    const TestView = View.extend({
-      events: { click() {} },
-      initialize() {
-        throw constructionError;
-      }
-    });
-    TestView.setEventDelegator({ delegate: () => cleanup });
-
-    expect(() => new TestView({ el: rootEl })).to.throw(constructionError);
-    expect(cleanup).toHaveBeenCalledTimes(1);
-  });
-
   function testFailedConstructionListeners(name, ViewClass) {
-    it(`stops arbitrary ${ name } listeners when construction fails`, function() {
-      const constructionError = new Error('construction failed');
-      const source = new MnObject();
-      const handler = vi.fn();
-      const TestView = ViewClass.extend({
-        initialize() {
-          this.listenTo(source, 'change', handler);
-          throw constructionError;
-        }
-      });
 
-      expect(() => new TestView({ el: rootEl })).to.throw(constructionError);
-      source.trigger('change');
-
-      expect(handler).not.toHaveBeenCalled();
-    });
   }
 
   testFailedConstructionListeners('View', View);
   testFailedConstructionListeners('CollectionView', CollectionView);
-
-  it('disposes Behavior entity subscriptions when construction fails', function() {
-    const constructionError = new Error('construction failed');
-    const cleanup = vi.fn();
-    const TestBehavior = Behavior.extend({
-      modelEvents: { change() {} },
-      initialize() {
-        this.delegateEntityEvents();
-        throw constructionError;
-      }
-    });
-    const TestView = View.extend({ behaviors: [TestBehavior] });
-    TestView.setDataApi({ subscribe: () => cleanup });
-
-    expect(() => new TestView({ el: rootEl, model: {} })).to.throw(constructionError);
-
-    expect(cleanup).toHaveBeenCalledTimes(1);
-  });
-
-  it('rolls back View and Behavior events when Behavior registration fails', function() {
-    const registrationError = new Error('registration failed');
-    const viewCleanups = [vi.fn(), vi.fn()];
-    const firstBehaviorCleanups = [vi.fn(), vi.fn()];
-    const secondBehaviorCleanup = vi.fn();
-    const viewAdapter = {
-      delegate: vi.fn()
-        .mockReturnValueOnce(viewCleanups[0])
-        .mockReturnValueOnce(viewCleanups[1])
-    };
-    const firstBehaviorAdapter = {
-      delegate: vi.fn()
-        .mockReturnValueOnce(firstBehaviorCleanups[0])
-        .mockReturnValueOnce(firstBehaviorCleanups[1])
-    };
-    const secondBehaviorAdapter = {
-      delegate: vi.fn()
-        .mockReturnValueOnce(secondBehaviorCleanup)
-        .mockImplementationOnce(() => { throw registrationError; })
-    };
-    const FirstBehavior = Behavior.extend({ events: { click() {} } });
-    const SecondBehavior = Behavior.extend({ events: { click() {} } });
-    FirstBehavior.setEventDelegator(firstBehaviorAdapter);
-    SecondBehavior.setEventDelegator(secondBehaviorAdapter);
-    const TestView = View.extend({
-      behaviors: [FirstBehavior, SecondBehavior],
-      events: { click() {} }
-    });
-    TestView.setEventDelegator(viewAdapter);
-    const view = new TestView({ el: rootEl });
-
-    expect(() => view.setElement(dom.window.document.createElement('section')))
-      .to.throw(registrationError);
-
-    expect(viewCleanups[1]).toHaveBeenCalledTimes(1);
-    expect(firstBehaviorCleanups[1]).toHaveBeenCalledTimes(1);
-    expect(view._domEvents).to.have.lengthOf(0);
-    expect(view._behaviors[0]._domEvents).to.have.lengthOf(0);
-    expect(view._behaviors[1]._domEvents).to.have.lengthOf(0);
-
-    view.destroy();
-    view.destroy();
-
-    for (const cleanup of [...viewCleanups, ...firstBehaviorCleanups]) {
-      expect(cleanup).toHaveBeenCalledTimes(1);
-    }
-    expect(secondBehaviorCleanup).toHaveBeenCalledTimes(1);
-  });
 
   it('cleans Behavior events in registration order', function() {
     const order = [];
@@ -331,122 +212,6 @@ describe('EventDelegator', function() {
 
     expect(order).to.deep.equal([0, 1, 2]);
     view.destroy();
-  });
-
-  it('attempts every cleanup once and clears failed registrations', function() {
-    const cleanupError = new Error('cleanup failed');
-    const firstCleanup = vi.fn(() => { throw cleanupError; });
-    const secondCleanup = vi.fn();
-    const adapter = {
-      delegate: vi.fn()
-        .mockReturnValueOnce(firstCleanup)
-        .mockReturnValueOnce(secondCleanup)
-    };
-    const TestView = View.extend({
-      events: {
-        click() {},
-        focus() {}
-      }
-    });
-    TestView.setEventDelegator(adapter);
-    const view = new TestView({ el: rootEl });
-
-    expect(() => view.undelegateEvents()).to.throw(cleanupError);
-    expect(secondCleanup).toHaveBeenCalledTimes(1);
-    expect(firstCleanup).toHaveBeenCalledTimes(1);
-    expect(view._domEvents).to.have.lengthOf(0);
-
-    view.undelegateEvents();
-
-    expect(firstCleanup).toHaveBeenCalledTimes(1);
-    expect(view._domEvents).to.have.lengthOf(0);
-  });
-
-  it('continues undelegating Behavior events when View cleanup throws', function() {
-    const cleanupError = new Error('cleanup failed');
-    const viewCleanup = vi.fn(() => { throw cleanupError; });
-    const behaviorCleanup = vi.fn();
-    const TestBehavior = Behavior.extend({ events: { click() {} } });
-    TestBehavior.setEventDelegator({ delegate: () => behaviorCleanup });
-    const TestView = View.extend({
-      behaviors: [TestBehavior],
-      events: { click() {} }
-    });
-    TestView.setEventDelegator({ delegate: () => viewCleanup });
-    const view = new TestView({ el: rootEl });
-
-    expect(() => view.undelegateEvents()).to.throw(cleanupError);
-    expect(viewCleanup).toHaveBeenCalledTimes(1);
-    expect(behaviorCleanup).toHaveBeenCalledTimes(1);
-
-    view.destroy();
-  });
-
-  it('finishes View teardown when its DOM cleanup throws', function() {
-    const cleanupError = new Error('cleanup failed');
-    const behaviorCleanup = vi.fn();
-    const TestBehavior = Behavior.extend({ events: { click() {} } });
-    TestBehavior.setEventDelegator({ delegate: () => behaviorCleanup });
-    const TestView = View.extend({
-      behaviors: [TestBehavior],
-      events: { click() {} }
-    });
-    TestView.setEventDelegator({
-      delegate: () => () => { throw cleanupError; }
-    });
-    const view = new TestView({ el: rootEl });
-    const behavior = view._behaviors[0];
-    const stopListening = vi.spyOn(view, 'stopListening');
-
-    expect(() => view.destroy()).to.throw(cleanupError);
-    expect(view.isDestroyed()).to.equal(true);
-    expect(behavior._isDestroyed).to.equal(true);
-    expect(behaviorCleanup).toHaveBeenCalledTimes(1);
-    expect(stopListening).toHaveBeenCalledTimes(1);
-    expect(rootEl.isConnected).to.equal(false);
-  });
-
-  it('finishes Behavior teardown when its DOM cleanup throws', function() {
-    const cleanupError = new Error('cleanup failed');
-    const TestBehavior = Behavior.extend({ events: { click() {} } });
-    TestBehavior.setEventDelegator({
-      delegate: () => () => { throw cleanupError; }
-    });
-    const view = new View({ el: rootEl });
-    const behavior = new TestBehavior({}, view);
-    const destroyState = vi.spyOn(behavior, '_destroyState');
-    const stopListening = vi.spyOn(behavior, 'stopListening');
-    const removeBehavior = vi.spyOn(view, '_removeBehavior');
-    const deleteEntityEventHandlers = vi.spyOn(behavior, '_deleteEntityEventHandlers');
-
-    expect(() => behavior.destroy()).to.throw(cleanupError);
-    expect(destroyState).toHaveBeenCalledTimes(1);
-    expect(stopListening).toHaveBeenCalledTimes(1);
-    expect(removeBehavior).toHaveBeenCalledWith(behavior);
-    expect(deleteEntityEventHandlers).toHaveBeenCalledTimes(1);
-
-    view.destroy();
-  });
-
-  it('finishes View teardown when Behavior DOM cleanup throws', function() {
-    const cleanupError = new Error('cleanup failed');
-    const TestBehavior = Behavior.extend({ events: { click() {} } });
-    TestBehavior.setEventDelegator({
-      delegate: () => () => { throw cleanupError; }
-    });
-    const TestView = View.extend({ behaviors: [TestBehavior] });
-    const view = new TestView({ el: rootEl });
-    const state = view.getState();
-    const onDestroy = vi.fn();
-    const stopListening = vi.spyOn(view, 'stopListening');
-    view.on('destroy', onDestroy);
-
-    expect(() => view.destroy()).to.throw(cleanupError);
-    expect(view.isDestroyed()).to.equal(true);
-    expect(state).to.deep.equal({});
-    expect(onDestroy).toHaveBeenCalledTimes(1);
-    expect(stopListening).toHaveBeenCalled();
-    expect(rootEl.isConnected).to.equal(false);
   });
 
   it('uses the current adapter for new registrations and the original cleanup for old ones', function() {
@@ -482,43 +247,19 @@ describe('EventDelegator', function() {
     expect(cleanup).toHaveBeenCalledTimes(1);
   });
 
-  it('rejects an adapter that does not return cleanup', function() {
-    const TestView = View.extend({ events: { click() {} } });
-    TestView.setEventDelegator({ delegate() {} });
-
-    expect(() => new TestView({ el: rootEl }))
-      .to.throw('EventDelegator.delegate must return a cleanup function.')
-      .with.property('code', 'MN0036');
-  });
-
-  it('removes handlers without leaks across setElement swaps', function() {
+  it('removes handlers without leaks across repeated delegation', function() {
     const handler = vi.fn();
-
     rootEl.innerHTML = '<button class="foo">first</button>';
-    const otherEl = dom.window.document.createElement('div');
-    otherEl.innerHTML = '<button class="foo">second</button>';
-
-    const view = new View({
-      el: rootEl,
-      events: {
-        'click .foo': handler
-      }
-    });
-
-    view.setElement(otherEl);
+    const view = new View({ el: rootEl, events: { 'click .foo': handler } });
+    view.delegateEvents();
     dispatchClick(rootEl.querySelector('.foo'));
-    dispatchClick(otherEl.querySelector('.foo'));
-
-    view.setElement(rootEl);
-    dispatchClick(otherEl.querySelector('.foo'));
+    view.delegateEvents();
     dispatchClick(rootEl.querySelector('.foo'));
-
     expect(handler).toHaveBeenCalledTimes(2);
-
-    view._undelegateViewEvents();
+    view.undelegateEvents();
     dispatchClick(rootEl.querySelector('.foo'));
-
     expect(handler).toHaveBeenCalledTimes(2);
     expect(view._domEvents).to.have.lengthOf(0);
+    view.destroy();
   });
 });

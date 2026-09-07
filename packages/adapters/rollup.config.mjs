@@ -20,15 +20,8 @@ export default [
     input: 'src/dom/jquery.ts',
     external: ['jquery'],
     output: [
-      {
-        file: 'dist/dom/jquery.js',
-        format: 'es'
-      },
-      {
-        file: 'dist/dom/jquery.cjs',
-        format: 'cjs',
-        exports: 'default'
-      }
+      { file: 'dist/dom/jquery.js', format: 'es' },
+      { file: 'dist/dom/jquery.cjs', format: 'cjs', exports: 'default' }
     ],
     plugins: [compile()]
   },
@@ -48,11 +41,11 @@ export default [
     plugins: [compile()]
   })),
   ...['morphdom', 'lit-html'].map(name => ({
-    input: `src/render/${ name }.ts`,
+    input: `src/dom/${ name }.ts`,
     external: [name],
     output: [
-      { file: `dist/render/${ name }.js`, format: 'es' },
-      { file: `dist/render/${ name }.cjs`, format: 'cjs', exports: 'default' }
+      { file: `dist/dom/${ name }.js`, format: 'es' },
+      { file: `dist/dom/${ name }.cjs`, format: 'cjs', exports: 'default' }
     ],
     plugins: [compile()]
   }))

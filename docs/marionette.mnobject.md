@@ -79,13 +79,9 @@ destruction also return the same MnObject without repeating the lifecycle.
 `Application` has an asynchronous destruction lifecycle; see its
 [reference](./marionette.application.md#application-lifecycle).
 `isDestroyed()` is `false` during `before:destroy` and `true` during `destroy`.
-If a `before:destroy` handler throws, its error propagates without marking the
-instance destroyed. After that failed call ends, a later top-level `destroy()`
-call restarts `before:destroy` from the beginning. Side effects from callbacks
-that completed before the error remain, so make `before:destroy` callbacks safe
-to run again. Once `before:destroy` completes, the instance is marked destroyed
-before the `destroy` lifecycle runs. If a callback throws then, remaining cleanup
-may be interrupted, and later `destroy()` calls do not retry it.
+If a lifecycle handler throws, the error propagates and stops destruction.
+The destruction guard remains set; later `destroy()` calls do not restart
+hooks or resume cleanup.
 
 A custom override that mutates owned state before calling the base `destroy`
 method is outside this guard. See the

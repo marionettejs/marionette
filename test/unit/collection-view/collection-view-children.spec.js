@@ -8,7 +8,6 @@ import ChildViewContainer from '../../../src/modules/child-view-container';
 import View from '../../../src/modules/view';
 import Region from '../../../src/modules/region';
 
-
 describe('CollectionView Children', function() {
   const collection = new Backbone.Collection([
     { id: 1 },
@@ -25,6 +24,16 @@ describe('CollectionView Children', function() {
     MyCollectionView = CollectionView.extend({
       childView: MyChildView
     });
+  });
+
+  it('rejects a child class with a non-callable destroy method before construction', function() {
+    const initialize = this.sinon.spy();
+    const InvalidView = View.extend({ destroy: true, initialize });
+    const view = new CollectionView({ collection, childView: InvalidView });
+
+    expect(() => view.render()).to.throw('"childView" must be a view class');
+    expect(initialize).not.to.have.been.called;
+    view.destroy();
   });
 
   describe('when instantiating a CollectionView', function() {
@@ -575,30 +584,6 @@ describe('CollectionView Children', function() {
       expect(myCollectionView.onRemoveChild).to.not.have.been.called;
     });
 
-    it('preserves a detach error while attempting listener cleanup', function() {
-      const detachError = new Error('detach failed');
-      const order = [];
-      const detachView = myCollectionView.children.first();
-      const detachChildView = this.sinon.stub(myCollectionView, '_detachChildView')
-        .callsFake(() => {
-          order.push('detach');
-          throw detachError;
-        });
-      const stopListening = this.sinon.stub(myCollectionView, 'stopListening')
-        .callsFake(() => {
-          order.push('stopListening');
-          throw new Error('stop listening failed');
-        });
-
-      expect(() => myCollectionView.removeChildView(detachView, { shouldDetach: true }))
-        .to.throw(detachError);
-
-      expect(order).to.deep.equal(['detach', 'stopListening']);
-      detachChildView.restore();
-      stopListening.restore();
-      myCollectionView.removeChildView(detachView);
-    });
-
     // Used only by #detachChildView
     describe('when called with shouldDetach', function() {
       let detachView;
@@ -642,7 +627,7 @@ describe('CollectionView Children', function() {
     });
   });
 
-  // The lifecycle is tested with Backbone.View
+  // Child Views provide their own lifecycle.
   describe('childView lifecycle', function() {
     let myCollectionView;
     let childView;
@@ -650,7 +635,8 @@ describe('CollectionView Children', function() {
     beforeEach(function() {
       myCollectionView = new MyCollectionView();
 
-      const ChildView = Backbone.View.extend({
+      const ChildView = View.extend({
+        template: () => '',
         onBeforeRender: this.sinon.stub(),
         onRender: this.sinon.stub(),
         onBeforeAttach: this.sinon.stub(),

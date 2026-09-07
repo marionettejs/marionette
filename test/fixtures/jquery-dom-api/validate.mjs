@@ -13,7 +13,7 @@ const { View } = await import('marionette');
 const JQueryDomApi = (await import('@marionette/adapters/dom/jquery')).default;
 const $ = (await import('jquery')).default;
 
-const JQueryView = View.extend();
+const JQueryView = View.extend({ initialize() { this.$el = $(this.el); } });
 JQueryView.setDomApi(JQueryDomApi);
 
 const el = document.createElement('div');
