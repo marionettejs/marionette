@@ -489,6 +489,46 @@ describe('CollectionView Children', function() {
 
     });
 
+    [false, true].forEach(deferred => {
+      it(`keeps ${deferred ? 'deferred' : 'filtered'} children owned until explicitly detached`, function() {
+        const owner = new CollectionView({ viewFilter: () => false }).render();
+        const region = new Region({ el: document.createElement('div') });
+        const child = new View({ template: _.noop });
+        owner.addChildView(child, { preventRender: deferred });
+
+        expect(() => myCollectionView.addChildView(child)).to.throw()
+          .with.property('code', 'MN0003');
+        expect(() => owner.addChildView(child)).to.throw()
+          .with.property('code', 'MN0003');
+        expect(() => region.show(child)).to.throw()
+          .with.property('code', 'MN0003');
+        expect(owner._children.hasView(child)).to.be.true;
+        expect(myCollectionView._children.hasView(child)).to.be.false;
+        expect(region.hasView()).to.be.false;
+
+        owner.detachChildView(child);
+        region.show(child);
+        owner.destroy();
+        expect(child.isDestroyed()).to.be.false;
+        region.detachView();
+        myCollectionView.addChildView(child);
+        expect(myCollectionView.children.hasView(child)).to.be.true;
+        region.destroy();
+        myCollectionView.destroy();
+      });
+
+      it(`destroys and releases an owned ${deferred ? 'deferred' : 'filtered'} child`, function() {
+        const owner = new CollectionView({ viewFilter: () => false }).render();
+        const child = new View({ template: _.noop });
+        owner.addChildView(child, { preventRender: deferred });
+
+        owner.destroy();
+
+        expect(child.isDestroyed()).to.be.true;
+        expect(child).not.to.have.property('_parent');
+      });
+    });
+
     describe('when adding detached view', function() {
       let anotherCollectionView;
       let region;

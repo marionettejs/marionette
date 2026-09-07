@@ -15,6 +15,7 @@ export interface ViewLifecycle {
   _isDestroying?: boolean;
   _isAttached?: boolean;
   _isShown?: boolean;
+  _parent?: object;
   _disableDetachEvents?: boolean;
   monitorViewEvents?: boolean;
   _areViewEventsMonitored?: boolean;

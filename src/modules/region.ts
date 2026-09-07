@@ -178,11 +178,11 @@ Object.assign(Region.prototype, CommonMixin, {
 
     if (view === this.currentView) { return this; }
 
-    if (view._isShown) {
+    if (view._parent) {
       throw new MarionetteError({
         code: 'MN0003',
         name: classErrorName,
-        message: 'View is already shown in a Region or CollectionView',
+        message: 'View is already managed by a Region or CollectionView',
         url: 'marionette.region.html#showing-a-view'
       });
     }
@@ -253,6 +253,7 @@ Object.assign(Region.prototype, CommonMixin, {
   },
 
   _setupChildView(this: RegionInternals, view: SupportedView) {
+    view._parent = this;
     this._proxyChildViewEvents(view);
 
     // We need to listen for if a view is destroyed in a way other than through the region.
@@ -414,6 +415,7 @@ Object.assign(Region.prototype, CommonMixin, {
       this._stopChildViewEvents(view);
     }
 
+    delete view._parent;
     this.triggerMethod('empty', this, view);
   },
 
