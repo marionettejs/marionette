@@ -1,0 +1,30 @@
+test/unit/application.spec.js
+  s_060efbb5bf6218::t_e71a83945a4d3f 9-34,102-104,134
+  s_060efbb5bf6218::t_eb38c69874c8ed 35-52
+test/types/application.mts
+  s_060efbb5bf6218::t_26f49a99114803 7,82,89-96
+test/types/application.cts
+  s_060efbb5bf6218::t_2483ac523a491b 7,82,89-96
+docs/marionette.application.md
+  s_060efbb5bf6218::t_8972d8b5cdb036 41-64
+test/unit/object-application-composition.spec.js
+  s_060efbb5bf6218::t_d46ae202648de4 37
+src/modules/application.ts
+  s_060efbb5bf6218::t_a8b6108791295a 52,169,533-534
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "661af7144b17218234ec264415b4d0700578a60a",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": null
+    }
+  }
+}
