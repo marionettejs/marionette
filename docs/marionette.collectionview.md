@@ -860,6 +860,9 @@ and sorting and may be difficult to manage in complex situations. Use with care.
 `CollectionView` throws [`MN0003`](/errors/MN0003/). Detach the View from its
 current owner before transferring it.
 
+Filtering a child out or adding it with `preventRender` still leaves it managed
+by that CollectionView. Use `detachChildView()` to transfer it to another owner.
+
 #### `preventRender` option
 
 If you wish to add a child view to the children without the collectionview rendering

@@ -474,7 +474,8 @@ For more information on `showChildView` and `getChildView`, see the
 
 **Errors**
 - An error will be thrown if the value is not a Marionette View or is destroyed.
-- An error will be thrown if the view is already shown in a Region or CollectionView.
+- An error will be thrown if the view is already managed by a Region or CollectionView,
+  including a filtered or deferred CollectionView child. Detach it from that owner first.
 
 ### Checking whether a region is showing a view
 
