@@ -1,0 +1,68 @@
+test/fixtures/esm-node/validate.mjs
+  s_060efbb5bf6218::t_3fd971931f99c1 26-27,29
+packages/radio/src/radio.ts
+  s_060efbb5bf6218::t_8660fd16f6429d 55-58
+  s_060efbb5bf6218::t_db6dbdfd8739fe 127,131,141-143,145,194-199
+  s_060efbb5bf6218::t_0f3c3cf6046204 200-201
+  s_060efbb5bf6218::t_04721b4452bce8 1,44-46,60,66,70,116
+packages/radio/src/requests.ts
+  s_060efbb5bf6218::t_db6dbdfd8739fe 116
+  s_060efbb5bf6218::t_9fb70adc585c18 117
+  s_060efbb5bf6218::t_2a79c602906802 24,184,186,213-214
+test/dist/validate.mjs
+  s_060efbb5bf6218::t_3fd971931f99c1 33
+  s_060efbb5bf6218::t_1e6386fecd41d8 30-31
+packages/radio/src/debug.ts
+  s_060efbb5bf6218::t_9bd538881ad281 23-24
+  s_060efbb5bf6218::t_0eb35b56f907ca 22
+  s_060efbb5bf6218::t_a46cdb338a6941 25
+  s_060efbb5bf6218::t_f44b6ddebc33a6 3,10-11,15-17,19,27,31-34
+test/unit/radio.spec.js
+  s_060efbb5bf6218::t_8660fd16f6429d 266
+  s_060efbb5bf6218::t_8b9e1e5c7a3264 1,267
+docs/radio.md
+  s_060efbb5bf6218::t_8660fd16f6429d 43-50,136-141,144-155,258-259
+  s_060efbb5bf6218::t_3fd971931f99c1 142-143
+test/fixtures/standalone-packages/validate.mjs
+  s_060efbb5bf6218::t_8660fd16f6429d 9,13-35
+test/unit/radio-composition.spec.js
+  s_060efbb5bf6218::t_8660fd16f6429d 81
+  s_060efbb5bf6218::t_e41257c7daf250 1,30,38-41,117
+docs/migration-from-v4.md
+  s_060efbb5bf6218::t_20670332c949ef 48,51
+  s_060efbb5bf6218::t_8660fd16f6429d 49-50
+upgradeGuide.md
+  s_060efbb5bf6218::t_8660fd16f6429d 335-343
+test/fixtures/standalone-packages/consumer.cts
+  s_060efbb5bf6218::t_8660fd16f6429d 2,17-37
+test/fixtures/standalone-packages/consumer.mts
+  s_060efbb5bf6218::t_8660fd16f6429d 2,17-37
+packages/radio/readme.md
+  s_060efbb5bf6218::t_8660fd16f6429d 29,33-75
+test/fixtures/cjs-node/validate.cjs
+  s_060efbb5bf6218::t_3fd971931f99c1 25-26,28
+packages/radio/src/index.ts
+  s_060efbb5bf6218::t_eba31b75e48d5a 1-3
+test/types/radio.cts
+  s_060efbb5bf6218::t_2b412f0ce9a442 95-97
+test/types/radio.mts
+  s_060efbb5bf6218::t_8f1909d49c3486 95-97
+test/unit/radio-public.spec.js
+  s_060efbb5bf6218::t_4bbe11eadab10d 1-129
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "d34383d9f007c0176952dcd2bcfae74dabe0e605",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
