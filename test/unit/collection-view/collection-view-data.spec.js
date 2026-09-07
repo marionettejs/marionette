@@ -420,7 +420,7 @@ describe('CollectionView Data', function() {
         .to.deep.equal(childViews.map(view => view.el));
     });
 
-    it('keeps the render path when a custom comparator is active', function() {
+    it('leaves survivors mounted when a custom comparator is active', function() {
       myCollectionView.destroy();
 
       myCollectionView = new MyCollectionView({
@@ -440,7 +440,7 @@ describe('CollectionView Data', function() {
 
       collection.remove(collection.at(1));
 
-      expect(myCollectionView.attachHtml).to.have.been.calledOnce;
+      expect(myCollectionView.attachHtml).to.not.have.been.called;
       expect(beforeRenderChildren).to.have.been.calledOnce;
       expect(renderChildren).to.have.been.calledOnce;
     });
@@ -469,7 +469,7 @@ describe('CollectionView Data', function() {
       expect([...myCollectionView.container.children]).to.deep.equal(survivorNodes);
     });
 
-    it('keeps the render path when a filter is active', function() {
+    it('leaves survivors mounted when a filter is active', function() {
       myCollectionView.destroy();
 
       myCollectionView = new MyCollectionView({
@@ -483,10 +483,10 @@ describe('CollectionView Data', function() {
 
       collection.remove(collection.at(1));
 
-      expect(myCollectionView.attachHtml).to.have.been.calledOnce;
+      expect(myCollectionView.attachHtml).to.not.have.been.called;
     });
 
-    it('keeps the render path when the comparator query is overridden', function() {
+    it('leaves survivors mounted when the comparator query is overridden', function() {
       myCollectionView.destroy();
 
       const CustomCollectionView = MyCollectionView.extend({
@@ -499,10 +499,10 @@ describe('CollectionView Data', function() {
 
       collection.remove(collection.at(1));
 
-      expect(myCollectionView.attachHtml).to.have.been.calledOnce;
+      expect(myCollectionView.attachHtml).to.not.have.been.called;
     });
 
-    it('keeps the render path when the filter query is overridden', function() {
+    it('leaves survivors mounted when the filter query is overridden', function() {
       myCollectionView.destroy();
 
       const CustomCollectionView = MyCollectionView.extend({
@@ -515,7 +515,7 @@ describe('CollectionView Data', function() {
 
       collection.remove(collection.at(1));
 
-      expect(myCollectionView.attachHtml).to.have.been.calledOnce;
+      expect(myCollectionView.attachHtml).to.not.have.been.called;
     });
 
     it('keeps the render path when sort is overridden', function() {

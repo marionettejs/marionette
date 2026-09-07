@@ -23,7 +23,7 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
       Object.assign(Backbone.Model.prototype, Marionette.Events);
       Object.assign(Backbone.Collection.prototype, Marionette.Events);
       // Install only the operations this DOM regression exercises. The complete
-      // Backbone adapter contract and rollback behavior have focused unit coverage.
+      // Backbone adapter observation contract have focused unit coverage.
       Marionette.setDataApi({
         key: model => model.cid,
         serialize: model => model.attributes,
@@ -74,7 +74,12 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
 
       return [
         { name: 'unsorted', viewOptions: { viewComparator: false } },
-        { name: 'default collection order', viewOptions: {} }
+        { name: 'default collection order', viewOptions: {} },
+        { name: 'custom comparator', viewOptions: { viewComparator: child => child.model.id } },
+        { name: 'active filter', viewOptions: { viewFilter: () => true } },
+        { name: 'sort override', viewOptions: {
+          sort() { return Marionette.CollectionView.prototype.sort.call(this); }
+        } }
       ].map(({ name, viewOptions }) => {
         let attachCount = 0;
         const TestCollectionView = Marionette.CollectionView.extend({
@@ -119,6 +124,8 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
         };
 
         attachCount = 0;
+        collectionView.sort();
+        collectionView.filter();
         collection.remove(removedView.model);
 
         const outcome = {
@@ -154,6 +161,9 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
         };
 
         const nodes = [...collectionView.el.children];
+        if (viewOptions.viewComparator) {
+          collectionView.viewComparator = child => -child.model.id;
+        }
         collection.models.reverse();
         collection.trigger('sort', collection);
         Object.assign(outcome, {
@@ -174,6 +184,23 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
           reorderRenderCount: focusedView.renderCount,
           reorderNodesReversed: [...collectionView.el.children]
             .every((element, index) => element === nodes[nodes.length - index - 1])
+        });
+
+        const beforeSwap = [...collectionView.el.children];
+        const otherView = collectionView.children.first();
+        const focusedIndex = beforeSwap.indexOf(focusedView.el);
+        const connectedBeforeSwap = focusedView.el.connectedCount;
+        collectionView.swapChildViews(focusedView, otherView);
+        [beforeSwap[0], beforeSwap[focusedIndex]] = [beforeSwap[focusedIndex], beforeSwap[0]];
+        Object.assign(outcome, {
+          swapOrderCorrect: [...collectionView.el.children]
+            .every((element, index) => element === beforeSwap[index]),
+          swapFocused: document.activeElement === focusedInput,
+          swapSelectionStart: focusedInput.selectionStart,
+          swapSelectionEnd: focusedInput.selectionEnd,
+          swapRenderCount: focusedView.renderCount,
+          swapConnectedCount: focusedView.el.connectedCount,
+          expectedSwapConnectedCount: connectedBeforeSwap
         });
 
         collectionView.destroy();
@@ -227,7 +254,17 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
         assert.equal(result.reorderNodesReversed, true, `${scenario}: reorder moves existing nodes`);
       }
 
-      console.log(`${scenario}: removal-only survivor state passed`);
+      assert.equal(result.swapOrderCorrect, true, `${scenario}: swap leaves intervening children in order`);
+      assert.equal(result.swapRenderCount, 1, `${scenario}: swap does not rerender children`);
+      if (result.nativeStatePreservingMove) {
+        assert.equal(result.swapFocused, true, `${scenario}: native swap preserves focus`);
+        assert.equal(result.swapSelectionStart, 2, `${scenario}: native swap preserves selection start`);
+        assert.equal(result.swapSelectionEnd, 8, `${scenario}: native swap preserves selection end`);
+        assert.equal(result.swapConnectedCount, result.expectedSwapConnectedCount,
+          `${scenario}: native swap does not reconnect the child`);
+      }
+
+      console.log(`${scenario}: removal, reorder, and swap state passed`);
     }
   } catch (error) {
     failures.push(new Error(`${browserName}: ${error.message}`, { cause: error }));

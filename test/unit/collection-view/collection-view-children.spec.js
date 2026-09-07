@@ -126,13 +126,44 @@ describe('CollectionView Children', function() {
           .and.calledWith(view1, view2);
       });
 
-      it('should swap the els in the DOM', function() {
-        this.sinon.spy(collectionView.Dom, 'swapEl');
+      it('should exchange the elements with two moves and leave intervening children in place', function() {
+        const elements = [...collectionView.el.children];
+        const move = this.sinon.spy(collectionView.Dom, 'moveEl');
 
         collectionView.swapChildViews(view1, view2);
 
-        expect(collectionView.Dom.swapEl).to.have.been.calledOnce
-          .and.calledWith(view1.el, view2.el);
+        expect(move).to.have.been.calledTwice;
+        expect([...collectionView.el.children]).to.deep.equal([
+          elements.at(-1), ...elements.slice(1, -1), elements[0]
+        ]);
+      });
+
+      it('should swap adjacent children in either direction with one move', function() {
+        const first = collectionView.children.first();
+        const second = collectionView.children.findByIndex(1);
+        const elements = [...collectionView.el.children];
+        const move = this.sinon.spy(collectionView.Dom, 'moveEl');
+
+        collectionView.swapChildViews(first, second);
+        expect(move).to.have.been.calledOnce;
+        expect([...collectionView.el.children]).to.deep.equal([
+          elements[1], elements[0], ...elements.slice(2)
+        ]);
+
+        move.resetHistory();
+        collectionView.swapChildViews(first, second);
+        expect(move).to.have.been.calledOnce;
+        expect([...collectionView.el.children]).to.deep.equal(elements);
+      });
+
+      it('should leave a child swapped with itself in place', function() {
+        const elements = [...collectionView.el.children];
+        const move = this.sinon.spy(collectionView.Dom, 'moveEl');
+
+        collectionView.swapChildViews(view1, view1);
+
+        expect(move).not.to.have.been.called;
+        expect([...collectionView.el.children]).to.deep.equal(elements);
       });
 
       it('should return the collectionView', function() {
@@ -213,6 +244,18 @@ describe('CollectionView Children', function() {
       this.sinon.spy(myCollectionView, 'sort');
     });
 
+    [null, { preventRender: false }, {}].forEach(indexOrOptions => {
+      it(`sorts a manual addition without a numeric index: ${JSON.stringify(indexOrOptions)}`, function() {
+        myCollectionView.viewComparator = child => child.model?.id ?? 0;
+
+        myCollectionView.addChildView(addView, indexOrOptions);
+
+        expect(myCollectionView.sort).to.have.been.calledOnce;
+        expect(myCollectionView.children.first()).to.equal(addView);
+        expect(myCollectionView.el.firstChild).to.equal(addView.el);
+      });
+    });
+
     describe('when called with preventRender option', function() {
 
       beforeEach(function() {
@@ -276,7 +319,7 @@ describe('CollectionView Children', function() {
         myCollectionView.addChildView(addView2);
       });
 
-      it('should not use the _addedViews perf', function() {
+      it('should report all visible children', function() {
         expect(myCollectionView.onRenderChildren.args[0][1]).to.have.lengthOf(myCollectionView.children.length);
       });
 
@@ -303,7 +346,6 @@ describe('CollectionView Children', function() {
     describe('when called without an index', function() {
       beforeEach(function() {
 
-        // Needed to test _addedViews perf
         myCollectionView.viewComparator = false;
         myCollectionView.addChildView(addView);
       });
@@ -327,8 +369,8 @@ describe('CollectionView Children', function() {
           .to.be.calledOnce.and.calledWith(myCollectionView);
       });
 
-      it('should use the _addedViews perf', function() {
-        expect(myCollectionView.onRenderChildren.args[0][1]).to.have.lengthOf(1);
+      it('should report all visible children', function() {
+        expect(myCollectionView.onRenderChildren.args[0][1]).to.have.lengthOf(myCollectionView.children.length);
       });
 
       it('should trigger "add:child"', function() {
@@ -368,7 +410,7 @@ describe('CollectionView Children', function() {
           .to.be.calledOnce.and.calledWith(myCollectionView);
       });
 
-      it('should not use _addedViews perf', function() {
+      it('should report all visible children', function() {
         expect(myCollectionView.onRenderChildren.args[0][1]).to.have.lengthOf(myCollectionView.children.length);
       });
 

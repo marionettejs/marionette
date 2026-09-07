@@ -137,6 +137,30 @@ parent.showChildView('content', new View({
   throws. Schedule structural mutations requested by collection or child
   lifecycle listeners after the current notification has returned.
 
+## CollectionView child rendering
+
+Collection changes, `sort()`, and `filter()` share the child-rendering path.
+Existing visible children stay mounted, including with a custom comparator or
+filter. `attachHtml` receives only elements that need attaching; it is no longer
+called just to reorder mounted children. Reordering uses `Dom.moveEl`.
+`Dom.swapEl` is removed; `swapChildViews()` exchanges the children using at most
+two `Dom.moveEl` calls. Custom DomApi implementations only need `moveEl` for
+these placement operations. The child-render pass restores focus and text
+selection if a DOM move loses them; a direct swap only preserves them when the
+browser supports state-preserving moves.
+
+Only a numeric `addChildView` index bypasses sorting and filtering. Passing
+`null` or options without an index now follows the same comparator/filter path
+as omitting the index.
+
+`before:render:children` and `render:children` receive all visible children,
+regardless of which templates needed rendering. Do not treat that argument as
+an added-children or updated-children list.
+
+Overrides of `sort()` and `filter()` own their behavior. Call the parent method
+when you want its sorting, filtering, and rendering steps. The early v5 fallback
+that forced a render after an override has been removed.
+
 ## CollectionView source order and presentation sorting
 
 - A normalized DataApi `reorder` or `update` keeps keyed children aligned with

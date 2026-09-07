@@ -227,17 +227,22 @@ one model into the `children`.
 When a model is removed from the `collection` (or destroyed / deleted), the `CollectionView`
 will destroy and remove that model's child view.
 
-For an already-rendered `CollectionView` with no active `viewFilter` and no custom
-`viewComparator`, a removal-only collection update leaves every surviving child
-mounted in place. This includes the default collection-order comparator and ordering
-disabled with `viewComparator: false` or `sortWithCollection: false`. The removed
-child still runs its normal removal and destroy lifecycle, but the survivors are not
-moved, rerendered, or included in sort or `render:children` lifecycles. Updates that
-add or merge models, use a custom comparator or filter, reveal an empty view, or need
-to reconcile deferred children continue through the normal sort, filter, and render
-path. A CollectionView that overrides `sort`, `filter`, `getComparator`, or
-`getFilter` also retains the normal path so custom update behavior and query timing
-remain intact.
+Collection updates, `sort()`, and `filter()` use the same child-rendering path.
+Surviving visible children keep their elements mounted, including when a
+`viewFilter` or custom `viewComparator` is active. New or newly visible children
+are attached through `attachHtml`; existing elements move only when their order
+needs to change. Removal alone does not move or rerender surviving children. See
+[DOM movement](dom.api.md#moveelel-parent-before) for focus and text-selection
+preservation and the browser fallback behavior.
+
+The `before:render:children` and `render:children` events receive all visible
+children. This describes the render pass, not a list of children whose templates
+were rerendered. Already-rendered children reuse their contents unless the data
+adapter reports them as updated.
+
+Overriding `sort()` or `filter()` replaces that part of the flow. Call the parent
+method to retain its behavior; CollectionView does not force a render after an
+override that deliberately skips it.
 
 When the `collection` for the view is sorted, the view by default reconciles its child
 views to the collection's source order unless the `sortWithCollection` attribute on the

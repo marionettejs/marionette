@@ -187,10 +187,6 @@ type CollectionViewInternals = CollectionViewInstance & ViewMixinHost & {
   _collectionSnapshot: Snapshot;
   _collectionObservedSnapshot?: Snapshot;
   _collectionChangeQueue?: Notification[];
-  _addedViews?: CollectionChild[] | false;
-  _reconcileRenderViews?: CollectionChild[];
-  _reconcileFallback?: boolean;
-  _hasUnrenderedViews?: boolean;
   _initChildViewStorage(): void;
   _initialEvents(): void;
   _onCollectionChange(change: unknown): void;
@@ -198,8 +194,6 @@ type CollectionViewInternals = CollectionViewInstance & ViewMixinHost & {
   _onCollectionReset(snapshot: Snapshot): void;
   _onCollectionUpdate(changes: Update, snapshot: Snapshot): void;
   _setChildrenFromSnapshot(snapshot: Snapshot): void;
-  _reconcileChildren(views: CollectionChild[], added?: CollectionChild[] | false): void;
-  _renderReconciledChildren(views: CollectionChild[]): void;
   _removeChild(view: CollectionChild): void;
   _addChildModels(models: unknown[]): CollectionChild[];
   _addChildModel(model: unknown): CollectionChild;
@@ -482,7 +476,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     }
 
     this._setChildrenFromSnapshot(snapshot);
-    this._reconcileChildren([]);
+    this.sort();
   },
 
   _onCollectionReset(this: CollectionViewInternals, snapshot: Snapshot) {
@@ -510,8 +504,6 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       .filter(({ current, previous }) => current !== previous)
       .map(({ current }) => this._createChildView(current));
     const removedViews: CollectionChild[] = [];
-    const addedViews: CollectionChild[] = [];
-    const replacedViews: CollectionChild[] = [];
     const updatedViews: CollectionChild[] = [];
     let replacementIndex = 0;
 
@@ -526,7 +518,6 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     for (const { model } of changes.added) {
       const view = this._createChildView(model);
       this._addChild(view);
-      addedViews.push(view);
     }
 
     for (const { current, previous, view } of updateEntries) {
@@ -536,7 +527,6 @@ Object.assign(CollectionView.prototype, ViewMixin, {
         removedViews.push(view);
         const replacementView = replacementViews[replacementIndex++];
         this._addChild(replacementView, childIndex);
-        replacedViews.push(replacementView);
       } else {
         updatedViews.push(view);
       }
@@ -546,10 +536,8 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     if (this.sortWithCollection) {
       this._setChildrenFromSnapshot(snapshot);
     }
-    this._reconcileChildren(
-      [...addedViews, ...replacedViews, ...updatedViews],
-      updatedViews.length || replacedViews.length || !addedViews.length ? false : addedViews
-    );
+    for (const view of updatedViews) { view._isRendered = false; }
+    this.sort();
 
     // Destroy removed child views after all of the render is complete
     this._removeChildViews(removedViews);
@@ -563,97 +551,6 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     const manualViews = this._children._views.filter(view => !sourceViewSet.has(view));
     const views = sourceViews.concat(manualViews);
     this._children._set(views);
-  },
-
-  _reconcileChildren(this: CollectionViewInternals, renderViews: CollectionChild[], addedViews: CollectionChild[] | false = false) {
-    const canReconcile = this.sort === CollectionView.prototype.sort &&
-      this.filter === CollectionView.prototype.filter &&
-      this.getComparator === CollectionView.prototype.getComparator &&
-      this.getFilter === CollectionView.prototype.getFilter &&
-      !this.viewComparator &&
-      !this.viewFilter;
-
-    if (!canReconcile) {
-      for (const view of renderViews) { view._isRendered = false; }
-      this._addedViews = addedViews;
-      this._reconcileFallback = true;
-      this.sort();
-      if (this._reconcileFallback) {
-        delete this._reconcileFallback;
-        this._renderChildren();
-      }
-      return;
-    }
-
-    this._reconcileRenderViews = renderViews;
-    this.sort();
-  },
-
-  _renderReconciledChildren(this: CollectionViewInternals, renderViews: CollectionChild[]) {
-    const renderViewSet = new Set(renderViews);
-    if (this._hasUnrenderedViews) {
-      for (const view of this.children) {
-        if (!view._isRendered && !renderViewSet.has(view)) {
-          renderViews.push(view);
-          renderViewSet.add(view);
-        }
-      }
-      delete this._hasUnrenderedViews;
-    }
-    renderViews = renderViews.filter(view => this.children.hasView(view));
-    this.triggerMethod('before:render:children', this, renderViews);
-    if (this.isEmpty()) {
-      this._showEmptyView();
-    } else {
-      this._destroyEmptyView();
-
-      const views = this.children._views;
-      const documentEl = this.container.ownerDocument;
-      const activeElement = documentEl.activeElement as HTMLInputElement | null;
-      const shouldRestoreFocus = activeElement && views.some(view =>
-        view.el === activeElement || view.el.contains(activeElement)
-      );
-      const selection = shouldRestoreFocus &&
-        typeof activeElement.selectionStart === 'number' && {
-        end: activeElement.selectionEnd,
-        start: activeElement.selectionStart,
-        direction: activeElement.selectionDirection
-      };
-
-      for (const view of renderViews) {
-        view._isRendered = false;
-        renderView(view);
-      }
-
-      const attaching = views.filter(view => view.el.parentNode !== this.container);
-      if (attaching.length) {
-        this._attachChildren(this._getBuffer(attaching), attaching);
-      }
-
-      if (attaching.every(view => view.el.parentNode === this.container)) {
-        const attachingSet = new Set(attaching);
-        let before = null;
-        for (let index = views.length; index--;) {
-          const view = views[index];
-          if (!attachingSet.has(view) && view.el.nextSibling !== before) {
-            this.Dom.moveEl(view.el, this.container, before);
-          }
-          view._isShown = true;
-          before = view.el;
-        }
-      }
-
-      if (shouldRestoreFocus && activeElement.isConnected &&
-          documentEl.activeElement !== activeElement) {
-        activeElement.focus({ preventScroll: true });
-        if (selection) {
-          activeElement.setSelectionRange(selection.start, selection.end,
-            selection.direction as NonNullable<HTMLInputElement['selectionDirection']> | undefined);
-        }
-      }
-    }
-
-    this.triggerMethod('render:children', this, renderViews);
   },
 
   _removeChild(this: CollectionViewInternals, view: CollectionChild) {
@@ -820,9 +717,6 @@ Object.assign(CollectionView.prototype, ViewMixin, {
 
     if (!viewComparator) { return; }
 
-    // If children are sorted prevent added to end perf
-    delete this._addedViews;
-
     this.triggerMethod('before:sort', this);
 
     if (viewComparator === defaultViewComparator && this._children.length) {
@@ -901,9 +795,6 @@ Object.assign(CollectionView.prototype, ViewMixin, {
 
       return;
     }
-
-    // If children are filtered prevent added to end perf
-    delete this._addedViews;
 
     this.triggerMethod('before:filter', this);
 
@@ -998,49 +889,69 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     this.Dom.detachEl(view.el);
   },
 
+  // Render visible children, attach new elements, and keep survivors in place.
   _renderChildren(this: CollectionViewInternals) {
-    delete this._reconcileFallback;
-
-    if (this._reconcileRenderViews) {
-      const renderViews = this._reconcileRenderViews;
-      delete this._reconcileRenderViews;
-      this._renderReconciledChildren(renderViews);
-      return;
-    }
-
-    // If there are unrendered views prevent add to end perf
-    if (this._hasUnrenderedViews) {
-      delete this._addedViews;
-      delete this._hasUnrenderedViews;
-    }
-
-    const views = this._addedViews || this.children._views;
-
+    const views = this.children._views;
     this.triggerMethod('before:render:children', this, views);
-
     if (this.isEmpty()) {
       this._showEmptyView();
     } else {
       this._destroyEmptyView();
 
-      const els = this._getBuffer(views);
+      const documentEl = this.container.ownerDocument;
+      const activeElement = documentEl.activeElement as HTMLInputElement | null;
+      const shouldRestoreFocus = activeElement && views.some(view =>
+        view.el === activeElement || view.el.contains(activeElement)
+      );
+      const selection = shouldRestoreFocus &&
+        typeof activeElement.selectionStart === 'number' && {
+        end: activeElement.selectionEnd,
+        start: activeElement.selectionStart,
+        direction: activeElement.selectionDirection
+      };
 
-      this._attachChildren(els, views);
+      for (const view of views) { renderView(view); }
+
+      const attaching = views.filter(view => !view._isShown || view.el.parentNode !== this.container);
+      if (attaching.length) {
+        this._attachChildren(this._getBuffer(attaching), attaching);
+      }
+
+      // A buffer containing every child is already in order. Custom attachHtml
+      // implementations that use another parent manage their own placement.
+      if (attaching.length !== views.length &&
+          attaching.every(view => view.el.parentNode === this.container)) {
+        const childEls = new Set<Node>(views.map(view => view.el));
+        let next = this.container.firstChild;
+        for (const view of views) {
+          while (next && !childEls.has(next)) { next = next.nextSibling; }
+          if (view.el !== next) {
+            this.Dom.moveEl(view.el, this.container, next);
+          }
+          next = view.el.nextSibling;
+        }
+      }
+
+      if (shouldRestoreFocus && activeElement.isConnected &&
+          documentEl.activeElement !== activeElement) {
+        activeElement.focus({ preventScroll: true });
+        if (selection) {
+          activeElement.setSelectionRange(selection.start, selection.end,
+            selection.direction as NonNullable<HTMLInputElement['selectionDirection']> | undefined);
+        }
+      }
     }
-
-    delete this._addedViews;
 
     this.triggerMethod('render:children', this, views);
   },
 
-  // Renders each view and creates a fragment buffer from them
+  // Creates a fragment buffer from the children being attached
   _getBuffer(this: CollectionViewInternals, views: CollectionChild[]) {
     const elBuffer = this.Dom.createBuffer();
 
     const length = views.length;
     for (let index = 0; index < length; index++) {
       const view = views[index];
-      renderView(view);
       // corresponds that view is shown in a Region or CollectionView
       view._isShown = true;
       this.Dom.appendContents(elBuffer, view.el);
@@ -1138,7 +1049,17 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     }
 
     this._children._swap(view1, view2);
-    this.Dom.swapEl(view1.el, view2.el);
+
+    const el1 = view1.el;
+    const el2 = view2.el;
+    const parent1 = el1.parentNode as Element | DocumentFragment | null;
+    const parent2 = el2.parentNode as Element | DocumentFragment | null;
+    if (el1 !== el2 && parent1 && parent2) {
+      const next1 = el1.nextSibling;
+      const next2 = el2.nextSibling;
+      if (el2 !== next1) { this.Dom.moveEl(el2, parent1, next1); }
+      if (el1 !== next2) { this.Dom.moveEl(el1, parent2, next2); }
+    }
 
     // If the views are not filtered the same, refilter
     if (this.children.hasView(view1) !== this.children.hasView(view2)) {
@@ -1186,19 +1107,10 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     this._addChild(view, index as number | null | undefined);
 
     if (options.preventRender) {
-      this._hasUnrenderedViews = true;
       return view;
     }
 
-    const hasIndex = (typeof index !== 'undefined');
-    const isAddedToEnd = !hasIndex || (index as number) >= this._children.length;
-
-    // Only cache views if added to the end and there is no unrendered views
-    if (isAddedToEnd && !this._hasUnrenderedViews) {
-      this._addedViews = [view];
-    }
-
-    if (hasIndex) {
+    if (typeof index === 'number') {
       this._renderChildren();
     } else {
       this.sort();
@@ -1258,7 +1170,6 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     const emptyRegion = this.getEmptyRegion();
     this._destroyChildren();
     emptyRegion.destroy();
-    delete this._addedViews;
   },
 
   // Destroy the child views that this collection view is holding on to, if any
