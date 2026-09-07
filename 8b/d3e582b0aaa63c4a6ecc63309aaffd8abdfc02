@@ -1,0 +1,240 @@
+test/fixtures/dom-adapters-package/validate.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 14
+test/release/promotion.test.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 54,92,118,156,164,188
+test/types/events.mts
+  s_060efbb5bf6218::t_70beb2f81f862d 1-5
+scripts/performance/bundle-size.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 382,393
+packages/utils/readme.md
+  s_060efbb5bf6218::t_70beb2f81f862d 38-43,68-70
+src/mixins/view.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 21
+.github/workflows/release.yml
+  s_060efbb5bf6218::t_70beb2f81f862d 19,88,153-154,161,229,281-289,424-431
+  s_060efbb5bf6218::t_f01bef8262e363 432
+test/browser/dom-adapters.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 21
+benchmarks/consumer-bundles/v1/manifest.json
+  s_060efbb5bf6218::t_70beb2f81f862d 8-9,73,128,149,175
+packages/utils/src/events.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 1-7,39-438
+test/types/events.cts
+  s_060efbb5bf6218::t_70beb2f81f862d 1-5
+test/unit/utils/unique-id.spec.js
+  s_060efbb5bf6218::t_70beb2f81f862d 8
+src/modules/behavior.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 9,19
+test/unit/mixins/common.spec.js
+  s_060efbb5bf6218::t_70beb2f81f862d 3
+packages/radio/rollup.config.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 1-18
+packages/utils/src/once-wrap.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 1-28
+test/types/lifecycle-mixins.cts
+  s_060efbb5bf6218::t_70beb2f81f862d 4
+test/unit/common/bind-request.spec.js
+  s_060efbb5bf6218::t_70beb2f81f862d 2
+test/unit/utils/build-event-args.spec.js
+  s_060efbb5bf6218::t_70beb2f81f862d 1
+test/fixtures/standalone-packages/package.json
+  s_060efbb5bf6218::t_70beb2f81f862d 1-11
+packages/radio/package.json
+  s_060efbb5bf6218::t_70beb2f81f862d 1-54
+packages/data/readme.md
+  s_060efbb5bf6218::t_70beb2f81f862d 4-7
+packages/radio/src/index.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 1-3
+src/mixins/destroy.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 1
+src/mixins/radio.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 1,3-4
+test/types/helpers.mts
+  s_060efbb5bf6218::t_70beb2f81f862d 1
+test/types/trigger-method.mts
+  s_060efbb5bf6218::t_70beb2f81f862d 1
+test/unit/collection-view/collection-view.spec.js
+  s_060efbb5bf6218::t_70beb2f81f862d 8
+src/modules/view.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 4,22
+test/unit/jquery-dom-api.spec.js
+  s_060efbb5bf6218::t_70beb2f81f862d 27
+test/unit/owned-cleanup.spec.js
+  s_060efbb5bf6218::t_70beb2f81f862d 3-4
+config/performance.json
+  s_060efbb5bf6218::t_70beb2f81f862d 134-143,256-260
+  s_060efbb5bf6218::t_766437747484c2 261-262
+packages/utils/src/unique-id.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 1-6
+src/modules/collection-view.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 4
+test/fixtures/standalone-packages/consumer.cts
+  s_060efbb5bf6218::t_70beb2f81f862d 1-16
+upgradeGuide.md
+  s_060efbb5bf6218::t_70beb2f81f862d 417-418,430-440
+packages/utils/src/call-handler.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 1-20
+package.json
+  s_060efbb5bf6218::t_70beb2f81f862d 54,90-91,118,142-143,146
+test/dist/validate.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 125,128,130-131,134-146
+test/fixtures/standalone-packages/validate.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 1-34
+vitest.config.js
+  s_060efbb5bf6218::t_70beb2f81f862d 7-9,29-30
+tsconfig.json
+  s_060efbb5bf6218::t_70beb2f81f862d 21-23
+test/types/collection-view.cts
+  s_060efbb5bf6218::t_70beb2f81f862d 3
+test/types/radio.cts
+  s_060efbb5bf6218::t_70beb2f81f862d 1-2
+src/mixins/view-events.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 5
+test/unit/radio-composition.spec.js
+  s_060efbb5bf6218::t_70beb2f81f862d 1-4,114
+benchmarks/consumer-bundles/contract.json
+  s_060efbb5bf6218::t_70beb2f81f862d 7
+src/modules/object.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 6,25-26,28
+test/types/collection-view.mts
+  s_060efbb5bf6218::t_70beb2f81f862d 3
+rollup.config.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 6-7,9-10,30,67
+src/modules/application.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 4,19
+test/types/helpers.cts
+  s_060efbb5bf6218::t_70beb2f81f862d 1
+test/unit/application-lifecycle.spec.js
+  s_060efbb5bf6218::t_70beb2f81f862d 4
+packages/data/tsconfig.declarations.json
+  s_060efbb5bf6218::t_70beb2f81f862d 11-12
+test/source/validate.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 107
+test/types/bindings.mts
+  s_060efbb5bf6218::t_70beb2f81f862d 3-4
+src/runtime/data-api.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 4
+test/unit/utils/call-handler.spec.js
+  s_060efbb5bf6218::t_70beb2f81f862d 1
+scripts/release/publish-github.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 66,71
+packages/utils/src/build-event-args.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 1-49
+scripts/release/build-artifact.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 97,127,130-131
+  s_060efbb5bf6218::t_03e782bf219db3 132
+src/modules/common/view.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 2
+tsconfig.declarations.json
+  s_060efbb5bf6218::t_70beb2f81f862d 13-15
+test/browser/adapters-package.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 20,22,41-42,52,67
+src/mixins/common.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 11-12
+scripts/diagnostics/catalog.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 35
+scripts/performance/data-package-size.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 43
+test/types/radio.mts
+  s_060efbb5bf6218::t_70beb2f81f862d 1-2
+packages/radio/license.txt
+  s_060efbb5bf6218::t_70beb2f81f862d 1-21
+packages/data/src/model.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 1
+test/types/bindings.cts
+  s_060efbb5bf6218::t_70beb2f81f862d 3-4
+test/fixtures/run.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 2,71-72,163-185,200,211,216,220
+src/create-marionette.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 1,11
+docs/release-promotion.md
+  s_060efbb5bf6218::t_70beb2f81f862d 3-4,20,25
+packages/utils/src/index.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 16-22
+src/index.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 60-61,63
+packages/radio/src/requests.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 1-210
+scripts/release/verify-artifact.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 86-87,90,95
+test/types/trigger-method.cts
+  s_060efbb5bf6218::t_70beb2f81f862d 1
+test/unit/mixins/radio.spec.js
+  s_060efbb5bf6218::t_70beb2f81f862d 2-3
+test/fixtures/standalone-packages/consumer.mts
+  s_060efbb5bf6218::t_70beb2f81f862d 1-16
+test/types/requests.mts
+  s_060efbb5bf6218::t_70beb2f81f862d 1-2
+test/unit/collection-view/collection-view-empty.spec.js
+  s_060efbb5bf6218::t_70beb2f81f862d 8
+src/utils/subscribe-bindings.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 1-2
+packages/radio/readme.md
+  s_060efbb5bf6218::t_70beb2f81f862d 1-32
+test/fixtures/standalone-packages/tsconfig.json
+  s_060efbb5bf6218::t_70beb2f81f862d 1-11
+test/types/lifecycle-mixins.mts
+  s_060efbb5bf6218::t_70beb2f81f862d 4
+test/types/requests.cts
+  s_060efbb5bf6218::t_70beb2f81f862d 1-2
+test/unit/utils/once-wrap.spec.js
+  s_060efbb5bf6218::t_70beb2f81f862d 1
+packages/data/src/collection.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 1
+packages/data/rollup.config.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 5
+test/browser/data-package.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 20,24,45-46,56,64
+test/unit/events-parity.spec.js
+  s_060efbb5bf6218::t_70beb2f81f862d 4
+test/unit/events-iteration.spec.js
+  s_060efbb5bf6218::t_70beb2f81f862d 1
+test/unit/backbone.marionette.spec.js
+  s_060efbb5bf6218::t_70beb2f81f862d 11
+src/modules/region.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 4,14
+packages/radio/src/radio.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 1-188
+test/unit/region.spec.js
+  s_060efbb5bf6218::t_70beb2f81f862d 3
+packages/radio/src/debug.ts
+  s_060efbb5bf6218::t_70beb2f81f862d 1-38
+test/unit/radio.spec.js
+  s_060efbb5bf6218::t_70beb2f81f862d 1-2,267
+test/performance/consumer-bundles.test.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 22,30,38,210,216,219,365
+packages/radio/tsconfig.declarations.json
+  s_060efbb5bf6218::t_70beb2f81f862d 1-19
+test/unit/mixins/events.spec.js
+  s_060efbb5bf6218::t_70beb2f81f862d 2
+test/performance/application-tree-shaking.test.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 26
+test/unit/requests.spec.js
+  s_060efbb5bf6218::t_70beb2f81f862d 1-2
+build/declarations.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 8
+scripts/release/check-targets.mjs
+  s_060efbb5bf6218::t_70beb2f81f862d 56,61
+docs/radio.md
+  s_060efbb5bf6218::t_267a8231fab71f 223-256
+package-lock.json
+  s_060efbb5bf6218::t_f26dfaf0237b06 12-13,16,36,2175-2178,3693-3702,6423-6433
+test/unit/radio-parity.spec.js
+  s_060efbb5bf6218::t_fd8c45dced2b66 1-149
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "8bd3e582b0aaa63c4a6ecc63309aaffd8abdfc02",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
