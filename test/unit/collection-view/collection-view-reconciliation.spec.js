@@ -459,6 +459,127 @@ describe('CollectionView normalized reconciliation', function() {
     view.destroy();
   });
 
+  it('renders each queued notification in its captured source order', function() {
+    const first = { id: 1, name: 'one' };
+    const second = { id: 2, name: 'two' };
+    const replacement = { id: 2, name: 'replacement' };
+    const source = { models: [first] };
+    const orders = [];
+    const ReentrantList = ListView.extend({
+      onAddChild(owner, child) {
+        if (child.model !== second) { return; }
+        source.models = [first, replacement];
+        source.notify({ kind: 'update', added: [], removed: [],
+          updated: [{ previous: second, current: replacement }] });
+      }
+    });
+    const view = new ReentrantList({ collection: source }).render();
+    view.on('render:children', owner => orders.push(owner.children.map(child => child.model)));
+
+    source.models = [first, second];
+    source.notify({ kind: 'update', added: [second], removed: [], updated: [] });
+
+    expect(orders).to.deep.equal([[first, second], [first, replacement]]);
+    expect(view.el.textContent).to.equal('onereplacement');
+    view.destroy();
+  });
+
+  it('fires before:sort before changing children to the new source order', function() {
+    const first = { id: 1, name: 'one' };
+    const second = { id: 2, name: 'two' };
+    const source = { models: [first, second] };
+    const view = new ListView({ collection: source }).render();
+    let before;
+    view.on('before:sort', owner => { before = owner._children.map(child => child.model); });
+
+    source.models = [second, first];
+    source.notify({ kind: 'reorder' });
+
+    expect(before).to.deep.equal([first, second]);
+    expect(view.children.map(child => child.model)).to.deep.equal([second, first]);
+    view.destroy();
+  });
+
+  it('keeps a reorder queued from before:sort separate from the current render', function() {
+    const first = { id: 1, name: 'one' };
+    const second = { id: 2, name: 'two' };
+    const source = { models: [first, second] };
+    const view = new ListView({ collection: source }).render();
+    const orders = [];
+    view.on('render:children', owner => orders.push(owner.children.map(child => child.model)));
+    view.once('before:sort', () => {
+      source.models = [first, second];
+      source.notify({ kind: 'reorder' });
+    });
+
+    source.models = [second, first];
+    source.notify({ kind: 'reorder' });
+
+    expect(orders).to.deep.equal([[second, first], [first, second]]);
+    expect(view.el.textContent).to.equal('onetwo');
+    view.destroy();
+  });
+
+  it('sorts reset children from the reset snapshot when an add hook queues a reorder', function() {
+    const first = { id: 1, name: 'one' };
+    const second = { id: 2, name: 'two' };
+    const source = { models: [] };
+    const orders = [];
+    const ReentrantList = ListView.extend({
+      onAddChild(owner, child) {
+        if (child.model !== second) { return; }
+        source.models = [second, first];
+        source.notify({ kind: 'reorder' });
+      }
+    });
+    const view = new ReentrantList({ collection: source }).render();
+    view.on('render:children', owner => orders.push(owner.children.map(child => child.model)));
+
+    source.models = [first, second];
+    source.notify({ kind: 'reset' });
+
+    expect(orders).to.deep.equal([[first, second], [second, first]]);
+    expect(view.el.textContent).to.equal('twoone');
+    view.destroy();
+  });
+
+  [undefined, false, function(child) { return child.model.rank; }].forEach(viewComparator => {
+    it(`preserves manual children and source ties with a ${typeof viewComparator} comparator`, function() {
+      const first = { id: 1, rank: 0, name: 'one' };
+      const second = { id: 2, rank: 0, name: 'two' };
+      const manual = { id: 3, rank: 0, name: 'manual' };
+      const source = { models: [first, second] };
+      const view = new ListView({ collection: source, viewComparator }).render();
+      const manualView = new ChildView({ model: manual });
+      view.addChildView(manualView);
+
+      source.models = [second, first];
+      source.notify({ kind: 'reorder' });
+
+      expect(view.children.map(child => child.model)).to.deep.equal(viewComparator === undefined ?
+        [manual, second, first] : [second, first, manual]);
+      expect(view.children.findByModel(manual)).to.equal(manualView);
+      expect(manualView.renderCount).to.equal(1);
+      view.destroy();
+    });
+  });
+
+  it('retains custom comparator ties when source ordering is disabled', function() {
+    const first = { id: 1, rank: 0, name: 'one' };
+    const second = { id: 2, rank: 0, name: 'two' };
+    const added = { id: 3, rank: 0, name: 'three' };
+    const source = { models: [first, second] };
+    const view = new ListView({ collection: source, sortWithCollection: false,
+      viewComparator: child => child.model.rank }).render();
+
+    source.models = [added, second, first];
+    source.notify({ kind: 'update', added: [added], removed: [], updated: [] });
+
+    expect(view.children.map(child => child.model)).to.deep.equal([first, second, added]);
+    expect(view.el.textContent).to.equal('onetwothree');
+    view.destroy();
+  });
+
   it('reconciles a same-key replacement queued from an add hook', function() {
     const first = { id: 1, name: 'one' };
     const second = { id: 2, name: 'two' };
