@@ -320,9 +320,9 @@ render the parent first, when showing a child into a declared selector Region.
 returns `undefined` or `false`, respectively. Operations that require a Region —
 `showChildView`, `detachChildView`, `getChildView`, and `removeRegion` — throw a
 `RegionError` with code [`MN0020`](/errors/MN0020/) when the named Region does not
-exist. Region names must be non-empty strings. Other values throw a
-`RegionError` with code [`MN0032`](/errors/MN0032/) without coercion. Child View
-operations reject invalid names before rendering the parent.
+exist. Region names must be non-empty strings. The public types require strings;
+an empty name throws a `RegionError` with code [`MN0032`](/errors/MN0032/).
+Child View operations reject empty names before rendering the parent.
 
 ## Efficient Nested View Structures
 

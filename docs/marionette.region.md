@@ -187,11 +187,10 @@ other array-like values are not supported as Region declaration maps.
 
 Named View Region operations require a non-empty string name. `addRegion`,
 `removeRegion`, `hasRegion`, `getRegion`, `showChildView`, `detachChildView`, and
-`getChildView` throw [`MN0032`](/errors/MN0032/) for any other value rather than
-coercing it to a property key. Ordinary collision names such as `constructor`,
+`getChildView` throw [`MN0032`](/errors/MN0032/) for an empty name. The public
+types require strings; unsupported shapes have no guaranteed diagnostic.
+Ordinary collision names such as `constructor`,
 `toString`, and `__proto__` remain valid when explicitly registered.
-
-**Errors** An error will be thrown for an incorrect region configuration.
 
 ### String Selector
 

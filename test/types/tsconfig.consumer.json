@@ -60,6 +60,8 @@
     "native-parent.mts",
     "native-parent.cts",
     "fixed-root.mts",
-    "fixed-root.cts"
+    "fixed-root.cts",
+    "trusted-contracts.mts",
+    "trusted-contracts.cts"
   ]
 }
