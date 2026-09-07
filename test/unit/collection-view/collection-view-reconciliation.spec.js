@@ -879,7 +879,7 @@ describe('CollectionView normalized reconciliation', function() {
   it('lets an attaching child receive focus from outside the collection', function() {
     const input = document.createElement('input');
     const el = document.createElement('div');
-    document.body.append(input, el);
+    this.setFixtures(input, el);
     const FocusChild = ChildView.extend({
       template: () => '<button>Focus me</button>',
       onAttach() { this.el.firstChild.focus(); }
@@ -896,8 +896,6 @@ describe('CollectionView normalized reconciliation', function() {
 
     expect(document.activeElement).to.equal(view.children.first().el.firstChild);
     region.destroy();
-    el.remove();
-    input.remove();
   });
 
   it('ignores stale observer callbacks after destruction', function() {
