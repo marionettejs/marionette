@@ -1,10 +1,9 @@
 // View
 // ----
 
-import { MarionetteError, getValue } from '@marionette/utils';
+import { MarionetteError, getValue, uniqueId } from '@marionette/utils';
 import eachOwn from '../utils/each-own.ts';
 import extend from '../utils/extend.ts';
-import uniqueId from '../utils/unique-id.ts';
 import monitorViewEvents from './common/monitor-view-events.ts';
 import buildRegion from './common/build-region.ts';
 import ViewMixin, { ViewOptions } from '../mixins/view.ts';
@@ -20,7 +19,7 @@ import type { ViewMixinHost } from '../mixins/view.ts';
 import type { DOMEvents, DOMTriggers } from '../mixins/view-events.ts';
 import type { UISelectors, UIBindings } from '../mixins/ui.ts';
 import type { BehaviorDefinitions, BehaviorInstance } from '../mixins/behaviors.ts';
-import type { EventCallback } from '../mixins/events.ts';
+import type { EventCallback } from '@marionette/utils';
 import type CommonMixin from '../mixins/common.ts';
 import type { DomApi } from '../runtime/dom-api.ts';
 import type { DataApi } from '../runtime/data-api.ts';

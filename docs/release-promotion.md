@@ -1,7 +1,7 @@
 # Immutable release promotion
 
-Marionette promotes one verified npm tarball from one source commit. The release
-workflow never rebuilds the package after that tarball is created. The npm version,
+Marionette promotes verified npm tarballs from one source commit. The release
+workflow never rebuilds the package after those tarballs are created. The npm version,
 Git tag, GitHub release, package manifest, evidence manifest, and source commit must
 all agree.
 
@@ -17,12 +17,12 @@ manual dispatch from `master` in this repository with the `publish` input enable
 followed by approval of the protected `stable-release` environment.
 
 Generated `dist/` files and `src/version.js` are ignored by Git. `npm ci` runs the
-root `prepare` lifecycle to build all four packages and test the core distributions.
+root `prepare` lifecycle to build all five packages and test the core distributions.
 Artifact construction performs a final clean build and distribution check from the
 verified source commit, then runs `npm pack --ignore-scripts` so packing cannot
 rebuild those tested outputs. This final build also replaces stale local ignored files. Package fixtures validate the exact tarballs before any
 publication. TypeScript declarations are generated from each package's source. The packages
-are built and published in dependency order: utils, core, data, adapters.
+are built and published in dependency order: utils, radio, core, data, adapters.
 
 ## v5 distribution policy
 
@@ -43,9 +43,11 @@ or promise removal of either format.
 The canonical Ubuntu release job stores these files together as the immutable
 `release-candidate-<commit>` workflow artifact for 90 days:
 
-- the exact `marionette-<version>.tgz` tarball;
+- the exact tarballs: `marionette-utils-<version>.tgz`,
+  `marionette-radio-<version>.tgz`, `marionette-<version>.tgz`,
+  `marionette-data-<version>.tgz`, and `marionette-adapters-<version>.tgz`;
 - `release-evidence.json` and its SHA-512 checksum;
-- the complete `npm pack --json` package manifest;
+- the complete `npm pack --json` manifest for each package;
 - the Brotli-11 bundle report.
 
 The evidence records the tarball SHA-256, SHA-512, npm integrity and shasum, package

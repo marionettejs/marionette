@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import $ from 'jquery';
-import Events from '../../src/mixins/events';
+import Events from '../../packages/utils/src/events.ts';
 import Region from '../../src/modules/region';
 import View from '../../src/modules/view';
 import CollectionView from '../../src/modules/collection-view';

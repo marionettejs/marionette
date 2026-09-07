@@ -1,4 +1,4 @@
-import type { Events } from './events.ts';
+import type { EventsContract as Events } from '@marionette/utils';
 
 export interface DestroyHost extends Pick<Events, 'stopListening' | 'trigger' | 'triggerMethod'> {
   _isDestroyed?: boolean;

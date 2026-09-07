@@ -1,9 +1,8 @@
 // Collection View
 // ---------------
 
-import { getValue, isString, MarionetteError } from '@marionette/utils';
+import { getValue, isString, MarionetteError, uniqueId } from '@marionette/utils';
 import extend from '../utils/extend.ts';
-import uniqueId from '../utils/unique-id.ts';
 import { renderView, destroyView, isViewClass } from './common/view.ts';
 import monitorViewEvents from './common/monitor-view-events.ts';
 import ChildViewContainer from './child-view-container.ts';

@@ -8,8 +8,8 @@ import {
   bindRequests,
   unbindRequests
 } from '@marionette/utils';
-import EventsMixin from './events.ts';
-import type { Events } from './events.ts';
+import { Events as EventsMixin } from '@marionette/utils';
+import type { EventsContract as Events } from '@marionette/utils';
 
 interface OptionsTarget {
   options?: unknown;

@@ -51,7 +51,7 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "npm run build:utils && npm run check:types && node build/clean.js && rollup -c rollup.config.mjs --noConflict && npm run build:types && npm run build:data && npm run build:adapters && npm run test:types",
+    "build": "npm run build:utils && npm run build:radio && npm run check:types && node build/clean.js && rollup -c rollup.config.mjs --noConflict && npm run build:types && npm run build:data && npm run build:adapters && npm run test:types",
     "build:adapters": "npm --prefix packages/adapters run build",
     "build:data": "npm --prefix packages/data run build",
     "check:browser-profile": "node scripts/checks/browser-profile.mjs",
@@ -87,7 +87,8 @@
     "pretest": "npm run check:types && npm run test:types",
     "test:types": "node test/types/run.mjs",
     "build:types": "node build/declarations.mjs",
-    "build:utils": "npm --prefix packages/utils run build"
+    "build:utils": "npm --prefix packages/utils run build",
+    "build:radio": "npm --prefix packages/radio run build"
   },
   "bugs": {
     "url": "https://github.com/marionettejs/marionette/issues"
@@ -114,6 +115,7 @@
     "@vitest/coverage-v8": "^4.1.11",
     "ajv": "8.20.0",
     "backbone": "^1.4.0",
+    "backbone.radio": "2.0.0",
     "browserslist": "4.28.8",
     "eslint": "10.9.1",
     "eslint-plugin-jsdoc": "63.3.3",
@@ -137,9 +139,11 @@
     "fsevents@2.3.2": true
   },
   "workspaces": [
-    "packages/utils"
+    "packages/utils",
+    "packages/radio"
   ],
   "dependencies": {
+    "@marionette/radio": "5.0.0-alpha.2",
     "@marionette/utils": "5.0.0-alpha.2"
   }
 }

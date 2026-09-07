@@ -1,7 +1,7 @@
 import { createRequire } from 'module';
 import _ from 'underscore';
 
-import EventsMixin from '../../src/mixins/events';
+import EventsMixin from '../../packages/utils/src/events.ts';
 
 const require = createRequire(import.meta.url);
 const Backbone = require('backbone');

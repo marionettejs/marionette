@@ -1,5 +1,5 @@
-import Radio, { createRadio, type Channel, type RadioApi } from '../tmp/typed-core/src/modules/radio.js';
-import type { EventSource } from '../tmp/typed-core/src/mixins/events.js';
+import Radio, { createRadio, type Channel, type RadioApi } from '../tmp/typed-core/packages/radio/src/radio.js';
+import type { EventSource } from '../tmp/typed-core/packages/utils/src/events.js';
 
 const runtime: RadioApi = createRadio();
 const channel: Channel = runtime.channel('work');
@@ -92,5 +92,6 @@ const wrongChannelReset: void = channel.reset();
 const wrongRadioReset: Channel = runtime.reset('work');
 // @ts-expect-error Debug switches require boolean values.
 runtime.setDebug('yes');
-// @ts-expect-error Private implementation constructors are not public Radio properties.
-runtime.Channel;
+const privateChannel: Channel = new runtime.Channel('private');
+// @ts-expect-error A channel constructor requires a string name.
+new runtime.Channel(123);

@@ -5,7 +5,7 @@ import Backbone from 'backbone';
 import CollectionView from '../../../src/modules/collection-view';
 import View from '../../../src/modules/view';
 import Region from '../../../src/modules/region';
-import Events from '../../../src/mixins/events';
+import Events from '../../../packages/utils/src/events.ts';
 import { MarionetteError } from '@marionette/utils';
 
 describe('CollectionView -  Empty', function() {

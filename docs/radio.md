@@ -40,9 +40,14 @@ Calling `Radio.channel(name)` again with the same name returns the same channel
 instance. A channel name is required. Channel names that match inherited object
 properties, such as `toString`, are treated as ordinary channel names.
 
-Channels are created and owned by the `Radio` singleton. Their constructor and
-the singleton's registry are implementation details; obtain channels only through
-`Radio.channel(name)`.
+Use `new Channel(name)` from `@marionette/radio` for an independent message bus.
+It combines Events and Requests but does not join the registry. Its owner must
+call `channel.reset()` when finished. `Radio.reset()` covers registered channels.
+The named `Channel` export is `Radio.Channel`; an isolated runtime provides its
+own constructor at `runtime.Radio.Channel`.
+
+For request/reply alone, import `Requests` from `@marionette/radio` and compose it
+with `Object.assign({}, Requests)`. It adds no event methods or registry.
 
 ## Events
 
@@ -128,8 +133,26 @@ is made. Disable it explicitly when it is no longer needed:
 Radio.setDebug(false);
 ```
 
-Radio owns the warning and tuning output path. The former `Radio.log` and
-`Radio.debugLog` extension properties are not part of the built-in v5 API.
+`Radio.log(channelName, eventName, ...args)` receives activity from `tuneIn()`.
+`Radio.debugLog(warning, eventName, channelName)` receives warnings while debug
+mode is enabled. Assign either hook to route output to an application logger or
+test collector. Both default to console output.
+
+```javascript
+import { createMarionette } from 'marionette';
+
+const runtime = createMarionette();
+runtime.Radio.debugLog = (warning, eventName, channelName) => {
+  console.warn({ warning, eventName, channelName });
+};
+runtime.Radio.setDebug();
+```
+
+Hooks belong to each Radio instance and run with that Radio as `this`. Replacing
+a hook affects existing channels, including tuned channels. Disabling debug mode
+also disables delivery to custom warning hooks. Exceptions from hooks propagate.
+Standalone `Channel` and `Requests` imports use the default Radio's warning
+configuration; `new runtime.Radio.Channel(name)` uses that runtime's configuration.
 
 ## Channel Lifecycle
 
@@ -220,3 +243,37 @@ const count = channel.request('message:count');
 Destroying the Marionette object removes request handlers bound with that
 object as their context. The object's event listeners are cleaned up through
 the normal Marionette event lifecycle.
+
+## Backbone.Radio comparison
+
+The v5 Radio implementation retains Backbone.Radio's channel messaging model,
+but it is not a drop-in replacement for every exported property.
+`@marionette/radio` can be used independently; core re-exports the same default
+`Radio` within each module format.
+
+| Area | v5 behavior |
+| --- | --- |
+| Requests and replies | Named/default handlers, callback context, map and space-separated forms, one-time replies, and selective removal retain the messaging contract. |
+| Events and cleanup | Channels use shared Marionette Events. Reset clears handlers and owned listeners while retaining channel identity. Events also provides `triggerMethod`. |
+| Debugging | Use `setDebug()` instead of assigning `DEBUG`. `log` and `debugLog` are replaceable per-instance hooks, and the debug toggle gates custom warning hooks too. Removing an absent reply does not warn. |
+| Construction and globals | Use `channel(name)` for registered channels, `new Channel(name)` for standalone channels, or the named `Requests` mixin for request/reply alone. `VERSION`, Backbone global installation, and `noConflict()` are not Radio exports. |
+| Names and maps | Request maps use own enumerable string keys. Inherited entries are ignored; names such as `__proto__` are supported without changing object prototypes. |
+| Reset arguments | Only `reset()` resets all channels. An explicitly supplied empty name is an error; an unknown named channel gets a Marionette diagnostic. |
+
+`test/unit/radio-parity.spec.js` runs shared behavioral scenarios against the
+published Backbone.Radio 2.0.0 runtime and Marionette: fallback arguments, flat
+values, nested request maps, reentrant and throwing one-time handlers, callback
+and context removal, top-level forwarding, and channel/listener cleanup.
+
+The extraction was also checked against the upstream request, channel, forwarding,
+tuning, and debug tests at
+[Backbone.Radio commit 7a58ade](https://github.com/marionettejs/backbone.radio/tree/7a58ade84bedb5551c2e12bdd3434d0fd6b1bdbd/test/unit).
+That comparison adapts private registry names and the old debug toggle; tests
+requiring removed public APIs are differences, not claims of full compatibility.
+
+One intentional correction relative to the published 2.0.0 bundle is cancellation
+of `replyOnce` by its original callback: `stopReplying(name, callback)` removes
+the pending reply in v5. The published bundle and inspected upstream source
+leave it registered. This follows the callback-identity behavior of
+Backbone.Events `once`/`off`. The comparison test records the difference
+explicitly instead of claiming exact parity.

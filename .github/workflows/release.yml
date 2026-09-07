@@ -16,6 +16,7 @@ on:
       - 'package-lock.json'
       - 'package.json'
       - 'packages/utils/**'
+      - 'packages/radio/**'
       - 'packages/data/**'
       - 'packages/adapters/**'
       - 'test/dist/**'
@@ -84,6 +85,7 @@ jobs:
       prerelease: ${{ steps.artifact.outputs.prerelease }}
       tag: ${{ steps.artifact.outputs.tag }}
       utils_tarball: ${{ steps.artifact.outputs.utils_tarball }}
+      radio_tarball: ${{ steps.artifact.outputs.radio_tarball }}
       core_tarball: ${{ steps.artifact.outputs.core_tarball }}
       data_tarball: ${{ steps.artifact.outputs.data_tarball }}
       adapters_tarball: ${{ steps.artifact.outputs.adapters_tarball }}
@@ -148,12 +150,15 @@ jobs:
           tar -xzf "release/${{ steps.artifact.outputs.core_tarball }}" -C test/tmp/release-package
           mkdir -p test/tmp/release-package/package/node_modules/@marionette/utils
           tar -xzf "release/${{ steps.artifact.outputs.utils_tarball }}" --strip-components=1 -C test/tmp/release-package/package/node_modules/@marionette/utils
+          mkdir -p test/tmp/release-package/package/node_modules/@marionette/radio
+          tar -xzf "release/${{ steps.artifact.outputs.radio_tarball }}" --strip-components=1 -C test/tmp/release-package/package/node_modules/@marionette/radio
           npm run test:dist -- --root test/tmp/release-package/package
 
       - name: Test exact packed package fixtures
         run: >-
           npm run test:fixtures --
           --utils-tarball "release/${{ steps.artifact.outputs.utils_tarball }}"
+          --radio-tarball "release/${{ steps.artifact.outputs.radio_tarball }}"
           --tarball "release/${{ steps.artifact.outputs.core_tarball }}"
           --data-tarball "release/${{ steps.artifact.outputs.data_tarball }}"
           --adapters-tarball "release/${{ steps.artifact.outputs.adapters_tarball }}"
@@ -221,6 +226,7 @@ jobs:
         run: >-
           npm run test:fixtures --
           --utils-tarball "release/${{ needs.build.outputs.utils_tarball }}"
+          --radio-tarball "release/${{ needs.build.outputs.radio_tarball }}"
           --tarball "release/${{ needs.build.outputs.core_tarball }}"
           --data-tarball "release/${{ needs.build.outputs.data_tarball }}"
           --adapters-tarball "release/${{ needs.build.outputs.adapters_tarball }}"
@@ -267,6 +273,15 @@ jobs:
         run: >-
           npm publish
           "./release/${{ needs.build.outputs.utils_tarball }}"
+          --dry-run
+          --ignore-scripts
+          --access public
+          --tag "${{ needs.build.outputs.npm_tag }}"
+
+      - name: Exercise radio npm publication without publishing
+        run: >-
+          npm publish
+          "./release/${{ needs.build.outputs.radio_tarball }}"
           --dry-run
           --ignore-scripts
           --access public
@@ -402,6 +417,15 @@ jobs:
         run: >-
           npm publish
           "./release/${{ needs.build.outputs.utils_tarball }}"
+          --ignore-scripts
+          --access public
+          --tag "${{ needs.build.outputs.npm_tag }}"
+
+      - name: Publish exact radio tarball with npm provenance
+        if: steps.npm_state.outputs.radio_npm_action == 'publish'
+        run: >-
+          npm publish
+          "./release/${{ needs.build.outputs.radio_tarball }}"
           --ignore-scripts
           --access public
           --tag "${{ needs.build.outputs.npm_tag }}"

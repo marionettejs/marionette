@@ -8,7 +8,7 @@ import extend from '../../src/utils/extend';
 
 import monitorViewEvents from '../../src/modules/common/monitor-view-events';
 
-import Events from '../../src/mixins/events';
+import Events from '../../packages/utils/src/events.ts';
 
 import MnObject from '../../src/modules/object';
 import View from '../../src/modules/view';

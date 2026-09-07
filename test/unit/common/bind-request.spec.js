@@ -1,5 +1,5 @@
 import { bindRequests, unbindRequests } from '@marionette/utils';
-import Radio from '../../../src/modules/radio';
+import Radio from '../../../packages/radio/src/radio.ts';
 
 const acceptedBindingMaps = [
   {},

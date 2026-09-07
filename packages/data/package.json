@@ -32,9 +32,6 @@
   "engines": {
     "node": ">=24"
   },
-  "peerDependencies": {
-    "marionette": "5.0.0-alpha.2"
-  },
   "scripts": {
     "build": "node ../../build/clean.js && rollup -c rollup.config.mjs && node ../../build/declarations.mjs data",
     "prepack": "npm run build"

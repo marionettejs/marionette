@@ -1,7 +1,7 @@
 'use strict';
 
 import Application from '../../src/modules/application';
-import Radio from '../../src/modules/radio';
+import Radio from '../../packages/radio/src/radio.ts';
 
 function defer() {
   let resolve;

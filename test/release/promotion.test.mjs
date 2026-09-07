@@ -51,6 +51,7 @@ test('release artifact verification rejects Windows drive-relative names', async
         tarball: { file: 'C:evil.tgz' },
         manifestReport: { file: 'utils-package-manifest.json' },
       },
+      { id: 'radio', name: '@marionette/radio', tarball: { file: 'radio.tgz' }, manifestReport: { file: 'radio-package-manifest.json' } },
       {
         id: 'core',
         name: 'marionette',
@@ -88,6 +89,7 @@ test('release artifact verification binds package ids to names', async function(
         tarball: { file: 'C:evil.tgz' },
         manifestReport: { file: 'utils-package-manifest.json' },
       },
+      { id: 'radio', name: '@marionette/radio', tarball: { file: 'radio.tgz' }, manifestReport: { file: 'radio-package-manifest.json' } },
       { id: 'core', name: '@marionette/data' },
       { id: 'data', name: 'marionette' },
       { id: 'adapters', name: '@marionette/adapters' },
@@ -113,6 +115,7 @@ test('release target checks bind package ids to names before network access', as
         tarball: { file: 'C:evil.tgz' },
         manifestReport: { file: 'utils-package-manifest.json' },
       },
+      { id: 'radio', name: '@marionette/radio', tarball: { file: 'radio.tgz' }, manifestReport: { file: 'radio-package-manifest.json' } },
       { id: 'core', name: '@marionette/data' },
       { id: 'data', name: 'marionette' },
       { id: 'adapters', name: '@marionette/adapters' },
@@ -150,6 +153,7 @@ test('release checks reject evidence that omits the utils dependency', async fun
 test('npm publication decisions cover every release package', function() {
   const decisions = decideNpmActions([
     { packageEvidence: { id: 'utils' }, packageName: '@marionette/utils', state: 'available' },
+    { packageEvidence: { id: 'radio' }, packageName: '@marionette/radio', state: 'available' },
     { packageEvidence: { id: 'core' }, packageName: 'marionette', state: 'exact' },
     { packageEvidence: { id: 'data' }, packageName: '@marionette/data', state: 'available' },
     { packageEvidence: { id: 'adapters' }, packageName: '@marionette/adapters', state: 'available' },
@@ -157,6 +161,7 @@ test('npm publication decisions cover every release package', function() {
 
   assert.deepEqual(decisions, [
     { name: 'utils_npm_action', value: 'publish' },
+    { name: 'radio_npm_action', value: 'publish' },
     { name: 'core_npm_action', value: 'skip' },
     { name: 'data_npm_action', value: 'publish' },
     { name: 'adapters_npm_action', value: 'publish' },
@@ -180,6 +185,7 @@ test('GitHub release planning rejects Windows drive-relative names', async funct
         tarball: { file: 'C:evil.tgz' },
         manifestReport: { file: 'utils-package-manifest.json' },
       },
+      { id: 'radio', name: '@marionette/radio', tarball: { file: 'radio.tgz' }, manifestReport: { file: 'radio-package-manifest.json' } },
       {
         id: 'core',
         name: 'marionette',

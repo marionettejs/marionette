@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import CommonMixin from '../../../src/mixins/common';
-import EventsMixin from '../../../src/mixins/events';
+import EventsMixin from '../../../packages/utils/src/events.ts';
 
 describe('Common Mixin', function() {
   describe('#setOptions', function() {

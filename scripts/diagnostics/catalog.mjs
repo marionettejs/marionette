@@ -32,7 +32,7 @@ const productionInputs = [...new Set(rollupConfigurations
     return outputs.some(output => output?.file?.replaceAll('\\', '/').startsWith('dist/'));
   })
   .flatMap(configuration => inputFiles(configuration.input)))];
-productionInputs.push('packages/utils/src/index.ts');
+productionInputs.push('packages/utils/src/index.ts', 'packages/radio/src/index.ts');
 
 export class DiagnosticCatalogValidationError extends Error {
   constructor(errors) {

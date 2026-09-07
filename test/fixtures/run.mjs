@@ -1,5 +1,5 @@
 import { execFileSync } from 'child_process';
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync } from 'fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync } from 'fs';
 import { tmpdir } from 'os';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
@@ -68,7 +68,8 @@ try {
   const suppliedDataTarball = readArgument('--data-tarball');
   const suppliedAdaptersTarball = readArgument('--adapters-tarball');
   const suppliedUtilsTarball = readArgument('--utils-tarball');
-  if (!suppliedTarball || !suppliedDataTarball || !suppliedAdaptersTarball || !suppliedUtilsTarball) {
+  const suppliedRadioTarball = readArgument('--radio-tarball');
+  if (!suppliedTarball || !suppliedDataTarball || !suppliedAdaptersTarball || !suppliedUtilsTarball || !suppliedRadioTarball) {
     runNpm(['run', 'build']);
   }
   let tarballPath;
@@ -159,6 +160,29 @@ try {
     utilsTarballPath = resolve(packDir, packedUtilsTarballs[0]);
   }
 
+  let radioTarballPath;
+  if (suppliedRadioTarball) {
+    radioTarballPath = resolve(rootDir, suppliedRadioTarball);
+    if (!existsSync(radioTarballPath)) {
+      throw new Error(`Packed radio tarball does not exist: ${radioTarballPath}`);
+    }
+  } else {
+    const existingTarballs = new Set(readdirSync(packDir));
+    runNpm([
+      'pack',
+      '--ignore-scripts',
+      resolve(rootDir, 'packages/radio'),
+      '--pack-destination',
+      packDir,
+    ]);
+    const packedRadioTarballs = readdirSync(packDir)
+      .filter(fileName => fileName.endsWith('.tgz') && !existingTarballs.has(fileName));
+    if (packedRadioTarballs.length !== 1) {
+      throw new Error(`Expected one packed radio tarball, found ${packedRadioTarballs.length}`);
+    }
+    radioTarballPath = resolve(packDir, packedRadioTarballs[0]);
+  }
+
   const adapterFixtures = new Set([
     'adapters-package-vite',
     'backbone-adapter',
@@ -173,7 +197,7 @@ try {
 
   for (const fixtureName of fixtures) {
     const fixtureSourceDir = resolve(__dirname, fixtureName);
-    const externalFixture = fixtureName === 'core-no-underscore';
+    const externalFixture = ['core-no-underscore', 'standalone-packages'].includes(fixtureName);
 
     if (!existsSync(resolve(fixtureSourceDir, 'package.json'))) {
       throw new Error(`Fixture is missing package.json: ${fixtureName}`);
@@ -184,17 +208,16 @@ try {
 
     try {
       if (externalFixture) {
-        copyFileSync(resolve(fixtureSourceDir, 'package.json'), resolve(fixtureDir, 'package.json'));
-        copyFileSync(resolve(fixtureSourceDir, 'validate.mjs'), resolve(fixtureDir, 'validate.mjs'));
+        cpSync(fixtureSourceDir, fixtureDir, { recursive: true });
       }
 
       cleanFixture(fixtureDir);
       runNpm(['install'], { cwd: fixtureDir });
-      const tarballs = fixtureName === 'core-types' ?
+      const tarballs = fixtureName === 'standalone-packages' ? [dataTarballPath] : fixtureName === 'core-types' ?
         [tarballPath, dataTarballPath, adaptersTarballPath] : fixtureName.startsWith('data-package-') ?
           [tarballPath, dataTarballPath] : adapterFixtures.has(fixtureName) ?
             [tarballPath, adaptersTarballPath] : [tarballPath];
-      runNpm(['install', '--ignore-scripts', '--no-save', utilsTarballPath, ...tarballs], { cwd: fixtureDir });
+      runNpm(['install', '--ignore-scripts', '--no-save', utilsTarballPath, radioTarballPath, ...tarballs], { cwd: fixtureDir });
       runNpm(['run', 'validate'], { cwd: fixtureDir });
     } finally {
       if (externalFixture) {

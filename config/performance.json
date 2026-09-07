@@ -131,6 +131,16 @@
       "name": "Utils CommonJS",
       "path": "packages/utils/dist/index.cjs",
       "baselineBrotliBytes": 0
+    },
+    {
+      "name": "Radio ES module",
+      "path": "packages/radio/dist/index.js",
+      "baselineBrotliBytes": 0
+    },
+    {
+      "name": "Radio CommonJS",
+      "path": "packages/radio/dist/index.cjs",
+      "baselineBrotliBytes": 0
     }
   ],
   "productionGraphs": [
@@ -241,6 +251,13 @@
       "subpath": "@marionette/utils",
       "input": "packages/utils/src/index.ts",
       "output": "packages/utils/dist/index.js",
+      "baselineModules": [],
+      "baselineExternalImports": []
+    },
+    {
+      "subpath": "@marionette/radio",
+      "input": "packages/radio/src/index.ts",
+      "output": "packages/radio/dist/index.js",
       "baselineModules": [],
       "baselineExternalImports": []
     }

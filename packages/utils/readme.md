@@ -35,6 +35,12 @@ component.triggerMethod('open'); // 'Inbox'
 component.normalizeMethods({ open: 'onOpen' });
 ```
 
+## Events
+
+`Events` is the shared event implementation used by Marionette, Radio, and native
+data. Mix it into an object with `Object.assign({}, Events)` to use `on`, `off`,
+`trigger`, `listenTo`, and `stopListening` without core.
+
 ## Helpers
 
 Use object spread or `Object.assign` for ordinary copying and composition.
@@ -59,3 +65,6 @@ ES modules, CommonJS, and TypeScript declarations are included. The package has
 no runtime dependencies and declares no side effects. Bundlers can retain only
 the imported helpers. Marionette's standalone UMD bundles include these helpers;
 module consumers share the installed package.
+
+Event-building helpers `buildEventArgs`, `eventSplitter`, `callHandler`, and
+`onceWrap`, plus `uniqueId`, are shared by core and Radio.

@@ -10,6 +10,9 @@
     "paths": {
       "@marionette/utils": [
         "./packages/utils/dist/types/esm/index.d.ts"
+      ],
+      "@marionette/radio": [
+        "./packages/radio/dist/types/esm/index.d.ts"
       ]
     }
   },

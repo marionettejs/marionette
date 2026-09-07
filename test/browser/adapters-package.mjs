@@ -17,8 +17,9 @@ try {
   const packDirectory = resolve(temporaryDirectory, 'pack');
   const coreDirectory = resolve(temporaryDirectory, 'core');
   const utilsDirectory = resolve(temporaryDirectory, 'utils');
+  const radioDirectory = resolve(temporaryDirectory, 'radio');
   const adaptersDirectory = resolve(temporaryDirectory, 'adapters');
-  await Promise.all([mkdir(packDirectory), mkdir(utilsDirectory), mkdir(coreDirectory), mkdir(adaptersDirectory)]);
+  await Promise.all([mkdir(packDirectory), mkdir(utilsDirectory), mkdir(radioDirectory), mkdir(coreDirectory), mkdir(adaptersDirectory)]);
 
   function pack(source) {
     const output = execFileSync(process.execPath, [
@@ -37,6 +38,8 @@ try {
     return resolve(packDirectory, results[0].filename);
   }
 
+  const radioTarball = pack(resolve(root, 'packages/radio'));
+  execFileSync('tar', ['-xzf', radioTarball, '-C', radioDirectory]);
   const utilsTarball = pack(resolve(root, 'packages/utils'));
   execFileSync('tar', ['-xzf', utilsTarball, '-C', utilsDirectory]);
   const coreTarball = pack(root);
@@ -46,6 +49,7 @@ try {
 
   const assets = new Map([
     ['/utils.js', resolve(utilsDirectory, 'package/dist/index.js')],
+    ['/radio.js', resolve(radioDirectory, 'package/dist/index.js')],
     ['/marionette.js', resolve(coreDirectory, 'package/dist/marionette.js')],
     ['/backbone-api.js', resolve(adaptersDirectory, 'package/dist/backbone.js')],
     ['/jquery-api.js', resolve(adaptersDirectory, 'package/dist/dom/jquery.js')],
@@ -60,7 +64,7 @@ try {
     <script src="/underscore.js"></script>
     <script src="/backbone.js"></script>
     <script type="importmap">
-      { "imports": { "@marionette/utils": "/utils.js", "jquery": "/jquery.js" } }
+      { "imports": { "@marionette/utils": "/utils.js", "@marionette/radio": "/radio.js", "jquery": "/jquery.js" } }
     </script>
   </head>
   <body></body>

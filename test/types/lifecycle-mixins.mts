@@ -1,7 +1,7 @@
 import CommonMixin from '../tmp/typed-core/src/mixins/common.js';
 import RadioMixin from '../tmp/typed-core/src/mixins/radio.js';
 import DestroyMixin from '../tmp/typed-core/src/mixins/destroy.js';
-import type { Channel } from '../tmp/typed-core/src/modules/radio.js';
+import type { Channel } from '../tmp/typed-core/packages/radio/src/radio.js';
 
 const owner = {
   ...CommonMixin,

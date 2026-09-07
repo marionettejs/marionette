@@ -1,8 +1,10 @@
 # @marionette/data
 
 Dependency-light observable `Model` and ordered `Collection` sources for
-Marionette v5. Install both packages and configure the runtime before creating
-owners:
+Marionette v5. The package depends only on `@marionette/utils`; models and
+collections can run without core or a DOM. Install `@marionette/data` on its own
+for standalone use. To use it with Marionette views, install both packages and
+configure the runtime before creating owners:
 
 ```sh
 npm install marionette @marionette/data

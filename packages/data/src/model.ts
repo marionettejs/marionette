@@ -1,5 +1,4 @@
-import { Events } from 'marionette';
-import { extend, setProperty } from '@marionette/utils';
+import { Events, extend, setProperty } from '@marionette/utils';
 
 import type { EventMethods as EventSource, Merge, Constructed, CallableParent } from '@marionette/utils';
 

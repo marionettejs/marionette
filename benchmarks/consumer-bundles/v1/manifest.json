@@ -5,7 +5,8 @@
     "marionette",
     "@marionette/adapters",
     "@marionette/data",
-    "@marionette/utils"
+    "@marionette/utils",
+    "@marionette/radio"
   ],
   "compression": {
     "algorithm": "brotli",
@@ -69,6 +70,7 @@
       "expectedModules": [
         "benchmarks/consumer-bundles/v1/root-only.js",
         "dist/marionette.js",
+        "packages/radio/dist/index.js",
         "packages/utils/dist/index.js"
       ],
       "expectedExternalImports": []
@@ -123,6 +125,7 @@
         "benchmarks/consumer-bundles/v1/root-plus-backbone.js",
         "dist/marionette.js",
         "packages/adapters/dist/backbone.js",
+        "packages/radio/dist/index.js",
         "packages/utils/dist/index.js"
       ],
       "expectedExternalImports": []
@@ -143,6 +146,7 @@
         "benchmarks/consumer-bundles/v1/root-plus-jquery.js",
         "dist/marionette.js",
         "packages/adapters/dist/dom/jquery.js",
+        "packages/radio/dist/index.js",
         "packages/utils/dist/index.js"
       ],
       "expectedExternalImports": [
@@ -168,6 +172,7 @@
         "dist/marionette.js",
         "packages/adapters/dist/backbone.js",
         "packages/adapters/dist/dom/jquery.js",
+        "packages/radio/dist/index.js",
         "packages/utils/dist/index.js"
       ],
       "expectedExternalImports": [

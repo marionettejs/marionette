@@ -18,7 +18,7 @@ import type { StateHost } from './state.ts';
 import type { TemplateHost } from './template-render.ts';
 import type { UIHost } from './ui.ts';
 import type { ViewEventsHost, DOMEvents } from './view-events.ts';
-import type { EventCallback, EventSource } from './events.ts';
+import type { EventCallback, EventSource } from '@marionette/utils';
 
 type SharedMixins = typeof BehaviorsMixin & typeof CommonMixin & typeof DelegateEntityEventsMixin &
   Omit<typeof StateMixin, 'State'> & typeof TemplateRenderMixin & typeof UIMixin & Omit<typeof ViewEvents, 'EventDelegator'>;

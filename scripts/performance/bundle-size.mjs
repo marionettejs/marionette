@@ -379,6 +379,7 @@ export function validateConsumerBundleContract(
       !sameStringInventory(rootScenario.expectedModules, [
         'benchmarks/consumer-bundles/v1/root-only.js',
         'dist/marionette.js',
+        'packages/radio/dist/index.js',
         'packages/utils/dist/index.js',
       ]) ||
       !sameStringInventory(rootScenario.expectedExternalImports, []))) {
@@ -389,7 +390,7 @@ export function validateConsumerBundleContract(
 }
 
 async function readRuntimePackages(root) {
-  const packages = await Promise.all(['', 'packages/adapters', 'packages/data', 'packages/utils']
+  const packages = await Promise.all(['', 'packages/adapters', 'packages/data', 'packages/utils', 'packages/radio']
     .map(async directory => {
       try {
         const packageJson = await readJson(resolve(root, directory, 'package.json'));

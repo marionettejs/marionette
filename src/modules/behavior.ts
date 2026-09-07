@@ -6,9 +6,8 @@
 // Behaviors allow you to blackbox View specific interactions
 // into portable logical chunks, keeping your views simple and your code DRY.
 
-import { getValue } from '@marionette/utils';
+import { getValue, uniqueId } from '@marionette/utils';
 import extend from '../utils/extend.ts';
-import uniqueId from '../utils/unique-id.ts';
 import CommonMixin from '../mixins/common.ts';
 import DelegateEntityEventsMixin from '../mixins/delegate-entity-events.ts';
 import StateMixin from '../mixins/state.ts';
@@ -17,7 +16,7 @@ import ViewEventsMixin from '../mixins/view-events.ts';
 import { setEventDelegator } from '../runtime/event-delegator.ts';
 import { setStateApi } from '../runtime/state-api.ts';
 
-import type { EventSource } from '../mixins/events.ts';
+import type { EventSource } from '@marionette/utils';
 import type { DataApi } from '../runtime/data-api.ts';
 import type { StateApi } from '../runtime/state-api.ts';
 import type { EventDelegator } from '../runtime/event-delegator.ts';
