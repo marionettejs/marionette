@@ -336,6 +336,16 @@ describe('consumer bundle measurements', () => {
     }
   });
 
+  test('rejects an incomplete base inventory even when its toolchain changed', async() => {
+    const inputs = await canonicalInputs();
+    const current = consumerReport(inputs);
+    const base = structuredClone(current);
+    base.toolchain.terser = '0.0.0';
+    base.artifacts.pop();
+    const result = compareConsumerBundleReports(base, current);
+    assert.match(result.violations.join('\n'), /Exact base consumer bundle artifact inventory/);
+  });
+
   test('fails closed when a versioned entry source digest drifts', async() => {
     const inputs = await canonicalInputs();
     const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-consumer-entry-'));

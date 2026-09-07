@@ -902,8 +902,7 @@ function validateConsumerBundleReport(report, label, isCurrent) {
 
   const expectedIds = consumerArtifactIds();
   const actualIds = report.artifacts.map(artifact => artifact?.id);
-  if (new Set(actualIds).size !== actualIds.length ||
-      isCurrent && !isDeepStrictEqual(actualIds, expectedIds)) {
+  if (!isDeepStrictEqual(actualIds, expectedIds)) {
     violations.push(`${label} consumer bundle artifact inventory is not canonical`);
   }
   for (const artifact of report.artifacts) {
