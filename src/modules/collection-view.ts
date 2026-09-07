@@ -935,13 +935,37 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       if (attaching.length !== views.length &&
           attaching.every(view => view.el.parentNode === this.container)) {
         const childEls = new Set<Node>(views.map(view => view.el));
-        let next = this.container.firstChild;
-        for (const view of views) {
-          while (next && !childEls.has(next)) { next = next.nextSibling; }
-          if (view.el !== next) {
-            this.Dom.moveEl(view.el, this.container, next);
+        let first = this.container.firstChild;
+        let last = this.container.lastChild;
+        let start = 0;
+        let end = views.length - 1;
+        while (start <= end) {
+          while (first && !childEls.has(first)) { first = first.nextSibling; }
+          const firstEl = views[start].el;
+          if (firstEl === first) {
+            first = first.nextSibling;
+            start++;
+            continue;
           }
-          next = view.el.nextSibling;
+
+          // Match both ends before moving an element through the remaining list.
+          while (last && !childEls.has(last)) { last = last.previousSibling; }
+          const lastEl = views[end].el;
+          if (lastEl === last) {
+            last = last.previousSibling;
+            end--;
+          } else if (lastEl === first) {
+            first = first.nextSibling;
+            this.Dom.moveEl(lastEl, this.container, last!.nextSibling);
+            end--;
+          } else if (firstEl === last) {
+            last = last.previousSibling;
+            this.Dom.moveEl(firstEl, this.container, first);
+            start++;
+          } else {
+            this.Dom.moveEl(firstEl, this.container, first);
+            start++;
+          }
         }
       }
 

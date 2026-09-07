@@ -822,6 +822,53 @@ describe('CollectionView normalized reconciliation', function() {
     view.destroy();
   });
 
+  Object.entries({
+    'first to last': models => [...models.slice(1), models[0]],
+    'last to first': models => [models.at(-1), ...models.slice(0, -1)],
+    'two distant children': models => [models[0], models[998], ...models.slice(2, 998), models[1], models[999]]
+  }).forEach(([name, reorder]) => {
+    it(`moves only the selected children when reordering ${name}`, function() {
+      const models = Array.from({ length: 1000 }, (_, id) => ({ id, name: String(id) }));
+      const source = { models };
+      const view = new ListView({ collection: source }).render();
+      const children = [...view.children];
+      const move = this.sinon.spy(view.Dom, 'moveEl');
+
+      source.models = reorder(models);
+      source.notify({ kind: 'reorder' });
+
+      expect(move.callCount).to.equal(name === 'two distant children' ? 2 : 1);
+      expect([...view.el.children]).to.deep.equal(source.models.map(model => children[model.id].el));
+      expect(children.every(child => child.renderCount === 1)).to.be.true;
+      view.destroy();
+    });
+  });
+
+  it('retains unmanaged contents around and between reordered children', function() {
+    const models = Array.from({ length: 5 }, (_, id) => ({ id, name: String(id) }));
+    const source = { models };
+    const view = new ListView({ collection: source }).render();
+    const header = document.createElement('header');
+    const footer = document.createElement('footer');
+    const control = document.createElement('input');
+    const marker = document.createComment('retained');
+    view.el.prepend(header);
+    view.el.append(footer);
+    view.children.findByIndex(2).el.after(marker, control);
+
+    for (const order of [[1, 2, 3, 4, 0], [0, 4, 3, 2, 1], [3, 0, 2, 1, 4]]) {
+      source.models = order.map(id => models[id]);
+      source.notify({ kind: 'reorder' });
+      expect(view.el.firstChild).to.equal(header);
+      expect(view.el.lastChild).to.equal(footer);
+      expect(control.parentNode).to.equal(view.el);
+      expect(marker.parentNode).to.equal(view.el);
+      expect([...view.el.children].filter(el => el !== header && el !== footer && el !== control))
+        .to.deep.equal(source.models.map(model => view.children.findByModel(model).el));
+    }
+    view.destroy();
+  });
+
   it('preserves template contents before the children when placing an addition', function() {
     const source = { models: [{ id: 1, name: 'one' }] };
     const List = ListView.extend({ template: () => '<header>Heading</header>' });
