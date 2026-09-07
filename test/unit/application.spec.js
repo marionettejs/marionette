@@ -6,6 +6,50 @@ import View from '../../src/modules/view';
 
 describe('Marionette Application', function() {
 
+  describe('#preinitialize', function() {
+    it('prepares instance configuration before Region, Radio, and State setup', async function() {
+      const options = { el: document.createElement('main'), label: 'Editor' };
+      const ConfiguredApplication = Application.extend({
+        preinitialize(receivedOptions) {
+          expect(receivedOptions).to.equal(options);
+          expect(this.options.label).to.equal('Editor');
+          expect(this.cid).to.be.a('string');
+          expect(this.getRegion()).to.be.undefined;
+          expect(this.getChannel()).to.be.undefined;
+          this.region = { el: receivedOptions.el };
+          this.channelName = this.cid;
+          this.state = { label: receivedOptions.label };
+        },
+        initialize() {
+          expect(this.getRegion().el).to.equal(options.el);
+          expect(this.getChannel().channelName).to.equal(this.cid);
+          expect(this.getState()).to.equal(this.state);
+          expect(this.getState().label).to.equal('Editor');
+        }
+      });
+      const app = new ConfiguredApplication(options);
+      await app.destroy();
+    });
+  });
+
+  it('propagates a preinitialize error before setting up instance services', function() {
+    const error = new Error('early configuration failed');
+    const initializeRegion = this.sinon.spy();
+    const initializeRadio = this.sinon.spy();
+    const initializeState = this.sinon.spy();
+    const BrokenApplication = Application.extend({
+      preinitialize() { throw error; },
+      _initRegion: initializeRegion,
+      _initRadio: initializeRadio,
+      _initState: initializeState
+    });
+
+    expect(() => new BrokenApplication()).to.throw(error);
+    expect(initializeRegion).not.to.have.been.called;
+    expect(initializeRadio).not.to.have.been.called;
+    expect(initializeState).not.to.have.been.called;
+  });
+
   describe('#initialize', () => {
     describe('when instantiating an app with specified options', function() {
       let app;
@@ -55,6 +99,9 @@ describe('Marionette Application', function() {
           _setOptions(...args) {
             calls.push(['setOptions', this, args]);
           },
+          preinitialize(...args) {
+            calls.push(['preinitialize', this, args]);
+          },
           _initRegion(...args) {
             calls.push(['initRegion', this, args]);
           },
@@ -84,6 +131,7 @@ describe('Marionette Application', function() {
             'stateEvents'
           ]]],
           ['cidPrefix', 'default'],
+          ['preinitialize', orderedApp, [options, 'extra']],
           ['initRegion', orderedApp, []],
           ['initRadio', orderedApp, []],
           ['initState', orderedApp, [options]],
