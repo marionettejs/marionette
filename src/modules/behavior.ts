@@ -179,7 +179,7 @@ Object.assign(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateM
     this._destroyState();
     this.stopListening();
     this.view._removeBehavior(this);
-    this._deleteEntityEventHandlers();
+    this._undelegateEntityEvents();
 
     return this;
   },
@@ -212,7 +212,7 @@ Object.assign(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateM
   },
 
   undelegateEntityEvents(this: BehaviorInternals) {
-    (this._undelegateEntityEvents as (...args: unknown[]) => void)(this.view.model, this.view.collection);
+    this._undelegateEntityEvents();
 
     return this;
   }

@@ -11,7 +11,7 @@ export interface EntityEventHost {
   _collectionEvents?: Bindings;
   _modelEventCleanup?: () => void;
   _collectionEventCleanup?: () => void;
-  _deleteEntityEventHandlers(): void;
+  _undelegateEntityEvents(): void;
 }
 
 // MixinOptions
@@ -46,13 +46,8 @@ export default {
     }
   },
 
-  // Remove any previously delegate entity events
+  // Unsubscribe entity events and remove cached handlers.
   _undelegateEntityEvents(this: EntityEventHost) {
-    this._deleteEntityEventHandlers();
-  },
-
-  // Remove cached event handlers
-  _deleteEntityEventHandlers(this: EntityEventHost) {
     const subscriptions = [
       this._modelEventCleanup,
       this._collectionEventCleanup
