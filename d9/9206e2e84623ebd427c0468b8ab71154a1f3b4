@@ -1,0 +1,45 @@
+test/unit/application.spec.js
+  s_060efbb5bf6218::t_e71a83945a4d3f 9-34,102-104,134
+  s_060efbb5bf6218::t_eb38c69874c8ed 35-52
+test/types/application.mts
+  s_060efbb5bf6218::t_26f49a99114803 7,82,89-96
+test/types/application.cts
+  s_060efbb5bf6218::t_2483ac523a491b 7,82,89-96
+docs/marionette.application.md
+  s_060efbb5bf6218::t_8972d8b5cdb036 41-64
+test/unit/object-application-composition.spec.js
+  s_060efbb5bf6218::t_d46ae202648de4 37
+src/modules/application.ts
+  s_060efbb5bf6218::t_a8b6108791295a 52,169,533-534
+test/unit/collection-view/collection-view-children.spec.js
+  s_060efbb5bf6218::t_e765155badee1b 279,329-330,370
+test/unit/collection-view/collection-view-data.spec.js
+  s_060efbb5bf6218::t_f1605b4ac8f71c 423,443,472,486,489,502,505,518
+docs/marionette.collectionview.md
+  s_060efbb5bf6218::t_6d4e4281910527 230-243
+test/browser/collection-removal-survivors.mjs
+  s_060efbb5bf6218::t_85ab2f014243e5 26,77-82,127-128,164-166
+test/unit/collection-view/collection-view-reconciliation.spec.js
+  s_060efbb5bf6218::t_dcf88b7cf2b099 578,594-598,602-689
+src/modules/collection-view.ts
+  s_060efbb5bf6218::t_e86594e8bbb6cb 479,539-540,892,894,901-913,915-919,928-933,935-943,948,1103
+  s_060efbb5bf6218::t_3e5229c49d0d75 920-927
+upgradeGuide.md
+  s_060efbb5bf6218::t_65fd15e06688e7 140-154
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "d99206e2e84623ebd427c0468b8ab71154a1f3b4",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
