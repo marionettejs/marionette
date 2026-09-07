@@ -1,5 +1,5 @@
 import { debugLog, log } from '../modules/common/radio.ts';
-import { assignOwn, setProperty } from '@marionette/utils';
+import { setProperty } from '@marionette/utils';
 import { eventSplitter } from '../utils/build-event-args.ts';
 import callHandler from '../utils/call-handler.ts';
 import onceWrap from '../utils/once-wrap.ts';
@@ -155,18 +155,18 @@ export default {
   // Make a request
   request(this: RequestState, name: string | Record<string, unknown>, ...args: unknown[]): unknown {
     if (name && typeof name === 'object') {
-      const replies: Record<string, unknown> = {};
+      const replies: Record<string, unknown> = Object.create(null);
       const names = getKeys(name);
       for (let index = 0, length = names.length; index < length; index++) {
         const key = names[index];
         const result = this.request(key, name[key], ...args);
         if (eventSplitter.test(key)) {
-          assignOwn(replies, result);
+          Object.assign(replies, result);
         } else {
           setProperty(replies, key, result);
         }
       }
-      return replies;
+      return { ...replies };
     }
 
     if (name && eventSplitter.test(name)) {

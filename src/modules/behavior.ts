@@ -6,7 +6,7 @@
 // Behaviors allow you to blackbox View specific interactions
 // into portable logical chunks, keeping your views simple and your code DRY.
 
-import { assignOwn, getValue } from '@marionette/utils';
+import { getValue } from '@marionette/utils';
 import extend from '../utils/extend.ts';
 import uniqueId from '../utils/unique-id.ts';
 import CommonMixin from '../mixins/common.ts';
@@ -145,7 +145,7 @@ const Behavior = function(this: BehaviorInternals, options: BehaviorOptions | un
   // This order will help the reuse and share of a behavior
   // between multiple views, while letting a view override
   // a selector under an UI key.
-  this.ui = assignOwn({}, getValue(this, 'ui'), getValue(view, 'ui')) as UISelectors;
+  this.ui = { ...getValue(this, 'ui') as UISelectors, ...getValue(view, 'ui') as UISelectors };
 
   // Proxy view triggers
   this.listenTo(view, 'all', this.triggerMethod);
@@ -158,12 +158,12 @@ const Behavior = function(this: BehaviorInternals, options: BehaviorOptions | un
   this._delegateViewEvents(this.view);
 };
 
-assignOwn(Behavior, { extend, setEventDelegator, setStateApi });
+Object.assign(Behavior, { extend, setEventDelegator, setStateApi });
 
 // Behavior Methods
 // --------------
 
-assignOwn(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateMixin, UIMixin, ViewEventsMixin, {
+Object.assign(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateMixin, UIMixin, ViewEventsMixin, {
   cidPrefix: 'mnb',
 
   // proxy behavior $ method to the view

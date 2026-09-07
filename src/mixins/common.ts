@@ -1,5 +1,4 @@
 import {
-  assignOwn,
   getValue,
   getOption,
   mergeOptions,
@@ -27,7 +26,7 @@ const CommonMixin = {
   normalizeMethods,
 
   _setOptions(this: OptionsTarget, options: unknown, classOptions: readonly unknown[]) {
-    this.options = assignOwn({}, getValue(this, 'options'), options);
+    this.options = { ...getValue(this, 'options') as object, ...options as object };
     this.mergeOptions(options, classOptions);
   },
 
@@ -50,7 +49,7 @@ const CommonMixin = {
   unbindRequests,
 };
 
-assignOwn(CommonMixin, EventsMixin);
+Object.assign(CommonMixin, EventsMixin);
 
 // Event methods are assigned above without replacing the helper methods.
 export default CommonMixin as typeof CommonMixin & Events;

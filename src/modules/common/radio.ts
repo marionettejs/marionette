@@ -1,5 +1,3 @@
-
-
 function createDebug() {
   // Debug mode warns about overwritten or unhandled requests.
   let shouldDebug = false;

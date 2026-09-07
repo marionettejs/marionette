@@ -1,6 +1,6 @@
 // State API
 // ---------
-import { assignOwn, MarionetteError } from '@marionette/utils';
+import { MarionetteError } from '@marionette/utils';
 
 export interface StateApi<Source = unknown> {
   subscribe: (source: Source, name: string, callback: (...args: unknown[]) => unknown, context?: unknown) => () => void;
@@ -16,7 +16,7 @@ export function setStateApi<Receiver extends StateApiClass, Mixin extends object
   this: Receiver,
   mixin?: Mixin & Partial<StateApi<never>> | null | boolean | number | bigint | string | symbol
 ): Receiver {
-  this.prototype.State = assignOwn({}, this.prototype.State, mixin);
+  this.prototype.State = { ...this.prototype.State, ...mixin as object };
   return this;
 }
 

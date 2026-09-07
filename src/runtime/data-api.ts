@@ -1,6 +1,6 @@
 // Data API
 // --------
-import { assignOwn, MarionetteError } from '@marionette/utils';
+import { MarionetteError } from '@marionette/utils';
 import type { EventCallback, EventSource } from '../mixins/events.ts';
 
 // Configured sources are opaque; registration does not establish a source match.
@@ -38,7 +38,7 @@ export function setDataApi<Receiver extends DataApiClass, Mixin extends object>(
   this: Receiver,
   mixin?: Mixin & Partial<DataApi> | null | boolean | number | bigint | string | symbol
 ): Receiver {
-  this.prototype.Data = assignOwn({}, this.prototype.Data, mixin);
+  this.prototype.Data = { ...this.prototype.Data, ...mixin as object };
   return this;
 }
 

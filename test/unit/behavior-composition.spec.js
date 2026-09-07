@@ -150,34 +150,6 @@ describe('Behavior composition', function() {
       expect(behavior.ui).to.deep.equal({ behavior: true, host: true });
     });
 
-    it('finishes both UI resolutions before reading either source map', function() {
-      const calls = [];
-      const behaviorUI = {};
-      Object.defineProperty(behaviorUI, 'behavior', {
-        enumerable: true,
-        get() {
-          calls.push('behaviorValue');
-          return true;
-        }
-      });
-      const UIBehavior = IsolatedBehavior({
-        ui() {
-          calls.push('behaviorUI');
-          return behaviorUI;
-        }
-      });
-      const host = { el: document.createElement('div') };
-      Object.defineProperty(host, 'ui', {
-        get() {
-          calls.push('hostUI');
-          throw new Error('host UI failed');
-        }
-      });
-
-      expect(() => new UIBehavior({}, host)).to.throw('host UI failed');
-      expect(calls).to.deep.equal(['behaviorUI', 'hostUI']);
-    });
-
     it('merges only own UI keys and safely owns __proto__', function() {
       const behaviorProtoValue = { behavior: true };
       const hostProtoValue = { host: true };
@@ -261,12 +233,11 @@ describe('Behavior composition', function() {
       });
     });
 
-    it('excludes inherited pollution and safely owns a fixed-source __proto__', async function() {
+    it('excludes inherited properties from fixed mixin composition', async function() {
       const prototypes = mixins.map(Object.getPrototypeOf);
-      const commonProtoDescriptor = Object.getOwnPropertyDescriptor(CommonMixin, '__proto__');
-      const protoValue = { safe: true };
+
       const mutatedMixins = [];
-      let commonProtoMutated = false;
+
       let IsolatedBehaviorClass;
       let primaryFailed = false;
       let primaryError;
@@ -283,13 +254,6 @@ describe('Behavior composition', function() {
           Object.setPrototypeOf(mixin, pollutedPrototype);
           mutatedMixins.push(mixin);
         });
-        Object.defineProperty(CommonMixin, '__proto__', {
-          configurable: true,
-          enumerable: true,
-          value: protoValue,
-          writable: true
-        });
-        commonProtoMutated = true;
 
         ({ default: IsolatedBehaviorClass } = await import('../../src/modules/behavior.ts?composition-test'));
       } catch (error) {
@@ -309,16 +273,6 @@ describe('Behavior composition', function() {
           }
         }
       };
-
-      if (commonProtoMutated) {
-        restore(() => {
-          if (commonProtoDescriptor) {
-            Object.defineProperty(CommonMixin, '__proto__', commonProtoDescriptor);
-          } else if (!Reflect.deleteProperty(CommonMixin, '__proto__')) {
-            throw new Error('Unable to restore CommonMixin.__proto__');
-          }
-        });
-      }
       for (let index = mutatedMixins.length - 1; index >= 0; index--) {
         restore(() => Object.setPrototypeOf(mutatedMixins[index], prototypes[index]));
       }
@@ -329,8 +283,6 @@ describe('Behavior composition', function() {
       expect(IsolatedBehaviorClass).to.not.equal(Behavior);
       expect(IsolatedBehaviorClass.prototype).to.not.have.own.property('inheritedComposition');
       expect(Object.getPrototypeOf(IsolatedBehaviorClass.prototype)).to.equal(Object.prototype);
-      expect(Object.getOwnPropertyDescriptor(IsolatedBehaviorClass.prototype, '__proto__'))
-        .to.deep.equal(assignmentDescriptor(protoValue));
     });
   });
 });

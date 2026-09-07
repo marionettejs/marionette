@@ -1,7 +1,7 @@
 // Object
 // ------
 
-import { assignOwn } from '@marionette/utils';
+
 import extend from '../utils/extend.ts';
 import uniqueId from '../utils/unique-id.ts';
 import CommonMixin from '../mixins/common.ts';
@@ -152,12 +152,12 @@ const MarionetteObject = function(this: ObjectInternals, options?: object) {
   this._initStateEvents();
 };
 
-assignOwn(MarionetteObject, { extend, setStateApi });
+Object.assign(MarionetteObject, { extend, setStateApi });
 
 // Object Methods
 // --------------
 
-assignOwn(MarionetteObject.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMixin, {
+Object.assign(MarionetteObject.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMixin, {
   cidPrefix: 'mno',
 });
 

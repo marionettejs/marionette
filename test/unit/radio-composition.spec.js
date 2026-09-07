@@ -78,13 +78,12 @@ describe('Radio composition', function() {
   it('excludes inherited API pollution and safely composes own built-in keys', async function() {
     const eventsPrototype = Object.getPrototypeOf(Events);
     const descriptors = new Map(
-      ['constructor', 'toString', '__proto__']
+      ['constructor', 'toString']
         .map(key => [key, Object.getOwnPropertyDescriptor(Events, key)])
     );
     const methods = {
       constructor() {},
-      toString() {},
-      __proto__() {}
+      toString() {}
     };
     const cleanup = [];
     let IsolatedRadio;

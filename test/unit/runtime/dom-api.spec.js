@@ -29,10 +29,10 @@ describe('DomApi', function() {
       expect(MyObject.setDomApi()).to.be.eq(MyObject);
     });
 
-    it('overlays own enumerable string properties', function() {
+    it('overlays own enumerable properties', function() {
       const inherited = { inheritedMixin: true };
       const mixin = Object.assign(Object.create(inherited), { shared: 'mixin', mixin: true });
-      const symbol = Symbol('ignored');
+      const symbol = Symbol('included');
       const protoValue = { polluted: true };
       mixin[symbol] = true;
       Object.defineProperty(mixin, 'hidden', { enumerable: false, value: true });
@@ -51,7 +51,7 @@ describe('DomApi', function() {
       expect(MyObject.prototype.Dom).to.not.have.property('inheritedBase');
       expect(MyObject.prototype.Dom).to.not.have.property('inheritedMixin');
       expect(MyObject.prototype.Dom).to.not.have.property('hidden');
-      expect(MyObject.prototype.Dom).to.not.have.property(symbol);
+      expect(MyObject.prototype.Dom[symbol]).to.be.true;
       expect(Object.getPrototypeOf(MyObject.prototype.Dom)).to.equal(Object.prototype);
       expect(Object.hasOwn(MyObject.prototype.Dom, '__proto__')).to.be.true;
       expect(Object.getOwnPropertyDescriptor(MyObject.prototype.Dom, '__proto__').value)
@@ -296,7 +296,7 @@ describe('DomApi', function() {
       const attrs = Object.assign(Object.create({ inherited: 'ignored' }), {
         title: 'owned',
         constructor: 'ordinary attribute',
-        [Symbol('ignored')]: 'ignored'
+        [Symbol('included')]: 'ignored'
       });
       Object.defineProperty(attrs, 'hidden', { value: 'ignored' });
       Object.defineProperty(attrs, '__proto__', { enumerable: true, value: 'ordinary attribute' });

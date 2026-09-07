@@ -701,12 +701,12 @@ describe('Requests', function() {
       expect(nestedReplies.first).to.equal(1);
     });
 
-    it('flattens only own enumerable string properties from nested results', function() {
-      const symbol = Symbol('ignored');
+    it('flattens own enumerable properties from nested results', function() {
+      const symbol = Symbol('included');
       const protoValue = { safe: true };
       const nestedResult = Object.assign(Object.create({ inherited: 'ignored' }), {
         owned: 'response',
-        [symbol]: 'ignored'
+        [symbol]: 'included'
       });
       Object.defineProperty(nestedResult, 'hidden', { value: 'ignored' });
       Object.defineProperty(nestedResult, '__proto__', {
@@ -724,7 +724,7 @@ describe('Requests', function() {
       expect(replies.owned).to.equal('response');
       expect(replies).to.not.have.property('inherited');
       expect(replies).to.not.have.property('hidden');
-      expect(replies).to.not.have.property(symbol);
+      expect(replies[symbol]).to.equal('included');
       expect(Object.getPrototypeOf(replies)).to.equal(Object.prototype);
       expect(Object.hasOwn(replies, '__proto__')).to.be.true;
       expect(Object.getOwnPropertyDescriptor(replies, '__proto__').value)

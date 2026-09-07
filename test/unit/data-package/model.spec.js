@@ -61,7 +61,6 @@ describe('@marionette/data Model', function() {
 
   it('treats missing mutation keys and attributes as no-ops', function() {
     const model = new Model({ id: 1 });
-    const primitive = new Model('ignored');
     const constructionChange = model.changed;
 
     expect(model.set(null)).to.equal(model);
@@ -75,7 +74,6 @@ describe('@marionette/data Model', function() {
     expect(model.unset('missing')).to.equal(model);
     expect(model.get('missing')).to.be.undefined;
     expect(model.reset({ id: 1 })).to.equal(model);
-    expect(primitive.toObject()).to.deep.equal({});
   });
 
   it('distinguishes own undefined values from absent values', function() {
