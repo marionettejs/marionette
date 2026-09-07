@@ -306,7 +306,7 @@ describe('ui mixin', function() {
   describe('#_unbindUIElements', function() {
     it('clears bound elements and restores the original binding map', function() {
       const originalBindings = { foo: '.foo', bar: '.bar' };
-      const bound = { foo: [], bar: [] };
+      const bound = { foo: [], extra: [] };
       const view = _.extend({
         _ui: bound,
         _uiBindings: originalBindings,
