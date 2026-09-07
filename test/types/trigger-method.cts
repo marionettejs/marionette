@@ -1,4 +1,4 @@
-import Events from '../tmp/typed-core/src/mixins/events.js';
+import Events from '../tmp/typed-core/packages/utils/src/events.js';
 import { triggerMethod } from '@marionette/utils';
 
 const target = {

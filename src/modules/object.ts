@@ -3,7 +3,7 @@
 
 
 import extend from '../utils/extend.ts';
-import uniqueId from '../utils/unique-id.ts';
+import { uniqueId } from '@marionette/utils';
 import CommonMixin from '../mixins/common.ts';
 import DestroyMixin from '../mixins/destroy.ts';
 import RadioMixin from '../mixins/radio.ts';
@@ -22,10 +22,10 @@ import type {
   Merge,
   Constructed
 } from '@marionette/utils';
-import type { Channel, RadioApi } from './radio.ts';
-import type { Events } from '../mixins/events.ts';
+import type { Channel, RadioApi } from '@marionette/radio';
+import type { EventsContract as Events } from '@marionette/utils';
 
-export type { Channel, RadioApi } from './radio.ts';
+export type { Channel, RadioApi } from '@marionette/radio';
 export type { Bindings } from '@marionette/utils';
 export type { StateApi } from '../runtime/state-api.ts';
 

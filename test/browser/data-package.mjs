@@ -17,10 +17,11 @@ try {
   const packDirectory = resolve(temporaryDirectory, 'pack');
   const coreDirectory = resolve(temporaryDirectory, 'core');
   const utilsDirectory = resolve(temporaryDirectory, 'utils');
+  const radioDirectory = resolve(temporaryDirectory, 'radio');
   const dataDirectory = resolve(temporaryDirectory, 'data');
   await Promise.all([
     mkdir(packDirectory),
-    mkdir(utilsDirectory), mkdir(coreDirectory),
+    mkdir(utilsDirectory), mkdir(radioDirectory), mkdir(coreDirectory),
     mkdir(dataDirectory)
   ]);
 
@@ -41,6 +42,8 @@ try {
     return resolve(packDirectory, results[0].filename);
   }
 
+  const radioTarball = pack(resolve(root, 'packages/radio'));
+  execFileSync('tar', ['-xzf', radioTarball, '-C', radioDirectory]);
   const utilsTarball = pack(resolve(root, 'packages/utils'));
   execFileSync('tar', ['-xzf', utilsTarball, '-C', utilsDirectory]);
   const coreTarball = pack(root);
@@ -50,6 +53,7 @@ try {
 
   const assets = new Map([
     ['/utils.js', resolve(utilsDirectory, 'package/dist/index.js')],
+    ['/radio.js', resolve(radioDirectory, 'package/dist/index.js')],
     ['/marionette.js', resolve(coreDirectory, 'package/dist/marionette.js')],
     ['/data.js', resolve(dataDirectory, 'package/dist/index.js')]
   ]);
@@ -57,7 +61,7 @@ try {
 <html>
   <head>
     <script type="importmap">
-      { "imports": { "@marionette/utils": "/utils.js", "marionette": "/marionette.js" } }
+      { "imports": { "@marionette/utils": "/utils.js", "@marionette/radio": "/radio.js", "marionette": "/marionette.js" } }
     </script>
   </head>
   <body></body>

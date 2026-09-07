@@ -1,4 +1,4 @@
-import EventsMixin from '../../src/mixins/events';
+import EventsMixin from '../../packages/utils/src/events.ts';
 
 function createEmitter() {
   return Object.assign({}, EventsMixin);

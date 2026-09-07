@@ -3,11 +3,11 @@ import compile from './build/babel.js';
 import json from '@rollup/plugin-json';
 import terser from '@rollup/plugin-terser';
 
-const bundleUtils = {
-  name: 'bundle-utils',
+const bundlePackages = {
+  name: 'bundle-packages',
   resolveId(source) {
-    if (source === '@marionette/utils') {
-      return fileURLToPath(new URL('./packages/utils/src/index.ts', import.meta.url));
+    if (['@marionette/utils', '@marionette/radio'].includes(source)) {
+      return fileURLToPath(new URL(`./packages/${source.split('/')[1]}/src/index.ts`, import.meta.url));
     }
   },
 };
@@ -27,7 +27,7 @@ export default [
   },
   {
     input: 'src/index.ts',
-    external: ['@marionette/utils'],
+    external: ['@marionette/utils', '@marionette/radio'],
     output: [
       {
         file: 'dist/marionette.js',
@@ -64,7 +64,7 @@ export default [
       },
     ],
     plugins: [
-      bundleUtils,
+      bundlePackages,
       json(),
       compile(),
     ]

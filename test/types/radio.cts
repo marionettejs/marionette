@@ -1,5 +1,5 @@
-import Radio, { createRadio, type Channel, type RadioApi } from '../tmp/typed-core/src/modules/radio.js';
-import type { EventSource } from '../tmp/typed-core/src/mixins/events.js';
+import Radio, { createRadio, type Channel, type RadioApi } from '../tmp/typed-core/packages/radio/src/radio.js';
+import type { EventSource } from '../tmp/typed-core/packages/utils/src/events.js';
 
 const runtime: RadioApi = createRadio();
 const channel: Channel = runtime.channel('work');

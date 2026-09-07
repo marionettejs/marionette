@@ -1,4 +1,4 @@
-import buildEventArgs from '../../../src/utils/build-event-args';
+import buildEventArgs from '../../../packages/utils/src/build-event-args.ts';
 
 function defineEnumerable(object, name, value) {
   Object.defineProperty(object, name, {

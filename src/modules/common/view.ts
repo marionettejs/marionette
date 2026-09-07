@@ -1,5 +1,5 @@
 import type { DomApi } from '../../runtime/dom-api.ts';
-import type { EventCallback, EventMap } from '../../mixins/events.ts';
+import type { EventCallback, EventMap } from '@marionette/utils';
 
 export interface RenderableView {
   render(): unknown;

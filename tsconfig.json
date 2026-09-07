@@ -18,6 +18,9 @@
       ],
       "@marionette/utils": [
         "./packages/utils/src/index.ts"
+      ],
+      "@marionette/radio": [
+        "./packages/radio/src/index.ts"
       ]
     },
     "resolveJsonModule": true

@@ -5,7 +5,7 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import CollectionView from '../../../src/modules/collection-view';
 import View from '../../../src/modules/view';
-import Events from '../../../src/mixins/events';
+import Events from '../../../packages/utils/src/events.ts';
 
 describe('CollectionView', function() {
   let MyChildView;

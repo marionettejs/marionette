@@ -1,4 +1,4 @@
-import callHandler from '../../../src/utils/call-handler';
+import callHandler from '../../../packages/utils/src/call-handler.ts';
 
 describe('callHandler', function() {
   it('applies callbacks with more than three arguments', function() {

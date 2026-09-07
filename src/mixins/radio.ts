@@ -1,7 +1,7 @@
-import Radio from '../modules/radio.ts';
+import { Radio } from '@marionette/radio';
 import { getValue } from '@marionette/utils';
-import type { Channel, RadioApi } from '../modules/radio.ts';
-import type { Events } from './events.ts';
+import type { Channel, RadioApi } from '@marionette/radio';
+import type { EventsContract as Events } from '@marionette/utils';
 import type { bindEvents, bindRequests } from '@marionette/utils';
 
 export interface RadioHost extends Pick<Events, 'listenTo' | 'stopListening'> {

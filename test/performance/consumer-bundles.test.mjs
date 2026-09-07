@@ -19,7 +19,7 @@ const packageUrl = new URL('../../package.json', import.meta.url);
 const adaptersPackageUrl = new URL('../../packages/adapters/package.json', import.meta.url);
 
 async function canonicalInputs() {
-  const [contract, performance, fixtureText, packageJson, adaptersPackageJson, dataPackageJson, utilsPackageJson] = await Promise.all([
+  const [contract, performance, fixtureText, packageJson, adaptersPackageJson, dataPackageJson, utilsPackageJson, radioPackageJson] = await Promise.all([
     readFile(contractUrl, 'utf8').then(JSON.parse),
     readFile(performanceUrl, 'utf8').then(JSON.parse),
     readFile(fixtureUrl, 'utf8'),
@@ -27,6 +27,7 @@ async function canonicalInputs() {
     readFile(adaptersPackageUrl, 'utf8').then(JSON.parse),
     readFile(join(root, 'packages/data/package.json'), 'utf8').then(JSON.parse),
     readFile(join(root, 'packages/utils/package.json'), 'utf8').then(JSON.parse),
+    readFile(join(root, 'packages/radio/package.json'), 'utf8').then(JSON.parse),
   ]);
   return {
     brotliQuality: performance.baseline.brotliQuality,
@@ -34,7 +35,7 @@ async function canonicalInputs() {
     fixture: JSON.parse(fixtureText),
     fixtureRevision: createHash('sha256').update(fixtureText).digest('hex'),
     packageJson,
-    packageJsons: [packageJson, adaptersPackageJson, dataPackageJson, utilsPackageJson],
+    packageJsons: [packageJson, adaptersPackageJson, dataPackageJson, utilsPackageJson, radioPackageJson],
   };
 }
 
@@ -206,16 +207,16 @@ describe('consumer bundle measurements', () => {
     try {
       await Promise.all([
         mkdir(join(fixtureRoot, 'benchmarks/consumer-bundles'), { recursive: true }),
-        ...['adapters', 'data', 'utils'].map(name =>
+        ...['adapters', 'data', 'utils', 'radio'].map(name =>
           mkdir(join(fixtureRoot, 'packages', name), { recursive: true })),
         cp(join(root, 'dist'), join(fixtureRoot, 'dist'), { recursive: true }),
         writeFile(join(fixtureRoot, 'package.json'), JSON.stringify(inputs.packageJson)),
       ]);
       await Promise.all([
-        ...['adapters', 'data', 'utils'].map(name =>
+        ...['adapters', 'data', 'utils', 'radio'].map(name =>
           cp(join(root, 'packages', name, 'dist'), join(fixtureRoot, 'packages', name, 'dist'), { recursive: true })),
         cp(join(root, 'benchmarks/consumer-bundles/v1'), join(fixtureRoot, 'benchmarks/consumer-bundles/v1'), { recursive: true }),
-        ...['adapters', 'data', 'utils'].map((name, index) =>
+        ...['adapters', 'data', 'utils', 'radio'].map((name, index) =>
           writeFile(join(fixtureRoot, 'packages', name, 'package.json'), JSON.stringify(inputs.packageJsons[index + 1]))),
       ]);
 
@@ -361,7 +362,7 @@ describe('consumer bundle measurements', () => {
         cp(join(root, 'dist'), join(fixtureRoot, 'dist'), { recursive: true }),
         writeFile(join(fixtureRoot, 'package.json'), JSON.stringify(inputs.packageJson)),
       ]);
-      await Promise.all(['adapters', 'data', 'utils'].map(async(name, index) => {
+      await Promise.all(['adapters', 'data', 'utils', 'radio'].map(async(name, index) => {
         const directory = join(fixtureRoot, 'packages', name);
         await mkdir(directory, { recursive: true });
         await Promise.all([

@@ -122,14 +122,28 @@ async function validateBrowserGlobal(file) {
 }
 
 async function validate() {
+  const radioRoot = resolve(require.resolve('@marionette/radio/package.json'), '..');
   const utilsRoot = resolve(require.resolve('@marionette/utils/package.json'), '..');
   const entrypoints = [
-    ['CommonJS', require(resolve(packageRoot, 'dist/marionette.cjs')), require('@marionette/utils')],
+    ['CommonJS', require(resolve(packageRoot, 'dist/marionette.cjs')), require('@marionette/utils'), require('@marionette/radio')],
     ['ES module', await import(pathToFileURL(resolve(packageRoot, 'dist/marionette.js'))),
-      await import(pathToFileURL(resolve(utilsRoot, 'dist/index.js')))],
+      await import(pathToFileURL(resolve(utilsRoot, 'dist/index.js'))),
+      await import(pathToFileURL(resolve(radioRoot, 'dist/index.js')))],
   ];
 
-  for (const [name, Marionette, utils] of entrypoints) {
+  for (const [name, Marionette, utils, radio] of entrypoints) {
+    assert.strictEqual(Marionette.Events, utils.Events, `${name} shared Events implementation`);
+    assert.strictEqual(Marionette.Radio, radio.Radio, `${name} shared default Radio`);
+    const channel = radio.Radio.channel('package-identity');
+    const owner = new Marionette.MnObject({ channelName: 'package-identity' });
+    assert.strictEqual(owner.getChannel(), channel, `${name} owner uses package channel`);
+    owner.destroy();
+    const first = Marionette.createMarionette();
+    const second = Marionette.createMarionette();
+    first.Radio.reply('isolation', 'value', 'first');
+    assert.strictEqual(first.Radio.request('isolation', 'value'), 'first');
+    assert.strictEqual(second.Radio.request('isolation', 'value'), undefined);
+    assert.strictEqual(radio.Radio.request('isolation', 'value'), undefined);
     assert.strictEqual(Marionette.VERSION, packageJson.version, `${name} version`);
     assert.strictEqual(Marionette.MarionetteError, utils.MarionetteError, `${name} shared error constructor`);
     assert.strictEqual(typeof Marionette.MarionetteError, 'function', `${name} MarionetteError export`);

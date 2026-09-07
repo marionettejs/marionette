@@ -1,7 +1,7 @@
 # Immutable release promotion
 
-Marionette promotes one verified npm tarball from one source commit. The release
-workflow never rebuilds the package after that tarball is created. The npm version,
+Marionette promotes verified npm tarballs from one source commit. The release
+workflow never rebuilds the package after those tarballs are created. The npm version,
 Git tag, GitHub release, package manifest, evidence manifest, and source commit must
 all agree.
 
@@ -17,12 +17,12 @@ manual dispatch from `master` in this repository with the `publish` input enable
 followed by approval of the protected `stable-release` environment.
 
 Generated `dist/` files and `src/version.js` are ignored by Git. `npm ci` runs the
-root `prepare` lifecycle to build all four packages and test the core distributions.
+root `prepare` lifecycle to build all five packages and test the core distributions.
 Artifact construction performs a final clean build and distribution check from the
 verified source commit, then runs `npm pack --ignore-scripts` so packing cannot
 rebuild those tested outputs. This final build also replaces stale local ignored files. Package fixtures validate the exact tarballs before any
 publication. TypeScript declarations are generated from each package's source. The packages
-are built and published in dependency order: utils, core, data, adapters.
+are built and published in dependency order: utils, radio, core, data, adapters.
 
 ## v5 distribution policy
 

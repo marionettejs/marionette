@@ -94,6 +94,7 @@ if (requestedSourceCommit && requestedSourceCommit !== sourceCommit) {
 
 const packageConfigurations = [
   { id: 'utils', name: '@marionette/utils', directory: 'packages/utils', manifestFile: 'utils-package-manifest.json' },
+  { id: 'radio', name: '@marionette/radio', directory: 'packages/radio', manifestFile: 'radio-package-manifest.json' },
   { id: 'core', name: 'marionette', directory: '.', manifestFile: 'core-package-manifest.json' },
   { id: 'data', name: '@marionette/data', directory: 'packages/data', manifestFile: 'data-package-manifest.json' },
   { id: 'adapters', name: '@marionette/adapters', directory: 'packages/adapters', manifestFile: 'adapters-package-manifest.json' },
@@ -123,8 +124,11 @@ for (const configuration of packageConfigurations) {
   if (manifest.version !== packageJson.version) {
     throw new Error(`${manifest.name} version ${manifest.version} does not match ${packageJson.version}.`);
   }
-  if (['core', 'data'].includes(configuration.id) && manifest.dependencies?.['@marionette/utils'] !== packageJson.version) {
+  if (['radio', 'core', 'data'].includes(configuration.id) && manifest.dependencies?.['@marionette/utils'] !== packageJson.version) {
     throw new Error(`${manifest.name} utils dependency ${manifest.dependencies?.['@marionette/utils'] || 'missing'} does not match ${packageJson.version}.`);
+  }
+  if (configuration.id === 'core' && manifest.dependencies?.['@marionette/radio'] !== packageJson.version) {
+    throw new Error('Core Radio dependency must match the release version.');
   }
   if (configuration.id === 'adapters' && manifest.peerDependencies?.marionette !== packageJson.version) {
     throw new Error(`${manifest.name} Marionette peer ${manifest.peerDependencies?.marionette || 'missing'} does not match ${packageJson.version}.`);

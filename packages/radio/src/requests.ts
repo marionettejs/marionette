@@ -1,8 +1,5 @@
-import { debugLog, log } from '../modules/common/radio.ts';
-import { setProperty } from '@marionette/utils';
-import { eventSplitter } from '../utils/build-event-args.ts';
-import callHandler from '../utils/call-handler.ts';
-import onceWrap from '../utils/once-wrap.ts';
+import { debugLog, log } from './debug.ts';
+import { setProperty, eventSplitter, callHandler, onceWrap } from '@marionette/utils';
 
 /*
  * Requests

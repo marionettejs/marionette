@@ -414,8 +414,8 @@ implementations; install the matching version directly when importing helpers
 into your own components. Existing public Marionette helper exports still refer
 to those functions. Source-file imports are not package entry points.
 
-Core ESM and CommonJS builds now import `@marionette/utils`. Browser projects
-loading raw ES modules must map that package in their import map, or use a
+Core ESM and CommonJS builds import `@marionette/utils` and `@marionette/radio`.
+Browser projects loading raw ES modules must map both packages in their import map, or use a
 bundler. Standalone UMD builds remain self-contained.
 
 ### Native object copying
@@ -427,3 +427,14 @@ instead of being silently ignored. There is no getter-ordering contract beyond
 the chosen native operation. `extend` retains inherited enumerable parent statics
 and defines subclass properties so they can shadow inherited getters. Dynamic
 model and event keys such as `__proto__` remain ordinary data properties.
+
+### Standalone Events, Radio, and data
+
+`@marionette/utils` owns the shared `Events` implementation. `@marionette/radio`
+exports the default `Radio` and the `createRadio()` factory. Core continues to
+export the same Events, Error, and default Radio within each module format.
+`createMarionette()` continues to create an isolated Radio for each runtime.
+
+`@marionette/data` now depends only on utils; core is no longer a peer dependency.
+Standalone data and messaging consumers do not need to install Marionette core.
+These packages keep the same version and release together with core and adapters.

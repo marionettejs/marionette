@@ -2,7 +2,7 @@ import EventDelegator from '../runtime/event-delegator.ts';
 import { resolveMethod, getValue, isString } from '@marionette/utils';
 import eachOwn from '../utils/each-own.ts';
 
-import type { EventCallback } from './events.ts';
+import type { EventCallback } from '@marionette/utils';
 import type { EventDelegator as Delegator, DelegateOptions } from '../runtime/event-delegator.ts';
 import type { UISelectors } from './ui.ts';
 

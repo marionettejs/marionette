@@ -13,3 +13,10 @@ export type { Bindings } from './normalize-methods.ts';
 export type { MarionetteErrorInstance, MarionetteErrorConstructor } from './error.ts';
 export type { EventCallback, EventMap, EventSource, EventMethods } from './events.ts';
 export type { Merge, Constructed, CallableParent } from './constructor.ts';
+
+export { default as Events } from './events.ts';
+export type { Events as EventsContract } from './events.ts';
+export { default as uniqueId } from './unique-id.ts';
+export { default as callHandler } from './call-handler.ts';
+export { default as onceWrap } from './once-wrap.ts';
+export { default as buildEventArgs, eventSplitter } from './build-event-args.ts';

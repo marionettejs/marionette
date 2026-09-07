@@ -1,7 +1,7 @@
 // Data API
 // --------
 import { MarionetteError } from '@marionette/utils';
-import type { EventCallback, EventSource } from '../mixins/events.ts';
+import type { EventCallback, EventSource } from '@marionette/utils';
 
 // Configured sources are opaque; registration does not establish a source match.
 export interface DataApi {

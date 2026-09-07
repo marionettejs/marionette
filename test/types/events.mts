@@ -1,8 +1,8 @@
-import Events from '../tmp/typed-core/src/mixins/events.js';
-import type { EventMap, EventSource } from '../tmp/typed-core/src/mixins/events.js';
-import callHandler from '../tmp/typed-core/src/utils/call-handler.js';
-import onceWrap from '../tmp/typed-core/src/utils/once-wrap.js';
-import buildEventArgs from '../tmp/typed-core/src/utils/build-event-args.js';
+import Events from '../tmp/typed-core/packages/utils/src/events.js';
+import type { EventMap, EventSource } from '../tmp/typed-core/packages/utils/src/events.js';
+import callHandler from '../tmp/typed-core/packages/utils/src/call-handler.js';
+import onceWrap from '../tmp/typed-core/packages/utils/src/once-wrap.js';
+import buildEventArgs from '../tmp/typed-core/packages/utils/src/build-event-args.js';
 
 const receiver = { ...Events, value: 1 };
 const eventMap: EventMap = { change(value: number) { return value; } };

@@ -40,7 +40,7 @@ const externalImports = [...new Set(generated.output
 const internalModules = bundle.watchFiles.map(path => resolve(path));
 await bundle.close();
 
-if (JSON.stringify(externalImports) !== JSON.stringify(['@marionette/utils', 'marionette'])) {
+if (JSON.stringify(externalImports) !== JSON.stringify(['@marionette/utils'])) {
   throw new Error(`@marionette/data external imports changed: ${externalImports.join(', ') || 'none'}.`);
 }
 const foreignModules = internalModules.filter(path => {

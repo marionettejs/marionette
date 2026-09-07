@@ -4,6 +4,9 @@ import { fileURLToPath } from 'node:url';
 export default defineConfig({
   resolve: {
     alias: [{
+      find: /^@marionette\/radio$/,
+      replacement: fileURLToPath(new URL('./packages/radio/src/index.ts', import.meta.url))
+    }, {
       find: /^@marionette\/utils$/,
       replacement: fileURLToPath(new URL('./packages/utils/src/index.ts', import.meta.url))
     }, {
@@ -23,7 +26,8 @@ export default defineConfig({
         'src/**/*.{js,ts}',
         'packages/adapters/src/**/*.ts',
         'packages/data/src/**/*.ts',
-        'packages/utils/src/**/*.ts'
+        'packages/utils/src/**/*.ts',
+        'packages/radio/src/**/*.ts'
       ],
       thresholds: {
         lines: 100,

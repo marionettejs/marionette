@@ -1,5 +1,5 @@
-import Requests from '../tmp/typed-core/src/mixins/requests.js';
-import { createDebug, debugLog, log } from '../tmp/typed-core/src/modules/common/radio.js';
+import Requests from '../tmp/typed-core/packages/radio/src/requests.js';
+import { createDebug, debugLog, log } from '../tmp/typed-core/packages/radio/src/debug.js';
 import type { Channel } from '../tmp/typed-core/src/modules/object.js';
 
 const receiver = { ...Requests, label: 'Example' };

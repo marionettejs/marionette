@@ -1,5 +1,4 @@
-import { Events } from 'marionette';
-import { extend } from '@marionette/utils';
+import { Events, extend } from '@marionette/utils';
 import Model from './model.ts';
 
 import type { EventMethods as EventSource, Merge, Constructed, CallableParent } from '@marionette/utils';

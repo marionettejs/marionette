@@ -1,7 +1,7 @@
-import Radio from '../../src/modules/radio';
-import { setDebug } from '../../src/modules/common/radio';
-import Events from '../../src/mixins/events';
-import Requests from '../../src/mixins/requests';
+import Radio from '../../packages/radio/src/radio.ts';
+import { setDebug } from '../../packages/radio/src/debug.ts';
+import Events from '../../packages/utils/src/events.ts';
+import Requests from '../../packages/radio/src/requests.ts';
 
 function assignmentDescriptor(value) {
   return {
@@ -111,7 +111,7 @@ describe('Radio composition', function() {
         });
       });
 
-      ({ default: IsolatedRadio } = await import('../../src/modules/radio.ts?composition-test'));
+      ({ default: IsolatedRadio } = await import('../../packages/radio/src/radio.ts?composition-test'));
     } catch (error) {
       primaryError = error;
     }

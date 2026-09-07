@@ -1,11 +1,8 @@
-import { createDebug, debugLog, setDebug, log } from './common/radio.ts';
-import Events from '../mixins/events.ts';
-import type { EventCallback, Events as EventsContract } from '../mixins/events.ts';
-import Requests from '../mixins/requests.ts';
-import type { Requests as RequestsContract } from '../mixins/requests.ts';
-
-import { setProperty, MarionetteError } from '@marionette/utils';
-import callHandler from '../utils/call-handler.ts';
+import { createDebug, debugLog, setDebug, log } from './debug.ts';
+import { Events, setProperty, MarionetteError, callHandler } from '@marionette/utils';
+import type { EventCallback, EventsContract } from '@marionette/utils';
+import Requests from './requests.ts';
+import type { Requests as RequestsContract } from './requests.ts';
 
 export interface Channel extends EventsContract, RequestsContract {
   channelName: string;
@@ -55,7 +52,6 @@ type ChannelState = Channel & { _tunedIn?: boolean };
 type ChannelConstructor = { new(channelName: string): ChannelState };
 
 export function createRadio(debug = createDebug()): RadioApi {
-  const objectKeys = Object.keys;
   const _logs: Record<string, EventCallback> = Object.create(null);
 
   // This is to produce an identical function in both tuneIn and tuneOut,
@@ -150,11 +146,8 @@ export function createRadio(debug = createDebug()): RadioApi {
  *
  */
 
-  const systems = [Events, Requests];
-  for (let systemIndex = 0, systemsLength = systems.length; systemIndex < systemsLength; systemIndex++) {
-    const methodNames = objectKeys(systems[systemIndex]) as Array<keyof ChannelMethods>;
-    for (let index = 0, length = methodNames.length; index < length; index++) {
-      const methodName = methodNames[index];
+  for (const system of [Events, Requests]) {
+    for (const methodName of Object.keys(system) as Array<keyof ChannelMethods>) {
       setProperty(Radio, methodName, function(channelName: string, ...args: unknown[]) {
         const channel = Radio.channel(channelName);
         // The selected overload and argument tuple are known only to the caller.
@@ -165,7 +158,7 @@ export function createRadio(debug = createDebug()): RadioApi {
 
   Radio.reset = function(channelName?: string) {
     if (!arguments.length) {
-      const channelNames = objectKeys(_channels);
+      const channelNames = Object.keys(_channels);
       for (let index = 0, length = channelNames.length; index < length; index++) {
         _channels[channelNames[index]].reset();
       }

@@ -1,4 +1,4 @@
-import uniqueId from '../tmp/typed-core/src/utils/unique-id.js';
+import uniqueId from '../tmp/typed-core/packages/utils/src/unique-id.js';
 
 const bare: string = uniqueId();
 const scoped: string = uniqueId('example');
