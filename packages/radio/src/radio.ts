@@ -1,4 +1,4 @@
-import { createDebug, debugLog, setDebug, log } from './debug.ts';
+import { createDebug, defaultDebug } from './debug.ts';
 import { Events, setProperty, MarionetteError, callHandler } from '@marionette/utils';
 import type { EventCallback, EventsContract } from '@marionette/utils';
 import Requests from './requests.ts';
@@ -41,6 +41,9 @@ type ForwardedMethods = { [Method in keyof ChannelMethods]: Forward<ChannelMetho
 
 export interface RadioApi extends ForwardedMethods {
   setDebug: ReturnType<typeof createDebug>['setDebug'];
+  log: ReturnType<typeof createDebug>['hooks']['log'];
+  debugLog: ReturnType<typeof createDebug>['hooks']['debugLog'];
+  Channel: ChannelConstructor;
   channel(name: string): Channel;
   reset(): void;
   reset(name: string): void;
@@ -49,19 +52,22 @@ export interface RadioApi extends ForwardedMethods {
 }
 
 type ChannelState = Channel & { _tunedIn?: boolean };
-type ChannelConstructor = { new(channelName: string): ChannelState };
+export type ChannelConstructor = {
+  new(channelName: string): Channel;
+  prototype: Channel;
+};
 
-export function createRadio(debug = createDebug()): RadioApi {
+function buildRadio(debug: ReturnType<typeof createDebug>): RadioApi {
   const _logs: Record<string, EventCallback> = Object.create(null);
 
   // This is to produce an identical function in both tuneIn and tuneOut,
   // so that Events unregisters it.
   function getChannelLog(channelName: string) {
-    return _logs[channelName] || (_logs[channelName] = log.bind(Radio, channelName));
+    return _logs[channelName] || (_logs[channelName] = debug.log.bind(Radio, channelName));
   }
 
   // Methods are installed below; callers receive only the completed object.
-  const Radio = {} as RadioApi;
+  const Radio = debug.hooks as RadioApi;
 
   Object.assign(Radio, {
     setDebug: debug.setDebug,
@@ -107,7 +113,7 @@ export function createRadio(debug = createDebug()): RadioApi {
       return _channels[channelName];
     }
 
-    return (_channels[channelName] = new (Channel as unknown as ChannelConstructor)(channelName));
+    return (_channels[channelName] = new Radio.Channel(channelName));
   };
 
   /*
@@ -118,11 +124,11 @@ export function createRadio(debug = createDebug()): RadioApi {
  *
  */
 
-  function Channel(this: ChannelState, channelName: string) {
+  function RadioChannel(this: ChannelState, channelName: string) {
     this.channelName = channelName;
   }
 
-  Object.assign(Channel.prototype, Events, Requests, {
+  Object.assign(RadioChannel.prototype, Events, Requests, {
 
     // Remove all handlers from the messaging systems of this channel
     reset(this: ChannelState) {
@@ -132,11 +138,11 @@ export function createRadio(debug = createDebug()): RadioApi {
       return this;
     },
   } satisfies Pick<ChannelState, 'reset'>);
-  Object.defineProperty(Channel.prototype, '_debugLog', {
-    configurable: true,
-    value: debug.debugLog,
-    writable: true
+  Object.defineProperties(RadioChannel.prototype, {
+    _debugLog: { configurable: true, value: debug.debugLog, writable: true },
+    _log: { configurable: true, value: debug.log, writable: true }
   });
+  Radio.Channel = RadioChannel as unknown as ChannelConstructor;
 
   /*
  * Top-level API
@@ -185,4 +191,11 @@ export function createRadio(debug = createDebug()): RadioApi {
   return Radio;
 }
 
-export default createRadio({ debugLog, setDebug });
+export function createRadio(): RadioApi {
+  return buildRadio(createDebug());
+}
+
+const Radio = buildRadio(defaultDebug);
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- The type and value occupy separate TypeScript namespaces.
+export const Channel = Radio.Channel;
+export default Radio;

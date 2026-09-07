@@ -332,8 +332,15 @@ without an exception. Do not bridge, mirror, or run both singletons as a
 compatibility strategy.
 
 Replace `Radio.DEBUG = true` with `Radio.setDebug()` and disable it with
-`Radio.setDebug(false)`. The v4 `Radio.Requests` mixin is removed; use request
-methods on `Radio.channel(name)` or on the top-level built-in `Radio` API.
+`Radio.setDebug(false)`. Import the Requests mixin with
+`import { Requests } from '@marionette/radio'` and compose it into an object with
+`Object.assign`. Import `Channel` from the same package for standalone channels,
+or use `new runtime.Radio.Channel(name)` for runtime-specific logging. Standalone
+channels are not registered; their owner calls `reset()` when finished.
+
+`Radio.log` and `Radio.debugLog` remain replaceable hooks, scoped to each Radio
+instance. `setDebug(false)` also suppresses custom warning hooks. Existing channels
+use replacement hooks immediately, and hooks receive their Radio as `this`.
 
 Request/reply methods are not mixed into `Application`, `Behavior`,
 `CollectionView`, `MnObject`, `Region`, or `View` instances. Replace an

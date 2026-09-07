@@ -1,4 +1,4 @@
-import Radio from '../../packages/radio/src/radio.ts';
+import Radio, { createRadio } from '../../packages/radio/src/radio.ts';
 import { setDebug } from '../../packages/radio/src/debug.ts';
 import Events from '../../packages/utils/src/events.ts';
 import Requests from '../../packages/radio/src/requests.ts';
@@ -27,7 +27,7 @@ describe('Radio composition', function() {
     Radio.reset();
   });
 
-  it('exposes one singleton API and keeps implementation seams private', function() {
+  it('exposes messaging APIs and keeps the channel registry private', function() {
     const channel = Radio.channel('composition');
     const channelPrototype = Object.getPrototypeOf(channel);
     const channelFinal = { reset: channelPrototype.reset };
@@ -35,7 +35,10 @@ describe('Radio composition', function() {
 
     expect(Object.getOwnPropertyDescriptor(Radio, 'setDebug'))
       .to.deep.equal(assignmentDescriptor(setDebug));
-    expect(Radio).to.not.have.any.keys('Channel', 'log', 'debugLog', '_channels');
+    expect(Radio).to.not.have.property('_channels');
+    expect(Radio.Channel.prototype).to.equal(channelPrototype);
+    expect(Radio.log).to.be.a('function');
+    expect(Radio.debugLog).to.be.a('function');
     expect(Object.keys(channelPrototype)).to.deep.equal(expectedChannelKeys);
 
     [Events, Requests].forEach(source => {
@@ -75,7 +78,7 @@ describe('Radio composition', function() {
     expect(alternateReset).to.not.have.been.called;
   });
 
-  it('excludes inherited API pollution and safely composes own built-in keys', async function() {
+  it('excludes inherited API pollution and safely composes own built-in keys', function() {
     const eventsPrototype = Object.getPrototypeOf(Events);
     const descriptors = new Map(
       ['constructor', 'toString']
@@ -111,7 +114,7 @@ describe('Radio composition', function() {
         });
       });
 
-      ({ default: IsolatedRadio } = await import('../../packages/radio/src/radio.ts?composition-test'));
+      IsolatedRadio = createRadio();
     } catch (error) {
       primaryError = error;
     }

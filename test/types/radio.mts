@@ -92,5 +92,6 @@ const wrongChannelReset: void = channel.reset();
 const wrongRadioReset: Channel = runtime.reset('work');
 // @ts-expect-error Debug switches require boolean values.
 runtime.setDebug('yes');
-// @ts-expect-error Private implementation constructors are not public Radio properties.
-runtime.Channel;
+const privateChannel: Channel = new runtime.Channel('private');
+// @ts-expect-error A channel constructor requires a string name.
+new runtime.Channel(123);

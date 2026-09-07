@@ -6,10 +6,33 @@ import * as esmData from '@marionette/data';
 
 const require = createRequire(import.meta.url);
 assert.throws(() => require.resolve('marionette'), { code: 'MODULE_NOT_FOUND' });
-for (const [utils, { Radio, createRadio }, { Model, Collection, DataApi }] of [
+for (const [utils, { Radio, createRadio, Channel, Requests }, { Model, Collection, DataApi }] of [
   [esmUtils, esmRadio, esmData],
   [require('@marionette/utils'), require('@marionette/radio'), require('@marionette/data')]
 ]) {
+  assert.equal(Channel, Radio.Channel);
+  const privateChannel = new Channel('private');
+  privateChannel.reply('value', 'private');
+  const service = Object.assign({}, Requests);
+  service.reply('value', 'service');
+  assert.equal(service.request('value'), 'service');
+  assert.equal(service.on, undefined);
+  const custom = createRadio();
+  const activity = [];
+  const warnings = [];
+  custom.log = (...args) => activity.push(args);
+  custom.debugLog = (...args) => warnings.push(args);
+  custom.tuneIn('app');
+  custom.trigger('app', 'event', 1);
+  custom.setDebug();
+  new custom.Channel('private').request('missing');
+  assert.deepEqual(activity, [['app', 'event', 1]]);
+  assert.deepEqual(warnings, [['An unhandled request was fired', 'missing', 'private']]);
+  custom.tuneOut('app');
+  Radio.reset();
+  assert.equal(privateChannel.request('value'), 'private');
+  privateChannel.reset();
+  assert.equal(privateChannel.request('value'), undefined);
   const model = new Model({ name: 'first' });
   const listener = Object.assign({}, utils.Events);
   const names = [];

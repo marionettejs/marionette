@@ -21,6 +21,7 @@ type Registry = Record<string, { callback: Callback; context: unknown }>;
 type RequestState = Requests & {
   _rdRequests?: Registry;
   _debugLog?: typeof debugLog;
+  _log?: typeof log;
   channelName?: string;
   _tunedIn?: boolean;
 };
@@ -112,7 +113,8 @@ function dispatchOverload(
   return false;
 }
 
-export default {
+// eslint-disable-next-line @typescript-eslint/no-redeclare -- The type and value occupy separate TypeScript namespaces.
+export const Requests = {
 
   // Set up a handler for a request
   reply(this: RequestState, name: string | Record<string, unknown>, callback?: unknown, context?: unknown) {
@@ -179,9 +181,9 @@ export default {
     const channelName = this.channelName;
     const requests = this._rdRequests;
 
-    // // Check if we should log the request, and if so, do it
+    // Log requests while the channel is tuned in.
     if (channelName && this._tunedIn) {
-      log.apply(this, ([channelName, name] as unknown[]).concat(args) as Parameters<typeof log>);
+      (this._log || log)(channelName, name as string, ...args);
     }
 
     // If the request isn't handled, log it in DEBUG mode and exit
@@ -208,3 +210,5 @@ export default {
   // The receiver gains these methods when composed; request maps return the
   // record assembled above while individual request results remain unknown.
 } as Requests;
+
+export default Requests;

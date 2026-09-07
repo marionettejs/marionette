@@ -1,4 +1,4 @@
-import Radio from '../../packages/radio/src/radio.ts';
+import Radio, { createRadio } from '../../packages/radio/src/radio.ts';
 import { debugLog, setDebug } from '../../packages/radio/src/debug.ts';
 
 describe('Radio', function() {
@@ -263,8 +263,8 @@ describe('Radio', function() {
     expect(handler).to.have.been.calledOnce;
   });
 
-  it('rejects unknown prototype property channel names and resets them once created', async function() {
-    const { default: IsolatedRadio } = await import('../../packages/radio/src/radio.ts?prototype-reset-test');
+  it('rejects unknown prototype property channel names and resets them once created', function() {
+    const IsolatedRadio = createRadio();
 
     ['toString', 'constructor', '__proto__'].forEach(channelName => {
       expect(() => IsolatedRadio.reset(channelName)).to.throw().with.property('code', 'MN0021');

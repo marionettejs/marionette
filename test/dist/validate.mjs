@@ -25,12 +25,12 @@ const removedRootUtilities = [
   'normalizeMethods',
   'triggerMethod',
 ];
-const removedRadioProperties = ['Channel', 'log', 'debugLog', '_channels'];
 
 function validateRadio(Marionette, name) {
-  for (const property of removedRadioProperties) {
-    assert.strictEqual(Object.hasOwn(Marionette.Radio, property), false, `${name} Radio.${property} absence`);
+  for (const property of ['Channel', 'log', 'debugLog']) {
+    assert.strictEqual(typeof Marionette.Radio[property], 'function', `${name} Radio.${property}`);
   }
+  assert.strictEqual(Object.hasOwn(Marionette.Radio, '_channels'), false, `${name} private Radio registry`);
 }
 
 function validateRequestBoundary(Marionette, name) {

@@ -1,38 +1,34 @@
 function createDebug() {
-  // Debug mode warns about overwritten or unhandled requests.
   let shouldDebug = false;
+  const hooks = { debugLog: warn, log: logActivity };
 
   function setDebug(setShouldDebug = true) {
     shouldDebug = setShouldDebug;
   }
 
   function debugLog(warning: string, eventName: string, channelName?: string) {
-    if (shouldDebug && console && console.warn) {
-      console.warn(debugText(warning, eventName, channelName));
+    if (shouldDebug) {
+      hooks.debugLog(warning, eventName, channelName);
     }
   }
 
-  return { debugLog, setDebug };
+  function log(channelName: string, eventName: string, ...args: unknown[]) {
+    hooks.log(channelName, eventName, ...args);
+  }
+
+  return { hooks, setDebug, debugLog, log };
 }
 
-// Format debug text.
-function debugText(warning: string, eventName: string, channelName?: string) {
-  return warning + (channelName ? ` on the ${ channelName } channel` : '') +
-    `: "${ eventName }"`;
+function warn(warning: string, eventName: string, channelName?: string) {
+  console.warn(warning + (channelName ? ` on the ${ channelName } channel` : '') +
+    `: "${ eventName }"`);
 }
 
-const { debugLog, setDebug } = createDebug();
-
-// Log information about the channel and event
-function log(channelName: string, eventName: string, ...args: unknown[]) {
-  /* v8 ignore next: the supported test/runtime environments provide console */
-  if (typeof console === 'undefined') { return; }
+function logActivity(channelName: string, eventName: string, ...args: unknown[]) {
   console.log(`[${ channelName }] "${ eventName }"`, args);
 }
 
-export {
-  createDebug,
-  setDebug,
-  debugLog,
-  log,
-};
+const defaultDebug = createDebug();
+const { setDebug, debugLog, log } = defaultDebug;
+
+export { createDebug, defaultDebug, setDebug, debugLog, log };
