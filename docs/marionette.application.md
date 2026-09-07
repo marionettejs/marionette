@@ -38,6 +38,30 @@ import { Application } from 'marionette';
 const myApplication = new Application({ ... });
 ```
 
+### Initialization hooks
+
+`preinitialize(options)` runs after `options` and `cid` are assigned, before
+Marionette sets up the Region, Radio, and State. Use it to prepare instance
+configuration those steps depend on. `initialize(options)` runs after that
+setup, before State event subscriptions are connected. Owned State is still
+created lazily when `getState()` is first called.
+
+```javascript
+const FeatureApplication = Application.extend({
+  preinitialize(options) {
+    this.channelName = options.featureName;
+    this.region = { el: options.element };
+  },
+  initialize() {
+    // The configured Region and Radio channel are now available.
+  }
+});
+```
+
+Both hooks receive the original constructor arguments and run synchronously;
+returned Promises are not awaited. Use `onBeforeStart` for asynchronous startup
+readiness.
+
 Constructor errors propagate to the caller. Marionette does not undo partially
 completed initialization or automatically release resources from a constructor
 that throws. Application's asynchronous lifecycle has its own cancellation and

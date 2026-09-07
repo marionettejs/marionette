@@ -4,6 +4,7 @@ import Region, {type RegionInstance} from '../tmp/typed-core/src/modules/region.
 import type {SupportedView} from '../tmp/typed-core/src/modules/common/view.js';
 
 const Child = Application.extend({
+  preinitialize(options: {label: string}) { this.channelName = options.label; },
   initialize(options: {label: string}) { this.options.label.toUpperCase(); },
   createState() {return {ready: false};},
   async onBeforeStart(application: ApplicationInstance<object, unknown>, options: unknown, context: LifecycleContext) {
@@ -78,9 +79,18 @@ root.Radio.channel('shared').on('change', (value: number) => value.toFixed());
 root.getChannel().request('status');
 
 class NativeApplication extends Application {
+  preinitialize(options?: {region?: string}) { super.preinitialize(options); }
   async onBeforeStart(application: this, options: unknown, {signal}: LifecycleContext) {
     if (!signal.aborted) {application.isRunning();}
   }
   async start(options?: unknown) { return super.start(options); }
 }
 const native: Promise<boolean> = new NativeApplication().start();
+
+const configuredEarly: void = child.preinitialize({label: 'Editor'});
+// @ts-expect-error The preinitialize override retains its declared option type.
+child.preinitialize({label: false});
+declare const applicationInstance: ApplicationInstance<{label: string}>;
+applicationInstance.preinitialize({label: 'Editor'});
+// @ts-expect-error The public instance hook uses the Application option type.
+applicationInstance.preinitialize({label: 1});
