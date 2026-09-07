@@ -296,7 +296,7 @@ describe('DomApi', function() {
       const attrs = Object.assign(Object.create({ inherited: 'ignored' }), {
         title: 'owned',
         constructor: 'ordinary attribute',
-        [Symbol('included')]: 'ignored'
+        [Symbol('ignored')]: 'ignored'
       });
       Object.defineProperty(attrs, 'hidden', { value: 'ignored' });
       Object.defineProperty(attrs, '__proto__', { enumerable: true, value: 'ordinary attribute' });
