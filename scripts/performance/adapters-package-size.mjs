@@ -26,9 +26,6 @@ const expectedExternalImports = [
   [],
   ['jquery'],
   [],
-  [],
-  [],
-  [],
   ['morphdom'],
   ['lit-html'],
 ];

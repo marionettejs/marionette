@@ -26,6 +26,8 @@ const actorView = new View({ model: childActor, state: childActor, template: fal
 const borrowedActor: typeof childActor = actorView.getState();
 const actorList = new CollectionView({ collection: parentActor, childView: View });
 const actorSource: typeof parentActor = actorList.collection;
+void borrowedActor;
+void actorSource;
 new runtime.View({ model: childActor, state: childActor, template: false });
 new runtime.CollectionView({ collection: parentActor, childView: runtime.View });
 const subscriptionContext = { snapshots: 0 };

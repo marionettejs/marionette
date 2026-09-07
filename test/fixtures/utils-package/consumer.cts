@@ -27,7 +27,7 @@ const skippedReady: boolean = skipped.ready;
 const symbol = Symbol('not copied');
 const ownStrings = assignOwn({}, { [symbol]: 1, label: 'copied' });
 // @ts-expect-error The assignment helpers copy enumerable string keys, not symbols.
-ownStrings[symbol];
+void ownStrings[symbol];
 
 function Base(this: { count: number }, count: number) { this.count = count; }
 Base.category = 'component';
