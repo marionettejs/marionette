@@ -50,7 +50,6 @@ describe('Object and Application prototype composition', function() {
       'regionClass',
       '_initRegion',
       'getRegion',
-      '_onRootRegionEmpty',
       'showView',
       'getView'
     ];

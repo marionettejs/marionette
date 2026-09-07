@@ -410,15 +410,16 @@ triggers.
 
 The Application owns a Region that it constructs from a selector, Region class,
 or definition object. Passing an existing Region instance instead borrows that
-host. Stopping the Application empties the host only while it still contains the
-Application's root View. Destroying the Application also destroys a Region it
+host. Stopping the Application empties the Region's current View, including one
+shown directly through the Region. Destroying the Application also destroys a Region it
 constructed, but never destroys a borrowed Region.
 
-If the host Region is emptied, detached, or shows a replacement externally, the
-Application clears its View reference without stopping. Emptying or replacing
-normally destroys the former root View; detaching transfers it alive to the caller.
-A later Application stop does not empty an unrelated replacement. Restart uses the
-same stop behavior before `onStart` may show a new root View.
+The Application's View is whatever its Region currently shows. Showing a View
+through either `app.showView(view)` or `app.getRegion().show(view)` updates what
+`app.getView()` returns. Emptying or detaching the Region leaves no current View
+without stopping the Application. Restart removes the current View before
+`onStart` may show a new View. If the Region has no View, stopping the Application
+leaves any unmanaged HTML alone.
 
 ### `regionClass`
 
@@ -454,16 +455,12 @@ Application. The host reference is released when the Application is destroyed.
 
 ### `showView(view)`
 
-Display a `View` instance in the Region attached to the Application and make it
-the Application's root View. This runs the
+Display a `View` instance in the Region attached to the Application. This runs the
 [`View lifecycle`](./view.lifecycle.md). The Application itself is never passed
 to `Region#show` and does not become renderable.
 
 ### `getView()`
 
-Return the root View currently coordinated by the Application. A View shown while
-the Application is stopped, including before startup, is also returned.
-
-If the host Region is emptied, the root View is detached or replaced externally,
-or Application teardown releases it, this method returns `undefined` even if a
-borrowed Region now contains another View.
+Return the Region's `currentView`, including a View shown directly through the
+Region or before Application startup. Returns `undefined` when the Region has no
+current View or the Application has no Region.

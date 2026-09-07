@@ -134,14 +134,12 @@ type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & S
   _childApps?: Map<string, ApplicationInternals>;
   _region?: RegionInstance;
   _ownedRegion?: RegionInstance;
-  _view?: SupportedView;
   _isDestroyed: boolean;
   _initRegion(): void;
   _initRadio(): void;
   _destroyRadio(): unknown;
   _initState(options?: unknown): void;
   _initStateEvents(): unknown;
-  _onRootRegionEmpty(): void;
 };
 
 const ClassOptions = [
@@ -314,31 +312,10 @@ function hasActiveChildApps(application: ApplicationInternals) {
   return false;
 }
 
-function clearRootView(application: ApplicationInternals) {
-  const region = application._region;
-
-  region?.off('empty', application._onRootRegionEmpty, application);
-  delete application._view;
-}
-
-function getRootView(application: ApplicationInternals) {
-  const view = application._view;
-
-  if (view && application._region?.currentView !== view) {
-    clearRootView(application);
-    return;
-  }
-
-  return view;
-}
-
-function emptyRootView(application: ApplicationInternals, options?: unknown) {
-  if (!getRootView(application)) { return; }
-
-  try {
-    application._region!.empty(options as ShowOptions | undefined);
-  } finally {
-    getRootView(application);
+function emptyView(application: ApplicationInternals, options?: unknown) {
+  const region = application.getRegion();
+  if (region?.currentView) {
+    region.empty(options as ShowOptions | undefined);
   }
 }
 
@@ -503,7 +480,7 @@ async function stopApplication(application: ApplicationInternals, operation: Ope
       cancelOperation(application, operation);
       return;
     }
-    emptyRootView(application, readiness.options);
+    emptyView(application, readiness.options);
     if (!isCurrentOperation(application, operation)) { return; }
     operation.failureState = STOPPED;
     operation.isStopped = true;
@@ -579,7 +556,7 @@ export default /* @__PURE__ */ ((methods: object) => {
     }
     if (this._lifecycleState === STOPPED && !operation) {
       try {
-        emptyRootView(this, options);
+        emptyView(this, options);
         return Promise.resolve(true);
       } catch (error) {
         return Promise.reject(error);
@@ -605,7 +582,7 @@ export default /* @__PURE__ */ ((methods: object) => {
     return beginOperation(this, 'restart', RESTARTING, failureState, async nextOperation => {
       if (shouldStop) {
         await stopApplication(this, nextOperation, options);
-      } else { emptyRootView(this, options); }
+      } else { emptyView(this, options); }
       if (!isCurrentOperation(this, nextOperation)) { return; }
       await startApplication(this, nextOperation, options);
     });
@@ -626,7 +603,7 @@ export default /* @__PURE__ */ ((methods: object) => {
         await stopChildApps(this, nextOperation, options);
       }
 
-      emptyRootView(this, options);
+      emptyView(this, options);
 
       const readiness = beginReadiness(nextOperation, options, context => {
         return this.triggerMethod('before:destroy', this, options, context);
@@ -722,26 +699,14 @@ export default /* @__PURE__ */ ((methods: object) => {
     return this._region;
   },
 
-  _onRootRegionEmpty(this: ApplicationInternals) {
-    clearRootView(this);
-  },
-
   showView(this: ApplicationInternals, view: SupportedView, ...args: [options?: ShowOptions]) {
     if (isTerminal(this)) { return view; }
 
-    const region = this.getRegion()!;
-    region.show(view, ...args);
-    if (region.currentView === view) {
-      if (this._view !== view) {
-        clearRootView(this);
-        region.on('empty', this._onRootRegionEmpty, this);
-      }
-      this._view = view;
-    }
+    this.getRegion()!.show(view, ...args);
     return view;
   },
 
   getView(this: ApplicationInternals) {
-    return getRootView(this);
+    return this.getRegion()?.currentView;
   }
 });
