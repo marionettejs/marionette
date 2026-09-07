@@ -1,0 +1,25 @@
+test/fixtures/utils-package/consumer.cts
+  s_060efbb5bf6218::t_a39460a3acd41a 30
+test/fixtures/utils-package/consumer.mts
+  s_060efbb5bf6218::t_8b49c6022e0205 30
+test/fixtures/xstate-adapter-types/validate.cts
+  s_060efbb5bf6218::t_a47dc2de47191a 29-30
+test/fixtures/xstate-adapter-types/validate.mts
+  s_060efbb5bf6218::t_9c053993e14e39 32-33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "5af496b6a93842ceee2d135fdfb95e2d43c944dc",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
