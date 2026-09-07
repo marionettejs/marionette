@@ -531,6 +531,9 @@ definition. A resolver may return a `View` class or `undefined`, `null`, or
 Marionette trusts the result when the collection is empty. Errors thrown by a
 resolver propagate unchanged.
 
+When the empty collection is rendered or filtered again, a disabled result also
+removes any empty View already shown.
+
 ```javascript
 import _ from 'underscore';
 import { View, CollectionView } from 'marionette';

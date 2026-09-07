@@ -178,6 +178,32 @@ describe('CollectionView -  Empty', function() {
       });
     });
 
+    ['filter', 'render'].forEach(method => {
+      [undefined, null, false].forEach(disabled => {
+        it(`removes the current emptyView when its resolver returns ${disabled} during ${method}`, function() {
+          let EmptyView = OtherView;
+          const myCollectionView = new CollectionView({
+            collection,
+            emptyView() { return EmptyView; }
+          }).render();
+          const emptyRegion = myCollectionView.getEmptyRegion();
+          const previous = emptyRegion.currentView;
+
+          EmptyView = disabled;
+          myCollectionView[method]();
+
+          expect(previous.isDestroyed()).to.be.true;
+          expect(emptyRegion.hasView()).to.be.false;
+          expect(myCollectionView.el.childNodes.length).to.equal(0);
+
+          EmptyView = OtherView;
+          myCollectionView[method]();
+          expect(emptyRegion.currentView).to.be.instanceOf(OtherView).and.not.equal(previous);
+          myCollectionView.destroy();
+        });
+      });
+    });
+
     describe('when emptyView is a Marionette View subclass', function() {
       it('should show an emptyView from the defined view', function() {
         const MyView = View.extend({ template: _.noop });

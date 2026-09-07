@@ -1011,6 +1011,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     const EmptyView = this._getEmptyView();
 
     if (!EmptyView) {
+      this._destroyEmptyView();
       return;
     }
 
