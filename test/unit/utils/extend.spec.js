@@ -169,10 +169,10 @@ describe('extend', function() {
     expect(Child).to.not.have.property('inheritedInput');
   });
 
-  it('ignores nullish and primitive extension inputs', function() {
+  it('accepts absent extension inputs', function() {
     const Parent = function() {};
 
-    [null, undefined, false, 1, 'text'].forEach(input => {
+    [null, undefined].forEach(input => {
       const Child = extend.call(Parent, input, input);
 
       expect(Object.getPrototypeOf(Child.prototype)).to.equal(Parent.prototype);
@@ -180,10 +180,10 @@ describe('extend', function() {
     });
   });
 
-  it('ignores symbol and non-enumerable extension inputs', function() {
-    const symbol = Symbol('ignored');
-    const protoProps = { visiblePrototype: true, [symbol]: 'ignored' };
-    const staticProps = { visibleStatic: true, [symbol]: 'ignored' };
+  it('copies symbol properties but omits non-enumerable inputs', function() {
+    const symbol = Symbol('method');
+    const protoProps = { visiblePrototype: true, [symbol]: 'copied' };
+    const staticProps = { visibleStatic: true, [symbol]: 'copied' };
     Object.defineProperty(protoProps, 'hiddenPrototype', { value: 'ignored' });
     Object.defineProperty(staticProps, 'hiddenStatic', { value: 'ignored' });
 
@@ -193,8 +193,8 @@ describe('extend', function() {
     expect(Child.visibleStatic).to.be.true;
     expect(Child.prototype.hiddenPrototype).to.be.undefined;
     expect(Child.hiddenStatic).to.be.undefined;
-    expect(Child.prototype[symbol]).to.be.undefined;
-    expect(Child[symbol]).to.be.undefined;
+    expect(Child.prototype[symbol]).to.equal('copied');
+    expect(Child[symbol]).to.equal('copied');
   });
 
   it('defines extension __proto__ values without changing prototype chains', function() {

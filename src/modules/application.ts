@@ -1,7 +1,7 @@
 // Application
 // -----------
 
-import { assignOwn, setProperty, MarionetteError } from '@marionette/utils';
+import { setProperty, MarionetteError } from '@marionette/utils';
 import extend from '../utils/extend.ts';
 import uniqueId from '../utils/unique-id.ts';
 import CommonMixin from '../mixins/common.ts';
@@ -528,8 +528,8 @@ async function stopApplication(application: ApplicationInternals, operation: Ope
 // Keep prototype composition inside the exported initialization boundary so an
 // unused Application can be removed without treating its local mutations as global.
 export default /* @__PURE__ */ ((methods: object) => {
-  assignOwn(Application, { extend, setStateApi });
-  assignOwn(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMixin, methods);
+  Object.assign(Application, { extend, setStateApi });
+  Object.assign(Application.prototype, CommonMixin, DestroyMixin, RadioMixin, StateMixin, methods);
   Object.defineProperty(Application.prototype, runtimeId, { value: defaultRuntimeId });
   return Application as unknown as ApplicationConstructor;
 })({

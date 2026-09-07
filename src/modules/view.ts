@@ -1,7 +1,7 @@
 // View
 // ----
 
-import { assignOwn, MarionetteError, getValue } from '@marionette/utils';
+import { MarionetteError, getValue } from '@marionette/utils';
 import eachOwn from '../utils/each-own.ts';
 import extend from '../utils/extend.ts';
 import uniqueId from '../utils/unique-id.ts';
@@ -515,9 +515,9 @@ const View = function(this: ViewInternals, options?: ViewConfiguration) {
   this._triggerEventOnBehaviors('initialize', this, options);
 };
 
-assignOwn(View, { extend, setRenderer, setDomApi, setEventDelegator, setDataApi, setStateApi });
+Object.assign(View, { extend, setRenderer, setDomApi, setEventDelegator, setDataApi, setStateApi });
 
-assignOwn(View.prototype, ViewMixin, RegionsMixin, {
+Object.assign(View.prototype, ViewMixin, RegionsMixin, {
   cidPrefix: 'mnv',
 
   // If a template is available, renders it into the view's `el`

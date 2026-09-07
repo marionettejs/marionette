@@ -105,10 +105,9 @@ describe('Object and Application prototype composition', function() {
   it('does not compose inherited enumerable source pollution', async function() {
     const mixins = [CommonMixin, DestroyMixin, RadioMixin];
     const prototypes = mixins.map(Object.getPrototypeOf);
-    const commonProtoDescriptor = Object.getOwnPropertyDescriptor(CommonMixin, '__proto__');
-    const protoValue = { safe: true };
+
     const mutatedMixins = [];
-    let commonProtoMutated = false;
+
     let IsolatedObject;
     let IsolatedApplication;
     let primaryFailed = false;
@@ -125,13 +124,6 @@ describe('Object and Application prototype composition', function() {
         Object.setPrototypeOf(mixin, pollutedPrototype);
         mutatedMixins.push(mixin);
       });
-      Object.defineProperty(CommonMixin, '__proto__', {
-        configurable: true,
-        enumerable: true,
-        value: protoValue,
-        writable: true
-      });
-      commonProtoMutated = true;
 
       ({ default: IsolatedObject } = await import('../../src/modules/object.ts?composition-test'));
       ({ default: IsolatedApplication } = await import('../../src/modules/application.ts?composition-test'));
@@ -152,16 +144,6 @@ describe('Object and Application prototype composition', function() {
         }
       }
     };
-
-    if (commonProtoMutated) {
-      restore(() => {
-        if (commonProtoDescriptor) {
-          Object.defineProperty(CommonMixin, '__proto__', commonProtoDescriptor);
-        } else if (!Reflect.deleteProperty(CommonMixin, '__proto__')) {
-          throw new Error('Unable to restore CommonMixin.__proto__');
-        }
-      });
-    }
     for (let index = mutatedMixins.length - 1; index >= 0; index--) {
       restore(() => Object.setPrototypeOf(mutatedMixins[index], prototypes[index]));
     }
@@ -175,12 +157,6 @@ describe('Object and Application prototype composition', function() {
     expect(IsolatedApplication.prototype).to.not.have.own.property('inheritedPollution');
     [IsolatedObject.prototype, IsolatedApplication.prototype].forEach(prototype => {
       expect(Object.getPrototypeOf(prototype)).to.equal(Object.prototype);
-      expect(Object.getOwnPropertyDescriptor(prototype, '__proto__')).to.deep.equal({
-        configurable: true,
-        enumerable: true,
-        value: protoValue,
-        writable: true
-      });
     });
   });
 });

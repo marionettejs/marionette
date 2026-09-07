@@ -1,5 +1,5 @@
 import {
-  assignIn, assignOwn, extend, MarionetteError, getOption, mergeOptions, normalizeMethods, triggerMethod
+  extend, MarionetteError, getOption, mergeOptions, normalizeMethods, triggerMethod
 } from '@marionette/utils';
 import type { EventMap, MarionetteErrorInstance } from '@marionette/utils';
 
@@ -13,21 +13,9 @@ mergeOptions.call(component, { enabled: true }, ['enabled']);
 const enabled: unknown = getOption.call(component, 'enabled');
 const result: unknown = triggerMethod.call(component, 'ready', enabled);
 const error: MarionetteErrorInstance = new MarionetteError({ message: 'example' });
-assignOwn({}, handlers, { result, error });
+void [handlers, result, error];
 // @ts-expect-error Events require a string name.
 triggerMethod.call(component, 1);
-
-const assigned = assignOwn({ count: 1 }, { label: 'example' }, { count: 'updated' });
-const assignedCount: string = assigned.count;
-const assignedLabel: string = assigned.label;
-const inherited = assignIn({}, { ready: true });
-const inheritedReady: boolean = inherited.ready;
-const skipped = assignOwn({}, null, undefined, 'not copied', { ready: true });
-const skippedReady: boolean = skipped.ready;
-const symbol = Symbol('not copied');
-const ownStrings = assignOwn({}, { [symbol]: 1, label: 'copied' });
-// @ts-expect-error The assignment helpers copy enumerable string keys, not symbols.
-void ownStrings[symbol];
 
 function Base(this: { count: number }, count: number) { this.count = count; }
 Base.category = 'component';
@@ -73,29 +61,11 @@ const NativeReplacement = extend.call(Native, {
   constructor: function(value: string) { return new Native(Number(value)); }
 });
 const nativeValue: number = new NativeReplacement('3').value;
-void [assignedCount, assignedLabel, inheritedReady, skippedReady, count, label, category,
+void [count, label, category,
   role, ready, replacedCategory, inheritedRole, customLabel, replacement, nativeValue];
-
-const optionalSource: { count?: string } = {};
-const optionalAssignment = assignOwn({ count: 1 }, optionalSource);
-const optionalCount: string | number | undefined = optionalAssignment.count;
-// @ts-expect-error An omitted optional source field leaves the original number.
-optionalAssignment.count?.toUpperCase();
-void optionalCount;
 
 const ReplacementChild = extend.call(Replacement, { unavailable() { return true; } });
 const inheritedReplacement: boolean = new ReplacementChild().replacement;
 // @ts-expect-error Forwarding a replacing constructor does not install descendant prototype methods.
 new ReplacementChild().unavailable();
 void inheritedReplacement;
-
-const callable = (value: number) => String(value);
-const assignedCallable = assignOwn(callable, { label: 'callable' });
-const callableResult: string = assignedCallable(1);
-const callableLabel: string = assignedCallable.label;
-const reassignedCallable = assignIn(assignedCallable, { label: 2 });
-const retainedResult: string = reassignedCallable(2);
-const changedLabel: number = reassignedCallable.label;
-const assignedConstructor = assignOwn(Native, { label: 'constructor' });
-const constructedValue: number = new assignedConstructor(3).value;
-void [callableResult, callableLabel, retainedResult, changedLabel, constructedValue];

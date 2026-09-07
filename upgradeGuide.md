@@ -417,3 +417,13 @@ to those functions. Source-file imports are not package entry points.
 Core ESM and CommonJS builds now import `@marionette/utils`. Browser projects
 loading raw ES modules must map that package in their import map, or use a
 bundler. Standalone UMD builds remain self-contained.
+
+### Native object copying
+
+Use object spread or `Object.assign` instead of the removed `@marionette/utils`
+`assignOwn` and `assignIn` helpers. Configuration copies follow native own-property
+semantics, including enumerable symbol keys; string sources expose character keys
+instead of being silently ignored. There is no getter-ordering contract beyond
+the chosen native operation. `extend` retains inherited enumerable parent statics
+and defines subclass properties so they can shadow inherited getters. Dynamic
+model and event keys such as `__proto__` remain ordinary data properties.

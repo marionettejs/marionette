@@ -1,7 +1,7 @@
 // Region
 // ------
 
-import { assignOwn, MarionetteError, getValue, isString } from '@marionette/utils';
+import { MarionetteError, getValue, isString } from '@marionette/utils';
 import extend from '../utils/extend.ts';
 import uniqueId from '../utils/unique-id.ts';
 import { renderView, destroyView, isView } from './common/view.ts';
@@ -160,7 +160,7 @@ const Region = function(this: RegionInternals, options?: RegionOptions) {
 // Region Methods
 // --------------
 
-assignOwn(Region.prototype, CommonMixin, {
+Object.assign(Region.prototype, CommonMixin, {
   Dom: DomApi,
 
   cidPrefix: 'mnr',

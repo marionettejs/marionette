@@ -4,7 +4,7 @@ import type { EventCallback, Events as EventsContract } from '../mixins/events.t
 import Requests from '../mixins/requests.ts';
 import type { Requests as RequestsContract } from '../mixins/requests.ts';
 
-import { assignOwn, setProperty, MarionetteError } from '@marionette/utils';
+import { setProperty, MarionetteError } from '@marionette/utils';
 import callHandler from '../utils/call-handler.ts';
 
 export interface Channel extends EventsContract, RequestsContract {
@@ -67,7 +67,7 @@ export function createRadio(debug = createDebug()): RadioApi {
   // Methods are installed below; callers receive only the completed object.
   const Radio = {} as RadioApi;
 
-  assignOwn(Radio, {
+  Object.assign(Radio, {
     setDebug: debug.setDebug,
 
     // Logs all events on this channel to the console. It sets an
@@ -126,7 +126,7 @@ export function createRadio(debug = createDebug()): RadioApi {
     this.channelName = channelName;
   }
 
-  assignOwn(Channel.prototype, Events, Requests, {
+  Object.assign(Channel.prototype, Events, Requests, {
 
     // Remove all handlers from the messaging systems of this channel
     reset(this: ChannelState) {

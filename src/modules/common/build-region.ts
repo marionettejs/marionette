@@ -1,4 +1,4 @@
-import { assignOwn, MarionetteError, isString } from '@marionette/utils';
+import { MarionetteError, isString } from '@marionette/utils';
 import { defaultRuntimeId, runtimeId } from '../../runtime-id.ts';
 import Region from '../region.ts';
 import type { RegionInstance, RegionInternals, RegionOptions } from '../region.ts';
@@ -48,7 +48,7 @@ function buildRegion(definition: RegionDefinition, defaults: RegionDefaults): Re
 }
 
 function buildRegionFromObject(defaults: RegionDefaults, definition: RegionOptions & { regionClass?: RegionClass }): RegionInternals {
-  const options = assignOwn({}, defaults, definition) as RegionDefaults;
+  const options = { ...defaults, ...definition } as RegionDefaults;
 
   const RegionClass = options.regionClass;
 

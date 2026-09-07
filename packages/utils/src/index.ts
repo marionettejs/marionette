@@ -1,5 +1,5 @@
 export { default as isString } from './is-string.ts';
-export { default as assignIn, assignOwn, setProperty } from './assign-in.ts';
+export { default as setProperty } from './set-property.ts';
 export { default as extend } from './extend.ts';
 export { default as MarionetteError } from './error.ts';
 export { default as getValue } from './get-value.ts';

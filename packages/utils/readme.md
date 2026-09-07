@@ -37,8 +37,9 @@ component.normalizeMethods({ open: 'onOpen' });
 
 ## Helpers
 
-- `assignOwn(target, ...sources)` copies own enumerable string properties;
-  `assignIn` also copies inherited enumerable string properties.
+Use object spread or `Object.assign` for ordinary copying and composition.
+Inherited enumerable parent statics are copied only inside `extend`.
+
 - `getValue(object, key, fallback)` reads a value and calls it on the object if it
   is a function. `getOption` reads from `this.options`, then the receiver.
 - `mergeOptions(options, keys)` copies selected options onto the receiver.

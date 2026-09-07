@@ -1,5 +1,5 @@
 import MarionetteError from './error.ts';
-import { setProperty } from './assign-in.ts';
+import setProperty from './set-property.ts';
 import isString from './is-string.ts';
 import type { EventCallback, EventMap } from './events.ts';
 

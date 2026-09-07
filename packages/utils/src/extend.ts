@@ -1,7 +1,7 @@
 // Marionette.extend
 // -----------------
 
-import assignIn, { assignOwn } from './assign-in.ts';
+import setProperty from './set-property.ts';
 
 import type { CallableParent, Constructed, Merge } from './constructor.ts';
 
@@ -42,24 +42,6 @@ interface Extend {
   ): Extension<Parent, Props, Statics>;
 }
 
-function defineOwnDataProperties(target: object, source: unknown) {
-  const type = typeof source;
-  if (source == null || type !== 'object' && type !== 'function') { return target; }
-
-  for (const key of Object.keys(source)) {
-    if (!Object.hasOwn(source, key)) { continue; }
-
-    Object.defineProperty(target, key, {
-      configurable: true,
-      enumerable: true,
-      value: (source as Record<string, unknown>)[key],
-      writable: true
-    });
-  }
-
-  return target;
-}
-
 // Borrowed from backbone.js
 function extendRuntime(
   this: Function & { prototype: object },
@@ -79,19 +61,17 @@ function extendRuntime(
   }
 
   // Add static properties to the constructor function, if supplied.
-  assignIn(child, parent);
-  assignOwn(child, staticProps);
+  // Parent statics include inherited enumerable properties (Backbone's extend contract).
+  // eslint-disable-next-line guard-for-in
+  for (const key in parent) { setProperty(child, key, (parent as unknown as Record<string, unknown>)[key]); }
+  Object.defineProperties(child, Object.getOwnPropertyDescriptors({ ...staticProps }));
 
   // Set the prototype chain to inherit from `parent`, without calling
   // `parent`'s constructor function and add the prototype properties.
-  child.prototype = Object.create(parent.prototype);
-  defineOwnDataProperties(child.prototype, protoProps);
-  Object.defineProperty(child.prototype, 'constructor', {
-    configurable: true,
-    enumerable: true,
-    value: child,
-    writable: true
-  });
+  child.prototype = Object.create(parent.prototype, Object.getOwnPropertyDescriptors({
+    ...protoProps,
+    constructor: child
+  }));
 
   // Set a convenience property in case the parent's prototype is needed
   // later.

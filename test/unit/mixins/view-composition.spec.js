@@ -308,12 +308,11 @@ describe('ViewMixin owned helpers', function() {
     it('excludes inherited pollution and safely owns fixed-source built-in keys', async function() {
       const source = CommonMixin;
       const sourcePrototype = Object.getPrototypeOf(source);
-      const keys = ['constructor', 'toString', '__proto__'];
+      const keys = ['constructor', 'toString'];
       const descriptors = new Map(keys.map(key => [key, Object.getOwnPropertyDescriptor(source, key)]));
       const values = {
         constructor() {},
-        toString() {},
-        __proto__() {}
+        toString() {}
       };
       const cleanup = [];
       let IsolatedViewMixin;

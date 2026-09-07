@@ -1,7 +1,7 @@
 // ViewMixin
 //  ---------
 
-import { assignOwn, MarionetteError, getValue, isString } from '@marionette/utils';
+import { MarionetteError, getValue, isString } from '@marionette/utils';
 import BehaviorsMixin from './behaviors.ts';
 import CommonMixin from './common.ts';
 import DelegateEntityEventsMixin from './delegate-entity-events.ts';
@@ -125,7 +125,7 @@ const ViewMixin = {
   },
 
   _getAttributes(this: ViewMixinHost) {
-    const attrs: Record<string, unknown> = assignOwn({}, getValue(this, 'attributes'));
+    const attrs: Record<string, unknown> = { ...getValue(this, 'attributes') as Record<string, unknown> };
     if ('id' in this) { attrs.id = getValue(this, 'id'); }
     if ('className' in this) { attrs.class = getValue(this, 'className'); }
     return attrs;
@@ -301,6 +301,6 @@ const ViewMixin = {
   }
 };
 
-assignOwn(ViewMixin, BehaviorsMixin, CommonMixin, DelegateEntityEventsMixin, StateMixin, TemplateRenderMixin, UIMixin, ViewEvents);
+Object.assign(ViewMixin, BehaviorsMixin, CommonMixin, DelegateEntityEventsMixin, StateMixin, TemplateRenderMixin, UIMixin, ViewEvents);
 
 export default ViewMixin as typeof ViewMixin & SharedMixins;

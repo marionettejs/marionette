@@ -1,7 +1,7 @@
 // Collection View
 // ---------------
 
-import { assignOwn, getValue, isString, MarionetteError } from '@marionette/utils';
+import { getValue, isString, MarionetteError } from '@marionette/utils';
 import extend from '../utils/extend.ts';
 import uniqueId from '../utils/unique-id.ts';
 import { renderView, destroyView, isViewClass } from './common/view.ts';
@@ -404,7 +404,7 @@ const CollectionView = function(this: CollectionViewInternals, options?: Collect
   this._triggerEventOnBehaviors('initialize', this, options);
 };
 
-assignOwn(CollectionView, {
+Object.assign(CollectionView, {
   extend,
   setRenderer,
   setDomApi,
@@ -413,7 +413,7 @@ assignOwn(CollectionView, {
   setStateApi
 });
 
-assignOwn(CollectionView.prototype, ViewMixin, {
+Object.assign(CollectionView.prototype, ViewMixin, {
   cidPrefix: 'mncv',
 
   // flag for maintaining the sorted order of the collection
@@ -771,7 +771,7 @@ assignOwn(CollectionView.prototype, ViewMixin, {
   // Override to customize the build
   buildChildView(this: CollectionViewInternals, child: unknown, ChildViewClass: ChildClass, childViewOptions?: object | null) {
     const options = childViewOptions == null ?
-      { model: child } : assignOwn({ model: child }, childViewOptions);
+      { model: child } : { model: child, ...childViewOptions as object };
     return new (ChildViewClass as new(options: object) => CollectionChild)(options);
   },
 

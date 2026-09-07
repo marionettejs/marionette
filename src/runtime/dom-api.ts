@@ -1,6 +1,6 @@
 // DomApi
 // -------
-import { assignOwn } from '@marionette/utils';
+
 
 export interface DomApi<Query extends ArrayLike<Element> = ArrayLike<Element>, Content = never> {
   createElement: (tagName: string) => Element;
@@ -34,7 +34,7 @@ export function setDomApi<Receiver extends DomApiClass, Mixin extends object>(
   this: Receiver,
   mixin?: Mixin & Partial<DomApi> | null | boolean | number | bigint | string | symbol
 ): Receiver {
-  this.prototype.Dom = assignOwn({}, this.prototype.Dom, mixin);
+  this.prototype.Dom = { ...this.prototype.Dom, ...mixin as object };
   return this;
 }
 

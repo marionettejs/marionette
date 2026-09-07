@@ -1,4 +1,4 @@
-import { assignOwn, MarionetteError } from '@marionette/utils';
+import { MarionetteError } from '@marionette/utils';
 import extend from './utils/extend.ts';
 import monitorViewEvents from './modules/common/monitor-view-events.ts';
 import Events from './mixins/events.ts';
@@ -51,7 +51,7 @@ interface DelegatorClass {
 }
 
 function copyApi<Api extends object>(api: Api) {
-  return assignOwn({}, api);
+  return { ...api };
 }
 
 const DefaultDataApi = copyApi(DataApi);

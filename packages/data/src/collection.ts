@@ -1,5 +1,5 @@
 import { Events } from 'marionette';
-import { assignOwn, extend } from '@marionette/utils';
+import { extend } from '@marionette/utils';
 import Model from './model.ts';
 
 import type { EventMethods as EventSource, Merge, Constructed, CallableParent } from '@marionette/utils';
@@ -146,7 +146,7 @@ export const Collection = function(this: CollectionInstanceRuntime, models: Mode
 
 (Collection as unknown as { extend: typeof extend }).extend = extend;
 
-assignOwn(Collection.prototype, Events, {
+Object.assign(Collection.prototype, Events, {
   model: Model,
   _isDestroyed: false,
 

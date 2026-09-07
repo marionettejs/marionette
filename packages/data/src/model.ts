@@ -1,5 +1,5 @@
 import { Events } from 'marionette';
-import { assignOwn, extend, setProperty } from '@marionette/utils';
+import { extend, setProperty } from '@marionette/utils';
 
 import type { EventMethods as EventSource, Merge, Constructed, CallableParent } from '@marionette/utils';
 
@@ -94,6 +94,7 @@ function update<Receiver extends ModelRuntime>(model: Receiver, attributes: Mode
     setProperty(previous, key, model.attributes[key]);
     setProperty(changed, key, undefined);
     changedKeys.push(key);
+    delete model.attributes[key];
   }
 
   for (const key of Object.keys(attributes)) {
@@ -103,19 +104,18 @@ function update<Receiver extends ModelRuntime>(model: Receiver, attributes: Mode
     if (hadKey) { setProperty(previous, key, model.attributes[key]); }
     setProperty(changed, key, value);
     changedKeys.push(key);
+    setProperty(model.attributes, key, value);
   }
 
   if (!changedKeys.length) {
     model.changed = changed;
     return model;
   }
-  for (const key of removed) { delete model.attributes[key]; }
-  assignOwn(model.attributes, attributes);
   model.id = model.get(model.idAttribute);
   model.changed = changed;
 
   if (!options.silent) {
-    const change = assignOwn({}, options, { changed, previous });
+    const change = { ...options, changed, previous };
     for (const key of changedKeys) {
       model.triggerMethod(`change:${ key }`, model, changed[key], change);
     }
@@ -131,14 +131,14 @@ export const Model = function(this: ModelRuntime, attributes: ModelAttributes | 
   this.cid = `mnd${ ++modelId }`;
   this.attributes = {};
   const defaults = getDefaults(this);
-  update(this, assignOwn({}, defaults, attributes), { silent: true });
+  update(this, { ...defaults, ...attributes }, { silent: true });
   this.changed = {};
   this.initialize(attributes, options);
 } as unknown as ModelExtension<ModelAttributes, {}, {}>;
 
 (Model as unknown as { extend: typeof extend }).extend = extend;
 
-assignOwn(Model.prototype, Events, {
+Object.assign(Model.prototype, Events, {
   idAttribute: 'id',
   _isDestroyed: false,
 
@@ -168,13 +168,13 @@ assignOwn(Model.prototype, Events, {
 
   reset(attributes: ModelAttributes = {}, options?: MutationOptions | null) {
     if (this._isDestroyed) { return this; }
-    const next = assignOwn({}, getDefaults(this), attributes);
+    const next = { ...getDefaults(this), ...attributes };
     const removed = Object.keys(this.attributes).filter(key => !Object.hasOwn(next, key));
     return update(this, next, options, removed);
   },
 
   toObject() {
-    return assignOwn({}, this.attributes);
+    return { ...this.attributes };
   },
 
   isDestroyed() {

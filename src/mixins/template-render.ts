@@ -1,4 +1,4 @@
-import { assignOwn, getValue } from '@marionette/utils';
+import { getValue } from '@marionette/utils';
 
 import type { DataApi } from '../runtime/data-api.ts';
 import type { DomApi } from '../runtime/dom-api.ts';
@@ -54,7 +54,7 @@ export default {
     const templateContext = getValue(this, 'templateContext');
     if (!templateContext) { return serializedData; }
     if (!serializedData) { return templateContext; }
-    return assignOwn({}, serializedData, templateContext);
+    return { ...serializedData as object, ...templateContext as object };
   },
 
   // Serialize the view's model *or* collection, if

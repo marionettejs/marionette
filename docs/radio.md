@@ -90,8 +90,8 @@ the `default` fallback. Names matching inherited object properties, including
 `constructor`, `toString`, and `__proto__`, are ordinary request names. Result
 maps from object-form or space-separated requests likewise define safe own
 string properties. When an object-form key contains multiple space-separated
-names, the nested result contributes its own enumerable string properties
-only; inherited, symbol, and non-enumerable properties are ignored.
+names, the nested result contributes its own enumerable string and symbol
+properties; inherited and non-enumerable properties are ignored.
 
 Use `replyOnce` for a handler that should be removed after its first request.
 Use `stopReplying` to remove one or more handlers:
