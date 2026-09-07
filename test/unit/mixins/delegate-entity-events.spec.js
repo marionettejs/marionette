@@ -96,29 +96,13 @@ describe('delegate entity events mixin', function() {
       obj.collectionEvents = { update: 'onCollection' };
       obj._delegateEntityEvents(model, collection, obj.Data);
 
-      obj._undelegateEntityEvents(model, collection);
-      obj._undelegateEntityEvents(model, collection);
+      obj._undelegateEntityEvents();
+      obj._undelegateEntityEvents();
 
       expect(modelCleanup).to.have.been.calledOnce;
       expect(collectionCleanup).to.have.been.calledOnce;
       expect(obj).to.not.have.property('_modelEvents');
       expect(obj).to.not.have.property('_collectionEvents');
     });
-  });
-
-  describe('#_deleteEntityEventHandlers', function() {
-    it('disposes subscriptions before removing cached maps', function() {
-      obj.modelEvents = { change: 'onModel' };
-      obj.collectionEvents = { update: 'onCollection' };
-      obj._delegateEntityEvents(model, collection, obj.Data);
-
-      obj._deleteEntityEventHandlers();
-
-      expect(modelCleanup).to.have.been.calledOnce;
-      expect(collectionCleanup).to.have.been.calledOnce;
-      expect(obj).to.not.have.property('_modelEvents');
-      expect(obj).to.not.have.property('_collectionEvents');
-    });
-
   });
 });

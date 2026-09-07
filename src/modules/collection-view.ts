@@ -15,7 +15,7 @@ import { setDataApi } from '../runtime/data-api.ts';
 import { setStateApi } from '../runtime/state-api.ts';
 
 import type { ChildViewContainer as Children, ContainerChild } from './child-view-container.ts';
-import type { ViewFluent } from './common/fluent-methods.ts';
+import type { ViewFluent } from './common/chainable-methods.ts';
 import type { ViewMixinHost } from '../mixins/view.ts';
 import type { ViewConfiguration, ViewInstance } from './view.ts';
 import type { SupportedView } from './common/view.ts';

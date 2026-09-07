@@ -1,6 +1,5 @@
 import EventDelegator from '../runtime/event-delegator.ts';
 import { resolveMethod, getValue, isString } from '@marionette/utils';
-import eachOwn from '../utils/each-own.ts';
 
 import type { EventCallback } from '@marionette/utils';
 import type { EventDelegator as Delegator, DelegateOptions } from '../runtime/event-delegator.ts';
@@ -81,21 +80,22 @@ export default {
   },
 
   _delegateEvents(this: ViewEventsHost, delegates: Delegates, uiBindings: UISelectors | undefined, events?: DOMEvents) {
-    const eventMap = events || getValue(this, 'events');
+    const eventMap = events || getValue(this, 'events') as DOMEvents | undefined;
     if (!eventMap) { return; }
 
-    eachOwn(eventMap, (handler: unknown, key: string) => {
-      handler = resolveMethod(this, handler, key);
-      delegates.push((handler as EventCallback).bind(this), this.normalizeUIString(key, uiBindings));
-    });
+    for (const key of Object.keys(eventMap)) {
+      const handler = resolveMethod(this, eventMap[key], key);
+      delegates.push(handler.bind(this), this.normalizeUIString(key, uiBindings));
+    }
   },
 
   _delegateTriggers(this: ViewEventsHost, delegates: Delegates, uiBindings: UISelectors | undefined, view: TriggerTarget) {
     if (!this.triggers) { return; }
 
-    eachOwn(getValue(this, 'triggers'), (value: TriggerDefinition, key: string) => {
-      delegates.push(buildViewTrigger(view, value), this.normalizeUIString(key, uiBindings));
-    });
+    const triggers = (getValue(this, 'triggers') ?? {}) as DOMTriggers;
+    for (const key of Object.keys(triggers)) {
+      delegates.push(buildViewTrigger(view, triggers[key]), this.normalizeUIString(key, uiBindings));
+    }
   },
 
   _delegate(this: ViewEventsHost, handler: EventCallback, key: string) {
