@@ -1,0 +1,35 @@
+.github/workflows/ci.yml
+  s_060efbb5bf6218::t_746770f9574113 150,171
+ROADMAP.md
+  s_060efbb5bf6218::t_a3366eeab8b30f 619,621-622
+config/diagnostics/catalog.json
+  s_060efbb5bf6218::t_77100587927a7e 654-658
+packages/adapters/readme.md
+  s_060efbb5bf6218::t_41c5367518004d 254
+scripts/performance/resources.mjs
+  s_060efbb5bf6218::t_e387636e2d76b5 327-328,406
+src/modules/radio.ts
+  s_060efbb5bf6218::t_88a2f4171c01c6 181
+test/performance/ci-report.test.mjs
+  s_060efbb5bf6218::t_7f251c00870de6 16
+test/performance/resources.test.mjs
+  s_060efbb5bf6218::t_3fbc8d7612e0fd 81-90
+test/unit/radio.spec.js
+  s_060efbb5bf6218::t_0aec7f5055045b 284-292
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "1909693570c871d86430baf34c66e9806e92a5c6",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
