@@ -104,8 +104,8 @@ old child View is destroyed and a new one is rendered for the replacement.
 
 These adapters observe and reconcile snapshots only. They do not mutate the
 store, stop it, or provide a generic snapshot-store abstraction. A consumer
-error propagates through the store notification; the next source notification
-emits a reset so Marionette can rebuild from the latest valid snapshot.
+error propagates through the store notification and aborts that operation. There
+is no automatic reset or recovery after a failed notification.
 
 ## XState actors
 
@@ -255,8 +255,8 @@ Lit async directives can own subscriptions and other resources. Marionette calls
 monitoring. Lit translates these notifications to its directive connection API.
 Detaching and destroying a View disconnects its directives while preserving
 the View root. A View keeps its initial element for its lifetime.
-A failed constructor disconnects directives
-created on its attached root during initialization.
+Destroying an already constructed View also disconnects resources created before
+an explicit render failed. Failed construction does not roll back initialization.
 
 Keep `monitorViewEvents` enabled on the View and its ancestors and manage
 attachment through Regions. If you disable monitoring or remove its handlers
