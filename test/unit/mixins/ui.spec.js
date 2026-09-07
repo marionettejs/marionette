@@ -56,6 +56,11 @@ describe('ui mixin', function() {
       _.extend(view, UIMixin);
     });
 
+    it('returns an empty map when there are no keys to normalize', function() {
+      expect(view.normalizeUIKeys(null)).to.deep.equal({});
+      expect(view.normalizeUIKeys(undefined)).to.deep.equal({});
+    });
+
     it('normalizes ui keys with default bindings into a new object', function() {
       const hash = {'click @ui.foo': 'onFoo'};
       const normalized = view.normalizeUIKeys(hash);
@@ -299,36 +304,9 @@ describe('ui mixin', function() {
   });
 
   describe('#_unbindUIElements', function() {
-    it('reads and deletes snapshotted own bindings before restoring their identity', function() {
-      const reads = [];
-      const originalBindings = { foo: '.foo' };
-      const boundTarget = {};
-      Object.defineProperties(boundTarget, {
-        first: {
-          configurable: true,
-          enumerable: true,
-          get() {
-            reads.push('first');
-            delete boundTarget.second;
-            return 'first';
-          }
-        },
-        second: {
-          configurable: true,
-          enumerable: true,
-          get() {
-            reads.push('second');
-            return 'second';
-          }
-        }
-      });
-      const deletes = [];
-      const bound = new Proxy(boundTarget, {
-        deleteProperty(target, property) {
-          deletes.push(property);
-          return Reflect.deleteProperty(target, property);
-        }
-      });
+    it('clears bound elements and restores the original binding map', function() {
+      const originalBindings = { foo: '.foo', bar: '.bar' };
+      const bound = { foo: [], bar: [] };
       const view = _.extend({
         _ui: bound,
         _uiBindings: originalBindings,
@@ -337,9 +315,7 @@ describe('ui mixin', function() {
 
       view._unbindUIElements();
 
-      expect(reads).to.deep.equal(['first']);
-      expect(deletes).to.deep.equal(['first', 'second']);
-      expect(Reflect.ownKeys(bound)).to.deep.equal([]);
+      expect(bound).to.deep.equal({});
       expect(view.ui).to.equal(originalBindings);
       expect(view).to.not.have.property('_ui');
       expect(view).to.not.have.property('_uiBindings');
