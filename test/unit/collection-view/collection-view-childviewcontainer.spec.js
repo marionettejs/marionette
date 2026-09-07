@@ -38,6 +38,7 @@ describe('CollectionView - childViewContainer', function() {
       { name: 'nested container', childViewContainer: '#foo', label: '' },
       { name: 'root container', label: '' },
       { name: 'nested container with text', childViewContainer: '#foo', label: 'Keep' },
+      { name: 'nested container with a control', childViewContainer: '#foo', label: '<li><button>Add</button></li>' },
       { name: 'nested container with whitespace', childViewContainer: '#foo', label: '\n' },
       { name: 'nested container with a nonbreaking space', childViewContainer: '#foo', label: '&nbsp;' },
       { name: 'nested container with a comment', childViewContainer: '#foo', label: '<!-- keep -->' }
@@ -56,6 +57,7 @@ describe('CollectionView - childViewContainer', function() {
         const previousChildren = myCollectionView.children.toArray();
         const detachContents = this.sinon.spy(myCollectionView.Dom, 'detachContents');
         input.value = 'edited';
+        if (label.startsWith('<li>')) { previousChildren[0].el.after(labelNode); }
 
         collection.reset([{ foo: 'after' }]);
 
@@ -68,6 +70,8 @@ describe('CollectionView - childViewContainer', function() {
         expect(previousChildren.every(view => view.isDestroyed())).to.be.true;
         if (childViewContainer && !label.trim()) {
           expect(detachContents).to.have.been.calledOnceWithExactly(container);
+        } else {
+          expect(detachContents).not.to.have.been.called;
         }
         if (label && !label.trim()) { expect(labelNode.parentNode).to.be.null; }
 
