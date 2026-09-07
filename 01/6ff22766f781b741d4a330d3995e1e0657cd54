@@ -1,0 +1,99 @@
+docs/dom.interactions.md
+  s_060efbb5bf6218::t_c6e2f1c4b8723f 193-195
+config/diagnostics/catalog.json
+  s_060efbb5bf6218::t_c6e2f1c4b8723f 8,15,25,31,91,97,124,132,142,153,163,174,200,206,232,238,264,272,369,375,409,419,425,556,567,612,620
+docs/common.md
+  s_060efbb5bf6218::t_02d0828fe64013 125-126,263-264
+  s_060efbb5bf6218::t_c6e2f1c4b8723f 147-148
+docs/migration-from-v4.md
+  s_060efbb5bf6218::t_02d0828fe64013 63
+  s_060efbb5bf6218::t_c6e2f1c4b8723f 30,43,62,68
+test/dist/validate.mjs
+  s_060efbb5bf6218::t_c6e2f1c4b8723f 167,169
+changelog.md
+  s_060efbb5bf6218::t_02d0828fe64013 109-110
+  s_060efbb5bf6218::t_2a7a7d1164bcd0 50-51,125-127
+docs/marionette.collectionview.md
+  s_060efbb5bf6218::t_c6e2f1c4b8723f 738-740
+  s_060efbb5bf6218::t_6b05948c0cd714 520-522
+docs/dom.api.md
+  s_060efbb5bf6218::t_c6e2f1c4b8723f 19
+CONTRIBUTING.md
+  s_060efbb5bf6218::t_c6e2f1c4b8723f 303-323
+src/modules/application.ts
+  s_060efbb5bf6218::t_379d4a986a3ff2 657
+  s_060efbb5bf6218::t_38858b82bc39bd 209
+docs/diagnostic-catalog.md
+  s_060efbb5bf6218::t_c6e2f1c4b8723f 134-144,146
+  s_060efbb5bf6218::t_7fe7c0618c2a3e 19,22,24-25,145
+packages/adapters/src/data/internal/keyed-snapshot.ts
+  s_060efbb5bf6218::t_633d0cb63a9736 6-9,14,63,68,78,100
+packages/adapters/src/data/xstate.ts
+  s_060efbb5bf6218::t_b96718f0c0e2ce 96,120
+packages/utils/src/bind-events.ts
+  s_060efbb5bf6218::t_d5a4c924969cde 29,38
+packages/utils/src/bind-requests.ts
+  s_060efbb5bf6218::t_31dcbd1e8e4a06 31,46
+packages/utils/src/merge-options.ts
+  s_060efbb5bf6218::t_6c37a420b81a61 11-12,14
+src/mixins/behaviors.ts
+  s_060efbb5bf6218::t_219769ca1523af 2,38-39
+src/mixins/delegate-entity-events.ts
+  s_060efbb5bf6218::t_78103549ab6eef 1,8-11,25,37
+src/mixins/state.ts
+  s_060efbb5bf6218::t_23afe91053aa02 1,10,44
+src/mixins/view.ts
+  s_060efbb5bf6218::t_c0453d2c4c7161 4,101
+src/modules/behavior.ts
+  s_060efbb5bf6218::t_5834a98d4a1e27 9,47-49,66-68
+src/modules/collection-view.ts
+  s_060efbb5bf6218::t_9e4c932d63f914 4,209,224,359,708,719,724-725,728,938-939,944,1105,1107
+src/modules/common/build-region.ts
+  s_060efbb5bf6218::t_433791a384fd84 39
+src/modules/common/monitor-view-events.ts
+  s_060efbb5bf6218::t_89597291227e2f 6
+src/modules/common/view.ts
+  s_060efbb5bf6218::t_1b92d1ba01ff6c 21,37
+src/modules/region.ts
+  s_060efbb5bf6218::t_ffac22cb87c19a 4,6
+src/modules/view.ts
+  s_060efbb5bf6218::t_b89846fa7c5d7d 4,52-54,84-86,177,490
+src/utils/subscribe-bindings.ts
+  s_060efbb5bf6218::t_bb65caccb27cd4 2,9
+test/fixtures/docs-view-child-region/validate.mjs
+  s_060efbb5bf6218::t_10572afceb8cdb 120
+test/fixtures/xstate-adapter-types/validate.cts
+  s_060efbb5bf6218::t_412ee5bc8ce7cd 46-54
+test/fixtures/xstate-adapter-types/validate.mts
+  s_060efbb5bf6218::t_2c7a2e79476e61 49-57
+test/types/trusted-contracts.cts
+  s_060efbb5bf6218::t_00be6722eb4f0e 1-52
+test/types/trusted-contracts.mts
+  s_060efbb5bf6218::t_332bd31be08c89 1-52
+test/unit/collection-view/collection-view-empty.spec.js
+  s_060efbb5bf6218::t_1e24ab1c26a76f 310-316,319-321,323-330,333-337,339
+test/unit/common/merge-options.spec.js
+  s_060efbb5bf6218::t_3072851bd80cd3 1
+test/unit/config/diagnostic-catalog.spec.js
+  s_060efbb5bf6218::t_17a04a1a9d9629 573-583,587,590,593-596
+test/unit/view-region-diagnostics.spec.js
+  s_060efbb5bf6218::t_ff303de51a5460 38,397-398,415
+test/unit/xstate-adapter.spec.js
+  s_060efbb5bf6218::t_a9078e9f0293f1 298
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "016ff22766f781b741d4a330d3995e1e0657cd54",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
