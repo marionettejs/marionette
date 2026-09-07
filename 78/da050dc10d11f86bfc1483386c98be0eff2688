@@ -1,0 +1,335 @@
+src/modules/collection-view.ts
+  s_060efbb5bf6218::t_4ab60f1cd676bf 584
+  s_060efbb5bf6218::t_8b2e795117c3e8 4,801,899,976
+packages/adapters/src/data/xstate.ts
+  s_060efbb5bf6218::t_7f461649f808e0 1-2
+  s_060efbb5bf6218::t_cf05d397e5af32 91
+test/unit/data-package/collection.spec.js
+  s_060efbb5bf6218::t_bc8a97828d247c 273-276
+  s_060efbb5bf6218::t_8a04f889e44dd6 206-236,277
+  s_060efbb5bf6218::t_6a60cdd1e2d320 28,125,140,151,155,157,190,237,278,316
+test/fixtures/dom-adapters-package/validate.mjs
+  s_060efbb5bf6218::t_3c4b7f775f396a 14
+docs/installation.md
+  s_060efbb5bf6218::t_eed00d9ec7870b 39
+  s_060efbb5bf6218::t_7f461649f808e0 70-71,176-177
+  s_060efbb5bf6218::t_46370ea67a8050 36-38,40
+.github/workflows/release.yml
+  s_060efbb5bf6218::t_0c50c4fead3738 18,86,149-150,156,223,266-274,400-407
+  s_060efbb5bf6218::t_c880f13b121087 408
+test/fixtures/backbone-adapter/validate.mjs
+  s_060efbb5bf6218::t_7f461649f808e0 10
+scripts/release/publish-github.mjs
+  s_060efbb5bf6218::t_0c50c4fead3738 66,70
+test/performance/application-tree-shaking.test.mjs
+  s_060efbb5bf6218::t_ca6af8c5099266 26
+packages/data/readme.md
+  s_060efbb5bf6218::t_8a04f889e44dd6 52-53
+  s_060efbb5bf6218::t_96119721791afd 30,32,40-51,54-69
+test/fixtures/cjs-adapters/package.json
+  s_060efbb5bf6218::t_7f461649f808e0 11
+test/unit/xstate-adapter.spec.js
+  s_060efbb5bf6218::t_f3f41409f773c6 128-159
+packages/adapters/readme.md
+  s_060efbb5bf6218::t_7f461649f808e0 102
+test/unit/jquery-dom-api.spec.js
+  s_060efbb5bf6218::t_85a461c4772c2d 27
+scripts/release/verify-artifact.mjs
+  s_060efbb5bf6218::t_0c50c4fead3738 86-87,90,94
+test/fixtures/xstate-adapter-types/validate.cts
+  s_060efbb5bf6218::t_21d7559d179b89 1-43
+test/fixtures/dom-adapters-package/runtime.mjs
+  s_060efbb5bf6218::t_7f461649f808e0 14
+ROADMAP.md
+  s_060efbb5bf6218::t_7f461649f808e0 435,935-936
+scripts/release/build-artifact.mjs
+  s_060efbb5bf6218::t_0c50c4fead3738 96,126-127
+  s_060efbb5bf6218::t_5ad6ed39066d6e 128
+benchmarks/consumer-bundles/contract.json
+  s_060efbb5bf6218::t_ca6af8c5099266 7
+config/performance.json
+  s_060efbb5bf6218::t_25b00b86ceb3fa 244-245
+  s_060efbb5bf6218::t_ca6af8c5099266 114-133,232-243
+test/fixtures/run.mjs
+  s_060efbb5bf6218::t_21d7559d179b89 170
+  s_060efbb5bf6218::t_7ba46ecc46e3fd 70-71,139-161,197
+docs/release-promotion.md
+  s_060efbb5bf6218::t_eed00d9ec7870b 20,24-25,86
+test/fixtures/xstate-adapter-types/validate.mts
+  s_060efbb5bf6218::t_21d7559d179b89 1-46
+packages/data/src/collection.ts
+  s_060efbb5bf6218::t_8a04f889e44dd6 187
+  s_060efbb5bf6218::t_9397b6105feddd 3,88,301,322,327-328,347-348
+  s_060efbb5bf6218::t_bc8a97828d247c 261
+  s_060efbb5bf6218::t_ca6af8c5099266 4
+  s_060efbb5bf6218::t_8574d2397c252a 119
+  s_060efbb5bf6218::t_16431fe9d36cf9 1-2,5
+scripts/diagnostics/catalog.mjs
+  s_060efbb5bf6218::t_85a461c4772c2d 3,35,197,203,404,414
+test/performance/consumer-bundles.test.mjs
+  s_060efbb5bf6218::t_eb305267e386f6 364-371
+  s_060efbb5bf6218::t_ca6af8c5099266 22,28-29,37,151,209-210,215-216,218-219
+scripts/performance/data-package-size.mjs
+  s_060efbb5bf6218::t_ca6af8c5099266 43,60
+test/release/promotion.test.mjs
+  s_060efbb5bf6218::t_0c50c4fead3738 48-53,85-90,110-115,131-149,152,159,177-182
+scripts/release/check-targets.mjs
+  s_060efbb5bf6218::t_0c50c4fead3738 56,60
+packages/adapters/src/data/internal/keyed-snapshot.ts
+  s_060efbb5bf6218::t_f3f41409f773c6 1,6,9,13,17,20-21,24-25,27-28,30,32,35-36,42-46,49-50,53-54,59-60,68,72,77-80,82-88,91,95,101-102
+packages/utils/readme.md
+  s_060efbb5bf6218::t_a5bbbe9469d1a8 1-60
+test/unit/data-api-redux.spec.js
+  s_060efbb5bf6218::t_487eb974ed6aa2 18,59,83,157-190,193-202,204-220
+  s_060efbb5bf6218::t_7e2a00a17d2fe4 1-11,13-17,19-36,39-57,60-79,81-82,84-86,88-126,128-155
+packages/data/src/model.ts
+  s_060efbb5bf6218::t_9397b6105feddd 60,176,194
+  s_060efbb5bf6218::t_b333da56a18088 1-2,4
+test/fixtures/adapters-package-vite/package.json
+  s_060efbb5bf6218::t_7f461649f808e0 11
+packages/data/src/api.ts
+  s_060efbb5bf6218::t_9397b6105feddd 5,15,19,31-32,45,56-63
+  s_060efbb5bf6218::t_886a4023231638 6,8-10
+scripts/performance/bundle-size.mjs
+  s_060efbb5bf6218::t_ca6af8c5099266 391-404,456,458,460,720-721
+  s_060efbb5bf6218::t_eb317e8f4e73ef 382
+upgradeGuide.md
+  s_060efbb5bf6218::t_7f461649f808e0 109
+  s_060efbb5bf6218::t_e5ab66442ac4ec 120-139,409-419
+packages/adapters/rollup.config.mjs
+  s_060efbb5bf6218::t_7f461649f808e0 28-29,31-32,35
+test/performance/xstate-adapter.test.mjs
+  s_060efbb5bf6218::t_7f461649f808e0 1-50
+benchmarks/consumer-bundles/v1/manifest.json
+  s_060efbb5bf6218::t_ca6af8c5099266 6-8,71-72,125-126,145-146,170-171
+build/declarations.mjs
+  s_060efbb5bf6218::t_41a322cc2661fe 8
+docs/common.md
+  s_060efbb5bf6218::t_77504524e673bc 8,22-45
+docs/data.api.md
+  s_060efbb5bf6218::t_6abe853ae733ee 60-65,216-245
+package-lock.json
+  s_060efbb5bf6218::t_0edaeb6d4d8555 11-16,50,2172-2175,6406-6408,6411
+package.json
+  s_060efbb5bf6218::t_3c016bd1811c9c 54,89-90,133,138-143
+packages/data/package.json
+  s_060efbb5bf6218::t_d68c9f6361f729 53-55
+packages/data/rollup.config.mjs
+  s_060efbb5bf6218::t_ab69a58fff9df4 5
+packages/data/src/index.ts
+  s_060efbb5bf6218::t_e4a59d294317d5 4,6
+packages/utils/license.txt
+  s_060efbb5bf6218::t_10556742e3ac8a 1-21
+packages/utils/package.json
+  s_060efbb5bf6218::t_f5c9271a035c29 1-45
+packages/utils/rollup.config.mjs
+  s_060efbb5bf6218::t_74256c9bbb79b4 1-11
+packages/utils/src/assign-in.ts
+  s_060efbb5bf6218::t_70a4680aa1a9d5 1-14,42-43,46-47
+packages/utils/src/bind-events.ts
+  s_060efbb5bf6218::t_e54279116a76d9 15-16
+packages/utils/src/bind-requests.ts
+  s_060efbb5bf6218::t_dd616d460f0dfd 15-16
+packages/utils/src/error.ts
+  s_060efbb5bf6218::t_20b5d0f808e427 4-5,38
+packages/utils/src/events.ts
+  s_060efbb5bf6218::t_ea0048c09bfc81 3,5,14,24-26
+packages/utils/src/extend.ts
+  s_060efbb5bf6218::t_6539044bb3563d 1-51,55,59-60,63-70,72-78,81-100,102-104
+packages/utils/src/index.ts
+  s_060efbb5bf6218::t_ec9ede143721c8 1-15
+packages/utils/src/merge-options.ts
+  s_060efbb5bf6218::t_ee7f4fd3e88fb9 1-2
+packages/utils/src/normalize-methods.ts
+  s_060efbb5bf6218::t_b8267f775f265f 1-4
+packages/utils/src/trigger-method.ts
+  s_060efbb5bf6218::t_36d343523dbf05 5
+packages/utils/tsconfig.declarations.json
+  s_060efbb5bf6218::t_89b3dd802b549a 1-14
+rollup.config.mjs
+  s_060efbb5bf6218::t_1c34478255e09a 1,6-14,30,50-56,63,67-68
+src/create-marionette.ts
+  s_060efbb5bf6218::t_e87bec46171944 1,53-54
+src/index.ts
+  s_060efbb5bf6218::t_5bdb1392541e10 62,64
+src/mixins/behaviors.ts
+  s_060efbb5bf6218::t_ff9b4f8146ee99 2
+src/mixins/common.ts
+  s_060efbb5bf6218::t_a27ed627b706a9 2-6,8,11-13
+src/mixins/delegate-entity-events.ts
+  s_060efbb5bf6218::t_a3dc9af18696c7 1,23,35
+src/mixins/events.ts
+  s_060efbb5bf6218::t_30e17714affb57 2,8-9
+src/mixins/radio.ts
+  s_060efbb5bf6218::t_f6dc0d5865c192 2,5
+src/mixins/requests.ts
+  s_060efbb5bf6218::t_1ad1a6faa1bb08 2
+src/mixins/state.ts
+  s_060efbb5bf6218::t_24551b9a9b1630 1
+src/mixins/template-render.ts
+  s_060efbb5bf6218::t_d90368ffaca5a2 1,64,70
+src/mixins/ui.ts
+  s_060efbb5bf6218::t_65e211120cc198 1
+src/mixins/view-events.ts
+  s_060efbb5bf6218::t_52863a050ef02c 2
+src/mixins/view.ts
+  s_060efbb5bf6218::t_2bf81c3640abdf 4
+src/modules/application.ts
+  s_060efbb5bf6218::t_d35a1ff1e3d0cf 4,21
+src/modules/behavior.ts
+  s_060efbb5bf6218::t_3e65f8c87fb00c 9
+src/modules/child-view-container.ts
+  s_060efbb5bf6218::t_52051f4c6b9d2a 1,129,450,555
+src/modules/common/build-region.ts
+  s_060efbb5bf6218::t_a0848165cb9e49 1
+src/modules/object.ts
+  s_060efbb5bf6218::t_b618b17c2f06d7 4,13-24,29,58-59
+src/modules/radio.ts
+  s_060efbb5bf6218::t_c1ddece696af35 7
+src/modules/region.ts
+  s_060efbb5bf6218::t_f92685b8533325 4
+src/modules/view.ts
+  s_060efbb5bf6218::t_62163b15011f08 4
+src/runtime/data-api.ts
+  s_060efbb5bf6218::t_e26a08b0c04507 3
+src/runtime/dom-api.ts
+  s_060efbb5bf6218::t_d7d1a443e35d42 3
+src/runtime/event-delegator.ts
+  s_060efbb5bf6218::t_5396621906efa5 3
+src/runtime/state-api.ts
+  s_060efbb5bf6218::t_2e3c9c41ebae28 3
+src/utils/extend.ts
+  s_060efbb5bf6218::t_c9546a312ed3f2 1,4-7,9,28,31
+src/utils/subscribe-bindings.ts
+  s_060efbb5bf6218::t_0897a3867697a3 2
+test/browser/adapters-package.mjs
+  s_060efbb5bf6218::t_9baf607d74c59c 19,21,40-41,48,63
+test/browser/data-package.mjs
+  s_060efbb5bf6218::t_f3cabdf73d8f87 19,23,44-45,52,60
+test/browser/dom-adapters.mjs
+  s_060efbb5bf6218::t_2a8511a9afc3d7 20
+test/dist/validate.mjs
+  s_060efbb5bf6218::t_70fdb265770d43 125,127-129,132,134
+test/fixtures/data-package-cjs/validate.cjs
+  s_060efbb5bf6218::t_9c2dbbfdde5bb0 13-15
+test/fixtures/data-package-esm/validate.mjs
+  s_060efbb5bf6218::t_847e11c4da9c6d 13-15
+test/fixtures/data-package-types/validate.cts
+  s_060efbb5bf6218::t_ca156f3403a0d2 16-23
+test/fixtures/data-package-types/validate.mts
+  s_060efbb5bf6218::t_20b00907a8c19a 16-23
+test/fixtures/data-package-types/validate.ts
+  s_060efbb5bf6218::t_e4cb839d1faf09 16-23
+test/fixtures/utils-package/consumer.cts
+  s_060efbb5bf6218::t_a3579ad524969b 1-101
+test/fixtures/utils-package/consumer.mts
+  s_060efbb5bf6218::t_adc684298d287c 1-101
+test/fixtures/utils-package/package.json
+  s_060efbb5bf6218::t_3f278e5f9df907 1-12
+test/fixtures/utils-package/tsconfig.json
+  s_060efbb5bf6218::t_6405fd3dfb111f 1-11
+test/fixtures/utils-package/validate.mjs
+  s_060efbb5bf6218::t_72fdef9dd816a5 1-31
+test/fixtures/xstate-adapter-types/package.json
+  s_060efbb5bf6218::t_d8ed008482101e 9
+test/performance/contract.test.mjs
+  s_060efbb5bf6218::t_6a062b1014dd9d 255,293-298,310-311
+test/source/validate.mjs
+  s_060efbb5bf6218::t_6b23601f3db172 107
+test/types/bindings.cts
+  s_060efbb5bf6218::t_d526959e00af4e 2
+test/types/bindings.mts
+  s_060efbb5bf6218::t_18c91fc713e563 2
+test/types/error.cts
+  s_060efbb5bf6218::t_0a216fb61b8cb1 1
+test/types/error.mts
+  s_060efbb5bf6218::t_a047ec8d86d199 1
+test/types/get-value.cts
+  s_060efbb5bf6218::t_2ad6ebbcef2d2c 1
+test/types/get-value.mts
+  s_060efbb5bf6218::t_191adbc6165de3 1
+test/types/helpers.cts
+  s_060efbb5bf6218::t_e11a48933f90cb 1
+test/types/helpers.mts
+  s_060efbb5bf6218::t_414bba99316be3 1
+test/types/options.cts
+  s_060efbb5bf6218::t_d1535d844d0221 1
+test/types/options.mts
+  s_060efbb5bf6218::t_bf0a5f65bb101e 1
+test/types/trigger-method.cts
+  s_060efbb5bf6218::t_ddbfb04fab2ac8 2
+test/types/trigger-method.mts
+  s_060efbb5bf6218::t_f85e9f3f8a5db1 2
+test/unit/collection-view/collection-view-empty.spec.js
+  s_060efbb5bf6218::t_11746d2aaeb5a6 9
+test/unit/collection-view/collection-view-reconciliation.spec.js
+  s_060efbb5bf6218::t_7d14f72226e2ce 4
+test/unit/common/bind-events.spec.js
+  s_060efbb5bf6218::t_978ee9798da5cd 1
+test/unit/common/bind-request.spec.js
+  s_060efbb5bf6218::t_2b8b1165285da4 1
+test/unit/common/get-option.spec.js
+  s_060efbb5bf6218::t_241becfd8101d2 1
+test/unit/common/merge-options.spec.js
+  s_060efbb5bf6218::t_5d79a3e1daeb0f 1
+test/unit/common/trigger-method.spec.js
+  s_060efbb5bf6218::t_00da077e03cc81 1
+test/unit/data-api-integration.spec.js
+  s_060efbb5bf6218::t_09afb90231500a 4
+test/unit/data-package/api-integration.spec.js
+  s_060efbb5bf6218::t_1d4a63cddb5e4d 5,18-28,35-37,43,54,64,69,77,86,97-98,100,172,188-189
+test/unit/data-package/collection-observers.spec.js
+  s_060efbb5bf6218::t_eef035c6add4b2 1-18,22-29,31,33-36,39-49
+test/unit/data-package/model.spec.js
+  s_060efbb5bf6218::t_d96ae3f615bad4 18,57,59,78,96,134,161,166-172,175,184
+test/unit/destroyed-bind-ui-elements.spec.js
+  s_060efbb5bf6218::t_45934c4720047c 4
+test/unit/mixins/delegate-entity-events.spec.js
+  s_060efbb5bf6218::t_d61f26e5201922 2
+test/unit/mixins/view-composition.spec.js
+  s_060efbb5bf6218::t_652b1863cc4965 11
+test/unit/modules-error.spec.js
+  s_060efbb5bf6218::t_bccd003a8f044f 2
+test/unit/region-el-validation.spec.js
+  s_060efbb5bf6218::t_4767eb0e92fb61 5
+test/unit/region-lifecycle.spec.js
+  s_060efbb5bf6218::t_729b889e24fc25 6
+test/unit/runtime/data-api.spec.js
+  s_060efbb5bf6218::t_c8c943cdf72343 2
+test/unit/runtime/state-api.spec.js
+  s_060efbb5bf6218::t_fae0d18d5c12f1 3
+test/unit/state-owner.spec.js
+  s_060efbb5bf6218::t_9b91f4eb7c7d36 7
+test/unit/ui-binding-diagnostics.spec.js
+  s_060efbb5bf6218::t_b18aefea6fe015 4
+test/unit/utils/assign-in.spec.js
+  s_060efbb5bf6218::t_2ca82a41fa4741 1
+test/unit/utils/get-value.spec.js
+  s_060efbb5bf6218::t_8d3a41f80bb2f2 3
+test/unit/utils/is-string.spec.js
+  s_060efbb5bf6218::t_e15265e22367c9 4
+test/unit/view-el.spec.js
+  s_060efbb5bf6218::t_388dc83aef36a0 4
+tsconfig.declarations.json
+  s_060efbb5bf6218::t_91d83180fbe46d 9-14
+tsconfig.json
+  s_060efbb5bf6218::t_e07a721654b442 18-20,22-23
+vitest.config.js
+  s_060efbb5bf6218::t_98a88d258ef9a1 7-9,25-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "78da050dc10d11f86bfc1483386c98be0eff2688",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
