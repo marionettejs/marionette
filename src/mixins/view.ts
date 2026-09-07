@@ -205,7 +205,7 @@ const ViewMixin = {
     const dataObserverCleanup = this._dataObserverCleanup;
     delete this._dataObserverCleanup;
     dataObserverCleanup?.();
-    this._deleteEntityEventHandlers();
+    this._undelegateEntityEvents();
     this._destroyBehaviors(options);
     this._destroyState();
     this.triggerMethod('destroy', this, options);

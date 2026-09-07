@@ -3,7 +3,6 @@
 
 import type { Bindings } from '@marionette/utils';
 import { MarionetteError, getValue, uniqueId } from '@marionette/utils';
-import eachOwn from '../utils/each-own.ts';
 import extend from '../utils/extend.ts';
 import monitorViewEvents from './common/monitor-view-events.ts';
 import buildRegion from './common/build-region.ts';
@@ -58,7 +57,7 @@ export interface ViewConfiguration {
 }
 
 type Common = typeof CommonMixin;
-import type { ViewFluent } from './common/fluent-methods.ts';
+import type { ViewFluent } from './common/chainable-methods.ts';
 
 export interface ViewInstance<Options extends object = ViewConfiguration, State = unknown,
   Query extends ArrayLike<Element> = ArrayLike<Element>> extends Common, ViewFluent<{}> {
@@ -251,12 +250,13 @@ function assertRegionCanRegister(view: ViewInternals, region: RegionInternals, n
 function assertRegionDefinitionsCanRegister(view: ViewInternals, definitions: RegionDefinitions) {
   const seenRegions = new Set();
 
-  eachOwn(definitions, (definition: RegionDefinition, name: string) => {
+  for (const name of Object.keys(definitions)) {
+    const definition = definitions[name];
     if (!(definition instanceof Region)) {
       if (getOwnRegion(view._regions, name)) {
         throwRegionRegistrationConflict(`Region name "${name}" is already registered.`);
       }
-      return;
+      continue;
     }
 
     if (seenRegions.has(definition)) {
@@ -265,7 +265,7 @@ function assertRegionDefinitionsCanRegister(view: ViewInternals, definitions: Re
 
     seenRegions.add(definition);
     assertRegionCanRegister(view, definition as RegionInternals, name);
-  });
+  }
 }
 
 // MixinOptions
@@ -289,7 +289,7 @@ const RegionsMixin = {
   // Internal method to re-initialize all of the regions by updating
   // the `el` that they point to
   _reInitRegions(this: ViewInternals) {
-    eachOwn(this._regions, (region: RegionInternals) => region.reset());
+    for (const name of Object.keys(this._regions)) { this._regions[name].reset(); }
   },
 
   // Add a single region, by name, to the View
@@ -305,7 +305,7 @@ const RegionsMixin = {
       return;
     }
 
-    eachOwn(regions, (_: RegionDefinition, name: string) => assertRegionName(name));
+    for (const name of Object.keys(regions)) { assertRegionName(name); }
 
     // Normalize region selectors hash to allow
     // a user to use the @ui. syntax.
@@ -315,8 +315,8 @@ const RegionsMixin = {
 
     // Add the regions definitions to the regions property
     const allRegions = {};
-    eachOwn(this.regions, (definition: RegionDefinition, name: string) => setRegion(allRegions, definition, name));
-    eachOwn(regions, (definition: RegionDefinition, name: string) => setRegion(allRegions, definition, name));
+    for (const name of Object.keys(this.regions)) { setRegion(allRegions, this.regions[name], name); }
+    for (const name of Object.keys(regions)) { setRegion(allRegions, regions[name], name); }
     this.regions = allRegions;
 
     return this._addRegions(regions);
@@ -331,11 +331,11 @@ const RegionsMixin = {
     };
 
     const regions: RegionMap = {};
-    eachOwn(regionDefinitions, (definition: RegionDefinition, name: string) => {
-      const region = buildRegion(definition, defaults);
+    for (const name of Object.keys(regionDefinitions)) {
+      const region = buildRegion(regionDefinitions[name], defaults);
       this._addRegion(region, name);
       setRegion(regions, region, name);
-    });
+    }
     return regions;
   },
 
@@ -367,9 +367,9 @@ const RegionsMixin = {
   // Remove all regions from the View
   removeRegions(this: ViewInternals) {
     const regions = this._getRegions();
-    eachOwn(regions, (region: RegionInternals, name: string) => {
-      this._removeRegion(region, name);
-    });
+    for (const name of Object.keys(regions)) {
+      this._removeRegion(regions[name], name);
+    }
 
     return regions;
   },
@@ -395,7 +395,7 @@ const RegionsMixin = {
       this.render();
     }
     const regions = this.getRegions();
-    eachOwn(regions, (region: RegionInternals) => region.empty());
+    for (const name of Object.keys(regions)) { regions[name].empty(); }
     return regions;
   },
 
@@ -415,7 +415,7 @@ const RegionsMixin = {
 
   _getRegions(this: ViewInternals) {
     const regions: RegionMap = {};
-    eachOwn(this._regions, (region: RegionInternals, name: string) => setRegion(regions, region, name));
+    for (const name of Object.keys(this._regions)) { setRegion(regions, this._regions[name], name); }
     return regions;
   },
 
@@ -552,7 +552,7 @@ Object.assign(View.prototype, ViewMixin, RegionsMixin, {
 
   _getImmediateChildren(this: ViewInternals) {
     const children: SupportedView[] = [];
-    eachOwn(this._regions, (region: RegionInternals) => childReducer(children, region));
+    for (const name of Object.keys(this._regions)) { childReducer(children, this._regions[name]); }
     return children;
   }
 });

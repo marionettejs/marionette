@@ -1,4 +1,3 @@
-import eachOwn from '../utils/each-own.ts';
 import { getValue } from '@marionette/utils';
 import type { TriggerTarget } from './view-events.ts';
 
@@ -53,10 +52,11 @@ function parseBehaviors(view: BehaviorContainer, behaviors: unknown) {
     for (let index = 0, length = behaviors.length; index < length; index++) {
       addBehavior(view, behaviors[index]);
     }
-  } else {
-    eachOwn(behaviors, (behaviorDefinition: BehaviorDefinition) => {
-      addBehavior(view, behaviorDefinition);
-    });
+  } else if (behaviors) {
+    const definitions = behaviors as Record<string, BehaviorDefinition>;
+    for (const name of Object.keys(definitions)) {
+      addBehavior(view, definitions[name]);
+    }
   }
 }
 

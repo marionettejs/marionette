@@ -51,7 +51,7 @@ export interface BehaviorOptions {
 }
 
 type Common = Omit<typeof CommonMixin, 'initialize'>;
-import type { BehaviorFluent } from './common/fluent-methods.ts';
+import type { BehaviorFluent } from './common/chainable-methods.ts';
 
 export interface BehaviorInstance<Options extends object = BehaviorOptions, Host extends BehaviorHost = BehaviorHost, State = unknown,
   Query extends ArrayLike<Element> = ReturnType<Host['$']>> extends Common, BehaviorFluent<{}> {
@@ -179,7 +179,7 @@ Object.assign(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateM
     this._destroyState();
     this.stopListening();
     this.view._removeBehavior(this);
-    this._deleteEntityEventHandlers();
+    this._undelegateEntityEvents();
 
     return this;
   },
@@ -212,7 +212,7 @@ Object.assign(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateM
   },
 
   undelegateEntityEvents(this: BehaviorInternals) {
-    (this._undelegateEntityEvents as (...args: unknown[]) => void)(this.view.model, this.view.collection);
+    this._undelegateEntityEvents();
 
     return this;
   }

@@ -33,7 +33,7 @@ export interface RegionOwner {
 }
 
 type Common = typeof CommonMixin;
-import type { RegionFluent } from './common/fluent-methods.ts';
+import type { RegionFluent } from './common/chainable-methods.ts';
 
 export interface RegionInstance<Options extends object = RegionOptions> extends Common, RegionFluent<{}> {
   cid: string;
