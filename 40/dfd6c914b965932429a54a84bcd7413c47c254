@@ -1,0 +1,27 @@
+src/mixins/template-render.ts
+  s_060efbb5bf6218::t_8583bfe1096c86 13
+  s_060efbb5bf6218::t_8bdc6b1f1c6b38 81,86-87
+test/types/providers.mts
+  s_060efbb5bf6218::t_8583bfe1096c86 1,112-123
+src/runtime/data-api.ts
+  s_060efbb5bf6218::t_8583bfe1096c86 6-14
+  s_060efbb5bf6218::t_2b50b3d24b268e 15
+test/types/providers.cts
+  s_060efbb5bf6218::t_8583bfe1096c86 1,112-123
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "40dfd6c914b965932429a54a84bcd7413c47c254",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
