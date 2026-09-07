@@ -1,0 +1,90 @@
+test/unit/runtime/dom-api.spec.js
+  s_060efbb5bf6218::t_fe9e32cd938dce 35,54,299
+  s_060efbb5bf6218::t_a4c2ab5b524108 32
+test/fixtures/utils-package/consumer.cts
+  s_060efbb5bf6218::t_1052688e107043 2,16,64
+test/unit/utils/extend.spec.js
+  s_060efbb5bf6218::t_fe9e32cd938dce 183
+  s_060efbb5bf6218::t_9a77fe7ff1e15a 172,175,184-186,196-197
+test/unit/requests.spec.js
+  s_060efbb5bf6218::t_fe9e32cd938dce 705,709,727
+  s_060efbb5bf6218::t_6ad91a08fc4ae0 704
+test/fixtures/utils-package/consumer.mts
+  s_060efbb5bf6218::t_1052688e107043 2,16,64
+packages/data/src/collection.ts
+  s_060efbb5bf6218::t_96bcbbce1ee453 2,149
+packages/data/src/model.ts
+  s_060efbb5bf6218::t_f38c1dab32d6d1 2,97,107,118,134,141,171,177
+packages/utils/readme.md
+  s_060efbb5bf6218::t_d75d81fa5ae4b1 40-42
+packages/utils/src/extend.ts
+  s_060efbb5bf6218::t_1fd5f4e7af860e 4,64-67,71-74
+packages/utils/src/index.ts
+  s_060efbb5bf6218::t_6a47e2f4cb5b24 2
+packages/utils/src/merge-options.ts
+  s_060efbb5bf6218::t_f655a0a5b2ca09 1
+packages/utils/src/normalize-methods.ts
+  s_060efbb5bf6218::t_4ac347fd92dc79 2
+packages/utils/src/set-property.ts
+  s_060efbb5bf6218::t_ad2a19ab233cb7 1
+src/create-marionette.ts
+  s_060efbb5bf6218::t_b2ed125e867096 1,54
+src/mixins/common.ts
+  s_060efbb5bf6218::t_08b8c0d7985e74 29,52
+src/mixins/requests.ts
+  s_060efbb5bf6218::t_2e2b4c5669495d 2,158,164,169
+src/mixins/template-render.ts
+  s_060efbb5bf6218::t_2f279cb5f2a758 1,57
+src/mixins/view.ts
+  s_060efbb5bf6218::t_f3444ffc5eff58 4,128,304
+src/modules/application.ts
+  s_060efbb5bf6218::t_292d7a2ec3f6de 4,531-532
+src/modules/behavior.ts
+  s_060efbb5bf6218::t_3aac9c94665fc2 9,148,161,166
+src/modules/collection-view.ts
+  s_060efbb5bf6218::t_d892731c19ed10 4,407,416,774
+src/modules/common/build-region.ts
+  s_060efbb5bf6218::t_144b5a893ecc0c 1,51
+src/modules/object.ts
+  s_060efbb5bf6218::t_80297549a029b1 4,155,160
+src/modules/radio.ts
+  s_060efbb5bf6218::t_7bdc5ddffbb1ba 7,70,129
+src/modules/region.ts
+  s_060efbb5bf6218::t_7f50ca10845d41 4,163
+src/modules/view.ts
+  s_060efbb5bf6218::t_4e9d973c4cf5bc 4,518,520
+src/runtime/data-api.ts
+  s_060efbb5bf6218::t_5db4461f23a430 3,41
+src/runtime/dom-api.ts
+  s_060efbb5bf6218::t_026c9cf7640e1f 3,37
+src/runtime/state-api.ts
+  s_060efbb5bf6218::t_ac64d182c1b657 3,19
+test/unit/behavior-composition.spec.js
+  s_060efbb5bf6218::t_da38e4bde39301 236,238,240
+test/unit/mixins/view-composition.spec.js
+  s_060efbb5bf6218::t_1048322bdda96c 311,315
+test/unit/object-application-composition.spec.js
+  s_060efbb5bf6218::t_560e3c516f4df9 108,110
+test/unit/radio-composition.spec.js
+  s_060efbb5bf6218::t_c44c90199d5290 81,86
+test/unit/utils/set-property.spec.js
+  s_060efbb5bf6218::t_aa5d8da3e20ce9 1,3
+upgradeGuide.md
+  s_060efbb5bf6218::t_7f72c8dbd643e9 420-429
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "2426e75394c607a0b010b1518d132d4ee9d7785d",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
