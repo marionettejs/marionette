@@ -1,0 +1,21 @@
+docs/migration-from-v4.md
+  s_060efbb5bf6218::t_47a0ede5aa4637 48-50
+packages/radio/readme.md
+  s_060efbb5bf6218::t_75a609e7b84023 52
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "14944af890bbb29ebbb6033163ad56d371947105",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
