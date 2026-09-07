@@ -139,6 +139,10 @@ child returns it in its current lifecycle state. Setting
 `monitorViewEvents: false` on the `CollectionView` intentionally disables child
 attachment events and automatic child `isAttached()` updates.
 
+Disabling monitoring does not make child destruction clear surrounding template
+content. Bulk removal is used only when the child container contains those Views'
+root elements and optional formatting whitespace.
+
 | Operation | CollectionView state | Managed child state |
 | --- | --- | --- |
 | Construct | Starts not rendered and not destroyed. It is attached only when its element is already in the document. | No children have been built. |

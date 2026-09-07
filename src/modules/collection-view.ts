@@ -289,6 +289,16 @@ function normalizeCollectionChange(change: RawChange, previous: Snapshot, curren
   };
 }
 
+function canDetachContents(container: Element, children: CollectionChild[]) {
+  if (container.childElementCount !== children.length ||
+      !children.every(view => view.el.parentNode === container)) { return false; }
+
+  // Formatting whitespace may be cleared; preserve other content and renderer markers.
+  return container.childNodes.length === children.length ||
+    Array.from(container.childNodes).every(node => node.nodeType === 1 ||
+      node.nodeType === 3 && !/[^\t\n\f\r ]/.test(node.textContent!));
+}
+
 function modelAttributesMatcher(Data: DataProvider, predicate: Record<string, unknown>) {
   const keys = Object.keys(predicate);
   const length = keys.length;
@@ -1186,8 +1196,12 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     }
 
     this.triggerMethod('before:destroy:children', this);
-    if (this.monitorViewEvents === false) { this.Dom.detachContents(this.el); }
-    this._removeChildViews(this._children._views);
+    const children = this._children._views;
+    const container = this.container;
+    if (this.monitorViewEvents === false && canDetachContents(container, children)) {
+      this.Dom.detachContents(container);
+    }
+    this._removeChildViews(children);
     this._children._init();
     this.children._init();
 
