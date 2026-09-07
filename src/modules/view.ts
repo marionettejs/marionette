@@ -58,7 +58,7 @@ export interface ViewConfiguration {
 }
 
 type Common = typeof CommonMixin;
-import type { ViewFluent } from './common/fluent-methods.ts';
+import type { ViewFluent } from './common/chainable-methods.ts';
 
 export interface ViewInstance<Options extends object = ViewConfiguration, State = unknown,
   Query extends ArrayLike<Element> = ArrayLike<Element>> extends Common, ViewFluent<{}> {

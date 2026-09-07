@@ -51,7 +51,7 @@ export interface BehaviorOptions {
 }
 
 type Common = Omit<typeof CommonMixin, 'initialize'>;
-import type { BehaviorFluent } from './common/fluent-methods.ts';
+import type { BehaviorFluent } from './common/chainable-methods.ts';
 
 export interface BehaviorInstance<Options extends object = BehaviorOptions, Host extends BehaviorHost = BehaviorHost, State = unknown,
   Query extends ArrayLike<Element> = ReturnType<Host['$']>> extends Common, BehaviorFluent<{}> {
