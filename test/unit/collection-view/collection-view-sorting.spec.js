@@ -323,12 +323,12 @@ describe('CollectionView - Sorting', function() {
       view.destroy();
     });
 
-    it('reads one snapshot for validation and one for sorting a collection change', function() {
+    it('uses one source snapshot to validate and sort a collection change', function() {
       const view = new MyCollectionView({ collection }).render();
       const models = this.sinon.spy(view.Data, 'models');
       const added = collection.add({ index: 5, sort: 6, altSort: 0 }, { at: 2 });
 
-      expect(models).to.have.been.calledTwice;
+      expect(models).to.have.been.calledOnce;
       expect(view.children.findByIndex(2).model).to.equal(added);
       view.destroy();
     });
