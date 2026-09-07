@@ -12,7 +12,7 @@ export { bindRequests, unbindRequests } from './bind-requests.ts';
 export type { Bindings } from './normalize-methods.ts';
 export type { MarionetteErrorInstance, MarionetteErrorConstructor } from './error.ts';
 export type { EventCallback, EventMap, EventSource, EventMethods } from './events.ts';
-export type { Merge, Constructed, CallableParent } from './constructor.ts';
+export type { Merge, Constructed, CallableParent } from './extend.ts';
 
 export { default as Events } from './events.ts';
 export type { Events as EventsContract } from './events.ts';
