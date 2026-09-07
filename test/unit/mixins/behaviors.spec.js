@@ -134,18 +134,6 @@ describe('Behaviors Mixin', function() {
       });
     });
 
-    describe('with invalid option', function() {
-      beforeEach(function() {
-        behaviorsInstance.behaviors = [{foo: 'bar'}];
-      });
-
-      it('should throw an error', function() {
-        expect(function() {
-          behaviorsInstance._initBehaviors()
-        }).to.throw('Unable to get behavior class. A Behavior constructor should be passed directly or as behaviorClass property of options')
-          .with.property('code', 'MN0016');
-      });
-    })
   });
 
   describe('#_delegateBehaviorEntityEvents', function() {

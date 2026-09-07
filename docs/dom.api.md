@@ -16,7 +16,7 @@ adapter.
 ## Element and selector boundaries
 
 `View` and `CollectionView` own a concrete DOM element. Their `el` option must
-be a DOM element; passing a selector string throws `MN0001`. Resolve a selector
+be a DOM element. Resolve a selector
 at the call site when a View should reuse existing markup:
 
 ```javascript

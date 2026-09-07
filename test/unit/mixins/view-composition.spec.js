@@ -1,5 +1,3 @@
-import vm from 'node:vm';
-
 import BehaviorsMixin from '../../../src/mixins/behaviors';
 import CommonMixin from '../../../src/mixins/common';
 import DelegateEntityEventsMixin from '../../../src/mixins/delegate-entity-events';
@@ -8,7 +6,6 @@ import TemplateRenderMixin from '../../../src/mixins/template-render';
 import UIMixin from '../../../src/mixins/ui';
 import ViewMixin from '../../../src/mixins/view';
 import ViewEventsMixin from '../../../src/mixins/view-events';
-import { MarionetteError } from '@marionette/utils';
 
 const mixins = [
   BehaviorsMixin,
@@ -25,7 +22,6 @@ const directKeys = [
   'preinitialize',
   'Dom',
   'Data',
-  '_validateEl',
   '_getEl',
   '_getAttributes',
   'renderAttributes',
@@ -264,25 +260,6 @@ describe('ViewMixin owned helpers', function() {
       view.childViewEventPrefix = Symbol('prefix');
 
       expect(() => view._getEventPrefix()).to.throw(TypeError);
-    });
-  });
-
-  describe('#_validateEl', function() {
-    it('uses the shared String-tag classification', function() {
-      const tagged = { [Symbol.toStringTag]: 'String', toString: () => '#tagged' };
-      const values = [
-        new String('#boxed'),
-        vm.runInNewContext('new String("#cross-realm")'),
-        tagged
-      ];
-
-      values.forEach(value => {
-        expect(() => ViewMixin._validateEl(value))
-          .to.throw(MarionetteError)
-          .with.property('code', 'MN0001');
-      });
-      const proxiedBoxed = new Proxy(new String('#proxy'), {});
-      expect(ViewMixin._validateEl(proxiedBoxed)).to.equal(proxiedBoxed);
     });
   });
 

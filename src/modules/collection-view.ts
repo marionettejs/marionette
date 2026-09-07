@@ -1,7 +1,7 @@
 // Collection View
 // ---------------
 
-import { getValue, isString, MarionetteError, uniqueId } from '@marionette/utils';
+import { getValue, MarionetteError, uniqueId } from '@marionette/utils';
 import extend from '../utils/extend.ts';
 import { renderView, destroyView, isViewClass } from './common/view.ts';
 import monitorViewEvents from './common/monitor-view-events.ts';
@@ -206,7 +206,7 @@ type CollectionViewInternals = CollectionViewInstance & ViewMixinHost & {
   _createChildView(model: unknown): CollectionChild;
   _addChild(view: CollectionChild, index?: number | null): void;
   _getChildView(model: unknown): ChildClass;
-  _getView(view: unknown, model: unknown): ChildClass | undefined;
+  _getView(view: NonNullable<CollectionViewConfiguration['childView']>, model: unknown): ChildClass;
   _getChildViewOptions(model: unknown): object | null | undefined;
   _setupChildView(view: CollectionChild): void;
   _getImmediateChildren(): CollectionChild[];
@@ -221,7 +221,7 @@ type CollectionViewInternals = CollectionViewInstance & ViewMixinHost & {
   _getBuffer(views: CollectionChild[]): DocumentFragment;
   _attachChildren(els: Element | DocumentFragment, views: CollectionChild[]): void;
   _showEmptyView(): void;
-  _getEmptyView(): ChildClass<SupportedView> | undefined;
+  _getEmptyView(): ChildClass<SupportedView> | null | false | undefined;
   _getEmptyViewOptions(): object | null | undefined;
   _destroyEmptyView(): void;
   _removeChildViews(views: CollectionChild[]): void;
@@ -230,7 +230,6 @@ type CollectionViewInternals = CollectionViewInstance & ViewMixinHost & {
   _destroyChildren(): void;
   _getEl(): Element;
   _isElAttached(): boolean;
-  _validateEl(element: Element): Element;
 };
 
 const classErrorName = 'CollectionViewError';
@@ -251,10 +250,6 @@ function throwCollectionProtocolError(message: string): never {
 
 function buildCollectionSnapshot(Data: DataProvider, collection: unknown, previous: SnapshotEntry[]): Snapshot {
   const models = Data.models(collection as never);
-  if (!Array.isArray(models)) {
-    throwCollectionProtocolError('DataApi.models() must return an ordered model snapshot.');
-  }
-
   const previousKeys = new Map(previous.map(entry => [entry.model, entry.key]));
   const keys = new Set<unknown>();
   const modelEntries = new Map<unknown, SnapshotEntry>();
@@ -300,15 +295,6 @@ function normalizeCollectionChange(change: RawChange, previous: Snapshot, curren
   };
 }
 
-function isEmptyViewClass(view: unknown): view is ChildClass<SupportedView> {
-  if (typeof view !== 'function' || !view.prototype) { return false; }
-
-  const { render, destroy } = view.prototype;
-
-  return typeof render === 'function' &&
-    typeof destroy === 'function';
-}
-
 function modelAttributesMatcher(Data: DataProvider, predicate: Record<string, unknown>) {
   const keys = Object.keys(predicate);
   const length = keys.length;
@@ -327,10 +313,6 @@ function modelAttributesMatcher(Data: DataProvider, predicate: Record<string, un
     }
     return true;
   };
-}
-
-function isClassDefinition(view: Function) {
-  return !!view.prototype?.render || /^class(?:\s|\/[/*])/.test(Function.prototype.toString.call(view));
 }
 
 const ClassOptions = [
@@ -374,7 +356,7 @@ const CollectionView = function(this: CollectionViewInternals, options?: Collect
 
   this._initViewEvents();
 
-  this.el = this._validateEl(this._getEl());
+  this.el = this._getEl();
   this._isAttached = this._isElAttached();
   this.delegateEvents();
   if (this._isAttached && this.monitorViewEvents !== false) {
@@ -723,7 +705,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
   // returns a view class. If it is a function, it will receive the model that
   // will be passed to the view instance (created from the returned view class)
   _getChildView(this: CollectionViewInternals, child: unknown) {
-    let childView = this.childView;
+    const childView = this.childView;
 
     if (!childView) {
       throw new MarionetteError({
@@ -734,28 +716,16 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       });
     }
 
-    childView = this._getView(childView, child);
-
-    if (!childView) {
-      throw new MarionetteError({
-        code: 'MN0012',
-        name: classErrorName,
-        message: '"childView" must be a view class or a function that returns a view class',
-        url: 'marionette.collectionview.html#collectionviews-childview'
-      });
-    }
-
-    return childView;
+    return this._getView(childView, child);
   },
 
   // First check if the `view` is a view class (the common case)
   // Then check if it's a function (which we assume that returns a view class)
-  _getView(this: CollectionViewInternals, view: unknown, child: unknown) {
-    if (isViewClass(view as { prototype?: Partial<SupportedView> })) {
+  _getView(this: CollectionViewInternals, view: NonNullable<CollectionViewConfiguration['childView']>, child: unknown) {
+    if (isViewClass(view)) {
       return view as ChildClass;
-    } else if (typeof view === 'function' && !isClassDefinition(view)) {
-      return (view as (this: CollectionViewInternals, model: unknown) => ChildClass).call(this, child);
     }
+    return (view as (this: CollectionViewInternals, model: unknown) => ChildClass).call(this, child);
   },
 
   _getChildViewOptions(this: CollectionViewInternals, child: unknown) {
@@ -965,23 +935,13 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       return viewFilter;
     }
 
-    // Support filter predicates `{ fooFlag: true }`
-    if (typeof viewFilter === 'object' && !Array.isArray(viewFilter)) {
-      return modelAttributesMatcher(this.Data, viewFilter);
-    }
-
-    // Filter by model attribute
-    if (isString(viewFilter)) {
+    // Filter by model attribute.
+    if (typeof viewFilter === 'string') {
       return (view: CollectionChild) => view.model != null && this.Data.has(view.model as never, viewFilter as string) &&
         this.Data.get(view.model as never, viewFilter as never);
     }
 
-    throw new MarionetteError({
-      code: 'MN0014',
-      name: classErrorName,
-      message: '"viewFilter" must be a function, predicate object literal, a string indicating a model attribute, or falsy',
-      url: 'marionette.collectionview.html#defining-the-viewfilter'
-    });
+    return modelAttributesMatcher(this.Data, viewFilter);
   },
 
   // Override this function to provide custom
@@ -1142,21 +1102,9 @@ Object.assign(CollectionView.prototype, ViewMixin, {
 
     if (emptyView == null || emptyView === false) { return; }
 
-    if (isEmptyViewClass(emptyView)) { return emptyView; }
+    if (isViewClass(emptyView)) { return emptyView as ChildClass<SupportedView>; }
 
-    const isResolver = typeof emptyView === 'function' && !isClassDefinition(emptyView);
-    const EmptyView = isResolver ? emptyView.call(this) : undefined;
-
-    if (isResolver && (EmptyView == null || EmptyView === false)) { return; }
-
-    if (isEmptyViewClass(EmptyView)) { return EmptyView; }
-
-    throw new MarionetteError({
-      code: 'MN0022',
-      name: classErrorName,
-      message: '"emptyView" must be a view class or a function that returns a view class',
-      url: 'marionette.collectionview.html#collectionviews-emptyview'
-    });
+    return (emptyView as () => ChildClass<SupportedView> | null | false | undefined).call(this);
   },
 
   // Remove the emptyView

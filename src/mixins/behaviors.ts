@@ -1,5 +1,5 @@
 import eachOwn from '../utils/each-own.ts';
-import { MarionetteError, getValue } from '@marionette/utils';
+import { getValue } from '@marionette/utils';
 import type { TriggerTarget } from './view-events.ts';
 
 export interface BehaviorInstance {
@@ -34,31 +34,9 @@ type BehaviorConstruction = new (options: unknown, view: unknown) => BehaviorIns
 // MixinOptions
 // - behaviors
 
-// Takes care of getting the behavior class
-// given options and a key.
-// If a user passes in options.behaviorClass
-// default to using that.
-// If a user passes in a Behavior Class directly, use that
-// Otherwise an error is thrown
-function getBehaviorClass(options: BehaviorDefinition) {
-  if ((options as BehaviorOptionsDefinition).behaviorClass) {
-    return { BehaviorClass: (options as BehaviorOptionsDefinition).behaviorClass, options };
-  }
-
-  // Treat functions as a Behavior constructor.
-  if (typeof options === 'function') {
-    return { BehaviorClass: options, options: {} };
-  }
-
-  throw new MarionetteError({
-    code: 'MN0016',
-    message: 'Unable to get behavior class. A Behavior constructor should be passed directly or as behaviorClass property of options',
-    url: 'marionette.behavior.html#defining-and-attaching-behaviors'
-  });
-}
-
 function addBehavior(view: BehaviorContainer, behaviorDefinition: BehaviorDefinition) {
-  const { BehaviorClass, options } = getBehaviorClass(behaviorDefinition);
+  const options = typeof behaviorDefinition === 'function' ? {} : behaviorDefinition;
+  const BehaviorClass = typeof behaviorDefinition === 'function' ? behaviorDefinition : behaviorDefinition.behaviorClass;
   const behavior = new (BehaviorClass as BehaviorConstruction)(options, view);
   if (!behavior._isDestroyed) {
     view._behaviors!.push(behavior);

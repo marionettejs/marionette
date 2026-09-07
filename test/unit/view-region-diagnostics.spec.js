@@ -35,7 +35,7 @@ function expectInvalidRegionNameError(callback) {
 }
 
 function expectInvalidOperation(view, operation) {
-  expectInvalidRegionNameError(() => operation(view, null));
+  expectInvalidRegionNameError(() => operation(view, ''));
 }
 
 describe('View named Region diagnostics', function() {
@@ -394,10 +394,8 @@ describe('View named Region diagnostics', function() {
     }
   });
 
-  it('rejects invalid Region names without coercion across named operations', function() {
-    const toPrimitive = this.sinon.stub().returns('content');
-    const objectName = { [Symbol.toPrimitive]: toPrimitive };
-    const invalidNames = ['', undefined, null, 0, ['content'], objectName, Symbol('content')];
+  it('rejects empty Region names across named operations', function() {
+    const invalidNames = [''];
     const operations = [
       ['addRegion', name => view.addRegion(name, '.content')],
       ['getRegion', name => view.getRegion(name)],
@@ -411,11 +409,10 @@ describe('View named Region diagnostics', function() {
       }
     }
 
-    expect(toPrimitive).to.not.have.been.called;
     expect(view.getRegion('content')).to.be.instanceOf(Region);
   });
 
-  it('rejects invalid child Region names before rendering', function() {
+  it('rejects empty child Region names before rendering', function() {
     this.sinon.spy(view, 'render');
 
     for (const [, operation] of childOperations) {

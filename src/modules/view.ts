@@ -1,6 +1,7 @@
 // View
 // ----
 
+import type { Bindings } from '@marionette/utils';
 import { MarionetteError, getValue, uniqueId } from '@marionette/utils';
 import eachOwn from '../utils/each-own.ts';
 import extend from '../utils/extend.ts';
@@ -48,9 +49,9 @@ export interface ViewConfiguration {
   childViewEvents?: Record<string, EventCallback | string> | (() => Record<string, EventCallback | string>);
   childViewTriggers?: Record<string, string> | (() => Record<string, string>);
   childViewEventPrefix?: string | false | (() => string | false);
-  modelEvents?: unknown;
-  collectionEvents?: unknown;
-  stateEvents?: unknown;
+  modelEvents?: Bindings | (() => Bindings);
+  collectionEvents?: Bindings | (() => Bindings);
+  stateEvents?: Bindings | (() => Bindings);
   state?: unknown;
   template?: unknown;
   templateContext?: object | (() => object);
@@ -80,9 +81,9 @@ export interface ViewInstance<Options extends object = ViewConfiguration, State 
   childViewEvents?: ViewConfiguration['childViewEvents'];
   childViewTriggers?: ViewConfiguration['childViewTriggers'];
   childViewEventPrefix?: ViewConfiguration['childViewEventPrefix'];
-  modelEvents?: unknown;
-  collectionEvents?: unknown;
-  stateEvents?: unknown;
+  modelEvents?: Bindings | (() => Bindings);
+  collectionEvents?: Bindings | (() => Bindings);
+  stateEvents?: Bindings | (() => Bindings);
   state?: unknown;
   template?: unknown;
   templateContext?: ViewConfiguration['templateContext'];
@@ -167,14 +168,13 @@ type ViewInternals = ViewInstance & ViewMixinHost & {
   _removeReferences(name: string): void;
   _getRegions(): RegionMap;
   _isElAttached(): boolean;
-  _validateEl(element: Element): Element;
   _getEl(): Element;
 };
 
 const classErrorName = 'RegionError';
 
 function assertRegionName(name: string) {
-  if (typeof name === 'string' && name.length > 0) { return; }
+  if (name.length > 0) { return; }
 
   throw new MarionetteError({
     code: 'MN0032',
@@ -487,7 +487,7 @@ const View = function(this: ViewInternals, options?: ViewConfiguration) {
 
   this._initViewEvents();
 
-  this.el = this._validateEl(this._getEl());
+  this.el = this._getEl();
   this._isRendered = this.Dom.hasContents!(this.el);
   this._isAttached = this._isElAttached();
   if (this._isRendered) { this.bindUIElements(); }

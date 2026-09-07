@@ -112,20 +112,6 @@ describe('Behaviors Mixin owned iteration', function() {
       expect(host._behaviors).to.have.lengthOf(2);
     });
 
-    it('treats a non-array declaration as an object map', function() {
-      const constructed = this.sinon.stub();
-      function BehaviorClass() {
-        constructed();
-      }
-      const host = {
-        ...BehaviorsMixin,
-        behaviors: { 0: BehaviorClass, length: 1 }
-      };
-
-      expect(() => host._initBehaviors()).to.throw()
-        .with.property('code', 'MN0016');
-      expect(constructed).to.have.been.calledOnce;
-    });
   });
 
   describe('#_triggerEventOnBehaviors', function() {

@@ -117,7 +117,7 @@ try {
   try {
     const collisionRegion = nameContractView.addRegion('__proto__', '.content');
     assert.equal(nameContractView.getRegion('__proto__'), collisionRegion);
-    assert.throws(() => nameContractView.getRegion(['__proto__']), error => {
+    assert.throws(() => nameContractView.getRegion(''), error => {
       return error.code === 'MN0032' && error.name === 'RegionError';
     });
   } finally {

@@ -41,12 +41,6 @@ describe('region', function() {
       expect(optionRegion.el).to.equal(el);
     });
 
-    it('should reject when the el option is passed in as a jQuery object', function() {
-      expect(function() {
-        return new Region({el: $(el)});
-      }).to.throw('Region "el" must be a selector string or DOM element.');
-    });
-
     it('should work when el is set in the region extend', function() {
       expect(customRegion.el).to.equal(el);
     });
@@ -54,18 +48,6 @@ describe('region', function() {
     it('should not have a view', function() {
       expect(customRegion.hasView()).to.equal(false);
       expect(optionRegion.hasView()).to.equal(false);
-    });
-
-    it('should complain if the el passed in as an option is invalid', function() {
-      expect(function() {
-        return new Region({el: []});
-      }).to.throw('Region "el" must be a selector string or DOM element.');
-    });
-
-    it('should complain if the el passed in via an extended region is invalid', function() {
-      expect(function() {
-        return new (Region.extend({el: []}))();
-      }).to.throw('Region "el" must be a selector string or DOM element.');
     });
 
     it('should not be swapping view', function() {
@@ -201,31 +183,6 @@ describe('region', function() {
         expect($('#region1 #view')).to.be.lengthOf(0);
         expect($('#region2 #view')).to.be.lengthOf(1);
       });
-    });
-  });
-
-  describe('when showing a value that is not a Marionette View', function() {
-    it('should reject legacy implicit View inputs', function() {
-      const region = new Region({ el: document.createElement('div') });
-      const invalidValues = [
-        undefined,
-        null,
-        '',
-        '<b>Hello World!</b>',
-        _.template('<b>Hello World!</b>'),
-        View,
-        { template: _.template('<b>Hello World!</b>') },
-        { render: true, destroy() {} },
-        { render() {}, remove: true }
-      ];
-
-      invalidValues.forEach(value => {
-        expect(() => region.show(value))
-          .to.throw('The value passed to show must be a Marionette View instance')
-          .with.property('code', 'MN0006');
-      });
-
-      expect(region.hasView()).to.be.false;
     });
   });
 
@@ -908,7 +865,6 @@ describe('region', function() {
       expect(view.destroy).to.have.been.called;
     });
 
-
     it('should delete the current view reference', function() {
       expect(region.currentView).to.be.undefined;
     });
@@ -931,7 +887,6 @@ describe('region', function() {
       expect(isSwappingOnEmpty).to.be.false;
     });
   });
-
 
   describe('when initializing a region and passing an "el" option', function() {
     let el;

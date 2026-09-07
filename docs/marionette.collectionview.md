@@ -517,11 +517,9 @@ bound functions retain their normal JavaScript `this` semantics.
 If the resolved `emptyView` property is `undefined`, `null`, or `false`, no
 empty view is rendered. Because an `undefined` constructor option does not
 replace an inherited value, use `null` or `false` to disable an inherited
-definition. A resolver must return a `View` class; every other direct value and
-every non-`View` resolver result—including a resolver returning `undefined`,
-`null`, or `false`—is invalid.
-Marionette validates `emptyView` only when the collection is empty and throws
-[`MN0022`](/errors/MN0022/) for an invalid definition. Errors thrown by a
+definition. A resolver may return a `View` class or `undefined`, `null`, or
+`false` to disable the empty view. The public types describe these alternatives;
+Marionette trusts the result when the collection is empty. Errors thrown by a
 resolver propagate unchanged.
 
 ```javascript
@@ -737,10 +735,9 @@ returns `[[], []]` without calling the predicate.
 
 `invoke(methodName, ...args)` requires a direct string method name, invokes that
 method with each child View as `this`, forwards `args`, and returns a new ordered
-array of results. A missing or non-callable child method throws
-[`MN0025`](/errors/MN0025/) at that child. A non-string method name throws
-[`MN0024`](/errors/MN0024/). Function-form and deep-path method names are not
-supported. An empty container returns `[]` for a valid string method name.
+array of results. TypeScript restricts the name to callable child methods and
+checks their arguments and result types. Function-form and deep-path method
+names are not supported. An empty container returns `[]`.
 
 `toArray()` returns a new array containing the current child Views in container
 order. Changing the returned array's membership or order does not change the

@@ -68,25 +68,6 @@ describe('jQuery DomApi adapter', function() {
     expect(result[0]).to.equal(child);
   });
 
-  [
-    ['View', View],
-    ['CollectionView', CollectionView],
-  ].forEach(([name, ViewClass]) => {
-    it(`rejects a jQuery-wrapped ${ name } el with the migration diagnostic`, function() {
-      const WrappedView = ViewClass.extend();
-      WrappedView.setDomApi(JQueryDomApi);
-      const wrappedEl = $(document.createElement('div'));
-
-      let error;
-      try { new WrappedView({ el: wrappedEl }); } catch (err) { error = err; }
-
-      expect(error).to.be.instanceOf(Error);
-      expect(error.code).to.equal('MN0001');
-      expect(error.message).to.contain('must be a DOM element');
-      expect(error.message).to.contain('wrappedEl[0]');
-    });
-  });
-
   it('detaches elements without removing listeners with the jQuery DomApi', function() {
     const parent = document.createElement('div');
     const child = document.createElement('button');

@@ -174,39 +174,6 @@ describe('Region', function() {
           });
         });
 
-        describe('when el is a jQuery object', function() {
-          let buildRegion;
-
-          beforeEach(function() {
-            const el = $('<div id="baz-region">');
-            const definition = {el: el};
-
-            buildRegion = function() {
-              view.addRegion(_.uniqueId('region_'), definition);
-            };
-          });
-
-          it('throws a `RegionError`', function() {
-            expect(buildRegion).to.throw('Region "el" must be a selector string or DOM element.');
-          });
-        });
-      });
-
-      describe('when el is an empty jQuery object', function() {
-        let buildRegion;
-
-        beforeEach(function() {
-          const el = $('i-am-not-real');
-          const definition = {el: el};
-
-          buildRegion = function() {
-            view.addRegion(_.uniqueId('region_'), definition);
-          };
-        });
-
-        it('throws a `RegionError`', function() {
-          expect(buildRegion).to.throw('Region "el" must be a selector string or DOM element.');
-        });
       });
 
       describe('with `regionClass` defined', function() {
@@ -345,19 +312,5 @@ describe('Region', function() {
       });
     });
 
-    describe('with a missing regionConfig', function() {
-      let buildRegion;
-
-      beforeEach(function() {
-        buildRegion = function() {
-          view.addRegion(_.uniqueId('region_'));
-        };
-      });
-
-      it('throws an error', function() {
-        expect(buildRegion).to.throw('Improper region configuration type.')
-          .with.property('code', 'MN0008');
-      });
-    });
   });
 });

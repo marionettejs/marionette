@@ -1,4 +1,4 @@
-import { mergeOptions, MarionetteError } from '@marionette/utils';
+import { mergeOptions } from '@marionette/utils';
 
 describe('mergeOptions', function() {
   let target;
@@ -112,42 +112,6 @@ describe('mergeOptions', function() {
     expect(target.color).to.equal('blue');
     expect(target).to.not.have.property('size');
     expect(reads.filter(key => /^\d+$/.test(key))).to.deep.equal(['0', '1']);
-  });
-
-  it('rejects keys that are not an array', function() {
-    const options = { color: 'blue' };
-    const getArguments = function() { return arguments; };
-
-    for (const keys of [
-      null,
-      undefined,
-      false,
-      0,
-      '',
-      NaN,
-      'color',
-      getArguments('color'),
-      { 0: 'color', length: 1 },
-      { first: 'color' },
-      42,
-      true,
-      Symbol('keys'),
-      new Map(),
-      new Set()
-    ]) {
-      target.myOptions = keys;
-      expect(target.initialize.bind(target, options))
-        .to.throw(MarionetteError)
-        .and.include({ code: 'MN0033' });
-    }
-
-    expect(target).to.not.have.property('color');
-  });
-
-  it('rejects an omitted keys argument when options are present', function() {
-    expect(() => mergeOptions.call(target, { color: 'blue' }))
-      .to.throw(MarionetteError)
-      .and.include({ code: 'MN0033' });
   });
 
   it('skips requested options with undefined values', function() {

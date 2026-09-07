@@ -1,9 +1,9 @@
 // Region
 // ------
 
-import { MarionetteError, getValue, isString, uniqueId } from '@marionette/utils';
+import { MarionetteError, getValue, uniqueId } from '@marionette/utils';
 import extend from '../utils/extend.ts';
-import { renderView, destroyView, isView } from './common/view.ts';
+import { renderView, destroyView } from './common/view.ts';
 import CommonMixin from '../mixins/common.ts';
 import DomApi, { setDomApi } from '../runtime/dom-api.ts';
 import { defaultRuntimeId, runtimeId } from '../runtime-id.ts';
@@ -89,7 +89,6 @@ export interface RegionInternals extends RegionInstance {
   _isDestroyed: boolean;
   _parentView?: RegionOwner;
   _name?: string;
-  _validateEl(el: unknown): void;
   _setEl(el: RegionInstance['el']): void;
   _setElement(el: RegionInstance['el']): this;
   _ensureElement(options?: ShowOptions): boolean;
@@ -148,7 +147,6 @@ const Region = function(this: RegionInternals, options?: RegionOptions) {
 
   // getOption necessary because options.el may be passed as undefined
   this._initEl = this.el = this.getOption('el') as RegionInstance['el'];
-  this._validateEl(this.el);
 
   (this.initialize as Function).apply(this, arguments);
 };
@@ -166,17 +164,6 @@ Object.assign(Region.prototype, CommonMixin, {
   replaceElement: false,
   _isReplaced: false,
   _isSwappingView: false,
-
-  _validateEl(this: RegionInternals, el: unknown) {
-    if (!el || isString(el) || (el as Node).nodeType === 1) { return; }
-
-    throw new MarionetteError({
-      code: 'MN0002',
-      name: classErrorName,
-      message: 'Region "el" must be a selector string or DOM element.',
-      url: 'marionette.region.html#additional-options'
-    });
-  },
 
   // Displays a view instance inside of the region. If necessary handles calling the `render`
   // method for you. Reads content directly from the `el` attribute.
@@ -225,8 +212,6 @@ Object.assign(Region.prototype, CommonMixin, {
   },
 
   _setEl(this: RegionInternals, el: RegionInstance['el']) {
-    this._validateEl(el);
-
     if (el !== null && typeof el === 'object') {
       this.el = el;
       return;
@@ -338,15 +323,6 @@ Object.assign(Region.prototype, CommonMixin, {
   },
 
   _getView(this: RegionInternals, view: SupportedView) {
-    if (!isView(view)) {
-      throw new MarionetteError({
-        code: 'MN0006',
-        name: classErrorName,
-        message: 'The value passed to show must be a Marionette View instance. Construct the View before calling show.',
-        url: 'marionette.region.html#showing-a-view'
-      });
-    }
-
     if (view._isDestroyed) {
       throw new MarionetteError({
         code: 'MN0007',

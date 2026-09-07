@@ -55,19 +55,6 @@ describe('EventDelegator', function() {
       expect(Parent.prototype.EventDelegator).to.equal(original);
     });
 
-    it('rejects an incomplete adapter without changing the current adapter', function() {
-      const MyObject = function() {};
-      const original = { delegate() {} };
-      MyObject.prototype.EventDelegator = original;
-      MyObject.setEventDelegator = setEventDelegator;
-
-      for (const invalid of [undefined, null, {}, { delegate: true }]) {
-        expect(() => MyObject.setEventDelegator(invalid))
-          .to.throw('EventDelegator must provide a delegate method.')
-          .with.property('code', 'MN0036');
-        expect(MyObject.prototype.EventDelegator).to.equal(original);
-      }
-    });
   });
 
   it('returns idempotent cleanup with the registration-time capture mode', function() {

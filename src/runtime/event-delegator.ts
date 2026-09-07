@@ -1,6 +1,5 @@
 // Event Delegator
 //  ---------
-import { MarionetteError } from '@marionette/utils';
 
 export interface DelegatedEvent extends Event {
   delegateTarget?: Element;
@@ -31,19 +30,7 @@ interface DelegatorClass {
 // Static setter
 export function setEventDelegator<Receiver extends DelegatorClass, Adapter extends EventDelegator>(
   this: Receiver, delegator: Adapter
-): Receiver;
-export function setEventDelegator<Receiver extends DelegatorClass>(
-  this: Receiver, delegator: EventDelegator | null | undefined
 ): Receiver {
-  if (!delegator || typeof delegator.delegate !== 'function') {
-    throw new MarionetteError({
-      code: 'MN0036',
-      name: 'EventDelegatorError',
-      message: 'EventDelegator must provide a delegate method.',
-      url: 'dom.interactions.html#eventdelegator-adapter'
-    });
-  }
-
   Object.defineProperty(this.prototype, 'EventDelegator', {
     configurable: true,
     enumerable: true,

@@ -6,6 +6,7 @@
 // Behaviors allow you to blackbox View specific interactions
 // into portable logical chunks, keeping your views simple and your code DRY.
 
+import type { Bindings } from '@marionette/utils';
 import { getValue, uniqueId } from '@marionette/utils';
 import extend from '../utils/extend.ts';
 import CommonMixin from '../mixins/common.ts';
@@ -43,9 +44,9 @@ export interface BehaviorOptions {
   events?: DOMEvents | (() => DOMEvents);
   triggers?: DOMTriggers | (() => DOMTriggers);
   ui?: UIBindings;
-  modelEvents?: unknown;
-  collectionEvents?: unknown;
-  stateEvents?: unknown;
+  modelEvents?: Bindings | (() => Bindings);
+  collectionEvents?: Bindings | (() => Bindings);
+  stateEvents?: Bindings | (() => Bindings);
   state?: unknown;
 }
 
@@ -62,9 +63,9 @@ export interface BehaviorInstance<Options extends object = BehaviorOptions, Host
   ui?: UIBindings | Record<string, Query>;
   events?: BehaviorOptions['events'];
   triggers?: BehaviorOptions['triggers'];
-  modelEvents?: unknown;
-  collectionEvents?: unknown;
-  stateEvents?: unknown;
+  modelEvents?: Bindings | (() => Bindings);
+  collectionEvents?: Bindings | (() => Bindings);
+  stateEvents?: Bindings | (() => Bindings);
   state?: unknown;
   State: Partial<StateApi<never>>;
   EventDelegator: EventDelegator;
