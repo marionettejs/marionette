@@ -5,14 +5,14 @@
     {
       "code": "MN0001",
       "slug": "view-el-must-be-dom-element",
-      "status": "active",
+      "status": "retired",
       "category": "dom",
       "severity": "error",
       "objects": [
         "CollectionView",
         "View"
       ],
-      "remediation": "Resolve selector strings at the call site and pass the resulting DOM element.",
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
       "docsAnchor": "/errors/MN0001/",
       "surfaces": [
         "runtime"
@@ -22,13 +22,13 @@
     {
       "code": "MN0002",
       "slug": "region-el-type-invalid",
-      "status": "active",
+      "status": "retired",
       "category": "dom",
       "severity": "error",
       "objects": [
         "Region"
       ],
-      "remediation": "Pass the Region a selector string or DOM element for its el option.",
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
       "docsAnchor": "/errors/MN0002/",
       "surfaces": [
         "runtime"
@@ -88,13 +88,13 @@
     {
       "code": "MN0006",
       "slug": "region-view-required",
-      "status": "active",
+      "status": "retired",
       "category": "configuration",
       "severity": "error",
       "objects": [
         "Region"
       ],
-      "remediation": "Construct a Marionette View instance explicitly and pass it to Region#show or View#showChildView.",
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
       "docsAnchor": "/errors/MN0006/",
       "surfaces": [
         "runtime"
@@ -121,7 +121,7 @@
     {
       "code": "MN0008",
       "slug": "region-definition-invalid",
-      "status": "active",
+      "status": "retired",
       "category": "configuration",
       "severity": "error",
       "objects": [
@@ -129,7 +129,7 @@
         "Region",
         "View"
       ],
-      "remediation": "Define the region with a selector string, Region instance or class, or region-options object.",
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
       "docsAnchor": "/errors/MN0008/",
       "surfaces": [
         "runtime"
@@ -139,7 +139,7 @@
     {
       "code": "MN0009",
       "slug": "event-bindings-invalid",
-      "status": "active",
+      "status": "retired",
       "category": "communication",
       "severity": "error",
       "objects": [
@@ -150,7 +150,7 @@
         "Region",
         "View"
       ],
-      "remediation": "Pass an object that maps event names to callbacks or method names.",
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
       "docsAnchor": "/errors/MN0009/",
       "surfaces": [
         "runtime"
@@ -160,7 +160,7 @@
     {
       "code": "MN0010",
       "slug": "request-bindings-invalid",
-      "status": "active",
+      "status": "retired",
       "category": "communication",
       "severity": "error",
       "objects": [
@@ -171,7 +171,7 @@
         "Region",
         "View"
       ],
-      "remediation": "Pass an object that maps request names to callbacks or method names.",
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
       "docsAnchor": "/errors/MN0010/",
       "surfaces": [
         "runtime"
@@ -197,13 +197,13 @@
     {
       "code": "MN0012",
       "slug": "collection-view-child-view-invalid",
-      "status": "active",
+      "status": "retired",
       "category": "configuration",
       "severity": "error",
       "objects": [
         "CollectionView"
       ],
-      "remediation": "Return a View class from the childView function, or assign a View class directly.",
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
       "docsAnchor": "/errors/MN0012/",
       "surfaces": [
         "runtime"
@@ -229,13 +229,13 @@
     {
       "code": "MN0014",
       "slug": "collection-view-filter-invalid",
-      "status": "active",
+      "status": "retired",
       "category": "configuration",
       "severity": "error",
       "objects": [
         "CollectionView"
       ],
-      "remediation": "Use a function, predicate object, model-attribute string, or falsy value for viewFilter.",
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
       "docsAnchor": "/errors/MN0014/",
       "surfaces": [
         "runtime"
@@ -261,7 +261,7 @@
     {
       "code": "MN0016",
       "slug": "behavior-definition-invalid",
-      "status": "active",
+      "status": "retired",
       "category": "configuration",
       "severity": "error",
       "objects": [
@@ -269,7 +269,7 @@
         "CollectionView",
         "View"
       ],
-      "remediation": "Pass a Behavior constructor directly or provide it as the behaviorClass property of the behavior options.",
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
       "docsAnchor": "/errors/MN0016/",
       "surfaces": [
         "runtime"
@@ -366,13 +366,13 @@
     {
       "code": "MN0022",
       "slug": "collection-view-empty-view-invalid",
-      "status": "active",
+      "status": "retired",
       "category": "configuration",
       "severity": "error",
       "objects": [
         "CollectionView"
       ],
-      "remediation": "Assign a View class directly or return a View class from the emptyView resolver; use null or false to disable the empty view.",
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
       "docsAnchor": "/errors/MN0022/",
       "surfaces": [
         "runtime"
@@ -406,7 +406,7 @@
       "objects": [
         "CollectionView"
       ],
-      "remediation": "Pass a function callback, a nonnegative integer count, an initial value when reducing an empty container, or a direct string method name as required.",
+      "remediation": "Pass nonnegative integer counts. Reducing an empty child container requires an initial value.",
       "docsAnchor": "/errors/MN0024/",
       "surfaces": [
         "runtime"
@@ -416,13 +416,13 @@
     {
       "code": "MN0025",
       "slug": "child-container-method-not-callable",
-      "status": "active",
+      "status": "retired",
       "category": "configuration",
       "severity": "error",
       "objects": [
         "CollectionView"
       ],
-      "remediation": "Ensure every child View implements the direct method named in children.invoke before invoking it.",
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
       "docsAnchor": "/errors/MN0025/",
       "surfaces": [
         "runtime"
@@ -553,7 +553,7 @@
     {
       "code": "MN0033",
       "slug": "merge-options-keys-invalid",
-      "status": "active",
+      "status": "retired",
       "category": "configuration",
       "severity": "error",
       "objects": [
@@ -564,7 +564,7 @@
         "Region",
         "View"
       ],
-      "remediation": "Pass requested option names to mergeOptions as an Array.",
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
       "docsAnchor": "/errors/MN0033/",
       "surfaces": [
         "runtime"
@@ -609,7 +609,7 @@
     {
       "code": "MN0036",
       "slug": "event-delegator-contract-invalid",
-      "status": "active",
+      "status": "retired",
       "category": "configuration",
       "severity": "error",
       "objects": [
@@ -617,7 +617,7 @@
         "CollectionView",
         "View"
       ],
-      "remediation": "Configure a complete EventDelegator with a callable delegate method that returns an idempotent cleanup function for every registration.",
+      "remediation": "Use the documented argument types. Marionette no longer emits a dedicated runtime diagnostic for this unsupported input shape.",
       "docsAnchor": "/errors/MN0036/",
       "surfaces": [
         "runtime"

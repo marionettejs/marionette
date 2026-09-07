@@ -102,16 +102,6 @@ const Container = function(this: ChildViewContainer, dataApi: ContainerData = Da
   this._init();
 } as unknown as ContainerConstructor;
 
-function assertFunction(callback: unknown) {
-  if (typeof callback !== 'function') {
-    throw new MarionetteError({
-      code: 'MN0024',
-      name: classErrorName,
-      message: 'ChildViewContainer callback must be a function.'
-    });
-  }
-}
-
 function assertCount(count: number) {
   if (!Number.isInteger(count) || count < 0) {
     throw new MarionetteError({
@@ -164,8 +154,6 @@ Object.assign(Container.prototype, {
     this: Receiver,
     callback: Callback<Child, unknown, Context>, context?: Context
   ): Receiver {
-    assertFunction(callback);
-
     const length = this._views.length;
     for (let index = 0; index < length; index++) {
       callback.call(context as Context, this._views[index], index);
@@ -178,8 +166,6 @@ Object.assign(Container.prototype, {
     this: ChildViewContainer<Child>,
     callback: Callback<Child, Result, Context>, context?: Context
   ): Result[] {
-    assertFunction(callback);
-
     const length = this._views.length;
     const results: Result[] = Array(length);
     for (let index = 0; index < length; index++) {
@@ -193,8 +179,6 @@ Object.assign(Container.prototype, {
     this: ChildViewContainer<Child>,
     callback: Reducer<Child, Result, Context>, initialValue?: Result, context?: Context
   ): Result {
-    assertFunction(callback);
-
     const length = this._views.length;
     const hasInitialValue = arguments.length > 1;
     let index = 0;
@@ -225,8 +209,6 @@ Object.assign(Container.prototype, {
     this: ChildViewContainer<Child>,
     predicate: Callback<Child, unknown, Context>, context?: Context
   ): Child | undefined {
-    assertFunction(predicate);
-
     const length = this._views.length;
     for (let index = 0; index < length; index++) {
       const view = this._views[index];
@@ -240,8 +222,6 @@ Object.assign(Container.prototype, {
     this: ChildViewContainer<Child>,
     predicate: Callback<Child, unknown, Context>, context?: Context
   ): Child[] {
-    assertFunction(predicate);
-
     const results = [];
     const length = this._views.length;
     for (let index = 0; index < length; index++) {
@@ -258,8 +238,6 @@ Object.assign(Container.prototype, {
     this: ChildViewContainer<Child>,
     predicate: Callback<Child, unknown, Context>, context?: Context
   ): Child[] {
-    assertFunction(predicate);
-
     const results = [];
     const length = this._views.length;
     for (let index = 0; index < length; index++) {
@@ -276,8 +254,6 @@ Object.assign(Container.prototype, {
     this: ChildViewContainer<Child>,
     predicate: Callback<Child, unknown, Context>, context?: Context
   ): boolean {
-    assertFunction(predicate);
-
     const length = this._views.length;
     for (let index = 0; index < length; index++) {
       if (!predicate.call(context as Context, this._views[index], index)) {
@@ -292,8 +268,6 @@ Object.assign(Container.prototype, {
     this: ChildViewContainer<Child>,
     predicate: Callback<Child, unknown, Context>, context?: Context
   ): boolean {
-    assertFunction(predicate);
-
     const length = this._views.length;
     for (let index = 0; index < length; index++) {
       if (predicate.call(context as Context, this._views[index], index)) {
@@ -313,27 +287,11 @@ Object.assign(Container.prototype, {
     methodName: Key,
     ...args: Parameters<Method<Child, Key>>
   ): ReturnType<Method<Child, Key>>[] {
-    if (typeof methodName !== 'string') {
-      throw new MarionetteError({
-        code: 'MN0024',
-        name: classErrorName,
-        message: 'ChildViewContainer method name must be a string.'
-      });
-    }
-
     const length = this._views.length;
     const results: ReturnType<Method<Child, Key>>[] = Array(length);
     for (let index = 0; index < length; index++) {
       const view = this._views[index];
       const method = view[methodName];
-      if (typeof method !== 'function') {
-        throw new MarionetteError({
-          code: 'MN0025',
-          name: classErrorName,
-          message: `Child view method "${ methodName }" must be callable.`
-        });
-      }
-
       results[index] = (method as (this: Child, ...args: Parameters<Method<Child, Key>>) => ReturnType<Method<Child, Key>>).apply(view, args);
     }
 
@@ -403,8 +361,6 @@ Object.assign(Container.prototype, {
     this: ChildViewContainer<Child>,
     predicate: Callback<Child, unknown, Context>, context?: Context
   ): [Child[], Child[]] {
-    assertFunction(predicate);
-
     const matching: Child[] = [];
     const rejected: Child[] = [];
     const length = this._views.length;

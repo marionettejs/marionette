@@ -3,10 +3,7 @@ import type { ViewLifecycle } from './view.ts';
 // DOM Refresh
 // -----------
 
-function eachChild(children: unknown, iteratee: (view: ViewLifecycle) => void) {
-  // Do not turn a malformed private child collection into a lifecycle error.
-  if (!Array.isArray(children)) { return; }
-
+function eachChild(children: readonly ViewLifecycle[], iteratee: (view: ViewLifecycle) => void) {
   const length = children.length;
   for (let index = 0; index < length; index++) {
     iteratee(children[index]);

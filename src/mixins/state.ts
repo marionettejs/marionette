@@ -1,3 +1,4 @@
+import type { Bindings } from '@marionette/utils';
 import { getValue } from '@marionette/utils';
 import StateApi from '../runtime/state-api.ts';
 import type { StateApi as StateProvider } from '../runtime/state-api.ts';
@@ -6,7 +7,7 @@ import subscribeBindings from '../utils/subscribe-bindings.ts';
 export interface StateHost<State = unknown> {
   State: Partial<StateProvider<never>>;
   state?: State;
-  stateEvents?: unknown;
+  stateEvents?: Bindings | (() => Bindings);
   _state?: State;
   _stateOptions?: unknown;
   _ownsState?: boolean;
@@ -40,7 +41,7 @@ const StateMixin = {
   _initStateEvents<Receiver extends StateHost>(this: Receiver) {
     if (this._isDestroyed) { return this; }
 
-    const stateEvents = getValue(this, 'stateEvents');
+    const stateEvents = getValue(this, 'stateEvents') as Bindings | undefined;
     if (stateEvents && !this._isDestroyed) {
       this._stateEventCleanup = subscribeBindings(this, this.State, this.getState(), stateEvents);
     }

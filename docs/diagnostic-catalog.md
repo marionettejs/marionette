@@ -16,13 +16,13 @@ Schema version 2 adds explicit retired identities without restoring their emissi
 Framework invariant failures use the public `MarionetteError` class:
 
 ```javascript
-import { MarionetteError, Region } from 'marionette';
+import { MarionetteError, View } from 'marionette';
 
 try {
-  new Region({ el: [] });
+  new View().showChildView('missing', new View());
 } catch (error) {
-  if (error instanceof MarionetteError && error.code === 'MN0002') {
-    // Handle the invalid Region element configuration.
+  if (error instanceof MarionetteError && error.code === 'MN0020') {
+    // Handle the missing named Region.
   }
 }
 ```
@@ -131,3 +131,16 @@ behavior and remediation are implemented and reviewed.
 The generated [diagnostic reference](/errors/) lists the current catalog directly
 from the machine-readable source. A shared invariant has one code even when more
 than one framework object reports it.
+
+## Argument types and runtime diagnostics
+
+Marionette trusts the declared shapes of callbacks, arrays, View instances,
+configuration objects, and adapter methods. TypeScript consumers receive errors
+for unsupported shapes during type checking. JavaScript consumers follow the same
+documented contracts; unsupported arguments have no guaranteed runtime diagnostic.
+
+Runtime diagnostics remain for ownership conflicts, invalid collection identity,
+missing DOM targets, unresolved handler names, and incompatible data sources.
+Retired shape-diagnostic codes remain listed for historical reference and are not
+reused. See [contributing](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#runtime-checks-and-types) for the rule
+used when adding or removing checks.

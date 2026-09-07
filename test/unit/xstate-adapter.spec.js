@@ -145,10 +145,6 @@ describe('XState actor adapter', function() {
   it('requires an ordered selection of distinct actor references', function() {
     const actor = track(createChild(1, 'one'));
     const parent = track(createParent([actor]));
-    expect(() => createXStateActorApi({ select: 1 }))
-      .to.throw(TypeError, 'requires a selector function');
-    expect(() => createXStateActorApi({ select: () => new Set([actor]) }).models(parent))
-      .to.throw(TypeError, 'selector must return an ordered array');
     expect(() => createXStateActorApi({ select: () => [actor, actor] })
       .observeCollection(parent, () => {}))
       .to.throw(TypeError, 'duplicate actor reference');
@@ -293,21 +289,13 @@ describe('XState actor adapter', function() {
     const noSnapshot = { subscribe() { return () => {}; } };
     const noContext = { getSnapshot: () => ({}), subscribe() { return () => {}; } };
     const primitiveContext = { getSnapshot: () => ({ context: 'invalid' }) };
-    const invalidDisposer = { getSnapshot: () => ({ models: [] }), subscribe() { return {}; } };
-    const invalidEventDisposer = { on() { return {}; } };
-
     expect(() => ActorApi.models(noSnapshot)).to.throw(TypeError, 'missing synchronous snapshot');
     expect(() => ActorApi.models(null)).to.throw(TypeError, 'missing synchronous snapshot');
     expect(() => ActorApi.serialize(noContext)).to.throw(TypeError, 'object snapshot context');
     expect(() => ActorApi.serialize(primitiveContext)).to.throw(TypeError, 'object snapshot context');
-    expect(() => ActorApi.observeCollection(invalidDisposer, () => {}))
-      .to.throw(TypeError, 'subscribe must return a disposer');
-    expect(() => ActorApi.subscribe(invalidEventDisposer, 'notice', () => {}))
-      .to.throw(TypeError, 'subscribe must return a disposer');
     expect(() => createXStateActorApi({ select: () => [], snapshotEvent: '' }))
       .to.throw(TypeError, 'snapshotEvent must be a non-empty string');
-    expect(() => createXStateActorApi({ select: () => [], snapshotEvent: 1 }))
-      .to.throw(TypeError, 'snapshotEvent must be a non-empty string');
+
   });
 
 });

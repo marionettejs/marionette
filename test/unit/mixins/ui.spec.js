@@ -157,13 +157,6 @@ describe('ui mixin', function() {
       expect(view.normalizeUIString('@ui.hidden')).to.equal('.hidden');
     });
 
-    it('requires a declared ui reference to contain a string selector', function() {
-      view.ui.invalid = 1;
-
-      expect(() => view.normalizeUIString('@ui.invalid'))
-        .to.throw('The ui reference "invalid" must be a string selector.')
-        .with.property('code', 'MN0018');
-    });
   });
 
   describe('#normalizeUIValues', function() {

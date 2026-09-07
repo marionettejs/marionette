@@ -50,13 +50,6 @@ const normalizeUIString = function(uiString: string, ui?: UISelectors) {
       });
     }
 
-    if (!isString(selector)) {
-      throw new MarionetteError({
-        code: 'MN0018',
-        message: `The ui reference "${name}" must be a string selector.`
-      });
-    }
-
     return selector as string;
   });
 };

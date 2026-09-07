@@ -150,9 +150,6 @@ describe('createMarionette', function() {
     expect(region).to.be.instanceOf(first.Region);
     expect(region).to.not.be.instanceOf(second.Region);
 
-    expect(() => region.show('implicit'))
-      .to.throw(first.MarionetteError).and.include({ code: 'MN0006' });
-
     const childView = new first.View({ template: () => 'explicit' });
     region.show(childView);
     expect(region.currentView).to.equal(childView);

@@ -53,27 +53,4 @@ describe('Region el validation', function() {
     });
   });
 
-  [
-    ['array', []],
-    ['plain object', {}],
-    ['NodeList', null] // built in test body — NodeList requires document
-  ].forEach(([label, value]) => {
-    it(`rejects ${label} el with a RegionError`, function() {
-      const el = value === null ? document.querySelectorAll('#region') : value;
-
-      expect(() => new Region({ el })).to.throw(MarionetteError).and.include({
-        code: 'MN0002',
-        name: 'RegionError',
-      });
-    });
-  });
-
-  it('validates el on _setEl as well as construction', function() {
-    const region = new Region({ el: document.createElement('div') });
-
-    expect(() => region._setEl([])).to.throw(MarionetteError).and.include({
-      code: 'MN0002',
-      name: 'RegionError',
-    });
-  });
 });

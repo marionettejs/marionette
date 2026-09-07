@@ -1,7 +1,6 @@
 import { JSDOM } from 'jsdom';
 
 import View from '../../src/modules/view';
-import { MarionetteError } from '@marionette/utils';
 
 describe('View el policy', function() {
   let document;
@@ -80,25 +79,6 @@ describe('View el policy', function() {
     const view = new View({ el: () => rootEl });
 
     expect(view.el).to.equal(rootEl);
-  });
-
-  function expectStringElThrow(action) {
-    let error;
-    try { action(); } catch (err) { error = err; }
-
-    expect(error).to.be.instanceOf(MarionetteError);
-    expect(error.code).to.equal('MN0001');
-    expect(error.name).to.equal('ViewError');
-    expect(error.message).to.contain('must be a DOM element');
-    expect(error.message).to.contain('document.querySelector');
-  }
-
-  it('throws a ViewError with a migration hint when el is a selector string', function() {
-    expectStringElThrow(() => new View({ el: '#root' }));
-  });
-
-  it('throws a ViewError when a function-valued el returns a string', function() {
-    expectStringElThrow(() => new View({ el: () => '#root' }));
   });
 
 });

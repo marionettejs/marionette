@@ -107,11 +107,6 @@ try {
   assert.equal(region.el, document.querySelector('#region-host'), 'Region must retain selector resolution');
   region.destroy();
 
-  assert.throws(
-    () => new View({ el: '#region-host' }),
-    error => error?.code === 'MN0001',
-    'View must reject selector-string el values with MN0001',
-  );
 } finally {
   destroyDom(dom);
 }

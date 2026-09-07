@@ -190,9 +190,9 @@ in reverse registration order. Registration and cleanup errors propagate to the
 caller and stop the operation. Core does not roll back failed registration or
 attempt remaining cleanup after a callback throws.
 
-An incomplete adapter passed to `setEventDelegator` throws
-[`MN0036`](/errors/MN0036/). Each registration must return a working cleanup;
-core does not validate that return value on every call.
+`setEventDelegator` requires an adapter with a callable `delegate` method.
+Each registration must return a working cleanup. The TypeScript contract
+checks these shapes; core trusts the configured adapter.
 
 Adapter selection occurs at registration time. Changing a global or per-class
 adapter does not reinterpret existing registrations; their original opaque

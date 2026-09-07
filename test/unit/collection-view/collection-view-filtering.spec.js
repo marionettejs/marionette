@@ -80,21 +80,6 @@ describe('CollectionView - Filtering', function() {
       });
     });
 
-    describe('when viewFilter is invalid', function() {
-      let myCollectionView;
-
-      const viewFilter = 47;
-
-      beforeEach(function() {
-        myCollectionView = new MyCollectionView({ collection, viewFilter });
-      });
-
-      it('should throw InvalidViewFilterError', function() {
-        expect(myCollectionView.render.bind(myCollectionView)).to.throw('"viewFilter" must be a function, predicate object literal, a string indicating a model attribute, or falsy')
-          .with.property('code', 'MN0014');
-      });
-    });
-
     describe('when viewFilter is a function', function() {
       let myCollectionView;
 
@@ -237,17 +222,6 @@ describe('CollectionView - Filtering', function() {
           expect(readExpected).to.have.been.calledOnce;
         } finally {
           predicateView.destroy();
-        }
-      });
-
-      it('rejects arrays as predicate objects', function() {
-        const arrayFilterView = new MyCollectionView({ collection, viewFilter: [] });
-
-        try {
-          expect(() => arrayFilterView.render()).to.throw()
-            .with.property('code', 'MN0014');
-        } finally {
-          arrayFilterView.destroy();
         }
       });
 

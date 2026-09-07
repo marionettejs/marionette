@@ -93,7 +93,7 @@ export default function createXStateActorApi(options?: XStateActorEventOptions):
 export default function createXStateActorApi<
   TParentSnapshot, TActor extends XStateActor<{ context: object }>
 >({ select, snapshotEvent }: Partial<XStateActorApiOptions<TParentSnapshot, TActor>> = {}): XStateActorApi {
-  if (snapshotEvent != null && (typeof snapshotEvent !== 'string' || !snapshotEvent)) {
+  if (snapshotEvent === '') {
     throw new TypeError(`${ adapterName } adapter snapshotEvent must be a non-empty string.`);
   }
 
@@ -117,7 +117,7 @@ export default function createXStateActorApi<
       const disposer = snapshotEvent != null && eventName === snapshotEvent ?
         subscribeSnapshots(actor, snapshot => callback.call(context, snapshot)) :
         actor.on(eventName, event => callback.call(context, event));
-      return normalizeDisposer(disposer, adapterName);
+      return normalizeDisposer(disposer);
     },
 
     disposeOwned(actor) {

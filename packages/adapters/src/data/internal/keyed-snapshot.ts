@@ -3,11 +3,15 @@ export interface KeyedSnapshotDataApi<TSource, TModel> {
   observeCollection(source: TSource, notify: (change: unknown) => void, context?: unknown): () => void;
 }
 
+interface Subscription {
+  unsubscribe(): void;
+}
+
 interface KeyedSnapshotOptions<TSource, TSnapshot, TModel> {
   adapterName: string;
   readSnapshot(source: TSource): TSnapshot;
   select(snapshot: TSnapshot): readonly TModel[];
-  subscribe(source: TSource, notify: () => void): unknown;
+  subscribe(source: TSource, notify: () => void): Subscription;
 }
 
 type SnapshotChange<TModel> = { kind: 'reorder' } | {
@@ -56,16 +60,12 @@ function compareSnapshots<TModel>(
   return reordered ? { kind: 'reorder' } : undefined;
 }
 
-export function normalizeDisposer(subscription: unknown, adapterName: string): () => void {
-  if (typeof (subscription as { unsubscribe?: unknown } | null | undefined)?.unsubscribe !== 'function') {
-    throw new TypeError(`${ adapterName } adapter subscribe must return a disposer.`);
-  }
-
+export function normalizeDisposer(subscription: Subscription): () => void {
   let isDisposed = false;
   return function() {
     if (isDisposed) { return; }
     isDisposed = true;
-    (subscription as { unsubscribe(): void }).unsubscribe();
+    subscription.unsubscribe();
   };
 }
 
@@ -75,17 +75,7 @@ export default function createKeyedSnapshotDataApi<TSource, TSnapshot, TModel>({
   select,
   subscribe
 }: KeyedSnapshotOptions<TSource, TSnapshot, TModel>): KeyedSnapshotDataApi<TSource, TModel> {
-  if (typeof select !== 'function') {
-    throw new TypeError(`${ adapterName } adapter requires a selector function.`);
-  }
-
-  const getModels = (source: TSource) => {
-    const models = select(readSnapshot(source));
-    if (!Array.isArray(models)) {
-      throw new TypeError(`${ adapterName } adapter selector must return an ordered array.`);
-    }
-    return models;
-  };
+  const getModels = (source: TSource) => select(readSnapshot(source));
 
   return {
     models: getModels,
@@ -107,7 +97,7 @@ export default function createKeyedSnapshotDataApi<TSource, TSnapshot, TModel>({
         notify.call(context, change);
       };
 
-      return normalizeDisposer(subscribe(source, onChange), adapterName);
+      return normalizeDisposer(subscribe(source, onChange));
     }
   };
 }

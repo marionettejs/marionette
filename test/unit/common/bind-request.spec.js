@@ -14,8 +14,6 @@ const acceptedBindingMaps = [
   new Proxy({}, {})
 ];
 
-const rejectedBindingMaps = [true, 1, 1n, 'replyFoo', Symbol('bindings')];
-
 const falsyBindingMaps = [undefined, null, false, 0, 0n, '', NaN];
 
 describe('bind-requests', function() {
@@ -111,18 +109,6 @@ describe('bind-requests', function() {
       });
     });
 
-    describe('when bindings is not an object', function() {
-      it('rejects truthy primitives before replying', function() {
-        for (const bindings of rejectedBindingMaps) {
-          const bind = target.bindRequests.bind(target, channel, bindings);
-          expect(bind)
-            .to.throw('Bindings must be an object.')
-            .with.property('code', 'MN0010');
-        }
-
-        expect(channel.reply).to.not.have.been.called;
-      });
-    });
   });
 
   describe('unbindRequests', function() {
@@ -262,17 +248,5 @@ describe('bind-requests', function() {
       });
     });
 
-    describe('when bindings is not an object', function() {
-      it('rejects truthy primitives before selectively stopping replies', function() {
-        for (const bindings of rejectedBindingMaps) {
-          const unbind = target.unbindRequests.bind(target, channel, bindings);
-          expect(unbind)
-            .to.throw('Bindings must be an object.')
-            .with.property('code', 'MN0010');
-        }
-
-        expect(channel.stopReplying).to.not.have.been.called;
-      });
-    });
   });
 });

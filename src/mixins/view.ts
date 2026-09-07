@@ -1,7 +1,7 @@
 // ViewMixin
 //  ---------
 
-import { MarionetteError, getValue, isString } from '@marionette/utils';
+import { getValue } from '@marionette/utils';
 import BehaviorsMixin from './behaviors.ts';
 import CommonMixin from './common.ts';
 import DelegateEntityEventsMixin from './delegate-entity-events.ts';
@@ -48,13 +48,6 @@ export type ViewMixinHost = SharedMixins & BehaviorContainer & EntityEventHost &
     unbindUIElements(): unknown;
   };
 
-const classErrorName = 'ViewError';
-
-function isJQueryCollection(el: unknown) {
-  return el != null && typeof el === 'object' &&
-    typeof (el as { jquery?: unknown }).jquery === 'string' && typeof (el as { get?: unknown }).get === 'function';
-}
-
 export const ViewOptions = [
   'attributes',
   'className',
@@ -95,22 +88,6 @@ const ViewMixin = {
 
   Data: DataApi,
 
-  _validateEl(this: ViewMixinHost, el: unknown) {
-    const stringEl = isString(el);
-    if (!stringEl && !isJQueryCollection(el)) { return el; }
-
-    const migration = stringEl ?
-      `Resolve selector strings at the call site, e.g. \`document.querySelector('${el}')\`.` :
-      'Unwrap jQuery collections at the call site, e.g. `wrappedEl[0]`.';
-
-    throw new MarionetteError({
-      code: 'MN0001',
-      name: classErrorName,
-      message: `View "el" must be a DOM element. ${migration} (Region still accepts selector strings.)`,
-      url: 'marionette.view.html#specifying-an-el'
-    });
-  },
-
   // Create an element from the `id`, `className` and `tagName` properties.
   _getEl(this: ViewMixinHost) {
     const elOption = getValue(this, 'el');
@@ -121,7 +98,7 @@ const ViewMixin = {
       return el;
     }
 
-    return elOption;
+    return elOption as Element;
   },
 
   _getAttributes(this: ViewMixinHost) {

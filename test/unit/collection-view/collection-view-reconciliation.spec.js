@@ -371,17 +371,6 @@ describe('CollectionView normalized reconciliation', function() {
     view.destroy();
   });
 
-  it('diagnoses an unordered collection snapshot', function() {
-    const InvalidModelsList = ListView.extend({});
-    InvalidModelsList.setDataApi({ models() { return {}; } });
-    const invalidModelsView = new InvalidModelsList({ collection: {} });
-    expect(() => invalidModelsView.render())
-      .to.throw(MarionetteError, 'DataApi.models() must return an ordered model snapshot.')
-      .and.include({ code: 'MN0039' });
-    invalidModelsView.destroy();
-
-  });
-
   it('diagnoses an update whose child View is missing', function() {
     const model = { id: 1, name: 'one' };
     const source = { models: [model] };

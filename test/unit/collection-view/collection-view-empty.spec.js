@@ -6,7 +6,6 @@ import CollectionView from '../../../src/modules/collection-view';
 import View from '../../../src/modules/view';
 import Region from '../../../src/modules/region';
 import Events from '../../../packages/utils/src/events.ts';
-import { MarionetteError } from '@marionette/utils';
 
 describe('CollectionView -  Empty', function() {
   let MyEmptyView;
@@ -308,120 +307,36 @@ describe('CollectionView -  Empty', function() {
       });
     });
 
-    describe('when emptyView is invalid', function() {
-      const invalidDefinitions = [
-        ['zero', () => 0],
-        ['empty string', () => ''],
-        ['NaN', () => NaN],
-        ['true', () => true],
-        ['a number', () => 1],
-        ['a string', () => 'invalid'],
-        ['a BigInt', () => 1n],
-        ['a Symbol', () => Symbol('invalid')],
-        ['a plain object', () => ({})],
-        ['an object with a prototype property', () => ({ prototype: {} })],
-        ['a View instance', () => new View()],
-        ['a non-View class', () => class InvalidEmptyView {}],
-        ['a commented non-View class', () => class/**/ InvalidEmptyView {}],
-        ['a class with a non-function render property', () => {
-          class InvalidEmptyView {}
-          InvalidEmptyView.prototype.render = true;
-          InvalidEmptyView.prototype.remove = function() {};
-          return InvalidEmptyView;
-        }],
-        ['a class with a non-function remove property', () => {
-          class InvalidEmptyView {}
-          InvalidEmptyView.prototype.render = function() {};
-          InvalidEmptyView.prototype.remove = true;
-          return InvalidEmptyView;
-        }],
-        ['a class with a non-function destroy property', () => {
-          class InvalidEmptyView {}
-          InvalidEmptyView.prototype.render = function() {};
-          InvalidEmptyView.prototype.destroy = true;
-          InvalidEmptyView.prototype.remove = function() {};
-          return InvalidEmptyView;
-        }],
-      ];
-
-      invalidDefinitions.forEach(([name, createEmptyView]) => {
-        it(`throws MN0022 for ${name}`, function() {
-          const emptyView = createEmptyView();
-          const myCollectionView = new CollectionView({ collection, emptyView });
-
-          expect(() => myCollectionView.render()).to.throw(MarionetteError).and.include({
-            code: 'MN0022',
-            name: 'CollectionViewError',
-          });
-
-          myCollectionView.destroy();
-          if (emptyView instanceof View) { emptyView.destroy(); }
-        });
+    it('propagates an error thrown by the resolver unchanged', function() {
+      const error = new Error('resolver failed');
+      const myCollectionView = new CollectionView({
+        collection,
+        emptyView() {
+          throw error;
+        },
       });
 
-      const invalidResults = [
-        ['zero', () => 0],
-        ['empty string', () => ''],
-        ['NaN', () => NaN],
-        ['true', () => true],
-        ['a number', () => 1],
-        ['a string', () => 'invalid'],
-        ['a BigInt', () => 1n],
-        ['a Symbol', () => Symbol('invalid')],
-        ['a plain object', () => ({})],
-        ['a View instance', () => new View()],
-        ['a non-View class', () => class InvalidEmptyView {}],
-      ];
+      expect(() => myCollectionView.render()).to.throw(error);
+      myCollectionView.destroy();
+    });
 
-      invalidResults.forEach(([name, createResult]) => {
-        it(`throws MN0022 when a resolver returns ${name}`, function() {
-          const result = createResult();
-          const myCollectionView = new CollectionView({
-            collection,
-            emptyView: () => result,
-          });
-
-          expect(() => myCollectionView.render()).to.throw(MarionetteError).and.include({
-            code: 'MN0022',
-            name: 'CollectionViewError',
-          });
-
-          myCollectionView.destroy();
-          if (result instanceof View) { result.destroy(); }
-        });
+    it('waits to resolve the emptyView until the CollectionView is empty', function() {
+      const nonemptyCollection = new Backbone.Collection([{ id: 1 }]);
+      const ChildView = View.extend({ template: _.noop });
+      const emptyView = this.sinon.stub().returns(null);
+      const myCollectionView = new CollectionView({
+        childView: ChildView,
+        collection: nonemptyCollection,
+        emptyView,
       });
 
-      it('propagates an error thrown by the resolver unchanged', function() {
-        const error = new Error('resolver failed');
-        const myCollectionView = new CollectionView({
-          collection,
-          emptyView() {
-            throw error;
-          },
-        });
+      expect(() => myCollectionView.render()).not.to.throw();
+      expect(emptyView).to.not.have.been.called;
+      expect(() => nonemptyCollection.reset()).not.to.throw();
+      expect(emptyView).to.have.been.calledOnce.and.calledOn(myCollectionView);
+      expect(myCollectionView.getEmptyRegion().hasView()).to.be.false;
 
-        expect(() => myCollectionView.render()).to.throw(error);
-        myCollectionView.destroy();
-      });
-
-      it('waits to resolve the emptyView until the CollectionView is empty', function() {
-        const nonemptyCollection = new Backbone.Collection([{ id: 1 }]);
-        const ChildView = View.extend({ template: _.noop });
-        const emptyView = this.sinon.stub().returns(null);
-        const myCollectionView = new CollectionView({
-          childView: ChildView,
-          collection: nonemptyCollection,
-          emptyView,
-        });
-
-        expect(() => myCollectionView.render()).not.to.throw();
-        expect(emptyView).to.not.have.been.called;
-        expect(() => nonemptyCollection.reset()).not.to.throw();
-        expect(emptyView).to.have.been.calledOnce.and.calledOn(myCollectionView);
-        expect(myCollectionView.getEmptyRegion().hasView()).to.be.false;
-
-        myCollectionView.destroy();
-      });
+      myCollectionView.destroy();
     });
   });
 

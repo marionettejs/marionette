@@ -122,9 +122,8 @@ event interface. Backbone models, collections, and other Backbone emitters can
 participate after configuring the explicit
 [`@marionette/adapters/backbone` integration](./events.md#backbone-interop).
 
-An invalid binding map throws `MarionetteError` code `MN0009`. An own
-enumerable `__proto__` event name is rejected with code `MN0026` before any
-listener is added. This restriction applies only to entity-event maps;
+Binding maps follow the declared object contract. An own enumerable `__proto__`
+event name is rejected with code `MN0026` before any listener is added. This restriction applies only to entity-event maps;
 Marionette's direct Events API supports `__proto__` as an ordinary event name.
 
 ### `unbindEvents`
@@ -145,7 +144,8 @@ channel. The binding map associates request names with functions or method names
 on the Marionette object. Reply methods run with that object as their context,
 and `bindRequests` returns the object.
 
-An invalid binding map throws `MarionetteError` code `MN0010`.
+Binding maps follow the declared object contract. String-named handlers must
+resolve to callable methods on the receiver.
 
 ### `unbindRequests`
 
@@ -260,9 +260,8 @@ returned without being invoked.
 ### `mergeOptions`
 
 `mergeOptions(options, keys)` copies selected option values directly onto the
-class instance. `keys` must be an array; other values throw `MarionetteError`
-code `MN0033` when options are present. Only requested own enumerable string
-properties with values other than `undefined` are copied; inherited, symbol,
+class instance. `keys` must be an array when options are present. Only requested
+own enumerable string properties with values other than `undefined` are copied; inherited, symbol,
 and non-enumerable properties are ignored.
 
 ### The `options` Property

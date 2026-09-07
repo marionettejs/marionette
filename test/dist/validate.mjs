@@ -59,17 +59,6 @@ function validateCollectionTemplateData(Marionette, name) {
   assert.strictEqual(Object.hasOwn(data, 'items'), false, `${name} removed collection template items`);
 }
 
-function validateRegionDisplayInput(Marionette, name) {
-  const region = new Marionette.Region({ el: { nodeType: 1 } });
-
-  for (const value of ['content', () => 'content', Marionette.View, { template: () => 'content' }]) {
-    assert.throws(
-      () => region.show(value),
-      error => error.code === 'MN0006',
-      `${name} explicit Region View input`,
-    );
-  }
-}
 
 async function validateBrowserGlobal(file) {
   const previousMarionette = {};
@@ -116,7 +105,6 @@ async function validateBrowserGlobal(file) {
   validateRadio(Marionette, file);
   validateRequestBoundary(Marionette, file);
   validateCollectionTemplateData(Marionette, file);
-  validateRegionDisplayInput(Marionette, file);
   assert.strictEqual(Marionette.noConflict(), Marionette, `${file} noConflict return value`);
   assert.strictEqual(context.Marionette, previousMarionette, `${file} noConflict restoration`);
 }
@@ -168,7 +156,6 @@ async function validate() {
     validateRadio(Marionette, name);
     validateRequestBoundary(Marionette, name);
     validateCollectionTemplateData(Marionette, name);
-    validateRegionDisplayInput(Marionette, name);
 
     for (const utilityName of removedRootUtilities) {
       assert.strictEqual(Object.hasOwn(Marionette, utilityName), false, `${name} ${utilityName} absence`);
@@ -177,9 +164,9 @@ async function validate() {
     const object = new Marionette.MnObject();
 
     assert.throws(
-      () => object.bindEvents({}, 'invalid'),
+      () => object.bindEvents({}, { event: 'missingHandler' }),
       error => error instanceof Marionette.MarionetteError &&
-        error.code === 'MN0009' && error.message === 'Bindings must be an object.',
+        error.code === 'MN0019',
       `${name} error path`,
     );
   }

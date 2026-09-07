@@ -46,3 +46,12 @@ runtime.setStateApi({ ...actorApi, subscribe() { return 1; } });
 
 parentActor.stop();
 childActor.stop();
+
+// @ts-expect-error A collection selector must be callable.
+createXStateActorApi({ select: 1 });
+// @ts-expect-error A collection selector must return an ordered array.
+createXStateActorApi({ select: () => new Set([childActor]) });
+// @ts-expect-error Snapshot event names must be strings.
+createXStateActorApi({ snapshotEvent: 1 });
+// @ts-expect-error Actor subscriptions return an unsubscribe handle.
+actorApi.models({ getSnapshot: () => parentActor.getSnapshot(), subscribe: () => ({}) });

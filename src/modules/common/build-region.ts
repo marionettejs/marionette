@@ -36,15 +36,7 @@ function buildRegion(definition: RegionDefinition, defaults: RegionDefaults): Re
     return buildRegionFromObject(defaults, { regionClass: definition });
   }
 
-  if (definition !== null && typeof definition === 'object') {
-    return buildRegionFromObject(defaults, definition);
-  }
-
-  throw new MarionetteError({
-    code: 'MN0008',
-    message: 'Improper region configuration type.',
-    url: 'marionette.region.html#defining-regions'
-  });
+  return buildRegionFromObject(defaults, definition as RegionOptions & { regionClass?: RegionClass });
 }
 
 function buildRegionFromObject(defaults: RegionDefaults, definition: RegionOptions & { regionClass?: RegionClass }): RegionInternals {

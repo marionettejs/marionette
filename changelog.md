@@ -47,8 +47,8 @@
 * Moved the optional jQuery-backed DomApi integration to
   `@marionette/adapters/dom/jquery`
   operations and opt-in View, CollectionView, and Behavior `$el` compatibility
-* Changed jQuery-wrapped View and CollectionView `el` inputs to fail with the
-  same `MN0001` migration diagnostic as selector strings
+* Require concrete DOM elements for View and CollectionView `el`; resolve
+  selectors and unwrap jQuery collections at the call site
 * Removed the undocumented alpha-only `Behavior#setElement`; retarget
   Behaviors through their owning View's `setElement` method
 * Fixed CollectionView child identity indexes so prototype-collision cids and
@@ -106,8 +106,8 @@
 * Changed Region registration to treat the existing owner/name relationship as
   an idempotent no-op and reject conflicting ownership or names with stable
   diagnostic code `MN0030`
-* Changed named View Region operations to require non-empty string names and
-  reject property-key coercion with stable diagnostic code `MN0032`
+* Changed named View Region operations to require string names and reject
+  empty names with diagnostic code `MN0032`
 * Changed Application lifecycle operations to return `Promise<boolean>`, added
   `stop`, `restart`, and `isRunning`, and made later incompatible operations
   cancel stale lifecycle success without rejecting ordinary cleanup races;
@@ -122,9 +122,9 @@
 * Removed target-first common-method exports from the package root, including
   their generic plain-object adapter; use the corresponding method on each
   Marionette instance
-* Changed `mergeOptions` to require its documented Array of option names with
-  diagnostic code `MN0033`, and removed generic object traversal from private
-  immediate-child propagation
+* Trust declared argument shapes for option keys, callbacks, bindings, View and
+  Behavior configuration, and adapter methods; retire their custom shape errors
+  and type private immediate-child propagation as an array
 * Removed the historically documented `Radio.log` and `Radio.debugLog`
   replacement hooks; the built-in Radio now owns one diagnostic and tuning
   output path

@@ -1,5 +1,4 @@
 import setProperty from './set-property.ts';
-import MarionetteError from './error.ts';
 
 const propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
 
@@ -9,17 +8,10 @@ function mergeOptions(this: object, options: unknown, keys: readonly unknown[]):
 function mergeOptions(this: unknown, options?: unknown, keys?: unknown): void {
   if (options == null) { return; }
 
-  if (!Array.isArray(keys)) {
-    throw new MarionetteError({
-      code: 'MN0033',
-      message: 'The mergeOptions keys argument must be an array.',
-      url: 'common.html#mergeoptions'
-    });
-  }
-
-  const length = keys.length;
+  const optionKeys = keys as readonly unknown[];
+  const length = optionKeys.length;
   for (let index = 0; index < length; index++) {
-    const key = keys[index];
+    const key = optionKeys[index];
     if (typeof key !== 'string' || !propertyIsEnumerable.call(options, key)) { continue; }
 
     const option = (options as Record<string, unknown>)[key];

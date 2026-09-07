@@ -570,21 +570,30 @@ describe('diagnostic catalog validation', function() {
     const retired = catalog.diagnostics.filter(({ status }) => status === 'retired');
 
     expect(retired.map(({ code, slug }) => ({ code, slug }))).to.deep.equal([
+      { code: 'MN0001', slug: 'view-el-must-be-dom-element' },
+      { code: 'MN0002', slug: 'region-el-type-invalid' },
+      { code: 'MN0006', slug: 'region-view-required' },
+      { code: 'MN0008', slug: 'region-definition-invalid' },
+      { code: 'MN0009', slug: 'event-bindings-invalid' },
+      { code: 'MN0010', slug: 'request-bindings-invalid' },
+      { code: 'MN0012', slug: 'collection-view-child-view-invalid' },
+      { code: 'MN0014', slug: 'collection-view-filter-invalid' },
+      { code: 'MN0016', slug: 'behavior-definition-invalid' },
+      { code: 'MN0022', slug: 'collection-view-empty-view-invalid' },
+      { code: 'MN0025', slug: 'child-container-method-not-callable' },
       { code: 'MN0027', slug: 'feature-name-invalid' },
       { code: 'MN0028', slug: 'region-destroyed-operation' },
       { code: 'MN0029', slug: 'view-destroyed-set-element' },
+      { code: 'MN0033', slug: 'merge-options-keys-invalid' },
       { code: 'MN0034', slug: 'state-key-invalid' },
       { code: 'MN0035', slug: 'state-ownership-conflict' },
+      { code: 'MN0036', slug: 'event-delegator-contract-invalid' },
       { code: 'MN0038', slug: 'adapter-cleanup-invalid' },
     ]);
-    expect(retired.map(({ severity, surfaces }) => ({ severity, surfaces }))).to.deep.equal([
-      { severity: 'error', surfaces: ['runtime'] },
-      { severity: 'error', surfaces: ['runtime'] },
-      { severity: 'error', surfaces: ['runtime'] },
-      { severity: 'error', surfaces: ['runtime'] },
-      { severity: 'error', surfaces: ['runtime'] },
-      { severity: 'error', surfaces: ['runtime'] },
-    ]);
+    for (const diagnostic of retired) {
+      expect(diagnostic.severity).to.equal('error');
+      expect(diagnostic.surfaces).to.deep.equal(['runtime']);
+    }
 
     expect(() => validate(catalog, {
       runtimeSources: [{

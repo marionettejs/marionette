@@ -300,3 +300,24 @@ appropriate coverage and package fixtures.
 Maintainers review correctness, public contracts, runtime cost, tests, documentation,
 and release evidence. Automated review is supporting evidence, not a substitute for
 the issue contract or maintainer judgment.
+
+## Runtime checks and types
+
+Trust documented argument shapes in library code. Express callbacks, arrays,
+configuration objects, and adapter methods in the public and internal types;
+avoid repeating those shape checks on every invocation. When a private contract
+is known, tighten its type instead of accepting `unknown` and silently skipping
+invalid values. Runtime dispatch between supported alternatives still belongs in
+code, such as a View constructor versus a function that returns one.
+
+Keep checks for facts types cannot establish: ownership conflicts, duplicate or
+changing keys, unresolved named handlers, missing DOM lookup results, and a data
+source incompatible with its configured adapter. Platform feature detection and
+idempotent cleanup also serve runtime behavior. A friendly error alone is not a
+reason to retain a shape check. Unsupported JavaScript arguments have no promised
+error type or recovery behavior.
+
+When removing a shape diagnostic, retire its catalog code, remove tests that
+promise that diagnostic, and cover the contract with TypeScript consumer tests.
+Keep behavioral tests for valid inputs and runtime invariants. Do not add guards
+solely to protect against hypothetical mistakes made by agents.

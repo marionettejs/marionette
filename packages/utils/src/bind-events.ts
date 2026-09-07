@@ -26,16 +26,7 @@ interface ListeningOwner {
 
 const propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
 
-function normalizeBindings(context: unknown, bindings: unknown) {
-  const bindingsType = typeof bindings;
-  if (bindings === null || (bindingsType !== 'object' && bindingsType !== 'function')) {
-    throw new MarionetteError({
-      code: 'MN0009',
-      message: 'Bindings must be an object.',
-      url: 'common.html#bindevents'
-    });
-  }
-
+function normalizeBindings(context: unknown, bindings: Bindings) {
   if (propertyIsEnumerable.call(bindings, '__proto__')) {
     throw new MarionetteError({
       code: 'MN0026',
@@ -44,8 +35,7 @@ function normalizeBindings(context: unknown, bindings: unknown) {
     });
   }
 
-  // The object/function check above excludes every no-map return.
-  return normalizeMethods.call(context, bindings as Bindings) as EventMap;
+  return normalizeMethods.call(context, bindings) as EventMap;
 }
 
 function bindEvents<Receiver extends Listener>(

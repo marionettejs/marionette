@@ -1,13 +1,14 @@
+import type { Bindings } from '@marionette/utils';
 import { getValue } from '@marionette/utils';
 import subscribeBindings from '../utils/subscribe-bindings.ts';
 
 import type { StateApi } from '../runtime/state-api.ts';
 
 export interface EntityEventHost {
-  modelEvents?: unknown;
-  collectionEvents?: unknown;
-  _modelEvents?: unknown;
-  _collectionEvents?: unknown;
+  modelEvents?: Bindings | (() => Bindings);
+  collectionEvents?: Bindings | (() => Bindings);
+  _modelEvents?: Bindings;
+  _collectionEvents?: Bindings;
   _modelEventCleanup?: () => void;
   _collectionEventCleanup?: () => void;
   _deleteEntityEventHandlers(): void;
@@ -21,7 +22,7 @@ export default {
   // Handle `modelEvents`, and `collectionEvents` configuration
   _delegateEntityEvents(this: EntityEventHost, model: unknown, collection: unknown, Data: Partial<StateApi<never>>) {
     if (model != null) {
-      this._modelEvents = getValue(this, 'modelEvents');
+      this._modelEvents = getValue(this, 'modelEvents') as Bindings | undefined;
       if (this._modelEvents) {
         this._modelEventCleanup = subscribeBindings(
           this,
@@ -33,7 +34,7 @@ export default {
     }
 
     if (collection != null) {
-      this._collectionEvents = getValue(this, 'collectionEvents');
+      this._collectionEvents = getValue(this, 'collectionEvents') as Bindings | undefined;
       if (this._collectionEvents) {
         this._collectionEventCleanup = subscribeBindings(
           this,

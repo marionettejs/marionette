@@ -206,12 +206,8 @@ function isSameChildApp(owner: ApplicationInternals, name: string, application: 
 }
 
 function assertChildAppCanRegister(owner: ApplicationInternals, name: string, application: ApplicationInternals) {
-  if (typeof name !== 'string' || name.length === 0) {
+  if (name.length === 0) {
     throwApplicationOwnershipConflict('A child Application name must be a non-empty string.');
-  }
-
-  if (!(application instanceof Application)) {
-    throwApplicationOwnershipConflict('A child Application must be an Application instance.');
   }
 
   if (application[runtimeId] !== owner[runtimeId]) {
@@ -658,7 +654,7 @@ export default /* @__PURE__ */ ((methods: object) => {
   addChildApp(this: ApplicationInternals, name: string, application: ApplicationInternals) {
     if (isTerminal(this)) { return application; }
 
-    if (application instanceof Application && application[runtimeId] === this[runtimeId] && isTerminal(application)) {
+    if (application[runtimeId] === this[runtimeId] && isTerminal(application)) {
       return application;
     }
 

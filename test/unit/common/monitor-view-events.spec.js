@@ -2,18 +2,6 @@ import View from '../../../src/modules/view';
 import monitorViewEvents from '../../../src/modules/common/monitor-view-events';
 
 describe('monitorViewEvents', function() {
-  it('ignores a non-Array child collection without traversal', function() {
-    const view = new View();
-    const child = {
-      _isAttached: false,
-      triggerMethod: this.sinon.spy()
-    };
-    view._getImmediateChildren = () => ({ 0: child, length: 1 });
-
-    expect(() => view.trigger('attach', view)).to.not.throw();
-    expect(child._isAttached).to.be.false;
-    expect(child.triggerMethod).to.not.have.been.called;
-  });
 
   it('traverses the initial child array length with live values', function() {
     const view = new View();

@@ -155,60 +155,6 @@ describe('#ChildViewContainer', function() {
         expect(new ChildViewContainer().invoke('render')).to.deep.equal([]);
       });
 
-      it('throws at a missing or non-callable child view method', function() {
-        delete views[1].describe;
-        expect(() => container.invoke('describe'))
-          .to.throw().with.property('code', 'MN0025');
-
-        views[1].describe = 'not callable';
-        expect(() => container.invoke('describe'))
-          .to.throw().with.property('code', 'MN0025');
-      });
-
-      it('stops invoking children at the first missing method', function() {
-        views[0].describe = this.sinon.spy();
-        delete views[1].describe;
-        views[2].describe = this.sinon.spy();
-
-        expect(() => container.invoke('describe'))
-          .to.throw().with.property('code', 'MN0025');
-        expect(views[0].describe).to.have.been.calledOnce;
-        expect(views[2].describe).to.not.have.been.called;
-      });
-
-      it('rejects non-string and deep-path method names', function() {
-        views.forEach(view => {
-          view.nested = { describe: view.describe };
-        });
-
-        expect(() => container.invoke(views[0].describe))
-          .to.throw().with.property('code', 'MN0024');
-        expect(() => container.invoke(['describe']))
-          .to.throw().with.property('code', 'MN0024');
-        expect(() => container.invoke('nested.describe'))
-          .to.throw().with.property('code', 'MN0025');
-      });
-    });
-
-    it('rejects invalid callbacks consistently, including for empty containers', function() {
-      const callbackMethods = ['each', 'map', 'find', 'filter', 'reject', 'every', 'some', 'partition'];
-      const invalidCallbacks = [undefined, null, 'id', { id: 1 }];
-
-      callbackMethods.forEach(methodName => {
-        invalidCallbacks.forEach(callback => {
-          expect(() => container[methodName](callback))
-            .to.throw().with.property('code', 'MN0024');
-          expect(() => new ChildViewContainer()[methodName](callback))
-            .to.throw().with.property('code', 'MN0024');
-        });
-      });
-
-      invalidCallbacks.forEach(callback => {
-        expect(() => container.reduce(callback, 0))
-          .to.throw().with.property('code', 'MN0024');
-        expect(() => new ChildViewContainer().reduce(callback, 0))
-          .to.throw().with.property('code', 'MN0024');
-      });
     });
 
     it('does not expose the removed Underscore aliases', function() {
