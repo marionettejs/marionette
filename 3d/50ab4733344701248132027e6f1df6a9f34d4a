@@ -1,0 +1,30 @@
+docs/marionette.collectionview.md
+  s_060efbb5bf6218::t_0c2921c5c23408 145
+  s_060efbb5bf6218::t_a7c84b5162605d 142-144
+test/unit/collection-view/collection-view-childviewcontainer.spec.js
+  s_060efbb5bf6218::t_8ab37acaf78f74 67,69,72,78
+  s_060efbb5bf6218::t_98eea3a41d28af 37-39,44-45,80-101
+  s_060efbb5bf6218::t_b36fcd198b6dc3 59,61,73,102-103
+  s_060efbb5bf6218::t_f73b9a15102471 42
+  s_060efbb5bf6218::t_ff00a126e392bb 40-41,43,46-58,60,62-66,68,70-71,74-77,79
+src/modules/collection-view.ts
+  s_060efbb5bf6218::t_8ab37acaf78f74 292-298,300-301,1194
+  s_060efbb5bf6218::t_bee4630da4b2bd 299
+  s_060efbb5bf6218::t_8339c028671258 1192-1193,1195-1197
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "3d50ab4733344701248132027e6f1df6a9f34d4a",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
