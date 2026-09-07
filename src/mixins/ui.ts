@@ -1,5 +1,4 @@
 import { MarionetteError, setProperty, getValue, isString } from '@marionette/utils';
-import eachOwn from '../utils/each-own.ts';
 
 export type UISelectors = Record<string, string>;
 export type UIBindings = UISelectors | (() => UISelectors);
@@ -17,10 +16,12 @@ export interface UIHost<Query extends ArrayLike<Element> = ArrayLike<Element>> {
 // Returns a new, non-mutated, parsed events hash.
 const normalizeUIKeys = function<Value>(hash: Record<string, Value> | null | undefined, ui?: UISelectors) {
   const normalizedHash: Record<string, Value> = {};
-  eachOwn(hash, (val: Value, key: string) => {
+  if (!hash) { return normalizedHash; }
+
+  for (const key of Object.keys(hash)) {
     const normalizedKey = normalizeUIString(key, ui);
-    setProperty(normalizedHash, normalizedKey, val);
-  });
+    setProperty(normalizedHash, normalizedKey, hash[key]);
+  }
   return normalizedHash;
 };
 
@@ -58,7 +59,8 @@ const normalizeUIString = function(uiString: string, ui?: UISelectors) {
 // a given value for regions
 // swaps the @ui with the associated selector
 const normalizeUIValues = function<Hash extends object>(hash: Hash, ui: UISelectors | undefined, property?: string) {
-  eachOwn(hash, (val: unknown, key: string) => {
+  for (const key of Object.keys(hash)) {
+    const val = (hash as Record<string, unknown>)[key];
     if (isString(val)) {
       (hash as Record<string, unknown>)[key] = normalizeUIString(val as string, ui);
     } else if (val) {
@@ -67,7 +69,7 @@ const normalizeUIValues = function<Hash extends object>(hash: Hash, ui: UISelect
         (val as Record<string, unknown>)[property as string] = normalizeUIString(propertyVal as string, ui);
       }
     }
-  });
+  }
   return hash;
 };
 
@@ -107,15 +109,15 @@ export default {
     }
 
     // get the bindings result, as a function or otherwise
-    const bindings = getValue(this, '_uiBindings');
+    const bindings = (getValue(this, '_uiBindings') ?? {}) as UISelectors;
 
     // empty the ui so we don't have anything to start with
     this._ui = {};
 
     // bind each of the selectors
-    eachOwn(bindings, (selector: string, key: string) => {
-      setProperty(this._ui, key, this.$(selector));
-    });
+    for (const key of Object.keys(bindings)) {
+      setProperty(this._ui, key, this.$(bindings[key]));
+    }
 
     this.ui = this._ui;
   },
@@ -124,9 +126,9 @@ export default {
     if (!this.ui || !this._uiBindings) { return; }
 
     // delete all of the existing ui bindings
-    eachOwn(this.ui, ($el: unknown, name: string) => {
+    for (const name of Object.keys(this.ui)) {
       delete (this.ui as Record<string, unknown>)[name];
-    });
+    }
 
     // reset the ui element to the original bindings configuration
     this.ui = this._uiBindings;

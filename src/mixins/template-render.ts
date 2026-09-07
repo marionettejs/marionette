@@ -10,7 +10,7 @@ export interface TemplateHost {
   templateContext?: unknown;
   model?: unknown;
   collection?: unknown;
-  Data: Partial<DataApi>;
+  Data: Partial<DataApi> & Pick<DataApi<unknown, unknown>, 'serialize' | 'models'>;
   Dom: Partial<DomApi>;
   serializeData(): unknown;
   serializeModel(): unknown;
@@ -78,13 +78,13 @@ export default {
   // for being displayed in the template. Override this if
   // you need a custom transformation for your view's model
   serializeModel(this: TemplateHost) {
-    return (this.Data.serialize as (model: unknown) => unknown)(this.model);
+    return this.Data.serialize(this.model);
   },
 
   // Serialize a collection
   serializeCollection(this: TemplateHost) {
-    return (this.Data.models as (collection: unknown) => readonly unknown[])(this.collection).map(model =>
-      (this.Data.serialize as (model: unknown) => unknown)(model));
+    return this.Data.models(this.collection).map(model =>
+      this.Data.serialize(model));
   },
 
   // Renders the data into the template

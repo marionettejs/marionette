@@ -3,15 +3,16 @@
 import { MarionetteError } from '@marionette/utils';
 import type { EventCallback, EventSource } from '@marionette/utils';
 
-// Configured sources are opaque; registration does not establish a source match.
-export interface DataApi {
-  key: (model: never) => unknown;
-  get: (model: never, attribute: never) => unknown;
-  has: (model: never, attribute: string) => boolean;
-  serialize: (model: never) => unknown;
-  models: (collection: never) => readonly unknown[];
-  subscribe: (entity: never, eventName: string, callback: (...args: unknown[]) => unknown, context?: unknown) => () => void;
-  observeCollection: (collection: never, callback: (change: unknown) => void, context?: unknown) => () => void;
+// Registration leaves source types opaque. Internal callers specify the
+// inputs their operation requires without widening the public adapter slot.
+export interface DataApi<Model = never, Collection = never, Attribute = never> {
+  key: (model: Model) => unknown;
+  get: (model: Model, attribute: Attribute) => unknown;
+  has: (model: Model, attribute: string) => boolean;
+  serialize: (model: Model) => unknown;
+  models: (collection: Collection) => readonly unknown[];
+  subscribe: (entity: Model | Collection, eventName: string, callback: (...args: unknown[]) => unknown, context?: unknown) => () => void;
+  observeCollection: (collection: Collection, callback: (change: unknown) => void, context?: unknown) => () => void;
 }
 
 interface DataApiClass {

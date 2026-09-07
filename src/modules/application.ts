@@ -49,6 +49,7 @@ export interface ApplicationInstance<Options extends object = object, State = ob
   state?: unknown;
   State: Partial<StateApi<never>>;
   Radio: RadioApi;
+  preinitialize(options?: Options): void;
   initialize(options?: Options): void;
   createState(options?: Options): unknown;
   getState(): State;
@@ -163,6 +164,7 @@ const Application = function(this: ApplicationInternals, options?: ApplicationOp
   this._setOptions(options, ClassOptions);
   this.cid = uniqueId(this.cidPrefix);
 
+  (this.preinitialize as Function).apply(this, arguments);
   this._initRegion();
   this._initRadio();
   this._initState(options);
@@ -505,6 +507,8 @@ export default /* @__PURE__ */ ((methods: object) => {
   Object.defineProperty(Application.prototype, runtimeId, { value: defaultRuntimeId });
   return Application as unknown as ApplicationConstructor;
 })({
+  preinitialize() {},
+
   cidPrefix: 'mna',
 
   _lifecycleState: STOPPED,

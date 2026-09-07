@@ -137,7 +137,7 @@ describe('view mixin', function() {
       view = new View();
 
       detachElSpy = sinon.spy(view.Dom, 'detachEl');
-      sinon.spy(view, '_deleteEntityEventHandlers');
+      sinon.spy(view, '_undelegateEntityEvents');
       sinon.spy(view, 'destroy');
 
       onDestroyStub = sinon.stub();
@@ -163,8 +163,8 @@ describe('view mixin', function() {
       expect(detachElSpy).to.have.been.calledOnce;
     });
 
-    it('should delete entity event handlers', function() {
-      expect(view._deleteEntityEventHandlers).to.have.been.calledOnce;
+    it('should undelegate entity events', function() {
+      expect(view._undelegateEntityEvents).to.have.been.calledOnce;
     });
 
     it('should set the view _isDestroyed to true', function() {

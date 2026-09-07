@@ -34,6 +34,7 @@ describe('Object and Application prototype composition', function() {
   it('preserves own method order, identities, descriptors, and constructors', function() {
     const objectFinalKeys = ['cidPrefix'];
     const applicationFinalKeys = [
+      'preinitialize',
       'cidPrefix',
       '_lifecycleState',
       'isRunning',

@@ -929,7 +929,7 @@ describe('Behavior', function() {
     beforeEach(function() {
       view = new View();
       behavior = new Behavior({}, view);
-      this.sinon.spy(behavior, '_deleteEntityEventHandlers');
+      this.sinon.spy(behavior, '_undelegateEntityEvents');
       this.sinon.spy(behavior, 'destroy');
       this.sinon.spy(behavior, 'stopListening');
       this.sinon.spy(view, '_removeBehavior');
@@ -937,8 +937,8 @@ describe('Behavior', function() {
       behavior.destroy();
     });
 
-    it('should delete entity event handlers', function() {
-      expect(behavior._deleteEntityEventHandlers).to.have.been.calledOnce;
+    it('should undelegate entity events', function() {
+      expect(behavior._undelegateEntityEvents).to.have.been.calledOnce;
     });
 
     it('should stopListening', function() {
