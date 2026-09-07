@@ -128,7 +128,7 @@ for (const configuration of packageConfigurations) {
     throw new Error(`${manifest.name} utils dependency ${manifest.dependencies?.['@marionette/utils'] || 'missing'} does not match ${packageJson.version}.`);
   }
   if (configuration.id === 'core' && manifest.dependencies?.['@marionette/radio'] !== packageJson.version) {
-    throw new Error('Core Radio dependency must match the release version.');
+    throw new Error(`Core Radio dependency ${manifest.dependencies?.['@marionette/radio'] || 'missing'} does not match ${packageJson.version}.`);
   }
   if (configuration.id === 'adapters' && manifest.peerDependencies?.marionette !== packageJson.version) {
     throw new Error(`${manifest.name} Marionette peer ${manifest.peerDependencies?.marionette || 'missing'} does not match ${packageJson.version}.`);

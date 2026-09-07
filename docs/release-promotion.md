@@ -43,9 +43,11 @@ or promise removal of either format.
 The canonical Ubuntu release job stores these files together as the immutable
 `release-candidate-<commit>` workflow artifact for 90 days:
 
-- the exact `marionette-<version>.tgz` tarball;
+- the exact tarballs: `marionette-utils-<version>.tgz`,
+  `marionette-radio-<version>.tgz`, `marionette-<version>.tgz`,
+  `marionette-data-<version>.tgz`, and `marionette-adapters-<version>.tgz`;
 - `release-evidence.json` and its SHA-512 checksum;
-- the complete `npm pack --json` package manifest;
+- the complete `npm pack --json` manifest for each package;
 - the Brotli-11 bundle report.
 
 The evidence records the tarball SHA-256, SHA-512, npm integrity and shasum, package
