@@ -1,6 +1,6 @@
 # Agent-ready Marionette v5
 
-Date: 2026-08-27
+Date: 2026-09-08
 Status: Governing project strategy
 
 ## Decision
@@ -100,10 +100,11 @@ runtime diagnostics, lint rules, documentation, tests, and benchmark evaluation.
 ### Performance is a feature
 
 Bundle size, startup work, allocations, render time, and retained resources are
-release concerns. Hosted timing measurements are informative because shared runners
-are noisy. Deterministic size and API checks can be hard gates; timing and allocation
-regressions become hard gates on a controlled runner with an established variance
-budget.
+release concerns. Before stable v5, size and timing reports inform review; package
+correctness and optional-dependency isolation remain release gates. Establish
+enforceable performance budgets only after API and package boundaries stabilize,
+using representative workloads and measured variance. The [runtime cost
+contract](#runtime-cost-contract) below defines this distinction.
 
 ## What agent-ready means
 
@@ -312,10 +313,11 @@ independently owned lifetime.
 State-source observation is selected explicitly per owner and remains separate from
 the model and collection DataApi. A View may consume Backbone domain data while using
 an XState actor or another source for orchestration. Marionette owns declarative
-`stateEvents`, deterministic setup timing, constructor rollback, and subscription
-release; the adapter owns how observation is registered, cleaned up, and, for an owned
-owned source, disposed. The protocol does not grow universal create, set, unset,
-reset, or destroy operations that unrelated state systems cannot truthfully share.
+`stateEvents`, deterministic setup timing, and subscription release; the adapter owns
+how observation is registered, cleaned up, and, for an owned source, disposed.
+Constructor and subscription errors propagate without rolling back partial setup.
+The protocol does not grow universal create, set, unset, reset, or destroy operations
+that unrelated state systems cannot truthfully share.
 
 A composed source persists across View and CollectionView render, across a Behavior's
 owning View render, across Application stop and restart, and for a MnObject's lifetime.
@@ -375,8 +377,9 @@ current-evidence findings:
   contracts and shared configuration helpers. Retain class-level DOM and renderer
   configuration within each runtime. EventDelegator remains a public runtime
   adapter parallel to those seams, with deterministic runtime and per-class installation timing. Each registration
-  returns an opaque cleanup operation that Marionette owns and invokes at most once;
-  cleanup continues through sibling operations even when one throws.
+  returns an opaque cleanup operation that Marionette owns and releases during
+  ordinary undelegation or destruction. Registration and cleanup errors propagate;
+  Marionette does not roll back registration or continue through throwing cleanups.
 
 - **Selected:** `Region.show` and `View.showChildView` accept only a View-like instance.
   The v3/v4 template, string, and options-object convenience implicitly constructed a
@@ -440,7 +443,8 @@ current-evidence findings:
   construct the final imported element in `buildChildView`, pass it to the child View,
   and use `template: false`. A first-class DOM-node renderer or element factory ships
   only if public benchmark tasks demonstrate an outcome the existing renderer,
-  `setElement`, and `buildChildView` seams cannot express clearly.
+  constructor-supplied `el`, and `buildChildView` seams cannot express clearly. View
+  roots are fixed at construction; there is no public `setElement()` contract.
 - **Selected:** A parent View rerender is a structural DOM and ownership reset. After
   the first render, Marionette resets Regions and destroys their active child Views
   before the renderer commits new parent output, then re-resolves Region elements from
@@ -452,42 +456,37 @@ current-evidence findings:
 - **Selected:** `View#renderAttributes()` and `CollectionView#renderAttributes()`
   explicitly reevaluate and apply the current root `attributes`, `id`, and
   `className` without rendering content or changing child ownership. The default
-  DomApi removes declared nullish values and leaves omitted keys untouched, so
-  supplied elements need no retained per-View attribute-name registry. In the
+  DomApi removes explicit `null` values and leaves `undefined` and omitted keys
+  untouched, so supplied elements need no retained per-View attribute-name registry. In the
   equal 25-sample local js-framework-benchmark cohort, declarative selection was
   within measurement noise of the imperative control (5.6 ms versus 5.9 ms).
   `className` remains the canonical View-level class declaration based on its
   established Marionette and representative-consumer use; examples do not
-  replace it with a raw `class` entry in `attributes`. The implementation
-  measures 90,127 / 100,000 Brotli-11 bytes across the eight gated artifacts,
-  +489 bytes from exact base `4e4dd33909b07779a08ad022ce8d5bde26991fce`,
-  with no artifact above the one-percent approval threshold.
+  replace it with a raw `class` entry in `attributes`. Size changes are reported
+  per package and consumer graph under the pre-stable runtime cost contract.
   The external result remains advisory until its upstream revision, exact
   Marionette commit, environment, commands, and raw samples are recorded under
   the evidence contract below.
-- **Selected:** Marionette's first-class renderer category is synchronous and
-  container-scoped: Marionette owns a stable `view.el`, and the renderer commits within
-  that boundary when `View#render()` is called. HTML, native DOM/template cloning,
-  Morphdom or Idiomorph, Lit, and a retained VDOM fixture should prove the category.
-  The existing callable contract already supports incremental commits: Marionette
-  invokes the renderer with the View as `this`, and a renderer that updates `this.el`
-  may return `undefined` to suppress `attachElContent()`. The first-render/update
-  contract and Morphdom's `isEqualNode` subtree bailout are documented explicitly.
-  Before beta, measure that bailout and update the Lit experiment to use
-  `className()` plus `renderAttributes()`; those results determine whether any
-  renderer capability is actually missing.
+- **Selected:** Rendering is synchronous and container-scoped. Marionette owns a
+  stable `view.el`; the callable renderer evaluates the template with the View as
+  `this` and returns output. The default `attachElContent()` passes that output to
+  `Dom.setContents`, including `undefined`. Returning `undefined` is not a signal to
+  skip the DOM commit. Native, jQuery, Morphdom, and Lit DOM adapters apply the output
+  through the same public DomApi boundary without patching View prototypes.
+  Morphdom sets an empty root's contents directly and morphs subsequent contents
+  within that root. Additional subtree bailouts require measured evidence before
+  becoming the default. Template-clone recipes supply their final root at construction.
   Autonomous component runtimes such as React, Vue, Svelte, Solid, and Preact own an
   exclusive hosted subtree inside a Marionette host View; Marionette does not coordinate
   their internal scheduling, lifecycle, refs, effects, or child ownership.
-- **Gated:** Formalize the existing callable renderer as the immediate contract. Add
-  `connect`, `disconnect`, or `dispose` protocol surface only when lifecycle fixtures
-  prove that ordinary View attach, detach, destroy, and `setElement()` boundaries
-  cannot provide exact cleanup for at least two first-class container renderers. Do not
-  add asynchronous render completion, `view.el` replacement, shared subtree ownership,
-  renderer-managed Regions, or Region-preservation modes. Do not add a third `view`
-  argument for arrow functions or publish an official Lit adapter until measured
-  ergonomics and maintenance evidence justify that surface; neither is required for
-  incremental rendering with the current contract.
+- **Selected:** `Dom.notifyAttach(el)` and `Dom.notifyDetach(el)` follow the existing
+  View attachment monitoring lifecycle, including adoption of an attached root at
+  construction. These notifications let Lit reconnect and disconnect directives;
+  `detachContents(el)` physically empties a container. Applications that opt out of
+  attachment monitoring own any required adapter notifications. Do not add asynchronous
+  render completion, root replacement, shared subtree ownership, renderer-managed
+  Regions, or Region-preservation modes. Future adapter requirements need concrete
+  consumer evidence rather than new lifecycle vocabulary for hypothetical renderers.
 - **Gated:** Declarative handler maps, `@ui` references, Backbone-style `extend`, dynamic
   `childView(model)` selection, and centralized DOM adapter and renderer installation
   remain candidate v5 patterns where current evidence shows they are widely used,
@@ -732,23 +731,22 @@ instructions, and every release blocker maps to this strategy.
   local View and trigger options, migrate application-owned values to an owned state
   source or explicit configuration, and do not add an alias or replacement registry.
 - Retain one default runtime and provide optional `createMarionette()` isolation
-  for runtime classes, mutable adapters, renderers, and Radio registries. Stabilize EventDelegator as a public
-  registration and cleanup boundary with exact listener options, attempt-all teardown,
-  constructor-failure rollback, native focus/blur ordering, and executable optional
-  jQuery evidence. Close documentation gaps in process scope, installation timing, and
-  precedence without adding EventDelegator-specific factories, injection, or duplicate
+  for runtime classes, mutable adapters, renderers, and Radio registries. Keep
+  EventDelegator as a public registration and cleanup boundary with matching native
+  listener options, ordinary undelegation, native focus/blur ordering, and executable
+  optional jQuery evidence. Close documentation gaps in process scope, installation
+  timing, and precedence without adding EventDelegator-specific factories, injection, or duplicate
   configuration paths.
-- Close the related lifecycle leaks before the first integration candidate: failed
-  View and CollectionView construction after rendering, failed MnObject and Application
-  construction after Radio registration, public `off()` disabling owned Radio cleanup,
-  state-source subscription release, or factory-owned source disposal, empty
-  `listenTo` ledgers, and constant `replyOnce` removal by original value.
-  Constructor rollback preserves the construction error while attempting every owned
-  cleanup exactly once.
-- Keep request/reply adaptation private to Requests: move the constant-or-function
-  callback helper into `mixins/requests.js`, preserve constant replies and original
-  identity, and remove the obsolete utility. Remove `RequestsMixin` from `CommonMixin`;
-  let `EventsMixin` supply `triggerMethod` without a duplicate CommonMixin entry.
+- Verify ordinary owned-resource cleanup independently of public lifecycle listeners:
+  Radio subscriptions and replies, state-source subscriptions, factory-owned sources,
+  and empty `listenTo` ledgers. Constructor, subscription, and cleanup errors propagate
+  without rollback or attempt-all error handling. Application readiness rejection
+  retains its separately specified asynchronous transition semantics below.
+- Keep request/reply behavior in `@marionette/radio`, with public `Requests`, `Channel`,
+  registry creation, and logging hooks. Preserve constant replies and `replyOnce`
+  removal by original value. Core integrates Radio through its owner mixin; shared
+  `Events` and binding utilities live in `@marionette/utils`. Do not reintroduce
+  duplicate implementations in core.
 - Specify Application as Marionette's first promise-based public lifecycle contract
   and add transition-table or model-based tests. Preserve Marionette lifecycle
   signatures with the subject first. Treat Promises returned by `onBeforeStart`,
@@ -791,9 +789,9 @@ instructions, and every release blocker maps to this strategy.
   renderer commit, re-resolve Region elements afterward, preserve an explicitly
   detached View only through caller-owned transfer, and prevent stale Region or adapter
   callbacks from mutating destroyed children.
-- Formalize the synchronous callable renderer and its stable-element ownership boundary,
-  then run HTML, native DOM/template-clone, Morphdom or Idiomorph, Lit, and retained-VDOM
-  conformance through rerender, attach/detach/reattach, `setElement()`, destruction, and
+- Verify the synchronous template renderer and public DomApi commit boundary through
+  HTML, native DOM/template-clone, Morphdom, Lit, and retained-VDOM fixtures. Cover
+  constructor-supplied roots, rerender, attach/detach/reattach, destruction, and
   post-destroy collection. Expand the adapter protocol only for lifecycle gaps those
   fixtures prove cannot be solved by existing View boundaries.
 - Specify Behavior scope, dependencies, delegation, and teardown.
@@ -803,14 +801,14 @@ instructions, and every release blocker maps to this strategy.
   explicit, and validating optional Backbone integration (#241).
 - Specify the requirements and cost boundaries for later opt-in extension hooks and
   resource ownership without implementing either runtime path in this phase.
-- After runtime and package contracts stop moving, relocate core production modules
-  under `src/` as one deliberate taxonomy change, including `MarionetteError` at
-  `src/modules/error.ts`. Update build inputs, coverage, fixtures, source links, and
-  declarations atomically; do not retain forwarding source paths.
+- Keep core production modules under `src/` and shared utilities under
+  `packages/utils/src/`, including `MarionetteError` at `packages/utils/src/error.ts`.
+  Update build inputs, coverage, fixtures, source links, and declarations atomically
+  when ownership changes; do not retain forwarding source paths.
 
 Gate: core invariants are documented, testable through public APIs, and add no
-measurable work to unrelated instances beyond approved budgets. The public authorship
-audit covers every executable production-source path in the shipped module graph whose
+unnecessary work to unrelated instances. Review measured costs under the pre-stable
+runtime cost contract. The public authorship audit covers every executable production-source path in the shipped module graph whose
 source differs from the v5 fork revision, with avoidable drift corrected and
 substantial remaining departures justified.
 
@@ -864,20 +862,20 @@ development and test fixtures exercise every public helper.
   declarations, and documentation are completed; do not wait for speculative Phase 5
   APIs before testing the code broadly.
 - After that early candidate is available, complete the selected
-  [collection-data track][issue-376] before the full release candidate. Add the native
-  observable ordered collection and the
-  shared keyed snapshot observer and XState actor adapters without adding source-specific
-  reconciliation to CollectionView. Verify initial render, exact add/remove, reorder,
-  reset, empty transitions, sorting, filtering, retained-model updates, same-key
-  immutable replacement, pre-render mutation, repeated render, setup rollback,
-  idempotent destruction, late notification, shared-source observation, and reentrant
-  notification behavior through public APIs. Marionette destroys views and its own
-  subscriptions but never stops caller-owned actors.
+  [collection-data track][issue-376] before the full release candidate. Verify the
+  native observable collection, Backbone integration, and XState actor adapter without
+  adding source-specific reconciliation to CollectionView. Other store implementations
+  are consumer proofs of the public DataApi; they need not ship as adapters. Verify
+  initial render, exact add/remove, reorder, reset, empty transitions, sorting,
+  filtering, retained-model updates, same-key immutable replacement, pre-render
+  mutation, repeated render, idempotent destruction, late notification, shared-source
+  observation, and captured nested DataApi notification ordering through public APIs.
+  Marionette destroys views and its own subscriptions but never stops caller-owned actors.
 - Measure Backbone exact-event, native direct-record, and keyed snapshot-observer updates at
   representative 1,000- and 10,000-model sizes. Exact-event and native sources must not
   regress to snapshot diffing; each relevant snapshot notification performs at most
-  one keyed O(n) comparison; unrelated notifications are no-ops; unchanged child Views
-  retain identity; and core plus every optional adapter is measured as a separate
+  one keyed O(n) comparison per observer; unrelated notifications are no-ops; unchanged
+  child Views retain identity; and core plus every optional adapter is measured as a separate
   production graph and packed import.
 - Run the fixed agent corpus against the complete release candidate.
 - Validate plain Views, Views with supplied and factory-owned state sources, nested
@@ -963,25 +961,25 @@ closed rather than retained as dormant APIs.
   before both default and custom renderer commits, Region elements resolve from the new
   DOM, explicit detach transfers ownership, and stale callbacks cannot mutate destroyed
   children. View, Region, renderer, and migration documentation teach the same rule.
-- Renderer conformance proves synchronous commit within stable `view.el`, exact cleanup
-  through attach/detach, `setElement()`, and destroy, and post-destroy collection for the
-  selected first-class renderer category without loading optional renderer dependencies
-  into core.
+- Renderer and DOM-adapter conformance proves synchronous commit within stable
+  `view.el`, constructor-supplied roots, monitored attach/detach, destruction, and
+  post-destroy collection without loading optional adapter dependencies into core.
+  Documentation makes the attachment-monitoring opt-out responsibility explicit.
 - Large-list operation-count scenarios pass source, distribution, packed-package, and
   real-browser tests.
 - CollectionView removal-only update semantics pass source, distribution,
   packed-package, and real-browser tests.
 - Detached-element attachment semantics pass source, distribution, packed-package,
   and real-browser tests.
-- The existing `buildChildView` plus `setElement` plus `template: false` optimized
-  rendering recipe passes source, distribution, packed-package, and real-browser
+- The existing `buildChildView` plus constructor-supplied `el` plus `template: false`
+  optimized rendering recipe passes source, distribution, packed-package, and real-browser
   tests.
 - The production-runtime authorship audit is complete, its corrective changes are
   merged, and every substantial departure from established Marionette source patterns
   has a recorded technical justification.
 - Core production source has one documented `src/` taxonomy, no obsolete forwarding
   paths, and build, coverage, declarations, source links, and package fixtures agree on
-  `src/modules/error.ts` as the `MarionetteError` owner.
+  `packages/utils/src/error.ts` as the shared `MarionetteError` owner.
 - No unapproved build, lint, type, or test warning remains.
 
 Pre-releases may expose experimental APIs. Before stable, they may be changed or

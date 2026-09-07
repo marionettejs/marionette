@@ -143,9 +143,8 @@ native implementation does nothing; Lit reconnects its directives.
 ### `notifyDetach(el)`
 
 Notify the adapter that its element's contents are inactive. Called through View
-detachment monitoring and when construction fails after initializing an attached root. This notification does
-not remove or empty the element. The native implementation does nothing; Lit
-disconnects its directives while retaining its rendered contents.
+detachment monitoring. This notification does not remove or empty the element.
+The native implementation does nothing; Lit disconnects its directives while retaining its rendered contents.
 
 These hooks receive only the element. They follow the existing attachment
 monitoring opt-out: with `monitorViewEvents: false` or monitoring handlers
