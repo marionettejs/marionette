@@ -276,7 +276,7 @@ describe('CollectionView Children', function() {
         myCollectionView.addChildView(addView2);
       });
 
-      it('should not use the _addedViews perf', function() {
+      it('should report all visible children', function() {
         expect(myCollectionView.onRenderChildren.args[0][1]).to.have.lengthOf(myCollectionView.children.length);
       });
 
@@ -303,7 +303,6 @@ describe('CollectionView Children', function() {
     describe('when called without an index', function() {
       beforeEach(function() {
 
-        // Needed to test _addedViews perf
         myCollectionView.viewComparator = false;
         myCollectionView.addChildView(addView);
       });
@@ -327,8 +326,8 @@ describe('CollectionView Children', function() {
           .to.be.calledOnce.and.calledWith(myCollectionView);
       });
 
-      it('should use the _addedViews perf', function() {
-        expect(myCollectionView.onRenderChildren.args[0][1]).to.have.lengthOf(1);
+      it('should report all visible children', function() {
+        expect(myCollectionView.onRenderChildren.args[0][1]).to.have.lengthOf(myCollectionView.children.length);
       });
 
       it('should trigger "add:child"', function() {
@@ -368,7 +367,7 @@ describe('CollectionView Children', function() {
           .to.be.calledOnce.and.calledWith(myCollectionView);
       });
 
-      it('should not use _addedViews perf', function() {
+      it('should report all visible children', function() {
         expect(myCollectionView.onRenderChildren.args[0][1]).to.have.lengthOf(myCollectionView.children.length);
       });
 

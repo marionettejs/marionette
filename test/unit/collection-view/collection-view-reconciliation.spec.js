@@ -575,7 +575,7 @@ describe('CollectionView normalized reconciliation', function() {
     view.destroy();
   });
 
-  it('renders reconciled children when an overridden sort does not render them', function() {
+  it('lets an overridden sort defer rendering until filter is called', function() {
     const model = { id: 1, name: 'before' };
     const source = { models: [model] };
     const view = new ListView({ collection: source });
@@ -591,8 +591,101 @@ describe('CollectionView normalized reconciliation', function() {
       updated: [{ previous: model, current: model }]
     });
 
+    expect(child.renderCount).to.equal(1);
+    expect(child.el.textContent).to.equal('before');
+
+    view.filter();
+
     expect(child.renderCount).to.equal(2);
     expect(child.el.textContent).to.equal('after');
+    view.destroy();
+  });
+
+  Object.entries({
+    defaults: {},
+    filter: { viewFilter: () => true },
+    comparator: { viewComparator: child => child.model.id },
+    sortOverride: { sort() { return CollectionView.prototype.sort.call(this); } }
+  }).forEach(([name, options]) => {
+    it(`keeps survivors mounted through updates, sort, and filter with ${name}`, function() {
+      const models = [{ id: 1, name: 'one' }, { id: 2, name: 'two' }];
+      const source = { models };
+      const InputChild = ChildView.extend({ template: () => '<input value="unchanged">' });
+      const List = ListView.extend({ ...options, childView: InputChild });
+      const view = new List({ collection: source }).render();
+      document.body.appendChild(view.el);
+      const survivor = view.children.last();
+      const input = survivor.el.firstChild;
+      input.focus();
+      input.setSelectionRange(1, 3);
+      const detach = this.sinon.spy(view.Dom, 'detachEl');
+      const move = this.sinon.spy(view.Dom, 'moveEl');
+      const render = this.sinon.spy(survivor, 'render');
+      const added = { id: 0, name: 'zero' };
+
+      source.models = [added, ...models];
+      source.notify({ kind: 'update', added: [added], removed: [], updated: [] });
+      view.sort();
+      view.filter();
+      source.models = [added, models[1]];
+      source.notify({ kind: 'update', added: [], removed: [models[0]], updated: [] });
+
+      expect(document.activeElement).to.equal(input);
+      expect([input.selectionStart, input.selectionEnd]).to.deep.equal([1, 3]);
+      expect(render).not.to.have.been.called;
+      expect(detach).not.to.have.been.calledWith(survivor.el);
+      expect(move).not.to.have.been.calledWith(survivor.el);
+      expect([...view.el.children]).to.deep.equal([...view.children].map(child => child.el));
+      view.destroy();
+    });
+  });
+
+  it('renders additions and resets with the presentation comparator disabled', function() {
+    const first = { id: 1, name: 'one' };
+    const second = { id: 2, name: 'two' };
+    const source = { models: [first] };
+    const view = new ListView({ collection: source, viewComparator: false }).render();
+
+    source.models = [second, first];
+    source.notify({ kind: 'update', added: [second], removed: [], updated: [] });
+    expect(view.el.textContent).to.equal('twoone');
+    const previous = [...view.children];
+
+    source.models = [first];
+    source.notify({ kind: 'reset' });
+    expect(view.el.textContent).to.equal('one');
+    expect(previous.every(child => child.isDestroyed())).to.be.true;
+    view.destroy();
+  });
+
+  it('places a prepended child without moving a thousand survivors', function() {
+    const models = Array.from({ length: 1000 }, (_, id) => ({ id, name: String(id) }));
+    const source = { models };
+    const view = new ListView({ collection: source }).render();
+    const move = this.sinon.spy(view.Dom, 'moveEl');
+    const added = { id: 1000, name: 'new' };
+
+    source.models = [added, ...models];
+    source.notify({ kind: 'update', added: [added], removed: [], updated: [] });
+
+    expect(move).to.have.been.calledOnce;
+    expect(move.firstCall.args[0]).to.equal(view.children.first().el);
+    expect([...view.el.children]).to.deep.equal([...view.children].map(child => child.el));
+    view.destroy();
+  });
+
+  it('preserves template contents before the children when placing an addition', function() {
+    const source = { models: [{ id: 1, name: 'one' }] };
+    const List = ListView.extend({ template: () => '<header>Heading</header>' });
+    const view = new List({ collection: source }).render();
+    const header = view.el.firstChild;
+    const added = { id: 2, name: 'two' };
+
+    source.models.unshift(added);
+    source.notify({ kind: 'update', added: [added], removed: [], updated: [] });
+
+    expect(view.el.firstChild).to.equal(header);
+    expect(view.el.textContent).to.equal('Headingtwoone');
     view.destroy();
   });
 

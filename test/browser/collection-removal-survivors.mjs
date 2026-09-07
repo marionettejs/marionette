@@ -23,7 +23,7 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
       Object.assign(Backbone.Model.prototype, Marionette.Events);
       Object.assign(Backbone.Collection.prototype, Marionette.Events);
       // Install only the operations this DOM regression exercises. The complete
-      // Backbone adapter contract and rollback behavior have focused unit coverage.
+      // Backbone adapter observation contract have focused unit coverage.
       Marionette.setDataApi({
         key: model => model.cid,
         serialize: model => model.attributes,
@@ -74,7 +74,12 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
 
       return [
         { name: 'unsorted', viewOptions: { viewComparator: false } },
-        { name: 'default collection order', viewOptions: {} }
+        { name: 'default collection order', viewOptions: {} },
+        { name: 'custom comparator', viewOptions: { viewComparator: child => child.model.id } },
+        { name: 'active filter', viewOptions: { viewFilter: () => true } },
+        { name: 'sort override', viewOptions: {
+          sort() { return Marionette.CollectionView.prototype.sort.call(this); }
+        } }
       ].map(({ name, viewOptions }) => {
         let attachCount = 0;
         const TestCollectionView = Marionette.CollectionView.extend({
@@ -119,6 +124,8 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
         };
 
         attachCount = 0;
+        collectionView.sort();
+        collectionView.filter();
         collection.remove(removedView.model);
 
         const outcome = {
@@ -154,6 +161,9 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
         };
 
         const nodes = [...collectionView.el.children];
+        if (viewOptions.viewComparator) {
+          collectionView.viewComparator = child => -child.model.id;
+        }
         collection.models.reverse();
         collection.trigger('sort', collection);
         Object.assign(outcome, {
