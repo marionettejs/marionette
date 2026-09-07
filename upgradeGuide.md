@@ -145,7 +145,13 @@ filter. `attachHtml` receives only elements that need attaching; it is no longer
 called just to reorder mounted children. Reordering uses `Dom.moveEl`.
 `Dom.swapEl` is removed; `swapChildViews()` exchanges the children using at most
 two `Dom.moveEl` calls. Custom DomApi implementations only need `moveEl` for
-these placement operations.
+these placement operations. The child-render pass restores focus and text
+selection if a DOM move loses them; a direct swap only preserves them when the
+browser supports state-preserving moves.
+
+Only a numeric `addChildView` index bypasses sorting and filtering. Passing
+`null` or options without an index now follows the same comparator/filter path
+as omitting the index.
 
 `before:render:children` and `render:children` receive all visible children,
 regardless of which templates needed rendering. Do not treat that argument as

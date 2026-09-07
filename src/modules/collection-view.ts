@@ -1110,7 +1110,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       return view;
     }
 
-    if (typeof index !== 'undefined') {
+    if (typeof index === 'number') {
       this._renderChildren();
     } else {
       this.sort();

@@ -231,7 +231,9 @@ Collection updates, `sort()`, and `filter()` use the same child-rendering path.
 Surviving visible children keep their elements mounted, including when a
 `viewFilter` or custom `viewComparator` is active. New or newly visible children
 are attached through `attachHtml`; existing elements move only when their order
-needs to change. Removal alone does not move or rerender surviving children.
+needs to change. Removal alone does not move or rerender surviving children. See
+[DOM movement](dom.api.md#moveelel-parent-before) for focus and text-selection
+preservation and the browser fallback behavior.
 
 The `before:render:children` and `render:children` events receive all visible
 children. This describes the render pass, not a list of children whose templates

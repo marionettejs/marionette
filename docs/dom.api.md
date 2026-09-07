@@ -88,7 +88,8 @@ CollectionView reordering and swapping preserve focus, selection, media, and cus
 connection state. It falls back to `insertBefore` for initial attachment and
 older DOM implementations; the CollectionView render pass restores focused text selection after
 that fallback, while older platforms may still run custom-element connection
-callbacks for the move.
+callbacks for the move. `swapChildViews()` does not restore focus or selection
+when it uses the `insertBefore` fallback without a child-render pass.
 
 ### `setContents(el, html)`
 

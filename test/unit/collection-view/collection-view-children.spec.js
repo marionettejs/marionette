@@ -244,6 +244,18 @@ describe('CollectionView Children', function() {
       this.sinon.spy(myCollectionView, 'sort');
     });
 
+    [null, { preventRender: false }, {}].forEach(indexOrOptions => {
+      it(`sorts a manual addition without a numeric index: ${JSON.stringify(indexOrOptions)}`, function() {
+        myCollectionView.viewComparator = child => child.model?.id ?? 0;
+
+        myCollectionView.addChildView(addView, indexOrOptions);
+
+        expect(myCollectionView.sort).to.have.been.calledOnce;
+        expect(myCollectionView.children.first()).to.equal(addView);
+        expect(myCollectionView.el.firstChild).to.equal(addView.el);
+      });
+    });
+
     describe('when called with preventRender option', function() {
 
       beforeEach(function() {

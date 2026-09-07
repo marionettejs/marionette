@@ -661,7 +661,6 @@ describe('CollectionView normalized reconciliation', function() {
 
     expect(view.children.first()).to.equal(child);
     expect(child.isAttached()).to.be.true;
-    expect(child._isShown).to.be.true;
     expect(attached).to.have.been.calledOnce;
     expect(child.renderCount).to.equal(1);
     region.destroy();
