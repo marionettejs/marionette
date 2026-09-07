@@ -1,6 +1,7 @@
 import CollectionView from '../../../src/modules/collection-view';
 import Behavior from '../../../src/modules/behavior';
 import View from '../../../src/modules/view';
+import Region from '../../../src/modules/region';
 import { MarionetteError } from '@marionette/utils';
 
 function createAdapter() {
@@ -638,6 +639,33 @@ describe('CollectionView normalized reconciliation', function() {
       expect([...view.el.children]).to.deep.equal([...view.children].map(child => child.el));
       view.destroy();
     });
+  });
+
+  it('reattaches a filtered child when detachHtml retains its element', function() {
+    const source = { models: [{ id: 1, name: 'one' }] };
+    const RetainedList = ListView.extend({ detachHtml() {} });
+    const view = new RetainedList({ collection: source });
+    const el = document.createElement('div');
+    document.body.appendChild(el);
+    const region = new Region({ el });
+    region.show(view);
+    const child = view.children.first();
+    const attached = this.sinon.spy();
+    child.on('attach', attached);
+
+    view.setFilter(() => false);
+    expect(child.el.parentNode).to.equal(view.el);
+    expect(child.isAttached()).to.be.false;
+
+    view.removeFilter();
+
+    expect(view.children.first()).to.equal(child);
+    expect(child.isAttached()).to.be.true;
+    expect(child._isShown).to.be.true;
+    expect(attached).to.have.been.calledOnce;
+    expect(child.renderCount).to.equal(1);
+    region.destroy();
+    el.remove();
   });
 
   it('renders additions and resets with the presentation comparator disabled', function() {

@@ -912,7 +912,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
 
       for (const view of views) { renderView(view); }
 
-      const attaching = views.filter(view => view.el.parentNode !== this.container);
+      const attaching = views.filter(view => !view._isShown || view.el.parentNode !== this.container);
       if (attaching.length) {
         this._attachChildren(this._getBuffer(attaching), attaching);
       }
