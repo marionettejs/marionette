@@ -1,0 +1,30 @@
+src/modules/application.ts
+  s_060efbb5bf6218::t_cf5aab2cd4f0ab 313-316,481,555,581,602
+  s_060efbb5bf6218::t_8300d5f7510a24 701,706
+docs/migration-from-v4.md
+  s_060efbb5bf6218::t_cf5aab2cd4f0ab 85
+test/unit/application-root-view.spec.js
+  s_060efbb5bf6218::t_cf5aab2cd4f0ab 35,37-47,52,55,57,59-61
+  s_060efbb5bf6218::t_a19514c89a0f52 18,48-51,53-54,56,58,62,83,94,98,146,155,157-158,304,343,348
+  s_060efbb5bf6218::t_cfb087d5f56293 36
+  s_060efbb5bf6218::t_29bf73ce4cf7b8 129-145
+docs/marionette.application.md
+  s_060efbb5bf6218::t_cf5aab2cd4f0ab 389-390,393-398
+  s_060efbb5bf6218::t_32e7683ae757e2 434,440-442
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "a26af81df1145d85525754603f390ab8c4380039",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": null
+    }
+  }
+}
