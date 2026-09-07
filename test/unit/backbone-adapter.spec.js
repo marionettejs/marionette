@@ -187,6 +187,54 @@ describe('Backbone adapter', function() {
     view.destroy();
   });
 
+  it('leaves merged model rendering to child model events', function() {
+    const runtime = createMarionette();
+    runtime.setDataApi(BackboneApi);
+    const collection = new Backbone.Collection([{ id: 1, title: 'before' }, { id: 2, title: 'same' }]);
+    const rendered = [];
+    const ChildView = runtime.View.extend({
+      template: ({ title }) => `<span>${title}</span>`,
+      modelEvents: { change: 'render' },
+      onRender() { rendered.push(this.model.id); }
+    });
+    const view = new runtime.CollectionView({ collection, childView: ChildView }).render();
+    const unchangedContents = view.children.findByIndex(1).el.firstChild;
+    rendered.length = 0;
+
+    collection.set([{ id: 1, title: 'after' }, { id: 2, title: 'same' }]);
+
+    expect(rendered).to.deep.equal([1]);
+    expect(view.el.textContent).to.equal('aftersame');
+    expect(view.children.findByIndex(1).el.firstChild).to.equal(unchangedContents);
+    view.destroy();
+  });
+
+  it('sorts and filters merged models without rendering retained children', function() {
+    const runtime = createMarionette();
+    runtime.setDataApi(BackboneApi);
+    const collection = new Backbone.Collection([
+      { id: 1, rank: 1, visible: true },
+      { id: 2, rank: 2, visible: true },
+      { id: 3, rank: 3, visible: true }
+    ], { comparator: 'rank' });
+    const onRender = this.sinon.spy();
+    const ChildView = runtime.View.extend({ template: ({ id }) => String(id), onRender });
+    const view = new runtime.CollectionView({
+      collection,
+      childView: ChildView,
+      viewFilter: child => child.model.get('visible')
+    }).render();
+    const first = view.children.findByModel(collection.get(1));
+    onRender.resetHistory();
+
+    collection.set([{ id: 1, rank: 4 }, { id: 2, visible: false }], { remove: false });
+
+    expect(view.el.textContent).to.equal('31');
+    expect(view.children.findByModel(collection.get(1))).to.equal(first);
+    expect(onRender).not.to.have.been.called;
+    view.destroy();
+  });
+
   it('configures only the selected runtime', function() {
     const first = createMarionette();
     const second = createMarionette();
