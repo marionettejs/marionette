@@ -676,9 +676,9 @@ These methods can be called directly on the container, to iterate and process
 the views held by the container.
 
 `each`, `map`, `reduce`, `find`, `filter`, `reject`, `every`, `some`, and
-`partition` require callback functions. Invalid callbacks throw
-[`MN0024`](/errors/MN0024/), including for an empty container. String, object,
-and null iteratee shorthand is not supported. Structurally adding, removing, or
+`partition` require callback functions. The public types enforce that contract;
+unsupported JavaScript callback shapes have no guaranteed Marionette diagnostic.
+String, object, and null iteratee shorthand is not supported. Structurally adding, removing, or
 reordering children while a callback runs is unsupported, and these methods do
 not promise call-start snapshot semantics. Mutating ordinary properties on a
 child View remains valid.
