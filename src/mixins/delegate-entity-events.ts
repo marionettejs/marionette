@@ -2,7 +2,7 @@ import type { Bindings } from '@marionette/utils';
 import { getValue } from '@marionette/utils';
 import subscribeBindings from '../utils/subscribe-bindings.ts';
 
-import type { StateApi } from '../runtime/state-api.ts';
+import type { SubscriptionApi } from '../utils/subscribe-bindings.ts';
 
 export interface EntityEventHost {
   modelEvents?: Bindings | (() => Bindings);
@@ -20,7 +20,7 @@ export interface EntityEventHost {
 
 export default {
   // Handle `modelEvents`, and `collectionEvents` configuration
-  _delegateEntityEvents(this: EntityEventHost, model: unknown, collection: unknown, Data: Partial<StateApi<never>>) {
+  _delegateEntityEvents(this: EntityEventHost, model: unknown, collection: unknown, Data: SubscriptionApi) {
     if (model != null) {
       this._modelEvents = getValue(this, 'modelEvents') as Bindings | undefined;
       if (this._modelEvents) {
