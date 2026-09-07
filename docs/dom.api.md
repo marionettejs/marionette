@@ -80,18 +80,13 @@ element remain on the detached element.
 Replaces `oldEl` with `newEl` when `oldEl` has a parent. Passing the same
 element twice or an unattached `oldEl` is a no-op.
 
-### `swapEl(el1, el2)`
-
-Swaps the positions of two attached elements. Passing the same element twice
-or an element without a parent is a no-op.
-
 ### `moveEl(el, parent, before)`
 
 Moves `el` within `parent` before the optional reference node. The native
 adapter uses `moveBefore` for already-attached children when available so
-CollectionView reorder preserves focus, selection, media, and custom-element
+CollectionView reordering and swapping preserve focus, selection, media, and custom-element
 connection state. It falls back to `insertBefore` for initial attachment and
-older DOM implementations; CollectionView restores focused text selection after
+older DOM implementations; the CollectionView render pass restores focused text selection after
 that fallback, while older platforms may still run custom-element connection
 callbacks for the move.
 

@@ -10,7 +10,6 @@ export interface DomApi<Query extends ArrayLike<Element> = ArrayLike<Element>, C
   hasEl: (el: Node, childEl: Node | null | undefined) => boolean;
   detachEl: (el: Element) => void;
   replaceEl: (newEl: Element, oldEl: Element) => void;
-  swapEl: (el1: Element, el2: Element) => void;
   setContents: (el: Element, html: Content) => void;
   setAttributes: (el: Element, attrs: unknown) => void;
   appendContents: (el: Element | DocumentFragment, contents: Element | DocumentFragment) => void;
@@ -87,26 +86,6 @@ export default {
     }
 
     parent.replaceChild(newEl, oldEl);
-  },
-
-  // Swaps the location of `el1` and `el2` in the DOM
-  swapEl(el1: Node, el2: Node) {
-    if (el1 === el2) {
-      return;
-    }
-
-    const parent1 = el1.parentNode;
-    const parent2 = el2.parentNode;
-
-    if (!parent1 || !parent2) {
-      return;
-    }
-
-    const next1 = el1.nextSibling;
-    const next2 = el2.nextSibling;
-
-    parent1.insertBefore(el2, next1);
-    parent2.insertBefore(el1, next2);
   },
 
   // Replace the contents of `el` with the `html`

@@ -186,6 +186,23 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
             .every((element, index) => element === nodes[nodes.length - index - 1])
         });
 
+        const beforeSwap = [...collectionView.el.children];
+        const otherView = collectionView.children.first();
+        const focusedIndex = beforeSwap.indexOf(focusedView.el);
+        const connectedBeforeSwap = focusedView.el.connectedCount;
+        collectionView.swapChildViews(focusedView, otherView);
+        [beforeSwap[0], beforeSwap[focusedIndex]] = [beforeSwap[focusedIndex], beforeSwap[0]];
+        Object.assign(outcome, {
+          swapOrderCorrect: [...collectionView.el.children]
+            .every((element, index) => element === beforeSwap[index]),
+          swapFocused: document.activeElement === focusedInput,
+          swapSelectionStart: focusedInput.selectionStart,
+          swapSelectionEnd: focusedInput.selectionEnd,
+          swapRenderCount: focusedView.renderCount,
+          swapConnectedCount: focusedView.el.connectedCount,
+          expectedSwapConnectedCount: connectedBeforeSwap
+        });
+
         collectionView.destroy();
 
         return { name, outcome };
@@ -237,7 +254,17 @@ for (const [browserName, browserType] of Object.entries(browsers)) {
         assert.equal(result.reorderNodesReversed, true, `${scenario}: reorder moves existing nodes`);
       }
 
-      console.log(`${scenario}: removal-only survivor state passed`);
+      assert.equal(result.swapOrderCorrect, true, `${scenario}: swap leaves intervening children in order`);
+      assert.equal(result.swapRenderCount, 1, `${scenario}: swap does not rerender children`);
+      if (result.nativeStatePreservingMove) {
+        assert.equal(result.swapFocused, true, `${scenario}: native swap preserves focus`);
+        assert.equal(result.swapSelectionStart, 2, `${scenario}: native swap preserves selection start`);
+        assert.equal(result.swapSelectionEnd, 8, `${scenario}: native swap preserves selection end`);
+        assert.equal(result.swapConnectedCount, result.expectedSwapConnectedCount,
+          `${scenario}: native swap does not reconnect the child`);
+      }
+
+      console.log(`${scenario}: removal, reorder, and swap state passed`);
     }
   } catch (error) {
     failures.push(new Error(`${browserName}: ${error.message}`, { cause: error }));

@@ -185,54 +185,6 @@ describe('DomApi', function() {
     });
   });
 
-  describe('#swapEl', function() {
-    let el1;
-    let el2;
-    let parentEl;
-
-    beforeEach(function() {
-      this.setFixtures('<div id="foo"><div id="bar">1</div><div id="baz">2</div></div>');
-      parentEl = $('#foo')[0];
-    });
-
-    describe('when el1 and el2 are the same', function() {
-      it('should not change anything', function() {
-        el1 = el2 = $('#bar')[0];
-        DomApi.swapEl(el1, el2);
-        expect(parentEl.textContent).to.have.string('12');
-      });
-    });
-
-    describe('when el1 is not attached', function() {
-      it('should not error', function() {
-        const $el1 = $('#bar');
-        el1 = $el1[0];
-        $el1.detach();
-        el2 = $('#baz')[0];
-        expect(_.partial(DomApi.swapEl, el1, el2)).to.not.throw();
-      });
-    });
-
-    describe('when el2 is not attached', function() {
-      it('should not error', function() {
-        const $el2 = $('#baz');
-        el2 = $el2[0];
-        $el2.detach();
-        el1 = $('#bar')[0];
-        expect(_.partial(DomApi.swapEl, el1, el2)).to.not.throw();
-      });
-    });
-
-    describe('when both els are attached', function() {
-      it('should swap the contents', function() {
-        el1 = $('#bar')[0];
-        el2 = $('#baz')[0];
-        DomApi.swapEl(el1, el2);
-        expect(parentEl.textContent).to.have.string('21');
-      });
-    });
-  });
-
   describe('#moveEl', function() {
     it('uses insertBefore to attach a new child at the requested position', function() {
       const parent = document.createElement('div');

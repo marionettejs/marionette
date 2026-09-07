@@ -143,6 +143,9 @@ Collection changes, `sort()`, and `filter()` share the child-rendering path.
 Existing visible children stay mounted, including with a custom comparator or
 filter. `attachHtml` receives only elements that need attaching; it is no longer
 called just to reorder mounted children. Reordering uses `Dom.moveEl`.
+`Dom.swapEl` is removed; `swapChildViews()` exchanges the children using at most
+two `Dom.moveEl` calls. Custom DomApi implementations only need `moveEl` for
+these placement operations.
 
 `before:render:children` and `render:children` receive all visible children,
 regardless of which templates needed rendering. Do not treat that argument as

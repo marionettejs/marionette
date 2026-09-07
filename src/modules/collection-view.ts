@@ -1049,7 +1049,17 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     }
 
     this._children._swap(view1, view2);
-    this.Dom.swapEl(view1.el, view2.el);
+
+    const el1 = view1.el;
+    const el2 = view2.el;
+    const parent1 = el1.parentNode as Element | DocumentFragment | null;
+    const parent2 = el2.parentNode as Element | DocumentFragment | null;
+    if (el1 !== el2 && parent1 && parent2) {
+      const next1 = el1.nextSibling;
+      const next2 = el2.nextSibling;
+      if (el2 !== next1) { this.Dom.moveEl(el2, parent1, next1); }
+      if (el1 !== next2) { this.Dom.moveEl(el1, parent2, next2); }
+    }
 
     // If the views are not filtered the same, refilter
     if (this.children.hasView(view1) !== this.children.hasView(view2)) {

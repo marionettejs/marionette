@@ -126,13 +126,44 @@ describe('CollectionView Children', function() {
           .and.calledWith(view1, view2);
       });
 
-      it('should swap the els in the DOM', function() {
-        this.sinon.spy(collectionView.Dom, 'swapEl');
+      it('should exchange the elements with two moves and leave intervening children in place', function() {
+        const elements = [...collectionView.el.children];
+        const move = this.sinon.spy(collectionView.Dom, 'moveEl');
 
         collectionView.swapChildViews(view1, view2);
 
-        expect(collectionView.Dom.swapEl).to.have.been.calledOnce
-          .and.calledWith(view1.el, view2.el);
+        expect(move).to.have.been.calledTwice;
+        expect([...collectionView.el.children]).to.deep.equal([
+          elements.at(-1), ...elements.slice(1, -1), elements[0]
+        ]);
+      });
+
+      it('should swap adjacent children in either direction with one move', function() {
+        const first = collectionView.children.first();
+        const second = collectionView.children.findByIndex(1);
+        const elements = [...collectionView.el.children];
+        const move = this.sinon.spy(collectionView.Dom, 'moveEl');
+
+        collectionView.swapChildViews(first, second);
+        expect(move).to.have.been.calledOnce;
+        expect([...collectionView.el.children]).to.deep.equal([
+          elements[1], elements[0], ...elements.slice(2)
+        ]);
+
+        move.resetHistory();
+        collectionView.swapChildViews(first, second);
+        expect(move).to.have.been.calledOnce;
+        expect([...collectionView.el.children]).to.deep.equal(elements);
+      });
+
+      it('should leave a child swapped with itself in place', function() {
+        const elements = [...collectionView.el.children];
+        const move = this.sinon.spy(collectionView.Dom, 'moveEl');
+
+        collectionView.swapChildViews(view1, view1);
+
+        expect(move).not.to.have.been.called;
+        expect([...collectionView.el.children]).to.deep.equal(elements);
       });
 
       it('should return the collectionView', function() {
