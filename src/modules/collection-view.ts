@@ -167,7 +167,7 @@ export type CollectionViewConstructor<Props extends object = {}, Args extends un
 interface SnapshotEntry {model: unknown; key: unknown;}
 interface Snapshot {
   entries: SnapshotEntry[];
-  models: Map<unknown, SnapshotEntry>;
+  models: ReadonlyMap<unknown, SnapshotEntry>;
 }
 interface Replacement {key: unknown; previous: unknown; current: unknown;}
 interface Update {kind: 'update'; added: SnapshotEntry[]; removed: SnapshotEntry[]; updated: Replacement[];}
@@ -242,9 +242,8 @@ function throwCollectionProtocolError(message: string): never {
   });
 }
 
-function buildCollectionSnapshot(Data: DataProvider, collection: unknown, previous: SnapshotEntry[]): Snapshot {
+function buildCollectionSnapshot(Data: DataProvider, collection: unknown, previous?: ReadonlyMap<unknown, SnapshotEntry>): Snapshot {
   const models = Data.models(collection as never);
-  const previousKeys = new Map(previous.map(entry => [entry.model, entry.key]));
   const keys = new Set<unknown>();
   const modelEntries = new Map<unknown, SnapshotEntry>();
   const snapshot: SnapshotEntry[] = Array(models.length);
@@ -259,7 +258,8 @@ function buildCollectionSnapshot(Data: DataProvider, collection: unknown, previo
     if (keys.has(key)) {
       throwCollectionProtocolError(`DataApi.key() returned duplicate key "${ String(key) }".`);
     }
-    if (previousKeys.has(model) && !sameValueZero(previousKeys.get(model), key)) {
+    const previousEntry = previous?.get(model);
+    if (previousEntry && !sameValueZero(previousEntry.key, key)) {
       throwCollectionProtocolError('DataApi.key() changed while a model remained in the CollectionView.');
     }
 
@@ -442,7 +442,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     if (this._isDestroying || this._isDestroyed) { return; }
 
     const previous = this._collectionObservedSnapshot || this._collectionSnapshot;
-    const current = buildCollectionSnapshot(this.Data, this.collection, previous.entries);
+    const current = buildCollectionSnapshot(this.Data, this.collection, previous.models);
     const normalized = normalizeCollectionChange(change as RawChange, previous, current);
     const notification = { change: normalized, snapshot: current };
 
@@ -670,7 +670,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     this._destroyChildren();
 
     if (this.collection != null) {
-      this._collectionSnapshot = buildCollectionSnapshot(this.Data, this.collection, []);
+      this._collectionSnapshot = buildCollectionSnapshot(this.Data, this.collection);
       this._addChildModels(this._collectionSnapshot.entries.map(entry => entry.model));
       this._initialEvents();
     }
@@ -916,10 +916,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
 
       const documentEl = this.container.ownerDocument;
       const activeElement = documentEl.activeElement as HTMLInputElement | null;
-      const shouldRestoreFocus = activeElement && views.some(view =>
-        view.el === activeElement || view.el.contains(activeElement)
-      );
-      const selection = shouldRestoreFocus &&
+      const selection = activeElement &&
         typeof activeElement.selectionStart === 'number' && {
         end: activeElement.selectionEnd,
         start: activeElement.selectionStart,
@@ -948,8 +945,9 @@ Object.assign(CollectionView.prototype, ViewMixin, {
         }
       }
 
-      if (shouldRestoreFocus && activeElement.isConnected &&
-          documentEl.activeElement !== activeElement) {
+      // Search the children only when rendering actually lost focus.
+      if (activeElement && activeElement.isConnected && documentEl.activeElement !== activeElement &&
+          views.some(view => view.el.contains(activeElement))) {
         activeElement.focus({ preventScroll: true });
         if (selection) {
           activeElement.setSelectionRange(selection.start, selection.end,
