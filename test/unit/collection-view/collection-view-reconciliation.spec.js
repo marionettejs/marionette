@@ -372,22 +372,46 @@ describe('CollectionView normalized reconciliation', function() {
     view.destroy();
   });
 
-  it('diagnoses an update whose child View is missing', function() {
-    const model = { id: 1, name: 'one' };
-    const source = { models: [model] };
-    const view = new ListView({ collection: source });
-    view.render();
-    const child = view.children.first();
-    view.removeChildView(child);
+  Object.entries({
+    removed: (view, child) => view.removeChildView(child),
+    detached: (view, child) => view.detachChildView(child),
+    destroyed: (view, child) => child.destroy()
+  }).forEach(([state, remove]) => {
+    [false, true].forEach(replace => {
+      it(`ignores ${replace ? 'replacement' : 'in-place'} updates for a ${state} child`, function() {
+        const previous = [{ id: 1, name: 'one' }, { id: 2, name: 'two' }];
+        const source = { models: previous };
+        const view = new ListView({ collection: source }).render();
+        const child = view.children.first();
+        const survivor = view.children.last();
+        remove(view, child);
+        const current = previous.map(model => replace ?
+          { ...model, name: `updated ${model.name}` } : Object.assign(model, { name: `updated ${model.name}` }));
+        source.models = current;
 
-    expect(() => source.notify({
-      kind: 'update',
-      added: [],
-      removed: [],
-      updated: [{ previous: model, current: model }]
-    })).to.throw(MarionetteError).and.include({ code: 'MN0039' });
+        source.notify({
+          kind: 'update', added: [], removed: [],
+          updated: previous.map((model, index) => ({ previous: model, current: current[index] }))
+        });
 
-    view.destroy();
+        expect(view.children).to.have.lengthOf(1);
+        expect(view.children.findByModel(current[0])).to.be.undefined;
+        expect(view.children.first().model).to.equal(current[1]);
+        expect(view.el.textContent).to.equal('updated two');
+        expect(survivor.isDestroyed()).to.equal(replace);
+        expect(child.isDestroyed()).to.equal(state !== 'detached');
+        if (state === 'detached') {
+          expect(child.model).to.equal(previous[0]);
+          child.destroy();
+        }
+
+        view.render();
+        expect(view.children).to.have.lengthOf(2);
+        expect(view.children.findByModel(current[0]).model).to.equal(current[0]);
+        expect(view.el.textContent).to.equal('updated oneupdated two');
+        view.destroy();
+      });
+    });
   });
 
   it('recreates a same-key replacement even when its child is filtered out', function() {

@@ -500,13 +500,13 @@ Object.assign(CollectionView.prototype, ViewMixin, {
   _onCollectionUpdate(this: CollectionViewInternals, changes: Update) {
     if (this._isDestroying || this._isDestroyed) { return; }
 
-    const updateEntries = changes.updated.map(({ key, previous, current }) => {
+    const updateEntries = [];
+    for (const { key, previous, current } of changes.updated) {
       const view = this._children.findByKey(key);
-      if (!view) {
-        throwCollectionProtocolError(`No child View exists for updated key "${ String(key) }".`);
+      if (view) {
+        updateEntries.push({ current, previous, view });
       }
-      return { current, previous, view };
-    });
+    }
     const replacementViews = updateEntries
       .filter(({ current, previous }) => current !== previous)
       .map(({ current }) => this._createChildView(current));
