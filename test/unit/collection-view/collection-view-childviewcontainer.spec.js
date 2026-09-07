@@ -34,6 +34,73 @@ describe('CollectionView - childViewContainer', function() {
   });
 
   describe('when childViewContainer is defined', function() {
+    [
+      { name: 'nested container', childViewContainer: '#foo', label: '' },
+      { name: 'root container', label: '' },
+      { name: 'nested container with text', childViewContainer: '#foo', label: 'Keep' },
+      { name: 'nested container with whitespace', childViewContainer: '#foo', label: '\n' },
+      { name: 'nested container with a nonbreaking space', childViewContainer: '#foo', label: '&nbsp;' },
+      { name: 'nested container with a comment', childViewContainer: '#foo', label: '<!-- keep -->' }
+    ].forEach(({ name, childViewContainer, label }) => {
+      it(`preserves the template around a ${name} when resetting without monitoring`, function() {
+        const UnmonitoredList = MyCollectionView.extend({ monitorViewEvents: false });
+        const myCollectionView = new UnmonitoredList({
+          collection,
+          template: () => `<input value="original"><ul id="foo">${label}</ul>`,
+          childViewContainer
+        }).render();
+        const input = myCollectionView.el.querySelector('input');
+        const list = myCollectionView.el.querySelector('#foo');
+        const labelNode = label && list.firstChild;
+        const container = myCollectionView.container;
+        const previousChildren = myCollectionView.children.toArray();
+        const detachContents = this.sinon.spy(myCollectionView.Dom, 'detachContents');
+        input.value = 'edited';
+
+        collection.reset([{ foo: 'after' }]);
+
+        expect(myCollectionView.el.querySelector('input')).to.equal(input);
+        expect(input.value).to.equal('edited');
+        expect(myCollectionView.el.querySelector('#foo')).to.equal(list);
+        expect(myCollectionView.children.first().el.parentNode).to.equal(container);
+        expect(myCollectionView.children.first().el.textContent).to.equal('after');
+        if (label.trim()) { expect(list.firstChild).to.equal(labelNode); }
+        expect(previousChildren.every(view => view.isDestroyed())).to.be.true;
+        if (childViewContainer && !label.trim()) {
+          expect(detachContents).to.have.been.calledOnceWithExactly(container);
+        }
+        if (label && !label.trim()) { expect(labelNode.parentNode).to.be.null; }
+
+        collection.reset([]);
+        expect(myCollectionView.el.querySelector('input')).to.equal(input);
+        expect(myCollectionView.el.querySelector('#foo')).to.equal(list);
+        expect(myCollectionView.children.length).to.equal(0);
+        if (label.trim()) { expect(list.firstChild).to.equal(labelNode); }
+        myCollectionView.destroy();
+      });
+    });
+
+    it('preserves unmanaged content when children are mounted by custom attachHtml', function() {
+      const external = document.createElement('section');
+      const UnmonitoredList = MyCollectionView.extend({
+        monitorViewEvents: false,
+        template: () => '<button>Keep</button>',
+        attachHtml(els) { external.append(els); }
+      });
+      collection.reset([{ foo: 'before' }]);
+      const myCollectionView = new UnmonitoredList({ collection }).render();
+      const button = myCollectionView.el.firstChild;
+      const previous = myCollectionView.children.first();
+
+      collection.reset([{ foo: 'after' }]);
+
+      expect(myCollectionView.el.firstChild).to.equal(button);
+      expect(external.textContent).to.equal('after');
+      expect(previous.isDestroyed()).to.be.true;
+      myCollectionView.destroy();
+      expect(external.childNodes.length).to.equal(0);
+    });
+
     describe('when a selector within the el', function() {
       it('should should put the children within the found container', function() {
         const myCollectionView = new MyCollectionView({
