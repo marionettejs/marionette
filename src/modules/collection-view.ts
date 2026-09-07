@@ -906,10 +906,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
 
       const documentEl = this.container.ownerDocument;
       const activeElement = documentEl.activeElement as HTMLInputElement | null;
-      const shouldRestoreFocus = activeElement && views.some(view =>
-        view.el === activeElement || view.el.contains(activeElement)
-      );
-      const selection = shouldRestoreFocus &&
+      const selection = activeElement &&
         typeof activeElement.selectionStart === 'number' && {
         end: activeElement.selectionEnd,
         start: activeElement.selectionStart,
@@ -938,8 +935,9 @@ Object.assign(CollectionView.prototype, ViewMixin, {
         }
       }
 
-      if (shouldRestoreFocus && activeElement.isConnected &&
-          documentEl.activeElement !== activeElement) {
+      // Search the children only when rendering actually lost focus.
+      if (activeElement && activeElement.isConnected && documentEl.activeElement !== activeElement &&
+          views.some(view => view.el.contains(activeElement))) {
         activeElement.focus({ preventScroll: true });
         if (selection) {
           activeElement.setSelectionRange(selection.start, selection.end,

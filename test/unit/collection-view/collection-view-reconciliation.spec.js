@@ -876,6 +876,30 @@ describe('CollectionView normalized reconciliation', function() {
     }
   });
 
+  it('lets an attaching child receive focus from outside the collection', function() {
+    const input = document.createElement('input');
+    const el = document.createElement('div');
+    document.body.append(input, el);
+    const FocusChild = ChildView.extend({
+      template: () => '<button>Focus me</button>',
+      onAttach() { this.el.firstChild.focus(); }
+    });
+    const source = { models: [] };
+    const view = new ListView({ collection: source, childView: FocusChild });
+    const region = new Region({ el });
+    region.show(view);
+    input.focus();
+
+    const model = { id: 1 };
+    source.models.push(model);
+    source.notify({ kind: 'update', added: [model], removed: [], updated: [] });
+
+    expect(document.activeElement).to.equal(view.children.first().el.firstChild);
+    region.destroy();
+    el.remove();
+    input.remove();
+  });
+
   it('ignores stale observer callbacks after destruction', function() {
     const source = { models: [{ id: 1, name: 'one' }] };
     let staleNotify;
