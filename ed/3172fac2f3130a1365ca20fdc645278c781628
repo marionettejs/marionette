@@ -1,0 +1,54 @@
+test/release/cli.test.mjs
+  s_e9ec88924dcd73::t_bb9fc6b0ea4a21 1-151
+scripts/release/packages.mjs
+  s_e9ec88924dcd73::t_c5d4211ef1f7bb 1-22
+scripts/release/validate-candidate.mjs
+  s_e9ec88924dcd73::t_a4e723e59a4841 1-135
+  s_e9ec88924dcd73::t_c4642b7025234b 136-138
+scripts/release/validation.mjs
+  s_e9ec88924dcd73::t_a4e723e59a4841 1-116
+scripts/release/arguments.mjs
+  s_e9ec88924dcd73::t_c5d4211ef1f7bb 1-14
+config/tooling-coverage.json
+  s_e9ec88924dcd73::t_27b80fd96eb8a0 1-26
+scripts/release/build-artifact.mjs
+  s_e9ec88924dcd73::t_a432483a973043 6-7,10-15,28-29,59,78-80,89,107
+scripts/release/check-targets.mjs
+  s_e9ec88924dcd73::t_7eadb1745fcec2 5-6,10-13,36,41,46-48,54-59
+scripts/release/publish-github.mjs
+  s_e9ec88924dcd73::t_89af87fbabe34f 8-10,14-17,45,50,57,102-112
+scripts/release/verify-artifact.mjs
+  s_e9ec88924dcd73::t_c329311ab42ec8 6-8,11-16,61,80,164-165,176-180
+test/release/build.test.mjs
+  s_e9ec88924dcd73::t_b163e754a5ee30 1-147
+test/release/candidate.test.mjs
+  s_e9ec88924dcd73::t_dcf1ac30a1b8a6 1-117
+test/release/fake-external.mjs
+  s_e9ec88924dcd73::t_9d9d9a3747536e 1-72
+test/release/fake-processes.mjs
+  s_e9ec88924dcd73::t_a24f48e5dafb61 1-17
+test/release/fixture.mjs
+  s_e9ec88924dcd73::t_c3e4c11f705980 1-158
+test/release/promotion.test.mjs
+  s_e9ec88924dcd73::t_89fb4326f364d5 2,4-29,31-40,42-49,51-67,71-90,93-111,113,115-127,130-137,139-142,144,146,149-159,162-173,175,177-190,193-202
+test/tooling/coverage-fixture.mjs
+  s_e9ec88924dcd73::t_f733f710a762f4 1-39
+test/tooling/coverage-fixture.test.mjs
+  s_e9ec88924dcd73::t_d072e57ed80fde 1-41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "ed3172fac2f3130a1365ca20fdc645278c781628",
+  "prompts": {},
+  "sessions": {
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
