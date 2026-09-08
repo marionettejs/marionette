@@ -1,0 +1,100 @@
+docs-site/README.md
+  s_bc19ab09821624::t_f50fc7625dcce6 88
+  s_bc19ab09821624::t_8f5618424b558b 22-25,42-44
+  s_bc19ab09821624::t_23c424c0f1b40a 3-21,26-41,45-87,89-144
+test/docs/export.test.mjs
+  s_bc19ab09821624::t_34d9258fe87759 61-62,68-70
+  s_bc19ab09821624::t_5d4a7afc19f6ca 1,5,7-17,45-50,57-60,63-67,71-72
+  s_bc19ab09821624::t_f1ba555760af26 2-4,6,18-44,51-56
+scripts/docs/export.mjs
+  s_bc19ab09821624::t_a1a41ee3930553 1-2,5-10,14-16,30-39,66-70,75,77,79-80,83-90,92,94-99,105-117
+  s_bc19ab09821624::t_34d9258fe87759 82,91,93,100-104
+  s_bc19ab09821624::t_0abdf361c2041e 17
+  s_bc19ab09821624::t_4de2e5aa7dbcf9 3-4,40-65,71-74,78,81
+  s_bc19ab09821624::t_42944d39a52509 11-13,18-29,76
+scripts/docs/build.mjs
+  s_bc19ab09821624::t_b6819d70ddd32d 2-3,16,121,123
+  s_bc19ab09821624::t_12fa4931e4ab8e 226,229
+  s_bc19ab09821624::t_5289d0e20b94c6 17,122,157-159,174
+docs-site/resources.json
+  s_bc19ab09821624::t_4de2e5aa7dbcf9 1-30
+test/fixtures/docs-package/validate.mjs
+  s_bc19ab09821624::t_8f5618424b558b 1-53
+.gitignore
+  s_bc19ab09821624::t_42944d39a52509 23,34-36
+scripts/docs/package.mjs
+  s_bc19ab09821624::t_f0e6dd57f33471 34-35,37
+  s_bc19ab09821624::t_34d9258fe87759 11,15
+  s_bc19ab09821624::t_4de2e5aa7dbcf9 10,36,38
+  s_bc19ab09821624::t_5d4a7afc19f6ca 12-14,16-33,39
+  s_bc19ab09821624::t_437acb93d61c60 1-9
+eslint.config.mjs
+  s_bc19ab09821624::t_8e3a87d6b4b477 24-25
+  s_bc19ab09821624::t_df19f77d50917b 26-27
+.github/workflows/ci.yml
+  s_bc19ab09821624::t_6f3d75b1ec9fe0 67-69
+benchmarks/docs/README.md
+  s_bc19ab09821624::t_056c88fef1d477 1-64
+benchmarks/docs/acceptance/run.mjs
+  s_bc19ab09821624::t_1959e86bbd5f42 1-106
+benchmarks/docs/prepare.mjs
+  s_bc19ab09821624::t_56e16b6a3713e1 1-39
+benchmarks/docs/results/2026-09-08/README.md
+  s_bc19ab09821624::t_f5a2ed1d735d31 1-34
+benchmarks/docs/results/2026-09-08/editable-list/REPORT.md
+  s_bc19ab09821624::t_b523525e0f6e55 1-51
+benchmarks/docs/results/2026-09-08/editable-list/solution.mjs
+  s_bc19ab09821624::t_dd565850af45fc 1-47
+benchmarks/docs/results/2026-09-08/editable-list/validate.mjs
+  s_bc19ab09821624::t_77d5ab1f580475 1-74
+benchmarks/docs/results/2026-09-08/latest-navigation/REPORT.md
+  s_bc19ab09821624::t_645ac7a494ce3e 1-36
+benchmarks/docs/results/2026-09-08/latest-navigation/smoke.test.mjs
+  s_bc19ab09821624::t_5cc5ee3dfb9c43 1-79
+benchmarks/docs/results/2026-09-08/latest-navigation/solution.mjs
+  s_bc19ab09821624::t_420a7c1a7a504c 1-49
+benchmarks/docs/results/2026-09-08/provenance.json
+  s_bc19ab09821624::t_df2c51708191f9 1-12
+benchmarks/docs/results/2026-09-08/widget-lifetime/REPORT.md
+  s_bc19ab09821624::t_0be54496d74826 1-44
+benchmarks/docs/results/2026-09-08/widget-lifetime/solution.mjs
+  s_bc19ab09821624::t_a9a2f0c36ba233 1-21
+benchmarks/docs/results/2026-09-08/widget-lifetime/validate.mjs
+  s_bc19ab09821624::t_11892dc8992555 1-56
+benchmarks/docs/tasks/editable-list.md
+  s_bc19ab09821624::t_94ef2f1d900254 1-26
+benchmarks/docs/tasks/latest-navigation.md
+  s_bc19ab09821624::t_f68b519eef32ee 1-24
+benchmarks/docs/tasks/widget-lifetime.md
+  s_bc19ab09821624::t_37dc5cc7ecbc04 1-19
+context7.json
+  s_bc19ab09821624::t_346dd5c3340134 1-41
+docs-site/navigation.json
+  s_bc19ab09821624::t_37c8bb0262f2f1 4-6,10-12,15-30,34-36,39-42,45-144,148-162,166-234,238-240,243-258,262-264,268-366
+package.json
+  s_bc19ab09821624::t_3119cc5bf1de91 54,64,78,91-94
+skills/marionette/SKILL.md
+  s_bc19ab09821624::t_a8c31f43e736d3 1-79
+skills/marionette/scripts/docs.mjs
+  s_bc19ab09821624::t_4d94ea629526ec 1-106
+test/agent-docs/lookup.test.mjs
+  s_bc19ab09821624::t_b31c531d335b3e 1-128
+test/fixtures/docs-package/package.json
+  s_bc19ab09821624::t_79cc9870bb0772 1-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "23c44c60904a7bb9bfce9797e4849e38b7786b99",
+  "prompts": {},
+  "sessions": {
+    "s_bc19ab09821624": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e7-cb4f-73e3-b41e-328bfeae0db2",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
