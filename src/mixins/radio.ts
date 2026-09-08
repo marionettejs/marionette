@@ -1,8 +1,8 @@
-import { Radio } from '@marionette/radio';
-import { getValue } from '@marionette/utils';
-import type { Channel, RadioApi } from '@marionette/radio';
-import type { EventsContract as Events } from '@marionette/utils';
-import type { bindEvents, bindRequests } from '@marionette/utils';
+import { Radio } from '@mnjs/radio';
+import { getValue } from '@mnjs/utils';
+import type { Channel, RadioApi } from '@mnjs/radio';
+import type { EventsContract as Events } from '@mnjs/utils';
+import type { bindEvents, bindRequests } from '@mnjs/utils';
 
 export interface RadioHost extends Pick<Events, 'listenTo' | 'stopListening'> {
   Radio: RadioApi;

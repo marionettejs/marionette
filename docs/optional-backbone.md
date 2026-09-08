@@ -7,11 +7,11 @@ not import Backbone. Backbone models and collections are observable sources;
 arrays use the default [Data API](./data.api.md) as static data.
 
 ```sh
-npm install @marionette/adapters backbone
+npm install @mnjs/adapters@5.0.0-beta.1 backbone
 ```
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import { setDataApi } from 'marionette';
 
 setDataApi(BackboneApi);
@@ -21,7 +21,7 @@ If a Marionette owner also uses a Backbone source for `state` or `createState()`
 select the StateApi role separately:
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import { setStateApi } from 'marionette';
 
 setStateApi(BackboneApi);
@@ -85,7 +85,7 @@ constructors, prototypes, or event stores, and it does not add `triggerMethod`.
 Listeners registered before adapter configuration continue to work afterward:
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import Backbone from 'backbone';
 import { setDataApi } from 'marionette';
 

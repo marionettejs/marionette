@@ -1,4 +1,4 @@
-import { MarionetteError } from '@marionette/utils';
+import { MarionetteError } from '@mnjs/utils';
 
 const error = new MarionetteError({ message: 'example', code: 'MN0001' });
 const inherited = new MarionetteError(Object.create({ code: 'MN0001' }));

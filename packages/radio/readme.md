@@ -1,13 +1,13 @@
-# @marionette/radio
+# @mnjs/radio
 
 Named channels for events and request/reply, usable without Marionette core or a DOM.
 
 ```sh
-npm install @marionette/radio
+npm install @mnjs/radio@5.0.0-beta.1
 ```
 
 ```js
-import { Radio, createRadio } from '@marionette/radio';
+import { Radio, createRadio } from '@mnjs/radio';
 
 const channel = Radio.channel('app');
 channel.reply('title', () => 'Hello');
@@ -24,7 +24,7 @@ module format and package installation, either import reaches the same channels.
 runtime also owns its own Radio instance; use that runtime's `Radio` when binding
 its objects and applications.
 
-The package depends on `@marionette/utils`, which supplies Events and shared
+The package depends on `@mnjs/utils`, which supplies Events and shared
 helpers. It does not depend on core. ESM and CommonJS exports include `Radio`,
 `createRadio`, `Channel`, `Requests`, and their public types. ESM and CommonJS each have
 their own default instance; do not mix the two formats to share a channel registry.
@@ -34,7 +34,7 @@ Radio, utils, data, adapters, and core are versioned and released together.
 ## Standalone messaging
 
 ```js
-import { Channel, Requests } from '@marionette/radio';
+import { Channel, Requests } from '@mnjs/radio';
 
 const local = new Channel('editor');
 local.on('save', () => console.log('Saved'));

@@ -1,6 +1,6 @@
-import { Events, type EventSource } from '@marionette/utils';
-import { Radio, createRadio, Channel, Requests } from '@marionette/radio';
-import { Model, Collection } from '@marionette/data';
+import { Events, type EventSource } from '@mnjs/utils';
+import { Radio, createRadio, Channel, Requests } from '@mnjs/radio';
+import { Model, Collection } from '@mnjs/data';
 
 const model = new Model({ name: 'first' });
 const source: EventSource = model;

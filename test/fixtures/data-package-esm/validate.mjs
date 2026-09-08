@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createMarionette } from 'marionette';
-import { Collection, DataApi, Model, StateApi, triggerMethod } from '@marionette/data';
+import { Collection, DataApi, Model, StateApi, triggerMethod } from '@mnjs/data';
 
 const runtime = createMarionette();
 runtime.setDataApi(DataApi);

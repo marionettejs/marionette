@@ -1,5 +1,5 @@
-import type { Bindings } from '@marionette/utils';
-import { getValue } from '@marionette/utils';
+import type { Bindings } from '@mnjs/utils';
+import { getValue } from '@mnjs/utils';
 import StateApi from '../runtime/state-api.ts';
 import type { StateApi as StateProvider } from '../runtime/state-api.ts';
 import subscribeBindings from '../utils/subscribe-bindings.ts';

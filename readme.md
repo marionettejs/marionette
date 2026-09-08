@@ -43,7 +43,7 @@ in the [project roadmap](ROADMAP.md) pass.
 ## Install
 
 ```sh
-npm install marionette
+npm install marionette@5.0.0-beta.1
 ```
 
 Add the mount element to the page:
@@ -68,7 +68,7 @@ new GreetingView().render();
 Marionette core has no required peer dependencies. Install optional peers only when
 the application uses their corresponding integration:
 
-- [Observable Model and Collection sources](docs/data.api.md#optional-marionettedata-sources)
+- [Observable Model and Collection sources](docs/data.api.md#optional-mnjsdata-sources)
 - [Backbone data and event integration](docs/optional-backbone.md)
 - [jQuery DOM adapter](docs/installation.md#jquery-dom-adapter-is-optional)
 

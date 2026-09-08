@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { setProperty } from '@marionette/utils';
+import { setProperty } from '@mnjs/utils';
 
 describe('setProperty', function() {
   it('defines __proto__ without changing the target prototype', function() {

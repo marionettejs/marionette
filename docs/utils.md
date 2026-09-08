@@ -7,7 +7,7 @@ framework instance. Common framework conventions such as `bindEvents`, `getOptio
 
 The v4 target-first exports also adapted these conventions to arbitrary plain
 objects. That adapter is not part of v5. Import reusable helpers from
-[`@marionette/utils`](./common.md#shared-helpers) when a plain component needs them;
+[`@mnjs/utils`](./common.md#shared-helpers) when a plain component needs them;
 extend `MnObject` when it needs Marionette's initialization and cleanup lifecycle.
 Do not borrow a framework prototype solely to obtain a helper.
 

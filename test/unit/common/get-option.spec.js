@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getOption } from '@marionette/utils';
+import { getOption } from '@mnjs/utils';
 
 describe('get option', function() {
   describe('when calling without arguments', function() {

@@ -2,7 +2,7 @@ import { vi, describe, it, expect } from 'vitest';
 'use strict';
 
 import { Application } from 'marionette';
-import { Radio } from '@marionette/radio';
+import { Radio } from '@mnjs/radio';
 
 function defer() {
   let resolve;

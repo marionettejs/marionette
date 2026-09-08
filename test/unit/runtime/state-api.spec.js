@@ -1,7 +1,7 @@
 import { vi, describe, it, expect } from 'vitest';
 import { StateApi } from 'marionette';
 import { MnObject } from 'marionette';
-import { MarionetteError } from '@marionette/utils';
+import { MarionetteError } from '@mnjs/utils';
 
 describe('StateApi', function() {
   it('diagnoses observation with the non-observable plain-object default', function() {

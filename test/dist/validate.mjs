@@ -116,13 +116,13 @@ async function validateBrowserGlobal(file) {
 }
 
 async function validate() {
-  const radioRoot = resolve(require.resolve('@marionette/radio/package.json'), '..');
-  const utilsRoot = resolve(require.resolve('@marionette/utils/package.json'), '..');
+  const radioRoot = resolve(require.resolve('@mnjs/radio/package.json'), '..');
+  const utilsRoot = resolve(require.resolve('@mnjs/utils/package.json'), '..');
   const entrypoints = [
-    ['CommonJS', require('marionette'), require('@marionette/utils'), require('@marionette/radio')],
+    ['CommonJS', require('marionette'), require('@mnjs/utils'), require('@mnjs/radio')],
     ['ES module', await import(pathToFileURL(resolve(packageRoot, packageJson.exports['.'].import.default))),
-      await import(pathToFileURL(resolve(utilsRoot, require('@marionette/utils/package.json').exports['.'].import.default))),
-      await import(pathToFileURL(resolve(radioRoot, require('@marionette/radio/package.json').exports['.'].import.default)))],
+      await import(pathToFileURL(resolve(utilsRoot, require('@mnjs/utils/package.json').exports['.'].import.default))),
+      await import(pathToFileURL(resolve(radioRoot, require('@mnjs/radio/package.json').exports['.'].import.default)))],
   ];
 
   for (const [name, Marionette, utils, radio] of entrypoints) {

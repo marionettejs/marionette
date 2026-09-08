@@ -3,13 +3,13 @@ import Collection from './collection.ts';
 
 import type { ModelInstance as ModelType } from './model.ts';
 import type { CollectionInstance as CollectionType, CollectionChange } from './collection.ts';
-import type { EventSource as Source, EventCallback } from '@marionette/utils';
+import type { EventSource as Source, EventCallback } from '@mnjs/utils';
 
 function subscribe(source: Source, events: Record<string, EventCallback>, context?: unknown): () => void;
 function subscribe(source: Source, eventName: string, callback: EventCallback, context?: unknown): () => void;
 function subscribe(source: Source, eventName: string | Record<string, EventCallback>, callback?: unknown, context?: unknown): () => void {
   if (typeof source?.on !== 'function' || typeof source?.off !== 'function') {
-    throw new TypeError('@marionette/data can subscribe only to sources with on() and off().');
+    throw new TypeError('@mnjs/data can subscribe only to sources with on() and off().');
   }
   let subscribed = true;
   source.on(eventName as string, callback as (...args: unknown[]) => unknown, context);
@@ -47,7 +47,7 @@ export const DataApi = {
 
   models<M extends ModelType>(collection: CollectionType<M>): M[] {
     if (!(collection instanceof Collection)) {
-      throw new TypeError('@marionette/data DataApi.models() requires a Collection.');
+      throw new TypeError('@mnjs/data DataApi.models() requires a Collection.');
     }
     return collection.models.slice();
   },

@@ -1,7 +1,7 @@
-import { Events, extend } from '@marionette/utils';
+import { Events, extend } from '@mnjs/utils';
 import Model from './model.ts';
 
-import type { EventMethods as EventSource, Merge, Constructed, CallableParent } from '@marionette/utils';
+import type { EventMethods as EventSource, Merge, Constructed, CallableParent } from '@mnjs/utils';
 import type { ModelInstance as ModelType, ModelAttributes, MutationOptions } from './model.ts';
 
 type CollectionExtend<Base extends ModelType, Props extends object, Statics extends object> = {
@@ -129,7 +129,7 @@ function assertUniqueModels(models: ModelType[]) {
 
   for (const model of models) {
     if (knownModels.has(model) || model.id != null && knownIds.has(model.id)) {
-      throw new TypeError('@marionette/data Collection models must have unique instances and ids.');
+      throw new TypeError('@mnjs/data Collection models must have unique instances and ids.');
     }
     knownModels.add(model);
     if (model.id != null) { knownIds.add(model.id); }
@@ -310,7 +310,7 @@ Object.assign(Collection.prototype, Events, {
     const currentModel = this.get(model);
     if (!currentModel || this._isDestroyed) { return undefined; }
     if (!Number.isInteger(index)) {
-      throw new TypeError('@marionette/data Collection.move() requires an integer index.');
+      throw new TypeError('@mnjs/data Collection.move() requires an integer index.');
     }
     const previousIndex = this.models.indexOf(currentModel);
     const nextIndex = Math.max(0, Math.min(index, this.models.length - 1));

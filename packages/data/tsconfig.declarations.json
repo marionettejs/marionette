@@ -8,7 +8,7 @@
     "outDir": "dist/types/esm",
     "noEmitOnError": true,
     "paths": {
-      "@marionette/utils": [
+      "@mnjs/utils": [
         "../utils/dist/types/esm/index.d.ts"
       ]
     }

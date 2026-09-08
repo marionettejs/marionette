@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { Behavior, View } from 'marionette';
-import { Events } from '@marionette/utils';
+import { Events } from '@mnjs/utils';
 
 describe('View-owned Behaviors', () => {
   it.each(['class', 'definition', 'map'])('constructs the %s declaration with options and its host', kind => {

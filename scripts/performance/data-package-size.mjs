@@ -40,21 +40,21 @@ const externalImports = [...new Set(generated.output
 const internalModules = bundle.watchFiles.map(path => resolve(path));
 await bundle.close();
 
-if (JSON.stringify(externalImports) !== JSON.stringify(['@marionette/utils'])) {
-  throw new Error(`@marionette/data external imports changed: ${externalImports.join(', ') || 'none'}.`);
+if (JSON.stringify(externalImports) !== JSON.stringify(['@mnjs/utils'])) {
+  throw new Error(`@mnjs/data external imports changed: ${externalImports.join(', ') || 'none'}.`);
 }
 const foreignModules = internalModules.filter(path => {
   const sourcePath = relative(sourceRoot, path);
   return sourcePath.startsWith('..') || isAbsolute(sourcePath);
 });
 if (foreignModules.length) {
-  throw new Error(`@marionette/data bundled modules outside its source root: ${foreignModules
+  throw new Error(`@mnjs/data bundled modules outside its source root: ${foreignModules
     .map(path => relative(root, path)).join(', ')}.`);
 }
 
 for (const artifact of measured) {
   console.log(`${artifact.name}: ${formatBytes(artifact.size)}`);
 }
-console.log(`Cumulative @marionette/data: ${formatBytes(measured
+console.log(`Cumulative @mnjs/data: ${formatBytes(measured
   .reduce((total, artifact) => total + artifact.size, 0))}`);
-console.log(`@marionette/data: ${internalModules.length} internal modules, ${externalImports.length} external imports`);
+console.log(`@mnjs/data: ${internalModules.length} internal modules, ${externalImports.length} external imports`);

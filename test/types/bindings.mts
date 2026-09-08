@@ -1,7 +1,7 @@
 import { MnObject } from 'marionette';
-import { normalizeMethods, bindEvents, unbindEvents, bindRequests, unbindRequests } from '@marionette/utils';
-import type { Requests } from '@marionette/radio';
-import type { EventMap, EventSource } from '@marionette/utils';
+import { normalizeMethods, bindEvents, unbindEvents, bindRequests, unbindRequests } from '@mnjs/utils';
+import type { Requests } from '@mnjs/radio';
+import type { EventMap, EventSource } from '@mnjs/utils';
 
 const source = new MnObject();
 const listener = {

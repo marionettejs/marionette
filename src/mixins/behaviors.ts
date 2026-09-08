@@ -1,4 +1,4 @@
-import { getValue } from '@marionette/utils';
+import { getValue } from '@mnjs/utils';
 import type { TriggerTarget } from './view-events.ts';
 
 export interface BehaviorInstance {

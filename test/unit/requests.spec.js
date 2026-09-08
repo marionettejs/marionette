@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { Requests as Requests } from '@marionette/radio';
-import { Radio } from '@marionette/radio';
+import { Requests as Requests } from '@mnjs/radio';
+import { Radio } from '@mnjs/radio';
 const setDebug = Radio.setDebug;
 
 describe('Requests', function() {

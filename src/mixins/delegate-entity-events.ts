@@ -1,5 +1,5 @@
-import type { Bindings } from '@marionette/utils';
-import { getValue } from '@marionette/utils';
+import type { Bindings } from '@mnjs/utils';
+import { getValue } from '@mnjs/utils';
 import subscribeBindings from '../utils/subscribe-bindings.ts';
 
 import type { SubscriptionApi } from '../utils/subscribe-bindings.ts';

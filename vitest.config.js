@@ -40,22 +40,22 @@ for (const file of sourceFiles) {
 export default defineConfig({
   resolve: {
     alias: [{
-      find: /^@marionette\/data$/,
+      find: /^@mnjs\/data$/,
       replacement: fileURLToPath(new URL('./packages/data/src/index.ts', import.meta.url))
     }, {
-      find: /^@marionette\/adapters\/xstate$/,
+      find: /^@mnjs\/adapters\/xstate$/,
       replacement: fileURLToPath(new URL('./packages/adapters/src/data/xstate.ts', import.meta.url))
     }, {
-      find: /^@marionette\/adapters\/backbone$/,
+      find: /^@mnjs\/adapters\/backbone$/,
       replacement: fileURLToPath(new URL('./packages/adapters/src/data/backbone.ts', import.meta.url))
     }, {
-      find: /^@marionette\/adapters\/dom\/(morphdom|lit-html|jquery)$/,
+      find: /^@mnjs\/adapters\/dom\/(morphdom|lit-html|jquery)$/,
       replacement: fileURLToPath(new URL('./packages/adapters/src/dom/$1.ts', import.meta.url))
     }, {
-      find: /^@marionette\/radio$/,
+      find: /^@mnjs\/radio$/,
       replacement: fileURLToPath(new URL('./packages/radio/src/index.ts', import.meta.url))
     }, {
-      find: /^@marionette\/utils$/,
+      find: /^@mnjs\/utils$/,
       replacement: fileURLToPath(new URL('./packages/utils/src/index.ts', import.meta.url))
     }, {
       find: /^marionette$/,

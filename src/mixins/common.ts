@@ -7,9 +7,9 @@ import {
   unbindEvents,
   bindRequests,
   unbindRequests
-} from '@marionette/utils';
-import { Events as EventsMixin } from '@marionette/utils';
-import type { EventsContract as Events } from '@marionette/utils';
+} from '@mnjs/utils';
+import { Events as EventsMixin } from '@mnjs/utils';
+import type { EventsContract as Events } from '@mnjs/utils';
 
 interface OptionsTarget {
   options?: unknown;

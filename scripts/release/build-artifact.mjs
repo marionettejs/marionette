@@ -5,6 +5,7 @@ import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import process from 'node:process';
 import { readArguments } from './arguments.mjs';
 import { releasePackages } from './packages.mjs';
+import { publicationEnabled } from './publication.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 const args = readArguments({
@@ -90,6 +91,8 @@ if (requestedSourceCommit && requestedSourceCommit !== sourceCommit) {
 const packageJson = await readJson('package.json');
 const releaseProfile = await readJson('config/release-profile.json');
 const promotionPolicy = await readJson('config/release-promotion.json');
+// Validate authorization shape even when building a disabled dry-run candidate.
+publicationEnabled(promotionPolicy, packageJson.version);
 if (repository !== promotionPolicy.repository) {
   throw new Error(`Repository ${repository} does not match ${promotionPolicy.repository}.`);
 }
@@ -112,11 +115,11 @@ for (const configuration of releasePackages) {
   if (manifest.version !== packageJson.version) {
     throw new Error(`${manifest.name} version ${manifest.version} does not match ${packageJson.version}.`);
   }
-  if (['radio', 'core', 'data'].includes(configuration.id) && manifest.dependencies?.['@marionette/utils'] !== packageJson.version) {
-    throw new Error(`${manifest.name} utils dependency ${manifest.dependencies?.['@marionette/utils'] || 'missing'} does not match ${packageJson.version}.`);
+  if (['radio', 'core', 'data'].includes(configuration.id) && manifest.dependencies?.['@mnjs/utils'] !== packageJson.version) {
+    throw new Error(`${manifest.name} utils dependency ${manifest.dependencies?.['@mnjs/utils'] || 'missing'} does not match ${packageJson.version}.`);
   }
-  if (configuration.id === 'core' && manifest.dependencies?.['@marionette/radio'] !== packageJson.version) {
-    throw new Error(`Core Radio dependency ${manifest.dependencies?.['@marionette/radio'] || 'missing'} does not match ${packageJson.version}.`);
+  if (configuration.id === 'core' && manifest.dependencies?.['@mnjs/radio'] !== packageJson.version) {
+    throw new Error(`Core Radio dependency ${manifest.dependencies?.['@mnjs/radio'] || 'missing'} does not match ${packageJson.version}.`);
   }
   if (configuration.id === 'adapters' && manifest.peerDependencies?.marionette !== packageJson.version) {
     throw new Error(`${manifest.name} Marionette peer ${manifest.peerDependencies?.marionette || 'missing'} does not match ${packageJson.version}.`);
@@ -189,7 +192,7 @@ if (finalRepositoryStatus) {
 const prerelease = packageJson.version.includes('-');
 const npmTag = prerelease ? promotionPolicy.npm.prereleaseTag : promotionPolicy.npm.stableTag;
 const evidence = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   packages,
   release: {
     tag: `v${packageJson.version}`,
@@ -214,7 +217,7 @@ const evidence = {
   promotionPolicy: {
     revision: run('git', ['rev-parse', `${sourceCommit}:config/release-promotion.json`]),
     sha512: sha512(promotionPolicyBytes),
-    publicationEnabled: promotionPolicy.publicationEnabled,
+    publication: promotionPolicy.publication,
   },
   reports: {
     bundle: {

@@ -1,6 +1,6 @@
-import { Events, extend, setProperty } from '@marionette/utils';
+import { Events, extend, setProperty } from '@mnjs/utils';
 
-import type { EventMethods as EventSource, Merge, Constructed, CallableParent } from '@marionette/utils';
+import type { EventMethods as EventSource, Merge, Constructed, CallableParent } from '@mnjs/utils';
 
 export type ModelAttributes = Record<string, unknown>;
 export interface MutationOptions {

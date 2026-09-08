@@ -50,17 +50,17 @@ for third-party widgets so ownership and cleanup remain explicit.
 
 | Import | Public surface | Reference |
 | --- | --- | --- |
-| `@marionette/data` | `Model`, `Collection`, `DataApi`, `StateApi`, `triggerMethod` | [Native observable data](../packages/data/readme.md) |
-| `@marionette/radio` | `Radio`, `createRadio`, `Channel`, `Requests` | [Standalone Radio](../packages/radio/readme.md) |
-| `@marionette/utils` | Shared events, bindings, option, inheritance, and event-building helpers | [Utility exports](../packages/utils/readme.md) |
-| `@marionette/adapters/backbone` | Default Backbone data/State adapter | [Backbone integration](./optional-backbone.md) |
-| `@marionette/adapters/xstate` | Default `createXStateActorApi` factory | [XState integration](./data.api.md#xstate-actors) |
-| `@marionette/adapters/dom/jquery` | Default jQuery DomApi | [jQuery DOM](./dom.api.md#optional-jquery-adapter) |
-| `@marionette/adapters/dom/morphdom` | Default Morphdom DomApi | [DOM update adapters](./view.rendering.md#rendering-to-dom) |
-| `@marionette/adapters/dom/lit-html` | Default Lit DomApi | [DOM update adapters](./view.rendering.md#rendering-to-dom) |
+| `@mnjs/data` | `Model`, `Collection`, `DataApi`, `StateApi`, `triggerMethod` | [Native observable data](../packages/data/readme.md) |
+| `@mnjs/radio` | `Radio`, `createRadio`, `Channel`, `Requests` | [Standalone Radio](../packages/radio/readme.md) |
+| `@mnjs/utils` | Shared events, bindings, option, inheritance, and event-building helpers | [Utility exports](../packages/utils/readme.md) |
+| `@mnjs/adapters/backbone` | Default Backbone data/State adapter | [Backbone integration](./optional-backbone.md) |
+| `@mnjs/adapters/xstate` | Default `createXStateActorApi` factory | [XState integration](./data.api.md#xstate-actors) |
+| `@mnjs/adapters/dom/jquery` | Default jQuery DomApi | [jQuery DOM](./dom.api.md#optional-jquery-adapter) |
+| `@mnjs/adapters/dom/morphdom` | Default Morphdom DomApi | [DOM update adapters](./view.rendering.md#rendering-to-dom) |
+| `@mnjs/adapters/dom/lit-html` | Default Lit DomApi | [DOM update adapters](./view.rendering.md#rendering-to-dom) |
 
 Add a companion package as a direct dependency when application code imports it.
-Match Marionette package versions during alpha. Optional integrations need only
+Match Marionette package versions during prereleases. Optional integrations need only
 their selected peers; see [Choosing integrations](./choosing-integrations.md).
 
 ## TypeScript exports

@@ -44,6 +44,7 @@ export const test = base.extend({
       }
       if (entry.id === 'core') {
         assets.set('/marionette.umd.js', join(entry.directory, entry.manifest.browser));
+        assets.set('/starter.mjs', join(entry.directory, 'dist/docs/starter/workspace.mjs'));
       }
     }
     const litRoot = dirname(fileURLToPath(import.meta.resolve('lit-html')));

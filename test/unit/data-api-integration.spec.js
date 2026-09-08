@@ -2,7 +2,7 @@ import { vi, describe, it, expect } from 'vitest';
 import { DataApi } from 'marionette';
 import { CollectionView } from 'marionette';
 import { View } from 'marionette';
-import { MarionetteError } from '@marionette/utils';
+import { MarionetteError } from '@mnjs/utils';
 
 describe('plain data integration', function() {
   const PlainView = View.extend({

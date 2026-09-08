@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, afterEach } from 'vitest';
 import { Application, MnObject } from 'marionette';
-import { Radio } from '@marionette/radio';
-import { Events } from '@marionette/utils';
+import { Radio } from '@mnjs/radio';
+import { Events } from '@mnjs/utils';
 
 const ObservableSource = function(attributes = {}) {
   this.attributes = { ...attributes };

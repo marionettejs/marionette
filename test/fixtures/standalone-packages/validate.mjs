@@ -1,14 +1,14 @@
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import * as esmUtils from '@marionette/utils';
-import * as esmRadio from '@marionette/radio';
-import * as esmData from '@marionette/data';
+import * as esmUtils from '@mnjs/utils';
+import * as esmRadio from '@mnjs/radio';
+import * as esmData from '@mnjs/data';
 
 const require = createRequire(import.meta.url);
 assert.throws(() => require.resolve('marionette'), { code: 'MODULE_NOT_FOUND' });
 for (const [utils, { Radio, createRadio, Channel, Requests }, { Model, Collection, DataApi }] of [
   [esmUtils, esmRadio, esmData],
-  [require('@marionette/utils'), require('@marionette/radio'), require('@marionette/data')]
+  [require('@mnjs/utils'), require('@mnjs/radio'), require('@mnjs/data')]
 ]) {
   assert.equal(Channel, Radio.Channel);
   const privateChannel = new Channel('private');

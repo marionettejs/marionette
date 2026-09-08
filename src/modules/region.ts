@@ -1,7 +1,7 @@
 // Region
 // ------
 
-import { MarionetteError, getValue, uniqueId } from '@marionette/utils';
+import { MarionetteError, getValue, uniqueId } from '@mnjs/utils';
 import extend from '../utils/extend.ts';
 import { renderView, destroyView } from './common/view.ts';
 import CommonMixin from '../mixins/common.ts';
@@ -11,7 +11,7 @@ import { defaultRuntimeId, runtimeId } from '../runtime-id.ts';
 
 import type { DomApi as DomProvider } from '../runtime/dom-api.ts';
 import type { SupportedView } from './common/view.ts';
-import type { EventSource } from '@marionette/utils';
+import type { EventSource } from '@mnjs/utils';
 import type { Constructed, Merge, ArgumentsFor, OptionsFor, DefaultOptions } from './object.ts';
 
 export interface RegionOptions {

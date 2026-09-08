@@ -6,7 +6,7 @@ for (const name of ['unsorted', 'default collection order', 'custom comparator',
     await page.addScriptTag({ url: '/underscore.js' });
     await page.addScriptTag({ url: '/backbone.js' });
     const result = await page.evaluate(async scenarioName => {
-      const { default: BackboneApi } = await import('@marionette/adapters/backbone');
+      const { default: BackboneApi } = await import('@mnjs/adapters/backbone');
       window.Marionette.setDataApi(BackboneApi);
 
       class SurvivorElement extends HTMLElement {

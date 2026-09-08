@@ -26,10 +26,10 @@ an unreleased checkout locally.
 The v5 package name is `marionette`.
 
 ```bash
-npm install marionette
+npm install marionette@5.0.0-beta.1
 ```
 
-This installs a published registry package. Use documentation matching that
+This command becomes available after the beta is published. Use documentation matching that
 artifact. To use the current-source APIs described here, [build and pack the
 checkout](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#set-up-the-repository)
 and install the package artifacts from that same source revision. A matching
@@ -39,38 +39,38 @@ the same APIs as this checkout.
 > The v4 package name has changed. See the [upgrade guide](../upgradeGuide.md)
 > for migration guidance from earlier releases.
 
-Core and `@marionette/data` automatically install the matching `@marionette/utils`
+Core and `@mnjs/data` automatically install the matching `@mnjs/utils`
 version. Applications do not need a separate install unless they import helpers
-directly. During alpha, keep Marionette packages on the same version. See the
+directly. During prereleases, keep Marionette packages on the same version. See the
 [shared helpers](https://github.com/marionettejs/marionette/blob/master/docs/common.md#shared-helpers) for reusable component helpers.
 
 ## Peer dependencies
 
 Marionette v5 core has no peer dependencies. The separate
-`@marionette/adapters` package requires the matching Marionette version and
+`@mnjs/adapters` package requires the matching Marionette version and
 declares the integration-specific peers as optional.
 
 | Peer | Required? | When you need it |
 |---|---|---|
-| `marionette` `5.0.0-alpha.2` | Required | The matching core runtime configured with an adapter. |
-| `backbone` `^1.4.0` | Optional | Only if your app imports `@marionette/adapters/backbone`. See [Backbone is optional](#backbone-is-optional). |
-| `@types/backbone` `^1.4.23` | Optional | TypeScript declarations for `@marionette/adapters/backbone`. JavaScript consumers do not need it. |
-| `jquery` `^4.0.0` | Optional | Only if your app uses the `@marionette/adapters/dom/jquery` adapter. See [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional). |
-| `@types/jquery` `^4.0.1` | Optional | TypeScript declarations for `@marionette/adapters/dom/jquery`. JavaScript consumers do not need it. |
-| `morphdom` `^2.7.8` | Optional | Only if your app imports `@marionette/adapters/dom/morphdom`. |
-| `lit-html` `^3.3.3` | Optional | Only if your app imports `@marionette/adapters/dom/lit-html`. |
+| `marionette` `5.0.0-beta.1` | Required | The matching core runtime configured with an adapter. |
+| `backbone` `^1.4.0` | Optional | Only if your app imports `@mnjs/adapters/backbone`. See [Backbone is optional](#backbone-is-optional). |
+| `@types/backbone` `^1.4.23` | Optional | TypeScript declarations for `@mnjs/adapters/backbone`. JavaScript consumers do not need it. |
+| `jquery` `^4.0.0` | Optional | Only if your app uses the `@mnjs/adapters/dom/jquery` adapter. See [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional). |
+| `@types/jquery` `^4.0.1` | Optional | TypeScript declarations for `@mnjs/adapters/dom/jquery`. JavaScript consumers do not need it. |
+| `morphdom` `^2.7.8` | Optional | Only if your app imports `@mnjs/adapters/dom/morphdom`. |
+| `lit-html` `^3.3.3` | Optional | Only if your app imports `@mnjs/adapters/dom/lit-html`. |
 
 Optional peers are installed only when you opt into them:
 
 ```bash
 # Only if you use the Backbone integration
-npm install @marionette/adapters backbone
+npm install @mnjs/adapters@5.0.0-beta.1 backbone
 
 # Only if you use the jQuery DomApi adapter
-npm install @marionette/adapters jquery
+npm install @mnjs/adapters@5.0.0-beta.1 jquery
 
 # Only if you use XState actors
-npm install @marionette/adapters xstate
+npm install @mnjs/adapters@5.0.0-beta.1 xstate
 ```
 
 The XState actor adapter does not import or declare XState as a peer. Install
@@ -80,10 +80,10 @@ Npm does not install missing optional peers. TypeScript consumers of an optional
 subpath must install its matching type package explicitly:
 
 ```bash
-# Only if TypeScript imports @marionette/adapters/backbone
+# Only if TypeScript imports @mnjs/adapters/backbone
 npm install --save-dev @types/backbone@^1.4.23
 
-# Only if TypeScript imports @marionette/adapters/dom/jquery
+# Only if TypeScript imports @mnjs/adapters/dom/jquery
 npm install --save-dev @types/jquery@^4.0.1
 ```
 
@@ -176,18 +176,18 @@ Core's default DataApi supports plain objects and static arrays without a requir
 dependency. Backbone Models and Collections are observable sources too; retain
 them through the [Backbone adapter](./optional-backbone.md) when the application
 already uses them. For a new application needing observable Model and ordered
-Collection sources, the optional `@marionette/data` package is the native choice:
+Collection sources, the optional `@mnjs/data` package is the native choice:
 
 ```bash
-npm install @marionette/data
+npm install @mnjs/data@5.0.0-beta.1
 ```
 
 Configure its adapters before constructing owners. See the
-[`@marionette/data` guide](./data.api.md#optional-marionettedata-sources) for a
+[`@mnjs/data` guide](./data.api.md#optional-mnjsdata-sources) for a
 complete adapter setup and rendered list example.
 
 Applications using XState actors can select an ordered array of child actor
-references through `@marionette/adapters/xstate`. See
+references through `@mnjs/adapters/xstate`. See
 [XState actors](./data.api.md#xstate-actors).
 
 ## Distribution formats
@@ -216,7 +216,7 @@ or Collections to Marionette must configure the Backbone DataApi before
 constructing those consumers:
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import { setDataApi } from 'marionette';
 
 setDataApi(BackboneApi);
@@ -233,11 +233,11 @@ methods, and `view.$(selector)` returns a `NodeList`.
 
 Applications that want jQuery-shaped results from Marionette's DOM helpers —
 for example, `view.$(selector)` returning a jQuery collection — can opt into
-the optional `@marionette/adapters/dom/jquery` adapter at app boot:
+the optional `@mnjs/adapters/dom/jquery` adapter at app boot:
 
 ```javascript
 import { setDomApi } from 'marionette';
-import JQueryDomApi from '@marionette/adapters/dom/jquery';
+import JQueryDomApi from '@mnjs/adapters/dom/jquery';
 
 setDomApi(JQueryDomApi);
 ```
@@ -249,17 +249,17 @@ compatibility and the `detachContents` policy.
 
 ## DOM content adapters are optional
 
-Use the same `@marionette/adapters` package for incremental rendering. Install
+Use the same `@mnjs/adapters` package for incremental rendering. Install
 only the DOM library you select:
 
 ```bash
-npm install @marionette/adapters morphdom
+npm install @mnjs/adapters@5.0.0-beta.1 morphdom
 # or
-npm install @marionette/adapters lit-html
+npm install @mnjs/adapters@5.0.0-beta.1 lit-html
 ```
 
-Import `MorphdomDomApi` from `@marionette/adapters/dom/morphdom`, or
-`LitDomApi` from `@marionette/adapters/dom/lit-html`, and pass it to
+Import `MorphdomDomApi` from `@mnjs/adapters/dom/morphdom`, or
+`LitDomApi` from `@mnjs/adapters/dom/lit-html`, and pass it to
 `ViewClass.setDomApi()` before creating instances. Each adapter preserves unrelated
 DOM operations. Lit supplies the attachment hooks its directives need. DataApi and StateApi
 configuration remains explicit and separate.

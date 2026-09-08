@@ -22,10 +22,10 @@ helpers.
 ## Shared helpers
 
 The reusable option, binding, and event helpers are also available from
-`@marionette/utils` for components outside Marionette's classes:
+`@mnjs/utils` for components outside Marionette's classes:
 
 ```javascript
-import { getOption, normalizeMethods } from '@marionette/utils';
+import { getOption, normalizeMethods } from '@mnjs/utils';
 
 const component = {
   options: { label: 'Inbox' },
@@ -38,8 +38,8 @@ component.getOption('label'); // 'Inbox'
 component.normalizeMethods({ open: 'onOpen' });
 ```
 
-Install `@marionette/utils` directly when importing it in an application. Use the
-same version as Marionette during alpha. Core and native data depend on this
+Install `@mnjs/utils` directly when importing it in an application. Use the
+same version as Marionette during prereleases. Core and native data depend on this
 package and use the same implementations. Helpers that read `this` can be mixed
 into a component or invoked with `.call(component, ...)`.
 

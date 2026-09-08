@@ -7,7 +7,7 @@ import Backbone from 'backbone';
 import { CollectionView } from 'marionette';
 import { View } from 'marionette';
 import { Region } from 'marionette';
-import { Events } from '@marionette/utils';
+import { Events } from '@mnjs/utils';
 
 describe('CollectionView -  Empty', function() {
   let MyEmptyView;

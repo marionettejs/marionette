@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import { createRequire } from 'node:module';
 
 const requireAdapter = createRequire(new URL('../../packages/adapters/package.json', import.meta.url));
-const createXStateActorApi = requireAdapter('@marionette/adapters/xstate');
+const createXStateActorApi = requireAdapter('@mnjs/adapters/xstate');
 
 function createActorSource(models) {
   let snapshot = { context: { models } };

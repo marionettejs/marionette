@@ -44,11 +44,11 @@ check the recorded validation section for which suites ran during this pass.
 
 | Package surface | Reference | Evidence boundary |
 | --- | --- | --- |
-| `@marionette/data`: `Model`, `Collection`, `DataApi`, `StateApi`, `triggerMethod` | [Data package](../../packages/data/readme.md) | `packages/data/src/index.ts` and runtime classes; packed CJS/ESM, Vite, browser, and type fixtures under `test/fixtures/data-package-*` |
-| `@marionette/radio`: `Radio`, `createRadio`, `Channel`, `Requests` | [Radio package](../../packages/radio/readme.md), [Radio](../radio.md) | `packages/radio/src/index.ts`; public/parity/composition suites |
-| `@marionette/utils`: events, bindings, options, inheritance, property and event-building helpers | [Utilities package](../../packages/utils/readme.md), [common methods](../common.md) | `packages/utils/src/index.ts`; lower-level event-building helpers have concise package descriptions rather than a separate tutorial per helper |
-| `@marionette/adapters/backbone` | [Optional Backbone](../optional-backbone.md) | `packages/adapters/package.json`, `src/data/backbone.ts`; adapter-first and Backbone-first CJS/ESM fixtures |
-| `@marionette/adapters/xstate` | [XState DataApi](../data.api.md#xstate-actors) and [adapter package](../../packages/adapters/readme.md) | `packages/adapters/src/data/xstate.ts`; `test/unit/xstate-adapter.spec.js`, package type fixtures |
+| `@mnjs/data`: `Model`, `Collection`, `DataApi`, `StateApi`, `triggerMethod` | [Data package](../../packages/data/readme.md) | `packages/data/src/index.ts` and runtime classes; packed CJS/ESM, Vite, browser, and type fixtures under `test/fixtures/data-package-*` |
+| `@mnjs/radio`: `Radio`, `createRadio`, `Channel`, `Requests` | [Radio package](../../packages/radio/readme.md), [Radio](../radio.md) | `packages/radio/src/index.ts`; public/parity/composition suites |
+| `@mnjs/utils`: events, bindings, options, inheritance, property and event-building helpers | [Utilities package](../../packages/utils/readme.md), [common methods](../common.md) | `packages/utils/src/index.ts`; lower-level event-building helpers have concise package descriptions rather than a separate tutorial per helper |
+| `@mnjs/adapters/backbone` | [Optional Backbone](../optional-backbone.md) | `packages/adapters/package.json`, `src/data/backbone.ts`; adapter-first and Backbone-first CJS/ESM fixtures |
+| `@mnjs/adapters/xstate` | [XState DataApi](../data.api.md#xstate-actors) and [adapter package](../../packages/adapters/readme.md) | `packages/adapters/src/data/xstate.ts`; `test/unit/xstate-adapter.spec.js`, package type fixtures |
 | jQuery, Morphdom, Lit subpaths | [DomApi](../dom.api.md), [rendering](../view.rendering.md#rendering-to-dom), [adapter package](../../packages/adapters/readme.md) | `packages/adapters/package.json`; `test/fixtures/jquery-dom-api`, `dom-adapters-package`; real-browser adapter tests |
 | Core and companion type-only exports | Package declarations; [maintaining declarations](./types.md) | `src/index.ts` and companion indexes; `test/types/` and packed ESM/CJS/legacy-resolution type fixtures. A passing type check does not establish runtime behavior. |
 

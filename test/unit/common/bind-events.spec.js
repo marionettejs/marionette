@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { bindEvents, unbindEvents } from '@marionette/utils';
+import { bindEvents, unbindEvents } from '@mnjs/utils';
 
 function createProtoBindings(descriptor) {
   const bindings = {};

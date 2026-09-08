@@ -1,5 +1,5 @@
-import { buildEventArgs, normalizeBindings } from '@marionette/utils';
-import type { Bindings, EventCallback } from '@marionette/utils';
+import { buildEventArgs, normalizeBindings } from '@mnjs/utils';
+import type { Bindings, EventCallback } from '@mnjs/utils';
 
 type Subscription = (source: unknown, name: string, callback: EventCallback, context: unknown) => () => void;
 export interface SubscriptionApi {

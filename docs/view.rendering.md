@@ -168,7 +168,7 @@ does not bypass content attachment.
 Here's an example that allows for the `template` of a view to be an underscore template string.
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import Backbone from 'backbone';
 import _ from 'underscore';
 import { setDataApi, View } from 'marionette';
@@ -240,7 +240,7 @@ attachElContent(html) {
 ### Rendering to DOM
 
 A DOM adapter can update existing content incrementally. The optional
-`@marionette/adapters` package includes Morphdom and Lit HTML integrations.
+`@mnjs/adapters` package includes Morphdom and Lit HTML integrations.
 Install only the DOM adapter peer your application uses and configure a View subclass
 before creating its instances. `setDomApi` overlays the supplied methods and
 preserves unrelated operations, including jQuery queries.
@@ -249,7 +249,7 @@ For HTML string templates:
 
 ```javascript
 import { View } from 'marionette';
-import MorphdomDomApi from '@marionette/adapters/dom/morphdom';
+import MorphdomDomApi from '@mnjs/adapters/dom/morphdom';
 
 const MessageView = View.extend({
   template: () => '<p id="message">Hello again.</p>'
@@ -264,7 +264,7 @@ select the Lit DOM adapter:
 ```javascript
 import { View } from 'marionette';
 import { html } from 'lit-html';
-import LitDomApi from '@marionette/adapters/dom/lit-html';
+import LitDomApi from '@mnjs/adapters/dom/lit-html';
 
 const MessageView = View.extend({
   template: ({ message }) => html`<p>${message}</p>`,
@@ -348,7 +348,7 @@ const myView = new MyView({ model: { name: 'world' } });
 How the `model` is serialized can also be customized per view.
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import _ from 'underscore';
 import { setDataApi, View } from 'marionette';
 
@@ -398,7 +398,7 @@ const myView = new MyView({ collection });
 How the `collection` is serialized can also be customized per view.
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import _ from 'underscore';
 import { setDataApi, View } from 'marionette';
 
@@ -452,7 +452,7 @@ const MyView = View.extend({
 Additionally context data overwrites the serialized data
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import _ from 'underscore';
 import { setDataApi, View } from 'marionette';
 
@@ -473,7 +473,7 @@ by your templating solution. For instance with handlebars a method is called wit
 the data passed to the template.
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import Handlebars from 'handlebars';
 import Backbone from 'backbone';
 import { setDataApi, View } from 'marionette';
@@ -516,7 +516,7 @@ This fragment assumes an application-specific Backbone model with
 groups; these helpers are not Marionette APIs.
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import _ from 'underscore';
 import { CollectionView, setDataApi } from 'marionette';
 import GroupView from './group-view';

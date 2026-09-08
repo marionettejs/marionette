@@ -1,8 +1,8 @@
-import { Events } from '@marionette/utils';
-import type { EventMap, EventSource } from '@marionette/utils';
-import { callHandler } from '@marionette/utils';
-import { onceWrap } from '@marionette/utils';
-import { buildEventArgs } from '@marionette/utils';
+import { Events } from '@mnjs/utils';
+import type { EventMap, EventSource } from '@mnjs/utils';
+import { callHandler } from '@mnjs/utils';
+import { onceWrap } from '@mnjs/utils';
+import { buildEventArgs } from '@mnjs/utils';
 
 const receiver = { ...Events, value: 1 };
 const eventMap: EventMap = { change(value: number) { return value; } };

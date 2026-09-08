@@ -16,7 +16,7 @@ const Marionette = await import('marionette');
 for (const Constructor of Object.values(constructors)) {
   assert.strictEqual(Constructor.prototype.triggerMethod, undefined);
 }
-const { default: BackboneApi } = await import('@marionette/adapters/backbone');
+const { default: BackboneApi } = await import('@mnjs/adapters/backbone');
 
 assertInterop({
   BackboneApi,

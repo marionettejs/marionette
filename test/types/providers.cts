@@ -3,8 +3,8 @@ import { StateApi as defaultState, type StateApiContract as StateApi } from 'mar
 const { setStateApi } = MnObject;
 import { View, DataApi as defaultData, type DataApiContract as DataApi } from 'marionette';
 const { setDataApi } = View;
-import type { DataApi as NativeData, StateApi as NativeState, Model, Collection } from '@marionette/data';
-import type createActorApi from '@marionette/adapters/xstate';
+import type { DataApi as NativeData, StateApi as NativeState, Model, Collection } from '@mnjs/data';
+import type createActorApi from '@mnjs/adapters/xstate';
 
 const Worker = MnObject.extend({ createState() { return { ready: false }; } });
 const source = { label: 'Example' };

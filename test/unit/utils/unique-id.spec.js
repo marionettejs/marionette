@@ -8,7 +8,7 @@ import { CollectionView } from 'marionette';
 import { MnObject } from 'marionette';
 import { Region } from 'marionette';
 import { View } from 'marionette';
-import { uniqueId } from '@marionette/utils';
+import { uniqueId } from '@mnjs/utils';
 
 function suffix(id) {
   return Number(id.match(/\d+$/)[0]);

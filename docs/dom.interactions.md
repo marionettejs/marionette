@@ -307,7 +307,7 @@ reject it when the selector is used.
 ## Optional jQuery DOM Adapter
 
 Applications that explicitly configure
-[`@marionette/adapters/dom/jquery`](./installation.md#jquery-dom-adapter-is-optional)
+[`@mnjs/adapters/dom/jquery`](./installation.md#jquery-dom-adapter-is-optional)
 before constructing Views receive jQuery collections from query methods. The
 [application-owned `$el` setup](./dom.api.md#optional-jquery-adapter) can add a
 wrapper on View, CollectionView, and Behavior subclasses; no base-class helper

@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, afterEach } from 'vitest';
-import { Radio, createRadio } from '@marionette/radio';
+import { Radio, createRadio } from '@mnjs/radio';
 
 describe('Radio', function() {
   afterEach(function() {

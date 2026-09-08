@@ -8,10 +8,10 @@
     "outDir": "dist/types/esm",
     "noEmitOnError": true,
     "paths": {
-      "@marionette/utils": [
+      "@mnjs/utils": [
         "./packages/utils/dist/types/esm/index.d.ts"
       ],
-      "@marionette/radio": [
+      "@mnjs/radio": [
         "./packages/radio/dist/types/esm/index.d.ts"
       ]
     }

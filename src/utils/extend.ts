@@ -1,4 +1,4 @@
-import { extend as sharedExtend } from '@marionette/utils';
+import { extend as sharedExtend } from '@mnjs/utils';
 import type { ArgumentsFor, Instance, Merge, MetadataFor, MnObjectConstructor, StateFor } from '../modules/object.ts';
 
 // Keep Marionette constructor inference on the shared runtime implementation.

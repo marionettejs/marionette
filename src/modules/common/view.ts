@@ -1,5 +1,5 @@
 import type { DomApi } from '../../runtime/dom-api.ts';
-import type { EventCallback, EventMap } from '@marionette/utils';
+import type { EventCallback, EventMap } from '@mnjs/utils';
 
 export interface RenderableView {
   render(): unknown;

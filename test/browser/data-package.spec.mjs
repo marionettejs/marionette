@@ -4,7 +4,7 @@ import { test } from './fixtures.mjs';
 test('packed data models collections and state', async({ page, browserName }) => {
   const result = await page.evaluate(async function() {
     const { createMarionette } = await import('marionette');
-    const { Collection, DataApi, Model, StateApi } = await import('@marionette/data');
+    const { Collection, DataApi, Model, StateApi } = await import('@mnjs/data');
     const runtime = createMarionette();
     runtime.setDataApi(DataApi);
     runtime.setStateApi(StateApi);
@@ -45,5 +45,5 @@ test('packed data models collections and state', async({ page, browserName }) =>
     calls: { collection: 1, model: 1, state: 1 },
     models: [1, 2],
     stateDestroyed: true
-  }, `${browserName}: packed @marionette/data runtime behavior`);
+  }, `${browserName}: packed @mnjs/data runtime behavior`);
 });

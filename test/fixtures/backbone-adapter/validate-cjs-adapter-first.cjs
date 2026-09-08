@@ -1,6 +1,6 @@
 const assertInterop = require('./assert-adapter.cjs');
 
-const BackboneApi = require('@marionette/adapters/backbone');
+const BackboneApi = require('@mnjs/adapters/backbone');
 const Backbone = require('backbone');
 const Marionette = require('marionette');
 const constructors = {

@@ -88,8 +88,12 @@ Do not include private application code, customer data, or credentials.
 
 ## Propose a change
 
-Use the repository issue forms before implementing a public API, lifecycle,
-architecture, or stable-v5 change. A ready issue identifies:
+Use the bug report or feature request form to describe the problem, desired
+behavior, and any alternatives. Discuss public API, lifecycle, or architecture
+changes before implementing them.
+
+Maintainers use the detailed v5 task form to define architecture and stable-release
+work. Those tasks identify:
 
 - the observed failure or ambiguity;
 - the canonical public behavior;
@@ -107,7 +111,7 @@ behavior becomes canonical.
 
 Pull requests should:
 
-- link the focused issue;
+- link the focused issue when applicable;
 - include tests for behavior changes and edge cases;
 - list the commands actually run;
 - measure bundle, hot-path, allocation, and retention impact when required;

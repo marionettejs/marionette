@@ -23,11 +23,11 @@ For a new application with no integration requirements, start with plain
 objects, arrays, native DOM operations, and template functions. Plain data is
 not observable: explicitly update the UI when it changes. If the task requires
 observable models and ordered collections without an existing provider,
-use [`@marionette/data`](../packages/data/readme.md) as the starting choice.
+use [`@mnjs/data`](../packages/data/readme.md) as the starting choice.
 Backbone models and collections are also observable: keep them and select
 `BackboneApi` when the application already uses Backbone. “Optional” means
 Backbone is not required by core, not that its data is static.
-`@marionette/data` includes DataApi and StateApi implementations; it does not add persistence
+`@mnjs/data` includes DataApi and StateApi implementations; it does not add persistence
 or REST synchronization. Choose another provider when a requirement calls for
 its additional behavior, such as state-machine actors or an existing persistence
 layer.
@@ -56,16 +56,16 @@ package may not contain an entrypoint described by current source docs.
 
 | Existing requirement | Integration | Scope and consequence |
 | --- | --- | --- |
-| Backbone models or collections | `@marionette/adapters/backbone` as DataApi | Observes Backbone model and collection events while preserving their native vocabulary |
+| Backbone models or collections | `@mnjs/adapters/backbone` as DataApi | Observes Backbone model and collection events while preserving their native vocabulary |
 | Backbone state | The same `BackboneApi` object as StateApi | A separate configuration decision from model/collection data |
-| XState actor data or state | `@marionette/adapters/xstate` | Select the actor snapshot event explicitly; collection selectors return stable child actor references |
-| jQuery DOM queries or attachment operations | `@marionette/adapters/dom/jquery` | Does not install jQuery event delegation or create `$el` |
-| Morphdom updates to a View's HTML contents | `@marionette/adapters/dom/morphdom` | Keeps the View root; does not preserve child Views owned by Regions across parent render |
-| Lit template results | `@marionette/adapters/dom/lit-html` | Applies Lit results through DomApi; requires attachment monitoring for directive connection cleanup |
+| XState actor data or state | `@mnjs/adapters/xstate` | Select the actor snapshot event explicitly; collection selectors return stable child actor references |
+| jQuery DOM queries or attachment operations | `@mnjs/adapters/dom/jquery` | Does not install jQuery event delegation or create `$el` |
+| Morphdom updates to a View's HTML contents | `@mnjs/adapters/dom/morphdom` | Keeps the View root; does not preserve child Views owned by Regions across parent render |
+| Lit template results | `@mnjs/adapters/dom/lit-html` | Applies Lit results through DomApi; requires attachment monitoring for directive connection cleanup |
 
 Read the [adapter package guide](../packages/adapters/readme.md) for exact
 imports, provider constraints, ownership, and setup examples. There is no root
-`@marionette/adapters` export. Import the subpath you use; importing it does not
+`@mnjs/adapters` export. Import the subpath you use; importing it does not
 configure Marionette or select any other adapter.
 
 For example, a View may use Backbone data with native DOM operations and a
@@ -78,7 +78,7 @@ Configure a View subclass when the integration belongs to that component:
 
 ```javascript
 import { View } from 'marionette';
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 
 const AccountView = View.extend({
   template: () => '<span class="name"></span>',

@@ -1,6 +1,6 @@
 import assertInterop from './assert-adapter.cjs';
 
-const { default: BackboneApi } = await import('@marionette/adapters/backbone');
+const { default: BackboneApi } = await import('@mnjs/adapters/backbone');
 const { default: Backbone } = await import('backbone');
 const Marionette = await import('marionette');
 const constructors = {

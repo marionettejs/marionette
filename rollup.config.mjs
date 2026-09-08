@@ -6,7 +6,7 @@ import terser from '@rollup/plugin-terser';
 const bundlePackages = {
   name: 'bundle-packages',
   resolveId(source) {
-    if (['@marionette/utils', '@marionette/radio'].includes(source)) {
+    if (['@mnjs/utils', '@mnjs/radio'].includes(source)) {
       return fileURLToPath(new URL(`./packages/${source.split('/')[1]}/src/index.ts`, import.meta.url));
     }
   },
@@ -27,7 +27,7 @@ export default [
   },
   {
     input: 'src/index.ts',
-    external: ['@marionette/utils', '@marionette/radio'],
+    external: ['@mnjs/utils', '@mnjs/radio'],
     output: [
       {
         file: 'dist/marionette.js',

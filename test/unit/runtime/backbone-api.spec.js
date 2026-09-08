@@ -1,7 +1,7 @@
 import { vi, describe, it, expect } from 'vitest';
 import '../../setup/backbone.js';
 import Backbone from 'backbone';
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import { View } from 'marionette';
 import { CollectionView } from 'marionette';
 

@@ -1,4 +1,4 @@
-import { getValue } from '@marionette/utils';
+import { getValue } from '@mnjs/utils';
 
 const object = {
   value: 'example',

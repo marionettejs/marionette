@@ -9,10 +9,10 @@ const fixturesDir = dirname(fileURLToPath(import.meta.url));
 const rootDir = resolve(fixturesDir, '../..');
 const packageInputs = [
   { name: 'marionette', flag: '--tarball', directory: '.' },
-  { name: '@marionette/data', flag: '--data-tarball', directory: 'packages/data' },
-  { name: '@marionette/adapters', flag: '--adapters-tarball', directory: 'packages/adapters' },
-  { name: '@marionette/utils', flag: '--utils-tarball', directory: 'packages/utils' },
-  { name: '@marionette/radio', flag: '--radio-tarball', directory: 'packages/radio' },
+  { name: '@mnjs/data', flag: '--data-tarball', directory: 'packages/data' },
+  { name: '@mnjs/adapters', flag: '--adapters-tarball', directory: 'packages/adapters' },
+  { name: '@mnjs/utils', flag: '--utils-tarball', directory: 'packages/utils' },
+  { name: '@mnjs/radio', flag: '--radio-tarball', directory: 'packages/radio' },
 ];
 const adapterFixtures = new Set([
   'adapters-package-vite', 'backbone-adapter', 'backbone-adapter-types', 'cjs-adapters',
@@ -62,15 +62,15 @@ function externalGraph(lock) {
 }
 
 function selectedPackages(fixtureName) {
-  const names = ['@marionette/utils', '@marionette/radio'];
+  const names = ['@mnjs/utils', '@mnjs/radio'];
   if (fixtureName !== 'standalone-packages') {
     names.push('marionette');
   }
   if (fixtureName === 'standalone-packages' || fixtureName === 'core-types' || fixtureName.startsWith('data-package-')) {
-    names.push('@marionette/data');
+    names.push('@mnjs/data');
   }
   if (fixtureName === 'core-types' || adapterFixtures.has(fixtureName)) {
-    names.push('@marionette/adapters');
+    names.push('@mnjs/adapters');
   }
   return names;
 }

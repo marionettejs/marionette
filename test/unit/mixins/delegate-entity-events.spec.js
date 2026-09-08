@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { View } from 'marionette';
-import { Events } from '@marionette/utils';
+import { Events } from '@mnjs/utils';
 
 function source() { return Object.assign({}, Events); }
 

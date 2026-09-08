@@ -6,11 +6,11 @@ import { basename, dirname, join, resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '../..');
 const packages = [
-  { id: 'utils', name: '@marionette/utils', directory: 'packages/utils' },
-  { id: 'radio', name: '@marionette/radio', directory: 'packages/radio' },
+  { id: 'utils', name: '@mnjs/utils', directory: 'packages/utils' },
+  { id: 'radio', name: '@mnjs/radio', directory: 'packages/radio' },
   { id: 'core', name: 'marionette', directory: '.' },
-  { id: 'data', name: '@marionette/data', directory: 'packages/data' },
-  { id: 'adapters', name: '@marionette/adapters', directory: 'packages/adapters' }
+  { id: 'data', name: '@mnjs/data', directory: 'packages/data' },
+  { id: 'adapters', name: '@mnjs/adapters', directory: 'packages/adapters' }
 ];
 
 export default async function setup() {
@@ -23,9 +23,9 @@ export default async function setup() {
     if (manifestFile) {
       artifactDirectory = dirname(resolve(manifestFile));
       evidence = JSON.parse(await readFile(resolve(manifestFile), 'utf8'));
-      if (evidence.schemaVersion !== 2 || !Array.isArray(evidence.packages) ||
+      if (evidence.schemaVersion !== 3 || !Array.isArray(evidence.packages) ||
           evidence.packages.length !== packages.length) {
-        throw new Error('Browser tests require a schema 2 release manifest containing all five packages.');
+        throw new Error('Browser tests require a schema 3 release manifest containing all five packages.');
       }
     } else {
       artifactDirectory = join(temporaryDirectory, 'pack');
@@ -34,7 +34,7 @@ export default async function setup() {
       if (!npmCli) {
         throw new Error('Run browser tests through npm, or supply MARIONETTE_BROWSER_ARTIFACT_MANIFEST.');
       }
-      evidence = { schemaVersion: 2, packages: [] };
+      evidence = { schemaVersion: 3, packages: [] };
       for (const configuration of packages) {
         const packed = JSON.parse(execFileSync(process.execPath, [
           npmCli, 'pack', resolve(root, configuration.directory), '--ignore-scripts',

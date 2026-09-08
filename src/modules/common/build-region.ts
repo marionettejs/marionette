@@ -1,4 +1,4 @@
-import { MarionetteError, isString } from '@marionette/utils';
+import { MarionetteError, isString } from '@mnjs/utils';
 import { defaultRuntimeId, runtimeId } from '../../runtime-id.ts';
 import Region from '../region.ts';
 import type { RegionInstance, RegionInternals, RegionOptions } from '../region.ts';

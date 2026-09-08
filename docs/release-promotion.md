@@ -6,12 +6,14 @@ Git tag, GitHub release, package manifest, evidence manifest, and source commit 
 all agree.
 
 The machine-readable publication gate is
-[`config/release-promotion.json`](../config/release-promotion.json). Publication is
-currently disabled. Pull requests and manual dry runs exercise the complete build,
-cross-platform package verification, npm dry run, and GitHub release plan without
-creating an npm version, tag, or release. Stable publication remains disabled until
-the final evidence in [issue #147](https://github.com/marionettejs/marionette/issues/147)
-authorizes changing `publicationEnabled` to `true` in a reviewed commit.
+[`config/release-promotion.json`](../config/release-promotion.json). Stable publication is
+disabled; prerelease authorization is restricted to `5.0.0-beta.1`. Schema 2 separates `publication.stable`
+(a boolean) from `publication.prerelease` (one exact version string, or `null`).
+A beta authorization never authorizes stable or a later prerelease. Both channels
+use the same protected workflow and exact-artifact checks. Pull requests and manual
+dry runs exercise validation without creating an npm version, tag, or release.
+Stable authorization still requires the final evidence in
+[issue #147](https://github.com/marionettejs/marionette/issues/147).
 Pull-request output cannot activate the write-capable jobs: those jobs also require a
 manual dispatch from `master` in this repository with the `publish` input enabled,
 followed by approval of the protected `stable-release` environment.
@@ -43,9 +45,9 @@ or promise removal of either format.
 The canonical Ubuntu release job stores these files together as the immutable
 `release-candidate-<commit>` workflow artifact for 90 days:
 
-- the exact tarballs: `marionette-utils-<version>.tgz`,
-  `marionette-radio-<version>.tgz`, `marionette-<version>.tgz`,
-  `marionette-data-<version>.tgz`, and `marionette-adapters-<version>.tgz`;
+- the exact tarballs: `mnjs-utils-<version>.tgz`,
+  `mnjs-radio-<version>.tgz`, `marionette-<version>.tgz`,
+  `mnjs-data-<version>.tgz`, and `mnjs-adapters-<version>.tgz`;
 - `release-evidence.json` and its SHA-512 checksum;
 - the complete `npm pack --json` manifest for each package;
 - the Brotli-11 bundle report;
@@ -76,15 +78,39 @@ dry run:
 6. runs `npm publish <tarball> --dry-run --ignore-scripts` and validates the GitHub
    release plan.
 
-The current `5.0.0-alpha.2` npm version and tag already exist from an older commit.
-Dry-run target inspection reports that collision as expected. A real publication
-request refuses any target that conflicts with the verified artifact before requesting
-write permissions; exact matching targets enter the documented recovery path.
+The candidate version is `5.0.0-beta.1`; the registry alpha belongs to an older
+implementation. Inspect all five candidate versions and their Git tag before
+publication. A real publication request refuses any target that conflicts with the
+verified artifact before requesting write permissions; exact matching targets enter
+the documented recovery path.
+
+## Beta publication authorization
+
+The [beta contract and readiness checklist](./beta.md) define the candidate scope.
+Use matching `5.0.0-beta.1` versions across all five packages and their internal
+requirements. `publication.stable` remains `false`; `publication.prerelease`
+authorizes only `5.0.0-beta.1`. This policy does not initiate publication: verify npm
+access, certify the exact candidate, and obtain release approval before manually
+dispatching the protected workflow. Changing this policy changes the source commit
+and invalidates prior certification; rebuild and certify the authorization commit
+before publication.
+
+Prereleases use npm `next` and a GitHub prerelease, never npm `latest`. A later beta
+needs a new explicit version authorization. Do not bypass the workflow with an
+ad hoc core-only publish. The existing environment name `stable-release` is also
+used for prereleases so npm trusted-publisher identities remain exact.
+
+All five package names need a verified publisher. If a scoped package does not yet
+exist, resolve organization ownership and npm's first-publication procedure before
+dispatch. First publication is a separate authorized operation using the tested
+package; never publish an empty placeholder to reserve the name. Record its exact
+integrity and configure its trusted publisher before continuing the same-artifact
+recovery path. A dry run does not prove account or scope permission.
 
 ## Stable publication authorization
 
 Final release authorization requires one reviewed commit that changes
-`publicationEnabled` to `true` after every gate in issue #147 passes. Before merging
+`publication.stable` to `true` after every gate in issue #147 passes. Before merging
 that authorization:
 
 1. Create the protected GitHub environment named `stable-release` and require the

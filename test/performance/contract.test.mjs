@@ -129,7 +129,7 @@ describe('performance contract validation', () => {
       'packages/adapters/dist/backbone.js',
     ]);
     contract.productionGraphs.push({
-      subpath: '@marionette/adapters/backbone',
+      subpath: '@mnjs/adapters/backbone',
       output: 'packages/adapters/dist/backbone.js',
     });
     const packageJson = {
@@ -137,7 +137,7 @@ describe('performance contract validation', () => {
       exports: { '.': { import: './dist/index.mjs' } },
     };
     const adaptersPackageJson = {
-      name: '@marionette/adapters',
+      name: '@mnjs/adapters',
       exports: { './backbone': { import: './dist/backbone.js' } },
     };
 
@@ -155,9 +155,9 @@ describe('performance contract validation', () => {
   test('rejects a scoped package-root graph without a matching package export', () => {
     const paths = ['packages/adapters/dist/backbone.js'];
     const contract = contractFor(paths);
-    contract.productionGraphs[0].subpath = '@marionette/adapters';
+    contract.productionGraphs[0].subpath = '@mnjs/adapters';
     const packageJson = {
-      name: '@marionette/adapters',
+      name: '@mnjs/adapters',
       exports: { './backbone': { import: './dist/backbone.js' } },
     };
     const violations = validateContract(contract, {}, paths, [
@@ -165,7 +165,7 @@ describe('performance contract validation', () => {
     ]);
 
     assert.ok(violations.includes(
-      'Production graph @marionette/adapters output packages/adapters/dist/backbone.js is not exported by that subpath'));
+      'Production graph @mnjs/adapters output packages/adapters/dist/backbone.js is not exported by that subpath'));
   });
 
   test('keeps forbidden external imports optional and validates canonical candidate lists', () => {
@@ -291,18 +291,18 @@ describe('performance contract validation', () => {
       ]);
       const unenrolled = await measure(options);
       assert.match(unenrolled.violations.join('\n'), /Declared runtime artifacts missing from the contract: packages\/data/);
-      assert.match(unenrolled.violations.join('\n'), /Production graph subpaths mismatch exports; missing: @marionette\/data/);
+      assert.match(unenrolled.violations.join('\n'), /Production graph subpaths mismatch exports; missing: @mnjs\/data/);
       assert.deepEqual(unenrolled.artifacts.map(({ path }) => path).sort(), [
         'dist/index.mjs', 'packages/data/dist/index.cjs', 'packages/data/dist/index.js',
       ]);
-      assert.ok(unenrolled.graphs.some(graph => graph.subpath === '@marionette/data'));
+      assert.ok(unenrolled.graphs.some(graph => graph.subpath === '@mnjs/data'));
 
       contract.runtimeArtifacts.push(...['js', 'cjs'].map(extension => ({
         name: `Data ${extension}`, path: `packages/data/dist/index.${extension}`,
         baselineBrotliBytes: 0,
       })));
       contract.productionGraphs.push({
-        subpath: '@marionette/data', input: 'packages/data/src/index.js',
+        subpath: '@mnjs/data', input: 'packages/data/src/index.js',
         output: 'packages/data/dist/index.js', baselineModules: [], baselineExternalImports: [],
       });
       await writeFile(options.configPath, JSON.stringify(contract));
@@ -313,7 +313,7 @@ describe('performance contract validation', () => {
         'dist/index.mjs', 'packages/data/dist/index.js', 'packages/data/dist/index.cjs',
       ]);
       assert.ok(enrolled.artifacts.every(({ status }) => status === 'measured'));
-      const graph = enrolled.graphs.find(({ subpath }) => subpath === '@marionette/data');
+      const graph = enrolled.graphs.find(({ subpath }) => subpath === '@mnjs/data');
       assert.equal(graph.status, 'measured');
       assert.deepEqual(graph.modules, ['packages/data/src/index.js']);
       assert.deepEqual(graph.externalImports, ['marionette']);
@@ -347,7 +347,7 @@ describe('performance contract validation', () => {
         baselineExternalImports: [],
       },
       {
-        subpath: '@marionette/adapters/feature',
+        subpath: '@mnjs/adapters/feature',
         input: 'packages/adapters/src/feature.js',
         output: 'packages/adapters/dist/feature.js',
         baselineModules: ['packages/adapters/src/feature.js'],
@@ -368,7 +368,7 @@ describe('performance contract validation', () => {
           exports: { '.': { import: './dist/index.mjs' } },
         })),
         writeFile(join(fixtureRoot, 'packages/adapters/package.json'), JSON.stringify({
-          name: '@marionette/adapters',
+          name: '@mnjs/adapters',
           type: 'module',
           exports: { './feature': { import: './dist/feature.js' } },
         })),
@@ -406,9 +406,9 @@ describe('performance contract validation', () => {
         checkToolchain: false,
       });
       const adapterGraph = result.graphs.find(({ subpath }) =>
-        subpath === '@marionette/adapters/feature');
+        subpath === '@mnjs/adapters/feature');
       const repeatedAdapterGraph = repeated.graphs.find(({ subpath }) =>
-        subpath === '@marionette/adapters/feature');
+        subpath === '@mnjs/adapters/feature');
 
       assert.equal(adapterGraph.status, 'measured');
       assert.equal(repeatedAdapterGraph.status, 'measured');

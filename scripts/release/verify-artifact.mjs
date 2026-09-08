@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import process from 'node:process';
+import { publicationEnabled } from './publication.mjs';
 import { readArguments } from './arguments.mjs';
 import { validatePackageInventory } from './packages.mjs';
 import { verifyCandidateValidation } from './validation.mjs';
@@ -62,7 +63,7 @@ const artifactDir = resolve(root, args['artifact-dir']);
 const evidencePath = resolve(artifactDir, 'release-evidence.json');
 const evidenceBytes = await readFile(evidencePath);
 const evidence = JSON.parse(evidenceBytes);
-if (evidence.schemaVersion !== 2) {
+if (evidence.schemaVersion !== 3) {
   throw new Error(`Unsupported evidence schemaVersion ${evidence.schemaVersion}.`);
 }
 
@@ -148,10 +149,14 @@ assertEqual(sha512(promotionPolicyBytes), evidence.promotionPolicy.sha512, 'prom
 assertEqual(process.versions.node, evidence.toolchain.node, 'Node version');
 assertEqual(await getNpmVersion(), evidence.toolchain.npm, 'npm version');
 assertEqual(
-  promotionPolicy.publicationEnabled,
-  evidence.promotionPolicy.publicationEnabled,
-  'publication-enabled policy',
+  JSON.stringify(promotionPolicy.publication),
+  JSON.stringify(evidence.promotionPolicy.publication),
+  'publication authorization policy',
 );
+// Verification also accepts disabled dry-run candidates; validate the policy shape.
+publicationEnabled(promotionPolicy, evidence.release.version);
+assertEqual(evidence.release.prerelease, evidence.release.version.includes('-'), 'prerelease classification');
+assertEqual(evidence.release.version, JSON.parse(await readFile(resolve(root, 'package.json'))).version, 'source package version');
 assertEqual(evidence.release.tag, `v${evidence.release.version}`, 'release tag');
 assertEqual(
   evidence.release.npmTag,

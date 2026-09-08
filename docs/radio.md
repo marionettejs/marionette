@@ -40,13 +40,13 @@ Calling `Radio.channel(name)` again with the same name returns the same channel
 instance. A channel name is required. Channel names that match inherited object
 properties, such as `toString`, are treated as ordinary channel names.
 
-Use `new Channel(name)` from `@marionette/radio` for an independent message bus.
+Use `new Channel(name)` from `@mnjs/radio` for an independent message bus.
 It combines Events and Requests but does not join the registry. Its owner must
 call `channel.reset()` when finished. `Radio.reset()` covers registered channels.
 The named `Channel` export is `Radio.Channel`; an isolated runtime provides its
 own constructor at `runtime.Radio.Channel`.
 
-For request/reply alone, import `Requests` from `@marionette/radio` and compose it
+For request/reply alone, import `Requests` from `@mnjs/radio` and compose it
 with `Object.assign({}, Requests)`. It adds no event methods or registry.
 
 ## Events
@@ -265,7 +265,7 @@ the normal Marionette event lifecycle.
 
 The v5 Radio implementation retains Backbone.Radio's channel messaging model,
 but it is not a drop-in replacement for every exported property.
-`@marionette/radio` can be used independently; core re-exports the same default
+`@mnjs/radio` can be used independently; core re-exports the same default
 `Radio` within each module format.
 
 | Area | v5 behavior |

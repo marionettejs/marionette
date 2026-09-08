@@ -2,7 +2,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { setFixtures } from '../setup/fixtures.js';
 import _ from 'underscore';
 import $ from 'jquery';
-import { Events } from '@marionette/utils';
+import { Events } from '@mnjs/utils';
 import { Region, View, CollectionView } from 'marionette';
 
 describe('region', function() {

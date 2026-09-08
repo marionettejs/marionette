@@ -1,5 +1,5 @@
 import { debugLog, log } from './debug.ts';
-import { setProperty, eventSplitter, callHandler, onceWrap } from '@marionette/utils';
+import { setProperty, eventSplitter, callHandler, onceWrap } from '@mnjs/utils';
 
 /*
  * Requests

@@ -1,5 +1,5 @@
-import { Requests } from '@marionette/radio';
-import { createRadio } from '@marionette/radio';
+import { Requests } from '@mnjs/radio';
+import { createRadio } from '@mnjs/radio';
 import type { Channel } from 'marionette';
 
 const receiver = { ...Requests, label: 'Example' };

@@ -1,5 +1,5 @@
 import { vi, describe, it, expect } from 'vitest';
-import { onceWrap } from '@marionette/utils';
+import { onceWrap } from '@mnjs/utils';
 
 describe('onceWrap', function() {
   it('unbinds before invoking the callback and memoizes its result', function() {

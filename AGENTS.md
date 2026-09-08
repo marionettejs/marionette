@@ -26,7 +26,7 @@ alone. Do not publish, release, or deploy without authorization for that action.
 
 ## Tests are public contracts
 
-- Import supported package entrypoints: `marionette`, `@marionette/utils`, `@marionette/radio`, `@marionette/data`, and documented adapter subpaths.
+- Import supported package entrypoints: `marionette`, `@mnjs/utils`, `@mnjs/radio`, `@mnjs/data`, and documented adapter subpaths.
 - Never call, read, override, spy on, stub, or assert private framework members. Do not create production APIs solely for tests.
 - Assert observable DOM, identity, public events, return values, ownership, and externally tracked subscription cleanup. Internal source dependency checks belong to architecture tooling, not runtime contract tests.
 - Use explicit Vitest imports and native mocks. No global Mocha wrappers or Sinon. Prefer called matchers so lint can detect missing assertions and unawaited asynchronous assertions.

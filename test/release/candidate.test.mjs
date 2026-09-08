@@ -22,7 +22,7 @@ assert.equal(process.env.MARIONETTE_BROWSER_ARTIFACT_MANIFEST, resolve(artifactD
 if (args[1] === 'test:dist') {
   assert.deepEqual(args.slice(2, 4), ['--', '--root']);
   assert.ok(!args[4].startsWith(process.cwd()));
-  for (const [relative, name] of [['package.json', 'marionette'], ['node_modules/@marionette/utils/package.json', '@marionette/utils'], ['node_modules/@marionette/radio/package.json', '@marionette/radio']]) {
+  for (const [relative, name] of [['package.json', 'marionette'], ['node_modules/@mnjs/utils/package.json', '@mnjs/utils'], ['node_modules/@mnjs/radio/package.json', '@mnjs/radio']]) {
     assert.equal(JSON.parse(readFileSync(resolve(args[4], relative))).name, name);
   }
 }

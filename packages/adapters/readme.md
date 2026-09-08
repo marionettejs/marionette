@@ -1,4 +1,4 @@
-# @marionette/adapters
+# @mnjs/adapters
 
 First-party optional integrations for Marionette v5. The package intentionally
 has no root export: import only the adapter and optional peer your application
@@ -27,7 +27,7 @@ Morphdom belong to DomApi because they apply template results to the DOM.
 ## Backbone
 
 ```sh
-npm install marionette @marionette/adapters backbone
+npm install marionette@5.0.0-beta.1 @mnjs/adapters@5.0.0-beta.1 backbone
 ```
 
 Configure DataApi before creating Views that consume Backbone models or
@@ -36,7 +36,7 @@ DataApi on both its parent CollectionView class and its child View class before
 construction. For a feature-specific integration, configure its View subclass:
 
 ```js
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import { View } from 'marionette';
 
 const BackboneView = View.extend();
@@ -69,7 +69,7 @@ View; stopping and respawning an actor creates a different model identity even
 when the actors share an `id`. The adapter supports XState `^5.32.6`.
 
 ```sh
-npm install marionette @marionette/adapters xstate
+npm install marionette@5.0.0-beta.1 @mnjs/adapters@5.0.0-beta.1 xstate
 ```
 
 This configuration fragment assumes an application-owned `parentActor` whose
@@ -77,7 +77,7 @@ This configuration fragment assumes an application-owned `parentActor` whose
 actors in the application's XState setup.
 
 ```js
-import createXStateActorApi from '@marionette/adapters/xstate';
+import createXStateActorApi from '@mnjs/adapters/xstate';
 import { CollectionView, View } from 'marionette';
 
 const XStateActorApi = createXStateActorApi({
@@ -126,12 +126,12 @@ there is no generic snapshot-source package export.
 ## jQuery DomApi
 
 ```sh
-npm install marionette @marionette/adapters jquery
+npm install marionette@5.0.0-beta.1 @mnjs/adapters@5.0.0-beta.1 jquery
 ```
 
 ```js
 import { View } from 'marionette';
-import JQueryDomApi from '@marionette/adapters/dom/jquery';
+import JQueryDomApi from '@mnjs/adapters/dom/jquery';
 
 const JQueryView = View.extend();
 JQueryView.setDomApi(JQueryDomApi);
@@ -142,7 +142,7 @@ If application code needs `$el`, initialize it once:
 ```js
 import $ from 'jquery';
 import { View } from 'marionette';
-import JQueryDomApi from '@marionette/adapters/dom/jquery';
+import JQueryDomApi from '@mnjs/adapters/dom/jquery';
 
 const JQueryView = View.extend({
   initialize() { this.$el = $(this.el); }
@@ -172,12 +172,12 @@ attachment operations alongside Morphdom or Lit.
 ### Morphdom
 
 ```sh
-npm install marionette @marionette/adapters morphdom
+npm install marionette@5.0.0-beta.1 @mnjs/adapters@5.0.0-beta.1 morphdom
 ```
 
 ```js
 import { View } from 'marionette';
-import MorphdomDomApi from '@marionette/adapters/dom/morphdom';
+import MorphdomDomApi from '@mnjs/adapters/dom/morphdom';
 
 const MessageView = View.extend({
   template: () => '<p id="message">Hello again.</p>'
@@ -194,13 +194,13 @@ installs HTML directly into an empty root and morphs existing contents using
 ### Lit HTML
 
 ```sh
-npm install marionette @marionette/adapters lit-html
+npm install marionette@5.0.0-beta.1 @mnjs/adapters@5.0.0-beta.1 lit-html
 ```
 
 ```js
 import { View } from 'marionette';
 import { html } from 'lit-html';
-import LitDomApi from '@marionette/adapters/dom/lit-html';
+import LitDomApi from '@mnjs/adapters/dom/lit-html';
 
 const MessageView = View.extend({
   template: ({ message }) => html`<p>${message}</p>`,
