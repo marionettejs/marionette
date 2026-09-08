@@ -99,6 +99,11 @@ with their own change events can leave `updated` empty and let child
 merges still update collection order and filtering, without rendering children
 again after their model events have run.
 
+If a child was removed, detached, or destroyed while its model remained in the
+source, updates for that model do not recreate its View. Other children continue
+to update. Rendering the CollectionView again or a source reset recreates children
+from the current source.
+
 An immutable same-key replacement belongs only in `updated`, not in `removed`
 and `added`. Replacing a model with one that has a different stable key is a
 removal plus an addition; changing the key of a retained model is invalid. The

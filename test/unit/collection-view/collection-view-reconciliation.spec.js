@@ -372,22 +372,46 @@ describe('CollectionView normalized reconciliation', function() {
     view.destroy();
   });
 
-  it('diagnoses an update whose child View is missing', function() {
-    const model = { id: 1, name: 'one' };
-    const source = { models: [model] };
-    const view = new ListView({ collection: source });
-    view.render();
-    const child = view.children.first();
-    view.removeChildView(child);
+  Object.entries({
+    removed: (view, child) => view.removeChildView(child),
+    detached: (view, child) => view.detachChildView(child),
+    destroyed: (view, child) => child.destroy()
+  }).forEach(([state, remove]) => {
+    [false, true].forEach(replace => {
+      it(`ignores ${replace ? 'replacement' : 'in-place'} updates for a ${state} child`, function() {
+        const previous = [{ id: 1, name: 'one' }, { id: 2, name: 'two' }];
+        const source = { models: previous };
+        const view = new ListView({ collection: source }).render();
+        const child = view.children.first();
+        const survivor = view.children.last();
+        remove(view, child);
+        const current = previous.map(model => replace ?
+          { ...model, name: `updated ${model.name}` } : Object.assign(model, { name: `updated ${model.name}` }));
+        source.models = current;
 
-    expect(() => source.notify({
-      kind: 'update',
-      added: [],
-      removed: [],
-      updated: [{ previous: model, current: model }]
-    })).to.throw(MarionetteError).and.include({ code: 'MN0039' });
+        source.notify({
+          kind: 'update', added: [], removed: [],
+          updated: previous.map((model, index) => ({ previous: model, current: current[index] }))
+        });
 
-    view.destroy();
+        expect(view.children).to.have.lengthOf(1);
+        expect(view.children.findByModel(current[0])).to.be.undefined;
+        expect(view.children.first().model).to.equal(current[1]);
+        expect(view.el.textContent).to.equal('updated two');
+        expect(survivor.isDestroyed()).to.equal(replace);
+        expect(child.isDestroyed()).to.equal(state !== 'detached');
+        if (state === 'detached') {
+          expect(child.model).to.equal(previous[0]);
+          child.destroy();
+        }
+
+        view.render();
+        expect(view.children).to.have.lengthOf(2);
+        expect(view.children.findByModel(current[0]).model).to.equal(current[0]);
+        expect(view.el.textContent).to.equal('updated oneupdated two');
+        view.destroy();
+      });
+    });
   });
 
   it('recreates a same-key replacement even when its child is filtered out', function() {
@@ -819,6 +843,53 @@ describe('CollectionView normalized reconciliation', function() {
     expect(move).to.have.been.calledOnce;
     expect(move.firstCall.args[0]).to.equal(view.children.first().el);
     expect([...view.el.children]).to.deep.equal([...view.children].map(child => child.el));
+    view.destroy();
+  });
+
+  Object.entries({
+    'first to last': models => [...models.slice(1), models[0]],
+    'last to first': models => [models.at(-1), ...models.slice(0, -1)],
+    'two distant children': models => [models[0], models[998], ...models.slice(2, 998), models[1], models[999]]
+  }).forEach(([name, reorder]) => {
+    it(`moves only the selected children when reordering ${name}`, function() {
+      const models = Array.from({ length: 1000 }, (_, id) => ({ id, name: String(id) }));
+      const source = { models };
+      const view = new ListView({ collection: source }).render();
+      const children = [...view.children];
+      const move = this.sinon.spy(view.Dom, 'moveEl');
+
+      source.models = reorder(models);
+      source.notify({ kind: 'reorder' });
+
+      expect(move.callCount).to.equal(name === 'two distant children' ? 2 : 1);
+      expect([...view.el.children]).to.deep.equal(source.models.map(model => children[model.id].el));
+      expect(children.every(child => child.renderCount === 1)).to.be.true;
+      view.destroy();
+    });
+  });
+
+  it('retains unmanaged contents around and between reordered children', function() {
+    const models = Array.from({ length: 5 }, (_, id) => ({ id, name: String(id) }));
+    const source = { models };
+    const view = new ListView({ collection: source }).render();
+    const header = document.createElement('header');
+    const footer = document.createElement('footer');
+    const control = document.createElement('input');
+    const marker = document.createComment('retained');
+    view.el.prepend(header);
+    view.el.append(footer);
+    view.children.findByIndex(2).el.after(marker, control);
+
+    for (const order of [[1, 2, 3, 4, 0], [0, 4, 3, 2, 1], [3, 0, 2, 1, 4]]) {
+      source.models = order.map(id => models[id]);
+      source.notify({ kind: 'reorder' });
+      expect(view.el.firstChild).to.equal(header);
+      expect(view.el.lastChild).to.equal(footer);
+      expect(control.parentNode).to.equal(view.el);
+      expect(marker.parentNode).to.equal(view.el);
+      expect([...view.el.children].filter(el => el !== header && el !== footer && el !== control))
+        .to.deep.equal(source.models.map(model => view.children.findByModel(model).el));
+    }
     view.destroy();
   });
 
