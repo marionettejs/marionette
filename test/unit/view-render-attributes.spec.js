@@ -1,8 +1,7 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 
-import CollectionView from '../../src/modules/collection-view';
-import View from '../../src/modules/view';
+import { CollectionView, View } from 'marionette';
 
 describe('View#renderAttributes', function() {
   let document;
@@ -97,7 +96,7 @@ describe('View#renderAttributes', function() {
       expect(root.getAttribute('data-empty')).to.equal('');
       expect(root.getAttribute('data-external')).to.equal('untouched');
       expect(view.isRendered()).to.be.false;
-      expect(view).not.to.have.property('_renderedAttributeNames');
+
 
       state.id = null;
       state.className = '';
@@ -221,7 +220,7 @@ describe('View#renderAttributes', function() {
     const events = [];
     const bindUIElements = vi.spyOn(view, 'bindUIElements');
     const delegateEvents = vi.spyOn(view, 'delegateEvents');
-    const reInitRegions = vi.spyOn(view, '_reInitRegions');
+    const region = view.addRegion('content', { el: document.createElement('div') });
     view.on('all', eventName => events.push(eventName));
     attributes.mockClear();
 
@@ -234,7 +233,8 @@ describe('View#renderAttributes', function() {
     expect(events).to.deep.equal([]);
     expect(bindUIElements).not.toHaveBeenCalled();
     expect(delegateEvents).not.toHaveBeenCalled();
-    expect(reInitRegions).not.toHaveBeenCalled();
+    expect(view.getRegion('content')).to.equal(region);
+    expect(region.isDestroyed()).to.be.false;
 
     attributes.mockClear();
     title = 'not-automatically-refreshed';

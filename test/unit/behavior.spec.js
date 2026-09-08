@@ -3,10 +3,7 @@ import Backbone from 'backbone';
 import { setFixtures } from '../setup/fixtures.js';
 import '../setup/backbone.js';
 import _ from 'underscore';
-import Behavior from '../../src/modules/behavior';
-import Region from '../../src/modules/region';
-import View from '../../src/modules/view';
-import CollectionView from '../../src/modules/collection-view';
+import { Behavior, Region, View, CollectionView } from 'marionette';
 
 describe('Behavior', function() {
   describe('when instantiating a behavior with some options', function() {
@@ -22,15 +19,18 @@ describe('Behavior', function() {
     let behavior;
 
     function buildViewWithBehavior(BehaviorClass) {
-      const FooView = View.extend({
-        behaviors: [BehaviorClass]
+      const CapturedBehavior = BehaviorClass.extend({
+        initialize(...args) {
+          behavior = this;
+          BehaviorClass.prototype.initialize.apply(this, args);
+        }
       });
+      const FooView = View.extend({ behaviors: [CapturedBehavior] });
 
       const view = new FooView({
         el: document.createElement('div')
       });
 
-      behavior = view._behaviors[0];
 
       return view;
     }
@@ -797,7 +797,9 @@ describe('Behavior', function() {
       stubs.collectionEvents.mockReturnValue({ update: stubs.collectionHandler });
       stubs.modelEvents.mockReturnValue({ change: stubs.modelHandler });
 
+      let behavior;
       const EntityBehavior = Behavior.extend({
+        initialize() { behavior = this; },
         collectionEvents: stubs.collectionEvents,
         modelEvents: stubs.modelEvents
       });
@@ -808,7 +810,6 @@ describe('Behavior', function() {
       const collection = new Backbone.Collection();
       const model = new Backbone.Model();
       const view = new EntityView({ collection, model });
-      const behavior = view._behaviors[0];
 
       Object.values(stubs).forEach(stub => stub.mockClear());
 
@@ -936,48 +937,58 @@ describe('Behavior', function() {
   });
 
   describe('#destroy', function() {
-    let behavior;
-    let view;
-
-    beforeEach(function() {
-      view = new View();
-      behavior = new Behavior({}, view);
-      vi.spyOn(behavior, '_undelegateEntityEvents');
-      vi.spyOn(behavior, 'destroy');
-      vi.spyOn(behavior, 'stopListening');
-      vi.spyOn(view, '_removeBehavior');
-
-      behavior.destroy();
-    });
-
-    it('should undelegate entity events', function() {
-      expect(behavior._undelegateEntityEvents).toHaveBeenCalledTimes(1);
-    });
-
-    it('should stopListening', function() {
-      expect(behavior.stopListening).toHaveBeenCalledTimes(1);
-    });
-
-    it('should remove the behavior from the view', function() {
-      expect(view._removeBehavior).toHaveBeenCalledTimes(1);
-    });
-
-    it('should return the behavior', function() {
-      expect(behavior.destroy).toHaveReturnedWith(behavior);
-    });
-
-    it('should destroy an attached behavior and remove it from the view', function() {
-      const MyBehavior = Behavior.extend({});
-      const MyView = View.extend({
-        behaviors: [MyBehavior]
+    it('unsubscribes entity events, host lifecycle events and DOM events', function() {
+      let behavior;
+      const changed = vi.fn();
+      const reset = vi.fn();
+      const clicked = vi.fn();
+      const rendered = vi.fn();
+      const TestBehavior = Behavior.extend({
+        initialize() { behavior = this; },
+        modelEvents: { change: changed },
+        collectionEvents: { reset },
+        events: { click: clicked },
+        onRender: rendered
       });
-      const myView = new MyView();
-      const myBehavior = myView._behaviors[0];
+      const model = new Backbone.Model();
+      const collection = new Backbone.Collection();
+      const view = new View({ behaviors: [TestBehavior], model, collection, template: () => 'content' });
+      view.render();
+      model.set('value', 1);
+      collection.reset([]);
+      view.el.click();
+      expect(changed).toHaveBeenCalledTimes(1);
+      expect(reset).toHaveBeenCalledTimes(1);
+      expect(clicked).toHaveBeenCalledTimes(1);
+      expect(rendered).toHaveBeenCalledTimes(1);
 
-      expect(function() {
-        myBehavior.destroy();
-      }).to.not.throw();
-      expect(myView._behaviors).to.not.include(myBehavior);
+      expect(behavior.destroy()).to.equal(behavior);
+      expect(behavior.destroy()).to.equal(behavior);
+      view.delegateEntityEvents();
+      view.delegateEvents();
+      view.render();
+      model.set('value', 2);
+      collection.reset([]);
+      view.el.click();
+      expect(changed).toHaveBeenCalledTimes(1);
+      expect(reset).toHaveBeenCalledTimes(1);
+      expect(clicked).toHaveBeenCalledTimes(1);
+      expect(rendered).toHaveBeenCalledTimes(1);
+      expect(view.isDestroyed()).to.be.false;
+      view.destroy();
+    });
+
+    it('stops listening when a directly constructed behavior is destroyed', function() {
+      const view = new View();
+      const behavior = new Behavior({}, view);
+      const listener = vi.fn();
+      behavior.listenTo(view, 'custom', listener);
+      view.trigger('custom');
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect(behavior.destroy()).to.equal(behavior);
+      view.trigger('custom');
+      expect(listener).toHaveBeenCalledTimes(1);
+      view.destroy();
     });
   });
 

@@ -1,8 +1,7 @@
 import { vi, describe, it, expect } from 'vitest';
 import '../setup/backbone.js';
 import Backbone from 'backbone';
-import CollectionView from '../../src/modules/collection-view';
-import View from '../../src/modules/view';
+import { CollectionView, View } from 'marionette';
 
 const viewTypes = [
   ['View', View],

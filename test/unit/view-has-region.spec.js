@@ -1,5 +1,5 @@
 import { vi, describe, it, expect } from 'vitest';
-import { Behavior, View } from '../../src/index';
+import { Behavior, View } from 'marionette';
 
 function state(view) {
   return {

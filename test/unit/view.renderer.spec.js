@@ -2,7 +2,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import '../setup/backbone.js';
 import _ from 'underscore';
 import Backbone from 'backbone';
-import View from '../../src/modules/view';
+import { View } from 'marionette';
 
 describe('View.setRenderer', function() {
   let ViewClass;

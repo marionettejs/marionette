@@ -1,8 +1,7 @@
 import { vi, describe, it, expect, afterEach } from 'vitest';
-import Application from '../../src/modules/application';
-import MnObject from '../../src/modules/object';
-import Radio from '../../packages/radio/src/radio.ts';
-import Events from '../../packages/utils/src/events.ts';
+import { Application, MnObject } from 'marionette';
+import { Radio } from '@marionette/radio';
+import { Events } from '@marionette/utils';
 
 const ObservableSource = function(attributes = {}) {
   this.attributes = { ...attributes };
@@ -10,10 +9,10 @@ const ObservableSource = function(attributes = {}) {
 
 Object.assign(ObservableSource.prototype, Events, {
   destroy() {
-    this._isDestroyed = true;
+    this.destroyed = true;
     this.off();
   },
-  isDestroyed() { return !!this._isDestroyed; },
+  isDestroyed() { return !!this.destroyed; },
   set(key, value) {
     this.attributes[key] = value;
     this.trigger(`change:${ key }`, this, value);
@@ -61,8 +60,6 @@ describe('MnObject and Application owned cleanup', function() {
       });
       Owner.setStateApi(TestStateApi);
       const owner = new Owner();
-      const destroyRadio = vi.spyOn(owner, '_destroyRadio');
-      const destroyOwnedState = vi.spyOn(owner, '_destroyState');
 
       owner.off();
       Radio.trigger(channelName, 'ping');
@@ -82,8 +79,6 @@ describe('MnObject and Application owned cleanup', function() {
       expect(Radio.request(channelName, 'status')).to.be.undefined;
       expect(state.isDestroyed()).to.be.true;
       expect(destroyState).toHaveBeenCalledTimes(1);
-      expect(destroyRadio).toHaveBeenCalledTimes(1);
-      expect(destroyOwnedState).toHaveBeenCalledTimes(1);
     });
 
     it(`${ name } preserves owned cleanup timing around public destroy`, async function() {

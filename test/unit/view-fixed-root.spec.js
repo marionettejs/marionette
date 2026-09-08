@@ -1,9 +1,6 @@
 import { vi, describe, it, expect } from 'vitest';
 import { setFixtures } from '../setup/fixtures.js';
-import Behavior from '../../src/modules/behavior';
-import CollectionView from '../../src/modules/collection-view';
-import Region from '../../src/modules/region';
-import View from '../../src/modules/view';
+import { Behavior, CollectionView, Region, View } from 'marionette';
 
 for (const [name, Base] of [['View', View], ['CollectionView', CollectionView]]) {
   describe(`${name} fixed root`, function() {
@@ -11,12 +8,13 @@ for (const [name, Base] of [['View', View], ['CollectionView', CollectionView]])
       const root = document.createElement('section');
       const resolveRoot = vi.fn().mockReturnValue(root);
       const initialized = [];
+      let behavior;
       const clicked = vi.fn();
       const triggered = vi.fn();
       const TestBehavior = Behavior.extend({
         events: { 'click button': clicked },
         triggers: { 'focus button': 'action:focused' },
-        initialize() { initialized.push(this.el); }
+        initialize() { behavior = this; initialized.push(this.el); }
       });
       const TestView = Base.extend({
         behaviors: [TestBehavior],
@@ -37,7 +35,7 @@ for (const [name, Base] of [['View', View], ['CollectionView', CollectionView]])
       expect(resolveRoot).toHaveBeenCalledTimes(1);
       expect(resolveRoot.mock.contexts).toContain(view);
       expect(view.el).to.equal(root);
-      expect(view._behaviors[0].el).to.equal(root);
+      expect(behavior.el).to.equal(root);
       view.destroy();
       button.click();
       button.dispatchEvent(new Event('focus', { bubbles: true }));

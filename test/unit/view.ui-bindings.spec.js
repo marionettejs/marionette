@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import _ from 'underscore';
 import Backbone from 'backbone';
-import * as Marionette from '../../src/index.ts';
+import * as Marionette from 'marionette';
 import '../setup/backbone.js';
 describe('view ui elements', function() {
   'use strict';

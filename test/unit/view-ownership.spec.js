@@ -1,8 +1,7 @@
 import { vi, describe, it, expect } from 'vitest';
 import '../setup/backbone.js';
 import Backbone from 'backbone';
-import View from '../../src/modules/view';
-import Region from '../../src/modules/region';
+import { View, Region } from 'marionette';
 
 describe('managed View ownership', function() {
 

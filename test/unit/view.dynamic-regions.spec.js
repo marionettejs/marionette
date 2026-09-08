@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import _ from 'underscore';
-import * as Marionette from '../../src/index.ts';
+import * as Marionette from 'marionette';
 describe('view - dynamic regions', function() {
   'use strict';
 

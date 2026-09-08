@@ -1,9 +1,7 @@
 import { vi, describe, it, expect } from 'vitest';
 import '../setup/backbone.js';
 import Backbone from 'backbone';
-import CollectionView from '../../src/modules/collection-view';
-import Region from '../../src/modules/region';
-import View from '../../src/modules/view';
+import { CollectionView, Region, View } from 'marionette';
 
 function state(view) {
   return {
@@ -15,16 +13,39 @@ function state(view) {
 
 describe('#addChildView after destruction begins', function() {
   it('ignores collection sort and reset notifications after destruction', function() {
-    const parent = new CollectionView({ collection: new Backbone.Collection() });
+    const collection = new Backbone.Collection();
+    const parent = new CollectionView({ collection });
     parent.destroy();
     const sort = vi.spyOn(parent, 'sort');
-    const destroyChildren = vi.spyOn(parent, '_destroyChildren');
+    const onAdd = vi.fn();
+    parent.on('add:child', onAdd);
 
-    parent._onCollectionReorder();
-    parent._onCollectionReset();
+    collection.trigger('sort', collection);
+    collection.reset([{ id: 1 }]);
 
     expect(sort).not.toHaveBeenCalled();
-    expect(destroyChildren).not.toHaveBeenCalled();
+    expect(onAdd).not.toHaveBeenCalled();
+    expect(parent.children).to.have.lengthOf(0);
+    expect(parent.isDestroyed()).to.be.true;
+  });
+
+  it('ignores queued reorder and reset notifications after a public callback destroys the owner', function() {
+    const collection = new Backbone.Collection([{ id: 1 }, { id: 2 }], { comparator: 'id' });
+    const ChildView = View.extend({ template: () => 'child' });
+    const parent = new CollectionView({ collection, childView: ChildView });
+    parent.render();
+    const added = vi.fn();
+    parent.on('add:child', added);
+    parent.once('before:sort', () => {
+      collection.trigger('sort', collection);
+      collection.reset([{ id: 3 }]);
+      parent.destroy();
+    });
+
+    expect(() => collection.trigger('sort', collection)).not.to.throw();
+    expect(parent.isDestroyed()).to.be.true;
+    expect(parent.children).to.have.lengthOf(0);
+    expect(added).not.toHaveBeenCalled();
   });
 
   it('ignores collection additions triggered by child destruction', function() {
@@ -44,7 +65,6 @@ describe('#addChildView after destruction begins', function() {
     expect(collection).to.have.lengthOf(2);
     expect(beforeAdd).not.toHaveBeenCalled();
     expect(add).not.toHaveBeenCalled();
-    expect(parent._children).to.have.lengthOf(0);
     expect(parent.children).to.have.lengthOf(0);
     expect(state(parent)).to.deep.equal({ attached: false, destroyed: true, rendered: false });
   });
@@ -65,7 +85,6 @@ describe('#addChildView after destruction begins', function() {
     parent.on('before:destroy', () => {
       const parentState = state(parent);
       const html = parent.el.innerHTML;
-      const internalChildren = parent._children.toArray();
       const publicChildren = parent.children.toArray();
 
       expect(parent.addChildView(child)).to.equal(child);
@@ -74,10 +93,8 @@ describe('#addChildView after destruction begins', function() {
       expect(stateDuringDestroy).to.deep.equal(parentState);
       expect(parent.el.innerHTML).to.equal(html);
       expect(parent.el.lastChild).to.equal(sentinel);
-      expect(parent._children.toArray()).to.deep.equal(internalChildren);
       expect(parent.children.toArray()).to.deep.equal(publicChildren);
       expect(state(child)).to.deep.equal({ attached: false, destroyed: false, rendered: false });
-      expect(child._isShown).to.not.be.true;
       expect(childOn).not.toHaveBeenCalled();
     });
 
@@ -140,12 +157,10 @@ describe('#addChildView after destruction begins', function() {
     expect(state(parent)).to.deep.equal(parentState);
     expect(parent.el.innerHTML).to.equal(html);
     expect(parent.el.lastChild).to.equal(sentinel);
-    expect(parent._children).to.have.lengthOf(0);
     expect(parent.children).to.have.lengthOf(0);
     expect(beforeAdd).not.toHaveBeenCalled();
     expect(add).not.toHaveBeenCalled();
     expect(state(child)).to.deep.equal({ attached: false, destroyed: false, rendered: false });
-    expect(child._isShown).to.not.be.true;
     expect(childOn).not.toHaveBeenCalled();
 
     const liveOwner = new CollectionView({ template: false });
@@ -172,7 +187,6 @@ describe('#addChildView after destruction begins', function() {
 
     expect(custom.addChildView(child)).to.equal(customResult);
     expect(state(child)).to.deep.equal({ attached: false, destroyed: false, rendered: false });
-    expect(child._isShown).to.not.be.true;
 
     const DelegatingCollectionView = CollectionView.extend({
       addChildView(view, index, options) {

@@ -2,9 +2,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { setFixtures } from '../setup/fixtures.js';
 import _ from 'underscore';
 
-import CollectionView from '../../src/modules/collection-view';
-import Region from '../../src/modules/region';
-import View from '../../src/modules/view';
+import { CollectionView, Region, View } from 'marionette';
 import { MarionetteError } from '@marionette/utils';
 
 describe('Region lifecycle contract', function() {
@@ -577,15 +575,6 @@ describe('Region lifecycle contract', function() {
     expect(empty).not.toHaveBeenCalled();
   });
 
-  it('does not expose an _emptyRegion helper on Region instances', function() {
-    const view = new TestView();
-    region.show(view);
-    region.destroy();
-
-    expect(Region.prototype).not.to.have.own.property('_emptyRegion');
-    expect(region._emptyRegion).to.be.undefined;
-  });
-
   for (const operation of ['empty', 'reset']) {
     it(`ignores ${operation} after destruction without changing lifecycle state`, function() {
       const owner = new View({
@@ -632,7 +621,6 @@ describe('Region lifecycle contract', function() {
       expect(owner.hasRegion('content')).to.be.false;
       expect(owner.getRegion('content')).to.be.undefined;
       expect(owner.regions).not.to.have.own.property('content');
-      expect(owner._regions).not.to.have.own.property('content');
 
       owner.destroy();
     });

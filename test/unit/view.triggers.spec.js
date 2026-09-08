@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import '../setup/backbone.js';
 import Backbone from 'backbone';
-import View from '../../src/modules/view';
+import { View } from 'marionette';
 
 describe('view triggers', function() {
   'use strict';
@@ -28,9 +28,9 @@ describe('view triggers', function() {
       cancelable: true
     });
     const stopPropagation = event.stopPropagation.bind(event);
-    event._isPropagationStopped = false;
+    event.propagationStopped = false;
     event.stopPropagation = function() {
-      event._isPropagationStopped = true;
+      event.propagationStopped = true;
       stopPropagation();
     };
     view.el.dispatchEvent(event);
@@ -134,7 +134,7 @@ describe('view triggers', function() {
     });
 
     it('should stop propagation by default', function() {
-      expect(fooEvent._isPropagationStopped).to.be.true;
+      expect(fooEvent.propagationStopped).to.be.true;
     });
 
     it('should prevent default by default', function() {
@@ -164,7 +164,7 @@ describe('view triggers', function() {
 
     it('should preserve explicitly disabled DOM behavior', function() {
       expect(fooEvent.defaultPrevented).to.be.false;
-      expect(fooEvent._isPropagationStopped).to.be.false;
+      expect(fooEvent.propagationStopped).to.be.false;
     });
   });
 

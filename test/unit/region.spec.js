@@ -2,10 +2,8 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { setFixtures } from '../setup/fixtures.js';
 import _ from 'underscore';
 import $ from 'jquery';
-import Events from '../../packages/utils/src/events.ts';
-import Region from '../../src/modules/region';
-import View from '../../src/modules/view';
-import CollectionView from '../../src/modules/collection-view';
+import { Events } from '@marionette/utils';
+import { Region, View, CollectionView } from 'marionette';
 
 describe('region', function() {
   'use strict';
@@ -121,71 +119,50 @@ describe('region', function() {
     });
   });
 
-  // NOTE: Currently an internal API with potential for public release
-  describe('when setting the region element', function() {
-    let TestView;
-    let region;
-    let oneEl;
-    let twoEl;
-
-    beforeEach(function() {
-      TestView = View.extend({ id: 'view', template: _.template('foo') });
-      setFixtures('<div id="region1"></div><div id="region2"></div>');
-      oneEl = $('#region1')[0];
-      twoEl = $('#region2')[0];
-
-      region = new Region({ el: oneEl });
+  describe('when an empty region follows its CollectionView container', function() {
+    it('retains the region when its container is unchanged', function() {
+      const owner = new CollectionView({ template: false });
+      const region = owner.getEmptyRegion();
+      expect(owner.getEmptyRegion()).to.equal(region);
+      expect(region.el).to.equal(owner.el);
+      owner.destroy();
     });
 
-    it('should return the region', function() {
-      expect(region._setElement(twoEl)).to.equal(region);
+    it('resolves the new child container on the first render', function() {
+      const owner = new CollectionView({ template: () => '<main></main>', childViewContainer: 'main' });
+      const region = owner.getEmptyRegion();
+      owner.render();
+      expect(owner.getEmptyRegion()).to.equal(region);
+      expect(region.el).to.equal(owner.el.querySelector('main'));
+      owner.destroy();
     });
 
-    it('should set the el', function() {
-      region.show(new TestView());
-      region._setElement(twoEl);
-      expect(region.el).to.equal(twoEl);
-    });
+    for (const replaceElement of [false, true]) {
+      it(`keeps the empty region usable after rerendering a replaced=${replaceElement} container`, function() {
+        const EmptyView = View.extend({ template: () => 'empty' });
+        let containerId = 'first';
+        const owner = new CollectionView({
+          template: () => `<main id="${containerId}"></main>`,
+          childViewContainer: 'main', emptyView: EmptyView
+        });
+        owner.render();
+        const region = owner.getEmptyRegion();
+        const previous = new EmptyView();
+        region.show(previous, { replaceElement });
+        const originalElement = region.el;
 
-    it('should set the el', function() {
-      region.show(new TestView());
-      region._setElement(twoEl);
-      expect(region.el).to.equal(twoEl);
-    });
+        containerId = 'second';
+        owner.render();
 
-    it('should throw an error if the `el` is not specified', function() {
-      expect(region._setElement.bind(region)).to.throw();
-    });
-
-    describe('when setting the `el` to the same element', function() {
-      it('should not requery the el', function() {
-        vi.spyOn(region, 'getEl');
-        expect(region._setElement(oneEl)).to.equal(region);
-        expect(region.getEl).not.toHaveBeenCalled();
+        expect(owner.getEmptyRegion()).to.equal(region);
+        expect(region.el).not.to.equal(originalElement);
+        expect(region.el.id).to.equal('second');
+        expect(region.currentView.el.textContent).to.equal('empty');
+        expect(region.currentView.el.parentNode).to.equal(region.el);
+        expect(previous.isDestroyed()).to.be.true;
+        owner.destroy();
       });
-    });
-
-    describe('when there is a replaceElement:true view', function() {
-      it('should replace the el of the region with the view el', function() {
-        const view = new TestView();
-        region.show(view, { replaceElement: true });
-        region._setElement(twoEl);
-        expect($('#region1')).to.be.lengthOf(1);
-        expect($('#view')).to.be.lengthOf(1);
-        expect($('#region2')).to.be.lengthOf(0);
-      });
-    });
-
-    describe('when there is a replaceElement:false view', function() {
-      it('should attach the view html to the region', function() {
-        const view = new TestView();
-        region.show(view, { replaceElement: false });
-        region._setElement(twoEl);
-        expect($('#region1')).to.be.lengthOf(1);
-        expect($('#region1 #view')).to.be.lengthOf(0);
-        expect($('#region2 #view')).to.be.lengthOf(1);
-      });
-    });
+    }
   });
 
   describe('when showing an initial view', function() {
@@ -327,7 +304,6 @@ describe('region', function() {
       let $parentEl;
 
       beforeEach(function() {
-        vi.spyOn(region, '_restoreEl');
         // empty region to clean existing view
         region.empty();
         $parentEl = $(region.el.parentNode);
@@ -344,20 +320,21 @@ describe('region', function() {
         expect($parentEl.html()).not.toContain(regionHtml);
       });
 
-      it('should call _restoreEl', function() {
-        expect(region._restoreEl).toHaveBeenCalled();
-      });
-
-      it('should not restore if the "currentView" has been deleted from the region', function() {
-        delete region.currentView;
-        region._restoreEl();
+      it('can be emptied repeatedly without removing its restored element', function() {
+        region.empty();
+        region.empty();
         expect(region.currentView).to.be.undefined;
+        expect(region.el.parentNode).to.equal($parentEl[0]);
       });
 
-      it('should not restore if the "currentView.el" has been removed from the DOM', function() {
-        view.el.remove();
-        region._restoreEl();
-        expect(region.currentView.el.parentNode).is.null;
+      it('can empty a view removed from the DOM externally', function() {
+        const removed = new View({ template: () => 'removed externally' });
+        region.show(removed);
+        removed.el.remove();
+        region.empty();
+        expect(region.currentView).to.be.undefined;
+        expect(removed.isDestroyed()).to.be.true;
+        expect(removed.el.parentNode).to.be.null;
       });
 
       describe('and then emptying the region', function() {
@@ -387,9 +364,6 @@ describe('region', function() {
           expect($parentEl.html()).toContain('<div id="region"></div>');
         });
 
-        it('should call _restoreEl', function() {
-          expect(region._restoreEl).toHaveBeenCalled();
-        });
       });
 
       describe('and showing another view', function() {
@@ -447,8 +421,8 @@ describe('region', function() {
         expect(noDetachedView).to.be.undefined;
       });
 
-      it('should have _isDestroyed set to falsy', function() {
-        expect(detachedView._isDestroyed).to.not.be.ok;
+      it('should leave the detached view alive', function() {
+        expect(detachedView.isDestroyed()).to.be.false;
       });
 
       it('should not have triggered destroy on the view', function() {
@@ -463,8 +437,13 @@ describe('region', function() {
         expect(regionEmptyStub).toHaveBeenCalled();
       });
 
-      it('should not have a parent', function() {
-        expect(detachedView).to.not.have.property('_parent');
+      it('allows another region to adopt the detached view', function() {
+        const next = new Region({ el: document.createElement('section') });
+        next.show(detachedView);
+        expect(next.currentView).to.equal(detachedView);
+        expect(region.hasView()).to.be.false;
+        next.detachView();
+        next.destroy();
       });
 
       it('should not call removeView', function() {
@@ -1148,7 +1127,7 @@ describe('region', function() {
     });
   });
 
-  describe('when calling "_ensureElement"', function() {
+  describe('when showing into a missing region element', function() {
     let region;
 
     beforeEach(function() {
@@ -1160,15 +1139,20 @@ describe('region', function() {
     it('should prefer passed options over initial options', function() {
       region.allowMissingEl = false;
 
-      expect(region._ensureElement({allowMissingEl: true})).to.be.false;
+      const view = new View({ template: () => 'unused' });
+      expect(region.show(view, { allowMissingEl: true })).to.be.undefined;
+      expect(region.hasView()).to.be.false;
+      expect(view.isRendered()).to.be.false;
+      view.destroy();
     });
 
-    it('should fallback to initial options when not passed options', function(testContext) {
+    it('uses initial options when no override is passed', function() {
       region.allowMissingEl = false;
 
-      expect(function() {
-        region._ensureElement();
-      }.bind(testContext)).to.throw;
+      const view = new View({ template: () => 'unused' });
+      expect(() => region.show(view)).to.throw();
+      expect(region.hasView()).to.be.false;
+      view.destroy();
     });
   });
 

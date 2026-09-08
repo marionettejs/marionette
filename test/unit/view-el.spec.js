@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 
-import View from '../../src/modules/view';
+import { View } from 'marionette';
 
 describe('View el policy', function() {
   let document;

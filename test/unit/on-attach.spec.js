@@ -1,8 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { setFixtures } from '../setup/fixtures.js';
 import _ from 'underscore';
-import View from '../../src/modules/view';
-import Region from '../../src/modules/region';
+import { View, Region } from 'marionette';
 
 describe('onAttach', function() {
   const expectTriggerMethod = (method, target, retval, before = null) => {
@@ -25,19 +24,19 @@ describe('onAttach', function() {
       vi.spyOn(this, 'onDestroy');
     },
     onAttach() {
-      return !!this._isAttached;
+      return this.isAttached();
     },
     onBeforeAttach() {
-      return !!this._isAttached;
+      return this.isAttached();
     },
     onDetach() {
-      return !!this._isAttached;
+      return this.isAttached();
     },
     onBeforeDetach() {
-      return !!this._isAttached;
+      return this.isAttached();
     },
     onDestroy() {
-      return !!this._isAttached;
+      return this.isAttached();
     }
   });
 

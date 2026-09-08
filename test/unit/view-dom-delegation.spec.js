@@ -1,8 +1,6 @@
 import { vi, describe, it, expect } from 'vitest';
 import { setFixtures } from '../setup/fixtures.js';
-import Behavior from '../../src/modules/behavior';
-import CollectionView from '../../src/modules/collection-view';
-import View from '../../src/modules/view';
+import { Behavior, CollectionView, View } from 'marionette';
 
 describe('View DOM event delegation', function() {
   [
@@ -116,17 +114,20 @@ describe('View DOM event delegation', function() {
   });
 
   it('treats delegation calls on a destroyed View as chainable no-ops', function() {
-    const view = new View();
+    const handler = vi.fn();
+    const behaviorHandler = vi.fn();
+    const TestBehavior = Behavior.extend({ events: { click: behaviorHandler } });
+    const view = new View({ events: { click: handler }, behaviors: [TestBehavior] });
+    view.el.click();
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(behaviorHandler).toHaveBeenCalledTimes(1);
     view.destroy();
-    const delegateSpy = vi.spyOn(view, '_delegateViewEvents');
-    const undelegateSpy = vi.spyOn(view, '_undelegateViewEvents');
-    const behaviorSpy = vi.spyOn(view, '_delegateBehaviorViewEvents');
 
     expect(view.delegateEvents()).to.equal(view);
     expect(view.undelegateEvents()).to.equal(view);
-    expect(delegateSpy).not.toHaveBeenCalled();
-    expect(undelegateSpy).not.toHaveBeenCalled();
-    expect(behaviorSpy).not.toHaveBeenCalled();
+    view.el.click();
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(behaviorHandler).toHaveBeenCalledTimes(1);
   });
 
   it('is available and chainable on CollectionView', function() {

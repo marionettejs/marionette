@@ -1,10 +1,5 @@
 import { vi, describe, it, expect } from 'vitest';
-import Application from '../../src/modules/application';
-import Behavior from '../../src/modules/behavior';
-import CollectionView from '../../src/modules/collection-view';
-import MnObject from '../../src/modules/object';
-import Region from '../../src/modules/region';
-import View from '../../src/modules/view';
+import { Application, Behavior, CollectionView, MnObject, Region, View } from 'marionette';
 import { MarionetteError } from '@marionette/utils';
 
 function createSource() {
@@ -38,15 +33,16 @@ describe('state source composition', function() {
 
   for (const OwnerClass of OwnerClasses) {
     it(`${ OwnerClass.name } stays allocation-free until state is requested`, async function() {
-      const owner = new OwnerClass(OwnerClass === View ? { template: false } : undefined);
+      const createState = vi.fn(() => ({}));
+      const Owner = OwnerClass.extend({ createState });
+      const owner = new Owner(OwnerClass === View ? { template: false } : undefined);
 
-      expect(Object.hasOwn(owner, '_state')).to.be.false;
-      expect(Object.hasOwn(owner, '_stateOptions')).to.be.false;
-      expect(Object.hasOwn(owner, '_stateEventCleanup')).to.be.false;
+      expect(createState).not.toHaveBeenCalled();
 
       const state = owner.getState();
       expect(state).to.deep.equal({});
       expect(owner.getState()).to.equal(state);
+      expect(createState).toHaveBeenCalledTimes(1);
       await owner.destroy();
     });
   }
@@ -244,7 +240,8 @@ describe('state source composition', function() {
     expect(behavior.getState()).to.equal(source);
     view.destroy();
     expect(onDestroy).toHaveBeenCalledTimes(1);
-    expect(behavior._isDestroyed).to.be.true;
+    view.triggerMethod('destroy', view);
+    expect(onDestroy).toHaveBeenCalledTimes(1);
   });
 
   it('does not compose state into Region', function() {

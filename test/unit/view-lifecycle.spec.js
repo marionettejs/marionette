@@ -1,7 +1,6 @@
 import { vi, describe, it, expect } from 'vitest';
 import { setFixtures } from '../setup/fixtures.js';
-import Region from '../../src/modules/region';
-import View from '../../src/modules/view';
+import { Region, View } from 'marionette';
 
 function state(view) {
   return {

@@ -2,7 +2,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import _ from 'underscore';
 import Backbone from 'backbone';
 import { setFixtures } from '../setup/fixtures.js';
-import * as Marionette from '../../src/index.ts';
+import * as Marionette from 'marionette';
 import '../setup/backbone.js';
 import $ from 'jquery';
 
@@ -65,8 +65,10 @@ describe('layoutView', function() {
       expect(testContext.regionOne).to.equal(testContext.layoutViewManager.getRegion('regionOne'));
     });
 
-    it('should create backlink with region manager', function(testContext) {
-      expect(testContext.regionOne._parentView).to.equal(testContext.layoutViewManager);
+    it('unregisters a region from its owner when the region is destroyed', function(testContext) {
+      expect(testContext.regionOne.getOwner()).to.equal(testContext.layoutViewManager);
+      testContext.regionOne.destroy();
+      expect(testContext.layoutViewManager.hasRegion('regionOne')).to.be.false;
     });
   });
 
@@ -160,7 +162,7 @@ describe('layoutView', function() {
     });
 
     it('should find the region scoped within the rendered template', function(testContext) {
-      testContext.layoutViewManager.getRegion('regionOne')._ensureElement();
+      testContext.layoutViewManager.showChildView('regionOne', new Marionette.View({ template: false }));
       let el = testContext.layoutViewManager.$('#regionOne');
       expect(testContext.layoutViewManager.getRegion('regionOne').el).to.equal(el[0]);
     });
@@ -194,7 +196,7 @@ describe('layoutView', function() {
     });
 
     it('should be marked rendered', function(testContext) {
-      expect(testContext.layoutViewManager).to.have.property('_isRendered', true);
+      expect(testContext.layoutViewManager.isRendered()).to.be.true;
     });
   });
 
@@ -212,7 +214,7 @@ describe('layoutView', function() {
         template: _.noop,
         destroy: function() {
           this.hadParent = Boolean(this.el.closest('#parent'));
-          return View.__super__.destroy.call(this);
+          return Marionette.View.prototype.destroy.call(this);
         }
       });
 
@@ -246,11 +248,11 @@ describe('layoutView', function() {
     });
 
     it('should be marked destroyed', function(testContext) {
-      expect(testContext.layoutViewManager).to.have.property('_isDestroyed', true);
+      expect(testContext.layoutViewManager.isDestroyed()).to.be.true;
     });
 
     it('should be marked not rendered', function(testContext) {
-      expect(testContext.layoutViewManager).to.have.property('_isRendered', false);
+      expect(testContext.layoutViewManager.isRendered()).to.be.false;
     });
   });
 
@@ -277,16 +279,14 @@ describe('layoutView', function() {
 
   describe('when showing a childView as a View', function() {
     beforeEach(function(testContext) {
-      testContext.layoutView = new testContext.View();
       testContext.childEventsHandlerTrigger = vi.fn();
       testContext.childEventsHandlerTriggerMethod = vi.fn();
 
       // add child events to listen for
-      testContext.layoutView.childViewEvents = {
+      testContext.layoutView = new testContext.View({ childViewEvents: {
         'before:content:rendered': testContext.childEventsHandlerTrigger,
         'content:rendered': testContext.childEventsHandlerTriggerMethod
-      };
-      testContext.layoutView._buildEventProxies();
+      } });
       testContext.layoutView.render();
 
       // create a child view which triggers an event on render
@@ -341,7 +341,7 @@ describe('layoutView', function() {
       testContext.layoutView = new testContext.View();
       testContext.layoutView.onRender = function() {
         suite.regionOne = suite.layoutView.getRegion('regionOne');
-        suite.regionOne._ensureElement();
+        suite.regionOne.show(new Marionette.View({ template: false }));
       };
 
       testContext.region = new Marionette.Region({
@@ -604,7 +604,7 @@ describe('layoutView', function() {
 
       it('after initialization, the view\'s regions should be scoped to its parent view', function(testContext) {
         const region = testContext.layoutViewInstance.getRegion('regionOne');
-        region._ensureElement();
+        region.show(new Marionette.View({ template: false }));
         const regionEl = region.el;
         expect(regionEl).to.exist;
         expect(regionEl).to.equal(testContext.$inScopeRegion[0]);

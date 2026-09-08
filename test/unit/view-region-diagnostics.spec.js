@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { MarionetteError, Region, View } from '../../src/index';
+import { MarionetteError, Region, View } from 'marionette';
 
 const childOperations = [
   ['showChildView', (view, name) => {

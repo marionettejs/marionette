@@ -1,10 +1,9 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { setFixtures } from '../setup/fixtures.js';
-import * as Marionette from '../../src/index.ts';
+import * as Marionette from 'marionette';
 import '../setup/backbone.js';
 import Backbone from 'backbone';
-import Region from '../../src/modules/region';
-import View from '../../src/modules/view';
+import { Region, View, Behavior } from 'marionette';
 
 describe('view', function() {
   'use strict';
@@ -149,7 +148,8 @@ describe('view', function() {
 
       view = new TestView();
 
-      marionetteRendererSpy = vi.spyOn(view, '_renderHtml');
+      marionetteRendererSpy = vi.fn();
+      TestView.setRenderer(marionetteRendererSpy);
       serializeDataSpy = vi.spyOn(view, 'serializeData');
       mixinTemplateContextSpy = vi.spyOn(view, 'mixinTemplateContext');
       attachElContentSpy = vi.spyOn(view, 'attachElContent');
@@ -291,11 +291,11 @@ describe('view', function() {
     });
 
     it('should be marked destroyed', function() {
-      expect(view).to.have.property('_isDestroyed', true);
+      expect(view.isDestroyed()).to.be.true;
     });
 
     it('should be marked not rendered', function() {
-      expect(view).to.have.property('_isRendered', false);
+      expect(view.isRendered()).to.be.false;
     });
   });
 
@@ -332,13 +332,12 @@ describe('view', function() {
 
   describe('when instantiating a View', function() {
     it('should trigger `initialize` on the behaviors', function() {
-      vi.spyOn(View.prototype, '_triggerEventOnBehaviors').mockImplementation(() => undefined);
+      const onInitialize = vi.fn();
+      const TestBehavior = Behavior.extend({ onInitialize });
+      const myView = new View({ foo: 'bar', behaviors: [TestBehavior] });
 
-      const myView = new View({ foo: 'bar' });
-
-      // _triggerEventOnBehaviors comes from Behaviors mixin
-      expect(myView._triggerEventOnBehaviors).toHaveBeenCalledTimes(1);
-      expect(myView._triggerEventOnBehaviors.mock.calls.map(args => args.slice(0, 3))).toContainEqual(['initialize', myView, { foo: 'bar' }]);
+      expect(onInitialize).toHaveBeenCalledTimes(1);
+      expect(onInitialize).toHaveBeenCalledWith(myView, myView.options);
     });
   });
 
