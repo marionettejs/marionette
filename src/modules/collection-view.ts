@@ -500,13 +500,13 @@ Object.assign(CollectionView.prototype, ViewMixin, {
   _onCollectionUpdate(this: CollectionViewInternals, changes: Update) {
     if (this._isDestroying || this._isDestroyed) { return; }
 
-    const updateEntries = changes.updated.map(({ key, previous, current }) => {
+    const updateEntries = [];
+    for (const { key, previous, current } of changes.updated) {
       const view = this._children.findByKey(key);
-      if (!view) {
-        throwCollectionProtocolError(`No child View exists for updated key "${ String(key) }".`);
+      if (view) {
+        updateEntries.push({ current, previous, view });
       }
-      return { current, previous, view };
-    });
+    }
     const replacementViews = updateEntries
       .filter(({ current, previous }) => current !== previous)
       .map(({ current }) => this._createChildView(current));
@@ -935,13 +935,37 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       if (attaching.length !== views.length &&
           attaching.every(view => view.el.parentNode === this.container)) {
         const childEls = new Set<Node>(views.map(view => view.el));
-        let next = this.container.firstChild;
-        for (const view of views) {
-          while (next && !childEls.has(next)) { next = next.nextSibling; }
-          if (view.el !== next) {
-            this.Dom.moveEl(view.el, this.container, next);
+        let first = this.container.firstChild;
+        let last = this.container.lastChild;
+        let start = 0;
+        let end = views.length - 1;
+        while (start <= end) {
+          while (first && !childEls.has(first)) { first = first.nextSibling; }
+          const firstEl = views[start].el;
+          if (firstEl === first) {
+            first = first.nextSibling;
+            start++;
+            continue;
           }
-          next = view.el.nextSibling;
+
+          // Match both ends before moving an element through the remaining list.
+          while (last && !childEls.has(last)) { last = last.previousSibling; }
+          const lastEl = views[end].el;
+          if (lastEl === last) {
+            last = last.previousSibling;
+            end--;
+          } else if (lastEl === first) {
+            first = first.nextSibling;
+            this.Dom.moveEl(lastEl, this.container, last!.nextSibling);
+            end--;
+          } else if (firstEl === last) {
+            last = last.previousSibling;
+            this.Dom.moveEl(firstEl, this.container, first);
+            start++;
+          } else {
+            this.Dom.moveEl(firstEl, this.container, first);
+            start++;
+          }
         }
       }
 
