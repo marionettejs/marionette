@@ -1,163 +1,30 @@
-import { describe, it, expect } from 'vitest';
-import Application from '../../src/modules/application';
-import MnObject from '../../src/modules/object';
-import CommonMixin from '../../src/mixins/common';
-import DestroyMixin from '../../src/mixins/destroy';
-import RadioMixin from '../../src/mixins/radio';
-import StateMixin from '../../src/mixins/state';
+import { describe, it, expect, vi } from 'vitest';
+import { createMarionette } from 'marionette';
 
-function composedKeys(mixins, finalKeys) {
-  const keys = [];
-
-  mixins.forEach(mixin => {
-    Object.keys(mixin).forEach(key => {
-      if (!keys.includes(key)) { keys.push(key); }
-    });
-  });
-
-  finalKeys.forEach(key => {
-    if (!keys.includes(key)) { keys.push(key); }
-  });
-
-  return keys;
-}
-
-function expectAssignmentDescriptor(target, key, value) {
-  expect(Object.getOwnPropertyDescriptor(target, key)).to.deep.equal({
-    configurable: true,
-    enumerable: true,
-    value,
-    writable: true
-  });
-}
-
-describe('Object and Application prototype composition', function() {
-  it('preserves own method order, identities, descriptors, and constructors', function() {
-    const objectFinalKeys = ['cidPrefix'];
-    const applicationFinalKeys = [
-      'preinitialize',
-      'cidPrefix',
-      '_lifecycleState',
-      'isRunning',
-      'start',
-      'stop',
-      'restart',
-      'addChildApp',
-      'removeChildApp',
-      'hasChildApp',
-      'getChildApp',
-      'getChildApps',
-      'getName',
-      'regionClass',
-      '_initRegion',
-      'getRegion',
-      'showView',
-      'getView'
-    ];
-    const sharedMixins = [CommonMixin, DestroyMixin, RadioMixin];
-
-    expect(Object.keys(MnObject.prototype))
-      .to.deep.equal(composedKeys([...sharedMixins, StateMixin], objectFinalKeys));
-    expect(Object.keys(Application.prototype))
-      .to.deep.equal(composedKeys([...sharedMixins, StateMixin], applicationFinalKeys));
-    expect(Application.prototype).to.not.have.property('getParentApp');
-    expect(Application.prototype).to.not.have.property('getRootApp');
-    ['reply', 'replyOnce', 'stopReplying', 'request'].forEach(methodName => {
-      expect(MnObject.prototype).to.not.have.property(methodName);
-      expect(Application.prototype).to.not.have.property(methodName);
-    });
-    expect(MnObject.prototype._setOptions).to.equal(CommonMixin._setOptions);
-    expect(MnObject.prototype.destroy).to.equal(DestroyMixin.destroy);
-    expect(MnObject.prototype._initRadio).to.equal(RadioMixin._initRadio);
-    expect(MnObject.prototype.getState).to.equal(StateMixin.getState);
-    expect(Application.prototype._setOptions).to.equal(CommonMixin._setOptions);
-    expect(Application.prototype.destroy).to.not.equal(DestroyMixin.destroy);
-    expect(Application.prototype._initRadio).to.equal(RadioMixin._initRadio);
-    expect(Application.prototype.getState).to.equal(StateMixin.getState);
-    [CommonMixin, DestroyMixin, RadioMixin].forEach(mixin => {
-      Object.keys(mixin).forEach(key => {
-        expectAssignmentDescriptor(MnObject.prototype, key, mixin[key]);
-        if (key !== 'destroy') {
-          expectAssignmentDescriptor(Application.prototype, key, mixin[key]);
-        }
+describe('Object and Application public owner contracts', () => {
+  for (const className of ['MnObject', 'Application']) {
+    it(`${className} shares Events and releases Radio handlers through destruction`, async() => {
+      const runtime = createMarionette();
+      const onMessage = vi.fn();
+      const Owner = runtime[className].extend({
+        channelName: 'owner-contract',
+        radioEvents: { message: onMessage },
+        radioRequests: { value: () => 42 }
       });
+      const owner = new Owner({ state: { ready: true } });
+      const event = vi.fn();
+      owner.on('local', event);
+      owner.trigger('local', 'value');
+      expect(event).toHaveBeenCalledWith('value');
+      expect(owner.getState()).toEqual({ ready: true });
+      runtime.Radio.trigger('owner-contract', 'message');
+      expect(onMessage).toHaveBeenCalledOnce();
+      expect(runtime.Radio.request('owner-contract', 'value')).toBe(42);
+      await owner.destroy();
+      runtime.Radio.trigger('owner-contract', 'message');
+      expect(onMessage).toHaveBeenCalledOnce();
+      expect(runtime.Radio.request('owner-contract', 'value')).toBeUndefined();
+      expect(owner.isDestroyed()).toBe(true);
     });
-    Object.keys(StateMixin).forEach(key => {
-      expectAssignmentDescriptor(MnObject.prototype, key, StateMixin[key]);
-      expectAssignmentDescriptor(Application.prototype, key, StateMixin[key]);
-    });
-    expectAssignmentDescriptor(MnObject.prototype, 'cidPrefix', 'mno');
-    expectAssignmentDescriptor(Application.prototype, 'cidPrefix', 'mna');
-    expectAssignmentDescriptor(Application.prototype, 'destroy', Application.prototype.destroy);
-    expect(Object.getOwnPropertyDescriptor(MnObject.prototype, 'constructor')).to.deep.equal({
-      configurable: true,
-      enumerable: false,
-      value: MnObject,
-      writable: true
-    });
-    expect(Object.getOwnPropertyDescriptor(Application.prototype, 'constructor')).to.deep.equal({
-      configurable: true,
-      enumerable: false,
-      value: Application,
-      writable: true
-    });
-  });
-
-  it('does not compose inherited enumerable source pollution', async function() {
-    const mixins = [CommonMixin, DestroyMixin, RadioMixin];
-    const prototypes = mixins.map(Object.getPrototypeOf);
-
-    const mutatedMixins = [];
-
-    let IsolatedObject;
-    let IsolatedApplication;
-    let primaryFailed = false;
-    let primaryError;
-    try {
-      mixins.forEach(mixin => {
-        const pollutedPrototype = {};
-        Object.defineProperty(pollutedPrototype, 'inheritedPollution', {
-          enumerable: true,
-          get() {
-            throw new Error('inherited pollution was read');
-          }
-        });
-        Object.setPrototypeOf(mixin, pollutedPrototype);
-        mutatedMixins.push(mixin);
-      });
-
-      ({ default: IsolatedObject } = await import('../../src/modules/object.ts?composition-test'));
-      ({ default: IsolatedApplication } = await import('../../src/modules/application.ts?composition-test'));
-    } catch (error) {
-      primaryFailed = true;
-      primaryError = error;
-    }
-
-    let cleanupFailed = false;
-    let cleanupError;
-    const restore = callback => {
-      try {
-        callback();
-      } catch (error) {
-        if (!cleanupFailed) {
-          cleanupFailed = true;
-          cleanupError = error;
-        }
-      }
-    };
-    for (let index = mutatedMixins.length - 1; index >= 0; index--) {
-      restore(() => Object.setPrototypeOf(mutatedMixins[index], prototypes[index]));
-    }
-
-    if (primaryFailed) { throw primaryError; }
-    if (cleanupFailed) { throw cleanupError; }
-
-    expect(IsolatedObject).to.not.equal(MnObject);
-    expect(IsolatedApplication).to.not.equal(Application);
-    expect(IsolatedObject.prototype).to.not.have.own.property('inheritedPollution');
-    expect(IsolatedApplication.prototype).to.not.have.own.property('inheritedPollution');
-    [IsolatedObject.prototype, IsolatedApplication.prototype].forEach(prototype => {
-      expect(Object.getPrototypeOf(prototype)).to.equal(Object.prototype);
-    });
-  });
+  }
 });

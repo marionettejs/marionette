@@ -1,8 +1,27 @@
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import '../setup/backbone.js';
 import Backbone from 'backbone';
-import ChildViewContainer from '../../src/modules/child-view-container';
-import BackboneApi from '../../packages/adapters/src/data/backbone.ts';
+import { CollectionView, View } from 'marionette';
+import BackboneApi from '@marionette/adapters/backbone';
+
+const ChildView = View.extend({ template: false });
+const owners = new Set();
+function createList(dataApi = BackboneApi) {
+  const List = CollectionView.extend({ viewComparator: false, template: false });
+  List.setDataApi(dataApi);
+  const list = new List();
+  owners.add(list);
+  return list;
+}
+function createChildren(views = []) {
+  const list = createList();
+  views.forEach(view => list.addChildView(view));
+  return list.children;
+}
+afterEach(() => {
+  owners.forEach(owner => owner.destroy());
+  owners.clear();
+});
 
 describe('#ChildViewContainer', function() {
 
@@ -12,13 +31,12 @@ describe('#ChildViewContainer', function() {
 
     beforeEach(function() {
       views = [
-        new Backbone.View({ id: 1 }),
-        new Backbone.View({ id: 2 }),
-        new Backbone.View({ id: 3 })
+        new ChildView({ id: 1 }),
+        new ChildView({ id: 2 }),
+        new ChildView({ id: 3 })
       ];
 
-      container = new ChildViewContainer();
-      container._set(views, true);
+      container = createChildren(views);
     });
 
     describe('#each', function() {
@@ -37,7 +55,7 @@ describe('#ChildViewContainer', function() {
       });
 
       it('returns an empty container without calling the callback', function() {
-        const emptyContainer = new ChildViewContainer();
+        const emptyContainer = createChildren();
         const callback = vi.fn();
 
         expect(emptyContainer.each(callback)).to.equal(emptyContainer);
@@ -65,7 +83,7 @@ describe('#ChildViewContainer', function() {
       });
 
       it('returns a new empty array without calling the callback', function() {
-        const emptyContainer = new ChildViewContainer();
+        const emptyContainer = createChildren();
         const callback = vi.fn();
         const result = emptyContainer.map(callback);
 
@@ -112,7 +130,7 @@ describe('#ChildViewContainer', function() {
         const initialValue = {};
         const callback = vi.fn();
 
-        expect(new ChildViewContainer().reduce(callback, initialValue)).to.equal(initialValue);
+        expect(createChildren().reduce(callback, initialValue)).to.equal(initialValue);
         expect(callback).not.toHaveBeenCalled();
       });
 
@@ -129,7 +147,7 @@ describe('#ChildViewContainer', function() {
       it('throws for an empty container without an initial value', function() {
         const callback = vi.fn();
 
-        expect(() => new ChildViewContainer().reduce(callback))
+        expect(() => createChildren().reduce(callback))
           .to.throw().with.property('code', 'MN0024');
         expect(callback).not.toHaveBeenCalled();
       });
@@ -154,7 +172,7 @@ describe('#ChildViewContainer', function() {
       });
 
       it('returns an empty array for an empty container and a string method name', function() {
-        expect(new ChildViewContainer().invoke('render')).to.deep.equal([]);
+        expect(createChildren().invoke('render')).to.deep.equal([]);
       });
 
     });
@@ -186,7 +204,7 @@ describe('#ChildViewContainer', function() {
         iteratedViews.push(view);
       }
       expect(iteratedViews).to.deep.equal(views);
-      expect([...new ChildViewContainer()]).to.deep.equal([]);
+      expect([...createChildren()]).to.deep.equal([]);
     });
   });
 
@@ -197,11 +215,10 @@ describe('#ChildViewContainer', function() {
 
     beforeEach(function() {
       model = new Backbone.Model({ status: 'model status' });
-      view = new Backbone.View({ model });
+      view = new ChildView({ model });
       view.status = 'view status';
 
-      container = new ChildViewContainer();
-      container._set([view, new Backbone.View()], true);
+      container = createChildren([view, new ChildView()]);
     });
 
     describe('#pluck', function() {
@@ -228,7 +245,7 @@ describe('#ChildViewContainer', function() {
       });
 
       it('returns an empty array for an empty container', function() {
-        const emptyContainer = new ChildViewContainer();
+        const emptyContainer = createChildren();
         const result = emptyContainer.pluck('model');
 
         expect(result).to.deep.equal([]);
@@ -244,7 +261,7 @@ describe('#ChildViewContainer', function() {
       });
 
       it('returns false for an empty container', function() {
-        expect(new ChildViewContainer().contains(view)).to.be.false;
+        expect(createChildren().contains(view)).to.be.false;
       });
     });
   });
@@ -263,17 +280,16 @@ describe('#ChildViewContainer', function() {
 
     beforeEach(function() {
       views = [
-        new Backbone.View(),
-        new Backbone.View(),
-        new Backbone.View()
+        new ChildView(),
+        new ChildView(),
+        new ChildView()
       ];
 
       views.forEach((view, index) => {
         view.rank = index + 1;
       });
 
-      container = new ChildViewContainer();
-      container._set(views, true);
+      container = createChildren(views);
     });
 
     describe('#find', function() {
@@ -304,7 +320,7 @@ describe('#ChildViewContainer', function() {
       it('does not call the predicate for an empty container', function() {
         const predicate = vi.fn();
 
-        expect(new ChildViewContainer().find(predicate)).to.be.undefined;
+        expect(createChildren().find(predicate)).to.be.undefined;
         expect(predicate).not.toHaveBeenCalled();
       });
     });
@@ -334,7 +350,7 @@ describe('#ChildViewContainer', function() {
 
       it('returns an empty array without calling the predicate for an empty container', function() {
         const predicate = vi.fn();
-        const emptyContainer = new ChildViewContainer();
+        const emptyContainer = createChildren();
         const result = emptyContainer.filter(predicate);
 
         expect(result).to.deep.equal([]);
@@ -367,7 +383,7 @@ describe('#ChildViewContainer', function() {
 
       it('returns an empty array without calling the predicate for an empty container', function() {
         const predicate = vi.fn();
-        const emptyContainer = new ChildViewContainer();
+        const emptyContainer = createChildren();
         const result = emptyContainer.reject(predicate);
 
         expect(result).to.deep.equal([]);
@@ -402,7 +418,7 @@ describe('#ChildViewContainer', function() {
       it('returns true without calling the predicate for an empty container', function() {
         const predicate = vi.fn();
 
-        expect(new ChildViewContainer().every(predicate)).to.be.true;
+        expect(createChildren().every(predicate)).to.be.true;
         expect(predicate).not.toHaveBeenCalled();
       });
     });
@@ -433,7 +449,7 @@ describe('#ChildViewContainer', function() {
       it('returns false without calling the predicate for an empty container', function() {
         const predicate = vi.fn();
 
-        expect(new ChildViewContainer().some(predicate)).to.be.false;
+        expect(createChildren().some(predicate)).to.be.false;
         expect(predicate).not.toHaveBeenCalled();
       });
     });
@@ -472,7 +488,7 @@ describe('#ChildViewContainer', function() {
 
       it('returns two empty arrays without calling the predicate for an empty container', function() {
         const predicate = vi.fn();
-        const emptyContainer = new ChildViewContainer();
+        const emptyContainer = createChildren();
         const result = emptyContainer.partition(predicate);
         const nextResult = emptyContainer.partition(predicate);
 
@@ -491,13 +507,12 @@ describe('#ChildViewContainer', function() {
 
     beforeEach(function() {
       views = [
-        new Backbone.View(),
-        new Backbone.View(),
-        new Backbone.View()
+        new ChildView(),
+        new ChildView(),
+        new ChildView()
       ];
 
-      container = new ChildViewContainer();
-      container._set(views, true);
+      container = createChildren(views);
     });
 
     describe('#toArray', function() {
@@ -516,7 +531,7 @@ describe('#ChildViewContainer', function() {
       });
 
       it('returns an empty array for an empty container', function() {
-        expect(new ChildViewContainer().toArray()).to.deep.equal([]);
+        expect(createChildren().toArray()).to.deep.equal([]);
       });
     });
 
@@ -539,7 +554,7 @@ describe('#ChildViewContainer', function() {
       });
 
       it('returns the empty-container values', function() {
-        const emptyContainer = new ChildViewContainer();
+        const emptyContainer = createChildren();
 
         expect(emptyContainer.first()).to.be.undefined;
         expect(emptyContainer.first(2)).to.deep.equal([]);
@@ -576,7 +591,7 @@ describe('#ChildViewContainer', function() {
       });
 
       it('returns an empty array for an empty container', function() {
-        const emptyContainer = new ChildViewContainer();
+        const emptyContainer = createChildren();
 
         expect(emptyContainer.initial()).to.deep.equal([]);
         expect(emptyContainer.initial(2)).to.deep.equal([]);
@@ -613,7 +628,7 @@ describe('#ChildViewContainer', function() {
       });
 
       it('returns an empty array for an empty container', function() {
-        const emptyContainer = new ChildViewContainer();
+        const emptyContainer = createChildren();
 
         expect(emptyContainer.rest()).to.deep.equal([]);
         expect(emptyContainer.rest(2)).to.deep.equal([]);
@@ -639,7 +654,7 @@ describe('#ChildViewContainer', function() {
       });
 
       it('returns the empty-container values', function() {
-        const emptyContainer = new ChildViewContainer();
+        const emptyContainer = createChildren();
 
         expect(emptyContainer.last()).to.be.undefined;
         expect(emptyContainer.last(2)).to.deep.equal([]);
@@ -686,7 +701,7 @@ describe('#ChildViewContainer', function() {
       });
 
       it('returns an empty array for an empty container', function() {
-        const emptyContainer = new ChildViewContainer();
+        const emptyContainer = createChildren();
 
         expect(emptyContainer.without()).to.deep.equal([]);
         expect(emptyContainer.without(views[0])).to.deep.equal([]);
@@ -699,7 +714,7 @@ describe('#ChildViewContainer', function() {
         expect(container).to.have.lengthOf(3);
         expect(container.first()).to.equal(views[0]);
         expect(container.last()).to.equal(views[2]);
-        expect(new ChildViewContainer().isEmpty()).to.be.true;
+        expect(createChildren().isEmpty()).to.be.true;
       });
     });
 
@@ -713,660 +728,127 @@ describe('#ChildViewContainer', function() {
     });
   });
 
-  describe('#_init', function() {
-    let container;
 
-    beforeEach(function() {
-      container = new ChildViewContainer();
-
-      container._set([
-        new Backbone.View(),
-        new Backbone.View(),
-        new Backbone.View(),
-        new Backbone.View()
-      ], true);
-
-      container._init();
+  describe('mutation through CollectionView ownership', () => {
+    it('updates every public lookup when children are inserted, detached, and destroyed', () => {
+      const list = createList();
+      const views = [1, 2, 3].map(id => new ChildView({ model: new Backbone.Model({ id }) }));
+      list.addChildView(views[0]);
+      list.addChildView(views[2]);
+      list.addChildView(views[1], 1);
+      expect(list.children.toArray()).toEqual(views);
+      views.forEach((view, index) => {
+        expect(list.children.findByCid(view.cid)).toBe(view);
+        expect(list.children.findByModel(view.model)).toBe(view);
+        expect(list.children.findByIndex(index)).toBe(view);
+        expect(list.children.hasView(view)).toBe(true);
+      });
+      expect(list.detachChildView(views[1])).toBe(views[1]);
+      expect(views[1].isDestroyed()).toBe(false);
+      expect(list.children.findByModel(views[1].model)).toBeUndefined();
+      expect(list.children.findByCid(views[1].cid)).toBeUndefined();
+      expect(list.children.findIndexByView(views[1])).toBe(-1);
+      list.addChildView(views[1], 1);
+      list.removeChildView(views[1]);
+      expect(views[1].isDestroyed()).toBe(true);
+      list.destroy();
+      expect(list.children.toArray()).toEqual([]);
+      expect(list.children.length).toBe(0);
+      views.forEach(view => expect(list.children.hasView(view)).toBe(false));
     });
 
-    it('should empty all of the view buffers', function() {
-      expect(container._views).to.deep.equal([]);
-      expect(container._viewsByCid).to.deep.equal({});
-      expect(container._indexByModel).to.deep.equal(new Map());
-    });
-
-    it('should update length to 0', function() {
-      expect(container).to.have.lengthOf(0);
-    });
-  });
-
-  describe('#_add', function() {
-    it('indexes prototype-collision view and model cids as ordinary keys', function() {
-      const container = new ChildViewContainer(BackboneApi);
+    it('indexes prototype-collision cids and rejects same-cid impostors', () => {
+      const list = createList();
       const views = ['constructor', 'toString', '__proto__'].map(cid => {
         const model = new Backbone.Model();
         model.cid = cid;
-        const view = new Backbone.View({ model });
+        const view = new ChildView({ model });
         view.cid = cid;
-        container._add(view);
+        list.addChildView(view);
         return view;
       });
-
       views.forEach(view => {
-        expect(container.findByCid(view.cid)).to.equal(view);
-        expect(container.findByModel(view.model)).to.equal(view);
-        expect(container.hasView(view)).to.be.true;
+        expect(list.children.findByCid(view.cid)).toBe(view);
+        expect(list.children.findByModel(view.model)).toBe(view);
+        expect(list.children.hasView({ cid: view.cid })).toBe(false);
       });
+      list.removeChildView({ cid: 'toString' });
+      expect(list.children.toArray()).toEqual(views);
+      list.removeChildView(views[2]);
+      expect(list.children.findByCid('__proto__')).toBeUndefined();
+      expect(list.children.length).toBe(2);
     });
 
-    describe('when adding a view that does not have a model', function() {
-      let container;
-      let view;
-      let foundView;
-      let indexView;
-
-      beforeEach(function() {
-        view = new Backbone.View();
-
-        container = new ChildViewContainer(BackboneApi);
-
-        container._add(view);
-
-        foundView = container.findByCid(view.cid);
-        indexView = container.findByIndex(0);
-      });
-
-      it('should make the view retrievable by the view\'s cid', function() {
-        expect(foundView).to.equal(view);
-      });
-
-      it('should make the view retrievable by numeric index', function() {
-        expect(indexView).to.equal(view);
-      });
-
-      it('should update the size of the chidren', function() {
-        expect(container).to.have.lengthOf(1);
-      })
+    it('keeps the later child owning a duplicate data key after removing the first', () => {
+      const list = createList({ key: model => model.id });
+      const first = new ChildView({ model: { id: 1 } });
+      const second = new ChildView({ model: { id: 1 } });
+      list.addChildView(first);
+      list.addChildView(second);
+      list.removeChildView(first);
+      expect(list.children.findByModel(second.model)).toBe(second);
+      expect(list.children.findByKey(1)).toBe(second);
     });
 
-    describe('when adding a view that has a model', function() {
-      let container;
-      let view;
-      let foundView;
-      let model;
-
-      beforeEach(function() {
-        model = new Backbone.Model();
-        view = new Backbone.View({
-          model: model
-        });
-
-        container = new ChildViewContainer();
-
-        container._add(view);
-
-        foundView = container.findByModel(model);
-      });
-
-      it('should make the view retrievable by the model', function() {
-        expect(foundView).to.equal(view);
-      });
+    it('sorts model attributes and places children without models last', () => {
+      const list = createList();
+      const views = ['foo', 'bar', 'baz'].map(text => new ChildView({ model: new Backbone.Model({ text }) }));
+      const orphan = new ChildView();
+      [...views, orphan].forEach(view => list.addChildView(view));
+      list.setComparator('text');
+      expect(list.children.toArray()).toEqual([views[1], views[2], views[0], orphan]);
     });
 
-    describe('when adding a view with an index value', function() {
-      let container;
-      let view;
-      let foundView;
-
-      beforeEach(function() {
-        view = new Backbone.View();
-
-        container = new ChildViewContainer();
-
-        container._set([
-          new Backbone.View(),
-          new Backbone.View(),
-          new Backbone.View(),
-          new Backbone.View()
-        ], true);
-
-        container._add(view, 3);
-
-        foundView = container.findByIndex(3);
-      });
-
-      it('should make the view retrievable by the index', function() {
-        expect(foundView).to.equal(view);
-      });
+    it.each([
+      [[1, 1, 0], [2, 0, 1]],
+      [[undefined, 1, undefined, 0], [3, 1, 0, 2]],
+      [[NaN, 1], [0, 1]],
+      [[{}, {}], [0, 1]]
+    ])('preserves stable order for comparator criteria %j', (criteria, order) => {
+      const list = createList();
+      const views = criteria.map(rank => Object.assign(new ChildView(), { rank }));
+      views.forEach(view => list.addChildView(view));
+      const comparator = vi.fn(view => view.rank);
+      list.setComparator(comparator);
+      expect(list.children.toArray()).toEqual(order.map(index => views[index]));
+      expect(comparator).toHaveBeenCalledTimes(views.length);
+      expect(comparator.mock.contexts.every(context => context === list)).toBe(true);
     });
 
-  });
-
-  describe('#_set', function() {
-    let container;
-    let views;
-    let originalViews;
-    let originalView;
-
-    beforeEach(function() {
-      views = [
-        new Backbone.View(),
-        new Backbone.View()
-      ];
-
-      container = new ChildViewContainer();
-
-      container._add(new Backbone.View());
-      container._add(new Backbone.View());
-      container._add(new Backbone.View());
-
-      originalViews = container._views;
-      originalView = container._views[0];
+    it('preserves the child order when criterion evaluation or comparison throws', () => {
+      const list = createList();
+      const views = [new ChildView(), new ChildView()];
+      views.forEach(view => list.addChildView(view));
+      const failure = new Error('criterion failed');
+      expect(() => list.setComparator(view => {
+        if (view === views[1]) { throw failure; }
+        return 1;
+      })).toThrow(failure);
+      expect(list.children.toArray()).toEqual(views);
+      expect(() => list.setComparator(view => Symbol(view.cid))).toThrow(TypeError);
+      expect(list.children.toArray()).toEqual(views);
     });
 
-    it('should replace the contents of _views', function() {
-      container._set(views);
-      expect(container._views[0]).to.equal(views[0]);
+    it('sorts binary comparators with their public owner as receiver', () => {
+      const list = createList();
+      const views = [1, 2, 3].map(rank => Object.assign(new ChildView(), { rank }));
+      views.forEach(view => list.addChildView(view));
+      const comparator = vi.fn(function(left, right) { expect(this).toBe(list); return right.rank - left.rank; });
+      expect(list.setComparator(comparator)).toBe(list);
+      expect(list.children.toArray()).toEqual([...views].reverse());
     });
 
-    it('should keep the _views array reference', function() {
-      container._set(views);
-      expect(container._views).to.equal(originalViews);
-    });
-
-    it('should preserve contents when resetting from its own view buffer', function() {
-      container._set(views, true);
-      const currentViews = container._views;
-
-      container._set(currentViews, true);
-
-      expect(container._views).to.equal(currentViews);
-      expect(container.toArray()).to.deep.equal(views);
-      expect(container.hasView(views[0])).to.be.true;
-      expect(container).to.have.lengthOf(2);
-    });
-
-    describe('when resetting', function() {
-      beforeEach(function() {
-        container._set(views, true);
-      });
-
-      it('should not have an old view', function() {
-        expect(container.hasView(originalView)).to.be.false;
-      });
-
-      it('should have a new view', function() {
-        expect(container.hasView(views[0])).to.be.true;
-      });
-
-      it('should update the length', function() {
-        expect(container).to.have.lengthOf(2);
-      });
-    });
-  });
-
-  describe('#_remove', function() {
-    it('preserves a later child that currently owns the same data key', function() {
-      const container = new ChildViewContainer({ key: model => model.id });
-      const first = new Backbone.View({ model: { id: 1 } });
-      const second = new Backbone.View({ model: { id: 1 } });
-      container._add(first);
-      container._add(second);
-
-      container._remove(first);
-
-      expect(container.findByModel(second.model)).to.equal(second);
-    });
-
-    describe('when removing a view that has a model', function() {
-      let container;
-      let view;
-      let model;
-
-      beforeEach(function() {
-        model = new Backbone.Model();
-
-        view = new Backbone.View({
-          model: model
-        });
-
-        container = new ChildViewContainer();
-
-        container._set([
-          new Backbone.View(),
-          new Backbone.View(),
-          new Backbone.View(),
-          new Backbone.View()
-        ], true);
-
-        container._add(view, 1);
-
-        container._remove(view);
-      });
-
-      it('should update the size of the children', function() {
-        expect(container).to.have.lengthOf(4);
-      });
-
-      it('should remove the index by model', function() {
-        const foundView = container.findByModel(model);
-        expect(foundView).to.be.undefined;
-      });
-
-      it('should remove the index', function() {
-        const foundView = container.findByIndex(1);
-        expect(foundView).to.not.equal(view);
-      });
-
-      it('should remove the view from the container', function() {
-        const foundView = container.findByCid(view.cid);
-        expect(foundView).to.be.undefined;
-      });
-    });
-
-    describe('when removing a view that does not have a model', function() {
-      let container;
-      let view;
-
-      beforeEach(function() {
-        view = new Backbone.View();
-
-        container = new ChildViewContainer();
-
-        container._set([
-          new Backbone.View(),
-          new Backbone.View(),
-          new Backbone.View(),
-          new Backbone.View()
-        ], true);
-
-        container._add(view, 1);
-
-        container._remove(view);
-      });
-
-      it('should update the size of the children', function() {
-        expect(container).to.have.lengthOf(4);
-      });
-
-      it('should remove the index', function() {
-        const foundView = container.findByIndex(1);
-        expect(foundView).to.not.equal(view);
-      });
-
-      it('should remove the view from the container', function() {
-        const foundView = container.findByCid(view.cid);
-        expect(foundView).to.be.undefined;
-      });
-    });
-
-    describe('when removing a view not in the container', function() {
-      let container;
-      let view;
-
-      beforeEach(function() {
-        view = new Backbone.View();
-
-        container = new ChildViewContainer();
-
-        container._set([
-          new Backbone.View(),
-          new Backbone.View(),
-          new Backbone.View(),
-          new Backbone.View()
-        ], true);
-
-        container._remove(view);
-      });
-
-      it('should not remove a view from the container', function() {
-        expect(container).to.have.lengthOf(4);
-      });
-
-      it('does not remove a real child for an inherited-key or same-cid impostor', function() {
-        const realView = container.first();
-        const inheritedKeyImpostor = { cid: 'toString' };
-        const sameCidImpostor = { cid: realView.cid };
-
-        container._remove(inheritedKeyImpostor);
-        container._remove(sameCidImpostor);
-
-        expect(container).to.have.lengthOf(4);
-        expect(container.first()).to.equal(realView);
-        expect(container.findByCid(realView.cid)).to.equal(realView);
-      });
-    });
-
-    it('fully removes a child whose cid is __proto__', function() {
-      const container = new ChildViewContainer();
-      const view = new Backbone.View();
-      view.cid = '__proto__';
-
-      container._add(view);
-      container._remove(view);
-
-      expect(container).to.have.lengthOf(0);
-      expect(container.findByCid('__proto__')).to.be.undefined;
-      expect(container.hasView(view)).to.be.false;
-    });
-  });
-
-  describe('#_sort', function() {
-    describe('when using a string comparator', function() {
-      let container;
-      let collection;
-
-      beforeEach(function(testContext) {
-        collection = new Backbone.Collection([
-          { text: 'foo' },
-          { text: 'bar' },
-          { text: 'baz' }
-        ]);
-
-        container = new ChildViewContainer(BackboneApi);
-
-        collection.each(model => {
-          const view = new Backbone.View({ model });
-          container._add(view);
-        });
-
-        testContext.modelGetSpies = collection.map(model => vi.spyOn(model, 'get'));
-        testContext.viewsReference = container._views;
-        container._sort('text');
-      });
-
-      it('should should re-sort the container', function() {
-        expect(container.findByIndex(0).model).to.equal(collection.models[1]);
-        expect(container.findByIndex(1).model).to.equal(collection.models[2]);
-        expect(container.findByIndex(2).model).to.equal(collection.models[0]);
-      });
-
-      it('preserves the child array reference', function(testContext) {
-        expect(container._views).to.equal(testContext.viewsReference);
-      });
-
-      it('evaluates each model attribute once', function(testContext) {
-        testContext.modelGetSpies.forEach(get => {
-          expect(get).toHaveBeenCalledTimes(1);
-          expect(get).toHaveBeenCalledWith('text');
-        });
-      });
-
-      it('checks attribute presence before reading it', function() {
-        const Data = {
-          key: model => model,
-          get: vi.fn().mockImplementation(() => { throw new Error('missing attribute was read'); }),
-          has: vi.fn().mockReturnValue(false),
-        };
-        const presenceContainer = new ChildViewContainer(Data);
-        const model = {};
-        presenceContainer._add(new Backbone.View({ model }));
-
-        expect(() => presenceContainer._sort('optional')).to.not.throw();
-        expect(Data.has).toHaveBeenCalledTimes(1);
-        expect(Data.has.mock.calls.map(args => args.slice(0, 2))).toContainEqual([model, 'optional']);
-        expect(Data.get).not.toHaveBeenCalled();
-      });
-
-      describe('when a view does not have a model', function() {
-        beforeEach(function() {
-          container._add(new Backbone.View());
-          container._sort('text');
-        });
-
-        it('should should re-sort the container', function() {
-          expect(container.findByIndex(0).model).to.equal(collection.models[1]);
-          expect(container.findByIndex(1).model).to.equal(collection.models[2]);
-          expect(container.findByIndex(2).model).to.equal(collection.models[0]);
-        });
-
-        it('should sort the view without model at the end', function() {
-          expect(container.findByIndex(3).model).to.be.undefined;
-        });
-      });
-    });
-
-    describe('when using a sortBy iterator', function() {
-      let container;
-      let collection;
-      let comparator;
-
-      beforeEach(function(testContext) {
-        collection = new Backbone.Collection([
-          { text: 'foo' },
-          { text: 'bar' },
-          { text: 'baz' }
-        ]);
-
-        container = new ChildViewContainer();
-
-        collection.each(model => {
-          const view = new Backbone.View({ model });
-          container._add(view);
-        });
-
-        testContext.comparator = function(view) {
-          return view.model.get('text').substring(1);
-        };
-
-        comparator = vi.spyOn(testContext, 'comparator');
-
-        testContext.viewsReference = container._views;
-        container._sort(testContext.comparator, testContext);
-      });
-
-      it('should call the comparator with context', function(testContext) {
-        expect(comparator.mock.contexts).toContain(testContext);
-        expect(comparator).toHaveBeenCalledTimes(3);
-      });
-
-      it('should should re-sort the container', function() {
-        expect(container.findByIndex(0).model).to.equal(collection.models[1]);
-        expect(container.findByIndex(1).model).to.equal(collection.models[2]);
-        expect(container.findByIndex(2).model).to.equal(collection.models[0]);
-      });
-
-      it('preserves the child array reference', function(testContext) {
-        expect(container._views).to.equal(testContext.viewsReference);
-      });
-
-      it('keeps equal criteria stable and evaluates each view once', function() {
-        const stableContainer = new ChildViewContainer();
-        const views = [
-          Object.assign(new Backbone.View(), { rank: 1 }),
-          Object.assign(new Backbone.View(), { rank: 1 }),
-          Object.assign(new Backbone.View(), { rank: 0 })
-        ];
-        const rank = vi.fn(view => view.rank);
-
-        stableContainer._set(views, true);
-        stableContainer._sort(rank);
-
-        expect(rank).toHaveBeenCalledTimes(3);
-        expect(stableContainer.toArray()).to.deep.equal([views[2], views[0], views[1]]);
-      });
-
-      it('places undefined criteria last while preserving their order', function() {
-        const undefinedContainer = new ChildViewContainer();
-        const views = [
-          Object.assign(new Backbone.View(), { rank: undefined }),
-          Object.assign(new Backbone.View(), { rank: 1 }),
-          Object.assign(new Backbone.View(), { rank: undefined }),
-          Object.assign(new Backbone.View(), { rank: 0 })
-        ];
-
-        undefinedContainer._set(views, true);
-        undefinedContainer._sort(view => view.rank);
-
-        expect(undefinedContainer.toArray()).to.deep.equal([
-          views[3], views[1], views[0], views[2]
-        ]);
-      });
-
-      it('keeps NaN and otherwise incomparable criteria stable', function() {
-        const nanContainer = new ChildViewContainer();
-        const nanViews = [
-          Object.assign(new Backbone.View(), { rank: NaN }),
-          Object.assign(new Backbone.View(), { rank: 1 })
-        ];
-        const objectContainer = new ChildViewContainer();
-        const objectViews = [
-          Object.assign(new Backbone.View(), { rank: {} }),
-          Object.assign(new Backbone.View(), { rank: {} })
-        ];
-
-        nanContainer._set(nanViews, true);
-        nanContainer._sort(view => view.rank);
-        objectContainer._set(objectViews, true);
-        objectContainer._sort(view => view.rank);
-
-        expect(nanContainer.toArray()).to.deep.equal(nanViews);
-        expect(objectContainer.toArray()).to.deep.equal(objectViews);
-      });
-
-      it('leaves order and reference unchanged when criteria evaluation throws', function() {
-        const viewsReference = container._views;
-        const originalOrder = container.toArray();
-        const error = new Error('criterion failed');
-
-        expect(() => container._sort(view => {
-          if (view === originalOrder[1]) { throw error; }
-          return view.model.get('text');
-        })).to.throw(error);
-        expect(container._views).to.equal(viewsReference);
-        expect(container.toArray()).to.deep.equal(originalOrder);
-      });
-
-      it('leaves order and reference unchanged when criteria comparison throws', function() {
-        const viewsReference = container._views;
-        const originalOrder = container.toArray();
-
-        expect(() => container._sort(view => Symbol(view.cid))).to.throw(TypeError);
-        expect(container._views).to.equal(viewsReference);
-        expect(container.toArray()).to.deep.equal(originalOrder);
-      });
-    });
-
-    describe('when using a sort iterator', function() {
-      let container;
-      let collection;
-      let comparator;
-
-      beforeEach(function(testContext) {
-        collection = new Backbone.Collection([
-          { text: 'foo' },
-          { text: 'bar' },
-          { text: 'baz' }
-        ]);
-
-        container = new ChildViewContainer();
-
-        collection.each(model => {
-          const view = new Backbone.View({ model });
-          container._add(view);
-        });
-
-        testContext.comparator = function(viewa, viewb) {
-          const aText = viewa.model.get('text');
-          const bText = viewb.model.get('text');
-          return bText.localeCompare(aText);
-        };
-
-        comparator = vi.spyOn(testContext, 'comparator');
-
-        testContext.viewsReference = container._views;
-        testContext.result = container._sort(testContext.comparator, testContext);
-      });
-
-      it('should call the comparator with context', function(testContext) {
-        expect(comparator.mock.contexts).toContain(testContext);
-      });
-
-      it('should re-sort the container', function() {
-        expect(container.findByIndex(0).model).to.equal(collection.models[0]);
-        expect(container.findByIndex(1).model).to.equal(collection.models[2]);
-        expect(container.findByIndex(2).model).to.equal(collection.models[1]);
-      });
-
-      it('retains native binary sort mutation and return behavior', function(testContext) {
-        expect(container._views).to.equal(testContext.viewsReference);
-        expect(testContext.result).to.equal(testContext.viewsReference);
-      });
-    });
-  });
-
-  describe('#_swap', function() {
-    let container;
-    let collection;
-
-    beforeEach(function() {
-      collection = new Backbone.Collection([
-        { id: 1 },
-        { id: 2 },
-        { id: 3 }
-      ]);
-
-      container = new ChildViewContainer();
-
-      collection.each(model => {
-        const view = new Backbone.View({ model });
-        container._add(view);
-      });
-
-    });
-
-    describe('when both views are in the container', function() {
-      it('should swap the views', function() {
-        container._swap(container.findByIndex(0), container.findByIndex(2));
-
-        expect(container.findByIndex(0).model).to.equal(collection.get(3));
-        expect(container.findByIndex(1).model).to.equal(collection.get(2));
-        expect(container.findByIndex(2).model).to.equal(collection.get(1));
-      });
-    });
-
-    describe('when the first view is not in the container', function() {
-      it('should not swap views', function() {
-        container._swap(new Backbone.View(), container.findByIndex(2));
-
-        expect(container.findByIndex(0).model).to.equal(collection.get(1));
-        expect(container.findByIndex(1).model).to.equal(collection.get(2));
-        expect(container.findByIndex(2).model).to.equal(collection.get(3));
-      });
-    });
-
-    describe('when the second view is not in the container', function() {
-      it('should not swap views', function() {
-        container._swap(container.findByIndex(0), new Backbone.View());
-
-        expect(container.findByIndex(0).model).to.equal(collection.get(1));
-        expect(container.findByIndex(1).model).to.equal(collection.get(2));
-        expect(container.findByIndex(2).model).to.equal(collection.get(3));
-      });
-    });
-  });
-
-  describe('#hasView', function() {
-    it('should return true if a view exists in the container', function() {
-      const container = new ChildViewContainer();
-      const view = new Backbone.View();
-      container._add(view);
-      expect(container.hasView(view)).to.be.true;
-    });
-
-    it('should return false if a view does not exist in the container', function() {
-      const container = new ChildViewContainer();
-      const view = new Backbone.View();
-      expect(container.hasView(view)).to.be.false;
-    });
-
-    it('requires the exact registered view for matching and inherited cids', function() {
-      const container = new ChildViewContainer();
-      const view = new Backbone.View();
-      container._add(view);
-
-      expect(container.hasView({ cid: view.cid })).to.be.false;
-      expect(container.hasView({ cid: 'toString' })).to.be.false;
+    it('swaps owned children and rejects unowned children without losing identity', () => {
+      const list = createList();
+      const views = [new ChildView(), new ChildView(), new ChildView()];
+      views.forEach(view => list.addChildView(view));
+      list.swapChildViews(views[0], views[2]);
+      expect(list.children.toArray()).toEqual([views[2], views[1], views[0]]);
+      const outsider = new ChildView();
+      expect(() => list.swapChildViews(outsider, views[0])).toThrow(expect.objectContaining({ code: 'MN0015' }));
+      expect(() => list.swapChildViews(views[0], outsider)).toThrow(expect.objectContaining({ code: 'MN0015' }));
+      expect(list.children.toArray()).toEqual([views[2], views[1], views[0]]);
+      outsider.destroy();
     });
   });
 });

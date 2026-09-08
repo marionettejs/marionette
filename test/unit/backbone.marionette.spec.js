@@ -1,26 +1,26 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { vi, describe, it, expect, afterEach } from 'vitest';
 import _ from 'underscore';
 
-import * as Mn from '../../src/index.ts';
+import * as Mn from 'marionette';
 
 import {version} from '../../package.json';
 
-import extend from '../../src/utils/extend';
+import { extend } from 'marionette';
 
-import monitorViewEvents from '../../src/modules/common/monitor-view-events';
+import { monitorViewEvents } from 'marionette';
 
-import Events from '../../packages/utils/src/events.ts';
+import { Events } from '@marionette/utils';
 
-import MnObject from '../../src/modules/object';
-import View from '../../src/modules/view';
-import CollectionView from '../../src/modules/collection-view';
-import Behavior from '../../src/modules/behavior';
-import Region from '../../src/modules/region';
-import Application from '../../src/modules/application';
+import { MnObject } from 'marionette';
+import { View } from 'marionette';
+import { CollectionView } from 'marionette';
+import { Behavior } from 'marionette';
+import { Region } from 'marionette';
+import { Application } from 'marionette';
 
-import DomApi from '../../src/runtime/dom-api';
-import DataApi from '../../src/runtime/data-api';
-import StateApi from '../../src/runtime/state-api';
+import { DomApi } from 'marionette';
+import { DataApi } from 'marionette';
+import { StateApi } from 'marionette';
 
 describe('backbone.marionette', function() {
   describe('Named Exports', function() {
@@ -171,14 +171,8 @@ describe('backbone.marionette', function() {
   });
 
   describe('#setRenderer', function() {
-    let renderer;
-
-    beforeEach(function() {
-      renderer = View.prototype._renderHtml;
-    });
-
     afterEach(function() {
-      Mn.setRenderer(renderer);
+      Mn.setRenderer();
     });
 
     const RendererClasses = {

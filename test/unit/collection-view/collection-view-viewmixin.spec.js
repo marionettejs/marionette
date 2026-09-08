@@ -4,8 +4,8 @@ import '../../setup/backbone.js';
 
 import _ from 'underscore';
 import Backbone from 'backbone';
-import CollectionView from '../../../src/modules/collection-view';
-import View from '../../../src/modules/view';
+import { CollectionView } from 'marionette';
+import { View, Behavior } from 'marionette';
 
 describe('CollectionView - ViewMixin', function() {
 
@@ -29,7 +29,8 @@ describe('CollectionView - ViewMixin', function() {
     beforeEach(function() {
       const MyCollectionView = CollectionView.extend();
 
-      initBehaviorsSpy = vi.spyOn(MyCollectionView.prototype, '_initBehaviors');
+      initBehaviorsSpy = vi.fn();
+      mergeOptions.behaviors.observer = Behavior.extend({ initialize: initBehaviorsSpy });
       initializeSpy = vi.spyOn(MyCollectionView.prototype, 'initialize');
       delegateEntityEventsSpy = vi.spyOn(MyCollectionView.prototype, 'delegateEntityEvents');
 
@@ -42,7 +43,7 @@ describe('CollectionView - ViewMixin', function() {
       });
     });
 
-    it('should call _initBehaviors', function() {
+    it('initializes configured behaviors before the host', function() {
       expect(initBehaviorsSpy).toHaveBeenCalledTimes(1);
       expect(initBehaviorsSpy).toHaveBeenCalledBefore(initializeSpy);
     });
@@ -53,7 +54,6 @@ describe('CollectionView - ViewMixin', function() {
     });
   });
 
-  // _childViewEventHandler
   describe('when an event is triggered on a childView', function() {
     let collectionView;
     let handlerSpy;
@@ -69,12 +69,13 @@ describe('CollectionView - ViewMixin', function() {
 
       collectionView = new MyCollectionView({ collection, childViewEventPrefix: 'childview' });
 
-      handlerSpy = vi.spyOn(collectionView, '_childViewEventHandler');
+      handlerSpy = vi.fn();
+      collectionView.on('childview:foo', handlerSpy);
 
       collectionView.render();
     });
 
-    it('should call _childViewEventHandler', function() {
+    it('forwards the public prefixed child event', function() {
       const childView = collectionView.children.findByIndex(0);
 
       handlerSpy.mockClear();
@@ -82,11 +83,11 @@ describe('CollectionView - ViewMixin', function() {
       childView.triggerMethod(eventArg, dataArg);
 
       expect(handlerSpy).toHaveBeenCalledTimes(1);
-      expect(handlerSpy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([eventArg, dataArg]);
+      expect(handlerSpy).toHaveBeenCalledWith(dataArg);
     });
 
     describe('when the childView is removed from the collectionView', function() {
-      it('should not call _childViewEventHandler', function() {
+      it('stops forwarding events from removed children', function() {
         const childView = collectionView.children.findByIndex(0);
 
         collectionView.removeChildView(childView);
@@ -100,7 +101,7 @@ describe('CollectionView - ViewMixin', function() {
     });
   });
 
-  describe('#_getImmediateChildren', function() {
+  describe('public child snapshots', function() {
     let collectionView;
 
     describe('when empty', function() {
@@ -108,8 +109,8 @@ describe('CollectionView - ViewMixin', function() {
         collectionView = new CollectionView();
       });
 
-      it('should return an empty array for getImmediateChildren', function() {
-        expect(collectionView._getImmediateChildren())
+      it('should return an empty array for public child traversal', function() {
+        expect(collectionView.children.toArray())
           .to.be.instanceof(Array)
           .and.to.have.length(0);
       });
@@ -132,8 +133,8 @@ describe('CollectionView - ViewMixin', function() {
         childTwo = children.findByIndex(1);
       });
 
-      it('should return an empty array for getImmediateChildren', function() {
-        expect(collectionView._getImmediateChildren())
+      it('should return an empty array for public child traversal', function() {
+        expect(collectionView.children.toArray())
           .to.be.instanceof(Array)
           .and.to.have.length(2)
           .and.to.contain(childOne)
@@ -142,7 +143,7 @@ describe('CollectionView - ViewMixin', function() {
     });
   });
 
-  describe('#_removeChildren', function() {
+  describe('collection reset', function() {
     let collectionView;
     let childOne;
     let childTwo;
@@ -159,7 +160,7 @@ describe('CollectionView - ViewMixin', function() {
       childOne = children.findByIndex(0);
       childTwo = children.findByIndex(1);
 
-      collectionView._removeChildren();
+      collectionView.collection.reset();
     });
 
     it('should empty the children', function() {

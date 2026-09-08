@@ -1,5 +1,5 @@
 import { vi, describe, it, expect } from 'vitest';
-import Application from '../../src/modules/application';
+import { Application } from 'marionette';
 
 describe('Application state source composition', function() {
   it('preserves borrowed state across stop and restart without disposing it', async function() {

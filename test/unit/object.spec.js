@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import Backbone from 'backbone';
 import '../setup/backbone.js';
-import MnObject from '../../src/modules/object';
+import { MnObject } from 'marionette';
 
 describe('marionette object', function() {
 
@@ -22,7 +22,6 @@ describe('marionette object', function() {
         onBar: vi.fn()
       });
 
-      vi.spyOn(Obj.prototype, '_initRadio');
 
       const model = new Backbone.Model();
 
@@ -54,8 +53,8 @@ describe('marionette object', function() {
       expect(object.cid).to.contain('mno');
     });
 
-    it('should init the RadioMixin', function() {
-      expect(object._initRadio).toHaveBeenCalled();
+    it('configures its public Radio channel', function() {
+      expect(object.getChannel().channelName).to.equal('foo');
     });
 
     it('should support triggering events on itself', function() {
@@ -75,49 +74,23 @@ describe('marionette object', function() {
       expect(object.onBar.mock.calls.map(args => args.slice(0, 1))).toContainEqual([options]);
     });
 
-    it('preserves constructor order, receiver, and initialize arguments', function() {
+    it('resolves state lazily while initialize uses configured options and Radio', function() {
       const calls = [];
-      const cidPrefix = {
-        [Symbol.toPrimitive](hint) {
-          calls.push(['cidPrefix', hint]);
-          return 'ordered';
-        }
-      };
-      const OrderedObject = MnObject.extend({
-        cidPrefix,
-        _setOptions(...args) {
-          calls.push(['setOptions', this, args]);
-        },
-        _initRadio(...args) {
-          calls.push(['initRadio', this, args]);
-        },
-        _initState(...args) {
-          calls.push(['initState', this, args]);
-        },
-        _initStateEvents(...args) {
-          calls.push(['initStateEvents', this, args]);
-        },
-        initialize(...args) {
-          calls.push(['initialize', this, args]);
+      const state = {};
+      const Custom = MnObject.extend({
+        channelName: 'construction-order',
+        createState(stateOptions) { calls.push(['state', stateOptions]); return state; },
+        initialize(initializeOptions, extra) {
+          calls.push(['initialize', initializeOptions, extra]);
+          expect(this.getState()).to.equal(state);
+          expect(this.getChannel().channelName).to.equal('construction-order');
+          expect(this.getOption('label')).to.equal('example');
         }
       });
-      const orderedOptions = { ordered: true };
-      const orderedObject = new OrderedObject(orderedOptions, 'extra');
-
-      expect(calls).to.deep.equal([
-        ['setOptions', orderedObject, [orderedOptions, [
-          'channelName',
-          'radioEvents',
-          'radioRequests',
-          'stateEvents'
-        ]]],
-        ['cidPrefix', 'default'],
-        ['initRadio', orderedObject, []],
-        ['initState', orderedObject, [orderedOptions]],
-        ['initialize', orderedObject, [orderedOptions, 'extra']],
-        ['initStateEvents', orderedObject, []]
-      ]);
-      expect(orderedObject.cid).to.match(/^ordered\d+$/);
+      const constructorOptions = { label: 'example' };
+      const owner = new Custom(constructorOptions, 'extra');
+      expect(calls).to.deep.equal([['initialize', constructorOptions, 'extra'], ['state', constructorOptions]]);
+      expect(owner.options).to.deep.equal(constructorOptions);
     });
   });
 });

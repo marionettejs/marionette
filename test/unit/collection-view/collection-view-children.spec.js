@@ -1,16 +1,15 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { setFixtures } from '../../setup/fixtures.js';
-import * as Marionette from '../../../src/index.ts';
+import * as Marionette from 'marionette';
 import '../../setup/backbone.js';
 // Tests for the children container integration
 
 import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
-import CollectionView from '../../../src/modules/collection-view';
-import ChildViewContainer from '../../../src/modules/child-view-container';
-import View from '../../../src/modules/view';
-import Region from '../../../src/modules/region';
+import { CollectionView } from 'marionette';
+import { View } from 'marionette';
+import { Region } from 'marionette';
 
 describe('CollectionView Children', function() {
   const collection = new Backbone.Collection([
@@ -56,12 +55,8 @@ describe('CollectionView Children', function() {
       myCollectionView = new MyCollectionView();
     });
 
-    it('should instantiate the children container', function() {
-      expect(myCollectionView.children).to.be.instanceOf(ChildViewContainer);
-    });
-
-    it('should instantiate the children container', function() {
-      expect(myCollectionView.children).to.be.instanceOf(ChildViewContainer);
+    it('exposes an initially empty public child collection', function() {
+      expect(myCollectionView.children.toArray()).toEqual([]);
     });
   });
 
@@ -75,26 +70,19 @@ describe('CollectionView Children', function() {
       myCollectionView.onBeforeAddChild = vi.fn();
       myCollectionView.onAddChild = vi.fn();
 
-      vi.spyOn(myCollectionView.children, '_add');
       myCollectionView.render();
     });
 
-    it('should add children to match the collection', function() {
-      collection.each((model, index) => {
-        const args = myCollectionView.children._add.mock.calls[index];
-        expect(args[0].model).to.equal(model);
-        expect(args[1]).to.equal(undefined);
-      });
-    });
+    it('adds children in collection order', function() { expect(myCollectionView.children.map(child => child.model)).toEqual(collection.models); });
 
     it('should trigger "before:render:children"', function() {
       expect(myCollectionView.onBeforeRenderChildren).toHaveBeenCalledTimes(1);
-      expect(myCollectionView.onBeforeRenderChildren.mock.calls.map(args => args.slice(0, 2))).toContainEqual([myCollectionView, myCollectionView.children._views]);
+      expect(myCollectionView.onBeforeRenderChildren.mock.calls.map(args => args.slice(0, 2))).toContainEqual([myCollectionView, myCollectionView.children.toArray()]);
     });
 
     it('should trigger "render:children"', function() {
       expect(myCollectionView.onRenderChildren).toHaveBeenCalledTimes(1);
-      expect(myCollectionView.onRenderChildren.mock.calls.map(args => args.slice(0, 2))).toContainEqual([myCollectionView, myCollectionView.children._views]);
+      expect(myCollectionView.onRenderChildren.mock.calls.map(args => args.slice(0, 2))).toContainEqual([myCollectionView, myCollectionView.children.toArray()]);
     });
 
     it('should trigger "before:add:child" for each model', function() {
@@ -131,23 +119,9 @@ describe('CollectionView Children', function() {
         view2 = collectionView.children.last();
       });
 
-      it('should swap the children', function() {
-        vi.spyOn(collectionView.children, '_swap');
+      it('swaps the public child order', function() { collectionView.swapChildViews(view1, view2); expect(collectionView.children.first()).toBe(view2); expect(collectionView.children.last()).toBe(view1); });
 
-        collectionView.swapChildViews(view1, view2);
-
-        expect(collectionView.children._swap).toHaveBeenCalledTimes(1);
-        expect(collectionView.children._swap.mock.calls.map(args => args.slice(0, 2))).toContainEqual([view1, view2]);
-      });
-
-      it('should swap the filtered children', function() {
-        vi.spyOn(collectionView.children, '_swap');
-
-        collectionView.swapChildViews(view1, view2);
-
-        expect(collectionView.children._swap).toHaveBeenCalledTimes(1);
-        expect(collectionView.children._swap.mock.calls.map(args => args.slice(0, 2))).toContainEqual([view1, view2]);
-      });
+      it('keeps swapped child identity in public lookups', function() { collectionView.swapChildViews(view1, view2); expect(collectionView.children.findByCid(view1.cid)).toBe(view1); expect(collectionView.children.findByIndex(0)).toBe(view2); });
 
       it('should exchange the elements with two moves and leave intervening children in place', function() {
         const elements = [...collectionView.el.children];
@@ -262,7 +236,6 @@ describe('CollectionView Children', function() {
       myCollectionView.onBeforeAddChild = vi.fn();
       myCollectionView.onAddChild = vi.fn();
 
-      vi.spyOn(myCollectionView.children, '_add');
       vi.spyOn(myCollectionView, 'addChildView');
       vi.spyOn(myCollectionView, 'sort');
     });
@@ -320,10 +293,7 @@ describe('CollectionView Children', function() {
         expect(myCollectionView.addChildView).toHaveReturnedWith(addView);
       });
 
-      it('should add to the children container', function() {
-        expect(myCollectionView.children._add).toHaveBeenCalledTimes(1);
-        expect(myCollectionView.children._add.mock.calls.map(args => args.slice(0, 1))).toContainEqual([addView]);
-      });
+      it('includes the new child in public lookups', function() { expect(myCollectionView.children.hasView(addView)).toBe(true); expect(myCollectionView.children.findByCid(addView.cid)).toBe(addView); });
 
       it('should not call sort', function() {
         expect(myCollectionView.sort).not.toHaveBeenCalled();
@@ -355,10 +325,7 @@ describe('CollectionView Children', function() {
         myCollectionView.addChildView(addView, 0, { preventRender: true, index: addIndex });
       });
 
-      it('should add to the children container at the index from options', function() {
-        expect(myCollectionView.children._add).toHaveBeenCalledTimes(1);
-        expect(myCollectionView.children._add.mock.calls.map(args => args.slice(0, 2))).toContainEqual([addView, addIndex]);
-      });
+      it('inserts at the index from options', function() { expect(myCollectionView.children.findByIndex(addIndex)).toBe(addView); });
 
     });
 
@@ -405,10 +372,7 @@ describe('CollectionView Children', function() {
         expect(myCollectionView.addChildView).toHaveReturnedWith(addView);
       });
 
-      it('should add to the children container', function() {
-        expect(myCollectionView.children._add).toHaveBeenCalledTimes(1);
-        expect(myCollectionView.children._add.mock.calls.map(args => args.slice(0, 1))).toContainEqual([addView]);
-      });
+      it('includes the new child in public lookups', function() { expect(myCollectionView.children.hasView(addView)).toBe(true); expect(myCollectionView.children.findByCid(addView.cid)).toBe(addView); });
 
       it('should trigger "before:render:children"', function() {
         expect(myCollectionView.onBeforeRenderChildren).toHaveBeenCalledTimes(1);
@@ -446,10 +410,7 @@ describe('CollectionView Children', function() {
         myCollectionView.addChildView(addView, addIndex);
       });
 
-      it('should add to the children container at the index', function() {
-        expect(myCollectionView.children._add).toHaveBeenCalledTimes(1);
-        expect(myCollectionView.children._add.mock.calls.map(args => args.slice(0, 2))).toContainEqual([addView, addIndex]);
-      });
+      it('inserts at the supplied public index', function() { expect(myCollectionView.children.findByIndex(addIndex)).toBe(addView); });
 
       it('should trigger "before:render:children"', function() {
         expect(myCollectionView.onBeforeRenderChildren).toHaveBeenCalledTimes(1);
@@ -553,8 +514,8 @@ describe('CollectionView Children', function() {
           .with.property('code', 'MN0003');
         expect(() => region.show(child)).to.throw()
           .with.property('code', 'MN0003');
-        expect(owner._children.hasView(child)).to.be.true;
-        expect(myCollectionView._children.hasView(child)).to.be.false;
+        expect(owner.children.hasView(child)).to.equal(deferred);
+        expect(myCollectionView.children.hasView(child)).to.be.false;
         expect(region.hasView()).to.be.false;
 
         owner.detachChildView(child);
@@ -576,7 +537,7 @@ describe('CollectionView Children', function() {
         owner.destroy();
 
         expect(child.isDestroyed()).to.be.true;
-        expect(child).not.to.have.property('_parent');
+        expect(myCollectionView.children.hasView(child)).toBe(false);
       });
     });
 
@@ -640,7 +601,6 @@ describe('CollectionView Children', function() {
       myCollectionView.onBeforeRemoveChild = vi.fn();
       myCollectionView.onRemoveChild = vi.fn();
 
-      vi.spyOn(myCollectionView.children, '_remove');
       vi.spyOn(myCollectionView, 'removeChildView');
 
       myCollectionView.render();
@@ -657,10 +617,7 @@ describe('CollectionView Children', function() {
       expect(removeView.isDestroyed()).to.be.true;
     });
 
-    it('should remove from the children container', function() {
-      expect(myCollectionView.children._remove).toHaveBeenCalledTimes(1);
-      expect(myCollectionView.children._remove.mock.calls.map(args => args.slice(0, 1))).toContainEqual([removeView]);
-    });
+    it('removes the child from public lookups', function() { expect(myCollectionView.children.hasView(removeView)).toBe(false); expect(myCollectionView.children.findByCid(removeView.cid)).toBeUndefined(); });
 
     it('should trigger "remove:child"', function() {
       expect(myCollectionView.onRemoveChild).toHaveBeenCalledTimes(1);
@@ -691,7 +648,6 @@ describe('CollectionView Children', function() {
       const inheritedCidImpostor = new View();
       sameCidImpostor.cid = ownedView.cid;
       inheritedCidImpostor.cid = 'toString';
-      myCollectionView.children._remove.mockClear();
       myCollectionView.onBeforeRemoveChild.mockClear();
       myCollectionView.onRemoveChild.mockClear();
 
@@ -702,7 +658,6 @@ describe('CollectionView Children', function() {
       expect(inheritedCidImpostor.isDestroyed()).to.be.false;
       expect(ownedView.isDestroyed()).to.be.false;
       expect(myCollectionView.children).to.have.lengthOf(childCount);
-      expect(myCollectionView.children._remove).not.toHaveBeenCalled();
       expect(myCollectionView.onBeforeRemoveChild).not.toHaveBeenCalled();
       expect(myCollectionView.onRemoveChild).not.toHaveBeenCalled();
     });
@@ -1037,16 +992,10 @@ describe('CollectionView Children', function() {
       myCollectionView.onBeforeDestroyChildren = vi.fn();
       myCollectionView.onDestroyChildren = vi.fn();
 
-      vi.spyOn(myCollectionView.children, '_init');
       myCollectionView.render();
     });
 
-    it('should destroy each view', function() {
-      myCollectionView.destroy();
-      myCollectionView.children.each(view => {
-        expect(view.isDestroyed()).to.be.true;
-      });
-    });
+    it('destroys every previously owned child', function() { const children = myCollectionView.children.toArray(); myCollectionView.destroy(); expect(children.length).toBeGreaterThan(0); children.forEach(child => expect(child.isDestroyed()).toBe(true)); });
 
     it('should trigger "before:destroy:children"', function() {
       myCollectionView.destroy();
@@ -1054,10 +1003,7 @@ describe('CollectionView Children', function() {
       expect(myCollectionView.onBeforeDestroyChildren.mock.calls.map(args => args.slice(0, 1))).toContainEqual([myCollectionView]);
     });
 
-    it('should reinit the children container', function() {
-      myCollectionView.destroy();
-      expect(myCollectionView.children._init).toHaveBeenCalledTimes(1);
-    });
+    it('empties public child lookups on destruction', function() { myCollectionView.destroy(); expect(myCollectionView.children.toArray()).toEqual([]); });
 
     it('should trigger "destroy:children"', function() {
       myCollectionView.destroy();

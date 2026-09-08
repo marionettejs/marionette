@@ -4,10 +4,10 @@ import '../../setup/backbone.js';
 
 import _ from 'underscore';
 import Backbone from 'backbone';
-import CollectionView from '../../../src/modules/collection-view';
-import View from '../../../src/modules/view';
-import Region from '../../../src/modules/region';
-import Events from '../../../packages/utils/src/events.ts';
+import { CollectionView } from 'marionette';
+import { View } from 'marionette';
+import { Region } from 'marionette';
+import { Events } from '@marionette/utils';
 
 describe('CollectionView -  Empty', function() {
   let MyEmptyView;
@@ -141,9 +141,7 @@ describe('CollectionView -  Empty', function() {
     });
 
     // Internal implementation detail, but needs to be tested
-    it('should set the parentView', function() {
-      expect(myCollectionView.getEmptyRegion()._parentView).to.equal(myCollectionView);
-    });
+    it('destroys its owned empty Region', function() { const region = myCollectionView.getEmptyRegion(); myCollectionView.destroy(); expect(region.isDestroyed()).toBe(true); });
 
     it('should return a new emptyRegion instance if the current is destroyed', function() {
       const emptyRegion = myCollectionView.getEmptyRegion();
@@ -542,5 +540,69 @@ describe('CollectionView -  Empty', function() {
         expect(myCollectionView.getEmptyRegion().hasView()).to.be.true;
       });
     });
+  });
+});
+
+
+describe('empty Region follows the public child container', () => {
+  it('reuses the empty Region across replaced and relocated template containers', () => {
+    const destroyed = vi.fn();
+    const Empty = View.extend({ template: () => 'Empty', onDestroy: destroyed });
+    const Item = View.extend({ template: () => 'Item' });
+    const collection = new Backbone.Collection();
+    let selector = '.first';
+    const list = new CollectionView({
+      collection,
+      childView: Item,
+      emptyView: Empty,
+      childViewContainer: () => selector,
+      template: () => '<section class="first"></section><section class="second"></section>'
+    });
+    const root = list.el;
+    const emptyRegion = list.getEmptyRegion();
+    list.render();
+    let previousContainer = root.querySelector(selector);
+    let previousEmpty = emptyRegion.currentView;
+    expect(emptyRegion.el).toBe(previousContainer);
+    expect(previousEmpty.el.parentNode).toBe(previousContainer);
+    for (const nextSelector of ['.first', '.second']) {
+      selector = nextSelector;
+      list.render();
+      const container = root.querySelector(selector);
+      expect(list.el).toBe(root);
+      expect(container).not.toBe(previousContainer);
+      expect(previousContainer.isConnected).toBe(false);
+      expect(previousEmpty.isDestroyed()).toBe(true);
+      expect(list.getEmptyRegion()).toBe(emptyRegion);
+      expect(emptyRegion.el).toBe(container);
+      expect(emptyRegion.currentView.el.parentNode).toBe(container);
+      expect(root.textContent).toBe('Empty');
+      previousContainer = container;
+      previousEmpty = emptyRegion.currentView;
+    }
+    expect(destroyed).toHaveBeenCalledTimes(2);
+    collection.add({ id: 1 });
+    expect(emptyRegion.hasView()).toBe(false);
+    expect(previousEmpty.isDestroyed()).toBe(true);
+    expect(root.querySelector(selector).textContent).toBe('Item');
+    collection.reset([]);
+    expect(emptyRegion.currentView.el.parentNode).toBe(root.querySelector(selector));
+    list.destroy();
+    expect(emptyRegion.isDestroyed()).toBe(true);
+    expect(destroyed).toHaveBeenCalledTimes(4);
+  });
+
+  it('keeps the same root as the empty Region target across repeated rendering', () => {
+    const Empty = View.extend({ template: () => 'Empty' });
+    const list = new CollectionView({ template: false, emptyView: Empty }).render();
+    const region = list.getEmptyRegion();
+    const first = region.currentView;
+    list.render();
+    expect(list.getEmptyRegion()).toBe(region);
+    expect(region.el).toBe(list.el);
+    expect(first.isDestroyed()).toBe(true);
+    expect(region.currentView.el.parentNode).toBe(list.el);
+    expect(list.el.textContent).toBe('Empty');
+    list.destroy();
   });
 });

@@ -4,9 +4,9 @@ import { setFixtures } from '../setup/fixtures.js';
 
 import _ from 'underscore';
 
-import Application from '../../src/modules/application';
-import Region from '../../src/modules/region';
-import View from '../../src/modules/view';
+import { Application } from 'marionette';
+import { Region } from 'marionette';
+import { View } from 'marionette';
 
 const RootView = View.extend({
   template: _.template('<span>root</span>')
@@ -327,7 +327,7 @@ describe('Application root View ownership', function() {
     expect(app.getView()).to.be.undefined;
   });
 
-  for (const failure of ['_initRadio', 'initialize', 'createState', 'stateEvents']) {
+  for (const failure of ['channelName', 'initialize', 'createState', 'stateEvents']) {
 
     it(`releases its supplied Region when ${ failure } throws`, function() {
       const error = new Error(`${ failure } failed`);

@@ -5,10 +5,10 @@ import '../../setup/backbone.js';
 
 import _ from 'underscore';
 import Backbone from 'backbone';
-import DataApi from '../../../src/runtime/data-api';
-import CollectionView from '../../../src/modules/collection-view';
-import Region from '../../../src/modules/region';
-import View from '../../../src/modules/view';
+import { DataApi } from 'marionette';
+import { CollectionView } from 'marionette';
+import { Region } from 'marionette';
+import { View } from 'marionette';
 
 function renderModels(models) {
   return _.map(models, model => `<li>${ model.get('num') }</li>`);
@@ -145,7 +145,7 @@ describe('CollectionView - Filtering', function() {
           expect(calls.map(call => call[0]))
             .to.deep.equal(Array(expectedLength).fill(mutationCollectionView));
           expect(calls.map(call => call[2])).to.deep.equal([0, 1, 2]);
-          expect(calls.every(call => call[3] === mutationCollectionView._children._views))
+          expect(calls.every(call => call[3] === calls[0][3]))
             .to.be.true;
         } finally {
           mutationCollectionView.destroy();
@@ -228,39 +228,23 @@ describe('CollectionView - Filtering', function() {
       });
 
       it('requires an undefined predicate key to be present', function() {
-        const presenceView = new MyCollectionView({ viewFilter: { optional: undefined } });
-        presenceView.Data = DataApi;
-        const filter = presenceView._getFilter();
-        const presentAttributes = {};
-        Object.defineProperty(presentAttributes, 'optional', {
-          enumerable: true,
-          value: undefined,
-        });
-
-        try {
-          expect(filter({ model: {} })).to.be.false;
-          expect(filter({ model: presentAttributes })).to.be.true;
-        } finally {
-          presenceView.destroy();
-        }
+        const present = { optional: undefined }; const absent = {};
+        const List = CollectionView.extend({ childView: View.extend({template: false}), viewFilter: { optional: undefined } });
+        List.setDataApi(DataApi);
+        const owner = new List({collection: [absent, present]}).render();
+        expect(owner.children.map(child => child.model)).toEqual([present]);
+        owner.destroy();
       });
 
-      it('checks attribute presence before reading it', function() {
-        const presenceView = new MyCollectionView({ viewFilter: { optional: undefined } });
-        presenceView.Data = {
-          get: vi.fn().mockImplementation(() => { throw new Error('missing attribute was read'); }),
-          has: vi.fn().mockReturnValue(false),
-        };
-        const filter = presenceView._getFilter();
-        const model = {};
-
-        try {
-          expect(filter({ model })).to.be.false;
-          expect(presenceView.Data.has).toHaveBeenCalledTimes(1);
-          expect(presenceView.Data.has.mock.calls.map(args => args.slice(0, 2))).toContainEqual([model, 'optional']);
-          expect(presenceView.Data.get).not.toHaveBeenCalled();
-        } finally {
-          presenceView.destroy();
+      it('does not read absent filtered attributes', function() {
+        for (const predicate of [{optional: undefined}, 'optional']) {
+          const get = vi.fn(() => { throw new Error('missing attribute was read'); });
+          const has = vi.fn(() => false);
+          const List = CollectionView.extend({ childView: View.extend({template: false}), viewFilter: predicate });
+          List.setDataApi({...DataApi, get, has});
+          const model = {}; const owner = new List({collection: [model]}).render();
+          expect(owner.children.length).toBe(0); expect(has).toHaveBeenCalledWith(model, 'optional'); expect(get).not.toHaveBeenCalled();
+          owner.destroy();
         }
       });
     });
@@ -281,22 +265,15 @@ describe('CollectionView - Filtering', function() {
         expect(myCollectionView.el.innerHTML).to.equal(nums.join(''));
       });
 
-      it('checks attribute presence before reading it', function() {
-        const presenceView = new MyCollectionView({ viewFilter: 'optional' });
-        presenceView.Data = {
-          get: vi.fn().mockImplementation(() => { throw new Error('missing attribute was read'); }),
-          has: vi.fn().mockReturnValue(false),
-        };
-        const filter = presenceView._getFilter();
-        const model = {};
-
-        try {
-          expect(filter({ model })).to.be.false;
-          expect(presenceView.Data.has).toHaveBeenCalledTimes(1);
-          expect(presenceView.Data.has.mock.calls.map(args => args.slice(0, 2))).toContainEqual([model, 'optional']);
-          expect(presenceView.Data.get).not.toHaveBeenCalled();
-        } finally {
-          presenceView.destroy();
+      it('does not read absent filtered attributes', function() {
+        for (const predicate of [{optional: undefined}, 'optional']) {
+          const get = vi.fn(() => { throw new Error('missing attribute was read'); });
+          const has = vi.fn(() => false);
+          const List = CollectionView.extend({ childView: View.extend({template: false}), viewFilter: predicate });
+          List.setDataApi({...DataApi, get, has});
+          const model = {}; const owner = new List({collection: [model]}).render();
+          expect(owner.children.length).toBe(0); expect(has).toHaveBeenCalledWith(model, 'optional'); expect(get).not.toHaveBeenCalled();
+          owner.destroy();
         }
       });
 
@@ -434,7 +411,6 @@ describe('CollectionView - Filtering', function() {
             return isOdd(view.model.get('num'));
           });
 
-          vi.spyOn(myCollectionView.children, '_set');
 
           myCollectionView.filter();
         });
@@ -443,10 +419,7 @@ describe('CollectionView - Filtering', function() {
           expect(myCollectionView.onBeforeFilter).toHaveBeenCalledTimes(1);
         });
 
-        it('should set the children', function() {
-          expect(myCollectionView.children._set).toHaveBeenCalledTimes(1);
-          expect(myCollectionView.children._set.mock.calls.map(args => args.slice(0, 1))).toContainEqual([filteredViews]);
-        });
+        it('exposes the filtered children through the public collection', function() { expect(myCollectionView.children.toArray()).toEqual(filteredViews); });
 
         it('should render the children', function() {
           expect(myCollectionView.onRenderChildren).toHaveBeenCalledTimes(1);
@@ -589,6 +562,7 @@ describe('CollectionView - Filtering', function() {
   });
 
   describe('when attaching a collectionview with filtered children', function() {
+    let allChildren;
     let myCollectionView;
     let myRegion;
 
@@ -598,11 +572,13 @@ describe('CollectionView - Filtering', function() {
 
       myCollectionView = new MyCollectionView({ collection, viewFilter });
 
+      allChildren = [];
+      myCollectionView.on('add:child', (_owner, child) => allChildren.push(child));
       myCollectionView.render();
     });
 
     it('should trigger attach on attached children', function() {
-      const attachedChild = myCollectionView._children.findByIndex(1);
+      const attachedChild = allChildren[1];
 
       attachedChild.onAttach = vi.fn();
 
@@ -612,7 +588,7 @@ describe('CollectionView - Filtering', function() {
     });
 
     it('should not trigger attach on children filtered out', function() {
-      const detachedChild = myCollectionView._children.findByIndex(2);
+      const detachedChild = allChildren[2];
 
       detachedChild.onAttach = vi.fn();
 

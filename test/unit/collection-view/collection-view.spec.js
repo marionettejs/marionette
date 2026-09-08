@@ -1,3 +1,4 @@
+import { Region, Behavior } from 'marionette';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { setFixtures } from '../../setup/fixtures.js';
 import '../../setup/backbone.js';
@@ -6,9 +7,9 @@ import '../../setup/backbone.js';
 import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
-import CollectionView from '../../../src/modules/collection-view';
-import View from '../../../src/modules/view';
-import Events from '../../../packages/utils/src/events.ts';
+import { CollectionView } from 'marionette';
+import { View } from 'marionette';
+import { Events } from '@marionette/utils';
 
 describe('CollectionView', function() {
   let MyChildView;
@@ -84,12 +85,12 @@ describe('CollectionView', function() {
       });
     });
 
-    it('should setup the lifecycle monitor before initialize', function() {
-      vi.spyOn(MyCollectionView.prototype, 'initialize').mockImplementation(() => undefined).mockImplementation(function() {
-        expect(this._areViewEventsMonitored).to.be.true;
-      });
-
-      new MyCollectionView();
+    it('allows initialize to observe later attachment', function() {
+      let attached = 0;
+      const List = MyCollectionView.extend({ initialize() { this.on('attach', () => attached++); } });
+      const el = document.createElement('main'); document.body.append(el);
+      const region = new Region({ el }); region.show(new List());
+      expect(attached).toBe(1); region.destroy(); el.remove();
     });
 
     it('should have a valid inheritance chain back to Backbone.View', function() {
@@ -124,14 +125,14 @@ describe('CollectionView', function() {
       expect(myCollectionView.initialize).toHaveBeenCalledBefore(myCollectionView.getEmptyRegion);
     });
 
-    it('should trigger `initialize` on the behaviors', function() {
-      vi.spyOn(MyCollectionView.prototype, '_triggerEventOnBehaviors').mockImplementation(() => undefined);
-
-      const myCollectionView = new MyCollectionView({ foo: 'bar' });
-
-      // _triggerEventOnBehaviors comes from Behaviors mixin
-      expect(myCollectionView._triggerEventOnBehaviors).toHaveBeenCalledTimes(1);
-      expect(myCollectionView._triggerEventOnBehaviors.mock.calls.map(args => args.slice(0, 3))).toContainEqual(['initialize', myCollectionView, { foo: 'bar' }]);
+    it('notifies configured behaviors of parent initialization', function() {
+      const onInitialize = vi.fn();
+      const Observer = Behavior.extend({ onInitialize });
+      const options = { foo: 'bar', behaviors: [Observer] };
+      const owner = new MyCollectionView(options);
+      expect(onInitialize).toHaveBeenCalledOnce();
+      expect(onInitialize).toHaveBeenCalledWith(owner, options);
+      owner.destroy();
     });
   });
 

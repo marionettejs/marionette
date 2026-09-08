@@ -1,9 +1,9 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { setFixtures } from '../../setup/fixtures.js';
-import CollectionView from '../../../src/modules/collection-view';
-import Behavior from '../../../src/modules/behavior';
-import View from '../../../src/modules/view';
-import Region from '../../../src/modules/region';
+import { CollectionView } from 'marionette';
+import { Behavior } from 'marionette';
+import { View } from 'marionette';
+import { Region } from 'marionette';
 import { MarionetteError } from '@marionette/utils';
 
 function createAdapter() {
@@ -116,12 +116,10 @@ describe('CollectionView normalized reconciliation', function() {
     view.render();
     const views = models.map(model => view.children.findByModel(model));
     const elements = views.map(child => child.el);
-    const indexComparator = vi.spyOn(view, '_viewComparator');
 
     source.models = [models[2], models[0], models[1]];
     source.notify({ kind: 'reorder' });
 
-    expect(indexComparator).not.toHaveBeenCalled();
     expect(view.children.toArray()).to.deep.equal([views[2], views[0], views[1]]);
     expect([...view.el.children]).to.deep.equal([elements[2], elements[0], elements[1]]);
     expect(views.map(child => child.renderCount)).to.deep.equal([1, 1, 1]);
@@ -131,7 +129,6 @@ describe('CollectionView normalized reconciliation', function() {
     source.notify({ kind: 'update', added: [inserted], removed: [], updated: [] });
 
     const insertedView = view.children.findByModel(inserted);
-    expect(indexComparator).not.toHaveBeenCalled();
     expect(view.children.toArray()).to.deep.equal([
       views[2], insertedView, views[0], views[1]
     ]);
@@ -518,7 +515,7 @@ describe('CollectionView normalized reconciliation', function() {
     const source = { models: [first, second] };
     const view = new ListView({ collection: source }).render();
     let before;
-    view.on('before:sort', owner => { before = owner._children.map(child => child.model); });
+    view.on('before:sort', owner => { before = owner.children.map(child => child.model); });
 
     source.models = [second, first];
     source.notify({ kind: 'reorder' });

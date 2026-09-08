@@ -4,8 +4,8 @@ import '../../setup/backbone.js';
 
 import _ from 'underscore';
 import Backbone from 'backbone';
-import CollectionView from '../../../src/modules/collection-view';
-import View from '../../../src/modules/view';
+import { CollectionView } from 'marionette';
+import { View } from 'marionette';
 
 describe('CollectionView - Sorting', function() {
   let collection;
@@ -359,7 +359,7 @@ describe('CollectionView - Sorting', function() {
       const comparator = vi.fn(function(child) {
         return -child.model.get('index');
       });
-      const CustomList = MyCollectionView.extend({ _viewComparator: comparator });
+      const CustomList = MyCollectionView.extend({ viewComparator: comparator });
       const view = new CustomList({ collection }).render();
 
       expect(view.children.map(child => child.model.get('index'))).to.deep.equal([4, 3, 2, 1, 0]);
@@ -368,8 +368,8 @@ describe('CollectionView - Sorting', function() {
     });
 
     it('preserves a replacement of the base prototype comparator', function() {
-      const comparator = vi.spyOn(CollectionView.prototype, '_viewComparator').mockImplementation(() => undefined)
-        .mockImplementation(function(child) { return -child.model.get('index'); });
+      const comparator = vi.fn(function(child) { return -child.model.get('index'); });
+      vi.spyOn(CollectionView.prototype, 'getComparator').mockReturnValue(comparator);
       const view = new MyCollectionView({ collection }).render();
 
       expect(view.children.map(child => child.model.get('index'))).to.deep.equal([4, 3, 2, 1, 0]);
@@ -381,9 +381,10 @@ describe('CollectionView - Sorting', function() {
       const comparator = vi.fn();
       const CustomList = MyCollectionView.extend({
         getComparator() {
+          const sourceComparator = CollectionView.prototype.getComparator.call(this);
           return child => {
             comparator(child);
-            return -this._viewComparator(child);
+            return -sourceComparator.call(this, child);
           };
         }
       });

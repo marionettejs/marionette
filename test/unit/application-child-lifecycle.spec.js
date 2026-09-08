@@ -1,7 +1,7 @@
 import { vi, describe, it, expect } from 'vitest';
 'use strict';
 
-import { Application } from '../../src/index';
+import { Application } from 'marionette';
 
 async function expectRejection(promise, expectedError) {
   try {

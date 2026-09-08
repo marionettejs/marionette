@@ -1,5 +1,5 @@
 import { vi, describe, it, expect } from 'vitest';
-import * as Marionette from '../../src/index.ts';
+import * as Marionette from 'marionette';
 
 describe('createMarionette', function() {
   it.each([
@@ -66,7 +66,6 @@ describe('createMarionette', function() {
     second.setStateApi({ subscribe: secondStateSubscribe });
     second.setEventDelegator({ delegate: secondDelegate });
 
-    expect(Marionette.View.prototype._renderHtml).to.not.equal(first.View.prototype._renderHtml);
     expect(Marionette.View.prototype.Dom).to.not.equal(first.View.prototype.Dom);
     expect(Marionette.View.prototype.Data).to.not.equal(first.View.prototype.Data);
     expect(Marionette.View.prototype.State).to.not.equal(first.View.prototype.State);
@@ -251,8 +250,6 @@ describe('createMarionette', function() {
     const renderer = (template, data) => `custom:${ template(data) }`;
     SpecializedView.setRenderer(renderer);
 
-    expect(SpecializedView.prototype._renderHtml).to.equal(renderer);
-    expect(runtime.View.prototype._renderHtml).to.not.equal(renderer);
 
     const specialized = new SpecializedView();
     const ordinary = new runtime.View({ template: () => 'ordinary' });

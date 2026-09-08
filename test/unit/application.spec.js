@@ -3,8 +3,8 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 'use strict';
 
 import _ from 'underscore';
-import Application from '../../src/modules/application';
-import View from '../../src/modules/view';
+import { Application } from 'marionette';
+import { View } from 'marionette';
 
 describe('Marionette Application', function() {
 
@@ -34,22 +34,12 @@ describe('Marionette Application', function() {
     });
   });
 
-  it('propagates a preinitialize error before setting up instance services', function() {
+  it('propagates a preinitialize error before evaluating Region and Radio configuration', function() {
     const error = new Error('early configuration failed');
-    const initializeRegion = vi.fn();
-    const initializeRadio = vi.fn();
-    const initializeState = vi.fn();
-    const BrokenApplication = Application.extend({
-      preinitialize() { throw error; },
-      _initRegion: initializeRegion,
-      _initRadio: initializeRadio,
-      _initState: initializeState
-    });
-
-    expect(() => new BrokenApplication()).to.throw(error);
-    expect(initializeRegion).not.toHaveBeenCalled();
-    expect(initializeRadio).not.toHaveBeenCalled();
-    expect(initializeState).not.toHaveBeenCalled();
+    const region = vi.fn(); const channelName = vi.fn(); const createState = vi.fn();
+    const BrokenApplication = Application.extend({ preinitialize() { throw error; }, region, channelName, createState });
+    expect(() => new BrokenApplication()).toThrow(error);
+    expect(region).not.toHaveBeenCalled(); expect(channelName).not.toHaveBeenCalled(); expect(createState).not.toHaveBeenCalled();
   });
 
   describe('#initialize', () => {
@@ -61,7 +51,6 @@ describe('Marionette Application', function() {
       beforeEach(function() {
         appOptions = {fooOption: 'foo'};
         initializeStub = vi.spyOn(Application.prototype, 'initialize').mockImplementation(() => undefined);
-        vi.spyOn(Application.prototype, '_initRadio');
       });
 
       it('should pass all arguments to the initialize method', function() {
@@ -83,65 +72,29 @@ describe('Marionette Application', function() {
         expect(app.cid).to.exist;
       });
 
-      it('should init the RadioMixin', function() {
-        app = new Application(appOptions);
+      it('configures its public Radio channel', function() {
+        app = new Application({ ...appOptions, channelName: 'public-application' });
 
-        expect(app._initRadio).toHaveBeenCalled();
+        expect(app.getChannel().channelName).to.equal('public-application');
       });
 
-      it('preserves constructor order, receiver, and initialize arguments', function() {
+      it('resolves state lazily while initialize uses configured options and Radio', function() {
         const calls = [];
-        const cidPrefix = {
-          [Symbol.toPrimitive](hint) {
-            calls.push(['cidPrefix', hint]);
-            return 'ordered';
-          }
-        };
-        const OrderedApplication = Application.extend({
-          cidPrefix,
-          _setOptions(...args) {
-            calls.push(['setOptions', this, args]);
-          },
-          preinitialize(...args) {
-            calls.push(['preinitialize', this, args]);
-          },
-          _initRegion(...args) {
-            calls.push(['initRegion', this, args]);
-          },
-          _initRadio(...args) {
-            calls.push(['initRadio', this, args]);
-          },
-          _initState(...args) {
-            calls.push(['initState', this, args]);
-          },
-          _initStateEvents(...args) {
-            calls.push(['initStateEvents', this, args]);
-          },
-          initialize(...args) {
-            calls.push(['initialize', this, args]);
+        const state = {};
+        const Custom = Application.extend({
+          channelName: 'construction-order',
+          createState(options) { calls.push(['state', options]); return state; },
+          initialize(options, extra) {
+            calls.push(['initialize', options, extra]);
+            expect(this.getState()).to.equal(state);
+            expect(this.getChannel().channelName).to.equal('construction-order');
+            expect(this.getOption('label')).to.equal('example');
           }
         });
-        const options = { ordered: true };
-        const orderedApp = new OrderedApplication(options, 'extra');
-
-        expect(calls).to.deep.equal([
-          ['setOptions', orderedApp, [options, [
-            'channelName',
-            'radioEvents',
-            'radioRequests',
-            'region',
-            'regionClass',
-            'stateEvents'
-          ]]],
-          ['cidPrefix', 'default'],
-          ['preinitialize', orderedApp, [options, 'extra']],
-          ['initRegion', orderedApp, []],
-          ['initRadio', orderedApp, []],
-          ['initState', orderedApp, [options]],
-          ['initialize', orderedApp, [options, 'extra']],
-          ['initStateEvents', orderedApp, []]
-        ]);
-        expect(orderedApp.cid).to.match(/^ordered\d+$/);
+        const options = { label: 'example' };
+        const owner = new Custom(options, 'extra');
+        expect(calls).to.deep.equal([['initialize', options, 'extra'], ['state', options]]);
+        expect(owner.options).to.deep.equal(options);
       });
     });
   });

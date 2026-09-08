@@ -1,8 +1,8 @@
 import { vi, describe, it, expect } from 'vitest';
 'use strict';
 
-import Application from '../../src/modules/application';
-import Radio from '../../packages/radio/src/radio.ts';
+import { Application } from 'marionette';
+import { Radio } from '@marionette/radio';
 
 function defer() {
   let resolve;
@@ -1098,7 +1098,7 @@ describe('Application lifecycle', function() {
     expect(Radio.request(channelName, 'value')).to.be.undefined;
   });
 
-  it('does not retain operation records across repeated start-stop cycles', async function() {
+  it('runs every hook exactly once across repeated start-stop cycles', async function() {
     const beforeStart = vi.fn();
     const startEvent = vi.fn();
     const beforeStop = vi.fn();
@@ -1113,7 +1113,7 @@ describe('Application lifecycle', function() {
     for (let index = 0; index < 10; index++) {
       expect(await app.start()).to.be.true;
       expect(await app.stop()).to.be.true;
-      expect(Object.hasOwn(app, '_lifecycleOperation')).to.be.false;
+      expect(app.isRunning()).to.be.false;
     }
 
     expect(beforeStart).toHaveBeenCalledTimes(10);

@@ -5,8 +5,8 @@ import '../../setup/backbone.js';
 import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
-import CollectionView from '../../../src/modules/collection-view';
-import View from '../../../src/modules/view';
+import { CollectionView } from 'marionette';
+import { View } from 'marionette';
 
 describe('CollectionView Data', function() {
   let MyCollectionView;
@@ -91,6 +91,7 @@ describe('CollectionView Data', function() {
       let myCollectionView;
       let renderChildrenStub;
       let destroyChildrenStub;
+      let previousChildren;
 
       beforeEach(function() {
         renderChildrenStub = vi.fn();
@@ -102,7 +103,7 @@ describe('CollectionView Data', function() {
 
         myCollectionView.render();
 
-        vi.spyOn(myCollectionView.children, '_init');
+        previousChildren = myCollectionView.children.toArray();
 
         myCollectionView.on({
           'render:children': renderChildrenStub,
@@ -116,8 +117,11 @@ describe('CollectionView Data', function() {
         expect(destroyChildrenStub).toHaveBeenCalledTimes(1);
       });
 
-      it('should re init the children', function() {
-        expect(myCollectionView.children._init).toHaveBeenCalledTimes(1);
+      it('releases previous child instances and model lookups', function() {
+        previousChildren.forEach(child => {
+          expect(child.isDestroyed()).toBe(true);
+          expect(myCollectionView.children.findByModel(child.model)).toBeUndefined();
+        });
       });
 
       it('should only contain the new children', function() {

@@ -2,8 +2,8 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import '../../setup/backbone.js';
 import _ from 'underscore';
 import Backbone from 'backbone';
-import CollectionView from '../../../src/modules/collection-view';
-import View from '../../../src/modules/view';
+import { CollectionView } from 'marionette';
+import { View } from 'marionette';
 
 describe('CollectionView - childViewContainer', function() {
   let MyCollectionView;

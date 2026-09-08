@@ -3,9 +3,9 @@ import { setFixtures } from '../../setup/fixtures.js';
 import '../../setup/backbone.js';
 import Backbone from 'backbone';
 
-import CollectionView from '../../../src/modules/collection-view';
-import Region from '../../../src/modules/region';
-import View from '../../../src/modules/view';
+import { CollectionView } from 'marionette';
+import { Region } from 'marionette';
+import { View } from 'marionette';
 
 function state(view) {
   return {

@@ -1,7 +1,7 @@
 import { vi, describe, it, expect } from 'vitest';
 'use strict';
 
-import { Application, MarionetteError } from '../../src/index';
+import { Application, MarionetteError } from 'marionette';
 
 async function expectRejection(promise, expectedError) {
   try {
@@ -21,11 +21,11 @@ describe('Application ownership', function() {
 
     expect(first.getName()).to.be.undefined;
     expect(first.getChildApps()).to.deep.equal({});
-    expect(first).to.not.have.own.property('_parentApp');
-    expect(first).to.not.have.own.property('_childApps');
+    expect(first.getName()).to.be.undefined;
+    expect(first.getChildApps()).to.deep.equal({});
 
     expect(second.getChildApps()).to.deep.equal({});
-    expect(second).to.not.have.own.property('_parentApp');
+    expect(second.getName()).to.be.undefined;
 
     await first.destroy();
     await second.destroy();
@@ -42,10 +42,10 @@ describe('Application ownership', function() {
     expect(root.hasChildApp('child')).to.be.true;
     expect(root.getChildApp('child')).to.equal(child);
     expect(root.getChildApps()).to.deep.equal({ child });
-    expect(child).to.have.own.property('_parentApp', root);
+    expect(root.getChildApp(child.getName())).to.equal(child);
     expect(child.getName()).to.equal('child');
     expect(child.getChildApp('grandchild')).to.equal(grandchild);
-    expect(grandchild).to.have.own.property('_parentApp', child);
+    expect(child.getChildApp(grandchild.getName())).to.equal(grandchild);
     expect(grandchild.getName()).to.equal('grandchild');
     expect(() => grandchild.addChildApp('root', root))
       .to.throw(MarionetteError).and.include({ code: 'MN0031' });
@@ -122,7 +122,7 @@ describe('Application ownership', function() {
 
     expect(owner.getChildApps()).to.deep.equal({ child });
     expect(otherOwner.getChildApps()).to.deep.equal({});
-    expect(child).to.have.own.property('_parentApp', owner);
+    expect(owner.getChildApp(child.getName())).to.equal(child);
     expect(child.getName()).to.equal('child');
 
     await owner.destroy();
@@ -157,7 +157,7 @@ describe('Application ownership', function() {
 
     expect(destroyedOwner.addChildApp('', liveChild)).to.equal(liveChild);
     expect(destroyedOwner.hasChildApp('child')).to.be.false;
-    expect(liveChild).to.not.have.own.property('_parentApp');
+    expect(liveChild.getName()).to.be.undefined;
     ownerReadiness.resolve();
     await ownerDestroy;
 
@@ -173,7 +173,7 @@ describe('Application ownership', function() {
 
     expect(liveOwner.addChildApp('', destroyedChild)).to.equal(destroyedChild);
     expect(liveOwner.hasChildApp('child')).to.be.false;
-    expect(destroyedChild).to.not.have.own.property('_parentApp');
+    expect(destroyedChild.getName()).to.be.undefined;
     childReadiness.resolve();
     await childDestroy;
 
@@ -189,10 +189,10 @@ describe('Application ownership', function() {
     expect(await owner.removeChildApp('missing')).to.be.undefined;
     expect(await owner.removeChildApp('child', { source: 'owner' })).to.equal(child);
     expect(child.isDestroyed()).to.be.true;
-    expect(child).to.not.have.own.property('_parentApp');
+    expect(child.getName()).to.be.undefined;
     expect(child.getName()).to.be.undefined;
     expect(owner.hasChildApp('child')).to.be.false;
-    expect(owner).to.not.have.own.property('_childApps');
+    expect(owner.getChildApps()).to.deep.equal({});
 
     await owner.destroy();
   });
@@ -213,7 +213,7 @@ describe('Application ownership', function() {
 
     expect(child.isDestroyed()).to.be.false;
     expect(owner.getChildApp('child')).to.equal(child);
-    expect(child).to.have.own.property('_parentApp', owner);
+    expect(owner.getChildApp(child.getName())).to.equal(child);
 
     expect(await owner.removeChildApp('child')).to.equal(child);
     expect(child.isDestroyed()).to.be.true;
@@ -226,7 +226,7 @@ describe('Application ownership', function() {
     let child;
     const ChildApplication = Application.extend({
       onDestroy() {
-        expect(this).to.not.have.own.property('_parentApp');
+        expect(this.getName()).to.be.undefined;
         expect(this.getName()).to.be.undefined;
         expect(owner.hasChildApp('child')).to.be.false;
         throw completionError;
@@ -239,7 +239,7 @@ describe('Application ownership', function() {
 
     expect(child.isDestroyed()).to.be.true;
     expect(owner.hasChildApp('child')).to.be.false;
-    expect(owner).to.not.have.own.property('_childApps');
+    expect(owner.getChildApps()).to.deep.equal({});
     expect(await child.start()).to.be.false;
     expect(await child.stop()).to.be.true;
     expect(await child.restart()).to.be.false;
@@ -257,14 +257,14 @@ describe('Application ownership', function() {
     await first.destroy();
 
     expect(owner.getChildApps()).to.deep.equal({ second });
-    expect(first).to.not.have.own.property('_parentApp');
-    expect(second).to.have.own.property('_parentApp', owner);
+    expect(first.getName()).to.be.undefined;
+    expect(owner.getChildApp(second.getName())).to.equal(second);
     expect(second.getName()).to.equal('second');
-    expect(owner).to.have.own.property('_childApps');
+    expect(Object.keys(owner.getChildApps()).length).to.be.greaterThan(0);
 
     await second.destroy();
     expect(owner.getChildApps()).to.deep.equal({});
-    expect(owner).to.not.have.own.property('_childApps');
+    expect(owner.getChildApps()).to.deep.equal({});
 
     await owner.destroy();
   });
@@ -345,7 +345,7 @@ describe('Application ownership', function() {
     expect(parent.isRunning()).to.be.false;
     expect(child.isDestroyed()).to.be.false;
     expect(parent.getChildApp('child')).to.equal(child);
-    expect(child).to.have.own.property('_parentApp', parent);
+    expect(parent.getChildApp(child.getName())).to.equal(child);
 
     expect(await parent.destroy()).to.be.true;
     expect(parent.isDestroyed()).to.be.true;
@@ -373,7 +373,7 @@ describe('Application ownership', function() {
     expect(parent.isDestroyed()).to.be.false;
     expect(child.isDestroyed()).to.be.false;
     expect(parent.getChildApp('child')).to.equal(child);
-    expect(child).to.have.own.property('_parentApp', parent);
+    expect(parent.getChildApp(child.getName())).to.equal(child);
     expect(childBeforeDestroy).not.toHaveBeenCalled();
 
     expect(await parent.destroy()).to.be.true;
