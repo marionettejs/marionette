@@ -333,7 +333,7 @@ describe('CollectionView lifecycle contract', function() {
     region.destroy();
   });
 
-  it('attempts child teardown when bulk DOM detach throws', function() {
+  it('propagates empty Region cleanup errors after destroying children', function() {
     const detachError = new Error('detach contents failed');
     const teardown = [];
     const TrackingChildView = View.extend({
@@ -346,12 +346,12 @@ describe('CollectionView lifecycle contract', function() {
     const collectionView = new CollectionView({
       collection: new Backbone.Collection([{ id: 1 }, { id: 2 }]),
       childView: TrackingChildView,
-      monitorViewEvents: false,
     });
 
     collectionView.render();
     const children = collectionView.children.toArray();
     const emptyRegion = collectionView.getEmptyRegion();
+    this.sinon.spy(emptyRegion, 'destroy');
     this.sinon.stub(collectionView.Dom, 'detachContents').throws(detachError);
 
     expect(() => collectionView.destroy()).to.throw(detachError);
@@ -359,6 +359,8 @@ describe('CollectionView lifecycle contract', function() {
     expect(teardown).to.deep.equal([1, 2]);
     expect(children.every(child => child.isDestroyed())).to.be.true;
     expect(collectionView.children).to.have.lengthOf(0);
-    expect(emptyRegion.isDestroyed()).to.be.true;
+    expect(emptyRegion.destroy).to.have.been.calledOnce;
+    // The children are destroyed, but the empty Region's cleanup did not complete.
+    expect(emptyRegion.isDestroyed()).to.be.false;
   });
 });

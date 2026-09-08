@@ -104,24 +104,25 @@ It returns to `false` when `show` completes. `isReplaced()` independently report
 whether `replaceElement` has temporarily replaced the Region element; it does not
 change which lifecycle operations are valid.
 
-| Operation | Empty Region | Occupied Region | Destruction begun |
+| Operation | Empty Region | Occupied Region | Destroyed Region |
 | --- | --- | --- | --- |
 | `show(view)` when the Region element resolves | Renders the View if needed, shows it, and enters occupied. | Showing the same View is a no-op. Showing a different View destroys the old View and swaps to the new one. | Returns the Region without inspecting or changing the caller-owned View or resolving the element. |
 | `detachView()` | Returns `undefined`; state is unchanged. | Detaches and returns the live View, then enters empty. | Returns `undefined` without changing state or DOM or emitting lifecycle events. |
 | `empty()` | Returns the Region and, when its element resolves, removes unmanaged contents from that element. | Destroys the current View, clears `currentView`, and enters empty. | Returns the Region without resolving the element or changing lifecycle state or DOM. |
 | `reset()` | Empties the Region and resets its element reference. | Destroys the current View, enters empty, and resets the element reference. | Returns the Region without resolving the element or changing lifecycle state, DOM, or element caches. |
 | Current View is destroyed externally | No effect. | Runs the Region's empty lifecycle once, clears `currentView`, and enters empty. | No effect. |
-| `destroy()` | Runs the destroy lifecycle and enters destroyed. | Emits `before:destroy`, enters destroyed, destroys and empties the current View, then emits `destroy`. | Returns the Region without repeating cleanup or lifecycle events. |
+| `destroy()` | Runs the destroy lifecycle and enters destroyed. | Emits `before:destroy`, destroys and empties the current View, enters destroyed, then emits `destroy`. | Returns the Region without repeating cleanup or lifecycle events. |
 
 Successful `show`, `empty`, and `destroy` calls return the Region when their
 operation completes. With `allowMissingEl: true`, `show` instead returns `undefined`
 and leaves the Region empty when its element does not resolve. A View returned
 by `detachView()` remains the caller's responsibility until another Region shows it
-or it is destroyed. Calling `show()`, `empty()`, or `reset()` once Region
-destruction begins is an idempotent no-op that returns the Region. A View passed
-to `show()` remains caller-owned and unchanged. `detachView()` after destruction
-returns `undefined`, and repeated `destroy()` remains a no-op. This contract does
-not make a destroyed Region reusable.
+or it is destroyed. After destruction, `show()`, `empty()`, and `reset()` return
+the Region without changing it, and `detachView()` returns `undefined`.
+As soon as destruction begins, `show()`, `detachView()`, and recursive `destroy()`
+calls are no-ops. `empty()` and `reset()` remain available during cleanup.
+A View passed to `show()` during or after destruction remains caller-owned and
+unchanged. A destroyed Region cannot be reused.
 
 The following example preserves a View by detaching it before showing it again.
 Calling `empty()` afterward destroys the View and returns the Region to its empty state.
@@ -538,7 +539,7 @@ mainRegion.empty();
 
 This will destroy the view, clean up any event handlers and remove it from
 the DOM. When a region is emptied [empty events are triggered](./events.class.md#empty-and-beforeempty-events).
-Calling `empty()` once Region destruction begins returns the Region without
+Calling `empty()` after Region destruction completes returns the Region without
 resolving its element, changing the DOM, or emitting empty lifecycle events.
 
 **NOTE** If the region does _not_ currently contain a View it will detach
@@ -586,7 +587,7 @@ myRegion.reset();
 ```
 
 This can be useful in unit testing your views.
-Calling `reset()` once Region destruction begins returns the Region without
+Calling `reset()` after Region destruction completes returns the Region without
 changing its element reference or cache.
 
 ## `destroy` A Region
@@ -596,21 +597,22 @@ remove it from any parent View's Region lookups, and stop any internal Region li
 Reentrant Region destruction from `before:destroy` or `destroy`, repeated calls,
 and later destruction of the parent View do not repeat the child or Region teardown.
 A throwing lifecycle hook stops destruction. Later `destroy()` calls do not
-retry hooks or resume partial teardown.
-A destroyed Region should not be reused. Calling `show()`, `empty()`, or `reset()`
-once destruction begins returns the Region before inspecting supplied input,
-resolving the Region element, or changing View ownership, lifecycle state,
-element caches, or DOM. A View passed to `show()` remains caller-owned.
-`destroy()` still dispatches through overridable `reset()` and `empty()` methods.
-A `reset` override participating in destruction must delegate to
-`Region.prototype.reset`; a non-delegating override that calls `this.empty()`
-directly after destruction receives the normal terminal no-op.
-An `empty` override invoked by destruction must delegate to
-`Region.prototype.empty` to receive Marionette's View and DOM cleanup; a
-non-delegating override owns that teardown behavior.
-Destroy, reset, and empty override chaining is synchronous. Overrides must
-delegate to the base method before returning; deferred or asynchronous base
-delegation is unsupported because Region lifecycle completion is synchronous.
+retry hooks or resume partial teardown. Discard the Region after a cleanup error;
+its remaining state is not a reusable lifecycle state.
+`isDestroyed()` becomes `true` after `reset()` finishes, before the `destroy`
+event. It remains `false` in `before:destroy`, `before:empty`, and `empty` handlers
+called during teardown.
+
+`destroy()` calls the overridable `reset()` method, which calls `empty()`.
+Overrides can use this ordinary synchronous chain while cleanup is in progress.
+An override that does not delegate to the base method owns the corresponding
+cleanup; for example, a custom `reset()` can call `this.empty()` and reset its own
+element reference. Nested `empty()` or `reset()` calls from lifecycle handlers
+are ordinary calls, so handlers must avoid recursive loops.
+
+After destruction completes, `empty()` and `reset()` return the Region without
+changing its element or DOM. `show()` and `detachView()` already stop accepting
+Views or transferring ownership as soon as destruction begins.
 
 ```javascript
 import { View } from 'marionette';
