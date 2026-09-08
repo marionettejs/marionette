@@ -74,7 +74,7 @@
     "size:adapters": "node scripts/performance/adapters-package-size.mjs",
     "size:data": "node scripts/performance/data-package-size.mjs",
     "test": "vitest run",
-    "test:agent-benchmark-contract": "node --test test/agent-benchmark/task-contract.test.mjs",
+    "test:agent-benchmark-contract": "node --test test/agent-benchmark/*.test.mjs",
     "test:browser": "playwright test",
     "test:dist": "node test/dist/validate.mjs",
     "test:fixtures": "node test/fixtures/run.mjs",
@@ -96,7 +96,14 @@
     "verify": "node scripts/checks/verify.mjs",
     "check:public-tests": "node scripts/checks/public-tests.mjs",
     "check:workflows": "node scripts/checks/workflows.mjs",
-    "coverage:tooling": "c8 --config config/tooling-coverage.json npm run test:tooling"
+    "coverage:tooling": "c8 --config config/tooling-coverage.json npm run test:tooling && node scripts/checks/tooling-coverage.mjs",
+    "agent:cache": "node scripts/agent-benchmark/cache-environment.mjs",
+    "agent:reference": "node scripts/agent-benchmark/run.mjs reference",
+    "agent:fixtures": "node scripts/agent-benchmark/run.mjs fixtures",
+    "agent:app": "node scripts/agent-benchmark/serve.mjs",
+    "test:agent-app": "playwright test --config test/agent-benchmark/playwright.config.mjs",
+    "test:model": "vitest run test/unit/model-based",
+    "test:mutation": "node scripts/testing/mutation.mjs"
   },
   "bugs": {
     "url": "https://github.com/marionettejs/marionette/issues"

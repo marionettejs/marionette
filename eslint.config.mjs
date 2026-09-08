@@ -124,6 +124,11 @@ export default [
     files: ['test/unit/**/*.js'],
     plugins: { vitest },
     rules: {
+      'no-restricted-imports': ['error', 'sinon', 'sinon-chai'],
+      'no-restricted-syntax': ['error', {
+        selector: 'MemberExpression[object.type="ThisExpression"][property.name="sinon"]',
+        message: 'Use explicit native Vitest vi.fn/vi.spyOn imports.',
+      }],
       'vitest/no-disabled-tests': 'error',
       'vitest/no-focused-tests': 'error',
       'vitest/valid-describe-callback': 'error',

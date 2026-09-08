@@ -1,0 +1,35 @@
+name: Public contract mutation pilot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mutation:
+    name: Bounded ownership and subscription pilot
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout selected source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup pinned Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install and build
+        run: npm ci
+      - name: Run bounded mutation pilot
+        run: npm run test:mutation
+      - name: Retain complete or partial evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: mutation-${{ github.sha }}-${{ github.run_attempt }}
+          path: coverage/mutation/
+          if-no-files-found: warn
+          retention-days: 30

@@ -25,6 +25,9 @@ After source edits, rebuild before directly invoking consumer types, browser or
 distribution checks. `npm run verify` rebuilds and checks lint/types/unit contracts;
 `npm run verify -- --full` adds both coverage reports, source/distribution checks,
 real browsers, documentation checks, and every installed fixture.
+The separate `npm run agent:cache` and `npm run test:agent-app` commands validate
+the reference app; `agent:reference` and `agent:fixtures` exercise unscored corpus
+controls. These commands never invoke a model.
 
 `npm run lint` never edits files. Use `npm run lint:fix` explicitly. Lint rejects
 focused/disabled unit tests, missing assertions, unawaited async assertions, and
@@ -66,7 +69,18 @@ Do not hide uncovered code with ignores or test manufactured private states.
 zero-coverage files, at `coverage/tooling/index.html`. It captures subprocess CLI
 execution as well as in-process tests. This report must not inflate the library
 percentage. Review release failure/recovery tests together with the percentage;
-a high count of mocked decisions alone does not prove the command works.
+a high count of mocked decisions alone does not prove the command works. The release
+CLI subset has separate minimums of 90% lines/statements, 70% branches, and 100%
+functions in `config/release-coverage.json`; all other tooling remains visible in
+the report, including unexecuted files.
+
+## Public operation models
+
+`npm run test:model` replays deterministic consumer-owned lifecycle models; these
+also run in the normal unit suite. `npm run test:mutation` measures a bounded
+ownership/subscription subset with two workers and a ten-minute deadline. The
+manual Mutation workflow retains complete and partial reports. See
+[model replay and measured survivors](unit/model-based/README.md).
 
 ## Locked consumer fixtures
 

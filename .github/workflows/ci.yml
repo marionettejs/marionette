@@ -63,6 +63,12 @@ jobs:
       - name: Test supported browsers
         run: npm run test:browser
 
+      - name: Cache pinned agent reference environment
+        run: npm run agent:cache
+
+      - name: Test agent reference application
+        run: npm run test:agent-app
+
       - name: Coverage
         run: npm run coverage
 
@@ -82,6 +88,7 @@ jobs:
             test/tmp/browser/report/
             test/tmp/browser/results/
             test/tmp/fixture-reports/
+            test/tmp/agent-reference-app/
           if-no-files-found: warn
 
   package-smoke:

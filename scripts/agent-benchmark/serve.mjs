@@ -7,7 +7,7 @@ import { prepareArtifacts, prepareAttempt, repositoryRoot } from './harness.mjs'
 const args = process.argv.slice(2);
 const option = name => { const index = args.indexOf(name);return index < 0 ? undefined : args[index + 1]; };
 const directory = await mkdtemp(join(tmpdir(), 'marionette-reference-app-'));
-const artifacts = await prepareArtifacts({ manifestPath: option('--manifest'), output: join(directory,'artifacts') });
+const artifacts = await prepareArtifacts({ manifestPath: option('--manifest') || process.env.MARIONETTE_BROWSER_ARTIFACT_MANIFEST, output: join(directory,'artifacts') });
 const prepared = await prepareAttempt({ taskId: 'nested-workspace', artifacts, output: join(directory,'consumer'), reference: true });
 const publicRoot = resolve(repositoryRoot,'benchmarks/agent');
 const modules = join(prepared.workspace,'node_modules');
