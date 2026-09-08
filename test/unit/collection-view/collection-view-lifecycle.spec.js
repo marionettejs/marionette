@@ -352,6 +352,7 @@ describe('CollectionView lifecycle contract', function() {
     collectionView.render();
     const children = collectionView.children.toArray();
     const emptyRegion = collectionView.getEmptyRegion();
+    this.sinon.spy(emptyRegion, 'destroy');
     this.sinon.stub(collectionView.Dom, 'detachContents').throws(detachError);
 
     expect(() => collectionView.destroy()).to.throw(detachError);
@@ -359,6 +360,8 @@ describe('CollectionView lifecycle contract', function() {
     expect(teardown).to.deep.equal([1, 2]);
     expect(children.every(child => child.isDestroyed())).to.be.true;
     expect(collectionView.children).to.have.lengthOf(0);
-    expect(emptyRegion.isDestroyed()).to.be.true;
+    expect(emptyRegion.destroy).to.have.been.calledOnce;
+    // The same DOM error interrupts the empty Region's cleanup.
+    expect(emptyRegion.isDestroyed()).to.be.false;
   });
 });

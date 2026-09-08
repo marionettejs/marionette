@@ -286,10 +286,10 @@ describe('Region lifecycle contract', function() {
 
     expect(lifecycle).to.deep.equal([
       'region:before:destroy:false',
-      'region:before:empty:true',
+      'region:before:empty:false',
       'view:before:destroy',
       'view:destroy',
-      'region:empty:true',
+      'region:empty:false',
       'region:destroy:true',
     ]);
     expect(region.hasView()).to.be.false;
@@ -393,87 +393,86 @@ describe('Region lifecycle contract', function() {
     owner.destroy();
   });
 
-  it('authorizes only the intended reset and empty override chain during destroy', function() {
-    const lifecycle = [];
-    const ignored = [];
-    let duringDestroy = false;
-    let view;
-    const captureNoop = (label, currentRegion, operation) => {
-      ignored.push({
-        label,
-        result: operation(),
-        currentView: currentRegion.currentView,
-        el: currentRegion.el,
+  for (const delegateReset of [true, false]) {
+    it(`runs reset and empty overrides during destruction (${delegateReset ? 'delegated' : 'custom'} reset)`, function() {
+      const lifecycle = [];
+      const CustomRegion = Region.extend({
+        reset(options) {
+          lifecycle.push(['reset', this.isDestroyed()]);
+          if (delegateReset) { return Region.prototype.reset.call(this, options); }
+          this.empty(options);
+          this.el = this._initEl;
+          return this;
+        },
+        empty(options) {
+          lifecycle.push(['empty', this.isDestroyed()]);
+          return Region.prototype.empty.call(this, options);
+        }
       });
-    };
-    const CustomRegion = Region.extend({
-      reset(options) {
-        if (duringDestroy) {
-          lifecycle.push('reset');
-          captureNoop('reset:empty', this, () => Region.prototype.empty.call(this));
-        }
-        return Region.prototype.reset.call(this, options);
-      },
-      empty(options) {
-        if (duringDestroy) {
-          lifecycle.push('empty');
-          captureNoop('empty:reset', this, () => Region.prototype.reset.call(this));
-        }
-        return Region.prototype.empty.call(this, options);
-      },
-    });
-    const customRegion = new CustomRegion({ el: '#region' });
-    view = new TestView();
-    customRegion.show(view);
-    const occupiedEl = customRegion.el;
-    customRegion.on('before:empty', currentRegion => {
-      lifecycle.push('before:empty');
-      captureNoop(
-        'before:empty:empty',
-        currentRegion,
-        () => Region.prototype.empty.call(currentRegion)
-      );
-      captureNoop(
-        'before:empty:reset',
-        currentRegion,
-        () => Region.prototype.reset.call(currentRegion)
-      );
-    });
+      const customRegion = new CustomRegion({ el: '#region' });
+      const view = new TestView();
+      customRegion.show(view);
+      lifecycle.length = 0;
+      customRegion.on('destroy', () => lifecycle.push(['destroy', customRegion.isDestroyed()]));
 
-    duringDestroy = true;
-    expect(customRegion.destroy()).to.equal(customRegion);
-    expect(lifecycle).to.deep.equal(['reset', 'empty', 'before:empty']);
-    expect(ignored.map(({ label }) => label)).to.deep.equal([
-      'reset:empty',
-      'empty:reset',
-      'before:empty:empty',
-      'before:empty:reset',
-    ]);
-    for (const noop of ignored) {
-      expect(noop.result).to.equal(customRegion);
-      expect(noop.currentView).to.equal(view);
-      expect(noop.el).to.equal(occupiedEl);
-    }
-    expect(customRegion.isDestroyed()).to.be.true;
-    expect(customRegion.hasView()).to.be.false;
-    expect(customRegion.currentView).to.be.undefined;
-    expect(view.isDestroyed()).to.be.true;
+      customRegion.destroy();
+
+      expect(lifecycle).to.deep.equal([['reset', false], ['empty', false], ['destroy', true]]);
+      expect(view.isDestroyed()).to.be.true;
+      expect(customRegion.hasView()).to.be.false;
+    });
+  }
+
+  it('allows before:destroy to empty the Region without repeating child destruction', function() {
+    const view = new TestView();
+    region.show(view);
+    const destroy = this.sinon.spy(view, 'destroy');
+    const empty = this.sinon.spy();
+    region.on('before:destroy', () => region.empty());
+    region.on('empty', empty);
+
+    region.destroy();
+
+    expect(destroy).to.have.been.calledOnce;
+    expect(empty).to.have.been.calledOnce;
+    expect(region.isDestroyed()).to.be.true;
+    expect(region.hasView()).to.be.false;
+  });
+
+  it('does not complete or retry destruction when child cleanup throws', function() {
+    const error = new Error('cleanup failed');
+    const view = new TestView();
+    const other = new TestView();
+    const beforeEmpty = this.sinon.spy(() => { throw error; });
+    const destroyed = this.sinon.spy();
+    region.show(view);
+    region.on('before:empty', beforeEmpty);
+    region.on('destroy', destroyed);
+
+    expect(() => region.destroy()).to.throw(error);
+    expect(region.isDestroyed()).to.be.false;
+    expect(destroyed).not.to.have.been.called;
+    expect(region.destroy()).to.equal(region);
+    expect(beforeEmpty).to.have.been.calledOnce;
+    expect(region.show(other)).to.equal(region);
+    expect(region.currentView).to.equal(view);
+    expect(other.isRendered()).to.be.false;
+    expect(region.detachView()).to.be.undefined;
+
+    region.off('before:empty', beforeEmpty);
+    view.destroy();
+    other.destroy();
   });
 
   it('leaves teardown behavior to a non-delegating empty override', function() {
-    let overrideSymbolKeys;
     const CustomRegion = Region.extend({
       empty() {
-        overrideSymbolKeys = Reflect.ownKeys(this)
-          .filter(key => typeof key === 'symbol');
         return this;
       },
     });
     const customRegion = new CustomRegion({ el: '#region' });
     const view = new TestView();
     customRegion.show(view);
-    const originalSymbolKeys = Reflect.ownKeys(customRegion)
-      .filter(key => typeof key === 'symbol');
     this.sinon.spy(customRegion, 'empty');
     const destroy = this.sinon.spy();
     customRegion.on('destroy', destroy);
@@ -481,7 +480,6 @@ describe('Region lifecycle contract', function() {
     expect(customRegion.destroy()).to.equal(customRegion);
     expect(customRegion.empty).to.have.been.calledOnce;
     expect(destroy).to.have.been.calledOnceWith(customRegion, undefined);
-    expect(overrideSymbolKeys).to.deep.equal(originalSymbolKeys);
     expect(customRegion.isDestroyed()).to.be.true;
     expect(customRegion.currentView).to.equal(view);
     expect(view.isDestroyed()).to.be.false;
@@ -496,8 +494,6 @@ describe('Region lifecycle contract', function() {
 
     expect(Region.prototype.empty.call(customRegion)).to.equal(customRegion);
     expect(Region.prototype.reset.call(customRegion)).to.equal(customRegion);
-    expect(Reflect.ownKeys(customRegion).filter(key => typeof key === 'symbol'))
-      .to.deep.equal(originalSymbolKeys);
     expect(customRegion.el).to.equal(cachedEl);
     expect(customRegion.$el).to.equal(cached$El);
     expect(customRegion.currentView).to.equal(view);
@@ -572,15 +568,6 @@ describe('Region lifecycle contract', function() {
     expect(sentinel.textContent).to.equal('unmanaged');
     expect(beforeEmpty).to.not.have.been.called;
     expect(empty).to.not.have.been.called;
-  });
-
-  it('does not expose an _emptyRegion helper on Region instances', function() {
-    const view = new TestView();
-    region.show(view);
-    region.destroy();
-
-    expect(Region.prototype).not.to.have.own.property('_emptyRegion');
-    expect(region._emptyRegion).to.be.undefined;
   });
 
   for (const operation of ['empty', 'reset']) {
@@ -686,6 +673,30 @@ describe('Region lifecycle contract', function() {
     expect(region.hasView()).to.be.false;
     expect(region.currentView).to.be.undefined;
   });
+
+  for (const operation of ['child', 'region']) {
+    it(`allows child destroy events to destroy the parent during ${operation} destruction`, function() {
+      const owner = new View({
+        template: () => '<div class="content"></div>',
+        regions: { content: '.content' },
+        childViewEvents: { destroy: 'destroy' }
+      });
+      const child = new TestView();
+      owner.showChildView('content', child);
+      const ownedRegion = owner.getRegion('content');
+      const destroyed = this.sinon.spy();
+      ownedRegion.on('destroy', destroyed);
+
+      (operation === 'child' ? child : ownedRegion).destroy();
+
+      expect(owner.isDestroyed()).to.be.true;
+      expect(child.isDestroyed()).to.be.true;
+      expect(ownedRegion.isDestroyed()).to.be.true;
+      expect(ownedRegion.hasView()).to.be.false;
+      expect(owner.hasRegion('content')).to.be.false;
+      expect(destroyed).to.have.been.calledOnce;
+    });
+  }
 
   it('unlinks a reentrantly destroyed owned Region without repeating teardown', function() {
     const owner = new View({

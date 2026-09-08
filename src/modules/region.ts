@@ -106,34 +106,6 @@ export interface RegionInternals extends RegionInstance {
 }
 
 const classErrorName = 'RegionError';
-const destroyTeardown = new WeakMap<RegionInternals, 'empty' | 'reset'>();
-
-function consumeDestroyTeardown(region: RegionInternals, operation: 'empty' | 'reset') {
-  if (destroyTeardown.get(region) !== operation) { return false; }
-
-  destroyTeardown.delete(region);
-  return true;
-}
-
-function canMutateRegion(region: RegionInternals) {
-  return !region._isDestroying && !region._isDestroyed;
-}
-
-function emptyRegion(region: RegionInternals, options: ShowOptions = { allowMissingEl: true }) {
-  const view = region.currentView;
-
-  // If there is no view in the region we should only detach current html
-  if (!view) {
-    if (region._ensureElement(options)) {
-      region.detachHtml();
-    }
-    return region;
-  }
-
-  region._empty(view, true);
-  return region;
-}
-
 const RegionClassOptions = [
   'allowMissingEl',
   'parentEl',
@@ -168,7 +140,7 @@ Object.assign(Region.prototype, CommonMixin, {
   // Displays a view instance inside of the region. If necessary handles calling the `render`
   // method for you. Reads content directly from the `el` attribute.
   show(this: RegionInternals, view: SupportedView, options?: ShowOptions) {
-    if (!canMutateRegion(this)) { return this; }
+    if (this._isDestroyed || this._isDestroying) { return this; }
 
     if (!this._ensureElement(options)) {
       return;
@@ -392,9 +364,16 @@ Object.assign(Region.prototype, CommonMixin, {
   // Destroy the current view, if there is one. If there is no current view,
   // it will detach any html inside the region's `el`.
   empty(this: RegionInternals, options: ShowOptions = { allowMissingEl: true }) {
-    if (!canMutateRegion(this) && !consumeDestroyTeardown(this, 'empty')) { return this; }
+    if (this._isDestroyed) { return this; }
 
-    return emptyRegion(this, options);
+    const view = this.currentView;
+    if (!view) {
+      if (this._ensureElement(options)) { this.detachHtml(); }
+      return this;
+    }
+
+    this._empty(view, true);
+    return this;
   },
 
   _empty(this: RegionInternals, view: SupportedView, shouldDestroy?: boolean) {
@@ -446,7 +425,7 @@ Object.assign(Region.prototype, CommonMixin, {
   // Empties the Region without destroying the view
   // Returns the detached view
   detachView(this: RegionInternals) {
-    if (!canMutateRegion(this)) { return; }
+    if (this._isDestroyed || this._isDestroying) { return; }
 
     const view = this.currentView;
 
@@ -502,22 +481,9 @@ Object.assign(Region.prototype, CommonMixin, {
   // Reset the region by destroying any existing view and restoring its initial element.
   // The next time a view is shown, the region will re-query the DOM for its `el`.
   reset(this: RegionInternals, options?: ShowOptions) {
-    let authorized = false;
-    if (!canMutateRegion(this)) {
-      authorized = consumeDestroyTeardown(this, 'reset');
-      if (!authorized) { return this; }
-    }
+    if (this._isDestroyed) { return this; }
 
-    if (authorized) {
-      destroyTeardown.set(this, 'empty');
-    }
-    try {
-      this.empty(options);
-    } finally {
-      if (authorized && destroyTeardown.get(this) === 'empty') {
-        destroyTeardown.delete(this);
-      }
-    }
+    this.empty(options);
     this.el = this._initEl;
 
     return this;
@@ -535,11 +501,9 @@ Object.assign(Region.prototype, CommonMixin, {
     if (this._isDestroyed || this._isDestroying) { return this; }
     this._isDestroying = true;
     this.triggerMethod('before:destroy', this, options);
-    this._isDestroyed = true;
 
-    destroyTeardown.set(this, 'reset');
     this.reset(options);
-    destroyTeardown.delete(this);
+    this._isDestroyed = true;
     const parentView = this._parentView;
     const name = this._name;
     delete this._parentView;
