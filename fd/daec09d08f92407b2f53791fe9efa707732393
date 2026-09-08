@@ -1,0 +1,201 @@
+readme.md
+  s_bc19ab09821624::t_23c424c0f1b40a 49-54,93-94,110-111
+  s_bc19ab09821624::t_780a4a50a0487a 82-83,95-96
+  s_bc19ab09821624::t_9a1a8df7433b49 97
+docs/release-profile.md
+  s_bc19ab09821624::t_23c424c0f1b40a 44,51-55
+docs/installation.md
+  s_bc19ab09821624::t_959fef34f9391d 97-102,154-155,176-179,187,214-216,220,225-227,245-246
+  s_bc19ab09821624::t_2c9b7fae8b9fa9 32-38
+docs/diagnostic-catalog.md
+  s_bc19ab09821624::t_226296ec253a07 22
+docs/maintainers/line-audit-operations.md
+  s_bc19ab09821624::t_9ce5acc5bd397f 1-136
+upgradeGuide.md
+  s_bc19ab09821624::t_383f24a827ccc3 24
+  s_bc19ab09821624::t_9dcf64388a0b7b 386-389
+  s_bc19ab09821624::t_e0f5943458c999 92-93,101,106-109,394-395,399-405
+docs/maintainers/types.md
+  s_bc19ab09821624::t_959fef34f9391d 72-73
+  s_bc19ab09821624::t_23c424c0f1b40a 1-71,74-173
+.github/copilot-instructions.md
+  s_bc19ab09821624::t_a29cc8f2251185 1,3-5
+AGENTS.md
+  s_bc19ab09821624::t_a07defbedbeb05 1-25
+CONTRIBUTING.md
+  s_bc19ab09821624::t_67715104180a8b 18-19,28,31,50,60-62,69,71-74
+docs/agent-tools.md
+  s_bc19ab09821624::t_ff588f858bd4d8 1-114
+docs/agents.md
+  s_bc19ab09821624::t_6917fa1e004f85 1-130
+docs/application-agent-template.md
+  s_bc19ab09821624::t_b1b7ecb3d47993 1-58
+docs/basics.md
+  s_bc19ab09821624::t_7376f00e5768ed 44-47,247-249,267
+docs/choosing-integrations.md
+  s_bc19ab09821624::t_b6bffbb5b8e0f1 1-135
+docs/common.md
+  s_bc19ab09821624::t_5e45422955546f 74-76,122-124
+docs/data.api.md
+  s_bc19ab09821624::t_7c3389e31b81e8 12-14,131-132,164-167,222,225-226,228-235,238-243
+docs/dom.api.md
+  s_bc19ab09821624::t_9fbeb60f47bea7 184-185
+docs/dom.interactions.md
+  s_bc19ab09821624::t_977f6499c6c646 118-120,178-179,224-225,299,301-302,311-313
+docs/dom.prerendered.md
+  s_bc19ab09821624::t_13f9e114aaa323 64-66,68-77,81-86,96,100-101,104-113,125-126,131,165,168
+docs/events.class.md
+  s_bc19ab09821624::t_07f71aede509f6 16,51-52,56-59,63-65,67-70,72-78,164,167-168,198,201-202,220,226,228-229,237-240,260-262,272-274,277-278,283-285,300-303,312,316,318,343-345,353-354,357,375-378,405-407,418-420,464-467,473
+docs/events.entity.md
+  s_bc19ab09821624::t_ad68d177d24165 67-69,148,155
+docs/events.md
+  s_bc19ab09821624::t_6d1b0bb51742eb 93-94,140-141,153,165-168,173,178,241-242,305-308,315,322,324,335-337,341-345,347-350,356,367-368,384,391,397,404-405,419-420,423,425,430,432-433,452,459,487,494,530-532,542,560,579,594-595,607,627
+docs/forms-and-accessibility.md
+  s_bc19ab09821624::t_339de0da5d643b 1,3-6,8,10-12,14,16-28,30-84,89-90,93-104,106-107,110-154
+docs/maintainers/documentation-trial.md
+  s_bc19ab09821624::t_40fa2cd96d095a 1-81
+docs/maintainers/documentation.md
+  s_bc19ab09821624::t_63b6c799329d28 1-169
+docs/maintainers/line-audit-core.md
+  s_bc19ab09821624::t_16a4c8ca62d43a 1-146
+docs/maintainers/line-audit-integrations.md
+  s_bc19ab09821624::t_f7574e0118556b 1-130
+docs/maintainers/package-comment-audit.md
+  s_bc19ab09821624::t_86780e98f46584 1-97
+docs/maintainers/readme.md
+  s_bc19ab09821624::t_825b55fb126732 1-100
+docs/maintainers/reference-audit.md
+  s_bc19ab09821624::t_2cbc11dc7b7ff3 1-100
+docs/maintainers/source-comment-audit.md
+  s_bc19ab09821624::t_c4f69cb5c6d67a 1-135
+docs/marionette.application.md
+  s_bc19ab09821624::t_cd4c3480ef6cd9 30,38,154-156,158-160,162-165,169-183,185-193,197-199,203-210,223,226-229,267,427-430,463,477-479,481,487-493
+docs/marionette.behavior.md
+  s_bc19ab09821624::t_341583f68d3d99 173,288-290,424-426,555-557,564,604-608
+docs/marionette.collectionview.md
+  s_bc19ab09821624::t_aba75ee6cd529c 65,71,74-78,90,118,177-180,227-230,235-236,306-309,327,337,347-350,362-364,401,418-419,430,460,506-511,565-566,585-587,625-626,634,644-646,656-660,666-679,690,698-701,862,904-906,924,949,951,975-976,997,1013,1015,1036,1039,1041,1043-1045,1052,1055,1067,1073,1086-1089,1110-1111,1113-1114,1129-1133,1136,1138,1140-1141,1149-1150,1159,1161,1163-1164,1184,1187,1199,1204,1221,1225,1229-1231,1242-1244,1258,1261-1262,1296,1299-1300,1328,1331-1332,1379-1382,1386-1387,1390,1392-1393,1405-1406,1416-1417,1420,1422-1423
+docs/marionette.mnobject.md
+  s_bc19ab09821624::t_99898a10b4ed4c 11,24,27,30-35,73-74
+docs/marionette.region.md
+  s_bc19ab09821624::t_0cc97b0072c45d 42,47-52,57,120-121,129-132,222,234-235,237-238,240,244-246,249-250,259-261,263-264,266-267,270-276,292-294,485-486,582-584,588-590,672,735-745
+docs/marionette.state.md
+  s_bc19ab09821624::t_169c86ab34255c 12-13,104,132-134,225-227
+docs/marionette.view.md
+  s_bc19ab09821624::t_a09b7de2260550 26,49,55,59-61,65-95,113-117,195-198,266,312,349-351,364-368,384-387
+docs/migration-from-v4.md
+  s_bc19ab09821624::t_ca81c2fe198253 27,32,44,59-60,116,126-127,129
+docs/optional-backbone.md
+  s_bc19ab09821624::t_70e059b9405f7c 5-7,15,18-26,30-32,90,93,116-119
+docs/production-and-performance.md
+  s_bc19ab09821624::t_8ad4c766d2e439 1-83
+docs/public-api.md
+  s_bc19ab09821624::t_8ff13e52e17831 1-77
+docs/radio.md
+  s_bc19ab09821624::t_1c9f430c23c821 82,92-108,122
+docs/readme.md
+  s_bc19ab09821624::t_11f2428bee81bc 1-61
+docs/routing.md
+  s_bc19ab09821624::t_58587f57063dcd 1,3-5,7,9-112,116,118-126,129-134,138,140-144,147-160,162,164-170,172-174
+docs/runtime-isolation.md
+  s_bc19ab09821624::t_19f3da04374c70 11-13,57-82
+docs/security.md
+  s_bc19ab09821624::t_9c2f9bcdfcf946 1-91
+docs/task-recipes.md
+  s_bc19ab09821624::t_28b86fa7dba794 1-118
+docs/terminology.md
+  s_bc19ab09821624::t_3cdf7100460ec4 34-38,58-60
+docs/testing.md
+  s_bc19ab09821624::t_e43ef1ebc69dc1 1-103
+docs/typescript.md
+  s_bc19ab09821624::t_48f1081e3e1cd2 1-126
+docs/utils.md
+  s_bc19ab09821624::t_05bd5d2a9bcea2 9-12
+docs/view.lifecycle.md
+  s_bc19ab09821624::t_99622f7387caa7 65,123-126
+docs/view.rendering.md
+  s_bc19ab09821624::t_00ceee6af8247a 66,118,145-146,156-160,192-194,197-199,209,214,288,310,436-437,513-516,531-533
+evidence/documentation-audit-2026-09-08.md
+  s_bc19ab09821624::t_0aefc3d394fcfc 1-53
+packages/adapters/readme.md
+  s_bc19ab09821624::t_9471f12e6be0a4 33-35,38-46,48-49,52-60,73-76,142-143
+packages/adapters/src/dom/morphdom.ts
+  s_bc19ab09821624::t_b3942e1cfe5001 6
+packages/data/readme.md
+  s_bc19ab09821624::t_7618fd12e919cf 14-27,30,33-50,79-83,120-122,136-137,154-155
+packages/radio/src/radio.ts
+  s_bc19ab09821624::t_5e26e5714154e0 75,85
+packages/radio/src/requests.ts
+  s_bc19ab09821624::t_88cdde9d9e16b5 34,75,189-190
+packages/utils/readme.md
+  s_bc19ab09821624::t_62be2210597514 20,53-55
+packages/utils/src/bind-events.ts
+  s_bc19ab09821624::t_5a300a732eace7 10-12
+packages/utils/src/bind-requests.ts
+  s_bc19ab09821624::t_3a0d6c995ad2d8 7-10
+packages/utils/src/call-handler.ts
+  s_bc19ab09821624::t_68db4f6c28c603 1
+packages/utils/src/events.ts
+  s_bc19ab09821624::t_af4dd59cc612dd 106,289-291,314-315
+packages/utils/src/get-option.ts
+  s_bc19ab09821624::t_08c93e8656d04c 23
+packages/utils/src/trigger-method.ts
+  s_bc19ab09821624::t_ff113631fa201e 11,14,33-34,36-37
+src/mixins/behaviors.ts
+  s_bc19ab09821624::t_d1af62f6f850e7 97-98
+src/mixins/common.ts
+  s_bc19ab09821624::t_35d1f545ca6648 39,42,45,48
+src/mixins/template-render.ts
+  s_bc19ab09821624::t_6ccb91567f6c35 48-50
+src/mixins/view.ts
+  s_bc19ab09821624::t_177ab54b12499d 76-77,79-80,95,205,266,271,274
+src/modules/application.ts
+  s_bc19ab09821624::t_89fad714705a63 520
+src/modules/behavior.ts
+  s_bc19ab09821624::t_ebbf7c7d20b368 4-5,148,173-174
+src/modules/child-view-container.ts
+  s_bc19ab09821624::t_1961ccd349969d 98,440-441,475
+src/modules/collection-view.ts
+  s_bc19ab09821624::t_8c59f653871dcc 407-408,433,516,659,751-752,859-860,907,1117-1118
+src/modules/object.ts
+  s_bc19ab09821624::t_c3dea09f98fddc 144
+src/modules/region.ts
+  s_bc19ab09821624::t_d5f63d433dd82d 365-366,396,483-484,500-501
+src/modules/view.ts
+  s_bc19ab09821624::t_b582b41e9d1fa6 289-290,391,478-479,532-533
+src/runtime/dom-api.ts
+  s_bc19ab09821624::t_990d6fdf9bc202 50,60,65,118-119
+test/browser/docs-form.mjs
+  s_bc19ab09821624::t_38613749dd3115 1-91
+test/fixtures/docs-application-guides/package.json
+  s_bc19ab09821624::t_7853a75cc8fa8e 1-6
+test/fixtures/docs-application-guides/validate.mjs
+  s_bc19ab09821624::t_a07632f03e77d3 1-218
+test/fixtures/docs-prerendered-content/package.json
+  s_bc19ab09821624::t_b9f84b49917871 1-10
+test/fixtures/docs-prerendered-content/validate.mjs
+  s_bc19ab09821624::t_0673e1c26ee394 1-48
+test/fixtures/docs-region-lifecycle/validate.mjs
+  s_bc19ab09821624::t_ffb6961b39540d 25-32,43,156-169,172
+test/fixtures/docs-routing/package.json
+  s_bc19ab09821624::t_b9cf34c0644526 1-10
+test/fixtures/docs-routing/validate.mjs
+  s_bc19ab09821624::t_c0df0adeb7ecb1 1-154
+test/unit/docs-integrations-examples.spec.js
+  s_bc19ab09821624::t_5aab465ae6ba54 1-132
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "fddaec09d08f92407b2f53791fe9efa707732393",
+  "prompts": {},
+  "sessions": {
+    "s_bc19ab09821624": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e7-cb4f-73e3-b41e-328bfeae0db2",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
