@@ -9,6 +9,10 @@ export default [
   {
     ignores: [
       '.docs-site/**',
+      '.docs-export/**',
+      '.docs-export-tmp/**',
+      // Preserve submitted trial artifacts exactly as evaluated.
+      'benchmarks/docs/results/**',
       'coverage/**',
       'dist/**',
       'node_modules/**',

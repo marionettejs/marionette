@@ -6,9 +6,10 @@ framework instance. Common framework conventions such as `bindEvents`, `getOptio
 [instance methods](./common.md).
 
 The v4 target-first exports also adapted these conventions to arbitrary plain
-objects. That adapter is not part of v5. Extend `MnObject` when the object should
-participate in Marionette conventions, or keep a genuinely standalone convention
-local to the consumer instead of borrowing a Marionette prototype method.
+objects. That adapter is not part of v5. Import reusable helpers from
+[`@marionette/utils`](./common.md#shared-helpers) when a plain component needs them;
+extend `MnObject` when it needs Marionette's initialization and cleanup lifecycle.
+Do not borrow a framework prototype solely to obtain a helper.
 
 ## Documentation Index
 

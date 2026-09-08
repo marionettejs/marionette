@@ -404,9 +404,8 @@ Object.assign(CollectionView.prototype, ViewMixin, {
   // flag for maintaining the sorted order of the collection
   sortWithCollection: true,
 
-  // Internal method to set up the `children` object for storing all of the child views
-  // `_children` represents all child views
-  // `children` represents only views filtered to be shown
+  // Keep all managed Views in _children and the current presentation in children.
+  // A new manual child is also present in children until the next filter pass.
   _initChildViewStorage(this: CollectionViewInternals) {
     this._children = new ChildViewContainer(this.Data);
     this.children = new ChildViewContainer(this.Data);
@@ -431,7 +430,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     return this._emptyRegion;
   },
 
-  // Configured the initial events that the collection view binds to.
+  // Subscribe once to normalized DataApi collection observations before first render completes.
   _initialEvents(this: CollectionViewInternals) {
     if (this._isRendered || this._dataObserverCleanup) { return; }
 
@@ -514,7 +513,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     const updatedViews: CollectionChild[] = [];
     let replacementIndex = 0;
 
-    // Remove first since it'll be a shorter array lookup.
+    // Remove obsolete keys before adding or replacing the current children.
     for (const { key } of changes.removed) {
       const view = this._children.findByKey(key);
       if (!view) { continue; }
@@ -657,7 +656,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     this._proxyChildViewEvents(view);
   },
 
-  // used by ViewMixin's `_childViewEventHandler`
+  // Used by lifecycle monitoring to propagate attachment events to presented children.
   _getImmediateChildren(this: CollectionViewInternals) {
     return this.children._views;
   },
@@ -749,8 +748,8 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     this.triggerMethod('sort', this);
   },
 
-  // Sets the view's `viewComparator` and applies the sort if the view is ready.
-  // To prevent the render pass `{ preventRender: true }` as the 2nd argument.
+  // Replace viewComparator and call sort() immediately when the value changes.
+  // Pass { preventRender: true } to defer that pass; there is no readiness check here.
   setComparator(this: CollectionViewInternals, comparator: Comparator<CollectionChild, CollectionViewInstance> | MissingChild, { preventRender }: ChildRenderOptions = {}) {
     const comparatorChanged = this.viewComparator !== comparator;
     const shouldSort = comparatorChanged && !preventRender;
@@ -857,8 +856,8 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     return this.viewFilter;
   },
 
-  // Sets the view's `viewFilter` and applies the filter if the view is ready.
-  // To prevent the render pass `{ preventRender: true }` as the 2nd argument.
+  // Replace viewFilter and call filter() immediately when the value changes.
+  // Pass { preventRender: true } to defer that pass; there is no readiness check here.
   setFilter(this: CollectionViewInternals, filter: Filter<CollectionChild, CollectionViewInstance>, { preventRender }: ChildRenderOptions = {}) {
     const filterChanged = this.viewFilter !== filter;
     const shouldRender = filterChanged && !preventRender;
@@ -905,7 +904,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     this.Dom.detachEl(view.el);
   },
 
-  // Render visible children, attach new elements, and keep survivors in place.
+  // Render visible children, attach new elements, and move surviving elements into order.
   _renderChildren(this: CollectionViewInternals) {
     const views = this.children._views;
     this.triggerMethod('before:render:children', this, views);
@@ -1115,7 +1114,8 @@ Object.assign(CollectionView.prototype, ViewMixin, {
     return this;
   },
 
-  // Render the child's view and add it to the HTML for the collection view at a given index, based on the current sort
+  // Adopt a child, rendering the parent first if needed. preventRender defers the
+  // child pass; a numeric index bypasses sorting/filtering for this addition.
   addChildView(this: CollectionViewInternals, view: CollectionChild | MissingChild, index?: number | null | ChildRenderOptions, options: ChildRenderOptions = {}) {
     if (this._isDestroying || this._isDestroyed) {
       return view;

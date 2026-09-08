@@ -95,8 +95,7 @@ function createIndex<Child extends ContainerChild>(): Record<PropertyKey, Child 
   return Object.create(null);
 }
 
-// Provide a container to store, retrieve and
-// shut down child views.
+// Store and index child Views. CollectionView owns rendering and destruction.
 const Container = function(this: ChildViewContainer, dataApi: ContainerData = DataApi) {
   this.Data = dataApi;
   this._init();
@@ -438,8 +437,8 @@ Object.assign(Container.prototype, {
     return sortedViews;
   },
 
-  // Replace array contents without overwriting the reference.
-  // Should not add/remove views
+  // Replace array contents while preserving its identity. With shouldReset, rebuild
+  // indexes and length for changed membership; otherwise callers must preserve membership.
   _set<Child extends ContainerChild>(this: ChildViewContainer<Child>, views: Child[], shouldReset?: boolean): void {
     if (views !== this._views) {
       this._views.length = 0;
@@ -473,7 +472,7 @@ Object.assign(Container.prototype, {
     this._views[view2Index] = swapView;
   },
 
-  // Find a view by the model that was attached to it.
+  // Find the current indexed View by DataApi.key(model), not necessarily object identity.
   findByModel<Child extends ContainerChild>(this: ChildViewContainer<Child>, model: unknown): Child | undefined {
     return this._indexByModel.get(this.Data.key(model as never));
   },

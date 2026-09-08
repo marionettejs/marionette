@@ -22,6 +22,14 @@ const examplePath = resolve(distDir, 'example.mjs');
 await mkdir(distDir, { recursive: true });
 await writeFile(examplePath, codeFence[1], 'utf8');
 
+const replaceMarker = '<!-- executable-example: region-replace-element -->';
+assert.equal(markdown.split(replaceMarker).length - 1, 1);
+const replaceCode = markdown.slice(markdown.indexOf(replaceMarker) + replaceMarker.length)
+  .match(/^\s*```javascript\n([\s\S]*?)\n```/);
+assert.ok(replaceCode, 'expected the replaceElement JavaScript example');
+const replacePath = resolve(distDir, 'replace-element.mjs');
+await writeFile(replacePath, replaceCode[1], 'utf8');
+
 const dom = new JSDOM(`<!doctype html>
   <html>
     <body>
@@ -32,6 +40,7 @@ const dom = new JSDOM(`<!doctype html>
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
 
+let replacementLayout;
 let contentView;
 let region;
 let secondRegion;
@@ -144,8 +153,23 @@ try {
   assert.notEqual(secondRegion, region, 'each call must create a fresh Region');
   assert.equal(secondRegion.hasView(), false, 'the repeated lifecycle must finish empty');
   assert.equal(secondRegion.isDestroyed(), false, 'the repeated lifecycle must leave its Region alive');
+
+  const { view, placeholder, replacement } = await import(pathToFileURL(replacePath));
+  replacementLayout = view;
+  assert.ok(placeholder, 'parent rendering must create the Region placeholder');
+  assert.equal(placeholder.parentNode, null, 'showChildView must remove the placeholder');
+  assert.equal(replacement.el.parentNode, view.el, 'the child root must replace the placeholder');
+  assert.equal(view.$('.overwrite-me').length, 0);
+  assert.equal(view.$('.new-class').length, 1, 'className must be a class name without a leading dot');
+  assert.equal(replacement.el.textContent, 'Replacement content');
+  view.getRegion('main').empty();
+  assert.equal(replacement.isDestroyed(), true, 'empty must destroy the replacement child');
+  assert.equal(placeholder.parentNode, view.el, 'empty must restore the original placeholder');
+  assert.equal(view.$('.overwrite-me').length, 1);
+  assert.equal(view.$('.new-class').length, 0);
 } finally {
   restoreRegionMethods();
+  replacementLayout?.destroy();
   if (contentView && !contentView.isDestroyed()) {
     contentView.destroy();
   }

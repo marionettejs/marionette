@@ -63,7 +63,7 @@ following observable transitions:
 | `CollectionView#render()` while alive | Runs `before:render` and `render`, rebuilds its children, and becomes rendered; attachment is unchanged | Rebuilds the children and runs the render lifecycle again |
 | `view.renderAttributes()` while alive | Applies the current root attribute declarations without changing contents, children, lifecycle events, or state | Reevaluates and applies the declarations again |
 | `region.show(view)` | Ensures the view is rendered; attached becomes `true` only when the Region is in the document | Showing the current view is a no-op |
-| `region.detachView()` | Rendered stays `true`; attached becomes `false`; destroyed stays `false` | Returns `undefined` with no transition |
+| `region.detachView()` | Rendered is preserved; attached becomes `false`; destroyed stays `false` | Returns `undefined` with no transition |
 | Re-show a detached view | Rendered stays `true`; attachment reflects the Region | Does not render the view again |
 | `region.empty()` or `view.destroy()` | Rendered and attached become `false`; destroyed becomes `true` | Repeated destroy is a no-op |
 | `view.render()` after destruction | Returns the same View with rendered and attached `false` and destroyed `true` | Repeated calls are no-ops |
@@ -121,8 +121,10 @@ In Marionette [rendering a view](./view.rendering.md) is changing a view's `el`'
 
 What rendering indicates varies slightly between the two Marionette views.
 
-**Note** Once a View is considered
-rendered it cannot become unrendered until it is [destroyed](#destroying-a-view).
+**Note** A completed render leaves the View rendered until destruction. During
+a normalized collection update, CollectionView may mark an updated child
+unrendered before rendering it again; a filtered child can remain unrendered
+until it becomes visible.
 
 ### `View` Rendering
 

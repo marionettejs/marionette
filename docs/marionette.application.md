@@ -27,7 +27,7 @@ The `Application` `cidPrefix` is `mna`.
 
 ## Instantiating an Application
 
-When instantiating a `Application` there are several properties, if passed,
+When instantiating an `Application` there are several properties, if passed,
 that will be attached directly to the instance:
 `channelName`, `radioEvents`, `radioRequests`, `region`, `regionClass`,
 `stateEvents`
@@ -35,7 +35,7 @@ that will be attached directly to the instance:
 ```javascript
 import { Application } from 'marionette';
 
-const myApplication = new Application({ ... });
+const myApplication = new Application();
 ```
 
 ### Initialization hooks
@@ -152,41 +152,65 @@ Once configured, await `start(options)` before dispatching work that requires a
 running Application. The optional argument is passed to the lifecycle methods
 and events.
 
+The application below loads a session before showing its root View. The supplied
+`loadSession({ signal })` function returns a Promise for an object with a
+`name` string. It can use `fetch`, a cache, or the project's existing data layer.
+
+<!-- executable-example: application-bootstrap-readiness -->
 ```javascript
-import Bb from 'backbone';
-import { Application } from 'marionette';
+import { Application, View } from 'marionette';
 
-const MyApp = Application.extend({
-  region: '#root-element',
-
-  initialize(options) {
-    console.log('Initialize');
-  },
-
-  async onBeforeStart(app, options, { signal }) {
-    const response = await fetch('/api/bootstrap', { signal });
-    this.model = new MyModel(await response.json());
-  },
-
-  onStart(app, options) {
-    this.showView(new MyView({model: this.model}));
-    Bb.history.start();
+const SessionView = View.extend({
+  template: () => '<h1></h1>',
+  onRender() {
+    this.el.querySelector('h1').textContent = this.model.name;
   }
 });
 
-const myApp = new MyApp();
+export function createSessionApplication({ el, loadSession }) {
+  const SessionApplication = Application.extend({
+    async onBeforeStart(app, options, { signal }) {
+      const session = await loadSession({ signal });
+      if (signal.aborted) return;
+      this.session = session;
+    },
+    onStart() {
+      this.showView(new SessionView({ model: this.session }));
+    }
+  });
 
-const started = await myApp.start({
-  data: {
-    id: 1,
-    text: 'value'
-  }
-});
-
-if (!started) {
-  // A later stop, restart, or destroy superseded this startup.
+  return new SessionApplication({ region: { el } });
 }
 ```
+
+Create and start it at the application entry point:
+
+Serve this application and its API over HTTPS in production; relative requests
+use the application origin.
+
+```javascript
+const app = createSessionApplication({
+  el: document.querySelector('#root-element'),
+  async loadSession({ signal }) {
+    const response = await fetch('/api/bootstrap', { signal });
+    if (!response.ok) throw new Error(`Session request failed: ${response.status}`);
+    return response.json();
+  }
+});
+
+const started = await app.start();
+if (started) {
+  // Dispatch work that requires the running feature.
+}
+```
+
+Check the readiness signal after asynchronous work and before mutating
+application state. Marionette prevents a canceled operation from emitting its
+success event, but cannot undo a stale assignment inside application code.
+A current loader failure rejects `start()`; handle it at the application entry
+point. Route registration and browser-history startup belong to the router's
+owner, outside a feature's restartable `onStart` hook. See
+[router integration](./routing.md) for per-navigation loading and cancellation.
 
 ## Application Ownership
 
@@ -200,12 +224,13 @@ parentless Application instance under a non-empty string name and returns that
 instance. Registration does not construct or implicitly start the child. Use
 `hasChildApp(name)` before constructing a dynamic child when duplicate
 allocation matters. Registering the same instance again under its existing
-owner and name is an idempotent no-op. A conflicting owner or name throws
-[`MN0031`](/errors/MN0031/).
+owner and name is an idempotent no-op. A conflicting owner, name, runtime, or cyclic ownership relationship throws
+[`MN0031`](diagnostic-catalog.md#look-up-a-code).
 
-Calls to `addChildApp` after either Application's destruction begins
-are lifecycle-safe no-ops and return the supplied value. They do not inspect or
-adopt it.
+Calls to `addChildApp` after the owner's destruction begins return the supplied
+value without inspecting or adopting it. A child from the same runtime whose
+destruction has begun is also returned without registration. Live registrations
+require the owner and child to belong to the same Marionette runtime.
 
 ```javascript
 const root = new Application();
@@ -243,7 +268,7 @@ stopped, live children. A stopped parent also stops any child that was
 started directly before entering destroy readiness. A concurrent direct child
 destroy joins terminal teardown and may remove that child before parent
 readiness. If child stop or destroy readiness fails, the parent returns to its
-prior stable state and retains that child so destruction can be retried.
+last committed stable state and retains that child so destruction can be retried.
 
 The canonical child-Application pattern is explicit construction followed by
 ownership registration. Registration means lifecycle ownership; it is not a
@@ -403,9 +428,10 @@ const myApp = new MyApp();
 await myApp.start();
 ```
 
-This will immediately render `RootView` and fire the usual triggers such as
-`before:attach` and `attach` in addition to the `before:render` and `render`
-triggers.
+The `onStart` callback synchronously renders and shows `RootView`.
+`before:render` and `render` run for its template; `before:attach` and `attach`
+also run when the Region is attached to a document and lifecycle monitoring is
+enabled. `start()` itself remains asynchronous.
 
 `region` can also be passed as an option during instantiation.
 
@@ -438,7 +464,7 @@ const MyApp = Application.extend({
   regionClass: MyRegion
 });
 
-const myApp = new Application({ region: '#foo' });
+const myApp = new MyApp({ region: '#foo' });
 
 myApp.getRegion().isSpecial; // true
 ```
@@ -452,13 +478,22 @@ The Marionette Application provides helper methods for managing its attached reg
 ### `getRegion()`
 
 Return the current host [region object](./marionette.region.md) for the
-Application. The host reference is released when the Application is destroyed.
+Application, or `undefined` if none was configured. This synchronous query does
+not resolve its element or render a View. The host reference is released when
+the Application is destroyed.
 
-### `showView(view)`
+### `showView(view, options)`
 
 Display a `View` instance in the Region attached to the Application. This runs the
 [`View lifecycle`](./view.lifecycle.md). The Application itself is never passed
 to `Region#show` and does not become renderable.
+
+This method is synchronous and returns the supplied View, forwarding `options`
+to `Region#show`. Configure a Region before calling it. It does not call
+`start()` or wait for Application readiness. Once destruction begins it returns
+the supplied View without displaying or adopting it. A missing element allowed
+by `allowMissingEl` also leaves the View caller-owned; use `getView() === view`
+to check that it was shown.
 
 ### `getView()`
 

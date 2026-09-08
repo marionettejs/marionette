@@ -12,7 +12,7 @@ import {
   measureResources,
   resourceReportRows,
 } from './resources.mjs';
-import { isCoreRuntimeArtifact } from './runtime-scope.mjs';
+import { isCoreRuntimeArtifact, isDocumentationArtifact } from './runtime-scope.mjs';
 
 const compress = promisify(brotliCompress);
 const consumerScenarioIds = [
@@ -727,7 +727,7 @@ export async function measure({
       return [];
     });
     return files.map(path => packageRuntimePath(directory, `dist/${path}`));
-  }))).flat().sort();
+  }))).flat().filter(path => !isDocumentationArtifact(path)).sort();
   const violations = validateContract(
     contract,
     packageJson,

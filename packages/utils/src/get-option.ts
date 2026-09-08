@@ -20,7 +20,7 @@ type OptionContext = Record<PropertyKey, unknown> & { options?: Record<PropertyK
 // --------------------
 
 // Retrieve an object, function or other value from the
-// object or its `options`, with `options` taking precedence.
+// object or its `options`; a non-undefined option takes precedence.
 function getOption(optionName?: '' | 0 | 0n | false | null): undefined;
 function getOption<Receiver extends object, Name extends PropertyKey | 0n | false | null | undefined>(
   this: Receiver, optionName: Name

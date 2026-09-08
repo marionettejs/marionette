@@ -19,7 +19,6 @@ an unreleased checkout locally.
 * [Backbone is optional](#backbone-is-optional)
 * [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional)
 * [DOM content adapters are optional](#dom-content-adapters-are-optional)
-* [Historical starter projects](#historical-starter-projects)
 * [Current v5 documentation](./readme.md)
 
 ## Install
@@ -29,6 +28,13 @@ The v5 package name is `marionette`.
 ```bash
 npm install marionette
 ```
+
+This installs a published registry package. Use documentation matching that
+artifact. To use the current-source APIs described here, [build and pack the
+checkout](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#set-up-the-repository)
+and install the package artifacts from that same source revision. A matching
+alpha version string alone does not establish that a published package contains
+the same APIs as this checkout.
 
 > The v4 package name has changed. See the [upgrade guide](../upgradeGuide.md)
 > for migration guidance from earlier releases.
@@ -88,7 +94,12 @@ used by a View.
 ## Quick start
 
 Marionette v5 exposes its public API through named ESM imports. There is no
-default-namespace export; use named imports only.
+default-namespace export; use named imports only. Add a mount element to the page
+before running the module:
+
+```html
+<div id="app"></div>
+```
 
 ```js
 import { Application, View } from 'marionette';
@@ -140,8 +151,8 @@ This View requires a string `message`. Missing options or a numeric message are
 compile errors. `template: false` preserves the text set during initialization.
 
 Named imports work with `NodeNext` or bundler module resolution. The
-[typing guide](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#typescript-source) covers custom constructors
-and the supported combinations of `.extend` and native classes. Optional
+[consumer TypeScript guide](./typescript.md) covers application options,
+DOM events, module resolution, and inheritance choices. Optional
 integrations may need their own type packages, listed above.
 
 ## Independent runtimes
@@ -162,8 +173,10 @@ See [Runtime isolation](./runtime-isolation.md) for composition and ownership ru
 ## Observable data sources
 
 Core's default DataApi supports plain objects and static arrays without a required
-dependency. Install the optional `@marionette/data` package when the application
-wants first-party observable Model and ordered Collection sources:
+dependency. Backbone Models and Collections are observable sources too; retain
+them through the [Backbone adapter](./optional-backbone.md) when the application
+already uses them. For a new application needing observable Model and ordered
+Collection sources, the optional `@marionette/data` package is the native choice:
 
 ```bash
 npm install @marionette/data
@@ -171,7 +184,7 @@ npm install @marionette/data
 
 Configure its adapters before constructing owners. See the
 [`@marionette/data` guide](./data.api.md#optional-marionettedata-sources) for a
-copy-pastable isolated-runtime example.
+complete adapter setup and rendered list example.
 
 Applications using XState actors can select an ordered array of child actor
 references through `@marionette/adapters/xstate`. See
@@ -198,19 +211,20 @@ future major version, not a removal commitment.
 ## Backbone is optional
 
 Starting with v5, Marionette core does not depend on Backbone at runtime. Plain
-objects and arrays use the default DataApi. Applications using Backbone must
-select its data and event integration at application boot:
+objects and arrays use the default DataApi. Applications passing Backbone Models
+or Collections to Marionette must configure the Backbone DataApi before
+constructing those consumers:
 
 ```javascript
 import BackboneApi from '@marionette/adapters/backbone';
-import { setDataApi, setStateApi } from 'marionette';
+import { setDataApi } from 'marionette';
 
 setDataApi(BackboneApi);
-setStateApi(BackboneApi);
 ```
 
-See [Data API](./data.api.md) for the neutral runtime contract and
-[Optional Backbone](./optional-backbone.md) for the integration.
+This configures model and collection use. Select the StateApi role separately
+when an owner uses Backbone state; see [Optional Backbone](./optional-backbone.md).
+[Data API](./data.api.md) describes the neutral runtime contract.
 
 ## jQuery DOM adapter is optional
 
@@ -228,8 +242,8 @@ import JQueryDomApi from '@marionette/adapters/dom/jquery';
 setDomApi(JQueryDomApi);
 ```
 
-The adapter imports `jquery`, so `jquery` is only required when you install the
-adapter. If existing code also uses `$el`, assign `this.$el = $(this.el)` in
+The adapter imports `jquery`, so this integration requires `jquery` only when you
+select that adapter. If existing code also uses `$el`, assign `this.$el = $(this.el)` in
 its View, CollectionView, or Behavior `initialize()` method. See the [upgrade guide](../upgradeGuide.md) for the migration entries on jQuery DOM
 compatibility and the `detachContents` policy.
 
@@ -252,32 +266,6 @@ configuration remains explicit and separate.
 
 See [Rendering to DOM](https://github.com/marionettejs/marionette/blob/master/docs/view.rendering.md#rendering-to-dom)
 for examples and lifecycle requirements.
-
-## Historical starter projects
-
-The following projects target `backbone.marionette ~3.0.0`. They remain useful
-references for that generation of Marionette. For v5, start with the package and
-examples above; copying these projects also brings their older dependencies.
-
-### Quick start using NPM and Webpack
-
-[Webpack starter for Marionette v3](https://github.com/marionettejs/marionette-integrations/tree/master/webpack).
-
-### Quick start using NPM and Brunch
-
-[Brunch starter for Marionette v3](https://github.com/marionettejs/marionette-integrations/tree/master/brunch).
-
-### Quick start using NPM and Browserify
-
-[Browserify starter for Marionette v3](https://github.com/marionettejs/marionette-integrations/tree/master/browserify).
-
-### Browserify and Grunt
-
-[Browserify and Grunt starter for Marionette v3](https://github.com/marionettejs/marionette-integrations/tree/master/browserify-grunt).
-
-### Browserify and Gulp
-
-[Browserify and Gulp starter for Marionette v3](https://github.com/marionettejs/marionette-integrations/tree/master/browserify-gulp).
 
 ## Getting Started
 

@@ -270,8 +270,11 @@
     "benchmarks/",
     "docs/",
     "docs-site/",
+    "dist/docs/",
+    "dist/agent-skill/",
     "node_modules/",
     "scripts/",
+    "skills/",
     "test/",
     "config/diagnostics/",
     "config/release/"

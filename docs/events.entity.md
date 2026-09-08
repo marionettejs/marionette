@@ -64,7 +64,9 @@ model.trigger('change:status', model, 'ready');
 export { Model, model, view };
 ```
 
-Function callbacks are also supported directly:
+Function callbacks are also supported directly. This configuration fragment
+uses the `update(collection, options)` payload from Backbone or `@marionette/data`;
+configure the matching DataApi before supplying that collection:
 
 ```javascript
 import { View } from 'marionette';
@@ -143,17 +145,16 @@ support every prototype-collision name.
 
 A plain `Backbone.Model` or `Backbone.Collection` satisfies the default
 subscription protocol for event-only use. The canonical Backbone setup
-configures the integration before constructing models, collections, or Views;
+configures the integration before constructing Marionette consumers;
 it also selects Backbone identity, reads, serialization, ordered model
 snapshots, and structural observations:
 
 ```javascript
 import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { setDataApi, setStateApi, View } from 'marionette';
+import { setDataApi, View } from 'marionette';
 
 setDataApi(BackboneApi);
-setStateApi(BackboneApi);
 
 const model = new Backbone.Model();
 const view = new View({ model });

@@ -2,8 +2,9 @@
 
 Use Backbone models and collections with Marionette by installing the separate
 adapters package and selecting its Backbone integration. Marionette core does
-not import Backbone; plain objects and arrays use the default
-[Data API](./data.api.md).
+not import Backbone. Backbone models and collections are observable sources;
+“optional” means Marionette does not require that provider. Plain objects and
+arrays use the default [Data API](./data.api.md) as static data.
 
 ```sh
 npm install @marionette/adapters backbone
@@ -11,15 +12,24 @@ npm install @marionette/adapters backbone
 
 ```javascript
 import BackboneApi from '@marionette/adapters/backbone';
-import Backbone from 'backbone';
-import { CollectionView, setDataApi, setStateApi, View } from 'marionette';
+import { setDataApi } from 'marionette';
 
 setDataApi(BackboneApi);
+```
+
+If a Marionette owner also uses a Backbone source for `state` or `createState()`,
+select the StateApi role separately:
+
+```javascript
+import BackboneApi from '@marionette/adapters/backbone';
+import { setStateApi } from 'marionette';
+
 setStateApi(BackboneApi);
 ```
 
-Configure `BackboneApi` once at application boot, before constructing models,
-collections, Views, or registering subscriptions. For an isolated runtime, call
+Configure `BackboneApi` once at application boot before constructing Marionette
+consumers or registering their subscriptions. Existing Backbone sources can be
+passed in; the adapter does not alter their construction or native events. For an isolated runtime, call
 that runtime's `setDataApi()` and `setStateApi()` methods instead of the root
 setters.
 
@@ -77,13 +87,13 @@ Listeners registered before adapter configuration continue to work afterward:
 ```javascript
 import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { setDataApi, setStateApi } from 'marionette';
+import { setDataApi } from 'marionette';
 
 const model = new Backbone.Model();
+const onChange = () => console.log('Model changed');
 model.on('change', onChange);
 
 setDataApi(BackboneApi);
-setStateApi(BackboneApi);
 model.set('ready', true); // onChange still runs
 ```
 
@@ -103,7 +113,7 @@ const model = { name: 'one' };
 const collection = [model, { name: 'two' }];
 ```
 
-For observable stores, immutable snapshots, signals, or another data library,
-provide a focused DataApi rather than manufacturing Backbone-shaped `cid`,
-`attributes`, `models`, or event payloads. See [Data API](./data.api.md) for the
-complete adapter contract.
+For observable data, use [Choosing integrations](./choosing-integrations.md) to
+select an existing integration first. If the application requires a custom
+integration, implement the [DataApi contract](./data.api.md) rather than
+manufacturing Backbone-shaped `cid`, `attributes`, `models`, or event payloads.

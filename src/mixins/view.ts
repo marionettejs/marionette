@@ -73,7 +73,11 @@ export const ViewOptions = [
 // - id
 // - model
 // - modelEvents
+// - state
+// - stateEvents
 // - tagName
+// - template
+// - templateContext
 // - triggers
 // - ui
 
@@ -88,7 +92,7 @@ const ViewMixin = {
 
   Data: DataApi,
 
-  // Create an element from the `id`, `className` and `tagName` properties.
+  // Reuse a supplied element, or create one from tagName and apply root attributes.
   _getEl(this: ViewMixinHost) {
     const elOption = getValue(this, 'el');
 
@@ -198,7 +202,7 @@ const ViewMixin = {
       this._isAttached = false;
       this.triggerMethod('detach', this);
     }
-    // Remove children after the root to prevent extra paints.
+    // Remove children after detaching the root so their teardown occurs off-document.
     this._removeChildren();
     this._isDestroyed = true;
     this._isRendered = false;
@@ -259,16 +263,16 @@ const ViewMixin = {
   _childViewEventHandler(this: ViewMixinHost, eventName: string, ...args: unknown[]) {
     const childViewEvents = this._childViewEvents;
 
-    // call collectionView childViewEvent if defined
-    if (childViewEvents && childViewEvents[eventName]) {
+    // Call the owning View or CollectionView's childViewEvents handler if defined.
+    if (childViewEvents && Object.hasOwn(childViewEvents, eventName)) {
       (childViewEvents[eventName] as (...args: unknown[]) => unknown).apply(this, args);
     }
 
-    // use the parent view's proxyEvent handlers
+    // Read the parent's explicit childViewTriggers mapping.
     const childViewTriggers = this._childViewTriggers;
 
-    // Call the event with the proxy name on the parent layout
-    if (childViewTriggers && childViewTriggers[eventName]) {
+    // Trigger the mapped event on the owning View or CollectionView.
+    if (childViewTriggers && Object.hasOwn(childViewTriggers, eventName) && childViewTriggers[eventName]) {
       this.triggerMethod(childViewTriggers[eventName], ...args);
     }
 

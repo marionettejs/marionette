@@ -4,12 +4,10 @@
 // These methods bind/unbind requests on a Radio channel
 // to methods on a target object.
 //
-// The first parameter, `target`, will set the context of the reply method
-//
-// The second parameter is the `Radio.channel` to bind the reply to.
-//
-// The third parameter is a hash of { "request:name": "replyHandler" }
-// configuration. A function can be supplied instead of a string handler name.
+// Call with the target as `this`; replies use it as their context.
+// The first argument is the channel and the second is a bindings map
+// such as { "request:name": "replyHandler" }. Each value can instead be
+// a function. Omitting bindings when unbinding removes this target's replies.
 
 import normalizeMethods from './normalize-methods.ts';
 import type { EventMap } from './events.ts';

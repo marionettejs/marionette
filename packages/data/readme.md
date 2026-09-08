@@ -11,17 +11,43 @@ npm install marionette @marionette/data
 ```
 
 ```js
-import { createMarionette } from 'marionette';
-import { Collection, DataApi, Model, StateApi } from '@marionette/data';
+import { CollectionView, View } from 'marionette';
+import { Collection, DataApi } from '@marionette/data';
 
-const Marionette = createMarionette();
-Marionette.setDataApi(DataApi);
-Marionette.setStateApi(StateApi);
+const Row = View.extend({
+  tagName: 'li',
+  template: () => '<span></span>',
+  modelEvents: { change: 'render' },
+  onRender() {
+    this.el.querySelector('span').textContent = this.model.get('label');
+  }
+});
+const List = CollectionView.extend({ tagName: 'ul', childView: Row });
+Row.setDataApi(DataApi);
+List.setDataApi(DataApi);
 
-const state = new Model({ selectedId: null });
 const collection = new Collection([{ id: 1, label: 'one' }]);
-const view = new Marionette.CollectionView({ collection, state });
+const view = new List({ collection }).render();
 ```
+
+This setup selects data for the list and its child Views. State remains an
+independent choice. If a View also uses a `Model` as observable state, configure
+StateApi on that class before construction. In the example above, place this
+optional setup before `new List(...)`, which constructs its children when rendered:
+
+```js
+import { StateApi } from '@marionette/data';
+
+Row.setStateApi(StateApi);
+```
+
+Supply an existing `Model` through `state`, or return an owned one from
+`createState()`. Declare `stateEvents` only for the changes the owner needs to
+observe; the model's event names and payloads remain its own contract.
+
+Use top-level setters when all affected classes intentionally share the same
+provider. Configure an existing isolated runtime through its corresponding
+setters when needed; using this package does not require creating a new runtime.
 
 `Collection` reports synchronous `kind: 'update'`, `kind: 'reorder'`, and
 `kind: 'reset'` records through `DataApi.observeCollection()`. `Model` and
@@ -51,7 +77,11 @@ rejected before a reset changes membership; `add` ignores an instance or id
 already present. Applications should keep ids unique when changing them.
 `get`, `remove`, and `move` resolve an exact member instance first, then an
 application id, then a cid. This precedence does not change when models move.
-Bulk removal resolves its inputs against one current membership snapshot.
+Bulk removal resolves its inputs against one current membership snapshot, including
+silent id changes. It skips missing identities and repeated matches, returns
+removed Models in input order, and keeps surviving Models in collection order.
+If id writes temporarily create duplicates, id lookup selects the first current
+member; applications should restore unique ids.
 
 Supplied native Model instances retain their identity, attributes, and subclass,
 including when the Collection has a different `model` constructor. That constructor
@@ -88,8 +118,9 @@ Supplied attributes override defaults, including when their value is `undefined`
 Model `reset` reapplies defaults and removes attributes absent from the result.
 
 Change callbacks receive `options.changed` and `options.previous`, sparse maps for
-that mutation. An absent own key in `previous` means the attribute did not exist;
-an own key with value `undefined` means it existed with that value. `previous` is
+that mutation. For an attribute reported in `changed`, an absent own key in
+`previous` means it did not exist before the mutation; an own key with value
+`undefined` means it existed with that value. `previous` is
 not a complete model snapshot. Removing an attribute reports `undefined` in
 `changed`; use `has` to check its current presence.
 
@@ -103,7 +134,8 @@ forwarded by containing Collections. Sorting is explicit: a prototype comparator
 is used by `sort()`, but `add` and `reset` do not automatically sort. There is no
 `Collection.set()` merge/reconcile operation; update retained Models explicitly
 when refreshing a list whose child Views must retain local state. `reset` is the
-deliberately destructive whole-list operation.
+deliberately destructive whole-list operation for CollectionView child Views;
+the Collection retains supplied Model instances rather than destroying them.
 
 ## TypeScript
 
@@ -120,6 +152,8 @@ return the initialized receiver while preserving methods added by descendants,
 state that contract explicitly:
 
 ```ts
+import { Model } from '@marionette/data';
+
 const Named = Model.extend({
   constructor: function<Receiver extends Model>(
     this: Receiver, attributes: { label: string }

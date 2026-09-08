@@ -62,17 +62,20 @@ that will be attached directly to the instance:
 `attributes`, `behaviors`, `childView`, `childViewContainer`, `childViewEventPrefix`,
 `childViewEvents`, `childViewOptions`, `childViewTriggers`, `className`, `collection`,
 `collectionEvents`, `el`, `emptyView`, `emptyViewOptions`, `events`, `id`, `model`,
-`modelEvents`, `sortWithCollection`, `tagName`, `template`, `templateContext`,
+`modelEvents`, `sortWithCollection`, `stateEvents`, `tagName`, `template`, `templateContext`,
 `triggers`, `ui`, `viewComparator`, `viewFilter`
 
 ```javascript
 import { CollectionView } from 'marionette';
 
-const myCollectionView = new CollectionView({ ... });
+const myCollectionView = new CollectionView();
 ```
 
-Some of these properties come from Marionette, but many are inherited from
-`View` or `CollectionView`.
+`CollectionView` composes the same visual, event, and State contracts as `View`,
+but does not inherit View's named-Region methods. Use `getEmptyRegion()` for its
+empty View; put a CollectionView inside a parent View when a layout needs
+additional named Regions. A supplied `state` follows the
+[State ownership contract](./marionette.state.md#borrowed-and-owned-sources).
 
 ## Rendering a CollectionView
 
@@ -84,7 +87,7 @@ children in the collection and renders them individually as a
 ```javascript
 import { CollectionView } from 'marionette';
 
-const MyCollectionView = CollectionView.extend({...});
+const MyCollectionView = CollectionView.extend({});
 
 // all of the children views will now be rendered.
 new MyCollectionView().render();
@@ -112,7 +115,7 @@ import { CollectionView } from 'marionette';
 
 const MyCollectionView = CollectionView.extend({
   childViewContainer: '.js-widgets',
-  template: _.template('<h1>Widgets</h1><ul class="js-widgets"></ul>')
+  template: () => '<h1>Widgets</h1><ul class="js-widgets"></ul>'
 });
 ```
 
@@ -171,8 +174,10 @@ Read More:
 
 ## Entity Events
 
-The `CollectionView` can bind to events that occur on the attached `model` and `collection` - this
-includes both [standard backbone-events](http://backbonejs.org/#Events-catalog) and custom events.
+A `CollectionView` subscribes to its `model` and `collection` through the
+configured [DataApi](./data.api.md). Event names and callback arguments belong
+to that data provider. Plain objects and arrays do not emit changes; declaring
+entity event maps for unobservable values throws `MN0037`.
 
 Read More:
 - [Entity Events](./events.entity.md)
@@ -189,7 +194,7 @@ After application code places parent-owned DOM inside a template-less
 `CollectionView`, call `bindUIElements()` before reading it with `getUI()`. Use
 that method only to bind the CollectionView's own DOM, not child View DOM.
 Calling `getUI()` without a declared `ui` map or while UI elements are unbound throws
-[`MN0023`](/errors/MN0023/).
+[`MN0023`](diagnostic-catalog.md#look-up-a-code).
 
 When parent code needs a child, [retrieve the child View through the public
 `children` lookup APIs](#accessing-a-child-view) and call an intentional public
@@ -219,14 +224,16 @@ within its `children` object. This allows you to easily access
 the views within the collection view, iterate them, find them by
 a given indexer such as the view's model or id and more.
 
-After the initial `render` the `CollectionView` binds to the `update`
-and `reset` events of the `collection`.
+During its first render, the `CollectionView` subscribes through
+`DataApi.observeCollection()` to normalized update, reset, and reorder
+notifications. The configured provider owns the source event vocabulary;
+[Backbone](./optional-backbone.md) is one supported observable integration.
 
 When the `collection` for the view is `reset`, the view will destroy all
 children and re-render the entire collection.
 
-When a model is added to the `collection`, the `CollectionView` will render that
-one model into the `children`.
+When the adapter reports a model addition, the `CollectionView` constructs its
+child and renders it if it passes the presentation filter.
 
 When a model is removed from the `collection` (or destroyed / deleted), the `CollectionView`
 will destroy and remove that model's child view.
@@ -296,10 +303,10 @@ will trigger.
 
 ### Attaching `children` within the `el`
 
-By default the `CollectionView` will add the HTML of each ChildView
-into an element buffer array, and then call the DOM API's
-[appendContents](./dom.api.md#appendcontentsel-contents) once at the end
-to move all of the HTML within the collection view's `el`.
+The `CollectionView` places new or newly visible child root elements into a
+`DocumentFragment`, then calls `attachHtml(fragment, container)` to insert that
+batch. Already mounted children remain in place or move only as needed to match
+the presentation order; they are not all removed and appended on each pass.
 
 You can override this by specifying an `attachHtml` method in your
 view definition. This method takes two parameters and has no return value.
@@ -317,7 +324,7 @@ CollectionView.extend({
 });
 ```
 
-The first parameter is the HTML buffer, and the second parameter
+The first parameter is the DOM fragment containing child root elements, and the second parameter
 is the native DOM container for the children which by default equates
 to the view's `el` unless a [`childViewContainer`](#defining-the-childviewcontainer)
 is set.
@@ -327,7 +334,7 @@ is set.
 `CollectionView` implements a `destroy` method which automatically
 destroys its children and cleans up listeners.
 
-When the children are destroyed the
+When a nonempty owned child set is destroyed, the
 [`destroy:children` and `before:destroy:children` events](./events.class.md#destroychildren-and-beforedestroychildren-events)
 will trigger.
 
@@ -337,10 +344,10 @@ Read More:
 ## CollectionView's `childView`
 
 When using a `collection` to manage the children of `CollectionView`,
-specify a `childView` for your `CollectionView`. This must be
-a Backbone view class definition, not an instance. It can be any
-Marionette View class, including both `View` and
-`CollectionView`.
+specify a Marionette `View` or `CollectionView` class as `childView`, rather
+than an instance. A plain Backbone View is not a supported child;
+[wrap it in a Marionette View](./marionette.region.md#wrapping-a-non-marionette-view)
+when integrating a legacy component.
 
 ```javascript
 import { View, CollectionView } from 'marionette';
@@ -352,8 +359,9 @@ const MyCollectionView = CollectionView.extend({
 });
 ```
 
-**Errors** If you do not specify a `childView`, an exception will be thrown
-stating that you must specify a `childView`.
+**Errors** When Marionette needs to construct a collection-backed child and
+`childView` is missing, it throws `MN0011`. An empty CollectionView or a
+CollectionView with only manually added children does not require `childView`.
 
 You can also define `childView` as a function. In this form, the value
 returned by this method is the `ChildView` class that will be instantiated
@@ -390,7 +398,7 @@ const MyCollectionView = CollectionView.extend({
   }
 });
 
-const collectionView = new MyCollectionView();
+const collectionView = new MyCollectionView().render();
 
 const foo = new Backbone.Model({
   isFoo: true
@@ -407,8 +415,8 @@ collectionView.collection.add(foo);
 collectionView.collection.add(bar);
 ```
 
-**Errors** If `childView` is a function that does not return a view class
-an error will be thrown.
+A resolver must return a Marionette View class. Core trusts that result;
+unsupported returns can fail later during construction or child setup.
 
 ### Building the `children`
 
@@ -419,7 +427,7 @@ parameters and returns a view instance to be used as the child view.
 ```javascript
 buildChildView(child, ChildViewClass, childViewOptions){
   // build the final list of options for the childView class
-  const options = _.extend({model: child}, childViewOptions);
+  const options = { model: child, ...childViewOptions };
   // create the child view instance
   const view = new ChildViewClass(options);
   // return it
@@ -449,7 +457,7 @@ const MyCollectionView = CollectionView.extend({
     return MyView;
   },
   buildChildView(child, ChildViewClass, childViewOptions) {
-    const options = {};
+    let options;
 
     if (child.get('type') === 'list') {
       const childList = new Backbone.Collection(child.get('list'));
@@ -495,10 +503,12 @@ const MyCollectionView = CollectionView.extend({
 You can also specify the `childViewOptions` as a function, if you need to
 calculate the values to return at runtime. The model will be passed into
 the function should you need access to it when calculating
-`childViewOptions`. The function must return an object, and the attributes
-of the object will be copied to the `childView` instance's options. Whether
-provided directly or returned by a function, only the object's own enumerable
-string properties are copied.
+`childViewOptions`. The function may return an object, `null`, or `undefined`. The attributes
+of a returned object will be copied to the `childView` instance's options. Whether
+provided directly or returned by a function, the object's own enumerable
+properties, including symbols, are copied by object spread. `null` or `undefined`
+adds no extra options. A supplied `model` option overrides the source model;
+use that only when the child deliberately represents different data.
 
 ```javascript
 import { CollectionView } from 'marionette';
@@ -552,7 +562,8 @@ const MyCollectionView = CollectionView.extend({
 ### CollectionView's `getEmptyRegion`
 
 When a `CollectionView` is instantiated it creates a region for showing the [`emptyView`](#collectionviews-emptyview).
-This region can be requested using the `getEmptyRegion` method. The region will share the `el` with the `CollectionView`
+This region can be requested using the `getEmptyRegion` method. It uses the
+resolved `childViewContainer` when present, otherwise the CollectionView's `el`,
 and is shown with [`replaceElement: false`](./marionette.region.md#additional-options).
 
 **Note** The `CollectionView` expects to be the only entity managing the region.
@@ -571,7 +582,9 @@ Similar to [`childView`](#collectionviews-childview) and [`childViewOptions`](#p
 there is an `emptyViewOptions` property that will be passed to the `emptyView` constructor.
 It can be provided as an object literal or as a function.
 
-If `emptyViewOptions` aren't provided the `CollectionView` will default to passing the `childViewOptions` to the `emptyView`.
+If `emptyViewOptions` aren't provided, the `CollectionView` falls back to
+`childViewOptions`. A callable definition receives no model argument and runs
+with the CollectionView as `this`; it must support that empty-view call.
 
 ```javascript
 import { View, CollectionView } from 'marionette';
@@ -609,7 +622,8 @@ const MyCollectionView = CollectionView.extend({
 
 The default implementation of `isEmpty` returns `!this.children.length`.
 
-You can also use this method to determine when the empty view was shown:
+Use `getEmptyRegion().hasView()` to determine whether an empty View is actually
+shown. `isEmpty()` alone does not establish that an `emptyView` was configured:
 
 ```javascript
 import { CollectionView } from 'marionette';
@@ -617,7 +631,7 @@ import { CollectionView } from 'marionette';
 const MyCollectionView = CollectionView.extend({
   // ...
   onRenderChildren() {
-    if (this.isEmpty()) { console.log('Empty View Shown'); }
+    if (this.getEmptyRegion().hasView()) { console.log('Empty View Shown'); }
   }
 });
 ```
@@ -627,8 +641,9 @@ const MyCollectionView = CollectionView.extend({
 You can retrieve a view by a number of methods. If the findBy* method cannot find the view,
 it will return `undefined`.
 
-**Note** That `children` represents the views rendered that are or will be
-attached within the view's `el`.
+**Note** `children` is the current presentation container. It can include
+unrendered children added with `preventRender` until the next render/filter
+pass; filtered-out children remain owned but are absent from this container.
 
 #### CollectionView `children`'s: `findByCid`
 Find a view by its cid.
@@ -638,11 +653,29 @@ const bView = myCollectionView.children.findByCid(buttonView.cid);
 ```
 
 #### CollectionView `children`'s: `findByModel`
-Find a view by model.
+Find a view by `DataApi.key(model)`. With the default DataApi this is the
+model object identity. An adapter may use a stable key so that a new model
+object representing the same item resolves the currently indexed child. This
+lookup does not promise child retention when a collection observation replaces
+the model object; see [collection observations](./data.api.md#collection-observations).
 
 ```javascript
 const bView = myCollectionView.children.findByModel(buttonView.model);
 ```
+
+#### CollectionView `children`'s: `findByKey`
+
+`children.findByKey(key)` returns the View indexed by the exact key produced by
+its DataApi, or `undefined` when absent. Do not assume this key is the model's
+`id`: native Marionette and Backbone models use their provider's identity
+contract, while snapshot adapters can use an application-selected key.
+
+`children.hasView(view)` checks that the exact View instance is present under
+its `cid`; `children.contains(view)` checks instance membership as well.
+These lookups refer to the public presentation container. A filtered-out child
+can remain owned by the CollectionView without appearing in `children`. Keep
+an explicit reference when an application needs to detach such a child; do not
+reach into private containers.
 
 #### CollectionView `children`'s: `findByIndex`
 
@@ -654,13 +687,17 @@ const bView = myCollectionView.children.findByIndex(0);
 
 #### CollectionView `children`'s: `findIndexByView`
 
-Find the index of the view inside the children
+Find the index of the exact View inside `children`, or `-1` when absent.
 
 ```javascript
 const index = myCollectionView.children.findIndexByView(bView);
 ```
 
 ### CollectionView `children` Iterators And Collection Functions
+
+The container is iterable: `for (const child of list.children)` visits the
+current presentation order. Use `children.toArray()` when you need a separate
+array before changing membership.
 
 The container owns the following iteration and collection functions:
 
@@ -709,7 +746,7 @@ Use `map(view => view.id)` or `pluck('id')` instead of property-name shorthand.
 When `initialValue` is supplied, every child View is visited; an empty container
 returns that exact value without calling the callback. When it is omitted, the
 first child View becomes the accumulator and traversal starts at index `1`. An
-empty container without an initial value throws [`MN0024`](/errors/MN0024/).
+empty container without an initial value throws [`MN0024`](diagnostic-catalog.md#look-up-a-code).
 
 `pluck(key)` reads `key` directly from each child View. For example,
 `children.pluck('model')` returns the child Views' model objects, and a child
@@ -766,7 +803,7 @@ excluding `count` Views from the end or start of the container, respectively.
 The count is a nonnegative integer: `0` returns a new array of every child View,
 and a count greater than or equal to the container length returns `[]`. An empty
 container also returns `[]`. `first`, `initial`, `rest`, and `last` throw
-[`MN0024`](/errors/MN0024/) when a supplied count is not a nonnegative integer.
+[`MN0024`](diagnostic-catalog.md#look-up-a-code) when a supplied count is not a nonnegative integer.
 
 `without(...views)` returns a new ordered array excluding the exact child View
 instances supplied. Models and lookalike objects do not exclude their associated
@@ -822,7 +859,7 @@ the `children` of the `CollectionView` can be manually managed.
 ### Adding a Child View
 
 The `addChildView` method can be used to add a view that is independent of your
-`Backbone.Collection`. This method takes three parameters, the child view instance,
+collection source. This method takes three parameters, the child view instance,
 optionally the index for where it should be placed within the
 [CollectionView's `children`](#managing-children), and an options hash.
 It returns the added view.
@@ -864,11 +901,12 @@ An omitted or `null` index appends the child before sorting and filtering.
 The options-only form follows the same rule; use a numeric `index` to choose
 an insertion position.
 
-**Note** Unless an index is specified, this added view will be subject to filtering
-and sorting and may be difficult to manage in complex situations. Use with care.
+A numeric index bypasses sorting and filtering for that addition only. A later
+`sort()` or `filter()` processes the child normally. The numeric `index` in an
+options object takes precedence over the separate positional argument.
 
 **Errors** Adding a View that is still managed by a Region or
-`CollectionView` throws [`MN0003`](/errors/MN0003/). Detach the View from its
+`CollectionView` throws [`MN0003`](diagnostic-catalog.md#look-up-a-code). Detach the View from its
 current owner before transferring it.
 
 Filtering a child out or adding it with `preventRender` still leaves it managed
@@ -883,7 +921,7 @@ the children use the `preventRender` option.
 import { CollectionView } from 'marionette';
 import ButtonView from './button-view';
 
-const myCollectionView = new CollectionView({...});
+const myCollectionView = new CollectionView();
 
 const insertIndex = 0; // Add to the top
 
@@ -908,7 +946,9 @@ the current collection.
 ```javascript
 import { CollectionView } from 'marionette';
 
+// Fragment for a collection using the Backbone DataApi.
 const MyCollectionView = CollectionView.extend({
+  childViewEvents: { 'foo:event': 'onChildViewFooEvent' },
   onChildViewFooEvent(childView, model) {
     // NOTE: we must wait for the server to confirm
     // the destroy PRIOR to removing it from the collection
@@ -932,7 +972,8 @@ This can be useful when sorting is arbitrary or is not performant.
 
 **Errors** If either of the two views aren't part of the `CollectionView` an error will be thrown.
 
-If one child is in the `el` but the other is not, [filter](#filtering-the-children) will be called.
+If only one of the two children is in the presentation `children` container,
+[filter](#filtering-the-children) is called after swapping their owned order.
 
 ```javascript
 import BackboneApi from '@marionette/adapters/backbone';
@@ -953,6 +994,7 @@ const myColView = new CollectionView({
   childView: MyChildView
 });
 
+myColView.render();
 myColView.swapChildViews(myColView.children.first(), myColView.children.last());
 
 myColView.children.first().model.get('name'); // "last"
@@ -968,9 +1010,9 @@ the views by the order of the models in the `collection`. If set to `false`,
 presentation sorting is disabled. Normalized collection observations still reconcile
 the keyed children to source order when `sortWithCollection` is enabled.
 
-This method is called internally when rendering and
+This method is called internally when rendering.
 [`sort` and `before:sort` events](./events.class.md#sort-and-beforesort-events)
-will trigger.
+fire when owned children exist and a comparator is active.
 
 By default the `CollectionView` will maintain a sorted collection's order
 in the DOM. This behavior can be disabled by specifying `{sortWithCollection: false}`
@@ -991,23 +1033,26 @@ existing child order.
 
 `CollectionView` allows for a custom `viewComparator` option if you want your
 `CollectionView`'s children to be rendered with a different sort order than the
-underlying Backbone collection uses.
+underlying collection uses.
 
 ```javascript
-import { CollectionView } from 'marionette';
+import { CollectionView, View } from 'marionette';
 
+const RowView = View.extend({ template: ({ rank }) => String(rank) });
 const myCollectionView = new CollectionView({
-  collection: someCollection,
-  viewComparator: 'otherFieldToSortOn'
+  collection: [{ rank: 2 }, { rank: 1 }],
+  childView: RowView,
+  viewComparator: 'rank'
 });
 ```
 
 ```javascript
 import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { CollectionView, setDataApi } from 'marionette';
+import { CollectionView, setDataApi, View } from 'marionette';
 
 setDataApi(BackboneApi);
+const RowView = View.extend({ template: ({ id }) => String(id) });
 
 const myCollection = new Backbone.Collection([
   { id: 1 },
@@ -1019,13 +1064,13 @@ const myCollection = new Backbone.Collection([
 myCollection.comparator = 'id';
 
 const myDescendingView = new CollectionView({
-  //...
+  childView: RowView,
   collection: myCollection,
   viewComparator: childView => -childView.model.id
 });
 
 const mySourceOrderView = new CollectionView({
-  //...
+  childView: RowView,
   collection: myCollection,
   viewComparator: false
 });
@@ -1038,11 +1083,10 @@ myCollection.sort();
 // mySourceOrderView reconciles to source order: 1 2 3 4
 ```
 
-The `viewComparator` can take any of the acceptable `Backbone.Collection`
-[comparator formats](http://backbonejs.org/#Collection-comparator) -- a sortBy
-(pass a function that takes a single argument), as a sort (pass a comparator
-function that expects two arguments), or as a string indicating the attribute to
-sort by.
+A `viewComparator` can be a one-argument criterion function, a two-argument
+comparison function, or a string naming a model attribute read through DataApi.
+Functions receive child Views, not models, and run with the CollectionView as
+`this`. These forms do not require Backbone.
 
 A string or single-argument comparator evaluates one criterion per child View and
 sorts stably. Equal, `NaN`, or otherwise incomparable criteria retain their existing
@@ -1063,11 +1107,11 @@ import { CollectionView, setDataApi } from 'marionette';
 setDataApi(BackboneApi);
 
 const MyCollectionView = CollectionView.extend({
-  sortAsc(model) {
-    return -model.get('order');
+  sortAsc(view) {
+    return view.model.get('order');
   },
-  sortDesc(model) {
-    return model.get('order');
+  sortDesc(view) {
+    return -view.model.get('order');
   },
   getComparator() {
     // The collectionView's model
@@ -1082,15 +1126,19 @@ const MyCollectionView = CollectionView.extend({
 
 #### `setComparator`
 
-The `setComparator` method modifies the `CollectionView`'s `viewComparator`
-attribute and re-sorts. Passing `{ preventRender: true }` in the options argument
-will prevent the view being rendered.
+The `setComparator` method updates `viewComparator` and calls `sort()` when the
+value changes. `{ preventRender: true }` defers that sort/filter/child-render
+pass. It returns the CollectionView and does not run the parent
+`before:render`/`render` lifecycle. Call it after initial rendering, or defer the
+pass until the initial `render()`.
 
 ```javascript
-import { CollectionView } from 'marionette';
+import { CollectionView, View } from 'marionette';
 
+const RowView = View.extend({ template: ({ orderBy }) => String(orderBy) });
 const cv = new CollectionView({
-  collection: someCollection
+  collection: [{ orderBy: 2 }, { orderBy: 1 }],
+  childView: RowView
 });
 
 cv.render();
@@ -1098,8 +1146,8 @@ cv.render();
 // Note: the setComparator is preventing the automatic re-render
 cv.setComparator('orderBy', { preventRender: true });
 
-// Render the children ordered by the orderBy attribute
-cv.render();
+// Apply the order without rebuilding the children or parent template
+cv.sort();
 ```
 
 #### `removeComparator`
@@ -1108,10 +1156,12 @@ This function is actually an alias of `setComparator(null, options)`. It is usef
 for removing the comparator. `removeComparator` also accepts `preventRender` as a option.
 
 ```javascript
-import { CollectionView } from 'marionette';
+import { CollectionView, View } from 'marionette';
 
+const RowView = View.extend({ template: ({ orderBy }) => String(orderBy) });
 const cv = new CollectionView({
-  collection: someCollection
+  collection: [{ orderBy: 2 }, { orderBy: 1 }],
+  childView: RowView
 });
 
 cv.render();
@@ -1131,9 +1181,10 @@ on initialize or on the view definiton.
 ```javascript
 import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { CollectionView, setDataApi } from 'marionette';
+import { CollectionView, setDataApi, View } from 'marionette';
 
 setDataApi(BackboneApi);
+const RowView = View.extend({ template: ({ id }) => String(id) });
 
 const myCollection = new Backbone.Collection([
   { id: 1 },
@@ -1145,12 +1196,12 @@ const myCollection = new Backbone.Collection([
 myCollection.comparator = 'id';
 
 const mySortedColView = new CollectionView({
-  //...
+  childView: RowView,
   collection: myCollection
 });
 
 const myUnsortedColView = new CollectionView({
-  //...
+  childView: RowView,
   collection: myCollection,
   sortWithCollection: false
 });
@@ -1167,16 +1218,17 @@ myCollection.sort();
 
 The `filter` method will loop through the `CollectionView`'s sorted `children`
 and test them against the [`viewFilter`](#defining-the-viewfilter).
-The views that pass the `viewFilter`are rendered if necessary and attached
+The views that pass the `viewFilter` are rendered if necessary and attached
 to the CollectionView and the views that are filtered out will be detached.
 After filtering the `children` will only contain the views to be attached.
 
-If a `viewFilter` exists the
+If owned children exist and an active `viewFilter` is applied, the
 [`filter` and `before:filter` events](./events.class.md#filter-and-beforefilter-events)
 will trigger.
 
-By default the CollectionView will refilter when views change or when the
-CollectionView is sorted.
+The CollectionView refilters during normalized collection updates and sorting.
+An arbitrary child property change does not itself trigger filtering; call
+`filter()` when application-owned presentation criteria change.
 
 **Note** This is a presentation functionality used to easily filter in and out
 constructed children. All children of a `collection` will be instantiated once
@@ -1187,9 +1239,9 @@ instantiation, you should filter the `collection` itself.
 
 `CollectionView` allows for a custom `viewFilter` option if you want to prevent
 some of the underlying `children` from being attached to the DOM.
-A `viewFilter` can be a function, predicate object. or string.
-
-**Errors** An error will be thrown if the `ViewFilter` is not one of these options.
+A `viewFilter` can be a function, predicate object, or string. Use `null` or
+`false` to disable it. Other shapes are unsupported; core does not guarantee
+a diagnostic for an invalid filter.
 
 #### `viewFilter` as a function
 
@@ -1203,9 +1255,11 @@ that pass.
 ```javascript
 import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { CollectionView, setDataApi } from 'marionette';
+import { CollectionView, setDataApi, View } from 'marionette';
 
 setDataApi(BackboneApi);
+const SomeChildView = View.extend({ template: ({ value }) => String(value) });
+const SomeEmptyView = View.extend({ template: () => 'No matches' });
 
 const cv = new CollectionView({
   childView: SomeChildView,
@@ -1239,9 +1293,11 @@ are not predicate objects.
 ```javascript
 import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { CollectionView, setDataApi } from 'marionette';
+import { CollectionView, setDataApi, View } from 'marionette';
 
 setDataApi(BackboneApi);
+const SomeChildView = View.extend({ template: ({ value }) => String(value) });
+const SomeEmptyView = View.extend({ template: () => 'No matches' });
 
 const cv = new CollectionView({
   childView: SomeChildView,
@@ -1269,9 +1325,11 @@ truthy values.
 ```javascript
 import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { CollectionView, setDataApi } from 'marionette';
+import { CollectionView, setDataApi, View } from 'marionette';
 
 setDataApi(BackboneApi);
+const SomeChildView = View.extend({ template: ({ value }) => String(value) });
+const SomeEmptyView = View.extend({ template: () => 'No matches' });
 
 const cv = new CollectionView({
   childView: SomeChildView,
@@ -1318,18 +1376,21 @@ const MyCollectionView = CollectionView.extend({
 
 #### `setFilter`
 
-The `setFilter` method modifies the `CollectionView`'s `viewFilter` attribute and filters.
-Passing `{ preventRender: true }` in the options argument will prevent the view
-being rendered.
+The `setFilter` method updates `viewFilter` and calls `filter()` when the value
+changes. `{ preventRender: true }` defers that filter/child-render pass. It
+returns the CollectionView without running the parent render lifecycle. Call
+it after initial rendering, or defer the pass until the initial `render()`.
 
 ```javascript
 import BackboneApi from '@marionette/adapters/backbone';
-import { CollectionView, setDataApi } from 'marionette';
+import Backbone from 'backbone';
+import { CollectionView, setDataApi, View } from 'marionette';
 
 setDataApi(BackboneApi);
-
+const RowView = View.extend({ template: ({ value }) => String(value) });
 const cv = new CollectionView({
-  collection: someCollection
+  collection: new Backbone.Collection([{ value: 1 }, { value: 2 }]),
+  childView: RowView
 });
 
 cv.render();
@@ -1341,8 +1402,8 @@ const newFilter = function(view, index, children) {
 // Note: the setFilter is preventing the automatic re-render
 cv.setFilter(newFilter, { preventRender: true });
 
-// Render the new state of the ChildViews instead of the whole DOM.
-cv.render();
+// Apply the new filter while retaining surviving child instances.
+cv.filter();
 ```
 
 #### `removeFilter`
@@ -1352,12 +1413,14 @@ for removing filters. `removeFilter` also accepts `preventRender` as a option.
 
 ```javascript
 import BackboneApi from '@marionette/adapters/backbone';
-import { CollectionView, setDataApi } from 'marionette';
+import Backbone from 'backbone';
+import { CollectionView, setDataApi, View } from 'marionette';
 
 setDataApi(BackboneApi);
-
+const RowView = View.extend({ template: ({ value }) => String(value) });
 const cv = new CollectionView({
-  collection: someCollection
+  collection: new Backbone.Collection([{ value: 1 }, { value: 2 }]),
+  childView: RowView
 });
 
 cv.render();

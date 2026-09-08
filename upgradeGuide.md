@@ -21,7 +21,7 @@ with `.extend()`, or start the native subclass from the public base.
 
 Custom constructors can replace the instance. Their declared object return is
 the constructed type; an unknown return stays unknown. See the
-[constructor typing guidance](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#typescript-source) for preserving
+[constructor typing guidance](https://github.com/marionettejs/marionette/blob/master/docs/maintainers/types.md) for preserving
 the receiver through further extensions and the limits of return annotations.
 
 ## Managed children use Marionette's lifecycle
@@ -89,7 +89,8 @@ parent.showChildView('content', new View({
   // v5
   template: ({ models }) => models.map(renderModel)
   ```
-- Applications using Backbone must select its integration once at boot:
+- Applications whose Views use Backbone models or collections must select its
+  DataApi before constructing those Views:
 
   ```sh
   npm install @marionette/adapters backbone
@@ -97,12 +98,14 @@ parent.showChildView('content', new View({
 
   ```js
   import BackboneApi from '@marionette/adapters/backbone';
-  import Backbone from 'backbone';
-  import { setDataApi, setStateApi } from 'marionette';
+  import { setDataApi } from 'marionette';
 
   setDataApi(BackboneApi);
-  setStateApi(BackboneApi);
   ```
+
+  Configure `setStateApi(BackboneApi)` separately only when declarative
+  `stateEvents` observe a Backbone state source. Using Backbone.Router alone
+  requires neither adapter. See [Choosing integrations](docs/choosing-integrations.md).
 
 - Other data sources can configure `setDataApi` with methods for identity,
   reads, serialization, ordered model snapshots, subscriptions, and collection
@@ -380,25 +383,26 @@ Radio.channel('status').reply('status:current', getStatus);
 
 Use `radioRequests` on `Application` or `MnObject` for declarative replies on
 their configured channel. Any owner can use `bindRequests(channel, bindings)`
-when it receives the channel explicitly; owned cleanup then removes only that
-owner's replies.
+when it receives the channel explicitly. Pair that registration with
+`unbindRequests(channel)` in the owner's cleanup hook; imperative bindings to an
+arbitrary channel are not automatically tracked for destruction. Unbinding this
+way removes only that owner's replies.
 
 ## `detachContents` policy
 
 - The default native DomApi `detachContents(el)` clears the element via
-  `el.textContent = ''`. Children are removed from `el` and Marionette no
-  longer holds references to them.
+  `el.textContent = ''`. Children are removed from `el`; callers retaining a
+  child reference still retain its listeners and data.
 - v4 used jQuery's `$(el).contents().detach()`, which is jQuery's documented
   detach-for-reinsertion path. It removes children from `el` while preserving
   jQuery's internal handler/data bookkeeping on those elements.
-- For most apps the user-visible difference is small — `Region.empty()`
-  discards the detached content in both cases, and DOM event listeners
-  attached via `addEventListener` remain on referenced child elements either
-  way. The difference matters for apps that detach-then-reinsert children
-  externally and rely on jQuery's `.on()` handlers, `.data()` cache, or other
-  jQuery-internal element bookkeeping surviving that cycle.
-- Legacy code that depends on the v4 jQuery semantics can opt into the
-  optional jQuery DomApi adapter at app boot:
+- Native node removal does not call jQuery's cleanup machinery either.
+  Referenced detached nodes retain native listeners, jQuery `.on()` handlers,
+  and `.data()` values with both implementations. Detachment alone is not a
+  reason to add jQuery. This differs from content replacement with jQuery's
+  `.html()`, which cleans jQuery handlers and data from removed descendants.
+- Applications needing jQuery query and content-operation semantics can select
+  the optional jQuery DomApi adapter at app boot:
 
   ```js
   import { setDomApi } from 'marionette';

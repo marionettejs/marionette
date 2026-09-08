@@ -1,10 +1,8 @@
 // Behavior
 // --------
 
-// A Behavior is an isolated set of DOM /
-// user interactions that can be mixed into any View.
-// Behaviors allow you to blackbox View specific interactions
-// into portable logical chunks, keeping your views simple and your code DRY.
+// A Behavior composes reusable interactions on one host View or CollectionView.
+// The host owns its lifecycle; the Behavior has its own event handlers and State.
 
 import type { Bindings } from '@marionette/utils';
 import { getValue, uniqueId } from '@marionette/utils';
@@ -147,7 +145,7 @@ const Behavior = function(this: BehaviorInternals, options: BehaviorOptions | un
   // a selector under an UI key.
   this.ui = { ...getValue(this, 'ui') as UISelectors, ...getValue(view, 'ui') as UISelectors };
 
-  // Proxy view triggers
+  // Forward every host event through this Behavior's triggerMethod.
   this.listenTo(view, 'all', this.triggerMethod);
 
   (this.initialize as Function).apply(this, arguments);
@@ -172,7 +170,8 @@ Object.assign(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateM
     return (this.view.$ as { apply(receiver: BehaviorHost, args: IArguments): ArrayLike<Element> }).apply(this.view, arguments);
   },
 
-  // Stops the behavior from listening to events.
+  // Remove DOM/entity subscriptions, owned State, listeners, and host registration.
+  // This method does not emit an independent Behavior destroy lifecycle.
   destroy(this: BehaviorInternals) {
     this._isDestroyed = true;
     this._undelegateViewEvents();

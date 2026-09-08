@@ -106,7 +106,7 @@ declared `ui` key, as the canonical example does with `@ui.save`.
 The handler receives the native DOM event as its first argument and runs with
 the View as its context. An `events` value must be a function or a string that
 resolves to a callable method. Invalid handlers throw `MarionetteError` with
-code [`MN0019`](/errors/MN0019/) before Marionette delegates any handler from
+code [`MN0019`](diagnostic-catalog.md#look-up-a-code) before Marionette delegates any handler from
 that event map.
 
 Delegation sees matching descendants throughout `el`. If a child View contains
@@ -115,7 +115,9 @@ owner-specific selectors; use Marionette events for parent-child communication
 instead of relying on DOM bubbling across ownership boundaries.
 
 Call `view.delegateEvents(events)` to refresh delegated DOM handlers after
-changing a callable `events`, `triggers`, or `ui` definition. A supplied event
+changing a callable `events` or `triggers` definition. UI references use the
+View's current selector bindings; a Behavior retains the selector map captured
+at construction, as described in [Behavior UI resolution](./marionette.behavior.md#ui-resolution-and-binding). A supplied event
 map replaces only the View's configured `events` for that delegation pass;
 View triggers and Behavior events and triggers remain active. The method first
 removes existing handlers, so repeated calls do not duplicate them.
@@ -173,7 +175,8 @@ export const CustomEventDelegator = {
 
 The arguments are:
 
-* `eventName`: the first non-whitespace token in the declaration key.
+* `eventName`: the first token in the declaration key. Begin the key with the
+  event name, without leading whitespace.
 * `selector`: the remaining selector, or an empty string for a direct handler.
 * `handler`: Marionette's normalized callback. The adapter must preserve its
   arguments and return behavior.
@@ -219,9 +222,8 @@ these declarations to `focusin` or `focusout`.
 
 A jQuery adapter can implement the same protocol with paired `.on()` and
 `.off()` calls. Compatibility tests exercise that protocol, but v5 does not yet
-ship a jQuery EventDelegator; the separately packaged first-party adapters work
-will decide whether to publish one through an explicit optional subpath. Such
-an adapter can support jQuery-specific namespaces, programmatic dispatch, and
+ship a jQuery EventDelegator. A custom adapter is needed only when the
+application requires jQuery-specific namespaces, programmatic dispatch, and
 delegated focus behavior without adding jQuery to the core production graph.
 React and Vue normally own events within the subtree they
 render; integrate those subtrees through explicit DOM and lifecycle ownership
@@ -289,14 +291,16 @@ each render.
 Use `getUI(name)` after declaring a `ui` map and binding its elements when
 application code needs a named element. Calling it without a declared map,
 before binding, or after unbinding throws
-`MarionetteError` with code [`MN0023`](/errors/MN0023/). Once bound, a missing
+`MarionetteError` with code [`MN0023`](diagnostic-catalog.md#look-up-a-code). Once bound, a missing
 key preserves the existing `undefined` result. Use the `@ui.<name>`
 form in `events`, `triggers`, Behaviors, and Regions so a selector change has one
 source of truth.
 
 Every `@ui.<name>` reference must contain a non-empty name for an own, declared
-key in the applicable `ui` map. Missing, inherited, or `undefined` keys throw
-`MarionetteError` with code [`MN0018`](/errors/MN0018/) during normalization.
+key in the applicable `ui` map. Missing or inherited keys throw
+`MarionetteError` with code [`MN0018`](diagnostic-catalog.md#look-up-a-code) during normalization.
+Selector values must be strings. An own key with `undefined` is not diagnosed
+as missing by core; do not rely on a particular result for that unsupported value.
 An explicitly declared empty selector is a known key, though the DOM API may
 reject it when the selector is used.
 
@@ -305,6 +309,7 @@ reject it when the selector is used.
 Applications that explicitly configure
 [`@marionette/adapters/dom/jquery`](./installation.md#jquery-dom-adapter-is-optional)
 before constructing Views receive jQuery collections from query methods. The
-optional [jQuery base-class helper](./dom.api.md#optional-jquery-adapter) adds
-`$el` on View, CollectionView, and Behavior subclasses. Core examples use native
+[application-owned `$el` setup](./dom.api.md#optional-jquery-adapter) can add a
+wrapper on View, CollectionView, and Behavior subclasses; no base-class helper
+is exported. Core examples use native
 collections so the default package remains jQuery-free.

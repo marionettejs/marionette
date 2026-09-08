@@ -1,4 +1,4 @@
-// An optimized way to execute callbacks.
+// Invoke with the supplied receiver, specializing calls with up to three arguments.
 export default function callHandler<Context, Args extends unknown[], Result>(
   callback: (this: Context, ...args: Args) => Result, context: Context, args: Args
 ): Result;

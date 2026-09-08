@@ -27,7 +27,6 @@ events are separate from [DOM events](./dom.interactions.md#canonical-view-inter
     * [Using `CollectionView`'s `childViewTriggers`](#using-collectionviews-childviewtriggers)
 * [Lifecycle Events](#lifecycle-events)
 
-
 ## Triggering and Listening to Events
 
 Use the `Events` export directly when a plain object needs Marionette's event
@@ -91,8 +90,8 @@ This preserves the extension points used by event-lifecycle mixins. Likewise,
 
 ### `triggerMethod`
 
-`triggerMethod` fires the named event on the instance and also invokes the
-matching `onEventName` method when it exists. If there are no listeners or
+`triggerMethod` invokes the matching `onEventName` method when it exists, then
+fires the named event on the instance. If there are no listeners or
 matching method, the call still succeeds. All arguments after the event name
 are passed to both the method and event handlers.
 
@@ -111,8 +110,6 @@ myView.on('something:happened', myView.callMethod);
 /* Calls callMethod('foo'); */
 myView.triggerMethod('something:happened', 'foo');
 ```
-
-[Live example](https://jsfiddle.net/marionettejs/whvgao7o/)
 
 **The `triggerMethod` method is available to [all Marionette classes](./common.md#triggermethod).**
 
@@ -134,16 +131,14 @@ const MyView = View.extend({
 });
 ```
 
-[Live example](https://jsfiddle.net/marionettejs/90Larbty/)
-
 Use `listenTo` when the listener should own and later clean up the subscription:
 
 ```javascript
 import { View } from 'marionette';
 
 const OtherView = View.extend({
-  initialize(someView) {
-    this.listenTo(someView, 'event:happened', this.logCall);
+  initialize({ source }) {
+    this.listenTo(source, 'event:happened', this.logCall);
   },
 
   logCall(myVal) {
@@ -155,12 +150,10 @@ const MyView = View.extend();
 
 const myView = new MyView();
 
-const otherView = new OtherView(myView);
+const otherView = new OtherView({ source: myView });
 
 myView.triggerMethod('event:happened', 'someValue'); // Logs 'someValue'
 ```
-
-[Live examples](https://jsfiddle.net/marionettejs/cm2rczqz/)
 
 `listenTo` calls the callback with the listener as its context and records the
 relationship for `stopListening`. A direct `on` subscription must be removed
@@ -169,19 +162,20 @@ their tracked `listenTo` relationships during destruction.
 
 ### Backbone interop
 
-Backbone is optional. When an application uses Backbone entities, configure the
-explicit integration before constructing them:
+Backbone models and collections are observable event sources. Marionette
+`listenTo` and `stopListening` work directly with their native event interface,
+without changing Backbone. Select the integration separately when a View needs
+Backbone model reads, serialization, or structural collection observation:
 
 ```javascript
 import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
-import { setDataApi, setStateApi, View } from 'marionette';
+import { setDataApi, View } from 'marionette';
 
 setDataApi(BackboneApi);
-setStateApi(BackboneApi);
 
 const model = new Backbone.Model();
-const view = new View();
+const view = new View({ model });
 
 view.listenTo(model, 'change', () => {
   // ...
@@ -243,11 +237,9 @@ const myView = new MyView();
 myView.triggerMethod('my:event', 'someValue'); // Logs 'someValue'
 ```
 
-[Live example](https://jsfiddle.net/marionettejs/oc8wwcnx/)
-
 As before, all arguments passed into `triggerMethod` after the event name will make
-their way into the event handler. Using this method ensures there will be no unexpected
-memory leaks.
+their way into the event handler. `triggerMethod` does not establish or clean up subscriptions;
+use `listenTo` and owner teardown, or explicit `off`, for listener cleanup.
 
 ### View `events` and `triggers`
 
@@ -275,8 +267,6 @@ const MyView = View.extend({
   }
 });
 ```
-
-[Live example](https://jsfiddle.net/marionettejs/pq4xfchk/)
 
 For more information, see the [DOM interactions documentation](./dom.interactions.md#canonical-view-interaction).
 
@@ -307,30 +297,31 @@ const MyView = View.extend({
 });
 ```
 
-[Live example](https://jsfiddle.net/marionettejs/h9ub5hp3/)
-
 For more information, see the [Entity events documentation](./events.entity.md).
 
 ## Child View Events
 
 The [`View`](marionette.view.md) and [`CollectionView`](marionette.collectionview.md)
-are able to monitor and act on events on any of their direct children. Any events fired
-on a view are automatically propagated to their direct parents as well. Let's
-see a quick example:
+can handle events from their direct managed children through `childViewEvents`,
+forward selected names through `childViewTriggers`, or opt into a prefix through
+`childViewEventPrefix`. Without one of those configurations, a parent does not
+automatically forward every child event. For example:
 
 ```javascript
 import { View, CollectionView } from 'marionette';
 
 const ChildView = View.extend({
   tagName: 'li',
+  template: () => '<a href="#details">Select</a>',
 
   triggers: {
     'click a': 'select:model'
   }
 });
 
-const Collection = CollectionView.extend({
+const ListView = CollectionView.extend({
   tagName: 'ul',
+  childView: ChildView,
 
   childViewEvents: {
     'select:model': 'modelSelected'
@@ -340,28 +331,29 @@ const Collection = CollectionView.extend({
     console.log('model selected: ' + childView.model.id);
   }
 });
-```
 
-[Live example](https://jsfiddle.net/marionettejs/opyfvsfx/)
+const list = new ListView({ collection: [{ id: 'example' }] }).render();
+list.el.querySelector('a').click(); // Logs 'model selected: example'
+```
 
 ### Event Bubbling
 
-Events fired on a view bubble up to their direct parent views, calling any
-event methods using the `childview:` prefix (more on that shortly) and any
-methods bound to the `childViewEvents` attribute. This works for built-in
-events, custom events fired with `triggerMethod` and bound events using
-`triggers`.
+Set `childViewEventPrefix: 'childview'` on a parent to forward every child
+event as `childview:<eventName>`. The default is `false`, so prefixed forwarding
+is opt-in. Explicit `childViewEvents` and `childViewTriggers` still work when
+the prefix is disabled. Both `trigger` and `triggerMethod` events can be forwarded.
+The parent's matching method runs before its event listeners.
 
-**NOTE** Automatic event bubbling can be disabled by setting
-[`childViewEventPrefix`](#a-child-views-event-prefix) to `false`.
-
-When using implicit listeners, the [`childview:*` event prefix](#a-child-views-event-prefix) is used which
-needs to be included as part of the handler:
+Each level must configure the forwarding it needs. Arguments pass through
+unchanged: Marionette does not prepend the child instance to arbitrary events.
+DOM `triggers` already supply `(view, event)`, while a custom event must explicitly
+supply its View when handlers need it.
 
 ```javascript
 import { View } from 'marionette';
 
 const MyView = View.extend({
+  template: false,
   triggers: {
     click: 'click:view'
   },
@@ -372,6 +364,8 @@ const MyView = View.extend({
 });
 
 const ParentView = View.extend({
+  template: () => '<div class="foo-hook"></div>',
+  childViewEventPrefix: 'childview',
   regions: {
     foo: '.foo-hook'
   },
@@ -387,34 +381,33 @@ const ParentView = View.extend({
   onChildviewDidSomething(childView) {
     console.log('Something was done to ' + childView);
   }
-})
+});
 ```
 
 **NOTE** `triggers` will automatically pass the child view as an argument to the parent view, however `triggerMethod` will not, and so notice that in the above example, the `triggerMethod` explicitly passes the child view.
 
-[Live example](https://jsfiddle.net/marionettejs/oquea4uy/)
-
 #### Using `CollectionView`
 
-This works exactly the same way for the `CollectionView` and its `childView`:
+The same opt-in applies to a `CollectionView` and its `childView`:
 
 ```javascript
 import { View, CollectionView } from 'marionette';
 
 const MyChild = View.extend({
+  template: false,
   triggers: {
     click: 'click:child'
   }
 });
 
 const MyList = CollectionView.extend({
+  childView: MyChild,
+  childViewEventPrefix: 'childview',
   onChildviewClickChild(childView) {
     console.log('Childview ' + childView + ' was clicked');
   }
 });
 ```
-
-[Live examples](https://jsfiddle.net/marionettejs/za27jys1/)
 
 ### A Child View's Event Prefix
 
@@ -423,36 +416,24 @@ through the view. To do this, set the `childViewEventPrefix`
 on the view or collectionview. For more information on the `childViewEventPrefix` see
 [Event bubbling](#event-bubbling).
 
-The default value for `childViewEventPrefix` is `false`. Setting this property to
-`false` will disable [automatic event bubbling](#event-bubbling).
+The default value for `childViewEventPrefix` is `false`. It disables prefixed
+forwarding, while explicit child event maps remain active.
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
-import Backbone from 'backbone';
-import { CollectionView, setDataApi } from 'marionette';
-import MyChildView from './my-child-view';
+import { CollectionView, View } from 'marionette';
 
-setDataApi(BackboneApi);
-
-const myCollection = new Backbone.Collection([{}]);
-
+const MyChildView = View.extend({ template: () => 'Child' });
 const MyCollectionView = CollectionView.extend({
   childViewEventPrefix: 'some:prefix',
   childView: MyChildView
 });
+const collectionView = new MyCollectionView({ collection: [{}] });
 
-const collectionView = new MyCollectionView({
-  collection: myCollection
+collectionView.on('some:prefix:render', childView => {
+  console.log('Child rendered', childView);
 });
-
-collectionView.on('some:prefix:render', function(){
-  // child view was rendered
-});
-
 collectionView.render();
 ```
-
-[Live example](https://jsfiddle.net/marionettejs/as33hnk1/)
 
 The `childViewEventPrefix` can be provided in the view definition or
 in the constructor function call, to get a view instance.
@@ -468,12 +449,14 @@ method referenced or attached function.
 import { View } from 'marionette';
 
 const MyView = View.extend({
+  template: false,
   triggers: {
     click: 'view:clicked'
   }
 });
 
 const ParentView = View.extend({
+  template: () => '<div class="foo-hook"></div>',
   regions: {
     foo: '.foo-hook'
   },
@@ -492,8 +475,6 @@ const ParentView = View.extend({
 });
 ```
 
-[Live example](https://jsfiddle.net/marionettejs/y92r99p2/)
-
 #### Attaching Functions
 
 The `childViewEvents` attribute can also attach functions directly to be event
@@ -503,12 +484,14 @@ handlers:
 import { View } from 'marionette';
 
 const MyView = View.extend({
+  template: false,
   triggers: {
     click: 'view:clicked'
   }
 });
 
 const ParentView = View.extend({
+  template: () => '<div class="foo-hook"></div>',
   regions: {
     foo: '.foo-hook'
   },
@@ -524,8 +507,6 @@ const ParentView = View.extend({
   }
 });
 ```
-
-[Live example](https://jsfiddle.net/marionettejs/pnp1dd8j/)
 
 #### Using `CollectionView`'s `childViewEvents`
 
@@ -543,12 +524,12 @@ const MyCollectionView = CollectionView.extend({
 });
 ```
 
-[Live example](https://jsfiddle.net/marionettejs/a2uvcfrp/)
-
 ### Triggering Events on Child Events
 
 A `childViewTriggers` hash or method permits proxying of child view events without manually
-setting bindings. The values of the hash should be a string of the event to trigger on the parent.
+setting bindings. Each own map key selects a child event, and its value names the event
+to trigger on the parent. Inherited entries are ignored. `childViewEvents` also
+normalizes only own enumerable string keys.
 
 `childViewTriggers` is sugar on top of [`childViewEvents`](#explicit-event-listeners) much
 in the same way that [view `triggers`](./dom.interactions.md#view-triggers) are sugar for [view `events`](./dom.interactions.md#view-events).
@@ -558,6 +539,7 @@ import { View, CollectionView } from 'marionette';
 
 // The child view fires a custom event, `show:message`
 const ChildView = View.extend({
+  template: () => '<button class="button">Message</button><form><button>Submit</button></form>',
 
   // Events hash defines local event handlers that in turn may call `triggerMethod`.
   events: {
@@ -575,7 +557,7 @@ const ChildView = View.extend({
   }
 });
 
-// The parent uses childViewEvents to catch the child view's custom event
+// The parent forwards the child's event through childViewTriggers.
 const ParentView = CollectionView.extend({
   childView: ChildView,
 
@@ -594,6 +576,7 @@ const ParentView = CollectionView.extend({
 });
 
 const GrandParentView = View.extend({
+  template: () => '<div class="list"></div>',
   regions: {
     list: '.list'
   },
@@ -608,13 +591,11 @@ const GrandParentView = View.extend({
     'child:show:message': 'showMessage'
   },
 
-  showMessage(childView) {
-    console.log('A child (' + childView + ') fired an event');
+  showMessage(message) {
+    console.log('A child sent: ' + message);
   }
 });
 ```
-
-[Live example](https://jsfiddle.net/marionettejs/8eq7vca5/)
 
 #### Using `CollectionView`'s `childViewTriggers`
 
@@ -623,6 +604,7 @@ import { View, CollectionView } from 'marionette';
 
 // The child view fires a custom event, `show:message`
 const ChildView = View.extend({
+  template: () => '<button class="button">Message</button><form><button>Submit</button></form>',
 
   // Events hash defines local event handlers that in turn may call `triggerMethod`.
   events: {
@@ -642,7 +624,7 @@ const ChildView = View.extend({
   }
 });
 
-// The parent uses childViewEvents to catch the child view's custom event
+// The parent forwards the child's event through childViewTriggers.
 const ParentView = CollectionView.extend({
 
   childView: ChildView,
@@ -661,8 +643,6 @@ const ParentView = CollectionView.extend({
   }
 });
 ```
-
-[Live example](https://jsfiddle.net/marionettejs/edhqd2h8/)
 
 ## Lifecycle Events
 

@@ -47,7 +47,7 @@ export default {
     return document.createElement(tagName);
   },
 
-  // Returns a new HTML DOM node instance
+  // Return a new DocumentFragment for batching child insertion.
   createBuffer() {
     return document.createDocumentFragment();
   },
@@ -57,13 +57,12 @@ export default {
     return el.ownerDocument.documentElement;
   },
 
-  // Finds the `selector` string with the el
-  // Returns an array-like object of nodes
+  // Return a static NodeList of matching descendants; the root itself is excluded.
   findEl(el: Element | Document | DocumentFragment, selector: string) {
     return el.querySelectorAll(selector);
   },
 
-  // Returns true if the el contains the node childEl
+  // Test strict containment via the child's parent, so el does not contain itself.
   hasEl(el: Node, childEl: Node | null | undefined) {
     return el.contains((childEl && childEl.parentNode) as Node | null);
   },
@@ -116,7 +115,8 @@ export default {
     el.appendChild(contents);
   },
 
-  // Move a child without disconnecting it when the platform supports moveBefore.
+  // Use moveBefore for an existing child of this parent when available; otherwise
+  // insertBefore handles insertion or movement, including cross-parent moves.
   moveEl(el: Node, parent: Element | DocumentFragment, before: Node | null = null) {
     if (el.parentNode === parent && typeof parent.moveBefore === 'function') {
       parent.moveBefore(el, before);

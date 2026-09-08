@@ -1,0 +1,368 @@
+[
+  {
+    "source": "docs/readme.md",
+    "route": "docs",
+    "title": "Documentation",
+    "section": "Start here"
+  },
+  {
+    "source": "docs/installation.md",
+    "route": "docs/installation",
+    "title": "Install and show a View",
+    "section": "Start here"
+  },
+  {
+    "source": "docs/agents.md",
+    "route": "docs/agents",
+    "title": "Build with an agent",
+    "section": "Start here"
+  },
+  {
+    "source": "docs/classes.md",
+    "route": "docs/classes",
+    "title": "Choose a class",
+    "section": "Start here"
+  },
+  {
+    "source": "docs/basics.md",
+    "route": "docs/basics",
+    "title": "Configuration and inheritance",
+    "section": "Start here"
+  },
+  {
+    "source": "docs/terminology.md",
+    "route": "docs/terminology",
+    "title": "Terminology",
+    "section": "Start here"
+  },
+  {
+    "source": "docs/agent-tools.md",
+    "route": "docs/agent-tools",
+    "title": "Set up an agent",
+    "section": "Start here"
+  },
+  {
+    "source": "docs/application-agent-template.md",
+    "route": "docs/application-agent-template",
+    "title": "Application agent instructions",
+    "section": "Start here"
+  },
+  {
+    "source": "docs/marionette.view.md",
+    "route": "docs/view",
+    "title": "View",
+    "section": "Build interfaces"
+  },
+  {
+    "source": "docs/marionette.region.md",
+    "route": "docs/region",
+    "title": "Region",
+    "section": "Build interfaces"
+  },
+  {
+    "source": "docs/marionette.collectionview.md",
+    "route": "docs/collection-view",
+    "title": "CollectionView",
+    "section": "Build interfaces"
+  },
+  {
+    "source": "docs/marionette.application.md",
+    "route": "docs/application",
+    "title": "Application",
+    "section": "Build interfaces"
+  },
+  {
+    "source": "docs/marionette.behavior.md",
+    "route": "docs/behavior",
+    "title": "Behavior",
+    "section": "Build interfaces"
+  },
+  {
+    "source": "docs/view.lifecycle.md",
+    "route": "docs/lifecycle",
+    "title": "Lifecycle and cleanup",
+    "section": "Build interfaces"
+  },
+  {
+    "source": "docs/view.rendering.md",
+    "route": "docs/rendering",
+    "title": "Templates and rendering",
+    "section": "Build interfaces"
+  },
+  {
+    "source": "docs/dom.interactions.md",
+    "route": "docs/dom-interactions",
+    "title": "DOM interactions",
+    "section": "Build interfaces"
+  },
+  {
+    "source": "docs/routing.md",
+    "route": "docs/routing",
+    "title": "Routing",
+    "section": "Build interfaces"
+  },
+  {
+    "source": "docs/task-recipes.md",
+    "route": "docs/task-recipes",
+    "title": "Common application tasks",
+    "section": "Build interfaces"
+  },
+  {
+    "source": "docs/typescript.md",
+    "route": "docs/typescript",
+    "title": "TypeScript in applications",
+    "section": "Application guides"
+  },
+  {
+    "source": "docs/testing.md",
+    "route": "docs/testing",
+    "title": "Test an application",
+    "section": "Application guides"
+  },
+  {
+    "source": "docs/forms-and-accessibility.md",
+    "route": "docs/forms-and-accessibility",
+    "title": "Forms and accessibility",
+    "section": "Application guides"
+  },
+  {
+    "source": "docs/security.md",
+    "route": "docs/security",
+    "title": "Render untrusted content safely",
+    "section": "Application guides"
+  },
+  {
+    "source": "docs/production-and-performance.md",
+    "route": "docs/production-and-performance",
+    "title": "Production and performance",
+    "section": "Application guides"
+  },
+  {
+    "source": "docs/choosing-integrations.md",
+    "route": "docs/choosing-integrations",
+    "title": "Choose integrations",
+    "section": "Choose integrations"
+  },
+  {
+    "source": "docs/marionette.state.md",
+    "route": "docs/state",
+    "title": "State sources",
+    "section": "Choose integrations"
+  },
+  {
+    "source": "docs/data.api.md",
+    "route": "docs/data-api",
+    "title": "Data and collections",
+    "section": "Choose integrations"
+  },
+  {
+    "source": "docs/dom.api.md",
+    "route": "docs/dom-api",
+    "title": "DOM API",
+    "section": "Choose integrations"
+  },
+  {
+    "source": "docs/dom.prerendered.md",
+    "route": "docs/prerendered-dom",
+    "title": "Pre-rendered DOM",
+    "section": "Choose integrations"
+  },
+  {
+    "source": "docs/optional-backbone.md",
+    "route": "docs/backbone",
+    "title": "Backbone",
+    "section": "Choose integrations"
+  },
+  {
+    "source": "docs/runtime-isolation.md",
+    "route": "docs/runtime-isolation",
+    "title": "Runtime isolation",
+    "section": "Choose integrations"
+  },
+  {
+    "source": "packages/data/readme.md",
+    "route": "docs/data-package",
+    "title": "Data package",
+    "section": "Choose integrations"
+  },
+  {
+    "source": "packages/adapters/readme.md",
+    "route": "docs/adapters-package",
+    "title": "Adapters package",
+    "section": "Choose integrations"
+  },
+  {
+    "source": "docs/common.md",
+    "route": "docs/common",
+    "title": "Common methods",
+    "section": "API reference"
+  },
+  {
+    "source": "docs/events.md",
+    "route": "docs/events",
+    "title": "Events",
+    "section": "API reference"
+  },
+  {
+    "source": "docs/events.class.md",
+    "route": "docs/class-events",
+    "title": "Class events",
+    "section": "API reference"
+  },
+  {
+    "source": "docs/events.entity.md",
+    "route": "docs/entity-events",
+    "title": "Model and collection events",
+    "section": "API reference"
+  },
+  {
+    "source": "docs/radio.md",
+    "route": "docs/radio",
+    "title": "Radio",
+    "section": "API reference"
+  },
+  {
+    "source": "docs/utils.md",
+    "route": "docs/utils",
+    "title": "Utilities",
+    "section": "API reference"
+  },
+  {
+    "source": "docs/marionette.mnobject.md",
+    "route": "docs/mn-object",
+    "title": "MnObject",
+    "section": "API reference"
+  },
+  {
+    "source": "docs/diagnostic-catalog.md",
+    "route": "docs/diagnostics",
+    "title": "Diagnostics",
+    "section": "API reference"
+  },
+  {
+    "source": "docs/public-api.md",
+    "route": "docs/public-api",
+    "title": "Public exports",
+    "section": "API reference"
+  },
+  {
+    "source": "packages/radio/readme.md",
+    "route": "docs/radio-package",
+    "title": "Radio package",
+    "section": "API reference"
+  },
+  {
+    "source": "packages/utils/readme.md",
+    "route": "docs/utils-package",
+    "title": "Utils package",
+    "section": "API reference"
+  },
+  {
+    "source": "docs/migration-from-v4.md",
+    "route": "docs/migration-from-v4",
+    "title": "v4 compatibility ledger",
+    "section": "Migration"
+  },
+  {
+    "source": "upgradeGuide.md",
+    "route": "docs/upgrade-guide",
+    "title": "Upgrade guide",
+    "section": "Migration"
+  },
+  {
+    "source": "docs/performance-baselines.md",
+    "route": "docs/maintainers/performance",
+    "title": "Performance baselines",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "docs/release-profile.md",
+    "route": "docs/maintainers/release-profile",
+    "title": "Release profile",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "docs/release-promotion.md",
+    "route": "docs/maintainers/release-promotion",
+    "title": "Release promotion",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "docs/maintainers/readme.md",
+    "route": "docs/maintainers",
+    "title": "Maintain Marionette",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "docs/maintainers/types.md",
+    "route": "docs/maintainers/types",
+    "title": "Type implementation",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "docs/maintainers/documentation.md",
+    "route": "docs/maintainers/documentation",
+    "title": "Write and distribute documentation",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "docs/maintainers/documentation-trial.md",
+    "route": "docs/maintainers/documentation-trial",
+    "title": "Documentation reading trial",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "docs-site/README.md",
+    "route": "docs/maintainers/publication",
+    "title": "Build and distribute docs",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "CONTRIBUTING.md",
+    "route": "docs/maintainers/contributing",
+    "title": "Contribute to Marionette",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "AGENTS.md",
+    "route": "docs/maintainers/agent-instructions",
+    "title": "Maintainer agent instructions",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "docs/maintainers/reference-audit.md",
+    "route": "docs/maintainers/reference-audit",
+    "title": "Reference accuracy audit",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "docs/maintainers/source-comment-audit.md",
+    "route": "docs/maintainers/source-comment-audit",
+    "title": "Core source comment audit",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "docs/maintainers/package-comment-audit.md",
+    "route": "docs/maintainers/package-comment-audit",
+    "title": "Companion source comment audit",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "docs/maintainers/line-audit-core.md",
+    "route": "docs/maintainers/line-audit-core",
+    "title": "Core documentation line audit",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "docs/maintainers/line-audit-integrations.md",
+    "route": "docs/maintainers/line-audit-integrations",
+    "title": "Integration documentation line audit",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "docs/maintainers/line-audit-operations.md",
+    "route": "docs/maintainers/line-audit-operations",
+    "title": "Operations documentation line audit",
+    "section": "Maintaining Marionette"
+  }
+]

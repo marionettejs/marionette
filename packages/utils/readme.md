@@ -17,8 +17,7 @@ Methods such as `getOption`, `normalizeMethods`, and `triggerMethod` use their
 receiver as the component. Mix them into a prototype or call them with `.call()`.
 
 ```js
-import { Events } from 'marionette';
-import { getOption, normalizeMethods, triggerMethod } from '@marionette/utils';
+import { Events, getOption, normalizeMethods, triggerMethod } from '@marionette/utils';
 
 const component = {
   ...Events,
@@ -51,8 +50,9 @@ Inherited enumerable parent statics are copied only inside `extend`.
 - `mergeOptions(options, keys)` copies selected options onto the receiver.
 - `normalizeMethods(map)` resolves method names on the receiver.
   `resolveMethod(context, method, name)` resolves one handler.
-- `bindEvents`, `unbindEvents`, `bindRequests`, and `unbindRequests` use the
-  receiver's listening methods. `normalizeBindings(context, map)` resolves an
+- `bindEvents` and `unbindEvents` use the receiver's listening methods.
+  `bindRequests` and `unbindRequests` register or remove channel replies with
+  the receiver as their context. `normalizeBindings(context, map)` resolves an
   event map without subscribing.
 - `triggerMethod(eventName, ...args)` invokes the matching `onEventName` method
   and triggers the event.

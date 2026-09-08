@@ -517,7 +517,7 @@ export default /* @__PURE__ */ ((methods: object) => {
     return this._lifecycleState === RUNNING;
   },
 
-  // Kick off all of the application's processes.
+  // Begin asynchronous startup readiness and child startup; repeated active starts share a Promise.
   start(this: ApplicationInternals, options?: unknown) {
     if (isTerminal(this) || hasTerminalOwner(this)) {
       return Promise.resolve(false);

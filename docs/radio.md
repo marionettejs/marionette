@@ -79,6 +79,7 @@ Channels also provide request/reply messaging. Register one reply with
 import { Radio } from 'marionette';
 
 const account = Radio.channel('account');
+const accountService = { currentUser: { id: 'example' } };
 
 account.reply('current:user', function() {
   return this.currentUser;
@@ -88,7 +89,23 @@ const currentUser = account.request('current:user');
 ```
 
 Arguments passed after the request name are passed to the reply handler, and
-the handler's return value is returned from `request`.
+the handler's return value is returned from `request`. Invocation is synchronous:
+a thrown error reaches the caller immediately; a returned Promise is passed
+through unchanged and must be awaited or handled by the caller. Radio does not
+add cancellation, retries, or error handling.
+
+A named handler takes precedence over a handler registered as `default`.
+The default handler receives `(requestName, ...args)`. With neither handler,
+`request` returns `undefined` and may emit a debug warning. A non-function value
+registered with `reply(name, value)` is returned as-is for each request.
+Registering a second reply for the same name replaces the first; it does not
+multicast the request.
+
+`reply`, `replyOnce`, and `stopReplying` return the channel or Requests receiver.
+A `replyOnce` handler is removed before invocation, including when it throws or
+makes a reentrant request. Removing it by its original callback before invocation
+also cancels it. Choose ordinary events when several independent listeners need
+to react to the same notification.
 
 Only explicitly registered own handlers are eligible for a named request or
 the `default` fallback. Names matching inherited object properties, including
@@ -102,7 +119,7 @@ Use `replyOnce` for a handler that should be removed after its first request.
 Use `stopReplying` to remove one or more handlers:
 
 ```javascript
-account.replyOnce('access:token', createAccessToken);
+account.replyOnce('status:ready', () => true);
 account.stopReplying('current:user');
 ```
 
@@ -187,12 +204,12 @@ feature does not remove another feature's handlers.
 | --- | --- | --- |
 | `Radio.channel(name)` | Creates and registers the channel. | Returns the same channel. |
 | Top-level event, request, and tuning methods | Create the channel through `Radio.channel(name)`. | Operate on the same channel. |
-| `Radio.reset(name)` | Throws `MarionetteError` with code [MN0021](/errors/MN0021/) without creating a channel. | Clears handlers and preserves the channel identity. |
+| `Radio.reset(name)` | Throws `MarionetteError` with code [MN0021](diagnostic-catalog.md#look-up-a-code) without creating a channel. | Clears handlers and preserves the channel identity. |
 | `Radio.reset()` | Does not create channels. | Resets every registered channel without replacing it. |
 
 Only a zero-argument `Radio.reset()` call means reset all. Supplying an empty or
 otherwise falsy channel name throws the existing required-name diagnostic
-[MN0017](/errors/MN0017/) without resetting any channel.
+[MN0017](diagnostic-catalog.md#look-up-a-code) without resetting any channel.
 
 ## Marionette Integration
 

@@ -1,0 +1,106 @@
+import assert from 'node:assert/strict';
+import { resolve as resolvePath } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { JSDOM } from 'jsdom';
+
+const [task] = process.argv.slice(2);
+const dom = new JSDOM('<!doctype html><main id="mount"></main>');
+globalThis.window = dom.window;
+globalThis.document = dom.window.document;
+const el = document.querySelector('#mount');
+const solution = await import(pathToFileURL(resolvePath('solution.mjs')));
+const { Region, View, CollectionView } = await import('marionette');
+const tick = () => Promise.resolve();
+
+if (task === 'latest-navigation') {
+  const calls = [];
+  const navigation = await solution.createNavigation({ el, loadRecord(id, { signal }) {
+    return new Promise((resolve, reject) => calls.push({ id, signal, resolve, reject }));
+  } });
+  const one = navigation.navigate('same');
+  await tick();
+  const two = navigation.navigate('same');
+  await tick();
+  assert.equal(calls[0].signal.aborted, true);
+  calls[1].resolve({ title: '<img src=x onerror=alert(1)>' });
+  assert.equal(await two, true);
+  assert.equal(el.querySelector('h1').textContent, '<img src=x onerror=alert(1)>');
+  assert.equal(el.querySelector('img'), null);
+  calls[0].resolve({ title: 'stale success' });
+  assert.equal(await one, false);
+  const stale = navigation.navigate('stale');
+  await tick();
+  const current = navigation.navigate('current');
+  await tick();
+  calls[2].reject(new Error('stale failure'));
+  assert.equal(await stale, false);
+  const failure = new Error('current failure');
+  calls[3].reject(failure);
+  await assert.rejects(current, error => error === failure);
+  assert.equal(el.querySelector('h1').textContent, '<img src=x onerror=alert(1)>');
+  const pending = navigation.navigate('dispose');
+  await tick();
+  await navigation.dispose();
+  assert.equal(calls[4].signal.aborted, true);
+  calls[4].resolve({ title: 'late after dispose' });
+  assert.equal(await pending, false);
+  assert.equal(el.children.length, 0);
+  assert.equal(el.isConnected, true);
+  assert.equal(await navigation.navigate('closed'), false);
+  assert.equal(calls.length, 5);
+} else if (task === 'editable-list') {
+  const { Collection } = await import('@marionette/data');
+  const list = await solution.createList({ el, records: [{ id: 'a', label: 'Alpha' }, { id: 'b', label: 'Beta' }] });
+  assert.ok(list.view instanceof CollectionView);
+  assert.ok(list.collection instanceof Collection);
+  const row = el.querySelector('[data-id="a"]');
+  const input = row.querySelector('input');
+  assert.ok(input.getAttribute('aria-label') || input.labels.length, 'input needs an accessible name');
+  input.value = 'unsaved draft';
+  input.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+  list.add({ id: 'c', label: 'Gamma' });
+  assert.equal(el.querySelector('[data-id="c"] input').value, 'Gamma');
+  list.move('b', 0);
+  list.remove('c');
+  assert.deepEqual([...el.querySelectorAll('[data-id]')].map(node => node.dataset.id), ['b', 'a']);
+  assert.equal(el.querySelector('[data-id="a"]'), row);
+  assert.equal(row.querySelector('input'), input);
+  assert.equal(input.value, 'unsaved draft');
+  const children = [];
+  list.view.children.each(child => { assert.ok(child instanceof View); children.push(child); });
+  await list.dispose();
+  assert.equal(list.view.isDestroyed(), true);
+  assert.ok(children.every(child => child.isDestroyed()));
+  assert.equal(el.children.length, 0);
+  assert.equal(el.isConnected, true);
+} else if (task === 'widget-lifetime') {
+  const mounts = [];
+  const view = solution.createWidgetView(host => {
+    assert.equal(host.isConnected, true, 'widget requires attachment');
+    const entry = { host, destroyed: 0 };
+    mounts.push(entry);
+    return { destroy() { assert.equal(host.isConnected, true, 'destroy before DOM removal'); entry.destroyed++; assert.equal(entry.destroyed, 1); } };
+  });
+  assert.ok(view instanceof View);
+  view.render();
+  assert.equal(mounts.length, 0);
+  const region = new Region({ el });
+  region.show(view);
+  assert.equal(mounts.length, 1);
+  view.render();
+  assert.equal(mounts[0].destroyed, 1);
+  assert.equal(mounts.length, 2);
+  assert.notEqual(mounts[0].host, mounts[1].host);
+  assert.equal(region.detachView(), view);
+  assert.equal(mounts[1].destroyed, 1);
+  region.show(view);
+  assert.equal(mounts.length, 3);
+  region.empty();
+  assert.equal(mounts[2].destroyed, 1);
+  assert.equal(view.isDestroyed(), true);
+  assert.equal(el.isConnected, true);
+  region.destroy();
+} else {throw new Error(`Unknown trial task: ${task}`);}
+
+dom.window.close();
+console.log(`Passed documentation implementation trial: ${task}`);

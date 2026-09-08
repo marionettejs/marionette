@@ -36,16 +36,16 @@ const CommonMixin = {
   // Enable getting options from this or this.options by name.
   getOption,
 
-  // Enable binding view's events from another entity.
+  // Subscribe this receiver to another entity's events.
   bindEvents,
 
-  // Enable unbinding view's events from another entity.
+  // Remove this receiver's subscriptions to another entity's events.
   unbindEvents,
 
-  // Enable binding view's requests.
+  // Register request handlers with this receiver as their context.
   bindRequests,
 
-  // Enable unbinding view's requests.
+  // Remove matching request handlers registered for this receiver.
   unbindRequests,
 };
 

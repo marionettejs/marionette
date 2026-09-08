@@ -9,7 +9,9 @@ The default adapter treats models as plain objects and collections as ordered
 arrays. Plain arrays are static snapshots: mutating one does not notify
 Marionette. Call `render()` after changing a plain array. Declaring
 `modelEvents` or `collectionEvents` for an unobservable plain value throws
-`MN0037` instead of manufacturing an event system.
+`MN0037` instead of manufacturing an event system. Both Backbone models and
+collections (through `BackboneApi`) and `@marionette/data` models and collections
+are observable alternatives; preserve an existing provider that meets the task.
 
 ```javascript
 import { CollectionView, View } from 'marionette';
@@ -127,7 +129,8 @@ Views independently of the source's canonical order.
 
 ## Configuring an adapter
 
-Configure the application before constructing Views:
+Configure the application before constructing Views. In this configuration
+fragment, `MyDataApi` is the adapter your application supplies:
 
 ```javascript
 import { setDataApi } from 'marionette';
@@ -158,6 +161,10 @@ the actor reference itself as `DataApi.key()`, reads and serializes the child
 actor's current `snapshot.context`, and observes the parent through its snapshot
 subscription. A stopped and respawned actor is therefore a new model identity,
 even if it uses the same actor `id`.
+
+The following configuration fragment assumes `parentActor` is an already-created
+actor whose `context.children` contains stable child actor references. The
+application owns actor creation, startup, and eventual shutdown.
 
 ```javascript
 import createXStateActorApi from '@marionette/adapters/xstate';
@@ -213,16 +220,28 @@ npm install marionette @marionette/data
 ```
 
 ```javascript
-import { createMarionette } from 'marionette';
+import { CollectionView, setDataApi, setStateApi, View } from 'marionette';
 import { Collection, DataApi, Model, StateApi } from '@marionette/data';
 
-const Marionette = createMarionette();
-Marionette.setDataApi(DataApi);
-Marionette.setStateApi(StateApi);
+setDataApi(DataApi);
+setStateApi(StateApi);
 
+const RowView = View.extend({
+  tagName: 'li',
+  template: () => '',
+  modelEvents: { change: 'render' },
+  onRender() {
+    this.el.textContent = this.model.get('label');
+  }
+});
 const state = new Model({ selectedId: null });
 const collection = new Collection([{ id: 1, label: 'one' }]);
-const list = new Marionette.CollectionView({ collection, state });
+const list = new CollectionView({
+  tagName: 'ul', childView: RowView, collection, state
+}).render();
+
+// Mount list.el in the application's chosen container.
+collection.get(1).set('label', 'updated'); // The existing row now shows "updated".
 ```
 
 Unless `{ silent: true }` is passed, the package Collection emits synchronous

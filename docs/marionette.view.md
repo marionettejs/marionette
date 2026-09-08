@@ -23,6 +23,7 @@ A `View` can have [`Region`s](./marionette.region.md) and [`Behavior`s](./marion
 ## Documentation Index
 
 * [Instantiating a View](#instantiating-a-view)
+* [Method results and side effects](#method-results-and-side-effects)
 * [Rendering a View](#rendering-a-view)
   * [Using a View Without a Template](#using-a-view-without-a-template)
   * [Refreshing Root Attributes](#refreshing-root-attributes)
@@ -45,21 +46,52 @@ When instantiating a `View` there are several properties, if passed,
 that will be attached directly to the instance:
 `attributes`, `behaviors`, `childViewEventPrefix`, `childViewEvents`,
 `childViewTriggers`, `className`, `collection`, `collectionEvents`, `el`,
-`events`, `id`, `model`, `modelEvents`, `regionClass`, `regions`,
+`events`, `id`, `model`, `modelEvents`, `regionClass`, `regions`, `stateEvents`,
 `tagName`, `template`, `templateContext`, `triggers`, `ui`
 
 ```javascript
 import { View } from 'marionette';
 
-const myView = new View({ ... });
+const myView = new View({ template: () => '<p>Content</p>' });
 ```
 
 These properties are defined by Marionette's standalone `View` constructor.
-When Marionette creates the View's element, `attributes` contributes own
-enumerable string properties only; inherited, symbol, and non-enumerable
-properties are ignored. When applied, `id` and `className` assignments occur
+When Marionette creates the View's element, it copies own enumerable
+`attributes` properties, including symbols. The default DomApi applies string
+attribute names only; inherited and non-enumerable properties are not copied. When applied, `id` and `className` assignments occur
 afterward and override the corresponding `attributes` keys. See the
 [`DomApi.setAttributes` contract](./dom.api.md#setattributesel-attrs).
+
+## Method results and side effects
+
+These operations run synchronously. Use lifecycle hooks for additional work;
+returning a Promise from a View hook does not delay rendering or destruction.
+
+| Method | Result | Effect |
+| --- | --- | --- |
+| `render()` | This View | Evaluates the template, updates contents and UI bindings. Rendering again resets its Regions and destroys their current children. `template: false` and a destroyed View make this a no-op. |
+| `renderAttributes()` | This View | Refreshes root attributes without rendering contents or recreating children. |
+| `destroy(options)` | This View | Removes the root element, destroys owned Regions/children and Behaviors, releases subscriptions and owned State. Repeated destruction is a no-op. |
+| `isRendered()`, `isAttached()`, `isDestroyed()` | Boolean | Read lifecycle state without rendering. Attachment is Marionette's tracked state; see [monitoring](./view.lifecycle.md). |
+| `hasRegion(name)`, `getRegion(name)` | Boolean or Region/`undefined` | Read a named registration without rendering the parent. |
+| `getRegions()` | New name-to-Region object | Read registrations; changing this object does not change ownership. |
+| `showChildView(name, view, options)` | Supplied child View | Renders the parent if needed, then delegates to the named Region. The result alone does not establish adoption when `allowMissingEl` permits a missing mount. |
+| `getChildView(name)` | Current child or `undefined` | Renders the parent if needed before reading the named Region. |
+| `detachChildView(name)` | Detached child or `undefined` | Renders the parent if needed, then transfers a live child to the caller. |
+| `addRegion(name, definition)` | Registered Region | Constructs or registers a Region without rendering the parent. |
+| `addRegions(definitions)` | Map of added Regions, or `undefined` for no entries | Registers the batch; see [ownership constraints](./marionette.region.md#reading-region-ownership). |
+| `removeRegion(name)` | Removed Region | Destroys that Region and its current child. |
+| `removeRegions()` | Map of removed Regions | Destroys every registered Region and its current child. |
+| `emptyRegions()` | Map of Regions | Renders the parent if needed, destroys current children, and keeps the Regions available. |
+
+`getChildView`, `showChildView`, `detachChildView`, and `removeRegion` require a
+registered name and throw [`MN0020`](diagnostic-catalog.md#look-up-a-code) when it is absent.
+`getRegion` returns `undefined` for an absent valid name. Region names must be non-empty strings; an empty string throws
+[`MN0032`](diagnostic-catalog.md#look-up-a-code).
+
+A supplied `state` is borrowed rather than copied as a normal constructor
+option. See [State ownership](./marionette.state.md#borrowed-and-owned-sources)
+for `getState()`, `createState()`, subscriptions, and disposal.
 
 ## Rendering a View
 
@@ -72,16 +104,17 @@ Marionette `View` defines `render`, and this method should not be overridden.
 To add functionality around rendering, use the
 [`render` and `before:render` events](./events.class.md#render-and-beforerender-events).
 
-[Live example](https://jsfiddle.net/marionettejs/dhsjcka4/)
 
 For more detail on how to render templates, see
 [View Template Rendering](./view.rendering.md).
 
 ### Using a View Without a Template
 
-By setting [`template` to `false`](./view.rendering.md#using-a-view-without-a-template) you can entirely disable
-the view rendering and events. This may be useful for cases where you only need the `el` or have
-[`prerendered content`](./dom.prerendered.md) that you do not intend to re-render.
+With [`template: false`](./view.rendering.md#using-a-view-without-a-template),
+`render()` returns the View without changing its contents or running
+`before:render` and `render`. Other View events and DOM interactions remain
+available. Use this for [`prerendered content`](./dom.prerendered.md) that the
+View should preserve.
 
 ### Refreshing Root Attributes
 
@@ -159,8 +192,10 @@ Read More:
 
 ## Entity Events
 
-The `View` can bind to events that occur on the attached `model` and `collection` - this
-includes both [standard backbone-events](http://backbonejs.org/#Events-catalog) and custom events.
+A `View` subscribes to its `model` and `collection` through the configured
+[DataApi](./data.api.md). Event names and callback arguments belong to that data
+provider. Plain objects and arrays do not emit changes; declaring entity event
+maps for unobservable values throws `MN0037`.
 
 Read More:
 - [Entity Events](./events.entity.md)
@@ -226,10 +261,9 @@ const MyView = View.extend({
 });
 ```
 
-[Live example](https://jsfiddle.net/marionettejs/4e3qdgwr/)
 
 When we show views in the region, the contents of `#first-region` and
-`#second-region` will be replaced with the contents of the view we show. The
+`#second-region` will be replaced with the root element of the child View we show. The
 string values in this example are CSS selectors scoped to the `View`'s `el`.
 
 ### Showing a Child View
@@ -275,7 +309,7 @@ export function runViewChildRegionLifecycle() {
 }
 ```
 
-Note: If `view.showChildView(region, subView)` is invoked before the `view` has been rendered, it will automatically render the `view` so the region's `el` exists in the DOM.
+Note: If `view.showChildView(region, subView)` is invoked before the `view` has been rendered, it will automatically render the `view` so the Region's `el` exists within the parent root; the root may still be detached.
 
 ### Accessing a Child View
 
@@ -312,27 +346,26 @@ live, unrendered View before dispatching through any `getRegion` override.
 `emptyRegions()` likewise renders before calling the overridable `getRegions()`
 and emptying its returned snapshot.
 
-Calling `getRegion(name).show(view)` before rendering the parent no longer
-renders the parent or resolves the Region element. Use `showChildView`, or
+Calling `getRegion(name)` does not render the parent or resolve the Region
+element. Calling the returned Region's `show(view)` resolves its element but does
+not render the parent. Use `showChildView`, or
 render the parent first, when showing a child into a declared selector Region.
 
 `getRegion(name)` and `hasRegion(name)` support optional lookup: an unknown name
 returns `undefined` or `false`, respectively. Operations that require a Region —
 `showChildView`, `detachChildView`, `getChildView`, and `removeRegion` — throw a
-`RegionError` with code [`MN0020`](/errors/MN0020/) when the named Region does not
+`RegionError` with code [`MN0020`](diagnostic-catalog.md#look-up-a-code) when the named Region does not
 exist. Region names must be non-empty strings. The public types require strings;
-an empty name throws a `RegionError` with code [`MN0032`](/errors/MN0032/).
+an empty name throws a `RegionError` with code [`MN0032`](diagnostic-catalog.md#look-up-a-code).
 Child View operations reject empty names before rendering the parent.
 
 ## Efficient Nested View Structures
 
-When your views get some more regions, you may want to think of the most
-efficient way to render your views. Since manipulating the DOM is performance
-heavy, it's best practice to render most of your views at once.
-
-Marionette provides a simple mechanism to infinitely nest views in a single
-paint: just render all of the children in the `onRender` callback for the
-[`render` event](./events.class.md#render-and-beforerender-events).
+Show a parent's Region children in `onRender` when they should be recreated
+with that parent's template. During initial display, this builds the nested
+View tree before the owning Region attaches the parent. Keep independently
+editable content in child Views and update those children without re-rendering
+the parent when their state must survive.
 
 ```javascript
 import { View } from 'marionette';
@@ -348,10 +381,10 @@ const ParentView = View.extend({
 myRegion.show(new ParentView());
 ```
 
-In this example, the doubly-nested view structure will be rendered in a single paint.
-
-This system is recursive, so it works for any deeply nested structure. The child
-views you show can render their own child views within their onRender callbacks!
+Child Views can show their own Region children in `onRender` too. Marionette
+coordinates the render and attachment lifecycles; browser layout and paint
+counts depend on the DOM, styles, and application callbacks. Measure those costs
+in the running application when they matter.
 
 ## Listening to Events on Children
 
