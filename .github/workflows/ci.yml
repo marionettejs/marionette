@@ -69,6 +69,11 @@ jobs:
       - name: Test agent reference application
         run: npm run test:agent-app
 
+      - name: Validate reference corpus controls
+        run: |
+          npm run agent:reference -- --output test/tmp/agent-reference
+          npm run agent:fixtures -- --manifest test/tmp/agent-reference/artifacts/artifact-input.json --output test/tmp/agent-fixtures
+
       - name: Coverage
         run: npm run coverage
 
@@ -89,6 +94,9 @@ jobs:
             test/tmp/browser/results/
             test/tmp/fixture-reports/
             test/tmp/agent-reference-app/
+            test/tmp/agent-reference/reference-report.json
+            test/tmp/agent-reference/artifacts/artifact-input.json
+            test/tmp/agent-fixtures/fixture-controls.json
           if-no-files-found: warn
 
   package-smoke:

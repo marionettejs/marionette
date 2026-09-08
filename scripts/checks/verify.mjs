@@ -8,7 +8,7 @@ const scripts = [
   'check:release-profile', 'check:browser-profile', 'check:diagnostics', 'check:public-tests',
   'check:workflows', 'build', 'lint:ci', values.full ? 'coverage' : 'test:unit',
 ];
-if (values.full) { scripts.push('test:source', 'coverage:tooling', 'docs:check', 'test:dist', 'test:browser', 'test:fixtures'); }
+if (values.full) { scripts.push('test:source', 'coverage:tooling', 'docs:check', 'test:dist', 'test:browser', 'test:fixtures', 'agent:cache', 'test:agent-app', 'agent:reference', 'agent:fixtures'); }
 if (!process.env.npm_execpath) { throw new Error('Run verification through npm run verify.'); }
 for (const script of scripts) {
   console.log(`\nVerifying ${script}`);

@@ -25,9 +25,10 @@ After source edits, rebuild before directly invoking consumer types, browser or
 distribution checks. `npm run verify` rebuilds and checks lint/types/unit contracts;
 `npm run verify -- --full` adds both coverage reports, source/distribution checks,
 real browsers, documentation checks, and every installed fixture.
-The separate `npm run agent:cache` and `npm run test:agent-app` commands validate
-the reference app; `agent:reference` and `agent:fixtures` exercise unscored corpus
-controls. These commands never invoke a model.
+`--full` also warms the pinned agent environment and runs the reference app plus
+positive/negative corpus controls. They can be invoked separately with
+`agent:cache`, `test:agent-app`, `agent:reference`, and `agent:fixtures`. These
+commands never invoke a model.
 
 `npm run lint` never edits files. Use `npm run lint:fix` explicitly. Lint rejects
 focused/disabled unit tests, missing assertions, unawaited async assertions, and
