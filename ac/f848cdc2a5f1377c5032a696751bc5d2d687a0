@@ -1,0 +1,19 @@
+test/unit/data-package/collection.spec.js
+  s_e9ec88924dcd73::t_4b97504e152f12 108,111,115
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "acf848cdc2a5f1377c5032a696751bc5d2d687a0",
+  "prompts": {},
+  "sessions": {
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
