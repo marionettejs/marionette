@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, symlink, link, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, posix, win32 } from 'node:path';
 import { test } from 'node:test';
-import { evaluateOutcome, inventory, loadCorpus } from '../../scripts/agent-benchmark/harness.mjs';
+import { evaluateAttempt, evaluateOutcome, inventory, isWithin, loadCorpus } from '../../scripts/agent-benchmark/harness.mjs';
 
 test('prototype corpus covers every capability twice and proposes ten paired tasks', async() => {
   const corpus = await loadCorpus();
@@ -83,4 +83,42 @@ test('acceptance requires the actual expected cases, not a passing whole-file wr
   const result = { aborted: false, exitCode: 0, tests: 1, passed: 1, failed: 0, violations: [], expectedCases: ['owned child cleanup'] };
   assert.equal(evaluateOutcome({ ...result, observedCases: ['test/acceptance.test.mjs'] }).acceptancePassed, false);
   assert.equal(evaluateOutcome({ ...result, observedCases: ['owned child cleanup'] }).acceptancePassed, true);
+});
+
+test('containment rejects parent, sibling, and cross-volume targets with POSIX and Windows paths', () => {
+  for (const [paths, parent, otherVolume] of [[posix, '/attempt/workspace', '/different/test.mjs'], [win32, 'C:\\attempt\\workspace', 'D:\\test.mjs']]) {
+    assert.equal(isWithin(parent, paths.join(parent, 'test', 'acceptance.mjs'), paths), true);
+    assert.equal(isWithin(parent, paths.join(parent, '..visible', 'acceptance.mjs'), paths), true);
+    assert.equal(isWithin(parent, parent, paths), true);
+    assert.equal(isWithin(parent, paths.dirname(parent), paths), false);
+    assert.equal(isWithin(parent, paths.resolve(parent, '../escaped.mjs'), paths), false);
+    assert.equal(isWithin(parent, `${parent}-sibling/acceptance.mjs`, paths), false);
+    assert.equal(isWithin(parent, otherVolume, paths), false);
+  }
+  assert.equal(isWithin('\\\\server\\share\\workspace', '\\\\server\\other\\acceptance.mjs', win32), false);
+});
+
+test('evaluation records its actual runtime and rejects a differently prepared Node version before acceptance', async() => {
+  const attempt = await mkdtemp(join(tmpdir(), 'agent-runtime-'));
+  try {
+    const runtime = { node: 'v0.0.0', npm: 'fixture', jsdom: '30.0.1' };
+    await writeFile(join(attempt, 'attempt.json'), JSON.stringify({
+      schemaVersion: 1, attemptId: 'runtime-mismatch', kind: 'local-unscored-attempt',
+      taskId: 'nested-workspace', runtime, sealed: {}, packages: []
+    }));
+    const result = await evaluateAttempt({ attempt });
+    assert.equal(result.acceptancePassed, false);
+    assert.equal(result.fullyCorrect, false);
+    assert.equal(result.scored, false);
+    assert.match(result.failure, /Evaluator Node version changed since preparation: expected v0\.0\.0; actual v/);
+    assert.equal(result.exitCode, null);
+    assert.equal(result.stdout, '');
+    assert.deepEqual(result.observedCases, []);
+    assert.deepEqual(result.runtime, runtime);
+    assert.deepEqual(result.evaluationRuntime, {
+      node: process.version, executable: process.execPath, platform: process.platform, arch: process.arch
+    });
+    const { readFile } = await import('node:fs/promises');
+    assert.deepEqual(JSON.parse(await readFile(join(attempt, 'result.json'), 'utf8')), result);
+  } finally { await rm(attempt, { recursive: true, force: true }); }
 });

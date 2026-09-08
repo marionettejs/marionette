@@ -3,7 +3,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { constants } from 'node:fs';
 import { cp, copyFile, lstat, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
+import nodePath, { basename, dirname, join, resolve } from 'node:path';
 import { validateTaskContracts } from './task-contract.mjs';
 
 export const repositoryRoot = resolve(import.meta.dirname, '../..');
@@ -15,7 +15,10 @@ const packageDefinitions = [
 const digest = bytes => createHash('sha512').update(bytes).digest('hex');
 const readJson = async path => JSON.parse(await readFile(path, 'utf8'));
 const save = (path, value) => writeFile(path, `${JSON.stringify(value, null, 2)}\n`, { flag: 'wx' });
-const within = (parent, child) => { const path = relative(parent, child); return path !== '..' && !path.startsWith('../') && !isAbsolute(path); };
+export function isWithin(parent, child, pathApi = nodePath) {
+  const childRelativePath = pathApi.relative(parent, child);
+  return childRelativePath !== '..' && !childRelativePath.startsWith(`..${pathApi.sep}`) && !pathApi.isAbsolute(childRelativePath);
+}
 
 function execute(command, args, cwd, timeout = 120000) {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8', timeout, maxBuffer: 8 * 1024 * 1024, shell: false });
@@ -153,7 +156,7 @@ export async function installAcceptance({ root, task, workspace }) {
   await inventory(workspace);
   for (const hidden of task.acceptance.hiddenTests) {
     const target = resolve(workspace, hidden.targetPath);
-    if (!within(workspace, target)) { throw new Error('Hidden target escapes workspace'); }
+    if (!isWithin(workspace, target)) { throw new Error('Hidden target escapes workspace'); }
     await copyFile(join(root, hidden.sourcePath), target, constants.COPYFILE_EXCL);
   }
 }
@@ -177,12 +180,16 @@ export async function evaluateAttempt({ root = repositoryRoot, attempt, aborted 
   const resultPath = join(attempt, 'result.json');
   try { await lstat(resultPath); throw new Error('Attempt already evaluated'); } catch (error) { if (error.code !== 'ENOENT') { throw error; } }
   await save(join(attempt, 'evaluation-lock.json'), { attemptId: record.attemptId });
+  const evaluationRuntime = { node: process.version, executable: process.execPath, platform: process.platform, arch: process.arch };
   let failure;
   let execution;
   let snapshot;
   let evaluation;
   try {
     if (aborted) { throw new Error('Attempt aborted before acceptance'); }
+    if (record.runtime?.node !== evaluationRuntime.node) {
+      throw new Error(`Evaluator Node version changed since preparation: expected ${record.runtime?.node}; actual ${evaluationRuntime.node}`);
+    }
     if (JSON.stringify(await harnessHashes(root)) !== JSON.stringify(record.sealed.harness)) { throw new Error('Harness/profile/environment changed after preparation'); }
     if (!task || digest(JSON.stringify(task)) !== record.sealed.task ||
         digest(await readFile(join(root, task.promptPath))) !== record.sealed.prompt ||
@@ -211,7 +218,7 @@ export async function evaluateAttempt({ root = repositoryRoot, attempt, aborted 
   const result = { schemaVersion: 1, attemptId: record.attemptId, kind: record.kind, taskId: record.taskId, ...outcome,
     fullyCorrect: outcome.aborted || !outcome.acceptancePassed ? false : (architectureReviewed ? outcome.uniqueArchitectureViolations.length === 0 : null),
     architectureReview: architectureReviewed ? 'caller-reviewed' : 'uncollected', scored: false,
-    expectedCases, observedCases, sealed: record.sealed, runtime: record.runtime, packages: record.packages,
+    expectedCases, observedCases, sealed: record.sealed, runtime: record.runtime, evaluationRuntime, packages: record.packages,
     submissionSha512: snapshot ? digest(JSON.stringify(snapshot)) : null, failure: failure || null,
     exitCode: execution?.status ?? null, signal: execution?.signal || null, stdout, stderr: execution?.stderr || '' };
   await save(resultPath, result);
