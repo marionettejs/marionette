@@ -84,7 +84,7 @@ Do not include private application code or customer data.
 ## Before publication
 
 A beta needs verified scope/publisher access for all five packages, a clean candidate
-commit, and the full [exact-artifact validation](./release-promotion.md#dry-run).
+commit, and the full [exact-artifact validation](https://github.com/marionettejs/marionette/blob/master/docs/release-promotion.md#dry-run).
 Review the beta notes, migration guidance and installed starter together. Record
 known failures instead of claiming the beta is stable. Registry installation must
 be checked immediately after publication; local tarball tests cannot prove npm
@@ -102,4 +102,4 @@ Maintainers must not overwrite a published beta version. Withdraw its recommenda
 deprecate a broken version with a specific reason, and publish a corrected beta.
 Move `next` only to a verified compatible prior release; if beta.1 is the first one,
 there is no earlier beta to select. Preserve exact artifacts and failure evidence.
-See [release recovery](./release-promotion.md#recovery-and-rollback).
+See [release recovery](https://github.com/marionettejs/marionette/blob/master/docs/release-promotion.md#recovery-and-rollback).
