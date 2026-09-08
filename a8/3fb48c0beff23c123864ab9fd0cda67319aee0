@@ -1,0 +1,69 @@
+test/unit/application-child-lifecycle.spec.js
+  s_e9ec88924dcd73::t_bb232e621b46cc 4
+test/unit/application-lifecycle.spec.js
+  s_e9ec88924dcd73::t_52b0f0923ebeac 4-5,1101,1116
+test/unit/application-ownership.spec.js
+  s_e9ec88924dcd73::t_b165da3d382a92 4,24-25,28,45,48,125,160,176,192,195,216,229,242,260-261,263,267,348,376
+test/unit/application-root-view.spec.js
+  s_e9ec88924dcd73::t_a52faee9ac505b 7-9,330
+test/unit/application-state.spec.js
+  s_e9ec88924dcd73::t_1f8aa3f5914562 2
+test/unit/application.spec.js
+  s_e9ec88924dcd73::t_5084183206b3af 6-7,37,39-42,75-76,78,81,83-91,94-97
+test/unit/backbone.marionette.spec.js
+  s_e9ec88924dcd73::t_80b07e3c0f1c46 1,4,8,10,12,14-19,21-23,175
+test/unit/child-view-container.spec.js
+  s_e9ec88924dcd73::t_99d9a8e518b75c 1,4-24,34-36,39,58,86,133,150,175,207,218,221,248,264,283-285,292,323,353,386,421,452,491,510-512,515,534,557,594,631,657,704,717,732-761,765,767,771-851
+test/unit/collection-view/collection-view-children.spec.js
+  s_e9ec88924dcd73::t_95580b56768860 3,10-12,58-59,76,80,85,122,124,296,328,375,413,517-518,540,620,998,1006
+test/unit/collection-view/collection-view-childviewcontainer.spec.js
+  s_e9ec88924dcd73::t_d6bc9b356e6863 5-6
+test/unit/collection-view/collection-view-data.spec.js
+  s_bc19ab09821624::t_73c8c71244cdd4 8-9,94,106,120-124
+test/unit/collection-view/collection-view-empty.spec.js
+  s_e9ec88924dcd73::t_2b1e6cb1ac6cf8 7-10,144,545-608
+test/unit/collection-view/collection-view-filtering.spec.js
+  s_bc19ab09821624::t_d6fd314b1c3852 8-11,148,231-247,268-276,422,565,575-576,581,591
+test/unit/collection-view/collection-view-lifecycle.spec.js
+  s_e9ec88924dcd73::t_ff6bf9bb530c83 6-8
+test/unit/collection-view/collection-view-reconciliation.spec.js
+  s_bc19ab09821624::t_73a89d98d0ff44 3-6,518
+test/unit/collection-view/collection-view-sorting.spec.js
+  s_bc19ab09821624::t_1722dc1946326c 7-8,362,371-372,384,387
+test/unit/collection-view/collection-view-viewmixin.spec.js
+  s_e9ec88924dcd73::t_4abfe7a15fe25a 7-8,32-33,46,72-73,78,86,90,104,112-113,136-137,146,163
+test/unit/collection-view/collection-view.spec.js
+  s_bc19ab09821624::t_5c7be76c94113d 1,10-12,88-93,128-135
+test/unit/create-marionette.spec.js
+  s_e9ec88924dcd73::t_4ae7a7aa81a9a6 2
+test/unit/object-application-composition.spec.js
+  s_e9ec88924dcd73::t_fbd460389f1e4b 1-12,14-27,29
+test/unit/object.spec.js
+  s_e9ec88924dcd73::t_f91f6beb9b0e50 4,56-57,77,79-87,90-93
+test/unit/performance.resources.spec.js
+  s_e9ec88924dcd73::t_6eba9f694ccbcd 2,5-16,18-21,23-24,26-39,41-45,48-52,55-109
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "a83fb48c0beff23c123864ab9fd0cda67319aee0",
+  "prompts": {},
+  "sessions": {
+    "s_bc19ab09821624": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e7-cb4f-73e3-b41e-328bfeae0db2",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
