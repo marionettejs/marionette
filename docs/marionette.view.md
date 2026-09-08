@@ -85,9 +85,9 @@ returning a Promise from a View hook does not delay rendering or destruction.
 | `emptyRegions()` | Map of Regions | Renders the parent if needed, destroys current children, and keeps the Regions available. |
 
 `getChildView`, `showChildView`, `detachChildView`, and `removeRegion` require a
-registered name and throw [`MN0020`](/errors/MN0020/) when it is absent.
+registered name and throw [`MN0020`](diagnostic-catalog.md#look-up-a-code) when it is absent.
 `getRegion` returns `undefined` for an absent valid name. Region names must be non-empty strings; an empty string throws
-[`MN0032`](/errors/MN0032/).
+[`MN0032`](diagnostic-catalog.md#look-up-a-code).
 
 A supplied `state` is borrowed rather than copied as a normal constructor
 option. See [State ownership](./marionette.state.md#borrowed-and-owned-sources)
@@ -354,9 +354,9 @@ render the parent first, when showing a child into a declared selector Region.
 `getRegion(name)` and `hasRegion(name)` support optional lookup: an unknown name
 returns `undefined` or `false`, respectively. Operations that require a Region —
 `showChildView`, `detachChildView`, `getChildView`, and `removeRegion` — throw a
-`RegionError` with code [`MN0020`](/errors/MN0020/) when the named Region does not
+`RegionError` with code [`MN0020`](diagnostic-catalog.md#look-up-a-code) when the named Region does not
 exist. Region names must be non-empty strings. The public types require strings;
-an empty name throws a `RegionError` with code [`MN0032`](/errors/MN0032/).
+an empty name throws a `RegionError` with code [`MN0032`](diagnostic-catalog.md#look-up-a-code).
 Child View operations reject empty names before rendering the parent.
 
 ## Efficient Nested View Structures

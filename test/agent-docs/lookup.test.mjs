@@ -126,3 +126,14 @@ test('unknown pages and ambiguous arguments fail without changing package files'
   }
   assert.equal(await readFile(resolve(data.docs, 'docs/routing.md'), 'utf8'), data.content);
 });
+
+test('a documentation root symlink cannot escape the installed package', async t => {
+  const data = await fixture(t);
+  const outside = resolve(data.temporary, 'external-docs');
+  await cp(data.docs, outside, { recursive: true });
+  await rm(data.docs, { recursive: true });
+  await symlink(outside, data.docs, 'dir');
+  const result = data.run();
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Documentation root escapes its package/);
+});

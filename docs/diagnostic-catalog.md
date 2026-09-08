@@ -11,6 +11,13 @@ catalog, and the catalog is not part of the production package surface. Runtime
 diagnostics may embed a compact catalog code, but they must not load the full catalog.
 Schema version 2 adds explicit retired identities without restoring their emissions.
 
+## Look up a code
+
+Read the [machine-readable catalog](../config/diagnostics/catalog.json), find the
+entry by `code`, and read its `remediation`. This file is included in packaged
+docs for offline lookup. The website also provides a
+[diagnostic reference](https://v5.marionettejs.com/errors/).
+
 ## Runtime error contract
 
 Framework invariant failures use the public `MarionetteError` class:
@@ -128,7 +135,7 @@ reserve codes for planned validation. Defined entries likewise are not placehold
 for incidental JavaScript exceptions or benchmark hypotheses. New invariants receive codes when their
 behavior and remediation are implemented and reviewed.
 
-The generated [diagnostic reference](/errors/) lists the current catalog directly
+The generated [diagnostic reference](https://v5.marionettejs.com/errors/) lists the current catalog directly
 from the machine-readable source. A shared invariant has one code even when more
 than one framework object reports it.
 

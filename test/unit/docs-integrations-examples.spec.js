@@ -36,13 +36,23 @@ describe('integration documentation examples', () => {
   });
 
   it('opts into prefixed Region-child events and preserves custom arguments', () => {
-    const { logs } = execute('docs/events.md', 10, `
+    const { result, logs } = execute('docs/events.md', 10, `
       const parent = new ParentView().render();
       const child = parent.getChildView('foo');
+      const received = [];
+      for (const name of ['onChildviewClickView', 'onChildviewDidSomething']) {
+        const original = parent[name];
+        parent[name] = function(...args) {
+          received.push(args[0]);
+          return original.apply(this, args);
+        };
+      }
       child.el.click();
       child.doSomething();
       parent.destroy();
+      return received.length === 2 && received.every(value => value === child);
     `);
+    expect(result).toBe(true);
     expect(logs).toHaveLength(2);
     expect(logs[0][0]).toMatch(/^View clicked /);
     expect(logs[1][0]).toMatch(/^Something was done to /);

@@ -3,7 +3,7 @@
 These focused tasks test whether an agent can use the distributed skill and
 matching package documentation to implement an application change. They are
 editorial regression trials, separate from the scored release benchmark in
-[benchmarks/agent](../agent/README.md). They do not establish comparative accuracy,
+[benchmarks/agent](https://github.com/marionettejs/marionette/blob/2b5fde974abd94c2da911a02a4bbc0b486c7f661/benchmarks/agent/README.md). They do not establish comparative accuracy,
 model superiority, a release gate, or complete application quality.
 
 ## Run an independent attempt

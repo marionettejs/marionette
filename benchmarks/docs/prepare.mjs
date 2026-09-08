@@ -8,6 +8,13 @@ const output = process.argv[2] && resolve(process.argv[2]);
 if (!output) {throw new Error('Usage: node benchmarks/docs/prepare.mjs /absolute/new/trial-directory');}
 await readFile(resolve(root, 'dist/agent-skill/SKILL.md'));
 await mkdir(output); // Refuse to overwrite an existing attempt.
+const tasks = ['latest-navigation', 'editable-list', 'widget-lifetime'];
+const manifest = JSON.parse(await readFile(resolve(root, 'dist/docs/manifest.json'), 'utf8'));
+await writeFile(resolve(output, 'provenance.json'), JSON.stringify({
+  packageVersion: manifest.packageVersion, sourceRevision: manifest.sourceRevision,
+  sourceDirty: manifest.sourceDirty, contentSha256: manifest.contentSha256, tasks,
+  instructions: 'Acceptance tests are withheld until each implementation attempt finishes.',
+}, null, 2) + '\n');
 const packs = resolve(output, 'packages');
 await mkdir(packs);
 const npm = (args, cwd) => execFileSync('npm', args, {
@@ -21,7 +28,6 @@ for (const location of ['.', 'packages/utils', 'packages/radio', 'packages/data'
   const [packed] = JSON.parse(npm(['pack', '--ignore-scripts', '--json', '--pack-destination', packs], cwd));
   dependencies[name] = `file:${resolve(packs, packed.filename)}`;
 }
-const tasks = ['latest-navigation', 'editable-list', 'widget-lifetime'];
 for (const task of tasks) {
   const workspace = resolve(output, task);
   await mkdir(workspace);
@@ -30,10 +36,4 @@ for (const task of tasks) {
   await cp(resolve(root, `benchmarks/docs/tasks/${task}.md`), resolve(workspace, 'TASK.md'));
   await cp(resolve(workspace, 'node_modules/marionette/dist/agent-skill'), resolve(workspace, '.agents/skills/marionette'), { recursive: true });
 }
-const manifest = JSON.parse(await readFile(resolve(root, 'dist/docs/manifest.json'), 'utf8'));
-await writeFile(resolve(output, 'provenance.json'), JSON.stringify({
-  packageVersion: manifest.packageVersion, sourceRevision: manifest.sourceRevision,
-  sourceDirty: manifest.sourceDirty, contentSha256: manifest.contentSha256, tasks,
-  instructions: 'Acceptance tests are withheld until each implementation attempt finishes.',
-}, null, 2) + '\n');
 console.log(`Prepared ${tasks.length} fresh installed-package workspaces in ${output}`);

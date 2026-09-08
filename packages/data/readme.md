@@ -32,7 +32,8 @@ const view = new List({ collection }).render();
 
 This setup selects data for the list and its child Views. State remains an
 independent choice. If a View also uses a `Model` as observable state, configure
-StateApi on that class before construction:
+StateApi on that class before construction. In the example above, place this
+optional setup before `new List(...)`, which constructs its children when rendered:
 
 ```js
 import { StateApi } from '@marionette/data';

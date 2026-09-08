@@ -12,8 +12,8 @@ emits core declarations; `build:utils`, `build:radio`, `build:data`, and
 `build:adapters` emit declarations alongside those packages' distributions.
 On a clean checkout, run `npm run build` from the repository root to build all
 packages in dependency order. Data declarations resolve the built utils package;
-adapter declarations resolve core through `dist/types/esm/index.d.ts`. Build those
-dependencies before running an individual package build. Every package has generated ESM
+adapter declarations resolve core through `dist/types/esm/index.d.ts`. Run `npm run build:utils` before `build:data`; run the root `npm run build:types`
+after its utils/radio dependencies and before `build:adapters`. Every package has generated ESM
 and CommonJS declaration scopes. Adapter CommonJS declarations use export
 assignments because their runtime exports the adapter directly. `npm run test:types` emits private
 declarations into the ignored `test/tmp/typed-core/` directory and checks ESM and

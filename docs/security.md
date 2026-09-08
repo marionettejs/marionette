@@ -4,6 +4,10 @@ Marionette owns rendering and lifecycle. It does not authenticate requests,
 authorize operations, sanitize arbitrary HTML, or make an application's API safe.
 Keep those boundaries explicit when choosing a renderer or adding a recipe.
 
+Serve production applications and APIs over HTTPS. The same-origin URL helper
+below permits HTTP for local development; it is a destination check, not a TLS
+enforcement mechanism. Relative fetch examples inherit the application origin.
+
 ## Treat template output as HTML
 
 The default renderer evaluates a function template and the default DOM API inserts

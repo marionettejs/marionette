@@ -118,7 +118,7 @@ function rewriteDocLinks(html, sourcePath) {
     const targetRoute = docRoutes.get(target);
 
     if (!targetRoute) {
-      const repositoryPath = relative(rootDir, target);
+      const repositoryPath = relative(rootDir, target).replaceAll('\\', '/');
       if (repositoryPath.startsWith('..')) {return link;}
       return `${prefix}https://github.com/marionettejs/marionette/blob/${sourceRevision}/${repositoryPath}${hashPart}${suffix}`;
     }

@@ -53,6 +53,10 @@ async function main() {
   const docsRoot = await realpath(resolve(packageRoot, 'dist/docs')).catch(() => {
     throw new Error('This package has no dist/docs. Read its exports/declarations and obtain documentation from its exact release or known source revision; do not substitute current master.');
   });
+  const docsLocal = relative(packageRoot, docsRoot);
+  if (docsLocal === '..' || docsLocal.startsWith(`..${sep}`) || isAbsolute(docsLocal)) {
+    throw new Error('Documentation root escapes its package.');
+  }
   const manifest = await json(resolve(docsRoot, 'manifest.json'));
   if (metadata.name !== 'marionette' || manifest.packageName !== metadata.name || manifest.packageVersion !== metadata.version) {
     throw new Error('Documentation package/version does not match the installed marionette package.');

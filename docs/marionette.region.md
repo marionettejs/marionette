@@ -74,7 +74,7 @@ A Region has one authoritative registration. Re-adding that same Region instance
 under its current owner and name returns it without lifecycle events or ownership changes.
 Registering it under a different owner or name, registering a Region whose
 destruction has begun or completed, or replacing an occupied Region name through
-`addRegion` throws [`MN0030`](/errors/MN0030/) before committing the conflicting
+`addRegion` throws [`MN0030`](diagnostic-catalog.md#look-up-a-code) before committing the conflicting
 registration. A conflict found before `addRegions` starts rejects the whole batch.
 Lifecycle hooks must not re-register the Region or occupy its registration name
 while registration is in progress. Failed batch registration is not rolled back.
@@ -193,7 +193,7 @@ other array-like values are not supported as Region declaration maps.
 
 Named View Region operations require a non-empty string name. `addRegion`,
 `removeRegion`, `hasRegion`, `getRegion`, `showChildView`, `detachChildView`, and
-`getChildView` throw [`MN0032`](/errors/MN0032/) for an empty name. The public
+`getChildView` throw [`MN0032`](diagnostic-catalog.md#look-up-a-code) for an empty name. The public
 types require strings; unsupported shapes have no guaranteed diagnostic.
 Ordinary collision names such as `constructor`,
 `toString`, and `__proto__` remain valid when explicitly registered.

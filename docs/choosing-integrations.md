@@ -108,7 +108,7 @@ Before implementing one, write down:
 
 - The required methods and source event payloads, using the relevant contract.
 - Stable model identity and ordered collection snapshots, if it is a DataApi.
-- Borrowed versus owned sources, idempotent subscription cleanup, and disposal.
+- Borrowed versus owned sources, callable subscription cleanup, and which owner disposes each registration.
 - Failure behavior when subscription setup, rendering, or source updates throw.
 - A test with two consumers of one source, followed by destruction of one
   consumer. The surviving consumer must keep working.

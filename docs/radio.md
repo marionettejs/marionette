@@ -204,12 +204,12 @@ feature does not remove another feature's handlers.
 | --- | --- | --- |
 | `Radio.channel(name)` | Creates and registers the channel. | Returns the same channel. |
 | Top-level event, request, and tuning methods | Create the channel through `Radio.channel(name)`. | Operate on the same channel. |
-| `Radio.reset(name)` | Throws `MarionetteError` with code [MN0021](/errors/MN0021/) without creating a channel. | Clears handlers and preserves the channel identity. |
+| `Radio.reset(name)` | Throws `MarionetteError` with code [MN0021](diagnostic-catalog.md#look-up-a-code) without creating a channel. | Clears handlers and preserves the channel identity. |
 | `Radio.reset()` | Does not create channels. | Resets every registered channel without replacing it. |
 
 Only a zero-argument `Radio.reset()` call means reset all. Supplying an empty or
 otherwise falsy channel name throws the existing required-name diagnostic
-[MN0017](/errors/MN0017/) without resetting any channel.
+[MN0017](diagnostic-catalog.md#look-up-a-code) without resetting any channel.
 
 ## Marionette Integration
 

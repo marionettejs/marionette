@@ -31,7 +31,9 @@ npm install marionette @marionette/adapters backbone
 ```
 
 Configure DataApi before creating Views that consume Backbone models or
-collections. For a feature-specific integration, configure its View subclass:
+collections. The example below covers model-backed Views. For a CollectionView, configure
+DataApi on both its parent CollectionView class and its child View class before
+construction. For a feature-specific integration, configure its View subclass:
 
 ```js
 import BackboneApi from '@marionette/adapters/backbone';

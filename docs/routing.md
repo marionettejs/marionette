@@ -111,6 +111,9 @@ Create the feature once, then call `navigate(id)` from the router's existing
 matched-route handler. For an application already using `Backbone.Router`,
 that can look like this:
 
+Serve this application and its API over HTTPS in production; relative requests
+use the application origin.
+
 ```javascript
 import Backbone from 'backbone';
 import { createPageNavigation } from './page-navigation.js';

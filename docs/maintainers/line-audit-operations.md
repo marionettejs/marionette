@@ -4,7 +4,8 @@ Audited on 2026-09-08 in the documentation worktree based on
 `5bb66c7f1559ae3902db06847a378e9e5c3907a7`, including existing working changes.
 This is a finite review of the 24 assigned files below. Every line was read;
 initially truncated output was reread in smaller sections. Generated evidence pages
-are outside this assignment. The ranges below describe the corrected files.
+are outside this assignment. The ranges below describe the corrected files at the time of this audit, before
+later publication edits; they do not assert line coverage for subsequent revisions.
 
 ## Coverage
 

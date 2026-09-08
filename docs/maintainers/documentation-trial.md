@@ -4,7 +4,9 @@ This is a bounded editorial check, not an agent-performance benchmark or a relea
 gate result. The September 2026 trial used an independent agent with no preceding
 implementation discussion. It started at `docs/agents.md` and `docs/readme.md`,
 followed their links, answered three tasks, then inspected source to check the
-answers. It did not execute an application.
+answers. It did not execute an application. Its exact model, invocation trace, and source
+snapshot were not retained, so this is qualitative editorial history rather than
+a reproducible evaluation.
 
 ## Tasks and expected decisions
 
@@ -46,6 +48,9 @@ paired evaluations and remains a separate body of work.
 
 ## Context7 public-index check
 
+The response and indexed commit were not archived. This is an uncaptured
+qualitative observation, not a reproducible retrieval benchmark.
+
 On September 8, 2026, the public `/marionettejs/marionette` index completed with
 1,300 snippets. This indexed the existing public branch, before these local docs
 and `context7.json` changes were published; it did not validate the proposed scope.
@@ -71,9 +76,9 @@ No paid plan, shared API credential, or website dependency was introduced.
 A subsequent trial gave three fresh agents installed packages, the portable skill,
 and a task each: latest navigation, editable list updates, and widget lifetime.
 All three submitted implementations passed the withheld acceptance checks after
-completion. The [saved implementations and reports](https://github.com/marionettejs/marionette/blob/master/benchmarks/docs/results/2026-09-08/README.md)
+completion. The [saved implementations and reports](https://github.com/marionettejs/marionette/blob/23c44c60904a7bb9bfce9797e4849e38b7786b99/benchmarks/docs/results/2026-09-08/README.md)
 include the exact documentation digest and the limitations of this local snapshot.
-The [trial procedure](https://github.com/marionettejs/marionette/blob/master/benchmarks/docs/README.md)
+The [trial procedure](https://github.com/marionettejs/marionette/blob/23c44c60904a7bb9bfce9797e4849e38b7786b99/benchmarks/docs/README.md)
 withholds acceptance files until an attempt ends and does not configure paid inference.
 
 The widget reader found misleading Region reuse prose, which was corrected.

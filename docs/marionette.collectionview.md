@@ -194,7 +194,7 @@ After application code places parent-owned DOM inside a template-less
 `CollectionView`, call `bindUIElements()` before reading it with `getUI()`. Use
 that method only to bind the CollectionView's own DOM, not child View DOM.
 Calling `getUI()` without a declared `ui` map or while UI elements are unbound throws
-[`MN0023`](/errors/MN0023/).
+[`MN0023`](diagnostic-catalog.md#look-up-a-code).
 
 When parent code needs a child, [retrieve the child View through the public
 `children` lookup APIs](#accessing-a-child-view) and call an intentional public
@@ -746,7 +746,7 @@ Use `map(view => view.id)` or `pluck('id')` instead of property-name shorthand.
 When `initialValue` is supplied, every child View is visited; an empty container
 returns that exact value without calling the callback. When it is omitted, the
 first child View becomes the accumulator and traversal starts at index `1`. An
-empty container without an initial value throws [`MN0024`](/errors/MN0024/).
+empty container without an initial value throws [`MN0024`](diagnostic-catalog.md#look-up-a-code).
 
 `pluck(key)` reads `key` directly from each child View. For example,
 `children.pluck('model')` returns the child Views' model objects, and a child
@@ -803,7 +803,7 @@ excluding `count` Views from the end or start of the container, respectively.
 The count is a nonnegative integer: `0` returns a new array of every child View,
 and a count greater than or equal to the container length returns `[]`. An empty
 container also returns `[]`. `first`, `initial`, `rest`, and `last` throw
-[`MN0024`](/errors/MN0024/) when a supplied count is not a nonnegative integer.
+[`MN0024`](diagnostic-catalog.md#look-up-a-code) when a supplied count is not a nonnegative integer.
 
 `without(...views)` returns a new ordered array excluding the exact child View
 instances supplied. Models and lookalike objects do not exclude their associated
@@ -906,7 +906,7 @@ A numeric index bypasses sorting and filtering for that addition only. A later
 options object takes precedence over the separate positional argument.
 
 **Errors** Adding a View that is still managed by a Region or
-`CollectionView` throws [`MN0003`](/errors/MN0003/). Detach the View from its
+`CollectionView` throws [`MN0003`](diagnostic-catalog.md#look-up-a-code). Detach the View from its
 current owner before transferring it.
 
 Filtering a child out or adding it with `preventRender` still leaves it managed

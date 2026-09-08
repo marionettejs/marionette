@@ -131,7 +131,7 @@ original-selector versus original-Element reset guidance, provider-neutral
 ownership, and removal of the old deferred-cleanup animation remain intact.
 No marked executable snippet changed.
 
-With `/Users/paulfalgout/.nvm/versions/node/v24.19.0/bin` prepended to `PATH`, this
+With the local Node 24.19.0 `bin` directory prepended to `PATH`, this
 command passed **4 suites, 57 tests**:
 
 ```sh

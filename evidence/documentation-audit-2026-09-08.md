@@ -48,6 +48,8 @@ Checks actually executed in this follow-up:
 - Integrated website npm run check: 19 tests passed, including exact source asset publication, link rewriting, historical repository identity, and rejection of altered or unsafe asset paths.
 
 Deployed Cloudflare Pages marionette-v5: 818b77b6-67de-4782-8b33-8aa28540a101.
-All 447 served files match the frozen 448-file artifact. Four initial checks saw propagation differences; targeted retry passed. Both verification records are retained. Supporting source responses have text/plain, nosniff, no-transform, and noindex headers. Live opening page visually inspected; routing search returned 18 results.
+All 447 served files match the frozen 448-file artifact. The remaining file is
+`_headers`, which Cloudflare consumes as deployment configuration rather than
+serving as content; its effective response headers were checked separately. Four initial checks saw propagation differences; targeted retry passed. Both verification records are retained. Supporting source responses have text/plain, nosniff, no-transform, and noindex headers. Live opening page visually inspected; routing search returned 18 results.
 
 Rollback: 4e6f4920-f3d0-462e-a5e3-77573fd9a776. Static files only; no data migrations, paid services, main-site change, library publication, or source push. Website ownership returned to the marketing task for the user's newer navigation request after this artifact was verified; that later change is not part of this deployment. Full reference application remains deferred. This finite delivery pass does not claim universal documentation accuracy or measured parity with peers.

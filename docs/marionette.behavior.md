@@ -344,9 +344,9 @@ export const FormView = View.extend({
 
 Behavior DOM queries and delegation stay scoped to the host View. A matching
 element outside the host does not participate. Literal configuration errors fail
-eagerly: an undeclared `@ui` reference throws [MN0018](/errors/MN0018/), and a
+eagerly: an undeclared `@ui` reference throws [MN0018](diagnostic-catalog.md#look-up-a-code), and a
 string handler that does not resolve to a callable method throws
-[MN0019](/errors/MN0019/). For example, declaring the event above without
+[MN0019](diagnostic-catalog.md#look-up-a-code). For example, declaring the event above without
 `ui.save`, or naming `requestSave` without defining that method, is invalid.
 
 A Behavior's DOM [`triggers`](./dom.interactions.md#view-triggers) are emitted on
@@ -480,7 +480,7 @@ collections found only within the host's `el`. Its rerender replaces the content
 rebinds the same Behavior to the replacement elements. Code must read the current
 `behavior.ui` or call `behavior.getUI(name)` after binding instead of retaining an
 element collection from an earlier render. Calling `getUI()` without a declared
-`ui` map, before binding, or after unbinding throws [`MN0023`](/errors/MN0023/).
+`ui` map, before binding, or after unbinding throws [`MN0023`](diagnostic-catalog.md#look-up-a-code).
 
 A `CollectionView` also binds Behavior UI automatically when its render processes a
 template. Without a template, `CollectionView#render` leaves Behavior UI as selector
@@ -491,7 +491,7 @@ Once the owning View or CollectionView starts destruction, its base
 `bindUIElements()` method and direct `bindUIElements()` calls on a Behavior owned by
 or retained from that host are chainable no-ops. They do not resolve host UI or query
 the retained root element. `unbindUIElements()` remains available for cleanup, and
-`getUI()` continues to throw [`MN0023`](/errors/MN0023/) while UI is unbound. Reusing
+`getUI()` continues to throw [`MN0023`](diagnostic-catalog.md#look-up-a-code) while UI is unbound. Reusing
 a Behavior after calling `Behavior#destroy()` while its host remains live is outside
 this terminal-host contract.
 
