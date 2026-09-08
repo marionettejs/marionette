@@ -1,0 +1,71 @@
+test/fixtures/docs-package/validate.mjs
+  s_bc19ab09821624::t_9f0d23fd3697d0 4-5,12-15,23-29,33,42-43,45
+benchmarks/docs/README.md
+  s_bc19ab09821624::t_cac0f661c220ea 6
+benchmarks/docs/prepare.mjs
+  s_bc19ab09821624::t_0a9ea20f0d7465 11-17
+context7.json
+  s_bc19ab09821624::t_dc9d6222d9203f 6
+docs/choosing-integrations.md
+  s_bc19ab09821624::t_c8f1f049f186ec 111
+docs/diagnostic-catalog.md
+  s_bc19ab09821624::t_f2d19e6c9f5e9c 14-20,138
+docs/dom.interactions.md
+  s_bc19ab09821624::t_e58412778d5ea8 109,293,300
+docs/maintainers/documentation-trial.md
+  s_bc19ab09821624::t_3a223ed67e1ec4 7-9,51-53,79,81
+docs/maintainers/line-audit-core.md
+  s_bc19ab09821624::t_9ff8211ecb8d20 134
+docs/maintainers/line-audit-operations.md
+  s_bc19ab09821624::t_43d4751149e4e1 7-8
+docs/maintainers/types.md
+  s_bc19ab09821624::t_e885603a67c1bd 15-16
+docs/marionette.application.md
+  s_bc19ab09821624::t_d887e58f011b59 187-189,227
+docs/marionette.behavior.md
+  s_bc19ab09821624::t_94e9297862a304 347,349,483,494
+docs/marionette.collectionview.md
+  s_bc19ab09821624::t_dece0b40a55189 197,749,806,909
+docs/marionette.region.md
+  s_bc19ab09821624::t_bf3ce913980097 77,196
+docs/marionette.view.md
+  s_bc19ab09821624::t_0cc0fbb63a681c 88,90,357,359
+docs/radio.md
+  s_bc19ab09821624::t_aafe9460920e8f 207,212
+docs/routing.md
+  s_bc19ab09821624::t_a3718bb28c9ae3 114-116
+docs/runtime-isolation.md
+  s_bc19ab09821624::t_3bb1399e2ff632 71
+docs/security.md
+  s_bc19ab09821624::t_f9b0bda7dab8bb 7-10
+evidence/documentation-audit-2026-09-08.md
+  s_bc19ab09821624::t_393fe404557247 51-53
+packages/adapters/readme.md
+  s_bc19ab09821624::t_c57ed7f5749f79 34-36
+packages/data/readme.md
+  s_bc19ab09821624::t_1479f6e33ca3a2 35-36
+scripts/docs/build.mjs
+  s_bc19ab09821624::t_e75c9d50509bcf 121
+skills/marionette/scripts/docs.mjs
+  s_bc19ab09821624::t_775ff5b0b75c75 56-59
+test/agent-docs/lookup.test.mjs
+  s_bc19ab09821624::t_082a9c3fd1e164 129-139
+test/unit/docs-integrations-examples.spec.js
+  s_bc19ab09821624::t_a03e5017da4803 39,42-49,53,55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "67e09a8550a8b2f4f17bc7a29ef7486871bcf59f",
+  "prompts": {},
+  "sessions": {
+    "s_bc19ab09821624": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e7-cb4f-73e3-b41e-328bfeae0db2",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
