@@ -1,0 +1,211 @@
+test/browser/attachment-owner-document.spec.mjs
+  s_e9ec88924dcd73::t_457a34c27dfd6d 12,17,36
+test/browser/collection-removal-survivors.spec.mjs
+  s_e9ec88924dcd73::t_2a893c5d7e8b46 10,28,47,51,57,61
+test/browser/event-delegator-focus.spec.mjs
+  s_e9ec88924dcd73::t_de6ea378fc2511 18
+test/browser/view-render-attributes.spec.mjs
+  s_e9ec88924dcd73::t_9c086298968e44 18,92
+test/setup/backbone.js
+  s_f2cd5e3b2db5ea::t_5a1790e2fdd6d7 1-2
+test/unit/README.md
+  s_bc19ab09821624::t_2e89b445a116dc 15-18,26
+test/unit/application-child-lifecycle.spec.js
+  s_104642983dcc10::t_aa7cb264af795a 47,58,78-80,111-114,117,150-153,156,175-178,202-205,234-238,255-258,345,347-349,352-354,377,379,399-402,428-432,456-459,482-485,509-511,515-516,534,552-554,557-558,578,580-581,602-603,605,627-630,649-652,670,780,784,787
+test/unit/application-lifecycle.spec.js
+  s_104642983dcc10::t_f2cb578b6443b4 84,106,111-112,114,123-124,159-160,187-189,191,216-217,219-220,237-238,266-268,275,285-287,298,312,314-315,329,342,344,359,362,377,380-381,396,399-400,415,418,432,434,451,463-464,482,486,490,508,513,534-535,549,578-580,588,617-619,622,635,637,640,664-665,668,674,696-698,724-725,727,741-742,762-766,779-780,787,800-801,819-821,823-825,842-843,862-864,886,888,891-892,913-914,918-919,924,939-940,943,946,965-966,985-986,998-999,1018-1019,1040-1041,1053-1054,1073-1075,1078,1094,1098,1114-1116
+test/unit/application-ownership.spec.js
+  s_104642983dcc10::t_4e1a6dc4e06826 22,24,28,42,143,159-160,175-176,189,191-194,214,219,229-231,240-241,243-245,260,318,344-346,350-352,373-374,379,409-411,415-417
+test/unit/application-root-view.spec.js
+  s_104642983dcc10::t_c9a377792051ec 26,43-44,58-60,75-77,80,96,101-103,106,118,124-126,141-143,159-161,176-177,199,205,220,223-224,250-251,269-272,290-291,309-310,323-327,341,353-357,367,373-375,377,395-399,417,419-420
+test/unit/application.spec.js
+  s_104642983dcc10::t_780a5f99756a27 19-20,72,114
+test/unit/backbone-adapter.spec.js
+  s_104642983dcc10::t_cbcfd31d5203c2 4,29,52,131-132
+test/unit/backbone.marionette.spec.js
+  s_104642983dcc10::t_45ce4ada38ee3d 49
+test/unit/behavior-communication-contract.spec.js
+  s_e9ec88924dcd73::t_60228144233f90 2-3
+test/unit/behavior-composition.spec.js
+  s_e9ec88924dcd73::t_1f74abf511d0fa 1-13,15-18,20-29,32-50,52-62
+test/unit/behavior-dependencies-contract.spec.js
+  s_104642983dcc10::t_cf95e58b5599bf 2-4,70,161,197
+test/unit/behavior-dom-delegation-contract.spec.js
+  s_e9ec88924dcd73::t_f32b9e359e2b00 2-4
+test/unit/behavior-lifecycle.spec.js
+  s_104642983dcc10::t_1123454c0b4f04 6-9,140,147,443,447,457,461,500
+test/unit/behavior-ui-contract.spec.js
+  s_104642983dcc10::t_9cc5435281ce7e 3-5,214,299
+test/unit/behavior.spec.js
+  s_104642983dcc10::t_c8bee81050222d 245,977
+test/unit/child-view-container.spec.js
+  s_104642983dcc10::t_ddbe89688feb25 142,182,187-188,229,258-260,264,313,323,402,411,421,433,442,452,559,659,713,717
+test/unit/collection-view/collection-view-children.spec.js
+  s_104642983dcc10::t_8817ca466dd9f7 264,518-519,524,527,539,617,657-659,680
+test/unit/collection-view/collection-view-childviewcontainer.spec.js
+  s_104642983dcc10::t_e06ddc48d457ec 72,79,106
+test/unit/collection-view/collection-view-data.spec.js
+  s_e9ec88924dcd73::t_70e257e342c95f 131,622
+test/unit/collection-view/collection-view-empty.spec.js
+  s_104642983dcc10::t_5dcbbb11b261f3 41,53,70,195-196,362,448,462,478,498,520,540
+test/unit/collection-view/collection-view-filtering.spec.js
+  s_104642983dcc10::t_8fd8b6bbd14c8b 149
+test/unit/collection-view/collection-view-lifecycle.spec.js
+  s_104642983dcc10::t_3a5cb6e06affc4 105,137,157,177-178,183-184,189,267,270-271,275,301-302,334,363,367
+test/unit/collection-view/collection-view-reconciliation.spec.js
+  s_104642983dcc10::t_9e84dbeee8b682 80-82,209,218,307,311,327,371,399,438,441-442,634,669,719-720,804,809,830,867
+test/unit/collection-view/collection-view-sorting.spec.js
+  s_104642983dcc10::t_e54d2cb973f1f4 355
+test/unit/collection-view/collection-view-viewmixin.spec.js
+  s_104642983dcc10::t_07fb0bf95d3ec3 171-172
+test/unit/collection-view/collection-view.spec.js
+  s_104642983dcc10::t_804463929834f8 328,340,349,387,451-453,455
+test/unit/common/bind-request.spec.js
+  s_104642983dcc10::t_a00ba9be2068d1 136,169
+test/unit/common/build-region.spec.js
+  s_104642983dcc10::t_986861e2e1f1be 124,173,298
+test/unit/common/get-option.spec.js
+  s_104642983dcc10::t_5bda965a4cc200 7
+test/unit/common/merge-options.spec.js
+  s_104642983dcc10::t_a93ec899fe63a1 19-20,145
+test/unit/common/normalize-methods.spec.js
+  s_104642983dcc10::t_2a047d1fc10eb4 20
+test/unit/create-marionette.spec.js
+  s_104642983dcc10::t_db3c02dc63a03f 155
+test/unit/data-api-integration.spec.js
+  s_104642983dcc10::t_cff5813ccd1641 2-4,40,138
+test/unit/data-package/api-integration.spec.js
+  s_104642983dcc10::t_d23dfc79418b74 2-3,29,32,34,38,104,126,168,184,188,192,195-198,203-204,208
+test/unit/data-package/collection-observers.spec.js
+  s_e9ec88924dcd73::t_65ef19601b924a 3
+test/unit/data-package/collection.spec.js
+  s_104642983dcc10::t_6f8aaf19ae4c9d 2,54,100,114-117,126,192,204-205,238,256-257,270-271,314,317,323,325
+test/unit/data-package/model.spec.js
+  s_104642983dcc10::t_956be2c4644215 2,30,58,78,85-87,94,108-111,168,172,176,230,234
+test/unit/destroyed-add-child-view.spec.js
+  s_104642983dcc10::t_e3071c33c7b412 29,46,110,143,168
+test/unit/destroyed-bind-ui-elements.spec.js
+  s_104642983dcc10::t_035c881b08a82a 2-4,91-92
+test/unit/destroying-views.spec.js
+  s_e9ec88924dcd73::t_a62558aca1a0d4 2
+test/unit/get-immediate-children.spec.js
+  s_104642983dcc10::t_67be21af4c4744 21,24,55,60-61,65
+test/unit/jquery-dom-api.spec.js
+  s_104642983dcc10::t_b61bdc5fa8f10f 8-9,38,84,96
+test/unit/mixins/destroy.spec.js
+  s_104642983dcc10::t_4f8f7967124485 59-60
+test/unit/mixins/events.spec.js
+  s_104642983dcc10::t_481b7993a02f5d 370-371
+test/unit/modules-error.spec.js
+  s_e9ec88924dcd73::t_76ad0ed3004dd9 2
+test/unit/on-attach.spec.js
+  s_e9ec88924dcd73::t_3d5a3261c09ee1 354,390
+test/unit/on-dom-refresh.spec.js
+  s_e9ec88924dcd73::t_7a3b1509699165 5-6
+test/unit/on-dom-remove.spec.js
+  s_e9ec88924dcd73::t_620530cb5819ca 5-6
+test/unit/owned-cleanup.spec.js
+  s_104642983dcc10::t_84be0f55f1dcc3 79-80
+test/unit/radio-composition.spec.js
+  s_104642983dcc10::t_fe235146c9cb46 72
+test/unit/radio-parity.spec.js
+  s_104642983dcc10::t_42cbe7695b130b 145
+test/unit/radio-public.spec.js
+  s_104642983dcc10::t_7220ac74cf6bdc 25-26,40,49,51
+test/unit/radio.spec.js
+  s_104642983dcc10::t_84b109750d380d 57-60,145,158,179-180,194
+test/unit/region-lifecycle.spec.js
+  s_104642983dcc10::t_31f197d8142476 52,71-72,90,95-98,108-109,119-120,135-137,145,149-150,160-162,173,175-176,246,248,255,257-258,261-262,295-296,314-316,325-326,328,346-347,357,359-361,366-367,385,391-392,421-422,438-439,453,459-460,484,486,501,534-536,540-541,562-566,605-607,616-618,648,673-674,692-696,745,753-758
+test/unit/region-show-reentrancy.spec.js
+  s_104642983dcc10::t_20ebbc1a6951f7 46-47,49-50,54-55,116-119,136,138-139,159,161,180,187-192
+test/unit/region.spec.js
+  s_104642983dcc10::t_7fb170a647db4a 37,54,92,110,162,220,248,298,326,335-337,421,425,444,845,863,952,1071,1143-1145,1154
+test/unit/requests.spec.js
+  s_104642983dcc10::t_345f2c148f4199 124,131,171,185,265,435,441,470,537
+test/unit/runtime/backbone-api.spec.js
+  s_104642983dcc10::t_24bf55db7052e8 15-16,19-21,28
+test/unit/runtime/data-api.spec.js
+  s_104642983dcc10::t_40b9c3d71a7270 42,44-48,51
+test/unit/runtime/dom-api.spec.js
+  s_e9ec88924dcd73::t_b61c8314bbbd29 57,59,99,117,123,266-267,270,282,298,305,309-310,324-325,338,340,346-348,366-369,432,438,442-443
+test/unit/runtime/event-delegator.spec.js
+  s_104642983dcc10::t_04669e886ee1e6 104,143-144
+test/unit/state-owner.spec.js
+  s_104642983dcc10::t_480795565f4b08 116,167,248-249
+test/unit/ui-binding-diagnostics.spec.js
+  s_104642983dcc10::t_26cb46226d4631 2-4,28,81
+test/unit/utils/extend.spec.js
+  s_104642983dcc10::t_4aa207e40a2503 109,192-195,210,213
+test/unit/utils/get-value.spec.js
+  s_104642983dcc10::t_4c2318473b6278 53
+test/unit/utils/is-string.spec.js
+  s_104642983dcc10::t_a188a506827c64 39-40
+test/unit/utils/once-wrap.spec.js
+  s_104642983dcc10::t_d266486027aa3f 32,43,53
+test/unit/utils/set-property.spec.js
+  s_104642983dcc10::t_474f265750ef38 12,14
+test/unit/view-el.spec.js
+  s_104642983dcc10::t_d4a6c33f4d5f93 69-71,75
+test/unit/view-get-region.spec.js
+  s_104642983dcc10::t_da87849b9a591f 79-81,86,107,127-128,153-155,239-240,316,355,375-376
+test/unit/view-get-regions.spec.js
+  s_104642983dcc10::t_5c7920d2891634 207,226,256
+test/unit/view-has-region.spec.js
+  s_104642983dcc10::t_2dd3b601c9b308 80-86,90,92,113-114
+test/unit/view-lifecycle.spec.js
+  s_104642983dcc10::t_bbfd826a5b4d01 86,136,292-293,343
+test/unit/view-region-diagnostics.spec.js
+  s_104642983dcc10::t_d49c8a09de7d83 92,165,183-184,202,214,232,237,245-248,252-253,278-280,286-287,307,309,386-387,391-392,426,437-438
+test/unit/view-render-attributes.spec.js
+  s_104642983dcc10::t_030eb1551109c0 90-91,98,105,107,148,170,188,195-196,231,237
+test/unit/view.child-views.spec.js
+  s_e9ec88924dcd73::t_44f89e8e0c6649 71,85,131,183,187,199,238-239,247,251,255,330,355,359,455,519-520,524-525,556,559,562,609
+test/unit/view.dynamic-regions.spec.js
+  s_104642983dcc10::t_7116bbd8571bcc 221-222,247
+test/unit/view.spec.js
+  s_104642983dcc10::t_5a9f06b26c3bbf 77,81,104,108,191,203,278,282,286,290,294,298
+test/unit/view.triggers.spec.js
+  s_104642983dcc10::t_b5cb01f9b2cb97 137,141,166-167
+test/unit/xstate-adapter.spec.js
+  s_104642983dcc10::t_440d0be577e499 3-4,89,210-212,241
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "d97eef480df9f1846cca0e0fba141262b7894d4f",
+  "prompts": {},
+  "sessions": {
+    "s_104642983dcc10": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a87cd9c6-fa43-4039-a2f4-4b6010f33907",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_bc19ab09821624": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e7-cb4f-73e3-b41e-328bfeae0db2",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_f2cd5e3b2db5ea": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080ec-ef1c-78c2-91c3-44428427821d",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
