@@ -1,0 +1,39 @@
+.github/workflows/ci.yml
+  s_e9ec88924dcd73::t_8532f61722b4c9 66-71,91
+.github/workflows/mutation.yml
+  s_e9ec88924dcd73::t_44d18949c5c888 1-35
+config/release-coverage.json
+  s_e9ec88924dcd73::t_7f9236728af836 1-11
+eslint.config.mjs
+  s_e9ec88924dcd73::t_4eb668958e7a09 127-131
+package.json
+  s_e9ec88924dcd73::t_62f54a25e18e59 77,99-106
+scripts/agent-benchmark/serve.mjs
+  s_e9ec88924dcd73::t_243fa4e3d4e0bf 10
+scripts/checks/tooling-coverage.mjs
+  s_e9ec88924dcd73::t_aa06f87c9c1a45 1-36
+scripts/release/github-release.mjs
+  s_e9ec88924dcd73::t_a08f6a149a6b07 1
+test/README.md
+  s_e9ec88924dcd73::t_edb66f73d3ea32 28-30,72-83
+test/agent-benchmark/playwright.config.mjs
+  s_e9ec88924dcd73::t_71f0f01ebe3f4c 2,9-11,16
+test/tooling/coverage-gate.test.mjs
+  s_e9ec88924dcd73::t_c5cf2ee6c2f045 1-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "ae15596e99bbe9f62d738c44b799afcd3dceb5ae",
+  "prompts": {},
+  "sessions": {
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
