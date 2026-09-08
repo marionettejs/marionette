@@ -1,0 +1,169 @@
+test/fixtures/adapters-package-vite/package-lock.json
+  s_060efbb5bf6218::t_0de688dcd362e8 1-1021
+test/fixtures/adapters-package-vite/package.json
+  s_060efbb5bf6218::t_c4d9338656b2ab 2
+test/fixtures/attachment-owner-document/package-lock.json
+  s_060efbb5bf6218::t_a6d89c17a45a74 1-514
+test/fixtures/attachment-owner-document/package.json
+  s_060efbb5bf6218::t_e68e06011511f9 2
+test/fixtures/backbone-adapter-types/package-lock.json
+  s_060efbb5bf6218::t_e04b4a29537c64 1-407
+test/fixtures/backbone-adapter-types/package.json
+  s_060efbb5bf6218::t_bdeb392daf37a6 2
+test/fixtures/backbone-adapter/package-lock.json
+  s_060efbb5bf6218::t_342ae831e7ab1b 1-28
+test/fixtures/backbone-adapter/package.json
+  s_060efbb5bf6218::t_9baa9ac050d79e 2
+test/fixtures/cjs-adapters/package-lock.json
+  s_060efbb5bf6218::t_8c7bd0701e81ad 1-548
+test/fixtures/cjs-adapters/package.json
+  s_060efbb5bf6218::t_875611365c1c0f 2
+test/fixtures/cjs-node/package-lock.json
+  s_060efbb5bf6218::t_a00d19339076ef 1-10
+test/fixtures/cjs-node/package.json
+  s_060efbb5bf6218::t_a1cdf3f77135d3 2
+test/fixtures/cjs-node/validate.cjs
+  s_e9ec88924dcd73::t_0878203792cb2f 28-33
+test/fixtures/collection-removal-survivors/package-lock.json
+  s_060efbb5bf6218::t_3892b5f1a0c965 1-530
+test/fixtures/collection-removal-survivors/package.json
+  s_060efbb5bf6218::t_692af47235d67b 2
+test/fixtures/core-no-underscore/package-lock.json
+  s_060efbb5bf6218::t_34c897611c0477 1-10
+test/fixtures/core-no-underscore/package.json
+  s_060efbb5bf6218::t_27b48d458fbc46 2
+test/fixtures/core-types/package-lock.json
+  s_060efbb5bf6218::t_18b294afcce5e5 1-449
+test/fixtures/data-package-cjs/package-lock.json
+  s_060efbb5bf6218::t_69bcc650064fc5 1-10
+test/fixtures/data-package-cjs/package.json
+  s_060efbb5bf6218::t_0e8a9f0e0a25a0 2
+test/fixtures/data-package-esm/package-lock.json
+  s_060efbb5bf6218::t_d24d48b7f07ca8 1-10
+test/fixtures/data-package-esm/package.json
+  s_060efbb5bf6218::t_06b7f0075a18b8 2
+test/fixtures/data-package-types/package-lock.json
+  s_060efbb5bf6218::t_907cc9a273e6e6 1-382
+test/fixtures/data-package-types/package.json
+  s_060efbb5bf6218::t_eaf98c3beca69c 2
+test/fixtures/data-package-vite/package-lock.json
+  s_060efbb5bf6218::t_07b9488f04c0cb 1-987
+test/fixtures/data-package-vite/package.json
+  s_060efbb5bf6218::t_f3860eb122f7a1 2
+test/fixtures/docs-application-state/package-lock.json
+  s_060efbb5bf6218::t_8b3fd3f1ec3015 1-514
+test/fixtures/docs-application-state/package.json
+  s_060efbb5bf6218::t_2a633480f08d3c 2
+test/fixtures/docs-basics-contract/package.json
+  s_060efbb5bf6218::t_e4aa886781ff64 2
+test/fixtures/docs-behavior-host/package-lock.json
+  s_060efbb5bf6218::t_8fd3e73fefea4f 1-521
+test/fixtures/docs-behavior-host/package.json
+  s_060efbb5bf6218::t_ef188bb3f98aa9 2
+test/fixtures/docs-collectionview-child-ownership/package-lock.json
+  s_060efbb5bf6218::t_643bb7b8d4d6e5 1-521
+test/fixtures/docs-collectionview-child-ownership/package.json
+  s_060efbb5bf6218::t_d85264c1b2eedb 2
+test/fixtures/docs-common-contract/package-lock.json
+  s_060efbb5bf6218::t_316de76c7b9bd6 1-10
+test/fixtures/docs-common-contract/package.json
+  s_060efbb5bf6218::t_57dcf0468e99eb 2
+test/fixtures/docs-dom-api/package-lock.json
+  s_060efbb5bf6218::t_40299fadaba74e 1-521
+test/fixtures/docs-dom-api/package.json
+  s_060efbb5bf6218::t_3229c00f9f34b3 2
+test/fixtures/docs-entity-events/package-lock.json
+  s_060efbb5bf6218::t_e27bcd109157fc 1-530
+test/fixtures/docs-entity-events/package.json
+  s_060efbb5bf6218::t_0291381ccfe5d7 2
+test/fixtures/docs-radio-owner/package-lock.json
+  s_060efbb5bf6218::t_3e2cf90d69cdfb 1-29
+test/fixtures/docs-radio-owner/package.json
+  s_060efbb5bf6218::t_f82bb9616909f7 2
+test/fixtures/docs-region-lifecycle/package-lock.json
+  s_060efbb5bf6218::t_49c66ec9af31b7 1-521
+test/fixtures/docs-region-lifecycle/package.json
+  s_060efbb5bf6218::t_c23549436cd5bc 2
+test/fixtures/docs-utils-contract/package-lock.json
+  s_060efbb5bf6218::t_d48d4081373088 1-10
+test/fixtures/docs-utils-contract/package.json
+  s_060efbb5bf6218::t_1bd904cc8836bd 2
+test/fixtures/docs-view-child-region/package-lock.json
+  s_060efbb5bf6218::t_31bb9168edcbeb 1-521
+test/fixtures/docs-view-child-region/package.json
+  s_060efbb5bf6218::t_ec727779ec1b5b 2
+test/fixtures/docs-view-dom-interactions/package-lock.json
+  s_060efbb5bf6218::t_dbb68024dfd61a 1-521
+test/fixtures/docs-view-dom-interactions/package.json
+  s_060efbb5bf6218::t_8586e50f1e214e 2
+test/fixtures/docs-view-render-attributes/package-lock.json
+  s_060efbb5bf6218::t_02d769c6770756 1-514
+test/fixtures/docs-view-render-attributes/package.json
+  s_060efbb5bf6218::t_662d0e41aae9fe 2
+test/fixtures/dom-adapters-package/package-lock.json
+  s_060efbb5bf6218::t_ce3350392537f0 1-907
+test/fixtures/dom-adapters-package/package.json
+  s_060efbb5bf6218::t_b3ffcf5bd69be7 2
+test/fixtures/esm-node/package-lock.json
+  s_060efbb5bf6218::t_54dac45c10cb4d 1-10
+test/fixtures/esm-node/package.json
+  s_060efbb5bf6218::t_26ee7c40b673b4 2
+test/fixtures/esm-node/validate.mjs
+  s_e9ec88924dcd73::t_44e174c22d3e3a 29-34
+test/fixtures/jquery-dom-api-types/package-lock.json
+  s_060efbb5bf6218::t_ef306d1262565d 1-381
+test/fixtures/jquery-dom-api-types/package.json
+  s_060efbb5bf6218::t_4f23d014d75fd2 2
+test/fixtures/jquery-dom-api/package-lock.json
+  s_060efbb5bf6218::t_4fca3dedd2adb9 1-521
+test/fixtures/jquery-dom-api/package.json
+  s_060efbb5bf6218::t_ff252b555f4e62 2
+test/fixtures/no-default-export/package-lock.json
+  s_060efbb5bf6218::t_d9a51b85995e92 1-10
+test/fixtures/no-default-export/package.json
+  s_060efbb5bf6218::t_b12a05fdfc1e64 2
+test/fixtures/removed-core-adapters/package-lock.json
+  s_060efbb5bf6218::t_ffb08496b19c6b 1-10
+test/fixtures/removed-core-adapters/package.json
+  s_060efbb5bf6218::t_73320498ff5d1b 2
+test/fixtures/run.mjs
+  s_e9ec88924dcd73::t_c544ea7851e572 1-6,8-21,23-40,43-44,47-49,51-61,64-67,69-70,72-75,78-81,83-84,87,89-103,105-124,127-146,148-149,151-159,161-168,170-179,181-182,184-197,199-215,217-222,224-238,241-249,251-259
+test/fixtures/standalone-packages/package-lock.json
+  s_060efbb5bf6218::t_6cc1dc513f9420 1-27
+test/fixtures/utils-package/package-lock.json
+  s_060efbb5bf6218::t_cd5a482914aa29 1-404
+test/fixtures/vite/package-lock.json
+  s_060efbb5bf6218::t_8d9d1ec9dd2cee 1-987
+test/fixtures/vite/package.json
+  s_060efbb5bf6218::t_ca58f4c92846bd 2
+test/fixtures/xstate-adapter-types/package-lock.json
+  s_060efbb5bf6218::t_1cb60176a7a1e8 1-378
+test/fixtures/xstate-adapter-types/package.json
+  s_060efbb5bf6218::t_02d30a2ba297c7 2
+test/tooling/fixtures.test.mjs
+  s_060efbb5bf6218::t_94631da74e730b 1-252
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "17a42d037020d6c6d6223e06ea45dd82768b34c3",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
