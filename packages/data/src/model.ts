@@ -41,7 +41,7 @@ type ModelExtension<Base extends ModelAttributes, Props extends object, Statics 
     : ModelConstructor<Base, Props, Statics> & Omit<Statics, 'prototype' | 'extend'>;
 
 export interface Model<Attributes extends ModelAttributes = ModelAttributes> extends EventSource {
-  attributes: Attributes;
+  attributes: Partial<Attributes>;
   changed: Partial<Attributes>;
   readonly cid: string;
   id: unknown;
@@ -52,11 +52,11 @@ export interface Model<Attributes extends ModelAttributes = ModelAttributes> ext
   get(key: string): unknown;
   has(key: string): boolean;
   set(attributes: Partial<Attributes>, options?: MutationOptions | null): this;
-  set(key: string, value: unknown, options?: MutationOptions | null): this;
+  set<Key extends string>(key: Key, value: Key extends keyof Attributes ? Attributes[Key] | undefined : unknown, options?: MutationOptions | null): this;
   unset(key: string, options?: MutationOptions | null): this;
   clear(options?: MutationOptions | null): this;
   reset(attributes?: Partial<Attributes>, options?: MutationOptions | null): this;
-  toObject(): Attributes;
+  toObject(): Partial<Attributes>;
   isDestroyed(): boolean;
   destroy(options?: unknown): this;
 }

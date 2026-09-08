@@ -13,7 +13,7 @@ const collection = new Collection<Model<Attributes>>([model]);
 const first: Model<Attributes> | undefined = collection.get(1);
 const label: string | undefined = model.get('label');
 const models: Array<Model<Attributes>> = DataApi.models(collection);
-const plainModel: Attributes = model.toObject();
+const plainModel: Partial<Attributes> = model.toObject();
 const plainModels: Record<string, unknown>[] = collection.toArray();
 void plainModel;
 void plainModels;
@@ -130,6 +130,7 @@ if (maybeCollection instanceof Collection) {
 const NamedCollection = Collection.extend({ title() { return 'items'; } }, { sizeLabel() { return 'large'; } });
 const namedCollection = new NamedCollection([named]);
 const title: string = namedCollection.title();
+// @ts-expect-error Raw additions use Model unless a factory is configured.
 const inferredModel: typeof named | undefined = namedCollection.at(0);
 const CollectionChild = NamedCollection.extend({ ready() { return true; } }, { sizeLabel() { return 2; } });
 const collectionChild = new CollectionChild();
@@ -241,15 +242,15 @@ if (maybeOrdinaryCollection instanceof OrdinaryCollection) {
   const ordinaryTitle: string = maybeOrdinaryCollection.title();
 }
 
-// A configured model can replace an input instance; options can replace it again.
+// Existing instances are retained; raw attributes use the configured factory.
 class InputModel extends Model { inputOnly() { return 'input'; } }
 class ConfiguredModel extends Model { configuredOnly() { return 'configured'; } }
 class OptionModel extends Model { optionOnly() { return 'option'; } }
 const ConfiguredCollection = Collection.extend({model: ConfiguredModel});
 const configuredCollection = new ConfiguredCollection([new InputModel()]);
-// @ts-expect-error The input can be converted to the configured model class.
+// @ts-expect-error Future raw additions use the configured factory.
 configuredCollection.at(0)!.inputOnly();
-// @ts-expect-error Configured collections conservatively retain possible constructor model overrides.
+// @ts-expect-error Supplied InputModel instances are retained.
 configuredCollection.at(0)!.configuredOnly();
 const configuredFirst = configuredCollection.at(0);
 if (configuredFirst instanceof ConfiguredModel) {
@@ -265,6 +266,37 @@ optionCollection.at(0)!.configuredOnly();
 // @ts-expect-error The instance model constructor reflects possible configuration replacement too.
 new optionCollection.model().configuredOnly();
 const ordinaryInput = new Collection([new InputModel()]);
+// @ts-expect-error Initial contents do not configure the factory for raw attributes.
 const ordinaryValue: string = ordinaryInput.at(0)!.inputOnly();
 const ordinaryOption = new Collection(undefined, {model: OptionModel});
+// @ts-expect-error Collection members can include supplied base Model instances.
 const ordinaryOptionValue: string = ordinaryOption.at(0)!.optionOnly();
+
+// Batch return types and partial attribute writes agree with runtime behavior.
+const removedModels: Array<Model<Attributes>> = collection.remove([1, 2]);
+const removedModel: Model<Attributes> | undefined = collection.remove(1);
+const missingAttribute: number | undefined = new Model<Attributes>().attributes.id;
+const missingSerializedAttribute: number | undefined = new Model<Attributes>().toObject().id;
+model.set('id', 2);
+model.set('id', undefined);
+model.set('extra', true);
+// @ts-expect-error A known attribute has the same value type in both set forms.
+model.set('id', 'wrong');
+// @ts-expect-error Object-form writes also reject invalid attribute values.
+model.set({ id: 'wrong' });
+// @ts-expect-error Construction, clear, and unset can leave attributes absent.
+const requiredId: number = model.toObject().id;
+// @ts-expect-error A raw addition constructs Model rather than InputModel.
+ordinaryInput.add({ id: 2 })!.inputOnly();
+const configuredFromRaw = new ConfiguredCollection([{ id: 1 }]);
+const configuredMember = configuredFromRaw.at(0);
+if (configuredMember instanceof ConfiguredModel) { configuredMember.configuredOnly(); }
+const overriddenWithInput = new ConfiguredCollection([new InputModel()], { model: OptionModel });
+const overriddenMember = overriddenWithInput.at(0);
+if (overriddenMember instanceof InputModel) { overriddenMember.inputOnly(); }
+if (overriddenMember instanceof OptionModel) { overriddenMember.optionOnly(); }
+
+// @ts-expect-error Raw attributes honor an explicitly typed collection.
+collection.add({ id: 'wrong' });
+// @ts-expect-error Initial raw attributes honor an explicitly typed collection.
+new Collection<Model<Attributes>>([{ id: 'wrong' }]);

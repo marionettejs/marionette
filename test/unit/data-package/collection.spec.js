@@ -89,6 +89,29 @@ describe('@marionette/data Collection', function() {
     counted.destroy();
   });
 
+  it('preserves supplied Model subclasses through construction, add, and reset', function() {
+    const Input = Model.extend({ inputOnly() { return this.get('label'); } });
+    const Factory = Model.extend({ idAttribute: 'uuid' });
+    const first = new Input({ id: 7, label: 'seven' });
+    const second = new Model({ id: 8, label: 'eight' });
+    const custom = new Collection([first], { model: Factory });
+    expect(custom.at(0)).to.equal(first);
+    expect(custom.add(second)).to.equal(second);
+    expect(custom.add({ uuid: 9 })).to.be.instanceOf(Factory);
+    custom.reset([second, first]);
+    expect(custom.toArray()).to.deep.equal([
+      { id: 8, label: 'eight' }, { id: 7, label: 'seven' }
+    ]);
+    const changed = this.sinon.spy();
+    custom.on('change:label', changed);
+    first.set('label', 'SEVEN');
+    expect(changed).to.have.been.calledOnce;
+    first.destroy();
+    expect(custom.models).to.deep.equal([second]);
+    custom.destroy();
+    expect(second.isDestroyed()).to.be.false;
+  });
+
   it('handles array, keyless, custom-model, and empty mutation boundaries', function() {
     const CustomModel = Model.extend({});
     const custom = new Collection(null, { model: CustomModel });
