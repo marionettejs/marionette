@@ -260,7 +260,7 @@ const ViewMixin = {
     const childViewEvents = this._childViewEvents;
 
     // call collectionView childViewEvent if defined
-    if (childViewEvents && childViewEvents[eventName]) {
+    if (childViewEvents && Object.hasOwn(childViewEvents, eventName)) {
       (childViewEvents[eventName] as (...args: unknown[]) => unknown).apply(this, args);
     }
 
@@ -268,7 +268,7 @@ const ViewMixin = {
     const childViewTriggers = this._childViewTriggers;
 
     // Call the event with the proxy name on the parent layout
-    if (childViewTriggers && childViewTriggers[eventName]) {
+    if (childViewTriggers && Object.hasOwn(childViewTriggers, eventName) && childViewTriggers[eventName]) {
       this.triggerMethod(childViewTriggers[eventName], ...args);
     }
 
