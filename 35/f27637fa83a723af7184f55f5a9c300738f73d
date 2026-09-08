@@ -1,0 +1,41 @@
+benchmarks/agent/evaluator.json
+  s_e9ec88924dcd73::t_3d7e72891f3778 27,39,42
+benchmarks/agent/tasks/borrowed-workspace-state/acceptance/acceptance.test.mjs
+  s_e9ec88924dcd73::t_4604c661f85dd8 11-38,48-49,52-58,69-76,81-84,86-91
+benchmarks/agent/tasks/borrowed-workspace-state/prompt.md
+  s_e9ec88924dcd73::t_1503b8555fb911 5,8-23
+benchmarks/agent/tasks/borrowed-workspace-state/reference/solution.mjs
+  s_e9ec88924dcd73::t_5195adf0e6a1bf 2,24-41
+benchmarks/agent/tasks/borrowed-workspace-state/workspace/solution.mjs
+  s_e9ec88924dcd73::t_1e91460fc8a7dc 1
+benchmarks/agent/tasks/overlay-dismiss/acceptance/acceptance.test.mjs
+  s_e9ec88924dcd73::t_3c10832c34dd9d 11,44-53
+benchmarks/agent/tasks/overlay-dismiss/prompt.md
+  s_e9ec88924dcd73::t_473bdf23e5d0c2 3
+benchmarks/agent/tasks/overlay-dismiss/reference/solution.mjs
+  s_e9ec88924dcd73::t_e21c5ffa3dd0a7 19
+benchmarks/agent/tasks/owned-workspace-state/acceptance/acceptance.test.mjs
+  s_e9ec88924dcd73::t_6d1a129d09f699 11-38,57-58,62-76,84-85,87-89,93-102,109-110
+benchmarks/agent/tasks/owned-workspace-state/prompt.md
+  s_e9ec88924dcd73::t_e416aa9a6e52ab 5,8-23
+benchmarks/agent/tasks/owned-workspace-state/reference/solution.mjs
+  s_e9ec88924dcd73::t_b4af23acec7b93 2,29-34,36-46
+benchmarks/agent/tasks/owned-workspace-state/workspace/solution.mjs
+  s_e9ec88924dcd73::t_ead59f6d171ca3 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "35f27637fa83a723af7184f55f5a9c300738f73d",
+  "prompts": {},
+  "sessions": {
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
