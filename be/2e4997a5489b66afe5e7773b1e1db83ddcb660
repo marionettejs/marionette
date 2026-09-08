@@ -1,0 +1,69 @@
+test/fixtures/adapters-package-vite/package-lock.json
+  s_104642983dcc10::t_c7b3b8efb2020c 9,11,15-18,20-21,24-27,37,40-43,53,56-59,69,72-75,85,88-91,101,104-107,117,120-123,127-128,136,139-142,144,146-147,155,158-161,165-166,174,177-180,184-186,193,196-199,203-205,212,215-218,222-224,228,231,234-237,239,244,247,250-253,255,260,263,266-269,271,279,282-291,293-301,303,306-309,312-320,323-327,331,334,337-341,343-375,379,383-390,392-395,399,403-410,412-415,419,424-430,432-435,439,444-450,452-455,459,464-470,472-475,482,487-493,495-498,500,505,510-516,518-521,528,532-539,541-544,551,556-562,564-567,571,576-582,584-587,591,597,599-601,628-639,668-671,674-675,678,681,684-698,710-725,733-735,738-742,748,757-768,774-780,783,800-805
+test/fixtures/adapters-package-vite/package.json
+  s_bc19ab09821624::t_43d05db18b830f 9,12
+test/fixtures/backbone-adapter-types/package-lock.json
+  s_104642983dcc10::t_1ff2be9a7103a8 11,358-360
+test/fixtures/backbone-adapter-types/package.json
+  s_bc19ab09821624::t_ff26f819d41071 11
+test/fixtures/collection-removal-survivors/package-lock.json
+  s_bc19ab09821624::t_dde40790b39f0a 9,208-210
+test/fixtures/collection-removal-survivors/package.json
+  s_bc19ab09821624::t_a46cf6c3ce89ad 9
+test/fixtures/core-types/package-lock.json
+  s_bc19ab09821624::t_e5b47b37a74801 11,382-384
+test/fixtures/core-types/package.json
+  s_bc19ab09821624::t_a67b2d01ec815d 13
+test/fixtures/data-package-vite/package-lock.json
+  s_bc19ab09821624::t_fd448b5cc51975 9,12-15,17-18,21-24,34,37-40,50,53-56,66,69-72,82,85-88,98,101-104,114,117-120,124-125,133,136-139,141,143-144,152,155-158,162-163,171,174-177,181-183,190,193-196,200-202,209,212-215,219-220,225,228,231-234,236,241,244,247-250,260,263-266,268,276,279-289,291,294-297,300-308,311-315,319-323,325-357,361,365-372,374-377,381,385-392,394-397,401,406-412,414-417,421,426-432,434-437,441,446-452,454-457,464,469-475,477-480,482,487,492-498,500-503,510,514-521,523-526,533,538-544,546-549,553,558-564,566-569,573,579,581-583,610-621,650-653,656-657,660,663,666-680,692-707,709-711,714-718,724,733-744,750-753,756-759,776-781
+test/fixtures/data-package-vite/package.json
+  s_bc19ab09821624::t_b2fc49cad8693f 9
+test/fixtures/docs-entity-events/package-lock.json
+  s_228806e6ca3efa::t_71f1aaebf4b104 9,208-210
+test/fixtures/docs-entity-events/package.json
+  s_bc19ab09821624::t_edba0f58289901 9
+test/fixtures/docs-radio-owner/package-lock.json
+  s_228806e6ca3efa::t_4e6b9ed4ea3bb0 9,14-16
+test/fixtures/docs-radio-owner/package.json
+  s_bc19ab09821624::t_e2207133474e11 9
+test/fixtures/standalone-packages/package-lock.json
+  s_228806e6ca3efa::t_888710eb12fe8c 9-349,353-355,359,362-384
+test/fixtures/standalone-packages/package.json
+  s_bc19ab09821624::t_73be19b427ac41 9
+test/fixtures/vite/package-lock.json
+  s_228806e6ca3efa::t_79c8ded89e390c 9,12-15,17-18,21-24,34,37-40,50,53-56,66,69-72,82,85-88,98,101-104,114,117-120,124-125,133,136-139,141,143-144,152,155-158,162-163,171,174-177,181-183,190,193-196,200-202,209,212-215,219-220,225,228,231-234,236,241,244,247-250,260,263-266,268,276,279-289,291,294-297,300-308,311-315,319-323,325-357,361,365-372,374-377,381,385-392,394-397,401,406-412,414-417,421,426-432,434-437,441,446-452,454-457,464,469-475,477-480,482,487,492-498,500-503,510,514-521,523-526,533,538-544,546-549,553,558-564,566-569,573,579,581-583,610-621,650-653,656-657,660,663,666-680,692-707,709-711,714-718,724,733-744,750-753,756-759,776-781
+test/fixtures/vite/package.json
+  s_bc19ab09821624::t_1afc190f18df57 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "be2e4997a5489b66afe5e7773b1e1db83ddcb660",
+  "prompts": {},
+  "sessions": {
+    "s_104642983dcc10": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a87cd9c6-fa43-4039-a2f4-4b6010f33907",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_228806e6ca3efa": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4a5a313a-45b7-437a-9d57-2f73fe513775",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_bc19ab09821624": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e7-cb4f-73e3-b41e-328bfeae0db2",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
