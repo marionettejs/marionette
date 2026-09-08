@@ -105,14 +105,14 @@ describe('@marionette/data Collection', function() {
     expect(custom.toArray()).to.deep.equal([
       { id: 8, label: 'eight' }, { id: 7, label: 'seven' }
     ]);
-    const changed = this.sinon.spy();
+    const changed = vi.fn();
     custom.on('change:label', changed);
     first.set('label', 'SEVEN');
-    expect(changed).to.have.been.calledOnce;
+    expect(changed).toHaveBeenCalledTimes(1);
     first.destroy();
     expect(custom.models).to.deep.equal([second]);
     custom.destroy();
-    expect(second.isDestroyed()).to.be.false;
+    expect(second.isDestroyed()).toBe(false);
   });
 
   it('uses exact instance, id, then cid precedence independently of order', function() {
