@@ -150,7 +150,7 @@
     "morphdom": "2.7.8",
     "rollup": "4.63.1",
     "terser": "5.51.2",
-    "typescript": "6.0.3",
+    "typescript": "7.0.2",
     "underscore": "^1.13.0",
     "vitest": "5.0.0",
     "xstate": "5.32.6",
