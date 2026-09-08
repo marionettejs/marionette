@@ -1,0 +1,19 @@
+test/agent-benchmark/playwright.config.mjs
+  s_e9ec88924dcd73::t_6fbdd0c873c950 2,5-6,12-14,19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "f13954094a216a8b3cd2eb3947b264baa9e5cdf2",
+  "prompts": {},
+  "sessions": {
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
