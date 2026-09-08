@@ -1,0 +1,39 @@
+.github/copilot-instructions.md
+  s_e9ec88924dcd73::t_8dc651fda3689d 8-18
+AGENTS.md
+  s_e9ec88924dcd73::t_fe00ea0c9774ae 15-23
+CONTRIBUTING.md
+  s_e9ec88924dcd73::t_604f2524a487c5 305-324
+docs/data.api.md
+  s_e9ec88924dcd73::t_a2bae66a40198b 94-95
+docs/dom.interactions.md
+  s_e9ec88924dcd73::t_8642b58c147f53 191-192
+docs/marionette.application.md
+  s_e9ec88924dcd73::t_a48355eb9f19aa 67-69
+docs/migration-from-v4.md
+  s_e9ec88924dcd73::t_bd08e73c5c09ea 110
+docs/view.lifecycle.md
+  s_e9ec88924dcd73::t_19254c9e9159a0 261-264,272-291
+evidence/state-data-regression-ledger.md
+  s_e9ec88924dcd73::t_4f6e040d0efdf9 8-11,17-18,20,26-27,30
+test/README.md
+  s_e9ec88924dcd73::t_fb4e6aaed92cff 8-23
+test/unit/model-based/README.md
+  s_e9ec88924dcd73::t_b65628e52b975d 30,36-56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "751d7ad0eaaf9341e34f177da946a8b5381c95be",
+  "prompts": {},
+  "sessions": {
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
