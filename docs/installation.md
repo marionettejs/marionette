@@ -64,13 +64,13 @@ Optional peers are installed only when you opt into them:
 
 ```bash
 # Only if you use the Backbone integration
-npm install @mnjs/adapters backbone
+npm install @mnjs/adapters@5.0.0-beta.1 backbone
 
 # Only if you use the jQuery DomApi adapter
-npm install @mnjs/adapters jquery
+npm install @mnjs/adapters@5.0.0-beta.1 jquery
 
 # Only if you use XState actors
-npm install @mnjs/adapters xstate
+npm install @mnjs/adapters@5.0.0-beta.1 xstate
 ```
 
 The XState actor adapter does not import or declare XState as a peer. Install
@@ -179,7 +179,7 @@ already uses them. For a new application needing observable Model and ordered
 Collection sources, the optional `@mnjs/data` package is the native choice:
 
 ```bash
-npm install @mnjs/data
+npm install @mnjs/data@5.0.0-beta.1
 ```
 
 Configure its adapters before constructing owners. See the
@@ -253,9 +253,9 @@ Use the same `@mnjs/adapters` package for incremental rendering. Install
 only the DOM library you select:
 
 ```bash
-npm install @mnjs/adapters morphdom
+npm install @mnjs/adapters@5.0.0-beta.1 morphdom
 # or
-npm install @mnjs/adapters lit-html
+npm install @mnjs/adapters@5.0.0-beta.1 lit-html
 ```
 
 Import `MorphdomDomApi` from `@mnjs/adapters/dom/morphdom`, or

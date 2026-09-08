@@ -43,7 +43,7 @@ in the [project roadmap](ROADMAP.md) pass.
 ## Install
 
 ```sh
-npm install marionette
+npm install marionette@5.0.0-beta.1
 ```
 
 Add the mount element to the page:
