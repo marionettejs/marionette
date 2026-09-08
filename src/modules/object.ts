@@ -3,6 +3,7 @@
 
 
 import extend from '../utils/extend.ts';
+import cleanupSubscriptions from '../utils/cleanup-subscriptions.ts';
 import { uniqueId } from '@marionette/utils';
 import CommonMixin from '../mixins/common.ts';
 import DestroyMixin from '../mixins/destroy.ts';
@@ -120,6 +121,7 @@ export type MnObjectConstructor<
 }, Statics>;
 
 interface ObjectInternals {
+  _isDestroyed?: boolean;
   cid: string;
   cidPrefix: string;
   options?: unknown;
@@ -143,13 +145,25 @@ const ClassOptions = [
 
 // Object borrows many conventions and utilities from Backbone.
 const MarionetteObject = function(this: ObjectInternals, options?: object) {
-  this._setOptions(options, ClassOptions);
-  this.cid = uniqueId(this.cidPrefix);
+  try {
+    this._setOptions(options, ClassOptions);
+    this.cid = uniqueId(this.cidPrefix);
 
-  this._initRadio();
-  this._initState(options);
-  this.initialize.apply(this, arguments);
-  this._initStateEvents();
+    this._initRadio();
+    this._initState(options);
+    this.initialize.apply(this, arguments);
+    this._initStateEvents();
+  } catch (error) {
+    this._isDestroyed = true;
+    try {
+      cleanupSubscriptions([
+        () => this._destroyRadio(),
+        () => this._destroyState(),
+        () => this.stopListening()
+      ]);
+    } catch { /* Preserve the construction error after attempting every cleanup. */ }
+    throw error;
+  }
 };
 
 Object.assign(MarionetteObject, { extend, setStateApi });

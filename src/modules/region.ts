@@ -3,6 +3,7 @@
 
 import { MarionetteError, getValue, uniqueId } from '@marionette/utils';
 import extend from '../utils/extend.ts';
+import cleanupSubscriptions from '../utils/cleanup-subscriptions.ts';
 import { renderView, destroyView } from './common/view.ts';
 import CommonMixin from '../mixins/common.ts';
 import DomApi, { setDomApi } from '../runtime/dom-api.ts';
@@ -113,15 +114,49 @@ const RegionClassOptions = [
 ];
 
 const Region = function(this: RegionInternals, options?: RegionOptions) {
-  this._setOptions(options, RegionClassOptions);
+  try {
+    this._setOptions(options, RegionClassOptions);
 
-  this.cid = uniqueId(this.cidPrefix);
+    this.cid = uniqueId(this.cidPrefix);
 
-  // getOption necessary because options.el may be passed as undefined
-  this._initEl = this.el = this.getOption('el') as RegionInstance['el'];
+    // getOption necessary because options.el may be passed as undefined
+    this._initEl = this.el = this.getOption('el') as RegionInstance['el'];
 
-  (this.initialize as Function).apply(this, arguments);
+    (this.initialize as Function).apply(this, arguments);
+  } catch (error) {
+    try { rollbackRegion(this); } catch { /* Preserve the construction error. */ }
+    throw error;
+  }
 };
+
+// Construction cleanup never empties unowned root content or emits a failed
+// Region's destroy lifecycle. A successfully shown child remains owned.
+export function rollbackRegion(region: RegionInternals) {
+  if (region._isDestroyed) { return; }
+  region._isDestroyed = true;
+  const view = region.currentView;
+  const parent = region._parentView;
+  const name = region._name;
+  cleanupSubscriptions([
+    () => region._restoreEl(),
+    () => { delete region.currentView; },
+    () => {
+      if (!view) { return; }
+      view.off('destroy', region._empty, region);
+      view.off('before:destroy', region._restoreEl, region);
+      parent?.stopListening(view);
+      delete view._parent;
+      view._isShown = false;
+    },
+    () => { if (view) { region.destroyView(view); } },
+    () => {
+      delete region._parentView;
+      delete region._name;
+      if (parent && name !== undefined) { parent._removeReferences!(name); }
+    },
+    () => region.stopListening()
+  ]);
+}
 
 (Region as Function & { extend?: typeof extend }).extend = extend;
 (Region as Function & { setDomApi?: typeof setDomApi }).setDomApi = setDomApi;

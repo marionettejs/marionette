@@ -50,6 +50,24 @@ export type ViewMixinHost = SharedMixins & BehaviorContainer & EntityEventHost &
     unbindUIElements(): unknown;
   };
 
+// Release acquired resources without detaching a possibly borrowed root or
+// dispatching lifecycle events for an instance that construction never returned.
+export function rollbackViewConstruction(view: ViewMixinHost, cleanupChildren: () => unknown) {
+  view._isDestroyed = true;
+  const dataCleanup = view._dataObserverCleanup;
+  delete view._dataObserverCleanup;
+  const behaviors = view._behaviors?.slice() || [];
+  cleanupSubscriptions([
+    () => { if (view._domEvents) { view._undelegateViewEvents(); } },
+    () => view._undelegateEntityEvents(),
+    dataCleanup,
+    ...behaviors.map(behavior => () => behavior.destroy()),
+    () => view._destroyState(),
+    () => view.stopListening(),
+    cleanupChildren
+  ]);
+}
+
 export const ViewOptions = [
   'attributes',
   'className',

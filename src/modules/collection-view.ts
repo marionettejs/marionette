@@ -3,11 +3,12 @@
 
 import { getValue, MarionetteError, uniqueId } from '@marionette/utils';
 import extend from '../utils/extend.ts';
+import cleanupSubscriptions from '../utils/cleanup-subscriptions.ts';
 import { renderView, destroyView, isViewClass } from './common/view.ts';
 import monitorViewEvents from './common/monitor-view-events.ts';
 import ChildViewContainer from './child-view-container.ts';
-import Region from './region.ts';
-import ViewMixin, { ViewOptions } from '../mixins/view.ts';
+import Region, { rollbackRegion } from './region.ts';
+import ViewMixin, { ViewOptions, rollbackViewConstruction } from '../mixins/view.ts';
 import { setDomApi } from '../runtime/dom-api.ts';
 import { setEventDelegator } from '../runtime/event-delegator.ts';
 import { setRenderer } from '../runtime/renderer.ts';
@@ -352,41 +353,61 @@ const ClassOptions = [
 // A view that iterates over a collection
 // and renders an individual child view for each model.
 const CollectionView = function(this: CollectionViewInternals, options?: CollectionViewConfiguration) {
-  this.cid = uniqueId(this.cidPrefix);
-  this._setOptions(options, ClassOptions);
+  try {
+    this.cid = uniqueId(this.cidPrefix);
+    this._setOptions(options, ClassOptions);
 
-  (this.preinitialize as {apply(receiver: object, args: IArguments): unknown}).apply(this, arguments);
-  this.mergeOptions(options, ViewOptions);
+    (this.preinitialize as {apply(receiver: object, args: IArguments): unknown}).apply(this, arguments);
+    this.mergeOptions(options, ViewOptions);
 
-  this._initViewEvents();
+    this._initViewEvents();
 
-  this.el = this._getEl();
-  this._isAttached = this._isElAttached();
-  this.delegateEvents();
-  if (this._isAttached && this.monitorViewEvents !== false) {
-    this.Dom.notifyAttach?.(this.el);
+    this.el = this._getEl();
+    this._isAttached = this._isElAttached();
+    this.delegateEvents();
+    if (this._isAttached && this.monitorViewEvents !== false) {
+      this.Dom.notifyAttach?.(this.el);
+    }
+
+    monitorViewEvents(this);
+
+    this._initState(options);
+
+    this._initChildViewStorage();
+    this._initBehaviors();
+    this._buildEventProxies();
+
+    (this.initialize as {apply(receiver: object, args: IArguments): unknown}).apply(this, arguments);
+
+    if (this._isDestroyed || this._isDestroying) { return; }
+
+    this._initStateEvents();
+
+    // Init empty region after initialize to preserve the v4 override boundary.
+    this.getEmptyRegion();
+
+    this.delegateEntityEvents();
+
+    this._triggerEventOnBehaviors('initialize', this, options);
+  } catch (error) {
+    try {
+      rollbackViewConstruction(this, () => {
+        const children = this._children?._views.slice() || [];
+        this._children?._init();
+        this.children?._init();
+        cleanupSubscriptions([
+          () => { if (this._emptyRegion) { rollbackRegion(this._emptyRegion); } },
+          ...children.map(view => () => {
+            view.off('destroy', this.removeChildView, this);
+            this.stopListening(view);
+            delete view._parent;
+            this._destroyChildView(view);
+          })
+        ]);
+      });
+    } catch { /* Preserve the construction error after attempting every cleanup. */ }
+    throw error;
   }
-
-  monitorViewEvents(this);
-
-  this._initState(options);
-
-  this._initChildViewStorage();
-  this._initBehaviors();
-  this._buildEventProxies();
-
-  (this.initialize as {apply(receiver: object, args: IArguments): unknown}).apply(this, arguments);
-
-  if (this._isDestroyed || this._isDestroying) { return; }
-
-  this._initStateEvents();
-
-  // Init empty region after initialize to preserve the v4 override boundary.
-  this.getEmptyRegion();
-
-  this.delegateEntityEvents();
-
-  this._triggerEventOnBehaviors('initialize', this, options);
 };
 
 Object.assign(CollectionView, {

@@ -1,4 +1,5 @@
 import EventDelegator from '../runtime/event-delegator.ts';
+import cleanupSubscriptions from '../utils/cleanup-subscriptions.ts';
 import { resolveMethod, getValue, isString } from '@marionette/utils';
 
 import type { EventCallback } from '@marionette/utils';
@@ -64,7 +65,7 @@ export default {
 
   _undelegateViewEvents(this: Pick<ViewEventsHost, '_domEvents'>) {
     const cleanups = this._domEvents.splice(0);
-    for (let index = cleanups.length; index--;) { cleanups[index](); }
+    cleanupSubscriptions(cleanups.reverse());
   },
 
   _delegateViewEvents(this: ViewEventsHost, view: TriggerTarget = this, events?: DOMEvents) {

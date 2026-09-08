@@ -3,16 +3,17 @@
 
 import { setProperty, MarionetteError, uniqueId } from '@marionette/utils';
 import extend from '../utils/extend.ts';
+import cleanupSubscriptions from '../utils/cleanup-subscriptions.ts';
 import CommonMixin from '../mixins/common.ts';
 import DestroyMixin from '../mixins/destroy.ts';
 import RadioMixin from '../mixins/radio.ts';
 import StateMixin from '../mixins/state.ts';
-import Region from './region.ts';
+import Region, { rollbackRegion } from './region.ts';
 import buildRegion from './common/build-region.ts';
 import { setStateApi } from '../runtime/state-api.ts';
 import { defaultRuntimeId, runtimeId } from '../runtime-id.ts';
 
-import type { RegionInstance, ShowOptions } from './region.ts';
+import type { RegionInstance, RegionInternals, ShowOptions } from './region.ts';
 import type { RegionClass, RegionDefinition } from './common/build-region.ts';
 import type { SupportedView } from './common/view.ts';
 import type { StateApi } from '../runtime/state-api.ts';
@@ -161,15 +162,33 @@ const STOPPING = 'stopping';
 const classErrorName = 'ApplicationError';
 
 const Application = function(this: ApplicationInternals, options?: ApplicationOptions) {
-  this._setOptions(options, ClassOptions);
-  this.cid = uniqueId(this.cidPrefix);
+  try {
+    this._setOptions(options, ClassOptions);
+    this.cid = uniqueId(this.cidPrefix);
 
-  (this.preinitialize as Function).apply(this, arguments);
-  this._initRegion();
-  this._initRadio();
-  this._initState(options);
-  (this.initialize as { apply(receiver: ApplicationInternals, args: IArguments): unknown }).apply(this, arguments);
-  this._initStateEvents();
+    (this.preinitialize as Function).apply(this, arguments);
+    this._initRegion();
+    this._initRadio();
+    this._initState(options);
+    (this.initialize as { apply(receiver: ApplicationInternals, args: IArguments): unknown }).apply(this, arguments);
+    this._initStateEvents();
+  } catch (error) {
+    this._isDestroyed = true;
+    this._lifecycleState = DESTROYED;
+    const ownedRegion = this._ownedRegion;
+    delete this._region;
+    delete this._ownedRegion;
+    try {
+      cleanupSubscriptions([
+        () => this._childApps?.forEach((application, name) => removeChildAppReference(this, name, application)),
+        () => { if (ownedRegion) { rollbackRegion(ownedRegion as RegionInternals); } },
+        () => this._destroyRadio(),
+        () => this._destroyState(),
+        () => this.stopListening()
+      ]);
+    } catch { /* Preserve the construction error after attempting every cleanup. */ }
+    throw error;
+  }
 };
 
 function isCurrentOperation(application: ApplicationInternals, operation: Operation) {
