@@ -1,0 +1,47 @@
+playwright.config.mjs
+  s_e9ec88924dcd73::t_71d10c819975d6 1-28
+test/browser/adapters-package.spec.mjs
+  s_e9ec88924dcd73::t_01b65be60f9ab4 1-93
+test/browser/attachment-owner-document.spec.mjs
+  s_e9ec88924dcd73::t_d6cb6555424655 2,4-6,30-31,36-37,39,42-43,48-49,54-58,63-64,69-70
+test/browser/collection-removal-survivors.spec.mjs
+  s_e9ec88924dcd73::t_0d49217e3c5a8a 2,4-10,41-46,48-59,61-107,112-152,155-170,172-207,209-215,217-219,221-228,231
+test/browser/data-package.spec.mjs
+  s_e9ec88924dcd73::t_f6e976d701c55f 1-49
+test/browser/dom-adapters.spec.mjs
+  s_f2cd5e3b2db5ea::t_b5d243bac74c5a 2-48,51-60
+test/browser/event-delegator-focus.spec.mjs
+  s_e9ec88924dcd73::t_fbdf07676142b1 2,4-7,42-47
+test/browser/fixtures.mjs
+  s_e9ec88924dcd73::t_b5050f48e34264 1-4,9-16,19-46,48-75,77,79-86,88
+test/browser/global-setup.mjs
+  s_e9ec88924dcd73::t_2c869a45f27cf4 2-3,5,8-14,16-28,30-35,37-56,61-105
+test/browser/view-render-attributes.spec.mjs
+  s_e9ec88924dcd73::t_77989c564f38a8 2-8,10-12,16-44,46-149
+test/contracts/dom-adapters.js
+  s_e9ec88924dcd73::t_f05a0d663391bb 1-3,5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "222249735a8be9f3cf28c95fb3703cf271c87df1",
+  "prompts": {},
+  "sessions": {
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_f2cd5e3b2db5ea": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080ec-ef1c-78c2-91c3-44428427821d",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
