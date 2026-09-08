@@ -6,6 +6,7 @@ import { delimiter, dirname, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { after, before, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { copyCoverageFixture } from './coverage-fixture.mjs';
 
 const repository = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const npmCli = process.env.npm_execpath;
@@ -34,7 +35,7 @@ function scenario() {
   mkdirSync(fixture, { recursive: true });
   mkdirSync(resolve(root, 'docs'));
   mkdirSync(resolve(root, 'artifacts'));
-  cpSync(resolve(repository, 'test/fixtures/run.mjs'), resolve(root, 'test/fixtures/run.mjs'));
+  copyCoverageFixture(resolve(repository, 'test/fixtures/run.mjs'), resolve(root, 'test/fixtures/run.mjs'));
   cpSync(resolve(temporary, 'package-lock.json'), resolve(fixture, 'package-lock.json'));
   cpSync(resolve(temporary, 'package.json'), resolve(fixture, 'package.json'));
   for (const name of names) {
