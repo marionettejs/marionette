@@ -119,7 +119,7 @@
   "devDependencies": {
     "@babel/core": "7.29.7",
     "@babel/plugin-transform-typescript": "7.29.7",
-    "@babel/preset-env": "7.29.7",
+    "@babel/preset-env": "8.0.2",
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.62.1",
     "@reduxjs/toolkit": "2.12.0",
