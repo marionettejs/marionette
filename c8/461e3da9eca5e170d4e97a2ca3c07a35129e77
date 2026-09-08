@@ -1,0 +1,217 @@
+benchmarks/agent/README.md
+  s_e9ec88924dcd73::t_9222dda24d478e 1,3-12,86-199
+benchmarks/agent/app/README.md
+  s_e9ec88924dcd73::t_de499795e9b809 1-26
+benchmarks/agent/app/index.html
+  s_e9ec88924dcd73::t_dc7763bed84e2a 1-5
+benchmarks/agent/app/main.mjs
+  s_e9ec88924dcd73::t_0eb34a5a18a2be 1-86
+benchmarks/agent/app/style.css
+  s_e9ec88924dcd73::t_1cfcee306bd433 1
+benchmarks/agent/corpus.json
+  s_e9ec88924dcd73::t_ac2abd4169b44c 1-404
+benchmarks/agent/evaluator.json
+  s_e9ec88924dcd73::t_30840ffc830b22 1-45
+benchmarks/agent/series-decisions.json
+  s_e9ec88924dcd73::t_14ef91f9272c8a 1-92
+benchmarks/agent/support/dependency-lock.json
+  s_e9ec88924dcd73::t_2ba527e7beb239 1-516
+benchmarks/agent/support/environment.mjs
+  s_e9ec88924dcd73::t_6b92e4cd4369d4 1-10
+benchmarks/agent/tasks/async-panel/acceptance/acceptance.test.mjs
+  s_e9ec88924dcd73::t_25e20153e04e30 1-55
+benchmarks/agent/tasks/async-panel/prompt.md
+  s_e9ec88924dcd73::t_5a59bca9f08573 1-7
+benchmarks/agent/tasks/async-panel/reference/solution.mjs
+  s_e9ec88924dcd73::t_f8adb3934eb714 1-36
+benchmarks/agent/tasks/async-panel/workspace/package.json
+  s_e9ec88924dcd73::t_365989b2885cc7 1-6
+benchmarks/agent/tasks/async-panel/workspace/solution.mjs
+  s_e9ec88924dcd73::t_a5b3bd6c026ac6 1-3
+benchmarks/agent/tasks/async-panel/workspace/test/README.md
+  s_e9ec88924dcd73::t_bdbae01bf169f4 1
+benchmarks/agent/tasks/async-session/acceptance/acceptance.test.mjs
+  s_e9ec88924dcd73::t_b20608b8fe762f 1-69
+benchmarks/agent/tasks/async-session/prompt.md
+  s_e9ec88924dcd73::t_fbc17e23fde39b 1-7
+benchmarks/agent/tasks/async-session/reference/solution.mjs
+  s_e9ec88924dcd73::t_4b9fd6cf53e846 1-40
+benchmarks/agent/tasks/async-session/workspace/package.json
+  s_e9ec88924dcd73::t_cf85c437de0ae8 1-6
+benchmarks/agent/tasks/async-session/workspace/solution.mjs
+  s_e9ec88924dcd73::t_256c1c30e65f96 1-3
+benchmarks/agent/tasks/async-session/workspace/test/README.md
+  s_e9ec88924dcd73::t_2390f71362318f 1
+benchmarks/agent/tasks/borrowed-workspace-state/acceptance/acceptance.test.mjs
+  s_e9ec88924dcd73::t_98aafab09d9ad0 1-43
+benchmarks/agent/tasks/borrowed-workspace-state/prompt.md
+  s_e9ec88924dcd73::t_3fc5423f4f0cf6 1-7
+benchmarks/agent/tasks/borrowed-workspace-state/reference/solution.mjs
+  s_e9ec88924dcd73::t_9fccb06cf15fed 1-45
+benchmarks/agent/tasks/borrowed-workspace-state/workspace/package.json
+  s_e9ec88924dcd73::t_6a1544e5fd3d6a 1-6
+benchmarks/agent/tasks/borrowed-workspace-state/workspace/solution.mjs
+  s_e9ec88924dcd73::t_ad6c82a2515535 1-3
+benchmarks/agent/tasks/borrowed-workspace-state/workspace/test/README.md
+  s_e9ec88924dcd73::t_8a6c5fc7ac6ded 1
+benchmarks/agent/tasks/connection-status/acceptance/acceptance.test.mjs
+  s_e9ec88924dcd73::t_ba774803ef8a8a 1-37
+benchmarks/agent/tasks/connection-status/prompt.md
+  s_e9ec88924dcd73::t_523a06bea38df5 1-7
+benchmarks/agent/tasks/connection-status/reference/solution.mjs
+  s_e9ec88924dcd73::t_2de9a0ee1f09e6 1-30
+benchmarks/agent/tasks/connection-status/workspace/package.json
+  s_e9ec88924dcd73::t_b98972c67e0671 1-6
+benchmarks/agent/tasks/connection-status/workspace/solution.mjs
+  s_e9ec88924dcd73::t_4dd0a42a5a5381 1-3
+benchmarks/agent/tasks/connection-status/workspace/test/README.md
+  s_e9ec88924dcd73::t_3f0b336cd554e7 1
+benchmarks/agent/tasks/filter-projects/acceptance/acceptance.test.mjs
+  s_e9ec88924dcd73::t_9f66aab1607dd1 1-34
+benchmarks/agent/tasks/filter-projects/prompt.md
+  s_e9ec88924dcd73::t_6e4f8f8d88337f 1-7
+benchmarks/agent/tasks/filter-projects/reference/solution.mjs
+  s_e9ec88924dcd73::t_44a41d5ff1cb60 1-26
+benchmarks/agent/tasks/filter-projects/workspace/package.json
+  s_e9ec88924dcd73::t_5221e5dc44bdec 1-6
+benchmarks/agent/tasks/filter-projects/workspace/solution.mjs
+  s_e9ec88924dcd73::t_ddb3e5065ee23a 1-3
+benchmarks/agent/tasks/filter-projects/workspace/test/README.md
+  s_e9ec88924dcd73::t_3129f0a8a9c193 1
+benchmarks/agent/tasks/nested-notice/acceptance/acceptance.test.mjs
+  s_e9ec88924dcd73::t_85bb032f7a1539 1-29
+benchmarks/agent/tasks/nested-notice/prompt.md
+  s_e9ec88924dcd73::t_12b5e89d66c482 1-7
+benchmarks/agent/tasks/nested-notice/reference/solution.mjs
+  s_e9ec88924dcd73::t_c70a2624273d12 1-36
+benchmarks/agent/tasks/nested-notice/workspace/package.json
+  s_e9ec88924dcd73::t_9437148715b5f3 1-6
+benchmarks/agent/tasks/nested-notice/workspace/solution.mjs
+  s_e9ec88924dcd73::t_8798bcdaefad0c 1-3
+benchmarks/agent/tasks/nested-notice/workspace/test/README.md
+  s_e9ec88924dcd73::t_39d62471d5c963 1
+benchmarks/agent/tasks/nested-workspace/acceptance/acceptance.test.mjs
+  s_e9ec88924dcd73::t_3afae2ba8c2f6b 1-32
+benchmarks/agent/tasks/nested-workspace/prompt.md
+  s_e9ec88924dcd73::t_f4ceb50333c060 1-7
+benchmarks/agent/tasks/nested-workspace/reference/solution.mjs
+  s_e9ec88924dcd73::t_732f4768a9b3df 1-29
+benchmarks/agent/tasks/nested-workspace/workspace/package.json
+  s_e9ec88924dcd73::t_a1b99d50acd14f 1-6
+benchmarks/agent/tasks/nested-workspace/workspace/solution.mjs
+  s_e9ec88924dcd73::t_fcaebdb2085fcb 1-3
+benchmarks/agent/tasks/nested-workspace/workspace/test/README.md
+  s_e9ec88924dcd73::t_63b4316f6bc490 1
+benchmarks/agent/tasks/overlay-dismiss/acceptance/acceptance.test.mjs
+  s_e9ec88924dcd73::t_ccf7ffae7bd9a6 1-52
+benchmarks/agent/tasks/overlay-dismiss/prompt.md
+  s_e9ec88924dcd73::t_4ed0fe3e7fd6a3 1-7
+benchmarks/agent/tasks/overlay-dismiss/reference/solution.mjs
+  s_e9ec88924dcd73::t_e370a1c93e2f3c 1-36
+benchmarks/agent/tasks/overlay-dismiss/workspace/package.json
+  s_e9ec88924dcd73::t_390cfc080094bf 1-6
+benchmarks/agent/tasks/overlay-dismiss/workspace/solution.mjs
+  s_e9ec88924dcd73::t_4f353ed1965691 1-3
+benchmarks/agent/tasks/overlay-dismiss/workspace/test/README.md
+  s_e9ec88924dcd73::t_7a9a845db3b03d 1
+benchmarks/agent/tasks/overlay-switch/acceptance/acceptance.test.mjs
+  s_e9ec88924dcd73::t_23148177145a31 1-40
+benchmarks/agent/tasks/overlay-switch/prompt.md
+  s_e9ec88924dcd73::t_ded501220a74ff 1-7
+benchmarks/agent/tasks/overlay-switch/reference/solution.mjs
+  s_e9ec88924dcd73::t_5aff99c74113fc 1-22
+benchmarks/agent/tasks/overlay-switch/workspace/package.json
+  s_e9ec88924dcd73::t_3be405291e84e9 1-6
+benchmarks/agent/tasks/overlay-switch/workspace/solution.mjs
+  s_e9ec88924dcd73::t_345d645b9412fb 1-3
+benchmarks/agent/tasks/overlay-switch/workspace/test/README.md
+  s_e9ec88924dcd73::t_f8554b3ef81b29 1
+benchmarks/agent/tasks/owned-workspace-state/acceptance/acceptance.test.mjs
+  s_e9ec88924dcd73::t_bbca7d5fb33296 1-56
+benchmarks/agent/tasks/owned-workspace-state/prompt.md
+  s_e9ec88924dcd73::t_612fbd19fc350d 1-7
+benchmarks/agent/tasks/owned-workspace-state/reference/solution.mjs
+  s_e9ec88924dcd73::t_e5a3ba270de40e 1-51
+benchmarks/agent/tasks/owned-workspace-state/workspace/package.json
+  s_e9ec88924dcd73::t_5e67eca77117a6 1-6
+benchmarks/agent/tasks/owned-workspace-state/workspace/solution.mjs
+  s_e9ec88924dcd73::t_32c7c65bd51182 1-3
+benchmarks/agent/tasks/owned-workspace-state/workspace/test/README.md
+  s_e9ec88924dcd73::t_7cf9680f480806 1
+benchmarks/agent/tasks/rank-projects/acceptance/acceptance.test.mjs
+  s_e9ec88924dcd73::t_ff89f6f90a50e9 1-40
+benchmarks/agent/tasks/rank-projects/prompt.md
+  s_e9ec88924dcd73::t_482946d1d61914 1-7
+benchmarks/agent/tasks/rank-projects/reference/solution.mjs
+  s_e9ec88924dcd73::t_beba9b6a8b2c53 1-39
+benchmarks/agent/tasks/rank-projects/workspace/package.json
+  s_e9ec88924dcd73::t_fb40556ffc698a 1-6
+benchmarks/agent/tasks/rank-projects/workspace/solution.mjs
+  s_e9ec88924dcd73::t_efa0fc1ebba294 1-3
+benchmarks/agent/tasks/rank-projects/workspace/test/README.md
+  s_e9ec88924dcd73::t_7cbb2c56c9ed4c 1
+benchmarks/agent/tasks/save-shortcut/acceptance/acceptance.test.mjs
+  s_e9ec88924dcd73::t_be1de08cd57a6c 1-41
+benchmarks/agent/tasks/save-shortcut/prompt.md
+  s_e9ec88924dcd73::t_d8c2ca087528de 1-7
+benchmarks/agent/tasks/save-shortcut/reference/solution.mjs
+  s_e9ec88924dcd73::t_32bf1cc373b235 1-20
+benchmarks/agent/tasks/save-shortcut/workspace/package.json
+  s_e9ec88924dcd73::t_1f9c2f2870a6f9 1-6
+benchmarks/agent/tasks/save-shortcut/workspace/solution.mjs
+  s_e9ec88924dcd73::t_b5f5b34b53805a 1-3
+benchmarks/agent/tasks/save-shortcut/workspace/test/README.md
+  s_e9ec88924dcd73::t_a8e7ea56db8736 1
+benchmarks/agent/tasks/scoped-message-presenter/acceptance/acceptance.test.mjs
+  s_e9ec88924dcd73::t_72fa70b65c0552 1-16
+benchmarks/agent/tasks/scoped-message-presenter/prompt.md
+  s_e9ec88924dcd73::t_20f9785784826a 1-3
+benchmarks/agent/tasks/scoped-message-presenter/reference/solution.mjs
+  s_e9ec88924dcd73::t_3280e83095bedf 1-7
+benchmarks/agent/tasks/scoped-message-presenter/workspace/package.json
+  s_e9ec88924dcd73::t_6586aac98d8fe2 1-6
+benchmarks/agent/tasks/scoped-message-presenter/workspace/solution.mjs
+  s_e9ec88924dcd73::t_d8d59c63efe513 1-3
+benchmarks/agent/tasks/scoped-message-presenter/workspace/test/README.md
+  s_e9ec88924dcd73::t_797d79d9158749 1
+scripts/agent-benchmark/cache-environment.mjs
+  s_e9ec88924dcd73::t_ac6048061a2f04 1-16
+scripts/agent-benchmark/run.mjs
+  s_bc19ab09821624::t_0d2f3469329d8d 1-57
+scripts/agent-benchmark/serve.mjs
+  s_e9ec88924dcd73::t_9bb5d051264fcf 1-42
+test/agent-benchmark/harness.test.mjs
+  s_e9ec88924dcd73::t_692582d7cdb6d0 1-86
+test/agent-benchmark/playwright.config.mjs
+  s_e9ec88924dcd73::t_00afca9f3caae3 1-19
+test/agent-benchmark/reference-app.spec.mjs
+  s_e9ec88924dcd73::t_276173584e80ce 1-25
+scripts/agent-benchmark/harness.mjs
+  s_e9ec88924dcd73::t_5c207ca1dfb7be 1-219
+test/agent-benchmark/evaluator-controls.mjs
+  s_e9ec88924dcd73::t_3716a473af5ce3 1-62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "c8461e3da9eca5e170d4e97a2ca3c07a35129e77",
+  "prompts": {},
+  "sessions": {
+    "s_bc19ab09821624": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e7-cb4f-73e3-b41e-328bfeae0db2",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
