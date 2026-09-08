@@ -1,0 +1,19 @@
+docs/diagnostic-catalog.md
+  s_fae5a6096938ea::t_8f2e3d75c9f105 19,138
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "079011256bcd853edf484d7b82a851721e616702",
+  "prompts": {},
+  "sessions": {
+    "s_fae5a6096938ea": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08215-179d-79e2-9e34-97d51f445f91",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
