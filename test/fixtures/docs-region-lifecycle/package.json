@@ -1,4 +1,5 @@
 {
+  "name": "marionette-docs-region-lifecycle-fixture",
   "private": true,
   "type": "module",
   "scripts": {

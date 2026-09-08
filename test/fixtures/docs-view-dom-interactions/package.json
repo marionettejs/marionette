@@ -1,4 +1,5 @@
 {
+  "name": "marionette-docs-view-dom-interactions-fixture",
   "private": true,
   "type": "module",
   "scripts": {

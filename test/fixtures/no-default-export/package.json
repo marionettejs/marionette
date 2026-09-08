@@ -1,4 +1,5 @@
 {
+  "name": "marionette-no-default-export-fixture",
   "private": true,
   "type": "module",
   "scripts": {

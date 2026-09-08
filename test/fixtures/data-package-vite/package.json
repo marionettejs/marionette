@@ -1,4 +1,5 @@
 {
+  "name": "marionette-data-package-vite-fixture",
   "private": true,
   "type": "module",
   "scripts": {

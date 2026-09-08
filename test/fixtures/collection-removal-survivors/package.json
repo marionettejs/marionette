@@ -1,4 +1,5 @@
 {
+  "name": "marionette-collection-removal-survivors-fixture",
   "private": true,
   "type": "module",
   "scripts": {

@@ -1,4 +1,5 @@
 {
+  "name": "marionette-data-package-esm-fixture",
   "private": true,
   "type": "module",
   "scripts": {

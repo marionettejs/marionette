@@ -1,232 +1,260 @@
-import { execFileSync } from 'child_process';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync } from 'fs';
-import { tmpdir } from 'os';
-import { dirname, resolve } from 'path';
-import { fileURLToPath } from 'url';
+import { execFileSync } from 'node:child_process';
+import { createHash, randomUUID } from 'node:crypto';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { delimiter, dirname, relative, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const rootDir = resolve(__dirname, '../..');
-const packDir = resolve(rootDir, 'test/tmp/pack-fixtures');
-const npmCli = process.env.npm_execpath;
-const cliArgs = process.argv.slice(2);
-const fixtures = readdirSync(__dirname, { withFileTypes: true })
-  .filter(entry => entry.isDirectory() &&
-    existsSync(resolve(__dirname, entry.name, 'package.json')))
-  .map(entry => entry.name)
-  .sort();
+const fixturesDir = dirname(fileURLToPath(import.meta.url));
+const rootDir = resolve(fixturesDir, '../..');
+const packageInputs = [
+  { name: 'marionette', flag: '--tarball', directory: '.' },
+  { name: '@marionette/data', flag: '--data-tarball', directory: 'packages/data' },
+  { name: '@marionette/adapters', flag: '--adapters-tarball', directory: 'packages/adapters' },
+  { name: '@marionette/utils', flag: '--utils-tarball', directory: 'packages/utils' },
+  { name: '@marionette/radio', flag: '--radio-tarball', directory: 'packages/radio' },
+];
+const adapterFixtures = new Set([
+  'adapters-package-vite', 'backbone-adapter', 'backbone-adapter-types', 'cjs-adapters',
+  'collection-removal-survivors', 'jquery-dom-api', 'jquery-dom-api-types',
+  'xstate-adapter-types', 'dom-adapters-package',
+]);
 
-if (fixtures.length === 0) {
-  throw new Error('No packed-package fixtures discovered under test/fixtures');
+function readOptions(args) {
+  const allowed = new Set(['--fixture', '--artifact-dir', '--report', ...packageInputs.map(input => input.flag)]);
+  const options = {};
+  for (let index = 0; index < args.length; index += 2) {
+    const flag = args[index];
+    if (!allowed.has(flag) || Object.hasOwn(options, flag)) {
+      throw new Error(`Unknown or repeated option: ${flag}`);
+    }
+    if (!args[index + 1] || args[index + 1].startsWith('--')) {
+      throw new Error(`Missing value for ${flag}`);
+    }
+    options[flag] = args[index + 1];
+  }
+  const supplied = packageInputs.filter(input => options[input.flag]);
+  if (supplied.length && (supplied.length !== packageInputs.length || options['--artifact-dir'])) {
+    throw new Error('Supply all five --*-tarball options, or --artifact-dir, or no artifacts to build locally.');
+  }
+  return options;
 }
 
-function run(command, args, options = {}) {
-  execFileSync(command, args, {
-    cwd: options.cwd || rootDir,
-    stdio: 'inherit',
-    env: {
-      ...process.env,
-      npm_config_fund: 'false',
-      npm_config_audit: 'false',
-      npm_config_package_lock: 'false',
-    },
-  });
+function readJson(path) {
+  return JSON.parse(readFileSync(path, 'utf8'));
 }
 
-function runNpm(args, options) {
+function sha256(path) {
+  return createHash('sha256').update(readFileSync(path)).digest('hex');
+}
+
+// Compare package identities, not npm's incidental dev/peer flags. No registry
+// package may be added, removed, relocated, or re-resolved by the candidate overlay.
+function externalGraph(lock) {
+  return Object.fromEntries(Object.entries(lock.packages).filter(([path]) =>
+    path && !packageInputs.some(input => path === `node_modules/${input.name}`))
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([path, entry]) => [path, {
+      version: entry.version, resolved: entry.resolved, integrity: entry.integrity,
+      dependencies: entry.dependencies, optionalDependencies: entry.optionalDependencies,
+      peerDependencies: entry.peerDependencies,
+    }]));
+}
+
+function selectedPackages(fixtureName) {
+  const names = ['@marionette/utils', '@marionette/radio'];
+  if (fixtureName !== 'standalone-packages') {
+    names.push('marionette');
+  }
+  if (fixtureName === 'standalone-packages' || fixtureName === 'core-types' || fixtureName.startsWith('data-package-')) {
+    names.push('@marionette/data');
+  }
+  if (fixtureName === 'core-types' || adapterFixtures.has(fixtureName)) {
+    names.push('@marionette/adapters');
+  }
+  return names;
+}
+
+function assertIsolated(directory) {
+  for (let ancestor = dirname(realpathSync(directory)); ; ancestor = dirname(ancestor)) {
+    if (existsSync(resolve(ancestor, 'node_modules'))) {
+      throw new Error(`Fixture ancestor contains node_modules: ${ancestor}`);
+    }
+    if (dirname(ancestor) === ancestor) {
+      return;
+    }
+  }
+}
+
+const report = {
+  schemaVersion: 1, id: randomUUID(), node: process.version,
+  startedAt: new Date().toISOString(), artifacts: [], fixtures: [], status: 'failed',
+};
+let reportPath;
+let workspace;
+let stage = 'arguments';
+try {
+  const options = readOptions(process.argv.slice(2));
+  const fixtures = readdirSync(fixturesDir, { withFileTypes: true })
+    .filter(entry => entry.isDirectory() && existsSync(resolve(fixturesDir, entry.name, 'package.json')))
+    .map(entry => entry.name).sort();
+  const selected = options['--fixture'] ? [options['--fixture']] : fixtures;
+  if (!selected.length || selected.some(name => !fixtures.includes(name))) {
+    throw new Error(`Unknown fixture: ${options['--fixture'] || '(none discovered)'}. Available: ${fixtures.join(', ')}`);
+  }
+  reportPath = resolve(rootDir, options['--report'] || `test/tmp/fixture-reports/${report.id}.json`);
+  const npmCli = process.env.npm_execpath;
   if (!npmCli) {
     throw new Error('Run package fixtures through npm so the npm CLI can be located.');
   }
-
-  run(process.execPath, [npmCli, ...args], options);
-}
-
-function readArgument(name) {
-  const index = cliArgs.indexOf(name);
-  if (index === -1) {
-    return undefined;
-  }
-
-  const value = cliArgs[index + 1];
-  if (!value || value.startsWith('--')) {
-    throw new Error(`Missing value for ${name}`);
-  }
-
-  return value;
-}
-
-function cleanFixture(fixtureDir) {
-  rmSync(resolve(fixtureDir, 'dist'), { force: true, recursive: true });
-  rmSync(resolve(fixtureDir, 'node_modules'), { force: true, recursive: true });
-  rmSync(resolve(fixtureDir, 'package-lock.json'), { force: true });
-}
-
-rmSync(packDir, { force: true, recursive: true });
-mkdirSync(packDir, { recursive: true });
-
-try {
-  const suppliedTarball = readArgument('--tarball');
-  const suppliedDataTarball = readArgument('--data-tarball');
-  const suppliedAdaptersTarball = readArgument('--adapters-tarball');
-  const suppliedUtilsTarball = readArgument('--utils-tarball');
-  const suppliedRadioTarball = readArgument('--radio-tarball');
-  if (!suppliedTarball || !suppliedDataTarball || !suppliedAdaptersTarball || !suppliedUtilsTarball || !suppliedRadioTarball) {
-    runNpm(['run', 'build']);
-  }
-  let tarballPath;
-  if (suppliedTarball) {
-    tarballPath = resolve(rootDir, suppliedTarball);
-    if (!existsSync(tarballPath)) {
-      throw new Error(`Packed tarball does not exist: ${tarballPath}`);
-    }
-  } else {
-    runNpm(['pack', '--ignore-scripts', '--pack-destination', packDir]);
-
-    const packedTarballs = readdirSync(packDir)
-      .filter(fileName => fileName.endsWith('.tgz'));
-
-    if (packedTarballs.length !== 1) {
-      throw new Error(`Expected one packed tarball, found ${packedTarballs.length}`);
-    }
-
-    tarballPath = resolve(packDir, packedTarballs[0]);
-  }
-
-  let dataTarballPath;
-  if (suppliedDataTarball) {
-    dataTarballPath = resolve(rootDir, suppliedDataTarball);
-    if (!existsSync(dataTarballPath)) {
-      throw new Error(`Packed data tarball does not exist: ${dataTarballPath}`);
-    }
-  } else {
-    const existingTarballs = new Set(readdirSync(packDir));
-    runNpm([
-      'pack',
-      '--ignore-scripts',
-      resolve(rootDir, 'packages/data'),
-      '--pack-destination',
-      packDir,
-    ]);
-    const packedDataTarballs = readdirSync(packDir)
-      .filter(fileName => fileName.endsWith('.tgz') && !existingTarballs.has(fileName));
-    if (packedDataTarballs.length !== 1) {
-      throw new Error(`Expected one packed data tarball, found ${packedDataTarballs.length}`);
-    }
-    dataTarballPath = resolve(packDir, packedDataTarballs[0]);
-  }
-
-  let adaptersTarballPath;
-  if (suppliedAdaptersTarball) {
-    adaptersTarballPath = resolve(rootDir, suppliedAdaptersTarball);
-    if (!existsSync(adaptersTarballPath)) {
-      throw new Error(`Packed adapters tarball does not exist: ${adaptersTarballPath}`);
-    }
-  } else {
-    const existingTarballs = new Set(readdirSync(packDir));
-    runNpm([
-      'pack',
-      '--ignore-scripts',
-      resolve(rootDir, 'packages/adapters'),
-      '--pack-destination',
-      packDir,
-    ]);
-    const packedAdaptersTarballs = readdirSync(packDir)
-      .filter(fileName => fileName.endsWith('.tgz') && !existingTarballs.has(fileName));
-    if (packedAdaptersTarballs.length !== 1) {
-      throw new Error(`Expected one packed adapters tarball, found ${packedAdaptersTarballs.length}`);
-    }
-    adaptersTarballPath = resolve(packDir, packedAdaptersTarballs[0]);
-  }
-
-  let utilsTarballPath;
-  if (suppliedUtilsTarball) {
-    utilsTarballPath = resolve(rootDir, suppliedUtilsTarball);
-    if (!existsSync(utilsTarballPath)) {
-      throw new Error(`Packed utils tarball does not exist: ${utilsTarballPath}`);
-    }
-  } else {
-    const existingTarballs = new Set(readdirSync(packDir));
-    runNpm([
-      'pack',
-      '--ignore-scripts',
-      resolve(rootDir, 'packages/utils'),
-      '--pack-destination',
-      packDir,
-    ]);
-    const packedUtilsTarballs = readdirSync(packDir)
-      .filter(fileName => fileName.endsWith('.tgz') && !existingTarballs.has(fileName));
-    if (packedUtilsTarballs.length !== 1) {
-      throw new Error(`Expected one packed utils tarball, found ${packedUtilsTarballs.length}`);
-    }
-    utilsTarballPath = resolve(packDir, packedUtilsTarballs[0]);
-  }
-
-  let radioTarballPath;
-  if (suppliedRadioTarball) {
-    radioTarballPath = resolve(rootDir, suppliedRadioTarball);
-    if (!existsSync(radioTarballPath)) {
-      throw new Error(`Packed radio tarball does not exist: ${radioTarballPath}`);
-    }
-  } else {
-    const existingTarballs = new Set(readdirSync(packDir));
-    runNpm([
-      'pack',
-      '--ignore-scripts',
-      resolve(rootDir, 'packages/radio'),
-      '--pack-destination',
-      packDir,
-    ]);
-    const packedRadioTarballs = readdirSync(packDir)
-      .filter(fileName => fileName.endsWith('.tgz') && !existingTarballs.has(fileName));
-    if (packedRadioTarballs.length !== 1) {
-      throw new Error(`Expected one packed radio tarball, found ${packedRadioTarballs.length}`);
-    }
-    radioTarballPath = resolve(packDir, packedRadioTarballs[0]);
-  }
-
-  const adapterFixtures = new Set([
-    'adapters-package-vite',
-    'backbone-adapter',
-    'backbone-adapter-types',
-    'cjs-adapters',
-    'collection-removal-survivors',
-    'jquery-dom-api',
-    'jquery-dom-api-types',
-    'xstate-adapter-types',
-    'dom-adapters-package',
-  ]);
-
-  for (const fixtureName of fixtures) {
-    const fixtureSourceDir = resolve(__dirname, fixtureName);
-    const externalFixture = ['core-no-underscore', 'standalone-packages'].includes(fixtureName);
-
-    if (!existsSync(resolve(fixtureSourceDir, 'package.json'))) {
-      throw new Error(`Fixture is missing package.json: ${fixtureName}`);
-    }
-
-    const fixtureDir = externalFixture ?
-      mkdtempSync(resolve(tmpdir(), 'marionette-core-no-underscore-')) : fixtureSourceDir;
-
+  const environment = {
+    ...process.env,
+    npm_config_fund: 'false', npm_config_audit: 'false', npm_config_package_lock: 'true',
+    'npm_config_strict_allow_scripts': 'true',
+    NODE_PATH: '',
+    NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --no-global-search-paths`,
+    // npm run adds the isolated fixture's .bin. Do not inherit the checkout's
+    // npm-run PATH and accidentally validate against a missing local compiler.
+    PATH: (process.env.PATH || '').split(delimiter).filter(path => !path.includes('node_modules')).join(delimiter),
+  };
+  function run(command, args, cwd = rootDir) {
     try {
-      if (externalFixture) {
-        cpSync(fixtureSourceDir, fixtureDir, { recursive: true });
-      }
-
-      cleanFixture(fixtureDir);
-      runNpm(['install'], { cwd: fixtureDir });
-      const tarballs = fixtureName === 'standalone-packages' ? [dataTarballPath] : fixtureName === 'core-types' ?
-        [tarballPath, dataTarballPath, adaptersTarballPath] : fixtureName.startsWith('data-package-') ?
-          [tarballPath, dataTarballPath] : adapterFixtures.has(fixtureName) ?
-            [tarballPath, adaptersTarballPath] : [tarballPath];
-      runNpm(['install', '--ignore-scripts', '--no-save', utilsTarballPath, radioTarballPath, ...tarballs], { cwd: fixtureDir });
-      runNpm(['run', 'validate'], { cwd: fixtureDir });
-    } finally {
-      if (externalFixture) {
-        rmSync(fixtureDir, { force: true, recursive: true });
-      } else {
-        cleanFixture(fixtureDir);
-      }
+      return execFileSync(command, args, { cwd, env: environment, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
+    } catch (error) {
+      throw new Error(`${command} ${args.join(' ')} failed\n${error.stdout || ''}${error.stderr || error.message}`, { cause: error });
     }
   }
+  function npm(args, cwd) {
+    return run(process.execPath, [npmCli, ...args], cwd);
+  }
+  workspace = mkdtempSync(resolve(tmpdir(), 'marionette-fixtures-'));
+  assertIsolated(workspace);
+  const packDir = resolve(workspace, 'artifacts');
+  mkdirSync(packDir);
+  stage = 'artifacts';
+  let paths;
+  let evidence;
+  if (options['--artifact-dir']) {
+    const directory = resolve(rootDir, options['--artifact-dir']);
+    paths = readdirSync(directory).filter(name => name.endsWith('.tgz')).map(name => resolve(directory, name));
+    const evidencePath = resolve(directory, 'release-evidence.json');
+    if (existsSync(evidencePath)) {
+      evidence = readJson(evidencePath);
+      if (!Array.isArray(evidence.packages) || evidence.packages.length !== packageInputs.length) {
+        throw new Error('Release evidence must describe all five package artifacts.');
+      }
+      report.evidence = { path: evidencePath, sha256: sha256(evidencePath), source: evidence.source };
+    }
+  } else if (options['--tarball']) {
+    paths = packageInputs.map(input => resolve(rootDir, options[input.flag]));
+  } else {
+    console.log('Building package candidates for fixtures...');
+    npm(['run', 'build']);
+    paths = packageInputs.map(input => {
+      const result = JSON.parse(npm(['pack', '--json', '--ignore-scripts', '--pack-destination', packDir], resolve(rootDir, input.directory)));
+      if (result.length !== 1) {
+        throw new Error(`Expected one packed ${input.name} tarball, received ${result.length}`);
+      }
+      return resolve(packDir, result[0].filename);
+    });
+  }
+  const artifacts = new Map();
+  for (const [index, path] of paths.entries()) {
+    // Freeze input before inspecting it; another task can replace the source.
+    const frozenPath = resolve(packDir, `candidate-${index}.tgz`);
+    cpSync(path, frozenPath);
+    const manifest = JSON.parse(run('tar', ['-xOf', frozenPath, 'package/package.json']));
+    if (!packageInputs.some(input => input.name === manifest.name) || artifacts.has(manifest.name)) {
+      throw new Error(`Unexpected or duplicate artifact: ${manifest.name}`);
+    }
+    if (evidence) {
+      const entry = evidence.packages.find(candidate => candidate.name === manifest.name);
+      const bytes = readFileSync(frozenPath);
+      if (!entry || entry.version !== manifest.version || entry.tarball?.file !== relative(resolve(rootDir, options['--artifact-dir']), path) ||
+        entry.tarball.size !== bytes.length || entry.tarball.sha256 !== sha256(frozenPath) ||
+        entry.tarball.sha512 !== createHash('sha512').update(bytes).digest('hex') ||
+        entry.tarball.integrity !== `sha512-${createHash('sha512').update(bytes).digest('base64')}` ||
+        JSON.stringify(entry.manifest) !== JSON.stringify(manifest)) {
+        throw new Error(`Release evidence does not match package artifact: ${manifest.name}`);
+      }
+    }
+    artifacts.set(manifest.name, frozenPath);
+    report.artifacts.push({ name: manifest.name, version: manifest.version, source: path, sha256: sha256(frozenPath) });
+  }
+  if (artifacts.size !== packageInputs.length) {
+    throw new Error(`Expected all five package artifacts; received ${artifacts.size}`);
+  }
+  report.npm = npm(['--version']).trim();
+  // Snapshot documentation once so concurrent doc edits cannot change examples
+  // midway through a matrix. Each fixture gets the same docs and relative paths.
+  const docsSnapshot = resolve(workspace, 'docs');
+  cpSync(resolve(rootDir, 'docs'), docsSnapshot, { recursive: true });
+  for (const name of selected) {
+    const started = Date.now();
+    const result = { name, status: 'failed' };
+    report.fixtures.push(result);
+    const fixtureRoot = resolve(workspace, name);
+    const fixtureDir = resolve(fixtureRoot, 'test/fixtures', name);
+    try {
+      stage = result.stage = 'copy';
+      cpSync(resolve(fixturesDir, name), fixtureDir, {
+        recursive: true,
+        filter: source => !relative(resolve(fixturesDir, name), source).split(/[\\/]/).some(part => ['node_modules', 'dist'].includes(part)),
+      });
+      cpSync(docsSnapshot, resolve(fixtureRoot, 'docs'), { recursive: true });
+      assertIsolated(fixtureDir);
+      const lockPath = resolve(fixtureDir, 'package-lock.json');
+      const lockedGraph = externalGraph(readJson(lockPath));
+      result.lockSha256 = sha256(lockPath);
+      stage = result.stage = 'candidate-lock';
+      npm(['install', '--package-lock-only', '--ignore-scripts', '--save-exact',
+        ...selectedPackages(name).map(packageName => artifacts.get(packageName))], fixtureDir);
+      const candidateLock = readJson(lockPath);
+      result.graph = externalGraph(candidateLock);
+      if (JSON.stringify(result.graph) !== JSON.stringify(lockedGraph)) {
+        throw new Error('Candidate installation changed the committed external dependency graph. Update the fixture lockfile explicitly.');
+      }
+      for (const packageName of selectedPackages(name)) {
+        const entry = candidateLock.packages[`node_modules/${packageName}`];
+        const expectedIntegrity = `sha512-${createHash('sha512').update(readFileSync(artifacts.get(packageName))).digest('base64')}`;
+        if (entry?.integrity !== expectedIntegrity) {
+          throw new Error(`Candidate lock does not reference exact artifact: ${packageName}`);
+        }
+      }
+      result.candidateLockSha256 = sha256(lockPath);
+      stage = result.stage = 'install';
+      npm(['ci', '--ignore-scripts=false'], fixtureDir);
+      stage = result.stage = 'installed-graph';
+      result.installedGraph = JSON.parse(npm(['ls', '--all', '--json'], fixtureDir));
+      stage = result.stage = 'validate';
+      result.output = npm(['run', 'validate'], fixtureDir);
+      result.status = 'passed';
+      console.log(`PASS ${name} (${Date.now() - started}ms)`);
+    } catch (error) {
+      result.error = error.message;
+      console.error(`Fixture ${name} failed at ${stage}: ${error.message}`);
+    } finally {
+      result.durationMs = Date.now() - started;
+      rmSync(fixtureRoot, { recursive: true, force: true });
+    }
+  }
+  report.status = report.fixtures.every(result => result.status === 'passed') ? 'passed' : 'failed';
+  if (report.status === 'failed') {
+    process.exitCode = 1;
+  }
+} catch (error) {
+  report.error = error.message;
+  report.stage = stage;
+  console.error(error.message);
+  process.exitCode = 1;
 } finally {
-  rmSync(packDir, { force: true, recursive: true });
+  report.finishedAt = new Date().toISOString();
+  if (reportPath) {
+    mkdirSync(dirname(reportPath), { recursive: true });
+    writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+    console.log(`Fixture report: ${reportPath}`);
+  }
+  if (workspace) {
+    rmSync(workspace, { recursive: true, force: true });
+  }
 }

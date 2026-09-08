@@ -1,4 +1,5 @@
 {
+  "name": "marionette-data-package-types-fixture",
   "private": true,
   "type": "module",
   "scripts": {

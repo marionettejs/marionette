@@ -1,4 +1,5 @@
 {
+  "name": "marionette-adapters-package-vite-fixture",
   "private": true,
   "type": "module",
   "scripts": {

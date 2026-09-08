@@ -1,4 +1,5 @@
 {
+  "name": "marionette-docs-behavior-host-fixture",
   "private": true,
   "type": "module",
   "scripts": {
