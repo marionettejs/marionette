@@ -24,7 +24,7 @@
       "only Views enter Region and invalid open preserves current overlay"
     ],
     "overlay-dismiss": [
-      "exclusive overlays do not leak dismissal listeners"
+      "exclusive overlays release dismissal listeners on every public empty path"
     ],
     "async-panel": [
       "out-of-order completion, stop, failures and destroy are deterministic"
@@ -36,10 +36,10 @@
       "independent evented presenters release only owned subscriptions"
     ],
     "owned-workspace-state": [
-      "owned state lifetimes follow Application and View ownership, not domain data"
+      "owned state survives deferred Application restart and session cleanup"
     ],
     "borrowed-workspace-state": [
-      "borrowed state and domain survive ownership changes and repeated lifecycle"
+      "borrowed state survives deferred Application restart and canceled destroy"
     ]
   }
 }

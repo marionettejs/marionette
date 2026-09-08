@@ -1,5 +1,5 @@
 import { View, Application } from 'marionette';
-export function createStateWorkspace(el, makeState, domain) {
+export function createStateWorkspace(el, makeState, domain, lifecycle) {
   const stateApi = {
     disposeOwned(source) {
       source.dispose();
@@ -26,10 +26,24 @@ export function createStateWorkspace(el, makeState, domain) {
     }
   });
   Editor.setStateApi(stateApi);
-  const Workspace = Application.extend({
-    createState() {
-      return makeState('app');
+  let unsubscribe;
+  const releaseSession = () => {
+    if (unsubscribe) {
+      const release = unsubscribe;
+      unsubscribe = undefined;
+      release();
     }
+  };
+  const Workspace = Application.extend({
+    createState() { return makeState('app'); },
+    onBeforeStart(application, options, context) {
+      return lifecycle.ready(context.signal);
+    },
+    onStart() {
+      unsubscribe = lifecycle.subscribe();
+    },
+    onStop: releaseSession,
+    onDestroy: releaseSession
   });
   Workspace.setStateApi(stateApi);
   const app = new Workspace();

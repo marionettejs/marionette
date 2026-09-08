@@ -8,7 +8,7 @@ const host = () => {
   document.body.append(el);
   return el;
 };
-test('exclusive overlays do not leak dismissal listeners', () => {
+test('exclusive overlays release dismissal listeners on every public empty path', () => {
   const listeners = new Set();
   const events = {
     addEventListener(name, callback) {
@@ -40,6 +40,16 @@ test('exclusive overlays do not leak dismissal listeners', () => {
     key: 'Escape'
   }));
   assert.equal(current.isDestroyed(), true);
+  assert.equal(listeners.size, 0);
+  const directlyEmptied = new View({ template: false });
+  app.open(directlyEmptied);
+  app.region.empty();
+  assert.equal(directlyEmptied.isDestroyed(), true);
+  assert.equal(listeners.size, 0);
+  const externallyDestroyed = new View({ template: false });
+  app.open(externallyDestroyed);
+  externallyDestroyed.destroy();
+  assert.equal(app.region.hasView(), false);
   assert.equal(listeners.size, 0);
   const last = new View({
     template: false
