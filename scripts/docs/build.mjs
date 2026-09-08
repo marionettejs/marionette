@@ -1,5 +1,6 @@
 import { readFile, rm, mkdir, writeFile, copyFile } from 'fs/promises';
-import { dirname, resolve } from 'path';
+import { dirname, relative, resolve } from 'path';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'url';
 import { marked, Renderer } from 'marked';
 import { loadDiagnosticCatalog } from '../diagnostics/catalog.mjs';
@@ -12,6 +13,8 @@ const canonicalOrigin = 'https://docs.marionettejs.com';
 const docRoutes = new Map();
 const markdownRenderer = new Renderer();
 let packageVersion;
+const sourceRevision = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: rootDir, encoding: 'utf8' }).trim();
+const sourceDirty = Boolean(execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], { cwd: rootDir, encoding: 'utf8' }).trim());
 
 export function diagnosticIndex(diagnostics) {
   const rows = diagnostics.map(({ code, slug, severity, status }) => {
@@ -111,15 +114,13 @@ function rewriteDocLinks(html, sourcePath) {
     const pathPart = hashIndex === -1 ? href : href.slice(0, hashIndex);
     const hashPart = hashIndex === -1 ? '' : href.slice(hashIndex);
 
-    if (!/\.md$/i.test(pathPart)) {
-      return link;
-    }
-
     const target = resolve(dirname(sourcePath), pathPart);
     const targetRoute = docRoutes.get(target);
 
     if (!targetRoute) {
-      return link;
+      const repositoryPath = relative(rootDir, target);
+      if (repositoryPath.startsWith('..')) {return link;}
+      return `${prefix}https://github.com/marionettejs/marionette/blob/${sourceRevision}/${repositoryPath}${hashPart}${suffix}`;
     }
 
     return `${prefix}/${targetRoute ? `${targetRoute}/` : ''}${hashPart}${suffix}`;
@@ -153,6 +154,9 @@ function pageTemplate({ body, canonicalPath, title }) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${escapeHtml(title)} | Marionette</title>
     <meta name="description" content="Marionette framework documentation">
+    <meta name="marionette-package-version" content="${escapeHtml(packageVersion)}">
+    <meta name="marionette-source-revision" content="${sourceRevision}">
+    <meta name="marionette-source-dirty" content="${sourceDirty}">
     <link rel="canonical" href="${canonicalUrl}">
     <link rel="stylesheet" href="/assets/styles.css">
   </head>
@@ -167,7 +171,7 @@ function pageTemplate({ body, canonicalPath, title }) {
       </nav>
     </header>
     <main>${body}</main>
-    <footer>Marionette ${escapeHtml(packageVersion)} documentation</footer>
+    <footer>Marionette ${escapeHtml(packageVersion)} documentation · source ${sourceRevision}${sourceDirty ? ' + local changes' : ''}</footer>
   </body>
 </html>
 `;
@@ -219,10 +223,10 @@ async function buildDocs() {
     await writePage(route, diagnosticPage(diagnostic), null, diagnostic.code);
   }
 
-  const nextDocs = JSON.parse(await readFile(resolve(siteDir, 'next.json'), 'utf8'));
+  const nextDocs = JSON.parse(await readFile(resolve(siteDir, 'navigation.json'), 'utf8'));
   const docSources = nextDocs.map(({ route, source }) => ({
     fileName: source,
-    route,
+    route: route.replace(/^docs/, 'next'),
     sourcePath: resolve(rootDir, source),
   }));
 

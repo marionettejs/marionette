@@ -1,0 +1,41 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "url": "https://context7.com/marionettejs/marionette",
+  "public_key": "pk_dDwor65yx2DOyaFDDOmVU",
+  "projectTitle": "Marionette JavaScript — v5 development",
+  "description": "Marionette JavaScript UI composition: Views, Regions, CollectionViews, feature lifecycle, and independent data, state, DOM and rendering integrations. Current v5 development source; published npm alphas can differ.",
+  "branch": "master",
+  "folders": [
+    "docs",
+    "packages/data",
+    "packages/adapters"
+  ],
+  "excludeFolders": [
+    "docs/maintainers",
+    "**/node_modules",
+    "**/dist",
+    "**/test",
+    "**/src"
+  ],
+  "excludeFiles": [
+    "AGENTS.md",
+    "CONTRIBUTING.md",
+    "ROADMAP.md",
+    "changelog.md",
+    "CODE_OF_CONDUCT.md",
+    "license.txt",
+    "upgrade-v2-v3.md",
+    "upgrade-v3-v4.md",
+    "release-profile.md",
+    "release-promotion.md",
+    "performance-baselines.md",
+    "upgradeGuide.md",
+    "migration-from-v4.md"
+  ],
+  "rules": [
+    "Identify the installed package version and source revision before choosing documentation. This branch describes v5 development; npm alpha content may differ.",
+    "Read docs/agents.md and docs/choosing-integrations.md for task and integration decisions. Preserve an existing compatible provider; choose each adapter for its own capability.",
+    "Routing is an application integration. The router owns URLs; application code owns navigation and cancellation; Marionette owns feature and View lifecycle.",
+    "Use public package exports. Verify setup, replacement, asynchronous completion, and cleanup against the installed artifact. Do not infer measured agent gains from documentation coverage."
+  ]
+}

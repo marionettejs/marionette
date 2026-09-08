@@ -20,6 +20,7 @@ node_modules
 # Testing
 coverage
 test/tmp
+test/fixtures/*/dist/
 .nyc_output
 .docs-site
 
@@ -30,3 +31,6 @@ test/tmp
 /dist/
 /packages/*/dist/
 /src/version.js
+
+/.docs-export/
+/.docs-export-tmp/

@@ -51,7 +51,7 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "npm run build:utils && npm run build:radio && npm run check:types && node build/clean.js && rollup -c rollup.config.mjs --noConflict && npm run build:types && npm run build:data && npm run build:adapters && npm run test:types",
+    "build": "npm run build:utils && npm run build:radio && npm run check:types && node build/clean.js && rollup -c rollup.config.mjs --noConflict && npm run build:types && npm run build:data && npm run build:adapters && npm run test:types && npm run docs:package",
     "build:adapters": "npm --prefix packages/adapters run build",
     "build:data": "npm --prefix packages/data run build",
     "check:browser-profile": "node scripts/checks/browser-profile.mjs",
@@ -61,7 +61,7 @@
     "check:release-profile": "node scripts/checks/release-profile.mjs",
     "coverage": "vitest run --coverage && npm run test:agent-benchmark-contract",
     "docs:build": "node scripts/docs/build.mjs",
-    "docs:check": "npm run check:docs-examples && npm run docs:build && node scripts/docs/check-links.mjs",
+    "docs:check": "node --test test/docs/export.test.mjs && npm run check:docs-examples && npm run docs:build && node scripts/docs/check-links.mjs",
     "lint:base": "eslint .",
     "lint": "npm run lint:base -- --fix",
     "lint:ci": "npm run lint:base -- --max-warnings=0",
@@ -75,7 +75,7 @@
     "size:data": "node scripts/performance/data-package-size.mjs",
     "test": "vitest run",
     "test:agent-benchmark-contract": "node --test test/agent-benchmark/task-contract.test.mjs",
-    "test:browser": "node test/browser/adapters-package.mjs && node test/browser/attachment-owner-document.mjs && node test/browser/collection-removal-survivors.mjs && node test/browser/data-package.mjs && node test/browser/event-delegator-focus.mjs && node test/browser/view-render-attributes.mjs && node test/browser/dom-adapters.mjs",
+    "test:browser": "node test/browser/adapters-package.mjs && node test/browser/attachment-owner-document.mjs && node test/browser/collection-removal-survivors.mjs && node test/browser/data-package.mjs && node test/browser/event-delegator-focus.mjs && node test/browser/view-render-attributes.mjs && node test/browser/dom-adapters.mjs && node test/browser/docs-form.mjs",
     "test:dist": "node test/dist/validate.mjs",
     "test:fixtures": "node test/fixtures/run.mjs",
     "test:performance": "node --test test/performance/*.test.mjs",
@@ -88,7 +88,10 @@
     "test:types": "node test/types/run.mjs",
     "build:types": "node build/declarations.mjs",
     "build:utils": "npm --prefix packages/utils run build",
-    "build:radio": "npm --prefix packages/radio run build"
+    "build:radio": "npm --prefix packages/radio run build",
+    "docs:export": "node scripts/docs/export.mjs",
+    "docs:package": "node scripts/docs/package.mjs",
+    "test:agent-docs": "node --test test/agent-docs/*.test.mjs"
   },
   "bugs": {
     "url": "https://github.com/marionettejs/marionette/issues"
