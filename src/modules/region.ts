@@ -346,6 +346,7 @@ Object.assign(Region.prototype, CommonMixin, {
       return;
     }
 
+    view.off('before:destroy', this._restoreEl, this);
     this._detachView(view);
 
     this._isReplaced = false;
