@@ -1,0 +1,27 @@
+name: Feature request
+description: Suggest an improvement to Marionette or its documentation and tooling.
+title: "[Feature]: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to do, and what makes it difficult today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-behavior
+    attributes:
+      label: Proposed behavior
+      description: Describe how you would like Marionette to help. A small usage example is welcome.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Mention any workarounds or other approaches you have considered.
+    validations:
+      required: false
