@@ -1,0 +1,25 @@
+changelog.md
+  s_fae5a6096938ea::t_af2e93dd5a57f9 1
+config/release-promotion.json
+  s_fae5a6096938ea::t_254bb7835ad328 5
+docs/beta.md
+  s_fae5a6096938ea::t_d070411f2efe3b 1,3-6
+docs/release-promotion.md
+  s_fae5a6096938ea::t_5ded90e6ef22ad 9-10,91-96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "82ca6ab96cc75e274284294b04faf5f124ab614e",
+  "prompts": {},
+  "sessions": {
+    "s_fae5a6096938ea": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08215-179d-79e2-9e34-97d51f445f91",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
