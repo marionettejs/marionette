@@ -300,3 +300,19 @@ if (overriddenMember instanceof OptionModel) { overriddenMember.optionOnly(); }
 collection.add({ id: 'wrong' });
 // @ts-expect-error Initial raw attributes honor an explicitly typed collection.
 new Collection<Model<Attributes>>([{ id: 'wrong' }]);
+
+void removedModels;
+void removedModel;
+void missingAttribute;
+void missingSerializedAttribute;
+void requiredId;
+
+// Explicit member generics cannot configure the runtime factory either.
+const explicitInput = new Collection<InputModel>([new InputModel()]);
+// @ts-expect-error A base factory permits later base Models, even with explicit M.
+explicitInput.at(0)!.inputOnly();
+// @ts-expect-error Raw additions use the base factory.
+explicitInput.add({ id: 2 })!.inputOnly();
+const inputFactory = new Collection([new InputModel()], { model: InputModel });
+const inputFactoryResult: string = inputFactory.add({ id: 3 })!.inputOnly();
+void inputFactoryResult;
