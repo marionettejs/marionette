@@ -38,6 +38,10 @@
       "title": "packed data models collections and state"
     },
     {
+      "file": "docs-form.spec.mjs",
+      "title": "documented form preserves keyboard, validation, draft, focus, retry and teardown behavior"
+    },
+    {
       "file": "dom-adapters.spec.mjs",
       "title": "DOM contract registry matches the named browser cases"
     },
@@ -176,6 +180,7 @@
     "data-package-esm",
     "data-package-types",
     "data-package-vite",
+    "docs-application-guides",
     "docs-application-state",
     "docs-basics-contract",
     "docs-behavior-host",
@@ -183,8 +188,11 @@
     "docs-common-contract",
     "docs-dom-api",
     "docs-entity-events",
+    "docs-package",
+    "docs-prerendered-content",
     "docs-radio-owner",
     "docs-region-lifecycle",
+    "docs-routing",
     "docs-utils-contract",
     "docs-view-child-region",
     "docs-view-dom-interactions",
