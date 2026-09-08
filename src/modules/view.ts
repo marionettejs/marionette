@@ -196,7 +196,7 @@ function setRegion<Value>(regions: Record<string, Value>, definition: Value, nam
 
 function getOwnRegion(regions: RegionMap, name: string): RegionInternals | undefined {
   assertRegionName(name);
-  return Object.getOwnPropertyDescriptor(regions, name)?.value;
+  return regions[name];
 }
 
 function getRequiredRegion(region: RegionInstance | undefined, name: string) {
