@@ -1,8 +1,6 @@
 // ViewMixin
 //  ---------
 
-import cleanupSubscriptions from '../utils/cleanup-subscriptions.ts';
-
 import { getValue } from '@marionette/utils';
 import BehaviorsMixin from './behaviors.ts';
 import CommonMixin from './common.ts';
@@ -49,24 +47,6 @@ export type ViewMixinHost = SharedMixins & BehaviorContainer & EntityEventHost &
     undelegateEntityEvents(): unknown;
     unbindUIElements(): unknown;
   };
-
-// Release acquired resources without detaching a possibly borrowed root or
-// dispatching lifecycle events for an instance that construction never returned.
-export function rollbackViewConstruction(view: ViewMixinHost, cleanupChildren: () => unknown) {
-  view._isDestroyed = true;
-  const dataCleanup = view._dataObserverCleanup;
-  delete view._dataObserverCleanup;
-  const behaviors = view._behaviors?.slice() || [];
-  cleanupSubscriptions([
-    () => { if (view._domEvents) { view._undelegateViewEvents(); } },
-    () => view._undelegateEntityEvents(),
-    dataCleanup,
-    ...behaviors.map(behavior => () => behavior.destroy()),
-    () => view._destroyState(),
-    () => view.stopListening(),
-    cleanupChildren
-  ]);
-}
 
 export const ViewOptions = [
   'attributes',
@@ -187,25 +167,18 @@ const ViewMixin = {
   delegateEntityEvents(this: ViewMixinHost) {
     if (this._isDestroyed || this._isDestroying) { return this; }
 
-    try {
-      this._delegateEntityEvents(this.model, this.collection, this.Data);
+    this._delegateEntityEvents(this.model, this.collection, this.Data);
 
-      // Bind each Behavior's model and collection events as one owned batch.
-      this._delegateBehaviorEntityEvents();
-    } catch (error) {
-      try { this.undelegateEntityEvents(); } catch { /* Preserve the subscription setup error. */ }
-      throw error;
-    }
+    // bind each behaviors model and collection events
+    this._delegateBehaviorEntityEvents();
 
     return this;
   },
 
   // Handle unbinding `modelEvents`, and `collectionEvents` configuration
   undelegateEntityEvents(this: ViewMixinHost) {
-    cleanupSubscriptions([
-      () => this._undelegateEntityEvents(),
-      () => this._undelegateBehaviorEntityEvents()
-    ]);
+    this._undelegateEntityEvents();
+    this._undelegateBehaviorEntityEvents();
 
     return this;
   },

@@ -9,7 +9,6 @@
 import type { Bindings } from '@marionette/utils';
 import { getValue, uniqueId } from '@marionette/utils';
 import extend from '../utils/extend.ts';
-import cleanupSubscriptions from '../utils/cleanup-subscriptions.ts';
 import CommonMixin from '../mixins/common.ts';
 import DelegateEntityEventsMixin from '../mixins/delegate-entity-events.ts';
 import StateMixin from '../mixins/state.ts';
@@ -126,50 +125,37 @@ const ClassOptions = [
 ];
 
 const Behavior = function(this: BehaviorInternals, options: BehaviorOptions | undefined, view: BehaviorHost) {
-  try {
-    // Setup reference to the view.
-    // this comes in handy when a behavior
-    // wants to directly talk up the chain
-    // to the view.
-    this.view = view;
+  // Setup reference to the view.
+  // this comes in handy when a behavior
+  // wants to directly talk up the chain
+  // to the view.
+  this.view = view;
 
-    this._setOptions(options, ClassOptions);
-    this.cid = uniqueId(this.cidPrefix);
+  this._setOptions(options, ClassOptions);
+  this.cid = uniqueId(this.cidPrefix);
 
-    this._initViewEvents();
-    this.el = view.el;
-    this._initState(options);
+  this._initViewEvents();
+  this.el = view.el;
+  this._initState(options);
 
-    // Construct an internal UI hash using the behaviors UI
-    // hash combined and overridden by the view UI hash.
-    // This allows the user to use UI hash elements defined
-    // in the parent view as well as those defined in the behavior.
-    // This order will help the reuse and share of a behavior
-    // between multiple views, while letting a view override
-    // a selector under an UI key.
-    this.ui = { ...getValue(this, 'ui') as UISelectors, ...getValue(view, 'ui') as UISelectors };
+  // Construct an internal UI hash using the behaviors UI
+  // hash combined and overridden by the view UI hash.
+  // This allows the user to use UI hash elements defined
+  // in the parent view as well as those defined in the behavior.
+  // This order will help the reuse and share of a behavior
+  // between multiple views, while letting a view override
+  // a selector under an UI key.
+  this.ui = { ...getValue(this, 'ui') as UISelectors, ...getValue(view, 'ui') as UISelectors };
 
-    // Proxy view triggers
-    this.listenTo(view, 'all', this.triggerMethod);
+  // Proxy view triggers
+  this.listenTo(view, 'all', this.triggerMethod);
 
-    (this.initialize as Function).apply(this, arguments);
+  (this.initialize as Function).apply(this, arguments);
 
-    this._initStateEvents();
-    if (this._isDestroyed) { return; }
+  this._initStateEvents();
+  if (this._isDestroyed) { return; }
 
-    this._delegateViewEvents(this.view);
-  } catch (error) {
-    this._isDestroyed = true;
-    try {
-      cleanupSubscriptions([
-        () => { if (this._domEvents) { this._undelegateViewEvents(); } },
-        () => this._undelegateEntityEvents(),
-        () => this._destroyState(),
-        () => this.stopListening()
-      ]);
-    } catch { /* Preserve the construction error after attempting every cleanup. */ }
-    throw error;
-  }
+  this._delegateViewEvents(this.view);
 };
 
 Object.assign(Behavior, { extend, setEventDelegator, setStateApi });
@@ -189,13 +175,11 @@ Object.assign(Behavior.prototype, CommonMixin, DelegateEntityEventsMixin, StateM
   // Stops the behavior from listening to events.
   destroy(this: BehaviorInternals) {
     this._isDestroyed = true;
-    cleanupSubscriptions([
-      () => this._undelegateViewEvents(),
-      () => this._destroyState(),
-      () => this.stopListening(),
-      () => this.view._removeBehavior(this),
-      () => this._undelegateEntityEvents()
-    ]);
+    this._undelegateViewEvents();
+    this._destroyState();
+    this.stopListening();
+    this.view._removeBehavior(this);
+    this._undelegateEntityEvents();
 
     return this;
   },

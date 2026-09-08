@@ -4,11 +4,10 @@
 import type { Bindings } from '@marionette/utils';
 import { MarionetteError, getValue, uniqueId } from '@marionette/utils';
 import extend from '../utils/extend.ts';
-import cleanupSubscriptions from '../utils/cleanup-subscriptions.ts';
 import monitorViewEvents from './common/monitor-view-events.ts';
 import buildRegion from './common/build-region.ts';
-import ViewMixin, { ViewOptions, rollbackViewConstruction } from '../mixins/view.ts';
-import Region, { rollbackRegion } from './region.ts';
+import ViewMixin, { ViewOptions } from '../mixins/view.ts';
+import Region from './region.ts';
 import { setEventDelegator } from '../runtime/event-delegator.ts';
 import { setRenderer } from '../runtime/renderer.ts';
 import { setDomApi } from '../runtime/dom-api.ts';
@@ -160,7 +159,6 @@ type ViewInternals = ViewInstance & ViewMixinHost & {
   [runtimeId]?: object;
   regions: RegionDefinitions;
   _regions: RegionMap;
-  _constructionRegions?: RegionInternals[];
   _initRegions(): void;
   _reInitRegions(): void;
   _addRegions(regions: RegionDefinitions): RegionMap;
@@ -335,7 +333,6 @@ const RegionsMixin = {
     const regions: RegionMap = {};
     for (const name of Object.keys(regionDefinitions)) {
       const region = buildRegion(regionDefinitions[name], defaults);
-      if (region !== regionDefinitions[name]) { this._constructionRegions?.push(region); }
       this._addRegion(region, name);
       setRegion(regions, region, name);
     }
@@ -482,61 +479,39 @@ function childReducer(children: SupportedView[], region: RegionInternals) {
 // The standard view. Includes view events, automatic rendering
 // templates, nested views, and more.
 const View = function(this: ViewInternals, options?: ViewConfiguration) {
-  this._constructionRegions = [];
-  try {
-    this.cid = uniqueId(this.cidPrefix);
-    this._setOptions(options, ViewClassOptions);
+  this.cid = uniqueId(this.cidPrefix);
+  this._setOptions(options, ViewClassOptions);
 
-    (this.preinitialize as Function).apply(this, arguments);
-    this.mergeOptions(options, ViewOptions);
+  (this.preinitialize as Function).apply(this, arguments);
+  this.mergeOptions(options, ViewOptions);
 
-    this._initViewEvents();
+  this._initViewEvents();
 
-    this.el = this._getEl();
-    this._isRendered = this.Dom.hasContents!(this.el);
-    this._isAttached = this._isElAttached();
-    if (this._isRendered) { this.bindUIElements(); }
-    this.delegateEvents();
-    if (this._isAttached && this.monitorViewEvents !== false) {
-      this.Dom.notifyAttach?.(this.el);
-    }
-
-    monitorViewEvents(this);
-
-    this._initState(options);
-
-    this._initBehaviors();
-    this._initRegions();
-    this._buildEventProxies();
-
-    (this.initialize as Function).apply(this, arguments);
-
-    if (this._isDestroyed || this._isDestroying) { return; }
-
-    this._initStateEvents();
-    this.delegateEntityEvents();
-
-    this._triggerEventOnBehaviors('initialize', this, options);
-  } catch (error) {
-    try {
-      rollbackViewConstruction(this, () => {
-        const ownedRegions = this._constructionRegions!;
-        const registered = Object.entries(this._regions || {});
-        cleanupSubscriptions([
-          ...ownedRegions.map(region => () => rollbackRegion(region)),
-          ...registered.filter(([name, region]) => this.regions[name] === region).map(([, region]) => () => {
-            if (region._parentView === this) {
-              delete region._parentView;
-              delete region._name;
-            }
-          })
-        ]);
-      });
-    } catch { /* Preserve the construction error after attempting every cleanup. */ }
-    throw error;
-  } finally {
-    delete this._constructionRegions;
+  this.el = this._getEl();
+  this._isRendered = this.Dom.hasContents!(this.el);
+  this._isAttached = this._isElAttached();
+  if (this._isRendered) { this.bindUIElements(); }
+  this.delegateEvents();
+  if (this._isAttached && this.monitorViewEvents !== false) {
+    this.Dom.notifyAttach?.(this.el);
   }
+
+  monitorViewEvents(this);
+
+  this._initState(options);
+
+  this._initBehaviors();
+  this._initRegions();
+  this._buildEventProxies();
+
+  (this.initialize as Function).apply(this, arguments);
+
+  if (this._isDestroyed || this._isDestroying) { return; }
+
+  this._initStateEvents();
+  this.delegateEntityEvents();
+
+  this._triggerEventOnBehaviors('initialize', this, options);
 };
 
 Object.assign(View, { extend, setRenderer, setDomApi, setEventDelegator, setDataApi, setStateApi });

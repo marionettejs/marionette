@@ -5,6 +5,22 @@ folders describe the behavior a consumer can rely on. New tests should use a
 shallow contract-oriented suite and explicit imports, fixtures, and cleanup.
 Do not move a regression merely to match an internal refactor.
 
+## Stay within the supported lifecycle
+
+Use the [synchronous failure contract](../docs/view.lifecycle.md#synchronous-failures)
+as the boundary for runtime tests. Valid adapters must return working cleanup
+callbacks. Synchronous registration, construction, render, and teardown exceptions
+abort the operation; do not write tests promising rollback, remaining cleanup after
+a throw, usable partial instances, or recovery on the next notification.
+
+Public API access is necessary but does not by itself make a scenario supported.
+Retention checks and mutation survivors must not drive new per-instance recovery
+bookkeeping or guards around unsupported mutation during a callback. Present a real
+consumer case and the complexity/performance tradeoff for an explicit maintainer
+decision before expanding the contract. Keep coverage for successful subscription
+release, ordinary ownership/idempotence, and documented asynchronous Application
+readiness, cancellation, and restart. Reviewer prompts must carry this distinction.
+
 ## Choose the smallest useful check
 
 | Contract | Location | Command |

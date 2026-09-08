@@ -2,22 +2,6 @@ import { describe, expect, it, vi } from 'vitest';
 import { Events, Region, View } from 'marionette';
 
 describe('public ownership gaps discovered by the mutation pilot', () => {
-  it('reports the first cleanup failure while attempting every registration exactly once', () => {
-    const firstError = new Error('first cleanup failed');
-    const secondError = new Error('second cleanup failed');
-    const first = vi.fn(() => { throw firstError; });
-    const second = vi.fn(() => { throw secondError; });
-    const third = vi.fn();
-    const Owner = View.extend();
-    Owner.setDataApi({ subscribe: vi.fn().mockReturnValueOnce(first).mockReturnValueOnce(second).mockReturnValueOnce(third) });
-    const owner = new Owner({ model: {}, modelEvents: { 'first second third': vi.fn() } });
-    expect(() => owner.undelegateEntityEvents()).toThrow(firstError);
-    for (const cleanup of [first, second, third]) { expect(cleanup).toHaveBeenCalledExactlyOnceWith(); }
-    owner.undelegateEntityEvents();
-    owner.destroy();
-    for (const cleanup of [first, second, third]) { expect(cleanup).toHaveBeenCalledTimes(1); }
-  });
-
   it('stops Region-owned subscriptions when the Region is destroyed', () => {
     const source = Object.assign({}, Events);
     const handler = vi.fn();

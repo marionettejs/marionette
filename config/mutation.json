@@ -1,12 +1,11 @@
 {
   "schemaVersion": 1,
-  "description": "Bounded pilot for Region ownership and terminal teardown, subscription rollback, and exhaustive cleanup. Scores are evidence, not a release threshold.",
+  "description": "Bounded pilot for ordinary Region ownership, successful teardown and subscription binding. Scores are evidence, not a release threshold.",
   "concurrency": 2,
   "budgetMs": 600000,
   "targets": [
     { "file": "src/modules/region.ts", "methods": ["show", "destroy", "_restoreEl"] },
-    { "file": "src/utils/subscribe-bindings.ts" },
-    { "file": "src/utils/cleanup-subscriptions.ts" }
+    { "file": "src/utils/subscribe-bindings.ts" }
   ],
   "testFiles": [
     "test/unit/region*.spec.js",

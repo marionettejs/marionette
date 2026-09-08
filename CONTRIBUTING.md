@@ -302,6 +302,26 @@ Maintainers review correctness, public contracts, runtime cost, tests, documenta
 and release evidence. Automated review is supporting evidence, not a substitute for
 the issue contract or maintainer judgment.
 
+Use the [synchronous failure boundary](docs/view.lifecycle.md#synchronous-failures)
+when proposing tests or reviewing lifecycle changes. Registration, constructor,
+render, and teardown exceptions abort the synchronous operation; valid adapters and
+working cleanup callbacks are required. Coverage, retention checks, public API usage,
+and mutation survivors do not create a recovery requirement. Do not add constructor
+or partial-registration rollback, cleanup that attempts every callback and rethrows
+the first error, per-instance recovery bookkeeping, or hot-path guards for unsupported
+callback mutation without an explicit maintainer decision. Present any new consumer
+case with its complexity and performance tradeoff before implementing it. Existing
+ownership/idempotence guards and documented asynchronous Application cancellation and
+restart remain supported.
+
+Include this instruction in human and automated reviewer prompts:
+
+> Review against the documented lifecycle and failure contracts. Separate a defect in
+> a supported workflow from a proposed synchronous recovery feature. Do not request
+> rollback, attempt-all cleanup, recovery bookkeeping, or unsupported reentrant
+> mutation guards solely to make a test or mutant pass. Explain any real consumer
+> case and runtime cost so the maintainer can decide before implementation.
+
 ## Runtime checks and types
 
 Trust documented argument shapes in library code. Express callbacks, arrays,

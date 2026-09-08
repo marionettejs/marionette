@@ -3,7 +3,6 @@ import { getValue } from '@marionette/utils';
 import StateApi from '../runtime/state-api.ts';
 import type { StateApi as StateProvider } from '../runtime/state-api.ts';
 import subscribeBindings from '../utils/subscribe-bindings.ts';
-import cleanupSubscriptions from '../utils/cleanup-subscriptions.ts';
 
 export interface StateHost<State = unknown> {
   State: Partial<StateProvider<never>>;
@@ -78,10 +77,10 @@ const StateMixin = {
     delete this._stateEventCleanup;
     delete this._ownsState;
 
-    cleanupSubscriptions([
-      cleanup,
-      ownsState && disposeOwned ? () => (disposeOwned as (source: unknown) => void).call(this.State, state) : undefined
-    ]);
+    cleanup?.();
+    if (ownsState && disposeOwned) {
+      (disposeOwned as (source: unknown) => void).call(this.State, state);
+    }
 
     return this;
   },

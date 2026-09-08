@@ -188,7 +188,8 @@ adapter must not mutate View internals.
 Marionette invokes the returned cleanups during redelegation or destruction,
 in reverse registration order. Registration and cleanup errors propagate to the
 caller and stop the operation. Core does not roll back failed registration or
-attempt remaining cleanup after a callback throws.
+attempt remaining cleanup after a callback throws. See the shared
+[synchronous failure boundary](./view.lifecycle.md#synchronous-failures).
 
 `setEventDelegator` requires an adapter with a callable `delegate` method.
 Each registration must return a working cleanup. The TypeScript contract

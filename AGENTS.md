@@ -12,6 +12,15 @@ Read the linked issue, [ROADMAP.md](ROADMAP.md), and the affected public contrac
 - Destroy owned objects and release fixtures in each test. Never make a test pass by relying on another test's configuration or cleanup.
 - When a public refactor exposes unreachable defensive code, document it in `config/coverage-exceptions.json`. Each other source file remains at 100% coverage. Never add coverage ignores or private probes to manufacture 100%.
 
+## Lifecycle and failure boundary
+
+Follow the public [synchronous failure contract](docs/view.lifecycle.md#synchronous-failures): valid adapters and working cleanup callbacks are required. Synchronous registration, construction, rendering, and teardown failures abort the operation. Public-only tests, retention checks, coverage gaps, and mutation survivors do not authorize a new recovery contract.
+
+- Do not add constructor or partial-registration `try`/`catch` rollback, attempt-all/first-error cleanup, per-instance recovery bookkeeping, or hot-path guards for unsupported callback mutation without an explicit user decision.
+- Preserve documented ownership/idempotence guards, successful cleanup, and Application's existing asynchronous readiness, cancellation, and restart semantics. This is not a general ban on guards or asynchronous error handling.
+- If new consumer evidence suggests another contract, explain the real public use case and the complexity/performance tradeoff before coding; obtain the user's decision on that change.
+- Include this boundary in reviewer prompts. Reviewers must distinguish a defect in an accepted public workflow from a request for unsupported synchronous recovery. Do not implement the latter merely to satisfy a review comment or kill a mutant.
+
 ## Find and verify the change
 
 [Test guide](test/README.md) maps contracts to suites, commands, reports, and replay instructions.

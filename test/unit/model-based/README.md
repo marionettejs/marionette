@@ -27,18 +27,32 @@ Replay uses the original run/step limits and generator version. Changing command
 
 ## Bounded mutation pilot
 
-Run `npm run test:mutation` (or `node scripts/testing/mutation.mjs`). The runner reads `config/mutation.json`: two workers, a ten-minute process-group budget including forced cleanup, targeted Region ownership/restoration/teardown methods, subscription setup rollback, and exhaustive subscription cleanup. Source method ranges are resolved from the TypeScript syntax tree and fail if a named method disappears or becomes ambiguous. They are mutation selection metadata, not private APIs called by tests.
+Run `npm run test:mutation` (or `node scripts/testing/mutation.mjs`). The runner reads `config/mutation.json`: two workers, a ten-minute process-group budget including forced cleanup, targeted Region ownership/restoration/teardown methods, and successful subscription binding and release. Source method ranges are resolved from the TypeScript syntax tree and fail if a named method disappears or becomes ambiguous. They are mutation selection metadata, not private APIs called by tests.
 
 Stryker executes the selected public contract suites and models. It does not mutate the entire library by default. Keep the PR models in normal unit validation; run the mutation pilot manually or in an optional dedicated CI lane. Do not replace the normal unit, browser, artifact, or release checks with this pilot.
 
 Every invocation creates its own `coverage/mutation/<timestamp>-<pid>/` directory containing source/test/config/lock hashes, commit and dirty-worktree provenance, a run log, JSON mutation report, HTML report, and a machine-readable summary. Failed baselines and deadlines return a nonzero exit code and preserve partial evidence; a missing report is not a successful or zero-mutant result. Sandbox paths under `test/tmp/mutation/` are unique per invocation. Always upload `coverage/mutation/**` in the optional CI lane, including failed runs. Reports and generated sandboxes are ignored by Git.
 
-The summary keeps Killed, Survived, NoCoverage, Timeout, CompileError, RuntimeError, Ignored, and Pending separate. A timeout counts as detected in Stryker's score, but remains visible for investigation. Runtime errors or pending mutants make the run incomplete. No hard score threshold or score-driven mutation exclusions are configured. Investigate survivors against public contracts, add regressions for meaningful gaps, and document equivalent or unreachable cases rather than asserting internals to improve a percentage.
+The summary keeps Killed, Survived, NoCoverage, Timeout, CompileError, RuntimeError, Ignored, and Pending separate. A timeout counts as detected in Stryker's score, but remains visible for investigation. Runtime errors or pending mutants make the run incomplete. No hard score threshold or score-driven mutation exclusions are configured. Investigate survivors against accepted public contracts, add regressions for meaningful gaps, and document equivalent or unreachable cases rather than asserting internals or inventing recovery behavior to improve a percentage. Follow the [synchronous failure boundary](../../../docs/view.lifecycle.md#synchronous-failures): mutation coverage does not authorize rollback, attempt-all cleanup, recovery bookkeeping, or guards for unsupported callback mutation.
 
-The initial pilot targeted Region.show/destroy and the two subscription helpers: **85 mutants, 72 killed, 6 survived, 7 uncovered (84.71%)**, completed in 94 seconds. Investigation found that the selected lane omitted existing rollback tests; adding `delegate-entity-events.spec.js` restored those contracts. New public regressions assert Region-owned listener teardown and useful conflicting-ownership diagnostics. The stronger model separately exposed #469: destroying a previously detached/adopted View incorrectly restored its old Region's new replacement. The final target list also includes restoration so that defect is measured. The initial and expanded scopes must not be compared as identical denominators.
+The ownership model exposed #469: destroying a previously detached/adopted View
+incorrectly restored its old Region over the new replacement. The retained fix
+releases the former Region's restoration listener. The public detached/adoption
+regressions remain part of the selected suite.
 
-The final measured pilot ran **196 public tests**, then **97 mutants: 94 killed, 2 survived, 1 uncovered, no timeouts or errors (96.91%)**, in 75 seconds. It also added a public regression preserving the first of multiple cleanup failures while attempting every registration exactly once. Both subscription helpers now have every selected mutant killed. The retained Region cases are the defensive missing-currentView restoration guard (one survivor and one uncovered mutation) and an apparently equivalent event-name mutation: removing the same callback/context across all names removes the same registration currently made only for `before:destroy`. Neither case is excluded or tested through private state. These are bounded findings, not a proof that the entire library resists mutation.
+Earlier pilot reports included rollback and attempt-all cleanup code/tests rejected
+by the PR #470 scope correction. Their scores and survivor classifications do not
+describe the corrected source or test contract and must not be used as current
+candidate evidence. Historical reports remain at their recorded paths, including
+`coverage/mutation/2026-09-08T13-08-38-131Z-44336/`; no corrected-candidate mutation
+score has been measured. Run the bounded pilot on the integrated corrected commit
+and retain its exact provenance before reporting a new score.
 
-An intermediate run reported four timeouts under machine contention. The final per-mutant allowance is ten seconds plus Stryker's measured baseline allowance; the ten-minute outer budget remains fixed. All four mutations were then killed by assertions. The final local evidence directory was `coverage/mutation/2026-09-08T13-08-38-131Z-44336/`; reports are generated artifacts, not committed fixtures. Repeat the pilot on the integrated branch and retain that run's provenance rather than treating these historical results as current release evidence.
+The current selection is Region ownership/restoration/destruction plus successful
+subscription binding and release in `src/utils/subscribe-bindings.ts`. The removed
+cleanup helper is not a mutation target. The per-mutant allowance remains ten
+seconds plus Stryker's measured baseline allowance, within the ten-minute outer
+budget. These bounds make the run repeatable; they do not establish mutation
+resistance for the whole library.
 
 References: [fast-check model and replay guidance](https://fast-check.dev/docs/advanced/model-based-testing/), [Stryker Vitest runner](https://stryker-mutator.io/docs/stryker-js/vitest-runner/), [Stryker configuration](https://stryker-mutator.io/docs/stryker-js/configuration/).

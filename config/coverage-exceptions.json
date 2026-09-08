@@ -3,10 +3,6 @@
     "branches": 3,
     "reason": "Malformed private reply registries and a manually manufactured private debug callback cannot be constructed through public Radio or Requests operations."
   },
-  "src/mixins/behaviors.ts": {
-    "branches": 2,
-    "reason": "Optional absent behavior-array guards protect incomplete internal hosts; public hosts initialize the array before these operations."
-  },
   "src/modules/child-view-container.ts": {
     "branches": 1,
     "reason": "The same internal array cannot be passed back through public children.toArray, which returns a copy."

@@ -64,8 +64,9 @@ readiness.
 
 Constructor errors propagate to the caller. Marionette does not undo partially
 completed initialization or automatically release resources from a constructor
-that throws. Application's asynchronous lifecycle has its own cancellation and
-failure contract, described below.
+that throws. See the shared [synchronous failure boundary](./view.lifecycle.md#synchronous-failures).
+Application's asynchronous lifecycle has its own cancellation and failure contract,
+described below.
 
 ## Application Lifecycle
 
