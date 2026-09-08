@@ -102,7 +102,7 @@ export async function prepareArtifacts({ root = repositoryRoot, manifestPath, ou
     if (resolve(source) !== resolve(destination)) { await copyFile(source, destination, constants.COPYFILE_EXCL); }
     packages.push({ ...entry, path: destination });
   }
-  await save(join(output, 'artifact-input.json'), { schemaVersion: 2, source: manifest.source || null, packages: packages.map(({ path, ...entry }) => entry) });
+  await save(join(output, 'artifact-input.json'), { schemaVersion: 3, source: manifest.source || null, packages: packages.map(({ path, ...entry }) => entry) });
   return { source: manifest.source || null, packages };
 }
 

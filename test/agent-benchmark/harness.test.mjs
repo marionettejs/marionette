@@ -202,3 +202,16 @@ test('CLI creates missing output parents while preserving exclusive attempt dire
     assert.match(repeated.stderr, /EEXIST/);
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
+
+
+test('saved artifact inputs can be reused for another benchmark attempt', async t => {
+  const { fixture } = await import('../release/fixture.mjs');
+  const { prepareArtifacts } = await import('../../scripts/agent-benchmark/harness.mjs');
+  const candidate = await fixture(t);
+  const first = await prepareArtifacts({ manifestPath: join(candidate.artifacts, 'release-evidence.json'),
+    output: join(candidate.directory, 'first') });
+  const second = await prepareArtifacts({ manifestPath: join(candidate.directory, 'first/artifact-input.json'),
+    output: join(candidate.directory, 'second') });
+  assert.deepEqual(second.packages.map(({ path, ...entry }) => entry), first.packages.map(({ path, ...entry }) => entry));
+  assert.deepEqual(second.source, first.source);
+});
