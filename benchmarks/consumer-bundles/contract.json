@@ -7,9 +7,9 @@
     "sha256": "e9c0517227683acb14ea3e0e30a6479c849ad69520892c9a6690a4d7abefb8e0"
   },
   "toolchain": {
-    "rollup": "4.63.0",
+    "rollup": "4.63.1",
     "rollupPluginTerser": "1.0.0",
-    "terser": "5.48.0"
+    "terser": "5.51.2"
   },
   "peerExternalImports": [
     "backbone",
