@@ -134,7 +134,9 @@ export async function prepareAttempt({ root = repositoryRoot, taskId, artifacts,
   environmentLock.packages[''].name = packageManifest.name;
   await writeFile(join(workspace, 'package.json'), JSON.stringify(packageManifest, null, 2));
   await save(join(workspace, 'package-lock.json'), environmentLock);
-  execute('npm', ['install', '--ignore-scripts', '--offline', '--no-audit', '--no-fund', '--save-exact', ...artifacts.packages.map(entry => entry.path), 'jsdom@30.0.1'], workspace);
+  // Keep jsdom resolved by the checked-in lock: requesting it again needs a registry
+  // packument that npm ci does not cache when warming the pinned environment.
+  execute('npm', ['install', '--ignore-scripts', '--offline', '--no-audit', '--no-fund', '--save-exact', ...artifacts.packages.map(entry => entry.path)], workspace);
   const installedLock = await readJson(join(workspace, 'package-lock.json'));
   for (const [path, entry] of Object.entries(environmentLock.packages)) {
     if (path && (installedLock.packages[path]?.version !== entry.version || installedLock.packages[path]?.integrity !== entry.integrity)) { throw new Error(`Pinned environment dependency changed: ${path}`); }

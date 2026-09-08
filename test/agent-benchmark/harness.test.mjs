@@ -122,3 +122,50 @@ test('evaluation records its actual runtime and rejects a differently prepared N
     assert.deepEqual(JSON.parse(await readFile(join(attempt, 'result.json'), 'utf8')), result);
   } finally { await rm(attempt, { recursive: true, force: true }); }
 });
+
+test('preparation consumes locked tarballs from an isolated cache without registry metadata', async() => {
+  const { spawnSync } = await import('node:child_process');
+  const { createHash } = await import('node:crypto');
+  const { cp, readFile } = await import('node:fs/promises');
+  const { repositoryRoot } = await import('../../scripts/agent-benchmark/harness.mjs');
+  const directory = await mkdtemp(join(tmpdir(), 'agent-offline-cache-'));
+  const env = { ...process.env, 'npm_config_cache': join(directory, 'cache'), 'npm_config_offline': 'true',
+    'npm_config_registry': 'http://127.0.0.1:9', 'npm_config_update_notifier': 'false' };
+  const execute = (command, args, cwd = directory) => {
+    const result = spawnSync(command, args, { cwd, env, encoding: 'utf8', timeout: 30000 });
+    assert.equal(result.status, 0, result.error?.message || result.stderr || result.stdout);
+    return result.stdout;
+  };
+  try {
+    const root = join(directory, 'root');
+    for (const path of ['benchmarks/agent', 'config/diagnostics', 'scripts/agent-benchmark']) {
+      await cp(join(repositoryRoot, path), join(root, path), { recursive: true });
+    }
+    const packages = [];
+    for (const [name, version] of [['jsdom', '30.0.1'], ['agent-cache-fixture', '1.0.0']]) {
+      const source = join(directory, name); await mkdir(source);
+      await writeFile(join(source, 'package.json'), JSON.stringify({ name, version }));
+      const [packed] = JSON.parse(execute('npm', ['pack', '--ignore-scripts', '--offline', '--json', '--pack-destination', directory], source));
+      packages.push({ name, version, path: join(directory, packed.filename), tarball: { integrity: packed.integrity } });
+    }
+    const [jsdom, local] = packages;
+    execute('npm', ['cache', 'add', jsdom.path, '--offline']);
+    // Synthetic locked package bytes isolate cache behavior from any shared npm cache.
+    // The resolved registry URL deliberately has no cached packument or HTTP response.
+    await writeFile(join(root, 'benchmarks/agent/support/dependency-lock.json'), JSON.stringify({
+      name: 'agent-cache-environment', version: '0.0.0', lockfileVersion: 3, requires: true,
+      packages: {
+        '': { name: 'agent-cache-environment', version: '0.0.0', dependencies: { jsdom: jsdom.version } },
+        'node_modules/jsdom': { version: jsdom.version, resolved: `http://127.0.0.1:9/jsdom/-/jsdom-${jsdom.version}.tgz`, integrity: jsdom.tarball.integrity }
+      }
+    }));
+    local.tarball.sha512 = createHash('sha512').update(await readFile(local.path)).digest('hex');
+    const attempt = join(directory, 'attempt');
+    const script = `const { prepareAttempt } = await import(${JSON.stringify(new URL('../../scripts/agent-benchmark/harness.mjs', import.meta.url).href)}); await prepareAttempt(JSON.parse(process.argv[1]));`;
+    execute(process.execPath, ['--input-type=module', '-e', script, JSON.stringify({ root, taskId: 'nested-workspace', artifacts: { packages: [local] }, output: attempt })]);
+    const installed = JSON.parse(await readFile(join(attempt, 'workspace/package-lock.json'), 'utf8'));
+    assert.equal(installed.packages['node_modules/jsdom'].integrity, jsdom.tarball.integrity);
+    assert.equal(installed.packages['node_modules/agent-cache-fixture'].integrity, local.tarball.integrity);
+    assert.equal(JSON.parse(await readFile(join(attempt, 'workspace/node_modules/jsdom/package.json'), 'utf8')).version, jsdom.version);
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});
