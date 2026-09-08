@@ -1,4 +1,4 @@
-### v5.0.0-beta.1 (candidate; unpublished)
+### v5.0.0-beta.1
 
 * Established `@mnjs` as the companion package scope: utils, radio, data, and
   adapters; the core package remains `marionette`

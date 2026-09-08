@@ -1,8 +1,9 @@
-# Try the beta candidate
+# Try Marionette v5 beta
 
-`5.0.0-beta.1` is a preparation target, not a published release. Use the exact
-candidate tarballs until the registry publication is announced. A matching version
-string alone does not prove that a locally built artifact matches a release.
+`5.0.0-beta.1` is intended for application trials. Install that exact version from
+the registry when available, or use the certified candidate tarballs before
+publication. A matching version string alone does not prove that a locally built
+artifact matches a release.
 
 ## What beta means
 

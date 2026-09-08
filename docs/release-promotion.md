@@ -6,8 +6,8 @@ Git tag, GitHub release, package manifest, evidence manifest, and source commit 
 all agree.
 
 The machine-readable publication gate is
-[`config/release-promotion.json`](../config/release-promotion.json). Publication is
-currently disabled for both channels. Schema 2 separates `publication.stable`
+[`config/release-promotion.json`](../config/release-promotion.json). Stable publication is
+disabled; prerelease authorization is restricted to `5.0.0-beta.1`. Schema 2 separates `publication.stable`
 (a boolean) from `publication.prerelease` (one exact version string, or `null`).
 A beta authorization never authorizes stable or a later prerelease. Both channels
 use the same protected workflow and exact-artifact checks. Pull requests and manual
@@ -88,11 +88,12 @@ the documented recovery path.
 
 The [beta contract and readiness checklist](./beta.md) define the candidate scope.
 Use matching `5.0.0-beta.1` versions across all five packages and their internal
-requirements. Leave `publication.stable: false`. When npm access, exact candidate
-checks, and release approval are complete, a reviewed authorization commit may set
-`publication.prerelease` to that exact version. Until then it remains `null`.
-Changing this policy changes the source commit and invalidates prior certification:
-rebuild and certify from the authorization commit before publication.
+requirements. `publication.stable` remains `false`; `publication.prerelease`
+authorizes only `5.0.0-beta.1`. This policy does not initiate publication: verify npm
+access, certify the exact candidate, and obtain release approval before manually
+dispatching the protected workflow. Changing this policy changes the source commit
+and invalidates prior certification; rebuild and certify the authorization commit
+before publication.
 
 Prereleases use npm `next` and a GitHub prerelease, never npm `latest`. A later beta
 needs a new explicit version authorization. Do not bypass the workflow with an
