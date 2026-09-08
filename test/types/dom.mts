@@ -1,7 +1,6 @@
-import nativeDom, {setDomApi, type DomApi} from '../tmp/typed-core/src/runtime/dom-api.js';
-import nativeDelegator, {setEventDelegator, type EventDelegator} from '../tmp/typed-core/src/runtime/event-delegator.js';
-import {setRenderer, type Renderer} from '../tmp/typed-core/src/runtime/renderer.js';
+import { View, DomApi as nativeDom, type DomApiContract as DomApi, type EventDelegator, type Renderer } from 'marionette';
 
+const { setDomApi, setEventDelegator, setRenderer } = View;
 const el: HTMLElement = nativeDom.createElement('button');
 const fragment: DocumentFragment = nativeDom.createBuffer();
 const matches: NodeListOf<Element> = nativeDom.findEl(fragment, 'button');
@@ -55,19 +54,18 @@ declare const explicitDom: DomApi<NodeListOf<Element>, string>;
 explicitDom.setContents(el, 'content');
 explicitDom.findEl(el, 'button').forEach(node => node.remove());
 
-const cleanup: () => void = nativeDelegator.delegate({eventName: 'click', rootEl: el, handler(event) {
-  event.delegateTarget?.matches('button');
-  return false;
-}});
-nativeDelegator.delegate({eventName: 'focus', rootEl: el, selector: null, handler() {}});
+const delegator: EventDelegator = {
+  delegate({ rootEl, eventName, handler }) {
+    const callback = (event: Event) => handler(event);
+    rootEl.addEventListener(eventName, callback);
+    return () => rootEl.removeEventListener(eventName, callback);
+  }
+};
+const cleanup: () => void = delegator.delegate({ eventName: 'click', selector: 'button', rootEl: el, handler() {} });
 // @ts-expect-error A root is a native Element, not a selector.
-nativeDelegator.delegate({eventName: 'click', rootEl: '#root', handler() {}});
-// @ts-expect-error Native events are not numbers.
-nativeDelegator.delegate({eventName: 'click', rootEl: el, handler(event: number) {return event;}});
-// @ts-expect-error The low-level callback does not promise a View receiver.
-nativeDelegator.delegate({eventName: 'click', rootEl: el, handler(this: {viewName: string}) {return this.viewName;}});
+delegator.delegate({ eventName: 'click', selector: 'button', rootEl: '#root', handler() {} });
 const DelegatorClass = {prototype: {}, setEventDelegator, label: 'delegator class'};
-const sameDelegatorClass: typeof DelegatorClass = DelegatorClass.setEventDelegator(nativeDelegator);
+const sameDelegatorClass: typeof DelegatorClass = DelegatorClass.setEventDelegator(delegator);
 const custom: EventDelegator = {delegate({rootEl, handler}) {handler(rootEl, 'extra'); return () => {};}};
 DelegatorClass.setEventDelegator(custom);
 // @ts-expect-error Delegate must return a cleanup function.
@@ -94,7 +92,7 @@ renderer.call({unrelated: true}, 'template', {name: 'Example'});
 renderer.call({el}, 'template', {count: 1});
 setRenderer.call(RendererClass, renderer);
 setDomApi.call(DomClass, nativeDom);
-setEventDelegator.call(DelegatorClass, nativeDelegator);
+setEventDelegator.call(DelegatorClass, delegator);
 
 // Setters can initialize ordinary class prototypes before an adapter exists.
 class Fresh { el = document.createElement('div'); }

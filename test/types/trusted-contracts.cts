@@ -1,5 +1,5 @@
-import { View, CollectionView, Region, type ViewConfiguration, type BehaviorDefinition, type RegionDefinition } from '../tmp/typed-core/src/index.js';
-import type { ViewLifecycle } from '../tmp/typed-core/src/modules/common/view.js';
+import { View, CollectionView, Region, type ViewConfiguration, type BehaviorDefinition, type RegionDefinition } from 'marionette';
+import type { ViewLifecycle } from 'marionette';
 import { mergeOptions, normalizeBindings, bindEvents, bindRequests } from '@marionette/utils';
 
 const owner = { mergeOptions, bindEvents, bindRequests, listenTo() {} };
@@ -47,6 +47,6 @@ new CollectionView({ emptyView: () => 123 });
 new CollectionView({ viewFilter: true });
 
 const lifecycle: ViewLifecycle = view;
-const children: readonly ViewLifecycle[] = lifecycle._getImmediateChildren();
-// @ts-expect-error Private lifecycle traversal always receives a child array.
-const invalidLifecycle: ViewLifecycle = { ...view, _getImmediateChildren: () => ({ length: 0 }) };
+const element: Element = lifecycle.el;
+lifecycle.on('render', () => {});
+lifecycle.off('render');

@@ -1,8 +1,8 @@
-import Events from '../tmp/typed-core/packages/utils/src/events.js';
-import type { EventMap, EventSource } from '../tmp/typed-core/packages/utils/src/events.js';
-import callHandler from '../tmp/typed-core/packages/utils/src/call-handler.js';
-import onceWrap from '../tmp/typed-core/packages/utils/src/once-wrap.js';
-import buildEventArgs from '../tmp/typed-core/packages/utils/src/build-event-args.js';
+import { Events } from '@marionette/utils';
+import type { EventMap, EventSource } from '@marionette/utils';
+import { callHandler } from '@marionette/utils';
+import { onceWrap } from '@marionette/utils';
+import { buildEventArgs } from '@marionette/utils';
 
 const receiver = { ...Events, value: 1 };
 const eventMap: EventMap = { change(value: number) { return value; } };
@@ -62,10 +62,9 @@ function defaultRequest(name: string, value: number) {
 }
 
 const once = onceWrap(format, wrapper => {
-  const original: typeof format = wrapper._callback;
+  const result: string | undefined = wrapper.call({ base: 1 }, 2, 'sum');
 });
 const possible: string | undefined = once.call({ base: 1 }, 2, 'sum');
-const original: typeof format = once._callback;
 // @ts-expect-error Reentry or an earlier exception can leave the cached result undefined.
 const definite: string = once.call({ base: 1 }, 2, 'sum');
 // @ts-expect-error Once wrapping preserves required callback argument types.

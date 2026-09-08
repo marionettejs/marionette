@@ -1,9 +1,9 @@
-import MnObject from '../tmp/typed-core/src/modules/object.js';
-import View from '../tmp/typed-core/src/modules/view.js';
-import Behavior from '../tmp/typed-core/src/modules/behavior.js';
-import Region from '../tmp/typed-core/src/modules/region.js';
-import CollectionView from '../tmp/typed-core/src/modules/collection-view.js';
-import Application from '../tmp/typed-core/src/modules/application.js';
+import { MnObject } from 'marionette';
+import { View } from 'marionette';
+import { Behavior } from 'marionette';
+import { Region } from 'marionette';
+import { CollectionView } from 'marionette';
+import { Application } from 'marionette';
 
 const Identity = MnObject.extend({
   constructor: function<Receiver extends object>(this: Receiver, options: {label: string}): Receiver {

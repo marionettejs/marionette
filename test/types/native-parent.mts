@@ -1,4 +1,4 @@
-import {MnObject, View, CollectionView, Region, Behavior, Application} from '../tmp/typed-core/src/index.js';
+import {MnObject, View, CollectionView, Region, Behavior, Application} from 'marionette';
 
 // Native subclasses remain directly constructible, but their inherited helper's
 // default constructor cannot invoke an ES class through Parent.apply.

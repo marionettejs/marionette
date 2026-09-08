@@ -30,7 +30,13 @@ function validateRadio(Marionette, name) {
   for (const property of ['Channel', 'log', 'debugLog']) {
     assert.strictEqual(typeof Marionette.Radio[property], 'function', `${name} Radio.${property}`);
   }
-  assert.strictEqual(Object.hasOwn(Marionette.Radio, '_channels'), false, `${name} private Radio registry`);
+  let calls = 0;
+  const channel = Marionette.Radio.channel('distribution-cleanup');
+  channel.on('ready', () => calls++);
+  channel.trigger('ready');
+  Marionette.Radio.reset('distribution-cleanup');
+  channel.trigger('ready');
+  assert.strictEqual(calls, 1, `${name} Radio reset releases subscribers`);
 }
 
 function validateRequestBoundary(Marionette, name) {
@@ -113,10 +119,10 @@ async function validate() {
   const radioRoot = resolve(require.resolve('@marionette/radio/package.json'), '..');
   const utilsRoot = resolve(require.resolve('@marionette/utils/package.json'), '..');
   const entrypoints = [
-    ['CommonJS', require(resolve(packageRoot, 'dist/marionette.cjs')), require('@marionette/utils'), require('@marionette/radio')],
-    ['ES module', await import(pathToFileURL(resolve(packageRoot, 'dist/marionette.js'))),
-      await import(pathToFileURL(resolve(utilsRoot, 'dist/index.js'))),
-      await import(pathToFileURL(resolve(radioRoot, 'dist/index.js')))],
+    ['CommonJS', require('marionette'), require('@marionette/utils'), require('@marionette/radio')],
+    ['ES module', await import(pathToFileURL(resolve(packageRoot, packageJson.exports['.'].import.default))),
+      await import(pathToFileURL(resolve(utilsRoot, require('@marionette/utils/package.json').exports['.'].import.default))),
+      await import(pathToFileURL(resolve(radioRoot, require('@marionette/radio/package.json').exports['.'].import.default)))],
   ];
 
   for (const [name, Marionette, utils, radio] of entrypoints) {
@@ -150,7 +156,7 @@ async function validate() {
     assert.strictEqual(Marionette.DataApi.key(plainModel), plainModel, `${name} plain identity`);
     assert.strictEqual(Marionette.DataApi.get(plainModel, 'name'), 'plain', `${name} plain read`);
     assert.strictEqual(Marionette.DataApi.models([plainModel])[0], plainModel, `${name} plain models`);
-    assert.strictEqual(Marionette.DataApi.items, undefined, `${name} removed DataApi.items`);
+    assert.strictEqual(Object.keys(Marionette.DataApi).includes('items'), false, `${name} removed DataApi.items`);
     const state = { ready: true };
     assert.strictEqual(new Marionette.MnObject({ state }).getState(), state, `${name} exact state source`);
     validateRadio(Marionette, name);

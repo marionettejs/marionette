@@ -1,8 +1,8 @@
-import * as Marionette from '../tmp/typed-core/src/index.js';
+import * as Marionette from 'marionette';
 import {createMarionette, type ApplicationInstance, type LifecycleContext,
   type BehaviorHost, type ViewInstance, type RegionOptions, type CollectionChild,
   type DomApiContract, type StateApiContract, type EventDelegator, type Renderer,
-  type Channel, type MnObjectInstance, type ViewConstructor} from '../tmp/typed-core/src/index.js';
+  type Channel, type MnObjectInstance, type ViewConstructor} from 'marionette';
 
 const runtime = createMarionette();
 const other = createMarionette();

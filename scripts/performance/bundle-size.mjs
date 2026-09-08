@@ -841,6 +841,9 @@ export async function measure({
   let resources = null;
   if (contract.deterministicResources) {
     try {
+      if (contract.deterministicResources.schemaVersion !== 2) {
+        throw new Error('deterministicResources must use public-observable schemaVersion 2');
+      }
       resources = await measureResources({
         root: resolvedRoot,
         attachDetachCycles: contract.deterministicResources.attachDetachCycles,
@@ -1094,15 +1097,15 @@ async function buildReport(baseFile, currentFile) {
   ];
   const resourceSection = resourceComparison.unavailable ? [] : [
     '',
-    '## Deterministic allocation and retention',
+    '## Observable creation and retention',
     '',
-    '| Structural proxy | Base | PR | Result |',
+    '| Public observation | Base | PR | Result |',
     '| --- | --- | --- | --- |',
     ...resourceReportRows(resourceComparison),
     '',
     resourceComparison.violations.length ?
       `Resource observations: ${resourceComparison.violations.join('; ')}` :
-      'Allocation and retention counts are observations for review, not automatic budgets.',
+      'Consumer-observed creation and retention counts are observations for review, not automatic budgets.',
   ];
 
   const markdown = [
@@ -1151,7 +1154,7 @@ function writeMeasurement(result, json) {
     console.log(`Consumer bundles: ${result.consumerBundles.artifacts.length} reporting-only scenarios/formats measured from ${result.consumerBundles.fixtureVersion}`);
   }
   if (result.resources) {
-    console.log(`Resources: ${Object.keys(result.resources.allocations).length} measured instance shapes; ${result.resources.workload.attachDetachCycles} detach cycles; ${result.resources.workload.mountDestroyCycles} mount/destroy cycles`);
+    console.log(`Resources: ${Object.keys(result.resources.created).length} observed instance categories; ${result.resources.workload.attachDetachCycles} detach cycles; ${result.resources.workload.mountDestroyCycles} mount/destroy cycles`);
   }
 }
 

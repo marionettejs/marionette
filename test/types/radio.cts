@@ -1,5 +1,5 @@
-import Radio, { createRadio, type Channel, type RadioApi } from '../tmp/typed-core/packages/radio/src/radio.js';
-import type { EventSource } from '../tmp/typed-core/packages/utils/src/events.js';
+import { Radio, createRadio, type Channel, type RadioApi } from '@marionette/radio';
+import type { EventSource } from '@marionette/utils';
 
 const runtime: RadioApi = createRadio();
 const channel: Channel = runtime.channel('work');

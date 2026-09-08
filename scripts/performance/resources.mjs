@@ -1,36 +1,9 @@
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
-import { loadBackboneRuntime } from './load-runtime.mjs';
+import { readFile } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
 
 let runtimeLoaded = false;
-
-function registrations(eventMap, owner) {
-  return Object.values(eventMap || {})
-    .flat()
-    .filter(event => !owner || event.context === owner || event.ctx === owner || event.listener === owner)
-    .length;
-}
-
-function marionetteRegistrations(emitter, owner) {
-  return registrations(emitter._rdEvents, owner);
-}
-
-function backboneRegistrations(emitter, owner) {
-  return registrations(emitter._events, owner);
-}
-
-function ledgerEntries(ledger) {
-  return Object.keys(ledger || {}).length;
-}
-
-function childContainerEntries(container) {
-  return Math.max(
-    container.length,
-    container._views.length,
-    ledgerEntries(container._viewsByCid),
-    ledgerEntries(container._indexByModel)
-  );
-}
 
 function maxValue(target, key, ...values) {
   target[key] = Math.max(target[key], ...values);
@@ -50,36 +23,6 @@ function validateWorkload(workload, label) {
   return workloadFields
     .filter(field => !validCycleCount(workload[field]))
     .map(field => `${label} ${field} must be a positive integer; received ${workload[field]}`);
-}
-
-function instanceMeasurement(instance, { Region }) {
-  const ownProperties = Object.keys(instance).sort();
-  const entries = ownProperties.map(property => [property, instance[property]]);
-  const arrays = entries.filter(([, value]) => Array.isArray(value));
-  const plainObjects = entries.filter(([, value]) => value?.constructor === Object);
-  const childViewContainers = entries.filter(([, value]) => Array.isArray(value?._views) &&
-    value?._viewsByCid && value?._indexByModel);
-  const regions = entries.filter(([, value]) => value instanceof Region);
-  const references = entries.filter(([, value]) =>
-    value !== null && (typeof value === 'object' || typeof value === 'function'));
-
-  return {
-    ownProperties,
-    ownReferences: references.map(([property]) => property),
-    uniqueOwnReferences: new Set(references.map(([, value]) => value)).size,
-    arrays: arrays.map(([property]) => property),
-    arrayEntries: arrays.reduce((total, [, value]) => total + value.length, 0),
-    plainObjects: plainObjects.map(([property]) => property),
-    plainObjectEntries: plainObjects.reduce((total, [, value]) => total + Object.keys(value).length, 0),
-    childViewContainers: childViewContainers.map(([property]) => property),
-    childViewContainerEntries: childViewContainers.reduce((total, [, value]) => {
-      return total + childContainerEntries(value);
-    }, 0),
-    regions: regions.map(([property]) => property),
-    regionsWithViews: regions.filter(([, value]) => value.hasView()).length,
-    marionetteEventRegistrations: marionetteRegistrations(instance),
-    listeningContainers: ledgerEntries(instance._rdListeningTo),
-  };
 }
 
 function restoreGlobal(name, descriptor) {
@@ -112,9 +55,9 @@ async function loadRuntime(root) {
     globalThis.window = dom.window;
     globalThis.document = dom.window.document;
 
-    const { Backbone, Marionette } = await loadBackboneRuntime(root);
-
-    return { Backbone, Marionette, cleanup };
+    const manifest = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));
+    const { createMarionette } = await import(pathToFileURL(resolve(root, manifest.exports['.'].import.default)).href);
+    return { Marionette: createMarionette(), cleanup };
   } catch (error) {
     runtimeLoaded = false;
     cleanup?.();
@@ -122,189 +65,184 @@ async function loadRuntime(root) {
   }
 }
 
+// The source and all registration counts belong to this consumer, not to framework
+// bookkeeping. Leaked callbacks remain visible even after their owner is destroyed.
+function eventSource() {
+  const subscriptions = new Set();
+  return {
+    subscriptions,
+    on(name, callback, context) {
+      subscriptions.add({ name, callback, context });
+      return this;
+    },
+    off(name, callback, context) {
+      for (const entry of subscriptions) {
+        if (entry.name === name && entry.callback === callback && entry.context === context) {
+          subscriptions.delete(entry);
+        }
+      }
+      return this;
+    },
+    emit(name, ...args) {
+      for (const entry of [...subscriptions]) {
+        if (entry.name === name) { entry.callback.apply(entry.context, args); }
+      }
+    }
+  };
+}
+
 export async function measureResources({ root = '.', attachDetachCycles, mountDestroyCycles }) {
   const workload = { attachDetachCycles, mountDestroyCycles };
   const workloadViolations = validateWorkload(workload, 'Resource measurement workload');
-  if (workloadViolations.length) {
-    throw new Error(workloadViolations.join('; '));
-  }
-
-  const resolvedRoot = resolve(root);
-  const runtime = await loadRuntime(resolvedRoot);
-  const { Backbone, Marionette } = runtime;
+  if (workloadViolations.length) { throw new Error(workloadViolations.join('; ')); }
+  const runtime = await loadRuntime(resolve(root));
+  const { Marionette } = runtime;
   const { Behavior, CollectionView, Region, View } = Marionette;
-  const PlainView = View.extend({ template: false });
-  const ChildView = View.extend({ template: false });
+  const liveInstances = new Set();
+  const delegatedListeners = new Set();
+  const created = { viewInstances: 0, regionInstances: 0, behaviorInstances: 0, collectionViewInstances: 0 };
+  let modelChanges = 0;
+  let collectionChanges = 0;
+  let mountedBehavior;
+  function lifecycle(kind) {
+    return {
+      initialize() { created[kind]++; liveInstances.add(this); },
+      onDestroy() { liveInstances.delete(this); }
+    };
+  }
+  const PlainView = View.extend({ template: false, ...lifecycle('viewInstances') });
+  const ChildView = PlainView.extend({ events: { click() {} } });
+  const TrackedRegion = Region.extend(lifecycle('regionInstances'));
   const ListeningBehavior = Behavior.extend({
-    modelEvents: {
-      change: 'onModelChange'
+    ...lifecycle('behaviorInstances'),
+    initialize() {
+      created.behaviorInstances++;
+      liveInstances.add(this);
+      mountedBehavior = this;
     },
-    onModelChange() {
-      this.modelChanges = (this.modelChanges || 0) + 1;
+    modelEvents: { change() { modelChanges++; } }
+  });
+  const BehaviorView = PlainView.extend({ behaviors: [ListeningBehavior] });
+  const TrackedCollectionView = CollectionView.extend({
+    ...lifecycle('collectionViewInstances'),
+    childView: ChildView,
+    RegionClass: TrackedRegion
+  });
+  Marionette.setDataApi({
+    models: source => source.models,
+    observeCollection(source, callback, context) {
+      const handler = change => { collectionChanges++; callback.call(context, change); };
+      source.on('update', handler);
+      return () => source.off('update', handler);
     }
   });
-  const BehaviorView = View.extend({
-    behaviors: [ListeningBehavior],
-    template: false,
+  Marionette.setEventDelegator({
+    delegate({ rootEl, eventName, handler }) {
+      const callback = event => handler(event);
+      const registration = { rootEl, eventName, callback };
+      delegatedListeners.add(registration);
+      rootEl.addEventListener(eventName, callback);
+      return () => {
+        rootEl.removeEventListener(eventName, callback);
+        delegatedListeners.delete(registration);
+      };
+    }
   });
-
+  const retention = {
+    collectionSubscriptionsWhileMounted: 0,
+    modelSubscriptionsWhileMounted: 0,
+    domListenersWhileMounted: 0,
+    externalSubscriptionsAfterDestroy: 0,
+    domListenersAfterDestroy: 0,
+    callbacksAfterDestroy: 0,
+    childViewsAfterDestroy: 0,
+    regionViewsAfterEmpty: 0,
+    regionsAfterHostDestroy: 0,
+    managedDomChildrenAfterEmpty: 0,
+    managedRootsConnectedAfterDestroy: 0,
+    liveInstancesAfterDestroy: 0,
+    detachedViewDestroyedWithFormerRegion: false,
+    destroyedBehaviorRetainsHostReference: false
+  };
   try {
-    const view = new View();
-    const region = new Region({ el: document.createElement('div') });
-    const behaviorHost = new View();
-    const behavior = new Behavior({}, behaviorHost);
-    const collectionView = new CollectionView({
-      childView: ChildView,
-      collection: new Backbone.Collection(),
-    });
-    const allocations = {
-      View: instanceMeasurement(view, Marionette),
-      Region: instanceMeasurement(region, Marionette),
-      Behavior: instanceMeasurement(behavior, Marionette),
-      CollectionView: instanceMeasurement(collectionView, Marionette),
-    };
-
-    behavior.destroy();
-    behaviorHost.destroy();
-    view.destroy();
-    region.destroy();
-    collectionView.destroy();
-
-    const retention = {
-      regionRegistrationsWhileShown: 0,
-      collectionRegistrationsWhileMounted: 0,
-      modelRegistrationsWhileMounted: 0,
-      externalListenerOwnersWhileMounted: 0,
-      collectionViewListeningToWhileMounted: 0,
-      behaviorListeningToWhileMounted: 0,
-      destroyedBehaviorRetainsHostReference: false,
-      destroyedHostRetainsBehaviorCount: 0,
-      externalRegistrationsAfterDestroy: 0,
-      externalListenerOwnersAfterDestroy: 0,
-      frameworkListeningToAfterDestroy: 0,
-      childContainerEntriesAfterDestroy: 0,
-      managedDomChildrenAfterEmpty: 0,
-      managedRootsConnectedAfterDestroy: 0,
-      regionParentReferencesAfterDestroy: 0,
-    };
     const detachRegionEl = document.createElement('div');
-    document.body.appendChild(detachRegionEl);
-    const detachRegion = new Region({ el: detachRegionEl });
+    document.body.append(detachRegionEl);
+    const detachRegion = new TrackedRegion({ el: detachRegionEl });
     const detachView = new PlainView();
-
-    for (let index = 0; index < attachDetachCycles; index += 1) {
+    for (let index = 0; index < attachDetachCycles; index++) {
       detachRegion.show(detachView);
-      if (!detachRegion.hasView() || detachRegion.currentView !== detachView) {
-        throw new Error('Region resource scenario did not show its view');
+      if (detachRegion.currentView !== detachView || !detachView.isAttached()) {
+        throw new Error('Region resource scenario did not attach its view');
       }
-      maxValue(retention, 'regionRegistrationsWhileShown', marionetteRegistrations(detachView, detachRegion));
-      detachRegion.detachView();
-      if (detachRegion.hasView()) {
+      if (detachRegion.detachView() !== detachView || detachView.isAttached()) {
         throw new Error('Region resource scenario did not detach its view');
       }
-      maxValue(retention, 'externalRegistrationsAfterDestroy', marionetteRegistrations(detachView, detachRegion));
+      maxValue(retention, 'regionViewsAfterEmpty', Number(detachRegion.hasView()));
       maxValue(retention, 'managedDomChildrenAfterEmpty', detachRegionEl.childNodes.length);
     }
-
-    detachView.destroy();
     detachRegion.destroy();
+    retention.detachedViewDestroyedWithFormerRegion = detachView.isDestroyed();
+    detachView.destroy();
     detachRegionEl.remove();
 
-    const collection = new Backbone.Collection([{ id: 1 }]);
-    const model = new Backbone.Model();
-
-    for (let index = 0; index < mountDestroyCycles; index += 1) {
+    const collection = Object.assign(eventSource(), { models: [{ id: 1 }] });
+    const model = eventSource();
+    for (let index = 0; index < mountDestroyCycles; index++) {
       const regionEl = document.createElement('div');
-      document.body.appendChild(regionEl);
-      const regionHost = new PlainView();
+      document.body.append(regionEl);
+      const regionHost = new PlainView({ regionClass: TrackedRegion });
       const cycleRegion = regionHost.addRegion('resource', { el: regionEl });
-      if (cycleRegion._parentView !== regionHost) {
-        throw new Error('Region resource scenario did not establish parent ownership');
+      if (regionHost.getRegion('resource') !== cycleRegion) {
+        throw new Error('Region resource scenario did not establish public ownership');
       }
-      const regionView = new PlainView();
-      cycleRegion.show(regionView);
+      cycleRegion.show(new PlainView());
       cycleRegion.empty();
-      maxValue(retention, 'externalRegistrationsAfterDestroy', marionetteRegistrations(regionView, cycleRegion));
+      maxValue(retention, 'regionViewsAfterEmpty', Number(cycleRegion.hasView()));
       maxValue(retention, 'managedDomChildrenAfterEmpty', regionEl.childNodes.length);
 
-      const mountedCollectionView = new CollectionView({
-        childView: ChildView,
-        collection,
-      });
-      document.body.appendChild(mountedCollectionView.el);
-      mountedCollectionView.render();
-      if (mountedCollectionView.children.length !== collection.length) {
-        throw new Error('CollectionView resource scenario did not render its collection');
+      const collectionView = new TrackedCollectionView({ collection }).render();
+      document.body.append(collectionView.el);
+      const added = { id: index + 2 };
+      collection.models.push(added);
+      collection.emit('update', { kind: 'update', added: [added], removed: [], updated: [] });
+      if (collectionView.children.length !== collection.models.length) {
+        throw new Error('CollectionView resource scenario did not receive an external update');
       }
-      maxValue(
-        retention,
-        'collectionRegistrationsWhileMounted',
-        backboneRegistrations(collection, mountedCollectionView),
-        marionetteRegistrations(collection, mountedCollectionView)
-      );
-      maxValue(retention, 'externalListenerOwnersWhileMounted', ledgerEntries(collection._rdListeners));
-      maxValue(retention, 'collectionViewListeningToWhileMounted', ledgerEntries(mountedCollectionView._rdListeningTo));
-      mountedCollectionView.destroy();
-
-      maxValue(
-        retention,
-        'childContainerEntriesAfterDestroy',
-        childContainerEntries(mountedCollectionView._children),
-        childContainerEntries(mountedCollectionView.children)
-      );
-      maxValue(
-        retention,
-        'externalRegistrationsAfterDestroy',
-        backboneRegistrations(collection, mountedCollectionView),
-        marionetteRegistrations(collection, mountedCollectionView)
-      );
-      maxValue(retention, 'externalListenerOwnersAfterDestroy', ledgerEntries(collection._rdListeners));
-      maxValue(retention, 'frameworkListeningToAfterDestroy', ledgerEntries(mountedCollectionView._rdListeningTo));
-      maxValue(retention, 'managedDomChildrenAfterEmpty', mountedCollectionView.el.childNodes.length);
-      maxValue(retention, 'managedRootsConnectedAfterDestroy', Number(mountedCollectionView.el.isConnected));
+      maxValue(retention, 'collectionSubscriptionsWhileMounted', collection.subscriptions.size);
+      maxValue(retention, 'domListenersWhileMounted', delegatedListeners.size);
+      collectionView.destroy();
+      const changesBefore = collectionChanges;
+      collection.models.pop();
+      collection.emit('update', { kind: 'update', added: [], removed: [added], updated: [] });
+      maxValue(retention, 'callbacksAfterDestroy', collectionChanges - changesBefore);
+      maxValue(retention, 'externalSubscriptionsAfterDestroy', collection.subscriptions.size);
+      maxValue(retention, 'domListenersAfterDestroy', delegatedListeners.size);
+      maxValue(retention, 'childViewsAfterDestroy', collectionView.children.length);
+      maxValue(retention, 'managedDomChildrenAfterEmpty', collectionView.el.childNodes.length);
+      maxValue(retention, 'managedRootsConnectedAfterDestroy', Number(collectionView.el.isConnected));
 
       const behaviorView = new BehaviorView({ model });
-      const mountedBehavior = behaviorView._behaviors[0];
-      document.body.appendChild(behaviorView.el);
-      model.set('resourceCycle', index);
-      if (mountedBehavior.modelChanges !== 1) {
+      document.body.append(behaviorView.el);
+      const before = modelChanges;
+      model.emit('change');
+      if (modelChanges !== before + 1 || mountedBehavior.view !== behaviorView) {
         throw new Error('Behavior resource scenario did not receive its model event');
       }
-      maxValue(
-        retention,
-        'modelRegistrationsWhileMounted',
-        backboneRegistrations(model, mountedBehavior),
-        marionetteRegistrations(model, mountedBehavior)
-      );
-      maxValue(retention, 'externalListenerOwnersWhileMounted', ledgerEntries(model._rdListeners));
-      maxValue(retention, 'behaviorListeningToWhileMounted', ledgerEntries(mountedBehavior._rdListeningTo));
+      maxValue(retention, 'modelSubscriptionsWhileMounted', model.subscriptions.size);
       behaviorView.destroy();
-
-      maxValue(
-        retention,
-        'externalRegistrationsAfterDestroy',
-        backboneRegistrations(model, behaviorView),
-        backboneRegistrations(model, mountedBehavior),
-        marionetteRegistrations(model, mountedBehavior)
-      );
-      maxValue(retention, 'externalListenerOwnersAfterDestroy', ledgerEntries(model._rdListeners));
-      maxValue(retention, 'frameworkListeningToAfterDestroy', ledgerEntries(mountedBehavior._rdListeningTo));
+      model.emit('change');
+      maxValue(retention, 'callbacksAfterDestroy', modelChanges - before - 1);
+      maxValue(retention, 'externalSubscriptionsAfterDestroy', model.subscriptions.size);
       maxValue(retention, 'managedDomChildrenAfterEmpty', behaviorView.el.childNodes.length);
       maxValue(retention, 'managedRootsConnectedAfterDestroy', Number(behaviorView.el.isConnected));
       retention.destroyedBehaviorRetainsHostReference ||= mountedBehavior.view === behaviorView;
-      maxValue(retention, 'destroyedHostRetainsBehaviorCount', behaviorView._behaviors.length);
 
       regionHost.destroy();
-      maxValue(retention, 'regionParentReferencesAfterDestroy', Number(cycleRegion._parentView != null));
+      maxValue(retention, 'regionsAfterHostDestroy', Object.keys(regionHost.getRegions()).length);
+      maxValue(retention, 'liveInstancesAfterDestroy', liveInstances.size);
       regionEl.remove();
     }
-
-    return {
-      schemaVersion: 1,
-      workload,
-      allocations,
-      retention,
-    };
+    return { schemaVersion: 2, workload, created, retention };
   } finally {
     document.body.textContent = '';
     runtime.cleanup();
@@ -312,25 +250,10 @@ export async function measureResources({ root = '.', attachDetachCycles, mountDe
 }
 
 function displayValue(value) {
-  return Array.isArray(value) ? value.join(', ') || 'None' : String(value);
+  return String(value);
 }
 
 function compareValues(base, current, path, changes, violations) {
-  if (Array.isArray(base)) {
-    if (!Array.isArray(current)) {
-      violations.push(`${path} changed measurement type`);
-      return;
-    }
-    const added = current.filter(value => !base.includes(value));
-    const removed = base.filter(value => !current.includes(value));
-    if (added.length || removed.length) {
-      const status = added.length && removed.length ? 'changed' :
-        added.length ? 'increase' : 'decrease';
-      changes.push({ path, base, current, status });
-    }
-    return;
-  }
-
   if (typeof base === 'number' || typeof base === 'boolean') {
     if (typeof current !== typeof base) {
       violations.push(`${path} changed measurement type`);
@@ -345,7 +268,8 @@ function compareValues(base, current, path, changes, violations) {
     return;
   }
 
-  if (!base || typeof base !== 'object' || !current || typeof current !== 'object') {
+  if (!base || typeof base !== 'object' || Array.isArray(base) ||
+      !current || typeof current !== 'object' || Array.isArray(current)) {
     violations.push(`${path} has unsupported measurement values`);
     return;
   }
@@ -370,11 +294,11 @@ export function compareResources(base, current) {
   const changes = [];
   const violations = [];
 
-  if (base.schemaVersion !== 1) {
-    violations.push(`Exact-base resource schemaVersion must be 1; received ${base.schemaVersion}`);
+  if (base.schemaVersion !== 2) {
+    violations.push(`Exact-base resource schemaVersion must be 2; received ${base.schemaVersion}`);
   }
-  if (current.schemaVersion !== 1) {
-    violations.push(`Pull request resource schemaVersion must be 1; received ${current.schemaVersion}`);
+  if (current.schemaVersion !== 2) {
+    violations.push(`Pull request resource schemaVersion must be 2; received ${current.schemaVersion}`);
   }
   const baseWorkloadViolations = validateWorkload(base.workload, 'Exact-base resource workload');
   const currentWorkloadViolations = validateWorkload(current.workload, 'Pull request resource workload');
@@ -385,8 +309,8 @@ export function compareResources(base, current) {
   }
 
   compareValues(
-    { allocations: base.allocations, retention: base.retention },
-    { allocations: current.allocations, retention: current.retention },
+    { created: base.created, retention: base.retention },
+    { created: current.created, retention: current.retention },
     'resources',
     changes,
     violations

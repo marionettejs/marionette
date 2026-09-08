@@ -1,7 +1,7 @@
-import View, {type ViewConstructor} from '../tmp/typed-core/src/modules/view.js';
-import Behavior from '../tmp/typed-core/src/modules/behavior.js';
-import Region, {type RegionInstance} from '../tmp/typed-core/src/modules/region.js';
-import type {SupportedView} from '../tmp/typed-core/src/modules/common/view.js';
+import { View, type ViewConstructor } from 'marionette';
+import { Behavior } from 'marionette';
+import { Region, type RegionInstance } from 'marionette';
+import type {SupportedView} from 'marionette';
 
 const Button = View.extend({
   tagName: 'button',
@@ -57,7 +57,7 @@ const FocusBehavior = Behavior.extend({
   onFocus(event: FocusEvent) { this.view.triggerMethod('focused', event); },
   createState() { return {focused: false}; }
 });
-const host = Object.assign(root, {_removeBehavior() {}, customHostMethod() {return 'host';}});
+const host = Object.assign(root, {customHostMethod() {return 'host';}});
 const behavior = new FocusBehavior({active: true}, host);
 const hostValue: string = behavior.view.customHostMethod();
 const focused: boolean = behavior.getState().focused;

@@ -1,7 +1,7 @@
-import Application, {type ApplicationInstance, type LifecycleContext} from '../tmp/typed-core/src/modules/application.js';
-import View from '../tmp/typed-core/src/modules/view.js';
-import Region, {type RegionInstance} from '../tmp/typed-core/src/modules/region.js';
-import type {SupportedView} from '../tmp/typed-core/src/modules/common/view.js';
+import { Application, type ApplicationInstance, type LifecycleContext } from 'marionette';
+import { View } from 'marionette';
+import { Region, type RegionInstance } from 'marionette';
+import type {SupportedView} from 'marionette';
 
 const Child = Application.extend({
   preinitialize(options: {label: string}) { this.channelName = options.label; },

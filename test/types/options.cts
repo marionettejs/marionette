@@ -51,7 +51,7 @@ const emptyReceiver = { mergeOptions };
 emptyReceiver.mergeOptions({ added: true }, ['added']);
 // @ts-expect-error Conditional copying does not refine the receiver shape.
 emptyReceiver.added;
-import MnObject from '../tmp/typed-core/src/modules/object.js';
+import { MnObject } from 'marionette';
 const Owner = MnObject.extend({ '': 'not returned', label: 1 });
 const actual = new Owner();
 const emptyOwner: undefined = actual.getOption('');
