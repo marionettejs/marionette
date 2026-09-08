@@ -6,6 +6,6 @@
     "validate": "node validate.mjs && tsc -p tsconfig.json"
   },
   "devDependencies": {
-    "typescript": "6.0.3"
+    "typescript": "7.0.2"
   }
 }

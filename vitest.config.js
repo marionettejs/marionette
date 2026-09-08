@@ -3,6 +3,8 @@ import { defineConfig } from 'vitest/config';
 import { fileURLToPath } from 'node:url';
 
 const nodeTests = [
+  // These suites supply their own JSDOM window and document.
+  'test/unit/{region-detach-contents,region-el-validation,view-el,view-render-attributes}.spec.js',
   'test/unit/events-*.spec.js',
   'test/unit/radio*.spec.js',
   'test/unit/requests.spec.js',
