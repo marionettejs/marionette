@@ -1,9 +1,10 @@
-import type { TemplateHost } from '../tmp/typed-core/src/mixins/template-render.js';
-import MnObject from '../tmp/typed-core/src/modules/object.js';
-import defaultState, { setStateApi, type StateApi } from '../tmp/typed-core/src/runtime/state-api.js';
-import defaultData, { setDataApi, type DataApi } from '../tmp/typed-core/src/runtime/data-api.js';
-import type { DataApi as NativeData, StateApi as NativeState, Model, Collection } from '../../packages/data/dist/types/esm/index.js';
-import type createActorApi from '../../packages/adapters/dist/types/esm/data/xstate.js';
+import { MnObject } from 'marionette';
+import { StateApi as defaultState, type StateApiContract as StateApi } from 'marionette';
+const { setStateApi } = MnObject;
+import { View, DataApi as defaultData, type DataApiContract as DataApi } from 'marionette';
+const { setDataApi } = View;
+import type { DataApi as NativeData, StateApi as NativeState, Model, Collection } from '@marionette/data';
+import type createActorApi from '@marionette/adapters/xstate';
 
 const Worker = MnObject.extend({ createState() { return { ready: false }; } });
 const source = { label: 'Example' };
@@ -110,14 +111,7 @@ defaultData.subscribe(null, 'count', () => {});
 // @ts-expect-error Undefined is not an event source.
 defaultData.subscribe(undefined, 'count', () => {});
 
-// Template rendering has resolved operations; public adapter slots stay opaque.
-declare const templateHost: TemplateHost;
-const templateModel: unknown = templateHost.Data.serialize(templateHost.model);
-const templateModels: readonly unknown[] = templateHost.Data.models(templateHost.collection);
-// @ts-expect-error Template rendering requires both serialization operations.
-const missingTemplateData: TemplateHost['Data'] = {};
-// @ts-expect-error Resolved collection snapshots must still be arrays.
-const invalidTemplateData: TemplateHost['Data'] = { serialize: value => value, models: () => 1 };
-const partialData: Partial<DataApi> = { serialize: undefined };
-// @ts-expect-error Partial configuration is not a resolved template adapter.
-const unresolvedTemplateData: TemplateHost['Data'] = partialData;
+// Public rendering methods expose consumer results without exposing resolved internals.
+const templateView = new View({ model: source, collection: plainModels });
+const serializedModel: unknown = templateView.serializeModel();
+const serializedCollection: unknown = templateView.serializeCollection();

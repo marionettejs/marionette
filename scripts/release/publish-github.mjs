@@ -5,24 +5,16 @@ import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import process from 'node:process';
+import { readArguments } from './arguments.mjs';
+import { validatePackageInventory } from './packages.mjs';
+import { verifyCandidateValidation } from './validation.mjs';
 import { publishDraftRelease } from './github-release.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
-const args = process.argv.slice(2);
-
-function readArgument(name, fallback) {
-  const index = args.indexOf(name);
-  if (index === -1) {
-    return fallback;
-  }
-
-  const value = args[index + 1];
-  if (!value || value.startsWith('--')) {
-    throw new Error(`Missing value for ${name}`);
-  }
-
-  return value;
-}
+const args = readArguments({
+  mode: { type: 'string', default: 'dry-run' },
+  'artifact-dir': { type: 'string', default: 'release' },
+});
 
 function run(commandArgs, options = {}) {
   const result = spawnSync('gh', commandArgs, {
@@ -50,34 +42,19 @@ function sha512(buffer) {
   return createHash('sha512').update(buffer).digest('hex');
 }
 
-const mode = readArgument('--mode', 'dry-run');
+const mode = args.mode;
 if (!['dry-run', 'stage', 'publish'].includes(mode)) {
   throw new Error(`Unsupported GitHub release mode ${mode}.`);
 }
 
-const artifactDir = resolve(root, readArgument('--artifact-dir', 'release'));
+const artifactDir = resolve(root, args['artifact-dir']);
 const evidenceBytes = await readFile(resolve(artifactDir, 'release-evidence.json'));
 const evidence = JSON.parse(evidenceBytes);
 const policy = JSON.parse(await readFile(resolve(root, 'config/release-promotion.json'), 'utf8'));
 if (evidence.schemaVersion !== 2 || !Array.isArray(evidence.packages)) {
   throw new Error(`Unsupported evidence schemaVersion ${evidence.schemaVersion}.`);
 }
-const packageIds = evidence.packages.map(packageEvidence => packageEvidence.id);
-if (JSON.stringify(packageIds) !== JSON.stringify(['utils', 'radio', 'core', 'data', 'adapters'])) {
-  throw new Error(`Unexpected release package order: ${packageIds.join(', ')}.`);
-}
-const packageNames = new Map([
-  ['utils', '@marionette/utils'],
-  ['radio', '@marionette/radio'],
-  ['core', 'marionette'],
-  ['data', '@marionette/data'],
-  ['adapters', '@marionette/adapters'],
-]);
-for (const packageEvidence of evidence.packages) {
-  if (packageEvidence.name !== packageNames.get(packageEvidence.id)) {
-    throw new Error(`Unexpected ${packageEvidence.id} package name: ${packageEvidence.name}.`);
-  }
-}
+validatePackageInventory(evidence.packages);
 const assetNames = [
   ...evidence.packages.flatMap(packageEvidence => [
     packageEvidence.tarball.file,
@@ -122,6 +99,17 @@ function verifyLocalAssets() {
 }
 
 verifyLocalAssets();
+const verification = spawnSync(process.execPath, [resolve(root, 'scripts/release/verify-artifact.mjs'),
+  '--artifact-dir', artifactDir, '--require-validation'], { cwd: root, encoding: 'utf8' });
+if (verification.error || verification.status !== 0) {
+  throw new Error(`Release candidate is not verified: ${verification.error?.message || verification.stderr}`);
+}
+for (const asset of await verifyCandidateValidation(artifactDir, evidenceBytes)) {
+  if (assetNames.includes(asset.file)) { throw new Error(`Duplicate release asset: ${asset.file}`); }
+  assetNames.push(asset.file);
+  assetPaths.push(artifactPath(asset.file));
+  expectedHashes.set(asset.file, asset.sha512);
+}
 
 if (mode === 'dry-run') {
   console.log(JSON.stringify({

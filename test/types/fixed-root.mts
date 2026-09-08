@@ -1,6 +1,6 @@
-import Behavior from '../tmp/typed-core/src/modules/behavior.js';
-import View from '../tmp/typed-core/src/modules/view.js';
-import CollectionView from '../tmp/typed-core/src/modules/collection-view.js';
+import { Behavior } from 'marionette';
+import { View } from 'marionette';
+import { CollectionView } from 'marionette';
 
 const root = document.createElement('section');
 const view = new View({ el: root });
@@ -22,8 +22,6 @@ for (const instance of [view, collectionView, extended, native, factory, collect
 const behavior = new Behavior({}, view);
 // @ts-expect-error A Behavior shares its host's fixed root.
 behavior.el = root;
-// @ts-expect-error Behavior element retargeting is removed.
-behavior._syncElement();
 
 new View({ id: null, className: () => null }).renderAttributes();
 new CollectionView({ id: () => undefined, className: null }).renderAttributes();

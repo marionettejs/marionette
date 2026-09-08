@@ -1,11 +1,13 @@
-import Behavior from '../../src/modules/behavior';
-import CollectionView from '../../src/modules/collection-view';
-import View from '../../src/modules/view';
+import { vi, describe, it, expect } from 'vitest';
+import { setFixtures } from '../setup/fixtures.js';
+import { Behavior } from 'marionette';
+import { CollectionView } from 'marionette';
+import { View } from 'marionette';
 
 describe('Behavior UI contract', function() {
   it('delegates host-only and host-winning ui references on first construction', function() {
-    const onHostOnly = sinon.stub();
-    const onShared = sinon.stub();
+    const onHostOnly = vi.fn();
+    const onShared = vi.fn();
     const TestBehavior = Behavior.extend({
       ui: {
         shared: '.behavior-shared',
@@ -36,11 +38,11 @@ describe('Behavior UI contract', function() {
     view.render();
     view.el.querySelector('.host-only').click();
     view.el.querySelector('.behavior-shared').click();
-    expect(onHostOnly).to.have.been.calledOnce;
-    expect(onShared).not.to.have.been.called;
+    expect(onHostOnly).toHaveBeenCalledTimes(1);
+    expect(onShared).not.toHaveBeenCalled();
 
     view.el.querySelector('.host-shared').click();
-    expect(onShared).to.have.been.calledOnce;
+    expect(onShared).toHaveBeenCalledTimes(1);
 
     view.destroy();
   });
@@ -59,8 +61,8 @@ describe('Behavior UI contract', function() {
   });
 
   it('provides the host element while evaluating functional Behavior ui', function() {
-    const onClick = sinon.stub();
-    const ui = sinon.spy(function() {
+    const onClick = vi.fn();
+    const ui = vi.fn(function() {
       expect(this.el).to.equal(this.view.el);
       return { target: '.target' };
     });
@@ -77,10 +79,10 @@ describe('Behavior UI contract', function() {
     });
     const view = new TestView();
 
-    expect(ui).to.have.been.calledOnce;
+    expect(ui).toHaveBeenCalledTimes(1);
     view.render();
     view.el.querySelector('.target').click();
-    expect(onClick).to.have.been.calledOnce;
+    expect(onClick).toHaveBeenCalledTimes(1);
 
     view.destroy();
   });
@@ -189,7 +191,7 @@ describe('Behavior UI contract', function() {
   });
 
   it('pins only that pre-rendered hosts bind host UI before Behavior construction', function() {
-    this.setFixtures('<div id="prerendered-host"><button class="shared"></button></div>');
+    setFixtures('<div id="prerendered-host"><button class="shared"></button></div>');
     const hostElement = document.querySelector('#prerendered-host');
     const sharedElement = hostElement.querySelector('.shared');
     let observedHostUI;
@@ -209,7 +211,7 @@ describe('Behavior UI contract', function() {
     });
     const view = new TestView({ el: hostElement });
 
-    expect(observedRenderedState).to.be.true;
+    expect(observedRenderedState).toBe(true);
     expect(observedHostUI).to.equal(sharedElement);
 
     view.destroy();
@@ -294,7 +296,7 @@ describe('Behavior UI contract', function() {
     const secondElement = behavior.ui.action[0];
 
     expect(firstCollection[0]).to.equal(firstElement);
-    expect(view.el.contains(firstElement)).to.be.false;
+    expect(view.el.contains(firstElement)).toBe(false);
     expect(secondElement).to.not.equal(firstElement);
     expect(secondElement.dataset.render).to.equal('2');
     expect(secondElement).to.equal(view.el.querySelector('.action'));
@@ -303,7 +305,7 @@ describe('Behavior UI contract', function() {
   });
 
   it('limits Behavior UI lookup to the host element', function() {
-    this.setFixtures('<div id="behavior-host"></div><button class="action outside"></button>');
+    setFixtures('<div id="behavior-host"></div><button class="action outside"></button>');
     let behavior;
 
     const TestBehavior = Behavior.extend({

@@ -1,88 +1,68 @@
-import View from '../../src/modules/view';
+import { describe, it, expect, vi } from 'vitest';
+import { Region, View } from 'marionette';
+import { setFixtures } from '../setup/fixtures.js';
 
-describe('_getImmediateChildren', function() {
-  let BaseView;
+describe('nested View lifecycle propagation', function() {
+  for (const options of [
+    { template: false },
+    { template: () => '<p>No regions</p>' },
+    { template: () => '<main></main><footer></footer>', regions: { main: 'main', footer: 'footer' } }
+  ]) {
+    it('attaches and detaches a View with no shown children', function() {
+      setFixtures('<section id="owner"></section>');
+      const region = new Region({ el: '#owner' });
+      const view = new View(options);
+      const attached = vi.fn();
+      const detached = vi.fn();
+      view.on('attach', attached);
+      view.on('detach', detached);
 
-  beforeEach(function() {
-    // A suitable view to use as a child
-    BaseView = View.extend({
-      template: _.noop
+      region.show(view);
+      expect(view.isAttached()).toBe(true);
+      expect(attached).toHaveBeenCalledTimes(1);
+      expect(region.detachView()).to.equal(view);
+      expect(view.isAttached()).toBe(false);
+      expect(detached).toHaveBeenCalledTimes(1);
+      view.destroy();
+      region.destroy();
     });
-  });
+  }
 
-  describe('Marionette.View', function() {
-    let view;
-
-    beforeEach(function() {
-      view = new View();
+  it('propagates lifecycle once to shown children and nested descendants, excluding empty regions', function() {
+    setFixtures('<section id="owner"></section>');
+    const region = new Region({ el: '#owner' });
+    const parent = new View({
+      template: () => '<main></main><footer></footer><aside></aside>',
+      regions: { main: 'main', footer: 'footer', unused: 'aside' }
     });
-    it('should return an empty array for getImmediateChildren', function() {
-      expect(view._getImmediateChildren())
-        .to.be.instanceof(Array)
-        .and.to.have.length(0);
-    });
-
-    describe('without regions', function() {
-      let layoutView;
-
-      beforeEach(function() {
-        layoutView = new View({
-          template: _.noop
-        });
-      });
-      it('should return an empty array for getImmediateChildren', function() {
-        expect(layoutView._getImmediateChildren())
-          .to.be.instanceof(Array)
-          .and.to.have.length(0);
-      });
-    });
-
-    describe('when there are empty regions', function() {
-      let layoutView;
-
-      beforeEach(function() {
-        layoutView = new View({
-          template: _.template('<main></main><footer></footer>'),
-          regions: {
-            main: '.main',
-            footer: '.footer'
-          }
-        });
-        layoutView.render();
-      });
-      it('should return an empty array for getImmediateChildren', function() {
-        expect(layoutView._getImmediateChildren())
-          .to.be.instanceof(Array)
-          .and.to.have.length(0);
-      });
+    const child = new View({ template: () => '<span></span>', regions: { nested: 'span' } });
+    const sibling = new View({ template: () => 'sibling' });
+    const grandchild = new View({ template: () => 'grandchild' });
+    parent.showChildView('main', child);
+    parent.showChildView('footer', sibling);
+    child.showChildView('nested', grandchild);
+    const descendants = [parent, child, sibling, grandchild];
+    const lifecycle = descendants.map(view => {
+      const attached = vi.fn();
+      const detached = vi.fn();
+      view.on('attach', attached);
+      view.on('detach', detached);
+      return { view, attached, detached };
     });
 
-    describe('when there are non-empty regions', function() {
-      let layoutView;
-      let childOne;
-      let childTwo;
-
-      beforeEach(function() {
-        layoutView = new View({
-          template: _.template('<main></main><footer></footer>'),
-          regions: {
-            main: 'main',
-            footer: 'footer'
-          }
-        });
-        layoutView.render();
-        childOne = new BaseView();
-        childTwo = new BaseView();
-        layoutView.getRegion('main').show(childOne);
-        layoutView.getRegion('footer').show(childTwo);
-      });
-      it('should return an empty array for getImmediateChildren', function() {
-        expect(layoutView._getImmediateChildren())
-          .to.be.instanceof(Array)
-          .and.to.have.length(2)
-          .and.to.contain(childOne)
-          .and.to.contain(childTwo);
-      });
-    });
+    region.show(parent);
+    for (const { view, attached } of lifecycle) {
+      expect(view.isAttached()).toBe(true);
+      expect(attached).toHaveBeenCalledTimes(1);
+    }
+    region.detachView();
+    for (const { view, detached } of lifecycle) {
+      expect(view.isAttached()).toBe(false);
+      expect(view.isDestroyed()).toBe(false);
+      expect(detached).toHaveBeenCalledTimes(1);
+    }
+    parent.destroy();
+    expect(descendants.every(view => view.isDestroyed())).toBe(true);
+    region.destroy();
   });
 });

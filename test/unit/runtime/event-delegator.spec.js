@@ -1,10 +1,13 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { vi } from 'vitest';
 
-import EventDelegator, { setEventDelegator } from '../../../src/runtime/event-delegator';
-import Behavior from '../../../src/modules/behavior';
-import CollectionView from '../../../src/modules/collection-view';
-import View from '../../../src/modules/view';
+
+import { Behavior } from 'marionette';
+import { CollectionView } from 'marionette';
+import { View } from 'marionette';
+const EventDelegator = View.prototype.EventDelegator;
+const setEventDelegator = View.setEventDelegator;
 
 describe('EventDelegator', function() {
   let cleanups;
@@ -98,7 +101,7 @@ describe('EventDelegator', function() {
     rootEl.dispatchEvent(event);
 
     expect(handler).toHaveBeenCalledWith(event);
-    expect(event.delegateTarget).to.be.undefined;
+    expect(event.delegateTarget).toBeUndefined();
   });
 
   it('does not emulate delegated mouseenter bubbling', function() {
@@ -137,8 +140,8 @@ describe('EventDelegator', function() {
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler.mock.calls[0]).to.have.lengthOf(1);
     expect(handler.mock.calls[0][0]).to.equal(event);
-    expect(dispatched).to.be.true;
-    expect(event.defaultPrevented).to.be.false;
+    expect(dispatched).toBe(true);
+    expect(event.defaultPrevented).toBe(false);
   });
 
   it('handles delegated events with text-node targets', function() {
@@ -217,7 +220,8 @@ describe('EventDelegator', function() {
     expect(firstCleanup).toHaveBeenCalledTimes(1);
     expect(firstAdapter.delegate).toHaveBeenCalledTimes(1);
     expect(secondAdapter.delegate).toHaveBeenCalledTimes(1);
-    expect(view._domEvents).to.deep.equal([secondCleanup]);
+    view.undelegateEvents();
+    expect(secondCleanup).toHaveBeenCalledTimes(1);
   });
 
   it('uses a class adapter for CollectionView registration and destruction', function() {
@@ -246,7 +250,9 @@ describe('EventDelegator', function() {
     view.undelegateEvents();
     dispatchClick(rootEl.querySelector('.foo'));
     expect(handler).toHaveBeenCalledTimes(2);
-    expect(view._domEvents).to.have.lengthOf(0);
+    view.undelegateEvents();
+    dispatchClick(rootEl.querySelector('.foo'));
+    expect(handler).toHaveBeenCalledTimes(2);
     view.destroy();
   });
 });

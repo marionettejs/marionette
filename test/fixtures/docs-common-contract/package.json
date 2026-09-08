@@ -1,4 +1,5 @@
 {
+  "name": "marionette-docs-common-contract-fixture",
   "private": true,
   "type": "module",
   "scripts": {

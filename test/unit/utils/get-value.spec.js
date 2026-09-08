@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import _ from 'underscore';
 
 import { getValue } from '@marionette/utils';
@@ -49,7 +50,7 @@ describe('getValue', function() {
   });
 
   it('uses the fallback only when the property value is undefined', function() {
-    expect(getValue({ value: null }, 'value', 'fallback')).to.be.null;
+    expect(getValue({ value: null }, 'value', 'fallback')).toBeNull();
     expect(getValue({ value: false }, 'value', 'fallback')).to.equal(false);
     expect(getValue({ value: 0 }, 'value', 'fallback')).to.equal(0);
     expect(getValue({ value: '' }, 'value', 'fallback')).to.equal('');

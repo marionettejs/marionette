@@ -1,5 +1,6 @@
+import { vi, describe, it, expect } from 'vitest';
 import Backbone from 'backbone';
-import { Collection, DataApi } from '../../../packages/data/src/index.ts';
+import { Collection, DataApi } from '@marionette/data';
 
 describe('@marionette/data collection notifications', function() {
   it('uses the public event stream in registration order', function() {
@@ -22,17 +23,17 @@ describe('@marionette/data collection notifications', function() {
   it('delivers independent changes to multiple observers and preserves their context', function() {
     const collection = new Collection();
     const context = {};
-    const first = this.sinon.spy();
-    const second = this.sinon.spy();
+    const first = vi.fn();
+    const second = vi.fn();
     DataApi.observeCollection(collection, first, context);
     DataApi.observeCollection(collection, second);
     const model = collection.add({ id: 1 });
     collection.remove(model);
     collection.reset([]);
 
-    expect(first).to.have.been.calledOn(context);
-    expect(first.args).to.deep.equal(second.args);
-    expect(first.args.map(([change]) => change.kind)).to.deep.equal(['update', 'update', 'reset']);
+    expect(first.mock.contexts).toContain(context);
+    expect(first.mock.calls).to.deep.equal(second.mock.calls);
+    expect(first.mock.calls.map(([change]) => change.kind)).to.deep.equal(['update', 'update', 'reset']);
     collection.destroy();
   });
 

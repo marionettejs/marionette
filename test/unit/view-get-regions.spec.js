@@ -1,4 +1,5 @@
-import { Behavior, Region, View } from '../../src/index';
+import { vi, describe, it, expect } from 'vitest';
+import { Behavior, Region, View } from 'marionette';
 
 function state(view) {
   return {
@@ -9,10 +10,10 @@ function state(view) {
 }
 
 function createTrackedView(context) {
-  const template = context.sinon.spy(() => '<div class="content">Content</div>');
-  const beforeRender = context.sinon.spy();
-  const render = context.sinon.spy();
-  const bindBehaviorUIElements = context.sinon.spy();
+  const template = vi.fn(() => '<div class="content">Content</div>');
+  const beforeRender = vi.fn();
+  const render = vi.fn();
+  const bindBehaviorUIElements = vi.fn();
   const TestBehavior = Behavior.extend({ bindUIElements: bindBehaviorUIElements });
   const regions = Object.create({ inherited: '.inherited' });
   Object.assign(regions, {
@@ -27,8 +28,8 @@ function createTrackedView(context) {
     template,
     ui: { content: '.content' },
   });
-  const getTemplate = context.sinon.spy(view, 'getTemplate');
-  const bindUIElements = context.sinon.spy(view, 'bindUIElements');
+  const getTemplate = vi.spyOn(view, 'getTemplate');
+  const bindUIElements = vi.spyOn(view, 'bindUIElements');
   view.on('before:render', beforeRender);
   view.on('render', render);
 
@@ -44,28 +45,28 @@ function createTrackedView(context) {
 }
 
 function resetRenderSpies(tracked) {
-  tracked.beforeRender.resetHistory();
-  tracked.bindBehaviorUIElements.resetHistory();
-  tracked.bindUIElements.resetHistory();
-  tracked.getTemplate.resetHistory();
-  tracked.render.resetHistory();
-  tracked.template.resetHistory();
+  tracked.beforeRender.mockClear();
+  tracked.bindBehaviorUIElements.mockClear();
+  tracked.bindUIElements.mockClear();
+  tracked.getTemplate.mockClear();
+  tracked.render.mockClear();
+  tracked.template.mockClear();
 }
 
 function expectNoRenderSideEffects(tracked, expectedState, html) {
-  expect(tracked.getTemplate).to.not.have.been.called;
-  expect(tracked.template).to.not.have.been.called;
-  expect(tracked.beforeRender).to.not.have.been.called;
-  expect(tracked.render).to.not.have.been.called;
-  expect(tracked.bindUIElements).to.not.have.been.called;
-  expect(tracked.bindBehaviorUIElements).to.not.have.been.called;
+  expect(tracked.getTemplate).not.toHaveBeenCalled();
+  expect(tracked.template).not.toHaveBeenCalled();
+  expect(tracked.beforeRender).not.toHaveBeenCalled();
+  expect(tracked.render).not.toHaveBeenCalled();
+  expect(tracked.bindUIElements).not.toHaveBeenCalled();
+  expect(tracked.bindBehaviorUIElements).not.toHaveBeenCalled();
   expect(tracked.view.el.innerHTML).to.equal(html);
   expect(state(tracked.view)).to.deep.equal(expectedState);
 }
 
 describe('View#getRegions', function() {
-  it('returns safe own-key snapshots without rendering an unrendered View', function() {
-    const tracked = createTrackedView(this);
+  it('returns safe own-key snapshots without rendering an unrendered View', function(testContext) {
+    const tracked = createTrackedView(testContext);
     const { view } = tracked;
     const sentinel = document.createElement('span');
     sentinel.textContent = 'Unmanaged content';
@@ -107,8 +108,8 @@ describe('View#getRegions', function() {
     view.destroy();
   });
 
-  it('does not change a rendered View while snapshotting its Regions', function() {
-    const tracked = createTrackedView(this);
+  it('does not change a rendered View while snapshotting its Regions', function(testContext) {
+    const tracked = createTrackedView(testContext);
     const { view } = tracked;
     view.render();
     const html = view.el.innerHTML;
@@ -128,15 +129,15 @@ describe('View#getRegions', function() {
     view.destroy();
   });
 
-  it('returns fresh empty snapshots without rendering a destroyed View', function() {
-    const tracked = createTrackedView(this);
+  it('returns fresh empty snapshots without rendering a destroyed View', function(testContext) {
+    const tracked = createTrackedView(testContext);
     const { view } = tracked;
     view.destroy();
     const sentinel = document.createElement('span');
     sentinel.textContent = 'Unmanaged content';
     view.el.append(sentinel);
     const html = view.el.innerHTML;
-    const renderMethod = this.sinon.spy(view, 'render');
+    const renderMethod = vi.spyOn(view, 'render');
 
     const first = view.getRegions();
     const second = view.getRegions();
@@ -144,7 +145,7 @@ describe('View#getRegions', function() {
     expect(first).to.deep.equal({});
     expect(second).to.deep.equal({});
     expect(second).not.to.equal(first);
-    expect(renderMethod).to.not.have.been.called;
+    expect(renderMethod).not.toHaveBeenCalled();
     expectNoRenderSideEffects(tracked, {
       attached: false,
       destroyed: true,
@@ -157,7 +158,7 @@ describe('View#getRegions', function() {
 describe('View#emptyRegions', function() {
   it('renders before calling overridable getRegions and emptying its snapshot', function() {
     const regions = [];
-    const empty = this.sinon.spy(function() {
+    const empty = vi.fn(function() {
       return Region.prototype.empty.apply(this, arguments);
     });
     const TrackingRegion = Region.extend({
@@ -167,13 +168,13 @@ describe('View#emptyRegions', function() {
       empty,
     });
     const EmptyingView = View.extend({
-      getRegions: this.sinon.spy(function() {
+      getRegions: vi.fn(function() {
         return View.prototype.getRegions.call(this);
       }),
       onRender() {
         this.addRegion('late', { el: '.late', regionClass: TrackingRegion });
       },
-      render: this.sinon.spy(function() {
+      render: vi.fn(function() {
         return View.prototype.render.call(this);
       }),
       template: () => `
@@ -192,19 +193,18 @@ describe('View#emptyRegions', function() {
     expect(Object.keys(result)).to.deep.equal(['content', 'late']);
     expect(result.content).to.equal(regions[0]);
     expect(result.late).to.equal(regions[1]);
-    expect(view.render).to.have.been.calledOnce;
-    expect(view.getRegions)
-      .to.have.been.calledOnce
-      .and.calledOn(view)
-      .and.calledWithExactly();
-    expect(empty).to.have.been.calledTwice;
-    expect(empty.getCall(0).thisValue).to.equal(regions[0]);
-    expect(empty.getCall(0).args).to.deep.equal([]);
-    expect(empty.getCall(1).thisValue).to.equal(regions[1]);
-    expect(empty.getCall(1).args).to.deep.equal([]);
-    expect(view.render).to.have.been.calledBefore(view.getRegions);
-    expect(view.getRegions).to.have.been.calledBefore(empty);
-    expect(view.isRendered()).to.be.true;
+    expect(view.render).toHaveBeenCalledTimes(1);
+    expect(view.getRegions).toHaveBeenCalledTimes(1);
+    expect(view.getRegions.mock.contexts).toContain(view);
+    expect(view.getRegions).toHaveBeenCalledWith();
+    expect(empty).toHaveBeenCalledTimes(2);
+    expect(empty.mock.contexts.at(0)).to.equal(regions[0]);
+    expect(empty.mock.calls.at(0)).to.deep.equal([]);
+    expect(empty.mock.contexts.at(1)).to.equal(regions[1]);
+    expect(empty.mock.calls.at(1)).to.deep.equal([]);
+    expect(view.render).toHaveBeenCalledBefore(view.getRegions);
+    expect(view.getRegions).toHaveBeenCalledBefore(empty);
+    expect(view.isRendered()).toBe(true);
     expect(view.$('.content')[0].innerHTML).to.equal('');
     expect(view.$('.late')[0].innerHTML).to.equal('');
 
@@ -214,16 +214,16 @@ describe('View#emptyRegions', function() {
   it('stops before getRegions and Region emptying when render throws', function() {
     const error = new Error('render failed');
     const region = new Region({ el: '.content' });
-    const getRegions = this.sinon.spy(() => ({ content: region }));
+    const getRegions = vi.fn(() => ({ content: region }));
     const TestView = View.extend({ getRegions });
     const view = new TestView({ regions: { content: region } });
-    this.sinon.spy(region, 'empty');
-    this.sinon.stub(view, 'render').throws(error);
+    vi.spyOn(region, 'empty');
+    vi.spyOn(view, 'render').mockImplementation(() => undefined).mockImplementation(() => { throw error; });
 
     expect(() => view.emptyRegions()).to.throw(error);
-    expect(getRegions).to.not.have.been.called;
-    expect(region.empty).to.not.have.been.called;
-    expect(view.isRendered()).to.be.false;
+    expect(getRegions).not.toHaveBeenCalled();
+    expect(region.empty).not.toHaveBeenCalled();
+    expect(view.isRendered()).toBe(false);
 
     view.destroy();
   });
@@ -236,7 +236,7 @@ describe('View#emptyRegions', function() {
         region = this;
       },
     });
-    const getRegions = this.sinon.spy(() => { throw error; });
+    const getRegions = vi.fn(() => { throw error; });
     const TestView = View.extend({
       getRegions,
       template: () => '<div class="content"></div>',
@@ -246,30 +246,36 @@ describe('View#emptyRegions', function() {
         content: { el: '.content', regionClass: TrackingRegion },
       },
     });
-    this.sinon.spy(region, 'empty');
+    vi.spyOn(region, 'empty');
 
     expect(() => view.emptyRegions()).to.throw(error);
-    expect(getRegions).to.have.been.calledOnce.and.calledOn(view).and.calledWithExactly();
-    expect(region.empty).to.not.have.been.called;
-    expect(view.isRendered()).to.be.true;
+    expect(getRegions).toHaveBeenCalledTimes(1);
+    expect(getRegions.mock.contexts).toContain(view);
+    expect(getRegions).toHaveBeenCalledWith();
+    expect(region.empty).not.toHaveBeenCalled();
+    expect(view.isRendered()).toBe(true);
 
     view.destroy();
   });
 
   it('stops emptying later snapshot entries when a Region throws', function() {
     const error = new Error('empty failed');
-    const first = { empty: this.sinon.spy() };
-    const failing = { empty: this.sinon.stub().throws(error) };
-    const last = { empty: this.sinon.spy() };
-    const getRegions = this.sinon.spy(() => ({ first, failing, last }));
+    const first = { empty: vi.fn() };
+    const failing = { empty: vi.fn().mockImplementation(() => { throw error; }) };
+    const last = { empty: vi.fn() };
+    const getRegions = vi.fn(() => ({ first, failing, last }));
     const TestView = View.extend({ getRegions, template: false });
     const view = new TestView();
 
     expect(() => view.emptyRegions()).to.throw(error);
-    expect(getRegions).to.have.been.calledOnce.and.calledOn(view).and.calledWithExactly();
-    expect(first.empty).to.have.been.calledOnce.and.calledWithExactly();
-    expect(failing.empty).to.have.been.calledOnce.and.calledWithExactly();
-    expect(last.empty).to.not.have.been.called;
+    expect(getRegions).toHaveBeenCalledTimes(1);
+    expect(getRegions.mock.contexts).toContain(view);
+    expect(getRegions).toHaveBeenCalledWith();
+    expect(first.empty).toHaveBeenCalledTimes(1);
+    expect(first.empty).toHaveBeenCalledWith();
+    expect(failing.empty).toHaveBeenCalledTimes(1);
+    expect(failing.empty).toHaveBeenCalledWith();
+    expect(last.empty).not.toHaveBeenCalled();
 
     view.destroy();
   });

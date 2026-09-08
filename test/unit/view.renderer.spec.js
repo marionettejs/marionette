@@ -1,6 +1,8 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import '../setup/backbone.js';
 import _ from 'underscore';
 import Backbone from 'backbone';
-import View from '../../src/modules/view';
+import { View } from 'marionette';
 
 describe('View.setRenderer', function() {
   let ViewClass;
@@ -26,7 +28,7 @@ describe('View.setRenderer', function() {
     let rendererStub;
 
     beforeEach(function() {
-      rendererStub = this.sinon.stub();
+      rendererStub = vi.fn();
 
       ViewClass.setRenderer(rendererStub);
 
@@ -36,26 +38,28 @@ describe('View.setRenderer', function() {
     });
 
     it('should use the custom renderer to render', function() {
-      expect(rendererStub).to.have.been.calledOnce.and.calledWith(template, data);
+      expect(rendererStub).toHaveBeenCalledTimes(1);
+      expect(rendererStub.mock.calls.map(args => args.slice(0, 2))).toContainEqual([template, data]);
     });
 
     it('should not affect the renderer of the extended View', function() {
-      rendererStub.reset();
+      rendererStub.mockClear();
 
       const baseView = new View({ template: _.template('bar'), model });
       baseView.render();
 
-      expect(rendererStub).to.not.have.been.called;
+      expect(rendererStub).not.toHaveBeenCalled();
     });
 
     describe('when inheriting from the view class', function() {
       it('should use the custom renderer', function() {
-        rendererStub.reset();
+        rendererStub.mockClear();
 
         const subView = new ViewSubClass({ template, model });
         subView.render();
 
-        expect(rendererStub).to.have.been.calledOnce.and.calledWith(template, data);
+        expect(rendererStub).toHaveBeenCalledTimes(1);
+        expect(rendererStub.mock.calls.map(args => args.slice(0, 2))).toContainEqual([template, data]);
       });
     });
 
@@ -63,11 +67,11 @@ describe('View.setRenderer', function() {
       let subRendererStub;
 
       beforeEach(function() {
-        subRendererStub = this.sinon.stub();
+        subRendererStub = vi.fn();
 
         ViewSubClass.setRenderer(subRendererStub);
 
-        rendererStub.reset();
+        rendererStub.mockClear();
 
         const view = new ViewSubClass({ template, model });
 
@@ -75,11 +79,12 @@ describe('View.setRenderer', function() {
       });
 
       it('should use the custom renderer to render', function() {
-        expect(subRendererStub).to.have.been.calledOnce.and.calledWith(template, data);
+        expect(subRendererStub).toHaveBeenCalledTimes(1);
+        expect(subRendererStub.mock.calls.map(args => args.slice(0, 2))).toContainEqual([template, data]);
       });
 
       it('should not use the custom renderer of the inherited class', function() {
-        expect(rendererStub).to.not.have.been.called;
+        expect(rendererStub).not.toHaveBeenCalled();
       });
     });
   });
@@ -96,12 +101,12 @@ describe('View.setRenderer', function() {
     });
 
     const view = new RendererView({ model });
-    const attachElContentSpy = this.sinon.spy(view, 'attachElContent');
+    const attachElContentSpy = vi.spyOn(view, 'attachElContent');
 
     view.render();
 
     expect(rendererContext).to.equal(view);
     expect(view.el.textContent).to.equal(`ignored:${ data.foo }`);
-    expect(attachElContentSpy).to.have.been.calledOnce;
+    expect(attachElContentSpy).toHaveBeenCalledTimes(1);
   });
 });

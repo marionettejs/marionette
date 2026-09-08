@@ -1,0 +1,34 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      vitest:
+        patterns: ['vitest', '@vitest/*']
+      mutation:
+        patterns: ['@stryker-mutator/*']
+    ignore:
+      - dependency-name: marionette
+      - dependency-name: '@marionette/*'
+  - package-ecosystem: npm
+    directories: ['/test/fixtures/*']
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    groups:
+      consumer-dependencies:
+        patterns: ['*']
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: marionette
+      - dependency-name: '@marionette/*'
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ['*']

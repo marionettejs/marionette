@@ -1,9 +1,10 @@
+import { describe, it, expect } from 'vitest';
 import { getOption } from '@marionette/utils';
 
 describe('get option', function() {
   describe('when calling without arguments', function() {
     it('should return undefined', function() {
-      expect(getOption()).to.be.undefined;
+      expect(getOption()).toBeUndefined();
     });
   });
 

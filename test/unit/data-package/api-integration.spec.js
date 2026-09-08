@@ -1,5 +1,6 @@
-import { createMarionette } from '../../../src/index.ts';
-import { Collection, DataApi, Model, StateApi } from '../../../packages/data/src/index.ts';
+import { vi, describe, it, expect } from 'vitest';
+import { createMarionette } from 'marionette';
+import { Collection, DataApi, Model, StateApi } from '@marionette/data';
 
 describe('@marionette/data Marionette integration', function() {
   it('drives keyed add, removal, reorder, model updates, and reset reconciliation', function() {
@@ -15,26 +16,26 @@ describe('@marionette/data Marionette integration', function() {
     const third = collection.get(3);
     const childViews = [first, second, third].map(model => view.children.findByModel(model));
 
-    const add = this.sinon.spy();
-    const remove = this.sinon.spy();
+    const add = vi.fn();
+    const remove = vi.fn();
     collection.on('add', add);
     collection.on('remove', remove);
     childViews[2].localSelection = true;
     collection.move(third, 0);
     expect(view.children.toArray()).to.deep.equal([childViews[2], childViews[0], childViews[1]]);
 
-    expect(add).to.not.have.been.called;
-    expect(remove).to.not.have.been.called;
-    expect(view.children.findByModel(third).localSelection).to.be.true;
+    expect(add).not.toHaveBeenCalled();
+    expect(remove).not.toHaveBeenCalled();
+    expect(view.children.findByModel(third).localSelection).toBe(true);
 
     const fourth = collection.add({ id: 4 }, { at: 1 });
-    expect(view.children.findByModel(fourth)).to.exist;
+    expect(view.children.findByModel(fourth)).to.not.equal(null).and.not.equal(undefined);
     collection.remove(second);
-    expect(childViews[1].isDestroyed()).to.be.true;
+    expect(childViews[1].isDestroyed()).toBe(true);
 
     first.set({ id: 10, name: 'updated' });
     expect(view.children.findByModel(first)).to.equal(childViews[0]);
-    expect(childViews[0].isDestroyed()).to.be.false;
+    expect(childViews[0].isDestroyed()).toBe(false);
     collection.reset([]);
     expect(view.children.length).to.equal(0);
     view.destroy();
@@ -100,7 +101,7 @@ describe('@marionette/data Marionette integration', function() {
     collection.add({ id: 1 });
 
     expect(view.children.map(child => child.model.id)).to.deep.equal([2, 1]);
-    expect(previousChild.isDestroyed()).to.be.true;
+    expect(previousChild.isDestroyed()).toBe(true);
     expect(view.children.findByModel(collection.get(1))).to.not.equal(previousChild);
     expect(view.children.findByModel(collection.get(2))).to.equal(retained);
     view.destroy();
@@ -122,7 +123,7 @@ describe('@marionette/data Marionette integration', function() {
 
     model.destroy();
 
-    expect(removed.isDestroyed()).to.be.true;
+    expect(removed.isDestroyed()).toBe(true);
     expect(view.children.toArray()).to.deep.equal([retained]);
     expect(collection.map(entry => entry.id)).to.deep.equal([2]);
     expect(other.length).to.equal(0);
@@ -135,9 +136,9 @@ describe('@marionette/data Marionette integration', function() {
     const runtime = createMarionette();
     runtime.setDataApi(DataApi);
     runtime.setStateApi(StateApi);
-    const modelEvent = this.sinon.spy();
-    const collectionEvent = this.sinon.spy();
-    const stateEvent = this.sinon.spy();
+    const modelEvent = vi.fn();
+    const collectionEvent = vi.fn();
+    const stateEvent = vi.fn();
     const TestView = runtime.View.extend({
       modelEvents: { 'change:name': 'onModelChange' },
       collectionEvents: { add: 'onCollectionAdd' },
@@ -158,13 +159,13 @@ describe('@marionette/data Marionette integration', function() {
     model.set('name', 'ONE');
     collection.add({ id: 2 });
     state.set('ready', true);
-    expect(modelEvent).to.have.been.calledOnce;
-    expect(collectionEvent).to.have.been.calledOnce;
-    expect(stateEvent).to.have.been.calledOnce;
+    expect(modelEvent).toHaveBeenCalledTimes(1);
+    expect(collectionEvent).toHaveBeenCalledTimes(1);
+    expect(stateEvent).toHaveBeenCalledTimes(1);
 
     view.destroy();
     owner.destroy();
-    expect(state.isDestroyed()).to.be.true;
+    expect(state.isDestroyed()).toBe(true);
   });
 
   it('validates incompatible adapter inputs and disposes subscriptions once', function() {
@@ -173,38 +174,38 @@ describe('@marionette/data Marionette integration', function() {
     expect(() => DataApi.subscribe({}, 'change', () => {})).to.throw(TypeError, 'on() and off()');
 
     const model = new Model();
-    const callback = this.sinon.spy();
+    const callback = vi.fn();
     const dispose = DataApi.subscribe(model, 'change', callback);
     dispose();
     dispose();
     model.set('name', 'one');
-    expect(callback).to.not.have.been.called;
+    expect(callback).not.toHaveBeenCalled();
     StateApi.disposeOwned(model);
-    expect(model.isDestroyed()).to.be.true;
+    expect(model.isDestroyed()).toBe(true);
     const packageModel = new Model({ name: 'package' });
     expect(DataApi.key(packageModel)).to.equal(packageModel.cid);
     expect(DataApi.get(packageModel, 'name')).to.equal('package');
-    expect(DataApi.has(packageModel, 'name')).to.be.true;
+    expect(DataApi.has(packageModel, 'name')).toBe(true);
     packageModel.toObject = () => ({ endpoint: true });
     expect(DataApi.serialize(packageModel)).to.equal(packageModel.attributes);
     expect(DataApi.get({ name: 'plain' }, 'name')).to.equal('plain');
-    expect(DataApi.has({ name: 'plain' }, 'name')).to.be.true;
+    expect(DataApi.has({ name: 'plain' }, 'name')).toBe(true);
     expect(DataApi.serialize({ name: 'plain' })).to.deep.equal({ name: 'plain' });
     const collision = Object.create({ constructor: 'inherited', toString: 'inherited' });
-    expect(DataApi.get(collision, 'constructor')).to.be.undefined;
-    expect(DataApi.get(collision, 'toString')).to.be.undefined;
-    expect(DataApi.has(collision, 'constructor')).to.be.false;
-    expect(DataApi.has(collision, 'toString')).to.be.false;
+    expect(DataApi.get(collision, 'constructor')).toBeUndefined();
+    expect(DataApi.get(collision, 'toString')).toBeUndefined();
+    expect(DataApi.has(collision, 'constructor')).toBe(false);
+    expect(DataApi.has(collision, 'toString')).toBe(false);
     collision.constructor = 'own constructor';
     collision.toString = 'own toString';
     expect(DataApi.get(collision, 'constructor')).to.equal('own constructor');
     expect(DataApi.get(collision, 'toString')).to.equal('own toString');
-    expect(DataApi.has(collision, 'constructor')).to.be.true;
-    expect(DataApi.has(collision, 'toString')).to.be.true;
+    expect(DataApi.has(collision, 'constructor')).toBe(true);
+    expect(DataApi.has(collision, 'toString')).toBe(true);
     const packageCollection = new Collection([packageModel]);
     expect(DataApi.models(packageCollection)).to.deep.equal([packageModel]);
     expect(DataApi.models(packageCollection)).to.not.equal(packageCollection.models);
-    expect(DataApi.items).to.be.undefined;
+    expect(DataApi.items).toBeUndefined();
     packageCollection.destroy();
   });
 });

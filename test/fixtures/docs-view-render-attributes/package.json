@@ -1,4 +1,5 @@
 {
+  "name": "marionette-docs-view-render-attributes-fixture",
   "private": true,
   "type": "module",
   "scripts": {

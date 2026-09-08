@@ -1,5 +1,6 @@
-import Region from '../../src/modules/region';
-import View from '../../src/modules/view';
+import { vi, describe, it, expect } from 'vitest';
+import { setFixtures } from '../setup/fixtures.js';
+import { Region, View } from 'marionette';
 
 function state(view) {
   return {
@@ -21,7 +22,7 @@ describe('View lifecycle contract', function() {
     {
       name: 'empty attached element',
       create(context) {
-        context.setFixtures('<div id="empty-attached"></div>');
+        setFixtures('<div id="empty-attached"></div>');
         return new View({ el: document.querySelector('#empty-attached'), template: false });
       },
       expected: { rendered: false, attached: true, destroyed: false },
@@ -38,7 +39,7 @@ describe('View lifecycle contract', function() {
     {
       name: 'populated attached element',
       create(context) {
-        context.setFixtures('<div id="populated-attached"><span>Existing content</span></div>');
+        setFixtures('<div id="populated-attached"><span>Existing content</span></div>');
         return new View({ el: document.querySelector('#populated-attached'), template: false });
       },
       expected: { rendered: true, attached: true, destroyed: false },
@@ -56,8 +57,8 @@ describe('View lifecycle contract', function() {
   ];
 
   for (const scenario of constructionStates) {
-    it(`exposes the ${scenario.name} state vector`, function() {
-      const view = scenario.create(this);
+    it(`exposes the ${scenario.name} state vector`, function(testContext) {
+      const view = scenario.create(testContext);
 
       expect(state(view)).to.deep.equal(scenario.expected);
 
@@ -66,7 +67,7 @@ describe('View lifecycle contract', function() {
   }
 
   it('attaches a View and its child once after leaving template content', function() {
-    this.setFixtures('<div id="template-content-region"></div>');
+    setFixtures('<div id="template-content-region"></div>');
     const template = document.createElement('template');
     template.innerHTML = '<section><div class="child-region"></div></section>';
     const root = template.content.firstElementChild;
@@ -77,37 +78,37 @@ describe('View lifecycle contract', function() {
     });
     const parent = new ParentView();
     const child = new View({ template: () => '<span>Child</span>' });
-    const parentAttach = this.sinon.spy();
-    const childAttach = this.sinon.spy();
+    const parentAttach = vi.fn();
+    const childAttach = vi.fn();
     parent.on('attach', parentAttach);
     child.on('attach', childAttach);
 
-    expect(root.ownerDocument.documentElement).to.be.null;
+    expect(root.ownerDocument.documentElement).toBeNull();
     expect(state(parent)).to.deep.equal({ rendered: true, attached: false, destroyed: false });
 
     parent.showChildView('child', child);
 
     expect(state(child)).to.deep.equal({ rendered: true, attached: false, destroyed: false });
-    expect(parentAttach).to.not.have.been.called;
-    expect(childAttach).to.not.have.been.called;
+    expect(parentAttach).not.toHaveBeenCalled();
+    expect(childAttach).not.toHaveBeenCalled();
 
     const region = new Region({ el: '#template-content-region' });
     region.show(parent);
 
     expect(state(parent)).to.deep.equal({ rendered: true, attached: true, destroyed: false });
     expect(state(child)).to.deep.equal({ rendered: true, attached: true, destroyed: false });
-    expect(parentAttach).to.have.been.calledOnce;
-    expect(childAttach).to.have.been.calledOnce;
+    expect(parentAttach).toHaveBeenCalledTimes(1);
+    expect(childAttach).toHaveBeenCalledTimes(1);
 
     parent.destroy();
   });
 
   it('treats repeated render calls after destruction as idempotent no-ops', function() {
-    const template = this.sinon.spy(() => `
+    const template = vi.fn(() => `
       <div class="child-region"></div>
     `);
-    const beforeRender = this.sinon.spy();
-    const render = this.sinon.spy();
+    const beforeRender = vi.fn();
+    const render = vi.fn();
     const ParentView = View.extend({
       regions: { child: '.child-region' },
       template,
@@ -125,19 +126,19 @@ describe('View lifecycle contract', function() {
     sentinel.textContent = 'Unmanaged content';
     view.el.append(sentinel);
     const destroyedHtml = view.el.innerHTML;
-    template.resetHistory();
-    beforeRender.resetHistory();
-    render.resetHistory();
-    const getTemplate = this.sinon.spy(view, 'getTemplate');
+    template.mockClear();
+    beforeRender.mockClear();
+    render.mockClear();
+    const getTemplate = vi.spyOn(view, 'getTemplate');
 
     expect(view.render()).to.equal(view);
     expect(view.render()).to.equal(view);
-    expect(view.hasRegion('child')).to.be.false;
+    expect(view.hasRegion('child')).toBe(false);
 
-    expect(getTemplate).to.not.have.been.called;
-    expect(template).to.not.have.been.called;
-    expect(beforeRender).to.not.have.been.called;
-    expect(render).to.not.have.been.called;
+    expect(getTemplate).not.toHaveBeenCalled();
+    expect(template).not.toHaveBeenCalled();
+    expect(beforeRender).not.toHaveBeenCalled();
+    expect(render).not.toHaveBeenCalled();
     expect(view.el.innerHTML).to.equal(destroyedHtml);
     expect(view.el.lastChild).to.equal(sentinel);
     expect(state(view)).to.deep.equal({ rendered: false, attached: false, destroyed: true });
@@ -145,7 +146,7 @@ describe('View lifecycle contract', function() {
   });
 
   it('propagates nested attachment through detached, reentrant, and repeated transitions', function() {
-    this.setFixtures('<div id="nested-lifecycle-region"></div>');
+    setFixtures('<div id="nested-lifecycle-region"></div>');
     const existingChild = new View({ template: () => '<span>Existing child</span>' });
     const reentrantChild = new View({ template: () => '<span>Reentrant child</span>' });
     let firstReentrantStateDuringAttach;
@@ -169,9 +170,9 @@ describe('View lifecycle contract', function() {
     const region = new Region({ el: '#nested-lifecycle-region' });
     const trackLifecycle = view => {
       const events = {
-        attach: this.sinon.spy(),
-        detach: this.sinon.spy(),
-        destroy: this.sinon.spy(),
+        attach: vi.fn(),
+        detach: vi.fn(),
+        destroy: vi.fn(),
       };
       view.on(events);
       return events;
@@ -203,10 +204,10 @@ describe('View lifecycle contract', function() {
       attached: true,
       destroyed: false,
     }));
-    lifecycleEvents.forEach(events => expect(events.attach).to.have.been.calledOnce);
+    lifecycleEvents.forEach(events => expect(events.attach).toHaveBeenCalledTimes(1));
 
     region.show(parent);
-    lifecycleEvents.forEach(events => expect(events.attach).to.have.been.calledOnce);
+    lifecycleEvents.forEach(events => expect(events.attach).toHaveBeenCalledTimes(1));
 
     expect(region.detachView()).to.equal(parent);
     expect([parent, existingChild, reentrantChild].map(state)).to.deep.equal(Array(3).fill({
@@ -214,10 +215,10 @@ describe('View lifecycle contract', function() {
       attached: false,
       destroyed: false,
     }));
-    lifecycleEvents.forEach(events => expect(events.detach).to.have.been.calledOnce);
+    lifecycleEvents.forEach(events => expect(events.detach).toHaveBeenCalledTimes(1));
 
     region.show(parent);
-    lifecycleEvents.forEach(events => expect(events.attach).to.have.been.calledTwice);
+    lifecycleEvents.forEach(events => expect(events.attach).toHaveBeenCalledTimes(2));
 
     region.empty();
     region.empty();
@@ -227,15 +228,15 @@ describe('View lifecycle contract', function() {
       destroyed: true,
     }));
     lifecycleEvents.forEach(events => {
-      expect(events.detach).to.have.been.calledTwice;
-      expect(events.destroy).to.have.been.calledOnce;
+      expect(events.detach).toHaveBeenCalledTimes(2);
+      expect(events.destroy).toHaveBeenCalledTimes(1);
     });
 
     region.destroy();
   });
 
   it('ignores reentrant and repeated destroy calls while tearing down once', function() {
-    this.setFixtures('<div id="reentrant-destroy-region"></div>');
+    setFixtures('<div id="reentrant-destroy-region"></div>');
     const parent = new View({
       regions: { child: '.child-region' },
       template: () => '<div class="child-region"></div>',
@@ -245,20 +246,20 @@ describe('View lifecycle contract', function() {
     let beforeDestroyReturn;
     let destroyReturn;
     const lifecycle = {
-      parentBeforeDestroy: this.sinon.spy(currentView => {
+      parentBeforeDestroy: vi.fn(currentView => {
         beforeDestroyReturn = currentView.destroy();
       }),
-      parentBeforeDetach: this.sinon.spy(),
-      parentDetach: this.sinon.spy(),
-      parentDestroy: this.sinon.spy(currentView => {
+      parentBeforeDetach: vi.fn(),
+      parentDetach: vi.fn(),
+      parentDestroy: vi.fn(currentView => {
         destroyReturn = currentView.destroy();
       }),
-      childBeforeDetach: this.sinon.spy(),
-      childDetach: this.sinon.spy(),
-      childBeforeDestroy: this.sinon.spy(),
-      childDestroy: this.sinon.spy(),
-      regionBeforeEmpty: this.sinon.spy(),
-      regionEmpty: this.sinon.spy(),
+      childBeforeDetach: vi.fn(),
+      childDetach: vi.fn(),
+      childBeforeDestroy: vi.fn(),
+      childDestroy: vi.fn(),
+      regionBeforeEmpty: vi.fn(),
+      regionEmpty: vi.fn(),
     };
 
     parent.on({
@@ -288,23 +289,23 @@ describe('View lifecycle contract', function() {
 
     expect(state(parent)).to.deep.equal({ rendered: false, attached: false, destroyed: true });
     expect(state(child)).to.deep.equal({ rendered: false, attached: false, destroyed: true });
-    expect(region.hasView()).to.be.false;
-    expect(region.currentView).to.be.undefined;
+    expect(region.hasView()).toBe(false);
+    expect(region.currentView).toBeUndefined();
 
     for (const callback of Object.values(lifecycle)) {
-      expect(callback).to.have.been.calledOnce;
+      expect(callback).toHaveBeenCalledTimes(1);
     }
 
     region.destroy();
   });
 
   it('follows the normal Region-managed transition sequence', function() {
-    this.setFixtures('<div id="lifecycle-region"></div>');
+    setFixtures('<div id="lifecycle-region"></div>');
     const region = new Region({ el: '#lifecycle-region' });
     const view = new View({ template: () => '<span>Rendered content</span>' });
-    const render = this.sinon.spy(view, 'render');
-    const beforeDestroy = this.sinon.spy();
-    const destroy = this.sinon.spy();
+    const render = vi.spyOn(view, 'render');
+    const beforeDestroy = vi.fn();
+    const destroy = vi.fn();
     view.on('before:destroy', beforeDestroy);
     view.on('destroy', destroy);
 
@@ -320,7 +321,7 @@ describe('View lifecycle contract', function() {
       attached: true,
       destroyed: false,
     });
-    expect(render).to.have.been.calledOnce;
+    expect(render).toHaveBeenCalledTimes(1);
 
     view.render();
     expect(state(view)).to.deep.equal({
@@ -328,10 +329,10 @@ describe('View lifecycle contract', function() {
       attached: true,
       destroyed: false,
     });
-    expect(render).to.have.been.calledTwice;
+    expect(render).toHaveBeenCalledTimes(2);
 
     expect(region.show(view)).to.equal(region);
-    expect(render).to.have.been.calledTwice;
+    expect(render).toHaveBeenCalledTimes(2);
 
     expect(region.detachView()).to.equal(view);
     expect(state(view)).to.deep.equal({
@@ -339,7 +340,7 @@ describe('View lifecycle contract', function() {
       attached: false,
       destroyed: false,
     });
-    expect(region.detachView()).to.be.undefined;
+    expect(region.detachView()).toBeUndefined();
 
     region.show(view);
     expect(state(view)).to.deep.equal({
@@ -347,7 +348,7 @@ describe('View lifecycle contract', function() {
       attached: true,
       destroyed: false,
     });
-    expect(render).to.have.been.calledTwice;
+    expect(render).toHaveBeenCalledTimes(2);
 
     region.empty();
     expect(state(view)).to.deep.equal({
@@ -355,12 +356,12 @@ describe('View lifecycle contract', function() {
       attached: false,
       destroyed: true,
     });
-    expect(beforeDestroy).to.have.been.calledOnce;
-    expect(destroy).to.have.been.calledOnce;
+    expect(beforeDestroy).toHaveBeenCalledTimes(1);
+    expect(destroy).toHaveBeenCalledTimes(1);
 
     view.destroy();
-    expect(beforeDestroy).to.have.been.calledOnce;
-    expect(destroy).to.have.been.calledOnce;
+    expect(beforeDestroy).toHaveBeenCalledTimes(1);
+    expect(destroy).toHaveBeenCalledTimes(1);
 
     region.destroy();
   });

@@ -1,0 +1,16 @@
+{
+  "packages/radio/src/requests.ts": {
+    "branches": 3,
+    "reason": "Malformed private reply registries and a manually manufactured private debug callback cannot be constructed through public Radio or Requests operations."
+  },
+  "src/modules/child-view-container.ts": {
+    "branches": 1,
+    "reason": "The same internal array cannot be passed back through public children.toArray, which returns a copy."
+  },
+  "src/modules/region.ts": {
+    "lines": 1,
+    "statements": 1,
+    "branches": 1,
+    "reason": "The replacement-restoration guard handles an internally replaced Region with no current view; normal public ownership transitions restore the placeholder before clearing that view."
+  }
+}

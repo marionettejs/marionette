@@ -1,4 +1,5 @@
 {
+  "name": "marionette-attachment-owner-document-fixture",
   "private": true,
   "type": "module",
   "scripts": {

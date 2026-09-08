@@ -1,6 +1,7 @@
-import DataApi from '../../src/runtime/data-api';
-import CollectionView from '../../src/modules/collection-view';
-import View from '../../src/modules/view';
+import { vi, describe, it, expect } from 'vitest';
+import { DataApi } from 'marionette';
+import { CollectionView } from 'marionette';
+import { View } from 'marionette';
 import { MarionetteError } from '@marionette/utils';
 
 describe('plain data integration', function() {
@@ -36,7 +37,7 @@ describe('plain data integration', function() {
     expect(view.children.pluck('model')).to.deep.equal(collection);
     expect(view.children.findByModel(collection[0]).model).to.equal(collection[0]);
     expect(view.children.findByModel(collection[1]).model).to.equal(collection[1]);
-    expect(view.children.findByModelCid).to.be.undefined;
+    expect(view.children.findByModelCid).toBeUndefined();
   });
 
   it('serializes a plain array for a View template', function() {
@@ -97,7 +98,7 @@ describe('plain data integration', function() {
     const first = { id: 1, name: 'one' };
     const second = { id: 2, name: 'two' };
     const collection = { models: [first, second] };
-    const observerDisposed = this.sinon.spy();
+    const observerDisposed = vi.fn();
     let emit;
     const ObservableCollectionView = PlainCollectionView.extend({});
 
@@ -134,7 +135,7 @@ describe('plain data integration', function() {
     expect(view.children.pluck('model')).to.deep.equal(collection.models);
     expect(view.children.findByModel(replacement).model).to.equal(replacement);
     expect(view.children.findByModel(replacement)).to.not.equal(originalView);
-    expect(originalView.isDestroyed()).to.be.true;
+    expect(originalView.isDestroyed()).toBe(true);
 
     const reset = { id: 3, name: 'reset' };
     collection.models = [reset];
@@ -142,6 +143,6 @@ describe('plain data integration', function() {
     expect(view.children.pluck('model')).to.deep.equal([reset]);
 
     view.destroy();
-    expect(observerDisposed).to.have.been.calledOnce;
+    expect(observerDisposed).toHaveBeenCalledTimes(1);
   });
 });

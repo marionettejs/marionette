@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "reporter": "node-tap",
+  "expectedCases": {
+    "nested-workspace": [
+      "nested replacement, literal content, emptying and final teardown"
+    ],
+    "nested-notice": [
+      "independent Regions and navigation cleanup"
+    ],
+    "filter-projects": [
+      "filter/reveal preserves domain data and row identity"
+    ],
+    "rank-projects": [
+      "valid reorder preserves edited DOM and invalid reorder is atomic"
+    ],
+    "save-shortcut": [
+      "shortcut is host scoped and released across rerender/destroy"
+    ],
+    "connection-status": [
+      "provider subscription survives rerender and is released once"
+    ],
+    "overlay-switch": [
+      "only Views enter Region and invalid open preserves current overlay"
+    ],
+    "overlay-dismiss": [
+      "exclusive overlays release dismissal listeners on every public empty path"
+    ],
+    "async-panel": [
+      "out-of-order completion, stop, failures and destroy are deterministic"
+    ],
+    "async-session": [
+      "stale provider acquisition and active subscription both release resources"
+    ],
+    "scoped-message-presenter": [
+      "independent evented presenters release only owned subscriptions"
+    ],
+    "owned-workspace-state": [
+      "owned state survives deferred Application restart and session cleanup"
+    ],
+    "borrowed-workspace-state": [
+      "borrowed state survives deferred Application restart and canceled destroy"
+    ]
+  }
+}

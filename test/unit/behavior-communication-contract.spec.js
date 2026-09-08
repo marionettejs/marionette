@@ -1,20 +1,21 @@
-import Behavior from '../../src/modules/behavior';
-import View from '../../src/modules/view';
+import { vi, describe, it, expect } from 'vitest';
+import { Behavior } from 'marionette';
+import { View } from 'marionette';
 
 describe('Behavior communication contract', function() {
   it('broadcasts host triggerMethod calls to top-level and nested Behaviors after the host method', function() {
     const sequence = [];
     const payload = { value: 'status' };
-    const hostHandler = this.sinon.spy(function() {
+    const hostHandler = vi.fn(function() {
       sequence.push('host');
     });
-    const parentHandler = this.sinon.spy(function() {
+    const parentHandler = vi.fn(function() {
       sequence.push('parent');
     });
-    const nestedHandler = this.sinon.spy(function() {
+    const nestedHandler = vi.fn(function() {
       sequence.push('nested');
     });
-    const siblingHandler = this.sinon.spy(function() {
+    const siblingHandler = vi.fn(function() {
       sequence.push('sibling');
     });
     let parentBehavior;
@@ -56,9 +57,9 @@ describe('Behavior communication contract', function() {
       [nestedHandler, nestedBehavior],
       [siblingHandler, siblingBehavior],
     ].forEach(([handler, context]) => {
-      expect(handler).to.have.been.calledOnce;
-      expect(handler.firstCall.args).to.deep.equal([payload, 'extra']);
-      expect(handler.firstCall.thisValue).to.equal(context);
+      expect(handler).toHaveBeenCalledTimes(1);
+      expect(handler.mock.calls.at(0)).to.deep.equal([payload, 'extra']);
+      expect(handler.mock.contexts.at(0)).to.equal(context);
     });
 
     view.destroy();
@@ -66,11 +67,11 @@ describe('Behavior communication contract', function() {
 
   it('keeps Behavior triggerMethod calls local to that Behavior', function() {
     const payload = { value: 'local' };
-    const senderHandler = this.sinon.spy();
-    const senderEvent = this.sinon.spy();
-    const siblingHandler = this.sinon.spy();
-    const hostHandler = this.sinon.spy();
-    const hostEvent = this.sinon.spy();
+    const senderHandler = vi.fn();
+    const senderEvent = vi.fn();
+    const siblingHandler = vi.fn();
+    const hostHandler = vi.fn();
+    const hostEvent = vi.fn();
     let senderBehavior;
 
     const SenderBehavior = Behavior.extend({
@@ -92,13 +93,14 @@ describe('Behavior communication contract', function() {
 
     senderBehavior.triggerMethod('local:change', payload);
 
-    expect(senderHandler).to.have.been.calledOnce;
-    expect(senderHandler.firstCall.args).to.deep.equal([payload]);
-    expect(senderHandler.firstCall.thisValue).to.equal(senderBehavior);
-    expect(senderEvent).to.have.been.calledOnce.and.calledWithExactly(payload);
-    expect(siblingHandler).to.not.have.been.called;
-    expect(hostHandler).to.not.have.been.called;
-    expect(hostEvent).to.not.have.been.called;
+    expect(senderHandler).toHaveBeenCalledTimes(1);
+    expect(senderHandler.mock.calls.at(0)).to.deep.equal([payload]);
+    expect(senderHandler.mock.contexts.at(0)).to.equal(senderBehavior);
+    expect(senderEvent).toHaveBeenCalledTimes(1);
+    expect(senderEvent).toHaveBeenCalledWith(payload);
+    expect(siblingHandler).not.toHaveBeenCalled();
+    expect(hostHandler).not.toHaveBeenCalled();
+    expect(hostEvent).not.toHaveBeenCalled();
 
     view.destroy();
   });
@@ -106,13 +108,13 @@ describe('Behavior communication contract', function() {
   it('broadcasts an explicit host triggerMethod call back to every Behavior including the sender', function() {
     const sequence = [];
     const payload = { value: 'save' };
-    const hostHandler = this.sinon.spy(function() {
+    const hostHandler = vi.fn(function() {
       sequence.push('host');
     });
-    const senderHandler = this.sinon.spy(function() {
+    const senderHandler = vi.fn(function() {
       sequence.push('sender');
     });
-    const siblingHandler = this.sinon.spy(function() {
+    const siblingHandler = vi.fn(function() {
       sequence.push('sibling');
     });
     let senderBehavior;
@@ -136,11 +138,13 @@ describe('Behavior communication contract', function() {
 
     expect(sequence[0]).to.equal('host');
     expect(sequence.slice(1)).to.have.members(['sender', 'sibling']);
-    expect(hostHandler).to.have.been.calledOnce.and.calledOn(view);
-    expect(senderHandler).to.have.been.calledOnce.and.calledOn(senderBehavior);
-    expect(siblingHandler).to.have.been.calledOnce;
+    expect(hostHandler).toHaveBeenCalledTimes(1);
+    expect(hostHandler.mock.contexts).toContain(view);
+    expect(senderHandler).toHaveBeenCalledTimes(1);
+    expect(senderHandler.mock.contexts).toContain(senderBehavior);
+    expect(siblingHandler).toHaveBeenCalledTimes(1);
     [hostHandler, senderHandler, siblingHandler].forEach(handler => {
-      expect(handler.firstCall.args).to.deep.equal([payload]);
+      expect(handler.mock.calls.at(0)).to.deep.equal([payload]);
     });
 
     view.destroy();
@@ -148,8 +152,8 @@ describe('Behavior communication contract', function() {
 
   it('keeps childViewEvents handlers local to the host unless they explicitly broadcast', function() {
     const payload = { value: 'child' };
-    const hostHandler = this.sinon.spy();
-    const behaviorHandler = this.sinon.spy();
+    const hostHandler = vi.fn();
+    const behaviorHandler = vi.fn();
 
     const TestBehavior = Behavior.extend({
       onChildBoom: behaviorHandler,
@@ -179,25 +183,26 @@ describe('Behavior communication contract', function() {
 
     childView.triggerMethod('child:boom', payload);
 
-    expect(hostHandler).to.have.been.calledOnce.and.calledOn(view);
-    expect(hostHandler).to.have.been.calledWithExactly(payload);
-    expect(behaviorHandler).to.not.have.been.called;
+    expect(hostHandler).toHaveBeenCalledTimes(1);
+    expect(hostHandler.mock.contexts).toContain(view);
+    expect(hostHandler).toHaveBeenCalledWith(payload);
+    expect(behaviorHandler).not.toHaveBeenCalled();
 
     view.destroy();
   });
 
   it('emits Behavior DOM triggers on the host and broadcasts them to all Behaviors', function() {
     const sequence = [];
-    const hostHandler = this.sinon.spy(function() {
+    const hostHandler = vi.fn(function() {
       sequence.push('host');
     });
-    const sourceHandler = this.sinon.spy(function() {
+    const sourceHandler = vi.fn(function() {
       sequence.push('source');
     });
-    const nestedHandler = this.sinon.spy(function() {
+    const nestedHandler = vi.fn(function() {
       sequence.push('nested');
     });
-    const siblingHandler = this.sinon.spy(function() {
+    const siblingHandler = vi.fn(function() {
       sequence.push('sibling');
     });
     let sourceBehavior;
@@ -240,16 +245,16 @@ describe('Behavior communication contract', function() {
 
     expect(sequence[0]).to.equal('host');
     expect(sequence.slice(1)).to.have.members(['source', 'nested', 'sibling']);
-    const event = hostHandler.firstCall.args[1];
+    const event = hostHandler.mock.calls.at(0)[1];
     [
       [hostHandler, view],
       [sourceHandler, sourceBehavior],
       [nestedHandler, nestedBehavior],
       [siblingHandler, siblingBehavior],
     ].forEach(([handler, context]) => {
-      expect(handler).to.have.been.calledOnce;
-      expect(handler.firstCall.args).to.deep.equal([view, event]);
-      expect(handler.firstCall.thisValue).to.equal(context);
+      expect(handler).toHaveBeenCalledTimes(1);
+      expect(handler.mock.calls.at(0)).to.deep.equal([view, event]);
+      expect(handler.mock.contexts.at(0)).to.equal(context);
     });
     expect(event.type).to.equal('click');
 

@@ -1,7 +1,7 @@
-import CollectionView, {type CollectionViewInstance, type CollectionChild} from '../tmp/typed-core/src/modules/collection-view.js';
-import View from '../tmp/typed-core/src/modules/view.js';
-import type {Events} from '../tmp/typed-core/packages/utils/src/events.js';
-import type {RegionInstance} from '../tmp/typed-core/src/modules/region.js';
+import { CollectionView, type CollectionViewInstance, type CollectionChild } from 'marionette';
+import { View } from 'marionette';
+import type { EventsContract as Events } from '@marionette/utils';
+import type {RegionInstance} from 'marionette';
 
 interface Row {id: number; label: string;}
 const rows: Row[] = [{id: 1, label: 'Example'}];

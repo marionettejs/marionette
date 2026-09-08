@@ -1,7 +1,7 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 
-import Region from '../../src/modules/region';
-import View from '../../src/modules/view';
+import { Region, View } from 'marionette';
 import { MarionetteError } from '@marionette/utils';
 
 describe('Region el validation', function() {
@@ -35,7 +35,9 @@ describe('Region el validation', function() {
     const el = document.getElementById('region');
     const region = new Region({ el: '#region' });
 
-    expect(region._ensureElement()).to.equal(true);
+    const view = new View({ template: () => 'shown' });
+    expect(region.show(view)).to.equal(region);
+    expect(view.el.parentNode).to.equal(el);
     expect(region.el).to.equal(el);
   });
 

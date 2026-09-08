@@ -1,4 +1,4 @@
-import MnObject from '../tmp/typed-core/src/modules/object.js';
+import { MnObject } from 'marionette';
 
 const Worker = MnObject.extend({
   initialize(options: { label: string }) {

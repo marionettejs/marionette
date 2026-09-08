@@ -1,104 +1,107 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import _ from 'underscore';
+import * as Marionette from 'marionette';
 describe('view ui event trigger configuration', function() {
   'use strict';
 
   describe('@ui syntax within events and triggers', function() {
-    beforeEach(function() {
-      this.fooHandlerStub = this.sinon.stub();
-      this.barHandlerStub = this.sinon.stub();
-      this.notBarHandlerStub = this.sinon.stub();
-      this.fooBarBazHandlerStub = this.sinon.stub();
+    beforeEach(function(testContext) {
+      testContext.fooHandlerStub = vi.fn();
+      testContext.barHandlerStub = vi.fn();
+      testContext.notBarHandlerStub = vi.fn();
+      testContext.fooBarBazHandlerStub = vi.fn();
 
-      this.templateFn = _.template('<div id="foo"></div><div id="bar"></div><div id="baz"></div>');
+      testContext.templateFn = _.template('<div id="foo"></div><div id="bar"></div><div id="baz"></div>');
 
-      this.uiHash = {
+      testContext.uiHash = {
         foo: '#foo',
         bar: '#bar',
         'some-baz': '#baz'
       };
 
-      this.triggersHash = {
+      testContext.triggersHash = {
         'click @ui.foo': 'fooHandler',
         'click @ui.some-baz': 'bazHandler'
       };
 
-      this.eventsHash = {
-        'click @ui.bar': this.barHandlerStub,
-        'click div:not(@ui.bar)': this.notBarHandlerStub,
-        'click @ui.foo, @ui.bar, @ui.some-baz': this.fooBarBazHandlerStub
+      testContext.eventsHash = {
+        'click @ui.bar': testContext.barHandlerStub,
+        'click div:not(@ui.bar)': testContext.notBarHandlerStub,
+        'click @ui.foo, @ui.bar, @ui.some-baz': testContext.fooBarBazHandlerStub
       };
     });
 
     describe('as objects', function() {
-      beforeEach(function() {
-        this.View = Marionette.View.extend({
-          template: this.templateFn,
-          ui: this.uiHash,
-          triggers: this.triggersHash,
-          events: this.eventsHash
+      beforeEach(function(testContext) {
+        testContext.View = Marionette.View.extend({
+          template: testContext.templateFn,
+          ui: testContext.uiHash,
+          triggers: testContext.triggersHash,
+          events: testContext.eventsHash
         });
-        this.view = new this.View();
-        this.view.render();
+        testContext.view = new testContext.View();
+        testContext.view.render();
 
-        this.view.on('fooHandler', this.fooHandlerStub);
+        testContext.view.on('fooHandler', testContext.fooHandlerStub);
       });
 
-      it('should correctly trigger an event', function() {
-        this.view.ui.foo[0].click();
-        expect(this.fooHandlerStub).to.have.been.calledOnce;
-        expect(this.fooBarBazHandlerStub).to.have.been.calledOnce;
+      it('should correctly trigger an event', function(testContext) {
+        testContext.view.ui.foo[0].click();
+        expect(testContext.fooHandlerStub).toHaveBeenCalledTimes(1);
+        expect(testContext.fooBarBazHandlerStub).toHaveBeenCalledTimes(1);
       });
 
-      it('should correctly trigger a complex event', function() {
-        this.view.ui.bar[0].click();
-        expect(this.barHandlerStub).to.have.been.calledOnce;
-        expect(this.fooBarBazHandlerStub).to.have.been.calledOnce;
+      it('should correctly trigger a complex event', function(testContext) {
+        testContext.view.ui.bar[0].click();
+        expect(testContext.barHandlerStub).toHaveBeenCalledTimes(1);
+        expect(testContext.fooBarBazHandlerStub).toHaveBeenCalledTimes(1);
       });
 
-      it('should correctly call an event', function() {
-        this.view.ui['some-baz'][0].click();
-        expect(this.notBarHandlerStub).to.have.been.calledOnce;
-        expect(this.fooBarBazHandlerStub).to.have.been.calledOnce;
+      it('should correctly call an event', function(testContext) {
+        testContext.view.ui['some-baz'][0].click();
+        expect(testContext.notBarHandlerStub).toHaveBeenCalledTimes(1);
+        expect(testContext.fooBarBazHandlerStub).toHaveBeenCalledTimes(1);
       });
     });
 
     describe('as functions', function() {
-      beforeEach(function() {
-        this.View = Marionette.View.extend({
-          template: this.templateFn,
-          ui: this.sinon.stub().returns(this.uiHash),
-          triggers: this.sinon.stub().returns(this.triggersHash),
-          events: this.sinon.stub().returns(this.eventsHash)
+      beforeEach(function(testContext) {
+        testContext.View = Marionette.View.extend({
+          template: testContext.templateFn,
+          ui: vi.fn().mockReturnValue(testContext.uiHash),
+          triggers: vi.fn().mockReturnValue(testContext.triggersHash),
+          events: vi.fn().mockReturnValue(testContext.eventsHash)
         });
-        this.view = new this.View();
-        this.view.render();
+        testContext.view = new testContext.View();
+        testContext.view.render();
 
-        this.view.on('fooHandler', this.fooHandlerStub);
+        testContext.view.on('fooHandler', testContext.fooHandlerStub);
       });
 
-      it('should initialize events with context of the view', function() {
-        expect(this.View.prototype.events).to.have.been.calledOn(this.view);
+      it('should initialize events with context of the view', function(testContext) {
+        expect(testContext.View.prototype.events.mock.contexts).toContain(testContext.view);
       });
 
-      it('should initialize triggers with context of the view', function() {
-        expect(this.View.prototype.triggers).to.have.been.calledOn(this.view);
+      it('should initialize triggers with context of the view', function(testContext) {
+        expect(testContext.View.prototype.triggers.mock.contexts).toContain(testContext.view);
       });
 
-      it('should correctly trigger an event', function() {
-        this.view.ui.foo[0].click();
-        expect(this.fooHandlerStub).to.have.been.calledOnce;
-        expect(this.fooBarBazHandlerStub).to.have.been.calledOnce;
+      it('should correctly trigger an event', function(testContext) {
+        testContext.view.ui.foo[0].click();
+        expect(testContext.fooHandlerStub).toHaveBeenCalledTimes(1);
+        expect(testContext.fooBarBazHandlerStub).toHaveBeenCalledTimes(1);
       });
 
-      it('should correctly trigger a complex event', function() {
-        this.view.ui.bar[0].click();
-        expect(this.barHandlerStub).to.have.been.calledOnce;
-        expect(this.fooBarBazHandlerStub).to.have.been.calledOnce;
+      it('should correctly trigger a complex event', function(testContext) {
+        testContext.view.ui.bar[0].click();
+        expect(testContext.barHandlerStub).toHaveBeenCalledTimes(1);
+        expect(testContext.fooBarBazHandlerStub).toHaveBeenCalledTimes(1);
       });
 
-      it('should correctly call an event', function() {
-        this.view.ui['some-baz'][0].click();
-        expect(this.notBarHandlerStub).to.have.been.calledOnce;
-        expect(this.fooBarBazHandlerStub).to.have.been.calledOnce;
+      it('should correctly call an event', function(testContext) {
+        testContext.view.ui['some-baz'][0].click();
+        expect(testContext.notBarHandlerStub).toHaveBeenCalledTimes(1);
+        expect(testContext.fooBarBazHandlerStub).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -117,7 +120,7 @@ describe('view ui event trigger configuration', function() {
   });
 
   it('rejects non-string event handlers', function() {
-    const delegate = this.sinon.spy();
+    const delegate = vi.fn();
     const View = Marionette.View.extend({
       events: {
         click: 1
@@ -128,11 +131,11 @@ describe('view ui event trigger configuration', function() {
     expect(() => new View())
       .to.throw('The handler "<invalid>" for "click" must resolve to a function.')
       .with.property('code', 'MN0019');
-    expect(delegate).not.to.have.been.called;
+    expect(delegate).not.toHaveBeenCalled();
   });
 
   it('preflights the complete event map before delegating handlers', function() {
-    const delegate = this.sinon.spy();
+    const delegate = vi.fn();
     const View = Marionette.View.extend({
       events: {
         click: 'onClick',
@@ -143,6 +146,6 @@ describe('view ui event trigger configuration', function() {
     View.setEventDelegator({ delegate });
 
     expect(() => new View()).to.throw().with.property('code', 'MN0019');
-    expect(delegate).not.to.have.been.called;
+    expect(delegate).not.toHaveBeenCalled();
   });
 });

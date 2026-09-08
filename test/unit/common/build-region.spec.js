@@ -1,7 +1,9 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import _ from 'underscore';
+import { setFixtures } from '../../setup/fixtures.js';
 import $ from 'jquery';
-import ownedBuildRegion from '../../../src/modules/common/build-region';
-import View from '../../../src/modules/view';
-import Region from '../../../src/modules/region';
+import { View } from 'marionette';
+import { Region } from 'marionette';
 
 describe('Region', function() {
   describe('.buildRegion', function() {
@@ -99,7 +101,7 @@ describe('Region', function() {
           describe('with `parentEl` also defined', function() {
             describe('including the selector', function() {
               beforeEach(function() {
-                this.setFixtures('<div id="parent"><div id="child">text</div></div>');
+                setFixtures('<div id="parent"><div id="child">text</div></div>');
                 const parentEl = $('#parent')[0];
                 definition = _.defaults({parentEl: parentEl, el: '#child' }, definition);
                 region = view.addRegion(_.uniqueId('region_'), definition);
@@ -112,20 +114,20 @@ describe('Region', function() {
 
             describe('excluding the selector', function() {
               beforeEach(function() {
-                this.setFixtures('<div id="parent"></div><div id="not-child">text</div>');
+                setFixtures('<div id="parent"></div><div id="not-child">text</div>');
                 const parentEl = $('#parent')[0];
                 definition = _.defaults({parentEl: parentEl, el: '#not-child' }, definition);
                 region = view.addRegion(_.uniqueId('region_'), definition);
               });
 
               it('does not return elements outside the parent', function() {
-                expect(region.getEl(region.el)).to.be.undefined;
+                expect(region.getEl(region.el)).toBeUndefined();
               });
             });
 
             describe('including multiple instances of the selector', function() {
               beforeEach(function() {
-                this.setFixtures('<div id="parent"><div class="child">text</div><div class="child">text</div></div>');
+                setFixtures('<div id="parent"><div class="child">text</div><div class="child">text</div></div>');
                 const parentEl = $('#parent')[0];
                 definition = _.defaults({parentEl: parentEl, el: '.child' }, definition);
                 region = view.addRegion(_.uniqueId('region_'), definition);
@@ -168,7 +170,7 @@ describe('Region', function() {
             });
 
             it('does not return elements outside the parent', function() {
-              expect(region.getEl('#baz-region')).to.be.undefined;
+              expect(region.getEl('#baz-region')).toBeUndefined();
             });
 
           });
@@ -282,10 +284,10 @@ describe('Region', function() {
             value: protoValue
           });
 
-          ownedBuildRegion(definition, defaults);
+          view.regionClass = defaults.regionClass;
+          view.addRegion('owned-options', definition);
 
           expect(capturedOptions).to.include({
-            defaultOption: true,
             definitionOption: true,
             el: fooSelector
           });
@@ -293,7 +295,7 @@ describe('Region', function() {
           expect(capturedOptions).to.not.have.property('inheritedDefinition');
           expect(capturedOptions).to.not.have.property('regionClass');
           expect(Object.getPrototypeOf(capturedOptions)).to.equal(Object.prototype);
-          expect(Object.hasOwn(capturedOptions, '__proto__')).to.be.true;
+          expect(Object.hasOwn(capturedOptions, '__proto__')).toBe(true);
           expect(Object.getOwnPropertyDescriptor(capturedOptions, '__proto__').value)
             .to.equal(protoValue);
         });

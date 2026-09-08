@@ -1,11 +1,13 @@
-import DataApi, { setDataApi } from '../../../src/runtime/data-api';
+import { vi, describe, it, expect } from 'vitest';
+import { DataApi, View } from 'marionette';
+const setDataApi = View.setDataApi;
 import { MarionetteError } from '@marionette/utils';
 
 describe('DataApi', function() {
   describe('#setDataApi', function() {
     it('returns the receiving class and overlays own properties', function() {
       const inherited = { inherited: true };
-      const mixin = Object.assign(Object.create(inherited), { get: this.sinon.stub() });
+      const mixin = Object.assign(Object.create(inherited), { get: vi.fn() });
       const MyObject = function() {};
       MyObject.prototype.Data = DataApi;
       MyObject.setDataApi = setDataApi;
@@ -37,28 +39,30 @@ describe('DataApi', function() {
 
     expect(DataApi.key(models[0])).to.equal(models[0]);
     expect(DataApi.get(models[0], 'name')).to.equal('one');
-    expect(DataApi.get({}, 'constructor')).to.be.undefined;
+    expect(DataApi.get({}, 'constructor')).toBeUndefined();
     expect(DataApi.get({ constructor: 'value' }, 'constructor')).to.equal('value');
-    expect(DataApi.has(present, 'value')).to.be.true;
-    expect(DataApi.has({}, 'value')).to.be.false;
-    expect(DataApi.has({}, 'constructor')).to.be.false;
-    expect(DataApi.has(null, 'value')).to.be.false;
-    expect(DataApi.has(undefined, 'value')).to.be.false;
+    expect(DataApi.has(present, 'value')).toBe(true);
+    expect(DataApi.has({}, 'value')).toBe(false);
+    expect(DataApi.has({}, 'constructor')).toBe(false);
+    expect(DataApi.has(null, 'value')).toBe(false);
+    expect(DataApi.has(undefined, 'value')).toBe(false);
     expect(DataApi.serialize(models[0])).to.equal(models[0]);
     expect(DataApi.models(models)).to.equal(models);
-    expect(DataApi.items).to.be.undefined;
+    expect(DataApi.items).toBeUndefined();
   });
 
   it('subscribes to Marionette-compatible events with idempotent teardown', function() {
-    const entity = { on: this.sinon.spy(), off: this.sinon.spy() };
-    const callback = this.sinon.spy();
+    const entity = { on: vi.fn(), off: vi.fn() };
+    const callback = vi.fn();
     const context = {};
     const cleanup = DataApi.subscribe(entity, 'change', callback, context);
 
-    expect(entity.on).to.have.been.calledOnce.and.calledWith('change', callback, context);
+    expect(entity.on).toHaveBeenCalledTimes(1);
+    expect(entity.on.mock.calls.map(args => args.slice(0, 3))).toContainEqual(['change', callback, context]);
     cleanup();
     cleanup();
-    expect(entity.off).to.have.been.calledOnce.and.calledWith('change', callback, context);
+    expect(entity.off).toHaveBeenCalledTimes(1);
+    expect(entity.off.mock.calls.map(args => args.slice(0, 3))).toContainEqual(['change', callback, context]);
   });
 
   it('treats plain collections as non-observable', function() {

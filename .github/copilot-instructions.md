@@ -1,44 +1,18 @@
-# Marionette Agent Guidance
+# Marionette agent guidance
 
-The governing project strategy is [`ROADMAP.md`](../ROADMAP.md). Stable
-v5 is the agent-ready release, and production runtime cost is a release constraint.
+Follow the canonical repository instructions in [AGENTS.md](../AGENTS.md), the
+[test guide](../test/README.md), and [ROADMAP.md](../ROADMAP.md). Tests and fixtures
+must use public package entrypoints and observable behavior, with no private
+framework access. Keep agent tooling out of production imports and report only
+validation that actually ran.
 
-## Before changing code
-
-- Read the linked issue and the relevant public contract or tests.
-- State whether the change is static/docs, development/test, an existing production
-  path, or an opt-in runtime path.
-- Identify the affected lifecycle, ownership, diagnostic, type, or package contract.
-- Stop and report if the issue leaves a public behavior or runtime-cost decision open.
-
-## Implementation rules
-
-- Make one canonical behavior; do not add aliases, fallbacks, or dual paths unless the
-  issue identifies a verified compatibility requirement and removal condition.
-- Keep diffs focused and remove tests, docs, and dead code for superseded behavior.
-- Use public APIs in fixtures and tests. Do not depend on private consumers, private
-  repositories, customer data, or undocumented maintainer knowledge.
-- Do not read private framework fields from public tooling. Expose the smallest useful
-  public contract when a fact the runtime already owns needs to be inspectable.
-- Avoid query methods with lifecycle or rendering side effects.
-- Use stable diagnostic/rule codes for framework invariants; human-readable messages
-  are not the machine contract.
-- Add no global registry and no per-instance allocation, listener, subscription, or
-  collection for an unused optional feature.
-- Keep development, test, lint, benchmark, and rule-catalog modules out of the
-  production import graph.
-- Treat runtime additions as cost-sensitive. Measure bundle, hot-path, allocation, and
-  retention effects required by the issue.
-- Do not opportunistically add a renderer, state system, router, query layer, schema
-  system, agent protocol, or other unrelated framework architecture.
-
-## Evidence
-
-- Add or update tests for the issue acceptance criteria and documented edge cases.
-- Run the smallest commands that prove correctness; report exactly what ran.
-- Keep documentation examples executable or drift-checked.
-- For agent-readiness claims, use the public reference application and pinned
-  benchmark. A successful private experiment is not release evidence.
-- For timing measurements, report shared-runner results; enforce hard timing budgets
-  only on the controlled release runner. Bundle and module-graph checks may be hard CI
-  gates.
+Apply the [synchronous failure boundary](../docs/view.lifecycle.md#synchronous-failures)
+during implementation and review. Synchronous registration, construction, rendering,
+and teardown failures abort; adapters must provide working cleanup callbacks. Public
+API tests, retention checks, and mutation survivors do not justify new rollback,
+attempt-all/first-error cleanup, per-instance recovery bookkeeping, or hot-path guards
+for unsupported callback mutation. Require an explicit maintainer decision on a real
+consumer case and its complexity/performance tradeoff before such changes. Preserve
+existing ownership/idempotence guards and Application's documented asynchronous
+readiness, cancellation, and restart behavior. Identify proposed contract expansions
+as such in review; do not present them as required bug fixes.

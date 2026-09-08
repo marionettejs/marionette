@@ -1,16 +1,22 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import _ from 'underscore';
+import Backbone from 'backbone';
+import { setFixtures } from '../setup/fixtures.js';
+import * as Marionette from 'marionette';
+import '../setup/backbone.js';
 import $ from 'jquery';
 
 describe('layoutView', function() {
   'use strict';
 
-  beforeEach(function() {
-    this.layoutViewManagerTemplateFn = _.template('<div id="regionOne"></div><div id="regionTwo"></div>');
-    this.template = function() {
+  beforeEach(function(testContext) {
+    testContext.layoutViewManagerTemplateFn = _.template('<div id="regionOne"></div><div id="regionTwo"></div>');
+    testContext.template = function() {
       return '<span class=".craft"></span><h1 id="#a-fun-game"></h1>';
     };
 
-    this.View = Marionette.View.extend({
-      template: this.layoutViewManagerTemplateFn,
+    testContext.View = Marionette.View.extend({
+      template: testContext.layoutViewManagerTemplateFn,
       regions: {
         regionOne: '#regionOne',
         regionTwo: '#regionTwo'
@@ -28,15 +34,15 @@ describe('layoutView', function() {
       }
     });
 
-    this.CustomRegion1 = function() {};
+    testContext.CustomRegion1 = function() {};
 
-    this.CustomRegion2 = Marionette.Region.extend();
+    testContext.CustomRegion2 = Marionette.Region.extend();
 
-    this.ViewNoDefaultRegion = this.View.extend({
+    testContext.ViewNoDefaultRegion = testContext.View.extend({
       regions: {
         regionOne: {
           selector: '#regionOne',
-          regionClass: this.CustomRegion1
+          regionClass: testContext.CustomRegion1
         },
         regionTwo: '#regionTwo'
       }
@@ -44,52 +50,54 @@ describe('layoutView', function() {
   });
 
   describe('on instantiation', function() {
-    beforeEach(function() {
-      let suite = this;
-      this.ViewInitialize = this.View.extend({
+    beforeEach(function(testContext) {
+      let suite = testContext;
+      testContext.ViewInitialize = testContext.View.extend({
         initialize: function() {
           suite.regionOne = this.getRegion('regionOne');
         }
       });
 
-      this.layoutViewManager = new this.ViewInitialize();
+      testContext.layoutViewManager = new testContext.ViewInitialize();
     });
 
-    it('should instantiate the specified region before initialize', function() {
-      expect(this.regionOne).to.equal(this.layoutViewManager.getRegion('regionOne'));
+    it('should instantiate the specified region before initialize', function(testContext) {
+      expect(testContext.regionOne).to.equal(testContext.layoutViewManager.getRegion('regionOne'));
     });
 
-    it('should create backlink with region manager', function() {
-      expect(this.regionOne._parentView).to.equal(this.layoutViewManager);
+    it('unregisters a region from its owner when the region is destroyed', function(testContext) {
+      expect(testContext.regionOne.getOwner()).to.equal(testContext.layoutViewManager);
+      testContext.regionOne.destroy();
+      expect(testContext.layoutViewManager.hasRegion('regionOne')).toBe(false);
     });
   });
 
   describe('on instantiation with no regions defined', function() {
-    beforeEach(function() {
-      let suite = this;
-      this.NoRegions = Marionette.View.extend({});
-      this.init = function() {
+    beforeEach(function(testContext) {
+      let suite = testContext;
+      testContext.NoRegions = Marionette.View.extend({});
+      testContext.init = function() {
         suite.layoutViewManager = new suite.NoRegions();
       };
     });
 
-    it('should instantiate the specified region managers', function() {
-      expect(this.init).not.to.throw;
+    it('should instantiate the specified region managers', function(testContext) {
+      expect(testContext.init).not.toThrow();
     });
   });
 
   describe('on instantiation with custom region managers', function() {
-    beforeEach(function() {
-      this.ViewCustomRegion = this.View.extend({
-        regionClass: this.CustomRegion1,
+    beforeEach(function(testContext) {
+      testContext.ViewCustomRegion = testContext.View.extend({
+        regionClass: testContext.CustomRegion1,
         regions: {
           regionOne: {
             el: '#regionOne',
-            regionClass: this.CustomRegion1
+            regionClass: testContext.CustomRegion1
           },
           regionTwo: {
             el: '#regionTwo',
-            regionClass: this.CustomRegion2,
+            regionClass: testContext.CustomRegion2,
             specialOption: true
           },
           regionThree: {
@@ -99,34 +107,34 @@ describe('layoutView', function() {
         }
       });
 
-      this.layoutViewManager = new this.ViewCustomRegion();
+      testContext.layoutViewManager = new testContext.ViewCustomRegion();
     });
 
-    it('should instantiate specific regions with custom regions if specified', function() {
-      expect(this.layoutViewManager.getRegion('regionOne')).to.be.instanceof(this.CustomRegion1);
-      expect(this.layoutViewManager.getRegion('regionTwo')).to.be.instanceof(this.CustomRegion2);
+    it('should instantiate specific regions with custom regions if specified', function(testContext) {
+      expect(testContext.layoutViewManager.getRegion('regionOne')).to.be.instanceof(testContext.CustomRegion1);
+      expect(testContext.layoutViewManager.getRegion('regionTwo')).to.be.instanceof(testContext.CustomRegion2);
     });
 
-    it('should instantiate the default regionManager if specified', function() {
-      expect(this.layoutViewManager.getRegion('regionThree')).to.be.instanceof(this.CustomRegion1);
-      expect(this.layoutViewManager.getRegion('regionThree')).to.be.instanceof(this.CustomRegion1);
+    it('should instantiate the default regionManager if specified', function(testContext) {
+      expect(testContext.layoutViewManager.getRegion('regionThree')).to.be.instanceof(testContext.CustomRegion1);
+      expect(testContext.layoutViewManager.getRegion('regionThree')).to.be.instanceof(testContext.CustomRegion1);
     });
 
-    it('should instantiate marionette regions is no regionClass is specified', function() {
-      let layoutViewManagerNoDefault = new this.ViewNoDefaultRegion();
+    it('should instantiate marionette regions is no regionClass is specified', function(testContext) {
+      let layoutViewManagerNoDefault = new testContext.ViewNoDefaultRegion();
       expect(layoutViewManagerNoDefault.getRegion('regionTwo')).to.be.instanceof(Marionette.Region);
     });
 
-    it('should pass extra options to the custom regionClass', function() {
-      expect(this.layoutViewManager.getRegion('regionTwo')).to.have.property('options');
-      expect(this.layoutViewManager.getRegion('regionTwo').options).to.have.property('specialOption');
-      expect(this.layoutViewManager.getRegion('regionTwo').options.specialOption).to.be.ok;
+    it('should pass extra options to the custom regionClass', function(testContext) {
+      expect(testContext.layoutViewManager.getRegion('regionTwo')).to.have.property('options');
+      expect(testContext.layoutViewManager.getRegion('regionTwo').options).to.have.property('specialOption');
+      expect(testContext.layoutViewManager.getRegion('regionTwo').options.specialOption).toBeTruthy();
     });
   });
 
   describe('when regions are defined as a function', function() {
-    beforeEach(function() {
-      const View = this.View.extend({
+    beforeEach(function(testContext) {
+      const View = testContext.View.extend({
         regions: function() {
           return {
             regionOne: '#regionOne',
@@ -135,116 +143,116 @@ describe('layoutView', function() {
         }
       });
 
-      this.layoutView = new View();
-      this.layoutView.render();
+      testContext.layoutView = new View();
+      testContext.layoutView.render();
     });
 
-    it('should build the regions from the returns object literal', function() {
-      expect(this.layoutView.getRegion('regionOne')).to.be.instanceof(Marionette.Region);
+    it('should build the regions from the returns object literal', function(testContext) {
+      expect(testContext.layoutView.getRegion('regionOne')).to.be.instanceof(Marionette.Region);
     });
   });
 
   describe('on rendering', function() {
-    beforeEach(function() {
-      this.layoutViewManager = new this.View();
-      sinon.spy(this.layoutViewManager, 'onRender');
-      sinon.spy(this.layoutViewManager, 'onBeforeRender');
-      sinon.spy(this.layoutViewManager, 'trigger');
-      this.layoutViewManager.render();
+    beforeEach(function(testContext) {
+      testContext.layoutViewManager = new testContext.View();
+      vi.spyOn(testContext.layoutViewManager, 'onRender');
+      vi.spyOn(testContext.layoutViewManager, 'onBeforeRender');
+      vi.spyOn(testContext.layoutViewManager, 'trigger');
+      testContext.layoutViewManager.render();
     });
 
-    it('should find the region scoped within the rendered template', function() {
-      this.layoutViewManager.getRegion('regionOne')._ensureElement();
-      let el = this.layoutViewManager.$('#regionOne');
-      expect(this.layoutViewManager.getRegion('regionOne').el).to.equal(el[0]);
+    it('should find the region scoped within the rendered template', function(testContext) {
+      testContext.layoutViewManager.showChildView('regionOne', new Marionette.View({ template: false }));
+      let el = testContext.layoutViewManager.$('#regionOne');
+      expect(testContext.layoutViewManager.getRegion('regionOne').el).to.equal(el[0]);
     });
 
-    it('should call "onBeforeRender" before rendering', function() {
-      expect(this.layoutViewManager.onBeforeRender).to.have.been.calledOnce;
+    it('should call "onBeforeRender" before rendering', function(testContext) {
+      expect(testContext.layoutViewManager.onBeforeRender).toHaveBeenCalledTimes(1);
     });
 
-    it('should call "onRender" after rendering', function() {
-      expect(this.layoutViewManager.onRender).to.have.been.calledOnce;
+    it('should call "onRender" after rendering', function(testContext) {
+      expect(testContext.layoutViewManager.onRender).toHaveBeenCalledTimes(1);
     });
 
-    it('should call "onBeforeRender" before "onRender"', function() {
-      expect(this.layoutViewManager.onBeforeRender).to.have.been.calledBefore(this.layoutViewManager.onRender);
+    it('should call "onBeforeRender" before "onRender"', function(testContext) {
+      expect(testContext.layoutViewManager.onBeforeRender).toHaveBeenCalledBefore(testContext.layoutViewManager.onRender);
     });
 
-    it('should not be rendered when "onBeforeRender" is called', function() {
-      expect(this.layoutViewManager.onBeforeRender.lastCall.returnValue).not.to.be.ok;
+    it('should not be rendered when "onBeforeRender" is called', function(testContext) {
+      expect(testContext.layoutViewManager.onBeforeRender.mock.results.at(-1).value).not.toBeTruthy();
     });
 
-    it('should be rendered when "onRender" is called', function() {
-      expect(this.layoutViewManager.onRender.lastCall.returnValue).to.be.true;
+    it('should be rendered when "onRender" is called', function(testContext) {
+      expect(testContext.layoutViewManager.onRender.mock.results.at(-1).value).toBe(true);
     });
 
-    it('should trigger a "before:render" event', function() {
-      expect(this.layoutViewManager.trigger).to.have.been.calledWith('before:render', this.layoutViewManager);
+    it('should trigger a "before:render" event', function(testContext) {
+      expect(testContext.layoutViewManager.trigger.mock.calls.map(args => args.slice(0, 2))).toContainEqual(['before:render', testContext.layoutViewManager]);
     });
 
-    it('should trigger a "render" event', function() {
-      expect(this.layoutViewManager.trigger).to.have.been.calledWith('render', this.layoutViewManager);
+    it('should trigger a "render" event', function(testContext) {
+      expect(testContext.layoutViewManager.trigger.mock.calls.map(args => args.slice(0, 2))).toContainEqual(['render', testContext.layoutViewManager]);
     });
 
-    it('should be marked rendered', function() {
-      expect(this.layoutViewManager).to.have.property('_isRendered', true);
+    it('should be marked rendered', function(testContext) {
+      expect(testContext.layoutViewManager.isRendered()).toBe(true);
     });
   });
 
   describe('when destroying', function() {
 
-    beforeEach(function() {
-      this.layoutViewManager = new this.View();
-      $('<span id="parent">').append(this.layoutViewManager.el);
-      this.layoutViewManager.render();
+    beforeEach(function(testContext) {
+      testContext.layoutViewManager = new testContext.View();
+      $('<span id="parent">').append(testContext.layoutViewManager.el);
+      testContext.layoutViewManager.render();
 
-      this.regionOne = this.layoutViewManager.getRegion('regionOne');
-      this.regionTwo = this.layoutViewManager.getRegion('regionTwo');
+      testContext.regionOne = testContext.layoutViewManager.getRegion('regionOne');
+      testContext.regionTwo = testContext.layoutViewManager.getRegion('regionTwo');
 
       const View = Marionette.View.extend({
         template: _.noop,
         destroy: function() {
           this.hadParent = Boolean(this.el.closest('#parent'));
-          return View.__super__.destroy.call(this);
+          return Marionette.View.prototype.destroy.call(this);
         }
       });
 
-      this.regionOneView = new View();
-      this.sinon.spy(this.regionOne, 'empty');
-      this.sinon.spy(this.regionTwo, 'empty');
+      testContext.regionOneView = new View();
+      vi.spyOn(testContext.regionOne, 'empty');
+      vi.spyOn(testContext.regionTwo, 'empty');
 
-      this.regionOne.show(this.regionOneView);
+      testContext.regionOne.show(testContext.regionOneView);
 
-      this.sinon.spy(this.layoutViewManager, 'destroy');
-      this.layoutViewManager.destroy();
-      this.layoutViewManager.destroy();
+      vi.spyOn(testContext.layoutViewManager, 'destroy');
+      testContext.layoutViewManager.destroy();
+      testContext.layoutViewManager.destroy();
     });
 
-    it('should empty the region managers', function() {
-      expect(this.regionOne.empty).to.have.been.calledTwice;
-      expect(this.regionTwo.empty).to.have.been.calledOnce;
+    it('should empty the region managers', function(testContext) {
+      expect(testContext.regionOne.empty).toHaveBeenCalledTimes(2);
+      expect(testContext.regionTwo.empty).toHaveBeenCalledTimes(1);
     });
 
-    it('should delete the region managers', function() {
-      expect(this.layoutViewManager.getRegion('regionOne')).to.be.undefined;
-      expect(this.layoutViewManager.getRegion('regionTwo')).to.be.undefined;
+    it('should delete the region managers', function(testContext) {
+      expect(testContext.layoutViewManager.getRegion('regionOne')).toBeUndefined();
+      expect(testContext.layoutViewManager.getRegion('regionTwo')).toBeUndefined();
     });
 
-    it('should return the view', function() {
-      expect(this.layoutViewManager.destroy).to.have.always.returned(this.layoutViewManager);
+    it('should return the view', function(testContext) {
+      expect(testContext.layoutViewManager.destroy.mock.results).toEqual(Array(testContext.layoutViewManager.destroy.mock.results.length).fill({ type: 'return', value: testContext.layoutViewManager }));
     });
 
-    it('should remove itself from the DOM before destroying child regions by default', function() {
-      expect(this.regionOneView.hadParent).to.be.false;
+    it('should remove itself from the DOM before destroying child regions by default', function(testContext) {
+      expect(testContext.regionOneView.hadParent).toBe(false);
     });
 
-    it('should be marked destroyed', function() {
-      expect(this.layoutViewManager).to.have.property('_isDestroyed', true);
+    it('should be marked destroyed', function(testContext) {
+      expect(testContext.layoutViewManager.isDestroyed()).toBe(true);
     });
 
-    it('should be marked not rendered', function() {
-      expect(this.layoutViewManager).to.have.property('_isRendered', false);
+    it('should be marked not rendered', function(testContext) {
+      expect(testContext.layoutViewManager.isRendered()).toBe(false);
     });
   });
 
@@ -252,37 +260,34 @@ describe('layoutView', function() {
   describe('when using showChildView with options', function() {
     let options = {myOption: 'some value'};
 
-    beforeEach(function() {
+    beforeEach(function(testContext) {
       const BBView = Marionette.View.extend({ template: () => '' });
       _.extend(BBView.prototype, Marionette.Events);
 
-      this.layoutView = new this.View().render();
-      this.regionOne = this.layoutView.getRegion('regionOne');
-      this.childView = new BBView();
-      this.sinon.spy(this.regionOne, 'show');
-      this.layoutView.showChildView('regionOne', this.childView, options);
+      testContext.layoutView = new testContext.View().render();
+      testContext.regionOne = testContext.layoutView.getRegion('regionOne');
+      testContext.childView = new BBView();
+      vi.spyOn(testContext.regionOne, 'show');
+      testContext.layoutView.showChildView('regionOne', testContext.childView, options);
     });
 
-    it('passes the options hash to the region', function() {
-      expect(this.regionOne.show)
-        .to.have.been.calledOnce
-        .and.calledWith(this.childView, options);
+    it('passes the options hash to the region', function(testContext) {
+      expect(testContext.regionOne.show).toHaveBeenCalledTimes(1);
+      expect(testContext.regionOne.show.mock.calls.map(args => args.slice(0, 2))).toContainEqual([testContext.childView, options]);
     });
   });
 
   describe('when showing a childView as a View', function() {
-    beforeEach(function() {
-      this.layoutView = new this.View();
-      this.childEventsHandlerTrigger = this.sinon.spy();
-      this.childEventsHandlerTriggerMethod = this.sinon.spy();
+    beforeEach(function(testContext) {
+      testContext.childEventsHandlerTrigger = vi.fn();
+      testContext.childEventsHandlerTriggerMethod = vi.fn();
 
       // add child events to listen for
-      this.layoutView.childViewEvents = {
-        'before:content:rendered': this.childEventsHandlerTrigger,
-        'content:rendered': this.childEventsHandlerTriggerMethod
-      };
-      this.layoutView._buildEventProxies();
-      this.layoutView.render();
+      testContext.layoutView = new testContext.View({ childViewEvents: {
+        'before:content:rendered': testContext.childEventsHandlerTrigger,
+        'content:rendered': testContext.childEventsHandlerTriggerMethod
+      } });
+      testContext.layoutView.render();
 
       // create a child view which triggers an event on render
       let ChildView = Marionette.View.extend({
@@ -294,94 +299,94 @@ describe('layoutView', function() {
           this.triggerMethod('content:rendered');
         }
       });
-      this.childView = new ChildView();
+      testContext.childView = new ChildView();
 
-      this.layoutView.showChildView('regionOne', this.childView);
+      testContext.layoutView.showChildView('regionOne', testContext.childView);
     });
 
-    it('shows the childview in the region', function() {
-      expect(this.layoutView.getChildView('regionOne')).to.equal(this.childView);
+    it('shows the childview in the region', function(testContext) {
+      expect(testContext.layoutView.getChildView('regionOne')).to.equal(testContext.childView);
     });
 
-    it('childViewEvents are triggered', function() {
-      expect(this.childEventsHandlerTrigger).to.have.been.calledOnce;
+    it('childViewEvents are triggered', function(testContext) {
+      expect(testContext.childEventsHandlerTrigger).toHaveBeenCalledTimes(1);
     });
 
-    it('childViewEvents are triggered', function() {
-      expect(this.childEventsHandlerTriggerMethod).to.have.been.calledOnce;
+    it('childViewEvents are triggered', function(testContext) {
+      expect(testContext.childEventsHandlerTriggerMethod).toHaveBeenCalledTimes(1);
     });
 
     describe('and the view is detached', function() {
-      beforeEach(function() {
-        this.detachedView = this.layoutView.detachChildView('regionOne');
-        this.noDetachedView = this.layoutView.detachChildView('regionOne');
+      beforeEach(function(testContext) {
+        testContext.detachedView = testContext.layoutView.detachChildView('regionOne');
+        testContext.noDetachedView = testContext.layoutView.detachChildView('regionOne');
       });
 
-      it('should return the childView it was given', function() {
-        expect(this.detachedView).to.equal(this.childView);
+      it('should return the childView it was given', function(testContext) {
+        expect(testContext.detachedView).to.equal(testContext.childView);
       });
 
-      it('should not return a childView if it was already detached', function() {
-        expect(this.noDetachedView).to.be.undefined;
+      it('should not return a childView if it was already detached', function(testContext) {
+        expect(testContext.noDetachedView).toBeUndefined();
       });
     });
   });
 
   describe('when showing a layoutView via a region', function() {
-    beforeEach(function() {
-      let suite = this;
+    beforeEach(function(testContext) {
+      let suite = testContext;
 
-      this.setFixtures('<div id="mgr"></div>');
+      setFixtures('<div id="mgr"></div>');
 
-      this.layoutView = new this.View();
-      this.layoutView.onRender = function() {
+      testContext.layoutView = new testContext.View();
+      testContext.layoutView.onRender = function() {
         suite.regionOne = suite.layoutView.getRegion('regionOne');
-        suite.regionOne._ensureElement();
+        suite.regionOne.show(new Marionette.View({ template: false }));
       };
 
-      this.region = new Marionette.Region({
+      testContext.region = new Marionette.Region({
         el: '#mgr'
       });
 
-      this.showReturn = this.region.show(this.layoutView);
+      testContext.showReturn = testContext.region.show(testContext.layoutView);
     });
 
-    it('should make the regions available in `onRender`', function() {
-      expect(this.regionOne).to.exist;
+    it('should make the regions available in `onRender`', function(testContext) {
+      expect(testContext.regionOne).to.not.equal(null).and.not.equal(undefined);
     });
 
-    it('the regions should find their elements in `onRender`', function() {
-      expect(this.regionOne.el).to.exist;
+    it('the regions should find their elements in `onRender`', function(testContext) {
+      expect(testContext.regionOne.el).to.not.equal(null).and.not.equal(undefined);
     });
 
-    it('should return the region after showing a view in a region', function() {
-      expect(this.showReturn).to.equal(this.region);
+    it('should return the region after showing a view in a region', function(testContext) {
+      expect(testContext.showReturn).to.equal(testContext.region);
     });
   });
 
   describe('when destroying a childView as a View', function() {
-    beforeEach(function() {
-      this.childEventsHandler = this.sinon.spy();
-      this.layoutView = new this.View({
+    beforeEach(function(testContext) {
+      testContext.childEventsHandler = vi.fn();
+      testContext.layoutView = new testContext.View({
         childViewEvents: {
-          'destroy': this.childEventsHandler
+          'destroy': testContext.childEventsHandler
         }
       });
 
-      this.layoutView.render();
+      testContext.layoutView.render();
 
       // create a child view which triggers an event on render
       let ChildView = Marionette.View.extend({
         template: _.noop
       });
-      this.childView = new ChildView();
+      testContext.childView = new ChildView();
 
-      this.layoutView.showChildView('regionOne', this.childView);
-      this.childView.destroy();
+      testContext.layoutView.showChildView('regionOne', testContext.childView);
+      testContext.childView.destroy();
     });
 
-    it('childViewEvents "destroy" method is triggered', function() {
-      expect(this.childEventsHandler).to.have.been.calledOnce;
+    it('childViewEvents "destroy" method is triggered', function(testContext) {
+      expect(testContext.childEventsHandler).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -414,11 +419,11 @@ describe('layoutView', function() {
   });
 
   describe('when re-rendering an already rendered layoutView', function() {
-    beforeEach(function() {
+    beforeEach(function(testContext) {
       const BBView = Marionette.View.extend({ template: () => '' });
       _.extend(BBView.prototype, Marionette.Events);
 
-      this.ViewBoundRender = this.View.extend({
+      testContext.ViewBoundRender = testContext.View.extend({
         initialize: function() {
           if (this.model) {
             this.listenTo(this.model, 'change', this.render);
@@ -426,109 +431,109 @@ describe('layoutView', function() {
         }
       });
 
-      this.layoutView = new this.ViewBoundRender({
+      testContext.layoutView = new testContext.ViewBoundRender({
         model: new Backbone.Model()
       });
-      this.layoutView.render();
+      testContext.layoutView.render();
 
-      this.sinon.spy(this.layoutView.getRegion('regionOne'), 'empty');
-      this.view = new BBView();
-      this.view.destroy = function() {};
-      this.layoutView.getRegion('regionOne').show(this.view);
+      vi.spyOn(testContext.layoutView.getRegion('regionOne'), 'empty');
+      testContext.view = new BBView();
+      testContext.view.destroy = function() {};
+      testContext.layoutView.getRegion('regionOne').show(testContext.view);
 
-      this.layoutView.render();
-      this.layoutView.getRegion('regionOne').show(this.view);
-      this.region = this.layoutView.getRegion('regionOne');
+      testContext.layoutView.render();
+      testContext.layoutView.getRegion('regionOne').show(testContext.view);
+      testContext.region = testContext.layoutView.getRegion('regionOne');
     });
 
-    it('should re-bind the regions to the newly rendered elements', function() {
-      expect(this.region.el.parentNode).to.equal(this.layoutView.el);
+    it('should re-bind the regions to the newly rendered elements', function(testContext) {
+      expect(testContext.region.el.parentNode).to.equal(testContext.layoutView.el);
     });
 
-    it('triggers "before:render" before emptying the regions', function() {
+    it('triggers "before:render" before emptying the regions', function(testContext) {
       let cb = function() {
-        expect(this.region.el).to.exist;
+        expect(this.region.el).to.not.equal(null).and.not.equal(undefined);
       };
-      this.layoutView.listenTo(this.layoutView, 'before:render', cb.bind(this));
-      this.layoutView.render();
+      testContext.layoutView.listenTo(testContext.layoutView, 'before:render', cb.bind(testContext));
+      testContext.layoutView.render();
     });
 
-    it('should call empty twice', function() {
-      expect(this.region.empty).to.have.been.calledThrice;
+    it('should call empty twice', function(testContext) {
+      expect(testContext.region.empty).toHaveBeenCalledTimes(3);
     });
 
     describe('and the views "render" function is bound to an event in the "initialize" function', function() {
-      beforeEach(function() {
-        let suite = this;
-        this.layoutView.onRender = function() {
+      beforeEach(function(testContext) {
+        let suite = testContext;
+        testContext.layoutView.onRender = function() {
           this.getRegion('regionOne').show(suite.view);
         };
 
-        this.layoutView.model.trigger('change');
+        testContext.layoutView.model.trigger('change');
       });
 
-      it('should re-bind the regions correctly', function() {
-        expect(this.layoutView.$('#regionOne')).not.to.equal();
+      it('should re-bind the regions correctly', function(testContext) {
+        expect(testContext.layoutView.$('#regionOne')).not.to.equal();
       });
     });
   });
 
   describe('when getting a region', function() {
-    beforeEach(function() {
-      this.layoutView = new this.View();
-      this.region = this.layoutView.getRegion('regionOne');
+    beforeEach(function(testContext) {
+      testContext.layoutView = new testContext.View();
+      testContext.region = testContext.layoutView.getRegion('regionOne');
     });
 
-    it('should return the region', function() {
-      expect(this.layoutView.getRegion('regionOne')).to.equal(this.region);
+    it('should return the region', function(testContext) {
+      expect(testContext.layoutView.getRegion('regionOne')).to.equal(testContext.region);
     });
   });
 
   describe('when adding regions in a layoutViews options', function() {
-    beforeEach(function() {
-      let suite = this;
+    beforeEach(function(testContext) {
+      let suite = testContext;
 
-      this.CustomRegion = this.sinon.spy();
-      this.regionOptions = {
+      testContext.CustomRegion = vi.fn();
+      testContext.regionOptions = {
         war: '.craft',
         is: {
-          regionClass: this.CustomRegion,
+          regionClass: testContext.CustomRegion,
           selector: '#a-fun-game'
         }
       };
 
-      this.layoutView = new Marionette.View({
-        template: this.template,
-        regions: this.regionOptions
+      testContext.layoutView = new Marionette.View({
+        template: testContext.template,
+        regions: testContext.regionOptions
       });
 
-      this.layoutView2 = new Marionette.View({
-        template: this.template,
+      testContext.layoutView2 = new Marionette.View({
+        template: testContext.template,
         regions: function() {
           return suite.regionOptions;
         }
       });
     });
 
-    it('should lookup and set the regions', function() {
-      expect(this.layoutView.getRegion('is')).to.exist;
-      expect(this.layoutView.getRegion('war')).to.exist;
+    it('should lookup and set the regions', function(testContext) {
+      expect(testContext.layoutView.getRegion('is')).to.not.equal(null).and.not.equal(undefined);
+      expect(testContext.layoutView.getRegion('war')).to.not.equal(null).and.not.equal(undefined);
     });
 
-    it('should lookup and set the regions when passed a function', function() {
-      expect(this.layoutView2.getRegion('is')).to.exist;
-      expect(this.layoutView2.getRegion('war')).to.exist;
+    it('should lookup and set the regions when passed a function', function(testContext) {
+      expect(testContext.layoutView2.getRegion('is')).to.not.equal(null).and.not.equal(undefined);
+      expect(testContext.layoutView2.getRegion('war')).to.not.equal(null).and.not.equal(undefined);
     });
 
-    it('should set custom region classes', function() {
-      expect(this.CustomRegion).to.have.been.called;
+    it('should set custom region classes', function(testContext) {
+      expect(testContext.CustomRegion).toHaveBeenCalled();
     });
   });
 
   describe('when defining region selectors using @ui. syntax', function() {
-    beforeEach(function() {
+    beforeEach(function(testContext) {
       let UIView = Marionette.View.extend({
-        template: this.template,
+        template: testContext.template,
         regions: {
           war: '@ui.war',
           mario: {
@@ -544,34 +549,34 @@ describe('layoutView', function() {
           princess: '.toadstool'
         }
       });
-      this.layoutView = new UIView();
+      testContext.layoutView = new UIView();
     });
 
-    it('should apply the relevant @ui. syntax selector to a simple string value', function() {
-      expect(this.layoutView.getRegion('war')).to.exist;
+    it('should apply the relevant @ui. syntax selector to a simple string value', function(testContext) {
+      expect(testContext.layoutView.getRegion('war')).to.not.equal(null).and.not.equal(undefined);
     });
-    it('should apply the relevant @ui. syntax selector to selector in a region definition object', function() {
-      expect(this.layoutView.getRegion('mario')).to.exist;
+    it('should apply the relevant @ui. syntax selector to selector in a region definition object', function(testContext) {
+      expect(testContext.layoutView.getRegion('mario')).to.not.equal(null).and.not.equal(undefined);
     });
-    it('should apply the relevant @ui. syntax selector to el in a region definition object', function() {
-      expect(this.layoutView.getRegion('princess')).to.exist;
+    it('should apply the relevant @ui. syntax selector to el in a region definition object', function(testContext) {
+      expect(testContext.layoutView.getRegion('princess')).to.not.equal(null).and.not.equal(undefined);
     });
   });
 
   describe('when a layout has regions', function() {
-    beforeEach(function() {
-      this.layout = new this.View();
+    beforeEach(function(testContext) {
+      testContext.layout = new testContext.View();
     });
 
-    it('should be able to retrieve all regions', function() {
-      this.layout.render();
-      this.regions = this.layout.getRegions();
-      expect(this.regions.regionOne).to.equal(this.layout.getRegion('regionOne'));
-      expect(this.regions.regionTwo).to.equal(this.layout.getRegion('regionTwo'));
+    it('should be able to retrieve all regions', function(testContext) {
+      testContext.layout.render();
+      testContext.regions = testContext.layout.getRegions();
+      expect(testContext.regions.regionOne).to.equal(testContext.layout.getRegion('regionOne'));
+      expect(testContext.regions.regionTwo).to.equal(testContext.layout.getRegion('regionTwo'));
     });
 
     describe('when the regions are specified via regions hash and the view has no template', function() {
-      beforeEach(function() {
+      beforeEach(function(testContext) {
         let fixture =
           '<div class="region-hash-no-template-spec">' +
             '<div class="region-one">Out-of-scope region</div>' +
@@ -579,10 +584,10 @@ describe('layoutView', function() {
               '<div class="region-one">In-scope region</div>' +
             '</div>' +
           '</div>';
-        this.setFixtures(fixture);
-        this.layout.render();
-        this.regions = this.layout.getRegions();
-        this.View = Marionette.View.extend({
+        setFixtures(fixture);
+        testContext.layout.render();
+        testContext.regions = testContext.layout.getRegions();
+        testContext.View = Marionette.View.extend({
           el: function() {
             return document.querySelector('.region-hash-no-template-spec .some-layout-view');
           },
@@ -591,68 +596,64 @@ describe('layoutView', function() {
             regionOne: '.region-one'
           }
         });
-        this.layoutViewInstance = new this.View();
+        testContext.layoutViewInstance = new testContext.View();
         let $specNode = $('.region-hash-no-template-spec');
-        this.$inScopeRegion = $specNode.find('.some-layout-view .region-one');
-        this.$outOfScopeRegion = $specNode.children('.region-one');
+        testContext.$inScopeRegion = $specNode.find('.some-layout-view .region-one');
+        testContext.$outOfScopeRegion = $specNode.children('.region-one');
       });
 
-      it('after initialization, the view\'s regions should be scoped to its parent view', function() {
-        const region = this.layoutViewInstance.getRegion('regionOne');
-        region._ensureElement();
+      it('after initialization, the view\'s regions should be scoped to its parent view', function(testContext) {
+        const region = testContext.layoutViewInstance.getRegion('regionOne');
+        region.show(new Marionette.View({ template: false }));
         const regionEl = region.el;
-        expect(regionEl).to.exist;
-        expect(regionEl).to.equal(this.$inScopeRegion[0]);
-        expect(regionEl).to.not.equal(this.$outOfScopeRegion[0]);
+        expect(regionEl).to.not.equal(null).and.not.equal(undefined);
+        expect(regionEl).to.equal(testContext.$inScopeRegion[0]);
+        expect(regionEl).to.not.equal(testContext.$outOfScopeRegion[0]);
       });
     });
   });
 
   describe('manipulating regions', function() {
-    beforeEach(function() {
-      this.beforeAddRegionSpy = this.sinon.spy();
-      this.addRegionSpy = this.sinon.spy();
-      this.beforeRegionRemoveSpy = this.sinon.spy();
-      this.removeRegionSpy = this.sinon.spy();
+    beforeEach(function(testContext) {
+      testContext.beforeAddRegionSpy = vi.fn();
+      testContext.addRegionSpy = vi.fn();
+      testContext.beforeRegionRemoveSpy = vi.fn();
+      testContext.removeRegionSpy = vi.fn();
 
-      this.Layout = Marionette.View.extend({
+      testContext.Layout = Marionette.View.extend({
         template: _.noop,
-        onBeforeAddRegion: this.beforeAddRegionSpy,
-        onAddRegion: this.addRegionSpy,
-        onBeforeRemoveRegion: this.beforeRegionRemoveSpy,
-        onRemoveRegion: this.removeRegionSpy
+        onBeforeAddRegion: testContext.beforeAddRegionSpy,
+        onAddRegion: testContext.addRegionSpy,
+        onBeforeRemoveRegion: testContext.beforeRegionRemoveSpy,
+        onRemoveRegion: testContext.removeRegionSpy
       });
 
-      this.layout = new this.Layout();
+      testContext.layout = new testContext.Layout();
 
-      this.regionName = 'myRegion';
-      this.layout.addRegion(this.regionName, '.region-selector');
+      testContext.regionName = 'myRegion';
+      testContext.layout.addRegion(testContext.regionName, '.region-selector');
     });
 
-    it('should trigger correct region add events', function() {
-      expect(this.beforeAddRegionSpy)
-        .to.have.been.calledOnce
-        .and.calledOn(this.layout)
-        .and.calledWith(this.layout, this.regionName);
+    it('should trigger correct region add events', function(testContext) {
+      expect(testContext.beforeAddRegionSpy).toHaveBeenCalledTimes(1);
+      expect(testContext.beforeAddRegionSpy.mock.contexts).toContain(testContext.layout);
+      expect(testContext.beforeAddRegionSpy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([testContext.layout, testContext.regionName]);
 
-      expect(this.addRegionSpy)
-        .to.have.been.calledOnce
-        .and.calledOn(this.layout)
-        .and.calledWith(this.layout, this.regionName);
+      expect(testContext.addRegionSpy).toHaveBeenCalledTimes(1);
+      expect(testContext.addRegionSpy.mock.contexts).toContain(testContext.layout);
+      expect(testContext.addRegionSpy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([testContext.layout, testContext.regionName]);
     });
 
-    it('should trigger correct region remove events', function() {
-      this.layout.removeRegion(this.regionName);
+    it('should trigger correct region remove events', function(testContext) {
+      testContext.layout.removeRegion(testContext.regionName);
 
-      expect(this.beforeRegionRemoveSpy)
-        .to.have.been.calledOnce
-        .and.calledOn(this.layout)
-        .and.calledWith(this.layout, this.regionName);
+      expect(testContext.beforeRegionRemoveSpy).toHaveBeenCalledTimes(1);
+      expect(testContext.beforeRegionRemoveSpy.mock.contexts).toContain(testContext.layout);
+      expect(testContext.beforeRegionRemoveSpy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([testContext.layout, testContext.regionName]);
 
-      expect(this.removeRegionSpy)
-        .to.have.been.calledOnce
-        .and.calledOn(this.layout)
-        .and.calledWith(this.layout, this.regionName);
+      expect(testContext.removeRegionSpy).toHaveBeenCalledTimes(1);
+      expect(testContext.removeRegionSpy.mock.contexts).toContain(testContext.layout);
+      expect(testContext.removeRegionSpy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([testContext.layout, testContext.regionName]);
     });
   });
 

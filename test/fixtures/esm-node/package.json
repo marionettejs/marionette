@@ -1,4 +1,5 @@
 {
+  "name": "marionette-esm-node-fixture",
   "private": true,
   "type": "module",
   "scripts": {

@@ -1,7 +1,8 @@
+import { describe, it, expect } from 'vitest';
 import vm from 'node:vm';
 import _ from 'underscore';
 
-import isString from '../../../packages/utils/src/is-string.ts';
+import { isString } from '@marionette/utils';
 
 describe('isString', function() {
   it('matches Underscore string-tag classification', function() {
@@ -35,8 +36,8 @@ describe('isString', function() {
     try {
       // eslint-disable-next-line no-extend-native
       Object.prototype.toString = () => '[object Number]';
-      expect(isString('string')).to.be.true;
-      expect(isString(1)).to.be.false;
+      expect(isString('string')).toBe(true);
+      expect(isString(1)).toBe(false);
     } finally {
       // eslint-disable-next-line no-extend-native
       Object.prototype.toString = originalToString;

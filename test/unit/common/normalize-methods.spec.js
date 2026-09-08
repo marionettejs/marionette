@@ -1,6 +1,7 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import vm from 'node:vm';
 
-import View from '../../../src/modules/view';
+import { View } from 'marionette';
 
 describe('normalizeMethods', function() {
   'use strict';
@@ -9,14 +10,14 @@ describe('normalizeMethods', function() {
 
   beforeEach(function() {
     const MyView = View.extend({
-      foo: this.sinon.stub()
+      foo: vi.fn()
     });
     view = new MyView();
   });
 
   describe('when called with no value', function() {
     it('should return nothing', function() {
-      expect(view.normalizeMethods()).to.be.undefined;
+      expect(view.normalizeMethods()).toBeUndefined();
     });
   });
 
@@ -36,7 +37,7 @@ describe('normalizeMethods', function() {
     });
 
     it('returns a fresh plain hash without changing the source', function() {
-      const handler = this.sinon.stub();
+      const handler = vi.fn();
       const source = { event: handler };
 
       const result = view.normalizeMethods(source);
@@ -76,7 +77,7 @@ describe('normalizeMethods', function() {
         async: async function() {},
         class: class Handler {},
         generator: function*() {},
-        ordinary: this.sinon.stub(),
+        ordinary: vi.fn(),
         proxy: new Proxy(function() {}, {})
       };
 
@@ -111,14 +112,14 @@ describe('normalizeMethods', function() {
 
     it('uses the string tag reader captured when the module loads', function() {
       const boxed = new String('foo');
-      const toStringStub = this.sinon.stub(Object.prototype, 'toString')
-        .returns('[object Number]');
+      const toStringStub = vi.spyOn(Object.prototype, 'toString').mockImplementation(() => undefined)
+        .mockReturnValue('[object Number]');
       let normalized;
 
       try {
         normalized = view.normalizeMethods({ boxed });
       } finally {
-        toStringStub.restore();
+        toStringStub.mockRestore();
       }
 
       expect(normalized).to.deep.equal({ boxed: view.foo });
@@ -126,7 +127,7 @@ describe('normalizeMethods', function() {
 
     it('resolves own and inherited context methods', function() {
       const context = Object.create({ inheritedHandler: view.foo });
-      const ownHandler = this.sinon.stub();
+      const ownHandler = vi.fn();
       context.ownHandler = ownHandler;
 
       expect(view.normalizeMethods.call(context, {
@@ -136,7 +137,7 @@ describe('normalizeMethods', function() {
     });
 
     it('ignores inherited, symbol, and non-enumerable input keys', function() {
-      const inheritedGetter = this.sinon.stub().throws(new Error('must not run'));
+      const inheritedGetter = vi.fn().mockImplementation(() => { throw new Error('must not run'); });
       const source = Object.create(Object.defineProperty({}, 'inherited', {
         enumerable: true,
         get: inheritedGetter
@@ -150,7 +151,7 @@ describe('normalizeMethods', function() {
       });
 
       expect(view.normalizeMethods(source)).to.deep.equal({ own: view.foo });
-      expect(inheritedGetter).to.not.have.been.called;
+      expect(inheritedGetter).not.toHaveBeenCalled();
     });
 
     it('retains a literal own __proto__ key without changing the result prototype', function() {

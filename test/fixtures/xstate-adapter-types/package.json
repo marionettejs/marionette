@@ -1,4 +1,5 @@
 {
+  "name": "marionette-xstate-adapter-types-fixture",
   "private": true,
   "type": "module",
   "scripts": {

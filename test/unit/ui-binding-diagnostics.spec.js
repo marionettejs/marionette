@@ -1,6 +1,7 @@
-import Behavior from '../../src/modules/behavior';
-import CollectionView from '../../src/modules/collection-view';
-import View from '../../src/modules/view';
+import { describe, it, expect } from 'vitest';
+import { Behavior } from 'marionette';
+import { CollectionView } from 'marionette';
+import { View } from 'marionette';
 import { MarionetteError } from '@marionette/utils';
 
 describe('getUI binding diagnostics', function() {
@@ -24,7 +25,7 @@ describe('getUI binding diagnostics', function() {
     view.render();
 
     expect(view.getUI('target')[0]).to.equal(view.el.querySelector('.target'));
-    expect(view.getUI('missing')).to.be.undefined;
+    expect(view.getUI('missing')).toBeUndefined();
 
     view.unbindUIElements();
     expectUnbound(() => view.getUI('target'));
@@ -77,7 +78,7 @@ describe('getUI binding diagnostics', function() {
     view.render();
 
     expect(behavior.getUI('target')[0]).to.equal(view.el.querySelector('.target'));
-    expect(behavior.getUI('missing')).to.be.undefined;
+    expect(behavior.getUI('missing')).toBeUndefined();
 
     view.unbindUIElements();
     expectUnbound(() => behavior.getUI('target'));

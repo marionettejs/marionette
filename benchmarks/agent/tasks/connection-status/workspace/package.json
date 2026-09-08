@@ -1,0 +1,6 @@
+{
+  "name": "agent-task-connection-status",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module"
+}

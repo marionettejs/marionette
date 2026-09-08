@@ -22,7 +22,6 @@ Every retained occurrence belongs to one of the four requested classifications:
 | Intentional historical reference | The negative template-render assertion names `items` | This occurrence proves the obsolete collection template property is absent. |
 | Unrelated English usage | `item`/`items` locals in `scripts/performance/*.mjs` iterate manifests, generated chunks, budgets, or approvals | These values are not models or collection data. |
 | Unrelated English usage | `align-items` declarations in `docs-site/assets/styles.css` | This is a CSS property name. |
-| Unrelated English usage | `utils/dispose-all.js` and `packages/data/src/dispose-all.js` | `disposeAll` is an explicitly retained internal attempt-all teardown helper, distinct from the public cleanup-function noun. |
 | Generated/external content | JSON Schema `items` keywords under `benchmarks/agent` and `config/diagnostics`, plus validation text emitted from those schemas | `items` is the standard JSON Schema array keyword, not Marionette model terminology. |
 | Generated/external content | `dist/**` and `packages/data/dist/**` | Generated output mirrors canonical source or one of the retained identifiers above. |
 

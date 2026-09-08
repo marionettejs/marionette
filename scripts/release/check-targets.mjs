@@ -2,24 +2,15 @@ import { spawnSync } from 'node:child_process';
 import { appendFile, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import process from 'node:process';
+import { readArguments } from './arguments.mjs';
+import { releasePackages, validatePackageInventory } from './packages.mjs';
 import { decideNpmActions } from './npm-actions.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
-const args = process.argv.slice(2);
-
-function readArgument(name, fallback) {
-  const index = args.indexOf(name);
-  if (index === -1) {
-    return fallback;
-  }
-
-  const value = args[index + 1];
-  if (!value || value.startsWith('--')) {
-    throw new Error(`Missing value for ${name}`);
-  }
-
-  return value;
-}
+const args = readArguments({
+  mode: { type: 'string', default: 'dry-run' },
+  'artifact-dir': { type: 'string', default: 'release' },
+});
 
 function run(command, commandArgs, options = {}) {
   const result = spawnSync(command, commandArgs, {
@@ -42,35 +33,28 @@ async function writeOutput(name, value) {
   }
 }
 
-const mode = readArgument('--mode', 'dry-run');
+const mode = args.mode;
 if (!['dry-run', 'publish', 'npm-decision', 'verify-npm'].includes(mode)) {
   throw new Error(`Unsupported target-check mode ${mode}.`);
 }
 
-const artifactDir = resolve(root, readArgument('--artifact-dir', 'release'));
+const artifactDir = resolve(root, args['artifact-dir']);
 const evidence = JSON.parse(await readFile(resolve(artifactDir, 'release-evidence.json'), 'utf8'));
 if (evidence.schemaVersion !== 2 || !Array.isArray(evidence.packages)) {
   throw new Error(`Unsupported evidence schemaVersion ${evidence.schemaVersion}.`);
 }
-const packageIds = evidence.packages.map(packageEvidence => packageEvidence.id);
-if (JSON.stringify(packageIds) !== JSON.stringify(['utils', 'radio', 'core', 'data', 'adapters'])) {
-  throw new Error(`Unexpected release package order: ${packageIds.join(', ')}.`);
-}
-const packageNames = new Map([
-  ['utils', '@marionette/utils'],
-  ['radio', '@marionette/radio'],
-  ['core', 'marionette'],
-  ['data', '@marionette/data'],
-  ['adapters', '@marionette/adapters'],
-]);
-for (const packageEvidence of evidence.packages) {
-  if (packageEvidence.name !== packageNames.get(packageEvidence.id)) {
-    throw new Error(`Unexpected ${packageEvidence.id} package name: ${packageEvidence.name}.`);
-  }
-}
+validatePackageInventory(evidence.packages);
+const packageNames = new Map(releasePackages.map(({ id, name }) => [id, name]));
+
 const npmExecPath = process.env.npm_execpath;
 if (!npmExecPath) {
   throw new Error('Run release:targets through npm so the npm CLI can be located.');
+}
+
+const verification = run(process.execPath, [resolve(root, 'scripts/release/verify-artifact.mjs'),
+  '--artifact-dir', artifactDir, '--require-validation']);
+if (verification.status !== 0) {
+  throw new Error(`Release candidate is not verified: ${verification.stderr}`);
 }
 
 const npmAttempts = mode === 'verify-npm' ? 12 : 1;

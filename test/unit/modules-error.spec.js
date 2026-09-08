@@ -1,4 +1,5 @@
-import { MarionetteError as PublicMarionetteError, VERSION } from '../../src/index.ts';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { MarionetteError as PublicMarionetteError, VERSION } from 'marionette';
 import { MarionetteError } from '@marionette/utils';
 
 describe('MarionetteError', function() {
@@ -223,7 +224,7 @@ describe('MarionetteError', function() {
 
   describe('when Error.captureStackTrace is available', function() {
     beforeEach(function() {
-      this.sinon.stub(Error, 'captureStackTrace').callsFake(error => {
+      vi.spyOn(Error, 'captureStackTrace').mockImplementation(() => undefined).mockImplementation(error => {
         Object.defineProperty(error, 'stack', {
           value: 'captured stack',
           writable: true,
@@ -235,7 +236,8 @@ describe('MarionetteError', function() {
     it('captures and retains the framework error stack', function() {
       const error = new MarionetteError({ message: 'foo' });
 
-      expect(Error.captureStackTrace).to.have.been.calledOnceWith(error, MarionetteError);
+      expect(Error.captureStackTrace).toHaveBeenCalledTimes(1);
+      expect(Error.captureStackTrace.mock.calls.map(args => args.slice(0, 2))).toContainEqual([error, MarionetteError]);
       expect(error.stack).to.equal('captured stack');
       expect(Object.getOwnPropertyDescriptor(error, 'stack')).to.deep.equal({
         value: 'captured stack',
@@ -250,7 +252,7 @@ describe('MarionetteError', function() {
     let captureStackTrace = Error.captureStackTrace;
 
     beforeEach(function() {
-      this.sinon.spy(MarionetteError.prototype, 'captureStackTrace');
+      vi.spyOn(MarionetteError.prototype, 'captureStackTrace');
     });
 
     afterEach(function() {
@@ -264,9 +266,9 @@ describe('MarionetteError', function() {
       it(`retains the fallback stack when ${description}`, function() {
         Error.captureStackTrace = value;
         const error = new MarionetteError({ message: 'foo' });
-        const fallbackError = MarionetteError.prototype.captureStackTrace.firstCall.firstArg;
+        const fallbackError = MarionetteError.prototype.captureStackTrace.mock.calls.at(0)[0];
 
-        expect(MarionetteError.prototype.captureStackTrace).to.have.been.calledOnce;
+        expect(MarionetteError.prototype.captureStackTrace).toHaveBeenCalledTimes(1);
         expect(fallbackError).to.be.instanceOf(Error);
         expect(error.stack).to.equal(fallbackError.stack).and.to.contain('Error: foo');
         expect(Object.getOwnPropertyDescriptor(error, 'stack')).to.include({

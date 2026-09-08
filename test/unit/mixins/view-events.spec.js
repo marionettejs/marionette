@@ -1,184 +1,85 @@
-import ViewEventsMixin from '../../../src/mixins/view-events';
+import { describe, expect, it, vi } from 'vitest';
+import { View } from 'marionette';
 
-function createView(overrides = {}) {
-  return {
-    normalizeUIString: sinon.stub().callsFake(key => key),
-    triggerMethod: sinon.stub(),
-    ...ViewEventsMixin,
-    ...overrides
-  };
+function dispatch(view, name) {
+  const event = new Event(name, { bubbles: true, cancelable: true });
+  view.el.dispatchEvent(event);
+  return event;
 }
 
-describe('view events mixin', function() {
-  describe('#_delegateEvents', function() {
-    it('uses an explicit event map instead of the configured map', function() {
-      const configuredHandler = this.sinon.stub();
-      const explicitHandler = this.sinon.stub();
-      const view = createView({ events: { click: configuredHandler } });
-      const delegates = [];
-
-      view._delegateEvents(delegates, {}, { submit: explicitHandler });
-
-      expect(delegates).to.have.lengthOf(2);
-      delegates[0]();
-      expect(explicitHandler).to.have.been.calledOnce;
-      expect(configuredHandler).to.not.have.been.called;
-    });
-
-    it('resolves a callable event map on the view with no arguments', function() {
-      const eventHandler = this.sinon.stub();
-      const events = this.sinon.stub().returns({ click: eventHandler });
-      const view = createView({ events });
-      const delegates = [];
-
-      view._delegateEvents(delegates, {});
-
-      expect(events).to.have.been.calledOnce.and.calledOn(view).and.calledWithExactly();
-      expect(delegates).to.have.lengthOf(2);
-
-      delegates[0]('event argument');
-      expect(eventHandler).to.have.been.calledOnce.and.calledOn(view).and.calledWithExactly('event argument');
-    });
-
-    it('snapshots own event keys before reading values', function() {
-      const trace = [];
-      const firstHandler = this.sinon.stub();
-      const secondHandler = this.sinon.stub();
-      const events = {};
-      Object.defineProperties(events, {
-        first: {
-          enumerable: true,
-          get() {
-            trace.push('read:first');
-            events.third = firstHandler;
-            return firstHandler;
-          }
-        },
-        second: {
-          enumerable: true,
-          get() {
-            trace.push('read:second');
-            return secondHandler;
-          }
-        }
-      });
-      const view = createView({
-        events,
-        normalizeUIString(key) {
-          trace.push(`normalize:${key}`);
-          return key;
-        }
-      });
-      const delegates = [];
-
-      view._delegateEvents(delegates, {});
-
-      expect(trace).to.deep.equal([
-        'read:first',
-        'normalize:first',
-        'read:second',
-        'normalize:second'
-      ]);
-      expect(delegates).to.have.lengthOf(4);
-    });
-
-    it('ignores inherited map keys while preserving own built-in names', function() {
-      const handler = this.sinon.stub();
-      const events = Object.create({ inherited: handler });
-      Object.defineProperties(events, {
-        ['__proto__']: { enumerable: true, value: handler },
-        constructor: { enumerable: true, value: handler },
-        toString: { enumerable: true, value: handler }
-      });
-      const view = createView({ events });
-      const delegates = [];
-
-      view._delegateEvents(delegates, {});
-
-      expect(delegates.filter((value, index) => index % 2 === 1))
-        .to.deep.equal(['__proto__', 'constructor', 'toString']);
-    });
-
-    it('treats a null resolved event map as a no-op', function() {
-      const view = createView({ events() { return null; } });
-      const delegates = [];
-
-      view._delegateEvents(delegates, {});
-
-      expect(delegates).to.deep.equal([]);
-    });
-
-    it('stops reading event values when a getter throws', function() {
-      const calls = [];
-      const error = new Error('event failed');
-      const events = Object.defineProperties({}, {
-        first: {
-          enumerable: true,
-          get() {
-            calls.push('first');
-            return function() {};
-          }
-        },
-        second: {
-          enumerable: true,
-          get() {
-            calls.push('second');
-            throw error;
-          }
-        },
-        third: {
-          enumerable: true,
-          get() {
-            calls.push('third');
-            return function() {};
-          }
-        }
-      });
-      const view = createView({ events });
-
-      expect(() => view._delegateEvents([], {})).to.throw(error);
-      expect(calls).to.deep.equal(['first', 'second']);
-    });
+describe('View event declarations', () => {
+  it('uses an explicit event map when redelegating', () => {
+    const configured = vi.fn();
+    const explicit = vi.fn();
+    const view = new View({ events: { click: configured } });
+    view.delegateEvents({ submit: explicit });
+    dispatch(view, 'click');
+    dispatch(view, 'submit');
+    expect(configured).not.toHaveBeenCalled();
+    expect(explicit).toHaveBeenCalledTimes(1);
+    view.destroy();
   });
 
-  describe('#_delegateTriggers', function() {
-    it('resolves a callable trigger map on the view with no arguments', function() {
-      const triggers = this.sinon.stub().returns({ submit: 'submitted' });
-      const view = createView({ triggers });
-      const delegates = [];
+  it('resolves callable maps on the View and invokes handlers with the event', () => {
+    const handler = vi.fn();
+    const events = vi.fn().mockReturnValue({ click: handler });
+    const view = new View({ events });
+    const event = dispatch(view, 'click');
+    expect(events).toHaveBeenCalledExactlyOnceWith();
+    expect(events.mock.contexts[0] === view).toBe(true);
+    expect(handler).toHaveBeenCalledExactlyOnceWith(event);
+    expect(handler.mock.contexts[0] === view).toBe(true);
+    view.destroy();
+  });
 
-      view._delegateTriggers(delegates, {}, view);
-
-      expect(triggers).to.have.been.calledOnce.and.calledOn(view).and.calledWithExactly();
-      expect(delegates).to.have.lengthOf(2);
+  it('snapshots own event keys, ignoring inherited and late-added declarations', () => {
+    const first = vi.fn();
+    const second = vi.fn();
+    const ignored = vi.fn();
+    const events = Object.create({ inherited: ignored });
+    Object.defineProperties(events, {
+      first: { enumerable: true, get() { events.late = ignored; return first; } },
+      second: { enumerable: true, value: second }
     });
+    const view = new View({ events });
+    ['first', 'second', 'inherited', 'late'].forEach(name => dispatch(view, name));
+    expect(first).toHaveBeenCalledTimes(1);
+    expect(second).toHaveBeenCalledTimes(1);
+    expect(ignored).not.toHaveBeenCalled();
+    view.destroy();
+  });
 
-    it('treats an undefined resolved trigger map as a no-op', function() {
-      const view = createView({ triggers() { return undefined; } });
-      const delegates = [];
+  it.each(['__proto__', 'constructor', 'toString'])('accepts an own event named %s', name => {
+    const handler = vi.fn();
+    const events = Object.defineProperty({}, name, { enumerable: true, value: handler });
+    const view = new View({ events });
+    dispatch(view, name);
+    expect(handler).toHaveBeenCalledTimes(1);
+    view.destroy();
+  });
 
-      view._delegateTriggers(delegates, {}, view);
-
-      expect(delegates).to.deep.equal([]);
+  it('stops reading event declarations when a getter throws', () => {
+    const later = vi.fn();
+    const error = new Error('event failed');
+    const events = Object.defineProperties({}, {
+      first: { enumerable: true, get() { throw error; } },
+      second: { enumerable: true, get: later }
     });
+    expect(() => new View({ events })).toThrow(error);
+    expect(later).not.toHaveBeenCalled();
+  });
 
-    it('accepts boxed string triggers and forwards the view, event, and extra arguments', function() {
-      const triggerName = new String('clicked');
-      const event = {
-        preventDefault: this.sinon.stub(),
-        stopPropagation: this.sinon.stub()
-      };
-      const view = createView({ triggers: { click: triggerName } });
-      const delegates = [];
-
-      view._delegateTriggers(delegates, {}, view);
-      delegates[0](event, 'extra');
-
-      expect(event.preventDefault).to.have.been.calledOnce;
-      expect(event.stopPropagation).to.have.been.calledOnce;
-      expect(view.triggerMethod)
-        .to.have.been.calledOnce
-        .and.calledWithExactly(triggerName, view, event, 'extra');
-    });
+  it('allows empty callable maps and dispatches string triggers', () => {
+    const empty = new View({ events() { return null; }, triggers() { return undefined; } });
+    empty.destroy();
+    const triggers = vi.fn().mockReturnValue({ click: 'clicked' });
+    const view = new View({ triggers });
+    const clicked = vi.fn();
+    view.on('clicked', clicked);
+    const event = dispatch(view, 'click');
+    expect(triggers).toHaveBeenCalledExactlyOnceWith();
+    expect(clicked).toHaveBeenCalledExactlyOnceWith(view, event);
+    expect(event.defaultPrevented).toBe(true);
+    view.destroy();
   });
 });

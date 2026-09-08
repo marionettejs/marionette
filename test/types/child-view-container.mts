@@ -1,6 +1,6 @@
-import Container, {type ChildViewContainer} from '../tmp/typed-core/src/modules/child-view-container.js';
+import type { CollectionViewInstance, ViewInstance } from 'marionette';
 
-interface Child {
+interface Child extends ViewInstance {
   cid: string;
   model?: { id: number };
   name: string;
@@ -9,8 +9,9 @@ interface Child {
   clear(): void;
 }
 declare const child: Child;
-const children = new Container<Child>();
-children._add(child);
+declare const collection: CollectionViewInstance<Child>;
+const children = collection.children;
+collection.addChildView(child);
 const count: number = children.length;
 const context = { prefix: 'Item', threshold: 2 };
 const same: typeof children = children.each(function(view, index) {
@@ -63,22 +64,14 @@ const cidFound: Child | undefined = children.findByCid('child');
 const hasView: boolean = children.hasView(child);
 for (const view of children) { const name: string = view.name; }
 const iterator: IteratorResult<Child, undefined> = children[Symbol.iterator]().next();
-children._sort(view => view.name);
-children._sort((left, right) => left.amount - right.amount);
-children._sort(function(view) { return this.prefix + view.name; }, context);
-children._sort('name');
-const structural = new Container<{cid: symbol; custom: boolean}>();
-structural._add({cid: Symbol(), custom: true});
-const custom: boolean | undefined = structural.first()?.custom;
-const provider = {key(model: {id: number}) {return model.id;}, get(model: {id: number}, key: 'id') {return model[key];}, has(model: {id: number}, key: string) {return key === 'id';}};
-new Container<Child>(provider);
-declare const reachable: ChildViewContainer<Child>;
-const reachableName: string | undefined = reachable.findByCid('child')?.name;
-
-// @ts-expect-error Child identity requires cid, not View inheritance.
-new Container<{name: string}>();
+collection.setComparator(view => view.name);
+collection.setComparator((left, right) => left.amount - right.amount);
+collection.setComparator('name');
+const reachableName: string | undefined = collection.children.findByCid('child')?.name;
+// @ts-expect-error Public collections require a complete supported child lifecycle.
+const invalidCollection: CollectionViewInstance<{name: string}> = collection;
 // @ts-expect-error Stored children retain their actual required fields.
-children._add({cid: 'incomplete'});
+collection.addChildView({cid: 'incomplete'});
 // @ts-expect-error Callbacks must be functions.
 children.map('name');
 // @ts-expect-error Traversal passes Child, not its model.
@@ -116,7 +109,7 @@ const wrongAbsent: string[] = children.pluck('absent');
 // @ts-expect-error Partition returns a pair of arrays, not a flat array.
 const wrongPartition: Child[] = children.partition(() => true);
 
-interface ReceiverChild {
+interface ReceiverChild extends ViewInstance {
   cid: string;
   name: string;
   read(this: {name: string}): string;
@@ -124,7 +117,8 @@ interface ReceiverChild {
   incompatible(this: {missing: string}): string;
   requiresUndefined(this: undefined): string;
 }
-const receivers = new Container<ReceiverChild>();
+declare const receiverCollection: CollectionViewInstance<ReceiverChild>;
+const receivers = receiverCollection.children;
 const receiverNames: string[] = receivers.invoke('read');
 const ignoredReceivers: number[] = receivers.invoke('ignoreReceiver');
 // @ts-expect-error Invoke always supplies the child as receiver.

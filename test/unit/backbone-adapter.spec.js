@@ -1,5 +1,7 @@
+import { vi, describe, it, expect, beforeAll as before } from 'vitest';
+import '../setup/backbone.js';
 import Backbone from 'backbone';
-import { createMarionette } from '../../src/index.ts';
+import { createMarionette } from 'marionette';
 
 describe('Backbone adapter', function() {
   let BackboneApi;
@@ -24,7 +26,7 @@ describe('Backbone adapter', function() {
     const onNameChange = (...args) => listenerRegisteredBeforeImport.push(args);
     modelCreatedBeforeImport.on('change:name', onNameChange);
 
-    BackboneApi = (await import('../../packages/adapters/src/data/backbone.ts')).default;
+    BackboneApi = (await import('@marionette/adapters/backbone')).default;
   });
 
   it('exports one combined StateApi and DataApi adapter', function() {
@@ -47,7 +49,7 @@ describe('Backbone adapter', function() {
       expect(Backbone[name]).to.equal(Constructor);
       expect(Object.getOwnPropertyDescriptors(Constructor.prototype))
         .to.deep.equal(prototypeDescriptors[name]);
-      expect(Constructor.prototype.triggerMethod).to.be.undefined;
+      expect(Constructor.prototype.triggerMethod).toBeUndefined();
       expect(Constructor.prototype.bind).to.equal(prototypeDescriptors[name].bind?.value);
       expect(Constructor.prototype.unbind).to.equal(prototypeDescriptors[name].unbind?.value);
     });
@@ -66,14 +68,15 @@ describe('Backbone adapter', function() {
     runtime.setDataApi(BackboneApi);
     const listener = new runtime.MnObject();
     const model = new Backbone.Model();
-    const callback = this.sinon.spy();
+    const callback = vi.fn();
 
     listener.listenTo(model, 'change:name', callback);
     model.set('name', 'first');
     listener.stopListening(model);
     model.set('name', 'second');
 
-    expect(callback).to.have.been.calledOnce.and.calledWith(model, 'first');
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback.mock.calls.map(args => args.slice(0, 2))).toContainEqual([model, 'first']);
     listener.destroy();
   });
 
@@ -81,14 +84,15 @@ describe('Backbone adapter', function() {
     const runtime = createMarionette();
     const listener = new Backbone.Model();
     const source = new runtime.MnObject();
-    const callback = this.sinon.spy();
+    const callback = vi.fn();
 
     listener.listenTo(source, 'status', callback);
     source.trigger('status', 'first');
     listener.stopListening(source);
     source.trigger('status', 'second');
 
-    expect(callback).to.have.been.calledOnce.and.calledWith('first');
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback.mock.calls.map(args => args.slice(0, 1))).toContainEqual(['first']);
     source.destroy();
   });
 
@@ -124,8 +128,8 @@ describe('Backbone adapter', function() {
     expect(calls[2].slice(0, 3)).to.deep.equal(['state', state, true]);
     expect(calls.map(call => call[3])).to.satisfy(options =>
       options.every(option => option && typeof option === 'object'));
-    expect(model.triggerMethod).to.be.undefined;
-    expect(collection.triggerMethod).to.be.undefined;
+    expect(model.triggerMethod).toBeUndefined();
+    expect(collection.triggerMethod).toBeUndefined();
 
     view.destroy();
     owner.destroy();
@@ -135,9 +139,9 @@ describe('Backbone adapter', function() {
     const runtime = createMarionette();
     runtime.setStateApi(BackboneApi);
     const state = new Backbone.Model({ ready: false });
-    const destroy = this.sinon.spy(state, 'destroy');
-    const onReady = this.sinon.spy();
-    const externalListener = this.sinon.spy();
+    const destroy = vi.spyOn(state, 'destroy');
+    const onReady = vi.fn();
+    const externalListener = vi.fn();
     state.on('external', externalListener);
     const StateOwner = runtime.MnObject.extend({
       stateEvents: { 'change:ready': onReady },
@@ -152,9 +156,9 @@ describe('Backbone adapter', function() {
     state.set('ready', false);
     state.trigger('external');
 
-    expect(onReady).to.have.been.calledOnce;
-    expect(externalListener).to.have.been.calledTwice;
-    expect(destroy).to.not.have.been.called;
+    expect(onReady).toHaveBeenCalledTimes(1);
+    expect(externalListener).toHaveBeenCalledTimes(2);
+    expect(destroy).not.toHaveBeenCalled();
   });
 
   it('reconciles native Backbone collection add, remove, reset, sort, and update events', function() {
@@ -217,7 +221,7 @@ describe('Backbone adapter', function() {
       { id: 2, rank: 2, visible: true },
       { id: 3, rank: 3, visible: true }
     ], { comparator: 'rank' });
-    const onRender = this.sinon.spy();
+    const onRender = vi.fn();
     const ChildView = runtime.View.extend({ template: ({ id }) => String(id), onRender });
     const view = new runtime.CollectionView({
       collection,
@@ -225,13 +229,13 @@ describe('Backbone adapter', function() {
       viewFilter: child => child.model.get('visible')
     }).render();
     const first = view.children.findByModel(collection.get(1));
-    onRender.resetHistory();
+    onRender.mockClear();
 
     collection.set([{ id: 1, rank: 4 }, { id: 2, visible: false }], { remove: false });
 
     expect(view.el.textContent).to.equal('31');
     expect(view.children.findByModel(collection.get(1))).to.equal(first);
-    expect(onRender).not.to.have.been.called;
+    expect(onRender).not.toHaveBeenCalled();
     view.destroy();
   });
 

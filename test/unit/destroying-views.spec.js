@@ -1,4 +1,5 @@
-import View from '../../src/modules/view';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { View } from 'marionette';
 
 
 describe('destroying views', function() {
@@ -9,7 +10,7 @@ describe('destroying views', function() {
     let view;
 
     beforeEach(function() {
-      onDestroyStub = this.sinon.spy(function() {
+      onDestroyStub = vi.fn(function() {
         return this.isRendered();
       });
 
@@ -21,7 +22,7 @@ describe('destroying views', function() {
     });
 
     it('should only run the destroying code once', function() {
-      expect(onDestroyStub).to.have.been.calledOnce;
+      expect(onDestroyStub).toHaveBeenCalledTimes(1);
     });
 
     it('should mark the view as destroyed', function() {
@@ -34,7 +35,7 @@ describe('destroying views', function() {
     let view;
 
     beforeEach(function() {
-      onBeforeDestroyStub = this.sinon.stub();
+      onBeforeDestroyStub = vi.fn();
 
       view = new View();
       view.onBeforeDestroy = onBeforeDestroyStub;
@@ -44,7 +45,7 @@ describe('destroying views', function() {
     });
 
     it('should only run the destroying code once', function() {
-      expect(onBeforeDestroyStub).to.have.been.calledOnce;
+      expect(onBeforeDestroyStub).toHaveBeenCalledTimes(1);
     });
 
     it('should mark the view as destroyed', function() {

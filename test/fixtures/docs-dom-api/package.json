@@ -1,4 +1,5 @@
 {
+  "name": "marionette-docs-dom-api-fixture",
   "private": true,
   "type": "module",
   "scripts": {

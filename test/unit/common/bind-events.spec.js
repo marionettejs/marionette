@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { bindEvents, unbindEvents } from '@marionette/utils';
 
 function createProtoBindings(descriptor) {
@@ -29,18 +30,18 @@ describe('bind-events', function() {
   let target;
 
   beforeEach(function() {
-    entity = this.sinon.stub();
+    entity = vi.fn();
 
     target = {
-      handleFoo: this.sinon.stub(),
-      listenTo: this.sinon.stub(),
-      stopListening: this.sinon.stub(),
+      handleFoo: vi.fn(),
+      listenTo: vi.fn(),
+      stopListening: vi.fn(),
       bindEvents,
       unbindEvents
     };
 
-    this.sinon.spy(target, 'bindEvents');
-    this.sinon.spy(target, 'unbindEvents');
+    vi.spyOn(target, 'bindEvents');
+    vi.spyOn(target, 'unbindEvents');
   });
 
   describe('bindEvents', function() {
@@ -50,11 +51,11 @@ describe('bind-events', function() {
       });
 
       it('shouldnt bind any events', function() {
-        expect(target.listenTo).not.to.have.been.called;
+        expect(target.listenTo).not.toHaveBeenCalled();
       });
 
       it('should return the target', function() {
-        expect(target.bindEvents).to.have.returned(target);
+        expect(target.bindEvents).toHaveReturnedWith(target);
       });
     });
 
@@ -64,19 +65,19 @@ describe('bind-events', function() {
       });
 
       it('shouldnt bind any events', function() {
-        expect(target.listenTo).not.to.have.been.called;
+        expect(target.listenTo).not.toHaveBeenCalled();
       });
 
       it('should return the target', function() {
-        expect(target.bindEvents).to.have.returned(target);
+        expect(target.bindEvents).toHaveReturnedWith(target);
       });
     });
 
     it('preserves accepted object and function binding maps', function() {
       for (const bindings of acceptedBindingMaps) {
         expect(target.bindEvents(entity, bindings)).to.equal(target);
-        expect(target.listenTo).to.have.been.calledOnce;
-        target.listenTo.resetHistory();
+        expect(target.listenTo).toHaveBeenCalledTimes(1);
+        target.listenTo.mockClear();
       }
     });
 
@@ -85,58 +86,57 @@ describe('bind-events', function() {
         expect(target.bindEvents(entity, bindings)).to.equal(target);
       }
 
-      expect(target.listenTo).to.not.have.been.called;
+      expect(target.listenTo).not.toHaveBeenCalled();
     });
 
     describe('when bindings is an object with an event handler hash', function() {
       it('should return the target', function() {
         target.bindEvents(entity, { 'foo': 'handleFoo' });
-        expect(target.bindEvents).to.have.returned(target);
+        expect(target.bindEvents).toHaveReturnedWith(target);
       });
 
       describe('when handler is a function', function() {
         it('should bind an event to targets handler', function() {
-          const handleBar = this.sinon.stub();
+          const handleBar = vi.fn();
           target.bindEvents(entity, { 'bar': handleBar });
-          expect(target.listenTo)
-            .to.have.been.calledOnce
-            .and.calledWith(entity, { 'bar': handleBar });
+          expect(target.listenTo).toHaveBeenCalledTimes(1);
+          expect(target.listenTo.mock.calls.map(args => args.slice(0, 2))).toContainEqual([entity, { 'bar': handleBar }]);
         });
       });
 
       describe('when handler is a string', function() {
         it('should bind an event to targets handler', function() {
           target.bindEvents(entity, { 'foo': 'handleFoo' });
-          expect(target.listenTo)
-            .to.have.been.calledOnce
-            .and.calledWith(entity, { 'foo': target.handleFoo });
+          expect(target.listenTo).toHaveBeenCalledTimes(1);
+          expect(target.listenTo.mock.calls.map(args => args.slice(0, 2))).toContainEqual([entity, { 'foo': target.handleFoo }]);
         });
       });
 
       it('accepts other Object prototype collision names', function() {
-        const constructorHandler = this.sinon.stub();
-        const toStringHandler = this.sinon.stub();
+        const constructorHandler = vi.fn();
+        const toStringHandler = vi.fn();
 
         target.bindEvents(entity, {
           constructor: constructorHandler,
           toString: toStringHandler
         });
 
-        expect(target.listenTo).to.have.been.calledOnce.and.calledWith(entity, {
+        expect(target.listenTo).toHaveBeenCalledTimes(1);
+        expect(target.listenTo.mock.calls.map(args => args.slice(0, 2))).toContainEqual([entity, {
           constructor: constructorHandler,
           toString: toStringHandler
-        });
+        }]);
       });
 
       it('rejects an own enumerable __proto__ event before binding', function() {
-        const getter = this.sinon.stub().throws(new Error('must not run'));
+        const getter = vi.fn().mockImplementation(() => { throw new Error('must not run'); });
         const bindings = createProtoBindings({ get: getter });
 
         expect(() => target.bindEvents(entity, bindings))
           .to.throw('Entity event maps cannot include an own "__proto__" event name.')
           .with.property('code', 'MN0026');
-        expect(getter).to.not.have.been.called;
-        expect(target.listenTo).to.not.have.been.called;
+        expect(getter).not.toHaveBeenCalled();
+        expect(target.listenTo).not.toHaveBeenCalled();
       });
     });
 
@@ -149,11 +149,11 @@ describe('bind-events', function() {
       });
 
       it('shouldnt unbind any events', function() {
-        expect(target.stopListening).not.to.have.been.called;
+        expect(target.stopListening).not.toHaveBeenCalled();
       });
 
       it('should return the target', function() {
-        expect(target.unbindEvents).to.have.returned(target);
+        expect(target.unbindEvents).toHaveReturnedWith(target);
       });
     });
 
@@ -163,45 +163,44 @@ describe('bind-events', function() {
       });
 
       it('should unbind all events', function() {
-        expect(target.stopListening)
-          .to.have.been.calledOnce
-          .and.calledWith(entity);
+        expect(target.stopListening).toHaveBeenCalledTimes(1);
+        expect(target.stopListening.mock.calls.map(args => args.slice(0, 1))).toContainEqual([entity]);
       });
 
       it('should return the target', function() {
-        expect(target.unbindEvents).to.have.returned(target);
+        expect(target.unbindEvents).toHaveReturnedWith(target);
       });
     });
 
     it('preserves accepted object and function binding maps', function() {
       for (const bindings of acceptedBindingMaps) {
         expect(target.unbindEvents(entity, bindings)).to.equal(target);
-        expect(target.stopListening).to.have.been.calledOnce;
-        target.stopListening.resetHistory();
+        expect(target.stopListening).toHaveBeenCalledTimes(1);
+        target.stopListening.mockClear();
       }
     });
 
     it('preserves the falsy binding-map unbind-all path', function() {
       for (const bindings of falsyBindingMaps) {
         expect(target.unbindEvents(entity, bindings)).to.equal(target);
-        expect(target.stopListening).to.have.been.calledOnce.and.calledWith(entity);
-        target.stopListening.resetHistory();
+        expect(target.stopListening).toHaveBeenCalledTimes(1);
+        expect(target.stopListening.mock.calls.map(args => args.slice(0, 1))).toContainEqual([entity]);
+        target.stopListening.mockClear();
       }
     });
 
     describe('when bindings is an object with an event handler hash', function() {
       it('should return the target', function() {
         target.unbindEvents(entity, { 'foo': 'handleFoo' })
-        expect(target.unbindEvents).to.have.returned(target);
+        expect(target.unbindEvents).toHaveReturnedWith(target);
       });
 
       describe('when handler is a function', function() {
         it('should unbind an event', function() {
-          const handleBar = this.sinon.stub();
+          const handleBar = vi.fn();
           target.unbindEvents(entity, { 'bar': handleBar });
-          expect(target.stopListening)
-            .to.have.been.calledOnce
-            .and.calledWith(entity, { 'bar': handleBar });
+          expect(target.stopListening).toHaveBeenCalledTimes(1);
+          expect(target.stopListening.mock.calls.map(args => args.slice(0, 2))).toContainEqual([entity, { 'bar': handleBar }]);
         });
       });
 
@@ -209,20 +208,19 @@ describe('bind-events', function() {
         describe('when one handler is passed', function() {
           it('should unbind an event', function() {
             target.unbindEvents(entity, { 'foo': 'handleFoo' });
-            expect(target.stopListening)
-              .to.have.been.calledOnce
-              .and.calledWith(entity, { 'foo': target.handleFoo });
+            expect(target.stopListening).toHaveBeenCalledTimes(1);
+            expect(target.stopListening.mock.calls.map(args => args.slice(0, 2))).toContainEqual([entity, { 'foo': target.handleFoo }]);
           });
         });
       });
 
       it('rejects an own enumerable __proto__ event before selective unbinding', function() {
-        const bindings = createProtoBindings({ value: this.sinon.stub() });
+        const bindings = createProtoBindings({ value: vi.fn() });
 
         expect(() => target.unbindEvents(entity, bindings))
           .to.throw('Entity event maps cannot include an own "__proto__" event name.')
           .with.property('code', 'MN0026');
-        expect(target.stopListening).to.not.have.been.called;
+        expect(target.stopListening).not.toHaveBeenCalled();
       });
     });
 

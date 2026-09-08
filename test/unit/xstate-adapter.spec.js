@@ -1,6 +1,7 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { assign, createActor, createMachine, emit } from 'xstate';
-import { createMarionette } from '../../src/index.ts';
-import createXStateActorApi from '../../packages/adapters/src/data/xstate.ts';
+import { createMarionette } from 'marionette';
+import createXStateActorApi from '@marionette/adapters/xstate';
 
 const childMachine = createMachine({
   context: ({ input }) => ({ id: input.id, label: input.label }),
@@ -85,7 +86,7 @@ describe('XState actor adapter', function() {
     expect(view.children.findByModel(second)).to.equal(secondView);
 
     parent.send({ type: 'replace', models: [third, first] });
-    expect(secondView.isDestroyed()).to.be.true;
+    expect(secondView.isDestroyed()).toBe(true);
     view.destroy();
     expect(parent.getSnapshot().status).to.equal('active');
     expect(first.getSnapshot().status).to.equal('active');
@@ -103,15 +104,15 @@ describe('XState actor adapter', function() {
       keyCalls++;
       return originalKey(actor);
     };
-    const firstObserver = this.sinon.spy();
-    const secondObserver = this.sinon.spy();
+    const firstObserver = vi.fn();
+    const secondObserver = vi.fn();
     const stopFirst = ActorApi.observeCollection(parent, firstObserver);
     const stopSecond = ActorApi.observeCollection(parent, secondObserver);
     keyCalls = 0;
 
     parent.send({ type: 'updateUnrelated' });
-    expect(firstObserver).to.not.have.been.called;
-    expect(secondObserver).to.not.have.been.called;
+    expect(firstObserver).not.toHaveBeenCalled();
+    expect(secondObserver).not.toHaveBeenCalled();
     expect(keyCalls).to.equal(0);
 
     const second = track(createChild(2, 'two'));
@@ -120,8 +121,8 @@ describe('XState actor adapter', function() {
     stopFirst();
     parent.send({ type: 'replace', models: [first] });
 
-    expect(firstObserver).to.have.been.calledOnce;
-    expect(secondObserver).to.have.been.calledTwice;
+    expect(firstObserver).toHaveBeenCalledTimes(1);
+    expect(secondObserver).toHaveBeenCalledTimes(2);
     stopSecond();
   });
 
@@ -131,14 +132,15 @@ describe('XState actor adapter', function() {
     const parent = track(createParent([first, second]));
     const ActorApi = createXStateActorApi({ select: snapshot => snapshot.context.models });
     const context = {};
-    const callback = this.sinon.spy();
+    const callback = vi.fn();
     const cleanup = ActorApi.observeCollection(parent, callback, context);
 
     parent.send({ type: 'replace', models: [first, second] });
-    expect(callback).to.not.have.been.called;
+    expect(callback).not.toHaveBeenCalled();
     parent.send({ type: 'replace', models: [second, first] });
-    expect(callback).to.have.been.calledOnce.and.calledOn(context);
-    expect(callback.firstCall.args).to.deep.equal([{ kind: 'reorder' }]);
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback.mock.contexts).toContain(context);
+    expect(callback.mock.calls.at(0)).to.deep.equal([{ kind: 'reorder' }]);
     cleanup();
   });
 
@@ -160,40 +162,42 @@ describe('XState actor adapter', function() {
       snapshotEvent: 'actor:snapshot'
     });
     const context = {};
-    const snapshots = this.sinon.spy();
-    const announcements = this.sinon.spy();
+    const snapshots = vi.fn();
+    const announcements = vi.fn();
     const stopSnapshots = ActorApi.subscribe(actor, 'actor:snapshot', snapshots, context);
     const stopAnnouncements = ActorApi.subscribe(actor, 'announced', announcements, context);
 
-    expect(snapshots).to.not.have.been.called;
+    expect(snapshots).not.toHaveBeenCalled();
     actor.send({ type: 'rename', label: 'updated' });
     actor.send({ type: 'announce' });
-    expect(snapshots).to.have.been.calledOn(context);
-    expect(snapshots.lastCall.args[0].context.label).to.equal('updated');
-    expect(announcements).to.have.been.calledOnce.and.calledOn(context);
-    expect(announcements.firstCall.args).to.deep.equal([{ type: 'announced', label: 'updated' }]);
+    expect(snapshots.mock.contexts).toContain(context);
+    expect(snapshots.mock.calls.at(-1)[0].context.label).to.equal('updated');
+    expect(announcements).toHaveBeenCalledTimes(1);
+    expect(announcements.mock.contexts).toContain(context);
+    expect(announcements.mock.calls.at(0)).to.deep.equal([{ type: 'announced', label: 'updated' }]);
 
     stopSnapshots();
     stopSnapshots();
     stopAnnouncements();
     actor.send({ type: 'rename', label: 'late' });
     actor.send({ type: 'announce' });
-    expect(snapshots.lastCall.args[0].context.label).to.equal('updated');
-    expect(announcements).to.have.been.calledOnce;
+    expect(snapshots.mock.calls.at(-1)[0].context.label).to.equal('updated');
+    expect(announcements).toHaveBeenCalledTimes(1);
   });
 
   it('forwards unconfigured event names without reserving a domain event', function() {
     const actor = track(createChild(1, 'one'));
     const ActorApi = createXStateActorApi({ select: () => [] });
-    const snapshotEvent = this.sinon.spy();
+    const snapshotEvent = vi.fn();
     const cleanup = ActorApi.subscribe(actor, 'announced', snapshotEvent);
 
     actor.send({ type: 'announce' });
 
-    expect(snapshotEvent).to.have.been.calledOnce.and.calledWith({
+    expect(snapshotEvent).toHaveBeenCalledTimes(1);
+    expect(snapshotEvent.mock.calls.map(args => args.slice(0, 1))).toContainEqual([{
       type: 'announced',
       label: 'one'
-    });
+    }]);
     cleanup();
   });
 
@@ -203,9 +207,9 @@ describe('XState actor adapter', function() {
 
     expect(ActorApi.key(actor)).to.equal(actor);
     expect(ActorApi.get(actor, 'label')).to.equal('one');
-    expect(ActorApi.get(actor, 'missing')).to.be.undefined;
-    expect(ActorApi.has(actor, 'label')).to.be.true;
-    expect(ActorApi.has(actor, 'missing')).to.be.false;
+    expect(ActorApi.get(actor, 'missing')).toBeUndefined();
+    expect(ActorApi.has(actor, 'label')).toBe(true);
+    expect(ActorApi.has(actor, 'missing')).toBe(false);
     expect(ActorApi.serialize(actor)).to.equal(actor.getSnapshot().context);
     expect(ActorApi).to.not.have.property('models');
     expect(ActorApi).to.not.have.property('observeCollection');
@@ -234,7 +238,7 @@ describe('XState actor adapter', function() {
 
     parent.send({ type: 'replace', models: [replacement] });
 
-    expect(firstView.isDestroyed()).to.be.true;
+    expect(firstView.isDestroyed()).toBe(true);
     expect(view.children.first().model).to.equal(replacement);
     expect(view.el.textContent).to.equal('replacement');
     view.destroy();

@@ -37,6 +37,5 @@ if (caught instanceof MarionetteError && caught.code === 'MN0001') {
   const text: string = caught.toString();
 }
 const samePrototype: typeof MarionetteError.prototype = error;
-const nativePrototype: Error = MarionetteError.__super__;
 // @ts-expect-error A native Error does not provide the Marionette URL/hook contract.
 const missingMarionetteFields: typeof error = new Error('native');

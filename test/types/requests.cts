@@ -1,6 +1,6 @@
-import Requests from '../tmp/typed-core/packages/radio/src/requests.js';
-import { createDebug, debugLog, log } from '../tmp/typed-core/packages/radio/src/debug.js';
-import type { Channel } from '../tmp/typed-core/src/modules/object.js';
+import { Requests } from '@marionette/radio';
+import { createRadio } from '@marionette/radio';
+import type { Channel } from 'marionette';
 
 const receiver = { ...Requests, label: 'Example' };
 const callback = function(this: { label: string }, count: number) { return this.label.repeat(count); };
@@ -33,15 +33,15 @@ const extendedChannel: typeof channel = channel.reply('ready', true).replyOnce({
 const channelResult: boolean = extendedChannel.extra();
 const channelReplies: Record<string, unknown> = channel.request({ ready: undefined });
 
-const debug = createDebug();
+const debug = createRadio();
 const debugResult: void = debug.setDebug();
 debug.setDebug(false);
 debug.debugLog('Unhandled', 'label');
-debugLog('Unhandled', 'label', 'example');
-log('example', 'label', 1, { ready: true });
+debug.debugLog('Unhandled', 'label', 'example');
+debug.log('example', 'label', 1, { ready: true });
 // @ts-expect-error Debug mode requires a boolean.
 debug.setDebug('yes');
 // @ts-expect-error Warning text must be a string.
 debug.debugLog(123, 'label');
 // @ts-expect-error Log event names must be strings.
-log('example', 123);
+debug.log('example', 123);

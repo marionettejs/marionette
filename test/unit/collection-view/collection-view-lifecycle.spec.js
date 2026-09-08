@@ -1,8 +1,11 @@
+import { vi, describe, it, expect } from 'vitest';
+import { setFixtures } from '../../setup/fixtures.js';
+import '../../setup/backbone.js';
 import Backbone from 'backbone';
 
-import CollectionView from '../../../src/modules/collection-view';
-import Region from '../../../src/modules/region';
-import View from '../../../src/modules/view';
+import { CollectionView } from 'marionette';
+import { Region } from 'marionette';
+import { View } from 'marionette';
 
 function state(view) {
   return {
@@ -34,7 +37,7 @@ describe('CollectionView lifecycle contract', function() {
     {
       name: 'empty attached element',
       create(context) {
-        context.setFixtures('<div id="empty-attached"></div>');
+        setFixtures('<div id="empty-attached"></div>');
         return new CollectionView({ el: document.querySelector('#empty-attached') });
       },
       expected: { rendered: false, attached: true, destroyed: false },
@@ -51,7 +54,7 @@ describe('CollectionView lifecycle contract', function() {
     {
       name: 'populated attached element',
       create(context) {
-        context.setFixtures('<div id="populated-attached"><span>Existing content</span></div>');
+        setFixtures('<div id="populated-attached"><span>Existing content</span></div>');
         return new CollectionView({ el: document.querySelector('#populated-attached') });
       },
       expected: { rendered: false, attached: true, destroyed: false },
@@ -59,8 +62,8 @@ describe('CollectionView lifecycle contract', function() {
   ];
 
   for (const scenario of constructionStates) {
-    it(`exposes the ${scenario.name} state vector`, function() {
-      const collectionView = scenario.create(this);
+    it(`exposes the ${scenario.name} state vector`, function(testContext) {
+      const collectionView = scenario.create(testContext);
 
       expect(state(collectionView)).to.deep.equal(scenario.expected);
       expect(collectionView.children).to.have.lengthOf(0);
@@ -70,7 +73,7 @@ describe('CollectionView lifecycle contract', function() {
   }
 
   it('follows the normal Region-managed transition sequence', function() {
-    this.setFixtures('<div id="collection-region"></div>');
+    setFixtures('<div id="collection-region"></div>');
     const collection = new Backbone.Collection([{ id: 1 }, { id: 2 }]);
     const collectionView = new CollectionView({ collection, childView: ChildView });
     const region = new Region({ el: '#collection-region' });
@@ -99,7 +102,7 @@ describe('CollectionView lifecycle contract', function() {
       attached: true,
       destroyed: false,
     });
-    expect(firstChildren.every(child => child.isDestroyed())).to.be.true;
+    expect(firstChildren.every(child => child.isDestroyed())).toBe(true);
     expect(collectionView.children.toArray()).to.not.deep.equal(firstChildren);
     expect(childStates(collectionView)).to.deep.equal([
       { rendered: true, attached: true, destroyed: false },
@@ -131,13 +134,13 @@ describe('CollectionView lifecycle contract', function() {
       attached: false,
       destroyed: true,
     });
-    expect(secondChildren.every(child => child.isDestroyed())).to.be.true;
+    expect(secondChildren.every(child => child.isDestroyed())).toBe(true);
 
     region.destroy();
   });
 
   it('replaces children on collection reset without changing parent state', function() {
-    this.setFixtures('<div id="reset-region"></div>');
+    setFixtures('<div id="reset-region"></div>');
     const collection = new Backbone.Collection([{ id: 1 }, { id: 2 }]);
     const collectionView = new CollectionView({ collection, childView: ChildView });
     const region = new Region({ el: '#reset-region' });
@@ -151,7 +154,7 @@ describe('CollectionView lifecycle contract', function() {
       attached: true,
       destroyed: false,
     });
-    expect(previousChildren.every(child => child.isDestroyed())).to.be.true;
+    expect(previousChildren.every(child => child.isDestroyed())).toBe(true);
     expect(collectionView.children).to.have.lengthOf(1);
     expect(childStates(collectionView)).to.deep.equal([
       { rendered: true, attached: true, destroyed: false },
@@ -171,28 +174,28 @@ describe('CollectionView lifecycle contract', function() {
     collectionView.addChildView(rerenderChild);
     collectionView.render();
 
-    expect(rerenderChild.isDestroyed()).to.be.true;
-    expect(collectionView.children.hasView(rerenderChild)).to.be.false;
+    expect(rerenderChild.isDestroyed()).toBe(true);
+    expect(collectionView.children.hasView(rerenderChild)).toBe(false);
 
     collectionView.addChildView(resetChild);
     collection.reset([{ id: 2 }]);
 
-    expect(resetChild.isDestroyed()).to.be.true;
-    expect(collectionView.children.hasView(resetChild)).to.be.false;
+    expect(resetChild.isDestroyed()).toBe(true);
+    expect(collectionView.children.hasView(resetChild)).toBe(false);
 
     collectionView.addChildView(destroyChild);
     collectionView.destroy();
 
-    expect(destroyChild.isDestroyed()).to.be.true;
+    expect(destroyChild.isDestroyed()).toBe(true);
   });
 
   it('leaves child attachment state unmonitored when parent monitoring is disabled', function() {
-    this.setFixtures('<div id="unmonitored-region"></div>');
+    setFixtures('<div id="unmonitored-region"></div>');
     const collectionView = new CollectionView();
     const region = new Region({ el: '#unmonitored-region' });
     const child = new ChildView();
-    const beforeAttach = this.sinon.spy();
-    const attach = this.sinon.spy();
+    const beforeAttach = vi.fn();
+    const attach = vi.fn();
     child.on('before:attach', beforeAttach);
     child.on('attach', attach);
     region.show(collectionView);
@@ -210,14 +213,14 @@ describe('CollectionView lifecycle contract', function() {
       attached: false,
       destroyed: false,
     });
-    expect(beforeAttach).to.not.be.called;
-    expect(attach).to.not.be.called;
+    expect(beforeAttach).not.toHaveBeenCalled();
+    expect(attach).not.toHaveBeenCalled();
 
     region.destroy();
   });
 
   it('releases detached and externally destroyed children once', function() {
-    this.setFixtures('<div id="managed-region"></div>');
+    setFixtures('<div id="managed-region"></div>');
     const collectionView = new CollectionView();
     const region = new Region({ el: '#managed-region' });
     const detachedChild = new ChildView();
@@ -261,15 +264,15 @@ describe('CollectionView lifecycle contract', function() {
       attached: false,
       destroyed: false,
     });
-    expect(collectionView.children.hasView(detachedChild)).to.be.false;
+    expect(collectionView.children.hasView(detachedChild)).toBe(false);
 
     expect(collectionView.removeChildView(removedChild)).to.equal(removedChild);
-    expect(removedChild.isDestroyed()).to.be.true;
-    expect(collectionView.children.hasView(removedChild)).to.be.false;
+    expect(removedChild.isDestroyed()).toBe(true);
+    expect(collectionView.children.hasView(removedChild)).toBe(false);
 
     destroyedChild.destroy();
     destroyedChild.destroy();
-    expect(collectionView.children.hasView(destroyedChild)).to.be.false;
+    expect(collectionView.children.hasView(destroyedChild)).toBe(false);
     expect(beforeDestroyedChildRemoval).to.equal(1);
     expect(destroyedChildRemoval).to.equal(1);
     expect(state(collectionView)).to.deep.equal({
@@ -283,7 +286,7 @@ describe('CollectionView lifecycle contract', function() {
   });
 
   it('destroys managed children after detaching the parent and only once', function() {
-    this.setFixtures('<div id="destroy-region"></div>');
+    setFixtures('<div id="destroy-region"></div>');
     const collection = new Backbone.Collection([{ id: 1 }]);
     const collectionView = new CollectionView({ collection, childView: ChildView });
     const region = new Region({ el: '#destroy-region' });
@@ -295,8 +298,8 @@ describe('CollectionView lifecycle contract', function() {
     child.on('before:detach', () => lifecycle.push('child:before:detach'));
     child.on('detach', () => lifecycle.push('child:detach'));
     collectionView.on('before:destroy:children', () => {
-      expect(collectionView.isAttached()).to.be.false;
-      expect(child.isAttached()).to.be.false;
+      expect(collectionView.isAttached()).toBe(false);
+      expect(child.isAttached()).toBe(false);
       lifecycle.push('parent:before:destroy:children');
     });
     child.on('before:destroy', () => lifecycle.push('child:before:destroy'));
@@ -328,7 +331,7 @@ describe('CollectionView lifecycle contract', function() {
       destroyed: true,
     });
     expect(collectionView.children).to.have.lengthOf(0);
-    expect(region.hasView()).to.be.false;
+    expect(region.hasView()).toBe(false);
 
     region.destroy();
   });
@@ -351,16 +354,16 @@ describe('CollectionView lifecycle contract', function() {
     collectionView.render();
     const children = collectionView.children.toArray();
     const emptyRegion = collectionView.getEmptyRegion();
-    this.sinon.spy(emptyRegion, 'destroy');
-    this.sinon.stub(collectionView.Dom, 'detachContents').throws(detachError);
+    vi.spyOn(emptyRegion, 'destroy');
+    vi.spyOn(collectionView.Dom, 'detachContents').mockImplementation(() => { throw detachError; });
 
     expect(() => collectionView.destroy()).to.throw(detachError);
 
     expect(teardown).to.deep.equal([1, 2]);
-    expect(children.every(child => child.isDestroyed())).to.be.true;
+    expect(children.every(child => child.isDestroyed())).toBe(true);
     expect(collectionView.children).to.have.lengthOf(0);
-    expect(emptyRegion.destroy).to.have.been.calledOnce;
+    expect(emptyRegion.destroy).toHaveBeenCalledTimes(1);
     // The children are destroyed, but the empty Region's cleanup did not complete.
-    expect(emptyRegion.isDestroyed()).to.be.false;
+    expect(emptyRegion.isDestroyed()).toBe(false);
   });
 });

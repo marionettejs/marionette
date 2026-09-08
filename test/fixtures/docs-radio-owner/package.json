@@ -1,4 +1,5 @@
 {
+  "name": "marionette-docs-radio-owner-fixture",
   "private": true,
   "type": "module",
   "scripts": {

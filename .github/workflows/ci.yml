@@ -11,6 +11,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Node 24
@@ -43,8 +47,13 @@ jobs:
       - name: Verify diagnostic catalog
         run: npm run check:diagnostics
 
-      - name: Test performance contract
-        run: npm run test:performance
+      - name: Check public test boundaries and workflows
+        run: |
+          npm run check:public-tests
+          npm run check:workflows
+
+      - name: Test tooling with separate coverage
+        run: npm run coverage:tooling
 
       - name: Test source ESM
         run: npm run test:source
@@ -58,6 +67,17 @@ jobs:
       - name: Test supported browsers
         run: npm run test:browser
 
+      - name: Cache pinned agent reference environment
+        run: npm run agent:cache
+
+      - name: Test agent reference application
+        run: npm run test:agent-app
+
+      - name: Validate reference corpus controls
+        run: |
+          npm run agent:reference -- --output test/tmp/agent-reference
+          npm run agent:fixtures -- --manifest test/tmp/agent-reference/artifacts/artifact-input.json --output test/tmp/agent-fixtures
+
       - name: Coverage
         run: npm run coverage
 
@@ -69,7 +89,18 @@ jobs:
         if: always()
         with:
           name: coverage-node-24
-          path: coverage/
+          path: |
+            coverage/
+            test/tmp/unit-results.xml
+            test/tmp/browser/results.json
+            test/tmp/browser/results.xml
+            test/tmp/browser/report/
+            test/tmp/browser/results/
+            test/tmp/fixture-reports/
+            test/tmp/agent-reference-app/
+            test/tmp/agent-reference/reference-report.json
+            test/tmp/agent-reference/artifacts/artifact-input.json
+            test/tmp/agent-fixtures/fixture-controls.json
           if-no-files-found: warn
 
   package-smoke:

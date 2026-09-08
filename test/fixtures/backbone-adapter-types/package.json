@@ -1,4 +1,5 @@
 {
+  "name": "marionette-backbone-adapter-types-fixture",
   "private": true,
   "type": "module",
   "scripts": {

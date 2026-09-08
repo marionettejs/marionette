@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "status": "uncollected",
+  "phase0Revision": null,
+  "candidateRevision": null,
+  "model": null,
+  "permissions": null,
+  "runPairing": null,
+  "budgets": null,
+  "pilot": null,
+  "statisticalProcedure": null,
+  "tasks": [
+    {
+      "id": "nested-workspace",
+      "proposedStratum": "paired-comparable",
+      "classificationVerifiedAgainstPhase0": false,
+      "predeclaredRuns": null
+    },
+    {
+      "id": "nested-notice",
+      "proposedStratum": "paired-comparable",
+      "classificationVerifiedAgainstPhase0": false,
+      "predeclaredRuns": null
+    },
+    {
+      "id": "filter-projects",
+      "proposedStratum": "paired-comparable",
+      "classificationVerifiedAgainstPhase0": false,
+      "predeclaredRuns": null
+    },
+    {
+      "id": "rank-projects",
+      "proposedStratum": "paired-comparable",
+      "classificationVerifiedAgainstPhase0": false,
+      "predeclaredRuns": null
+    },
+    {
+      "id": "save-shortcut",
+      "proposedStratum": "paired-comparable",
+      "classificationVerifiedAgainstPhase0": false,
+      "predeclaredRuns": null
+    },
+    {
+      "id": "connection-status",
+      "proposedStratum": "paired-comparable",
+      "classificationVerifiedAgainstPhase0": false,
+      "predeclaredRuns": null
+    },
+    {
+      "id": "overlay-switch",
+      "proposedStratum": "paired-comparable",
+      "classificationVerifiedAgainstPhase0": false,
+      "predeclaredRuns": null
+    },
+    {
+      "id": "overlay-dismiss",
+      "proposedStratum": "paired-comparable",
+      "classificationVerifiedAgainstPhase0": false,
+      "predeclaredRuns": null
+    },
+    {
+      "id": "async-panel",
+      "proposedStratum": "paired-comparable",
+      "classificationVerifiedAgainstPhase0": false,
+      "predeclaredRuns": null
+    },
+    {
+      "id": "async-session",
+      "proposedStratum": "paired-comparable",
+      "classificationVerifiedAgainstPhase0": false,
+      "predeclaredRuns": null
+    },
+    {
+      "id": "scoped-message-presenter",
+      "proposedStratum": "paired-comparable",
+      "classificationVerifiedAgainstPhase0": false,
+      "predeclaredRuns": null
+    },
+    {
+      "id": "owned-workspace-state",
+      "proposedStratum": "candidate-only",
+      "classificationVerifiedAgainstPhase0": false,
+      "predeclaredRuns": null
+    },
+    {
+      "id": "borrowed-workspace-state",
+      "proposedStratum": "candidate-only",
+      "classificationVerifiedAgainstPhase0": false,
+      "predeclaredRuns": null
+    }
+  ]
+}

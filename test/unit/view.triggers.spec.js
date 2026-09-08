@@ -1,5 +1,7 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import '../setup/backbone.js';
 import Backbone from 'backbone';
-import View from '../../src/modules/view';
+import { View } from 'marionette';
 
 describe('view triggers', function() {
   'use strict';
@@ -14,8 +16,8 @@ describe('view triggers', function() {
     triggersHash = {'foo': 'fooHandler'};
     eventsHash = {'bar': 'barHandler'};
 
-    fooHandlerStub = this.sinon.stub();
-    barHandlerStub = this.sinon.stub();
+    fooHandlerStub = vi.fn();
+    barHandlerStub = vi.fn();
 
     fooEvent = null;
   });
@@ -26,9 +28,9 @@ describe('view triggers', function() {
       cancelable: true
     });
     const stopPropagation = event.stopPropagation.bind(event);
-    event._isPropagationStopped = false;
+    event.propagationStopped = false;
     event.stopPropagation = function() {
-      event._isPropagationStopped = true;
+      event.propagationStopped = true;
       stopPropagation();
     };
     view.el.dispatchEvent(event);
@@ -56,15 +58,15 @@ describe('view triggers', function() {
     });
 
     it('should trigger the first view event', function() {
-      expect(fooHandlerStub).to.have.been.calledOnce;
+      expect(fooHandlerStub).toHaveBeenCalledTimes(1);
     });
 
     it('should include the view in the event', function() {
-      expect(fooHandlerStub.lastCall.args[0]).to.contain(view);
+      expect(fooHandlerStub.mock.calls.at(-1)[0]).to.contain(view);
     });
 
     it('should include the event object in the event', function() {
-      expect(fooHandlerStub.lastCall.args[1]).to.be.an.instanceOf(Event);
+      expect(fooHandlerStub.mock.calls.at(-1)[1]).to.be.an.instanceOf(Event);
     });
   });
 
@@ -87,11 +89,11 @@ describe('view triggers', function() {
     });
 
     it('should fire the trigger', function() {
-      expect(fooHandlerStub).to.have.been.calledOnce;
+      expect(fooHandlerStub).toHaveBeenCalledTimes(1);
     });
 
     it('should fire the standard event', function() {
-      expect(barHandlerStub).to.have.been.calledOnce;
+      expect(barHandlerStub).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -101,7 +103,7 @@ describe('view triggers', function() {
     let view;
 
     beforeEach(function() {
-      triggersStub = this.sinon.stub().returns(triggersHash);
+      triggersStub = vi.fn().mockReturnValue(triggersHash);
       TestView = View.extend({triggers: triggersStub});
       view = new TestView();
       view.on('fooHandler', fooHandlerStub);
@@ -110,11 +112,12 @@ describe('view triggers', function() {
     });
 
     it('should call the function', function() {
-      expect(triggersStub).to.have.been.calledOnce.and.calledOn(view);
+      expect(triggersStub).toHaveBeenCalledTimes(1);
+      expect(triggersStub.mock.contexts).toContain(view);
     });
 
     it('should trigger the first view event', function() {
-      expect(fooHandlerStub).to.have.been.calledOnce;
+      expect(fooHandlerStub).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -131,11 +134,11 @@ describe('view triggers', function() {
     });
 
     it('should stop propagation by default', function() {
-      expect(fooEvent._isPropagationStopped).to.be.true;
+      expect(fooEvent.propagationStopped).toBe(true);
     });
 
     it('should prevent default by default', function() {
-      expect(fooEvent.defaultPrevented).to.be.true;
+      expect(fooEvent.defaultPrevented).toBe(true);
     });
   });
 
@@ -160,8 +163,8 @@ describe('view triggers', function() {
     });
 
     it('should preserve explicitly disabled DOM behavior', function() {
-      expect(fooEvent.defaultPrevented).to.be.false;
-      expect(fooEvent._isPropagationStopped).to.be.false;
+      expect(fooEvent.defaultPrevented).toBe(false);
+      expect(fooEvent.propagationStopped).toBe(false);
     });
   });
 

@@ -1,4 +1,4 @@
-import uniqueId from '../tmp/typed-core/packages/utils/src/unique-id.js';
+import { uniqueId } from '@marionette/utils';
 
 const bare: string = uniqueId();
 const scoped: string = uniqueId('example');

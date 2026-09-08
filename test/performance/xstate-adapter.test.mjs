@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import createXStateActorApi from '../../packages/adapters/src/data/xstate.ts';
+import { createRequire } from 'node:module';
+
+const requireAdapter = createRequire(new URL('../../packages/adapters/package.json', import.meta.url));
+const createXStateActorApi = requireAdapter('@marionette/adapters/xstate');
 
 function createActorSource(models) {
   let snapshot = { context: { models } };
