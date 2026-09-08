@@ -421,3 +421,135 @@ it('Application releases child-App registrations without destroying borrowed chi
   expect(() => newOwner.addChildApp('second', second)).not.toThrow();
   await newOwner.destroy();
 });
+
+for (const outcome of ['resolve', 'reject']) {
+  it(`Application cancels initialization-started readiness before it can ${outcome}`, async() => {
+    let settle;
+    const readiness = new Promise((resolve, reject) => { settle = outcome === 'resolve' ? resolve : reject; });
+    const failure = new Error('initialization failed after start');
+    const readinessFailure = new Error('late readiness failure');
+    const channel = Radio.channel('constructor-rollback');
+    const callback = vi.fn();
+    const disposeOwned = vi.fn();
+    const state = {};
+    let failed;
+    let pending;
+    let signal;
+    let reentrantStart;
+    const start = vi.fn(function() { this.listenTo(channel, 'ping', callback); });
+    const Failed = Application.extend({
+      State: { disposeOwned },
+      createState() { return state; },
+      onStart: start,
+      onBeforeStart(application, options, context) {
+        signal = context.signal;
+        signal.addEventListener('abort', () => { reentrantStart = this.start(); });
+        return readiness;
+      },
+      initialize() {
+        failed = this;
+        this.getState();
+        pending = this.start();
+        throw failure;
+      }
+    });
+    expect(() => new Failed()).toThrow(failure);
+    const immediateResult = await Promise.race([pending, Promise.resolve('pending')]);
+    // Settle the user-owned promise even on the unfixed implementation, so the
+    // regression observes the entire late continuation without leaking work.
+    settle(readinessFailure);
+    await readiness.catch(() => {});
+    await new Promise(resolve => setTimeout(resolve, 0));
+    expect(immediateResult).toBe(false);
+    expect(await pending).toBe(false);
+    expect(signal.aborted).toBe(true);
+    expect(await reentrantStart).toBe(false);
+    expect(failed.isDestroyed()).toBe(true);
+    expect(failed.isRunning()).toBe(false);
+    expect(await failed.start()).toBe(false);
+    expect(await failed.restart()).toBe(false);
+    expect(start).not.toHaveBeenCalled();
+    channel.trigger('ping');
+    expect(callback).not.toHaveBeenCalled();
+    expect(disposeOwned).toHaveBeenCalledExactlyOnceWith(state);
+  });
+}
+
+for (const [name, Base] of Object.entries({ MnObject, View, CollectionView, Behavior, Application })) {
+  it(`${name} rolls back once after initialize destroys the instance and then throws`, async() => {
+    const channel = Radio.channel('constructor-rollback');
+    const callback = vi.fn();
+    const disposeOwned = vi.fn();
+    const destroy = vi.fn();
+    const beforeDestroy = vi.fn();
+    const state = {};
+    const failure = new Error('initialization failed after destroy');
+    const host = name === 'Behavior' ? new View() : undefined;
+    let failed;
+    let destroyed;
+    const Failed = Base.extend({
+      State: { disposeOwned },
+      createState() { return state; },
+      onBeforeDestroy: beforeDestroy,
+      onDestroy: destroy,
+      initialize() {
+        failed = this;
+        this.getState();
+        this.listenTo(channel, 'ping', callback);
+        destroyed = this.destroy();
+        // A second framework-owned registration must still be released even
+        // though the public destroy call has already made this host terminal.
+        this.listenTo(channel, 'ping', callback);
+        throw failure;
+      }
+    });
+    expect(() => new Failed({}, host)).toThrow(failure);
+    await destroyed;
+    await failed.destroy();
+    channel.trigger('ping');
+    expect(callback).not.toHaveBeenCalled();
+    expect(disposeOwned).toHaveBeenCalledExactlyOnceWith(state);
+    expect(beforeDestroy).toHaveBeenCalledTimes(name === 'Behavior' ? 0 : 1);
+    expect(destroy).toHaveBeenCalledTimes(['Behavior', 'Application'].includes(name) ? 0 : 1);
+    host?.destroy();
+  });
+}
+
+for (const outcome of ['resolve', 'reject']) {
+  it(`Application cancels destroy and its shared stop when initialization fails before stop readiness ${outcome}s`, async() => {
+    let settle;
+    const readiness = new Promise((resolve, reject) => { settle = outcome === 'resolve' ? resolve : reject; });
+    const failure = new Error('initialization failed while destroying');
+    const beforeDestroy = vi.fn();
+    const destroy = vi.fn();
+    let failed;
+    let started;
+    let destroyed;
+    let stopped;
+    let signal;
+    const Failed = Application.extend({
+      onBeforeStop(application, options, context) { signal = context.signal; return readiness; },
+      onBeforeDestroy: beforeDestroy,
+      onDestroy: destroy,
+      initialize() {
+        failed = this;
+        started = this.start();
+        destroyed = this.destroy();
+        stopped = this.stop();
+        throw failure;
+      }
+    });
+    expect(() => new Failed()).toThrow(failure);
+    expect(signal.aborted).toBe(true);
+    expect(await started).toBe(false);
+    expect(await destroyed).toBe(false);
+    expect(await stopped).toBe(false);
+    settle(new Error('late stop readiness failure'));
+    await readiness.catch(() => {});
+    await new Promise(resolve => setTimeout(resolve, 0));
+    expect(failed.isDestroyed()).toBe(true);
+    expect(failed.isRunning()).toBe(false);
+    expect(beforeDestroy).not.toHaveBeenCalled();
+    expect(destroy).not.toHaveBeenCalled();
+  });
+}

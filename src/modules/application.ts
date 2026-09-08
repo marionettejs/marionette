@@ -175,11 +175,14 @@ const Application = function(this: ApplicationInternals, options?: ApplicationOp
   } catch (error) {
     this._isDestroyed = true;
     this._lifecycleState = DESTROYED;
+    const operation = supersedeOperation(this);
+    operation?.stopDeferred?.resolve(false);
     const ownedRegion = this._ownedRegion;
     delete this._region;
     delete this._ownedRegion;
     try {
       cleanupSubscriptions([
+        () => operation?.readiness?.controller.abort(),
         () => this._childApps?.forEach((application, name) => removeChildAppReference(this, name, application)),
         () => { if (ownedRegion) { rollbackRegion(ownedRegion as RegionInternals); } },
         () => this._destroyRadio(),
@@ -621,6 +624,7 @@ export default /* @__PURE__ */ ((methods: object) => {
       } else if (this._childApps && hasActiveChildApps(this)) {
         await stopChildApps(this, nextOperation, options);
       }
+      if (!isCurrentOperation(this, nextOperation)) { return; }
 
       emptyView(this, options);
 
@@ -629,6 +633,7 @@ export default /* @__PURE__ */ ((methods: object) => {
       });
 
       await readiness.promise;
+      if (!isCurrentOperation(this, nextOperation)) { return; }
       completeReadiness(nextOperation);
       if (this._childApps) {
         await destroyChildApps(this, options);
