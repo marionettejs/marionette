@@ -1,0 +1,39 @@
+test/unit/data-package/model.spec.js
+  s_f2cd5e3b2db5ea::t_fa02c283e3d07d 147
+docs/data.api.md
+  s_f2cd5e3b2db5ea::t_fa02c283e3d07d 243-248,264-270
+  s_f2cd5e3b2db5ea::t_7897e59df47937 271
+evidence/data-package-audit.md
+  s_f2cd5e3b2db5ea::t_11b656d17c6da2 1-84
+scripts/performance/data-package-removal.mjs
+  s_f2cd5e3b2db5ea::t_730b1d548ed3b7 1-58
+packages/data/readme.md
+  s_f2cd5e3b2db5ea::t_fa02c283e3d07d 52-59,82-107,151-161
+test/unit/data-package/collection.spec.js
+  s_f2cd5e3b2db5ea::t_fa02c283e3d07d 127
+  s_f2cd5e3b2db5ea::t_bf114b17631802 115-126,128-148
+packages/data/src/collection.ts
+  s_f2cd5e3b2db5ea::t_32cef5a3ec25f0 139-151,213-215,270-273
+  s_f2cd5e3b2db5ea::t_159f19d659c159 274-275,277,280
+test/performance/data-package.test.mjs
+  s_f2cd5e3b2db5ea::t_e111b4c5930169 9,12,17
+  s_f2cd5e3b2db5ea::t_bf114b17631802 1-8,10-11,13-16,18-19
+evidence/data-package-removal-2026-09-08.json
+  s_f2cd5e3b2db5ea::t_ff77345a55bad3 1-224
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "307cf2c4755a6015cfacc0309e449810b7768a87",
+  "prompts": {},
+  "sessions": {
+    "s_f2cd5e3b2db5ea": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080ec-ef1c-78c2-91c3-44428427821d",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
