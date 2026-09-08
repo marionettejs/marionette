@@ -1,0 +1,99 @@
+test/unit/common/bind-request.spec.js
+  s_f2cd5e3b2db5ea::t_ce5638b4b926ea 3
+test/unit/common/build-region.spec.js
+  s_f2cd5e3b2db5ea::t_1cbcb03c1a7bbb 5-6,287-288
+test/unit/common/monitor-view-events.spec.js
+  s_e9ec88924dcd73::t_b325272d7ee89e 1-17,19-28,31-40,43-48
+test/unit/common/normalize-methods.spec.js
+  s_f2cd5e3b2db5ea::t_097c3c1a1adde8 4
+test/unit/common/view.spec.js
+  s_f2cd5e3b2db5ea::t_abb2f1ff3e8e59 1-2,4-5,7,12-14,17,20-22,27-31,34
+test/unit/events-iteration.spec.js
+  s_e9ec88924dcd73::t_b33b9d6429a406 2,102,111,115,119,126,128-129,132,134-137
+test/unit/events-parity.spec.js
+  s_e9ec88924dcd73::t_7ec5b76712f98a 5,280
+test/unit/mixins/behaviors-composition.spec.js
+  s_f2cd5e3b2db5ea::t_79bb695137ac0b 1-12,15-25,28-38,40-43,46-54
+test/unit/mixins/behaviors.spec.js
+  s_e9ec88924dcd73::t_45ca7b95416c53 1-19,22-46,49-59,62-69
+test/unit/mixins/common.spec.js
+  s_f2cd5e3b2db5ea::t_3b90de15536f28 1-14,17-31,33-36,38-42
+test/unit/mixins/destroy.spec.js
+  s_e9ec88924dcd73::t_f10569ea50f54b 1-3
+test/unit/mixins/events.spec.js
+  s_e9ec88924dcd73::t_195df1d4b4d108 3,136,325,336,350-351,353
+test/unit/mixins/radio.spec.js
+  s_f2cd5e3b2db5ea::t_2256dedb23245c 1-13,16-44,47-48,50-58,61-65,67
+test/unit/mixins/template-render.spec.js
+  s_f2cd5e3b2db5ea::t_96178de517577a 1-11,14-25,28-43,46-53,56-63
+test/unit/mixins/ui.spec.js
+  s_f2cd5e3b2db5ea::t_b860e686c15a83 3,51,109,160,192-194,196-228
+test/unit/mixins/view-composition.spec.js
+  s_e9ec88924dcd73::t_62ced6304fc601 1-12,14-22,25-29,32-36,39-59,61-74,76-77
+test/unit/mixins/view-events.spec.js
+  s_e9ec88924dcd73::t_ec68b14f9cced7 1-2,4-7,10-20,23-33,35-42,44-50,52-59,61-66,68-70,72-83
+test/unit/mixins/view.spec.js
+  s_e9ec88924dcd73::t_853f4fdc828c4a 3,6-8,31-33,170-171,188,194,199,328,495-496,524-526,538-545
+test/unit/radio-composition.spec.js
+  s_e9ec88924dcd73::t_5337a95449fe75 2-4,37,71
+test/unit/radio-parity.spec.js
+  s_e9ec88924dcd73::t_83f430bee2cd4b 3
+test/unit/radio-public.spec.js
+  s_e9ec88924dcd73::t_9e0ee00f21400c 2
+test/unit/radio.spec.js
+  s_e9ec88924dcd73::t_4863dc4b568b3d 2,236-238
+test/unit/requests.spec.js
+  s_e9ec88924dcd73::t_07391c836ca0c8 2-4,55-60,152,180,431
+test/unit/runtime/backbone-api.spec.js
+  s_f2cd5e3b2db5ea::t_00170053f06a35 4-6
+test/unit/runtime/data-api.spec.js
+  s_f2cd5e3b2db5ea::t_3025aa90dda767 2-3
+test/unit/runtime/dom-api.spec.js
+  s_f2cd5e3b2db5ea::t_a4bbf6e6c9e6b2 5-6
+test/unit/runtime/event-delegator-jquery-compat.spec.js
+  s_f2cd5e3b2db5ea::t_53d26b54ce8d05 4
+test/unit/runtime/event-delegator.spec.js
+  s_f2cd5e3b2db5ea::t_a45876c59f5c58 5-10,223-224,253-255
+test/unit/runtime/renderer.spec.js
+  s_e9ec88924dcd73::t_96358efcb22833 1-2,4-18,21-28
+test/unit/runtime/state-api.spec.js
+  s_f2cd5e3b2db5ea::t_e3c0abaf3f48f4 2-3
+test/unit/utils/build-event-args.spec.js
+  s_f2cd5e3b2db5ea::t_ec3b9fcc15bbe2 2
+test/unit/utils/call-handler.spec.js
+  s_f2cd5e3b2db5ea::t_4b6bc07d621853 2
+test/unit/utils/extend.spec.js
+  s_e9ec88924dcd73::t_4aaa378ad1e560 10
+test/unit/utils/is-string.spec.js
+  s_f2cd5e3b2db5ea::t_75918ae0cc076e 5
+test/unit/utils/once-wrap.spec.js
+  s_f2cd5e3b2db5ea::t_3071290ae1ef87 2
+test/unit/utils/subscribe-bindings.spec.js
+  s_e9ec88924dcd73::t_98a2db3e7880d2 1-2,4-12,14-28
+test/unit/utils/unique-id.spec.js
+  s_f2cd5e3b2db5ea::t_7d9736092f16e3 5-11,69-81
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "51f07561247e8e9c2130398fd3d3147cb4009321",
+  "prompts": {},
+  "sessions": {
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_f2cd5e3b2db5ea": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080ec-ef1c-78c2-91c3-44428427821d",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
