@@ -952,6 +952,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
             continue;
           }
 
+          // Matching children continue above, so the lookup is initialized here.
           // Match both ends before moving an element through the remaining list.
           while (last && !childEls!.has(last)) { last = last.previousSibling; }
           const lastEl = views[end].el;
