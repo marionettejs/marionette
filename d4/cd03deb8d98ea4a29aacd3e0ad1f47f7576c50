@@ -1,0 +1,21 @@
+.github/workflows/release.yml
+  s_e9ec88924dcd73::t_3f114832866c57 37
+.github/workflows/ci.yml
+  s_e9ec88924dcd73::t_125af2ddcb17b6 14-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "d4cd03deb8d98ea4a29aacd3e0ad1f47f7576c50",
+  "prompts": {},
+  "sessions": {
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
