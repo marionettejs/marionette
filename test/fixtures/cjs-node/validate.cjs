@@ -25,4 +25,9 @@ for (const utilityName of [
 for (const property of ['Channel', 'log', 'debugLog']) {
   assert.strictEqual(typeof Mn.Radio[property], 'function');
 }
-assert.strictEqual(Object.hasOwn(Mn.Radio, '_channels'), false);
+const channel = Mn.Radio.channel('packed-consumer');
+channel.reply('value', () => 42);
+assert.strictEqual(channel.request('value'), 42);
+assert.strictEqual(isolated.Radio.channel('packed-consumer').request('value'), undefined);
+Mn.Radio.reset('packed-consumer');
+assert.strictEqual(Mn.Radio.channel('packed-consumer').request('value'), undefined);

@@ -1,5 +1,5 @@
-import MnObject from '../tmp/typed-core/src/modules/object.js';
-import extend from '../tmp/typed-core/src/utils/extend.js';
+import { MnObject } from 'marionette';
+import { extend } from 'marionette';
 
 const Parent = MnObject.extend({
   initialize(options: { label: string }) {},

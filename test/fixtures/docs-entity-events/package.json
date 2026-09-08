@@ -1,4 +1,5 @@
 {
+  "name": "marionette-docs-entity-events-fixture",
   "private": true,
   "type": "module",
   "scripts": {

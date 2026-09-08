@@ -15,10 +15,9 @@ packages in dependency order. Data declarations resolve the built utils package;
 adapter declarations resolve core through `dist/types/esm/index.d.ts`. Run `npm run build:utils` before `build:data`; run the root `npm run build:types`
 after its utils/radio dependencies and before `build:adapters`. Every package has generated ESM
 and CommonJS declaration scopes. Adapter CommonJS declarations use export
-assignments because their runtime exports the adapter directly. `npm run test:types` emits private
-declarations into the ignored `test/tmp/typed-core/` directory and checks ESM and
-CommonJS consumers against them. Both checks run during `npm run build` and
-`npm test`. Coverage and diagnostic discovery include TypeScript source files.
+assignments because their runtime exports the adapter directly. `npm run test:types` checks ESM and CommonJS consumers against actual public
+package exports in a separate temporary consumer. It runs during `npm run build`.
+`npm test` runs focused unit contracts without a hidden type/build pretest. Coverage and diagnostic discovery include TypeScript source files.
 
 The conversion covers all six public classes, the isolated runtime factory,
 `MarionetteError`, `extend`, `Events`, `Requests`, `Radio`, and their shared mixins

@@ -1,0 +1,3 @@
+# Scope messages to an optional MnObject presenter
+
+Implement `createPresenter(source, deliver)` in solution.mjs. Return an MnObject that listens to the supplied public event source's `message` events and calls deliver with each message. Use this optional evented role without creating an Application or a View. Two independent presenters can observe the same source. Destroying one stops only its callbacks, repeated destroy is harmless, and destroying both leaves no callbacks. The source is borrowed and must remain usable after both presenters are destroyed. Use public package exports and lifecycle APIs only.

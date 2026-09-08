@@ -3,23 +3,17 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import process from 'node:process';
+import { readArguments } from './arguments.mjs';
+import { validatePackageInventory } from './packages.mjs';
+import { verifyCandidateValidation } from './validation.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
-const args = process.argv.slice(2);
-
-function readArgument(name, fallback) {
-  const index = args.indexOf(name);
-  if (index === -1) {
-    return fallback;
-  }
-
-  const value = args[index + 1];
-  if (!value || value.startsWith('--')) {
-    throw new Error(`Missing value for ${name}`);
-  }
-
-  return value;
-}
+const args = readArguments({
+  'artifact-dir': { type: 'string', default: 'release' },
+  'source-commit': { type: 'string' },
+  repository: { type: 'string' },
+  'require-validation': { type: 'boolean', default: false },
+});
 
 function sha512(buffer) {
   return createHash('sha512').update(buffer).digest('hex');
@@ -64,7 +58,7 @@ async function getNpmVersion() {
   return npmPackage.version;
 }
 
-const artifactDir = resolve(root, readArgument('--artifact-dir', 'release'));
+const artifactDir = resolve(root, args['artifact-dir']);
 const evidencePath = resolve(artifactDir, 'release-evidence.json');
 const evidenceBytes = await readFile(evidencePath);
 const evidence = JSON.parse(evidenceBytes);
@@ -83,27 +77,7 @@ function artifactPath(fileName) {
 const checksum = (await readFile(artifactPath('release-evidence.sha512'), 'utf8')).trim();
 assertEqual(checksum, `${sha512(evidenceBytes)}  release-evidence.json`, 'evidence checksum');
 
-if (!Array.isArray(evidence.packages) || evidence.packages.length !== 5) {
-  throw new Error('Release evidence must contain the utils, radio, core, data, and adapters packages.');
-}
-const packageIds = evidence.packages.map(packageEvidence => packageEvidence.id);
-if (JSON.stringify(packageIds) !== JSON.stringify(['utils', 'radio', 'core', 'data', 'adapters'])) {
-  throw new Error(`Unexpected release package order: ${packageIds.join(', ')}.`);
-}
-const packageNames = new Map([
-  ['utils', '@marionette/utils'],
-  ['radio', '@marionette/radio'],
-  ['core', 'marionette'],
-  ['data', '@marionette/data'],
-  ['adapters', '@marionette/adapters'],
-]);
-for (const packageEvidence of evidence.packages) {
-  assertEqual(
-    packageEvidence.name,
-    packageNames.get(packageEvidence.id),
-    `${packageEvidence.id} package name`,
-  );
-}
+validatePackageInventory(evidence.packages);
 
 for (const packageEvidence of evidence.packages) {
   const label = packageEvidence.name;
@@ -169,6 +143,7 @@ assertEqual(
   'promotion policy revision',
 );
 assertEqual(sha512(releaseProfileBytes), evidence.releaseProfile.sha512, 'release profile SHA-512');
+assertEqual(JSON.stringify(evidence.releaseProfile.profile), JSON.stringify(JSON.parse(releaseProfileBytes)), 'embedded release profile');
 assertEqual(sha512(promotionPolicyBytes), evidence.promotionPolicy.sha512, 'promotion policy SHA-512');
 assertEqual(process.versions.node, evidence.toolchain.node, 'Node version');
 assertEqual(await getNpmVersion(), evidence.toolchain.npm, 'npm version');
@@ -187,8 +162,8 @@ for (const packageEvidence of evidence.packages) {
   assertEqual(packageEvidence.version, evidence.release.version, `${packageEvidence.name} release version`);
 }
 
-const expectedCommit = readArgument('--source-commit');
-const expectedRepository = readArgument('--repository');
+const expectedCommit = args['source-commit'];
+const expectedRepository = args.repository;
 if (expectedCommit) {
   assertEqual(evidence.source.commit, expectedCommit, 'source commit');
 }
@@ -198,4 +173,9 @@ if (expectedRepository) {
 
 for (const packageEvidence of evidence.packages) {
   console.log(`Verified ${packageEvidence.tarball.file} at ${packageEvidence.tarball.sha512}.`);
+}
+
+if (args['require-validation']) {
+  await verifyCandidateValidation(artifactDir, evidenceBytes);
+  console.log('Complete candidate validation verified.');
 }

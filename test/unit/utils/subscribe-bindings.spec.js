@@ -1,31 +1,30 @@
-import Backbone from 'backbone';
-import BackboneApi from '../../../packages/adapters/src/data/backbone';
-import subscribeBindings from '../../../src/utils/subscribe-bindings';
+import { describe, expect, it, vi } from 'vitest';
+import { DataApi, Events, MnObject } from 'marionette';
 
-describe('subscribe bindings', function() {
-  it('binds named and direct handlers and releases every subscription', function() {
-    const model = new Backbone.Model();
-    const context = { onChange: this.sinon.spy() };
-    const directHandler = this.sinon.spy();
-    const cleanup = subscribeBindings(context, BackboneApi, model, {
-      'change reset': 'onChange',
-      custom: directHandler
+describe('owner state subscriptions', () => {
+  it('binds named and direct handlers and releases every subscription', () => {
+    const source = Object.assign({}, Events);
+    const named = vi.fn();
+    const direct = vi.fn();
+    const Owner = MnObject.extend({
+      createState() { return source; },
+      onChange: named,
+      stateEvents: { 'change reset': 'onChange', custom: direct }
     });
-
-    expect(context.onChange).to.not.have.been.called;
-    model.trigger('change', 1);
-    model.trigger('reset', 2);
-    model.trigger('custom', 3);
-    expect(context.onChange).to.have.been.calledTwice.and.calledOn(context);
-    expect(context.onChange.firstCall).to.have.been.calledWithExactly(1);
-    expect(context.onChange.secondCall).to.have.been.calledWithExactly(2);
-    expect(directHandler).to.have.been.calledOnce.and.calledOn(context).and.calledWithExactly(3);
-
-    cleanup();
-    model.trigger('change');
-    model.trigger('reset');
-    model.trigger('custom');
-    expect(context.onChange).to.have.been.calledTwice;
-    expect(directHandler).to.have.been.calledOnce;
+    Owner.setStateApi({ subscribe: DataApi.subscribe });
+    const owner = new Owner();
+    source.trigger('change', 1);
+    source.trigger('reset', 2);
+    source.trigger('custom', 3);
+    expect(named.mock.calls).toEqual([[1], [2]]);
+    expect(named.mock.contexts.every(context => context === owner)).toBe(true);
+    expect(direct).toHaveBeenCalledExactlyOnceWith(3);
+    expect(direct.mock.contexts[0] === owner).toBe(true);
+    owner.destroy();
+    source.trigger('change');
+    source.trigger('reset');
+    source.trigger('custom');
+    expect(named).toHaveBeenCalledTimes(2);
+    expect(direct).toHaveBeenCalledTimes(1);
   });
 });

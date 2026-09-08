@@ -1,9 +1,12 @@
+import { vi, describe, it, expect } from 'vitest';
+import { setFixtures } from '../setup/fixtures.js';
+import '../setup/backbone.js';
 import Backbone from 'backbone';
 
-import Behavior from '../../src/modules/behavior';
-import CollectionView from '../../src/modules/collection-view';
-import Region from '../../src/modules/region';
-import View from '../../src/modules/view';
+import { Behavior } from 'marionette';
+import { CollectionView } from 'marionette';
+import { Region } from 'marionette';
+import { View } from 'marionette';
 
 describe('Behavior lifecycle contract', function() {
   it('initializes around its host View in public lifecycle order', function() {
@@ -43,7 +46,7 @@ describe('Behavior lifecycle contract', function() {
   it('keeps host constructor arguments separate from explicit Behavior state', function() {
     const options = { source: 'options' };
     const extra = { source: 'extra' };
-    const initialize = this.sinon.spy(function(receivedOptions, receivedExtra) {
+    const initialize = vi.fn(function(receivedOptions, receivedExtra) {
       expect(this.behaviorState).to.equal('set explicitly');
       expect(receivedOptions).to.equal(options);
       expect(receivedExtra).to.equal(extra);
@@ -61,7 +64,8 @@ describe('Behavior lifecycle contract', function() {
 
     const view = new TestView(options, extra);
 
-    expect(initialize).to.have.been.calledOnce.and.calledWithExactly(options, extra);
+    expect(initialize).toHaveBeenCalledTimes(1);
+    expect(initialize).toHaveBeenCalledWith(options, extra);
 
     view.destroy();
   });
@@ -108,7 +112,7 @@ describe('Behavior lifecycle contract', function() {
     it('keeps destruction terminal after initialize returns', function() {
       const lifecycle = [];
       const model = new Backbone.Model();
-      const onModelEvent = this.sinon.stub();
+      const onModelEvent = vi.fn();
 
       const TestBehavior = Behavior.extend({
         onInitialize() {
@@ -133,21 +137,21 @@ describe('Behavior lifecycle contract', function() {
       const view = new TestView({ model });
       model.trigger('ping');
 
-      expect(view.isDestroyed()).to.be.true;
+      expect(view.isDestroyed()).toBe(true);
       expect(lifecycle).to.deep.equal([
         'view:initialize',
         'behavior:onDestroy',
       ]);
-      expect(onModelEvent).to.not.have.been.called;
+      expect(onModelEvent).not.toHaveBeenCalled();
       if (view instanceof CollectionView) {
-        expect(view.getEmptyRegion().isDestroyed()).to.be.true;
+        expect(view.getEmptyRegion().isDestroyed()).toBe(true);
       }
     });
   });
 
   it('resolves callable events after Behavior initialize and before host initialize', function() {
     const lifecycle = [];
-    const onAction = this.sinon.spy();
+    const onAction = vi.fn();
     const el = document.createElement('div');
     el.innerHTML = '<button class="initialized-action">Action</button>';
 
@@ -179,14 +183,14 @@ describe('Behavior lifecycle contract', function() {
       'behavior:events:.initialized-action',
       'view:initialize',
     ]);
-    expect(onAction).to.have.been.calledOnce;
+    expect(onAction).toHaveBeenCalledTimes(1);
 
     view.destroy();
   });
 
   it('resolves callable triggers after Behavior initialize and before host initialize', function() {
     const lifecycle = [];
-    const onAction = this.sinon.spy();
+    const onAction = vi.fn();
     const el = document.createElement('div');
     el.innerHTML = '<button class="initialized-action">Action</button>';
 
@@ -218,13 +222,13 @@ describe('Behavior lifecycle contract', function() {
       'behavior:triggers:.initialized-action',
       'view:initialize',
     ]);
-    expect(onAction).to.have.been.calledOnce;
+    expect(onAction).toHaveBeenCalledTimes(1);
 
     view.destroy();
   });
 
   it('keeps one instance through render and attachment transitions', function() {
-    this.setFixtures('<div id="behavior-region"></div>');
+    setFixtures('<div id="behavior-region"></div>');
     const lifecycle = [];
     let behavior;
 
@@ -315,11 +319,11 @@ describe('Behavior lifecycle contract', function() {
 
   it('stops host, entity, and DOM participation after direct cleanup', function() {
     const model = new Backbone.Model();
-    const hostEvent = this.sinon.spy();
-    const modelEvent = this.sinon.spy();
-    const domEvent = this.sinon.spy();
-    const beforeDestroy = this.sinon.spy();
-    const destroy = this.sinon.spy();
+    const hostEvent = vi.fn();
+    const modelEvent = vi.fn();
+    const domEvent = vi.fn();
+    const beforeDestroy = vi.fn();
+    const destroy = vi.fn();
     let behavior;
 
     const TestBehavior = Behavior.extend({
@@ -350,11 +354,11 @@ describe('Behavior lifecycle contract', function() {
     view.triggerMethod('host:event');
     model.set('value', 1);
     view.el.querySelector('.action').click();
-    expect(hostEvent).to.have.been.calledOnce;
-    expect(modelEvent).to.have.been.calledOnce;
-    expect(domEvent).to.have.been.calledOnce;
+    expect(hostEvent).toHaveBeenCalledTimes(1);
+    expect(modelEvent).toHaveBeenCalledTimes(1);
+    expect(domEvent).toHaveBeenCalledTimes(1);
 
-    this.sinon.spy(behavior, 'stopListening');
+    vi.spyOn(behavior, 'stopListening');
     expect(behavior.destroy()).to.equal(behavior);
 
     view.triggerMethod('host:event');
@@ -362,21 +366,21 @@ describe('Behavior lifecycle contract', function() {
     view.el.querySelector('.action').click();
     view.destroy();
 
-    expect(hostEvent).to.have.been.calledOnce;
-    expect(modelEvent).to.have.been.calledOnce;
-    expect(domEvent).to.have.been.calledOnce;
-    expect(beforeDestroy).to.not.have.been.called;
-    expect(destroy).to.not.have.been.called;
-    expect(behavior.stopListening).to.have.been.calledOnce;
+    expect(hostEvent).toHaveBeenCalledTimes(1);
+    expect(modelEvent).toHaveBeenCalledTimes(1);
+    expect(domEvent).toHaveBeenCalledTimes(1);
+    expect(beforeDestroy).not.toHaveBeenCalled();
+    expect(destroy).not.toHaveBeenCalled();
+    expect(behavior.stopListening).toHaveBeenCalledTimes(1);
   });
 
   it('keeps a nested Behavior host-owned after directly removing its declarer', function() {
-    const parentHostEvent = this.sinon.spy();
-    const nestedHostEvent = this.sinon.spy();
-    const parentBeforeDestroy = this.sinon.spy();
-    const nestedBeforeDestroy = this.sinon.spy();
-    const parentDestroy = this.sinon.spy();
-    const nestedDestroy = this.sinon.spy();
+    const parentHostEvent = vi.fn();
+    const nestedHostEvent = vi.fn();
+    const parentBeforeDestroy = vi.fn();
+    const nestedBeforeDestroy = vi.fn();
+    const parentDestroy = vi.fn();
+    const nestedDestroy = vi.fn();
     let parentBehavior;
     let nestedBehavior;
 
@@ -403,27 +407,31 @@ describe('Behavior lifecycle contract', function() {
     expect(parentBehavior.view).to.equal(view);
     expect(nestedBehavior.view).to.equal(view);
     view.triggerMethod('host:event');
-    expect(parentHostEvent).to.have.been.calledOnce.and.calledOn(parentBehavior);
-    expect(nestedHostEvent).to.have.been.calledOnce.and.calledOn(nestedBehavior);
+    expect(parentHostEvent).toHaveBeenCalledTimes(1);
+    expect(parentHostEvent.mock.contexts).toContain(parentBehavior);
+    expect(nestedHostEvent).toHaveBeenCalledTimes(1);
+    expect(nestedHostEvent.mock.contexts).toContain(nestedBehavior);
 
     parentBehavior.destroy();
 
     view.triggerMethod('host:event');
 
-    expect(parentHostEvent).to.have.been.calledOnce;
-    expect(nestedHostEvent).to.have.been.calledTwice;
+    expect(parentHostEvent).toHaveBeenCalledTimes(1);
+    expect(nestedHostEvent).toHaveBeenCalledTimes(2);
 
     view.destroy();
     view.destroy();
 
-    expect(parentBeforeDestroy).to.not.have.been.called;
-    expect(parentDestroy).to.not.have.been.called;
-    expect(nestedBeforeDestroy).to.have.been.calledOnce.and.calledOn(nestedBehavior);
-    expect(nestedDestroy).to.have.been.calledOnce.and.calledOn(nestedBehavior);
+    expect(parentBeforeDestroy).not.toHaveBeenCalled();
+    expect(parentDestroy).not.toHaveBeenCalled();
+    expect(nestedBeforeDestroy).toHaveBeenCalledTimes(1);
+    expect(nestedBeforeDestroy.mock.contexts).toContain(nestedBehavior);
+    expect(nestedDestroy).toHaveBeenCalledTimes(1);
+    expect(nestedDestroy.mock.contexts).toContain(nestedBehavior);
   });
 
   it('cleans up top-level and nested Behaviors once in host destroy order', function() {
-    this.setFixtures('<div id="destroy-region"></div>');
+    setFixtures('<div id="destroy-region"></div>');
     const lifecycle = [];
     const behaviors = [];
 
@@ -432,11 +440,11 @@ describe('Behavior lifecycle contract', function() {
         behaviors.push(this);
       },
       onBeforeDestroy(view) {
-        expect(view.isDestroyed()).to.be.false;
+        expect(view.isDestroyed()).toBe(false);
         lifecycle.push('nested:before:destroy');
       },
       onDestroy(view) {
-        expect(view.isDestroyed()).to.be.true;
+        expect(view.isDestroyed()).toBe(true);
         lifecycle.push('nested:destroy');
       },
     });
@@ -446,11 +454,11 @@ describe('Behavior lifecycle contract', function() {
         behaviors.push(this);
       },
       onBeforeDestroy(view) {
-        expect(view.isDestroyed()).to.be.false;
+        expect(view.isDestroyed()).toBe(false);
         lifecycle.push('parent:before:destroy');
       },
       onDestroy(view) {
-        expect(view.isDestroyed()).to.be.true;
+        expect(view.isDestroyed()).toBe(true);
         lifecycle.push('parent:destroy');
       },
     });
@@ -473,8 +481,8 @@ describe('Behavior lifecycle contract', function() {
     const nestedBehavior = behaviors[1];
     expect(parentBehavior.view).to.equal(view);
     expect(nestedBehavior.view).to.equal(view);
-    this.sinon.spy(parentBehavior, 'stopListening');
-    this.sinon.spy(nestedBehavior, 'stopListening');
+    vi.spyOn(parentBehavior, 'stopListening');
+    vi.spyOn(nestedBehavior, 'stopListening');
 
     expect(view.destroy()).to.equal(view);
     expect(view.destroy()).to.equal(view);
@@ -487,9 +495,9 @@ describe('Behavior lifecycle contract', function() {
       'parent:destroy',
       'nested:destroy',
     ]);
-    expect(parentBehavior.stopListening).to.have.been.calledOnce;
-    expect(nestedBehavior.stopListening).to.have.been.calledOnce;
-    expect(region.hasView()).to.be.false;
+    expect(parentBehavior.stopListening).toHaveBeenCalledTimes(1);
+    expect(nestedBehavior.stopListening).toHaveBeenCalledTimes(1);
+    expect(region.hasView()).toBe(false);
 
     region.destroy();
   });

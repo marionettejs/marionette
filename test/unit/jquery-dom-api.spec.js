@@ -1,11 +1,12 @@
+import { vi, describe, it, expect } from 'vitest';
 import $ from 'jquery';
 import compile from '../../build/babel.js';
 import {
   CollectionView,
   Region,
   View
-} from '../../src/index';
-import JQueryDomApi from '../../packages/adapters/src/dom/jquery';
+} from 'marionette';
+import JQueryDomApi from '@marionette/adapters/dom/jquery';
 
 describe('jQuery DomApi adapter', function() {
   it('allows the core ESM graph to bundle without circular dependencies or importing jQuery', async function() {
@@ -34,7 +35,7 @@ describe('jQuery DomApi adapter', function() {
 
     await bundle.close();
 
-    expect(warnings).to.be.empty;
+    expect(warnings).toHaveLength(0);
   });
 
   it('does not create $el with the native DomApi', function() {
@@ -71,7 +72,7 @@ describe('jQuery DomApi adapter', function() {
   it('detaches elements without removing listeners with the jQuery DomApi', function() {
     const parent = document.createElement('div');
     const child = document.createElement('button');
-    const onClick = this.sinon.stub();
+    const onClick = vi.fn();
     child.addEventListener('click', onClick);
     parent.appendChild(child);
     document.body.appendChild(parent);
@@ -80,8 +81,8 @@ describe('jQuery DomApi adapter', function() {
     child.click();
 
     expect(parent.childNodes).to.have.length(0);
-    expect(document.body.contains(child)).to.be.false;
-    expect(onClick).to.have.been.calledOnce;
+    expect(document.body.contains(child)).toBe(false);
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 
   it('replaces element contents with the jQuery DomApi', function() {
@@ -92,7 +93,7 @@ describe('jQuery DomApi adapter', function() {
 
     JQueryDomApi.setContents(el, '<strong class="new">New</strong>');
 
-    expect(el.querySelector('.old')).to.be.null;
+    expect(el.querySelector('.old')).toBeNull();
     expect(el.querySelector('.new').textContent).to.equal('New');
   });
 
@@ -110,7 +111,7 @@ describe('jQuery DomApi adapter', function() {
   it('preserves detached content listeners with the jQuery DomApi', function() {
     const el = document.createElement('div');
     const child = document.createElement('button');
-    const onClick = this.sinon.stub();
+    const onClick = vi.fn();
     child.addEventListener('click', onClick);
     el.appendChild(child);
 
@@ -118,7 +119,7 @@ describe('jQuery DomApi adapter', function() {
     child.click();
 
     expect(el.childNodes).to.have.length(0);
-    expect(onClick).to.have.been.calledOnce;
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 
   it('allows Region selector resolution with the jQuery DomApi findEl shape', function() {

@@ -1,6 +1,7 @@
+import { vi, describe, it, expect } from 'vitest';
 import $ from 'jquery';
 
-import View from '../../../src/modules/view';
+import { View } from 'marionette';
 
 const JQueryEventDelegator = {
   delegate({ eventName, selector, handler, rootEl }) {
@@ -20,8 +21,8 @@ describe('jQuery EventDelegator protocol compatibility', function() {
   it('supports delegated focus, namespaces, programmatic dispatch, and exact cleanup', function() {
     const root = document.createElement('div');
     root.innerHTML = '<input class="field"><button class="action"></button>';
-    const onFocus = this.sinon.spy();
-    const onAction = this.sinon.spy();
+    const onFocus = vi.fn();
+    const onAction = vi.fn();
     const TestView = View.extend({
       events: {
         'focus .field': onFocus,
@@ -34,20 +35,20 @@ describe('jQuery EventDelegator protocol compatibility', function() {
     $(root.querySelector('.field')).trigger('focus');
     $(root.querySelector('.action')).trigger('click');
 
-    expect(onFocus).to.have.been.calledOnce;
-    expect(onAction).to.have.been.calledOnce;
+    expect(onFocus).toHaveBeenCalledTimes(1);
+    expect(onAction).toHaveBeenCalledTimes(1);
 
     view.undelegateEvents();
     $(root.querySelector('.field')).trigger('focus');
     $(root.querySelector('.action')).trigger('click');
 
-    expect(onFocus).to.have.been.calledOnce;
-    expect(onAction).to.have.been.calledOnce;
+    expect(onFocus).toHaveBeenCalledTimes(1);
+    expect(onAction).toHaveBeenCalledTimes(1);
   });
 
   it('supports direct handlers without selector delegation', function() {
     const root = document.createElement('button');
-    const onClick = this.sinon.spy();
+    const onClick = vi.fn();
     const TestView = View.extend({ events: { click: onClick } });
     TestView.setEventDelegator(JQueryEventDelegator);
     const view = new TestView({ el: root });
@@ -56,6 +57,6 @@ describe('jQuery EventDelegator protocol compatibility', function() {
     view.destroy();
     $(root).trigger('click');
 
-    expect(onClick).to.have.been.calledOnce;
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 });

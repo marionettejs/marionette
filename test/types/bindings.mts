@@ -1,7 +1,7 @@
-import MnObject from '../tmp/typed-core/src/modules/object.js';
+import { MnObject } from 'marionette';
 import { normalizeMethods, bindEvents, unbindEvents, bindRequests, unbindRequests } from '@marionette/utils';
-import type { Requests } from '../tmp/typed-core/packages/radio/src/requests.js';
-import type { EventMap, EventSource } from '../tmp/typed-core/packages/utils/src/events.js';
+import type { Requests } from '@marionette/radio';
+import type { EventMap, EventSource } from '@marionette/utils';
 
 const source = new MnObject();
 const listener = {

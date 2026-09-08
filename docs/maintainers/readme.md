@@ -67,15 +67,15 @@ change, not a mandatory sequence for every edit.
 | One Region behavior | `npm test -- test/unit/region-lifecycle.spec.js` | Add the relevant ownership, View, or Application suites when their composition changes. Replace the path for another unit task. |
 | Authored types or runtime source | `npm run check:types` and the affected unit test | Run `npm run test:types` for the public type contract; use `npm run build` for generated declarations and distributions. |
 | Documentation prose or links | `npm run docs:check` | An executable marker check does not execute the example. Changed behavior in an example also needs its actual fixture or behavioral test. |
-| Public package export or installed example | `npm run test:fixtures` | This runner builds and packs all five packages and runs the fixture suite; it currently has no fixture-name filter. Validate ESM/CJS/bundler cases affected by the contract. |
-| Browser-specific behavior | `npm run build`, then the relevant `node test/browser/<case>.mjs` | Use `npm run test:browser` when shared DOM or browser integration changes span cases. Run only a real filename from `test/browser/`. |
+| Public package export or installed example | `npm run test:fixtures` | Use `-- --fixture <name>` to select one installed consumer; the runner builds and packs all five packages unless supplied exact artifacts. Validate ESM/CJS/bundler cases affected by the contract. |
+| Browser-specific behavior | `npm run build`, then `npm run test:browser -- <case>.spec.mjs` | Use `npm run test:browser` when shared DOM or browser integration changes span cases. Run only a real filename from `test/browser/`. |
 | Diagnostic catalog | `npm run check:diagnostics` and the owning invariant test | Add type consumers when removing a shape diagnostic; keep tests for runtime invariants. |
 | Source style | `npm run lint:ci` | This checks the repository without rewriting files. |
 | Production cost or package graph | `npm run size` | Use `npm run performance:timing` when timing is relevant; follow the [measurement rules](../performance-baselines.md). |
 | Release tooling | `npm run test:release-promotion` | Follow the [release procedure](../release-promotion.md) for artifact checks; tests do not authorize publication. |
 
-`npm test -- <path>` runs the repository's type prechecks before the selected
-Vitest file. `npm run build` also runs declaration consumer checks. Report those
+`npm test -- <path>` runs the selected Vitest file without type or build prechecks.
+`npm run build` checks source types and declaration consumers. Report those
 checks accurately instead of describing a focused command as the entire suite.
 Coverage requirements and review expectations remain in
 [CONTRIBUTING.md](../../CONTRIBUTING.md#code-and-test-style).

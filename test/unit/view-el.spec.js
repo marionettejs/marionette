@@ -1,6 +1,7 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 
-import View from '../../src/modules/view';
+import { View } from 'marionette';
 
 describe('View el policy', function() {
   let document;
@@ -51,7 +52,7 @@ describe('View el policy', function() {
       enumerable: true,
       value: protoValue
     });
-    const attributes = this.sinon.stub().returns(attributeHash);
+    const attributes = vi.fn().mockReturnValue(attributeHash);
     const AttributeView = View.extend({
       attributes,
       className: 'canonical-class',
@@ -61,16 +62,17 @@ describe('View el policy', function() {
 
     const view = new AttributeView();
 
-    expect(attributes).to.have.been.calledOnce.and.calledOn(view);
+    expect(attributes).toHaveBeenCalledTimes(1);
+    expect(attributes.mock.contexts).toContain(view);
     expect(view.el.title).to.equal('owned');
     expect(view.el.dataset.owned).to.equal('owned');
-    expect(view.el.getAttribute('data-inherited')).to.be.null;
-    expect(view.el.getAttribute('data-hidden')).to.be.null;
-    expect(view.el[symbol]).to.be.undefined;
+    expect(view.el.getAttribute('data-inherited')).toBeNull();
+    expect(view.el.getAttribute('data-hidden')).toBeNull();
+    expect(view.el[symbol]).toBeUndefined();
     expect(view.el.id).to.equal('canonical-id');
     expect(view.el.className).to.equal('canonical-class');
     expect(Object.getPrototypeOf(view.el)).to.equal(elementPrototype);
-    expect(Object.hasOwn(view.el, '__proto__')).to.be.false;
+    expect(Object.hasOwn(view.el, '__proto__')).toBe(false);
     expect(view.el.getAttribute('__proto__')).to.equal(protoValue);
   });
 

@@ -1,3 +1,5 @@
+import { vi, describe, it, expect } from 'vitest';
+import { setFixtures } from '../setup/fixtures.js';
 import { configureStore } from '@reduxjs/toolkit';
 import { CollectionView, View } from 'marionette';
 
@@ -18,7 +20,7 @@ function createIntegration() {
     }
   });
   const subscriptions = new Set();
-  const models = sinon.spy(() => store.getState().ids);
+  const models = vi.fn(() => store.getState().ids);
 
   function observe(selector, callback) {
     let previous = selector(store.getState());
@@ -89,7 +91,7 @@ describe('public DataApi with Redux stable model sources', function() {
     const first = new List({ collection: store }).render();
     const second = new List({ collection: store }).render();
     const detail = new Detail({ model: 0 }).render();
-    this.setFixtures(first.el, second.el, detail.el);
+    setFixtures(first.el, second.el, detail.el);
     const child = first.children.findByModel(0);
     const peer = second.children.findByModel(0);
     const input = child.el.querySelector('input');
@@ -98,12 +100,12 @@ describe('public DataApi with Redux stable model sources', function() {
     input.setSelectionRange(2, 5);
     expect(detail.el.textContent).to.equal('zero');
     expect(subscriptions.size).to.equal(7);
-    Data.models.resetHistory();
+    Data.models.mockClear();
 
     update({ unrelated: 1 });
     expect(child.renderCount).to.equal(1);
     expect(peer.renderCount).to.equal(1);
-    expect(Data.models).not.to.have.been.called;
+    expect(Data.models).not.toHaveBeenCalled();
 
     const original = store.getState().entities[0];
     update({ entities: { ...store.getState().entities, 0: { ...original, name: 'edited' } } });
@@ -119,7 +121,7 @@ describe('public DataApi with Redux stable model sources', function() {
     expect(input.value).to.equal('unsaved edit');
     expect(document.activeElement).to.equal(input);
     expect([input.selectionStart, input.selectionEnd]).to.deep.equal([2, 5]);
-    expect(Data.models).not.to.have.been.called;
+    expect(Data.models).not.toHaveBeenCalled();
 
     update({
       ids: [0, 1, 2],
@@ -158,10 +160,10 @@ describe('falsy opaque DataApi sources', function() {
   it('serializes and observes falsy model and collection references', function() {
     for (const source of [0, false, '', 0n]) {
       const callbacks = [];
-      const cleanup = sinon.spy();
+      const cleanup = vi.fn();
       const Data = {
-        serialize: sinon.spy(model => ({ name: String(model) })),
-        models: sinon.spy(() => [source]),
+        serialize: vi.fn(model => ({ name: String(model) })),
+        models: vi.fn(() => [source]),
         subscribe(entity, name, callback, context) {
           expect(entity).to.equal(source);
           callbacks.push(() => callback.call(context));
@@ -175,16 +177,16 @@ describe('falsy opaque DataApi sources', function() {
       });
       Item.setDataApi(Data);
       const item = new Item({ model: source, collection: source }).render();
-      expect(Data.serialize).to.have.been.calledWith(source);
+      expect(Data.serialize.mock.calls.map(args => args.slice(0, 1))).toContainEqual([source]);
       expect(item.el.textContent).to.equal(String(source));
       expect(callbacks).to.have.lengthOf(2);
       callbacks.forEach(notify => notify());
-      expect(Data.serialize.callCount).to.equal(3);
+      expect(Data.serialize.mock.calls.length).to.equal(3);
       item.destroy();
-      expect(cleanup.callCount).to.equal(2);
+      expect(cleanup.mock.calls.length).to.equal(2);
 
       const list = new Item({ collection: source, template: data => data.models[0].name }).render();
-      expect(Data.models).to.have.been.calledWith(source);
+      expect(Data.models.mock.calls.map(args => args.slice(0, 1))).toContainEqual([source]);
       expect(list.el.textContent).to.equal(String(source));
       list.destroy();
     }

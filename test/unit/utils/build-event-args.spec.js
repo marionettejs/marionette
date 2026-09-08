@@ -1,4 +1,5 @@
-import buildEventArgs from '../../../packages/utils/src/build-event-args.ts';
+import { describe, it, expect } from 'vitest';
+import { buildEventArgs } from '@marionette/utils';
 
 function defineEnumerable(object, name, value) {
   Object.defineProperty(object, name, {

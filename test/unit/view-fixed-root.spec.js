@@ -1,20 +1,20 @@
-import Behavior from '../../src/modules/behavior';
-import CollectionView from '../../src/modules/collection-view';
-import Region from '../../src/modules/region';
-import View from '../../src/modules/view';
+import { vi, describe, it, expect } from 'vitest';
+import { setFixtures } from '../setup/fixtures.js';
+import { Behavior, CollectionView, Region, View } from 'marionette';
 
 for (const [name, Base] of [['View', View], ['CollectionView', CollectionView]]) {
   describe(`${name} fixed root`, function() {
     it('resolves the root once before initializing Behaviors and the View', function() {
       const root = document.createElement('section');
-      const resolveRoot = this.sinon.stub().returns(root);
+      const resolveRoot = vi.fn().mockReturnValue(root);
       const initialized = [];
-      const clicked = this.sinon.spy();
-      const triggered = this.sinon.spy();
+      let behavior;
+      const clicked = vi.fn();
+      const triggered = vi.fn();
       const TestBehavior = Behavior.extend({
         events: { 'click button': clicked },
         triggers: { 'focus button': 'action:focused' },
-        initialize() { initialized.push(this.el); }
+        initialize() { behavior = this; initialized.push(this.el); }
       });
       const TestView = Base.extend({
         behaviors: [TestBehavior],
@@ -30,24 +30,25 @@ for (const [name, Base] of [['View', View], ['CollectionView', CollectionView]])
       const button = root.querySelector('button');
       button.click();
       button.dispatchEvent(new Event('focus', { bubbles: true }));
-      expect(clicked).to.have.been.calledOnce;
-      expect(triggered).to.have.been.calledOnce;
-      expect(resolveRoot).to.have.been.calledOnce.and.calledOn(view);
+      expect(clicked).toHaveBeenCalledTimes(1);
+      expect(triggered).toHaveBeenCalledTimes(1);
+      expect(resolveRoot).toHaveBeenCalledTimes(1);
+      expect(resolveRoot.mock.contexts).toContain(view);
       expect(view.el).to.equal(root);
-      expect(view._behaviors[0].el).to.equal(root);
+      expect(behavior.el).to.equal(root);
       view.destroy();
       button.click();
       button.dispatchEvent(new Event('focus', { bubbles: true }));
-      expect(clicked).to.have.been.calledOnce;
-      expect(triggered).to.have.been.calledOnce;
+      expect(clicked).toHaveBeenCalledTimes(1);
+      expect(triggered).toHaveBeenCalledTimes(1);
       expect(view.el).to.equal(root);
     });
 
     it('keeps its root and delegation when moved between Regions', function() {
-      this.setFixtures('<div id="first"></div><div id="second"></div>');
+      setFixtures('<div id="first"></div><div id="second"></div>');
       const first = new Region({ el: '#first' });
       const second = new Region({ el: '#second' });
-      const clicked = this.sinon.spy();
+      const clicked = vi.fn();
       const view = new Base({ template: () => '<button>Action</button>',
         events: { 'click button': clicked } });
       const root = view.el;
@@ -60,11 +61,11 @@ for (const [name, Base] of [['View', View], ['CollectionView', CollectionView]])
       expect(view.el).to.equal(root);
       expect(root.parentNode).to.equal(second.el);
       expect(root.querySelector('button')).to.equal(button);
-      expect(clicked).to.have.been.calledTwice;
+      expect(clicked).toHaveBeenCalledTimes(2);
       first.destroy();
       second.destroy();
       button.click();
-      expect(clicked).to.have.been.calledTwice;
+      expect(clicked).toHaveBeenCalledTimes(2);
     });
   });
 }

@@ -1,21 +1,9 @@
 import js from '@eslint/js';
+import vitest from '@vitest/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
 import typescriptPlugin from '@typescript-eslint/eslint-plugin';
 import jsdoc from 'eslint-plugin-jsdoc';
 import globals from 'globals';
-
-const testGlobals = {
-  ...globals.mocha,
-  chai: 'writable',
-  sinon: 'writable',
-  spy: 'writable',
-  expect: 'writable',
-  $: 'writable',
-  jQuery: 'writable',
-  _: 'writable',
-  Backbone: 'writable',
-  Marionette: 'writable',
-};
 
 export default [
   {
@@ -56,6 +44,7 @@ export default [
         allow: [
           'npm_config_audit',
           'npm_config_fund',
+          'npm_execpath',
           'npm_config_package_lock',
         ],
       }],
@@ -115,9 +104,6 @@ export default [
   },
   {
     files: ['test/**/*.{cjs,js,mjs}'],
-    languageOptions: {
-      globals: testGlobals,
-    },
     rules: {
       'new-cap': 'off',
       'no-new': 'off',
@@ -136,6 +122,34 @@ export default [
       '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
       '@typescript-eslint/no-shadow': 'error',
       '@typescript-eslint/no-redeclare': 'error',
+    },
+  },
+  {
+    files: ['test/unit/**/*.js'],
+    plugins: { vitest },
+    rules: {
+      'no-restricted-imports': ['error', 'sinon', 'sinon-chai'],
+      'no-restricted-syntax': ['error', {
+        selector: 'MemberExpression[object.type="ThisExpression"][property.name="sinon"]',
+        message: 'Use explicit native Vitest vi.fn/vi.spyOn imports.',
+      }],
+      'vitest/no-disabled-tests': 'error',
+      'vitest/no-focused-tests': 'error',
+      'vitest/valid-describe-callback': 'error',
+      'vitest/valid-expect': 'error',
+      'vitest/valid-expect-in-promise': 'error',
+    },
+  },
+  {
+    files: ['scripts/**/*.mjs', 'build/**/*.mjs', 'test/{tooling,release,docs}/**/*.mjs'],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: { project: './tsconfig.tooling.json', tsconfigRootDir: import.meta.dirname },
+    },
+    plugins: { '@typescript-eslint': typescriptPlugin },
+    rules: {
+      '@typescript-eslint/no-floating-promises': ['error', { ignoreVoid: false }],
+      '@typescript-eslint/no-misused-promises': 'error',
     },
   },
 ];

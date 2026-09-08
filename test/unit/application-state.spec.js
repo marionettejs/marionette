@@ -1,9 +1,10 @@
-import Application from '../../src/modules/application';
+import { vi, describe, it, expect } from 'vitest';
+import { Application } from 'marionette';
 
 describe('Application state source composition', function() {
   it('preserves borrowed state across stop and restart without disposing it', async function() {
     const state = { count: 1 };
-    const disposeOwned = this.sinon.spy();
+    const disposeOwned = vi.fn();
     const StatefulApplication = Application.extend({});
     StatefulApplication.setStateApi({ disposeOwned });
     const app = new StatefulApplication({ state });
@@ -15,14 +16,14 @@ describe('Application state source composition', function() {
 
     expect(app.getState()).to.equal(state);
     expect(state.count).to.equal(2);
-    expect(disposeOwned).to.not.have.been.called;
+    expect(disposeOwned).not.toHaveBeenCalled();
     await app.destroy();
-    expect(disposeOwned).to.not.have.been.called;
+    expect(disposeOwned).not.toHaveBeenCalled();
   });
 
   it('disposes owned factory state only at Application destroy', async function() {
     const state = {};
-    const disposeOwned = this.sinon.spy();
+    const disposeOwned = vi.fn();
     const StatefulApplication = Application.extend({ createState() { return state; } });
     StatefulApplication.setStateApi({ disposeOwned });
     const app = new StatefulApplication();
@@ -31,9 +32,10 @@ describe('Application state source composition', function() {
     await app.start();
     await app.stop();
     await app.restart();
-    expect(disposeOwned).to.not.have.been.called;
+    expect(disposeOwned).not.toHaveBeenCalled();
 
     await app.destroy();
-    expect(disposeOwned).to.have.been.calledOnce.and.calledWith(state);
+    expect(disposeOwned).toHaveBeenCalledTimes(1);
+    expect(disposeOwned.mock.calls.map(args => args.slice(0, 1))).toContainEqual([state]);
   });
 });

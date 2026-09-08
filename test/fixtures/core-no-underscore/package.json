@@ -1,4 +1,5 @@
 {
+  "name": "marionette-core-no-underscore-fixture",
   "private": true,
   "type": "module",
   "scripts": {

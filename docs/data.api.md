@@ -93,7 +93,8 @@ constructor options, `initialize`, Behaviors, entity events, and other
 model-dependent state all belong to the current object. Marionette constructs
 every same-key replacement View before removing any existing child. A
 replacement-construction or rendering failure propagates to the caller. Core
-does not undo a partial update or promise recovery on the next notification.
+does not undo a partial update or promise recovery on the next notification. See
+[synchronous failures](https://github.com/marionettejs/marionette/blob/master/docs/view.lifecycle.md#synchronous-failures).
 
 An in-place `updated` entry requests a child render. Adapters for mutable models
 with their own change events can leave `updated` empty and let child

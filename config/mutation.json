@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "description": "Bounded pilot for ordinary Region ownership, successful teardown and subscription binding. Scores are evidence, not a release threshold.",
+  "concurrency": 2,
+  "budgetMs": 600000,
+  "targets": [
+    { "file": "src/modules/region.ts", "methods": ["show", "destroy", "_restoreEl"] },
+    { "file": "src/utils/subscribe-bindings.ts" }
+  ],
+  "testFiles": [
+    "test/unit/region*.spec.js",
+    "test/unit/owned-cleanup.spec.js",
+    "test/unit/state-owner.spec.js",
+    "test/unit/mixins/delegate-entity-events.spec.js",
+    "test/unit/utils/subscribe-bindings.spec.js",
+    "test/unit/model-based/**/*.spec.js"
+  ]
+}

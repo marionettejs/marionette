@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { Behavior, View } from 'marionette';
 
 // Observe real DOM handlers and public cleanup; do not inspect the parser's array.

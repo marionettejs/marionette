@@ -5,13 +5,17 @@ import { JSDOM } from 'jsdom';
 import { rollup } from 'rollup';
 import compile from '../../build/babel.js';
 
-import BackboneApi from '../../packages/adapters/src/data/backbone.ts';
-import * as Marionette from '../../src/index.ts';
+import './public-source.mjs';
+
+const [{ default: BackboneApi }, Marionette] = await Promise.all([
+  import('@marionette/adapters/backbone'),
+  import('marionette')
+]);
 
 const dom = new JSDOM('<!doctype html>');
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
-const { default: jqueryDomApi } = await import('../../packages/adapters/src/dom/jquery.ts');
+const { default: jqueryDomApi } = await import('@marionette/adapters/dom/jquery');
 
 assert.equal(typeof Marionette.View, 'function');
 assert.equal(typeof Marionette.Region, 'function');
@@ -101,6 +105,8 @@ assert.equal(adaptersPackageJson.version, packageJson.version);
 assert.equal(adaptersPackageJson.peerDependencies.marionette, packageJson.version);
 assert.deepEqual(nonDeclarativeConfigFiles, []);
 
+// This static architecture check inspects the build graph. It does not invoke
+// private runtime functions or expose an internal import path to consumers.
 const regionBundle = await rollup({
   input: resolve(root, 'src/modules/region.ts'),
   plugins: [compile()],

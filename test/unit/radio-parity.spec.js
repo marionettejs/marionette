@@ -1,5 +1,6 @@
+import { describe, it, expect } from 'vitest';
 import { createRequire } from 'node:module';
-import { createRadio } from '../../packages/radio/src/index.ts';
+import { createRadio } from '@marionette/radio';
 
 const require = createRequire(import.meta.url);
 const BackboneRadio = require('backbone.radio');
@@ -141,7 +142,7 @@ describe('Radio differences from published Backbone.Radio 2.0.0', function() {
     BackboneRadio.reset();
     try {
       expect(cancel(BackboneRadio)).to.equal('once');
-      expect(cancel(createRadio())).to.be.undefined;
+      expect(cancel(createRadio())).toBeUndefined();
     } finally {
       BackboneRadio.reset();
     }

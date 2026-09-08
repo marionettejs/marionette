@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
-import { createMarionette } from '../../src/index.ts';
-import * as utils from '../../packages/utils/src/index.ts';
-import BackboneApi from '../../packages/adapters/src/data/backbone.ts';
+import { createMarionette } from 'marionette';
+import * as utils from '@marionette/utils';
+import BackboneApi from '@marionette/adapters/backbone';
 import Backbone from 'backbone';
 
 function blocks(file) {

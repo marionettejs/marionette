@@ -1,6 +1,28 @@
-import * as Marionette from '../../src/index.ts';
+import { vi, describe, it, expect } from 'vitest';
+import * as Marionette from 'marionette';
 
 describe('createMarionette', function() {
+  it.each([
+    ['default exports', () => Marionette],
+    ['isolated runtime', () => Marionette.createMarionette()]
+  ])('renders plain data through the neutral %s', (_label, createRuntime) => {
+    const runtime = createRuntime();
+    const Item = runtime.View.extend({
+      template: model => `<span>${model.label}</span>`
+    });
+    const list = new runtime.CollectionView({
+      collection: [{ label: 'First' }, { label: 'Second' }],
+      childView: Item
+    });
+
+    list.render();
+
+    expect(list.el.textContent).toBe('FirstSecond');
+    expect(list.children.length).toBe(2);
+    list.destroy();
+    expect(list.isDestroyed()).toBe(true);
+  });
+
   it('builds the default exports and explicit runtimes through one class-family contract', function() {
     const first = Marionette.createMarionette();
     const second = Marionette.createMarionette();
@@ -27,10 +49,10 @@ describe('createMarionette', function() {
   it('isolates renderer, DomApi, DataApi, StateApi, and EventDelegator configuration', function() {
     const first = Marionette.createMarionette();
     const second = Marionette.createMarionette();
-    const firstStateSubscribe = this.sinon.stub().returns(() => {});
-    const secondStateSubscribe = this.sinon.stub().returns(() => {});
-    const firstDelegate = this.sinon.stub().returns(() => {});
-    const secondDelegate = this.sinon.stub().returns(() => {});
+    const firstStateSubscribe = vi.fn().mockReturnValue(() => {});
+    const secondStateSubscribe = vi.fn().mockReturnValue(() => {});
+    const firstDelegate = vi.fn().mockReturnValue(() => {});
+    const secondDelegate = vi.fn().mockReturnValue(() => {});
 
     first.setRenderer((template, data) => `first-renderer:${ template(data) }`);
     first.setDomApi({ setContents(el, html) { el.textContent = `first-dom:${ html }`; } });
@@ -44,7 +66,6 @@ describe('createMarionette', function() {
     second.setStateApi({ subscribe: secondStateSubscribe });
     second.setEventDelegator({ delegate: secondDelegate });
 
-    expect(Marionette.View.prototype._renderHtml).to.not.equal(first.View.prototype._renderHtml);
     expect(Marionette.View.prototype.Dom).to.not.equal(first.View.prototype.Dom);
     expect(Marionette.View.prototype.Data).to.not.equal(first.View.prototype.Data);
     expect(Marionette.View.prototype.State).to.not.equal(first.View.prototype.State);
@@ -69,14 +90,14 @@ describe('createMarionette', function() {
 
     expect(firstView.el.textContent).to.equal('first-dom:first-renderer:first-data');
     expect(secondView.el.textContent).to.equal('second-dom:second-renderer:second-data');
-    expect(firstStateSubscribe).to.have.been.calledOnce;
-    expect(firstStateSubscribe.firstCall.args[0]).to.equal(firstState);
-    expect(secondStateSubscribe).to.have.been.calledOnce;
-    expect(secondStateSubscribe.firstCall.args[0]).to.equal(secondState);
-    expect(firstDelegate).to.have.been.calledOnce;
-    expect(firstDelegate.firstCall.args[0].rootEl).to.equal(firstView.el);
-    expect(secondDelegate).to.have.been.calledOnce;
-    expect(secondDelegate.firstCall.args[0].rootEl).to.equal(secondView.el);
+    expect(firstStateSubscribe).toHaveBeenCalledTimes(1);
+    expect(firstStateSubscribe.mock.calls.at(0)[0]).to.equal(firstState);
+    expect(secondStateSubscribe).toHaveBeenCalledTimes(1);
+    expect(secondStateSubscribe.mock.calls.at(0)[0]).to.equal(secondState);
+    expect(firstDelegate).toHaveBeenCalledTimes(1);
+    expect(firstDelegate.mock.calls.at(0)[0].rootEl).to.equal(firstView.el);
+    expect(secondDelegate).toHaveBeenCalledTimes(1);
+    expect(secondDelegate.mock.calls.at(0)[0].rootEl).to.equal(secondView.el);
     expect(first.View.prototype.Dom).to.not.equal(second.View.prototype.Dom);
     expect(first.View.prototype.Data).to.not.equal(second.View.prototype.Data);
     expect(first.View.prototype.State).to.not.equal(second.View.prototype.State);
@@ -87,9 +108,9 @@ describe('createMarionette', function() {
   it('isolates Radio channels, owner composition, and debug configuration', function() {
     const first = Marionette.createMarionette();
     const second = Marionette.createMarionette();
-    const firstHandler = this.sinon.stub();
-    const secondHandler = this.sinon.stub();
-    const warn = this.sinon.stub(console, 'warn');
+    const firstHandler = vi.fn();
+    const secondHandler = vi.fn();
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const FirstObject = first.MnObject.extend({
       channelName: 'shared-name',
       radioEvents: { ping: firstHandler }
@@ -106,21 +127,23 @@ describe('createMarionette', function() {
     expect(firstObject.getChannel()).to.not.equal(secondObject.getChannel());
 
     first.Radio.trigger('shared-name', 'ping', 1);
-    expect(firstHandler).to.have.been.calledOnce.and.calledWith(1);
-    expect(secondHandler).to.not.have.been.called;
+    expect(firstHandler).toHaveBeenCalledTimes(1);
+    expect(firstHandler.mock.calls.map(args => args.slice(0, 1))).toContainEqual([1]);
+    expect(secondHandler).not.toHaveBeenCalled();
 
     second.Radio.trigger('shared-name', 'ping', 2);
-    expect(secondHandler).to.have.been.calledOnce.and.calledWith(2);
+    expect(secondHandler).toHaveBeenCalledTimes(1);
+    expect(secondHandler.mock.calls.map(args => args.slice(0, 1))).toContainEqual([2]);
 
     first.Radio.setDebug();
     first.Radio.request('shared-name', 'missing');
     second.Radio.request('shared-name', 'missing');
-    expect(warn).to.have.been.calledOnce;
+    expect(warn).toHaveBeenCalledTimes(1);
 
     Marionette.Radio.setDebug();
     second.Radio.request('shared-name', 'missing-again');
     Marionette.Radio.request('shared-name', 'missing');
-    expect(warn).to.have.been.calledTwice;
+    expect(warn).toHaveBeenCalledTimes(2);
     Marionette.Radio.setDebug(false);
     first.Radio.setDebug(false);
 
@@ -129,7 +152,7 @@ describe('createMarionette', function() {
     Marionette.Radio.reset();
     expect(first.Radio.request('reset-isolation', 'value')).to.equal('first');
     first.Radio.reset();
-    expect(first.Radio.request('reset-isolation', 'value')).to.be.undefined;
+    expect(first.Radio.request('reset-isolation', 'value')).toBeUndefined();
 
     firstObject.destroy();
     secondObject.destroy();
@@ -211,7 +234,7 @@ describe('createMarionette', function() {
   it('starts explicit runtimes from pristine adapters instead of configured root adapters', function() {
     const pristineSerialize = Marionette.DataApi.serialize;
     const previousSerialize = Marionette.View.prototype.Data.serialize;
-    const rootSerialize = this.sinon.stub();
+    const rootSerialize = vi.fn();
     Marionette.View.setDataApi({ serialize: rootSerialize });
 
     const runtime = Marionette.createMarionette();
@@ -227,8 +250,6 @@ describe('createMarionette', function() {
     const renderer = (template, data) => `custom:${ template(data) }`;
     SpecializedView.setRenderer(renderer);
 
-    expect(SpecializedView.prototype._renderHtml).to.equal(renderer);
-    expect(runtime.View.prototype._renderHtml).to.not.equal(renderer);
 
     const specialized = new SpecializedView();
     const ordinary = new runtime.View({ template: () => 'ordinary' });

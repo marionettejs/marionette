@@ -1,6 +1,7 @@
+import { vi, describe, it, expect } from 'vitest';
 'use strict';
 
-import { Application } from '../../src/index';
+import { Application } from 'marionette';
 
 async function expectRejection(promise, expectedError) {
   try {
@@ -43,7 +44,7 @@ describe('Application child lifecycle', function() {
     owner.addChildApp('first', new ChildApplication());
     owner.addChildApp('second', new ChildApplication());
 
-    expect(await owner.start(options)).to.be.true;
+    expect(await owner.start(options)).toBe(true);
     expect(events).to.deep.equal([
       'owner:before:start',
       'first:before:start',
@@ -54,7 +55,7 @@ describe('Application child lifecycle', function() {
     ]);
 
     events.length = 0;
-    expect(await owner.stop(options)).to.be.true;
+    expect(await owner.stop(options)).toBe(true);
     expect(events).to.deep.equal([
       'owner:before:stop',
       'first:before:stop',
@@ -74,9 +75,9 @@ describe('Application child lifecycle', function() {
 
     owner.addChildApp('child', child);
 
-    expect(child.isRunning()).to.be.false;
-    expect(await owner.restart()).to.be.true;
-    expect(child.isRunning()).to.be.true;
+    expect(child.isRunning()).toBe(false);
+    expect(await owner.restart()).toBe(true);
+    expect(child.isRunning()).toBe(true);
 
     await owner.destroy();
   });
@@ -107,13 +108,13 @@ describe('Application child lifecycle', function() {
 
     await expectRejection(owner.start(), error);
 
-    expect(owner.isRunning()).to.be.false;
-    expect(first.isRunning()).to.be.true;
-    expect(second.isRunning()).to.be.false;
-    expect(third.isRunning()).to.be.false;
+    expect(owner.isRunning()).toBe(false);
+    expect(first.isRunning()).toBe(true);
+    expect(second.isRunning()).toBe(false);
+    expect(third.isRunning()).toBe(false);
     expect(events).to.deep.equal(['first']);
 
-    expect(await owner.start()).to.be.true;
+    expect(await owner.start()).toBe(true);
     expect(events).to.deep.equal(['first', 'second', 'third']);
 
     await owner.destroy();
@@ -146,13 +147,13 @@ describe('Application child lifecycle', function() {
 
     await expectRejection(owner.stop(), error);
 
-    expect(owner.isRunning()).to.be.true;
-    expect(first.isRunning()).to.be.false;
-    expect(second.isRunning()).to.be.true;
-    expect(third.isRunning()).to.be.true;
+    expect(owner.isRunning()).toBe(true);
+    expect(first.isRunning()).toBe(false);
+    expect(second.isRunning()).toBe(true);
+    expect(third.isRunning()).toBe(true);
     expect(events).to.deep.equal(['first']);
 
-    expect(await owner.stop()).to.be.true;
+    expect(await owner.stop()).toBe(true);
     expect(events).to.deep.equal(['first', 'second', 'third']);
 
     await owner.destroy();
@@ -160,7 +161,7 @@ describe('Application child lifecycle', function() {
 
   it('does not start children when before:start supersedes owner startup', async function() {
     let ownerStop;
-    const childStart = this.sinon.spy();
+    const childStart = vi.fn();
     const OwnerApplication = Application.extend({
       onBeforeStart() {
         ownerStop = this.stop();
@@ -171,11 +172,11 @@ describe('Application child lifecycle', function() {
     const child = new ChildApplication();
     owner.addChildApp('child', child);
 
-    expect(await owner.start()).to.be.false;
-    expect(await ownerStop).to.be.true;
-    expect(owner.isRunning()).to.be.false;
-    expect(child.isRunning()).to.be.false;
-    expect(childStart).to.not.have.been.called;
+    expect(await owner.start()).toBe(false);
+    expect(await ownerStop).toBe(true);
+    expect(owner.isRunning()).toBe(false);
+    expect(child.isRunning()).toBe(false);
+    expect(childStart).not.toHaveBeenCalled();
 
     await owner.destroy();
   });
@@ -183,7 +184,7 @@ describe('Application child lifecycle', function() {
   it('does not stop children when before:stop supersedes owner stop', async function() {
     let supersedingStart;
     let shouldSupersede = false;
-    const childStop = this.sinon.spy();
+    const childStop = vi.fn();
     const OwnerApplication = Application.extend({
       onBeforeStop() {
         if (shouldSupersede) {
@@ -198,11 +199,11 @@ describe('Application child lifecycle', function() {
     await owner.start();
     shouldSupersede = true;
 
-    expect(await owner.stop()).to.be.false;
-    expect(await supersedingStart).to.be.true;
-    expect(owner.isRunning()).to.be.true;
-    expect(child.isRunning()).to.be.true;
-    expect(childStop).to.not.have.been.called;
+    expect(await owner.stop()).toBe(false);
+    expect(await supersedingStart).toBe(true);
+    expect(owner.isRunning()).toBe(true);
+    expect(child.isRunning()).toBe(true);
+    expect(childStop).not.toHaveBeenCalled();
 
     shouldSupersede = false;
     await owner.destroy();
@@ -211,7 +212,7 @@ describe('Application child lifecycle', function() {
   it('does not stop later children after owner stop is superseded', async function() {
     const readiness = Promise.withResolvers();
     const childStopping = Promise.withResolvers();
-    const laterChildStop = this.sinon.spy();
+    const laterChildStop = vi.fn();
     const ChildApplication = Application.extend({
       onBeforeStop() {
         childStopping.resolve();
@@ -230,12 +231,12 @@ describe('Application child lifecycle', function() {
     const start = owner.start();
     readiness.resolve();
 
-    expect(await stop).to.be.false;
-    expect(await start).to.be.true;
-    expect(owner.isRunning()).to.be.true;
-    expect(child.isRunning()).to.be.true;
-    expect(laterChild.isRunning()).to.be.true;
-    expect(laterChildStop).to.not.have.been.called;
+    expect(await stop).toBe(false);
+    expect(await start).toBe(true);
+    expect(owner.isRunning()).toBe(true);
+    expect(child.isRunning()).toBe(true);
+    expect(laterChild.isRunning()).toBe(true);
+    expect(laterChildStop).not.toHaveBeenCalled();
 
     await owner.destroy();
   });
@@ -251,10 +252,10 @@ describe('Application child lifecycle', function() {
     const child = new ChildApplication();
     owner.addChildApp('child', child);
 
-    expect(await owner.start()).to.be.false;
-    expect(await childStop).to.be.true;
-    expect(owner.isRunning()).to.be.false;
-    expect(child.isRunning()).to.be.false;
+    expect(await owner.start()).toBe(false);
+    expect(await childStop).toBe(true);
+    expect(owner.isRunning()).toBe(false);
+    expect(child.isRunning()).toBe(false);
 
     await owner.destroy();
   });
@@ -341,16 +342,16 @@ describe('Application child lifecycle', function() {
       const start = expectRejection(owner.start(), failure);
       readiness.resolve();
 
-      expect(await stop).to.be.false;
+      expect(await stop).toBe(false);
       await start;
-      expect(owner.isRunning()).to.be.true;
-      expect(first.isRunning()).to.be.false;
-      expect(second.isRunning()).to.be.true;
+      expect(owner.isRunning()).toBe(true);
+      expect(first.isRunning()).toBe(false);
+      expect(second.isRunning()).toBe(true);
       expect(events).to.deep.equal(['first:stop']);
 
-      expect(await owner.stop()).to.be.true;
-      expect(owner.isRunning()).to.be.false;
-      expect(second.isRunning()).to.be.false;
+      expect(await owner.stop()).toBe(true);
+      expect(owner.isRunning()).toBe(false);
+      expect(second.isRunning()).toBe(false);
       expect(events).to.deep.equal(['first:stop', 'second:stop', 'owner:stop']);
       await owner.destroy();
     });
@@ -373,9 +374,9 @@ describe('Application child lifecycle', function() {
     const start = expectRejection(owner.start(), failure);
     readiness.resolve();
 
-    expect(await stop).to.be.false;
+    expect(await stop).toBe(false);
     await start;
-    expect(owner.isRunning()).to.be.false;
+    expect(owner.isRunning()).toBe(false);
     await owner.destroy();
   });
 
@@ -395,10 +396,10 @@ describe('Application child lifecycle', function() {
     await owner.start();
     shouldRestart = true;
 
-    expect(await owner.stop()).to.be.false;
-    expect(await childStart).to.be.true;
-    expect(owner.isRunning()).to.be.true;
-    expect(child.isRunning()).to.be.true;
+    expect(await owner.stop()).toBe(false);
+    expect(await childStart).toBe(true);
+    expect(owner.isRunning()).toBe(true);
+    expect(child.isRunning()).toBe(true);
 
     shouldRestart = false;
     await owner.destroy();
@@ -407,7 +408,7 @@ describe('Application child lifecycle', function() {
   it('cancels owner startup when a direct child stop supersedes it', async function() {
     const readiness = Promise.withResolvers();
     const childStarting = Promise.withResolvers();
-    const ownerStart = this.sinon.spy();
+    const ownerStart = vi.fn();
     const ChildApplication = Application.extend({
       onBeforeStart(application, options, context) {
         childStarting.resolve();
@@ -424,12 +425,12 @@ describe('Application child lifecycle', function() {
     const start = owner.start();
     await childStarting.promise;
 
-    expect(await child.stop()).to.be.true;
-    expect(await start).to.be.false;
-    expect(owner.isRunning()).to.be.false;
-    expect(first.isRunning()).to.be.true;
-    expect(child.isRunning()).to.be.false;
-    expect(ownerStart).to.not.have.been.called;
+    expect(await child.stop()).toBe(true);
+    expect(await start).toBe(false);
+    expect(owner.isRunning()).toBe(false);
+    expect(first.isRunning()).toBe(true);
+    expect(child.isRunning()).toBe(false);
+    expect(ownerStart).not.toHaveBeenCalled();
 
     await owner.destroy();
   });
@@ -452,10 +453,10 @@ describe('Application child lifecycle', function() {
     await childStarting.promise;
     const stop = owner.stop();
 
-    expect(await start).to.be.false;
-    expect(await stop).to.be.true;
-    expect(owner.isRunning()).to.be.false;
-    expect(child.isRunning()).to.be.false;
+    expect(await start).toBe(false);
+    expect(await stop).toBe(true);
+    expect(owner.isRunning()).toBe(false);
+    expect(child.isRunning()).toBe(false);
 
     await owner.destroy();
   });
@@ -478,16 +479,16 @@ describe('Application child lifecycle', function() {
     await childStarting.promise;
     const destroy = owner.destroy();
 
-    expect(await start).to.be.false;
-    expect(await destroy).to.be.true;
-    expect(owner.isDestroyed()).to.be.true;
-    expect(child.isDestroyed()).to.be.true;
+    expect(await start).toBe(false);
+    expect(await destroy).toBe(true);
+    expect(owner.isDestroyed()).toBe(true);
+    expect(child.isDestroyed()).toBe(true);
   });
 
   it('cancels owner stop when a direct child start supersedes it', async function() {
     const readiness = Promise.withResolvers();
     const childStopping = Promise.withResolvers();
-    const ownerStop = this.sinon.spy();
+    const ownerStop = vi.fn();
     const ChildApplication = Application.extend({
       onBeforeStop() {
         childStopping.resolve();
@@ -505,14 +506,14 @@ describe('Application child lifecycle', function() {
     await childStopping.promise;
     const start = child.start();
 
-    expect(await stop).to.be.false;
-    expect(owner.isRunning()).to.be.true;
-    expect(first.isRunning()).to.be.false;
-    expect(ownerStop).to.not.have.been.called;
+    expect(await stop).toBe(false);
+    expect(owner.isRunning()).toBe(true);
+    expect(first.isRunning()).toBe(false);
+    expect(ownerStop).not.toHaveBeenCalled();
 
     readiness.resolve();
-    expect(await start).to.be.true;
-    expect(child.isRunning()).to.be.true;
+    expect(await start).toBe(true);
+    expect(child.isRunning()).toBe(true);
 
     await owner.destroy();
   });
@@ -530,7 +531,7 @@ describe('Application child lifecycle', function() {
     owner.addChildApp('child', child);
     await child.start();
 
-    expect(await owner.destroy()).to.be.true;
+    expect(await owner.destroy()).toBe(true);
     expect(events).to.deep.equal(['child:stop', 'owner:before:destroy']);
   });
 
@@ -548,13 +549,13 @@ describe('Application child lifecycle', function() {
     await child.start();
 
     await expectRejection(owner.destroy(), error);
-    expect(owner.isDestroyed()).to.be.false;
-    expect(owner.isRunning()).to.be.false;
-    expect(child.isRunning()).to.be.true;
+    expect(owner.isDestroyed()).toBe(false);
+    expect(owner.isRunning()).toBe(false);
+    expect(child.isRunning()).toBe(true);
     expect(owner.getChildApp('child')).to.equal(child);
 
-    expect(await owner.destroy()).to.be.true;
-    expect(child.isDestroyed()).to.be.true;
+    expect(await owner.destroy()).toBe(true);
+    expect(child.isDestroyed()).toBe(true);
   });
 
   it('blocks descendant startup after owner destruction begins', async function() {
@@ -574,10 +575,10 @@ describe('Application child lifecycle', function() {
     const destroy = owner.destroy();
     await childStopping.promise;
 
-    expect(await child.start()).to.be.false;
+    expect(await child.start()).toBe(false);
     readiness.resolve();
-    expect(await destroy).to.be.true;
-    expect(child.isDestroyed()).to.be.true;
+    expect(await destroy).toBe(true);
+    expect(child.isDestroyed()).toBe(true);
   });
 
   it('blocks grandchild startup after root destruction begins', async function() {
@@ -598,10 +599,10 @@ describe('Application child lifecycle', function() {
     const destroy = root.destroy();
     await rootDestroying.promise;
 
-    expect(await grandchild.start()).to.be.false;
-    expect(await grandchild.restart()).to.be.false;
+    expect(await grandchild.start()).toBe(false);
+    expect(await grandchild.restart()).toBe(false);
     readiness.resolve();
-    expect(await destroy).to.be.true;
+    expect(await destroy).toBe(true);
   });
 
   it('follows a direct child destroy that supersedes owner-driven stop', async function() {
@@ -623,10 +624,10 @@ describe('Application child lifecycle', function() {
     const childDestroy = child.destroy();
 
     readiness.resolve();
-    expect(await childDestroy).to.be.true;
-    expect(await ownerDestroy).to.be.true;
-    expect(owner.isDestroyed()).to.be.true;
-    expect(child.isDestroyed()).to.be.true;
+    expect(await childDestroy).toBe(true);
+    expect(await ownerDestroy).toBe(true);
+    expect(owner.isDestroyed()).toBe(true);
+    expect(child.isDestroyed()).toBe(true);
   });
 
   it('destroys a child that restarts from onStop during owner destroy', async function() {
@@ -645,10 +646,10 @@ describe('Application child lifecycle', function() {
     await owner.start();
     shouldRestart = true;
 
-    expect(await owner.destroy()).to.be.true;
-    expect(await childStart).to.be.false;
-    expect(owner.isDestroyed()).to.be.true;
-    expect(child.isDestroyed()).to.be.true;
+    expect(await owner.destroy()).toBe(true);
+    expect(await childStart).toBe(false);
+    expect(owner.isDestroyed()).toBe(true);
+    expect(child.isDestroyed()).toBe(true);
   });
 
   it('stops children before owner destroy readiness', async function() {
@@ -666,7 +667,7 @@ describe('Application child lifecycle', function() {
     owner.addChildApp('child', new ChildApplication());
     await owner.start();
 
-    expect(await owner.destroy()).to.be.true;
+    expect(await owner.destroy()).toBe(true);
     expect(events).to.deep.equal([
       'child:stop',
       'owner:before:destroy',
@@ -776,14 +777,14 @@ describe('Application child lifecycle', function() {
       const current = expectRejection(owner[later](), error);
       const followingStop = later === 'destroy' ? expectRejection(owner.stop(), error) : undefined;
       stopping.reject(error);
-      expect(await previous).to.be.false;
+      expect(await previous).toBe(false);
       await current;
       await followingStop;
 
-      expect(owner.isRunning()).to.be.true;
+      expect(owner.isRunning()).toBe(true);
       expect(children.map(child => child.isRunning())).to.deep.equal([false, true, true]);
       expect(stopped).to.deep.equal(['first']);
-      expect(await owner.stop()).to.be.true;
+      expect(await owner.stop()).toBe(true);
       expect(stopped).to.deep.equal(['first', 'second', 'third']);
       await owner.destroy();
     });

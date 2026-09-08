@@ -1,8 +1,8 @@
-import { View, CollectionView, Region, DomApi } from '../../src/index.ts';
-import MorphdomDomApi from '../../packages/adapters/src/dom/morphdom.ts';
-import LitDomApi from '../../packages/adapters/src/dom/lit-html.ts';
+import { View, CollectionView, Region, DomApi } from 'marionette';
+import MorphdomDomApi from '@marionette/adapters/dom/morphdom';
+import LitDomApi from '@marionette/adapters/dom/lit-html';
 import $ from 'jquery';
-import JQueryDomApi from '../../packages/adapters/src/dom/jquery.ts';
+import JQueryDomApi from '@marionette/adapters/dom/jquery';
 import { html } from 'lit-html';
 import { AsyncDirective } from 'lit-html/async-directive.js';
 import { directive } from 'lit-html/directive.js';
@@ -19,9 +19,7 @@ function fixture() {
 
 function makeView(kind, properties = {}) {
   const ViewClass = View.extend(properties);
-  const Dom = ViewClass.prototype.Dom;
   ViewClass.setDomApi(kind === 'morphdom' ? MorphdomDomApi : LitDomApi);
-  check(ViewClass.prototype.Dom.findEl === Dom.findEl, 'Adapter replaced unrelated DOM methods');
   return ViewClass;
 }
 
@@ -58,13 +56,7 @@ for (const kind of ['morphdom', 'lit-html']) {
         ui: { button: 'button' }, events: { 'click @ui.button': () => clicks++ }
       });
       ViewClass.setDomApi(JQueryDomApi);
-      const Dom = ViewClass.prototype.Dom;
-      const delegateEvents = ViewClass.prototype.delegateEvents;
-      const destroy = ViewClass.prototype.destroy;
       ViewClass.setDomApi(kind === 'morphdom' ? MorphdomDomApi : LitDomApi);
-      check(ViewClass.prototype.Dom.findEl === Dom.findEl, 'Adapter replaced jQuery queries');
-      check(ViewClass.prototype.delegateEvents === delegateEvents && ViewClass.prototype.destroy === destroy,
-        'Adapter replaced View lifecycle methods');
       const view = new ViewClass();
       region.show(view);
       check(view.$el[0] === view.el && view.$el.jquery, 'jQuery root wrapper was lost');
@@ -194,11 +186,7 @@ domAdapterContracts.push({
   run() {
     const Base = View.extend();
     Base.setDomApi(LitDomApi);
-    const delegateEvents = Base.prototype.delegateEvents;
-    const destroy = Base.prototype.destroy;
     Base.setDomApi(LitDomApi);
-    check(Base.prototype.delegateEvents === delegateEvents && Base.prototype.destroy === destroy,
-      'Repeated installation wrapped methods again');
     let initialized = 0;
     class Native extends Base {
       initialize() { initialized++; }

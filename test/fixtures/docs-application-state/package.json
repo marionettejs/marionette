@@ -1,4 +1,5 @@
 {
+  "name": "marionette-docs-application-state-fixture",
   "private": true,
   "type": "module",
   "scripts": {

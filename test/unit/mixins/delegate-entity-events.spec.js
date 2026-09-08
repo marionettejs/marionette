@@ -1,108 +1,52 @@
-import DelegateEntityEventsMixin from '../../../src/mixins/delegate-entity-events';
-import { normalizeMethods } from '@marionette/utils';
+import { describe, expect, it, vi } from 'vitest';
+import { View } from 'marionette';
+import { Events } from '@marionette/utils';
 
-describe('delegate entity events mixin', function() {
-  let obj;
-  let model;
-  let collection;
-  let modelCleanup;
-  let collectionCleanup;
+function source() { return Object.assign({}, Events); }
 
-  beforeEach(function() {
-    model = { type: 'model' };
-    collection = { type: 'collection' };
-    modelCleanup = this.sinon.spy();
-    collectionCleanup = this.sinon.spy();
-
-    obj = Object.assign({
-      normalizeMethods,
-      onModel: this.sinon.spy(),
-      onCollection: this.sinon.spy(),
-      Data: {
-        subscribe: this.sinon.stub()
-      }
-    }, DelegateEntityEventsMixin);
-    obj.Data.subscribe.withArgs(model).returns(modelCleanup);
-    obj.Data.subscribe.withArgs(collection).returns(collectionCleanup);
+describe('View entity subscriptions', () => {
+  it('binds model and collection events with the View context and releases both', () => {
+    const model = source();
+    const collection = source();
+    const onModel = vi.fn();
+    const onCollection = vi.fn();
+    const view = new View({ model, collection, modelEvents: { change: onModel }, collectionEvents: { update: onCollection } });
+    model.trigger('change', 'model');
+    collection.trigger('update', 'collection');
+    expect(onModel).toHaveBeenCalledExactlyOnceWith('model');
+    expect(onModel.mock.contexts[0] === view).toBe(true);
+    expect(onCollection).toHaveBeenCalledExactlyOnceWith('collection');
+    view.undelegateEntityEvents();
+    view.undelegateEntityEvents();
+    model.trigger('change');
+    collection.trigger('update');
+    expect(onModel).toHaveBeenCalledTimes(1);
+    expect(onCollection).toHaveBeenCalledTimes(1);
+    view.destroy();
   });
 
-  describe('#_delegateEntityEvents', function() {
-    it('subscribes resolved handlers through DataApi', function() {
-      obj.modelEvents = { change: 'onModel' };
-      obj.collectionEvents = { update: 'onCollection' };
-
-      obj._delegateEntityEvents(model, collection, obj.Data);
-
-      expect(obj.Data.subscribe.firstCall).to.have.been.calledWithExactly(
-        model,
-        'change',
-        obj.onModel,
-        obj
-      );
-      expect(obj.Data.subscribe.secondCall).to.have.been.calledWithExactly(
-        collection,
-        'update',
-        obj.onCollection,
-        obj
-      );
-      expect(obj._modelEvents).to.equal(obj.modelEvents);
-      expect(obj._collectionEvents).to.equal(obj.collectionEvents);
-    });
-
-    it('resolves callable maps once', function() {
-      const modelEvents = { change: 'onModel' };
-      obj.modelEvents = this.sinon.stub().returns(modelEvents);
-
-      obj._delegateEntityEvents(model, null, obj.Data);
-
-      expect(obj.modelEvents).to.have.been.calledOnce.and.calledOn(obj).and.calledWithExactly();
-      expect(obj.Data.subscribe).to.have.been.calledOnce;
-    });
-
-    it('expands space-separated event names', function() {
-      obj.modelEvents = { 'change reset': 'onModel' };
-
-      obj._delegateEntityEvents(model, null, obj.Data);
-
-      expect(obj.Data.subscribe).to.have.callCount(2);
-      expect(obj.Data.subscribe.firstCall.args[1]).to.equal('change');
-      expect(obj.Data.subscribe.secondCall.args[1]).to.equal('reset');
-    });
-
-    it('does not subscribe absent entities or event maps', function() {
-      obj._delegateEntityEvents(model, collection, obj.Data);
-      obj._delegateEntityEvents(null, null, obj.Data);
-
-      expect(obj.Data.subscribe).to.not.have.been.called;
-      expect(obj).to.not.have.property('_modelEventCleanup');
-      expect(obj).to.not.have.property('_collectionEventCleanup');
-    });
-
-    it('propagates subscription setup errors', function() {
-      const error = new Error('subscribe failed');
-      obj.modelEvents = { 'first second': 'onModel' };
-      obj.Data.subscribe.resetBehavior();
-      obj.Data.subscribe.onFirstCall().returns(modelCleanup);
-      obj.Data.subscribe.onSecondCall().throws(error);
-
-      expect(() => obj._delegateEntityEvents(model, null, obj.Data)).to.throw(error);
-      expect(modelCleanup).to.not.have.been.called;
-    });
+  it('replaces subscriptions on redelegation and resolves named/callable event maps', () => {
+    const first = source();
+    const second = source();
+    const handler = vi.fn();
+    const Custom = View.extend({ onChange: handler, modelEvents() { return { change: 'onChange' }; } });
+    const view = new Custom({ model: first });
+    view.undelegateEntityEvents();
+    view.model = second;
+    view.delegateEntityEvents();
+    first.trigger('change', 'old');
+    second.trigger('change', 'new');
+    expect(handler).toHaveBeenCalledExactlyOnceWith('new');
+    view.destroy();
+    second.trigger('change');
+    expect(handler).toHaveBeenCalledTimes(1);
   });
 
-  describe('#_undelegateEntityEvents', function() {
-    it('disposes model and collection subscriptions once', function() {
-      obj.modelEvents = { change: 'onModel' };
-      obj.collectionEvents = { update: 'onCollection' };
-      obj._delegateEntityEvents(model, collection, obj.Data);
-
-      obj._undelegateEntityEvents();
-      obj._undelegateEntityEvents();
-
-      expect(modelCleanup).to.have.been.calledOnce;
-      expect(collectionCleanup).to.have.been.calledOnce;
-      expect(obj).to.not.have.property('_modelEvents');
-      expect(obj).to.not.have.property('_collectionEvents');
-    });
+  it('supports empty resolved maps and missing sources', () => {
+    const view = new View({ modelEvents() { return null; }, collectionEvents() { return undefined; } });
+    expect(view.delegateEntityEvents()).toBe(view);
+    expect(view.undelegateEntityEvents()).toBe(view);
+    view.destroy();
   });
+
 });

@@ -1,4 +1,5 @@
 {
+  "name": "marionette-cjs-node-fixture",
   "private": true,
   "type": "commonjs",
   "scripts": {

@@ -1,4 +1,5 @@
 {
+  "name": "marionette-dom-adapters-package-fixture",
   "private": true,
   "type": "module",
   "scripts": {

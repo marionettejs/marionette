@@ -1,4 +1,4 @@
-import MnObject from '../tmp/typed-core/src/modules/object.js';
+import { MnObject } from 'marionette';
 
 class NativeRoot extends MnObject {
   initialize(options?: object) {}

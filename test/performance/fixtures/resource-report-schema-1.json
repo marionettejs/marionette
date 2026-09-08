@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 1,
+  "workload": {
+    "attachDetachCycles": 100,
+    "mountDestroyCycles": 1000
+  },
+  "allocations": {
+    "View": {
+      "ownProperties": [
+        "_areViewEventsMonitored",
+        "_behaviors",
+        "_childViewEvents",
+        "_childViewTriggers",
+        "_domEvents",
+        "_eventPrefix",
+        "_isAttached",
+        "_isRendered",
+        "_rdEvents",
+        "_regions",
+        "cid",
+        "el",
+        "options",
+        "regions"
+      ],
+      "ownReferences": [
+        "_behaviors",
+        "_domEvents",
+        "_rdEvents",
+        "_regions",
+        "el",
+        "options",
+        "regions"
+      ],
+      "uniqueOwnReferences": 7,
+      "arrays": [
+        "_behaviors",
+        "_domEvents"
+      ],
+      "arrayEntries": 0,
+      "plainObjects": [
+        "_rdEvents",
+        "options",
+        "regions"
+      ],
+      "plainObjectEntries": 6,
+      "childViewContainers": [],
+      "childViewContainerEntries": 0,
+      "regions": [],
+      "regionsWithViews": 0,
+      "marionetteEventRegistrations": 6,
+      "listeningContainers": 0
+    },
+    "Region": {
+      "ownProperties": [
+        "_initEl",
+        "cid",
+        "el",
+        "options"
+      ],
+      "ownReferences": [
+        "_initEl",
+        "el",
+        "options"
+      ],
+      "uniqueOwnReferences": 2,
+      "arrays": [],
+      "arrayEntries": 0,
+      "plainObjects": [
+        "options"
+      ],
+      "plainObjectEntries": 1,
+      "childViewContainers": [],
+      "childViewContainerEntries": 0,
+      "regions": [],
+      "regionsWithViews": 0,
+      "marionetteEventRegistrations": 0,
+      "listeningContainers": 0
+    },
+    "Behavior": {
+      "ownProperties": [
+        "_domEvents",
+        "_rdListenId",
+        "_rdListeningTo",
+        "cid",
+        "el",
+        "options",
+        "ui",
+        "view"
+      ],
+      "ownReferences": [
+        "_domEvents",
+        "_rdListeningTo",
+        "el",
+        "options",
+        "ui",
+        "view"
+      ],
+      "uniqueOwnReferences": 6,
+      "arrays": [
+        "_domEvents"
+      ],
+      "arrayEntries": 0,
+      "plainObjects": [
+        "_rdListeningTo",
+        "options",
+        "ui"
+      ],
+      "plainObjectEntries": 1,
+      "childViewContainers": [],
+      "childViewContainerEntries": 0,
+      "regions": [],
+      "regionsWithViews": 0,
+      "marionetteEventRegistrations": 0,
+      "listeningContainers": 1
+    },
+    "CollectionView": {
+      "ownProperties": [
+        "_areViewEventsMonitored",
+        "_behaviors",
+        "_childViewEvents",
+        "_childViewTriggers",
+        "_children",
+        "_collectionEvents",
+        "_domEvents",
+        "_emptyRegion",
+        "_eventPrefix",
+        "_isAttached",
+        "_rdEvents",
+        "childView",
+        "children",
+        "cid",
+        "collection",
+        "el",
+        "options"
+      ],
+      "ownReferences": [
+        "_behaviors",
+        "_children",
+        "_domEvents",
+        "_emptyRegion",
+        "_rdEvents",
+        "childView",
+        "children",
+        "collection",
+        "el",
+        "options"
+      ],
+      "uniqueOwnReferences": 10,
+      "arrays": [
+        "_behaviors",
+        "_domEvents"
+      ],
+      "arrayEntries": 0,
+      "plainObjects": [
+        "_rdEvents",
+        "options"
+      ],
+      "plainObjectEntries": 8,
+      "childViewContainers": [
+        "_children",
+        "children"
+      ],
+      "childViewContainerEntries": 0,
+      "regions": [
+        "_emptyRegion"
+      ],
+      "regionsWithViews": 0,
+      "marionetteEventRegistrations": 6,
+      "listeningContainers": 0
+    }
+  },
+  "retention": {
+    "regionRegistrationsWhileShown": 1,
+    "collectionRegistrationsWhileMounted": 3,
+    "modelRegistrationsWhileMounted": 1,
+    "externalListenerOwnersWhileMounted": 0,
+    "collectionViewListeningToWhileMounted": 0,
+    "behaviorListeningToWhileMounted": 1,
+    "destroyedBehaviorRetainsHostReference": true,
+    "destroyedHostRetainsBehaviorCount": 1,
+    "externalRegistrationsAfterDestroy": 0,
+    "externalListenerOwnersAfterDestroy": 0,
+    "frameworkListeningToAfterDestroy": 0,
+    "childContainerEntriesAfterDestroy": 0,
+    "managedDomChildrenAfterEmpty": 0,
+    "managedRootsConnectedAfterDestroy": 0,
+    "regionParentReferencesAfterDestroy": 0
+  }
+}

@@ -1,4 +1,5 @@
 {
+  "name": "marionette-cjs-adapters-fixture",
   "private": true,
   "type": "commonjs",
   "scripts": {

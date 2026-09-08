@@ -1,4 +1,5 @@
 {
+  "name": "marionette-docs-collectionview-child-ownership-fixture",
   "private": true,
   "type": "module",
   "scripts": {

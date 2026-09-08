@@ -19,6 +19,7 @@ which indicates whether the View is rendered, attached, or destroyed.
 * [Attaching a View](#attaching-a-view)
 * [Detaching a View](#detaching-a-view)
 * [Destroying a View](#destroying-a-view)
+* [Synchronous failures](#synchronous-failures)
 * [Destroying Children](#destroying-children)
 
 ## Lifecycle State Methods
@@ -260,17 +261,36 @@ that host returns the Behavior without binding. `unbindUIElements()` remains
 available for cleanup, and `getUI()` continues to throw `MN0023` when UI is
 unbound.
 
-Errors from lifecycle handlers propagate and stop the operation. Destruction
-is not transactional: a throwing `before:destroy` or later cleanup handler does
-not clear the destruction guard, undo completed steps, or make a later
-`destroy()` call resume teardown. Fix the failing handler rather than relying
-on a partially destroyed View.
+Errors from lifecycle handlers propagate and stop the operation, as described
+under [Synchronous failures](#synchronous-failures). A throwing `before:destroy`
+or later cleanup handler does not clear the destruction guard or make a later
+`destroy()` call resume teardown.
 
 Successful destruction retains the root `el` object but detaches it. Do not
 infer that all of its contents are retained: owned child Views are removed as
 they are destroyed, and Region or CollectionView cleanup can detach contents
 from managed containers. Marionette makes no general cleanup promise for
 unowned DOM outside those managed boundaries.
+
+## Synchronous failures
+
+Marionette expects valid adapters and working registration and cleanup callbacks.
+An exception during synchronous registration, construction, rendering, or teardown
+propagates to the caller and aborts that operation. Completed work is not rolled
+back. Marionette does not promise to release every resource after a callback throws,
+restore a partially initialized or rendered instance, or recover on the next call or
+source notification. Fix the failing callback or adapter; do not rely on partial
+instance state after a failure.
+
+Successful cleanup and the documented ownership and repeated-destruction rules still
+apply. A callback that destroys or mutates an owner during an in-progress render does
+not acquire additional recovery guarantees merely because it calls a public method;
+use the documented lifecycle boundaries for that workflow.
+
+Application's [asynchronous lifecycle](./marionette.application.md#application-lifecycle)
+has its own readiness, cancellation, rejection, and restart semantics. This synchronous
+failure boundary does not replace those contracts or change ordinary supersession
+into an error.
 
 ## Destroying Children
 

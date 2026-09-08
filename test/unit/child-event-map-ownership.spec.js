@@ -1,4 +1,5 @@
-import { CollectionView, View } from '../../src/index.ts';
+import { describe, it, expect, vi } from 'vitest';
+import { CollectionView, View } from 'marionette';
 
 function setup(kind, options) {
   const child = new View({ template: false });
@@ -12,39 +13,39 @@ function setup(kind, options) {
 for (const kind of ['View', 'CollectionView']) {
   describe(`${kind} child event map ownership`, function() {
     it('ignores inherited entries in event and trigger maps', function() {
-      const inheritedHandler = sinon.spy();
+      const inheritedHandler = vi.fn();
       const { parent, child } = setup(kind, {
         childViewEvents: Object.create({ inherited: inheritedHandler }),
         childViewTriggers: Object.create({ inherited: 'unexpected' }),
       });
-      const unexpected = sinon.spy();
+      const unexpected = vi.fn();
       parent.on('unexpected', unexpected);
       try {
         for (const name of ['constructor', 'toString', '__proto__', 'inherited']) {
-          expect(() => child.trigger(name, 'payload')).not.to.throw();
+          expect(() => child.trigger(name, 'payload')).not.toThrow();
         }
-        expect(inheritedHandler).not.to.have.been.called;
-        expect(unexpected).not.to.have.been.called;
+        expect(inheritedHandler).not.toHaveBeenCalled();
+        expect(unexpected).not.toHaveBeenCalled();
       } finally { parent.destroy(); }
     });
 
     it('dispatches explicitly owned special-name mappings with the parent receiver', function() {
-      const handler = sinon.spy();
+      const handler = vi.fn();
       const events = { ['__proto__']: handler, constructor: handler };
       const { parent, child } = setup(kind, {
         childViewEvents: events,
         childViewTriggers: { ['__proto__']: 'mapped', constructor: 'mapped' },
       });
-      const mapped = sinon.spy();
+      const mapped = vi.fn();
       parent.on('mapped', mapped);
       try {
         child.trigger('__proto__', 'first');
         child.trigger('constructor', 'second');
-        expect(handler).to.have.been.calledTwice;
-        expect(handler.firstCall).to.have.been.calledOn(parent);
-        expect(handler.firstCall).to.have.been.calledWithExactly('first');
-        expect(mapped).to.have.been.calledTwice;
-        expect(mapped.secondCall).to.have.been.calledWithExactly('second');
+        expect(handler).toHaveBeenCalledTimes(2);
+        expect(handler.mock.contexts[0]).toBe(parent);
+        expect(handler).toHaveBeenNthCalledWith(1, 'first');
+        expect(mapped).toHaveBeenCalledTimes(2);
+        expect(mapped).toHaveBeenNthCalledWith(2, 'second');
       } finally { parent.destroy(); }
     });
   });

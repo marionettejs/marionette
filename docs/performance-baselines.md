@@ -8,7 +8,7 @@ adapter or reorganizing an export does not require a performance approval record
 
 `npm run size` builds the packages and reports Brotli-compressed artifacts,
 production module graphs, representative consumer bundles, and deterministic
-allocation and retention observations. Core, data, and adapter packages are
+public instance-construction and retention observations. Core, data, and adapter packages are
 measured separately. ESM, CommonJS, and UMD are alternative distributions, not
 bytes every application downloads together.
 
@@ -23,6 +23,12 @@ non-comparable rather than presented as a regression.
 The historical Phase 0 values remain available as context. They are not ceilings.
 Past budget-amendment evidence is retained under `evidence/` for provenance, but
 its approval process is retired.
+
+Resource schema 2 counts consumer-observed View, Region, Behavior, and CollectionView
+initializations, plus external subscriptions, DOM listeners, callbacks, DOM connectivity,
+and public ownership after teardown. It does not inspect private instance fields,
+internal indexes, or allocation shapes. These metrics are not directly comparable
+with earlier private-representation counts; the report identifies that schema change.
 
 ## What still fails
 

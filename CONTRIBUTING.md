@@ -25,10 +25,10 @@ npm ci
 
 `npm ci` builds the packages and checks the core distributions through `prepare`.
 Generated `dist/` directories and `src/version.js` are ignored by Git; edit source files
-and their co-located TypeScript contracts. Declarations are generated for the published
+and their co-located TypeScript contracts. Declarations are generated for all five
 packages; do not maintain separate handwritten copies. After source edits, run
 `npm run build` before distribution or browser checks. The fixture runner builds
-once before packing local packages; supplying all five package tarballs skips rebuilding. `npm pack` and npm Git installs
+once before packing local packages; supplying an artifact directory or all five tarballs skips rebuilding. `npm pack` and npm Git installs
 run `prepare` automatically; installing a published tarball uses its compiled files.
 If npm uses `strict-allow-scripts`, approve Marionette's `prepare` lifecycle for a
 Git dependency. Tarball consumers can deny scripts because the package is prebuilt.
@@ -117,19 +117,41 @@ Pull requests should:
 
 ## Code and test style
 
-Follow the existing file style and ESLint configuration. Prefer public APIs in tests
-and fixtures. Do not make assertions against private framework fields when the behavior
-requires a public contract.
+Follow the existing file style and ESLint configuration. Tests and fixtures must
+use public APIs only: no private reads, calls, overrides, spies, stubs, or assertions.
+Use observable outcomes and supported package entrypoints. See [the test guide](test/README.md)
+and [AGENTS.md](AGENTS.md) for commands, suite organization, and reports.
 
-The project maintains full line and branch coverage for the configured production
-source set. New production, development, and test subpaths must be added to the
-appropriate coverage and package fixtures.
+Every production file defaults to full coverage. Reviewed unreachable defensive
+paths have explicit absolute uncovered limits in `config/coverage-exceptions.json`;
+reports retain those gaps. Tooling has a separate complete source inventory and
+coverage report. New public subpaths require consumer and package fixtures.
 
 ## Review
 
 Maintainers review correctness, public contracts, runtime cost, tests, documentation,
 and release evidence. Automated review is supporting evidence, not a substitute for
 the issue contract or maintainer judgment.
+
+Use the [synchronous failure boundary](docs/view.lifecycle.md#synchronous-failures)
+when proposing tests or reviewing lifecycle changes. Registration, constructor,
+render, and teardown exceptions abort the synchronous operation; valid adapters and
+working cleanup callbacks are required. Coverage, retention checks, public API usage,
+and mutation survivors do not create a recovery requirement. Do not add constructor
+or partial-registration rollback, cleanup that attempts every callback and rethrows
+the first error, per-instance recovery bookkeeping, or hot-path guards for unsupported
+callback mutation without an explicit maintainer decision. Present any new consumer
+case with its complexity and performance tradeoff before implementing it. Existing
+ownership/idempotence guards and documented asynchronous Application cancellation and
+restart remain supported.
+
+Include this instruction in human and automated reviewer prompts:
+
+> Review against the documented lifecycle and failure contracts. Separate a defect in
+> a supported workflow from a proposed synchronous recovery feature. Do not request
+> rollback, attempt-all cleanup, recovery bookkeeping, or unsupported reentrant
+> mutation guards solely to make a test or mutant pass. Explain any real consumer
+> case and runtime cost so the maintainer can decide before implementation.
 
 ## Runtime checks and types
 

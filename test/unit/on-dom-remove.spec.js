@@ -1,7 +1,9 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { setFixtures } from '../setup/fixtures.js';
 import _ from 'underscore';
 import $ from 'jquery';
-import View from '../../src/modules/view';
-import Region from '../../src/modules/region';
+import { View } from 'marionette';
+import { Region } from 'marionette';
 
 describe('onDomRemove', function() {
   'use strict';
@@ -11,12 +13,12 @@ describe('onDomRemove', function() {
   let MnView;
 
   beforeEach(function() {
-    this.setFixtures($('<div id="region"></div>'));
+    setFixtures($('<div id="region"></div>'));
     attachedRegion = new Region({el: '#region'});
     detachedRegion = new Region({el: $('<div></div>')[0]});
     MnView = View.extend({
       template: _.noop,
-      onDomRemove: this.sinon.stub()
+      onDomRemove: vi.fn()
     });
   });
 
@@ -32,7 +34,7 @@ describe('onDomRemove', function() {
     });
 
     it('should never trigger onDomRemove', function() {
-      expect(mnView.onDomRemove).not.to.have.been.called;
+      expect(mnView.onDomRemove).not.toHaveBeenCalled();
     });
   });
 
@@ -48,14 +50,16 @@ describe('onDomRemove', function() {
     describe('when the region is emptied', function() {
       it('should trigger onDomRemove on the view', function() {
         attachedRegion.empty();
-        expect(mnView.onDomRemove).to.have.been.calledOnce.and.calledWith(mnView);
+        expect(mnView.onDomRemove).toHaveBeenCalledTimes(1);
+        expect(mnView.onDomRemove.mock.calls.map(args => args.slice(0, 1))).toContainEqual([mnView]);
       });
     });
 
     describe('when the view is re-rendered', function() {
       it('should trigger onDomRemove on the view', function() {
         mnView.render();
-        expect(mnView.onDomRemove).to.have.been.calledOnce.and.calledWith(mnView);
+        expect(mnView.onDomRemove).toHaveBeenCalledTimes(1);
+        expect(mnView.onDomRemove.mock.calls.map(args => args.slice(0, 1))).toContainEqual([mnView]);
       });
     });
   });

@@ -48,11 +48,13 @@ real-browser contract lane uses `@playwright/test` 1.62.1 with Chromium
 release](https://playwright.dev/docs/release-notes#version-162). Playwright WebKit is
 the compatibility engine; it is not evidence that branded Safari ran in CI.
 
-CI installs those three browser engines and runs `npm run test:browser` against
-the built distributions. A local `npm ci` installs the dependency but does not
-download browser binaries; install them with Playwright before running browser
-checks locally. `npm run check:browser-profile` compares the installed Playwright
-manifest with `config/release-profile.json`; it does not execute a browser test.
+`npm run test:browser` runs named Playwright projects for all three engines. CI
+installs their pinned binaries and retains results, reports, and failure traces.
+Release validation supplies the exact candidate tarballs to this same suite.
+A local `npm ci` installs the dependency but does not download browser binaries;
+install them with Playwright before running browser checks locally.
+`npm run check:browser-profile` compares the installed Playwright manifest with
+`config/release-profile.json`.
 
 The package and release profile use the semantic Browserslist query `baseline widely
 available`. This is the minimum capability floor for transpilation, not a fixed list

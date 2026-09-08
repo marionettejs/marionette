@@ -1,6 +1,7 @@
-import Behavior from '../../src/modules/behavior';
-import CollectionView from '../../src/modules/collection-view';
-import View from '../../src/modules/view';
+import { vi, describe, it, expect } from 'vitest';
+import { Behavior } from 'marionette';
+import { CollectionView } from 'marionette';
+import { View } from 'marionette';
 
 describe('Behavior DOM delegation contract', function() {
   [
@@ -39,7 +40,7 @@ describe('Behavior DOM delegation contract', function() {
       const secondHost = document.createElement('section');
       firstHost.innerHTML = '<button class="action first">First</button>';
       secondHost.innerHTML = '<button class="action second">Second</button>';
-      const onAction = this.sinon.spy();
+      const onAction = vi.fn();
 
       const TestBehavior = Behavior.extend({
         events: {
@@ -55,25 +56,25 @@ describe('Behavior DOM delegation contract', function() {
       const secondAction = secondHost.querySelector('.second');
 
       firstAction.click();
-      expect(onAction).to.have.been.calledOnce;
+      expect(onAction).toHaveBeenCalledTimes(1);
 
       host.delegateEvents();
       firstAction.click();
       secondAction.click();
-      expect(onAction).to.have.been.calledTwice;
+      expect(onAction).toHaveBeenCalledTimes(2);
 
       host.delegateEvents();
       firstAction.click();
-      expect(onAction).to.have.been.calledThrice;
+      expect(onAction).toHaveBeenCalledTimes(3);
 
       host.delegateEvents();
       secondAction.click();
       firstAction.click();
-      expect(onAction).to.have.callCount(4);
+      expect(onAction).toHaveBeenCalledTimes(4);
 
       host.destroy();
       firstAction.click();
-      expect(onAction).to.have.callCount(4);
+      expect(onAction).toHaveBeenCalledTimes(4);
     });
   });
 });

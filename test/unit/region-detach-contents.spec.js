@@ -1,6 +1,7 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 
-import Region from '../../src/modules/region';
+import { Region } from 'marionette';
 
 // Locks the v5 native `detachContents` policy: `Region.empty()` clears the
 // region element when no view is shown. The contrasting jQuery DomApi behavior

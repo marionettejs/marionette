@@ -48,7 +48,9 @@ The canonical Ubuntu release job stores these files together as the immutable
   `marionette-data-<version>.tgz`, and `marionette-adapters-<version>.tgz`;
 - `release-evidence.json` and its SHA-512 checksum;
 - the complete `npm pack --json` manifest for each package;
-- the Brotli-11 bundle report.
+- the Brotli-11 bundle report;
+- `candidate-validation.json`, its checksum, check logs, browser results and artifact
+  identities, and every locked consumer fixture result.
 
 The evidence records the tarball SHA-256, SHA-512, npm integrity and shasum, package
 manifest, source repository and commit, expected npm dist-tag and Git tag, Node/npm
@@ -64,10 +66,12 @@ release contract. A maintainer can also dispatch it with `publish` left false. T
 dry run:
 
 1. verifies the pinned release profile and clean source commit;
-2. runs source, lint, coverage, browser-profile, diagnostic, distribution, and
-   package checks;
-3. performs the final artifact build and packs without lifecycle scripts;
-4. verifies the exact tarball on all supported release hosts;
+2. performs the final artifact build and packs without lifecycle scripts;
+3. runs `release:validate` against those exact tarballs: public boundaries, workflow
+   lint, source/types, tooling tests, coverage, executable documentation checks,
+   distribution validation, all three browser engines, and every locked fixture;
+4. verifies the successful candidate report and exact tarballs on all supported
+   release hosts;
 5. inspects npm, Git tag, and GitHub release target occupancy;
 6. runs `npm publish <tarball> --dry-run --ignore-scripts` and validates the GitHub
    release plan.
@@ -130,3 +134,21 @@ its release asset.
 The GitHub draft or published release retains the exact assets needed to finish
 recovery even after the temporary workflow artifact expires. Website publication is a
 separate post-v5 task and is not part of this workflow.
+
+## Publication trust configuration
+
+`config/release-environment.json` records the GitHub environment settings for
+`stable-release`. On 2026-09-08, the live environment was verified to require
+`paulfalgout` approval and allow deployments from the `master` branch only. Self
+review and administrator bypass remain allowed; this is a maintainer approval
+gate, not independent two-person approval. Recheck the live settings before
+publication; a checked-in configuration does not prove a remote policy is current.
+
+Each of the five npm packages must separately trust GitHub Actions for owner
+`marionettejs`, repository `marionette`, workflow `release.yml`, and environment
+`stable-release`. The package access/settings UI requires a signed-in npm
+maintainer. This audit could not verify those settings; do not infer npm trust
+from the GitHub environment or the successful publication dry run. Follow npm's
+[trusted publisher setup](https://docs.npmjs.com/trusted-publishers/) and retain
+verification evidence for each package before enabling publication. No publication
+token or credential belongs in the repository.

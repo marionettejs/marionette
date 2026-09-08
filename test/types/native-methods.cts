@@ -1,4 +1,4 @@
-import MnObject from '../tmp/typed-core/src/modules/object.js';
+import { MnObject } from 'marionette';
 
 const Parent = MnObject.extend({
   initialize(options: { label: string }) { options.label.toUpperCase(); },

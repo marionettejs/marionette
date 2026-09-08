@@ -1,7 +1,7 @@
-import View from '../tmp/typed-core/src/modules/view.js';
-import Region from '../tmp/typed-core/src/modules/region.js';
-import Behavior from '../tmp/typed-core/src/modules/behavior.js';
-import CollectionView from '../tmp/typed-core/src/modules/collection-view.js';
+import { View } from 'marionette';
+import { Region } from 'marionette';
+import { Behavior } from 'marionette';
+import { CollectionView } from 'marionette';
 
 const Item = View.extend({
   initialize(options: { label: string }) { options.label.toUpperCase(); },

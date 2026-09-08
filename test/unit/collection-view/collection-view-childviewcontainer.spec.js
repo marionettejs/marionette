@@ -1,7 +1,9 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import '../../setup/backbone.js';
 import _ from 'underscore';
 import Backbone from 'backbone';
-import CollectionView from '../../../src/modules/collection-view';
-import View from '../../../src/modules/view';
+import { CollectionView } from 'marionette';
+import { View } from 'marionette';
 
 describe('CollectionView - childViewContainer', function() {
   let MyCollectionView;
@@ -55,7 +57,7 @@ describe('CollectionView - childViewContainer', function() {
         const labelNode = label && list.firstChild;
         const container = myCollectionView.container;
         const previousChildren = myCollectionView.children.toArray();
-        const detachContents = this.sinon.spy(myCollectionView.Dom, 'detachContents');
+        const detachContents = vi.spyOn(myCollectionView.Dom, 'detachContents');
         input.value = 'edited';
         if (label.startsWith('<li>')) { previousChildren[0].el.after(labelNode); }
 
@@ -67,13 +69,14 @@ describe('CollectionView - childViewContainer', function() {
         expect(myCollectionView.children.first().el.parentNode).to.equal(container);
         expect(myCollectionView.children.first().el.textContent).to.equal('after');
         if (label.trim()) { expect(list.firstChild).to.equal(labelNode); }
-        expect(previousChildren.every(view => view.isDestroyed())).to.be.true;
+        expect(previousChildren.every(view => view.isDestroyed())).toBe(true);
         if (childViewContainer && !label.trim()) {
-          expect(detachContents).to.have.been.calledOnceWithExactly(container);
+          expect(detachContents).toHaveBeenCalledTimes(1);
+          expect(detachContents).toHaveBeenCalledWith(container);
         } else {
-          expect(detachContents).not.to.have.been.called;
+          expect(detachContents).not.toHaveBeenCalled();
         }
-        if (label && !label.trim()) { expect(labelNode.parentNode).to.be.null; }
+        if (label && !label.trim()) { expect(labelNode.parentNode).toBeNull(); }
 
         collection.reset([]);
         expect(myCollectionView.el.querySelector('input')).to.equal(input);
@@ -100,7 +103,7 @@ describe('CollectionView - childViewContainer', function() {
 
       expect(myCollectionView.el.firstChild).to.equal(button);
       expect(external.textContent).to.equal('after');
-      expect(previous.isDestroyed()).to.be.true;
+      expect(previous.isDestroyed()).toBe(true);
       myCollectionView.destroy();
       expect(external.childNodes.length).to.equal(0);
     });
