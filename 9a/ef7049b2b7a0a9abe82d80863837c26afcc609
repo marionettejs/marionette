@@ -1,0 +1,496 @@
+scripts/release/publish-github.mjs
+  s_fae5a6096938ea::t_2504f0c6e3f1c5 55,125,237,239-246
+  s_fae5a6096938ea::t_1fe38af95fe4ad 9
+.github/CODEOWNERS
+  s_fae5a6096938ea::t_efbc3e623dab30 1-17
+.github/ISSUE_TEMPLATE/bug.yml
+  s_fae5a6096938ea::t_880b8a4dba0bdc 60
+.github/dependabot.yml
+  s_fae5a6096938ea::t_0324ba307b02f3 15,27
+.github/workflows/release.yml
+  s_fae5a6096938ea::t_849c9a6019c538 27
+AGENTS.md
+  s_fae5a6096938ea::t_8310a3cbf37dc3 29
+ROADMAP.md
+  s_fae5a6096938ea::t_69f58cb886b634 423,431,437,711,714-715,745,748,920,933
+benchmarks/consumer-bundles/contract.json
+  s_fae5a6096938ea::t_24a546e842ffec 7
+benchmarks/consumer-bundles/v1/backbone-only.js
+  s_fae5a6096938ea::t_eb59efef18fff3 1
+benchmarks/consumer-bundles/v1/jquery-dom-api-only.js
+  s_fae5a6096938ea::t_db8dd2a69cb31b 1
+benchmarks/consumer-bundles/v1/manifest.json
+  s_fae5a6096938ea::t_1958fffbbb6a7c 6-9,81,83,97,99,115,118,136,139,159,162-163
+benchmarks/consumer-bundles/v1/root-plus-backbone-jquery.js
+  s_fae5a6096938ea::t_2a4f0ab8c0137b 3-4
+benchmarks/consumer-bundles/v1/root-plus-backbone.js
+  s_fae5a6096938ea::t_1fcd3ec352d9eb 3
+benchmarks/consumer-bundles/v1/root-plus-jquery.js
+  s_fae5a6096938ea::t_215aa3da7ca1f2 3
+benchmarks/docs/acceptance/run.mjs
+  s_fae5a6096938ea::t_5ed60de9e3e2e2 52
+benchmarks/docs/tasks/editable-list.md
+  s_fae5a6096938ea::t_c4eb4235cb0bbd 4
+changelog.md
+  s_fae5a6096938ea::t_ad6a7ac506f22b 1-6,30,32,40,53
+config/performance.json
+  s_fae5a6096938ea::t_4c8f2146deeb54 198,212,223,230,237,244,251,258
+config/release-promotion.json
+  s_fae5a6096938ea::t_27d4720eb3750e 2-6
+config/release-validation.json
+  s_fae5a6096938ea::t_d1611c62181a00 16-19,185
+docs-site/navigation.json
+  s_fae5a6096938ea::t_72689f9a66f500 14-19
+docs/basics.md
+  s_fae5a6096938ea::t_7dd9e4ec3693eb 28
+docs/beta.md
+  s_fae5a6096938ea::t_591fe9ba59cf07 1-105
+docs/choosing-integrations.md
+  s_fae5a6096938ea::t_782328f313c435 26,30,59,61-64,68,81
+docs/common.md
+  s_fae5a6096938ea::t_2c70a0f7388239 25,28,41-42
+docs/data.api.md
+  s_fae5a6096938ea::t_20a83ce7d97a54 13,158,170,213,215,219,224
+docs/dom.api.md
+  s_fae5a6096938ea::t_7e5969666699ab 222,252
+docs/dom.interactions.md
+  s_fae5a6096938ea::t_8644d98af55783 310
+docs/events.entity.md
+  s_fae5a6096938ea::t_70af2903d0862a 68,153
+docs/events.md
+  s_fae5a6096938ea::t_d77ec101797022 171
+docs/installation.md
+  s_fae5a6096938ea::t_f9be2a6d40d9b3 29,32,42,44,50,55-61,67,70,73,83,86,179,182,186,190,219,236,240,252,256,258,261-262
+docs/maintainers/reference-audit.md
+  s_fae5a6096938ea::t_e5298b1ce97684 47-51
+docs/marionette.collectionview.md
+  s_fae5a6096938ea::t_047d1800b5605f 264,373,443,828,979,1050,1104,1182,1256,1294,1326,1359,1385,1415
+docs/migration-from-v4.md
+  s_fae5a6096938ea::t_d09d7c36b713b8 27,32-34,36,48,50
+docs/optional-backbone.md
+  s_fae5a6096938ea::t_ce3b60cf3ef58e 10,14,24,88
+docs/public-api.md
+  s_fae5a6096938ea::t_a84a2df682e49e 53-60,63
+docs/radio.md
+  s_fae5a6096938ea::t_db90657d41d805 43,49,268
+docs/release-promotion.md
+  s_fae5a6096938ea::t_87664b9f9c6023 10-16,48-50,81-107,112
+docs/runtime-isolation.md
+  s_fae5a6096938ea::t_9c973ba6ad8851 53-54
+docs/utils.md
+  s_fae5a6096938ea::t_91d11b7c47fdc8 10
+docs/view.rendering.md
+  s_fae5a6096938ea::t_337cc2a5e262c9 171,243,252,267,351,401,455,476,519
+package-lock.json
+  s_fae5a6096938ea::t_fade2698c09bb0 3,9,16-17,2581,2585,8750-8751,8754,8761-8762
+package.json
+  s_fae5a6096938ea::t_aca9c84c08fe4b 4,168-169
+packages/adapters/package.json
+  s_fae5a6096938ea::t_f1e4fda1abe1aa 2,4,81
+packages/adapters/readme.md
+  s_fae5a6096938ea::t_5fea4b93eb0391 1,30,39,72,80,129,134,145,175,180,197,203
+packages/data/package.json
+  s_fae5a6096938ea::t_594ecf22612a82 2,4,52
+packages/data/readme.md
+  s_fae5a6096938ea::t_0c106d1bc6f75d 1,4-5,10,15,39,155
+packages/data/rollup.config.mjs
+  s_fae5a6096938ea::t_3dfdee9d430e7c 5
+packages/data/src/api.ts
+  s_fae5a6096938ea::t_ed455f915345b7 6,12,50
+packages/data/src/collection.ts
+  s_fae5a6096938ea::t_fdfe0492409939 1,4,132,313
+packages/data/src/index.ts
+  s_fae5a6096938ea::t_89f42961a8b4d0 4,6
+packages/data/src/model.ts
+  s_fae5a6096938ea::t_6fc743d1b71b1b 1,3
+packages/data/tsconfig.declarations.json
+  s_fae5a6096938ea::t_b240f7e0b445d7 11
+packages/radio/package.json
+  s_fae5a6096938ea::t_99efea0d46b285 2,4,52
+packages/radio/readme.md
+  s_fae5a6096938ea::t_6a80cce9ac44bd 1,6,10,27,37
+packages/radio/rollup.config.mjs
+  s_fae5a6096938ea::t_0bc5dc5d1739f0 5
+packages/radio/src/radio.ts
+  s_fae5a6096938ea::t_b68246a05648a3 2-3
+packages/radio/src/requests.ts
+  s_fae5a6096938ea::t_ab36d95f5146aa 2
+packages/radio/tsconfig.declarations.json
+  s_fae5a6096938ea::t_177b4c71213a44 11
+packages/utils/package.json
+  s_fae5a6096938ea::t_80b9c2a8d3a8f5 2,4
+packages/utils/readme.md
+  s_fae5a6096938ea::t_b49babc5aadfc7 1,4,7,20
+readme.md
+  s_fae5a6096938ea::t_698c8d16a08e18 71
+rollup.config.mjs
+  s_fae5a6096938ea::t_afc1431e1f59c5 9,30
+scripts/agent-benchmark/harness.mjs
+  s_fae5a6096938ea::t_c4cf23a0bc8b1e 11-13,78,86
+scripts/diagnostics/catalog.mjs
+  s_fae5a6096938ea::t_0c6469ee708d98 197
+scripts/docs/package.mjs
+  s_fae5a6096938ea::t_594f669708e51c 40-46
+scripts/performance/adapters-package-size.mjs
+  s_fae5a6096938ea::t_4a7cdc01a2b882 59,66,70,76
+scripts/performance/data-package-removal.mjs
+  s_fae5a6096938ea::t_cc03fdfe0a309e 13
+scripts/performance/data-package-size.mjs
+  s_fae5a6096938ea::t_1be1fd1f39ed46 43-44,51,58,60
+scripts/release/build-artifact.mjs
+  s_fae5a6096938ea::t_05edc662b3d99d 8,94-95,118-119,121-122,195,220
+scripts/release/check-targets.mjs
+  s_fae5a6096938ea::t_f837e4e9c41d9d 43
+scripts/release/packages.mjs
+  s_fae5a6096938ea::t_14c67f337e8361 2-3,5-6
+scripts/release/preflight.mjs
+  s_fae5a6096938ea::t_2a62eeba00e3d1 4,84,98-99,110,112
+scripts/release/publication.mjs
+  s_fae5a6096938ea::t_6d61f5eb8c6664 1-13
+scripts/release/verify-artifact.mjs
+  s_fae5a6096938ea::t_48d697f5a7d687 6,66,152-154,156-159
+src/create-marionette.ts
+  s_fae5a6096938ea::t_43daf9b2129bc4 1,11
+src/index.ts
+  s_fae5a6096938ea::t_e52015cd600d56 60-64
+src/mixins/behaviors.ts
+  s_fae5a6096938ea::t_cf8d4da9b9d22f 1
+src/mixins/common.ts
+  s_fae5a6096938ea::t_17c140cb5b362d 10-12
+src/mixins/delegate-entity-events.ts
+  s_fae5a6096938ea::t_0f941930eb9177 1-2
+src/mixins/destroy.ts
+  s_fae5a6096938ea::t_b30fcee3f6553e 1
+src/mixins/radio.ts
+  s_fae5a6096938ea::t_a61fc7079545aa 1-5
+src/mixins/state.ts
+  s_fae5a6096938ea::t_8a97baccdf3306 1-2
+src/mixins/template-render.ts
+  s_fae5a6096938ea::t_00051c8301e255 1
+src/mixins/ui.ts
+  s_fae5a6096938ea::t_39057de5867069 1
+src/mixins/view-events.ts
+  s_fae5a6096938ea::t_ee321c9c40df94 2,4
+src/mixins/view.ts
+  s_fae5a6096938ea::t_d6232f93fc7b79 4,21
+src/modules/application.ts
+  s_fae5a6096938ea::t_5a0b56e0ac496f 4,19-20
+src/modules/behavior.ts
+  s_fae5a6096938ea::t_75a7542781f885 7-8,18
+src/modules/child-view-container.ts
+  s_fae5a6096938ea::t_9cb9b70831c731 1
+src/modules/collection-view.ts
+  s_fae5a6096938ea::t_984fcb0b61907f 4,232
+src/modules/common/build-region.ts
+  s_fae5a6096938ea::t_a3cefe9e8794f5 1
+src/modules/common/view.ts
+  s_fae5a6096938ea::t_c52e71211e2686 2
+src/modules/object.ts
+  s_fae5a6096938ea::t_3cf8b49a4e2b5a 6,24-26,28-29,58
+src/modules/region.ts
+  s_fae5a6096938ea::t_f041e658e22d8f 4,14
+src/modules/view.ts
+  s_fae5a6096938ea::t_0a18ea6ae0362f 4-5,22
+src/runtime/data-api.ts
+  s_fae5a6096938ea::t_bc11d89ce22b08 3-4
+src/runtime/state-api.ts
+  s_fae5a6096938ea::t_f7a563baa9f57b 3
+src/utils/extend.ts
+  s_fae5a6096938ea::t_ae7eb665cde0c9 1
+src/utils/subscribe-bindings.ts
+  s_fae5a6096938ea::t_358c556836429d 1-2
+test/agent-benchmark/harness.test.mjs
+  s_fae5a6096938ea::t_0dd622cf28012e 65-66
+test/browser/adapters-package.spec.mjs
+  s_fae5a6096938ea::t_bd8a8b70c45f2e 22-23,25,92
+test/browser/beta-starter.spec.mjs
+  s_fae5a6096938ea::t_87f7158de3bbca 1-45
+test/browser/collection-removal-survivors.spec.mjs
+  s_fae5a6096938ea::t_c9faa6cb47cf73 9
+test/browser/data-package.spec.mjs
+  s_fae5a6096938ea::t_9c2dccd6929ef5 7,48
+test/browser/fixtures.mjs
+  s_fae5a6096938ea::t_aece2e2e548156 47
+test/browser/global-setup.mjs
+  s_fae5a6096938ea::t_a2cecb2da22759 9-10,12-13,26,28,37
+test/contracts/dom-adapters.js
+  s_fae5a6096938ea::t_d0fcf55d004cfc 2-3,5
+test/dist/validate.mjs
+  s_fae5a6096938ea::t_742b03a7d809ee 119-120,122,124-125
+test/fixtures/adapters-package-vite/src/main.js
+  s_fae5a6096938ea::t_ec1a3a713739c8 4-6
+test/fixtures/backbone-adapter-types/validate.cts
+  s_fae5a6096938ea::t_da0e1495e711e4 1
+test/fixtures/backbone-adapter-types/validate.mts
+  s_fae5a6096938ea::t_97997aa7c2e4e0 1
+test/fixtures/backbone-adapter/validate-cjs-adapter-first.cjs
+  s_fae5a6096938ea::t_83c250e1d52610 3
+test/fixtures/backbone-adapter/validate-cjs-backbone-first.cjs
+  s_fae5a6096938ea::t_3c8be7c0a2ccbb 19
+test/fixtures/backbone-adapter/validate-esm-adapter-first.mjs
+  s_fae5a6096938ea::t_8c27526ef4f812 3
+test/fixtures/backbone-adapter/validate-esm-backbone-first.mjs
+  s_fae5a6096938ea::t_9198df2459c8eb 19
+test/fixtures/backbone-adapter/validate.mjs
+  s_fae5a6096938ea::t_4bdf89ecb7a51c 14,18,22,26,30
+test/fixtures/cjs-adapters/validate.cjs
+  s_fae5a6096938ea::t_5d6a6f5edc68a8 13,21-22
+test/fixtures/collection-removal-survivors/validate.mjs
+  s_fae5a6096938ea::t_e6a50d0c2285d9 11
+test/fixtures/core-types/consumer.cts
+  s_fae5a6096938ea::t_7035ac34a44219 8-9
+test/fixtures/core-types/consumer.mts
+  s_fae5a6096938ea::t_54df2da396561b 8-9
+test/fixtures/data-package-cjs/validate.cjs
+  s_fae5a6096938ea::t_daf00b7a1d90af 3
+test/fixtures/data-package-esm/validate.mjs
+  s_fae5a6096938ea::t_a25d1e5a8b1488 3
+test/fixtures/data-package-starter/index.html
+  s_fae5a6096938ea::t_0ad28899709b31 1-14
+test/fixtures/data-package-starter/main.mjs
+  s_fae5a6096938ea::t_baaeaba5c2bd45 1-18
+test/fixtures/data-package-starter/package.json
+  s_fae5a6096938ea::t_f17e38f0b4e70f 1-13
+test/fixtures/data-package-starter/readme.md
+  s_fae5a6096938ea::t_3fdbfa7b9033fd 1-30
+test/fixtures/data-package-starter/workspace.mjs
+  s_fae5a6096938ea::t_1c6c5762743618 1-76
+test/fixtures/data-package-starter/workspace.test.mjs
+  s_fae5a6096938ea::t_90efde7ea775b4 1-57
+test/fixtures/data-package-types/validate.cts
+  s_fae5a6096938ea::t_8c2951e9eb4a39 8
+test/fixtures/data-package-types/validate.mts
+  s_fae5a6096938ea::t_fe9e7b5668c637 8
+test/fixtures/data-package-types/validate.ts
+  s_fae5a6096938ea::t_895ff0fad5dc21 8
+test/fixtures/data-package-vite/src/main.js
+  s_fae5a6096938ea::t_f440428bbdd3a3 2
+test/fixtures/dom-adapters-package/runtime.mjs
+  s_fae5a6096938ea::t_17e305d51081e3 20
+test/fixtures/dom-adapters-package/validate.cts
+  s_fae5a6096938ea::t_ff527e2a27151e 3-4
+test/fixtures/dom-adapters-package/validate.mjs
+  s_fae5a6096938ea::t_c9ffb8d6c5d5a3 14
+test/fixtures/dom-adapters-package/validate.mts
+  s_fae5a6096938ea::t_8c3fb3961f006c 3-4
+test/fixtures/jquery-dom-api-types/validate.cts
+  s_fae5a6096938ea::t_bfa394e88cd674 3
+test/fixtures/jquery-dom-api-types/validate.mts
+  s_fae5a6096938ea::t_9102d8d7360d59 3
+test/fixtures/jquery-dom-api/validate.mjs
+  s_fae5a6096938ea::t_f9973c830acfdd 13
+test/fixtures/run.mjs
+  s_fae5a6096938ea::t_948ece20d4c000 12-15,65,70,73
+test/fixtures/standalone-packages/consumer.cts
+  s_fae5a6096938ea::t_90c5feda4768dc 1-3
+test/fixtures/standalone-packages/consumer.mts
+  s_fae5a6096938ea::t_cd3d3f0bc8cebf 1-3
+test/fixtures/standalone-packages/validate.mjs
+  s_fae5a6096938ea::t_11f3caac87ad46 3-5,11
+test/fixtures/utils-package/consumer.cts
+  s_fae5a6096938ea::t_327e69f163b72d 3-4
+test/fixtures/utils-package/consumer.mts
+  s_fae5a6096938ea::t_e39fe176fd9c9d 3-4
+test/fixtures/utils-package/validate.mjs
+  s_fae5a6096938ea::t_cc1e0ba3d4145a 4,9
+test/fixtures/xstate-adapter-types/validate.cts
+  s_fae5a6096938ea::t_d9f29623bd329a 2
+test/fixtures/xstate-adapter-types/validate.mts
+  s_fae5a6096938ea::t_425b8c68e64797 2
+test/performance/application-tree-shaking.test.mjs
+  s_fae5a6096938ea::t_47ab567295f474 26
+test/performance/contract.test.mjs
+  s_fae5a6096938ea::t_d5fb29a0951022 132,140,158,160,168,294,298,305,316,350,371,409,411
+test/performance/xstate-adapter.test.mjs
+  s_fae5a6096938ea::t_e6ae6ff4751335 6
+test/release/build.test.mjs
+  s_fae5a6096938ea::t_8f21bae526876b 13-14,120,149-165
+test/release/candidate.test.mjs
+  s_fae5a6096938ea::t_7f699ebf84ba1a 25
+test/release/fixture.mjs
+  s_fae5a6096938ea::t_7a03a9907624c4 12-13,26,35-37,46,88,90,93
+test/release/promotion.test.mjs
+  s_fae5a6096938ea::t_5a897e072097e8 9,33,52,56,140,178,195,204-237
+test/release/publication.test.mjs
+  s_fae5a6096938ea::t_63c053fed6f78f 1-61
+test/setup/backbone.js
+  s_fae5a6096938ea::t_3f344e1f73070a 2
+test/source/public-source.mjs
+  s_fae5a6096938ea::t_c55a7ee053c0e9 7-10
+test/source/validate.mjs
+  s_fae5a6096938ea::t_b032583f5a6055 11,18,113
+test/tooling/fixtures.test.mjs
+  s_fae5a6096938ea::t_2b4f1468d47bb5 13,139
+test/types/bindings.cts
+  s_fae5a6096938ea::t_6d2d0d1f6f3a4d 2-4
+test/types/bindings.mts
+  s_fae5a6096938ea::t_1df90cd533ef52 2-4
+test/types/collection-view.cts
+  s_fae5a6096938ea::t_ae78b6a9363ec2 3
+test/types/collection-view.mts
+  s_fae5a6096938ea::t_e7431ffd2149b5 3
+test/types/error.cts
+  s_fae5a6096938ea::t_155158e959d926 1
+test/types/error.mts
+  s_fae5a6096938ea::t_048c78b4890787 1
+test/types/events.cts
+  s_fae5a6096938ea::t_1e029828efd407 1-5
+test/types/events.mts
+  s_fae5a6096938ea::t_2787b6739d2369 1-5
+test/types/get-value.cts
+  s_fae5a6096938ea::t_0ca14434afe3fa 1
+test/types/get-value.mts
+  s_fae5a6096938ea::t_4415eee10d8cbb 1
+test/types/helpers.cts
+  s_fae5a6096938ea::t_e9a30b092a17bc 1
+test/types/helpers.mts
+  s_fae5a6096938ea::t_d95624d23a9732 1
+test/types/options.cts
+  s_fae5a6096938ea::t_a0deedb02dc2f1 1
+test/types/options.mts
+  s_fae5a6096938ea::t_05b1c442c182e7 1
+test/types/providers.cts
+  s_fae5a6096938ea::t_37312fe38deefe 6-7
+test/types/providers.mts
+  s_fae5a6096938ea::t_0bc1155c0040a1 6-7
+test/types/radio.cts
+  s_fae5a6096938ea::t_7473bc9067e3f3 1-2
+test/types/radio.mts
+  s_fae5a6096938ea::t_dd8ebe670be9bf 1-2
+test/types/requests.cts
+  s_fae5a6096938ea::t_0fe082b12a1c8e 1-2
+test/types/requests.mts
+  s_fae5a6096938ea::t_493ee8534394f8 1-2
+test/types/run.mjs
+  s_fae5a6096938ea::t_5f0aaacceacade 9,13-16
+test/types/trigger-method.cts
+  s_fae5a6096938ea::t_72de0afae1929a 1-2
+test/types/trigger-method.mts
+  s_fae5a6096938ea::t_91e8cbfb270532 1-2
+test/types/trusted-contracts.cts
+  s_fae5a6096938ea::t_ba505253f656d6 3
+test/types/trusted-contracts.mts
+  s_fae5a6096938ea::t_21c9bb7d32bc98 3
+test/unit/application-lifecycle.spec.js
+  s_fae5a6096938ea::t_cd655deca4b35c 5
+test/unit/backbone-adapter.spec.js
+  s_fae5a6096938ea::t_1e39888a3968e5 29
+test/unit/backbone.marionette.spec.js
+  s_fae5a6096938ea::t_67d5bd8fb09722 12
+test/unit/child-view-container.spec.js
+  s_fae5a6096938ea::t_b024efb097b8ee 5
+test/unit/collection-view/collection-view-empty.spec.js
+  s_fae5a6096938ea::t_a98b6b542539f2 10
+test/unit/collection-view/collection-view-reconciliation.spec.js
+  s_fae5a6096938ea::t_3be3b05cf5ae01 7
+test/unit/collection-view/collection-view.spec.js
+  s_fae5a6096938ea::t_03d372380bb0fe 12
+test/unit/common/bind-events.spec.js
+  s_fae5a6096938ea::t_7c2f6bf5c0adaa 2
+test/unit/common/bind-request.spec.js
+  s_fae5a6096938ea::t_adf1b81e6f0578 2-3
+test/unit/common/get-option.spec.js
+  s_fae5a6096938ea::t_65f2dd726bb143 2
+test/unit/common/merge-options.spec.js
+  s_fae5a6096938ea::t_fe9b9acfdbca67 2
+test/unit/common/trigger-method.spec.js
+  s_fae5a6096938ea::t_5c8cc980549e77 2
+test/unit/data-api-integration.spec.js
+  s_fae5a6096938ea::t_7cc880d8d2002a 5
+test/unit/data-package/api-integration.spec.js
+  s_fae5a6096938ea::t_30fdf71ccff80e 3,5
+test/unit/data-package/collection-observers.spec.js
+  s_fae5a6096938ea::t_f5f82e88dbf042 3,5
+test/unit/data-package/collection.spec.js
+  s_fae5a6096938ea::t_69f89d650ca2da 2,4
+test/unit/data-package/model.spec.js
+  s_fae5a6096938ea::t_92727cc8d78c1e 2,4
+test/unit/destroyed-bind-ui-elements.spec.js
+  s_fae5a6096938ea::t_413fac8a24b4b7 5
+test/unit/docs-integrations-examples.spec.js
+  s_fae5a6096938ea::t_560b194d1f552c 4-5
+test/unit/events-iteration.spec.js
+  s_fae5a6096938ea::t_20ac60b2461c18 2
+test/unit/events-parity.spec.js
+  s_fae5a6096938ea::t_da7c2be6f769f1 5,280
+test/unit/jquery-dom-api.spec.js
+  s_fae5a6096938ea::t_bdf6c923ae5d58 9,28
+test/unit/mixins/behaviors.spec.js
+  s_fae5a6096938ea::t_98c59ca363a13e 3
+test/unit/mixins/delegate-entity-events.spec.js
+  s_fae5a6096938ea::t_102084177ca0dc 3
+test/unit/mixins/events.spec.js
+  s_fae5a6096938ea::t_05e51503b0e493 3
+test/unit/modules-error.spec.js
+  s_fae5a6096938ea::t_774768829f7fc6 3
+test/unit/owned-cleanup.spec.js
+  s_fae5a6096938ea::t_df0c886c63e632 3-4
+test/unit/radio-composition.spec.js
+  s_fae5a6096938ea::t_6f0cff9efaea0d 2-4
+test/unit/radio-parity.spec.js
+  s_fae5a6096938ea::t_943e00f39f47ce 3
+test/unit/radio-public.spec.js
+  s_fae5a6096938ea::t_9c13eb040bcfab 2
+test/unit/radio.spec.js
+  s_fae5a6096938ea::t_b14e5980371bb3 2
+test/unit/region-el-validation.spec.js
+  s_fae5a6096938ea::t_809a4da7c5a48b 5
+test/unit/region-lifecycle.spec.js
+  s_fae5a6096938ea::t_72503b10911008 6
+test/unit/region.spec.js
+  s_fae5a6096938ea::t_0f4d6a2a9016da 5
+test/unit/requests.spec.js
+  s_fae5a6096938ea::t_1ab6e7bac8662b 2-3
+test/unit/runtime/backbone-api.spec.js
+  s_fae5a6096938ea::t_3025ac1763c7bd 4
+test/unit/runtime/data-api.spec.js
+  s_fae5a6096938ea::t_5569b15a439474 4
+test/unit/runtime/state-api.spec.js
+  s_fae5a6096938ea::t_36db1867ab1c22 4
+test/unit/state-owner.spec.js
+  s_fae5a6096938ea::t_2d6ed8702f29a7 3
+test/unit/ui-binding-diagnostics.spec.js
+  s_fae5a6096938ea::t_ff6074e6e34715 5
+test/unit/utils/build-event-args.spec.js
+  s_fae5a6096938ea::t_a12dad2637965a 2
+test/unit/utils/call-handler.spec.js
+  s_fae5a6096938ea::t_7e6af01790ed46 2
+test/unit/utils/get-value.spec.js
+  s_fae5a6096938ea::t_263334ef46fb97 4
+test/unit/utils/is-string.spec.js
+  s_fae5a6096938ea::t_c0d1aecbed9f2f 5
+test/unit/utils/once-wrap.spec.js
+  s_fae5a6096938ea::t_65310212a9097a 2
+test/unit/utils/set-property.spec.js
+  s_fae5a6096938ea::t_7f0314b7028783 2
+test/unit/utils/unique-id.spec.js
+  s_fae5a6096938ea::t_f0f9b378f4fcca 11
+test/unit/xstate-adapter.spec.js
+  s_fae5a6096938ea::t_a3c073392b0a05 4
+tsconfig.declarations.json
+  s_fae5a6096938ea::t_0f30c404f2036b 11,14
+tsconfig.json
+  s_fae5a6096938ea::t_f66342bbcaa172 19,22
+upgradeGuide.md
+  s_fae5a6096938ea::t_db58d65b26fc6a 96,100,112,269,277,363,409,422,427-428,447,452,458,468,473
+vitest.config.js
+  s_fae5a6096938ea::t_94d192f60804a8 43,46,49,52,55,58
+test/fixtures/data-package-starter/package-lock.json
+  s_fae5a6096938ea::t_22955a4cd46fc8 1-1279
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "9aef7049b2b7a0a9abe82d80863837c26afcc609",
+  "prompts": {},
+  "sessions": {
+    "s_fae5a6096938ea": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08215-179d-79e2-9e34-97d51f445f91",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
