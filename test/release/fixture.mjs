@@ -110,7 +110,7 @@ async function successfulValidation(candidate) {
     ['profile', 'check:release-profile'], ['browser-profile', 'check:browser-profile'],
     ['diagnostics', 'check:diagnostics'], ['public-tests', 'check:public-tests'], ['workflows', 'check:workflows'],
     ['source-types', 'check:types'], ['consumer-types', 'test:types'], ['lint', 'lint:ci'],
-    ['tooling', 'test:tooling'], ['source', 'test:source'], ['coverage', 'coverage'],
+    ['tooling', 'coverage:tooling'], ['source', 'test:source'], ['coverage', 'coverage'],
     ['documentation', 'docs:check'], ['distribution', 'test:dist'], ['browser', 'test:browser'],
     ['fixtures', 'test:fixtures'],
   ];

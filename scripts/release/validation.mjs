@@ -11,7 +11,7 @@ export const candidateChecks = Object.freeze([
   ['source-types', 'check:types'],
   ['consumer-types', 'test:types'],
   ['lint', 'lint:ci'],
-  ['tooling', 'test:tooling'],
+  ['tooling', 'coverage:tooling'],
   ['source', 'test:source'],
   ['coverage', 'coverage'],
   ['documentation', 'docs:check'],
