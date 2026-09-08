@@ -1,0 +1,79 @@
+.github/copilot-instructions.md
+  s_bc19ab09821624::t_f09d8b574bfe9d 8-18
+AGENTS.md
+  s_bc19ab09821624::t_cd08037d922f68 15-23
+CONTRIBUTING.md
+  s_bc19ab09821624::t_81e6c924913dc4 305-324
+config/mutation.json
+  s_e9ec88924dcd73::t_2ba258c5eafecf 3,8
+docs/data.api.md
+  s_bc19ab09821624::t_bd4be4127ff6e4 94-95
+docs/dom.interactions.md
+  s_bc19ab09821624::t_c655f8b19d2621 191-192
+docs/marionette.application.md
+  s_bc19ab09821624::t_5a46305091e6c3 67-69
+docs/migration-from-v4.md
+  s_bc19ab09821624::t_ba41d99ba75225 110
+docs/view.lifecycle.md
+  s_bc19ab09821624::t_05300dad74c5a8 261-264,272-291
+evidence/state-data-regression-ledger.md
+  s_bc19ab09821624::t_9bdd1a90df6f97 8-11,17-18,20,26-27,30
+src/mixins/behaviors.ts
+  s_e9ec88924dcd73::t_59d5843d6b70a0 88,93
+src/mixins/delegate-entity-events.ts
+  s_e9ec88924dcd73::t_f1f84558f78f00 24-32,34,36-44,61
+src/mixins/state.ts
+  s_e9ec88924dcd73::t_d738d47ab1ff24 80-83
+src/mixins/view-events.ts
+  s_e9ec88924dcd73::t_97327ad92262fb 67
+src/mixins/view.ts
+  s_e9ec88924dcd73::t_45df02ff9e3576 170,172-173,180-181
+src/modules/application.ts
+  s_e9ec88924dcd73::t_9b906941b4d579 10,15,164-172
+src/modules/behavior.ts
+  s_e9ec88924dcd73::t_0261737da606c8 128-158,178-182
+src/modules/collection-view.ts
+  s_e9ec88924dcd73::t_7410e6425c605c 9-10,355-356,358-359,361,363-368,370,372,374-376,378,380,382,384-385,387,389
+src/modules/common/view.ts
+  s_e9ec88924dcd73::t_1ad77c255fc853 48
+src/modules/object.ts
+  s_e9ec88924dcd73::t_26874aad782764 146-152
+src/modules/region.ts
+  s_e9ec88924dcd73::t_63a2e49cbae0bd 116,118,120-121,123
+src/modules/view.ts
+  s_e9ec88924dcd73::t_a22d0a85f0a57d 9-10,482-488,490-496,498-514
+src/utils/subscribe-bindings.ts
+  s_e9ec88924dcd73::t_54d03377775e7f 15-17,19-21
+test/README.md
+  s_bc19ab09821624::t_63fd6af9155b1f 8-23
+test/unit/mixins/delegate-entity-events.spec.js
+  s_e9ec88924dcd73::t_04ee073aa27c01 2
+test/unit/model-based/README.md
+  s_bc19ab09821624::t_399dcaecfebdad 30,36-56
+test/unit/region-adoption.spec.js
+  s_e9ec88924dcd73::t_d1bc6830122ca8 2,5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "9f6215a5433d2214774b83e7af7f86e796924931",
+  "prompts": {},
+  "sessions": {
+    "s_bc19ab09821624": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e7-cb4f-73e3-b41e-328bfeae0db2",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
