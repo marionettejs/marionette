@@ -1,0 +1,905 @@
+.github/dependabot.yml
+  s_bc19ab09821624::t_b0d0e0b2718826 1-34
+.github/workflows/ci.yml
+  s_bc19ab09821624::t_832eb7dcd4f752 14-17,50-56,70-80,95-106
+.github/workflows/mutation.yml
+  s_bc19ab09821624::t_564fce9f7dfb57 1-35
+.github/workflows/release.yml
+  s_bc19ab09821624::t_b7be64f73bb2da 6,8,10-12,15-20,37,109-110,121-122,124-138,198,201-210,244,335,383
+AGENTS.md
+  s_14c2c438fbdb53::t_4ef142c85ca128 26-63
+CONTRIBUTING.md
+  s_14c2c438fbdb53::t_8076e32120a439 28,31,120-123,125-128,136-155
+benchmarks/agent/README.md
+  s_bc19ab09821624::t_0b7fa1a9aac8c1 1,3-12,86-199
+benchmarks/agent/app/README.md
+  s_bc19ab09821624::t_503872c582f64c 1-26
+benchmarks/agent/app/index.html
+  s_bc19ab09821624::t_5bf297899fb359 1-5
+benchmarks/agent/app/main.mjs
+  s_bc19ab09821624::t_326359a6820d3b 1-86
+benchmarks/agent/app/style.css
+  s_bc19ab09821624::t_39e4fb1395084e 1
+benchmarks/agent/corpus.json
+  s_bc19ab09821624::t_ac4d2138bcfba6 1-404
+benchmarks/agent/evaluator.json
+  s_bc19ab09821624::t_38edeb8a3b1e9a 1-45
+benchmarks/agent/series-decisions.json
+  s_bc19ab09821624::t_69f78b0a732595 1-92
+benchmarks/agent/support/dependency-lock.json
+  s_bc19ab09821624::t_93bc3805dc2b27 1-516
+benchmarks/agent/support/environment.mjs
+  s_bc19ab09821624::t_1aed24f15ee669 1-10
+benchmarks/agent/tasks/async-panel/acceptance/acceptance.test.mjs
+  s_bc19ab09821624::t_fa8e687ce82c25 1-55
+benchmarks/agent/tasks/async-panel/prompt.md
+  s_bc19ab09821624::t_8eb7e0ecf6696c 1-7
+benchmarks/agent/tasks/async-panel/reference/solution.mjs
+  s_bc19ab09821624::t_4f761218103724 1-36
+benchmarks/agent/tasks/async-panel/workspace/package.json
+  s_bc19ab09821624::t_9a2076f7b159a5 1-6
+benchmarks/agent/tasks/async-panel/workspace/solution.mjs
+  s_bc19ab09821624::t_092e1baaf62d26 1-3
+benchmarks/agent/tasks/async-panel/workspace/test/README.md
+  s_bc19ab09821624::t_25e5ed03a7fb42 1
+benchmarks/agent/tasks/async-session/acceptance/acceptance.test.mjs
+  s_bc19ab09821624::t_509b5305c56ed0 1-69
+benchmarks/agent/tasks/async-session/prompt.md
+  s_bc19ab09821624::t_90bfc33b3b1ad8 1-7
+benchmarks/agent/tasks/async-session/reference/solution.mjs
+  s_bc19ab09821624::t_86bfe2d3ca73bc 1-40
+benchmarks/agent/tasks/async-session/workspace/package.json
+  s_bc19ab09821624::t_e59d2ef64716ae 1-6
+benchmarks/agent/tasks/async-session/workspace/solution.mjs
+  s_bc19ab09821624::t_cc485d95eb113f 1-3
+benchmarks/agent/tasks/async-session/workspace/test/README.md
+  s_bc19ab09821624::t_19bb07dd8ba8af 1
+benchmarks/agent/tasks/borrowed-workspace-state/acceptance/acceptance.test.mjs
+  s_bc19ab09821624::t_8498c3898c719d 1-94
+benchmarks/agent/tasks/borrowed-workspace-state/prompt.md
+  s_bc19ab09821624::t_35aa780182e578 1-23
+benchmarks/agent/tasks/borrowed-workspace-state/reference/solution.mjs
+  s_bc19ab09821624::t_a1dba2f31e0721 1-62
+benchmarks/agent/tasks/borrowed-workspace-state/workspace/package.json
+  s_bc19ab09821624::t_546b1fcff6a841 1-6
+benchmarks/agent/tasks/borrowed-workspace-state/workspace/solution.mjs
+  s_bc19ab09821624::t_2fe2edd754bf10 1-3
+benchmarks/agent/tasks/borrowed-workspace-state/workspace/test/README.md
+  s_bc19ab09821624::t_60f1c5b2f6806a 1
+benchmarks/agent/tasks/connection-status/acceptance/acceptance.test.mjs
+  s_bc19ab09821624::t_b88ae9d840fc1a 1-45
+benchmarks/agent/tasks/connection-status/prompt.md
+  s_bc19ab09821624::t_8c55c15d9dd569 1-7
+benchmarks/agent/tasks/connection-status/reference/solution.mjs
+  s_bc19ab09821624::t_571bbcde835716 1-30
+benchmarks/agent/tasks/connection-status/workspace/package.json
+  s_bc19ab09821624::t_ac119a9b2356ea 1-6
+benchmarks/agent/tasks/connection-status/workspace/solution.mjs
+  s_bc19ab09821624::t_6232fda3f3e2b6 1-3
+benchmarks/agent/tasks/connection-status/workspace/test/README.md
+  s_bc19ab09821624::t_01548f106ba8c4 1
+benchmarks/agent/tasks/filter-projects/acceptance/acceptance.test.mjs
+  s_bc19ab09821624::t_fe4b7341a48003 1-34
+benchmarks/agent/tasks/filter-projects/prompt.md
+  s_bc19ab09821624::t_895bda5a507760 1-7
+benchmarks/agent/tasks/filter-projects/reference/solution.mjs
+  s_bc19ab09821624::t_595eb3c4d907e8 1-26
+benchmarks/agent/tasks/filter-projects/workspace/package.json
+  s_bc19ab09821624::t_8d96142ffcf7c7 1-6
+benchmarks/agent/tasks/filter-projects/workspace/solution.mjs
+  s_bc19ab09821624::t_35358e2b579ba6 1-3
+benchmarks/agent/tasks/filter-projects/workspace/test/README.md
+  s_bc19ab09821624::t_a10ae702459999 1
+benchmarks/agent/tasks/nested-notice/acceptance/acceptance.test.mjs
+  s_bc19ab09821624::t_105fd48ffdce08 1-29
+benchmarks/agent/tasks/nested-notice/prompt.md
+  s_bc19ab09821624::t_43f39c983fd6db 1-9
+benchmarks/agent/tasks/nested-notice/reference/solution.mjs
+  s_bc19ab09821624::t_2804e2aa988c0d 1-36
+benchmarks/agent/tasks/nested-notice/workspace/package.json
+  s_bc19ab09821624::t_5f76a1e93ad25d 1-6
+benchmarks/agent/tasks/nested-notice/workspace/solution.mjs
+  s_bc19ab09821624::t_74d36a9f368416 1-3
+benchmarks/agent/tasks/nested-notice/workspace/test/README.md
+  s_bc19ab09821624::t_adbcd5e0574020 1
+benchmarks/agent/tasks/nested-workspace/acceptance/acceptance.test.mjs
+  s_bc19ab09821624::t_072d87100a138c 1-32
+benchmarks/agent/tasks/nested-workspace/prompt.md
+  s_bc19ab09821624::t_a6d7769a2d9726 1-7
+benchmarks/agent/tasks/nested-workspace/reference/solution.mjs
+  s_bc19ab09821624::t_602000891542ae 1-29
+benchmarks/agent/tasks/nested-workspace/workspace/package.json
+  s_bc19ab09821624::t_4691a1db18361f 1-6
+benchmarks/agent/tasks/nested-workspace/workspace/solution.mjs
+  s_bc19ab09821624::t_4360e964945904 1-3
+benchmarks/agent/tasks/nested-workspace/workspace/test/README.md
+  s_bc19ab09821624::t_40fcd339b234d4 1
+benchmarks/agent/tasks/overlay-dismiss/acceptance/acceptance.test.mjs
+  s_bc19ab09821624::t_f3a39a3fe6fbcf 1-68
+benchmarks/agent/tasks/overlay-dismiss/prompt.md
+  s_bc19ab09821624::t_24e54b35a3f213 1-7
+benchmarks/agent/tasks/overlay-dismiss/reference/solution.mjs
+  s_bc19ab09821624::t_b4fbc94a7f8f83 1-38
+benchmarks/agent/tasks/overlay-dismiss/workspace/package.json
+  s_bc19ab09821624::t_9a8a9104053d4b 1-6
+benchmarks/agent/tasks/overlay-dismiss/workspace/solution.mjs
+  s_bc19ab09821624::t_d8a5669f45e00b 1-3
+benchmarks/agent/tasks/overlay-dismiss/workspace/test/README.md
+  s_bc19ab09821624::t_b0fab308a98522 1
+benchmarks/agent/tasks/overlay-switch/acceptance/acceptance.test.mjs
+  s_bc19ab09821624::t_d2f101fc98709e 1-40
+benchmarks/agent/tasks/overlay-switch/prompt.md
+  s_bc19ab09821624::t_857a94397d35b0 1-7
+benchmarks/agent/tasks/overlay-switch/reference/solution.mjs
+  s_bc19ab09821624::t_f84cd720612f7b 1-22
+benchmarks/agent/tasks/overlay-switch/workspace/package.json
+  s_bc19ab09821624::t_5b8c54493c4ac5 1-6
+benchmarks/agent/tasks/overlay-switch/workspace/solution.mjs
+  s_bc19ab09821624::t_8db362cd10a431 1-3
+benchmarks/agent/tasks/overlay-switch/workspace/test/README.md
+  s_bc19ab09821624::t_a62692abf1240d 1
+benchmarks/agent/tasks/owned-workspace-state/acceptance/acceptance.test.mjs
+  s_bc19ab09821624::t_e23fb3ecae29cb 1-113
+benchmarks/agent/tasks/owned-workspace-state/prompt.md
+  s_bc19ab09821624::t_5642f9eaf1c36a 1-23
+benchmarks/agent/tasks/owned-workspace-state/reference/solution.mjs
+  s_bc19ab09821624::t_a6cd432b17b207 1-65
+benchmarks/agent/tasks/owned-workspace-state/workspace/package.json
+  s_bc19ab09821624::t_eb8de607de6f4a 1-6
+benchmarks/agent/tasks/owned-workspace-state/workspace/solution.mjs
+  s_bc19ab09821624::t_7ff86f872533f3 1-3
+benchmarks/agent/tasks/owned-workspace-state/workspace/test/README.md
+  s_bc19ab09821624::t_0531df8478c76e 1
+benchmarks/agent/tasks/rank-projects/acceptance/acceptance.test.mjs
+  s_bc19ab09821624::t_98126d16be94b5 1-40
+benchmarks/agent/tasks/rank-projects/prompt.md
+  s_bc19ab09821624::t_19c16bfc3c5fd8 1-7
+benchmarks/agent/tasks/rank-projects/reference/solution.mjs
+  s_bc19ab09821624::t_06cf6f3949fc7e 1-39
+benchmarks/agent/tasks/rank-projects/workspace/package.json
+  s_bc19ab09821624::t_50755a022c5652 1-6
+benchmarks/agent/tasks/rank-projects/workspace/solution.mjs
+  s_bc19ab09821624::t_2c5efc18fed525 1-3
+benchmarks/agent/tasks/rank-projects/workspace/test/README.md
+  s_bc19ab09821624::t_2ad972699e75ac 1
+benchmarks/agent/tasks/save-shortcut/acceptance/acceptance.test.mjs
+  s_bc19ab09821624::t_3cbb28393705d2 1-46
+benchmarks/agent/tasks/save-shortcut/prompt.md
+  s_bc19ab09821624::t_cea448caaff14d 1-7
+benchmarks/agent/tasks/save-shortcut/reference/solution.mjs
+  s_bc19ab09821624::t_3256ae44a3a2af 1-20
+benchmarks/agent/tasks/save-shortcut/workspace/package.json
+  s_bc19ab09821624::t_60ab39824665ac 1-6
+benchmarks/agent/tasks/save-shortcut/workspace/solution.mjs
+  s_bc19ab09821624::t_896f4d17fc9ba4 1-3
+benchmarks/agent/tasks/save-shortcut/workspace/test/README.md
+  s_bc19ab09821624::t_2a8744ead5e3fe 1
+benchmarks/agent/tasks/scoped-message-presenter/acceptance/acceptance.test.mjs
+  s_bc19ab09821624::t_fbff5385ad2ec8 1-16
+benchmarks/agent/tasks/scoped-message-presenter/prompt.md
+  s_bc19ab09821624::t_da622a2e44824a 1-3
+benchmarks/agent/tasks/scoped-message-presenter/reference/solution.mjs
+  s_bc19ab09821624::t_24da2abb11579c 1-7
+benchmarks/agent/tasks/scoped-message-presenter/workspace/package.json
+  s_bc19ab09821624::t_0dd83a14846d8f 1-6
+benchmarks/agent/tasks/scoped-message-presenter/workspace/solution.mjs
+  s_bc19ab09821624::t_4ccf61917ebce2 1-3
+benchmarks/agent/tasks/scoped-message-presenter/workspace/test/README.md
+  s_bc19ab09821624::t_7f0037111ed5a6 1
+config/actionlint.json
+  s_bc19ab09821624::t_8526a6621c2e3f 1-11
+config/coverage-exceptions.json
+  s_bc19ab09821624::t_30a4dca8b5e441 1-16
+config/mutation.json
+  s_bc19ab09821624::t_2b746942e7087b 1-18
+config/performance.json
+  s_bc19ab09821624::t_1b84157165227a 288,290
+config/release-coverage.json
+  s_bc19ab09821624::t_eb8b9b815860db 1-11
+config/release-environment.json
+  s_bc19ab09821624::t_cfc666c331fa6a 1-9
+config/release-validation.json
+  s_bc19ab09821624::t_b8043eee25f6d7 1-203
+config/tooling-coverage.json
+  s_bc19ab09821624::t_4631237f817ac7 1-26
+docs/data.api.md
+  s_bc19ab09821624::t_c6a2e2ae5dffd3 96-97
+docs/dom.interactions.md
+  s_bc19ab09821624::t_c3ae824ac4acf8 194-195
+docs/maintainers/readme.md
+  s_14c2c438fbdb53::t_2d92e514c4831a 70-71,77-78
+docs/maintainers/types.md
+  s_bc19ab09821624::t_34e4d44e778e76 18-20
+docs/marionette.application.md
+  s_bc19ab09821624::t_348bf71ea73734 67-69
+docs/migration-from-v4.md
+  s_bc19ab09821624::t_a53c61a8ee02e1 110
+docs/performance-baselines.md
+  s_bc19ab09821624::t_ec029d4ef454ff 11,27-32
+docs/release-profile.md
+  s_bc19ab09821624::t_a81c8059b27f69 51-57
+docs/release-promotion.md
+  s_bc19ab09821624::t_f398d936fca5f9 51-53,69-74,137-154
+docs/view.lifecycle.md
+  s_bc19ab09821624::t_e4ef68c5e69371 22,264-267,275-294
+eslint.config.mjs
+  s_bc19ab09821624::t_f841bb55989794 2,47,127-154
+evidence/state-data-regression-ledger.md
+  s_bc19ab09821624::t_9a4383fa8f60f7 8-11,15-18,20,22,26-27,30-31,33-35
+package-lock.json
+  s_bc19ab09821624::t_ef77931e79290b 29-30,35-36,41,44,47,55-57,2123-2476,3378-3384,3398-3401,3405-3408,3425-3428,3430,3432-3438,3441-3444,3446-4161,4188-4201,4209-4215,4498-4528,4692-4727,4934-4998,5030-5092,5228-5238,5249-5252,5254-5266,5268,5278-5294,5308-5317,5334-5346,5584-5610,5621-5643,5665-5681,5699-5708,5727-5742,5756-5772,5794-5810,5845-5941,5955-5984,5988,5991,6042-6068,6090-6100,6111-6117,6157-6169,6177-6202,6274-6280,6359-6365,6700-6715,6723-6729,6790-6799,6807-6813,6830-6839,6847-6893,6930-6959,6967-6979,7012-7043,7054-7066,7087-7096,7114-7130,7244-7299,7301-7305,7307-7310,7520-7536,7596-7671,7679-7682,7684-7686,7689,7702-7711,7780-7825,7865-7879,7987-7996,8010-8026,8040-8053,8056-8062,8064,8142-8154,8196-8210,8392-8398,8484-8519,8548-8557,8565-8618,8632-8654
+package.json
+  s_14c2c438fbdb53::t_6e0f75a473a49e 62,66,77-78,82,93-109,129-130,135-136,141,144,147,155-157,170-176
+playwright.config.mjs
+  s_bc19ab09821624::t_2789cc078135e7 1-28
+scripts/agent-benchmark/cache-environment.mjs
+  s_bc19ab09821624::t_d2502091df63c8 1-16
+scripts/agent-benchmark/harness.mjs
+  s_bc19ab09821624::t_5bc52ab68bcbb4 1-228
+scripts/agent-benchmark/run.mjs
+  s_bc19ab09821624::t_a43f8d9c64209f 1-57
+scripts/agent-benchmark/serve.mjs
+  s_bc19ab09821624::t_ae2b25b3a3b794 1-83
+scripts/checks/public-tests.mjs
+  s_bc19ab09821624::t_3660eb95dc5df5 1-66
+scripts/checks/tooling-coverage.mjs
+  s_bc19ab09821624::t_635e2c2dedd881 1-36
+scripts/checks/verify.mjs
+  s_bc19ab09821624::t_fcf6d9e5c22919 1-22
+scripts/checks/workflows.mjs
+  s_bc19ab09821624::t_9e47d478c45be9 1-58
+scripts/docs/build.mjs
+  s_bc19ab09821624::t_5832372c9b45c4 256
+scripts/docs/check-links.mjs
+  s_bc19ab09821624::t_2698ce3eba04c5 123
+scripts/performance/bundle-size.mjs
+  s_bc19ab09821624::t_7932b59af30dc9 844-846,1100,1102,1108,1157
+scripts/performance/resources.mjs
+  s_bc19ab09821624::t_13bbb7f5ccf30d 3-4,8-26,79-81,89-114,118-120,122-136,138-142,144-157,160-170,174-175,177,179-180,182,185,189-190,193-195,197-198,200-201,203,205,208-214,216-227,230-233,236,238-240,246-247,250,258,267-270,280-281,302,304-305,307-325,327-329,334-335,345-347
+scripts/release/arguments.mjs
+  s_bc19ab09821624::t_c048e2757c514a 1-15
+scripts/release/build-artifact.mjs
+  s_bc19ab09821624::t_2f94bf29b287c0 6-7,10-15,28-29,59,78-80,89,107
+scripts/release/check-targets.mjs
+  s_bc19ab09821624::t_e247d78fa6fee1 5-6,10-13,36,41,46-48,54-59
+scripts/release/github-release.mjs
+  s_bc19ab09821624::t_9489aad55519cd 1
+scripts/release/packages.mjs
+  s_bc19ab09821624::t_a41c7974f094d2 1-22
+scripts/release/publish-github.mjs
+  s_bc19ab09821624::t_d0b2a9a2488a49 8-10,14-17,45,50,57,102-112
+scripts/release/validate-candidate.mjs
+  s_bc19ab09821624::t_47a2ccfb536f21 1-3,5-8,11-12,15-19,21-22,24-33,35-52,54-58,60-64,66-99,101-102,104-125,127-135,137
+scripts/release/validation.mjs
+  s_bc19ab09821624::t_364e888e6825bc 1-122
+scripts/release/verify-artifact.mjs
+  s_bc19ab09821624::t_1ef541257c614d 6-8,11-16,61,80,146,165-166,177-181
+scripts/testing/mutation.mjs
+  s_bc19ab09821624::t_977fa75f4a3d69 1-145
+src/modules/region.ts
+  s_bc19ab09821624::t_421ef291c8fdbe 343
+stryker.config.mjs
+  s_bc19ab09821624::t_499bca6a13a09c 1-26
+test/README.md
+  s_bc19ab09821624::t_87c6bfacca7773 1-161
+test/agent-benchmark/evaluator-controls.mjs
+  s_bc19ab09821624::t_7f3d0e5f28e8f3 1-62
+test/agent-benchmark/harness.test.mjs
+  s_bc19ab09821624::t_d3456ea64f8618 1-204
+test/agent-benchmark/playwright.config.mjs
+  s_bc19ab09821624::t_46e9621b4777d9 1-24
+test/agent-benchmark/reference-app.spec.mjs
+  s_bc19ab09821624::t_f842a73381c3f7 1-25
+test/agent-benchmark/server.test.mjs
+  s_bc19ab09821624::t_9d61e0ec472af3 1-89
+test/browser/adapters-package.spec.mjs
+  s_bc19ab09821624::t_7256850306187e 1-93
+test/browser/attachment-owner-document.spec.mjs
+  s_bc19ab09821624::t_a35d05a160d325 2,4-6,12,17,30-31,36-37,39,42-43,48-49,54-58,63-64,69-70
+test/browser/collection-removal-survivors.spec.mjs
+  s_bc19ab09821624::t_61db09f887265c 2,4-10,28,41-59,61-107,112-152,155-170,172-207,209-215,217-219,221-228,231
+test/browser/data-package.spec.mjs
+  s_bc19ab09821624::t_66ecdcf2ca4674 1-49
+test/browser/docs-form.spec.mjs
+  s_104642983dcc10::t_ae97e548841410 4,15-27,29-80
+test/browser/dom-adapters.spec.mjs
+  s_bc19ab09821624::t_e2b9df0be09738 2-48,51-60
+test/browser/event-delegator-focus.spec.mjs
+  s_bc19ab09821624::t_5d5c2114fe9075 2,4-7,18,42-47
+test/browser/fixtures.mjs
+  s_bc19ab09821624::t_8b704fe785bf57 1-4,9-16,19-46,48-75,77,79-86,88
+test/browser/global-setup.mjs
+  s_bc19ab09821624::t_e0da58b26bc8ee 2-3,5,8-14,16-28,30-35,37-56,61-106
+test/browser/view-render-attributes.spec.mjs
+  s_bc19ab09821624::t_aba88ac083e6a8 1-149
+test/contracts/dom-adapters.js
+  s_bc19ab09821624::t_3d196e88a5d902 1-3,5
+test/dist/validate.mjs
+  s_bc19ab09821624::t_6ccc96c92ee26c 33-39,122-125,159
+test/fixtures/adapters-package-vite/package-lock.json
+  s_bc19ab09821624::t_921aa6524671f0 1-1021
+test/fixtures/adapters-package-vite/package.json
+  s_bc19ab09821624::t_577367eb481852 2
+test/fixtures/attachment-owner-document/package-lock.json
+  s_bc19ab09821624::t_0954e656a11609 1-514
+test/fixtures/attachment-owner-document/package.json
+  s_bc19ab09821624::t_98693653555b6b 2
+test/fixtures/backbone-adapter-types/package-lock.json
+  s_bc19ab09821624::t_a47790834215e4 1-407
+test/fixtures/backbone-adapter-types/package.json
+  s_bc19ab09821624::t_e8263fe90cbf2b 2
+test/fixtures/backbone-adapter/package-lock.json
+  s_bc19ab09821624::t_dc96d671f4f7e2 1-28
+test/fixtures/backbone-adapter/package.json
+  s_bc19ab09821624::t_d7f29fa17b237a 2
+test/fixtures/cjs-adapters/package-lock.json
+  s_bc19ab09821624::t_bb739d7f86643d 1-548
+test/fixtures/cjs-adapters/package.json
+  s_bc19ab09821624::t_adbdfd486495d0 2
+test/fixtures/cjs-node/package-lock.json
+  s_bc19ab09821624::t_90606282de7214 1-10
+test/fixtures/cjs-node/package.json
+  s_bc19ab09821624::t_9cfa25db7e65b7 2
+test/fixtures/cjs-node/validate.cjs
+  s_bc19ab09821624::t_9a3c19146f86ab 28-33
+test/fixtures/collection-removal-survivors/package-lock.json
+  s_bc19ab09821624::t_91fa46d75142bd 1-530
+test/fixtures/collection-removal-survivors/package.json
+  s_bc19ab09821624::t_49c50d469d85db 2
+test/fixtures/core-no-underscore/package-lock.json
+  s_bc19ab09821624::t_7840ac082b2559 1-10
+test/fixtures/core-no-underscore/package.json
+  s_bc19ab09821624::t_ac4339202bb88b 2
+test/fixtures/core-types/package-lock.json
+  s_bc19ab09821624::t_bd7ff71bcf6890 1-449
+test/fixtures/data-package-cjs/package-lock.json
+  s_bc19ab09821624::t_d1cef5029c1808 1-10
+test/fixtures/data-package-cjs/package.json
+  s_bc19ab09821624::t_aabbcae513c4e1 2
+test/fixtures/data-package-esm/package-lock.json
+  s_bc19ab09821624::t_588b0b694380de 1-10
+test/fixtures/data-package-esm/package.json
+  s_bc19ab09821624::t_309a040a759d5d 2
+test/fixtures/data-package-types/package-lock.json
+  s_bc19ab09821624::t_ca302d1c53d29e 1-382
+test/fixtures/data-package-types/package.json
+  s_bc19ab09821624::t_65ba67d8af000a 2
+test/fixtures/data-package-vite/package-lock.json
+  s_bc19ab09821624::t_4280677948890f 1-987
+test/fixtures/data-package-vite/package.json
+  s_bc19ab09821624::t_90e5a283c939cd 2
+test/fixtures/docs-application-state/package-lock.json
+  s_bc19ab09821624::t_7d2e054b43aafb 1-514
+test/fixtures/docs-application-state/package.json
+  s_bc19ab09821624::t_3d9662614433a0 2
+test/fixtures/docs-basics-contract/package-lock.json
+  s_bc19ab09821624::t_f4c713802415a5 1-514
+test/fixtures/docs-basics-contract/package.json
+  s_bc19ab09821624::t_afbdf54198850c 2
+test/fixtures/docs-behavior-host/package-lock.json
+  s_bc19ab09821624::t_f8dc84ebdc2821 1-521
+test/fixtures/docs-behavior-host/package.json
+  s_bc19ab09821624::t_703ad9877fa3e2 2
+test/fixtures/docs-collectionview-child-ownership/package-lock.json
+  s_bc19ab09821624::t_c24371b648b342 1-521
+test/fixtures/docs-collectionview-child-ownership/package.json
+  s_bc19ab09821624::t_86e6b886b45076 2
+test/fixtures/docs-common-contract/package-lock.json
+  s_bc19ab09821624::t_7545fdc7f12a07 1-10
+test/fixtures/docs-common-contract/package.json
+  s_bc19ab09821624::t_569743dd497c85 2
+test/fixtures/docs-dom-api/package-lock.json
+  s_bc19ab09821624::t_fc20adfb3695eb 1-521
+test/fixtures/docs-dom-api/package.json
+  s_bc19ab09821624::t_d28734b65455f6 2
+test/fixtures/docs-entity-events/package-lock.json
+  s_bc19ab09821624::t_c510bd502e376d 1-530
+test/fixtures/docs-entity-events/package.json
+  s_bc19ab09821624::t_9cf5ae815d2e7c 2
+test/fixtures/docs-radio-owner/package-lock.json
+  s_bc19ab09821624::t_02b3180062955e 1-29
+test/fixtures/docs-radio-owner/package.json
+  s_bc19ab09821624::t_1330845298f666 2
+test/fixtures/docs-region-lifecycle/package-lock.json
+  s_bc19ab09821624::t_2408d78c7a3851 1-521
+test/fixtures/docs-region-lifecycle/package.json
+  s_bc19ab09821624::t_913dfd5211f21a 2
+test/fixtures/docs-utils-contract/package-lock.json
+  s_bc19ab09821624::t_bc6043198dc70a 1-10
+test/fixtures/docs-utils-contract/package.json
+  s_bc19ab09821624::t_f3672b2164116d 2
+test/fixtures/docs-view-child-region/package-lock.json
+  s_bc19ab09821624::t_5c528aefbc2b72 1-521
+test/fixtures/docs-view-child-region/package.json
+  s_bc19ab09821624::t_8fe1efc497fe4e 2
+test/fixtures/docs-view-dom-interactions/package-lock.json
+  s_bc19ab09821624::t_9fc68022959ce7 1-521
+test/fixtures/docs-view-dom-interactions/package.json
+  s_bc19ab09821624::t_128ed2baedfb56 2
+test/fixtures/docs-view-render-attributes/package-lock.json
+  s_bc19ab09821624::t_24e274cc2e478e 1-514
+test/fixtures/docs-view-render-attributes/package.json
+  s_bc19ab09821624::t_10644f6a2fb401 2
+test/fixtures/dom-adapters-package/package-lock.json
+  s_bc19ab09821624::t_93f49567f6d1cc 1-907
+test/fixtures/dom-adapters-package/package.json
+  s_bc19ab09821624::t_c1a09e9d51ba07 2
+test/fixtures/esm-node/package-lock.json
+  s_bc19ab09821624::t_4324bbf4ccd7d1 1-10
+test/fixtures/esm-node/package.json
+  s_bc19ab09821624::t_12136eb66c566b 2
+test/fixtures/esm-node/validate.mjs
+  s_bc19ab09821624::t_2a9cda949c3f2e 29-34
+test/fixtures/jquery-dom-api-types/package-lock.json
+  s_bc19ab09821624::t_082142b76f8640 1-381
+test/fixtures/jquery-dom-api-types/package.json
+  s_bc19ab09821624::t_8eae4fbb7ba136 2
+test/fixtures/jquery-dom-api/package-lock.json
+  s_bc19ab09821624::t_582f1ecccb06ea 1-521
+test/fixtures/jquery-dom-api/package.json
+  s_bc19ab09821624::t_9f36b6e649bdfd 2
+test/fixtures/no-default-export/package-lock.json
+  s_bc19ab09821624::t_1a47264aaf449b 1-10
+test/fixtures/no-default-export/package.json
+  s_bc19ab09821624::t_6250eff3f9d370 2
+test/fixtures/removed-core-adapters/package-lock.json
+  s_bc19ab09821624::t_c75f889b854226 1-10
+test/fixtures/removed-core-adapters/package.json
+  s_bc19ab09821624::t_d91d43816932a4 2
+test/fixtures/run.mjs
+  s_bc19ab09821624::t_d8a8c246aa127e 1-6,8-21,23-40,43-44,47-49,51-61,64-67,69-70,72-75,78-81,83-84,87,89-103,105-128,131-146,148-150,152-164,166-173,175-184,186-187,189-202,204-220,222-227,229-243,246-254,256-264
+test/fixtures/standalone-packages/package-lock.json
+  s_bc19ab09821624::t_8c5b0b4b99fad0 1-27
+test/fixtures/utils-package/package-lock.json
+  s_bc19ab09821624::t_0eaa56ed75b839 1-404
+test/fixtures/vite/package-lock.json
+  s_bc19ab09821624::t_a8c46e61ce8fd9 1-987
+test/fixtures/vite/package.json
+  s_bc19ab09821624::t_26fad68b9f10fa 2
+test/fixtures/xstate-adapter-types/package-lock.json
+  s_bc19ab09821624::t_d1bec5c66401a9 1-378
+test/fixtures/xstate-adapter-types/package.json
+  s_bc19ab09821624::t_745a229c40cca8 2
+test/performance/fixtures/resource-report-schema-1.json
+  s_bc19ab09821624::t_5d035e1622d961 1-189
+test/performance/fixtures/resource-report-schema-2.json
+  s_bc19ab09821624::t_38b5c87d367f68 1-29
+test/performance/resources.test.mjs
+  s_bc19ab09821624::t_8efdb4047a78c3 3,15-18,21-25,44,48,51-53,62,65-67,72,80-81,85-103,116-117,125,128,133-209,218,235,244,279,321-335
+test/performance/xstate-adapter.test.mjs
+  s_bc19ab09821624::t_fc768705c38762 3-6
+test/release/browser-setup.test.mjs
+  s_bc19ab09821624::t_1d62076197e0d0 1-47
+test/release/build.test.mjs
+  s_bc19ab09821624::t_dcdf55bf66a7bc 1-148
+test/release/candidate.test.mjs
+  s_bc19ab09821624::t_2da638456fe314 1-117
+test/release/cli.test.mjs
+  s_bc19ab09821624::t_7c7526267f4d38 1-185
+test/release/fake-external.mjs
+  s_bc19ab09821624::t_80f7b22e86a8d0 1-72
+test/release/fake-processes.mjs
+  s_bc19ab09821624::t_39f73a7c44ce1a 1-17
+test/release/fixture.mjs
+  s_bc19ab09821624::t_e7989d9a27960f 1-164
+test/release/promotion.test.mjs
+  s_bc19ab09821624::t_f660817d3243cb 2,4-29,31-40,42-49,51-67,71-90,93-111,113,115-127,130-137,139-142,144,146,149-159,162-173,175,177-190,193-202
+test/setup/backbone.js
+  s_bc19ab09821624::t_c55d77521fa3c3 1-4
+test/setup/fixtures.js
+  s_bc19ab09821624::t_899f869827de2f 1-25
+test/setup/vitest.js
+  s_bc19ab09821624::t_5766dbe9d73ad4 1,3-4
+test/source/public-source.mjs
+  s_bc19ab09821624::t_4a6a318f4c29d2 1-19
+test/source/validate.mjs
+  s_bc19ab09821624::t_87a77ca2a6c901 8-13,18,108-109
+test/tooling/coverage-fixture.mjs
+  s_bc19ab09821624::t_92361fed208064 1-39
+test/tooling/coverage-fixture.test.mjs
+  s_bc19ab09821624::t_2ba8a5d86b5347 1-41
+test/tooling/coverage-gate.test.mjs
+  s_bc19ab09821624::t_ac5f8d7d3fe7e3 1-34
+test/tooling/fixtures.test.mjs
+  s_bc19ab09821624::t_203b7a9a1404f5 1-277
+test/tooling/mutation.test.mjs
+  s_bc19ab09821624::t_1e0842e13abbf9 1-110
+test/tooling/public-tests.test.mjs
+  s_bc19ab09821624::t_74eef84742c3d0 1-35
+test/tooling/workflows.test.mjs
+  s_bc19ab09821624::t_ad6f8b67eb699c 1-24
+test/types/application.cts
+  s_bc19ab09821624::t_c93e78ea43bb7f 1-4
+test/types/application.mts
+  s_bc19ab09821624::t_19bd0d2bba88c3 1-4
+test/types/bindings.cts
+  s_bc19ab09821624::t_0cf79f9112af6f 1,3-4
+test/types/bindings.mts
+  s_bc19ab09821624::t_f5adb206af6702 1,3-4
+test/types/child-view-container.cts
+  s_bc19ab09821624::t_09bef437b0f274 1,3,12-14,67-72,74,112,120-121
+test/types/child-view-container.mts
+  s_bc19ab09821624::t_4b8b6e6bee3107 1,3,12-14,67-72,74,112,120-121
+test/types/collection-view.cts
+  s_bc19ab09821624::t_ef06bbfd45e6a7 1-4
+test/types/collection-view.mts
+  s_bc19ab09821624::t_8fa080f83ba4e9 1-4
+test/types/common.cts
+  s_bc19ab09821624::t_e370ba56b67677 1,3-4,11,13
+test/types/common.mts
+  s_bc19ab09821624::t_86aa410fb2b51a 1,3-4,11,13
+test/types/construction.cts
+  s_bc19ab09821624::t_668329ffea758a 1
+test/types/construction.mts
+  s_bc19ab09821624::t_078428eaf29e16 1
+test/types/constructor-return.cts
+  s_bc19ab09821624::t_d9ff0800add45d 1-6
+test/types/constructor-return.mts
+  s_bc19ab09821624::t_1f25a79d4ac6b8 1-6
+test/types/consumer.cts
+  s_bc19ab09821624::t_f62c5abb361488 1
+test/types/consumer.mts
+  s_bc19ab09821624::t_8fb69c4ce13064 1
+test/types/dom.cts
+  s_bc19ab09821624::t_a619fc13967fc4 1,3,57-64,66,68,95
+test/types/dom.mts
+  s_bc19ab09821624::t_60f1d211043f1b 1,3,57-64,66,68,95
+test/types/events.cts
+  s_bc19ab09821624::t_7389e8dc2b892d 1-5,65
+test/types/events.mts
+  s_bc19ab09821624::t_8abf47f7dc6f6d 1-5,65
+test/types/facade.cts
+  s_bc19ab09821624::t_ce15e326418e0e 1,5
+test/types/facade.mts
+  s_bc19ab09821624::t_85e69ed9e8e884 1,5
+test/types/fixed-root.cts
+  s_bc19ab09821624::t_037bfc2659754d 1-3
+test/types/fixed-root.mts
+  s_bc19ab09821624::t_49aefda0b54b42 1-3
+test/types/fluent.cts
+  s_bc19ab09821624::t_acfb1fd2d756ed 1-4
+test/types/fluent.mts
+  s_bc19ab09821624::t_c78381f911a66f 1-4
+test/types/helpers.cts
+  s_bc19ab09821624::t_cf2d02024e142c 1
+test/types/helpers.mts
+  s_bc19ab09821624::t_2af22f8f69417f 1
+test/types/lifecycle-mixins.cts
+  s_bc19ab09821624::t_93f3268a391a43 1,3-4,10-12,15-16
+test/types/lifecycle-mixins.mts
+  s_bc19ab09821624::t_cc5d788177871a 1,3-4,10-12,15-16
+test/types/native-methods.cts
+  s_bc19ab09821624::t_6e50c6cde7ba31 1
+test/types/native-methods.mts
+  s_bc19ab09821624::t_85a1d7cb518a63 1
+test/types/native-parent.cts
+  s_bc19ab09821624::t_0f738b646b5545 1
+test/types/native-parent.mts
+  s_bc19ab09821624::t_54d17b06ea6252 1
+test/types/options.cts
+  s_bc19ab09821624::t_56ae17a3b0ccc8 54
+test/types/options.mts
+  s_bc19ab09821624::t_a8f281366bf07c 54
+test/types/presentation.cts
+  s_bc19ab09821624::t_d1e67160d7755f 1-4,60
+test/types/presentation.mts
+  s_bc19ab09821624::t_cfa915bdabe9d5 1-4,60
+test/types/providers.cts
+  s_bc19ab09821624::t_8bb660d61c265c 1-7,114-117
+test/types/providers.mts
+  s_bc19ab09821624::t_ae9ea3c0c49ba6 1-7,114-117
+test/types/radio.cts
+  s_bc19ab09821624::t_e0c3e43950823e 1-2
+test/types/radio.mts
+  s_bc19ab09821624::t_b95ed9a73a9936 1-2
+test/types/requests.cts
+  s_bc19ab09821624::t_020e04743da963 1-3,36,40-41,47
+test/types/requests.mts
+  s_bc19ab09821624::t_ab905dce8ddc98 1-3,36,40-41,47
+test/types/run.mjs
+  s_bc19ab09821624::t_e8a504aac6fc16 2-4,6-18,20-29
+test/types/standalone-extend.cts
+  s_bc19ab09821624::t_f78bfae47881f8 1-2
+test/types/standalone-extend.mts
+  s_bc19ab09821624::t_dd3af3e057e629 1-2
+test/types/trigger-method.cts
+  s_bc19ab09821624::t_8edfb7e2cc1b51 1
+test/types/trigger-method.mts
+  s_bc19ab09821624::t_adcb719687e978 1
+test/types/trusted-contracts.cts
+  s_bc19ab09821624::t_eb66144dd3ae9f 1-2,50-52
+test/types/trusted-contracts.mts
+  s_bc19ab09821624::t_1ad0a818d81287 1-2,50-52
+test/unit/README.md
+  s_bc19ab09821624::t_805223ac6bb11e 1,3,5-10,13-18,20,22-26,28-30,32,34-36,38-40,42-46,48,50-52,55-69
+test/unit/application-child-lifecycle.spec.js
+  s_bc19ab09821624::t_ca8cdbeab2cf86 1,4,47,58,78-80,111-114,117,150-153,156,164,175-179,187,202-206,215,234-239,255-258,345,347-349,352-354,377,379,399-402,411,428-433,456-459,482-485,491,509-512,515-516,534,552-554,557-558,578,580-581,602-603,605,627-630,649-652,670,780,784,787
+test/unit/application-lifecycle.spec.js
+  s_bc19ab09821624::t_45e587729eb8e5 1,4-5,84,106,111-112,114,123-124,159-160,171,187-191,200,216-217,219-222,228-229,237-240,266-268,275,280-281,285-287,298,303-304,312,314-317,329,342,344,359,362,377,380-381,396,399-400,415,418,423,432-434,440-441,451,463-464,469-470,477,482-483,486,488-490,496,502,508,512-513,534-535,549,556-560,572,578-580,585-588,594-596,598,617-622,627-628,635,637-640,646-649,664-668,674,696-698,715,724-727,741-742,762-766,772,779-780,786-787,800-801,807,811,819-821,823-827,842-843,862-864,870,886-888,891-892,897-899,906,913-915,918-919,921-924,929-930,939-940,943-946,965-966,985-986,998-999,1004,1018-1020,1040-1041,1053-1054,1073-1075,1078,1090,1094,1096-1098,1101-1105,1114-1116,1119-1122
+test/unit/application-ownership.spec.js
+  s_bc19ab09821624::t_a516635d99fadc 1,4,22-24,28,42,45,48,125,143,159-160,175-176,189,191-195,214,216,219,229-231,240-245,260-261,263,267,318,344-346,348,350-352,357,373-374,376-377,379-380,409-411,415-417
+test/unit/application-root-view.spec.js
+  s_bc19ab09821624::t_6a20ec320f4857 1-2,7-9,17,24,26,28-29,33,43-44,58-60,75-77,80,96,101-103,106,118,124-126,141-143,159-161,176-177,199,205,212-213,220-224,232-233,250-251,269-272,290-291,309-310,323-327,330,341,353-357,367,373-375,377,395-399,417,419-420
+test/unit/application-state.spec.js
+  s_bc19ab09821624::t_08e27281f97592 1-2,7,19,21,26,35,38-39
+test/unit/application.spec.js
+  s_bc19ab09821624::t_655100eaaccb56 1-2,6-7,19-20,37,39-42,53,59-60,72,75-76,78,81,83-91,94-97,114,126-127,140-141,147-150,162-163,176-177,183-186,224,237,245
+test/unit/backbone-adapter.spec.js
+  s_bc19ab09821624::t_925e1a411f0859 1-2,4,29,52,71,78-79,87,94-95,131-132,142-144,159-161,224,232,238
+test/unit/backbone.marionette.spec.js
+  s_bc19ab09821624::t_c4c1195f3882b6 1,4,8,10,12,14-19,21-23,49,91,94-95,113,117-118,130,133-134,139,153,157,167,175,187,190-191,211,214-215
+test/unit/behavior-communication-contract.spec.js
+  s_bc19ab09821624::t_e60aca27a2f66c 1-3,9,12,15,18,60-62,70-74,96-103,111,114,117,141-145,147,155-156,186-189,196,199,202,205,248,255-257
+test/unit/behavior-composition.spec.js
+  s_bc19ab09821624::t_7c4e69445eda66 1-13,15-18,20-29,32-50,52-62
+test/unit/behavior-dependencies-contract.spec.js
+  s_bc19ab09821624::t_9b832df5656d7e 1-4,70,132-133,153-154,159-161,170-171,189-190,195-197
+test/unit/behavior-dom-delegation-contract.spec.js
+  s_bc19ab09821624::t_95a1c85b7a8557 1-4,43,59,64,68,73,77
+test/unit/behavior-initialize-cleanup.spec.js
+  s_bc19ab09821624::t_ee8eaabd08bfbc 1
+test/unit/behavior-lifecycle.spec.js
+  s_bc19ab09821624::t_ece157f879997a 1-3,6-9,49,67-68,115,140,145,147,154,186,193,225,231,322-326,357-359,361,369-374,378-383,410-413,419-420,425-430,434,443,447,457,461,484-485,498-500
+test/unit/behavior-ui-contract.spec.js
+  s_bc19ab09821624::t_b7c70daf669fec 1-5,9-10,41-42,45,64-65,82,85,194,214,299,308
+test/unit/behavior.spec.js
+  s_bc19ab09821624::t_2ceb1ab5b72742 1-4,6,22-26,28,39,50-51,62,65-66,79-81,97,112-113,128,145-147,164,179-180,195,216-218,232,245,249-250,261-262,278-279,293-296,334-335,341-342,348-349,355-356,362-365,377,401-402,411-412,418-419,425-426,473-478,518,528,535,542,588,607-608,625-626,636,651,657,664,678-679,699,714-716,750-751,759-760,768-769,777,785,792-795,797-798,800,802,814,819-820,828-835,838,840,850-853,856-857,865-868,877,895,906-907,922,928,934-935,940-951,953-979,981-991
+test/unit/child-event-map-ownership.spec.js
+  s_bc19ab09821624::t_861459501d2d2d 1-2,16,21,25,27-28,33,39,44-48
+test/unit/child-view-container.spec.js
+  s_bc19ab09821624::t_c8a58843dad1f3 1-2,4-24,34-36,39,45,51-53,58-59,62,69,78-81,86-87,92,99,105-108,113,121-126,131,133-134,138,141-144,148,150,152,175,182,187-188,207,218,221,229,248,258-260,264,273-278,283-285,292,298,305-307,311,313-317,321,323-324,331,340-343,352-353,358,365,373-376,385-386,391,398,402-405,409,411-415,419,421-422,429,433-436,440,442-446,450,452-453,460,472-475,490-491,499,510-512,515,534,557,559,594,631,657,659,704,713,717,732-761,765,767,771-851
+test/unit/collection-view/collection-view-children.spec.js
+  s_bc19ab09821624::t_b4a549597f3c1c 1-4,10-12,58-59,68-71,76,79-80,84-85,90-92,98-100,122,124,128,132,142,145,150,152,158,162,171,175,184,188,234-240,249,264,293,296,299,303,307,311-312,316-317,328,341,349,360,372,375,378-379,383-384,388,392-393,397-398,402,413,416-417,421-422,426,430-431,435-436,440,449,455,465,480,484,517-519,524,527,539-540,549,575-576,585,589-590,601-602,604,613,617,620,623-624,628-629,634-635,640,651-652,657-659,661-662,670-672,680,684-685,696,704-705,719-726,743-744,748-749,753-754,758-759,769-770,773-774,779,783,787-788,792-793,803-804,807-808,813,817,821-822,826-827,831,836,852-853,857-858,862-863,867-868,878-879,883-884,888,892,906,910,919,923,933,937,950-951,955-956,960,964,968,972,976-977,981-982,992-993,998,1002-1003,1006,1010-1011,1017,1020-1023,1033,1039
+test/unit/collection-view/collection-view-childviewcontainer.spec.js
+  s_bc19ab09821624::t_5f84dce21568f1 1-2,5-6,60,72,74-75,77,79,106
+test/unit/collection-view/collection-view-data.spec.js
+  s_bc19ab09821624::t_7c4196bca25434 1-2,8-9,42,48,61,67,80,86,94,97-98,106,117,120-124,131,136,166,171,183-186,196,206-208,219-220,224,242,245,251,254,275,278,328-330,334-335,337,358-359,367-368,391,395,404-405,410,414-416,440-441,446,450-452,489,493,505,509,521,525,531,538,542,548,555,559,593,597,622
+test/unit/collection-view/collection-view-empty.spec.js
+  s_bc19ab09821624::t_bf7245402c037c 1-2,7-10,35,41,46,53,70,81,94,99,102,120,144,172,175,195-196,215,218-219,245,248-249,263,266,272-273,280,283-286,350,358,360-362,378-379,396,409-410,427,439,444,448,453,458,462,469,474,478,489,494,498,509,516,520,531,536,540,545-608
+test/unit/collection-view/collection-view-filtering.spec.js
+  s_bc19ab09821624::t_e5d27b94f10c89 1-3,8-11,56-58,78,82,103-104,108-109,148-149,186,224,231-247,268-276,325,333,337,341,351,357,361-362,366,379,388,392-393,397,407-408,419,422,425-426,430,445,449,453,469,479,496,506-507,513-514,518,532,541,555,565,575-576,581,583,587,591,593,597
+test/unit/collection-view/collection-view-lifecycle.spec.js
+  s_bc19ab09821624::t_83eb8dc4227879 1-3,6-8,40,57,65-66,76,105,137,143,157,177-178,183-184,189,193,197-198,216-217,223,267,270-271,275,289,301-302,334,357-358,363,365,367
+test/unit/collection-view/collection-view-reconciliation.spec.js
+  s_bc19ab09821624::t_32806e62c7cf0d 1-6,80-82,147-149,209,214,218,230-233,307,311,327,371,399,438,441-442,518,634,669,719-720,768-770,782-784,799,804,809-810,830,838,844-845,860,865,867,954
+test/unit/collection-view/collection-view-sorting.spec.js
+  s_bc19ab09821624::t_07862ceb53b38e 1-2,7-8,36-38,76,80,90-91,119-120,124-125,151,155,177-178,182-183,192,194,207,242,245,250,254,265,273,277,281,291,297,301-302,306,314,318-319,326,329,349,354-355,359,362,366,371-372,376,381,384,387,394,413,417,428,437,442,444,457,467,477-478,484-485,489
+test/unit/collection-view/collection-view-viewmixin.spec.js
+  s_bc19ab09821624::t_17943033d2442b 1-2,7-8,32-35,46-48,52-53,72-73,78,81,85-86,90,95,99,104,112-113,136-137,146,163,171-172
+test/unit/collection-view/collection-view.spec.js
+  s_bc19ab09821624::t_73a43a9bd1aea4 1-4,10-12,21-24,29-32,88-93,101,106-107,111-112,116,120-121,125,128-135,144,165,179,189-190,200,204-205,262-264,276,280-281,293,302,328,340,346,349,359-360,364,368,376-378,387,391-392,396-397,401,408-410,418-419,433-438,443-448,451-453,455
+test/unit/common/bind-events.spec.js
+  s_bc19ab09821624::t_fcfb50ef13b115 1,33,36-38,43-44,54,58,68,72,79-80,89,95,100,102-103,110-111,116-117,124-125,128,132,138-139,152,156,166-167,171,178-179,186-188,195,200,202-203,211-212,218,223
+test/unit/common/bind-request.spec.js
+  s_bc19ab09821624::t_9f82f76724ffdb 1,3,26-27,31,36-37,47,51,61,65,72-73,82,88,93,95-96,104-105,136,169,180,184,194-195,199,206-207,214-216,223,228,230-231,239-240
+test/unit/common/build-region.spec.js
+  s_bc19ab09821624::t_baa14546d2849d 1-3,5-6,104,117,124,130,173,287-288,298
+test/unit/common/get-option.spec.js
+  s_bc19ab09821624::t_bf436a02b05171 1,7
+test/unit/common/merge-options.spec.js
+  s_bc19ab09821624::t_825aeda2c7424e 1,19-20,145
+test/unit/common/monitor-view-events.spec.js
+  s_bc19ab09821624::t_f585775298a904 1-17,19-28,31-40,43-48
+test/unit/common/normalize-methods.spec.js
+  s_bc19ab09821624::t_bcaeda3210afb5 1,4,13,20,40,80,115-116,122,130,140,154
+test/unit/common/trigger-method.spec.js
+  s_bc19ab09821624::t_2a9aa7fe153df3 1,9,13,22-24,28,34,39-41,45-46,50,57,63-64,68-70,74,79,84-87,92,96,101,104,109-110,113,122-123,125,130,142-155
+test/unit/common/view.spec.js
+  s_bc19ab09821624::t_d5d73196e31ccb 1-2,4-5,7-9,12-17,20-24,27-34
+test/unit/config/diagnostic-catalog.spec.js
+  s_bc19ab09821624::t_8e28a9eda7c42a 1
+test/unit/create-marionette.spec.js
+  s_bc19ab09821624::t_4ee9fac48358da 1-2,5-25,52-55,93-100,111-113,130-132,135-136,141,146,155,237
+test/unit/data-api-integration.spec.js
+  s_bc19ab09821624::t_1869e21a65a31e 1-4,40,101,138,146
+test/unit/data-api-redux.spec.js
+  s_bc19ab09821624::t_5f07bc18bb10b9 1-2,23,94,103,108,124,163,165-166,180,184,186,189
+test/unit/data-package/api-integration.spec.js
+  s_bc19ab09821624::t_09c59c2ab41c6f 1-3,19-20,27-29,32,34,38,104,126,139-141,162-164,168,177,182,184,188,192,195-198,203-204,208
+test/unit/data-package/collection-observers.spec.js
+  s_bc19ab09821624::t_5d2cc019214d60 1,3,26-27,34-36
+test/unit/data-package/collection.spec.js
+  s_bc19ab09821624::t_7744f6f4f0d509 1-2,36-38,49-52,54,56-57,61,108,111,115,157,171-174,183,212-213,230-232,236-237,243-246,249,261-262,272-273,279-281,288-289,295-296,298-299,305-306,313-314,318-319,327-328,356-357,371,374,377-380,382
+test/unit/data-package/model.spec.js
+  s_bc19ab09821624::t_2b063c60ec9fc8 1-2,30,36-38,45,49-55,58,78,85-87,94,108-111,116,124,169,173,177,199-201,210-212,218,223,229-231,235,239,245
+test/unit/destroyed-add-child-view.spec.js
+  s_bc19ab09821624::t_9222ef76f66e9d 1-2,4,16-17,19-21,23-24,26-48,57-58,66-67,75,79-80,98,105-106,110,124,132,138-139,143,156,161-162,164,168
+test/unit/destroyed-bind-ui-elements.spec.js
+  s_bc19ab09821624::t_824d7bdc54636c 1-4,10,27-29,44,47,54-56,59-60,62-63,68-70,75,78,91-92,95-96,98-99,104-106,115,118,125,129-130,132,137,141-142,144,149
+test/unit/destroying-views.spec.js
+  s_bc19ab09821624::t_7648a309654e2e 1-2,13,25,38,48
+test/unit/docs-integrations-examples.spec.js
+  s_bc19ab09821624::t_679e441616b197 3-5
+test/unit/dom-adapters.spec.js
+  s_bc19ab09821624::t_967456f85df29a 1
+test/unit/events-iteration.spec.js
+  s_bc19ab09821624::t_d9c6c6241bb8a9 1-2,76,87-88,102,111,115,119,126,128-129,132,134-137
+test/unit/events-parity.spec.js
+  s_bc19ab09821624::t_7cbb42f8904c9b 1,5,280
+test/unit/get-immediate-children.spec.js
+  s_bc19ab09821624::t_478cfc86b56451 1-3,5-18,20-27,29,31-36,38-50,53-66
+test/unit/jquery-dom-api.spec.js
+  s_bc19ab09821624::t_cc1f1545bee08b 1,8-9,38,75,84-85,96,114,122
+test/unit/mixins/behaviors-composition.spec.js
+  s_bc19ab09821624::t_16338aa65ff241 1-12,15-25,28-38,40-43,46-54
+test/unit/mixins/behaviors.spec.js
+  s_bc19ab09821624::t_cbb46d104b3357 1-19,22-46,49-59,62-69
+test/unit/mixins/common.spec.js
+  s_bc19ab09821624::t_b1b6904e35dccf 1-14,17-31,33-36,38-42
+test/unit/mixins/delegate-entity-events.spec.js
+  s_bc19ab09821624::t_2ba4275718846e 1-25,28-42,45-49,51
+test/unit/mixins/destroy.spec.js
+  s_bc19ab09821624::t_2c8100cc8e3cb5 1-3,12,16,20,29-33,42,46,50,59-60,62-66
+test/unit/mixins/events.spec.js
+  s_bc19ab09821624::t_7303a75438a867 1,3,14-15,21-24,44,49,69,74-75,79,85-86,92-95,105-106,109-110,112,119-120,127-128,134-136,141,144,151-154,168,176,180,186,190,196,203,215-216,222,236,241,251-252,257,268,273,288,292,301,305,313,317,323-325,329,335-336,350-351,353,357,363,370-371
+test/unit/mixins/radio.spec.js
+  s_bc19ab09821624::t_f4c1e9a1a86c53 1-13,16-44,47-48,50-58,61-67
+test/unit/mixins/template-render.spec.js
+  s_bc19ab09821624::t_684a67df46e3de 1-11,14-25,28-43,46-53,56-63
+test/unit/mixins/ui.spec.js
+  s_bc19ab09821624::t_8309687c99f414 1-3,16,34,39,51,109,131,139,160,192-228
+test/unit/mixins/view-composition.spec.js
+  s_bc19ab09821624::t_dfc02bb6b6b9b7 1-12,14-22,25-29,32-36,39-59,61-74,76-77
+test/unit/mixins/view-events.spec.js
+  s_bc19ab09821624::t_dbb66779de8fec 1-2,4-7,10-20,23-33,35-42,44-50,52-59,61-66,68-70,72-83
+test/unit/mixins/view.spec.js
+  s_bc19ab09821624::t_464112444c296e 1-4,6-8,18,28,31-33,41,48,55-62,64-67,83,89-92,99,101,110-113,117-118,127-130,144-145,147,150,157,161-162,166,170-171,175,184,188,194,199,223,226,229,232,240-241,244-245,260,311-312,320,324,328,357,381,395,409,431,440,443,454,463,474-476,480-482,486-488,495-496,502-504,516-518,524-526,532,538-545,557,560,564,567,571,574
+test/unit/model-based/README.md
+  s_bc19ab09821624::t_389f459d7403f2 1-74
+test/unit/model-based/collection-view.spec.js
+  s_bc19ab09821624::t_9675e54085272d 1-117
+test/unit/model-based/mutation-regressions.spec.js
+  s_bc19ab09821624::t_c4b8bd7d3e4c1c 1-35
+test/unit/model-based/region-detached-ownership.spec.js
+  s_bc19ab09821624::t_ef011ed2e6422c 1-44
+test/unit/model-based/region.spec.js
+  s_bc19ab09821624::t_2fe12a8f0b7082 1-124
+test/unit/model-based/settings.js
+  s_bc19ab09821624::t_45eac967755905 1-39
+test/unit/modules-error.spec.js
+  s_bc19ab09821624::t_584fd8d31768ae 1-2,227,239-240,255,269,271
+test/unit/object-application-composition.spec.js
+  s_bc19ab09821624::t_6869775bbb4af1 1-12,14-27,29
+test/unit/object.spec.js
+  s_bc19ab09821624::t_168c9d89c03366 1-4,22,56-57,61,66-67,73-74,77,79-87,90-93
+test/unit/on-attach.spec.js
+  s_bc19ab09821624::t_f86060e474b2cd 1-2,4,8-11,13,20-24,27,30,33,36,39,56,83,87,96,100,110,114,130-131,140-141,176,295-296,300-301,315-316,320-321,354,379-380,384-385,390
+test/unit/on-dom-refresh.spec.js
+  s_bc19ab09821624::t_9bbb2538030db9 1-2,5-6,16,21,35,49
+test/unit/on-dom-remove.spec.js
+  s_bc19ab09821624::t_5d16d7555371c8 1-2,5-6,16,21,37,53-54,61-62
+test/unit/owned-cleanup.spec.js
+  s_bc19ab09821624::t_ba19df24e4290b 1-4,12,15,47-48,50,68-69,77-81
+test/unit/performance.resources.spec.js
+  s_bc19ab09821624::t_c7c099c7f96c55 1-2,5-16,18-21,23-24,26-39,41-45,48-52,55-109
+test/unit/radio-composition.spec.js
+  s_bc19ab09821624::t_03f99e6ce62bc5 1-4,37,55-56,60-63,67-68,71-72,75-76
+test/unit/radio-parity.spec.js
+  s_bc19ab09821624::t_1f0390e0f25206 1,3,145
+test/unit/radio-public.spec.js
+  s_bc19ab09821624::t_5302d99ba01fdd 1-2,25-26,32,39-40,49,51,56,61,65-68,74-76,85-90,93,101,106-109,111-112,115,119,125-126,131-134
+test/unit/radio.spec.js
+  s_bc19ab09821624::t_7b200f0c7f942a 1-2,24,32,37,42-43,47,52,57-60,78,81-83,89-90,94-98,102,108,133,137,141,145-146,151,158,162,174,179-180,194,198,207,211,219,223,230,234,236-238,240,244-245,252-253,257,261,269,279,286,293,297,302,310,315,324
+test/unit/region-adoption.spec.js
+  s_bc19ab09821624::t_52eaf29a7e7934 1-25
+test/unit/region-detach-contents.spec.js
+  s_bc19ab09821624::t_770aa56a80ba51 1,4
+test/unit/region-el-validation.spec.js
+  s_bc19ab09821624::t_0a94996ecea564 1,4,38-40
+test/unit/region-lifecycle.spec.js
+  s_bc19ab09821624::t_5ab120323d3d72 1-2,5,26,32,46,49,52,60,71-72,82,90-91,95-98,108-109,119-120,135-137,145,149-150,160-162,170,173,175-177,246,248,255,257-258,261-262,295-296,301-302,312-316,325-326,328,346-347,357,359-361,366-367,385,391-392,421-422,429-430,436-439,446-447,453-454,456,459-460,476-477,481-484,486,501,513,515-516,520,534-542,557-558,562-566,570-571,597-598,601,605-607,610,614-618,627-628,648,652-653,659-660,669-674,687,692-697,716,721-723,730-731,745,753-758,766
+test/unit/region.spec.js
+  s_bc19ab09821624::t_e84ab075db6ac7 1-2,5-6,25,37,54,73,84,87,92,103,106,110,114,116,122-165,179-180,183-184,194-198,203,205,209,220,224,236,240,244,248,252,257-263,268,278-279,289-290,298,316,320,323-327,330-337,346,350,360,364,376,384,388,401,404,407,410,421,424-425,429,433,437,440-446,450,463,491,543,550,552,557,565,569,575,599,605,612,617,621,649,655-657,662,666,670,691,698-700,716,738,744,752,767,778,787,803-804,817,820,823,829-831,835-837,841,845,849,855,863,883,919,925,934,946,952,956,964,970,974,983,987,995,1001,1003,1008,1012,1017,1019,1023,1025,1040-1044,1067-1071,1075,1079,1091-1094,1106-1111,1120-1125,1130,1142-1146,1149,1152-1155,1167,1171,1184,1199
+test/unit/requests.spec.js
+  s_bc19ab09821624::t_2bb84e6dc87d91 1-4,7-8,19,35-36,54-60,67,70,75-76,86-89,92,94,96,101,106,122-124,128,130-134,137-138,140-142,144,150-151,155-156,158,162-165,167-168,170-171,174,176,180,185,233-237,239-243,246-248,250-253,256-257,259,261,263,265,309-310,312,314,316-317,321,337,341-342,364-365,418,425-428,430-431,435,441,470,529,532,534-535,537,539
+test/unit/runtime/backbone-api.spec.js
+  s_bc19ab09821624::t_abdfd453467a40 1-2,4-6,15-16,19-21,28,34-35,43-47,52-54,58-60,65,81-85,90,94,101,112,124,128-130,133-134,141-142
+test/unit/runtime/data-api.spec.js
+  s_bc19ab09821624::t_18222e03b1f5ec 1-3,10,42,44-48,51,55-56,60-61,64-65
+test/unit/runtime/dom-api.spec.js
+  s_bc19ab09821624::t_421fd2b963adf0 1-2,5-6,57,59,93,99,111,117,123,133,144,149,159,208,212-213,221,225-226,235,266-267,270,282,298,305,309-310,324-325,338,340,346-348,366-369,379,384,417,430,432,436,438,442-443,453,470,475
+test/unit/runtime/event-delegator-jquery-compat.spec.js
+  s_bc19ab09821624::t_de9b15941d73f0 1,4,24-25,38-39,45-46,51,60
+test/unit/runtime/event-delegator.spec.js
+  s_bc19ab09821624::t_7d914882812231 1,5-10,104,143-144,223-224,253-255
+test/unit/runtime/renderer.spec.js
+  s_bc19ab09821624::t_7a85e4d87ffc12 1-2,4-18,21-28
+test/unit/runtime/state-api.spec.js
+  s_bc19ab09821624::t_8e8c2ab56b3571 1-3,16-17,24,26-27
+test/unit/state-owner.spec.js
+  s_bc19ab09821624::t_61028045fa2c30 1-2,36-38,40,45,102-103,111-113,116,146,154-155,159,167-168,173,175,185-188,217,222,229,242-244,248-249,256-257
+test/unit/ui-binding-diagnostics.spec.js
+  s_bc19ab09821624::t_7c92288a669b77 1-4,28,81
+test/unit/utils/build-event-args.spec.js
+  s_bc19ab09821624::t_42eadcd7025305 1-2
+test/unit/utils/call-handler.spec.js
+  s_bc19ab09821624::t_c4e6d2f524fe7d 1-2,7,10-12
+test/unit/utils/extend.spec.js
+  s_bc19ab09821624::t_75fc03735f2afb 1,10,27,31,47,50,55,71,82,91,109,115,124,192-195,210,213
+test/unit/utils/get-value.spec.js
+  s_bc19ab09821624::t_f0b4de56ad0165 1,53
+test/unit/utils/is-string.spec.js
+  s_bc19ab09821624::t_56f50e35b62761 1,5,39-40
+test/unit/utils/once-wrap.spec.js
+  s_bc19ab09821624::t_c29f45246d09f5 1-2,8,14,23-24,28-29,32-34,39,43-44,49,53-54
+test/unit/utils/set-property.spec.js
+  s_bc19ab09821624::t_17a7ac1d12e6c2 1,12,14
+test/unit/utils/subscribe-bindings.spec.js
+  s_bc19ab09821624::t_40ce1aeeaf775f 1-2,4-12,14-28
+test/unit/utils/unique-id.spec.js
+  s_bc19ab09821624::t_4555b61161c945 1-3,5-11,69-81
+test/unit/view-constructor-options.spec.js
+  s_bc19ab09821624::t_25a47c8dfc5728 1-2,4,18-19,73-74
+test/unit/view-dom-delegation.spec.js
+  s_bc19ab09821624::t_ebb56ac2416671 1-3,40,49-53,76-80,87-89,93,95-96,112-113,117-123,128-130
+test/unit/view-el.spec.js
+  s_bc19ab09821624::t_4092920ff661b3 1,4,55,65-66,69-71,75
+test/unit/view-fixed-root.spec.js
+  s_bc19ab09821624::t_0fea2357535312 1-3,9,11-13,17,33-36,38,42-43,48,51,64,68
+test/unit/view-get-region.spec.js
+  s_bc19ab09821624::t_2dd29c17a538df 1-2,13-16,30-31,47-52,56-61,67-68,79-81,86,98-99,107,117-118,125,127-128,130,139-140,153-155,198,201,219-220,225-231,233-234,237-240,260,265,276,281-282,292,297-299,316,323,336-338,348,351,354-355,364,372-376
+test/unit/view-get-regions.spec.js
+  s_bc19ab09821624::t_fdfaf0893c04c1 1-2,13-16,31-32,48-53,57-62,68-69,111-112,132-133,140,148,161,171,177,196-207,217,220-221,224-226,239,249,252-256,263-266,271-278
+test/unit/view-has-region.spec.js
+  s_bc19ab09821624::t_52ee8611299965 1-2,13-16,33-34,60-65,71-72,78,80-87,90,92,104-105,113-114
+test/unit/view-lifecycle.spec.js
+  s_bc19ab09821624::t_f5a70e80ee7f7d 1-3,25,42,60-61,70,81-82,86,92-93,100-101,107,110-111,129-132,136,138-141,149,173-175,207,210,218,221,231-232,239,249,252-254,257-262,292-293,296,303,306-308,324,332,335,343,351,359-360,363-364
+test/unit/view-ownership.spec.js
+  s_bc19ab09821624::t_fe8f5c677488a9 1-2,4,10-11,33-34,38-39
+test/unit/view-region-diagnostics.spec.js
+  s_bc19ab09821624::t_1a0bad45c899f8 1-2,92,105-106,115-116,126-127,139-142,165,183-184,202,214,232,237,245-248,252-253,278-280,286-287,307,309,386-387,391-392,419,425-426,437-438,448,451-453,458-459,465-466
+test/unit/view-render-attributes.spec.js
+  s_bc19ab09821624::t_a7259bf0134281 1,4,90-91,98-99,105,107,118,121-122,127-129,148,170,188,195-196,200,204,211,216-217,221-223,225,231-232,234-237,239,243,249,257,262-266
+test/unit/view.child-views.spec.js
+  s_bc19ab09821624::t_d2b50ccfd355d0 1-6,12-14,18-19,37,39,41,45,53-55,61,64-65,68-71,76-79,84-85,90-92,96,100,110,113-115,118-120,123-124,128-131,136-137,146-147,150-151,156-161,164-167,170-171,174-175,178-179,182-183,186-187,190-191,194-195,198-199,205-208,210-211,217,221-223,225,227-229,232-234,237-239,242-243,246-247,250-251,254-255,263,267-271,274-276,281-283,286-290,302,304,307-308,311-312,315-316,320-322,325-326,329-330,336-337,339,341-342,344,347,351,354-355,358-359,362-363,368-370,372,376,382,384-385,388-389,422,426,434,437,439-442,444-446,449-450,453,455,457-458,461-462,466-468,472,475-476,482-484,487-488,493-494,496-497,500,505-507,510-511,518-520,523-525,528-529,534,536,552,555-556,558-559,561-562,567-568,571-575,579,587-590,599,601-602,605-607,609-611,617-621,623,625-628,631,633-634,637-640,642-644,647-648,650-652,654-656
+test/unit/view.dynamic-regions.spec.js
+  s_bc19ab09821624::t_31366983483be7 1-3,9,13,19-20,25-26,29-34,36,38,40-41,44-45,48-49,52-53,56-57,60-62,65-67,72-74,77,79,81-82,85-86,89-90,93-94,99-101,104,106-107,109-110,113-114,117-118,121-122,127-128,132,135,137,139-140,142-143,146-147,150-151,154-156,159-160,165-167,175-179,181,183-184,186-188,190-195,198-199,202-203,206-207,210-212,215-217,220-222,227-229,235,237-238,240-241,243,246-247,252-255,258,260-261,263-264,266,269-270,275,277-278,280-283,285-286,288-289,292-293,296-297,300-301
+test/unit/view.renderer.spec.js
+  s_bc19ab09821624::t_2ba9af2570331e 1-2,5,31,41-42,46,51,56,61-62,70,74,82-83,87,104,110
+test/unit/view.spec.js
+  s_bc19ab09821624::t_c71575420e40b6 1-4,6,21,32,39,45,49,59,67,77,81,97,104,108,136-137,151-156,166,170,174,178-179,183,187,191,198,203,219,225,241-243,245,250,254,258,262,266,270,274,278,282,286,290,294,298,310,317,329,335-337,339-340
+test/unit/view.triggers.spec.js
+  s_bc19ab09821624::t_57e545efb92293 1-2,4,19-20,31,33,61,65,69,92,96,106,115-116,120,137,141,166-167
+test/unit/view.ui-bindings.spec.js
+  s_bc19ab09821624::t_b5dac62c5f377f 1-5,9-15,20-22,25-26,29-30,33-34,41-43,46-47,50-51,54-56,61-65,68-70,73-75,80-82,85-86,89-90,93-94,97-99,101-102,104-105,108-109,114-116,119-120,125-128,131-132
+test/unit/view.ui-event-and-triggers.spec.js
+  s_bc19ab09821624::t_195ef6ef6d23df 1-3,8-12,14,16,22,27-30,35-40,42-43,45,48-51,54-57,60-63,68-73,75-76,78,81-82,85-86,89-92,95-98,101-104,123,134,138,149
+test/unit/xstate-adapter.spec.js
+  s_bc19ab09821624::t_db32ca621f8680 1,3-4,89,107-108,114-115,124-125,135,139,141-143,165-166,170,173-177,184-185,191,196-197,200,210-212,241
+tsconfig.tooling.json
+  s_bc19ab09821624::t_1c3ebd66f21bc7 3-9,11-17
+vitest.config.js
+  s_bc19ab09821624::t_9dadcea4949756 1,5-37,41-52,64-66,68-79,82-85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "f2576da01b43c2998324a38585d1155ef93848ec",
+  "prompts": {},
+  "sessions": {
+    "s_104642983dcc10": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a87cd9c6-fa43-4039-a2f4-4b6010f33907",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_14c2c438fbdb53": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d01f19f1-e3ef-4c93-b082-3b62545bd947",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_bc19ab09821624": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e7-cb4f-73e3-b41e-328bfeae0db2",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
