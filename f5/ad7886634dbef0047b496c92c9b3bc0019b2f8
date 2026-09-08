@@ -1,0 +1,81 @@
+test/unit/behavior.spec.js
+  s_e9ec88924dcd73::t_22c7cf6b91df34 6,22-26,28,800,802,940-951,953-979,981-991
+test/unit/destroyed-add-child-view.spec.js
+  s_bc19ab09821624::t_381c0b91cfbf6a 4,16-17,20-21,23-24,27-48
+test/unit/get-immediate-children.spec.js
+  s_e9ec88924dcd73::t_657448c0b8486d 1-3,5-18,20-27,29,31-36,38-50,53-66
+test/unit/on-attach.spec.js
+  s_e9ec88924dcd73::t_dde082bc94fbae 4,27,30,33,36,39
+test/unit/owned-cleanup.spec.js
+  s_e9ec88924dcd73::t_e49167d776df7c 2-4,12,15
+test/unit/region-detach-contents.spec.js
+  s_e9ec88924dcd73::t_32f11ee8ae74aa 4
+test/unit/region-el-validation.spec.js
+  s_e9ec88924dcd73::t_8adc4f1040656b 4,38-40
+test/unit/region-lifecycle.spec.js
+  s_e9ec88924dcd73::t_11ecda493bef40 5
+test/unit/region.spec.js
+  s_e9ec88924dcd73::t_1ed15a54b9cc32 5-6,122-165,323-325,327,330-337,424-425,440-446,1130,1142-1146,1149,1152-1155
+test/unit/state-owner.spec.js
+  s_e9ec88924dcd73::t_7c4e1e4122d43e 2,36-38,40,45,243-244
+test/unit/view-constructor-options.spec.js
+  s_e9ec88924dcd73::t_031cea1b17ad02 4
+test/unit/view-dom-delegation.spec.js
+  s_e9ec88924dcd73::t_379667a20ecf8a 3,117-123,128-130
+test/unit/view-el.spec.js
+  s_e9ec88924dcd73::t_91a1c4e7174bf9 4
+test/unit/view-fixed-root.spec.js
+  s_e9ec88924dcd73::t_a8efb312777a5b 3,11,17,38
+test/unit/view-get-region.spec.js
+  s_e9ec88924dcd73::t_17034770d18d8a 2
+test/unit/view-get-regions.spec.js
+  s_e9ec88924dcd73::t_3d0f6433ca8f92 2
+test/unit/view-has-region.spec.js
+  s_e9ec88924dcd73::t_d72ced5327faad 2
+test/unit/view-lifecycle.spec.js
+  s_e9ec88924dcd73::t_046be705b69717 3
+test/unit/view-ownership.spec.js
+  s_e9ec88924dcd73::t_15db7217e5a03c 4
+test/unit/view-region-diagnostics.spec.js
+  s_e9ec88924dcd73::t_223ebd9d5ffd0d 2
+test/unit/view-render-attributes.spec.js
+  s_e9ec88924dcd73::t_171f4bdf0bd4a3 4,99,223,236-237
+test/unit/view.child-views.spec.js
+  s_bc19ab09821624::t_ee2e523070fe72 5,68-71,165,199,217,251,255,286,289,344,607
+test/unit/view.dynamic-regions.spec.js
+  s_e9ec88924dcd73::t_baf089226adccc 3
+test/unit/view.renderer.spec.js
+  s_e9ec88924dcd73::t_906b62cb5ff7fb 5
+test/unit/view.spec.js
+  s_e9ec88924dcd73::t_8127f65c534532 3,6,151-152,294,298,335-337,339-340
+test/unit/view.triggers.spec.js
+  s_e9ec88924dcd73::t_87058e6d1afe97 4,31,33,137,167
+test/unit/view.ui-bindings.spec.js
+  s_e9ec88924dcd73::t_884787cd112abb 4
+test/unit/view.ui-event-and-triggers.spec.js
+  s_e9ec88924dcd73::t_928c6a61917d80 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "f5ad7886634dbef0047b496c92c9b3bc0019b2f8",
+  "prompts": {},
+  "sessions": {
+    "s_bc19ab09821624": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e7-cb4f-73e3-b41e-328bfeae0db2",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
