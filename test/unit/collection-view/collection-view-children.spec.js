@@ -256,6 +256,37 @@ describe('CollectionView Children', function() {
       });
     });
 
+    [null, {}, { index: null }, { preventRender: true }].forEach(indexOrOptions => {
+      it(`appends without a numeric index when sorting is disabled: ${JSON.stringify(indexOrOptions)}`, function() {
+        myCollectionView.viewComparator = false;
+        const previousChildren = myCollectionView.children.toArray();
+
+        myCollectionView.addChildView(addView, indexOrOptions);
+
+        expect(myCollectionView.children.toArray()).to.deep.equal([...previousChildren, addView]);
+        if (indexOrOptions?.preventRender) {
+          expect(addView.isRendered()).to.be.false;
+          myCollectionView.sort();
+        }
+        expect(Array.from(myCollectionView.el.children)).to.deep.equal(
+          [...previousChildren, addView].map(view => view.el));
+      });
+    });
+
+    it('filters an options-only addition and appends it when the filter is removed', function() {
+      myCollectionView.viewComparator = false;
+      myCollectionView.viewFilter = view => view !== addView;
+      const previousChildren = myCollectionView.children.toArray();
+
+      myCollectionView.addChildView(addView, {});
+
+      expect(myCollectionView.children.toArray()).to.deep.equal(previousChildren);
+      expect(Array.from(myCollectionView.el.children)).to.deep.equal(previousChildren.map(view => view.el));
+      myCollectionView.removeFilter();
+      expect(myCollectionView.children.toArray()).to.deep.equal([...previousChildren, addView]);
+      expect(myCollectionView.el.lastChild).to.equal(addView.el);
+    });
+
     describe('when called with preventRender option', function() {
 
       beforeEach(function() {
