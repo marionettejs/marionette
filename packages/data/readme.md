@@ -49,6 +49,14 @@ The native DataApi uses each model's stable `cid` as its key. Application ids ma
 change; Collection lookup reads the current ids. Duplicate instances or ids are
 rejected before a reset changes membership; `add` ignores an instance or id
 already present. Applications should keep ids unique when changing them.
+`get`, `remove`, and `move` resolve an exact member instance first, then an
+application id, then a cid. This precedence does not change when models move.
+Bulk removal resolves its inputs against one current membership snapshot.
+
+Supplied native Model instances retain their identity, attributes, and subclass,
+including when the Collection has a different `model` constructor. That constructor
+is used only for raw attribute objects. Initial model instances do not configure
+the constructor used for future raw additions.
 
 A model may belong to multiple Collections. Its `destroy` event removes it from
 each containing Collection, forwarding removal options such as `silent`.
@@ -70,6 +78,32 @@ listeners propagate and abort delivery, as with ordinary model events.
 
 The package does not provide persistence, REST synchronization, validation, or
 implicit Backbone compatibility.
+
+## Mutation semantics
+
+`set` compares values with `Object.is`: a fresh object is a change even when its
+contents match, while mutating a nested object in place is not observed. `has`
+tests own-property presence, including a present `undefined` or `null` value.
+Supplied attributes override defaults, including when their value is `undefined`.
+Model `reset` reapplies defaults and removes attributes absent from the result.
+
+Change callbacks receive `options.changed` and `options.previous`, sparse maps for
+that mutation. An absent own key in `previous` means the attribute did not exist;
+an own key with value `undefined` means it existed with that value. `previous` is
+not a complete model snapshot. Removing an attribute reports `undefined` in
+`changed`; use `has` to check its current presence.
+
+Nested Model writes complete synchronously as independent changes. Use the event's
+`options.changed` to inspect that event: `model.changed` reflects the latest write,
+which may be a nested mutation by the time an outer change callback runs. Silent
+writes still update attributes and `changed`; no-op writes clear `changed`.
+
+Collection `add` and `remove` events originate on the Collection. Model events are
+forwarded by containing Collections. Sorting is explicit: a prototype comparator
+is used by `sort()`, but `add` and `reset` do not automatically sort. There is no
+`Collection.set()` merge/reconcile operation; update retained Models explicitly
+when refreshing a list whose child Views must retain local state. `reset` is the
+deliberately destructive whole-list operation.
 
 ## TypeScript
 
@@ -114,10 +148,14 @@ method-only extensions. Its callable-intersection limitation prevents that
 narrowing on extensions with custom statics; directly constructed instances and
 those static members remain typed.
 
-A `Collection.extend({ model: ModelClass })` configuration can convert input
-instances into that model class, and constructor `options.model` can replace the
-configuration. These configured collections conservatively expose the union of
-the configured class and the inferred input or option model. Narrow an item with
-`instanceof ModelClass` before using methods specific to that class. The instance
-`model` constructor has the same conservative result. Collections without a
-prototype `model` override retain their ordinary input and option inference.
+Collection member types include both supplied Models and the constructor used for
+raw attributes. Constructor `options.model` replaces a prototype `model` factory;
+without either, raw attributes construct a base Model. Narrow an item with
+`instanceof ModelClass` before using subclass-specific methods. The instance
+`model` constructor has the same conservative member result type.
+
+Model attributes and `toObject()` are partial: construction, `unset`, and `clear`
+can leave any attribute absent. Known string keys in `set(key, value)` use the same
+attribute value types as object-form writes; arbitrary dynamic keys remain open.
+An explicitly typed Collection also checks raw attribute inputs against its model
+attribute shape. These are compile-time contracts, not runtime validation.
