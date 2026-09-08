@@ -1,0 +1,19 @@
+.github/CODEOWNERS
+  s_fae5a6096938ea::t_006901b5b7a365 1-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "68b4886326f3c73bd85cc88dadba97c550be3cd4",
+  "prompts": {},
+  "sessions": {
+    "s_fae5a6096938ea": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08215-179d-79e2-9e34-97d51f445f91",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
