@@ -59,4 +59,10 @@ test('exclusive overlays release dismissal listeners on every public empty path'
   app.destroy();
   assert.equal(last.isDestroyed(), true);
   assert.equal(listeners.size, 0);
+  const later = new View({ template: false });
+  app.open(later);
+  assert.equal(app.region.hasView(), false);
+  assert.equal(listeners.size, 0);
+  assert.equal(later.isDestroyed(), false);
+  later.destroy();
 });

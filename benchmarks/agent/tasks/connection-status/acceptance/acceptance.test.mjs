@@ -14,14 +14,19 @@ test('provider subscription survives rerender and is released once', () => {
   const provider = {
     subscribe(callback) {
       subscribers.add(callback);
+      callback('<Initial>');
       return () => {
         stopped++;
         subscribers.delete(callback);
       };
     }
   };
-  const view = solution.createConnectionStatus(host(), provider);
+  const el = host();
+  el.textContent = 'Preexisting host markup';
+  const view = solution.createConnectionStatus(el, provider);
   assert.ok(view instanceof View);
+  assert.equal(view.isRendered(), true);
+  assert.equal(view.el.querySelector('output').textContent, '<Initial>');
   assert.equal(subscribers.size, 1);
   const emit = value => [...subscribers].forEach(callback => callback(value));
   emit('<Ready>');

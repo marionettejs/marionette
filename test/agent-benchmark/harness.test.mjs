@@ -169,3 +169,36 @@ test('preparation consumes locked tarballs from an isolated cache without regist
     assert.equal(JSON.parse(await readFile(join(attempt, 'workspace/node_modules/jsdom/package.json'), 'utf8')).version, jsdom.version);
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
+
+test('corpus decisions reject an extra duplicate task', async() => {
+  const { cp, readFile } = await import('node:fs/promises');
+  const { repositoryRoot } = await import('../../scripts/agent-benchmark/harness.mjs');
+  const directory = await mkdtemp(join(tmpdir(), 'agent-decisions-'));
+  try {
+    await cp(join(repositoryRoot, 'benchmarks/agent'), join(directory, 'benchmarks/agent'), { recursive: true });
+    const path = join(directory, 'benchmarks/agent/series-decisions.json');
+    const decisions = JSON.parse(await readFile(path, 'utf8'));
+    decisions.tasks.push(decisions.tasks[0]);
+    await writeFile(path, JSON.stringify(decisions));
+    await assert.rejects(loadCorpus(directory), /every task exactly once/);
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
+test('CLI creates missing output parents while preserving exclusive attempt directories', async() => {
+  const { spawnSync } = await import('node:child_process');
+  const { stat } = await import('node:fs/promises');
+  const { fileURLToPath } = await import('node:url');
+  const directory = await mkdtemp(join(tmpdir(), 'agent-output-'));
+  try {
+    const output = join(directory, 'missing/parent/attempt');
+    const cli = fileURLToPath(new URL('../../scripts/agent-benchmark/run.mjs', import.meta.url));
+    const args = [cli, 'prepare', '--task', 'unknown-task', '--output', output];
+    const first = spawnSync(process.execPath, args, { encoding: 'utf8' });
+    assert.notEqual(first.status, 0);
+    assert.match(first.stderr, /Unknown task: unknown-task/);
+    assert.equal((await stat(output)).isDirectory(), true);
+    const repeated = spawnSync(process.execPath, args, { encoding: 'utf8' });
+    assert.notEqual(repeated.status, 0);
+    assert.match(repeated.stderr, /EEXIST/);
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});

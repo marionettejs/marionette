@@ -1,6 +1,6 @@
 import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { evaluateAttempt, loadCorpus, prepareArtifacts, prepareAttempt } from './harness.mjs';
 
@@ -29,7 +29,7 @@ if (mode === 'evaluate') {
   console.log(JSON.stringify(result, null, 2));
   if (!result.acceptancePassed) { process.exitCode = 1; }
 } else if (mode === 'reference' || mode === 'fixtures' || mode === 'prepare') {
-  if (options.output) { await mkdir(output); }
+  if (options.output) { await mkdir(dirname(output), { recursive: true }); await mkdir(output); }
   const corpus = await loadCorpus();
   const selected = options.task;
   const tasks = selected ? corpus.tasks.filter(task => task.id === selected) : corpus.tasks;

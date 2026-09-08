@@ -3,14 +3,14 @@ export function createConnectionStatus(el, statusSource) {
   const Status = Behavior.extend({
     initialize() {
       this.latest = 'Unknown';
-      this.unsubscribe = statusSource.subscribe(value => {
-        this.latest = value;
-        if (this.view.isRendered()) {
-          this.showStatus();
-        }
-      });
     },
     onRender() {
+      if (!this.unsubscribe) {
+        this.unsubscribe = statusSource.subscribe(value => {
+          this.latest = value;
+          this.showStatus();
+        });
+      }
       this.showStatus();
     },
     showStatus() {

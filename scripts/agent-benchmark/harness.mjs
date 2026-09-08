@@ -41,7 +41,7 @@ export async function loadCorpus(root = repositoryRoot) {
       throw new Error(`Capability needs independent tasks: ${capability.id}`);
     }
   }
-  if (new Set(decisions.tasks.map(task => task.id)).size !== corpus.tasks.length ||
+  if (decisions.tasks.length !== corpus.tasks.length || new Set(decisions.tasks.map(task => task.id)).size !== corpus.tasks.length ||
       decisions.tasks.some(task => !corpus.tasks.some(entry => entry.id === task.id))) { throw new Error('Series decisions must identify every task exactly once'); }
   return corpus;
 }

@@ -25,17 +25,22 @@ test('shortcut is host scoped and released across rerender/destroy', () => {
     ctrlKey: true
   });
   assert.deepEqual(calls, ['Draft']);
+  const otherInput = other.el.querySelector('textarea');
+  otherInput.value = 'Separate';
+  send(otherInput, { ctrlKey: true });
+  assert.deepEqual(calls, ['Draft', 'other:Separate']);
+  calls.length = 0;
   editor.render();
   input = editor.el.querySelector('textarea');
   input.value = 'Again';
   send(input, {
     metaKey: true
   });
-  assert.deepEqual(calls, ['Draft', 'Again']);
+  assert.deepEqual(calls, ['Again']);
   editor.destroy();
   send(input, {
     ctrlKey: true
   });
-  assert.deepEqual(calls, ['Draft', 'Again']);
+  assert.deepEqual(calls, ['Again']);
   other.destroy();
 });

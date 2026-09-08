@@ -20,6 +20,7 @@ export function createDismissibleOverlay(el, documentEvents) {
   return {
     region,
     open(view) {
+      if (region.isDestroyed()) { return; }
       if (!(view instanceof View) || view.isDestroyed()) {
         throw new Error('Expected a live View');
       }
