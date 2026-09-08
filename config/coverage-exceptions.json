@@ -8,10 +8,8 @@
     "reason": "Optional absent behavior-array guards protect incomplete internal hosts; public hosts initialize the array before these operations."
   },
   "src/modules/child-view-container.ts": {
-    "lines": 1,
-    "statements": 1,
-    "branches": 2,
-    "reason": "The same internal array cannot be passed back through public children.toArray (a copy), and public swapChildViews rejects an unowned child before the private missing-child guard."
+    "branches": 1,
+    "reason": "The same internal array cannot be passed back through public children.toArray, which returns a copy."
   },
   "src/modules/region.ts": {
     "lines": 1,
