@@ -41,9 +41,10 @@ pseudo-class `extend` method. [All built-in classes](./classes.md), such as
 `View` and `MnObject`, provide this method.
 
 The `protoProps` and `staticProps` hashes passed to `extend` contribute their own
-enumerable string keys only. Symbols, non-enumerable properties, and inherited
-properties on either input are ignored. Static properties inherited by the parent
-constructor remain available on the child constructor.
+enumerable string and symbol keys. Non-enumerable and inherited input properties
+are ignored, except that an own `constructor` selects the child constructor even
+when it is non-enumerable. Enumerable string statics from the parent, including
+inherited ones, are copied to the child constructor.
 
 In the example below, we create a new pseudo-class called `MyView`:
 
@@ -243,9 +244,9 @@ before falling back to the instance. A constructor value of `false`, `null`, or
 `0` therefore remains an intentional override; only `undefined` falls through.
 
 Resolved class defaults and constructor option hashes contribute their own
-enumerable string properties when Marionette builds `options`. Inherited,
-symbol, and non-enumerable properties are ignored. `mergeOptions` applies the
-same rule to the named options copied onto an instance.
+enumerable string and symbol properties when Marionette builds `options`.
+Inherited and non-enumerable properties are ignored. `mergeOptions` copies only
+the requested own enumerable string options onto an instance.
 
 ```javascript
 import { View } from 'marionette';
@@ -263,7 +264,7 @@ const view = new MyView({
 view.checkOption();  // prints 'some text'
 ```
 
-Constructor/default option merges use own enumerable string properties. See
+Constructor/default option merges use own enumerable string and symbol properties. See
 [`getOption` and `mergeOptions`](./common.md#getoption) for the exact lookup and
 copying boundaries.
 

@@ -362,7 +362,8 @@ Object.assign(Region.prototype, CommonMixin, {
   },
 
   // Destroy the current view, if there is one. If there is no current view,
-  // it will detach any html inside the region's `el`.
+  // it will detach any html inside the region's `el`. This remains callable during
+  // destruction cleanup; only completed destruction makes it a no-op.
   empty(this: RegionInternals, options: ShowOptions = { allowMissingEl: true }) {
     if (this._isDestroyed) { return this; }
 
@@ -392,6 +393,7 @@ Object.assign(Region.prototype, CommonMixin, {
       }
     }
 
+    // Release ownership and parent subscriptions even when the child destroyed itself.
     view._isShown = false;
     this._stopChildViewEvents(view);
 
@@ -478,8 +480,8 @@ Object.assign(Region.prototype, CommonMixin, {
     return this._name;
   },
 
-  // Reset the region by destroying any existing view and restoring its initial element.
-  // The next time a view is shown, the region will re-query the DOM for its `el`.
+  // Empty the Region and restore its initial element reference. An initial selector
+  // is queried again when needed; an initial Element is reused without a query.
   reset(this: RegionInternals, options?: ShowOptions) {
     if (this._isDestroyed) { return this; }
 
@@ -495,8 +497,8 @@ Object.assign(Region.prototype, CommonMixin, {
     return this._isDestroyed;
   },
 
-  // Destroy the region, remove any child view
-  // and remove the region from any associated view
+  // Run synchronous reset/empty cleanup before marking destroyed and unlinking the owner.
+  // The destroying guard blocks show, detach, and recursive destroy while cleanup runs.
   destroy(this: RegionInternals, options?: ShowOptions) {
     if (this._isDestroyed || this._isDestroying) { return this; }
     this._isDestroying = true;

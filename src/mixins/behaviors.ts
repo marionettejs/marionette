@@ -94,10 +94,8 @@ export default {
   },
 
   _destroyBehaviors(this: BehaviorContainer, options?: unknown) {
-    // Call destroy on each behavior after
-    // destroying the view.
-    // This unbinds event listeners
-    // that behaviors have registered for.
+    // Release each Behavior during host teardown, before the host's destroy event.
+    // Behavior.destroy removes its listeners, DOM/entity subscriptions, and owned State.
     eachBehavior(this._behaviors, behavior => behavior.destroy(options));
   },
 

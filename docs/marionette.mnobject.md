@@ -8,6 +8,7 @@ and `extend`, with no Backbone dependency.
 - [Common Marionette Functionality](./common.md)
 - [Class Events](./events.class.md#mnobject-events)
 - [Radio API](./radio.md#marionette-integration)
+- [State ownership](./marionette.state.md#borrowed-and-owned-sources)
 
 ## Documentation Index
 
@@ -20,11 +21,17 @@ and `extend`, with no Backbone dependency.
 ## Instantiating a MnObject
 
 Constructor options are shallow-copied into `this.options`. Own enumerable
-`channelName`, `radioEvents`, and `radioRequests` options with values other than
+`channelName`, `radioEvents`, `radioRequests`, and `stateEvents` options with values other than
 `undefined` are also attached directly to the instance. Other options remain
 available through `this.options` and `getOption` unless explicitly merged.
-These options use Marionette's built-in [`Radio`](./radio.md); see that guide
+The channel options use Marionette's built-in [`Radio`](./radio.md); see that guide
 for the separate `backbone.radio` migration boundary.
+
+A supplied `state` source is borrowed. A source returned by `createState(options)`
+is owned and created lazily; `getState()` returns the exact source. Configured
+`stateEvents` subscribe after `initialize`. Destruction removes those
+subscriptions and disposes owned State through the selected StateApi. See
+[State](./marionette.state.md) before enabling observable State events.
 
 ```javascript
 import { MnObject } from 'marionette';
@@ -63,7 +70,8 @@ foo.cid.startsWith('foo'); // true
 ### `destroy`
 On successful completion of its lifecycle, `destroy` removes subscriptions the
 instance made with `listenTo`, releases its owned Radio event subscriptions and
-replies, and returns the MnObject. It does not reset the shared Radio channel or
+replies, cleans up State, and returns the MnObject synchronously. Returned Promises
+from destruction hooks are not awaited. It does not reset the shared Radio channel or
 remove unrelated channel handlers. Listeners registered directly on the
 instance with `on` are not removed automatically. If a lifecycle callback
 throws, cleanup that has not yet run may be skipped; the failure boundaries are

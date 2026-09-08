@@ -9,6 +9,8 @@ source provides its own values and mutation API. `Region` does not compose state
 into a model, record, Proxy, or observable object.
 
 ```javascript
+import { Application } from 'marionette';
+
 const App = Application.extend({
   createState() {
     return { filter: '', selectedId: null };
@@ -99,7 +101,7 @@ are released. It is never called for a supplied or declared `state` source.
 The default StateApi does not pretend a plain object is observable. Declaring
 `stateEvents` for a source it cannot observe throws `MN0037`.
 
-Configure StateApi globally before construction:
+Configure StateApi on the default runtime before constructing its consumers:
 
 ```javascript
 import { setStateApi } from 'marionette';
@@ -127,6 +129,9 @@ are resolved on the owner, while event vocabulary and callback arguments belong
 to the selected adapter.
 
 ```javascript
+import { View } from 'marionette';
+
+// Fragment: provide an actor source and its matching StateApi at construction.
 const ActorView = View.extend({
   stateEvents: {
     'actor.transition': 'onTransition'
@@ -217,6 +222,9 @@ matching StateApi. Do not alias the removed State to another model type.
 const state = owner.getState();
 state.set('open', true);
 
+```
+
+```javascript
 // Plain-object source
 const state = owner.getState();
 state.open = true;

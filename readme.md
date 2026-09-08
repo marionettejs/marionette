@@ -46,6 +46,12 @@ in the [project roadmap](ROADMAP.md) pass.
 npm install marionette
 ```
 
+Add the mount element to the page:
+
+```html
+<div id="app"></div>
+```
+
 ```js
 import { View } from 'marionette';
 
@@ -73,6 +79,8 @@ See [installation](docs/installation.md) for package entrypoints and supported s
 
 ## Documentation
 
+- [Build with an agent](docs/agents.md)
+- [Choose integrations](docs/choosing-integrations.md)
 - [Documentation index](docs/readme.md)
 - [Installation and package entrypoints](docs/installation.md)
 - [Classes and their jobs](docs/classes.md)
@@ -81,6 +89,11 @@ See [installation](docs/installation.md) for package entrypoints and supported s
 - [Data and integrations](docs/data.api.md)
 - [Lifecycle and cleanup](docs/view.lifecycle.md)
 - [Upgrade guide](upgradeGuide.md)
+
+Builds containing these documentation resources include the matching consumer
+guides under `dist/docs/`; earlier published alphas may not include them.
+Start at `dist/docs/readme.md`; its manifest records source revision and content
+hashes. Read the page needed for the task rather than loading the whole bundle.
 
 The API reference is being reconciled for stable v5 in
 [issue #147](https://github.com/marionettejs/marionette/issues/147). Until that
@@ -94,15 +107,8 @@ suite? Bring a small reproduction. Contributions should start from a focused pub
 issue that describes the intended behavior and its runtime cost. See
 [CONTRIBUTING.md](CONTRIBUTING.md) and the [v5 roadmap](ROADMAP.md).
 
-```sh
-npm ci
-npm test
-npm run lint:ci
-npm run coverage
-npm run test:fixtures
-npm run size
-npm run performance:timing
-```
+The [maintainer guide](docs/maintainers/readme.md) maps each change to the relevant
+source and validation commands.
 
 ## License
 

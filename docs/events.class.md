@@ -13,7 +13,7 @@ proxied view events receive the host view.
 ## Documentation Index
 
 * [Application Events](#application-events)
-  * [`before:start` event](#before-start-event)
+  * [`before:start` event](#beforestart-event)
   * [`start` event](#start-event)
   * [`before:stop` event](#beforestop-event)
   * [`stop` event](#stop-event)
@@ -48,55 +48,34 @@ proxied view events receive the host view.
 
 ## Application Events
 
-The `Application` object fires events for its start and stop lifecycles:
+Application events describe its asynchronous lifecycle. Use a readiness method
+when completion must wait for work; event-listener return values are not awaited.
 
 ### `before:start` event
 
-Fired just before the application is started. Use this to prepare the
-application with anything it will need to start, for example instantiating
-routers, models, and collections.
+Receives `(application, options, context)` before startup completes. The matching
+`onBeforeStart(application, options, { signal })` method may return a Promise to
+delay readiness. Pass the signal to cancellable work and prevent stale results
+from committing application side effects.
 
 ### `start` event
 
-Fired as part of the application startup. This is where you should be showing
-your views and starting `Backbone.history`.
+Receives `(application, options)` after readiness and owned child startup complete.
+The matching `onStart(application, options)` method can show the feature's View.
+Both are completion notifications; their return values are not awaited.
 
-```javascript
-import Bb from 'backbone';
-import { Application } from 'marionette';
+Use the [Application lifecycle example](./marionette.application.md#starting-an-application)
+for startup and the [routing guide](./routing.md) to connect an application's
+router. Starting a history service is application setup, not a Marionette lifecycle
+requirement.
 
-import MyModel from './mymodel';
-import MyView from './myview';
-
-const MyApp = Application.extend({
-  region: '#root-element',
-
-  initialize(options) {
-    console.log('Initialize' + options.foo);
-  },
-
-  onBeforeStart(app, options) {
-    this.model = new MyModel(options.data);
-  },
-
-  onStart(app, options) {
-    this.showView(new MyView({model: this.model}));
-    Bb.history.start();
-  }
-});
-
-const myApp = new MyApp({ foo: 'My App' });
-await myApp.start({ data: { bar: true } });
-```
-
-As shown, the `options` object passed to `start` is forwarded after the
-Application to its lifecycle hooks and events. Readiness hooks and
-`before:*` events also receive a context object as the third argument. Its
-`signal` is aborted when a later operation invalidates that readiness. A
-transferred stop phase retains its original options, context, and un-aborted
-signal. Only the Promise returned by the `onBeforeStart`, `onBeforeStop`, or
-`onBeforeDestroy` method delays its lifecycle; event-listener return values are
-ignored.
+The `options` passed to a lifecycle operation reach its hooks and events.
+Readiness hooks and `before:*` events also receive a context whose signal is
+aborted when a later operation invalidates that readiness. A transferred stop
+phase retains its original options, context, and un-aborted signal. Only a Promise
+returned by `onBeforeStart`, `onBeforeStop`, or `onBeforeDestroy` delays its phase.
+See [Application lifecycle](./marionette.application.md#application-lifecycle)
+for operation results, ordering, and cancellation.
 
 ### `before:stop` event
 
@@ -182,10 +161,11 @@ const MyRegion = Region.extend({
 });
 
 const MyView = View.extend({
-  template: _.template('hello')
+  template: () => 'hello'
 });
 
-const myRegion = new MyRegion({ el: '#dom-hook' });
+const regionElement = document.createElement('div');
+const myRegion = new MyRegion({ el: regionElement });
 
 myRegion.show(new MyView(), { foo: 'bar' });
 ```
@@ -215,10 +195,11 @@ const MyRegion = Region.extend({
 });
 
 const MyView = View.extend({
-  template: _.template('hello')
+  template: () => 'hello'
 });
 
-const myRegion = new MyRegion({ el: '#dom-hook' });
+const regionElement = document.createElement('div');
+const myRegion = new MyRegion({ el: regionElement });
 
 myRegion.empty(); // no events, no view emptied
 
@@ -236,16 +217,16 @@ The `MnObject` class triggers [Destroy Events](#destroy-and-beforedestroy-events
 
 These events fire before (`before:add:region`) and after (`add:region`) a region is added to a view.
 This event handler will receive the view instance, the region name string, and the region instance as
-event arguments. The region is fully instantated for both events.
+event arguments. The Region is fully instantiated for both events.
 
 ### `remove:region` and `before:remove:region` events
 
 These events fire before (`before:remove:region`) and after (`remove:region`) a region is removed from a view.
 This event handler will receive the view instance, the region name string, and the region instance as
-event arguments. The region will be not be destroyed in the before event, but is destroyed by `remove:region`.
+event arguments. The Region is not yet destroyed in the before event, but is destroyed by `remove:region`.
 
-**Note** Currently these events are only triggered using the `view.removeRegion` API and not when the region
-is destroyed directly. https://github.com/marionettejs/backbone.marionette/issues/3602
+`removeRegion()` and the View's Region cleanup path emit these events. Destroying
+a Region directly does not itself emit the owning View's remove-region events.
 
 ## CollectionView Events
 
@@ -253,8 +234,10 @@ The `CollectionView` triggers unique events specifically related to child manage
 
 ### `add:child` and `before:add:child` events
 
-These events fire before (`before:add:child`) and after (`add:child`) each child view
-is instantiated and added to the [`children`](./marionette.collectionview.md#accessing-a-child-view).
+These events fire before (`before:add:child`) and after (`add:child`) each child
+View is added to [`children`](./marionette.collectionview.md#accessing-a-child-view).
+Both receive `(collectionView, childView)`; the child is already constructed at
+`before:add:child`.
 These will fire once for each model in the attached collection or for any view added using
 [`addChildView`](./marionette.collectionview.md#adding-a-child-view).
 
@@ -274,8 +257,9 @@ should happen in [`before:destroy:children`](#destroychildren-and-beforedestroyc
 ### `sort` and `before:sort` events
 
 These events fire before (`before:sort`) and after (`sort`) sorting the children in the `CollectionView`.
-These events will only fire if there are [`children`](./marionette.collectionview.md#accessing-a-child-view)
-and a [`viewComparator`](./marionette.collectionview.md#defining-the-viewcomparator)
+These events fire when there are managed children and `getComparator()` returns
+an active comparator, including the default comparator for collection order.
+See [`viewComparator`](./marionette.collectionview.md#defining-the-viewcomparator).
 
 ### `filter` and `before:filter` events
 
@@ -285,17 +269,20 @@ and a [`viewFilter`](./marionette.collectionview.md#defining-the-viewfilter).
 
 When the `filter` event is fired the children filtered out will have already been
 detached from the view's `el`, but new children will not yet have been rendered.
-The `filter` event not only receives the view instance, but also arrays of attached views,
-and detached views.
+The `filter` event receives `(collectionView, passingViews, filteredViews)`.
+Passing Views are the selected result; some may already be attached, while new
+ones are rendered and attached by the following child-render pass.
 
 ```javascript
+import { CollectionView } from 'marionette';
+
 const MyCollectionView = CollectionView.extend({
   onBeforeFilter(myCollectionView) {
    console.log('Nothing has changed yet!');
   },
-  onFilter(myCollectionView, attachViews, detachedView) {
-    console.log('Array of attached views', attachedView);
-    console.log('Array of detached views', attachedView);
+  onFilter(myCollectionView, passingViews, filteredViews) {
+    console.log('Views passing the filter', passingViews);
+    console.log('Views excluded by the filter', filteredViews);
   }
 });
 ```
@@ -310,10 +297,10 @@ These events will be passed the `CollectionView` instance and the array of views
 The views in the array may or may not be rendered or attached for `before:render:children`,
 but will be rendered and attached by `render:children`.
 
-If the `CollectionView` can determine that added views will only be appended to the end, only the appended views
-will be passed to the event. Otherwise all of the `children` views will be passed.
-
-**Note** if you consistently need all of the views within this event use [`children`](./marionette.collectionview.md#accessing-a-child-view)
+Both events receive the complete current presented `children` array, including
+already-rendered survivors. An empty result still emits both events with an empty
+array while the empty-View Region is updated. “Attached” here means inserted into
+the CollectionView container; the container itself may be detached from the document.
 
 ### `destroy:children` and `before:destroy:children` events
 
@@ -322,12 +309,13 @@ in the `CollectionView`. These events will only fire if there are [`children`](.
 
 ### CollectionView EmptyView Region Events
 
-The `CollectionView` uses a region internally that can be used to know when the empty view is show or destroyed.
+The `CollectionView` uses a Region internally to show or destroy its empty View.
 See [Region Events](#region-events).
 
 ```javascript
-import { CollectionView } from 'marionette';
+import { CollectionView, View } from 'marionette';
 
+const MyEmptyView = View.extend({ template: () => 'No items' });
 const MyView = CollectionView.extend({
   emptyView: MyEmptyView
 });
@@ -352,7 +340,9 @@ myView.render();
 
 ### `render` and `before:render` events
 
-Reflects when a view's template is being rendered into its `el`.
+For `View`, these events bracket template rendering. For `CollectionView`,
+they bracket the complete child rebuild/render pass, even without a template.
+Both receive the instance as their argument.
 
 `before:render` will occur prior to removing any current child views.
 `render` is an ideal event for attaching child views to the view's template as the first
@@ -360,10 +350,11 @@ render _generally_ occurs prior to the view attaching to the DOM.
 
 ```javascript
 import { View, CollectionView } from 'marionette';
-import MyChildView from './MyChildView';
+
+const MyChildView = View.extend({ template: () => 'Child' });
 
 const MyView = View.extend({
-  template: _.template('<div class="foo-region"></div>'),
+  template: () => '<div class="foo-region"></div>',
   regions: {
     'foo': '.foo-region'
   },
@@ -381,11 +372,10 @@ const MyCollectionView = CollectionView.extend({
 })
 ```
 
-**Note** This event is only triggered when rendering a template into a view. A view that
-is pre-rendered will not have this event triggered unless re-rendered. [Pre-rendered views](./dom.prerendered.md)
-should use `initialize` for attaching child views and the `render` event if the view is re-rendered.
-
-**Note** If a view's `template` is set to `false` this event will not trigger.
+Adopting [prerendered contents](./dom.prerendered.md) does not itself emit these
+events. Use `initialize` for initial child setup on that path. `View#render()`
+returns without events when `template` is `false`; `CollectionView#render()`
+still emits its render events when its template is `false` or absent.
 
 ### `attach` and `before:attach` events
 
@@ -412,8 +402,9 @@ It will also fire if an attached view is re-rendered.
 This is the ideal event to setup any external DOM listeners such as `jQuery` plugins
 that use DOM _within_ the `el` of the view and not the view's `el` itself.
 
-**NOTE** This event will not fire if the view has no template to render unless it contains
-prerendered html.
+The monitor requires both `isAttached()` and `isRendered()` to be true.
+Prerendered contents can establish rendered state, and a CollectionView render
+establishes it even without a template.
 
 ### `dom:remove` event
 
@@ -424,8 +415,9 @@ It will also fire before an attached view is re-rendered.
 This is the ideal event to clean up any external DOM listeners such as `jQuery` plugins
 that use DOM _within_ the `el` of the view and not the view's `el` itself.
 
-**NOTE** This event will not fire if the view has no template to render unless it contains
-prerendered html.
+The monitor requires both `isAttached()` and `isRendered()` to be true.
+Prerendered contents can establish rendered state, and a CollectionView render
+establishes it even without a template.
 
 ### Advanced Event Settings
 
@@ -469,14 +461,16 @@ stops. Later `destroy()` calls do not retry the lifecycle or resume partial
 cleanup. Application's asynchronous operation failures follow its separate
 lifecycle contract.
 
-**Note** For views this is not the ideal location for clean up of anything touching the DOM.
-See [`dom:remove`](#domremove-event) or [`before:detach`] for DOM related clean up.
+Use [`dom:remove`](#domremove-event) or [`before:detach`](#detach-and-beforedetach-events)
+for work tied to those transitions. Resources created while detached, or while
+attachment monitoring is disabled, also need owner cleanup in `onBeforeDestroy`;
+do not rely on a DOM notification that may never occur.
 
 ```javascript
 import { View } from 'marionette';
 
 const MyView = View.extend({
-  onBeforeDestroy(options) {
+  onBeforeDestroy(view, options) {
     console.log(options.foo);
   }
 });

@@ -24,7 +24,6 @@ inMemoryHtml.textContent = 'Hello World!';
 const myView = new View({ el: inMemoryHtml });
 ```
 
-[Live example](https://jsfiddle.net/marionettejs/b2yz38gj/)
 
 In both of the cases at instantiation the view will determine
 its state as to whether the el is rendered
@@ -62,13 +61,29 @@ const MyBaseLayout = View.extend({
 ### Managing a Pre-existing View Tree.
 
 It may be the case that you need child views of already existing DOM as well.
-To set this up you'll need to query for `el`s down the tree:
+Query the existing DOM for each child's element. A Region declared with a
+selector may still hold that selector in `region.el` before its first show;
+`getRegion()` does not resolve it. Query from the owning View's concrete `el`:
 
+The page contains this existing markup before the module runs:
+
+```html
+<main id="base-layout">
+  <div id="header-region"><header><h1>Existing account</h1></header></div>
+  <div id="content-region"></div>
+</main>
+```
+
+<!-- executable-example: prerendered-owned-tree -->
 ```javascript
 import { View } from 'marionette';
-import HeaderView from './header-view';
 
-const MyBaseLayout = View.extend({
+export const HeaderView = View.extend({
+  tagName: 'header',
+  template: () => '<h1>Account</h1>'
+});
+
+export const BaseLayout = View.extend({
   regions: {
     header: '#header-region',
     content: '#content-region'
@@ -78,13 +93,24 @@ const MyBaseLayout = View.extend({
   },
   initialize() {
     this.showChildView('header', new HeaderView({
-      el: this.getRegion('header').el.firstElementChild
+      el: this.el.querySelector('#header-region').firstElementChild
     }));
   }
 });
+
+export const layout = new BaseLayout();
 ```
 
-The same can be done with `CollectionView`:
+The child owns the existing `header` element. Its existing content is retained
+when shown because it is already rendered. Destroying the layout destroys its
+child and removes the owned tree. The [fixture](https://github.com/marionettejs/marionette/blob/master/test/fixtures/docs-prerendered-content/validate.mjs)
+checks element identity, retained content, parent ownership, and cleanup.
+
+
+The same can be done with `CollectionView`. This fragment assumes an existing
+`#base-table` with a `tbody` containing one row per item, in source order. Supply
+the application's `someCollection` and configure its DataApi before construction
+when using an observable collection:
 
 ```javascript
 import { CollectionView } from 'marionette';
@@ -96,12 +122,13 @@ const MyList = CollectionView.extend({
   },
   childView: RowView,
   childViewContainer: 'tbody',
-  buildChildView(model, ChildView) {
-    const index = this.collection.indexOf(model);
+  buildChildView(model, ChildView, childViewOptions) {
+    const index = this.Data.models(this.collection).indexOf(model);
     const childEl = this.el.querySelector('tbody').children[index];
 
     return new ChildView({
       model,
+      ...childViewOptions,
       el: childEl
     });
   }
@@ -122,7 +149,6 @@ any children will need to be re-shown.
 So your view will need to be prepared to handle both scenarios.
 
 ```javascript
-import _ from 'underscore';
 import { View } from 'marionette';
 import HeaderView from './header-view';
 
@@ -136,10 +162,10 @@ const MyBaseLayout = View.extend({
   },
   initialize() {
     this.showChildView('header', new HeaderView({
-      el: this.getRegion('header').el.firstElementChild
+      el: this.el.querySelector('#header-region').firstElementChild
     }));
   },
-  template: _.template('<div id="header-region"></div><div id="content-region"></div>'),
+  template: () => '<div id="header-region"></div><div id="content-region"></div>',
   onRender() {
     this.showChildView('header', new HeaderView());
   }

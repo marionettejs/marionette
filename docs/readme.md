@@ -1,55 +1,61 @@
-# Marionette v5 documentation
+# Build your first piece of UI
 
-Start with the part of the interface you want to build. The same classes work
-together as the application grows; you do not need to learn every integration
-before showing your first View.
+A View handles a piece of the interface. A Region puts it on the page and cleans
+it up when it is replaced. Start there; add the other pieces when you need them.
 
-These repository guides describe the current v5 source. Published alphas may lag
-behind it.
+## Where do you want to start?
 
-## Build something
+- **[Build something](installation.md#quick-start)** — set up Marionette and show your first View.
+- **[Work with an agent](agents.md)** — give your agent the right contract and a concrete task.
+- **[Look up an API](public-api.md)** — find the class, method, or integration you need.
 
-- [Install Marionette](installation.md) and show a first View.
-- [Choose a class for the job](https://github.com/marionettejs/marionette/blob/master/docs/classes.md).
-- [Build a screen with a View](https://github.com/marionettejs/marionette/blob/master/docs/marionette.view.md).
-- [Show and replace a View in a Region](https://github.com/marionettejs/marionette/blob/master/docs/marionette.region.md).
-- [Render a list with CollectionView](https://github.com/marionettejs/marionette/blob/master/docs/marionette.collectionview.md).
-- [Share interactions with Behaviors](https://github.com/marionettejs/marionette/blob/master/docs/marionette.behavior.md).
-- [Start and stop a feature with Application](https://github.com/marionettejs/marionette/blob/master/docs/marionette.application.md).
+## A button that does something
 
-## Connect the parts
+With a [matching v5 build](installation.md#install) installed, add a place for the
+View in your HTML:
 
-- [Configuration and inheritance](https://github.com/marionettejs/marionette/blob/master/docs/basics.md)
-- [Templates and rendering](https://github.com/marionettejs/marionette/blob/master/docs/view.rendering.md)
-- [DOM interactions](https://github.com/marionettejs/marionette/blob/master/docs/dom.interactions.md)
-- [Lifecycle and cleanup](https://github.com/marionettejs/marionette/blob/master/docs/view.lifecycle.md)
-- [Events](https://github.com/marionettejs/marionette/blob/master/docs/events.md) and [Radio channels](https://github.com/marionettejs/marionette/blob/master/docs/radio.md)
-- [State sources and observation](marionette.state.md)
-- [Data and observable collections](data.api.md)
-- [Routing](https://github.com/marionettejs/marionette/blob/master/docs/routing.md)
+```html
+<main id="app"></main>
+```
 
-## Choose your integrations
+Then run this module in your application:
 
-- [Optional Backbone integration](optional-backbone.md)
-- [The DOM API](https://github.com/marionettejs/marionette/blob/master/docs/dom.api.md)
-- [Pre-rendered DOM](dom.prerendered.md)
-- [Runtime isolation](runtime-isolation.md)
+<!-- executable-example: first-view-counter -->
+```javascript
+import { Region, View } from 'marionette';
 
-## Look up the details
+const Counter = View.extend({
+  initialize() { this.count = 0; },
+  template: ({ count }) => `<button type="button">Count: <span>${count}</span></button>`,
+  templateContext() { return { count: this.count }; },
+  events: { 'click button': 'increment' },
+  increment() {
+    this.count += 1;
+    this.el.querySelector('span').textContent = String(this.count);
+  }
+});
 
-Some references open in GitHub while the v5 documentation site is being completed.
+export const region = new Region({ el: '#app' });
+region.show(new Counter());
+```
 
-- [Common class methods](https://github.com/marionettejs/marionette/blob/master/docs/common.md) and [utility exports](https://github.com/marionettejs/marionette/blob/master/docs/utils.md)
-- [Class events](https://github.com/marionettejs/marionette/blob/master/docs/events.class.md) and [model and collection events](https://github.com/marionettejs/marionette/blob/master/docs/events.entity.md)
-- [MnObject](https://github.com/marionettejs/marionette/blob/master/docs/marionette.mnobject.md)
-- [Terminology](terminology.md)
-- [Diagnostics](diagnostic-catalog.md)
-- [v4-to-v5 compatibility ledger](migration-from-v4.md)
-- [Upgrade guide](../upgradeGuide.md)
-- [Contributing](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md), [performance baselines](performance-baselines.md),
-  and the [release profile](https://github.com/marionettejs/marionette/blob/master/docs/release-profile.md)
+Click the button: **Count: 0 → Count: 1 → Count: 2**. The View handles the click
+and updates the number in place. The button stays the same DOM element.
 
-The API reference is being reconciled for stable v5 in
-[issue #147](https://github.com/marionettejs/marionette/issues/147). Until that
-work is complete, do not treat the hosted `/docs/current` site as v5
-documentation; it describes earlier releases.
+When that part of the screen is finished, `region.empty()` destroys the View and
+removes its event handlers. The `#app` mount remains, ready for the next View.
+
+## Give it a little more to do
+
+| You want to… | Next step |
+| --- | --- |
+| Show a list that changes | [Render children with CollectionView](marionette.collectionview.md) |
+| Open a detail screen | [Show and replace a View](marionette.region.md) |
+| Save a form without losing a draft | [Forms and accessibility](forms-and-accessibility.md) |
+| Connect an existing router or data source | [Choose integrations](choosing-integrations.md) |
+| Check that it works | [Test an application](testing.md) |
+
+You can keep Backbone models, an existing router, or a preferred template system.
+Choose each integration for the job it does; the button above needs none of them.
+
+For versions before v5, see the [backbone.marionette repository](https://github.com/marionettejs/backbone.marionette).

@@ -63,11 +63,10 @@ import Handlebars from 'handlebars';
 import { View } from 'marionette';
 
 const MyView = View.extend({
-  template: Handlebars.compile('<h1>Hello, {{ name }}')
+  template: Handlebars.compile('<h1>Hello, {{ name }}</h1>')
 });
 ```
 
-[Live example](https://jsfiddle.net/marionettejs/ep0e4qkt/)
 
 ## Setting a View Template
 
@@ -100,7 +99,6 @@ const MyView = View.extend({
 });
 ```
 
-[Live example](https://jsfiddle.net/marionettejs/9k5v4p92/)
 
 ### Using a View Without a Template
 
@@ -117,7 +115,7 @@ import { View } from 'marionette';
 const MyIconButtonView = View.extend({
   template: false,
   tagName: 'button',
-  className: '.icon-button',
+  className: 'icon-button',
   triggers: {
     'click': 'click'
   },
@@ -144,8 +142,8 @@ View.setRenderer(renderer);
 CollectionView.setRenderer(renderer);
 ```
 
-Previous to Marionette v4 the default renderer was the `TemplateCache`. This renderer has been extracted
-to a separate library: https://github.com/marionettejs/marionette.templatecache and can be used with v4.
+The default expects a function template; it does not look up script elements
+by selector.
 
 ### Using a Custom Renderer
 
@@ -154,6 +152,11 @@ The renderer accepts two arguments. The first is the template passed to the view
 and the second argument is the data to be rendered into the template. Marionette
 invokes the renderer with the View as `this`, so use a regular function when the
 renderer needs access to the View instance.
+
+Rendering is synchronous. A renderer must return content supported by the
+chosen DomApi immediately; returning a Promise does not make `render()` await
+it. Complete asynchronous loading before rendering, or update the View when the
+result becomes available under its owner's cancellation rules.
 
 Marionette passes the renderer's return value to
 [`attachElContent`](#customizing-attachelcontent), which calls `Dom.setContents`.
@@ -186,9 +189,14 @@ myView.render();
 // myView.el is <div>Hello World!</div>
 ```
 
-The renderer can also be customized separately on any extended View.
+The renderer can also be customized separately on any extended View. This
+standalone example uses the default plain-object DataApi and requires the
+application to install Handlebars.
 
 ```javascript
+import Handlebars from 'handlebars';
+import { View } from 'marionette';
+
 const MyHBSView = View.extend();
 
 // Similar example as above but for handlebars
@@ -198,12 +206,12 @@ MyHBSView.setRenderer(function(template, data) {
 
 const myHBSView = new MyHBSView({
   template: 'Hello {{ name }}!',
-  model: new Backbone.Model({ name: 'World' })
+  model: { name: 'World' }
 });
 
 myHBSView.render();
 
-// myView.el is <div>Hello World!</div>
+// myHBSView.el is <div>Hello World!</div>
 ```
 
 **Note** These examples while functional may not be ideal. If possible it is recommend to
@@ -277,7 +285,7 @@ receive connection changes through `Dom.notifyAttach(el)` and `Dom.notifyDetach(
 The View keeps the same root throughout its lifetime. Automatic directive
 connection management requires monitoring on the View and its ancestors. Lifecycle overrides must call their parent methods;
 avoid independently replacing Lit's contents or switching DOM adapters after rendering.
-See the [render adapter guide](https://github.com/marionettejs/marionette/blob/master/packages/adapters/readme.md#rendering)
+See the [render adapter guide](../packages/adapters/readme.md#dom-contents)
 for installation, directive cleanup, and root ownership.
 
 Rendering configuration is separate from data and state integration. Configure
@@ -299,7 +307,7 @@ import { View } from 'marionette';
 
 const MyView = View.extend({
   template: _.template(`
-    <div><% user.name %></div>
+    <div><%- user.name %></div>
     <ul>
     <% _.each(groups, function(group) { %>
       <li><%- group.name %></li>
@@ -336,7 +344,6 @@ const MyView = View.extend({
 const myView = new MyView({ model: { name: 'world' } });
 ```
 
-[Live example](https://jsfiddle.net/marionettejs/warfa6rL/)
 
 How the `model` is serialized can also be customized per view.
 
@@ -387,7 +394,6 @@ const collection = [
 const myView = new MyView({ collection });
 ```
 
-[Live example](https://jsfiddle.net/marionettejs/qyodkakf/)
 
 How the `collection` is serialized can also be customized per view.
 
@@ -427,8 +433,8 @@ returning an object. The keys on the returned object will be mixed into the
 model or collection keys and made available to the template.
 
 When serialized data and template context are combined, each contributes its
-own enumerable string properties only. Inherited, symbol, and non-enumerable
-properties are ignored. If only one object exists, Marionette passes that
+own enumerable properties, including symbols, through object spread. Inherited
+and non-enumerable properties are ignored. If only one object exists, Marionette passes that
 original object through unchanged.
 
 ```javascript
@@ -504,7 +510,10 @@ data indirectly.
 
 While [serializing data](#serializing-data) deals more with getting the data belonging to the view
 into the template, template context mixes in other needed data, or in some cases, might do extra
-computations that go beyond simply "serializing" the view's `model` or `collection`
+computations that go beyond simply "serializing" the view's `model` or `collection`.
+This fragment assumes an application-specific Backbone model with
+`getOrganization()` and `getFullName()` methods, and a Backbone collection of
+groups; these helpers are not Marionette APIs.
 
 ```javascript
 import BackboneApi from '@marionette/adapters/backbone';
@@ -519,9 +528,9 @@ const MyCollectionView = CollectionView.extend({
   childViewContainer: 'ul',
   childView: GroupView,
   template: _.template(`
-    <h1>Hello <% name %> of <% orgName %></h1>
-    <div>You have <% stats.public %> group(s).</div>
-    <div>You have <% stats.private %> group(s).</div>
+    <h1>Hello <%- name %> of <%- orgName %></h1>
+    <div>You have <%- stats.public ?? 0 %> group(s).</div>
+    <div>You have <%- stats.private ?? 0 %> group(s).</div>
     <h3>Groups:</h3>
     <ul></ul>
   `),

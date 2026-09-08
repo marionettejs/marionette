@@ -31,8 +31,11 @@ displays. See [State sources](./marionette.state.md).
 
 An **adapter** implements the methods for one or more of these APIs using your
 chosen tools. Installing an integration package makes its adapter available;
-configure it on the runtime or class that will use it. A partial adapter override
-changes the supplied methods and keeps the inherited methods it omits.
+configure it on the runtime or class that will use it. DataApi, StateApi, and
+DomApi support partial overlays: supplied methods replace the corresponding
+methods, while omitted methods remain inherited. An EventDelegator is a complete
+replacement. See [Choosing integrations](./choosing-integrations.md) before
+selecting or implementing an adapter.
 
 ## Ownership and cleanup
 
@@ -52,8 +55,9 @@ For state, **borrowed** and **owned** describe who is responsible for disposal:
   subscriptions, then calls the selected StateApi's optional `disposeOwned()`.
 
 A **cleanup function** releases a subscription or other resource. **Idempotent**
-means repeated calls have the same effect as one call. Marionette wraps adapter
-subscription cleanup functions to make them idempotent.
+means repeated calls have the same effect as one call. Adapters must return
+idempotent subscription cleanup functions; core does not wrap each returned
+cleanup to establish that property.
 
 ## Default and isolated runtimes
 

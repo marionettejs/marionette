@@ -30,23 +30,34 @@ Morphdom belong to DomApi because they apply template results to the DOM.
 npm install marionette @marionette/adapters backbone
 ```
 
+Configure DataApi before creating Views that consume Backbone models or
+collections. For a feature-specific integration, configure its View subclass:
+
 ```js
 import BackboneApi from '@marionette/adapters/backbone';
-import Backbone from 'backbone';
-import { setDataApi, setStateApi } from 'marionette';
+import { View } from 'marionette';
 
-setDataApi(BackboneApi);
-setStateApi(BackboneApi);
+const BackboneView = View.extend();
+BackboneView.setDataApi(BackboneApi);
 ```
 
-Configure the Backbone adapter before creating Marionette Views that consume
-Backbone models or collections. Pass the same `BackboneApi` object to an
-isolated runtime's `setDataApi()` and `setStateApi()` methods when that runtime
-owns the integration. The adapter uses Backbone's native events and does not
-modify Backbone objects or prototypes. Releasing an owned Backbone state source
-removes only the adapter-managed owner subscriptions. The adapter leaves the
-source and its caller-owned listeners intact; it does not call source-wide
-`stopListening()`, `off()`, or persistence-capable `Model#destroy()` methods.
+Use the top-level `setDataApi(BackboneApi)` when the whole application shares
+that data provider. Configure StateApi separately, only for owners whose state
+uses Backbone and needs subscriptions or owned-source cleanup:
+
+```js
+BackboneView.setStateApi(BackboneApi);
+```
+
+The same adapter object can configure other state-owning classes, or the
+corresponding setters on an existing isolated runtime. Choosing Backbone data
+does not require choosing Backbone state or creating an isolated runtime.
+
+The adapter uses Backbone's native events and does not modify Backbone objects
+or prototypes. Releasing an owned Backbone state source removes only the
+adapter-managed owner subscriptions. The adapter leaves the source and its
+caller-owned listeners intact; it does not call source-wide `stopListening()`,
+`off()`, or persistence-capable `Model#destroy()` methods.
 
 ## XState actors
 
@@ -58,6 +69,10 @@ when the actors share an `id`. The adapter supports XState `^5.32.6`.
 ```sh
 npm install marionette @marionette/adapters xstate
 ```
+
+This configuration fragment assumes an application-owned `parentActor` whose
+`context.children` contains stable child actor references. Create and start the
+actors in the application's XState setup.
 
 ```js
 import createXStateActorApi from '@marionette/adapters/xstate';
@@ -124,6 +139,8 @@ If application code needs `$el`, initialize it once:
 
 ```js
 import $ from 'jquery';
+import { View } from 'marionette';
+import JQueryDomApi from '@marionette/adapters/dom/jquery';
 
 const JQueryView = View.extend({
   initialize() { this.$el = $(this.el); }

@@ -45,11 +45,9 @@ export default {
     return this.template;
   },
 
-  // Mix in template context methods. Looks for a
-  // `templateContext` attribute, which can either be an
-  // object literal, or a function that returns an object
-  // literal. All methods and attributes from this object
-  // are copies to the object passed in.
+  // Evaluate templateContext once. Return either input directly when the other
+  // is absent/falsy; otherwise merge their own enumerable properties into a new
+  // object, with templateContext taking precedence. Do not mutate either input.
   mixinTemplateContext(this: TemplateHost, serializedData: unknown) {
     const templateContext = getValue(this, 'templateContext');
     if (!templateContext) { return serializedData; }

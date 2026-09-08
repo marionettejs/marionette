@@ -19,7 +19,7 @@ Framework invariant failures use the public `MarionetteError` class:
 import { MarionetteError, View } from 'marionette';
 
 try {
-  new View().showChildView('missing', new View());
+  new View({ template: false }).showChildView('missing', new View());
 } catch (error) {
   if (error instanceof MarionetteError && error.code === 'MN0020') {
     // Handle the missing named Region.

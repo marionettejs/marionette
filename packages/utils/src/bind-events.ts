@@ -7,9 +7,9 @@
 // The target must provide `listenTo` and `stopListening`. The entity must provide
 // compatible `on` and `off` methods.
 //
-// The third parameter is a hash of { "event:name": "eventHandler" }
-// configuration. Multiple handlers can be separated by a space. A
-// function can be supplied instead of a string handler name.
+// Call with the target as `this`, then the entity and a bindings map.
+// Each value is one handler name or function. Space-separated event names
+// belong in the map key; handler names are not split.
 
 import normalizeMethods from './normalize-methods.ts';
 import MarionetteError from './error.ts';

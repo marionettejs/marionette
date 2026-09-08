@@ -170,7 +170,7 @@ const MyView = View.extend({
 ```
 
 There are several properties, if passed, that will be attached directly to the instance:
-`collectionEvents`, `events`, `modelEvents`, `triggers`, `ui`
+`collectionEvents`, `events`, `modelEvents`, `stateEvents`, `triggers`, `ui`
 
 Using an object, we must define the `behaviorClass` attribute to refer to our
 behaviors and then add any extra options with keys matching the option we want
@@ -285,8 +285,9 @@ separate from the host.
 When the host calls `triggerMethod()`, the host's corresponding `onEvent` method
 runs first. The event is then broadcast with the same arguments to every attached
 Behavior, where the corresponding method runs with that Behavior as its context.
-Nested Behaviors participate directly in the same host broadcast. Do not rely on
-an ordering among Behavior handlers.
+Nested Behaviors participate directly in the same host broadcast. Calling the
+host's `trigger()` also broadcasts to Behaviors, but does not call the host's `onEvent`
+method. Do not rely on an ordering among Behavior handlers.
 
 Host and Behavior DOM declarations are delegated independently. If multiple
 Behaviors or the host declare the same event and selector, every matching
@@ -420,7 +421,9 @@ The `initialize` event is triggered on the behavior indicating that the view is 
 
 As in views, `events` and `triggers` can use the `ui` references in their
 listeners. For more details, see the [`ui` documentation](./dom.interactions.md#organizing-a-view-with-ui).
-These can be defined on either the Behavior or the View:
+These can be defined on either the Behavior or the View. The fragment below
+assumes a Backbone model with `save()` and a configured
+[Backbone DataApi](./optional-backbone.md):
 
 ```javascript
 import { Behavior } from 'marionette';
@@ -549,14 +552,16 @@ The host and its Behaviors keep the same root for their lifetime. Rendering can
 replace its contents, and `delegateEvents()` refreshes View and Behavior handlers.
 Destroying the host removes those handlers. Behaviors do not own or replace the root.
 
-Each Behavior can also reference its host through the `view` attribute:
+Each Behavior can also reference its host through the `view` attribute. Read
+model values through the host's selected DataApi so the same code works with plain
+objects and configured observable providers:
 
 ```javascript
 import { Behavior } from 'marionette';
 
 const ViewBehavior = Behavior.extend({
   onRender() {
-    const shouldHighlight = this.view.model.get('selected');
+    const shouldHighlight = this.view.Data.get(this.view.model, 'selected');
     this.el.classList.toggle('highlight', shouldHighlight);
     Array.from(this.$('.view-class')).forEach(element => {
       element.classList.add('highlighted-icon');
@@ -596,5 +601,8 @@ notifications.
 
 ## Destroying a Behavior
 
-`myBehavior.destroy()` will call `stopListening` on the behavior instance, and it will
-remove the behavior from the view.
+`myBehavior.destroy()` synchronously returns the Behavior after removing its
+DOM and entity subscriptions, releasing its State subscriptions and owned State,
+calling `stopListening()`, and removing it from the host. It does not emit an
+independent destroy lifecycle or await Promises. Errors propagate and can leave
+cleanup incomplete; the host itself remains alive.

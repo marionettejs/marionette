@@ -8,10 +8,10 @@ interface TriggerTarget {
   trigger: EventCallback;
 }
 
-// split the event name on the ":"
+// Match the first word character and each word character following a colon.
 const splitter = /(^|:)(\w)/gi;
 
-// Only calc getOnMethodName once
+// Cache the method name for each distinct event string.
 const methodCache: Record<string, string | undefined> = Object.create(null);
 
 // take the event section ("section1:section2:section3")
@@ -30,11 +30,11 @@ const getOnMethodName = function(event: string) {
 
 // Trigger an event and/or a corresponding method name. Examples:
 //
-// `this.triggerMethod("foo")` will trigger the "foo" event and
-// call the "onFoo" method.
+// `this.triggerMethod("foo")` calls a callable "onFoo" option/method, then
+// triggers "foo". A synchronous method exception prevents the event.
 //
-// `this.triggerMethod("foo:bar")` will trigger the "foo:bar" event and
-// call the "onFooBar" method.
+// `this.triggerMethod("foo:bar")` similarly calls "onFooBar" before the event.
+// It returns the method result without awaiting it.
 export default function triggerMethod(this: TriggerTarget, event: string, ...args: unknown[]): unknown {
   // get the method name from the event name
   const methodName = getOnMethodName(event);

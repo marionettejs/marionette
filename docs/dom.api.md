@@ -181,8 +181,8 @@ setDomApi(MyDomApi);
 
 Use a class setter when only one class or subclass needs the override. The
 setter creates a shallow adapter overlay for that class, so a partial override
-retains every other native method. The current adapter and supplied overlay
-contribute own enumerable string properties only. Inherited, symbol, and
+retains every other currently configured method. The current adapter and supplied overlay
+contribute own enumerable string and symbol properties. Inherited and
 non-enumerable properties are ignored.
 
 <!-- executable-example: dom-api-partial-override -->

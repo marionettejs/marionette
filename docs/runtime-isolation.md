@@ -8,7 +8,9 @@ import { View, Radio, setRenderer } from 'marionette';
 ```
 
 `createMarionette()` creates an isolated runtime for applications that need
-more than one Marionette configuration in the same JavaScript process:
+more than one Marionette configuration in the same JavaScript process. This
+configuration fragment assumes the application supplies the two renderers and
+templates:
 
 ```javascript
 import { createMarionette } from 'marionette';
@@ -52,3 +54,29 @@ pass the `@marionette/adapters/dom/jquery` export to `isolated.setDomApi()`.
 Likewise, pass the `@marionette/adapters/backbone` export to the isolated
 runtime's `setDataApi()` and `setStateApi()` methods when it consumes Backbone
 data or state. No implicit adapter configuration crosses runtime boundaries.
+
+## Configuration method contract
+
+Configure a runtime or subclass before creating its instances. The setters run
+synchronously; they do not render Views or replace existing event subscriptions.
+Changing a class prototype during a live feature is not a coordinated migration
+of the feature's adapters or resources.
+
+| Setter | Classes configured by the root or runtime function | Update |
+| --- | --- | --- |
+| `setDataApi(api)` | `View`, `CollectionView` | Overlays own enumerable methods on each class's current DataApi. |
+| `setDomApi(api)` | `View`, `CollectionView`, `Region` | Overlays own enumerable methods on each class's current DomApi. |
+| `setStateApi(api)` | `Application`, `Behavior`, `CollectionView`, `MnObject`, `View` | Overlays own enumerable methods on each class's current StateApi. |
+| `setRenderer(renderer)` | `View`, `CollectionView` | Replaces template evaluation with the supplied function. |
+| `setEventDelegator(delegator)` | `Behavior`, `CollectionView`, `View` | Replaces the delegator with an object exposing `delegate(options)`. |
+
+Root and runtime setter functions return `undefined`. Corresponding class
+methods, such as `CustomView.setDataApi(api)`, return that class and configure
+its prototype. Subclasses inherit configuration until they receive their own
+override. An existing subclass override is not overwritten by subsequently
+configuring its parent class.
+
+Omitting an argument is not a reset operation. In particular, object API setters
+retain the current overlay, while `setRenderer(undefined)` removes the configured
+renderer rather than restoring the default. Use a fresh `createMarionette()`
+when a new independent configuration should start from built-in defaults.

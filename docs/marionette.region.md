@@ -33,26 +33,28 @@ Regions maintain the [View's lifecycle](./view.lifecycle.md) while showing or em
 * [Showing a View](#showing-a-view)
   * [Checking whether a region is showing a view](#checking-whether-a-region-is-showing-a-view)
   * [Wrapping a non-Marionette view](#wrapping-a-non-marionette-view)
-    * [Partially-rendered Views](#partially-rendered-views)
 * [Emptying a Region](#emptying-a-region)
   * [Preserving Existing Views](#preserving-existing-views)
   * [Detaching Existing Views](#detaching-existing-views)
 * [`reset` A Region](#reset-a-region)
 * [`destroy` A Region](#destroy-a-region)
 * [Check If View Is Being Swapped By Another](#check-if-view-is-being-swapped-by-another)
-* [Set How View's `el` Is Attached](#set-how-views-el-is-attached)
+* [Set How View's `el` Is Attached and Detached](#set-how-views-el-is-attached-and-detached)
 * [Configure How To Remove View](#configure-how-to-remove-view)
 
 ## Instantiating a Region
 
-When instantiating a `Region` there are two properties, if passed,
-that will be attached directly to the instance:
-`el`, and `replaceElement`.
+A `Region` accepts `el`, `parentEl`, `allowMissingEl`, and `replaceElement`.
+`el` is a native element or a selector; selector resolution is deferred until an
+operation needs the element. `parentEl` limits selector lookup and may be an
+element, document, or function returning one. `allowMissingEl` and
+`replaceElement` may also be functions; a boolean supplied to `show(view,
+options)` overrides the corresponding Region setting for that call.
 
 ```javascript
 import { Region } from 'marionette';
 
-const myRegion = new Region({ ... });
+const myRegion = new Region({ el: '#content' });
 ```
 
 While regions may be instantiated and useful on their own, their primary use case is through
@@ -115,14 +117,18 @@ change which lifecycle operations are valid.
 
 Successful `show`, `empty`, and `destroy` calls return the Region when their
 operation completes. With `allowMissingEl: true`, `show` instead returns `undefined`
-and leaves the Region empty when its element does not resolve. A View returned
-by `detachView()` remains the caller's responsibility until another Region shows it
+and leaves the current View unchanged when its element does not resolve. A View returned
+by `detachView()` remains the caller's responsibility until the same or another Region shows it
 or it is destroyed. After destruction, `show()`, `empty()`, and `reset()` return
 the Region without changing it, and `detachView()` returns `undefined`.
 As soon as destruction begins, `show()`, `detachView()`, and recursive `destroy()`
 calls are no-ops. `empty()` and `reset()` remain available during cleanup.
 A View passed to `show()` during or after destruction remains caller-owned and
 unchanged. A destroyed Region cannot be reused.
+
+When its current View destroys itself, the Region clears that View's ownership
+and releases the owning parent View's subscriptions to it. Later events on the
+destroyed child are no longer forwarded to the parent.
 
 The following example preserves a View by detaching it before showing it again.
 Calling `empty()` afterward destroys the View and returns the Region to its empty state.
@@ -168,7 +174,6 @@ const MyApp = Application.extend({
 });
 ```
 
-[Live example](http://jsfiddle.net/marionettejs/9fburmb8/)
 
 For more information, see the
 [Application docs](./marionette.application.md#application-region).
@@ -214,8 +219,7 @@ contract; do not return a `NodeList` or jQuery collection. To customize selector
 lookup through the DOM adapter, implement `findEl(context, selector)` instead.
 The v4 `DomApi#getEl` method is not part of the v5 DOM API.
 
-Selector lookup is deferred until the first DOM operation, such as `show()` or
-`_ensureElement()`. During construction, `initialize` observes the configured
+Selector lookup is deferred until a DOM operation such as `show()` needs it. During construction, `initialize` observes the configured
 selector string in `this.el`; constructing a Region does not query the document
 or dispatch through a `getEl` override.
 
@@ -227,20 +231,23 @@ format is possible to define whether showing the region overwrites the `el` or
 just overwrites the content (the default behavior).
 
 Region defaults and object-literal definitions contribute their own enumerable
-string properties only. Inherited, symbol, and non-enumerable properties are
-ignored when Marionette builds the Region options.
+properties, including symbols, through object spread. Inherited and
+non-enumerable properties are ignored when Marionette builds the Region options.
 
-To overwrite the parent `el` of the region with the rendered contents of the
-inner View, use `replaceElement` as so:
+To replace the Region's placeholder with the child View's root element, use
+`replaceElement: true`:
 
+<!-- executable-example: region-replace-element -->
 ```javascript
 import { View } from 'marionette';
 
-const OverWriteView = View.extend({
-  className: '.new-class'
+const ReplacementView = View.extend({
+  className: 'new-class',
+  template: () => '<p>Replacement content</p>'
 });
 
-const MyView = View.extend({
+const Layout = View.extend({
+  template: () => '<div class="overwrite-me"></div>',
   regions: {
     main: {
       el: '.overwrite-me',
@@ -248,22 +255,25 @@ const MyView = View.extend({
     }
   }
 });
-const view = new MyView();
-view.render();
 
-console.log(view.$('.overwrite-me').length); // 1
-console.log(view.$('.new-class').length); // 0
+export const view = new Layout().render();
+export const placeholder = view.el.querySelector('.overwrite-me');
+export const replacement = new ReplacementView();
 
-view.showChildView('main', new OverWriteView());
+// Rendering the parent creates the placeholder. Showing the child replaces it.
+view.showChildView('main', replacement);
 
-console.log(view.$('.overwrite-me').length); // 0
-console.log(view.$('.new-class').length); // 1
+view.$('.overwrite-me').length; // 0
+view.$('.new-class').length; // 1
 ```
 
-When the instance of `MyView` is rendered, the `.overwrite-me` element will be
-removed from the DOM and replaced with an element of `.new-class` - this lets
-us do things like rendering views inside `table` or `select` more easily -
-these elements are usually very strict on what content they will allow.
+`showChildView()` replaces `.overwrite-me` with the child's `el`; rendering the
+parent alone does not. The `className` option takes a class name, without the
+`.` used in CSS selectors. Emptying the Region destroys its current child and
+restores the original placeholder. The parent View's own root remains unchanged.
+
+This is useful when a container requires particular direct children, such as a
+`table` body containing rows. Choose a child `tagName` valid for that container.
 
 
 ```js
@@ -279,8 +289,9 @@ const MyView = View.extend({
 });
 ```
 
-**Errors** An error will be thrown in the regions `el` is not specified,
-or if the `el` does not exist in the html.
+**Errors** An operation that needs the element throws `MN0004` when no `el`
+is configured, or `MN0005` when a selector finds no element and
+`allowMissingEl` is false. Construction alone does not resolve the selector.
 
 ### Specifying `regions` as a Function
 
@@ -332,7 +343,6 @@ const MyView = View.extend({
 });
 ```
 
-[Live example](https://jsfiddle.net/marionettejs/oLLrzx8g/)
 
 ### Referencing UI in `regions`
 
@@ -352,7 +362,6 @@ const MyView = View.extend({
 });
 ```
 
-[Live example](https://jsfiddle.net/marionettejs/ey1od1g8/)
 
 ## Adding Regions
 
@@ -383,7 +392,6 @@ myView.addRegions({
 });
 ```
 
-[Live example](http://jsfiddle.net/marionettejs/kjvzdyd6/)
 
 ## Removing Regions
 
@@ -474,7 +482,8 @@ For more information on `showChildView` and `getChildView`, see the
 [Documentation for Views](./marionette.view.md#managing-children)
 
 **Errors**
-- An error will be thrown if the value is not a Marionette View or is destroyed.
+- A destroyed View throws `MN0007`. Other input shapes are unsupported; core
+  does not guarantee a Marionette diagnostic for an invalid value.
 - An error will be thrown if the view is already managed by a Region or CollectionView,
   including a filtered or deferred CollectionView child. Detach it from that owner first.
 
@@ -570,14 +579,15 @@ myView.showChildView('main', childView);
 myOtherView.showChildView('main', myView.getRegion('main').detachView());
 ```
 
-**Note** When detaching a view you must pass it to a new region so Marionette
-can handle its life cycle automatically or `destroy` it manually to prevent memory leaks.
+**Note** Detaching transfers responsibility for the live View to the caller.
+Show it again in the same emptied Region or another Region when needed, or call
+`destroy()` when finished with it.
 
 ## `reset` A Region
 
-A region can be `reset` at any time. This destroys any existing view
-being displayed, and deletes the cached `el`. The next time the
-region shows a view, the region's `el` is queried from the DOM.
+Resetting a live Region destroys its current View and restores its original
+`el` reference. An original selector is queried again by the next operation that
+needs it; an original DOM element is reused without a selector query.
 
 ```javascript
 const myView = new MyView();
@@ -655,12 +665,11 @@ const EmptyMsgRegion = Region.extend({
   }
 });
 ```
-[Live example](https://jsfiddle.net/marionettejs/c1nacq0c/)
 
 ## Set How View's `el` Is Attached and Detached
 
 Override the region's `attachHtml` method to change how the view is attached
-to the DOM (when not using `replaceElement: true`. This method receives one
+to the DOM (when not using `replaceElement: true`). This method receives one
 parameter - the view to show.
 
 The default implementation of `attachHtml` is essentially:
@@ -723,44 +732,14 @@ Region.prototype.removeView = function(view){
 }
 ```
 
-> `destroyView` method destroys the view taking into consideration if is
-> a Marionette.View descendant or vanilla Backbone view. It can be replaced
-> by a `view.destroy()` call if is ensured that view descends from Marionette.View
+`destroyView(view)` destroys a Marionette View and returns it. It forwards the
+Region owner's lifecycle-monitoring policy; it does not adapt a Backbone View
+or fall back to `remove()`. Keep this helper when overriding `removeView`.
 
-This example will animate with a fade effect showing and hiding the view:
-
-```javascript
-import $ from 'jquery';
-import { Region, View } from 'marionette';
-
-const AnimatedRegion = Region.extend({
-  attachHtml(view) {
-    $(view.el)
-      .css({display: 'none'})
-      .appendTo(this.el);
-    if (!this.isSwappingView()) $(view.el).fadeIn('slow');
-  },
-
-  removeView(view) {
-    $(view.el).fadeOut('slow', () => {
-      this.destroyView(view);
-      if (this.currentView) $(this.currentView.el).fadeIn('slow');
-    });
-  }
-});
-
-const MyView = View.extend({
-  regions: {
-    animatedRegion: {
-      regionClass: AnimatedRegion,
-      el: '#animated-region'
-    }
-  }
-});
-```
-
-[Live example](https://jsfiddle.net/marionettejs/qtvjLu70/)
-
-Using a similar approach is possible to create a region animated with CSS:
-
-[Live example](https://jsfiddle.net/marionettejs/8uoabg7c/)
+Region operations are synchronous. A `removeView` override must complete cleanup
+before returning if callers should observe the normal empty/destroy contract.
+Returning a Promise does not delay Region lifecycle completion. For an exit
+animation, finish the animation in the application before calling `empty()` or
+showing the replacement, and let the Region perform its normal synchronous
+teardown. The application owns cancellation when navigation or destruction
+interrupts that animation.

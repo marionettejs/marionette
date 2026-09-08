@@ -141,7 +141,7 @@ const ClassOptions = [
   'stateEvents'
 ];
 
-// Object borrows many conventions and utilities from Backbone.
+// Compose Marionette's own options, events, Radio, State, and cleanup conventions.
 const MarionetteObject = function(this: ObjectInternals, options?: object) {
   this._setOptions(options, ClassOptions);
   this.cid = uniqueId(this.cidPrefix);

@@ -3,7 +3,7 @@ import morphdom from 'morphdom';
 // The CommonJS package declares an ESM default instead of its callable export.
 const morph = morphdom as unknown as typeof import('morphdom').default;
 
-// Replace an empty root directly; morph subsequent updates within the same root.
+// Populate an empty root directly; otherwise morph its children, retaining the root.
 export default {
   setContents(el: Element, html: string | null | undefined): void {
     if (!el.hasChildNodes()) {

@@ -286,8 +286,8 @@ const RegionsMixin = {
     this.addRegions(getValue(this, 'regions') as RegionDefinitions | undefined);
   },
 
-  // Internal method to re-initialize all of the regions by updating
-  // the `el` that they point to
+  // Empty each Region and restore its initial element reference. Selector-based
+  // Regions resolve against the new template when their next operation needs it.
   _reInitRegions(this: ViewInternals) {
     for (const name of Object.keys(this._regions)) { this._regions[name].reset(); }
   },
@@ -388,8 +388,7 @@ const RegionsMixin = {
     delete this._regions[name];
   },
 
-  // Empty all regions in the region manager, but
-  // leave them attached
+  // Render the parent if needed, then empty each Region while keeping its registration.
   emptyRegions(this: ViewInternals) {
     if (!this._isRendered) {
       this.render();
@@ -476,8 +475,8 @@ function childReducer(children: SupportedView[], region: RegionInternals) {
   return children;
 }
 
-// The standard view. Includes view events, automatic rendering
-// templates, nested views, and more.
+// Initialize a View's element, events, State, Behaviors, and named Regions.
+// Construction does not evaluate its template; render() or an owning Region does.
 const View = function(this: ViewInternals, options?: ViewConfiguration) {
   this.cid = uniqueId(this.cidPrefix);
   this._setOptions(options, ViewClassOptions);
@@ -530,8 +529,8 @@ Object.assign(View.prototype, ViewMixin, RegionsMixin, {
 
     this.triggerMethod('before:render', this);
 
-    // If this is not the first render call, then we need to
-    // re-initialize the `el` for each region
+    // Existing rendered content (including prerendered DOM) requires Region reset
+    // before replacing the template; this destroys any current child Views.
     if (this._isRendered) {
       this._reInitRegions();
     }

@@ -31,7 +31,7 @@ declare const requestContract: Requests;
 
 const objectKeys = Object.keys;
 
-// If callback is not a function return the callback and flag it for removal.
+// Wrap a non-function reply value and retain it for stopReplying matching.
 function makeCallback(callback: unknown): Callback {
   if (typeof callback === 'function') {
     return callback as Callback;
@@ -72,7 +72,7 @@ const stopReducer = function(requests: Registry, { name, callback, context }: {
     const key = names[index];
     const handler = Object.hasOwn(requests, key) ? requests[key] : undefined;
 
-    // Bail out if there are no events stored.
+    // Skip absent replies and replies that do not match the supplied filters.
     if (
       !handler ||
         callback && callback !== handler.callback &&
@@ -186,7 +186,8 @@ export const Requests = {
       (this._log || log)(channelName, name as string, ...args);
     }
 
-    // If the request isn't handled, log it in DEBUG mode and exit
+    // Prefer an exact reply, then the default reply with the request name.
+    // If neither exists, call the debug hook below and return undefined.
     if (requests) {
       const hasRequest = Object.hasOwn(requests, name);
       const handler = hasRequest ? requests[name] :

@@ -72,7 +72,7 @@ function buildRadio(debug: ReturnType<typeof createDebug>): RadioApi {
   Object.assign(Radio, {
     setDebug: debug.setDebug,
 
-    // Logs all events on this channel to the console. It sets an
+    // Logs events through the configured log hook. It sets an
     // internal value on the channel telling it we're listening,
     // then sets a listener on the Events
     tuneIn(channelName: string) {
@@ -82,7 +82,7 @@ function buildRadio(debug: ReturnType<typeof createDebug>): RadioApi {
       return Radio;
     },
 
-    // Stop logging all of the activities on this channel to the console
+    // Stop event/request logging for this channel through the tune-in hook.
     tuneOut(channelName: string) {
       const channel = Radio.channel(channelName) as ChannelState;
       channel._tunedIn = false;

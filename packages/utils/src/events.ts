@@ -103,7 +103,7 @@ function getKeys(object?: object | null) {
 // A module that can be mixed in to *any object* in order to provide it with
 // a custom event channel. You may bind a callback to an event with `on` or
 // remove with `off`; `trigger`-ing an event fires all callbacks in
-// succession.
+// succession; a thrown callback stops the current dispatch.
 //
 //     const object = Object.assign({}, Events);
 //     object.on('expand', function() { alert('expanded'); });
@@ -286,10 +286,9 @@ const Events = {
     return this;
   },
 
-  // Remove one or many callbacks. If `context` is null, removes all
-  // callbacks with that function. If `callback` is null, removes all
-  // callbacks for the event. If `name` is null, removes all bound
-  // callbacks for all events.
+  // Remove callbacks matching every supplied name, callback and context filter.
+  // An omitted/falsy filter does not restrict removal. With no filters, remove
+  // all callbacks; omitting only the name still honors callback and context.
   off(this: EventState, name?: string | EventMap | null, callback?: unknown, context?: unknown) {
     if (!this._rdEvents) { return this; }
 
@@ -312,8 +311,8 @@ const Events = {
     return this;
   },
 
-  // Bind an event to only be triggered a single time. After the first time
-  // the callback is invoked, its listener will be removed. If multiple events
+  // Remove each once-listener before invoking its callback, including when
+  // that callback throws or triggers the same event recursively. If multiple events
   // are passed in using the space-separated syntax, the handler will fire
   // once for each event, not once for a combination of all events.
   once(this: EventState, name: string | EventMap, callback?: unknown, context?: unknown) {
