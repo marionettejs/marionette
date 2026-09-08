@@ -19,6 +19,7 @@ which indicates whether the View is rendered, attached, or destroyed.
 * [Attaching a View](#attaching-a-view)
 * [Detaching a View](#detaching-a-view)
 * [Destroying a View](#destroying-a-view)
+* [Synchronous failures](#synchronous-failures)
 * [Destroying Children](#destroying-children)
 
 ## Lifecycle State Methods

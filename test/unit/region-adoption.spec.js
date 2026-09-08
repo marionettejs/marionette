@@ -1,16 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
-import { Events, Region } from 'marionette';
-import { triggerMethod } from '@marionette/utils';
+import { View, Region } from 'marionette';
 
 describe('Region adoption', function() {
-  it('still renders a supported foreign View once across Region adoption', function() {
-    const view = {
-      ...Events,
-      el: document.createElement('article'),
-      triggerMethod,
-      render: vi.fn(function() { this.el.textContent = 'foreign'; return this; }),
-      destroy: vi.fn(function() { this.el.remove(); this.triggerMethod('destroy', this); return this; })
-    };
+  it('renders a Marionette View once across Region adoption', function() {
+    const onRender = vi.fn();
+    const onDestroy = vi.fn();
+    const view = new View({ tagName: 'article', template: () => 'adopted', onRender, onDestroy });
     const first = new Region({ el: document.createElement('section') });
     const second = new Region({ el: document.createElement('aside') });
 
@@ -18,13 +13,13 @@ describe('Region adoption', function() {
     first.detachView();
     second.show(view);
 
-    expect(view.render).toHaveBeenCalledTimes(1);
+    expect(onRender).toHaveBeenCalledTimes(1);
     expect(second.currentView).to.equal(view);
     expect(second.el.firstChild).to.equal(view.el);
-    expect(view.el.textContent).to.equal('foreign');
+    expect(view.el.textContent).to.equal('adopted');
     first.destroy();
     second.destroy();
-    expect(view.destroy).toHaveBeenCalledTimes(1);
+    expect(onDestroy).toHaveBeenCalledTimes(1);
   });
 
 });

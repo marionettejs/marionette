@@ -51,9 +51,11 @@ test('policy rejects unbounded workers, runtime and targets outside the checkout
   await save();
   await assert.rejects(resolvePolicy(directory), /600000ms/);
   policy.budgetMs = 600000;
-  policy.targets[0].file = '../outside.ts';
-  await save();
-  await assert.rejects(resolvePolicy(directory), /inside the checkout/);
+  for (const file of ['../outside.ts', 'C:outside.ts', 'C:/outside.ts']) {
+    policy.targets[0].file = file;
+    await save();
+    await assert.rejects(resolvePolicy(directory), /inside the checkout/);
+  }
 });
 
 test('summary retains surviving, uncovered, timed out and invalid mutations separately', () => {
@@ -64,6 +66,10 @@ test('summary retains surviving, uncovered, timed out and invalid mutations sepa
   assert.equal(result.complete, false);
   assert.equal(result.counts.CompileError, 1);
   assert.equal(result.unresolved.length, 6);
+  const compileOnly = summarizeReport({ files: { 'sample.ts': { mutants: [{ id: '0', status: 'CompileError' }] } } });
+  assert.equal(compileOnly.complete, false);
+  assert.equal(compileOnly.mutationScore, null);
+  assert.equal(compileOnly.unresolved[0].status, 'CompileError');
   assert.throws(() => summarizeReport({}), /no files/);
   assert.throws(() => summarizeReport({ files: {} }), /no mutants/);
   assert.throws(() => summarizeReport({ files: {} }, ['sample.ts']), /selected source sample.ts/);

@@ -13,7 +13,7 @@ if (!process.env.npm_execpath) { throw new Error('Run verification through npm r
 for (const script of scripts) {
   console.log(`\nVerifying ${script}`);
   const result = spawnSync(process.execPath, [process.env.npm_execpath, 'run', script], {
-    cwd: root, stdio: 'inherit', timeout: 15 * 60 * 1000,
+    cwd: root, stdio: 'inherit',
   });
   if (result.error || result.status !== 0) {
     console.error(`Verification failed at ${script}: ${result.error?.message || result.status}`);

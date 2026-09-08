@@ -39,6 +39,7 @@ readiness, cancellation, and restart. Reviewer prompts must carry this distincti
 is deliberately fast: it runs unit tests without a hidden type/build pretest.
 After source edits, rebuild before directly invoking consumer types, browser or
 distribution checks. `npm run verify` rebuilds and checks lint/types/unit contracts;
+Verification runs each step to completion; CI job time limits bound CI runs.
 `npm run verify -- --full` adds both coverage reports, source/distribution checks,
 real browsers, documentation checks, and every installed fixture.
 `--full` also warms the pinned agent environment and runs the reference app plus

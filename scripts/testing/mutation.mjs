@@ -20,7 +20,7 @@ export async function resolvePolicy(directory = root) {
   const sources = [];
   for (const target of policy.targets) {
     const path = resolve(directory, target.file);
-    if (isAbsolute(target.file) || relative(directory, path).startsWith('..')) {
+    if (isAbsolute(target.file) || target.file.includes(':') || relative(directory, path).startsWith('..')) {
       throw new Error(`Mutation target must be inside the checkout: ${target.file}`);
     }
     const content = await readFile(path, 'utf8');
@@ -70,7 +70,7 @@ export function summarizeReport(report, expectedFiles = []) {
   const detected = (counts.Killed ?? 0) + (counts.Timeout ?? 0);
   const undetected = (counts.Survived ?? 0) + (counts.NoCoverage ?? 0);
   return { total, counts, mutationScore: detected + undetected ? 100 * detected / (detected + undetected) : null,
-    complete: !(counts.Pending || counts.RuntimeError), unresolved };
+    complete: !(counts.Pending || counts.RuntimeError || counts.CompileError), unresolved };
 }
 
 // The process group owns every worker. Its deadline also applies to a hung baseline run.
@@ -112,7 +112,7 @@ export async function main(args = process.argv.slice(2)) {
   await mkdir(output, { recursive: true });
   const startedAt = new Date().toISOString();
   const testInputs = [];
-  for await (const file of glob([...policy.testFiles, 'test/unit/model-based/*.js', 'test/setup/*.js', 'vitest.config.js', 'stryker.config.mjs', 'scripts/testing/mutation.mjs'], { cwd: root })) {
+  for await (const file of glob([...policy.testFiles, 'test/unit/model-based/*.js', 'test/setup/*.js', 'package.json', 'config/coverage-exceptions.json', 'vitest.config.js', 'stryker.config.mjs', 'scripts/testing/mutation.mjs'], { cwd: root })) {
     testInputs.push({ file, sha256: sha256(await readFile(join(root, file))) });
   }
   testInputs.sort((first, second) => first.file.localeCompare(second.file));

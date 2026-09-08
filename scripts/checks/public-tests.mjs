@@ -22,7 +22,7 @@ async function checkFile(file) {
     failures.push(`${relative(root, file)}:${location.line + 1}:${location.character + 1}: ${reason}`);
   }
   function visit(node) {
-    if ((ts.isMethodDeclaration(node) || ts.isPropertyAssignment(node) || ts.isPropertyDeclaration(node)) &&
+    if ((ts.isMethodDeclaration(node) || ts.isPropertyAssignment(node) || ts.isPropertyDeclaration(node) || ts.isShorthandPropertyAssignment(node)) &&
         node.name && ts.isIdentifier(node.name) && isPrivate(node.name.text)) {
       reject(node, `Private override ${node.name.text}; exercise the public owner instead.`);
     }
@@ -34,7 +34,8 @@ async function checkFile(file) {
         reject(node, `Private member name ${node.text}; use public contracts and consumer-owned names.`);
       }
       if ((ts.isImportDeclaration(node.parent) || ts.isExportDeclaration(node.parent) ||
-          (ts.isCallExpression(node.parent) && node.parent.expression.kind === ts.SyntaxKind.ImportKeyword)) &&
+          (ts.isCallExpression(node.parent) && (node.parent.expression.kind === ts.SyntaxKind.ImportKeyword ||
+            (ts.isIdentifier(node.parent.expression) && node.parent.expression.text === 'require')))) &&
           /(?:^|\/)src\/|types-internal\//.test(node.text)) {
         reject(node, `Internal source import ${node.text}; import a supported package entrypoint.`);
       }
