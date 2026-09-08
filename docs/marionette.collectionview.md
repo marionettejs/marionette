@@ -897,6 +897,10 @@ better to use the data to determine what the `CollectionView` should display.
 This method accepts the child view instance to remove as its parameter. It returns
 the removed view.
 
+Later updates to the retained model do not recreate its removed View. Rendering
+the CollectionView again or resetting its collection rebuilds its children from
+the current collection.
+
 ```javascript
 import { CollectionView } from 'marionette';
 
