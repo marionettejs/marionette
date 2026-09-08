@@ -24,3 +24,14 @@ const behavior = new Behavior({}, view);
 behavior.el = root;
 // @ts-expect-error Behavior element retargeting is removed.
 behavior._syncElement();
+
+new View({ id: null, className: () => null }).renderAttributes();
+new CollectionView({ id: () => undefined, className: null }).renderAttributes();
+view.id = () => null;
+view.className = () => undefined;
+collectionView.id = null;
+collectionView.className = () => null;
+// @ts-expect-error Root attributes remain strings, null, or undefined.
+view.id = 42;
+// @ts-expect-error A className callback cannot return a boolean.
+collectionView.className = () => false;
