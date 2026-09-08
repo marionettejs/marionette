@@ -240,6 +240,12 @@ does not replace its child View. Collection lookup uses current ids. Reset
 rejects duplicate instances and ids before changing membership; applications
 should keep ids unique when changing them.
 
+Lookup precedence is exact member instance, application id, then cid, regardless
+of collection order. Supplied native Model instances retain their identity even
+when the Collection configures a different model constructor; only raw attributes
+use that constructor. Bulk removal resolves all identities against one current
+snapshot, including ids changed with `{ silent: true }`.
+
 `Model.destroy()` and `Collection.destroy()` always emit their `destroy`
 lifecycle events, including with `{ silent: true }`. A destroyed model removes
 itself from each containing Collection through ordinary event subscriptions.
@@ -254,6 +260,14 @@ Define Model subclass `defaults` on the prototype with `Model.extend`, a prototy
 method, or a prototype getter; a native class field initializes too late to seed
 the base constructor. The package does not provide persistence, REST
 synchronization, validation, or implicit Backbone behavior.
+
+Native Model writes use `Object.is` equality and report sparse `changed` and
+`previous` maps on their event options. Nested writes are independent synchronous
+changes; use `options.changed` for the event being handled, since `model.changed`
+may already describe a nested write. `has` tests own-property presence, including
+undefined values. Native collection sorting is explicit and `reset` rebuilds
+children; there is no automatic merge/reconcile operation. See the package's
+[mutation semantics](https://github.com/marionettejs/marionette/blob/master/packages/data/readme.md#mutation-semantics) for details.
 
 Applications using Backbone should import the bundled integration instead of
 configuring these methods individually. See [Optional Backbone](./optional-backbone.md).

@@ -17,13 +17,17 @@ type CollectionExtend<Base extends ModelType, Props extends object, Statics exte
   ): CollectionExtension<Base, Merge<Props, Added>, Merge<Statics, AddedStatics>>;
 }['extend'];
 
-// A configured model can replace an input instance. Constructor options may
-// replace that configuration again, so retain both possible model families.
+// Supplied Models retain their identity; raw attributes use the factory.
 type ConfiguredModel<Factory> = Factory extends new (...args: never[]) => infer M
   ? M extends ModelType ? M : never : never;
 type ExtendedCollectionInstance<M extends ModelType, Props extends object> = 'model' extends keyof Props
   ? Merge<CollectionInstance<M | ConfiguredModel<Props['model']>>, Omit<Props, 'model'>>
   : Merge<CollectionInstance<M>, Props>;
+
+type DefaultModel<M extends ModelType, Props extends object, Base extends ModelType> = 'model' extends keyof Props
+  ? ConfiguredModel<Props['model']>
+  : [M] extends [never] ? Base
+    : M extends ModelType<infer Attributes> ? ModelType<Attributes> : never;
 
 type CollectionConstructor<Base extends ModelType, Props extends object, Statics extends object> =
   Props extends { constructor: (...args: infer Args) => unknown }
@@ -34,10 +38,10 @@ type CollectionConstructor<Base extends ModelType, Props extends object, Statics
         extend: 'extend' extends keyof Statics ? Statics['extend'] : CollectionExtend<Base, Props, Statics>;
       }
     : {
-        new <M extends Base = Base>(
+        new <M extends Base = never, Factory extends ModelType = DefaultModel<M, Props, Base>>(
           models?: ModelInput<M> | ReadonlyArray<ModelInput<M>> | null,
-          options?: CollectionOptions<M> | null
-        ): ExtendedCollectionInstance<M, Props>;
+          options?: CollectionOptions<Factory> | null
+        ): Merge<CollectionInstance<M | Factory>, Omit<Props, 'model'>>;
         (this: object, models?: ModelInput<Base> | ReadonlyArray<ModelInput<Base>> | null, options?: CollectionOptions<Base> | null): void;
         prototype: Merge<CollectionInstance<Base>, Props>;
         extend: 'extend' extends keyof Statics ? Statics['extend'] : CollectionExtend<Base, Props, Statics>;
@@ -47,7 +51,7 @@ type CollectionExtension<Base extends ModelType, Props extends object, Statics e
   [keyof Statics] extends [never] ? CollectionConstructor<Base, Props, Statics>
     : CollectionConstructor<Base, Props, Statics> & Omit<Statics, 'prototype' | 'extend'>;
 
-export type ModelInput<M extends ModelType = ModelType> = M | ModelAttributes;
+export type ModelInput<M extends ModelType = ModelType> = M | ([M] extends [never] ? ModelAttributes : M['attributes']);
 
 export interface CollectionOptions<M extends ModelType = ModelType> {
   model?: new (attributes?: ModelAttributes, options?: unknown) => M;
@@ -79,8 +83,8 @@ export interface Collection<M extends ModelType = ModelType> extends EventSource
   map<Result>(callback: (model: M, index: number, models: M[]) => Result, context?: unknown): Result[];
   add(model: ModelInput<M> | null, options?: MutationOptions | null): M | undefined;
   add(models: ReadonlyArray<ModelInput<M>>, options?: MutationOptions | null): M[];
-  remove(identity: unknown, options?: MutationOptions | null): M | undefined;
   remove(identities: ReadonlyArray<unknown>, options?: MutationOptions | null): M[];
+  remove(identity: unknown, options?: MutationOptions | null): M | undefined;
   reset(models?: ModelInput<M> | ReadonlyArray<ModelInput<M>> | null, options?: MutationOptions | null): this;
   move(identity: unknown, index: number, options?: MutationOptions | null): M | undefined;
   sort(comparator?: string | ((left: M, right: M) => number), options?: MutationOptions | null): this;
@@ -132,6 +136,19 @@ function assertUniqueModels(models: ModelType[]) {
   }
 }
 
+function indexModels(models: ModelType[]) {
+  const identities = new Map<unknown, ModelType>();
+  for (const model of models) { identities.set(model.cid, model); }
+  // Exact instances win over ids, which win over cids. Preserve the first id
+  // match if an application temporarily gives multiple models the same id.
+  for (let index = models.length; index--;) {
+    const model = models[index];
+    if (model.id != null) { identities.set(model.id, model); }
+  }
+  for (const model of models) { identities.set(model, model); }
+  return identities;
+}
+
 // The constructor and generic instance interface share the public name.
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const Collection = function(this: CollectionInstanceRuntime, models: ModelInput | ReadonlyArray<ModelInput> | null = [], options: CollectionOptions | null = {}) {
@@ -153,7 +170,7 @@ Object.assign(Collection.prototype, Events, {
 
   _prepareModel(model: ModelInput) {
     const ModelClass = this.model;
-    return model instanceof ModelClass ? model : new ModelClass(model as ModelAttributes);
+    return model instanceof Model ? model : new ModelClass(model);
   },
 
   _bindModel(model: ModelType) {
@@ -193,9 +210,9 @@ Object.assign(Collection.prototype, Events, {
 
   get(identity: unknown) {
     if (identity == null) { return undefined; }
-    return this.models.find(model =>
-      model === identity || model.cid === identity || sameValueZero(model.id, identity)
-    );
+    if (identity instanceof Model && this.models.includes(identity)) { return identity; }
+    return this.models.find(model => sameValueZero(model.id, identity)) ||
+      this.models.find(model => model.cid === identity);
   },
 
   indexOf(model: ModelType) {
@@ -219,7 +236,7 @@ Object.assign(Collection.prototype, Events, {
       this.models.filter(model => model.id != null).map(model => model.id)
     );
     for (const candidate of asArray(models)) {
-      if (!(candidate instanceof this.model) && candidate != null && typeof candidate === 'object') {
+      if (!(candidate instanceof Model) && candidate != null && typeof candidate === 'object') {
         const idAttribute = this.model.prototype.idAttribute;
         const rawId = Object.hasOwn(candidate, idAttribute) ? (candidate as ModelAttributes)[idAttribute] : undefined;
         if (rawId != null && knownIds.has(rawId)) { continue; }
@@ -250,13 +267,17 @@ Object.assign(Collection.prototype, Events, {
     options = normalizeOptions(options);
     if (this._isDestroyed) { return Array.isArray(models) ? [] : undefined; }
     const removed: ModelType[] = [];
-    for (const candidate of asArray(models)) {
-      const model = this.get(candidate);
-      if (!model || removed.includes(model)) { continue; }
+    const removing = new Set<ModelType>();
+    const candidates = asArray(models);
+    const identities = candidates.length > 1 ? indexModels(this.models) : undefined;
+    for (const candidate of candidates) {
+      const model = identities ? identities.get(candidate) : this.get(candidate);
+      if (!model || removing.has(model)) { continue; }
       removed.push(model);
+      removing.add(model);
     }
     if (!removed.length) { return Array.isArray(models) ? removed : undefined; }
-    const nextModels = this.models.filter(model => !removed.includes(model));
+    const nextModels = this.models.filter(model => !removing.has(model));
     for (const model of removed) { this._unbindModel(model); }
     this.models = nextModels;
     this.length = this.models.length;

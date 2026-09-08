@@ -144,6 +144,7 @@ describe('@marionette/data Model', function() {
     });
     model.on('change', (changedModel, options) => {
       changes.push(['change', Object.keys(options.changed)]);
+      expect(model.changed).to.deep.equal({ second: 2 });
     });
 
     model.set('first', 1);
