@@ -961,3 +961,37 @@ describe('performance contract validation', () => {
     assert.deepEqual(findForbiddenModules(scriptModules, contract), scriptModules);
   });
 });
+
+test('packaged docs are excluded from runtime size but cannot enter production graphs', async() => {
+  const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-docs-runtime-'));
+  try {
+    const contract = contractFor();
+    const policy = JSON.parse(await readFile(join(root, 'config/performance.json'), 'utf8'));
+    contract.forbiddenProductionModulePrefixes = policy.forbiddenProductionModulePrefixes;
+    Object.assign(contract.productionGraphs[0], {
+      input: 'index.js', baselineModules: ['index.js'], baselineExternalImports: [],
+    });
+    await mkdir(join(fixtureRoot, 'dist/docs/fixtures'), { recursive: true });
+    await mkdir(join(fixtureRoot, 'dist/agent-skill/scripts'), { recursive: true });
+    await writeFile(join(fixtureRoot, 'package.json'), JSON.stringify({
+      type: 'module', exports: { '.': { import: './dist/index.mjs' } },
+    }));
+    await writeFile(join(fixtureRoot, 'performance.json'), JSON.stringify(contract));
+    await writeFile(join(fixtureRoot, 'index.js'), 'export const value = 1;\n');
+    await writeFile(join(fixtureRoot, 'dist/index.mjs'), 'export const value = 1;\n');
+    await writeFile(join(fixtureRoot, 'dist/docs/fixtures/check.mjs'), 'export const evidence = 1;\n');
+    await writeFile(join(fixtureRoot, 'dist/agent-skill/scripts/docs.mjs'), 'export const helper = 1;\n');
+    await writeFile(join(fixtureRoot, 'rollup.config.mjs'),
+      'export default [{ input: \'index.js\', output: { file: \'dist/index.mjs\', format: \'es\' } }];\n');
+    const result = await measure({ root: fixtureRoot, configPath: join(fixtureRoot, 'performance.json'), checkToolchain: false });
+    assert.ok(!result.violations.some(message => /runtime artifacts/.test(message)));
+    assert.equal(result.graphs[0].status, 'measured');
+    assert.deepEqual(result.artifacts.map(artifact => artifact.path), ['dist/index.mjs']);
+    for (const path of ['dist/docs/fixtures/check.mjs', 'dist/agent-skill/scripts/docs.mjs', 'skills/marionette/scripts/docs.mjs']) {
+      assert.deepEqual(findForbiddenModules([path], contract), [path]);
+    }
+    await writeFile(join(fixtureRoot, 'index.js'), 'export { evidence } from \'./dist/docs/fixtures/check.mjs\';\n');
+    const imported = await measure({ root: fixtureRoot, configPath: join(fixtureRoot, 'performance.json'), checkToolchain: false });
+    assert.ok(imported.violations.some(message => message.includes('forbidden production modules: dist/docs/fixtures/check.mjs')));
+  } finally { await rm(fixtureRoot, { recursive: true, force: true }); }
+});
