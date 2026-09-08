@@ -146,7 +146,7 @@
     "marked": "18.0.11",
     "morphdom": "2.7.8",
     "rollup": "4.63.0",
-    "terser": "5.48.0",
+    "terser": "5.51.2",
     "typescript": "6.0.3",
     "underscore": "^1.13.0",
     "vitest": "4.1.11",
