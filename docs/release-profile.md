@@ -41,17 +41,18 @@ than hard performance gates.
 
 ## Browser profiles
 
-Browser behavior and transpilation use separate pinned profiles. The future
+Browser behavior and transpilation use separate pinned profiles. The
 real-browser contract lane uses `@playwright/test` 1.62.1 with Chromium
 151.0.7922.34 revision 1234, Firefox 153.0 revision 1538, and WebKit 26.5 revision
 2336. These are the builds published for the [Playwright 1.62
 release](https://playwright.dev/docs/release-notes#version-162). Playwright WebKit is
 the compatibility engine; it is not evidence that branded Safari ran in CI.
 
-The dependency is installed now so its exact browser manifest can be checked, but
-browser binaries are not downloaded and browser tests are not enabled until the
-real-browser contract work begins. `npm run check:browser-profile` compares the
-installed Playwright manifest with `config/release-profile.json`.
+`npm run test:browser` runs named Playwright projects for all three engines. CI
+installs their pinned binaries and retains results, reports, and failure traces.
+Release validation supplies the exact candidate tarballs to this same suite.
+`npm run check:browser-profile` compares the installed Playwright manifest with
+`config/release-profile.json`.
 
 The package and release profile use the semantic Browserslist query `baseline widely
 available`. This is the minimum capability floor for transpilation, not a fixed list

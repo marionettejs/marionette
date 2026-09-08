@@ -120,4 +120,4 @@ async function checkLinks() {
   console.log(`Validated ${pages.size} HTML files and ${linkCount} internal links.`);
 }
 
-checkLinks();
+await checkLinks();
