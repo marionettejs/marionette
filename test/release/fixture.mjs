@@ -35,6 +35,10 @@ async function fixture(t, { publicationEnabled = false } = {}) {
   await cp(resolve(repository, 'package.json'), resolve(root, 'package.json'));
   await mkdir(resolve(root, 'test/fixtures/consumer'), { recursive: true });
   await writeFile(resolve(root, 'test/fixtures/consumer/package-lock.json'), '{}');
+  await writeFile(resolve(root, 'config/release-validation.json'), JSON.stringify({
+    schemaVersion: 1, fixtures: ['consumer'],
+    browserTests: [{ file: 'consumer.spec.mjs', title: 'first contract' }, { file: 'consumer.spec.mjs', title: 'second contract' }],
+  }));
   const policyPath = resolve(root, 'config/release-promotion.json');
   const fixturePolicy = JSON.parse(await readFile(policyPath));
   fixturePolicy.publicationEnabled = publicationEnabled;
@@ -128,10 +132,12 @@ async function successfulValidation(candidate) {
   const reports = {
     'browser-candidate.json': { source: candidate.evidence.source, packages: candidate.evidence.packages },
     'browser-results.json': {
-      errors: [], stats: { unexpected: 0, flaky: 0, skipped: 0, expected: 3 },
-      suites: [{ specs: [{ tests: ['chromium', 'firefox', 'webkit'].map(projectName => ({
-        projectName, status: 'expected', expectedStatus: 'passed', results: [{ status: 'passed' }],
-      })) }] }],
+      errors: [], stats: { unexpected: 0, flaky: 0, skipped: 0, expected: 6 },
+      suites: [{ specs: ['first contract', 'second contract'].map(title => ({
+        file: 'consumer.spec.mjs', title, tests: ['chromium', 'firefox', 'webkit'].map(projectName => ({
+          projectName, status: 'expected', expectedStatus: 'passed', results: [{ status: 'passed' }],
+        })),
+      })) }],
     },
     'fixtures-report.json': {
       schemaVersion: 1, status: 'passed',

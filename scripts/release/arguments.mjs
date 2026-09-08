@@ -8,6 +8,7 @@ export function readArguments(options) {
     if (seen.has(token.name)) {
       throw new Error(`Duplicate argument --${token.name}.`);
     }
+    if (token.value === '') { throw new Error(`Empty argument --${token.name}.`); }
     seen.add(token.name);
   }
   return parsed.values;

@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "browserTests": [
+    {
+      "file": "adapters-package.spec.mjs",
+      "title": "packed adapters preserve Backbone and jQuery contracts"
+    },
+    {
+      "file": "attachment-owner-document.spec.mjs",
+      "title": "direct template content attaches parent and child once"
+    },
+    {
+      "file": "attachment-owner-document.spec.mjs",
+      "title": "imported template content attaches parent and child once"
+    },
+    {
+      "file": "collection-removal-survivors.spec.mjs",
+      "title": "active filter: removal, reorder, and swap preserve survivor state"
+    },
+    {
+      "file": "collection-removal-survivors.spec.mjs",
+      "title": "custom comparator: removal, reorder, and swap preserve survivor state"
+    },
+    {
+      "file": "collection-removal-survivors.spec.mjs",
+      "title": "default collection order: removal, reorder, and swap preserve survivor state"
+    },
+    {
+      "file": "collection-removal-survivors.spec.mjs",
+      "title": "sort override: removal, reorder, and swap preserve survivor state"
+    },
+    {
+      "file": "collection-removal-survivors.spec.mjs",
+      "title": "unsorted: removal, reorder, and swap preserve survivor state"
+    },
+    {
+      "file": "data-package.spec.mjs",
+      "title": "packed data models collections and state"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "DOM contract registry matches the named browser cases"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "asset server rejects paths outside its explicit asset map"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "jquery: undefined template output renders empty initially and clears previous contents"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: CollectionView releases subscriptions across detach, reattach, and destruction"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: View releases subscriptions across detach, reattach, and destruction"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: a View can adopt contents rendered directly by the DOM adapter"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: a reentrant destroy does not release directives before the outer destroy commits"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: cleanup runs when a terminal destroy handler throws"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: composes with a preselected jQuery DomApi"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: connects and disconnects directives through Region attachment"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: descendants follow CollectionView detach and reattach"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: descendants follow View detach and reattach"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: destroy releases subscriptions after the first content render throws"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: destroys Region children before parent rendering"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: disconnected elements can be adopted by a new View without stale Lit parts"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: monitoring opt-out leaves connection notifications to the application"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: preserves its root through detach/reattach and destroy"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: repeated installation and subclass installation retain public method behavior"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: replaces initial contents, preserves root and survivor, and commits synchronously"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "lit-html: undefined template output renders empty initially and clears previous contents"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "morphdom: composes with a preselected jQuery DomApi"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "morphdom: destroys Region children before parent rendering"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "morphdom: preserves its root through detach/reattach and destroy"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "morphdom: replaces initial contents, preserves root and survivor, and commits synchronously"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "morphdom: undefined template output renders empty initially and clears previous contents"
+    },
+    {
+      "file": "dom-adapters.spec.mjs",
+      "title": "native: undefined template output renders empty initially and clears previous contents"
+    },
+    {
+      "file": "event-delegator-focus.spec.mjs",
+      "title": "blur allows target propagation and releases triggers on destroy"
+    },
+    {
+      "file": "event-delegator-focus.spec.mjs",
+      "title": "blur stops target propagation and releases triggers on destroy"
+    },
+    {
+      "file": "event-delegator-focus.spec.mjs",
+      "title": "focus allows target propagation and releases triggers on destroy"
+    },
+    {
+      "file": "event-delegator-focus.spec.mjs",
+      "title": "focus stops target propagation and releases triggers on destroy"
+    },
+    {
+      "file": "view-render-attributes.spec.mjs",
+      "title": "root attribute refresh preserves browser state"
+    }
+  ],
+  "fixtures": [
+    "adapters-package-vite",
+    "attachment-owner-document",
+    "backbone-adapter",
+    "backbone-adapter-types",
+    "cjs-adapters",
+    "cjs-node",
+    "collection-removal-survivors",
+    "core-no-underscore",
+    "core-types",
+    "data-package-cjs",
+    "data-package-esm",
+    "data-package-types",
+    "data-package-vite",
+    "docs-application-state",
+    "docs-basics-contract",
+    "docs-behavior-host",
+    "docs-collectionview-child-ownership",
+    "docs-common-contract",
+    "docs-dom-api",
+    "docs-entity-events",
+    "docs-radio-owner",
+    "docs-region-lifecycle",
+    "docs-utils-contract",
+    "docs-view-child-region",
+    "docs-view-dom-interactions",
+    "docs-view-render-attributes",
+    "dom-adapters-package",
+    "esm-node",
+    "jquery-dom-api",
+    "jquery-dom-api-types",
+    "no-default-export",
+    "removed-core-adapters",
+    "standalone-packages",
+    "utils-package",
+    "vite",
+    "xstate-adapter-types"
+  ]
+}

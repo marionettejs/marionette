@@ -130,6 +130,7 @@ for (const [name, mutate, error] of [
 }
 
 for (const [name, args, mutation, error] of [
+  ['empty source ref', ['--source-commit', ''], false, /Empty argument --source-commit/],
   ['short source ref', ['--source-commit', 'abc'], false, /full 40-character/],
   ['wrong source commit', ['--source-commit', 'a'.repeat(40)], false, /does not match checked-out/],
   ['wrong repository', ['--repository', 'other/repository'], false, /does not match marionettejs/],

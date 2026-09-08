@@ -68,7 +68,8 @@ export default async function setup() {
         throw new Error(`Invalid browser artifact identity for ${configuration.name}.`);
       }
       const filename = entry.tarball?.file;
-      if (!filename || filename !== basename(filename) || /[\\/]/.test(filename)) {
+      if (typeof filename !== 'string' || !filename || filename === '.' || filename === '..' ||
+          filename !== basename(filename) || /[\\/:]/.test(filename)) {
         throw new Error(`Browser artifact must be a tarball filename: ${filename}.`);
       }
       const tarball = join(artifactDirectory, filename);

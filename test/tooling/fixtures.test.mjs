@@ -35,6 +35,8 @@ function scenario() {
   mkdirSync(fixture, { recursive: true });
   mkdirSync(resolve(root, 'docs'));
   mkdirSync(resolve(root, 'artifacts'));
+  mkdirSync(resolve(root, 'config'));
+  json(resolve(root, 'config/release-validation.json'), { schemaVersion: 1, fixtures: ['sample', 'unselected'] });
   copyCoverageFixture(resolve(repository, 'test/fixtures/run.mjs'), resolve(root, 'test/fixtures/run.mjs'));
   cpSync(resolve(temporary, 'package-lock.json'), resolve(fixture, 'package-lock.json'));
   cpSync(resolve(temporary, 'package.json'), resolve(fixture, 'package.json'));
@@ -58,6 +60,7 @@ appendFileSync(${JSON.stringify(cwdLog)}, process.cwd() + '\\n');
   const second = resolve(root, 'test/fixtures/unselected');
   cpSync(fixture, second, { recursive: true });
   writeFileSync(resolve(second, 'validate.mjs'), 'throw new Error(\'Unselected fixture executed\');\n');
+  json(resolve(root, 'artifacts/release-evidence.json'), evidence(root));
   return { root, fixture, cwdLog };
 }
 
@@ -184,6 +187,7 @@ test('rejects candidate dependency graph drift rather than quietly resolving new
   const { root } = scenario();
   const extra = pack(root, 'fixture-extra');
   pack(resolve(root, 'artifacts'), 'marionette', { dependencies: { 'fixture-extra': `file:${extra}` } });
+  json(resolve(root, 'artifacts/release-evidence.json'), evidence(root));
   const result = run(root);
   assert.equal(result.status, 1);
   assert.match(result.stderr, /changed the committed external dependency graph/);
@@ -221,6 +225,7 @@ test('strict script approvals block unapproved candidate lifecycle scripts', () 
   pack(resolve(root, 'artifacts'), 'marionette', {
     scripts: { install: `node -e "require('node:fs').writeFileSync('${sentinel.replace(/\\/g, '/')}', 'executed')"` },
   });
+  json(resolve(root, 'artifacts/release-evidence.json'), evidence(root));
   const result = run(root);
   assert.equal(result.status, 1, result.stdout);
   assert.equal(existsSync(sentinel), false);
@@ -250,4 +255,23 @@ test('concurrent runs use independent workspaces and cleanup', async() => {
   assert.equal(directories.length, 2);
   assert.notEqual(directories[0], directories[1]);
   assert.ok(directories.every(directory => !existsSync(directory)));
+});
+
+test('artifact-directory mode rejects missing release evidence before invoking npm', () => {
+  const { root } = scenario();
+  rmSync(resolve(root, 'artifacts/release-evidence.json'));
+  const result = run(root);
+  assert.equal(result.status, 1);
+  assert.equal(report(root).stage, 'artifacts');
+  assert.match(result.stderr, /Artifact-directory mode requires release-evidence.json/);
+  assert.equal(report(root).fixtures.length, 0);
+});
+
+test('removing a fixture cannot silently shrink the release matrix', () => {
+  const { root } = scenario();
+  rmSync(resolve(root, 'test/fixtures/unselected'), { recursive: true });
+  const result = run(root);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /directories do not match the release validation inventory/);
+  assert.doesNotMatch(result.stdout, /PASS/);
 });

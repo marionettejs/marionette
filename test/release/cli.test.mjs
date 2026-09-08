@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, rm, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { test } from 'node:test';
 import { fixture, names, successfulValidation } from './fixture.mjs';
@@ -25,6 +25,7 @@ const mutations = [
   ['escaping tarball', evidence => { evidence.packages[0].tarball.file = '../utils.tgz'; }, /contained file name/],
   ['drive-relative tarball', evidence => { evidence.packages[0].tarball.file = 'C:utils.tgz'; }, /contained file name/],
   ['wrong bundle digest', evidence => { evidence.reports.bundle.sha512 = 'a'; }, /bundle report SHA-512 mismatch/],
+  ['changed embedded profile', evidence => { evidence.releaseProfile.profile.browsers.playwright.browserBuilds.pop(); }, /embedded release profile mismatch/],
   ['wrong profile digest', evidence => { evidence.releaseProfile.sha512 = 'a'; }, /release profile SHA-512 mismatch/],
   ['wrong policy digest', evidence => { evidence.promotionPolicy.sha512 = 'a'; }, /promotion policy SHA-512 mismatch/],
   ['wrong toolchain', evidence => { evidence.toolchain.node = '1.0.0'; }, /Node version mismatch/],
@@ -108,6 +109,15 @@ for (const [name, mutate, expected] of [
   ['partial report', ({ report }) => { report.status = 'running'; }, /does not certify/],
   ['changed browser artifact', ({ reports }) => { reports['browser-candidate.json'].packages[0].tarball.sha512 = 'other'; }, /different candidate artifacts/],
   ['missing engine', ({ reports }) => { reports['browser-results.json'].suites[0].specs[0].tests.pop(); }, /every case/],
+  ['omitted browser error evidence', ({ reports }) => { delete reports['browser-results.json'].errors; }, /every case/],
+  ['invalid browser error evidence', ({ reports }) => { reports['browser-results.json'].errors = {}; }, /every case/],
+  ['omitted browser contract with matching counts', ({ reports }) => {
+    reports['browser-results.json'].suites[0].specs.pop();
+    reports['browser-results.json'].stats.expected = 3;
+  }, /every case/],
+  ['duplicate browser contract', ({ reports }) => {
+    reports['browser-results.json'].suites[0].specs[1] = reports['browser-results.json'].suites[0].specs[0];
+  }, /every case/],
   ['skipped browser case', ({ reports }) => { reports['browser-results.json'].stats.skipped = 1; }, /every case/],
   ['expected browser failure', ({ reports }) => { reports['browser-results.json'].suites[0].specs[0].tests[0].expectedStatus = 'failed'; }, /every case/],
   ['different fixture artifact', ({ reports }) => { reports['fixtures-report.json'].artifacts[0].sha256 = 'other'; }, /every locked consumer/],
@@ -148,4 +158,28 @@ test('candidate validation rejects uncommitted source changes before any check r
   const result = candidate.run('validate-candidate', ['--artifact-dir', candidate.artifacts]);
   assert.equal(result.status, 1);
   assert.match(result.stderr, /clean source checkout/);
+});
+
+for (const name of ['../outside', '/absolute', 'C:outside']) {
+  test(`candidate validation rejects noncanonical package name ${name} before any check or extraction`, async t => {
+    const candidate = await fixture(t);
+    candidate.evidence.packages[0].name = name;
+    await candidate.save();
+    const result = candidate.run('validate-candidate', ['--artifact-dir', candidate.artifacts]);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /utils package name mismatch/);
+    assert.doesNotMatch(result.stdout, /Candidate check/);
+    await assert.rejects(readFile(resolve(candidate.artifacts, 'candidate-validation.json')), { code: 'ENOENT' });
+  });
+}
+
+test('removing a consumer directory and its result cannot reduce the required fixture inventory', async t => {
+  const candidate = await fixture(t);
+  const validation = await successfulValidation(candidate);
+  await rm(resolve(candidate.root, 'test/fixtures/consumer'), { recursive: true });
+  validation.reports['fixtures-report.json'].fixtures = [];
+  await validation.saveReport();
+  const result = candidate.run('verify-artifact', ['--artifact-dir', candidate.artifacts, '--require-validation']);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /every locked consumer/);
 });

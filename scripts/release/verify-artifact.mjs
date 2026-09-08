@@ -143,6 +143,7 @@ assertEqual(
   'promotion policy revision',
 );
 assertEqual(sha512(releaseProfileBytes), evidence.releaseProfile.sha512, 'release profile SHA-512');
+assertEqual(JSON.stringify(evidence.releaseProfile.profile), JSON.stringify(JSON.parse(releaseProfileBytes)), 'embedded release profile');
 assertEqual(sha512(promotionPolicyBytes), evidence.promotionPolicy.sha512, 'promotion policy SHA-512');
 assertEqual(process.versions.node, evidence.toolchain.node, 'Node version');
 assertEqual(await getNpmVersion(), evidence.toolchain.npm, 'npm version');

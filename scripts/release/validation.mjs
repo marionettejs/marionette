@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readFile, readdir } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 export const candidateChecks = Object.freeze([
@@ -77,26 +77,32 @@ export async function verifyCandidateValidation(directory, evidenceBytes) {
     throw new Error('Browser validation used different candidate artifacts.');
   }
   const browser = JSON.parse(await readFile(resolve(directory, 'browser-results.json'), 'utf8'));
-  const engineNames = evidence.releaseProfile.profile.browsers.playwright.browserBuilds.map(engine => engine.name).sort();
+  const profile = JSON.parse(await readFile(resolve(import.meta.dirname, '../../config/release-profile.json'), 'utf8'));
+  const inventory = JSON.parse(await readFile(resolve(import.meta.dirname, '../../config/release-validation.json'), 'utf8'));
+  const engineNames = profile.browsers.playwright.browserBuilds.map(engine => engine.name).sort();
+  const expectedBrowserTests = inventory.browserTests.flatMap(({ file, title }) =>
+    engineNames.map(projectName => JSON.stringify([file, title, projectName]))).sort();
   const browserTests = [];
   function visit(suites) {
     for (const suite of suites || []) {
-      for (const spec of suite.specs || []) { browserTests.push(...spec.tests); }
+      for (const spec of suite.specs || []) {
+        for (const test of spec.tests) { browserTests.push({ ...test, file: spec.file, title: spec.title }); }
+      }
       visit(suite.suites);
     }
   }
   visit(browser.suites);
-  if (!browserTests.length || browser.errors?.length || browser.stats?.unexpected !== 0 ||
+  if (!browserTests.length || !Array.isArray(browser.errors) || browser.errors.length !== 0 || browser.stats?.unexpected !== 0 ||
       browser.stats?.skipped !== 0 || browser.stats?.flaky !== 0 || browser.stats?.expected !== browserTests.length ||
-      JSON.stringify([...new Set(browserTests.map(test => test.projectName))].sort()) !== JSON.stringify(engineNames) ||
+      JSON.stringify(browserTests.map(({ file, title, projectName }) => JSON.stringify([file, title, projectName])).sort()) !==
+        JSON.stringify(expectedBrowserTests) ||
       browserTests.some(test => test.status !== 'expected' || test.expectedStatus !== 'passed' ||
         test.results.length !== 1 || test.results[0].status !== 'passed')) {
     throw new Error('Browser validation did not pass every case in every required engine.');
   }
   const fixtures = JSON.parse(await readFile(resolve(directory, 'fixtures-report.json'), 'utf8'));
   const fixturesRoot = resolve(import.meta.dirname, '../../test/fixtures');
-  const expectedFixtures = (await readdir(fixturesRoot, { withFileTypes: true }))
-    .filter(entry => entry.isDirectory()).map(entry => entry.name).sort();
+  const expectedFixtures = inventory.fixtures.toSorted();
   if (fixtures.status !== 'passed' || fixtures.schemaVersion !== 1 ||
       fixtures.artifacts?.length !== evidence.packages.length ||
       evidence.packages.some(entry => !fixtures.artifacts.some(artifact => artifact.name === entry.name &&

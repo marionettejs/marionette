@@ -98,6 +98,10 @@ try {
   const fixtures = readdirSync(fixturesDir, { withFileTypes: true })
     .filter(entry => entry.isDirectory() && existsSync(resolve(fixturesDir, entry.name, 'package.json')))
     .map(entry => entry.name).sort();
+  const inventory = readJson(resolve(rootDir, 'config/release-validation.json'));
+  if (JSON.stringify(fixtures) !== JSON.stringify(inventory.fixtures.toSorted())) {
+    throw new Error('Fixture directories do not match the release validation inventory.');
+  }
   const selected = options['--fixture'] ? [options['--fixture']] : fixtures;
   if (!selected.length || selected.some(name => !fixtures.includes(name))) {
     throw new Error(`Unknown fixture: ${options['--fixture'] || '(none discovered)'}. Available: ${fixtures.join(', ')}`);
@@ -138,13 +142,14 @@ try {
     const directory = resolve(rootDir, options['--artifact-dir']);
     paths = readdirSync(directory).filter(name => name.endsWith('.tgz')).map(name => resolve(directory, name));
     const evidencePath = resolve(directory, 'release-evidence.json');
-    if (existsSync(evidencePath)) {
-      evidence = readJson(evidencePath);
-      if (!Array.isArray(evidence.packages) || evidence.packages.length !== packageInputs.length) {
-        throw new Error('Release evidence must describe all five package artifacts.');
-      }
-      report.evidence = { path: evidencePath, sha256: sha256(evidencePath), source: evidence.source };
+    if (!existsSync(evidencePath)) {
+      throw new Error('Artifact-directory mode requires release-evidence.json. Use explicit tarball arguments for local candidates.');
     }
+    evidence = readJson(evidencePath);
+    if (!Array.isArray(evidence.packages) || evidence.packages.length !== packageInputs.length) {
+      throw new Error('Release evidence must describe all five package artifacts.');
+    }
+    report.evidence = { path: evidencePath, sha256: sha256(evidencePath), source: evidence.source };
   } else if (options['--tarball']) {
     paths = packageInputs.map(input => resolve(rootDir, options[input.flag]));
   } else {
