@@ -279,8 +279,8 @@ function normalizeCollectionChange(change: RawChange, previous: Snapshot, curren
   const removed = new Set(change.removed);
   return {
     kind: 'update',
-    added: current.entries.filter(entry => added.has(entry.model)),
-    removed: previous.entries.filter(entry => removed.has(entry.model)),
+    added: added.size ? current.entries.filter(entry => added.has(entry.model)) : [],
+    removed: removed.size ? previous.entries.filter(entry => removed.has(entry.model)) : [],
     updated: change.updated.map(pair => ({
       key: current.models.get(pair.current)!.key,
       previous: pair.previous,
