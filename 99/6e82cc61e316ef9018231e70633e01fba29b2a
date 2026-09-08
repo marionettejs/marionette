@@ -1,0 +1,61 @@
+config/tooling-coverage.json
+  s_e9ec88924dcd73::t_79af030abcc0fc 1-26
+scripts/release/arguments.mjs
+  s_e9ec88924dcd73::t_f5df2774d6bbfb 1-14
+scripts/release/build-artifact.mjs
+  s_e9ec88924dcd73::t_7fd29f565fa703 6-7,10-15,28-29,59,78-80,89,107
+scripts/release/check-targets.mjs
+  s_e9ec88924dcd73::t_859284a7c9e552 5-6,10-13,36,41,46-48,54-59
+scripts/release/packages.mjs
+  s_e9ec88924dcd73::t_034dbc9ec56f24 1-22
+scripts/release/publish-github.mjs
+  s_e9ec88924dcd73::t_a722a037969cc9 8-10,14-17,45,50,57,102-112
+scripts/release/validate-candidate.mjs
+  s_e9ec88924dcd73::t_4ca8c584a8076a 1-138
+scripts/release/validation.mjs
+  s_e9ec88924dcd73::t_1b17276332d1fc 1-116
+scripts/release/verify-artifact.mjs
+  s_e9ec88924dcd73::t_75bd7ca9c65367 6-8,11-16,61,80,164-165,176-180
+test/release/build.test.mjs
+  s_e9ec88924dcd73::t_1cc6eee53ce594 1-147
+test/release/candidate.test.mjs
+  s_e9ec88924dcd73::t_69625d8abf8151 1-117
+test/release/cli.test.mjs
+  s_e9ec88924dcd73::t_b7c5a1b0175164 1-151
+test/release/fake-external.mjs
+  s_e9ec88924dcd73::t_f2105a8c167777 1-72
+test/release/fake-processes.mjs
+  s_e9ec88924dcd73::t_ebc710b295b949 1-17
+test/release/fixture.mjs
+  s_e9ec88924dcd73::t_5f336ff443b624 1-158
+test/release/promotion.test.mjs
+  s_e9ec88924dcd73::t_388f5e3ea734be 2,4-29,31-40,42-49,51-67,71-90,93-111,113,115-127,130-137,139-142,144,146,149-159,162-173,175,177-190,193-202
+test/tooling/coverage-fixture.mjs
+  s_bc19ab09821624::t_55046beadd40e4 1-39
+test/tooling/coverage-fixture.test.mjs
+  s_e9ec88924dcd73::t_74c3039ae78152 1-41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "996e82cc61e316ef9018231e70633e01fba29b2a",
+  "prompts": {},
+  "sessions": {
+    "s_bc19ab09821624": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e7-cb4f-73e3-b41e-328bfeae0db2",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
