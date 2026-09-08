@@ -15,7 +15,7 @@ for (const event of ['focus', 'blur']) {
 
         field.addEventListener(eventName, () => order.push('target'));
 
-        const EventView = Marionette.View.extend({
+        const EventView = window.Marionette.View.extend({
           triggers: {
             [`${ eventName } .field`]: {
               event: `${ eventName }:field`,

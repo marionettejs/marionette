@@ -128,7 +128,7 @@ describe('CollectionView Data', function() {
         const myModel = myCollectionView.collection.get(3);
         const childView = myCollectionView.children.findByModel(myModel);
 
-        expect(childView).to.not.be.undefined;
+        expect(childView).not.toBeUndefined();
         expect(myCollectionView.children).to.have.lengthOf(1);
       });
 
@@ -619,7 +619,7 @@ describe('CollectionView Data', function() {
     });
 
     it('should not throw an error', function() {
-      expect(collection.remove({ id: 1 })).to.not.throw;
+      expect(() => collection.remove({ id: 1 })).not.toThrow();
     });
   });
 });

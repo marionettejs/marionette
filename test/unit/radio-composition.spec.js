@@ -69,7 +69,7 @@ describe('Radio composition', function() {
 
     Radio.on('singleton-reset', 'event', handler);
     expect(Radio.reset.call({ channel: () => ({ reset: alternateReset }) }))
-      .to.be.undefined;
+      .toBeUndefined();
     Radio.trigger('singleton-reset', 'event');
 
     expect(handler).not.toHaveBeenCalled();

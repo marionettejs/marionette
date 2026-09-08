@@ -54,9 +54,9 @@ describe('DomApi', function() {
       expect(MyObject.prototype.Dom).to.not.have.property('inheritedBase');
       expect(MyObject.prototype.Dom).to.not.have.property('inheritedMixin');
       expect(MyObject.prototype.Dom).to.not.have.property('hidden');
-      expect(MyObject.prototype.Dom[symbol]).to.be.true;
+      expect(MyObject.prototype.Dom[symbol]).toBe(true);
       expect(Object.getPrototypeOf(MyObject.prototype.Dom)).to.equal(Object.prototype);
-      expect(Object.hasOwn(MyObject.prototype.Dom, '__proto__')).to.be.true;
+      expect(Object.hasOwn(MyObject.prototype.Dom, '__proto__')).toBe(true);
       expect(Object.getOwnPropertyDescriptor(MyObject.prototype.Dom, '__proto__').value)
         .to.equal(protoValue);
     });
@@ -96,7 +96,7 @@ describe('DomApi', function() {
     });
 
     it('should return an array-like object', function() {
-      expect(DomApi.findEl(domEl, '#bar')).to.be.arrayLike;
+      expect(DomApi.findEl(domEl, '#bar')).toHaveLength(1);
     });
 
     it('should return the DOM element', function() {
@@ -114,13 +114,13 @@ describe('DomApi', function() {
 
     describe('when the node is within the el', function() {
       it('should return true', function() {
-        expect(DomApi.hasEl(domEl, $('#bar')[0])).to.be.true;
+        expect(DomApi.hasEl(domEl, $('#bar')[0])).toBe(true);
       });
     });
 
     describe('when the node is not within the el', function() {
       it('should return false', function() {
-        expect(DomApi.hasEl(domEl, $('<div>')[0])).to.be.false;
+        expect(DomApi.hasEl(domEl, $('<div>')[0])).toBe(false);
       });
     });
   });
@@ -263,11 +263,11 @@ describe('DomApi', function() {
       expect(el.getAttribute('title')).to.equal('owned');
       expect(el.getAttribute('constructor')).to.equal('ordinary attribute');
       expect(el.getAttribute('__proto__')).to.equal('ordinary attribute');
-      expect(el.hasAttribute('inherited')).to.be.false;
-      expect(el.hasAttribute('hidden')).to.be.false;
+      expect(el.hasAttribute('inherited')).toBe(false);
+      expect(el.hasAttribute('hidden')).toBe(false);
       expect(el.attributes.length).to.equal(3);
       expect(Object.getPrototypeOf(el)).to.equal(prototype);
-      expect(Object.hasOwn(el, '__proto__')).to.be.false;
+      expect(Object.hasOwn(el, '__proto__')).toBe(false);
       expect(el.constructor).to.equal(prototype.constructor);
     });
 
@@ -279,7 +279,7 @@ describe('DomApi', function() {
 
       DomApi.setAttributes(el, { title: null, 'data-remove': undefined });
 
-      expect(el.hasAttribute('title')).to.be.false;
+      expect(el.hasAttribute('title')).toBe(false);
       expect(el.getAttribute('data-remove')).to.equal('remove');
       expect(el.getAttribute('data-keep')).to.equal('keep');
     });
@@ -295,19 +295,19 @@ describe('DomApi', function() {
         'data-empty': ''
       });
 
-      expect(el.disabled).to.be.true;
+      expect(el.disabled).toBe(true);
       expect(el.getAttribute('aria-pressed')).to.equal('false');
       expect(el.getAttribute('data-active')).to.equal('false');
       expect(el.getAttribute('data-zero')).to.equal('0');
       expect(el.getAttribute('data-empty')).to.equal('');
 
       DomApi.setAttributes(el, { disabled: false });
-      expect(el.disabled).to.be.true;
+      expect(el.disabled).toBe(true);
       expect(el.getAttribute('disabled')).to.equal('false');
 
       DomApi.setAttributes(el, { disabled: null });
-      expect(el.disabled).to.be.false;
-      expect(el.hasAttribute('disabled')).to.be.false;
+      expect(el.disabled).toBe(false);
+      expect(el.hasAttribute('disabled')).toBe(false);
     });
 
     it('uses attribute names for SVG classes and label associations', function() {
@@ -321,8 +321,8 @@ describe('DomApi', function() {
 
       DomApi.setAttributes(svg, { class: null });
       DomApi.setAttributes(label, { for: null });
-      expect(svg.hasAttribute('class')).to.be.false;
-      expect(label.hasAttribute('for')).to.be.false;
+      expect(svg.hasAttribute('class')).toBe(false);
+      expect(label.hasAttribute('for')).toBe(false);
     });
 
     it('sets input defaults without overwriting live input state', function() {
@@ -335,17 +335,17 @@ describe('DomApi', function() {
       DomApi.setAttributes(checkbox, { checked: '' });
       DomApi.setAttributes(text, { value: 'default' });
 
-      expect(checkbox.defaultChecked).to.be.true;
+      expect(checkbox.defaultChecked).toBe(true);
       expect(text.defaultValue).to.equal('default');
-      expect(checkbox.checked).to.be.false;
+      expect(checkbox.checked).toBe(false);
       expect(text.value).to.equal('edited');
 
       DomApi.setAttributes(checkbox, { checked: null });
       DomApi.setAttributes(text, { value: null });
 
-      expect(checkbox.hasAttribute('checked')).to.be.false;
-      expect(text.hasAttribute('value')).to.be.false;
-      expect(checkbox.checked).to.be.false;
+      expect(checkbox.hasAttribute('checked')).toBe(false);
+      expect(text.hasAttribute('value')).toBe(false);
+      expect(checkbox.checked).toBe(false);
       expect(text.value).to.equal('edited');
     });
 
@@ -363,10 +363,10 @@ describe('DomApi', function() {
         expect(input.list).to.equal(list);
 
         DomApi.setAttributes(input, { form: null, list: null });
-        expect(input.form).to.be.null;
-        expect(input.list).to.be.null;
-        expect(input.hasAttribute('form')).to.be.false;
-        expect(input.hasAttribute('list')).to.be.false;
+        expect(input.form).toBeNull();
+        expect(input.list).toBeNull();
+        expect(input.hasAttribute('form')).toBe(false);
+        expect(input.hasAttribute('list')).toBe(false);
       } finally {
         input.remove();
         form.remove();
@@ -429,18 +429,18 @@ describe('DomApi', function() {
     it('should return true when el has contents', function() {
       setFixtures('<div id="foo">Existing Html</div>');
       const domEl = $('#foo')[0];
-      expect(DomApi.hasContents(domEl)).to.be.true;
+      expect(DomApi.hasContents(domEl)).toBe(true);
     });
 
     it('should return false when el has no contents', function() {
       setFixtures('<div id="foo"></div>');
       const domEl = $('#foo')[0];
-      expect(DomApi.hasContents(domEl)).to.be.false;
+      expect(DomApi.hasContents(domEl)).toBe(false);
     });
 
     it('should return false when el is undefined or null', function() {
-      expect(DomApi.hasContents(undefined)).to.be.false;
-      expect(DomApi.hasContents(null)).to.be.false;
+      expect(DomApi.hasContents(undefined)).toBe(false);
+      expect(DomApi.hasContents(null)).toBe(false);
     });
   });
 

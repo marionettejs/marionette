@@ -74,11 +74,11 @@ describe('view', function() {
     });
 
     it('should be rendered', function() {
-      expect(view.isRendered()).to.be.true;
+      expect(view.isRendered()).toBe(true);
     });
 
     it('should be attached', function() {
-      expect(view.isAttached()).to.be.true;
+      expect(view.isAttached()).toBe(true);
     });
 
     it('should contain the DOM content', function() {
@@ -101,11 +101,11 @@ describe('view', function() {
     });
 
     it('should not be rendered', function() {
-      expect(view.isRendered()).to.be.false;
+      expect(view.isRendered()).toBe(false);
     });
 
     it('should not be attached', function() {
-      expect(view.isAttached()).to.be.false;
+      expect(view.isAttached()).toBe(false);
     });
   });
 
@@ -188,7 +188,7 @@ describe('view', function() {
     });
 
     it('should not claim isRendered', function() {
-      expect(view.isRendered()).to.be.false;
+      expect(view.isRendered()).toBe(false);
     });
 
     describe('and there is prerendered content', function() {
@@ -200,7 +200,7 @@ describe('view', function() {
       });
 
       it('should stay rendered', function() {
-        expect(elView.isRendered()).to.be.true;
+        expect(elView.isRendered()).toBe(true);
       });
     });
   });
@@ -275,27 +275,27 @@ describe('view', function() {
     });
 
     it('should not be destroyed when "onBeforeDestroy" is called', function() {
-      expect(onBeforeDestroyStub.mock.results.at(-1).value.isDestroyed).not.to.be.ok;
+      expect(onBeforeDestroyStub.mock.results.at(-1).value.isDestroyed).not.toBeTruthy();
     });
 
     it('should be rendered when "onBeforeDestroy" is called', function() {
-      expect(onBeforeDestroyStub.mock.results.at(-1).value.isRendered).to.be.true;
+      expect(onBeforeDestroyStub.mock.results.at(-1).value.isRendered).toBe(true);
     });
 
     it('should be destroyed when "onDestroy" is called', function() {
-      expect(onDestroyStub.mock.results.at(-1).value.isDestroyed).to.be.true;
+      expect(onDestroyStub.mock.results.at(-1).value.isDestroyed).toBe(true);
     });
 
     it('should not be rendered when "onDestroy" is called', function() {
-      expect(onDestroyStub.mock.results.at(-1).value.isRendered).to.be.false;
+      expect(onDestroyStub.mock.results.at(-1).value.isRendered).toBe(false);
     });
 
     it('should be marked destroyed', function() {
-      expect(view.isDestroyed()).to.be.true;
+      expect(view.isDestroyed()).toBe(true);
     });
 
     it('should be marked not rendered', function() {
-      expect(view.isRendered()).to.be.false;
+      expect(view.isRendered()).toBe(false);
     });
   });
 

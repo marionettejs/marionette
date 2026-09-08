@@ -54,10 +54,10 @@ describe('Radio', function() {
 
   it('forwards event and request methods through the top-level API', function() {
     const channel = Radio.channel('foo');
-    expect(Radio.bind).to.be.undefined;
-    expect(Radio.unbind).to.be.undefined;
-    expect(channel.bind).to.be.undefined;
-    expect(channel.unbind).to.be.undefined;
+    expect(Radio.bind).toBeUndefined();
+    expect(Radio.unbind).toBeUndefined();
+    expect(channel.bind).toBeUndefined();
+    expect(channel.unbind).toBeUndefined();
 
     const methods = [
       'on',
@@ -142,7 +142,7 @@ describe('Radio', function() {
     Radio.replyOnce('foo', 'bar', handler);
 
     expect(Radio.request('foo', 'bar')).to.equal('once');
-    expect(Radio.request('foo', 'bar')).to.be.undefined;
+    expect(Radio.request('foo', 'bar')).toBeUndefined();
     expect(handler).toHaveBeenCalledTimes(1);
   });
 
@@ -155,7 +155,7 @@ describe('Radio', function() {
     expect(Radio.request('foo', 'bar')).to.equal('bar');
 
     Radio.stopReplying('foo', 'bar', handler, context);
-    expect(Radio.request('foo', 'bar')).to.be.undefined;
+    expect(Radio.request('foo', 'bar')).toBeUndefined();
   });
 
   it('leaves replies in place when stop filters do not match', function() {
@@ -176,8 +176,8 @@ describe('Radio', function() {
     Radio.reply('foo', 'bar baz', handler);
     Radio.stopReplying('foo', null, handler);
 
-    expect(Radio.request('foo', 'bar')).to.be.undefined;
-    expect(Radio.request('foo', 'baz')).to.be.undefined;
+    expect(Radio.request('foo', 'bar')).toBeUndefined();
+    expect(Radio.request('foo', 'baz')).toBeUndefined();
   });
 
   it('returns the channel when stopping replies before any are registered', function() {
@@ -191,7 +191,7 @@ describe('Radio', function() {
 
     Radio.stopReplying('foo');
 
-    expect(Radio.request('foo', 'bar')).to.be.undefined;
+    expect(Radio.request('foo', 'bar')).toBeUndefined();
   });
 
   it('logs tuned in events and requests', function() {

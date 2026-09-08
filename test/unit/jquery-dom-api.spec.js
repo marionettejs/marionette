@@ -5,8 +5,8 @@ import {
   CollectionView,
   Region,
   View
-} from '../../src/index';
-import JQueryDomApi from '../../packages/adapters/src/dom/jquery';
+} from 'marionette';
+import JQueryDomApi from '@marionette/adapters/dom/jquery';
 
 describe('jQuery DomApi adapter', function() {
   it('allows the core ESM graph to bundle without circular dependencies or importing jQuery', async function() {
@@ -35,7 +35,7 @@ describe('jQuery DomApi adapter', function() {
 
     await bundle.close();
 
-    expect(warnings).to.be.empty;
+    expect(warnings).toHaveLength(0);
   });
 
   it('does not create $el with the native DomApi', function() {
@@ -81,7 +81,7 @@ describe('jQuery DomApi adapter', function() {
     child.click();
 
     expect(parent.childNodes).to.have.length(0);
-    expect(document.body.contains(child)).to.be.false;
+    expect(document.body.contains(child)).toBe(false);
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
@@ -93,7 +93,7 @@ describe('jQuery DomApi adapter', function() {
 
     JQueryDomApi.setContents(el, '<strong class="new">New</strong>');
 
-    expect(el.querySelector('.old')).to.be.null;
+    expect(el.querySelector('.old')).toBeNull();
     expect(el.querySelector('.new').textContent).to.equal('New');
   });
 

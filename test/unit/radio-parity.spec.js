@@ -142,7 +142,7 @@ describe('Radio differences from published Backbone.Radio 2.0.0', function() {
     BackboneRadio.reset();
     try {
       expect(cancel(BackboneRadio)).to.equal('once');
-      expect(cancel(createRadio())).to.be.undefined;
+      expect(cancel(createRadio())).toBeUndefined();
     } finally {
       BackboneRadio.reset();
     }

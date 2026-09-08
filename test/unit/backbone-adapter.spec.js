@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeAll as before } from 'vitest';
 import '../setup/backbone.js';
 import Backbone from 'backbone';
-import { createMarionette } from '../../src/index.ts';
+import { createMarionette } from 'marionette';
 
 describe('Backbone adapter', function() {
   let BackboneApi;
@@ -26,7 +26,7 @@ describe('Backbone adapter', function() {
     const onNameChange = (...args) => listenerRegisteredBeforeImport.push(args);
     modelCreatedBeforeImport.on('change:name', onNameChange);
 
-    BackboneApi = (await import('../../packages/adapters/src/data/backbone.ts')).default;
+    BackboneApi = (await import('@marionette/adapters/backbone')).default;
   });
 
   it('exports one combined StateApi and DataApi adapter', function() {
@@ -49,7 +49,7 @@ describe('Backbone adapter', function() {
       expect(Backbone[name]).to.equal(Constructor);
       expect(Object.getOwnPropertyDescriptors(Constructor.prototype))
         .to.deep.equal(prototypeDescriptors[name]);
-      expect(Constructor.prototype.triggerMethod).to.be.undefined;
+      expect(Constructor.prototype.triggerMethod).toBeUndefined();
       expect(Constructor.prototype.bind).to.equal(prototypeDescriptors[name].bind?.value);
       expect(Constructor.prototype.unbind).to.equal(prototypeDescriptors[name].unbind?.value);
     });
@@ -128,8 +128,8 @@ describe('Backbone adapter', function() {
     expect(calls[2].slice(0, 3)).to.deep.equal(['state', state, true]);
     expect(calls.map(call => call[3])).to.satisfy(options =>
       options.every(option => option && typeof option === 'object'));
-    expect(model.triggerMethod).to.be.undefined;
-    expect(collection.triggerMethod).to.be.undefined;
+    expect(model.triggerMethod).toBeUndefined();
+    expect(collection.triggerMethod).toBeUndefined();
 
     view.destroy();
     owner.destroy();

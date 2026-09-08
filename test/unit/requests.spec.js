@@ -121,14 +121,14 @@ describe('Requests', function() {
 
     it('removes the reply before invoking it and returns the first result once', function(testContext) {
       const callback = vi.fn().mockImplementation(() => {
-        expect(testContext.requests.request('foo')).to.be.undefined;
+        expect(testContext.requests.request('foo')).toBeUndefined();
         return 'once';
       });
 
       expect(testContext.requests.replyOnce('foo', callback)).to.equal(testContext.requests);
 
       expect(testContext.requests.request('foo', 1)).to.equal('once');
-      expect(testContext.requests.request('foo', 2)).to.be.undefined;
+      expect(testContext.requests.request('foo', 2)).toBeUndefined();
       expect(callback).toHaveBeenCalledTimes(1);
       expect(callback.mock.contexts).toContain(testContext.requests);
       expect(callback).toHaveBeenCalledWith(1);
@@ -168,7 +168,7 @@ describe('Requests', function() {
       expect(testContext.requests.request('foo')).to.equal('response');
 
       testContext.requests.stopReplying('foo', callback, context);
-      expect(testContext.requests.request('foo')).to.be.undefined;
+      expect(testContext.requests.request('foo')).toBeUndefined();
     });
 
     it('uses the Object.keys captured when the module loads', function(testContext) {
@@ -182,7 +182,7 @@ describe('Requests', function() {
         Object.keys = objectKeys;
       }
 
-      expect(testContext.requests.request('foo')).to.be.undefined;
+      expect(testContext.requests.request('foo')).toBeUndefined();
     });
   });
 
@@ -262,7 +262,7 @@ describe('Requests', function() {
 
       testContext.requests.stopReplying('__proto__');
 
-      expect(testContext.requests.request('__proto__')).to.be.undefined;
+      expect(testContext.requests.request('__proto__')).toBeUndefined();
     });
 
     it('snapshots request-map keys before one value read and recursive call per key', function() {
@@ -432,13 +432,13 @@ describe('Requests', function() {
 
       expect(Object.keys(directReplies)).to.deep.equal(['constructor', 'toString', '__proto__']);
       expect(Object.getPrototypeOf(directReplies)).to.equal(Object.prototype);
-      expect(Object.hasOwn(directReplies, '__proto__')).to.be.true;
+      expect(Object.hasOwn(directReplies, '__proto__')).toBe(true);
       expect(Object.getOwnPropertyDescriptor(directReplies, '__proto__').value)
         .to.equal(protoValue);
       expect(directReplies.constructor).to.equal('constructor');
       expect(directReplies.toString).to.equal('toString');
       expect(Object.getPrototypeOf(nestedReplies)).to.equal(Object.prototype);
-      expect(Object.hasOwn(nestedReplies, '__proto__')).to.be.true;
+      expect(Object.hasOwn(nestedReplies, '__proto__')).toBe(true);
       expect(nestedReplies.first).to.equal(1);
     });
 
@@ -467,7 +467,7 @@ describe('Requests', function() {
       expect(replies).to.not.have.property('hidden');
       expect(replies[symbol]).to.equal('included');
       expect(Object.getPrototypeOf(replies)).to.equal(Object.prototype);
-      expect(Object.hasOwn(replies, '__proto__')).to.be.true;
+      expect(Object.hasOwn(replies, '__proto__')).toBe(true);
       expect(Object.getOwnPropertyDescriptor(replies, '__proto__').value)
         .to.equal(protoValue);
     });
@@ -534,7 +534,7 @@ describe('Requests', function() {
       expect(testContext.requests.request(callableName)).to.equal('response');
       expect(() => testContext.requests.request(function ordinaryName() {})).to.throw(TypeError);
       for (const name of [undefined, null, false, 0, '', 1, 1n]) {
-        expect(testContext.requests.request(name)).to.be.undefined;
+        expect(testContext.requests.request(name)).toBeUndefined();
       }
       expect(() => testContext.requests.request(Symbol('name'))).to.throw(TypeError);
     });

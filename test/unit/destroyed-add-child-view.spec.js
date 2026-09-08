@@ -26,7 +26,7 @@ describe('#addChildView after destruction begins', function() {
     expect(sort).not.toHaveBeenCalled();
     expect(onAdd).not.toHaveBeenCalled();
     expect(parent.children).to.have.lengthOf(0);
-    expect(parent.isDestroyed()).to.be.true;
+    expect(parent.isDestroyed()).toBe(true);
   });
 
   it('ignores queued reorder and reset notifications after a public callback destroys the owner', function() {
@@ -43,7 +43,7 @@ describe('#addChildView after destruction begins', function() {
     });
 
     expect(() => collection.trigger('sort', collection)).not.to.throw();
-    expect(parent.isDestroyed()).to.be.true;
+    expect(parent.isDestroyed()).toBe(true);
     expect(parent.children).to.have.lengthOf(0);
     expect(added).not.toHaveBeenCalled();
   });
@@ -107,7 +107,7 @@ describe('#addChildView after destruction begins', function() {
 
     const liveOwner = new CollectionView({ template: false });
     expect(liveOwner.addChildView(child)).to.equal(child);
-    expect(liveOwner.children.hasView(child)).to.be.true;
+    expect(liveOwner.children.hasView(child)).toBe(true);
     expect(state(child)).to.deep.equal({ attached: false, destroyed: false, rendered: true });
     liveOwner.destroy();
   });
@@ -140,7 +140,7 @@ describe('#addChildView after destruction begins', function() {
     parent.on('before:add:child', beforeAdd);
     parent.on('add:child', add);
 
-    expect(parent.addChildView()).to.be.undefined;
+    expect(parent.addChildView()).toBeUndefined();
     for (const args of [
       [child],
       [child],
@@ -165,7 +165,7 @@ describe('#addChildView after destruction begins', function() {
 
     const liveOwner = new CollectionView({ template: false });
     expect(liveOwner.addChildView(child)).to.equal(child);
-    expect(liveOwner.children.hasView(child)).to.be.true;
+    expect(liveOwner.children.hasView(child)).toBe(true);
     expect(state(child)).to.deep.equal({ attached: false, destroyed: false, rendered: true });
 
     liveOwner.destroy();

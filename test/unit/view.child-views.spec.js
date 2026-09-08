@@ -68,7 +68,7 @@ describe('layoutView', function() {
     it('unregisters a region from its owner when the region is destroyed', function(testContext) {
       expect(testContext.regionOne.getOwner()).to.equal(testContext.layoutViewManager);
       testContext.regionOne.destroy();
-      expect(testContext.layoutViewManager.hasRegion('regionOne')).to.be.false;
+      expect(testContext.layoutViewManager.hasRegion('regionOne')).toBe(false);
     });
   });
 
@@ -82,7 +82,7 @@ describe('layoutView', function() {
     });
 
     it('should instantiate the specified region managers', function(testContext) {
-      expect(testContext.init).not.to.throw;
+      expect(testContext.init).not.toThrow();
     });
   });
 
@@ -128,7 +128,7 @@ describe('layoutView', function() {
     it('should pass extra options to the custom regionClass', function(testContext) {
       expect(testContext.layoutViewManager.getRegion('regionTwo')).to.have.property('options');
       expect(testContext.layoutViewManager.getRegion('regionTwo').options).to.have.property('specialOption');
-      expect(testContext.layoutViewManager.getRegion('regionTwo').options.specialOption).to.be.ok;
+      expect(testContext.layoutViewManager.getRegion('regionTwo').options.specialOption).toBeTruthy();
     });
   });
 
@@ -180,11 +180,11 @@ describe('layoutView', function() {
     });
 
     it('should not be rendered when "onBeforeRender" is called', function(testContext) {
-      expect(testContext.layoutViewManager.onBeforeRender.mock.results.at(-1).value).not.to.be.ok;
+      expect(testContext.layoutViewManager.onBeforeRender.mock.results.at(-1).value).not.toBeTruthy();
     });
 
     it('should be rendered when "onRender" is called', function(testContext) {
-      expect(testContext.layoutViewManager.onRender.mock.results.at(-1).value).to.be.true;
+      expect(testContext.layoutViewManager.onRender.mock.results.at(-1).value).toBe(true);
     });
 
     it('should trigger a "before:render" event', function(testContext) {
@@ -196,7 +196,7 @@ describe('layoutView', function() {
     });
 
     it('should be marked rendered', function(testContext) {
-      expect(testContext.layoutViewManager.isRendered()).to.be.true;
+      expect(testContext.layoutViewManager.isRendered()).toBe(true);
     });
   });
 
@@ -235,8 +235,8 @@ describe('layoutView', function() {
     });
 
     it('should delete the region managers', function(testContext) {
-      expect(testContext.layoutViewManager.getRegion('regionOne')).to.be.undefined;
-      expect(testContext.layoutViewManager.getRegion('regionTwo')).to.be.undefined;
+      expect(testContext.layoutViewManager.getRegion('regionOne')).toBeUndefined();
+      expect(testContext.layoutViewManager.getRegion('regionTwo')).toBeUndefined();
     });
 
     it('should return the view', function(testContext) {
@@ -244,15 +244,15 @@ describe('layoutView', function() {
     });
 
     it('should remove itself from the DOM before destroying child regions by default', function(testContext) {
-      expect(testContext.regionOneView.hadParent).to.be.false;
+      expect(testContext.regionOneView.hadParent).toBe(false);
     });
 
     it('should be marked destroyed', function(testContext) {
-      expect(testContext.layoutViewManager.isDestroyed()).to.be.true;
+      expect(testContext.layoutViewManager.isDestroyed()).toBe(true);
     });
 
     it('should be marked not rendered', function(testContext) {
-      expect(testContext.layoutViewManager.isRendered()).to.be.false;
+      expect(testContext.layoutViewManager.isRendered()).toBe(false);
     });
   });
 
@@ -327,7 +327,7 @@ describe('layoutView', function() {
       });
 
       it('should not return a childView if it was already detached', function(testContext) {
-        expect(testContext.noDetachedView).to.be.undefined;
+        expect(testContext.noDetachedView).toBeUndefined();
       });
     });
   });
@@ -352,11 +352,11 @@ describe('layoutView', function() {
     });
 
     it('should make the regions available in `onRender`', function(testContext) {
-      expect(testContext.regionOne).to.exist;
+      expect(testContext.regionOne).to.not.equal(null).and.not.equal(undefined);
     });
 
     it('the regions should find their elements in `onRender`', function(testContext) {
-      expect(testContext.regionOne.el).to.exist;
+      expect(testContext.regionOne.el).to.not.equal(null).and.not.equal(undefined);
     });
 
     it('should return the region after showing a view in a region', function(testContext) {
@@ -452,7 +452,7 @@ describe('layoutView', function() {
 
     it('triggers "before:render" before emptying the regions', function(testContext) {
       let cb = function() {
-        expect(this.region.el).to.exist;
+        expect(this.region.el).to.not.equal(null).and.not.equal(undefined);
       };
       testContext.layoutView.listenTo(testContext.layoutView, 'before:render', cb.bind(testContext));
       testContext.layoutView.render();
@@ -516,13 +516,13 @@ describe('layoutView', function() {
     });
 
     it('should lookup and set the regions', function(testContext) {
-      expect(testContext.layoutView.getRegion('is')).to.exist;
-      expect(testContext.layoutView.getRegion('war')).to.exist;
+      expect(testContext.layoutView.getRegion('is')).to.not.equal(null).and.not.equal(undefined);
+      expect(testContext.layoutView.getRegion('war')).to.not.equal(null).and.not.equal(undefined);
     });
 
     it('should lookup and set the regions when passed a function', function(testContext) {
-      expect(testContext.layoutView2.getRegion('is')).to.exist;
-      expect(testContext.layoutView2.getRegion('war')).to.exist;
+      expect(testContext.layoutView2.getRegion('is')).to.not.equal(null).and.not.equal(undefined);
+      expect(testContext.layoutView2.getRegion('war')).to.not.equal(null).and.not.equal(undefined);
     });
 
     it('should set custom region classes', function(testContext) {
@@ -553,13 +553,13 @@ describe('layoutView', function() {
     });
 
     it('should apply the relevant @ui. syntax selector to a simple string value', function(testContext) {
-      expect(testContext.layoutView.getRegion('war')).to.exist;
+      expect(testContext.layoutView.getRegion('war')).to.not.equal(null).and.not.equal(undefined);
     });
     it('should apply the relevant @ui. syntax selector to selector in a region definition object', function(testContext) {
-      expect(testContext.layoutView.getRegion('mario')).to.exist;
+      expect(testContext.layoutView.getRegion('mario')).to.not.equal(null).and.not.equal(undefined);
     });
     it('should apply the relevant @ui. syntax selector to el in a region definition object', function(testContext) {
-      expect(testContext.layoutView.getRegion('princess')).to.exist;
+      expect(testContext.layoutView.getRegion('princess')).to.not.equal(null).and.not.equal(undefined);
     });
   });
 
@@ -606,7 +606,7 @@ describe('layoutView', function() {
         const region = testContext.layoutViewInstance.getRegion('regionOne');
         region.show(new Marionette.View({ template: false }));
         const regionEl = region.el;
-        expect(regionEl).to.exist;
+        expect(regionEl).to.not.equal(null).and.not.equal(undefined);
         expect(regionEl).to.equal(testContext.$inScopeRegion[0]);
         expect(regionEl).to.not.equal(testContext.$outOfScopeRegion[0]);
       });

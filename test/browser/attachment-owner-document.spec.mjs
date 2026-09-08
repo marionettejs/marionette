@@ -9,12 +9,12 @@ for (const imported of [false, true]) {
         let parentAttach = 0;
         let childAttach = 0;
 
-        const Child = Marionette.View.extend({
+        const Child = window.Marionette.View.extend({
           el: childElement,
           template: false,
           onAttach() { childAttach += 1; }
         });
-        const Parent = Marionette.View.extend({
+        const Parent = window.Marionette.View.extend({
           el: element,
           template: false,
           regions: { child: selector },
@@ -33,7 +33,7 @@ for (const imported of [false, true]) {
           childAttach
         };
 
-        const region = new Marionette.Region({ el: '#content' });
+        const region = new window.Marionette.Region({ el: '#content' });
         region.show(parent);
 
         const outcome = {

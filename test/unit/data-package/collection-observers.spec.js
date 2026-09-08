@@ -1,6 +1,6 @@
 import { vi, describe, it, expect } from 'vitest';
 import Backbone from 'backbone';
-import { Collection, DataApi } from '../../../packages/data/src/index.ts';
+import { Collection, DataApi } from '@marionette/data';
 
 describe('@marionette/data collection notifications', function() {
   it('uses the public event stream in registration order', function() {

@@ -29,7 +29,7 @@ describe('onceWrap', function() {
     const offCallback = vi.fn().mockImplementation(() => onceCallback());
     const onceCallback = onceWrap(callback, offCallback);
 
-    expect(onceCallback()).to.be.undefined;
+    expect(onceCallback()).toBeUndefined();
     expect(offCallback).toHaveBeenCalledTimes(1);
     expect(callback).toHaveBeenCalledTimes(1);
   });
@@ -40,7 +40,7 @@ describe('onceWrap', function() {
     const onceCallback = onceWrap(callback, () => { throw error; });
 
     expect(() => onceCallback()).to.throw(error);
-    expect(onceCallback()).to.be.undefined;
+    expect(onceCallback()).toBeUndefined();
     expect(callback).not.toHaveBeenCalled();
   });
 
@@ -50,7 +50,7 @@ describe('onceWrap', function() {
     const onceCallback = onceWrap(() => { throw error; }, offCallback);
 
     expect(() => onceCallback()).to.throw(error);
-    expect(onceCallback()).to.be.undefined;
+    expect(onceCallback()).toBeUndefined();
     expect(offCallback).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,7 +1,7 @@
 import { vi, describe, it, expect } from 'vitest';
-import Behavior from '../../src/modules/behavior';
-import CollectionView from '../../src/modules/collection-view';
-import View from '../../src/modules/view';
+import { Behavior } from 'marionette';
+import { CollectionView } from 'marionette';
+import { View } from 'marionette';
 import { MarionetteError } from '@marionette/utils';
 
 describe('#bindUIElements terminal behavior', function() {
@@ -88,8 +88,8 @@ describe('#bindUIElements terminal behavior', function() {
 
       tracked.view.destroy();
 
-      expect(hostWasUnbound).to.be.true;
-      expect(behaviorWasUnbound).to.be.true;
+      expect(hostWasUnbound).toBe(true);
+      expect(behaviorWasUnbound).toBe(true);
     });
 
     it(`continues to bind ${ name } and attached Behavior UI while live`, function(testContext) {

@@ -7,7 +7,7 @@ for (const name of ['unsorted', 'default collection order', 'custom comparator',
     await page.addScriptTag({ url: '/backbone.js' });
     const result = await page.evaluate(async scenarioName => {
       const { default: BackboneApi } = await import('@marionette/adapters/backbone');
-      Marionette.setDataApi(BackboneApi);
+      window.Marionette.setDataApi(BackboneApi);
 
       class SurvivorElement extends HTMLElement {
         connectedCallback() {
@@ -25,7 +25,7 @@ for (const name of ['unsorted', 'default collection order', 'custom comparator',
 
       customElements.define('mn-survivor', SurvivorElement);
 
-      const ChildView = Marionette.View.extend({
+      const ChildView = window.Marionette.View.extend({
         tagName: 'mn-survivor',
 
         template() {
@@ -44,21 +44,21 @@ for (const name of ['unsorted', 'default collection order', 'custom comparator',
         'custom comparator': { viewComparator: child => child.model.id },
         'active filter': { viewFilter: () => true },
         'sort override': {
-          sort() { return Marionette.CollectionView.prototype.sort.call(this); }
+          sort() { return window.Marionette.CollectionView.prototype.sort.call(this); }
         }
       }[scenarioName];
       let attachCount = 0;
-      const TestCollectionView = Marionette.CollectionView.extend({
+      const TestCollectionView = window.Marionette.CollectionView.extend({
         childView: ChildView,
         ...viewOptions,
 
         attachHtml() {
           attachCount += 1;
-          return Marionette.CollectionView.prototype.attachHtml.apply(this, arguments);
+          return window.Marionette.CollectionView.prototype.attachHtml.apply(this, arguments);
         }
       });
 
-      const collection = new Backbone.Collection(
+      const collection = new window.Backbone.Collection(
         Array.from({ length: 1001 }, (value, id) => ({ id }))
       );
       const collectionView = new TestCollectionView({ collection });

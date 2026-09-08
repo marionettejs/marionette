@@ -146,7 +146,7 @@ describe('CollectionView - Filtering', function() {
             .to.deep.equal(Array(expectedLength).fill(mutationCollectionView));
           expect(calls.map(call => call[2])).to.deep.equal([0, 1, 2]);
           expect(calls.every(call => call[3] === calls[0][3]))
-            .to.be.true;
+            .toBe(true);
         } finally {
           mutationCollectionView.destroy();
         }

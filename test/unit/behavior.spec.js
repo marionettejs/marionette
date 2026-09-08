@@ -242,7 +242,7 @@ describe('Behavior', function() {
     });
 
     it('should have a cid', function() {
-      expect(behavior.cid).to.exist;
+      expect(behavior.cid).to.not.equal(null).and.not.equal(undefined);
     });
 
     it('should call initialize when a behavior is created', function() {
@@ -974,7 +974,7 @@ describe('Behavior', function() {
       expect(reset).toHaveBeenCalledTimes(1);
       expect(clicked).toHaveBeenCalledTimes(1);
       expect(rendered).toHaveBeenCalledTimes(1);
-      expect(view.isDestroyed()).to.be.false;
+      expect(view.isDestroyed()).toBe(false);
       view.destroy();
     });
 

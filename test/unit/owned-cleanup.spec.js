@@ -76,8 +76,8 @@ describe('MnObject and Application owned cleanup', function() {
 
       expect(onPing).toHaveBeenCalledTimes(1);
       expect(onReady).toHaveBeenCalledTimes(1);
-      expect(Radio.request(channelName, 'status')).to.be.undefined;
-      expect(state.isDestroyed()).to.be.true;
+      expect(Radio.request(channelName, 'status')).toBeUndefined();
+      expect(state.isDestroyed()).toBe(true);
       expect(destroyState).toHaveBeenCalledTimes(1);
     });
 

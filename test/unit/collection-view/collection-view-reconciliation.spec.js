@@ -77,9 +77,9 @@ describe('CollectionView normalized reconciliation', function() {
     source.models = [first, third];
     source.notify({ kind: 'update', added: [], removed: [second], updated: [] });
 
-    expect(firstView.isDestroyed()).to.be.false;
-    expect(secondView.isDestroyed()).to.be.true;
-    expect(thirdView.isDestroyed()).to.be.false;
+    expect(firstView.isDestroyed()).toBe(false);
+    expect(secondView.isDestroyed()).toBe(true);
+    expect(thirdView.isDestroyed()).toBe(false);
     view.destroy();
   });
 
@@ -206,7 +206,7 @@ describe('CollectionView normalized reconciliation', function() {
     const currentChild = view.children.findByModel(current);
     const currentBehavior = behaviors.find(behavior => behavior.initialModel === current);
     expect(currentChild).to.not.equal(previousChild);
-    expect(previousChild.isDestroyed()).to.be.true;
+    expect(previousChild.isDestroyed()).toBe(true);
     expect(currentChild.model).to.equal(current);
     expect(currentChild.optionsModel).to.equal(current);
     expect(currentChild.initializedModel).to.equal(current);
@@ -215,7 +215,7 @@ describe('CollectionView normalized reconciliation', function() {
     expect(currentChild.renderCount).to.equal(1);
     expect(currentChild.el.querySelector('input').value).to.equal('after');
     expect(view.children.toArray().map(child => child.model)).to.deep.equal([current, sibling]);
-    expect(previousInput.isConnected).to.be.false;
+    expect(previousInput.isConnected).toBe(false);
     expect(document.activeElement).to.not.equal(previousInput);
     expect(lifecycle).to.deep.equal([
       'before:remove:before',
@@ -304,11 +304,11 @@ describe('CollectionView normalized reconciliation', function() {
       })).to.throw(hookError);
 
       expect(view.children.findByModel(first)).to.equal(originalChild);
-      expect(originalChild.isDestroyed()).to.be.false;
+      expect(originalChild.isDestroyed()).toBe(false);
       source.notify({ kind: 'reset' });
       expect(view.children.toArray().map(child => child.model))
         .to.deep.equal(isReplacement ? [replacement] : []);
-      expect(originalChild.isDestroyed()).to.be.true;
+      expect(originalChild.isDestroyed()).toBe(true);
       view.destroy();
     });
   });
@@ -324,7 +324,7 @@ describe('CollectionView normalized reconciliation', function() {
     source.models = [replacement];
     source.notify({ kind: 'reset' });
 
-    expect(firstView.isDestroyed()).to.be.true;
+    expect(firstView.isDestroyed()).toBe(true);
     expect(view.children.findByModel(replacement)).to.not.equal(firstView);
     view.destroy();
   });
@@ -368,7 +368,7 @@ describe('CollectionView normalized reconciliation', function() {
       updated: [{ previous, current }]
     });
 
-    expect(previousChild.isDestroyed()).to.be.true;
+    expect(previousChild.isDestroyed()).toBe(true);
     expect(view.children.findByModel(current)).to.not.equal(previousChild);
     view.destroy();
   });
@@ -396,7 +396,7 @@ describe('CollectionView normalized reconciliation', function() {
         });
 
         expect(view.children).to.have.lengthOf(1);
-        expect(view.children.findByModel(current[0])).to.be.undefined;
+        expect(view.children.findByModel(current[0])).toBeUndefined();
         expect(view.children.first().model).to.equal(current[1]);
         expect(view.el.textContent).to.equal('updated two');
         expect(survivor.isDestroyed()).to.equal(replace);
@@ -435,11 +435,11 @@ describe('CollectionView normalized reconciliation', function() {
     });
 
     const currentChild = children[1];
-    expect(previousChild.isDestroyed()).to.be.true;
+    expect(previousChild.isDestroyed()).toBe(true);
     expect(currentChild).to.not.equal(previousChild);
     expect(currentChild.model).to.equal(current);
-    expect(view.children.hasView(currentChild)).to.be.false;
-    expect(currentChild.renderCount).to.be.undefined;
+    expect(view.children.hasView(currentChild)).toBe(false);
+    expect(currentChild.renderCount).toBeUndefined();
     view.destroy();
   });
 
@@ -631,7 +631,7 @@ describe('CollectionView normalized reconciliation', function() {
     source.notify({ kind: 'update', added: [second], removed: [], updated: [] });
 
     const replacementChild = view.children.findByModel(replacement);
-    expect(addedChild.isDestroyed()).to.be.true;
+    expect(addedChild.isDestroyed()).toBe(true);
     expect(replacementChild).to.not.equal(addedChild);
     expect(view.children.toArray().map(child => child.model)).to.deep.equal([first, replacement]);
     expect(view.el.textContent).to.equal('onereplacement');
@@ -666,7 +666,7 @@ describe('CollectionView normalized reconciliation', function() {
       kind: 'update', added: [second], removed: [], updated: []
     })).to.not.throw();
 
-    expect(view.isDestroyed()).to.be.true;
+    expect(view.isDestroyed()).toBe(true);
     expect(thirdBuilds).to.equal(0);
     expect(view.children.length).to.equal(0);
     expect(view.el.textContent).to.equal('');
@@ -716,8 +716,8 @@ describe('CollectionView normalized reconciliation', function() {
     source.models = [first, hidden];
     source.notify({ kind: 'update', added: [hidden], removed: [], updated: [] });
 
-    expect(view.children.hasView(child)).to.be.false;
-    expect(child.renderCount).to.be.undefined;
+    expect(view.children.hasView(child)).toBe(false);
+    expect(child.renderCount).toBeUndefined();
     expect(view.el.textContent).to.equal('one');
     view.destroy();
   });
@@ -801,12 +801,12 @@ describe('CollectionView normalized reconciliation', function() {
 
     view.setFilter(() => false);
     expect(child.el.parentNode).to.equal(view.el);
-    expect(child.isAttached()).to.be.false;
+    expect(child.isAttached()).toBe(false);
 
     view.removeFilter();
 
     expect(view.children.first()).to.equal(child);
-    expect(child.isAttached()).to.be.true;
+    expect(child.isAttached()).toBe(true);
     expect(attached).toHaveBeenCalledTimes(1);
     expect(child.renderCount).to.equal(1);
     region.destroy();
@@ -827,7 +827,7 @@ describe('CollectionView normalized reconciliation', function() {
     source.models = [first];
     source.notify({ kind: 'reset' });
     expect(view.el.textContent).to.equal('one');
-    expect(previous.every(child => child.isDestroyed())).to.be.true;
+    expect(previous.every(child => child.isDestroyed())).toBe(true);
     view.destroy();
   });
 
@@ -864,7 +864,7 @@ describe('CollectionView normalized reconciliation', function() {
 
       expect(move.mock.calls.length).to.equal(name === 'two distant children' ? 2 : 1);
       expect([...view.el.children]).to.deep.equal(source.models.map(model => children[model.id].el));
-      expect(children.every(child => child.renderCount === 1)).to.be.true;
+      expect(children.every(child => child.renderCount === 1)).toBe(true);
       view.destroy();
     });
   });

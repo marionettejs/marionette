@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import View from '../../src/modules/view';
+import { View } from 'marionette';
 
 
 describe('destroying views', function() {

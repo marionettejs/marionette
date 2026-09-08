@@ -12,8 +12,10 @@ npx vitest run --sequence.shuffle --sequence.seed=1234
 
 The Node project covers pure utilities, events, Radio, and data contracts without a
 DOM. The DOM project uses jsdom. Real browser contracts live in `test/browser`.
-Coverage must remain at 100% for statements, branches, functions, and lines. The
-HTML report is `coverage/index.html`.
+Coverage includes every production module. Reviewed defensive-path exceptions
+are capped per file in `config/coverage-exceptions.json`; never manufacture private
+states or exclude code for a score. The HTML report is `coverage/library/index.html`.
+See the [test guide](../README.md) for commands, reports, and release validation.
 
 ## Public contracts
 
@@ -21,8 +23,7 @@ Exercise the published API and assert observable outcomes: return values, public
 state, events, rendered DOM, identity, focus, and released subscriptions. Never
 call, assert, spy on, or stub private library functions or inspect private fields.
 Do not add production exports merely to make implementation details testable.
-Some older specs still need conversion; new and rewritten tests must follow this
-rule. A public refactor should not fail because a private helper changed.
+The boundary checker enforces direct access/import restrictions. A public refactor should not fail because a private helper changed.
 
 Group tests by the contract they protect. Prefer a shallow `describe` hierarchy
 and descriptive outcomes over one test per implementation method. Keep each

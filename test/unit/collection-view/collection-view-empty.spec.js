@@ -38,7 +38,7 @@ describe('CollectionView -  Empty', function() {
 
     it('should be replaceElement: false', function() {
       Region.prototype.replaceElement = true;
-      expect(myCollectionView.getEmptyRegion().replaceElement).to.be.false;
+      expect(myCollectionView.getEmptyRegion().replaceElement).toBe(false);
       Region.prototype.replaceElement = false;
     });
 
@@ -50,7 +50,7 @@ describe('CollectionView -  Empty', function() {
       it('should destroy the region', function() {
         const emptyRegion = myCollectionView.getEmptyRegion();
         myCollectionView.destroy();
-        expect(emptyRegion.isDestroyed()).to.be.true;
+        expect(emptyRegion.isDestroyed()).toBe(true);
       });
     });
   });
@@ -67,7 +67,7 @@ describe('CollectionView -  Empty', function() {
 
       const myCollectionView = new MyInitCollectionView({ collection });
 
-      expect(myCollectionView.getEmptyRegion().hasView()).to.be.true;
+      expect(myCollectionView.getEmptyRegion().hasView()).toBe(true);
     });
   });
 
@@ -192,8 +192,8 @@ describe('CollectionView -  Empty', function() {
           EmptyView = disabled;
           myCollectionView[method]();
 
-          expect(previous.isDestroyed()).to.be.true;
-          expect(emptyRegion.hasView()).to.be.false;
+          expect(previous.isDestroyed()).toBe(true);
+          expect(emptyRegion.hasView()).toBe(false);
           expect(myCollectionView.el.childNodes.length).to.equal(0);
 
           EmptyView = OtherView;
@@ -359,7 +359,7 @@ describe('CollectionView -  Empty', function() {
       expect(() => nonemptyCollection.reset()).not.to.throw();
       expect(emptyView).toHaveBeenCalledTimes(1);
       expect(emptyView.mock.contexts).toContain(myCollectionView);
-      expect(myCollectionView.getEmptyRegion().hasView()).to.be.false;
+      expect(myCollectionView.getEmptyRegion().hasView()).toBe(false);
 
       myCollectionView.destroy();
     });
@@ -445,7 +445,7 @@ describe('CollectionView -  Empty', function() {
       });
 
       it('should not show the emptyView', function() {
-        expect(myCollectionView.getEmptyRegion().hasView()).to.be.false;
+        expect(myCollectionView.getEmptyRegion().hasView()).toBe(false);
       });
 
       describe('when removing one child', function() {
@@ -459,7 +459,7 @@ describe('CollectionView -  Empty', function() {
         });
 
         it('should not show the emptyView', function() {
-          expect(myCollectionView.getEmptyRegion().hasView()).to.be.false;
+          expect(myCollectionView.getEmptyRegion().hasView()).toBe(false);
         });
       });
 
@@ -475,7 +475,7 @@ describe('CollectionView -  Empty', function() {
         });
 
         it('should show the emptyView', function() {
-          expect(myCollectionView.getEmptyRegion().hasView()).to.be.true;
+          expect(myCollectionView.getEmptyRegion().hasView()).toBe(true);
         });
       });
     });
@@ -495,7 +495,7 @@ describe('CollectionView -  Empty', function() {
       });
 
       it('should show the emptyView', function() {
-        expect(myCollectionView.getEmptyRegion().hasView()).to.be.true;
+        expect(myCollectionView.getEmptyRegion().hasView()).toBe(true);
       });
     });
 
@@ -517,7 +517,7 @@ describe('CollectionView -  Empty', function() {
       });
 
       it('should not show the emptyView', function() {
-        expect(myCollectionView.getEmptyRegion().hasView()).to.be.false;
+        expect(myCollectionView.getEmptyRegion().hasView()).toBe(false);
       });
     });
 
@@ -537,7 +537,7 @@ describe('CollectionView -  Empty', function() {
       });
 
       it('should show the emptyView', function() {
-        expect(myCollectionView.getEmptyRegion().hasView()).to.be.true;
+        expect(myCollectionView.getEmptyRegion().hasView()).toBe(true);
       });
     });
   });

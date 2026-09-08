@@ -83,7 +83,7 @@ describe('View lifecycle contract', function() {
     parent.on('attach', parentAttach);
     child.on('attach', childAttach);
 
-    expect(root.ownerDocument.documentElement).to.be.null;
+    expect(root.ownerDocument.documentElement).toBeNull();
     expect(state(parent)).to.deep.equal({ rendered: true, attached: false, destroyed: false });
 
     parent.showChildView('child', child);
@@ -133,7 +133,7 @@ describe('View lifecycle contract', function() {
 
     expect(view.render()).to.equal(view);
     expect(view.render()).to.equal(view);
-    expect(view.hasRegion('child')).to.be.false;
+    expect(view.hasRegion('child')).toBe(false);
 
     expect(getTemplate).not.toHaveBeenCalled();
     expect(template).not.toHaveBeenCalled();
@@ -289,8 +289,8 @@ describe('View lifecycle contract', function() {
 
     expect(state(parent)).to.deep.equal({ rendered: false, attached: false, destroyed: true });
     expect(state(child)).to.deep.equal({ rendered: false, attached: false, destroyed: true });
-    expect(region.hasView()).to.be.false;
-    expect(region.currentView).to.be.undefined;
+    expect(region.hasView()).toBe(false);
+    expect(region.currentView).toBeUndefined();
 
     for (const callback of Object.values(lifecycle)) {
       expect(callback).toHaveBeenCalledTimes(1);
@@ -340,7 +340,7 @@ describe('View lifecycle contract', function() {
       attached: false,
       destroyed: false,
     });
-    expect(region.detachView()).to.be.undefined;
+    expect(region.detachView()).toBeUndefined();
 
     region.show(view);
     expect(state(view)).to.deep.equal({

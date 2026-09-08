@@ -15,7 +15,7 @@ test('root attribute refresh preserves browser state', async({ umdPage: page, br
 
     customElements.define('mn-attribute-row', AttributeRowElement);
 
-    const AttributeView = Marionette.View.extend({
+    const AttributeView = window.Marionette.View.extend({
       tagName: 'mn-attribute-row',
 
       attributes() {
@@ -89,7 +89,7 @@ test('root attribute refresh preserves browser state', async({ umdPage: page, br
     host.setAttribute('data-external', 'keep');
     host.setAttribute('title', 'host title');
     host.disabled = true;
-    const HostView = Marionette.View.extend({
+    const HostView = window.Marionette.View.extend({
       attributes: { title: undefined, disabled: null, 'aria-pressed': false }
     });
     const hostView = new HostView({ el: host });

@@ -9,9 +9,9 @@ describe('setProperty', function() {
     setProperty(target, '__proto__', value);
 
     expect(Object.getPrototypeOf(target)).to.equal(Object.prototype);
-    expect(Object.hasOwn(target, '__proto__')).to.be.true;
+    expect(Object.hasOwn(target, '__proto__')).toBe(true);
     expect(Reflect.get(target, '__proto__')).to.equal(value);
-    expect({}.polluted).to.be.undefined;
+    expect({}.polluted).toBeUndefined();
   });
 
 });

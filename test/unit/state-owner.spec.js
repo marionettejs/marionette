@@ -113,7 +113,7 @@ describe('state source composition', function() {
     expect(secondHandler).toHaveBeenCalledTimes(2);
     expect(source.listeners.get('changed')).to.have.lengthOf(1);
     second.destroy();
-    expect(source.listeners.get('changed')).to.be.empty;
+    expect(source.listeners.get('changed')).toHaveLength(0);
   });
 
   it('releases owned subscriptions before disposing the owned source exactly once', function() {
@@ -164,7 +164,7 @@ describe('state source composition', function() {
     Owner.setStateApi({ subscribe });
     const owner = new Owner();
 
-    expect(owner.isDestroyed()).to.be.true;
+    expect(owner.isDestroyed()).toBe(true);
     expect(subscribe).not.toHaveBeenCalled();
   });
 
@@ -245,8 +245,8 @@ describe('state source composition', function() {
   });
 
   it('does not compose state into Region', function() {
-    expect(Region.prototype.getState).to.be.undefined;
-    expect(Region.setStateApi).to.be.undefined;
+    expect(Region.prototype.getState).toBeUndefined();
+    expect(Region.setStateApi).toBeUndefined();
   });
 
   it('isolates class-level StateApi configuration', function() {

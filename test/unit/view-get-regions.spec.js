@@ -204,7 +204,7 @@ describe('View#emptyRegions', function() {
     expect(empty.mock.calls.at(1)).to.deep.equal([]);
     expect(view.render).toHaveBeenCalledBefore(view.getRegions);
     expect(view.getRegions).toHaveBeenCalledBefore(empty);
-    expect(view.isRendered()).to.be.true;
+    expect(view.isRendered()).toBe(true);
     expect(view.$('.content')[0].innerHTML).to.equal('');
     expect(view.$('.late')[0].innerHTML).to.equal('');
 
@@ -223,7 +223,7 @@ describe('View#emptyRegions', function() {
     expect(() => view.emptyRegions()).to.throw(error);
     expect(getRegions).not.toHaveBeenCalled();
     expect(region.empty).not.toHaveBeenCalled();
-    expect(view.isRendered()).to.be.false;
+    expect(view.isRendered()).toBe(false);
 
     view.destroy();
   });
@@ -253,7 +253,7 @@ describe('View#emptyRegions', function() {
     expect(getRegions.mock.contexts).toContain(view);
     expect(getRegions).toHaveBeenCalledWith();
     expect(region.empty).not.toHaveBeenCalled();
-    expect(view.isRendered()).to.be.true;
+    expect(view.isRendered()).toBe(true);
 
     view.destroy();
   });

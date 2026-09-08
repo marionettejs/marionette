@@ -261,7 +261,7 @@ describe('CollectionView Children', function() {
 
         expect(myCollectionView.children.toArray()).to.deep.equal([...previousChildren, addView]);
         if (indexOrOptions?.preventRender) {
-          expect(addView.isRendered()).to.be.false;
+          expect(addView.isRendered()).toBe(false);
           myCollectionView.sort();
         }
         expect(Array.from(myCollectionView.el.children)).to.deep.equal(
@@ -515,16 +515,16 @@ describe('CollectionView Children', function() {
         expect(() => region.show(child)).to.throw()
           .with.property('code', 'MN0003');
         expect(owner.children.hasView(child)).to.equal(deferred);
-        expect(myCollectionView.children.hasView(child)).to.be.false;
-        expect(region.hasView()).to.be.false;
+        expect(myCollectionView.children.hasView(child)).toBe(false);
+        expect(region.hasView()).toBe(false);
 
         owner.detachChildView(child);
         region.show(child);
         owner.destroy();
-        expect(child.isDestroyed()).to.be.false;
+        expect(child.isDestroyed()).toBe(false);
         region.detachView();
         myCollectionView.addChildView(child);
-        expect(myCollectionView.children.hasView(child)).to.be.true;
+        expect(myCollectionView.children.hasView(child)).toBe(true);
         region.destroy();
         myCollectionView.destroy();
       });
@@ -536,7 +536,7 @@ describe('CollectionView Children', function() {
 
         owner.destroy();
 
-        expect(child.isDestroyed()).to.be.true;
+        expect(child.isDestroyed()).toBe(true);
         expect(myCollectionView.children.hasView(child)).toBe(false);
       });
     });
@@ -614,7 +614,7 @@ describe('CollectionView Children', function() {
     });
 
     it('should destroy the removed view', function() {
-      expect(removeView.isDestroyed()).to.be.true;
+      expect(removeView.isDestroyed()).toBe(true);
     });
 
     it('removes the child from public lookups', function() { expect(myCollectionView.children.hasView(removeView)).toBe(false); expect(myCollectionView.children.findByCid(removeView.cid)).toBeUndefined(); });
@@ -654,9 +654,9 @@ describe('CollectionView Children', function() {
       myCollectionView.removeChildView(sameCidImpostor);
       myCollectionView.detachChildView(inheritedCidImpostor);
 
-      expect(sameCidImpostor.isDestroyed()).to.be.false;
-      expect(inheritedCidImpostor.isDestroyed()).to.be.false;
-      expect(ownedView.isDestroyed()).to.be.false;
+      expect(sameCidImpostor.isDestroyed()).toBe(false);
+      expect(inheritedCidImpostor.isDestroyed()).toBe(false);
+      expect(ownedView.isDestroyed()).toBe(false);
       expect(myCollectionView.children).to.have.lengthOf(childCount);
       expect(myCollectionView.onBeforeRemoveChild).not.toHaveBeenCalled();
       expect(myCollectionView.onRemoveChild).not.toHaveBeenCalled();
@@ -677,7 +677,7 @@ describe('CollectionView Children', function() {
       });
 
       it('should not destroy the view', function() {
-        expect(detachView.isDestroyed()).to.be.false;
+        expect(detachView.isDestroyed()).toBe(false);
       });
 
       it('should detach the view\'s html', function() {

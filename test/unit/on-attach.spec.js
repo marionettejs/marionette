@@ -351,7 +351,7 @@ describe('onAttach', function() {
 
       it('should trigger onBeforeAttach & onAttach on the footerView', function() {
         expectTriggerMethod(footerView.onBeforeAttach, footerView, false, footerView.onAttach);
-        expect(footerView.onAttach, footerView, true);
+        expectTriggerMethod(footerView.onAttach, footerView, true);
       });
     });
 
@@ -387,7 +387,7 @@ describe('onAttach', function() {
 
       it('should trigger onBeforeAttach & onAttach on the child view', function() {
         expectTriggerMethod(childView.onBeforeAttach, childView, false, childView.onAttach);
-        expect(childView.onAttach, childView, true);
+        expectTriggerMethod(childView.onAttach, childView, true);
       });
     });
   });

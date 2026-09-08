@@ -168,8 +168,8 @@ describe('CollectionView - ViewMixin', function() {
     });
 
     it('should have destroyed all of the children', function() {
-      expect(childOne.isDestroyed()).to.be.true;
-      expect(childTwo.isDestroyed()).to.be.true;
+      expect(childOne.isDestroyed()).toBe(true);
+      expect(childTwo.isDestroyed()).toBe(true);
     });
   });
 });

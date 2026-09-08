@@ -133,7 +133,7 @@ describe('bind-requests', function() {
 
       firstOwner.unbindRequests(realChannel);
 
-      expect(realChannel.request('first')).to.be.undefined;
+      expect(realChannel.request('first')).toBeUndefined();
       expect(realChannel.request('second')).to.equal('second');
       expect(realChannel.request('direct')).to.equal('direct');
     });
@@ -166,7 +166,7 @@ describe('bind-requests', function() {
         replaced: sharedReply
       });
 
-      expect(realChannel.request('remove')).to.be.undefined;
+      expect(realChannel.request('remove')).toBeUndefined();
       expect(realChannel.request('keep')).to.equal('first');
       expect(realChannel.request('replaced')).to.equal('second');
     });

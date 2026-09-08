@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { Collection, DataApi, Model } from '../../../packages/data/src/index.ts';
+import { Collection, DataApi, Model } from '@marionette/data';
 
 describe('@marionette/data Collection', function() {
   let collection;
@@ -51,7 +51,7 @@ describe('@marionette/data Collection', function() {
     expect(update).toHaveBeenCalledTimes(1);
     expect(update.mock.calls.at(0)[1].changes).to.equal(changes[0]);
 
-    expect(collection.add({ id: 3 })).to.be.undefined;
+    expect(collection.add({ id: 3 })).toBeUndefined();
     expect(collection.remove(3)).to.equal(third);
     expect(remove).toHaveBeenCalledTimes(1);
     expect(remove.mock.calls.map(args => args.slice(0, 2))).toContainEqual([third, collection]);
@@ -97,7 +97,7 @@ describe('@marionette/data Collection', function() {
     const custom = new Collection(null, { model: CustomModel });
     const keyless = new CustomModel({ name: 'keyless' });
 
-    expect(custom.add(null)).to.be.undefined;
+    expect(custom.add(null)).toBeUndefined();
     expect(custom.add([])).to.deep.equal([]);
     expect(custom.add([keyless, keyless])).to.deep.equal([keyless]);
     expect(custom.remove([keyless, keyless])).to.deep.equal([keyless]);
@@ -111,10 +111,10 @@ describe('@marionette/data Collection', function() {
     const keyless = new Model({ name: 'keyless' });
     collection.reset([keyless], { silent: true });
 
-    expect(collection.get(null)).to.be.undefined;
-    expect(collection.get(undefined)).to.be.undefined;
-    expect(collection.remove(undefined)).to.be.undefined;
-    expect(collection.move(null, 0)).to.be.undefined;
+    expect(collection.get(null)).toBeUndefined();
+    expect(collection.get(undefined)).toBeUndefined();
+    expect(collection.remove(undefined)).toBeUndefined();
+    expect(collection.move(null, 0)).toBeUndefined();
     expect(collection.models).to.deep.equal([keyless]);
   });
 
@@ -123,7 +123,7 @@ describe('@marionette/data Collection', function() {
     collection.reset([model], { silent: true });
 
     expect(collection.get(NaN)).to.equal(model);
-    expect(collection.add({ id: NaN })).to.be.undefined;
+    expect(collection.add({ id: NaN })).toBeUndefined();
     model.set('name', 'two');
     expect(collection.remove(NaN)).to.equal(model);
   });
@@ -189,7 +189,7 @@ describe('@marionette/data Collection', function() {
     expect(onChangeName.mock.calls.map(args => args.slice(0, 2))).toContainEqual([model, 'ONE']);
     expect(changes).to.deep.equal([]);
     model.destroy();
-    expect(collection.get(1)).to.be.undefined;
+    expect(collection.get(1)).toBeUndefined();
     expect(changes[0].removed).to.deep.equal([model]);
   });
 
@@ -201,8 +201,8 @@ describe('@marionette/data Collection', function() {
 
     model.destroy();
 
-    expect(collection.get(1)).to.be.undefined;
-    expect(other.get(1)).to.be.undefined;
+    expect(collection.get(1)).toBeUndefined();
+    expect(other.get(1)).toBeUndefined();
     expect(changes[0].removed).to.deep.equal([model]);
     expect(otherChanges[0].removed).to.deep.equal([model]);
     stopObserving();
@@ -235,7 +235,7 @@ describe('@marionette/data Collection', function() {
 
     model.destroy(options);
 
-    expect(collection.get(1)).to.be.undefined;
+    expect(collection.get(1)).toBeUndefined();
     expect(remove).not.toHaveBeenCalled();
     expect(changes).to.deep.equal([]);
     expect(destroy).toHaveBeenCalledTimes(1);
@@ -253,8 +253,8 @@ describe('@marionette/data Collection', function() {
 
     model.destroy();
 
-    expect(collection.get(1)).to.be.undefined;
-    expect(other.get(1)).to.be.undefined;
+    expect(collection.get(1)).toBeUndefined();
+    expect(other.get(1)).toBeUndefined();
     expect(changes).to.deep.equal([
       { kind: 'update', added: [], removed: [model], updated: [] }
     ]);
@@ -267,8 +267,8 @@ describe('@marionette/data Collection', function() {
     const first = collection.get(1);
     expect(collection.move(first, 0)).to.equal(first);
     expect(() => collection.move(first, 1.5)).to.throw(TypeError, 'requires an integer index');
-    expect(collection.move('missing', 0)).to.be.undefined;
-    expect(collection.remove('missing')).to.be.undefined;
+    expect(collection.move('missing', 0)).toBeUndefined();
+    expect(collection.remove('missing')).toBeUndefined();
     expect(collection.sort()).to.equal(collection);
     collection.add({ id: 3 }, { silent: true });
     collection.remove(3, { silent: true });
@@ -311,18 +311,18 @@ describe('@marionette/data Collection', function() {
     collection.sort((left, right) => right.id - left.id);
 
     expect(collection.add([])).to.deep.equal([]);
-    expect(collection.remove(1)).to.be.undefined;
+    expect(collection.remove(1)).toBeUndefined();
     expect(collection.remove([1])).to.deep.equal([]);
     expect(collection.reset()).to.equal(collection);
-    expect(collection.move(model, 0)).to.be.undefined;
+    expect(collection.move(model, 0)).toBeUndefined();
     expect(collection.map(entry => entry.id)).to.deep.equal([1, 2]);
 
     expect(destroy).toHaveBeenCalledTimes(1);
     expect(destroy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([collection, { source: 'test' }]);
     expect(modelChange).not.toHaveBeenCalled();
-    expect(collection.isDestroyed()).to.be.true;
+    expect(collection.isDestroyed()).toBe(true);
     expect(changes).to.deep.equal([]);
-    expect(model.isDestroyed()).to.be.false;
+    expect(model.isDestroyed()).toBe(false);
   });
 
 });

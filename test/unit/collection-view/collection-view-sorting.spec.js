@@ -352,7 +352,7 @@ describe('CollectionView - Sorting', function() {
       view.sort();
 
       expect(models).not.toHaveBeenCalled();
-      expect(view.isDestroyed()).to.be.true;
+      expect(view.isDestroyed()).toBe(true);
     });
 
     it('preserves an overridden source comparator', function() {

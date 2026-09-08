@@ -77,19 +77,19 @@ describe('View#hasRegion', function() {
     const html = view.el.innerHTML;
     const getRegion = vi.spyOn(view, 'getRegion');
 
-    expect(view.hasRegion('content')).to.be.true;
-    expect(view.hasRegion('constructor')).to.be.true;
-    expect(view.hasRegion('toString')).to.be.true;
-    expect(view.hasRegion('__proto__')).to.be.true;
-    expect(view.hasRegion('inherited')).to.be.false;
-    expect(view.hasRegion('valueOf')).to.be.false;
-    expect(view.hasRegion('missing')).to.be.false;
+    expect(view.hasRegion('content')).toBe(true);
+    expect(view.hasRegion('constructor')).toBe(true);
+    expect(view.hasRegion('toString')).toBe(true);
+    expect(view.hasRegion('__proto__')).toBe(true);
+    expect(view.hasRegion('inherited')).toBe(false);
+    expect(view.hasRegion('valueOf')).toBe(false);
+    expect(view.hasRegion('missing')).toBe(false);
     expect(getRegion).not.toHaveBeenCalled();
 
     const dynamicRegion = view.addRegion('dynamic', '.dynamic');
-    expect(view.hasRegion('dynamic')).to.be.true;
+    expect(view.hasRegion('dynamic')).toBe(true);
     expect(view.removeRegion('dynamic')).to.equal(dynamicRegion);
-    expect(view.hasRegion('dynamic')).to.be.false;
+    expect(view.hasRegion('dynamic')).toBe(false);
 
     expectNoRenderSideEffects(tracked, {
       attached: false,
@@ -110,8 +110,8 @@ describe('View#hasRegion', function() {
     view.el.append(sentinel);
     const html = view.el.innerHTML;
 
-    expect(view.hasRegion('content')).to.be.false;
-    expect(view.hasRegion('missing')).to.be.false;
+    expect(view.hasRegion('content')).toBe(false);
+    expect(view.hasRegion('missing')).toBe(false);
 
     expectNoRenderSideEffects(tracked, {
       attached: false,

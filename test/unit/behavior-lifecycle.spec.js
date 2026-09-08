@@ -3,10 +3,10 @@ import { setFixtures } from '../setup/fixtures.js';
 import '../setup/backbone.js';
 import Backbone from 'backbone';
 
-import Behavior from '../../src/modules/behavior';
-import CollectionView from '../../src/modules/collection-view';
-import Region from '../../src/modules/region';
-import View from '../../src/modules/view';
+import { Behavior } from 'marionette';
+import { CollectionView } from 'marionette';
+import { Region } from 'marionette';
+import { View } from 'marionette';
 
 describe('Behavior lifecycle contract', function() {
   it('initializes around its host View in public lifecycle order', function() {
@@ -137,14 +137,14 @@ describe('Behavior lifecycle contract', function() {
       const view = new TestView({ model });
       model.trigger('ping');
 
-      expect(view.isDestroyed()).to.be.true;
+      expect(view.isDestroyed()).toBe(true);
       expect(lifecycle).to.deep.equal([
         'view:initialize',
         'behavior:onDestroy',
       ]);
       expect(onModelEvent).not.toHaveBeenCalled();
       if (view instanceof CollectionView) {
-        expect(view.getEmptyRegion().isDestroyed()).to.be.true;
+        expect(view.getEmptyRegion().isDestroyed()).toBe(true);
       }
     });
   });
@@ -440,11 +440,11 @@ describe('Behavior lifecycle contract', function() {
         behaviors.push(this);
       },
       onBeforeDestroy(view) {
-        expect(view.isDestroyed()).to.be.false;
+        expect(view.isDestroyed()).toBe(false);
         lifecycle.push('nested:before:destroy');
       },
       onDestroy(view) {
-        expect(view.isDestroyed()).to.be.true;
+        expect(view.isDestroyed()).toBe(true);
         lifecycle.push('nested:destroy');
       },
     });
@@ -454,11 +454,11 @@ describe('Behavior lifecycle contract', function() {
         behaviors.push(this);
       },
       onBeforeDestroy(view) {
-        expect(view.isDestroyed()).to.be.false;
+        expect(view.isDestroyed()).toBe(false);
         lifecycle.push('parent:before:destroy');
       },
       onDestroy(view) {
-        expect(view.isDestroyed()).to.be.true;
+        expect(view.isDestroyed()).toBe(true);
         lifecycle.push('parent:destroy');
       },
     });
@@ -497,7 +497,7 @@ describe('Behavior lifecycle contract', function() {
     ]);
     expect(parentBehavior.stopListening).toHaveBeenCalledTimes(1);
     expect(nestedBehavior.stopListening).toHaveBeenCalledTimes(1);
-    expect(region.hasView()).to.be.false;
+    expect(region.hasView()).toBe(false);
 
     region.destroy();
   });

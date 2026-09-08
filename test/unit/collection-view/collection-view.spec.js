@@ -325,7 +325,7 @@ describe('CollectionView', function() {
       expect(capturedOptions).to.include({ model: configuredModel, owned: true });
       expect(capturedOptions).to.not.have.property('inherited');
       expect(Object.getPrototypeOf(capturedOptions)).to.equal(Object.prototype);
-      expect(Object.hasOwn(capturedOptions, '__proto__')).to.be.true;
+      expect(Object.hasOwn(capturedOptions, '__proto__')).toBe(true);
       expect(Object.getOwnPropertyDescriptor(capturedOptions, '__proto__').value)
         .to.equal(protoValue);
     });
@@ -337,7 +337,7 @@ describe('CollectionView', function() {
       it('should not mark the view as attached', function() {
         const myCollectionView = new CollectionView({ el: $('<div>')[0] });
 
-        expect(myCollectionView.isAttached()).to.be.false;
+        expect(myCollectionView.isAttached()).toBe(false);
       });
     });
 
@@ -346,7 +346,7 @@ describe('CollectionView', function() {
         setFixtures('<div id="attached"></div>');
         const myCollectionView = new CollectionView({ el: $('#attached')[0] });
 
-        expect(myCollectionView.isAttached()).to.be.true;
+        expect(myCollectionView.isAttached()).toBe(true);
       });
     });
   });
@@ -384,7 +384,7 @@ describe('CollectionView', function() {
       });
 
       it('should set isRendered to true', function() {
-        expect(myCollectionView.isRendered()).to.be.true;
+        expect(myCollectionView.isRendered()).toBe(true);
       });
 
       it('should call "before:render" event', function() {
@@ -448,11 +448,11 @@ describe('CollectionView', function() {
         expect(myCollectionView.onRender).not.toHaveBeenCalled();
         expect(myCollectionView.el.innerHTML).to.equal(destroyedHtml);
         expect(myCollectionView.el.lastChild).to.equal(sentinel);
-        expect(myCollectionView.isRendered()).to.be.false;
-        expect(myCollectionView.isAttached()).to.be.false;
-        expect(myCollectionView.isDestroyed()).to.be.true;
+        expect(myCollectionView.isRendered()).toBe(false);
+        expect(myCollectionView.isAttached()).toBe(false);
+        expect(myCollectionView.isDestroyed()).toBe(true);
         expect(myCollectionView.children).to.have.length(0);
-        childViews.forEach(view => expect(view.isDestroyed()).to.be.true);
+        childViews.forEach(view => expect(view.isDestroyed()).toBe(true));
       });
     });
   });

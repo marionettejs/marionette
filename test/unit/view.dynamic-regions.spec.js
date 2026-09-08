@@ -218,8 +218,8 @@ describe('view - dynamic regions', function() {
     });
 
     it('should remove the region', function(testContext) {
-      expect(testContext.layoutView.getRegion('foo')).to.be.undefined;
-      expect(testContext.layoutView.regions.foo).to.be.undefined;
+      expect(testContext.layoutView.getRegion('foo')).toBeUndefined();
+      expect(testContext.layoutView.regions.foo).toBeUndefined();
     });
   });
 
@@ -244,7 +244,7 @@ describe('view - dynamic regions', function() {
     });
 
     it('should not re-attach the region to the layoutView', function(testContext) {
-      expect(testContext.region).to.be.undefined;
+      expect(testContext.region).toBeUndefined();
     });
   });
 

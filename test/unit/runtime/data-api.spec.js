@@ -39,16 +39,16 @@ describe('DataApi', function() {
 
     expect(DataApi.key(models[0])).to.equal(models[0]);
     expect(DataApi.get(models[0], 'name')).to.equal('one');
-    expect(DataApi.get({}, 'constructor')).to.be.undefined;
+    expect(DataApi.get({}, 'constructor')).toBeUndefined();
     expect(DataApi.get({ constructor: 'value' }, 'constructor')).to.equal('value');
-    expect(DataApi.has(present, 'value')).to.be.true;
-    expect(DataApi.has({}, 'value')).to.be.false;
-    expect(DataApi.has({}, 'constructor')).to.be.false;
-    expect(DataApi.has(null, 'value')).to.be.false;
-    expect(DataApi.has(undefined, 'value')).to.be.false;
+    expect(DataApi.has(present, 'value')).toBe(true);
+    expect(DataApi.has({}, 'value')).toBe(false);
+    expect(DataApi.has({}, 'constructor')).toBe(false);
+    expect(DataApi.has(null, 'value')).toBe(false);
+    expect(DataApi.has(undefined, 'value')).toBe(false);
     expect(DataApi.serialize(models[0])).to.equal(models[0]);
     expect(DataApi.models(models)).to.equal(models);
-    expect(DataApi.items).to.be.undefined;
+    expect(DataApi.items).toBeUndefined();
   });
 
   it('subscribes to Marionette-compatible events with idempotent teardown', function() {

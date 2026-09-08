@@ -43,16 +43,16 @@ describe('Region.show ownership after render callbacks', function() {
 
           expect(region.show(view)).to.equal(region);
 
-          expect(region.hasView()).to.be.false;
-          expect(region.currentView).to.be.undefined;
+          expect(region.hasView()).toBe(false);
+          expect(region.currentView).toBeUndefined();
           expect(region.isDestroyed()).to.equal(destroysRegion);
-          expect(region.isSwappingView()).to.be.false;
-          expect(region.isReplaced()).to.be.false;
+          expect(region.isSwappingView()).toBe(false);
+          expect(region.isReplaced()).toBe(false);
           expect(container.firstChild).to.equal(placeholder);
           expect(container.childNodes).to.have.lengthOf(1);
           expect(placeholder.childNodes).to.have.lengthOf(0);
-          expect(view.el.parentNode).to.be.null;
-          expect(view.isAttached()).to.be.false;
+          expect(view.el.parentNode).toBeNull();
+          expect(view.isAttached()).toBe(false);
           expect(view.isDestroyed()).to.equal(destroysView);
           expect(view.isRendered()).to.equal(!destroysView);
           expect(beforeShow).toHaveBeenCalledTimes(1);
@@ -113,10 +113,10 @@ describe('Region.show ownership after render callbacks', function() {
     expect(region.currentView).to.equal(replacement);
     expect(placeholder.firstChild).to.equal(replacement.el);
     expect(placeholder.childNodes).to.have.lengthOf(1);
-    expect(original.isDestroyed()).to.be.true;
-    expect(original.isRendered()).to.be.false;
-    expect(original.el.parentNode).to.be.null;
-    expect(region.isSwappingView()).to.be.false;
+    expect(original.isDestroyed()).toBe(true);
+    expect(original.isRendered()).toBe(false);
+    expect(original.el.parentNode).toBeNull();
+    expect(region.isSwappingView()).toBe(false);
     expect(shown).toHaveBeenCalledTimes(1);
     expect(shown).toHaveBeenCalledWith(region, replacement, undefined);
     region.destroy();
@@ -133,10 +133,10 @@ describe('Region.show ownership after render callbacks', function() {
 
     expect(region.show(view)).to.equal(region);
 
-    expect(region.isDestroyed()).to.be.true;
+    expect(region.isDestroyed()).toBe(true);
     expect(region.currentView).to.equal(view);
-    expect(view.isDestroyed()).to.be.false;
-    expect(view.el.parentNode).to.be.null;
+    expect(view.isDestroyed()).toBe(false);
+    expect(view.el.parentNode).toBeNull();
     expect(placeholder.childNodes).to.have.lengthOf(0);
     expect(shown).not.toHaveBeenCalled();
     view.destroy();
@@ -156,9 +156,9 @@ describe('Region.show ownership after render callbacks', function() {
 
     expect(region.show(view)).to.equal(region);
 
-    expect(region.isDestroyed()).to.be.false;
+    expect(region.isDestroyed()).toBe(false);
     expect(region.currentView).to.equal(view);
-    expect(view.el.parentNode).to.be.null;
+    expect(view.el.parentNode).toBeNull();
     expect(placeholder.childNodes).to.have.lengthOf(0);
     expect(shown).not.toHaveBeenCalled();
     view.destroy();
@@ -177,19 +177,19 @@ describe('Region.show ownership after render callbacks', function() {
     const replacement = new View({
       template: () => 'replacement',
       onRender() {
-        expect(region.isSwappingView()).to.be.true;
+        expect(region.isSwappingView()).toBe(true);
         region.detachView();
       }
     });
 
     expect(region.show(replacement)).to.equal(region);
 
-    expect(original.isDestroyed()).to.be.true;
-    expect(region.isSwappingView()).to.be.false;
-    expect(region.hasView()).to.be.false;
-    expect(region.isReplaced()).to.be.false;
-    expect(placeholder.isConnected).to.be.true;
-    expect(replacement.el.parentNode).to.be.null;
+    expect(original.isDestroyed()).toBe(true);
+    expect(region.isSwappingView()).toBe(false);
+    expect(region.hasView()).toBe(false);
+    expect(region.isReplaced()).toBe(false);
+    expect(placeholder.isConnected).toBe(true);
+    expect(replacement.el.parentNode).toBeNull();
     expect(shown).not.toHaveBeenCalled();
     expect(emptied).toHaveBeenCalledTimes(2);
     replacement.destroy();

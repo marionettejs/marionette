@@ -121,7 +121,7 @@ describe('Region', function() {
               });
 
               it('does not return elements outside the parent', function() {
-                expect(region.getEl(region.el)).to.be.undefined;
+                expect(region.getEl(region.el)).toBeUndefined();
               });
             });
 
@@ -170,7 +170,7 @@ describe('Region', function() {
             });
 
             it('does not return elements outside the parent', function() {
-              expect(region.getEl('#baz-region')).to.be.undefined;
+              expect(region.getEl('#baz-region')).toBeUndefined();
             });
 
           });
@@ -295,7 +295,7 @@ describe('Region', function() {
           expect(capturedOptions).to.not.have.property('inheritedDefinition');
           expect(capturedOptions).to.not.have.property('regionClass');
           expect(Object.getPrototypeOf(capturedOptions)).to.equal(Object.prototype);
-          expect(Object.hasOwn(capturedOptions, '__proto__')).to.be.true;
+          expect(Object.hasOwn(capturedOptions, '__proto__')).toBe(true);
           expect(Object.getOwnPropertyDescriptor(capturedOptions, '__proto__').value)
             .to.equal(protoValue);
         });

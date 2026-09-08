@@ -102,7 +102,7 @@ describe('CollectionView lifecycle contract', function() {
       attached: true,
       destroyed: false,
     });
-    expect(firstChildren.every(child => child.isDestroyed())).to.be.true;
+    expect(firstChildren.every(child => child.isDestroyed())).toBe(true);
     expect(collectionView.children.toArray()).to.not.deep.equal(firstChildren);
     expect(childStates(collectionView)).to.deep.equal([
       { rendered: true, attached: true, destroyed: false },
@@ -134,7 +134,7 @@ describe('CollectionView lifecycle contract', function() {
       attached: false,
       destroyed: true,
     });
-    expect(secondChildren.every(child => child.isDestroyed())).to.be.true;
+    expect(secondChildren.every(child => child.isDestroyed())).toBe(true);
 
     region.destroy();
   });
@@ -154,7 +154,7 @@ describe('CollectionView lifecycle contract', function() {
       attached: true,
       destroyed: false,
     });
-    expect(previousChildren.every(child => child.isDestroyed())).to.be.true;
+    expect(previousChildren.every(child => child.isDestroyed())).toBe(true);
     expect(collectionView.children).to.have.lengthOf(1);
     expect(childStates(collectionView)).to.deep.equal([
       { rendered: true, attached: true, destroyed: false },
@@ -174,19 +174,19 @@ describe('CollectionView lifecycle contract', function() {
     collectionView.addChildView(rerenderChild);
     collectionView.render();
 
-    expect(rerenderChild.isDestroyed()).to.be.true;
-    expect(collectionView.children.hasView(rerenderChild)).to.be.false;
+    expect(rerenderChild.isDestroyed()).toBe(true);
+    expect(collectionView.children.hasView(rerenderChild)).toBe(false);
 
     collectionView.addChildView(resetChild);
     collection.reset([{ id: 2 }]);
 
-    expect(resetChild.isDestroyed()).to.be.true;
-    expect(collectionView.children.hasView(resetChild)).to.be.false;
+    expect(resetChild.isDestroyed()).toBe(true);
+    expect(collectionView.children.hasView(resetChild)).toBe(false);
 
     collectionView.addChildView(destroyChild);
     collectionView.destroy();
 
-    expect(destroyChild.isDestroyed()).to.be.true;
+    expect(destroyChild.isDestroyed()).toBe(true);
   });
 
   it('leaves child attachment state unmonitored when parent monitoring is disabled', function() {
@@ -264,15 +264,15 @@ describe('CollectionView lifecycle contract', function() {
       attached: false,
       destroyed: false,
     });
-    expect(collectionView.children.hasView(detachedChild)).to.be.false;
+    expect(collectionView.children.hasView(detachedChild)).toBe(false);
 
     expect(collectionView.removeChildView(removedChild)).to.equal(removedChild);
-    expect(removedChild.isDestroyed()).to.be.true;
-    expect(collectionView.children.hasView(removedChild)).to.be.false;
+    expect(removedChild.isDestroyed()).toBe(true);
+    expect(collectionView.children.hasView(removedChild)).toBe(false);
 
     destroyedChild.destroy();
     destroyedChild.destroy();
-    expect(collectionView.children.hasView(destroyedChild)).to.be.false;
+    expect(collectionView.children.hasView(destroyedChild)).toBe(false);
     expect(beforeDestroyedChildRemoval).to.equal(1);
     expect(destroyedChildRemoval).to.equal(1);
     expect(state(collectionView)).to.deep.equal({
@@ -298,8 +298,8 @@ describe('CollectionView lifecycle contract', function() {
     child.on('before:detach', () => lifecycle.push('child:before:detach'));
     child.on('detach', () => lifecycle.push('child:detach'));
     collectionView.on('before:destroy:children', () => {
-      expect(collectionView.isAttached()).to.be.false;
-      expect(child.isAttached()).to.be.false;
+      expect(collectionView.isAttached()).toBe(false);
+      expect(child.isAttached()).toBe(false);
       lifecycle.push('parent:before:destroy:children');
     });
     child.on('before:destroy', () => lifecycle.push('child:before:destroy'));
@@ -331,7 +331,7 @@ describe('CollectionView lifecycle contract', function() {
       destroyed: true,
     });
     expect(collectionView.children).to.have.lengthOf(0);
-    expect(region.hasView()).to.be.false;
+    expect(region.hasView()).toBe(false);
 
     region.destroy();
   });
@@ -360,10 +360,10 @@ describe('CollectionView lifecycle contract', function() {
     expect(() => collectionView.destroy()).to.throw(detachError);
 
     expect(teardown).to.deep.equal([1, 2]);
-    expect(children.every(child => child.isDestroyed())).to.be.true;
+    expect(children.every(child => child.isDestroyed())).toBe(true);
     expect(collectionView.children).to.have.lengthOf(0);
     expect(emptyRegion.destroy).toHaveBeenCalledTimes(1);
     // The children are destroyed, but the empty Region's cleanup did not complete.
-    expect(emptyRegion.isDestroyed()).to.be.false;
+    expect(emptyRegion.isDestroyed()).toBe(false);
   });
 });

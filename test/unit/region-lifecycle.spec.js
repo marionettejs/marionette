@@ -49,7 +49,7 @@ describe('Region lifecycle contract', function() {
     expect(view.render).toHaveBeenCalledTimes(1);
 
     expect(region.detachView()).to.equal(view);
-    expect(region.detachView()).to.be.undefined;
+    expect(region.detachView()).toBeUndefined();
     expect(state()).to.deep.equal({
       hasView: false,
       destroyed: false,
@@ -68,8 +68,8 @@ describe('Region lifecycle contract', function() {
   });
 
   it('reads Region ownership without rendering or mutating it', function() {
-    expect(region.getOwner()).to.be.undefined;
-    expect(region.getName()).to.be.undefined;
+    expect(region.getOwner()).toBeUndefined();
+    expect(region.getName()).toBeUndefined();
 
     const owner = new View({
       regions: {
@@ -87,15 +87,15 @@ describe('Region lifecycle contract', function() {
     expect(declaredRegion.getName()).to.equal('constructor');
     expect(dynamicRegion.getOwner()).to.equal(owner);
     expect(dynamicRegion.getName()).to.equal('toString');
-    expect(owner.isRendered()).to.be.false;
+    expect(owner.isRendered()).toBe(false);
     expect(owner.render).not.toHaveBeenCalled();
 
     owner.destroy();
 
-    expect(declaredRegion.getOwner()).to.be.undefined;
-    expect(declaredRegion.getName()).to.be.undefined;
-    expect(dynamicRegion.getOwner()).to.be.undefined;
-    expect(dynamicRegion.getName()).to.be.undefined;
+    expect(declaredRegion.getOwner()).toBeUndefined();
+    expect(declaredRegion.getName()).toBeUndefined();
+    expect(dynamicRegion.getOwner()).toBeUndefined();
+    expect(dynamicRegion.getName()).toBeUndefined();
   });
 
   it('rejects an empty Region name before changing ownership', function() {
@@ -105,8 +105,8 @@ describe('Region lifecycle contract', function() {
       code: 'MN0032',
       name: 'RegionError',
     });
-    expect(region.getOwner()).to.be.undefined;
-    expect(region.getName()).to.be.undefined;
+    expect(region.getOwner()).toBeUndefined();
+    expect(region.getName()).toBeUndefined();
 
     owner.destroy();
   });
@@ -116,8 +116,8 @@ describe('Region lifecycle contract', function() {
     const ownedRegion = owner.addRegion('content', region);
 
     expect(owner.removeRegion('content')).to.equal(ownedRegion);
-    expect(ownedRegion.getOwner()).to.be.undefined;
-    expect(ownedRegion.getName()).to.be.undefined;
+    expect(ownedRegion.getOwner()).toBeUndefined();
+    expect(ownedRegion.getName()).toBeUndefined();
   });
 
   it('keeps an identical registration as a no-op while destruction is in progress', function() {
@@ -132,9 +132,9 @@ describe('Region lifecycle contract', function() {
 
     ownedRegion.destroy();
 
-    expect(ownedRegion.getOwner()).to.be.undefined;
-    expect(ownedRegion.getName()).to.be.undefined;
-    expect(owner.hasRegion('content')).to.be.false;
+    expect(ownedRegion.getOwner()).toBeUndefined();
+    expect(ownedRegion.getName()).toBeUndefined();
+    expect(owner.hasRegion('content')).toBe(false);
   });
 
   it('keeps the CollectionView empty Region unnamed and clears its owner', function() {
@@ -142,12 +142,12 @@ describe('Region lifecycle contract', function() {
     const emptyRegion = collectionView.getEmptyRegion();
 
     expect(emptyRegion.getOwner()).to.equal(collectionView);
-    expect(emptyRegion.getName()).to.be.undefined;
+    expect(emptyRegion.getName()).toBeUndefined();
 
     collectionView.destroy();
 
-    expect(emptyRegion.getOwner()).to.be.undefined;
-    expect(emptyRegion.getName()).to.be.undefined;
+    expect(emptyRegion.getOwner()).toBeUndefined();
+    expect(emptyRegion.getName()).toBeUndefined();
   });
 
   it('stays empty when a missing element is allowed', function() {
@@ -157,9 +157,9 @@ describe('Region lifecycle contract', function() {
     });
     const view = new TestView();
 
-    expect(missingRegion.show(view)).to.be.undefined;
-    expect(missingRegion.hasView()).to.be.false;
-    expect(view.isRendered()).to.be.false;
+    expect(missingRegion.show(view)).toBeUndefined();
+    expect(missingRegion.hasView()).toBe(false);
+    expect(view.isRendered()).toBe(false);
   });
 
   it('shows a View in template content without reporting attachment', function() {
@@ -170,10 +170,10 @@ describe('Region lifecycle contract', function() {
     const attach = vi.fn();
     view.on('attach', attach);
 
-    expect(templateRegion.el.ownerDocument.documentElement).to.be.null;
+    expect(templateRegion.el.ownerDocument.documentElement).toBeNull();
     expect(templateRegion.show(view)).to.equal(templateRegion);
-    expect(templateRegion.el.contains(view.el)).to.be.true;
-    expect(view.isAttached()).to.be.false;
+    expect(templateRegion.el.contains(view.el)).toBe(true);
+    expect(view.isAttached()).toBe(false);
     expect(attach).not.toHaveBeenCalled();
 
     templateRegion.destroy();
@@ -243,23 +243,23 @@ describe('Region lifecycle contract', function() {
       `empty:${firstView.cid}:true`,
       `show:${secondView.cid}:true`,
     ]);
-    expect(firstView.isDestroyed()).to.be.true;
+    expect(firstView.isDestroyed()).toBe(true);
     expect(region.currentView).to.equal(secondView);
-    expect(region.isSwappingView()).to.be.false;
+    expect(region.isSwappingView()).toBe(false);
   });
 
   it('reports replacement independently from its lifecycle state', function() {
     const view = new TestView();
     region.replaceElement = true;
 
-    expect(region.isReplaced()).to.be.false;
+    expect(region.isReplaced()).toBe(false);
     region.show(view);
-    expect(region.isReplaced()).to.be.true;
-    expect(region.hasView()).to.be.true;
+    expect(region.isReplaced()).toBe(true);
+    expect(region.hasView()).toBe(true);
 
     expect(region.detachView()).to.equal(view);
-    expect(region.isReplaced()).to.be.false;
-    expect(region.hasView()).to.be.false;
+    expect(region.isReplaced()).toBe(false);
+    expect(region.hasView()).toBe(false);
   });
 
   it('destroys an occupied Region in public lifecycle order', function() {
@@ -292,8 +292,8 @@ describe('Region lifecycle contract', function() {
       'region:empty:false',
       'region:destroy:true',
     ]);
-    expect(region.hasView()).to.be.false;
-    expect(region.isDestroyed()).to.be.true;
+    expect(region.hasView()).toBe(false);
+    expect(region.isDestroyed()).toBe(true);
   });
 
   it('allows child teardown to repeat empty without aborting Region destruction', function() {
@@ -311,9 +311,9 @@ describe('Region lifecycle contract', function() {
 
     expect(repeatedEmpty).toHaveBeenCalledTimes(1);
     expect(destroy).toHaveBeenCalledTimes(1);
-    expect(region.isDestroyed()).to.be.true;
-    expect(region.hasView()).to.be.false;
-    expect(view.isDestroyed()).to.be.true;
+    expect(region.isDestroyed()).toBe(true);
+    expect(region.hasView()).toBe(false);
+    expect(view.isDestroyed()).toBe(true);
   });
 
   it('does not detach an occupied View once Region destruction begins', function() {
@@ -322,10 +322,10 @@ describe('Region lifecycle contract', function() {
     region.show(view);
 
     region.on('before:destroy', currentRegion => {
-      expect(currentRegion.detachView()).to.be.undefined;
-      expect(currentRegion.detachView()).to.be.undefined;
+      expect(currentRegion.detachView()).toBeUndefined();
+      expect(currentRegion.detachView()).toBeUndefined();
       expect(currentRegion.currentView).to.equal(view);
-      expect(currentRegion.hasView()).to.be.true;
+      expect(currentRegion.hasView()).toBe(true);
       expect(lifecycle).to.deep.equal([]);
     });
     region.on('before:empty', () => lifecycle.push('before:empty'));
@@ -343,8 +343,8 @@ describe('Region lifecycle contract', function() {
       'destroy',
       'empty',
     ]);
-    expect(region.hasView()).to.be.false;
-    expect(view.isDestroyed()).to.be.true;
+    expect(region.hasView()).toBe(false);
+    expect(view.isDestroyed()).toBe(true);
   });
 
   it('preserves a replaceElement View when terminal detach is attempted', function() {
@@ -354,17 +354,17 @@ describe('Region lifecycle contract', function() {
     const originalEl = region.el;
 
     region.on('before:destroy', currentRegion => {
-      expect(currentRegion.detachView()).to.be.undefined;
+      expect(currentRegion.detachView()).toBeUndefined();
       expect(currentRegion.currentView).to.equal(view);
-      expect(currentRegion.isReplaced()).to.be.true;
-      expect(originalEl.isConnected).to.be.false;
-      expect(view.el.isConnected).to.be.true;
+      expect(currentRegion.isReplaced()).toBe(true);
+      expect(originalEl.isConnected).toBe(false);
+      expect(view.el.isConnected).toBe(true);
     });
 
     region.destroy();
 
-    expect(view.isDestroyed()).to.be.true;
-    expect(originalEl.isConnected).to.be.true;
+    expect(view.isDestroyed()).toBe(true);
+    expect(originalEl.isConnected).toBe(true);
   });
 
   it('does not detach through an owner while its Region is destroying', function() {
@@ -382,14 +382,14 @@ describe('Region lifecycle contract', function() {
     const ownedRegion = owner.getRegion('content');
     ownedRegion.show(view);
     ownedRegion.on('before:destroy', currentRegion => {
-      expect(owner.detachChildView('content')).to.be.undefined;
+      expect(owner.detachChildView('content')).toBeUndefined();
       expect(currentRegion.currentView).to.equal(view);
     });
 
     ownedRegion.destroy();
 
-    expect(view.isDestroyed()).to.be.true;
-    expect(owner.getRegion('content')).to.be.undefined;
+    expect(view.isDestroyed()).toBe(true);
+    expect(owner.getRegion('content')).toBeUndefined();
     owner.destroy();
   });
 
@@ -418,8 +418,8 @@ describe('Region lifecycle contract', function() {
       customRegion.destroy();
 
       expect(lifecycle).to.deep.equal([['reset', false], ['empty', false], ['destroy', true]]);
-      expect(view.isDestroyed()).to.be.true;
-      expect(customRegion.hasView()).to.be.false;
+      expect(view.isDestroyed()).toBe(true);
+      expect(customRegion.hasView()).toBe(false);
     });
   }
 
@@ -435,8 +435,8 @@ describe('Region lifecycle contract', function() {
 
     expect(destroy).toHaveBeenCalledTimes(1);
     expect(empty).toHaveBeenCalledTimes(1);
-    expect(region.isDestroyed()).to.be.true;
-    expect(region.hasView()).to.be.false;
+    expect(region.isDestroyed()).toBe(true);
+    expect(region.hasView()).toBe(false);
   });
 
   it('does not complete or retry destruction when child cleanup throws', function() {
@@ -450,14 +450,14 @@ describe('Region lifecycle contract', function() {
     region.on('destroy', destroyed);
 
     expect(() => region.destroy()).to.throw(error);
-    expect(region.isDestroyed()).to.be.false;
+    expect(region.isDestroyed()).toBe(false);
     expect(destroyed).not.toHaveBeenCalled();
     expect(region.destroy()).to.equal(region);
     expect(beforeEmpty).toHaveBeenCalledTimes(1);
     expect(region.show(other)).to.equal(region);
     expect(region.currentView).to.equal(view);
-    expect(other.isRendered()).to.be.false;
-    expect(region.detachView()).to.be.undefined;
+    expect(other.isRendered()).toBe(false);
+    expect(region.detachView()).toBeUndefined();
 
     region.off('before:empty', beforeEmpty);
     view.destroy();
@@ -481,9 +481,9 @@ describe('Region lifecycle contract', function() {
     expect(customRegion.empty).toHaveBeenCalledTimes(1);
     expect(destroy).toHaveBeenCalledTimes(1);
     expect(destroy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([customRegion, undefined]);
-    expect(customRegion.isDestroyed()).to.be.true;
+    expect(customRegion.isDestroyed()).toBe(true);
     expect(customRegion.currentView).to.equal(view);
-    expect(view.isDestroyed()).to.be.false;
+    expect(view.isDestroyed()).toBe(false);
 
     const regionEl = document.querySelector('#region');
     const sentinel = document.createElement('span');
@@ -498,7 +498,7 @@ describe('Region lifecycle contract', function() {
     expect(customRegion.el).to.equal(cachedEl);
     expect(customRegion.$el).to.equal(cached$El);
     expect(customRegion.currentView).to.equal(view);
-    expect(view.isDestroyed()).to.be.false;
+    expect(view.isDestroyed()).toBe(false);
     expect(regionEl.childNodes).to.have.length(2);
     expect(regionEl.firstChild).to.equal(view.el);
     expect(regionEl.lastChild).to.equal(sentinel);
@@ -531,14 +531,14 @@ describe('Region lifecycle contract', function() {
 
     expect(region.show(destroyedView)).to.equal(region);
     expect(region.show(hostileView)).to.equal(region);
-    expect(region.isDestroyed()).to.be.true;
-    expect(region.hasView()).to.be.false;
-    expect(region.currentView).to.be.undefined;
+    expect(region.isDestroyed()).toBe(true);
+    expect(region.hasView()).toBe(false);
+    expect(region.currentView).toBeUndefined();
     expect(beforeShow).not.toHaveBeenCalled();
     expect(show).not.toHaveBeenCalled();
     expect(view.render).not.toHaveBeenCalled();
-    expect(view.isRendered()).to.be.false;
-    expect(view.isDestroyed()).to.be.false;
+    expect(view.isRendered()).toBe(false);
+    expect(view.isDestroyed()).toBe(false);
     expect(inputRead).not.toHaveBeenCalled();
     expect(region.destroy()).to.equal(region);
 
@@ -559,11 +559,11 @@ describe('Region lifecycle contract', function() {
     region.on('before:empty', beforeEmpty);
     region.on('empty', empty);
 
-    expect(region.detachView()).to.be.undefined;
-    expect(region.detachView()).to.be.undefined;
-    expect(region.isDestroyed()).to.be.true;
-    expect(region.hasView()).to.be.false;
-    expect(region.currentView).to.be.undefined;
+    expect(region.detachView()).toBeUndefined();
+    expect(region.detachView()).toBeUndefined();
+    expect(region.isDestroyed()).toBe(true);
+    expect(region.hasView()).toBe(false);
+    expect(region.currentView).toBeUndefined();
     expect(regionEl.childNodes).to.have.length(1);
     expect(regionEl.firstChild).to.equal(sentinel);
     expect(sentinel.textContent).to.equal('unmanaged');
@@ -602,9 +602,9 @@ describe('Region lifecycle contract', function() {
 
       expect(ownedRegion[operation]()).to.equal(ownedRegion);
       expect(ownedRegion[operation]()).to.equal(ownedRegion);
-      expect(ownedRegion.isDestroyed()).to.be.true;
-      expect(ownedRegion.hasView()).to.be.false;
-      expect(ownedRegion.currentView).to.be.undefined;
+      expect(ownedRegion.isDestroyed()).toBe(true);
+      expect(ownedRegion.hasView()).toBe(false);
+      expect(ownedRegion.currentView).toBeUndefined();
       expect(ownedRegion.el).to.equal(cachedEl);
       expect(ownedRegion.$el).to.equal(cached$El);
       expect(ownedRegion.getEl).not.toHaveBeenCalled();
@@ -613,9 +613,9 @@ describe('Region lifecycle contract', function() {
       expect(sentinel.textContent).to.equal('unmanaged');
       expect(beforeEmpty).not.toHaveBeenCalled();
       expect(empty).not.toHaveBeenCalled();
-      expect(view.isDestroyed()).to.be.true;
-      expect(owner.hasRegion('content')).to.be.false;
-      expect(owner.getRegion('content')).to.be.undefined;
+      expect(view.isDestroyed()).toBe(true);
+      expect(owner.hasRegion('content')).toBe(false);
+      expect(owner.getRegion('content')).toBeUndefined();
       expect(owner.regions).not.to.have.own.property('content');
 
       owner.destroy();
@@ -645,7 +645,7 @@ describe('Region lifecycle contract', function() {
       child.destroy();
       child.trigger('ping');
 
-      expect(owner.getChildView('content')).to.be.undefined;
+      expect(owner.getChildView('content')).toBeUndefined();
     }
 
     expect(lifecycle).to.deep.equal(Array.from({ length: 10 }, () => ['before:destroy', 'destroy']).flat());
@@ -670,8 +670,8 @@ describe('Region lifecycle contract', function() {
     expect(beforeEmpty.mock.calls.map(args => args.slice(0, 2))).toContainEqual([region, view]);
     expect(empty).toHaveBeenCalledTimes(1);
     expect(empty.mock.calls.map(args => args.slice(0, 2))).toContainEqual([region, view]);
-    expect(region.hasView()).to.be.false;
-    expect(region.currentView).to.be.undefined;
+    expect(region.hasView()).toBe(false);
+    expect(region.currentView).toBeUndefined();
   });
 
   for (const operation of ['child', 'region']) {
@@ -689,11 +689,11 @@ describe('Region lifecycle contract', function() {
 
       (operation === 'child' ? child : ownedRegion).destroy();
 
-      expect(owner.isDestroyed()).to.be.true;
-      expect(child.isDestroyed()).to.be.true;
-      expect(ownedRegion.isDestroyed()).to.be.true;
-      expect(ownedRegion.hasView()).to.be.false;
-      expect(owner.hasRegion('content')).to.be.false;
+      expect(owner.isDestroyed()).toBe(true);
+      expect(child.isDestroyed()).toBe(true);
+      expect(ownedRegion.isDestroyed()).toBe(true);
+      expect(ownedRegion.hasView()).toBe(false);
+      expect(owner.hasRegion('content')).toBe(false);
       expect(destroyed).toHaveBeenCalledTimes(1);
     });
   }
@@ -742,7 +742,7 @@ describe('Region lifecycle contract', function() {
     ownedRegion.show(child);
 
     expect(owner.getRegion('content')).to.equal(ownedRegion);
-    expect(owner.hasRegion('content')).to.be.true;
+    expect(owner.hasRegion('content')).toBe(true);
     expect(ownedRegion.currentView).to.equal(child);
 
     expect(ownedRegion.destroy()).to.equal(ownedRegion);
@@ -750,12 +750,12 @@ describe('Region lifecycle contract', function() {
     expect(beforeDestroyReturn).to.equal(ownedRegion);
     expect(destroyReturn).to.equal(ownedRegion);
 
-    expect(ownedRegion.isDestroyed()).to.be.true;
-    expect(ownedRegion.hasView()).to.be.false;
-    expect(ownedRegion.currentView).to.be.undefined;
-    expect(child.isDestroyed()).to.be.true;
-    expect(owner.getRegion('content')).to.be.undefined;
-    expect(owner.hasRegion('content')).to.be.false;
+    expect(ownedRegion.isDestroyed()).toBe(true);
+    expect(ownedRegion.hasView()).toBe(false);
+    expect(ownedRegion.currentView).toBeUndefined();
+    expect(child.isDestroyed()).toBe(true);
+    expect(owner.getRegion('content')).toBeUndefined();
+    expect(owner.hasRegion('content')).toBe(false);
     expect(owner.getRegions()).not.to.have.own.property('content');
 
     expect(owner.destroy()).to.equal(owner);

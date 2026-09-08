@@ -18,10 +18,10 @@ describe('nested View lifecycle propagation', function() {
       view.on('detach', detached);
 
       region.show(view);
-      expect(view.isAttached()).to.be.true;
+      expect(view.isAttached()).toBe(true);
       expect(attached).toHaveBeenCalledTimes(1);
       expect(region.detachView()).to.equal(view);
-      expect(view.isAttached()).to.be.false;
+      expect(view.isAttached()).toBe(false);
       expect(detached).toHaveBeenCalledTimes(1);
       view.destroy();
       region.destroy();
@@ -52,17 +52,17 @@ describe('nested View lifecycle propagation', function() {
 
     region.show(parent);
     for (const { view, attached } of lifecycle) {
-      expect(view.isAttached()).to.be.true;
+      expect(view.isAttached()).toBe(true);
       expect(attached).toHaveBeenCalledTimes(1);
     }
     region.detachView();
     for (const { view, detached } of lifecycle) {
-      expect(view.isAttached()).to.be.false;
-      expect(view.isDestroyed()).to.be.false;
+      expect(view.isAttached()).toBe(false);
+      expect(view.isDestroyed()).toBe(false);
       expect(detached).toHaveBeenCalledTimes(1);
     }
     parent.destroy();
-    expect(descendants.every(view => view.isDestroyed())).to.be.true;
+    expect(descendants.every(view => view.isDestroyed())).toBe(true);
     region.destroy();
   });
 });

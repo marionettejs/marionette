@@ -134,11 +134,11 @@ describe('view triggers', function() {
     });
 
     it('should stop propagation by default', function() {
-      expect(fooEvent.propagationStopped).to.be.true;
+      expect(fooEvent.propagationStopped).toBe(true);
     });
 
     it('should prevent default by default', function() {
-      expect(fooEvent.defaultPrevented).to.be.true;
+      expect(fooEvent.defaultPrevented).toBe(true);
     });
   });
 
@@ -163,8 +163,8 @@ describe('view triggers', function() {
     });
 
     it('should preserve explicitly disabled DOM behavior', function() {
-      expect(fooEvent.defaultPrevented).to.be.false;
-      expect(fooEvent.propagationStopped).to.be.false;
+      expect(fooEvent.defaultPrevented).toBe(false);
+      expect(fooEvent.propagationStopped).toBe(false);
     });
   });
 

@@ -34,7 +34,7 @@ describe('region', function() {
     });
 
     it('should not have been replaced', function() {
-      expect(customRegion.isReplaced()).to.be.false;
+      expect(customRegion.isReplaced()).toBe(false);
     });
 
     it('should work when el is passed in as an option', function() {
@@ -51,7 +51,7 @@ describe('region', function() {
     });
 
     it('should not be swapping view', function() {
-      expect(customRegion.isSwappingView()).to.be.false;
+      expect(customRegion.isSwappingView()).toBe(false);
     });
   });
 
@@ -89,7 +89,7 @@ describe('region', function() {
         });
 
         it('should not have a view', function() {
-          expect(region.hasView()).to.be.false;
+          expect(region.hasView()).toBe(false);
         });
       });
 
@@ -107,7 +107,7 @@ describe('region', function() {
         });
 
         it('should not have a view', function() {
-          expect(region.hasView()).to.be.false;
+          expect(region.hasView()).toBe(false);
         });
 
         it('should not render the view', function() {
@@ -159,7 +159,7 @@ describe('region', function() {
         expect(region.el.id).to.equal('second');
         expect(region.currentView.el.textContent).to.equal('empty');
         expect(region.currentView.el.parentNode).to.equal(region.el);
-        expect(previous.isDestroyed()).to.be.true;
+        expect(previous.isDestroyed()).toBe(true);
         owner.destroy();
       });
     }
@@ -217,7 +217,7 @@ describe('region', function() {
     });
 
     it('should have a cid', function() {
-      expect(region.cid).to.exist;
+      expect(region.cid).to.not.equal(null).and.not.equal(undefined);
     });
 
     it('should render the view', function() {
@@ -245,7 +245,7 @@ describe('region', function() {
     });
 
     it('should not be swapping view', function() {
-      expect(isSwappingOnShow).to.be.false;
+      expect(isSwappingOnShow).toBe(false);
     });
 
     it('should have the currentView set before rendering', function() {
@@ -295,7 +295,7 @@ describe('region', function() {
       });
 
       it('should be swapping view', function() {
-        expect(isSwappingOnShow).to.be.true;
+        expect(isSwappingOnShow).toBe(true);
       });
     });
 
@@ -323,7 +323,7 @@ describe('region', function() {
       it('can be emptied repeatedly without removing its restored element', function() {
         region.empty();
         region.empty();
-        expect(region.currentView).to.be.undefined;
+        expect(region.currentView).toBeUndefined();
         expect(region.el.parentNode).to.equal($parentEl[0]);
       });
 
@@ -332,9 +332,9 @@ describe('region', function() {
         region.show(removed);
         removed.el.remove();
         region.empty();
-        expect(region.currentView).to.be.undefined;
-        expect(removed.isDestroyed()).to.be.true;
-        expect(removed.el.parentNode).to.be.null;
+        expect(region.currentView).toBeUndefined();
+        expect(removed.isDestroyed()).toBe(true);
+        expect(removed.el.parentNode).toBeNull();
       });
 
       describe('and then emptying the region', function() {
@@ -418,11 +418,11 @@ describe('region', function() {
       });
 
       it('should not return a childView if it was already detached', function() {
-        expect(noDetachedView).to.be.undefined;
+        expect(noDetachedView).toBeUndefined();
       });
 
       it('should leave the detached view alive', function() {
-        expect(detachedView.isDestroyed()).to.be.false;
+        expect(detachedView.isDestroyed()).toBe(false);
       });
 
       it('should not have triggered destroy on the view', function() {
@@ -441,7 +441,7 @@ describe('region', function() {
         const next = new Region({ el: document.createElement('section') });
         next.show(detachedView);
         expect(next.currentView).to.equal(detachedView);
-        expect(region.hasView()).to.be.false;
+        expect(region.hasView()).toBe(false);
         next.detachView();
         next.destroy();
       });
@@ -842,7 +842,7 @@ describe('region', function() {
     });
 
     it('should delete the current view reference', function() {
-      expect(region.currentView).to.be.undefined;
+      expect(region.currentView).toBeUndefined();
     });
 
     it('should return the region', function() {
@@ -860,7 +860,7 @@ describe('region', function() {
     });
 
     it('should not be swapping view', function() {
-      expect(isSwappingOnEmpty).to.be.false;
+      expect(isSwappingOnEmpty).toBe(false);
     });
   });
 
@@ -949,7 +949,7 @@ describe('region', function() {
     });
 
     it('should be removed from the view', function() {
-      expect(ownerView.getRegion('MyRegion')).to.be.undefined;
+      expect(ownerView.getRegion('MyRegion')).toBeUndefined();
     });
 
     it('should call "empty" of the region', function() {
@@ -1068,7 +1068,7 @@ describe('region', function() {
       expect(beforeEmptySpy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([region, view]);
       expect(emptySpy).toHaveBeenCalledTimes(1);
       expect(emptySpy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([region, view]);
-      expect(region.currentView).to.be.undefined;
+      expect(region.currentView).toBeUndefined();
     });
 
     it('view "before:destroy" event is triggered once', function() {
@@ -1140,9 +1140,9 @@ describe('region', function() {
       region.allowMissingEl = false;
 
       const view = new View({ template: () => 'unused' });
-      expect(region.show(view, { allowMissingEl: true })).to.be.undefined;
-      expect(region.hasView()).to.be.false;
-      expect(view.isRendered()).to.be.false;
+      expect(region.show(view, { allowMissingEl: true })).toBeUndefined();
+      expect(region.hasView()).toBe(false);
+      expect(view.isRendered()).toBe(false);
       view.destroy();
     });
 
@@ -1151,7 +1151,7 @@ describe('region', function() {
 
       const view = new View({ template: () => 'unused' });
       expect(() => region.show(view)).to.throw();
-      expect(region.hasView()).to.be.false;
+      expect(region.hasView()).toBe(false);
       view.destroy();
     });
   });

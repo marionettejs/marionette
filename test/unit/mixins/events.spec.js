@@ -367,8 +367,8 @@ describe('Events Mixin', function() {
 
   describe('legacy Backbone.Events aliases', function() {
     it('does not expose bind or unbind', function() {
-      expect(EventsMixin.bind).to.be.undefined;
-      expect(EventsMixin.unbind).to.be.undefined;
+      expect(EventsMixin.bind).toBeUndefined();
+      expect(EventsMixin.unbind).toBeUndefined();
     });
   });
 });

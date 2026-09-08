@@ -89,7 +89,7 @@ describe('View named Region diagnostics', function() {
       expect(ownedRegion.getOwner()).to.equal(firstOwner);
       expect(ownedRegion.getName()).to.equal('first');
       expect(secondOwner.getRegion('existing')).to.equal(existingRegion);
-      expect(secondOwner.hasRegion('second')).to.be.false;
+      expect(secondOwner.hasRegion('second')).toBe(false);
       expect(secondOwner.regions.existing).to.equal(existingRegion);
       expect(secondOwner.regions).to.not.have.own.property('second');
     } finally {
@@ -162,7 +162,7 @@ describe('View named Region diagnostics', function() {
         });
       expect(owner.getRegion('content')).to.equal(ownedRegion);
       expect(owner.regions.content).to.equal(ownedRegion);
-      expect(owner.hasRegion('valid')).to.be.false;
+      expect(owner.hasRegion('valid')).toBe(false);
       expect(owner.regions).to.not.have.own.property('valid');
     } finally {
       validRegion.destroy();
@@ -180,8 +180,8 @@ describe('View named Region diagnostics', function() {
           name: 'RegionError',
           message: 'A Region instance cannot be registered under more than one name.',
         });
-      expect(view.hasRegion('first')).to.be.false;
-      expect(view.hasRegion('second')).to.be.false;
+      expect(view.hasRegion('first')).toBe(false);
+      expect(view.hasRegion('second')).toBe(false);
       expect(view.regions).to.not.have.own.property('first');
       expect(view.regions).to.not.have.own.property('second');
     } finally {
@@ -199,7 +199,7 @@ describe('View named Region diagnostics', function() {
         name: 'RegionError',
         message: 'A destroying or destroyed Region cannot be registered.',
       });
-    expect(view.hasRegion('destroyed')).to.be.false;
+    expect(view.hasRegion('destroyed')).toBe(false);
   });
 
   it('rejects a destroying Region with MN0030', function() {
@@ -211,7 +211,7 @@ describe('View named Region diagnostics', function() {
           code: 'MN0030',
           name: 'RegionError',
         });
-      expect(view.hasRegion('destroying')).to.be.false;
+      expect(view.hasRegion('destroying')).toBe(false);
       expect(view.regions).to.not.have.own.property('destroying');
     });
 
@@ -229,12 +229,12 @@ describe('View named Region diagnostics', function() {
           code: 'MN0030',
           name: 'RegionError',
         });
-      expect(secondOwner.hasRegion('destroying')).to.be.false;
+      expect(secondOwner.hasRegion('destroying')).toBe(false);
     });
 
     try {
       destroyingRegion.destroy();
-      expect(firstOwner.hasRegion('owned')).to.be.false;
+      expect(firstOwner.hasRegion('owned')).toBe(false);
     } finally {
       firstOwner.destroy();
       secondOwner.destroy();
@@ -242,15 +242,15 @@ describe('View named Region diagnostics', function() {
   });
 
   it('keeps Region lookup optional and distinguishes a known empty Region', function() {
-    expect(view.getRegion('missing')).to.be.undefined;
-    expect(view.hasRegion('missing')).to.be.false;
-    expect(view.getChildView('content')).to.be.undefined;
-    expect(view.detachChildView('content')).to.be.undefined;
+    expect(view.getRegion('missing')).toBeUndefined();
+    expect(view.hasRegion('missing')).toBe(false);
+    expect(view.getChildView('content')).toBeUndefined();
+    expect(view.detachChildView('content')).toBeUndefined();
   });
 
   it('treats inherited object property names as missing across optional and required operations', function() {
-    expect(view.getRegion('toString')).to.be.undefined;
-    expect(view.hasRegion('toString')).to.be.false;
+    expect(view.getRegion('toString')).toBeUndefined();
+    expect(view.hasRegion('toString')).toBe(false);
 
     for (const [, operation] of requiredOperations) {
       expectMissingRegionError(view, 'toString', operation);
@@ -275,16 +275,16 @@ describe('View named Region diagnostics', function() {
     try {
       const region = ownRegionView.getRegion('toString');
       expect(region).to.be.instanceOf(Region);
-      expect(ownRegionView.hasRegion('toString')).to.be.true;
-      expect(ownRegionView.getChildView('toString')).to.be.undefined;
-      expect(ownRegionView.detachChildView('toString')).to.be.undefined;
+      expect(ownRegionView.hasRegion('toString')).toBe(true);
+      expect(ownRegionView.getChildView('toString')).toBeUndefined();
+      expect(ownRegionView.detachChildView('toString')).toBeUndefined();
       expect(ownRegionView.showChildView('toString', childView)).to.equal(childView);
       expect(ownRegionView.getChildView('toString')).to.equal(childView);
       expect(ownRegionView.detachChildView('toString')).to.equal(childView);
       expect(ownRegionView.showChildView('toString', childView)).to.equal(childView);
       expect(ownRegionView.removeRegion('toString')).to.equal(region);
-      expect(childView.isDestroyed()).to.be.true;
-      expect(ownRegionView.getRegion('toString')).to.be.undefined;
+      expect(childView.isDestroyed()).toBe(true);
+      expect(ownRegionView.getRegion('toString')).toBeUndefined();
     } finally {
       childView.destroy();
       ownRegionView.destroy();
@@ -304,9 +304,9 @@ describe('View named Region diagnostics', function() {
     try {
       const region = ownRegionView.getRegion('__proto__');
       expect(region).to.be.instanceOf(Region);
-      expect(ownRegionView.hasRegion('__proto__')).to.be.true;
+      expect(ownRegionView.hasRegion('__proto__')).toBe(true);
       expect(ownRegionView.removeRegion('__proto__')).to.equal(region);
-      expect(ownRegionView.getRegion('__proto__')).to.be.undefined;
+      expect(ownRegionView.getRegion('__proto__')).toBeUndefined();
     } finally {
       ownRegionView.destroy();
     }
@@ -383,13 +383,13 @@ describe('View named Region diagnostics', function() {
       expect(Object.getPrototypeOf(snapshot)).to.equal(Object.prototype);
       expect(snapshot).to.have.own.property('__proto__', region);
       expect(protoView.emptyRegions()).to.have.own.property('__proto__', region);
-      expect(firstChild.isDestroyed()).to.be.true;
-      expect(region.isDestroyed()).to.be.false;
+      expect(firstChild.isDestroyed()).toBe(true);
+      expect(region.isDestroyed()).toBe(false);
 
       region.show(secondChild);
       expect(protoView.removeRegions()).to.have.own.property('__proto__', region);
-      expect(region.isDestroyed()).to.be.true;
-      expect(secondChild.isDestroyed()).to.be.true;
+      expect(region.isDestroyed()).toBe(true);
+      expect(secondChild.isDestroyed()).toBe(true);
     } finally {
       firstChild.destroy();
       secondChild.destroy();
@@ -423,7 +423,7 @@ describe('View named Region diagnostics', function() {
     }
 
     expect(view.render).not.toHaveBeenCalled();
-    expect(view.isRendered()).to.be.false;
+    expect(view.isRendered()).toBe(false);
   });
 
   it('rejects an empty declarative Region name before changing the batch', function() {
@@ -434,8 +434,8 @@ describe('View named Region diagnostics', function() {
         valid: validRegion,
         '': '@ui.missing',
       }));
-      expect(view.hasRegion('valid')).to.be.false;
-      expect(validRegion.getOwner()).to.be.undefined;
+      expect(view.hasRegion('valid')).toBe(false);
+      expect(validRegion.getOwner()).toBeUndefined();
     } finally {
       validRegion.destroy();
     }

@@ -56,8 +56,8 @@ describe('Destroy Mixin public owners', function() {
 
     expect(repeated).to.equal(first);
     expect(beforeDestroyReturn).to.equal(first);
-    expect(await first).to.be.true;
-    expect(await destroyReturn).to.be.true;
+    expect(await first).toBe(true);
+    expect(await destroyReturn).toBe(true);
     expect(states).to.deep.equal([false, true]);
     expect(beforeDestroy).toHaveBeenCalledTimes(1);
     expect(beforeDestroy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([instance, options]);

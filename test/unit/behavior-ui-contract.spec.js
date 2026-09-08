@@ -1,8 +1,8 @@
 import { vi, describe, it, expect } from 'vitest';
 import { setFixtures } from '../setup/fixtures.js';
-import Behavior from '../../src/modules/behavior';
-import CollectionView from '../../src/modules/collection-view';
-import View from '../../src/modules/view';
+import { Behavior } from 'marionette';
+import { CollectionView } from 'marionette';
+import { View } from 'marionette';
 
 describe('Behavior UI contract', function() {
   it('delegates host-only and host-winning ui references on first construction', function() {
@@ -211,7 +211,7 @@ describe('Behavior UI contract', function() {
     });
     const view = new TestView({ el: hostElement });
 
-    expect(observedRenderedState).to.be.true;
+    expect(observedRenderedState).toBe(true);
     expect(observedHostUI).to.equal(sharedElement);
 
     view.destroy();
@@ -296,7 +296,7 @@ describe('Behavior UI contract', function() {
     const secondElement = behavior.ui.action[0];
 
     expect(firstCollection[0]).to.equal(firstElement);
-    expect(view.el.contains(firstElement)).to.be.false;
+    expect(view.el.contains(firstElement)).toBe(false);
     expect(secondElement).to.not.equal(firstElement);
     expect(secondElement.dataset.render).to.equal('2');
     expect(secondElement).to.equal(view.el.querySelector('.action'));

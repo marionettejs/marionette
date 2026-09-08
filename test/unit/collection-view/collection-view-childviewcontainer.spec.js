@@ -69,14 +69,14 @@ describe('CollectionView - childViewContainer', function() {
         expect(myCollectionView.children.first().el.parentNode).to.equal(container);
         expect(myCollectionView.children.first().el.textContent).to.equal('after');
         if (label.trim()) { expect(list.firstChild).to.equal(labelNode); }
-        expect(previousChildren.every(view => view.isDestroyed())).to.be.true;
+        expect(previousChildren.every(view => view.isDestroyed())).toBe(true);
         if (childViewContainer && !label.trim()) {
           expect(detachContents).toHaveBeenCalledTimes(1);
           expect(detachContents).toHaveBeenCalledWith(container);
         } else {
           expect(detachContents).not.toHaveBeenCalled();
         }
-        if (label && !label.trim()) { expect(labelNode.parentNode).to.be.null; }
+        if (label && !label.trim()) { expect(labelNode.parentNode).toBeNull(); }
 
         collection.reset([]);
         expect(myCollectionView.el.querySelector('input')).to.equal(input);
@@ -103,7 +103,7 @@ describe('CollectionView - childViewContainer', function() {
 
       expect(myCollectionView.el.firstChild).to.equal(button);
       expect(external.textContent).to.equal('after');
-      expect(previous.isDestroyed()).to.be.true;
+      expect(previous.isDestroyed()).toBe(true);
       myCollectionView.destroy();
       expect(external.childNodes.length).to.equal(0);
     });

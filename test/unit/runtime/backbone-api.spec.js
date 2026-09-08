@@ -12,20 +12,20 @@ describe('BackboneApi', function() {
 
     expect(BackboneApi.key(model)).to.equal(model.cid);
     expect(BackboneApi.get(model, 'title')).to.equal('one');
-    expect(BackboneApi.get(model, 'constructor')).to.be.undefined;
-    expect(BackboneApi.has(model, 'constructor')).to.be.false;
+    expect(BackboneApi.get(model, 'constructor')).toBeUndefined();
+    expect(BackboneApi.has(model, 'constructor')).toBe(false);
     model.set('constructor', 'value');
     expect(BackboneApi.get(model, 'constructor')).to.equal('value');
-    expect(BackboneApi.has(model, 'constructor')).to.be.true;
-    expect(BackboneApi.has(model, 'present')).to.be.true;
-    expect(BackboneApi.has(model, 'missing')).to.be.false;
+    expect(BackboneApi.has(model, 'constructor')).toBe(true);
+    expect(BackboneApi.has(model, 'present')).toBe(true);
+    expect(BackboneApi.has(model, 'missing')).toBe(false);
     expect(BackboneApi.serialize(model)).to.equal(model.attributes);
     const models = BackboneApi.models(collection);
     expect(models).to.deep.equal(collection.models);
     expect(models).to.not.equal(collection.models);
     models.length = 0;
     expect(BackboneApi.models(collection)).to.deep.equal([model]);
-    expect(BackboneApi.items).to.be.undefined;
+    expect(BackboneApi.items).toBeUndefined();
   });
 
   it('subscribes with context and returns an idempotent cleanup function', function() {

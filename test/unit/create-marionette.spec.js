@@ -152,7 +152,7 @@ describe('createMarionette', function() {
     Marionette.Radio.reset();
     expect(first.Radio.request('reset-isolation', 'value')).to.equal('first');
     first.Radio.reset();
-    expect(first.Radio.request('reset-isolation', 'value')).to.be.undefined;
+    expect(first.Radio.request('reset-isolation', 'value')).toBeUndefined();
 
     firstObject.destroy();
     secondObject.destroy();

@@ -76,14 +76,14 @@ describe('#getRegion', function() {
     expect(content).to.be.instanceOf(Region);
     expect(view.getRegion('constructor')).to.be.instanceOf(Region);
     expect(view.getRegion('toString')).to.be.instanceOf(Region);
-    expect(view.getRegion('inherited')).to.be.undefined;
-    expect(view.getRegion('valueOf')).to.be.undefined;
-    expect(view.getRegion('missing')).to.be.undefined;
+    expect(view.getRegion('inherited')).toBeUndefined();
+    expect(view.getRegion('valueOf')).toBeUndefined();
+    expect(view.getRegion('missing')).toBeUndefined();
 
     const dynamic = view.addRegion('dynamic', '.dynamic');
     expect(view.getRegion('dynamic')).to.equal(dynamic);
     view.removeRegion('dynamic');
-    expect(view.getRegion('dynamic')).to.be.undefined;
+    expect(view.getRegion('dynamic')).toBeUndefined();
 
     expectNoRenderSideEffects(tracked, {
       attached: false,
@@ -104,7 +104,7 @@ describe('#getRegion', function() {
     resetRenderSpies(tracked);
 
     expect(view.getRegion('content')).to.equal(content);
-    expect(view.getRegion('missing')).to.be.undefined;
+    expect(view.getRegion('missing')).toBeUndefined();
     expectNoRenderSideEffects(tracked, {
       attached: false,
       destroyed: false,
@@ -124,8 +124,8 @@ describe('#getRegion', function() {
     const html = view.el.innerHTML;
     const publicRender = vi.spyOn(view, 'render');
 
-    expect(view.getRegion('content')).to.be.undefined;
-    expect(view.getRegion('missing')).to.be.undefined;
+    expect(view.getRegion('content')).toBeUndefined();
+    expect(view.getRegion('missing')).toBeUndefined();
 
     expect(publicRender).not.toHaveBeenCalled();
     expectNoRenderSideEffects(tracked, {
@@ -150,9 +150,9 @@ describe('#getRegion', function() {
       destroyed: false,
       rendered: false,
     }, '');
-    expect(child.isRendered()).to.be.false;
-    expect(child.isDestroyed()).to.be.false;
-    expect(region.hasView()).to.be.false;
+    expect(child.isRendered()).toBe(false);
+    expect(child.isDestroyed()).toBe(false);
+    expect(region.hasView()).toBe(false);
 
     child.destroy();
     region.el = '.content';
@@ -236,8 +236,8 @@ for (const operation of childOperations) {
       } else if (operation.method === 'detachChildView') {
         expect(detach).toHaveBeenCalledTimes(1);
         expect(detach).toHaveBeenCalledWith();
-        expect(region.hasView()).to.be.false;
-        expect(child.isDestroyed()).to.be.false;
+        expect(region.hasView()).toBe(false);
+        expect(child.isDestroyed()).toBe(false);
       } else {
         expect(region.currentView).to.equal(child);
       }
@@ -313,7 +313,7 @@ for (const operation of childOperations) {
 
         expect(() => view.showChildView('content', child))
           .to.throw(MarionetteError).and.include({ code: 'MN0007' });
-        expect(view.getChildView('content')).to.be.undefined;
+        expect(view.getChildView('content')).toBeUndefined();
 
         view.destroy();
       });
@@ -352,7 +352,7 @@ for (const operation of childOperations) {
 
       expect(() => operation.execute(view, child)).to.throw(error);
       expect(getRegion).not.toHaveBeenCalled();
-      expect(child.isRendered()).to.be.false;
+      expect(child.isRendered()).toBe(false);
 
       child.destroy();
       view.destroy();
@@ -372,8 +372,8 @@ for (const operation of childOperations) {
       expect(getRegion).toHaveBeenCalledTimes(1);
       expect(getRegion.mock.contexts).toContain(view);
       expect(getRegion).toHaveBeenCalledWith('content');
-      expect(view.isRendered()).to.be.true;
-      expect(child.isRendered()).to.be.false;
+      expect(view.isRendered()).toBe(true);
+      expect(child.isRendered()).toBe(false);
 
       child.destroy();
       view.destroy();

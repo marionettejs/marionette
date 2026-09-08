@@ -22,8 +22,8 @@ describe('Radio public components', function() {
     registered.reply('value', 'registered');
     Radio.reset();
     expect(first.request('value')).to.equal('first');
-    expect(registered.request('value')).to.be.undefined;
-    expect(second.request('value')).to.be.undefined;
+    expect(registered.request('value')).toBeUndefined();
+    expect(second.request('value')).toBeUndefined();
   });
 
   it('resets a standalone channel and its owned listeners', function() {
@@ -37,7 +37,7 @@ describe('Radio public components', function() {
     owner.trigger('event');
     source.trigger('event');
     expect(callback).not.toHaveBeenCalled();
-    expect(owner.request('value')).to.be.undefined;
+    expect(owner.request('value')).toBeUndefined();
   });
 
   it('mixes Requests into an object without adding Events', function() {
@@ -46,9 +46,9 @@ describe('Radio public components', function() {
     expect(service.request('label')).to.equal('settings');
     service.replyOnce('once', 'reply');
     expect(service.request('once')).to.equal('reply');
-    expect(service.request('once')).to.be.undefined;
+    expect(service.request('once')).toBeUndefined();
     expect(service.stopReplying()).to.equal(service);
-    expect(service.request('label')).to.be.undefined;
+    expect(service.request('label')).toBeUndefined();
     expect(service).to.not.have.property('on');
   });
 

@@ -66,13 +66,13 @@ describe('View el policy', function() {
     expect(attributes.mock.contexts).toContain(view);
     expect(view.el.title).to.equal('owned');
     expect(view.el.dataset.owned).to.equal('owned');
-    expect(view.el.getAttribute('data-inherited')).to.be.null;
-    expect(view.el.getAttribute('data-hidden')).to.be.null;
-    expect(view.el[symbol]).to.be.undefined;
+    expect(view.el.getAttribute('data-inherited')).toBeNull();
+    expect(view.el.getAttribute('data-hidden')).toBeNull();
+    expect(view.el[symbol]).toBeUndefined();
     expect(view.el.id).to.equal('canonical-id');
     expect(view.el.className).to.equal('canonical-class');
     expect(Object.getPrototypeOf(view.el)).to.equal(elementPrototype);
-    expect(Object.hasOwn(view.el, '__proto__')).to.be.false;
+    expect(Object.hasOwn(view.el, '__proto__')).toBe(false);
     expect(view.el.getAttribute('__proto__')).to.equal(protoValue);
   });
 

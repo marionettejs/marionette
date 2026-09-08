@@ -1,5 +1,5 @@
 import { vi, describe, it, expect } from 'vitest';
-import { Collection, Model, triggerMethod } from '../../../packages/data/src/index.ts';
+import { Collection, Model, triggerMethod } from '@marionette/data';
 
 describe('@marionette/data Model', function() {
   it('initializes defaults, identity, attributes, and subclasses', function() {
@@ -27,7 +27,7 @@ describe('@marionette/data Model', function() {
       defaults = { ignoredDuringConstruction: true };
     }
     const fieldDefaults = new FieldDefaultsModel();
-    expect(fieldDefaults.get('ignoredDuringConstruction')).to.be.undefined;
+    expect(fieldDefaults.get('ignoredDuringConstruction')).toBeUndefined();
     expect(fieldDefaults.defaults).to.deep.equal({ ignoredDuringConstruction: true });
   });
 
@@ -55,7 +55,7 @@ describe('@marionette/data Model', function() {
     expect(change.mock.calls.at(0)[1].previous).to.deep.equal({ id: 1, name: 'one' });
 
     model.unset('name');
-    expect(model.has('name')).to.be.false;
+    expect(model.has('name')).toBe(false);
     model.clear({ silent: true });
     expect(model.toObject()).to.deep.equal({});
     model.reset({ id: 3 });
@@ -75,23 +75,23 @@ describe('@marionette/data Model', function() {
     expect(model.changed).to.deep.equal({});
     expect(model.changed).to.not.equal(nameChange);
     expect(model.unset('missing')).to.equal(model);
-    expect(model.get('missing')).to.be.undefined;
+    expect(model.get('missing')).toBeUndefined();
     expect(model.reset({ id: 1 })).to.equal(model);
   });
 
   it('distinguishes own undefined values from absent values', function() {
     const model = new Model({ present: undefined });
 
-    expect(model.has('present')).to.be.true;
-    expect(model.get('present')).to.be.undefined;
-    expect(model.has('absent')).to.be.false;
+    expect(model.has('present')).toBe(true);
+    expect(model.get('present')).toBeUndefined();
+    expect(model.has('absent')).toBe(false);
   });
 
   it('accepts whitespace keys as ordinary own properties', function() {
     const model = new Model();
 
     expect(model.set('  ', 'value')).to.equal(model);
-    expect(model.has('  ')).to.be.true;
+    expect(model.has('  ')).toBe(true);
     expect(model.get('  ')).to.equal('value');
     expect(model.changed).to.deep.equal({ '  ': 'value' });
     expect(model.toObject()).to.deep.equal({ '  ': 'value' });
@@ -105,10 +105,10 @@ describe('@marionette/data Model', function() {
     model.set('value', undefined);
     model.set('value', 'present');
 
-    expect(Object.hasOwn(changes[0].changed, 'value')).to.be.true;
-    expect(Object.hasOwn(changes[0].previous, 'value')).to.be.false;
-    expect(Object.hasOwn(changes[1].previous, 'value')).to.be.true;
-    expect(changes[1].previous.value).to.be.undefined;
+    expect(Object.hasOwn(changes[0].changed, 'value')).toBe(true);
+    expect(Object.hasOwn(changes[0].previous, 'value')).toBe(false);
+    expect(Object.hasOwn(changes[1].previous, 'value')).toBe(true);
+    expect(changes[1].previous.value).toBeUndefined();
   });
 
   it('does not emit for silent writes', function() {
@@ -165,15 +165,15 @@ describe('@marionette/data Model', function() {
     const second = new Collection([model]);
 
     model.set('id', 2);
-    expect(first.get(1)).to.be.undefined;
+    expect(first.get(1)).toBeUndefined();
     expect(first.get(2)).to.equal(model);
     expect(second.get(2)).to.equal(model);
     model.unset('id');
-    expect(first.get(2)).to.be.undefined;
+    expect(first.get(2)).toBeUndefined();
     expect(first.get(model.cid)).to.equal(model);
     first.destroy();
     second.destroy();
-    expect(model.isDestroyed()).to.be.false;
+    expect(model.isDestroyed()).toBe(false);
   });
 
   it('copies an own __proto__ attribute without changing object prototypes', function() {
@@ -227,11 +227,11 @@ describe('@marionette/data Model', function() {
     expect(model.destroy()).to.equal(model);
     expect(destroy).toHaveBeenCalledTimes(1);
     expect(destroy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([model, { source: 'test' }]);
-    expect(model.isDestroyed()).to.be.true;
+    expect(model.isDestroyed()).toBe(true);
     expect(model.set('ignored', true)).to.equal(model);
     expect(model.set(null)).to.equal(model);
     expect(model.changed).to.equal(finalChange);
-    expect(model.has('ignored')).to.be.false;
+    expect(model.has('ignored')).toBe(false);
   });
 
   it('does not evaluate defaults when resetting a destroyed model', function() {

@@ -87,24 +87,24 @@ describe('View#renderAttributes', function() {
       expect(view.el).to.equal(root);
       expect(root.title).to.equal('updated-title');
       expect(root.id).to.equal('0');
-      expect(root.hasAttribute('class')).to.be.false;
-      expect(root.hasAttribute('data-null')).to.be.false;
+      expect(root.hasAttribute('class')).toBe(false);
+      expect(root.hasAttribute('data-null')).toBe(false);
       expect(root.getAttribute('data-undefined')).to.equal('keep-with-undefined');
       expect(root.getAttribute('data-omitted')).to.equal('keep');
       expect(root.getAttribute('data-false')).to.equal('false');
       expect(root.getAttribute('data-zero')).to.equal('0');
       expect(root.getAttribute('data-empty')).to.equal('');
       expect(root.getAttribute('data-external')).to.equal('untouched');
-      expect(view.isRendered()).to.be.false;
+      expect(view.isRendered()).toBe(false);
 
 
       state.id = null;
       state.className = '';
       view.renderAttributes();
 
-      expect(root.hasAttribute('id')).to.be.false;
+      expect(root.hasAttribute('id')).toBe(false);
       expect(root.className).to.equal('');
-      expect(root.hasAttribute('class')).to.be.true;
+      expect(root.hasAttribute('class')).toBe(true);
     });
   });
 
@@ -145,7 +145,7 @@ describe('View#renderAttributes', function() {
     state.managed = null;
     view.renderAttributes();
 
-    expect(root.hasAttribute('data-managed')).to.be.false;
+    expect(root.hasAttribute('data-managed')).toBe(false);
     expect(root.getAttribute('data-unrelated')).to.equal('keep');
   });
 
@@ -167,7 +167,7 @@ describe('View#renderAttributes', function() {
     className = null;
     view.renderAttributes();
 
-    expect(root.hasAttribute('class')).to.be.false;
+    expect(root.hasAttribute('class')).toBe(false);
     expect(root.className.baseVal).to.equal('');
   });
 
@@ -185,15 +185,15 @@ describe('View#renderAttributes', function() {
     const view = new AttributeView();
 
     expect(Object.getPrototypeOf(view.el)).to.equal(elementPrototype);
-    expect(Object.hasOwn(view.el, '__proto__')).to.be.false;
+    expect(Object.hasOwn(view.el, '__proto__')).toBe(false);
     expect(view.el.getAttribute('__proto__')).to.equal(protoValue);
 
     protoValue = null;
     view.renderAttributes();
 
     expect(Object.getPrototypeOf(view.el)).to.equal(elementPrototype);
-    expect(Object.hasOwn(view.el, '__proto__')).to.be.false;
-    expect(view.el.hasAttribute('__proto__')).to.be.false;
+    expect(Object.hasOwn(view.el, '__proto__')).toBe(false);
+    expect(view.el.hasAttribute('__proto__')).toBe(false);
   });
 
   it('does not evaluate declarations while destroying or destroyed', function() {
@@ -228,13 +228,13 @@ describe('View#renderAttributes', function() {
     view.renderAttributes();
 
     expect(view.el.title).to.equal('refreshed');
-    expect(view.isRendered()).to.be.false;
+    expect(view.isRendered()).toBe(false);
     expect(template).not.toHaveBeenCalled();
     expect(events).to.deep.equal([]);
     expect(bindUIElements).not.toHaveBeenCalled();
     expect(delegateEvents).not.toHaveBeenCalled();
     expect(view.getRegion('content')).to.equal(region);
-    expect(region.isDestroyed()).to.be.false;
+    expect(region.isDestroyed()).toBe(false);
 
     attributes.mockClear();
     title = 'not-automatically-refreshed';

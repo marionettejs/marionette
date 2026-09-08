@@ -23,7 +23,7 @@ describe('Application root View ownership', function() {
     const view = new RootView();
     const show = vi.spyOn(region, 'show');
 
-    expect(app.getView()).to.be.undefined;
+    expect(app.getView()).toBeUndefined();
     expect(app.showView(view)).to.equal(view);
     expect(show).toHaveBeenCalledTimes(1);
     expect(show).toHaveBeenCalledWith(view);
@@ -40,8 +40,8 @@ describe('Application root View ownership', function() {
     region.el.innerHTML = '<span>Unmanaged content</span>';
     const app = new Application({ region });
 
-    expect(await app.stop()).to.be.true;
-    expect(app.getView()).to.be.undefined;
+    expect(await app.stop()).toBe(true);
+    expect(app.getView()).toBeUndefined();
     expect(region.el.innerHTML).to.equal('<span>Unmanaged content</span>');
 
     await app.destroy();
@@ -55,9 +55,9 @@ describe('Application root View ownership', function() {
     const app = new Application({ region });
 
     expect(app.getView()).to.equal(view);
-    expect(await app.stop()).to.be.true;
-    expect(view.isDestroyed()).to.be.true;
-    expect(app.getView()).to.be.undefined;
+    expect(await app.stop()).toBe(true);
+    expect(view.isDestroyed()).toBe(true);
+    expect(app.getView()).toBeUndefined();
 
     await app.destroy();
     region.destroy();
@@ -72,12 +72,12 @@ describe('Application root View ownership', function() {
     app.showView(view);
     region.empty();
 
-    expect(view.isDestroyed()).to.be.true;
-    expect(app.isRunning()).to.be.true;
-    expect(app.getView()).to.be.undefined;
+    expect(view.isDestroyed()).toBe(true);
+    expect(app.isRunning()).toBe(true);
+    expect(app.getView()).toBeUndefined();
 
     await app.stop();
-    expect(region.hasView()).to.be.false;
+    expect(region.hasView()).toBe(false);
 
     await app.destroy();
     region.destroy();
@@ -93,17 +93,17 @@ describe('Application root View ownership', function() {
     app.showView(rootView);
     region.show(replacement);
 
-    expect(rootView.isDestroyed()).to.be.true;
+    expect(rootView.isDestroyed()).toBe(true);
     expect(app.getView()).to.equal(replacement);
     expect(region.currentView).to.equal(replacement);
 
     await app.stop();
-    expect(region.currentView).to.be.undefined;
-    expect(replacement.isDestroyed()).to.be.true;
-    expect(app.getView()).to.be.undefined;
+    expect(region.currentView).toBeUndefined();
+    expect(replacement.isDestroyed()).toBe(true);
+    expect(app.getView()).toBeUndefined();
 
     await app.destroy();
-    expect(region.isDestroyed()).to.be.false;
+    expect(region.isDestroyed()).toBe(false);
     region.destroy();
   });
 
@@ -115,15 +115,15 @@ describe('Application root View ownership', function() {
 
     app.showView(firstView);
     expect(region.detachView()).to.equal(firstView);
-    expect(app.getView()).to.be.undefined;
+    expect(app.getView()).toBeUndefined();
 
     app.showView(secondView);
     firstView.destroy();
 
     expect(app.getView()).to.equal(secondView);
-    expect(await app.stop()).to.be.true;
-    expect(secondView.isDestroyed()).to.be.true;
-    expect(app.getView()).to.be.undefined;
+    expect(await app.stop()).toBe(true);
+    expect(secondView.isDestroyed()).toBe(true);
+    expect(app.getView()).toBeUndefined();
 
     await app.destroy();
     region.destroy();
@@ -138,9 +138,9 @@ describe('Application root View ownership', function() {
     const view = new RootView();
     region.show(view);
     expect(app.getView()).to.equal(view);
-    expect(await app.stop()).to.be.true;
-    expect(view.isDestroyed()).to.be.true;
-    expect(app.getView()).to.be.undefined;
+    expect(await app.stop()).toBe(true);
+    expect(view.isDestroyed()).toBe(true);
+    expect(app.getView()).toBeUndefined();
 
     await app.destroy();
     region.destroy();
@@ -156,9 +156,9 @@ describe('Application root View ownership', function() {
     region.show(view);
 
     expect(app.getView()).to.equal(view);
-    expect(await app.stop()).to.be.true;
-    expect(region.currentView).to.be.undefined;
-    expect(view.isDestroyed()).to.be.true;
+    expect(await app.stop()).toBe(true);
+    expect(region.currentView).toBeUndefined();
+    expect(view.isDestroyed()).toBe(true);
 
     region.destroy();
     await app.destroy();
@@ -173,8 +173,8 @@ describe('Application root View ownership', function() {
     const view = new RootView();
 
     expect(app.showView(view)).to.equal(view);
-    expect(app.getView()).to.be.undefined;
-    expect(view.isRendered()).to.be.false;
+    expect(app.getView()).toBeUndefined();
+    expect(view.isRendered()).toBe(false);
 
     await app.destroy();
   });
@@ -196,13 +196,13 @@ describe('Application root View ownership', function() {
     await app.start();
     app.showView(view);
 
-    expect(await app.stop()).to.be.true;
+    expect(await app.stop()).toBe(true);
     expect(events).to.deep.equal([
       'child:stop',
       'view:destroy',
       'application:stop'
     ]);
-    expect(app.getView()).to.be.undefined;
+    expect(app.getView()).toBeUndefined();
 
     await app.destroy();
     region.destroy();
@@ -217,11 +217,11 @@ describe('Application root View ownership', function() {
 
     app.showView(view);
 
-    expect(await app.stop()).to.be.true;
+    expect(await app.stop()).toBe(true);
     expect(beforeStop).not.toHaveBeenCalled();
     expect(onStop).not.toHaveBeenCalled();
-    expect(view.isDestroyed()).to.be.true;
-    expect(app.getView()).to.be.undefined;
+    expect(view.isDestroyed()).toBe(true);
+    expect(app.getView()).toBeUndefined();
 
     await app.destroy();
   });
@@ -247,8 +247,8 @@ describe('Application root View ownership', function() {
       }
 
       expect(app.isRunning()).to.equal(lifecycleState === 'running');
-      expect(app.getView()).to.be.undefined;
-      expect(app.getRegion().hasView()).to.be.false;
+      expect(app.getView()).toBeUndefined();
+      expect(app.getRegion().hasView()).toBe(false);
 
       view.destroy();
       await app.destroy();
@@ -266,10 +266,10 @@ describe('Application root View ownership', function() {
     await app.start();
     app.showView(view);
 
-    expect(await app.stop()).to.be.false;
-    expect(await destroy).to.be.true;
-    expect(app.isDestroyed()).to.be.true;
-    expect(app.getView()).to.be.undefined;
+    expect(await app.stop()).toBe(false);
+    expect(await destroy).toBe(true);
+    expect(app.isDestroyed()).toBe(true);
+    expect(app.getView()).toBeUndefined();
   });
 
   it('tears down the prior root View before restart shows a new one', async function() {
@@ -287,8 +287,8 @@ describe('Application root View ownership', function() {
     await app.start();
     const firstView = app.getView();
 
-    expect(await app.restart()).to.be.true;
-    expect(firstView.isDestroyed()).to.be.true;
+    expect(await app.restart()).toBe(true);
+    expect(firstView.isDestroyed()).toBe(true);
     expect(views).to.have.length(2);
     expect(app.getView()).to.equal(views[1]);
 
@@ -306,8 +306,8 @@ describe('Application root View ownership', function() {
 
     app.getRegion().show(view);
 
-    expect(await app.restart()).to.be.true;
-    expect(view.isDestroyed()).to.be.true;
+    expect(await app.restart()).toBe(true);
+    expect(view.isDestroyed()).toBe(true);
     expect(starts).to.deep.equal([undefined]);
 
     await app.destroy();
@@ -320,11 +320,11 @@ describe('Application root View ownership', function() {
 
     app.showView(view);
 
-    expect(await app.destroy()).to.be.true;
-    expect(view.isDestroyed()).to.be.true;
-    expect(region.isDestroyed()).to.be.true;
-    expect(app.getRegion()).to.be.undefined;
-    expect(app.getView()).to.be.undefined;
+    expect(await app.destroy()).toBe(true);
+    expect(view.isDestroyed()).toBe(true);
+    expect(region.isDestroyed()).toBe(true);
+    expect(app.getRegion()).toBeUndefined();
+    expect(app.getView()).toBeUndefined();
   });
 
   for (const failure of ['channelName', 'initialize', 'createState', 'stateEvents']) {
@@ -338,7 +338,7 @@ describe('Application root View ownership', function() {
       });
 
       expect(() => new BrokenApplication({ region })).to.throw(error);
-      expect(region.isDestroyed()).to.be.false;
+      expect(region.isDestroyed()).toBe(false);
       region.destroy();
     });
   }
@@ -350,11 +350,11 @@ describe('Application root View ownership', function() {
 
     region.show(view);
 
-    expect(await app.destroy()).to.be.true;
-    expect(view.isDestroyed()).to.be.true;
-    expect(region.isDestroyed()).to.be.false;
-    expect(app.getRegion()).to.be.undefined;
-    expect(app.getView()).to.be.undefined;
+    expect(await app.destroy()).toBe(true);
+    expect(view.isDestroyed()).toBe(true);
+    expect(region.isDestroyed()).toBe(false);
+    expect(app.getRegion()).toBeUndefined();
+    expect(app.getView()).toBeUndefined();
 
     region.destroy();
   });
@@ -364,17 +364,17 @@ describe('Application root View ownership', function() {
     const lateView = new RootView();
     const TestApplication = Application.extend({
       onBeforeDestroy() {
-        expect(this.getView()).to.be.undefined;
+        expect(this.getView()).toBeUndefined();
         expect(this.showView(lateView)).to.equal(lateView);
       }
     });
     const app = new TestApplication({ region });
 
-    expect(await app.destroy()).to.be.true;
-    expect(region.hasView()).to.be.false;
-    expect(lateView.isRendered()).to.be.false;
+    expect(await app.destroy()).toBe(true);
+    expect(region.hasView()).toBe(false);
+    expect(lateView.isRendered()).toBe(false);
     expect(app.showView(lateView)).to.equal(lateView);
-    expect(region.hasView()).to.be.false;
+    expect(region.hasView()).toBe(false);
 
     lateView.destroy();
     region.destroy();
@@ -392,11 +392,11 @@ describe('Application root View ownership', function() {
     });
     app.showView(view);
 
-    expect(await app.destroy()).to.be.true;
-    expect(await stop).to.be.true;
-    expect(await destroy).to.be.true;
-    expect(app.isDestroyed()).to.be.true;
-    expect(app.getView()).to.be.undefined;
+    expect(await app.destroy()).toBe(true);
+    expect(await stop).toBe(true);
+    expect(await destroy).toBe(true);
+    expect(app.isDestroyed()).toBe(true);
+    expect(app.getView()).toBeUndefined();
   });
 
   it('preserves an external replacement in a borrowed Region when construction fails', function() {
@@ -414,10 +414,10 @@ describe('Application root View ownership', function() {
 
     try {
       expect(() => new Owner({ region })).to.throw(failure);
-      expect(root.isDestroyed()).to.be.true;
+      expect(root.isDestroyed()).toBe(true);
       expect(region.currentView).to.equal(replacement);
-      expect(replacement.isDestroyed()).to.be.false;
-      expect(region.isDestroyed()).to.be.false;
+      expect(replacement.isDestroyed()).toBe(false);
+      expect(region.isDestroyed()).toBe(false);
     } finally {
       region.destroy();
     }

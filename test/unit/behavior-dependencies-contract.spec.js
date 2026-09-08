@@ -1,7 +1,7 @@
 import { vi, describe, it, expect } from 'vitest';
-import Behavior from '../../src/modules/behavior';
-import MnObject from '../../src/modules/object';
-import View from '../../src/modules/view';
+import { Behavior } from 'marionette';
+import { MnObject } from 'marionette';
+import { View } from 'marionette';
 
 describe('Behavior dependency contract', function() {
   it('resolves an injected collaborator and exact host during initialize', function() {
@@ -67,7 +67,7 @@ describe('Behavior dependency contract', function() {
 
     expect(behaviorService).to.equal(defaultService);
     expect(behaviorService).to.not.equal(hostService);
-    expect(behaviorHostOnly).to.be.undefined;
+    expect(behaviorHostOnly).toBeUndefined();
     expect(hostOnly).to.equal(hostService);
 
     view.destroy();
@@ -158,7 +158,7 @@ describe('Behavior dependency contract', function() {
 
     expect(behaviorListener).toHaveBeenCalledTimes(1);
     expect(unrelatedListener).toHaveBeenCalledTimes(2);
-    expect(service.isDestroyed()).to.be.false;
+    expect(service.isDestroyed()).toBe(false);
 
     view.destroy();
     service.off();
@@ -194,7 +194,7 @@ describe('Behavior dependency contract', function() {
 
     expect(behaviorListener).toHaveBeenCalledTimes(1);
     expect(unrelatedListener).toHaveBeenCalledTimes(2);
-    expect(service.isDestroyed()).to.be.false;
+    expect(service.isDestroyed()).toBe(false);
 
     service.off();
     service.destroy();

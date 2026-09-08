@@ -16,8 +16,8 @@ describe('mergeOptions', function() {
 
   describe('when calling with nullish options', function() {
     it('should return instantly without validating keys', function() {
-      expect(mergeOptions()).to.be.undefined;
-      expect(mergeOptions(null)).to.be.undefined;
+      expect(mergeOptions()).toBeUndefined();
+      expect(mergeOptions(null)).toBeUndefined();
     });
   });
 
@@ -142,7 +142,7 @@ describe('mergeOptions', function() {
     expect(target).to.not.have.property('country');
     expect(target).to.not.have.property(symbol);
     expect(Object.getPrototypeOf(target)).to.equal(Object.prototype);
-    expect(Object.hasOwn(target, '__proto__')).to.be.true;
+    expect(Object.hasOwn(target, '__proto__')).toBe(true);
     expect(Object.getOwnPropertyDescriptor(target, '__proto__').value).to.equal(protoValue);
   });
 });

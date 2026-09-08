@@ -2,8 +2,8 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { setFixtures } from '../setup/fixtures.js';
 import _ from 'underscore';
 import $ from 'jquery';
-import View from '../../src/modules/view';
-import Region from '../../src/modules/region';
+import { View } from 'marionette';
+import { Region } from 'marionette';
 
 describe('onDomRefresh', function() {
   'use strict';

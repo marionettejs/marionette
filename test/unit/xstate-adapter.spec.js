@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { assign, createActor, createMachine, emit } from 'xstate';
-import { createMarionette } from '../../src/index.ts';
-import createXStateActorApi from '../../packages/adapters/src/data/xstate.ts';
+import { createMarionette } from 'marionette';
+import createXStateActorApi from '@marionette/adapters/xstate';
 
 const childMachine = createMachine({
   context: ({ input }) => ({ id: input.id, label: input.label }),
@@ -86,7 +86,7 @@ describe('XState actor adapter', function() {
     expect(view.children.findByModel(second)).to.equal(secondView);
 
     parent.send({ type: 'replace', models: [third, first] });
-    expect(secondView.isDestroyed()).to.be.true;
+    expect(secondView.isDestroyed()).toBe(true);
     view.destroy();
     expect(parent.getSnapshot().status).to.equal('active');
     expect(first.getSnapshot().status).to.equal('active');
@@ -207,9 +207,9 @@ describe('XState actor adapter', function() {
 
     expect(ActorApi.key(actor)).to.equal(actor);
     expect(ActorApi.get(actor, 'label')).to.equal('one');
-    expect(ActorApi.get(actor, 'missing')).to.be.undefined;
-    expect(ActorApi.has(actor, 'label')).to.be.true;
-    expect(ActorApi.has(actor, 'missing')).to.be.false;
+    expect(ActorApi.get(actor, 'missing')).toBeUndefined();
+    expect(ActorApi.has(actor, 'label')).toBe(true);
+    expect(ActorApi.has(actor, 'missing')).toBe(false);
     expect(ActorApi.serialize(actor)).to.equal(actor.getSnapshot().context);
     expect(ActorApi).to.not.have.property('models');
     expect(ActorApi).to.not.have.property('observeCollection');
@@ -238,7 +238,7 @@ describe('XState actor adapter', function() {
 
     parent.send({ type: 'replace', models: [replacement] });
 
-    expect(firstView.isDestroyed()).to.be.true;
+    expect(firstView.isDestroyed()).toBe(true);
     expect(view.children.first().model).to.equal(replacement);
     expect(view.el.textContent).to.equal('replacement');
     view.destroy();

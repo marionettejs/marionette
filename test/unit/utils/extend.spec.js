@@ -106,7 +106,7 @@ describe('extend', function() {
 
     const Child = extend.call(Parent, { status: 'child' });
 
-    expect(Object.hasOwn(Child.prototype, 'status')).to.be.true;
+    expect(Object.hasOwn(Child.prototype, 'status')).toBe(true);
     expect(Child.prototype.status).to.equal('child');
   });
 
@@ -189,10 +189,10 @@ describe('extend', function() {
 
     const Child = extend.call(function() {}, protoProps, staticProps);
 
-    expect(Child.prototype.visiblePrototype).to.be.true;
-    expect(Child.visibleStatic).to.be.true;
-    expect(Child.prototype.hiddenPrototype).to.be.undefined;
-    expect(Child.hiddenStatic).to.be.undefined;
+    expect(Child.prototype.visiblePrototype).toBe(true);
+    expect(Child.visibleStatic).toBe(true);
+    expect(Child.prototype.hiddenPrototype).toBeUndefined();
+    expect(Child.hiddenStatic).toBeUndefined();
     expect(Child.prototype[symbol]).to.equal('copied');
     expect(Child[symbol]).to.equal('copied');
   });
@@ -207,10 +207,10 @@ describe('extend', function() {
     const Child = extend.call(Parent, protoProps, staticProps);
 
     expect(Object.getPrototypeOf(Child.prototype)).to.equal(Parent.prototype);
-    expect(Object.hasOwn(Child.prototype, '__proto__')).to.be.true;
+    expect(Object.hasOwn(Child.prototype, '__proto__')).toBe(true);
     expect(Reflect.get(Child.prototype, '__proto__')).to.equal(prototypeValue);
     expect(Object.getPrototypeOf(Child)).to.equal(Function.prototype);
-    expect(Object.hasOwn(Child, '__proto__')).to.be.true;
+    expect(Object.hasOwn(Child, '__proto__')).toBe(true);
     expect(Reflect.get(Child, '__proto__')).to.equal(staticValue);
   });
 

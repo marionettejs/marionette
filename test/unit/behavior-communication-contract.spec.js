@@ -1,6 +1,6 @@
 import { vi, describe, it, expect } from 'vitest';
-import Behavior from '../../src/modules/behavior';
-import View from '../../src/modules/view';
+import { Behavior } from 'marionette';
+import { View } from 'marionette';
 
 describe('Behavior communication contract', function() {
   it('broadcasts host triggerMethod calls to top-level and nested Behaviors after the host method', function() {

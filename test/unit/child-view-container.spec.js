@@ -139,7 +139,7 @@ describe('#ChildViewContainer', function() {
 
         expect(container.reduce(callback, undefined)).to.equal(6);
         expect(callback).toHaveBeenCalledTimes(3);
-        expect(callback.mock.calls.at(0)[0]).to.be.undefined;
+        expect(callback.mock.calls.at(0)[0]).toBeUndefined();
         expect(callback.mock.calls.at(0)[1]).to.equal(views[0]);
         expect(callback.mock.calls.at(0)[2]).to.equal(0);
       });
@@ -179,13 +179,13 @@ describe('#ChildViewContainer', function() {
 
     it('does not expose the removed Underscore aliases', function() {
       ['forEach', 'detect', 'select', 'all', 'any', 'include'].forEach(alias => {
-        expect(container[alias]).to.be.undefined;
+        expect(container[alias]).toBeUndefined();
       });
     });
 
     it('does not add undocumented where helpers', function() {
-      expect(container.where).to.be.undefined;
-      expect(container.findWhere).to.be.undefined;
+      expect(container.where).toBeUndefined();
+      expect(container.findWhere).toBeUndefined();
     });
 
     it('iterates child views in order through the prototype iterator', function() {
@@ -226,7 +226,7 @@ describe('#ChildViewContainer', function() {
         const [viewModel, missingModel] = container.pluck('model');
 
         expect(viewModel).to.equal(model);
-        expect(missingModel).to.be.undefined;
+        expect(missingModel).toBeUndefined();
       });
 
       it('does not read model attributes', function() {
@@ -255,13 +255,13 @@ describe('#ChildViewContainer', function() {
 
     describe('#contains', function() {
       it('matches the exact child view instance', function() {
-        expect(container.contains(view)).to.be.true;
-        expect(container.contains(model)).to.be.false;
-        expect(container.contains({ cid: view.cid })).to.be.false;
+        expect(container.contains(view)).toBe(true);
+        expect(container.contains(model)).toBe(false);
+        expect(container.contains({ cid: view.cid })).toBe(false);
       });
 
       it('returns false for an empty container', function() {
-        expect(createChildren().contains(view)).to.be.false;
+        expect(createChildren().contains(view)).toBe(false);
       });
     });
   });
@@ -310,7 +310,7 @@ describe('#ChildViewContainer', function() {
       it('returns undefined after every child view fails the predicate', function() {
         const predicate = vi.fn(() => false);
 
-        expect(container.find(predicate)).to.be.undefined;
+        expect(container.find(predicate)).toBeUndefined();
         expect(predicate).toHaveBeenCalledTimes(3);
         expectPredicateCall(predicate, 0, undefined);
         expectPredicateCall(predicate, 1, undefined);
@@ -320,7 +320,7 @@ describe('#ChildViewContainer', function() {
       it('does not call the predicate for an empty container', function() {
         const predicate = vi.fn();
 
-        expect(createChildren().find(predicate)).to.be.undefined;
+        expect(createChildren().find(predicate)).toBeUndefined();
         expect(predicate).not.toHaveBeenCalled();
       });
     });
@@ -399,7 +399,7 @@ describe('#ChildViewContainer', function() {
           return view.rank <= this.maximumRank ? 'pass' : 0;
         });
 
-        expect(container.every(predicate, context)).to.be.false;
+        expect(container.every(predicate, context)).toBe(false);
         expect(predicate).toHaveBeenCalledTimes(2);
         expectPredicateCall(predicate, 0, context);
         expectPredicateCall(predicate, 1, context);
@@ -408,7 +408,7 @@ describe('#ChildViewContainer', function() {
       it('returns true after every child view passes the predicate', function() {
         const predicate = vi.fn(() => true);
 
-        expect(container.every(predicate)).to.be.true;
+        expect(container.every(predicate)).toBe(true);
         expect(predicate).toHaveBeenCalledTimes(3);
         expectPredicateCall(predicate, 0, undefined);
         expectPredicateCall(predicate, 1, undefined);
@@ -418,7 +418,7 @@ describe('#ChildViewContainer', function() {
       it('returns true without calling the predicate for an empty container', function() {
         const predicate = vi.fn();
 
-        expect(createChildren().every(predicate)).to.be.true;
+        expect(createChildren().every(predicate)).toBe(true);
         expect(predicate).not.toHaveBeenCalled();
       });
     });
@@ -430,7 +430,7 @@ describe('#ChildViewContainer', function() {
           return view.rank >= this.minimumRank ? view : null;
         });
 
-        expect(container.some(predicate, context)).to.be.true;
+        expect(container.some(predicate, context)).toBe(true);
         expect(predicate).toHaveBeenCalledTimes(2);
         expectPredicateCall(predicate, 0, context);
         expectPredicateCall(predicate, 1, context);
@@ -439,7 +439,7 @@ describe('#ChildViewContainer', function() {
       it('returns false after every child view fails the predicate', function() {
         const predicate = vi.fn(() => false);
 
-        expect(container.some(predicate)).to.be.false;
+        expect(container.some(predicate)).toBe(false);
         expect(predicate).toHaveBeenCalledTimes(3);
         expectPredicateCall(predicate, 0, undefined);
         expectPredicateCall(predicate, 1, undefined);
@@ -449,7 +449,7 @@ describe('#ChildViewContainer', function() {
       it('returns false without calling the predicate for an empty container', function() {
         const predicate = vi.fn();
 
-        expect(createChildren().some(predicate)).to.be.false;
+        expect(createChildren().some(predicate)).toBe(false);
         expect(predicate).not.toHaveBeenCalled();
       });
     });
@@ -556,7 +556,7 @@ describe('#ChildViewContainer', function() {
       it('returns the empty-container values', function() {
         const emptyContainer = createChildren();
 
-        expect(emptyContainer.first()).to.be.undefined;
+        expect(emptyContainer.first()).toBeUndefined();
         expect(emptyContainer.first(2)).to.deep.equal([]);
       });
     });
@@ -656,7 +656,7 @@ describe('#ChildViewContainer', function() {
       it('returns the empty-container values', function() {
         const emptyContainer = createChildren();
 
-        expect(emptyContainer.last()).to.be.undefined;
+        expect(emptyContainer.last()).toBeUndefined();
         expect(emptyContainer.last(2)).to.deep.equal([]);
       });
     });
@@ -710,11 +710,11 @@ describe('#ChildViewContainer', function() {
 
     describe('#isEmpty', function() {
       it('reports whether the container has child views without mutating it', function() {
-        expect(container.isEmpty()).to.be.false;
+        expect(container.isEmpty()).toBe(false);
         expect(container).to.have.lengthOf(3);
         expect(container.first()).to.equal(views[0]);
         expect(container.last()).to.equal(views[2]);
-        expect(createChildren().isEmpty()).to.be.true;
+        expect(createChildren().isEmpty()).toBe(true);
       });
     });
 

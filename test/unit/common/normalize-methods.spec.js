@@ -17,7 +17,7 @@ describe('normalizeMethods', function() {
 
   describe('when called with no value', function() {
     it('should return nothing', function() {
-      expect(view.normalizeMethods()).to.be.undefined;
+      expect(view.normalizeMethods()).toBeUndefined();
     });
   });
 

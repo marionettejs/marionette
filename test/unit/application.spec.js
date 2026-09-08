@@ -16,8 +16,8 @@ describe('Marionette Application', function() {
           expect(receivedOptions).to.equal(options);
           expect(this.options.label).to.equal('Editor');
           expect(this.cid).to.be.a('string');
-          expect(this.getRegion()).to.be.undefined;
-          expect(this.getChannel()).to.be.undefined;
+          expect(this.getRegion()).toBeUndefined();
+          expect(this.getChannel()).toBeUndefined();
           this.region = { el: receivedOptions.el };
           this.channelName = this.cid;
           this.state = { label: receivedOptions.label };
@@ -69,7 +69,7 @@ describe('Marionette Application', function() {
       it('should have a cid', function() {
         app = new Application(appOptions);
 
-        expect(app.cid).to.exist;
+        expect(app.cid).to.not.equal(null).and.not.equal(undefined);
       });
 
       it('configures its public Radio channel', function() {
@@ -111,7 +111,7 @@ describe('Marionette Application', function() {
     it('should resolve when the application starts', async function() {
       const result = await app.start(fooOptions);
 
-      expect(result).to.be.true;
+      expect(result).toBe(true);
     });
   });
 

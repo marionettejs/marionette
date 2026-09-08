@@ -46,7 +46,7 @@ describe('backbone.marionette', function() {
     });
 
     it('does not expose the internal Requests mixin', function() {
-      expect(Mn.Requests).to.be.undefined;
+      expect(Mn.Requests).toBeUndefined();
     });
   });
 
