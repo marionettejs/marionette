@@ -1,0 +1,41 @@
+.github/workflows/release.yml
+  s_e9ec88924dcd73::t_95964f38c4a79f 6,8,10-12,15
+config/release-validation.json
+  s_e9ec88924dcd73::t_7cf84713dc1016 1-203
+scripts/release/arguments.mjs
+  s_e9ec88924dcd73::t_713498162d2991 11
+scripts/release/validation.mjs
+  s_e9ec88924dcd73::t_626f4c400cba01 2,80-84,88-90,95,97-98,105
+scripts/release/verify-artifact.mjs
+  s_e9ec88924dcd73::t_ac477708543cf7 146
+test/browser/global-setup.mjs
+  s_e9ec88924dcd73::t_12f3327bf49d26 71-72
+test/fixtures/run.mjs
+  s_e9ec88924dcd73::t_b94dc0b088414d 101-104,145-150,152
+test/release/browser-setup.test.mjs
+  s_e9ec88924dcd73::t_b7b02272803e8a 1-47
+test/release/build.test.mjs
+  s_e9ec88924dcd73::t_84fd8ee3f07d48 133
+test/release/cli.test.mjs
+  s_e9ec88924dcd73::t_8f1604000920e2 2,28,112-120,162-185
+test/release/fixture.mjs
+  s_e9ec88924dcd73::t_8c086f02f7f10b 38-41,135-140
+test/tooling/fixtures.test.mjs
+  s_e9ec88924dcd73::t_25711ca86b37d7 38-39,63,190,228,259-277
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "ad4586d06d3db1fe95dfacfbbc130470f03ce4b7",
+  "prompts": {},
+  "sessions": {
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
