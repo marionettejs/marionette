@@ -1,23 +1,32 @@
 .github/copilot-instructions.md
   s_bc19ab09821624::t_f09d8b574bfe9d 8-18
+  s_e9ec88924dcd73::t_8dc651fda3689d 8-18
 AGENTS.md
   s_bc19ab09821624::t_cd08037d922f68 15-23
+  s_e9ec88924dcd73::t_fe00ea0c9774ae 15-23
 CONTRIBUTING.md
   s_bc19ab09821624::t_81e6c924913dc4 305-324
+  s_e9ec88924dcd73::t_604f2524a487c5 305-324
 config/mutation.json
   s_e9ec88924dcd73::t_2ba258c5eafecf 3,8
 docs/data.api.md
   s_bc19ab09821624::t_bd4be4127ff6e4 94-95
+  s_e9ec88924dcd73::t_a2bae66a40198b 94-95
 docs/dom.interactions.md
   s_bc19ab09821624::t_c655f8b19d2621 191-192
+  s_e9ec88924dcd73::t_8642b58c147f53 191-192
 docs/marionette.application.md
   s_bc19ab09821624::t_5a46305091e6c3 67-69
+  s_e9ec88924dcd73::t_a48355eb9f19aa 67-69
 docs/migration-from-v4.md
   s_bc19ab09821624::t_ba41d99ba75225 110
+  s_e9ec88924dcd73::t_bd08e73c5c09ea 110
 docs/view.lifecycle.md
   s_bc19ab09821624::t_05300dad74c5a8 261-264,272-291
+  s_e9ec88924dcd73::t_19254c9e9159a0 261-264,272-291
 evidence/state-data-regression-ledger.md
   s_bc19ab09821624::t_9bdd1a90df6f97 8-11,17-18,20,26-27,30
+  s_e9ec88924dcd73::t_4f6e040d0efdf9 8-11,17-18,20,26-27,30
 src/mixins/behaviors.ts
   s_e9ec88924dcd73::t_59d5843d6b70a0 88,93
 src/mixins/delegate-entity-events.ts
@@ -46,10 +55,12 @@ src/utils/subscribe-bindings.ts
   s_e9ec88924dcd73::t_54d03377775e7f 15-17,19-21
 test/README.md
   s_bc19ab09821624::t_63fd6af9155b1f 8-23
+  s_e9ec88924dcd73::t_fb4e6aaed92cff 8-23
 test/unit/mixins/delegate-entity-events.spec.js
   s_e9ec88924dcd73::t_04ee073aa27c01 2
 test/unit/model-based/README.md
   s_bc19ab09821624::t_399dcaecfebdad 30,36-56
+  s_e9ec88924dcd73::t_b65628e52b975d 30,36-56
 test/unit/region-adoption.spec.js
   s_e9ec88924dcd73::t_d1bc6830122ca8 2,5
 ---
