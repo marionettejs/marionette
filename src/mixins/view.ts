@@ -1,6 +1,8 @@
 // ViewMixin
 //  ---------
 
+import cleanupSubscriptions from '../utils/cleanup-subscriptions.ts';
+
 import { getValue } from '@marionette/utils';
 import BehaviorsMixin from './behaviors.ts';
 import CommonMixin from './common.ts';
@@ -167,18 +169,25 @@ const ViewMixin = {
   delegateEntityEvents(this: ViewMixinHost) {
     if (this._isDestroyed || this._isDestroying) { return this; }
 
-    this._delegateEntityEvents(this.model, this.collection, this.Data);
+    try {
+      this._delegateEntityEvents(this.model, this.collection, this.Data);
 
-    // bind each behaviors model and collection events
-    this._delegateBehaviorEntityEvents();
+      // Bind each Behavior's model and collection events as one owned batch.
+      this._delegateBehaviorEntityEvents();
+    } catch (error) {
+      try { this.undelegateEntityEvents(); } catch { /* Preserve the subscription setup error. */ }
+      throw error;
+    }
 
     return this;
   },
 
   // Handle unbinding `modelEvents`, and `collectionEvents` configuration
   undelegateEntityEvents(this: ViewMixinHost) {
-    this._undelegateEntityEvents();
-    this._undelegateBehaviorEntityEvents();
+    cleanupSubscriptions([
+      () => this._undelegateEntityEvents(),
+      () => this._undelegateBehaviorEntityEvents()
+    ]);
 
     return this;
   },

@@ -1,4 +1,5 @@
 import { getValue } from '@marionette/utils';
+import cleanupSubscriptions from '../utils/cleanup-subscriptions.ts';
 import type { TriggerTarget } from './view-events.ts';
 
 export interface BehaviorInstance {
@@ -85,12 +86,19 @@ export default {
 
   // delegate modelEvents and collectionEvents
   _delegateBehaviorEntityEvents(this: BehaviorContainer) {
-    eachBehavior(this._behaviors, behavior => behavior.delegateEntityEvents());
+    try {
+      eachBehavior(this._behaviors, behavior => behavior.delegateEntityEvents());
+    } catch (error) {
+      try {
+        cleanupSubscriptions(this._behaviors?.map(behavior => () => behavior.undelegateEntityEvents()) || []);
+      } catch { /* Preserve the subscription setup error. */ }
+      throw error;
+    }
   },
 
   // undelegate modelEvents and collectionEvents
   _undelegateBehaviorEntityEvents(this: BehaviorContainer) {
-    eachBehavior(this._behaviors, behavior => behavior.undelegateEntityEvents());
+    cleanupSubscriptions(this._behaviors?.map(behavior => () => behavior.undelegateEntityEvents()) || []);
   },
 
   _destroyBehaviors(this: BehaviorContainer, options?: unknown) {
