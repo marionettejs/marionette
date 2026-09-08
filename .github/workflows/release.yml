@@ -3,7 +3,7 @@ name: Release promotion
 on:
   pull_request:
     paths:
-      - '.github/**'
+      - '.github/workflows/**'
       - '.nvmrc'
       - '.npmrc'
       - '.babelrc'

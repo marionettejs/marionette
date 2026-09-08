@@ -26,6 +26,8 @@ test('HTTP serving contains normalized paths and symbolic links within each allo
     await writeFile(join(directory, 'outside'), 'private');
     await symlink(join(directory, 'outside'), join(resources.publicRoot, 'app/external'));
     await symlink(join(resources.publicRoot, 'corpus.json'), join(resources.publicRoot, 'app/hidden'));
+    await writeFile(join(resources.publicRoot, 'app/content.txt'), 'public content');
+    await symlink(join(resources.publicRoot, 'app/content.txt'), join(resources.publicRoot, 'app/linked.txt'));
     server = await createReferenceServer(resources);
     await new Promise(done => server.listen(0, '127.0.0.1', done));
     const origin = `http://127.0.0.1:${server.address().port}`;
@@ -36,6 +38,9 @@ test('HTTP serving contains normalized paths and symbolic links within each allo
     }
     assert.equal(await (await fetch(`${origin}/tasks/example/reference/solution.mjs`)).text(), 'reference');
     assert.equal(await (await fetch(`${origin}/modules/entry.js`)).text(), 'module');
+    const linked = await fetch(`${origin}/app/linked.txt`);
+    assert.equal(linked.status, 200);
+    assert.equal(await linked.text(), 'public content');
   } finally {
     if (server) { await new Promise(done => server.close(done)); }
     await rm(directory, { recursive: true, force: true });

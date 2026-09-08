@@ -27,6 +27,7 @@ test('provider subscription survives rerender and is released once', () => {
   assert.ok(view instanceof View);
   assert.equal(view.isRendered(), true);
   assert.equal(view.el.querySelector('output').textContent, '<Initial>');
+  assert.equal(view.el.textContent, '<Initial>');
   assert.equal(subscribers.size, 1);
   const emit = value => [...subscribers].forEach(callback => callback(value));
   emit('<Ready>');
