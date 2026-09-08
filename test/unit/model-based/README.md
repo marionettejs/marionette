@@ -44,9 +44,25 @@ Earlier pilot reports included rollback and attempt-all cleanup code/tests rejec
 by the PR #470 scope correction. Their scores and survivor classifications do not
 describe the corrected source or test contract and must not be used as current
 candidate evidence. Historical reports remain at their recorded paths, including
-`coverage/mutation/2026-09-08T13-08-38-131Z-44336/`; no corrected-candidate mutation
-score has been measured. Run the bounded pilot on the integrated corrected commit
-and retain its exact provenance before reporting a new score.
+`coverage/mutation/2026-09-08T13-08-38-131Z-44336/`.
+
+The corrected pilot at clean commit `38b68747` completed in 92.8 seconds:
+65 killed, two survived and one NoCoverage out of 68 mutants (95.59%); no timeout,
+compile error, runtime error or pending result. Exact evidence is retained in
+`coverage/mutation/2026-09-08T15-06-52-525Z-78917/`, including the package and coverage
+configuration hashes. This is bounded Region/subscription evidence, not full
+release certification or a measured agent-development result.
+
+- Region mutants 44 and 45 remove the absent-current-View restoration guard or
+  its body. Ordinary ownership restores the placeholder before clearing the View;
+  this is the same unreachable state documented in `config/coverage-exceptions.json`.
+- Region mutant 47 replaces `before:destroy` with an empty event name in `off`.
+  The public Events API treats that as all event names for the supplied callback
+  and context. The restoration callback is registered only for `before:destroy`,
+  so this mutation is equivalent for the supported workflow.
+
+No private probes, recovery contracts, or mutation exclusions were added for
+these cases. Rerun the pilot when its recorded source/test/config inputs change.
 
 The current selection is Region ownership/restoration/destruction plus successful
 subscription binding and release in `src/utils/subscribe-bindings.ts`. The removed
