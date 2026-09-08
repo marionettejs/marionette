@@ -95,6 +95,10 @@ is reserved by that adapter instance. Every other event-map name is passed to
 event sent to the actor. Subscribing to an already-started actor does not replay
 its current snapshot, so initial rendering reads `getSnapshot()` directly.
 
+Replace the selected array when membership or order changes. Reusing an unchanged
+array lets the adapter skip comparison; a newly allocated array requires a keyed
+scan per observer, even if its contents are identical.
+
 Supplied parent, child, and state actors are borrowed. Destroying a Marionette
 owner releases its subscriptions and Views but does not stop those actors. An
 actor returned by an owner's `createState()` factory is owned; after releasing
