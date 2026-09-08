@@ -1,0 +1,25 @@
+.github/workflows/ci.yml
+  s_e9ec88924dcd73::t_3e26ec9415a22d 72-76,97-99
+evidence/state-data-regression-ledger.md
+  s_e9ec88924dcd73::t_d9c9969c62b551 12-15,20,28,30-32
+scripts/checks/verify.mjs
+  s_e9ec88924dcd73::t_02f2541a7d4754 11
+test/README.md
+  s_e9ec88924dcd73::t_a5b021b82a8381 28-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "e3eadea19dd06b3e47d11d36b2fd6af3585f0220",
+  "prompts": {},
+  "sessions": {
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
