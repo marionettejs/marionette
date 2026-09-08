@@ -34,8 +34,8 @@ import type { Constructed, Merge, ArgumentsFor, DefaultOptions, OptionsFor, Stat
 export interface ViewConfiguration {
   el?: Element | (() => Element);
   tagName?: string | (() => string);
-  id?: string | (() => string);
-  className?: string | (() => string);
+  id?: string | null | (() => string | null | undefined);
+  className?: string | null | (() => string | null | undefined);
   attributes?: Record<string, unknown> | (() => Record<string, unknown>);
   model?: unknown;
   collection?: unknown;
