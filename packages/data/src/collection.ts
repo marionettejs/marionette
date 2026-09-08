@@ -136,6 +136,19 @@ function assertUniqueModels(models: ModelType[]) {
   }
 }
 
+function indexModels(models: ModelType[]) {
+  const identities = new Map<unknown, ModelType>();
+  for (const model of models) { identities.set(model.cid, model); }
+  // Exact instances win over ids, which win over cids. Preserve the first id
+  // match if an application temporarily gives multiple models the same id.
+  for (let index = models.length; index--;) {
+    const model = models[index];
+    if (model.id != null) { identities.set(model.id, model); }
+  }
+  for (const model of models) { identities.set(model, model); }
+  return identities;
+}
+
 // The constructor and generic instance interface share the public name.
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const Collection = function(this: CollectionInstanceRuntime, models: ModelInput | ReadonlyArray<ModelInput> | null = [], options: CollectionOptions | null = {}) {
@@ -197,9 +210,9 @@ Object.assign(Collection.prototype, Events, {
 
   get(identity: unknown) {
     if (identity == null) { return undefined; }
-    return this.models.find(model =>
-      model === identity || model.cid === identity || sameValueZero(model.id, identity)
-    );
+    if (identity instanceof Model && this.models.includes(identity)) { return identity; }
+    return this.models.find(model => sameValueZero(model.id, identity)) ||
+      this.models.find(model => model.cid === identity);
   },
 
   indexOf(model: ModelType) {
@@ -254,13 +267,17 @@ Object.assign(Collection.prototype, Events, {
     options = normalizeOptions(options);
     if (this._isDestroyed) { return Array.isArray(models) ? [] : undefined; }
     const removed: ModelType[] = [];
-    for (const candidate of asArray(models)) {
-      const model = this.get(candidate);
-      if (!model || removed.includes(model)) { continue; }
+    const removing = new Set<ModelType>();
+    const candidates = asArray(models);
+    const identities = candidates.length > 1 ? indexModels(this.models) : undefined;
+    for (const candidate of candidates) {
+      const model = identities ? identities.get(candidate) : this.get(candidate);
+      if (!model || removing.has(model)) { continue; }
       removed.push(model);
+      removing.add(model);
     }
     if (!removed.length) { return Array.isArray(models) ? removed : undefined; }
-    const nextModels = this.models.filter(model => !removed.includes(model));
+    const nextModels = this.models.filter(model => !removing.has(model));
     for (const model of removed) { this._unbindModel(model); }
     this.models = nextModels;
     this.length = this.models.length;

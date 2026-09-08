@@ -112,6 +112,40 @@ describe('@marionette/data Collection', function() {
     expect(second.isDestroyed()).to.be.false;
   });
 
+  it('uses exact instance, id, then cid precedence independently of order', function() {
+    const first = new Model({ id: 1 });
+    const second = new Model({ id: first.cid });
+    const third = new Model({ id: first });
+    collection.reset([first, second, third]);
+    expect(collection.get(first.cid)).to.equal(second);
+    expect(collection.get(first)).to.equal(first);
+    collection.move(second, 0);
+    expect(collection.get(first.cid)).to.equal(second);
+    expect(collection.get(first)).to.equal(first);
+    expect(collection.remove([first.cid, first])).to.deep.equal([second, first]);
+    expect(collection.models).to.deep.equal([third]);
+    expect(collection.get(first)).to.equal(third);
+  });
+
+  it('resolves mixed bulk identities against current ids and preserves removal order', function() {
+    const first = collection.at(0);
+    const second = collection.at(1);
+    const third = collection.add({ id: NaN });
+    first.set('id', 10, { silent: true });
+    expect(collection.remove([null, undefined, 'missing', second.cid, third, 10, first]))
+      .to.deep.equal([second, third, first]);
+    expect(collection.length).to.equal(0);
+  });
+
+  it('keeps first-id lookup consistent for single and bulk removal after duplicate id writes', function() {
+    const first = collection.at(0);
+    const second = collection.at(1);
+    second.set('id', first.id);
+    expect(collection.get(first.id)).to.equal(first);
+    expect(collection.remove([first.id, 'missing'])).to.deep.equal([first]);
+    expect(collection.models).to.deep.equal([second]);
+  });
+
   it('handles array, keyless, custom-model, and empty mutation boundaries', function() {
     const CustomModel = Model.extend({});
     const custom = new Collection(null, { model: CustomModel });
