@@ -1,6 +1,16 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { Collection, Model } from '../../packages/data/src/index.ts';
+
+test('removal benchmark rejects missing explicit GC before emitting measurements', () => {
+  const script = fileURLToPath(new URL('../../scripts/performance/data-package-removal.mjs', import.meta.url));
+  const result = spawnSync(process.execPath, [script, 'unused-baseline'], { encoding: 'utf8' });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /Run with --expose-gc/);
+  assert.equal(result.stdout, '');
+});
 
 test('native bulk removal resolves identities in linear work', () => {
   const count = 1000;

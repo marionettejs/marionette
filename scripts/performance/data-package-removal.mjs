@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 const root = resolve(import.meta.dirname, '../..');
 const baseline = process.argv[2];
 if (!baseline) { throw new Error('Usage: node --expose-gc scripts/performance/data-package-removal.mjs BASELINE_SOURCE_DIRECTORY'); }
+if (typeof globalThis.gc !== 'function') { throw new Error('Run with --expose-gc to apply the benchmark method.'); }
 registerHooks({
   resolve(specifier, context, nextResolve) {
     if (specifier === '@marionette/utils') {
@@ -30,7 +31,7 @@ for (const count of [1000, 10000]) {
         const models = Array.from({ length: count }, (_, id) => new Model({ id }));
         const collection = new Collection(models);
         const candidates = input === 'models' ? models : input === 'ids' ? models.map(model => model.id) : models[0];
-        globalThis.gc?.();
+        globalThis.gc();
         const start = performance.now();
         const removed = collection.remove(candidates, { silent: true });
         const elapsed = performance.now() - start;
