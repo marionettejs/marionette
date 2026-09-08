@@ -131,6 +131,13 @@ npm run release:validate -- --artifact-dir release
 npm run release:verify -- --artifact-dir release --require-validation
 ```
 
+`config/release-validation.json` declares the required browser file/title identities
+and installed-consumer fixtures. Update this inventory when intentionally changing
+the release test surface. Certification requires every declared browser case in
+every engine from the release profile, plus every fixture; a reduced passing report
+cannot silently reduce the release requirements.
+
+
 Candidate validation runs required checks and tests browser/distribution/fixture
 consumers against the original tarballs. Its separate validation record binds logs,
 three-engine browser results, fixture results and lock hashes to the immutable
