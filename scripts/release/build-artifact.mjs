@@ -3,23 +3,16 @@ import { createHash } from 'node:crypto';
 import { appendFile, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import process from 'node:process';
+import { readArguments } from './arguments.mjs';
+import { releasePackages } from './packages.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
-const args = process.argv.slice(2);
-
-function readArgument(name, fallback) {
-  const index = args.indexOf(name);
-  if (index === -1) {
-    return fallback;
-  }
-
-  const value = args[index + 1];
-  if (!value || value.startsWith('--')) {
-    throw new Error(`Missing value for ${name}`);
-  }
-
-  return value;
-}
+const args = readArguments({
+  output: { type: 'string', default: 'release' },
+  'source-commit': { type: 'string', default: process.env.GITHUB_SHA },
+  'source-ref': { type: 'string', default: process.env.GITHUB_REF || 'local' },
+  repository: { type: 'string', default: process.env.GITHUB_REPOSITORY || 'marionettejs/marionette' },
+});
 
 function run(command, commandArgs) {
   const result = spawnSync(command, commandArgs, {
@@ -32,7 +25,8 @@ function run(command, commandArgs) {
     throw result.error;
   }
   if (result.status !== 0) {
-    process.stderr.write(result.stderr);
+    process.stdout.write(result.stdout || '');
+    process.stderr.write(result.stderr || '');
     throw new Error(`${command} exited with status ${result.status}`);
   }
 
@@ -62,7 +56,7 @@ async function getNpmVersion() {
   return npmPackage.version;
 }
 
-const outputDir = resolve(root, readArgument('--output', 'release'));
+const outputDir = resolve(root, args.output);
 await mkdir(outputDir, { recursive: true });
 if ((await readdir(outputDir)).length !== 0) {
   throw new Error(`Release artifact directory must be empty: ${outputDir}`);
@@ -81,9 +75,9 @@ if (repositoryStatus) {
   throw new Error('Release artifacts must be built from a clean checkout.');
 }
 
-const requestedSourceCommit = readArgument('--source-commit', process.env.GITHUB_SHA);
-const sourceRef = readArgument('--source-ref', process.env.GITHUB_REF || 'local');
-const repository = readArgument('--repository', process.env.GITHUB_REPOSITORY || 'marionettejs/marionette');
+const requestedSourceCommit = args['source-commit'];
+const sourceRef = args['source-ref'];
+const repository = args.repository;
 if (requestedSourceCommit && !/^[a-f0-9]{40}$/.test(requestedSourceCommit)) {
   throw new Error('A full 40-character source commit is required.');
 }
@@ -92,13 +86,7 @@ if (requestedSourceCommit && requestedSourceCommit !== sourceCommit) {
   throw new Error(`Source commit ${requestedSourceCommit} does not match checked-out commit ${sourceCommit}.`);
 }
 
-const packageConfigurations = [
-  { id: 'utils', name: '@marionette/utils', directory: 'packages/utils', manifestFile: 'utils-package-manifest.json' },
-  { id: 'radio', name: '@marionette/radio', directory: 'packages/radio', manifestFile: 'radio-package-manifest.json' },
-  { id: 'core', name: 'marionette', directory: '.', manifestFile: 'core-package-manifest.json' },
-  { id: 'data', name: '@marionette/data', directory: 'packages/data', manifestFile: 'data-package-manifest.json' },
-  { id: 'adapters', name: '@marionette/adapters', directory: 'packages/adapters', manifestFile: 'adapters-package-manifest.json' },
-];
+
 const packageJson = await readJson('package.json');
 const releaseProfile = await readJson('config/release-profile.json');
 const promotionPolicy = await readJson('config/release-promotion.json');
@@ -116,7 +104,7 @@ run(process.execPath, [npmCli, 'run', 'build']);
 run(process.execPath, [npmCli, 'run', 'test:dist']);
 
 const packages = [];
-for (const configuration of packageConfigurations) {
+for (const configuration of releasePackages) {
   const manifest = await readJson(`${configuration.directory}/package.json`);
   if (manifest.name !== configuration.name) {
     throw new Error(`Unexpected ${configuration.id} package name: ${manifest.name}.`);
