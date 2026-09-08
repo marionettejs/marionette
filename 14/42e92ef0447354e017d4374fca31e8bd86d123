@@ -1,0 +1,19 @@
+docs/beta.md
+  s_fae5a6096938ea::t_ad9c2192175f09 87,105
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "1442e92ef0447354e017d4374fca31e8bd86d123",
+  "prompts": {},
+  "sessions": {
+    "s_fae5a6096938ea": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08215-179d-79e2-9e34-97d51f445f91",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
