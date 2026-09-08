@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "description": "Bounded pilot for Region ownership and terminal teardown, subscription rollback, and exhaustive cleanup. Scores are evidence, not a release threshold.",
+  "concurrency": 2,
+  "budgetMs": 600000,
+  "targets": [
+    { "file": "src/modules/region.ts", "methods": ["show", "destroy", "_restoreEl"] },
+    { "file": "src/utils/subscribe-bindings.ts" },
+    { "file": "src/utils/cleanup-subscriptions.ts" }
+  ],
+  "testFiles": [
+    "test/unit/region*.spec.js",
+    "test/unit/owned-cleanup.spec.js",
+    "test/unit/state-owner.spec.js",
+    "test/unit/mixins/delegate-entity-events.spec.js",
+    "test/unit/utils/subscribe-bindings.spec.js",
+    "test/unit/model-based/**/*.spec.js"
+  ]
+}
