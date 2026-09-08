@@ -1,0 +1,51 @@
+test/unit/model-based/README.md
+  s_e9ec88924dcd73::t_1b52eb8a202f2c 40-43
+  s_e9ec88924dcd73::t_e91849cca039b2 1-39,44
+config/mutation.json
+  s_e9ec88924dcd73::t_4782ddd6b45292 7
+  s_e9ec88924dcd73::t_254f466d3536f8 15
+  s_e9ec88924dcd73::t_86d90ee0d72d81 1-6,8-14,16-19
+scripts/testing/mutation.mjs
+  s_e9ec88924dcd73::t_08667333225583 115,121-122
+  s_e9ec88924dcd73::t_254f466d3536f8 4-5,85,114,116-118,120
+  s_e9ec88924dcd73::t_b054cd9e3c3c57 47,49-51,133-135
+  s_e9ec88924dcd73::t_e91849cca039b2 88-93
+  s_e9ec88924dcd73::t_86d90ee0d72d81 1-3,6-46,48,52-84,86-87,94-113,119,123-132,136-145
+test/tooling/mutation.test.mjs
+  s_e9ec88924dcd73::t_83e3d85bdd6ef9 6,9-16
+  s_e9ec88924dcd73::t_75e2d680b266d4 1-5,7-8,17-68,70-75,82-83,85,87-98,101-104
+  s_e9ec88924dcd73::t_2af8d05e7cc09b 76-81
+  s_e9ec88924dcd73::t_7e7fcdb2f76c88 99
+  s_e9ec88924dcd73::t_a6b79ecdf9753d 84,86,100
+  s_e9ec88924dcd73::t_b054cd9e3c3c57 69
+test/unit/model-based/region.spec.js
+  s_e9ec88924dcd73::t_930713f769418f 95
+  s_e9ec88924dcd73::t_254f466d3536f8 1-94,96-124
+test/unit/model-based/mutation-regressions.spec.js
+  s_e9ec88924dcd73::t_254f466d3536f8 1-4,21-51
+  s_e9ec88924dcd73::t_c0bed56b6282c1 5-20
+test/unit/model-based/settings.js
+  s_e9ec88924dcd73::t_254f466d3536f8 1-39
+test/unit/model-based/collection-view.spec.js
+  s_e9ec88924dcd73::t_254f466d3536f8 1-91,93-117
+  s_e9ec88924dcd73::t_930713f769418f 92
+stryker.config.mjs
+  s_e9ec88924dcd73::t_86d90ee0d72d81 1-20,22,24-26
+  s_e9ec88924dcd73::t_1ed5b0d81249f7 21,23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "3602db5185a9e67cad082380a0305dcd2579a997",
+  "prompts": {},
+  "sessions": {
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
