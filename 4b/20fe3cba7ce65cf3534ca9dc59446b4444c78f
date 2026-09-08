@@ -1,0 +1,21 @@
+src/mixins/view.ts
+  s_bc19ab09821624::t_67193518370549 263,271
+test/unit/child-event-map-ownership.spec.js
+  s_bc19ab09821624::t_13f0c3c733ac83 1-51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "4b20fe3cba7ce65cf3534ca9dc59446b4444c78f",
+  "prompts": {},
+  "sessions": {
+    "s_bc19ab09821624": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e7-cb4f-73e3-b41e-328bfeae0db2",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
