@@ -26,6 +26,25 @@ describe('CollectionView Children', function() {
     });
   });
 
+  it('collects attachments after all child render hooks finish', function() {
+    const collectionView = new CollectionView({ viewComparator: false });
+    const first = new View({ template: false });
+    const second = new View({ template: () => '' });
+    collectionView.render();
+    collectionView.addChildView(first);
+    second.on('render', () => first.el.remove());
+
+    const attached = [];
+    collectionView.attachHtml = function(buffer, container) {
+      attached.push(...buffer.childNodes);
+      container.append(buffer);
+    };
+    collectionView.addChildView(second);
+
+    expect(attached).to.deep.equal([first.el, second.el]);
+    collectionView.destroy();
+  });
+
   describe('when instantiating a CollectionView', function() {
     let myCollectionView;
 
