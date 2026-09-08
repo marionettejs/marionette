@@ -22,12 +22,14 @@ test('provider subscription survives rerender and is released once', () => {
     }
   };
   const el = host();
-  el.textContent = 'Preexisting host markup';
+  const preexisting = document.createElement('p');
+  preexisting.textContent = 'Preexisting host markup';
+  el.append(preexisting);
   const view = solution.createConnectionStatus(el, provider);
   assert.ok(view instanceof View);
   assert.equal(view.isRendered(), true);
   assert.equal(view.el.querySelector('output').textContent, '<Initial>');
-  assert.equal(view.el.textContent, '<Initial>');
+  assert.equal(view.el.contains(preexisting), false);
   assert.equal(subscribers.size, 1);
   const emit = value => [...subscribers].forEach(callback => callback(value));
   emit('<Ready>');
