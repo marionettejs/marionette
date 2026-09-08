@@ -7,7 +7,7 @@ Marionette and `@mnjs/data` import these same implementations.
 npm install @mnjs/utils@5.0.0-beta.1
 ```
 
-During v5 alpha, use the same version for all Marionette packages. Core and data
+Use the same version for all Marionette packages. Core and data
 install utils automatically as a regular dependency. Add it directly when your
 application imports it.
 
