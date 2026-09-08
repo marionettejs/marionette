@@ -1,0 +1,21 @@
+src/modules/region.ts
+  s_060efbb5bf6218::t_8e8a84f0be27da 416-418
+test/unit/region-lifecycle.spec.js
+  s_060efbb5bf6218::t_e8be39fe356c23 638-671
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "c3ae7f1c662d86ceb11931894ecb4b49ebff99c5",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
