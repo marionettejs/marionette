@@ -59,3 +59,14 @@ test('artifact verification rejects relabeling stable as prerelease and policy t
   assert.equal(result.status, 1);
   assert.match(result.stderr, /publication authorization policy mismatch/);
 });
+
+
+test('publication versions reject empty identifiers and leading zero numeric identifiers', () => {
+  for (const version of ['5.0.0-beta..1', '5.0.0-beta.', '5.0.0-.beta', '5.0.0-01', '05.0.0-beta.1']) {
+    assert.throws(() => publicationEnabled(policy({ stable: false, prerelease: version }), beta), /Invalid release publication policy/);
+    assert.throws(() => publicationEnabled(policy({ stable: false, prerelease: beta }), version), /Invalid release version/);
+  }
+  for (const version of ['5.0.0-0', '5.0.0-beta.0', '5.0.0-01alpha', '5.0.0-beta-name.1']) {
+    assert.equal(publicationEnabled(policy({ stable: false, prerelease: version }), version), true);
+  }
+});
