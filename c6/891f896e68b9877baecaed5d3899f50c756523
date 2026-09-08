@@ -1,0 +1,37 @@
+src/mixins/state.ts
+  s_e9ec88924dcd73::t_510e1df0617aaa 6,81-84
+src/mixins/view-events.ts
+  s_e9ec88924dcd73::t_8b17514ed69c5f 2,68
+src/mixins/view.ts
+  s_e9ec88924dcd73::t_b8dfd9085b56b8 53-70
+src/modules/application.ts
+  s_e9ec88924dcd73::t_3f64b168d62d93 6,11,16,165-191
+src/modules/behavior.ts
+  s_e9ec88924dcd73::t_69c8b6fd6c738b 12,129-172,192-198
+src/modules/collection-view.ts
+  s_e9ec88924dcd73::t_7933ca8d293a39 6,10-11,356-358,360-361,363,365-370,372,374,376-378,380,382,384,386-387,389,391-410
+src/modules/object.ts
+  s_e9ec88924dcd73::t_cb6cd8ca7e5c06 6,124,148-166
+src/modules/region.ts
+  s_e9ec88924dcd73::t_4af9d6da05abf4 6,117-118,120,122-123,125-129,132-160
+src/modules/view.ts
+  s_e9ec88924dcd73::t_32adc90414a216 7,10-11,163,338,485-502,504-538
+test/unit/constructor-rollback.spec.js
+  s_e9ec88924dcd73::t_e6442a0eb28557 1-423
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "c6891f896e68b9877baecaed5d3899f50c756523",
+  "prompts": {},
+  "sessions": {
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
