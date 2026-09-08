@@ -1,0 +1,19 @@
+benchmarks/agent/tasks/connection-status/acceptance/acceptance.test.mjs
+  s_e9ec88924dcd73::t_7506b87e1c18be 25-27,32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "e6997786b423a2557d277fa793938f490d05f600",
+  "prompts": {},
+  "sessions": {
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
