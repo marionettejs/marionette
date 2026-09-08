@@ -1,8 +1,7 @@
 import { vi, describe, it, expect, afterEach } from 'vitest';
-import Radio, { createRadio } from '../../packages/radio/src/radio.ts';
-import { setDebug } from '../../packages/radio/src/debug.ts';
-import Events from '../../packages/utils/src/events.ts';
-import Requests from '../../packages/radio/src/requests.ts';
+import { Radio, createRadio } from '@marionette/radio';
+import { Events } from '@marionette/utils';
+import { Requests as Requests } from '@marionette/radio';
 
 function assignmentDescriptor(value) {
   return {
@@ -35,8 +34,7 @@ describe('Radio composition', function() {
     const expectedChannelKeys = composedKeys(Events, Requests, channelFinal);
 
     expect(Object.getOwnPropertyDescriptor(Radio, 'setDebug'))
-      .to.deep.equal(assignmentDescriptor(setDebug));
-    expect(Radio).to.not.have.property('_channels');
+      .to.deep.equal(assignmentDescriptor(Radio.setDebug));
     expect(Radio.Channel.prototype).to.equal(channelPrototype);
     expect(Radio.log).to.be.a('function');
     expect(Radio.debugLog).to.be.a('function');
@@ -70,7 +68,7 @@ describe('Radio composition', function() {
     const alternateReset = vi.fn();
 
     Radio.on('singleton-reset', 'event', handler);
-    expect(Radio.reset.call({ _channels: { alternate: { reset: alternateReset } } }))
+    expect(Radio.reset.call({ channel: () => ({ reset: alternateReset }) }))
       .to.be.undefined;
     Radio.trigger('singleton-reset', 'event');
 

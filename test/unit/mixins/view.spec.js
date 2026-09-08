@@ -1,11 +1,11 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import _ from 'underscore';
-import * as Marionette from '../../../src/index.ts';
+import * as Marionette from 'marionette';
 import '../../setup/backbone.js';
 import Backbone from 'backbone';
-import Behavior from '../../../src/modules/behavior';
-import CollectionView from '../../../src/modules/collection-view';
-import View from '../../../src/modules/view';
+import { Behavior } from 'marionette';
+import { CollectionView } from 'marionette';
+import { View } from 'marionette';
 
 describe('view mixin', function() {
   'use strict';
@@ -28,8 +28,9 @@ describe('view mixin', function() {
       expect(initializeStub).toHaveBeenCalledTimes(1);
     });
 
-    it('should set _behaviors', function() {
-      expect(view._behaviors).to.be.eql([]);
+    it('starts as a live unrendered View', function() {
+      expect(view.isDestroyed()).toBe(false);
+      expect(view.isRendered()).toBe(false);
     });
   });
 
@@ -141,7 +142,6 @@ describe('view mixin', function() {
       view = new View();
 
       detachElSpy = vi.spyOn(view.Dom, 'detachEl');
-      vi.spyOn(view, '_undelegateEntityEvents');
       vi.spyOn(view, 'destroy');
 
       onDestroyStub = vi.fn();
@@ -166,12 +166,9 @@ describe('view mixin', function() {
       expect(detachElSpy).toHaveBeenCalledTimes(1);
     });
 
-    it('should undelegate entity events', function() {
-      expect(view._undelegateEntityEvents).toHaveBeenCalledTimes(1);
-    });
 
-    it('should set the view _isDestroyed to true', function() {
-      expect(view).to.be.have.property('_isDestroyed', true);
+    it('should set the destroyed public state', function() {
+      expect(view.isDestroyed()).toBe(true);
     });
 
     it('should return the View', function() {
@@ -188,18 +185,18 @@ describe('view mixin', function() {
       });
     });
 
-    describe('_isDestroyed property', function() {
+    describe('isDestroyed', function() {
       beforeEach(function() {
         view = new View();
       });
 
       it('should be set to false before destroy', function() {
-        expect(view).to.be.have.property('_isDestroyed', false);
+        expect(view.isDestroyed()).toBe(false);
       });
 
       it('should be set to true after destroying', function() {
         view.destroy();
-        expect(view).to.be.have.property('_isDestroyed', true);
+        expect(view.isDestroyed()).toBe(true);
       });
     });
   });
@@ -328,7 +325,7 @@ describe('view mixin', function() {
     });
 
     it('should leave _isDestroyed as true', function() {
-      expect(view).to.be.have.property('_isDestroyed', true);
+      expect(view.isDestroyed()).toBe(true);
     });
   });
 
@@ -495,8 +492,8 @@ describe('view mixin', function() {
     describe('when childViewEvents was passed as a function', function() {
       beforeEach(function() {
         // use the function definition of childViewEvents instead of the hash
-        layoutView.childViewEvents = childEventsFunction;
-        layoutView._buildEventProxies();
+        layoutView.destroy();
+        layoutView = new layoutView.constructor({ childViewEvents: childEventsFunction });
         layoutView.showChildView('child', childView);
         childView.triggerMethod('boom', 'foo', 'bar');
       });
@@ -524,9 +521,10 @@ describe('view mixin', function() {
 
     describe('when childViewEventPrefix is false', function() {
       beforeEach(function() {
+        layoutView.destroy();
+        layoutView = new layoutView.constructor({ childViewEventPrefix: false });
+        layoutView.on('childview:boom', layoutEventHandler);
         layoutView.showChildView('child', childView);
-        layoutView.childViewEventPrefix = false;
-        layoutView._buildEventProxies();
         childView.triggerMethod('boom', 'foo', 'bar');
       });
 
@@ -537,7 +535,14 @@ describe('view mixin', function() {
 
     describe('when childViewEventPrefix is not configured', function() {
       it('should disable prefixed child event forwarding', function() {
-        expect(new View()._eventPrefix).to.be.false;
+        const parent = new View({ template: () => '<div></div>', regions: { child: 'div' } });
+        const child = new View({ template: () => '' });
+        const forwarded = vi.fn();
+        parent.on('childview:custom', forwarded);
+        parent.showChildView('child', child);
+        child.trigger('custom');
+        expect(forwarded).not.toHaveBeenCalled();
+        parent.destroy();
       });
     });
 

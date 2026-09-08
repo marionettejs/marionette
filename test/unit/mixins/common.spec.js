@@ -1,163 +1,44 @@
-import { vi, describe, it, expect, beforeEach } from 'vitest';
-import _ from 'underscore';
-import CommonMixin from '../../../src/mixins/common';
-import EventsMixin from '../../../packages/utils/src/events.ts';
+import { describe, expect, it, vi } from 'vitest';
+import { MnObject, View } from 'marionette';
 
-describe('Common Mixin', function() {
-  describe('#setOptions', function() {
-    let object;
-    let optionsMethod;
-    const classOptions = [];
-    const options = {
-      foo: 'baz',
-      baz: 'baz'
-    };
-
-    beforeEach(function() {
-      optionsMethod = vi.fn().mockReturnValue({
-        foo: 'bar',
-        bar: 'baz'
-      });
-      object = _.extend({
-        options: optionsMethod
-      }, CommonMixin);
-
-      vi.spyOn(object, 'mergeOptions');
-
-      object._setOptions(options, classOptions);
-    });
-
-    it('should not mutate the options argument', function() {
-      expect(options).to.eql({
-        foo: 'baz',
-        baz: 'baz'
-      })
-    });
-
-    // This test covers merge order and options as a function
-    it('should set options on the context', function() {
-      expect(object.options).to.eql({
-        foo: 'baz',
-        bar: 'baz',
-        baz: 'baz'
-      });
-      expect(optionsMethod).toHaveBeenCalledTimes(1);
-      expect(optionsMethod.mock.contexts).toContain(object);
-      expect(optionsMethod).toHaveBeenCalledWith();
-    });
-
-    it('should call mergeOptions', function() {
-      expect(object.mergeOptions).toHaveBeenCalledTimes(1);
-      expect(object.mergeOptions.mock.calls.map(args => args.slice(0, 2))).toContainEqual([options, classOptions]);
-    });
-
-    it('merges only own options and safely owns __proto__', function() {
-      const protoValue = { polluted: true };
-      const defaults = Object.assign(
-        Object.create({ inheritedDefault: true }),
-        { ownDefault: true }
-      );
-      const passed = Object.assign(
-        Object.create({ inheritedPassed: true }),
-        { ownPassed: true }
-      );
-      Object.defineProperty(passed, '__proto__', { enumerable: true, value: protoValue });
-      const target = _.extend({
-        options() {
-          return defaults;
-        }
-      }, CommonMixin);
-
-      target._setOptions(passed, []);
-
-      expect(target.options).to.include({ ownDefault: true, ownPassed: true });
-      expect(target.options).to.not.have.property('inheritedDefault');
-      expect(target.options).to.not.have.property('inheritedPassed');
-      expect(Object.getPrototypeOf(target.options)).to.equal(Object.prototype);
-      expect(Object.hasOwn(target.options, '__proto__')).to.be.true;
-      expect(Object.getOwnPropertyDescriptor(target.options, '__proto__').value)
-        .to.equal(protoValue);
-    });
+describe('public owner options', () => {
+  it('resolves defaults on the owner and overlays passed options without mutation', () => {
+    const defaults = vi.fn().mockReturnValue({ shared: 'default', retained: true });
+    const Owner = MnObject.extend({ options: defaults });
+    const options = { shared: 'passed', added: true };
+    const owner = new Owner(options);
+    expect(owner.options).toEqual({ shared: 'passed', retained: true, added: true });
+    expect(options).toEqual({ shared: 'passed', added: true });
+    expect(defaults).toHaveBeenCalledExactlyOnceWith();
+    expect(defaults.mock.contexts[0] === owner).toBe(true);
+    owner.destroy();
   });
 
-  describe('composition', function() {
-    it('keeps the intended own method order and a clean object prototype', function() {
-      const baseKeys = [
-        'initialize',
-        'normalizeMethods',
-        '_setOptions',
-        'mergeOptions',
-        'getOption',
-        'bindEvents',
-        'unbindEvents',
-        'bindRequests',
-        'unbindRequests'
-      ];
-      const composedKeys = Object.keys(EventsMixin)
-        .filter(methodName => !baseKeys.includes(methodName));
+  it('copies only own options and preserves an own __proto__ value safely', () => {
+    const defaults = Object.assign(Object.create({ inheritedDefault: true }), { default: true });
+    const passed = Object.assign(Object.create({ inheritedPassed: true }), { passed: true });
+    const value = { polluted: true };
+    Object.defineProperty(passed, '__proto__', { enumerable: true, value });
+    const Owner = MnObject.extend({ options() { return defaults; } });
+    const owner = new Owner(passed);
+    expect(owner.getOption('default')).toBe(true);
+    expect(owner.getOption('passed')).toBe(true);
+    expect(owner.options).not.toHaveProperty('inheritedDefault');
+    expect(owner.options).not.toHaveProperty('inheritedPassed');
+    expect(Object.getPrototypeOf(owner.options)).toBe(Object.prototype);
+    expect(Object.getOwnPropertyDescriptor(owner.options, '__proto__').value).toBe(value);
+    owner.destroy();
+  });
 
-      expect(Object.keys(CommonMixin)).to.deep.equal([...baseKeys, ...composedKeys]);
-      expect(Object.getPrototypeOf(CommonMixin)).to.equal(Object.prototype);
-      expect(CommonMixin).to.not.have.own.property('constructor');
-      expect(CommonMixin).to.not.have.own.property('toString');
-      expect(CommonMixin).to.not.have.own.property('__proto__');
+  it('makes declared View options available during initialize', () => {
+    const initialize = vi.fn(function() {
+      expect(this.tagName).toBe('article');
+      expect(this.getOption('label')).toBe('custom');
     });
-
-    it('keeps each event method identity with assignment descriptors', function() {
-      Object.keys(EventsMixin).forEach(methodName => {
-        expect(Object.getOwnPropertyDescriptor(CommonMixin, methodName)).to.deep.equal({
-          configurable: true,
-          enumerable: true,
-          value: EventsMixin[methodName],
-          writable: true
-        });
-      });
-    });
-
-    it('does not compose the Radio channel request API', function() {
-      ['reply', 'replyOnce', 'stopReplying', 'request'].forEach(methodName => {
-        expect(CommonMixin).to.not.have.property(methodName);
-      });
-    });
-
-    it('applies defaults before passed options and merges class options afterward', function() {
-      const calls = [];
-      const options = { shared: 'passed', passed: true };
-      const object = Object.assign({}, CommonMixin, {
-        mergeOptions(receivedOptions, classOptions) {
-          calls.push(['mergeOptions', this.options, receivedOptions, classOptions]);
-        },
-        options() {
-          calls.push(['options', this]);
-          return { default: true, shared: 'default' };
-        }
-      });
-      const classOptions = ['passed'];
-
-      object._setOptions(options, classOptions);
-
-      expect(object.options).to.deep.equal({ default: true, shared: 'passed', passed: true });
-      expect(calls).to.deep.equal([
-        ['options', object],
-        ['mergeOptions', object.options, options, classOptions]
-      ]);
-    });
-
-    it('does not compose inherited enumerable source pollution', async function() {
-      const eventsPrototype = Object.getPrototypeOf(EventsMixin);
-      Object.setPrototypeOf(EventsMixin, { inheritedEventPollution() {} });
-
-      let IsolatedCommonMixin;
-      try {
-        expect(Object.hasOwn(EventsMixin, 'inheritedEventPollution')).to.equal(false);
-        expect(EventsMixin.inheritedEventPollution).to.be.a('function');
-        ({ default: IsolatedCommonMixin } = await import('../../../src/mixins/common.ts?composition-test'));
-      } finally {
-        Object.setPrototypeOf(EventsMixin, eventsPrototype);
-      }
-
-      expect(IsolatedCommonMixin).to.not.equal(CommonMixin);
-      expect(IsolatedCommonMixin).to.not.have.own.property('inheritedEventPollution');
-    });
+    const Custom = View.extend({ initialize });
+    const view = new Custom({ tagName: 'article', label: 'custom' });
+    expect(initialize).toHaveBeenCalledTimes(1);
+    expect(view.el.tagName).toBe('ARTICLE');
+    view.destroy();
   });
 });

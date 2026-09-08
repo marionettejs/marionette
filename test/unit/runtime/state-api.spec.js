@@ -1,6 +1,6 @@
 import { vi, describe, it, expect } from 'vitest';
-import StateApi from '../../../src/runtime/state-api';
-import MnObject from '../../../src/modules/object';
+import { StateApi } from 'marionette';
+import { MnObject } from 'marionette';
 import { MarionetteError } from '@marionette/utils';
 
 describe('StateApi', function() {

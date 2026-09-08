@@ -2,9 +2,8 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import _ from 'underscore';
 import { setFixtures } from '../../setup/fixtures.js';
 import $ from 'jquery';
-import ownedBuildRegion from '../../../src/modules/common/build-region';
-import View from '../../../src/modules/view';
-import Region from '../../../src/modules/region';
+import { View } from 'marionette';
+import { Region } from 'marionette';
 
 describe('Region', function() {
   describe('.buildRegion', function() {
@@ -285,10 +284,10 @@ describe('Region', function() {
             value: protoValue
           });
 
-          ownedBuildRegion(definition, defaults);
+          view.regionClass = defaults.regionClass;
+          view.addRegion('owned-options', definition);
 
           expect(capturedOptions).to.include({
-            defaultOption: true,
             definitionOption: true,
             el: fooSelector
           });

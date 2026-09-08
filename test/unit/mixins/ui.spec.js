@@ -1,7 +1,6 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import _ from 'underscore';
-import View from '../../../src/modules/view';
-import UIMixin from '../../../src/mixins/ui';
+import { View } from 'marionette';
 
 describe('ui mixin', function() {
   'use strict';
@@ -49,13 +48,7 @@ describe('ui mixin', function() {
     let view;
 
     beforeEach(function() {
-      view = {
-        ui: {
-          foo: '.foo',
-          bar: '.bar'
-        }
-      };
-      _.extend(view, UIMixin);
+      view = new View({ ui: { foo: '.foo', bar: '.bar' } });
     });
 
     it('returns an empty map when there are no keys to normalize', function() {
@@ -113,13 +106,7 @@ describe('ui mixin', function() {
     let view;
 
     beforeEach(function() {
-      view = {
-        ui: {
-          foo: '.foo',
-          bar: '.bar'
-        }
-      };
-      _.extend(view, UIMixin);
+      view = new View({ ui: { foo: '.foo', bar: '.bar' } });
     });
 
     it('normalizes a declared ui reference', function() {
@@ -170,13 +157,7 @@ describe('ui mixin', function() {
     let view;
 
     beforeEach(function() {
-      view = {
-        ui: {
-          foo: '.foo',
-          bar: '.bar'
-        }
-      };
-      _.extend(view, UIMixin);
+      view = new View({ ui: { foo: '.foo', bar: '.bar' } });
     });
 
     it('mutates string and object values in place', function() {
@@ -208,154 +189,43 @@ describe('ui mixin', function() {
     });
   });
 
-  describe('#_getUIBindings', function() {
-    it('calls _uiBindings on the view with no arguments and short-circuits ui', function() {
-      const bindings = { foo: '.foo' };
-      const uiBindings = vi.fn().mockReturnValue(bindings);
-      const view = _.extend({
-        _uiBindings: uiBindings,
-        get ui() {
-          throw new Error('ui should not be read');
-        }
-      }, UIMixin);
-
-      expect(view._getUIBindings()).to.equal(bindings);
-      expect(uiBindings).toHaveBeenCalledTimes(1);
-      expect(uiBindings.mock.contexts[0] === view).toBe(true);
-      expect(uiBindings).toHaveBeenCalledWith();
-    });
-
-    it('falls back to a callable ui value when _uiBindings resolves falsy', function() {
-      [null, false, 0, '', NaN].forEach(falsyValue => {
-        const bindings = { foo: '.foo' };
-        const uiBindings = vi.fn().mockReturnValue(falsyValue);
-        const ui = vi.fn().mockReturnValue(bindings);
-        const view = _.extend({ _uiBindings: uiBindings, ui }, UIMixin);
-
-        expect(view._getUIBindings()).to.equal(bindings);
-        expect(uiBindings).toHaveBeenCalledTimes(1);
-        expect(uiBindings.mock.contexts[0] === view).toBe(true);
-        expect(uiBindings).toHaveBeenCalledWith();
-        expect(ui).toHaveBeenCalledTimes(1);
-        expect(ui.mock.contexts).toContain(view);
-        expect(ui).toHaveBeenCalledWith();
-      });
-    });
-  });
-
-  describe('#_bindUIElements', function() {
-    it('resolves callable bindings on the view with no arguments', function() {
-      const bindings = { foo: '.foo' };
+  describe('public UI binding lifecycle', function() {
+    it('resolves a callable map and restores it after unbinding', function() {
+      const bindings = { action: 'button' };
       const ui = vi.fn().mockReturnValue(bindings);
-      const selectorResult = {};
-      const view = _.extend({
-        $: vi.fn().mockReturnValue(selectorResult),
-        ui
-      }, UIMixin);
-
-      view._bindUIElements();
-
-      expect(ui).toHaveBeenCalledTimes(1);
-      expect(ui.mock.contexts).toContain(view);
-      expect(ui).toHaveBeenCalledWith();
-      expect(view._uiBindings).to.equal(ui);
-      expect(view.ui.foo).to.equal(selectorResult);
+      const view = new View({ template: () => '<button>Action</button>', ui });
+      view.render();
+      const bound = view.ui;
+      expect(view.getUI('action')[0]).toBe(view.el.firstChild);
+      expect(ui.mock.contexts.every(context => context === view)).toBe(true);
+      view.unbindUIElements();
+      expect(view.ui).toBe(ui);
+      expect(bound).toEqual({});
+      view.bindUIElements();
+      expect(view.getUI('action')[0]).toBe(view.el.firstChild);
+      view.destroy();
     });
 
-    it('treats nullish resolved bindings as an empty bound map', function() {
-      const ui = vi.fn().mockReturnValue(null);
-      const view = _.extend({
-        $: vi.fn(),
-        ui
-      }, UIMixin);
-
-      view._bindUIElements();
-
-      expect(view.$).not.toHaveBeenCalled();
-      expect(view.ui).to.equal(view._ui).and.to.deep.equal({});
+    it('binds and unbinds an own __proto__ selector safely', function() {
+      const bindings = Object.defineProperty({}, '__proto__', { enumerable: true, value: 'button' });
+      const view = new View({ template: () => '<button>Action</button>', ui: bindings });
+      view.render();
+      const bound = view.ui;
+      expect(Object.getPrototypeOf(bound)).toBe(Object.prototype);
+      expect(view.getUI('__proto__')[0]).toBe(view.el.firstChild);
+      view.unbindUIElements();
+      expect(bound).not.toHaveProperty('__proto__');
+      expect(view.ui).toBe(bindings);
+      view.destroy();
     });
 
-    it('preserves non-string selectors when binding ui directly', function() {
-      const BindingView = View.extend({
-        ui: {direct: 1}
-      });
-      const bindingView = new BindingView();
-      const selectorResult = {};
-      bindingView.$ = vi.fn().mockReturnValue(selectorResult);
-
-      bindingView.bindUIElements();
-
-      expect(bindingView.$).toHaveBeenCalledTimes(1);
-      expect(bindingView.$).toHaveBeenCalledWith(1);
-      expect(bindingView.ui.direct).to.equal(selectorResult);
-    });
-
-    it('binds an own __proto__ key without changing the result prototype', function() {
-      const selectorResult = {};
-      const bindings = Object.defineProperty({}, '__proto__', {
-        enumerable: true,
-        value: 'selector'
-      });
-      const view = _.extend({
-        $: vi.fn().mockReturnValue(selectorResult),
-        ui: bindings
-      }, UIMixin);
-
-      view._bindUIElements();
-
-      expect(view.$).toHaveBeenCalledTimes(1);
-      expect(view.$).toHaveBeenCalledWith('selector');
-      expect(Object.getPrototypeOf(view.ui)).to.equal(Object.prototype);
-      expect(view.ui).to.have.own.property('__proto__', selectorResult);
-      expect(Object.getOwnPropertyDescriptor(view.ui, '__proto__')).to.include({
-        configurable: true,
-        enumerable: true,
-        writable: true
-      });
+    it('accepts nullish callable bindings and idempotent unbinding', function() {
+      const view = new View({ template: () => '', ui() { return null; } });
+      view.render();
+      expect(view.ui).toEqual({});
+      view.unbindUIElements();
+      view.unbindUIElements();
+      view.destroy();
     });
   });
-
-  describe('#_unbindUIElements', function() {
-    it('clears bound elements and restores the original binding map', function() {
-      const originalBindings = { foo: '.foo', bar: '.bar' };
-      const bound = { foo: [], extra: [] };
-      const view = _.extend({
-        _ui: bound,
-        _uiBindings: originalBindings,
-        ui: bound
-      }, UIMixin);
-
-      view._unbindUIElements();
-
-      expect(bound).to.deep.equal({});
-      expect(view.ui).to.equal(originalBindings);
-      expect(view).to.not.have.property('_ui');
-      expect(view).to.not.have.property('_uiBindings');
-    });
-
-    it('deletes an own __proto__ binding before restoring the original map', function() {
-      const originalBindings = Object.defineProperty({}, '__proto__', {
-        enumerable: true,
-        value: 'selector'
-      });
-      const bound = Object.defineProperty({}, '__proto__', {
-        configurable: true,
-        enumerable: true,
-        value: {},
-        writable: true
-      });
-      const view = _.extend({
-        _ui: bound,
-        _uiBindings: originalBindings,
-        ui: bound
-      }, UIMixin);
-
-      view._unbindUIElements();
-
-      expect(bound).to.not.have.own.property('__proto__');
-      expect(view.ui).to.equal(originalBindings);
-      expect(view.ui).to.have.own.property('__proto__', 'selector');
-    });
-  });
-
 });

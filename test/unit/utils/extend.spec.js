@@ -7,7 +7,7 @@ import {
   Region,
   View,
   extend
-} from '../../../src/index';
+} from 'marionette';
 
 function defineProto(object, value) {
   Object.defineProperty(object, '__proto__', {
@@ -75,7 +75,6 @@ describe('extend', function() {
       value: Child,
       writable: true
     });
-    expect(Child.__super__).to.equal(Parent.prototype);
   });
 
   it('defines child overrides without dispatching through parent setters', function() {

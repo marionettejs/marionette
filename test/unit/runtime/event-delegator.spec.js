@@ -2,10 +2,12 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { vi } from 'vitest';
 
-import EventDelegator, { setEventDelegator } from '../../../src/runtime/event-delegator';
-import Behavior from '../../../src/modules/behavior';
-import CollectionView from '../../../src/modules/collection-view';
-import View from '../../../src/modules/view';
+
+import { Behavior } from 'marionette';
+import { CollectionView } from 'marionette';
+import { View } from 'marionette';
+const EventDelegator = View.prototype.EventDelegator;
+const setEventDelegator = View.setEventDelegator;
 
 describe('EventDelegator', function() {
   let cleanups;
@@ -218,7 +220,8 @@ describe('EventDelegator', function() {
     expect(firstCleanup).toHaveBeenCalledTimes(1);
     expect(firstAdapter.delegate).toHaveBeenCalledTimes(1);
     expect(secondAdapter.delegate).toHaveBeenCalledTimes(1);
-    expect(view._domEvents).to.deep.equal([secondCleanup]);
+    view.undelegateEvents();
+    expect(secondCleanup).toHaveBeenCalledTimes(1);
   });
 
   it('uses a class adapter for CollectionView registration and destruction', function() {
@@ -247,7 +250,9 @@ describe('EventDelegator', function() {
     view.undelegateEvents();
     dispatchClick(rootEl.querySelector('.foo'));
     expect(handler).toHaveBeenCalledTimes(2);
-    expect(view._domEvents).to.have.lengthOf(0);
+    view.undelegateEvents();
+    dispatchClick(rootEl.querySelector('.foo'));
+    expect(handler).toHaveBeenCalledTimes(2);
     view.destroy();
   });
 });

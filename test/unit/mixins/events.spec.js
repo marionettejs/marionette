@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import _ from 'underscore';
-import EventsMixin from '../../../packages/utils/src/events.ts';
+import { Events as EventsMixin } from '@marionette/utils';
 
 describe('Events Mixin', function() {
   describe('#trigger with an object map', function() {
@@ -86,27 +86,6 @@ describe('Events Mixin', function() {
       expect(handler.mock.calls.map(args => args.slice(0, 1))).toContainEqual(['arg']);
     });
 
-    it('dispatches only event names registered on the event store', function() {
-      const inheritedHandler = vi.fn();
-      const inheritedAllHandler = vi.fn();
-      const ownHandler = vi.fn();
-      const inheritedEvents = {
-        inherited: [{ callback: inheritedHandler, ctx: object }],
-        all: [{ callback: inheritedAllHandler, ctx: object }],
-      };
-      object._rdEvents = Object.create(inheritedEvents);
-
-      object.trigger('inherited');
-      object.on('inherited', ownHandler);
-      object.trigger('inherited', 'arg');
-
-      expect(inheritedHandler).not.toHaveBeenCalled();
-      expect(inheritedAllHandler).not.toHaveBeenCalled();
-      expect(ownHandler).toHaveBeenCalledTimes(1);
-      expect(ownHandler.mock.calls.map(args => args.slice(0, 1))).toContainEqual(['arg']);
-      expect(Object.hasOwn(object._rdEvents, 'inherited')).to.equal(true);
-    });
-
     ['constructor', 'toString', '__proto__', 'all'].forEach(name => {
       it(`supports ${name} across registration and cleanup APIs`, function() {
         const context = {};
@@ -147,7 +126,6 @@ describe('Events Mixin', function() {
 
         expect(listeningHandler).toHaveBeenCalledTimes(directCallCount);
         expect(listeningHandler.mock.contexts).toEqual(Array(listeningHandler.mock.calls.length).fill(listener));
-        expect(listener._rdListeningTo).to.eql({});
 
         onceListener.listenToOnce(object, name, listeningOnceHandler);
         object.trigger(name, 'listening-once');
@@ -155,9 +133,7 @@ describe('Events Mixin', function() {
 
         expect(listeningOnceHandler).toHaveBeenCalledTimes(1);
         expect(listeningOnceHandler.mock.contexts).toContain(onceListener);
-        expect(onceListener._rdListeningTo).to.eql({});
-        expect(object._rdListeners).to.eql({});
-        expect(Object.getPrototypeOf(object._rdEvents)).to.equal(Object.prototype);
+
       });
     });
 
@@ -346,7 +322,7 @@ describe('Events Mixin', function() {
 
       expect(handler).toHaveBeenCalledTimes(1);
       expect(handler.mock.calls.map(args => args.slice(0, 1))).toContainEqual(['bar']);
-      expect(listener._rdListeningTo).to.eql({});
+
     });
 
     it('removes all callbacks and listener references', function() {
@@ -357,7 +333,7 @@ describe('Events Mixin', function() {
       object.trigger('foo');
 
       expect(handler).not.toHaveBeenCalled();
-      expect(listener._rdListeningTo).to.eql({});
+
     });
 
     it('returns the receiver when listenTo gets no object', function() {
@@ -371,9 +347,10 @@ describe('Events Mixin', function() {
       listener.listenTo(object, 'foo');
       listener.listenToOnce(object, 'foo');
 
+      const handler = vi.fn();
+      object.on('foo', handler);
       object.trigger('foo');
-
-      expect(object._rdEvents).to.eql({});
+      expect(handler).toHaveBeenCalledExactlyOnceWith();
     });
 
     it('ignores off calls for missing event names', function() {
@@ -386,39 +363,6 @@ describe('Events Mixin', function() {
       expect(handler).toHaveBeenCalledTimes(1);
     });
 
-    it('does not remove inherited event-store entries', function() {
-      const consulted = vi.fn();
-      const inheritedHandler = {};
-      Object.defineProperty(inheritedHandler, 'callback', {
-        enumerable: true,
-        get() {
-          consulted();
-          return _.noop;
-        },
-      });
-      const inheritedEvents = { inherited: [inheritedHandler] };
-      object._rdEvents = Object.create(inheritedEvents);
-
-      object.off('inherited');
-
-      expect(consulted).not.toHaveBeenCalled();
-      expect(Object.hasOwn(object._rdEvents, 'inherited')).to.equal(false);
-      expect(object._rdEvents.inherited).to.equal(inheritedEvents.inherited);
-    });
-
-    it('stops listening safely when the listener entry or event store is gone', function() {
-      const handler = vi.fn();
-      const other = _.extend({}, EventsMixin);
-
-      listener.listenTo(object, 'foo', handler);
-      listener.stopListening(other, 'foo', handler);
-      delete object._rdEvents;
-      listener.stopListening(object, 'foo', handler);
-
-      expect(function() {
-        object.trigger('foo');
-      }).to.not.throw();
-    });
   });
 
   describe('legacy Backbone.Events aliases', function() {

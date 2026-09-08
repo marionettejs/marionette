@@ -1,6 +1,5 @@
 import { vi, describe, it, expect, afterEach } from 'vitest';
-import Radio, { createRadio } from '../../packages/radio/src/radio.ts';
-import { debugLog, setDebug } from '../../packages/radio/src/debug.ts';
+import { Radio, createRadio } from '@marionette/radio';
 
 describe('Radio', function() {
   afterEach(function() {
@@ -234,9 +233,9 @@ describe('Radio', function() {
   it('formats direct debug logs without a channel name', function() {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-    setDebug();
-    debugLog('warning', 'event');
-    setDebug(false);
+    Radio.setDebug();
+    Radio.debugLog('warning', 'event');
+    Radio.setDebug(false);
 
     expect(warn.mock.calls.map(args => args.slice(0, 1))).toContainEqual(['warning: "event"']);
   });

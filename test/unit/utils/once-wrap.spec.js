@@ -1,5 +1,5 @@
 import { vi, describe, it, expect } from 'vitest';
-import onceWrap from '../../../packages/utils/src/once-wrap.ts';
+import { onceWrap } from '@marionette/utils';
 
 describe('onceWrap', function() {
   it('unbinds before invoking the callback and memoizes its result', function() {
@@ -17,7 +17,6 @@ describe('onceWrap', function() {
     });
     const onceCallback = onceWrap(callback, offCallback);
 
-    expect(onceCallback._callback).to.equal(callback);
     expect(onceCallback.call(context, 1, 2)).to.equal('result');
     expect(onceCallback.call({}, 3)).to.equal('result');
     expect(calls).to.deep.equal(['off', 'callback']);

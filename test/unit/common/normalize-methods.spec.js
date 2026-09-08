@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import vm from 'node:vm';
 
-import View from '../../../src/modules/view';
+import { View } from 'marionette';
 
 describe('normalizeMethods', function() {
   'use strict';

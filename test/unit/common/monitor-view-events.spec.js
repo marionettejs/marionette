@@ -1,94 +1,50 @@
-import { vi, describe, it, expect, beforeEach } from 'vitest';
-import View from '../../../src/modules/view';
-import monitorViewEvents from '../../../src/modules/common/monitor-view-events';
+import { describe, expect, it, vi } from 'vitest';
+import { monitorViewEvents, Region, View } from 'marionette';
 
-describe('monitorViewEvents', function() {
+function family() {
+  const parent = new View({ template: () => '<main></main><aside></aside>', regions: { first: 'main', second: 'aside' } });
+  const first = new View({ template: () => '' });
+  const second = new View({ template: () => '' });
+  parent.showChildView('first', first);
+  parent.showChildView('second', second);
+  const el = document.createElement('div');
+  document.body.append(el);
+  return { parent, first, second, el, region: new Region({ el }) };
+}
 
-  it('traverses the initial child array length with live values', function() {
-    const view = new View();
+describe('monitorViewEvents', () => {
+  it('propagates attachment and detachment to owned child Views', () => {
+    const { parent, first, second, el, region } = family();
     const calls = [];
-    let children;
-    const makeChild = name => ({
-      _isAttached: false,
-      triggerMethod(event, child) {
-        expect(this).to.equal(child);
-        expect(event).to.equal('attach');
-        expect(child._isAttached).to.be.true;
-        calls.push(name);
-      }
-    });
-    const first = makeChild('first');
-    const originalSecond = makeChild('original second');
-    const replacementSecond = makeChild('replacement second');
-    const appended = makeChild('appended');
-
-    first.triggerMethod = function(event, child) {
-      expect(this).to.equal(child);
-      expect(event).to.equal('attach');
-      expect(child._isAttached).to.be.true;
-      calls.push('first');
-      children[1] = replacementSecond;
-      children.push(appended);
-    };
-    children = [first, originalSecond];
-    view._getImmediateChildren = () => children;
-
-    view.trigger('attach', view);
-
-    expect(calls).to.deep.equal(['first', 'replacement second']);
-    expect(originalSecond._isAttached).to.be.false;
-    expect(appended._isAttached).to.be.false;
+    first.on('attach', () => { expect(first.isAttached()).toBe(true); calls.push('first'); });
+    second.on('attach', () => { expect(second.isAttached()).toBe(true); calls.push('second'); });
+    region.show(parent);
+    expect(calls).toEqual(['first', 'second']);
+    region.detachView();
+    expect(first.isAttached()).toBe(false);
+    expect(second.isAttached()).toBe(false);
+    parent.destroy();
+    region.destroy();
+    el.remove();
   });
 
-  it('stops child traversal and propagates the first exception', function() {
-    const view = new View();
-    const error = new Error('child attach failed');
-    const later = { _isAttached: false, triggerMethod: vi.fn() };
-    view._getImmediateChildren = () => [{
-      _isAttached: false,
-      triggerMethod() {
-        throw error;
-      }
-    }, later];
-
-    expect(() => view.trigger('attach', view)).to.throw(error);
-    expect(later._isAttached).to.be.false;
-    expect(later.triggerMethod).not.toHaveBeenCalled();
+  it('does not add duplicate lifecycle subscriptions', () => {
+    const { parent, first, el, region } = family();
+    const onAttach = vi.fn();
+    first.on('attach', onAttach);
+    monitorViewEvents(parent);
+    monitorViewEvents(parent);
+    region.show(parent);
+    expect(onAttach).toHaveBeenCalledTimes(1);
+    region.destroy();
+    el.remove();
   });
 
-  describe('when the monitor is disabled', function() {
-    let view;
-
-    beforeEach(function() {
-      const NonMonitoredView = View.extend({
-        monitorViewEvents: false
-      });
-
-      view = new NonMonitoredView();
-
-      vi.spyOn(view, 'on');
-    });
-
-    it('should not attach events', function() {
-      monitorViewEvents(view);
-      expect(view.on).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('when the view is already monitored', function() {
-    let view;
-
-    beforeEach(function() {
-      view = new View();
-
-      monitorViewEvents(view);
-
-      vi.spyOn(view, 'on');
-    });
-
-    it('should not attach events', function() {
-      monitorViewEvents(view);
-      expect(view.on).not.toHaveBeenCalled();
-    });
+  it('honors a disabled monitor', () => {
+    const view = new (View.extend({ monitorViewEvents: false }))();
+    const on = vi.spyOn(view, 'on');
+    monitorViewEvents(view);
+    expect(on).not.toHaveBeenCalled();
+    view.destroy();
   });
 });

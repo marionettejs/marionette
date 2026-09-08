@@ -1,9 +1,9 @@
 import { vi, describe, it, expect } from 'vitest';
 import '../../setup/backbone.js';
 import Backbone from 'backbone';
-import BackboneApi from '../../../packages/adapters/src/data/backbone.ts';
-import View from '../../../src/modules/view';
-import CollectionView from '../../../src/modules/collection-view';
+import BackboneApi from '@marionette/adapters/backbone';
+import { View } from 'marionette';
+import { CollectionView } from 'marionette';
 
 describe('BackboneApi', function() {
   it('maps Backbone model and collection data', function() {

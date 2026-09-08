@@ -1,7 +1,7 @@
 import { vi, describe, it, expect } from 'vitest';
 import $ from 'jquery';
 
-import View from '../../../src/modules/view';
+import { View } from 'marionette';
 
 const JQueryEventDelegator = {
   delegate({ eventName, selector, handler, rootEl }) {

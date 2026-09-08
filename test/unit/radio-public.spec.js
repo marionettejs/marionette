@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, afterEach } from 'vitest';
-import { Channel, Requests, Radio, createRadio } from '../../packages/radio/src/index.ts';
+import { Channel, Requests, Radio, createRadio } from '@marionette/radio';
 
 // These tests exercise the package's public entry, including ownership and logging.
 describe('Radio public components', function() {

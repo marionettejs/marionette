@@ -2,13 +2,13 @@ import { describe, it, expect } from 'vitest';
 import Backbone from 'backbone';
 import '../../setup/backbone.js';
 import _ from 'underscore';
-import Application from '../../../src/modules/application';
-import Behavior from '../../../src/modules/behavior';
-import CollectionView from '../../../src/modules/collection-view';
-import MnObject from '../../../src/modules/object';
-import Region from '../../../src/modules/region';
-import View from '../../../src/modules/view';
-import uniqueId from '../../../packages/utils/src/unique-id.ts';
+import { Application } from 'marionette';
+import { Behavior } from 'marionette';
+import { CollectionView } from 'marionette';
+import { MnObject } from 'marionette';
+import { Region } from 'marionette';
+import { View } from 'marionette';
+import { uniqueId } from '@marionette/utils';
 
 function suffix(id) {
   return Number(id.match(/\d+$/)[0]);
@@ -66,22 +66,18 @@ describe('uniqueId', function() {
     ids.forEach(id => expect(id).to.match(/^shared\d+$/));
   });
 
-  it('shares the constructor sequence with event-listener bookkeeping', function() {
-    const LObject = MnObject.extend({ cidPrefix: 'l' });
-    const listener = new LObject();
-    const listenee = new LObject();
-
-    listener.listenTo(listenee, 'event', () => {});
-
-    const ids = [
-      listener.cid,
-      listenee.cid,
-      listenee._rdListenId,
-      listener._rdListenId
-    ];
-    ids.forEach(id => expect(id).to.match(/^l\d+$/));
-    ids.slice(1).forEach((id, index) => {
-      expect(suffix(id)).to.equal(suffix(ids[index]) + 1);
-    });
+  it('keeps ids unique while observers subscribe and unsubscribe', function() {
+    const owner = new MnObject();
+    const source = new MnObject();
+    const ids = new Set([owner.cid, source.cid]);
+    for (let index = 0; index < 10; index++) {
+      owner.listenTo(source, 'event', () => {});
+      const next = uniqueId('owned');
+      expect(ids.has(next)).toBe(false);
+      ids.add(next);
+      owner.stopListening(source);
+    }
+    owner.destroy();
+    source.destroy();
   });
 });

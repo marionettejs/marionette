@@ -1,5 +1,5 @@
 import { vi, describe, it, expect } from 'vitest';
-import callHandler from '../../../packages/utils/src/call-handler.ts';
+import { callHandler } from '@marionette/utils';
 
 describe('callHandler', function() {
   it('applies callbacks with more than three arguments', function() {

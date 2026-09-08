@@ -2,7 +2,8 @@ import { chai, vi, describe, it, expect, beforeEach } from 'vitest';
 import { setFixtures } from '../../setup/fixtures.js';
 import $ from 'jquery';
 import _ from 'underscore';
-import DomApi, { setDomApi } from '../../../src/runtime/dom-api';
+import { DomApi, View } from 'marionette';
+const setDomApi = View.setDomApi;
 
 // Copied from https://github.com/jashkenas/underscore/blob/1.8.3/underscore.js#L137
 const MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;

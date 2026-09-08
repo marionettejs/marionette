@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { bindRequests, unbindRequests } from '@marionette/utils';
-import Radio from '../../../packages/radio/src/radio.ts';
+import { Radio as Radio } from '@marionette/radio';
 
 const acceptedBindingMaps = [
   {},
