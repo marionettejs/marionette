@@ -1,0 +1,23 @@
+test/fixtures/data-package-types/validate.cts
+  s_f2cd5e3b2db5ea::t_0dd0f49db933b3 303-318
+test/fixtures/data-package-types/validate.mts
+  s_f2cd5e3b2db5ea::t_11ce9a7d6ca1d5 303-318
+test/fixtures/data-package-types/validate.ts
+  s_f2cd5e3b2db5ea::t_c2fd5f656544f3 303-318
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "47b1c2188bb218517a9c9eb1e3fcd04fb78b55fa",
+  "prompts": {},
+  "sessions": {
+    "s_f2cd5e3b2db5ea": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080ec-ef1c-78c2-91c3-44428427821d",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
