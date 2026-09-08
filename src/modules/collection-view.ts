@@ -279,8 +279,8 @@ function normalizeCollectionChange(change: RawChange, previous: Snapshot, curren
   const removed = new Set(change.removed);
   return {
     kind: 'update',
-    added: current.entries.filter(entry => added.has(entry.model)),
-    removed: previous.entries.filter(entry => removed.has(entry.model)),
+    added: added.size ? current.entries.filter(entry => added.has(entry.model)) : [],
+    removed: removed.size ? previous.entries.filter(entry => removed.has(entry.model)) : [],
     updated: change.updated.map(pair => ({
       key: current.models.get(pair.current)!.key,
       previous: pair.previous,
@@ -934,22 +934,27 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       // implementations that use another parent manage their own placement.
       if (attaching.length !== views.length &&
           attaching.every(view => view.el.parentNode === this.container)) {
-        const childEls = new Set<Node>(views.map(view => view.el));
+        let childEls: Set<Node> | undefined;
         let first = this.container.firstChild;
         let last = this.container.lastChild;
         let start = 0;
         let end = views.length - 1;
         while (start <= end) {
-          while (first && !childEls.has(first)) { first = first.nextSibling; }
           const firstEl = views[start].el;
+          // Ordered children need no ownership lookup.
+          if (first !== firstEl) {
+            childEls ||= new Set<Node>(views.map(view => view.el));
+            while (first && !childEls.has(first)) { first = first.nextSibling; }
+          }
           if (firstEl === first) {
             first = first.nextSibling;
             start++;
             continue;
           }
 
+          // Matching children continue above, so the lookup is initialized here.
           // Match both ends before moving an element through the remaining list.
-          while (last && !childEls.has(last)) { last = last.previousSibling; }
+          while (last && !childEls!.has(last)) { last = last.previousSibling; }
           const lastEl = views[end].el;
           if (lastEl === last) {
             last = last.previousSibling;
