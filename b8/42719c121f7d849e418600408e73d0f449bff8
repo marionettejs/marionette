@@ -1,0 +1,21 @@
+test/unit/model-based/region-detached-ownership.spec.js
+  s_e9ec88924dcd73::t_7e7fcdb2f76c88 1-44
+src/modules/region.ts
+  s_e9ec88924dcd73::t_8be6f0ffd58d6c 349
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "b842719c121f7d849e418600408e73d0f449bff8",
+  "prompts": {},
+  "sessions": {
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
