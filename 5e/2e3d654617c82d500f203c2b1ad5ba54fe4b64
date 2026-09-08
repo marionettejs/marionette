@@ -1,0 +1,35 @@
+docs/data.api.md
+  s_fae5a6096938ea::t_d2307667d846e0 219
+docs/installation.md
+  s_fae5a6096938ea::t_bab81073780b03 67,70,73,182,256,258
+docs/migration-from-v4.md
+  s_fae5a6096938ea::t_85913dd060c2be 23
+docs/optional-backbone.md
+  s_fae5a6096938ea::t_2b912577577c4d 10
+packages/adapters/readme.md
+  s_fae5a6096938ea::t_349692a434755b 30,72,129,175,197
+packages/data/readme.md
+  s_fae5a6096938ea::t_bb3e638beaa5f7 10
+packages/radio/readme.md
+  s_fae5a6096938ea::t_b3733996fc41c9 6
+packages/utils/readme.md
+  s_fae5a6096938ea::t_8ec1d82748293f 7
+readme.md
+  s_fae5a6096938ea::t_eac17bee97ff86 46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "5e2e3d654617c82d500f203c2b1ad5ba54fe4b64",
+  "prompts": {},
+  "sessions": {
+    "s_fae5a6096938ea": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08215-179d-79e2-9e34-97d51f445f91",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
