@@ -129,7 +129,7 @@
     "@types/jquery": "4.0.1",
     "@typescript-eslint/eslint-plugin": "8.69.0",
     "@typescript-eslint/parser": "8.69.0",
-    "@vitest/coverage-v8": "4.1.11",
+    "@vitest/coverage-v8": "5.0.0",
     "@vitest/eslint-plugin": "1.6.27",
     "ajv": "8.20.0",
     "backbone": "^1.4.0",
@@ -149,7 +149,7 @@
     "terser": "5.48.0",
     "typescript": "6.0.3",
     "underscore": "^1.13.0",
-    "vitest": "4.1.11",
+    "vitest": "5.0.0",
     "xstate": "5.32.6",
     "yaml": "2.9.0"
   },
