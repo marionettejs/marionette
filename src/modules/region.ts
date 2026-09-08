@@ -411,9 +411,10 @@ Object.assign(Region.prototype, CommonMixin, {
       } else {
         this._detachView(view);
       }
-      view._isShown = false;
-      this._stopChildViewEvents(view);
     }
+
+    view._isShown = false;
+    this._stopChildViewEvents(view);
 
     delete view._parent;
     this.triggerMethod('empty', this, view);

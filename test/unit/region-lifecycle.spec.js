@@ -635,6 +635,40 @@ describe('Region lifecycle contract', function() {
     });
   }
 
+  it('releases parent listeners when shown children destroy themselves', function() {
+    const lifecycle = [];
+    const ping = this.sinon.spy();
+    const prefixedPing = this.sinon.spy();
+    const owner = new View({
+      template: () => '<div class="content"></div>',
+      regions: { content: '.content' },
+      childViewEvents: {
+        ping,
+        'before:destroy': () => lifecycle.push('before:destroy'),
+        destroy: () => lifecycle.push('destroy')
+      },
+      childViewEventPrefix: 'child'
+    });
+    owner.on('child:ping', prefixedPing);
+    owner.render();
+
+    for (let index = 0; index < 10; index++) {
+      const child = new TestView();
+      owner.showChildView('content', child);
+      child.destroy();
+      child.trigger('ping');
+
+      expect(owner.getChildView('content')).to.be.undefined;
+      expect(child._isShown).to.be.false;
+      expect(Object.values(owner._rdListeningTo || {}).some(listener => listener.obj === child)).to.be.false;
+    }
+
+    expect(lifecycle).to.deep.equal(Array.from({ length: 10 }, () => ['before:destroy', 'destroy']).flat());
+    expect(ping).not.to.have.been.called;
+    expect(prefixedPing).not.to.have.been.called;
+    owner.destroy();
+  });
+
   it('clears the Region once when its current View is destroyed externally', function() {
     const view = new TestView();
     const beforeEmpty = this.sinon.spy();
