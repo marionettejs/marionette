@@ -2,7 +2,7 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import '../setup/backbone.js';
 import Backbone from 'backbone';
 import { CollectionView, View } from 'marionette';
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 
 const ChildView = View.extend({ template: false });
 const owners = new Set();

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import _ from 'underscore';
 
-import { getValue } from '@marionette/utils';
+import { getValue } from '@mnjs/utils';
 
 function execute(implementation, createScenario) {
   const { object, property, fallback, trace = [] } = createScenario();

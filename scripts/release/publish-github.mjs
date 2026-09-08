@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import process from 'node:process';
 import { readArguments } from './arguments.mjs';
+import { publicationEnabled } from './publication.mjs';
 import { validatePackageInventory } from './packages.mjs';
 import { verifyCandidateValidation } from './validation.mjs';
 import { publishDraftRelease } from './github-release.mjs';
@@ -51,7 +52,7 @@ const artifactDir = resolve(root, args['artifact-dir']);
 const evidenceBytes = await readFile(resolve(artifactDir, 'release-evidence.json'));
 const evidence = JSON.parse(evidenceBytes);
 const policy = JSON.parse(await readFile(resolve(root, 'config/release-promotion.json'), 'utf8'));
-if (evidence.schemaVersion !== 2 || !Array.isArray(evidence.packages)) {
+if (evidence.schemaVersion !== 3 || !Array.isArray(evidence.packages)) {
   throw new Error(`Unsupported evidence schemaVersion ${evidence.schemaVersion}.`);
 }
 validatePackageInventory(evidence.packages);
@@ -121,7 +122,7 @@ if (mode === 'dry-run') {
   }, null, 2));
   process.exit(0);
 }
-if (!policy.publicationEnabled || !evidence.promotionPolicy.publicationEnabled) {
+if (!publicationEnabled(policy, evidence.release.version)) {
   throw new Error('GitHub release publication is disabled by the checked-in policy.');
 }
 
@@ -233,7 +234,16 @@ if (mode === 'stage') {
     throw new Error(`Unable to inspect release ${evidence.release.tag}.`);
   }
 
+  const sourceUrl = `https://github.com/${evidence.source.repository}/blob/${evidence.source.commit}`;
   const notes = [
+    `Install core: \`npm install marionette@${evidence.release.version}\`. Keep companion package versions aligned.`,
+    '',
+    `[Changes](${sourceUrl}/changelog.md) · [Migration guide](${sourceUrl}/upgradeGuide.md)`,
+    ...(evidence.release.prerelease ? [
+      `[Beta trial, starter and known limits](${sourceUrl}/docs/beta.md)`,
+      'This is a prerelease for application trials, not a stable or comparative agent-readiness claim.',
+    ] : []),
+    '',
     `Immutable release artifact for ${evidence.source.commit}.`,
     '',
     ...evidence.packages.map(packageEvidence =>

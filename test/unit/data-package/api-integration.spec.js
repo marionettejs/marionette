@@ -1,8 +1,8 @@
 import { vi, describe, it, expect } from 'vitest';
 import { createMarionette } from 'marionette';
-import { Collection, DataApi, Model, StateApi } from '@marionette/data';
+import { Collection, DataApi, Model, StateApi } from '@mnjs/data';
 
-describe('@marionette/data Marionette integration', function() {
+describe('@mnjs/data Marionette integration', function() {
   it('drives keyed add, removal, reorder, model updates, and reset reconciliation', function() {
     const runtime = createMarionette();
     runtime.setDataApi(DataApi);

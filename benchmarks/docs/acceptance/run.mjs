@@ -49,7 +49,7 @@ if (task === 'latest-navigation') {
   assert.equal(await navigation.navigate('closed'), false);
   assert.equal(calls.length, 5);
 } else if (task === 'editable-list') {
-  const { Collection } = await import('@marionette/data');
+  const { Collection } = await import('@mnjs/data');
   const list = await solution.createList({ el, records: [{ id: 'a', label: 'Alpha' }, { id: 'b', label: 'Beta' }] });
   assert.ok(list.view instanceof CollectionView);
   assert.ok(list.collection instanceof Collection);

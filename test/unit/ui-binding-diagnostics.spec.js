@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { Behavior } from 'marionette';
 import { CollectionView } from 'marionette';
 import { View } from 'marionette';
-import { MarionetteError } from '@marionette/utils';
+import { MarionetteError } from '@mnjs/utils';
 
 describe('getUI binding diagnostics', function() {
   function expectUndeclared(getUI) {

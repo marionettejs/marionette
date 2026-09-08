@@ -1,5 +1,5 @@
-import { Radio, createRadio, type Channel, type RadioApi } from '@marionette/radio';
-import type { EventSource } from '@marionette/utils';
+import { Radio, createRadio, type Channel, type RadioApi } from '@mnjs/radio';
+import type { EventSource } from '@mnjs/utils';
 
 const runtime: RadioApi = createRadio();
 const channel: Channel = runtime.channel('work');

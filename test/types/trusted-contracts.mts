@@ -1,6 +1,6 @@
 import { View, CollectionView, Region, type ViewConfiguration, type BehaviorDefinition, type RegionDefinition } from 'marionette';
 import type { ViewLifecycle } from 'marionette';
-import { mergeOptions, normalizeBindings, bindEvents, bindRequests } from '@marionette/utils';
+import { mergeOptions, normalizeBindings, bindEvents, bindRequests } from '@mnjs/utils';
 
 const owner = { mergeOptions, bindEvents, bindRequests, listenTo() {} };
 owner.mergeOptions({ title: 'Example' }, ['title']);

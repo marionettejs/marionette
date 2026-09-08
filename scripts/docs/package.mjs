@@ -37,3 +37,10 @@ for (const entry of manifest.assets.filter(asset => asset.source.startsWith('ski
   await cp(resolve(root, '.docs-export', entry.source), path);
 }
 console.log(`Packaged ${manifest.pages.length} consumer documentation pages in dist/docs/.`);
+
+const starterDestination = resolve(root, 'dist/docs/starter');
+await rm(starterDestination, { recursive: true, force: true });
+await mkdir(starterDestination, { recursive: true });
+for (const file of ['package.json', 'package-lock.json', 'index.html', 'main.mjs', 'workspace.mjs', 'workspace.test.mjs', 'readme.md']) {
+  await cp(resolve(root, 'test/fixtures/data-package-starter', file), resolve(starterDestination, file));
+}

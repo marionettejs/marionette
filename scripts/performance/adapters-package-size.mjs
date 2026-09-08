@@ -56,22 +56,22 @@ for (const [index, configuration] of adapterConfigurations.entries()) {
   await bundle.close();
 
   if (JSON.stringify(externalImports) !== JSON.stringify(expectedExternalImports[index])) {
-    throw new Error(`@marionette/adapters graph ${index} external imports changed: ${externalImports.join(', ') || 'none'}.`);
+    throw new Error(`@mnjs/adapters graph ${index} external imports changed: ${externalImports.join(', ') || 'none'}.`);
   }
   const foreignModules = internalModules.filter(path => {
     const sourcePath = relative(sourceRoot, path);
     return sourcePath.startsWith('..') || isAbsolute(sourcePath);
   });
   if (foreignModules.length) {
-    throw new Error(`@marionette/adapters graph ${index} bundled modules outside its source root: ${foreignModules
+    throw new Error(`@mnjs/adapters graph ${index} bundled modules outside its source root: ${foreignModules
       .map(path => relative(root, path)).join(', ')}.`);
   }
 
-  console.log(`@marionette/adapters graph ${index}: ${internalModules.length} internal modules, ${externalImports.length} external imports`);
+  console.log(`@mnjs/adapters graph ${index}: ${internalModules.length} internal modules, ${externalImports.length} external imports`);
 }
 
 for (const artifact of measured) {
   console.log(`${artifact.name}: ${formatBytes(artifact.size)}`);
 }
-console.log(`Cumulative @marionette/adapters: ${formatBytes(measured
+console.log(`Cumulative @mnjs/adapters: ${formatBytes(measured
   .reduce((total, artifact) => total + artifact.size, 0))}`);

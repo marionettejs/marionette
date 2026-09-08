@@ -5,8 +5,8 @@ import {
   setEventDelegator, setRenderer, setStateApi,
 } from 'marionette';
 import type { LifecycleContext, ViewInstance, ApplicationInstance, MarionetteErrorInstance } from 'marionette';
-import { DataApi as NativeDataApi, StateApi as NativeStateApi, Model, Collection } from '@marionette/data';
-import BackboneApi from '@marionette/adapters/backbone';
+import { DataApi as NativeDataApi, StateApi as NativeStateApi, Model, Collection } from '@mnjs/data';
+import BackboneApi from '@mnjs/adapters/backbone';
 import Backbone from 'backbone';
 
 

@@ -5,7 +5,7 @@ import {
   StateApi,
   triggerMethod,
   type CollectionChange,
-} from '@marionette/data';
+} from '@mnjs/data';
 
 type Attributes = { id: number; label: string };
 const model = new Model<Attributes>({ id: 1, label: 'one' });

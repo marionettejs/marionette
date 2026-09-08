@@ -6,7 +6,7 @@ import {
   Region,
   View
 } from 'marionette';
-import JQueryDomApi from '@marionette/adapters/dom/jquery';
+import JQueryDomApi from '@mnjs/adapters/dom/jquery';
 
 describe('jQuery DomApi adapter', function() {
   it('allows the core ESM graph to bundle without circular dependencies or importing jQuery', async function() {
@@ -25,7 +25,7 @@ describe('jQuery DomApi adapter', function() {
 
     const bundle = await bundler.rollup({
       input: 'src/index.ts',
-      external: ['@marionette/utils', '@marionette/radio'],
+      external: ['@mnjs/utils', '@mnjs/radio'],
       plugins: [jqueryBlocker, compile()],
       onwarn(warning, warn) {
         warnings.push(warning);

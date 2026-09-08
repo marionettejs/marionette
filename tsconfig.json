@@ -16,10 +16,10 @@
       "marionette": [
         "./src/index.ts"
       ],
-      "@marionette/utils": [
+      "@mnjs/utils": [
         "./packages/utils/src/index.ts"
       ],
-      "@marionette/radio": [
+      "@mnjs/radio": [
         "./packages/radio/src/index.ts"
       ]
     },

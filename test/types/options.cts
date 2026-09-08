@@ -1,4 +1,4 @@
-import { getOption, mergeOptions } from '@marionette/utils';
+import { getOption, mergeOptions } from '@mnjs/utils';
 const callback = () => 1;
 const receiver = {
   getOption, mergeOptions, label: 123, fallback: 42, falsey: 'parent', absent: 'parent', '': 'not returned',

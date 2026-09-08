@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { mergeOptions } from '@marionette/utils';
+import { mergeOptions } from '@mnjs/utils';
 
 describe('mergeOptions', function() {
   let target;

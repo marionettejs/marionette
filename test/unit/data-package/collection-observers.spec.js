@@ -1,8 +1,8 @@
 import { vi, describe, it, expect } from 'vitest';
 import Backbone from 'backbone';
-import { Collection, DataApi } from '@marionette/data';
+import { Collection, DataApi } from '@mnjs/data';
 
-describe('@marionette/data collection notifications', function() {
+describe('@mnjs/data collection notifications', function() {
   it('uses the public event stream in registration order', function() {
     const collection = new Collection();
     const calls = [];

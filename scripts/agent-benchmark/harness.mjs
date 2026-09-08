@@ -8,9 +8,9 @@ import { validateTaskContracts } from './task-contract.mjs';
 
 export const repositoryRoot = resolve(import.meta.dirname, '../..');
 const packageDefinitions = [
-  ['utils', '@marionette/utils', 'packages/utils'], ['radio', '@marionette/radio', 'packages/radio'],
-  ['core', 'marionette', '.'], ['data', '@marionette/data', 'packages/data'],
-  ['adapters', '@marionette/adapters', 'packages/adapters']
+  ['utils', '@mnjs/utils', 'packages/utils'], ['radio', '@mnjs/radio', 'packages/radio'],
+  ['core', 'marionette', '.'], ['data', '@mnjs/data', 'packages/data'],
+  ['adapters', '@mnjs/adapters', 'packages/adapters']
 ];
 const digest = bytes => createHash('sha512').update(bytes).digest('hex');
 const readJson = async path => JSON.parse(await readFile(path, 'utf8'));
@@ -75,7 +75,7 @@ export async function prepareArtifacts({ root = repositoryRoot, manifestPath, ou
     manifest = await readJson(resolve(manifestPath));
   } else {
     directory = output;
-    manifest = { schemaVersion: 2, packages: [] };
+    manifest = { schemaVersion: 3, packages: [] };
     for (const [id, name, path] of packageDefinitions) {
       const packed = JSON.parse(execute('npm', ['pack', resolve(root, path), '--ignore-scripts', '--json', '--pack-destination', directory], root));
       if (packed.length !== 1 || packed[0].name !== name) { throw new Error(`Expected exactly one ${name} package`); }
@@ -83,7 +83,7 @@ export async function prepareArtifacts({ root = repositoryRoot, manifestPath, ou
       manifest.packages.push({ id, name, version: packed[0].version, tarball: { file: packed[0].filename, sha512: digest(bytes), integrity: packed[0].integrity, size: bytes.length } });
     }
   }
-  if (manifest.schemaVersion !== 2 || manifest.packages?.length !== 5) { throw new Error('Expected schema 2 evidence with all five packages'); }
+  if (manifest.schemaVersion !== 3 || manifest.packages?.length !== 5) { throw new Error('Expected schema 3 evidence with all five packages'); }
   const packages = [];
   for (const [id, name] of packageDefinitions) {
     const entries = manifest.packages.filter(entry => entry.id === id);

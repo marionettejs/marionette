@@ -10,8 +10,8 @@ async function buildFixture(t, { version = '5.0.0-test.1', manifestMutation } = 
     const directory = resolve(candidate.root, id === 'core' ? '.' : `packages/${id}`);
     await mkdir(directory, { recursive: true });
     const manifest = { name, version };
-    if (['radio', 'core', 'data'].includes(id)) { manifest.dependencies = { '@marionette/utils': version }; }
-    if (id === 'core') { manifest.dependencies['@marionette/radio'] = version; }
+    if (['radio', 'core', 'data'].includes(id)) { manifest.dependencies = { '@mnjs/utils': version }; }
+    if (id === 'core') { manifest.dependencies['@mnjs/radio'] = version; }
     if (id === 'adapters') { manifest.peerDependencies = { marionette: version }; }
     manifestMutation?.(id, manifest);
     await writeFile(resolve(directory, 'package.json'), JSON.stringify(manifest));
@@ -117,7 +117,7 @@ for (const [name, mutate, error] of [
   ['wrong package name', (id, manifest) => { if (id === 'utils') { manifest.name = 'other'; } }, /Unexpected utils/],
   ['version skew', (id, manifest) => { if (id === 'data') { manifest.version = '4.0.0'; } }, /does not match/],
   ['utils dependency skew', (id, manifest) => { if (id === 'radio') { delete manifest.dependencies; } }, /utils dependency missing/],
-  ['Radio dependency skew', (id, manifest) => { if (id === 'core') { delete manifest.dependencies['@marionette/radio']; } }, /Core Radio dependency missing/],
+  ['Radio dependency skew', (id, manifest) => { if (id === 'core') { delete manifest.dependencies['@mnjs/radio']; } }, /Core Radio dependency missing/],
   ['adapter peer skew', (id, manifest) => { if (id === 'adapters') { delete manifest.peerDependencies; } }, /Marionette peer missing/],
 ]) {
   test(`artifact construction rejects ${name}`, async t => {
@@ -146,3 +146,20 @@ for (const [name, args, mutation, error] of [
     await assert.rejects(readFile(resolve(candidate.output, 'release-evidence.json')), { code: 'ENOENT' });
   });
 }
+
+
+test('artifact construction rejects malformed publication policy before building packages', async t => {
+  const candidate = await buildFixture(t);
+  const policyPath = resolve(candidate.root, 'config/release-promotion.json');
+  const policy = JSON.parse(await readFile(policyPath));
+  policy.publication.prerelease = true;
+  await writeFile(policyPath, JSON.stringify(policy));
+  git(candidate.root, ['add', 'config/release-promotion.json']);
+  git(candidate.root, ['-c', 'user.name=Release CLI tests', '-c', 'user.email=release-tests@example.invalid',
+    '-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'invalid policy']);
+  const result = candidate.run('build-artifact', ['--output', candidate.output]);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Invalid release publication policy/);
+  assert.equal(await readFile(candidate.calls, 'utf8'), '');
+  assert.deepEqual(await readdir(candidate.output), []);
+});

@@ -2,7 +2,7 @@ import { vi, describe, it, expect } from 'vitest';
 import { Behavior } from 'marionette';
 import { CollectionView } from 'marionette';
 import { View } from 'marionette';
-import { MarionetteError } from '@marionette/utils';
+import { MarionetteError } from '@mnjs/utils';
 
 describe('#bindUIElements terminal behavior', function() {
   function buildHost(context, HostClass, onBeforeDestroy) {

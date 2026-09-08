@@ -1,4 +1,4 @@
-import { uniqueId } from '@marionette/utils';
+import { uniqueId } from '@mnjs/utils';
 
 const bare: string = uniqueId();
 const scoped: string = uniqueId('example');

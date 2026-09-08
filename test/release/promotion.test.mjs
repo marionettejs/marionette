@@ -6,7 +6,7 @@ import { pathToFileURL } from 'node:url';
 import { fixture, successfulValidation } from './fixture.mjs';
 
 async function promotion(t, options = {}) {
-  const candidate = await fixture(t, { publicationEnabled: true, ...options });
+  const candidate = await fixture(t, { publication: { stable: false, prerelease: '5.0.0-test.1' }, ...options });
   await successfulValidation(candidate);
   const statePath = join(candidate.directory, 'external-state.json');
   const log = join(candidate.directory, 'external-log.jsonl');
@@ -30,7 +30,7 @@ async function promotion(t, options = {}) {
 
 test('partial npm publication retries only absent versions and verifies every exact integrity', async t => {
   const candidate = await promotion(t);
-  await candidate.update({ npm: { '@marionette/utils': 'available', '@marionette/adapters': 'available' } });
+  await candidate.update({ npm: { '@mnjs/utils': 'available', '@mnjs/adapters': 'available' } });
   const result = candidate.exec('check-targets', 'npm-decision');
   assert.equal(result.status, 0, result.stderr);
   const report = JSON.parse(result.stdout);
@@ -49,11 +49,11 @@ test('partial npm publication retries only absent versions and verifies every ex
 });
 
 for (const [name, changes, mode, error] of [
-  ['immutable npm conflict', { npm: { '@marionette/adapters': 'conflict' } }, 'npm-decision', /different integrity/],
+  ['immutable npm conflict', { npm: { '@mnjs/adapters': 'conflict' } }, 'npm-decision', /different integrity/],
   ['npm conflict at preflight', { npm: { marionette: 'conflict' } }, 'publish', /Publication targets conflict/],
   ['npm conflict after publish', { npm: { marionette: 'conflict' } }, 'verify-npm', /integrity is not exact/],
   ['tag conflict', { remoteTag: 'a'.repeat(40) }, 'publish', /Git tag: conflict/],
-  ['registry outage', { npm: { '@marionette/utils': 'unavailable' } }, 'npm-decision', /npm view exited/],
+  ['registry outage', { npm: { '@mnjs/utils': 'unavailable' } }, 'npm-decision', /npm view exited/],
   ['remote outage', { gitError: true }, 'publish', /git ls-remote exited/],
   ['GitHub outage', { ghError: true }, 'publish', /gh api exited/],
 ]) {
@@ -137,7 +137,7 @@ test('annotated tags are peeled to the source commit before a release becomes pu
 });
 
 test('publication policy rejects stage and publish before contacting external services', async t => {
-  const candidate = await promotion(t, { publicationEnabled: false });
+  const candidate = await promotion(t, { publication: { stable: false, prerelease: null } });
   for (const mode of ['stage', 'publish']) {
     const result = candidate.exec('publish-github', mode);
     assert.equal(result.status, 1);
@@ -175,7 +175,7 @@ for (const conflict of ['source', 'manifest']) {
 }
 
 test('enabled publication requires a manual workflow on the trusted branch', async t => {
-  const candidate = await fixture(t, { publicationEnabled: true });
+  const candidate = await fixture(t, { publication: { stable: false, prerelease: '5.0.0-test.1' } });
   for (const [args, error] of [
     [['--event', 'push', '--ref', 'refs/heads/master'], /only from workflow_dispatch/],
     [['--event', 'workflow_dispatch', '--ref', 'refs/heads/untrusted'], /requires refs\/heads\/master/],
@@ -192,7 +192,7 @@ test('enabled publication requires a manual workflow on the trusted branch', asy
 
 test('npm integrity verification retries propagation delay without publishing a package', async t => {
   const candidate = await promotion(t);
-  await candidate.update({ npm: { '@marionette/utils': ['available', 'exact'] } });
+  await candidate.update({ npm: { '@mnjs/utils': ['available', 'exact'] } });
   const result = candidate.exec('check-targets', 'verify-npm');
   assert.equal(result.status, 0, result.stderr);
   assert.match(result.stderr, /retrying in 5 seconds/);
@@ -201,3 +201,37 @@ test('npm integrity verification retries propagation delay without publishing a 
   assert.equal(npmCalls[0].args[1], npmCalls[1].args[1]);
   assert.ok(npmCalls.every(call => call.args[0] === 'view'));
 });
+
+
+test('standalone GitHub staging rejects tampered embedded publication authorization before external calls', async t => {
+  const candidate = await promotion(t);
+  candidate.evidence.promotionPolicy.publication.stable = true;
+  await candidate.save();
+  await successfulValidation(candidate);
+  const result = candidate.exec('publish-github', 'stage');
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /publication authorization policy mismatch/);
+  assert.deepEqual(await candidate.calls(), []);
+});
+
+test('standalone GitHub staging rejects stable publication with only prerelease permission', async t => {
+  const candidate = await promotion(t, { version: '5.0.0' });
+  const result = candidate.exec('publish-github', 'stage');
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /publication is disabled/);
+  assert.deepEqual(await candidate.calls(), []);
+});
+
+for (const version of ['5.0.0-beta.1', '5.0.0']) {
+  test(`release notes link installation and migration to the exact candidate for ${version}`, async t => {
+    const candidate = await promotion(t, { version, publication: { stable: true, prerelease: '5.0.0-beta.1' } });
+    const result = candidate.exec('publish-github', 'stage');
+    assert.equal(result.status, 0, result.stderr);
+    const create = (await candidate.calls()).find(call => call.tool === 'gh' && call.args[1] === 'create');
+    const notes = create.args[create.args.indexOf('--notes') + 1];
+    assert.ok(notes.includes(`npm install marionette@${version}`));
+    assert.ok(notes.includes(`/blob/${candidate.commit}/changelog.md`));
+    assert.ok(notes.includes(`/blob/${candidate.commit}/upgradeGuide.md`));
+    assert.equal(notes.includes(`/blob/${candidate.commit}/docs/beta.md`), version.includes('-'));
+  });
+}

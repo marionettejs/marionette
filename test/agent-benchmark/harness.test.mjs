@@ -62,8 +62,8 @@ test('artifact validation rejects changed tarball bytes before installation', as
   const root = await mkdtemp(join(tmpdir(), 'agent-artifact-'));
   try {
     await writeFile(join(root, 'utils.tgz'), 'changed bytes');
-    const packages = [['utils','@marionette/utils'],['radio','@marionette/radio'],['core','marionette'],['data','@marionette/data'],['adapters','@marionette/adapters']].map(([id,name]) => ({id,name,version: '5.0.0',tarball: {file: `${id}.tgz`,size: 1,sha512: 'wrong',integrity: 'wrong'}}));
-    const manifestPath = join(root, 'evidence.json'); await writeFile(manifestPath, JSON.stringify({schemaVersion: 2,packages}));
+    const packages = [['utils','@mnjs/utils'],['radio','@mnjs/radio'],['core','marionette'],['data','@mnjs/data'],['adapters','@mnjs/adapters']].map(([id,name]) => ({id,name,version: '5.0.0',tarball: {file: `${id}.tgz`,size: 1,sha512: 'wrong',integrity: 'wrong'}}));
+    const manifestPath = join(root, 'evidence.json'); await writeFile(manifestPath, JSON.stringify({schemaVersion: 3,packages}));
     await assert.rejects(prepareArtifacts({manifestPath,output: join(root,'output')}), /integrity mismatch/);
   } finally { await rm(root, { recursive: true, force: true }); }
 });

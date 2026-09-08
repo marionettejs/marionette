@@ -9,7 +9,7 @@ import { extend } from 'marionette';
 
 import { monitorViewEvents } from 'marionette';
 
-import { Events } from '@marionette/utils';
+import { Events } from '@mnjs/utils';
 
 import { MnObject } from 'marionette';
 import { View } from 'marionette';

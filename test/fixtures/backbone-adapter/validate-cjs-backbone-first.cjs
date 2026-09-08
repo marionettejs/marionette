@@ -16,7 +16,7 @@ const Marionette = require('marionette');
 for (const Constructor of Object.values(constructors)) {
   assert.strictEqual(Constructor.prototype.triggerMethod, undefined);
 }
-const BackboneApi = require('@marionette/adapters/backbone');
+const BackboneApi = require('@mnjs/adapters/backbone');
 
 assertInterop({
   BackboneApi,

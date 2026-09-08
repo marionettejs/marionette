@@ -1,7 +1,7 @@
 // Application
 // -----------
 
-import { setProperty, MarionetteError, uniqueId } from '@marionette/utils';
+import { setProperty, MarionetteError, uniqueId } from '@mnjs/utils';
 import extend from '../utils/extend.ts';
 import CommonMixin from '../mixins/common.ts';
 import DestroyMixin from '../mixins/destroy.ts';
@@ -16,8 +16,8 @@ import type { RegionInstance, ShowOptions } from './region.ts';
 import type { RegionClass, RegionDefinition } from './common/build-region.ts';
 import type { SupportedView } from './common/view.ts';
 import type { StateApi } from '../runtime/state-api.ts';
-import type { RadioApi, Channel } from '@marionette/radio';
-import type { Bindings } from '@marionette/utils';
+import type { RadioApi, Channel } from '@mnjs/radio';
+import type { Bindings } from '@mnjs/utils';
 import type { RadioHost } from '../mixins/radio.ts';
 import type { StateHost } from '../mixins/state.ts';
 import type { Constructed, Merge, ArgumentsFor, DefaultOptions, OptionsFor, StateFor, SuppliedState } from './object.ts';

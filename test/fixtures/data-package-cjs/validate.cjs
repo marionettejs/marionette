@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const { createMarionette } = require('marionette');
-const { Collection, DataApi, Model, StateApi, triggerMethod } = require('@marionette/data');
+const { Collection, DataApi, Model, StateApi, triggerMethod } = require('@mnjs/data');
 
 const runtime = createMarionette();
 runtime.setDataApi(DataApi);

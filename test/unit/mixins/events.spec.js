@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import _ from 'underscore';
-import { Events as EventsMixin } from '@marionette/utils';
+import { Events as EventsMixin } from '@mnjs/utils';
 
 describe('Events Mixin', function() {
   describe('#trigger with an object map', function() {

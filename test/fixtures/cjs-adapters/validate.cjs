@@ -10,7 +10,7 @@ const Backbone = require('backbone');
 
 assert.strictEqual(Backbone.Model.prototype.triggerMethod, undefined);
 
-const BackboneApi = require('@marionette/adapters/backbone');
+const BackboneApi = require('@mnjs/adapters/backbone');
 
 Marionette.setDataApi(BackboneApi);
 Marionette.setStateApi(BackboneApi);
@@ -18,8 +18,8 @@ assert.strictEqual(Backbone.Model.prototype.triggerMethod, undefined);
 assert.strictEqual(typeof Backbone.Model.prototype.bind, 'function');
 assert.strictEqual(typeof Backbone.Model.prototype.unbind, 'function');
 
-const JQueryDomApi = require('@marionette/adapters/dom/jquery');
-const createXStateActorApi = require('@marionette/adapters/xstate');
+const JQueryDomApi = require('@mnjs/adapters/dom/jquery');
+const createXStateActorApi = require('@mnjs/adapters/xstate');
 const { createActor, createMachine } = require('xstate');
 const $ = require('jquery');
 const JQueryView = Marionette.View.extend({ initialize() { this.$el = $(this.el); } });

@@ -8,7 +8,7 @@ globalThis.document = dom.window.document;
 
 const [{ CollectionView, View, setDataApi, setStateApi }, { default: BackboneApi }, { default: Backbone }] = await Promise.all([
   import('marionette'),
-  import('@marionette/adapters/backbone'),
+  import('@mnjs/adapters/backbone'),
   import('backbone'),
 ]);
 

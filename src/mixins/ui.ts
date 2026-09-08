@@ -1,4 +1,4 @@
-import { MarionetteError, setProperty, getValue, isString } from '@marionette/utils';
+import { MarionetteError, setProperty, getValue, isString } from '@mnjs/utils';
 
 export type UISelectors = Record<string, string>;
 export type UIBindings = UISelectors | (() => UISelectors);

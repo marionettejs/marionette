@@ -1,5 +1,5 @@
 import { vi, describe, it, expect } from 'vitest';
-import { Events as EventsMixin } from '@marionette/utils';
+import { Events as EventsMixin } from '@mnjs/utils';
 
 function createEmitter() {
   return Object.assign({}, EventsMixin);

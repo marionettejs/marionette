@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { assign, createActor, createMachine, emit } from 'xstate';
 import { createMarionette } from 'marionette';
-import createXStateActorApi from '@marionette/adapters/xstate';
+import createXStateActorApi from '@mnjs/adapters/xstate';
 
 const childMachine = createMachine({
   context: ({ input }) => ({ id: input.id, label: input.label }),

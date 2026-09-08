@@ -1,6 +1,6 @@
 import { vi, describe, it, expect } from 'vitest';
 import { Application, Behavior, CollectionView, MnObject, Region, View } from 'marionette';
-import { MarionetteError } from '@marionette/utils';
+import { MarionetteError } from '@mnjs/utils';
 
 function createSource() {
   return { listeners: new Map() };

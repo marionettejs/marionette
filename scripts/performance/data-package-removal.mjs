@@ -10,7 +10,7 @@ if (!baseline) { throw new Error('Usage: node --expose-gc scripts/performance/da
 if (typeof globalThis.gc !== 'function') { throw new Error('Run with --expose-gc to apply the benchmark method.'); }
 registerHooks({
   resolve(specifier, context, nextResolve) {
-    if (specifier === '@marionette/utils') {
+    if (specifier === '@mnjs/utils') {
       return { url: pathToFileURL(resolve(root, 'packages/utils/src/index.ts')).href, shortCircuit: true };
     }
     return nextResolve(specifier, context);

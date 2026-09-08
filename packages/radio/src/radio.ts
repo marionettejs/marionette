@@ -1,6 +1,6 @@
 import { createDebug, defaultDebug } from './debug.ts';
-import { Events, setProperty, MarionetteError, callHandler } from '@marionette/utils';
-import type { EventCallback, EventsContract } from '@marionette/utils';
+import { Events, setProperty, MarionetteError, callHandler } from '@mnjs/utils';
+import type { EventCallback, EventsContract } from '@mnjs/utils';
 import Requests from './requests.ts';
 import type { Requests as RequestsContract } from './requests.ts';
 

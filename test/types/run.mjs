@@ -6,14 +6,14 @@ import { tmpdir } from 'node:os';
 const root = resolve(import.meta.dirname, '../..');
 const consumer = mkdtempSync(join(tmpdir(), 'marionette-type-consumer-'));
 try {
-  mkdirSync(join(consumer, 'node_modules/@marionette'), { recursive: true });
+  mkdirSync(join(consumer, 'node_modules/@mnjs'), { recursive: true });
   writeFileSync(join(consumer, 'package.json'), JSON.stringify({ name: 'marionette-type-consumer', private: true, type: 'module' }));
   for (const [name, directory] of [
     ['marionette', '.'],
-    ['@marionette/utils', 'packages/utils'],
-    ['@marionette/radio', 'packages/radio'],
-    ['@marionette/data', 'packages/data'],
-    ['@marionette/adapters', 'packages/adapters']
+    ['@mnjs/utils', 'packages/utils'],
+    ['@mnjs/radio', 'packages/radio'],
+    ['@mnjs/data', 'packages/data'],
+    ['@mnjs/adapters', 'packages/adapters']
   ]) {
     symlinkSync(resolve(root, directory), join(consumer, 'node_modules', name), 'junction');
   }

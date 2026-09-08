@@ -1,9 +1,9 @@
 import Backbone from 'backbone';
 import $ from 'jquery';
 import { createMarionette } from 'marionette';
-import BackboneApi from '@marionette/adapters/backbone';
-import JQueryDomApi from '@marionette/adapters/dom/jquery';
-import createXStateActorApi from '@marionette/adapters/xstate';
+import BackboneApi from '@mnjs/adapters/backbone';
+import JQueryDomApi from '@mnjs/adapters/dom/jquery';
+import createXStateActorApi from '@mnjs/adapters/xstate';
 import { createActor, createMachine } from 'xstate';
 
 const runtime = createMarionette();

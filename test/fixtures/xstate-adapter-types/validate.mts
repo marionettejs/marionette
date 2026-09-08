@@ -1,5 +1,5 @@
 import { View, CollectionView, createMarionette, setDataApi, setStateApi } from 'marionette';
-import createXStateActorApi, { type XStateActorApiOptions, type XStateActorEventOptions } from '@marionette/adapters/xstate';
+import createXStateActorApi, { type XStateActorApiOptions, type XStateActorEventOptions } from '@mnjs/adapters/xstate';
 import { createActor, createMachine } from 'xstate';
 
 const childActor = createActor(createMachine({ context: { id: 1, label: 'child' } })).start();

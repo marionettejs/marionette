@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, afterEach } from 'vitest';
-import { Radio, createRadio } from '@marionette/radio';
-import { Events } from '@marionette/utils';
-import { Requests as Requests } from '@marionette/radio';
+import { Radio, createRadio } from '@mnjs/radio';
+import { Events } from '@mnjs/utils';
+import { Requests as Requests } from '@mnjs/radio';
 
 function assignmentDescriptor(value) {
   return {

@@ -25,7 +25,7 @@ const view = new View();
 const app = new Application();
 ```
 
-V5 has no default namespace export. The separate `@marionette/adapters` package
+V5 has no default namespace export. The separate `@mnjs/adapters` package
 provides optional integration subpaths; see [Installing Marionette](./installation.md)
 for the entrypoints and their dependencies.
 

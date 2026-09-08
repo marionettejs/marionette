@@ -1,7 +1,7 @@
 // Collection View
 // ---------------
 
-import { getValue, MarionetteError, uniqueId } from '@marionette/utils';
+import { getValue, MarionetteError, uniqueId } from '@mnjs/utils';
 import extend from '../utils/extend.ts';
 import { renderView, destroyView, isViewClass } from './common/view.ts';
 import monitorViewEvents from './common/monitor-view-events.ts';
@@ -229,7 +229,7 @@ type CollectionViewInternals = CollectionViewInstance & ViewMixinHost & {
 const classErrorName = 'CollectionViewError';
 
 function sameValueZero(left: unknown, right: unknown) {
-  // Keep this aligned with @marionette/data's stable-key equality.
+  // Keep this aligned with @mnjs/data's stable-key equality.
   return left === right || Object.is(left, right);
 }
 

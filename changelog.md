@@ -1,4 +1,9 @@
-### v5.0.0-alpha.2
+### v5.0.0-beta.1 (candidate; unpublished)
+
+* Established `@mnjs` as the companion package scope: utils, radio, data, and
+  adapters; the core package remains `marionette`
+* Added a packaged application starter and beta trial guide, plus release
+  authorization restricted to one exact prerelease version
 
 * Added optional `createMarionette()` runtime factories with independent class
   families, mutable adapters, renderer configuration, and Radio channel registries;
@@ -22,9 +27,9 @@
 * Added explicit `View#renderAttributes()` and `CollectionView#renderAttributes()`
   root-attribute refreshes; the default `DomApi.setAttributes` now removes
   nullish entries while leaving omitted keys untouched
-* Added the optional `@marionette/data` package with observable Model and ordered
+* Added the optional `@mnjs/data` package with observable Model and ordered
   Collection sources plus matching DataApi and StateApi adapters
-* Added the optional `@marionette/adapters` package with explicit Backbone and
+* Added the optional `@mnjs/adapters` package with explicit Backbone and
   jQuery subpaths and no root barrel; removed the previous core adapter subpaths.
   The Backbone integration configures DataApi and StateApi explicitly while
   preserving native Backbone objects, prototypes, listeners, and event methods;
@@ -32,7 +37,7 @@
   Backbone's mutable internal collection array
 * Changed the default model and collection contract to plain objects and arrays;
   Backbone-specific data and event shapes now remain inside the explicit
-  `@marionette/adapters/backbone` integration
+  `@mnjs/adapters/backbone` integration
 * Removed `children.findByModelCid`; `findByModel` uses the configured DataApi key
 * Replaced the alpha concrete `State` with exact state-source composition and an
   independent StateApi observation contract; supplied sources are borrowed,
@@ -45,7 +50,7 @@
   `sortWithCollection` continues reconciling structural changes to source order;
   use `sortWithCollection: false` to preserve manually managed child order
 * Moved the optional jQuery-backed DomApi integration to
-  `@marionette/adapters/dom/jquery`
+  `@mnjs/adapters/dom/jquery`
   operations and opt-in View, CollectionView, and Behavior `$el` compatibility
 * Require concrete DOM elements for View and CollectionView `el`; resolve
   selectors and unwrap jQuery collections at the call site

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
 import _ from 'underscore';
 
-import { Events as EventsMixin } from '@marionette/utils';
+import { Events as EventsMixin } from '@mnjs/utils';
 
 const require = createRequire(import.meta.url);
 const Backbone = require('backbone');
@@ -277,7 +277,7 @@ describe('Events parity with Backbone.Events', function() {
     // Backbone exposes one stable Events mixin object on its namespace:
     // https://github.com/jashkenas/backbone/blob/1.4.0/backbone.js#L71-L84
     const eventsIdentity = Backbone.Events;
-    await import('@marionette/adapters/backbone');
+    await import('@mnjs/adapters/backbone');
 
     expect(Backbone.Events).to.equal(eventsIdentity);
   });

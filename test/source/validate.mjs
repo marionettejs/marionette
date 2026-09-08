@@ -8,14 +8,14 @@ import compile from '../../build/babel.js';
 import './public-source.mjs';
 
 const [{ default: BackboneApi }, Marionette] = await Promise.all([
-  import('@marionette/adapters/backbone'),
+  import('@mnjs/adapters/backbone'),
   import('marionette')
 ]);
 
 const dom = new JSDOM('<!doctype html>');
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
-const { default: jqueryDomApi } = await import('@marionette/adapters/dom/jquery');
+const { default: jqueryDomApi } = await import('@mnjs/adapters/dom/jquery');
 
 assert.equal(typeof Marionette.View, 'function');
 assert.equal(typeof Marionette.Region, 'function');
@@ -110,7 +110,7 @@ assert.deepEqual(nonDeclarativeConfigFiles, []);
 const regionBundle = await rollup({
   input: resolve(root, 'src/modules/region.ts'),
   plugins: [compile()],
-  external: ['@marionette/utils', '@marionette/radio'],
+  external: ['@mnjs/utils', '@mnjs/radio'],
 });
 const regionDependencies = regionBundle.watchFiles.map(file => relative(root, file));
 await regionBundle.close();

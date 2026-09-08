@@ -1,6 +1,6 @@
 import { CollectionView, type CollectionViewInstance, type CollectionChild } from 'marionette';
 import { View } from 'marionette';
-import type { EventsContract as Events } from '@marionette/utils';
+import type { EventsContract as Events } from '@mnjs/utils';
 import type {RegionInstance} from 'marionette';
 
 interface Row {id: number; label: string;}

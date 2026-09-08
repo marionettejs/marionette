@@ -9,8 +9,8 @@ import { copyCoverageFixture } from '../tooling/coverage-fixture.mjs';
 
 const repository = resolve(import.meta.dirname, '../..');
 const names = [
-  ['utils', '@marionette/utils'], ['radio', '@marionette/radio'], ['core', 'marionette'],
-  ['data', '@marionette/data'], ['adapters', '@marionette/adapters'],
+  ['utils', '@mnjs/utils'], ['radio', '@mnjs/radio'], ['core', 'marionette'],
+  ['data', '@mnjs/data'], ['adapters', '@mnjs/adapters'],
 ];
 
 function hash(value, algorithm = 'sha512', encoding = 'hex') {
@@ -23,7 +23,7 @@ function git(root, args) {
   return result.stdout.trim();
 }
 
-async function fixture(t, { publicationEnabled = false } = {}) {
+async function fixture(t, { publication = { stable: false, prerelease: null }, version = '5.0.0-test.1' } = {}) {
   const directory = await mkdtemp(join(tmpdir(), 'marionette-release-cli-'));
   t.after(() => rm(directory, { recursive: true, force: true, maxRetries: 3 }));
   const root = resolve(directory, 'source');
@@ -32,7 +32,9 @@ async function fixture(t, { publicationEnabled = false } = {}) {
   await mkdir(artifacts);
   await copyCoverageFixture(resolve(repository, 'scripts/release'), resolve(root, 'scripts/release'));
   await cp(resolve(repository, 'config'), resolve(root, 'config'), { recursive: true });
-  await cp(resolve(repository, 'package.json'), resolve(root, 'package.json'));
+  const sourcePackage = JSON.parse(await readFile(resolve(repository, 'package.json')));
+  sourcePackage.version = version;
+  await writeFile(resolve(root, 'package.json'), JSON.stringify(sourcePackage));
   await mkdir(resolve(root, 'test/fixtures/consumer'), { recursive: true });
   await writeFile(resolve(root, 'test/fixtures/consumer/package-lock.json'), '{}');
   await writeFile(resolve(root, 'config/release-validation.json'), JSON.stringify({
@@ -41,7 +43,7 @@ async function fixture(t, { publicationEnabled = false } = {}) {
   }));
   const policyPath = resolve(root, 'config/release-promotion.json');
   const fixturePolicy = JSON.parse(await readFile(policyPath));
-  fixturePolicy.publicationEnabled = publicationEnabled;
+  fixturePolicy.publication = publication;
   await writeFile(policyPath, JSON.stringify(fixturePolicy));
   await writeFile(resolve(root, '.gitignore'), 'test/tmp/\n');
   git(root, ['init', '-q']);
@@ -58,7 +60,6 @@ async function fixture(t, { publicationEnabled = false } = {}) {
   await writeFile(resolve(npmDirectory, 'package.json'), JSON.stringify({ version: profile.source.npm }));
   const npmCli = resolve(npmDirectory, 'bin/npm-cli.js');
   await writeFile(npmCli, 'throw new Error(\'This verification must not invoke npm or access a registry\');\n');
-  const version = '5.0.0-test.1';
   const packages = [];
   for (const [id, name] of names) {
     const input = resolve(directory, id, 'package');
@@ -84,12 +85,12 @@ async function fixture(t, { publicationEnabled = false } = {}) {
   const bundle = '{}';
   await writeFile(resolve(artifacts, 'bundle.json'), bundle);
   const evidence = {
-    schemaVersion: 2, packages,
+    schemaVersion: 3, packages,
     source: { commit, repository: 'marionettejs/marionette', ref: 'refs/heads/master' },
-    release: { version, tag: `v${version}`, prerelease: true, npmTag: policy.npm.prereleaseTag },
+    release: { version, tag: `v${version}`, prerelease: version.includes('-'), npmTag: version.includes('-') ? policy.npm.prereleaseTag : policy.npm.stableTag },
     toolchain: { node: process.versions.node, npm: profile.source.npm },
     releaseProfile: { revision: git(root, ['rev-parse', 'HEAD:config/release-profile.json']), sha512: hash(profileBytes), profile },
-    promotionPolicy: { revision: git(root, ['rev-parse', 'HEAD:config/release-promotion.json']), sha512: hash(policyBytes), publicationEnabled: policy.publicationEnabled },
+    promotionPolicy: { revision: git(root, ['rev-parse', 'HEAD:config/release-promotion.json']), sha512: hash(policyBytes), publication: policy.publication },
     reports: { bundle: { file: 'bundle.json', sha512: hash(bundle) } },
   };
   async function save() {

@@ -12,6 +12,12 @@
     "section": "Start here"
   },
   {
+    "source": "docs/beta.md",
+    "route": "docs/beta",
+    "title": "Try the beta candidate",
+    "section": "Start here"
+  },
+  {
     "source": "docs/agents.md",
     "route": "docs/agents",
     "title": "Build with an agent",

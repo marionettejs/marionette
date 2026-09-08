@@ -1,4 +1,4 @@
-import { MarionetteError, Events } from '@marionette/utils';
+import { MarionetteError, Events } from '@mnjs/utils';
 import extend from './utils/extend.ts';
 import monitorViewEvents from './modules/common/monitor-view-events.ts';
 import TemplateRenderMixin from './mixins/template-render.ts';
@@ -8,7 +8,7 @@ import CollectionViewBase from './modules/collection-view.ts';
 import BehaviorBase from './modules/behavior.ts';
 import RegionBase from './modules/region.ts';
 import ApplicationBase from './modules/application.ts';
-import { Radio, createRadio } from '@marionette/radio';
+import { Radio, createRadio } from '@mnjs/radio';
 import DomApi from './runtime/dom-api.ts';
 import DataApi from './runtime/data-api.ts';
 import EventDelegator from './runtime/event-delegator.ts';

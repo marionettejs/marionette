@@ -1,4 +1,4 @@
-import { getValue } from '@marionette/utils';
+import { getValue } from '@mnjs/utils';
 
 import type { DataApi } from '../runtime/data-api.ts';
 import type { DomApi } from '../runtime/dom-api.ts';

@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { Collection, DataApi, Model } from '@marionette/data';
+import { Collection, DataApi, Model } from '@mnjs/data';
 
-describe('@marionette/data Collection', function() {
+describe('@mnjs/data Collection', function() {
   let collection;
   let changes;
   let dispose;

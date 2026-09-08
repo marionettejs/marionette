@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import vm from 'node:vm';
 import _ from 'underscore';
 
-import { isString } from '@marionette/utils';
+import { isString } from '@mnjs/utils';
 
 describe('isString', function() {
   it('matches Underscore string-tag classification', function() {

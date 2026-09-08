@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildEventArgs } from '@marionette/utils';
+import { buildEventArgs } from '@mnjs/utils';
 
 function defineEnumerable(object, name, value) {
   Object.defineProperty(object, name, {

@@ -1,0 +1,13 @@
+{
+  "name": "marionette-beta-starter",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "test": "node --test workspace.test.mjs",
+    "build": "vite build",
+    "validate": "node --test workspace.test.mjs && vite build"
+  },
+  "dependencies": { "jsdom": "30.0.1", "vite": "8.2.2" },
+  "allowScripts": { "fsevents@2.3.3": true }
+}

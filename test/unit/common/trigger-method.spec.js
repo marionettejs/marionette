@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { triggerMethod } from '@marionette/utils';
+import { triggerMethod } from '@mnjs/utils';
 
 describe('triggerMethod', function() {
   let target;

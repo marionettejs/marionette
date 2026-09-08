@@ -1,8 +1,8 @@
 import { View, CollectionView, Region, DomApi } from 'marionette';
-import MorphdomDomApi from '@marionette/adapters/dom/morphdom';
-import LitDomApi from '@marionette/adapters/dom/lit-html';
+import MorphdomDomApi from '@mnjs/adapters/dom/morphdom';
+import LitDomApi from '@mnjs/adapters/dom/lit-html';
 import $ from 'jquery';
-import JQueryDomApi from '@marionette/adapters/dom/jquery';
+import JQueryDomApi from '@mnjs/adapters/dom/jquery';
 import { html } from 'lit-html';
 import { AsyncDirective } from 'lit-html/async-directive.js';
 import { directive } from 'lit-html/directive.js';

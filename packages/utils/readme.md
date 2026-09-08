@@ -1,10 +1,10 @@
-# @marionette/utils
+# @mnjs/utils
 
 The small helpers behind Marionette, available for your own components.
-Marionette and `@marionette/data` import these same implementations.
+Marionette and `@mnjs/data` import these same implementations.
 
 ```bash
-npm install @marionette/utils
+npm install @mnjs/utils
 ```
 
 During v5 alpha, use the same version for all Marionette packages. Core and data
@@ -17,7 +17,7 @@ Methods such as `getOption`, `normalizeMethods`, and `triggerMethod` use their
 receiver as the component. Mix them into a prototype or call them with `.call()`.
 
 ```js
-import { Events, getOption, normalizeMethods, triggerMethod } from '@marionette/utils';
+import { Events, getOption, normalizeMethods, triggerMethod } from '@mnjs/utils';
 
 const component = {
   ...Events,

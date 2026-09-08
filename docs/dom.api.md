@@ -219,7 +219,7 @@ at application boot:
 
 ```javascript
 import { setDomApi } from 'marionette';
-import JQueryDomApi from '@marionette/adapters/dom/jquery';
+import JQueryDomApi from '@mnjs/adapters/dom/jquery';
 
 setDomApi(JQueryDomApi);
 ```
@@ -249,5 +249,5 @@ selector strings as a View `el`. Configure those concerns separately when an
 application actually requires them.
 
 Prefer the native adapter for new applications. Use
-`@marionette/adapters/dom/jquery` only for an existing integration that depends on
+`@mnjs/adapters/dom/jquery` only for an existing integration that depends on
 jQuery selection, content, or detach semantics.

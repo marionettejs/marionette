@@ -1,7 +1,7 @@
 # Update a list without losing an unrelated edit
 
 Use the installed Marionette skill and documentation to implement `solution.mjs`.
-The application uses `@marionette/data` for observable records and collections,
+The application uses `@mnjs/data` for observable records and collections,
 with the default renderer and DOM behavior. It does not need a router or observed
 local selection state.
 

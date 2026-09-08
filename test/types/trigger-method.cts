@@ -1,5 +1,5 @@
-import { Events } from '@marionette/utils';
-import { triggerMethod } from '@marionette/utils';
+import { Events } from '@mnjs/utils';
+import { triggerMethod } from '@mnjs/utils';
 
 const target = {
   trigger(_name: string, ..._args: unknown[]) {},

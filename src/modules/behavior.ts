@@ -4,8 +4,8 @@
 // A Behavior composes reusable interactions on one host View or CollectionView.
 // The host owns its lifecycle; the Behavior has its own event handlers and State.
 
-import type { Bindings } from '@marionette/utils';
-import { getValue, uniqueId } from '@marionette/utils';
+import type { Bindings } from '@mnjs/utils';
+import { getValue, uniqueId } from '@mnjs/utils';
 import extend from '../utils/extend.ts';
 import CommonMixin from '../mixins/common.ts';
 import DelegateEntityEventsMixin from '../mixins/delegate-entity-events.ts';
@@ -15,7 +15,7 @@ import ViewEventsMixin from '../mixins/view-events.ts';
 import { setEventDelegator } from '../runtime/event-delegator.ts';
 import { setStateApi } from '../runtime/state-api.ts';
 
-import type { EventSource } from '@marionette/utils';
+import type { EventSource } from '@mnjs/utils';
 import type { DataApi } from '../runtime/data-api.ts';
 import type { StateApi } from '../runtime/state-api.ts';
 import type { EventDelegator } from '../runtime/event-delegator.ts';

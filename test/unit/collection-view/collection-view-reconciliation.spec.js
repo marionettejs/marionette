@@ -4,7 +4,7 @@ import { CollectionView } from 'marionette';
 import { Behavior } from 'marionette';
 import { View } from 'marionette';
 import { Region } from 'marionette';
-import { MarionetteError } from '@marionette/utils';
+import { MarionetteError } from '@mnjs/utils';
 
 function createAdapter() {
   return {

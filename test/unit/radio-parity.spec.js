@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createRequire } from 'node:module';
-import { createRadio } from '@marionette/radio';
+import { createRadio } from '@mnjs/radio';
 
 const require = createRequire(import.meta.url);
 const BackboneRadio = require('backbone.radio');

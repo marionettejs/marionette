@@ -1,4 +1,4 @@
 import { setDataApi } from 'marionette';
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 
 setDataApi(BackboneApi);

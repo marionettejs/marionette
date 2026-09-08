@@ -1,7 +1,7 @@
 import { vi, describe, it, expect } from 'vitest';
-import { Collection, Model, triggerMethod } from '@marionette/data';
+import { Collection, Model, triggerMethod } from '@mnjs/data';
 
-describe('@marionette/data Model', function() {
+describe('@mnjs/data Model', function() {
   it('initializes defaults, identity, attributes, and subclasses', function() {
     const CustomModel = Model.extend({
       defaults() { return { enabled: true }; },

@@ -10,7 +10,7 @@ import { copyCoverageFixture } from './coverage-fixture.mjs';
 
 const repository = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const npmCli = process.env.npm_execpath;
-const names = ['marionette', '@marionette/data', '@marionette/adapters', '@marionette/utils', '@marionette/radio'];
+const names = ['marionette', '@mnjs/data', '@mnjs/adapters', '@mnjs/utils', '@mnjs/radio'];
 let temporary;
 let sequence = 0;
 
@@ -136,7 +136,7 @@ test('rejects missing candidates and corrupt evidence before npm is invoked', ()
       data.packages[0].tarball.sha256 = 'bad';
       json(resolve(root, 'artifacts/release-evidence.json'), data);
     } else {
-      rmSync(resolve(root, 'artifacts/marionetteutils.tgz'));
+      rmSync(resolve(root, 'artifacts/mnjsutils.tgz'));
     }
     const sentinel = resolve(root, 'npm-called');
     const fakeNpm = resolve(root, 'npm.mjs');

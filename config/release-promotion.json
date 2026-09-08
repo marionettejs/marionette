@@ -1,6 +1,9 @@
 {
-  "schemaVersion": 1,
-  "publicationEnabled": false,
+  "schemaVersion": 2,
+  "publication": {
+    "stable": false,
+    "prerelease": null
+  },
   "repository": "marionettejs/marionette",
   "defaultBranch": "master",
   "workflow": "release.yml",

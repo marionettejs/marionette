@@ -11,23 +11,23 @@ for (const packagePath of ['xstate']) {
   assert.equal(existsSync(resolve(import.meta.dirname, 'node_modules', packagePath)), false);
 }
 await assert.rejects(
-  import('@marionette/adapters'),
+  import('@mnjs/adapters'),
   error => error.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED',
 );
 assert.throws(
-  () => require('@marionette/adapters'),
+  () => require('@mnjs/adapters'),
   error => error.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED',
 );
 await assert.rejects(
-  import('@marionette/adapters/snapshot'),
+  import('@mnjs/adapters/snapshot'),
   error => error.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED',
 );
 assert.throws(
-  () => require('@marionette/adapters/snapshot'),
+  () => require('@mnjs/adapters/snapshot'),
   error => error.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED',
 );
 await Promise.all([
-  import('@marionette/adapters/xstate'),
+  import('@mnjs/adapters/xstate'),
 ]);
 
 for (const file of [

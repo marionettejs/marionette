@@ -1,18 +1,18 @@
-# @marionette/data
+# @mnjs/data
 
 Dependency-light observable `Model` and ordered `Collection` sources for
-Marionette v5. The package depends only on `@marionette/utils`; models and
-collections can run without core or a DOM. Install `@marionette/data` on its own
+Marionette v5. The package depends only on `@mnjs/utils`; models and
+collections can run without core or a DOM. Install `@mnjs/data` on its own
 for standalone use. To use it with Marionette views, install both packages and
 configure the runtime before creating owners:
 
 ```sh
-npm install marionette @marionette/data
+npm install marionette @mnjs/data
 ```
 
 ```js
 import { CollectionView, View } from 'marionette';
-import { Collection, DataApi } from '@marionette/data';
+import { Collection, DataApi } from '@mnjs/data';
 
 const Row = View.extend({
   tagName: 'li',
@@ -36,7 +36,7 @@ StateApi on that class before construction. In the example above, place this
 optional setup before `new List(...)`, which constructs its children when rendered:
 
 ```js
-import { StateApi } from '@marionette/data';
+import { StateApi } from '@mnjs/data';
 
 Row.setStateApi(StateApi);
 ```
@@ -152,7 +152,7 @@ return the initialized receiver while preserving methods added by descendants,
 state that contract explicitly:
 
 ```ts
-import { Model } from '@marionette/data';
+import { Model } from '@mnjs/data';
 
 const Named = Model.extend({
   constructor: function<Receiver extends Model>(

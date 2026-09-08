@@ -19,10 +19,10 @@ test('packed adapters preserve Backbone and jQuery contracts', async({ page, bro
       { default: createXStateActorApi }
     ] = await Promise.all([
       import('marionette'),
-      import('@marionette/adapters/backbone'),
-      import('@marionette/adapters/dom/jquery'),
+      import('@mnjs/adapters/backbone'),
+      import('@mnjs/adapters/dom/jquery'),
       import('jquery'),
-      import('@marionette/adapters/xstate')
+      import('@mnjs/adapters/xstate')
     ]);
     const runtime = Marionette.createMarionette();
     runtime.setDataApi(BackboneApi);
@@ -89,5 +89,5 @@ test('packed adapters preserve Backbone and jQuery contracts', async({ page, bro
     nativeBindPreserved: true,
     preconfigurationCalls: 1,
     triggerMethodAbsent: true
-  }, `${browserName}: packed @marionette/adapters runtime behavior`);
+  }, `${browserName}: packed @mnjs/adapters runtime behavior`);
 });

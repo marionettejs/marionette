@@ -1,4 +1,4 @@
-import { MarionetteError } from '@marionette/utils';
+import { MarionetteError } from '@mnjs/utils';
 import DataApi, {type DataApi as DataApiContract} from '../runtime/data-api.ts';
 
 export interface ContainerChild {

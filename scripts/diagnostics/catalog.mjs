@@ -194,7 +194,7 @@ function addRuntimeSourceErrors(runtimeSources, diagnosticsByCode, errors) {
     const marionetteErrorBindings = new Set(['MarionetteError']);
     for (const node of ast.body) {
       if (node.type !== 'ImportDeclaration' ||
-        !(node.source.value === '@marionette/utils' || /(?:^|\/)error\.(?:js|ts)$/.test(node.source.value))) {
+        !(node.source.value === '@mnjs/utils' || /(?:^|\/)error\.(?:js|ts)$/.test(node.source.value))) {
         continue;
       }
 

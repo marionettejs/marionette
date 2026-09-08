@@ -14,6 +14,10 @@
       "title": "imported template content attaches parent and child once"
     },
     {
+      "file": "beta-starter.spec.mjs",
+      "title": "beta starter preserves draft focus, rejects stale selection and releases handlers"
+    },
+    {
       "file": "collection-removal-survivors.spec.mjs",
       "title": "active filter: removal, reorder, and swap preserve survivor state"
     },
@@ -178,6 +182,7 @@
     "core-types",
     "data-package-cjs",
     "data-package-esm",
+    "data-package-starter",
     "data-package-types",
     "data-package-vite",
     "docs-application-guides",

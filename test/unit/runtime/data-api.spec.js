@@ -1,7 +1,7 @@
 import { vi, describe, it, expect } from 'vitest';
 import { DataApi, View } from 'marionette';
 const setDataApi = View.setDataApi;
-import { MarionetteError } from '@marionette/utils';
+import { MarionetteError } from '@mnjs/utils';
 
 describe('DataApi', function() {
   describe('#setDataApi', function() {

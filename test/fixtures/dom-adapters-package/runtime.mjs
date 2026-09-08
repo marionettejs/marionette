@@ -17,7 +17,7 @@ try {
   }
 
   const { View, Region } = format === 'esm' ? await import('marionette') : require('marionette');
-  const specifier = `@marionette/adapters/dom/${provider}`;
+  const specifier = `@mnjs/adapters/dom/${provider}`;
   const adapter = format === 'esm' ? (await import(specifier)).default : require(specifier);
   assert.equal(typeof adapter.setContents, 'function', `${format} adapter did not export DOM operations`);
 

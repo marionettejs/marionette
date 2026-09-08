@@ -3,10 +3,10 @@
   "fixtureVersion": "v1",
   "packageNames": [
     "marionette",
-    "@marionette/adapters",
-    "@marionette/data",
-    "@marionette/utils",
-    "@marionette/radio"
+    "@mnjs/adapters",
+    "@mnjs/data",
+    "@mnjs/utils",
+    "@mnjs/radio"
   ],
   "compression": {
     "algorithm": "brotli",
@@ -78,9 +78,9 @@
     {
       "id": "backbone-only",
       "entry": "backbone-only.js",
-      "entrySha256": "5ff77c9983ff42232d9a04db8e9f1738e1b341befe32f8396d600fdf0954a9ac",
+      "entrySha256": "af3367c1fa7812d86290ed17fb38236c078f11ca8dcc3a626b79a23e8415677b",
       "publicImports": [
-        "@marionette/adapters/backbone"
+        "@mnjs/adapters/backbone"
       ],
       "exercisedExports": [
         "default"
@@ -94,9 +94,9 @@
     {
       "id": "jquery-dom-api-only",
       "entry": "jquery-dom-api-only.js",
-      "entrySha256": "fc5131287f9443024fa41f243904da3d47048317fac399c693733d47d714ebd1",
+      "entrySha256": "789ffe43661a3aadef9e8619172c3144c975602fc59708d0237a996c37d80a0f",
       "publicImports": [
-        "@marionette/adapters/dom/jquery"
+        "@mnjs/adapters/dom/jquery"
       ],
       "exercisedExports": [
         "default"
@@ -112,10 +112,10 @@
     {
       "id": "root-plus-backbone",
       "entry": "root-plus-backbone.js",
-      "entrySha256": "78ac9455342682ad8beb34c6c438a1d6ec74cc6d2406240d834ab3ed7a073ba3",
+      "entrySha256": "9008c72ea95bb9b0bcb017a24d58dea0739c30267232f399cefdf1368e801577",
       "publicImports": [
         "marionette",
-        "@marionette/adapters/backbone"
+        "@mnjs/adapters/backbone"
       ],
       "exercisedExports": [
         "*",
@@ -133,10 +133,10 @@
     {
       "id": "root-plus-jquery",
       "entry": "root-plus-jquery.js",
-      "entrySha256": "b16107adeb89509f281088a8d6f1a98b3e1512d4d4c96325a4f50e6bc3c43245",
+      "entrySha256": "8430044d5b434ba81984745829ba0271b5ea2e4f974e2939b48b5d879d269459",
       "publicImports": [
         "marionette",
-        "@marionette/adapters/dom/jquery"
+        "@mnjs/adapters/dom/jquery"
       ],
       "exercisedExports": [
         "*",
@@ -156,11 +156,11 @@
     {
       "id": "root-plus-backbone-jquery",
       "entry": "root-plus-backbone-jquery.js",
-      "entrySha256": "5d1e975be998903ed910fc0fbe8c6a157075e87cec0ac5b2a1f4e4b0c1c83638",
+      "entrySha256": "429a0322df34b16ef3a20f8f49b29e548f961f3a47b146bbbcb930b8632d8cba",
       "publicImports": [
         "marionette",
-        "@marionette/adapters/backbone",
-        "@marionette/adapters/dom/jquery"
+        "@mnjs/adapters/backbone",
+        "@mnjs/adapters/dom/jquery"
       ],
       "exercisedExports": [
         "*",

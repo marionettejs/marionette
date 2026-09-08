@@ -12,7 +12,7 @@ updates:
         patterns: ['@stryker-mutator/*']
     ignore:
       - dependency-name: marionette
-      - dependency-name: '@marionette/*'
+      - dependency-name: '@mnjs/*'
   - package-ecosystem: npm
     directories: ['/test/fixtures/*']
     schedule:
@@ -24,7 +24,7 @@ updates:
         update-types: [minor, patch]
     ignore:
       - dependency-name: marionette
-      - dependency-name: '@marionette/*'
+      - dependency-name: '@mnjs/*'
   - package-ecosystem: github-actions
     directory: /
     schedule:

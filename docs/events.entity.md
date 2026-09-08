@@ -65,7 +65,7 @@ export { Model, model, view };
 ```
 
 Function callbacks are also supported directly. This configuration fragment
-uses the `update(collection, options)` payload from Backbone or `@marionette/data`;
+uses the `update(collection, options)` payload from Backbone or `@mnjs/data`;
 configure the matching DataApi before supplying that collection:
 
 ```javascript
@@ -150,7 +150,7 @@ it also selects Backbone identity, reads, serialization, ordered model
 snapshots, and structural observations:
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import Backbone from 'backbone';
 import { setDataApi, View } from 'marionette';
 

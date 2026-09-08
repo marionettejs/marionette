@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { MarionetteError as PublicMarionetteError, VERSION } from 'marionette';
-import { MarionetteError } from '@marionette/utils';
+import { MarionetteError } from '@mnjs/utils';
 
 describe('MarionetteError', function() {
   it('should be subclass of native Error', function() {

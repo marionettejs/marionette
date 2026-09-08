@@ -1,4 +1,4 @@
-import BackboneApi = require('@marionette/adapters/backbone');
+import BackboneApi = require('@mnjs/adapters/backbone');
 import Backbone = require('backbone');
 
 const model = new Backbone.Model({ id: 1, name: 'first' });

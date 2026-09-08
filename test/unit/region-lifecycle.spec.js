@@ -3,7 +3,7 @@ import { setFixtures } from '../setup/fixtures.js';
 import _ from 'underscore';
 
 import { CollectionView, Region, View } from 'marionette';
-import { MarionetteError } from '@marionette/utils';
+import { MarionetteError } from '@mnjs/utils';
 
 describe('Region lifecycle contract', function() {
   'use strict';

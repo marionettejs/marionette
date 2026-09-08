@@ -1,6 +1,7 @@
 import { readFile, appendFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import process from 'node:process';
+import { publicationEnabled } from './publication.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 const args = process.argv.slice(2);
@@ -42,12 +43,6 @@ function fail(message) {
 }
 
 function validatePolicy() {
-  if (policy.schemaVersion !== 1) {
-    fail(`unsupported schemaVersion ${policy.schemaVersion}`);
-  }
-  if (typeof policy.publicationEnabled !== 'boolean') {
-    fail('publicationEnabled must be a boolean');
-  }
   if (policy.repository !== 'marionettejs/marionette') {
     fail(`unexpected repository ${policy.repository}`);
   }
@@ -86,6 +81,7 @@ async function writeOutput(name, value) {
 
 const parsedArgs = parseArguments();
 validatePolicy();
+const enabled = publicationEnabled(policy, packageJson.version);
 
 const mode = readArgument('--mode', 'dry-run');
 const repository = readArgument('--repository', policy.repository);
@@ -99,8 +95,8 @@ if (repository !== policy.repository) {
   fail(`workflow repository ${repository} does not match ${policy.repository}`);
 }
 if (mode === 'publish') {
-  if (!policy.publicationEnabled) {
-    fail('publication is disabled until the final stable-release authorization');
+  if (!enabled) {
+    fail(`publication is disabled for ${packageJson.version}; authorize that release channel in the checked-in policy`);
   }
   if (event !== 'workflow_dispatch') {
     fail('publication is allowed only from workflow_dispatch');
@@ -111,6 +107,6 @@ if (mode === 'publish') {
 }
 
 await writeOutput('mode', mode);
-await writeOutput('publication_enabled', String(policy.publicationEnabled));
+await writeOutput('publication_enabled', String(enabled));
 
-console.log(`Release promotion preflight passed in ${mode} mode; publication enabled: ${policy.publicationEnabled}.`);
+console.log(`Release promotion preflight passed in ${mode} mode; publication enabled: ${enabled}.`);

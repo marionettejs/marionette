@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import { View, CollectionView, createMarionette, setDomApi } from 'marionette';
-import JQueryDomApi from '@marionette/adapters/dom/jquery';
+import JQueryDomApi from '@mnjs/adapters/dom/jquery';
 
 const host = document.createElement('div');
 const fragment = document.createDocumentFragment();

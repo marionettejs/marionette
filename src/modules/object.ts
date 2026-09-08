@@ -3,7 +3,7 @@
 
 
 import extend from '../utils/extend.ts';
-import { uniqueId } from '@marionette/utils';
+import { uniqueId } from '@mnjs/utils';
 import CommonMixin from '../mixins/common.ts';
 import DestroyMixin from '../mixins/destroy.ts';
 import RadioMixin from '../mixins/radio.ts';
@@ -21,12 +21,12 @@ import type {
   unbindRequests,
   Merge,
   Constructed
-} from '@marionette/utils';
-import type { Channel, RadioApi } from '@marionette/radio';
-import type { EventsContract as Events } from '@marionette/utils';
+} from '@mnjs/utils';
+import type { Channel, RadioApi } from '@mnjs/radio';
+import type { EventsContract as Events } from '@mnjs/utils';
 
-export type { Channel, RadioApi } from '@marionette/radio';
-export type { Bindings } from '@marionette/utils';
+export type { Channel, RadioApi } from '@mnjs/radio';
+export type { Bindings } from '@mnjs/utils';
 export type { StateApi } from '../runtime/state-api.ts';
 
 export interface MnObject<Options extends object = object, State = object> extends Events {
@@ -55,7 +55,7 @@ export interface MnObject<Options extends object = object, State = object> exten
   getChannel(): Channel | undefined;
 }
 
-export type { Merge, Constructed } from '@marionette/utils';
+export type { Merge, Constructed } from '@mnjs/utils';
 
 export type ArgumentsFor<Props, Previous extends unknown[]> =
   Props extends { constructor: (...args: infer Args) => unknown } ? Args :

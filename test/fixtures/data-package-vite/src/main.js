@@ -1,5 +1,5 @@
 import { createMarionette } from 'marionette';
-import { Collection, DataApi, Model, StateApi } from '@marionette/data';
+import { Collection, DataApi, Model, StateApi } from '@mnjs/data';
 
 const runtime = createMarionette();
 runtime.setDataApi(DataApi);

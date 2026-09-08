@@ -1,7 +1,7 @@
 // Data API
 // --------
-import { MarionetteError } from '@marionette/utils';
-import type { EventCallback, EventSource } from '@marionette/utils';
+import { MarionetteError } from '@mnjs/utils';
+import type { EventCallback, EventSource } from '@mnjs/utils';
 
 // Registration leaves source types opaque. Internal callers specify the
 // inputs their operation requires without widening the public adapter slot.

@@ -40,7 +40,7 @@ if (!['dry-run', 'publish', 'npm-decision', 'verify-npm'].includes(mode)) {
 
 const artifactDir = resolve(root, args['artifact-dir']);
 const evidence = JSON.parse(await readFile(resolve(artifactDir, 'release-evidence.json'), 'utf8'));
-if (evidence.schemaVersion !== 2 || !Array.isArray(evidence.packages)) {
+if (evidence.schemaVersion !== 3 || !Array.isArray(evidence.packages)) {
   throw new Error(`Unsupported evidence schemaVersion ${evidence.schemaVersion}.`);
 }
 validatePackageInventory(evidence.packages);

@@ -168,7 +168,7 @@ without changing Backbone. Select the integration separately when a View needs
 Backbone model reads, serialization, or structural collection observation:
 
 ```javascript
-import BackboneApi from '@marionette/adapters/backbone';
+import BackboneApi from '@mnjs/adapters/backbone';
 import Backbone from 'backbone';
 import { setDataApi, View } from 'marionette';
 

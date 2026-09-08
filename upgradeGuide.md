@@ -93,11 +93,11 @@ parent.showChildView('content', new View({
   DataApi before constructing those Views:
 
   ```sh
-  npm install @marionette/adapters backbone
+  npm install @mnjs/adapters backbone
   ```
 
   ```js
-  import BackboneApi from '@marionette/adapters/backbone';
+  import BackboneApi from '@mnjs/adapters/backbone';
   import { setDataApi } from 'marionette';
 
   setDataApi(BackboneApi);
@@ -109,7 +109,7 @@ parent.showChildView('content', new View({
 
 - Other data sources can configure `setDataApi` with methods for identity,
   reads, serialization, ordered model snapshots, subscriptions, and collection
-  observation. XState actors can use `@marionette/adapters/xstate`.
+  observation. XState actors can use `@mnjs/adapters/xstate`.
   See [Data API](docs/data.api.md).
 - State owners return the exact supplied source from `getState()`. Use
   `createState(options)` for an owned source, and configure `setStateApi` when
@@ -266,7 +266,7 @@ DOM adapter when the application needs jQuery queries and content operations:
 ```js
 import $ from 'jquery';
 import { View } from 'marionette';
-import JQueryDomApi from '@marionette/adapters/dom/jquery';
+import JQueryDomApi from '@mnjs/adapters/dom/jquery';
 
 const JQueryView = View.extend({
   initialize() { this.$el = $(this.el); }
@@ -274,7 +274,7 @@ const JQueryView = View.extend({
 JQueryView.setDomApi(JQueryDomApi);
 ```
 
-Install `@marionette/adapters` and `jquery` for this integration. The fixed root
+Install `@mnjs/adapters` and `jquery` for this integration. The fixed root
 makes the application-owned wrapper valid for the View's lifetime. CollectionViews
 and Behaviors can initialize `$el` in the same way. A subclass overriding
 `initialize()` must also perform any setup it needs from its application base.
@@ -360,7 +360,7 @@ compatibility strategy.
 
 Replace `Radio.DEBUG = true` with `Radio.setDebug()` and disable it with
 `Radio.setDebug(false)`. Import the Requests mixin with
-`import { Requests } from '@marionette/radio'` and compose it into an object with
+`import { Requests } from '@mnjs/radio'` and compose it into an object with
 `Object.assign`. Import `Channel` from the same package for standalone channels,
 or use `new runtime.Radio.Channel(name)` for runtime-specific logging. Standalone
 channels are not registered; their owner calls `reset()` when finished.
@@ -406,7 +406,7 @@ way removes only that owner's replies.
 
   ```js
   import { setDomApi } from 'marionette';
-  import JQueryDomApi from '@marionette/adapters/dom/jquery';
+  import JQueryDomApi from '@mnjs/adapters/dom/jquery';
 
   setDomApi(JQueryDomApi);
   ```
@@ -419,13 +419,13 @@ way removes only that owner's replies.
 
 ### DOM adapter setup
 
-Morphdom and Lit now live under `@marionette/adapters/dom/` and export DOM
+Morphdom and Lit now live under `@mnjs/adapters/dom/` and export DOM
 operation objects rather than class installers. Update imports from the former
 `render` directory; those package subpaths are removed.
 
 ```js
-import MorphdomDomApi from '@marionette/adapters/dom/morphdom';
-import LitDomApi from '@marionette/adapters/dom/lit-html';
+import MorphdomDomApi from '@mnjs/adapters/dom/morphdom';
+import LitDomApi from '@mnjs/adapters/dom/lit-html';
 
 MorphView.setDomApi(MorphdomDomApi);
 LitView.setDomApi(LitDomApi);
@@ -444,18 +444,18 @@ receiver rather than the View; use a closure for View access.
 
 ## Shared utilities
 
-Reusable helpers live in `@marionette/utils`. Core and native data use the same
+Reusable helpers live in `@mnjs/utils`. Core and native data use the same
 implementations; install the matching version directly when importing helpers
 into your own components. Existing public Marionette helper exports still refer
 to those functions. Source-file imports are not package entry points.
 
-Core ESM and CommonJS builds import `@marionette/utils` and `@marionette/radio`.
+Core ESM and CommonJS builds import `@mnjs/utils` and `@mnjs/radio`.
 Browser projects loading raw ES modules must map both packages in their import map, or use a
 bundler. Standalone UMD builds remain self-contained.
 
 ### Native object copying
 
-Use object spread or `Object.assign` instead of the removed `@marionette/utils`
+Use object spread or `Object.assign` instead of the removed `@mnjs/utils`
 `assignOwn` and `assignIn` helpers. Configuration copies follow native own-property
 semantics, including enumerable symbol keys; string sources expose character keys
 instead of being silently ignored. There is no getter-ordering contract beyond
@@ -465,11 +465,11 @@ model and event keys such as `__proto__` remain ordinary data properties.
 
 ### Standalone Events, Radio, and data
 
-`@marionette/utils` owns the shared `Events` implementation. `@marionette/radio`
+`@mnjs/utils` owns the shared `Events` implementation. `@mnjs/radio`
 exports the default `Radio` and the `createRadio()` factory. Core continues to
 export the same Events, Error, and default Radio within each module format.
 `createMarionette()` continues to create an isolated Radio for each runtime.
 
-`@marionette/data` now depends only on utils; core is no longer a peer dependency.
+`@mnjs/data` now depends only on utils; core is no longer a peer dependency.
 Standalone data and messaging consumers do not need to install Marionette core.
 These packages keep the same version and release together with core and adapters.

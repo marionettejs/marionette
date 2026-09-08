@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import * as Marionette from 'marionette';
-import * as utils from '@marionette/utils';
+import * as utils from '@mnjs/utils';
 
 const require = createRequire(import.meta.url);
 for (const [core, shared] of [
   [Marionette, utils],
-  [require('marionette'), require('@marionette/utils')]
+  [require('marionette'), require('@mnjs/utils')]
 ]) {
   assert.equal(core.MarionetteError, shared.MarionetteError);
   assert.equal(core.extend, shared.extend);

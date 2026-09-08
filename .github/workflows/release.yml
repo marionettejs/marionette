@@ -24,7 +24,7 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: Request stable publication; blocked while publicationEnabled is false
+        description: Request publication; requires checked-in authorization for this version
         required: true
         type: boolean
         default: false

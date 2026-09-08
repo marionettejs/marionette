@@ -1,7 +1,7 @@
 {
-  "name": "@marionette/data",
+  "name": "@mnjs/data",
   "description": "Observable Model and Collection sources for Marionette",
-  "version": "5.0.0-alpha.2",
+  "version": "5.0.0-beta.1",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -49,6 +49,6 @@
     "directory": "packages/data"
   },
   "dependencies": {
-    "@marionette/utils": "5.0.0-alpha.2"
+    "@mnjs/utils": "5.0.0-beta.1"
   }
 }

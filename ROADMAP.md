@@ -420,7 +420,7 @@ current-evidence findings:
   `reset`, or `update` records; CollectionView owns the single reconciliation path for
   every source. The existing `backbone.js`
   installer and `runtime/backbone-data-api.js` implementation move together into
-  `@marionette/adapters/backbone` as one atomic optional integration, keeping `cid`,
+  `@mnjs/adapters/backbone` as one atomic optional integration, keeping `cid`,
   `attributes`, `models`, and Backbone event payloads out of core. This avoids making
   the temporary Backbone-shaped protocol a v5 public contract that would need removal
   in v6. Do not add implicit Backbone detection, per-model wrappers, or a parallel
@@ -428,13 +428,13 @@ current-evidence findings:
   separate contract, not the collection data source and not an automatic reuse of the
   selected DataApi.
 - **Selected:** First-party Backbone and jQuery adapters ship only from explicit
-  `@marionette/adapters/backbone` and `@marionette/adapters/dom/jquery` subpaths. The
+  `@mnjs/adapters/backbone` and `@mnjs/adapters/dom/jquery` subpaths. The
   adapters package has no root barrel, and core does not retain forwarding modules or
   the old `marionette/backbone` and `marionette/jquery-dom-api` paths. Importing one
   adapter must not load the other adapter or its optional peer.
 - **Selected sequencing:** Freeze core StateApi/DataApi ownership, observation,
   declarative event-map, and normalized CollectionView reconciliation contracts first.
-  Add the optional `@marionette/data` Model, Collection, `triggerMethod`, StateApi, and
+  Add the optional `@mnjs/data` Model, Collection, `triggerMethod`, StateApi, and
   DataApi implementation second. Add Backbone and XState actor
   adapters afterward. External-store packages remain optional peers or fixture
   dependencies and never enter the core production graph.
@@ -708,11 +708,11 @@ instructions, and every release blocker maps to this strategy.
   Backbone-specific data shapes out of core, keep structural collection observation
   separate from per-model subscriptions, and make unsupported observation explicit
   rather than returning a silent fake cleanup function.
-- Implement the optional `@marionette/data` Model, Collection, `triggerMethod`,
+- Implement the optional `@mnjs/data` Model, Collection, `triggerMethod`,
   StateApi, and DataApi only after the neutral core contracts above close. Keep that
   concrete reactive implementation outside core.
-- After `@marionette/data`, move first-party Backbone and jQuery runtime adapters into a separately published
-  `@marionette/adapters` workspace package, initially with only explicit `./backbone`
+- After `@mnjs/data`, move first-party Backbone and jQuery runtime adapters into a separately published
+  `@mnjs/adapters` workspace package, initially with only explicit `./backbone`
   and `./dom/jquery` exports and no root barrel. Replace the mutating Backbone installer
   with one combined `BackboneApi` behind `./backbone`; consumers pass it explicitly to
   the selected runtime's `setDataApi()` and `setStateApi()` methods. The integration
@@ -742,10 +742,10 @@ instructions, and every release blocker maps to this strategy.
   and empty `listenTo` ledgers. Constructor, subscription, and cleanup errors propagate
   without rollback or attempt-all error handling. Application readiness rejection
   retains its separately specified asynchronous transition semantics below.
-- Keep request/reply behavior in `@marionette/radio`, with public `Requests`, `Channel`,
+- Keep request/reply behavior in `@mnjs/radio`, with public `Requests`, `Channel`,
   registry creation, and logging hooks. Preserve constant replies and `replyOnce`
   removal by original value. Core integrates Radio through its owner mixin; shared
-  `Events` and binding utilities live in `@marionette/utils`. Do not reintroduce
+  `Events` and binding utilities live in `@mnjs/utils`. Do not reintroduce
   duplicate implementations in core.
 - Specify Application as Marionette's first promise-based public lifecycle contract
   and add transition-table or model-based tests. Preserve Marionette lifecycle
@@ -917,7 +917,7 @@ closed rather than retained as dormant APIs.
 - First-party declarations cover the root API and supported adapters without requiring
   DefinitelyTyped, and package-local agent metadata plus the public method contract
   matrix pass generation and drift checks while remaining outside production graphs.
-- Core and `@marionette/adapters` pack, install, type-check, measure, and verify as
+- Core and `@mnjs/adapters` pack, install, type-check, measure, and verify as
   separate required release artifacts. The removed core adapter paths do not resolve,
   and each explicit adapter subpath proves that its unrelated optional peer stays out
   of the graph.
@@ -930,7 +930,7 @@ closed rather than retained as dormant APIs.
   trigger implicit store construction; and model/collection DataApi selection does not
   choose the state-source adapter.
 - Plain arrays are documented and tested as static snapshots. The later
-  `@marionette/data` collection plus Backbone and XState v5 actor adapters
+  `@mnjs/data` collection plus Backbone and XState v5 actor adapters
   must pass the same normalized CollectionView reconciliation and
   lifecycle contract. Malformed records, duplicate keys, missing synchronous snapshots,
   invalid cleanup values, and unordered selector results produce actionable diagnostics.

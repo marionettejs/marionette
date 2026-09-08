@@ -1,6 +1,6 @@
 // State API
 // ---------
-import { MarionetteError } from '@marionette/utils';
+import { MarionetteError } from '@mnjs/utils';
 
 export interface StateApi<Source = unknown> {
   subscribe: (source: Source, name: string, callback: (...args: unknown[]) => unknown, context?: unknown) => () => void;

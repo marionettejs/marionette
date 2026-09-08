@@ -1,7 +1,7 @@
 import {
   extend, MarionetteError, getOption, mergeOptions, normalizeMethods, triggerMethod
-} from '@marionette/utils';
-import type { EventMap, MarionetteErrorInstance } from '@marionette/utils';
+} from '@mnjs/utils';
+import type { EventMap, MarionetteErrorInstance } from '@mnjs/utils';
 
 const component = {
   trigger(_name: unknown, ..._args: unknown[]) {},
