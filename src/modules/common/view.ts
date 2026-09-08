@@ -45,7 +45,7 @@ export function renderView(view: SupportedView) {
   }
 
   view.render();
-  view._isRendered = true;
+  view._isRendered = !view._isDestroyed;
 }
 
 export function destroyView(view: SupportedView, disableDetachEvents?: boolean) {

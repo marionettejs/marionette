@@ -174,6 +174,12 @@ Object.assign(Region.prototype, CommonMixin, {
 
     renderView(view);
 
+    // Rendering can release the View or terminate its Region through public callbacks.
+    if (this.currentView !== view || this._isDestroyed || this._isDestroying) {
+      this._isSwappingView = false;
+      return this;
+    }
+
     this._attachView(view, options);
 
     this.triggerMethod('show', this, view, options);
