@@ -1,0 +1,31 @@
+config/mutation.json
+  s_e9ec88924dcd73::t_07c3645e3dba68 3,8
+test/unit/mixins/delegate-entity-events.spec.js
+  s_bc19ab09821624::t_8e357732eb71a4 2
+test/unit/region-adoption.spec.js
+  s_bc19ab09821624::t_2246c659dbd8d3 2,5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "dd2ef48f285db501a9f1cfb49b4f779aa94785ed",
+  "prompts": {},
+  "sessions": {
+    "s_bc19ab09821624": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e7-cb4f-73e3-b41e-328bfeae0db2",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
