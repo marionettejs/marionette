@@ -1,0 +1,53 @@
+benchmarks/agent/tasks/async-panel/prompt.md
+  s_e9ec88924dcd73::t_673de4c6314ae9 3
+benchmarks/agent/tasks/async-session/prompt.md
+  s_e9ec88924dcd73::t_77258009d2704b 3
+benchmarks/agent/tasks/borrowed-workspace-state/prompt.md
+  s_e9ec88924dcd73::t_9be4d1e382aaf5 3
+benchmarks/agent/tasks/connection-status/acceptance/acceptance.test.mjs
+  s_e9ec88924dcd73::t_2f363a85790135 17,24-26,28-29
+benchmarks/agent/tasks/connection-status/prompt.md
+  s_e9ec88924dcd73::t_c0b9b6d74bebf9 3
+benchmarks/agent/tasks/connection-status/reference/solution.mjs
+  s_e9ec88924dcd73::t_7406d29a379ee8 8-13
+benchmarks/agent/tasks/filter-projects/prompt.md
+  s_e9ec88924dcd73::t_18cb0de90b674a 7
+benchmarks/agent/tasks/nested-notice/prompt.md
+  s_e9ec88924dcd73::t_c156c4645fb813 5-6
+benchmarks/agent/tasks/overlay-dismiss/acceptance/acceptance.test.mjs
+  s_e9ec88924dcd73::t_6e28b44296016c 62-67
+benchmarks/agent/tasks/overlay-dismiss/prompt.md
+  s_e9ec88924dcd73::t_8283f819a6c419 3
+benchmarks/agent/tasks/overlay-dismiss/reference/solution.mjs
+  s_e9ec88924dcd73::t_19701042e053f6 23
+benchmarks/agent/tasks/owned-workspace-state/prompt.md
+  s_e9ec88924dcd73::t_767645695d9283 3
+benchmarks/agent/tasks/save-shortcut/acceptance/acceptance.test.mjs
+  s_e9ec88924dcd73::t_4cdd0716750a2f 28-32,39,44
+scripts/agent-benchmark/harness.mjs
+  s_e9ec88924dcd73::t_0e5292748eeb46 44
+scripts/agent-benchmark/run.mjs
+  s_e9ec88924dcd73::t_a5ec5085cd56b3 3,32
+scripts/agent-benchmark/serve.mjs
+  s_e9ec88924dcd73::t_acc1c97cc9e3ac 2,4-6,8-47,50,52-60,62-83
+test/agent-benchmark/harness.test.mjs
+  s_e9ec88924dcd73::t_231a43f7641807 172-204
+test/agent-benchmark/server.test.mjs
+  s_e9ec88924dcd73::t_f9773b6ec5b4c2 1-84
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "8badd1df1136c77af702f3d714523c8c088d1600",
+  "prompts": {},
+  "sessions": {
+    "s_e9ec88924dcd73": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e9-ab65-7540-9706-aad9f9148145",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
