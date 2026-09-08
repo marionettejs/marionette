@@ -1119,7 +1119,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       this.render();
     }
 
-    this._addChild(view, index as number | null | undefined);
+    this._addChild(view, typeof index === 'number' ? index : undefined);
 
     if (options.preventRender) {
       return view;

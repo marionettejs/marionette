@@ -860,6 +860,10 @@ the caller. That View may be added again without rendering it a second time.
 `removeChildView()` destroys the removed View, while destroying the
 `CollectionView` destroys every child that it still manages.
 
+An omitted or `null` index appends the child before sorting and filtering.
+The options-only form follows the same rule; use a numeric `index` to choose
+an insertion position.
+
 **Note** Unless an index is specified, this added view will be subject to filtering
 and sorting and may be difficult to manage in complex situations. Use with care.
 

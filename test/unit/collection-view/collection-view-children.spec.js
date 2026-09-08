@@ -256,6 +256,23 @@ describe('CollectionView Children', function() {
       });
     });
 
+    [null, {}, { index: null }, { preventRender: true }].forEach(indexOrOptions => {
+      it(`appends without a numeric index when sorting is disabled: ${JSON.stringify(indexOrOptions)}`, function() {
+        myCollectionView.viewComparator = false;
+        const previousChildren = myCollectionView.children.toArray();
+
+        myCollectionView.addChildView(addView, indexOrOptions);
+
+        expect(myCollectionView.children.toArray()).to.deep.equal([...previousChildren, addView]);
+        if (indexOrOptions?.preventRender) {
+          expect(addView.isRendered()).to.be.false;
+          myCollectionView.sort();
+        }
+        expect(Array.from(myCollectionView.el.children)).to.deep.equal(
+          [...previousChildren, addView].map(view => view.el));
+      });
+    });
+
     describe('when called with preventRender option', function() {
 
       beforeEach(function() {
