@@ -1,0 +1,7 @@
+# Compose owned Application and View state
+
+Implement `solution.mjs` in this workspace. Return `{app, child, view}`. Parent Application owns child Application named `editor`; child presents the returned View via its Region. Configure StateApi disposeOwned to call source.dispose(). Parent, child and View use createState factories producing distinct sources from makeState(role). Expose all through public getState. Start/stop/restart retains Application state; each running session creates a fresh View and its state. The returned `view` property must be a getter for the current View. Destroy disposes each owned state exactly once. Domain data passed as model must retain identity and never be disposed.
+
+Export `createStateWorkspace(el, makeState, domain)`. Use only documented public `marionette` package APIs. Framework owners render/destroy their own children; never touch underscored members. Do not change the test tooling or dependencies. Your implementation may add local files. Use supplied callbacks and resources; do not add network access, timers, or global singletons. Input labels are untrusted text.
+
+A fresh workspace is evaluated after the attempt. Hidden acceptance sources are not available during the attempt. Completion requires all outcomes, including repeated use, invalid inputs, and cleanup. No specific internal design is asserted except the explicitly requested public owner roles.

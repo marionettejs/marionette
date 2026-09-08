@@ -1,0 +1,404 @@
+{
+  "schemaVersion": 1,
+  "status": "prototype-unscored",
+  "tasks": [
+    {
+      "schemaVersion": 1,
+      "id": "nested-workspace",
+      "title": "Replace nested workspace panels",
+      "promptPath": "benchmarks/agent/tasks/nested-workspace/prompt.md",
+      "workspacePath": "benchmarks/agent/tasks/nested-workspace/workspace",
+      "capabilities": [
+        "nested-regions",
+        "plain-view",
+        "resource-ownership-and-cleanup"
+      ],
+      "acceptance": {
+        "command": [
+          "node",
+          "--test",
+          "--test-reporter=tap",
+          "test/acceptance.test.mjs"
+        ],
+        "hiddenTests": [
+          {
+            "sourcePath": "benchmarks/agent/support/environment.mjs",
+            "targetPath": "test/environment.mjs"
+          },
+          {
+            "sourcePath": "benchmarks/agent/tasks/nested-workspace/acceptance/acceptance.test.mjs",
+            "targetPath": "test/acceptance.test.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "nested-notice",
+      "title": "Keep shell navigation while replacing notices",
+      "promptPath": "benchmarks/agent/tasks/nested-notice/prompt.md",
+      "workspacePath": "benchmarks/agent/tasks/nested-notice/workspace",
+      "capabilities": [
+        "communication",
+        "nested-regions",
+        "plain-view"
+      ],
+      "acceptance": {
+        "command": [
+          "node",
+          "--test",
+          "--test-reporter=tap",
+          "test/acceptance.test.mjs"
+        ],
+        "hiddenTests": [
+          {
+            "sourcePath": "benchmarks/agent/support/environment.mjs",
+            "targetPath": "test/environment.mjs"
+          },
+          {
+            "sourcePath": "benchmarks/agent/tasks/nested-notice/acceptance/acceptance.test.mjs",
+            "targetPath": "test/acceptance.test.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "filter-projects",
+      "title": "Filter projects while retaining owned rows",
+      "promptPath": "benchmarks/agent/tasks/filter-projects/prompt.md",
+      "workspacePath": "benchmarks/agent/tasks/filter-projects/workspace",
+      "capabilities": [
+        "collection-view",
+        "plain-view",
+        "state-vs-domain-data"
+      ],
+      "acceptance": {
+        "command": [
+          "node",
+          "--test",
+          "--test-reporter=tap",
+          "test/acceptance.test.mjs"
+        ],
+        "hiddenTests": [
+          {
+            "sourcePath": "benchmarks/agent/support/environment.mjs",
+            "targetPath": "test/environment.mjs"
+          },
+          {
+            "sourcePath": "benchmarks/agent/tasks/filter-projects/acceptance/acceptance.test.mjs",
+            "targetPath": "test/acceptance.test.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "rank-projects",
+      "title": "Reorder rows without losing editable drafts",
+      "promptPath": "benchmarks/agent/tasks/rank-projects/prompt.md",
+      "workspacePath": "benchmarks/agent/tasks/rank-projects/workspace",
+      "capabilities": [
+        "collection-view",
+        "invalid-cases",
+        "state-vs-domain-data"
+      ],
+      "acceptance": {
+        "command": [
+          "node",
+          "--test",
+          "--test-reporter=tap",
+          "test/acceptance.test.mjs"
+        ],
+        "hiddenTests": [
+          {
+            "sourcePath": "benchmarks/agent/support/environment.mjs",
+            "targetPath": "test/environment.mjs"
+          },
+          {
+            "sourcePath": "benchmarks/agent/tasks/rank-projects/acceptance/acceptance.test.mjs",
+            "targetPath": "test/acceptance.test.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "save-shortcut",
+      "title": "Scope a save shortcut to its editor Behavior",
+      "promptPath": "benchmarks/agent/tasks/save-shortcut/prompt.md",
+      "workspacePath": "benchmarks/agent/tasks/save-shortcut/workspace",
+      "capabilities": [
+        "behavior",
+        "communication",
+        "resource-ownership-and-cleanup"
+      ],
+      "acceptance": {
+        "command": [
+          "node",
+          "--test",
+          "--test-reporter=tap",
+          "test/acceptance.test.mjs"
+        ],
+        "hiddenTests": [
+          {
+            "sourcePath": "benchmarks/agent/support/environment.mjs",
+            "targetPath": "test/environment.mjs"
+          },
+          {
+            "sourcePath": "benchmarks/agent/tasks/save-shortcut/acceptance/acceptance.test.mjs",
+            "targetPath": "test/acceptance.test.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "connection-status",
+      "title": "Subscribe a status Behavior with deterministic cleanup",
+      "promptPath": "benchmarks/agent/tasks/connection-status/prompt.md",
+      "workspacePath": "benchmarks/agent/tasks/connection-status/workspace",
+      "capabilities": [
+        "behavior",
+        "resource-ownership-and-cleanup",
+        "role-selection"
+      ],
+      "acceptance": {
+        "command": [
+          "node",
+          "--test",
+          "--test-reporter=tap",
+          "test/acceptance.test.mjs"
+        ],
+        "hiddenTests": [
+          {
+            "sourcePath": "benchmarks/agent/support/environment.mjs",
+            "targetPath": "test/environment.mjs"
+          },
+          {
+            "sourcePath": "benchmarks/agent/tasks/connection-status/acceptance/acceptance.test.mjs",
+            "targetPath": "test/acceptance.test.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "overlay-switch",
+      "title": "Coordinate exclusive overlays outside a shared Region",
+      "promptPath": "benchmarks/agent/tasks/overlay-switch/prompt.md",
+      "workspacePath": "benchmarks/agent/tasks/overlay-switch/workspace",
+      "capabilities": [
+        "invalid-cases",
+        "role-selection",
+        "shared-overlay-host"
+      ],
+      "acceptance": {
+        "command": [
+          "node",
+          "--test",
+          "--test-reporter=tap",
+          "test/acceptance.test.mjs"
+        ],
+        "hiddenTests": [
+          {
+            "sourcePath": "benchmarks/agent/support/environment.mjs",
+            "targetPath": "test/environment.mjs"
+          },
+          {
+            "sourcePath": "benchmarks/agent/tasks/overlay-switch/acceptance/acceptance.test.mjs",
+            "targetPath": "test/acceptance.test.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "overlay-dismiss",
+      "title": "Release document dismissal listeners for a shared overlay",
+      "promptPath": "benchmarks/agent/tasks/overlay-dismiss/prompt.md",
+      "workspacePath": "benchmarks/agent/tasks/overlay-dismiss/workspace",
+      "capabilities": [
+        "communication",
+        "resource-ownership-and-cleanup",
+        "shared-overlay-host"
+      ],
+      "acceptance": {
+        "command": [
+          "node",
+          "--test",
+          "--test-reporter=tap",
+          "test/acceptance.test.mjs"
+        ],
+        "hiddenTests": [
+          {
+            "sourcePath": "benchmarks/agent/support/environment.mjs",
+            "targetPath": "test/environment.mjs"
+          },
+          {
+            "sourcePath": "benchmarks/agent/tasks/overlay-dismiss/acceptance/acceptance.test.mjs",
+            "targetPath": "test/acceptance.test.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "async-panel",
+      "title": "Invalidate stale asynchronous panel requests",
+      "promptPath": "benchmarks/agent/tasks/async-panel/prompt.md",
+      "workspacePath": "benchmarks/agent/tasks/async-panel/workspace",
+      "capabilities": [
+        "async-startup-and-teardown",
+        "resource-ownership-and-cleanup",
+        "role-selection"
+      ],
+      "acceptance": {
+        "command": [
+          "node",
+          "--test",
+          "--test-reporter=tap",
+          "test/acceptance.test.mjs"
+        ],
+        "hiddenTests": [
+          {
+            "sourcePath": "benchmarks/agent/support/environment.mjs",
+            "targetPath": "test/environment.mjs"
+          },
+          {
+            "sourcePath": "benchmarks/agent/tasks/async-panel/acceptance/acceptance.test.mjs",
+            "targetPath": "test/acceptance.test.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "async-session",
+      "title": "Replace asynchronously acquired subscriptions without leaks",
+      "promptPath": "benchmarks/agent/tasks/async-session/prompt.md",
+      "workspacePath": "benchmarks/agent/tasks/async-session/workspace",
+      "capabilities": [
+        "async-startup-and-teardown",
+        "communication",
+        "resource-ownership-and-cleanup",
+        "role-selection"
+      ],
+      "acceptance": {
+        "command": [
+          "node",
+          "--test",
+          "--test-reporter=tap",
+          "test/acceptance.test.mjs"
+        ],
+        "hiddenTests": [
+          {
+            "sourcePath": "benchmarks/agent/support/environment.mjs",
+            "targetPath": "test/environment.mjs"
+          },
+          {
+            "sourcePath": "benchmarks/agent/tasks/async-session/acceptance/acceptance.test.mjs",
+            "targetPath": "test/acceptance.test.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "scoped-message-presenter",
+      "title": "Scope messages to an optional MnObject presenter",
+      "promptPath": "benchmarks/agent/tasks/scoped-message-presenter/prompt.md",
+      "workspacePath": "benchmarks/agent/tasks/scoped-message-presenter/workspace",
+      "capabilities": [
+        "communication",
+        "resource-ownership-and-cleanup",
+        "role-selection"
+      ],
+      "acceptance": {
+        "command": [
+          "node",
+          "--test",
+          "--test-reporter=tap",
+          "test/acceptance.test.mjs"
+        ],
+        "hiddenTests": [
+          {
+            "sourcePath": "benchmarks/agent/support/environment.mjs",
+            "targetPath": "test/environment.mjs"
+          },
+          {
+            "sourcePath": "benchmarks/agent/tasks/scoped-message-presenter/acceptance/acceptance.test.mjs",
+            "targetPath": "test/acceptance.test.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "owned-workspace-state",
+      "title": "Compose owned Application and View state",
+      "promptPath": "benchmarks/agent/tasks/owned-workspace-state/prompt.md",
+      "workspacePath": "benchmarks/agent/tasks/owned-workspace-state/workspace",
+      "capabilities": [
+        "application-state-composition",
+        "async-startup-and-teardown",
+        "nested-application-ownership",
+        "resource-ownership-and-cleanup",
+        "state-vs-domain-data",
+        "view-state-composition"
+      ],
+      "acceptance": {
+        "command": [
+          "node",
+          "--test",
+          "--test-reporter=tap",
+          "test/acceptance.test.mjs"
+        ],
+        "hiddenTests": [
+          {
+            "sourcePath": "benchmarks/agent/support/environment.mjs",
+            "targetPath": "test/environment.mjs"
+          },
+          {
+            "sourcePath": "benchmarks/agent/tasks/owned-workspace-state/acceptance/acceptance.test.mjs",
+            "targetPath": "test/acceptance.test.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "borrowed-workspace-state",
+      "title": "Keep borrowed domain and state sources alive",
+      "promptPath": "benchmarks/agent/tasks/borrowed-workspace-state/prompt.md",
+      "workspacePath": "benchmarks/agent/tasks/borrowed-workspace-state/workspace",
+      "capabilities": [
+        "application-state-composition",
+        "async-startup-and-teardown",
+        "invalid-cases",
+        "nested-application-ownership",
+        "resource-ownership-and-cleanup",
+        "state-vs-domain-data",
+        "view-state-composition"
+      ],
+      "acceptance": {
+        "command": [
+          "node",
+          "--test",
+          "--test-reporter=tap",
+          "test/acceptance.test.mjs"
+        ],
+        "hiddenTests": [
+          {
+            "sourcePath": "benchmarks/agent/support/environment.mjs",
+            "targetPath": "test/environment.mjs"
+          },
+          {
+            "sourcePath": "benchmarks/agent/tasks/borrowed-workspace-state/acceptance/acceptance.test.mjs",
+            "targetPath": "test/acceptance.test.mjs"
+          }
+        ]
+      }
+    }
+  ]
+}
