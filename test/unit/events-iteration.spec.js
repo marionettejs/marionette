@@ -1,3 +1,4 @@
+import { vi, describe, it, expect } from 'vitest';
 import EventsMixin from '../../packages/utils/src/events.ts';
 
 function createEmitter() {
@@ -27,13 +28,13 @@ describe('Events owned iteration', function() {
 
     it('processes sparse handler slots and stops before later handlers', function() {
       const emitter = createEmitter();
-      const later = this.sinon.stub();
+      const later = vi.fn();
       const handlers = new Array(2);
       handlers[1] = { callback: later, ctx: emitter };
       emitter._rdEvents = { event: handlers };
 
       expect(() => emitter.trigger('event')).to.throw(TypeError);
-      expect(later).to.not.have.been.called;
+      expect(later).not.toHaveBeenCalled();
     });
 
     it('captures handler-array length once before lazy proxy index reads', function() {
@@ -65,7 +66,7 @@ describe('Events owned iteration', function() {
 
     it('does not reinterpret a replaced handler collection as an object map', function() {
       const emitter = createEmitter();
-      const handler = this.sinon.stub();
+      const handler = vi.fn();
       emitter._rdEvents = {
         event: {
           named: { callback: handler, ctx: emitter }
@@ -74,7 +75,7 @@ describe('Events owned iteration', function() {
 
       emitter.trigger('event');
 
-      expect(handler).to.not.have.been.called;
+      expect(handler).not.toHaveBeenCalled();
     });
 
     it('snapshots own object-map keys before lazy values and ignores additions', function() {
@@ -124,7 +125,7 @@ describe('Events owned iteration', function() {
 
     it('retains the Object.keys intrinsic captured at module load', function() {
       const emitter = createEmitter();
-      const handler = this.sinon.stub();
+      const handler = vi.fn();
       const originalObjectKeys = Object.keys;
       emitter.on('event', handler);
       Object.keys = () => { throw new Error('patched Object.keys called'); };
@@ -135,7 +136,8 @@ describe('Events owned iteration', function() {
         Object.keys = originalObjectKeys;
       }
 
-      expect(handler).to.have.been.calledOnce.and.calledWithExactly('value');
+      expect(handler).toHaveBeenCalledTimes(1);
+      expect(handler).toHaveBeenCalledWith('value');
     });
   });
 
@@ -208,7 +210,7 @@ describe('Events owned iteration', function() {
 
     it('processes sparse handler slots instead of skipping them', function() {
       const emitter = createEmitter();
-      const laterCallbackRead = this.sinon.stub();
+      const laterCallbackRead = vi.fn();
       const later = {};
       Object.defineProperty(later, 'callback', {
         get() {
@@ -221,7 +223,7 @@ describe('Events owned iteration', function() {
       emitter._rdEvents = { event: handlers };
 
       expect(() => emitter.off('event', function() {})).to.throw(TypeError);
-      expect(laterCallbackRead).to.not.have.been.called;
+      expect(laterCallbackRead).not.toHaveBeenCalled();
       expect(emitter._rdEvents.event).to.equal(handlers);
     });
   });

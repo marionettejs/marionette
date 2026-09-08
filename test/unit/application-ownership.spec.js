@@ -1,3 +1,4 @@
+import { vi, describe, it, expect } from 'vitest';
 'use strict';
 
 import { Application, MarionetteError } from '../../src/index';
@@ -353,7 +354,7 @@ describe('Application ownership', function() {
 
   it('leaves children untouched when parent destroy readiness fails', async function() {
     const readinessError = new Error('parent not ready');
-    const childBeforeDestroy = this.sinon.spy();
+    const childBeforeDestroy = vi.fn();
     let attempt = 0;
     const ParentApplication = Application.extend({
       onBeforeDestroy() {
@@ -373,10 +374,10 @@ describe('Application ownership', function() {
     expect(child.isDestroyed()).to.be.false;
     expect(parent.getChildApp('child')).to.equal(child);
     expect(child).to.have.own.property('_parentApp', parent);
-    expect(childBeforeDestroy).to.not.have.been.called;
+    expect(childBeforeDestroy).not.toHaveBeenCalled();
 
     expect(await parent.destroy()).to.be.true;
-    expect(childBeforeDestroy).to.have.been.calledOnce;
+    expect(childBeforeDestroy).toHaveBeenCalledTimes(1);
   });
 
   it('retains the unfinished suffix after a partial child destroy failure', async function() {

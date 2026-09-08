@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 
 import View from '../../src/modules/view';
@@ -51,7 +52,7 @@ describe('View el policy', function() {
       enumerable: true,
       value: protoValue
     });
-    const attributes = this.sinon.stub().returns(attributeHash);
+    const attributes = vi.fn().mockReturnValue(attributeHash);
     const AttributeView = View.extend({
       attributes,
       className: 'canonical-class',
@@ -61,7 +62,8 @@ describe('View el policy', function() {
 
     const view = new AttributeView();
 
-    expect(attributes).to.have.been.calledOnce.and.calledOn(view);
+    expect(attributes).toHaveBeenCalledTimes(1);
+    expect(attributes.mock.contexts).toContain(view);
     expect(view.el.title).to.equal('owned');
     expect(view.el.dataset.owned).to.equal('owned');
     expect(view.el.getAttribute('data-inherited')).to.be.null;

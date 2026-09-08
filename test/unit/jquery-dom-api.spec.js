@@ -1,3 +1,4 @@
+import { vi, describe, it, expect } from 'vitest';
 import $ from 'jquery';
 import compile from '../../build/babel.js';
 import {
@@ -71,7 +72,7 @@ describe('jQuery DomApi adapter', function() {
   it('detaches elements without removing listeners with the jQuery DomApi', function() {
     const parent = document.createElement('div');
     const child = document.createElement('button');
-    const onClick = this.sinon.stub();
+    const onClick = vi.fn();
     child.addEventListener('click', onClick);
     parent.appendChild(child);
     document.body.appendChild(parent);
@@ -81,7 +82,7 @@ describe('jQuery DomApi adapter', function() {
 
     expect(parent.childNodes).to.have.length(0);
     expect(document.body.contains(child)).to.be.false;
-    expect(onClick).to.have.been.calledOnce;
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 
   it('replaces element contents with the jQuery DomApi', function() {
@@ -110,7 +111,7 @@ describe('jQuery DomApi adapter', function() {
   it('preserves detached content listeners with the jQuery DomApi', function() {
     const el = document.createElement('div');
     const child = document.createElement('button');
-    const onClick = this.sinon.stub();
+    const onClick = vi.fn();
     child.addEventListener('click', onClick);
     el.appendChild(child);
 
@@ -118,7 +119,7 @@ describe('jQuery DomApi adapter', function() {
     child.click();
 
     expect(el.childNodes).to.have.length(0);
-    expect(onClick).to.have.been.calledOnce;
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 
   it('allows Region selector resolution with the jQuery DomApi findEl shape', function() {

@@ -1,3 +1,5 @@
+import { vi, describe, it, expect } from 'vitest';
+import { setFixtures } from '../setup/fixtures.js';
 import Behavior from '../../src/modules/behavior';
 import CollectionView from '../../src/modules/collection-view';
 import View from '../../src/modules/view';
@@ -37,7 +39,7 @@ describe('View DOM event delegation', function() {
   });
 
   it('redelegates an explicit map with View triggers and Behavior handlers', function() {
-    this.setFixtures(`
+    setFixtures(`
       <div id="view">
         <button class="instance"></button>
         <button class="explicit"></button>
@@ -46,11 +48,11 @@ describe('View DOM event delegation', function() {
       </div>
     `);
 
-    const instanceHandler = this.sinon.stub();
-    const explicitHandler = this.sinon.stub();
-    const behaviorHandler = this.sinon.stub();
-    const viewTrigger = this.sinon.stub();
-    const behaviorTrigger = this.sinon.stub();
+    const instanceHandler = vi.fn();
+    const explicitHandler = vi.fn();
+    const behaviorHandler = vi.fn();
+    const viewTrigger = vi.fn();
+    const behaviorTrigger = vi.fn();
     const TestBehavior = Behavior.extend({
       events: { 'click .behavior': behaviorHandler },
       triggers: { 'focus .behavior': 'behavior:focused' }
@@ -73,27 +75,27 @@ describe('View DOM event delegation', function() {
     view.el.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true }));
     view.el.querySelector('.behavior').dispatchEvent(new Event('focus', { bubbles: true }));
 
-    expect(instanceHandler).to.not.have.been.called;
-    expect(explicitHandler).to.have.been.calledOnce;
-    expect(behaviorHandler).to.have.been.calledOnce;
-    expect(viewTrigger).to.have.been.calledOnce;
-    expect(behaviorTrigger).to.have.been.calledOnce;
+    expect(instanceHandler).not.toHaveBeenCalled();
+    expect(explicitHandler).toHaveBeenCalledTimes(1);
+    expect(behaviorHandler).toHaveBeenCalledTimes(1);
+    expect(viewTrigger).toHaveBeenCalledTimes(1);
+    expect(behaviorTrigger).toHaveBeenCalledTimes(1);
 
     expect(view.undelegateEvents()).to.equal(view);
     view.el.querySelector('.explicit').click();
     view.el.querySelector('.behavior').click();
     view.el.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true }));
 
-    expect(explicitHandler).to.have.been.calledOnce;
-    expect(behaviorHandler).to.have.been.calledOnce;
-    expect(viewTrigger).to.have.been.calledOnce;
+    expect(explicitHandler).toHaveBeenCalledTimes(1);
+    expect(behaviorHandler).toHaveBeenCalledTimes(1);
+    expect(viewTrigger).toHaveBeenCalledTimes(1);
   });
 
   it('re-resolves callable event maps and changed UI selectors without duplicates', function() {
-    this.setFixtures('<div id="view"></div>');
+    setFixtures('<div id="view"></div>');
 
-    const handler = this.sinon.stub();
-    const events = this.sinon.stub().callsFake(function() {
+    const handler = vi.fn();
+    const events = vi.fn().mockImplementation(function() {
       return { 'click @ui.target': handler };
     });
     const TestView = View.extend({
@@ -109,22 +111,22 @@ describe('View DOM event delegation', function() {
     view.el.querySelector('.first').click();
     view.el.querySelector('.second').click();
 
-    expect(events).to.have.callCount(3);
-    expect(handler).to.have.been.calledOnce;
+    expect(events).toHaveBeenCalledTimes(3);
+    expect(handler).toHaveBeenCalledTimes(1);
   });
 
   it('treats delegation calls on a destroyed View as chainable no-ops', function() {
     const view = new View();
     view.destroy();
-    const delegateSpy = this.sinon.spy(view, '_delegateViewEvents');
-    const undelegateSpy = this.sinon.spy(view, '_undelegateViewEvents');
-    const behaviorSpy = this.sinon.spy(view, '_delegateBehaviorViewEvents');
+    const delegateSpy = vi.spyOn(view, '_delegateViewEvents');
+    const undelegateSpy = vi.spyOn(view, '_undelegateViewEvents');
+    const behaviorSpy = vi.spyOn(view, '_delegateBehaviorViewEvents');
 
     expect(view.delegateEvents()).to.equal(view);
     expect(view.undelegateEvents()).to.equal(view);
-    expect(delegateSpy).to.not.have.been.called;
-    expect(undelegateSpy).to.not.have.been.called;
-    expect(behaviorSpy).to.not.have.been.called;
+    expect(delegateSpy).not.toHaveBeenCalled();
+    expect(undelegateSpy).not.toHaveBeenCalled();
+    expect(behaviorSpy).not.toHaveBeenCalled();
   });
 
   it('is available and chainable on CollectionView', function() {

@@ -1,3 +1,4 @@
+import { vi, describe, it, expect } from 'vitest';
 'use strict';
 
 import { Application } from '../../src/index';
@@ -160,7 +161,7 @@ describe('Application child lifecycle', function() {
 
   it('does not start children when before:start supersedes owner startup', async function() {
     let ownerStop;
-    const childStart = this.sinon.spy();
+    const childStart = vi.fn();
     const OwnerApplication = Application.extend({
       onBeforeStart() {
         ownerStop = this.stop();
@@ -175,7 +176,7 @@ describe('Application child lifecycle', function() {
     expect(await ownerStop).to.be.true;
     expect(owner.isRunning()).to.be.false;
     expect(child.isRunning()).to.be.false;
-    expect(childStart).to.not.have.been.called;
+    expect(childStart).not.toHaveBeenCalled();
 
     await owner.destroy();
   });
@@ -183,7 +184,7 @@ describe('Application child lifecycle', function() {
   it('does not stop children when before:stop supersedes owner stop', async function() {
     let supersedingStart;
     let shouldSupersede = false;
-    const childStop = this.sinon.spy();
+    const childStop = vi.fn();
     const OwnerApplication = Application.extend({
       onBeforeStop() {
         if (shouldSupersede) {
@@ -202,7 +203,7 @@ describe('Application child lifecycle', function() {
     expect(await supersedingStart).to.be.true;
     expect(owner.isRunning()).to.be.true;
     expect(child.isRunning()).to.be.true;
-    expect(childStop).to.not.have.been.called;
+    expect(childStop).not.toHaveBeenCalled();
 
     shouldSupersede = false;
     await owner.destroy();
@@ -211,7 +212,7 @@ describe('Application child lifecycle', function() {
   it('does not stop later children after owner stop is superseded', async function() {
     const readiness = Promise.withResolvers();
     const childStopping = Promise.withResolvers();
-    const laterChildStop = this.sinon.spy();
+    const laterChildStop = vi.fn();
     const ChildApplication = Application.extend({
       onBeforeStop() {
         childStopping.resolve();
@@ -235,7 +236,7 @@ describe('Application child lifecycle', function() {
     expect(owner.isRunning()).to.be.true;
     expect(child.isRunning()).to.be.true;
     expect(laterChild.isRunning()).to.be.true;
-    expect(laterChildStop).to.not.have.been.called;
+    expect(laterChildStop).not.toHaveBeenCalled();
 
     await owner.destroy();
   });
@@ -407,7 +408,7 @@ describe('Application child lifecycle', function() {
   it('cancels owner startup when a direct child stop supersedes it', async function() {
     const readiness = Promise.withResolvers();
     const childStarting = Promise.withResolvers();
-    const ownerStart = this.sinon.spy();
+    const ownerStart = vi.fn();
     const ChildApplication = Application.extend({
       onBeforeStart(application, options, context) {
         childStarting.resolve();
@@ -429,7 +430,7 @@ describe('Application child lifecycle', function() {
     expect(owner.isRunning()).to.be.false;
     expect(first.isRunning()).to.be.true;
     expect(child.isRunning()).to.be.false;
-    expect(ownerStart).to.not.have.been.called;
+    expect(ownerStart).not.toHaveBeenCalled();
 
     await owner.destroy();
   });
@@ -487,7 +488,7 @@ describe('Application child lifecycle', function() {
   it('cancels owner stop when a direct child start supersedes it', async function() {
     const readiness = Promise.withResolvers();
     const childStopping = Promise.withResolvers();
-    const ownerStop = this.sinon.spy();
+    const ownerStop = vi.fn();
     const ChildApplication = Application.extend({
       onBeforeStop() {
         childStopping.resolve();
@@ -508,7 +509,7 @@ describe('Application child lifecycle', function() {
     expect(await stop).to.be.false;
     expect(owner.isRunning()).to.be.true;
     expect(first.isRunning()).to.be.false;
-    expect(ownerStop).to.not.have.been.called;
+    expect(ownerStop).not.toHaveBeenCalled();
 
     readiness.resolve();
     expect(await start).to.be.true;

@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import _ from 'underscore';
 import CommonMixin from '../../../src/mixins/common';
 import EventsMixin from '../../../packages/utils/src/events.ts';
@@ -13,7 +14,7 @@ describe('Common Mixin', function() {
     };
 
     beforeEach(function() {
-      optionsMethod = this.sinon.stub().returns({
+      optionsMethod = vi.fn().mockReturnValue({
         foo: 'bar',
         bar: 'baz'
       });
@@ -21,7 +22,7 @@ describe('Common Mixin', function() {
         options: optionsMethod
       }, CommonMixin);
 
-      this.sinon.spy(object, 'mergeOptions');
+      vi.spyOn(object, 'mergeOptions');
 
       object._setOptions(options, classOptions);
     });
@@ -40,16 +41,14 @@ describe('Common Mixin', function() {
         bar: 'baz',
         baz: 'baz'
       });
-      expect(optionsMethod)
-        .to.have.been.calledOnce
-        .and.calledOn(object)
-        .and.calledWithExactly();
+      expect(optionsMethod).toHaveBeenCalledTimes(1);
+      expect(optionsMethod.mock.contexts).toContain(object);
+      expect(optionsMethod).toHaveBeenCalledWith();
     });
 
     it('should call mergeOptions', function() {
-      expect(object.mergeOptions)
-        .to.have.been.calledOnce
-        .and.calledWith(options, classOptions);
+      expect(object.mergeOptions).toHaveBeenCalledTimes(1);
+      expect(object.mergeOptions.mock.calls.map(args => args.slice(0, 2))).toContainEqual([options, classOptions]);
     });
 
     it('merges only own options and safely owns __proto__', function() {

@@ -1,3 +1,5 @@
+import { vi, describe, it, expect } from 'vitest';
+import '../setup/backbone.js';
 import Backbone from 'backbone';
 import View from '../../src/modules/view';
 import Region from '../../src/modules/region';
@@ -6,8 +8,8 @@ describe('managed View ownership', function() {
 
   it('lets a Marionette wrapper own legacy rendering and cleanup', function() {
     const model = new Backbone.Model();
-    const received = this.sinon.spy();
-    const removed = this.sinon.spy();
+    const received = vi.fn();
+    const removed = vi.fn();
     const Legacy = Backbone.View.extend({
       initialize() { this.listenTo(this.model, 'change', received); },
       render() { this.el.textContent = 'legacy'; return this; },
@@ -29,12 +31,12 @@ describe('managed View ownership', function() {
     view.render();
     model.set('value', 2);
     expect(view.el.textContent).to.equal('legacy');
-    expect(received).to.have.been.calledTwice;
-    expect(removed).to.have.been.calledOnce;
+    expect(received).toHaveBeenCalledTimes(2);
+    expect(removed).toHaveBeenCalledTimes(1);
     region.destroy();
     view.destroy();
     model.set('value', 3);
-    expect(received).to.have.been.calledTwice;
-    expect(removed).to.have.been.calledTwice;
+    expect(received).toHaveBeenCalledTimes(2);
+    expect(removed).toHaveBeenCalledTimes(2);
   });
 });

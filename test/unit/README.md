@@ -1,131 +1,68 @@
-### Unit Tests
+# Unit tests
 
+Run all unit tests with `npm test`, or invoke Vitest directly for a focused run:
 
-### Running unit tests
-
-1. Running just unit tests - `npm run test`
-
-2. Running coverage reporter - `npm run coverage`.
-To check coverage, open `./coverage/index.html`.
-
-3. Browser-side Mocha runner scripts were removed with the Vitest migration.
-
-
-### Common concepts for writing tests
-
-1. Test suites should cover public API.
-
-> In most cases it will be public API testing,
-but sometimes we should test something like: When models added to collection,
-hence, in this case we are adding needed suites.
-
-2. Code style.
-
-- Each `describe` should have name of tested method.
-
-> If it's possible, there should be not more then one nested describe for one method.
-
-_Wrong way_
-
-```javascript
-  describe('#MyClass', function() {
-    describe('some events in myMethod', function() {
-      describe('some logic', function() {
-        it('do something', function() {
-          ...
-        });
-
-        describe('some other logic', function() {
-          // other nested describes
-        });
-      });
-    });
-  });
+```sh
+npx vitest run test/unit/region-lifecycle.spec.js
+npx vitest run --project=node
+npx vitest run --project=dom -t 'preserves focus'
+npx vitest run --coverage
+npx vitest run --sequence.shuffle --sequence.seed=1234
 ```
 
+The Node project covers pure utilities, events, Radio, and data contracts without a
+DOM. The DOM project uses jsdom. Real browser contracts live in `test/browser`.
+Coverage must remain at 100% for statements, branches, functions, and lines. The
+HTML report is `coverage/index.html`.
 
-**Correct way**
+## Public contracts
 
-```javascript
-  describe('#MyClass', function() {
-    describe('#myMethod', function() {
-      describe('when some logic', function() {
-        it('should do something', function() {
-          ...
-        });
-      });
+Exercise the published API and assert observable outcomes: return values, public
+state, events, rendered DOM, identity, focus, and released subscriptions. Never
+call, assert, spy on, or stub private library functions or inspect private fields.
+Do not add production exports merely to make implementation details testable.
+Some older specs still need conversion; new and rewritten tests must follow this
+rule. A public refactor should not fail because a private helper changed.
 
-      describe('when some other logic', function() {
-        it('should do something', function() {
-          ...
-        });
-      });
-    });
-  });
+Group tests by the contract they protect. Prefer a shallow `describe` hierarchy
+and descriptive outcomes over one test per implementation method. Keep each
+regression readable and independently runnable.
+
+## Native Vitest APIs
+
+Import the APIs you use directly. There are no global test functions, Mocha
+`this` contexts, Sinon sandboxes, or custom wrappers. Use `vi.fn`, `vi.spyOn`,
+native mock assertions, `it.each`, and native fixtures when useful.
+
+```js
+import { expect, it, vi } from 'vitest';
+import { createMarionette } from 'marionette';
+
+it('delivers a public event once', () => {
+  const { MnObject } = createMarionette();
+  const owner = new MnObject();
+  const onChange = vi.fn();
+  owner.on('change', onChange);
+
+  owner.trigger('change', 'saved');
+
+  expect(onChange).toHaveBeenCalledExactlyOnceWith('saved');
+  owner.destroy();
+});
 ```
 
-- In case of testing some behavior
+Create an isolated runtime with `createMarionette()` when changing configuration.
+The real default exports retain the neutral plain-object/array DataApi. Backbone
+integration specs explicitly import `test/setup/backbone.js`; core tests must not
+inherit that configuration. Import Backbone, Underscore, and jQuery only where
+needed.
 
-> behavior means not Marionette Behavior class
+DOM specs that need a mounted fixture can import `setFixtures` from
+`test/setup/fixtures.js`. It creates a fixture root and removes its contents after
+each test. Tests are responsible for destroying the instances they create. The
+shared setup restores `vi.spyOn` replacements after every test; it does not
+silently destroy library objects or repair library state.
 
-**Correct way**
-
-```javascript
-  describe('#MyClass', function() {
-    describe('when some data was changed', function() {
-      it('should do something', function() {
-        ...
-      });
-    });
-  });
-```
-
-- `before/beforeEach` should consist only some preparation logic
-but inside it should not present calling methods you expect to test.
-
-_Wrong way_
-
-```javascript
-  describe('#MyClass', function() {
-    describe('#myMethod', function() {
-      let myInstance;
-
-      beforeEach(function() {
-        myInstance = new MyClass({
-          render: this.sinon.spy
-        });
-        myInstance.render();
-      });
-
-      it('should do something', function() {
-        expect(myInstance.render).to.have.been.calledOnce;
-      });
-    });
-  });
-```
-
-
-**Correct way**
-
-```javascript
-  describe('#MyClass', function() {
-    describe('#myMethod', function() {
-      let myInstance;
-      let renderSpy;
-
-      beforeEach(function() {
-        renderSpy = this.sinon.spy();
-
-        myInstance = new MyClass({
-          render: renderSpy
-        });
-      });
-
-      it('should do something', function() {
-        myInstance.render();
-
-        expect(renderSpy).to.have.been.calledOnce;
-      });
-    });
-  });
-```
+For receiver or DOM identity, use identity assertions against recorded mock calls
+or contexts. Deep equality can treat distinct DOM nodes as equivalent. Assert
+call order only when order is part of the public contract.

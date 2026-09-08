@@ -1,3 +1,4 @@
+import { vi, describe, it, expect } from 'vitest';
 import StateApi from '../../../src/runtime/state-api';
 import MnObject from '../../../src/modules/object';
 import { MarionetteError } from '@marionette/utils';
@@ -12,17 +13,18 @@ describe('StateApi', function() {
   describe('#setStateApi', function() {
     it('isolates repeated class-level overlays', function() {
       const source = {};
-      const subscribe = this.sinon.stub().returns(() => {});
-      const disposeOwned = this.sinon.spy();
+      const subscribe = vi.fn().mockReturnValue(() => {});
+      const disposeOwned = vi.fn();
       const Parent = MnObject.extend({ stateEvents: { change() {} } });
       const Child = Parent.extend({ createState() { return source; } });
       Child.setStateApi({ subscribe });
       Child.setStateApi({ disposeOwned });
 
       const child = new Child();
-      expect(subscribe).to.have.been.calledOnce;
+      expect(subscribe).toHaveBeenCalledTimes(1);
       child.destroy();
-      expect(disposeOwned).to.have.been.calledOnceWith(source);
+      expect(disposeOwned).toHaveBeenCalledTimes(1);
+      expect(disposeOwned.mock.calls.map(args => args.slice(0, 1))).toContainEqual([source]);
 
       expect(() => new Parent())
         .to.throw(MarionetteError)

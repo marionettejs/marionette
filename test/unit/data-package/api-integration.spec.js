@@ -1,3 +1,4 @@
+import { vi, describe, it, expect } from 'vitest';
 import { createMarionette } from '../../../src/index.ts';
 import { Collection, DataApi, Model, StateApi } from '../../../packages/data/src/index.ts';
 
@@ -15,16 +16,16 @@ describe('@marionette/data Marionette integration', function() {
     const third = collection.get(3);
     const childViews = [first, second, third].map(model => view.children.findByModel(model));
 
-    const add = this.sinon.spy();
-    const remove = this.sinon.spy();
+    const add = vi.fn();
+    const remove = vi.fn();
     collection.on('add', add);
     collection.on('remove', remove);
     childViews[2].localSelection = true;
     collection.move(third, 0);
     expect(view.children.toArray()).to.deep.equal([childViews[2], childViews[0], childViews[1]]);
 
-    expect(add).to.not.have.been.called;
-    expect(remove).to.not.have.been.called;
+    expect(add).not.toHaveBeenCalled();
+    expect(remove).not.toHaveBeenCalled();
     expect(view.children.findByModel(third).localSelection).to.be.true;
 
     const fourth = collection.add({ id: 4 }, { at: 1 });
@@ -135,9 +136,9 @@ describe('@marionette/data Marionette integration', function() {
     const runtime = createMarionette();
     runtime.setDataApi(DataApi);
     runtime.setStateApi(StateApi);
-    const modelEvent = this.sinon.spy();
-    const collectionEvent = this.sinon.spy();
-    const stateEvent = this.sinon.spy();
+    const modelEvent = vi.fn();
+    const collectionEvent = vi.fn();
+    const stateEvent = vi.fn();
     const TestView = runtime.View.extend({
       modelEvents: { 'change:name': 'onModelChange' },
       collectionEvents: { add: 'onCollectionAdd' },
@@ -158,9 +159,9 @@ describe('@marionette/data Marionette integration', function() {
     model.set('name', 'ONE');
     collection.add({ id: 2 });
     state.set('ready', true);
-    expect(modelEvent).to.have.been.calledOnce;
-    expect(collectionEvent).to.have.been.calledOnce;
-    expect(stateEvent).to.have.been.calledOnce;
+    expect(modelEvent).toHaveBeenCalledTimes(1);
+    expect(collectionEvent).toHaveBeenCalledTimes(1);
+    expect(stateEvent).toHaveBeenCalledTimes(1);
 
     view.destroy();
     owner.destroy();
@@ -173,12 +174,12 @@ describe('@marionette/data Marionette integration', function() {
     expect(() => DataApi.subscribe({}, 'change', () => {})).to.throw(TypeError, 'on() and off()');
 
     const model = new Model();
-    const callback = this.sinon.spy();
+    const callback = vi.fn();
     const dispose = DataApi.subscribe(model, 'change', callback);
     dispose();
     dispose();
     model.set('name', 'one');
-    expect(callback).to.not.have.been.called;
+    expect(callback).not.toHaveBeenCalled();
     StateApi.disposeOwned(model);
     expect(model.isDestroyed()).to.be.true;
     const packageModel = new Model({ name: 'package' });

@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { getOption } from '@marionette/utils';
 
 describe('get option', function() {

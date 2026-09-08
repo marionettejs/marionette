@@ -1,3 +1,4 @@
+import { vi, describe, it, expect } from 'vitest';
 import { Behavior, MarionetteError, Region, View } from '../../src/index';
 
 function state(view) {
@@ -9,10 +10,10 @@ function state(view) {
 }
 
 function createTrackedView(context) {
-  const template = context.sinon.spy(() => '<div class="content"></div>');
-  const beforeRender = context.sinon.spy();
-  const render = context.sinon.spy();
-  const bindBehaviorUIElements = context.sinon.spy();
+  const template = vi.fn(() => '<div class="content"></div>');
+  const beforeRender = vi.fn();
+  const render = vi.fn();
+  const bindBehaviorUIElements = vi.fn();
   const TestBehavior = Behavior.extend({ bindUIElements: bindBehaviorUIElements });
   const regions = Object.create({ inherited: '.inherited' });
   Object.assign(regions, {
@@ -26,8 +27,8 @@ function createTrackedView(context) {
     template,
     ui: { content: '.content' },
   });
-  const getTemplate = context.sinon.spy(view, 'getTemplate');
-  const bindUIElements = context.sinon.spy(view, 'bindUIElements');
+  const getTemplate = vi.spyOn(view, 'getTemplate');
+  const bindUIElements = vi.spyOn(view, 'bindUIElements');
   view.on('before:render', beforeRender);
   view.on('render', render);
 
@@ -43,28 +44,28 @@ function createTrackedView(context) {
 }
 
 function resetRenderSpies(tracked) {
-  tracked.beforeRender.resetHistory();
-  tracked.bindBehaviorUIElements.resetHistory();
-  tracked.bindUIElements.resetHistory();
-  tracked.getTemplate.resetHistory();
-  tracked.render.resetHistory();
-  tracked.template.resetHistory();
+  tracked.beforeRender.mockClear();
+  tracked.bindBehaviorUIElements.mockClear();
+  tracked.bindUIElements.mockClear();
+  tracked.getTemplate.mockClear();
+  tracked.render.mockClear();
+  tracked.template.mockClear();
 }
 
 function expectNoRenderSideEffects(tracked, expectedState, html) {
-  expect(tracked.getTemplate).to.not.have.been.called;
-  expect(tracked.template).to.not.have.been.called;
-  expect(tracked.beforeRender).to.not.have.been.called;
-  expect(tracked.render).to.not.have.been.called;
-  expect(tracked.bindUIElements).to.not.have.been.called;
-  expect(tracked.bindBehaviorUIElements).to.not.have.been.called;
+  expect(tracked.getTemplate).not.toHaveBeenCalled();
+  expect(tracked.template).not.toHaveBeenCalled();
+  expect(tracked.beforeRender).not.toHaveBeenCalled();
+  expect(tracked.render).not.toHaveBeenCalled();
+  expect(tracked.bindUIElements).not.toHaveBeenCalled();
+  expect(tracked.bindBehaviorUIElements).not.toHaveBeenCalled();
   expect(tracked.view.el.innerHTML).to.equal(html);
   expect(state(tracked.view)).to.deep.equal(expectedState);
 }
 
 describe('#getRegion', function() {
-  it('queries own Regions without rendering a live unrendered View', function() {
-    const tracked = createTrackedView(this);
+  it('queries own Regions without rendering a live unrendered View', function(testContext) {
+    const tracked = createTrackedView(testContext);
     const { view } = tracked;
     const sentinel = document.createElement('span');
     sentinel.textContent = 'Unmanaged content';
@@ -94,8 +95,8 @@ describe('#getRegion', function() {
     view.destroy();
   });
 
-  it('does not change a rendered View while looking up a Region', function() {
-    const tracked = createTrackedView(this);
+  it('does not change a rendered View while looking up a Region', function(testContext) {
+    const tracked = createTrackedView(testContext);
     const { view } = tracked;
     view.render();
     const html = view.el.innerHTML;
@@ -113,20 +114,20 @@ describe('#getRegion', function() {
     view.destroy();
   });
 
-  it('returns missing without dispatching render on a destroyed View', function() {
-    const tracked = createTrackedView(this);
+  it('returns missing without dispatching render on a destroyed View', function(testContext) {
+    const tracked = createTrackedView(testContext);
     const { view } = tracked;
     view.destroy();
     const sentinel = document.createElement('span');
     sentinel.textContent = 'Unmanaged content';
     view.el.append(sentinel);
     const html = view.el.innerHTML;
-    const publicRender = this.sinon.spy(view, 'render');
+    const publicRender = vi.spyOn(view, 'render');
 
     expect(view.getRegion('content')).to.be.undefined;
     expect(view.getRegion('missing')).to.be.undefined;
 
-    expect(publicRender).to.not.have.been.called;
+    expect(publicRender).not.toHaveBeenCalled();
     expectNoRenderSideEffects(tracked, {
       attached: false,
       destroyed: true,
@@ -135,8 +136,8 @@ describe('#getRegion', function() {
     expect(view.el.lastChild).to.equal(sentinel);
   });
 
-  it('does not render the parent when directly showing through a Region lookup', function() {
-    const tracked = createTrackedView(this);
+  it('does not render the parent when directly showing through a Region lookup', function(testContext) {
+    const tracked = createTrackedView(testContext);
     const { view } = tracked;
     const child = new View({ template: () => '<span>Child</span>' });
     const region = view.getRegion('content');
@@ -194,10 +195,10 @@ for (const operation of childOperations) {
           region = this;
         },
       });
-      const getRegion = this.sinon.spy(function() {
+      const getRegion = vi.fn(function() {
         return View.prototype.getRegion.apply(this, arguments);
       });
-      const render = this.sinon.spy(function() {
+      const render = vi.fn(function() {
         return View.prototype.render.apply(this, arguments);
       });
       const TestView = View.extend({
@@ -215,23 +216,26 @@ for (const operation of childOperations) {
           content: { el: '.content', regionClass: TrackingRegion },
         },
       });
-      const show = this.sinon.spy(region, 'show');
-      const detach = this.sinon.spy(region, 'detachView');
+      const show = vi.spyOn(region, 'show');
+      const detach = vi.spyOn(region, 'detachView');
 
       const result = operation.execute(view, child, options);
 
       expect(result).to.equal(child);
-      expect(render).to.have.been.calledOnce.and.calledOn(view).and.calledWithExactly();
-      expect(getRegion)
-        .to.have.been.calledOnce
-        .and.calledOn(view)
-        .and.calledWithExactly('content');
-      expect(render).to.have.been.calledBefore(getRegion);
+      expect(render).toHaveBeenCalledTimes(1);
+      expect(render.mock.contexts).toContain(view);
+      expect(render).toHaveBeenCalledWith();
+      expect(getRegion).toHaveBeenCalledTimes(1);
+      expect(getRegion.mock.contexts).toContain(view);
+      expect(getRegion).toHaveBeenCalledWith('content');
+      expect(render).toHaveBeenCalledBefore(getRegion);
       if (operation.method === 'showChildView') {
-        expect(show).to.have.been.calledOnce.and.calledWithExactly(child, options);
+        expect(show).toHaveBeenCalledTimes(1);
+        expect(show).toHaveBeenCalledWith(child, options);
         expect(region.currentView).to.equal(child);
       } else if (operation.method === 'detachChildView') {
-        expect(detach).to.have.been.calledOnce.and.calledWithExactly();
+        expect(detach).toHaveBeenCalledTimes(1);
+        expect(detach).toHaveBeenCalledWith();
         expect(region.hasView()).to.be.false;
         expect(child.isDestroyed()).to.be.false;
       } else {
@@ -253,12 +257,12 @@ for (const operation of childOperations) {
       if (operation.populateOnRender) {
         region.show(child);
       }
-      const render = this.sinon.spy(view, 'render');
+      const render = vi.spyOn(view, 'render');
 
       const result = operation.execute(view, child);
 
       expect(result).to.equal(child);
-      expect(render).to.not.have.been.called;
+      expect(render).not.toHaveBeenCalled();
 
       view.destroy();
       if (!child.isDestroyed()) {
@@ -269,12 +273,13 @@ for (const operation of childOperations) {
     it('preserves MN0020 for a missing name after rendering', function() {
       const child = new View();
       const view = new View({ template: () => '<div></div>' });
-      const render = this.sinon.spy(view, 'render');
+      const render = vi.spyOn(view, 'render');
 
       expect(() => operation.execute(view, child)).to.throw(MarionetteError).and.include({
         code: 'MN0020',
       });
-      expect(render).to.have.been.calledOnce.and.calledWithExactly();
+      expect(render).toHaveBeenCalledTimes(1);
+      expect(render).toHaveBeenCalledWith();
 
       child.destroy();
       view.destroy();
@@ -284,12 +289,14 @@ for (const operation of childOperations) {
       const child = new View();
       const view = new View({ regions: { content: '.content' } });
       view.destroy();
-      const render = this.sinon.spy(view, 'render');
+      const render = vi.spyOn(view, 'render');
 
       expect(() => operation.execute(view, child)).to.throw(MarionetteError).and.include({
         code: 'MN0020',
       });
-      expect(render).to.have.been.calledOnce.and.calledOn(view).and.calledWithExactly();
+      expect(render).toHaveBeenCalledTimes(1);
+      expect(render.mock.contexts).toContain(view);
+      expect(render).toHaveBeenCalledWith();
 
       child.destroy();
     });
@@ -313,7 +320,7 @@ for (const operation of childOperations) {
 
       it('uses a Region added during render through an aliasing getRegion override', function() {
         const child = new View({ template: false });
-        const getRegion = this.sinon.spy(function(name) {
+        const getRegion = vi.fn(function(name) {
           return View.prototype.getRegion.call(this, name === 'alias' ? 'content' : name);
         });
         const TestView = View.extend({
@@ -326,7 +333,9 @@ for (const operation of childOperations) {
         const view = new TestView();
 
         expect(view.showChildView('alias', child)).to.equal(child);
-        expect(getRegion).to.have.been.calledOnce.and.calledOn(view).and.calledWithExactly('alias');
+        expect(getRegion).toHaveBeenCalledTimes(1);
+        expect(getRegion.mock.contexts).toContain(view);
+        expect(getRegion).toHaveBeenCalledWith('alias');
         expect(view.getChildView('content')).to.equal(child);
 
         view.destroy();
@@ -336,13 +345,13 @@ for (const operation of childOperations) {
     it('stops before getRegion when rendering fails', function() {
       const error = new Error('render failed');
       const child = new View();
-      const getRegion = this.sinon.spy();
+      const getRegion = vi.fn();
       const TestView = View.extend({ getRegion });
       const view = new TestView({ regions: { content: '.content' } });
-      this.sinon.stub(view, 'render').throws(error);
+      vi.spyOn(view, 'render').mockImplementation(() => undefined).mockImplementation(() => { throw error; });
 
       expect(() => operation.execute(view, child)).to.throw(error);
-      expect(getRegion).to.not.have.been.called;
+      expect(getRegion).not.toHaveBeenCalled();
       expect(child.isRendered()).to.be.false;
 
       child.destroy();
@@ -352,7 +361,7 @@ for (const operation of childOperations) {
     it('stops after rendering when the getRegion override fails', function() {
       const error = new Error('getRegion failed');
       const child = new View();
-      const getRegion = this.sinon.stub().throws(error);
+      const getRegion = vi.fn().mockImplementation(() => { throw error; });
       const TestView = View.extend({
         getRegion,
         template: () => '<div class="content"></div>',
@@ -360,7 +369,9 @@ for (const operation of childOperations) {
       const view = new TestView({ regions: { content: '.content' } });
 
       expect(() => operation.execute(view, child)).to.throw(error);
-      expect(getRegion).to.have.been.calledOnce.and.calledOn(view).and.calledWithExactly('content');
+      expect(getRegion).toHaveBeenCalledTimes(1);
+      expect(getRegion.mock.contexts).toContain(view);
+      expect(getRegion).toHaveBeenCalledWith('content');
       expect(view.isRendered()).to.be.true;
       expect(child.isRendered()).to.be.false;
 

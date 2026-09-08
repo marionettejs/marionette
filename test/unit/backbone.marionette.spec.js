@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import _ from 'underscore';
 
 import * as Mn from '../../src/index.ts';
@@ -87,12 +88,11 @@ describe('backbone.marionette', function() {
 
     _.each(DomClasses, function(Class, key) {
       it(`should setDomApi on ${ key }`, function() {
-        this.sinon.spy(Class, 'setDomApi');
+        vi.spyOn(Class, 'setDomApi');
         Mn.setDomApi(fakeDomApi);
 
-        expect(Class.setDomApi)
-          .to.be.calledOnce
-          .and.calledWith(fakeDomApi);
+        expect(Class.setDomApi).toHaveBeenCalledTimes(1);
+        expect(Class.setDomApi.mock.calls.map(args => args.slice(0, 1))).toContainEqual([fakeDomApi]);
       });
     });
   });
@@ -110,13 +110,12 @@ describe('backbone.marionette', function() {
     _.each(DataClasses, function(Class, key) {
       it(`should setDataApi on ${ key }`, function() {
         _.each(DataClasses, DataClass => {
-          this.sinon.stub(DataClass, 'setDataApi').returns(DataClass);
+          vi.spyOn(DataClass, 'setDataApi').mockImplementation(() => undefined).mockReturnValue(DataClass);
         });
         Mn.setDataApi(fakeDataApi);
 
-        expect(Class.setDataApi)
-          .to.be.calledOnce
-          .and.calledWith(fakeDataApi);
+        expect(Class.setDataApi).toHaveBeenCalledTimes(1);
+        expect(Class.setDataApi.mock.calls.map(args => args.slice(0, 1))).toContainEqual([fakeDataApi]);
       });
     });
   });
@@ -128,15 +127,16 @@ describe('backbone.marionette', function() {
     _.each(StateClasses, function(Class, key) {
       it(`should setStateApi on ${ key }`, function() {
         _.each(StateClasses, StateClass => {
-          this.sinon.stub(StateClass, 'setStateApi').returns(StateClass);
+          vi.spyOn(StateClass, 'setStateApi').mockImplementation(() => undefined).mockReturnValue(StateClass);
         });
         Mn.setStateApi(fakeStateApi);
-        expect(Class.setStateApi).to.be.calledOnce.and.calledWith(fakeStateApi);
+        expect(Class.setStateApi).toHaveBeenCalledTimes(1);
+        expect(Class.setStateApi.mock.calls.map(args => args.slice(0, 1))).toContainEqual([fakeStateApi]);
       });
     });
 
     it('allows one combined adapter or independent adapter objects', function() {
-      const combinedSubscribe = this.sinon.stub().returns(() => {});
+      const combinedSubscribe = vi.fn().mockReturnValue(() => {});
       const CombinedView = View.extend({
         stateEvents: { change() {} },
         template: data => data.label
@@ -150,11 +150,11 @@ describe('backbone.marionette', function() {
       const combinedSource = {};
       const combinedView = new CombinedView({ state: combinedSource, model: {} });
       combinedView.render();
-      expect(combinedSubscribe).to.have.been.calledWith(combinedSource);
+      expect(combinedSubscribe.mock.calls.map(args => args.slice(0, 1))).toContainEqual([combinedSource]);
       expect(combinedView.el.textContent).to.equal('combined');
       combinedView.destroy();
 
-      const stateSubscribe = this.sinon.stub().returns(() => {});
+      const stateSubscribe = vi.fn().mockReturnValue(() => {});
       const SplitView = View.extend({
         stateEvents: { change() {} },
         template: data => data.label
@@ -164,7 +164,7 @@ describe('backbone.marionette', function() {
       const splitSource = {};
       const splitView = new SplitView({ state: splitSource, model: {} });
       splitView.render();
-      expect(stateSubscribe).to.have.been.calledWith(splitSource);
+      expect(stateSubscribe.mock.calls.map(args => args.slice(0, 1))).toContainEqual([splitSource]);
       expect(splitView.el.textContent).to.equal('split');
       splitView.destroy();
     });
@@ -190,12 +190,11 @@ describe('backbone.marionette', function() {
 
     _.each(RendererClasses, function(Class, key) {
       it(`should setRenderer on ${ key }`, function() {
-        this.sinon.spy(Class, 'setRenderer');
+        vi.spyOn(Class, 'setRenderer');
 
         Mn.setRenderer(fakeRenderer);
-        expect(Class.setRenderer)
-          .to.be.calledOnce
-          .and.calledWith(fakeRenderer);
+        expect(Class.setRenderer).toHaveBeenCalledTimes(1);
+        expect(Class.setRenderer.mock.calls.map(args => args.slice(0, 1))).toContainEqual([fakeRenderer]);
       });
     });
   });
@@ -215,12 +214,11 @@ describe('backbone.marionette', function() {
 
     _.each(DelegatorClasses, function(Class, key) {
       it(`should setEventDelegator on ${ key }`, function() {
-        this.sinon.spy(Class, 'setEventDelegator');
+        vi.spyOn(Class, 'setEventDelegator');
 
         Mn.setEventDelegator(fakeEventDelegator);
-        expect(Class.setEventDelegator)
-          .to.be.calledOnce
-          .and.calledWith(fakeEventDelegator);
+        expect(Class.setEventDelegator).toHaveBeenCalledTimes(1);
+        expect(Class.setEventDelegator.mock.calls.map(args => args.slice(0, 1))).toContainEqual([fakeEventDelegator]);
       });
     });
   });

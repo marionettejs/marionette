@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, afterEach } from 'vitest';
 import Radio, { createRadio } from '../../packages/radio/src/radio.ts';
 import { setDebug } from '../../packages/radio/src/debug.ts';
 import Events from '../../packages/utils/src/events.ts';
@@ -53,29 +54,28 @@ describe('Radio composition', function() {
 
   it('forwards through the singleton when a top-level method is borrowed', function() {
     const channel = Radio.channel('singleton-forwarding');
-    const forwarded = this.sinon.stub(channel, 'on').returns('result');
-    const receiver = { channel: this.sinon.stub() };
+    const forwarded = vi.spyOn(channel, 'on').mockImplementation(() => undefined).mockReturnValue('result');
+    const receiver = { channel: vi.fn() };
 
     expect(Radio.on.call(receiver, 'singleton-forwarding', 'first', 'second'))
       .to.equal('result');
-    expect(receiver.channel).to.not.have.been.called;
-    expect(forwarded)
-      .to.have.been.calledOnce
-      .and.calledOn(channel)
-      .and.calledWithExactly('first', 'second');
+    expect(receiver.channel).not.toHaveBeenCalled();
+    expect(forwarded).toHaveBeenCalledTimes(1);
+    expect(forwarded.mock.contexts).toContain(channel);
+    expect(forwarded).toHaveBeenCalledWith('first', 'second');
   });
 
   it('resets the singleton registry when reset is borrowed', function() {
-    const handler = this.sinon.stub();
-    const alternateReset = this.sinon.stub();
+    const handler = vi.fn();
+    const alternateReset = vi.fn();
 
     Radio.on('singleton-reset', 'event', handler);
     expect(Radio.reset.call({ _channels: { alternate: { reset: alternateReset } } }))
       .to.be.undefined;
     Radio.trigger('singleton-reset', 'event');
 
-    expect(handler).to.not.have.been.called;
-    expect(alternateReset).to.not.have.been.called;
+    expect(handler).not.toHaveBeenCalled();
+    expect(alternateReset).not.toHaveBeenCalled();
   });
 
   it('excludes inherited API pollution and safely composes own built-in keys', function() {

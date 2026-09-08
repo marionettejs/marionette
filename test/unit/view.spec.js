@@ -1,3 +1,7 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { setFixtures } from '../setup/fixtures.js';
+import * as Marionette from '../../src/index.ts';
+import '../setup/backbone.js';
 import Backbone from 'backbone';
 import Region from '../../src/modules/region';
 import View from '../../src/modules/view';
@@ -15,7 +19,7 @@ describe('view', function() {
     model = new Backbone.Model(modelData);
 
     template = 'foobar';
-    templateStub = this.sinon.stub().returns(template);
+    templateStub = vi.fn().mockReturnValue(template);
   });
 
   // Fixes https://github.com/marionettejs/backbone.marionette/issues/3527
@@ -26,24 +30,24 @@ describe('view', function() {
         initialize() {
           this.listenTo(model, 'foo', this.onFoo);
         },
-        onFoo: this.sinon.stub()
+        onFoo: vi.fn()
       });
 
       const view = new TestView({ model });
 
       model.trigger('foo');
 
-      expect(view.onFoo).to.have.been.calledOnce;
+      expect(view.onFoo).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('when modelEvents contains an own __proto__ event', function() {
     it('throws before delegating to a Backbone model', function() {
-      const modelOn = this.sinon.spy(model, 'on');
+      const modelOn = vi.spyOn(model, 'on');
       const modelEvents = {};
       Object.defineProperty(modelEvents, '__proto__', {
         enumerable: true,
-        value: this.sinon.stub()
+        value: vi.fn()
       });
       const TestView = View.extend({
         template: false,
@@ -53,7 +57,7 @@ describe('view', function() {
       expect(() => new TestView({ model }))
         .to.throw('Entity event maps cannot include an own "__proto__" event name.')
         .with.property('code', 'MN0026');
-      expect(modelOn).to.not.have.been.called;
+      expect(modelOn).not.toHaveBeenCalled();
     });
   });
 
@@ -61,7 +65,7 @@ describe('view', function() {
     let view;
 
     beforeEach(function() {
-      this.setFixtures('<div id="foo"><span class="element">bar</span></div>');
+      setFixtures('<div id="foo"><span class="element">bar</span></div>');
       view = new View({
         el: document.getElementById('foo'),
         ui: {
@@ -91,7 +95,7 @@ describe('view', function() {
     let view;
 
     beforeEach(function() {
-      this.setFixtures('<div id="foo"><span class="element">bar</span></div>');
+      setFixtures('<div id="foo"><span class="element">bar</span></div>');
       view = new View({
         el: document.querySelector('#nonexistent')
       });
@@ -130,8 +134,8 @@ describe('view', function() {
     let view;
 
     beforeEach(function() {
-      onBeforeRenderStub = this.sinon.stub();
-      onRenderStub = this.sinon.stub();
+      onBeforeRenderStub = vi.fn();
+      onRenderStub = vi.fn();
 
       TestView = View.extend({
         template: false,
@@ -145,11 +149,11 @@ describe('view', function() {
 
       view = new TestView();
 
-      marionetteRendererSpy = this.sinon.spy(view, '_renderHtml');
-      serializeDataSpy = this.sinon.spy(view, 'serializeData');
-      mixinTemplateContextSpy = this.sinon.spy(view, 'mixinTemplateContext');
-      attachElContentSpy = this.sinon.spy(view, 'attachElContent');
-      bindUIElementsSpy = this.sinon.spy(view, 'bindUIElements');
+      marionetteRendererSpy = vi.spyOn(view, '_renderHtml');
+      serializeDataSpy = vi.spyOn(view, 'serializeData');
+      mixinTemplateContextSpy = vi.spyOn(view, 'mixinTemplateContext');
+      attachElContentSpy = vi.spyOn(view, 'attachElContent');
+      bindUIElementsSpy = vi.spyOn(view, 'bindUIElements');
 
       view.render();
     });
@@ -159,28 +163,28 @@ describe('view', function() {
     });
 
     it('should not call an "onBeforeRender" method on the view', function() {
-      expect(onBeforeRenderStub).to.not.have.been.called;
+      expect(onBeforeRenderStub).not.toHaveBeenCalled();
     });
 
     it('should not call an "onRender" method on the view', function() {
-      expect(onRenderStub).to.not.have.been.called;
+      expect(onRenderStub).not.toHaveBeenCalled();
     });
 
     it('should not call bindUIElements', function() {
-      expect(bindUIElementsSpy).to.not.have.been.called;
+      expect(bindUIElementsSpy).not.toHaveBeenCalled();
     });
 
     it('should not add in data or template context', function() {
-      expect(serializeDataSpy).to.not.have.been.called;
-      expect(mixinTemplateContextSpy).to.not.have.been.called;
+      expect(serializeDataSpy).not.toHaveBeenCalled();
+      expect(mixinTemplateContextSpy).not.toHaveBeenCalled();
     });
 
     it('should not render a template', function() {
-      expect(marionetteRendererSpy).to.not.have.been.called;
+      expect(marionetteRendererSpy).not.toHaveBeenCalled();
     });
 
     it('should not attach any html content', function() {
-      expect(attachElContentSpy).to.not.have.been.called;
+      expect(attachElContentSpy).not.toHaveBeenCalled();
     });
 
     it('should not claim isRendered', function() {
@@ -191,7 +195,7 @@ describe('view', function() {
       let elView;
 
       beforeEach(function() {
-        this.setFixtures('<div id="foo">bar</div>');
+        setFixtures('<div id="foo">bar</div>');
         elView = new TestView({ el: document.getElementById('foo') });
       });
 
@@ -212,13 +216,13 @@ describe('view', function() {
     let triggerSpy;
 
     beforeEach(function() {
-      onBeforeDestroyStub = this.sinon.spy(function() {
+      onBeforeDestroyStub = vi.fn(function() {
         return {
           isRendered: this.isRendered(),
           isDestroyed: this.isDestroyed()
         };
       });
-      onDestroyStub = this.sinon.spy(function() {
+      onDestroyStub = vi.fn(function() {
         return {
           isRendered: this.isRendered(),
           isDestroyed: this.isDestroyed()
@@ -234,56 +238,56 @@ describe('view', function() {
       view = new TestView();
       view.render();
 
-      removeSpy = this.sinon.spy(view.Dom, 'detachEl');
-      stopListeningSpy = this.sinon.spy(view, 'stopListening');
-      triggerSpy = this.sinon.spy(view, 'trigger');
+      removeSpy = vi.spyOn(view.Dom, 'detachEl');
+      stopListeningSpy = vi.spyOn(view, 'stopListening');
+      triggerSpy = vi.spyOn(view, 'trigger');
 
-      this.sinon.spy(view, 'destroy');
+      vi.spyOn(view, 'destroy');
       view.destroy();
     });
 
     it('should remove the views EL from the DOM', function() {
-      expect(removeSpy).to.have.been.calledOnce;
+      expect(removeSpy).toHaveBeenCalledTimes(1);
     });
 
     it('should unbind any listener to custom view events', function() {
-      expect(stopListeningSpy).to.have.been.calledOnce;
+      expect(stopListeningSpy).toHaveBeenCalledTimes(1);
     });
 
     it('should trigger "before:destroy"', function() {
-      expect(triggerSpy).to.have.been.calledWith('before:destroy');
+      expect(triggerSpy.mock.calls.map(args => args.slice(0, 1))).toContainEqual(['before:destroy']);
     });
 
     it('should trigger "destroy"', function() {
-      expect(triggerSpy).to.have.been.calledWith('destroy');
+      expect(triggerSpy.mock.calls.map(args => args.slice(0, 1))).toContainEqual(['destroy']);
     });
 
     it('should call "onBeforeDestroy" if provided', function() {
-      expect(onBeforeDestroyStub).to.have.been.called;
+      expect(onBeforeDestroyStub).toHaveBeenCalled();
     });
 
     it('should call "onDestroy" if provided', function() {
-      expect(onDestroyStub).to.have.been.called;
+      expect(onDestroyStub).toHaveBeenCalled();
     });
 
     it('should return the view', function() {
-      expect(view.destroy).to.have.returned(view);
+      expect(view.destroy).toHaveReturnedWith(view);
     });
 
     it('should not be destroyed when "onBeforeDestroy" is called', function() {
-      expect(onBeforeDestroyStub.lastCall.returnValue.isDestroyed).not.to.be.ok;
+      expect(onBeforeDestroyStub.mock.results.at(-1).value.isDestroyed).not.to.be.ok;
     });
 
     it('should be rendered when "onBeforeDestroy" is called', function() {
-      expect(onBeforeDestroyStub.lastCall.returnValue.isRendered).to.be.true;
+      expect(onBeforeDestroyStub.mock.results.at(-1).value.isRendered).to.be.true;
     });
 
     it('should be destroyed when "onDestroy" is called', function() {
-      expect(onDestroyStub.lastCall.returnValue.isDestroyed).to.be.true;
+      expect(onDestroyStub.mock.results.at(-1).value.isDestroyed).to.be.true;
     });
 
     it('should not be rendered when "onDestroy" is called', function() {
-      expect(onDestroyStub.lastCall.returnValue.isRendered).to.be.false;
+      expect(onDestroyStub.mock.results.at(-1).value.isRendered).to.be.false;
     });
 
     it('should be marked destroyed', function() {
@@ -303,14 +307,14 @@ describe('view', function() {
     let TestRegion;
 
     beforeEach(function() {
-      onDomRefreshStub = this.sinon.stub();
+      onDomRefreshStub = vi.fn();
 
       TestView = View.extend({
         template: templateStub,
         onDomRefresh: onDomRefreshStub
       });
 
-      this.setFixtures('<div id="region"></div>');
+      setFixtures('<div id="region"></div>');
       TestRegion = Region.extend({
         el: '#region'
       });
@@ -322,19 +326,19 @@ describe('view', function() {
     });
 
     it('should trigger a dom:refresh event', function() {
-      expect(onDomRefreshStub).to.have.been.calledTwice;
+      expect(onDomRefreshStub).toHaveBeenCalledTimes(2);
     });
   });
 
   describe('when instantiating a View', function() {
     it('should trigger `initialize` on the behaviors', function() {
-      this.sinon.stub(View.prototype, '_triggerEventOnBehaviors');
+      vi.spyOn(View.prototype, '_triggerEventOnBehaviors').mockImplementation(() => undefined);
 
       const myView = new View({ foo: 'bar' });
 
       // _triggerEventOnBehaviors comes from Behaviors mixin
-      expect(myView._triggerEventOnBehaviors)
-        .to.be.calledOnce.and.calledWith('initialize', myView, { foo: 'bar' });
+      expect(myView._triggerEventOnBehaviors).toHaveBeenCalledTimes(1);
+      expect(myView._triggerEventOnBehaviors.mock.calls.map(args => args.slice(0, 3))).toContainEqual(['initialize', myView, { foo: 'bar' }]);
     });
   });
 

@@ -1,3 +1,6 @@
+import { describe, it, expect } from 'vitest';
+import Backbone from 'backbone';
+import '../../setup/backbone.js';
 import _ from 'underscore';
 import Application from '../../../src/modules/application';
 import Behavior from '../../../src/modules/behavior';

@@ -1,3 +1,5 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import '../setup/backbone.js';
 import Backbone from 'backbone';
 import ChildViewContainer from '../../src/modules/child-view-container';
 import BackboneApi from '../../packages/adapters/src/data/backbone.ts';
@@ -22,31 +24,31 @@ describe('#ChildViewContainer', function() {
     describe('#each', function() {
       it('visits every child view with index and context and returns the container', function() {
         const context = {};
-        const callback = this.sinon.spy(function(view, index) {
+        const callback = vi.fn(function(view, index) {
           expect(this).to.equal(context);
           expect(view).to.equal(views[index]);
         });
 
         expect(container.each(callback, context)).to.equal(container);
-        expect(callback).to.have.callCount(3);
-        callback.getCalls().forEach(call => {
-          expect(call.args).to.have.lengthOf(2);
+        expect(callback).toHaveBeenCalledTimes(3);
+        callback.mock.calls.forEach(args => {
+          expect(args).to.have.lengthOf(2);
         });
       });
 
       it('returns an empty container without calling the callback', function() {
         const emptyContainer = new ChildViewContainer();
-        const callback = this.sinon.spy();
+        const callback = vi.fn();
 
         expect(emptyContainer.each(callback)).to.equal(emptyContainer);
-        expect(callback).to.not.have.been.called;
+        expect(callback).not.toHaveBeenCalled();
       });
     });
 
     describe('#map', function() {
       it('maps every child view with index and context into a new ordered array', function() {
         const context = { prefix: 'view' };
-        const callback = this.sinon.spy(function(view, index) {
+        const callback = vi.fn(function(view, index) {
           expect(view).to.equal(views[index]);
           return `${ this.prefix }-${ index + 1 }`;
         });
@@ -55,42 +57,42 @@ describe('#ChildViewContainer', function() {
 
         expect(result).to.deep.equal(['view-1', 'view-2', 'view-3']);
         expect(container.map(view => view.id)).to.not.equal(result);
-        expect(callback).to.have.callCount(3);
-        callback.getCalls().forEach(call => {
-          expect(call.thisValue).to.equal(context);
-          expect(call.args).to.have.lengthOf(2);
+        expect(callback).toHaveBeenCalledTimes(3);
+        callback.mock.calls.forEach((args, index) => {
+          expect(callback.mock.contexts[index]).to.equal(context);
+          expect(args).to.have.lengthOf(2);
         });
       });
 
       it('returns a new empty array without calling the callback', function() {
         const emptyContainer = new ChildViewContainer();
-        const callback = this.sinon.spy();
+        const callback = vi.fn();
         const result = emptyContainer.map(callback);
 
         expect(result).to.deep.equal([]);
         expect(emptyContainer.map(callback)).to.not.equal(result);
-        expect(callback).to.not.have.been.called;
+        expect(callback).not.toHaveBeenCalled();
       });
     });
 
     describe('#reduce', function() {
       it('reduces every child view with an initial value, index, and context', function() {
         const context = { multiplier: 2 };
-        const callback = this.sinon.spy(function(total, view, index) {
+        const callback = vi.fn(function(total, view, index) {
           expect(view).to.equal(views[index]);
           return total + (view.id * this.multiplier);
         });
 
         expect(container.reduce(callback, 1, context)).to.equal(13);
-        expect(callback).to.have.callCount(3);
-        callback.getCalls().forEach(call => {
-          expect(call.thisValue).to.equal(context);
-          expect(call.args).to.have.lengthOf(3);
+        expect(callback).toHaveBeenCalledTimes(3);
+        callback.mock.calls.forEach((args, index) => {
+          expect(callback.mock.contexts[index]).to.equal(context);
+          expect(args).to.have.lengthOf(3);
         });
       });
 
       it('uses the first child view when the initial value is omitted', function() {
-        const callback = this.sinon.spy((accumulator, view, index) => ({
+        const callback = vi.fn((accumulator, view, index) => ({
           ids: (accumulator.ids || [accumulator.id]).concat(view.id),
           index
         }));
@@ -98,38 +100,38 @@ describe('#ChildViewContainer', function() {
         const result = container.reduce(callback);
 
         expect(result).to.deep.equal({ ids: [1, 2, 3], index: 2 });
-        expect(callback).to.have.callCount(2);
-        expect(callback.firstCall.args[0]).to.equal(views[0]);
-        expect(callback.firstCall.args[1]).to.equal(views[1]);
-        expect(callback.firstCall.args[2]).to.equal(1);
-        expect(callback.secondCall.args[1]).to.equal(views[2]);
-        expect(callback.secondCall.args[2]).to.equal(2);
+        expect(callback).toHaveBeenCalledTimes(2);
+        expect(callback.mock.calls.at(0)[0]).to.equal(views[0]);
+        expect(callback.mock.calls.at(0)[1]).to.equal(views[1]);
+        expect(callback.mock.calls.at(0)[2]).to.equal(1);
+        expect(callback.mock.calls.at(1)[1]).to.equal(views[2]);
+        expect(callback.mock.calls.at(1)[2]).to.equal(2);
       });
 
       it('returns the exact initial value for an empty container', function() {
         const initialValue = {};
-        const callback = this.sinon.spy();
+        const callback = vi.fn();
 
         expect(new ChildViewContainer().reduce(callback, initialValue)).to.equal(initialValue);
-        expect(callback).to.not.have.been.called;
+        expect(callback).not.toHaveBeenCalled();
       });
 
       it('treats an explicitly supplied undefined as an initial value', function() {
-        const callback = this.sinon.spy((total, view) => (total || 0) + view.id);
+        const callback = vi.fn((total, view) => (total || 0) + view.id);
 
         expect(container.reduce(callback, undefined)).to.equal(6);
-        expect(callback).to.have.callCount(3);
-        expect(callback.firstCall.args[0]).to.be.undefined;
-        expect(callback.firstCall.args[1]).to.equal(views[0]);
-        expect(callback.firstCall.args[2]).to.equal(0);
+        expect(callback).toHaveBeenCalledTimes(3);
+        expect(callback.mock.calls.at(0)[0]).to.be.undefined;
+        expect(callback.mock.calls.at(0)[1]).to.equal(views[0]);
+        expect(callback.mock.calls.at(0)[2]).to.equal(0);
       });
 
       it('throws for an empty container without an initial value', function() {
-        const callback = this.sinon.spy();
+        const callback = vi.fn();
 
         expect(() => new ChildViewContainer().reduce(callback))
           .to.throw().with.property('code', 'MN0024');
-        expect(callback).to.not.have.been.called;
+        expect(callback).not.toHaveBeenCalled();
       });
     });
 
@@ -251,11 +253,12 @@ describe('#ChildViewContainer', function() {
     let container;
     let views;
 
-    function expectPredicateCall(call, index, context) {
-      expect(call.thisValue).to.equal(context);
-      expect(call.args).to.have.lengthOf(2);
-      expect(call.args[0]).to.equal(views[index]);
-      expect(call.args[1]).to.equal(index);
+    function expectPredicateCall(predicate, index, context) {
+      const args = predicate.mock.calls[index];
+      expect(predicate.mock.contexts[index]).to.equal(context);
+      expect(args).to.have.lengthOf(2);
+      expect(args[0]).to.equal(views[index]);
+      expect(args[1]).to.equal(index);
     }
 
     beforeEach(function() {
@@ -276,40 +279,40 @@ describe('#ChildViewContainer', function() {
     describe('#find', function() {
       it('returns the first matching child view and stops iterating', function() {
         const context = { minimumRank: 2 };
-        const predicate = this.sinon.spy(function(view) {
+        const predicate = vi.fn(function(view) {
           return view.rank >= this.minimumRank ? view : 0;
         });
 
         const foundView = container.find(predicate, context);
 
         expect(foundView).to.equal(views[1]);
-        expect(predicate).to.have.callCount(2);
-        expectPredicateCall(predicate.getCall(0), 0, context);
-        expectPredicateCall(predicate.getCall(1), 1, context);
+        expect(predicate).toHaveBeenCalledTimes(2);
+        expectPredicateCall(predicate, 0, context);
+        expectPredicateCall(predicate, 1, context);
       });
 
       it('returns undefined after every child view fails the predicate', function() {
-        const predicate = this.sinon.spy(() => false);
+        const predicate = vi.fn(() => false);
 
         expect(container.find(predicate)).to.be.undefined;
-        expect(predicate).to.have.callCount(3);
-        expectPredicateCall(predicate.getCall(0), 0, undefined);
-        expectPredicateCall(predicate.getCall(1), 1, undefined);
-        expectPredicateCall(predicate.getCall(2), 2, undefined);
+        expect(predicate).toHaveBeenCalledTimes(3);
+        expectPredicateCall(predicate, 0, undefined);
+        expectPredicateCall(predicate, 1, undefined);
+        expectPredicateCall(predicate, 2, undefined);
       });
 
       it('does not call the predicate for an empty container', function() {
-        const predicate = this.sinon.spy();
+        const predicate = vi.fn();
 
         expect(new ChildViewContainer().find(predicate)).to.be.undefined;
-        expect(predicate).to.not.have.been.called;
+        expect(predicate).not.toHaveBeenCalled();
       });
     });
 
     describe('#filter', function() {
       it('returns matching child views in order after visiting every child', function() {
         const context = { minimumRank: 2 };
-        const predicate = this.sinon.spy(function(view) {
+        const predicate = vi.fn(function(view) {
           return view.rank >= this.minimumRank ? view : 0;
         });
 
@@ -318,10 +321,10 @@ describe('#ChildViewContainer', function() {
         expect(matchingViews).to.have.lengthOf(2);
         expect(matchingViews[0]).to.equal(views[1]);
         expect(matchingViews[1]).to.equal(views[2]);
-        expect(predicate).to.have.callCount(3);
-        expectPredicateCall(predicate.getCall(0), 0, context);
-        expectPredicateCall(predicate.getCall(1), 1, context);
-        expectPredicateCall(predicate.getCall(2), 2, context);
+        expect(predicate).toHaveBeenCalledTimes(3);
+        expectPredicateCall(predicate, 0, context);
+        expectPredicateCall(predicate, 1, context);
+        expectPredicateCall(predicate, 2, context);
 
         matchingViews.pop();
         expect(container).to.have.lengthOf(3);
@@ -330,20 +333,20 @@ describe('#ChildViewContainer', function() {
       });
 
       it('returns an empty array without calling the predicate for an empty container', function() {
-        const predicate = this.sinon.spy();
+        const predicate = vi.fn();
         const emptyContainer = new ChildViewContainer();
         const result = emptyContainer.filter(predicate);
 
         expect(result).to.deep.equal([]);
         expect(emptyContainer.filter(predicate)).to.not.equal(result);
-        expect(predicate).to.not.have.been.called;
+        expect(predicate).not.toHaveBeenCalled();
       });
     });
 
     describe('#reject', function() {
       it('returns rejected child views in order after visiting every child', function() {
         const context = { minimumRank: 2 };
-        const predicate = this.sinon.spy(function(view) {
+        const predicate = vi.fn(function(view) {
           return view.rank >= this.minimumRank ? view : 0;
         });
 
@@ -351,10 +354,10 @@ describe('#ChildViewContainer', function() {
 
         expect(rejectedViews).to.have.lengthOf(1);
         expect(rejectedViews[0]).to.equal(views[0]);
-        expect(predicate).to.have.callCount(3);
-        expectPredicateCall(predicate.getCall(0), 0, context);
-        expectPredicateCall(predicate.getCall(1), 1, context);
-        expectPredicateCall(predicate.getCall(2), 2, context);
+        expect(predicate).toHaveBeenCalledTimes(3);
+        expectPredicateCall(predicate, 0, context);
+        expectPredicateCall(predicate, 1, context);
+        expectPredicateCall(predicate, 2, context);
 
         rejectedViews.pop();
         expect(container).to.have.lengthOf(3);
@@ -363,82 +366,82 @@ describe('#ChildViewContainer', function() {
       });
 
       it('returns an empty array without calling the predicate for an empty container', function() {
-        const predicate = this.sinon.spy();
+        const predicate = vi.fn();
         const emptyContainer = new ChildViewContainer();
         const result = emptyContainer.reject(predicate);
 
         expect(result).to.deep.equal([]);
         expect(emptyContainer.reject(predicate)).to.not.equal(result);
-        expect(predicate).to.not.have.been.called;
+        expect(predicate).not.toHaveBeenCalled();
       });
     });
 
     describe('#every', function() {
       it('returns false at the first child view that fails the predicate', function() {
         const context = { maximumRank: 1 };
-        const predicate = this.sinon.spy(function(view) {
+        const predicate = vi.fn(function(view) {
           return view.rank <= this.maximumRank ? 'pass' : 0;
         });
 
         expect(container.every(predicate, context)).to.be.false;
-        expect(predicate).to.have.callCount(2);
-        expectPredicateCall(predicate.getCall(0), 0, context);
-        expectPredicateCall(predicate.getCall(1), 1, context);
+        expect(predicate).toHaveBeenCalledTimes(2);
+        expectPredicateCall(predicate, 0, context);
+        expectPredicateCall(predicate, 1, context);
       });
 
       it('returns true after every child view passes the predicate', function() {
-        const predicate = this.sinon.spy(() => true);
+        const predicate = vi.fn(() => true);
 
         expect(container.every(predicate)).to.be.true;
-        expect(predicate).to.have.callCount(3);
-        expectPredicateCall(predicate.getCall(0), 0, undefined);
-        expectPredicateCall(predicate.getCall(1), 1, undefined);
-        expectPredicateCall(predicate.getCall(2), 2, undefined);
+        expect(predicate).toHaveBeenCalledTimes(3);
+        expectPredicateCall(predicate, 0, undefined);
+        expectPredicateCall(predicate, 1, undefined);
+        expectPredicateCall(predicate, 2, undefined);
       });
 
       it('returns true without calling the predicate for an empty container', function() {
-        const predicate = this.sinon.spy();
+        const predicate = vi.fn();
 
         expect(new ChildViewContainer().every(predicate)).to.be.true;
-        expect(predicate).to.not.have.been.called;
+        expect(predicate).not.toHaveBeenCalled();
       });
     });
 
     describe('#some', function() {
       it('returns true at the first child view that passes the predicate', function() {
         const context = { minimumRank: 2 };
-        const predicate = this.sinon.spy(function(view) {
+        const predicate = vi.fn(function(view) {
           return view.rank >= this.minimumRank ? view : null;
         });
 
         expect(container.some(predicate, context)).to.be.true;
-        expect(predicate).to.have.callCount(2);
-        expectPredicateCall(predicate.getCall(0), 0, context);
-        expectPredicateCall(predicate.getCall(1), 1, context);
+        expect(predicate).toHaveBeenCalledTimes(2);
+        expectPredicateCall(predicate, 0, context);
+        expectPredicateCall(predicate, 1, context);
       });
 
       it('returns false after every child view fails the predicate', function() {
-        const predicate = this.sinon.spy(() => false);
+        const predicate = vi.fn(() => false);
 
         expect(container.some(predicate)).to.be.false;
-        expect(predicate).to.have.callCount(3);
-        expectPredicateCall(predicate.getCall(0), 0, undefined);
-        expectPredicateCall(predicate.getCall(1), 1, undefined);
-        expectPredicateCall(predicate.getCall(2), 2, undefined);
+        expect(predicate).toHaveBeenCalledTimes(3);
+        expectPredicateCall(predicate, 0, undefined);
+        expectPredicateCall(predicate, 1, undefined);
+        expectPredicateCall(predicate, 2, undefined);
       });
 
       it('returns false without calling the predicate for an empty container', function() {
-        const predicate = this.sinon.spy();
+        const predicate = vi.fn();
 
         expect(new ChildViewContainer().some(predicate)).to.be.false;
-        expect(predicate).to.not.have.been.called;
+        expect(predicate).not.toHaveBeenCalled();
       });
     });
 
     describe('#partition', function() {
       it('partitions every child view into new ordered arrays', function() {
         const context = { minimumRank: 2 };
-        const predicate = this.sinon.spy(function(view) {
+        const predicate = vi.fn(function(view) {
           return view.rank >= this.minimumRank ? view : 0;
         });
 
@@ -450,10 +453,10 @@ describe('#ChildViewContainer', function() {
         expect(matchingViews[1]).to.equal(views[2]);
         expect(rejectedViews).to.have.lengthOf(1);
         expect(rejectedViews[0]).to.equal(views[0]);
-        expect(predicate).to.have.callCount(3);
-        expectPredicateCall(predicate.getCall(0), 0, context);
-        expectPredicateCall(predicate.getCall(1), 1, context);
-        expectPredicateCall(predicate.getCall(2), 2, context);
+        expect(predicate).toHaveBeenCalledTimes(3);
+        expectPredicateCall(predicate, 0, context);
+        expectPredicateCall(predicate, 1, context);
+        expectPredicateCall(predicate, 2, context);
 
         matchingViews.pop();
         rejectedViews.pop();
@@ -468,7 +471,7 @@ describe('#ChildViewContainer', function() {
       });
 
       it('returns two empty arrays without calling the predicate for an empty container', function() {
-        const predicate = this.sinon.spy();
+        const predicate = vi.fn();
         const emptyContainer = new ChildViewContainer();
         const result = emptyContainer.partition(predicate);
         const nextResult = emptyContainer.partition(predicate);
@@ -477,7 +480,7 @@ describe('#ChildViewContainer', function() {
         expect(nextResult).to.not.equal(result);
         expect(nextResult[0]).to.not.equal(result[0]);
         expect(nextResult[1]).to.not.equal(result[1]);
-        expect(predicate).to.not.have.been.called;
+        expect(predicate).not.toHaveBeenCalled();
       });
     });
   });
@@ -1053,7 +1056,7 @@ describe('#ChildViewContainer', function() {
       let container;
       let collection;
 
-      beforeEach(function() {
+      beforeEach(function(testContext) {
         collection = new Backbone.Collection([
           { text: 'foo' },
           { text: 'bar' },
@@ -1067,8 +1070,8 @@ describe('#ChildViewContainer', function() {
           container._add(view);
         });
 
-        this.modelGetSpies = collection.map(model => this.sinon.spy(model, 'get'));
-        this.viewsReference = container._views;
+        testContext.modelGetSpies = collection.map(model => vi.spyOn(model, 'get'));
+        testContext.viewsReference = container._views;
         container._sort('text');
       });
 
@@ -1078,29 +1081,31 @@ describe('#ChildViewContainer', function() {
         expect(container.findByIndex(2).model).to.equal(collection.models[0]);
       });
 
-      it('preserves the child array reference', function() {
-        expect(container._views).to.equal(this.viewsReference);
+      it('preserves the child array reference', function(testContext) {
+        expect(container._views).to.equal(testContext.viewsReference);
       });
 
-      it('evaluates each model attribute once', function() {
-        this.modelGetSpies.forEach(get => {
-          expect(get).to.have.been.calledOnce.and.calledWithExactly('text');
+      it('evaluates each model attribute once', function(testContext) {
+        testContext.modelGetSpies.forEach(get => {
+          expect(get).toHaveBeenCalledTimes(1);
+          expect(get).toHaveBeenCalledWith('text');
         });
       });
 
       it('checks attribute presence before reading it', function() {
         const Data = {
           key: model => model,
-          get: this.sinon.stub().throws(new Error('missing attribute was read')),
-          has: this.sinon.stub().returns(false),
+          get: vi.fn().mockImplementation(() => { throw new Error('missing attribute was read'); }),
+          has: vi.fn().mockReturnValue(false),
         };
         const presenceContainer = new ChildViewContainer(Data);
         const model = {};
         presenceContainer._add(new Backbone.View({ model }));
 
         expect(() => presenceContainer._sort('optional')).to.not.throw();
-        expect(Data.has).to.have.been.calledOnceWith(model, 'optional');
-        expect(Data.get).to.not.have.been.called;
+        expect(Data.has).toHaveBeenCalledTimes(1);
+        expect(Data.has.mock.calls.map(args => args.slice(0, 2))).toContainEqual([model, 'optional']);
+        expect(Data.get).not.toHaveBeenCalled();
       });
 
       describe('when a view does not have a model', function() {
@@ -1126,7 +1131,7 @@ describe('#ChildViewContainer', function() {
       let collection;
       let comparator;
 
-      beforeEach(function() {
+      beforeEach(function(testContext) {
         collection = new Backbone.Collection([
           { text: 'foo' },
           { text: 'bar' },
@@ -1140,19 +1145,19 @@ describe('#ChildViewContainer', function() {
           container._add(view);
         });
 
-        this.comparator = function(view) {
+        testContext.comparator = function(view) {
           return view.model.get('text').substring(1);
         };
 
-        comparator = this.sinon.spy(this, 'comparator');
+        comparator = vi.spyOn(testContext, 'comparator');
 
-        this.viewsReference = container._views;
-        container._sort(this.comparator, this);
+        testContext.viewsReference = container._views;
+        container._sort(testContext.comparator, testContext);
       });
 
-      it('should call the comparator with context', function() {
-        expect(comparator).to.have.been.calledOn(this);
-        expect(comparator).to.have.callCount(3);
+      it('should call the comparator with context', function(testContext) {
+        expect(comparator.mock.contexts).toContain(testContext);
+        expect(comparator).toHaveBeenCalledTimes(3);
       });
 
       it('should should re-sort the container', function() {
@@ -1161,8 +1166,8 @@ describe('#ChildViewContainer', function() {
         expect(container.findByIndex(2).model).to.equal(collection.models[0]);
       });
 
-      it('preserves the child array reference', function() {
-        expect(container._views).to.equal(this.viewsReference);
+      it('preserves the child array reference', function(testContext) {
+        expect(container._views).to.equal(testContext.viewsReference);
       });
 
       it('keeps equal criteria stable and evaluates each view once', function() {
@@ -1172,12 +1177,12 @@ describe('#ChildViewContainer', function() {
           Object.assign(new Backbone.View(), { rank: 1 }),
           Object.assign(new Backbone.View(), { rank: 0 })
         ];
-        const rank = this.sinon.spy(view => view.rank);
+        const rank = vi.fn(view => view.rank);
 
         stableContainer._set(views, true);
         stableContainer._sort(rank);
 
-        expect(rank).to.have.callCount(3);
+        expect(rank).toHaveBeenCalledTimes(3);
         expect(stableContainer.toArray()).to.deep.equal([views[2], views[0], views[1]]);
       });
 
@@ -1247,7 +1252,7 @@ describe('#ChildViewContainer', function() {
       let collection;
       let comparator;
 
-      beforeEach(function() {
+      beforeEach(function(testContext) {
         collection = new Backbone.Collection([
           { text: 'foo' },
           { text: 'bar' },
@@ -1261,20 +1266,20 @@ describe('#ChildViewContainer', function() {
           container._add(view);
         });
 
-        this.comparator = function(viewa, viewb) {
+        testContext.comparator = function(viewa, viewb) {
           const aText = viewa.model.get('text');
           const bText = viewb.model.get('text');
           return bText.localeCompare(aText);
         };
 
-        comparator = this.sinon.spy(this, 'comparator');
+        comparator = vi.spyOn(testContext, 'comparator');
 
-        this.viewsReference = container._views;
-        this.result = container._sort(this.comparator, this);
+        testContext.viewsReference = container._views;
+        testContext.result = container._sort(testContext.comparator, testContext);
       });
 
-      it('should call the comparator with context', function() {
-        expect(comparator).to.have.been.calledOn(this);
+      it('should call the comparator with context', function(testContext) {
+        expect(comparator.mock.contexts).toContain(testContext);
       });
 
       it('should re-sort the container', function() {
@@ -1283,9 +1288,9 @@ describe('#ChildViewContainer', function() {
         expect(container.findByIndex(2).model).to.equal(collection.models[1]);
       });
 
-      it('retains native binary sort mutation and return behavior', function() {
-        expect(container._views).to.equal(this.viewsReference);
-        expect(this.result).to.equal(this.viewsReference);
+      it('retains native binary sort mutation and return behavior', function(testContext) {
+        expect(container._views).to.equal(testContext.viewsReference);
+        expect(testContext.result).to.equal(testContext.viewsReference);
       });
     });
   });

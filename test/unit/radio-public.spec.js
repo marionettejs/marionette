@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, afterEach } from 'vitest';
 import { Channel, Requests, Radio, createRadio } from '../../packages/radio/src/index.ts';
 
 // These tests exercise the package's public entry, including ownership and logging.
@@ -28,14 +29,14 @@ describe('Radio public components', function() {
   it('resets a standalone channel and its owned listeners', function() {
     const owner = new Channel('owner');
     const source = new Channel('source');
-    const callback = this.sinon.spy();
+    const callback = vi.fn();
     owner.on('event', callback);
     owner.listenTo(source, 'event', callback);
     owner.reply('value', 'reply');
     expect(owner.reset()).to.equal(owner);
     owner.trigger('event');
     source.trigger('event');
-    expect(callback).to.not.have.been.called;
+    expect(callback).not.toHaveBeenCalled();
     expect(owner.request('value')).to.be.undefined;
   });
 
@@ -52,27 +53,27 @@ describe('Radio public components', function() {
   });
 
   it('uses default Radio warning hooks for standalone Requests and Channel', function() {
-    const warn = this.sinon.stub(Radio, 'debugLog');
+    const warn = vi.spyOn(Radio, 'debugLog').mockImplementation(() => undefined);
     const service = { ...Requests };
     const channel = new Channel('private');
     service.request('quiet');
     channel.request('quiet');
-    expect(warn).to.not.have.been.called;
+    expect(warn).not.toHaveBeenCalled();
     Radio.setDebug();
     service.request('missing');
     channel.request('missing');
-    expect(warn.firstCall).to.have.been.calledOn(Radio)
-      .and.calledWithExactly('An unhandled request was fired', 'missing', undefined);
-    expect(warn.secondCall).to.have.been.calledOn(Radio)
-      .and.calledWithExactly('An unhandled request was fired', 'missing', 'private');
+    expect(warn.mock.contexts[0]).toEqual(Radio);
+    expect(warn.mock.calls.at(0)).toEqual(['An unhandled request was fired', 'missing', undefined]);
+    expect(warn.mock.contexts[1]).toEqual(Radio);
+    expect(warn.mock.calls.at(1)).toEqual(['An unhandled request was fired', 'missing', 'private']);
   });
 
   it('keeps debug switches and hooks local to each Radio instance', function() {
     const first = createRadio();
     const second = createRadio();
-    const firstWarn = this.sinon.stub(first, 'debugLog');
-    const secondWarn = this.sinon.stub(second, 'debugLog');
-    const defaultWarn = this.sinon.stub(Radio, 'debugLog');
+    const firstWarn = vi.spyOn(first, 'debugLog').mockImplementation(() => undefined);
+    const secondWarn = vi.spyOn(second, 'debugLog').mockImplementation(() => undefined);
+    const defaultWarn = vi.spyOn(Radio, 'debugLog').mockImplementation(() => undefined);
     const privateChannel = new first.Channel('private');
     first.setDebug();
     second.setDebug();
@@ -81,12 +82,15 @@ describe('Radio public components', function() {
     first.request('app', 'first-request');
     second.request('app', 'second-request');
     Radio.request('app', 'default-request');
-    expect(firstWarn).to.have.been.calledTwice.and.always.calledOn(first);
-    expect(secondWarn).to.have.been.calledOnce.and.calledOn(second);
-    expect(defaultWarn).to.have.been.calledOnce.and.calledOn(Radio);
+    expect(firstWarn).toHaveBeenCalledTimes(2);
+    expect(firstWarn.mock.contexts).toEqual(Array(firstWarn.mock.calls.length).fill(first));
+    expect(secondWarn).toHaveBeenCalledTimes(1);
+    expect(secondWarn.mock.contexts).toContain(second);
+    expect(defaultWarn).toHaveBeenCalledTimes(1);
+    expect(defaultWarn.mock.contexts).toContain(Radio);
     first.setDebug(false);
     first.request('app', 'disabled');
-    expect(firstWarn).to.have.been.calledTwice;
+    expect(firstWarn).toHaveBeenCalledTimes(2);
     expect(privateChannel).to.be.instanceOf(first.Channel);
     expect(privateChannel).to.not.equal(first.channel('private'));
   });
@@ -94,36 +98,39 @@ describe('Radio public components', function() {
   it('uses the latest activity hook for events and requests while tuned in', function() {
     const radio = createRadio();
     const channel = radio.channel('app');
-    const firstLog = this.sinon.stub(radio, 'log');
+    const firstLog = vi.spyOn(radio, 'log').mockImplementation(() => undefined);
     channel.reply('value', 'response');
     radio.tuneIn('app');
     channel.trigger('event', 1);
     expect(channel.request('value', 2)).to.equal('response');
-    expect(firstLog).to.have.been.calledTwice.and.always.calledOn(radio);
-    expect(firstLog.firstCall).to.have.been.calledWithExactly('app', 'event', 1);
-    expect(firstLog.secondCall).to.have.been.calledWithExactly('app', 'value', 2);
+    expect(firstLog).toHaveBeenCalledTimes(2);
+    expect(firstLog.mock.contexts).toEqual(Array(firstLog.mock.calls.length).fill(radio));
+    expect(firstLog.mock.calls.at(0)).toEqual(['app', 'event', 1]);
+    expect(firstLog.mock.calls.at(1)).toEqual(['app', 'value', 2]);
 
-    firstLog.restore();
-    const replacement = this.sinon.stub(radio, 'log');
+    firstLog.mockRestore();
+    const replacement = vi.spyOn(radio, 'log').mockImplementation(() => undefined);
     channel.trigger('event', 3);
     channel.request('value', 4);
-    expect(replacement).to.have.been.calledTwice;
+    expect(replacement).toHaveBeenCalledTimes(2);
     radio.tuneOut('app');
     channel.trigger('event', 5);
     channel.request('value', 6);
-    expect(replacement).to.have.been.calledTwice;
+    expect(replacement).toHaveBeenCalledTimes(2);
   });
 
   it('keeps tuning hooks separate between registries', function() {
     const first = createRadio();
     const second = createRadio();
-    const firstLog = this.sinon.stub(first, 'log');
-    const secondLog = this.sinon.stub(second, 'log');
+    const firstLog = vi.spyOn(first, 'log').mockImplementation(() => undefined);
+    const secondLog = vi.spyOn(second, 'log').mockImplementation(() => undefined);
     first.tuneIn('app');
     second.tuneIn('app');
     first.trigger('app', 'event', 'first');
     second.request('app', 'request', 'second');
-    expect(firstLog).to.have.been.calledOnce.and.calledWithExactly('app', 'event', 'first');
-    expect(secondLog).to.have.been.calledOnce.and.calledWithExactly('app', 'request', 'second');
+    expect(firstLog).toHaveBeenCalledTimes(1);
+    expect(firstLog).toHaveBeenCalledWith('app', 'event', 'first');
+    expect(secondLog).toHaveBeenCalledTimes(1);
+    expect(secondLog).toHaveBeenCalledWith('app', 'request', 'second');
   });
 });

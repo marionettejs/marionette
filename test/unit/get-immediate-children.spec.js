@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import _ from 'underscore';
 import View from '../../src/modules/view';
 
 describe('_getImmediateChildren', function() {

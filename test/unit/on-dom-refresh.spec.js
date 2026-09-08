@@ -1,3 +1,5 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { setFixtures } from '../setup/fixtures.js';
 import _ from 'underscore';
 import $ from 'jquery';
 import View from '../../src/modules/view';
@@ -11,12 +13,12 @@ describe('onDomRefresh', function() {
   let MnView;
 
   beforeEach(function() {
-    this.setFixtures($('<div id="region"></div>'));
+    setFixtures($('<div id="region"></div>'));
     attachedRegion = new Region({el: '#region'});
     detachedRegion = new Region({el: $('<div></div>')[0]});
     MnView = View.extend({
       template: _.noop,
-      onDomRefresh: this.sinon.stub()
+      onDomRefresh: vi.fn()
     });
   });
 
@@ -30,7 +32,7 @@ describe('onDomRefresh', function() {
     });
 
     it('should never trigger onDomRefresh', function() {
-      expect(mnView.onDomRefresh).not.to.have.been.calledOnce;
+      expect(mnView.onDomRefresh).not.toHaveBeenCalledTimes(1);
     });
   });
 
@@ -44,7 +46,7 @@ describe('onDomRefresh', function() {
     });
 
     it('should trigger onDomRefresh on the view', function() {
-      expect(mnView.onDomRefresh).to.have.been.calledOnce;
+      expect(mnView.onDomRefresh).toHaveBeenCalledTimes(1);
     });
   });
 

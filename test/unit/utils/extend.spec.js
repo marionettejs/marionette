@@ -1,3 +1,4 @@
+import { vi, describe, it, expect } from 'vitest';
 import {
   Application,
   Behavior,
@@ -23,11 +24,11 @@ describe('extend', function() {
     const Parent = function(first, second) {
       this.values = [first, second];
     };
-    const constructor = this.sinon.spy(function(value) {
+    const constructor = vi.fn(function(value) {
       this.explicitValue = value;
     });
     const ExplicitChild = extend.call(Parent, { constructor });
-    const inheritedConstructor = this.sinon.spy();
+    const inheritedConstructor = vi.fn();
     const DefaultChild = extend.call(Parent, Object.assign(
       Object.create({ constructor: inheritedConstructor }),
       { ownMethod() {} }
@@ -43,15 +44,15 @@ describe('extend', function() {
 
     expect(ExplicitChild).to.equal(constructor);
     expect(explicit.explicitValue).to.equal('explicit');
-    expect(constructor).to.have.been.calledOnce;
+    expect(constructor).toHaveBeenCalledTimes(1);
     expect(fallback.values).to.deep.equal(['first', 'second']);
     expect(new ReturningChild()).to.equal(returnedObject);
-    expect(inheritedConstructor).to.not.have.been.called;
+    expect(inheritedConstructor).not.toHaveBeenCalled();
   });
 
   it('owns prototype inputs while preserving the parent prototype chain', function() {
     const Parent = function() {};
-    const constructorSetter = this.sinon.spy();
+    const constructorSetter = vi.fn();
     Object.defineProperty(Parent.prototype, 'constructor', {
       configurable: true,
       set: constructorSetter
@@ -67,7 +68,7 @@ describe('extend', function() {
     expect(Child.prototype).to.not.have.property('inheritedMethod');
     expect(Child.prototype.parentMethod).to.equal(Parent.prototype.parentMethod);
     expect(Child.prototype.constructor).to.equal(Child);
-    expect(constructorSetter).to.not.have.been.called;
+    expect(constructorSetter).not.toHaveBeenCalled();
     expect(Object.getOwnPropertyDescriptor(Child.prototype, 'constructor')).to.deep.equal({
       configurable: true,
       enumerable: true,
@@ -79,7 +80,7 @@ describe('extend', function() {
 
   it('defines child overrides without dispatching through parent setters', function() {
     const Parent = function() {};
-    const setter = this.sinon.spy();
+    const setter = vi.fn();
     Object.defineProperty(Parent.prototype, 'status', {
       configurable: true,
       set: setter
@@ -88,7 +89,7 @@ describe('extend', function() {
     const Child = extend.call(Parent, { status: 'child' });
     const descriptor = Object.getOwnPropertyDescriptor(Child.prototype, 'status');
 
-    expect(setter).to.not.have.been.called;
+    expect(setter).not.toHaveBeenCalled();
     expect(descriptor).to.deep.equal({
       configurable: true,
       enumerable: true,
@@ -112,7 +113,7 @@ describe('extend', function() {
 
   it('eagerly copies an enumerable accessor value into a data property', function() {
     const protoProps = {};
-    const getter = this.sinon.stub().returns('snapshot');
+    const getter = vi.fn().mockReturnValue('snapshot');
     Object.defineProperty(protoProps, 'status', {
       enumerable: true,
       get: getter
@@ -121,7 +122,7 @@ describe('extend', function() {
     const Child = extend.call(function() {}, protoProps);
     const descriptor = Object.getOwnPropertyDescriptor(Child.prototype, 'status');
 
-    expect(getter).to.have.been.calledOnce;
+    expect(getter).toHaveBeenCalledTimes(1);
     expect(descriptor).to.deep.equal({
       configurable: true,
       enumerable: true,

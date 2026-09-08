@@ -1,3 +1,5 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import '../../setup/backbone.js';
 // Anything testing the integration of the ViewMixin, but not the ViewMixin itself.
 
 import _ from 'underscore';
@@ -27,9 +29,9 @@ describe('CollectionView - ViewMixin', function() {
     beforeEach(function() {
       const MyCollectionView = CollectionView.extend();
 
-      initBehaviorsSpy = this.sinon.spy(MyCollectionView.prototype, '_initBehaviors');
-      initializeSpy = this.sinon.spy(MyCollectionView.prototype, 'initialize');
-      delegateEntityEventsSpy = this.sinon.spy(MyCollectionView.prototype, 'delegateEntityEvents');
+      initBehaviorsSpy = vi.spyOn(MyCollectionView.prototype, '_initBehaviors');
+      initializeSpy = vi.spyOn(MyCollectionView.prototype, 'initialize');
+      delegateEntityEventsSpy = vi.spyOn(MyCollectionView.prototype, 'delegateEntityEvents');
 
       collectionView = new MyCollectionView(mergeOptions);
     });
@@ -41,15 +43,13 @@ describe('CollectionView - ViewMixin', function() {
     });
 
     it('should call _initBehaviors', function() {
-      expect(initBehaviorsSpy)
-        .to.have.been.calledOnce
-        .and.calledBefore(initializeSpy);
+      expect(initBehaviorsSpy).toHaveBeenCalledTimes(1);
+      expect(initBehaviorsSpy).toHaveBeenCalledBefore(initializeSpy);
     });
 
     it('should call delegateEntityEvents', function() {
-      expect(delegateEntityEventsSpy)
-        .to.have.been.calledOnce
-        .and.calledAfter(initializeSpy);
+      expect(delegateEntityEventsSpy).toHaveBeenCalledTimes(1);
+      expect(delegateEntityEventsSpy).toHaveBeenCalledAfter(initializeSpy);
     });
   });
 
@@ -69,7 +69,7 @@ describe('CollectionView - ViewMixin', function() {
 
       collectionView = new MyCollectionView({ collection, childViewEventPrefix: 'childview' });
 
-      handlerSpy = this.sinon.spy(collectionView, '_childViewEventHandler');
+      handlerSpy = vi.spyOn(collectionView, '_childViewEventHandler');
 
       collectionView.render();
     });
@@ -77,13 +77,12 @@ describe('CollectionView - ViewMixin', function() {
     it('should call _childViewEventHandler', function() {
       const childView = collectionView.children.findByIndex(0);
 
-      handlerSpy.resetHistory();
+      handlerSpy.mockClear();
 
       childView.triggerMethod(eventArg, dataArg);
 
-      expect(handlerSpy)
-        .to.be.calledOnce
-        .and.calledWith(eventArg, dataArg);
+      expect(handlerSpy).toHaveBeenCalledTimes(1);
+      expect(handlerSpy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([eventArg, dataArg]);
     });
 
     describe('when the childView is removed from the collectionView', function() {
@@ -92,11 +91,11 @@ describe('CollectionView - ViewMixin', function() {
 
         collectionView.removeChildView(childView);
 
-        handlerSpy.resetHistory();
+        handlerSpy.mockClear();
 
         childView.triggerMethod(eventArg, dataArg);
 
-        expect(handlerSpy).to.not.be.called;
+        expect(handlerSpy).not.toHaveBeenCalled();
       });
     });
   });

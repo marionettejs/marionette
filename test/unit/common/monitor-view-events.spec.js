@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import View from '../../../src/modules/view';
 import monitorViewEvents from '../../../src/modules/common/monitor-view-events';
 
@@ -42,7 +43,7 @@ describe('monitorViewEvents', function() {
   it('stops child traversal and propagates the first exception', function() {
     const view = new View();
     const error = new Error('child attach failed');
-    const later = { _isAttached: false, triggerMethod: this.sinon.spy() };
+    const later = { _isAttached: false, triggerMethod: vi.fn() };
     view._getImmediateChildren = () => [{
       _isAttached: false,
       triggerMethod() {
@@ -52,7 +53,7 @@ describe('monitorViewEvents', function() {
 
     expect(() => view.trigger('attach', view)).to.throw(error);
     expect(later._isAttached).to.be.false;
-    expect(later.triggerMethod).to.not.have.been.called;
+    expect(later.triggerMethod).not.toHaveBeenCalled();
   });
 
   describe('when the monitor is disabled', function() {
@@ -65,12 +66,12 @@ describe('monitorViewEvents', function() {
 
       view = new NonMonitoredView();
 
-      this.sinon.spy(view, 'on');
+      vi.spyOn(view, 'on');
     });
 
     it('should not attach events', function() {
       monitorViewEvents(view);
-      expect(view.on).to.not.have.been.called;
+      expect(view.on).not.toHaveBeenCalled();
     });
   });
 
@@ -82,12 +83,12 @@ describe('monitorViewEvents', function() {
 
       monitorViewEvents(view);
 
-      this.sinon.spy(view, 'on');
+      vi.spyOn(view, 'on');
     });
 
     it('should not attach events', function() {
       monitorViewEvents(view);
-      expect(view.on).to.not.have.been.called;
+      expect(view.on).not.toHaveBeenCalled();
     });
   });
 });

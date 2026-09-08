@@ -1,3 +1,5 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import '../../setup/backbone.js';
 'use strict';
 
 import _ from 'underscore';
@@ -19,7 +21,7 @@ describe('Behaviors Mixin', function() {
     let FooBehavior;
 
     beforeEach(function() {
-      fooInitializeStub = this.sinon.stub();
+      fooInitializeStub = vi.fn();
       behaviorsInstance = new Behaviors();
       FooBehavior = Behavior.extend({initialize: fooInitializeStub});
     });
@@ -43,7 +45,7 @@ describe('Behaviors Mixin', function() {
       });
 
       it('should call initialize when a behavior is created', function() {
-        expect(fooInitializeStub).to.be.calledOnce;
+        expect(fooInitializeStub).toHaveBeenCalledTimes(1);
       });
 
       it('should have behaviors', function() {
@@ -58,7 +60,7 @@ describe('Behaviors Mixin', function() {
       });
 
       it('should call initialize when a behavior is created', function() {
-        expect(fooInitializeStub).to.be.calledOnce;
+        expect(fooInitializeStub).toHaveBeenCalledTimes(1);
       });
 
       it('should have behaviors', function() {
@@ -71,8 +73,8 @@ describe('Behaviors Mixin', function() {
       let bazInitializeStub;
 
       beforeEach(function() {
-        barInitializeStub = this.sinon.stub();
-        bazInitializeStub = this.sinon.stub();
+        barInitializeStub = vi.fn();
+        bazInitializeStub = vi.fn();
 
         let BarBehavior = Behavior.extend({
           initialize: barInitializeStub,
@@ -89,12 +91,12 @@ describe('Behaviors Mixin', function() {
       });
 
       it('should call initialize when a behavior is created', function() {
-        expect(fooInitializeStub).to.be.calledOnce;
-        expect(bazInitializeStub).not.to.have.been.called;
+        expect(fooInitializeStub).toHaveBeenCalledTimes(1);
+        expect(bazInitializeStub).not.toHaveBeenCalled();
       });
 
       it('should call initialize when a nested behavior is created', function() {
-        expect(barInitializeStub).to.be.calledOnce;
+        expect(barInitializeStub).toHaveBeenCalledTimes(1);
       });
 
       it('should have behaviors', function() {
@@ -106,7 +108,7 @@ describe('Behaviors Mixin', function() {
       let barInitializeStub;
 
       beforeEach(function() {
-        barInitializeStub = this.sinon.stub();
+        barInitializeStub = vi.fn();
 
         let BarBehavior = Behavior.extend({
           initialize: barInitializeStub,
@@ -122,11 +124,11 @@ describe('Behaviors Mixin', function() {
       });
 
       it('should call initialize when a behavior is created', function() {
-        expect(fooInitializeStub).to.be.calledOnce;
+        expect(fooInitializeStub).toHaveBeenCalledTimes(1);
       });
 
       it('should call initialize when a nested behavior is created', function() {
-        expect(barInitializeStub).to.be.calledOnce;
+        expect(barInitializeStub).toHaveBeenCalledTimes(1);
       });
 
       it('should have behaviors', function() {
@@ -146,8 +148,8 @@ describe('Behaviors Mixin', function() {
       FooBehavior = Behavior.extend({});
       BarBehavior = Behavior.extend({});
 
-      this.sinon.spy(FooBehavior.prototype, 'delegateEntityEvents');
-      this.sinon.spy(BarBehavior.prototype, 'delegateEntityEvents');
+      vi.spyOn(FooBehavior.prototype, 'delegateEntityEvents');
+      vi.spyOn(BarBehavior.prototype, 'delegateEntityEvents');
 
       behaviorsInstance.behaviors = {foo: FooBehavior, bar: BarBehavior};
       behaviorsInstance._initBehaviors();
@@ -156,8 +158,8 @@ describe('Behaviors Mixin', function() {
     it('should invoke delegateEntityEvents', function() {
       behaviorsInstance._delegateBehaviorEntityEvents();
 
-      expect(FooBehavior.prototype.delegateEntityEvents).to.have.been.calledOnce;
-      expect(BarBehavior.prototype.delegateEntityEvents).to.have.been.calledOnce;
+      expect(FooBehavior.prototype.delegateEntityEvents).toHaveBeenCalledTimes(1);
+      expect(BarBehavior.prototype.delegateEntityEvents).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -171,8 +173,8 @@ describe('Behaviors Mixin', function() {
       FooBehavior = Behavior.extend({});
       BarBehavior = Behavior.extend({});
 
-      this.sinon.stub(FooBehavior.prototype, 'undelegateEntityEvents');
-      this.sinon.stub(BarBehavior.prototype, 'undelegateEntityEvents');
+      vi.spyOn(FooBehavior.prototype, 'undelegateEntityEvents').mockImplementation(() => undefined);
+      vi.spyOn(BarBehavior.prototype, 'undelegateEntityEvents').mockImplementation(() => undefined);
 
       behaviorsInstance.behaviors = {foo: FooBehavior, bar: BarBehavior};
       behaviorsInstance._initBehaviors();
@@ -181,20 +183,20 @@ describe('Behaviors Mixin', function() {
     it('should invoke undelegateEntityEvents', function() {
       behaviorsInstance._undelegateBehaviorEntityEvents();
 
-      expect(FooBehavior.prototype.undelegateEntityEvents).to.have.been.calledOnce;
-      expect(BarBehavior.prototype.undelegateEntityEvents).to.have.been.calledOnce;
+      expect(FooBehavior.prototype.undelegateEntityEvents).toHaveBeenCalledTimes(1);
+      expect(BarBehavior.prototype.undelegateEntityEvents).toHaveBeenCalledTimes(1);
     });
 
     it('should finish the original Behavior snapshot when one removes itself', function() {
       const fooBehavior = behaviorsInstance._behaviors[0];
-      FooBehavior.prototype.undelegateEntityEvents.callsFake(() => {
+      FooBehavior.prototype.undelegateEntityEvents.mockImplementation(() => {
         behaviorsInstance._removeBehavior(fooBehavior);
       });
 
       behaviorsInstance._undelegateBehaviorEntityEvents();
 
-      expect(FooBehavior.prototype.undelegateEntityEvents).to.have.been.calledOnce;
-      expect(BarBehavior.prototype.undelegateEntityEvents).to.have.been.calledOnce;
+      expect(FooBehavior.prototype.undelegateEntityEvents).toHaveBeenCalledTimes(1);
+      expect(BarBehavior.prototype.undelegateEntityEvents).toHaveBeenCalledTimes(1);
     });
 
     it('should allow rollback before Behaviors are initialized', function() {
@@ -214,8 +216,8 @@ describe('Behaviors Mixin', function() {
       FooBehavior = Behavior.extend({});
       BarBehavior = Behavior.extend({});
 
-      this.sinon.stub(FooBehavior.prototype, 'destroy');
-      this.sinon.stub(BarBehavior.prototype, 'destroy');
+      vi.spyOn(FooBehavior.prototype, 'destroy').mockImplementation(() => undefined);
+      vi.spyOn(BarBehavior.prototype, 'destroy').mockImplementation(() => undefined);
 
       behaviorsInstance.behaviors = {foo: FooBehavior, bar: BarBehavior};
       behaviorsInstance._initBehaviors();
@@ -224,17 +226,17 @@ describe('Behaviors Mixin', function() {
     it('should invoke destroy with options argument', function() {
       behaviorsInstance._destroyBehaviors({foo: 'bar'});
 
-      expect(FooBehavior.prototype.destroy)
-        .to.have.been.calledOnce.and.calledWith({foo: 'bar'});
-      expect(BarBehavior.prototype.destroy)
-        .to.have.been.calledOnce.and.calledWith({foo: 'bar'});
+      expect(FooBehavior.prototype.destroy).toHaveBeenCalledTimes(1);
+      expect(FooBehavior.prototype.destroy.mock.calls.map(args => args.slice(0, 1))).toContainEqual([{foo: 'bar'}]);
+      expect(BarBehavior.prototype.destroy).toHaveBeenCalledTimes(1);
+      expect(BarBehavior.prototype.destroy.mock.calls.map(args => args.slice(0, 1))).toContainEqual([{foo: 'bar'}]);
     });
 
     it('should invoke destroy without arguments', function() {
       behaviorsInstance._destroyBehaviors();
 
-      expect(FooBehavior.prototype.destroy).to.have.been.calledOnce;
-      expect(BarBehavior.prototype.destroy).to.have.been.calledOnce;
+      expect(FooBehavior.prototype.destroy).toHaveBeenCalledTimes(1);
+      expect(BarBehavior.prototype.destroy).toHaveBeenCalledTimes(1);
     });
 
     it('should allow teardown before Behaviors are initialized', function() {
@@ -290,8 +292,8 @@ describe('Behaviors Mixin', function() {
       FooBehavior = Behavior.extend({});
       BarBehavior = Behavior.extend({});
 
-      this.sinon.spy(FooBehavior.prototype, 'bindUIElements');
-      this.sinon.spy(BarBehavior.prototype, 'bindUIElements');
+      vi.spyOn(FooBehavior.prototype, 'bindUIElements');
+      vi.spyOn(BarBehavior.prototype, 'bindUIElements');
 
       behaviorsInstance.behaviors = {foo: FooBehavior, bar: BarBehavior};
       behaviorsInstance._initBehaviors();
@@ -300,8 +302,8 @@ describe('Behaviors Mixin', function() {
     it('should invoke bindUIElements', function() {
       behaviorsInstance._bindBehaviorUIElements();
 
-      expect(FooBehavior.prototype.bindUIElements).to.have.been.calledOnce;
-      expect(BarBehavior.prototype.bindUIElements).to.have.been.calledOnce;
+      expect(FooBehavior.prototype.bindUIElements).toHaveBeenCalledTimes(1);
+      expect(BarBehavior.prototype.bindUIElements).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -315,8 +317,8 @@ describe('Behaviors Mixin', function() {
       FooBehavior = Behavior.extend({});
       BarBehavior = Behavior.extend({});
 
-      this.sinon.spy(FooBehavior.prototype, 'unbindUIElements');
-      this.sinon.spy(BarBehavior.prototype, 'unbindUIElements');
+      vi.spyOn(FooBehavior.prototype, 'unbindUIElements');
+      vi.spyOn(BarBehavior.prototype, 'unbindUIElements');
 
       behaviorsInstance.behaviors = {foo: FooBehavior, bar: BarBehavior};
       behaviorsInstance._initBehaviors();
@@ -325,8 +327,8 @@ describe('Behaviors Mixin', function() {
     it('should invoke unbindUIElements', function() {
       behaviorsInstance._unbindBehaviorUIElements();
 
-      expect(FooBehavior.prototype.unbindUIElements).to.have.been.calledOnce;
-      expect(BarBehavior.prototype.unbindUIElements).to.have.been.calledOnce;
+      expect(FooBehavior.prototype.unbindUIElements).toHaveBeenCalledTimes(1);
+      expect(BarBehavior.prototype.unbindUIElements).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -338,10 +340,10 @@ describe('Behaviors Mixin', function() {
     beforeEach(function() {
       behaviorsInstance = new Behaviors();
       FooBehavior = Behavior.extend({
-        onFoo: this.sinon.stub()
+        onFoo: vi.fn()
       });
       BarBehavior = Behavior.extend({
-        onFoo: this.sinon.stub()
+        onFoo: vi.fn()
       });
 
       behaviorsInstance.behaviors = {foo: FooBehavior, bar: BarBehavior};
@@ -351,12 +353,10 @@ describe('Behaviors Mixin', function() {
     it('should invoke events', function() {
       behaviorsInstance._triggerEventOnBehaviors('foo', 'view', 'options');
 
-      expect(FooBehavior.prototype.onFoo)
-        .to.have.been.calledOnce
-        .and.calledWith('view', 'options');
-      expect(BarBehavior.prototype.onFoo)
-        .to.have.been.calledOnce
-        .and.calledWith('view', 'options');
+      expect(FooBehavior.prototype.onFoo).toHaveBeenCalledTimes(1);
+      expect(FooBehavior.prototype.onFoo.mock.calls.map(args => args.slice(0, 2))).toContainEqual(['view', 'options']);
+      expect(BarBehavior.prototype.onFoo).toHaveBeenCalledTimes(1);
+      expect(BarBehavior.prototype.onFoo.mock.calls.map(args => args.slice(0, 2))).toContainEqual(['view', 'options']);
     });
   });
 });

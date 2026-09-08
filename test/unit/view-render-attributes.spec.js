@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 
 import CollectionView from '../../src/modules/collection-view';
@@ -115,18 +116,18 @@ describe('View#renderAttributes', function() {
     root.setAttribute('data-managed', 'external');
     root.setAttribute('data-unrelated', 'keep');
     const state = { managed: 'applied' };
-    const attributes = this.sinon.spy(function() {
+    const attributes = vi.fn(function() {
       return { 'data-managed': state.managed };
     });
-    const id = this.sinon.spy(() => 'applied-id');
-    const className = this.sinon.spy(() => 'applied-class');
+    const id = vi.fn(() => 'applied-id');
+    const className = vi.fn(() => 'applied-class');
     const SuppliedElView = View.extend({ attributes, className, id });
 
     const view = new SuppliedElView({ el: root });
 
-    expect(attributes).not.to.have.been.called;
-    expect(id).not.to.have.been.called;
-    expect(className).not.to.have.been.called;
+    expect(attributes).not.toHaveBeenCalled();
+    expect(id).not.toHaveBeenCalled();
+    expect(className).not.toHaveBeenCalled();
     expect(root.id).to.equal('external-id');
     expect(root.className).to.equal('external-class');
     expect(root.getAttribute('data-managed')).to.equal('external');
@@ -197,55 +198,55 @@ describe('View#renderAttributes', function() {
   });
 
   it('does not evaluate declarations while destroying or destroyed', function() {
-    const attributes = this.sinon.stub().returns({ title: 'resolved' });
+    const attributes = vi.fn().mockReturnValue({ title: 'resolved' });
     const AttributeView = View.extend({ attributes });
     const view = new AttributeView();
     const returns = [];
-    attributes.resetHistory();
+    attributes.mockClear();
     view.on('before:destroy', () => returns.push(view.renderAttributes()));
 
     view.destroy();
     returns.push(view.renderAttributes());
 
     expect(returns).to.deep.equal([view, view]);
-    expect(attributes).not.to.have.been.called;
+    expect(attributes).not.toHaveBeenCalled();
   });
 
   it('does not render templates, emit lifecycle events, or rebind composition', function() {
     let title = 'initial';
-    const attributes = this.sinon.spy(() => ({ title }));
-    const template = this.sinon.stub().returns('<span>rendered</span>');
+    const attributes = vi.fn(() => ({ title }));
+    const template = vi.fn().mockReturnValue('<span>rendered</span>');
     const AttributeView = View.extend({ attributes, template });
     const view = new AttributeView();
     const events = [];
-    const bindUIElements = this.sinon.spy(view, 'bindUIElements');
-    const delegateEvents = this.sinon.spy(view, 'delegateEvents');
-    const reInitRegions = this.sinon.spy(view, '_reInitRegions');
+    const bindUIElements = vi.spyOn(view, 'bindUIElements');
+    const delegateEvents = vi.spyOn(view, 'delegateEvents');
+    const reInitRegions = vi.spyOn(view, '_reInitRegions');
     view.on('all', eventName => events.push(eventName));
-    attributes.resetHistory();
+    attributes.mockClear();
 
     title = 'refreshed';
     view.renderAttributes();
 
     expect(view.el.title).to.equal('refreshed');
     expect(view.isRendered()).to.be.false;
-    expect(template).not.to.have.been.called;
+    expect(template).not.toHaveBeenCalled();
     expect(events).to.deep.equal([]);
-    expect(bindUIElements).not.to.have.been.called;
-    expect(delegateEvents).not.to.have.been.called;
-    expect(reInitRegions).not.to.have.been.called;
+    expect(bindUIElements).not.toHaveBeenCalled();
+    expect(delegateEvents).not.toHaveBeenCalled();
+    expect(reInitRegions).not.toHaveBeenCalled();
 
-    attributes.resetHistory();
+    attributes.mockClear();
     title = 'not-automatically-refreshed';
     view.render();
 
-    expect(attributes).not.to.have.been.called;
+    expect(attributes).not.toHaveBeenCalled();
     expect(view.el.title).to.equal('refreshed');
   });
 
   it('uses the configured DOM API for each refresh', function() {
     let title = 'initial';
-    const setAttributes = this.sinon.stub();
+    const setAttributes = vi.fn();
     const CustomDomView = View.extend({
       attributes() {
         return { title };
@@ -253,13 +254,15 @@ describe('View#renderAttributes', function() {
     });
     CustomDomView.setDomApi({ setAttributes });
     const view = new CustomDomView();
-    setAttributes.resetHistory();
+    setAttributes.mockClear();
 
     title = 'updated';
     view.renderAttributes();
 
-    expect(setAttributes).to.have.been.calledOnce
-      .and.calledOn(view.Dom)
-      .and.calledWithExactly(view.el, { title: 'updated' });
+    expect(setAttributes).toHaveBeenCalledTimes(1);
+    expect(setAttributes.mock.contexts[0] === view.Dom).toBe(true);
+    expect(setAttributes.mock.calls[0]).toHaveLength(2);
+    expect(setAttributes.mock.calls[0][0] === view.el).toBe(true);
+    expect(setAttributes.mock.calls[0][1]).toEqual({ title: 'updated' });
   });
 });

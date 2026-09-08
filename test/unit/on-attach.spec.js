@@ -1,27 +1,28 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { setFixtures } from '../setup/fixtures.js';
 import _ from 'underscore';
 import View from '../../src/modules/view';
 import Region from '../../src/modules/region';
 
 describe('onAttach', function() {
   const expectTriggerMethod = (method, target, retval, before = null) => {
-    expect(method)
-      .to.have.been.calledOnce
-      .and.to.have.been.calledOn(target)
-      .and.to.have.been.calledWithExactly(target)
-      .and.to.have.returned(retval);
+    expect(method).toHaveBeenCalledTimes(1);
+    expect(method.mock.contexts).toContain(target);
+    expect(method).toHaveBeenCalledWith(target);
+    expect(method).toHaveReturnedWith(retval);
     if (before) {
-      expect(method).to.have.been.calledBefore(before);
+      expect(method).toHaveBeenCalledBefore(before);
     }
   };
 
   const extendAttachMethods = superConstructor => target => _.assign(target, {
     constructor: function(options) {
       superConstructor.call(this, options);
-      sinon.spy(this, 'onAttach');
-      sinon.spy(this, 'onBeforeAttach');
-      sinon.spy(this, 'onDetach');
-      sinon.spy(this, 'onBeforeDetach');
-      sinon.spy(this, 'onDestroy');
+      vi.spyOn(this, 'onAttach');
+      vi.spyOn(this, 'onBeforeAttach');
+      vi.spyOn(this, 'onDetach');
+      vi.spyOn(this, 'onBeforeDetach');
+      vi.spyOn(this, 'onDestroy');
     },
     onAttach() {
       return !!this._isAttached;
@@ -40,12 +41,10 @@ describe('onAttach', function() {
     }
   });
 
-  let sinon;
   let TestView;
   let region; // A Region to show our View within
 
   beforeEach(function() {
-    sinon = this.sinon;
     TestView = View.extend(extendAttachMethods(View)({
       template: _.template('<header></header><main></main><footer></footer>'),
       regions: {
@@ -55,7 +54,7 @@ describe('onAttach', function() {
       }
     }));
     // A Region to show our View within
-    this.setFixtures('<div id="region"></div>');
+    setFixtures('<div id="region"></div>');
     const regionEl = document.getElementById('region');
     region = new Region({el: regionEl});
   });
@@ -82,11 +81,11 @@ describe('onAttach', function() {
     });
 
     it('should not trigger onBeforeAttach on the view', function() {
-      expect(view.onBeforeAttach).to.not.be.called;
+      expect(view.onBeforeAttach).not.toHaveBeenCalled();
     });
 
     it('should not trigger onAttach on the view', function() {
-      expect(view.onAttach).to.not.be.called;
+      expect(view.onAttach).not.toHaveBeenCalled();
     });
 
     describe('when destroying the view', function() {
@@ -95,11 +94,11 @@ describe('onAttach', function() {
       });
 
       it('should not trigger onBeforeDetach on the view', function() {
-        expect(view.onBeforeDetach).to.not.be.called;
+        expect(view.onBeforeDetach).not.toHaveBeenCalled();
       });
 
       it('should not trigger onDetach on the view', function() {
-        expect(view.onDetach).to.not.be.called;
+        expect(view.onDetach).not.toHaveBeenCalled();
       });
     });
 
@@ -109,11 +108,11 @@ describe('onAttach', function() {
       });
 
       it('should not trigger onBeforeDetach on the view', function() {
-        expect(view.onBeforeDetach).to.not.be.called;
+        expect(view.onBeforeDetach).not.toHaveBeenCalled();
       });
 
       it('should not trigger onDetach on the view', function() {
-        expect(view.onDetach).to.not.be.called;
+        expect(view.onDetach).not.toHaveBeenCalled();
       });
     });
   });
@@ -129,8 +128,8 @@ describe('onAttach', function() {
     });
 
     it('should not call onAttach/onBeforeAttach methods on the view', function() {
-      expect(view.onAttach).to.not.have.been.called;
-      expect(view.onBeforeAttach).to.not.have.been.called;
+      expect(view.onAttach).not.toHaveBeenCalled();
+      expect(view.onBeforeAttach).not.toHaveBeenCalled();
     });
 
     describe('when removing a view from a region not attached to the document', function() {
@@ -139,8 +138,8 @@ describe('onAttach', function() {
       });
 
       it('should not call onDetach/onBeforeDetach methods on the view', function() {
-        expect(view.onDetach).to.not.have.been.called;
-        expect(view.onBeforeDetach).to.not.have.been.called;
+        expect(view.onDetach).not.toHaveBeenCalled();
+        expect(view.onBeforeDetach).not.toHaveBeenCalled();
       });
     });
   });
@@ -175,7 +174,7 @@ describe('onAttach', function() {
       });
 
       it('should call onDetach before destroying view', function() {
-        expect(view.onDestroy).to.have.been.calledAfter(view.onDetach);
+        expect(view.onDestroy).toHaveBeenCalledAfter(view.onDetach);
       });
     });
 
@@ -294,13 +293,13 @@ describe('onAttach', function() {
       });
 
       it('should trigger onBeforeAttach & onAttach on the grandparent view', function() {
-        expect(grandparentView.onAttach).to.have.been.calledOnce;
-        expect(grandparentView.onBeforeAttach).to.have.been.calledOnce;
+        expect(grandparentView.onAttach).toHaveBeenCalledTimes(1);
+        expect(grandparentView.onBeforeAttach).toHaveBeenCalledTimes(1);
       });
 
       it('should trigger onBeforeAttach & onAttach on the parent view', function() {
-        expect(parentView.onBeforeAttach).to.have.been.calledOnce;
-        expect(parentView.onAttach).to.have.been.calledOnce;
+        expect(parentView.onBeforeAttach).toHaveBeenCalledTimes(1);
+        expect(parentView.onAttach).toHaveBeenCalledTimes(1);
       });
 
       it('should trigger onBeforeAttach & onAttach on the child view', function() {
@@ -314,13 +313,13 @@ describe('onAttach', function() {
         });
 
         it('should trigger onBeforeDetach & onDetach on the grandparent view', function() {
-          expect(grandparentView.onDetach).to.have.been.calledOnce;
-          expect(grandparentView.onBeforeDetach).to.have.been.calledOnce;
+          expect(grandparentView.onDetach).toHaveBeenCalledTimes(1);
+          expect(grandparentView.onBeforeDetach).toHaveBeenCalledTimes(1);
         });
 
         it('should trigger onBeforeDetach & onDetach on the parent view', function() {
-          expect(parentView.onBeforeDetach).to.have.been.calledOnce;
-          expect(parentView.onDetach).to.have.been.calledOnce;
+          expect(parentView.onBeforeDetach).toHaveBeenCalledTimes(1);
+          expect(parentView.onDetach).toHaveBeenCalledTimes(1);
         });
 
         it('should trigger onBeforeDetach & onDetach on the child view', function() {
@@ -378,13 +377,13 @@ describe('onAttach', function() {
       });
 
       it('should trigger onBeforeAttach & onAttach on the grandparent view', function() {
-        expect(grandparentView.onAttach).to.have.been.calledOnce;
-        expect(grandparentView.onBeforeAttach).to.have.been.calledOnce;
+        expect(grandparentView.onAttach).toHaveBeenCalledTimes(1);
+        expect(grandparentView.onBeforeAttach).toHaveBeenCalledTimes(1);
       });
 
       it('should trigger onBeforeAttach & onAttach on the parent view', function() {
-        expect(parentView.onBeforeAttach).to.have.been.calledOnce;
-        expect(parentView.onAttach).to.have.been.calledOnce;
+        expect(parentView.onBeforeAttach).toHaveBeenCalledTimes(1);
+        expect(parentView.onAttach).toHaveBeenCalledTimes(1);
       });
 
       it('should trigger onBeforeAttach & onAttach on the child view', function() {

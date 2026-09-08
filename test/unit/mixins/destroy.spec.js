@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import _ from 'underscore';
 import Application from '../../../src/modules/application';
 import DestroyMixin from '../../../src/mixins/destroy';
@@ -8,11 +9,11 @@ describe('Destroy Mixin', function() {
 
   beforeEach(function() {
     obj = _.extend({
-      triggerMethod: this.sinon.stub(),
-      stopListening: this.sinon.stub()
+      triggerMethod: vi.fn(),
+      stopListening: vi.fn()
     }, DestroyMixin);
 
-    this.sinon.spy(obj, 'destroy');
+    vi.spyOn(obj, 'destroy');
   });
 
   it('should not be destroyed by default', function() {
@@ -29,36 +30,34 @@ describe('Destroy Mixin', function() {
     });
 
     it('should trigger destroy events', function() {
-      expect(obj.triggerMethod)
-        .to.have.been.calledTwice
-        .and.calledWith('before:destroy', obj, { foo: 'bar' })
-        .and.calledWith('destroy', obj, { foo: 'bar' });
+      expect(obj.triggerMethod).toHaveBeenCalledTimes(2);
+      expect(obj.triggerMethod.mock.calls.map(args => args.slice(0, 3))).toContainEqual(['before:destroy', obj, { foo: 'bar' }]);
+      expect(obj.triggerMethod.mock.calls.map(args => args.slice(0, 3))).toContainEqual(['destroy', obj, { foo: 'bar' }]);
     });
 
     it('should stopListening', function() {
-      expect(obj.stopListening)
-        .to.have.been.calledOnce
-        .and.not.calledBefore(obj.triggerMethod);
+      expect(obj.stopListening).toHaveBeenCalledTimes(1);
+      expect(obj.stopListening).not.toHaveBeenCalledBefore(obj.triggerMethod);
     });
 
     it('should return the instance', function() {
-      expect(obj.destroy).to.have.returned(obj);
+      expect(obj.destroy).toHaveReturnedWith(obj);
     });
   });
 
   describe('when destroying a destroyed object', function() {
     beforeEach(function() {
       obj.destroy();
-      obj.triggerMethod.reset();
+      obj.triggerMethod.mockClear();
       obj.destroy();
     });
 
     it('should not trigger any events', function() {
-      expect(obj.triggerMethod).to.not.have.been.called;
+      expect(obj.triggerMethod).not.toHaveBeenCalled();
     });
 
     it('should return the instance', function() {
-      expect(obj.destroy).to.have.returned(obj);
+      expect(obj.destroy).toHaveReturnedWith(obj);
     });
   });
 
@@ -71,15 +70,15 @@ describe('Destroy Mixin public owners', function() {
     const states = [];
     let beforeDestroyReturn;
     let destroyReturn;
-    const beforeDestroy = this.sinon.spy(currentInstance => {
+    const beforeDestroy = vi.fn(currentInstance => {
       states.push(currentInstance.isDestroyed());
       beforeDestroyReturn = currentInstance.destroy();
     });
-    const destroy = this.sinon.spy(currentInstance => {
+    const destroy = vi.fn(currentInstance => {
       states.push(currentInstance.isDestroyed());
       destroyReturn = currentInstance.destroy();
     });
-    this.sinon.spy(instance, 'stopListening');
+    vi.spyOn(instance, 'stopListening');
     instance.on('before:destroy', beforeDestroy);
     instance.on('destroy', destroy);
 
@@ -88,9 +87,11 @@ describe('Destroy Mixin public owners', function() {
     expect(beforeDestroyReturn).to.equal(instance);
     expect(destroyReturn).to.equal(instance);
     expect(states).to.deep.equal([false, true]);
-    expect(beforeDestroy).to.have.been.calledOnceWith(instance, options);
-    expect(destroy).to.have.been.calledOnceWith(instance, options);
-    expect(instance.stopListening).to.have.been.calledOnce;
+    expect(beforeDestroy).toHaveBeenCalledTimes(1);
+    expect(beforeDestroy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([instance, options]);
+    expect(destroy).toHaveBeenCalledTimes(1);
+    expect(destroy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([instance, options]);
+    expect(instance.stopListening).toHaveBeenCalledTimes(1);
   });
 
   it('shares reentrant and repeated Application destruction', async function() {
@@ -99,15 +100,15 @@ describe('Destroy Mixin public owners', function() {
     const states = [];
     let beforeDestroyReturn;
     let destroyReturn;
-    const beforeDestroy = this.sinon.spy(currentInstance => {
+    const beforeDestroy = vi.fn(currentInstance => {
       states.push(currentInstance.isDestroyed());
       beforeDestroyReturn = currentInstance.destroy();
     });
-    const destroy = this.sinon.spy(currentInstance => {
+    const destroy = vi.fn(currentInstance => {
       states.push(currentInstance.isDestroyed());
       destroyReturn = currentInstance.destroy();
     });
-    this.sinon.spy(instance, 'stopListening');
+    vi.spyOn(instance, 'stopListening');
     instance.on('before:destroy', beforeDestroy);
     instance.on('destroy', destroy);
 
@@ -119,8 +120,10 @@ describe('Destroy Mixin public owners', function() {
     expect(await first).to.be.true;
     expect(await destroyReturn).to.be.true;
     expect(states).to.deep.equal([false, true]);
-    expect(beforeDestroy).to.have.been.calledOnceWith(instance, options);
-    expect(destroy).to.have.been.calledOnceWith(instance, options);
-    expect(instance.stopListening).to.have.been.calledOnce;
+    expect(beforeDestroy).toHaveBeenCalledTimes(1);
+    expect(beforeDestroy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([instance, options]);
+    expect(destroy).toHaveBeenCalledTimes(1);
+    expect(destroy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([instance, options]);
+    expect(instance.stopListening).toHaveBeenCalledTimes(1);
   });
 });

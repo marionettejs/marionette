@@ -1,3 +1,4 @@
+import { vi, describe, it, expect } from 'vitest';
 import { Behavior, View } from '../../src/index';
 
 function state(view) {
@@ -9,10 +10,10 @@ function state(view) {
 }
 
 function createTrackedView(context) {
-  const template = context.sinon.spy(() => '<div class="content"></div>');
-  const beforeRender = context.sinon.spy();
-  const render = context.sinon.spy();
-  const bindBehaviorUIElements = context.sinon.spy();
+  const template = vi.fn(() => '<div class="content"></div>');
+  const beforeRender = vi.fn();
+  const render = vi.fn();
+  const bindBehaviorUIElements = vi.fn();
   const TestBehavior = Behavior.extend({
     bindUIElements: bindBehaviorUIElements,
   });
@@ -29,8 +30,8 @@ function createTrackedView(context) {
     template,
     ui: { content: '.content' },
   });
-  const getTemplate = context.sinon.spy(view, 'getTemplate');
-  const bindUIElements = context.sinon.spy(view, 'bindUIElements');
+  const getTemplate = vi.spyOn(view, 'getTemplate');
+  const bindUIElements = vi.spyOn(view, 'bindUIElements');
   view.on('before:render', beforeRender);
   view.on('render', render);
 
@@ -56,25 +57,25 @@ function expectNoRenderSideEffects(tracked, expectedState, html) {
     view,
   } = tracked;
 
-  expect(getTemplate).to.not.have.been.called;
-  expect(template).to.not.have.been.called;
-  expect(beforeRender).to.not.have.been.called;
-  expect(render).to.not.have.been.called;
-  expect(bindUIElements).to.not.have.been.called;
-  expect(bindBehaviorUIElements).to.not.have.been.called;
+  expect(getTemplate).not.toHaveBeenCalled();
+  expect(template).not.toHaveBeenCalled();
+  expect(beforeRender).not.toHaveBeenCalled();
+  expect(render).not.toHaveBeenCalled();
+  expect(bindUIElements).not.toHaveBeenCalled();
+  expect(bindBehaviorUIElements).not.toHaveBeenCalled();
   expect(view.el.innerHTML).to.equal(html);
   expect(state(view)).to.deep.equal(expectedState);
 }
 
 describe('View#hasRegion', function() {
-  it('queries own Regions without rendering an unrendered View', function() {
-    const tracked = createTrackedView(this);
+  it('queries own Regions without rendering an unrendered View', function(testContext) {
+    const tracked = createTrackedView(testContext);
     const { view } = tracked;
     const sentinel = document.createElement('span');
     sentinel.textContent = 'Unmanaged content';
     view.el.append(sentinel);
     const html = view.el.innerHTML;
-    const getRegion = this.sinon.spy(view, 'getRegion');
+    const getRegion = vi.spyOn(view, 'getRegion');
 
     expect(view.hasRegion('content')).to.be.true;
     expect(view.hasRegion('constructor')).to.be.true;
@@ -83,7 +84,7 @@ describe('View#hasRegion', function() {
     expect(view.hasRegion('inherited')).to.be.false;
     expect(view.hasRegion('valueOf')).to.be.false;
     expect(view.hasRegion('missing')).to.be.false;
-    expect(getRegion).to.not.have.been.called;
+    expect(getRegion).not.toHaveBeenCalled();
 
     const dynamicRegion = view.addRegion('dynamic', '.dynamic');
     expect(view.hasRegion('dynamic')).to.be.true;
@@ -100,8 +101,8 @@ describe('View#hasRegion', function() {
     view.destroy();
   });
 
-  it('remains a pure missing query after View destruction', function() {
-    const tracked = createTrackedView(this);
+  it('remains a pure missing query after View destruction', function(testContext) {
+    const tracked = createTrackedView(testContext);
     const { view } = tracked;
     view.destroy();
     const sentinel = document.createElement('span');

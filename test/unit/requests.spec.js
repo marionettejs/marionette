@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import Requests from '../../packages/radio/src/requests.ts';
 import { setDebug } from '../../packages/radio/src/debug.ts';
 
@@ -6,8 +7,8 @@ function handler(callback, context) {
 }
 
 describe('Requests', function() {
-  beforeEach(function() {
-    this.requests = { ...Requests };
+  beforeEach(function(testContext) {
+    testContext.requests = { ...Requests };
   });
 
   afterEach(function() {
@@ -15,22 +16,24 @@ describe('Requests', function() {
   });
 
   describe('#reply', function() {
-    it('calls handlers with the request arguments and context', function() {
+    it('calls handlers with the request arguments and context', function(testContext) {
       const context = {};
-      const callback = this.sinon.stub().returns('response');
+      const callback = vi.fn().mockReturnValue('response');
       const registry = {};
-      this.requests._rdRequests = registry;
+      testContext.requests._rdRequests = registry;
 
-      expect(this.requests.reply('foo', callback, context)).to.equal(this.requests);
+      expect(testContext.requests.reply('foo', callback, context)).to.equal(testContext.requests);
 
-      expect(this.requests._rdRequests).to.equal(registry);
-      expect(this.requests.request('foo', 1, 2)).to.equal('response');
-      expect(callback).to.have.been.calledOnce.and.calledOn(context).and.calledWithExactly(1, 2);
+      expect(testContext.requests._rdRequests).to.equal(registry);
+      expect(testContext.requests.request('foo', 1, 2)).to.equal('response');
+      expect(callback).toHaveBeenCalledTimes(1);
+      expect(callback.mock.contexts).toContain(context);
+      expect(callback).toHaveBeenCalledWith(1, 2);
     });
 
     it('replaces duplicate replies in order and logs the overwrite first', function() {
       const calls = [];
-      const warn = this.sinon.stub(console, 'warn').callsFake(() => calls.push('warn'));
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined).mockImplementation(() => calls.push('warn'));
       const requests = { ...Requests };
       Object.defineProperty(requests, 'stopReplying', {
         configurable: true,
@@ -46,7 +49,8 @@ describe('Requests', function() {
 
       expect(requests.request('foo')).to.equal('second');
       expect(calls).to.deep.equal(['warn', 'stopReplying']);
-      expect(warn).to.have.been.calledOnce.and.calledWithExactly('A request was overwritten: "foo"');
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(warn).toHaveBeenCalledWith('A request was overwritten: "foo"');
     });
 
     it('retains earlier public registrations when a later split entry throws', function() {
@@ -80,45 +84,45 @@ describe('Requests', function() {
       expect(registry.first.callback()).to.equal('response');
     });
 
-    it('uses the supplied truthy context and otherwise falls back to the receiver', function() {
+    it('uses the supplied truthy context and otherwise falls back to the receiver', function(testContext) {
       const context = {};
-      this.requests.reply('truthy', 'response', context);
+      testContext.requests.reply('truthy', 'response', context);
       [undefined, null, false, 0, ''].forEach((falseyContext, index) => {
-        this.requests.reply(`falsey${index}`, 'response', falseyContext);
+        testContext.requests.reply(`falsey${index}`, 'response', falseyContext);
       });
 
-      expect(this.requests._rdRequests.truthy.context).to.equal(context);
+      expect(testContext.requests._rdRequests.truthy.context).to.equal(context);
       for (let index = 0; index < 5; index++) {
-        expect(this.requests._rdRequests[`falsey${index}`].context).to.equal(this.requests);
+        expect(testContext.requests._rdRequests[`falsey${index}`].context).to.equal(testContext.requests);
       }
     });
 
-    it('warns only when an own handler is overwritten', function() {
-      const warn = this.sinon.stub(console, 'warn');
-      this.requests._rdRequests = Object.create({
-        inherited: handler(() => {}, this.requests)
+    it('warns only when an own handler is overwritten', function(testContext) {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      testContext.requests._rdRequests = Object.create({
+        inherited: handler(() => {}, testContext.requests)
       });
 
       setDebug();
-      this.requests.reply('inherited', 'first');
-      this.requests.reply('inherited', 'second');
+      testContext.requests.reply('inherited', 'first');
+      testContext.requests.reply('inherited', 'second');
 
-      expect(warn).to.have.been.calledOnce
-        .and.calledWithExactly('A request was overwritten: "inherited"');
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(warn).toHaveBeenCalledWith('A request was overwritten: "inherited"');
     });
   });
 
   describe('#replyOnce', function() {
-    it('dispatches map and space-separated entries through replyOnce', function() {
+    it('dispatches map and space-separated entries through replyOnce', function(testContext) {
       const calls = [];
       const baseReplyOnce = Requests.replyOnce;
-      this.requests.replyOnce = function(...args) {
+      testContext.requests.replyOnce = function(...args) {
         calls.push(args[0]);
         return baseReplyOnce.apply(this, args);
       };
 
-      this.requests.replyOnce({ alpha: 'a', beta: 'b' });
-      this.requests.replyOnce('gamma delta', 'split');
+      testContext.requests.replyOnce({ alpha: 'a', beta: 'b' });
+      testContext.requests.replyOnce('gamma delta', 'split');
 
       expect(calls).to.deep.equal([
         { alpha: 'a', beta: 'b' },
@@ -128,27 +132,27 @@ describe('Requests', function() {
         'gamma',
         'delta'
       ]);
-      expect(this.requests.request('alpha')).to.equal('a');
-      expect(this.requests.request('beta')).to.equal('b');
-      expect(this.requests.request('gamma')).to.equal('split');
-      expect(this.requests.request('delta')).to.equal('split');
+      expect(testContext.requests.request('alpha')).to.equal('a');
+      expect(testContext.requests.request('beta')).to.equal('b');
+      expect(testContext.requests.request('gamma')).to.equal('split');
+      expect(testContext.requests.request('delta')).to.equal('split');
     });
 
-    it('dispatches wrapper registration through an overridden reply method', function() {
+    it('dispatches wrapper registration through an overridden reply method', function(testContext) {
       const registrations = [];
-      const callback = this.sinon.stub().returns('response');
+      const callback = vi.fn().mockReturnValue('response');
       const baseReply = Requests.reply;
-      this.requests.reply = function(...args) {
+      testContext.requests.reply = function(...args) {
         registrations.push(args);
         return baseReply.apply(this, args);
       };
 
-      this.requests.replyOnce('foo', callback);
+      testContext.requests.replyOnce('foo', callback);
 
       expect(registrations).to.have.lengthOf(1);
       expect(registrations[0][0]).to.equal('foo');
       expect(registrations[0][1]).to.be.a('function');
-      expect(this.requests.request('foo')).to.equal('response');
+      expect(testContext.requests.request('foo')).to.equal('response');
     });
 
     it('defers stopReplying lookup until the one-shot reply is requested', function() {
@@ -164,79 +168,79 @@ describe('Requests', function() {
         .to.throw('stopReplying lookup failed');
     });
 
-    it('removes the reply before invoking it and returns the first result once', function() {
-      const callback = this.sinon.stub().callsFake(() => {
-        expect(this.requests.request('foo')).to.be.undefined;
+    it('removes the reply before invoking it and returns the first result once', function(testContext) {
+      const callback = vi.fn().mockImplementation(() => {
+        expect(testContext.requests.request('foo')).to.be.undefined;
         return 'once';
       });
 
-      expect(this.requests.replyOnce('foo', callback)).to.equal(this.requests);
+      expect(testContext.requests.replyOnce('foo', callback)).to.equal(testContext.requests);
 
-      expect(this.requests.request('foo', 1)).to.equal('once');
-      expect(this.requests.request('foo', 2)).to.be.undefined;
-      expect(callback).to.have.been.calledOnce
-        .and.calledOn(this.requests)
-        .and.calledWithExactly(1);
+      expect(testContext.requests.request('foo', 1)).to.equal('once');
+      expect(testContext.requests.request('foo', 2)).to.be.undefined;
+      expect(callback).toHaveBeenCalledTimes(1);
+      expect(callback.mock.contexts).toContain(testContext.requests);
+      expect(callback).toHaveBeenCalledWith(1);
     });
 
-    it('can be removed by its original callback before invocation', function() {
-      const callback = this.sinon.stub();
+    it('can be removed by its original callback before invocation', function(testContext) {
+      const callback = vi.fn();
 
-      this.requests.replyOnce('foo', callback);
-      this.requests.stopReplying('foo', callback);
-      this.requests.request('foo');
+      testContext.requests.replyOnce('foo', callback);
+      testContext.requests.stopReplying('foo', callback);
+      testContext.requests.request('foo');
 
-      expect(callback).to.not.have.been.called;
+      expect(callback).not.toHaveBeenCalled();
     });
 
-    it('matches the original callback after reading the wrapper twice', function() {
-      const callback = this.sinon.stub();
+    it('matches the original callback after reading the wrapper twice', function(testContext) {
+      const callback = vi.fn();
       const trace = [];
-      this.requests.replyOnce('foo', callback);
-      this.requests._rdRequests.foo = new Proxy(this.requests._rdRequests.foo, {
+      testContext.requests.replyOnce('foo', callback);
+      testContext.requests._rdRequests.foo = new Proxy(testContext.requests._rdRequests.foo, {
         get(object, key, receiver) {
           trace.push(key);
           return Reflect.get(object, key, receiver);
         }
       });
 
-      this.requests.stopReplying('foo', callback);
+      testContext.requests.stopReplying('foo', callback);
 
       expect(trace).to.deep.equal(['callback', 'callback']);
-      expect(this.requests._rdRequests).to.not.have.own.property('foo');
+      expect(testContext.requests._rdRequests).to.not.have.own.property('foo');
     });
   });
 
   describe('#stopReplying', function() {
-    it('returns without creating a registry when none exists', function() {
-      expect(this.requests.stopReplying('foo')).to.equal(this.requests);
-      expect(this.requests).to.not.have.own.property('_rdRequests');
+    it('returns without creating a registry when none exists', function(testContext) {
+      expect(testContext.requests.stopReplying('foo')).to.equal(testContext.requests);
+      expect(testContext.requests).to.not.have.own.property('_rdRequests');
     });
 
-    it('clears the registry only when every filter is falsey', function() {
-      this.requests.reply('foo', 'response');
+    it('clears the registry only when every filter is falsey', function(testContext) {
+      testContext.requests.reply('foo', 'response');
 
-      expect(this.requests.stopReplying()).to.equal(this.requests);
+      expect(testContext.requests.stopReplying()).to.equal(testContext.requests);
 
-      expect(this.requests).to.not.have.own.property('_rdRequests');
+      expect(testContext.requests).to.not.have.own.property('_rdRequests');
     });
 
-    it('matches callback and context without removing nonmatching replies', function() {
-      const callback = this.sinon.stub().returns('response');
+    it('matches callback and context without removing nonmatching replies', function(testContext) {
+      const callback = vi.fn().mockReturnValue('response');
       const context = {};
-      this.requests.reply('foo', callback, context);
+      testContext.requests.reply('foo', callback, context);
 
-      this.requests.stopReplying('foo', callback, {});
-      expect(this.requests.request('foo')).to.equal('response');
+      testContext.requests.stopReplying('foo', callback, {});
+      expect(testContext.requests.request('foo')).to.equal('response');
 
-      this.requests.stopReplying('foo', callback, context);
-      expect(this.requests.request('foo')).to.be.undefined;
+      testContext.requests.stopReplying('foo', callback, context);
+      expect(testContext.requests.request('foo')).to.be.undefined;
     });
 
-    it('snapshots own keys before reading values and skips later additions', function() {
-      const callback = this.sinon.stub();
+    it('snapshots own keys before reading values and skips later additions', function(testContext) {
+      const callback = vi.fn();
       const trace = [];
-      const requestsContext = this.requests;
+      const requestsContext = testContext.requests;
       const target = {
         first: handler(callback, requestsContext),
         second: handler(callback, requestsContext)
@@ -263,9 +267,9 @@ describe('Requests', function() {
           return Reflect.deleteProperty(object, key);
         }
       });
-      this.requests._rdRequests = registry;
+      testContext.requests._rdRequests = registry;
 
-      this.requests.stopReplying(null, callback);
+      testContext.requests.stopReplying(null, callback);
 
       expect(trace).to.deep.equal([
         'ownKeys',
@@ -280,39 +284,39 @@ describe('Requests', function() {
       expect(target.added.context).to.equal(requestsContext);
     });
 
-    it('preserves callback-read short-circuiting and falsey wildcards', function() {
-      const registered = this.sinon.stub();
-      const other = this.sinon.stub();
+    it('preserves callback-read short-circuiting and falsey wildcards', function(testContext) {
+      const registered = vi.fn();
+      const other = vi.fn();
       const trace = [];
-      const storedHandler = new Proxy({ callback: registered, context: this.requests }, {
+      const storedHandler = new Proxy({ callback: registered, context: testContext.requests }, {
         get(object, key, receiver) {
           trace.push(key);
           return Reflect.get(object, key, receiver);
         }
       });
-      this.requests._rdRequests = { foo: storedHandler };
+      testContext.requests._rdRequests = { foo: storedHandler };
 
-      this.requests.stopReplying('foo', other);
+      testContext.requests.stopReplying('foo', other);
       expect(trace).to.deep.equal(['callback', 'callback']);
-      expect(this.requests._rdRequests).to.have.own.property('foo');
+      expect(testContext.requests._rdRequests).to.have.own.property('foo');
 
       trace.length = 0;
-      this.requests.stopReplying('foo', registered, {});
+      testContext.requests.stopReplying('foo', registered, {});
       expect(trace).to.deep.equal(['callback', 'context']);
-      expect(this.requests._rdRequests).to.have.own.property('foo');
+      expect(testContext.requests._rdRequests).to.have.own.property('foo');
 
       trace.length = 0;
-      this.requests.stopReplying('foo', false, false);
+      testContext.requests.stopReplying('foo', false, false);
       expect(trace).to.deep.equal([]);
-      expect(this.requests._rdRequests).to.not.have.own.property('foo');
+      expect(testContext.requests._rdRequests).to.not.have.own.property('foo');
     });
 
-    it('propagates delete errors without visiting later snapshotted keys', function() {
-      const callback = this.sinon.stub();
+    it('propagates delete errors without visiting later snapshotted keys', function(testContext) {
+      const callback = vi.fn();
       const trace = [];
       const registry = new Proxy({
-        first: handler(callback, this.requests),
-        second: handler(callback, this.requests)
+        first: handler(callback, testContext.requests),
+        second: handler(callback, testContext.requests)
       }, {
         get(object, key, receiver) {
           trace.push(`get:${key}`);
@@ -323,51 +327,51 @@ describe('Requests', function() {
           throw new Error('delete failed');
         }
       });
-      this.requests._rdRequests = registry;
+      testContext.requests._rdRequests = registry;
 
-      expect(() => this.requests.stopReplying(null, callback)).to.throw('delete failed');
+      expect(() => testContext.requests.stopReplying(null, callback)).to.throw('delete failed');
       expect(trace).to.deep.equal(['get:first', 'delete:first']);
     });
 
-    it('treats function registries as objects and primitives as empty', function() {
-      const callback = this.sinon.stub();
+    it('treats function registries as objects and primitives as empty', function(testContext) {
+      const callback = vi.fn();
       const registry = function() {};
-      registry.foo = handler(callback, this.requests);
-      this.requests._rdRequests = registry;
+      registry.foo = handler(callback, testContext.requests);
+      testContext.requests._rdRequests = registry;
 
-      this.requests.stopReplying(null, callback);
+      testContext.requests.stopReplying(null, callback);
       expect(registry).to.not.have.own.property('foo');
 
       for (const primitive of [true, 1, 'text', Symbol('registry'), 1n]) {
-        this.requests._rdRequests = primitive;
-        expect(this.requests.stopReplying(null, callback)).to.equal(this.requests);
-        expect(this.requests._rdRequests).to.equal(primitive);
+        testContext.requests._rdRequests = primitive;
+        expect(testContext.requests.stopReplying(null, callback)).to.equal(testContext.requests);
+        expect(testContext.requests._rdRequests).to.equal(primitive);
       }
     });
 
-    it('iterates numeric length and built-in own keys but ignores other properties', function() {
-      const callback = this.sinon.stub();
+    it('iterates numeric length and built-in own keys but ignores other properties', function(testContext) {
+      const callback = vi.fn();
       const symbol = Symbol('handler');
-      const registry = Object.assign(Object.create({ inherited: handler(callback, this.requests) }), {
-        length: handler(callback, this.requests),
-        constructor: handler(callback, this.requests),
-        toString: handler(callback, this.requests),
-        [symbol]: handler(callback, this.requests)
+      const registry = Object.assign(Object.create({ inherited: handler(callback, testContext.requests) }), {
+        length: handler(callback, testContext.requests),
+        constructor: handler(callback, testContext.requests),
+        toString: handler(callback, testContext.requests),
+        [symbol]: handler(callback, testContext.requests)
       });
       Object.defineProperty(registry, '__proto__', {
         configurable: true,
         enumerable: true,
-        value: handler(callback, this.requests),
+        value: handler(callback, testContext.requests),
         writable: true
       });
       Object.defineProperty(registry, 'hidden', {
         configurable: true,
-        value: handler(callback, this.requests),
+        value: handler(callback, testContext.requests),
         writable: true
       });
-      this.requests._rdRequests = registry;
+      testContext.requests._rdRequests = registry;
 
-      this.requests.stopReplying(null, callback);
+      testContext.requests.stopReplying(null, callback);
 
       expect(Object.keys(registry)).to.deep.equal([]);
       expect(registry).to.have.own.property('hidden');
@@ -375,19 +379,19 @@ describe('Requests', function() {
       expect(registry.inherited).to.exist;
     });
 
-    it('uses the Object.keys captured when the module loads', function() {
+    it('uses the Object.keys captured when the module loads', function(testContext) {
       const objectKeys = Object.keys;
-      this.requests.reply('foo', 'response');
+      testContext.requests.reply('foo', 'response');
 
       try {
         Object.keys = () => { throw new Error('patched Object.keys'); };
-        expect(this.requests.stopReplying(null, this.requests._rdRequests.foo.callback))
-          .to.equal(this.requests);
+        expect(testContext.requests.stopReplying(null, testContext.requests._rdRequests.foo.callback))
+          .to.equal(testContext.requests);
       } finally {
         Object.keys = objectKeys;
       }
 
-      expect(this.requests.request('foo')).to.be.undefined;
+      expect(testContext.requests.request('foo')).to.be.undefined;
     });
   });
 
@@ -435,93 +439,94 @@ describe('Requests', function() {
   });
 
   describe('#request', function() {
-    it('prioritizes an own named handler and passes only request arguments', function() {
-      const named = this.sinon.stub().returns('named');
-      const fallback = this.sinon.stub();
-      this.requests.reply('foo', named);
-      this.requests.reply('default', fallback);
+    it('prioritizes an own named handler and passes only request arguments', function(testContext) {
+      const named = vi.fn().mockReturnValue('named');
+      const fallback = vi.fn();
+      testContext.requests.reply('foo', named);
+      testContext.requests.reply('default', fallback);
 
-      expect(this.requests.request('foo', 1, 2)).to.equal('named');
-      expect(named).to.have.been.calledOnce
-        .and.calledOn(this.requests)
-        .and.calledWithExactly(1, 2);
-      expect(fallback).to.not.have.been.called;
+      expect(testContext.requests.request('foo', 1, 2)).to.equal('named');
+      expect(named).toHaveBeenCalledTimes(1);
+      expect(named.mock.contexts).toContain(testContext.requests);
+      expect(named).toHaveBeenCalledWith(1, 2);
+      expect(fallback).not.toHaveBeenCalled();
     });
 
-    it('passes the exact outer arguments to the default handler', function() {
-      const fallback = this.sinon.stub().returns('default');
-      this.requests.reply('default', fallback);
+    it('passes the exact outer arguments to the default handler', function(testContext) {
+      const fallback = vi.fn().mockReturnValue('default');
+      testContext.requests.reply('default', fallback);
 
-      expect(this.requests.request('missing', 1, 2)).to.equal('default');
-      expect(fallback).to.have.been.calledOnce
-        .and.calledOn(this.requests)
-        .and.calledWithExactly('missing', 1, 2);
+      expect(testContext.requests.request('missing', 1, 2)).to.equal('default');
+      expect(fallback).toHaveBeenCalledTimes(1);
+      expect(fallback.mock.contexts).toContain(testContext.requests);
+      expect(fallback).toHaveBeenCalledWith('missing', 1, 2);
     });
 
-    it('reads the selected callback and context once before forwarding either argument list', function() {
+    it('reads the selected callback and context once before forwarding either argument list', function(testContext) {
       const context = {};
       const value = {};
       const result = {};
-      const callback = this.sinon.stub().returns(result);
+      const callback = vi.fn().mockReturnValue(result);
       const reads = [];
       const registration = {
         get callback() { reads.push('callback'); return callback; },
         get context() { reads.push('context'); return context; }
       };
-      this.requests._rdRequests = { named: registration, default: registration };
+      testContext.requests._rdRequests = { named: registration, default: registration };
 
-      expect(this.requests.request('named', value, 2, 3, 4)).to.equal(result);
-      expect(callback).to.have.been.calledOnce.and.calledOn(context)
-        .and.calledWithExactly(value, 2, 3, 4);
+      expect(testContext.requests.request('named', value, 2, 3, 4)).to.equal(result);
+      expect(callback).toHaveBeenCalledTimes(1);
+      expect(callback.mock.contexts).toContain(context);
+      expect(callback).toHaveBeenCalledWith(value, 2, 3, 4);
       expect(reads).to.deep.equal(['callback', 'context']);
 
-      expect(this.requests.request('missing', value, 2, 3, 4)).to.equal(result);
-      expect(callback).to.have.been.calledTwice;
-      expect(callback.secondCall).to.have.been.calledOn(context)
-        .and.calledWithExactly('missing', value, 2, 3, 4);
+      expect(testContext.requests.request('missing', value, 2, 3, 4)).to.equal(result);
+      expect(callback).toHaveBeenCalledTimes(2);
+      expect(callback.mock.contexts[1]).toEqual(context);
+      expect(callback.mock.calls.at(1)).toEqual(['missing', value, 2, 3, 4]);
       expect(reads).to.deep.equal(['callback', 'context', 'callback', 'context']);
     });
 
-    it('lets an own falsey named entry suppress the default handler', function() {
-      const fallback = this.sinon.stub();
-      this.requests._rdRequests = {
+    it('lets an own falsey named entry suppress the default handler', function(testContext) {
+      const fallback = vi.fn();
+      testContext.requests._rdRequests = {
         foo: 0,
-        default: handler(fallback, this.requests)
+        default: handler(fallback, testContext.requests)
       };
 
-      expect(this.requests.request('foo')).to.be.undefined;
-      expect(fallback).to.not.have.been.called;
+      expect(testContext.requests.request('foo')).to.be.undefined;
+      expect(fallback).not.toHaveBeenCalled();
     });
 
-    it('ignores inherited named and default handlers', function() {
-      const named = this.sinon.stub();
-      const fallback = this.sinon.stub();
-      this.requests._rdRequests = Object.create({
-        default: handler(fallback, this.requests),
-        inherited: handler(named, this.requests)
+    it('ignores inherited named and default handlers', function(testContext) {
+      const named = vi.fn();
+      const fallback = vi.fn();
+      testContext.requests._rdRequests = Object.create({
+        default: handler(fallback, testContext.requests),
+        inherited: handler(named, testContext.requests)
       });
 
-      expect(this.requests.request('inherited')).to.be.undefined;
-      expect(this.requests.request('missing')).to.be.undefined;
-      expect(this.requests.request('constructor')).to.be.undefined;
-      expect(this.requests.request('toString')).to.be.undefined;
-      expect(named).to.not.have.been.called;
-      expect(fallback).to.not.have.been.called;
+      expect(testContext.requests.request('inherited')).to.be.undefined;
+      expect(testContext.requests.request('missing')).to.be.undefined;
+      expect(testContext.requests.request('constructor')).to.be.undefined;
+      expect(testContext.requests.request('toString')).to.be.undefined;
+      expect(named).not.toHaveBeenCalled();
+      expect(fallback).not.toHaveBeenCalled();
     });
 
-    it('stores, invokes, and removes an own __proto__ handler safely', function() {
-      const callback = this.sinon.stub().returns('response');
+    it('stores, invokes, and removes an own __proto__ handler safely', function(testContext) {
+      const callback = vi.fn().mockReturnValue('response');
 
-      this.requests.reply('__proto__', callback);
+      testContext.requests.reply('__proto__', callback);
 
-      expect(Object.getPrototypeOf(this.requests._rdRequests)).to.equal(Object.prototype);
-      expect(Object.hasOwn(this.requests._rdRequests, '__proto__')).to.be.true;
-      expect(this.requests.request('__proto__')).to.equal('response');
+      expect(Object.getPrototypeOf(testContext.requests._rdRequests)).to.equal(Object.prototype);
+      expect(Object.hasOwn(testContext.requests._rdRequests, '__proto__')).to.be.true;
+      expect(testContext.requests.request('__proto__')).to.equal('response');
 
-      this.requests.stopReplying('__proto__');
+      testContext.requests.stopReplying('__proto__');
 
-      expect(Object.hasOwn(this.requests._rdRequests, '__proto__')).to.be.false;
-      expect(this.requests.request('__proto__')).to.be.undefined;
+      expect(Object.hasOwn(testContext.requests._rdRequests, '__proto__')).to.be.false;
+      expect(testContext.requests.request('__proto__')).to.be.undefined;
     });
 
     it('snapshots request-map keys before one value read and recursive call per key', function() {
@@ -565,19 +570,19 @@ describe('Requests', function() {
       expect(replies).to.deep.equal({ first: 'first:one', second: 'second:two' });
     });
 
-    it('forwards trailing arguments after each request-map value', function() {
-      const responseHandler = this.sinon.stub().returns('response');
+    it('forwards trailing arguments after each request-map value', function(testContext) {
+      const responseHandler = vi.fn().mockReturnValue('response');
       const trailing = {};
-      this.requests.reply('foo', responseHandler);
+      testContext.requests.reply('foo', responseHandler);
 
-      expect(this.requests.request({ foo: 'mapped' }, trailing))
+      expect(testContext.requests.request({ foo: 'mapped' }, trailing))
         .to.deep.equal({ foo: 'response' });
-      expect(responseHandler).to.have.been.calledOnce
-        .and.calledWithExactly('mapped', trailing);
+      expect(responseHandler).toHaveBeenCalledTimes(1);
+      expect(responseHandler).toHaveBeenCalledWith('mapped', trailing);
     });
 
     it('stops reading a request map when a recursive request throws', function() {
-      const later = this.sinon.spy();
+      const later = vi.fn();
       const requestMap = { first: 'one' };
       Object.defineProperty(requestMap, 'second', {
         enumerable: true,
@@ -593,12 +598,12 @@ describe('Requests', function() {
       };
 
       expect(() => context.request(requestMap)).to.throw('request failed');
-      expect(later).to.not.have.been.called;
+      expect(later).not.toHaveBeenCalled();
     });
 
     it('propagates a request-map getter error before recursion or later reads', function() {
-      const recursiveRequest = this.sinon.spy();
-      const later = this.sinon.spy();
+      const recursiveRequest = vi.fn();
+      const later = vi.fn();
       const requestMap = {};
       Object.defineProperty(requestMap, 'first', {
         enumerable: true,
@@ -620,8 +625,8 @@ describe('Requests', function() {
       };
 
       expect(() => context.request(requestMap)).to.throw('value lookup failed');
-      expect(recursiveRequest).to.not.have.been.called;
-      expect(later).to.not.have.been.called;
+      expect(recursiveRequest).not.toHaveBeenCalled();
+      expect(later).not.toHaveBeenCalled();
     });
 
     it('invokes split names including duplicates in order with the original arguments', function() {
@@ -674,20 +679,20 @@ describe('Requests', function() {
       expect(splitThenDirect).to.deep.equal({ first: 'direct', second: 'split' });
     });
 
-    it('builds request result maps with safe own collision keys', function() {
+    it('builds request result maps with safe own collision keys', function(testContext) {
       const protoValue = { safe: true };
       const requestMap = { constructor: 'argument', toString: 'argument' };
       Object.defineProperty(requestMap, '__proto__', {
         enumerable: true,
         value: 'argument'
       });
-      this.requests.reply('__proto__', () => protoValue);
-      this.requests.reply('constructor', () => 'constructor');
-      this.requests.reply('toString', () => 'toString');
-      this.requests.reply('first', () => 1);
+      testContext.requests.reply('__proto__', () => protoValue);
+      testContext.requests.reply('constructor', () => 'constructor');
+      testContext.requests.reply('toString', () => 'toString');
+      testContext.requests.reply('first', () => 1);
 
-      const directReplies = this.requests.request(requestMap);
-      const nestedReplies = this.requests.request({ '__proto__ first': 'argument' });
+      const directReplies = testContext.requests.request(requestMap);
+      const nestedReplies = testContext.requests.request({ '__proto__ first': 'argument' });
 
       expect(Object.keys(directReplies)).to.deep.equal(['constructor', 'toString', '__proto__']);
       expect(Object.getPrototypeOf(directReplies)).to.equal(Object.prototype);
@@ -785,9 +790,9 @@ describe('Requests', function() {
       expect(() => context.request(proxy)).to.throw('ownKeys failed');
     });
 
-    it('logs tuned requests before reading the selected handler', function() {
+    it('logs tuned requests before reading the selected handler', function(testContext) {
       const trace = [];
-      this.sinon.stub(console, 'log').callsFake(() => trace.push('log'));
+      vi.spyOn(console, 'log').mockImplementation(() => undefined).mockImplementation(() => trace.push('log'));
       const registry = {};
       Object.defineProperty(registry, 'foo', {
         enumerable: true,
@@ -796,25 +801,25 @@ describe('Requests', function() {
           return handler(() => 'response', null);
         }
       });
-      this.requests.channelName = 'channel';
-      this.requests._tunedIn = true;
-      this.requests._rdRequests = registry;
+      testContext.requests.channelName = 'channel';
+      testContext.requests._tunedIn = true;
+      testContext.requests._rdRequests = registry;
 
-      expect(this.requests.request('foo', 1)).to.equal('response');
+      expect(testContext.requests.request('foo', 1)).to.equal('response');
       expect(trace).to.deep.equal(['log', 'handler']);
     });
 
-    it('preserves callable, primitive, nullish, and Symbol name behavior', function() {
+    it('preserves callable, primitive, nullish, and Symbol name behavior', function(testContext) {
       const callableName = function() {};
       callableName.toString = () => 'callable';
-      this.requests.reply(callableName, 'response');
+      testContext.requests.reply(callableName, 'response');
 
-      expect(this.requests.request(callableName)).to.equal('response');
-      expect(() => this.requests.request(function ordinaryName() {})).to.throw(TypeError);
+      expect(testContext.requests.request(callableName)).to.equal('response');
+      expect(() => testContext.requests.request(function ordinaryName() {})).to.throw(TypeError);
       for (const name of [undefined, null, false, 0, '', 1, 1n]) {
-        expect(this.requests.request(name)).to.be.undefined;
+        expect(testContext.requests.request(name)).to.be.undefined;
       }
-      expect(() => this.requests.request(Symbol('name'))).to.throw(TypeError);
+      expect(() => testContext.requests.request(Symbol('name'))).to.throw(TypeError);
     });
   });
 });

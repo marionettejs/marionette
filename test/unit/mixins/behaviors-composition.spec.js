@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import BehaviorsMixin from '../../../src/mixins/behaviors';
 
 describe('Behaviors Mixin owned iteration', function() {

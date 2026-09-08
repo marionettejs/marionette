@@ -1,3 +1,5 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import _ from 'underscore';
 import View from '../../../src/modules/view';
 import UIMixin from '../../../src/mixins/ui';
 
@@ -12,7 +14,7 @@ describe('ui mixin', function() {
     beforeEach(function() {
       GenericView = View.extend({
         events: {'change @ui.someUi': 'onSomeUiChange'},
-        onSomeUiChange: sinon.stub()
+        onSomeUiChange: vi.fn()
       });
       const GenericViewSubclass1 = GenericView.extend({
         template: _.template('<div class="subclass-1-el"><div class="subclass-1-ui"></div></div>'),
@@ -30,12 +32,12 @@ describe('ui mixin', function() {
 
     it('normalizes inherited event maps for the first subclass ui', function() {
       genericViewSubclass1Instance.ui.someUi[0].dispatchEvent(new Event('change', {bubbles: true}));
-      expect(genericViewSubclass1Instance.onSomeUiChange).to.be.calledOnce;
+      expect(genericViewSubclass1Instance.onSomeUiChange).toHaveBeenCalledTimes(1);
     });
 
     it('normalizes inherited event maps for the second subclass ui', function() {
       genericViewSubclass2Instance.ui.someUi[0].dispatchEvent(new Event('change', {bubbles: true}));
-      expect(genericViewSubclass2Instance.onSomeUiChange).to.be.calledOnce;
+      expect(genericViewSubclass2Instance.onSomeUiChange).toHaveBeenCalledTimes(1);
     });
 
     it('the generic view class should have its prototype events hash untouched and in its original form', function() {
@@ -139,7 +141,7 @@ describe('ui mixin', function() {
     });
 
     it('does not read inherited ui accessors', function() {
-      const inheritedGetter = sinon.stub().throws(new Error('inherited getter ran'));
+      const inheritedGetter = vi.fn().mockImplementation(() => { throw new Error('inherited getter ran'); });
       const prototype = {};
       Object.defineProperty(prototype, 'danger', { get: inheritedGetter });
       view.ui = Object.create(prototype);
@@ -147,7 +149,7 @@ describe('ui mixin', function() {
       expect(() => view.normalizeUIString('@ui.danger'))
         .to.throw('The ui reference "danger" must be declared as an own ui key.')
         .with.property('code', 'MN0018');
-      expect(inheritedGetter).not.to.have.been.called;
+      expect(inheritedGetter).not.toHaveBeenCalled();
     });
 
     it('accepts an empty selector when its ui key is declared', function() {
@@ -209,7 +211,7 @@ describe('ui mixin', function() {
   describe('#_getUIBindings', function() {
     it('calls _uiBindings on the view with no arguments and short-circuits ui', function() {
       const bindings = { foo: '.foo' };
-      const uiBindings = this.sinon.stub().returns(bindings);
+      const uiBindings = vi.fn().mockReturnValue(bindings);
       const view = _.extend({
         _uiBindings: uiBindings,
         get ui() {
@@ -218,19 +220,25 @@ describe('ui mixin', function() {
       }, UIMixin);
 
       expect(view._getUIBindings()).to.equal(bindings);
-      expect(uiBindings).to.have.been.calledOnce.and.calledOn(view).and.calledWithExactly();
+      expect(uiBindings).toHaveBeenCalledTimes(1);
+      expect(uiBindings.mock.contexts[0] === view).toBe(true);
+      expect(uiBindings).toHaveBeenCalledWith();
     });
 
     it('falls back to a callable ui value when _uiBindings resolves falsy', function() {
       [null, false, 0, '', NaN].forEach(falsyValue => {
         const bindings = { foo: '.foo' };
-        const uiBindings = this.sinon.stub().returns(falsyValue);
-        const ui = this.sinon.stub().returns(bindings);
+        const uiBindings = vi.fn().mockReturnValue(falsyValue);
+        const ui = vi.fn().mockReturnValue(bindings);
         const view = _.extend({ _uiBindings: uiBindings, ui }, UIMixin);
 
         expect(view._getUIBindings()).to.equal(bindings);
-        expect(uiBindings).to.have.been.calledOnce.and.calledOn(view).and.calledWithExactly();
-        expect(ui).to.have.been.calledOnce.and.calledOn(view).and.calledWithExactly();
+        expect(uiBindings).toHaveBeenCalledTimes(1);
+        expect(uiBindings.mock.contexts[0] === view).toBe(true);
+        expect(uiBindings).toHaveBeenCalledWith();
+        expect(ui).toHaveBeenCalledTimes(1);
+        expect(ui.mock.contexts).toContain(view);
+        expect(ui).toHaveBeenCalledWith();
       });
     });
   });
@@ -238,30 +246,32 @@ describe('ui mixin', function() {
   describe('#_bindUIElements', function() {
     it('resolves callable bindings on the view with no arguments', function() {
       const bindings = { foo: '.foo' };
-      const ui = this.sinon.stub().returns(bindings);
+      const ui = vi.fn().mockReturnValue(bindings);
       const selectorResult = {};
       const view = _.extend({
-        $: this.sinon.stub().returns(selectorResult),
+        $: vi.fn().mockReturnValue(selectorResult),
         ui
       }, UIMixin);
 
       view._bindUIElements();
 
-      expect(ui).to.have.been.calledOnce.and.calledOn(view).and.calledWithExactly();
+      expect(ui).toHaveBeenCalledTimes(1);
+      expect(ui.mock.contexts).toContain(view);
+      expect(ui).toHaveBeenCalledWith();
       expect(view._uiBindings).to.equal(ui);
       expect(view.ui.foo).to.equal(selectorResult);
     });
 
     it('treats nullish resolved bindings as an empty bound map', function() {
-      const ui = this.sinon.stub().returns(null);
+      const ui = vi.fn().mockReturnValue(null);
       const view = _.extend({
-        $: this.sinon.stub(),
+        $: vi.fn(),
         ui
       }, UIMixin);
 
       view._bindUIElements();
 
-      expect(view.$).not.to.have.been.called;
+      expect(view.$).not.toHaveBeenCalled();
       expect(view.ui).to.equal(view._ui).and.to.deep.equal({});
     });
 
@@ -271,11 +281,12 @@ describe('ui mixin', function() {
       });
       const bindingView = new BindingView();
       const selectorResult = {};
-      bindingView.$ = sinon.stub().returns(selectorResult);
+      bindingView.$ = vi.fn().mockReturnValue(selectorResult);
 
       bindingView.bindUIElements();
 
-      expect(bindingView.$).to.have.been.calledOnceWithExactly(1);
+      expect(bindingView.$).toHaveBeenCalledTimes(1);
+      expect(bindingView.$).toHaveBeenCalledWith(1);
       expect(bindingView.ui.direct).to.equal(selectorResult);
     });
 
@@ -286,13 +297,14 @@ describe('ui mixin', function() {
         value: 'selector'
       });
       const view = _.extend({
-        $: this.sinon.stub().returns(selectorResult),
+        $: vi.fn().mockReturnValue(selectorResult),
         ui: bindings
       }, UIMixin);
 
       view._bindUIElements();
 
-      expect(view.$).to.have.been.calledOnceWithExactly('selector');
+      expect(view.$).toHaveBeenCalledTimes(1);
+      expect(view.$).toHaveBeenCalledWith('selector');
       expect(Object.getPrototypeOf(view.ui)).to.equal(Object.prototype);
       expect(view.ui).to.have.own.property('__proto__', selectorResult);
       expect(Object.getOwnPropertyDescriptor(view.ui, '__proto__')).to.include({

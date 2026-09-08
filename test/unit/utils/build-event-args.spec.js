@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import buildEventArgs from '../../../packages/utils/src/build-event-args.ts';
 
 function defineEnumerable(object, name, value) {

@@ -1,167 +1,170 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import _ from 'underscore';
+import * as Marionette from '../../src/index.ts';
 describe('view - dynamic regions', function() {
   'use strict';
 
   let TestView;
 
-  beforeEach(function() {
+  beforeEach(function(testContext) {
     TestView = Marionette.View.extend({ template: () => '' });
     _.extend(TestView.prototype, Marionette.Events);
 
-    this.template = function() {
+    testContext.template = function() {
       return '<div id="foo"></div><div id="bar"></div>';
     };
   });
 
   describe('when adding a region to a layoutView, after it has been rendered', function() {
-    beforeEach(function() {
-      this.MyView = Marionette.View.extend({
+    beforeEach(function(testContext) {
+      testContext.MyView = Marionette.View.extend({
         onAddRegion: function() {},
         onBeforeAddRegion: function() {}
       });
 
-      this.layoutView = new this.MyView({
-        template: this.template
+      testContext.layoutView = new testContext.MyView({
+        template: testContext.template
       });
 
-      this.beforeAddHandler = this.sinon.spy();
-      this.addHandler = this.sinon.spy();
-      this.onBeforeAddSpy = this.sinon.spy(this.layoutView, 'onBeforeAddRegion');
-      this.onAddSpy = this.sinon.spy(this.layoutView, 'onAddRegion');
-      this.layoutView.on('before:add:region', this.beforeAddHandler);
-      this.layoutView.on('add:region', this.addHandler);
+      testContext.beforeAddHandler = vi.fn();
+      testContext.addHandler = vi.fn();
+      testContext.onBeforeAddSpy = vi.spyOn(testContext.layoutView, 'onBeforeAddRegion');
+      testContext.onAddSpy = vi.spyOn(testContext.layoutView, 'onAddRegion');
+      testContext.layoutView.on('before:add:region', testContext.beforeAddHandler);
+      testContext.layoutView.on('add:region', testContext.addHandler);
 
-      this.layoutView.render();
+      testContext.layoutView.render();
 
-      this.region = this.layoutView.addRegion('foo', '#foo');
+      testContext.region = testContext.layoutView.addRegion('foo', '#foo');
 
-      this.view = new TestView();
-      this.layoutView.getRegion('foo').show(this.view);
+      testContext.view = new TestView();
+      testContext.layoutView.getRegion('foo').show(testContext.view);
     });
 
-    it('should add the region to the layoutView', function() {
-      expect(this.layoutView.getRegion('foo')).to.equal(this.region);
+    it('should add the region to the layoutView', function(testContext) {
+      expect(testContext.layoutView.getRegion('foo')).to.equal(testContext.region);
     });
 
-    it('should add the region definition to the regions property', function() {
-      expect(this.layoutView.regions.foo).to.equal('#foo');
+    it('should add the region definition to the regions property', function(testContext) {
+      expect(testContext.layoutView.regions.foo).to.equal('#foo');
     });
 
-    it('should set the parent of the region to the layoutView', function() {
-      expect(this.region.el.parentNode).to.equal(this.layoutView.el);
+    it('should set the parent of the region to the layoutView', function(testContext) {
+      expect(testContext.region.el.parentNode).to.equal(testContext.layoutView.el);
     });
 
-    it('should be able to show a view in the region', function() {
-      expect(this.layoutView.getRegion('foo').el.children.length).to.equal(1);
+    it('should be able to show a view in the region', function(testContext) {
+      expect(testContext.layoutView.getRegion('foo').el.children.length).to.equal(1);
     });
 
-    it('should trigger a before:add:region event', function() {
-      expect(this.beforeAddHandler).to.have.been.calledWith(this.layoutView, 'foo');
-      expect(this.onBeforeAddSpy).to.have.been.calledWith(this.layoutView, 'foo');
+    it('should trigger a before:add:region event', function(testContext) {
+      expect(testContext.beforeAddHandler.mock.calls.map(args => args.slice(0, 2))).toContainEqual([testContext.layoutView, 'foo']);
+      expect(testContext.onBeforeAddSpy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([testContext.layoutView, 'foo']);
     });
 
-    it('should trigger a add:region event', function() {
-      expect(this.addHandler).to.have.been.calledWith(this.layoutView, 'foo', this.region);
-      expect(this.onAddSpy).to.have.been.calledWith(this.layoutView, 'foo', this.region);
+    it('should trigger a add:region event', function(testContext) {
+      expect(testContext.addHandler.mock.calls.map(args => args.slice(0, 3))).toContainEqual([testContext.layoutView, 'foo', testContext.region]);
+      expect(testContext.onAddSpy.mock.calls.map(args => args.slice(0, 3))).toContainEqual([testContext.layoutView, 'foo', testContext.region]);
     });
   });
 
   describe('when adding a region to a layoutView, before it has been rendered', function() {
-    beforeEach(function() {
-      this.layoutView = new Marionette.View({
-        template: this.template
+    beforeEach(function(testContext) {
+      testContext.layoutView = new Marionette.View({
+        template: testContext.template
       });
 
-      this.region = this.layoutView.addRegion('foo', '#foo');
+      testContext.region = testContext.layoutView.addRegion('foo', '#foo');
 
-      this.layoutView.render();
+      testContext.layoutView.render();
 
-      this.view = new TestView();
-      this.layoutView.getRegion('foo').show(this.view);
+      testContext.view = new TestView();
+      testContext.layoutView.getRegion('foo').show(testContext.view);
     });
 
-    it('should add the region to the layoutView after it is rendered', function() {
-      expect(this.layoutView.getRegion('foo')).to.equal(this.region);
+    it('should add the region to the layoutView after it is rendered', function(testContext) {
+      expect(testContext.layoutView.getRegion('foo')).to.equal(testContext.region);
     });
 
-    it('should set the parent of the region to the layoutView', function() {
-      expect(this.region.el.parentNode).to.equal(this.layoutView.el);
+    it('should set the parent of the region to the layoutView', function(testContext) {
+      expect(testContext.region.el.parentNode).to.equal(testContext.layoutView.el);
     });
 
-    it('should be able to show a view in the region', function() {
-      expect(this.layoutView.getRegion('foo').el.children.length).to.equal(1);
+    it('should be able to show a view in the region', function(testContext) {
+      expect(testContext.layoutView.getRegion('foo').el.children.length).to.equal(1);
     });
   });
 
   describe('when adding a region to a layoutView that does not have any regions defined, and re-rendering the layoutView', function() {
-    beforeEach(function() {
-      this.layoutView = new Marionette.View({
-        template: this.template
+    beforeEach(function(testContext) {
+      testContext.layoutView = new Marionette.View({
+        template: testContext.template
       });
 
-      this.region = this.layoutView.addRegion('foo', '#foo');
+      testContext.region = testContext.layoutView.addRegion('foo', '#foo');
 
-      this.layoutView.render();
-      this.layoutView.render();
+      testContext.layoutView.render();
+      testContext.layoutView.render();
 
-      this.view = new TestView();
-      this.layoutView.getRegion('foo').show(this.view);
+      testContext.view = new TestView();
+      testContext.layoutView.getRegion('foo').show(testContext.view);
     });
 
-    it('should re-add the region to the layoutView after it is re-rendered', function() {
-      expect(this.layoutView.getRegion('foo')).to.equal(this.region);
+    it('should re-add the region to the layoutView after it is re-rendered', function(testContext) {
+      expect(testContext.layoutView.getRegion('foo')).to.equal(testContext.region);
     });
 
-    it('should set the parent of the region to the layoutView', function() {
-      expect(this.region.el.parentNode).to.equal(this.layoutView.el);
+    it('should set the parent of the region to the layoutView', function(testContext) {
+      expect(testContext.region.el.parentNode).to.equal(testContext.layoutView.el);
     });
 
-    it('should be able to show a view in the region', function() {
-      expect(this.layoutView.getRegion('foo').el.children.length).to.equal(1);
+    it('should be able to show a view in the region', function(testContext) {
+      expect(testContext.layoutView.getRegion('foo').el.children.length).to.equal(1);
     });
   });
 
   describe('when adding a region to a layoutView that already has regions defined, and re-rendering the layoutView', function() {
-    beforeEach(function() {
-      this.layoutView = new Marionette.View({
+    beforeEach(function(testContext) {
+      testContext.layoutView = new Marionette.View({
         regions: {
           bar: '#bar'
         },
-        template: this.template
+        template: testContext.template
       });
 
-      this.barRegion = this.layoutView.getRegion('bar');
+      testContext.barRegion = testContext.layoutView.getRegion('bar');
 
-      this.region = this.layoutView.addRegion('foo', '#foo');
+      testContext.region = testContext.layoutView.addRegion('foo', '#foo');
 
-      this.layoutView.render();
-      this.layoutView.render();
+      testContext.layoutView.render();
+      testContext.layoutView.render();
 
-      this.view = new TestView();
-      this.layoutView.getRegion('foo').show(this.view);
+      testContext.view = new TestView();
+      testContext.layoutView.getRegion('foo').show(testContext.view);
     });
 
-    it('should keep the original regions', function() {
-      expect(this.layoutView.getRegion('bar')).to.equal(this.barRegion);
+    it('should keep the original regions', function(testContext) {
+      expect(testContext.layoutView.getRegion('bar')).to.equal(testContext.barRegion);
     });
 
-    it('should re-add the region to the layoutView after it is re-rendered', function() {
-      expect(this.layoutView.getRegion('foo')).to.equal(this.region);
+    it('should re-add the region to the layoutView after it is re-rendered', function(testContext) {
+      expect(testContext.layoutView.getRegion('foo')).to.equal(testContext.region);
     });
 
-    it('should set the parent of the region to the layoutView', function() {
-      this.region.show(new TestView());
-      expect(this.region.el.parentNode).to.equal(this.layoutView.el);
+    it('should set the parent of the region to the layoutView', function(testContext) {
+      testContext.region.show(new TestView());
+      expect(testContext.region.el.parentNode).to.equal(testContext.layoutView.el);
     });
 
-    it('should be able to show a view in the region', function() {
-      expect(this.layoutView.getRegion('foo').el.children.length).to.equal(1);
+    it('should be able to show a view in the region', function(testContext) {
+      expect(testContext.layoutView.getRegion('foo').el.children.length).to.equal(1);
     });
   });
 
   describe('when removing a region from a layoutView', function() {
-    beforeEach(function() {
-      this.View = Marionette.View.extend({
-        template: this.template,
+    beforeEach(function(testContext) {
+      testContext.View = Marionette.View.extend({
+        template: testContext.template,
         regions: {
           foo: '#foo'
         },
@@ -169,133 +172,133 @@ describe('view - dynamic regions', function() {
         onRemoveRegion: function() {}
       });
 
-      this.emptyHandler = this.sinon.spy();
-      this.beforeRemoveHandler = this.sinon.spy();
-      this.removeHandler = this.sinon.spy();
-      this.beforeDestroyHandler = this.sinon.spy();
-      this.destroyHandler = this.sinon.spy();
+      testContext.emptyHandler = vi.fn();
+      testContext.beforeRemoveHandler = vi.fn();
+      testContext.removeHandler = vi.fn();
+      testContext.beforeDestroyHandler = vi.fn();
+      testContext.destroyHandler = vi.fn();
 
-      this.layoutView = new this.View();
+      testContext.layoutView = new testContext.View();
 
-      this.onBeforeRemoveSpy = this.sinon.spy(this.layoutView, 'onBeforeRemoveRegion');
-      this.onRemoveSpy = this.sinon.spy(this.layoutView, 'onRemoveRegion');
+      testContext.onBeforeRemoveSpy = vi.spyOn(testContext.layoutView, 'onBeforeRemoveRegion');
+      testContext.onRemoveSpy = vi.spyOn(testContext.layoutView, 'onRemoveRegion');
 
-      this.layoutView.render();
-      this.layoutView.getRegion('foo').show(new TestView());
-      this.region = this.layoutView.getRegion('foo');
+      testContext.layoutView.render();
+      testContext.layoutView.getRegion('foo').show(new TestView());
+      testContext.region = testContext.layoutView.getRegion('foo');
 
-      this.region.on('empty', this.emptyHandler);
-      this.layoutView.on('before:remove:region', this.beforeRemoveHandler);
-      this.layoutView.on('remove:region', this.removeHandler);
-      this.region.on('before:destroy', this.beforeDestroyHandler);
-      this.region.on('destroy', this.destroyHandler);
-      this.layoutView.removeRegion('foo');
+      testContext.region.on('empty', testContext.emptyHandler);
+      testContext.layoutView.on('before:remove:region', testContext.beforeRemoveHandler);
+      testContext.layoutView.on('remove:region', testContext.removeHandler);
+      testContext.region.on('before:destroy', testContext.beforeDestroyHandler);
+      testContext.region.on('destroy', testContext.destroyHandler);
+      testContext.layoutView.removeRegion('foo');
     });
 
-    it('should empty the region', function() {
-      expect(this.emptyHandler).to.have.been.called;
+    it('should empty the region', function(testContext) {
+      expect(testContext.emptyHandler).toHaveBeenCalled();
     });
 
-    it('should trigger a before:destroy event on the region', function() {
-      expect(this.beforeDestroyHandler).to.have.been.calledWith(this.region);
+    it('should trigger a before:destroy event on the region', function(testContext) {
+      expect(testContext.beforeDestroyHandler.mock.calls.map(args => args.slice(0, 1))).toContainEqual([testContext.region]);
     });
 
-    it('should trigger a destroy event on the region', function() {
-      expect(this.destroyHandler).to.have.been.calledWith(this.region);
+    it('should trigger a destroy event on the region', function(testContext) {
+      expect(testContext.destroyHandler.mock.calls.map(args => args.slice(0, 1))).toContainEqual([testContext.region]);
     });
 
-    it('should trigger a before:remove:region event', function() {
-      expect(this.onBeforeRemoveSpy).to.have.been.calledWith(this.layoutView, 'foo');
-      expect(this.beforeRemoveHandler).to.have.been.calledWith(this.layoutView, 'foo');
+    it('should trigger a before:remove:region event', function(testContext) {
+      expect(testContext.onBeforeRemoveSpy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([testContext.layoutView, 'foo']);
+      expect(testContext.beforeRemoveHandler.mock.calls.map(args => args.slice(0, 2))).toContainEqual([testContext.layoutView, 'foo']);
     });
 
-    it('should trigger a remove:region event', function() {
-      expect(this.onRemoveSpy).to.have.been.calledWith(this.layoutView, 'foo', this.region);
-      expect(this.removeHandler).to.have.been.calledWith(this.layoutView, 'foo', this.region);
+    it('should trigger a remove:region event', function(testContext) {
+      expect(testContext.onRemoveSpy.mock.calls.map(args => args.slice(0, 3))).toContainEqual([testContext.layoutView, 'foo', testContext.region]);
+      expect(testContext.removeHandler.mock.calls.map(args => args.slice(0, 3))).toContainEqual([testContext.layoutView, 'foo', testContext.region]);
     });
 
-    it('should remove the region', function() {
-      expect(this.layoutView.getRegion('foo')).to.be.undefined;
-      expect(this.layoutView.regions.foo).to.be.undefined;
+    it('should remove the region', function(testContext) {
+      expect(testContext.layoutView.getRegion('foo')).to.be.undefined;
+      expect(testContext.layoutView.regions.foo).to.be.undefined;
     });
   });
 
   describe('when removing a region and then re-rendering the layoutView', function() {
-    beforeEach(function() {
-      this.View = Marionette.View.extend({
-        template: this.template,
+    beforeEach(function(testContext) {
+      testContext.View = Marionette.View.extend({
+        template: testContext.template,
         regions: {
           foo: '#foo'
         }
       });
 
-      this.layoutView = new this.View();
+      testContext.layoutView = new testContext.View();
 
-      this.layoutView.render();
-      this.layoutView.getRegion('foo').show(new TestView());
+      testContext.layoutView.render();
+      testContext.layoutView.getRegion('foo').show(new TestView());
 
-      this.layoutView.removeRegion('foo');
-      this.layoutView.render();
+      testContext.layoutView.removeRegion('foo');
+      testContext.layoutView.render();
 
-      this.region = this.layoutView.getRegion('foo');
+      testContext.region = testContext.layoutView.getRegion('foo');
     });
 
-    it('should not re-attach the region to the layoutView', function() {
-      expect(this.region).to.be.undefined;
+    it('should not re-attach the region to the layoutView', function(testContext) {
+      expect(testContext.region).to.be.undefined;
     });
   });
 
   describe('when adding a region to a layoutView then destroying the layoutView', function() {
-    beforeEach(function() {
-      this.emptyHandler = this.sinon.stub();
-      this.layoutView = new Marionette.View({
-        template: this.template
+    beforeEach(function(testContext) {
+      testContext.emptyHandler = vi.fn();
+      testContext.layoutView = new Marionette.View({
+        template: testContext.template
       });
 
-      this.layoutView.render();
+      testContext.layoutView.render();
 
-      this.region = this.layoutView.addRegion('foo', '#foo');
-      this.region.on('empty', this.emptyHandler);
+      testContext.region = testContext.layoutView.addRegion('foo', '#foo');
+      testContext.region.on('empty', testContext.emptyHandler);
 
-      this.view = new TestView();
-      this.layoutView.getRegion('foo').show(this.view);
+      testContext.view = new TestView();
+      testContext.layoutView.getRegion('foo').show(testContext.view);
 
-      this.layoutView.destroy();
+      testContext.layoutView.destroy();
     });
 
-    it('should empty the region', function() {
-      expect(this.emptyHandler).to.have.been.called;
+    it('should empty the region', function(testContext) {
+      expect(testContext.emptyHandler).toHaveBeenCalled();
     });
   });
 
   describe('when calling emptyRegions', function() {
-    beforeEach(function() {
+    beforeEach(function(testContext) {
 
-      this.view = new Marionette.View({
-        template: this.template
+      testContext.view = new Marionette.View({
+        template: testContext.template
       });
-      this.view.render();
-      this.region = this.view.addRegion('foo', '#foo');
-      this.regions = this.view.getRegions();
-      this.region.show(new TestView());
+      testContext.view.render();
+      testContext.region = testContext.view.addRegion('foo', '#foo');
+      testContext.regions = testContext.view.getRegions();
+      testContext.region.show(new TestView());
 
-      this.emptyHandler = this.sinon.stub();
-      this.region.on('empty', this.emptyHandler);
+      testContext.emptyHandler = vi.fn();
+      testContext.region.on('empty', testContext.emptyHandler);
 
-      this.sinon.spy(this.view, 'emptyRegions');
-      this.view.emptyRegions();
+      vi.spyOn(testContext.view, 'emptyRegions');
+      testContext.view.emptyRegions();
     });
 
-    it('should empty all regions', function() {
-      expect(this.emptyHandler).to.have.been.called;
+    it('should empty all regions', function(testContext) {
+      expect(testContext.emptyHandler).toHaveBeenCalled();
     });
 
-    it('should not remove all regions', function() {
-      expect(this.view.getRegion('foo')).to.equal(this.region);
+    it('should not remove all regions', function(testContext) {
+      expect(testContext.view.getRegion('foo')).to.equal(testContext.region);
     });
 
-    it('should return the regions', function() {
-      expect(this.view.emptyRegions.firstCall.returnValue).to.have.property('foo', this.region);
+    it('should return the regions', function(testContext) {
+      expect(testContext.view.emptyRegions.mock.results.at(0).value).to.have.property('foo', testContext.region);
     });
   });
 });

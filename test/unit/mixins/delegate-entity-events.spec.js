@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import DelegateEntityEventsMixin from '../../../src/mixins/delegate-entity-events';
 import { normalizeMethods } from '@marionette/utils';
 
@@ -11,19 +12,18 @@ describe('delegate entity events mixin', function() {
   beforeEach(function() {
     model = { type: 'model' };
     collection = { type: 'collection' };
-    modelCleanup = this.sinon.spy();
-    collectionCleanup = this.sinon.spy();
+    modelCleanup = vi.fn();
+    collectionCleanup = vi.fn();
 
     obj = Object.assign({
       normalizeMethods,
-      onModel: this.sinon.spy(),
-      onCollection: this.sinon.spy(),
+      onModel: vi.fn(),
+      onCollection: vi.fn(),
       Data: {
-        subscribe: this.sinon.stub()
+        subscribe: vi.fn()
       }
     }, DelegateEntityEventsMixin);
-    obj.Data.subscribe.withArgs(model).returns(modelCleanup);
-    obj.Data.subscribe.withArgs(collection).returns(collectionCleanup);
+    obj.Data.subscribe.mockImplementation(source => source === model ? modelCleanup : collectionCleanup);
   });
 
   describe('#_delegateEntityEvents', function() {
@@ -33,30 +33,22 @@ describe('delegate entity events mixin', function() {
 
       obj._delegateEntityEvents(model, collection, obj.Data);
 
-      expect(obj.Data.subscribe.firstCall).to.have.been.calledWithExactly(
-        model,
-        'change',
-        obj.onModel,
-        obj
-      );
-      expect(obj.Data.subscribe.secondCall).to.have.been.calledWithExactly(
-        collection,
-        'update',
-        obj.onCollection,
-        obj
-      );
+      expect(obj.Data.subscribe.mock.calls.at(0)).toEqual([model, 'change', obj.onModel, obj]);
+      expect(obj.Data.subscribe.mock.calls.at(1)).toEqual([collection, 'update', obj.onCollection, obj]);
       expect(obj._modelEvents).to.equal(obj.modelEvents);
       expect(obj._collectionEvents).to.equal(obj.collectionEvents);
     });
 
     it('resolves callable maps once', function() {
       const modelEvents = { change: 'onModel' };
-      obj.modelEvents = this.sinon.stub().returns(modelEvents);
+      obj.modelEvents = vi.fn().mockReturnValue(modelEvents);
 
       obj._delegateEntityEvents(model, null, obj.Data);
 
-      expect(obj.modelEvents).to.have.been.calledOnce.and.calledOn(obj).and.calledWithExactly();
-      expect(obj.Data.subscribe).to.have.been.calledOnce;
+      expect(obj.modelEvents).toHaveBeenCalledTimes(1);
+      expect(obj.modelEvents.mock.contexts).toContain(obj);
+      expect(obj.modelEvents).toHaveBeenCalledWith();
+      expect(obj.Data.subscribe).toHaveBeenCalledTimes(1);
     });
 
     it('expands space-separated event names', function() {
@@ -64,16 +56,16 @@ describe('delegate entity events mixin', function() {
 
       obj._delegateEntityEvents(model, null, obj.Data);
 
-      expect(obj.Data.subscribe).to.have.callCount(2);
-      expect(obj.Data.subscribe.firstCall.args[1]).to.equal('change');
-      expect(obj.Data.subscribe.secondCall.args[1]).to.equal('reset');
+      expect(obj.Data.subscribe).toHaveBeenCalledTimes(2);
+      expect(obj.Data.subscribe.mock.calls.at(0)[1]).to.equal('change');
+      expect(obj.Data.subscribe.mock.calls.at(1)[1]).to.equal('reset');
     });
 
     it('does not subscribe absent entities or event maps', function() {
       obj._delegateEntityEvents(model, collection, obj.Data);
       obj._delegateEntityEvents(null, null, obj.Data);
 
-      expect(obj.Data.subscribe).to.not.have.been.called;
+      expect(obj.Data.subscribe).not.toHaveBeenCalled();
       expect(obj).to.not.have.property('_modelEventCleanup');
       expect(obj).to.not.have.property('_collectionEventCleanup');
     });
@@ -81,12 +73,12 @@ describe('delegate entity events mixin', function() {
     it('propagates subscription setup errors', function() {
       const error = new Error('subscribe failed');
       obj.modelEvents = { 'first second': 'onModel' };
-      obj.Data.subscribe.resetBehavior();
-      obj.Data.subscribe.onFirstCall().returns(modelCleanup);
-      obj.Data.subscribe.onSecondCall().throws(error);
+      obj.Data.subscribe.mockReset();
+      obj.Data.subscribe.mockReturnValueOnce(modelCleanup);
+      obj.Data.subscribe.mockImplementationOnce(() => { throw error; });
 
       expect(() => obj._delegateEntityEvents(model, null, obj.Data)).to.throw(error);
-      expect(modelCleanup).to.not.have.been.called;
+      expect(modelCleanup).not.toHaveBeenCalled();
     });
   });
 
@@ -99,8 +91,8 @@ describe('delegate entity events mixin', function() {
       obj._undelegateEntityEvents();
       obj._undelegateEntityEvents();
 
-      expect(modelCleanup).to.have.been.calledOnce;
-      expect(collectionCleanup).to.have.been.calledOnce;
+      expect(modelCleanup).toHaveBeenCalledTimes(1);
+      expect(collectionCleanup).toHaveBeenCalledTimes(1);
       expect(obj).to.not.have.property('_modelEvents');
       expect(obj).to.not.have.property('_collectionEvents');
     });

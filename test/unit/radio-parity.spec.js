@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { createRequire } from 'node:module';
 import { createRadio } from '../../packages/radio/src/index.ts';
 

@@ -1,3 +1,4 @@
+import { vi, describe, it, expect } from 'vitest';
 import DataApi from '../../src/runtime/data-api';
 import CollectionView from '../../src/modules/collection-view';
 import View from '../../src/modules/view';
@@ -97,7 +98,7 @@ describe('plain data integration', function() {
     const first = { id: 1, name: 'one' };
     const second = { id: 2, name: 'two' };
     const collection = { models: [first, second] };
-    const observerDisposed = this.sinon.spy();
+    const observerDisposed = vi.fn();
     let emit;
     const ObservableCollectionView = PlainCollectionView.extend({});
 
@@ -142,6 +143,6 @@ describe('plain data integration', function() {
     expect(view.children.pluck('model')).to.deep.equal([reset]);
 
     view.destroy();
-    expect(observerDisposed).to.have.been.calledOnce;
+    expect(observerDisposed).toHaveBeenCalledTimes(1);
   });
 });

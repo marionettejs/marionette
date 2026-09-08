@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { MarionetteError, Region, View } from '../../src/index';
 
 const childOperations = [
@@ -101,8 +102,8 @@ describe('View named Region diagnostics', function() {
   it('treats the existing owner and name registration as an idempotent no-op', function() {
     const owner = new View();
     const ownedRegion = owner.addRegion('content', new Region({ el: '.content' }));
-    const beforeAdd = this.sinon.spy();
-    const add = this.sinon.spy();
+    const beforeAdd = vi.fn();
+    const add = vi.fn();
     owner.on('before:add:region', beforeAdd);
     owner.on('add:region', add);
 
@@ -111,8 +112,8 @@ describe('View named Region diagnostics', function() {
       expect(owner.getRegion('content')).to.equal(ownedRegion);
       expect(ownedRegion.getOwner()).to.equal(owner);
       expect(ownedRegion.getName()).to.equal('content');
-      expect(beforeAdd).to.not.have.been.called;
-      expect(add).to.not.have.been.called;
+      expect(beforeAdd).not.toHaveBeenCalled();
+      expect(add).not.toHaveBeenCalled();
     } finally {
       owner.destroy();
     }
@@ -122,8 +123,8 @@ describe('View named Region diagnostics', function() {
     const owner = new View();
     const ownedRegion = owner.addRegion('content', new Region({ el: '.content' }));
     const sidebarRegion = new Region({ el: '.sidebar' });
-    const beforeAdd = this.sinon.spy();
-    const add = this.sinon.spy();
+    const beforeAdd = vi.fn();
+    const add = vi.fn();
     owner.on('before:add:region', beforeAdd);
     owner.on('add:region', add);
 
@@ -135,8 +136,10 @@ describe('View named Region diagnostics', function() {
 
       expect(regions.content).to.equal(ownedRegion);
       expect(regions.sidebar).to.equal(sidebarRegion);
-      expect(beforeAdd).to.have.been.calledOnceWith(owner, 'sidebar', sidebarRegion);
-      expect(add).to.have.been.calledOnceWith(owner, 'sidebar', sidebarRegion);
+      expect(beforeAdd).toHaveBeenCalledTimes(1);
+      expect(beforeAdd.mock.calls.map(args => args.slice(0, 3))).toContainEqual([owner, 'sidebar', sidebarRegion]);
+      expect(add).toHaveBeenCalledTimes(1);
+      expect(add.mock.calls.map(args => args.slice(0, 3))).toContainEqual([owner, 'sidebar', sidebarRegion]);
     } finally {
       owner.destroy();
     }
@@ -413,13 +416,13 @@ describe('View named Region diagnostics', function() {
   });
 
   it('rejects empty child Region names before rendering', function() {
-    this.sinon.spy(view, 'render');
+    vi.spyOn(view, 'render');
 
     for (const [, operation] of childOperations) {
       expectInvalidOperation(view, operation);
     }
 
-    expect(view.render).to.not.have.been.called;
+    expect(view.render).not.toHaveBeenCalled();
     expect(view.isRendered()).to.be.false;
   });
 
@@ -442,23 +445,24 @@ describe('View named Region diagnostics', function() {
     const operations = requiredOperations.slice(0, 3);
 
     for (const [, operation] of operations) {
-      const getRegion = this.sinon.stub(view, 'getRegion').returns(undefined);
+      const getRegion = vi.spyOn(view, 'getRegion').mockImplementation(() => undefined).mockReturnValue(undefined);
 
       expectMissingRegionError(view, 'alias', operation);
-      expect(getRegion).to.have.been.calledOnceWith('alias');
-      getRegion.restore();
+      expect(getRegion).toHaveBeenCalledTimes(1);
+      expect(getRegion.mock.calls.map(args => args.slice(0, 1))).toContainEqual(['alias']);
+      getRegion.mockRestore();
     }
   });
 
   it('does not emit removal lifecycle events for a missing named Region', function() {
-    const beforeRemove = this.sinon.spy();
-    const remove = this.sinon.spy();
+    const beforeRemove = vi.fn();
+    const remove = vi.fn();
     view.on('before:remove:region', beforeRemove);
     view.on('remove:region', remove);
 
     expect(() => view.removeRegion('missing')).to.throw(MarionetteError);
 
-    expect(beforeRemove).not.to.have.been.called;
-    expect(remove).not.to.have.been.called;
+    expect(beforeRemove).not.toHaveBeenCalled();
+    expect(remove).not.toHaveBeenCalled();
   });
 });

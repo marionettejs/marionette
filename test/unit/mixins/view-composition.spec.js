@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import BehaviorsMixin from '../../../src/mixins/behaviors';
 import CommonMixin from '../../../src/mixins/common';
 import DelegateEntityEventsMixin from '../../../src/mixins/delegate-entity-events';

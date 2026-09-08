@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import _ from 'underscore';
 
 import { getValue } from '@marionette/utils';

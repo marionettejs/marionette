@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { setProperty } from '@marionette/utils';
 
 describe('setProperty', function() {

@@ -1,3 +1,4 @@
+import { vi, describe, it, expect } from 'vitest';
 'use strict';
 
 import Application from '../../src/modules/application';
@@ -167,7 +168,7 @@ describe('Application lifecycle', function() {
 
   it('lets abort listeners supersede the replacement operation', async function() {
     const readiness = defer();
-    const beforeStop = this.sinon.spy();
+    const beforeStop = vi.fn();
     let destroy;
     const app = new (Application.extend({
       onBeforeStart(application, options, context) {
@@ -186,7 +187,7 @@ describe('Application lifecycle', function() {
     expect(await start).to.be.false;
     expect(await stop).to.be.false;
     expect(await destroy).to.be.true;
-    expect(beforeStop).to.have.been.calledOnce;
+    expect(beforeStop).toHaveBeenCalledTimes(1);
     expect(app.isDestroyed()).to.be.true;
   });
 
@@ -196,7 +197,7 @@ describe('Application lifecycle', function() {
     const restartOptions = { source: 'restart' };
     let stopContext;
     let completedStopOptions;
-    const onBeforeStop = this.sinon.stub().callsFake((app, options, context) => {
+    const onBeforeStop = vi.fn().mockImplementation((app, options, context) => {
       stopContext = context;
       return readiness.promise;
     });
@@ -217,15 +218,15 @@ describe('Application lifecycle', function() {
     readiness.resolve();
     expect(await restart).to.be.true;
     expect(stopContext.signal.aborted).to.be.false;
-    expect(onBeforeStop).to.have.been.calledOnce;
-    expect(onBeforeStop).to.have.been.calledWith(app, stopOptions, stopContext);
+    expect(onBeforeStop).toHaveBeenCalledTimes(1);
+    expect(onBeforeStop.mock.calls.map(args => args.slice(0, 3))).toContainEqual([app, stopOptions, stopContext]);
     expect(completedStopOptions).to.equal(stopOptions);
   });
 
   it('shares a compatible in-flight start and no-ops once running', async function() {
     const readiness = defer();
-    const beforeStart = this.sinon.stub().returns(readiness.promise);
-    const startEvent = this.sinon.spy();
+    const beforeStart = vi.fn().mockReturnValue(readiness.promise);
+    const startEvent = vi.fn();
     const app = new (Application.extend({ onBeforeStart: beforeStart, onStart: startEvent }))();
 
     const first = app.start();
@@ -235,8 +236,8 @@ describe('Application lifecycle', function() {
     readiness.resolve();
     expect(await first).to.be.true;
     expect(await app.start()).to.be.true;
-    expect(beforeStart).to.have.been.calledOnce;
-    expect(startEvent).to.have.been.calledOnce;
+    expect(beforeStart).toHaveBeenCalledTimes(1);
+    expect(startEvent).toHaveBeenCalledTimes(1);
   });
 
   it('lets stop supersede an in-flight start without stale success', async function() {
@@ -276,8 +277,8 @@ describe('Application lifecycle', function() {
 
   it('rejects a current start failure and permits retry', async function() {
     const error = new Error('readiness failed');
-    const onBeforeStart = this.sinon.stub();
-    onBeforeStart.onFirstCall().rejects(error);
+    const onBeforeStart = vi.fn();
+    onBeforeStart.mockRejectedValueOnce(error);
     const app = new (Application.extend({ onBeforeStart }))();
 
     await expectRejection(app.start(), error);
@@ -299,8 +300,8 @@ describe('Application lifecycle', function() {
 
   it('stops a running Application once and shares the in-flight result', async function() {
     const stopping = defer();
-    const beforeStop = this.sinon.stub().returns(stopping.promise);
-    const stopEvent = this.sinon.spy();
+    const beforeStop = vi.fn().mockReturnValue(stopping.promise);
+    const stopEvent = vi.fn();
     const app = new (Application.extend({ onBeforeStop: beforeStop, onStop: stopEvent }))();
     await app.start();
 
@@ -312,8 +313,8 @@ describe('Application lifecycle', function() {
     stopping.resolve();
     expect(await first).to.be.true;
     expect(await app.stop()).to.be.true;
-    expect(beforeStop).to.have.been.calledOnce;
-    expect(stopEvent).to.have.been.calledOnce;
+    expect(beforeStop).toHaveBeenCalledTimes(1);
+    expect(stopEvent).toHaveBeenCalledTimes(1);
   });
 
   it('rejects a synchronous before:stop failure', async function() {
@@ -419,7 +420,7 @@ describe('Application lifecycle', function() {
 
   it('shares a compatible in-flight restart', async function() {
     const stopping = defer();
-    const beforeStop = this.sinon.stub().returns(stopping.promise);
+    const beforeStop = vi.fn().mockReturnValue(stopping.promise);
     const app = new (Application.extend({ onBeforeStop: beforeStop }))();
     await app.start();
 
@@ -429,15 +430,15 @@ describe('Application lifecycle', function() {
     expect(repeated).to.equal(first);
     stopping.resolve();
     expect(await first).to.be.true;
-    expect(beforeStop).to.have.been.calledOnce;
+    expect(beforeStop).toHaveBeenCalledTimes(1);
     expect(app.isRunning()).to.be.true;
   });
 
   it('remains stopped when restart readiness fails after stop', async function() {
     const error = new Error('restart failed');
     const events = [];
-    const onBeforeStart = this.sinon.stub();
-    onBeforeStart.onSecondCall().rejects(error);
+    const onBeforeStart = vi.fn();
+    onBeforeStart.mockReturnValueOnce(undefined).mockRejectedValueOnce(error);
     const app = new (Application.extend({
       onBeforeStart,
       onStop() { events.push('stop'); }
@@ -465,40 +466,40 @@ describe('Application lifecycle', function() {
 
   it('lets start supersede an in-flight stop without a stale stop event', async function() {
     const stopping = defer();
-    const beforeStart = this.sinon.spy();
-    const stopEvent = this.sinon.spy();
+    const beforeStart = vi.fn();
+    const stopEvent = vi.fn();
     const app = new (Application.extend({
       onBeforeStart: beforeStart,
       onBeforeStop() { return stopping.promise; },
       onStop: stopEvent
     }))();
     await app.start();
-    beforeStart.resetHistory();
+    beforeStart.mockClear();
 
     const stop = app.stop();
     const start = app.start();
 
     expect(await stop).to.be.false;
-    expect(beforeStart).to.not.have.been.called;
+    expect(beforeStart).not.toHaveBeenCalled();
 
     stopping.resolve();
     expect(await start).to.be.true;
 
-    expect(beforeStart).to.have.been.calledOnce;
-    expect(stopEvent).to.not.have.been.called;
+    expect(beforeStart).toHaveBeenCalledTimes(1);
+    expect(stopEvent).not.toHaveBeenCalled();
     expect(app.isRunning()).to.be.true;
   });
 
   it('rejects a start that supersedes failing stop readiness', async function() {
     const stopping = defer();
     const error = new Error('stop failed');
-    const beforeStart = this.sinon.spy();
+    const beforeStart = vi.fn();
     const app = new (Application.extend({
       onBeforeStart: beforeStart,
       onBeforeStop() { return stopping.promise; }
     }))();
     await app.start();
-    beforeStart.resetHistory();
+    beforeStart.mockClear();
 
     const stop = app.stop();
     const start = app.start();
@@ -508,7 +509,7 @@ describe('Application lifecycle', function() {
     stopping.reject(error);
     await startResult;
 
-    expect(beforeStart).to.not.have.been.called;
+    expect(beforeStart).not.toHaveBeenCalled();
     expect(app.isRunning()).to.be.true;
   });
 
@@ -552,11 +553,11 @@ describe('Application lifecycle', function() {
     const restartReadiness = defer();
     const restartStarted = defer();
     let restartContext;
-    const beforeStop = this.sinon.spy();
-    const stopEvent = this.sinon.spy();
-    const startEvent = this.sinon.spy();
-    const onBeforeStart = this.sinon.stub();
-    onBeforeStart.onSecondCall().callsFake((app, options, context) => {
+    const beforeStop = vi.fn();
+    const stopEvent = vi.fn();
+    const startEvent = vi.fn();
+    const onBeforeStart = vi.fn();
+    onBeforeStart.mockReturnValueOnce(undefined).mockImplementationOnce((app, options, context) => {
       restartContext = context;
       restartStarted.resolve();
       return restartReadiness.promise;
@@ -568,7 +569,7 @@ describe('Application lifecycle', function() {
       onStart: startEvent
     }))();
     await app.start();
-    startEvent.resetHistory();
+    startEvent.mockClear();
 
     const restart = app.restart();
     await restartStarted.promise;
@@ -581,20 +582,20 @@ describe('Application lifecycle', function() {
     await restartReadiness.promise;
     await Promise.resolve();
 
-    expect(startEvent).to.not.have.been.called;
-    expect(beforeStop).to.have.been.calledOnce;
-    expect(stopEvent).to.have.been.calledOnce;
+    expect(startEvent).not.toHaveBeenCalled();
+    expect(beforeStop).toHaveBeenCalledTimes(1);
+    expect(stopEvent).toHaveBeenCalledTimes(1);
     expect(app.isRunning()).to.be.false;
   });
 
   it('publishes stopped state before abort listener reentry', async function() {
     const readiness = defer();
     const restartStarted = defer();
-    const beforeStop = this.sinon.spy();
-    const stopEvent = this.sinon.spy();
-    const onBeforeStart = this.sinon.stub();
+    const beforeStop = vi.fn();
+    const stopEvent = vi.fn();
+    const onBeforeStart = vi.fn();
     let destroy;
-    onBeforeStart.onSecondCall().callsFake((application, options, context) => {
+    onBeforeStart.mockReturnValueOnce(undefined).mockImplementationOnce((application, options, context) => {
       context.signal.addEventListener('abort', () => {
         readiness.resolve();
         destroy = application.destroy();
@@ -616,15 +617,15 @@ describe('Application lifecycle', function() {
     expect(await restart).to.be.false;
     expect(await stop).to.be.true;
     expect(await destroy).to.be.true;
-    expect(beforeStop).to.have.been.calledOnce;
-    expect(stopEvent).to.have.been.calledOnce;
+    expect(beforeStop).toHaveBeenCalledTimes(1);
+    expect(stopEvent).toHaveBeenCalledTimes(1);
     expect(app.isDestroyed()).to.be.true;
   });
 
   it('shares stop readiness when stop supersedes restart teardown', async function() {
     const stopping = defer();
-    const beforeStop = this.sinon.stub().returns(stopping.promise);
-    const stopEvent = this.sinon.spy();
+    const beforeStop = vi.fn().mockReturnValue(stopping.promise);
+    const stopEvent = vi.fn();
     const app = new (Application.extend({ onBeforeStop: beforeStop, onStop: stopEvent }))();
     await app.start();
 
@@ -634,18 +635,18 @@ describe('Application lifecycle', function() {
     expect(await restart).to.be.false;
     stopping.resolve();
     expect(await stop).to.be.true;
-    expect(beforeStop).to.have.been.calledOnce;
-    expect(stopEvent).to.have.been.calledOnce;
+    expect(beforeStop).toHaveBeenCalledTimes(1);
+    expect(stopEvent).toHaveBeenCalledTimes(1);
     expect(app.isRunning()).to.be.false;
   });
 
   it('destroys a restart without repeating its completed stop phase', async function() {
     const restartReadiness = defer();
     const restartStarted = defer();
-    const beforeStop = this.sinon.spy();
-    const stopEvent = this.sinon.spy();
-    const onBeforeStart = this.sinon.stub();
-    onBeforeStart.onSecondCall().callsFake(() => {
+    const beforeStop = vi.fn();
+    const stopEvent = vi.fn();
+    const onBeforeStart = vi.fn();
+    onBeforeStart.mockReturnValueOnce(undefined).mockImplementationOnce(() => {
       restartStarted.resolve();
       return restartReadiness.promise;
     });
@@ -662,8 +663,8 @@ describe('Application lifecycle', function() {
 
     expect(await restart).to.be.false;
     expect(await destroy).to.be.true;
-    expect(beforeStop).to.have.been.calledOnce;
-    expect(stopEvent).to.have.been.calledOnce;
+    expect(beforeStop).toHaveBeenCalledTimes(1);
+    expect(stopEvent).toHaveBeenCalledTimes(1);
     expect(app.isDestroyed()).to.be.true;
 
     restartReadiness.resolve();
@@ -711,7 +712,7 @@ describe('Application lifecycle', function() {
 
   it('supports reentrant stop from before:start', async function() {
     let stop;
-    const startEvent = this.sinon.spy();
+    const startEvent = vi.fn();
     const TestApplication = Application.extend({
       onBeforeStart() {
         stop = this.stop();
@@ -722,7 +723,7 @@ describe('Application lifecycle', function() {
 
     expect(await app.start()).to.be.false;
     expect(await stop).to.be.true;
-    expect(startEvent).to.not.have.been.called;
+    expect(startEvent).not.toHaveBeenCalled();
     expect(app.isRunning()).to.be.false;
   });
 
@@ -768,7 +769,7 @@ describe('Application lifecycle', function() {
   it('absorbs failure from readiness after startup is superseded', async function() {
     const readiness = defer();
     const error = new Error('stale failure');
-    const startEvent = this.sinon.spy();
+    const startEvent = vi.fn();
     const app = new (Application.extend({
       onBeforeStart() { return readiness.promise; },
       onStart: startEvent
@@ -782,7 +783,7 @@ describe('Application lifecycle', function() {
     await expectRejection(readiness.promise, error);
     await Promise.resolve();
 
-    expect(startEvent).to.not.have.been.called;
+    expect(startEvent).not.toHaveBeenCalled();
     expect(app.isRunning()).to.be.false;
   });
 
@@ -803,11 +804,11 @@ describe('Application lifecycle', function() {
   it('shares repeated destroy calls while teardown is in flight', async function() {
     const teardown = defer();
     let destroyContext;
-    const beforeDestroy = this.sinon.stub().callsFake((app, options, context) => {
+    const beforeDestroy = vi.fn().mockImplementation((app, options, context) => {
       destroyContext = context;
       return teardown.promise;
     });
-    const destroyEvent = this.sinon.spy();
+    const destroyEvent = vi.fn();
     const app = new (Application.extend({ onBeforeDestroy: beforeDestroy, onDestroy: destroyEvent }))();
 
     const first = app.destroy();
@@ -822,8 +823,8 @@ describe('Application lifecycle', function() {
     expect(await first).to.be.true;
     expect(app.isDestroyed()).to.be.true;
     expect(destroyContext.signal.aborted).to.be.false;
-    expect(beforeDestroy).to.have.been.calledOnce;
-    expect(destroyEvent).to.have.been.calledOnce;
+    expect(beforeDestroy).toHaveBeenCalledTimes(1);
+    expect(destroyEvent).toHaveBeenCalledTimes(1);
   });
 
   it('stays stopped when destroy fails after stopping a running Application', async function() {
@@ -866,7 +867,7 @@ describe('Application lifecycle', function() {
   it('shares stop calls during destroy and settles after the stop phase', async function() {
     const stopping = defer();
     const teardown = defer();
-    const stopEvent = this.sinon.spy();
+    const stopEvent = vi.fn();
     const app = new (Application.extend({
       onBeforeStop() { return stopping.promise; },
       onStop: stopEvent,
@@ -883,7 +884,7 @@ describe('Application lifecycle', function() {
     expect(thirdStop).to.equal(firstStop);
     stopping.resolve();
     expect(await firstStop).to.be.true;
-    expect(stopEvent).to.have.been.calledOnce;
+    expect(stopEvent).toHaveBeenCalledTimes(1);
     expect(app.isDestroyed()).to.be.false;
 
     teardown.resolve();
@@ -893,16 +894,16 @@ describe('Application lifecycle', function() {
 
   it('shares stop readiness across a start-stop-destroy overlap', async function() {
     const stopping = defer();
-    const beforeStop = this.sinon.stub().returns(stopping.promise);
-    const startEvent = this.sinon.spy();
-    const stopEvent = this.sinon.spy();
+    const beforeStop = vi.fn().mockReturnValue(stopping.promise);
+    const startEvent = vi.fn();
+    const stopEvent = vi.fn();
     const app = new (Application.extend({
       onBeforeStop: beforeStop,
       onStart: startEvent,
       onStop: stopEvent
     }))();
     await app.start();
-    startEvent.resetHistory();
+    startEvent.mockClear();
 
     const stop = app.stop();
     const start = app.start();
@@ -911,22 +912,22 @@ describe('Application lifecycle', function() {
 
     expect(await start).to.be.false;
     expect(await stop).to.be.false;
-    expect(beforeStop).to.have.been.calledOnce;
+    expect(beforeStop).toHaveBeenCalledTimes(1);
 
     stopping.resolve();
     expect(await destroy).to.be.true;
     expect(await stopDuringDestroy).to.be.true;
 
-    expect(beforeStop).to.have.been.calledOnce;
-    expect(stopEvent).to.have.been.calledOnce;
-    expect(startEvent).to.not.have.been.called;
+    expect(beforeStop).toHaveBeenCalledTimes(1);
+    expect(stopEvent).toHaveBeenCalledTimes(1);
+    expect(startEvent).not.toHaveBeenCalled();
     expect(app.isDestroyed()).to.be.true;
   });
 
   it('shares repeated stop readiness before destroy supersedes both calls', async function() {
     const stopping = defer();
-    const beforeStop = this.sinon.stub().returns(stopping.promise);
-    const stopEvent = this.sinon.spy();
+    const beforeStop = vi.fn().mockReturnValue(stopping.promise);
+    const stopEvent = vi.fn();
     const app = new (Application.extend({ onBeforeStop: beforeStop, onStop: stopEvent }))();
     await app.start();
 
@@ -940,8 +941,8 @@ describe('Application lifecycle', function() {
 
     stopping.resolve();
     expect(await destroy).to.be.true;
-    expect(beforeStop).to.have.been.calledOnce;
-    expect(stopEvent).to.have.been.calledOnce;
+    expect(beforeStop).toHaveBeenCalledTimes(1);
+    expect(stopEvent).toHaveBeenCalledTimes(1);
     expect(app.isDestroyed()).to.be.true;
   });
 
@@ -1000,7 +1001,7 @@ describe('Application lifecycle', function() {
 
   it('rejects a concurrent stop when destroy stop readiness throws synchronously', async function() {
     const error = new Error('stop failed');
-    const beforeStop = this.sinon.stub().throws(error);
+    const beforeStop = vi.fn().mockImplementation(() => { throw error; });
     const app = new (Application.extend({
       onBeforeStop: beforeStop
     }))();
@@ -1016,7 +1017,7 @@ describe('Application lifecycle', function() {
 
     expect(app.isRunning()).to.be.true;
     expect(app.isDestroyed()).to.be.false;
-    expect(beforeStop).to.have.been.calledOnce;
+    expect(beforeStop).toHaveBeenCalledTimes(1);
   });
 
   it('rejects stop during destroy when the stop event fails', async function() {
@@ -1086,21 +1087,22 @@ describe('Application lifecycle', function() {
     });
     const app = new TestApplication();
     const channel = app.getChannel();
-    this.sinon.spy(channel, 'stopReplying');
+    vi.spyOn(channel, 'stopReplying');
 
     expect(Radio.request(channelName, 'value')).to.equal(42);
 
     expect(await app.destroy()).to.be.true;
 
-    expect(channel.stopReplying).to.have.been.calledOnceWith(null, null, app);
+    expect(channel.stopReplying).toHaveBeenCalledTimes(1);
+    expect(channel.stopReplying.mock.calls.map(args => args.slice(0, 3))).toContainEqual([null, null, app]);
     expect(Radio.request(channelName, 'value')).to.be.undefined;
   });
 
   it('does not retain operation records across repeated start-stop cycles', async function() {
-    const beforeStart = this.sinon.spy();
-    const startEvent = this.sinon.spy();
-    const beforeStop = this.sinon.spy();
-    const stopEvent = this.sinon.spy();
+    const beforeStart = vi.fn();
+    const startEvent = vi.fn();
+    const beforeStop = vi.fn();
+    const stopEvent = vi.fn();
     const app = new (Application.extend({
       onBeforeStart: beforeStart,
       onStart: startEvent,
@@ -1114,10 +1116,10 @@ describe('Application lifecycle', function() {
       expect(Object.hasOwn(app, '_lifecycleOperation')).to.be.false;
     }
 
-    expect(beforeStart).to.have.callCount(10);
-    expect(startEvent).to.have.callCount(10);
-    expect(beforeStop).to.have.callCount(10);
-    expect(stopEvent).to.have.callCount(10);
+    expect(beforeStart).toHaveBeenCalledTimes(10);
+    expect(startEvent).toHaveBeenCalledTimes(10);
+    expect(beforeStop).toHaveBeenCalledTimes(10);
+    expect(stopEvent).toHaveBeenCalledTimes(10);
   });
 
 });

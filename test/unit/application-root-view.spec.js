@@ -1,3 +1,5 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { setFixtures } from '../setup/fixtures.js';
 'use strict';
 
 import _ from 'underscore';
@@ -12,22 +14,23 @@ const RootView = View.extend({
 
 describe('Application root View ownership', function() {
   beforeEach(function() {
-    this.setFixtures('<div id="application-root"></div>');
+    setFixtures('<div id="application-root"></div>');
   });
 
   it('shows and reads the current View of its Region', function() {
     const region = new Region({ el: '#application-root' });
     const app = new Application({ region });
     const view = new RootView();
-    const show = this.sinon.spy(region, 'show');
+    const show = vi.spyOn(region, 'show');
 
     expect(app.getView()).to.be.undefined;
     expect(app.showView(view)).to.equal(view);
-    expect(show).to.have.been.calledOnce.and.calledWithExactly(view);
+    expect(show).toHaveBeenCalledTimes(1);
+    expect(show).toHaveBeenCalledWith(view);
     expect(app.getRegion()).to.equal(region);
     expect(app.getView()).to.equal(view);
     expect(app.showView(view)).to.equal(view);
-    expect(show).to.have.been.calledTwice;
+    expect(show).toHaveBeenCalledTimes(2);
 
     region.destroy();
   });
@@ -206,8 +209,8 @@ describe('Application root View ownership', function() {
   });
 
   it('stops a root View shown while the Application is stopped', async function() {
-    const beforeStop = this.sinon.spy();
-    const onStop = this.sinon.spy();
+    const beforeStop = vi.fn();
+    const onStop = vi.fn();
     const TestApplication = Application.extend({ onBeforeStop: beforeStop, onStop });
     const app = new TestApplication({ region: '#application-root' });
     const view = new RootView();
@@ -215,8 +218,8 @@ describe('Application root View ownership', function() {
     app.showView(view);
 
     expect(await app.stop()).to.be.true;
-    expect(beforeStop).to.not.have.been.called;
-    expect(onStop).to.not.have.been.called;
+    expect(beforeStop).not.toHaveBeenCalled();
+    expect(onStop).not.toHaveBeenCalled();
     expect(view.isDestroyed()).to.be.true;
     expect(app.getView()).to.be.undefined;
 
@@ -226,8 +229,8 @@ describe('Application root View ownership', function() {
   for (const lifecycleState of ['stopped', 'running']) {
     it(`rejects and releases its root when ${ lifecycleState } root teardown throws`, async function() {
       const error = new Error('root destroy failed');
-      const onBeforeDestroy = this.sinon.stub();
-      onBeforeDestroy.onFirstCall().throws(error);
+      const onBeforeDestroy = vi.fn();
+      onBeforeDestroy.mockImplementationOnce(() => { throw error; });
       const app = new Application({ region: '#application-root' });
       const view = new (RootView.extend({ onBeforeDestroy }))();
 

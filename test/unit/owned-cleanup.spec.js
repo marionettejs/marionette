@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, afterEach } from 'vitest';
 import Application from '../../src/modules/application';
 import MnObject from '../../src/modules/object';
 import Radio from '../../packages/radio/src/radio.ts';
@@ -44,10 +45,10 @@ describe('MnObject and Application owned cleanup', function() {
   for (const { name, OwnerClass } of ownerDefinitions) {
     it(`${ name } cleanup cannot be disabled with off()`, async function() {
       const channelName = `owned-cleanup-${ name }`;
-      const onPing = this.sinon.spy();
-      const onReady = this.sinon.spy();
+      const onPing = vi.fn();
+      const onReady = vi.fn();
       const state = new ObservableSource({ ready: false });
-      const destroyState = this.sinon.spy(state, 'destroy');
+      const destroyState = vi.spyOn(state, 'destroy');
       const Owner = OwnerClass.extend({
         channelName,
         createState() { return state; },
@@ -60,15 +61,15 @@ describe('MnObject and Application owned cleanup', function() {
       });
       Owner.setStateApi(TestStateApi);
       const owner = new Owner();
-      const destroyRadio = this.sinon.spy(owner, '_destroyRadio');
-      const destroyOwnedState = this.sinon.spy(owner, '_destroyState');
+      const destroyRadio = vi.spyOn(owner, '_destroyRadio');
+      const destroyOwnedState = vi.spyOn(owner, '_destroyState');
 
       owner.off();
       Radio.trigger(channelName, 'ping');
       state.set('ready', true);
 
-      expect(onPing).to.have.been.calledOnce;
-      expect(onReady).to.have.been.calledOnce;
+      expect(onPing).toHaveBeenCalledTimes(1);
+      expect(onReady).toHaveBeenCalledTimes(1);
       expect(Radio.request(channelName, 'status')).to.equal('ready');
 
       await destroy(owner);
@@ -76,13 +77,13 @@ describe('MnObject and Application owned cleanup', function() {
       Radio.trigger(channelName, 'ping');
       state.set('ready', false);
 
-      expect(onPing).to.have.been.calledOnce;
-      expect(onReady).to.have.been.calledOnce;
+      expect(onPing).toHaveBeenCalledTimes(1);
+      expect(onReady).toHaveBeenCalledTimes(1);
       expect(Radio.request(channelName, 'status')).to.be.undefined;
       expect(state.isDestroyed()).to.be.true;
-      expect(destroyState).to.have.been.calledOnce;
-      expect(destroyRadio).to.have.been.calledOnce;
-      expect(destroyOwnedState).to.have.been.calledOnce;
+      expect(destroyState).toHaveBeenCalledTimes(1);
+      expect(destroyRadio).toHaveBeenCalledTimes(1);
+      expect(destroyOwnedState).toHaveBeenCalledTimes(1);
     });
 
     it(`${ name } preserves owned cleanup timing around public destroy`, async function() {

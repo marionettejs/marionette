@@ -1,3 +1,6 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import Backbone from 'backbone';
+import '../setup/backbone.js';
 import MnObject from '../../src/modules/object';
 
 describe('marionette object', function() {
@@ -16,10 +19,10 @@ describe('marionette object', function() {
           'bar': 'onBar'
         },
 
-        onBar: this.sinon.stub()
+        onBar: vi.fn()
       });
 
-      this.sinon.spy(Obj.prototype, '_initRadio');
+      vi.spyOn(Obj.prototype, '_initRadio');
 
       const model = new Backbone.Model();
 
@@ -52,22 +55,24 @@ describe('marionette object', function() {
     });
 
     it('should init the RadioMixin', function() {
-      expect(object._initRadio).to.have.been.called;
+      expect(object._initRadio).toHaveBeenCalled();
     });
 
     it('should support triggering events on itself', function() {
-      const fooHandler = this.sinon.spy();
+      const fooHandler = vi.fn();
       object.on('foo', fooHandler);
 
       object.trigger('foo', options);
 
-      expect(fooHandler).to.have.been.calledOnce.and.calledWith(options);
+      expect(fooHandler).toHaveBeenCalledTimes(1);
+      expect(fooHandler.mock.calls.map(args => args.slice(0, 1))).toContainEqual([options]);
     });
 
     it('should support binding to evented objects', function() {
       options.model.trigger('bar', options);
 
-      expect(object.onBar).to.have.been.calledOnce.and.calledWith(options);
+      expect(object.onBar).toHaveBeenCalledTimes(1);
+      expect(object.onBar.mock.calls.map(args => args.slice(0, 1))).toContainEqual([options]);
     });
 
     it('preserves constructor order, receiver, and initialize arguments', function() {

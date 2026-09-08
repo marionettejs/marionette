@@ -1,3 +1,4 @@
+import { vi, describe, it, expect } from 'vitest';
 import Application from '../../src/modules/application';
 import Behavior from '../../src/modules/behavior';
 import CollectionView from '../../src/modules/collection-view';
@@ -102,8 +103,8 @@ describe('state source composition', function() {
       onChanged(...args) { this.handler(...args); }
     });
     StatefulObject.setStateApi(createStateApi());
-    const firstHandler = this.sinon.spy();
-    const secondHandler = this.sinon.spy();
+    const firstHandler = vi.fn();
+    const secondHandler = vi.fn();
     const first = new StatefulObject({ state: source, handler: firstHandler });
     const second = new StatefulObject({ state: source, handler: secondHandler });
 
@@ -111,8 +112,9 @@ describe('state source composition', function() {
     first.destroy();
     emit(source, 'changed', source, 2);
 
-    expect(firstHandler).to.have.been.calledOnce.and.calledWith(source, 1);
-    expect(secondHandler).to.have.been.calledTwice;
+    expect(firstHandler).toHaveBeenCalledTimes(1);
+    expect(firstHandler.mock.calls.map(args => args.slice(0, 2))).toContainEqual([source, 1]);
+    expect(secondHandler).toHaveBeenCalledTimes(2);
     expect(source.listeners.get('changed')).to.have.lengthOf(1);
     second.destroy();
     expect(source.listeners.get('changed')).to.be.empty;
@@ -145,7 +147,7 @@ describe('state source composition', function() {
 
   it('immediately disposes owned state first requested after destruction', function() {
     const source = createSource();
-    const disposeOwned = this.sinon.spy();
+    const disposeOwned = vi.fn();
     const Owner = MnObject.extend({ createState() { return source; } });
     Owner.setStateApi(createStateApi(disposeOwned));
     const owner = new Owner();
@@ -153,11 +155,12 @@ describe('state source composition', function() {
     owner.destroy();
 
     expect(owner.getState()).to.equal(source);
-    expect(disposeOwned).to.have.been.calledOnce.and.calledWith(source);
+    expect(disposeOwned).toHaveBeenCalledTimes(1);
+    expect(disposeOwned.mock.calls.map(args => args.slice(0, 1))).toContainEqual([source]);
   });
 
   it('does not initialize state events after destruction', function() {
-    const subscribe = this.sinon.spy();
+    const subscribe = vi.fn();
     const Owner = MnObject.extend({
       stateEvents: { change() {} },
       initialize() { this.destroy(); }
@@ -166,14 +169,14 @@ describe('state source composition', function() {
     const owner = new Owner();
 
     expect(owner.isDestroyed()).to.be.true;
-    expect(subscribe).to.not.have.been.called;
+    expect(subscribe).not.toHaveBeenCalled();
   });
 
   it('passes adapter event names and callback arguments through unchanged', function() {
     const source = createSource();
-    const handler = this.sinon.spy();
+    const handler = vi.fn();
     const api = createStateApi();
-    const subscribe = this.sinon.spy(api.subscribe);
+    const subscribe = vi.fn(api.subscribe);
     const Owner = MnObject.extend({
       stateEvents: { 'actor.transition': 'onTransition' },
       onTransition: handler
@@ -183,8 +186,10 @@ describe('state source composition', function() {
     const payload = { value: 'ready' };
 
     emit(source, 'actor.transition', payload, 42);
-    expect(subscribe).to.have.been.calledWith(source, 'actor.transition', handler, owner);
-    expect(handler).to.have.been.calledOnce.and.calledOn(owner).and.calledWith(payload, 42);
+    expect(subscribe.mock.calls.map(args => args.slice(0, 4))).toContainEqual([source, 'actor.transition', handler, owner]);
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler.mock.contexts).toContain(owner);
+    expect(handler.mock.calls.map(args => args.slice(0, 2))).toContainEqual([payload, 42]);
     owner.destroy();
   });
 
@@ -213,19 +218,19 @@ describe('state source composition', function() {
   it('reads a supplied state option once', function() {
     const source = {};
     const options = {};
-    const getStateOption = this.sinon.stub().returns(source);
+    const getStateOption = vi.fn().mockReturnValue(source);
     Object.defineProperty(options, 'state', { get: getStateOption });
 
     const owner = new MnObject(options);
 
-    expect(getStateOption).to.have.been.calledOnce;
+    expect(getStateOption).toHaveBeenCalledTimes(1);
     expect(owner.getState()).to.equal(source);
     owner.destroy();
   });
 
   it('keeps Behavior state for the Behavior lifecycle', function() {
     const source = {};
-    const onDestroy = this.sinon.spy();
+    const onDestroy = vi.fn();
     let behavior;
     const StatefulBehavior = Behavior.extend({
       state: source,
@@ -238,7 +243,7 @@ describe('state source composition', function() {
     view.render();
     expect(behavior.getState()).to.equal(source);
     view.destroy();
-    expect(onDestroy).to.have.been.calledOnce;
+    expect(onDestroy).toHaveBeenCalledTimes(1);
     expect(behavior._isDestroyed).to.be.true;
   });
 
@@ -251,8 +256,8 @@ describe('state source composition', function() {
     const Parent = MnObject.extend({});
     const First = Parent.extend({});
     const Second = Parent.extend({});
-    const firstApi = { subscribe: this.sinon.stub() };
-    const secondApi = { subscribe: this.sinon.stub() };
+    const firstApi = { subscribe: vi.fn() };
+    const secondApi = { subscribe: vi.fn() };
 
     First.setStateApi(firstApi).setStateApi({ disposeOwned() {} });
     Second.setStateApi(secondApi);

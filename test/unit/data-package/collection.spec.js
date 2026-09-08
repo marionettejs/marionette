@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { Collection, DataApi, Model } from '../../../packages/data/src/index.ts';
 
 describe('@marionette/data Collection', function() {
@@ -32,9 +33,9 @@ describe('@marionette/data Collection', function() {
   });
 
   it('adds and removes exact models with one normalized change each', function() {
-    const add = this.sinon.spy();
-    const remove = this.sinon.spy();
-    const update = this.sinon.spy();
+    const add = vi.fn();
+    const remove = vi.fn();
+    const update = vi.fn();
     collection.on('add', add);
     collection.on('remove', remove);
     collection.on('update', update);
@@ -45,17 +46,19 @@ describe('@marionette/data Collection', function() {
     expect(changes).to.deep.equal([
       { kind: 'update', added: [third], removed: [], updated: [] }
     ]);
-    expect(add).to.have.been.calledOnceWith(third, collection);
-    expect(update).to.have.been.calledOnce;
-    expect(update.firstCall.args[1].changes).to.equal(changes[0]);
+    expect(add).toHaveBeenCalledTimes(1);
+    expect(add.mock.calls.map(args => args.slice(0, 2))).toContainEqual([third, collection]);
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(update.mock.calls.at(0)[1].changes).to.equal(changes[0]);
 
     expect(collection.add({ id: 3 })).to.be.undefined;
     expect(collection.remove(3)).to.equal(third);
-    expect(remove).to.have.been.calledOnceWith(third, collection);
+    expect(remove).toHaveBeenCalledTimes(1);
+    expect(remove.mock.calls.map(args => args.slice(0, 2))).toContainEqual([third, collection]);
     expect(changes[1]).to.deep.equal({
       kind: 'update', added: [], removed: [third], updated: []
     });
-    expect(update.secondCall.args[1].changes).to.equal(changes[1]);
+    expect(update.mock.calls.at(1)[1].changes).to.equal(changes[1]);
   });
 
   it('deduplicates additions in one linear batch', function() {
@@ -149,8 +152,8 @@ describe('@marionette/data Collection', function() {
   });
 
   it('resets, moves, and sorts with exact records', function() {
-    const reset = this.sinon.spy();
-    const reorder = this.sinon.spy();
+    const reset = vi.fn();
+    const reorder = vi.fn();
     collection.on('reset', reset);
     collection.on('sort', reorder);
 
@@ -167,20 +170,23 @@ describe('@marionette/data Collection', function() {
     expect(changes.map(change => change.kind)).to.deep.equal([
       'reorder', 'reorder', 'reorder', 'reorder', 'reset'
     ]);
-    expect(reorder).to.have.callCount(4);
-    expect(reset).to.have.been.calledOnceWith(collection);
+    expect(reorder).toHaveBeenCalledTimes(4);
+    expect(reset).toHaveBeenCalledTimes(1);
+    expect(reset.mock.calls.map(args => args.slice(0, 1))).toContainEqual([collection]);
   });
 
   it('re-emits model events without structural notifications', function() {
-    const changeName = this.sinon.spy();
-    const onChangeName = this.sinon.spy();
+    const changeName = vi.fn();
+    const onChangeName = vi.fn();
     collection.onChangeName = onChangeName;
     collection.on('change:name', changeName);
     const model = collection.get(1);
 
     model.set('name', 'ONE');
-    expect(changeName).to.have.been.calledOnceWith(model, 'ONE');
-    expect(onChangeName).to.have.been.calledOnceWith(model, 'ONE');
+    expect(changeName).toHaveBeenCalledTimes(1);
+    expect(changeName.mock.calls.map(args => args.slice(0, 2))).toContainEqual([model, 'ONE']);
+    expect(onChangeName).toHaveBeenCalledTimes(1);
+    expect(onChangeName.mock.calls.map(args => args.slice(0, 2))).toContainEqual([model, 'ONE']);
     expect(changes).to.deep.equal([]);
     model.destroy();
     expect(collection.get(1)).to.be.undefined;
@@ -206,39 +212,41 @@ describe('@marionette/data Collection', function() {
   it('forwards model destruction options to collection removal', function() {
     const model = collection.get(1);
     const options = { source: 'editor' };
-    const remove = this.sinon.spy();
-    const update = this.sinon.spy();
+    const remove = vi.fn();
+    const update = vi.fn();
     collection.on('remove', remove);
     collection.on('update', update);
 
     model.destroy(options);
 
-    expect(remove).to.have.been.calledOnceWith(model, collection, options);
-    expect(update.firstCall.args[1].source).to.equal('editor');
+    expect(remove).toHaveBeenCalledTimes(1);
+    expect(remove.mock.calls.map(args => args.slice(0, 3))).toContainEqual([model, collection, options]);
+    expect(update.mock.calls.at(0)[1].source).to.equal('editor');
     expect(changes[0].removed).to.deep.equal([model]);
   });
 
   it('honors silent destruction for removal while still forwarding destroy', function() {
     const model = collection.get(1);
     const options = { silent: true };
-    const destroy = this.sinon.spy();
-    const remove = this.sinon.spy();
+    const destroy = vi.fn();
+    const remove = vi.fn();
     collection.on('destroy', destroy);
     collection.on('remove', remove);
 
     model.destroy(options);
 
     expect(collection.get(1)).to.be.undefined;
-    expect(remove).to.not.have.been.called;
+    expect(remove).not.toHaveBeenCalled();
     expect(changes).to.deep.equal([]);
-    expect(destroy).to.have.been.calledOnceWith(model, options);
+    expect(destroy).toHaveBeenCalledTimes(1);
+    expect(destroy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([model, options]);
   });
 
   it('notifies a collection once when another collection removes the destroyed Model first', function() {
     const model = collection.get(1);
     const other = new Collection([model]);
-    const remove = this.sinon.spy();
-    const update = this.sinon.spy();
+    const remove = vi.fn();
+    const update = vi.fn();
     collection.on('remove', remove);
     collection.on('update', update);
     other.on('remove', () => collection.remove(model));
@@ -250,8 +258,8 @@ describe('@marionette/data Collection', function() {
     expect(changes).to.deep.equal([
       { kind: 'update', added: [], removed: [model], updated: [] }
     ]);
-    expect(remove).to.have.been.calledOnce;
-    expect(update).to.have.been.calledOnce;
+    expect(remove).toHaveBeenCalledTimes(1);
+    expect(update).toHaveBeenCalledTimes(1);
     other.destroy();
   });
 
@@ -288,8 +296,8 @@ describe('@marionette/data Collection', function() {
   });
 
   it('releases structural and model observation on idempotent destroy', function() {
-    const destroy = this.sinon.spy();
-    const modelChange = this.sinon.spy();
+    const destroy = vi.fn();
+    const modelChange = vi.fn();
     const model = collection.get(1);
     collection.on('destroy', destroy);
     collection.on('change', modelChange);
@@ -309,8 +317,9 @@ describe('@marionette/data Collection', function() {
     expect(collection.move(model, 0)).to.be.undefined;
     expect(collection.map(entry => entry.id)).to.deep.equal([1, 2]);
 
-    expect(destroy).to.have.been.calledOnceWith(collection, { source: 'test' });
-    expect(modelChange).to.not.have.been.called;
+    expect(destroy).toHaveBeenCalledTimes(1);
+    expect(destroy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([collection, { source: 'test' }]);
+    expect(modelChange).not.toHaveBeenCalled();
     expect(collection.isDestroyed()).to.be.true;
     expect(changes).to.deep.equal([]);
     expect(model.isDestroyed()).to.be.false;

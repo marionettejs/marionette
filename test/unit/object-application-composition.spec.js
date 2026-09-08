@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import Application from '../../src/modules/application';
 import MnObject from '../../src/modules/object';
 import CommonMixin from '../../src/mixins/common';

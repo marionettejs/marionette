@@ -1,3 +1,5 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import '../../setup/backbone.js';
 import _ from 'underscore';
 import Backbone from 'backbone';
 
@@ -14,7 +16,7 @@ describe('template-render', function() {
         this._renderTemplate(this.getTemplate());
       },
       Dom: {
-        setContents: this.sinon.stub()
+        setContents: vi.fn()
       },
       Data: BackboneApi
     }, TemplateRenderMixin);
@@ -24,39 +26,36 @@ describe('template-render', function() {
     const testData = { data: 'foo' };
 
     beforeEach(function() {
-      renderer.template = this.sinon.stub();
-      renderer.serializeData = this.sinon.stub().returns(testData);
-      this.sinon.spy(renderer, 'mixinTemplateContext');
-      this.sinon.spy(renderer, 'attachElContent');
+      renderer.template = vi.fn();
+      renderer.serializeData = vi.fn().mockReturnValue(testData);
+      vi.spyOn(renderer, 'mixinTemplateContext');
+      vi.spyOn(renderer, 'attachElContent');
     });
 
     it('should serialize data', function() {
       renderer.render();
-      expect(renderer.serializeData).to.have.been.calledOnce;
+      expect(renderer.serializeData).toHaveBeenCalledTimes(1);
     });
 
     it('should mixin template context', function() {
       renderer.render();
-      expect(renderer.mixinTemplateContext)
-        .to.have.been.calledOnce
-        .and.calledWith(testData);
+      expect(renderer.mixinTemplateContext).toHaveBeenCalledTimes(1);
+      expect(renderer.mixinTemplateContext.mock.calls.map(args => args.slice(0, 1))).toContainEqual([testData]);
     });
 
     // Tests default renderer #_renderHtml
     it('should render data in a template', function() {
       renderer.render();
-      expect(renderer.template)
-        .to.have.been.calledOnce
-        .and.calledWith(testData);
+      expect(renderer.template).toHaveBeenCalledTimes(1);
+      expect(renderer.template.mock.calls.map(args => args.slice(0, 1))).toContainEqual([testData]);
     });
 
     describe('when renderer returns html', function() {
       it('should attach content', function() {
         renderer._renderHtml = _.constant('html');
         renderer.render();
-        expect(renderer.attachElContent)
-          .to.have.been.calledOnce
-          .and.calledWith('html');
+        expect(renderer.attachElContent).toHaveBeenCalledTimes(1);
+        expect(renderer.attachElContent.mock.calls.map(args => args.slice(0, 1))).toContainEqual(['html']);
       });
     });
 
@@ -65,9 +64,8 @@ describe('template-render', function() {
       it('should attach content', function() {
         renderer._renderHtml = _.constant('');
         renderer.render();
-        expect(renderer.attachElContent)
-          .to.have.been.calledOnce
-          .and.calledWith('');
+        expect(renderer.attachElContent).toHaveBeenCalledTimes(1);
+        expect(renderer.attachElContent.mock.calls.map(args => args.slice(0, 1))).toContainEqual(['']);
       });
     });
 
@@ -75,7 +73,8 @@ describe('template-render', function() {
       it('should attach content', function() {
         renderer._renderHtml = _.noop;
         renderer.render();
-        expect(renderer.attachElContent).to.have.been.calledOnce.and.calledWith(undefined);
+        expect(renderer.attachElContent).toHaveBeenCalledTimes(1);
+        expect(renderer.attachElContent.mock.calls.map(args => args.slice(0, 1))).toContainEqual([undefined]);
       });
     });
   });
@@ -91,50 +90,46 @@ describe('template-render', function() {
 
     beforeEach(function() {
       renderer.template = _.noop;
-      renderer._renderHtml = this.sinon.stub();
-      renderer.serializeData = this.sinon.stub().returns({ foo: 'data', bar: 'data' });
+      renderer._renderHtml = vi.fn();
+      renderer.serializeData = vi.fn().mockReturnValue({ foo: 'data', bar: 'data' });
     });
 
     describe('when templateContext is a method', function() {
       it('should mix the templateCotext results and data', function() {
-        renderer.templateContext = this.sinon.stub().returns({ baz: 'tc' });
+        renderer.templateContext = vi.fn().mockReturnValue({ baz: 'tc' });
         renderer.render();
-        expect(renderer.templateContext)
-          .to.have.been.calledOnce
-          .and.calledOn(renderer)
-          .and.calledWithExactly();
-        expect(renderer._renderHtml)
-          .to.be.calledOnce
-          .and.calledWith(renderer.template, { foo: 'data', bar: 'data', baz: 'tc' });
+        expect(renderer.templateContext).toHaveBeenCalledTimes(1);
+        expect(renderer.templateContext.mock.contexts).toContain(renderer);
+        expect(renderer.templateContext).toHaveBeenCalledWith();
+        expect(renderer._renderHtml).toHaveBeenCalledTimes(1);
+        expect(renderer._renderHtml.mock.calls.map(args => args.slice(0, 2))).toContainEqual([renderer.template, { foo: 'data', bar: 'data', baz: 'tc' }]);
       });
     });
 
     it('reads templateContext once and propagates lookup errors', function() {
       const error = new Error('templateContext failed');
-      const getter = this.sinon.stub().throws(error);
+      const getter = vi.fn().mockImplementation(() => { throw error; });
       Object.defineProperty(renderer, 'templateContext', { get: getter });
 
       expect(() => renderer.mixinTemplateContext({ foo: 'data' })).to.throw(error);
-      expect(getter).to.have.been.calledOnce;
+      expect(getter).toHaveBeenCalledTimes(1);
     });
 
     describe('when templateContext is not defined', function() {
       it('should return the data', function() {
         renderer.render();
-        expect(renderer._renderHtml)
-          .to.be.calledOnce
-          .and.calledWith(renderer.template, { foo: 'data', bar: 'data' });
+        expect(renderer._renderHtml).toHaveBeenCalledTimes(1);
+        expect(renderer._renderHtml.mock.calls.map(args => args.slice(0, 2))).toContainEqual([renderer.template, { foo: 'data', bar: 'data' }]);
       });
     });
 
     describe('when no data is serialized', function() {
       it('should return the templateContext', function() {
-        renderer.serializeData = this.sinon.stub();
-        renderer.templateContext = this.sinon.stub().returns({ baz: 'tc' });
+        renderer.serializeData = vi.fn();
+        renderer.templateContext = vi.fn().mockReturnValue({ baz: 'tc' });
         renderer.render();
-        expect(renderer._renderHtml)
-          .to.be.calledOnce
-          .and.calledWith(renderer.template, { baz: 'tc' });
+        expect(renderer._renderHtml).toHaveBeenCalledTimes(1);
+        expect(renderer._renderHtml.mock.calls.map(args => args.slice(0, 2))).toContainEqual([renderer.template, { baz: 'tc' }]);
       });
     });
 
@@ -142,9 +137,8 @@ describe('template-render', function() {
       it('should mix the context with data giving context priority', function() {
         renderer.templateContext = { bar: 'tc', baz: 'tc' };
         renderer.render();
-        expect(renderer._renderHtml)
-          .to.be.calledOnce
-          .and.calledWith(renderer.template, { foo: 'data', bar: 'tc', baz: 'tc' });
+        expect(renderer._renderHtml).toHaveBeenCalledTimes(1);
+        expect(renderer._renderHtml.mock.calls.map(args => args.slice(0, 2))).toContainEqual([renderer.template, { foo: 'data', bar: 'tc', baz: 'tc' }]);
       });
     });
 
@@ -156,12 +150,12 @@ describe('template-render', function() {
         { ownContext: true }
       );
       Object.defineProperty(context, '__proto__', { enumerable: true, value: protoValue });
-      renderer.serializeData.returns(data);
+      renderer.serializeData.mockReturnValue(data);
       renderer.templateContext = context;
 
       renderer.render();
 
-      const renderedData = renderer._renderHtml.firstCall.args[1];
+      const renderedData = renderer._renderHtml.mock.calls.at(0)[1];
       expect(renderedData).to.include({ ownData: true, ownContext: true });
       expect(renderedData).to.not.have.property('inheritedData');
       expect(renderedData).to.not.have.property('inheritedContext');
@@ -191,9 +185,9 @@ describe('template-render', function() {
       model = new Backbone.Model({ foo: 'data' });
       collection = new Backbone.Collection([{ id: 1 }, { id: 2 }]);
       renderer.template = _.noop;
-      this.sinon.spy(renderer, 'serializeModel');
-      this.sinon.spy(renderer, 'serializeCollection');
-      this.sinon.spy(renderer, '_renderHtml');
+      vi.spyOn(renderer, 'serializeModel');
+      vi.spyOn(renderer, 'serializeCollection');
+      vi.spyOn(renderer, '_renderHtml');
     });
 
 
@@ -203,17 +197,16 @@ describe('template-render', function() {
       });
 
       it('should not serialize the model', function() {
-        expect(renderer.serializeModel).to.not.be.called;
+        expect(renderer.serializeModel).not.toHaveBeenCalled();
       });
 
       it('should not serialize the collection', function() {
-        expect(renderer.serializeCollection).to.not.be.called;
+        expect(renderer.serializeCollection).not.toHaveBeenCalled();
       });
 
       it('should send an empty object to the renderer', function() {
-        expect(renderer._renderHtml)
-          .to.be.calledOnce
-          .and.calledWith(renderer.template, {});
+        expect(renderer._renderHtml).toHaveBeenCalledTimes(1);
+        expect(renderer._renderHtml.mock.calls.map(args => args.slice(0, 2))).toContainEqual([renderer.template, {}]);
       });
     });
 
@@ -224,17 +217,16 @@ describe('template-render', function() {
       });
 
       it('should serialize the model', function() {
-        expect(renderer.serializeModel).to.be.calledOnce;
+        expect(renderer.serializeModel).toHaveBeenCalledTimes(1);
       });
 
       it('should not serialize the collection', function() {
-        expect(renderer.serializeCollection).to.not.be.called;
+        expect(renderer.serializeCollection).not.toHaveBeenCalled();
       });
 
       it('should send the model attributes to the renderer', function() {
-        expect(renderer._renderHtml)
-          .to.be.calledOnce
-          .and.calledWith(renderer.template, { foo: 'data' });
+        expect(renderer._renderHtml).toHaveBeenCalledTimes(1);
+        expect(renderer._renderHtml.mock.calls.map(args => args.slice(0, 2))).toContainEqual([renderer.template, { foo: 'data' }]);
       });
     });
 
@@ -245,33 +237,31 @@ describe('template-render', function() {
       });
 
       it('should not serialize the model', function() {
-        expect(renderer.serializeModel).to.not.be.called;
+        expect(renderer.serializeModel).not.toHaveBeenCalled();
       });
 
       it('should serialize the collection', function() {
-        expect(renderer.serializeCollection).to.be.calledOnce;
+        expect(renderer.serializeCollection).toHaveBeenCalledTimes(1);
       });
 
       it('should send collection data on the `models` template property', function() {
-        renderer.template = this.sinon.spy();
+        renderer.template = vi.fn();
         renderer.render();
 
-        expect(renderer.template)
-          .to.be.calledOnce
-          .and.calledWith({ models: [{ id: 1 },{ id: 2 }] });
-        expect(renderer.template.firstCall.args[0]).to.not.have.property('items');
+        expect(renderer.template).toHaveBeenCalledTimes(1);
+        expect(renderer.template.mock.calls.map(args => args.slice(0, 1))).toContainEqual([{ models: [{ id: 1 },{ id: 2 }] }]);
+        expect(renderer.template.mock.calls.at(0)[0]).to.not.have.property('items');
       });
 
       it('wraps an overridden serialized collection under models', function() {
         const serialized = { custom: true };
-        renderer.serializeCollection = this.sinon.stub().returns(serialized);
-        renderer.template = this.sinon.spy();
+        renderer.serializeCollection = vi.fn().mockReturnValue(serialized);
+        renderer.template = vi.fn();
 
         renderer.render();
 
-        expect(renderer.template)
-          .to.be.calledOnce
-          .and.calledWith({ models: serialized });
+        expect(renderer.template).toHaveBeenCalledTimes(1);
+        expect(renderer.template.mock.calls.map(args => args.slice(0, 1))).toContainEqual([{ models: serialized }]);
       });
 
       it('preserves model order and attribute object identity', function() {
@@ -317,11 +307,11 @@ describe('template-render', function() {
       });
 
       it('should serialize the model', function() {
-        expect(renderer.serializeModel).to.be.calledOnce;
+        expect(renderer.serializeModel).toHaveBeenCalledTimes(1);
       });
 
       it('should not serialize the collection', function() {
-        expect(renderer.serializeCollection).to.not.be.called;
+        expect(renderer.serializeCollection).not.toHaveBeenCalled();
       });
     });
   });
@@ -332,9 +322,8 @@ describe('template-render', function() {
       renderer._renderHtml = _.constant('html');
       renderer.render();
 
-      expect(renderer.Dom.setContents)
-        .to.have.been.calledOnce
-        .and.calledWithExactly('fooEl', 'html');
+      expect(renderer.Dom.setContents).toHaveBeenCalledTimes(1);
+      expect(renderer.Dom.setContents).toHaveBeenCalledWith('fooEl', 'html');
     });
   })
 });

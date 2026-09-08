@@ -1,3 +1,4 @@
+import { vi, describe, it, expect } from 'vitest';
 import DataApi, { setDataApi } from '../../../src/runtime/data-api';
 import { MarionetteError } from '@marionette/utils';
 
@@ -5,7 +6,7 @@ describe('DataApi', function() {
   describe('#setDataApi', function() {
     it('returns the receiving class and overlays own properties', function() {
       const inherited = { inherited: true };
-      const mixin = Object.assign(Object.create(inherited), { get: this.sinon.stub() });
+      const mixin = Object.assign(Object.create(inherited), { get: vi.fn() });
       const MyObject = function() {};
       MyObject.prototype.Data = DataApi;
       MyObject.setDataApi = setDataApi;
@@ -50,15 +51,17 @@ describe('DataApi', function() {
   });
 
   it('subscribes to Marionette-compatible events with idempotent teardown', function() {
-    const entity = { on: this.sinon.spy(), off: this.sinon.spy() };
-    const callback = this.sinon.spy();
+    const entity = { on: vi.fn(), off: vi.fn() };
+    const callback = vi.fn();
     const context = {};
     const cleanup = DataApi.subscribe(entity, 'change', callback, context);
 
-    expect(entity.on).to.have.been.calledOnce.and.calledWith('change', callback, context);
+    expect(entity.on).toHaveBeenCalledTimes(1);
+    expect(entity.on.mock.calls.map(args => args.slice(0, 3))).toContainEqual(['change', callback, context]);
     cleanup();
     cleanup();
-    expect(entity.off).to.have.been.calledOnce.and.calledWith('change', callback, context);
+    expect(entity.off).toHaveBeenCalledTimes(1);
+    expect(entity.off.mock.calls.map(args => args.slice(0, 3))).toContainEqual(['change', callback, context]);
   });
 
   it('treats plain collections as non-observable', function() {

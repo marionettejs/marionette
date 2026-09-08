@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach } from 'vitest';
 import { setRenderer } from '../../../src/runtime/renderer';
 
 describe('#setRenderer', function() {

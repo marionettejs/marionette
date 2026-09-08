@@ -1,3 +1,6 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import _ from 'underscore';
+import { setFixtures } from '../../setup/fixtures.js';
 import $ from 'jquery';
 import ownedBuildRegion from '../../../src/modules/common/build-region';
 import View from '../../../src/modules/view';
@@ -99,7 +102,7 @@ describe('Region', function() {
           describe('with `parentEl` also defined', function() {
             describe('including the selector', function() {
               beforeEach(function() {
-                this.setFixtures('<div id="parent"><div id="child">text</div></div>');
+                setFixtures('<div id="parent"><div id="child">text</div></div>');
                 const parentEl = $('#parent')[0];
                 definition = _.defaults({parentEl: parentEl, el: '#child' }, definition);
                 region = view.addRegion(_.uniqueId('region_'), definition);
@@ -112,7 +115,7 @@ describe('Region', function() {
 
             describe('excluding the selector', function() {
               beforeEach(function() {
-                this.setFixtures('<div id="parent"></div><div id="not-child">text</div>');
+                setFixtures('<div id="parent"></div><div id="not-child">text</div>');
                 const parentEl = $('#parent')[0];
                 definition = _.defaults({parentEl: parentEl, el: '#not-child' }, definition);
                 region = view.addRegion(_.uniqueId('region_'), definition);
@@ -125,7 +128,7 @@ describe('Region', function() {
 
             describe('including multiple instances of the selector', function() {
               beforeEach(function() {
-                this.setFixtures('<div id="parent"><div class="child">text</div><div class="child">text</div></div>');
+                setFixtures('<div id="parent"><div class="child">text</div><div class="child">text</div></div>');
                 const parentEl = $('#parent')[0];
                 definition = _.defaults({parentEl: parentEl, el: '.child' }, definition);
                 region = view.addRegion(_.uniqueId('region_'), definition);

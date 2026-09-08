@@ -1,3 +1,4 @@
+import { vi, describe, it, expect } from 'vitest';
 import { Collection, Model, triggerMethod } from '../../../packages/data/src/index.ts';
 
 describe('@marionette/data Model', function() {
@@ -32,24 +33,26 @@ describe('@marionette/data Model', function() {
 
   it('sets, unsets, clears, and resets attributes with exact change events', function() {
     const model = new Model({ id: 1, name: 'one' });
-    const nameChange = this.sinon.spy();
-    const idChange = this.sinon.spy();
-    const change = this.sinon.spy();
+    const nameChange = vi.fn();
+    const idChange = vi.fn();
+    const change = vi.fn();
     model.on('change:name', nameChange);
     model.on('change:id', idChange);
     model.on('change', change);
 
     expect(model.set('name', 'one')).to.equal(model);
     expect(model.changed).to.deep.equal({});
-    expect(change).to.not.have.been.called;
+    expect(change).not.toHaveBeenCalled();
 
     model.set({ id: 2, name: 'two' }, { source: 'set' });
     expect(model.id).to.equal(2);
-    expect(nameChange).to.have.been.calledOnceWith(model, 'two');
-    expect(idChange).to.have.been.calledOnceWith(model, 2);
-    expect(change).to.have.been.calledOnce;
-    expect(change.firstCall.args[1]).to.deep.include({ source: 'set' });
-    expect(change.firstCall.args[1].previous).to.deep.equal({ id: 1, name: 'one' });
+    expect(nameChange).toHaveBeenCalledTimes(1);
+    expect(nameChange.mock.calls.map(args => args.slice(0, 2))).toContainEqual([model, 'two']);
+    expect(idChange).toHaveBeenCalledTimes(1);
+    expect(idChange.mock.calls.map(args => args.slice(0, 2))).toContainEqual([model, 2]);
+    expect(change).toHaveBeenCalledTimes(1);
+    expect(change.mock.calls.at(0)[1]).to.deep.include({ source: 'set' });
+    expect(change.mock.calls.at(0)[1].previous).to.deep.equal({ id: 1, name: 'one' });
 
     model.unset('name');
     expect(model.has('name')).to.be.false;
@@ -110,7 +113,7 @@ describe('@marionette/data Model', function() {
 
   it('does not emit for silent writes', function() {
     const model = new Model({ name: 'one' });
-    const change = this.sinon.spy();
+    const change = vi.fn();
     model.on('change change:name', change);
 
     model.set('name', 'two', { silent: true });
@@ -118,7 +121,7 @@ describe('@marionette/data Model', function() {
     model.reset({ name: 'three' }, { silent: true });
     model.clear({ silent: true });
 
-    expect(change).to.not.have.been.called;
+    expect(change).not.toHaveBeenCalled();
   });
 
   it('treats null mutation options as no options', function() {
@@ -192,9 +195,9 @@ describe('@marionette/data Model', function() {
     const model = new Model();
     const context = { calls: 0 };
     const handler = function() { this.calls++; };
-    const once = this.sinon.spy();
-    const all = this.sinon.spy();
-    const onSave = this.sinon.stub().returns('saved');
+    const once = vi.fn();
+    const all = vi.fn();
+    const onSave = vi.fn().mockReturnValue('saved');
     model.onSave = onSave;
 
     model.on({ 'first second': handler }, context);
@@ -203,25 +206,27 @@ describe('@marionette/data Model', function() {
     model.trigger('first second', 'value');
     model.trigger('first');
     expect(context.calls).to.equal(3);
-    expect(once).to.have.been.calledOnceWith('value');
-    expect(all).to.have.been.calledWith('first', 'value');
+    expect(once).toHaveBeenCalledTimes(1);
+    expect(once.mock.calls.map(args => args.slice(0, 1))).toContainEqual(['value']);
+    expect(all.mock.calls.map(args => args.slice(0, 2))).toContainEqual(['first', 'value']);
 
     model.off('first second', handler, context);
     model.trigger('first second');
     expect(context.calls).to.equal(3);
     expect(triggerMethod.call(model, 'save', 1)).to.equal('saved');
-    expect(onSave).to.have.been.calledWith(1);
+    expect(onSave.mock.calls.map(args => args.slice(0, 1))).toContainEqual([1]);
   });
 
   it('destroys once after notifying observers', function() {
     const model = new Model();
-    const destroy = this.sinon.spy();
+    const destroy = vi.fn();
     model.on('destroy', destroy);
 
     expect(model.destroy({ source: 'test' })).to.equal(model);
     const finalChange = model.changed;
     expect(model.destroy()).to.equal(model);
-    expect(destroy).to.have.been.calledOnceWith(model, { source: 'test' });
+    expect(destroy).toHaveBeenCalledTimes(1);
+    expect(destroy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([model, { source: 'test' }]);
     expect(model.isDestroyed()).to.be.true;
     expect(model.set('ignored', true)).to.equal(model);
     expect(model.set(null)).to.equal(model);
@@ -230,13 +235,13 @@ describe('@marionette/data Model', function() {
   });
 
   it('does not evaluate defaults when resetting a destroyed model', function() {
-    const defaults = this.sinon.stub().returns({ ready: false });
+    const defaults = vi.fn().mockReturnValue({ ready: false });
     const StatefulModel = Model.extend({ defaults });
     const model = new StatefulModel();
 
     model.destroy();
     expect(model.reset()).to.equal(model);
-    expect(defaults).to.have.been.calledOnce;
+    expect(defaults).toHaveBeenCalledTimes(1);
   });
 
 });

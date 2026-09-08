@@ -1,3 +1,5 @@
+import { describe, it, expect } from 'vitest';
+import '../setup/backbone.js';
 import Backbone from 'backbone';
 import performanceContract from '../../config/performance.json';
 import Behavior from '../../src/modules/behavior';

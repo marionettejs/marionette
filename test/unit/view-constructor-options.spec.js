@@ -1,3 +1,5 @@
+import { vi, describe, it, expect } from 'vitest';
+import '../setup/backbone.js';
 import Backbone from 'backbone';
 import CollectionView from '../../src/modules/collection-view';
 import View from '../../src/modules/view';
@@ -14,8 +16,8 @@ describe.each(viewTypes)('%s constructor options', function(name, ViewType) {
     const model = new Backbone.Model();
     const collection = new Backbone.Collection();
     const attributes = { title: 'constructor' };
-    const optionHandler = this.sinon.stub();
-    const preinitializeHandler = this.sinon.stub();
+    const optionHandler = vi.fn();
+    const preinitializeHandler = vi.fn();
     const events = { click: optionHandler };
     let observedOptions;
     let observedValues;
@@ -69,7 +71,7 @@ describe.each(viewTypes)('%s constructor options', function(name, ViewType) {
     expect(view.events).to.equal(events);
 
     optionEl.dispatchEvent(new Event('click'));
-    expect(optionHandler).to.have.been.calledOnce;
-    expect(preinitializeHandler).to.not.have.been.called;
+    expect(optionHandler).toHaveBeenCalledTimes(1);
+    expect(preinitializeHandler).not.toHaveBeenCalled();
   });
 });

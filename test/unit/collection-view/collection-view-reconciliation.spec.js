@@ -1,3 +1,5 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { setFixtures } from '../../setup/fixtures.js';
 import CollectionView from '../../../src/modules/collection-view';
 import Behavior from '../../../src/modules/behavior';
 import View from '../../../src/modules/view';
@@ -114,12 +116,12 @@ describe('CollectionView normalized reconciliation', function() {
     view.render();
     const views = models.map(model => view.children.findByModel(model));
     const elements = views.map(child => child.el);
-    const indexComparator = this.sinon.spy(view, '_viewComparator');
+    const indexComparator = vi.spyOn(view, '_viewComparator');
 
     source.models = [models[2], models[0], models[1]];
     source.notify({ kind: 'reorder' });
 
-    expect(indexComparator).to.not.have.been.called;
+    expect(indexComparator).not.toHaveBeenCalled();
     expect(view.children.toArray()).to.deep.equal([views[2], views[0], views[1]]);
     expect([...view.el.children]).to.deep.equal([elements[2], elements[0], elements[1]]);
     expect(views.map(child => child.renderCount)).to.deep.equal([1, 1, 1]);
@@ -129,7 +131,7 @@ describe('CollectionView normalized reconciliation', function() {
     source.notify({ kind: 'update', added: [inserted], removed: [], updated: [] });
 
     const insertedView = view.children.findByModel(inserted);
-    expect(indexComparator).to.not.have.been.called;
+    expect(indexComparator).not.toHaveBeenCalled();
     expect(view.children.toArray()).to.deep.equal([
       views[2], insertedView, views[0], views[1]
     ]);
@@ -145,9 +147,9 @@ describe('CollectionView normalized reconciliation', function() {
     const sibling = { id: 2, name: 'sibling' };
     const current = { id: 1, name: 'after' };
     const source = { models: [previous, sibling] };
-    const childHandler = this.sinon.spy();
-    const behaviorHandler = this.sinon.spy();
-    const behaviorDestroyed = this.sinon.spy();
+    const childHandler = vi.fn();
+    const behaviorHandler = vi.fn();
+    const behaviorDestroyed = vi.fn();
     const behaviors = [];
     const lifecycle = [];
     const TrackingBehavior = Behavior.extend({
@@ -212,7 +214,7 @@ describe('CollectionView normalized reconciliation', function() {
     expect(currentChild.optionsModel).to.equal(current);
     expect(currentChild.initializedModel).to.equal(current);
     expect(currentBehavior.initialModel).to.equal(current);
-    expect(behaviorDestroyed).to.have.been.calledOnce;
+    expect(behaviorDestroyed).toHaveBeenCalledTimes(1);
     expect(currentChild.renderCount).to.equal(1);
     expect(currentChild.el.querySelector('input').value).to.equal('after');
     expect(view.children.toArray().map(child => child.model)).to.deep.equal([current, sibling]);
@@ -228,8 +230,10 @@ describe('CollectionView normalized reconciliation', function() {
 
     emit(previous, 'changed', previous);
     emit(current, 'changed', current);
-    expect(childHandler).to.have.been.calledOnce.and.calledWith(current);
-    expect(behaviorHandler).to.have.been.calledOnce.and.calledWith(current);
+    expect(childHandler).toHaveBeenCalledTimes(1);
+    expect(childHandler.mock.calls.map(args => args.slice(0, 1))).toContainEqual([current]);
+    expect(behaviorHandler).toHaveBeenCalledTimes(1);
+    expect(behaviorHandler.mock.calls.map(args => args.slice(0, 1))).toContainEqual([current]);
     view.destroy();
   });
 
@@ -764,9 +768,9 @@ describe('CollectionView normalized reconciliation', function() {
       const input = survivor.el.firstChild;
       input.focus();
       input.setSelectionRange(1, 3);
-      const detach = this.sinon.spy(view.Dom, 'detachEl');
-      const move = this.sinon.spy(view.Dom, 'moveEl');
-      const render = this.sinon.spy(survivor, 'render');
+      const detach = vi.spyOn(view.Dom, 'detachEl');
+      const move = vi.spyOn(view.Dom, 'moveEl');
+      const render = vi.spyOn(survivor, 'render');
       const added = { id: 0, name: 'zero' };
 
       source.models = [added, ...models];
@@ -778,9 +782,9 @@ describe('CollectionView normalized reconciliation', function() {
 
       expect(document.activeElement).to.equal(input);
       expect([input.selectionStart, input.selectionEnd]).to.deep.equal([1, 3]);
-      expect(render).not.to.have.been.called;
-      expect(detach).not.to.have.been.calledWith(survivor.el);
-      expect(move).not.to.have.been.calledWith(survivor.el);
+      expect(render).not.toHaveBeenCalled();
+      expect(detach.mock.calls.map(args => args[0])).not.toContain(survivor.el);
+      expect(move.mock.calls.map(args => args[0])).not.toContain(survivor.el);
       expect([...view.el.children]).to.deep.equal([...view.children].map(child => child.el));
       view.destroy();
     });
@@ -795,7 +799,7 @@ describe('CollectionView normalized reconciliation', function() {
     const region = new Region({ el });
     region.show(view);
     const child = view.children.first();
-    const attached = this.sinon.spy();
+    const attached = vi.fn();
     child.on('attach', attached);
 
     view.setFilter(() => false);
@@ -806,7 +810,7 @@ describe('CollectionView normalized reconciliation', function() {
 
     expect(view.children.first()).to.equal(child);
     expect(child.isAttached()).to.be.true;
-    expect(attached).to.have.been.calledOnce;
+    expect(attached).toHaveBeenCalledTimes(1);
     expect(child.renderCount).to.equal(1);
     region.destroy();
     el.remove();
@@ -834,14 +838,14 @@ describe('CollectionView normalized reconciliation', function() {
     const models = Array.from({ length: 1000 }, (_, id) => ({ id, name: String(id) }));
     const source = { models };
     const view = new ListView({ collection: source }).render();
-    const move = this.sinon.spy(view.Dom, 'moveEl');
+    const move = vi.spyOn(view.Dom, 'moveEl');
     const added = { id: 1000, name: 'new' };
 
     source.models = [added, ...models];
     source.notify({ kind: 'update', added: [added], removed: [], updated: [] });
 
-    expect(move).to.have.been.calledOnce;
-    expect(move.firstCall.args[0]).to.equal(view.children.first().el);
+    expect(move).toHaveBeenCalledTimes(1);
+    expect(move.mock.calls.at(0)[0]).to.equal(view.children.first().el);
     expect([...view.el.children]).to.deep.equal([...view.children].map(child => child.el));
     view.destroy();
   });
@@ -856,12 +860,12 @@ describe('CollectionView normalized reconciliation', function() {
       const source = { models };
       const view = new ListView({ collection: source }).render();
       const children = [...view.children];
-      const move = this.sinon.spy(view.Dom, 'moveEl');
+      const move = vi.spyOn(view.Dom, 'moveEl');
 
       source.models = reorder(models);
       source.notify({ kind: 'reorder' });
 
-      expect(move.callCount).to.equal(name === 'two distant children' ? 2 : 1);
+      expect(move.mock.calls.length).to.equal(name === 'two distant children' ? 2 : 1);
       expect([...view.el.children]).to.deep.equal(source.models.map(model => children[model.id].el));
       expect(children.every(child => child.renderCount === 1)).to.be.true;
       view.destroy();
@@ -950,7 +954,7 @@ describe('CollectionView normalized reconciliation', function() {
   it('lets an attaching child receive focus from outside the collection', function() {
     const input = document.createElement('input');
     const el = document.createElement('div');
-    this.setFixtures(input, el);
+    setFixtures(input, el);
     const FocusChild = ChildView.extend({
       template: () => '<button>Focus me</button>',
       onAttach() { this.el.firstChild.focus(); }

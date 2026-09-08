@@ -1,3 +1,5 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import '../../setup/backbone.js';
 // Anything related to emptyView
 
 import _ from 'underscore';
@@ -30,7 +32,7 @@ describe('CollectionView -  Empty', function() {
     let myCollectionView;
 
     beforeEach(function() {
-      this.sinon.spy(MyCollectionView.prototype, 'getEmptyRegion');
+      vi.spyOn(MyCollectionView.prototype, 'getEmptyRegion');
       myCollectionView = new MyCollectionView();
     });
 
@@ -41,7 +43,7 @@ describe('CollectionView -  Empty', function() {
     });
 
     it('should instantiate the emptyRegion', function() {
-      expect(myCollectionView.getEmptyRegion).to.have.been.calledOnce;
+      expect(myCollectionView.getEmptyRegion).toHaveBeenCalledTimes(1);
     });
 
     describe('when destroying the collectionView', function() {
@@ -76,7 +78,7 @@ describe('CollectionView -  Empty', function() {
     beforeEach(function() {
       const collection = new Backbone.Collection();
 
-      emptyViewRenderStub = this.sinon.stub();
+      emptyViewRenderStub = vi.fn();
 
       myCollectionView = new MyCollectionView({
         collection,
@@ -89,15 +91,15 @@ describe('CollectionView -  Empty', function() {
     });
 
     it('should trigger child events on the collectionView', function() {
-      expect(emptyViewRenderStub).to.have.been.calledOnce;
+      expect(emptyViewRenderStub).toHaveBeenCalledTimes(1);
     });
 
     describe('when the collection is no longer empty', function() {
       it('should empty the emptyRegion', function() {
-        const emptyRegionEmptyStub = this.sinon.stub();
+        const emptyRegionEmptyStub = vi.fn();
         myCollectionView.getEmptyRegion().on('empty', emptyRegionEmptyStub);
         myCollectionView.collection.add({ id: 1 });
-        expect(emptyRegionEmptyStub).to.have.been.calledOnce;
+        expect(emptyRegionEmptyStub).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -115,7 +117,7 @@ describe('CollectionView -  Empty', function() {
 
       cv.render();
 
-      expect(cv.$('#region')).to.contain.$text('Empty');
+      expect(cv.el.querySelector('#region').textContent).toEqual('Empty');
     });
   });
 
@@ -169,10 +171,10 @@ describe('CollectionView -  Empty', function() {
           if (name !== 'omitted') { options.emptyView = emptyView; }
           const myCollectionView = new CollectionView(options);
 
-          this.sinon.spy(myCollectionView.getEmptyRegion(), 'show');
+          vi.spyOn(myCollectionView.getEmptyRegion(), 'show');
           myCollectionView.render();
 
-          expect(myCollectionView.getEmptyRegion().show).to.not.have.been.called;
+          expect(myCollectionView.getEmptyRegion().show).not.toHaveBeenCalled();
           myCollectionView.destroy();
         });
       });
@@ -212,12 +214,11 @@ describe('CollectionView -  Empty', function() {
           emptyView: MyView
         });
 
-        this.sinon.spy(myCollectionView.getEmptyRegion(), 'show');
+        vi.spyOn(myCollectionView.getEmptyRegion(), 'show');
         myCollectionView.render();
 
-        expect(myCollectionView.getEmptyRegion().show)
-          .to.be.calledOnce
-          .and.calledWith(sinon.match.instanceOf(MyView));
+        expect(myCollectionView.getEmptyRegion().show).toHaveBeenCalledTimes(1);
+        expect(myCollectionView.getEmptyRegion().show.mock.calls.map(args => args.slice(0, 1))).toContainEqual([expect.any(MyView)]);
       });
 
       it('does not read remove when the view has a valid destroy method', function() {
@@ -243,12 +244,11 @@ describe('CollectionView -  Empty', function() {
           emptyView: OtherView
         });
 
-        this.sinon.spy(myCollectionView.getEmptyRegion(), 'show');
+        vi.spyOn(myCollectionView.getEmptyRegion(), 'show');
         myCollectionView.render();
 
-        expect(myCollectionView.getEmptyRegion().show)
-          .to.be.calledOnce
-          .and.calledWith(sinon.match.instanceOf(OtherView));
+        expect(myCollectionView.getEmptyRegion().show).toHaveBeenCalledTimes(1);
+        expect(myCollectionView.getEmptyRegion().show.mock.calls.map(args => args.slice(0, 1))).toContainEqual([expect.any(OtherView)]);
       });
     });
 
@@ -262,30 +262,30 @@ describe('CollectionView -  Empty', function() {
             },
           });
 
-          this.sinon.spy(myCollectionView.getEmptyRegion(), 'show');
+          vi.spyOn(myCollectionView.getEmptyRegion(), 'show');
           myCollectionView.render();
 
-          expect(myCollectionView.getEmptyRegion().show).to.not.have.been.called;
+          expect(myCollectionView.getEmptyRegion().show).not.toHaveBeenCalled();
           myCollectionView.destroy();
         });
       });
 
       it('shows the returned view and calls an ordinary resolver on the CollectionView', function() {
-        const emptyViewStub = this.sinon.stub();
-        emptyViewStub.returns(OtherView);
+        const emptyViewStub = vi.fn();
+        emptyViewStub.mockReturnValue(OtherView);
 
         const myCollectionView = new CollectionView({
           collection,
           emptyView: emptyViewStub
         });
 
-        this.sinon.spy(myCollectionView.getEmptyRegion(), 'show');
+        vi.spyOn(myCollectionView.getEmptyRegion(), 'show');
         myCollectionView.render();
 
-        expect(myCollectionView.getEmptyRegion().show)
-          .to.be.calledOnce
-          .and.calledWith(sinon.match.instanceOf(OtherView));
-        expect(emptyViewStub).to.have.been.calledOnce.and.calledOn(myCollectionView);
+        expect(myCollectionView.getEmptyRegion().show).toHaveBeenCalledTimes(1);
+        expect(myCollectionView.getEmptyRegion().show.mock.calls.map(args => args.slice(0, 1))).toContainEqual([expect.any(OtherView)]);
+        expect(emptyViewStub).toHaveBeenCalledTimes(1);
+        expect(emptyViewStub.mock.contexts).toContain(myCollectionView);
         myCollectionView.destroy();
       });
 
@@ -349,7 +349,7 @@ describe('CollectionView -  Empty', function() {
     it('waits to resolve the emptyView until the CollectionView is empty', function() {
       const nonemptyCollection = new Backbone.Collection([{ id: 1 }]);
       const ChildView = View.extend({ template: _.noop });
-      const emptyView = this.sinon.stub().returns(null);
+      const emptyView = vi.fn().mockReturnValue(null);
       const myCollectionView = new CollectionView({
         childView: ChildView,
         collection: nonemptyCollection,
@@ -357,9 +357,10 @@ describe('CollectionView -  Empty', function() {
       });
 
       expect(() => myCollectionView.render()).not.to.throw();
-      expect(emptyView).to.not.have.been.called;
+      expect(emptyView).not.toHaveBeenCalled();
       expect(() => nonemptyCollection.reset()).not.to.throw();
-      expect(emptyView).to.have.been.calledOnce.and.calledOn(myCollectionView);
+      expect(emptyView).toHaveBeenCalledTimes(1);
+      expect(emptyView.mock.contexts).toContain(myCollectionView);
       expect(myCollectionView.getEmptyRegion().hasView()).to.be.false;
 
       myCollectionView.destroy();
@@ -376,8 +377,8 @@ describe('CollectionView -  Empty', function() {
       let emptyViewOptionsStub;
 
       beforeEach(function() {
-        emptyViewOptionsStub = this.sinon.stub();
-        emptyViewOptionsStub.returns(emptyViewOptions);
+        emptyViewOptionsStub = vi.fn();
+        emptyViewOptionsStub.mockReturnValue(emptyViewOptions);
 
         myCollectionView = new CollectionView({
           collection,
@@ -394,7 +395,7 @@ describe('CollectionView -  Empty', function() {
       });
 
       it('should call childViewOptions', function() {
-        expect(emptyViewOptionsStub).to.have.been.calledOnce;
+        expect(emptyViewOptionsStub).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -407,8 +408,8 @@ describe('CollectionView -  Empty', function() {
       let childViewOptionsStub;
 
       beforeEach(function() {
-        childViewOptionsStub = this.sinon.stub();
-        childViewOptionsStub.returns(childViewOptions);
+        childViewOptionsStub = vi.fn();
+        childViewOptionsStub.mockReturnValue(childViewOptions);
 
         myCollectionView = new CollectionView({
           collection,
@@ -425,7 +426,7 @@ describe('CollectionView -  Empty', function() {
       });
 
       it('should call childViewOptions', function() {
-        expect(childViewOptionsStub).to.have.been.calledOnce;
+        expect(childViewOptionsStub).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -437,12 +438,12 @@ describe('CollectionView -  Empty', function() {
       beforeEach(function() {
         const collection = new Backbone.Collection([{ id: 1 }, { id: 2 }]);
         myCollectionView = new MyCollectionView({ collection });
-        this.sinon.spy(myCollectionView, 'isEmpty');
+        vi.spyOn(myCollectionView, 'isEmpty');
         myCollectionView.render();
       });
 
       it('should call isEmpty', function() {
-        expect(myCollectionView.isEmpty).to.be.calledOnce;
+        expect(myCollectionView.isEmpty).toHaveBeenCalledTimes(1);
       });
 
       it('should not show the emptyView', function() {
@@ -451,12 +452,12 @@ describe('CollectionView -  Empty', function() {
 
       describe('when removing one child', function() {
         beforeEach(function() {
-          myCollectionView.isEmpty.resetHistory();
+          myCollectionView.isEmpty.mockClear();
           myCollectionView.removeChildView(myCollectionView.children.first());
         });
 
         it('should call isEmpty', function() {
-          expect(myCollectionView.isEmpty).to.be.calledOnce;
+          expect(myCollectionView.isEmpty).toHaveBeenCalledTimes(1);
         });
 
         it('should not show the emptyView', function() {
@@ -467,12 +468,12 @@ describe('CollectionView -  Empty', function() {
       describe('when removing the only child', function() {
         beforeEach(function() {
           myCollectionView.removeChildView(myCollectionView.children.first());
-          myCollectionView.isEmpty.resetHistory();
+          myCollectionView.isEmpty.mockClear();
           myCollectionView.removeChildView(myCollectionView.children.first());
         });
 
         it('should call isEmpty', function() {
-          expect(myCollectionView.isEmpty).to.be.calledOnce;
+          expect(myCollectionView.isEmpty).toHaveBeenCalledTimes(1);
         });
 
         it('should show the emptyView', function() {
@@ -487,12 +488,12 @@ describe('CollectionView -  Empty', function() {
       beforeEach(function() {
         const collection = new Backbone.Collection();
         myCollectionView = new MyCollectionView({ collection });
-        this.sinon.spy(myCollectionView, 'isEmpty');
+        vi.spyOn(myCollectionView, 'isEmpty');
         myCollectionView.render();
       });
 
       it('should call isEmpty', function() {
-        expect(myCollectionView.isEmpty).to.be.calledOnce;
+        expect(myCollectionView.isEmpty).toHaveBeenCalledTimes(1);
       });
 
       it('should show the emptyView', function() {
@@ -507,14 +508,14 @@ describe('CollectionView -  Empty', function() {
         const collection = new Backbone.Collection([{ id: 1 }, { id: 2 }]);
         myCollectionView = new MyCollectionView({ collection });
         myCollectionView.render();
-        this.sinon.spy(myCollectionView, 'isEmpty');
+        vi.spyOn(myCollectionView, 'isEmpty');
         myCollectionView.setFilter(view => {
           return view.model.id === 1;
         });
       });
 
       it('should call isEmpty', function() {
-        expect(myCollectionView.isEmpty).to.be.calledOnce;
+        expect(myCollectionView.isEmpty).toHaveBeenCalledTimes(1);
       });
 
       it('should not show the emptyView', function() {
@@ -529,12 +530,12 @@ describe('CollectionView -  Empty', function() {
         const collection = new Backbone.Collection([{ id: 1 }]);
         myCollectionView = new MyCollectionView({ collection });
         myCollectionView.render();
-        this.sinon.spy(myCollectionView, 'isEmpty');
+        vi.spyOn(myCollectionView, 'isEmpty');
         myCollectionView.setFilter(_.constant(false));
       });
 
       it('should call isEmpty', function() {
-        expect(myCollectionView.isEmpty).to.be.calledOnce;
+        expect(myCollectionView.isEmpty).toHaveBeenCalledTimes(1);
       });
 
       it('should show the emptyView', function() {

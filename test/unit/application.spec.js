@@ -1,3 +1,5 @@
+import '../setup/fixtures.js';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 'use strict';
 
 import _ from 'underscore';
@@ -34,9 +36,9 @@ describe('Marionette Application', function() {
 
   it('propagates a preinitialize error before setting up instance services', function() {
     const error = new Error('early configuration failed');
-    const initializeRegion = this.sinon.spy();
-    const initializeRadio = this.sinon.spy();
-    const initializeState = this.sinon.spy();
+    const initializeRegion = vi.fn();
+    const initializeRadio = vi.fn();
+    const initializeState = vi.fn();
     const BrokenApplication = Application.extend({
       preinitialize() { throw error; },
       _initRegion: initializeRegion,
@@ -45,9 +47,9 @@ describe('Marionette Application', function() {
     });
 
     expect(() => new BrokenApplication()).to.throw(error);
-    expect(initializeRegion).not.to.have.been.called;
-    expect(initializeRadio).not.to.have.been.called;
-    expect(initializeState).not.to.have.been.called;
+    expect(initializeRegion).not.toHaveBeenCalled();
+    expect(initializeRadio).not.toHaveBeenCalled();
+    expect(initializeState).not.toHaveBeenCalled();
   });
 
   describe('#initialize', () => {
@@ -58,14 +60,15 @@ describe('Marionette Application', function() {
 
       beforeEach(function() {
         appOptions = {fooOption: 'foo'};
-        initializeStub = this.sinon.stub(Application.prototype, 'initialize');
-        this.sinon.spy(Application.prototype, '_initRadio');
+        initializeStub = vi.spyOn(Application.prototype, 'initialize').mockImplementation(() => undefined);
+        vi.spyOn(Application.prototype, '_initRadio');
       });
 
       it('should pass all arguments to the initialize method', function() {
         app = new Application(appOptions, 'fooArg');
 
-        expect(initializeStub).to.have.been.calledOn(app).and.calledWith(appOptions, 'fooArg');
+        expect(initializeStub.mock.contexts).toContain(app);
+        expect(initializeStub.mock.calls.map(args => args.slice(0, 2))).toContainEqual([appOptions, 'fooArg']);
       });
 
       it('should have a cidPrefix', function() {
@@ -83,7 +86,7 @@ describe('Marionette Application', function() {
       it('should init the RadioMixin', function() {
         app = new Application(appOptions);
 
-        expect(app._initRadio).to.have.been.called;
+        expect(app._initRadio).toHaveBeenCalled();
       });
 
       it('preserves constructor order, receiver, and initialize arguments', function() {
@@ -167,8 +170,8 @@ describe('Marionette Application', function() {
 
     beforeEach(function() {
       fooOptions = {foo: 'bar'};
-      beforeStartStub = this.sinon.stub();
-      onBeforeStartStub = this.sinon.stub();
+      beforeStartStub = vi.fn();
+      onBeforeStartStub = vi.fn();
 
       const FooApp = Application.extend({
         onBeforeStart: onBeforeStartStub
@@ -181,15 +184,17 @@ describe('Marionette Application', function() {
     it('should run the onBeforeStart callback', function() {
       fooApp.start(fooOptions);
 
-      expect(beforeStartStub).to.have.been.called;
-      expect(onBeforeStartStub).to.have.been.called;
+      expect(beforeStartStub).toHaveBeenCalled();
+      expect(onBeforeStartStub).toHaveBeenCalled();
     });
 
     it('should pass the startup option to the onBeforeStart callback', function() {
       fooApp.start(fooOptions);
 
-      expect(beforeStartStub).to.have.been.calledOnce.and.calledWith(fooApp, fooOptions);
-      expect(onBeforeStartStub).to.have.been.calledOnce.and.calledWith(fooApp, fooOptions);
+      expect(beforeStartStub).toHaveBeenCalledTimes(1);
+      expect(beforeStartStub.mock.calls.map(args => args.slice(0, 2))).toContainEqual([fooApp, fooOptions]);
+      expect(onBeforeStartStub).toHaveBeenCalledTimes(1);
+      expect(onBeforeStartStub.mock.calls.map(args => args.slice(0, 2))).toContainEqual([fooApp, fooOptions]);
     });
   });
 
@@ -201,8 +206,8 @@ describe('Marionette Application', function() {
 
     beforeEach(function() {
       fooOptions = {foo: 'bar'};
-      startStub = this.sinon.stub();
-      onStartStub = this.sinon.stub();
+      startStub = vi.fn();
+      onStartStub = vi.fn();
 
       const FooApp = Application.extend({
         onStart: onStartStub
@@ -215,15 +220,17 @@ describe('Marionette Application', function() {
     it('should run the onStart callback', async function() {
       await fooApp.start(fooOptions);
 
-      expect(startStub).to.have.been.called;
-      expect(onStartStub).to.have.been.called;
+      expect(startStub).toHaveBeenCalled();
+      expect(onStartStub).toHaveBeenCalled();
     });
 
     it('should pass the startup option to the callback', async function() {
       await fooApp.start(fooOptions);
 
-      expect(startStub).to.have.been.calledOnce.and.calledWith(fooApp, fooOptions);
-      expect(onStartStub).to.have.been.calledOnce.and.calledWith(fooApp, fooOptions);
+      expect(startStub).toHaveBeenCalledTimes(1);
+      expect(startStub.mock.calls.map(args => args.slice(0, 2))).toContainEqual([fooApp, fooOptions]);
+      expect(onStartStub).toHaveBeenCalledTimes(1);
+      expect(onStartStub.mock.calls.map(args => args.slice(0, 2))).toContainEqual([fooApp, fooOptions]);
     });
   });
 
@@ -261,7 +268,7 @@ describe('Marionette Application', function() {
 
       appRegion = app.getRegion();
 
-      showViewInRegionSpy = this.sinon.spy(appRegion, 'show');
+      showViewInRegionSpy = vi.spyOn(appRegion, 'show');
     });
 
     describe('when additional arguments was passed', function() {
@@ -274,7 +281,7 @@ describe('Marionette Application', function() {
       it('should call show method in region with additional arguments', function() {
         app.showView(view, fooArgs);
 
-        expect(showViewInRegionSpy).to.have.been.calledWith(view, fooArgs);
+        expect(showViewInRegionSpy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([view, fooArgs]);
       });
     });
 
@@ -282,7 +289,7 @@ describe('Marionette Application', function() {
       it('should call show method in region', function() {
         app.showView(view);
 
-        expect(showViewInRegionSpy).to.have.been.called;
+        expect(showViewInRegionSpy).toHaveBeenCalled();
       });
     });
   });

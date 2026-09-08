@@ -1,3 +1,5 @@
+import { chai, vi, describe, it, expect, beforeEach } from 'vitest';
+import { setFixtures } from '../../setup/fixtures.js';
 import $ from 'jquery';
 import _ from 'underscore';
 import DomApi, { setDomApi } from '../../../src/runtime/dom-api';
@@ -87,7 +89,7 @@ describe('DomApi', function() {
     let findEl;
 
     beforeEach(function() {
-      this.setFixtures('<div id="foo"><div id="bar"></div></div>');
+      setFixtures('<div id="foo"><div id="bar"></div></div>');
       domEl = $('#foo')[0];
       findEl = $('#bar')[0];
     });
@@ -105,7 +107,7 @@ describe('DomApi', function() {
     let domEl;
 
     beforeEach(function() {
-      this.setFixtures('<div id="foo"><div id="bar"></div></div>');
+      setFixtures('<div id="foo"><div id="bar"></div></div>');
       domEl = $('#foo')[0];
     });
 
@@ -127,7 +129,7 @@ describe('DomApi', function() {
     let domEl;
 
     beforeEach(function() {
-      this.setFixtures('<div id="foo"></div>');
+      setFixtures('<div id="foo"></div>');
       $domEl = $('#foo');
       domEl = $domEl[0];
     });
@@ -138,12 +140,12 @@ describe('DomApi', function() {
     });
 
     it('should not remove listeners', function() {
-      const onClickStub = this.sinon.stub();
+      const onClickStub = vi.fn();
       $domEl.on('click', onClickStub);
       DomApi.detachEl(domEl);
       $domEl.trigger('click');
 
-      expect(onClickStub).to.be.calledOnce;
+      expect(onClickStub).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -153,7 +155,7 @@ describe('DomApi', function() {
     let parentEl;
 
     beforeEach(function() {
-      this.setFixtures('<div id="foo"><div id="bar">old</div></div>');
+      setFixtures('<div id="foo"><div id="bar">old</div></div>');
       parentEl = $('#foo')[0];
     });
 
@@ -202,11 +204,12 @@ describe('DomApi', function() {
       const first = document.createElement('span');
       const second = document.createElement('span');
       parent.append(first, second);
-      parent.moveBefore = this.sinon.spy();
+      parent.moveBefore = vi.fn();
 
       DomApi.moveEl(second, parent, first);
 
-      expect(parent.moveBefore).to.have.been.calledOnceWith(second, first);
+      expect(parent.moveBefore).toHaveBeenCalledTimes(1);
+      expect(parent.moveBefore.mock.calls.map(args => args.slice(0, 2))).toContainEqual([second, first]);
     });
 
     it('uses insertBefore for an attached child without moveBefore', function() {
@@ -214,11 +217,12 @@ describe('DomApi', function() {
       const first = document.createElement('span');
       const second = document.createElement('span');
       parent.append(first, second);
-      this.sinon.spy(parent, 'insertBefore');
+      vi.spyOn(parent, 'insertBefore');
 
       DomApi.moveEl(second, parent, first);
 
-      expect(parent.insertBefore).to.have.been.calledOnceWith(second, first);
+      expect(parent.insertBefore).toHaveBeenCalledTimes(1);
+      expect(parent.insertBefore.mock.calls.map(args => args.slice(0, 2))).toContainEqual([second, first]);
       expect([...parent.children]).to.deep.equal([second, first]);
     });
   });
@@ -227,7 +231,7 @@ describe('DomApi', function() {
     let domEl;
 
     beforeEach(function() {
-      this.setFixtures('<div id="foo">Existing Html</div>');
+      setFixtures('<div id="foo">Existing Html</div>');
       domEl = $('#foo')[0];
       DomApi.setContents(domEl, 'New Html');
     });
@@ -371,12 +375,12 @@ describe('DomApi', function() {
 
     it('reads each attribute value once', function() {
       const el = document.createElement('div');
-      const get = this.sinon.stub().returns('title');
+      const get = vi.fn().mockReturnValue('title');
       const attrs = Object.defineProperty({}, 'title', { enumerable: true, get });
 
       DomApi.setAttributes(el, attrs);
 
-      expect(get).to.have.been.calledOnce;
+      expect(get).toHaveBeenCalledTimes(1);
       expect(el.getAttribute('title')).to.equal('title');
     });
 
@@ -409,7 +413,7 @@ describe('DomApi', function() {
     let appending;
 
     beforeEach(function() {
-      this.setFixtures('<div id="foo">Existing Html</div>');
+      setFixtures('<div id="foo">Existing Html</div>');
       domEl = $('#foo')[0];
       appending = $('<div>Appended</div>')[0];
     });
@@ -422,13 +426,13 @@ describe('DomApi', function() {
 
   describe('#hasContents', function() {
     it('should return true when el has contents', function() {
-      this.setFixtures('<div id="foo">Existing Html</div>');
+      setFixtures('<div id="foo">Existing Html</div>');
       const domEl = $('#foo')[0];
       expect(DomApi.hasContents(domEl)).to.be.true;
     });
 
     it('should return false when el has no contents', function() {
-      this.setFixtures('<div id="foo"></div>');
+      setFixtures('<div id="foo"></div>');
       const domEl = $('#foo')[0];
       expect(DomApi.hasContents(domEl)).to.be.false;
     });
@@ -445,7 +449,7 @@ describe('DomApi', function() {
     let detachEl;
 
     beforeEach(function() {
-      this.setFixtures('<div id="foo"><div id="bar"></div></div>');
+      setFixtures('<div id="foo"><div id="bar"></div></div>');
       domEl = $('#foo')[0];
       $detachEl = $('#bar');
       detachEl = $detachEl[0];
@@ -462,12 +466,12 @@ describe('DomApi', function() {
     });
 
     it('should not remove listeners', function() {
-      const onClickStub = this.sinon.stub();
+      const onClickStub = vi.fn();
       $detachEl.on('click', onClickStub);
       DomApi.detachContents(domEl);
       $detachEl.trigger('click');
 
-      expect(onClickStub).to.be.calledOnce;
+      expect(onClickStub).toHaveBeenCalledTimes(1);
     });
   });
 });

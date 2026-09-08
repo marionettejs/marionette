@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import Behavior from '../../src/modules/behavior';
 import CollectionView from '../../src/modules/collection-view';
 import View from '../../src/modules/view';

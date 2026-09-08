@@ -1,3 +1,5 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import '../../setup/backbone.js';
 import _ from 'underscore';
 import Backbone from 'backbone';
 import CollectionView from '../../../src/modules/collection-view';
@@ -55,7 +57,7 @@ describe('CollectionView - childViewContainer', function() {
         const labelNode = label && list.firstChild;
         const container = myCollectionView.container;
         const previousChildren = myCollectionView.children.toArray();
-        const detachContents = this.sinon.spy(myCollectionView.Dom, 'detachContents');
+        const detachContents = vi.spyOn(myCollectionView.Dom, 'detachContents');
         input.value = 'edited';
         if (label.startsWith('<li>')) { previousChildren[0].el.after(labelNode); }
 
@@ -69,9 +71,10 @@ describe('CollectionView - childViewContainer', function() {
         if (label.trim()) { expect(list.firstChild).to.equal(labelNode); }
         expect(previousChildren.every(view => view.isDestroyed())).to.be.true;
         if (childViewContainer && !label.trim()) {
-          expect(detachContents).to.have.been.calledOnceWithExactly(container);
+          expect(detachContents).toHaveBeenCalledTimes(1);
+          expect(detachContents).toHaveBeenCalledWith(container);
         } else {
-          expect(detachContents).not.to.have.been.called;
+          expect(detachContents).not.toHaveBeenCalled();
         }
         if (label && !label.trim()) { expect(labelNode.parentNode).to.be.null; }
 

@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import _ from 'underscore';
 import Events from '../../../packages/utils/src/events.ts';
 import Radio from '../../../packages/radio/src/radio.ts';
@@ -13,8 +14,8 @@ describe('Radio Mixin on Marionette.Object', function() {
       initialize() {
         this._initRadio();
       },
-      bindEvents: this.sinon.stub(),
-      bindRequests: this.sinon.stub(),
+      bindEvents: vi.fn(),
+      bindRequests: vi.fn(),
     }, Events, RadioMixin);
 
     channelFoo = Radio.channel('foo');
@@ -30,17 +31,17 @@ describe('Radio Mixin on Marionette.Object', function() {
     });
 
     it('should not bind radioEvents', function() {
-      expect(radioObject.bindEvents).to.not.have.been.called;
+      expect(radioObject.bindEvents).not.toHaveBeenCalled();
     });
 
     it('should not bind radioRequests', function() {
-      expect(radioObject.bindRequests).to.not.have.been.called;
+      expect(radioObject.bindRequests).not.toHaveBeenCalled();
     });
 
     it('does not read radio bindings after a falsy channel name', function() {
-      const channelName = this.sinon.stub();
-      const radioEvents = this.sinon.stub().throws(new Error('must not read events'));
-      const radioRequests = this.sinon.stub().throws(new Error('must not read requests'));
+      const channelName = vi.fn();
+      const radioEvents = vi.fn().mockImplementation(() => { throw new Error('must not read events'); });
+      const radioRequests = vi.fn().mockImplementation(() => { throw new Error('must not read requests'); });
       Object.defineProperties(radioObject, {
         channelName: { get: channelName, enumerable: true },
         radioEvents: { get: radioEvents, enumerable: true },
@@ -48,13 +49,13 @@ describe('Radio Mixin on Marionette.Object', function() {
       });
 
       [undefined, null, false, 0, ''].forEach(value => {
-        channelName.returns(value);
+        channelName.mockReturnValue(value);
         radioObject.initialize();
       });
 
-      expect(channelName).to.have.callCount(5);
-      expect(radioEvents).to.not.have.been.called;
-      expect(radioRequests).to.not.have.been.called;
+      expect(channelName).toHaveBeenCalledTimes(5);
+      expect(radioEvents).not.toHaveBeenCalled();
+      expect(radioRequests).not.toHaveBeenCalled();
     });
   });
 
@@ -70,7 +71,7 @@ describe('Radio Mixin on Marionette.Object', function() {
 
     describe('as a function', function() {
       it('should have the named Radio channel', function() {
-        radioObject.channelName = this.sinon.stub().returns('foo');
+        radioObject.channelName = vi.fn().mockReturnValue('foo');
         radioObject.initialize();
 
         expect(radioObject.getChannel()).to.eql(channelFoo);
@@ -88,18 +89,18 @@ describe('Radio Mixin on Marionette.Object', function() {
         radioObject.radioEvents = {'bar': 'onBar'};
         radioObject.initialize();
 
-        expect(radioObject.bindEvents).to.have.been.calledOnce
-          .and.to.have.been.calledWith(channelFoo, {'bar': 'onBar'});
+        expect(radioObject.bindEvents).toHaveBeenCalledTimes(1);
+        expect(radioObject.bindEvents.mock.calls.map(args => args.slice(0, 2))).toContainEqual([channelFoo, {'bar': 'onBar'}]);
       });
     });
 
     describe('as a function', function() {
       it('should bind events to the channel', function() {
-        radioObject.radioEvents = this.sinon.stub().returns({'bar': 'onBar'});
+        radioObject.radioEvents = vi.fn().mockReturnValue({'bar': 'onBar'});
         radioObject.initialize();
 
-        expect(radioObject.bindEvents).to.have.been.calledOnce
-          .and.to.have.been.calledWith(channelFoo, {'bar': 'onBar'});
+        expect(radioObject.bindEvents).toHaveBeenCalledTimes(1);
+        expect(radioObject.bindEvents.mock.calls.map(args => args.slice(0, 2))).toContainEqual([channelFoo, {'bar': 'onBar'}]);
       });
     });
   });
@@ -114,39 +115,39 @@ describe('Radio Mixin on Marionette.Object', function() {
         radioObject.radioRequests = {'baz': 'getBaz'};
         radioObject.initialize();
 
-        expect(radioObject.bindRequests).to.have.been.calledOnce
-          .and.to.have.been.calledWith(channelFoo, {'baz': 'getBaz'});
+        expect(radioObject.bindRequests).toHaveBeenCalledTimes(1);
+        expect(radioObject.bindRequests.mock.calls.map(args => args.slice(0, 2))).toContainEqual([channelFoo, {'baz': 'getBaz'}]);
       });
     });
 
     describe('as a function', function() {
       it('should bind requests to the channel', function() {
-        radioObject.radioRequests = this.sinon.stub().returns({'baz': 'getBaz'});
+        radioObject.radioRequests = vi.fn().mockReturnValue({'baz': 'getBaz'});
         radioObject.initialize();
 
-        expect(radioObject.bindRequests).to.have.been.calledOnce
-          .and.to.have.been.calledWith(channelFoo, {'baz': 'getBaz'});
+        expect(radioObject.bindRequests).toHaveBeenCalledTimes(1);
+        expect(radioObject.bindRequests.mock.calls.map(args => args.slice(0, 2))).toContainEqual([channelFoo, {'baz': 'getBaz'}]);
       });
     });
   });
 
   it('resolves and binds radio options in order', function() {
     const calls = [];
-    radioObject.channelName = this.sinon.stub().callsFake(function(...args) {
+    radioObject.channelName = vi.fn().mockImplementation(function(...args) {
       calls.push(['channelName', this === radioObject, args.length]);
       return 'foo';
     });
-    radioObject.radioEvents = this.sinon.stub().callsFake(function(...args) {
+    radioObject.radioEvents = vi.fn().mockImplementation(function(...args) {
       calls.push(['radioEvents', this === radioObject, args.length]);
       return { bar: 'onBar' };
     });
-    radioObject.radioRequests = this.sinon.stub().callsFake(function(...args) {
+    radioObject.radioRequests = vi.fn().mockImplementation(function(...args) {
       calls.push(['radioRequests', this === radioObject, args.length]);
       return { baz: 'getBaz' };
     });
-    radioObject.bindEvents.callsFake(() => calls.push(['bindEvents']));
-    radioObject.bindRequests.callsFake(() => calls.push(['bindRequests']));
-    this.sinon.stub(Radio, 'channel').callsFake(channelName => {
+    radioObject.bindEvents.mockImplementation(() => calls.push(['bindEvents']));
+    radioObject.bindRequests.mockImplementation(() => calls.push(['bindRequests']));
+    vi.spyOn(Radio, 'channel').mockImplementation(() => undefined).mockImplementation(channelName => {
       calls.push(['channel', channelName]);
       return channelFoo;
     });
@@ -162,15 +163,15 @@ describe('Radio Mixin on Marionette.Object', function() {
     ]);
     [radioObject.channelName, radioObject.radioEvents, radioObject.radioRequests]
       .forEach(option => {
-        expect(option).to.have.been.calledOnce
-          .and.calledOn(radioObject)
-          .and.calledWithExactly();
+        expect(option).toHaveBeenCalledTimes(1);
+        expect(option.mock.contexts).toContain(radioObject);
+        expect(option).toHaveBeenCalledWith();
       });
   });
 
   it('propagates a radio option lookup error before later work', function() {
     const error = new Error('radioEvents failed');
-    const radioRequests = this.sinon.stub().returns({ baz: 'getBaz' });
+    const radioRequests = vi.fn().mockReturnValue({ baz: 'getBaz' });
     radioObject.channelName = 'foo';
     Object.defineProperty(radioObject, 'radioEvents', {
       get() {
@@ -179,9 +180,9 @@ describe('Radio Mixin on Marionette.Object', function() {
     });
     radioObject.radioRequests = radioRequests;
     expect(() => radioObject.initialize()).to.throw(error);
-    expect(radioObject.bindEvents).to.not.have.been.called;
-    expect(radioRequests).to.not.have.been.called;
-    expect(radioObject.bindRequests).to.not.have.been.called;
+    expect(radioObject.bindEvents).not.toHaveBeenCalled();
+    expect(radioRequests).not.toHaveBeenCalled();
+    expect(radioObject.bindRequests).not.toHaveBeenCalled();
   });
 
   describe('when an owner destroys its Radio resources', function() {
@@ -193,14 +194,14 @@ describe('Radio Mixin on Marionette.Object', function() {
 
       fooChannel = radioObject.getChannel();
 
-      this.sinon.spy(fooChannel, 'stopReplying');
+      vi.spyOn(fooChannel, 'stopReplying');
 
       radioObject._destroyRadio();
     });
 
     it('should stopReplying to the object', function() {
-      expect(fooChannel.stopReplying).to.have.been.calledOnce
-        .and.to.have.been.calledWith(null, null, radioObject);
+      expect(fooChannel.stopReplying).toHaveBeenCalledTimes(1);
+      expect(fooChannel.stopReplying.mock.calls.map(args => args.slice(0, 3))).toContainEqual([null, null, radioObject]);
     });
   });
 });

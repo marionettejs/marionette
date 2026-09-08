@@ -1,3 +1,4 @@
+import { vi, describe, it, expect } from 'vitest';
 import Behavior from '../../src/modules/behavior';
 import MnObject from '../../src/modules/object';
 import View from '../../src/modules/view';
@@ -128,8 +129,8 @@ describe('Behavior dependency contract', function() {
 
   it('removes only its own collaborator subscription on direct destroy', function() {
     const service = new MnObject();
-    const behaviorListener = this.sinon.spy();
-    const unrelatedListener = this.sinon.spy();
+    const behaviorListener = vi.fn();
+    const unrelatedListener = vi.fn();
     let behavior;
 
     service.on('change', unrelatedListener);
@@ -149,14 +150,14 @@ describe('Behavior dependency contract', function() {
     const view = new TestView();
 
     service.trigger('change');
-    expect(behaviorListener).to.have.been.calledOnce;
-    expect(unrelatedListener).to.have.been.calledOnce;
+    expect(behaviorListener).toHaveBeenCalledTimes(1);
+    expect(unrelatedListener).toHaveBeenCalledTimes(1);
 
     behavior.destroy();
     service.trigger('change');
 
-    expect(behaviorListener).to.have.been.calledOnce;
-    expect(unrelatedListener).to.have.been.calledTwice;
+    expect(behaviorListener).toHaveBeenCalledTimes(1);
+    expect(unrelatedListener).toHaveBeenCalledTimes(2);
     expect(service.isDestroyed()).to.be.false;
 
     view.destroy();
@@ -166,8 +167,8 @@ describe('Behavior dependency contract', function() {
 
   it('removes only its own collaborator subscription on host destroy', function() {
     const service = new MnObject();
-    const behaviorListener = this.sinon.spy();
-    const unrelatedListener = this.sinon.spy();
+    const behaviorListener = vi.fn();
+    const unrelatedListener = vi.fn();
 
     service.on('change', unrelatedListener);
 
@@ -185,14 +186,14 @@ describe('Behavior dependency contract', function() {
     const view = new TestView();
 
     service.trigger('change');
-    expect(behaviorListener).to.have.been.calledOnce;
-    expect(unrelatedListener).to.have.been.calledOnce;
+    expect(behaviorListener).toHaveBeenCalledTimes(1);
+    expect(unrelatedListener).toHaveBeenCalledTimes(1);
 
     view.destroy();
     service.trigger('change');
 
-    expect(behaviorListener).to.have.been.calledOnce;
-    expect(unrelatedListener).to.have.been.calledTwice;
+    expect(behaviorListener).toHaveBeenCalledTimes(1);
+    expect(unrelatedListener).toHaveBeenCalledTimes(2);
     expect(service.isDestroyed()).to.be.false;
 
     service.off();
