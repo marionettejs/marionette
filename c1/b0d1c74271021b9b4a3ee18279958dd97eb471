@@ -1,0 +1,23 @@
+docs/marionette.collectionview.md
+  s_060efbb5bf6218::t_b5204646f5b4e6 863-866
+src/modules/collection-view.ts
+  s_060efbb5bf6218::t_80390faed395a0 1122
+test/unit/collection-view/collection-view-children.spec.js
+  s_060efbb5bf6218::t_a1deaab7c706c1 259-275
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "c1b0d1c74271021b9b4a3ee18279958dd97eb471",
+  "prompts": {},
+  "sessions": {
+    "s_060efbb5bf6218": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06dd0-1698-7ac3-bd53-4ac200650411",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
