@@ -19,6 +19,8 @@ test('editable survivors, latest selection and cleanup use installed package API
         return request.promise; // Deliberately ignores abort.
       }
     });
+    const editedModel = workspace.notes.at(0);
+    const savedTitle = editedModel.get('title');
     const input = document.querySelector('input');
     input.value = 'Unsaved draft';
     workspace.notes.move(workspace.notes.at(0), 1);
@@ -45,6 +47,7 @@ test('editable survivors, latest selection and cleanup use installed package API
     requests[3].resolve({ title: 'Too late', body: '' });
     assert.equal(await late, false);
     oldButton.click();
+    assert.equal(editedModel.get('title'), savedTitle);
     workspace.notes.remove(workspace.notes.at(0));
     assert.equal(requests.length, 4);
     assert.equal(document.querySelector('main').children.length, 0);

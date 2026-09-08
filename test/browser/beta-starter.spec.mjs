@@ -35,11 +35,14 @@ test('beta starter preserves draft focus, rejects stale selection and releases h
   await page.getByRole('button', { name: 'Open', exact: true }).first().click();
   expect(await page.evaluate(async() => {
     const oldButton = document.querySelector('li button');
+    const model = globalThis.workspace.notes.at(0);
+    const savedTitle = model.get('title');
+    oldButton.closest('li').querySelector('input').value = 'Teardown draft';
     globalThis.workspace.destroy();
     globalThis.requests[2].resolve({ title: 'Too late', body: '' });
     await Promise.resolve();
     oldButton.click();
-    return { aborted: globalThis.requests[2].signal.aborted,
+    return { unchangedTitle: model.get('title') === savedTitle, aborted: globalThis.requests[2].signal.aborted,
       children: document.querySelector('main').children.length, requests: globalThis.requests.length };
-  })).toEqual({ aborted: true, children: 0, requests: 3 });
+  })).toEqual({ unchangedTitle: true, aborted: true, children: 0, requests: 3 });
 });
