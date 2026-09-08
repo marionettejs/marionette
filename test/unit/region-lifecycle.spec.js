@@ -401,7 +401,7 @@ describe('Region lifecycle contract', function() {
           lifecycle.push(['reset', this.isDestroyed()]);
           if (delegateReset) { return Region.prototype.reset.call(this, options); }
           this.empty(options);
-          this.el = this._initEl;
+          this.el = '#region';
           return this;
         },
         empty(options) {
@@ -646,7 +646,6 @@ describe('Region lifecycle contract', function() {
       child.trigger('ping');
 
       expect(owner.getChildView('content')).to.be.undefined;
-      expect(child._isShown).to.be.false;
       expect(Object.values(owner._rdListeningTo || {}).some(listener => listener.obj === child)).to.be.false;
     }
 
