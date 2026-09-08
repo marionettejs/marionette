@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,14 +12,17 @@ import {
 } from '../../scripts/performance/resources.mjs';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
+// Resource payloads retained from PR #470's failed Bundle size CI comparison.
+// Historical measurements are opaque fixtures, never private runtime probes.
+const historicalResourceFixture = JSON.parse(await readFile(new URL('./fixtures/resource-report-schema-1.json', import.meta.url), 'utf8'));
+const currentResourceFixture = JSON.parse(await readFile(new URL('./fixtures/resource-report-schema-2.json', import.meta.url), 'utf8'));
 
 function report() {
-  return {
-    schemaVersion: 2,
-    workload: { attachDetachCycles: 100, mountDestroyCycles: 1000 },
-    created: { viewInstances: 4, behaviorInstances: 1 },
-    retention: { externalSubscriptionsAfterDestroy: 0, liveInstancesAfterDestroy: 1 }
-  };
+  const measurement = structuredClone(currentResourceFixture);
+  measurement.created.viewInstances = 4;
+  measurement.created.behaviorInstances = 1;
+  measurement.retention.liveInstancesAfterDestroy = 1;
+  return measurement;
 }
 
 function bundleReport(resources, resourcesRequired = resources != null) {
@@ -76,13 +79,19 @@ describe('deterministic resource comparison', () => {
     const current = structuredClone(base);
     delete current.created.viewInstances;
     current.created.unknownInstances = 0;
-    current.workload.mountDestroyCycles = 2000;
 
     const comparison = compareResources(base, current);
 
-    assert.ok(comparison.violations.includes('Resource measurement workload does not match the exact base'));
-    assert.ok(comparison.violations.includes('resources.created is missing metrics: viewInstances'));
-    assert.ok(comparison.violations.includes('resources.created has unknown metrics: unknownInstances'));
+    assert.ok(comparison.violations.includes('Pull request resources.created is missing metrics: viewInstances'));
+    assert.ok(comparison.violations.includes('Pull request resources.created has unknown metrics: unknownInstances'));
+  });
+
+  test('rejects different workloads within the current schema', () => {
+    const current = report();
+    current.workload.mountDestroyCycles = 2000;
+    assert.ok(compareResources(report(), current).violations.includes(
+      'Resource measurement workload does not match the exact base'
+    ));
   });
 
   test('rejects changed numeric metric types', () => {
@@ -90,7 +99,7 @@ describe('deterministic resource comparison', () => {
     const current = report();
     current.created.viewInstances = '4';
     assert.ok(compareResources(base, current).violations.includes(
-      'resources.created.viewInstances changed measurement type'
+      'Pull request resources.created.viewInstances changed measurement type'
     ));
   });
 
@@ -119,6 +128,82 @@ describe('deterministic resource comparison', () => {
         'Pull request resource schemaVersion must be 2; received 1'
       )
     );
+  });
+
+  test('accepts only a distinct positive safe-integer schema as non-comparable', () => {
+    for (const schemaVersion of [1, 3]) {
+      const comparison = compareResources({ schemaVersion }, report());
+      assert.equal(comparison.notComparable, true);
+      assert.deepEqual(comparison.violations, []);
+      assert.deepEqual(comparison.changes, []);
+    }
+    for (const schemaVersion of [undefined, null, '1', 0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+      const comparison = compareResources({ schemaVersion }, report());
+      assert.ok(comparison.violations.length, String(schemaVersion));
+      assert.notEqual(comparison.notComparable, true);
+    }
+  });
+
+  test('reports the retained CI schema transition without comparing old metrics', async(t) => {
+    const directory = await mkdtemp(join(tmpdir(), 'marionette-resource-schema-'));
+    t.after(() => rm(directory, { recursive: true, force: true }));
+    const baseFile = join(directory, 'base.json');
+    const currentFile = join(directory, 'current.json');
+    await Promise.all([
+      writeFile(baseFile, JSON.stringify(bundleReport(historicalResourceFixture))),
+      writeFile(currentFile, JSON.stringify(bundleReport(currentResourceFixture))),
+    ]);
+    const result = spawnSync(process.execPath, [
+      join(root, 'scripts/performance/bundle-size.mjs'), '--report', baseFile, currentFile,
+    ], { encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.match(result.stdout, /Resource schema \| 1 \| 2 \| Not comparable \(reporting only\)/);
+    assert.match(result.stdout, /The current measurement is valid/);
+    assert.match(result.stdout, /metrics were not compared across schema versions/);
+    assert.doesNotMatch(result.stdout, /missing metrics|unknown metrics|resources\.created|ownProperties|\| None \| No change/);
+
+    await writeFile(currentFile, JSON.stringify(bundleReport(historicalResourceFixture)));
+    const invalidCurrent = spawnSync(process.execPath, [
+      join(root, 'scripts/performance/bundle-size.mjs'), '--report', baseFile, currentFile,
+    ], { encoding: 'utf8' });
+    assert.equal(invalidCurrent.status, 1, invalidCurrent.stdout + invalidCurrent.stderr);
+    assert.match(invalidCurrent.stdout, /Pull request resource schemaVersion must be 2; received 1/);
+    assert.doesNotMatch(invalidCurrent.stdout, /The current measurement is valid|Not comparable \(reporting only\)/);
+  });
+
+  test('rejects malformed current and same-schema base measurements through the CLI', async(t) => {
+    const directory = await mkdtemp(join(tmpdir(), 'marionette-resource-invalid-'));
+    t.after(() => rm(directory, { recursive: true, force: true }));
+    const baseFile = join(directory, 'base.json');
+    const currentFile = join(directory, 'current.json');
+    const cases = [
+      ['missing metric', value => { delete value.created.viewInstances; }, /missing metrics: viewInstances/],
+      ['unknown metric', value => { value.created.extra = 0; }, /unknown metrics: extra/],
+      ['invalid number', value => { value.created.viewInstances = -1; }, /non-negative safe integer/],
+      ['invalid type', value => { value.retention.detachedViewDestroyedWithFormerRegion = 0; }, /changed measurement type/],
+      ['missing workload', value => { delete value.workload; }, /resource workload is missing/],
+    ];
+    for (const [name, mutate, expected] of cases) {
+      // Different schemas never exempt CURRENT validation; matching schemas
+      // validate both complete records, even when both share the same defect.
+      for (const side of ['current with old base', 'base', 'both']) {
+        const invalid = structuredClone(currentResourceFixture);
+        mutate(invalid);
+        const base = side === 'current with old base' ? historicalResourceFixture : invalid;
+        const current = side === 'base' ? currentResourceFixture : invalid;
+        await Promise.all([
+          writeFile(baseFile, JSON.stringify(bundleReport(base))),
+          writeFile(currentFile, JSON.stringify(bundleReport(current))),
+        ]);
+        const result = spawnSync(process.execPath, [
+          join(root, 'scripts/performance/bundle-size.mjs'), '--report', baseFile, currentFile,
+        ], { encoding: 'utf8' });
+        assert.equal(result.status, 1, `${name}, ${side}: ${result.stdout}${result.stderr}`);
+        assert.match(result.stdout, expected);
+        assert.match(result.stdout, side === 'base' ? /Exact-base resources?/ : /Pull request resources?/);
+        assert.doesNotMatch(result.stdout, /The current measurement is valid|Not comparable \(reporting only\)/);
+      }
+    }
   });
 
   test('reports creation growth but rejects incomplete measurements through the CLI', async() => {

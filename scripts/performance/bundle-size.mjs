@@ -1105,7 +1105,7 @@ async function buildReport(baseFile, currentFile) {
     '',
     resourceComparison.violations.length ?
       `Resource observations: ${resourceComparison.violations.join('; ')}` :
-      'Consumer-observed creation and retention counts are observations for review, not automatic budgets.',
+      resourceComparison.reason || 'Consumer-observed creation and retention counts are observations for review, not automatic budgets.',
   ];
 
   const markdown = [

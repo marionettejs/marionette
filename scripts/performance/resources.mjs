@@ -5,6 +5,27 @@ import { pathToFileURL } from 'node:url';
 
 let runtimeLoaded = false;
 
+function emptyMeasurements() {
+  const created = { viewInstances: 0, regionInstances: 0, behaviorInstances: 0, collectionViewInstances: 0 };
+  const retention = {
+    collectionSubscriptionsWhileMounted: 0,
+    modelSubscriptionsWhileMounted: 0,
+    domListenersWhileMounted: 0,
+    externalSubscriptionsAfterDestroy: 0,
+    domListenersAfterDestroy: 0,
+    callbacksAfterDestroy: 0,
+    childViewsAfterDestroy: 0,
+    regionViewsAfterEmpty: 0,
+    regionsAfterHostDestroy: 0,
+    managedDomChildrenAfterEmpty: 0,
+    managedRootsConnectedAfterDestroy: 0,
+    liveInstancesAfterDestroy: 0,
+    detachedViewDestroyedWithFormerRegion: false,
+    destroyedBehaviorRetainsHostReference: false
+  };
+  return { created, retention };
+}
+
 function maxValue(target, key, ...values) {
   target[key] = Math.max(target[key], ...values);
 }
@@ -100,7 +121,7 @@ export async function measureResources({ root = '.', attachDetachCycles, mountDe
   const { Behavior, CollectionView, Region, View } = Marionette;
   const liveInstances = new Set();
   const delegatedListeners = new Set();
-  const created = { viewInstances: 0, regionInstances: 0, behaviorInstances: 0, collectionViewInstances: 0 };
+  const { created, retention } = emptyMeasurements();
   let modelChanges = 0;
   let collectionChanges = 0;
   let mountedBehavior;
@@ -148,22 +169,6 @@ export async function measureResources({ root = '.', attachDetachCycles, mountDe
       };
     }
   });
-  const retention = {
-    collectionSubscriptionsWhileMounted: 0,
-    modelSubscriptionsWhileMounted: 0,
-    domListenersWhileMounted: 0,
-    externalSubscriptionsAfterDestroy: 0,
-    domListenersAfterDestroy: 0,
-    callbacksAfterDestroy: 0,
-    childViewsAfterDestroy: 0,
-    regionViewsAfterEmpty: 0,
-    regionsAfterHostDestroy: 0,
-    managedDomChildrenAfterEmpty: 0,
-    managedRootsConnectedAfterDestroy: 0,
-    liveInstancesAfterDestroy: 0,
-    detachedViewDestroyedWithFormerRegion: false,
-    destroyedBehaviorRetainsHostReference: false
-  };
   try {
     const detachRegionEl = document.createElement('div');
     document.body.append(detachRegionEl);
@@ -259,6 +264,10 @@ function compareValues(base, current, path, changes, violations) {
       violations.push(`${path} changed measurement type`);
       return;
     }
+    if (typeof current === 'number' && (!Number.isSafeInteger(current) || current < 0)) {
+      violations.push(`${path} must be a non-negative safe integer`);
+      return;
+    }
     const baseValue = Number(base);
     const currentValue = Number(current);
     if (currentValue !== baseValue) {
@@ -290,21 +299,34 @@ function compareValues(base, current, path, changes, violations) {
   }
 }
 
+function validateMeasurement(measurement, label) {
+  const violations = [];
+  if (measurement?.schemaVersion !== 2) {
+    violations.push(`${label} resource schemaVersion must be 2; received ${measurement?.schemaVersion}`);
+  }
+  violations.push(...validateWorkload(measurement?.workload, `${label} resource workload`));
+  compareValues(emptyMeasurements(), { created: measurement?.created, retention: measurement?.retention },
+    `${label} resources`, [], violations);
+  return violations;
+}
+
 export function compareResources(base, current) {
   const changes = [];
-  const violations = [];
-
-  if (base.schemaVersion !== 2) {
-    violations.push(`Exact-base resource schemaVersion must be 2; received ${base.schemaVersion}`);
+  const currentViolations = validateMeasurement(current, 'Pull request');
+  // The exact CI base can predate this measurement contract. Validate the current
+  // schema independently; never reinterpret old metrics as current observations.
+  if (Number.isSafeInteger(base?.schemaVersion) && base.schemaVersion > 0 && base.schemaVersion !== 2) {
+    if (currentViolations.length) { return { changes, violations: currentViolations }; }
+    return {
+      changes, violations: [], notComparable: true,
+      baseSchemaVersion: base.schemaVersion, currentSchemaVersion: current.schemaVersion,
+      reason: `Resource measurements are not comparable: exact-base schemaVersion ${base.schemaVersion} differs from current schemaVersion ${current.schemaVersion}. ` +
+        'The current measurement is valid. Reporting only: metrics were not compared across schema versions.'
+    };
   }
-  if (current.schemaVersion !== 2) {
-    violations.push(`Pull request resource schemaVersion must be 2; received ${current.schemaVersion}`);
-  }
-  const baseWorkloadViolations = validateWorkload(base.workload, 'Exact-base resource workload');
-  const currentWorkloadViolations = validateWorkload(current.workload, 'Pull request resource workload');
-  violations.push(...baseWorkloadViolations, ...currentWorkloadViolations);
-  if (!baseWorkloadViolations.length && !currentWorkloadViolations.length &&
-      JSON.stringify(base.workload) !== JSON.stringify(current.workload)) {
+  const violations = [...validateMeasurement(base, 'Exact-base'), ...currentViolations];
+  if (violations.length) { return { changes, violations }; }
+  if (JSON.stringify(base.workload) !== JSON.stringify(current.workload)) {
     violations.push('Resource measurement workload does not match the exact base');
   }
 
@@ -320,6 +342,9 @@ export function compareResources(base, current) {
 }
 
 export function resourceReportRows(comparison) {
+  if (comparison.notComparable) {
+    return [`| Resource schema | ${comparison.baseSchemaVersion} | ${comparison.currentSchemaVersion} | Not comparable (reporting only) |`];
+  }
   if (!comparison.changes.length) {
     return comparison.violations.length ?
       ['| Contract validation | Not comparable | Not comparable | Review required |'] :
