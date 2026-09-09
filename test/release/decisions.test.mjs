@@ -32,7 +32,7 @@ test('authorization distinguishes channel, exact version, stable permission and 
 
 test('release version grammar rejects malformed identities and accepts valid prerelease identifiers', () => {
   const candidate = policy({ stable: false, prerelease: beta });
-  for (const version of [undefined, null, 5, '', 'latest', '5.0', '05.0.0', '5.00.0', '5.0.00',
+  for (const version of [undefined, null, 5, Object(beta), '', 'latest', '5.0', '05.0.0', '5.00.0', '5.0.00',
     '5.0.0-beta..1', '5.0.0-beta.', '5.0.0-.beta', '5.0.0-01', '5.0.0-beta.01', '5.0.0+build']) {
     assert.throws(() => publicationEnabled(candidate, version), /Invalid release version/);
     assert.throws(() => releaseChannel(candidate, version), /Invalid release version/);

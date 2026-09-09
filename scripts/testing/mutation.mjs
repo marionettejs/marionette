@@ -116,7 +116,7 @@ export async function main(args = process.argv.slice(2)) {
   await mkdir(output, { recursive: true });
   const startedAt = new Date().toISOString();
   const testInputs = [];
-  for await (const file of glob([...policy.testFiles, 'test/unit/model-based/*.js', 'test/setup/*.js', 'package.json', 'config/coverage-exceptions.json', 'vitest.config.js', 'stryker.config.mjs', 'scripts/testing/mutation.mjs'], { cwd: root })) {
+  for await (const file of glob([...policy.testFiles, 'test/unit/model-based/*.js', 'test/setup/*.js', 'package.json', 'config/coverage-exceptions.json', 'vitest.config.js', 'stryker.config.mjs', 'scripts/.babelrc', 'scripts/testing/mutation.mjs'], { cwd: root })) {
     testInputs.push({ file, sha256: sha256(await readFile(join(root, file))) });
   }
   testInputs.sort((first, second) => first.file.localeCompare(second.file));

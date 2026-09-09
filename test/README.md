@@ -106,6 +106,8 @@ through Stryker's command runner with the same two-worker, ten-minute bound and
 retained source/test/lock hashes. It does not contact npm or GitHub. The separate
 end-to-end release CLI fixtures remain required; this pilot is not evidence for
 every publication failure path. Neither profile enforces a mutation score.
+The empty `scripts/.babelrc` keeps native Node tooling outside the library's Babel
+build presets, including when Stryker parses release scripts with its own Babel.
 
 ## Locked consumer fixtures
 
