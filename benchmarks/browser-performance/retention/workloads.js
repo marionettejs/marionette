@@ -32,6 +32,7 @@ const List = runtime.CollectionView.extend({ childView: Row });
 
 function collectionCycle() {
   const collection = keepInput(new Collection([{ id: 1 }, { id: 2 }, { id: 3 }]));
+  collection.models.forEach(keepInput);
   const host = document.createElement('main');
   document.body.append(host);
   const region = track(new runtime.Region({ el: host }));
@@ -42,10 +43,11 @@ function collectionCycle() {
   collection.move(collection.at(0), 2);
   invariant(list.children.findByModel(survivor.model) === survivor, 'Reorder replaced a survivor');
   collection.remove(collection.at(0));
-  collection.add({ id: 4 });
+  keepInput(collection.add({ id: 4 }));
   list.render();
   invariant(survivor.isDestroyed(), 'Explicit render did not release old children');
   collection.reset([{ id: 5 }, { id: 6 }]);
+  collection.models.forEach(keepInput);
   region.destroy();
   invariant(list.isDestroyed() && host.children.length === 0, 'List teardown failed');
   // Keep the source alive during owner collection: leaked subscriptions must

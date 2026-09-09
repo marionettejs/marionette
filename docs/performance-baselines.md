@@ -170,3 +170,13 @@ counts for each batch, CDP heap usage and DOM counters. Heap sizes are contextua
 observations, not portable thresholds. This demonstrates collection for the tested
 successful workflows, not universal absence of leaks or support for synchronous
 recovery. The runner is maintainer tooling and never enters production imports.
+
+The manual **Browser performance evidence** workflow fixes the runner to
+`ubuntu-24.04`, builds once, then runs three sequential baseline blocks with no
+concurrent build or test steps. It runs retention after timing and retains all
+three raw reports plus the retention report for 90 days, including partial output
+on failure. Compare the blocks' medians and p95 values to characterize variance;
+do not select the fastest block. The source/artifact hashes must match across
+blocks. A fresh hosted job controls our workload scheduling, not the underlying
+shared hardware, so persistent variance needs a dedicated runner before setting
+performance budgets. This workflow does not run paid agent benchmarks or publish.

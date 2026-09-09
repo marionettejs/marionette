@@ -1,0 +1,46 @@
+name: Browser performance evidence
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    name: Matched browser blocks and retention
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout selected source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup pinned Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Verify source profile
+        run: npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04
+      - name: Install and build once
+        run: npm ci
+      - name: Install pinned Chromium
+        run: npx playwright install --with-deps --only-shell chromium
+      - name: Measure three sequential blocks without concurrent builds or tests
+        run: |
+          for block in 1 2 3; do
+            node scripts/performance/browser.mjs --profile baseline \
+              --runner-note "Fresh GitHub-hosted ubuntu-24.04 job; sequential blocks after one build; no concurrent job steps; shared-host noise remains unmeasured" \
+              --output "test/tmp/browser-evidence/block-${block}.json"
+          done
+      - name: Verify collection separately from timing
+        run: node scripts/performance/retention.mjs --output test/tmp/browser-evidence/retention.json
+      - name: Retain complete or partial evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: browser-evidence-${{ github.sha }}-${{ github.run_attempt }}
+          path: test/tmp/browser-evidence/
+          if-no-files-found: warn
+          retention-days: 90
