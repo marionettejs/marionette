@@ -20,7 +20,7 @@
       }
     },
     "lockedDependencies": {
-      "backbone": "1.4.0",
+      "backbone": "1.6.1",
       "jsdom": "30.0.1",
       "rollup": "4.63.1"
     },
