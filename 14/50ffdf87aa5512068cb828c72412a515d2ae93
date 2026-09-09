@@ -1,0 +1,46 @@
+docs/release-promotion.md
+  s_bd170ff740ca58::t_6a6d13501c16eb 98-104,134-136
+  s_bd170ff740ca58::t_06fd99fa364e31 137
+ROADMAP.md
+  s_bd170ff740ca58::t_6a6d13501c16eb 915-920
+test/release/publication.test.mjs
+  s_bd170ff740ca58::t_e54316e8530b4b 3,9-15
+  s_bd170ff740ca58::t_04da9cf435db06 16
+test/release/promotion.test.mjs
+  s_bd170ff740ca58::t_e54316e8530b4b 47-48,201,206-239
+  s_bd170ff740ca58::t_a19d030b7aaea6 240
+test/release/fake-external.mjs
+  s_bd170ff740ca58::t_e54316e8530b4b 16-22
+scripts/docs/export.mjs
+  s_bd170ff740ca58::t_e54316e8530b4b 6,71,89
+test/docs/export.test.mjs
+  s_bd170ff740ca58::t_e3cc4ac0bf7829 2-3,10-38
+  s_bd170ff740ca58::t_b1fbb03a1c07ec 39
+docs/beta.md
+  s_bd170ff740ca58::t_6a6d13501c16eb 3-6,24,28
+scripts/release/check-targets.mjs
+  s_bd170ff740ca58::t_8269077a8f8cb7 59,108-109
+  s_bd170ff740ca58::t_e54316e8530b4b 63,98-107,110-111,195-198
+scripts/release/publication.mjs
+  s_bd170ff740ca58::t_e54316e8530b4b 8-14
+test/README.md
+  s_bd170ff740ca58::t_6a6d13501c16eb 145-147
+AGENTS.md
+  s_bd170ff740ca58::t_621844ce95c185 18-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "1450ffdf87aa5512068cb828c72412a515d2ae93",
+  "prompts": {},
+  "sessions": {
+    "s_bd170ff740ca58": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0849e-3aa3-76e0-a103-be1accb6af6b",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
