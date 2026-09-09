@@ -46,11 +46,12 @@ test('installed TypeScript starter releases old owners across repeated Vite edit
       const manifest = `${JSON.stringify(packagedManifest, null, 2)}\n`;
       await writeFile(join(npmStarter, 'package.json'), manifest);
       await execute(process.execPath, [process.env.npm_execpath, 'install', '--no-save',
-        ...candidate.packages.map(entry => entry.artifact)], {
+        ...candidate.packages.filter(entry => entry.id !== 'adapters').map(entry => entry.artifact)], {
         cwd: npmStarter, timeout: 90_000, maxBuffer: 2 * 1024 * 1024,
         env: { ...process.env, npm_config_audit: 'false', npm_config_fund: 'false' }
       });
       expect(await readFile(join(npmStarter, 'package.json'), 'utf8')).toBe(manifest);
+      expect(await readdir(join(npmStarter, 'node_modules/@mnjs'))).not.toContain('adapters');
       await execute(process.execPath, [process.env.npm_execpath, 'run', 'validate'], {
         cwd: npmStarter, timeout: 60_000, maxBuffer: 2 * 1024 * 1024
       });
