@@ -679,6 +679,27 @@
         "runtime"
       ],
       "benchmarkCategory": "collection-view"
+    },
+    {
+      "code": "MN0040",
+      "slug": "private-framework-member-access",
+      "status": "active",
+      "category": "configuration",
+      "severity": "error",
+      "objects": [
+        "Application",
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "Region",
+        "View"
+      ],
+      "remediation": "Use the documented public Marionette API instead of reading or calling this private framework member.",
+      "docsAnchor": "/errors/MN0040/",
+      "surfaces": [
+        "lint"
+      ],
+      "benchmarkCategory": "lifecycle"
     }
   ]
 }
