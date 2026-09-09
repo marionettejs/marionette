@@ -2,6 +2,9 @@ import { resolvePolicy } from './scripts/testing/mutation.mjs';
 
 const release = process.env.MARIONETTE_MUTATION_PROFILE === 'release';
 const policy = await resolvePolicy(undefined, process.env.MARIONETTE_MUTATION_PROFILE || 'runtime');
+if (release && policy.testFiles.some(file => !/^test\/[\w./*-]+$/.test(file))) {
+  throw new Error('Release mutation test paths must be shell-safe paths under test/.');
+}
 const runId = process.env.MARIONETTE_MUTATION_RUN_ID;
 if (!runId || !/^[\w-]+$/.test(runId)) {
   throw new Error('Run mutation testing through node scripts/testing/mutation.mjs for bounded execution and retained evidence.');
@@ -10,7 +13,7 @@ if (!runId || !/^[\w-]+$/.test(runId)) {
 export default {
   $schema: './node_modules/@stryker-mutator/core/schema/stryker-schema.json',
   mutate: policy.mutate,
-  ...(release ? { commandRunner: { command: 'node --test test/release/decisions.test.mjs' } } : {
+  ...(release ? { commandRunner: { command: `node --test ${policy.testFiles.join(' ')}` } } : {
     testFiles: policy.testFiles,
     vitest: { configFile: 'vitest.config.js' },
   }),

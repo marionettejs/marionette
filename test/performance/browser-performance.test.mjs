@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { describe, test } from 'node:test';
 import {
+  measureBrowserPerformance,
   sameMeasurementInputs,
   summarize,
   validateBrowserPerformanceContract
@@ -28,6 +29,11 @@ async function canonicalInputs() {
 }
 
 describe('browser performance evidence', () => {
+  test('rejects inherited profile names before launching a browser', async() => {
+    for (const profileName of ['__proto__', 'constructor']) {
+      await assert.rejects(measureBrowserPerformance({ profileName }), /Unknown browser performance profile/);
+    }
+  });
   test('binds the reporting contract to the complete versioned workload fixture', async() => {
     assert.deepEqual(validateBrowserPerformanceContract(await canonicalInputs()), []);
   });
@@ -51,6 +57,9 @@ describe('browser performance evidence', () => {
       ...before,
       artifacts: { 'dist/a.js': '456' }
     }), false);
+    for (const source of [{ commit: 'def', dirty: false }, { commit: 'abc', dirty: true }]) {
+      assert.equal(sameMeasurementInputs(before, { ...before, source }), false);
+    }
   });
 
   test('retains raw-distribution summary boundaries', () => {

@@ -237,8 +237,10 @@ export async function measureBrowserPerformance({
   });
   if (violations.length) { throw new Error(violations.join('; ')); }
 
+  if (!Object.hasOwn(manifest.profiles, profileName)) {
+    throw new Error(`Unknown browser performance profile ${profileName}`);
+  }
   const profile = manifest.profiles[profileName];
-  if (!profile) { throw new Error(`Unknown browser performance profile ${profileName}`); }
   const samples = sampleOverride || profile.samples;
   const warmups = warmupOverride || profile.warmups;
   const { [browserName]: browserType } = await import('@playwright/test');
