@@ -1,4 +1,4 @@
 import plugin from 'marionette/eslint';
 
-plugin.configs.recommended;
-plugin.rules?.['no-private-framework-members'];
+export const recommended = plugin.configs.recommended;
+export const privateMemberRule = plugin.rules?.['no-private-framework-members'];

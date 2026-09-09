@@ -30,7 +30,7 @@ const mutations = [
   ['wrong policy digest', evidence => { evidence.promotionPolicy.sha512 = 'a'; }, /promotion policy SHA-512 mismatch/],
   ['wrong toolchain', evidence => { evidence.toolchain.node = '1.0.0'; }, /Node version mismatch/],
   ['wrong tag', evidence => { evidence.release.tag = 'v9.0.0'; }, /release tag mismatch/],
-  ['wrong dist-tag', evidence => { evidence.release.npmTag = 'latest'; }, /npm dist-tag mismatch/],
+  ['wrong dist-tag', evidence => { evidence.release.npmTag = 'unexpected-channel'; }, /npm dist-tag mismatch/],
 ];
 
 for (const [name, mutate, expected] of mutations) {

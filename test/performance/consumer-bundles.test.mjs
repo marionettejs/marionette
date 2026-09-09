@@ -357,6 +357,20 @@ describe('consumer bundle measurements', () => {
     assert.match(result.violations.join('\n'), /Exact base consumer bundle artifact inventory/);
   });
 
+  test('compares the archived v1 base by its own inventory without inventing deltas', async() => {
+    const current = consumerReport(await canonicalInputs());
+    const manifest = JSON.parse(await readFile(new URL('../../benchmarks/consumer-bundles/v1/manifest.json', import.meta.url), 'utf8'));
+    const base = structuredClone(current);
+    base.fixtureVersion = manifest.fixtureVersion;
+    base.artifacts = base.artifacts.filter(({ id }) => manifest.expectedArtifacts.includes(id));
+    const comparison = compareConsumerBundleReports(base, current);
+    assert.deepEqual(comparison.violations, []);
+    assert.match(comparison.reason, /not comparable/);
+    assert.ok(comparison.rows.every(row => row.baseSize === null && row.deltaBytes === null));
+    base.artifacts.pop();
+    assert.match(compareConsumerBundleReports(base, current).violations.join('\n'), /Exact base.*inventory/);
+  });
+
   test('fails closed when a versioned entry source digest drifts', async() => {
     const inputs = await canonicalInputs();
     const fixtureRoot = await mkdtemp(join(tmpdir(), 'marionette-consumer-entry-'));
