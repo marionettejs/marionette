@@ -6,11 +6,11 @@ export default {
   output: [
     {
       file: 'dist/index.js',
-      format: 'es'
+      sourcemap: true, format: 'es'
     },
     {
       file: 'dist/index.cjs',
-      format: 'cjs',
+      sourcemap: true, format: 'cjs',
       exports: 'named'
     }
   ],

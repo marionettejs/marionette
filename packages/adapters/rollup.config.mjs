@@ -6,10 +6,12 @@ export default [
     output: [
       {
         file: 'dist/backbone.js',
+        sourcemap: true,
         format: 'es'
       },
       {
         file: 'dist/backbone.cjs',
+        sourcemap: true,
         format: 'cjs',
         exports: 'default'
       }
@@ -20,16 +22,16 @@ export default [
     input: 'src/dom/jquery.ts',
     external: ['jquery'],
     output: [
-      { file: 'dist/dom/jquery.js', format: 'es' },
-      { file: 'dist/dom/jquery.cjs', format: 'cjs', exports: 'default' }
+      { file: 'dist/dom/jquery.js', sourcemap: true, format: 'es' },
+      { file: 'dist/dom/jquery.cjs', sourcemap: true, format: 'cjs', exports: 'default' }
     ],
     plugins: [compile()]
   },
   {
     input: 'src/data/xstate.ts',
     output: [
-      { file: 'dist/xstate.js', format: 'es' },
-      { file: 'dist/xstate.cjs', format: 'cjs', exports: 'default' }
+      { file: 'dist/xstate.js', sourcemap: true, format: 'es' },
+      { file: 'dist/xstate.cjs', sourcemap: true, format: 'cjs', exports: 'default' }
     ],
     plugins: [compile()]
   },
@@ -37,8 +39,8 @@ export default [
     input: `src/dom/${ name }.ts`,
     external: [name],
     output: [
-      { file: `dist/dom/${ name }.js`, format: 'es' },
-      { file: `dist/dom/${ name }.cjs`, format: 'cjs', exports: 'default' }
+      { file: `dist/dom/${ name }.js`, sourcemap: true, format: 'es' },
+      { file: `dist/dom/${ name }.cjs`, sourcemap: true, format: 'cjs', exports: 'default' }
     ],
     plugins: [compile()]
   }))
