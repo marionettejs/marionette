@@ -1,0 +1,43 @@
+test/fixtures/data-package-starter/playwright.config.mjs
+  s_9b715d9e600fb6::t_01d5d23774ed27 1-13
+test/fixtures/data-package-starter/workspace.browser.spec.mjs
+  s_9b715d9e600fb6::t_01d5d23774ed27 1-46
+test/fixtures/data-package-starter/AGENTS.md
+  s_9b715d9e600fb6::t_01d5d23774ed27 1-44
+scripts/docs/development-kit.mjs
+  s_9b715d9e600fb6::t_b3afa183d10093 24,31,63,69-70
+scripts/docs/package.mjs
+  s_9b715d9e600fb6::t_785d6d6a6017d9 1,44,47-54
+scripts/release/build-artifact.mjs
+  s_9b715d9e600fb6::t_cd4d83043203f0 229
+test/browser/starter-development.spec.mjs
+  s_9b715d9e600fb6::t_fad23ad6c23fe0 5,11-16,18-19,31-64,66-67,79
+test/docs/development-kit.test.mjs
+  s_9b715d9e600fb6::t_94a29189a05711 65
+test/fixtures/data-package-starter/gitignore
+  s_9b715d9e600fb6::t_910f2f13938dc0 1-4
+test/fixtures/data-package-starter/package-lock.json
+  s_9b715d9e600fb6::t_543c5c7d7d6e36 9,15-17,455-470,2022-2050
+test/fixtures/data-package-starter/package.json
+  s_9b715d9e600fb6::t_63be1c418af590 11-13,23-27
+test/fixtures/data-package-starter/readme.md
+  s_9b715d9e600fb6::t_2438be9406a186 8-12,15-19,23-43,52-54
+test/release/build.test.mjs
+  s_9b715d9e600fb6::t_536447225dcbcb 20-21,43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "220cec59fbc770bf42b66633930fdf7d68c1d199",
+  "prompts": {},
+  "sessions": {
+    "s_9b715d9e600fb6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08519-c4aa-77e0-96b5-ac8c23eafcfe",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
