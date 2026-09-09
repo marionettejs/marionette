@@ -8,6 +8,7 @@ import globals from 'globals';
 export default [
   {
     ignores: [
+      '.claude/worktrees/**',
       '.docs-site/**',
       '.docs-export/**',
       '.docs-export-tmp/**',
