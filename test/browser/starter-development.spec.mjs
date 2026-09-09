@@ -2,16 +2,21 @@ import { test, expect } from '@playwright/test';
 import { execFile } from 'node:child_process';
 import { cp, mkdtemp, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { delimiter, join } from 'node:path';
 import { createRequire, SourceMap } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import { promisify } from 'node:util';
 import { buildDevelopmentKit, verifyDevelopmentKit } from '../../scripts/docs/development-kit.mjs';
 
-const execute = promisify(execFile);
+const executeFile = promisify(execFile);
+const execute = (file, args, options = {}) => executeFile(file, args, { ...options, env: {
+  ...process.env, ...options.env, NODE_PATH: '',
+  NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --no-global-search-paths`,
+  PATH: (process.env.PATH || '').split(delimiter).filter(path => !path.includes('node_modules')).join(delimiter)
+} });
 
-test('installed TypeScript starter releases old owners across repeated Vite edits', async({ page }) => {
-  test.setTimeout(240_000);
+test('installed TypeScript starter releases old owners across repeated Vite edits', async({ page }, testInfo) => {
+  test.setTimeout(600_000);
   const candidate = JSON.parse(await readFile(process.env.MARIONETTE_BROWSER_CANDIDATE, 'utf8'));
   const core = candidate.packages.find(entry => entry.id === 'core');
   let directory = await mkdtemp(join(tmpdir(), 'marionette-starter-dev-'));
@@ -23,8 +28,44 @@ test('installed TypeScript starter releases old owners across repeated Vite edit
     for (const entry of candidate.packages) {
       await cp(entry.artifact, join(directory, entry.tarball.file));
     }
+    expect(testInfo.config.projects.map(project => project.name)).toContain('chromium');
+    if (testInfo.project.name === 'chromium') {
+      // Exercise the npm-distributed directory, not the candidate kit template.
+      // Before publication, exact tarballs stand in for the unavailable registry
+      // version without rewriting the starter's declared version dependencies.
+      const npmStarter = join(directory, 'npm-starter');
+      await cp(join(core.directory, 'dist/docs/starter'), npmStarter, { recursive: true });
+      expect(await readdir(npmStarter)).not.toContain('package-lock.json');
+      await rename(join(npmStarter, 'gitignore'), join(npmStarter, '.gitignore'));
+      expect(await readFile(join(npmStarter, '.gitignore'), 'utf8')).toContain('node_modules/');
+      const packagedManifest = JSON.parse(await readFile(join(npmStarter, 'package.json'), 'utf8'));
+      expect(packagedManifest.dependencies).toEqual({ marionette: core.version, '@mnjs/data': core.version });
+      expect(packagedManifest.allowScripts[`marionette@${core.version}`]).toBe(false);
+      // npm matches file identities separately from registry name/version rules.
+      packagedManifest.allowScripts[core.artifact] = false;
+      const manifest = `${JSON.stringify(packagedManifest, null, 2)}\n`;
+      await writeFile(join(npmStarter, 'package.json'), manifest);
+      await execute(process.execPath, [process.env.npm_execpath, 'install', '--no-save',
+        ...candidate.packages.filter(entry => entry.id !== 'adapters').map(entry => entry.artifact)], {
+        cwd: npmStarter, timeout: 90_000, maxBuffer: 2 * 1024 * 1024,
+        env: { ...process.env, npm_config_audit: 'false', npm_config_fund: 'false' }
+      });
+      expect(await readFile(join(npmStarter, 'package.json'), 'utf8')).toBe(manifest);
+      expect(await readdir(join(npmStarter, 'node_modules/@mnjs'))).not.toContain('adapters');
+      await execute(process.execPath, [process.env.npm_execpath, 'run', 'validate'], {
+        cwd: npmStarter, timeout: 60_000, maxBuffer: 2 * 1024 * 1024
+      });
+      await execute(process.execPath, [process.env.npm_execpath, 'run', 'browser:install'], {
+        cwd: npmStarter, timeout: 90_000, maxBuffer: 2 * 1024 * 1024
+      });
+      await execute(process.execPath, [process.env.npm_execpath, 'run', 'test:browser'], {
+        cwd: npmStarter, timeout: 60_000, maxBuffer: 2 * 1024 * 1024
+      });
+      await rm(npmStarter, { recursive: true, force: true });
+    }
     const report = await buildDevelopmentKit({
-      source: join(core.directory, 'dist/docs/starter'), artifactDir: directory,
+      source: join(core.directory, 'dist/docs/starter'),
+      toolingLock: new URL('../fixtures/data-package-starter/package-lock.json', import.meta.url), artifactDir: directory,
       packages: candidate.packages, sourceCommit: candidate.source?.commit || 'local',
       npmCli: process.env.npm_execpath
     });
@@ -36,6 +77,7 @@ test('installed TypeScript starter releases old owners across repeated Vite edit
     await rm(starter, { recursive: true });
     await execute('tar', ['-xzf', join(directory, 'development-starter.tar.gz'), '-C', directory]);
     await verifyDevelopmentKit(directory, report, candidate.source?.commit || 'local');
+    await rename(join(starter, 'gitignore'), join(starter, '.gitignore'));
     await execute(process.execPath, [process.env.npm_execpath, 'ci'], {
       cwd: starter, timeout: 90_000, maxBuffer: 2 * 1024 * 1024,
       env: { ...process.env, npm_config_audit: 'false', npm_config_fund: 'false' }

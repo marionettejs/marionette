@@ -11,7 +11,7 @@ const nativeSetTimeout = globalThis.setTimeout;
 globalThis.setTimeout = (callback, delay, ...args) => nativeSetTimeout(callback, delay === 5000 ? 0 : delay, ...args);
 const fake = fileURLToPath(new URL('./fake-external.mjs', import.meta.url));
 childProcess.spawnSync = function(command, args, options = {}) {
-  if (command === 'gh' || (command === 'git' && !['status', 'rev-parse'].includes(args[0]))) {
+  if (command === 'gh' || (command === 'git' && !['status', 'rev-parse', 'show'].includes(args[0]))) {
     return spawnSync(process.execPath, [fake, ...args], {
       ...options, env: { ...(options.env || process.env), RELEASE_TEST_TOOL: command },
     });

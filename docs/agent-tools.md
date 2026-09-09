@@ -89,12 +89,36 @@ working test commands. Keep those decisions in the application. The library's
 maintainer `AGENTS.md` describes changing Marionette itself and should not be
 copied into a consumer application.
 
+## Connect the optional documentation MCP
+
+The public, read-only endpoint is `https://mcp.marionettejs.com/mcp`. Configure
+it explicitly in a client that supports Streamable HTTP; no server login or API
+key is required. Follow the website's [MCP setup guide](https://marionettejs.com/docs/mcp/)
+for client configuration and the optional local stdio server. Installing the npm
+package or copying the skill does not establish an MCP connection.
+
+1. Read the `marionette://catalog` resource and compare its
+   `provenance.packageVersion` and `provenance.sourceRevision` with the installed
+   documentation manifest. A matching version label alone is insufficient.
+2. Pass the exact installed `version` to every `search_docs`, `get_doc`, and
+   `get_example` call. The server rejects unsupported versions, including `latest`
+   and `next`; do not upgrade the application to match the server.
+3. Use a search result's `id` as `get_doc.path`. Follow each returned `nextOffset`
+   until it is `null` to read the complete document. For an example, use its catalog
+   `id` as `get_example.name` and retrieve all chunks before parsing the recipe JSON.
+
+The hosted snapshot may lag a new release or candidate. Use installed Markdown
+when provenance does not match or the service is unavailable. Retrieved recipes
+still need application tests; this server does not inspect or run your application.
+Keep private application data out of hosted documentation queries.
+
 ## Choose an optional service only for a specific need
 
 | Resource | Useful for | Boundary |
 | --- | --- | --- |
 | Packaged Markdown and manifest | Reading the contract shipped with an installed package | Available offline; verify custom runtime provenance separately. |
 | Website Markdown and `llms.txt` | Discovering pages and reading a published snapshot | An index is a set of links, not automatic instruction installation. Check version and source metadata. |
+| Documentation MCP | Structured search, full-document retrieval, and example discovery | Follow the [MCP workflow](#connect-the-optional-documentation-mcp). Check catalog version/source and follow pagination. It does not inspect or test your application. |
 | Context7 | Finding relevant excerpts through a supported agent integration | Optional third-party retrieval; results can omit setup or mix versions. Verify against the exact source. |
 | Local skill helper | Finding and checking packaged docs from a consumer workspace | Reads files only; no network, project-code execution, or automatic fallback. |
 | Website WebMCP tools | Operating the website's interactive example | Controls that example, not the consumer application. It is not a remote documentation server. |
@@ -108,7 +132,6 @@ and [documentation](https://context7.com/docs) before configuring an account.
 Public indexing does not prove that the latest source configuration is active.
 
 Marionette does not require a custom MCP server, a hosted AI chat, or a WebMCP
-connection to build an application. A future local MCP wrapper would need to solve
-a demonstrated client integration gap beyond reading these files. Keep tooling
-outside the production import graph and avoid duplicating the contract in tool
-prompts. The same documentation remains available to human readers.
+connection to build an application. Keep tooling outside the production import
+graph and avoid duplicating the contract in tool prompts. The same documentation
+remains available to human readers.

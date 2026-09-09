@@ -4,6 +4,9 @@ The library repository owns documentation and executable examples. The website
 repository owns presentation, navigation UI, search, and the deployment artifact.
 Both render the same Markdown; do not maintain a second reference in website HTML.
 See the [editorial guide](../docs/maintainers/documentation.md) for content decisions.
+Use the [release checklist](../docs/maintainers/release-checklist.md) when publishing
+a new version; importing reference docs does not update the playground runtime or
+deploy the website and MCP.
 
 ## Build and review
 
@@ -89,18 +92,18 @@ and [Read the Docs platform choices](https://about.readthedocs.com/choosing-a-pl
 
 ## Deployment decision
 
-No deployment is enabled by this documentation work. The website prototype remains
-noindexed and requires explicit publication authorization after beta testing.
-Prepare and review one static website artifact; then a maintainer can publish that
-artifact on the selected host. Reverting the website revision restores its prior
-content snapshot and presentation together.
+The public website and optional documentation MCP have separate manual deployments.
+Prepare and review the complete static website artifact and matching MCP corpus,
+then follow the [website deployment runbook](https://github.com/marionettejs/marionettejs.com/blob/main/mcp/DEPLOYMENT.md)
+for the authorized hosting configuration and live checks. Keep static and installed
+documentation available independently of MCP. Record the previous deployments so
+content and presentation can be restored together if needed.
 
-The recommended operating model is static asset hosting with no server functions,
-remote search, hosted AI answers, shared Context7 key, or remotely hosted Marionette
-MCP server. Cloudflare Pages currently provides free static asset requests; build
-and platform limits still apply. Confirm the free plan and hard stop behavior at
-publication time. Domain registration remains an existing separate cost. No
-popularity-based bill should be enabled to keep the docs available.
+Keep hosting within the authorized free plans; do not enable paid overages or an
+automatic upgrade. Record measured MCP CPU limits and accepted availability
+limitations for each release. A successful request does not prove the service
+stays within its provider's nominal resource budget. Domain registration remains
+an existing separate cost.
 
 The catalog reserves `/errors/<code>/` routes, and `docs-site/CNAME` configures
 `docs.marionettejs.com` for the diagnostic artifact. Runtime `MarionetteError.url`
@@ -132,6 +135,9 @@ Ownership verification requires the public proof file on the default branch; a
 local file alone does not claim the library. Refresh indexing after the reviewed
 configuration lands. Test representative retrieval for version confusion and
 integration choice before presenting Context7 as a reliable shortcut.
+For a release, follow the [Context7 steps in the release checklist](../docs/maintainers/release-checklist.md#5-close-the-release-or-recover):
+register the published version, request a refresh, and verify actual retrieval.
+Refreshing the configured development branch does not pin it to a release.
 
 Each developer connects Context7 using their own account. The docs site does not
 proxy queries or distribute a maintainer API key. Free-tier throttling may make

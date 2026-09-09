@@ -116,12 +116,27 @@ for (const asset of await verifyCandidateValidation(artifactDir, evidenceBytes))
   expectedHashes.set(asset.file, asset.sha512);
 }
 
+const changelog = spawnSync('git', ['show', `${evidence.source.commit}:changelog.md`], {
+  cwd: root, encoding: 'utf8',
+});
+if (changelog.error || changelog.status !== 0) {
+  throw new Error('Cannot read release notes from the verified source changelog.');
+}
+const lines = changelog.stdout.split(/\r?\n/);
+const heading = lines.indexOf(`### v${evidence.release.version}`);
+const firstLine = heading < 0 ? '' : lines.slice(heading + 1).find(line => line.trim()) || '';
+if (!firstLine.startsWith('> ') || !firstLine.slice(2).trim()) {
+  throw new Error(`Changelog ${evidence.release.version} must start with a release-specific opening blockquote.`);
+}
+const opening = firstLine.slice(2).trim();
+
 if (mode === 'dry-run') {
   console.log(JSON.stringify({
     repository: evidence.source.repository,
     tag: evidence.release.tag,
     target: evidence.source.commit,
     prerelease: evidence.release.prerelease,
+    opening,
     assets: assetNames,
   }, null, 2));
   process.exit(0);
@@ -240,6 +255,8 @@ if (mode === 'stage') {
 
   const sourceUrl = `https://github.com/${evidence.source.repository}/blob/${evidence.source.commit}`;
   const notes = [
+    opening,
+    '',
     `Install core: \`npm install marionette@${evidence.release.version}\`. Keep companion package versions aligned.`,
     '',
     `[Changes](${sourceUrl}/changelog.md) · [Migration guide](${sourceUrl}/upgradeGuide.md)`,

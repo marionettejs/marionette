@@ -62,7 +62,7 @@ for (const [name, integrity, lock, expected] of [
     const npmCli = join(directory, 'npm.mjs');
     await writeFile(npmCli, `import { writeFileSync } from 'node:fs';
 writeFileSync('package-lock.json', ${JSON.stringify(JSON.stringify({ packages: { ...external, ...lock } }))});`);
-    await assert.rejects(buildDevelopmentKit({ source, artifactDir, sourceCommit: 'selected', npmCli,
+    await assert.rejects(buildDevelopmentKit({ source, toolingLock: join(source, 'package-lock.json'), artifactDir, sourceCommit: 'selected', npmCli,
       packages: [{ name: 'marionette', tarball: { file: 'candidate.tgz', integrity } }]
     }), expected);
   });

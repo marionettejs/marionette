@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "publication": {
     "stable": false,
-    "prerelease": "5.0.0-beta.1"
+    "prerelease": "5.0.0-beta.2"
   },
   "repository": "marionettejs/marionette",
   "defaultBranch": "master",

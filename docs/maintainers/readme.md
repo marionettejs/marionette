@@ -41,6 +41,9 @@ the affected public symbol and inspect its direct collaborators and tests.
 
 ## Make and verify the change
 
+For a release, use the [release checklist](./release-checklist.md) across package
+publication, GitHub notes, website deployment, and the matching MCP snapshot.
+
 1. Describe the expected observable behavior. For a bug, reproduce the failing
    behavior through the public API before relying on a proposed fix.
 2. Change the owner of the contract. Update types, diagnostics, examples, and tests

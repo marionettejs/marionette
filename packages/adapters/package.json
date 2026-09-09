@@ -1,7 +1,7 @@
 {
   "name": "@mnjs/adapters",
   "description": "Optional data and DOM integrations for Marionette",
-  "version": "5.0.0-beta.1",
+  "version": "5.0.0-beta.2",
   "type": "module",
   "exports": {
     "./backbone": {
@@ -78,7 +78,7 @@
     "@types/jquery": "^4.0.1",
     "backbone": "^1.4.0",
     "jquery": "^4.0.0",
-    "marionette": "5.0.0-beta.1",
+    "marionette": "5.0.0-beta.2",
     "morphdom": "^2.7.8",
     "lit-html": "^3.3.3"
   },

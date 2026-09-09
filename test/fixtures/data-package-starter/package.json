@@ -8,7 +8,9 @@
     "build": "vite build",
     "validate": "npm run typecheck && npm run lint && npm test && npm run build",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --max-warnings=0"
+    "lint": "eslint . --max-warnings=0",
+    "test:browser": "playwright test",
+    "browser:install": "playwright install chromium"
   },
   "allowScripts": {
     "fsevents@2.3.3": true
@@ -18,6 +20,10 @@
     "vite": "8.2.2",
     "typescript": "6.0.3",
     "eslint": "10.10.0",
-    "@typescript-eslint/parser": "8.69.0"
+    "@typescript-eslint/parser": "8.69.0",
+    "@playwright/test": "1.63.0"
+  },
+  "engines": {
+    "node": ">=24"
   }
 }

@@ -5,10 +5,40 @@ Marionette changes. It includes editable rows, asynchronous selection, cancellat
 ownership cleanup, lint, tests, and Vite. It has no backend or persistence; connect
 its `navigate(id)` function to your application's router when URLs are needed.
 
+## Start from a published npm package
+
+This npm workflow starts with beta.2; beta.1 predates these tools. For an
+unpublished artifact, use the candidate instructions below. Registry installation
+requires the selected version to be published.
+
+After installing a release containing the starter, copy it into an empty app
+folder outside `node_modules`:
+
+```sh
+cp -R node_modules/marionette/dist/docs/starter ../my-marionette-app
+cd ../my-marionette-app
+mv gitignore .gitignore
+npm install
+npm run validate
+npm run browser:install
+npm run test:browser
+npm run dev
+```
+
+Use Node 24 or later. The packaged manifest pins its Marionette dependencies to
+the installed package version. The first install creates the application lockfile;
+commit it and use `npm ci` thereafter. No repository checkout or separate runtime
+installation is needed. `AGENTS.md` records the starter's real architecture and
+commands; keep it updated as the app changes. Skill and optional MCP setup are in
+[Set up an agent](agent-tools.md); select matching docs before using remote results.
+
+The included Chromium tests own a Vite server on port 4173. On Linux, browser
+installation may require `npx playwright install --with-deps chromium`.
+
 ## Choose matching packages and documentation
 
-The published release is **5.0.0-beta.1**, on npm's **latest** tag. The website's
-beta reference describes that release. Development artifacts may have the same
+Before stable v5, npm's **latest** tag identifies the current published prerelease.
+Match the website's published reference to the version you installed. Development artifacts may have the same
 version string and newer behavior: identify them by their full source commit and
 tarball integrity hashes. The `next` channel is reserved for development after the
 first stable v5 release.
@@ -33,6 +63,8 @@ npm run typecheck
 npm run lint
 npm test
 npm run build
+npm run browser:install
+npm run test:browser
 npm run dev
 ```
 
@@ -61,7 +93,8 @@ casts or declarations copied from the framework.
    cancels the old load. Code updates deliberately reset application state; row
    reconciliation during ordinary use preserves surviving DOM and drafts.
 4. Run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build`.
-   Add a regression for the behavior you change. Use a real browser for focus,
+   Add a regression for the behavior you change. Run `npm run test:browser` and
+   extend `workspace.browser.spec.mjs` for focus,
    layout, keyboard interaction, and your router's history behavior.
 
 The browser suite installs this portable kit outside the checkout, moves it, and

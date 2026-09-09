@@ -226,7 +226,7 @@ const evidence = {
 };
 
 evidence.reports.developmentStarter = await buildDevelopmentKit({
-  source: resolve(root, 'dist/docs/starter'), artifactDir: outputDir, packages,
+  source: resolve(root, 'dist/docs/starter'), toolingLock: resolve(root, 'test/fixtures/data-package-starter/package-lock.json'), artifactDir: outputDir, packages,
   sourceCommit, npmCli: process.env.npm_execpath
 });
 

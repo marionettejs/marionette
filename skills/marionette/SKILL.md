@@ -52,6 +52,16 @@ Start with packaged `docs/agents.md`, then use these source paths from the manif
 - State or a diagnostic: `docs/marionette.state.md` or
   `docs/diagnostic-catalog.md`.
 
+If the client already has the Marionette documentation MCP configured, consult
+the `marionette://catalog` resource before searching. Use remote documents only
+when version and source match this installation. Pass the exact installed
+`version` to every tool and follow `nextOffset` until it is `null` to retrieve the
+complete page or example.
+Setup instructions: https://marionettejs.com/docs/mcp/. A URL in these instructions
+does not install an MCP connection. Keep the installed docs when the catalog is
+unsupported or the service is unavailable. Website WebMCP only controls its own
+examples, not this application.
+
 The manifest is the available-page index. Follow direct links for the selected
 task instead of loading the whole reference. For v4 work, use matching migration
 material and installed APIs; these v5 instructions are not an upgrade plan.

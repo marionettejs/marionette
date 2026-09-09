@@ -21,13 +21,14 @@ const externalGraph = (lock, names) => Object.fromEntries(Object.entries(lock.pa
   }]));
 
 // A portable consumer project beside its exact tarballs. This never publishes.
-export async function buildDevelopmentKit({ source, artifactDir, packages, sourceCommit, npmCli }) {
+export async function buildDevelopmentKit({ source, toolingLock, artifactDir, packages, sourceCommit, npmCli }) {
   const destination = resolve(artifactDir, 'starter');
   await cp(source, destination, { recursive: true, errorOnExist: true, force: false });
   const manifestPath = resolve(destination, 'package.json');
   const lockPath = resolve(destination, 'package-lock.json');
   const manifest = await readJson(manifestPath);
   const names = packages.map(entry => entry.name);
+  await cp(toolingLock, lockPath);
   const before = externalGraph(await readJson(lockPath), names);
   manifest.dependencies = Object.fromEntries(packages.map(entry => [entry.name, `file:../${entry.tarball.file}`]));
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
@@ -59,11 +60,14 @@ Keep the five tarballs beside the starter directory. From this extracted artifac
 
 \`\`\`sh
 cd starter
+mv gitignore .gitignore
 npm ci
 npm run typecheck
 npm run lint
 npm test
 npm run build
+npm run browser:install
+npm run test:browser
 npm run dev
 \`\`\`
 

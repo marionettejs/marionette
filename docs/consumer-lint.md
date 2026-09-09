@@ -1,8 +1,8 @@
 # Consumer ESLint rule
 
-This unreleased source candidate provides an ESLint flat-config plugin at
-`marionette/eslint`. Use the subpath after installing a package artifact that
-includes it; the currently published `5.0.0-beta.1` package does not.
+Starting with beta.2, Marionette provides an ESLint flat-config plugin at
+`marionette/eslint`. Beta.1 does not export this subpath. Use the documentation
+matching the package artifact you installed.
 
 ```javascript
 // eslint.config.mjs

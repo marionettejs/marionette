@@ -1,7 +1,7 @@
 {
   "name": "@mnjs/radio",
   "description": "Channels and request/reply messaging for Marionette",
-  "version": "5.0.0-beta.1",
+  "version": "5.0.0-beta.2",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -49,6 +49,6 @@
     "directory": "packages/radio"
   },
   "dependencies": {
-    "@mnjs/utils": "5.0.0-beta.1"
+    "@mnjs/utils": "5.0.0-beta.2"
   }
 }

@@ -118,6 +118,15 @@ Follow [Set up an agent](./agent-tools.md) to install the consumer skill and rea
 version-matched packaged docs. Adapt the [application instruction template](./application-agent-template.md)
 to preserve this project's actual decisions across tasks.
 
+For optional structured retrieval, follow the website's
+[documentation MCP setup](https://marionettejs.com/docs/mcp/). A link does not
+configure a client or activate a skill. Read `marionette://catalog` first; use its
+tools only when package version and source match this application, passing the
+exact installed `version` on every call. Follow `nextOffset` until it is `null`
+to read the complete contract, not just a search
+snippet. An unsupported version should send you back to the installed docs, not
+cause a dependency upgrade. WebMCP is separate: it controls website examples.
+
 A Markdown page or versioned documentation index can be read directly. A service
 such as Context7 can help locate the relevant passage, but verify its library and
 version selection before using the result. When retrieval is unavailable, use the

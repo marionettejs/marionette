@@ -5,9 +5,13 @@ workflow never rebuilds the package after those tarballs are created. The npm ve
 Git tag, GitHub release, package manifest, evidence manifest, and source commit must
 all agree.
 
+Use the [release checklist](./maintainers/release-checklist.md) to coordinate npm,
+GitHub, the website, and MCP. This page owns package promotion and recovery; a
+successful package workflow is only one stage of the complete release.
+
 The machine-readable publication gate is
 [`config/release-promotion.json`](../config/release-promotion.json). Stable publication is
-disabled; prerelease authorization is restricted to `5.0.0-beta.1`. Schema 2 separates `publication.stable`
+disabled; prerelease authorization is restricted to `5.0.0-beta.2`. Schema 2 separates `publication.stable`
 (a boolean) from `publication.prerelease` (one exact version string, or `null`).
 A beta authorization never authorizes stable or a later prerelease. Both channels
 use the same protected workflow and exact-artifact checks. Pull requests and manual
@@ -82,7 +86,7 @@ dry run:
 6. runs `npm publish <tarball> --dry-run --ignore-scripts` and validates the GitHub
    release plan.
 
-The candidate version is `5.0.0-beta.1`; the registry alpha belongs to an older
+The candidate version is `5.0.0-beta.2`; the registry alpha belongs to an older
 implementation. Inspect all five candidate versions and their Git tag before
 publication. A real publication request refuses any target that conflicts with the
 verified artifact before requesting write permissions; exact matching targets enter
@@ -91,17 +95,18 @@ the documented recovery path.
 ## Beta publication authorization
 
 The [beta contract and readiness checklist](./beta.md) define the candidate scope.
-Use matching `5.0.0-beta.1` versions across all five packages and their internal
+Use matching `5.0.0-beta.2` versions across all five packages and their internal
 requirements. `publication.stable` remains `false`; `publication.prerelease`
-authorizes only `5.0.0-beta.1`. This policy does not initiate publication: verify npm
+authorizes only `5.0.0-beta.2`. This policy does not initiate publication: verify npm
 access, certify the exact candidate, and obtain release approval before manually
 dispatching the protected workflow. Changing this policy changes the source commit
 and invalidates prior certification; rebuild and certify the authorization commit
 before publication.
 
 Until the first stable v5 release, the current v5 prerelease uses npm `latest`
-and remains a GitHub prerelease. Beta.1 is intentionally on `latest`; its existing
-`next` tag may point to the same version. Once stable v5 ships, change
+and remains a GitHub prerelease. Preparing or validating beta.2 does not change
+registry tags. Authorized publication moves `latest` from beta.1 to beta.2 for all
+five packages and leaves `next` untouched. Once stable v5 ships, change
 `npm.prereleaseTag` to `next` before authorizing subsequent prereleases so `latest`
 continues to identify stable v5. Verification checks the policy-selected dist-tag
 for every package. Tag changes require an authorized release operation;
@@ -119,6 +124,22 @@ dispatch. First publication is a separate authorized operation using the tested
 package; never publish an empty placeholder to reserve the name. Record its exact
 integrity and configure its trusted publisher before continuing the same-artifact
 recovery path. A dry run does not prove account or scope permission.
+
+## Website and MCP snapshot handoff
+
+Package publication does not deploy the website or its documentation MCP. After an
+authorized release, import the documentation artifact from that exact source into
+the [website repository](https://github.com/marionettejs/marionettejs.com) and follow its
+manual publication procedure. Keep the previous snapshot identified by its actual
+version until the replacement is verified; do not relabel it as the new release.
+
+Before announcing hosted documentation support for the release, verify the live
+website provenance and `marionette://catalog` at `https://mcp.marionettejs.com/mcp`
+against the released package's version and source revision. Exercise initialization,
+tool discovery, search, complete document/example pagination, and version rejection
+through an MCP client. The website's MCP runbook owns deployment and hosted-runtime
+checks. Until the snapshot matches, direct new-version consumers to their bundled
+Markdown. See [MCP setup](https://marionettejs.com/docs/mcp/) for client instructions.
 
 ## Stable publication authorization
 
@@ -176,8 +197,9 @@ its release asset.
   deprecation, or recovery in a public issue linked to the workflow run and release.
 
 The GitHub draft or published release retains the exact assets needed to finish
-recovery even after the temporary workflow artifact expires. Website publication is a
-separate post-v5 task and is not part of this workflow.
+recovery even after the temporary workflow artifact expires. Website and MCP
+publication are separate manual stages of the release checklist, outside this
+package workflow.
 
 ## Publication trust configuration
 
