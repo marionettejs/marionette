@@ -8,8 +8,9 @@ current public behavior boundary. Final migration documentation is tracked in
 
 1. Save the working lockfile and a tested application revision. Replace
    `backbone.marionette` with `marionette` and install matching versions of the
-   `@mnjs/*` packages you use. Move Radio imports to `@mnjs/radio`. Upgrade these
-   packages together; a source checkout can contain changes absent from beta.1.
+   `@mnjs/*` packages you use. Use the selected runtime’s Radio: import `Radio`
+   from `marionette` for the default runtime, or use `runtime.Radio` with
+   `createMarionette()`. Upgrade these packages together; a source checkout can contain changes absent from beta.1.
 2. Choose the [data, state and DOM integrations](docs/choosing-integrations.md).
    Configure them before constructing consumers, using an isolated runtime if
    multiple configurations share a page. Backbone and jQuery are explicit choices.
