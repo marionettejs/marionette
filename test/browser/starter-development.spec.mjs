@@ -97,8 +97,9 @@ test('installed TypeScript starter releases old owners across repeated Vite edit
       await expect(page.getByRole('status')).toHaveText('Loaded.');
     }
     expect(errors).toEqual([]);
+    await page.close(); // Also exercise cleanup when the browser has already closed the page.
   } finally {
-    await page.goto('about:blank');
+    await page.goto('about:blank').catch(() => undefined);
     await server?.close();
     await rm(directory, { recursive: true, force: true });
   }
