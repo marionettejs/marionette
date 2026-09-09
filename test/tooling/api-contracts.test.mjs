@@ -58,16 +58,20 @@ test('source, signature, event payload and assertion edits change the checked in
   const before = generateInventory(temporary, semantics);
   const file = 'src/index.ts';
   const original = readFileSync(resolve(temporary, file), 'utf8');
-  write(file, original.replace('render(): this { return this; }', 'render(value: string): this { this.trigger("render", value); return this; }\ntrigger(name: string, value: string): void { void name; void value; }'));
-  const changed = generateInventory(temporary, semantics);
-  assert.notDeepEqual(changed.sources, before.sources);
-  assert.notDeepEqual(changed.entrypoints, before.entrypoints);
-  assert.deepEqual(changed.eventSites[0].arguments, ['value']);
   const fixture = readFileSync(resolve(temporary, 'test/unit/contract.spec.js'), 'utf8');
-  write('test/unit/contract.spec.js', fixture.replace('!true', '!false'));
-  assert.notDeepEqual(generateInventory(temporary, semantics).evidence, changed.evidence);
-  write(file, original);
-  write('test/unit/contract.spec.js', fixture);
+  try {
+    write(file, original.replace('render(): this { return this; }', 'render(value: string): this { this.trigger("render", value); return this; }\ntrigger(name: string, value: string): void { void name; void value; }'));
+    const changed = generateInventory(temporary, semantics);
+    assert.notDeepEqual(changed.sources, before.sources);
+    assert.notDeepEqual(changed.entrypoints, before.entrypoints);
+    assert.deepEqual(changed.eventSites[0].arguments, ['value']);
+    write('test/unit/contract.spec.js', fixture.replace('!true', '!false'));
+    assert.notDeepEqual(generateInventory(temporary, semantics).evidence, changed.evidence);
+  } finally {
+    write(file, original);
+    write('test/unit/contract.spec.js', fixture);
+  }
+
 });
 
 test('fails on unaccounted exports, stale members and unused semantic groups', () => {
@@ -100,6 +104,8 @@ test('registers shared behavioral cases only with their importing executable run
   write('test/unit/shared.spec.js', 'import { cases } from "../contracts/shared.js";\nfor (const {name, run} of cases) { it(name, run); }');
   const testRef = { file: 'test/contracts/shared.js', title: 'shared outcome', runner: 'test/unit/shared.spec.js' };
   assert.doesNotThrow(() => validateSemantics(temporary, { contracts: [{ ...base, tests: [testRef] }] }, publicEntrypoints(temporary)));
+  write('test/unit/shared.spec.js', 'import { cases } from "../contracts/shared.js";\nconst unrelated = []; for (const {name, run} of unrelated) { it(name, run); }');
+  assert.throws(() => validateSemantics(temporary, { contracts: [{ ...base, tests: [testRef] }] }, publicEntrypoints(temporary)), /Missing shared-case registration/);
   write('test/unit/shared.spec.js', 'import { cases } from "../contracts/shared.js";\n// it(name, run)\n');
   assert.throws(() => validateSemantics(temporary, { contracts: [{ ...base, tests: [testRef] }] }, publicEntrypoints(temporary)), /Missing shared-case registration/);
 });
@@ -107,17 +113,19 @@ test('registers shared behavioral cases only with their importing executable run
 test('classifies the explicit ESLint export as development tooling without relaxing runtime declaration requirements', () => {
   const path = resolve(temporary, 'package.json');
   const pkg = JSON.parse(readFileSync(path, 'utf8'));
-  pkg.exports['./eslint'] = { import: './dist/eslint/index.js', require: './dist/eslint/index.cjs' };
-  write('package.json', pkg);
-  const inventory = generateInventory(temporary, semantics);
-  assert.equal(inventory.toolingEntrypoints[0].name, 'marionette/eslint');
-  assert.equal(inventory.entrypoints.length, 5);
-  pkg.exports['./unknown-runtime'] = './dist/new.js';
-  write('package.json', pkg);
-  assert.throws(() => publicEntrypoints(temporary), /Missing public declarations/);
-  delete pkg.exports['./unknown-runtime'];
-  delete pkg.exports['./eslint'];
-  write('package.json', pkg);
+  const original = readFileSync(path, 'utf8');
+  try {
+    pkg.exports['./eslint'] = { import: './dist/eslint/index.js', require: './dist/eslint/index.cjs' };
+    write('package.json', pkg);
+    const inventory = generateInventory(temporary, semantics);
+    assert.equal(inventory.toolingEntrypoints[0].name, 'marionette/eslint');
+    assert.equal(inventory.entrypoints.length, 5);
+    pkg.exports['./unknown-runtime'] = './dist/new.js';
+    write('package.json', pkg);
+    assert.throws(() => publicEntrypoints(temporary), /Missing public declarations/);
+  } finally {
+    write('package.json', original);
+  }
 });
 
 test('the committed real inventory matches and keeps metadata out of production imports', () => {

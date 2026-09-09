@@ -95,19 +95,26 @@ export function validateSemantics(root, semantics, entrypoints) {
       if (test.runner) {
         const runner = readFileSync(resolve(root, test.runner), 'utf8');
         const runnerAst = ts.createSourceFile(test.runner, runner, ts.ScriptTarget.Latest, true);
-        const importsCase = runnerAst.statements.some(node => ts.isImportDeclaration(node) &&
-          resolve(root, test.runner, '..', node.moduleSpecifier.text) === resolve(root, test.file));
-        let registersCase = false;
-        function findRegistration(node) {
-          if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === 'it' &&
-              node.arguments.length === 2 && node.arguments.every(ts.isIdentifier) &&
-              node.arguments[0].text === 'name' && node.arguments[1].text === 'run') { registersCase = true; }
-          ts.forEachChild(node, findRegistration);
-        }
-        findRegistration(runnerAst);
-        if (!importsCase || !registersCase) {
-          throw new Error(`Missing shared-case registration: ${test.runner}`);
-        }
+        const importedCases = new Set(runnerAst.statements.filter(node => ts.isImportDeclaration(node) &&
+          resolve(root, test.runner, '..', node.moduleSpecifier.text) === resolve(root, test.file))
+          .flatMap(node => node.importClause?.namedBindings && ts.isNamedImports(node.importClause.namedBindings) ?
+            node.importClause.namedBindings.elements.map(binding => binding.name.text) : []));
+        const registersCase = runnerAst.statements.some(loop => {
+          if (!ts.isForOfStatement(loop) || !ts.isIdentifier(loop.expression) ||
+              !importedCases.has(loop.expression.text) || !ts.isVariableDeclarationList(loop.initializer) ||
+              loop.initializer.declarations.length !== 1 || !ts.isBlock(loop.statement)) { return false; }
+          const binding = loop.initializer.declarations[0].name;
+          if (!ts.isObjectBindingPattern(binding)) { return false; }
+          const bindings = new Map(binding.elements.filter(element => ts.isIdentifier(element.name))
+            .map(element => [element.propertyName?.getText(runnerAst) || element.name.text, element.name.text]));
+          return loop.statement.statements.some(statement => ts.isExpressionStatement(statement) &&
+            ts.isCallExpression(statement.expression) && ts.isIdentifier(statement.expression.expression) &&
+            statement.expression.expression.text === 'it' && statement.expression.arguments.length === 2 &&
+            statement.expression.arguments.every(ts.isIdentifier) &&
+            statement.expression.arguments[0].text === bindings.get('name') &&
+            statement.expression.arguments[1].text === bindings.get('run'));
+        });
+        if (!registersCase) { throw new Error(`Missing shared-case registration: ${test.runner}`); }
         evidence[test.runner] = digest(runner);
       }
     }
