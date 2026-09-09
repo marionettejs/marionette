@@ -166,6 +166,18 @@
       "title": "focus stops target propagation and releases triggers on destroy"
     },
     {
+      "file": "ownership-boundaries.spec.mjs",
+      "title": "framework errors preserve native identity and usable stacks with the platform fallback"
+    },
+    {
+      "file": "ownership-boundaries.spec.mjs",
+      "title": "host and Behavior delegation survives rerender and releases independent ownership"
+    },
+    {
+      "file": "ownership-boundaries.spec.mjs",
+      "title": "replacement Regions release detached children without disturbing a later owner"
+    },
+    {
       "file": "view-render-attributes.spec.mjs",
       "title": "root attribute refresh preserves browser state"
     }
