@@ -147,8 +147,11 @@ Markdown. See [MCP setup](https://marionettejs.com/docs/mcp/) for client instruc
 ## Stable publication authorization
 
 Final release authorization requires one reviewed commit that changes
-`publication.stable` to `true` after every gate in issue #147 passes. Before merging
-that authorization:
+`publication.stable` to `true` after the current
+[roadmap release criteria](../ROADMAP.md#stable-v5-release-criteria) pass and the
+[release checklist](maintainers/release-checklist.md) records the evidence. Issue
+#147 tracks that decision; its historical acceptance text is not an additional gate.
+Before merging that authorization:
 
 1. Create the protected GitHub environment named `stable-release` and require the
    maintainer approval appropriate for the release.

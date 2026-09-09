@@ -31,9 +31,10 @@ function execute(command, args, cwd, timeout = 120000) {
 export async function loadCorpus(root = repositoryRoot) {
   const corpus = await readJson(join(root, 'benchmarks/agent/corpus.json'));
   if (corpus.schemaVersion !== 1 || corpus.status !== 'prototype-unscored') { throw new Error('Unsupported corpus contract'); }
-  await validateTaskContracts({ root, tasks: corpus.tasks });
   const catalog = await readJson(join(root, 'benchmarks/agent/capabilities.json'));
+  await validateTaskContracts({ root, tasks: corpus.tasks, capabilities: catalog });
   const decisions = await readJson(join(root, 'benchmarks/agent/series-decisions.json'));
+  if (decisions.schemaVersion !== 2) { throw new Error('Unsupported series decisions contract'); }
   for (const capability of catalog.capabilities) {
     if (corpus.tasks.filter(task => task.capabilities.includes(capability.id)).length < catalog.coverage.minimumIndependentTasksPerCapability) {
       throw new Error(`Capability needs independent tasks: ${capability.id}`);

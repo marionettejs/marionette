@@ -170,6 +170,25 @@ test('preparation consumes locked tarballs from an isolated cache without regist
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
 
+test('corpus rejects retired metadata from the selected workspace', async() => {
+  const { cp, readFile } = await import('node:fs/promises');
+  const { repositoryRoot } = await import('../../scripts/agent-benchmark/harness.mjs');
+  const directory = await mkdtemp(join(tmpdir(), 'agent-metadata-'));
+  try {
+    await cp(join(repositoryRoot, 'benchmarks/agent'), join(directory, 'benchmarks/agent'), { recursive: true });
+    for (const [file, message] of [
+      ['capabilities.json', /capability catalog schemaVersion must be 2/],
+      ['series-decisions.json', /Unsupported series decisions contract/],
+    ]) {
+      const path = join(directory, 'benchmarks/agent', file);
+      const original = await readFile(path, 'utf8');
+      await writeFile(path, JSON.stringify({ ...JSON.parse(original), schemaVersion: 1 }));
+      await assert.rejects(loadCorpus(directory), message);
+      await writeFile(path, original);
+    }
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
 test('corpus decisions reject an extra duplicate task', async() => {
   const { cp, readFile } = await import('node:fs/promises');
   const { repositoryRoot } = await import('../../scripts/agent-benchmark/harness.mjs');
