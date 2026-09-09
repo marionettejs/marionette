@@ -226,6 +226,31 @@ test('pre-stable beta verification accepts latest with an existing next tag', as
   assert.equal(result.status, 0, result.stderr);
 });
 
+test('publication verification requires provenance metadata for all five packages', async t => {
+  const candidate = await promotion(t);
+  const complete = candidate.exec('check-targets', 'verify-npm');
+  assert.equal(complete.status, 0, complete.stderr);
+  assert.equal((await candidate.calls()).filter(call => call.args[2] === 'dist.attestations').length, 5);
+  await candidate.update({ attestations: { '@mnjs/utils': null } });
+  const missing = candidate.exec('check-targets', 'verify-npm');
+  assert.equal(missing.status, 1);
+  assert.match(missing.stderr, /@mnjs\/utils.*missing published npm SLSA provenance metadata after 12 attempts/);
+});
+
+test('provenance verification retries propagation and rejects a foreign attestation URL', async t => {
+  const candidate = await promotion(t);
+  await candidate.update({ attestations: { '@mnjs/utils': ['unavailable', null] } });
+  const delayed = candidate.exec('check-targets', 'verify-npm');
+  assert.equal(delayed.status, 0, delayed.stderr);
+  assert.match(delayed.stderr, /provenance metadata.*retrying.*2\/12/);
+  await candidate.update({ attestations: { '@mnjs/utils': {
+    url: 'https://example.test/attestation', provenance: { predicateType: 'https://slsa.dev/provenance/v1' }
+  } } });
+  const invalid = candidate.exec('check-targets', 'verify-npm');
+  assert.equal(invalid.status, 1);
+  assert.match(invalid.stderr, /missing published npm SLSA provenance metadata/);
+});
+
 test('registry verification retries unavailable and stale channels after exact bytes propagate', async t => {
   const candidate = await promotion(t);
   await candidate.update({ tagResponses: {

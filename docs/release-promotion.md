@@ -192,3 +192,22 @@ from the GitHub environment or the successful publication dry run. Follow npm's
 [trusted publisher setup](https://docs.npmjs.com/trusted-publishers/) and retain
 verification evidence for each package before enabling publication. No publication
 token or credential belongs in the repository.
+
+## Published provenance evidence
+
+`verify-npm` requires each of the five exact package versions to expose npm SLSA
+provenance metadata, in addition to matching integrity and the configured channel.
+It retries delayed metadata propagation before the GitHub release becomes public.
+This confirms registry metadata availability; it is not cryptographic verification
+of the attestation. For an installed release, run `npm audit signatures` to verify
+registry signatures and the available provenance, as described in
+[npm's verification guide](https://docs.npmjs.com/viewing-package-provenance/).
+A passing signature audit alone does not prove all five packages have provenance;
+the explicit presence check covers that gap.
+
+On 2026-09-09, beta.1's core package exposed SLSA provenance while the four
+companion packages did not. That historical publication is not an all-package
+provenance success. Existing tarballs are immutable and are not republished by
+these checks. The next authorized version must establish the five-package result;
+missing provenance requires diagnosing its publication path before a new version,
+not silently waiving the requirement or changing `latest`.
