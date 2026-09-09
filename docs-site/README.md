@@ -59,7 +59,7 @@ presentation layer. A framework migration is not required to obtain those featur
 
 The library's `.docs-site/` renderer remains a validation surface and the existing
 diagnostic-host artifact. It now uses the same complete navigation list rather
-than a separate publication allowlist. It maps `/docs/` entries to `/next/`.
+than a separate publication allowlist. It maps `/docs/` entries to `/development/`.
 
 ## Hosting and distribution choices
 

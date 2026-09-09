@@ -35,10 +35,21 @@ const args = process.argv.slice(2);
 appendFileSync(${JSON.stringify(calls)}, JSON.stringify(args) + '\\n');
 if (args[0] === 'run') {
   if (process.env.RELEASE_TEST_BUILD_FAILURE === args[1]) { console.error('intentional build command failure'); process.exit(9); }
-  if (args[1] === 'build') { mkdirSync('dist', { recursive: true }); writeFileSync('dist/built.js', 'built from source'); }
+  if (args[1] === 'build') { mkdirSync('dist', { recursive: true }); writeFileSync('dist/built.js', 'built from source');
+    mkdirSync('dist/docs/starter', { recursive: true });
+    writeFileSync('dist/docs/starter/package.json', JSON.stringify({ name: 'starter', private: true }));
+    writeFileSync('dist/docs/starter/package-lock.json', JSON.stringify({ packages: {} })); }
   else if (args[1] === 'test:dist') { assert.equal(readFileSync('dist/built.js', 'utf8'), 'built from source'); }
   else { throw new Error('Unexpected npm run: ' + args); }
   if (process.env.RELEASE_TEST_SOURCE_MUTATION) { writeFileSync('changed.js', 'changed during build'); }
+  process.exit(0);
+}
+if (args[0] === 'install') {
+  assert.deepEqual(args, ['install', '--package-lock-only', '--ignore-scripts']);
+  const manifest = JSON.parse(readFileSync('package.json'));
+  const packages = Object.fromEntries(Object.entries(manifest.dependencies).map(([name, path]) =>
+    ['node_modules/' + name, { integrity: 'sha512-' + createHash('sha512').update(readFileSync(path.slice(5))).digest('base64') }]));
+  writeFileSync('package-lock.json', JSON.stringify({ packages }));
   process.exit(0);
 }
 assert.equal(args[0], 'pack');
@@ -79,7 +90,9 @@ for (const version of ['5.0.0-test.1', '5.0.0']) {
     assert.equal(evidence.workflow.runAttempt, '2');
     assert.equal(await readFile(resolve(candidate.output, 'release-evidence.sha512'), 'utf8'), `${hash(evidenceBytes)}  release-evidence.json\n`);
     const files = await readdir(candidate.output);
-    assert.equal(files.length, 13);
+    assert.equal(files.length, 17);
+    assert.ok(files.includes('START-HERE.md'));
+    assert.ok(files.includes('starter'));
     for (const entry of evidence.packages) {
       assert.ok(files.includes(entry.tarball.file));
       assert.equal(entry.tarball.sha512, hash(await readFile(resolve(candidate.output, entry.tarball.file))));

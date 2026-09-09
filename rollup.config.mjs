@@ -48,10 +48,12 @@ export default [
       {
         file: 'dist/marionette.js',
         format: 'es',
+        sourcemap: true,
       },
       {
         file: 'dist/marionette.cjs',
         format: 'cjs',
+        sourcemap: true,
         esModule: true,
         exports: 'named',
       },

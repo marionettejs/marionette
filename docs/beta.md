@@ -23,6 +23,10 @@ versions aligned; install optional providers only when needed. See
 [the migration ledger](./migration-from-v4.md) and [upgrade guide](../upgradeGuide.md).
 The historical registry alpha is an older implementation and is not this beta's API.
 
+For the current unreleased TypeScript starter and development tools, use
+[Develop against the current candidate](development.md). The installation below
+uses the separate starter shipped with the published beta.1.
+
 ## Start in an empty directory
 
 Install core and the optional native data package explicitly:
@@ -45,11 +49,8 @@ The starter README explains its files and trial steps. It is also available in t
 Copying uses a new directory and preserves existing application files. The commands
 above use a POSIX shell; on Windows, copy the same folder using your file manager.
 
-Before publication, replace each runtime install with one `npm install` invocation
-containing all five absolute candidate tarball paths. The required companions are
-not assumed to exist on npm. Use artifacts from the same `release-evidence.json`;
-keep their SHA-512 checksums and source commit with your trial report. Do not use
-`npm link`, a Git dependency, or source imports as proof of the published install path.
+For an unpublished candidate, follow the [portable development starter](development.md)
+instead. Its generated lockfile already selects all five matching tarballs.
 
 The starter has editable rows, asynchronous local selection, deliberate cancellation,
 and teardown. It has no backend, persistence, or URL router. Connect its `navigate`
@@ -101,6 +102,6 @@ release. Existing v4 applications should retain their pre-migration revision and
 
 Maintainers must not overwrite a published beta version. Withdraw its recommendation,
 deprecate a broken version with a specific reason, and publish a corrected beta.
-Move `next` only to a verified compatible prior release; if beta.1 is the first one,
+Move the selected npm tag (`latest` before the first stable v5) only to a verified compatible prior release; if beta.1 is the first one,
 there is no earlier beta to select. Preserve exact artifacts and failure evidence.
 See [release recovery](https://github.com/marionettejs/marionette/blob/master/docs/release-promotion.md#recovery-and-rollback).

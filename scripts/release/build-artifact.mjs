@@ -6,6 +6,7 @@ import process from 'node:process';
 import { readArguments } from './arguments.mjs';
 import { releasePackages } from './packages.mjs';
 import { publicationEnabled } from './publication.mjs';
+import { buildDevelopmentKit } from '../docs/development-kit.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
 const args = readArguments({
@@ -180,15 +181,6 @@ await writeFile(resolve(outputDir, 'bundle-report.json'), bundleReportText);
 
 const releaseProfileBytes = await readFile(resolve(root, 'config/release-profile.json'));
 const promotionPolicyBytes = await readFile(resolve(root, 'config/release-promotion.json'));
-const finalCommit = run('git', ['rev-parse', 'HEAD']);
-if (finalCommit !== sourceCommit) {
-  throw new Error(`Checked-out commit changed during artifact construction: ${sourceCommit} to ${finalCommit}.`);
-}
-const finalRepositoryStatus = run('git', statusArguments);
-if (finalRepositoryStatus) {
-  process.stderr.write(`${finalRepositoryStatus}\n`);
-  throw new Error('Checkout changed during artifact construction.');
-}
 const prerelease = packageJson.version.includes('-');
 const npmTag = prerelease ? promotionPolicy.npm.prereleaseTag : promotionPolicy.npm.stableTag;
 const evidence = {
@@ -232,6 +224,21 @@ const evidence = {
     runnerImageVersion: process.env.ImageVersion || null,
   },
 };
+
+evidence.reports.developmentStarter = await buildDevelopmentKit({
+  source: resolve(root, 'dist/docs/starter'), artifactDir: outputDir, packages,
+  sourceCommit, npmCli: process.env.npm_execpath
+});
+
+const finalCommit = run('git', ['rev-parse', 'HEAD']);
+if (finalCommit !== sourceCommit) {
+  throw new Error(`Checked-out commit changed during artifact construction: ${sourceCommit} to ${finalCommit}.`);
+}
+const finalRepositoryStatus = run('git', statusArguments);
+if (finalRepositoryStatus) {
+  process.stderr.write(`${finalRepositoryStatus}\n`);
+  throw new Error('Checkout changed during artifact construction.');
+}
 
 const evidenceText = `${JSON.stringify(evidence, null, 2)}\n`;
 await writeFile(resolve(outputDir, 'release-evidence.json'), evidenceText);

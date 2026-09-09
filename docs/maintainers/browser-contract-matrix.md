@@ -4,12 +4,13 @@ This finite v5 browser inventory closes the platform-specific scope of
 [#145](https://github.com/marionettejs/marionette/issues/145). The release profile
 pins Chromium, Firefox and WebKit through Playwright; it does not promise an
 untested minimum browser version. `config/release-validation.json` enumerates
-**45 named cases** and requires each on all three engines, with no skipped or
+**46 named cases** and requires each on all three engines, with no skipped or
 flaky cases accepted for certification.
 
 | Accepted workflow | Browser evidence | Complementary evidence |
 | --- | --- | --- |
 | Detached roots and foreign owner documents | `attachment-owner-document.spec.mjs` | Source, distributions and installed attachment fixtures |
+| Portable TypeScript starter, Vite code replacement, pending cancellation and authored source maps | `starter-development.spec.mjs` | Relocated candidate kit; npm ci, typecheck, lint, tests and production build |
 | Removal-only collection changes, surviving identity/focus/drafts, explicit roots and optimized rendering | `collection-removal-survivors.spec.mjs`, `data-package.spec.mjs` | Native data and CollectionView public unit suites; installed data and optimized-child fixtures |
 | Focus/blur capture, target delegation and undelegation | `event-delegator-focus.spec.mjs` | EventDelegator unit contracts |
 | Region replacement, placeholder restoration, detach/adopt and subsequent-owner cleanup | `ownership-boundaries.spec.mjs` | Region and View ownership unit suites |

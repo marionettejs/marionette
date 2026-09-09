@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "validate": "vite build"
+    "validate": "vite build --sourcemap && node verify-maps.mjs"
   },
   "dependencies": {
     "vite": "^8.2.2"

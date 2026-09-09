@@ -178,6 +178,10 @@
       "title": "replacement Regions release detached children without disturbing a later owner"
     },
     {
+      "file": "starter-development.spec.mjs",
+      "title": "installed TypeScript starter releases old owners across repeated Vite edits"
+    },
+    {
       "file": "view-render-attributes.spec.mjs",
       "title": "root attribute refresh preserves browser state"
     }

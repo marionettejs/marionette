@@ -9,7 +9,7 @@ test('editable survivors, latest selection and cleanup use installed package API
   globalThis.document = dom.window.document;
   let workspace;
   try {
-    const { createWorkspace } = await import('./workspace.mjs');
+    const { createWorkspace } = await import('./workspace.ts');
     const requests = [];
     workspace = createWorkspace({
       el: document.querySelector('main'),
@@ -38,6 +38,7 @@ test('editable survivors, latest selection and cleanup use installed package API
     const failed = workspace.navigate('failed');
     requests[2].reject(new Error('offline'));
     await assert.rejects(failed, /offline/);
+    assert.equal(document.querySelector('[role="status"]').textContent, 'Could not load this note. Try again.');
     assert.equal(document.querySelector('h2').textContent, 'Fast');
     const late = workspace.navigate('late');
     const oldButton = input.closest('li').querySelector('button');

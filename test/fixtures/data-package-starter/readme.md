@@ -1,30 +1,42 @@
-# Marionette beta starter
+# Marionette development starter
 
-This starter uses plain JavaScript, function templates, native DOM, and optional
-native observable data. It demonstrates editable rows, latest-selection loading,
-and cleanup. It has no backend, persistence, or URL router. Selection is local;
-connect `navigate(id)` to your existing router when the application needs URLs.
+This TypeScript starter uses function templates, native DOM, and optional native
+observable data. It demonstrates editable rows, latest-selection loading, and
+cleanup. It has no backend, persistence, or URL router. Connect `navigate(id)` to
+your existing router when the application needs URLs.
 
-After the beta is published, install the matching runtime, then run the starter:
+Use the portable `starter` directory in a verified development artifact. Keep its
+five tarballs beside this directory; its generated lockfile selects those exact
+files. From this directory, using the artifact's Node/npm toolchain:
 
 ```sh
-npm install marionette@5.0.0-beta.1 @mnjs/data@5.0.0-beta.1
+npm ci
+npm run typecheck
+npm run lint
 npm test
 npm run build
 npm run dev
 ```
 
-Before publication, install all five verified candidate tarballs in one npm install
-command instead. The companion packages are not assumed to exist in the registry.
-The repository fixture runner performs this installation in an empty directory
-outside the checkout and verifies the locked external dependency graph.
+The repository copy is the template for that artifact. Its runtime dependencies
+are filled from the selected tarballs during artifact construction. Do not combine
+this unreleased starter with the registry beta.1 packages. Published beta.1 has its
+own matching starter and documentation.
 
+Start with `workspace.ts`; `main.ts` owns browser setup and a demonstration loader.
 Edit a title without opening it, then reverse the rows: the input and draft survive.
 Open the first note and quickly open the second: the late first load cannot replace
-it. Leaving the page or a Vite hot update destroys the workspace and cancels work.
-Tests also use a loader that ignores abort and verify no late commit or retained
-button handler after destruction. Browser release tests verify focus and selection.
+it. Leaving the page or a Vite code update destroys the workspace and cancels work.
+Code updates start a fresh workspace and reset its local state.
 
-Start with `workspace.mjs`; `main.mjs` owns browser setup and a demonstration loader.
-Use the installed `marionette/dist/docs/` for matching API and migration guidance.
-`npm test` uses Node and jsdom; use a real browser for focus and layout changes.
+`npm test` also uses a loader that ignores abort and verifies no late commit or
+retained button handler after destruction. Browser release tests exercise actual
+Vite edits, focus, and selection. Use a real browser for your focus/layout changes.
+
+`vite.config.mjs` preserves the installed packages' embedded TypeScript source maps
+through development and application builds. Open authored sources in browser
+developer tools. `eslint.config.mjs` enables the public Marionette consumer rules.
+
+Use `node_modules/marionette/dist/docs/docs/development.md` for the complete workflow
+and matching troubleshooting and API guidance. The adjacent manifest records the
+source revision. A package version alone cannot identify an unpublished build.

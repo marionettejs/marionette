@@ -64,6 +64,8 @@ const assetNames = [
   'release-evidence.json',
   'release-evidence.sha512',
   evidence.reports.bundle.file,
+  evidence.reports.developmentStarter.file,
+  evidence.reports.developmentStarter.archive.file,
 ];
 
 function artifactPath(fileName) {
@@ -88,6 +90,8 @@ const expectedHashes = new Map([
   ['release-evidence.json', sha512(evidenceBytes)],
   ['release-evidence.sha512', sha512(Buffer.from(`${evidenceChecksum}\n`))],
   [evidence.reports.bundle.file, evidence.reports.bundle.sha512],
+  [evidence.reports.developmentStarter.file, evidence.reports.developmentStarter.sha512],
+  [evidence.reports.developmentStarter.archive.file, evidence.reports.developmentStarter.archive.sha512],
 ]);
 
 function verifyLocalAssets() {

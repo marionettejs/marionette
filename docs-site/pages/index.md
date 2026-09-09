@@ -2,7 +2,7 @@
 
 This site publishes documentation directly from the Marionette repository.
 
-- [Development documentation](/next/)
+- [Development documentation](/development/)
 - [Stable v5 documentation](/v5/)
 - [Release documentation](/releases/)
 - [Diagnostic reference](/errors/)
