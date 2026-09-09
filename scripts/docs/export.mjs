@@ -15,7 +15,7 @@ export function validateNavigation(pages) {
   const sources = new Set();
   const routes = new Set();
   for (const page of pages) {
-    if (!/^(?:docs\/[a-z0-9./-]+|packages\/[a-z]+\/readme|docs-site\/README|CONTRIBUTING|AGENTS|upgradeGuide)\.md$/.test(page.source) ||
+    if (!/^(?:docs\/[a-z0-9./-]+|packages\/[a-z]+\/readme|docs-site\/README|CONTRIBUTING|SECURITY|AGENTS|upgradeGuide)\.md$/.test(page.source) ||
         page.source.split('/').includes('..')) {
       throw new Error(`Invalid documentation source: ${page.source}`);
     }

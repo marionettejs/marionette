@@ -97,6 +97,15 @@ the canonical baseline comparison. A matching command still requires the operato
 to confirm an exclusive quiet-host window; the runner records that note but cannot
 prove host isolation.
 
+CI and `npm run verify -- --full` run the validation profile through
+`npm run test:browser-performance`. Its public-behavior assertions are required;
+timings remain report-only and do not fail a build for being slow.
+
+The initial local desktop samples are retained in
+`benchmarks/browser-performance/results/2026-09-09/`, including raw outcomes,
+reproduction hashes and the recorded background-activity limitation. They are a
+starting point for matched local measurements, not a cross-host performance claim.
+
 The browser fixture covers three bounded workloads in a fixed order:
 
 - Native-data list update, same-position replacement, and reorder with 250 rows.

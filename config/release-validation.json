@@ -178,6 +178,7 @@
     "cjs-adapters",
     "cjs-node",
     "collection-removal-survivors",
+    "consumer-lint",
     "core-no-underscore",
     "core-types",
     "data-package-cjs",

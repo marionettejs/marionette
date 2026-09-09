@@ -370,5 +370,17 @@
     "route": "docs/maintainers/line-audit-operations",
     "title": "Operations documentation line audit",
     "section": "Maintaining Marionette"
+  },
+  {
+    "source": "SECURITY.md",
+    "route": "docs/maintainers/security",
+    "title": "Security reporting and support",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "docs/consumer-lint.md",
+    "route": "docs/consumer-lint",
+    "title": "Lint application code",
+    "section": "Application guides"
   }
 ]

@@ -7399,9 +7399,36 @@
       "objects": [
         "CollectionView"
       ]
+    },
+    {
+      "code": "MN0040",
+      "slug": "private-framework-member-access",
+      "objects": [
+        "Application",
+        "Behavior",
+        "CollectionView",
+        "MnObject",
+        "Region",
+        "View"
+      ]
     }
   ],
-  "toolingEntrypoints": [],
+  "toolingEntrypoints": [
+    {
+      "name": "marionette/eslint",
+      "kind": "development-tooling",
+      "conditions": {
+        "import": {
+          "types": "./dist/eslint/index.d.ts",
+          "default": "./dist/eslint/index.js"
+        },
+        "require": {
+          "types": "./dist/eslint/index.d.cts",
+          "default": "./dist/eslint/index.cjs"
+        }
+      }
+    }
+  ],
   "eventSites": [
     {
       "source": "src/mixins/destroy.ts",
@@ -8044,7 +8071,7 @@
     "src/utils/subscribe-bindings.ts": "24633b6b39c2d0a8c833670e2ab1d584fb6bed2fae3ac5cfb5d42461cf233f4a"
   },
   "evidence": {
-    "config/diagnostics/catalog.json": "8aaf72a68997636ef31de752f45110222104a5dc0e7e884a104e462cee7cda9c",
+    "config/diagnostics/catalog.json": "a044dac8d4242de8e7c6c58a6442fb58384069c0f4d76ec6fabec03f34697eac",
     "docs/choosing-integrations.md": "24ce6295dcc8cf8f587a52a935e2b351ebab4e9721e6ed311625c611eec0bc6c",
     "docs/data.api.md": "73f0fa0c0ea339b15c07c17e8eee87d9cbbd8a2393195d777e3d4948f47e287f",
     "docs/diagnostic-catalog.md": "1df844c7e8edbea59a8c07776d656d45f77266108babb770d7690183fe85d180",

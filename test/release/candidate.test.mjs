@@ -56,7 +56,7 @@ test('candidate orchestration validates every check against the exact isolated p
   const report = JSON.parse(await readFile(resolve(candidate.artifacts, 'candidate-validation.json')));
   assert.equal(report.status, 'passed');
   assert.equal(report.sourceCommit, candidate.commit);
-  assert.deepEqual(report.checks.map(entry => entry.id), ['profile', 'browser-profile', 'diagnostics', 'public-tests', 'workflows',
+  assert.deepEqual(report.checks.map(entry => entry.id), ['profile', 'browser-profile', 'diagnostics', 'api-contracts', 'public-tests', 'workflows',
     'source-types', 'consumer-types', 'lint', 'tooling', 'source', 'coverage', 'documentation', 'distribution', 'browser', 'fixtures']);
   const calls = (await readFile(candidate.calls, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
   assert.deepEqual(calls.map(entry => entry.args[1]), report.checks.map(entry => entry.script));
@@ -81,7 +81,7 @@ for (const mutation of ['source', 'artifact', 'evidence']) {
     assert.equal(result.status, 1);
     const report = JSON.parse(await readFile(resolve(candidate.artifacts, 'candidate-validation.json')));
     assert.equal(report.status, 'failed');
-    assert.equal(report.checks.length, 15);
+    assert.equal(report.checks.length, 16);
     assert.match(report.error, mutation === 'source' ? /clean source checkout/ : mutation === 'artifact' ? /tarball size mismatch/ : /evidence changed/);
     if (mutation === 'source') { await rm(resolve(candidate.root, 'uncommitted.js')); }
     const verify = candidate.run('verify-artifact', ['--artifact-dir', candidate.artifacts, '--require-validation']);
