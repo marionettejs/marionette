@@ -34,10 +34,8 @@ export async function loadCorpus(root = repositoryRoot) {
   await validateTaskContracts({ root, tasks: corpus.tasks });
   const catalog = await readJson(join(root, 'benchmarks/agent/capabilities.json'));
   const decisions = await readJson(join(root, 'benchmarks/agent/series-decisions.json'));
-  const proposedPaired = decisions.tasks.filter(task => task.proposedStratum === 'paired-comparable');
-  if (proposedPaired.length < catalog.coverage.minimumTasks) { throw new Error('At least ten proposed paired tasks are required'); }
   for (const capability of catalog.capabilities) {
-    if (corpus.tasks.filter(task => task.capabilities.includes(capability.id)).length < 2) {
+    if (corpus.tasks.filter(task => task.capabilities.includes(capability.id)).length < catalog.coverage.minimumIndependentTasksPerCapability) {
       throw new Error(`Capability needs independent tasks: ${capability.id}`);
     }
   }

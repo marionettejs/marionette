@@ -5,7 +5,7 @@ import { join, posix, win32 } from 'node:path';
 import { test } from 'node:test';
 import { evaluateAttempt, evaluateOutcome, inventory, isWithin, loadCorpus } from '../../scripts/agent-benchmark/harness.mjs';
 
-test('prototype corpus covers every capability twice and proposes ten paired tasks', async() => {
+test('prototype corpus covers every capability twice without historical comparison decisions', async() => {
   const corpus = await loadCorpus();
   assert.equal(corpus.tasks.length, 13);
   assert.equal(corpus.status, 'prototype-unscored');

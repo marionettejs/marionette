@@ -9,9 +9,8 @@ import {
 } from '../../scripts/agent-benchmark/task-contract.mjs';
 
 const capabilities = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   coverage: {
-    minimumTasks: 10,
     minimumIndependentTasksPerCapability: 2,
   },
   capabilities: [
