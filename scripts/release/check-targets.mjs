@@ -124,7 +124,7 @@ for (const packageEvidence of evidence.packages) {
     let provenanceAvailable = false;
     for (let attempt = 1; attempt <= npmAttempts; attempt += 1) {
       const result = run(process.execPath, [npmExecPath, 'view', `${packageName}@${version}`, 'dist.attestations', '--json']);
-      const attestations = result.status === 0 && result.stdout.trim() ? JSON.parse(result.stdout) : null;
+      const attestations = registryObject(result);
       provenanceAvailable = attestations?.provenance?.predicateType === 'https://slsa.dev/provenance/v1' &&
         typeof attestations.url === 'string' &&
         attestations.url.startsWith('https://registry.npmjs.org/-/npm/v1/attestations/');

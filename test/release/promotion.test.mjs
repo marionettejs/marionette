@@ -239,10 +239,10 @@ test('publication verification requires provenance metadata for all five package
 
 test('provenance verification retries propagation and rejects a foreign attestation URL', async t => {
   const candidate = await promotion(t);
-  await candidate.update({ attestations: { '@mnjs/utils': ['unavailable', null] } });
+  await candidate.update({ attestations: { '@mnjs/utils': ['unavailable', 'malformed', null] } });
   const delayed = candidate.exec('check-targets', 'verify-npm');
   assert.equal(delayed.status, 0, delayed.stderr);
-  assert.match(delayed.stderr, /provenance metadata.*retrying.*2\/12/);
+  assert.match(delayed.stderr, /provenance metadata.*retrying.*3\/12/);
   await candidate.update({ attestations: { '@mnjs/utils': {
     url: 'https://example.test/attestation', provenance: { predicateType: 'https://slsa.dev/provenance/v1' }
   } } });

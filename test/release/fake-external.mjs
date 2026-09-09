@@ -31,6 +31,7 @@ if (tool === 'npm') {
     const configured = state.attestations?.[name];
     const value = Array.isArray(configured) ? configured.shift() : configured;
     if (value === 'unavailable') { fail('npm ERR! E503 registry unavailable'); }
+    if (value === 'malformed') { output('undefined'); }
     output(JSON.stringify(value === undefined ? {
       url: `https://registry.npmjs.org/-/npm/v1/attestations/${args[1]}`,
       provenance: { predicateType: 'https://slsa.dev/provenance/v1' }
