@@ -132,7 +132,7 @@ The default report path is `test/tmp/performance/browser-report.json`.
 These successful teardown observations establish the documented public cleanup
 outcomes for the measured operations. They do not establish garbage collection or
 heap reachability. No counter, listener set, lifecycle event, or DOM observation is
-reported as GC evidence, and there is no timing or WeakRef pass/fail gate.
+reported as GC evidence. The separate retention probe below supplies direct reachability observations; timing still has no pass/fail budget.
 
 The release profile pins the build toolchain. Reports retain the measured
 artifact inventory and timing workload metadata so comparisons can be assessed.
@@ -146,3 +146,37 @@ bundles and record a stable baseline. Any future budget should protect a useful
 user outcome, account for optional dependencies, and distinguish intentional
 features from unexplained regressions. Do not automatically reactivate the old
 Phase 0 ceiling or per-PR approval threshold at release time.
+
+## Direct browser retention evidence
+
+`npm run performance:retention` builds the local packages and runs the bounded
+Chromium probe in `benchmarks/browser-performance/retention/workloads.js`.
+It performs two warmup batches and six recorded batches, each with 50 cycles of
+native CollectionView mutation/render/destruction, replacement Region detach/adopt,
+Application cancellation/restart/child teardown, and shared/owned state disposal.
+`--cycles` (1–100), `--batches` (1–10) and `--output` can narrow a reproduction;
+retain those choices with its result. The default run has a 120-second deadline.
+
+Only consumer-held public objects and roots are tracked with WeakRef. A positive
+control must remain reachable while strongly held and disappear after release.
+CDP forces collection in separate browser jobs. External data sources and borrowed
+Regions remain strongly reachable while destroyed owners are checked; they are
+then destroyed/released and checked too. This prevents an unreachable source/owner
+cycle from hiding a leaked subscription. Any retained tracked owner, root or
+released input fails this finite probe. No framework private member is inspected.
+
+The report retains source/artifact hashes, dirty state, browser and host identity,
+counts for each batch, CDP heap usage and DOM counters. Heap sizes are contextual
+observations, not portable thresholds. This demonstrates collection for the tested
+successful workflows, not universal absence of leaks or support for synchronous
+recovery. The runner is maintainer tooling and never enters production imports.
+
+The manual **Browser performance evidence** workflow fixes the runner to
+`ubuntu-24.04`, builds once, then runs three sequential baseline blocks with no
+concurrent build or test steps. It runs retention after timing and retains all
+three raw reports plus the retention report for 90 days, including partial output
+on failure. Compare the blocks' medians and p95 values to characterize variance;
+do not select the fastest block. The source/artifact hashes must match across
+blocks. A fresh hosted job controls our workload scheduling, not the underlying
+shared hardware, so persistent variance needs a dedicated runner before setting
+performance budgets. This workflow does not run paid agent benchmarks or publish.

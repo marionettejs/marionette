@@ -121,6 +121,20 @@ for (const packageEvidence of evidence.packages) {
     if (!matches) {
       channelViolations.push(`${packageName}: ${npmTag} must point to ${version}`);
     }
+    let provenanceAvailable = false;
+    for (let attempt = 1; attempt <= npmAttempts; attempt += 1) {
+      const result = run(process.execPath, [npmExecPath, 'view', `${packageName}@${version}`, 'dist.attestations', '--json']);
+      const attestations = result.status === 0 && result.stdout.trim() ? JSON.parse(result.stdout) : null;
+      provenanceAvailable = attestations?.provenance?.predicateType === 'https://slsa.dev/provenance/v1' &&
+        typeof attestations.url === 'string' &&
+        attestations.url.startsWith('https://registry.npmjs.org/-/npm/v1/attestations/');
+      if (provenanceAvailable || attempt === npmAttempts) { break; }
+      console.warn(`${packageName} npm provenance metadata is not yet available; retrying in 5 seconds (${attempt}/${npmAttempts}).`);
+      await new Promise(resolveDelay => setTimeout(resolveDelay, 5000));
+    }
+    if (!provenanceAvailable) {
+      throw new Error(`${packageName}@${version} is missing published npm SLSA provenance metadata after ${npmAttempts} attempts.`);
+    }
   }
 }
 

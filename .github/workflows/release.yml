@@ -435,7 +435,7 @@ jobs:
           --access public
           --tag "${{ needs.build.outputs.npm_tag }}"
 
-      - name: Verify published npm integrity
+      - name: Verify published npm integrity, channel and provenance metadata
         run: npm run release:targets -- --mode verify-npm --artifact-dir release
         env:
           GH_TOKEN: ${{ github.token }}

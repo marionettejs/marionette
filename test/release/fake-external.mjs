@@ -27,6 +27,15 @@ if (tool === 'npm') {
     output(JSON.stringify(state.tags?.[name] ?? { latest: entry.version }));
   }
   const name = args[1].slice(0, args[1].lastIndexOf('@'));
+  if (args[2] === 'dist.attestations') {
+    const configured = state.attestations?.[name];
+    const value = Array.isArray(configured) ? configured.shift() : configured;
+    if (value === 'unavailable') { fail('npm ERR! E503 registry unavailable'); }
+    output(JSON.stringify(value === undefined ? {
+      url: `https://registry.npmjs.org/-/npm/v1/attestations/${args[1]}`,
+      provenance: { predicateType: 'https://slsa.dev/provenance/v1' }
+    } : value));
+  }
   const entry = state.packages.find(candidate => candidate.name === name);
   const configured = state.npm?.[name] || 'exact';
   const mode = Array.isArray(configured) ? configured.shift() : configured;
