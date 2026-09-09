@@ -1,0 +1,35 @@
+docs/agent-tools.md
+  s_07c5373b95c9cc::t_eb5bf697287df9 98,112-114
+docs/agents.md
+  s_07c5373b95c9cc::t_ecbf0bbbb790ab 121-128
+docs/development.md
+  s_9b715d9e600fb6::t_c0fb8db851d680 8-37,40-41,66-67,96-97
+docs/maintainers/documentation.md
+  s_07c5373b95c9cc::t_01f9691acae510 137-140,145
+skills/marionette/SKILL.md
+  s_07c5373b95c9cc::t_af60ba23187de6 55-62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "ce036a786caeff7c77e55ac1c2ab5218eb3981a9",
+  "prompts": {},
+  "sessions": {
+    "s_07c5373b95c9cc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0860d-3d66-7f82-9881-e5b6d27c35fe",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_9b715d9e600fb6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08519-c4aa-77e0-96b5-ac8c23eafcfe",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
