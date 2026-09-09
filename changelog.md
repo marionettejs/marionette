@@ -1,3 +1,16 @@
+### v5.0.0-beta.2
+
+* Add embedded authored TypeScript source maps to runtime ESM and CommonJS outputs
+* Add the optional `marionette/eslint` consumer plugin with the `MN0040` private-member rule
+* Ship a generated compact contract reference, troubleshooting recipes, and optional MCP discovery guidance
+* Ship a TypeScript starter with version-matched npm dependencies, application agent instructions,
+  typecheck, consumer lint, unit tests, Vite, and browser regressions
+* Certify portable candidate starters, repeated Vite updates, installed consumer maps,
+  ownership boundaries, and browser performance/retention evidence
+
+This candidate changes development support and distribution tooling, not the core
+runtime API. Agent-effectiveness benchmarks remain unscored.
+
 ### v5.0.0-beta.1
 
 * Established `@mnjs` as the companion package scope: utils, radio, data, and

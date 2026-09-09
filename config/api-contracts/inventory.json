@@ -5,7 +5,7 @@
   "entrypoints": [
     {
       "name": "marionette",
-      "version": "5.0.0-beta.1",
+      "version": "5.0.0-beta.2",
       "kind": "runtime",
       "source": "src/index.ts",
       "conditions": {
@@ -5302,7 +5302,7 @@
     },
     {
       "name": "@mnjs/utils",
-      "version": "5.0.0-beta.1",
+      "version": "5.0.0-beta.2",
       "kind": "runtime",
       "source": "packages/utils/src/index.ts",
       "conditions": {
@@ -5932,7 +5932,7 @@
     },
     {
       "name": "@mnjs/radio",
-      "version": "5.0.0-beta.1",
+      "version": "5.0.0-beta.2",
       "kind": "runtime",
       "source": "packages/radio/src/index.ts",
       "conditions": {
@@ -6393,7 +6393,7 @@
     },
     {
       "name": "@mnjs/data",
-      "version": "5.0.0-beta.1",
+      "version": "5.0.0-beta.2",
       "kind": "runtime",
       "source": "packages/data/src/index.ts",
       "conditions": {
@@ -6926,7 +6926,7 @@
     },
     {
       "name": "@mnjs/adapters/backbone",
-      "version": "5.0.0-beta.1",
+      "version": "5.0.0-beta.2",
       "kind": "runtime",
       "source": "packages/adapters/src/data/backbone.ts",
       "conditions": {
@@ -7001,7 +7001,7 @@
     },
     {
       "name": "@mnjs/adapters/dom/jquery",
-      "version": "5.0.0-beta.1",
+      "version": "5.0.0-beta.2",
       "kind": "runtime",
       "source": "packages/adapters/src/dom/jquery.ts",
       "conditions": {
@@ -7061,7 +7061,7 @@
     },
     {
       "name": "@mnjs/adapters/xstate",
-      "version": "5.0.0-beta.1",
+      "version": "5.0.0-beta.2",
       "kind": "runtime",
       "source": "packages/adapters/src/data/xstate.ts",
       "conditions": {
@@ -7148,7 +7148,7 @@
     },
     {
       "name": "@mnjs/adapters/dom/morphdom",
-      "version": "5.0.0-beta.1",
+      "version": "5.0.0-beta.2",
       "kind": "runtime",
       "source": "packages/adapters/src/dom/morphdom.ts",
       "conditions": {
@@ -7188,7 +7188,7 @@
     },
     {
       "name": "@mnjs/adapters/dom/lit-html",
-      "version": "5.0.0-beta.1",
+      "version": "5.0.0-beta.2",
       "kind": "runtime",
       "source": "packages/adapters/src/dom/lit-html.ts",
       "conditions": {

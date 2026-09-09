@@ -7,7 +7,7 @@ all agree.
 
 The machine-readable publication gate is
 [`config/release-promotion.json`](../config/release-promotion.json). Stable publication is
-disabled; prerelease authorization is restricted to `5.0.0-beta.1`. Schema 2 separates `publication.stable`
+disabled; prerelease authorization is restricted to `5.0.0-beta.2`. Schema 2 separates `publication.stable`
 (a boolean) from `publication.prerelease` (one exact version string, or `null`).
 A beta authorization never authorizes stable or a later prerelease. Both channels
 use the same protected workflow and exact-artifact checks. Pull requests and manual
@@ -82,7 +82,7 @@ dry run:
 6. runs `npm publish <tarball> --dry-run --ignore-scripts` and validates the GitHub
    release plan.
 
-The candidate version is `5.0.0-beta.1`; the registry alpha belongs to an older
+The candidate version is `5.0.0-beta.2`; the registry alpha belongs to an older
 implementation. Inspect all five candidate versions and their Git tag before
 publication. A real publication request refuses any target that conflicts with the
 verified artifact before requesting write permissions; exact matching targets enter
@@ -91,17 +91,17 @@ the documented recovery path.
 ## Beta publication authorization
 
 The [beta contract and readiness checklist](./beta.md) define the candidate scope.
-Use matching `5.0.0-beta.1` versions across all five packages and their internal
+Use matching `5.0.0-beta.2` versions across all five packages and their internal
 requirements. `publication.stable` remains `false`; `publication.prerelease`
-authorizes only `5.0.0-beta.1`. This policy does not initiate publication: verify npm
+authorizes only `5.0.0-beta.2`. This policy does not initiate publication: verify npm
 access, certify the exact candidate, and obtain release approval before manually
 dispatching the protected workflow. Changing this policy changes the source commit
 and invalidates prior certification; rebuild and certify the authorization commit
 before publication.
 
 Until the first stable v5 release, the current v5 prerelease uses npm `latest`
-and remains a GitHub prerelease. Beta.1 is intentionally on `latest`; its existing
-`next` tag may point to the same version. Once stable v5 ships, change
+and remains a GitHub prerelease. Published beta.1 remains on `latest` until beta.2 is explicitly promoted.
+This candidate does not update either registry tag. Once stable v5 ships, change
 `npm.prereleaseTag` to `next` before authorizing subsequent prereleases so `latest`
 continues to identify stable v5. Verification checks the policy-selected dist-tag
 for every package. Tag changes require an authorized release operation;

@@ -7,7 +7,7 @@ The instructions below cover adding Marionette to an existing application.
 Install the core package, show a View, then add the integrations your application
 needs. Native DOM APIs, plain objects, and function templates work out of the box.
 
-This guide describes the current v5 source. Published alphas may lag behind it;
+This guide describes beta.2. Registry commands require that version to be published;
 see [contributor setup](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#set-up-the-repository) to build and pack
 an unreleased checkout locally.
 
@@ -30,14 +30,14 @@ an unreleased checkout locally.
 The v5 package name is `marionette`.
 
 ```bash
-npm install marionette@5.0.0-beta.1
+npm install marionette@5.0.0-beta.2
 ```
 
 This command becomes available after the beta is published. Use documentation matching that
 artifact. To use the current-source APIs described here, [build and pack the
 checkout](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#set-up-the-repository)
 and install the package artifacts from that same source revision. A matching
-alpha version string alone does not establish that a published package contains
+prerelease version string alone does not establish that a published package contains
 the same APIs as this checkout.
 
 > The v4 package name has changed. See the [upgrade guide](../upgradeGuide.md)
@@ -50,13 +50,14 @@ directly. During prereleases, keep Marionette packages on the same version. See 
 
 ## Peer dependencies
 
-Marionette v5 core has no peer dependencies. The separate
+Marionette v5 core has an optional ESLint 10 peer for its `marionette/eslint`
+consumer plugin. It has no required runtime peer dependencies. The separate
 `@mnjs/adapters` package requires the matching Marionette version and
 declares the integration-specific peers as optional.
 
 | Peer | Required? | When you need it |
 |---|---|---|
-| `marionette` `5.0.0-beta.1` | Required | The matching core runtime configured with an adapter. |
+| `marionette` `5.0.0-beta.2` | Required | The matching core runtime configured with an adapter. |
 | `backbone` `^1.4.0` | Optional | Only if your app imports `@mnjs/adapters/backbone`. See [Backbone is optional](#backbone-is-optional). |
 | `@types/backbone` `^1.4.23` | Optional | TypeScript declarations for `@mnjs/adapters/backbone`. JavaScript consumers do not need it. |
 | `jquery` `^4.0.0` | Optional | Only if your app uses the `@mnjs/adapters/dom/jquery` adapter. See [jQuery DOM adapter is optional](#jquery-dom-adapter-is-optional). |
@@ -68,13 +69,13 @@ Optional peers are installed only when you opt into them:
 
 ```bash
 # Only if you use the Backbone integration
-npm install @mnjs/adapters@5.0.0-beta.1 backbone
+npm install @mnjs/adapters@5.0.0-beta.2 backbone
 
 # Only if you use the jQuery DomApi adapter
-npm install @mnjs/adapters@5.0.0-beta.1 jquery
+npm install @mnjs/adapters@5.0.0-beta.2 jquery
 
 # Only if you use XState actors
-npm install @mnjs/adapters@5.0.0-beta.1 xstate
+npm install @mnjs/adapters@5.0.0-beta.2 xstate
 ```
 
 The XState actor adapter does not import or declare XState as a peer. Install
@@ -183,7 +184,7 @@ already uses them. For a new application needing observable Model and ordered
 Collection sources, the optional `@mnjs/data` package is the native choice:
 
 ```bash
-npm install @mnjs/data@5.0.0-beta.1
+npm install @mnjs/data@5.0.0-beta.2
 ```
 
 Configure its adapters before constructing owners. See the
@@ -257,9 +258,9 @@ Use the same `@mnjs/adapters` package for incremental rendering. Install
 only the DOM library you select:
 
 ```bash
-npm install @mnjs/adapters@5.0.0-beta.1 morphdom
+npm install @mnjs/adapters@5.0.0-beta.2 morphdom
 # or
-npm install @mnjs/adapters@5.0.0-beta.1 lit-html
+npm install @mnjs/adapters@5.0.0-beta.2 lit-html
 ```
 
 Import `MorphdomDomApi` from `@mnjs/adapters/dom/morphdom`, or

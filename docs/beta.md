@@ -1,9 +1,9 @@
 # Try Marionette v5 beta
 
-`5.0.0-beta.1` is published for application trials. Install that exact version from
-the registry. For a later unpublished candidate, use its certified tarballs.
-A matching version string alone does not prove that a locally built artifact
-matches a release.
+`5.0.0-beta.2` is prepared for application trials. Registry installation requires
+a published release; use certified tarballs before publication. Release promotion
+sets npm `latest` to the current prerelease until stable v5. A matching version
+string alone does not prove that a locally built artifact matches a release.
 
 ## What beta means
 
@@ -14,8 +14,8 @@ Use those documented public contracts. Beta feedback can still change an API bef
 stable; record any change in migration guidance and the release notes.
 
 This beta makes no comparative agent-effectiveness claim. The public corpus remains
-an unscored prototype. Architecture lint, generated method metadata, development
-inspection, and additional test helpers are separate work, not installed features.
+an unscored prototype. This candidate includes consumer lint, a compact contract reference, source maps,
+and a typed starter with browser tests; those tools do not establish agent effectiveness.
 
 Core is `marionette`. The companion packages are `@mnjs/utils`,
 `@mnjs/radio`, `@mnjs/data`, and `@mnjs/adapters`. Keep all package
@@ -23,34 +23,16 @@ versions aligned; install optional providers only when needed. See
 [the migration ledger](./migration-from-v4.md) and [upgrade guide](../upgradeGuide.md).
 The historical registry alpha is an older implementation and is not this beta's API.
 
-For the current unreleased TypeScript starter and development tools, use
-[Develop against the current candidate](development.md). The installation below
-uses the separate starter shipped with the published beta.1.
+## Start an application
 
-## Start in an empty directory
+Follow the [TypeScript starter instructions](development.md) for either a
+published npm package or this unpublished candidate. The npm-distributed starter
+pins matching runtime dependencies; a candidate kit instead supplies exact local
+tarballs and a complete lockfile. Both include application agent instructions,
+typecheck, consumer lint, unit tests, build, and a browser-test command.
 
-Install core and the optional native data package explicitly:
-
-```sh
-mkdir my-marionette-app
-cd my-marionette-app
-npm init -y
-npm install marionette@5.0.0-beta.1 @mnjs/data@5.0.0-beta.1
-cp -R node_modules/marionette/dist/docs/starter ./starter
-cd starter
-npm install marionette@5.0.0-beta.1 @mnjs/data@5.0.0-beta.1
-npm test
-npm run build
-npm run dev
-```
-
-The starter README explains its files and trial steps. It is also available in the
-[source tree](https://github.com/marionettejs/marionette/tree/master/test/fixtures/data-package-starter).
-Copying uses a new directory and preserves existing application files. The commands
-above use a POSIX shell; on Windows, copy the same folder using your file manager.
-
-For an unpublished candidate, follow the [portable development starter](development.md)
-instead. Its generated lockfile already selects all five matching tarballs.
+The registry path requires beta.2 to be published first. Beta.1 has its
+own older starter and documentation; it does not contain this candidate's tools.
 
 The starter has editable rows, asynchronous local selection, deliberate cancellation,
 and teardown. It has no backend, persistence, or URL router. Connect its `navigate`
