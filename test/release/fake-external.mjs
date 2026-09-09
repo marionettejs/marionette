@@ -13,7 +13,30 @@ const option = name => args[args.indexOf(name) + 1];
 
 if (tool === 'npm') {
   if (args[0] !== 'view') { fail(`Unexpected npm command: ${args}`); }
+  if (args[2] === 'dist-tags') {
+    const name = args[1];
+    if (state.tagsError === name) { fail('npm ERR! E503 registry unavailable'); }
+    const responses = state.tagResponses?.[name];
+    if (responses?.length) {
+      const response = responses.shift();
+      if (response === 'unavailable') { fail('npm ERR! E503 registry unavailable'); }
+      if (response === 'malformed') { output('{'); }
+      output(JSON.stringify(response));
+    }
+    const entry = state.packages.find(candidate => candidate.name === name);
+    output(JSON.stringify(state.tags?.[name] ?? { latest: entry.version }));
+  }
   const name = args[1].slice(0, args[1].lastIndexOf('@'));
+  if (args[2] === 'dist.attestations') {
+    const configured = state.attestations?.[name];
+    const value = Array.isArray(configured) ? configured.shift() : configured;
+    if (value === 'unavailable') { fail('npm ERR! E503 registry unavailable'); }
+    if (value === 'malformed') { output('undefined'); }
+    output(JSON.stringify(value === undefined ? {
+      url: `https://registry.npmjs.org/-/npm/v1/attestations/${args[1]}`,
+      provenance: { predicateType: 'https://slsa.dev/provenance/v1' }
+    } : value));
+  }
   const entry = state.packages.find(candidate => candidate.name === name);
   const configured = state.npm?.[name] || 'exact';
   const mode = Array.isArray(configured) ? configured.shift() : configured;

@@ -75,6 +75,8 @@ cover declaration generation, composition, and the current compiler boundaries.
 
 ## Report a bug
 
+For suspected vulnerabilities, follow the private [security reporting policy](SECURITY.md).
+
 Use the [bug report form](https://github.com/marionettejs/marionette/issues/new/choose)
 and include:
 

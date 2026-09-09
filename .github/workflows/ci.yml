@@ -47,6 +47,9 @@ jobs:
       - name: Verify diagnostic catalog
         run: npm run check:diagnostics
 
+      - name: Verify public API contracts
+        run: npm run check:api-contracts
+
       - name: Check public test boundaries and workflows
         run: |
           npm run check:public-tests
@@ -66,6 +69,9 @@ jobs:
 
       - name: Test supported browsers
         run: npm run test:browser
+
+      - name: Validate native browser performance workloads
+        run: npm run test:browser-performance
 
       - name: Cache pinned agent reference environment
         run: npm run agent:cache
@@ -100,6 +106,7 @@ jobs:
             test/tmp/browser/report/
             test/tmp/browser/results/
             test/tmp/fixture-reports/
+            test/tmp/performance/browser-report.json
             test/tmp/agent-reference-app/
             test/tmp/agent-reference/reference-report.json
             test/tmp/agent-reference/artifacts/artifact-input.json

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "fixtureVersion": "v1",
+  "entry": "workloads.js",
+  "entrySha256": "98b936518e9b87aedde50f8bb9a148176d3c596b4ca80e15a3b7b3c5a79c4177",
+  "workloadTimeoutMilliseconds": 10000,
+  "runOrder": [
+    "native-data-list-mutations",
+    "application-async-lifecycle",
+    "state-mount-destroy"
+  ],
+  "profiles": {
+    "validation": {
+      "warmups": 1,
+      "samples": 2
+    },
+    "baseline": {
+      "warmups": 5,
+      "samples": 25
+    }
+  },
+  "workloads": {
+    "native-data-list-mutations": {
+      "listSize": 250
+    },
+    "application-async-lifecycle": {
+      "applicationCycles": 25
+    },
+    "state-mount-destroy": {
+      "mountCycles": 40
+    }
+  }
+}

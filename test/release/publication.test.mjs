@@ -1,10 +1,21 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { publicationEnabled } from '../../scripts/release/publication.mjs';
+import { publicationEnabled, releaseChannel } from '../../scripts/release/publication.mjs';
 import { fixture, successfulValidation } from './fixture.mjs';
 
 const beta = '5.0.0-beta.1';
 const policy = publication => ({ schemaVersion: 2, publication });
+
+test('release metadata selects its policy channel independently of publication permission', () => {
+  const candidate = { ...policy({ stable: false, prerelease: null }), npm: { stableTag: 'latest', prereleaseTag: 'latest' } };
+  assert.equal(releaseChannel(candidate, '5.0.0'), 'latest');
+  assert.equal(releaseChannel(candidate, beta), 'latest');
+  candidate.npm.prereleaseTag = 'next';
+  assert.equal(releaseChannel(candidate, beta), 'next');
+  assert.equal(releaseChannel(candidate, '5.0.0'), 'latest');
+  assert.throws(() => releaseChannel(candidate, '5.0.0-beta..1'), /Invalid release version/);
+  assert.throws(() => releaseChannel(candidate, undefined), /Invalid release version/);
+});
 
 test('prerelease authorization permits only the named version and never stable', () => {
   const candidate = policy({ stable: false, prerelease: beta });

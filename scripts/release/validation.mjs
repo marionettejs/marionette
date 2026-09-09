@@ -6,6 +6,7 @@ export const candidateChecks = Object.freeze([
   ['profile', 'check:release-profile'],
   ['browser-profile', 'check:browser-profile'],
   ['diagnostics', 'check:diagnostics'],
+  ['api-contracts', 'check:api-contracts'],
   ['public-tests', 'check:public-tests'],
   ['workflows', 'check:workflows'],
   ['source-types', 'check:types'],

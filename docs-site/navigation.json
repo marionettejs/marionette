@@ -24,6 +24,12 @@
     "section": "Start here"
   },
   {
+    "source": "docs/compact-reference.md",
+    "route": "docs/compact-reference",
+    "title": "Compact framework reference",
+    "section": "Start here"
+  },
+  {
     "source": "docs/classes.md",
     "route": "docs/classes",
     "title": "Choose a class",
@@ -369,6 +375,30 @@
     "source": "docs/maintainers/line-audit-operations.md",
     "route": "docs/maintainers/line-audit-operations",
     "title": "Operations documentation line audit",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "SECURITY.md",
+    "route": "docs/maintainers/security",
+    "title": "Security reporting and support",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "docs/consumer-lint.md",
+    "route": "docs/consumer-lint",
+    "title": "Lint application code",
+    "section": "Application guides"
+  },
+  {
+    "source": "docs/maintainers/authorship-inventory.md",
+    "route": "docs/maintainers/authorship-inventory",
+    "title": "Production authorship inventory",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "docs/maintainers/browser-contract-matrix.md",
+    "route": "docs/maintainers/browser-contract-matrix",
+    "title": "Browser contract matrix",
     "section": "Maintaining Marionette"
   }
 ]

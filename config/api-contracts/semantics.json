@@ -1,0 +1,2397 @@
+{
+  "schemaVersion": 1,
+  "contracts": [
+    {
+      "id": "type-shapes",
+      "entrypoints": [
+        "marionette",
+        "@mnjs/utils",
+        "@mnjs/radio",
+        "@mnjs/data",
+        "@mnjs/adapters/backbone",
+        "@mnjs/adapters/xstate",
+        "@mnjs/adapters/dom/jquery",
+        "@mnjs/adapters/dom/morphdom",
+        "@mnjs/adapters/dom/lit-html"
+      ],
+      "exports": [
+        "*"
+      ],
+      "result": "Type-only names describe source, option, callback, constructor and protocol shapes; no runtime value is installed.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No ownership transfer from a type annotation.",
+      "mutation": "Type checking adds no runtime conversion or validation.",
+      "repetition": "No runtime invocation.",
+      "destruction": "Types cannot prove source lifetime or mutable adapter correlation.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/typescript.md",
+          "heading": "TypeScript in an application"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/create-marionette.spec.js",
+          "title": "builds the default exports and explicit runtimes through one class-family contract"
+        }
+      ],
+      "kind": "type"
+    },
+    {
+      "id": "runtime-isolation",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "createMarionette",
+        "setDataApi",
+        "setStateApi",
+        "setDomApi",
+        "setEventDelegator",
+        "setRenderer"
+      ],
+      "result": "createMarionette returns a fresh class family; setters return their documented receiving class/runtime result.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "Runtime configuration and Radio channels are isolated; class setters affect that class and descendants.",
+      "mutation": "Configure before constructing or registering consumers; new event registrations use current adapters and existing registrations retain their cleanup.",
+      "repetition": "Setters replace/overlay the configured capability; fresh runtimes start from pristine defaults.",
+      "destruction": "Configuration does not own existing sources or destroy consumers.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/runtime-isolation.md",
+          "heading": "Configuration method contract"
+        },
+        {
+          "file": "docs/utils.md",
+          "heading": "extend"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/create-marionette.spec.js",
+          "title": "isolates renderer, DomApi, DataApi, StateApi, and EventDelegator configuration"
+        },
+        {
+          "file": "test/unit/create-marionette.spec.js",
+          "title": "keeps class-level setters local to a specialized subclass"
+        },
+        {
+          "file": "test/unit/runtime/event-delegator.spec.js",
+          "title": "uses the current adapter for new registrations and the original cleanup for old ones"
+        },
+        {
+          "file": "test/unit/utils/extend.spec.js",
+          "title": "backs every exported Marionette pseudo-class"
+        }
+      ]
+    },
+    {
+      "id": "version",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "VERSION"
+      ],
+      "result": "Current package version string.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No ownership.",
+      "mutation": "Read-only constant.",
+      "repetition": "Stable within a built artifact.",
+      "destruction": "No lifetime.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/utils.md",
+          "heading": "VERSION"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/create-marionette.spec.js",
+          "title": "builds the default exports and explicit runtimes through one class-family contract"
+        }
+      ]
+    },
+    {
+      "id": "object",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "MnObject"
+      ],
+      "result": "Constructs an evented owner with public options, cid and optional Radio/state; fluent cleanup returns the receiver.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "Supplied state is borrowed; createState results are owned. Radio bindings belong to the owner.",
+      "mutation": "Construction initializes configured options before initialize; it does not render DOM.",
+      "repetition": "Each construction creates an independent owner; destroy is guarded against repeat cleanup.",
+      "destruction": "Destroy releases owned listeners and state subscriptions; synchronous exceptions abort.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/marionette.mnobject.md",
+          "heading": "Instantiating a MnObject"
+        },
+        {
+          "file": "docs/marionette.mnobject.md",
+          "heading": "Destroying a MnObject"
+        },
+        {
+          "file": "docs/events.class.md",
+          "heading": "MnObject Events"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/object.spec.js",
+          "title": "resolves state lazily while initialize uses configured options and Radio"
+        },
+        {
+          "file": "test/unit/object.spec.js",
+          "title": "should maintain a reference to the options"
+        }
+      ],
+      "events": [
+        {
+          "names": [
+            "before:destroy",
+            "destroy"
+          ],
+          "arguments": [
+            "owner",
+            "options"
+          ],
+          "timing": "Before and after successful synchronous teardown; hook return promises are not awaited."
+        }
+      ]
+    },
+    {
+      "id": "view",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "View"
+      ],
+      "result": "Constructor returns the configured View; method-specific query/optional/fluent results are listed in the generated members.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "View owns its Regions and Behaviors, and owns only factory-created state. A Region or CollectionView can own the View.",
+      "mutation": "render replaces template contents and refreshes UI bindings; renderAttributes explicitly refreshes root attributes. Named Region lookup does not render; getChildView renders an unrendered parent before reading its child.",
+      "repetition": "render may repeat while live; rendering after destruction is a no-op.",
+      "destruction": "destroy releases owned composition and removes its element; before:destroy precedes destroy.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/marionette.view.md",
+          "heading": "Method results and side effects"
+        },
+        {
+          "file": "docs/view.lifecycle.md",
+          "heading": "Destroying a View"
+        },
+        {
+          "file": "docs/events.class.md",
+          "heading": "View Events"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/view-lifecycle.spec.js",
+          "title": "follows the normal Region-managed transition sequence"
+        },
+        {
+          "file": "test/unit/view-lifecycle.spec.js",
+          "title": "treats repeated render calls after destruction as idempotent no-ops"
+        }
+      ],
+      "events": [
+        {
+          "names": [
+            "before:destroy",
+            "destroy"
+          ],
+          "arguments": [
+            "owner",
+            "options"
+          ],
+          "timing": "Before and after successful synchronous teardown; hook return promises are not awaited."
+        },
+        {
+          "names": [
+            "before:render",
+            "render",
+            "before:attach",
+            "attach",
+            "before:detach",
+            "detach",
+            "dom:refresh",
+            "dom:remove"
+          ],
+          "arguments": [
+            "view"
+          ],
+          "timing": "Synchronous transition notifications; DOM events depend on tracked attachment, rendering and monitoring."
+        },
+        {
+          "names": [
+            "before:add:region",
+            "add:region",
+            "before:remove:region",
+            "remove:region"
+          ],
+          "arguments": [
+            "view",
+            "name",
+            "region"
+          ],
+          "timing": "Around named Region registration/removal; removal destroys the Region."
+        }
+      ]
+    },
+    {
+      "id": "behavior",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "Behavior"
+      ],
+      "result": "Constructs a Behavior for the required host View; query operations proxy the host boundary.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "Host owns top-level and nested Behaviors; direct Behavior destruction does not destroy its host.",
+      "mutation": "Host preinitialize runs before Behavior construction; Behavior initialize precedes host initialize; bindings participate in host lifecycle.",
+      "repetition": "One Behavior instance survives host render and attachment transitions.",
+      "destruction": "Direct destroy releases its participation; host destroy cleans remaining Behaviors once.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/marionette.behavior.md",
+          "heading": "Behavior Lifecycle"
+        },
+        {
+          "file": "docs/marionette.behavior.md",
+          "heading": "Host Communication and Event Proxies"
+        },
+        {
+          "file": "docs/events.class.md",
+          "heading": "Behavior Events"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/behavior-lifecycle.spec.js",
+          "title": "initializes around its host View in public lifecycle order"
+        },
+        {
+          "file": "test/unit/behavior-lifecycle.spec.js",
+          "title": "keeps one instance through render and attachment transitions"
+        },
+        {
+          "file": "test/unit/behavior-lifecycle.spec.js",
+          "title": "stops host, entity, and DOM participation after direct cleanup"
+        }
+      ],
+      "events": [
+        {
+          "names": [
+            "initialize"
+          ],
+          "arguments": [
+            "hostView",
+            "hostConstructorOptions"
+          ],
+          "timing": "After host and Behavior initialization."
+        },
+        {
+          "names": [
+            "host View events"
+          ],
+          "arguments": [
+            "original host event arguments"
+          ],
+          "timing": "Host events proxy to Behaviors; direct Behavior destruction emits no independent destroy event."
+        }
+      ]
+    },
+    {
+      "id": "region",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "Region"
+      ],
+      "result": "show/empty/reset/destroy return the Region; detachView returns the released View or undefined; ownership queries return owner/name or undefined.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "show adopts a View; detach releases ownership without destroying it; empty/replacement destroy the current View.",
+      "mutation": "show renders and inserts a View; detach removes it; replaceElement state is independent of attachment.",
+      "repetition": "Showing the same View and repeating empty/destroy are deterministic no-ops when already satisfied.",
+      "destruction": "Once destruction begins, show/detach cannot acquire/release a new View; cleanup failures abort without retry.",
+      "diagnostics": [
+        "MN0003",
+        "MN0004"
+      ],
+      "docs": [
+        {
+          "file": "docs/marionette.region.md",
+          "heading": "Lifecycle transition contract"
+        },
+        {
+          "file": "docs/marionette.region.md",
+          "heading": "Reading Region ownership"
+        },
+        {
+          "file": "docs/events.class.md",
+          "heading": "Region Events"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/region-lifecycle.spec.js",
+          "title": "moves through empty, occupied, detached, and destroyed states"
+        },
+        {
+          "file": "test/unit/region-lifecycle.spec.js",
+          "title": "treats repeated show, empty, and destroy operations deterministically"
+        },
+        {
+          "file": "test/unit/region-lifecycle.spec.js",
+          "title": "does not complete or retry destruction when child cleanup throws"
+        }
+      ],
+      "events": [
+        {
+          "names": [
+            "before:destroy",
+            "destroy"
+          ],
+          "arguments": [
+            "owner",
+            "options"
+          ],
+          "timing": "Before and after successful synchronous teardown; hook return promises are not awaited."
+        },
+        {
+          "names": [
+            "before:show",
+            "show"
+          ],
+          "arguments": [
+            "region",
+            "view",
+            "options"
+          ],
+          "timing": "Around rendering/insertion."
+        },
+        {
+          "names": [
+            "before:empty",
+            "empty"
+          ],
+          "arguments": [
+            "region",
+            "view"
+          ],
+          "timing": "Only when removing a current View; after event follows detach/destruction."
+        }
+      ]
+    },
+    {
+      "id": "collection-view",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "CollectionView"
+      ],
+      "result": "Constructs a View whose children expose ordered lookups and iterators; operation-specific results remain in generated signatures.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "Managed children belong to the CollectionView; stable unchanged model sources preserve child identity; same-key replacement recreates a child.",
+      "mutation": "Structural updates add/remove affected children and reorder survivor elements; reset destructively replaces the list. Filters affect presentation.",
+      "repetition": "Explicit live render destroys all existing children and reconstructs collection-derived children; structural source updates reconcile survivors without an explicit render. Comparator ties preserve documented order.",
+      "destruction": "destroy releases collection observation and destroys owned children; queued updates cannot resurrect a destroyed owner.",
+      "diagnostics": [
+        "MN0003",
+        "MN0039"
+      ],
+      "docs": [
+        {
+          "file": "docs/marionette.collectionview.md",
+          "heading": "Managing Children"
+        },
+        {
+          "file": "docs/data.api.md",
+          "heading": "Collection observations"
+        },
+        {
+          "file": "docs/events.class.md",
+          "heading": "CollectionView Events"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/collection-view/collection-view-reconciliation.spec.js",
+          "title": "moves survivor elements on reorder without recreating or rendering their Views"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-reconciliation.spec.js",
+          "title": "recreates a child View for an immutable same-key replacement"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-reconciliation.spec.js",
+          "title": "treats reset as destructive whole-list replacement"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-reconciliation.spec.js",
+          "title": "drops a queued structural update after reentrant destruction"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-lifecycle.spec.js",
+          "title": "follows the normal Region-managed transition sequence"
+        }
+      ],
+      "events": [
+        {
+          "names": [
+            "before:destroy",
+            "destroy"
+          ],
+          "arguments": [
+            "owner",
+            "options"
+          ],
+          "timing": "Before and after successful synchronous teardown; hook return promises are not awaited."
+        },
+        {
+          "names": [
+            "before:render",
+            "render",
+            "before:attach",
+            "attach",
+            "before:detach",
+            "detach",
+            "dom:refresh",
+            "dom:remove"
+          ],
+          "arguments": [
+            "view"
+          ],
+          "timing": "Synchronous transition notifications; DOM events depend on tracked attachment, rendering and monitoring."
+        },
+        {
+          "names": [
+            "before:add:child",
+            "add:child",
+            "before:remove:child",
+            "remove:child"
+          ],
+          "arguments": [
+            "collectionView",
+            "childView"
+          ],
+          "timing": "Around child ownership registration/removal."
+        },
+        {
+          "names": [
+            "before:sort",
+            "sort",
+            "before:filter",
+            "before:destroy:children",
+            "destroy:children"
+          ],
+          "arguments": [
+            "collectionView"
+          ],
+          "timing": "Around the corresponding presentation/teardown transition."
+        },
+        {
+          "names": [
+            "filter"
+          ],
+          "arguments": [
+            "collectionView",
+            "attachViews",
+            "detachViews"
+          ],
+          "timing": "After filter selection."
+        },
+        {
+          "names": [
+            "before:render:children",
+            "render:children"
+          ],
+          "arguments": [
+            "collectionView",
+            "views"
+          ],
+          "timing": "Around rendering the selected children."
+        }
+      ]
+    },
+    {
+      "id": "manual-children",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "CollectionView"
+      ],
+      "result": "addChildView/removeChildView/detachChildView return their supplied child or unchanged missing input; swapChildViews returns the owner.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "Manually added children are owned until removed/detached; detach preserves the child.",
+      "mutation": "Manual child order is preserved during managed replacement; swap moves existing child elements and keeps identity.",
+      "repetition": "Swapping a child with itself leaves it in place; ownership conflicts are rejected before adoption.",
+      "destruction": "Destroy owns manual children too; additions to a destroyed owner cannot adopt new children.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/marionette.collectionview.md",
+          "heading": "Self-Managed `children`"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/collection-view/collection-view-reconciliation.spec.js",
+          "title": "preserves manual child order for an immutable same-key replacement"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-children.spec.js",
+          "title": "keeps swapped child identity in public lookups"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-children.spec.js",
+          "title": "should leave a child swapped with itself in place"
+        }
+      ],
+      "members": [
+        "addChildView",
+        "removeChildView",
+        "detachChildView",
+        "swapChildViews"
+      ]
+    },
+    {
+      "id": "sync-failure-boundary",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "View",
+        "Region",
+        "CollectionView",
+        "Behavior",
+        "MnObject"
+      ],
+      "result": "A synchronous callback/adapter exception escapes; no successful result or rollback is promised.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "Previously acquired resources are not transactionally rolled back.",
+      "mutation": "Processing stops at the throwing callback; later cleanup need not run.",
+      "repetition": "An aborted teardown does not promise retry/recovery.",
+      "destruction": "Accepted idempotence guards remain; Application asynchronous cancellation is a distinct contract.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/view.lifecycle.md",
+          "heading": "Synchronous failures"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/region-lifecycle.spec.js",
+          "title": "does not complete or retry destruction when child cleanup throws"
+        },
+        {
+          "file": "test/unit/events-parity.spec.js",
+          "title": "propagates handler errors and stops the current dispatch"
+        }
+      ]
+    },
+    {
+      "id": "events",
+      "entrypoints": [
+        "marionette",
+        "@mnjs/utils"
+      ],
+      "exports": [
+        "Events"
+      ],
+      "result": "on/off/once/listenTo/listenToOnce/stopListening/trigger return their receiver; triggerMethod has its own result contract.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "listenTo subscriptions belong to the listener; off removes source registrations.",
+      "mutation": "Dispatch preserves arguments and registration order; all receives event name first; callback errors stop dispatch.",
+      "repetition": "once is removed before callback/reentrant trigger; ordinary listeners repeat.",
+      "destruction": "Owner cleanup stops listening; Events itself has no destroy method.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/events.md",
+          "heading": "Events API"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/events-parity.spec.js",
+          "title": "preserves arguments and order for space-separated event names"
+        },
+        {
+          "file": "test/unit/events-parity.spec.js",
+          "title": "removes a once handler before a reentrant trigger"
+        },
+        {
+          "file": "test/unit/events-parity.spec.js",
+          "title": "cleans up listener bookkeeping as subscriptions are removed"
+        }
+      ]
+    },
+    {
+      "id": "radio",
+      "entrypoints": [
+        "marionette",
+        "@mnjs/radio"
+      ],
+      "exports": [
+        "Radio",
+        "createRadio",
+        "Channel"
+      ],
+      "result": "channel returns a named channel; direct Channel construction is independent; messaging forwards Events/Requests results.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "Each Radio registry owns its channel references; owner bindings are scoped by context.",
+      "mutation": "reset clears channel events, replies and owned listeners; debug/tuning hooks remain registry-local.",
+      "repetition": "channel reuses a name in that registry; separate registries and standalone Channels stay independent.",
+      "destruction": "Channel reset clears registrations; owner destruction removes only owner bindings.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/radio.md",
+          "heading": "Channel Lifecycle"
+        },
+        {
+          "file": "docs/radio.md",
+          "heading": "Requests and Replies"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/radio-public.spec.js",
+          "title": "constructs independent channels without registering them"
+        },
+        {
+          "file": "test/unit/radio-public.spec.js",
+          "title": "resets a standalone channel and its owned listeners"
+        },
+        {
+          "file": "test/unit/radio-public.spec.js",
+          "title": "keeps debug switches and hooks local to each Radio instance"
+        }
+      ]
+    },
+    {
+      "id": "requests",
+      "entrypoints": [
+        "@mnjs/radio"
+      ],
+      "exports": [
+        "Requests"
+      ],
+      "result": "request returns the handler result, undefined when no applicable reply exists, or mapped results for request maps.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "Replies use configured context; stopReplying supports selective removal.",
+      "mutation": "One reply per name; replacement overwrites it; default handlers receive the request name.",
+      "repetition": "replyOnce unregisters before invoking once; split/map requests preserve order and abort on error.",
+      "destruction": "Standalone Requests has no destroy; remove replies explicitly or through an owning channel.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/radio.md",
+          "heading": "Requests and Replies"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/requests.spec.js",
+          "title": "removes the reply before invoking it and returns the first result once"
+        },
+        {
+          "file": "test/unit/requests.spec.js",
+          "title": "prioritizes an own named handler and passes only request arguments"
+        },
+        {
+          "file": "test/unit/requests.spec.js",
+          "title": "stops reading a request map when a recursive request throws"
+        }
+      ]
+    },
+    {
+      "id": "extend",
+      "entrypoints": [
+        "marionette",
+        "@mnjs/utils"
+      ],
+      "exports": [
+        "extend"
+      ],
+      "result": "Returns a child function constructor with prototype inheritance and copied statics.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "Prototype/statics inputs are copied as own properties; parent prototype is retained.",
+      "mutation": "Own constructor replaces forwarding; otherwise parent.apply is called. Native classes require an explicit constructor for .extend.",
+      "repetition": "Each call creates a fresh child; supplied enumerable accessors are read during copying.",
+      "destruction": "No instance ownership or destruction occurs during extension.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/utils.md",
+          "heading": "extend"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/utils/extend.spec.js",
+          "title": "uses an own constructor and otherwise forwards construction to the parent"
+        },
+        {
+          "file": "test/unit/utils/extend.spec.js",
+          "title": "owns prototype inputs while preserving the parent prototype chain"
+        },
+        {
+          "file": "test/unit/utils/extend.spec.js",
+          "title": "backs every exported Marionette pseudo-class"
+        }
+      ]
+    },
+    {
+      "id": "error",
+      "entrypoints": [
+        "marionette",
+        "@mnjs/utils"
+      ],
+      "exports": [
+        "MarionetteError"
+      ],
+      "result": "Constructs a native Error subclass with documented metadata; toString formats its name/message/url.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "Error owns copied allowed metadata.",
+      "mutation": "Only supported metadata properties are copied; supplied values override native values.",
+      "repetition": "Each new call creates a distinct error; new is required.",
+      "destruction": "No lifecycle or cleanup.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        },
+        {
+          "file": "docs/diagnostic-catalog.md",
+          "heading": "Diagnostic catalog"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/modules-error.spec.js",
+          "title": "should be subclass of native Error"
+        },
+        {
+          "file": "test/unit/modules-error.spec.js",
+          "title": "materializes allowed properties as ordinary own fields"
+        },
+        {
+          "file": "test/unit/modules-error.spec.js",
+          "title": "requires construction with new"
+        }
+      ]
+    },
+    {
+      "id": "get-value",
+      "entrypoints": [
+        "@mnjs/utils"
+      ],
+      "exports": [
+        "getValue"
+      ],
+      "result": "Returns a property value or invokes it with the object receiver; fallback applies only for undefined.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "mutation": "Reads one value; callable values are invoked without arguments.",
+      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
+      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/utils/get-value.spec.js",
+          "title": "uses the fallback only when the property value is undefined"
+        }
+      ]
+    },
+    {
+      "id": "get-option",
+      "entrypoints": [
+        "@mnjs/utils"
+      ],
+      "exports": [
+        "getOption"
+      ],
+      "result": "Returns a defined option before the receiver property; undefined options fall back.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "mutation": "Reads options and receiver; does not call an option function.",
+      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
+      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/common/get-option.spec.js",
+          "title": "should return that definitions option"
+        }
+      ]
+    },
+    {
+      "id": "merge-options",
+      "entrypoints": [
+        "@mnjs/utils"
+      ],
+      "exports": [
+        "mergeOptions"
+      ],
+      "result": "Returns undefined after copying selected defined options.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "mutation": "Copies selected own enumerable options onto the receiver; safely owns __proto__.",
+      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
+      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/common/merge-options.spec.js",
+          "title": "merges only own enumerable string options and safely owns __proto__"
+        }
+      ]
+    },
+    {
+      "id": "normalize-methods",
+      "entrypoints": [
+        "@mnjs/utils"
+      ],
+      "exports": [
+        "normalizeMethods",
+        "resolveMethod",
+        "normalizeBindings"
+      ],
+      "result": "Returns resolved callable handlers/maps; unresolved literal names raise a stable diagnostic.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "mutation": "Reads own enumerable binding entries and resolves receiver methods without subscribing.",
+      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
+      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "diagnostics": [
+        "MN0019"
+      ],
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/common/normalize-methods.spec.js",
+          "title": "throws a stable diagnostic when a named handler does not exist"
+        }
+      ]
+    },
+    {
+      "id": "bind-events",
+      "entrypoints": [
+        "@mnjs/utils"
+      ],
+      "exports": [
+        "bindEvents",
+        "unbindEvents"
+      ],
+      "result": "Returns the receiver after registering/removing its listeners.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "mutation": "Uses listener ownership; selective maps remove only matching bindings.",
+      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
+      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/common/bind-events.spec.js",
+          "title": "rejects an own enumerable __proto__ event before binding"
+        }
+      ]
+    },
+    {
+      "id": "bind-requests",
+      "entrypoints": [
+        "@mnjs/utils"
+      ],
+      "exports": [
+        "bindRequests",
+        "unbindRequests"
+      ],
+      "result": "Returns the receiver after registering/removing replies with receiver context.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "mutation": "Selective removal preserves replies owned by another context.",
+      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
+      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/common/bind-request.spec.js",
+          "title": "selectively removes caller-owned replies without disturbing other replies"
+        }
+      ]
+    },
+    {
+      "id": "is-string",
+      "entrypoints": [
+        "@mnjs/utils"
+      ],
+      "exports": [
+        "isString"
+      ],
+      "result": "Returns string-tag classification for primitive or boxed strings.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "mutation": "Reads the string tag without mutating input.",
+      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
+      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/utils/is-string.spec.js",
+          "title": "matches Underscore string-tag classification"
+        }
+      ]
+    },
+    {
+      "id": "set-property",
+      "entrypoints": [
+        "@mnjs/utils"
+      ],
+      "exports": [
+        "setProperty"
+      ],
+      "result": "Assigns the property; returns no value.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "mutation": "Defines __proto__ as own data without replacing the target prototype.",
+      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
+      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/utils/set-property.spec.js",
+          "title": "defines __proto__ without changing the target prototype"
+        }
+      ]
+    },
+    {
+      "id": "unique-id",
+      "entrypoints": [
+        "@mnjs/utils"
+      ],
+      "exports": [
+        "uniqueId"
+      ],
+      "result": "Returns a unique sequence id with optional string prefix.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "mutation": "Advances the package sequence; it is independent from Backbone/Underscore.",
+      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
+      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/utils/unique-id.spec.js",
+          "title": "increments one shared sequence and prepends string prefixes"
+        }
+      ]
+    },
+    {
+      "id": "event-arguments",
+      "entrypoints": [
+        "@mnjs/utils"
+      ],
+      "exports": [
+        "buildEventArgs",
+        "eventSplitter"
+      ],
+      "result": "Builds descriptors in own-key/split-name order; eventSplitter is the whitespace expression.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "mutation": "Expands names/maps without subscribing; preserves callback/context metadata.",
+      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
+      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/utils/build-event-args.spec.js",
+          "title": "expands space-separated event names in source order"
+        }
+      ]
+    },
+    {
+      "id": "call-handler",
+      "entrypoints": [
+        "@mnjs/utils"
+      ],
+      "exports": [
+        "callHandler"
+      ],
+      "result": "Returns the invoked callback result.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "mutation": "Invokes the callback with supplied context and arguments.",
+      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
+      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/utils/call-handler.spec.js",
+          "title": "applies callbacks with more than three arguments"
+        }
+      ]
+    },
+    {
+      "id": "once-wrapper",
+      "entrypoints": [
+        "@mnjs/utils"
+      ],
+      "exports": [
+        "onceWrap"
+      ],
+      "result": "Returns a function that memoizes its first callback result.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "mutation": "Unbinds before the callback; marks itself consumed before cleanup.",
+      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
+      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/utils/once-wrap.spec.js",
+          "title": "unbinds before invoking the callback and memoizes its result"
+        }
+      ]
+    },
+    {
+      "id": "trigger-method",
+      "entrypoints": [
+        "@mnjs/utils",
+        "@mnjs/data"
+      ],
+      "exports": [
+        "triggerMethod"
+      ],
+      "result": "Returns the matching onEventName method result; undefined when absent.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No ownership transfer.",
+      "mutation": "Calls the method before triggering the event with original arguments.",
+      "repetition": "Every call dispatches; throwing method prevents event dispatch.",
+      "destruction": "No cleanup or resurrection semantics are added.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/events.md",
+          "heading": "`triggerMethod`"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/common/trigger-method.spec.js",
+          "title": "calls the matching method before triggering the event"
+        },
+        {
+          "file": "test/unit/common/trigger-method.spec.js",
+          "title": "does not trigger the event when the matching method throws"
+        }
+      ]
+    },
+    {
+      "id": "dom-api",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "DomApi"
+      ],
+      "result": "Native DOM methods return their documented Element/Document/collection/void results.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "DOM operations do not own or destroy framework Views.",
+      "mutation": "Methods synchronously query, create, move, detach or replace DOM contents; notify hooks expose attachment to integrations.",
+      "repetition": "Queries observe current DOM; mutation methods operate on supplied nodes each time.",
+      "destruction": "Framework owner lifecycle is separate from direct DOM operations.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/dom.api.md",
+          "heading": "Native API methods"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/jquery-dom-api.spec.js",
+          "title": "returns native results from view.$() with the native DomApi"
+        },
+        {
+          "file": "test/unit/region-lifecycle.spec.js",
+          "title": "shows a View in template content without reporting attachment"
+        }
+      ]
+    },
+    {
+      "id": "monitor-view-events",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "monitorViewEvents"
+      ],
+      "result": "Returns undefined and enables documented attachment/DOM lifecycle monitoring.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "Uses the View lifetime; does not adopt it into a Region.",
+      "mutation": "Attachment/render transitions produce dom:refresh/dom:remove and child transitions.",
+      "repetition": "Repeated monitoring setup is guarded; disabling automatic monitoring leaves notifications to the application.",
+      "destruction": "Destroy removes monitoring participation with the View.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/events.md",
+          "heading": "Lifecycle Events"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/view-lifecycle.spec.js",
+          "title": "propagates nested attachment through detached, reentrant, and repeated transitions"
+        }
+      ]
+    },
+    {
+      "id": "jquery-dom",
+      "entrypoints": [
+        "@mnjs/adapters/dom/jquery"
+      ],
+      "exports": [
+        "default"
+      ],
+      "result": "Exports the jQuery DomApi protocol overlay.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "Adapter does not own Views or supply application-owned $el.",
+      "mutation": "Queries/contents use jQuery; detach preserves listeners.",
+      "repetition": "Install before using the intended query shape; contents mutations repeat on current DOM.",
+      "destruction": "View lifecycle still owns destruction.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/dom.api.md",
+          "heading": "Optional jQuery adapter"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/jquery-dom-api.spec.js",
+          "title": "configures jQuery DOM operations independently of $el"
+        },
+        {
+          "file": "test/unit/jquery-dom-api.spec.js",
+          "title": "detaches elements without removing listeners with the jQuery DomApi"
+        }
+      ]
+    },
+    {
+      "id": "provider.static-consumers",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "DataApi"
+      ],
+      "result": "Plain objects and array snapshots remain exact borrowed sources; array order is read on explicit render.",
+      "timing": "Synchronous reads and explicit rendering; plain mutations do not notify consumers.",
+      "ownership": "Destroying a consumer does not dispose borrowed models or arrays.",
+      "mutation": "Explicit render refreshes a consumer; no retained-child guarantee across render or reset.",
+      "repetition": "Multiple consumers may share one source independently.",
+      "destruction": "Consumer destruction releases its Views without mutating the source.",
+      "diagnostics": [
+        "MN0037"
+      ],
+      "docs": [
+        {
+          "file": "docs/data.api.md",
+          "heading": "Adapter contract"
+        },
+        {
+          "file": "docs/choosing-integrations.md",
+          "heading": "Make the decision in this order"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/provider-acceptance.spec.js",
+          "title": "keeps shared static sources borrowed and refreshes only explicitly rendered consumers"
+        },
+        {
+          "file": "test/unit/data-api-integration.spec.js",
+          "title": "diagnoses declarative events on unobservable plain data"
+        }
+      ]
+    },
+    {
+      "id": "provider.native-consumers",
+      "entrypoints": [
+        "@mnjs/data"
+      ],
+      "exports": [
+        "DataApi",
+        "StateApi"
+      ],
+      "result": "Native Model identity survives key/id changes and reorder; Collection structural mutations notify all live consumers.",
+      "timing": "Provider notifications and reconciliation are synchronous.",
+      "ownership": "Supplied data/state sources are borrowed; factory-created state is disposed through StateApi.",
+      "mutation": "move preserves retained children and their DOM drafts; removing a model destroys its child. Reset is rebuilding semantics, not a pure reorder.",
+      "repetition": "Destroying one of multiple consumers leaves survivors observing the source.",
+      "destruction": "Removed consumers receive no later render notification; owned state subscriptions are released before disposal.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/data.api.md",
+          "heading": "Optional `@mnjs/data` sources"
+        },
+        {
+          "file": "docs/marionette.state.md",
+          "heading": "Borrowed and owned sources"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/provider-acceptance.spec.js",
+          "title": "preserves native data survivors and releases only the destroyed consumers"
+        },
+        {
+          "file": "test/unit/data-package/api-integration.spec.js",
+          "title": "retains a model child through id changes and removes it before a new model reuses the id"
+        },
+        {
+          "file": "test/unit/data-package/api-integration.spec.js",
+          "title": "supplies modelEvents, collectionEvents, and owned state disposal"
+        }
+      ]
+    },
+    {
+      "id": "provider.backbone-consumers",
+      "entrypoints": [
+        "@mnjs/adapters/backbone"
+      ],
+      "exports": [
+        "default"
+      ],
+      "result": "Backbone models retain reference identity; Backbone event names and callback arguments remain native.",
+      "timing": "Native Backbone events drive synchronous subscriptions and structural reconciliation.",
+      "ownership": "Backbone sources remain borrowed for data consumers; StateApi disposal releases subscriptions without calling Model.destroy.",
+      "mutation": "sort preserves child/DOM identity; remove destroys the removed child; reset rebuilds children.",
+      "repetition": "Multiple list/detail consumers share sources; disposal affects only the disposed consumer.",
+      "destruction": "Survivors continue rendering after another consumer is destroyed; borrowed source remains usable.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/adapters/readme.md",
+          "heading": "Backbone"
+        },
+        {
+          "file": "docs/optional-backbone.md",
+          "heading": "Native event identity and load order"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/provider-acceptance.spec.js",
+          "title": "preserves Backbone survivors and releases only the destroyed consumers"
+        },
+        {
+          "file": "test/unit/backbone-adapter.spec.js",
+          "title": "preserves native callback arguments for state, model, and collection events"
+        },
+        {
+          "file": "test/unit/backbone-adapter.spec.js",
+          "title": "unsubscribes owned Backbone state without calling Model#destroy"
+        },
+        {
+          "file": "test/unit/backbone-adapter.spec.js",
+          "title": "configures only the selected runtime"
+        }
+      ]
+    },
+    {
+      "id": "provider.actor-consumers",
+      "entrypoints": [
+        "@mnjs/adapters/xstate"
+      ],
+      "exports": [
+        "default"
+      ],
+      "result": "Actor reference is model identity; selection returns ordered distinct stable actor references. A respawned actor with the same id has new identity.",
+      "timing": "Snapshot/emitted-event subscriptions retain provider payloads and explicitly configured snapshot event name.",
+      "ownership": "Borrowed actors stay active after consumer destruction; only factory-owned state actors stop.",
+      "mutation": "Selected actor reorder retains child/DOM identity; unrelated snapshots do not reconcile; removing an actor destroys its child.",
+      "repetition": "Multiple consumers observe independently; released observers stop receiving updates.",
+      "destruction": "Owned actor subscriptions release before actor.stop; data consumers do not stop borrowed actors.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/data.api.md",
+          "heading": "XState actors"
+        },
+        {
+          "file": "packages/adapters/readme.md",
+          "heading": "XState actors"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/provider-acceptance.spec.js",
+          "title": "preserves actor survivors and releases only the destroyed consumers"
+        },
+        {
+          "file": "test/unit/xstate-adapter.spec.js",
+          "title": "ignores unrelated parent snapshots and supports multiple observers"
+        },
+        {
+          "file": "test/unit/xstate-adapter.spec.js",
+          "title": "treats a respawned actor with the same id as a new model identity"
+        },
+        {
+          "file": "test/unit/xstate-adapter.spec.js",
+          "title": "releases owned actor subscriptions before stopping the actor"
+        },
+        {
+          "file": "test/unit/xstate-adapter.spec.js",
+          "title": "stops only factory-owned state actors"
+        }
+      ]
+    },
+    {
+      "id": "provider.custom-state-consumers",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "DataApi",
+        "StateApi"
+      ],
+      "result": "Custom provider state/data retains opaque source identity and provider-owned event vocabulary.",
+      "timing": "Native provider notifications drive configured callbacks; valid cleanup callbacks are required.",
+      "ownership": "Multiple owners may borrow a state source; factory state alone is owned.",
+      "mutation": "A custom immutable store adapter can update list/detail contents while retaining child Views, focus and draft DOM.",
+      "repetition": "Destroying one owner releases only its subscriptions; remaining consumers continue.",
+      "destruction": "Successful cleanup removes externally tracked subscriptions and precedes owned-source disposal; synchronous failures abort without rollback or attempt-all cleanup.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/data.api.md",
+          "heading": "Adapter contract"
+        },
+        {
+          "file": "docs/marionette.state.md",
+          "heading": "StateApi"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/data-api-redux.spec.js",
+          "title": "updates lists and a detail without replacing child Views, and releases subscriptions"
+        },
+        {
+          "file": "test/unit/state-owner.spec.js",
+          "title": "lets multiple owners borrow one source and release only their subscriptions"
+        },
+        {
+          "file": "test/unit/state-owner.spec.js",
+          "title": "releases owned subscriptions before disposing the owned source exactly once"
+        },
+        {
+          "file": "test/unit/state-owner.spec.js",
+          "title": "passes adapter event names and callback arguments through unchanged"
+        }
+      ]
+    },
+    {
+      "id": "application-lifecycle",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "Application"
+      ],
+      "result": "Operations resolve true at the requested target, false when superseded, and compatible calls share in-flight promises. Current readiness failure rejects the operation promise.",
+      "timing": "Readiness is awaited; superseded signals abort before replacement readiness; adopted stop retains its original context/options without abort.",
+      "ownership": "Owned children participate in lifecycle order; direct opposing child operations cancel owner transitions and retain prior owner stable state.",
+      "mutation": "Canceled readiness cannot append stale framework completion events or alter stable state.",
+      "repetition": "Compatible repeated calls share promises; completed target requests are no-ops; canceled readiness resolves false.",
+      "destruction": "Destruction blocks owner and descendant start/restart; successful destruction destroys owned children. Readiness rejection preserves the documented retry and partial-child boundaries.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/marionette.application.md",
+          "heading": "Application Lifecycle"
+        },
+        {
+          "file": "docs/marionette.application.md",
+          "heading": "Application Ownership"
+        },
+        {
+          "file": "docs/events.class.md",
+          "heading": "Application Events"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/application-lifecycle.spec.js",
+          "title": "settles start only after asynchronous readiness completes"
+        },
+        {
+          "file": "test/unit/application-lifecycle.spec.js",
+          "title": "does not await a before event listener return value"
+        },
+        {
+          "file": "test/unit/application-lifecycle.spec.js",
+          "title": "aborts invalidated readiness before replacement readiness starts"
+        },
+        {
+          "file": "test/unit/application-lifecycle.spec.js",
+          "title": "transfers stop readiness without aborting its signal"
+        },
+        {
+          "file": "test/unit/application-lifecycle.spec.js",
+          "title": "shares a compatible in-flight start and no-ops once running"
+        },
+        {
+          "file": "test/unit/application-lifecycle.spec.js",
+          "title": "lets destroy supersede startup and prevents stale lifecycle work"
+        },
+        {
+          "file": "test/unit/model-based/application.spec.js",
+          "title": "preserves winning readiness, stable state, and child ownership across bounded interleavings"
+        }
+      ],
+      "events": [
+        {
+          "names": [
+            "before:start",
+            "before:stop",
+            "before:destroy"
+          ],
+          "arguments": [
+            "application",
+            "options",
+            "context"
+          ],
+          "timing": "Only matching onBefore* readiness hook result is awaited; listener return values are ignored."
+        },
+        {
+          "names": [
+            "start",
+            "stop",
+            "destroy"
+          ],
+          "arguments": [
+            "application",
+            "options"
+          ],
+          "timing": "Completion notifications; return values are not awaited."
+        }
+      ],
+      "members": [
+        "start",
+        "stop",
+        "restart",
+        "destroy",
+        "onBeforeStart",
+        "onBeforeStop",
+        "onBeforeDestroy",
+        "onStart",
+        "onStop",
+        "onDestroy"
+      ]
+    },
+    {
+      "id": "native-model",
+      "entrypoints": [
+        "@mnjs/data"
+      ],
+      "exports": [
+        "Model"
+      ],
+      "result": "Model instances expose attributes, identity and exact mutation/query results in generated signatures.",
+      "timing": "Synchronous; callbacks or adapters that throw abort the operation.",
+      "ownership": "No source ownership transfer.",
+      "mutation": "set/unset/clear/reset publish exact change records unless silent; missing and own undefined are distinct. Native Model subclasses are preserved.",
+      "repetition": "Nested writes complete synchronously as independent changes; destroy is idempotent.",
+      "destruction": "destroy notifies observers once; containing collections remove that model; later mutations do not revive it.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/data/readme.md",
+          "heading": "Mutation semantics"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/data-package/model.spec.js",
+          "title": "sets, unsets, clears, and resets attributes with exact change events"
+        },
+        {
+          "file": "test/unit/data-package/model.spec.js",
+          "title": "distinguishes own undefined values from absent values"
+        },
+        {
+          "file": "test/unit/data-package/model.spec.js",
+          "title": "destroys once after notifying observers"
+        }
+      ]
+    },
+    {
+      "id": "native-collection",
+      "entrypoints": [
+        "@mnjs/data"
+      ],
+      "exports": [
+        "Collection"
+      ],
+      "result": "Ordered access/iteration and mutation results use Model instances; lookup precedence is instance, id, then cid.",
+      "timing": "Synchronous; callbacks or adapters that throw abort the operation.",
+      "ownership": "Collections observe membership but do not own Model lifetimes; the same Model may belong to multiple Collections.",
+      "mutation": "add/remove produce normalized records; move/sort reorder; reset rebuilds membership; no Collection.set API exists.",
+      "repetition": "No-op/silent mutations follow their documented event rules; sort emits even if order is unchanged; destroy is idempotent.",
+      "destruction": "Successful destruction releases subscriptions; callback exceptions abort cleanup.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/data/readme.md",
+          "heading": "Mutation semantics"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/data-package/collection.spec.js",
+          "title": "provides ordered collection access and iteration"
+        },
+        {
+          "file": "test/unit/data-package/collection.spec.js",
+          "title": "uses exact instance, id, then cid precedence independently of order"
+        },
+        {
+          "file": "test/unit/data-package/collection.spec.js",
+          "title": "resets, moves, and sorts with exact records"
+        },
+        {
+          "file": "test/unit/data-package/collection.spec.js",
+          "title": "releases structural and model observation on idempotent destroy"
+        }
+      ]
+    },
+    {
+      "id": "morphdom-dom",
+      "entrypoints": [
+        "@mnjs/adapters/dom/morphdom"
+      ],
+      "exports": [
+        "default"
+      ],
+      "result": "Exports a DOM contents overlay; View rendering commits synchronously.",
+      "timing": "Synchronous; callbacks or adapters that throw abort the operation.",
+      "ownership": "Framework Views retain their normal ownership; DOM adapters own their rendering integration resources.",
+      "mutation": "Reconciles content while preserving the View root and matching survivor elements; owner Regions are cleaned before parent rendering.",
+      "repetition": "Repeated rendering updates content within the same root.",
+      "destruction": "Detach/reattach preserves the root; destroy releases rendering resources through normal View lifecycle.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/adapters/readme.md",
+          "heading": "Morphdom"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/contracts/dom-adapters.js",
+          "title": "${kind}: replaces initial contents, preserves root and survivor, and commits synchronously",
+          "runner": "test/unit/dom-adapters.spec.js"
+        }
+      ]
+    },
+    {
+      "id": "lit-html-dom",
+      "entrypoints": [
+        "@mnjs/adapters/dom/lit-html"
+      ],
+      "exports": [
+        "default"
+      ],
+      "result": "Exports a DOM contents overlay; View rendering commits synchronously.",
+      "timing": "Synchronous; callbacks or adapters that throw abort the operation.",
+      "ownership": "Framework Views retain their normal ownership; DOM adapters own their rendering integration resources.",
+      "mutation": "Reconciles content while preserving the View root and matching survivor elements; owner Regions are cleaned before parent rendering.",
+      "repetition": "Repeated rendering updates content within the same root.",
+      "destruction": "Detach/reattach preserves the root; destroy releases rendering resources through normal View lifecycle.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/adapters/readme.md",
+          "heading": "Lit HTML"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/contracts/dom-adapters.js",
+          "title": "${kind}: replaces initial contents, preserves root and survivor, and commits synchronously",
+          "runner": "test/unit/dom-adapters.spec.js"
+        }
+      ]
+    },
+    {
+      "id": "owner-events",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "MnObject",
+        "View",
+        "Region",
+        "Behavior",
+        "CollectionView",
+        "Application"
+      ],
+      "result": "on/off/once/listenTo/listenToOnce/stopListening/trigger return their receiver; triggerMethod has its own result contract.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "listenTo subscriptions belong to the listener; off removes source registrations.",
+      "mutation": "Dispatch preserves arguments and registration order; all receives event name first; callback errors stop dispatch.",
+      "repetition": "once is removed before callback/reentrant trigger; ordinary listeners repeat.",
+      "destruction": "Owner cleanup stops listening; Events itself has no destroy method.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/events.md",
+          "heading": "Events API"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/events-parity.spec.js",
+          "title": "preserves arguments and order for space-separated event names"
+        },
+        {
+          "file": "test/unit/events-parity.spec.js",
+          "title": "removes a once handler before a reentrant trigger"
+        },
+        {
+          "file": "test/unit/events-parity.spec.js",
+          "title": "cleans up listener bookkeeping as subscriptions are removed"
+        }
+      ],
+      "members": [
+        "on",
+        "off",
+        "once",
+        "trigger",
+        "listenTo",
+        "listenToOnce",
+        "stopListening"
+      ]
+    },
+    {
+      "id": "owner-trigger-method",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "MnObject",
+        "View",
+        "Region",
+        "Behavior",
+        "CollectionView",
+        "Application"
+      ],
+      "result": "Returns the matching onEventName method result; undefined when absent.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No ownership transfer.",
+      "mutation": "Calls the method before triggering the event with original arguments.",
+      "repetition": "Every call dispatches; throwing method prevents event dispatch.",
+      "destruction": "No cleanup or resurrection semantics are added.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/events.md",
+          "heading": "`triggerMethod`"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/common/trigger-method.spec.js",
+          "title": "calls the matching method before triggering the event"
+        },
+        {
+          "file": "test/unit/common/trigger-method.spec.js",
+          "title": "does not trigger the event when the matching method throws"
+        }
+      ],
+      "members": [
+        "triggerMethod"
+      ]
+    },
+    {
+      "id": "owner-get-option",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "MnObject",
+        "View",
+        "Region",
+        "Behavior",
+        "CollectionView",
+        "Application"
+      ],
+      "result": "Returns a defined option before the receiver property; undefined options fall back.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "mutation": "Reads options and receiver; does not call an option function.",
+      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
+      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/common/get-option.spec.js",
+          "title": "should return that definitions option"
+        }
+      ],
+      "members": [
+        "getOption"
+      ]
+    },
+    {
+      "id": "owner-merge-options",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "MnObject",
+        "View",
+        "Region",
+        "Behavior",
+        "CollectionView",
+        "Application"
+      ],
+      "result": "Returns undefined after copying selected defined options.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "mutation": "Copies selected own enumerable options onto the receiver; safely owns __proto__.",
+      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
+      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/common/merge-options.spec.js",
+          "title": "merges only own enumerable string options and safely owns __proto__"
+        }
+      ],
+      "members": [
+        "mergeOptions"
+      ]
+    },
+    {
+      "id": "owner-normalize-methods",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "MnObject",
+        "View",
+        "Region",
+        "Behavior",
+        "CollectionView",
+        "Application"
+      ],
+      "result": "Returns resolved callable handlers/maps; unresolved literal names raise a stable diagnostic.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "mutation": "Reads own enumerable binding entries and resolves receiver methods without subscribing.",
+      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
+      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "diagnostics": [
+        "MN0019"
+      ],
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/common/normalize-methods.spec.js",
+          "title": "throws a stable diagnostic when a named handler does not exist"
+        }
+      ],
+      "members": [
+        "normalizeMethods"
+      ]
+    },
+    {
+      "id": "owner-bind-events",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "MnObject",
+        "View",
+        "Region",
+        "Behavior",
+        "CollectionView",
+        "Application"
+      ],
+      "result": "Returns the receiver after registering/removing its listeners.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "mutation": "Uses listener ownership; selective maps remove only matching bindings.",
+      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
+      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/common/bind-events.spec.js",
+          "title": "rejects an own enumerable __proto__ event before binding"
+        }
+      ],
+      "members": [
+        "bindEvents",
+        "unbindEvents"
+      ]
+    },
+    {
+      "id": "owner-bind-requests",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "MnObject",
+        "View",
+        "Region",
+        "Behavior",
+        "CollectionView",
+        "Application"
+      ],
+      "result": "Returns the receiver after registering/removing replies with receiver context.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
+      "mutation": "Selective removal preserves replies owned by another context.",
+      "repetition": "Each call follows current input; onceWrap is consumed once and uniqueId advances its sequence.",
+      "destruction": "Standalone helpers have no owner lifetime; callers release registrations they create.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "packages/utils/readme.md",
+          "heading": "Helpers"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/common/bind-request.spec.js",
+          "title": "selectively removes caller-owned replies without disturbing other replies"
+        }
+      ],
+      "members": [
+        "bindRequests",
+        "unbindRequests"
+      ]
+    },
+    {
+      "id": "root-attributes",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "View",
+        "CollectionView"
+      ],
+      "members": [
+        "renderAttributes"
+      ],
+      "result": "Returns the View.",
+      "timing": "Synchronous; returned callback promises do not delay the operation.",
+      "ownership": "Does not transfer ownership; the owner keeps its existing composition.",
+      "mutation": "Applies current root attributes without rendering templates, emitting render lifecycle, rebinding composition or changing child identity.",
+      "repetition": "Operates on the current configuration; repeated reads are side-effect free.",
+      "destruction": "Does not evaluate root declarations while destroying or destroyed.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/marionette.view.md",
+          "heading": "Refreshing Root Attributes"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/view-render-attributes.spec.js",
+          "title": "does not render templates, emit lifecycle events, or rebind composition"
+        },
+        {
+          "file": "test/unit/view-render-attributes.spec.js",
+          "title": "does not evaluate declarations while destroying or destroyed"
+        }
+      ]
+    },
+    {
+      "id": "view-regions",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "View"
+      ],
+      "members": [
+        "hasRegion",
+        "getRegion",
+        "getRegions",
+        "addRegion",
+        "addRegions",
+        "removeRegion",
+        "removeRegions",
+        "emptyRegions",
+        "getChildView",
+        "showChildView",
+        "detachChildView"
+      ],
+      "result": "Queries return registrations/snapshots, supplied child or optional current child as declared; snapshots cannot mutate the owner.",
+      "timing": "Synchronous; returned callback promises do not delay the operation.",
+      "ownership": "The View owns named Regions; showChildView delegates child adoption; detachChildView releases a child alive.",
+      "mutation": "hasRegion/getRegion/getRegions inspect registrations without rendering. getChildView/showChildView/detachChildView and emptyRegions render an unrendered parent first; removal destroys the Region.",
+      "repetition": "Region registration reads are side-effect free; child operations skip parent rendering once it is rendered and retain their own show/detach effects.",
+      "destruction": "Owner destruction releases the relevant bindings; destroyed-owner guards remain in effect.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/marionette.view.md",
+          "heading": "Method results and side effects"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/view-get-regions.spec.js",
+          "title": "returns safe own-key snapshots without rendering an unrendered View"
+        },
+        {
+          "file": "test/unit/view-get-regions.spec.js",
+          "title": "renders before calling overridable getRegions and emptying its snapshot"
+        },
+        {
+          "file": "test/unit/view-has-region.spec.js",
+          "title": "remains a pure missing query after View destruction"
+        },
+        {
+          "file": "test/unit/view-get-region.spec.js",
+          "title": "renders before overridable getRegion and preserves its result"
+        }
+      ]
+    },
+    {
+      "id": "dom-events",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "View",
+        "CollectionView"
+      ],
+      "members": [
+        "delegateEvents",
+        "undelegateEvents"
+      ],
+      "result": "Returns the View.",
+      "timing": "Synchronous; returned callback promises do not delay the operation.",
+      "ownership": "Does not transfer ownership; the owner keeps its existing composition.",
+      "mutation": "Resolves current event maps, UI selectors, View triggers and Behavior handlers; redelegation releases prior handlers before installing replacements.",
+      "repetition": "Redelegation does not multiply handlers; destroyed calls are chainable no-ops.",
+      "destruction": "Owner destruction releases the relevant bindings; destroyed-owner guards remain in effect.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/dom.interactions.md",
+          "heading": "EventDelegator Adapter"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/view-dom-delegation.spec.js",
+          "title": "re-resolves callable event maps and changed UI selectors without duplicates"
+        },
+        {
+          "file": "test/unit/view-dom-delegation.spec.js",
+          "title": "treats delegation calls on a destroyed View as chainable no-ops"
+        }
+      ]
+    },
+    {
+      "id": "ui",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "View",
+        "CollectionView",
+        "Behavior"
+      ],
+      "members": [
+        "$",
+        "getUI",
+        "bindUIElements",
+        "unbindUIElements",
+        "normalizeUIKeys",
+        "normalizeUIString",
+        "normalizeUIValues"
+      ],
+      "result": "Queries return the configured adapter collection; UI names resolve selectors before binding and element collections after binding.",
+      "timing": "Synchronous; returned callback promises do not delay the operation.",
+      "ownership": "Does not transfer ownership; the owner keeps its existing composition.",
+      "mutation": "Normalizes @ui references, binds within the host root, and rebinds replacement contents; host UI keys win Behavior merges.",
+      "repetition": "Operates on the current configuration; repeated reads are side-effect free.",
+      "destruction": "Owner destruction releases the relevant bindings; destroyed-owner guards remain in effect.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/dom.interactions.md",
+          "heading": "Organizing a View with `ui`"
+        },
+        {
+          "file": "docs/marionette.behavior.md",
+          "heading": "UI resolution and binding"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/behavior-ui-contract.spec.js",
+          "title": "exposes selectors before binding and host-scoped element collections after render"
+        },
+        {
+          "file": "test/unit/behavior-ui-contract.spec.js",
+          "title": "rebinds Behavior UI to replacement elements after host rerender"
+        }
+      ]
+    },
+    {
+      "id": "serialization",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "View",
+        "CollectionView"
+      ],
+      "members": [
+        "getTemplate",
+        "serializeData",
+        "serializeModel",
+        "serializeCollection",
+        "mixinTemplateContext",
+        "attachElContent"
+      ],
+      "result": "Returns configured template/data/context or fluent content-attachment result as declared.",
+      "timing": "Synchronous; returned callback promises do not delay the operation.",
+      "ownership": "Does not transfer ownership; the owner keeps its existing composition.",
+      "mutation": "Serializes through configured DataApi; template context extends template data; attachElContent commits via DomApi without owning source data.",
+      "repetition": "Operates on the current configuration; repeated reads are side-effect free.",
+      "destruction": "Serialization itself does not dispose sources; rendering is blocked after owner destruction.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/view.rendering.md",
+          "heading": "Serializing Data"
+        },
+        {
+          "file": "docs/view.rendering.md",
+          "heading": "Adding Context Data"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/data-api-integration.spec.js",
+          "title": "renders a plain object without Backbone-shaped properties"
+        },
+        {
+          "file": "test/unit/data-api-integration.spec.js",
+          "title": "serializes a plain array for a View template"
+        }
+      ]
+    },
+    {
+      "id": "collection-presentation",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "CollectionView"
+      ],
+      "members": [
+        "filter",
+        "getFilter",
+        "setFilter",
+        "removeFilter",
+        "sort",
+        "getComparator",
+        "setComparator",
+        "removeComparator",
+        "isEmpty"
+      ],
+      "result": "Returns filter/comparator/query or receiver according to the signature.",
+      "timing": "Synchronous; returned callback promises do not delay the operation.",
+      "ownership": "Does not transfer ownership; the owner keeps its existing composition.",
+      "mutation": "Sort and filter change child presentation, not source membership; survivors retain identity and source comparators use current snapshots.",
+      "repetition": "Set/remove options can defer rendering; reapplying presentation keeps retained children.",
+      "destruction": "Owner destruction releases the relevant bindings; destroyed-owner guards remain in effect.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/marionette.collectionview.md",
+          "heading": "Sorting the `children`"
+        },
+        {
+          "file": "docs/marionette.collectionview.md",
+          "heading": "Filtering the `children`"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/data-api-integration.spec.js",
+          "title": "reads plain properties for string comparators and object filters"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-sorting.spec.js",
+          "title": "reads one source snapshot when sorting an existing list"
+        },
+        {
+          "file": "test/unit/collection-view/collection-view-reconciliation.spec.js",
+          "title": "reattaches a filtered child when detachHtml retains its element"
+        }
+      ]
+    },
+    {
+      "id": "application-composition",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "Application"
+      ],
+      "result": "Construction and addChildApp/showView return their public instance; removeChildApp returns a Promise of the removed child or undefined; queries return the declared state or optional owner member.",
+      "timing": "Construction, registration, root-view display and queries are synchronous; removeChildApp awaits child destruction before releasing ownership.",
+      "ownership": "Named children belong to the Application until removal; the configured Region owns its current View.",
+      "mutation": "Queries do not render; showView displays the supplied child synchronously; child registration/removal coordinates with the owner lifecycle.",
+      "repetition": "Duplicate identical registrations and missing lookups/removals follow documented ownership guards.",
+      "destruction": "Destroy tears down owned children and a constructed root Region; it empties but preserves a supplied borrowed Region.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/marionette.application.md",
+          "heading": "Application Lifecycle"
+        },
+        {
+          "file": "docs/marionette.application.md",
+          "heading": "Application Ownership"
+        },
+        {
+          "file": "docs/events.class.md",
+          "heading": "Application Events"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/application-ownership.spec.js",
+          "title": "registers nested Applications for owner-side lookup"
+        },
+        {
+          "file": "test/unit/application-ownership.spec.js",
+          "title": "returns a fresh child snapshot"
+        },
+        {
+          "file": "test/unit/application-ownership.spec.js",
+          "title": "removes and destroys an owned child"
+        },
+        {
+          "file": "test/unit/application-ownership.spec.js",
+          "title": "retains a child when removal destroy readiness fails"
+        },
+        {
+          "file": "test/unit/application-root-view.spec.js",
+          "title": "shows and reads the current View of its Region"
+        },
+        {
+          "file": "test/unit/application-root-view.spec.js",
+          "title": "destroys an externally shown View but preserves its borrowed Region"
+        }
+      ],
+      "members": [
+        "initialize",
+        "preinitialize",
+        "addChildApp",
+        "removeChildApp",
+        "getChildApp",
+        "getChildApps",
+        "hasChildApp",
+        "getName",
+        "getRegion",
+        "getView",
+        "showView",
+        "isRunning",
+        "isDestroyed"
+      ]
+    },
+    {
+      "id": "class-configuration",
+      "entrypoints": [
+        "marionette"
+      ],
+      "exports": [
+        "View",
+        "CollectionView",
+        "Region",
+        "Behavior",
+        "MnObject",
+        "Application"
+      ],
+      "result": "Class setters return the receiving class; extend returns a child constructor; call/apply use the declared callable constructor contract.",
+      "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
+      "ownership": "Runtime configuration and Radio channels are isolated; class setters affect that class and descendants.",
+      "mutation": "Setters configure the selected class; extend creates prototype inheritance; call/apply invoke construction on the supplied receiver.",
+      "repetition": "Setters replace/overlay the configured capability; fresh runtimes start from pristine defaults.",
+      "destruction": "Configuration does not own existing sources or destroy consumers.",
+      "diagnostics": [],
+      "docs": [
+        {
+          "file": "docs/runtime-isolation.md",
+          "heading": "Configuration method contract"
+        },
+        {
+          "file": "docs/utils.md",
+          "heading": "extend"
+        }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/create-marionette.spec.js",
+          "title": "isolates renderer, DomApi, DataApi, StateApi, and EventDelegator configuration"
+        },
+        {
+          "file": "test/unit/create-marionette.spec.js",
+          "title": "keeps class-level setters local to a specialized subclass"
+        },
+        {
+          "file": "test/unit/runtime/event-delegator.spec.js",
+          "title": "uses the current adapter for new registrations and the original cleanup for old ones"
+        },
+        {
+          "file": "test/unit/utils/extend.spec.js",
+          "title": "backs every exported Marionette pseudo-class"
+        }
+      ],
+      "members": [
+        "extend",
+        "call",
+        "apply",
+        "setRenderer",
+        "setDomApi",
+        "setDataApi",
+        "setStateApi",
+        "setEventDelegator"
+      ]
+    }
+  ]
+}

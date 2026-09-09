@@ -9,8 +9,9 @@ import ts from 'typescript';
 export const root = fileURLToPath(new URL('../../', import.meta.url));
 const sha256 = value => createHash('sha256').update(value).digest('hex');
 
-export async function resolvePolicy(directory = root) {
-  const raw = await readFile(join(directory, 'config/mutation.json'));
+export async function resolvePolicy(directory = root, profile = 'runtime') {
+  if (!['runtime', 'release'].includes(profile)) { throw new Error(`Unknown mutation profile: ${profile}`); }
+  const raw = await readFile(join(directory, profile === 'release' ? 'config/mutation-release.json' : 'config/mutation.json'));
   const policy = JSON.parse(raw);
   if (policy.schemaVersion !== 1 || policy.concurrency !== 2 || !Number.isInteger(policy.budgetMs) ||
       policy.budgetMs < 1 || policy.budgetMs > 600000 || !policy.targets?.length || !policy.testFiles?.length) {
@@ -105,18 +106,21 @@ export function runBudgeted(command, args, options) {
 }
 
 export async function main(args = process.argv.slice(2)) {
-  if (args.length) { throw new Error('Usage: node scripts/testing/mutation.mjs (policy: config/mutation.json)'); }
-  const policy = await resolvePolicy();
+  if (args.length && (args.length !== 2 || args[0] !== '--profile' || !['runtime', 'release'].includes(args[1]))) {
+    throw new Error('Usage: node scripts/testing/mutation.mjs [--profile runtime|release]');
+  }
+  const profile = args[1] || 'runtime';
+  const policy = await resolvePolicy(root, profile);
   const runId = `${new Date().toISOString().replace(/[:.]/g, '-')}-${process.pid}`;
   const output = join(root, 'coverage/mutation', runId);
   await mkdir(output, { recursive: true });
   const startedAt = new Date().toISOString();
   const testInputs = [];
-  for await (const file of glob([...policy.testFiles, 'test/unit/model-based/*.js', 'test/setup/*.js', 'package.json', 'config/coverage-exceptions.json', 'vitest.config.js', 'stryker.config.mjs', 'scripts/testing/mutation.mjs'], { cwd: root })) {
+  for await (const file of glob([...policy.testFiles, 'test/unit/model-based/*.js', 'test/setup/*.js', 'package.json', 'config/coverage-exceptions.json', 'vitest.config.js', 'stryker.config.mjs', 'scripts/.babelrc', 'scripts/testing/mutation.mjs'], { cwd: root })) {
     testInputs.push({ file, sha256: sha256(await readFile(join(root, file))) });
   }
   testInputs.sort((first, second) => first.file.localeCompare(second.file));
-  const provenance = { schemaVersion: 1, startedAt, node: process.version, policy,
+  const provenance = { schemaVersion: 1, startedAt, node: process.version, profile, policy,
     testInputs,
     modelEnvironment: Object.fromEntries(['MARIONETTE_MODEL_SEED', 'MARIONETTE_MODEL_RUNS', 'MARIONETTE_MODEL_STEPS', 'MARIONETTE_MODEL_PATH', 'MARIONETTE_MODEL_REPLAY_PATH']
       .map(name => [name, process.env[name] ?? null])),
@@ -127,7 +131,7 @@ export async function main(args = process.argv.slice(2)) {
   await writeFile(join(output, 'provenance.json'), `${JSON.stringify(provenance, null, 2)}\n`);
   console.log(`Mutation artifacts: ${output}`);
   const outcome = await runBudgeted(process.execPath, [join(root, 'node_modules/@stryker-mutator/core/bin/stryker.js'), 'run', 'stryker.config.mjs'], {
-    cwd: root, env: { ...process.env, MARIONETTE_MUTATION_RUN_ID: runId }, budgetMs: policy.budgetMs, logFile: join(output, 'run.log')
+    cwd: root, env: { ...process.env, MARIONETTE_MUTATION_RUN_ID: runId, MARIONETTE_MUTATION_PROFILE: profile }, budgetMs: policy.budgetMs, logFile: join(output, 'run.log')
   });
   const summary = { ...outcome, startedAt, finishedAt: new Date().toISOString(), complete: false };
   try {

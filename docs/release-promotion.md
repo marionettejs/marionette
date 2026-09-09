@@ -95,7 +95,16 @@ dispatching the protected workflow. Changing this policy changes the source comm
 and invalidates prior certification; rebuild and certify the authorization commit
 before publication.
 
-Prereleases use npm `next` and a GitHub prerelease, never npm `latest`. A later beta
+Until the first stable v5 release, the current v5 prerelease uses npm `latest`
+and remains a GitHub prerelease. Beta.1 is intentionally on `latest`; its existing
+`next` tag may point to the same version. Once stable v5 ships, change
+`npm.prereleaseTag` to `next` before authorizing subsequent prereleases so `latest`
+continues to identify stable v5. Verification checks the policy-selected dist-tag
+for every package. Tag changes require an authorized release operation;
+verification never repairs registry state.
+A missing or stale tag fails with the affected package and expected version.
+After correcting publication or propagation, rerun verification against the same
+certified artifacts. A later beta
 needs a new explicit version authorization. Do not bypass the workflow with an
 ad hoc core-only publish. The existing environment name `stable-release` is also
 used for prereleases so npm trusted-publisher identities remain exact.
@@ -124,6 +133,11 @@ that authorization:
    is stored in GitHub.
 5. Dispatch the workflow from `master` with `publish` true and approve the protected
    environment only after reviewing the source commit and evidence artifact.
+
+Documentation exports derive their channel from the candidate version and this
+policy, independently of whether publication is currently authorized. Both stable
+and pre-stable v5 metadata currently use `latest`; the post-stable prerelease
+channel becomes `next` through the policy change described above.
 
 An initial publication requires unused npm, tag, and release targets. A recovery
 rerun may continue when npm integrity and the Git tag already match the verified
@@ -178,3 +192,22 @@ from the GitHub environment or the successful publication dry run. Follow npm's
 [trusted publisher setup](https://docs.npmjs.com/trusted-publishers/) and retain
 verification evidence for each package before enabling publication. No publication
 token or credential belongs in the repository.
+
+## Published provenance evidence
+
+`verify-npm` requires each of the five exact package versions to expose npm SLSA
+provenance metadata, in addition to matching integrity and the configured channel.
+It retries delayed metadata propagation before the GitHub release becomes public.
+This confirms registry metadata availability; it is not cryptographic verification
+of the attestation. For an installed release, run `npm audit signatures` to verify
+registry signatures and the available provenance, as described in
+[npm's verification guide](https://docs.npmjs.com/viewing-package-provenance/).
+A passing signature audit alone does not prove all five packages have provenance;
+the explicit presence check covers that gap.
+
+On 2026-09-09, beta.1's core package exposed SLSA provenance while the four
+companion packages did not. That historical publication is not an all-package
+provenance success. Existing tarballs are immutable and are not republished by
+these checks. The next authorized version must establish the five-package result;
+missing provenance requires diagnosing its publication path before a new version,
+not silently waiving the requirement or changing `latest`.

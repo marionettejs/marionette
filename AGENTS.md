@@ -15,6 +15,11 @@ development/test, an existing production path, or an opt-in runtime path.
 Implement one canonical behavior. Do not add compatibility paths without a
 verified requirement and a removal condition.
 
+During v5 stabilization, flag any necessary production-library change before
+applying it. Present the supported public reproduction, proposed source/API change,
+and runtime cost so the maintainer can scrutinize it. Tooling, test, or mutation
+failures alone do not authorize changes to `src/` or `packages/*/src/`.
+
 Use authored TypeScript source and public package APIs. Keep agent guidance,
 benchmarks, inspection tools, and development helpers out of production imports.
 An unused optional feature must add no per-instance resources or global registry.
@@ -30,7 +35,7 @@ alone. Do not publish, release, or deploy without authorization for that action.
 - Never call, read, override, spy on, stub, or assert private framework members. Do not create production APIs solely for tests.
 - Assert observable DOM, identity, public events, return values, ownership, and externally tracked subscription cleanup. Internal source dependency checks belong to architecture tooling, not runtime contract tests.
 - Use explicit Vitest imports and native mocks. No global Mocha wrappers or Sinon. Prefer called matchers so lint can detect missing assertions and unawaited asynchronous assertions.
-- Create an isolated runtime with `createMarionette()` for configuration changes. Backbone integration is opt-in; core tests must exercise the neutral default too.
+- Create an isolated runtime with `createMarionette()` for configuration changes. Core tests use native data or small neutral contract fixtures. Use Backbone when specifically testing the optional Backbone adapters.
 - Destroy owned objects and release fixtures in each test. Never make a test pass by relying on another test's configuration or cleanup.
 - When a public refactor exposes unreachable defensive code, document it in `config/coverage-exceptions.json`. Each other source file remains at 100% coverage. Never add coverage ignores or private probes to manufacture 100%.
 

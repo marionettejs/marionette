@@ -1,5 +1,8 @@
 [
   "config/diagnostics/catalog.json",
+  "config/api-contracts/inventory.json",
+  "config/api-contracts/semantics.json",
+  "scripts/api-contracts/README.md",
   "test/fixtures/docs-application-guides/package.json",
   "test/fixtures/docs-application-guides/validate.mjs",
   "test/fixtures/docs-routing/package.json",

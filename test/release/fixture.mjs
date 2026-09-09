@@ -113,7 +113,8 @@ async function fixture(t, { publication = { stable: false, prerelease: null }, v
 async function successfulValidation(candidate) {
   const checks = [
     ['profile', 'check:release-profile'], ['browser-profile', 'check:browser-profile'],
-    ['diagnostics', 'check:diagnostics'], ['public-tests', 'check:public-tests'], ['workflows', 'check:workflows'],
+    ['diagnostics', 'check:diagnostics'], ['api-contracts', 'check:api-contracts'],
+    ['public-tests', 'check:public-tests'], ['workflows', 'check:workflows'],
     ['source-types', 'check:types'], ['consumer-types', 'test:types'], ['lint', 'lint:ci'],
     ['tooling', 'coverage:tooling'], ['source', 'test:source'], ['coverage', 'coverage'],
     ['documentation', 'docs:check'], ['distribution', 'test:dist'], ['browser', 'test:browser'],

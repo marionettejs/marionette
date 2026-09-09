@@ -14,8 +14,8 @@ installed declarations, and existing Marionette configuration. Record:
 - the source revision for a checkout or custom artifact;
 - the selected renderer, data/state sources, DOM integrations, and router.
 
-This documentation describes the current source. An npm alpha with the same
-version string may contain older code. A website example, a copied prompt, or a
+This documentation describes the current source. A local build with the same
+version string may contain different code. A website example, a copied prompt, or a
 third-party search result is not proof that the installed package has that API.
 Match the documentation's source revision to the artifact when available, then
 check the installed exports and declarations. Reproduce uncertain behavior with
@@ -27,6 +27,9 @@ application, use the [migration guide](./migration-from-v4.md) and
 silently upgrade dependencies to make an example fit.
 
 ## Read for the task
+
+Use the [compact framework reference](./compact-reference.md) for an overview of
+contracts, ownership, imports, and diagnostics before opening the specific guide.
 
 | Task | Start here | Verify |
 | --- | --- | --- |

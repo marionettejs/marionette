@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
 import compile from './build/babel.js';
 import json from '@rollup/plugin-json';
 import terser from '@rollup/plugin-terser';
@@ -13,6 +14,21 @@ const bundlePackages = {
 };
 
 export default [
+  {
+    input: 'tools/eslint/index.mjs',
+    output: [
+      { file: 'dist/eslint/index.js', format: 'es' },
+      { file: 'dist/eslint/index.cjs', format: 'cjs', exports: 'default' },
+    ],
+    plugins: [{
+      name: 'eslint-declarations',
+      generateBundle() {
+        for (const fileName of ['index.d.ts', 'index.d.cts']) {
+          this.emitFile({ type: 'asset', fileName, source: readFileSync(`tools/eslint/${fileName}`, 'utf8') });
+        }
+      },
+    }],
+  },
   {
     input: 'build/version.js',
     output: [

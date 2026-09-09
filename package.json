@@ -24,7 +24,17 @@
       },
       "default": "./dist/marionette.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./eslint": {
+      "import": {
+        "types": "./dist/eslint/index.d.ts",
+        "default": "./dist/eslint/index.js"
+      },
+      "require": {
+        "types": "./dist/eslint/index.d.cts",
+        "default": "./dist/eslint/index.cjs"
+      }
+    }
   },
   "files": [
     "dist/",
@@ -106,7 +116,11 @@
     "agent:app": "node scripts/agent-benchmark/serve.mjs",
     "test:agent-app": "playwright test --config test/agent-benchmark/playwright.config.mjs",
     "test:model": "vitest run test/unit/model-based",
-    "test:mutation": "node scripts/testing/mutation.mjs"
+    "test:mutation": "node scripts/testing/mutation.mjs",
+    "check:api-contracts": "node scripts/api-contracts/check.mjs",
+    "performance:browser": "npm run build && node scripts/performance/browser.mjs",
+    "test:browser-performance": "node scripts/performance/browser.mjs --profile validation",
+    "performance:retention": "npm run build && node scripts/performance/retention.mjs"
   },
   "bugs": {
     "url": "https://github.com/marionettejs/marionette/issues"
@@ -172,6 +186,14 @@
       "typed-rest-client": {
         "qs": "6.16.0"
       }
+    }
+  },
+  "peerDependencies": {
+    "eslint": "^10.0.0"
+  },
+  "peerDependenciesMeta": {
+    "eslint": {
+      "optional": true
     }
   }
 }

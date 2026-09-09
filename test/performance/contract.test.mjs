@@ -18,6 +18,10 @@ import {
   validateContract,
   validateToolchain,
 } from '../../scripts/performance/bundle-size.mjs';
+import {
+  isToolingArtifact,
+  isToolingExport,
+} from '../../scripts/performance/runtime-scope.mjs';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 
@@ -88,6 +92,32 @@ describe('performance contract validation', () => {
       [...collectRuntimePaths({ import: './dist/index.mjs', types: './dist/index.d.ts' })],
       ['dist/index.mjs']
     );
+  });
+
+  test('classifies only the exact public ESLint export as tooling', () => {
+    const eslintPaths = ['dist/eslint/index.js', 'dist/eslint/index.cjs'];
+    assert.equal(isToolingArtifact('dist/eslint/index.js'), true);
+    assert.equal(isToolingArtifact('dist/eslint/extra.js'), false);
+    assert.equal(isToolingExport('marionette', './eslint', eslintPaths), true);
+    assert.equal(isToolingExport('marionette', './eslint', [...eslintPaths, 'dist/eslint/extra.js']), false);
+    assert.equal(isToolingExport('other', './eslint', eslintPaths), false);
+
+    const contract = contractFor(['dist/index.mjs']);
+    const packageJson = {
+      name: 'marionette',
+      exports: {
+        '.': { import: './dist/index.mjs' },
+        './eslint': {
+          import: './dist/eslint/index.js',
+          require: './dist/eslint/index.cjs'
+        }
+      }
+    };
+    assert.deepEqual(validateContract(contract, packageJson, ['dist/index.mjs']), []);
+
+    packageJson.exports['./eslint'].import = './dist/eslint/extra.js';
+    assert.match(validateContract(contract, packageJson, ['dist/index.mjs']).join('\n'),
+      /Declared runtime artifacts missing from the contract: dist\/eslint/);
   });
 
   test('anchors Rollup inputs to the measured checkout', () => {
@@ -956,6 +986,19 @@ describe('performance contract validation', () => {
     );
 
     assert.ok(contract.forbiddenProductionModulePrefixes.includes('scripts/'));
+    assert.ok(contract.forbiddenProductionModulePrefixes.includes('dist/eslint/'));
+    assert.ok(contract.forbiddenProductionModulePrefixes.includes('eslint-rules/'));
+    assert.ok(contract.forbiddenProductionModulePrefixes.includes('tools/'));
+    assert.deepEqual(findForbiddenModules([
+      'src/index.ts',
+      'dist/eslint/index.js',
+      'eslint-rules/no-private.js',
+      'tools/eslint/build.mjs'
+    ], contract), [
+      'dist/eslint/index.js',
+      'eslint-rules/no-private.js',
+      'tools/eslint/build.mjs'
+    ]);
     const scriptModules = await listRuntimeFiles(join(root, 'scripts'), root);
     assert.ok(scriptModules.length > 0);
     assert.deepEqual(findForbiddenModules(scriptModules, contract), scriptModules);

@@ -94,11 +94,25 @@ the report, including unexecuted files.
 
 ## Public operation models
 
+`npm run check:api-contracts` verifies the source-derived public inventory and its
+explicit semantic/evidence mappings. It runs in normal verification, CI and packed
+candidate validation. Regeneration requires reviewing the changed public contract;
+see `scripts/api-contracts/README.md`. It does not replace behavioral tests.
+
 `npm run test:model` replays deterministic consumer-owned lifecycle models; these
 also run in the normal unit suite. `npm run test:mutation` measures a bounded
 ownership/subscription subset with two workers and a ten-minute deadline. The
 manual Mutation workflow retains complete and partial reports. See
 [model replay and measured survivors](unit/model-based/README.md).
+
+`npm run test:mutation -- --profile release` selects only release authorization,
+channel selection and immutable npm recovery decisions. It uses Node's test runner
+through Stryker's command runner with the same two-worker, ten-minute bound and
+retained source/test/lock hashes. It does not contact npm or GitHub. The separate
+end-to-end release CLI fixtures remain required; this pilot is not evidence for
+every publication failure path. Neither profile enforces a mutation score.
+The empty `scripts/.babelrc` keeps native Node tooling outside the library's Babel
+build presets, including when Stryker parses release scripts with its own Babel.
 
 ## Locked consumer fixtures
 
@@ -142,7 +156,9 @@ Candidate validation runs required checks and tests browser/distribution/fixture
 consumers against the original tarballs. Its separate validation record binds logs,
 three-engine browser results, fixture results and lock hashes to the immutable
 release evidence. Failed/incomplete/mismatched evidence cannot be promoted.
-Publication remains disabled by `config/release-promotion.json`.
+`config/release-promotion.json` separately authorizes stable publication and one
+exact prerelease version. Stable publication remains disabled; beta.1 is the
+currently authorized prerelease. Validation never grants publication permission.
 
 ## Dependency maintenance
 

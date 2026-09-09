@@ -4,6 +4,34 @@ See the [v4-to-v5 compatibility ledger](docs/migration-from-v4.md) for the
 current public behavior boundary. Final migration documentation is tracked in
 [issue #147](https://github.com/marionettejs/marionette/issues/147).
 
+## Migrate one application at a time
+
+1. Save the working lockfile and a tested application revision. Replace
+   `backbone.marionette` with `marionette` and install matching versions of the
+   `@mnjs/*` packages you use. Use the selected runtime’s Radio: import `Radio`
+   from `marionette` for the default runtime, or use `runtime.Radio` with
+   `createMarionette()`. Upgrade these packages together; a source checkout can contain changes absent from beta.1.
+2. Choose the [data, state and DOM integrations](docs/choosing-integrations.md).
+   Configure them before constructing consumers, using an isolated runtime if
+   multiple configurations share a page. Backbone and jQuery are explicit choices.
+3. Migrate managed children to Marionette View instances and fixed constructor
+   roots. Replace `setElement`, implicit View construction and removed child
+   helper aliases using the [compatibility ledger](docs/migration-from-v4.md).
+   Keep the existing application's routing and domain model unless it needs a change.
+4. Await Application `start`, `stop`, `restart` and `destroy` results at the
+   application boundary. Make asynchronous readiness respect cancellation before
+   committing side effects. Distinguish borrowed state/Regions from owned factories.
+5. Use the shipped public declarations and run the application's type/build
+   checks. Test startup, navigation cancellation, child replacement, editable
+   focus/drafts, repeated mounts and teardown through public behavior in a browser.
+6. Deploy the tested application revision and its lockfile together. If its
+   behavior fails, restore that pair and diagnose the public reproduction before
+   retrying. Do not retain parallel old/new framework initialization paths.
+
+The sections below explain the specific API changes. The library's fixtures
+validate supported integration patterns; they do not establish that an untested
+consumer application has migrated successfully.
+
 ## Use the included TypeScript declarations
 
 The `marionette` package includes declarations for its public exports in ESM and

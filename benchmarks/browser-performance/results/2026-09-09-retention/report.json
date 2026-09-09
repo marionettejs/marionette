@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "startedAt": "2026-09-09T08:33:40.905Z",
+  "source": {
+    "commit": "7a61aa8cae9a41f495d19c281950d48b608415ab",
+    "dirty": false,
+    "sha256": {
+      "scripts/performance/retention.mjs": "255a32b8196f56f4c8d8cf2d7c8e334c8cfadf38068a202a9292e3faa0c8bde9",
+      "scripts/performance/browser.mjs": "d3e8cfe0d4c84095ca1292023487323f3f0761964788045da795bc389a58d9ae",
+      "benchmarks/browser-performance/retention/workloads.js": "29b6145ba7d0f8f1ebf453386b54dbd66da2a63cc9750ab207cbf4f1c4571b02",
+      "config/release-profile.json": "4bad1c8507e0b38c48d44caed2d4d51ca63045d9b0c398b19ebeb82ce3880d34",
+      "package.json": "26722b29514f5a48c277675c2325f99060437056a0011518b8a04d2c71ce3268",
+      "package-lock.json": "24b2cb9a4d11ac4ff119585f84a3c70c58ab2fa64259f91e80d6cf3f7988b2f6",
+      "dist/marionette.js": "a4c624b9aea864f7a5f22490232c20d890ffb0d8acd4940dce8af90c78a9910d",
+      "packages/data/dist/index.js": "da6755761f150e92157a2f0ffc5431397a4a67720e910fa8ef7318b2823e1e0e",
+      "packages/radio/dist/index.js": "fd1fd24c734e25e4f6c13077f988ee1a724116def2cf5f4c6ded212652570004",
+      "packages/utils/dist/index.js": "17566362a6023697f02e51e387caadbaf089c9469a023fdb1ebf637b87dec5b4"
+    }
+  },
+  "profile": {
+    "browser": "chromium",
+    "headless": true,
+    "accessibilityInstrumentation": false,
+    "monitorViewEvents": true,
+    "batches": 6,
+    "cyclesPerBatch": 50,
+    "warmupBatches": 2,
+    "deadlineMilliseconds": 120000,
+    "garbageCollection": "CDP HeapProfiler.collectGarbage, twice per observation"
+  },
+  "host": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "cpuModel": "Apple M2 Pro",
+    "node": "v24.19.0"
+  },
+  "samples": [
+    {
+      "phase": "warmup",
+      "index": -2,
+      "cycles": 50,
+      "tracked": 2100,
+      "retainedInputs": 450,
+      "withLiveInputs": {
+        "input": 450
+      },
+      "afterInputRelease": {},
+      "heap": {
+        "usedSize": 1568612,
+        "totalSize": 2621440,
+        "embedderHeapUsedSize": 626072,
+        "backingStorageSize": 144094
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 7,
+        "jsEventListeners": 0
+      }
+    },
+    {
+      "phase": "warmup",
+      "index": -1,
+      "cycles": 50,
+      "tracked": 2100,
+      "retainedInputs": 450,
+      "withLiveInputs": {
+        "input": 450
+      },
+      "afterInputRelease": {},
+      "heap": {
+        "usedSize": 1610476,
+        "totalSize": 2621440,
+        "embedderHeapUsedSize": 592624,
+        "backingStorageSize": 144094
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 7,
+        "jsEventListeners": 0
+      }
+    },
+    {
+      "phase": "sample",
+      "index": 0,
+      "cycles": 50,
+      "tracked": 2100,
+      "retainedInputs": 450,
+      "withLiveInputs": {
+        "input": 450
+      },
+      "afterInputRelease": {},
+      "heap": {
+        "usedSize": 1629300,
+        "totalSize": 2621440,
+        "embedderHeapUsedSize": 627416,
+        "backingStorageSize": 144094
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 7,
+        "jsEventListeners": 0
+      }
+    },
+    {
+      "phase": "sample",
+      "index": 1,
+      "cycles": 50,
+      "tracked": 2100,
+      "retainedInputs": 450,
+      "withLiveInputs": {
+        "input": 450
+      },
+      "afterInputRelease": {},
+      "heap": {
+        "usedSize": 1638464,
+        "totalSize": 2621440,
+        "embedderHeapUsedSize": 594120,
+        "backingStorageSize": 144094
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 7,
+        "jsEventListeners": 0
+      }
+    },
+    {
+      "phase": "sample",
+      "index": 2,
+      "cycles": 50,
+      "tracked": 2100,
+      "retainedInputs": 450,
+      "withLiveInputs": {
+        "input": 450
+      },
+      "afterInputRelease": {},
+      "heap": {
+        "usedSize": 1666096,
+        "totalSize": 2621440,
+        "embedderHeapUsedSize": 601232,
+        "backingStorageSize": 144094
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 7,
+        "jsEventListeners": 0
+      }
+    },
+    {
+      "phase": "sample",
+      "index": 3,
+      "cycles": 50,
+      "tracked": 2100,
+      "retainedInputs": 450,
+      "withLiveInputs": {
+        "input": 450
+      },
+      "afterInputRelease": {},
+      "heap": {
+        "usedSize": 1669172,
+        "totalSize": 2621440,
+        "embedderHeapUsedSize": 618736,
+        "backingStorageSize": 144094
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 7,
+        "jsEventListeners": 0
+      }
+    },
+    {
+      "phase": "sample",
+      "index": 4,
+      "cycles": 50,
+      "tracked": 2100,
+      "retainedInputs": 450,
+      "withLiveInputs": {
+        "input": 450
+      },
+      "afterInputRelease": {},
+      "heap": {
+        "usedSize": 1678372,
+        "totalSize": 2621440,
+        "embedderHeapUsedSize": 585288,
+        "backingStorageSize": 144094
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 7,
+        "jsEventListeners": 0
+      }
+    },
+    {
+      "phase": "sample",
+      "index": 5,
+      "cycles": 50,
+      "tracked": 2100,
+      "retainedInputs": 450,
+      "withLiveInputs": {
+        "input": 450
+      },
+      "afterInputRelease": {},
+      "heap": {
+        "usedSize": 1672928,
+        "totalSize": 2621440,
+        "embedderHeapUsedSize": 596912,
+        "backingStorageSize": 144094
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 7,
+        "jsEventListeners": 0
+      }
+    }
+  ],
+  "limits": [
+    "Only the selected successful public lifecycles are observed.",
+    "Live external inputs remain reachable during owner collection; then inputs are released and collected.",
+    "Heap and DOM counters are contextual measurements, not portable leak thresholds or a timing baseline.",
+    "No private framework fields or production instrumentation are used."
+  ],
+  "browserVersion": "153.0.8010.12",
+  "positiveControl": {
+    "held": true,
+    "released": false
+  },
+  "completedAt": "2026-09-09T08:33:41.936Z"
+}

@@ -44,7 +44,8 @@ test('partial npm publication retries only absent versions and verifies every ex
   assert.equal(verify.status, 0, verify.stderr);
   assert.equal(JSON.parse(verify.stdout).tag, 'exact');
   const calls = await candidate.calls();
-  assert.equal(calls.filter(call => call.tool === 'npm').length, 10);
+  assert.equal(calls.filter(call => call.tool === 'npm' && call.args[2] === 'dist.integrity').length, 10);
+  assert.equal(calls.filter(call => call.tool === 'npm' && call.args[2] === 'dist-tags').length, 5);
   assert.ok(calls.filter(call => call.tool === 'npm').every(call => call.args[0] === 'view'));
 });
 
@@ -197,9 +198,91 @@ test('npm integrity verification retries propagation delay without publishing a 
   assert.equal(result.status, 0, result.stderr);
   assert.match(result.stderr, /retrying in 5 seconds/);
   const npmCalls = (await candidate.calls()).filter(call => call.tool === 'npm');
-  assert.equal(npmCalls.length, 6);
+  assert.equal(npmCalls.filter(call => call.args[2] === 'dist.integrity').length, 6);
   assert.equal(npmCalls[0].args[1], npmCalls[1].args[1]);
   assert.ok(npmCalls.every(call => call.args[0] === 'view'));
+});
+
+for (const [name, tags, error] of [
+  ['missing latest', {}, /latest must point/],
+  ['stale latest', { latest: '5.0.0-test.0' }, /latest must point/],
+  ['only next', { next: '5.0.0-test.1' }, /latest must point/],
+  ['malformed tags', [], /latest must point/],
+]) {
+  test(`registry verification rejects ${name} despite exact package bytes`, async t => {
+    const candidate = await promotion(t);
+    await candidate.update({ tags: { '@mnjs/data': tags } });
+    const result = candidate.exec('check-targets', 'verify-npm');
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, error);
+    assert.ok((await candidate.calls()).filter(call => call.tool === 'npm').every(call => call.args[0] === 'view'));
+  });
+}
+
+test('pre-stable beta verification accepts latest with an existing next tag', async t => {
+  const candidate = await promotion(t);
+  await candidate.update({ tags: { marionette: { latest: '5.0.0-test.1', next: '5.0.0-test.1' } } });
+  const result = candidate.exec('check-targets', 'verify-npm');
+  assert.equal(result.status, 0, result.stderr);
+});
+
+test('publication verification requires provenance metadata for all five packages', async t => {
+  const candidate = await promotion(t);
+  const complete = candidate.exec('check-targets', 'verify-npm');
+  assert.equal(complete.status, 0, complete.stderr);
+  assert.equal((await candidate.calls()).filter(call => call.args[2] === 'dist.attestations').length, 5);
+  await candidate.update({ attestations: { '@mnjs/utils': null } });
+  const missing = candidate.exec('check-targets', 'verify-npm');
+  assert.equal(missing.status, 1);
+  assert.match(missing.stderr, /@mnjs\/utils.*missing published npm SLSA provenance metadata after 12 attempts/);
+});
+
+test('provenance verification retries propagation and rejects a foreign attestation URL', async t => {
+  const candidate = await promotion(t);
+  await candidate.update({ attestations: { '@mnjs/utils': ['unavailable', 'malformed', null] } });
+  const delayed = candidate.exec('check-targets', 'verify-npm');
+  assert.equal(delayed.status, 0, delayed.stderr);
+  assert.match(delayed.stderr, /provenance metadata.*retrying.*3\/12/);
+  await candidate.update({ attestations: { '@mnjs/utils': {
+    url: 'https://example.test/attestation', provenance: { predicateType: 'https://slsa.dev/provenance/v1' }
+  } } });
+  const invalid = candidate.exec('check-targets', 'verify-npm');
+  assert.equal(invalid.status, 1);
+  assert.match(invalid.stderr, /missing published npm SLSA provenance metadata/);
+});
+
+test('registry verification retries unavailable and stale channels after exact bytes propagate', async t => {
+  const candidate = await promotion(t);
+  await candidate.update({ tagResponses: {
+    '@mnjs/data': ['unavailable', 'malformed', [], { latest: '5.0.0-test.0' }, { latest: '5.0.0-test.1' }]
+  } });
+  const result = candidate.exec('check-targets', 'verify-npm');
+  assert.equal(result.status, 0, result.stderr);
+  const calls = (await candidate.calls()).filter(call => call.tool === 'npm' &&
+    call.args[1] === '@mnjs/data' && call.args[2] === 'dist-tags');
+  assert.equal(calls.length, 5);
+  assert.match(result.stderr, /retrying in 5 seconds \(4\/12\)/);
+});
+
+test('registry channel lookup errors fail verification without changing tags', async t => {
+  const candidate = await promotion(t);
+  await candidate.update({ tagsError: '@mnjs/radio' });
+  const result = candidate.exec('check-targets', 'verify-npm');
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /npm dist-tag lookup failed/);
+  assert.equal((await candidate.calls()).filter(call => call.tool === 'npm' &&
+    call.args[1] === '@mnjs/radio' && call.args[2] === 'dist-tags').length, 12);
+});
+
+test('stable verification requires latest and permits an independent next channel', async t => {
+  const candidate = await promotion(t, { version: '5.0.0', publication: { stable: true, prerelease: null } });
+  await candidate.update({ tags: { marionette: { latest: '5.0.0', next: '5.1.0-beta.1' } } });
+  const result = candidate.exec('check-targets', 'verify-npm');
+  assert.equal(result.status, 0, result.stderr);
+  await candidate.update({ tags: { marionette: { latest: '4.0.0', next: '5.0.0' } } });
+  const wrong = candidate.exec('check-targets', 'verify-npm');
+  assert.equal(wrong.status, 1);
+  assert.match(wrong.stderr, /latest must point to 5.0.0/);
 });
 
 

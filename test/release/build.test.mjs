@@ -74,7 +74,7 @@ for (const version of ['5.0.0-test.1', '5.0.0']) {
     const evidence = JSON.parse(evidenceBytes);
     assert.deepEqual(evidence.packages.map(entry => [entry.id, entry.name]), names);
     assert.equal(evidence.source.commit, candidate.commit);
-    assert.deepEqual(evidence.release, { tag: `v${version}`, version, prerelease: version.includes('-'), npmTag: version.includes('-') ? 'next' : 'latest' });
+    assert.deepEqual(evidence.release, { tag: `v${version}`, version, prerelease: version.includes('-'), npmTag: 'latest' });
     assert.equal(evidence.workflow.runId, '123');
     assert.equal(evidence.workflow.runAttempt, '2');
     assert.equal(await readFile(resolve(candidate.output, 'release-evidence.sha512'), 'utf8'), `${hash(evidenceBytes)}  release-evidence.json\n`);

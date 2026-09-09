@@ -5,6 +5,13 @@ const prereleasePattern = `${prereleaseIdentifier}(?:\\.${prereleaseIdentifier})
 const prereleaseVersion = new RegExp(`^${basePattern}-${prereleasePattern}$`);
 const releaseVersion = new RegExp(`^${basePattern}(?:-${prereleasePattern})?$`);
 
+export function releaseChannel(policy, version) {
+  if (typeof version !== 'string' || !releaseVersion.test(version)) {
+    throw new Error(`Invalid release version: ${version}`);
+  }
+  return version.includes('-') ? policy.npm.prereleaseTag : policy.npm.stableTag;
+}
+
 // Publication permission is scoped to the release version, independently of its dist-tag.
 export function publicationEnabled(policy, version) {
   const { publication } = policy;

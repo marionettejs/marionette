@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "status": "reporting",
+  "fixture": {
+    "version": "v1",
+    "path": "benchmarks/browser-performance/v1/manifest.json",
+    "sha256": "6f5e3a9512776dbce17aceb44122eea32605c4cdc831ba0725c3a254665c6ddc"
+  },
+  "browser": {
+    "name": "chromium",
+    "headless": true
+  },
+  "runtime": {
+    "accessibilityInstrumentation": false,
+    "monitorViewEvents": true
+  }
+}

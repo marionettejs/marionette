@@ -33,6 +33,16 @@ async function writeOutput(name, value) {
   }
 }
 
+function registryObject(result) {
+  if (result.status !== 0) { return null; }
+  try {
+    const value = JSON.parse(result.stdout);
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : null;
+  } catch {
+    return null;
+  }
+}
+
 const mode = args.mode;
 if (!['dry-run', 'publish', 'npm-decision', 'verify-npm'].includes(mode)) {
   throw new Error(`Unsupported target-check mode ${mode}.`);
@@ -59,6 +69,7 @@ if (verification.status !== 0) {
 
 const npmAttempts = mode === 'verify-npm' ? 12 : 1;
 const npmStates = [];
+const channelViolations = [];
 for (const packageEvidence of evidence.packages) {
   const packageName = packageNames.get(packageEvidence.id);
   let state;
@@ -93,6 +104,38 @@ for (const packageEvidence of evidence.packages) {
     throw new Error(`${packageName} npm view exited with status ${npmError.status} after ${npmAttempts} attempts.`);
   }
   npmStates.push({ packageEvidence, packageName, state });
+  if (mode === 'verify-npm' && state === 'exact') {
+    const { npmTag, version } = evidence.release;
+    let tagsResult;
+    let matches = false;
+    for (let attempt = 1; attempt <= npmAttempts; attempt += 1) {
+      tagsResult = run(process.execPath, [npmExecPath, 'view', packageName, 'dist-tags', '--json']);
+      matches = registryObject(tagsResult)?.[npmTag] === version;
+      if (matches || attempt === npmAttempts) { break; }
+      console.warn(`${packageName} npm ${npmTag} is not yet verified; retrying in 5 seconds (${attempt}/${npmAttempts}).`);
+      await new Promise(resolveDelay => setTimeout(resolveDelay, 5000));
+    }
+    if (tagsResult.status !== 0) {
+      throw new Error(`${packageName} npm dist-tag lookup failed: ${tagsResult.stderr}`);
+    }
+    if (!matches) {
+      channelViolations.push(`${packageName}: ${npmTag} must point to ${version}`);
+    }
+    let provenanceAvailable = false;
+    for (let attempt = 1; attempt <= npmAttempts; attempt += 1) {
+      const result = run(process.execPath, [npmExecPath, 'view', `${packageName}@${version}`, 'dist.attestations', '--json']);
+      const attestations = registryObject(result);
+      provenanceAvailable = attestations?.provenance?.predicateType === 'https://slsa.dev/provenance/v1' &&
+        typeof attestations.url === 'string' &&
+        attestations.url.startsWith('https://registry.npmjs.org/-/npm/v1/attestations/');
+      if (provenanceAvailable || attempt === npmAttempts) { break; }
+      console.warn(`${packageName} npm provenance metadata is not yet available; retrying in 5 seconds (${attempt}/${npmAttempts}).`);
+      await new Promise(resolveDelay => setTimeout(resolveDelay, 5000));
+    }
+    if (!provenanceAvailable) {
+      throw new Error(`${packageName}@${version} is missing published npm SLSA provenance metadata after ${npmAttempts} attempts.`);
+    }
+  }
 }
 
 const repositoryUrl = `https://github.com/${evidence.source.repository}.git`;
@@ -175,5 +218,9 @@ if (mode === 'verify-npm') {
   if (incomplete.length) {
     throw new Error(`Published npm integrity is not exact for ${incomplete
       .map(({ packageName }) => packageName).join(', ')}.`);
+  }
+  if (channelViolations.length) {
+    throw new Error(`Published npm channels violate release policy (${channelViolations.join('; ')}). ` +
+      'Inspect the registry and correct dist-tags through an authorized release operation, then rerun verification.');
   }
 }
