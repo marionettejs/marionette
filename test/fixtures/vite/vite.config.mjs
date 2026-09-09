@@ -8,7 +8,7 @@ export default defineConfig({
     name: 'marionette-source-maps',
     enforce: 'pre',
     async load(id) {
-      if (!/\/node_modules\/(?:marionette|@mnjs\/[^/]+)\/dist\/.*\.js$/.test(id.replaceAll('\\', '/'))) { return; }
+      if (!/\/node_modules\/(?:marionette|@mnjs\/[^/]+)\/dist\/(?!eslint\/).*\.js$/.test(id.replaceAll('\\', '/'))) { return; }
       return { code: await readFile(id, 'utf8'), map: JSON.parse(await readFile(`${id}.map`, 'utf8')) };
     }
   }],

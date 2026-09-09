@@ -1,12 +1,16 @@
 import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { cp, readFile, readdir, writeFile } from 'node:fs/promises';
+import { cp, lstat, readFile, readdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { promisify } from 'node:util';
 
 const execute = promisify(execFile);
 const digest = bytes => createHash('sha512').update(bytes).digest('hex');
-const readJson = async path => JSON.parse(await readFile(path, 'utf8'));
+const readRegularFile = async path => {
+  if (!(await lstat(path)).isFile()) { throw new Error(`Development starter requires a regular file: ${path}`); }
+  return readFile(path);
+};
+const readJson = async path => JSON.parse((await readRegularFile(path)).toString());
 const externalGraph = (lock, names) => Object.fromEntries(Object.entries(lock.packages)
   .filter(([path]) => path && !names.some(name => path === `node_modules/${name}`))
   .sort(([a], [b]) => a.localeCompare(b))
@@ -36,13 +40,14 @@ export async function buildDevelopmentKit({ source, artifactDir, packages, sourc
     throw new Error('Development kit changed the locked external dependency graph.');
   }
   for (const entry of packages) {
-    if (lock.packages[`node_modules/${entry.name}`]?.integrity !== entry.tarball.integrity) {
+    if (typeof entry.tarball.integrity !== 'string' || !entry.tarball.integrity ||
+        lock.packages[`node_modules/${entry.name}`]?.integrity !== entry.tarball.integrity) {
       throw new Error(`Development kit does not lock the selected ${entry.name} tarball.`);
     }
   }
   const files = {};
   for (const file of (await readdir(destination)).sort()) {
-    files[file] = digest(await readFile(resolve(destination, file)));
+    files[file] = digest(await readRegularFile(resolve(destination, file)));
   }
   const report = { sourceCommit, files };
   const bytes = `${JSON.stringify(report, null, 2)}\n`;
@@ -79,22 +84,23 @@ Validation status is recorded in candidate-validation.json when certification fi
 export async function verifyDevelopmentKit(artifactDir, report, sourceCommit) {
   if (report?.file !== 'development-starter.json') { throw new Error('Missing development starter report.'); }
   if (report.archive?.file !== 'development-starter.tar.gz' ||
-      digest(await readFile(resolve(artifactDir, report.archive.file))) !== report.archive.sha512) {
+      digest(await readRegularFile(resolve(artifactDir, report.archive.file))) !== report.archive.sha512) {
     throw new Error('Development starter archive checksum mismatch.');
   }
-  const bytes = await readFile(resolve(artifactDir, report.file));
+  const bytes = await readRegularFile(resolve(artifactDir, report.file));
   if (digest(bytes) !== report.sha512) { throw new Error('Development starter report checksum mismatch.'); }
   const kit = JSON.parse(bytes);
   if (kit.sourceCommit !== sourceCommit || !kit.files || !Object.hasOwn(kit.files, 'package-lock.json')) {
     throw new Error('Development starter source or inventory mismatch.');
   }
   const directory = resolve(artifactDir, 'starter');
+  if (!(await lstat(directory)).isDirectory()) { throw new Error('Development starter requires a real directory.'); }
   if (JSON.stringify((await readdir(directory)).sort()) !== JSON.stringify(Object.keys(kit.files).sort())) {
     throw new Error('Development starter file inventory mismatch.');
   }
   for (const [file, expected] of Object.entries(kit.files)) {
     if (!/^[a-zA-Z0-9._-]+$/.test(file) || file === '.' || file === '..' ||
-        digest(await readFile(resolve(directory, file))) !== expected) {
+        digest(await readRegularFile(resolve(directory, file))) !== expected) {
       throw new Error(`Development starter file mismatch: ${file}`);
     }
   }

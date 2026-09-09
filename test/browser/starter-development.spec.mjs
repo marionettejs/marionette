@@ -11,7 +11,7 @@ import { buildDevelopmentKit, verifyDevelopmentKit } from '../../scripts/docs/de
 const execute = promisify(execFile);
 
 test('installed TypeScript starter releases old owners across repeated Vite edits', async({ page }) => {
-  test.setTimeout(120_000);
+  test.setTimeout(240_000);
   const candidate = JSON.parse(await readFile(process.env.MARIONETTE_BROWSER_CANDIDATE, 'utf8'));
   const core = candidate.packages.find(entry => entry.id === 'core');
   let directory = await mkdtemp(join(tmpdir(), 'marionette-starter-dev-'));

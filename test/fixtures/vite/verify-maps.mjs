@@ -9,7 +9,7 @@ const maps = await Promise.all(assets.filter(file => file.endsWith('.js.map'))
 assert.ok(maps.length, 'the consumer emits a source map');
 const sources = maps.flatMap(map => map.sources);
 assert.ok(sources.some(source => source.endsWith('/src/modules/view.ts')), `Vite resolves core maps to authored TypeScript: ${sources.join(', ')}`);
-assert.ok(maps.some(map => map.sourcesContent.some(source => source?.includes('export interface ViewConfiguration'))), 'authored source is embedded for debugging without a checkout');
+assert.ok(maps.some(map => map.sourcesContent?.some(source => source?.includes('export interface ViewConfiguration'))), 'authored source is embedded for debugging without a checkout');
 
 for (const [name, entry] of [['marionette', 'marionette'], ['@mnjs/utils', 'index'], ['@mnjs/radio', 'index'], ['@mnjs/data', 'index'],
   ...['backbone', 'xstate', 'dom/jquery', 'dom/morphdom', 'dom/lit-html'].map(subpath => ['@mnjs/adapters', subpath])]) {
@@ -18,7 +18,8 @@ for (const [name, entry] of [['marionette', 'marionette'], ['@mnjs/utils', 'inde
     assert.ok(code.includes(`sourceMappingURL=${entry.split('/').at(-1)}.${extension}.map`));
     const map = JSON.parse(await readFile(`node_modules/${name}/dist/${entry}.${extension}.map`, 'utf8'));
     assert.ok(map.sources.some(source => source.endsWith('.ts')));
-    assert.ok(map.sourcesContent.every(source => typeof source === 'string'));
+    assert.ok(Array.isArray(map.sourcesContent) && map.sourcesContent.length === map.sources.length &&
+      map.sourcesContent.every(source => typeof source === 'string'), `${name}/${entry}: every source is embedded`);
     assert.ok(new SourceMap(map).payload.mappings.length);
   }
 }
