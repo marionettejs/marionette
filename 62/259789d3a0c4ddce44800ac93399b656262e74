@@ -1,0 +1,23 @@
+tools/eslint/analysis.mjs
+  s_9b715d9e600fb6::t_9e3b22c7ecb1e8 194-195
+eslint-rules/no-private-framework-members.mjs
+  s_9b715d9e600fb6::t_9e3b22c7ecb1e8 22-24
+test/tooling/consumer-lint.test.mjs
+  s_9b715d9e600fb6::t_2bd4938c0d62d7 118-126
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "62259789d3a0c4ddce44800ac93399b656262e74",
+  "prompts": {},
+  "sessions": {
+    "s_9b715d9e600fb6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08519-c4aa-77e0-96b5-ac8c23eafcfe",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
