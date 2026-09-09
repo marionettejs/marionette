@@ -35,22 +35,22 @@
   "browsers": {
     "playwright": {
       "package": "@playwright/test",
-      "version": "1.62.1",
+      "version": "1.63.0",
       "browserBuilds": [
         {
           "name": "chromium",
-          "version": "151.0.7922.34",
-          "revision": "1234"
+          "version": "153.0.8010.12",
+          "revision": "1243"
         },
         {
           "name": "firefox",
-          "version": "153.0",
-          "revision": "1538"
+          "version": "155.0",
+          "revision": "1543"
         },
         {
           "name": "webkit",
-          "version": "26.5",
-          "revision": "2336"
+          "version": "26.6",
+          "revision": "2359"
         }
       ]
     },
