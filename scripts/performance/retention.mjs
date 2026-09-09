@@ -8,6 +8,7 @@ import { chromium } from '@playwright/test';
 import { serveFixture } from './browser.mjs';
 
 const root = resolve(import.meta.dirname, '../..');
+const deadlineMilliseconds = 120000;
 const { values } = parseArgs({ options: {
   output: { type: 'string', default: 'test/tmp/performance/retention.json' },
   batches: { type: 'string', default: '6' },
@@ -40,7 +41,7 @@ async function main() {
     source: await inputs(),
     profile: { browser: 'chromium', headless: true, accessibilityInstrumentation: false,
       monitorViewEvents: true, batches, cyclesPerBatch: cycles, warmupBatches: 2,
-      deadlineMilliseconds: 120000, garbageCollection: 'CDP HeapProfiler.collectGarbage, twice per observation' },
+      deadlineMilliseconds, garbageCollection: 'CDP HeapProfiler.collectGarbage, twice per observation' },
     host: { platform: platform(), architecture: arch(), cpuModel: cpus()[0]?.model, node: process.version },
     samples: [],
     limits: ['Only the selected successful public lifecycles are observed.',
@@ -100,7 +101,7 @@ async function main() {
       }
     };
     await Promise.race([measure(), new Promise((resolveDeadline, reject) => {
-      deadline = setTimeout(() => reject(new Error('Retention exceeded 120000 ms')), 120000);
+      deadline = setTimeout(() => reject(new Error(`Retention exceeded ${deadlineMilliseconds} ms`)), deadlineMilliseconds);
     })]);
     report.status = 'passed';
   } catch (error) {

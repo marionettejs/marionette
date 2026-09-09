@@ -78,6 +78,7 @@ async function applicationCycle() {
   document.body.append(host);
   const region = keepInput(new runtime.Region({ el: host }));
   let settle;
+  let view;
   let starts = 0;
   const App = runtime.Application.extend({
     onBeforeStart() {
@@ -85,7 +86,7 @@ async function applicationCycle() {
     },
     onStart() {
       starts++;
-      const view = track(new runtime.View({ template: () => '<p>Ready</p>' }));
+      view = track(new runtime.View({ template: () => '<p>Ready</p>' }));
       track(view.el, 'element');
       this.showView(view);
     }
@@ -101,6 +102,7 @@ async function applicationCycle() {
   invariant(await app.restart() === true && starts === 1, 'Restart did not settle once');
   await app.destroy();
   invariant(app.isDestroyed() && child.isDestroyed(), 'Application ownership teardown failed');
+  invariant(view.isDestroyed(), 'Application did not destroy its shown View');
   invariant(!region.isDestroyed() && !region.currentView, 'Borrowed Region lifetime changed');
   host.remove();
 }
@@ -129,7 +131,8 @@ function stateCycle() {
 }
 
 export function holdControl() {
-  control = { retained: true };
+  control = new runtime.View();
+  control.destroy();
   controlProbe = new WeakRef(control);
 }
 export function releaseControl() { control = null; }
