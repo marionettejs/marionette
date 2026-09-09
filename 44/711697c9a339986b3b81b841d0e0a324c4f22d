@@ -1,0 +1,43 @@
+changelog.md
+  s_9b715d9e600fb6::t_bee5e6c802a484 1-13
+config/api-contracts/inventory.json
+  s_9b715d9e600fb6::t_c44e40a5d291e7 8,5305,5935,6396,6929,7004,7064,7151,7191
+config/release-promotion.json
+  s_9b715d9e600fb6::t_35f26aaaf033a6 5
+docs/beta.md
+  s_9b715d9e600fb6::t_7bc14ebfdd0d1a 3-6,17-18,26-35
+docs/consumer-lint.md
+  s_9b715d9e600fb6::t_a5c8102f41d6b7 3-5
+docs/installation.md
+  s_9b715d9e600fb6::t_83679b9d47d1bf 10,33,40,53-54,60,72,75,78,187,261,263
+docs/release-promotion.md
+  s_9b715d9e600fb6::t_e9269030a2c1e3 10,85,94,96,103-104
+package-lock.json
+  s_9b715d9e600fb6::t_e8c7f0ed531911 3,9,16-17,8742,8745,8753
+package.json
+  s_9b715d9e600fb6::t_2beeea35e3a1e4 4,181-182
+packages/adapters/package.json
+  s_9b715d9e600fb6::t_0ed3646cf04a4f 4,81
+packages/data/package.json
+  s_9b715d9e600fb6::t_26e75595cb76a8 4,52
+packages/radio/package.json
+  s_9b715d9e600fb6::t_45ba087df4bd40 4,52
+packages/utils/package.json
+  s_9b715d9e600fb6::t_597ad5aadaa0df 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "44711697c9a339986b3b81b841d0e0a324c4f22d",
+  "prompts": {},
+  "sessions": {
+    "s_9b715d9e600fb6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08519-c4aa-77e0-96b5-ac8c23eafcfe",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
