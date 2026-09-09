@@ -16,9 +16,14 @@ if (tool === 'npm') {
   if (args[2] === 'dist-tags') {
     const name = args[1];
     if (state.tagsError === name) { fail('npm ERR! E503 registry unavailable'); }
+    const responses = state.tagResponses?.[name];
+    if (responses?.length) {
+      const response = responses.shift();
+      if (response === 'unavailable') { fail('npm ERR! E503 registry unavailable'); }
+      output(JSON.stringify(response));
+    }
     const entry = state.packages.find(candidate => candidate.name === name);
-    output(JSON.stringify(state.tags?.[name] ?? (entry.version.includes('-') ?
-      { next: entry.version } : { latest: entry.version })));
+    output(JSON.stringify(state.tags?.[name] ?? { latest: entry.version }));
   }
   const name = args[1].slice(0, args[1].lastIndexOf('@'));
   const entry = state.packages.find(candidate => candidate.name === name);

@@ -95,10 +95,13 @@ dispatching the protected workflow. Changing this policy changes the source comm
 and invalidates prior certification; rebuild and certify the authorization commit
 before publication.
 
-Prereleases use npm `next` and a GitHub prerelease, never npm `latest`. Verification
-checks the selected dist-tag for every package, and rejects a prerelease also
-assigned to `latest`, even when its tarball bytes match. Tag changes require a
-separately authorized release operation; verification never repairs registry state.
+Until the first stable v5 release, the current v5 prerelease uses npm `latest`
+and remains a GitHub prerelease. Beta.1 is intentionally on `latest`; its existing
+`next` tag may point to the same version. Once stable v5 ships, change
+`npm.prereleaseTag` to `next` before authorizing subsequent prereleases so `latest`
+continues to identify stable v5. Verification checks the policy-selected dist-tag
+for every package. Tag changes require an authorized release operation;
+verification never repairs registry state.
 A missing or stale tag fails with the affected package and expected version.
 After correcting publication or propagation, rerun verification against the same
 certified artifacts. A later beta
@@ -132,8 +135,9 @@ that authorization:
    environment only after reviewing the source commit and evidence artifact.
 
 Documentation exports derive their channel from the candidate version and this
-policy. Stable metadata uses `latest`; prerelease metadata uses `next`, independently
-of whether publication is currently authorized.
+policy, independently of whether publication is currently authorized. Both stable
+and pre-stable v5 metadata currently use `latest`; the post-stable prerelease
+channel becomes `next` through the policy change described above.
 
 An initial publication requires unused npm, tag, and release targets. A recovery
 rerun may continue when npm integrity and the Git tag already match the verified

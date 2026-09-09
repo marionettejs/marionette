@@ -5,6 +5,10 @@ import { syncBuiltinESMExports } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 const spawnSync = childProcess.spawnSync;
+// This preload is confined to isolated fake-registry subprocesses. Exercise
+// every configured retry without waiting for real registry propagation.
+const nativeSetTimeout = globalThis.setTimeout;
+globalThis.setTimeout = (callback, delay, ...args) => nativeSetTimeout(callback, delay === 5000 ? 0 : delay, ...args);
 const fake = fileURLToPath(new URL('./fake-external.mjs', import.meta.url));
 childProcess.spawnSync = function(command, args, options = {}) {
   if (command === 'gh' || (command === 'git' && !['status', 'rev-parse'].includes(args[0]))) {

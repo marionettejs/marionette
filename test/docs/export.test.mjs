@@ -25,7 +25,7 @@ test('export CLI labels stable and prerelease documentation from the selected po
     execFileSync('git', ['init', '-q'], { cwd: directory });
     execFileSync('git', ['-c', 'user.name=Docs tests', '-c', 'user.email=docs-tests@example.invalid',
       '-c', 'core.hooksPath=/dev/null', 'commit', '--allow-empty', '-qm', 'docs fixture'], { cwd: directory });
-    for (const [version, channel] of [['5.0.0', 'latest'], ['5.0.0-beta.2', 'next']]) {
+    for (const [version, channel] of [['5.0.0', 'latest'], ['5.0.0-beta.2', 'latest']]) {
       await writeFile(resolve(directory, 'package.json'), JSON.stringify({ name: 'marionette', version }));
       execFileSync(process.execPath, ['scripts/docs/export.mjs'], { cwd: directory });
       const manifest = JSON.parse(await readFile(resolve(directory, '.docs-export/manifest.json'), 'utf8'));
