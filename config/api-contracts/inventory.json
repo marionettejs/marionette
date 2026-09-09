@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "8b0f127f2f1e9c4d3544177526212f8b5197715ad1002332309e3168000b5a85",
+  "semanticsSha256": "480080e631f47300a73ccbd2a1332e83026fe172cfdc493bb0f989bf219ca708",
   "entrypoints": [
     {
       "name": "marionette",
@@ -8104,6 +8104,7 @@
     "test/unit/behavior-lifecycle.spec.js": "8c70d05fa530d27eac901291a3487c9cacac1ef1d0c22a3adda917da5774d05a",
     "test/unit/behavior-ui-contract.spec.js": "65def27b40f17e3d931803faeff7c9dbb3c580e14f157fa5d2f8145fb95c1761",
     "test/unit/collection-view/collection-view-children.spec.js": "7afbd9d535f508ac91c6bdcea32f412d4b038bf8c59237c46de3b3540082f381",
+    "test/unit/collection-view/collection-view-lifecycle.spec.js": "6d331ff97770fcc755fc4f5ddaef20372ac000fa2948d53ead4670b7b56801ec",
     "test/unit/collection-view/collection-view-reconciliation.spec.js": "ad8766fe445a552d7882f089b96c8787082cd58bbb39f0cab141fb5f13ee601a",
     "test/unit/collection-view/collection-view-sorting.spec.js": "c20347ce2d7ef8352a5b5441a5a5b9d98537ca4ee5880ebb1d9b15740d9627df",
     "test/unit/common/bind-events.spec.js": "52704cfd2974216d9558751c7ba614e001a52a0606b1d3945d021988191c4f48",
@@ -8139,6 +8140,7 @@
     "test/unit/utils/set-property.spec.js": "0e65d9741673c151112ae527e4899d94f67039ce957980c056fbe938c73833ab",
     "test/unit/utils/unique-id.spec.js": "43b522acdf9acc279a9e1a1e34f2cf7fcce1ee19a1a9b8ee5da109d8b23eb830",
     "test/unit/view-dom-delegation.spec.js": "dc03d7c85bbf8d1b584e4eeedb99e9ef31e14387aed022f9e3830d49d45640bb",
+    "test/unit/view-get-region.spec.js": "864c51618505f98eacf9cda2f1cc4ddf0bbaa47fd24ad33d095465b71e9aa168",
     "test/unit/view-get-regions.spec.js": "734dcb5099a6f3f386b5b9b8b50975953790be9603b97458e67d30ee5770f131",
     "test/unit/view-has-region.spec.js": "08322c63b7506f8d69dd683d27ae2fe8f1d9f7734fa446439d495e4609df0e72",
     "test/unit/view-lifecycle.spec.js": "6e44d3a1db83dd0fe7613f9b85a2dbab53bc4f135ac0ba647dc113f271370e19",
