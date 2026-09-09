@@ -388,5 +388,17 @@
     "route": "docs/consumer-lint",
     "title": "Lint application code",
     "section": "Application guides"
+  },
+  {
+    "source": "docs/maintainers/authorship-inventory.md",
+    "route": "docs/maintainers/authorship-inventory",
+    "title": "Production authorship inventory",
+    "section": "Maintaining Marionette"
+  },
+  {
+    "source": "docs/maintainers/browser-contract-matrix.md",
+    "route": "docs/maintainers/browser-contract-matrix",
+    "title": "Browser contract matrix",
+    "section": "Maintaining Marionette"
   }
 ]

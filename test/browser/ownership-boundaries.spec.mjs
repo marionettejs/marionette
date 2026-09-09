@@ -93,8 +93,9 @@ test('framework errors preserve native identity and usable stacks with the platf
       Object.defineProperty(Error, 'captureStackTrace', { configurable: true, value: undefined });
       return { normal, fallback: inspect(make()) };
     } finally {
-      if (descriptor) { Object.defineProperty(Error, 'captureStackTrace', descriptor); }
-      else { delete Error.captureStackTrace; }
+      if (descriptor) { Object.defineProperty(Error, 'captureStackTrace', descriptor); } else {
+        delete Error.captureStackTrace;
+      }
     }
   });
   const expected = { native: true, code: 'MN0030', message: 'Ownership conflict', stack: true };
