@@ -168,7 +168,11 @@ contract](#runtime-cost-contract) below defines this distinction.
 - Migration documentation reflects final v5 behavior rather than preserving
   pre-release experiments.
 
-### Optional development and test surfaces
+### Deferred development and test surfaces
+
+Development validation, a hierarchy inspector and a test-helper package are
+unimplemented and are not stable-v5 blockers (maintainer decision, September 9,
+2026). The following boundaries apply if a concrete consumer need justifies them:
 
 - Development validation reports rule codes with actionable context and is removable
   from production builds.
@@ -547,13 +551,15 @@ exclusivity, and cleanup. The public reference application must prove the patter
 using only public Marionette contracts. Core does not absorb tooltip, popover,
 positioning policy, or an OverlayHost class without separate public evidence.
 
-`marionette/dev` may provide validation and inspection. It must be separately
+The deferred `marionette/dev` proposal would provide validation and inspection.
+It is not a shipped entrypoint. Any future implementation must be separately
 importable, tree-shakeable, safe to omit, and incapable of changing production
 semantics. Enabling it may add development-only cost; merely installing Marionette
 must not.
 
-`marionette/test` may provide runner-neutral assertions and observation helpers. It
-must use public contracts and must not be loaded by production entrypoints.
+The deferred `marionette/test` proposal would provide runner-neutral assertions
+and observation helpers. It is not a shipped entrypoint. Any future implementation
+must use public contracts and remain outside production entrypoints.
 
 Lint rules, codemods, documentation generators, and benchmark tooling belong outside
 the runtime graph. They should consume the same documented rule catalog and public
@@ -841,18 +847,19 @@ substantial remaining departures justified.
 Gate: types, docs, examples, lint rules, and runtime vocabulary agree, and drift checks
 run in CI without loading new production code.
 
-### Phase 3: Development and test support
+### Phase 3: Development and test support — deferred
 
-- Add removable development validation.
-- Add the optional hierarchy inspector with a versioned output schema.
-- Add runner-neutral lifecycle, hierarchy, and cleanup test helpers.
-- Build development and test support from public lifecycle events and hierarchy APIs.
-  Do not add extension-hook dispatch to 5.0 unless required public `marionette/dev` or
-  `marionette/test` functionality is proven impossible without it.
-- Separate and verify production, development, and test package surfaces.
+The maintainer deferred the development validator, hierarchy inspector and
+runner-neutral test-helper package on September 9, 2026. They remain unimplemented
+and are not blockers for stable v5. Static consumer lint and contract metadata are
+Phase 2 deliverables; they do not imply these tools exist.
 
-Gate: production bundles prove optional surfaces are absent unless imported;
-development and test fixtures exercise every public helper.
+Reconsider each tool only after identifying a concrete consumer problem. A proposal
+must specify the operation, versioned output or assertion contract, a prototype
+using public APIs, an installed-package fixture and a production bundle exclusion
+check. Present any necessary library change for scrutiny before implementing it.
+No extension-hook dispatch or new runtime instrumentation is authorized by this
+future checkpoint.
 
 ### Phase 4: Integration and benchmark closure
 
@@ -903,7 +910,8 @@ closed rather than retained as dormant APIs.
 
 `5.0.0` may be published only when:
 
-- All Phase 0-4 gates pass on the release commit.
+- All Phase 0, 1, 2 and 4 gates pass on the release commit. Phase 3 is explicitly
+  deferred and is not a stable-release gate.
 - The public agent benchmark meets its functional, task-floor, improvement,
   architecture-violation, and non-regression thresholds.
 - Production entrypoints contain no development inspector, validation, benchmark, or
