@@ -1,0 +1,25 @@
+scripts/.babelrc
+  s_bd170ff740ca58::t_c317cd6c5ced48 1
+scripts/testing/mutation.mjs
+  s_bd170ff740ca58::t_c317cd6c5ced48 119
+test/release/decisions.test.mjs
+  s_bd170ff740ca58::t_c91809308cfbea 35
+test/README.md
+  s_bd170ff740ca58::t_c91809308cfbea 109-110
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "3700614d215a390ebc36f239880b869bdb659d5d",
+  "prompts": {},
+  "sessions": {
+    "s_bd170ff740ca58": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0849e-3aa3-76e0-a103-be1accb6af6b",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
