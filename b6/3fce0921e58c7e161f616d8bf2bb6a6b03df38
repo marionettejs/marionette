@@ -1,0 +1,21 @@
+benchmarks/browser-performance/results/2026-09-09/README.md
+  s_bd170ff740ca58::t_7ee6d03b93a332 1-26
+benchmarks/browser-performance/results/2026-09-09/report.json
+  s_bd170ff740ca58::t_76a0221493988d 1-1607
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "b63fce0921e58c7e161f616d8bf2bb6a6b03df38",
+  "prompts": {},
+  "sessions": {
+    "s_bd170ff740ca58": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0849e-3aa3-76e0-a103-be1accb6af6b",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
