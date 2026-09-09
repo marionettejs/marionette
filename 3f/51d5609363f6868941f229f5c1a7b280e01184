@@ -1,0 +1,29 @@
+benchmarks/agent/capabilities.json
+  s_267e7a791356aa::t_05061e8fe57dc2 2
+benchmarks/agent/series-decisions.json
+  s_267e7a791356aa::t_d0e4c2ab5fc27b 2,4,7,9-10,13-14
+scripts/agent-benchmark/harness.mjs
+  s_267e7a791356aa::t_b25d28f0c22f40 38
+scripts/agent-benchmark/task-contract.mjs
+  s_267e7a791356aa::t_1f8b6aa416e863 38-39,44-45
+test/agent-benchmark/harness.test.mjs
+  s_267e7a791356aa::t_db288494bc1b9a 8
+test/agent-benchmark/task-contract.test.mjs
+  s_267e7a791356aa::t_50e679408c7219 12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "3f51d5609363f6868941f229f5c1a7b280e01184",
+  "prompts": {},
+  "sessions": {
+    "s_267e7a791356aa": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08689-8981-7cf3-a3c5-0ee0a88b599c",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
