@@ -1,0 +1,25 @@
+test/performance/browser-performance.test.mjs
+  s_9b715d9e600fb6::t_9e3b22c7ecb1e8 7,32-36,60-62
+scripts/performance/browser.mjs
+  s_9b715d9e600fb6::t_9e3b22c7ecb1e8 240-242
+stryker.config.mjs
+  s_9b715d9e600fb6::t_1cc86ec8e2f9c6 5-7,16
+test/docs/export.test.mjs
+  s_9b715d9e600fb6::t_f32e281e850469 19-22,32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "9a0bd2361e734ab926357dfa1aedabb2fed40449",
+  "prompts": {},
+  "sessions": {
+    "s_9b715d9e600fb6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08519-c4aa-77e0-96b5-ac8c23eafcfe",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
