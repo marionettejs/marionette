@@ -124,6 +124,15 @@ test('does not treat constructor this in static blocks as an instance', function
   `), []);
 });
 
+test('reports shared private state on View and CollectionView receivers', function() {
+  for (const name of ['View', 'CollectionView']) {
+    for (const member of ['_state', '_stateOptions', '_ownsState', '_stateReleased', '_stateEventCleanup']) {
+      assert.deepEqual(lint(`import { ${name} } from 'marionette'; new ${name}().${member};`),
+        [{ line: 1, messageId: 'privateMember' }]);
+    }
+  }
+});
+
 test('static private-member inventory contains only current source facts', async function() {
   for (const [className, members] of Object.entries(PRIVATE_MEMBERS)) {
     const contents = (await Promise.all(PRIVATE_MEMBER_SOURCES[className].map(path =>

@@ -16,7 +16,8 @@ const visualPrivate = ['_behaviors', '_bindUIElements', '_buildEventProxies', '_
   '_getAttributes', '_getEl', '_getImmediateChildren', '_getUI', '_getUIBindings', '_initBehaviors',
   '_initState', '_initStateEvents', '_initViewEvents', '_isAttached', '_isDestroyed', '_isDestroying',
   '_isElAttached', '_isRendered', '_modelEventCleanup', '_modelEvents', '_removeBehavior', '_renderTemplate',
-  '_setOptions', '_triggerEventOnBehaviors', '_ui', '_uiBindings', '_unbindUIElements',
+  '_ownsState', '_setOptions', '_state', '_stateEventCleanup', '_stateOptions', '_stateReleased',
+  '_triggerEventOnBehaviors', '_ui', '_uiBindings', '_unbindUIElements',
   '_undelegateEntityEvents', '_undelegateViewEvents'];
 const behaviorPrivate = ['_bindUIElements', '_collectionEventCleanup', '_collectionEvents', '_delegate',
   '_delegateEntityEvents', '_delegateEvents', '_delegateTriggers', '_delegateViewEvents', '_destroyState',
