@@ -31,6 +31,8 @@ async function fixture(t, { publication = { stable: false, prerelease: null }, v
   await mkdir(root);
   await mkdir(artifacts);
   await copyCoverageFixture(resolve(repository, 'scripts/release'), resolve(root, 'scripts/release'));
+  await mkdir(resolve(root, 'scripts/docs'), { recursive: true });
+  await cp(resolve(repository, 'scripts/docs/development-kit.mjs'), resolve(root, 'scripts/docs/development-kit.mjs'));
   await cp(resolve(repository, 'config'), resolve(root, 'config'), { recursive: true });
   const sourcePackage = JSON.parse(await readFile(resolve(repository, 'package.json')));
   sourcePackage.version = version;
@@ -84,6 +86,12 @@ async function fixture(t, { publication = { stable: false, prerelease: null }, v
   }
   const bundle = '{}';
   await writeFile(resolve(artifacts, 'bundle.json'), bundle);
+  await mkdir(resolve(artifacts, 'starter'));
+  await writeFile(resolve(artifacts, 'starter/package-lock.json'), '{}');
+  const starterArchive = 'opaque starter archive';
+  await writeFile(resolve(artifacts, 'development-starter.tar.gz'), starterArchive);
+  const starterReport = JSON.stringify({ sourceCommit: commit, files: { 'package-lock.json': hash('{}') } });
+  await writeFile(resolve(artifacts, 'development-starter.json'), starterReport);
   const evidence = {
     schemaVersion: 3, packages,
     source: { commit, repository: 'marionettejs/marionette', ref: 'refs/heads/master' },
@@ -91,7 +99,9 @@ async function fixture(t, { publication = { stable: false, prerelease: null }, v
     toolchain: { node: process.versions.node, npm: profile.source.npm },
     releaseProfile: { revision: git(root, ['rev-parse', 'HEAD:config/release-profile.json']), sha512: hash(profileBytes), profile },
     promotionPolicy: { revision: git(root, ['rev-parse', 'HEAD:config/release-promotion.json']), sha512: hash(policyBytes), publication: policy.publication },
-    reports: { bundle: { file: 'bundle.json', sha512: hash(bundle) } },
+    reports: { bundle: { file: 'bundle.json', sha512: hash(bundle) },
+      developmentStarter: { file: 'development-starter.json', sha512: hash(starterReport),
+        archive: { file: 'development-starter.tar.gz', sha512: hash(starterArchive) } } },
   };
   async function save() {
     const text = JSON.stringify(evidence);

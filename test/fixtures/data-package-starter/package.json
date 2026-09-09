@@ -6,8 +6,18 @@
     "dev": "vite --host 127.0.0.1",
     "test": "node --test workspace.test.mjs",
     "build": "vite build",
-    "validate": "node --test workspace.test.mjs && vite build"
+    "validate": "npm run typecheck && npm run lint && npm test && npm run build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings=0"
   },
-  "dependencies": { "jsdom": "30.0.1", "vite": "8.2.2" },
-  "allowScripts": { "fsevents@2.3.3": true }
+  "allowScripts": {
+    "fsevents@2.3.3": true
+  },
+  "devDependencies": {
+    "jsdom": "30.0.1",
+    "vite": "8.2.2",
+    "typescript": "6.0.3",
+    "eslint": "10.10.0",
+    "@typescript-eslint/parser": "8.69.0"
+  }
 }

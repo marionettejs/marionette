@@ -88,7 +88,7 @@ export default async function setup() {
       if (manifest.name !== entry.name || manifest.version !== entry.version) {
         throw new Error(`Packed browser package identity mismatch for ${configuration.name}.`);
       }
-      candidate.packages.push({ ...entry, directory, manifest });
+      candidate.packages.push({ ...entry, directory, manifest, artifact: tarball });
     }
     const candidateFile = join(temporaryDirectory, 'candidate.json');
     await writeFile(candidateFile, JSON.stringify(candidate));
@@ -98,7 +98,7 @@ export default async function setup() {
     // Persist exact hashes next to the reports after the temporary packages go away.
     await writeFile(join(reportDirectory, 'candidate.json'), JSON.stringify({
       source: candidate.source,
-      packages: candidate.packages.map(({ directory, manifest, ...entry }) => entry)
+      packages: candidate.packages.map(({ directory, manifest, artifact, ...entry }) => entry)
     }, null, 2));
     return cleanup;
   } catch (error) {

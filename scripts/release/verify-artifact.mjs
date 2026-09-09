@@ -1,3 +1,4 @@
+import { verifyDevelopmentKit } from '../docs/development-kit.mjs';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
@@ -133,6 +134,8 @@ const promotionPolicyBytes = await readFile(resolve(root, 'config/release-promot
 const promotionPolicy = JSON.parse(promotionPolicyBytes.toString('utf8'));
 const checkedOutCommit = run('git', ['rev-parse', 'HEAD']);
 assertEqual(checkedOutCommit, evidence.source.commit, 'checked-out source commit');
+await verifyDevelopmentKit(artifactDir, evidence.reports.developmentStarter, evidence.source.commit);
+
 assertEqual(
   run('git', ['rev-parse', `${checkedOutCommit}:config/release-profile.json`]),
   evidence.releaseProfile.revision,

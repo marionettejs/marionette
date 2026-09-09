@@ -72,7 +72,7 @@
     "coverage": "vitest run --coverage",
     "docs:build": "node scripts/docs/build.mjs",
     "docs:check": "node --test test/docs/export.test.mjs && npm run check:docs-examples && npm run docs:build && node scripts/docs/check-links.mjs",
-    "lint:base": "eslint .",
+    "lint:base": "eslint --config eslint.config.mjs .",
     "lint": "npm run lint:base -- --max-warnings=0",
     "lint:ci": "npm run lint:base -- --max-warnings=0",
     "performance:timing": "npm run build && node scripts/performance/timing.mjs",

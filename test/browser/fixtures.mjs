@@ -3,6 +3,7 @@ import { createServer } from 'node:http';
 import { readFile, readdir } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import ts from 'typescript';
 
 const root = resolve(import.meta.dirname, '../..');
 
@@ -44,7 +45,7 @@ export const test = base.extend({
       }
       if (entry.id === 'core') {
         assets.set('/marionette.umd.js', join(entry.directory, entry.manifest.browser));
-        assets.set('/starter.mjs', join(entry.directory, 'dist/docs/starter/workspace.mjs'));
+        assets.set('/starter.mjs', join(entry.directory, 'dist/docs/starter/workspace.ts'));
       }
     }
     const litRoot = dirname(fileURLToPath(import.meta.resolve('lit-html')));
@@ -62,7 +63,8 @@ export const test = base.extend({
         const asset = assets.get(request.url);
         if (!asset) { response.writeHead(404); response.end('Not found'); return; }
         response.setHeader('content-type', 'text/javascript');
-        response.end(await readFile(asset));
+        const source = await readFile(asset, 'utf8');
+        response.end(asset.endsWith('.ts') ? ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2024, module: ts.ModuleKind.ESNext } }).outputText : source);
       } catch (error) {
         response.writeHead(500);
         response.end(error.message);

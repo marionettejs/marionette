@@ -41,6 +41,6 @@ console.log(`Packaged ${manifest.pages.length} consumer documentation pages in d
 const starterDestination = resolve(root, 'dist/docs/starter');
 await rm(starterDestination, { recursive: true, force: true });
 await mkdir(starterDestination, { recursive: true });
-for (const file of ['package.json', 'package-lock.json', 'index.html', 'main.mjs', 'workspace.mjs', 'workspace.test.mjs', 'readme.md']) {
+for (const file of ['package.json', 'package-lock.json', 'index.html', 'main.ts', 'workspace.ts', 'workspace.test.mjs', 'readme.md', 'tsconfig.json', 'eslint.config.mjs', 'vite.config.mjs']) {
   await cp(resolve(root, 'test/fixtures/data-package-starter', file), resolve(starterDestination, file));
 }
