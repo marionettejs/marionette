@@ -312,6 +312,12 @@
     "section": "Maintaining Marionette"
   },
   {
+    "source": "docs/maintainers/release-checklist.md",
+    "route": "docs/maintainers/release-checklist",
+    "title": "Release checklist",
+    "section": "Maintaining Marionette"
+  },
+  {
     "source": "docs/maintainers/readme.md",
     "route": "docs/maintainers",
     "title": "Maintain Marionette",

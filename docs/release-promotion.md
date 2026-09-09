@@ -5,6 +5,10 @@ workflow never rebuilds the package after those tarballs are created. The npm ve
 Git tag, GitHub release, package manifest, evidence manifest, and source commit must
 all agree.
 
+Use the [release checklist](./maintainers/release-checklist.md) to coordinate npm,
+GitHub, the website, and MCP. This page owns package promotion and recovery; a
+successful package workflow is only one stage of the complete release.
+
 The machine-readable publication gate is
 [`config/release-promotion.json`](../config/release-promotion.json). Stable publication is
 disabled; prerelease authorization is restricted to `5.0.0-beta.2`. Schema 2 separates `publication.stable`
@@ -193,8 +197,9 @@ its release asset.
   deprecation, or recovery in a public issue linked to the workflow run and release.
 
 The GitHub draft or published release retains the exact assets needed to finish
-recovery even after the temporary workflow artifact expires. Website publication is a
-separate post-v5 task and is not part of this workflow.
+recovery even after the temporary workflow artifact expires. Website and MCP
+publication are separate manual stages of the release checklist, outside this
+package workflow.
 
 ## Publication trust configuration
 
