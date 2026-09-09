@@ -305,13 +305,14 @@ test('standalone GitHub staging rejects stable publication with only prerelease 
   assert.deepEqual(await candidate.calls(), []);
 });
 
-for (const version of ['5.0.0-beta.1', '5.0.0']) {
+for (const version of ['5.0.0-beta.1', '5.0.0-beta.2', '5.0.0']) {
   test(`release notes link installation and migration to the exact candidate for ${version}`, async t => {
-    const candidate = await promotion(t, { version, publication: { stable: true, prerelease: '5.0.0-beta.1' } });
+    const candidate = await promotion(t, { version, publication: { stable: true, prerelease: version.includes('-') ? version : null } });
     const result = candidate.exec('publish-github', 'stage');
     assert.equal(result.status, 0, result.stderr);
     const create = (await candidate.calls()).find(call => call.tool === 'gh' && call.args[1] === 'create');
     const notes = create.args[create.args.indexOf('--notes') + 1];
+    assert.equal(notes.split('\n')[0], 'A little structure for your app, because “the AI seemed confident” is not an architecture.');
     assert.ok(notes.includes(`npm install marionette@${version}`));
     assert.ok(notes.includes(`/blob/${candidate.commit}/changelog.md`));
     assert.ok(notes.includes(`/blob/${candidate.commit}/upgradeGuide.md`));

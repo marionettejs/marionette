@@ -240,6 +240,8 @@ if (mode === 'stage') {
 
   const sourceUrl = `https://github.com/${evidence.source.repository}/blob/${evidence.source.commit}`;
   const notes = [
+    'A little structure for your app, because “the AI seemed confident” is not an architecture.',
+    '',
     `Install core: \`npm install marionette@${evidence.release.version}\`. Keep companion package versions aligned.`,
     '',
     `[Changes](${sourceUrl}/changelog.md) · [Migration guide](${sourceUrl}/upgradeGuide.md)`,
