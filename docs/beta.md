@@ -15,7 +15,7 @@ stable; record any change in migration guidance and the release notes.
 
 Stable v5 requires dependable contracts, public migration and application evidence,
 fresh-agent maintenance work, and bounded stabilization under the
-[roadmap](../ROADMAP.md#stable-v5-release-criteria). Comparative agent superiority
+[roadmap](https://github.com/marionettejs/marionette/blob/master/ROADMAP.md#stable-v5-release-criteria). Comparative agent superiority
 and two complete application rewrites are not release requirements.
 
 This beta makes no comparative agent-effectiveness claim. The public corpus remains
