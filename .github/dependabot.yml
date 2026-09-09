@@ -13,6 +13,12 @@ updates:
     ignore:
       - dependency-name: marionette
       - dependency-name: '@mnjs/*'
+      # Remove when @rollup/plugin-babel supports Babel 8 and the build is validated.
+      - dependency-name: '@babel/*'
+        update-types: [version-update:semver-major]
+      # Remove after typescript-eslint and compiler-API tooling support TypeScript 7.
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
   - package-ecosystem: npm
     directories: ['/test/fixtures/*']
     schedule:

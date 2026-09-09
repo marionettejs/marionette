@@ -33,19 +33,25 @@ packages, review the exact package and version, and then use
 `npm approve-scripts <package>` to add a version-pinned approval. Isolated fixture
 packages keep their own approvals.
 
-CI runs the complete suite on the canonical Ubuntu 24.04 x64 host. Clean installation
-and packed-package fixtures also run on macOS 15 arm64 and Windows 2025 x64. GitHub's
-fixed OS labels still receive runner-image updates, so release evidence records the
-actual image reported by each run. Hosted-runner timings remain informative rather
-than hard performance gates.
+PR CI runs the complete suite on the canonical Ubuntu 24.04 x64 host and clean
+installation and packed-package fixtures on macOS 15 arm64. The full Windows 2025
+x64 package-fixture suite runs after merge on pushes to `master`, and remains a
+required gate for release artifacts. Windows failures therefore surface after
+merge without delaying routine PRs. Release dry runs on PRs test macOS; manually
+dispatched release validation tests both macOS and Windows against the exact
+candidate tarballs before publication.
+
+GitHub's fixed OS labels still receive runner-image updates, so release evidence
+records the actual image reported by each run. Hosted-runner timings remain
+informative rather than hard performance gates.
 
 ## Browser profiles
 
 Browser behavior and transpilation use separate pinned profiles. The
-real-browser contract lane uses `@playwright/test` 1.62.1 with Chromium
-151.0.7922.34 revision 1234, Firefox 153.0 revision 1538, and WebKit 26.5 revision
-2336. These are the builds published for the [Playwright 1.62
-release](https://playwright.dev/docs/release-notes#version-162). Playwright WebKit is
+real-browser contract lane uses `@playwright/test` 1.63.0 with Chromium
+153.0.8010.12 revision 1243, Firefox 155.0 revision 1543, and WebKit 26.6 revision
+2359. These are the builds published for the [Playwright 1.63
+release](https://playwright.dev/docs/release-notes#version-163). Playwright WebKit is
 the compatibility engine; it is not evidence that branded Safari ran in CI.
 
 `npm run test:browser` runs named Playwright projects for all three engines. CI
@@ -70,8 +76,8 @@ browser-support ceilings.
 ## Advancing the profile
 
 Profile changes use a dedicated pull request that updates every pin together and
-passes clean installation, artifact validation, package fixtures, and the complete
-test suite before merge.
+passes the PR checks before merge. Post-merge Windows validation and complete
+release-artifact validation must pass before the new profile is released.
 
 - Review Node and npm patches monthly. Allow a seven-day upstream soak unless a
   security fix requires immediate adoption.
