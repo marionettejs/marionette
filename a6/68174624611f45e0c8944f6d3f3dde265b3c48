@@ -1,0 +1,23 @@
+docs/maintainers/release-checklist.md
+  s_9b715d9e600fb6::t_53bf5c8e3ea566 9,70,130-133
+docs-site/README.md
+  s_9b715d9e600fb6::t_6a10e41b430d87 97
+docs/release-promotion.md
+  s_9b715d9e600fb6::t_4fe0e28967bd4f 132
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "a668174624611f45e0c8944f6d3f3dde265b3c48",
+  "prompts": {},
+  "sessions": {
+    "s_9b715d9e600fb6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08519-c4aa-77e0-96b5-ac8c23eafcfe",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
