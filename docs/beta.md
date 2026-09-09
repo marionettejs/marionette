@@ -1,9 +1,9 @@
 # Try Marionette v5 beta
 
-`5.0.0-beta.1` is intended for application trials. Install that exact version from
-the registry when available, or use the certified candidate tarballs before
-publication. A matching version string alone does not prove that a locally built
-artifact matches a release.
+`5.0.0-beta.1` is published for application trials. Install that exact version from
+the registry. For a later unpublished candidate, use its certified tarballs.
+A matching version string alone does not prove that a locally built artifact
+matches a release.
 
 ## What beta means
 
@@ -21,11 +21,11 @@ Core is `marionette`. The companion packages are `@mnjs/utils`,
 `@mnjs/radio`, `@mnjs/data`, and `@mnjs/adapters`. Keep all package
 versions aligned; install optional providers only when needed. See
 [the migration ledger](./migration-from-v4.md) and [upgrade guide](../upgradeGuide.md).
-The current registry alpha is an older implementation and is not this beta's API.
+The historical registry alpha is an older implementation and is not this beta's API.
 
 ## Start in an empty directory
 
-After publication, install core and the optional native data package explicitly:
+Install core and the optional native data package explicitly:
 
 ```sh
 mkdir my-marionette-app

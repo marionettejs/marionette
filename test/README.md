@@ -142,7 +142,9 @@ Candidate validation runs required checks and tests browser/distribution/fixture
 consumers against the original tarballs. Its separate validation record binds logs,
 three-engine browser results, fixture results and lock hashes to the immutable
 release evidence. Failed/incomplete/mismatched evidence cannot be promoted.
-Publication remains disabled by `config/release-promotion.json`.
+`config/release-promotion.json` separately authorizes stable publication and one
+exact prerelease version. Stable publication remains disabled; beta.1 is the
+currently authorized prerelease. Validation never grants publication permission.
 
 ## Dependency maintenance
 

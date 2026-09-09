@@ -95,7 +95,13 @@ dispatching the protected workflow. Changing this policy changes the source comm
 and invalidates prior certification; rebuild and certify the authorization commit
 before publication.
 
-Prereleases use npm `next` and a GitHub prerelease, never npm `latest`. A later beta
+Prereleases use npm `next` and a GitHub prerelease, never npm `latest`. Verification
+checks the selected dist-tag for every package, and rejects a prerelease also
+assigned to `latest`, even when its tarball bytes match. Tag changes require a
+separately authorized release operation; verification never repairs registry state.
+A missing or stale tag fails with the affected package and expected version.
+After correcting publication or propagation, rerun verification against the same
+certified artifacts. A later beta
 needs a new explicit version authorization. Do not bypass the workflow with an
 ad hoc core-only publish. The existing environment name `stable-release` is also
 used for prereleases so npm trusted-publisher identities remain exact.
@@ -124,6 +130,10 @@ that authorization:
    is stored in GitHub.
 5. Dispatch the workflow from `master` with `publish` true and approve the protected
    environment only after reviewing the source commit and evidence artifact.
+
+Documentation exports derive their channel from the candidate version and this
+policy. Stable metadata uses `latest`; prerelease metadata uses `next`, independently
+of whether publication is currently authorized.
 
 An initial publication requires unused npm, tag, and release targets. A recovery
 rerun may continue when npm integrity and the Git tag already match the verified

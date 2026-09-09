@@ -912,8 +912,12 @@ closed rather than retained as dormant APIs.
 - Bundle and runtime performance evidence is reviewed; shared-runner timings show
   no unexplained regression.
 - Supported entrypoints, declarations, the Chromium/Firefox/WebKit versions and host
-  runtimes pinned in the Phase 0 release profile, examples, install fixtures, and 100
-  percent line and branch coverage pass CI.
+  runtimes pinned in the Phase 0 release profile, examples, and install fixtures pass
+  CI. Every production file has 100 percent function coverage and defaults to full
+  line and branch coverage. The only exceptions are the reviewed absolute uncovered
+  counts in `config/coverage-exceptions.json`; no private probes or coverage ignores
+  may be used to manufacture coverage. The [test guide](test/README.md#coverage-means-observable-execution)
+  defines the same gate for contributors and release candidates.
 - First-party declarations cover the root API and supported adapters without requiring
   DefinitelyTyped, and package-local agent metadata plus the public method contract
   matrix pass generation and drift checks while remaining outside production graphs.

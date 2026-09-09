@@ -1,9 +1,41 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { cp } from 'node:fs/promises';
 import { mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import test from 'node:test';
 import { contentDigest, exportDocs, readResources, sha256, validateNavigation } from '../../scripts/docs/export.mjs';
+
+test('export CLI labels stable and prerelease documentation from the selected policy', async() => {
+  const directory = await mkdtemp(resolve(tmpdir(), 'marionette-doc-channel-'));
+  try {
+    for (const path of ['scripts/docs', 'scripts/release', 'docs-site', 'docs', 'config/diagnostics']) {
+      await mkdir(resolve(directory, path), { recursive: true });
+    }
+    for (const path of ['scripts/docs/export.mjs', 'scripts/release/publication.mjs', 'config/release-promotion.json']) {
+      await cp(new URL(`../../${path}`, import.meta.url), resolve(directory, path));
+    }
+    await writeFile(resolve(directory, 'docs/guide.md'), '# Guide\n');
+    await writeFile(resolve(directory, 'config/diagnostics/catalog.json'), '{}');
+    await writeFile(resolve(directory, 'docs-site/resources.json'), JSON.stringify(['config/diagnostics/catalog.json']));
+    await writeFile(resolve(directory, 'docs-site/navigation.json'), JSON.stringify([
+      { source: 'docs/guide.md', route: 'docs/guide', title: 'Guide', section: 'Start' }
+    ]));
+    execFileSync('git', ['init', '-q'], { cwd: directory });
+    execFileSync('git', ['-c', 'user.name=Docs tests', '-c', 'user.email=docs-tests@example.invalid',
+      '-c', 'core.hooksPath=/dev/null', 'commit', '--allow-empty', '-qm', 'docs fixture'], { cwd: directory });
+    for (const [version, channel] of [['5.0.0', 'latest'], ['5.0.0-beta.2', 'next']]) {
+      await writeFile(resolve(directory, 'package.json'), JSON.stringify({ name: 'marionette', version }));
+      execFileSync(process.execPath, ['scripts/docs/export.mjs'], { cwd: directory });
+      const manifest = JSON.parse(await readFile(resolve(directory, '.docs-export/manifest.json'), 'utf8'));
+      assert.equal(manifest.packageVersion, version);
+      assert.equal(manifest.channel, channel);
+    }
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
 
 test('rejects unsafe paths and ambiguous source or route entries', () => {
   const valid = { source: 'docs/readme.md', route: 'docs', title: 'Docs', section: 'Start' };

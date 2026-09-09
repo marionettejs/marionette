@@ -15,6 +15,11 @@ development/test, an existing production path, or an opt-in runtime path.
 Implement one canonical behavior. Do not add compatibility paths without a
 verified requirement and a removal condition.
 
+During v5 stabilization, flag any necessary production-library change before
+applying it. Present the supported public reproduction, proposed source/API change,
+and runtime cost so the maintainer can scrutinize it. Tooling, test, or mutation
+failures alone do not authorize changes to `src/` or `packages/*/src/`.
+
 Use authored TypeScript source and public package APIs. Keep agent guidance,
 benchmarks, inspection tools, and development helpers out of production imports.
 An unused optional feature must add no per-instance resources or global registry.

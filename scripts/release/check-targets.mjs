@@ -56,9 +56,11 @@ const verification = run(process.execPath, [resolve(root, 'scripts/release/verif
 if (verification.status !== 0) {
   throw new Error(`Release candidate is not verified: ${verification.stderr}`);
 }
+const promotionPolicy = JSON.parse(await readFile(resolve(root, 'config/release-promotion.json'), 'utf8'));
 
 const npmAttempts = mode === 'verify-npm' ? 12 : 1;
 const npmStates = [];
+const channelViolations = [];
 for (const packageEvidence of evidence.packages) {
   const packageName = packageNames.get(packageEvidence.id);
   let state;
@@ -93,6 +95,20 @@ for (const packageEvidence of evidence.packages) {
     throw new Error(`${packageName} npm view exited with status ${npmError.status} after ${npmAttempts} attempts.`);
   }
   npmStates.push({ packageEvidence, packageName, state });
+  if (mode === 'verify-npm' && state === 'exact') {
+    const tagsResult = run(process.execPath, [npmExecPath, 'view', packageName, 'dist-tags', '--json']);
+    if (tagsResult.status !== 0) {
+      throw new Error(`${packageName} npm dist-tag lookup failed: ${tagsResult.stderr}`);
+    }
+    const tags = JSON.parse(tagsResult.stdout);
+    const { npmTag, version, prerelease } = evidence.release;
+    if (!tags || typeof tags !== 'object' || Array.isArray(tags) || tags[npmTag] !== version) {
+      channelViolations.push(`${packageName}: ${npmTag} must point to ${version}`);
+    }
+    if (prerelease && tags?.[promotionPolicy.npm.stableTag] === version) {
+      channelViolations.push(`${packageName}: a prerelease must not be on ${promotionPolicy.npm.stableTag}`);
+    }
+  }
 }
 
 const repositoryUrl = `https://github.com/${evidence.source.repository}.git`;
@@ -175,5 +191,9 @@ if (mode === 'verify-npm') {
   if (incomplete.length) {
     throw new Error(`Published npm integrity is not exact for ${incomplete
       .map(({ packageName }) => packageName).join(', ')}.`);
+  }
+  if (channelViolations.length) {
+    throw new Error(`Published npm channels violate release policy (${channelViolations.join('; ')}). ` +
+      'Inspect the registry and correct dist-tags through an authorized release operation, then rerun verification.');
   }
 }

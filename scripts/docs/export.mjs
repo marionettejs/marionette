@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdir, readFile, realpath, rename, rm, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { releaseChannel } from '../release/publication.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 export const sha256 = value => createHash('sha256').update(value).digest('hex');
@@ -67,6 +68,7 @@ export async function exportDocs() {
   const navigation = JSON.parse(await readFile(resolve(root, 'docs-site/navigation.json'), 'utf8'));
   validateNavigation(navigation);
   const pkg = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));
+  const policy = JSON.parse(await readFile(resolve(root, 'config/release-promotion.json'), 'utf8'));
   const git = args => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
   const assetSources = JSON.parse(await readFile(resolve(root, 'docs-site/resources.json'), 'utf8'));
   if (!Array.isArray(assetSources) || !assetSources.includes('config/diagnostics/catalog.json')) {
@@ -84,7 +86,7 @@ export async function exportDocs() {
     schemaVersion: 1,
     packageName: pkg.name,
     packageVersion: pkg.version,
-    channel: 'next',
+    channel: releaseChannel(policy, pkg.version),
     sourceRepository: 'https://github.com/marionettejs/marionette',
     sourceRevision,
     sourceDirty,
