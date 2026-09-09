@@ -899,8 +899,12 @@ export async function measure({
   };
 }
 
-function consumerArtifactIds() {
-  return consumerScenarioIds.flatMap(scenario =>
+function consumerArtifactIds(version = 'v2') {
+  // The exact PR base can still contain the archived v1 measurement. Validate
+  // its own six scenarios; v2 adds three and must not invent a size delta.
+  const scenarios = version === 'v1' ? consumerScenarioIds.slice(0, 6) :
+    version === 'v2' ? consumerScenarioIds : [];
+  return scenarios.flatMap(scenario =>
     consumerFormatIds.map(format => `${scenario}:${format}`));
 }
 
@@ -920,9 +924,9 @@ function validateConsumerBundleReport(report, label, isCurrent) {
     violations.push(`${label} consumer bundle metadata is not canonical`);
   }
 
-  const expectedIds = consumerArtifactIds();
+  const expectedIds = consumerArtifactIds(isCurrent ? 'v2' : report.fixtureVersion);
   const actualIds = report.artifacts.map(artifact => artifact?.id);
-  if (!isDeepStrictEqual(actualIds, expectedIds)) {
+  if (!expectedIds.length || !isDeepStrictEqual(actualIds, expectedIds)) {
     violations.push(`${label} consumer bundle artifact inventory is not canonical`);
   }
   for (const artifact of report.artifacts) {
