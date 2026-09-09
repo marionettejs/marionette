@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "status": "reporting",
   "fixture": {
-    "version": "v1",
-    "path": "benchmarks/consumer-bundles/v1/manifest.json",
-    "sha256": "69ac1d3a2090b9f05f1b55a449df7b03ceff2b30683485948165c7494806d507"
+    "version": "v2",
+    "path": "benchmarks/consumer-bundles/v2/manifest.json",
+    "sha256": "d3b22d2eadef621768d8279af5f57517b0d91d261940d21fd12a0890b4d99297"
   },
   "toolchain": {
     "rollup": "4.63.1",

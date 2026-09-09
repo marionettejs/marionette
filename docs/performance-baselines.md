@@ -12,6 +12,13 @@ public instance-construction and retention observations. Core, data, and adapter
 measured separately. ESM, CommonJS, and UMD are alternative distributions, not
 bytes every application downloads together.
 
+The current consumer-bundle authority is fixture v2. It retains the v1 full-root
+and optional-adapter entries unchanged and adds named-import applications for
+`View` plus `Region`, native `CollectionView` data, and `Application` plus state.
+Changing fixture versions makes the resulting report non-comparable with older
+bundle evidence; the old fixture remains available for replay rather than being
+silently rewritten.
+
 CI compares the exact PR base with the candidate. Each checkout uses its own measurement
 script, configuration, package exports, and built files.
 The report labels new and removed paths explicitly; a renamed adapter appears as
@@ -65,6 +72,58 @@ p95 changes and identifies changed workloads as non-comparable. Hosted timings
 are noisy: investigate meaningful changes with matched builds and repeated,
 alternating runs before attributing them to a code change. Do not replace a full
 benchmark result with an unlabeled targeted retry.
+
+That command remains the active CI-comparable jsdom and Backbone adapter-backed
+series retained for matched historical comparisons. Its workload IDs, environment,
+and results should be interpreted on those terms. It does not measure browser
+layout or paint, native `@mnjs/data`, or Application/state composition.
+
+The separate browser runner exercises representative v5 public APIs in a real
+browser:
+
+```sh
+node scripts/performance/browser.mjs --profile validation
+node scripts/performance/browser.mjs --profile baseline \
+  --runner-note "exclusive quiet host; no other builds or tests"
+```
+
+The validation profile runs one warmup and two retained samples. It is a bounded
+functional check and is always labeled ineligible as a baseline. The baseline
+profile runs five warmups and 25 retained samples in headless Chromium. Its
+defaults may be inspected or varied with `--browser chromium|firefox|webkit`,
+`--headed`, `--samples <count>`, `--warmups <count>`, `--output <path>`, and
+`--runner-note <text>`. Any baseline profile override is labeled ineligible for
+the canonical baseline comparison. A matching command still requires the operator
+to confirm an exclusive quiet-host window; the runner records that note but cannot
+prove host isolation.
+
+The browser fixture covers three bounded workloads in a fixed order:
+
+- Native-data list update, same-position replacement, and reorder with 250 rows.
+  It also asserts that an unrelated survivor keeps its View, DOM node, focus,
+  selection, and unsaved input value. A layout read and animation-frame boundary
+  include browser rendering work in the sample.
+- Application startup superseded by restart, followed by successful destruction,
+  over 25 cycles. It asserts cancellation, absence of stale start events, and
+  consumer-owned lifecycle resource release.
+- Forty alternating borrowed/owned state mounts and destructions. A consumer-owned
+  external source records subscription removal, owned disposal ordering, late
+  callbacks, delegated DOM callbacks, and remaining managed DOM.
+
+The JSON report retains every warmup duration, every raw sample and its observable
+outcomes, median/p95/min/max summaries, workload configuration and order, source
+commit and dirty state, fixture and built-artifact SHA-256 values, browser version
+and mode, Node/npm/Playwright versions, host details, lifecycle monitoring, and
+whether accessibility instrumentation was enabled. Source and artifact fingerprints
+are captured before launch and verified again after all samples; input drift fails
+the run instead of producing a mislabeled report. Each workload has a ten-second
+deadline so a stalled browser operation still reaches browser/server cleanup.
+The default report path is `test/tmp/performance/browser-report.json`.
+
+These successful teardown observations establish the documented public cleanup
+outcomes for the measured operations. They do not establish garbage collection or
+heap reachability. No counter, listener set, lifecycle event, or DOM observation is
+reported as GC evidence, and there is no timing or WeakRef pass/fail gate.
 
 The release profile pins the build toolchain. Reports retain the measured
 artifact inventory and timing workload metadata so comparisons can be assessed.

@@ -12,7 +12,12 @@ import {
   measureResources,
   resourceReportRows,
 } from './resources.mjs';
-import { isCoreRuntimeArtifact, isDocumentationArtifact } from './runtime-scope.mjs';
+import {
+  isCoreRuntimeArtifact,
+  isDocumentationArtifact,
+  isToolingArtifact,
+  isToolingExport,
+} from './runtime-scope.mjs';
 
 const compress = promisify(brotliCompress);
 const consumerScenarioIds = [
@@ -22,6 +27,9 @@ const consumerScenarioIds = [
   'root-plus-backbone',
   'root-plus-jquery',
   'root-plus-backbone-jquery',
+  'view-region',
+  'native-data-list',
+  'application-state',
 ];
 const consumerFormatIds = ['esm', 'cjs', 'umd'];
 const consumerCompression = { algorithm: 'brotli', quality: 11 };
@@ -110,6 +118,11 @@ function packageRuntimePath(directory, path) {
 export function runtimeSubpaths(packageJson, packageName = null) {
   return Object.entries(packageJson.exports || {})
     .filter(([, value]) => collectRuntimePaths(value).size)
+    .filter(([subpath, value]) => !isToolingExport(
+      packageJson.name,
+      subpath,
+      [...collectRuntimePaths(value)]
+    ))
     .map(([subpath]) => packageName ? publicSubpath(packageName, subpath) : subpath)
     .sort();
 }
@@ -159,9 +172,15 @@ export function validateContract(
   }
 
   const declaredPaths = new Set(runtimePackages.flatMap(({ directory, packageJson: manifest }) => {
+    const runtimeExports = Object.fromEntries(Object.entries(manifest.exports || {})
+      .filter(([subpath, value]) => !isToolingExport(
+        manifest.name,
+        subpath,
+        [...collectRuntimePaths(value)]
+      )));
     return [...collectRuntimePaths({
       browser: manifest.browser,
-      exports: manifest.exports,
+      exports: runtimeExports,
       main: manifest.main,
       module: manifest.module,
     })].map(path => packageRuntimePath(directory, path));
@@ -277,8 +296,8 @@ export function validateConsumerBundleContract(
     'path',
     'sha256',
     'version',
-  ]) || contract.fixture.version !== 'v1' ||
-      contract.fixture.path !== 'benchmarks/consumer-bundles/v1/manifest.json' ||
+  ]) || contract.fixture.version !== 'v2' ||
+      contract.fixture.path !== 'benchmarks/consumer-bundles/v2/manifest.json' ||
       typeof contract.fixture.sha256 !== 'string' ||
       !/^[a-f\d]{64}$/.test(contract.fixture.sha256)) {
     violations.push('consumerBundles fixture authority is malformed');
@@ -330,7 +349,7 @@ export function validateConsumerBundleContract(
   if (missingPeers.length) {
     violations.push(`Consumer bundle peers are not declared runtime peers: ${missingPeers.join(', ')}`);
   }
-  // Other integrations may add optional peers without changing the frozen v1
+  // Other integrations may add optional peers without changing the versioned
   // scenarios. Exact measured graph checks still reject their runtime imports.
   const additionalRequiredPeers = [...new Set(packageJsons.flatMap(manifest => {
     return Object.keys(manifest.peerDependencies || {}).filter(peer =>
@@ -338,7 +357,7 @@ export function validateConsumerBundleContract(
       manifest.peerDependenciesMeta?.[peer]?.optional !== true);
   }))].sort();
   if (additionalRequiredPeers.length) {
-    violations.push(`Runtime peers outside consumer bundle v1 must be optional: ${additionalRequiredPeers.join(', ')}`);
+    violations.push(`Runtime peers outside consumer bundle fixtures must be optional: ${additionalRequiredPeers.join(', ')}`);
   }
   if (!isDeepStrictEqual(contract.toolchain, consumerToolchain)) {
     violations.push('Consumer bundle toolchain metadata is not canonical');
@@ -355,7 +374,7 @@ export function validateConsumerBundleContract(
   }
 
   const exportedImports = new Set(packageJsons.flatMap(manifest => {
-    return Object.keys(manifest.exports || {}).map(subpath => publicSubpath(manifest.name, subpath));
+    return runtimeSubpaths(manifest, manifest.name);
   }));
   for (const scenario of fixture?.scenarios || []) {
     if (!Array.isArray(scenario.publicImports) || !scenario.publicImports.length ||
@@ -405,12 +424,17 @@ async function readRuntimePackages(root) {
 
 function consumerPackageResolver(root, runtimePackages, peerExternalImports) {
   const importPaths = new Map(runtimePackages.flatMap(({ directory, packageJson }) => {
-    return Object.entries(packageJson.exports || {}).map(([subpath, value]) => {
-      const publicImport = publicSubpath(packageJson.name, subpath);
-      const paths = collectRuntimePaths(value);
-      const esmPath = [...paths].find(path => path.endsWith('.js') && !path.endsWith('.umd.js'));
-      return [publicImport, esmPath ? resolve(root, directory, esmPath) : null];
-    });
+    return Object.entries(packageJson.exports || {})
+      .filter(([subpath, value]) => !isToolingExport(
+        packageJson.name,
+        subpath,
+        [...collectRuntimePaths(value)]
+      )).map(([subpath, value]) => {
+        const publicImport = publicSubpath(packageJson.name, subpath);
+        const paths = collectRuntimePaths(value);
+        const esmPath = [...paths].find(path => path.endsWith('.js') && !path.endsWith('.umd.js'));
+        return [publicImport, esmPath ? resolve(root, directory, esmPath) : null];
+      });
   }));
 
   return {
@@ -727,7 +751,7 @@ export async function measure({
       return [];
     });
     return files.map(path => packageRuntimePath(directory, `dist/${path}`));
-  }))).flat().filter(path => !isDocumentationArtifact(path)).sort();
+  }))).flat().filter(path => !isDocumentationArtifact(path) && !isToolingArtifact(path)).sort();
   const violations = validateContract(
     contract,
     packageJson,

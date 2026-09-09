@@ -12,7 +12,7 @@ import {
 } from '../../scripts/performance/bundle-size.mjs';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
-const fixtureUrl = new URL('../../benchmarks/consumer-bundles/v1/manifest.json', import.meta.url);
+const fixtureUrl = new URL('../../benchmarks/consumer-bundles/v2/manifest.json', import.meta.url);
 const contractUrl = new URL('../../benchmarks/consumer-bundles/contract.json', import.meta.url);
 const performanceUrl = new URL('../../config/performance.json', import.meta.url);
 const packageUrl = new URL('../../package.json', import.meta.url);
@@ -74,9 +74,9 @@ describe('consumer bundle measurements', () => {
     });
 
     assert.equal(result.status, 'reporting');
-    assert.equal(result.fixtureVersion, 'v1');
+    assert.equal(result.fixtureVersion, 'v2');
     assert.deepEqual(result.compression, { algorithm: 'brotli', quality: 11 });
-    assert.equal(result.artifacts.length, 18);
+    assert.equal(result.artifacts.length, 27);
     assert.deepEqual(
       [...new Set(result.artifacts.map(({ format }) => format))],
       ['esm', 'cjs', 'umd']
@@ -166,7 +166,7 @@ describe('consumer bundle measurements', () => {
     }
   });
 
-  test('keeps canonical peers declared and rejects required peers outside v1', async() => {
+  test('keeps canonical peers declared and rejects required peers outside fixtures', async() => {
     const { brotliQuality, contract, fixture, fixtureRevision, packageJson, packageJsons } = await canonicalInputs();
     const adapters = packageJsons[1];
     delete adapters.peerDependencies.backbone;
@@ -179,13 +179,13 @@ describe('consumer bundle measurements', () => {
     delete adapters.peerDependenciesMeta.morphdom;
     assert.match(validateConsumerBundleContract(
       contract, fixture, packageJson, brotliQuality, fixtureRevision, packageJsons,
-    ).join('\n'), /outside consumer bundle v1 must be optional: morphdom/);
+    ).join('\n'), /outside consumer bundle fixtures must be optional: morphdom/);
 
     adapters.peerDependenciesMeta.morphdom = { optional: true };
     packageJson.peerDependencies = { ...packageJson.peerDependencies, morphdom: '^2.7.8' };
     assert.match(validateConsumerBundleContract(
       contract, fixture, packageJson, brotliQuality, fixtureRevision, packageJsons,
-    ).join('\n'), /outside consumer bundle v1 must be optional: morphdom/);
+    ).join('\n'), /outside consumer bundle fixtures must be optional: morphdom/);
   });
 
   test('rejects expanding frozen peer authority even for a declared optional peer', async() => {
@@ -215,14 +215,18 @@ describe('consumer bundle measurements', () => {
       await Promise.all([
         ...['adapters', 'data', 'utils', 'radio'].map(name =>
           cp(join(root, 'packages', name, 'dist'), join(fixtureRoot, 'packages', name, 'dist'), { recursive: true })),
-        cp(join(root, 'benchmarks/consumer-bundles/v1'), join(fixtureRoot, 'benchmarks/consumer-bundles/v1'), { recursive: true }),
+        ...['v1', 'v2'].map(version => cp(
+          join(root, 'benchmarks/consumer-bundles', version),
+          join(fixtureRoot, 'benchmarks/consumer-bundles', version),
+          { recursive: true }
+        )),
         ...['adapters', 'data', 'utils', 'radio'].map((name, index) =>
           writeFile(join(fixtureRoot, 'packages', name, 'package.json'), JSON.stringify(inputs.packageJsons[index + 1]))),
       ]);
 
       const options = { root: fixtureRoot, ...measurementOptions(inputs) };
       const unusedPeer = await measureConsumerBundles(options);
-      assert.equal(unusedPeer.artifacts.length, 18);
+      assert.equal(unusedPeer.artifacts.length, 27);
       assert.deepEqual(unusedPeer.peerExternalImports, ['backbone', 'jquery']);
       assert.deepEqual(unusedPeer.violations, []);
 
@@ -244,7 +248,7 @@ describe('consumer bundle measurements', () => {
     const comparison = compareConsumerBundleReports(base, current);
 
     assert.equal(comparison.bootstrap, false);
-    assert.equal(comparison.rows.length, 18);
+    assert.equal(comparison.rows.length, 27);
     assert.deepEqual(comparison.rows[0], {
       id: 'root-only:esm',
       scenario: 'root-only',
@@ -338,7 +342,7 @@ describe('consumer bundle measurements', () => {
       const result = compareConsumerBundleReports(base, current);
       assert.deepEqual(result.violations, []);
       assert.match(result.reason, /not comparable/);
-      assert.equal(result.rows.length, 18);
+      assert.equal(result.rows.length, 27);
       assert.ok(result.rows.every(row => row.baseSize === null && row.deltaBytes === null));
     }
   });
@@ -370,11 +374,11 @@ describe('consumer bundle measurements', () => {
           writeFile(join(directory, 'package.json'), JSON.stringify(inputs.packageJsons[index + 1])),
         ]);
       }));
-      await cp(
-        join(root, 'benchmarks/consumer-bundles/v1'),
-        join(fixtureRoot, 'benchmarks/consumer-bundles/v1'),
+      await Promise.all(['v1', 'v2'].map(version => cp(
+        join(root, 'benchmarks/consumer-bundles', version),
+        join(fixtureRoot, 'benchmarks/consumer-bundles', version),
         { recursive: true }
-      );
+      )));
       await writeFile(
         join(fixtureRoot, 'benchmarks/consumer-bundles/v1/root-only.js'),
         'export const drifted = true;\n'
