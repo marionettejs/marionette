@@ -1,0 +1,35 @@
+packages/adapters/rollup.config.mjs
+  s_9b715d9e600fb6::t_414eaf6c2d1677 9,14,25-26,33-34,42-43
+packages/data/rollup.config.mjs
+  s_9b715d9e600fb6::t_be3671911e3d96 9,13
+packages/radio/rollup.config.mjs
+  s_9b715d9e600fb6::t_bcdc912fe7e892 9,13
+packages/utils/rollup.config.mjs
+  s_9b715d9e600fb6::t_583cedd49527f1 7-8
+rollup.config.mjs
+  s_9b715d9e600fb6::t_ff06c35b8ecf45 51,56
+test/fixtures/run.mjs
+  s_9b715d9e600fb6::t_950f72ae294ec3 69,72
+test/fixtures/vite/package.json
+  s_9b715d9e600fb6::t_f1552d95a49e24 6
+test/fixtures/vite/verify-maps.mjs
+  s_9b715d9e600fb6::t_67eac54e061292 1-31
+test/fixtures/vite/vite.config.mjs
+  s_9b715d9e600fb6::t_386596987ef7e5 1-18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "f2d52ab8f4088282cb4ddb818e8fe5659ec3c3af",
+  "prompts": {},
+  "sessions": {
+    "s_9b715d9e600fb6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08519-c4aa-77e0-96b5-ac8c23eafcfe",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
