@@ -139,7 +139,7 @@ export function sameMeasurementInputs(before, after) {
   return isDeepStrictEqual(before, after);
 }
 
-async function serveFixture(entryPath) {
+export async function serveFixture(entryPath) {
   const routes = new Map([
     ['/workloads.js', entryPath],
     ...Object.entries(runtimeAssets).map(([specifier, file]) => [`/${specifier}.js`, resolve(root, file)])
