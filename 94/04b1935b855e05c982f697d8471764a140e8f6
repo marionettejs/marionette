@@ -1,0 +1,49 @@
+docs-site/README.md
+  s_9b715d9e600fb6::t_5f2d3e68e28ab0 62
+docs-site/navigation.json
+  s_9b715d9e600fb6::t_e5bd991d544e77 14-25
+docs-site/pages/errors.md
+  s_9b715d9e600fb6::t_a5e7e87fea3762 12
+docs-site/pages/index.md
+  s_9b715d9e600fb6::t_1cae82f75f6724 5
+docs-site/pages/releases.md
+  s_9b715d9e600fb6::t_b1d87bd7c86e19 4
+docs-site/pages/v5.md
+  s_9b715d9e600fb6::t_b97d4b90fef77e 4
+docs-site/resources.json
+  s_9b715d9e600fb6::t_9d3de8eebf4580 8
+docs/beta.md
+  s_9b715d9e600fb6::t_20f933ec38a9c0 26-29,52-53,105
+docs/development.md
+  s_9b715d9e600fb6::t_15a6a57de63afa 1-87
+docs/installation.md
+  s_9b715d9e600fb6::t_abeddf27ac5415 3-6
+docs/readme.md
+  s_9b715d9e600fb6::t_1598d54cb4ae2b 8-9
+docs/release-promotion.md
+  s_9b715d9e600fb6::t_bbb2f1697d4c96 54-57
+docs/troubleshooting.md
+  s_9b715d9e600fb6::t_fa3ae19da2f5df 1-135
+scripts/docs/build.mjs
+  s_9b715d9e600fb6::t_cedf885d52eed7 167,226-227,229
+test/fixtures/docs-application-guides/package.json
+  s_9b715d9e600fb6::t_6089cf807fc708 4-10
+test/fixtures/docs-application-guides/troubleshooting.mjs
+  s_9b715d9e600fb6::t_ca6b15de19b233 1-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "9404b1935b855e05c982f697d8471764a140e8f6",
+  "prompts": {},
+  "sessions": {
+    "s_9b715d9e600fb6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08519-c4aa-77e0-96b5-ac8c23eafcfe",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
