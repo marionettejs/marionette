@@ -159,13 +159,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - name: macOS arm64
-            host: macos-arm64
-            runner: macos-15
-          - name: Windows x64
-            host: windows-x64
-            runner: windows-2025
+        include: >-
+          ${{ fromJSON(github.event_name == 'pull_request'
+            && '[{"name":"macOS arm64","host":"macos-arm64","runner":"macos-15"}]'
+            || '[{"name":"macOS arm64","host":"macos-arm64","runner":"macos-15"},{"name":"Windows x64","host":"windows-x64","runner":"windows-2025"}]') }}
 
     steps:
       - name: Checkout exact source commit
