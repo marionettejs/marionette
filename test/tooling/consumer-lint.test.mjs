@@ -115,6 +115,15 @@ test('keeps arrow this lexical across extend definitions and class methods', fun
   assert.deepEqual(messages, [{ line: 6, messageId: 'privateMember' }]);
 });
 
+test('does not treat constructor this in static blocks as an instance', function() {
+  assert.deepEqual(lint(`
+    import { View } from 'marionette';
+    class Widget extends View {
+      static { this._getEl(); (() => this._getEl())(); }
+    }
+  `), []);
+});
+
 test('static private-member inventory contains only current source facts', async function() {
   for (const [className, members] of Object.entries(PRIVATE_MEMBERS)) {
     const contents = (await Promise.all(PRIVATE_MEMBER_SOURCES[className].map(path =>

@@ -191,7 +191,8 @@ export function createMarionetteAnalysis(sourceCode) {
 
   function enclosingDefinition(node) {
     for (let current = node.parent; current; current = current.parent) {
-      if ((current.type === 'MethodDefinition' || current.type === 'PropertyDefinition') && current.static) {
+      if (current.type === 'StaticBlock' ||
+          ((current.type === 'MethodDefinition' || current.type === 'PropertyDefinition') && current.static)) {
         return;
       }
       if (current.type === 'ClassDeclaration' || current.type === 'ClassExpression') {

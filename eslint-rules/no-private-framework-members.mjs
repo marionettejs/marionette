@@ -19,6 +19,9 @@ export default {
     const sourceCode = context.sourceCode;
     return {
       'Program:exit'(program) {
+        if (!program.body.some(node => node.type === 'ImportDeclaration' && node.source.value === 'marionette')) {
+          return;
+        }
         const analysis = createMarionetteAnalysis(sourceCode);
         walk(sourceCode, program, node => {
           if (node.type !== 'MemberExpression' || node.computed) {
