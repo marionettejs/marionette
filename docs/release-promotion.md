@@ -100,8 +100,9 @@ and invalidates prior certification; rebuild and certify the authorization commi
 before publication.
 
 Until the first stable v5 release, the current v5 prerelease uses npm `latest`
-and remains a GitHub prerelease. Published beta.1 remains on `latest` until beta.2 is explicitly promoted.
-This candidate does not update either registry tag. Once stable v5 ships, change
+and remains a GitHub prerelease. Preparing or validating beta.2 does not change
+registry tags. Authorized publication moves `latest` from beta.1 to beta.2 for all
+five packages and leaves `next` untouched. Once stable v5 ships, change
 `npm.prereleaseTag` to `next` before authorizing subsequent prereleases so `latest`
 continues to identify stable v5. Verification checks the policy-selected dist-tag
 for every package. Tag changes require an authorized release operation;

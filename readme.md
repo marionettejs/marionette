@@ -36,14 +36,15 @@ We're optimistic about agents. We've also read the diffs.
 ## Trying v5
 
 The v5 pre-release is under active development. These guides describe the current
-source; published alphas can lag behind it. Stable v5 will ship only after
+source; published prereleases can lag behind it. Registry commands below require
+the named version to be published. Stable v5 will ship only after
 the public correctness, agent-development, packaging, browser, and performance gates
 in the [project roadmap](ROADMAP.md) pass.
 
 ## Install
 
 ```sh
-npm install marionette@5.0.0-beta.1
+npm install marionette@5.0.0-beta.2
 ```
 
 Add the mount element to the page:

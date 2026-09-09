@@ -57,6 +57,7 @@ declares the integration-specific peers as optional.
 
 | Peer | Required? | When you need it |
 |---|---|---|
+| `eslint` `^10.0.0` | Optional | Only when using the core package's `marionette/eslint` consumer plugin. |
 | `marionette` `5.0.0-beta.2` | Required | The matching core runtime configured with an adapter. |
 | `backbone` `^1.4.0` | Optional | Only if your app imports `@mnjs/adapters/backbone`. See [Backbone is optional](#backbone-is-optional). |
 | `@types/backbone` `^1.4.23` | Optional | TypeScript declarations for `@mnjs/adapters/backbone`. JavaScript consumers do not need it. |
