@@ -1,5 +1,9 @@
 # Installing Marionette
 
+For a new development trial, start with the [TypeScript development starter](development.md).
+The instructions below cover adding Marionette to an existing application.
+
+
 Install the core package, show a View, then add the integrations your application
 needs. Native DOM APIs, plain objects, and function templates work out of the box.
 

@@ -1,6 +1,11 @@
 {
   "private": true,
   "type": "module",
-  "scripts": { "validate": "node validate.mjs" },
-  "dependencies": { "jsdom": "30.0.1", "typescript": "6.0.3" }
+  "scripts": {
+    "validate": "node validate.mjs && node troubleshooting.mjs"
+  },
+  "dependencies": {
+    "jsdom": "30.0.1",
+    "typescript": "6.0.3"
+  }
 }

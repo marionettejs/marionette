@@ -5,6 +5,7 @@
   "scripts/api-contracts/README.md",
   "test/fixtures/docs-application-guides/package.json",
   "test/fixtures/docs-application-guides/validate.mjs",
+  "test/fixtures/docs-application-guides/troubleshooting.mjs",
   "test/fixtures/docs-routing/package.json",
   "test/fixtures/docs-routing/validate.mjs",
   "test/fixtures/docs-prerendered-content/package.json",

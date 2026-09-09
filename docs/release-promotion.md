@@ -51,6 +51,10 @@ The canonical Ubuntu release job stores these files together as the immutable
 - `release-evidence.json` and its SHA-512 checksum;
 - the complete `npm pack --json` manifest for each package;
 - the Brotli-11 bundle report;
+- the portable `starter/`, `START-HERE.md`, and checksummed development-starter report;
+  `development-starter.tar.gz` carries the same starter and instructions as a GitHub
+  release asset. Extract it beside the five tarballs before verifying a downloaded
+  GitHub release or running the starter;
 - `candidate-validation.json`, its checksum, check logs, browser results and artifact
   identities, and every locked consumer fixture result.
 

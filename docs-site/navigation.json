@@ -12,6 +12,18 @@
     "section": "Start here"
   },
   {
+    "source": "docs/development.md",
+    "route": "docs/development",
+    "title": "Develop with the starter",
+    "section": "Start here"
+  },
+  {
+    "source": "docs/troubleshooting.md",
+    "route": "docs/troubleshooting",
+    "title": "Troubleshoot an application",
+    "section": "Application guides"
+  },
+  {
     "source": "docs/beta.md",
     "route": "docs/beta",
     "title": "Try the beta candidate",

@@ -164,7 +164,7 @@ function pageTemplate({ body, canonicalPath, title }) {
     <header class="site-header">
       <a class="brand" href="/">Marionette</a>
       <nav aria-label="Documentation">
-        <a href="/next/">Next</a>
+        <a href="/development/">Development</a>
         <a href="/v5/">Stable v5</a>
         <a href="/releases/">Releases</a>
         <a href="/errors/">Diagnostics</a>
@@ -223,10 +223,10 @@ async function buildDocs() {
     await writePage(route, diagnosticPage(diagnostic), null, diagnostic.code);
   }
 
-  const nextDocs = JSON.parse(await readFile(resolve(siteDir, 'navigation.json'), 'utf8'));
-  const docSources = nextDocs.map(({ route, source }) => ({
+  const developmentDocs = JSON.parse(await readFile(resolve(siteDir, 'navigation.json'), 'utf8'));
+  const docSources = developmentDocs.map(({ route, source }) => ({
     fileName: source,
-    route: route.replace(/^docs/, 'next'),
+    route: route.replace(/^docs/, 'development'),
     sourcePath: resolve(rootDir, source),
   }));
 
