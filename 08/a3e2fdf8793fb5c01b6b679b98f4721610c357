@@ -1,0 +1,65 @@
+config/release-validation.json
+  s_9b715d9e600fb6::t_1f42a129cf910e 180-183
+docs/maintainers/browser-contract-matrix.md
+  s_9b715d9e600fb6::t_559eb8a7df6ae3 7,13
+package.json
+  s_9b715d9e600fb6::t_5aa41f7d7a7f6c 75
+scripts/docs/development-kit.mjs
+  s_9b715d9e600fb6::t_46e2945d183512 1-101
+scripts/docs/package.mjs
+  s_9b715d9e600fb6::t_6883f7e431b446 44
+scripts/release/build-artifact.mjs
+  s_9b715d9e600fb6::t_f46e82fb140ef7 9,228-242
+scripts/release/publish-github.mjs
+  s_9b715d9e600fb6::t_77964f870852ee 67-68,93-94
+scripts/release/verify-artifact.mjs
+  s_9b715d9e600fb6::t_6ac24477014c7a 1,137-138
+test/browser/fixtures.mjs
+  s_9b715d9e600fb6::t_478f2954664722 6,48,66-67
+test/browser/global-setup.mjs
+  s_9b715d9e600fb6::t_58eb9cff2c0206 91,101
+test/browser/starter-development.spec.mjs
+  s_9b715d9e600fb6::t_d49578cf7cd4fc 1-105
+test/docs/development-kit.test.mjs
+  s_9b715d9e600fb6::t_600b617b0b75a2 1-33
+test/fixtures/data-package-starter/eslint.config.mjs
+  s_9b715d9e600fb6::t_9d11696c40f406 1-8
+test/fixtures/data-package-starter/index.html
+  s_9b715d9e600fb6::t_9e9adc2c54bdc3 13
+test/fixtures/data-package-starter/main.ts
+  s_9b715d9e600fb6::t_b5cc97f8dc11d1 1,3-4,6-17,23-33
+test/fixtures/data-package-starter/package.json
+  s_9b715d9e600fb6::t_b39df71cb76fce 9-11,13-22
+test/fixtures/data-package-starter/readme.md
+  s_9b715d9e600fb6::t_6e89d4340a4f42 1,3-6,8-10,13-15,21-24,26,29-30,32-42
+test/fixtures/data-package-starter/tsconfig.json
+  s_9b715d9e600fb6::t_a217c052d1123f 1-15
+test/fixtures/data-package-starter/vite.config.mjs
+  s_9b715d9e600fb6::t_9e2215b7663854 1-18
+test/fixtures/data-package-starter/workspace.test.mjs
+  s_9b715d9e600fb6::t_da5d44a7fc3933 12,41
+test/fixtures/data-package-starter/workspace.ts
+  s_9b715d9e600fb6::t_77e3d03fb66b75 2-9,13,16,19-20,22,26,29-34,36-40,45,48-52,56-61,65-72,78,83,88,92
+test/release/build.test.mjs
+  s_9b715d9e600fb6::t_e1e04818c8c9d1 38-41,47-54,93-95
+test/release/fixture.mjs
+  s_9b715d9e600fb6::t_6a739191441ee0 34-35,89-94,102-104
+test/fixtures/data-package-starter/package-lock.json
+  s_9b715d9e600fb6::t_5976de5e0ee27f 8-10,12,20,37,53,62-85,90,110,134,162,185,210,226-332,337,351-440,445,458,475,492,509,526,543,560,580,600,620,640,660,680,697,714,728-735,738-943,948,954-995,1000,1014,1028,1039-1056,1061-1068,1075,1085,1094-1282,1287,1301-1346,1351,1362-1394,1399,1408-1450,1455,1458-1464,1469,1506-1543,1548,1581,1602,1623,1644,1665,1686,1710,1734,1758,1782,1803,1817-1832,1837,1847,1850-1872,1877,1892-1948,1953,1962-1981,1986,1993,2006,2031-2040,2045,2051-2070,2075,2085,2119,2128-2163,2168,2178,2185,2202,2215,2222,2235,2244-2283,2288,2294-2303,2308,2386,2399,2409,2419,2430-2455,2460,2470,2472-2484
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "08a3e2fdf8793fb5c01b6b679b98f4721610c357",
+  "prompts": {},
+  "sessions": {
+    "s_9b715d9e600fb6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08519-c4aa-77e0-96b5-ac8c23eafcfe",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
