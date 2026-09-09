@@ -1,0 +1,21 @@
+config/performance.json
+  s_a9364033cda2fa::t_03fe24c2d2b698 23
+package-lock.json
+  s_a9364033cda2fa::t_9c5327ea1439f6 4851-4853,4855
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "1e34927308aa221cb62d39612e07df2552bcc44d",
+  "prompts": {},
+  "sessions": {
+    "s_a9364033cda2fa": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a081e2-41fe-75a2-b8c5-23d9246d92b8",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
