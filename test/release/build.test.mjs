@@ -17,6 +17,8 @@ async function buildFixture(t, { version = '5.0.0-test.1', manifestMutation } = 
     await writeFile(resolve(directory, 'package.json'), JSON.stringify(manifest));
   }
   await writeFile(resolve(candidate.root, '.gitignore'), 'dist/\nnode_modules/\ntest/tmp/\n');
+  await mkdir(resolve(candidate.root, 'test/fixtures/data-package-starter'), { recursive: true });
+  await writeFile(resolve(candidate.root, 'test/fixtures/data-package-starter/package-lock.json'), JSON.stringify({ packages: {} }));
   await mkdir(resolve(candidate.root, 'scripts/performance'), { recursive: true });
   await writeFile(resolve(candidate.root, 'scripts/performance/bundle-size.mjs'), 'console.log(JSON.stringify({ fixture: \'bundle measured\' }));\n');
   git(candidate.root, ['add', '.']);
@@ -38,7 +40,7 @@ if (args[0] === 'run') {
   if (args[1] === 'build') { mkdirSync('dist', { recursive: true }); writeFileSync('dist/built.js', 'built from source');
     mkdirSync('dist/docs/starter', { recursive: true });
     writeFileSync('dist/docs/starter/package.json', JSON.stringify({ name: 'starter', private: true }));
-    writeFileSync('dist/docs/starter/package-lock.json', JSON.stringify({ packages: {} })); }
+  }
   else if (args[1] === 'test:dist') { assert.equal(readFileSync('dist/built.js', 'utf8'), 'built from source'); }
   else { throw new Error('Unexpected npm run: ' + args); }
   if (process.env.RELEASE_TEST_SOURCE_MUTATION) { writeFileSync('changed.js', 'changed during build'); }
