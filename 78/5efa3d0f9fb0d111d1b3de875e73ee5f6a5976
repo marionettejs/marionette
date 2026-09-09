@@ -1,0 +1,65 @@
+test/fixtures/consumer-lint/consumer.mts
+  s_bd170ff740ca58::t_a9f73abd66b5a0 1-4
+tools/eslint/index.d.cts
+  s_bd170ff740ca58::t_ddf214d0335645 1-8
+  s_bd170ff740ca58::t_dddfd091360449 9
+test/fixtures/consumer-lint/valid.txt
+  s_bd170ff740ca58::t_04dc910769fa79 1-11
+test/fixtures/consumer-lint/consumer.cts
+  s_bd170ff740ca58::t_a9f73abd66b5a0 1-4
+test/fixtures/consumer-lint/validate.mjs
+  s_bd170ff740ca58::t_04dc910769fa79 2,15-18
+  s_bd170ff740ca58::t_7b146c18f6a3dc 1,3-13,19-24
+  s_bd170ff740ca58::t_a9f73abd66b5a0 14
+docs/consumer-lint.md
+  s_bd170ff740ca58::t_666653f6bd0375 1-40
+test/fixtures/consumer-lint/package.json
+  s_bd170ff740ca58::t_a9f73abd66b5a0 6,9-10
+  s_bd170ff740ca58::t_7b146c18f6a3dc 1-5,7-8,11-12
+test/tooling/consumer-lint.test.mjs
+  s_bd170ff740ca58::t_666653f6bd0375 1-113
+tools/eslint/index.d.ts
+  s_bd170ff740ca58::t_ddf214d0335645 1-9
+tools/eslint/framework-contract.mjs
+  s_bd170ff740ca58::t_ddf214d0335645 1-20,27-32,34-66
+  s_bd170ff740ca58::t_99c0d18e78477a 21-26,33
+tools/eslint/index.mjs
+  s_bd170ff740ca58::t_1d51549d3d755f 8
+  s_bd170ff740ca58::t_ddf214d0335645 1-7,9-21
+eslint-rules/no-private-framework-members.mjs
+  s_bd170ff740ca58::t_ddf214d0335645 2-26,28-36
+  s_bd170ff740ca58::t_99db746edcdfa0 27
+  s_bd170ff740ca58::t_defccaf3f0b507 1
+test/fixtures/consumer-lint/tsconfig.esm.json
+  s_bd170ff740ca58::t_a9f73abd66b5a0 1-12
+test/fixtures/consumer-lint/consumer-eslint.config.mjs
+  s_bd170ff740ca58::t_a9f73abd66b5a0 1-3
+tools/eslint/analysis.mjs
+  s_bd170ff740ca58::t_99c0d18e78477a 202-204
+  s_bd170ff740ca58::t_2c55b718e0ed15 1-201,205,208-232
+  s_bd170ff740ca58::t_145df991c1a14a 206-207
+test/fixtures/consumer-lint/tsconfig.cjs.json
+  s_bd170ff740ca58::t_a9f73abd66b5a0 1-12
+config/diagnostics/catalog.json
+  s_bd170ff740ca58::t_1f244eb379f58e 682-702
+test/fixtures/consumer-lint/invalid.txt
+  s_bd170ff740ca58::t_04dc910769fa79 1-9
+test/fixtures/consumer-lint/package-lock.json
+  s_bd170ff740ca58::t_acb8a5112ee172 1-984
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "785efa3d0f9fb0d111d1b3de875e73ee5f6a5976",
+  "prompts": {},
+  "sessions": {
+    "s_bd170ff740ca58": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0849e-3aa3-76e0-a103-be1accb6af6b",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
