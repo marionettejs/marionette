@@ -1,5 +1,7 @@
 ### v5.0.0-beta.2
 
+> Now with source maps, so “the AI wrote it” is slightly less useful as a debugging strategy.
+
 * Add embedded authored TypeScript source maps to runtime ESM and CommonJS outputs
 * Add the optional `marionette/eslint` consumer plugin with the `MN0040` private-member rule
 * Ship a generated compact contract reference, troubleshooting recipes, and optional MCP discovery guidance
@@ -12,6 +14,8 @@ This candidate changes development support and distribution tooling, not the cor
 runtime API. Agent-effectiveness benchmarks remain unscored.
 
 ### v5.0.0-beta.1
+
+> A little structure for your app, because “the AI seemed confident” is not an architecture.
 
 * Established `@mnjs` as the companion package scope: utils, radio, data, and
   adapters; the core package remains `marionette`

@@ -312,10 +312,27 @@ for (const version of ['5.0.0-beta.1', '5.0.0-beta.2', '5.0.0']) {
     assert.equal(result.status, 0, result.stderr);
     const create = (await candidate.calls()).find(call => call.tool === 'gh' && call.args[1] === 'create');
     const notes = create.args[create.args.indexOf('--notes') + 1];
-    assert.equal(notes.split('\n')[0], 'A little structure for your app, because “the AI seemed confident” is not an architecture.');
+    assert.equal(notes.split('\n')[0], `Opening for ${version}.`);
     assert.ok(notes.includes(`npm install marionette@${version}`));
     assert.ok(notes.includes(`/blob/${candidate.commit}/changelog.md`));
     assert.ok(notes.includes(`/blob/${candidate.commit}/upgradeGuide.md`));
     assert.equal(notes.includes(`/blob/${candidate.commit}/docs/beta.md`), version.includes('-'));
   });
 }
+
+test('release notes use the verified commit rather than edited working copy prose', async t => {
+  const candidate = await promotion(t);
+  await writeFile(join(candidate.root, 'changelog.md'), '### v5.0.0-test.1\n\n> Unreviewed copy.\n');
+  const result = candidate.exec('publish-github', 'stage');
+  assert.equal(result.status, 0, result.stderr);
+  const create = (await candidate.calls()).find(call => call.tool === 'gh' && call.args[1] === 'create');
+  assert.equal(create.args[create.args.indexOf('--notes') + 1].split('\n')[0], 'Opening for 5.0.0-test.1.');
+});
+
+test('a missing release opening fails the dry run before external calls', async t => {
+  const candidate = await promotion(t, { releaseOpening: null });
+  const result = candidate.exec('publish-github', 'dry-run');
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /must start with a release-specific opening blockquote/);
+  assert.deepEqual(await candidate.calls(), []);
+});

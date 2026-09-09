@@ -135,6 +135,9 @@ Ownership verification requires the public proof file on the default branch; a
 local file alone does not claim the library. Refresh indexing after the reviewed
 configuration lands. Test representative retrieval for version confusion and
 integration choice before presenting Context7 as a reliable shortcut.
+For a release, follow the [Context7 steps in the release checklist](../docs/maintainers/release-checklist.md#5-close-the-release-or-recover):
+register the published version, request a refresh, and verify actual retrieval.
+Refreshing the configured development branch does not pin it to a release.
 
 Each developer connects Context7 using their own account. The docs site does not
 proxy queries or distribute a maintainer API key. Free-tier throttling may make

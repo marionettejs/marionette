@@ -30,10 +30,11 @@ copying credentials or provider configuration into this checklist.
   commands, release policy, and generated contract inventory. Before stable v5,
   publish the current prerelease on `latest`; reserve `next` for later prereleases
   after stable v5. Record the actual tag effects from the policy.
-- [ ] Review the generated release notes, including their first line:
-
-  > A little structure for your app, because “the AI seemed confident” is not an architecture.
-
+- [ ] Write a fresh, lightly snarky opening about what this release actually changes.
+  Put it as a single-line blockquote immediately below that version's heading in
+  `changelog.md`. Review it with the changes; do not reuse a generic slogan or claim
+  unmeasured improvements. The release generator reads that version's opener from
+  the verified source commit, and the dry run reports it and rejects a missing one.
   Keep exact-commit changelog/migration links, install instructions, prerelease
   status, known limits, and artifact evidence below it. Verify the staged and live
   notes as well; generation does not overwrite an existing matching release.
@@ -118,6 +119,17 @@ copying credentials or provider configuration into this checklist.
   Preserve immutable npm versions and GitHub assets. Restore a verified website or
   MCP deployment when appropriate; do not silently change npm tags as part of a
   website rollback. Record any temporary version mismatch and consumer guidance.
-- [ ] Check optional external indexes such as Context7 if used; request an authorized
-  refresh when needed and record observed indexing lag. Keep first-party versioned
-  docs available independently. Publish announcements only when separately authorized.
+- [ ] After the release tag exists, review Context7's source configuration. Our
+  `context7.json` selects `master`, which can contain unreleased work; a refresh of
+  that branch is not an exact release snapshot. Add the published tag through the
+  reviewed `previousVersions` configuration or owner version settings before
+  claiming version-specific support. See [Context7 configuration](https://context7.com/docs/library-owners).
+- [ ] Trigger an authorized refresh of `/marionettejs/marionette` through its
+  signed-in library page or authenticated refresh API after configuration lands.
+  Record completion and test representative version-specific queries against the
+  released docs; distinguish queued indexing from verified retrieval. See
+  [Context7 refreshes](https://context7.com/docs/library-updates).
+- [ ] Record Context7 indexing lag or unsupported version selection as an optional
+  distribution gap. Keep first-party versioned docs available independently; do not
+  block their publication on a third-party index. Publish announcements only when
+  separately authorized.
