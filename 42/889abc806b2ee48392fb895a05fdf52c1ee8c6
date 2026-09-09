@@ -1,0 +1,27 @@
+test/browser/ownership-boundaries.spec.mjs
+  s_9b715d9e600fb6::t_d10b020b449417 96-98
+docs-site/navigation.json
+  s_9b715d9e600fb6::t_36d55aed98d52b 391-402
+docs/maintainers/authorship-inventory.md
+  s_9b715d9e600fb6::t_170a1231cb73c2 1-95
+docs/maintainers/browser-contract-matrix.md
+  s_9b715d9e600fb6::t_5cc4bf428c7af2 1-32
+upgradeGuide.md
+  s_9b715d9e600fb6::t_d1af6086de59b9 7-33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "42889abc806b2ee48392fb895a05fdf52c1ee8c6",
+  "prompts": {},
+  "sessions": {
+    "s_9b715d9e600fb6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08519-c4aa-77e0-96b5-ac8c23eafcfe",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
