@@ -83,4 +83,5 @@ withholds acceptance files until an attempt ends and does not configure paid inf
 
 The widget reader found misleading Region reuse prose, which was corrected.
 These trials add implementation evidence to the earlier reading check; they remain
-separate from the scored release benchmark and the deferred complete application.
+separate from the frozen release usability evaluation and substantial public
+application evidence required by the [roadmap](../../ROADMAP.md#demonstrated-usability).

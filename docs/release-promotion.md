@@ -16,8 +16,11 @@ disabled; prerelease authorization is restricted to `5.0.0-beta.2`. Schema 2 sep
 A beta authorization never authorizes stable or a later prerelease. Both channels
 use the same protected workflow and exact-artifact checks. Pull requests and manual
 dry runs exercise validation without creating an npm version, tag, or release.
-Stable authorization still requires the final evidence in
-[issue #147](https://github.com/marionettejs/marionette/issues/147).
+Stable authorization still requires the final evidence under the current
+[release criteria](../ROADMAP.md#stable-v5-release-criteria), recorded through the
+[release checklist](maintainers/release-checklist.md) and
+[issue #147](https://github.com/marionettejs/marionette/issues/147). Historical issue
+acceptance text does not reinstate retired comparative benchmark gates.
 Pull-request output cannot activate the write-capable jobs: those jobs also require a
 manual dispatch from `master` in this repository with the `publish` input enabled,
 followed by approval of the protected `stable-release` environment.

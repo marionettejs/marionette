@@ -164,5 +164,6 @@ Then review the reading path. Can a reader identify the relevant version, choose
 approach, find required setup, understand ownership, and verify the result without
 private knowledge? Test a few representative retrieval and implementation tasks
 using the published formats, record failures, and fix the pages those failures
-expose. Use the [agent benchmark](../../benchmarks/agent/README.md) for broader
-performance claims; a small editorial trial is not a scored release result.
+expose. Follow the [evaluation plan](../../benchmarks/agent/evaluation-plan.md) for
+release usability evidence and separate comparative research. A small editorial
+trial does not complete either evaluation.

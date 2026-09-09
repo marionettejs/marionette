@@ -1,11 +1,11 @@
 name: v5 implementation task
-description: Maintainer task for the agent-ready Marionette v5 release.
+description: Maintainer task for dependable contracts and demonstrated v5 usability.
 title: "[v5]: "
 body:
   - type: markdown
     attributes:
       value: |
-        Use this template for focused stable-v5 work. The task must be implementable and reviewable using public evidence, with an explicit production-cost boundary.
+        Use this template for focused stable-v5 work under the current ROADMAP.md. The task must be implementable and reviewable using public evidence, with an explicit production-cost boundary. Identify whether it supports a release requirement or separate comparative research; a comparative win is not a stable-release gate.
 
   - type: textarea
     id: goal
@@ -18,8 +18,8 @@ body:
   - type: textarea
     id: agent-failure
     attributes:
-      label: Agent-development failure addressed
-      description: Name the observed ambiguity, mistake, or verification gap.
+      label: Consumer or agent problem addressed
+      description: Name the observed contract defect, migration problem, usability failure, or verification gap.
     validations:
       required: true
 

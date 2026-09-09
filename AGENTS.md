@@ -64,5 +64,5 @@ Follow the public [synchronous failure contract](docs/view.lifecycle.md#synchron
 - Keep test, lint, benchmark, and diagnostic tooling outside production import graphs. Runtime cost remains part of review.
 - Use stable diagnostic codes for invariants. Do not make agent workflows depend on exact prose or undocumented maintainer knowledge.
 - New async CLI code must await work and propagate failures. Preserve concise failure output plus detailed machine-readable artifacts.
-- Report commands actually run, source revision, failures, and gaps. Coverage and a successful reference solution do not establish agent readiness; that requires the frozen benchmark and scored evidence.
-- Do not run paid agent benchmarks without the predeclared profile, model, permissions, run count, spend and elapsed-time budget required by #128.
+- Report commands actually run, source revision, failures, and gaps. Coverage and a successful reference solution do not establish agent usability; that requires the frozen usability evaluation and public application evidence in ROADMAP.md. Comparative research is separate from release readiness.
+- Do not run paid agent pilots or evaluations without a predeclared model/runner profile, permissions, run count, spend and elapsed-time budget, and authorization for that envelope. Follow [the evaluation plan](benchmarks/agent/evaluation-plan.md).
