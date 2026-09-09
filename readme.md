@@ -1,6 +1,6 @@
 <h1 align="center">Marionette.js</h1>
 <p align="center">
-  <img title="Marionette" alt="Marionette logo" src="https://github.com/marionettejs/marionette/raw/master/marionette-logo.png" />
+  <img title="Marionette" alt="Marionette logo" src="https://github.com/marionettejs/marionette/raw/master/marionette-mark.svg" width="140" height="145" />
 </p>
 <p align="center">Pull a few strings. Give your interface some structure.</p>
 <p align="center">
