@@ -1,0 +1,23 @@
+docs/data.api.md
+  s_9b715d9e600fb6::t_b231ced076d563 219
+docs/migration-from-v4.md
+  s_9b715d9e600fb6::t_eccf454dc74b9a 23
+docs/optional-backbone.md
+  s_9b715d9e600fb6::t_0fca314bfc2cc6 10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "1c681bf07bfa88e74ca67df2dfdf394156c3c5a6",
+  "prompts": {},
+  "sessions": {
+    "s_9b715d9e600fb6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08519-c4aa-77e0-96b5-ac8c23eafcfe",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
