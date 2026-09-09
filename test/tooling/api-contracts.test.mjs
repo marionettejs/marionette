@@ -131,7 +131,8 @@ test('the committed real inventory matches and keeps metadata out of production 
     assert.doesNotMatch(JSON.stringify(entry.conditions), /(?:api-contracts|eslint)/);
   }
   const resources = JSON.parse(readFileSync(resolve(repository, 'docs-site/resources.json'), 'utf8'));
-  for (const file of ['inventory.json', 'semantics.json', 'readme.md']) {
+  for (const file of ['inventory.json', 'semantics.json']) {
     assert.ok(resources.includes(`config/api-contracts/${file}`));
   }
+  assert.ok(resources.includes('scripts/api-contracts/README.md'));
 });
