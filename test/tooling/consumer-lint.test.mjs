@@ -102,6 +102,19 @@ test('reports private access on inline constructed framework receivers', functio
   ]);
 });
 
+test('keeps arrow this lexical across extend definitions and class methods', function() {
+  const messages = lint(`
+    import { View, Region } from 'marionette';
+    const Outside = View.extend({ inspect: () => this._getEl() });
+    class Host extends Region {
+      inspect() {
+        return View.extend({ inspect: () => this._ensureElement() });
+      }
+    }
+  `);
+  assert.deepEqual(messages, [{ line: 6, messageId: 'privateMember' }]);
+});
+
 test('static private-member inventory contains only current source facts', async function() {
   for (const [className, members] of Object.entries(PRIVATE_MEMBERS)) {
     const contents = (await Promise.all(PRIVATE_MEMBER_SOURCES[className].map(path =>
