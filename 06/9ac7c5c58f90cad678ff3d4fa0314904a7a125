@@ -1,0 +1,29 @@
+readme.md
+  s_bd170ff740ca58::t_7870d1b88b2797 3
+marionette-mark.svg
+  s_6cb010ef861068::t_8311e2f48d3912 1-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "069ac7c5c58f90cad678ff3d4fa0314904a7a125",
+  "prompts": {},
+  "sessions": {
+    "s_6cb010ef861068": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a084b0-ec59-7903-936b-4a4c167d08b8",
+        "model": "unknown"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_bd170ff740ca58": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0849e-3aa3-76e0-a103-be1accb6af6b",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
