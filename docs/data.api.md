@@ -216,7 +216,7 @@ Install `@mnjs/data` with `marionette` when an application wants a small
 first-party observable Model and ordered Collection without Backbone:
 
 ```sh
-npm install marionette@5.0.0-beta.1 @mnjs/data@5.0.0-beta.1
+npm install marionette@5.0.0-beta.2 @mnjs/data@5.0.0-beta.2
 ```
 
 ```javascript
