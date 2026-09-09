@@ -134,16 +134,15 @@ readable. Treat its result as a retrieved excerpt whose version still needs
 checking. Adding the public repository to an index is distinct from claiming its
 ownership or publishing a new source revision.
 
-Do not add a hosted AI chat, paid search backend, server-side generation, or a
-remote MCP service to make ordinary documentation work. A local or downloadable
-tool can be evaluated later if a demonstrated task needs it and its cost is clear.
+Do not require a hosted AI chat, paid search backend, or server-side generation
+to read documentation. The optional documentation MCP must serve the same verified
+corpus within the authorized free hosting limits. Keep static and installed docs
+available independently; a service outage must not prevent application work.
 
 ## Give tools a specific job
 
 Static docs explain the contract. Executable fixtures establish the behavior they
-assert. A documentation MCP server would provide retrieval; it should be added
-only if existing direct files and optional retrieval services leave a demonstrated
-gap. It must not become a requirement for using the library.
+assert. The documentation MCP provides structured retrieval over that same corpus. It must not become a requirement for using the library.
 
 The website's WebMCP tools operate its live examples and playground. Keep that
 boundary explicit: inspecting an example is not inspecting the reader's app, and a

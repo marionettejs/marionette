@@ -95,6 +95,7 @@ copied into a consumer application.
 | --- | --- | --- |
 | Packaged Markdown and manifest | Reading the contract shipped with an installed package | Available offline; verify custom runtime provenance separately. |
 | Website Markdown and `llms.txt` | Discovering pages and reading a published snapshot | An index is a set of links, not automatic instruction installation. Check version and source metadata. |
+| Documentation MCP | Structured search, full-document retrieval, and example discovery | See [MCP setup](https://marionettejs.com/docs/mcp/). Configure the client explicitly, check the catalog version/source, and follow pagination. It does not inspect or test your application. |
 | Context7 | Finding relevant excerpts through a supported agent integration | Optional third-party retrieval; results can omit setup or mix versions. Verify against the exact source. |
 | Local skill helper | Finding and checking packaged docs from a consumer workspace | Reads files only; no network, project-code execution, or automatic fallback. |
 | Website WebMCP tools | Operating the website's interactive example | Controls that example, not the consumer application. It is not a remote documentation server. |
@@ -108,7 +109,8 @@ and [documentation](https://context7.com/docs) before configuring an account.
 Public indexing does not prove that the latest source configuration is active.
 
 Marionette does not require a custom MCP server, a hosted AI chat, or a WebMCP
-connection to build an application. A future local MCP wrapper would need to solve
-a demonstrated client integration gap beyond reading these files. Keep tooling
+connection to build an application. The optional documentation MCP provides another retrieval interface over the
+website snapshot. It may not yet cover your installed version; use the bundled
+docs when its catalog does not match. Keep tooling
 outside the production import graph and avoid duplicating the contract in tool
 prompts. The same documentation remains available to human readers.
