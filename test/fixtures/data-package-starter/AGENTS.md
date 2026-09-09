@@ -8,8 +8,10 @@ website examples for a different installed version.
 
 Optional skill setup: `node_modules/marionette/dist/docs/docs/agent-tools.md`.
 That guide also describes documentation retrieval. The website's MCP setup is
-at https://marionettejs.com/docs/mcp/. Use it only when its catalog matches this
-installation; local Markdown remains sufficient. Website WebMCP operates its
+at https://marionettejs.com/docs/mcp/. Read `marionette://catalog` and use remote
+docs only when version and source match this installation. Pass the exact installed
+`version` to each tool; follow `nextOffset` until it is `null`. Local Markdown
+remains sufficient. Website WebMCP operates its
 workshop, not this application.
 
 ## Existing architecture

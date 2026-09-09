@@ -120,9 +120,10 @@ to preserve this project's actual decisions across tasks.
 
 For optional structured retrieval, follow the website's
 [documentation MCP setup](https://marionettejs.com/docs/mcp/). A link does not
-configure a client or activate a skill. Read the MCP catalog first; use its
-`search_docs` and `get_doc` tools only when package version and source match this
-application. Follow `nextOffset` to read the complete contract, not just a search
+configure a client or activate a skill. Read `marionette://catalog` first; use its
+tools only when package version and source match this application, passing the
+exact installed `version` on every call. Follow `nextOffset` until it is `null`
+to read the complete contract, not just a search
 snippet. An unsupported version should send you back to the installed docs, not
 cause a dependency upgrade. WebMCP is separate: it controls website examples.
 

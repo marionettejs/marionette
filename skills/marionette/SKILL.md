@@ -53,8 +53,10 @@ Start with packaged `docs/agents.md`, then use these source paths from the manif
   `docs/diagnostic-catalog.md`.
 
 If the client already has the Marionette documentation MCP configured, consult
-its catalog before searching. Use remote documents only when version and source
-match this installation, and follow `nextOffset` to retrieve the complete page.
+the `marionette://catalog` resource before searching. Use remote documents only
+when version and source match this installation. Pass the exact installed
+`version` to every tool and follow `nextOffset` until it is `null` to retrieve the
+complete page or example.
 Setup instructions: https://marionettejs.com/docs/mcp/. A URL in these instructions
 does not install an MCP connection. Keep the installed docs when the catalog is
 unsupported or the service is unavailable. Website WebMCP only controls its own

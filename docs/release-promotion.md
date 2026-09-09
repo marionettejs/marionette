@@ -120,6 +120,22 @@ package; never publish an empty placeholder to reserve the name. Record its exac
 integrity and configure its trusted publisher before continuing the same-artifact
 recovery path. A dry run does not prove account or scope permission.
 
+## Website and MCP snapshot handoff
+
+Package publication does not deploy the website or its documentation MCP. After an
+authorized release, import the documentation artifact from that exact source into
+the [website repository](https://github.com/marionettejs/website) and follow its
+manual publication procedure. Keep the previous snapshot identified by its actual
+version until the replacement is verified; do not relabel it as the new release.
+
+Before announcing hosted documentation support for the release, verify the live
+website provenance and `marionette://catalog` at `https://mcp.marionettejs.com/mcp`
+against the released package's version and source revision. Exercise initialization,
+tool discovery, search, complete document/example pagination, and version rejection
+through an MCP client. The website's MCP runbook owns deployment and hosted-runtime
+checks. Until the snapshot matches, direct new-version consumers to their bundled
+Markdown. See [MCP setup](https://marionettejs.com/docs/mcp/) for client instructions.
+
 ## Stable publication authorization
 
 Final release authorization requires one reviewed commit that changes
