@@ -48,10 +48,10 @@ informative rather than hard performance gates.
 ## Browser profiles
 
 Browser behavior and transpilation use separate pinned profiles. The
-real-browser contract lane uses `@playwright/test` 1.62.1 with Chromium
-151.0.7922.34 revision 1234, Firefox 153.0 revision 1538, and WebKit 26.5 revision
-2336. These are the builds published for the [Playwright 1.62
-release](https://playwright.dev/docs/release-notes#version-162). Playwright WebKit is
+real-browser contract lane uses `@playwright/test` 1.63.0 with Chromium
+153.0.8010.12 revision 1243, Firefox 155.0 revision 1543, and WebKit 26.6 revision
+2359. These are the builds published for the [Playwright 1.63
+release](https://playwright.dev/docs/release-notes#version-163). Playwright WebKit is
 the compatibility engine; it is not evidence that branded Safari ran in CI.
 
 `npm run test:browser` runs named Playwright projects for all three engines. CI
