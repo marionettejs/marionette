@@ -1,0 +1,23 @@
+benchmarks/browser-performance/retention/workloads.js
+  s_9b715d9e600fb6::t_489bd500d26878 35,46,50
+.github/workflows/browser-evidence.yml
+  s_9b715d9e600fb6::t_99e2ebf6ceebc0 1-46
+docs/performance-baselines.md
+  s_9b715d9e600fb6::t_4d8dbdce1459a8 173-182
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "a8b07fdab34971974698c3cbe6f2744ec21a4d81",
+  "prompts": {},
+  "sessions": {
+    "s_9b715d9e600fb6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08519-c4aa-77e0-96b5-ac8c23eafcfe",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
