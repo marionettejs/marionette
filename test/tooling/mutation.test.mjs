@@ -15,6 +15,15 @@ test('CLI rejects ad hoc scope overrides before starting Stryker', () => {
   assert.equal(result.stdout, '');
 });
 
+test('named release profile selects only release decisions and rejects unknown profiles', async() => {
+  const policy = await resolvePolicy(undefined, 'release');
+  assert.deepEqual(policy.sources.map(source => source.file), [
+    'scripts/release/publication.mjs', 'scripts/release/npm-actions.mjs'
+  ]);
+  assert.deepEqual(policy.testFiles, ['test/release/decisions.test.mjs']);
+  await assert.rejects(resolvePolicy(undefined, '../release'), /Unknown mutation profile/);
+});
+
 async function fixture(t) {
   const directory = await mkdtemp(join(tmpdir(), 'marionette-mutation-'));
   t.after(() => rm(directory, { recursive: true, force: true }));

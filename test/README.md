@@ -100,6 +100,13 @@ ownership/subscription subset with two workers and a ten-minute deadline. The
 manual Mutation workflow retains complete and partial reports. See
 [model replay and measured survivors](unit/model-based/README.md).
 
+`npm run test:mutation -- --profile release` selects only release authorization,
+channel selection and immutable npm recovery decisions. It uses Node's test runner
+through Stryker's command runner with the same two-worker, ten-minute bound and
+retained source/test/lock hashes. It does not contact npm or GitHub. The separate
+end-to-end release CLI fixtures remain required; this pilot is not evidence for
+every publication failure path. Neither profile enforces a mutation score.
+
 ## Locked consumer fixtures
 
 Each fixture commits its external dependency lock. The runner copies each consumer

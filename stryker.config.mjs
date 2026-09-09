@@ -1,6 +1,7 @@
 import { resolvePolicy } from './scripts/testing/mutation.mjs';
 
-const policy = await resolvePolicy();
+const release = process.env.MARIONETTE_MUTATION_PROFILE === 'release';
+const policy = await resolvePolicy(undefined, process.env.MARIONETTE_MUTATION_PROFILE || 'runtime');
 const runId = process.env.MARIONETTE_MUTATION_RUN_ID;
 if (!runId || !/^[\w-]+$/.test(runId)) {
   throw new Error('Run mutation testing through node scripts/testing/mutation.mjs for bounded execution and retained evidence.');
@@ -9,11 +10,13 @@ if (!runId || !/^[\w-]+$/.test(runId)) {
 export default {
   $schema: './node_modules/@stryker-mutator/core/schema/stryker-schema.json',
   mutate: policy.mutate,
-  testFiles: policy.testFiles,
+  ...(release ? { commandRunner: { command: 'node --test test/release/decisions.test.mjs' } } : {
+    testFiles: policy.testFiles,
+    vitest: { configFile: 'vitest.config.js' },
+  }),
   concurrency: policy.concurrency,
-  testRunner: 'vitest',
-  vitest: { configFile: 'vitest.config.js' },
-  coverageAnalysis: 'perTest',
+  testRunner: release ? 'command' : 'vitest',
+  coverageAnalysis: release ? 'off' : 'perTest',
   reporters: ['clear-text', 'json', 'html'],
   jsonReporter: { fileName: `coverage/mutation/${runId}/mutation.json` },
   htmlReporter: { fileName: `coverage/mutation/${runId}/index.html` },

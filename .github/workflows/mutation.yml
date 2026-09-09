@@ -2,13 +2,19 @@ name: Public contract mutation pilot
 
 on:
   workflow_dispatch:
+    inputs:
+      profile:
+        description: Bounded mutation scope
+        type: choice
+        options: [runtime, release]
+        default: runtime
 
 permissions:
   contents: read
 
 jobs:
   mutation:
-    name: Bounded ownership and subscription pilot
+    name: Bounded public contract pilot
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -24,7 +30,9 @@ jobs:
       - name: Install and build
         run: npm ci
       - name: Run bounded mutation pilot
-        run: npm run test:mutation
+        run: npm run test:mutation -- --profile "$MUTATION_PROFILE"
+        env:
+          MUTATION_PROFILE: ${{ inputs.profile }}
       - name: Retain complete or partial evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
