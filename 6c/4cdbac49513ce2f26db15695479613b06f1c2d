@@ -1,0 +1,48 @@
+scripts/docs/export.mjs
+  s_bd170ff740ca58::t_30934a7707736e 18
+scripts/release/validation.mjs
+  s_bd170ff740ca58::t_5cf5f1a268b31d 9
+docs/performance-baselines.md
+  s_bd170ff740ca58::t_8712856874b2c3 100-103
+  s_bd170ff740ca58::t_dada68d4f6316c 104-108
+scripts/checks/verify.mjs
+  s_bd170ff740ca58::t_5cf5f1a268b31d 8
+  s_bd170ff740ca58::t_8712856874b2c3 11
+test/README.md
+  s_bd170ff740ca58::t_dada68d4f6316c 97-101
+test/release/candidate.test.mjs
+  s_bd170ff740ca58::t_5171ffc53c1265 59,84
+test/release/fixture.mjs
+  s_bd170ff740ca58::t_11cc338749e51f 116-117
+rollup.config.mjs
+  s_bd170ff740ca58::t_5171ffc53c1265 2,17-31
+.github/workflows/ci.yml
+  s_bd170ff740ca58::t_8712856874b2c3 73-75,109
+  s_bd170ff740ca58::t_5cf5f1a268b31d 50-52
+config/api-contracts/inventory.json
+  s_bd170ff740ca58::t_2f6ba11cb6802c 7402-7429,8074
+config/release-validation.json
+  s_bd170ff740ca58::t_c51e30b7552152 181
+docs-site/navigation.json
+  s_bd170ff740ca58::t_df0ceddf381799 373-384
+package-lock.json
+  s_bd170ff740ca58::t_581ab9edbeb402 61-68
+package.json
+  s_bd170ff740ca58::t_2de825ecd1bd1c 27-37,119-122,190-197
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "6c4cdbac49513ce2f26db15695479613b06f1c2d",
+  "prompts": {},
+  "sessions": {
+    "s_bd170ff740ca58": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0849e-3aa3-76e0-a103-be1accb6af6b",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
