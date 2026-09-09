@@ -97,7 +97,7 @@ the report, including unexecuted files.
 `npm run check:api-contracts` verifies the source-derived public inventory and its
 explicit semantic/evidence mappings. It runs in normal verification, CI and packed
 candidate validation. Regeneration requires reviewing the changed public contract;
-see `config/api-contracts/readme.md`. It does not replace behavioral tests.
+see `scripts/api-contracts/README.md`. It does not replace behavioral tests.
 
 `npm run test:model` replays deterministic consumer-owned lifecycle models; these
 also run in the normal unit suite. `npm run test:mutation` measures a bounded

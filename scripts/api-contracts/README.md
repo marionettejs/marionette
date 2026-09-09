@@ -5,13 +5,13 @@ adapter entrypoint. The existing guides remain the canonical explanations.
 The JSON is documentation metadata, packaged under `dist/docs/config/api-contracts/`;
 it is never imported by production modules.
 
-- [inventory.json](./inventory.json) derives exports, signatures, inherited public
+- [inventory.json](../../config/api-contracts/inventory.json) derives exports, signatures, inherited public
   methods, constructor options, child-query protocols and emitter sites from the
   authored TypeScript that generates the package declarations. `kind` distinguishes
   runtime values from type-only exports. `callableInstanceMembers` supports static
   tooling without guessing from signature strings. `toolingEntrypoints` records
   explicitly separate development exports such as `marionette/eslint`.
-- [semantics.json](./semantics.json) records result, timing, ownership, mutation,
+- [semantics.json](../../config/api-contracts/semantics.json) records result, timing, ownership, mutation,
   repeat-call and destruction boundaries, diagnostic codes, public event arguments,
   and exact guide headings and behavioral tests. Export-wide profiles describe
   composition; profiles with `members` refine the named operations. Multiple
