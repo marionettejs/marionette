@@ -13,7 +13,7 @@
     "registry": "https://registry.npmjs.org/",
     "access": "public",
     "stableTag": "latest",
-    "prereleaseTag": "next",
+    "prereleaseTag": "latest",
     "trustedPublisher": {
       "provider": "github-actions",
       "workflow": "release.yml",

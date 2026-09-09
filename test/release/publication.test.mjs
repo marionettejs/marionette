@@ -7,9 +7,12 @@ const beta = '5.0.0-beta.1';
 const policy = publication => ({ schemaVersion: 2, publication });
 
 test('release metadata selects its policy channel independently of publication permission', () => {
-  const candidate = { ...policy({ stable: false, prerelease: null }), npm: { stableTag: 'latest', prereleaseTag: 'next' } };
+  const candidate = { ...policy({ stable: false, prerelease: null }), npm: { stableTag: 'latest', prereleaseTag: 'latest' } };
   assert.equal(releaseChannel(candidate, '5.0.0'), 'latest');
+  assert.equal(releaseChannel(candidate, beta), 'latest');
+  candidate.npm.prereleaseTag = 'next';
   assert.equal(releaseChannel(candidate, beta), 'next');
+  assert.equal(releaseChannel(candidate, '5.0.0'), 'latest');
   assert.throws(() => releaseChannel(candidate, '5.0.0-beta..1'), /Invalid release version/);
   assert.throws(() => releaseChannel(candidate, undefined), /Invalid release version/);
 });

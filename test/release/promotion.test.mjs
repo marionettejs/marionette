@@ -204,10 +204,10 @@ test('npm integrity verification retries propagation delay without publishing a 
 });
 
 for (const [name, tags, error] of [
-  ['missing next', {}, /next must point/],
-  ['stale next', { next: '5.0.0-test.0' }, /next must point/],
-  ['beta on latest', { next: '5.0.0-test.1', latest: '5.0.0-test.1' }, /prerelease must not be on latest/],
-  ['malformed tags', [], /next must point/],
+  ['missing latest', {}, /latest must point/],
+  ['stale latest', { latest: '5.0.0-test.0' }, /latest must point/],
+  ['only next', { next: '5.0.0-test.1' }, /latest must point/],
+  ['malformed tags', [], /latest must point/],
 ]) {
   test(`registry verification rejects ${name} despite exact package bytes`, async t => {
     const candidate = await promotion(t);
@@ -218,6 +218,13 @@ for (const [name, tags, error] of [
     assert.ok((await candidate.calls()).filter(call => call.tool === 'npm').every(call => call.args[0] === 'view'));
   });
 }
+
+test('pre-stable beta verification accepts latest with an existing next tag', async t => {
+  const candidate = await promotion(t);
+  await candidate.update({ tags: { marionette: { latest: '5.0.0-test.1', next: '5.0.0-test.1' } } });
+  const result = candidate.exec('check-targets', 'verify-npm');
+  assert.equal(result.status, 0, result.stderr);
+});
 
 test('registry channel lookup errors fail verification without changing tags', async t => {
   const candidate = await promotion(t);

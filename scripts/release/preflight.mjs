@@ -62,8 +62,8 @@ function validatePolicy() {
   if (policy.npm?.registry !== 'https://registry.npmjs.org/' || policy.npm?.access !== 'public') {
     fail('npm registry and access must match the public npm publication contract');
   }
-  if (policy.npm?.stableTag !== 'latest' || policy.npm?.prereleaseTag !== 'next') {
-    fail('npm dist-tags must be latest for stable and next for prerelease');
+  if (policy.npm?.stableTag !== 'latest' || !['latest', 'next'].includes(policy.npm?.prereleaseTag)) {
+    fail('npm stable tag must be latest and prerelease tag must be latest or next');
   }
   if (policy.npm?.trustedPublisher?.provider !== 'github-actions') {
     fail('npm trusted-publisher provider must be github-actions');

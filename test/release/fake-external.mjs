@@ -17,8 +17,7 @@ if (tool === 'npm') {
     const name = args[1];
     if (state.tagsError === name) { fail('npm ERR! E503 registry unavailable'); }
     const entry = state.packages.find(candidate => candidate.name === name);
-    output(JSON.stringify(state.tags?.[name] ?? (entry.version.includes('-') ?
-      { next: entry.version } : { latest: entry.version })));
+    output(JSON.stringify(state.tags?.[name] ?? { latest: entry.version }));
   }
   const name = args[1].slice(0, args[1].lastIndexOf('@'));
   const entry = state.packages.find(candidate => candidate.name === name);

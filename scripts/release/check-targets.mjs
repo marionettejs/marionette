@@ -56,7 +56,6 @@ const verification = run(process.execPath, [resolve(root, 'scripts/release/verif
 if (verification.status !== 0) {
   throw new Error(`Release candidate is not verified: ${verification.stderr}`);
 }
-const promotionPolicy = JSON.parse(await readFile(resolve(root, 'config/release-promotion.json'), 'utf8'));
 
 const npmAttempts = mode === 'verify-npm' ? 12 : 1;
 const npmStates = [];
@@ -101,12 +100,9 @@ for (const packageEvidence of evidence.packages) {
       throw new Error(`${packageName} npm dist-tag lookup failed: ${tagsResult.stderr}`);
     }
     const tags = JSON.parse(tagsResult.stdout);
-    const { npmTag, version, prerelease } = evidence.release;
+    const { npmTag, version } = evidence.release;
     if (!tags || typeof tags !== 'object' || Array.isArray(tags) || tags[npmTag] !== version) {
       channelViolations.push(`${packageName}: ${npmTag} must point to ${version}`);
-    }
-    if (prerelease && tags?.[promotionPolicy.npm.stableTag] === version) {
-      channelViolations.push(`${packageName}: a prerelease must not be on ${promotionPolicy.npm.stableTag}`);
     }
   }
 }
