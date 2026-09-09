@@ -226,12 +226,27 @@ test('pre-stable beta verification accepts latest with an existing next tag', as
   assert.equal(result.status, 0, result.stderr);
 });
 
+test('registry verification retries unavailable and stale channels after exact bytes propagate', async t => {
+  const candidate = await promotion(t);
+  await candidate.update({ tagResponses: {
+    '@mnjs/data': ['unavailable', { latest: '5.0.0-test.0' }, { latest: '5.0.0-test.1' }]
+  } });
+  const result = candidate.exec('check-targets', 'verify-npm');
+  assert.equal(result.status, 0, result.stderr);
+  const calls = (await candidate.calls()).filter(call => call.tool === 'npm' &&
+    call.args[1] === '@mnjs/data' && call.args[2] === 'dist-tags');
+  assert.equal(calls.length, 3);
+  assert.match(result.stderr, /retrying in 5 seconds \(2\/12\)/);
+});
+
 test('registry channel lookup errors fail verification without changing tags', async t => {
   const candidate = await promotion(t);
   await candidate.update({ tagsError: '@mnjs/radio' });
   const result = candidate.exec('check-targets', 'verify-npm');
   assert.equal(result.status, 1);
   assert.match(result.stderr, /npm dist-tag lookup failed/);
+  assert.equal((await candidate.calls()).filter(call => call.tool === 'npm' &&
+    call.args[1] === '@mnjs/radio' && call.args[2] === 'dist-tags').length, 12);
 });
 
 test('stable verification requires latest and permits an independent next channel', async t => {

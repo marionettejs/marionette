@@ -95,13 +95,24 @@ for (const packageEvidence of evidence.packages) {
   }
   npmStates.push({ packageEvidence, packageName, state });
   if (mode === 'verify-npm' && state === 'exact') {
-    const tagsResult = run(process.execPath, [npmExecPath, 'view', packageName, 'dist-tags', '--json']);
+    const { npmTag, version } = evidence.release;
+    let tagsResult;
+    let matches = false;
+    for (let attempt = 1; attempt <= npmAttempts; attempt += 1) {
+      tagsResult = run(process.execPath, [npmExecPath, 'view', packageName, 'dist-tags', '--json']);
+      if (tagsResult.status === 0) {
+        const tags = JSON.parse(tagsResult.stdout);
+        if (!tags || typeof tags !== 'object' || Array.isArray(tags)) { break; }
+        matches = tags[npmTag] === version;
+      }
+      if (matches || attempt === npmAttempts) { break; }
+      console.warn(`${packageName} npm ${npmTag} is not yet verified; retrying in 5 seconds (${attempt}/${npmAttempts}).`);
+      await new Promise(resolveDelay => setTimeout(resolveDelay, 5000));
+    }
     if (tagsResult.status !== 0) {
       throw new Error(`${packageName} npm dist-tag lookup failed: ${tagsResult.stderr}`);
     }
-    const tags = JSON.parse(tagsResult.stdout);
-    const { npmTag, version } = evidence.release;
-    if (!tags || typeof tags !== 'object' || Array.isArray(tags) || tags[npmTag] !== version) {
+    if (!matches) {
       channelViolations.push(`${packageName}: ${npmTag} must point to ${version}`);
     }
   }
