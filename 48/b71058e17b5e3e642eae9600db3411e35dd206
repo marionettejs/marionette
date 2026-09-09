@@ -1,0 +1,32 @@
+.github/workflows/mutation.yml
+  s_bd170ff740ca58::t_25ab9a87a4efee 5-10,17,33-35
+scripts/testing/mutation.mjs
+  s_bd170ff740ca58::t_99156ede221f2b 12-14,109-113,123,134
+config/mutation-release.json
+  s_bd170ff740ca58::t_99156ede221f2b 1-11
+test/release/decisions.test.mjs
+  s_bd170ff740ca58::t_99156ede221f2b 1-38,42-62
+  s_bd170ff740ca58::t_25ab9a87a4efee 39-41
+stryker.config.mjs
+  s_bd170ff740ca58::t_99156ede221f2b 3-4,13-16,18-19
+test/tooling/mutation.test.mjs
+  s_bd170ff740ca58::t_99156ede221f2b 18-26
+test/README.md
+  s_bd170ff740ca58::t_25ab9a87a4efee 103-109
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "48b71058e17b5e3e642eae9600db3411e35dd206",
+  "prompts": {},
+  "sessions": {
+    "s_bd170ff740ca58": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0849e-3aa3-76e0-a103-be1accb6af6b",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
