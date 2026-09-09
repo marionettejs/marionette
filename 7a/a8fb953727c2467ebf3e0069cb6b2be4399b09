@@ -1,0 +1,43 @@
+.github/ISSUE_TEMPLATE/v5-task.yml
+  s_267e7a791356aa::t_fde57b6c6051b2 2,8,21-22
+AGENTS.md
+  s_267e7a791356aa::t_46167b3bc174f9 67-68
+ROADMAP.md
+  s_267e7a791356aa::t_8ae274ca88ec12 3,8-11,13-22,32-33,194-242,361-362,514-518,637-682,701,704-706,880,883,903-908,936-945,996-997
+benchmarks/agent/README.md
+  s_267e7a791356aa::t_668f6f47b9cbd8 5-6,8-12,49-67,134-137,153-173
+benchmarks/agent/evaluation-plan.md
+  s_267e7a791356aa::t_462f72bf890e2d 1-123
+benchmarks/docs/README.md
+  s_267e7a791356aa::t_4bdfdc20303f5e 5-8
+docs/beta.md
+  s_267e7a791356aa::t_ab667f13745b72 16-20,22-24
+docs/maintainers/documentation-trial.md
+  s_267e7a791356aa::t_c618a750f741af 86-87
+docs/maintainers/documentation.md
+  s_267e7a791356aa::t_15f4d7dabe7133 167-169
+docs/maintainers/readme.md
+  s_267e7a791356aa::t_ab52ccfd40813b 96-101
+docs/maintainers/release-checklist.md
+  s_267e7a791356aa::t_4e4a384db08380 25-54
+docs/release-promotion.md
+  s_267e7a791356aa::t_9e146e52e83fc8 19-23
+readme.md
+  s_267e7a791356aa::t_520819c2ed0e92 41-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "7aa8fb953727c2467ebf3e0069cb6b2be4399b09",
+  "prompts": {},
+  "sessions": {
+    "s_267e7a791356aa": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08689-8981-7cf3-a3c5-0ee0a88b599c",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
