@@ -7,7 +7,7 @@ not import Backbone. Backbone models and collections are observable sources;
 arrays use the default [Data API](./data.api.md) as static data.
 
 ```sh
-npm install @mnjs/adapters@5.0.0-beta.1 backbone
+npm install @mnjs/adapters@5.0.0-beta.2 backbone
 ```
 
 ```javascript
