@@ -24,6 +24,12 @@
     "section": "Start here"
   },
   {
+    "source": "docs/compact-reference.md",
+    "route": "docs/compact-reference",
+    "title": "Compact framework reference",
+    "section": "Start here"
+  },
+  {
     "source": "docs/classes.md",
     "route": "docs/classes",
     "title": "Choose a class",

@@ -19,6 +19,12 @@ it is never imported by production modules.
   callable static/instance member. Inherited Events and helper methods use the same
   contracts as their standalone exports.
 
+[The compact consumer reference](../../docs/compact-reference.md) is generated from
+selected reviewed semantic profiles, public exports, and diagnostics. It links to
+the canonical examples and introduces no second set of API facts. The same checker
+rejects edits or stale output in that page; update the reviewed profile or generator
+and regenerate it. Consistency does not establish measured agent usefulness.
+
 Signatures are generated; semantics are deliberate review decisions. Emitter
 sites retain dynamic expressions because event forwarding, native provider event
 names and application-defined events cannot be represented as a closed literal
