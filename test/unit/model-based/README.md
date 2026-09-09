@@ -2,11 +2,41 @@
 
 The models compare public library behavior against small consumer-owned state: ordered child IDs, ownership, visibility, destroyed state, and DOM identity. They never inspect framework private fields or call private methods. CollectionView commands cover append/indexed insert, remove, detach/reinsert, swap, filtering, and terminal destruction. Region commands cover two owners, adoption after detach, replacement placeholders, repeated show, conflicting ownership, empty, and View/Region destruction in attached and detached trees.
 
+Application commands keep only the owner's and children's stable running state,
+terminal destruction, and registration order. Each async command performs a
+bounded interaction with an explicitly held consumer readiness Promise: compatible
+repeated calls, superseded startup, adopted stop, current readiness rejection,
+opposing child operations, or terminal teardown. Generated flags settle canceled
+startup before or after its replacement and resolve or reject its obsolete
+readiness. Assertions cover exact Promise identity/results, signal abort ordering,
+original adopted stop options/context, no stale completion events, and ownership.
+Registration and removal commands compose these interactions across a sequence.
+Destruction is available after eight completed commands so terminal no-ops do not
+dominate the generated cases. Each wait permits at most 100 microtask turns and
+fails visibly if the bounded consumer workflow does not progress; no wall clock or
+timer scheduling is used.
+
+This is deliberately a model of bounded interactions, not an exhaustive operation
+state machine or arbitrary scheduler. Direct child supersession targets the first
+child; the explicit `application-child-lifecycle.spec.js` tests cover partially
+completed sibling prefixes, completion-handler reentry, and canceled child-stop
+suffixes. Existing `application-lifecycle.spec.js` tests cover failure/retry at the
+other readiness phases. No synchronous rollback or attempt-all cleanup contract is
+introduced.
+
+`../provider-acceptance.spec.js` checks shared list/detail consumers for native
+data, Backbone, and actors, plus explicit refresh for static sources. It preserves
+provider distinctions: native `move`, Backbone `sort`, and actor selection changes
+retain survivors; plain rendering and collection reset do not promise retained
+children. Destroying one consumer leaves survivors usable and releases its own
+notifications. The authoritative provider-to-test mapping belongs in
+`config/api-contracts/semantics.json`, alongside the remaining public contracts.
+
 Indexed insertion runs with filtering disabled because the documented numeric-index API bypasses filtering. The model does not invent a different contract. Ownership acquisition is weighted three times so generated sequences exercise live owners before terminal destruction. Generation uses `size: 'max'` within a fixed command cap; increasing the cap really exercises longer sequences. Command preconditions skip operations that do not apply to the current model.
 
 ## Bounded checks and replay
 
-Run `npm run test:model` (or `npx vitest run test/unit/model-based`). The PR default is seed **20260908**, **75 cases per property**, and at most **40 generated commands per case**. There are three properties plus deterministic public regressions. No clocks, network calls, random external data, or shared owners are involved. Each case destroys its owners and removes its DOM fixtures.
+Run `npm run test:model` (or `npx vitest run test/unit/model-based`). The PR default is seed **20260908**, **75 cases per property**, and at most **40 generated commands per case**. There are four properties plus deterministic public regressions. No clocks, network calls, or random external data are involved. Each case destroys its owners and removes its DOM fixtures.
 
 An optional longer local run:
 
