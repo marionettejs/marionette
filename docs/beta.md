@@ -13,9 +13,15 @@ coordination, optional data/state providers, and first-party package declaration
 Use those documented public contracts. Beta feedback can still change an API before
 stable; record any change in migration guidance and the release notes.
 
+Stable v5 requires dependable contracts, public migration and application evidence,
+fresh-agent maintenance work, and bounded stabilization under the
+[roadmap](https://github.com/marionettejs/marionette/blob/master/ROADMAP.md#stable-v5-release-criteria). Comparative agent superiority
+and two complete application rewrites are not release requirements.
+
 This beta makes no comparative agent-effectiveness claim. The public corpus remains
-an unscored prototype. This candidate includes consumer lint, a compact contract reference, source maps,
-and a typed starter with browser tests; those tools do not establish agent effectiveness.
+an unscored prototype. This candidate includes consumer lint, a compact contract
+reference, source maps, and a typed starter with browser tests; those tools do not
+establish application usability or complete the release evaluation.
 
 Core is `marionette`. The companion packages are `@mnjs/utils`,
 `@mnjs/radio`, `@mnjs/data`, and `@mnjs/adapters`. Keep all package

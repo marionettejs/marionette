@@ -35,18 +35,14 @@ function validateCapabilityCatalog(catalog, errors) {
     errors.push('capability catalog must contain only schemaVersion, coverage, and capabilities');
   }
 
-  if (catalog?.schemaVersion !== 1) {
-    errors.push('capability catalog schemaVersion must be 1');
+  if (catalog?.schemaVersion !== 2) {
+    errors.push('capability catalog schemaVersion must be 2');
   }
 
   if (!catalog?.coverage ||
     Object.keys(catalog.coverage).sort().join(',') !==
-      'minimumIndependentTasksPerCapability,minimumTasks') {
-    errors.push('capability catalog coverage must contain only the two minimum task fields');
-  }
-
-  if (catalog?.coverage?.minimumTasks !== 10) {
-    errors.push('capability catalog minimumTasks must be 10');
+      'minimumIndependentTasksPerCapability') {
+    errors.push('capability catalog coverage must contain only minimumIndependentTasksPerCapability');
   }
 
   if (catalog?.coverage?.minimumIndependentTasksPerCapability !== 2) {

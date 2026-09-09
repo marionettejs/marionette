@@ -22,6 +22,36 @@ copying credentials or provider configuration into this checklist.
 | Recovery | Previous verified npm tag targets, website deployment, MCP deployment, and known limitations |
 | Approval | Exact publication/deployment scope and maintainer authorization |
 
+## Stable-v5 acceptance
+
+Before certifying `5.0.0`, attach a decision for each of the
+[roadmap release criteria](../../ROADMAP.md#stable-v5-release-criteria). This section
+is additional to the package and publication steps below; it does not declare the
+current beta stable. The [evaluation plan](../../benchmarks/agent/evaluation-plan.md)
+owns the usability procedure and required records.
+
+- [ ] Supported public contracts are settled and verified. No known unresolved
+  defect remains in a supported critical workflow; limitations are documented.
+- [ ] Representative migration boundaries have public reproductions and upgrade
+  guidance. Record private integration findings without requiring private access
+  or a completed app-frontend migration to verify release readiness.
+- [ ] A substantial public application workflow covers editing, async work,
+  navigation, collections, overlays, and cleanup, with preserved behavior checks
+  and explicit baseline gaps. Record the application, scope, and exact revisions.
+- [ ] The exploratory pilot is recorded separately. The release acceptance policy,
+  model/runner profile, assistance rules, repetitions, and budgets were frozen
+  before independent implementation and fresh-agent maintenance attempts.
+- [ ] Publish every evaluation outcome, including failures, regressions, repair
+  effort, human interventions, later-change results, and evidence-backed causes.
+  Attach the maintainer's acceptance decision against the frozen policy. Unselected
+  criteria and missing results remain open requirements.
+- [ ] Complete the predeclared stabilization duration and workflow coverage.
+  Verify integration fixes against the final candidate; identify superseded
+  evidence and remaining limitations. Changed evaluation inputs require a new
+  series, not a silent transfer of old scores.
+- [ ] Keep comparative claims separate. Historical improvement percentages,
+  framework rankings, and two complete React/Vue rewrites are not release gates.
+
 ## 1. Prepare and certify the library
 
 - [ ] Review the changelog, migration guidance, beta limitations, and resolved

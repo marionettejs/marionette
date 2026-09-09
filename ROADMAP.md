@@ -1,17 +1,25 @@
 # Agent-ready Marionette v5
 
-Date: 2026-09-08
+Date: 2026-09-09
 Status: Governing project strategy
 
 ## Decision
 
-Marionette v5 will be released as stable only when the framework is demonstrably
-good for AI-agent development and remains a clean, fast runtime.
+Marionette v5 should let people and agents build and maintain substantial
+applications predictably, with understandable code and reasonable effort. Stable
+`5.0.0` requires dependable public contracts and demonstrated usability through
+migration, public application work, and independent agent maintenance attempts.
 
-Pre-releases may continue while that work is in progress. `5.0.0` is the public
-promise that Marionette's contracts, documentation, diagnostics, types, and tooling
-are coherent enough for agents and humans to make correct changes without hidden
-application knowledge.
+Comparative superiority over earlier Marionette versions or other frameworks is a
+separate research claim, not a condition of stability. Prereleases may continue
+while release evidence is incomplete. Passing library tests alone does not establish
+application usability or agent effectiveness.
+
+The September 9, 2026 decision replaces the historical baseline-improvement,
+architecture-violation reduction, fixed task/run floors, and statistical thresholds
+as stable-release requirements. It also replaces the earlier proving-ground order.
+Existing issue descriptions must be reconciled with this direction; their old
+acceptance text does not reinstate those gates or establish completion.
 
 Agent readiness does not justify mandatory runtime machinery. The default production
 path must stay small and predictable:
@@ -21,8 +29,8 @@ path must stay small and predictable:
 - Put optional runtime capabilities behind explicit subpath imports and opt-in use.
 - Add no per-instance state, subscription, observer, or allocation to applications
   that do not use an optional feature.
-- Reject features whose measured runtime or bundle cost is not justified by measured
-  agent-development value.
+- Reject features whose runtime or bundle cost is not justified by demonstrated
+  consumer value.
 
 This file is the strategy authority. Detailed work and status belong in GitHub issues,
 not parallel numbered roadmaps.
@@ -183,55 +191,55 @@ unimplemented and are not stable-v5 blockers (maintainer decision, September 9,
 - Machine-readable output includes a schema version. Only documented fields are
   stable; ordering and presentation-only fields are not accidental contracts.
 
-### Measured agent outcomes
+### Demonstrated usability
 
-- A public task corpus covers representative maintenance work: implementing plain
-  and stateful Views, choosing among plain classes, MnObject, and Application,
-  composing Regions and Applications, repairing lifecycle bugs, adding Behaviors,
-  implementing an overlay through a shared host Region, using communication
-  boundaries, and proving cleanup.
-- The model version, agent harness, permissions, commands, evaluator, expected
-  outcomes, repository revisions, and task classification are pinned for each
-  benchmark series.
-- Every task is assigned to one of two strata before its pilot or scored runs. A
-  paired-comparable task uses byte-identical prompts, visible workspaces, hidden
-  acceptance tests, commands, and evaluator rules for the Phase 0 revision and release
-  candidate; only the installed Marionette revision differs, and the objective is
-  achievable through public APIs in both revisions. A candidate-only task is allowed
-  only when its acceptance criteria necessarily exercise an accepted public contract
-  absent from Phase 0. A poor or failed Phase 0 result never justifies reclassification.
-- The stable-v5 benchmark uses at least 10 paired-comparable tasks. Candidate-only
-  tasks do not count toward that floor. Across the full candidate corpus, every named
-  capability area is exercised by at least two independently scored tasks. One task
-  may cover multiple areas, but no single task certifies an area.
-- The classification and run count for every task are predeclared, and every count is
-  at least 10. A Phase 0 pilot sets each paired-comparable task's count with at least 80
-  percent power to detect an absolute regression of 15 percentage points. Release
-  decisions use one-sided exact McNemar tests and control family-wise error at 0.05
-  with the Holm correction. Sample-size planning uses the conservative Bonferroni
-  level of 0.05 divided by the paired-comparable task count and the pilot's one-sided
-  95 percent upper confidence bound for discordant pairs under that regression
-  alternative. Candidate-only counts, the executable power calculation, and all
-  inputs are published before candidate runs.
-- Across the full candidate corpus, including both strata, the aggregate fully-correct
-  rate has a 95 percent Wilson lower bound of at least 80 percent, and no individual
-  task has a fully-correct point estimate below 60 percent. Aborted runs count as not
-  fully correct.
-- Only the paired-comparable stratum supports relative claims. Relative to its Phase 0
-  baseline on the same pinned harness, the candidate's fully-correct point estimate
-  does not regress and either improves by at least 20 percentage points or reaches at
-  least 95 percent. Cataloged framework-architecture violations per 100 attempted
-  paired-comparable runs fall by at least 50 percent, and no paired-comparable task has
-  a statistically significant regression after the predeclared correction. Violations
-  found before an aborted run still count. Candidate-only results and violations are
-  reported separately and never enter a comparative denominator.
-- A model, harness, permissions, paired task artifact, evaluator, pairing,
-  classification, or statistical-procedure change starts a new benchmark series and
-  requires rerunning both the Phase 0 revision and release candidate. Candidate-only
-  tasks are frozen after their public contracts are accepted and before candidate
-  collection; changing one after collection invalidates the full-corpus candidate
-  result and requires a fresh candidate evaluation. Results are not compared across
-  unlike series.
+Stable v5 requires evidence that independent agents can implement and maintain
+representative application behavior using public packages and documentation.
+The [evaluation plan](benchmarks/agent/evaluation-plan.md) defines the preparation,
+attempt records, review, and stabilization procedure.
+
+- Start with a bounded exploratory pilot to identify realistic tasks, failure modes,
+  and useful measurements. Pilot results inform the evaluation policy; they do not
+  count as the separate release evaluation.
+- Before evaluation, freeze the task scope, acceptance policy, models, runner,
+  permissions, documentation access, repetitions, human-assistance rules, budgets,
+  and candidate artifacts. Select counts and thresholds from the pilot's evidence;
+  no historical percentage or arbitrary task floor applies automatically.
+- Cover building, changing, and repairing behavior, including fresh-agent handoffs
+  and successive changes to an existing application. Cover editing, navigation,
+  asynchronous work, collections, overlays, and cleanup. Explain coverage gaps.
+- Judge complete requested behavior and preservation of existing behavior. Review
+  observable ownership, lifecycle, accessibility, and maintenance failures. Valid
+  public-API solutions need not resemble a reference implementation; API-specific
+  exercises must disclose their narrower purpose.
+- Retain every attempt, timeout, failure, repair cycle, and human intervention.
+  Report task-level correctness, regressions, elapsed time, spend including failed
+  attempts, and success on later changes. Attribute failures to framework defects,
+  documentation gaps, unsupported requirements, harness problems, or model mistakes
+  with evidence; attribution does not erase an unsuccessful attempt.
+- Repeated framework or documentation failures must be resolved and re-evaluated or
+  explicitly bounded in the support contract. Do not narrow frozen acceptance after
+  seeing failures; a changed scope or policy requires a new evaluation series.
+- Publish the evaluation policy, results, remaining limitations, and maintainer's
+  release decision. An uncollected policy or incomplete evaluation cannot pass this
+  gate. Successful reference solutions and green tooling checks are not agent runs.
+
+### Comparative agent research
+
+The proposed independent `ai-framework-benchmark` measures when particular
+framework, model, and runner combinations deliver correct software with reasonable
+effort. Start with React, Vue, and Marionette; allow later framework contributions.
+It may report mixed or negative results for Marionette without blocking a dependable
+release. It is planned work, not an available benchmark or measured advantage.
+
+Use equivalent behavioral requirements and independent acceptance checks with
+idiomatic framework implementations. Pin each stack, model and runner, documentation
+and tool access, budgets, and evaluation rules. Separate realistic ecosystem use
+from controlled core-framework experiments. Publish failures, uncertainty, and
+results by task family and configuration; do not infer framework superiority from
+one migration, pooled unlike runs, or resemblance to Marionette architecture.
+Historical-version comparisons may answer a focused question but are not mandatory.
+A credible comparative result needs its own predeclared sampling and analysis plan.
 
 ## Architecture boundaries
 
@@ -350,8 +358,8 @@ contracts must pass a bounded API-shape audit. Historical behavior is evidence, 
 an automatic compatibility requirement. Each decision must reconstruct the original
 rationale, identify whether the contract is public or merely an internal source
 path, scan representative public code, and exercise the explicit replacement in the
-reference app and agent benchmark. Available app-frontend and Marionette Toolkit
-migrations may reveal implementation or migration problems but do not define the
+reference app and relevant usability tasks. Available app-frontend and Marionette
+Toolkit migrations may reveal implementation or migration problems but do not define the
 public contract.
 
 This roadmap names the public contracts and decision hypotheses so the release gate
@@ -503,11 +511,11 @@ current-evidence findings:
 
 The gate passes only when every reviewed contract has one documented canonical form,
 an executable migration where behavior changes, source and package entrypoints that
-name their real owner, no unverified alias or fallback path, and paired agent tasks
-that distinguish the retained form from the removed alternative. These are contract
-discrimination checks; they use the statistical paired-comparable protocol only when
-registered in that benchmark stratum. API-shape changes land as small dedicated
-changes rather than being mixed into unrelated lifecycle or ownership work.
+name their real owner, no unverified alias or fallback path, and executable contract
+checks that distinguish the retained form from the removed alternative. Relevant usability
+attempts must exercise the documented form without hidden maintainer guidance.
+Contract discrimination does not require a historical-version agent comparison.
+API-shape changes land as small dedicated changes rather than being mixed into unrelated lifecycle or ownership work.
 
 Stable v5 removes Underscore as a required Marionette runtime peer without removing
 the documented, useful Backbone-era ergonomics of `CollectionView.children`. The
@@ -626,45 +634,52 @@ is allowed. Resource ownership may allocate only after the first registration.
 Size and allocation changes inform review during v5 development; package correctness
 and measurement validity remain required.
 
-## Public proving grounds
+## Application trials and public proving grounds
 
-External examples and benchmarks answer different questions and remain advisory
-unless a later roadmap decision explicitly promotes one into a release gate. Pursue
-them in this order:
+The application trials and comparative benchmark answer different questions. Pursue
+these four workstreams with bounded scope and explicit evidence:
 
-1. Finish the Marionette v5 [js-framework-benchmark][js-framework-benchmark]
-   implementation. It supplies the hot keyed-list and retained-memory signal, but its
-   benchmark-specific code does not define idiomatic application structure.
-2. Modernize the existing [Backbone.Marionette TodoMVC example][todomvc-marionette]
-   for v5 and submit it to the maintained [TodoMVC][todomvc] set. This is the highest
-   priority public normal-application artifact: it must demonstrate idiomatic
-   composition, routing and filtering, editable child Views, persistence, collection
-   changes, and lifecycle cleanup while passing TodoMVC's shared behavioral suite.
-3. Build a [RealWorld][realworld] implementation in a dedicated repository following
-   its starter-kit flow. Its shared API, CSS, and end-to-end suite give it the highest
-   architectural evidence value: API requests, authentication, routing, forms, nested
-   screens, error states, and asynchronous replacement exercise lifecycle races,
-   stale-request handling, Region replacement, teardown, and data-adapter ergonomics.
-   Its maintenance cost is accepted only after the smaller TodoMVC reference is current.
-4. Add Marionette to the [Framework Benchmarks weather application][framework-benchmarks]
-   if its maintainers are receptive. Its bundle, load, CPU, memory, build, and code
-   characteristics complement the list-operation focus above.
-5. Track [Speedometer][speedometer-3] rather than optimizing specifically for
-   admission. Maintaining a current, idiomatic TodoMVC implementation is useful
-   groundwork but does not imply inclusion in a browser-vendor-selected workload.
+1. **app-frontend migration:** use the existing application as the principal
+   integration trial. Begin with representative routing, async loading, editable
+   collections, overlays, and teardown before expanding the migration. Distinguish
+   adopting v5 from independently replacing Backbone, jQuery, or Toolkit. Preserve
+   existing behavior checks and record framework fixes and human interventions.
+   Publish anonymous reproductions and migration guidance for the important
+   boundaries. The private application is useful evidence, but public release
+   verification must not require access to it or completion of its full migration.
+2. **React application rebuild:** qualify a substantial public project by running
+   its existing browser suite at a pinned revision. [Actual Budget](https://github.com/actualbudget/actual) is a candidate,
+   not an accepted or verified migration. Start with a complete user workflow,
+   preserve backend/data contracts and reusable non-UI logic, then expand according
+   to findings and budget.
+3. **Vue application rebuild:** apply the same qualification process to a different
+   application; [Vikunja](https://github.com/go-vikunja/vikunja) is a candidate. Test whether the result generalizes beyond
+   the first application's architecture. Two complete rewrites are not release gates.
+4. **Independent framework benchmark:** pilot build, change, and repair tasks for
+   React, Vue, and Marionette under the comparative research policy above. Keep
+   public contributions and evaluation independent of Marionette's release outcome.
 
-[Builder.io framework-benchmarks][builder-framework-benchmarks] and
-[UIBench][uibench] remain lower-priority investigations. The former uses
-best-effort generated framework code, which makes idiomatic Marionette harder to
-defend; the latter offers useful rendering cases but less current ecosystem reach.
-Standalone bundle-size comparisons do not prove application-framework fitness and
-remain covered by Marionette's own release budgets.
+Stable v5 needs at least one substantial public application workflow with editing,
+async work, navigation, collections, overlays, and cleanup, followed by realistic
+changes from fresh agents. Select its scope before evaluation; it may come from a
+qualified migration or an expanded public reference application. Fieldnotes and
+small examples are starting material, not automatic proof of this requirement.
 
-Together the selected proving grounds provide four distinct signals: peak list
-performance, understandable small-application code, realistic application
-architecture, and startup, bundle, and resource cost. Results follow the external
-benchmark evidence rules above and never justify a default API solely because a
-benchmark-specific implementation is fast.
+For migrations, freeze tests, helpers, fixtures, screenshots, browser/environment
+settings, and test discovery before implementation. Establish the original baseline
+in that environment; disclose existing failures and exclusions. Preserve the suite
+where applicable. Any necessary test adaptation must be independently justified and
+versioned before the migration evaluation; never weaken checks to accept a result.
+An unchanged suite proves its tested behavior, not complete application equivalence.
+Record what was actually replaced and whether original-framework components remain.
+
+[js-framework-benchmark][js-framework-benchmark] remains useful runtime evidence.
+[TodoMVC][todomvc], [RealWorld][realworld], the
+[weather application comparison][framework-benchmarks], [Speedometer][speedometer-3],
+[Builder.io framework-benchmarks][builder-framework-benchmarks], and [UIBench][uibench]
+are optional supporting investigations, not a prerequisite sequence. External
+admission or a winning performance rank is not a release condition. Their findings
+follow the performance evidence rules and do not define the default application API.
 
 ## Work phases
 
@@ -683,11 +698,12 @@ when it does not bypass an earlier gate.
   publication profile.
 - Establish bundle, startup, allocation, render, and retention baselines.
 - Publish a neutral reference application and agent task corpus.
-- Pin the initial benchmark harness and record its baseline.
+- Run a bounded usability pilot and freeze the separate release evaluation policy.
 - Define the rule-catalog format, severity model, and ownership.
 
-Gate: a clean contributor can reproduce performance and agent baselines from public
-instructions, and every release blocker maps to this strategy.
+Gate: a clean contributor can reproduce performance evidence and the usability
+evaluation setup from public instructions. The release evaluation policy is frozen,
+and every release blocker maps to this strategy.
 
 ### Phase 1: Core contracts
 
@@ -861,10 +877,10 @@ check. Present any necessary library change for scrutiny before implementing it.
 No extension-hook dispatch or new runtime instrumentation is authorized by this
 future checkpoint.
 
-### Phase 4: Integration and benchmark closure
+### Phase 4: Integration, usability, and stabilization
 
 - Once the remaining runtime correctness blockers close, pack an unpublished early
-  integration candidate for the benchmark, Toolkit migration, app-frontend migration
+  integration candidate for usability trials, Toolkit migration, app-frontend migration
   probe, and package fixtures. Use that evidence while package boundaries, source layout,
   declarations, and documentation are completed; do not wait for speculative Phase 5
   APIs before testing the code broadly.
@@ -884,7 +900,12 @@ future checkpoint.
   one keyed O(n) comparison per observer; unrelated notifications are no-ops; unchanged
   child Views retain identity; and core plus every optional adapter is measured as a separate
   production graph and packed import.
-- Run the fixed agent corpus against the complete release candidate.
+- Complete the public migration evidence and substantial application workflow, then
+  run the frozen usability evaluation against the complete release candidate.
+- Predeclare a bounded stabilization period and required workflow coverage. Resolve
+  integration defects, rerun affected application and contract checks, and record
+  candidate changes and evidence gaps. A changed evaluation input starts a new series;
+  identify any earlier evidence retained only as supporting history.
 - Validate plain Views, Views with supplied and factory-owned state sources, nested
   Applications, the selected Application
   startup and restart contract, Application cleanup through public lifecycle
@@ -912,8 +933,16 @@ closed rather than retained as dormant APIs.
 
 - All Phase 0, 1, 2 and 4 gates pass on the release commit. Phase 3 is explicitly
   deferred and is not a stable-release gate.
-- The public agent benchmark meets its functional, task-floor, improvement,
-  architecture-violation, and non-regression thresholds.
+- No known unresolved defect remains in a supported critical workflow. Public
+  contracts and limitations are settled and verified against the candidate.
+- Representative migration boundaries have public reproductions and current upgrade
+  guidance. No private consumer's full migration is a prerequisite.
+- A substantial public application workflow and fresh-agent maintenance attempts
+  meet the predeclared usability acceptance policy. Results include failed attempts,
+  intervention, repair effort, and unresolved limitations.
+- The bounded stabilization period and required workflow checks are complete, with
+  integration fixes verified against the final candidate. Comparative superiority
+  and completion of the React and Vue rewrites are not release requirements.
 - Production entrypoints contain no development inspector, validation, benchmark, or
   test-helper code unless an application explicitly imports an allowed opt-in runtime
   feature.
@@ -964,9 +993,8 @@ closed rather than retained as dormant APIs.
   factory are documented; no replacement flag registry or duplicate factory
   path is presented as canonical.
 - Every contract in the API-shape and agent-ergonomics gate has an explicit keep or
-  remove decision, an executable migration when behavior changes, paired agent tasks
-  that distinguish the selected form from the rejected alternative, truthful source
-  ownership, and no unverified duplicate root utility or internal forwarding path.
+  remove decision, an executable migration when behavior changes, public contract
+  checks and relevant usability evidence for the selected form, truthful source ownership, and no unverified duplicate root utility or internal forwarding path.
 - The selected neutral DataApi protocol passes compatibility, source,
   distribution, packed-package, and real-browser tests.
 - Parent rerender conformance proves active Region children are destroyed exactly once
@@ -1037,7 +1065,6 @@ block stable v5.
 [issue-104]: https://github.com/marionettejs/marionette/issues/104
 [js-framework-benchmark]: https://github.com/krausest/js-framework-benchmark
 [todomvc]: https://github.com/tastejs/todomvc
-[todomvc-marionette]: https://github.com/tastejs/todomvc/tree/master/examples/backbone_marionette
 [realworld]: https://github.com/realworld-apps/realworld
 [framework-benchmarks]: https://github.com/Lissy93/framework-benchmarks
 [speedometer-3]: https://webkit.org/blog/15131/speedometer-3-0-the-best-way-yet-to-measure-browser-performance/

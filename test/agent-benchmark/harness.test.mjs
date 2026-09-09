@@ -5,7 +5,7 @@ import { join, posix, win32 } from 'node:path';
 import { test } from 'node:test';
 import { evaluateAttempt, evaluateOutcome, inventory, isWithin, loadCorpus } from '../../scripts/agent-benchmark/harness.mjs';
 
-test('prototype corpus covers every capability twice and proposes ten paired tasks', async() => {
+test('prototype corpus covers every capability twice without historical comparison decisions', async() => {
   const corpus = await loadCorpus();
   assert.equal(corpus.tasks.length, 13);
   assert.equal(corpus.status, 'prototype-unscored');
@@ -167,6 +167,25 @@ test('preparation consumes locked tarballs from an isolated cache without regist
     assert.equal(installed.packages['node_modules/jsdom'].integrity, jsdom.tarball.integrity);
     assert.equal(installed.packages['node_modules/agent-cache-fixture'].integrity, local.tarball.integrity);
     assert.equal(JSON.parse(await readFile(join(attempt, 'workspace/node_modules/jsdom/package.json'), 'utf8')).version, jsdom.version);
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
+test('corpus rejects retired metadata from the selected workspace', async() => {
+  const { cp, readFile } = await import('node:fs/promises');
+  const { repositoryRoot } = await import('../../scripts/agent-benchmark/harness.mjs');
+  const directory = await mkdtemp(join(tmpdir(), 'agent-metadata-'));
+  try {
+    await cp(join(repositoryRoot, 'benchmarks/agent'), join(directory, 'benchmarks/agent'), { recursive: true });
+    for (const [file, message] of [
+      ['capabilities.json', /capability catalog schemaVersion must be 2/],
+      ['series-decisions.json', /Unsupported series decisions contract/],
+    ]) {
+      const path = join(directory, 'benchmarks/agent', file);
+      const original = await readFile(path, 'utf8');
+      await writeFile(path, JSON.stringify({ ...JSON.parse(original), schemaVersion: 1 }));
+      await assert.rejects(loadCorpus(directory), message);
+      await writeFile(path, original);
+    }
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
 

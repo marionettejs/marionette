@@ -2,14 +2,14 @@
 
 This directory contains Fieldnotes, a runnable public reference application, thirteen
 draft implementation tasks, hidden public-API acceptance cases, known reference
-solutions, and a local evaluator. Eleven tasks are proposed as paired-comparable and
-two as candidate-only. These classifications have not been verified against a chosen
-Phase 0 revision. This is an unscored prototype, not a frozen benchmark or evidence of
-agent effectiveness.
+solutions, and a local evaluator. This is an unscored prototype, not a completed
+release evaluation or evidence of agent effectiveness.
 
-No model, permissions profile, paired revisions, counts, budgets, pilot, statistical
-procedure, or scored series has been selected. `series-decisions.json` records these
-inputs as uncollected. The stable-v5 gates below remain unchanged.
+No model, runner/permissions profile, acceptance policy, counts, budgets, pilot,
+or evaluation series has been selected. `series-decisions.json` records these
+inputs as uncollected. Follow the [evaluation plan](evaluation-plan.md) to prepare
+release usability evidence; comparative framework research is a separate project.
+The [roadmap](../../ROADMAP.md#demonstrated-usability) owns the release requirements.
 
 ## Task isolation
 
@@ -46,48 +46,25 @@ abort.
 
 ## Capability coverage
 
-`capabilities.json` is the canonical vocabulary derived from the capability areas in
-ROADMAP.md and issue #128. A complete corpus contains at least ten paired-comparable
-tasks and exercises every capability through at least two independently scored tasks
-across the full candidate corpus. One task may exercise several capabilities, but no
-single task certifies a capability. Candidate-only tasks do not count toward the
-paired-comparable task floor.
+`capabilities.json` identifies the current prototype's framework contract areas.
+Its requirement for two independent tasks per capability is a fixture-diversity
+check, not a release task floor, sample-size rule, or proof of application coverage.
+The thirteen tasks are implementation exercises. A release evaluation still needs
+realistic change and repair work, successive changes, fresh-agent handoffs, and the
+public application and migration evidence specified in the roadmap.
 
-## Evaluation strata
+## Evaluation policy
 
-The frozen benchmark profile classifies every task before that task's pilot or scored
-runs. The classification and predeclared run count are evaluation inputs; the current
-task metadata schema does not infer either one from a prompt or fixture.
+Use the [evaluation plan](evaluation-plan.md) for pilot selection, frozen acceptance,
+model/runner profiles, attempt reporting, budgets, and stabilization. The earlier
+paired-baseline classifications and prescribed statistical improvement thresholds
+are retired. No historical revision is required for a usability evaluation.
 
-- A **paired-comparable** task uses byte-identical prompts, visible workspaces, hidden
-  acceptance tests, commands, and evaluator rules against the Phase 0 revision and the
-  release candidate. Only the installed Marionette revision differs, and both revisions
-  can complete the objective using their public APIs.
-- A **candidate-only** task is permitted only when its acceptance criteria necessarily
-  exercise an accepted public contract absent from Phase 0. It is not a fallback for a
-  weak baseline result. Its classification and run count are frozen after that public
-  contract is accepted and before candidate results are collected.
-
-Every task receives at least ten predeclared runs. The Phase 0 pilot powers counts for
-the paired-comparable stratum; candidate-only counts are still fixed before collection
-and included in the published run, spend, and elapsed-time envelope.
-
-The absolute fully-correct Wilson gate and per-task floor apply to the full candidate
-corpus, including both strata. Improvement, McNemar non-regression, and relative
-architecture-violation claims use only paired-comparable runs. Candidate-only results
-and violations are reported separately and never improve a comparative denominator.
-
-Changes to the pinned model, harness, permissions, paired task artifacts, evaluator,
-pairing, classification, or statistical procedure start a new series and require a new
-Phase 0 and candidate comparison. Changing a frozen candidate-only task after candidate
-collection invalidates the full-corpus candidate result and requires a fresh candidate
-evaluation. Results from unlike series are not compared.
-
-The local harness is implemented, but is not frozen for scored collection. Proposed
-classifications are planning inputs only. A maintainer must verify both public API
-profiles, collect the remaining decisions, and freeze the series before any pilot or
-scored attempt. Passing known reference solutions is a tooling control and cannot
-substitute for a pilot, baseline, or candidate score.
+`series-decisions.json` is an uncollected planning record, not an enforced runner
+configuration. The loader checks that it identifies every prototype task exactly
+once. An operator must freeze and enforce the full evaluation policy before scored
+collection. Passing known solutions is a tooling control and cannot substitute for
+independent agent implementation or maintenance results.
 
 ## Run the prototypes
 
@@ -154,7 +131,10 @@ attempted and incorrect. Catalog findings are deduplicated and retained even on 
 passing submission until an architecture review is supplied to the evaluator API;
 failed/aborted attempts are `false`. Architecture review must assess the explicit
 role requirements (including Behavior composition), code quality, and shared catalog
-rules. No automatic tool here claims to detect every architecture violation.
+rules. These tasks explicitly name some API roles; that is a narrower contract
+exercise, not a universal architecture rubric. Accept valid public-API solutions
+without requiring reference-solution structure. No automatic tool here claims to
+detect every architecture violation.
 
 **This local evaluator is not a security sandbox.** Use it only for trusted local
 work and reference controls. Do not give an agent access to the repository root or
@@ -170,30 +150,24 @@ environment alone do not enforce those permissions or resist malicious Node code
 All tasks have a visible starter, explicit input/output requirements, a separate
 reference solution, and withheld acceptance. Each is independently evaluated.
 
-| Task | Required outcomes | Proposed stratum |
-| --- | --- | --- |
-| `nested-workspace` | Nested Region replacement, text safety, emptying, teardown | Paired |
-| `nested-notice` | Independent navigation/notice ownership and callback cleanup | Paired |
-| `filter-projects` | CollectionView filter/reveal identity and immutable domain data | Paired |
-| `rank-projects` | Row/draft preservation, sorting, atomic invalid-input rejection | Paired |
-| `save-shortcut` | Host-scoped Behavior shortcut, rerender and cleanup | Paired |
-| `connection-status` | Behavior provider subscription and latest-state rerender | Paired |
-| `overlay-switch` | Shared Region, valid live Views, external positioning/exclusivity | Paired |
-| `overlay-dismiss` | Shared Region dismissal and document-listener cleanup | Paired |
-| `async-panel` | Out-of-order completion, invalidation, errors, destroyed owner | Paired |
-| `async-session` | Async resource acquisition, stale cleanup, plain-service role | Paired |
-| `scoped-message-presenter` | Optional MnObject role, independent borrowed-source listeners | Paired |
-| `owned-workspace-state` | Nested Applications and separately owned Application/View state | Candidate only |
-| `borrowed-workspace-state` | Nested ownership rejection and borrowed state/domain survival | Candidate only |
+| Task | Required outcomes |
+| --- | --- |
+| `nested-workspace` | Nested Region replacement, text safety, emptying, teardown |
+| `nested-notice` | Independent navigation/notice ownership and callback cleanup |
+| `filter-projects` | CollectionView filter/reveal identity and immutable domain data |
+| `rank-projects` | Row/draft preservation, sorting, atomic invalid-input rejection |
+| `save-shortcut` | Host-scoped Behavior shortcut, rerender and cleanup |
+| `connection-status` | Behavior provider subscription and latest-state rerender |
+| `overlay-switch` | Shared Region, valid live Views, external positioning/exclusivity |
+| `overlay-dismiss` | Shared Region dismissal and document-listener cleanup |
+| `async-panel` | Out-of-order completion, invalidation, errors, destroyed owner |
+| `async-session` | Async resource acquisition, stale cleanup, plain-service role |
+| `scoped-message-presenter` | Optional MnObject role, independent borrowed-source listeners |
+| `owned-workspace-state` | Nested Applications and separately owned Application/View state |
+| `borrowed-workspace-state` | Nested ownership rejection and borrowed state/domain survival |
 
-The last two tasks necessarily ask for named nested-Application ownership and public
-state-source composition. Their proposed candidate-only status must still be checked
-against the selected Phase 0 public API. The other tasks specify outcomes achievable
-through longstanding Views, Regions, Behaviors, collection ownership, and application
-code. A poor baseline result never permits reclassification.
-
-`loadCorpus` validates the task isolation contract, proposed paired floor, and at
-least two independent tasks for every capability in `capabilities.json`. This proves
-metadata coverage; the acceptance/control runs establish the actual case behavior.
-None of these checks establishes sample size, statistical power, agent productivity,
-or stable release readiness.
+`loadCorpus` validates task isolation, a complete decision inventory, and at least
+two independent tasks for every capability in `capabilities.json`. This proves
+prototype metadata coverage; acceptance/control runs establish their actual case
+behavior. Neither establishes evaluation sample size, agent productivity, or stable
+release readiness.

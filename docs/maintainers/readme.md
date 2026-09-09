@@ -93,10 +93,12 @@ A passing documentation fixture establishes its assertions for the tested packag
 and environment. It does not establish that agents choose the right pattern, that
 all examples work, or that a release gate is complete.
 
-Use the [agent benchmark contract](../../benchmarks/agent/README.md) for measured
-agent outcomes. A small retrieval or implementation trial can find documentation
-problems, but must state its task, source revision, environment, and untested scope.
-Do not call that trial the full benchmark or a proven improvement.
+Use the [evaluation plan](../../benchmarks/agent/evaluation-plan.md) for public
+application work and independent agent usability evidence. A small retrieval or
+implementation trial can find documentation problems, but must state its task,
+source revision, environment, and untested scope. It does not complete the release
+evaluation or establish a comparative advantage. Follow the
+[release checklist](release-checklist.md) to record acceptance and stabilization.
 
 Keep agent services and developer tools outside the production import graph. A
 new MCP service, inspector, or runtime hook needs an observed problem and an
