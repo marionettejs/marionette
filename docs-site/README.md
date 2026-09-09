@@ -94,7 +94,7 @@ and [Read the Docs platform choices](https://about.readthedocs.com/choosing-a-pl
 
 The public website and optional documentation MCP have separate manual deployments.
 Prepare and review the complete static website artifact and matching MCP corpus,
-then follow the [website deployment runbook](https://github.com/marionettejs/website/blob/main/mcp/DEPLOYMENT.md)
+then follow the [website deployment runbook](https://github.com/marionettejs/marionettejs.com/blob/main/mcp/DEPLOYMENT.md)
 for the authorized hosting configuration and live checks. Keep static and installed
 documentation available independently of MCP. Record the previous deployments so
 content and presentation can be restored together if needed.

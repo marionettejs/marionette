@@ -129,7 +129,7 @@ recovery path. A dry run does not prove account or scope permission.
 
 Package publication does not deploy the website or its documentation MCP. After an
 authorized release, import the documentation artifact from that exact source into
-the [website repository](https://github.com/marionettejs/website) and follow its
+the [website repository](https://github.com/marionettejs/marionettejs.com) and follow its
 manual publication procedure. Keep the previous snapshot identified by its actual
 version until the replacement is verified; do not relabel it as the new release.
 

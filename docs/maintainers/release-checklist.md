@@ -6,7 +6,7 @@ source. Copy this checklist into the release's tracking issue or PR and attach
 evidence as each step finishes. A green build alone does not complete a step.
 
 The [package promotion procedure](../release-promotion.md) owns npm and GitHub
-publication. The [website runbook](https://github.com/marionettejs/website/blob/main/mcp/DEPLOYMENT.md)
+publication. The [website runbook](https://github.com/marionettejs/marionettejs.com/blob/main/mcp/DEPLOYMENT.md)
 owns website and MCP deployment commands. Use their current procedures rather than
 copying credentials or provider configuration into this checklist.
 
@@ -67,7 +67,7 @@ copying credentials or provider configuration into this checklist.
 ## 3. Prepare the matching website and MCP
 
 - [ ] Export documentation from the clean released library commit using
-  `npm run docs:export`; import it into `marionettejs/website` using
+  `npm run docs:export`; import it into `marionettejs/marionettejs.com` using
   `npm run docs:import -- /absolute/path/to/.docs-export`. See the
   [documentation publication guide](../../docs-site/README.md).
 - [ ] Update website package/lockfile pins and the vendor builder's explicit
@@ -127,7 +127,10 @@ copying credentials or provider configuration into this checklist.
 - [ ] Trigger an authorized refresh of `/marionettejs/marionette` through its
   signed-in library page or authenticated refresh API after configuration lands.
   Record completion and test representative version-specific queries against the
-  released docs; distinguish queued indexing from verified retrieval. See
+  released docs. Archive the exact library/version ID, queries, returned results,
+  retrieval time, and indexed commit/tag when exposed. If source metadata is absent,
+  record that limitation rather than claiming exact-revision verification.
+  Distinguish queued indexing from verified retrieval. See
   [Context7 refreshes](https://context7.com/docs/library-updates).
 - [ ] Record Context7 indexing lag or unsupported version selection as an optional
   distribution gap. Keep first-party versioned docs available independently; do not
