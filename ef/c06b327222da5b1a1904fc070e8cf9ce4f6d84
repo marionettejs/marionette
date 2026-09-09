@@ -1,0 +1,21 @@
+docs/maintainers/authorship-inventory.md
+  s_9b715d9e600fb6::t_58572ccda5a235 3,14-15,17-26,30,34,36,41,44,51,61,63,67-68,72-74,87
+upgradeGuide.md
+  s_9b715d9e600fb6::t_8b2d33bd3d9ff7 11-13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "efc06b327222da5b1a1904fc070e8cf9ce4f6d84",
+  "prompts": {},
+  "sessions": {
+    "s_9b715d9e600fb6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08519-c4aa-77e0-96b5-ac8c23eafcfe",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
