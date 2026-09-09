@@ -33,11 +33,17 @@ packages, review the exact package and version, and then use
 `npm approve-scripts <package>` to add a version-pinned approval. Isolated fixture
 packages keep their own approvals.
 
-CI runs the complete suite on the canonical Ubuntu 24.04 x64 host. Clean installation
-and packed-package fixtures also run on macOS 15 arm64 and Windows 2025 x64. GitHub's
-fixed OS labels still receive runner-image updates, so release evidence records the
-actual image reported by each run. Hosted-runner timings remain informative rather
-than hard performance gates.
+PR CI runs the complete suite on the canonical Ubuntu 24.04 x64 host and clean
+installation and packed-package fixtures on macOS 15 arm64. The full Windows 2025
+x64 package-fixture suite runs after merge on pushes to `master`, and remains a
+required gate for release artifacts. Windows failures therefore surface after
+merge without delaying routine PRs. Release dry runs on PRs test macOS; manually
+dispatched release validation tests both macOS and Windows against the exact
+candidate tarballs before publication.
+
+GitHub's fixed OS labels still receive runner-image updates, so release evidence
+records the actual image reported by each run. Hosted-runner timings remain
+informative rather than hard performance gates.
 
 ## Browser profiles
 
@@ -70,8 +76,8 @@ browser-support ceilings.
 ## Advancing the profile
 
 Profile changes use a dedicated pull request that updates every pin together and
-passes clean installation, artifact validation, package fixtures, and the complete
-test suite before merge.
+passes the PR checks before merge. Post-merge Windows validation and complete
+release-artifact validation must pass before the new profile is released.
 
 - Review Node and npm patches monthly. Allow a seven-day upstream soak unless a
   security fix requires immediate adoption.
