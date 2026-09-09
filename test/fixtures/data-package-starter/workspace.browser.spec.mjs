@@ -12,14 +12,17 @@ test('editing a row survives reordering and opening its detail', async({ page })
 });
 
 test('the latest selection wins when an earlier load completes later', async({ page }) => {
+  await page.clock.install({ time: new Date('2026-01-01T00:00:00Z') });
   await page.goto('/');
+  await page.clock.pauseAt(new Date('2026-01-01T01:00:00Z'));
   const open = page.getByRole('button', { name: 'Open', exact: true });
   await open.first().click();
   await expect(page.getByRole('status')).toHaveText('Loading…');
   await open.last().click();
+  await page.clock.runFor(50);
   await expect(page.getByRole('heading', { name: 'Selected: second' })).toBeVisible();
-  // main.ts deliberately gives the first request a 600ms delay.
-  await page.waitForTimeout(700);
+  // Fire the first load's remaining delay after the second has completed.
+  await page.clock.runFor(550);
   await expect(page.getByRole('heading', { name: 'Selected: second' })).toBeVisible();
   await expect(page.getByRole('status')).toHaveText('Loaded.');
 });
