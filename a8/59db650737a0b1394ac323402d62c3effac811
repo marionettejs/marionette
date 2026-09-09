@@ -1,0 +1,21 @@
+test/fixtures/consumer-lint/consumer.cts
+  s_104642983dcc10::t_9004aeca5c08c1 3-4
+test/fixtures/consumer-lint/consumer.mts
+  s_104642983dcc10::t_027384c43f0ec4 3-4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "a859db650737a0b1394ac323402d62c3effac811",
+  "prompts": {},
+  "sessions": {
+    "s_104642983dcc10": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a87cd9c6-fa43-4039-a2f4-4b6010f33907",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
