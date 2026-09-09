@@ -20,6 +20,7 @@ if (tool === 'npm') {
     if (responses?.length) {
       const response = responses.shift();
       if (response === 'unavailable') { fail('npm ERR! E503 registry unavailable'); }
+      if (response === 'malformed') { output('{'); }
       output(JSON.stringify(response));
     }
     const entry = state.packages.find(candidate => candidate.name === name);

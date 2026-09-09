@@ -33,6 +33,16 @@ async function writeOutput(name, value) {
   }
 }
 
+function registryObject(result) {
+  if (result.status !== 0) { return null; }
+  try {
+    const value = JSON.parse(result.stdout);
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : null;
+  } catch {
+    return null;
+  }
+}
+
 const mode = args.mode;
 if (!['dry-run', 'publish', 'npm-decision', 'verify-npm'].includes(mode)) {
   throw new Error(`Unsupported target-check mode ${mode}.`);
@@ -100,11 +110,7 @@ for (const packageEvidence of evidence.packages) {
     let matches = false;
     for (let attempt = 1; attempt <= npmAttempts; attempt += 1) {
       tagsResult = run(process.execPath, [npmExecPath, 'view', packageName, 'dist-tags', '--json']);
-      if (tagsResult.status === 0) {
-        const tags = JSON.parse(tagsResult.stdout);
-        if (!tags || typeof tags !== 'object' || Array.isArray(tags)) { break; }
-        matches = tags[npmTag] === version;
-      }
+      matches = registryObject(tagsResult)?.[npmTag] === version;
       if (matches || attempt === npmAttempts) { break; }
       console.warn(`${packageName} npm ${npmTag} is not yet verified; retrying in 5 seconds (${attempt}/${npmAttempts}).`);
       await new Promise(resolveDelay => setTimeout(resolveDelay, 5000));
