@@ -1,0 +1,19 @@
+.github/dependabot.yml
+  s_a9364033cda2fa::t_0137127c79ac4f 16-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "000ee88176a81ed096fd26a9b9724ce56d3aaa3a",
+  "prompts": {},
+  "sessions": {
+    "s_a9364033cda2fa": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a081e2-41fe-75a2-b8c5-23d9246d92b8",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
