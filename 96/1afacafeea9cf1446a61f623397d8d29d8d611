@@ -1,0 +1,33 @@
+docs-site/README.md
+  s_9b715d9e600fb6::t_d4703ab43ddf9a 138-140
+test/release/fixture.mjs
+  s_9b715d9e600fb6::t_8e84ff9efd0e72 26-27,51
+docs/maintainers/release-checklist.md
+  s_9b715d9e600fb6::t_8e84ff9efd0e72 33-37
+  s_9b715d9e600fb6::t_d4703ab43ddf9a 122-135
+test/release/fake-processes.mjs
+  s_9b715d9e600fb6::t_8e84ff9efd0e72 14
+test/release/promotion.test.mjs
+  s_9b715d9e600fb6::t_8e84ff9efd0e72 315,322-338
+changelog.md
+  s_9b715d9e600fb6::t_8e84ff9efd0e72 3-4,18
+  s_9b715d9e600fb6::t_e9e1b45bc5f1b9 19
+scripts/release/publish-github.mjs
+  s_9b715d9e600fb6::t_8e84ff9efd0e72 119-132,139,258
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "961afacafeea9cf1446a61f623397d8d29d8d611",
+  "prompts": {},
+  "sessions": {
+    "s_9b715d9e600fb6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08519-c4aa-77e0-96b5-ac8c23eafcfe",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
