@@ -1,0 +1,23 @@
+docs-site/resources.json
+  s_bd170ff740ca58::t_bdff149c1353de 5
+scripts/api-contracts/README.md
+  s_bd170ff740ca58::t_8d6d27cce81add 8,14
+test/README.md
+  s_bd170ff740ca58::t_449c9250f49885 100
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "8da80555245ca05eaa0e534e5aa0d44a4dd9ef5c",
+  "prompts": {},
+  "sessions": {
+    "s_bd170ff740ca58": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0849e-3aa3-76e0-a103-be1accb6af6b",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
