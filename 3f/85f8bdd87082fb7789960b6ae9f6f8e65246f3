@@ -1,0 +1,21 @@
+docs/routing.md
+  s_d758dded79c97f::t_a657ae1d80e616 306,309
+.github/workflows/ci.yml
+  s_d758dded79c97f::t_a657ae1d80e616 74
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "3f85f8bdd87082fb7789960b6ae9f6f8e65246f3",
+  "prompts": {},
+  "sessions": {
+    "s_d758dded79c97f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08c89-49f8-7150-871c-f9819ae99f74",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
