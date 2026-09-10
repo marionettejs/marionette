@@ -71,7 +71,7 @@ jobs:
         run: npm run test:browser
 
       - name: Test documented routing integrations
-        run: node --test test/browser/docs-routing.test.mjs
+        run: npm run test:docs-routing
 
       - name: Validate native browser performance workloads
         run: npm run test:browser-performance

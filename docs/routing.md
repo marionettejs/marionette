@@ -305,7 +305,7 @@ The [routing fixture](../test/fixtures/docs-routing/validate.mjs) exercises the
 shared controller's Region ownership, cancellation, failure, and stop/restart
 behavior. The [browser integration checks](https://github.com/marionettejs/marionette/blob/master/test/browser/docs-routing.test.mjs)
 extract the modules on this page and exercise them in Chromium, Firefox, and
-WebKit. Maintainers can run them after building with
-`node --test test/browser/docs-routing.test.mjs`. These checks use local package
+WebKit. Maintainers can build and run them with
+`npm run test:docs-routing`. These checks use local package
 builds and a simulated server; focus, scroll, and the application's real hosting
 configuration still require application-level verification.

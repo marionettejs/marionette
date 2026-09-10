@@ -86,6 +86,7 @@
     "test": "vitest run",
     "test:agent-benchmark-contract": "node --test test/agent-benchmark/*.test.mjs",
     "test:browser": "playwright test",
+    "test:docs-routing": "npm run build && node --test test/browser/docs-routing.test.mjs",
     "test:dist": "node test/dist/validate.mjs",
     "test:fixtures": "node test/fixtures/run.mjs",
     "test:performance": "node --test test/performance/*.test.mjs",
