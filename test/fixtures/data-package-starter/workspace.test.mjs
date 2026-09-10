@@ -68,7 +68,7 @@ test('missing attributes render empty text and supplied text stays escaped', asy
   try {
     const { createWorkspace } = await import('./workspace.ts');
     const { Model } = await import('@mnjs/data');
-    const literal = '\"><img src=x onerror="alert(1)">&';
+    const literal = '"><img src=x onerror="alert(1)">&';
     workspace = createWorkspace({
       el: document.querySelector('main'),
       async loadNote(id) {
