@@ -1,0 +1,24 @@
+docs/routing.md
+  s_d758dded79c97f::t_ffc1a05d610e4e 308
+  s_d758dded79c97f::t_ede5ca8491ec7f 309
+package.json
+  s_d758dded79c97f::t_ffc1a05d610e4e 89
+.github/workflows/ci.yml
+  s_d758dded79c97f::t_ede5ca8491ec7f 74
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "8de4069221a5507d022b738037f2d8290a205bbf",
+  "prompts": {},
+  "sessions": {
+    "s_d758dded79c97f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08c89-49f8-7150-871c-f9819ae99f74",
+        "model": "gpt-6-astra"
+      },
+      "human_author": null
+    }
+  }
+}
