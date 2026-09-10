@@ -59,3 +59,38 @@ test('editable survivors, latest selection and cleanup use installed package API
     delete globalThis.document;
   }
 });
+
+test('missing attributes render empty text and supplied text stays escaped', async() => {
+  const dom = new JSDOM('<main></main>');
+  globalThis.window = dom.window;
+  globalThis.document = dom.window.document;
+  let workspace;
+  try {
+    const { createWorkspace } = await import('./workspace.ts');
+    const { Model } = await import('@mnjs/data');
+    const literal = '\"><img src=x onerror="alert(1)">&';
+    workspace = createWorkspace({
+      el: document.querySelector('main'),
+      async loadNote(id) {
+        return id === 'missing' ? { title: null } : { title: literal, body: literal };
+      }
+    });
+    workspace.notes.add(new Model({ id: 'missing' }));
+    workspace.notes.add(new Model({ id: 'null', title: null }));
+    workspace.notes.add(new Model({ id: 'escaped', title: literal }));
+    assert.deepEqual([...document.querySelectorAll('input')].slice(2).map(input => input.value), ['', '', literal]);
+    assert.equal(await workspace.navigate('missing'), true);
+    assert.equal(document.querySelector('h2').textContent, '');
+    assert.equal(document.querySelector('section p').textContent, '');
+    assert.equal(document.querySelector('[role="status"]').textContent, 'Loaded.');
+    assert.equal(await workspace.navigate('escaped'), true);
+    assert.equal(document.querySelector('h2').textContent, literal);
+    assert.equal(document.querySelector('section p').textContent, literal);
+    assert.equal(document.querySelectorAll('img, [onerror]').length, 0);
+  } finally {
+    workspace?.destroy();
+    dom.window.close();
+    delete globalThis.window;
+    delete globalThis.document;
+  }
+});

@@ -1,7 +1,8 @@
 import { createMarionette } from 'marionette';
 import { Collection, DataApi, Model, StateApi } from '@mnjs/data';
 
-const escapeHTML = (value: string) => value.replaceAll('&', '&amp;')
+// Escape text and quoted HTML attributes, not URLs, scripts, or styles.
+const escapeHTML = (value: unknown) => String(value ?? '').replaceAll('&', '&amp;')
   .replaceAll('<', '&lt;').replaceAll('>', '&gt;')
   .replaceAll('"', '&quot;').replaceAll("'", '&#39;');
 
@@ -48,15 +49,13 @@ export function createWorkspace({ el, loadNote }: WorkspaceOptions) {
   });
   const List = CollectionView.extend({ tagName: 'ul', childView: Row });
   const Detail = View.extend({
-    initialize(options: { model: Note }) { void options; },
-    templateContext() { return this.options.model; },
     template: ({ title, body }: Note) => `<h2>${escapeHTML(title)}</h2><p>${escapeHTML(body)}</p>`
   });
   const Status = View.extend({
     tagName: 'p',
     attributes: { role: 'status' },
     initialize(options: { state: Model<{ message: string }> }) { void options; },
-    templateContext() { return this.options.state.toObject(); },
+    templateContext(this: { getState(): Model<{ message: string }> }) { return this.getState().toObject(); },
     template: ({ message }: { message: string }) => escapeHTML(message),
     stateEvents: { 'change:message': 'render' }
   });
