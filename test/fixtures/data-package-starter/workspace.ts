@@ -1,6 +1,10 @@
 import { createMarionette } from 'marionette';
 import { Collection, DataApi, Model, StateApi } from '@mnjs/data';
 
+const escapeHTML = (value: string) => value.replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+
 export type Note = { title: string; body: string };
 export type NoteRow = { id: string; title: string };
 export type WorkspaceOptions = {
@@ -24,51 +28,51 @@ export function createWorkspace({ el, loadNote }: WorkspaceOptions) {
   const Row = View.extend({
     tagName: 'li',
     initialize(options: { model: Model<NoteRow> }) { void options; },
-    template: () => '<label>Draft title <input></label><button type="button">Open</button>',
-    events: { 'click button': 'open' },
-    onRender() { this.input().value = this.options.model.get('title') ?? ''; },
-    input(): HTMLInputElement {
-      const input = this.el.querySelector('input');
-      if (!input) { throw new Error('Row template requires an input'); }
-      return input;
+    template: ({ title }: NoteRow) => `<label>Draft title <input value="${escapeHTML(title)}"></label><button type="button">Open</button>`,
+    ui: { input: 'input', open: 'button' },
+    triggers: { 'click @ui.open': 'click:open' },
+    inputValue(): string {
+      const input = this.getUI('input')?.[0];
+      if (!input || !('value' in input) || typeof input.value !== 'string') {
+        throw new Error('Row template requires an input');
+      }
+      return input.value;
     },
-    open() {
+    onClickOpen() {
       const model = this.options.model;
       const id = model.get('id');
       if (id === undefined) { throw new Error('A note requires an id'); }
-      model.set('title', this.input().value);
+      model.set('title', this.inputValue());
       void navigate(id).catch(() => undefined); // navigate owns the visible error state.
     }
   });
   const List = CollectionView.extend({ tagName: 'ul', childView: Row });
   const Detail = View.extend({
     initialize(options: { model: Note }) { void options; },
-    template: () => '<h2></h2><p></p>',
-    onRender() {
-      const heading = this.el.querySelector('h2');
-      const body = this.el.querySelector('p');
-      if (!heading || !body) { throw new Error('Detail template is incomplete'); }
-      heading.textContent = this.options.model.title;
-      body.textContent = this.options.model.body;
-    }
+    templateContext() { return this.options.model; },
+    template: ({ title, body }: Note) => `<h2>${escapeHTML(title)}</h2><p>${escapeHTML(body)}</p>`
+  });
+  const Status = View.extend({
+    tagName: 'p',
+    attributes: { role: 'status' },
+    initialize(options: { state: Model<{ message: string }> }) { void options; },
+    templateContext() { return this.options.state.toObject(); },
+    template: ({ message }: { message: string }) => escapeHTML(message),
+    stateEvents: { 'change:message': 'render' }
   });
   const Shell = View.extend({
     createState() { return new Model({ message: 'Choose a note.' }); },
-    stateEvents: { 'change:message': 'showStatus' },
-    showStatus() {
-      const status = this.el.querySelector('[role="status"]');
-      if (status) { status.textContent = this.getState().get('message') ?? ''; }
-    },
-    template: () => '<h1>Notes</h1><button type="button" data-reorder>Reverse rows</button><div data-list></div><p role="status"></p><section aria-label="Selected note" data-detail></section>',
-    regions: { list: '[data-list]', detail: '[data-detail]' },
-    events: { 'click [data-reorder]': 'reverse' },
-    reverse() {
+    template: () => '<h1>Notes</h1><button type="button" data-reorder>Reverse rows</button><div data-list></div><div data-status></div><section aria-label="Selected note" data-detail></section>',
+    regions: { list: '[data-list]', status: '[data-status]', detail: '[data-detail]' },
+    ui: { reorder: '[data-reorder]' },
+    triggers: { 'click @ui.reorder': 'click:reverse' },
+    onClickReverse() {
       const first = notes.at(0);
       if (first) { notes.move(first, notes.length - 1); }
     },
     onRender() {
       this.showChildView('list', new List({ collection: notes }));
-      this.showStatus();
+      this.showChildView('status', new Status({ state: this.getState() }));
     }
   });
   const region = new Region({ el });
@@ -102,6 +106,7 @@ export function createWorkspace({ el, loadNote }: WorkspaceOptions) {
     pending?.abort();
     pending = undefined;
     region.destroy();
+    notes.destroy();
   }
   return { notes, navigate, destroy };
 }

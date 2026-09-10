@@ -22,8 +22,10 @@ workshop, not this application.
   `@mnjs/data` DataApi and StateApi before creating Views. Rendering uses function
   templates and native DOM. There is no Backbone dependency or URL router.
 - The root Region owns the shell. Its list Region owns the CollectionView and
-  rows; its detail Region owns the selected View. Draft inputs survive ordinary
-  collection reordering. Shell-created status state is owned by the shell.
+  rows; its detail Region owns the selected View. A separate status View borrows
+  shell-owned state and renders updates without disturbing editable rows. Draft
+  inputs survive ordinary collection reordering. Templates render escaped content;
+  `ui` and semantic `triggers` declare controls.
 - The workspace owns the note collection and pending AbortController. `navigate`
   cancels obsolete loads and checks cancellation before committing results, even
   if a loader ignores its signal. `destroy` releases the workspace.
