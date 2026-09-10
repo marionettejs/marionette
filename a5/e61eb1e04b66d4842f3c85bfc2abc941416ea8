@@ -1,0 +1,19 @@
+config/api-contracts/inventory.json
+  s_eedda65bb693c6::t_b1537ed000fb81 8075
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "a5e61eb1e04b66d4842f3c85bfc2abc941416ea8",
+  "prompts": {},
+  "sessions": {
+    "s_eedda65bb693c6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08995-a806-7672-815b-0397ab2f2b4b",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
