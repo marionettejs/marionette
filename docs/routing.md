@@ -1,49 +1,71 @@
-# Connect routing to a feature
+# Routing with Marionette
 
-Keep the project's existing router. A route handler can call an application
-function that loads data and shows a View. Marionette does not export a router
-or require a routing adapter.
+Marionette provides Views, Regions, and feature lifecycle. URL matching and browser
+history belong to the application. No Marionette router or routing adapter is needed.
 
-## Choose the boundary
+## Choose an approach
 
-| Responsibility | Owner |
+| Application | Starting point |
 | --- | --- |
-| Match URLs, parse parameters, update browser history | Your router |
-| Validate route input, load data, handle errors, cancel superseded navigation | Application code |
-| Display and replace the feature's View tree | A Marionette Region |
-| Start, stop, and destroy the feature | A Marionette Application |
+| New application with a browser policy that supports Navigation API and URLPattern | [Native browser navigation](#use-the-navigation-api) |
+| Application using Backbone.Router | [Backbone routing](#connect-backbonerouter) |
+| Application requiring a different browser or routing contract | [Other routers](#other-routers) |
 
-Use a Region directly when navigation only replaces Views. Add an Application
-when the feature also needs a start/stop boundary or owns other Applications.
-A route change does not inherently require a new Application instance.
+The [Navigation API](https://developer.mozilla.org/en-US/docs/Web/API/Navigation_API)
+and [URLPattern](https://developer.mozilla.org/en-US/docs/Web/API/URLPattern) are
+newer than Marionette's Baseline Widely available browser target. Check the
+application's minimum browsers before choosing them. Select one routing
+implementation for the application.
 
-If the project has no router, first determine whether it needs URLs at all.
-Local selection can be ordinary application state. For URL navigation, choose a
-router against the required URL, history, and deployment behavior. That decision
-is independent of the [data, state, and DOM integrations](./choosing-integrations.md).
+## Start with a Region
+
+A route handler can simply show a View. This complete module assumes the page
+contains `<main id="page"></main>`:
+
+```javascript
+import { Region, View } from 'marionette';
+
+const Home = View.extend({ template: () => '<h1>Home</h1>' });
+const Help = View.extend({ template: () => '<h1>Help</h1>' });
+const page = new Region({ el: '#page' });
+
+export function showPage(name) {
+  const Page = name === 'help' ? Help : Home;
+  page.show(new Page());
+}
+
+export function destroy() {
+  page.destroy();
+}
+```
+
+Connect the matched route to `showPage('home')` or `showPage('help')`.
+The Region renders the new View and destroys the previous one. A route change
+does not require a new Application.
+
+Add an [Application](./marionette.application.md) when a feature needs a
+start/stop boundary or owns child Applications. The following example uses that
+boundary to cancel pending page loads on stop and destruction.
 
 ## Load the latest page and discard stale work
 
-This example keeps one Application alive while routes replace its root View.
-It retains the previous page during loading and on a current request failure.
-A later navigation aborts the previous request. Stopping or destroying the
-Application also aborts pending work and removes its displayed View.
+Save this module as `page-navigation.js`. Supply an existing element and a
+`loadPage(id, { signal })` function returning a Promise for `{ title, body }`.
+The loader may use fetch, a cache, or local data. Data loading is defined once and
+shared by either routing integration below.
 
-Save this module as `page-navigation.js`. `loadPage(id, { signal })` is an
-application dependency: it returns a Promise for an object with `title` and
-`body` strings. The element must already exist. No data adapter is needed for
-these plain objects.
+This example uses Underscore's template compiler with escaped interpolation
+(`<%- ... %>`). Install `underscore` to run it, or use the application's existing
+template engine with its HTML escaping enabled. Template choice is independent
+of router choice; see [rendering templates](./view.rendering.md).
 
 <!-- executable-example: routing-latest-navigation -->
 ```javascript
 import { Application, View } from 'marionette';
+import { template } from 'underscore';
 
 const PageView = View.extend({
-  template: () => '<h1></h1><p></p>',
-  onRender() {
-    this.el.querySelector('h1').textContent = this.model.title;
-    this.el.querySelector('p').textContent = this.model.body;
-  }
+  template: template('<h1><%- title %></h1><p><%- body %></p>')
 });
 
 export async function createPageNavigation({ el, loadPage }) {
@@ -61,12 +83,14 @@ export async function createPageNavigation({ el, loadPage }) {
   const application = new Pages({ region: { el } });
   await application.start();
 
-  async function navigate(id) {
-    if (!application.isRunning()) return false;
+  async function navigate(id, { signal } = {}) {
+    if (!application.isRunning() || signal?.aborted) return false;
 
     cancelPending();
     const request = new AbortController();
     pending = request;
+    const abort = () => request.abort();
+    signal?.addEventListener('abort', abort, { once: true });
 
     try {
       const page = await loadPage(id, { signal: request.signal });
@@ -78,11 +102,12 @@ export async function createPageNavigation({ el, loadPage }) {
       if (request.signal.aborted || !application.isRunning()) return false;
       throw error;
     } finally {
+      signal?.removeEventListener('abort', abort);
       if (pending === request) pending = undefined;
     }
   }
 
-  return { application, navigate };
+  return { application, navigate, cancel: cancelPending };
 }
 ```
 
@@ -105,73 +130,182 @@ must finish before the *feature* can start; see
 Repeated in-flight `start()` or `restart()` calls share their operation Promise,
 so changing their options is not a substitute for navigation cancellation.
 
-## Connect an existing router
+The optional `signal` connects an external navigation cancellation to the page
+request. `cancel()` aborts pending work without removing the displayed View.
+These functions belong to this example, not Marionette's public API.
 
-Create the feature once, then call `navigate(id)` from the router's existing
-matched-route handler. For an application already using `Backbone.Router`,
-that can look like this:
+## Use the Navigation API
 
-Serve this application and its API over HTTPS in production; relative requests
-use the application origin.
+Save this integration as `browser-navigation.js`. It accepts the feature created
+above and a synchronous `onError(error)` callback supplied by the application.
+That callback should present the current failure and a retry action in the
+application's UI. It must not throw. There is no required status element.
+
+```javascript
+export function connectNavigation(feature, onError) {
+  const listeners = new AbortController();
+  const route = new URLPattern({ pathname: '/pages/:id' });
+
+  function match(url) {
+    const destination = new URL(url);
+    return destination.origin === location.origin && route.exec(destination.href);
+  }
+
+  async function display(result, signal) {
+    try {
+      return await feature.navigate(
+        decodeURIComponent(result.pathname.groups.id), { signal }
+      );
+    } catch (error) {
+      if (!signal?.aborted && !listeners.signal.aborted) onError(error);
+      return false;
+    }
+  }
+
+  navigation.addEventListener('navigate', event => {
+    // Leave downloads, forms, and fragment-only navigation to the browser.
+    if (event.hashChange || event.downloadRequest !== null) return;
+    feature.cancel();
+    if (!event.canIntercept || event.formData) return;
+    const result = match(event.destination.url);
+    if (!result) return;
+
+    event.intercept({
+      handler: () => display(result, event.signal)
+    });
+  }, { signal: listeners.signal });
+
+  // The initial document load does not emit a navigate event to this listener.
+  const initial = match(location.href);
+  const ready = initial ? display(initial, listeners.signal) : Promise.resolve(false);
+
+  return {
+    ready,
+    async destroy() {
+      listeners.abort();
+      feature.cancel();
+      await feature.application.destroy();
+    }
+  };
+}
+```
+
+Create the feature once, then call `connectNavigation(feature, onError)` and await
+its `ready` Promise. The returned object owns the listener and feature; call and
+await its `destroy()` when the application releases this integration, including
+during hot replacement.
+
+Use ordinary links such as `<a href="/pages/notes">Notes</a>`. For programmatic
+navigation, use `navigation.navigate('/pages/notes')`; its `finished` Promise
+can reject on cancellation. Back/forward also enters the same handler.
+
+This example intercepts only `/pages/:id`. Other URLs use normal document
+navigation, and pending page work is canceled before leaving. The server owns
+those destinations and 404 responses. To keep other features in the same
+document, extend the application's route dispatcher and explicitly stop the old
+feature before starting the new one.
+
+The browser's [navigation signal](https://developer.mozilla.org/en-US/docs/Web/API/NavigateEvent/signal)
+cancels the loader when navigation is superseded or stopped. The shared controller
+also checks cancellation after loading, so providers that ignore abort cannot
+commit stale Views or report stale failures. A current load failure keeps the
+previous View and invokes `onError`; the URL has already changed. The application
+must make that failure visible and allow retry. This example handles the error,
+so a fulfilled browser navigation Promise does not itself prove that loading succeeded.
+
+### Focus, scroll, and direct URLs
+
+The [interception defaults](https://developer.mozilla.org/en-US/docs/Web/API/NavigateEvent/intercept)
+let the browser manage focus reset and scroll after the handler settles. Preserve
+ordinary fragment links and verify back/forward scroll restoration with real page
+content. If the application needs heading focus or a different scroll policy,
+implement that explicitly and test it with keyboard navigation.
+
+Serve the application entry at valid `/pages/:id` URLs so reloads and shared links
+work. Keep API endpoints and missing assets out of that rewrite. See
+[deployment URL policy](./production-and-performance.md#deploy-the-routers-url-policy).
+
+## Connect Backbone.Router
+
+Use this alternative when the application already uses Backbone. Save it as
+`backbone-navigation.js`; pass the same feature and `onError` callback used above.
+This example owns browser history for the document and uses hash URLs such as
+`#/pages/notes`. Call it only when this integration owns history startup and
+shutdown. For a shared, already-started history, integrate the handlers into its
+existing route table instead of calling this factory.
 
 ```javascript
 import Backbone from 'backbone';
-import { createPageNavigation } from './page-navigation.js';
 
-const status = document.querySelector('#route-status');
-const { application, navigate } = await createPageNavigation({
-  el: document.querySelector('#page'),
-  async loadPage(id, { signal }) {
-    const response = await fetch(`/api/pages/${encodeURIComponent(id)}`, { signal });
-    if (!response.ok) throw new Error(`Page request failed: ${response.status}`);
-    return response.json();
-  }
-});
+export function connectBackbone(feature, onError) {
+  const Router = Backbone.Router.extend({
+    routes: { 'pages/:id': 'page', '*path': 'leave' },
+    page(id) {
+      void feature.navigate(id).catch(onError);
+    },
+    leave() {
+      feature.cancel();
+      feature.application.getRegion().empty();
+    }
+  });
+  const router = new Router();
+  Backbone.history.start();
 
-const Router = Backbone.Router.extend({
-  routes: { 'pages/:id': 'page' },
-  page(id) {
-    status.textContent = '';
-    void navigate(id).catch(() => {
-      status.textContent = 'Could not load this page. Try again.';
-    });
-  }
-});
-
-const router = new Router();
-Backbone.history.start();
-
-// When the owning application leaves this feature:
-// await application.stop();
-// When that owner permanently releases it:
-// await application.destroy();
+  return {
+    router,
+    async destroy() {
+      Backbone.history.stop();
+      await feature.application.destroy();
+    }
+  };
+}
 ```
 
-The page supplies `<main id="page"></main>` and
-`<p id="route-status" role="status"></p>`. The server supplies the page endpoint.
-Register this route within the project's existing router when one is already
-present; start browser history once at the application entry point. Route
-registration and history teardown remain the router owner's responsibility.
-Stop the feature on routes that leave it, and restart it with `start()` before
-sending it more navigation requests.
+The catch-all releases the current page on unmatched hash routes; a complete
+application would display its home, another feature, or a not-found View there.
+The Application stays running so another matching route can load a page.
 
-Using Backbone for routing alone does not require `BackboneApi`, `setDataApi`,
-or `setStateApi`. Configure those only when Marionette owners consume Backbone
-data or state. Backbone's URL matching and history behavior remain
-[Backbone contracts](https://backbonejs.org/#Router).
+If the project already starts history, add these handlers to its route table and
+leave history startup/shutdown with that existing owner. Backbone.Router has no
+public per-router disposal method; keep the route table for the document lifetime
+rather than registering new Routers whenever a feature starts.
+
+Backbone does not intercept ordinary links automatically. Its
+`router.navigate('pages/notes', { trigger: true })` updates the URL and dispatches
+the handler. Use `Backbone.history.start({ pushState: true })` for path URLs only
+when the server serves direct client routes. Implement and test the application's
+focus and scroll behavior; this example does not supply either policy.
+
+Routing alone does not require `BackboneApi`, `setDataApi`, or `setStateApi`.
+Select those independently when consuming Backbone data or state. URL matching,
+parameter decoding, and history remain [Backbone contracts](https://backbonejs.org/#Router).
+
+## Other routers
+
+A callback router such as [Navigo](https://github.com/krasimir/navigo) can call the
+same feature's `navigate(id)`. Consider one when its browser support or URL
+semantics meet a requirement the first two approaches do not. Check initial
+dispatch, parameter decoding, history, failure handling, and listener cleanup.
+Keep rendering and View replacement with the Region. No third-party router is
+bundled or required by Marionette.
 
 ## Verify the integration
 
-Check the behavior at the route boundary:
+Test the documented modules together, through browser navigation:
 
-- Navigate from a slow request to a fast one. The fast page must remain visible
-  when the slow request later resolves or rejects.
-- Navigate away or destroy the feature during loading. No late View may appear.
-- Fail the current load. Surface the error and allow a later navigation to succeed.
-- Replace a displayed page. Its old View must be destroyed through its Region.
-- Follow a direct URL and use browser back/forward. Those checks exercise the
-  router and hosting configuration, beyond the Marionette example.
+- Open a direct URL, follow a link, then use back, forward, and reload.
+- Supersede a slow load with a fast one, including a loader that ignores abort.
+  Only the current page may appear; stale failures must stay silent.
+- Cancel navigation, leave the feature, and destroy the integration during loading.
+  Pending work must not commit, and destruction must release the listener and View.
+- Fail a current load, surface the failure, and successfully retry.
+- Check keyboard focus, fragment navigation, scroll restoration, and server 404s.
 
-The executable example fixture tests replacement, cancellation, load failure,
-stop/restart, and destruction using deferred loaders, including loaders that
-ignore abort. It does not test a particular router or server deployment.
+The [routing fixture](../test/fixtures/docs-routing/validate.mjs) exercises the
+shared controller's Region ownership, cancellation, failure, and stop/restart
+behavior. The [browser integration checks](../test/docs/routing-browser.test.mjs)
+extract the modules on this page and exercise them in Chromium, Firefox, and
+WebKit. Maintainers can run them after building with
+`node --test test/docs/routing-browser.test.mjs`. These checks use local package
+builds and a simulated server; focus, scroll, and the application's real hosting
+configuration still require application-level verification.

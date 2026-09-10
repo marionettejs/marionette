@@ -5,6 +5,7 @@
     "validate": "node validate.mjs"
   },
   "dependencies": {
-    "jsdom": "30.0.1"
+    "jsdom": "30.0.1",
+    "underscore": "1.13.8"
   }
 }
