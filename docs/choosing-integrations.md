@@ -81,11 +81,8 @@ import { View } from 'marionette';
 import BackboneApi from '@mnjs/adapters/backbone';
 
 const AccountView = View.extend({
-  template: () => '<span class="name"></span>',
-  modelEvents: { change: 'render' },
-  onRender() {
-    this.el.querySelector('.name').textContent = this.model.get('name');
-  }
+  template: ({ active }) => `<span>${active ? 'Active' : 'Inactive'}</span>`,
+  modelEvents: { change: 'render' }
 });
 AccountView.setDataApi(BackboneApi);
 ```

@@ -42,8 +42,8 @@ immutable release.
 
 Start with packaged `docs/agents.md`, then use these source paths from the manifest:
 
-- New setup or an integration decision: `docs/installation.md` and
-  `docs/choosing-integrations.md`.
+- New application: `docs/development.md` for the executable typed starter;
+  `docs/installation.md` and `docs/choosing-integrations.md` for setup decisions.
 - UI ownership and replacement: `docs/marionette.view.md`,
   `docs/marionette.region.md`, and `docs/view.lifecycle.md`.
 - Changing lists: `docs/marionette.collectionview.md` and `docs/data.api.md`.
@@ -75,6 +75,26 @@ router independently. A Backbone router does not require Backbone data or state.
 Register configuration before creating its consumers; use an isolated runtime only
 when independent configurations must coexist.
 
+Make the first draft idiomatic: templates for ordinary content, named Regions for
+composition, `ui` for controls, `triggers` for semantic View events, and `events`
+when the handler needs the DOM event. Domain records belong in data sources;
+CollectionView children are their presentation, not a record store. For a new
+observable list, start with `@mnjs/data` and configure DataApi before construction.
+Native Collection `toArray()` returns plain attributes; iteration yields Models.
+Do not assume Backbone/Underscore methods.
+Update the smallest responsible View so unrelated drafts, focus and child identity
+survive. Cover every displayed or calculated field in data subscriptions, and let
+CollectionView reconcile membership without an extra whole-list render handler.
+Do not replace focused inputs in response to their own edits.
+Native DOM access belongs at boundaries such as focus or a widget.
+
+For a personalized app, connect a real user preference to both the interaction and
+visual design. Choose a specific visual direction before coding; preserve readable
+hierarchy, spacing, contrast, labels and narrow layouts. Do not force a line count
+that collapses independent owners into one View. Keep teaching/test controls out of
+the app itself. The website's optional personal-app brief supplies its own starter;
+it does not authorize browsing private sources for personalization.
+
 Name the owner and cleanup operation for Views, subscriptions, widgets, and async
 work. Use public lifecycle APIs. Check stale work before committing side effects;
 framework cancellation cannot undo arbitrary writes by application code. Consult
@@ -83,7 +103,10 @@ it from a method name.
 
 Use the application's own test commands. Exercise the requested behavior and its
 relevant boundary: stale navigation, surviving edits/focus, rerendered event
-handlers, or resource cleanup. Browser behavior needs a browser check. Report
+handlers, or resource cleanup. For observable records, change a source directly and verify all interested Views,
+not just the clicked row. Check repeated attachment for attachment-bound work.
+Browser behavior needs a browser check; visual quality needs rendered inspection
+at desktop and narrow widths. Report
 commands actually run and untested boundaries; a successful build is not proof of
 those interactions. Record changed integration decisions in the application's own
 instructions without copying the library's maintainer policy.

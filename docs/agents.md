@@ -62,6 +62,33 @@ for repeated children. Use an Application when work has an asynchronous feature
 lifecycle. A plain function or class is enough when it needs none of these
 contracts. The [class guide](./classes.md) explains the boundaries.
 
+Before expanding a small example into an application, revisit its data and ownership
+choices. A recipe demonstrating manually managed children is not a default data
+architecture for a todo application. Domain records belong in a data source;
+CollectionView children are their presentation. Do not use child View traversal as
+the application's record store. Plain arrays can remain appropriate for explicit
+snapshot updates. When records need shared observation, filtering, and coordinated
+updates, select an observable provider; for a new application without one, start
+with `@mnjs/data` and its [DataApi setup](./data.api.md).
+
+Native DOM defaults describe the integration, not a replacement for View composition.
+Render ordinary content through `template` and `templateContext`, place child Views
+through named Regions, and declare controls with `ui`, `events`, and `triggers`.
+Use `events` when the handler needs input or keyboard details; use `triggers` when
+an interaction should become a View event. Direct DOM work still belongs at real
+integration boundaries, such as focus, measurements, and an external animation or
+widget. Keep its lifetime with the owning View.
+
+Observe each field used by a template or derived display, including changes that
+do not come from its main button. Let CollectionView handle membership changes
+without a second whole-list render subscription. Keep focused editors stable
+when processing their own input.
+
+When building teaching examples, make the application runnable independently of
+narration and inspection. Prefer ordinary modules with explicit imports and exports.
+Check that the preview supports the selected packages and module structure; a tiny
+sandbox's restrictions should not silently become the recommended app architecture.
+
 Configure the selected runtime before creating its consumers. The default named
 exports share a runtime. Use [runtime isolation](./runtime-isolation.md) when
 independent configurations must coexist; do not create a runtime per View.
@@ -106,6 +133,13 @@ Use a real browser when correctness depends on focus, attachment, DOM event
 propagation, or editable state. A build or screenshot alone does not prove those
 interactions. Use documented public APIs for assertions rather than private
 framework fields.
+
+Review the architecture separately from interaction results: identify the data
+source, the Views and Regions that own the screen, and the external work each owner
+releases. Working buttons do not establish that the example teaches those contracts.
+For observable data, change the source directly and verify all intended consumers
+update. For attachment-bound resources, also detach and reattach the same View;
+replacement alone does not prove that repeated attachment releases resources.
 
 When reporting a change, name the behavior, the tested package/source, the exact
 commands or interactions performed, and any untested boundary. Keep changes
