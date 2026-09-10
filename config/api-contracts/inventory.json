@@ -8072,7 +8072,7 @@
   },
   "evidence": {
     "config/diagnostics/catalog.json": "a044dac8d4242de8e7c6c58a6442fb58384069c0f4d76ec6fabec03f34697eac",
-    "docs/choosing-integrations.md": "24ce6295dcc8cf8f587a52a935e2b351ebab4e9721e6ed311625c611eec0bc6c",
+    "docs/choosing-integrations.md": "385bfb2c7d85a8e0db71fd795ed1fef488aa637aa5094e93210810ff91f31f12",
     "docs/data.api.md": "c9bf72e4afd8c9b774391b3e343284808705887c8a38265609bfad910193e45c",
     "docs/diagnostic-catalog.md": "1df844c7e8edbea59a8c07776d656d45f77266108babb770d7690183fe85d180",
     "docs/dom.api.md": "a697a637ae4c6cc92aa5d72850b404763f08e0417800feacc0b431ec073d3916",
