@@ -1,0 +1,19 @@
+test/fixtures/data-package-starter/workspace.test.mjs
+  s_eedda65bb693c6::t_1ccd1b328476b8 71
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "6c3c5472504bd67763cc428657a3a7ba77662ab9",
+  "prompts": {},
+  "sessions": {
+    "s_eedda65bb693c6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08995-a806-7672-815b-0397ab2f2b4b",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
