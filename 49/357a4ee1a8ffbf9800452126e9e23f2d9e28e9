@@ -1,0 +1,21 @@
+test/fixtures/data-package-starter/workspace.test.mjs
+  s_eedda65bb693c6::t_b94b47c08bfacc 62-96
+test/fixtures/data-package-starter/workspace.ts
+  s_eedda65bb693c6::t_671afbdf8fc424 4-5,58
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "49357a4ee1a8ffbf9800452126e9e23f2d9e28e9",
+  "prompts": {},
+  "sessions": {
+    "s_eedda65bb693c6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08995-a806-7672-815b-0397ab2f2b4b",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
