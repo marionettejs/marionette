@@ -92,15 +92,16 @@ and lockfile, including any npm alias. A v4 application may use
 marionette found” does not mean the application has no Marionette dependency.
 
 Download the exact target into a temporary directory without installing it in the
-application. This example inspects `5.0.0-beta.2`; replace that literal only with
-the release selected for your migration, not `latest` or `next`. Downloading
+application. This example inspects `5.0.0-beta.2`; set `migration_target_version` to
+the exact release selected for your migration, not `latest` or `next`. Downloading
 requires npm registry access; reading the extracted docs requires Node 24 or later.
 Run these commands in the same shell:
 
 ```sh
+migration_target_version="5.0.0-beta.2"
 migration_target_dir="$(mktemp -d)"
-npm pack marionette@5.0.0-beta.2 --ignore-scripts --pack-destination "$migration_target_dir"
-tar -xzf "$migration_target_dir/marionette-5.0.0-beta.2.tgz" -C "$migration_target_dir"
+npm pack "marionette@$migration_target_version" --ignore-scripts --pack-destination "$migration_target_dir"
+tar -xzf "$migration_target_dir/marionette-$migration_target_version.tgz" -C "$migration_target_dir"
 node "$migration_target_dir/package/dist/agent-skill/scripts/docs.mjs" --package-root "$migration_target_dir/package" --list
 node "$migration_target_dir/package/dist/agent-skill/scripts/docs.mjs" --package-root "$migration_target_dir/package" --page docs/migration-from-v4.md
 node "$migration_target_dir/package/dist/agent-skill/scripts/docs.mjs" --package-root "$migration_target_dir/package" --page upgradeGuide.md
