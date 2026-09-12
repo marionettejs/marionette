@@ -1,0 +1,39 @@
+AGENTS.md
+  s_fd459bdf096d6f::t_1357a4b89bd2f5 6-9,26-31,57,66
+docs/agents.md
+  s_fd459bdf096d6f::t_ae9d410d347410 9-10,31-33,73-75,95-101,131,136-137,166-172
+docs/application-agent-template.md
+  s_fd459bdf096d6f::t_199364cf57fd25 50-52
+docs/maintainers/documentation.md
+  s_fd459bdf096d6f::t_1cbf0b6a12d401 152,154-157,163,165-169
+docs/maintainers/readme.md
+  s_fd459bdf096d6f::t_6133c8bc2577f6 7-11,36-41
+skills/marionette/SKILL.md
+  s_fd459bdf096d6f::t_64d694a60a47f7 3,8-9,11,13-14,21-64
+test/fixtures/data-package-starter/AGENTS.md
+  s_cebb95f52d0c02::t_2a7e828b3dcce3 3-9,29,31-32,42-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "0fc3f50e566f54672d6518bb1e12536dcce91aec",
+  "prompts": {},
+  "sessions": {
+    "s_cebb95f52d0c02": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0938e-5975-79d3-b50a-d13cf0069444",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_fd459bdf096d6f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a09389-7143-7320-8968-211a01580156",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
