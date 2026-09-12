@@ -1,0 +1,21 @@
+docs/maintainers/readme.md
+  s_fd459bdf096d6f::t_a3d9a306d6d7b3 36-39
+skills/marionette/SKILL.md
+  s_fd459bdf096d6f::t_498bcbaf2a12b7 35-36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "5b6e53228accc515e62a0653e55a93f8391e1c5d",
+  "prompts": {},
+  "sessions": {
+    "s_fd459bdf096d6f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a09389-7143-7320-8968-211a01580156",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
