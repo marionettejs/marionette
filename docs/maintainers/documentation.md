@@ -149,21 +149,21 @@ boundary explicit: inspecting an example is not inspecting the reader's app, and
 browser tool is not a remote docs server. Expose only the example's supported
 operations; keep them optional and outside the library's production import graph.
 
-## Review in two passes
+## Documentation completion
 
-First verify correctness against source, package exports, and the example's actual
-behavior. A matching executable marker only connects a snippet to a fixture; run
-the fixture to establish its assertions. Check links, anchors, version selection,
-and generated Markdown as well as the rendered page.
+Changed contracts must agree with source and package exports. A matching executable
+marker only connects a snippet to a fixture; changed executable examples need their
+fixture results. Prose/link edits need documentation checks; rendering changes need
+rendered inspection. Unchanged examples do not require reruns for editorial edits.
 
 External live examples, including older JSFiddle links, are illustrative until
 their package and source provenance are verified. Their presence is not current
 version evidence. Prefer repository-owned fixtures for canonical patterns.
 
-Then review the reading path. Can a reader identify the relevant version, choose an
+The reading path should let a reader identify the relevant version, choose an
 approach, find required setup, understand ownership, and verify the result without
-private knowledge? Test a few representative retrieval and implementation tasks
-using the published formats, record failures, and fix the pages those failures
-expose. Follow the [evaluation plan](../../benchmarks/agent/evaluation-plan.md) for
-release usability evidence and separate comparative research. A small editorial
-trial does not complete either evaluation.
+private knowledge. For changes to discovery or task guidance, representative
+retrieval or implementation trials can expose gaps; record their scope and failures.
+Follow the [evaluation plan](../../benchmarks/agent/evaluation-plan.md) for release
+usability evidence and separate comparative research. A small editorial trial does
+not complete either evaluation.

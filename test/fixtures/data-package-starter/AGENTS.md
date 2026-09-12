@@ -1,18 +1,12 @@
 # Work on this Marionette application
 
-Read the installed contract in
-`node_modules/marionette/dist/docs/docs/agents.md`, then its compact reference
-and the page relevant to the task. `dist/docs/manifest.json` records the package
-version and source. Use this application's lockfile; do not substitute current
-website examples for a different installed version.
+Use `node_modules/marionette/dist/docs/docs/agents.md` for application architecture
+and its task links for specific contracts. The compact reference is an optional
+overview. `dist/docs/manifest.json` and this application's lockfile identify the
+installed version and source; do not substitute mismatched website examples.
 
-Optional skill setup: `node_modules/marionette/dist/docs/docs/agent-tools.md`.
-That guide also describes documentation retrieval. The website's MCP setup is
-at https://marionettejs.com/docs/mcp/. Read `marionette://catalog` and use remote
-docs only when version and source match this installation. Pass the exact installed
-`version` to each tool; follow `nextOffset` until it is `null`. Local Markdown
-remains sufficient. Website WebMCP operates its
-workshop, not this application.
+For skill setup or remote documentation retrieval, consult the installed
+`docs/agent-tools.md` under `dist/docs`. Local Markdown is sufficient.
 
 ## Existing architecture
 
@@ -32,9 +26,10 @@ workshop, not this application.
 - The loader is a local demonstration without persistence. Add real data access
   at `main.ts`'s loader boundary; connect URL handling to `navigate` if needed.
 
-## Verify changes
+## Setup and checks
 
-Run commands from this directory:
+Choose commands for the task from this directory; setup is needed only for a new
+installation:
 
 - Rename the shipped `gitignore` to `.gitignore` before committing application files.
 - First registry setup: `npm install`; subsequent locked installs: `npm ci`.
@@ -44,5 +39,7 @@ Run commands from this directory:
 
 Extend `workspace.test.mjs` for data/loading behavior and
 `workspace.browser.spec.mjs` for DOM interaction and cleanup. Use public APIs and
-observable behavior; do not inspect private framework fields. Run relevant checks
-and report actual results. Keep these architecture notes current as the app grows.
+observable behavior; do not inspect private framework fields. Completion means the
+requested behavior and its affected ownership/cancellation boundary work, with
+actual check results and any untested scope reported. Keep these architecture
+notes current as the app grows.

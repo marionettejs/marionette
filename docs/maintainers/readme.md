@@ -4,22 +4,11 @@ This guide is the operating procedure for changing the library. It gives agents
 and human contributors the same route from a task to a public contract and useful
 evidence. Application authors should use the [consumer guide](../agents.md).
 
-## Orient once
-
-Read the requested change and inspect the current branch and worktree. Record the
-source revision when evidence depends on it. Use the toolchain in the
-[release profile](../release-profile.md) and the setup in
-[CONTRIBUTING.md](../../CONTRIBUTING.md).
-
-Classify the work as documentation/static, development/test, an existing production
-path, or an opt-in runtime path. Identify the affected contract: lifecycle,
-ownership, data/state, DOM, diagnostics, types, or distribution. Consult the relevant
-part of [ROADMAP.md](../../ROADMAP.md) when changing architecture or release scope.
-Its planned tooling is not an available API.
-
-Proceed with routine implementation choices supported by the existing contract.
-If the requested change leaves a material public behavior undecided, state the
-specific decision and continue independent work while it is resolved.
+Use [CONTRIBUTING.md](../../CONTRIBUTING.md) and the
+[release profile](../release-profile.md) when setting up the toolchain.
+[AGENTS.md](../../AGENTS.md) defines production-change, public-test, and failure
+boundaries. Routine implementation choices within the established contract do not
+need a separate decision gate; unresolved public behavior does.
 
 ## Find the contract and its implementation
 
@@ -44,16 +33,12 @@ the affected public symbol and inspect its direct collaborators and tests.
 For a release, use the [release checklist](./release-checklist.md) across package
 publication, GitHub notes, website deployment, and the matching MCP snapshot.
 
-1. Describe the expected observable behavior. For a bug, reproduce the failing
-   behavior through the public API before relying on a proposed fix.
-2. Change the owner of the contract. Update types, diagnostics, examples, and tests
-   that encode the same behavior. Remove superseded paths rather than retaining
-   speculative compatibility.
-3. Validate the behavior and its relevant boundaries. For lifecycle changes, test
-   ownership and teardown; for asynchronous work, test supersession and rejection;
-   for data reconciliation, test surviving child identity and editable state.
-4. Review the diff for unrelated edits and accidental production dependencies.
-   Report the changed contract, commands actually run, outcomes, and limitations.
+Completion requires the requested observable behavior, consistent types,
+diagnostics, examples and tests, and evidence for the affected boundaries.
+A bug fix needs a public reproduction; lifecycle work needs ownership and teardown
+evidence, async work supersession and rejection, and reconciliation surviving child
+identity and editable state. Remove superseded paths under the compatibility policy
+in [AGENTS.md](../../AGENTS.md).
 
 Use stable diagnostic codes when testing framework invariants. Error prose can
 change. Public tooling and public fixtures must use documented APIs rather than
