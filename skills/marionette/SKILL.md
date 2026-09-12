@@ -38,6 +38,7 @@ Pass the task page's `source` field from the manifest or `--list` output to
 | Task | Packaged page |
 | --- | --- |
 | New application | `docs/development.md` for the typed starter; `docs/choosing-integrations.md` for integration decisions |
+| Migrating an existing application | `docs/agent-tools.md` (pre-migration setup); `docs/migration-from-v4.md` and `upgradeGuide.md` from that target |
 | Application architecture or unfamiliar ownership | `docs/agents.md` |
 | Rendering or screen replacement | `docs/marionette.view.md`, `docs/marionette.region.md`, `docs/view.lifecycle.md` |
 | Changing lists or observable records | `docs/marionette.collectionview.md`, `docs/data.api.md` |
