@@ -1,0 +1,21 @@
+.github/workflows/docs-sync.yml
+  s_ecb51887ff50ee::t_cd0738e45b2bed 5
+docs-site/README.md
+  s_ecb51887ff50ee::t_bcaa8551729739 154,163-166,181-191
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "68333f95e2fd7db693368c440666bfa57e1c46f5",
+  "prompts": {},
+  "sessions": {
+    "s_ecb51887ff50ee": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a093d3-e274-7290-9915-277632761c5d",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
