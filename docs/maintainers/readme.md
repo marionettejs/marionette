@@ -33,8 +33,10 @@ the affected public symbol and inspect its direct collaborators and tests.
 For a release, use the [release checklist](./release-checklist.md) across package
 publication, GitHub notes, website deployment, and the matching MCP snapshot.
 
-Completion requires the requested observable behavior, consistent types,
-diagnostics, examples and tests, and evidence for the affected boundaries.
+Completion requires the requested result and evidence for the affected boundaries.
+Update types, diagnostics, examples, and tests when the change affects them.
+For prose or link changes, use `npm run docs:check`; unchanged executable examples
+do not require reruns.
 A bug fix needs a public reproduction; lifecycle work needs ownership and teardown
 evidence, async work supersession and rejection, and reconciliation surviving child
 identity and editable state. Remove superseded paths under the compatibility policy

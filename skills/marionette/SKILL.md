@@ -32,7 +32,8 @@ hashes do not prove a custom runtime matches them; test uncertain runtime behavi
 
 ## Select the relevant contract
 
-Read the task's page using its source path from the manifest or returned local path:
+Pass the task page's `source` field from the manifest or `--list` output to
+`--page`. The returned absolute `path` is for reading the file directly:
 
 | Task | Packaged page |
 | --- | --- |
