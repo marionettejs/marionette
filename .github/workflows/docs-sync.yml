@@ -2,6 +2,7 @@ name: Request website documentation sync
 on:
   push:
     branches: [master]
+    # Only rendered reading copies; supporting assets remain release-pinned.
     paths:
       - 'docs/**'
       - 'docs-site/navigation.json'
