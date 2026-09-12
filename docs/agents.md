@@ -6,8 +6,8 @@ For changes to Marionette itself, use the [maintainer guide](https://github.com/
 
 ## Establish the installed contract
 
-Before choosing an API, inspect the application's package manifest, lockfile,
-installed declarations, and existing Marionette configuration. Record:
+Use the application's manifest, lockfile, and configuration to establish the
+contract when it is not already known. Relevant facts are:
 
 - the installed `marionette` version and matching optional package versions;
 - whether the dependency comes from a published package, Git commit, or local build;
@@ -28,8 +28,9 @@ silently upgrade dependencies to make an example fit.
 
 ## Read for the task
 
-Use the [compact framework reference](./compact-reference.md) for an overview of
-contracts, ownership, imports, and diagnostics before opening the specific guide.
+Use the task table directly. The [compact framework reference](./compact-reference.md)
+provides an overview when the task spans unfamiliar contracts; it is not a
+prerequisite for reading a specific guide.
 
 | Task | Start here | Verify |
 | --- | --- | --- |
@@ -69,7 +70,9 @@ CollectionView children are their presentation. Do not use child View traversal 
 the application's record store. Plain arrays can remain appropriate for explicit
 snapshot updates. When records need shared observation, filtering, and coordinated
 updates, select an observable provider; for a new application without one, start
-with `@mnjs/data` and its [DataApi setup](./data.api.md).
+with `@mnjs/data` and its [DataApi setup](./data.api.md). Native Collection
+`toArray()` returns plain attributes; iteration yields Models. Do not assume
+Backbone/Underscore methods.
 
 Native DOM defaults describe the integration, not a replacement for View composition.
 Render ordinary content through `template` and `templateContext`, place child Views
@@ -88,6 +91,13 @@ When building teaching examples, make the application runnable independently of
 narration and inspection. Prefer ordinary modules with explicit imports and exports.
 Check that the preview supports the selected packages and module structure; a tiny
 sandbox's restrictions should not silently become the recommended app architecture.
+
+For personalized applications, connect a real user preference to interaction and
+visual design. Preserve readable hierarchy, spacing, contrast, labels, and narrow
+layouts; inspect the rendered result at desktop and narrow widths when changing
+visuals. Do not collapse independent owners to meet a line count or include
+teaching/test controls in the app. The website's optional personal-app brief supplies
+its own starter; it does not authorize browsing private sources for personalization.
 
 Configure the selected runtime before creating its consumers. The default named
 exports share a runtime. Use [runtime isolation](./runtime-isolation.md) when
@@ -118,12 +128,13 @@ side effects. Marionette suppresses stale lifecycle completion; it cannot undo a
 arbitrary write made by application code. Follow the complete
 [routing pattern](./routing.md) for navigation and feature startup.
 
-## Prove the behavior in the application
+## Completion evidence
 
 Use the application's existing test runner, scripts, and package manager. Library
 maintenance commands are not a consumer project's test strategy.
 
-Test the successful interaction and the boundary most likely to break. For an
+The requested behavior is complete when its interaction and affected ownership
+boundary work in the installed application. For an
 asynchronous screen, navigate away while work is pending and ensure its stale
 result cannot replace the current screen. For a list, edit a surviving row while
 inserting, removing, or reordering another row. For a subscription, destroy one
@@ -152,25 +163,10 @@ Follow [Set up an agent](./agent-tools.md) to install the consumer skill and rea
 version-matched packaged docs. Adapt the [application instruction template](./application-agent-template.md)
 to preserve this project's actual decisions across tasks.
 
-For optional structured retrieval, follow the website's
-[documentation MCP setup](https://marionettejs.com/docs/mcp/). A link does not
-configure a client or activate a skill. Read `marionette://catalog` first; use its
-tools only when package version and source match this application, passing the
-exact installed `version` on every call. Follow `nextOffset` until it is `null`
-to read the complete contract, not just a search
-snippet. An unsupported version should send you back to the installed docs, not
-cause a dependency upgrade. WebMCP is separate: it controls website examples.
+For structured retrieval or service setup, use [the agent tools guide](./agent-tools.md).
+It owns exact-version/source matching, MCP pagination, and offline retrieval rules.
+Read those rules before using a remote service. No hosted service is required.
+Website WebMCP controls its example; its results do not establish application behavior.
 
-A Markdown page or versioned documentation index can be read directly. A service
-such as Context7 can help locate the relevant passage, but verify its library and
-version selection before using the result. When retrieval is unavailable, use the
-same source documents in the repository or the matching documentation artifact.
-
-A documentation index does not install instructions into every agent. An
-application's own agent instructions should link to this guide and record its
-installed version and architecture choices. They should not copy this entire guide
-or use this library's maintainer instructions as application policy.
-
-Use playground tools only to examine the example they control. Their results do
-not establish behavior in your application. No hosted AI service or MCP server is
-required to use Marionette or follow this workflow.
+Application instructions should record local decisions and link to the relevant
+contracts, not copy this guide or the library's maintainer policy.

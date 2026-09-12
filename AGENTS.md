@@ -3,11 +3,10 @@
 These instructions are for changing this library. For building an application
 with Marionette, start with [the consumer agent guide](docs/agents.md).
 
-1. Read [CONTRIBUTING.md](CONTRIBUTING.md) for setup and repository conventions.
-2. Use the [maintainer guide](docs/maintainers/readme.md) to select the public
-   contract, source, and checks for the task. Load only the relevant references.
-3. Follow [ROADMAP.md](ROADMAP.md) for architecture and release decisions. A
-   roadmap item is planned work until source and public evidence establish it.
+Use [CONTRIBUTING.md](CONTRIBUTING.md) for setup and repository conventions,
+[the maintainer guide](docs/maintainers/readme.md) to locate an affected contract
+and its checks, and [ROADMAP.md](ROADMAP.md) for architecture or release decisions.
+Read the sections needed for the task; roadmap plans are not available APIs.
 
 Before editing, inspect the branch and worktree. Preserve unrelated changes.
 Identify the requested behavior and whether its cost is documentation/static,
@@ -24,10 +23,12 @@ Use authored TypeScript source and public package APIs. Keep agent guidance,
 benchmarks, inspection tools, and development helpers out of production imports.
 An unused optional feature must add no per-instance resources or global registry.
 
-Run the smallest checks that prove the change, then the broader checks required
-by its contracts. Report exactly what ran, what it proves, and any remaining
-uncertainty. Do not infer behavior from declarations, doc markers, or green CI
-alone. Do not publish, release, or deploy without authorization for that action.
+Completion means the requested behavior is implemented, superseded code and
+associated contracts are updated, and relevant checks establish the result.
+Continue through failures caused by the change within the authorized scope.
+Report the source revision, commands actually run, results, and remaining gaps;
+declarations, doc markers, and green CI alone do not prove runtime behavior.
+Do not publish, release, or deploy without authorization for that action.
 
 ## Tests are public contracts
 
@@ -53,16 +54,14 @@ Follow the public [synchronous failure contract](docs/view.lifecycle.md#synchron
 [Test guide](test/README.md) maps contracts to suites, commands, reports, and replay instructions.
 
 - Fast iteration: `npm test -- <file> -t '<contract>'` or `npm run test:watch -- <file>`.
-- Local review: `npm run verify`; complete local validation: `npm run verify -- --full`.
+- Choose checks for the affected contract. `npm run verify` and `npm run verify -- --full` are broader local validation options, not requirements for every edit.
 - Lint is read-only: `npm run lint`. Apply fixes explicitly with `npm run lint:fix`.
 - Source changes require `npm run build` before direct browser, distribution, or consumer-type checks.
 - Release candidates require a clean source commit, `release:artifact`, then `release:validate` against those exact tarballs. Never publish packages/tags or deploy documentation as a side effect of testing.
 
 ## Implementation and evidence
 
-- Make the requested behavior canonical. Avoid aliases, fallbacks, dual paths, or new runtime infrastructure without a verified consumer and removal condition.
-- Keep test, lint, benchmark, and diagnostic tooling outside production import graphs. Runtime cost remains part of review.
 - Use stable diagnostic codes for invariants. Do not make agent workflows depend on exact prose or undocumented maintainer knowledge.
 - New async CLI code must await work and propagate failures. Preserve concise failure output plus detailed machine-readable artifacts.
-- Report commands actually run, source revision, failures, and gaps. Coverage and a successful reference solution do not establish agent usability; that requires the frozen usability evaluation and public application evidence in ROADMAP.md. Comparative research is separate from release readiness.
+- Coverage and a successful reference solution do not establish agent usability; that requires the frozen usability evaluation and public application evidence in ROADMAP.md. Comparative research is separate from release readiness.
 - Do not run paid agent pilots or evaluations without a predeclared model/runner profile, permissions, run count, spend and elapsed-time budget, and authorization for that envelope. Follow [the evaluation plan](benchmarks/agent/evaluation-plan.md).

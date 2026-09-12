@@ -47,8 +47,9 @@ a router choice does not imply a data, state, renderer, or DOM adapter change.
 - Build/type check: [existing command and working directory].
 - Relevant existing patterns: [a few actual source or test paths].
 
-For the changed behavior, verify the appropriate interaction and cleanup boundary.
-Report the checks actually run and anything left untested. Update this file when
+Completion means the requested behavior works with evidence for the affected
+interaction and cleanup boundary. Use the relevant checks above; report actual
+results and anything left untested. Update this file when
 an application decision changes; keep the API reference in the matching docs.
 ```
 
