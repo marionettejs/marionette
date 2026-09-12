@@ -1,0 +1,30 @@
+name: Request website documentation sync
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'docs/**'
+      - 'docs-site/navigation.json'
+      - 'docs-site/README.md'
+      - 'packages/*/readme.md'
+      - 'upgradeGuide.md'
+      - 'CONTRIBUTING.md'
+      - 'SECURITY.md'
+      - 'AGENTS.md'
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: website-docs-sync-request
+  cancel-in-progress: false
+jobs:
+  request:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Request a sync of current merged documentation
+        env:
+          GH_TOKEN: ${{ secrets.WEBSITE_DOCS_DISPATCH_TOKEN }}
+        run: |
+          gh api --method POST repos/marionettejs/marionettejs.com/dispatches \
+            -f event_type=library-docs-changed
