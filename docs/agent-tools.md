@@ -1,7 +1,9 @@
 # Set up an agent
 
 Use the installed package's documentation and a small application instruction file
-first. The optional Marionette skill helps an agent select those documents and
+first. For migration planning before installing the target, use the
+[pre-migration path](#inspect-a-target-release-before-migrating) below. The optional
+Marionette skill helps an agent select those documents and
 apply their lifecycle and integration rules. None of these resources requires an
 account, network access, hosted model, or shared API key to read.
 
@@ -80,6 +82,50 @@ built from that revision. Check installed exports and test uncertain behavior. A
 alpha version alone cannot identify a source commit; `sourceDirty: true` means
 local changes are included. Older packages without docs require an exact release
 or known source checkout, not an automatic fallback to today's website.
+
+## Inspect a target release before migrating
+
+Keep the application's installed version separate from the proposed target.
+First record the current dependency name and resolved version from its manifest
+and lockfile, including any npm alias. A v4 application may use
+`backbone.marionette`; the helper searches for `marionette`, so “No installed
+marionette found” does not mean the application has no Marionette dependency.
+
+Download the exact target into a temporary directory without installing it in the
+application. This example inspects `5.0.0-beta.2`; replace that literal only with
+the release selected for your migration, not `latest` or `next`. Downloading
+requires npm registry access; reading the extracted docs requires Node 24 or later.
+Run these commands in the same shell:
+
+```sh
+migration_target_dir="$(mktemp -d)"
+npm pack marionette@5.0.0-beta.2 --ignore-scripts --pack-destination "$migration_target_dir"
+tar -xzf "$migration_target_dir/marionette-5.0.0-beta.2.tgz" -C "$migration_target_dir"
+node "$migration_target_dir/package/dist/agent-skill/scripts/docs.mjs" --package-root "$migration_target_dir/package" --list
+node "$migration_target_dir/package/dist/agent-skill/scripts/docs.mjs" --package-root "$migration_target_dir/package" --page docs/migration-from-v4.md
+node "$migration_target_dir/package/dist/agent-skill/scripts/docs.mjs" --package-root "$migration_target_dir/package" --page upgradeGuide.md
+```
+
+These commands leave the application's dependencies and lockfile unchanged.
+Check that the helper reports the selected target version, and record its source
+revision, `sourceDirty`, and content digest as **target documentation evidence**.
+They do not describe the installed v4 runtime or prove migration success. Continue
+to use the current version's matching docs and public APIs when investigating
+existing behavior.
+
+To install the optional skill before upgrading, use
+`$migration_target_dir/package/dist/agent-skill` as the source directory in the
+[skill installation steps](#install-the-consumer-skill). Keep the extracted package
+available and pass its explicit `--package-root` when reading target docs; copying
+the skill does not change what `--project` resolves.
+
+Use the [migration guide](./migration-from-v4.md) and
+[upgrade guide](../upgradeGuide.md) to plan the change. Discover what the
+application's wrappers and routing integrations own, then verify that behavior
+against the target contract. Record application-specific findings in the
+application; the generic skill is not a complete migration plan. After an
+approved dependency change, resolve the installed package with `--project` again
+and verify the migrated behavior with the application's tests.
 
 ## Record the application decisions
 
