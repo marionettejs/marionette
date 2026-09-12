@@ -148,3 +148,50 @@ Sources checked September 2026: [Context7 configuration](https://context7.com/do
 [Context7 ownership](https://context7.com/docs/howto/claiming-libraries),
 [Context7 plans](https://context7.com/plans), and
 [Cloudflare Pages pricing](https://developers.cloudflare.com/pages/functions/pricing/).
+
+## Continuous website reading-copy sync
+
+Merges affecting rendered reading-copy sources request the website's single
+[reading-copy sync workflow](https://github.com/marionettejs/marionettejs.com/blob/main/.github/workflows/docs-sync.yml).
+It reads the latest merged `master` Git objects, preserves website publication
+wording with a three-way merge, validates the complete website/MCP artifact, and
+creates or updates `automation/library-docs-sync` as one ready website PR.
+Dispatches contain no executable code, source URL, or revision to trust; delayed
+requests always converge on current `master`. Use **Request website documentation
+sync → Run workflow** to retry failed delivery or recover a missed event.
+
+This is development/CI tooling only: no library runtime cost. Supporting-resource-only changes (`docs-site/resources.json`, catalogs, skills,
+fixtures and benchmark assets) intentionally do not dispatch: the receiver leaves
+those archived assets pinned and synchronizes Markdown pages only.
+Ordinary syncs never
+run a library build, change package versions, import a new npm archive, or copy
+skill/starter assets. Reading-copy edits carry their exact source revisions and
+hashes separately from the immutable npm archive. Conflicting publication edits
+stop for review rather than overwriting website wording.
+
+Setup: create the repository secret `WEBSITE_DOCS_DISPATCH_TOKEN` in this library
+repository. Use a fine-grained token restricted to `marionettejs/marionettejs.com`
+with **Contents: write**, the permission required by GitHub's repository dispatch
+endpoint; no access to write this library is needed. Store the value only in
+Actions secrets. Configure the receiver and its PR credential first, then enable
+this sender. See the website's `scripts/docs-sync/README.md` for receiver setup,
+branch rules, validation, conflict recovery, and token rotation. The default
+`GITHUB_TOKEN` cannot dispatch across repositories.
+
+An npm release remains an explicit import in the website. Read the exact revision
+from the published package's `dist/docs/manifest.json`, export with `npm run docs:export`
+from a clean checkout of that revision, and import the complete `.docs-export` with
+`npm run docs:import -- /path/to/released-source/.docs-export`. The full export
+preserves maintainer pages that the narrower npm `dist/docs` directory omits.
+Require matching version/repository/revision, `sourceDirty: false`, identical
+metadata and bytes for every npm consumer page/asset, and the reviewed maintainer
+route inventory. Website `npm run check` verifies the npm subset against the pinned
+installed package; review the full manifest diff for maintainer scope. Review
+publication edits and supplemental schema provenance with that import. Ordinary
+merges must never import a moving or unreleased export into this archive.
+
+Neither workflow merges PRs or deploys. After the website sync PR merges, manually
+build and deploy the complete website and MCP from the same reviewed website
+commit, record the corpus hash, and follow `mcp/DEPLOYMENT.md`. Existing diagnostic
+Pages hosting is a separate opt-in workflow; this sync grants no Pages, deployment,
+package, or release permissions.
