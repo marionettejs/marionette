@@ -205,7 +205,7 @@ describe('@mnjs/data Model', function() {
     const onSave = vi.fn().mockReturnValue('saved');
     model.onSave = onSave;
 
-    model.on({ 'first second': handler }, context);
+    model.on({ first: handler, second: handler }, context);
     model.once('first', once);
     model.on('all', all);
     model.trigger('first', 'value');
@@ -216,7 +216,7 @@ describe('@mnjs/data Model', function() {
     expect(once.mock.calls.map(args => args.slice(0, 1))).toContainEqual(['value']);
     expect(all.mock.calls.map(args => args.slice(0, 2))).toContainEqual(['first', 'value']);
 
-    model.off('first second', handler, context);
+    model.off({ first: handler, second: handler }, context);
     model.trigger('first');
     model.trigger('second');
     expect(context.calls).to.equal(3);

@@ -9,11 +9,13 @@ describe('owner state subscriptions', () => {
     const Owner = MnObject.extend({
       createState() { return source; },
       onChange: named,
-      stateEvents: { 'change reset': 'onChange', custom: direct }
+      stateEvents: { 'change reset': 'onChange', reset: 'onChange', custom: direct }
     });
     Owner.setStateApi({ subscribe: DataApi.subscribe });
     const owner = new Owner();
-    source.trigger('change', 1);
+    source.trigger('change');
+    expect(named).not.toHaveBeenCalled();
+    source.trigger('change reset', 1);
     source.trigger('reset', 2);
     source.trigger('custom', 3);
     expect(named.mock.calls).toEqual([[1], [2]]);
@@ -21,7 +23,7 @@ describe('owner state subscriptions', () => {
     expect(direct).toHaveBeenCalledExactlyOnceWith(3);
     expect(direct.mock.contexts[0] === owner).toBe(true);
     owner.destroy();
-    source.trigger('change');
+    source.trigger('change reset');
     source.trigger('reset');
     source.trigger('custom');
     expect(named).toHaveBeenCalledTimes(2);

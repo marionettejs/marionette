@@ -43,7 +43,7 @@ This is a comment accuracy audit, not a claim that every runtime branch was test
 
 | Source | Correction |
 | --- | --- |
-| `packages/utils/src/bind-events.ts` | The target is the receiver, followed by entity and bindings. Values are a single method/function; space-separated keys name multiple events. |
+| `packages/utils/src/bind-events.ts` | The target is the receiver, followed by entity and bindings. Values are a single method/function; each key names one literal event. |
 | `packages/utils/src/bind-requests.ts` | The target is the receiver, not a first positional argument. Unbinding without a map removes replies for that receiver. |
 | `packages/utils/src/events.ts` | `off` combines supplied filters; omitting an event name does not discard callback/context filters. Once listeners are removed before invocation. A thrown callback stops synchronous dispatch. |
 | `packages/utils/src/trigger-method.ts` | Colon conversion matches segment initials; method names are cached per event. The instance/prototype method runs before the event, its exception prevents that event, and its result is returned without awaiting. |

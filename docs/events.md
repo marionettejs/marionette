@@ -65,17 +65,28 @@ or `bar`. The types require a string; object maps and other non-string names
 are unsupported, with no runtime shape validation or guaranteed diagnostic.
 Call once per event and pass payload values as subsequent arguments.
 
-Unlike dispatch, registration and removal methods (`on`, `off`, `once`, `listenTo`,
-`listenToOnce`, and `stopListening`) still accept space-separated names and
-supported event maps. These methods do not register a literal name containing
-whitespace; use an `all` listener to observe that exact name. Model consumers
-can also observe `change` and inspect the changed attributes.
+Registration and removal methods (`on`, `off`, `once`, `listenTo`,
+`listenToOnce`, and `stopListening`) also treat each string as one literal name,
+including whitespace and the empty string. Event maps remain supported, with
+one literal event name per key. Use separate calls or map entries for multiple
+subscriptions. Omit the name or pass `null` to remove across all event names;
+`off('')` and `stopListening(emitter, '')` select only the empty name.
 
 ```javascript
-emitter.on('start stop', value => console.log(value));
+listener.listenTo(emitter, 'foo bar', value => console.log(value));
+emitter.trigger('foo bar', 'ready'); // Calls the handler once.
+listener.stopListening(emitter, 'foo bar');
+
+const log = value => console.log(value);
+emitter.on({ start: log, stop: log });
 emitter.trigger('start', 'manual');
 emitter.trigger('stop', 'manual');
 ```
+
+Declarative entity-event maps such as `modelEvents`, `collectionEvents`, and
+`radioEvents` use the same literal keys. When listening to a third-party emitter,
+Marionette passes each name unchanged to its `on` and `off`; that emitter controls
+how it interprets the name.
 
 Separate and nested dispatch calls use the current subscriptions. Removing
 `stop` handlers during `trigger('start')` means they will not run in a later

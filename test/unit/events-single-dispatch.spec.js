@@ -28,14 +28,17 @@ for (const method of ['trigger', 'triggerMethod']) {
 for (const method of ['trigger', 'triggerMethod']) {
   it.each(['foo bar', 'foo\tbar', 'foo\nbar', ' foo', 'foo ', ''])(`${method} dispatches %j as one literal name`, function(name) {
     const splitHandler = vi.fn();
+    const literalHandler = vi.fn();
     const splitHook = vi.fn();
     const allHandler = vi.fn();
     const emitter = Object.assign({}, Events, { onFoo: splitHook, onBar: splitHook });
-    emitter.on('foo bar', splitHandler);
+    emitter.on({ foo: splitHandler, bar: splitHandler });
+    emitter.on(name, literalHandler);
     emitter.on('all', allHandler);
 
     emitter[method](name, 'payload');
 
+    expect(literalHandler).toHaveBeenCalledExactlyOnceWith('payload');
     expect(splitHandler).not.toHaveBeenCalled();
     expect(splitHook).not.toHaveBeenCalled();
     expect(allHandler).toHaveBeenCalledExactlyOnceWith(name, 'payload');

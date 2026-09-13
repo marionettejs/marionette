@@ -19,13 +19,14 @@ const expectParity = scenario => {
 };
 
 describe('Events parity with Backbone.Events', function() {
-  it('preserves multi-name registration with separate dispatch calls', function() {
+  it('preserves separate registration and dispatch calls', function() {
     expectParity(Events => {
       const calls = [];
 
-      Events.on('alpha beta', function(...args) {
+      const handler = function(...args) {
         calls.push([this === Events, ...args]);
-      });
+      };
+      Events.on({ alpha: handler, beta: handler });
       Events.trigger('alpha', 1, 2);
       Events.trigger('beta', 1, 2);
 
@@ -160,7 +161,8 @@ describe('Events parity with Backbone.Events', function() {
     const listener = createEmitter(EventsMixin);
     const calls = [];
 
-    listener.listenTo(emitter, 'alpha beta', name => calls.push(name));
+    const handler = name => calls.push(name);
+    listener.listenTo(emitter, { alpha: handler, beta: handler });
     emitter.off('alpha');
     emitter.trigger('alpha', 'alpha');
     emitter.trigger('beta', 'beta');

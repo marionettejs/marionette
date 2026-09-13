@@ -7,12 +7,10 @@ export interface EventArgs<Listener = unknown> {
   listener: Listener;
 }
 
-// Regular expression used to split event strings.
+// Whitespace expression retained for the Requests API.
 export const eventSplitter = /\s+/;
 
-// Iterates over the standard `event, callback` (as well as the fancy multiple
-// space-separated events `"change blur", callback` and event maps
-// `{event: callback}`).
+// Builds one descriptor per literal event name or own event-map key.
 export default function buildEventArgs<Listener>(
   name: EventName | object, callback: unknown, context: unknown, listener: Listener
 ): EventArgs<Listener>[];
@@ -28,19 +26,7 @@ export default function buildEventArgs(
     const names = Object.keys(name);
     for (let i = 0; i < names.length; i++) {
       const key = names[i];
-      const args = buildEventArgs(key, (name as Record<string, unknown>)[key], eventContext, listener);
-      for (let j = 0; j < args.length; j++) {
-        eventArgs.push(args[j]);
-      }
-    }
-    return eventArgs;
-  }
-
-  if (name && eventSplitter.test(name)) {
-    const names = name.split(eventSplitter);
-    const eventArgs = [];
-    for (let i = 0; i < names.length; i++) {
-      eventArgs.push({ name: names[i], callback, context, listener });
+      eventArgs.push({ name: key, callback: (name as Record<string, unknown>)[key], context: eventContext, listener });
     }
     return eventArgs;
   }

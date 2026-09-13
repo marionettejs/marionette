@@ -21,19 +21,17 @@ describe('buildEventArgs', function() {
     ]);
   });
 
-  it('expands space-separated event names in source order', function() {
+  it('preserves whitespace in literal event names', function() {
     const callback = function() {};
     const context = {};
     const listener = {};
 
     expect(buildEventArgs('first second third', callback, context, listener)).to.deep.equal([
-      { name: 'first', callback, context, listener },
-      { name: 'second', callback, context, listener },
-      { name: 'third', callback, context, listener }
+      { name: 'first second third', callback, context, listener }
     ]);
   });
 
-  it('expands event-map keys recursively in own-key order', function() {
+  it('preserves literal event-map keys in own-key order', function() {
     const first = function() {};
     const second = function() {};
     const context = {};
@@ -44,8 +42,7 @@ describe('buildEventArgs', function() {
     };
 
     expect(buildEventArgs(events, context, undefined, listener)).to.deep.equal([
-      { name: 'first', callback: first, context, listener },
-      { name: 'second', callback: first, context, listener },
+      { name: 'first second', callback: first, context, listener },
       { name: 'third', callback: second, context, listener }
     ]);
   });
@@ -124,18 +121,11 @@ describe('buildEventArgs', function() {
     }
   });
 
-  it('preserves the event-name coercion error for symbols', function() {
-    expect(() => buildEventArgs(Symbol('event'))).to.throw(TypeError);
-  });
-
-  it('preserves empty names created by surrounding whitespace', function() {
+  it('preserves surrounding whitespace without creating empty names', function() {
     const callback = function() {};
 
     expect(buildEventArgs(' first second ', callback)).to.deep.equal([
-      { name: '', callback, context: undefined, listener: undefined },
-      { name: 'first', callback, context: undefined, listener: undefined },
-      { name: 'second', callback, context: undefined, listener: undefined },
-      { name: '', callback, context: undefined, listener: undefined }
+      { name: ' first second ', callback, context: undefined, listener: undefined }
     ]);
   });
 });
