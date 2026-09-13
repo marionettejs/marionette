@@ -90,8 +90,10 @@ This preserves the extension points used by event-lifecycle mixins. Likewise,
 
 ### `triggerMethod`
 
-`triggerMethod` invokes the matching `onEventName` method when it exists, then
-fires the named event on the instance. If there are no listeners or
+`triggerMethod` invokes the matching instance or prototype `onEventName` method
+when it exists, then
+fires the named event on the instance. Constructor options do not supply or
+override these methods. If there are no listeners or
 matching method, the call still succeeds. All arguments after the event name
 are passed to both the method and event handlers.
 

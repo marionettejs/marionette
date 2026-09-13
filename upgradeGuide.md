@@ -501,3 +501,26 @@ export the same Events, Error, and default Radio within each module format.
 `@mnjs/data` now depends only on utils; core is no longer a peer dependency.
 Standalone data and messaging consumers do not need to install Marionette core.
 These packages keep the same version and release together with core and adapters.
+
+## Define lifecycle hooks as methods
+
+`triggerMethod` resolves `onEventName` directly on the instance or its prototype.
+It no longer reads hooks from `options`, and option values cannot replace or
+suppress a class hook. Define hooks in `.extend({ onRender() {} })`, as native
+class methods, or directly on the instance before the relevant lifecycle runs.
+For construction-time hooks, define the method on the class before construction.
+
+For example, replace `new View({ onRender() { /* setup */ } })` with:
+
+```javascript
+import { View } from 'marionette';
+
+const ContentView = View.extend({
+  onRender() { /* setup */ }
+});
+const view = new ContentView();
+```
+
+The matching method still runs before event listeners and supplies the return
+value. A synchronous method exception still prevents event notification.
+`getOption()` remains available for application configuration.

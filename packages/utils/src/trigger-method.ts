@@ -1,7 +1,6 @@
 // Trigger Method
 // --------------
 
-import getOption from './get-option.ts';
 import type { EventCallback } from './events.ts';
 
 interface TriggerTarget {
@@ -30,7 +29,7 @@ const getOnMethodName = function(event: string) {
 
 // Trigger an event and/or a corresponding method name. Examples:
 //
-// `this.triggerMethod("foo")` calls a callable "onFoo" option/method, then
+// `this.triggerMethod("foo")` calls a callable "onFoo" instance/prototype method, then
 // triggers "foo". A synchronous method exception prevents the event.
 //
 // `this.triggerMethod("foo:bar")` similarly calls "onFooBar" before the event.
@@ -38,7 +37,7 @@ const getOnMethodName = function(event: string) {
 export default function triggerMethod(this: TriggerTarget, event: string, ...args: unknown[]): unknown {
   // get the method name from the event name
   const methodName = getOnMethodName(event);
-  const method = getOption.call(this, methodName);
+  const method = (this as unknown as Record<string, unknown>)[methodName];
   let result: unknown;
 
   // call the onMethodName if it exists

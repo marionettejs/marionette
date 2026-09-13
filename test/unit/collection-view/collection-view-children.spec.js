@@ -347,8 +347,10 @@ describe('CollectionView Children', function() {
       let onRender;
       beforeEach(function() {
         onRender = vi.fn();
-        let addView1 = new View({ template: _.noop, onRender });
-        let addView2 = new View({ template: _.noop, onRender });
+        let addView1 = new View({ template: _.noop });
+        let addView2 = new View({ template: _.noop });
+        addView1.on('render', onRender);
+        addView2.on('render', onRender);
         myCollectionView.addChildView(addView1, { preventRender: true, index: 0 });
         myCollectionView.addChildView(addView2, { preventRender: true });
         collection.add({id: 4});

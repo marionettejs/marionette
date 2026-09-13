@@ -51,37 +51,46 @@ describe('triggerMethod', function() {
     });
   });
 
-  describe('when an onEventName method on the target options matches the event', function() {
-    beforeEach(function() {
-      target.options = {
-        onEventName: vi.fn().mockReturnValue('baz')
-      };
-      target.triggerMethod('event:name', 'foo', 'bar');
-    });
+  it('ignores option-only hooks while still notifying listeners', function() {
+    const optionHook = vi.fn();
+    target.options = { onEventName: optionHook };
 
-    it('should trigger all arguments', function() {
-      expect(target.trigger).toHaveBeenCalledTimes(1);
-      expect(target.trigger.mock.calls.map(args => args.slice(0, 3))).toContainEqual(['event:name', 'foo', 'bar']);
-    });
+    expect(target.triggerMethod('event:name', 'foo', 'bar')).toBeUndefined();
+    expect(optionHook).not.toHaveBeenCalled();
+    expect(target.trigger).toHaveBeenCalledWith('event:name', 'foo', 'bar');
+  });
 
-    it('should call onEventName methods on the target', function() {
-      expect(target.options.onEventName).toHaveBeenCalledTimes(1);
-      expect(target.options.onEventName.mock.calls.map(args => args.slice(0, 2))).toContainEqual(['foo', 'bar']);
-      expect(target.options.onEventName.mock.contexts).toContain(target);
-    });
+  it('resolves inherited hooks without reading options', function() {
+    const inheritedHook = vi.fn().mockReturnValue('inherited result');
+    const optionRead = vi.fn(() => { throw new Error('options must not be read'); });
+    const receiver = Object.create({ onEventName: inheritedHook });
+    Object.assign(receiver, { trigger: vi.fn(), triggerMethod });
+    Object.defineProperty(receiver, 'options', { get: optionRead });
 
-    it('should return baz', function() {
-      expect(target.triggerMethod).toHaveReturnedWith('baz');
-    });
+    expect(receiver.triggerMethod('event:name', 'value')).toBe('inherited result');
+    expect(inheritedHook).toHaveBeenCalledWith('value');
+    expect(inheritedHook.mock.contexts).toEqual([receiver]);
+    expect(receiver.trigger).toHaveBeenCalledWith('event:name', 'value');
+    expect(optionRead).not.toHaveBeenCalled();
+  });
+
+  it('does not let options replace or suppress instance hooks', function() {
+    const optionHook = vi.fn();
+    target.onEventName = vi.fn().mockReturnValue('instance result');
+    for (const option of [optionHook, null, false, {}]) {
+      target.options = { onEventName: option };
+      expect(target.triggerMethod('event:name')).toBe('instance result');
+    }
+    expect(target.onEventName).toHaveBeenCalledTimes(4);
+    expect(target.trigger).toHaveBeenCalledTimes(4);
+    expect(optionHook).not.toHaveBeenCalled();
   });
 
   it('ignores truthy non-function handlers while still triggering the event', function() {
-    target.onEventName = vi.fn();
-    target.options = { onEventName: {} };
+    target.onEventName = {};
 
     const result = target.triggerMethod('event:name', 'foo', 'bar');
 
-    expect(target.onEventName).not.toHaveBeenCalled();
     expect(target.trigger).toHaveBeenCalledTimes(1);
     expect(target.trigger.mock.contexts).toContain(target);
     expect(target.trigger.mock.calls.map(args => args.slice(0, 3))).toContainEqual(['event:name', 'foo', 'bar']);
