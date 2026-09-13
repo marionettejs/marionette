@@ -88,8 +88,9 @@ prepended:
 * `triggerMethod('before:foo')` calls `onBeforeFoo` and triggers `before:foo`.
 
 Arguments after the event name are passed to both the method and event. The
-matching method is resolved through `getOption`, runs first with the Marionette
-object as its context, and supplies the return value of `triggerMethod`. If that
+matching method is read directly from the instance or its prototype; `options`
+is not consulted. It runs first with the Marionette object as its context and
+supplies the return value of `triggerMethod`. If that
 method throws, the event is not triggered.
 
 ```javascript
