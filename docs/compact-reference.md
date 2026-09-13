@@ -112,7 +112,6 @@ Match a framework invariant by its stable diagnostic code, not message prose. Th
 | `MN0037` | adapter-observation-unsupported |
 | `MN0039` | collection-data-contract-invalid |
 | `MN0040` | private-framework-member-access |
-| `MN0041` | single-event-name-required |
 
 Use public return values, DOM state, child identity, events, and externally counted subscriptions to prove behavior. Test focus and editable state in a real browser; test cancellation with held readiness and late results. A generated contract record proves consistency, not behavior or agent effectiveness.
 

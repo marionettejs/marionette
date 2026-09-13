@@ -61,13 +61,15 @@ listener.stopListening(emitter);
 
 `trigger` and `triggerMethod` each dispatch one literal string event name.
 Whitespace is part of that name: `trigger('foo bar')` does not dispatch `foo`
-or `bar`. Object maps and other non-string names throw [`MN0041`](diagnostic-catalog.md#look-up-a-code) before hooks or listeners
-run, including when no listeners are registered. Call once per event and pass
-payload values as subsequent arguments.
+or `bar`. The types require a string; object maps and other non-string names
+are unsupported, with no runtime shape validation or guaranteed diagnostic.
+Call once per event and pass payload values as subsequent arguments.
 
 Unlike dispatch, registration and removal methods (`on`, `off`, `once`, `listenTo`,
 `listenToOnce`, and `stopListening`) still accept space-separated names and
-supported event maps.
+supported event maps. These methods do not register a literal name containing
+whitespace; use an `all` listener to observe that exact name. Model consumers
+can also observe `change` and inspect the changed attributes.
 
 ```javascript
 emitter.on('start stop', value => console.log(value));

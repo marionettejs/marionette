@@ -1,7 +1,6 @@
 // Trigger Method
 // --------------
 
-import assertSingleEvent from './assert-single-event.ts';
 import type { EventCallback } from './events.ts';
 
 interface TriggerTarget {
@@ -36,8 +35,6 @@ const getOnMethodName = function(event: string) {
 // `this.triggerMethod("foo:bar")` similarly calls "onFooBar" before the event.
 // It returns the method result without awaiting it.
 export default function triggerMethod(this: TriggerTarget, event: string, ...args: unknown[]): unknown {
-  assertSingleEvent(event);
-
   // get the method name from the event name
   const methodName = getOnMethodName(event);
   const method = (this as unknown as Record<string, unknown>)[methodName];

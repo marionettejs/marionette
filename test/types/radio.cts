@@ -69,7 +69,7 @@ runtime.listenToOnce('work', { on() {} }, events);
 runtime.off('work', { count: true });
 // @ts-expect-error Stop names must be strings, maps or nullish.
 runtime.stopListening('work', source, 42);
-// @ts-expect-error Trigger names must be strings or maps.
+// @ts-expect-error Trigger names must be strings.
 runtime.trigger('work', 42);
 // @ts-expect-error Method names must be strings.
 runtime.triggerMethod('work', 42);

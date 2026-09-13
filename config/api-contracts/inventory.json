@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "6559a5b9bbf0824e266892f121ddfe0993bf0a40d05569a071251613a42942b9",
+  "semanticsSha256": "25c05788817e61579e48f651ffd01151430c5063043bbb26ba6b378fa45bcc08",
   "entrypoints": [
     {
       "name": "marionette",
@@ -7411,19 +7411,6 @@
         "Region",
         "View"
       ]
-    },
-    {
-      "code": "MN0041",
-      "slug": "single-event-name-required",
-      "objects": [
-        "Application",
-        "Behavior",
-        "CollectionView",
-        "MnObject",
-        "Radio",
-        "Region",
-        "View"
-      ]
     }
   ],
   "toolingEntrypoints": [
@@ -7994,13 +7981,12 @@
     "packages/radio/src/index.ts": "24171247f65ecb3697629883abe9d248395b090d566ea70ac7c1b856d1cd7940",
     "packages/radio/src/radio.ts": "42a799d58d602c0fbbb4fcbc16170e1a89dad55c47d5f00ffaed69c8ee3d877f",
     "packages/radio/src/requests.ts": "301d7d34aec269a194c67f574d67610e028d4b4fcc54f6c74bfe5560519cf37e",
-    "packages/utils/src/assert-single-event.ts": "dc66d1d2cd67db51fa7019afa2c8288bfaa71e718d2558b4effd2747a43ca044",
     "packages/utils/src/bind-events.ts": "be2926496e5900bdce77ee1d4efaf1d7443ea50e7d0b70c5a21d803ad2eda070",
     "packages/utils/src/bind-requests.ts": "4888ab0880961e2c8eaa131f91031f1dc0f1b39ab11907506bce94b3bb4f2870",
     "packages/utils/src/build-event-args.ts": "0fa3241090b0d2daf797cb514053c603936941c09087b8dc490cfb4dd3d8dc6e",
     "packages/utils/src/call-handler.ts": "d12565a492c7db98041a9ad66698a9dce3d023fd626671d4ce7537d9c4afe138",
     "packages/utils/src/error.ts": "79aadefa5d87a7bb9ea65d10070e7c4f623f2eb72bee47fb676989c3daebceeb",
-    "packages/utils/src/events.ts": "1d2bf6b1fc4f28fca40ac77277b12ed5088fd5fcac9b906ec3c7b211a5124eaf",
+    "packages/utils/src/events.ts": "a2bd57cb9620ba87c8a6708ffaae25a5276e12a0663aa2ce0c0bde76880afcf6",
     "packages/utils/src/extend.ts": "ea69bf3ae876e9266cd4259435f7a265c7a2d8c904ab54458e3af3c65c8c6bb7",
     "packages/utils/src/get-option.ts": "88e4489b7ac4e13aae2690afdf8942a68b0519f5a2c41bbd8ae00f18aa9c3cbe",
     "packages/utils/src/get-value.ts": "d394c66e9963fe5825b1dd94c5e541808389b4f404df64125552053ee877094c",
@@ -8010,7 +7996,7 @@
     "packages/utils/src/normalize-methods.ts": "6d75ac6a453b8e4aed11195b70bbe48e05911dfd62eeafca1e0d934f93b8024b",
     "packages/utils/src/once-wrap.ts": "736f8e44b05413637b2076f399e236754a81022da5c3d99886d4b8a28e3928d5",
     "packages/utils/src/set-property.ts": "a32a909a215d347ad891a26ce62ab249f24b49ca77cb910d32495447970eada6",
-    "packages/utils/src/trigger-method.ts": "c6d6a44f9dd5b98e80d2f1c2a72076cf76b25bddf6e8853df3fff11bf0536178",
+    "packages/utils/src/trigger-method.ts": "3a6460a5fdc6e0a319a6eea1e323f34f19fa0811ee1ea71fccaa45ade531d38f",
     "packages/utils/src/unique-id.ts": "22f5f12062eeef10c1336ee01e4b28b7d0cfe562c0f53f79e2a3219eb389f72b",
     "src/create-marionette.ts": "12baf1aadeeae54aefbb7e5777db9392f74650a407dcd506e97ebf18b73cfcc1",
     "src/index.ts": "0fdbaa2bbb16566dd1032f786273e7b1acc8683390033b2c63b196e2dc04b449",
@@ -8045,14 +8031,14 @@
     "src/utils/subscribe-bindings.ts": "24633b6b39c2d0a8c833670e2ab1d584fb6bed2fae3ac5cfb5d42461cf233f4a"
   },
   "evidence": {
-    "config/diagnostics/catalog.json": "ac46dcb0a0016604fc4aaaa937f723d3df6a75df627730c5a74987189ea21e2e",
+    "config/diagnostics/catalog.json": "a044dac8d4242de8e7c6c58a6442fb58384069c0f4d76ec6fabec03f34697eac",
     "docs/choosing-integrations.md": "385bfb2c7d85a8e0db71fd795ed1fef488aa637aa5094e93210810ff91f31f12",
     "docs/data.api.md": "c9bf72e4afd8c9b774391b3e343284808705887c8a38265609bfad910193e45c",
     "docs/diagnostic-catalog.md": "1df844c7e8edbea59a8c07776d656d45f77266108babb770d7690183fe85d180",
     "docs/dom.api.md": "a697a637ae4c6cc92aa5d72850b404763f08e0417800feacc0b431ec073d3916",
     "docs/dom.interactions.md": "81bd678c7d498e08c08c84cfc3bbe1d27451ef46ed521e67fff4f72450bdbadb",
     "docs/events.class.md": "54b209f35ee56ec0e7e7d0112b5d02baa03a59d3697d4d1bb799acfff00b5e44",
-    "docs/events.md": "31c11adb6f56eebd8525b5d3f3f078e9f18dbd91bbbf7a6a5444122f515e3ff8",
+    "docs/events.md": "7e8585bb8caea3e497c86282711f577058c70d3799a976d5ed36b6a30fdddc88",
     "docs/marionette.application.md": "0c820bfdad7a67a5f0697aca747da3f8c8354246ddc0882aba7675bac5c48ddc",
     "docs/marionette.behavior.md": "bf002b5ba380cf1bb1054b98f9813d89b4aef16ba6495d02b823ed178ab3f0c4",
     "docs/marionette.collectionview.md": "5af1ed04daaf0e976fdd0538b0931fd370fd09167079d0c21b01195f8628cefe",
@@ -8095,7 +8081,7 @@
     "test/unit/data-package/model.spec.js": "fc7a871963241f8c9cc2958f6bc0de895502562b089b20cf64d1fe19aab0ae1b",
     "test/unit/dom-adapters.spec.js": "12450f4ad513ae9000c9db640d481b995db91bcbe2f66c42fc503b72d019f69a",
     "test/unit/events-parity.spec.js": "b87f467897a5c707c1a3deb532087374f8820652923af02a75bde5f321567590",
-    "test/unit/events-single-dispatch.spec.js": "cf0613dff6c00a2346e4ef3f4aaa26c36f8ce917a13bc86cdcf81964e7564155",
+    "test/unit/events-single-dispatch.spec.js": "71ab6194d3bc5f93df67f03794980b37a656a333bb764fbbf71d1eef67ad2a88",
     "test/unit/jquery-dom-api.spec.js": "4b0187d3ca5dac647394dd906fe6c6ca11764688c12ef864bc4eae867a629ded",
     "test/unit/model-based/application.spec.js": "b47267a169599d65eafb40ef0ff2d71a2d7d86732171f81499d9a222f6c2a21c",
     "test/unit/modules-error.spec.js": "3ca32416b3329999cb3fcdd3fbc66751d722e7a2c0082195b702b64dce6284c3",

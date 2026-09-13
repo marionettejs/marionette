@@ -1,28 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
-import { Events, triggerMethod } from '@mnjs/utils';
-
-const invalidNames = [{}, { foo: 1, bar: 2 }, [], null, undefined, 0, false];
+import { Events } from '@mnjs/utils';
 
 for (const method of ['trigger', 'triggerMethod']) {
   describe(`${method} single-event contract`, function() {
-    it.each(invalidNames)('rejects %j before hooks or listeners run', function(name) {
-      const hook = vi.fn();
-      const handler = vi.fn();
-      const emitter = Object.assign({}, Events, { onFoo: hook, onBar: hook, 'onFoo bar': hook });
-      emitter.on('foo bar all', handler);
-
-      expect(() => emitter[method](name, 'payload')).toThrow(expect.objectContaining({ code: 'MN0041' }));
-      expect(hook).not.toHaveBeenCalled();
-      expect(handler).not.toHaveBeenCalled();
-      emitter.off();
-    });
-
-    it('rejects batching even without registered listeners', function() {
-      const emitter = Object.assign({}, Events);
-      expect(() => emitter[method](null)).toThrow(expect.objectContaining({ code: 'MN0041' }));
-      expect(() => emitter[method]({ foo: 1 })).toThrow(expect.objectContaining({ code: 'MN0041' }));
-    });
-
     it('keeps payload identity, all-listener arguments, and per-call return values', function() {
       const payload = { foo: 1, bar: 2 };
       const calls = [];
@@ -44,14 +24,6 @@ for (const method of ['trigger', 'triggerMethod']) {
     });
   });
 }
-
-it('validates standalone triggerMethod before a custom trigger', function() {
-  const dispatch = vi.fn();
-  const target = { trigger: dispatch };
-
-  expect(() => triggerMethod.call(target, { foo: 1 })).toThrow(expect.objectContaining({ code: 'MN0041' }));
-  expect(dispatch).not.toHaveBeenCalled();
-});
 
 for (const method of ['trigger', 'triggerMethod']) {
   it.each(['foo bar', 'foo\tbar', 'foo\nbar', ' foo', 'foo ', ''])(`${method} dispatches %j as one literal name`, function(name) {

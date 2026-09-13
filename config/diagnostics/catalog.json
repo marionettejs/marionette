@@ -700,28 +700,6 @@
         "lint"
       ],
       "benchmarkCategory": "lifecycle"
-    },
-    {
-      "code": "MN0041",
-      "slug": "single-event-name-required",
-      "status": "active",
-      "category": "communication",
-      "severity": "error",
-      "objects": [
-        "Application",
-        "Behavior",
-        "CollectionView",
-        "MnObject",
-        "Radio",
-        "Region",
-        "View"
-      ],
-      "remediation": "Call trigger or triggerMethod with one string event name. Strings are literal names, not whitespace-separated lists. Pass payload values as subsequent arguments instead of an event map.",
-      "docsAnchor": "/errors/MN0041/",
-      "surfaces": [
-        "runtime"
-      ],
-      "benchmarkCategory": "communication"
     }
   ]
 }

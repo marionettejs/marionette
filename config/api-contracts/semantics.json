@@ -607,12 +607,10 @@
       "result": "on/off/once/listenTo/listenToOnce/stopListening/trigger return their receiver; triggerMethod has its own result contract.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "listenTo subscriptions belong to the listener; off removes source registrations.",
-      "mutation": "Dispatch preserves arguments and registration order; all receives event name first; callback errors stop dispatch. Dispatch uses one literal string name, including whitespace; object maps and other non-string names fail before hooks or listeners.",
+      "mutation": "Dispatch preserves arguments and registration order; all receives event name first; callback errors stop dispatch. Dispatch uses one literal string name, including whitespace; object maps and other non-string names are outside the typed contract, with no runtime shape validation.",
       "repetition": "once is removed before callback/reentrant trigger; ordinary listeners repeat.",
       "destruction": "Owner cleanup stops listening; Events itself has no destroy method.",
-      "diagnostics": [
-        "MN0041"
-      ],
+      "diagnostics": [],
       "docs": [
         {
           "file": "docs/events.md",
@@ -634,7 +632,7 @@
         },
         {
           "file": "test/unit/events-single-dispatch.spec.js",
-          "title": "validates standalone triggerMethod before a custom trigger"
+          "title": "keeps payload identity, all-listener arguments, and per-call return values"
         }
       ]
     },
@@ -1150,12 +1148,10 @@
       "result": "Returns the matching onEventName method result; undefined when absent.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "No ownership transfer.",
-      "mutation": "Resolves the method directly on the instance or prototype without reading options, then calls it before triggering the event with original arguments. Dispatch uses one literal string name, including whitespace; object maps and other non-string names fail before hooks or listeners.",
+      "mutation": "Resolves the method directly on the instance or prototype without reading options, then calls it before triggering the event with original arguments. Dispatch uses one literal string name, including whitespace; object maps and other non-string names are outside the typed contract, with no runtime shape validation.",
       "repetition": "Every call dispatches; throwing method prevents event dispatch.",
       "destruction": "No cleanup or resurrection semantics are added.",
-      "diagnostics": [
-        "MN0041"
-      ],
+      "diagnostics": [],
       "docs": [
         {
           "file": "docs/events.md",
@@ -1181,7 +1177,7 @@
         },
         {
           "file": "test/unit/events-single-dispatch.spec.js",
-          "title": "validates standalone triggerMethod before a custom trigger"
+          "title": "keeps payload identity, all-listener arguments, and per-call return values"
         }
       ]
     },
@@ -1742,12 +1738,10 @@
       "result": "on/off/once/listenTo/listenToOnce/stopListening/trigger return their receiver; triggerMethod has its own result contract.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "listenTo subscriptions belong to the listener; off removes source registrations.",
-      "mutation": "Dispatch preserves arguments and registration order; all receives event name first; callback errors stop dispatch. Dispatch uses one literal string name, including whitespace; object maps and other non-string names fail before hooks or listeners.",
+      "mutation": "Dispatch preserves arguments and registration order; all receives event name first; callback errors stop dispatch. Dispatch uses one literal string name, including whitespace; object maps and other non-string names are outside the typed contract, with no runtime shape validation.",
       "repetition": "once is removed before callback/reentrant trigger; ordinary listeners repeat.",
       "destruction": "Owner cleanup stops listening; Events itself has no destroy method.",
-      "diagnostics": [
-        "MN0041"
-      ],
+      "diagnostics": [],
       "docs": [
         {
           "file": "docs/events.md",
@@ -1769,7 +1763,7 @@
         },
         {
           "file": "test/unit/events-single-dispatch.spec.js",
-          "title": "validates standalone triggerMethod before a custom trigger"
+          "title": "keeps payload identity, all-listener arguments, and per-call return values"
         }
       ],
       "members": [
@@ -1798,12 +1792,10 @@
       "result": "Returns the matching onEventName method result; undefined when absent.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "No ownership transfer.",
-      "mutation": "Resolves the method directly on the instance or prototype without reading options, then calls it before triggering the event with original arguments. Dispatch uses one literal string name, including whitespace; object maps and other non-string names fail before hooks or listeners.",
+      "mutation": "Resolves the method directly on the instance or prototype without reading options, then calls it before triggering the event with original arguments. Dispatch uses one literal string name, including whitespace; object maps and other non-string names are outside the typed contract, with no runtime shape validation.",
       "repetition": "Every call dispatches; throwing method prevents event dispatch.",
       "destruction": "No cleanup or resurrection semantics are added.",
-      "diagnostics": [
-        "MN0041"
-      ],
+      "diagnostics": [],
       "docs": [
         {
           "file": "docs/events.md",
@@ -1829,7 +1821,7 @@
         },
         {
           "file": "test/unit/events-single-dispatch.spec.js",
-          "title": "validates standalone triggerMethod before a custom trigger"
+          "title": "keeps payload identity, all-listener arguments, and per-call return values"
         }
       ],
       "members": [

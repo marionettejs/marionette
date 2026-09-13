@@ -1,5 +1,4 @@
 import buildEventArgs from './build-event-args.ts';
-import assertSingleEvent from './assert-single-event.ts';
 import setProperty from './set-property.ts';
 import triggerMethod from './trigger-method.ts';
 import callHandler from './call-handler.ts';
@@ -378,7 +377,6 @@ const Events = {
   // Trigger one event, passing payload arguments to its handlers and the name
   // followed by those arguments to "all" handlers.
   trigger(this: EventState, name: string, ...args: unknown[]) {
-    assertSingleEvent(name);
     const events = this._rdEvents;
     if (!events) { return this; }
 
