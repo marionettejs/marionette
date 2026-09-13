@@ -1,7 +1,42 @@
 import { describe, it, expect } from 'vitest';
 import { getOption } from '@mnjs/utils';
+import { MnObject } from 'marionette';
 
 describe('get option', function() {
+  it.each([0, '0', '', NaN, Symbol('option')])('reads option and fallback values for key %s', function(key) {
+    const target = { getOption, [key]: 'fallback', options: { [key]: 'option' } };
+
+    expect(target.getOption(key)).toBe('option');
+    target.options[key] = undefined;
+    expect(target.getOption(key)).toBe('fallback');
+    delete target.options;
+    expect(target.getOption(key)).toBe('fallback');
+  });
+
+  it.each([false, 0, '', null])('preserves the falsy option value %s for falsy keys', function(value) {
+    const target = { getOption, 0: 'fallback', '': 'fallback', options: { 0: value, '': value } };
+
+    expect(target.getOption(0)).toBe(value);
+    expect(target.getOption('')).toBe(value);
+  });
+
+  it.each([null, undefined])('treats %s as a missing key', function(key) {
+    const target = { getOption, options: { null: 'null option', undefined: 'undefined option' } };
+
+    expect(target.getOption(key)).toBeUndefined();
+  });
+
+  it('reads numeric and empty keys on a Marionette owner', function() {
+    const owner = new MnObject({ 0: 'zero', '': 'empty' });
+    try {
+      expect(owner.getOption(0)).toBe('zero');
+      expect(owner.getOption('0')).toBe('zero');
+      expect(owner.getOption('')).toBe('empty');
+    } finally {
+      owner.destroy();
+    }
+  });
+
   describe('when calling without arguments', function() {
     it('should return undefined', function() {
       expect(getOption()).toBeUndefined();
