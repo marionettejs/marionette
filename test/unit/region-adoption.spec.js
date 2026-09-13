@@ -5,7 +5,9 @@ describe('Region adoption', function() {
   it('renders a Marionette View once across Region adoption', function() {
     const onRender = vi.fn();
     const onDestroy = vi.fn();
-    const view = new View({ tagName: 'article', template: () => 'adopted', onRender, onDestroy });
+    const view = new View({ tagName: 'article', template: () => 'adopted' });
+    view.on('render', onRender);
+    view.on('destroy', onDestroy);
     const first = new Region({ el: document.createElement('section') });
     const second = new Region({ el: document.createElement('aside') });
 

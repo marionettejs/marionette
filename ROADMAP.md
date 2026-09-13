@@ -410,10 +410,10 @@ current-evidence findings:
   target-first root utility exports, which take the target instance as their first
   argument instead of calling its method, are separate contracts and are removed when
   no verified public consumer or benchmark task justifies their duplicate call shape.
-- **Gated:** Lifecycle callback discovery must be explicit and inspectable. The audit tests
-  whether `triggerMethod` should call only instance methods rather than inheriting
-  `getOption`'s constructor-option precedence; an options-based lifecycle handler is
-  retained only with verified public consumer and benchmark evidence.
+- **Selected:** `triggerMethod` resolves lifecycle hooks directly on the instance
+  or prototype. Constructor options neither supply nor suppress hooks. The matching
+  method runs before the event and supplies the return value; a synchronous method
+  exception prevents event dispatch. `getOption` remains available for configuration.
 - **Selected:** Application lifecycle is the selected asynchronous boundary. Only Promises returned
   by its readiness hooks are awaited; completion hooks and every View, Region,
   CollectionView, renderer, template, Events, Radio, Marionette-managed state-source
