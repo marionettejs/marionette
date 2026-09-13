@@ -1,0 +1,52 @@
+config/api-contracts/inventory.json
+  s_dc21b0dfa3fee8::t_2a1762128ce697 8023,8040
+docs/events.class.md
+  s_dc21b0dfa3fee8::t_47b6d9e8389c56 214-215
+test/unit/view.dynamic-regions.spec.js
+  s_dc21b0dfa3fee8::t_b99f524fc2f2a7 20,149
+tools/eslint/framework-contract.mjs
+  s_bd170ff740ca58::t_ddf214d0335645 50
+upgradeGuide.md
+  s_dc21b0dfa3fee8::t_32a8d0c206fdad 504-516
+src/modules/view.ts
+  s_dc21b0dfa3fee8::t_8880931881013d 357,366
+test/unit/view-region-registration.spec.js
+  s_dc21b0dfa3fee8::t_56ef7ccfbffbb0 1-6,8-13,15-46
+  s_336ff1938ec4d9::t_9c020dc2e8d5d2 7,14
+docs/migration-from-v4.md
+  s_dc21b0dfa3fee8::t_e59633a17e8a21 99
+test/unit/view-region-diagnostics.spec.js
+  s_dc21b0dfa3fee8::t_fc1fd2e47a8f29 116,129-132
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "82c06f6b2a64174c55977f106b8818894639366a",
+  "prompts": {},
+  "sessions": {
+    "s_336ff1938ec4d9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a09b0d-e24d-77d1-8caa-f0adff904c7a",
+        "model": "gpt-6-astra"
+      },
+      "human_author": null
+    },
+    "s_bd170ff740ca58": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0849e-3aa3-76e0-a103-be1accb6af6b",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_dc21b0dfa3fee8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a09ac2-08e4-75f2-9b1b-fb31a7473c71",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
