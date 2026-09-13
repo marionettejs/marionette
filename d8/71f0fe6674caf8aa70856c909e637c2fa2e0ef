@@ -1,0 +1,51 @@
+config/api-contracts/inventory.json
+  s_336ff1938ec4d9::t_443380e5a646ae 4,7984,7986,7989,8042,8059,8082,8084-8086,8097
+config/api-contracts/semantics.json
+  s_336ff1938ec4d9::t_d9b14d5addf793 610,623,636-639,1071,1087,1749,1762,1775-1778
+docs/events.md
+  s_336ff1938ec4d9::t_2ff30c29cdfdb9 68-73,76-81,86-90
+docs/maintainers/package-comment-audit.md
+  s_336ff1938ec4d9::t_a5dc066f66e857 46
+docs/migration-from-v4.md
+  s_336ff1938ec4d9::t_ab67b6c91a3664 77,80
+packages/utils/readme.md
+  s_336ff1938ec4d9::t_4856732fb435b7 70-72
+packages/utils/src/bind-events.ts
+  s_336ff1938ec4d9::t_b74f7513dee864 11
+packages/utils/src/build-event-args.ts
+  s_336ff1938ec4d9::t_237bc326a84f2c 10,13,29
+packages/utils/src/events.ts
+  s_336ff1938ec4d9::t_73ebdaaa6a3957 147,288,294,313-314
+test/unit/data-package/model.spec.js
+  s_336ff1938ec4d9::t_a4971ee37a6f0d 208,219
+test/unit/events-iteration.spec.js
+  s_336ff1938ec4d9::t_ca90764f64b2fb 69
+test/unit/events-literal-names.spec.js
+  s_336ff1938ec4d9::t_4c3b177c1b0a25 1-101
+test/unit/events-parity.spec.js
+  s_336ff1938ec4d9::t_db58ec39b919ac 22,26,28-29,164-165
+test/unit/events-single-dispatch.spec.js
+  s_336ff1938ec4d9::t_64d5356caf187e 31,35-36,41
+test/unit/mixins/events.spec.js
+  s_336ff1938ec4d9::t_928d487fc398d6 104
+test/unit/utils/build-event-args.spec.js
+  s_336ff1938ec4d9::t_f49b797f62a549 24,30,34,45,124,128
+test/unit/utils/subscribe-bindings.spec.js
+  s_336ff1938ec4d9::t_c7858d303547b2 12,16-18,26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "d871f0fe6674caf8aa70856c909e637c2fa2e0ef",
+  "prompts": {},
+  "sessions": {
+    "s_336ff1938ec4d9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a09b0d-e24d-77d1-8caa-f0adff904c7a",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
