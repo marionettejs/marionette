@@ -1,0 +1,59 @@
+config/api-contracts/inventory.json
+  s_336ff1938ec4d9::t_2cbac6df9d0e44 4,104,382,645,988,1178,1410,2009,2679,2735,3010,3236,3368,3480,3637,3951,4518,5037,5436,5492,5548,5973,6058,6156,6268,6451,6660,6739,7414-7426,7997,8003,8013,8048,8055,8095,8097-8098
+config/api-contracts/semantics.json
+  s_336ff1938ec4d9::t_206d16b41d56e7 610,613-615,625,634-637,1153,1156-1158,1181-1184,1745,1748-1750,1760,1769-1772,1801,1804-1806,1829-1832
+config/diagnostics/catalog.json
+  s_336ff1938ec4d9::t_28ea1084e4ff9c 703-724
+docs/compact-reference.md
+  s_336ff1938ec4d9::t_88cf80ddc54a3b 115
+docs/events.md
+  s_336ff1938ec4d9::t_7cba777974f0fb 55,62-70,74-75,78-80
+docs/migration-from-v4.md
+  s_336ff1938ec4d9::t_29d108e3210a77 76
+packages/utils/src/assert-single-event.ts
+  s_336ff1938ec4d9::t_a859663de00296 1-13
+packages/utils/src/events.ts
+  s_336ff1938ec4d9::t_e0b184dbe9ebc8 1-2,378-381,385
+packages/utils/src/trigger-method.ts
+  s_336ff1938ec4d9::t_4a005f2fd27a5d 4,39-40
+test/fixtures/data-package-types/validate.cts
+  s_336ff1938ec4d9::t_1c3cfe49f616e8 55-56
+test/fixtures/data-package-types/validate.mts
+  s_336ff1938ec4d9::t_86db95c20c3045 55-56
+test/fixtures/data-package-types/validate.ts
+  s_336ff1938ec4d9::t_c375bf9ecc199d 55-56
+test/types/consumer.cts
+  s_336ff1938ec4d9::t_6b4cdfe092ee60 13-14
+test/types/consumer.mts
+  s_336ff1938ec4d9::t_950a59c8a8e37d 13-14
+test/types/events.cts
+  s_336ff1938ec4d9::t_5a5d10c9526d53 83-85
+test/types/events.mts
+  s_336ff1938ec4d9::t_a265cf6ba42252 83-85
+test/types/radio.cts
+  s_336ff1938ec4d9::t_088f93d69b5924 11,20-21
+test/types/radio.mts
+  s_336ff1938ec4d9::t_f53aee9829a996 11,20-21
+test/unit/data-package/model.spec.js
+  s_336ff1938ec4d9::t_036c48774a95ee 92-93,100-101,211-212,220-221
+test/unit/events-parity.spec.js
+  s_336ff1938ec4d9::t_4814f4eb58250a 22,29-30,49,58-59,78-81,98-99
+test/unit/events-single-dispatch.spec.js
+  s_336ff1938ec4d9::t_370c48f286d648 1-72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "60a13764a794b3c5abfb387d54661df4bf045cc3",
+  "prompts": {},
+  "sessions": {
+    "s_336ff1938ec4d9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a09b0d-e24d-77d1-8caa-f0adff904c7a",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
