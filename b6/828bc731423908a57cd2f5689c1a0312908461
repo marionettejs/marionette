@@ -1,0 +1,39 @@
+config/api-contracts/inventory.json
+  s_dc21b0dfa3fee8::t_101c20ce404a3e 4,8039,8081,8106,8115
+config/api-contracts/semantics.json
+  s_dc21b0dfa3fee8::t_6e0f3a199a5c4d 1161,1176-1183,1797,1812-1819
+docs/common.md
+  s_dc21b0dfa3fee8::t_e5abb2a7e13be3 91-93
+docs/events.md
+  s_dc21b0dfa3fee8::t_6a53652820d624 93-96
+docs/maintainers/package-comment-audit.md
+  s_dc21b0dfa3fee8::t_373e70473d57a7 49
+docs/migration-from-v4.md
+  s_dc21b0dfa3fee8::t_32142a4af3a3a8 99
+packages/utils/src/trigger-method.ts
+  s_dc21b0dfa3fee8::t_e7f9c3400dbec9 32,40
+test/unit/collection-view/collection-view-children.spec.js
+  s_dc21b0dfa3fee8::t_fc12f74843f2bc 350-353
+test/unit/common/trigger-method.spec.js
+  s_dc21b0dfa3fee8::t_accea7a44c4f0b 54-56,58-61,63-75,77-86,90
+test/unit/region-adoption.spec.js
+  s_dc21b0dfa3fee8::t_aa929fd8e1a65e 8-10
+upgradeGuide.md
+  s_dc21b0dfa3fee8::t_9ddc7ec1aa14cb 504-526
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "b6828bc731423908a57cd2f5689c1a0312908461",
+  "prompts": {},
+  "sessions": {
+    "s_dc21b0dfa3fee8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a09ac2-08e4-75f2-9b1b-fb31a7473c71",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
