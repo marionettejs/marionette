@@ -234,20 +234,6 @@
             "view"
           ],
           "timing": "Synchronous transition notifications; DOM events depend on tracked attachment, rendering and monitoring."
-        },
-        {
-          "names": [
-            "before:add:region",
-            "add:region",
-            "before:remove:region",
-            "remove:region"
-          ],
-          "arguments": [
-            "view",
-            "name",
-            "region"
-          ],
-          "timing": "Around named Region registration/removal; removal destroys the Region."
         }
       ]
     },

@@ -47,7 +47,7 @@ export const PRIVATE_MEMBERS = {
     '_proxyChildViewEvents', '_replaceEl', '_restoreEl', '_setEl', '_setOptions', '_setupChildView',
     '_shouldDisableMonitoring', '_stopChildViewEvents']),
   View: new Set([...visualPrivate, '_addRegion', '_addRegions', '_getRegions', '_initRegions', '_regions',
-    '_reInitRegions', '_removeReferences', '_removeRegion']),
+    '_reInitRegions', '_removeReferences']),
 };
 
 export const PRIVATE_MEMBER_SOURCES = {
