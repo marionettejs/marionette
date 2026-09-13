@@ -1158,7 +1158,7 @@
       "result": "Returns the matching onEventName method result; undefined when absent.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "No ownership transfer.",
-      "mutation": "Calls the method before triggering the event with original arguments.",
+      "mutation": "Resolves the method directly on the instance or prototype without reading options, then calls it before triggering the event with original arguments.",
       "repetition": "Every call dispatches; throwing method prevents event dispatch.",
       "destruction": "No cleanup or resurrection semantics are added.",
       "diagnostics": [],
@@ -1172,6 +1172,14 @@
         {
           "file": "test/unit/common/trigger-method.spec.js",
           "title": "calls the matching method before triggering the event"
+        },
+        {
+          "file": "test/unit/common/trigger-method.spec.js",
+          "title": "resolves inherited hooks without reading options"
+        },
+        {
+          "file": "test/unit/common/trigger-method.spec.js",
+          "title": "does not let options replace or suppress instance hooks"
         },
         {
           "file": "test/unit/common/trigger-method.spec.js",
@@ -1786,7 +1794,7 @@
       "result": "Returns the matching onEventName method result; undefined when absent.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "No ownership transfer.",
-      "mutation": "Calls the method before triggering the event with original arguments.",
+      "mutation": "Resolves the method directly on the instance or prototype without reading options, then calls it before triggering the event with original arguments.",
       "repetition": "Every call dispatches; throwing method prevents event dispatch.",
       "destruction": "No cleanup or resurrection semantics are added.",
       "diagnostics": [],
@@ -1800,6 +1808,14 @@
         {
           "file": "test/unit/common/trigger-method.spec.js",
           "title": "calls the matching method before triggering the event"
+        },
+        {
+          "file": "test/unit/common/trigger-method.spec.js",
+          "title": "resolves inherited hooks without reading options"
+        },
+        {
+          "file": "test/unit/common/trigger-method.spec.js",
+          "title": "does not let options replace or suppress instance hooks"
         },
         {
           "file": "test/unit/common/trigger-method.spec.js",
