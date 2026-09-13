@@ -1,0 +1,29 @@
+docs/common.md
+  s_336ff1938ec4d9::t_d91e4593523415 256-259
+docs/migration-from-v4.md
+  s_336ff1938ec4d9::t_70435ab5d69f75 62
+packages/utils/src/get-option.ts
+  s_336ff1938ec4d9::t_59820730f7c83d 10,24-25,28-30
+test/types/options.cts
+  s_336ff1938ec4d9::t_a7f7765565554a 4-5,13,16-20,36-37,57,59,61
+test/types/options.mts
+  s_336ff1938ec4d9::t_8999e8eeb2b69a 4-5,13,16-20,36-37,57,59,61
+test/unit/common/get-option.spec.js
+  s_336ff1938ec4d9::t_3cd163af7dc63e 3,6-39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "11c903a5450f2e2cf3232a5757052b21a8da2c0a",
+  "prompts": {},
+  "sessions": {
+    "s_336ff1938ec4d9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a09b0d-e24d-77d1-8caa-f0adff904c7a",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
