@@ -7,7 +7,7 @@ type Read<Source, Key extends PropertyKey> = unknown extends Source ? unknown :
       number extends keyof Source ? unknown : Key extends number | `${number}` ? unknown : undefined
     : unknown;
 type Keys<Source> = Source extends object ? keyof Source : never;
-type GetOptionResult<Receiver, Name> = Name extends '' | 0 | 0n | false | null | undefined ? undefined :
+type GetOptionResult<Receiver, Name> = Name extends null | undefined ? undefined :
   Name extends PropertyKey ? Name extends keyof Receiver | Keys<Read<Receiver, 'options'>>
     ? Exclude<Read<Read<Receiver, 'options'>, Name>, undefined> |
       (undefined extends Read<Read<Receiver, 'options'>, Name> ? Read<Receiver, Name> : never)
@@ -21,13 +21,13 @@ type OptionContext = Record<PropertyKey, unknown> & { options?: Record<PropertyK
 
 // Retrieve an object, function or other value from the
 // object or its `options`; a non-undefined option takes precedence.
-function getOption(optionName?: '' | 0 | 0n | false | null): undefined;
-function getOption<Receiver extends object, Name extends PropertyKey | 0n | false | null | undefined>(
+function getOption(optionName?: null): undefined;
+function getOption<Receiver extends object, Name extends PropertyKey | null | undefined>(
   this: Receiver, optionName: Name
 ): GetOptionResult<Receiver, Name>;
-function getOption(this: object, optionName: PropertyKey | 0n | false | null | undefined): unknown;
-function getOption(this: unknown, optionName?: PropertyKey | 0n | false | null): unknown {
-  if (!optionName) { return; }
+function getOption(this: object, optionName: PropertyKey | null | undefined): unknown;
+function getOption(this: unknown, optionName?: PropertyKey | null): unknown {
+  if (optionName == null) { return; }
   const context = this as OptionContext;
   if (context.options && (context.options[optionName] !== undefined)) {
     return context.options[optionName];

@@ -253,6 +253,10 @@ const MyView = View.extend({
 
 ### `getOption`
 
+`getOption(name)` accepts string, number, and symbol keys, including `0` and
+`''`. An omitted, `null`, or `undefined` name returns `undefined`. Boolean and
+bigint names are outside the supported key contract.
+
 `getOption(name)` first reads the named value from the merged `options` object.
 If that value is `undefined`, it falls back to the same property on the
 instance or its prototype. Explicit option values such as `null`, `false`, `0`,

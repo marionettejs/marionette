@@ -1,8 +1,8 @@
 import { getOption, mergeOptions } from '@mnjs/utils';
 const callback = () => 1;
 const receiver = {
-  getOption, mergeOptions, label: 123, fallback: 42, falsey: 'parent', absent: 'parent', '': 'not returned',
-  options: { label: 'option', fallback: undefined, falsey: false, absent: undefined, callback }
+  getOption, mergeOptions, label: 123, fallback: 42, falsey: 'parent', absent: 'parent', '': 'empty fallback',
+  options: { label: 'option', fallback: undefined, falsey: false, absent: undefined, callback, 0: 'zero option' }
 };
 const label: string = receiver.getOption('label');
 // @ts-expect-error Defined options win without an unnecessary parent-value union.
@@ -10,13 +10,14 @@ const oldLabel: number = receiver.getOption('label');
 const fallback: number = receiver.getOption('fallback');
 const falsey: boolean = receiver.getOption('falsey');
 const fn: typeof callback = receiver.getOption('callback');
-const empty: undefined = receiver.getOption('');
+const empty: string = receiver.getOption('');
 const nullName: undefined = receiver.getOption(null);
 const missingName: undefined = receiver.getOption();
-const zeroName: undefined = receiver.getOption(0);
-const zeroBigIntName: undefined = receiver.getOption(0n);
-// @ts-expect-error The empty name never reads even a declared empty property.
-const badEmpty: string = receiver.getOption('');
+const zeroName: string = receiver.getOption(0);
+// @ts-expect-error Bigint is not a PropertyKey.
+receiver.getOption(0n);
+// @ts-expect-error The empty key reads the declared fallback.
+const badEmpty: undefined = receiver.getOption('');
 const dynamic: string = 'runtime name';
 const dynamicResult: unknown = receiver.getOption(dynamic);
 // @ts-expect-error Unknown names do not become a guaranteed value.
@@ -32,7 +33,8 @@ const unsafeIndex: string = indexed.getOption('value');
 const noFallback = { getOption, options: {} as { label?: string } };
 const possiblyAbsent: string | undefined = noFallback.getOption('label');
 const absent: undefined = receiver.getOption(undefined);
-const ignoredFalse: undefined = receiver.getOption(false);
+// @ts-expect-error Boolean is not a PropertyKey.
+receiver.getOption(false);
 const returnValue: void = receiver.mergeOptions({ label: 'copy' }, ['label']);
 receiver.mergeOptions(null);
 receiver.mergeOptions(undefined);
@@ -52,11 +54,11 @@ emptyReceiver.mergeOptions({ added: true }, ['added']);
 // @ts-expect-error Conditional copying does not refine the receiver shape.
 emptyReceiver.added;
 import { MnObject } from 'marionette';
-const Owner = MnObject.extend({ '': 'not returned', label: 1 });
+const Owner = MnObject.extend({ '': 'empty fallback', label: 1 });
 const actual = new Owner();
-const emptyOwner: undefined = actual.getOption('');
+const emptyOwner: unknown = actual.getOption('');
 actual.mergeOptions(null);
-// @ts-expect-error getOption's actual empty-name result is never string.
+// @ts-expect-error Open constructor options do not guarantee the empty-key fallback.
 const wrongEmptyOwner: string = actual.getOption('');
 // Borrowed .call remains accepted but loses useful literal inference here.
 const borrowedValue: unknown = getOption.call(receiver, 'label');
