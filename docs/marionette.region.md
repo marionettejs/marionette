@@ -589,6 +589,28 @@ Resetting a live Region destroys its current View and restores its original
 `el` reference. An original selector is queried again by the next operation that
 needs it; an original DOM element is reused without a selector query.
 
+For a Region owned by a View whose template replaces the Region placeholder on
+re-render, declare the Region with a selector:
+
+```javascript
+import { View } from 'marionette';
+
+const Layout = View.extend({
+  template: () => '<div class="content"></div>',
+  regions: { content: '.content' }
+});
+```
+
+The parent render destroys the previous child and replaces the placeholder. The
+next `showChildView('content', child)` resolves the selector inside the parent's
+current element. If you instead register a Region with an Element, capture that
+node after its markup exists, for example by calling
+`view.addRegion('content', { el: view.el.querySelector('.content') })` after
+rendering a View without a declared `content` Region. That Region retains the
+exact node even after the template replaces it. Use an Element reference only
+while that node remains the intended placeholder; `reset()` cannot infer a
+replacement node from it.
+
 ```javascript
 const myView = new MyView();
 myView.showChildView('main', new OtherView());
