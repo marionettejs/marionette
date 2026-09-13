@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "a68604aa5ab03922da3f81d12243e0f7c6ad1e5592ac386a9a06b85e076f0fc9",
+  "semanticsSha256": "77f554dfff39ad4b0c5bdd9abb9d9b62654ba4b6aff2a3ad7dde6bfd0ac82e43",
   "entrypoints": [
     {
       "name": "marionette",
@@ -101,7 +101,7 @@
             "stateEvents": "?object | (() => object) | undefined",
             "stop": "(options?: unknown) => Promise<boolean>",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "unbindEvents": "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
             "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver"
@@ -379,7 +379,7 @@
             "stateEvents": "?object | (() => object) | undefined",
             "stop": "(options?: unknown) => Promise<boolean>",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "unbindEvents": "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
             "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver"
@@ -642,7 +642,7 @@
             "State": "Partial<StateApi<never>>",
             "stateEvents": "?object | (() => object) | undefined",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "triggers": "?DOMTriggers | (() => DOMTriggers) | undefined",
             "ui": "?UIBindings | Record<string, ArrayLike<Element>> | undefined",
@@ -985,7 +985,7 @@
             "State": "Partial<StateApi<never>>",
             "stateEvents": "?object | (() => object) | undefined",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "triggers": "?DOMTriggers | (() => DOMTriggers) | undefined",
             "ui": "?UIBindings | Record<string, Query> | undefined",
@@ -1175,7 +1175,7 @@
             "reset": "() => Channel",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
             "stopReplying": "<Receiver>(this: Receiver, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown"
           },
           "callableMembers": [
@@ -1407,7 +1407,7 @@
             "State": "Partial<StateApi<never>>",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
             "swapChildViews": "<Receiver extends CollectionViewInstance<CollectionChild, object & CollectionViewConfiguration<CollectionChild, never>, unknown, unknown, ArrayLike<Element>>>(this: Receiver, view1: CollectionChild, view2: CollectionChild) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "unbindEvents": "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
             "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
@@ -2006,7 +2006,7 @@
             "tagName": "string | (() => string)",
             "template": "?unknown",
             "templateContext": "?object | (() => object) | undefined",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "triggers": "?DOMTriggers | (() => DOMTriggers) | undefined",
             "ui": "?UIBindings | Record<string, Query> | undefined",
@@ -2676,7 +2676,7 @@
             "on": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
             "once": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown"
           },
           "callableMembers": [
@@ -2732,7 +2732,7 @@
             "on": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
             "once": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown"
           },
           "callableMembers": [
@@ -3007,7 +3007,7 @@
             "State": "Partial<StateApi<never>>",
             "stateEvents": "?object | (() => object) | undefined",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "unbindEvents": "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
             "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver"
@@ -3233,7 +3233,7 @@
             "State": "Partial<StateApi<never>>",
             "stateEvents": "?object | (() => object) | undefined",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "unbindEvents": "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
             "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver"
@@ -3365,7 +3365,7 @@
             "setDebug": "(setShouldDebug?: boolean) => void",
             "stopListening": "{ (channelName: string, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined): Channel; (channelName: string, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined): Channel; }",
             "stopReplying": "{ (channelName: string, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown): Channel; (channelName: string, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown): Channel; }",
-            "trigger": "{ (channelName: string, name: string, ...args: unknown[]): Channel; (channelName: string, events: Record<string, unknown>): Channel; }",
+            "trigger": "{ (channelName: string, name: string, ...args: unknown[]): Channel; (channelName: string, name: string, ...args: unknown[]): Channel; }",
             "triggerMethod": "{ (channelName: string, event: string, ...args: unknown[]): unknown; (channelName: string, event: string, ...args: unknown[]): unknown; }",
             "tuneIn": "(name: string) => RadioApi",
             "tuneOut": "(name: string) => RadioApi"
@@ -3477,7 +3477,7 @@
             "setDebug": "(setShouldDebug?: boolean) => void",
             "stopListening": "{ (channelName: string, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined): Channel; (channelName: string, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined): Channel; }",
             "stopReplying": "{ (channelName: string, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown): Channel; (channelName: string, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown): Channel; }",
-            "trigger": "{ (channelName: string, name: string, ...args: unknown[]): Channel; (channelName: string, events: Record<string, unknown>): Channel; }",
+            "trigger": "{ (channelName: string, name: string, ...args: unknown[]): Channel; (channelName: string, name: string, ...args: unknown[]): Channel; }",
             "triggerMethod": "{ (channelName: string, event: string, ...args: unknown[]): unknown; (channelName: string, event: string, ...args: unknown[]): unknown; }",
             "tuneIn": "(name: string) => RadioApi",
             "tuneOut": "(name: string) => RadioApi"
@@ -3634,7 +3634,7 @@
             "reset": "(options?: ShowOptions | undefined) => RegionInstance<object & RegionOptions>",
             "show": "(view: SupportedView, options?: ShowOptions | undefined) => RegionInstance<object & RegionOptions> | undefined",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "unbindEvents": "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
             "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver"
@@ -3948,7 +3948,7 @@
             "reset": "(options?: ShowOptions | undefined) => RegionInstance<Options>",
             "show": "(view: SupportedView, options?: ShowOptions | undefined) => RegionInstance<Options> | undefined",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "unbindEvents": "<Receiver extends ListeningOwner>(this: Receiver, entity?: false | \"\" | 0 | 0n | EventSource | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver",
             "unbindRequests": "<Receiver>(this: Receiver, channel?: false | \"\" | 0 | 0n | ReplyOwner | null | undefined, bindings?: false | object | \"\" | 0 | 0n | null | undefined) => Receiver"
@@ -4515,7 +4515,7 @@
             "tagName": "string | (() => string)",
             "template": "?unknown",
             "templateContext": "?object | (() => object) | undefined",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "triggers": "?DOMTriggers | (() => DOMTriggers) | undefined",
             "ui": "?UIBindings | Record<string, ArrayLike<Element>> | undefined",
@@ -5034,7 +5034,7 @@
             "tagName": "string | (() => string)",
             "template": "?unknown",
             "templateContext": "?object | (() => object) | undefined",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown",
             "triggers": "?DOMTriggers | (() => DOMTriggers) | undefined",
             "ui": "?UIBindings | Record<string, Query> | undefined",
@@ -5433,7 +5433,7 @@
             "on": "{ (name: string | Record<string, EventCallback>, callback?: EventCallback | undefined, context?: unknown): EventMethods; (events: Record<string, EventCallback>, context?: unknown, explicitContext?: unknown): EventMethods; }",
             "once": "{ (name: string | Record<string, EventCallback>, callback?: EventCallback | undefined, context?: unknown): EventMethods; (events: Record<string, EventCallback>, context?: unknown, explicitContext?: unknown): EventMethods; }",
             "stopListening": "(source?: EventSource | null | undefined, name?: string | Record<string, EventCallback> | null | undefined, callback?: EventCallback | null | undefined) => EventMethods",
-            "trigger": "{ (name: string, ...args: unknown[]): EventMethods; (events: Record<string, unknown>): EventMethods; }",
+            "trigger": "(name: string, ...args: unknown[]) => EventMethods",
             "triggerMethod": "TriggerMethod"
           },
           "callableMembers": [
@@ -5489,7 +5489,7 @@
             "on": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
             "once": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown"
           },
           "callableMembers": [
@@ -5545,7 +5545,7 @@
             "on": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
             "once": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown"
           },
           "callableMembers": [
@@ -5970,7 +5970,7 @@
             "reset": "() => Channel",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
             "stopReplying": "<Receiver>(this: Receiver, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown"
           },
           "callableInstanceMembers": [
@@ -6055,7 +6055,7 @@
             "reset": "() => Channel",
             "stopListening": "<Receiver>(this: Receiver, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined) => Receiver",
             "stopReplying": "<Receiver>(this: Receiver, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown) => Receiver",
-            "trigger": "{ <Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver; <Receiver>(this: Receiver, events: Record<string, unknown>): Receiver; }",
+            "trigger": "<Receiver>(this: Receiver, name: string, ...args: unknown[]) => Receiver",
             "triggerMethod": "(this: TriggerTarget, event: string, ...args: unknown[]) => unknown"
           },
           "callableInstanceMembers": [
@@ -6153,7 +6153,7 @@
             "setDebug": "(setShouldDebug?: boolean) => void",
             "stopListening": "{ (channelName: string, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined): Channel; (channelName: string, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined): Channel; }",
             "stopReplying": "{ (channelName: string, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown): Channel; (channelName: string, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown): Channel; }",
-            "trigger": "{ (channelName: string, name: string, ...args: unknown[]): Channel; (channelName: string, events: Record<string, unknown>): Channel; }",
+            "trigger": "{ (channelName: string, name: string, ...args: unknown[]): Channel; (channelName: string, name: string, ...args: unknown[]): Channel; }",
             "triggerMethod": "{ (channelName: string, event: string, ...args: unknown[]): unknown; (channelName: string, event: string, ...args: unknown[]): unknown; }",
             "tuneIn": "(name: string) => RadioApi",
             "tuneOut": "(name: string) => RadioApi"
@@ -6265,7 +6265,7 @@
             "setDebug": "(setShouldDebug?: boolean) => void",
             "stopListening": "{ (channelName: string, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined): Channel; (channelName: string, source?: EventSource | null | undefined, name?: string | EventMap | null | undefined, callback?: EventCallback | null | undefined): Channel; }",
             "stopReplying": "{ (channelName: string, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown): Channel; (channelName: string, name?: string | Record<string, unknown> | null | undefined, callback?: unknown, context?: unknown): Channel; }",
-            "trigger": "{ (channelName: string, name: string, ...args: unknown[]): Channel; (channelName: string, events: Record<string, unknown>): Channel; }",
+            "trigger": "{ (channelName: string, name: string, ...args: unknown[]): Channel; (channelName: string, name: string, ...args: unknown[]): Channel; }",
             "triggerMethod": "{ (channelName: string, event: string, ...args: unknown[]): unknown; (channelName: string, event: string, ...args: unknown[]): unknown; }",
             "tuneIn": "(name: string) => RadioApi",
             "tuneOut": "(name: string) => RadioApi"
@@ -6448,7 +6448,7 @@
             "sort": "(comparator?: string | ((left: ModelInstance, right: ModelInstance) => number) | undefined, options?: MutationOptions | null | undefined) => CollectionInstance<ModelInstance>",
             "stopListening": "(source?: EventSource | null | undefined, name?: string | Record<string, EventCallback> | null | undefined, callback?: EventCallback | null | undefined) => CollectionInstance<ModelInstance>",
             "toArray": "() => ModelAttributes[]",
-            "trigger": "{ (name: string, ...args: unknown[]): CollectionInstance<ModelInstance>; (events: Record<string, unknown>): CollectionInstance<ModelInstance>; }",
+            "trigger": "(name: string, ...args: unknown[]) => CollectionInstance<ModelInstance>",
             "triggerMethod": "TriggerMethod"
           },
           "callableInstanceMembers": [
@@ -6657,7 +6657,7 @@
             "on": "{ (name: string | Record<string, EventCallback>, callback?: EventCallback | undefined, context?: unknown): EventMethods; (events: Record<string, EventCallback>, context?: unknown, explicitContext?: unknown): EventMethods; }",
             "once": "{ (name: string | Record<string, EventCallback>, callback?: EventCallback | undefined, context?: unknown): EventMethods; (events: Record<string, EventCallback>, context?: unknown, explicitContext?: unknown): EventMethods; }",
             "stopListening": "(source?: EventSource | null | undefined, name?: string | Record<string, EventCallback> | null | undefined, callback?: EventCallback | null | undefined) => EventMethods",
-            "trigger": "{ (name: string, ...args: unknown[]): EventMethods; (events: Record<string, unknown>): EventMethods; }",
+            "trigger": "(name: string, ...args: unknown[]) => EventMethods",
             "triggerMethod": "TriggerMethod"
           },
           "callableMembers": [
@@ -6736,7 +6736,7 @@
             "set": "{ (attributes: Partial<ModelAttributes>, options?: MutationOptions | null | undefined): ModelInstance<ModelAttributes>; <Key extends string>(key: Key, value: Key extends string ? unknown : unknown, options?: MutationOptions | null | undefined): ModelInstance<ModelAttributes>; }",
             "stopListening": "(source?: EventSource | null | undefined, name?: string | Record<string, EventCallback> | null | undefined, callback?: EventCallback | null | undefined) => ModelInstance<ModelAttributes>",
             "toObject": "() => Partial<ModelAttributes>",
-            "trigger": "{ (name: string, ...args: unknown[]): ModelInstance<ModelAttributes>; (events: Record<string, unknown>): ModelInstance<ModelAttributes>; }",
+            "trigger": "(name: string, ...args: unknown[]) => ModelInstance<ModelAttributes>",
             "triggerMethod": "TriggerMethod",
             "unset": "(key: string, options?: MutationOptions | null | undefined) => ModelInstance<ModelAttributes>"
           },
@@ -7986,7 +7986,7 @@
     "packages/utils/src/build-event-args.ts": "0fa3241090b0d2daf797cb514053c603936941c09087b8dc490cfb4dd3d8dc6e",
     "packages/utils/src/call-handler.ts": "d12565a492c7db98041a9ad66698a9dce3d023fd626671d4ce7537d9c4afe138",
     "packages/utils/src/error.ts": "79aadefa5d87a7bb9ea65d10070e7c4f623f2eb72bee47fb676989c3daebceeb",
-    "packages/utils/src/events.ts": "7334b6bcc0ad3aa942f5ce0f4b1b9ae1307279de4c4e09dd3f2504de8407fc65",
+    "packages/utils/src/events.ts": "a2bd57cb9620ba87c8a6708ffaae25a5276e12a0663aa2ce0c0bde76880afcf6",
     "packages/utils/src/extend.ts": "ea69bf3ae876e9266cd4259435f7a265c7a2d8c904ab54458e3af3c65c8c6bb7",
     "packages/utils/src/get-option.ts": "871bfce664422e78d80d260bd372195da8026e9592917183a5c351741af8cd85",
     "packages/utils/src/get-value.ts": "d394c66e9963fe5825b1dd94c5e541808389b4f404df64125552053ee877094c",
@@ -8039,7 +8039,7 @@
     "docs/dom.api.md": "a697a637ae4c6cc92aa5d72850b404763f08e0417800feacc0b431ec073d3916",
     "docs/dom.interactions.md": "81bd678c7d498e08c08c84cfc3bbe1d27451ef46ed521e67fff4f72450bdbadb",
     "docs/events.class.md": "54b209f35ee56ec0e7e7d0112b5d02baa03a59d3697d4d1bb799acfff00b5e44",
-    "docs/events.md": "397ab34f37e2cec3bffe5b1bb6ad5a532aed52767349c6708d401c8bc4dca7a3",
+    "docs/events.md": "f717dd38c1877da2b26e77ff7ecde72868ca062d9e15e8ac8ed273f5e799040f",
     "docs/marionette.application.md": "0c820bfdad7a67a5f0697aca747da3f8c8354246ddc0882aba7675bac5c48ddc",
     "docs/marionette.behavior.md": "bf002b5ba380cf1bb1054b98f9813d89b4aef16ba6495d02b823ed178ab3f0c4",
     "docs/marionette.collectionview.md": "5af1ed04daaf0e976fdd0538b0931fd370fd09167079d0c21b01195f8628cefe",
@@ -8079,9 +8079,10 @@
     "test/unit/data-api-redux.spec.js": "0d0cb3a11ecfaeacbea2ea5e30c8bdda73993aa7be2b1f45eb09fb7b548d7940",
     "test/unit/data-package/api-integration.spec.js": "6648f2577073c442c1db161e40b3e1909b011f9644efe155141efc4b238ebd77",
     "test/unit/data-package/collection.spec.js": "499b774fd34d75010f471db8ffd044a4a2ad00f84dfbf70df182f64f7a5db97a",
-    "test/unit/data-package/model.spec.js": "132c2a8545cce3bbfb52fd210b7ca0f62d7b9f50fc519ffd84bd9f76183c4efe",
+    "test/unit/data-package/model.spec.js": "fc7a871963241f8c9cc2958f6bc0de895502562b089b20cf64d1fe19aab0ae1b",
     "test/unit/dom-adapters.spec.js": "12450f4ad513ae9000c9db640d481b995db91bcbe2f66c42fc503b72d019f69a",
-    "test/unit/events-parity.spec.js": "36cf9d4c206ed4334925fe039d70c7ea4e49f479085ea4e4c06f0cd81f4bf688",
+    "test/unit/events-parity.spec.js": "b87f467897a5c707c1a3deb532087374f8820652923af02a75bde5f321567590",
+    "test/unit/events-single-dispatch.spec.js": "71ab6194d3bc5f93df67f03794980b37a656a333bb764fbbf71d1eef67ad2a88",
     "test/unit/jquery-dom-api.spec.js": "4b0187d3ca5dac647394dd906fe6c6ca11764688c12ef864bc4eae867a629ded",
     "test/unit/model-based/application.spec.js": "b47267a169599d65eafb40ef0ff2d71a2d7d86732171f81499d9a222f6c2a21c",
     "test/unit/modules-error.spec.js": "3ca32416b3329999cb3fcdd3fbc66751d722e7a2c0082195b702b64dce6284c3",

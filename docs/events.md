@@ -52,35 +52,34 @@ listener.stopListening(emitter);
 | --- | --- |
 | `on(name, callback, context?)` | Register a callback on this object. |
 | `off(name?, callback?, context?)` | Remove matching callbacks registered with `on`. |
-| `trigger(name, ...args)` | Trigger one or more named events. |
+| `trigger(name, ...args)` | Trigger one named event. |
 | `once(name, callback, context?)` | Register a callback that is removed after its first call. |
 | `listenTo(object, name, callback)` | Listen to another emitter while tracking the relationship on this object. |
 | `stopListening(object?, name?, callback?)` | Remove relationships created with `listenTo` or `listenToOnce`. |
 | `listenToOnce(object, name, callback)` | Listen to another emitter once. |
 | `triggerMethod(name, ...args)` | Trigger an event and call its matching `onEventName` method. |
 
-`trigger`, `on`, `off`, `once`, `listenTo`, `listenToOnce`, and
-`stopListening` accept space-separated event names. `triggerMethod` delegates
-to `trigger` for listener notification, but call it once per event when you
-need matching `onEventName` methods. Object-form `trigger` maps each key to the
-single value passed to that event's handlers:
+`trigger` and `triggerMethod` each dispatch one literal string event name.
+Whitespace is part of that name: `trigger('foo bar')` does not dispatch `foo`
+or `bar`. The types require a string; object maps and other non-string names
+are unsupported, with no runtime shape validation or guaranteed diagnostic.
+Call once per event and pass payload values as subsequent arguments.
+
+Unlike dispatch, registration and removal methods (`on`, `off`, `once`, `listenTo`,
+`listenToOnce`, and `stopListening`) still accept space-separated names and
+supported event maps. These methods do not register a literal name containing
+whitespace; use an `all` listener to observe that exact name. Model consumers
+can also observe `change` and inspect the changed attributes.
 
 ```javascript
 emitter.on('start stop', value => console.log(value));
-emitter.trigger('start stop', 'manual');
-
-emitter.trigger({
-  start: 'automatic',
-  stop: 'complete'
-});
+emitter.trigger('start', 'manual');
+emitter.trigger('stop', 'manual');
 ```
 
-During a multi-name or mapped `trigger` call, calling `off()` from a handler
-removes subscriptions for subsequent calls but does not cancel the remaining
-event names in the current call. For example, `off()` inside a `start` handler
-still allows the existing `stop` handlers in `trigger('start stop')` to run.
-Calling `off('stop', handler)` inside `start` instead removes that handler before
-`stop` is dispatched. A nested `trigger` call uses the current subscriptions.
+Separate and nested dispatch calls use the current subscriptions. Removing
+`stop` handlers during `trigger('start')` means they will not run in a later
+`trigger('stop')` call.
 
 `once` registers its generated callback through the object's overridable
 `on` method, and `listenToOnce` registers through overridable `listenTo`.

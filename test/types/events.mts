@@ -80,3 +80,6 @@ normalized[0].listener.missing;
 const requestValue: unknown = buildEventArgs({ answer: 42 })[0].callback;
 // @ts-expect-error An unvalidated normalized value is not necessarily callable.
 buildEventArgs({ answer: 42 })[0].callback();
+
+// @ts-expect-error Object-form dispatch is unsupported.
+receiver.trigger({ change: 1 });

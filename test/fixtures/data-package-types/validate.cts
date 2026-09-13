@@ -52,6 +52,8 @@ model.listenToOnce(collection, 'count', countHandler);
 model.stopListening(collection, { count: countHandler });
 collection.stopListening(model, { count: countHandler }, countHandler);
 model.stopListening(null, null, null);
+model.trigger('count', 1);
+// @ts-expect-error Object-form dispatch is unsupported.
 model.trigger({ count: 1 });
 DataApi.subscribe(model, 'count', countHandler);
 StateApi.subscribe(collection, 'count', countHandler);

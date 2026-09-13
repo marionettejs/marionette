@@ -19,34 +19,15 @@ const expectParity = scenario => {
 };
 
 describe('Events parity with Backbone.Events', function() {
-  it('dispatches each object-form trigger entry with its mapped value', function() {
-    const emitter = createEmitter(EventsMixin);
-    const calls = [];
-
-    emitter.on('alpha', value => calls.push(['alpha', value]));
-    emitter.on('beta', value => calls.push(['beta', value]));
-
-    // Backbone event-map dispatch:
-    // https://github.com/jashkenas/backbone/blob/1.4.0/backbone.js#L95-L113
-    // Marionette extends that shape by passing each mapped value to its handler.
-    emitter.trigger({ alpha: 1, beta: 2 });
-
-    expect(calls).to.eql([
-      ['alpha', 1],
-      ['beta', 2]
-    ]);
-  });
-
-  it('preserves arguments and order for space-separated event names', function() {
-    // Backbone eventsApi space-separated dispatch:
-    // https://github.com/jashkenas/backbone/blob/1.4.0/backbone.js#L103-L107
+  it('preserves multi-name registration with separate dispatch calls', function() {
     expectParity(Events => {
       const calls = [];
 
       Events.on('alpha beta', function(...args) {
         calls.push([this === Events, ...args]);
       });
-      Events.trigger('alpha beta', 1, 2);
+      Events.trigger('alpha', 1, 2);
+      Events.trigger('beta', 1, 2);
 
       return calls;
     });
@@ -65,7 +46,7 @@ describe('Events parity with Backbone.Events', function() {
   ];
 
   for (const [name, change] of dispatchChanges) {
-    it(`preserves multi-event dispatch when a handler ${name}`, function() {
+    it(`preserves separate dispatch calls when a handler ${name}`, function() {
       expectParity(emitter => {
         const calls = [];
         emitter.on('alpha', () => {
@@ -74,7 +55,8 @@ describe('Events parity with Backbone.Events', function() {
         });
         emitter.on('beta', () => calls.push('beta'));
 
-        emitter.trigger('alpha beta');
+        emitter.trigger('alpha');
+        emitter.trigger('beta');
         emitter.trigger('beta');
 
         return calls;
@@ -93,8 +75,10 @@ describe('Events parity with Backbone.Events', function() {
         beta() { calls.push('beta'); },
       });
 
-      emitter.trigger('alpha beta');
-      emitter.trigger('alpha beta');
+      emitter.trigger('alpha');
+      emitter.trigger('beta');
+      emitter.trigger('alpha');
+      emitter.trigger('beta');
 
       return calls;
     });
@@ -111,26 +95,12 @@ describe('Events parity with Backbone.Events', function() {
       });
       emitter.on('beta', value => calls.push(['original', value]));
 
-      emitter.trigger('alpha beta', 'outer');
+      emitter.trigger('alpha', 'outer');
+      emitter.trigger('beta', 'outer');
       emitter.trigger('beta', 'later');
 
       return calls;
     });
-  });
-
-  it('keeps mapped trigger values when the first handler clears all events', function() {
-    const emitter = createEmitter(EventsMixin);
-    const calls = [];
-    emitter.on('alpha', value => {
-      calls.push(['alpha', value]);
-      emitter.off();
-    });
-    emitter.on('beta', value => calls.push(['beta', value]));
-
-    emitter.trigger({ alpha: 1, beta: 2 });
-    emitter.trigger('beta', 3);
-
-    expect(calls).to.deep.equal([['alpha', 1], ['beta', 2]]);
   });
 
   it('removes a once handler before a reentrant trigger', function() {

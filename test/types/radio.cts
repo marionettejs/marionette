@@ -8,7 +8,7 @@ const handler = function(this: typeof context, count: number) { return this.pref
 const events = { 'count other': handler };
 declare const source: EventSource;
 
-// Every overloaded Events method keeps its string/map forms and explicit contexts.
+// Registration/removal methods retain maps and contexts; dispatch accepts one name.
 const on: Channel = runtime.on('work', 'count', handler, context);
 const onMap: Channel = runtime.on('work', events, undefined, context);
 const once: Channel = runtime.once('work', 'count', handler, context);
@@ -17,7 +17,8 @@ const off: Channel = runtime.off('work', null, null, context);
 const offMap: Channel = runtime.off('work', events, undefined, context);
 runtime.off('work');
 const trigger: Channel = runtime.trigger('work', 'count', 2);
-const triggerMap: Channel = runtime.trigger('work', { count: 2 });
+// @ts-expect-error Object-form dispatch is unsupported through Radio too.
+runtime.trigger('work', { count: 2 });
 const methodResult: unknown = runtime.triggerMethod('work', 'count', 2);
 const listening: Channel = runtime.listenTo('work', source, 'count', handler);
 runtime.listenTo('work', source, events);
@@ -68,7 +69,7 @@ runtime.listenToOnce('work', { on() {} }, events);
 runtime.off('work', { count: true });
 // @ts-expect-error Stop names must be strings, maps or nullish.
 runtime.stopListening('work', source, 42);
-// @ts-expect-error Trigger names must be strings or maps.
+// @ts-expect-error Trigger names must be strings.
 runtime.trigger('work', 42);
 // @ts-expect-error Method names must be strings.
 runtime.triggerMethod('work', 42);
