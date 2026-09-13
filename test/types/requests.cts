@@ -12,7 +12,7 @@ receiver.stopReplying({ label: callback }, receiver).stopReplying(null).stopRepl
 receiver.reply('default', function(name: string, ...args: unknown[]) { return { name, args }; });
 const unknownReply: unknown = receiver.request('missing', 1, 2, 3, 4);
 const replies: Record<string, unknown> = receiver.request({ 'first second': 2, ready: undefined }, 'extra');
-const splitReply: unknown = receiver.request('first second', 2);
+const literalReply: unknown = receiver.request('first second', 2);
 // @ts-expect-error A request with no schema cannot promise the reply type.
 const invalidReply: string = receiver.request('label', 2);
 // @ts-expect-error Request map results retain unknown values.

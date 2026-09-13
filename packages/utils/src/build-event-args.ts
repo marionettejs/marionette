@@ -7,9 +7,6 @@ export interface EventArgs<Listener = unknown> {
   listener: Listener;
 }
 
-// Whitespace expression retained for the Requests API.
-export const eventSplitter = /\s+/;
-
 // Builds one descriptor per literal event name or own event-map key.
 export default function buildEventArgs<Listener>(
   name: EventName | object, callback: unknown, context: unknown, listener: Listener

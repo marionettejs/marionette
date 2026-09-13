@@ -66,7 +66,7 @@ no runtime dependencies and declares no side effects. Bundlers can retain only
 the imported helpers. Marionette's standalone UMD bundles include these helpers;
 module consumers share the installed package.
 
-Event-building helpers `buildEventArgs`, `eventSplitter`, `callHandler`, and
+Event-building helpers `buildEventArgs`, `callHandler`, and
 `onceWrap`, plus `uniqueId`, are shared by core and Radio. `buildEventArgs`
 preserves each literal string name or own event-map key without splitting
-whitespace. `eventSplitter` is used by the Requests API.
+whitespace.

@@ -16,7 +16,8 @@ export function createDismissibleOverlay(el, documentEvents) {
       stop();
     }
   };
-  region.on('empty destroy', stop);
+  region.on('empty', stop);
+  region.on('destroy', stop);
   return {
     region,
     open(view) {

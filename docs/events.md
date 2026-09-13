@@ -69,7 +69,10 @@ Registration and removal methods (`on`, `off`, `once`, `listenTo`,
 `listenToOnce`, and `stopListening`) also treat each string as one literal name,
 including whitespace and the empty string. Event maps remain supported, with
 one literal event name per key. Use separate calls or map entries for multiple
-subscriptions. Omit the name or pass `null` to remove across all event names;
+subscriptions. This rule applies to Events APIs, including those on Radio
+channels. The [Requests APIs](./radio.md#requests-and-replies) use the same literal-name
+rule and also support object-form request batching. Omit the name or pass `null`
+to remove across all event names;
 `off('')` and `stopListening(emitter, '')` select only the empty name.
 
 ```javascript
@@ -84,9 +87,11 @@ emitter.trigger('stop', 'manual');
 ```
 
 Declarative entity-event maps such as `modelEvents`, `collectionEvents`, and
-`radioEvents` use the same literal keys. When listening to a third-party emitter,
-Marionette passes each name unchanged to its `on` and `off`; that emitter controls
-how it interprets the name.
+`radioEvents` use the same literal keys, except that an own enumerable
+`__proto__` key is rejected with `MN0026` before binding or selective unbinding.
+Direct `listenTo` and `stopListening` calls pass each name unchanged to the
+emitter's `on` and `off`; a third-party emitter controls how it interprets that
+name.
 
 Separate and nested dispatch calls use the current subscriptions. Removing
 `stop` handlers during `trigger('start')` means they will not run in a later
