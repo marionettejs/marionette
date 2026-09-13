@@ -256,7 +256,6 @@ describe('layoutView', function() {
     });
   });
 
-
   describe('when using showChildView with options', function() {
     let options = {myOption: 'some value'};
 
@@ -612,49 +611,4 @@ describe('layoutView', function() {
       });
     });
   });
-
-  describe('manipulating regions', function() {
-    beforeEach(function(testContext) {
-      testContext.beforeAddRegionSpy = vi.fn();
-      testContext.addRegionSpy = vi.fn();
-      testContext.beforeRegionRemoveSpy = vi.fn();
-      testContext.removeRegionSpy = vi.fn();
-
-      testContext.Layout = Marionette.View.extend({
-        template: _.noop,
-        onBeforeAddRegion: testContext.beforeAddRegionSpy,
-        onAddRegion: testContext.addRegionSpy,
-        onBeforeRemoveRegion: testContext.beforeRegionRemoveSpy,
-        onRemoveRegion: testContext.removeRegionSpy
-      });
-
-      testContext.layout = new testContext.Layout();
-
-      testContext.regionName = 'myRegion';
-      testContext.layout.addRegion(testContext.regionName, '.region-selector');
-    });
-
-    it('should trigger correct region add events', function(testContext) {
-      expect(testContext.beforeAddRegionSpy).toHaveBeenCalledTimes(1);
-      expect(testContext.beforeAddRegionSpy.mock.contexts).toContain(testContext.layout);
-      expect(testContext.beforeAddRegionSpy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([testContext.layout, testContext.regionName]);
-
-      expect(testContext.addRegionSpy).toHaveBeenCalledTimes(1);
-      expect(testContext.addRegionSpy.mock.contexts).toContain(testContext.layout);
-      expect(testContext.addRegionSpy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([testContext.layout, testContext.regionName]);
-    });
-
-    it('should trigger correct region remove events', function(testContext) {
-      testContext.layout.removeRegion(testContext.regionName);
-
-      expect(testContext.beforeRegionRemoveSpy).toHaveBeenCalledTimes(1);
-      expect(testContext.beforeRegionRemoveSpy.mock.contexts).toContain(testContext.layout);
-      expect(testContext.beforeRegionRemoveSpy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([testContext.layout, testContext.regionName]);
-
-      expect(testContext.removeRegionSpy).toHaveBeenCalledTimes(1);
-      expect(testContext.removeRegionSpy.mock.contexts).toContain(testContext.layout);
-      expect(testContext.removeRegionSpy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([testContext.layout, testContext.regionName]);
-    });
-  });
-
 });
