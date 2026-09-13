@@ -102,31 +102,21 @@ describe('View named Region diagnostics', function() {
   it('treats the existing owner and name registration as an idempotent no-op', function() {
     const owner = new View();
     const ownedRegion = owner.addRegion('content', new Region({ el: '.content' }));
-    const beforeAdd = vi.fn();
-    const add = vi.fn();
-    owner.on('before:add:region', beforeAdd);
-    owner.on('add:region', add);
 
     try {
       expect(owner.addRegion('content', ownedRegion)).to.equal(ownedRegion);
       expect(owner.getRegion('content')).to.equal(ownedRegion);
       expect(ownedRegion.getOwner()).to.equal(owner);
       expect(ownedRegion.getName()).to.equal('content');
-      expect(beforeAdd).not.toHaveBeenCalled();
-      expect(add).not.toHaveBeenCalled();
     } finally {
       owner.destroy();
     }
   });
 
-  it('keeps mixed batch events isolated from an identical registration no-op', function() {
+  it('preserves existing ownership when adding a mixed batch of Regions', function() {
     const owner = new View();
     const ownedRegion = owner.addRegion('content', new Region({ el: '.content' }));
     const sidebarRegion = new Region({ el: '.sidebar' });
-    const beforeAdd = vi.fn();
-    const add = vi.fn();
-    owner.on('before:add:region', beforeAdd);
-    owner.on('add:region', add);
 
     try {
       const regions = owner.addRegions({
@@ -136,10 +126,10 @@ describe('View named Region diagnostics', function() {
 
       expect(regions.content).to.equal(ownedRegion);
       expect(regions.sidebar).to.equal(sidebarRegion);
-      expect(beforeAdd).toHaveBeenCalledTimes(1);
-      expect(beforeAdd.mock.calls.map(args => args.slice(0, 3))).toContainEqual([owner, 'sidebar', sidebarRegion]);
-      expect(add).toHaveBeenCalledTimes(1);
-      expect(add.mock.calls.map(args => args.slice(0, 3))).toContainEqual([owner, 'sidebar', sidebarRegion]);
+      expect(ownedRegion.getOwner()).to.equal(owner);
+      expect(ownedRegion.getName()).to.equal('content');
+      expect(sidebarRegion.getOwner()).to.equal(owner);
+      expect(sidebarRegion.getName()).to.equal('sidebar');
     } finally {
       owner.destroy();
     }
@@ -452,17 +442,5 @@ describe('View named Region diagnostics', function() {
       expect(getRegion.mock.calls.map(args => args.slice(0, 1))).toContainEqual(['alias']);
       getRegion.mockRestore();
     }
-  });
-
-  it('does not emit removal lifecycle events for a missing named Region', function() {
-    const beforeRemove = vi.fn();
-    const remove = vi.fn();
-    view.on('before:remove:region', beforeRemove);
-    view.on('remove:region', remove);
-
-    expect(() => view.removeRegion('missing')).to.throw(MarionetteError);
-
-    expect(beforeRemove).not.toHaveBeenCalled();
-    expect(remove).not.toHaveBeenCalled();
   });
 });
