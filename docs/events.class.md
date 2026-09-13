@@ -25,8 +25,6 @@ proxied view events receive the host view.
   * [`empty` and `before:empty` events](#empty-and-beforeempty-events)
 * [MnObject Events](#mnobject-events)
 * [View Events](#view-events)
-  * [`add:region` and `before:add:region` events](#addregion-and-beforeaddregion-events)
-  * [`remove:region` and `before:remove:region` events](#removeregion-and-beforeremoveregion-events)
 * [CollectionView Events](#collectionview-events)
   * [`add:child` and `before:add:child` events](#addchild-and-beforeaddchild-events)
   * [`remove:child` and `before:remove:child` events](#removechild-and-beforeremovechild-events)
@@ -213,20 +211,8 @@ The `MnObject` class triggers [Destroy Events](#destroy-and-beforedestroy-events
 
 ## View Events
 
-### `add:region` and `before:add:region` events
-
-These events fire before (`before:add:region`) and after (`add:region`) a region is added to a view.
-This event handler will receive the view instance, the region name string, and the region instance as
-event arguments. The Region is fully instantiated for both events.
-
-### `remove:region` and `before:remove:region` events
-
-These events fire before (`before:remove:region`) and after (`remove:region`) a region is removed from a view.
-This event handler will receive the view instance, the region name string, and the region instance as
-event arguments. The Region is not yet destroyed in the before event, but is destroyed by `remove:region`.
-
-`removeRegion()` and the View's Region cleanup path emit these events. Destroying
-a Region directly does not itself emit the owning View's remove-region events.
+Views emit the shared rendering, attachment, and destruction lifecycle events
+described below. Region registration and removal do not emit View events.
 
 ## CollectionView Events
 

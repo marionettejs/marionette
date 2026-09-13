@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "480080e631f47300a73ccbd2a1332e83026fe172cfdc493bb0f989bf219ca708",
+  "semanticsSha256": "81df816fb069532411fca8e7687702a2f5f7bf30fe38a2e6c5a51e457dad4197",
   "entrypoints": [
     {
       "name": "marionette",
@@ -7631,46 +7631,6 @@
     },
     {
       "source": "src/modules/view.ts",
-      "event": "'before:add:region'",
-      "kind": "literal",
-      "arguments": [
-        "this",
-        "name",
-        "region"
-      ]
-    },
-    {
-      "source": "src/modules/view.ts",
-      "event": "'add:region'",
-      "kind": "literal",
-      "arguments": [
-        "this",
-        "name",
-        "region"
-      ]
-    },
-    {
-      "source": "src/modules/view.ts",
-      "event": "'before:remove:region'",
-      "kind": "literal",
-      "arguments": [
-        "this",
-        "name",
-        "region"
-      ]
-    },
-    {
-      "source": "src/modules/view.ts",
-      "event": "'remove:region'",
-      "kind": "literal",
-      "arguments": [
-        "this",
-        "name",
-        "region"
-      ]
-    },
-    {
-      "source": "src/modules/view.ts",
       "event": "'before:render'",
       "kind": "literal",
       "arguments": [
@@ -8060,7 +8020,7 @@
     "src/modules/common/view.ts": "cd62997f30b7120e61f5067f876e612793dba629dfe942b46f156c861273c67e",
     "src/modules/object.ts": "23dacb7eacf2448ccbb690caa92195b49b992def43e4ef7cb598b50c03224100",
     "src/modules/region.ts": "2c9997d56274176b13dc2ba114ff9be97cd1202381c61e968e9496fcedf03a82",
-    "src/modules/view.ts": "f1b62ba04dc111d5efc3cc3a72202b6b8cffdb5c4f76b2362f8f3f14ba508180",
+    "src/modules/view.ts": "aef584d1b60da901488163831e2888104ff209278b6b79bd9dfbbeb35fe55d82",
     "src/runtime-id.ts": "3636769dee054da16eaa2171f2badc2a71a528dedb41ea1d4ac3342e09060087",
     "src/runtime/data-api.ts": "85b7ce5d823c9ca7cce5bde827fcb03322372f48c7a2bcf82956442aa847f9e5",
     "src/runtime/dom-api.ts": "6dcaec5e6e4c7e14c84da32daeb8ff5b8f85ae24ec1f82ab9af2054ed9166475",
@@ -8077,7 +8037,7 @@
     "docs/diagnostic-catalog.md": "1df844c7e8edbea59a8c07776d656d45f77266108babb770d7690183fe85d180",
     "docs/dom.api.md": "a697a637ae4c6cc92aa5d72850b404763f08e0417800feacc0b431ec073d3916",
     "docs/dom.interactions.md": "81bd678c7d498e08c08c84cfc3bbe1d27451ef46ed521e67fff4f72450bdbadb",
-    "docs/events.class.md": "1985e744dbd49b2c2cd47afd9ae2364e60ad457961cc408c52b19ff6d1d8a6e7",
+    "docs/events.class.md": "54b209f35ee56ec0e7e7d0112b5d02baa03a59d3697d4d1bb799acfff00b5e44",
     "docs/events.md": "ecc54967f0964ae721d16a769db30016986a252eb391da5f3380f7d3b6b5adc3",
     "docs/marionette.application.md": "0c820bfdad7a67a5f0697aca747da3f8c8354246ddc0882aba7675bac5c48ddc",
     "docs/marionette.behavior.md": "bf002b5ba380cf1bb1054b98f9813d89b4aef16ba6495d02b823ed178ab3f0c4",

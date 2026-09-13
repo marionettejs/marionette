@@ -501,3 +501,16 @@ export the same Events, Error, and default Radio within each module format.
 `@mnjs/data` now depends only on utils; core is no longer a peer dependency.
 Standalone data and messaging consumers do not need to install Marionette core.
 These packages keep the same version and release together with core and adapters.
+
+## Removed View Region registration events
+
+Views no longer emit `before:add:region`, `add:region`,
+`before:remove:region`, or `remove:region`. Their corresponding
+`onBeforeAddRegion`, `onAddRegion`, `onBeforeRemoveRegion`, and `onRemoveRegion`
+hooks are no longer invoked by Region registration or removal.
+
+Move application setup to the code that calls `addRegion()` or `addRegions()`.
+To observe a particular Region's teardown, listen to its `before:destroy` or
+`destroy` event. Those events cover both `view.removeRegion(name)` and direct
+`region.destroy()`. Region ownership, registration methods, and child cleanup
+are unchanged.

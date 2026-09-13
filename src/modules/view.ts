@@ -163,7 +163,6 @@ type ViewInternals = ViewInstance & ViewMixinHost & {
   _reInitRegions(): void;
   _addRegions(regions: RegionDefinitions): RegionMap;
   _addRegion(region: RegionInternals, name: string): void;
-  _removeRegion(region: RegionInternals, name: string): void;
   _removeReferences(name: string): void;
   _getRegions(): RegionMap;
   _isElAttached(): boolean;
@@ -345,21 +344,17 @@ const RegionsMixin = {
 
     assertRegionCanRegister(this, region, name);
 
-    this.triggerMethod('before:add:region', this, name, region);
-
     region._parentView = this;
     region._name = name;
 
     this._regions[name] = region;
-
-    this.triggerMethod('add:region', this, name, region);
   },
 
   // Remove a single region from the View, by name
   removeRegion(this: ViewInternals, name: string) {
     const region = getRequiredRegion(getOwnRegion(this._regions, name), name);
 
-    this._removeRegion(region as RegionInternals, name);
+    region.destroy();
 
     return region;
   },
@@ -368,18 +363,10 @@ const RegionsMixin = {
   removeRegions(this: ViewInternals) {
     const regions = this._getRegions();
     for (const name of Object.keys(regions)) {
-      this._removeRegion(regions[name], name);
+      regions[name].destroy();
     }
 
     return regions;
-  },
-
-  _removeRegion(this: ViewInternals, region: RegionInternals, name: string) {
-    this.triggerMethod('before:remove:region', this, name, region);
-
-    region.destroy();
-
-    this.triggerMethod('remove:region', this, name, region);
   },
 
   // Called in a region's destroy
