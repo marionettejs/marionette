@@ -89,12 +89,16 @@ describe('@mnjs/data Model', function() {
 
   it('accepts whitespace keys as ordinary own properties', function() {
     const model = new Model();
+    const all = vi.fn();
+    model.on('all', all);
 
     expect(model.set('  ', 'value')).to.equal(model);
     expect(model.has('  ')).toBe(true);
     expect(model.get('  ')).to.equal('value');
     expect(model.changed).to.deep.equal({ '  ': 'value' });
     expect(model.toObject()).to.deep.equal({ '  ': 'value' });
+    expect(all.mock.calls.map(args => args[0])).toEqual(['change:  ', 'change']);
+    model.destroy();
   });
 
   it('preserves absence separately from own undefined in change snapshots', function() {
@@ -204,7 +208,8 @@ describe('@mnjs/data Model', function() {
     model.on({ 'first second': handler }, context);
     model.once('first', once);
     model.on('all', all);
-    model.trigger('first second', 'value');
+    model.trigger('first', 'value');
+    model.trigger('second', 'value');
     model.trigger('first');
     expect(context.calls).to.equal(3);
     expect(once).toHaveBeenCalledTimes(1);
@@ -212,7 +217,8 @@ describe('@mnjs/data Model', function() {
     expect(all.mock.calls.map(args => args.slice(0, 2))).toContainEqual(['first', 'value']);
 
     model.off('first second', handler, context);
-    model.trigger('first second');
+    model.trigger('first');
+    model.trigger('second');
     expect(context.calls).to.equal(3);
     expect(triggerMethod.call(model, 'save', 1)).to.equal('saved');
     expect(onSave.mock.calls.map(args => args.slice(0, 1))).toContainEqual([1]);

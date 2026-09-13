@@ -10,6 +10,8 @@ const Worker = MnObject.extend({
     this.Radio.on('worker', 'completed', () => {});
     this.Radio.on('worker', { completed: () => {} }, this);
     this.Radio.setDebug(false);
+    this.trigger('progress', 1);
+    // @ts-expect-error Dispatch accepts one string name, not an event map.
     this.trigger({ progress: 1 });
     this.bindEvents(this, { done: 'complete' });
     this.unbindEvents(this);

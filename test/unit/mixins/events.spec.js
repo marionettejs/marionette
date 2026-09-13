@@ -3,61 +3,6 @@ import _ from 'underscore';
 import { Events as EventsMixin } from '@mnjs/utils';
 
 describe('Events Mixin', function() {
-  describe('#trigger with an object map', function() {
-    let object;
-
-    beforeEach(function() {
-      object = _.extend({}, EventsMixin);
-    });
-
-    it('should invoke each handler with the mapped value as its argument', function() {
-      const onA = vi.fn();
-      const onB = vi.fn();
-      object.on('a', onA);
-      object.on('b', onB);
-
-      object.trigger({ a: 1, b: 2 });
-
-      expect(onA).toHaveBeenCalledTimes(1);
-      expect(onA.mock.calls.map(args => args.slice(0, 1))).toContainEqual([1]);
-      expect(onB).toHaveBeenCalledTimes(1);
-      expect(onB.mock.calls.map(args => args.slice(0, 1))).toContainEqual([2]);
-    });
-
-    it('should not throw when triggering with an object map', function() {
-      object.on('a', _.noop);
-      object.on('b', _.noop);
-
-      // Before the fix this fell through into the eventSplitter branch and
-      // called `name.split(...)` on the object map, throwing a TypeError.
-      expect(function() {
-        object.trigger({ a: 1, b: 2 });
-      }).to.not.throw();
-    });
-
-    it('should not fall through to the eventSplitter branch for object input', function() {
-      // If the object-form branch fell through, triggerApi would be called a
-      // second time with the object literal as the event name. Spying on
-      // `keys(name)` is messy, so we instead assert each per-key handler is
-      // invoked exactly once (a fall-through would re-dispatch nothing useful
-      // but exercises the broken split path).
-      const onA = vi.fn();
-      object.on('a', onA);
-
-      object.trigger({ a: 'value' });
-
-      expect(onA).toHaveBeenCalledTimes(1);
-    });
-
-    it('should return the receiver so calls can be chained', function() {
-      object.on('a', _.noop);
-
-      const result = object.trigger({ a: 1 });
-
-      expect(result).to.equal(object);
-    });
-  });
-
   describe('#trigger with a string event name', function() {
     let object;
 
@@ -72,17 +17,6 @@ describe('Events Mixin', function() {
       object.trigger('foo', 'arg');
 
       expect(handler).toHaveBeenCalledTimes(1);
-      expect(handler.mock.calls.map(args => args.slice(0, 1))).toContainEqual(['arg']);
-    });
-
-    it('should still split a space-separated string event', function() {
-      const handler = vi.fn();
-      object.on('foo', handler);
-      object.on('bar', handler);
-
-      object.trigger('foo bar', 'arg');
-
-      expect(handler).toHaveBeenCalledTimes(2);
       expect(handler.mock.calls.map(args => args.slice(0, 1))).toContainEqual(['arg']);
     });
 

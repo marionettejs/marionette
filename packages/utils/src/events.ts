@@ -1,4 +1,5 @@
-import buildEventArgs, { eventSplitter } from './build-event-args.ts';
+import buildEventArgs from './build-event-args.ts';
+import assertSingleEvent from './assert-single-event.ts';
 import setProperty from './set-property.ts';
 import triggerMethod from './trigger-method.ts';
 import callHandler from './call-handler.ts';
@@ -26,7 +27,6 @@ export interface EventMethods extends EventSource {
   off(name?: string | null, callback?: EventCallback | null, context?: unknown): this;
   off(events: Record<string, EventCallback>, context?: unknown, explicitContext?: unknown): this;
   trigger(name: string, ...args: unknown[]): this;
-  trigger(events: Record<string, unknown>): this;
   triggerMethod: TriggerMethod;
   listenTo(source: EventSource | null | undefined, name: string | Record<string, EventCallback>, callback?: EventCallback): this;
   listenToOnce(source: EventSource | null | undefined, name: string | Record<string, EventCallback>, callback?: EventCallback): this;
@@ -48,7 +48,6 @@ export interface Events extends EventSource {
   listenToOnce<Receiver>(this: Receiver, source: EventSource | null | undefined, name: string | EventMap, callback?: EventCallback): Receiver;
   stopListening<Receiver>(this: Receiver, source?: EventSource | null, name?: string | EventMap | null, callback?: EventCallback | null): Receiver;
   trigger<Receiver>(this: Receiver, name: string, ...args: unknown[]): Receiver;
-  trigger<Receiver>(this: Receiver, events: Record<string, unknown>): Receiver;
   triggerMethod: typeof triggerMethod;
 }
 
@@ -376,46 +375,14 @@ const Events = {
     return this;
   },
 
-  // Trigger one or many events, firing all bound callbacks. Callbacks are
-  // passed the same arguments as `trigger` is, apart from the event name
-  // (unless you're listening on `"all"`, which will cause your callback to
-  // receive the true name of the event as the first argument).
-  trigger(this: EventState, name: string | Record<string, unknown>, ...args: unknown[]) {
+  // Trigger one event, passing payload arguments to its handlers and the name
+  // followed by those arguments to "all" handlers.
+  trigger(this: EventState, name: string, ...args: unknown[]) {
+    assertSingleEvent(name);
     const events = this._rdEvents;
     if (!events) { return this; }
 
-    if (name && typeof name === 'object') {
-      const names = getKeys(name);
-      for (let index = 0, length = names.length; index < length; index++) {
-        const key = names[index];
-        triggerApi({
-          events,
-          name: key,
-          args: [name[key]],
-        });
-      }
-      return this;
-    }
-
-    if (name && eventSplitter.test(name)) {
-      const names = name.split(eventSplitter);
-      for (let index = 0, length = names.length; index < length; index++) {
-        const n = names[index];
-        triggerApi({
-          events,
-          name: n,
-          args,
-        });
-      }
-      return this;
-    }
-
-    triggerApi({
-      events,
-      name,
-      args,
-    });
-
+    triggerApi({ events, name, args });
     return this;
   },
 
