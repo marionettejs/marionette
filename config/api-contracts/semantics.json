@@ -2066,6 +2066,10 @@
       ],
       "tests": [
         {
+          "file": "test/unit/view-region-placeholder.spec.js",
+          "title": "resolves a selector-backed Region against the replacement placeholder after parent rendering"
+        },
+        {
           "file": "test/unit/view-get-regions.spec.js",
           "title": "returns safe own-key snapshots without rendering an unrendered View"
         },

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "480080e631f47300a73ccbd2a1332e83026fe172cfdc493bb0f989bf219ca708",
+  "semanticsSha256": "e875c128f0ea2dc7fa7f8ff7f5110d949d8429702d8725de7d79934a0ef85dcb",
   "entrypoints": [
     {
       "name": "marionette",
@@ -8083,7 +8083,7 @@
     "docs/marionette.behavior.md": "bf002b5ba380cf1bb1054b98f9813d89b4aef16ba6495d02b823ed178ab3f0c4",
     "docs/marionette.collectionview.md": "5af1ed04daaf0e976fdd0538b0931fd370fd09167079d0c21b01195f8628cefe",
     "docs/marionette.mnobject.md": "056bb3041902d66831a0031e2e9c97770f485f613450861ae55aba46ca592243",
-    "docs/marionette.region.md": "ac3ddce3ccc4a5ba6980986cec0ca6cfacb7ff9271e11bf3f21593636e1e94ce",
+    "docs/marionette.region.md": "6716880b5ab5a6bf7b4b4a6dd7b66e7fdb7bd9c1c451578ad551d64f4be9e40d",
     "docs/marionette.state.md": "242b5a0d7e4bd99774c6f67c6152a218950f99a88ba962b2a9c4d6daab0a60ca",
     "docs/marionette.view.md": "b7b5871b0b56474cc3bc2513c2e2c4fdabdafcd724bfbaa8076ea7eee40d5ab5",
     "docs/optional-backbone.md": "9156baef4f7ba47be1b2a017f98e05c8eeb99cdc5d44e267a3afcd33ab6671eb",
@@ -8144,6 +8144,7 @@
     "test/unit/view-get-regions.spec.js": "734dcb5099a6f3f386b5b9b8b50975953790be9603b97458e67d30ee5770f131",
     "test/unit/view-has-region.spec.js": "08322c63b7506f8d69dd683d27ae2fe8f1d9f7734fa446439d495e4609df0e72",
     "test/unit/view-lifecycle.spec.js": "6e44d3a1db83dd0fe7613f9b85a2dbab53bc4f135ac0ba647dc113f271370e19",
+    "test/unit/view-region-placeholder.spec.js": "4ca7a94727ad970eddb72955e5e6895152c8a0d2aa899949fd42eeb5fd71661a",
     "test/unit/view-render-attributes.spec.js": "8ba365cfacac43a47e0641b0749ff47b952569fc048fb1987ef1295e3228ec3b",
     "test/unit/xstate-adapter.spec.js": "faa8e56ba16128f22cdda5a75169d770f42e35980e647e801f674013f23fa082"
   }
