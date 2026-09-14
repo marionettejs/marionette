@@ -1129,7 +1129,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       throw new MarionetteError({
         code: 'MN0003',
         name: classErrorName,
-        message: 'View is already managed by a Region or CollectionView',
+        message: 'View is already managed by an Application, Region, or CollectionView',
         url: 'marionette.region.html#showing-a-view'
       });
     }

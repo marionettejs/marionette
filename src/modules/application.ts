@@ -73,6 +73,8 @@ export interface ApplicationInstance<Options extends object = object, State = ob
   getChildApps(): Record<string, ApplicationInstance<object, unknown>>;
   getName(): string | undefined;
   getRegion(): RegionInstance | undefined;
+  setView<Child extends SupportedView>(view: Child): Child;
+  showView(view?: undefined, options?: ShowOptions): SupportedView | undefined;
   showView<Child extends SupportedView>(view: Child, ...args: [options?: ShowOptions]): Child;
   getView(): SupportedView | undefined;
 }
@@ -134,6 +136,7 @@ type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & S
   _childApps?: Map<string, ApplicationInternals>;
   _region?: RegionInstance;
   _ownedRegion?: RegionInstance;
+  _view?: SupportedView;
   _isDestroyed: boolean;
   _initRegion(): void;
   _initRadio(): void;
@@ -312,7 +315,40 @@ function hasActiveChildApps(application: ApplicationInternals) {
   return false;
 }
 
+function releaseView(application: ApplicationInternals) {
+  const view = application._view;
+  if (!view) { return; }
+
+  delete application._view;
+  delete view._application;
+  view.off('destroy', onViewDestroyed, application);
+  application.getRegion()?.off('before:empty', onRegionEmpty, application);
+  if (view._parent === application) { delete view._parent; }
+  return view;
+}
+
+function onViewDestroyed(this: ApplicationInternals) {
+  releaseView(this);
+}
+
+function onRegionEmpty(this: ApplicationInternals, region: RegionInstance, view: SupportedView) {
+  if (view === this._view) { releaseView(this); }
+}
+
+function destroyRootView(application: ApplicationInternals, options?: unknown) {
+  const view = releaseView(application);
+  if (!view) { return; }
+
+  const region = application.getRegion();
+  if (region?.currentView === view) {
+    region.empty(options as ShowOptions | undefined);
+  } else {
+    view.destroy();
+  }
+}
+
 function emptyView(application: ApplicationInternals, options?: unknown) {
+  destroyRootView(application, options);
   const region = application.getRegion();
   if (region?.currentView) {
     region.empty(options as ShowOptions | undefined);
@@ -699,14 +735,52 @@ export default /* @__PURE__ */ ((methods: object) => {
     return this._region;
   },
 
-  showView(this: ApplicationInternals, view: SupportedView, ...args: [options?: ShowOptions]) {
+  setView(this: ApplicationInternals, view: SupportedView) {
     if (isTerminal(this)) { return view; }
+    if (view === this._view) { return view; }
 
-    this.getRegion()!.show(view, ...args);
+    if (view._isDestroyed) {
+      throw new MarionetteError({
+        code: 'MN0007',
+        name: 'ApplicationError',
+        message: `View (cid: "${view.cid}") has already been destroyed and cannot be used.`,
+        url: 'marionette.application.html#setviewview'
+      });
+    }
+    if (view._application || (view._parent && view._parent !== this.getRegion())) {
+      throw new MarionetteError({
+        code: 'MN0003',
+        name: 'ApplicationError',
+        message: 'View is already managed by an Application, Region, or CollectionView',
+        url: 'marionette.application.html#setviewview'
+      });
+    }
+
+    destroyRootView(this);
+    this._view = view;
+    view._application = this;
+    if (!view._parent) { view._parent = this; }
+    view.on('destroy', onViewDestroyed, this);
+    this.getRegion()?.on('before:empty', onRegionEmpty, this);
     return view;
   },
 
+  showView(this: ApplicationInternals, view?: SupportedView, ...args: [options?: ShowOptions]) {
+    if (isTerminal(this)) { return view; }
+    if (view) { this.setView(view); }
+
+    const root = this.getView();
+    if (!root) { return; }
+
+    // Transfer the prepared root to its host. A missing optional mount leaves
+    // the root prepared and Application-owned for a later show or teardown.
+    if (root._parent === this) { delete root._parent; }
+    this.getRegion()!.show(root, ...args);
+    if (!root._parent) { root._parent = this; }
+    return root;
+  },
+
   getView(this: ApplicationInternals) {
-    return this.getRegion()?.currentView;
+    return this._view;
   }
 });

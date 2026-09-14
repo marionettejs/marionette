@@ -267,7 +267,9 @@ collaborators and may satisfy small shared protocols or reuse internal implement
 without exposing inheritance as the application architecture.
 
 An Application may coordinate one root View through a Region it constructs and owns
-or a borrowed host Region it receives from its owner. The Application shows that View
+or a borrowed host Region it receives from its owner. Select a root with `setView`,
+compose its children through `getView`, then display it with `showView`. The
+Application owns the selected root even before display and shows that View
 through the Region; the Application instance is never passed to `Region.show` and
 never gains an element or render method. Root and nested Applications use this same
 contract. Region remains the only object that mounts or tears down the root View.

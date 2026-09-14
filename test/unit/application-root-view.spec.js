@@ -48,13 +48,13 @@ describe('Application root View ownership', function() {
     region.destroy();
   });
 
-  it('reads and stops a View already shown before the Region is supplied', async function() {
+  it('stops but does not select a View already shown before the Region is supplied', async function() {
     const region = new Region({ el: '#application-root' });
     const view = new RootView();
     region.show(view);
     const app = new Application({ region });
 
-    expect(app.getView()).to.equal(view);
+    expect(app.getView()).toBeUndefined();
     expect(await app.stop()).toBe(true);
     expect(view.isDestroyed()).toBe(true);
     expect(app.getView()).toBeUndefined();
@@ -83,7 +83,7 @@ describe('Application root View ownership', function() {
     region.destroy();
   });
 
-  it('reads and empties an externally shown replacement View', async function() {
+  it('releases its selected root without selecting an externally shown replacement', async function() {
     const region = new Region({ el: '#application-root' });
     const app = new Application({ region });
     const rootView = new RootView();
@@ -94,7 +94,7 @@ describe('Application root View ownership', function() {
     region.show(replacement);
 
     expect(rootView.isDestroyed()).toBe(true);
-    expect(app.getView()).to.equal(replacement);
+    expect(app.getView()).toBeUndefined();
     expect(region.currentView).to.equal(replacement);
 
     await app.stop();
@@ -137,7 +137,7 @@ describe('Application root View ownership', function() {
 
     const view = new RootView();
     region.show(view);
-    expect(app.getView()).to.equal(view);
+    expect(app.getView()).toBeUndefined();
     expect(await app.stop()).toBe(true);
     expect(view.isDestroyed()).toBe(true);
     expect(app.getView()).toBeUndefined();
@@ -146,7 +146,7 @@ describe('Application root View ownership', function() {
     region.destroy();
   });
 
-  it('reads and empties a detached View re-shown externally', async function() {
+  it('empties a detached View re-shown externally without selecting it', async function() {
     const region = new Region({ el: '#application-root' });
     const app = new Application({ region });
     const view = new RootView();
@@ -155,7 +155,7 @@ describe('Application root View ownership', function() {
     expect(region.detachView()).to.equal(view);
     region.show(view);
 
-    expect(app.getView()).to.equal(view);
+    expect(app.getView()).toBeUndefined();
     expect(await app.stop()).toBe(true);
     expect(region.currentView).toBeUndefined();
     expect(view.isDestroyed()).toBe(true);
@@ -164,7 +164,7 @@ describe('Application root View ownership', function() {
     await app.destroy();
   });
 
-  it('does not claim a View the host Region could not show', async function() {
+  it('keeps a selected View prepared when the host Region cannot show it', async function() {
     const region = new Region({
       el: '#missing-application-root',
       allowMissingEl: true
@@ -173,10 +173,13 @@ describe('Application root View ownership', function() {
     const view = new RootView();
 
     expect(app.showView(view)).to.equal(view);
-    expect(app.getView()).toBeUndefined();
+    expect(app.getView()).to.equal(view);
     expect(view.isRendered()).toBe(false);
 
     await app.destroy();
+    expect(view.isDestroyed()).toBe(true);
+    region.el = document.querySelector('#application-root');
+    region.destroy();
   });
 
   it('stops children before emptying its root View and completing stop', async function() {

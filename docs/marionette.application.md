@@ -98,7 +98,7 @@ transitions, after stop, and after destroy.
 | Not running | `start(options)` | `before:start`, await readiness, `start` | `true` when running |
 | Running | `start(options)` | No-op | `true` |
 | Running or starting | `stop(options)` | Invalidates startup when needed, then `before:stop`, `stop` | `true` when stopped; the invalidated start resolves `false` |
-| Stopped | `stop(options)` | Empty a root View shown outside startup; otherwise no-op | `true` |
+| Stopped | `stop(options)` | Destroy a prepared root and empty the host Region; otherwise no-op | `true` |
 | Any live, non-destroying state | `restart(options)` | Stop when needed, then start | `true` when running |
 | Running or starting | `destroy(options)` | Stop when needed, then `before:destroy`, `destroy` | `true` when destroyed |
 | Stopped | `destroy(options)` | `before:destroy`, `destroy` | `true` when destroyed |
@@ -412,41 +412,74 @@ An `Application` coordinates one root View through a single
 [region](./marionette.region.md). The `region` property can be
 [defined in multiple ways](./marionette.region.md#defining-regions).
 
+For Application-controlled layout composition, select the root, populate its
+Regions, then display it. Use `getView()` in controller methods both during
+initial detached composition and for later individual Region updates.
+
 ```javascript
-import { Application } from 'marionette';
-import RootView from './views/root';
+import { Application, View } from 'marionette';
+import HeaderView from './views/header';
+import ContentView from './views/content';
+
+const LayoutView = View.extend({
+  template: () => '<header></header><main></main>',
+  regions: { header: 'header', content: 'main' }
+});
 
 const MyApp = Application.extend({
   region: '#root-element',
 
   onStart() {
-    this.showView(new RootView());
+    this.setView(new LayoutView());
+    this.showHeader();
+    this.getView().showChildView('content', new ContentView());
+    this.showView();
+  },
+
+  showHeader() {
+    this.getView().showChildView('header', new HeaderView());
   }
 });
 
 const myApp = new MyApp();
 await myApp.start();
+myApp.showHeader(); // Replace just the header in the displayed layout.
 ```
 
-The `onStart` callback synchronously renders and shows `RootView`.
-`before:render` and `render` run for its template; `before:attach` and `attach`
-also run when the Region is attached to a document and lifecycle monitoring is
-enabled. `start()` itself remains asynchronous.
+`setView()` selects and owns the root without rendering it or resolving the host
+Region's element. The first `showChildView()` renders the layout if needed. Its
+children are composed while the root is detached. `showView()` then displays that
+same tree without rendering it again; attachment propagates to its children.
+`start()` remains asynchronous, while these View operations are synchronous.
 
-`region` can also be passed as an option during instantiation.
+A layout can also populate its own Regions in `onRender()` when those children
+belong to its template lifecycle. Calling `layout.render()` again destroys its
+Region children. Update individual Regions when unrelated child identity, input,
+or focus must survive.
 
 The Application owns a Region that it constructs from a selector, Region class,
 or definition object. Passing an existing Region instance instead borrows that
-host. Stopping the Application empties the Region's current View, including one
-shown directly through the Region. Destroying the Application also destroys a Region it
-constructed, but never destroys a borrowed Region.
+host. Stopping the Application destroys its selected root, including a root never
+displayed, and empties any current View in the host Region. Destroying the
+Application also destroys a Region it constructed, but never destroys a borrowed
+Region. Restart releases the previous root before `onStart` selects a new one.
 
-The Application's View is whatever its Region currently shows. Showing a View
-through either `app.showView(view)` or `app.getRegion().show(view)` updates what
-`app.getView()` returns. Emptying or detaching the Region leaves no current View
-without stopping the Application. Restart removes the current View before
-`onStart` may show a new View. If the Region has no View, stopping the Application
-leaves any unmanaged HTML alone.
+The selected Application root and the host's displayed View are distinct:
+`getView()` returns only the root selected through `setView()` or `showView(view)`;
+`getRegion().currentView` reports what the host displays. Direct Region operations
+do not select an Application root. Emptying, detaching, or replacing the selected
+root through its host releases the Application reference. A detached root becomes
+caller-owned and can be selected again or adopted elsewhere. Destroying a prepared
+root directly also clears the Application reference.
+
+Calling `setView(next)` destroys the previous selected root immediately, even when
+it has not been displayed. It does not keep the previous screen visible until
+`showView()`. Finish any data preparation that requires the old screen to remain
+visible before selecting its replacement. An unrelated View displayed directly
+in the host is replaced by `showView()`, not by preparing a new root.
+
+If the Region has no View, stopping the Application leaves unmanaged HTML alone.
+`region` can also be passed as a constructor option.
 
 ### `regionClass`
 
@@ -482,21 +515,43 @@ Application, or `undefined` if none was configured. This synchronous query does
 not resolve its element or render a View. The host reference is released when
 the Application is destroyed.
 
+### `setView(view)`
+
+Select and own a supported View instance without rendering or displaying it.
+Returns the supplied View synchronously. A Region is not required for preparation.
+Selecting the same root again is a no-op; selecting a different root destroys the
+previous selected root and its children first.
+
+A View owned by another Application, Region, or CollectionView is rejected with
+`MN0003`. A View already displayed in this Application's host can be selected
+explicitly. A destroyed View is rejected with `MN0007`. Prepared roots cannot be
+adopted directly by another Region or CollectionView; display them through their
+Application. To transfer a displayed root, use the host's `detachView()` first.
+
+Once Application destruction begins, `setView(view)` returns the supplied View
+without adopting it. The caller remains responsible for that View.
+
 ### `showView(view, options)`
 
-Display a `View` instance in the Region attached to the Application. This runs the
-[`View lifecycle`](./view.lifecycle.md). The Application itself is never passed
-to `Region#show` and does not become renderable.
+Call `showView()` after preparation to display the selected root in the
+Application's host Region. It returns that root synchronously, or `undefined`
+when no root is selected. The root is rendered only if needed. To pass Region
+options for a prepared root, use `showView(undefined, options)`.
 
-This method is synchronous and returns the supplied View, forwarding `options`
-to `Region#show`. Configure a Region before calling it. It does not call
-`start()` or wait for Application readiness. Once destruction begins it returns
-the supplied View without displaying or adopting it. A missing element allowed
-by `allowMissingEl` also leaves the View caller-owned; use `getView() === view`
-to check that it was shown.
+When no separate composition step is needed, `showView(view, options)` performs
+`setView(view)` followed by the same display operation. It returns the supplied
+View. This is a one-step selection and display, with the same ownership contract.
+
+Configure a Region before displaying a selected root. Display does not call
+`start()` or wait for Application readiness. Once destruction begins, no View is
+selected or displayed, and the supplied argument is returned, if any. A missing
+mount allowed by `allowMissingEl` leaves the root prepared and Application-owned;
+configure an available host element before a later `showView()`. Inspect `getRegion().currentView === getView()`
+with a defined root when you need to establish actual Region adoption. `getView()`
+alone does not establish display or document attachment.
 
 ### `getView()`
 
-Return the Region's `currentView`, including a View shown directly through the
-Region or before Application startup. Returns `undefined` when the Region has no
-current View or the Application has no Region.
+Return the selected Application root, whether prepared or displayed, or
+`undefined` when no root is selected. This is a read-only synchronous query.
+It does not render, attach, or fall back to the host Region's `currentView`.

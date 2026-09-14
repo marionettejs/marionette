@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "a86fbe9f9450d882e20ce88a96a31900b26d9d23f3ab045ecd5622f16d124bcd",
+  "semanticsSha256": "32a57121d9f2b9d7d62c37e34a36172286c6e3becd76315c89c92938c39bf6cb",
   "entrypoints": [
     {
       "name": "marionette",
@@ -94,7 +94,8 @@
             "regionClass": "RegionClass",
             "removeChildApp": "(name: string, options?: unknown) => Promise<ApplicationInstance<object, unknown> | undefined>",
             "restart": "(options?: unknown) => Promise<boolean>",
-            "showView": "<Child extends SupportedView>(view: Child, options?: ShowOptions | undefined) => Child",
+            "setView": "<Child extends SupportedView>(view: Child) => Child",
+            "showView": "{ (view?: undefined, options?: ShowOptions | undefined): SupportedView | undefined; <Child extends SupportedView>(view: Child, options?: ShowOptions | undefined): Child; }",
             "start": "(options?: unknown) => Promise<boolean>",
             "state": "?unknown",
             "State": "Partial<StateApi<never>>",
@@ -140,6 +141,7 @@
             "preinitialize",
             "removeChildApp",
             "restart",
+            "setView",
             "showView",
             "start",
             "stop",
@@ -261,6 +263,9 @@
               "restart": [
                 "application-lifecycle"
               ],
+              "setView": [
+                "application-composition"
+              ],
               "showView": [
                 "application-composition"
               ],
@@ -372,7 +377,8 @@
             "regionClass": "RegionClass",
             "removeChildApp": "(name: string, options?: unknown) => Promise<ApplicationInstance<object, unknown> | undefined>",
             "restart": "(options?: unknown) => Promise<boolean>",
-            "showView": "<Child extends SupportedView>(view: Child, options?: ShowOptions | undefined) => Child",
+            "setView": "<Child extends SupportedView>(view: Child) => Child",
+            "showView": "{ (view?: undefined, options?: ShowOptions | undefined): SupportedView | undefined; <Child extends SupportedView>(view: Child, options?: ShowOptions | undefined): Child; }",
             "start": "(options?: unknown) => Promise<boolean>",
             "state": "?unknown",
             "State": "Partial<StateApi<never>>",
@@ -418,6 +424,7 @@
             "preinitialize",
             "removeChildApp",
             "restart",
+            "setView",
             "showView",
             "start",
             "stop",
@@ -526,6 +533,9 @@
                 "type-shapes"
               ],
               "restart": [
+                "type-shapes"
+              ],
+              "setView": [
                 "type-shapes"
               ],
               "showView": [
@@ -1498,7 +1508,7 @@
               "length": "number",
               "map": "{ <Result>(callback: Callback<CollectionChild, Result, void>): Result[]; <Result, Context>(callback: Callback<CollectionChild, Result, Context>, context: Context): Result[]; }",
               "partition": "{ (predicate: Callback<CollectionChild, unknown, void>): [CollectionChild[], CollectionChild[]]; <Context>(predicate: Callback<CollectionChild, unknown, Context>, context: Context): [CollectionChild[], CollectionChild[]]; }",
-              "pluck": "{ <Key extends \"off\" | \"on\" | \"triggerMethod\" | \"destroy\" | \"cid\" | \"render\" | \"el\" | \"Dom\" | \"_isDestroying\" | \"_isDestroyed\" | \"model\" | \"monitorViewEvents\" | \"_getImmediateChildren\" | \"_parent\" | \"_isRendered\" | \"_isAttached\" | \"_isShown\" | \"_disableDetachEvents\" | \"_areViewEventsMonitored\">(key: Key): CollectionChild[Key][]; (key: PropertyKey): unknown[]; }",
+              "pluck": "{ <Key extends \"off\" | \"on\" | \"triggerMethod\" | \"destroy\" | \"cid\" | \"render\" | \"el\" | \"Dom\" | \"_isDestroying\" | \"_isDestroyed\" | \"model\" | \"monitorViewEvents\" | \"_getImmediateChildren\" | \"_parent\" | \"_isRendered\" | \"_isAttached\" | \"_isShown\" | \"_application\" | \"_disableDetachEvents\" | \"_areViewEventsMonitored\">(key: Key): CollectionChild[Key][]; (key: PropertyKey): unknown[]; }",
               "reduce": "{ (callback: Reducer<CollectionChild, CollectionChild, void>): CollectionChild; <Result>(callback: Reducer<CollectionChild, Result, void>, initialValue: Result): Result; <Result, Context>(callback: Reducer<CollectionChild, Result, Context>, initialValue: Result, context: Context): Result; }",
               "reject": "{ (predicate: Callback<CollectionChild, unknown, void>): CollectionChild[]; <Context>(predicate: Callback<CollectionChild, unknown, Context>, context: Context): CollectionChild[]; }",
               "rest": "(count?: number | undefined) => CollectionChild[]",
@@ -7233,6 +7243,7 @@
       "code": "MN0003",
       "slug": "view-already-owned",
       "objects": [
+        "Application",
         "CollectionView",
         "Region",
         "View"
@@ -7256,6 +7267,7 @@
       "code": "MN0007",
       "slug": "region-view-destroyed",
       "objects": [
+        "Application",
         "Region",
         "View"
       ]
@@ -8001,16 +8013,16 @@
     "src/mixins/ui.ts": "5cb417e1456cd17b43357e480102be3fc1b436167c43b853af7d45ab79d35ffd",
     "src/mixins/view-events.ts": "108a31ba7d0f74916848c5b2f85b422afe15703a8e9fa2dbca0b17b6a5ff0fb2",
     "src/mixins/view.ts": "d0895d07d087d24d5cd8ce8d051a7acbbc9cee64fd2b5a6824b26973fc064e18",
-    "src/modules/application.ts": "07cb345e9edbeb32b6d9186bc4edbc3eacd886e66ed6787b731675f65b4531b7",
+    "src/modules/application.ts": "7dc63f849328b743477253ee719795f0aeaf71e90b3d4d5b72331d6e6156b7f5",
     "src/modules/behavior.ts": "475fe0451e629559992bd0f5ec18ad16438309b018bf643b5917dfc47a1693b6",
     "src/modules/child-view-container.ts": "ab52685a0a4fd8861534b8e9784704791c3e72a15ee19547766293be4a030803",
-    "src/modules/collection-view.ts": "6e9531ffe66b612a2b3ef1d74af1fd8c40ade13ab8315a58c197d3d88a492dc9",
+    "src/modules/collection-view.ts": "40bbaefedea29de171597e905f8fdde7ee6f55877da9e441996c9b5bf56bfe58",
     "src/modules/common/build-region.ts": "69fc222800674736c3385928e8a4b07932c1fd5ca7237b48fb4ab8f3a309022b",
     "src/modules/common/chainable-methods.ts": "5d61465f3de8bc0f84a3491e24067f7a711f2a7ebae08cb1a3d94375d9d153a2",
     "src/modules/common/monitor-view-events.ts": "e4f221ca598e2ce63c1cff766edbb2221d7cc7d1cb527086689e08b622a4f655",
-    "src/modules/common/view.ts": "cd62997f30b7120e61f5067f876e612793dba629dfe942b46f156c861273c67e",
+    "src/modules/common/view.ts": "31667739017928b8aa459ea59c58fb452544744ddbe9316db22b0775e5b98faf",
     "src/modules/object.ts": "23dacb7eacf2448ccbb690caa92195b49b992def43e4ef7cb598b50c03224100",
-    "src/modules/region.ts": "2c9997d56274176b13dc2ba114ff9be97cd1202381c61e968e9496fcedf03a82",
+    "src/modules/region.ts": "03a7ab2a5721ca01ded6c1070217bdc10b40673ce4cc3a21e4bb699ef68bb569",
     "src/modules/view.ts": "aef584d1b60da901488163831e2888104ff209278b6b79bd9dfbbeb35fe55d82",
     "src/runtime-id.ts": "3636769dee054da16eaa2171f2badc2a71a528dedb41ea1d4ac3342e09060087",
     "src/runtime/data-api.ts": "85b7ce5d823c9ca7cce5bde827fcb03322372f48c7a2bcf82956442aa847f9e5",
@@ -8022,7 +8034,7 @@
     "src/utils/subscribe-bindings.ts": "24633b6b39c2d0a8c833670e2ab1d584fb6bed2fae3ac5cfb5d42461cf233f4a"
   },
   "evidence": {
-    "config/diagnostics/catalog.json": "a044dac8d4242de8e7c6c58a6442fb58384069c0f4d76ec6fabec03f34697eac",
+    "config/diagnostics/catalog.json": "76cc4270e2ec939078cc3c8537d66e45bf0a58010fe25eeef81ab21f58886997",
     "docs/choosing-integrations.md": "385bfb2c7d85a8e0db71fd795ed1fef488aa637aa5094e93210810ff91f31f12",
     "docs/common.md": "1d14004d1c49e98ca40be9fd28d35faaf372f2a12f13fae6afa3cac8a8bf14cc",
     "docs/data.api.md": "c9bf72e4afd8c9b774391b3e343284808705887c8a38265609bfad910193e45c",
@@ -8031,7 +8043,7 @@
     "docs/dom.interactions.md": "81bd678c7d498e08c08c84cfc3bbe1d27451ef46ed521e67fff4f72450bdbadb",
     "docs/events.class.md": "54b209f35ee56ec0e7e7d0112b5d02baa03a59d3697d4d1bb799acfff00b5e44",
     "docs/events.md": "227484aca95a4003903bd8df51f3c38c11144480ace919b63bacbf5bc2bb3d22",
-    "docs/marionette.application.md": "0c820bfdad7a67a5f0697aca747da3f8c8354246ddc0882aba7675bac5c48ddc",
+    "docs/marionette.application.md": "e1fa5c2e6c6db3e24b72c0ceb4352ded90049824676602efca0294beea4c5e3b",
     "docs/marionette.behavior.md": "bf002b5ba380cf1bb1054b98f9813d89b4aef16ba6495d02b823ed178ab3f0c4",
     "docs/marionette.collectionview.md": "5af1ed04daaf0e976fdd0538b0931fd370fd09167079d0c21b01195f8628cefe",
     "docs/marionette.mnobject.md": "056bb3041902d66831a0031e2e9c97770f485f613450861ae55aba46ca592243",
@@ -8051,7 +8063,8 @@
     "test/contracts/dom-adapters.js": "a3f71df6a2e52f8d4a52ebb2d3cbbc8e77e055f459daf7c071f4e5fd55ad8c3f",
     "test/unit/application-lifecycle.spec.js": "52adc58534d8cb079dacb9b8b5f608bd62783c14ad5b98bb8cd85dcdd757c331",
     "test/unit/application-ownership.spec.js": "639b5f3d5a4f27c7fd190caff628c98937e99019fdd95cfce5a3e71d3b85986f",
-    "test/unit/application-root-view.spec.js": "0a51c85c6fd01c6aae9beb1e663f0ca465a303f38bdb5ef5bd7ed6b5627da1f9",
+    "test/unit/application-prepared-view.spec.js": "63eb058c908151dd0583f1f633e4f7798fe9ae99865045e1b34ed92e99066ba2",
+    "test/unit/application-root-view.spec.js": "56fa6a40fdbd653f2ae5a332bb2bc6247092d79c53715f29b63a4277002f6e8f",
     "test/unit/backbone-adapter.spec.js": "016907f55d5e20d695f916dbd4189ac7e3e543a0f903df6a3922c207dade59df",
     "test/unit/behavior-lifecycle.spec.js": "8c70d05fa530d27eac901291a3487c9cacac1ef1d0c22a3adda917da5774d05a",
     "test/unit/behavior-ui-contract.spec.js": "65def27b40f17e3d931803faeff7c9dbb3c580e14f157fa5d2f8145fb95c1761",
