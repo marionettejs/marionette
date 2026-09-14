@@ -1,0 +1,33 @@
+test/unit/application-prepared-view.spec.js
+  s_63ae9922a9af57::t_0f2f9ec86ea10c 182-203
+config/api-contracts/inventory.json
+  s_63ae9922a9af57::t_bbd03da20b372a 1511,8016,8023,8046,8066
+config/release-validation.json
+  s_63ae9922a9af57::t_4760cb78de4866 8-11
+docs/marionette.application.md
+  s_63ae9922a9af57::t_649a8aed679e4d 465-469,527-531
+src/modules/application.ts
+  s_63ae9922a9af57::t_be630783a90847 130-131,141,740,777-778
+test/tooling/api-contracts.test.mjs
+  s_63ae9922a9af57::t_cfcdae047705db 135-136
+test/types/application.cts
+  s_63ae9922a9af57::t_150595c0233814 43-45,50
+test/types/application.mts
+  s_63ae9922a9af57::t_6e3d6fc8d248db 43-45,50
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "f99d7207fcbf424fc51d56c50ecf42c0e7a60d73",
+  "prompts": {},
+  "sessions": {
+    "s_63ae9922a9af57": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a09f4a-44db-7561-b88b-8d4385a51aae",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
