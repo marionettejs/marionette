@@ -1,0 +1,19 @@
+ROADMAP.md
+  s_63ae9922a9af57::t_5637a22816dfb4 282-287
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "1833f9223fd934b9e0c0eff6e98cd76bd6f794f2",
+  "prompts": {},
+  "sessions": {
+    "s_63ae9922a9af57": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a09f4a-44db-7561-b88b-8d4385a51aae",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
