@@ -127,8 +127,6 @@ interface Operation extends Deferred<boolean> {
   isStopped?: boolean;
 }
 
-type ApplicationRootView = SupportedView & { _application?: object };
-
 type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & StateHost & {
   [runtimeId]: object;
   _lifecycleState: LifecycleState;
@@ -138,7 +136,7 @@ type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & S
   _childApps?: Map<string, ApplicationInternals>;
   _region?: RegionInstance;
   _ownedRegion?: RegionInstance;
-  _view?: ApplicationRootView;
+  _preparedView?: SupportedView;
   _isDestroyed: boolean;
   _initRegion(): void;
   _initRadio(): void;
@@ -317,40 +315,22 @@ function hasActiveChildApps(application: ApplicationInternals) {
   return false;
 }
 
-function releaseView(application: ApplicationInternals) {
-  const view = application._view;
+function releasePreparedView(application: ApplicationInternals) {
+  const view = application._preparedView;
   if (!view) { return; }
 
-  delete application._view;
-  delete view._application;
-  view.off('destroy', onViewDestroyed, application);
-  application.getRegion()?.off('before:empty', onRegionEmpty, application);
+  delete application._preparedView;
+  view.off('destroy', onPreparedViewDestroyed, application);
   if (view._parent === application) { delete view._parent; }
   return view;
 }
 
-function onViewDestroyed(this: ApplicationInternals) {
-  releaseView(this);
-}
-
-function onRegionEmpty(this: ApplicationInternals, region: RegionInstance, view: SupportedView) {
-  if (view === this._view) { releaseView(this); }
-}
-
-function destroyRootView(application: ApplicationInternals, options?: unknown) {
-  const view = releaseView(application);
-  if (!view) { return; }
-
-  const region = application.getRegion();
-  if (region?.currentView === view) {
-    region.empty(options as ShowOptions | undefined);
-  } else {
-    view.destroy();
-  }
+function onPreparedViewDestroyed(this: ApplicationInternals) {
+  releasePreparedView(this);
 }
 
 function emptyView(application: ApplicationInternals, options?: unknown) {
-  destroyRootView(application, options);
+  releasePreparedView(application)?.destroy();
   const region = application.getRegion();
   if (region?.currentView) {
     region.empty(options as ShowOptions | undefined);
@@ -737,9 +717,9 @@ export default /* @__PURE__ */ ((methods: object) => {
     return this._region;
   },
 
-  setView(this: ApplicationInternals, view: ApplicationRootView) {
+  setView(this: ApplicationInternals, view: SupportedView) {
     if (isTerminal(this)) { return view; }
-    if (view === this._view) { return view; }
+    if (view === this._preparedView) { return view; }
 
     if (view._isDestroyed) {
       throw new MarionetteError({
@@ -749,7 +729,7 @@ export default /* @__PURE__ */ ((methods: object) => {
         url: 'marionette.application.html#setviewview'
       });
     }
-    if (view._application || (view._parent && view._parent !== this.getRegion())) {
+    if (view._parent && view._parent !== this.getRegion()) {
       throw new MarionetteError({
         code: 'MN0003',
         name: 'ApplicationError',
@@ -758,12 +738,12 @@ export default /* @__PURE__ */ ((methods: object) => {
       });
     }
 
-    destroyRootView(this);
-    this._view = view;
-    view._application = this;
-    if (!view._parent) { view._parent = this; }
-    view.on('destroy', onViewDestroyed, this);
-    this.getRegion()?.on('before:empty', onRegionEmpty, this);
+    releasePreparedView(this)?.destroy();
+    if (view !== this.getRegion()?.currentView) {
+      this._preparedView = view;
+      view._parent = this;
+      view.on('destroy', onPreparedViewDestroyed, this);
+    }
     return view;
   },
 
@@ -774,15 +754,20 @@ export default /* @__PURE__ */ ((methods: object) => {
     const root = this.getView();
     if (!root) { return; }
 
-    // Transfer the prepared root to its configured host. The host
-    // allowMissingEl option can leave it prepared and Application-owned.
+    // The Region becomes the sole owner after adoption. An allowed missing
+    // mount leaves the prepared View with the Application for later cleanup.
+    const region = this.getRegion()!;
     if (root._parent === this) { delete root._parent; }
-    this.getRegion()!.show(root, ...args);
-    if (!root._parent) { root._parent = this; }
+    region.show(root, ...args);
+    if (region.currentView === root) {
+      releasePreparedView(this);
+    } else {
+      root._parent = this;
+    }
     return root;
   },
 
   getView(this: ApplicationInternals) {
-    return this._view;
+    return this._preparedView || this.getRegion()?.currentView;
   }
 });

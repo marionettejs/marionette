@@ -77,3 +77,53 @@ test('Application composes a detached root and preserves focused content across 
     hostChildren: 0, rootDestroyed: true, contentDestroyed: true, cleared: true
   });
 });
+
+test('preparing a replacement preserves the displayed screen until Region adoption', async({ page }) => {
+  const result = await page.evaluate(async() => {
+    const { Application, Region, View } = await import('marionette');
+    const region = new Region({ el: '#content' });
+    const first = new Application({ region });
+    const other = new Application({ region });
+    const displayed = new View({ template: () => '<input aria-label="Current draft" value="Draft">' });
+    first.showView(displayed);
+    const input = displayed.el.querySelector('input');
+    input.focus();
+    input.value = 'Unsaved edit';
+    const prepared = new View({ template: () => '<p>Replacement</p>' });
+    first.setView(prepared);
+    prepared.render();
+    const before = {
+      preparedDetached: !prepared.el.isConnected,
+      oldConnected: displayed.el.isConnected,
+      focusPreserved: document.activeElement === input,
+      value: input.value,
+      preparingAppReadsPending: first.getView() === prepared,
+      otherAppReadsDisplayed: other.getView() === displayed,
+      hostReadsDisplayed: region.currentView === displayed
+    };
+    first.showView();
+    const after = {
+      oldDestroyed: displayed.isDestroyed(),
+      replacementConnected: prepared.el.isConnected,
+      bothReadHost: first.getView() === region.currentView && other.getView() === region.currentView
+    };
+    region.detachView();
+    const detached = {
+      bothEmpty: first.getView() === undefined && other.getView() === undefined,
+      alive: !prepared.isDestroyed()
+    };
+    await first.destroy();
+    await other.destroy();
+    const released = !prepared.isDestroyed();
+    prepared.destroy();
+    region.destroy();
+    return { before, after, detached, released };
+  });
+  assert.deepEqual(result.before, {
+    preparedDetached: true, oldConnected: true, focusPreserved: true, value: 'Unsaved edit',
+    preparingAppReadsPending: true, otherAppReadsDisplayed: true, hostReadsDisplayed: true
+  });
+  assert.deepEqual(result.after, { oldDestroyed: true, replacementConnected: true, bothReadHost: true });
+  assert.deepEqual(result.detached, { bothEmpty: true, alive: true });
+  assert.equal(result.released, true);
+});

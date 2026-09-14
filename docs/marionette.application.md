@@ -459,28 +459,36 @@ or focus must survive.
 
 The Application owns a Region that it constructs from a selector, Region class,
 or definition object. Passing an existing Region instance instead borrows that
-host. Stopping the Application destroys its selected root, including a root never
-displayed, and empties any current View in the host Region. Destroying the
-Application also destroys a Region it constructed, but never destroys a borrowed
-Region. Borrowing does not reserve the host exclusively: when Applications share
-one host, displaying a different root replaces its current View and releases the
-previous Application's selected root. Coordinate those Applications' display and
-stop calls in their external owner. Restart releases the previous root before
-`onStart` selects a new one.
+host. The Application owns a prepared View only until `showView()` hands it to
+the Region. After adoption, the Region is the View's sole owner; the Application
+holds no separate View reference or ownership subscription.
 
-The selected Application root and the host's displayed View are distinct:
-`getView()` returns only the root selected through `setView()` or `showView(view)`;
-`getRegion().currentView` reports what the host displays. Direct Region operations
-do not select an Application root. Emptying, detaching, or replacing the selected
-root through its host releases the Application reference. A detached root becomes
-caller-owned and can be selected again or adopted elsewhere. Destroying a prepared
-root directly also clears the Application reference.
+`getView()` returns the prepared View while one is pending, otherwise the host
+Region's `currentView`. Direct Region replacement or detachment therefore changes
+what `getView()` returns when no View is being prepared. While preparing a
+replacement, use `getRegion().currentView` to inspect the still-displayed View.
 
-Calling `setView(next)` destroys the previous selected root immediately, even when
-it has not been displayed. It does not keep the previous screen visible until
-`showView()`. Finish any data preparation that requires the old screen to remain
-visible before selecting its replacement. An unrelated View displayed directly
-in the host is replaced by `showView()`, not by preparing a new root.
+Calling `setView(next)` destroys only a previous prepared View. It leaves the
+Region's current View visible until `showView()` replaces it through the normal
+Region lifecycle. Destroying a prepared View directly clears preparation, exposing
+the Region's current View through `getView()` again. Selecting that current View
+with `setView()` also cancels and destroys a pending replacement, without changing
+the displayed View.
+
+Stopping the Application destroys any prepared View and empties the host Region,
+including Views shown directly through it. Destroying the Application also
+destroys a Region it constructed, but never a borrowed Region. Restart cleans up
+both preparation and display before `onStart` builds a new root. Detaching a
+View through the host transfers it to the caller; the Application does not keep
+ownership of that detached View.
+
+Borrowing does not reserve a Region exclusively. Applications borrowing the same
+host read the same displayed View when neither has a prepared View. Each may
+prepare a distinct replacement; displaying one replaces the host's current View.
+Their external owner must coordinate display and stop calls, since either
+Application can empty the shared host. A prepared View itself has one owner and
+cannot be adopted by another Application, Region, or CollectionView until handed
+to its host and subsequently detached.
 
 If the Region has no View, stopping the Application leaves unmanaged HTML alone.
 `region` can also be passed as a constructor option.
@@ -521,45 +529,56 @@ the Application is destroyed.
 
 ### `setView(view)`
 
-Select and own a supported View instance without rendering or displaying it.
-Returns the supplied View synchronously. A Region is not required for preparation.
-Selecting the same root again is a no-op; selecting a different root destroys the
-previous selected root and its children first. Do not call `setView()` or
-`showView()` reentrantly from that root's synchronous teardown callbacks; complete
-the replacement before making another selection. The [synchronous failure
-boundary](./view.lifecycle.md#synchronous-failures) does not provide nested
-selection recovery.
+Prepare a supported View instance without rendering or displaying it. Returns the
+supplied View synchronously. A Region is not required for preparation. The
+Application owns the pending View until display, replacement, or cleanup.
 
-A View owned by another Application, Region, or CollectionView is rejected with
-`MN0003`. A View already displayed in this Application's host can be selected
-explicitly. A destroyed View is rejected with `MN0007`. Prepared roots cannot be
-adopted directly by another Region or CollectionView; display them through their
-Application. To transfer a displayed root, use the host's `detachView()` first.
+Preparing the same pending View again is a no-op. A different View destroys the
+previous pending View and its children, leaving the host's displayed View alone.
+Passing the host's current View cancels and destroys a pending replacement without
+changing Region ownership or display.
+
+A View owned elsewhere is rejected with `MN0003`; a destroyed View is rejected
+with `MN0007`. A prepared View cannot be adopted directly by another container:
+first display it through its Application, then use the host's `detachView()` to
+transfer it. Once displayed, normal Region ownership rules apply, including for
+Applications sharing a borrowed host.
+
+Do not call `setView()` or `showView()` reentrantly from a pending View's synchronous
+teardown callbacks. Complete its replacement before preparing another View. The
+[synchronous failure boundary](./view.lifecycle.md#synchronous-failures) does not
+provide nested selection recovery.
 
 Once Application destruction begins, `setView(view)` returns the supplied View
 without adopting it. The caller remains responsible for that View.
 
 ### `showView(view, options)`
 
-Call `showView()` after preparation to display the selected root in the
-Application's host Region. It returns that root synchronously, or `undefined`
-when no root is selected. The root is rendered only if needed. To pass Region
-options for a prepared root, use `showView(undefined, options)`.
+Call `showView()` after preparation to display the pending View through the
+Application's host Region. The Region adopts it and the Application releases its
+prepared reference and ownership subscription. The root is rendered only if
+needed. To pass options, use `showView(undefined, options)`.
+
+Without preparation, `showView()` delegates the Region's current View to `show()`
+(which is a no-op for that View), or returns `undefined` when neither a prepared
+nor current View exists. Otherwise it returns the View synchronously.
 
 When no separate composition step is needed, `showView(view, options)` performs
-`setView(view)` followed by the same display operation. It returns the supplied
-View. This is a one-step selection and display, with the same ownership contract.
+`setView(view)` followed by the same display operation, returning the supplied
+View. In either form, the Region handles replacement of its old View.
 
-Configure a Region before displaying a selected root. Display does not call
+Configure a Region before displaying a prepared View. Display does not call
 `start()` or wait for Application readiness. Once destruction begins, no View is
-selected or displayed, and the supplied argument is returned, if any. A missing
-mount allowed by `allowMissingEl` leaves the root prepared and Application-owned;
-configure an available host element before a later `showView()`. Inspect `getRegion().currentView === getView()`
-with a defined root when you need to establish actual Region adoption. `getView()`
-alone does not establish display or document attachment.
+prepared or displayed, and the supplied argument is returned, if any. A missing
+mount allowed by `allowMissingEl` leaves the View prepared and Application-owned;
+configure an available host element before a later `showView()`. Inspect
+`getRegion().currentView === getView()` with a defined View when you need to
+establish actual Region adoption. `getView()` alone does not establish display or
+document attachment.
 
 ### `getView()`
 
-Return the selected Application root, whether prepared or displayed, or
-`undefined` when no root is selected. This is a read-only synchronous query.
-It does not render, attach, or fall back to the host Region's `currentView`.
+Return the prepared View while one is pending, otherwise the host Region's
+`currentView`, or `undefined` when neither exists. This is a read-only synchronous
+query; it does not render or attach a View. Once preparation has been handed off,
+all Region changes are reflected directly without a separate Application selection.

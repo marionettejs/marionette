@@ -269,17 +269,17 @@ without exposing inheritance as the application architecture.
 An Application may coordinate one root View through a Region it constructs and owns
 or a borrowed host Region it receives from its owner. Select a root with `setView`,
 compose its children through `getView`, then display it with `showView`. The
-Application owns the selected root even before display and shows that View
-through the Region; the Application instance is never passed to `Region.show` and
+Application temporarily owns the prepared root, then hands ownership to the Region
+for display; the Application instance is never passed to `Region.show` and
 never gains an element or render method. Root and nested Applications use this same
-contract. Region remains the only object that mounts or tears down the root View.
+contract. Region manages mounting and teardown of the displayed root View.
 Region ownership is explicit: an Application destroys a Region it owns, but never
 destroys a borrowed host Region.
 
 Application stop has one-way teardown responsibility. It first stops owned child
-Applications, then asks the host Region to empty only when that Region still contains
-its root View, then releases running resources and completes its stop lifecycle. It
-never destroys the View directly. Calling `Region.empty` first destroys the View and
+Applications, destroys any prepared View, and empties the host Region when it has
+a current View, then releases running resources and completes its stop lifecycle.
+Displayed View teardown belongs to the Region. Calling `Region.empty` first destroys the View and
 clears the Application's stale View reference but does not implicitly stop the
 Application. A later stop is idempotent and cannot empty an unrelated replacement
 View. Restart follows the same stop contract before starting and showing a new root

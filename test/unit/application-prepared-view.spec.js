@@ -90,23 +90,50 @@ describe('Application prepared root View', () => {
     expect(onDestroy).not.toHaveBeenCalled();
   });
 
-  for (const displayed of [false, true]) {
-    it(`destroys a ${displayed ? 'displayed' : 'prepared'} root and its children before selecting its replacement`, () => {
-      const app = application();
-      const root = view();
-      const child = new View({ template: false });
-      app.setView(root);
-      root.showChildView('header', child);
-      if (displayed) { app.showView(); }
-      const replacement = view();
-      app.setView(replacement);
-      expect(root.isDestroyed()).toBe(true);
-      expect(child.isDestroyed()).toBe(true);
-      expect(app.getView()).toBe(replacement);
-      expect(app.getRegion().currentView).toBeUndefined();
-      expect(replacement.isRendered()).toBe(false);
-    });
-  }
+  it('destroys a superseded prepared root and its children without replacing the displayed root', () => {
+    const app = application();
+    const displayed = view();
+    app.showView(displayed);
+    const prepared = view();
+    const child = new View({ template: false });
+    app.setView(prepared);
+    prepared.showChildView('header', child);
+    const replacement = view();
+    app.setView(replacement);
+    expect(prepared.isDestroyed()).toBe(true);
+    expect(child.isDestroyed()).toBe(true);
+    expect(displayed.isDestroyed()).toBe(false);
+    expect(app.getRegion().currentView).toBe(displayed);
+    expect(displayed.el.isConnected).toBe(true);
+    expect(app.getView()).toBe(replacement);
+    expect(replacement.isRendered()).toBe(false);
+    app.showView();
+    expect(displayed.isDestroyed()).toBe(true);
+    expect(app.getRegion().currentView).toBe(replacement);
+  });
+
+  it('cancels preparation by selecting the already displayed root', () => {
+    const app = application();
+    const displayed = view();
+    const prepared = view();
+    app.showView(displayed);
+    app.setView(prepared);
+    expect(app.setView(displayed)).toBe(displayed);
+    expect(prepared.isDestroyed()).toBe(true);
+    expect(displayed.isAttached()).toBe(true);
+    expect(app.getView()).toBe(displayed);
+  });
+
+  it('reveals the displayed root when a prepared replacement destroys itself', () => {
+    const app = application();
+    const displayed = view();
+    const prepared = view();
+    app.showView(displayed);
+    app.setView(prepared);
+    prepared.destroy();
+    expect(app.getView()).toBe(displayed);
+    expect(displayed.isDestroyed()).toBe(false);
+  });
 
   for (const operation of ['stop', 'restart', 'destroy']) {
     for (const running of [false, true]) {
@@ -123,6 +150,21 @@ describe('Application prepared root View', () => {
         expect(app.getView()).toBeUndefined();
       });
     }
+  }
+
+  for (const operation of ['stop', 'restart', 'destroy']) {
+    it(`${operation} destroys both a prepared replacement and the displayed root`, async() => {
+      const app = application();
+      await app.start();
+      const displayed = view();
+      const prepared = view();
+      app.showView(displayed);
+      app.setView(prepared);
+      expect(await app[operation]()).toBe(true);
+      expect(displayed.isDestroyed()).toBe(true);
+      expect(prepared.isDestroyed()).toBe(true);
+      expect(app.getView()).toBeUndefined();
+    });
   }
 
   it('clears a prepared root destroyed directly and releases its ownership listeners', () => {
@@ -164,17 +206,37 @@ describe('Application prepared root View', () => {
     expect(app.getView()).toBe(root);
   });
 
-  it('rejects selecting another Application root even when both borrow the same host', () => {
+  it('hands ownership to the Region and releases Application subscriptions after display', async() => {
+    const app = application();
+    const root = view();
+    const off = vi.spyOn(root, 'off');
+    app.setView(root);
+    app.showView();
+    expect(off).toHaveBeenCalledWith('destroy', expect.any(Function), app);
+    const other = new Application({ region: { el: document.createElement('section') } });
+    apps.push(other);
+    expect(() => other.setView(root)).toThrow(expect.objectContaining({ code: 'MN0003' }));
+    expect(app.getRegion().detachView()).toBe(root);
+    expect(app.getView()).toBeUndefined();
+    other.showView(root);
+    await app.destroy();
+    expect(root.isDestroyed()).toBe(false);
+    expect(other.getView()).toBe(root);
+  });
+
+  it('lets Applications sharing a Region read its same displayed root without claiming it', () => {
     const app = application();
     const other = new Application({ region: app.getRegion() });
     apps.push(other);
     const root = view();
     app.showView(root);
-    expect(() => other.setView(root)).toThrow(expect.objectContaining({ code: 'MN0003' }));
-    expect(other.getView()).toBeUndefined();
+    expect(other.getView()).toBe(root);
+    expect(other.setView(root)).toBe(root);
+    expect(other.showView()).toBe(root);
     expect(app.getView()).toBe(root);
     expect(app.getRegion().detachView()).toBe(root);
     expect(app.getView()).toBeUndefined();
+    expect(other.getView()).toBeUndefined();
     expect(other.setView(root)).toBe(root);
     expect(other.showView()).toBe(root);
   });
@@ -193,7 +255,7 @@ describe('Application prepared root View', () => {
     expect(second.getView()).toBe(secondRoot);
     second.showView();
     expect(firstRoot.isDestroyed()).toBe(true);
-    expect(first.getView()).toBeUndefined();
+    expect(first.getView()).toBe(secondRoot);
     expect(second.getView()).toBe(secondRoot);
     expect(region.currentView).toBe(secondRoot);
     await second.stop();
@@ -205,7 +267,7 @@ describe('Application prepared root View', () => {
     const app = application();
     const root = view();
     app.getRegion().show(root);
-    expect(app.getView()).toBeUndefined();
+    expect(app.getView()).toBe(root);
     expect(app.setView(root)).toBe(root);
     expect(app.getView()).toBe(root);
     expect(root.isAttached()).toBe(true);

@@ -10,6 +10,10 @@
       "title": "Application composes a detached root and preserves focused content across a header update"
     },
     {
+      "file": "application-prepared-view.spec.mjs",
+      "title": "preparing a replacement preserves the displayed screen until Region adoption"
+    },
+    {
       "file": "attachment-owner-document.spec.mjs",
       "title": "direct template content attaches parent and child once"
     },
