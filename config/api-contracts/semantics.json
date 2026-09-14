@@ -2312,13 +2312,16 @@
       "exports": [
         "Application"
       ],
-      "result": "Construction and addChildApp/showView return their public instance; removeChildApp returns a Promise of the removed child or undefined; queries return the declared state or optional owner member.",
-      "timing": "Construction, registration, root-view display and queries are synchronous; removeChildApp awaits child destruction before releasing ownership.",
-      "ownership": "Named children belong to the Application until removal; the configured Region owns its current View.",
-      "mutation": "Queries do not render; showView displays the supplied child synchronously; child registration/removal coordinates with the owner lifecycle.",
-      "repetition": "Duplicate identical registrations and missing lookups/removals follow documented ownership guards.",
-      "destruction": "Destroy tears down owned children and a constructed root Region; it empties but preserves a supplied borrowed Region.",
-      "diagnostics": [],
+      "result": "Construction, addChildApp, setView and showView(view) return their public instance; showView() returns the prepared or current View, or undefined; removeChildApp returns a Promise of the removed child or undefined; queries return the declared state or optional owner member.",
+      "timing": "Construction, registration, root preparation/display and queries are synchronous; removeChildApp awaits child destruction before releasing ownership.",
+      "ownership": "Named children belong to the Application until removal. setView temporarily owns a prepared View; showView hands it to the Region and releases Application ownership. Without preparation, getView reads the Region currentView, including direct Region display.",
+      "mutation": "setView destroys only a previous prepared View, leaving the displayed View until Region show replaces it. getView reads preparation or current display without rendering. Child registration/removal coordinates with the owner lifecycle.",
+      "repetition": "Preparing the same pending View is a no-op; selecting the host currentView cancels preparation. Showing the current View does not render or attach it again. Child registrations and lookups follow documented ownership guards.",
+      "destruction": "Stop destroys a prepared View and empties the host. Destroy also tears down owned children and a constructed root Region; it preserves a borrowed Region. Direct destruction releases preparation; displayed Views follow Region cleanup and detachment.",
+      "diagnostics": [
+        "MN0003",
+        "MN0007"
+      ],
       "docs": [
         {
           "file": "docs/marionette.application.md",
@@ -2331,6 +2334,10 @@
         {
           "file": "docs/events.class.md",
           "heading": "Application Events"
+        },
+        {
+          "file": "docs/marionette.application.md",
+          "heading": "`setView(view)`"
         }
       ],
       "tests": [
@@ -2357,6 +2364,10 @@
         {
           "file": "test/unit/application-root-view.spec.js",
           "title": "destroys an externally shown View but preserves its borrowed Region"
+        },
+        {
+          "file": "test/unit/application-prepared-view.spec.js",
+          "title": "composes detached children through getView and updates one region after display"
         }
       ],
       "members": [
@@ -2370,6 +2381,7 @@
         "getName",
         "getRegion",
         "getView",
+        "setView",
         "showView",
         "isRunning",
         "isDestroyed"

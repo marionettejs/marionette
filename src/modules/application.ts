@@ -73,6 +73,8 @@ export interface ApplicationInstance<Options extends object = object, State = ob
   getChildApps(): Record<string, ApplicationInstance<object, unknown>>;
   getName(): string | undefined;
   getRegion(): RegionInstance | undefined;
+  setView<Child extends SupportedView>(view: Child): Child;
+  showView(view?: undefined, options?: ShowOptions): SupportedView | undefined;
   showView<Child extends SupportedView>(view: Child, ...args: [options?: ShowOptions]): Child;
   getView(): SupportedView | undefined;
 }
@@ -134,6 +136,7 @@ type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & S
   _childApps?: Map<string, ApplicationInternals>;
   _region?: RegionInstance;
   _ownedRegion?: RegionInstance;
+  _preparedView?: SupportedView;
   _isDestroyed: boolean;
   _initRegion(): void;
   _initRadio(): void;
@@ -312,7 +315,22 @@ function hasActiveChildApps(application: ApplicationInternals) {
   return false;
 }
 
+function releasePreparedView(application: ApplicationInternals) {
+  const view = application._preparedView;
+  if (!view) { return; }
+
+  delete application._preparedView;
+  view.off('destroy', onPreparedViewDestroyed, application);
+  if (view._parent === application) { delete view._parent; }
+  return view;
+}
+
+function onPreparedViewDestroyed(this: ApplicationInternals) {
+  releasePreparedView(this);
+}
+
 function emptyView(application: ApplicationInternals, options?: unknown) {
+  releasePreparedView(application)?.destroy();
   const region = application.getRegion();
   if (region?.currentView) {
     region.empty(options as ShowOptions | undefined);
@@ -699,14 +717,57 @@ export default /* @__PURE__ */ ((methods: object) => {
     return this._region;
   },
 
-  showView(this: ApplicationInternals, view: SupportedView, ...args: [options?: ShowOptions]) {
+  setView(this: ApplicationInternals, view: SupportedView) {
     if (isTerminal(this)) { return view; }
+    if (view === this._preparedView) { return view; }
 
-    this.getRegion()!.show(view, ...args);
+    if (view._isDestroyed) {
+      throw new MarionetteError({
+        code: 'MN0007',
+        name: 'ApplicationError',
+        message: `View (cid: "${view.cid}") has already been destroyed and cannot be used.`,
+        url: 'marionette.application.html#setviewview'
+      });
+    }
+    if (view._parent && view._parent !== this.getRegion()) {
+      throw new MarionetteError({
+        code: 'MN0003',
+        name: 'ApplicationError',
+        message: 'View is already managed by an Application, Region, or CollectionView',
+        url: 'marionette.application.html#setviewview'
+      });
+    }
+
+    releasePreparedView(this)?.destroy();
+    if (view !== this.getRegion()?.currentView) {
+      this._preparedView = view;
+      view._parent = this;
+      view.on('destroy', onPreparedViewDestroyed, this);
+    }
     return view;
   },
 
+  showView(this: ApplicationInternals, view?: SupportedView, ...args: [options?: ShowOptions]) {
+    if (isTerminal(this)) { return view; }
+    if (view) { this.setView(view); }
+
+    const root = this.getView();
+    if (!root) { return; }
+
+    // The Region becomes the sole owner after adoption. An allowed missing
+    // mount leaves the prepared View with the Application for later cleanup.
+    const region = this.getRegion()!;
+    if (root._parent === this) { delete root._parent; }
+    region.show(root, ...args);
+    if (region.currentView === root) {
+      releasePreparedView(this);
+    } else {
+      root._parent = this;
+    }
+    return root;
+  },
+
   getView(this: ApplicationInternals) {
-    return this.getRegion()?.currentView;
+    return this._preparedView || this.getRegion()?.currentView;
   }
 });

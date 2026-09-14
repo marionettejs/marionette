@@ -164,7 +164,7 @@ describe('Application root View ownership', function() {
     await app.destroy();
   });
 
-  it('does not claim a View the host Region could not show', async function() {
+  it('keeps a selected View prepared when the host Region cannot show it', async function() {
     const region = new Region({
       el: '#missing-application-root',
       allowMissingEl: true
@@ -173,10 +173,13 @@ describe('Application root View ownership', function() {
     const view = new RootView();
 
     expect(app.showView(view)).to.equal(view);
-    expect(app.getView()).toBeUndefined();
+    expect(app.getView()).to.equal(view);
     expect(view.isRendered()).toBe(false);
 
     await app.destroy();
+    expect(view.isDestroyed()).toBe(true);
+    region.el = document.querySelector('#application-root');
+    region.destroy();
   });
 
   it('stops children before emptying its root View and completing stop', async function() {

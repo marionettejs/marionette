@@ -147,7 +147,8 @@ contexts, child ownership and root-view coordination. Readiness callbacks receiv
 a concrete AbortSignal; lifecycle options and dynamic event results remain unknown.
 Its asynchronous destroy returns Promise<boolean> and replaces the synchronous
 DestroyMixin method during prototype composition. Child listings are name-keyed
-objects, lookups may be absent, and showView returns the supplied view synchronously.
+objects, lookups may be absent, and setView/showView return synchronously. The
+no-argument showView overload returns the selected root or undefined.
 The private readiness and operation types describe existing sequencing; they add
 no cancellation guard, Promise wrapper, or mutable provider correlation.
 
