@@ -179,6 +179,28 @@ describe('Application prepared root View', () => {
     expect(other.showView()).toBe(root);
   });
 
+  it('allows coordinated Applications to display distinct roots in a borrowed host', async() => {
+    const region = new Region({ el: document.createElement('section') });
+    owners.push(region);
+    const first = application({ region });
+    const second = new Application({ region });
+    apps.push(second);
+    const firstRoot = view();
+    const secondRoot = view();
+    first.showView(firstRoot);
+    second.setView(secondRoot);
+    expect(first.getView()).toBe(firstRoot);
+    expect(second.getView()).toBe(secondRoot);
+    second.showView();
+    expect(firstRoot.isDestroyed()).toBe(true);
+    expect(first.getView()).toBeUndefined();
+    expect(second.getView()).toBe(secondRoot);
+    expect(region.currentView).toBe(secondRoot);
+    await second.stop();
+    expect(secondRoot.isDestroyed()).toBe(true);
+    expect(region.isDestroyed()).toBe(false);
+  });
+
   it('can explicitly select a View already displayed in its host', () => {
     const app = application();
     const root = view();

@@ -462,7 +462,11 @@ or definition object. Passing an existing Region instance instead borrows that
 host. Stopping the Application destroys its selected root, including a root never
 displayed, and empties any current View in the host Region. Destroying the
 Application also destroys a Region it constructed, but never destroys a borrowed
-Region. Restart releases the previous root before `onStart` selects a new one.
+Region. Borrowing does not reserve the host exclusively: when Applications share
+one host, displaying a different root replaces its current View and releases the
+previous Application's selected root. Coordinate those Applications' display and
+stop calls in their external owner. Restart releases the previous root before
+`onStart` selects a new one.
 
 The selected Application root and the host's displayed View are distinct:
 `getView()` returns only the root selected through `setView()` or `showView(view)`;
@@ -520,7 +524,11 @@ the Application is destroyed.
 Select and own a supported View instance without rendering or displaying it.
 Returns the supplied View synchronously. A Region is not required for preparation.
 Selecting the same root again is a no-op; selecting a different root destroys the
-previous selected root and its children first.
+previous selected root and its children first. Do not call `setView()` or
+`showView()` reentrantly from that root's synchronous teardown callbacks; complete
+the replacement before making another selection. The [synchronous failure
+boundary](./view.lifecycle.md#synchronous-failures) does not provide nested
+selection recovery.
 
 A View owned by another Application, Region, or CollectionView is rejected with
 `MN0003`. A View already displayed in this Application's host can be selected

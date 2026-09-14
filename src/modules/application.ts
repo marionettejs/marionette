@@ -127,6 +127,8 @@ interface Operation extends Deferred<boolean> {
   isStopped?: boolean;
 }
 
+type ApplicationRootView = SupportedView & { _application?: object };
+
 type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & StateHost & {
   [runtimeId]: object;
   _lifecycleState: LifecycleState;
@@ -136,7 +138,7 @@ type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & S
   _childApps?: Map<string, ApplicationInternals>;
   _region?: RegionInstance;
   _ownedRegion?: RegionInstance;
-  _view?: SupportedView;
+  _view?: ApplicationRootView;
   _isDestroyed: boolean;
   _initRegion(): void;
   _initRadio(): void;
@@ -735,7 +737,7 @@ export default /* @__PURE__ */ ((methods: object) => {
     return this._region;
   },
 
-  setView(this: ApplicationInternals, view: SupportedView) {
+  setView(this: ApplicationInternals, view: ApplicationRootView) {
     if (isTerminal(this)) { return view; }
     if (view === this._view) { return view; }
 
@@ -772,8 +774,8 @@ export default /* @__PURE__ */ ((methods: object) => {
     const root = this.getView();
     if (!root) { return; }
 
-    // Transfer the prepared root to its host. A missing optional mount leaves
-    // the root prepared and Application-owned for a later show or teardown.
+    // Transfer the prepared root to its configured host. The host
+    // allowMissingEl option can leave it prepared and Application-owned.
     if (root._parent === this) { delete root._parent; }
     this.getRegion()!.show(root, ...args);
     if (!root._parent) { root._parent = this; }

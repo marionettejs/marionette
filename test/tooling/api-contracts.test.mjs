@@ -132,6 +132,8 @@ test('the committed real inventory matches and keeps metadata out of production 
   const realSemantics = JSON.parse(readFileSync(resolve(repository, 'config/api-contracts/semantics.json'), 'utf8'));
   const generated = generateInventory(repository, realSemantics);
   assert.deepEqual(generated, JSON.parse(readFileSync(resolve(repository, 'config/api-contracts/inventory.json'), 'utf8')));
+  // Ownership bookkeeping must not leak through nested public signatures such as pluck keys.
+  assert.doesNotMatch(JSON.stringify(generated.entrypoints), /\b_application\b/);
   for (const file of Object.keys(generated.sources)) {
     assert.doesNotMatch(readFileSync(resolve(repository, file), 'utf8'), /(?:from\s*|import\s*\()['"](?:[^'"\n]*\/)?(?:api-contracts|eslint)\//);
   }

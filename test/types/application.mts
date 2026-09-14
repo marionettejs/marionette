@@ -40,14 +40,14 @@ const requiredChild: ApplicationInstance<object, unknown> = root.getChildApp('mi
 root.addChildApp('view', new View());
 
 const view = new View();
-const selectedView: typeof view = root.setView(view);
-const preparedView: SupportedView | undefined = root.showView();
-const displayedWithOptions: SupportedView | undefined = root.showView(undefined, {replaceElement: true});
+root.setView(view) satisfies typeof view;
+root.showView() satisfies SupportedView | undefined;
+root.showView(undefined, {replaceElement: true}) satisfies SupportedView | undefined;
 const sameView: typeof view = root.showView(view, {replaceElement: true});
 // @ts-expect-error Preparing a root requires a View instance.
 root.setView(new Application());
 // @ts-expect-error Preparing a root is synchronous.
-const asynchronousSelection: Promise<typeof view> = root.setView(view);
+root.setView(view) satisfies Promise<typeof view>;
 const maybeView: SupportedView | undefined = root.getView();
 const maybeRegion: RegionInstance | undefined = root.getRegion();
 // @ts-expect-error The application may have no configured root Region.

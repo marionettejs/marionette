@@ -6,6 +6,10 @@
       "title": "packed adapters preserve Backbone and jQuery contracts"
     },
     {
+      "file": "application-prepared-view.spec.mjs",
+      "title": "Application composes a detached root and preserves focused content across a header update"
+    },
+    {
       "file": "attachment-owner-document.spec.mjs",
       "title": "direct template content attaches parent and child once"
     },
