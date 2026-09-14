@@ -279,11 +279,12 @@ destroys a borrowed host Region.
 Application stop has one-way teardown responsibility. It first stops owned child
 Applications, destroys any prepared View, and empties the host Region when it has
 a current View, then releases running resources and completes its stop lifecycle.
-Displayed View teardown belongs to the Region. Calling `Region.empty` first destroys the View and
-clears the Application's stale View reference but does not implicitly stop the
-Application. A later stop is idempotent and cannot empty an unrelated replacement
-View. Restart follows the same stop contract before starting and showing a new root
-View.
+Displayed View teardown belongs to the Region. Calling `Region.empty` first destroys
+the displayed View and clears the Region's `currentView`, but does not implicitly
+stop the Application or clear a separately prepared View. A later stop empties
+whatever View is then current in the host Region, so Applications sharing a borrowed
+host must coordinate their lifecycles. Restart follows the same stop contract before
+starting and showing a new root View.
 
 Phase 1 must define `start`'s return value, readiness and failure semantics, and
 reentrant or overlapping start, stop, and restart behavior under the selected
