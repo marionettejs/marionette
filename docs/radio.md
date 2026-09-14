@@ -72,8 +72,20 @@ sender does not need a return value.
 
 ## Requests and Replies
 
-Channels also provide request/reply messaging. Register one reply with
-`reply`, then call it with `request`:
+Channels also provide request/reply messaging. `reply`, `replyOnce`,
+`stopReplying`, and `request` each treat a string as one literal name, including
+whitespace and the empty string, just like Events APIs. For example,
+`reply('foo bar', handler)` registers one reply that `request('foo bar')` invokes.
+`stopReplying('foo bar')` removes that reply. Omitted or `null` removal names
+select all names; `stopReplying('')` selects only the empty name.
+
+Object-form batching remains available, with each key interpreted literally:
+`request({ 'foo bar': value, other: otherValue })` returns a result map with
+those same keys. Each handler's result is preserved as its value, including
+object results; it is not flattened into the outer map. Use separate map entries
+or calls for multiple requests or reply registrations.
+
+Register one reply with `reply`, then call it with `request`:
 
 ```javascript
 import { Radio } from 'marionette';
@@ -110,10 +122,7 @@ to react to the same notification.
 Only explicitly registered own handlers are eligible for a named request or
 the `default` fallback. Names matching inherited object properties, including
 `constructor`, `toString`, and `__proto__`, are ordinary request names. Result
-maps from object-form or space-separated requests likewise define safe own
-string properties. When an object-form key contains multiple space-separated
-names, the nested result contributes its own enumerable string and symbol
-properties; inherited and non-enumerable properties are ignored.
+maps from object-form requests likewise define safe own string properties.
 
 Use `replyOnce` for a handler that should be removed after its first request.
 Use `stopReplying` to remove one or more handlers:
@@ -124,8 +133,8 @@ account.stopReplying('current:user');
 ```
 
 The request registration methods retain Backbone.Radio's customization
-seams: `replyOnce` installs its wrapper through overridable `reply`, and map or
-space-separated `reply`, `replyOnce`, and `stopReplying` calls dispatch each
+seams: `replyOnce` installs its wrapper through overridable `reply`, and map-form
+`reply`, `replyOnce`, and `stopReplying` calls dispatch each
 entry through the corresponding public method. For object-form `request`, the
 mapped value is the first handler argument and any arguments after the map are
 forwarded after it.
@@ -270,7 +279,7 @@ but it is not a drop-in replacement for every exported property.
 
 | Area | v5 behavior |
 | --- | --- |
-| Requests and replies | Named/default handlers, callback context, map and space-separated forms, one-time replies, and selective removal retain the messaging contract. |
+| Requests and replies | Named/default handlers, callback context, map forms, one-time replies, and selective removal retain the messaging contract. All string names and map keys are literal; whitespace is no longer split. |
 | Events and cleanup | Channels use shared Marionette Events. Reset clears handlers and owned listeners while retaining channel identity. Events also provides `triggerMethod`. |
 | Debugging | Use `setDebug()` instead of assigning `DEBUG`. `log` and `debugLog` are replaceable per-instance hooks, and the debug toggle gates custom warning hooks too. Removing an absent reply does not warn. |
 | Construction and globals | Use `channel(name)` for registered channels, `new Channel(name)` for standalone channels, or the named `Requests` mixin for request/reply alone. `VERSION`, Backbone global installation, and `noConflict()` are not Radio exports. |

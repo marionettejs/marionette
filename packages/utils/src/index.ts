@@ -19,4 +19,4 @@ export type { Events as EventsContract } from './events.ts';
 export { default as uniqueId } from './unique-id.ts';
 export { default as callHandler } from './call-handler.ts';
 export { default as onceWrap } from './once-wrap.ts';
-export { default as buildEventArgs, eventSplitter } from './build-event-args.ts';
+export { default as buildEventArgs } from './build-event-args.ts';

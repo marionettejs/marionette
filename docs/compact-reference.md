@@ -70,7 +70,7 @@ Own external timers, DOM listeners, and widgets in the lifecycle that actually c
 | Entrypoint | Runtime exports |
 | --- | --- |
 | `marionette` | `Application`, `Behavior`, `CollectionView`, `createMarionette`, `DataApi`, `DomApi`, `Events`, `extend`, `MarionetteError`, `MnObject`, `monitorViewEvents`, `Radio`, `Region`, `setDataApi`, `setDomApi`, `setEventDelegator`, `setRenderer`, `setStateApi`, `StateApi`, `VERSION`, `View` |
-| `@mnjs/utils` | `bindEvents`, `bindRequests`, `buildEventArgs`, `callHandler`, `Events`, `eventSplitter`, `extend`, `getOption`, `getValue`, `isString`, `MarionetteError`, `mergeOptions`, `normalizeBindings`, `normalizeMethods`, `onceWrap`, `resolveMethod`, `setProperty`, `triggerMethod`, `unbindEvents`, `unbindRequests`, `uniqueId` |
+| `@mnjs/utils` | `bindEvents`, `bindRequests`, `buildEventArgs`, `callHandler`, `Events`, `extend`, `getOption`, `getValue`, `isString`, `MarionetteError`, `mergeOptions`, `normalizeBindings`, `normalizeMethods`, `onceWrap`, `resolveMethod`, `setProperty`, `triggerMethod`, `unbindEvents`, `unbindRequests`, `uniqueId` |
 | `@mnjs/radio` | `Channel`, `createRadio`, `Radio`, `Requests` |
 | `@mnjs/data` | `Collection`, `DataApi`, `Model`, `StateApi`, `triggerMethod` |
 | `@mnjs/adapters/backbone` | `default` |

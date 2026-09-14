@@ -30,11 +30,6 @@ const scenarios = {
     channel.reply({ first: reply, second: reply }, context);
     return channel.request({ first: 1, second: 2 }, 3);
   },
-  'space-separated and nested requests flatten results in call order'(radio) {
-    const channel = radio.channel('parity');
-    channel.reply('first second', (...args) => args);
-    return [channel.request('first second', 1), channel.request({ 'first second': 2, first: 3 }, 4)];
-  },
   'replyOnce falls back after the first invocation'(radio) {
     const channel = radio.channel('parity');
     channel.reply('default', (...args) => args);
@@ -63,19 +58,19 @@ const scenarios = {
     const channel = radio.channel('parity');
     const first = {}; const second = {};
     const callback = () => 'shared';
-    channel.reply('one two', callback, first);
+    channel.reply({ one: callback, two: callback }, first);
     channel.reply('three', callback, second);
     channel.reply('four', () => 'other', first);
     channel.stopReplying(undefined, callback, first);
-    return channel.request('one two three four');
+    return channel.request({ one: undefined, two: undefined, three: undefined, four: undefined });
   },
-  'stopReplying maps and space-separated names remove only selected replies'(radio) {
+  'stopReplying maps remove only selected replies'(radio) {
     const channel = radio.channel('parity');
     const callback = () => 'value';
-    channel.reply('one two three four', callback);
+    channel.reply({ one: callback, two: callback, three: callback, four: callback });
     channel.stopReplying({ one: callback });
-    channel.stopReplying('two three');
-    return channel.request('one two three four');
+    channel.stopReplying({ two: callback, three: callback });
+    return channel.request({ one: undefined, two: undefined, three: undefined, four: undefined });
   },
   'channel reset removes events, owned listeners, and replies'(radio) {
     const channel = radio.channel('parity');

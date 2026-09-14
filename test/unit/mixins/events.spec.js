@@ -101,33 +101,13 @@ describe('Events Mixin', function() {
     it('fires once handlers once per event name', function() {
       const handler = vi.fn();
 
-      object.once('foo bar', handler);
+      object.once({ foo: handler, bar: handler });
       object.trigger('foo');
       object.trigger('foo');
       object.trigger('bar');
       object.trigger('bar');
 
       expect(handler).toHaveBeenCalledTimes(2);
-    });
-
-    it('collapses repeated once event names to one registration', function() {
-      const handler = vi.fn();
-
-      object.once('foo foo', handler);
-      object.trigger('foo');
-      object.trigger('foo');
-
-      expect(handler).toHaveBeenCalledTimes(1);
-    });
-
-    it('collapses repeated listenToOnce event names to one registration', function() {
-      const handler = vi.fn();
-
-      listener.listenToOnce(object, 'foo foo', handler);
-      object.trigger('foo');
-      object.trigger('foo');
-
-      expect(handler).toHaveBeenCalledTimes(1);
     });
 
     it('preserves falsy once contexts without using the handler as context', function() {

@@ -36,8 +36,9 @@ describe('Requests', function() {
       expect(warn).toHaveBeenCalledWith('A request was overwritten: "foo"');
     });
 
-    it('retains earlier public registrations when a later split entry throws', function() {
+    it('retains an existing reply when overwrite logging throws', function() {
       const requests = { ...Requests };
+      requests.reply('first first', 'response');
       Object.defineProperty(requests, 'channelName', {
         configurable: true,
         get() {
@@ -48,7 +49,7 @@ describe('Requests', function() {
       expect(() => requests.reply('first first', 'response'))
         .to.throw('channel lookup failed');
       delete requests.channelName;
-      expect(requests.request('first')).to.equal('response');
+      expect(requests.request('first first')).to.equal('response');
     });
 
     it('uses the supplied truthy context and otherwise falls back to the receiver', function(testContext) {
@@ -64,7 +65,7 @@ describe('Requests', function() {
   });
 
   describe('#replyOnce', function() {
-    it('dispatches map and space-separated entries through replyOnce', function(testContext) {
+    it('dispatches literal map keys through replyOnce', function(testContext) {
       const calls = [];
       const baseReplyOnce = Requests.replyOnce;
       testContext.requests.replyOnce = function(...args) {
@@ -73,20 +74,17 @@ describe('Requests', function() {
       };
 
       testContext.requests.replyOnce({ alpha: 'a', beta: 'b' });
-      testContext.requests.replyOnce('gamma delta', 'split');
+      testContext.requests.replyOnce('gamma delta', 'literal');
 
       expect(calls).to.deep.equal([
         { alpha: 'a', beta: 'b' },
         'alpha',
         'beta',
-        'gamma delta',
-        'gamma',
-        'delta'
+        'gamma delta'
       ]);
       expect(testContext.requests.request('alpha')).to.equal('a');
       expect(testContext.requests.request('beta')).to.equal('b');
-      expect(testContext.requests.request('gamma')).to.equal('split');
-      expect(testContext.requests.request('delta')).to.equal('split');
+      expect(testContext.requests.request('gamma delta')).to.equal('literal');
     });
 
     it('dispatches wrapper registration through an overridden reply method', function(testContext) {
@@ -152,7 +150,7 @@ describe('Requests', function() {
 
     });
 
-    it('clears the registry only when every filter is falsey', function(testContext) {
+    it('clears all replies when no filters are supplied', function(testContext) {
       testContext.requests.reply('foo', 'response');
 
       expect(testContext.requests.stopReplying()).to.equal(testContext.requests);
@@ -187,7 +185,7 @@ describe('Requests', function() {
   });
 
   describe('registration overload dispatch', function() {
-    it('dispatches reply map and split entries through the public method', function() {
+    it('dispatches reply map keys through the public method', function() {
       // Backbone.Radio 2.0 recursively dispatched every overloaded entry.
       const calls = [];
       const requests = { ...Requests };
@@ -201,17 +199,15 @@ describe('Requests', function() {
       expect(calls).to.deep.equal([
         { 'first second': 'response', third: 'response' },
         'first second',
-        'first',
-        'second',
         'third'
       ]);
     });
 
-    it('dispatches stopReplying map and split entries through the public method', function() {
+    it('dispatches stopReplying map keys through the public method', function() {
       // Backbone.Radio 2.0 recursively dispatched every overloaded entry.
       const calls = [];
       const requests = { ...Requests };
-      requests.reply('first second third', 'response');
+      requests.reply({ 'first second': 'response', third: 'response' });
       requests.stopReplying = function(name, ...args) {
         calls.push(name);
         return Requests.stopReplying.call(this, name, ...args);
@@ -222,8 +218,6 @@ describe('Requests', function() {
       expect(calls).to.deep.equal([
         { 'first second': 'response', third: 'response' },
         'first second',
-        'first',
-        'second',
         'third'
       ]);
     });
@@ -365,56 +359,6 @@ describe('Requests', function() {
       expect(later).not.toHaveBeenCalled();
     });
 
-    it('invokes split names including duplicates in order with the original arguments', function() {
-      const calls = [];
-      const firstArg = {};
-      const secondArg = Symbol('argument');
-      const context = {
-        request(name, ...args) {
-          if (typeof name === 'string' && /\s/.test(name)) {
-            return Requests.request.call(this, name, ...args);
-          }
-          calls.push([name, args]);
-          return calls.length;
-        }
-      };
-
-      const replies = context.request('first first second', firstArg, secondArg);
-
-      expect(calls).to.deep.equal([
-        ['first', [firstArg, secondArg]],
-        ['first', [firstArg, secondArg]],
-        ['second', [firstArg, secondArg]]
-      ]);
-      expect(Object.keys(replies)).to.deep.equal(['first', 'second']);
-      expect(replies).to.deep.equal({ first: 2, second: 3 });
-    });
-
-    it('overwrites split and direct collisions without changing first insertion order', function() {
-      const context = {
-        request(name, ...args) {
-          if (name && (typeof name === 'object' || /\s/.test(name))) {
-            return Requests.request.call(this, name, ...args);
-          }
-          return args[0];
-        }
-      };
-
-      const directThenSplit = context.request({
-        first: 'direct',
-        'first second': 'split'
-      });
-      const splitThenDirect = context.request({
-        'first second': 'split',
-        first: 'direct'
-      });
-
-      expect(Object.keys(directThenSplit)).to.deep.equal(['first', 'second']);
-      expect(directThenSplit).to.deep.equal({ first: 'split', second: 'split' });
-      expect(Object.keys(splitThenDirect)).to.deep.equal(['first', 'second']);
-      expect(splitThenDirect).to.deep.equal({ first: 'direct', second: 'split' });
-    });
-
     it('builds request result maps with safe own collision keys', function(testContext) {
       const protoValue = { safe: true };
       const requestMap = { constructor: 'argument', toString: 'argument' };
@@ -425,7 +369,7 @@ describe('Requests', function() {
       testContext.requests.reply('__proto__', () => protoValue);
       testContext.requests.reply('constructor', () => 'constructor');
       testContext.requests.reply('toString', () => 'toString');
-      testContext.requests.reply('first', () => 1);
+      testContext.requests.reply('__proto__ first', () => protoValue);
 
       const directReplies = testContext.requests.request(requestMap);
       const nestedReplies = testContext.requests.request(Object.fromEntries([['__proto__ first', 'argument']]));
@@ -438,38 +382,8 @@ describe('Requests', function() {
       expect(directReplies.constructor).to.equal('constructor');
       expect(directReplies.toString).to.equal('toString');
       expect(Object.getPrototypeOf(nestedReplies)).to.equal(Object.prototype);
-      expect(Object.hasOwn(nestedReplies, '__proto__')).toBe(true);
-      expect(nestedReplies.first).to.equal(1);
-    });
-
-    it('flattens own enumerable properties from nested results', function() {
-      const symbol = Symbol('included');
-      const protoValue = { safe: true };
-      const nestedResult = Object.assign(Object.create({ inherited: 'ignored' }), {
-        owned: 'response',
-        [symbol]: 'included'
-      });
-      Object.defineProperty(nestedResult, 'hidden', { value: 'ignored' });
-      Object.defineProperty(nestedResult, '__proto__', {
-        enumerable: true,
-        value: protoValue
-      });
-      const context = {
-        request(name) {
-          return typeof name === 'object' ? Requests.request.call(this, name) : nestedResult;
-        }
-      };
-
-      const replies = context.request({ 'first second': 'argument' });
-
-      expect(replies.owned).to.equal('response');
-      expect(replies).to.not.have.property('inherited');
-      expect(replies).to.not.have.property('hidden');
-      expect(replies[symbol]).to.equal('included');
-      expect(Object.getPrototypeOf(replies)).to.equal(Object.prototype);
-      expect(Object.hasOwn(replies, '__proto__')).toBe(true);
-      expect(Object.getOwnPropertyDescriptor(replies, '__proto__').value)
-        .to.equal(protoValue);
+      expect(Object.keys(nestedReplies)).to.deep.equal(['__proto__ first']);
+      expect(nestedReplies['__proto__ first']).to.equal(protoValue);
     });
 
     it('supports array, sparse, boxed-string, and numeric-length request maps', function() {
@@ -526,17 +440,77 @@ describe('Requests', function() {
       expect(() => context.request(proxy)).to.throw('ownKeys failed');
     });
 
-    it('preserves callable, primitive, nullish, and Symbol name behavior', function(testContext) {
-      const callableName = function() {};
-      callableName.toString = () => 'callable';
-      testContext.requests.reply(callableName, 'response');
 
-      expect(testContext.requests.request(callableName)).to.equal('response');
-      expect(() => testContext.requests.request(function ordinaryName() {})).to.throw(TypeError);
-      for (const name of [undefined, null, false, 0, '', 1, 1n]) {
-        expect(testContext.requests.request(name)).toBeUndefined();
-      }
-      expect(() => testContext.requests.request(Symbol('name'))).to.throw(TypeError);
-    });
+  });
+});
+
+describe('literal request names', function() {
+  for (const method of ['reply', 'replyOnce']) {
+    for (const form of ['string', 'map']) {
+      it.each(['foo bar', 'foo\tbar', 'foo\nbar', ' foo ', ' ', '', 'foo foo'])(`${method} ${form} keeps %j literal`, function(name) {
+        const requests = { ...Requests };
+        const result = { value: 'result' };
+        const payload = {};
+        const context = {};
+        const handler = vi.fn().mockReturnValue(result);
+        const args = form === 'map' ? [{ [name]: handler }, context] : [name, handler, context];
+        requests.reply({ foo: 'foo', bar: 'bar' });
+        expect(requests[method](...args)).toBe(requests);
+        expect(requests.request(name, payload)).toBe(result);
+        expect(handler).toHaveBeenCalledExactlyOnceWith(payload);
+        expect(handler.mock.contexts[0]).toBe(context);
+        expect(requests.request(name)).toBe(method === 'replyOnce' ? undefined : result);
+        if (method === 'replyOnce') { requests[method](...args); }
+        if (form === 'map') {
+          requests.stopReplying({ [name]: handler }, context);
+        } else {
+          requests.stopReplying(name);
+        }
+        expect(requests.request(name)).toBeUndefined();
+        expect(requests.request('foo')).toBe('foo');
+        expect(requests.request('bar')).toBe('bar');
+        requests.stopReplying();
+      });
+    }
+  }
+
+  it('keeps literal map keys, result identity, payloads, and invocation order', function() {
+    const requests = { ...Requests };
+    const calls = [];
+    const payload = {};
+    const extra = {};
+    const nested = { first: 1, second: 2 };
+    const handler = (value, additional) => {
+      calls.push([value, additional]);
+      return value === payload ? nested : value;
+    };
+    requests.reply({ 'first second': handler, first: handler });
+    const result = requests.request({ 'first second': payload, first: 'direct' }, extra);
+    expect(Object.keys(result)).toEqual(['first second', 'first']);
+    expect(result['first second']).toBe(nested);
+    expect(result.first).toBe('direct');
+    expect(calls).toEqual([[payload, extra], ['direct', extra]]);
+    expect(calls[0][0]).toBe(payload);
+    expect(calls[0][1]).toBe(extra);
+    requests.stopReplying();
+  });
+
+  it('passes the entire literal name to the default reply', function() {
+    const requests = { ...Requests };
+    const fallback = vi.fn().mockReturnValue('fallback');
+    requests.reply('default', fallback);
+    expect(requests.request('foo bar', 1)).toBe('fallback');
+    expect(fallback).toHaveBeenCalledExactlyOnceWith('foo bar', 1);
+    requests.stopReplying();
+  });
+
+  it('removes a literal once reply before a recursive request', function() {
+    const requests = { ...Requests };
+    const handler = vi.fn(() => requests.request('foo bar'));
+    requests.reply('default', 'fallback');
+    requests.replyOnce('foo bar', handler);
+    expect(requests.request('foo bar')).toBe('fallback');
+    expect(handler).toHaveBeenCalledTimes(1);
+    requests.stopReplying();
   });
 });

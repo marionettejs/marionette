@@ -607,7 +607,7 @@
       "result": "on/off/once/listenTo/listenToOnce/stopListening/trigger return their receiver; triggerMethod has its own result contract.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "listenTo subscriptions belong to the listener; off removes source registrations.",
-      "mutation": "Dispatch preserves arguments and registration order; all receives event name first; callback errors stop dispatch. Dispatch uses one literal string name, including whitespace; object maps and other non-string names are outside the typed contract, with no runtime shape validation.",
+      "mutation": "Registration/removal strings and event-map keys are literal names, including whitespace and empty strings; omitted/null removal names select all names. Dispatch preserves arguments and registration order; all receives event name first; callback errors stop dispatch. Dispatch uses one literal string name, including whitespace; object maps and other non-string names are outside the typed contract, with no runtime shape validation.",
       "repetition": "once is removed before callback/reentrant trigger; ordinary listeners repeat.",
       "destruction": "Owner cleanup stops listening; Events itself has no destroy method.",
       "diagnostics": [],
@@ -620,7 +620,7 @@
       "tests": [
         {
           "file": "test/unit/events-parity.spec.js",
-          "title": "preserves multi-name registration with separate dispatch calls"
+          "title": "preserves separate registration and dispatch calls"
         },
         {
           "file": "test/unit/events-parity.spec.js",
@@ -633,6 +633,10 @@
         {
           "file": "test/unit/events-single-dispatch.spec.js",
           "title": "keeps payload identity, all-listener arguments, and per-call return values"
+        },
+        {
+          "file": "test/unit/events-literal-names.spec.js",
+          "title": "binds and selectively unbinds literal entity-event map keys"
         }
       ]
     },
@@ -690,8 +694,8 @@
       "result": "request returns the handler result, undefined when no applicable reply exists, or mapped results for request maps.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "Replies use configured context; stopReplying supports selective removal.",
-      "mutation": "One reply per name; replacement overwrites it; default handlers receive the request name.",
-      "repetition": "replyOnce unregisters before invoking once; split/map requests preserve order and abort on error.",
+      "mutation": "One reply per name; replacement overwrites it; default handlers receive the request name. String names and map keys are literal, including whitespace and empty strings. Request maps preserve results under original keys without flattening. Omitted/null removal names select all names.",
+      "repetition": "replyOnce unregisters before invoking once; map requests preserve order and abort on error.",
       "destruction": "Standalone Requests has no destroy; remove replies explicitly or through an owning channel.",
       "diagnostics": [],
       "docs": [
@@ -712,6 +716,10 @@
         {
           "file": "test/unit/requests.spec.js",
           "title": "stops reading a request map when a recursive request throws"
+        },
+        {
+          "file": "test/unit/requests.spec.js",
+          "title": "keeps literal map keys, result identity, payloads, and invocation order"
         }
       ]
     },
@@ -1061,10 +1069,9 @@
         "@mnjs/utils"
       ],
       "exports": [
-        "buildEventArgs",
-        "eventSplitter"
+        "buildEventArgs"
       ],
-      "result": "Builds descriptors in own-key/split-name order; eventSplitter is the whitespace expression.",
+      "result": "Builds one descriptor per literal string name or own event-map key in own-key order.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "No source ownership transfer; binding helpers attach registrations to the receiver.",
       "mutation": "Expands names/maps without subscribing; preserves callback/context metadata.",
@@ -1080,7 +1087,7 @@
       "tests": [
         {
           "file": "test/unit/utils/build-event-args.spec.js",
-          "title": "expands space-separated event names in source order"
+          "title": "preserves whitespace in literal event names"
         }
       ]
     },
@@ -1742,7 +1749,7 @@
       "result": "on/off/once/listenTo/listenToOnce/stopListening/trigger return their receiver; triggerMethod has its own result contract.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "listenTo subscriptions belong to the listener; off removes source registrations.",
-      "mutation": "Dispatch preserves arguments and registration order; all receives event name first; callback errors stop dispatch. Dispatch uses one literal string name, including whitespace; object maps and other non-string names are outside the typed contract, with no runtime shape validation.",
+      "mutation": "Registration/removal strings and event-map keys are literal names, including whitespace and empty strings; omitted/null removal names select all names. Dispatch preserves arguments and registration order; all receives event name first; callback errors stop dispatch. Dispatch uses one literal string name, including whitespace; object maps and other non-string names are outside the typed contract, with no runtime shape validation.",
       "repetition": "once is removed before callback/reentrant trigger; ordinary listeners repeat.",
       "destruction": "Owner cleanup stops listening; Events itself has no destroy method.",
       "diagnostics": [],
@@ -1755,7 +1762,7 @@
       "tests": [
         {
           "file": "test/unit/events-parity.spec.js",
-          "title": "preserves multi-name registration with separate dispatch calls"
+          "title": "preserves separate registration and dispatch calls"
         },
         {
           "file": "test/unit/events-parity.spec.js",
@@ -1768,6 +1775,10 @@
         {
           "file": "test/unit/events-single-dispatch.spec.js",
           "title": "keeps payload identity, all-listener arguments, and per-call return values"
+        },
+        {
+          "file": "test/unit/events-literal-names.spec.js",
+          "title": "binds and selectively unbinds literal entity-event map keys"
         }
       ],
       "members": [

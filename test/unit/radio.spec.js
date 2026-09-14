@@ -108,25 +108,23 @@ describe('Radio', function() {
     expect(warn).toHaveBeenCalledTimes(1);
   });
 
-  it('supports request maps and space separated request names', function() {
+  it('supports request maps with literal names', function() {
     Radio.reply('foo', {
       'bar baz': function(value) {
         return `${value}:${this.channelName}`;
       }
     });
 
-    expect(Radio.request('foo', 'bar baz', 'qux')).to.deep.equal({
-      bar: 'qux:foo',
-      baz: 'qux:foo'
-    });
+    expect(Radio.request('foo', 'bar baz', 'qux')).to.equal('qux:foo');
     expect(Radio.request('foo', { bar: 'one', baz: 'two' })).to.deep.equal({
-      bar: 'one:foo',
-      baz: 'two:foo'
+      bar: undefined,
+      baz: undefined
     });
     expect(Radio.request('foo', { 'bar baz': 'qux' })).to.deep.equal({
-      bar: 'qux:foo',
-      baz: 'qux:foo'
+      'bar baz': 'qux:foo'
     });
+    Radio.stopReplying('foo', 'bar baz');
+    expect(Radio.request('foo', 'bar baz')).toBeUndefined();
   });
 
   it('supports default request handlers', function() {

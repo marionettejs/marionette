@@ -1,5 +1,5 @@
 import { debugLog, log } from './debug.ts';
-import { setProperty, eventSplitter, callHandler, onceWrap } from '@mnjs/utils';
+import { setProperty, callHandler, onceWrap } from '@mnjs/utils';
 
 /*
  * Requests
@@ -66,7 +66,7 @@ const registerReply = function(this: RequestState, requests: Registry, name: str
 const stopReducer = function(requests: Registry, { name, callback, context }: {
   name?: string | null; callback?: unknown; context?: unknown;
 }) {
-  const names = name ? [name] : getKeys(requests);
+  const names = name == null ? getKeys(requests) : [name];
 
   for (let index = 0, length = names.length; index < length; index++) {
     const key = names[index];
@@ -102,14 +102,6 @@ function dispatchOverload(
     return true;
   }
 
-  if (name && eventSplitter.test(name)) {
-    const names = name.split(eventSplitter);
-    for (let index = 0, length = names.length; index < length; index++) {
-      receiver[method](names[index], callback, context);
-    }
-    return true;
-  }
-
   return false;
 }
 
@@ -141,7 +133,7 @@ export const Requests = {
     if (dispatchOverload(this, 'stopReplying', name, callback, context)) { return this; }
     if (!this._rdRequests) { return this; }
 
-    if (!name && !callback && !context) {
+    if (name == null && !callback && !context) {
       delete this._rdRequests;
       return this;
     }
@@ -154,26 +146,12 @@ export const Requests = {
   // Make a request
   request(this: RequestState, name: string | Record<string, unknown>, ...args: unknown[]): unknown {
     if (name && typeof name === 'object') {
-      const replies: Record<string, unknown> = Object.create(null);
+      const replies: Record<string, unknown> = {};
       const names = getKeys(name);
       for (let index = 0, length = names.length; index < length; index++) {
         const key = names[index];
         const result = this.request(key, name[key], ...args);
-        if (eventSplitter.test(key)) {
-          Object.assign(replies, result);
-        } else {
-          setProperty(replies, key, result);
-        }
-      }
-      return { ...replies };
-    }
-
-    if (name && eventSplitter.test(name)) {
-      const replies: Record<string, unknown> = {};
-      const names = name.split(eventSplitter);
-      for (let index = 0, length = names.length; index < length; index++) {
-        const n = names[index];
-        setProperty(replies, n, this.request(n, ...args));
+        setProperty(replies, key, result);
       }
       return replies;
     }

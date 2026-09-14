@@ -66,7 +66,7 @@ describe('Events owned iteration', function() {
       const listener = createEmitter();
       const target = { on: vi.fn(), off: vi.fn() };
       const callback = vi.fn();
-      listener.listenTo(target, 'first second', callback);
+      listener.listenTo(target, { first: callback, second: callback });
       listener.stopListening(target, 'first', callback);
       expect(target.off).toHaveBeenCalledExactlyOnceWith('first', callback, listener);
       listener.stopListening(target, 'second', callback);

@@ -8,8 +8,7 @@
 // compatible `on` and `off` methods.
 //
 // Call with the target as `this`, then the entity and a bindings map.
-// Each value is one handler name or function. Space-separated event names
-// belong in the map key; handler names are not split.
+// Each key is one literal event name; each value is one handler name or function.
 
 import normalizeMethods from './normalize-methods.ts';
 import MarionetteError from './error.ts';

@@ -144,7 +144,7 @@ const cleanupListener = function({ obj, listeneeId, listenerId, listeningTo }: L
 
 // The reducing API that removes a callback from the `events` object.
 const offReducer = function(events: Registry, { name, callback, context }: NormalizedEvent) {
-  const names = name ? [name] : getKeys(events);
+  const names = name == null ? getKeys(events) : [name];
 
   for (let nameIndex = 0, namesLength = names.length; nameIndex < namesLength; nameIndex++) {
     const key = names[nameIndex];
@@ -285,13 +285,13 @@ const Events = {
   },
 
   // Remove callbacks matching every supplied name, callback and context filter.
-  // An omitted/falsy filter does not restrict removal. With no filters, remove
+  // An omitted/null name does not restrict removal. With no filters, remove
   // all callbacks; omitting only the name still honors callback and context.
   off(this: EventState, name?: string | EventMap | null, callback?: unknown, context?: unknown) {
     if (!this._rdEvents) { return this; }
 
     // Delete all event listeners and "drop" events.
-    if (!name && !context && !callback) {
+    if (name == null && !context && !callback) {
       this._rdEvents = void 0;
       const listeners = this._rdListeners;
       const listenerIds = getKeys(listeners);
@@ -310,9 +310,8 @@ const Events = {
   },
 
   // Remove each once-listener before invoking its callback, including when
-  // that callback throws or triggers the same event recursively. If multiple events
-  // are passed in using the space-separated syntax, the handler will fire
-  // once for each event, not once for a combination of all events.
+  // that callback throws or triggers the same event recursively. Event-map keys
+  // each register an independent once-listener.
   once(this: EventState, name: string | EventMap, callback?: unknown, context?: unknown) {
     const eventArgs = buildEventArgs(name, callback, context) as NormalizedEvent[];
     const events = buildOnceMap(eventArgs, (this.off as (name: string, callback?: EventCallback) => unknown).bind(this));
