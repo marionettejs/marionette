@@ -407,6 +407,10 @@ export const dashboardView = dashboard.getView();
 
 ## Application state
 
+State and Radio bindings have object lifetime. For restartable feature effects,
+see [explicit activation and cleanup](./application-effects.md).
+
+
 An Application may compose one [state source](./marionette.state.md). A supplied
 `state` is borrowed; a `createState(options)` result is owned. `getState()`
 returns the exact source, and `stateEvents` are installed through the selected
