@@ -148,6 +148,10 @@ methods to state owners.
 
 ## Application lifetime
 
+State and Radio bindings have object lifetime. For restartable feature effects,
+see [explicit activation and cleanup](./application-effects.md).
+
+
 <!-- executable-example: application-local-state -->
 ```javascript
 import { Application } from 'marionette';
