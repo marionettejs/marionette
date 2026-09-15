@@ -83,6 +83,7 @@ async function applicationCycle() {
   const App = runtime.Application.extend({
     onBeforeStart() {
       if (!settle) { return new Promise(resolve => { settle = resolve; }); }
+      return this.getChildApp('child').start();
     },
     onStart() {
       starts++;

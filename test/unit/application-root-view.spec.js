@@ -196,6 +196,7 @@ describe('Application root View ownership', function() {
     }))();
 
     app.addChildApp('child', child);
+    await child.start();
     await app.start();
     app.showView(view);
 

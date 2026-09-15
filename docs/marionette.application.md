@@ -98,10 +98,10 @@ transitions, after stop, and after destroy.
 | Not running | `start(options)` | `before:start`, await readiness, `start` | `true` when running |
 | Running | `start(options)` | No-op | `true` |
 | Running or starting | `stop(options)` | Invalidates startup when needed, then `before:stop`, `stop` | `true` when stopped; the invalidated start resolves `false` |
-| Stopped | `stop(options)` | Destroy a prepared root and empty the host Region; otherwise no-op | `true` |
+| Stopped | `stop(options)` | Stop owned descendants and clear roots without repeating this owner's stop notifications | `true` |
 | Any live, non-destroying state | `restart(options)` | Stop when needed, then start | `true` when running |
 | Running or starting | `destroy(options)` | Stop when needed, then `before:destroy`, `destroy` | `true` when destroyed |
-| Stopped | `destroy(options)` | `before:destroy`, `destroy` | `true` when destroyed |
+| Stopped | `destroy(options)` | Stop owned descendants, then `before:destroy`, `destroy` | `true` when destroyed |
 | Destroying | repeated `destroy()` | Shares the active destroy lifecycle | Same in-flight Promise |
 | Destroying | `start()` or `restart()` | Terminal no-op | `false` |
 | Destroying | `stop()` | Follows active teardown without interrupting it | `true` once stopped or destroyed; rejects if teardown fails before stopping |
@@ -132,19 +132,29 @@ begins a fresh stop phase with its own options and context.
 The context belongs to the readiness phase rather than to one caller's Promise.
 Completion methods and events receive only `(application, options)`.
 
-Owned child Applications participate in the same operation. After the owner's
-`before:start` readiness, children start sequentially in registration order
-before the owner reaches running and emits `start`. After `before:stop`
-readiness, children stop in that order before the owner reaches stopped and
-emits `stop`. Restart and destroy compose those same phases.
+Child registration establishes ownership, not activation. Start chosen children
+explicitly, with their own options. Await required children in `onBeforeStart`;
+optional children may start later without holding up the parent. A parent start
+never starts a registered child automatically, including after restart.
 
-If a direct child operation supersedes an owner-requested child start or stop,
-the owner operation resolves `false`, retains its prior stable state, and does
-not emit its completion event. Children that already reached the requested
-state remain there. `isRunning()` describes that Application, not an aggregate
-of every descendant state; callers receiving `false` can inspect child state
-through the public hierarchy. Once owner destruction begins, descendant `start`
-and `restart` calls resolve `false` so they cannot interrupt terminal teardown.
+After `before:stop` readiness, owned children stop sequentially in registration
+order before the owner reaches stopped and emits `stop`. Stop also traverses
+already-stopped intermediate owners, releases their prepared/displayed roots,
+and stops active descendants. Already-stopped owners do not repeat their own
+`before:stop` or `stop` notifications. Restart performs that cleanup before its
+local startup readiness; application code chooses which children to reactivate.
+
+Descendant `start` and `restart` calls resolve `false` while any owner is in a
+stop phase, including the stop portion of restart, or is terminal. They become
+eligible again when restart enters startup readiness or a stop completes. An
+explicitly later child start under a stopped, nonterminal owner is allowed.
+`isRunning()` describes that Application, not an aggregate of its descendants.
+
+A successful stop leaves the owned hierarchy stopped at completion. A superseded
+or failed stop retains the existing partial-progress contract: completed children
+stay stopped and remaining children can stay active. A direct child destroy can
+also supersede its requested stop. Inspect the result and handle rejection; a
+`false` result is cancellation, while a current readiness failure rejects.
 
 ### Starting an Application
 
@@ -249,14 +259,14 @@ root.getChildApps(); // { search }
 not change ownership. Child lookup methods are reads; they do not start, render,
 or otherwise mutate an Application.
 
-Owner lifecycle options are forwarded to each child. A child failure rejects
-the owner operation and leaves the owner in its last committed stable state.
-Children that already reached the requested state remain there; retry visits
-the same registration order, where completed child operations are idempotent.
-An owner transition completes only after every child remains in the requested
-stable state. A direct opposing child operation cancels the owner transition,
-and superseding the owner from `before:start` or `before:stop` prevents the
-stale transition from changing any further children.
+Owner stop/destroy options are forwarded to children for teardown. Startup inputs
+are supplied explicitly by application code. If required `child.start()` returns
+`false`, decide how that affects readiness; the example below rejects with a
+feature-specific error. A rejected child startup propagates through an awaited
+hook. Neither case rolls back children that already started. Explicitly call
+`stop()` or `destroy()` after a failed startup when abandoning that attempt;
+both clean the running prefix even if the parent never reached running. Retrying
+startup may reuse an already-running prerequisite through its idempotent `start`.
 
 `removeChildApp(name, options)` destroys the named child and resolves
 with it after destruction. An unknown name resolves with `undefined`. A child
@@ -264,15 +274,15 @@ also removes itself from its parent's child hierarchy when destroyed directly. A
 running parent stops its children before `before:destroy`, then destroys owned
 children in registration order and finally emits the parent's `destroy`
 completion. A parent's `onBeforeDestroy` readiness hook can therefore inspect its
-stopped, live children. A stopped parent also stops any child that was
-started directly before entering destroy readiness. A concurrent direct child
+stopped, live children. A stopped parent also traverses stopped intermediate owners and stops active
+descendants before entering destroy readiness. A concurrent direct child
 destroy joins terminal teardown and may remove that child before parent
 readiness. If child stop or destroy readiness fails, the parent returns to its
 last committed stable state and retains that child so destruction can be retried.
 
 The canonical child-Application pattern is explicit construction followed by
-ownership registration. Registration means lifecycle ownership; it is not a
-dormant service registry and it has no per-child lifecycle flags. Put a service
+ownership registration, followed by explicit startup of chosen capabilities.
+Ownership gives teardown responsibility; it has no per-child lifecycle flags. Put a service
 that must outlive an Application under a longer-lived owner and pass it to the
 shorter-lived child as a dependency.
 
@@ -305,8 +315,10 @@ const SearchApplication = Application.extend({
 });
 
 const RootApplication = Application.extend({
-  onBeforeStart(app, options) {
+  async onBeforeStart(app, options) {
     lifecycle.push(`root:before:start:${ options.source }`);
+    const started = await this.getChildApp('search').start({ source: 'search' });
+    if (!started) { throw new Error('Search startup was canceled'); }
   },
 
   onStart(app, options) {

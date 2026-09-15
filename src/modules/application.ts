@@ -117,11 +117,14 @@ interface Readiness<Value = unknown> {
   options: unknown;
   isCanceled?: boolean;
 }
+interface StopReadiness extends Readiness<boolean> {
+  notify: boolean;
+}
 interface Operation extends Deferred<boolean> {
   kind: OperationKind;
   failureState: FailureState;
   readiness?: Readiness;
-  stopReadiness?: Readiness<boolean>;
+  stopReadiness?: StopReadiness;
   stopDeferred?: Deferred<boolean>;
   isCompleting?: boolean;
   isStopped?: boolean;
@@ -192,11 +195,15 @@ function isTerminal(application: ApplicationInternals) {
     application._lifecycleState === DESTROYED;
 }
 
-function hasTerminalOwner(application: ApplicationInternals) {
+function hasStoppingOwner(application: ApplicationInternals) {
   let owner = application._parentApp;
 
+  // Check operations as well as state: stop callbacks run after STOPPED commits,
+  // restart stays RESTARTING through deactivation, and a replacement start can
+  // still hold adopted stopReadiness. Terminal owners also block activation.
   while (owner) {
-    if (isTerminal(owner)) { return true; }
+    if (isTerminal(owner) || owner._lifecycleOperation?.kind === 'stop' ||
+        owner._lifecycleState === RESTARTING || owner._lifecycleOperation?.stopReadiness) { return true; }
     owner = owner._parentApp;
   }
 
@@ -261,21 +268,6 @@ function hasStableLifecycleState(application: ApplicationInternals, state: Lifec
   return application._lifecycleState === state && !application._lifecycleOperation;
 }
 
-async function startChildApps(application: ApplicationInternals, operation: Operation, options: unknown) {
-  if (!application._childApps) { return true; }
-
-  for (const child of application._childApps!.values()) {
-    if (!isCurrentOperation(application, operation)) { return false; }
-    const started = await child.start(options);
-    if (!isCurrentOperation(application, operation) ||
-        !started || !hasStableLifecycleState(child, RUNNING)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 function canStopChildren(application: ApplicationInternals, operation: Operation) {
   if (isCurrentOperation(application, operation)) { return true; }
 
@@ -303,16 +295,6 @@ async function stopChildApps(application: ApplicationInternals, operation: Opera
   }
 
   return true;
-}
-
-function hasActiveChildApps(application: ApplicationInternals) {
-  for (const child of application._childApps!.values()) {
-    if (child._lifecycleState !== STOPPED && child._lifecycleState !== DESTROYED) {
-      return true;
-    }
-  }
-
-  return false;
 }
 
 function releasePreparedView(application: ApplicationInternals) {
@@ -459,33 +441,31 @@ async function startApplication(application: ApplicationInternals, operation: Op
     delete operation.stopReadiness;
   }
 
-  const readiness = beginReadiness(operation, options, async context => {
-    await application.triggerMethod('before:start', application, options, context);
-    return startChildApps(application, operation, options);
+  // Restart has finished deactivation; explicit child starts are now allowed.
+  application._lifecycleState = STARTING;
+  const readiness = beginReadiness(operation, options, context => {
+    return application.triggerMethod('before:start', application, options, context);
   });
 
-  const childrenStarted = await readiness.promise;
+  await readiness.promise;
   if (!isCurrentOperation(application, operation)) { return; }
 
   completeReadiness(operation);
-  if (!childrenStarted) {
-    cancelOperation(application, operation);
-    return;
-  }
   application._lifecycleState = RUNNING;
   operation.failureState = RUNNING;
   operation.isCompleting = true;
   application.triggerMethod('start', application, options);
 }
 
-async function stopApplication(application: ApplicationInternals, operation: Operation, options: unknown) {
+async function stopApplication(application: ApplicationInternals, operation: Operation, options: unknown, notify = true) {
   try {
     if (!operation.stopReadiness) {
       const readiness = beginReadiness(operation, options, async context => {
-        await application.triggerMethod('before:stop', application, options, context);
+        if (notify) { await application.triggerMethod('before:stop', application, options, context); }
         return stopChildApps(application, operation, options);
       });
-      operation.stopReadiness = readiness;
+      // Adopters retain this phase's notification policy, just like its options.
+      operation.stopReadiness = Object.assign(readiness, { notify });
     }
 
     const readiness = operation.stopReadiness;
@@ -506,7 +486,7 @@ async function stopApplication(application: ApplicationInternals, operation: Ope
       application._lifecycleState = STOPPED;
       operation.isCompleting = true;
     }
-    application.triggerMethod('stop', application, readiness.options);
+    if (readiness.notify) { application.triggerMethod('stop', application, readiness.options); }
     operation.stopDeferred?.resolve(true);
   } catch (error) {
     operation.stopDeferred?.reject(error);
@@ -535,9 +515,9 @@ export default /* @__PURE__ */ ((methods: object) => {
     return this._lifecycleState === RUNNING;
   },
 
-  // Begin asynchronous startup readiness and child startup; repeated active starts share a Promise.
+  // Begin local asynchronous readiness; callers explicitly start required children.
   start(this: ApplicationInternals, options?: unknown) {
-    if (isTerminal(this) || hasTerminalOwner(this)) {
+    if (isTerminal(this) || hasStoppingOwner(this)) {
       return Promise.resolve(false);
     }
 
@@ -572,7 +552,8 @@ export default /* @__PURE__ */ ((methods: object) => {
       superseded!.readiness?.controller.abort();
       return Promise.resolve(true);
     }
-    if (this._lifecycleState === STOPPED && !operation) {
+    const wasStopped = this._lifecycleState === STOPPED && !operation;
+    if (wasStopped && !this._childApps) {
       try {
         emptyView(this, options);
         return Promise.resolve(true);
@@ -583,23 +564,24 @@ export default /* @__PURE__ */ ((methods: object) => {
     const failureState = getFailureState(this, operation);
 
     return beginOperation(this, 'stop', STOPPING, failureState, nextOperation => {
-      return stopApplication(this, nextOperation, options);
+      return stopApplication(this, nextOperation, options, !wasStopped);
     });
   },
 
   restart(this: ApplicationInternals, options?: unknown) {
-    if (isTerminal(this) || hasTerminalOwner(this)) {
+    if (isTerminal(this) || hasStoppingOwner(this)) {
       return Promise.resolve(false);
     }
 
     const operation = this._lifecycleOperation;
     if (operation?.kind === 'restart') { return operation.promise; }
-    const shouldStop = !operation?.isStopped && this._lifecycleState !== STOPPED;
+    const wasStopped = this._lifecycleState === STOPPED;
+    const shouldStop = !operation?.isStopped && (!wasStopped || !!this._childApps);
     const failureState = getFailureState(this, operation);
 
     return beginOperation(this, 'restart', RESTARTING, failureState, async nextOperation => {
       if (shouldStop) {
-        await stopApplication(this, nextOperation, options);
+        await stopApplication(this, nextOperation, options, !wasStopped);
       } else { emptyView(this, options); }
       if (!isCurrentOperation(this, nextOperation)) { return; }
       await startApplication(this, nextOperation, options);
@@ -617,7 +599,7 @@ export default /* @__PURE__ */ ((methods: object) => {
     return beginOperation(this, 'destroy', DESTROYING, failureState, async nextOperation => {
       if (shouldStop) {
         await stopApplication(this, nextOperation, options);
-      } else if (this._childApps && hasActiveChildApps(this)) {
+      } else if (this._childApps) {
         await stopChildApps(this, nextOperation, options);
       }
 

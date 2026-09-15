@@ -1,793 +1,429 @@
-import { vi, describe, it, expect } from 'vitest';
-'use strict';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { Application, View } from 'marionette';
 
-import { Application } from 'marionette';
+const owners = [];
+const gates = [];
+function gate() {
+  const deferred = Promise.withResolvers();
+  gates.push(deferred);
+  return deferred;
+}
+function owner(methods = {}) {
+  const app = new (Application.extend(methods))();
+  owners.push(app);
+  return app;
+}
+afterEach(async() => {
+  gates.splice(0).forEach(deferred => deferred.resolve());
+  for (const app of owners.splice(0)) { await app.destroy(); }
+});
 
-async function expectRejection(promise, expectedError) {
-  try {
-    await promise;
-  } catch (error) {
-    expect(error).to.equal(expectedError);
-    return;
+describe('Application child lifecycle', () => {
+  it('registration never starts optional children, including after parent restart', async() => {
+    const app = owner();
+    const first = app.addChildApp('first', new Application());
+    await app.start();
+    const late = app.addChildApp('late', new Application());
+    await late.start();
+    await app.restart();
+    expect(app.isRunning()).toBe(true);
+    expect(first.isRunning()).toBe(false);
+    expect(late.isRunning()).toBe(false);
+    await first.start();
+    expect(first.isRunning()).toBe(true);
+  });
+
+  it('awaits explicitly chosen prerequisites with their own options and prepared host', async() => {
+    const ready = gate();
+    const entered = gate();
+    const start = vi.fn();
+    const childOptions = { section: 'queue' };
+    const app = owner({
+      async onBeforeStart() {
+        this.setView(new View({ template: false }));
+        const started = await this.getChildApp('required').start(childOptions);
+        if (!started) { throw new Error('Required child unavailable'); }
+      },
+      onStart: start
+    });
+    const child = app.addChildApp('required', new (Application.extend({
+      onBeforeStart(childApp, options) {
+        expect(options).toBe(childOptions);
+        expect(app.getView()).toBeInstanceOf(View);
+        entered.resolve();
+        return ready.promise;
+      }
+    }))());
+    const optional = app.addChildApp('optional', new Application());
+    const starting = app.start({ unrelated: true });
+    await entered.promise;
+    expect(start).not.toHaveBeenCalled();
+    ready.resolve();
+    expect(await starting).toBe(true);
+    expect(child.isRunning()).toBe(true);
+    expect(optional.isRunning()).toBe(false);
+  });
+
+  it('allows a slow optional child to start independently after the owner', async() => {
+    const ready = gate();
+    const app = owner();
+    const child = app.addChildApp('optional', new (Application.extend({ onBeforeStart() { return ready.promise; } }))());
+    expect(await app.start()).toBe(true);
+    const starting = child.start();
+    expect(app.isRunning()).toBe(true);
+    expect(child.isRunning()).toBe(false);
+    ready.resolve();
+    expect(await starting).toBe(true);
+  });
+
+  for (const method of ['stop', 'restart', 'destroy']) {
+    it(`${method} drains a running grandchild through stopped owners`, async() => {
+      const beforeStop = vi.fn();
+      const beforeDestroy = vi.fn(() => expect(grandchild.isRunning()).toBe(false));
+      const app = owner({ onBeforeStop: beforeStop, onBeforeDestroy: beforeDestroy });
+      const child = app.addChildApp('child', new Application());
+      const grandchild = child.addChildApp('grandchild', new Application());
+      await grandchild.start();
+      expect(await app[method]()).toBe(true);
+      expect(grandchild.isRunning()).toBe(false);
+      expect(child.isRunning()).toBe(false);
+      expect(app.isRunning()).toBe(method === 'restart');
+      expect(beforeStop).not.toHaveBeenCalled();
+      if (method === 'destroy') { expect(beforeDestroy).toHaveBeenCalledTimes(1); }
+      if (method !== 'destroy') {
+        await grandchild.start();
+        expect(grandchild.isRunning()).toBe(true);
+        await app.stop();
+        expect(grandchild.isRunning()).toBe(false);
+      }
+    });
   }
 
-  throw new Error('Expected promise to reject.');
+  for (const method of ['stop', 'destroy']) {
+    it(`${method} cleans an explicitly started prefix after failed parent readiness`, async() => {
+      const failure = new Error('Second child unavailable');
+      const stopped = [];
+      const app = owner({ async onBeforeStart() {
+        await this.getChildApp('first').start();
+        await this.getChildApp('second').start();
+      } });
+      const first = app.addChildApp('first', new (Application.extend({ onStop() { stopped.push('first'); } }))());
+      const second = app.addChildApp('second', new (Application.extend({
+        onBeforeStart() { throw failure; },
+        onStop() { stopped.push('second'); }
+      }))());
+      await expect(app.start()).rejects.toBe(failure);
+      expect(app.isRunning()).toBe(false);
+      expect(first.isRunning()).toBe(true);
+      expect(second.isRunning()).toBe(false);
+      expect(await app[method]()).toBe(true);
+      expect(first.isRunning()).toBe(false);
+      expect(stopped).toEqual(['first']);
+    });
+  }
+
+  it('retries an explicit startup without restarting its completed prerequisites', async() => {
+    let failed = true;
+    const firstStarted = vi.fn();
+    const app = owner({ async onBeforeStart() {
+      await this.getChildApp('first').start();
+      await this.getChildApp('second').start();
+    } });
+    app.addChildApp('first', new (Application.extend({ onStart: firstStarted }))());
+    const second = app.addChildApp('second', new (Application.extend({ onBeforeStart() {
+      if (failed) { throw new Error('Not ready'); }
+    } }))());
+    await expect(app.start()).rejects.toThrow('Not ready');
+    failed = false;
+    expect(await app.start()).toBe(true);
+    expect(firstStarted).toHaveBeenCalledTimes(1);
+    expect(second.isRunning()).toBe(true);
+  });
+
+  it('lets application code reject readiness when a required child start is canceled', async() => {
+    const ready = gate();
+    const entered = gate();
+    const failure = new Error('Required child canceled');
+    const app = owner({ async onBeforeStart() {
+      if (!await this.getChildApp('child').start()) { throw failure; }
+    } });
+    const child = app.addChildApp('child', new (Application.extend({ onBeforeStart() {
+      entered.resolve();
+      return ready.promise;
+    } }))());
+    const starting = app.start();
+    const rejected = starting.catch(error => error);
+    await entered.promise;
+    await child.stop();
+    expect(await rejected).toBe(failure);
+    expect(app.isRunning()).toBe(false);
+  });
+
+  for (const method of ['stop', 'restart', 'destroy']) {
+    it(`blocks descendant activation in the ${method} stop phase`, async() => {
+      const ready = gate();
+      const entered = gate();
+      let hold = false;
+      const app = owner({ onBeforeStop() {
+        if (hold) { entered.resolve(); return ready.promise; }
+      } });
+      const child = app.addChildApp('child', new Application());
+      const grandchild = child.addChildApp('grandchild', new Application());
+      await app.start();
+      hold = true;
+      const stopping = app[method]();
+      await entered.promise;
+      expect(await child.start()).toBe(false);
+      expect(await grandchild.restart()).toBe(false);
+      ready.resolve();
+      expect(await stopping).toBe(true);
+      if (method !== 'destroy') { expect(await grandchild.start()).toBe(true); }
+      hold = false;
+    });
+  }
+
+  it('allows explicit children again in restart readiness, but not the stop completion hook', async() => {
+    let blocked;
+    let child;
+    const app = owner({
+      onBeforeStart() { return child.start(); },
+      onStop() { blocked = child.start(); }
+    });
+    child = app.addChildApp('child', new Application());
+    await app.start();
+    expect(await app.restart()).toBe(true);
+    expect(await blocked).toBe(false);
+    expect(child.isRunning()).toBe(true);
+  });
+
+  it('rejects a child restart from its stop hook while owner teardown completes', async() => {
+    let attempted;
+    const app = owner();
+    const child = app.addChildApp('child', new (Application.extend({ onStop() { attempted = this.restart(); } }))());
+    await child.start();
+    await app.start();
+    expect(await app.stop()).toBe(true);
+    expect(await attempted).toBe(false);
+    expect(child.isRunning()).toBe(false);
+  });
+
+  it('stops independently started children sequentially before owner completion', async() => {
+    const events = [];
+    const options = { action: 'close' };
+    const app = owner({ onBeforeStop() { events.push('owner:before'); }, onStop() { events.push('owner:stop'); } });
+    for (const name of ['10', '2']) {
+      const child = app.addChildApp(name, new (Application.extend({ onBeforeStop(childApp, received) {
+        expect(received).toBe(options);
+        events.push(name);
+      } }))());
+      await child.start();
+    }
+    await app.start();
+    await app.stop(options);
+    expect(events).toEqual(['owner:before', '10', '2', 'owner:stop']);
+  });
+
+  it('retains a stopped prefix when child stop fails and retries remaining children', async() => {
+    const failure = new Error('Keep editing');
+    const permission = { fail: true };
+    const events = [];
+    const app = owner();
+    const children = [];
+    for (const name of ['first', 'second', 'third']) {
+      const child = app.addChildApp(name, new (Application.extend({
+        onBeforeStop() { if (name === 'second' && permission.fail) { throw failure; } },
+        onStop() { events.push(name); }
+      }))());
+      children.push(child);
+      await child.start();
+    }
+    await app.start();
+    await expect(app.stop()).rejects.toBe(failure);
+    expect(app.isRunning()).toBe(true);
+    expect(children.map(child => child.isRunning())).toEqual([false, true, true]);
+    permission.fail = false;
+    await app.stop();
+    expect(events).toEqual(['first', 'second', 'third']);
+  });
+
+  it('retries destroy after an active child rejects stop beneath a stopped owner', async() => {
+    const failure = new Error('Keep editing');
+    let deny = true;
+    const app = owner();
+    const child = app.addChildApp('child', new (Application.extend({
+      onBeforeStop() { if (deny) { throw failure; } }
+    }))());
+    try {
+      await child.start();
+      await expect(app.destroy()).rejects.toBe(failure);
+      expect(app.isRunning()).toBe(false);
+      expect(app.isDestroyed()).toBe(false);
+      expect(app.getChildApp('child')).toBe(child);
+      expect(child.isRunning()).toBe(true);
+      expect(child.isDestroyed()).toBe(false);
+      deny = false;
+      expect(await app.destroy()).toBe(true);
+      expect(app.isDestroyed()).toBe(true);
+      expect(child.isDestroyed()).toBe(true);
+      expect(app.getChildApp('child')).toBeUndefined();
+    } finally {
+      deny = false;
+    }
+  });
+
+  for (const method of ['stop', 'destroy']) {
+    it(`${method} cancels a child whose independent startup is pending`, async() => {
+      const ready = gate();
+      let signal;
+      const app = owner();
+      const child = app.addChildApp('child', new (Application.extend({ onBeforeStart(childApp, options, context) {
+        signal = context.signal;
+        return ready.promise;
+      } }))());
+      const starting = child.start();
+      await app[method]();
+      expect(await starting).toBe(false);
+      expect(signal.aborted).toBe(true);
+      ready.resolve();
+      await ready.promise;
+      expect(child.isRunning()).toBe(false);
+    });
+  }
+
+  it('clears prepared roots beneath already-stopped children without inventing stop hooks', async() => {
+    const stopped = vi.fn();
+    const app = owner({ onStop: stopped });
+    const child = app.addChildApp('child', new (Application.extend({ onStop: stopped }))());
+    const view = child.setView(new View({ template: false }));
+    await app.stop();
+    await app.stop();
+    expect(view.isDestroyed()).toBe(true);
+    expect(stopped).not.toHaveBeenCalled();
+  });
+
+  for (const replacement of ['start', 'restart', 'destroy']) {
+    it(`${replacement} adopts pending owner stop without reopening child activation`, async() => {
+      const ready = gate();
+      const entered = gate();
+      let hold = false;
+      const app = owner({ onBeforeStop() { if (hold) { entered.resolve(); return ready.promise; } } });
+      const child = app.addChildApp('child', new Application());
+      await child.start();
+      await app.start();
+      hold = true;
+      const stopping = app.stop();
+      await entered.promise;
+      const next = app[replacement]();
+      expect(await stopping).toBe(false);
+      expect(await child.start()).toBe(false);
+      ready.resolve();
+      expect(await next).toBe(true);
+      expect(child.isRunning()).toBe(replacement === 'start');
+      hold = false;
+    });
+  }
+});
+
+['stop', 'restart', 'destroy'].forEach(method => {
+  it(`begins a new stop phase when ${method} replaces a start after child stops were canceled`, async function() {
+    const readiness = gate();
+    const childStopping = gate();
+    const events = [];
+    const firstOptions = { source: 'first' };
+    const latestOptions = { source: 'latest' };
+    const ChildApplication = Application.extend({
+      onBeforeStop() {
+        if (this.getName() === 'first') {
+          childStopping.resolve();
+          return readiness.promise;
+        }
+      },
+      onStop() { events.push(`${this.getName()}:stop`); }
+    });
+    const OwnerApplication = Application.extend({
+      onBeforeStop(application, options) { events.push(options); },
+      onStop() { events.push('parent:stop'); }
+    });
+    const parent = new OwnerApplication();
+    owners.push(parent);
+    const first = parent.addChildApp('first', new ChildApplication());
+    const second = parent.addChildApp('second', new ChildApplication());
+    await first.start();
+    await second.start();
+    await parent.start();
+
+    const earlierStop = parent.stop(firstOptions);
+    await childStopping.promise;
+    const start = parent.start();
+    const childStop = first.stop();
+    readiness.resolve();
+    await childStop;
+    const latest = parent[method](latestOptions);
+
+    expect(await Promise.all([earlierStop, start, latest])).to.deep.equal([false, false, true]);
+    expect(events).to.deep.equal([firstOptions, 'first:stop', latestOptions, 'second:stop', 'parent:stop']);
+    expect(parent.isRunning()).to.equal(method === 'restart');
+    expect(first.isRunning()).toBe(false);
+    expect(second.isRunning()).toBe(false);
+    expect(parent.isDestroyed()).to.equal(method === 'destroy');
+    expect(first.isDestroyed()).to.equal(method === 'destroy');
+    expect(second.isDestroyed()).to.equal(method === 'destroy');
+
+    await parent.destroy();
+  });
+});
+
+
+for (const method of ['stop', 'destroy']) {
+  it(`${method} handles direct child destruction during its awaited stop`, async() => {
+    const ready = gate();
+    const entered = gate();
+    const app = owner();
+    const child = app.addChildApp('child', new (Application.extend({ onBeforeStop() {
+      entered.resolve();
+      return ready.promise;
+    } }))());
+    await app.start();
+    await child.start();
+    const stopping = app[method]();
+    await entered.promise;
+    const destroying = child.destroy();
+    ready.resolve();
+    expect(await destroying).toBe(true);
+    expect(await stopping).toBe(method === 'destroy');
+    expect(child.isDestroyed()).toBe(true);
+    expect(app.isRunning()).toBe(method === 'stop');
+  });
 }
 
-describe('Application child lifecycle', function() {
-  it('starts and stops children in registration order before owner completion', async function() {
-    const events = [];
-    const options = { source: 'owner' };
-    const ChildApplication = Application.extend({
-      onBeforeStart(application, receivedOptions) {
-        expect(receivedOptions).to.equal(options);
-        events.push(`${this.getName()}:before:start`);
-      },
-      onStart() {
-        events.push(`${this.getName()}:start`);
-      },
-      onBeforeStop(application, receivedOptions) {
-        expect(receivedOptions).to.equal(options);
-        events.push(`${this.getName()}:before:stop`);
-      },
-      onStop() {
-        events.push(`${this.getName()}:stop`);
-      }
-    });
-    const OwnerApplication = Application.extend({
-      onBeforeStart() { events.push('owner:before:start'); },
-      onStart() { events.push('owner:start'); },
-      onBeforeStop() { events.push('owner:before:stop'); },
-      onStop() { events.push('owner:stop'); }
-    });
-    const owner = new OwnerApplication();
-    owner.addChildApp('first', new ChildApplication());
-    owner.addChildApp('second', new ChildApplication());
-
-    expect(await owner.start(options)).toBe(true);
-    expect(events).to.deep.equal([
-      'owner:before:start',
-      'first:before:start',
-      'first:start',
-      'second:before:start',
-      'second:start',
-      'owner:start'
-    ]);
-
-    events.length = 0;
-    expect(await owner.stop(options)).toBe(true);
-    expect(events).to.deep.equal([
-      'owner:before:stop',
-      'first:before:stop',
-      'first:stop',
-      'second:before:stop',
-      'second:stop',
-      'owner:stop'
-    ]);
-
-    await owner.destroy();
-  });
-
-  it('does not implicitly start a child added to a running owner', async function() {
-    const owner = new Application();
-    const child = new Application();
-    await owner.start();
-
-    owner.addChildApp('child', child);
-
-    expect(child.isRunning()).toBe(false);
-    expect(await owner.restart()).toBe(true);
-    expect(child.isRunning()).toBe(true);
-
-    await owner.destroy();
-  });
-
-  it('retains a started prefix when a child start fails and retries in order', async function() {
-    const error = new Error('second not ready');
-    const events = [];
-    let attempt = 0;
-    const FirstApplication = Application.extend({
-      onStart() { events.push('first'); }
-    });
-    const SecondApplication = Application.extend({
-      onBeforeStart() {
-        if (!attempt++) { throw error; }
-      },
-      onStart() { events.push('second'); }
-    });
-    const ThirdApplication = Application.extend({
-      onStart() { events.push('third'); }
-    });
-    const owner = new Application();
-    const first = new FirstApplication();
-    const second = new SecondApplication();
-    const third = new ThirdApplication();
-    owner.addChildApp('first', first);
-    owner.addChildApp('second', second);
-    owner.addChildApp('third', third);
-
-    await expectRejection(owner.start(), error);
-
-    expect(owner.isRunning()).toBe(false);
-    expect(first.isRunning()).toBe(true);
-    expect(second.isRunning()).toBe(false);
-    expect(third.isRunning()).toBe(false);
-    expect(events).to.deep.equal(['first']);
-
-    expect(await owner.start()).toBe(true);
-    expect(events).to.deep.equal(['first', 'second', 'third']);
-
-    await owner.destroy();
-  });
-
-  it('retains a stopped prefix when a child stop fails and retries in order', async function() {
-    const error = new Error('second not ready');
-    const events = [];
-    let attempt = 0;
-    const FirstApplication = Application.extend({
-      onStop() { events.push('first'); }
-    });
-    const SecondApplication = Application.extend({
-      onBeforeStop() {
-        if (!attempt++) { throw error; }
-      },
-      onStop() { events.push('second'); }
-    });
-    const ThirdApplication = Application.extend({
-      onStop() { events.push('third'); }
-    });
-    const owner = new Application();
-    const first = new FirstApplication();
-    const second = new SecondApplication();
-    const third = new ThirdApplication();
-    owner.addChildApp('first', first);
-    owner.addChildApp('second', second);
-    owner.addChildApp('third', third);
-    await owner.start();
-
-    await expectRejection(owner.stop(), error);
-
-    expect(owner.isRunning()).toBe(true);
-    expect(first.isRunning()).toBe(false);
-    expect(second.isRunning()).toBe(true);
-    expect(third.isRunning()).toBe(true);
-    expect(events).to.deep.equal(['first']);
-
-    expect(await owner.stop()).toBe(true);
-    expect(events).to.deep.equal(['first', 'second', 'third']);
-
-    await owner.destroy();
-  });
-
-  it('does not start children when before:start supersedes owner startup', async function() {
-    let ownerStop;
-    const childStart = vi.fn();
-    const OwnerApplication = Application.extend({
-      onBeforeStart() {
-        ownerStop = this.stop();
-      }
-    });
-    const ChildApplication = Application.extend({ onStart: childStart });
-    const owner = new OwnerApplication();
-    const child = new ChildApplication();
-    owner.addChildApp('child', child);
-
-    expect(await owner.start()).toBe(false);
-    expect(await ownerStop).toBe(true);
-    expect(owner.isRunning()).toBe(false);
-    expect(child.isRunning()).toBe(false);
-    expect(childStart).not.toHaveBeenCalled();
-
-    await owner.destroy();
-  });
-
-  it('does not stop children when before:stop supersedes owner stop', async function() {
-    let supersedingStart;
-    let shouldSupersede = false;
-    const childStop = vi.fn();
-    const OwnerApplication = Application.extend({
-      onBeforeStop() {
-        if (shouldSupersede) {
-          supersedingStart = this.start();
-        }
-      }
-    });
-    const ChildApplication = Application.extend({ onStop: childStop });
-    const owner = new OwnerApplication();
-    const child = new ChildApplication();
-    owner.addChildApp('child', child);
-    await owner.start();
-    shouldSupersede = true;
-
-    expect(await owner.stop()).toBe(false);
-    expect(await supersedingStart).toBe(true);
-    expect(owner.isRunning()).toBe(true);
-    expect(child.isRunning()).toBe(true);
-    expect(childStop).not.toHaveBeenCalled();
-
-    shouldSupersede = false;
-    await owner.destroy();
-  });
-
-  it('does not stop later children after owner stop is superseded', async function() {
-    const readiness = Promise.withResolvers();
-    const childStopping = Promise.withResolvers();
-    const laterChildStop = vi.fn();
-    const ChildApplication = Application.extend({
-      onBeforeStop() {
-        childStopping.resolve();
-        return readiness.promise;
-      }
-    });
-    const owner = new Application();
-    const child = new ChildApplication();
-    const laterChild = new (Application.extend({ onStop: laterChildStop }))();
-    owner.addChildApp('child', child);
-    owner.addChildApp('later', laterChild);
-    await owner.start();
-
-    const stop = owner.stop();
-    await childStopping.promise;
-    const start = owner.start();
-    readiness.resolve();
-
-    expect(await stop).toBe(false);
-    expect(await start).toBe(true);
-    expect(owner.isRunning()).toBe(true);
-    expect(child.isRunning()).toBe(true);
-    expect(laterChild.isRunning()).toBe(true);
-    expect(laterChildStop).not.toHaveBeenCalled();
-
-    await owner.destroy();
-  });
-
-  it('cancels owner startup when child onStart directly stops', async function() {
-    let childStop;
-    const ChildApplication = Application.extend({
-      onStart() {
-        childStop = this.stop();
-      }
-    });
-    const owner = new Application();
-    const child = new ChildApplication();
-    owner.addChildApp('child', child);
-
-    expect(await owner.start()).toBe(false);
-    expect(await childStop).toBe(true);
-    expect(owner.isRunning()).toBe(false);
-    expect(child.isRunning()).toBe(false);
-
-    await owner.destroy();
-  });
-
-  ['stop', 'restart', 'destroy'].forEach(method => {
-    it(`begins a new stop phase when ${method} replaces a start after child stops were canceled`, async function() {
-      const readiness = Promise.withResolvers();
-      const childStopping = Promise.withResolvers();
-      const events = [];
-      const firstOptions = { source: 'first' };
-      const latestOptions = { source: 'latest' };
-      const ChildApplication = Application.extend({
-        onBeforeStop() {
-          if (this.getName() === 'first') {
-            childStopping.resolve();
-            return readiness.promise;
-          }
-        },
-        onStop() { events.push(`${this.getName()}:stop`); }
-      });
-      const OwnerApplication = Application.extend({
-        onBeforeStop(application, options) { events.push(options); },
-        onStop() { events.push('owner:stop'); }
-      });
-      const owner = new OwnerApplication();
-      const first = owner.addChildApp('first', new ChildApplication());
-      const second = owner.addChildApp('second', new ChildApplication());
-      await owner.start();
-
-      const earlierStop = owner.stop(firstOptions);
-      await childStopping.promise;
-      const start = owner.start();
-      const childStop = first.stop();
-      readiness.resolve();
-      await childStop;
-      const latest = owner[method](latestOptions);
-
-      expect(await Promise.all([earlierStop, start, latest])).to.deep.equal([false, false, true]);
-      expect(events).to.deep.equal([firstOptions, 'first:stop', latestOptions, 'second:stop', 'owner:stop']);
-      expect(owner.isRunning()).to.equal(method === 'restart');
-      expect(first.isRunning()).to.equal(method === 'restart');
-      expect(second.isRunning()).to.equal(method === 'restart');
-      expect(owner.isDestroyed()).to.equal(method === 'destroy');
-      expect(first.isDestroyed()).to.equal(method === 'destroy');
-      expect(second.isDestroyed()).to.equal(method === 'destroy');
-
-      await owner.destroy();
-    });
-  });
-
-  ['owner', 'child'].forEach(failAt => {
-    it(`retains the prior owner state when ${failAt} startup fails after canceled child stops`, async function() {
-      const readiness = Promise.withResolvers();
-      const childStopping = Promise.withResolvers();
-      const failure = new Error('replacement startup failed');
-      const events = [];
-      let shouldFail = false;
-      const ChildApplication = Application.extend({
-        onBeforeStart() {
-          if (shouldFail && failAt === 'child' && this.getName() === 'first') { throw failure; }
-        },
-        onBeforeStop() {
-          if (this.getName() === 'first') {
-            childStopping.resolve();
-            return readiness.promise;
-          }
-        },
-        onStop() { events.push(`${this.getName()}:stop`); }
-      });
-      const OwnerApplication = Application.extend({
-        onBeforeStart() {
-          if (shouldFail && failAt === 'owner') { throw failure; }
-        },
-        onStop() { events.push('owner:stop'); }
-      });
-      const owner = new OwnerApplication();
-      const first = owner.addChildApp('first', new ChildApplication());
-      const second = owner.addChildApp('second', new ChildApplication());
-      await owner.start();
-
-      const stop = owner.stop();
-      await childStopping.promise;
-      shouldFail = true;
-      const start = expectRejection(owner.start(), failure);
-      readiness.resolve();
-
-      expect(await stop).toBe(false);
-      await start;
-      expect(owner.isRunning()).toBe(true);
-      expect(first.isRunning()).toBe(false);
-      expect(second.isRunning()).toBe(true);
-      expect(events).to.deep.equal(['first:stop']);
-
-      expect(await owner.stop()).toBe(true);
-      expect(owner.isRunning()).toBe(false);
-      expect(second.isRunning()).toBe(false);
-      expect(events).to.deep.equal(['first:stop', 'second:stop', 'owner:stop']);
-      await owner.destroy();
-    });
-  });
-
-  it('retains stopped state when startup fails after inherited stop readiness completes', async function() {
-    const readiness = Promise.withResolvers();
-    const failure = new Error('replacement startup failed');
-    let shouldFail = false;
-    const owner = new (Application.extend({
-      onBeforeStop() { return readiness.promise; },
-      onBeforeStart() {
-        if (shouldFail) { throw failure; }
-      }
-    }))();
-    await owner.start();
-
-    const stop = owner.stop();
-    shouldFail = true;
-    const start = expectRejection(owner.start(), failure);
-    readiness.resolve();
-
-    expect(await stop).toBe(false);
-    await start;
-    expect(owner.isRunning()).toBe(false);
-    await owner.destroy();
-  });
-
-  it('cancels owner stop when child onStop directly starts', async function() {
-    let childStart;
-    let shouldRestart = false;
-    const ChildApplication = Application.extend({
-      onStop() {
-        if (shouldRestart) {
-          childStart = this.start();
-        }
-      }
-    });
-    const owner = new Application();
-    const child = new ChildApplication();
-    owner.addChildApp('child', child);
-    await owner.start();
-    shouldRestart = true;
-
-    expect(await owner.stop()).toBe(false);
-    expect(await childStart).toBe(true);
-    expect(owner.isRunning()).toBe(true);
-    expect(child.isRunning()).toBe(true);
-
-    shouldRestart = false;
-    await owner.destroy();
-  });
-
-  it('cancels owner startup when a direct child stop supersedes it', async function() {
-    const readiness = Promise.withResolvers();
-    const childStarting = Promise.withResolvers();
-    const ownerStart = vi.fn();
-    const ChildApplication = Application.extend({
-      onBeforeStart(application, options, context) {
-        childStarting.resolve();
-        context.signal.addEventListener('abort', readiness.resolve, { once: true });
-        return readiness.promise;
-      }
-    });
-    const owner = new (Application.extend({ onStart: ownerStart }))();
-    const first = new Application();
-    const child = new ChildApplication();
-    owner.addChildApp('first', first);
-    owner.addChildApp('child', child);
-
-    const start = owner.start();
-    await childStarting.promise;
-
-    expect(await child.stop()).toBe(true);
-    expect(await start).toBe(false);
-    expect(owner.isRunning()).toBe(false);
-    expect(first.isRunning()).toBe(true);
-    expect(child.isRunning()).toBe(false);
-    expect(ownerStart).not.toHaveBeenCalled();
-
-    await owner.destroy();
-  });
-
-  it('stops a child whose startup is invalidated with its owner', async function() {
-    const readiness = Promise.withResolvers();
-    const childStarting = Promise.withResolvers();
-    const ChildApplication = Application.extend({
-      onBeforeStart(application, options, context) {
-        childStarting.resolve();
-        context.signal.addEventListener('abort', readiness.resolve, { once: true });
-        return readiness.promise;
-      }
-    });
-    const owner = new Application();
-    const child = new ChildApplication();
-    owner.addChildApp('child', child);
-
-    const start = owner.start();
-    await childStarting.promise;
-    const stop = owner.stop();
-
-    expect(await start).toBe(false);
-    expect(await stop).toBe(true);
-    expect(owner.isRunning()).toBe(false);
-    expect(child.isRunning()).toBe(false);
-
-    await owner.destroy();
-  });
-
-  it('destroys a child whose startup is invalidated with its owner', async function() {
-    const readiness = Promise.withResolvers();
-    const childStarting = Promise.withResolvers();
-    const ChildApplication = Application.extend({
-      onBeforeStart(application, options, context) {
-        childStarting.resolve();
-        context.signal.addEventListener('abort', readiness.resolve, { once: true });
-        return readiness.promise;
-      }
-    });
-    const owner = new Application();
-    const child = new ChildApplication();
-    owner.addChildApp('child', child);
-
-    const start = owner.start();
-    await childStarting.promise;
-    const destroy = owner.destroy();
-
-    expect(await start).toBe(false);
-    expect(await destroy).toBe(true);
-    expect(owner.isDestroyed()).toBe(true);
-    expect(child.isDestroyed()).toBe(true);
-  });
-
-  it('cancels owner stop when a direct child start supersedes it', async function() {
-    const readiness = Promise.withResolvers();
-    const childStopping = Promise.withResolvers();
-    const ownerStop = vi.fn();
-    const ChildApplication = Application.extend({
-      onBeforeStop() {
-        childStopping.resolve();
-        return readiness.promise;
-      }
-    });
-    const owner = new (Application.extend({ onStop: ownerStop }))();
-    const first = new Application();
-    const child = new ChildApplication();
-    owner.addChildApp('first', first);
-    owner.addChildApp('child', child);
-    await owner.start();
-
-    const stop = owner.stop();
-    await childStopping.promise;
-    const start = child.start();
-
-    expect(await stop).toBe(false);
-    expect(owner.isRunning()).toBe(true);
-    expect(first.isRunning()).toBe(false);
-    expect(ownerStop).not.toHaveBeenCalled();
-
-    readiness.resolve();
-    expect(await start).toBe(true);
-    expect(child.isRunning()).toBe(true);
-
-    await owner.destroy();
-  });
-
-  it('stops a directly started child before stopped owner destroy readiness', async function() {
-    const events = [];
-    const ChildApplication = Application.extend({
-      onStop() { events.push('child:stop'); }
-    });
-    const OwnerApplication = Application.extend({
-      onBeforeDestroy() { events.push('owner:before:destroy'); }
-    });
-    const owner = new OwnerApplication();
-    const child = new ChildApplication();
-    owner.addChildApp('child', child);
-    await child.start();
-
-    expect(await owner.destroy()).toBe(true);
-    expect(events).to.deep.equal(['child:stop', 'owner:before:destroy']);
-  });
-
-  it('rejects stopped owner destroy when an active child stop fails', async function() {
-    const error = new Error('child not ready');
-    let attempt = 0;
-    const ChildApplication = Application.extend({
-      onBeforeStop() {
-        if (!attempt++) { throw error; }
-      }
-    });
-    const owner = new Application();
-    const child = new ChildApplication();
-    owner.addChildApp('child', child);
-    await child.start();
-
-    await expectRejection(owner.destroy(), error);
-    expect(owner.isDestroyed()).toBe(false);
-    expect(owner.isRunning()).toBe(false);
-    expect(child.isRunning()).toBe(true);
-    expect(owner.getChildApp('child')).to.equal(child);
-
-    expect(await owner.destroy()).toBe(true);
-    expect(child.isDestroyed()).toBe(true);
-  });
-
-  it('blocks descendant startup after owner destruction begins', async function() {
-    const readiness = Promise.withResolvers();
-    const childStopping = Promise.withResolvers();
-    const ChildApplication = Application.extend({
-      onBeforeStop() {
-        childStopping.resolve();
-        return readiness.promise;
-      }
-    });
-    const owner = new Application();
-    const child = new ChildApplication();
-    owner.addChildApp('child', child);
-    await owner.start();
-
-    const destroy = owner.destroy();
-    await childStopping.promise;
-
-    expect(await child.start()).toBe(false);
-    readiness.resolve();
-    expect(await destroy).toBe(true);
-    expect(child.isDestroyed()).toBe(true);
-  });
-
-  it('blocks grandchild startup after root destruction begins', async function() {
-    const readiness = Promise.withResolvers();
-    const rootDestroying = Promise.withResolvers();
-    const RootApplication = Application.extend({
-      onBeforeDestroy() {
-        rootDestroying.resolve();
-        return readiness.promise;
-      }
-    });
-    const root = new RootApplication();
-    const child = new Application();
-    const grandchild = new Application();
-    root.addChildApp('child', child);
-    child.addChildApp('grandchild', grandchild);
-
-    const destroy = root.destroy();
-    await rootDestroying.promise;
-
-    expect(await grandchild.start()).toBe(false);
-    expect(await grandchild.restart()).toBe(false);
-    readiness.resolve();
-    expect(await destroy).toBe(true);
-  });
-
-  it('follows a direct child destroy that supersedes owner-driven stop', async function() {
-    const readiness = Promise.withResolvers();
-    const childStopping = Promise.withResolvers();
-    const ChildApplication = Application.extend({
-      onBeforeStop() {
-        childStopping.resolve();
-        return readiness.promise;
-      }
-    });
-    const owner = new Application();
-    const child = new ChildApplication();
-    owner.addChildApp('child', child);
-    await owner.start();
-
-    const ownerDestroy = owner.destroy();
-    await childStopping.promise;
-    const childDestroy = child.destroy();
-
-    readiness.resolve();
-    expect(await childDestroy).toBe(true);
-    expect(await ownerDestroy).toBe(true);
-    expect(owner.isDestroyed()).toBe(true);
-    expect(child.isDestroyed()).toBe(true);
-  });
-
-  it('destroys a child that restarts from onStop during owner destroy', async function() {
-    let childStart;
-    let shouldRestart = false;
-    const ChildApplication = Application.extend({
-      onStop() {
-        if (shouldRestart) {
-          childStart = this.start();
-        }
-      }
-    });
-    const owner = new Application();
-    const child = new ChildApplication();
-    owner.addChildApp('child', child);
-    await owner.start();
-    shouldRestart = true;
-
-    expect(await owner.destroy()).toBe(true);
-    expect(await childStart).toBe(false);
-    expect(owner.isDestroyed()).toBe(true);
-    expect(child.isDestroyed()).toBe(true);
-  });
-
-  it('stops children before owner destroy readiness', async function() {
-    const events = [];
-    const ChildApplication = Application.extend({
-      onStop() { events.push('child:stop'); },
-      onBeforeDestroy() { events.push('child:before:destroy'); },
-      onDestroy() { events.push('child:destroy'); }
-    });
-    const OwnerApplication = Application.extend({
-      onBeforeDestroy() { events.push('owner:before:destroy'); },
-      onDestroy() { events.push('owner:destroy'); }
-    });
-    const owner = new OwnerApplication();
-    owner.addChildApp('child', new ChildApplication());
-    await owner.start();
-
-    expect(await owner.destroy()).toBe(true);
-    expect(events).to.deep.equal([
-      'child:stop',
-      'owner:before:destroy',
-      'child:before:destroy',
-      'child:destroy',
-      'owner:destroy'
-    ]);
-  });
-  for (const pendingAt of ['owner', 'child']) {
-    for (const [earlier, later] of [['restart', 'stop'], ['stop', 'restart'], ['stop', 'destroy']]) {
-      it(`lets ${ later } adopt ${ earlier } while ${ pendingAt } stop readiness is pending`, async function() {
-        const stopping = Promise.withResolvers();
-        const entered = Promise.withResolvers();
-        const firstOptions = { source: 'first' };
-        const laterOptions = { source: 'later' };
-        const stopped = [];
-        const stopOptions = [];
-        let childrenStoppedBeforeDestroy;
-        const Owner = Application.extend({
-          onBeforeStop() {
-            if (pendingAt === 'owner') {
-              entered.resolve();
-              return stopping.promise;
-            }
-          },
-          onStop(app, options) {
-            stopped.push('owner');
-            stopOptions.push(options);
-          },
-          onBeforeDestroy() {
-            childrenStoppedBeforeDestroy = Object.values(this.getChildApps())
-              .every(child => !child.isRunning() && !child.isDestroyed());
-          }
-        });
-        const Child = Application.extend({
-          onBeforeStop() {
-            if (pendingAt === 'child' && this.getName() === 'first') {
-              entered.resolve();
-              return stopping.promise;
-            }
-          },
-          onStop(app, options) {
-            stopped.push(this.getName());
-            stopOptions.push(options);
-          }
-        });
-        const owner = new Owner();
-        const first = owner.addChildApp('first', new Child());
-        const second = owner.addChildApp('second', new Child());
-        await owner.start();
-
-        const previous = owner[earlier](firstOptions);
-        await entered.promise;
-        const current = owner[later](laterOptions);
-        const operations = [previous, current];
-        if (later === 'destroy') {
-          operations.push(owner.stop());
-        }
-        stopping.resolve();
-        const [previousResult, currentResult, ...followingStop] = await Promise.all(operations);
-        const outcome = {
-          results: [previousResult, currentResult],
-          running: [owner, first, second].map(app => app.isRunning()),
-          destroyed: [owner, first, second].map(app => app.isDestroyed()),
-          stopped: [...stopped],
-          originalStopOptions: stopOptions.every(options => options === firstOptions),
-          followingStop,
-          childrenStoppedBeforeDestroy
-        };
-        await owner.destroy();
-
-        expect(outcome).to.deep.equal({
-          results: [false, true],
-          running: [later === 'restart', later === 'restart', later === 'restart'],
-          destroyed: [later === 'destroy', later === 'destroy', later === 'destroy'],
-          stopped: ['first', 'second', 'owner'],
-          originalStopOptions: true,
-          followingStop: later === 'destroy' ? [true] : [],
-          childrenStoppedBeforeDestroy: later === 'destroy' ? true : undefined
-        });
-      });
-    }
-  }
-
-  for (const later of ['stop', 'restart', 'destroy']) {
-    it(`preserves a stopped child prefix when adopted ${ later } readiness rejects`, async function() {
-      const stopping = Promise.withResolvers();
-      const entered = Promise.withResolvers();
-      const error = new Error('second child could not stop');
-      const stopped = [];
-      let attempts = 0;
-      const Child = Application.extend({
-        onBeforeStop() {
-          if (this.getName() === 'second' && !attempts++) {
-            entered.resolve();
-            return stopping.promise;
-          }
-        },
-        onStop() { stopped.push(this.getName()); }
-      });
-      const owner = new Application();
-      const children = ['first', 'second', 'third'].map(name => owner.addChildApp(name, new Child()));
-      await owner.start();
-
-      const previous = later === 'stop' ? owner.restart() : owner.stop();
-      await entered.promise;
-      const current = expectRejection(owner[later](), error);
-      const followingStop = later === 'destroy' ? expectRejection(owner.stop(), error) : undefined;
-      stopping.reject(error);
-      expect(await previous).toBe(false);
-      await current;
-      await followingStop;
-
-      expect(owner.isRunning()).toBe(true);
-      expect(children.map(child => child.isRunning())).to.deep.equal([false, true, true]);
-      expect(stopped).to.deep.equal(['first']);
-      expect(await owner.stop()).toBe(true);
-      expect(stopped).to.deep.equal(['first', 'second', 'third']);
-      await owner.destroy();
-    });
-  }
-
+it('preserves silent stopped-owner cleanup when restart adopts descendant stop readiness', async() => {
+  const ready = gate();
+  const entered = gate();
+  const notifications = vi.fn();
+  const app = owner({ onBeforeStop: notifications, onStop: notifications });
+  const child = app.addChildApp('child', new (Application.extend({ onBeforeStop() {
+    entered.resolve();
+    return ready.promise;
+  } }))());
+  await child.start();
+  const stopping = app.stop();
+  await entered.promise;
+  const restarting = app.restart();
+  ready.resolve();
+  expect(await stopping).toBe(false);
+  expect(await restarting).toBe(true);
+  expect(notifications).not.toHaveBeenCalled();
+  expect(child.isRunning()).toBe(false);
+});
+
+it('blocks descendant activation inside owner stop completion until stop settles', async() => {
+  let child;
+  let duringStop;
+  const app = owner({ onStop() { duringStop = child.start(); } });
+  child = app.addChildApp('child', new Application());
+  await app.start();
+  expect(await app.stop()).toBe(true);
+  expect(await duringStop).toBe(false);
+  expect(child.isRunning()).toBe(false);
+  expect(await child.start()).toBe(true);
 });

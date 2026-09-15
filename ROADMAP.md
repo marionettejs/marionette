@@ -305,8 +305,10 @@ hooks remain non-awaited notifications. Phase 1 must prove abort and transfer or
 hook arguments, repeated-call sharing, and migration from readiness work that
 previously had no cancellation channel.
 
-Owned child Applications follow their owner's start, stop, restart, and destroy
-lifecycle without per-child lifecycle flags. A capability that must outlive its
+Owned child Applications are activated explicitly with their own inputs. Ownership
+propagates stop and destroy, including through stopped intermediate owners, without
+per-child lifecycle flags. Parent restart deactivates its children; startup code
+chooses which capabilities to reactivate. A capability that must outlive its
 current owner belongs to a longer-lived Application and is passed to the shorter-lived
 Application explicitly.
 

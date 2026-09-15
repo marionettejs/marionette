@@ -89,8 +89,8 @@ try {
   assert.equal(ownership.root.getChildApp('search'), ownership.search, 'the child must be registered by name');
   assert.deepEqual(ownership.lifecycle, [
     'root:before:start:owner',
-    'search:before:start:owner',
-    'search:start:owner',
+    'search:before:start:search',
+    'search:start:search',
     'root:start:owner',
     'root:before:stop:owner',
     'search:before:stop:owner',
