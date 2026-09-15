@@ -1,0 +1,43 @@
+docs/readme.md
+  s_15ef02ef10478f::t_ec038bbd8eb531 66
+docs/routing.md
+  s_15ef02ef10478f::t_5a2c64b33dd827 52-54,68,74-75,77-85,89-93,98,119-122
+test/browser/application-refresh.spec.mjs
+  s_15ef02ef10478f::t_715398743c7152 1-102
+docs/application-effects.md
+  s_15ef02ef10478f::t_60b30e8df28805 45
+test/fixtures/docs-routing/refresh.mjs
+  s_15ef02ef10478f::t_082ee2844dbea7 102-146
+  s_15ef02ef10478f::t_ca6c0f902881c1 56-66,196,247
+  s_15ef02ef10478f::t_ead69d3322b830 1-55,67-101,147-195,197-246,248-254
+test/fixtures/run.mjs
+  s_15ef02ef10478f::t_f75cb7c814f302 69
+config/release-validation.json
+  s_15ef02ef10478f::t_3fd6a18b610654 203-206
+test/fixtures/docs-routing/validate.mjs
+  s_15ef02ef10478f::t_58ee821fb4dd14 17-27,44,50,100-111,170-171,182-183
+docs/application-refresh.md
+  s_15ef02ef10478f::t_082ee2844dbea7 74,86,91,96-97,111-121,138-140,152-153,163-175
+  s_15ef02ef10478f::t_6562d5ed9a113d 1-73,75-85,87-90,92-95,98-110,122-137,144-151,154-162
+  s_15ef02ef10478f::t_66ad955096dee4 141-143
+test/browser/docs-routing.test.mjs
+  s_15ef02ef10478f::t_082ee2844dbea7 10-12,20
+docs-site/navigation.json
+  s_15ef02ef10478f::t_da2c3deb11fdb4 104-109
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "70cca269feda251f993b03e3cf869fb88bb9e910",
+  "prompts": {},
+  "sessions": {
+    "s_15ef02ef10478f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a021-e188-7d30-b992-73ccc4ae5f18",
+        "model": "gpt-6-astra"
+      },
+      "human_author": null
+    }
+  }
+}
