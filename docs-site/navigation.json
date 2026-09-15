@@ -102,6 +102,12 @@
     "section": "Application guides"
   },
   {
+    "source": "docs/application-refresh.md",
+    "route": "docs/application-refresh",
+    "title": "Refresh feature data",
+    "section": "Application guides"
+  },
+  {
     "source": "docs/marionette.behavior.md",
     "route": "docs/behavior",
     "title": "Behavior",

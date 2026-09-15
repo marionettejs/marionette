@@ -200,6 +200,10 @@
     {
       "file": "application-effects.spec.mjs",
       "title": "Application effects survive denied stop and release on successful deactivation"
+    },
+    {
+      "file": "application-refresh.spec.mjs",
+      "title": "Application refresh preserves editor focus and draft while only latest results commit"
     }
   ],
   "fixtures": [

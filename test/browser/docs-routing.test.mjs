@@ -7,6 +7,9 @@ import { chromium, firefox, webkit } from 'playwright';
 const require = createRequire(import.meta.url);
 const root = new URL('../../', import.meta.url);
 const markdown = await readFile(new URL('docs/routing.md', root), 'utf8');
+const refreshMarkdown = await readFile(new URL('docs/application-refresh.md', root), 'utf8');
+const latestRequest = refreshMarkdown.match(/export function createLatestRequest[\s\S]*?(?=\n```)/);
+assert.ok(latestRequest, 'documented latest-request module exists');
 const blocks = [...markdown.matchAll(/```javascript\n([\s\S]*?)\n```/g)].map(match => match[1]);
 const moduleFor = name => {
   const code = blocks.find(block => block.includes(`export ${name}`));
@@ -14,6 +17,7 @@ const moduleFor = name => {
   return code;
 };
 const assets = {
+  '/latest-request.js': latestRequest[0],
   '/feature.js': moduleFor('async function createPageNavigation'),
   '/native.js': moduleFor('function connectNavigation'),
   '/backbone-integration.js': moduleFor('function connectBackbone'),
