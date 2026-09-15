@@ -1,0 +1,55 @@
+ROADMAP.md
+  s_15ef02ef10478f::t_5933699d81dfbc 308-311
+test/unit/application-child-lifecycle.spec.js
+  s_15ef02ef10478f::t_d2b9ed24d5f961 1-9,11-19,21-32,36-45,47,49-54,56-62,64,67-73,75-76,79-97,100,102-121,123,125-140,143-159,162-181,183,185-190,192-195,199-202,204-207,210-224,226-246,249-264,266,268-276,279-297,299-300,302-303,306-308,311-316,318-329,331-332,334-335,337-344,346,348,351-369,371,373-391,393-402
+upgradeGuide.md
+  s_15ef02ef10478f::t_6278645566e6cd 540-550
+docs/migration-from-v4.md
+  s_15ef02ef10478f::t_15adadf5dc26c2 87
+docs/marionette.application.md
+  s_15ef02ef10478f::t_5eb50eb41acb42 101,104,135-157,262-269,277-278,284-285,318,320-321
+benchmarks/agent/tasks/owned-workspace-state/reference/solution.mjs
+  s_15ef02ef10478f::t_32ccd178593f92 39-43
+docs/events.class.md
+  s_15ef02ef10478f::t_4a7857e9a210db 61-62
+benchmarks/browser-performance/retention/workloads.js
+  s_15ef02ef10478f::t_63c70e0fe1fc77 86
+benchmarks/agent/tasks/borrowed-workspace-state/reference/solution.mjs
+  s_15ef02ef10478f::t_0570fb36da4ddb 33-37
+src/modules/application.ts
+  s_15ef02ef10478f::t_4058b31e1d362b 120-122,127,198,202-203,441-444,447,457,461,464-465,486,515,517,552-553,564,569,575-576,581,599
+config/api-contracts/inventory.json
+  s_15ef02ef10478f::t_12d1afe8b73e3b 4,8016,8044,8046,8064,8066,8068,8093
+config/api-contracts/semantics.json
+  s_15ef02ef10478f::t_162d1ddae1e070 1513,1515,1560-1571
+config/release-validation.json
+  s_15ef02ef10478f::t_4bbbfab5fee692 195-198
+test/unit/model-based/application.spec.js
+  s_15ef02ef10478f::t_4cda15913ac6ca 92-94,171-175
+test/browser/application-child-activation.spec.mjs
+  s_15ef02ef10478f::t_1bf1f9cb72a9c7 1-40
+test/unit/application-root-view.spec.js
+  s_15ef02ef10478f::t_345c8ca2ea6bfc 199
+test/unit/application-ownership.spec.js
+  s_15ef02ef10478f::t_f881e62adeb5d2 275,299,312
+changelog.md
+  s_15ef02ef10478f::t_e3787a1cac82e5 1-7
+test/fixtures/docs-application-state/validate.mjs
+  s_15ef02ef10478f::t_fa4477fc6cd8a5 92-93
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "15a74c5f1fb68e01b1ebbe93d4cd3fa99ebde854",
+  "prompts": {},
+  "sessions": {
+    "s_15ef02ef10478f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a021-e188-7d30-b992-73ccc4ae5f18",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
