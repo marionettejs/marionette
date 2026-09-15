@@ -42,7 +42,7 @@ scope through its lifecycle hooks.
 The initial request fetches metadata independent of the filter. Reading the latest
 filter after loading is correct here. A server request that captures a filter needs
 a separate refresh operation that owns replacement requests; see
-[latest navigation](./routing.md#load-the-latest-page-and-discard-stale-work).
+[refresh without restarting](./application-refresh.md).
 Do not map filter changes to `restart` to implement latest-request-wins behavior.
 
 <!-- executable-example: application-active-effects -->
