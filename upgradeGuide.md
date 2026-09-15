@@ -537,3 +537,15 @@ const view = new ContentView();
 The matching method still runs before event listeners and supplies the return
 value. A synchronous method exception still prevents event notification.
 `getOption()` remains available for application configuration.
+
+## Explicit child Application activation
+
+`addChildApp` registers ownership only. A parent's `start` and the startup phase
+of `restart` no longer start registered children or forward startup options. Call
+selected children's `start(childOptions)` explicitly and await prerequisites in
+`onBeforeStart`; check a `false` result and handle rejected readiness. Optional
+children can stay stopped or start later. Successful parent stop/destroy cleans
+owned descendants, including beneath stopped intermediate owners; failed or
+canceled teardown can retain partial progress. Child start/restart
+returns `false` while an ancestor is stopping or terminal. See
+[Application ownership](docs/marionette.application.md#application-ownership).

@@ -89,7 +89,9 @@ function target(model, method) {
     model.children.clear();
   } else {
     model.running = method !== 'stop';
-    for (const name of model.children.keys()) { model.children.set(name, model.running); }
+    if (method !== 'start') {
+      for (const name of model.children.keys()) { model.children.set(name, false); }
+    }
   }
 }
 
@@ -166,25 +168,11 @@ const commands = [
     expect(real.trace.filter(event => event === 'owner:stop')).toHaveLength(replacement === 'start' ? 0 : 1);
     target(model, replacement);
   })),
-  fc.constantFrom('start', 'stop').map(phase => command('childSupersedesOwner', [phase], model =>
-    !model.destroyed && model.children.size > 0 && model.running === (phase === 'stop') &&
-    [...model.children.values()].every(running => running === model.running), async(model, real) => {
-    const names = [...model.children.keys()];
-    const name = names[0];
-    const child = real.children.get(name);
-    const gate = child.hold(phase);
-    const ownerOperation = real.owner.app[phase]();
-    await until(() => gate.entered);
-    const opposite = phase === 'start' ? 'stop' : 'start';
-    const childOperation = child.app[opposite]();
-    gate.resolve();
-    expect(await settled(childOperation)).toBe(true);
-    expect(await settled(ownerOperation)).toBe(false);
-    expect(real.trace).not.toContain(`owner:${phase}`);
-    for (const later of names.slice(1)) { expect(real.trace).not.toContain(`${later}:before:${phase}`); }
-    // The canceled owner keeps its earlier stable state; the opposing child
-    // operation restores that child's same state, without rolling back siblings.
-  })),
+  fc.tuple(fc.constantFrom('a', 'b', 'c'), method).map(([name, operation]) => command('childTransition', [name, operation],
+    model => model.children.has(name), async(model, real) => {
+      expect(await settled(real.children.get(name).app[operation]())).toBe(true);
+      model.children.set(name, operation !== 'stop');
+    })),
   fc.constant(null).map(() => command('terminalReadiness', [], model => !model.destroyed && model.completed >= 8, async(model, real) => {
     const gate = real.owner.hold('destroy');
     const first = real.owner.app.destroy();

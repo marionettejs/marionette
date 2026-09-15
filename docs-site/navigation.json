@@ -96,6 +96,12 @@
     "section": "Build interfaces"
   },
   {
+    "source": "docs/application-effects.md",
+    "route": "docs/application-effects",
+    "title": "Own feature effects",
+    "section": "Application guides"
+  },
+  {
     "source": "docs/marionette.behavior.md",
     "route": "docs/behavior",
     "title": "Behavior",

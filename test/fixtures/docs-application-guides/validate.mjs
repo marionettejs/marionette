@@ -216,3 +216,6 @@ try {
   delete globalThis.window;
   delete globalThis.document;
 }
+
+// <!-- executable-example: application-active-effects -->
+await import('./effects.mjs');

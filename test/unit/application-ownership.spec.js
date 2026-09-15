@@ -272,6 +272,7 @@ describe('Application ownership', function() {
   it('destroys integer-named children in registration order after parent readiness', async function() {
     const events = [];
     const parentReadiness = Promise.withResolvers();
+    const parentEntered = Promise.withResolvers();
     const firstReadiness = Promise.withResolvers();
     const firstStarted = Promise.withResolvers();
     const FirstChild = Application.extend({
@@ -295,6 +296,7 @@ describe('Application ownership', function() {
     const ParentApplication = Application.extend({
       onBeforeDestroy() {
         events.push('parent:before');
+        parentEntered.resolve();
         return parentReadiness.promise;
       },
       onDestroy() {
@@ -307,6 +309,7 @@ describe('Application ownership', function() {
     parent.addChildApp('2', new SecondChild());
 
     const destroy = parent.destroy();
+    await parentEntered.promise;
     expect(events).to.deep.equal(['parent:before']);
     expect(parent.getChildApps()).to.have.keys(['10', '2']);
 

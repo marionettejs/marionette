@@ -1,3 +1,13 @@
+### Unreleased
+
+* Make Application child activation explicit. Registration owns teardown without
+  starting children; parent restart does not automatically reactivate registered children.
+* On successful destruction, stop active descendants through stopped owners before
+  the parent's `before:destroy` readiness. Failed teardown or a superseded stop
+  may leave descendant cleanup partial.
+* Make descendant `start()` and `restart()` resolve `false` while an ancestor is
+  stopping or terminal.
+
 ### v5.0.0-beta.2
 
 > Now with source maps, so “the AI wrote it” is slightly less useful as a debugging strategy.
