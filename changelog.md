@@ -1,3 +1,10 @@
+### Unreleased
+
+* Deliver Application `stateEvents` only while running, preserving state identity
+  across stop/restart and keeping startup initialization and stopped changes from
+  invoking Application handlers. Notifications suppressed during transitions are
+  not replayed; subscriptions are released at destruction.
+
 ### v5.0.0-beta.2
 
 > Now with source maps, so “the AI wrote it” is slightly less useful as a debugging strategy.

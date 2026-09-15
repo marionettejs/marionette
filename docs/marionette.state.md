@@ -148,6 +148,19 @@ methods to state owners.
 
 ## Application lifetime
 
+Application state persists across stop and restart, but its `stateEvents`
+handlers run only while the Application is running. They are inactive before
+the first successful start, during asynchronous readiness, and from the beginning
+of stop, restart, or destroy. Delivery begins before `onStart`; a failed stop
+that restores running state also restores delivery. Suppressed notifications are
+not queued or replayed. Read the current state in `onStart` for initial display.
+
+State subscriptions are still created after `initialize` and released only at
+destruction. The delivery boundary affects Application handlers only; other
+owners of the same source continue observing it normally. See
+[Application state](./marionette.application.md#application-state) for readiness
+and interactive refresh guidance.
+
 <!-- executable-example: application-local-state -->
 ```javascript
 import { Application } from 'marionette';

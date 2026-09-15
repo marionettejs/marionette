@@ -143,6 +143,14 @@ parent.showChildView('content', new View({
   `createState(options)` for an owned source, and configure `setStateApi` when
   declarative `stateEvents` need observation. The v5 alpha concrete `State`
   export is removed. See [State sources and StateApi](docs/marionette.state.md).
+- Application `stateEvents` now run only while the Application is running.
+  State identity still persists across stop/restart. Seed state in
+  `onBeforeStart`, read its latest values in `onStart`, and use handlers for
+  subsequent running changes. Changes during readiness or stopped time are not
+  replayed. Explicit `listenTo`, Radio bindings, and other state-owning classes
+  retain their existing lifetimes. See
+  [Application state](docs/marionette.application.md#application-state), including
+  how to handle filter changes during asynchronous loading.
 - `Application#getParentApp()` and `Application#getRootApp()` are removed. Pass
   required collaborators to child Applications explicitly when constructing
   them instead of traversing upward.

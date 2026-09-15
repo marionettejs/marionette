@@ -398,7 +398,27 @@ export const dashboardView = dashboard.getView();
 An Application may compose one [state source](./marionette.state.md). A supplied
 `state` is borrowed; a `createState(options)` result is owned. `getState()`
 returns the exact source, and `stateEvents` are installed through the selected
-StateApi after `initialize`.
+StateApi after `initialize`. Application handlers run only while `isRunning()`
+is true: after startup readiness and owned child startup succeed, including
+inside `onStart`, and until a stop, restart, or destroy transition begins.
+
+State changes during construction, readiness, or stopped time are retained by
+the source, but Application `stateEvents` are not delivered or replayed. Seed
+state in `onBeforeStart` and read its current values in `onStart` to establish
+the initial UI. Views and other owners observing the same source still receive
+their own notifications.
+
+A failed or canceled transition restores delivery only if the Application's
+existing failure contract restores it to running. A superseded startup cannot
+reactivate a stopped Application. Subscriptions stay registered until destruction;
+delivery follows the current lifecycle state without resubscribing on restart.
+
+Loading-time interactions need an explicit policy. If startup fetches data using
+a filter snapshot, changing that filter during readiness does not automatically
+restart the fetch. Disable those controls until startup completes, explicitly
+coordinate readiness cancellation, or perform interactive refreshes while the
+Application remains running. A lifetime subscription made explicitly with
+`listenTo` is not gated by this contract and needs its own cleanup policy.
 
 Application state persists across stop and restart. Destruction releases its
 subscriptions, then disposes its owned state source through StateApi.

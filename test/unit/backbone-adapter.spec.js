@@ -42,6 +42,72 @@ describe('Backbone adapter', function() {
     );
   });
 
+  it('supports persistent Application filters with running-only events and independent View observers', async function() {
+    const runtime = createMarionette();
+    runtime.setStateApi(BackboneApi);
+    const starts = vi.fn();
+    const sortChanged = vi.fn();
+    const viewChanged = vi.fn();
+    let finishLoading;
+    const loading = new Promise(resolve => { finishLoading = resolve; });
+    const Feature = runtime.Application.extend({
+      createState() { return new Backbone.Model({ filter: 'all', sort: 'name' }); },
+      stateEvents: {
+        'change:filter': 'restart',
+        'change:sort change:direction': sortChanged
+      },
+      async onBeforeStart() {
+        this.getState().set('selection', []);
+        await loading;
+      },
+      onStart() { starts(this.getState().get('filter')); }
+    });
+    const app = new Feature();
+    const state = app.getState();
+    const Observer = runtime.View.extend({
+      template: false,
+      stateEvents: { 'change:filter': viewChanged }
+    });
+    const view = new Observer({ state });
+    try {
+      const starting = app.start();
+      state.set('filter', 'open');
+      state.set('sort', 'date');
+      expect(starts).not.toHaveBeenCalled();
+      expect(sortChanged).not.toHaveBeenCalled();
+      expect(viewChanged).toHaveBeenCalledTimes(1);
+      finishLoading();
+      expect(await starting).toBe(true);
+      expect(starts).toHaveBeenCalledExactlyOnceWith('open');
+
+      state.set('sort', 'name');
+      state.set('direction', 'descending');
+      expect(sortChanged).toHaveBeenCalledTimes(2);
+      expect(sortChanged.mock.calls[0].slice(0, 2)).toEqual([state, 'name']);
+      expect(sortChanged.mock.contexts).toEqual([app, app]);
+      const restarted = new Promise(resolve => app.once('start', resolve));
+      state.set('filter', 'closed');
+      await restarted;
+      expect(starts.mock.calls).toEqual([['open'], ['closed']]);
+      expect(app.getState()).toBe(state);
+      expect(view.getState()).toBe(state);
+
+      await app.stop();
+      state.set('filter', 'all');
+      expect(app.isRunning()).toBe(false);
+      expect(starts).toHaveBeenCalledTimes(2);
+      expect(viewChanged).toHaveBeenCalledTimes(3);
+      await app.start();
+      expect(starts.mock.calls).toEqual([['open'], ['closed'], ['all']]);
+    } finally {
+      finishLoading();
+      await app.destroy();
+      view.destroy();
+      state.stopListening();
+      state.off();
+    }
+  });
+
   it('does not modify Backbone or its prototypes', function() {
     expect(Object.getOwnPropertyDescriptors(Backbone)).to.deep.equal(namespaceDescriptors);
 

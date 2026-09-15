@@ -2,6 +2,10 @@
   "schemaVersion": 1,
   "browserTests": [
     {
+      "file": "application-state-events.spec.mjs",
+      "title": "Application filters preserve Backbone state through readiness restart and stop"
+    },
+    {
       "file": "adapters-package.spec.mjs",
       "title": "packed adapters preserve Backbone and jQuery contracts"
     },

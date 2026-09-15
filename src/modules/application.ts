@@ -142,7 +142,7 @@ type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & S
   _initRadio(): void;
   _destroyRadio(): unknown;
   _initState(options?: unknown): void;
-  _initStateEvents(): unknown;
+  _initStateEvents(isActive: (application: ApplicationInternals) => boolean): unknown;
 };
 
 const ClassOptions = [
@@ -172,8 +172,12 @@ const Application = function(this: ApplicationInternals, options?: ApplicationOp
   this._initRadio();
   this._initState(options);
   (this.initialize as { apply(receiver: ApplicationInternals, args: IArguments): unknown }).apply(this, arguments);
-  this._initStateEvents();
+  this._initStateEvents(isApplicationRunning);
 };
+
+function isApplicationRunning(application: ApplicationInternals) {
+  return application._lifecycleState === RUNNING;
+}
 
 function isCurrentOperation(application: ApplicationInternals, operation: Operation) {
   return application._lifecycleOperation === operation;
@@ -532,7 +536,7 @@ export default /* @__PURE__ */ ((methods: object) => {
   _lifecycleState: STOPPED,
 
   isRunning(this: ApplicationInternals) {
-    return this._lifecycleState === RUNNING;
+    return isApplicationRunning(this);
   },
 
   // Begin asynchronous startup readiness and child startup; repeated active starts share a Promise.

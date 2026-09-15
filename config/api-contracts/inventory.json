@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "b9366335e0756017a0304de3c24feb4a7c889463ce8442fc00a400b1b233471d",
+  "semanticsSha256": "549425e15bcc5040e945f4eec537eae5c4f8b3f3e4fc48fe94531eee38fc127d",
   "entrypoints": [
     {
       "name": "marionette",
@@ -26,6 +26,7 @@
           "signature": "ApplicationConstructor<{}, [options?: ApplicationOptions | undefined], object, {}>",
           "contracts": [
             "application-lifecycle",
+            "application-state-events",
             "owner-events",
             "owner-trigger-method",
             "owner-get-option",
@@ -179,9 +180,12 @@
               "bindRequests": [
                 "owner-bind-requests"
               ],
-              "createState": [],
+              "createState": [
+                "application-state-events"
+              ],
               "destroy": [
-                "application-lifecycle"
+                "application-lifecycle",
+                "application-state-events"
               ],
               "getChannel": [],
               "getChildApp": [
@@ -199,7 +203,9 @@
               "getRegion": [
                 "application-composition"
               ],
-              "getState": [],
+              "getState": [
+                "application-state-events"
+              ],
               "getView": [
                 "application-composition"
               ],
@@ -213,6 +219,7 @@
                 "application-composition"
               ],
               "isRunning": [
+                "application-state-events",
                 "application-composition"
               ],
               "listenTo": [
@@ -261,7 +268,8 @@
                 "application-composition"
               ],
               "restart": [
-                "application-lifecycle"
+                "application-lifecycle",
+                "application-state-events"
               ],
               "setView": [
                 "application-composition"
@@ -270,10 +278,12 @@
                 "application-composition"
               ],
               "start": [
-                "application-lifecycle"
+                "application-lifecycle",
+                "application-state-events"
               ],
               "stop": [
-                "application-lifecycle"
+                "application-lifecycle",
+                "application-state-events"
               ],
               "stopListening": [
                 "owner-events"
@@ -8008,12 +8018,12 @@
     "src/mixins/delegate-entity-events.ts": "778dc193ff0b32611e6a9112e133f961c2f522c6864ea847c70e7d676fb41c9c",
     "src/mixins/destroy.ts": "bca439af7bbb54e9847e1cc807c731847163d06da649de318f35ce9def63a5b5",
     "src/mixins/radio.ts": "ab9d427c6d8de5279bc89abb9299f7ff679052fc383ed29ee94fa5efc1e33726",
-    "src/mixins/state.ts": "9d98b1b30635325acfab6a3676fc75c3fa287cb680db2fb80630b14a3b5065f9",
+    "src/mixins/state.ts": "59e2caa490987822ab0b0e4e8e5163cc9ac153ccead123dba75028c0ce0d9a66",
     "src/mixins/template-render.ts": "7af61305397db9a9bb31200fbc830f95ae1fd8ddf3e660e635e6a803e6ef473e",
     "src/mixins/ui.ts": "5cb417e1456cd17b43357e480102be3fc1b436167c43b853af7d45ab79d35ffd",
     "src/mixins/view-events.ts": "108a31ba7d0f74916848c5b2f85b422afe15703a8e9fa2dbca0b17b6a5ff0fb2",
     "src/mixins/view.ts": "d0895d07d087d24d5cd8ce8d051a7acbbc9cee64fd2b5a6824b26973fc064e18",
-    "src/modules/application.ts": "d33e231121503298796c8aab7d09075062ef03ec1f5bc3c1f5dc93f0c93100bb",
+    "src/modules/application.ts": "46b15b9985f1aa7e6b497056e07ba577cf3010fe6b96e06ff64c6b8cbc2e53e6",
     "src/modules/behavior.ts": "475fe0451e629559992bd0f5ec18ad16438309b018bf643b5917dfc47a1693b6",
     "src/modules/child-view-container.ts": "ab52685a0a4fd8861534b8e9784704791c3e72a15ee19547766293be4a030803",
     "src/modules/collection-view.ts": "40bbaefedea29de171597e905f8fdde7ee6f55877da9e441996c9b5bf56bfe58",
@@ -8031,7 +8041,7 @@
     "src/runtime/renderer.ts": "9d3419a82872bc0ed017e2716cafe430b33833aab44d8cdf8c74746b1ecdab30",
     "src/runtime/state-api.ts": "ea7191414367fedcd46ed231cbeb1a824f03cce8fec7dcd33ce7860cb5966d46",
     "src/utils/extend.ts": "1df6dc34448491ad1e3254da1106d9c73108f2f17f6e8b77f9bc2691a0c8ba61",
-    "src/utils/subscribe-bindings.ts": "24633b6b39c2d0a8c833670e2ab1d584fb6bed2fae3ac5cfb5d42461cf233f4a"
+    "src/utils/subscribe-bindings.ts": "b2e4141697c4876ba4aef73e6b5b988768d361b0c62e6162602e0f341d9819f6"
   },
   "evidence": {
     "config/diagnostics/catalog.json": "76cc4270e2ec939078cc3c8537d66e45bf0a58010fe25eeef81ab21f58886997",
@@ -8043,12 +8053,12 @@
     "docs/dom.interactions.md": "81bd678c7d498e08c08c84cfc3bbe1d27451ef46ed521e67fff4f72450bdbadb",
     "docs/events.class.md": "54b209f35ee56ec0e7e7d0112b5d02baa03a59d3697d4d1bb799acfff00b5e44",
     "docs/events.md": "227484aca95a4003903bd8df51f3c38c11144480ace919b63bacbf5bc2bb3d22",
-    "docs/marionette.application.md": "478ddd61ba52942353bdbc12e27e3fb3455cb0157bba04aba2154a49ae294cb9",
+    "docs/marionette.application.md": "47ef115e68cda9e0ced5339e3f1ad054f9cc58560b394ac03148058371bf2d1e",
     "docs/marionette.behavior.md": "bf002b5ba380cf1bb1054b98f9813d89b4aef16ba6495d02b823ed178ab3f0c4",
     "docs/marionette.collectionview.md": "5af1ed04daaf0e976fdd0538b0931fd370fd09167079d0c21b01195f8628cefe",
     "docs/marionette.mnobject.md": "056bb3041902d66831a0031e2e9c97770f485f613450861ae55aba46ca592243",
     "docs/marionette.region.md": "6716880b5ab5a6bf7b4b4a6dd7b66e7fdb7bd9c1c451578ad551d64f4be9e40d",
-    "docs/marionette.state.md": "242b5a0d7e4bd99774c6f67c6152a218950f99a88ba962b2a9c4d6daab0a60ca",
+    "docs/marionette.state.md": "2f2dd7a2ec3732fb219b5ab924fd666300733d0039d78458433d91367f2f05e3",
     "docs/marionette.view.md": "b7b5871b0b56474cc3bc2513c2e2c4fdabdafcd724bfbaa8076ea7eee40d5ab5",
     "docs/optional-backbone.md": "9156baef4f7ba47be1b2a017f98e05c8eeb99cdc5d44e267a3afcd33ab6671eb",
     "docs/radio.md": "c0013e382554aa6cd4e46ab60908f5e6cce7117c134b3f4656c37a163f8a5f4e",
@@ -8060,12 +8070,14 @@
     "packages/adapters/readme.md": "358da8baf33d34ac4f8075733557c456388d022c08253fb5e60a2a9a3dca8c99",
     "packages/data/readme.md": "6ef565045f1a0cea164b46d6e43b49d2a5666898e2535349c3073735f8c9d019",
     "packages/utils/readme.md": "937370694121250ac4acfddb17909d17c3054a46b61a968c6ca90d21f29a80e6",
+    "test/browser/application-state-events.spec.mjs": "daec8aed68dfa31d7c93a306eca485fb2017b2e430dea890a9fdbe600c4d3b6b",
     "test/contracts/dom-adapters.js": "a3f71df6a2e52f8d4a52ebb2d3cbbc8e77e055f459daf7c071f4e5fd55ad8c3f",
     "test/unit/application-lifecycle.spec.js": "52adc58534d8cb079dacb9b8b5f608bd62783c14ad5b98bb8cd85dcdd757c331",
     "test/unit/application-ownership.spec.js": "639b5f3d5a4f27c7fd190caff628c98937e99019fdd95cfce5a3e71d3b85986f",
     "test/unit/application-prepared-view.spec.js": "440619dba9c73570974f1531bbe8b601fcb9a27ed64b499d6c10b9e8ca955dca",
     "test/unit/application-root-view.spec.js": "f81cb8fa854b4f72a61d7d6e20a0b5931fde497ff715a8bdccb9cc9e570aeab6",
-    "test/unit/backbone-adapter.spec.js": "016907f55d5e20d695f916dbd4189ac7e3e543a0f903df6a3922c207dade59df",
+    "test/unit/application-state-events.spec.js": "e4c10755ba926270718fca1bc0a1f8c3bea63337817d7b8b55b8bbaa5d220437",
+    "test/unit/backbone-adapter.spec.js": "ef59214321b3a72a0241c05466f19f9fa106f71f7d01327ce501d4e4d8d688eb",
     "test/unit/behavior-lifecycle.spec.js": "8c70d05fa530d27eac901291a3487c9cacac1ef1d0c22a3adda917da5774d05a",
     "test/unit/behavior-ui-contract.spec.js": "65def27b40f17e3d931803faeff7c9dbb3c580e14f157fa5d2f8145fb95c1761",
     "test/unit/collection-view/collection-view-children.spec.js": "3383be2e1def6c561ce827bb4742b7d57e7f2396e99b0fd2b39b601accc327e4",

@@ -1600,6 +1600,45 @@
       ]
     },
     {
+      "id": "application-state-events",
+      "entrypoints": ["marionette"],
+      "exports": ["Application"],
+      "members": ["createState", "getState", "isRunning", "start", "stop", "restart", "destroy"],
+      "result": "getState returns the same source across stop and restart; stateEvents deliver only while the Application is running.",
+      "timing": "Subscriptions are installed after initialize. Delivery begins after readiness and child startup succeed, before onStart, and stops when a stop, restart, or destroy transition begins.",
+      "ownership": "Supplied state is borrowed; createState results are owned. Other owners of the source retain independent delivery.",
+      "mutation": "Source mutations during readiness or stopped time remain available through getState, but suppressed notifications are not replayed. Explicit listenTo and Radio lifetimes are unchanged.",
+      "repetition": "Restart preserves source and subscriptions. Failed or canceled transitions restore delivery only when the existing lifecycle contract restores running state.",
+      "destruction": "Successful destruction releases subscriptions before disposing owned state. This adds no synchronous registration or cleanup recovery contract.",
+      "diagnostics": [],
+      "docs": [
+        { "file": "docs/marionette.application.md", "heading": "Application state" },
+        { "file": "docs/marionette.state.md", "heading": "Application lifetime" }
+      ],
+      "tests": [
+        {
+          "file": "test/unit/application-state-events.spec.js",
+          "title": "seeds state without superseding startup and restarts only for running changes"
+        },
+        {
+          "file": "test/unit/application-state-events.spec.js",
+          "title": "resumes delivery when failed stop readiness restores running state"
+        },
+        {
+          "file": "test/unit/application-state-events.spec.js",
+          "title": "keeps one subscription across restarts and releases it before disposing owned state"
+        },
+        {
+          "file": "test/unit/backbone-adapter.spec.js",
+          "title": "supports persistent Application filters with running-only events and independent View observers"
+        },
+        {
+          "file": "test/browser/application-state-events.spec.mjs",
+          "title": "Application filters preserve Backbone state through readiness restart and stop"
+        }
+      ]
+    },
+    {
       "id": "native-model",
       "entrypoints": [
         "@mnjs/data"
