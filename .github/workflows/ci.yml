@@ -16,8 +16,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: Node 24
+  core:
+    name: Core (Node 24)
     runs-on: ubuntu-24.04
 
     steps:
@@ -55,14 +55,83 @@ jobs:
           npm run check:public-tests
           npm run check:workflows
 
-      - name: Test tooling with separate coverage
-        run: npm run coverage:tooling
-
       - name: Test source ESM
         run: npm run test:source
 
       - name: Lint
         run: npm run lint:ci
+
+      - name: Coverage
+        run: npm run coverage
+
+      - name: Validate documentation and agent resources
+        run: npm run docs:check && npm run test:agent-docs
+
+      - name: Upload suite reports
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: coverage-node-24
+          path: |
+            coverage/
+            test/tmp/unit-results.xml
+          if-no-files-found: warn
+
+  tooling:
+    name: Tooling (Node 24)
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Verify release profile
+        run: npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test tooling with separate coverage
+        run: npm run coverage:tooling
+
+      - name: Upload suite reports
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: tooling-node-24
+          path: |
+            coverage/tooling/
+          if-no-files-found: warn
+
+  browsers:
+    name: Browsers (Node 24)
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Verify release profile
+        run: npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Install supported browsers
         run: npx playwright install --with-deps --only-shell --no-progress chromium firefox webkit
@@ -76,6 +145,44 @@ jobs:
       - name: Validate native browser performance workloads
         run: npm run test:browser-performance
 
+      - name: Upload suite reports
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: browsers-node-24
+          path: |
+            test/tmp/browser/results.json
+            test/tmp/browser/results.xml
+            test/tmp/browser/report/
+            test/tmp/browser/results/
+            test/tmp/performance/browser-report.json
+          if-no-files-found: warn
+
+  agent-reference:
+    name: Agent reference (Node 24)
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Verify release profile
+        run: npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install supported browsers
+        run: npx playwright install --with-deps --only-shell --no-progress chromium firefox webkit
+
       - name: Cache pinned agent reference environment
         run: npm run agent:cache
 
@@ -87,34 +194,62 @@ jobs:
           npm run agent:reference -- --output test/tmp/agent-reference
           npm run agent:fixtures -- --manifest test/tmp/agent-reference/artifacts/artifact-input.json --output test/tmp/agent-fixtures
 
-      - name: Coverage
-        run: npm run coverage
-
-      - name: Test package fixtures
-        run: npm run test:fixtures
-
-      - name: Validate documentation and agent resources
-        run: npm run docs:check && npm run test:agent-docs
-
-      - name: Upload coverage artifact
+      - name: Upload suite reports
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
-          name: coverage-node-24
+          name: agent-reference-node-24
           path: |
-            coverage/
-            test/tmp/unit-results.xml
-            test/tmp/browser/results.json
-            test/tmp/browser/results.xml
-            test/tmp/browser/report/
-            test/tmp/browser/results/
-            test/tmp/fixture-reports/
-            test/tmp/performance/browser-report.json
             test/tmp/agent-reference-app/
             test/tmp/agent-reference/reference-report.json
             test/tmp/agent-reference/artifacts/artifact-input.json
             test/tmp/agent-fixtures/fixture-controls.json
           if-no-files-found: warn
+
+  linux-package-smoke:
+    name: Package smoke (Linux x64)
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Verify release profile
+        run: npm run check:release-profile -- --host linux-x64 --runner ubuntu-24.04
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test package fixtures
+        run: npm run test:fixtures
+
+      - name: Upload suite reports
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: fixtures-node-24
+          path: |
+            test/tmp/fixture-reports/
+          if-no-files-found: warn
+
+  test:
+    name: Node 24
+    needs: [core, tooling, browsers, agent-reference, linux-package-smoke]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require every Node 24 suite to pass
+        env:
+          SUITE_RESULTS: ${{ toJSON(needs) }}
+        run: jq -e 'all(.[]; .result == "success")' <<< "$SUITE_RESULTS"
 
   package-smoke:
     name: Package smoke (macOS arm64)
