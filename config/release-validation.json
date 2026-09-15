@@ -192,6 +192,10 @@
     {
       "file": "view-render-attributes.spec.mjs",
       "title": "root attribute refresh preserves browser state"
+    },
+    {
+      "file": "application-child-activation.spec.mjs",
+      "title": "Application optional children activate explicitly and stop beneath a stopped owner"
     }
   ],
   "fixtures": [

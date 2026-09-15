@@ -58,7 +58,8 @@ from committing application side effects.
 
 ### `start` event
 
-Receives `(application, options)` after readiness and owned child startup complete.
+Receives `(application, options)` after local readiness completes. Required child startup must be explicitly awaited
+in the readiness hook.
 The matching `onStart(application, options)` method can show the feature's View.
 Both are completion notifications; their return values are not awaited.
 

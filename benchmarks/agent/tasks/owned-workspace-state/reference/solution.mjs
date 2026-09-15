@@ -36,8 +36,11 @@ export function createStateWorkspace(el, makeState, domain, lifecycle) {
   };
   const Workspace = Application.extend({
     createState() { return makeState('app'); },
-    onBeforeStart(application, options, context) {
-      return lifecycle.ready(context.signal);
+    async onBeforeStart(application, options, context) {
+      await lifecycle.ready(context.signal);
+      if (context.signal.aborted) { return; }
+      const started = await this.getChildApp('editor')?.start();
+      if (!started && !context.signal.aborted) { throw new Error('Editor startup canceled'); }
     },
     onStart() {
       unsubscribe = lifecycle.subscribe();

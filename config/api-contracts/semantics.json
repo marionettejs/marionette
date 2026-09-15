@@ -1510,9 +1510,9 @@
       ],
       "result": "Operations resolve true at the requested target, false when superseded, and compatible calls share in-flight promises. Current readiness failure rejects the operation promise.",
       "timing": "Readiness is awaited; superseded signals abort before replacement readiness; adopted stop retains its original context/options without abort.",
-      "ownership": "Owned children participate in lifecycle order; direct opposing child operations cancel owner transitions and retain prior owner stable state.",
+      "ownership": "Registration never starts children. Callers explicitly await prerequisites. Stop/destroy traverse all owned descendants, including stopped intermediate owners; descendants cannot start/restart during an ancestor stop or terminal phase.",
       "mutation": "Canceled readiness cannot append stale framework completion events or alter stable state.",
-      "repetition": "Compatible repeated calls share promises; completed target requests are no-ops; canceled readiness resolves false.",
+      "repetition": "Compatible calls share promises. A stopped owner still drains owned descendants without repeating its own stop notifications. Restart deactivates children; reactivation is explicit.",
       "destruction": "Destruction blocks owner and descendant start/restart; successful destruction destroys owned children. Readiness rejection preserves the documented retry and partial-child boundaries.",
       "diagnostics": [],
       "docs": [
@@ -1557,6 +1557,18 @@
         {
           "file": "test/unit/model-based/application.spec.js",
           "title": "preserves winning readiness, stable state, and child ownership across bounded interleavings"
+        },
+        {
+          "file": "test/unit/application-child-lifecycle.spec.js",
+          "title": "registration never starts optional children, including after parent restart"
+        },
+        {
+          "file": "test/unit/application-child-lifecycle.spec.js",
+          "title": "allows explicit children again in restart readiness, but not the stop completion hook"
+        },
+        {
+          "file": "test/unit/application-child-lifecycle.spec.js",
+          "title": "clears prepared roots beneath already-stopped children without inventing stop hooks"
         }
       ],
       "events": [
