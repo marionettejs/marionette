@@ -14,6 +14,17 @@ assert.ok(code, 'the routing example must be a JavaScript module');
 await mkdir(resolve(fixtureDir, 'dist'), { recursive: true });
 const examplePath = resolve(fixtureDir, 'dist/page-navigation.mjs');
 await writeFile(examplePath, code[1]);
+const refreshMarkdown = await readFile(resolve(fixtureDir, '../../../docs/application-refresh.md'), 'utf8');
+for (const [exampleMarker, filename] of [
+  ['<!-- executable-example: application-latest-request -->', 'latest-request.js'],
+  ['<!-- executable-example: application-data-refresh -->', 'results-feature.js']
+]) {
+  const source = refreshMarkdown.slice(refreshMarkdown.indexOf(exampleMarker) + exampleMarker.length)
+    .match(/^\s*```javascript\n([\s\S]*?)\n```/);
+  assert.ok(source);
+  await writeFile(resolve(fixtureDir, 'dist', filename), `${source[1]}\n`);
+}
+
 const bootstrapMarker = '<!-- executable-example: application-bootstrap-readiness -->';
 const bootstrapMarkdown = await readFile(resolve(fixtureDir, '../../../docs/marionette.application.md'), 'utf8');
 assert.equal(bootstrapMarkdown.split(bootstrapMarker).length - 1, 1);
@@ -30,11 +41,13 @@ const requests = new Map();
 const page = title => ({ title, body: `Body of ${title}` });
 let application;
 let bootstrap;
+let stopPermission;
 
 try {
   const { createPageNavigation } = await import(pathToFileURL(examplePath));
   const feature = await createPageNavigation({
     el: document.querySelector('#page'),
+    beforeStop() { return stopPermission?.promise; },
     loadPage(id, { signal }) {
       // Intentionally ignores abort: the controller must reject stale commits itself.
       const request = { signal, ...Promise.withResolvers() };
@@ -83,6 +96,34 @@ try {
   await assert.rejects(failed, error => error === loadError);
   assert.equal(document.querySelector('h1').textContent, 'Newest',
     'a failed load retains the previous page');
+
+  stopPermission = Promise.withResolvers();
+  const duringPermission = navigate('permission');
+  const deniedStop = application.stop().then(value => ({ value }), error => ({ error }));
+  requests.get('permission').resolve(page('Permission pending'));
+  assert.equal(await duringPermission, true, 'pending stop permission leaves navigation active');
+  const permissionError = new Error('Keep editing');
+  stopPermission.reject(permissionError);
+  assert.equal((await deniedStop).error, permissionError);
+  stopPermission = undefined;
+  assert.equal(application.isRunning(), true);
+  assert.equal(document.querySelector('h1').textContent, 'Permission pending');
+
+  stopPermission = Promise.withResolvers();
+  const obsoleteSession = navigate('obsolete-session');
+  const supersededStop = application.stop();
+  const resumedStart = application.start();
+  assert.equal(await supersededStop, false);
+  stopPermission.resolve();
+  assert.equal(await resumedStart, true);
+  stopPermission = undefined;
+  assert.equal(requests.get('obsolete-session').signal.aborted, true);
+  const currentSession = navigate('current-session');
+  requests.get('current-session').resolve(page('Current session'));
+  assert.equal(await currentSession, true);
+  requests.get('obsolete-session').resolve(page('Obsolete session'));
+  assert.equal(await obsoleteSession, false);
+  assert.equal(document.querySelector('h1').textContent, 'Current session');
 
   const pendingStop = navigate('pending-stop');
   const displayed = application.getView();
@@ -142,6 +183,8 @@ try {
   assert.equal(document.querySelector('#page').children.length, 0);
   console.log('Routing and bootstrap examples passed: replacement, stale results/errors, readiness, failure, stop/restart, destruction.');
 } finally {
+  stopPermission?.resolve();
+  stopPermission = undefined;
   if (bootstrap && !bootstrap.isDestroyed()) {
     await bootstrap.destroy();
   }
@@ -152,3 +195,5 @@ try {
   delete globalThis.window;
   delete globalThis.document;
 }
+
+await import('./refresh.mjs');

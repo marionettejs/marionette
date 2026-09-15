@@ -49,7 +49,9 @@ boundary to cancel pending page loads on stop and destruction.
 
 ## Load the latest page and discard stale work
 
-Save this module as `page-navigation.js`. Supply an existing element and a
+Save the shared [latest-request module](./application-refresh.md#share-one-latest-request-controller)
+as `latest-request.js`, then save this module beside it as `page-navigation.js`.
+Supply an existing element and a
 `loadPage(id, { signal })` function returning a Promise for `{ title, body }`.
 The loader may use fetch, a cache, or local data. Data loading is defined once and
 shared by either routing integration below.
@@ -63,56 +65,38 @@ of router choice; see [rendering templates](./view.rendering.md).
 ```javascript
 import { Application, View } from 'marionette';
 import { template } from 'underscore';
+import { createLatestRequest } from './latest-request.js';
 
 const PageView = View.extend({
   template: template('<h1><%- title %></h1><p><%- body %></p>')
 });
 
-export async function createPageNavigation({ el, loadPage }) {
-  let pending;
-
-  function cancelPending() {
-    pending?.abort();
-    pending = undefined;
-  }
-
+export async function createPageNavigation({ el, loadPage, beforeStop = async() => {} }) {
+  let requests;
   const Pages = Application.extend({
-    onBeforeStop: cancelPending,
-    onBeforeDestroy: cancelPending
+    onStart() {
+      requests?.dispose();
+      requests = createLatestRequest({
+        load: loadPage,
+        commit: page => this.showView(new PageView({ model: page }))
+      });
+    },
+    onBeforeStop(app, options, context) { return beforeStop(options, context); },
+    onStop() { requests?.dispose(); },
+    onBeforeDestroy() { requests?.dispose(); }
   });
   const application = new Pages({ region: { el } });
   await application.start();
-
-  async function navigate(id, { signal } = {}) {
-    if (!application.isRunning() || signal?.aborted) return false;
-
-    cancelPending();
-    const request = new AbortController();
-    pending = request;
-    const abort = () => request.abort();
-    signal?.addEventListener('abort', abort, { once: true });
-
-    try {
-      const page = await loadPage(id, { signal: request.signal });
-      if (request.signal.aborted || !application.isRunning()) return false;
-
-      application.showView(new PageView({ model: page }));
-      return true;
-    } catch (error) {
-      if (request.signal.aborted || !application.isRunning()) return false;
-      throw error;
-    } finally {
-      signal?.removeEventListener('abort', abort);
-      if (pending === request) pending = undefined;
-    }
-  }
-
-  return { application, navigate, cancel: cancelPending };
+  return {
+    application,
+    navigate(id, options) { return requests.run(id, options); },
+    cancel() { requests.cancel(); }
+  };
 }
 ```
 
 `navigate()` resolves `true` after displaying the requested page and `false`
-when navigation was canceled or the Application was not running. A current
+when navigation was canceled or its active request controller was disposed. A current
 load or render failure rejects. Catch that rejection at the route boundary and
 show an error appropriate to the application. Render failures do not promise
 that the previous View survives; Region replacement is not transactional.
@@ -133,6 +117,11 @@ so changing their options is not a substitute for navigation cancellation.
 The optional `signal` connects an external navigation cancellation to the page
 request. `cancel()` aborts pending work without removing the displayed View.
 These functions belong to this example, not Marionette's public API.
+Requests remain active during asynchronous `beforeStop` permission; a rejected
+permission leaves them intact. Successful stop or destruction disposes the
+controller. Each start disposes the previous controller before creating a fresh one,
+including a start that supersedes pending stop permission. For data-only refresh that
+preserves the current layout and editor, use the [collection refresh example](./application-refresh.md#refresh-a-collection-and-preserve-the-editor).
 
 ## Use the Navigation API
 
