@@ -1,0 +1,40 @@
+test/fixtures/run.mjs
+  s_15ef02ef10478f::t_92882f0741a139 69
+docs/marionette.application.md
+  s_15ef02ef10478f::t_2d206dcf8a43a9 410-413
+config/release-validation.json
+  s_15ef02ef10478f::t_beb91540fa8616 195,200-202
+config/api-contracts/inventory.json
+  s_15ef02ef10478f::t_376f92f31cbf4d 8051
+test/browser/application-effects.spec.mjs
+  s_15ef02ef10478f::t_2bcbead6fc82ae 1-60
+docs/readme.md
+  s_15ef02ef10478f::t_65652873ec56d1 64-65
+docs/marionette.state.md
+  s_15ef02ef10478f::t_95def3229341a2 151-154
+docs/application-effects.md
+  s_15ef02ef10478f::t_2014b5da260232 37-41
+  s_15ef02ef10478f::t_f59c53f0e9e825 1-36,42-151
+test/fixtures/docs-application-guides/effects.mjs
+  s_15ef02ef10478f::t_fffaa4a1c9e0a3 1-222
+test/fixtures/docs-application-guides/validate.mjs
+  s_15ef02ef10478f::t_562932ba290320 219-221
+docs-site/navigation.json
+  s_15ef02ef10478f::t_fddfa0f1ef54e9 98-103
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "84a3c2b3cfb23fd5f0f03b7ee3ff04c2ba217fc4",
+  "prompts": {},
+  "sessions": {
+    "s_15ef02ef10478f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a021-e188-7d30-b992-73ccc4ae5f18",
+        "model": "gpt-6-astra"
+      },
+      "human_author": null
+    }
+  }
+}
