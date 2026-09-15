@@ -146,7 +146,7 @@
     "@types/backbone": "1.4.23",
     "@types/jquery": "4.0.1",
     "@typescript-eslint/eslint-plugin": "8.69.0",
-    "@typescript-eslint/parser": "8.69.0",
+    "@typescript-eslint/parser": "8.70.0",
     "@vitest/coverage-v8": "5.0.0",
     "@vitest/eslint-plugin": "1.6.27",
     "ajv": "8.20.0",
