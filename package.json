@@ -169,7 +169,7 @@
     "underscore": "^1.13.0",
     "vitest": "5.0.0",
     "xstate": "5.32.6",
-    "yaml": "2.9.0"
+    "yaml": "2.9.1"
   },
   "allowScripts": {
     "fsevents@2.3.3": true
