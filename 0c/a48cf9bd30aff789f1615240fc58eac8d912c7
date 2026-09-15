@@ -1,0 +1,23 @@
+.github/dependabot.yml
+  s_91f62936d63f6a::t_a410e0d2053ac1 9-10
+package-lock.json
+  s_91f62936d63f6a::t_a5c6c972e84351 34,44,49,57,4360-4362,4366-4369,4385-4387,4391-4392,4407-4409,4413-4414,4425-4427,4466,4480,4532,5681-5683,6861-6863,8651-8653
+package.json
+  s_91f62936d63f6a::t_226119e02a7614 149,159,164,172
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "0ca48cf9bd30aff789f1615240fc58eac8d912c7",
+  "prompts": {},
+  "sessions": {
+    "s_91f62936d63f6a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a655-3a58-7a43-87af-0e2af90abc91",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
