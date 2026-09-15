@@ -1,0 +1,19 @@
+test/README.md
+  s_1f0bc8aa06e299::t_db22b61163ea93 84-94
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "1ad90c9b927d41e66b21ec93376086f44f036c02",
+  "prompts": {},
+  "sessions": {
+    "s_1f0bc8aa06e299": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a652-7589-7fe0-a989-e0cffda62999",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
