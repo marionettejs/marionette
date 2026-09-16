@@ -1,7 +1,7 @@
 {
   "name": "marionette",
   "description": "The Composite Javascript Framework",
-  "version": "5.0.0-beta.3",
+  "version": "5.0.0-beta.4",
   "type": "module",
   "homepage": "https://marionettejs.com/",
   "engines": {
@@ -179,8 +179,8 @@
     "packages/radio"
   ],
   "dependencies": {
-    "@mnjs/radio": "5.0.0-beta.3",
-    "@mnjs/utils": "5.0.0-beta.3"
+    "@mnjs/radio": "5.0.0-beta.4",
+    "@mnjs/utils": "5.0.0-beta.4"
   },
   "overrides": {
     "@stryker-mutator/core": {
