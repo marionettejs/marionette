@@ -1,10 +1,18 @@
-### Unreleased
+### v5.0.0-beta.4
+
+> Events announce. Preparation waits. Apparently those needed separate job descriptions.
 
 * Separate Application preparation from lifecycle notifications. Await
   `prepareStart`, `prepareStop`, and `prepareDestroy`; `onBefore*` hooks and
   `before:*` events are synchronous notifications. Pass `prepareStart`'s resolved
-  value to `onStart` and `start` as one third argument. Migrate async `onBefore*`
-  work to the corresponding preparation method.
+  value unchanged to `onStart` and `start` as the third argument. Migrate async
+  `onBefore*` work to the corresponding preparation method.
+* Preserve inferred startup result types for optional preparation methods, including
+  `undefined` when the method is absent.
+* Include referenced consumer resources in documentation exports and keep maintainer
+  material out of the packaged consumer documentation.
+* Clarify packaged and copied agent-skill helper paths, with executable lookup
+  examples checked against the installed documentation.
 
 ### v5.0.0-beta.3
 
