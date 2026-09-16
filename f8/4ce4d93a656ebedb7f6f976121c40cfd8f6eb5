@@ -1,0 +1,21 @@
+test/fixtures/docs-package/validate.mjs
+  s_15ef02ef10478f::t_93dfad5506b608 66,68,70-91,93
+skills/marionette/SKILL.md
+  s_15ef02ef10478f::t_93dfad5506b608 21-23,26-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "f84ce4d93a656ebedb7f6f976121c40cfd8f6eb5",
+  "prompts": {},
+  "sessions": {
+    "s_15ef02ef10478f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a021-e188-7d30-b992-73ccc4ae5f18",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
