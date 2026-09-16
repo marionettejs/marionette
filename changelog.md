@@ -1,5 +1,11 @@
 ### Unreleased
 
+* Separate Application preparation from lifecycle notifications. Await
+  `prepareStart`, `prepareStop`, and `prepareDestroy`; `onBefore*` hooks and
+  `before:*` events are synchronous notifications. Pass `prepareStart`'s resolved
+  value to `onStart` and `start` as one third argument. Migrate async `onBefore*`
+  work to the corresponding preparation method.
+
 ### v5.0.0-beta.3
 
 > Fewer surprise events and surprise startups, because whitespace is not an API and ownership is not a scheduler.

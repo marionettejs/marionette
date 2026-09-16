@@ -25,7 +25,7 @@ const sameDetail: typeof detail = region.destroyView(detail);
 const App = runtime.Application.extend({
   channelName: 'application',
   createState() {return {ready: false};},
-  async onBeforeStart(app: ApplicationInstance<object, unknown>, options: unknown, context: LifecycleContext) {
+  async prepareStart(options: unknown, context: LifecycleContext) {
     if (!context.signal.aborted) {this.getState().ready = true;}
   }
 });

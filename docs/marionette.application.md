@@ -59,7 +59,7 @@ const FeatureApplication = Application.extend({
 ```
 
 Both hooks receive the original constructor arguments and run synchronously;
-returned Promises are not awaited. Use `onBeforeStart` for asynchronous startup
+returned Promises are not awaited. Use `prepareStart` for asynchronous startup
 readiness.
 
 Constructor errors propagate to the caller. Marionette does not undo partially
@@ -80,7 +80,7 @@ Compatible repeated calls share the in-flight Promise. Before destruction
 begins, the latest incompatible operation wins: for example, `stop()` during
 startup resolves the earlier `start()` as `false`, completes the stop lifecycle,
 and prevents a stale `start` event. A `start()` that supersedes an in-flight
-stop waits for the already-running `onBeforeStop` readiness hook before beginning startup;
+stop waits for the already-running `prepareStop` method before beginning startup;
 it does not emit the invalidated `stop` completion. Once destruction begins it is terminal;
 `start()` and `restart()` resolve `false`, while `stop()` follows the active
 teardown until it has reached a stopped or destroyed state. Completion of an
@@ -95,49 +95,74 @@ transitions, after stop, and after destroy.
 
 | Current condition | Operation | Lifecycle | Result |
 | --- | --- | --- | --- |
-| Not running | `start(options)` | `before:start`, await readiness, `start` | `true` when running |
+| Not running | `start(options)` | `before:start`, await `prepareStart`, `start` | `true` when running |
 | Running | `start(options)` | No-op | `true` |
-| Running or starting | `stop(options)` | Invalidates startup when needed, then `before:stop`, `stop` | `true` when stopped; the invalidated start resolves `false` |
+| Running or starting | `stop(options)` | Invalidates startup when needed, then `before:stop`, await `prepareStop`, `stop` | `true` when stopped; the invalidated start resolves `false` |
 | Stopped | `stop(options)` | Stop owned descendants and clear roots without repeating this owner's stop notifications | `true` |
 | Any live, non-destroying state | `restart(options)` | Stop when needed, then start | `true` when running |
-| Running or starting | `destroy(options)` | Stop when needed, then `before:destroy`, `destroy` | `true` when destroyed |
-| Stopped | `destroy(options)` | Stop owned descendants, then `before:destroy`, `destroy` | `true` when destroyed |
+| Running or starting | `destroy(options)` | Stop when needed, then `before:destroy`, await `prepareDestroy`, `destroy` | `true` when destroyed |
+| Stopped | `destroy(options)` | Stop owned descendants, then `before:destroy`, await `prepareDestroy`, `destroy` | `true` when destroyed |
 | Destroying | repeated `destroy()` | Shares the active destroy lifecycle | Same in-flight Promise |
 | Destroying | `start()` or `restart()` | Terminal no-op | `false` |
 | Destroying | `stop()` | Follows active teardown without interrupting it | `true` once stopped or destroyed; rejects if teardown fails before stopping |
 | Destroyed | `start()` or `restart()` | Terminal no-op | `false` |
 | Destroyed | `stop()` or `destroy()` | Terminal no-op | `true` |
 
-The `onBeforeStart`, `onBeforeStop`, and `onBeforeDestroy` methods may return a
-Promise. Their corresponding `before:*` events still fire synchronously, but
-event-listener return values are not readiness inputs. `onStart`, `onStop`,
-`onDestroy`, and their matching events are completion notifications and are not
-awaited. A `before:*` method must not await the same operation whose readiness it
-is defining. `restart` composes the stop and start lifecycles; it does not add a
-parallel restart hook path.
+### Preparation methods and notifications
 
-Each readiness hook and `before:*` event receives the Application, the
-operation options, and a context object with an [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal):
-`(application, options, { signal })`. When a later operation invalidates
-readiness, Marionette aborts its signal before starting replacement readiness.
-The signal makes cancellation cooperative; the invalidated operation still
-resolves `false` even when a handler ignores it. When a start, restart, or
-destroy operation adopts an in-flight stop phase, it also adopts that phase's
-original options and context, and does not abort its signal.
+Each operation separates synchronous notifications from asynchronous preparation:
+
+| Phase | Before notification | Awaited work | Completion notification |
+| --- | --- | --- | --- |
+| Start | `onBeforeStart` / `before:start` | `prepareStart(options, { signal })` | `onStart` / `start` |
+| Stop | `onBeforeStop` / `before:stop` | `prepareStop(options, { signal })` | `onStop` / `stop` |
+| Destroy | `onBeforeDestroy` / `before:destroy` | `prepareDestroy(options, { signal })` | `onDestroy` / `destroy` |
+
+All notification methods and event listeners run synchronously. Their return values
+are ignored, including Promises. Use `prepareStart`, `prepareStop`, and
+`prepareDestroy` for work the operation must await. They are optional instance
+methods, called with `this` as the Application and `(options, context)` arguments.
+A synchronous return also completes preparation; a throw or rejected Promise
+rejects the operation. Notification callbacks must handle any asynchronous work
+and its errors themselves.
+
+`prepareStart`'s resolved value is passed unchanged as one third argument to
+`onStart(application, options, result)` and `start` listeners. Arrays are not
+spread. Without `prepareStart`, the result is `undefined`. The operation's own
+Promise still resolves a boolean, not the prepared value. Canceled startup never
+emits completion with an obsolete result. Stop and destroy preparation results
+are ignored; those methods provide readiness rather than startup data.
+
+Before notifications run before preparation begins. If a `before:start` or
+`before:stop` notification supersedes its pending operation, that preparation method
+does not run. A synchronous replacement begins its own before-notification
+sequence; it cannot adopt preparation that has not begun. Destruction is terminal
+and cannot be superseded. A preparation method must not await the same operation whose readiness it is defining.
+`restart` composes the stop and start lifecycles; it has no separate preparation method.
+
+Only preparation methods receive the context with an
+[`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal).
+Before notifications receive `(application, options)`. When a later operation
+invalidates preparation, Marionette aborts its signal before starting replacement
+preparation. The signal makes cancellation cooperative; the invalidated operation
+still resolves `false` even when a loader ignores it. An operation that adopts an
+in-flight stop phase retains that phase's original options and context, without
+aborting its signal.
 
 If a replacement start has already canceled the remaining child stops, that
 stop phase is no longer adopted. A later `stop()`, `restart()`, or `destroy()`
 begins a fresh stop phase with its own options and context.
 
 The context belongs to the readiness phase rather than to one caller's Promise.
-Completion methods and events receive only `(application, options)`.
+Stop and destroy completion notifications receive `(application, options)`; startup
+also receives its prepared result.
 
 Child registration establishes ownership, not activation. Start chosen children
-explicitly, with their own options. Await required children in `onBeforeStart`;
+explicitly, with their own options. Await required children in `prepareStart`;
 optional children may start later without holding up the parent. A parent start
 never starts a registered child automatically, including after restart.
 
-After `before:stop` readiness, owned children stop sequentially in registration
+After `prepareStop` completes, owned children stop sequentially in registration
 order before the owner reaches stopped and emits `stop`. Stop also traverses
 already-stopped intermediate owners, releases their prepared/displayed roots,
 and stops active descendants. Already-stopped owners do not repeat their own
@@ -179,13 +204,11 @@ const SessionView = View.extend({
 
 export function createSessionApplication({ el, loadSession }) {
   const SessionApplication = Application.extend({
-    async onBeforeStart(app, options, { signal }) {
-      const session = await loadSession({ signal });
-      if (signal.aborted) return;
-      this.session = session;
+    prepareStart(options, { signal }) {
+      return loadSession({ signal });
     },
-    onStart() {
-      this.showView(new SessionView({ model: this.session }));
+    onStart(app, options, session) {
+      this.showView(new SessionView({ model: session }));
     }
   });
 
@@ -273,7 +296,7 @@ with it after destruction. An unknown name resolves with `undefined`. A child
 also removes itself from its parent's child hierarchy when destroyed directly. A
 running parent stops its children before `before:destroy`, then destroys owned
 children in registration order and finally emits the parent's `destroy`
-completion. A parent's `onBeforeDestroy` readiness hook can therefore inspect its
+completion. A parent's `prepareDestroy` method can therefore inspect its
 stopped, live children. A stopped parent also traverses stopped intermediate owners and stops active
 descendants before entering destroy readiness. A concurrent direct child
 destroy joins terminal teardown and may remove that child before parent
@@ -315,7 +338,7 @@ const SearchApplication = Application.extend({
 });
 
 const RootApplication = Application.extend({
-  async onBeforeStart(app, options) {
+  async prepareStart(options) {
     lifecycle.push(`root:before:start:${ options.source }`);
     const started = await this.getChildApp('search').start({ source: 'search' });
     if (!started) { throw new Error('Search startup was canceled'); }

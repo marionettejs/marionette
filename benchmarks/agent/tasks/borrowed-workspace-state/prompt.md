@@ -10,7 +10,7 @@ A fresh workspace is evaluated after the attempt. Hidden acceptance sources are 
 
 The required fourth argument `lifecycle` provides `ready(signal) -> Promise<void>`
 and `subscribe() -> unsubscribe`. Await readiness through the parent's public
-`onBeforeStart(application, options, context)` callback, passing `context.signal`
+`prepareStart(options, context)` callback, passing `context.signal`
 unchanged. No child View or subscription may be created before readiness completes.
 Keep the native lifecycle semantics: compatible in-flight restart calls share their
 operation; stop/destroy can cancel pending readiness. A canceled start/restart resolves false and late readiness must never mount content

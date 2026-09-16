@@ -81,7 +81,7 @@ async function applicationCycle() {
   let view;
   let starts = 0;
   const App = runtime.Application.extend({
-    onBeforeStart() {
+    prepareStart() {
       if (!settle) { return new Promise(resolve => { settle = resolve; }); }
       return this.getChildApp('child').start();
     },

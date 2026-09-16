@@ -77,7 +77,7 @@ export function createStatusFeature({ el, state, channel, load, beforeStop = asy
     updateDisplay() {
       this.getView()?.update(this.label, this.getState().get('filter'));
     },
-    async onBeforeStart(app, options, { signal }) {
+    async prepareStart(options, { signal }) {
       this.effects?.dispose();
       // Seed before subscribing. The source is borrowed and survives each run.
       if (state.get('filter') === undefined) { state.set('filter', 'open'); }
@@ -115,7 +115,7 @@ export function createStatusFeature({ el, state, channel, load, beforeStop = asy
       this.showView(new StatusView());
       this.updateDisplay();
     },
-    onBeforeStop(app, options, context) {
+    prepareStop(options, context) {
       // A rejected permission leaves the running feature and its effects intact.
       return beforeStop(options, context);
     },

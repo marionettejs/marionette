@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "fixtureVersion": "v1",
   "entry": "workloads.js",
-  "entrySha256": "98b936518e9b87aedde50f8bb9a148176d3c596b4ca80e15a3b7b3c5a79c4177",
+  "entrySha256": "dfee11f1c6c660d989805630686c27e81da8c6a2b1d79f147ba948c1f9fc60de",
   "workloadTimeoutMilliseconds": 10000,
   "runOrder": [
     "native-data-list-mutations",

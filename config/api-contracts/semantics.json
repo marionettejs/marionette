@@ -1509,7 +1509,7 @@
         "Application"
       ],
       "result": "Operations resolve true at the requested target, false when superseded, and compatible calls share in-flight promises. Current readiness failure rejects the operation promise.",
-      "timing": "Readiness is awaited; superseded signals abort before replacement readiness; adopted stop retains its original context/options without abort.",
+      "timing": "Before and completion notifications are synchronous and ignore returns. Only prepareStart/prepareStop/prepareDestroy are awaited with options and an abort context; start completion receives one resolved preparation result. Supersession aborts before replacement preparation; adopted stop retains its original context/options without abort.",
       "ownership": "Registration never starts children. Callers explicitly await prerequisites. Stop/destroy traverse all owned descendants, including stopped intermediate owners; descendants cannot start/restart during an ancestor stop or terminal phase.",
       "mutation": "Canceled readiness cannot append stale framework completion events or alter stable state.",
       "repetition": "Compatible calls share promises. A stopped owner still drains owned descendants without repeating its own stop notifications. Restart deactivates children; reactivation is explicit.",
@@ -1569,6 +1569,10 @@
         {
           "file": "test/unit/application-child-lifecycle.spec.js",
           "title": "clears prepared roots beneath already-stopped children without inventing stop hooks"
+        },
+        {
+          "file": "test/unit/application-preparation.spec.js",
+          "title": "notifies before startup, awaits preparation, and forwards one result to completion"
         }
       ],
       "events": [
@@ -1580,14 +1584,23 @@
           ],
           "arguments": [
             "application",
-            "options",
-            "context"
+            "options"
           ],
-          "timing": "Only matching onBefore* readiness hook result is awaited; listener return values are ignored."
+          "timing": "Synchronous notifications; method and listener return values are ignored. Preparation follows; start/stop preparation is skipped if the notification supersedes its pending operation. Destruction is terminal and cannot be superseded."
         },
         {
           "names": [
-            "start",
+            "start"
+          ],
+          "arguments": [
+            "application",
+            "options",
+            "result"
+          ],
+          "timing": "Synchronous completion after prepareStart resolves. The prepared result is one unchanged value; return values are ignored."
+        },
+        {
+          "names": [
             "stop",
             "destroy"
           ],
@@ -1595,7 +1608,7 @@
             "application",
             "options"
           ],
-          "timing": "Completion notifications; return values are not awaited."
+          "timing": "Synchronous completion after preparation and teardown; return values are ignored."
         }
       ],
       "members": [
@@ -1603,6 +1616,9 @@
         "stop",
         "restart",
         "destroy",
+        "prepareStart",
+        "prepareStop",
+        "prepareDestroy",
         "onBeforeStart",
         "onBeforeStop",
         "onBeforeDestroy",

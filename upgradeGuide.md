@@ -543,9 +543,29 @@ value. A synchronous method exception still prevents event notification.
 `addChildApp` registers ownership only. A parent's `start` and the startup phase
 of `restart` no longer start registered children or forward startup options. Call
 selected children's `start(childOptions)` explicitly and await prerequisites in
-`onBeforeStart`; check a `false` result and handle rejected readiness. Optional
+`prepareStart`; check a `false` result and handle rejected readiness. Optional
 children can stay stopped or start later. Successful parent stop/destroy cleans
 owned descendants, including beneath stopped intermediate owners; failed or
 canceled teardown can retain partial progress. Child start/restart
 returns `false` while an ancestor is stopping or terminal. See
 [Application ownership](docs/marionette.application.md#application-ownership).
+
+## Application preparation methods
+
+V5 through beta.3 awaited `onBeforeStart`, `onBeforeStop`, and `onBeforeDestroy`.
+Move asynchronous readiness to `prepareStart`, `prepareStop`, and `prepareDestroy`.
+They receive `(options, { signal })`, with the Application available as `this`.
+The `onBefore*` methods and `before:*` listeners now receive `(application, options)`
+and run only as synchronous notifications; their returned Promises are ignored.
+
+Return startup data from `prepareStart` and receive it as the third argument of
+`onStart(application, options, result)` or a `start` listener. The result is not
+spread or stored by Marionette. `start()` still resolves `Promise<boolean>`.
+Stop and destroy preparation return values are awaited but otherwise ignored.
+Update cancellation work to use the preparation method's context, not a
+notification argument. Existing synchronous cleanup in `onBeforeDestroy` stays there.
+
+Toolkit's app-frontend-style `beforeStart(options)` maps to `prepareStart(options,
+{ signal })`; `onBeforeStart` remains the notification. Replace arrays of Promises
+with an explicit `Promise.all` and consume its array as one startup result.
+See [Application preparation](docs/marionette.application.md#preparation-methods-and-notifications).

@@ -137,8 +137,8 @@ async function applicationLifecycle({ applicationCycles }) {
   const startedAt = performance.now();
   const CycleApplication = Application.extend({
     initialize() { this.startAttempts = 0; },
-    onBeforeStart(application, options, context) {
-      events.push('before:start');
+    onBeforeStart() { events.push('before:start'); },
+    prepareStart(options, context) {
       if (this.startAttempts++) { return; }
       return new Promise(resolve => {
         context.signal.addEventListener('abort', () => {

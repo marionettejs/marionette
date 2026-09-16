@@ -122,7 +122,7 @@ means the request was superseded. A current readiness failure rejects. Keep thos
 outcomes distinct. Constructor hooks run synchronously, and completion hooks are synchronous
 notifications; returning a Promise from them does not add readiness.
 
-Pass the readiness hook's signal to cancellable work. After an asynchronous step,
+Pass the preparation method's signal to cancellable work. After an asynchronous step,
 check that it still belongs to the active operation before committing application
 side effects. Marionette suppresses stale lifecycle completion; it cannot undo an
 arbitrary write made by application code. Follow the complete
