@@ -72,6 +72,28 @@ are disabled so flakes remain visible. Run `npx playwright show-report
 test/tmp/browser/report` or open an individual retained trace. Browser tests use
 Chromium, Firefox and WebKit from the checked-in release profile.
 
+## CI jobs
+
+The Node 24 CI suites run in parallel: core checks and unit coverage, tooling
+coverage, browser contracts, agent reference controls, and Linux package fixtures.
+Each job installs and builds its own checkout and uploads its own reports. The
+`Node 24` aggregate check succeeds only when all five suites succeed; a failed,
+cancelled, or skipped suite does not pass the aggregate check. macOS package smoke
+runs alongside these jobs, and Windows package smoke runs on master pushes.
+
+Each suite uploads the following repository report paths:
+
+| Artifact | Uploaded paths |
+| --- | --- |
+| `coverage-node-24` | `coverage/`, `test/tmp/unit-results.xml` |
+| `tooling-node-24` | `coverage/tooling/` |
+| `browsers-node-24` | `test/tmp/browser/results.json`, `test/tmp/browser/results.xml`, `test/tmp/browser/report/`, `test/tmp/browser/results/`, `test/tmp/performance/browser-report.json` |
+| `agent-reference-node-24` | `test/tmp/agent-reference-app/`, `test/tmp/agent-reference/reference-report.json`, `test/tmp/agent-reference/artifacts/artifact-input.json`, `test/tmp/agent-fixtures/fixture-controls.json` |
+| `fixtures-node-24` | `test/tmp/fixture-reports/` |
+
+Release promotion runs its separate exact-artifact validation when triggered;
+its elapsed time is independent of the regular CI suites.
+
 ## Coverage means observable execution
 
 `npm run coverage` reports library coverage at `coverage/library/index.html`, with
