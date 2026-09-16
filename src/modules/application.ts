@@ -82,7 +82,8 @@ export interface ApplicationInstance<Options extends object = object, State = ob
   getView(): SupportedView | undefined;
 }
 
-type StartResultFor<Props> = Props extends { prepareStart: (...args: never[]) => infer Result } ? Awaited<Result> : unknown;
+type StartResultFor<Props> = Props extends { prepareStart: (...args: never[]) => infer Result } ? Awaited<Result>
+  : Props extends { prepareStart?: (...args: never[]) => infer Result } ? Awaited<Result> | undefined : unknown;
 type ApplicationResult<Props, Args extends unknown[], State> = Merge<
   ApplicationInstance<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State, StartResultFor<Props>>,
   'options' extends keyof Props ? Omit<Props, 'options'> : Props

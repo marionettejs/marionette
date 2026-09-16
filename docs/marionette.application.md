@@ -128,7 +128,7 @@ and its errors themselves. An unhandled rejected notification Promise can surfac
 as a host-level unhandled rejection even when the lifecycle operation succeeds;
 returning it does not make its failure a readiness failure.
 
-`prepareStart`'s resolved value is passed unchanged as one third argument to
+`prepareStart`'s resolved value is passed unchanged as the third argument to
 `onStart(application, options, result)` and `start` listeners. Arrays are not
 spread. Without `prepareStart`, the result is `undefined`. The operation's own
 Promise still resolves a boolean, not the prepared value. Canceled startup never

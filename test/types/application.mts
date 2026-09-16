@@ -115,6 +115,27 @@ preparedApplication.prepareStart(undefined, {signal: new AbortController().signa
 preparedApplication.onStart?.(preparedApplication, undefined, {name: 'Editor'});
 // @ts-expect-error The completion result matches prepareStart's resolved value.
 preparedApplication.onStart?.(preparedApplication, undefined, {name: 123});
+// @ts-expect-error A required preparation returning Session cannot produce undefined.
+preparedApplication.onStart?.(preparedApplication, undefined, undefined);
+const optionalPreparation: { prepareStart?: () => Promise<Session> } = {};
+const OptionalPreparation = Application.extend(optionalPreparation);
+const optionalApplication = new OptionalPreparation();
+optionalApplication.onStart?.(optionalApplication, undefined, {name: 'Editor'});
+optionalApplication.onStart?.(optionalApplication, undefined, undefined);
+// @ts-expect-error An optional preparation retains its concrete result type.
+optionalApplication.onStart?.(optionalApplication, undefined, {name: 123});
+declare const optionalResult: Parameters<NonNullable<typeof optionalApplication.onStart>>[2];
+optionalResult satisfies Session | undefined;
+// @ts-expect-error The preparation may be absent, so callers must handle undefined.
+optionalResult satisfies Session;
+const InheritedOptionalPreparation = OptionalPreparation.extend({});
+const inheritedOptional = new InheritedOptionalPreparation();
+inheritedOptional.onStart?.(inheritedOptional, undefined, undefined);
+// @ts-expect-error Inheriting an optional preparation preserves its result type.
+inheritedOptional.onStart?.(inheritedOptional, undefined, {name: 123});
+declare const unpreparedResult: Parameters<NonNullable<typeof root.onStart>>[2];
+// @ts-expect-error Without a declared preparation result, the result remains unknown.
+unpreparedResult satisfies Session | undefined;
 // @ts-expect-error Preparation does not change the public operation result.
 preparedApplication.start() satisfies Promise<Session>;
 const InheritedPreparation = PreparedApplication.extend({
