@@ -3,9 +3,45 @@ import { execFileSync } from 'node:child_process';
 import { cp } from 'node:fs/promises';
 import { mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { resolve } from 'node:path';
+import { posix, resolve } from 'node:path';
 import test from 'node:test';
+import { Marked } from 'marked';
 import { contentDigest, exportDocs, readResources, sha256, validateNavigation } from '../../scripts/docs/export.mjs';
+
+const markdownParser = new Marked();
+
+async function markdownTargets(contents) {
+  const targets = [];
+  const pending = markdownParser.walkTokens(markdownParser.lexer(contents), token => {
+    if (token.type === 'link' || token.type === 'image') { targets.push(token.href); }
+  });
+  await Promise.all(pending);
+  return targets;
+}
+
+function decodeTarget(source, target) {
+  let decoded;
+  try {
+    decoded = decodeURIComponent(target.split(/[?#]/, 1)[0]);
+  } catch {
+    assert.fail(`${source} has malformed relative reference: ${target}`);
+  }
+  return decoded;
+}
+
+test('Markdown references ignore code examples and identify malformed URLs', async() => {
+  const contents = `[real](./real.md)
+
+\`\`\`markdown
+[fenced](./fenced-example.md)
+\`\`\`
+
+    [indented](./indented-example.md)
+`;
+  assert.deepEqual(await markdownTargets(contents), ['./real.md']);
+  assert.throws(() => decodeTarget('benchmarks/docs/README.md', './a%zz.md'),
+    /benchmarks\/docs\/README\.md has malformed relative reference: \.\/a%zz\.md/);
+});
 
 test('export CLI labels stable and prerelease documentation from the selected policy', async() => {
   const directory = await mkdtemp(resolve(tmpdir(), 'marionette-doc-channel-'));
@@ -59,11 +95,14 @@ test('resources are explicit text files and cannot escape through paths or symli
     await mkdir(repository);
     await mkdir(outside);
     await writeFile(resolve(repository, 'guide.md'), 'Read this exact text.\n');
+    await writeFile(resolve(repository, 'helper.js'), 'export const value = true;\n');
     await writeFile(resolve(repository, 'unlisted.md'), 'Do not export adjacent files.');
     await writeFile(resolve(outside, 'private.md'), 'Outside the repository.');
     const resources = await readResources(repository, ['guide.md']);
     assert.deepEqual(resources.map(entry => entry.source), ['guide.md']);
     assert.equal(resources[0].bytes.toString(), 'Read this exact text.\n');
+    assert.equal((await readResources(repository, ['helper.js']))[0].bytes.toString(),
+      'export const value = true;\n');
     for (const source of ['../outside/private.md', '/guide.md', './guide.md', 'a/../guide.md',
       'a//guide.md', 'a\\guide.md', 'guide.txt', 'guide.md?query', 42, null]) {
       await assert.rejects(readResources(repository, [source]), /Invalid documentation resource/);
@@ -105,4 +144,46 @@ test('exports every current top-level guide with exact bytes and reproducible pr
   assert.equal(contentDigest([...entries].reverse()), manifest.contentSha256);
   const changed = entries.map((page, index) => index ? page : { ...page, sha256: sha256('changed') });
   assert.notEqual(contentDigest(changed), manifest.contentSha256);
+});
+
+test('exports relative dependencies of fixture validators and raw Markdown resources', async() => {
+  const manifest = await exportDocs();
+  const entries = [...manifest.pages, ...manifest.assets];
+  const exported = new Set(entries.map(entry => entry.source));
+  const references = [];
+  const moduleQueue = manifest.assets.filter(asset =>
+    /^test\/fixtures\/[^/]+\/validate\.mjs$/.test(asset.source)).map(asset => asset.source);
+  const checkedModules = new Set();
+  while (moduleQueue.length) {
+    const source = moduleQueue.shift();
+    if (checkedModules.has(source)) { continue; }
+    checkedModules.add(source);
+    const contents = await readFile(new URL(`../../.docs-export/${source}`, import.meta.url), 'utf8');
+    for (const match of contents.matchAll(/(?:\bfrom\s*|\bimport\s*(?:\(\s*)?)(['"])(\.[^'"]+)\1/g)) {
+      const target = decodeTarget(source, match[2]);
+      const dependency = posix.normalize(posix.join(posix.dirname(source), target));
+      const generated = !exported.has(dependency) && /\/dist\/[^/]+\.js$/.test(dependency);
+      if (generated) { continue; }
+      assert.ok(exported.has(dependency), `${source} imports omitted export source: ${dependency}`);
+      if (/\.m?js$/.test(dependency)) { moduleQueue.push(dependency); }
+    }
+  }
+  for (const asset of manifest.assets) {
+    const contents = await readFile(new URL(`../../.docs-export/${asset.source}`, import.meta.url), 'utf8');
+    if (asset.source.endsWith('.md')) {
+      for (const href of await markdownTargets(contents)) {
+        const target = href.replace(/^<|>$/g, '');
+        if (!/^(?:[a-z]+:|#|\/)/i.test(target)) {
+          references.push({ source: asset.source, target });
+        }
+      }
+    }
+  }
+  for (const reference of references) {
+    const target = decodeTarget(reference.source, reference.target);
+    if (!target) { continue; }
+    const source = posix.normalize(posix.join(posix.dirname(reference.source), target));
+    assert.ok(exported.has(source), `${reference.source} references omitted export source: ${source}`);
+    await readFile(new URL(`../../.docs-export/${source}`, import.meta.url));
+  }
 });
