@@ -1,0 +1,63 @@
+docs/beta.md
+  s_8e839ceaee97c7::t_d28f53457994f7 3,40-41,85-89,93-94
+packages/radio/readme.md
+  s_8e839ceaee97c7::t_1e71c93b88bbc9 6
+packages/radio/package.json
+  s_8e839ceaee97c7::t_2a29cae5734cc6 4,52
+docs/optional-backbone.md
+  s_8e839ceaee97c7::t_1e71c93b88bbc9 10
+test/README.md
+  s_8e839ceaee97c7::t_23e8752e251e07 182
+readme.md
+  s_8e839ceaee97c7::t_1e71c93b88bbc9 48
+docs/release-promotion.md
+  s_8e839ceaee97c7::t_23e8752e251e07 14,92,101,103,110-111
+  s_8e839ceaee97c7::t_772f0d6a4f64b4 240-245
+packages/adapters/readme.md
+  s_8e839ceaee97c7::t_1e71c93b88bbc9 30,72,129,175,197
+docs/data.api.md
+  s_8e839ceaee97c7::t_1e71c93b88bbc9 219
+packages/data/readme.md
+  s_8e839ceaee97c7::t_1e71c93b88bbc9 10
+docs/migration-from-v4.md
+  s_8e839ceaee97c7::t_1e71c93b88bbc9 23
+changelog.md
+  s_8e839ceaee97c7::t_bf2f7bcba0c840 25-28
+  s_8e839ceaee97c7::t_1e71c93b88bbc9 3-10,12-13,15-24,29-30
+packages/data/package.json
+  s_8e839ceaee97c7::t_2a29cae5734cc6 4,52
+docs/agent-tools.md
+  s_8e839ceaee97c7::t_1e71c93b88bbc9 95,101
+package.json
+  s_8e839ceaee97c7::t_2a29cae5734cc6 4,182-183
+packages/adapters/package.json
+  s_8e839ceaee97c7::t_2a29cae5734cc6 4,81
+config/release-promotion.json
+  s_8e839ceaee97c7::t_1e71c93b88bbc9 5
+docs/installation.md
+  s_8e839ceaee97c7::t_d28f53457994f7 10,33,61,73,76,79,188,262,264
+packages/utils/readme.md
+  s_8e839ceaee97c7::t_1e71c93b88bbc9 7
+config/api-contracts/inventory.json
+  s_8e839ceaee97c7::t_26d62d6889c6a7 8,5315,5936,6397,6930,7005,7065,7152,7192,8040,8053,8060-8062
+package-lock.json
+  s_8e839ceaee97c7::t_554ee4d319bc29 3,9,16-17,8742,8745,8753
+packages/utils/package.json
+  s_8e839ceaee97c7::t_b7f63813647133 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "1a3a59ed3980f31e849e2c4ae89d10ba801e18c0",
+  "prompts": {},
+  "sessions": {
+    "s_8e839ceaee97c7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a8fd-cbe1-7f00-82e2-fbed77bf784b",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
