@@ -18,12 +18,13 @@ Its path is `scripts/docs.mjs` relative to the directory containing this `SKILL.
 - After copying the skill, it is the copied directory, such as
   `/path/to/application/.agents/skills/marionette/`.
 
-Run these commands from that skill directory, replacing `/path/to/application`
-with the application's absolute path:
+Replace `/path/to/skill-directory` with that directory's absolute path and
+`/path/to/application` with the application's absolute path. These commands work
+from any working directory:
 
 ```sh
-node scripts/docs.mjs --project "/path/to/application" --list
-node scripts/docs.mjs --project "/path/to/application" --page docs/agents.md
+node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --list
+node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --page docs/agents.md
 ```
 
 These are lookup options, not a required sequence. `--list` returns provenance and

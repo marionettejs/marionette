@@ -63,15 +63,34 @@ try {
     const commands = parser.lexer(skill).filter(token => token.type === 'code' && token.lang === 'sh')
       .flatMap(token => token.text.split('\n'));
     assert.equal(commands.length, 2, 'Exercise both documented lookup commands');
+    const modes = new Set();
     for (const command of commands) {
-      const [executable, ...args] = command.split(/\s+/);
+      const [executable, ...tokens] = command.split(/\s+/);
       assert.equal(executable, 'node');
-      const output = execFileSync(process.execPath,
-        args.map(arg => arg === '"/path/to/application"' ? process.cwd() : arg),
-        { cwd: skillRoot, encoding: 'utf8' });
-      assert.ok(output.includes(manifest.sourceRevision));
-      assert.ok(output.includes('docs/agents.md'));
+      const substitutions = new Map([
+        ['/path/to/skill-directory/scripts/docs.mjs', resolve(skillRoot, 'scripts/docs.mjs')],
+        ['/path/to/application', process.cwd()],
+      ]);
+      const args = tokens.map(token => token.replace(/^(['"])(.*)\1$/, '$2'))
+        .map(arg => substitutions.get(arg) ?? arg);
+      const output = execFileSync(process.execPath, args, { cwd: process.cwd(), encoding: 'utf8' });
+      if (args.includes('--list')) {
+        modes.add('list');
+        const result = JSON.parse(output);
+        assert.equal(result.sourceRevision, manifest.sourceRevision);
+        assert.deepEqual(result.pages.map(page => page.source), manifest.pages.map(page => page.source));
+      } else {
+        modes.add('page');
+        assert.deepEqual(args.slice(-2), ['--page', 'docs/agents.md']);
+        const headerEnd = output.indexOf('\n');
+        const result = JSON.parse(output.slice(0, headerEnd));
+        assert.equal(result.sourceRevision, manifest.sourceRevision);
+        assert.equal(result.source, 'docs/agents.md');
+        const page = await readFile(resolve(docsRoot, result.source), 'utf8');
+        assert.equal(output.slice(headerEnd + 1), `${page}\n`);
+      }
     }
+    assert.deepEqual([...modes].sort(), ['list', 'page']);
   }
   const result = execFileSync(process.execPath, [resolve(directory, 'scripts/docs.mjs'), '--package-root', packageRoot, '--list'], { encoding: 'utf8' });
   assert.ok(result.includes(manifest.sourceRevision));
