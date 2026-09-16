@@ -7,7 +7,7 @@
     "sha256": "d3b22d2eadef621768d8279af5f57517b0d91d261940d21fd12a0890b4d99297"
   },
   "toolchain": {
-    "rollup": "4.63.1",
+    "rollup": "4.63.2",
     "rollupPluginTerser": "1.0.0",
     "terser": "5.51.2"
   },
