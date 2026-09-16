@@ -48,7 +48,8 @@ test('invalid and superseded policies fail closed', () => {
 for (const version of [beta, '5.0.0', '5.0.0-beta.2']) {
   test(`publish preflight enforces the exact prerelease authorization for ${version}`, async t => {
     const candidate = await fixture(t, { version, publication: { stable: false, prerelease: beta } });
-    const result = candidate.run('preflight', ['--mode', 'publish', '--event', 'workflow_dispatch', '--ref', 'refs/heads/master']);
+    const result = candidate.run('preflight', ['--mode', 'publish', '--event', 'workflow_dispatch',
+      '--ref', 'refs/heads/master', '--certification-run-id', '123']);
     assert.equal(result.status, version === beta ? 0 : 1, result.stderr);
     if (version !== beta) { assert.match(result.stderr, /publication is disabled/); }
     assert.equal(candidate.run('preflight', ['--mode', 'dry-run']).status, 0);

@@ -21,7 +21,10 @@ const adapterFixtures = new Set([
 ]);
 
 function readOptions(args) {
-  const allowed = new Set(['--fixture', '--artifact-dir', '--report', ...packageInputs.map(input => input.flag)]);
+  const allowed = new Set([
+    '--fixture', '--artifact-dir', '--report', '--shard-index', '--shard-total',
+    ...packageInputs.map(input => input.flag),
+  ]);
   const options = {};
   for (let index = 0; index < args.length; index += 2) {
     const flag = args[index];
@@ -36,6 +39,23 @@ function readOptions(args) {
   const supplied = packageInputs.filter(input => options[input.flag]);
   if (supplied.length && (supplied.length !== packageInputs.length || options['--artifact-dir'])) {
     throw new Error('Supply all five --*-tarball options, or --artifact-dir, or no artifacts to build locally.');
+  }
+  const shardIndex = Number(options['--shard-index']);
+  const shardTotal = Number(options['--shard-total']);
+  const hasShardIndex = Object.hasOwn(options, '--shard-index');
+  const hasShardTotal = Object.hasOwn(options, '--shard-total');
+  if (hasShardIndex !== hasShardTotal) {
+    throw new Error('Supply both --shard-index and --shard-total.');
+  }
+  if (hasShardIndex && (!Number.isInteger(shardIndex) || !Number.isInteger(shardTotal) ||
+      shardIndex < 1 || shardTotal < 1 || shardIndex > shardTotal)) {
+    throw new Error('Fixture shard values must be positive integers with index no greater than total.');
+  }
+  if (options['--fixture'] && hasShardIndex) {
+    throw new Error('Select either --fixture or a fixture shard, not both.');
+  }
+  if (hasShardIndex) {
+    options.shard = { index: shardIndex, total: shardTotal };
   }
   return options;
 }
@@ -102,9 +122,20 @@ try {
   if (JSON.stringify(fixtures) !== JSON.stringify(inventory.fixtures.toSorted())) {
     throw new Error('Fixture directories do not match the release validation inventory.');
   }
-  const selected = options['--fixture'] ? [options['--fixture']] : fixtures;
+  let selected = fixtures;
+  if (options['--fixture']) {
+    selected = [options['--fixture']];
+  } else if (options.shard) {
+    selected = fixtures.filter((name, index) => index % options.shard.total === options.shard.index - 1);
+  }
   if (!selected.length || selected.some(name => !fixtures.includes(name))) {
     throw new Error(`Unknown fixture: ${options['--fixture'] || '(none discovered)'}. Available: ${fixtures.join(', ')}`);
+  }
+  report.selection = { all: true };
+  if (options['--fixture']) {
+    report.selection = { fixture: options['--fixture'] };
+  } else if (options.shard) {
+    report.selection = { shardIndex: options.shard.index, shardTotal: options.shard.total };
   }
   reportPath = resolve(rootDir, options['--report'] || `test/tmp/fixture-reports/${report.id}.json`);
   const npmCli = process.env.npm_execpath;

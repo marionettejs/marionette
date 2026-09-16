@@ -150,6 +150,11 @@ Without artifact inputs, the runner builds and packs once. To validate a candida
 npm run test:fixtures -- --artifact-dir release --report test/tmp/fixtures.json
 ```
 
+Release hosts may divide the complete inventory deterministically with
+`--shard-index <one-based-index> --shard-total <count>`. Supply both options, do not
+combine them with `--fixture`, and require every shard so their union preserves the
+full fixture contract.
+
 All five explicit tarball flags are also accepted together. Partial/mixed inputs
 fail before installation. Reports include artifact and lock hashes, installed
 graphs, output, stage, status and elapsed time for every attempted fixture.

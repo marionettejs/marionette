@@ -180,15 +180,18 @@ test('enabled publication requires a manual workflow on the trusted branch', asy
   for (const [args, error] of [
     [['--event', 'push', '--ref', 'refs/heads/master'], /only from workflow_dispatch/],
     [['--event', 'workflow_dispatch', '--ref', 'refs/heads/untrusted'], /requires refs\/heads\/master/],
+    [['--event', 'workflow_dispatch', '--ref', 'refs/heads/master'], /requires the positive integer run ID/],
+    [['--event', 'workflow_dispatch', '--ref', 'refs/heads/master', '--certification-run-id', 'invalid'], /requires the positive integer run ID/],
   ]) {
     const result = candidate.run('preflight', ['--mode', 'publish', ...args]);
     assert.equal(result.status, 1);
     assert.match(result.stderr, error);
   }
   const output = resolve(candidate.directory, 'preflight-output');
-  const result = candidate.run('preflight', ['--mode', 'publish', '--event', 'workflow_dispatch', '--ref', 'refs/heads/master'], { GITHUB_OUTPUT: output });
+  const result = candidate.run('preflight', ['--mode', 'publish', '--event', 'workflow_dispatch',
+    '--ref', 'refs/heads/master', '--certification-run-id', '123'], { GITHUB_OUTPUT: output });
   assert.equal(result.status, 0, result.stderr);
-  assert.equal(await readFile(output, 'utf8'), 'mode=publish\npublication_enabled=true\n');
+  assert.equal(await readFile(output, 'utf8'), 'mode=publish\npublication_enabled=true\ncertification_run_id=123\n');
 });
 
 test('npm integrity verification retries propagation delay without publishing a package', async t => {

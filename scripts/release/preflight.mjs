@@ -9,7 +9,7 @@ const policy = await readJson('config/release-promotion.json');
 const packageJson = await readJson('package.json');
 
 function parseArguments() {
-  const allowed = new Set(['--mode', '--repository', '--ref', '--event']);
+  const allowed = new Set(['--mode', '--repository', '--ref', '--event', '--certification-run-id']);
   const parsed = new Map();
 
   for (let index = 0; index < args.length; index += 2) {
@@ -87,6 +87,7 @@ const mode = readArgument('--mode', 'dry-run');
 const repository = readArgument('--repository', policy.repository);
 const ref = readArgument('--ref', `refs/heads/${policy.defaultBranch}`);
 const event = readArgument('--event', 'local');
+const certificationRunId = parsedArgs.get('--certification-run-id');
 
 if (!['dry-run', 'publish'].includes(mode)) {
   fail(`unsupported mode ${mode}`);
@@ -104,9 +105,15 @@ if (mode === 'publish') {
   if (ref !== `refs/heads/${policy.defaultBranch}`) {
     fail(`publication requires refs/heads/${policy.defaultBranch}; received ${ref}`);
   }
+  if (!certificationRunId || !/^[1-9][0-9]*$/.test(certificationRunId)) {
+    fail('publication requires the positive integer run ID of a successful dry-run certification');
+  }
+} else if (certificationRunId) {
+  fail('a certification run ID is accepted only for publication');
 }
 
 await writeOutput('mode', mode);
 await writeOutput('publication_enabled', String(enabled));
+if (certificationRunId) { await writeOutput('certification_run_id', certificationRunId); }
 
 console.log(`Release promotion preflight passed in ${mode} mode; publication enabled: ${enabled}.`);

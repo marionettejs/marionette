@@ -120,12 +120,49 @@ after(() => {
 test('rejects partial artifact arguments and unknown fixtures before attempting a build', () => {
   const { root } = scenario();
   const script = resolve(root, 'test/fixtures/run.mjs');
-  for (const args of [['--tarball', 'one.tgz'], ['--fixture', 'missing']]) {
+  for (const args of [
+    ['--tarball', 'one.tgz'], ['--fixture', 'missing'], ['--shard-index', '1'],
+    ['--shard-index', '0', '--shard-total', '2'], ['--shard-index', '2', '--shard-total', '1'],
+    ['--fixture', 'sample', '--shard-index', '1', '--shard-total', '2'],
+  ]) {
     const result = spawnSync(process.execPath, [script, ...args], { cwd: root, encoding: 'utf8' });
     assert.equal(result.status, 1);
-    assert.match(result.stderr, /Supply all five|Unknown fixture/);
+    assert.match(result.stderr, /Supply all five|Unknown fixture|shard|Select either/);
     assert.doesNotMatch(result.stdout, /Building/);
   }
+});
+
+test('deterministic shards cover every fixture exactly once', () => {
+  const { root } = scenario();
+  const inventory = JSON.parse(readFileSync(resolve(repository, 'config/release-validation.json'), 'utf8')).fixtures;
+  const fixtures = resolve(root, 'test/fixtures');
+  const template = resolve(root, 'fixture-template');
+  const runner = resolve(root, 'fixture-runner.mjs');
+  cpSync(resolve(fixtures, 'sample'), template, { recursive: true });
+  cpSync(resolve(fixtures, 'run.mjs'), runner);
+  rmSync(fixtures, { recursive: true });
+  mkdirSync(fixtures, { recursive: true });
+  cpSync(runner, resolve(fixtures, 'run.mjs'));
+  for (const name of inventory) {
+    const fixture = resolve(fixtures, name);
+    cpSync(template, fixture, { recursive: true });
+    writeFileSync(resolve(fixture, 'validate.mjs'), `console.log(${JSON.stringify(`${name}-ran`)});\n`);
+  }
+  json(resolve(root, 'config/release-validation.json'), { schemaVersion: 1, fixtures: inventory });
+  const selected = [];
+  for (const index of [1, 2, 3, 4]) {
+    const invocation = command(root);
+    invocation.args.splice(invocation.args.indexOf('--fixture'), 2);
+    invocation.args.push('--shard-index', String(index), '--shard-total', '4');
+    invocation.args[invocation.args.indexOf('--report') + 1] = resolve(root, `report-${index}.json`);
+    const result = spawnSync(process.execPath, invocation.args, invocation.options);
+    assert.equal(result.status, 0, result.stderr);
+    const summary = JSON.parse(readFileSync(resolve(root, `report-${index}.json`), 'utf8'));
+    assert.deepEqual(summary.selection, { shardIndex: index, shardTotal: 4 });
+    selected.push(...summary.fixtures.map(entry => entry.name));
+  }
+  assert.equal(new Set(selected).size, inventory.length);
+  assert.deepEqual(selected.toSorted(), inventory.toSorted());
 });
 
 test('rejects missing candidates and corrupt evidence before npm is invoked', () => {

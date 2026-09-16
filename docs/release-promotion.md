@@ -23,7 +23,8 @@ Stable authorization still requires the final evidence under the current
 acceptance text does not reinstate retired comparative benchmark gates.
 Pull-request output cannot activate the write-capable jobs: those jobs also require a
 manual dispatch from `master` in this repository with the `publish` input enabled,
-followed by approval of the protected `stable-release` environment.
+the run ID of a successful manual dry run for that exact commit, and approval of the
+protected `stable-release` environment.
 
 Generated `dist/` files and `src/version.js` are ignored by Git. `npm ci` runs the
 root `prepare` lifecycle to build all five packages and test the core distributions.
@@ -70,7 +71,9 @@ manifest, source repository and commit, expected npm dist-tag and Git tag, Node/
 versions, release-profile Git blob and SHA-512 revisions, runner image, and workflow
 run identifiers. Every later job downloads and re-verifies those bytes. Package
 fixtures consume the tarball directly on Ubuntu 24.04 x64, macOS 15 arm64, and
-Windows 2025 x64.
+Windows 2025 x64. The Windows release host divides the complete fixture inventory into
+four deterministic shards. Every shard remains required; sharding changes elapsed time,
+not coverage.
 
 ## Dry run
 
@@ -88,6 +91,14 @@ dry run:
 5. inspects npm, Git tag, and GitHub release target occupancy;
 6. runs `npm publish <tarball> --dry-run --ignore-scripts` and validates the GitHub
    release plan.
+
+Record the successful manual dry-run workflow ID. Publication does not rebuild or rerun
+the candidate suite. Instead, the publish dispatch requires that ID, verifies through
+the GitHub API that the referenced `Release promotion` run completed its `Promotion dry
+run` job successfully for the same source commit, downloads that run's named artifact,
+and checks that the evidence manifest records the same workflow run ID. A missing,
+failed, different-commit, pull-request, or different-workflow run is rejected before
+the protected environment or publication steps.
 
 The candidate version is `5.0.0-beta.4`; the registry alpha belongs to an older
 implementation. Inspect all five candidate versions and their Git tag before
@@ -162,8 +173,9 @@ Before merging that authorization:
    `id-token: write` only on the gated publish job.
 4. Revoke obsolete automation tokens after trusted publishing succeeds. No npm token
    is stored in GitHub.
-5. Dispatch the workflow from `master` with `publish` true and approve the protected
-   environment only after reviewing the source commit and evidence artifact.
+5. Dispatch the workflow from `master` with `publish` true and the successful manual
+   dry-run ID in `certification_run_id`. Approve the protected environment only after
+   reviewing that run's source commit and evidence artifact.
 
 Documentation exports derive their channel from the candidate version and this
 policy, independently of whether publication is currently authorized. Both stable
@@ -177,7 +189,8 @@ manifest, and asset bytes. A matching public release is treated as an already-co
 GitHub publication after those assets are downloaded and reverified; if its matching
 tag was deleted, recovery recreates that tag at the verified source commit.
 
-The write-enabled job first stages a draft GitHub release with the verified assets,
+The write-enabled job imports the exact successful dry-run artifact, first stages a
+draft GitHub release with those verified assets,
 then publishes the exact tarball through npm OIDC trusted publishing, verifies the
 registry integrity with bounded propagation retries, reverifies the local and staged
 asset bytes, and finally publishes the draft release and matching tag. npm automatically

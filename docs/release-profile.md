@@ -39,7 +39,9 @@ x64 package-fixture suite runs after merge on pushes to `master`, and remains a
 required gate for release artifacts. Windows failures therefore surface after
 merge without delaying routine PRs. Release dry runs on PRs test macOS; manually
 dispatched release validation tests both macOS and Windows against the exact
-candidate tarballs before publication.
+candidate tarballs before publication. Manually dispatched release validation
+runs four deterministic Windows fixture shards with a shared npm download cache;
+all shards must pass, and their union is the full inventory.
 
 GitHub's fixed OS labels still receive runner-image updates, so release evidence
 records the actual image reported by each run. Hosted-runner timings remain
