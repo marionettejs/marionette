@@ -556,12 +556,18 @@ V5 through beta.3 awaited `onBeforeStart`, `onBeforeStop`, and `onBeforeDestroy`
 Move asynchronous readiness to `prepareStart`, `prepareStop`, and `prepareDestroy`.
 They receive `(options, { signal })`, with the Application available as `this`.
 The `onBefore*` methods and `before:*` listeners now receive `(application, options)`
-and run only as synchronous notifications; their returned Promises are ignored.
+and run only as synchronous notifications. Marionette neither awaits their returned
+Promises nor attaches rejection handlers. Move any work that must succeed for the
+operation to complete into `prepare*`; otherwise the operation can succeed while
+an unmigrated async notification produces an unhandled rejection. Background work
+started by a notification must handle its own errors.
 
 Return startup data from `prepareStart` and receive it as the third argument of
 `onStart(application, options, result)` or a `start` listener. The result is not
 spread or stored by Marionette. `start()` still resolves `Promise<boolean>`.
 Stop and destroy preparation return values are awaited but otherwise ignored.
+An already-stopped owner skips its own `prepareStop` and stop notifications, even
+when stop, restart, or destroy must still stop its active descendants.
 Update cancellation work to use the preparation method's context, not a
 notification argument. Existing synchronous cleanup in `onBeforeDestroy` stays there.
 

@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { execFileSync } from 'node:child_process';
 import { createRequire } from 'module';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
@@ -126,6 +127,11 @@ async function validate() {
   ];
 
   for (const [name, Marionette, utils, radio] of entrypoints) {
+    // Observe deliberately rejected notifications outside this validation process.
+    execFileSync(process.execPath, [
+      '--unhandled-rejections=throw',
+      resolve(import.meta.dirname, 'application-notifications.mjs'), packageRoot, name
+    ], { stdio: 'inherit', timeout: 10000 });
     assert.strictEqual(Marionette.Events, utils.Events, `${name} shared Events implementation`);
     assert.strictEqual(Marionette.Radio, radio.Radio, `${name} shared default Radio`);
     const channel = radio.Radio.channel('package-identity');

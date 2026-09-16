@@ -119,12 +119,14 @@ Each operation separates synchronous notifications from asynchronous preparation
 | Destroy | `onBeforeDestroy` / `before:destroy` | `prepareDestroy(options, { signal })` | `onDestroy` / `destroy` |
 
 All notification methods and event listeners run synchronously. Their return values
-are ignored, including Promises. Use `prepareStart`, `prepareStop`, and
-`prepareDestroy` for work the operation must await. They are optional instance
+are not consumed: returned Promises are neither awaited nor given rejection
+handlers. Use `prepareStart`, `prepareStop`, and `prepareDestroy` for work the operation must await. They are optional instance
 methods, called with `this` as the Application and `(options, context)` arguments.
 A synchronous return also completes preparation; a throw or rejected Promise
 rejects the operation. Notification callbacks must handle any asynchronous work
-and its errors themselves.
+and its errors themselves. An unhandled rejected notification Promise can surface
+as a host-level unhandled rejection even when the lifecycle operation succeeds;
+returning it does not make its failure a readiness failure.
 
 `prepareStart`'s resolved value is passed unchanged as one third argument to
 `onStart(application, options, result)` and `start` listeners. Arrays are not
@@ -165,9 +167,10 @@ never starts a registered child automatically, including after restart.
 After `prepareStop` completes, owned children stop sequentially in registration
 order before the owner reaches stopped and emits `stop`. Stop also traverses
 already-stopped intermediate owners, releases their prepared/displayed roots,
-and stops active descendants. Already-stopped owners do not repeat their own
-`before:stop` or `stop` notifications. Restart performs that cleanup before its
-local startup readiness; application code chooses which children to reactivate.
+and stops active descendants. Already-stopped owners skip their own `prepareStop`
+as well as `before:stop` and `stop` notifications: only the active descendants need
+to deactivate. This also applies to descendant cleanup during restart or destroy.
+Restart performs that cleanup before its local startup readiness; application code chooses which children to reactivate.
 
 Descendant `start` and `restart` calls resolve `false` while any owner is in a
 stop phase, including the stop portion of restart, or is terminal. They become
@@ -338,8 +341,11 @@ const SearchApplication = Application.extend({
 });
 
 const RootApplication = Application.extend({
-  async prepareStart(options) {
+  onBeforeStart(app, options) {
     lifecycle.push(`root:before:start:${ options.source }`);
+  },
+
+  async prepareStart(options) {
     const started = await this.getChildApp('search').start({ source: 'search' });
     if (!started) { throw new Error('Search startup was canceled'); }
   },
