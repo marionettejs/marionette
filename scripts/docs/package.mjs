@@ -7,7 +7,8 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const manifest = await exportDocs();
 manifest.pages = manifest.pages.filter(page =>
   page.section !== 'Maintaining Marionette');
-manifest.assets = manifest.assets.filter(asset => !asset.source.startsWith('benchmarks/docs/'));
+manifest.assets = manifest.assets.filter(asset => !asset.source.startsWith('benchmarks/') &&
+  asset.source !== 'ROADMAP.md' && !asset.source.startsWith('test/unit/') && asset.source !== 'test/README.md');
 manifest.contentSha256 = contentDigest([...manifest.pages, ...manifest.assets]);
 const destination = resolve(root, 'dist/docs');
 await rm(destination, { recursive: true, force: true });
