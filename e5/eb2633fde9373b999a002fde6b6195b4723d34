@@ -1,0 +1,29 @@
+benchmarks/agent/evaluation-plan.md
+  s_454d38e9181d86::t_6d6de50fff15b8 3,10
+docs-site/resources.json
+  s_454d38e9181d86::t_7e3ae4f579f734 8,12,19
+test/docs/export.test.mjs
+  s_454d38e9181d86::t_7e3ae4f579f734 6,109-121,123-131,143
+  s_454d38e9181d86::t_182c66527e3322 132-142
+  s_454d38e9181d86::t_6d6de50fff15b8 122
+test/fixtures/docs-package/validate.mjs
+  s_454d38e9181d86::t_29bd74f55c05b5 50
+scripts/docs/package.mjs
+  s_454d38e9181d86::t_29bd74f55c05b5 10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "e5eb2633fde9373b999a002fde6b6195b4723d34",
+  "prompts": {},
+  "sessions": {
+    "s_454d38e9181d86": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a962-3f4b-7020-8c5a-179dcb02c4bb",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
