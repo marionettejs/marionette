@@ -1,12 +1,33 @@
 ### Unreleased
 
-* Make Application child activation explicit. Registration owns teardown without
+### v5.0.0-beta.3
+
+> Fewer surprise events and surprise startups, because whitespace is not an API and ownership is not a scheduler.
+
+* Add `Application#setView(view)` and no-argument `showView()` so an Application
+  can compose a complete root View tree before handing it to its Region. `getView()`
+  returns the prepared View first and the displayed View after handoff.
+* Make child Application activation explicit. Registration owns teardown without
   starting children; parent restart does not automatically reactivate registered children.
-* On successful destruction, stop active descendants through stopped owners before
-  the parent's `before:destroy` readiness. Failed teardown or a superseded stop
-  may leave descendant cleanup partial.
-* Make descendant `start()` and `restart()` resolve `false` while an ancestor is
+  Successful stop and destruction drain active descendants through stopped owners,
+  and descendant `start()` or `restart()` resolves `false` while an ancestor is
   stopping or terminal.
+* Resolve `triggerMethod` lifecycle hooks from instance and prototype methods only;
+  constructor-option hooks no longer override or suppress those methods.
+* Treat Events and Radio request names as literal strings across registration,
+  dispatch, and removal. Replace whitespace-batched operations with separate calls
+  or map entries; object-form event dispatch and the shared `eventSplitter` export
+  are removed.
+* Remove View Region registration/removal lifecycle events. Observe a specific
+  Region's destruction lifecycle when teardown notification is required.
+* Fix `getOption` so numeric zero and empty-string property keys resolve through
+  the normal option-before-instance lookup.
+* Clarify selector-backed versus Element-backed Region placeholder identity after
+  a parent render, with public regression coverage for replacement and cleanup.
+* Improve the typed starter's View ownership and missing-field rendering, and add
+  consumer-first migration and native/Backbone routing guidance.
+* Add executable Application guidance for explicit effect lifetimes, navigation,
+  and latest-request refreshes that preserve active View and row identity.
 
 ### v5.0.0-beta.2
 
