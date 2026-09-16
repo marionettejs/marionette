@@ -1,0 +1,88 @@
+test/unit/application-preparation.spec.js
+  s_15ef02ef10478f::t_e776138c75aea0 1-121
+  s_15ef02ef10478f::t_29a5a203f5b19f 122-174
+src/modules/application.ts
+  s_15ef02ef10478f::t_c569452ea8f993 39,63-69,85,87,451-453,456,463,470-474,619-620
+test/unit/application-lifecycle.spec.js
+  s_15ef02ef10478f::t_383a140bf37b58 80,90,95,132,146,170,177,196,201,217-218,226,243,250,276-278,301,319,331,347,365,384,420,436-437,439,468-469,494-495,517,555-556,562-563,592,594,597,603-604,625,644-645,650-651,677,729,770,789,803,808,831,846-847,868,870,897,927,949,969,988,1002,1023
+ROADMAP.md
+  s_15ef02ef10478f::t_32a61d85c8ab47 423,718-722,780-786,794,798-799
+benchmarks/agent/tasks/borrowed-workspace-state/prompt.md
+  s_15ef02ef10478f::t_a30f0f88b5c30c 13
+benchmarks/agent/tasks/borrowed-workspace-state/reference/solution.mjs
+  s_15ef02ef10478f::t_050a1f5fdaee93 33
+benchmarks/agent/tasks/owned-workspace-state/prompt.md
+  s_15ef02ef10478f::t_4524c88fd53382 13
+benchmarks/agent/tasks/owned-workspace-state/reference/solution.mjs
+  s_15ef02ef10478f::t_2339ed8a68cc3b 39
+benchmarks/browser-performance/contract.json
+  s_15ef02ef10478f::t_4eda3816f3a340 7
+benchmarks/browser-performance/retention/workloads.js
+  s_15ef02ef10478f::t_301bcaab46e496 84
+benchmarks/browser-performance/v1/manifest.json
+  s_15ef02ef10478f::t_4219aa56e4f537 5
+benchmarks/browser-performance/v1/workloads.js
+  s_15ef02ef10478f::t_dc4bcc16f90bae 140-141
+changelog.md
+  s_15ef02ef10478f::t_ba61ce91247ae7 3-8
+config/api-contracts/inventory.json
+  s_15ef02ef10478f::t_606b4941cf1bc1 4,42,52,64-65,81-83,85-87,90-92,98,145-147,266-274,327,348,362-363,379-381,383-385,388-390,396,443-445,553-561,7839,7848-7849,7858,7876,8044,8072,8074,8092-8095,8122
+config/api-contracts/semantics.json
+  s_15ef02ef10478f::t_e5e3747f49ea33 1512,1572-1575,1585-1594,1598,1600,1611,1619-1621
+docs/agents.md
+  s_15ef02ef10478f::t_d77f8eb1b6008f 125
+docs/application-effects.md
+  s_15ef02ef10478f::t_6fdaafd18eef0a 80,118
+docs/application-refresh.md
+  s_15ef02ef10478f::t_f582037142a46a 124
+docs/compact-reference.md
+  s_15ef02ef10478f::t_419bb26042dc58 22
+docs/events.class.md
+  s_15ef02ef10478f::t_ccb41d7ebf6e9e 49-52,56-58,62-66,69-70,74-76,80-81,85-91
+docs/marionette.application.md
+  s_15ef02ef10478f::t_c7cc93418b7a41 62,83,98,100,103-104,111-148,155-156,159,163,205-206,208-209,297,339
+docs/migration-from-v4.md
+  s_15ef02ef10478f::t_ba46145f2fd93c 86-87,149,154
+docs/routing.md
+  s_15ef02ef10478f::t_101a12725fc7dd 84,111
+docs/terminology.md
+  s_15ef02ef10478f::t_e71d4e2bc52ffa 77-78,81
+test/fixtures/core-types/consumer.cts
+  s_15ef02ef10478f::t_c6fb031afca9c4 34
+test/fixtures/core-types/consumer.mts
+  s_15ef02ef10478f::t_bd5eebe253532e 34
+test/fixtures/docs-routing/validate.mjs
+  s_15ef02ef10478f::t_661f7ee2b5b980 176
+test/types/application.cts
+  s_15ef02ef10478f::t_8af75697b84277 10,13,90-91,104-141
+test/types/application.mts
+  s_15ef02ef10478f::t_c8d27c190e47b6 10,13,90-91,104-141
+test/types/facade.cts
+  s_15ef02ef10478f::t_56184447cfd03b 28
+test/types/facade.mts
+  s_15ef02ef10478f::t_7a85b34033eeca 28
+test/unit/application-child-lifecycle.spec.js
+  s_15ef02ef10478f::t_31f38aa5371a54 42,50,70,83,106,112,128,133,147,150,167,189,215,234,254,279,309,335,344,382,403-404
+test/unit/application-ownership.spec.js
+  s_15ef02ef10478f::t_19f87f3fac0f18 150,167,204,279,289,297,337,363,368,394
+test/unit/model-based/application.spec.js
+  s_15ef02ef10478f::t_adb41f932a31f2 23-25
+upgradeGuide.md
+  s_15ef02ef10478f::t_023422855669f5 546,552-571
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "2d6e9579cf664d4df7e2c436c2471678ae737247",
+  "prompts": {},
+  "sessions": {
+    "s_15ef02ef10478f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a021-e188-7d30-b992-73ccc4ae5f18",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
