@@ -6,6 +6,8 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     groups:
+      typescript-eslint:
+        patterns: ['@typescript-eslint/*']
       vitest:
         patterns: ['vitest', '@vitest/*']
       mutation:
