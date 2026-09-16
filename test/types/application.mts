@@ -7,10 +7,10 @@ const Child = Application.extend({
   preinitialize(options: {label: string}) { this.channelName = options.label; },
   initialize(options: {label: string}) { this.options.label.toUpperCase(); },
   createState() {return {ready: false};},
-  async onBeforeStart(application: ApplicationInstance<object, unknown>, options: unknown, context: LifecycleContext) {
+  async prepareStart(options: unknown, context: LifecycleContext) {
     const signal: AbortSignal = context.signal;
     if (signal.aborted) {return;}
-    application.isRunning();
+    this.isRunning();
     this.getState().ready = true;
   },
   onStart() {this.getState().ready = true;},
@@ -87,8 +87,8 @@ root.getChannel().request('status');
 
 class NativeApplication extends Application {
   preinitialize(options?: {region?: string}) { super.preinitialize(options); }
-  async onBeforeStart(application: this, options: unknown, {signal}: LifecycleContext) {
-    if (!signal.aborted) {application.isRunning();}
+  async prepareStart(options: unknown, {signal}: LifecycleContext) {
+    if (!signal.aborted) {this.isRunning();}
   }
   async start(options?: unknown) { return super.start(options); }
 }
@@ -101,3 +101,62 @@ declare const applicationInstance: ApplicationInstance<{label: string}>;
 applicationInstance.preinitialize({label: 'Editor'});
 // @ts-expect-error The public instance hook uses the Application option type.
 applicationInstance.preinitialize({label: 1});
+
+// Preparation results are inferred on extended constructors and inherited hooks.
+interface Session { name: string }
+const PreparedApplication = Application.extend({
+  async prepareStart(options: unknown, {signal}: LifecycleContext): Promise<Session> {
+    signal.throwIfAborted();
+    return {name: 'Editor'};
+  }
+});
+const preparedApplication = new PreparedApplication();
+preparedApplication.prepareStart(undefined, {signal: new AbortController().signal}) satisfies Promise<Session>;
+preparedApplication.onStart?.(preparedApplication, undefined, {name: 'Editor'});
+// @ts-expect-error The completion result matches prepareStart's resolved value.
+preparedApplication.onStart?.(preparedApplication, undefined, {name: 123});
+// @ts-expect-error A required preparation returning Session cannot produce undefined.
+preparedApplication.onStart?.(preparedApplication, undefined, undefined);
+const optionalPreparation: { prepareStart?: () => Promise<Session> } = {};
+const OptionalPreparation = Application.extend(optionalPreparation);
+const optionalApplication = new OptionalPreparation();
+optionalApplication.onStart?.(optionalApplication, undefined, {name: 'Editor'});
+optionalApplication.onStart?.(optionalApplication, undefined, undefined);
+// @ts-expect-error An optional preparation retains its concrete result type.
+optionalApplication.onStart?.(optionalApplication, undefined, {name: 123});
+declare const optionalResult: Parameters<NonNullable<typeof optionalApplication.onStart>>[2];
+optionalResult satisfies Session | undefined;
+// @ts-expect-error The preparation may be absent, so callers must handle undefined.
+optionalResult satisfies Session;
+const InheritedOptionalPreparation = OptionalPreparation.extend({});
+const inheritedOptional = new InheritedOptionalPreparation();
+inheritedOptional.onStart?.(inheritedOptional, undefined, undefined);
+// @ts-expect-error Inheriting an optional preparation preserves its result type.
+inheritedOptional.onStart?.(inheritedOptional, undefined, {name: 123});
+declare const unpreparedResult: Parameters<NonNullable<typeof root.onStart>>[2];
+// @ts-expect-error Without a declared preparation result, the result remains unknown.
+unpreparedResult satisfies Session | undefined;
+// @ts-expect-error Preparation does not change the public operation result.
+preparedApplication.start() satisfies Promise<Session>;
+const InheritedPreparation = PreparedApplication.extend({
+  onStart(application: ApplicationInstance<object, object, Session>, options: unknown, session: Session) {
+    session.name.toUpperCase();
+  }
+});
+new InheritedPreparation().prepareStart(undefined, {signal: new AbortController().signal}) satisfies Promise<Session>;
+class NativePreparedApplication extends Application {
+  async prepareStart(options: unknown, {signal}: LifecycleContext): Promise<Session> {
+    signal.throwIfAborted();
+    return {name: 'Native'};
+  }
+  onStart(application: this, options: unknown, session: Session) { session.name.toUpperCase(); }
+}
+new NativePreparedApplication().start() satisfies Promise<boolean>;
+const ReplacementPreparation = PreparedApplication.extend({ prepareStart() { return 42; } });
+const replacementPreparation = new ReplacementPreparation();
+replacementPreparation.onStart?.(replacementPreparation, undefined, 42);
+// @ts-expect-error An overridden preparation method changes the inferred result.
+replacementPreparation.onStart?.(replacementPreparation, undefined, {name: 'Editor'});
+declare const notifications: ApplicationInstance;
+// @ts-expect-error Before notifications do not receive the preparation context.
+notifications.onBeforeStart?.(notifications, undefined, {signal: new AbortController().signal});

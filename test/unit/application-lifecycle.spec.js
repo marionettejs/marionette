@@ -75,11 +75,9 @@ describe('Application lifecycle', function() {
   it('settles start only after asynchronous readiness completes', async function() {
     const readiness = defer();
     const events = [];
-    let eventContext;
     let startContext;
     const TestApplication = Application.extend({
-      onBeforeStart(app, options, context) {
-        expect(app).to.equal(this);
+      prepareStart(options, context) {
         expect(options).to.deep.equal({ source: 'test' });
         expect(context.signal.aborted).toBe(false);
         startContext = context;
@@ -89,15 +87,14 @@ describe('Application lifecycle', function() {
       onStart(app, options) {
         expect(app).to.equal(this);
         expect(options).to.deep.equal({ source: 'test' });
-        expect(arguments).to.have.length(2);
+        expect(arguments).to.have.length(3);
         events.push('start');
       }
     });
     const app = new TestApplication();
-    app.on('before:start', (triggeredApp, options, context) => {
+    app.on('before:start', (triggeredApp, options) => {
       expect(triggeredApp).to.equal(app);
       expect(options).to.deep.equal({ source: 'test' });
-      eventContext = context;
     });
 
     const start = app.start({ source: 'test' });
@@ -110,7 +107,6 @@ describe('Application lifecycle', function() {
 
     expect(await start).toBe(true);
     expect(app.isRunning()).toBe(true);
-    expect(eventContext).to.equal(startContext);
     expect(startContext.signal.aborted).toBe(false);
     expect(events).to.deep.equal(['before:start', 'start']);
   });
@@ -133,7 +129,7 @@ describe('Application lifecycle', function() {
     let firstContext;
     let startCount = 0;
     const TestApplication = Application.extend({
-      onBeforeStart(app, options, context) {
+      prepareStart(options, context) {
         if (startCount++) {
           events.push(`before:start:${firstContext.signal.aborted}`);
           return;
@@ -147,7 +143,7 @@ describe('Application lifecycle', function() {
         }, { once: true });
         return readiness.promise;
       },
-      onBeforeStop(app, options, context) {
+      prepareStop(options, context) {
         events.push(`before:stop:${firstContext.signal.aborted}:${context.signal.aborted}`);
       }
     });
@@ -171,14 +167,14 @@ describe('Application lifecycle', function() {
     const beforeStop = vi.fn();
     let destroy;
     const app = new (Application.extend({
-      onBeforeStart(application, options, context) {
+      prepareStart(options, context) {
         context.signal.addEventListener('abort', () => {
           readiness.resolve();
           destroy = this.destroy();
         }, { once: true });
         return readiness.promise;
       },
-      onBeforeStop: beforeStop
+      prepareStop: beforeStop
     }))();
 
     const start = app.start();
@@ -197,12 +193,12 @@ describe('Application lifecycle', function() {
     const restartOptions = { source: 'restart' };
     let stopContext;
     let completedStopOptions;
-    const onBeforeStop = vi.fn().mockImplementation((app, options, context) => {
+    const prepareStop = vi.fn().mockImplementation((options, context) => {
       stopContext = context;
       return readiness.promise;
     });
     const app = new (Application.extend({
-      onBeforeStop,
+      prepareStop,
       onStop(application, options) {
         expect(application).to.equal(app);
         completedStopOptions = options;
@@ -218,8 +214,8 @@ describe('Application lifecycle', function() {
     readiness.resolve();
     expect(await restart).toBe(true);
     expect(stopContext.signal.aborted).toBe(false);
-    expect(onBeforeStop).toHaveBeenCalledTimes(1);
-    expect(onBeforeStop.mock.calls.map(args => args.slice(0, 3))).toContainEqual([app, stopOptions, stopContext]);
+    expect(prepareStop).toHaveBeenCalledTimes(1);
+    expect(prepareStop).toHaveBeenCalledWith(stopOptions, stopContext);
     expect(completedStopOptions).to.equal(stopOptions);
   });
 
@@ -227,7 +223,7 @@ describe('Application lifecycle', function() {
     const readiness = defer();
     const beforeStart = vi.fn().mockReturnValue(readiness.promise);
     const startEvent = vi.fn();
-    const app = new (Application.extend({ onBeforeStart: beforeStart, onStart: startEvent }))();
+    const app = new (Application.extend({ prepareStart: beforeStart, onStart: startEvent }))();
 
     const first = app.start();
     const repeated = app.start();
@@ -244,14 +240,14 @@ describe('Application lifecycle', function() {
     const readiness = defer();
     const events = [];
     const TestApplication = Application.extend({
-      onBeforeStart() {
+      prepareStart() {
         events.push('before:start');
         return readiness.promise;
       },
       onStart() {
         events.push('start');
       },
-      onBeforeStop() {
+      prepareStop() {
         events.push('before:stop');
       },
       onStop() {
@@ -277,9 +273,9 @@ describe('Application lifecycle', function() {
 
   it('rejects a current start failure and permits retry', async function() {
     const error = new Error('readiness failed');
-    const onBeforeStart = vi.fn();
-    onBeforeStart.mockRejectedValueOnce(error);
-    const app = new (Application.extend({ onBeforeStart }))();
+    const prepareStart = vi.fn();
+    prepareStart.mockRejectedValueOnce(error);
+    const app = new (Application.extend({ prepareStart }))();
 
     await expectRejection(app.start(), error);
     expect(app.isRunning()).toBe(false);
@@ -302,7 +298,7 @@ describe('Application lifecycle', function() {
     const stopping = defer();
     const beforeStop = vi.fn().mockReturnValue(stopping.promise);
     const stopEvent = vi.fn();
-    const app = new (Application.extend({ onBeforeStop: beforeStop, onStop: stopEvent }))();
+    const app = new (Application.extend({ prepareStop: beforeStop, onStop: stopEvent }))();
     await app.start();
 
     const first = app.stop();
@@ -320,7 +316,7 @@ describe('Application lifecycle', function() {
   it('rejects a synchronous before:stop failure', async function() {
     const error = new Error('stop failed');
     const app = new (Application.extend({
-      onBeforeStop() { throw error; }
+      prepareStop() { throw error; }
     }))();
     await app.start();
 
@@ -332,7 +328,7 @@ describe('Application lifecycle', function() {
   it('rejects the winning stop when superseded restart readiness throws synchronously', async function() {
     const error = new Error('stop failed');
     const app = new (Application.extend({
-      onBeforeStop() { throw error; }
+      prepareStop() { throw error; }
     }))();
     await app.start();
 
@@ -348,7 +344,7 @@ describe('Application lifecycle', function() {
     const stopping = defer();
     const error = new Error('stop failed');
     const app = new (Application.extend({
-      onBeforeStop() { return stopping.promise; }
+      prepareStop() { return stopping.promise; }
     }))();
     await app.start();
 
@@ -366,7 +362,7 @@ describe('Application lifecycle', function() {
     const stopping = defer();
     const error = new Error('stop failed');
     const app = new (Application.extend({
-      onBeforeStop() { return stopping.promise; }
+      prepareStop() { return stopping.promise; }
     }))();
     await app.start();
 
@@ -385,7 +381,7 @@ describe('Application lifecycle', function() {
     const stopping = defer();
     const error = new Error('stop failed');
     const app = new (Application.extend({
-      onBeforeStop() { return stopping.promise; }
+      prepareStop() { return stopping.promise; }
     }))();
     await app.start();
 
@@ -421,7 +417,7 @@ describe('Application lifecycle', function() {
   it('shares a compatible in-flight restart', async function() {
     const stopping = defer();
     const beforeStop = vi.fn().mockReturnValue(stopping.promise);
-    const app = new (Application.extend({ onBeforeStop: beforeStop }))();
+    const app = new (Application.extend({ prepareStop: beforeStop }))();
     await app.start();
 
     const first = app.restart();
@@ -437,10 +433,10 @@ describe('Application lifecycle', function() {
   it('remains stopped when restart readiness fails after stop', async function() {
     const error = new Error('restart failed');
     const events = [];
-    const onBeforeStart = vi.fn();
-    onBeforeStart.mockReturnValueOnce(undefined).mockRejectedValueOnce(error);
+    const prepareStart = vi.fn();
+    prepareStart.mockReturnValueOnce(undefined).mockRejectedValueOnce(error);
     const app = new (Application.extend({
-      onBeforeStart,
+      prepareStart,
       onStop() { events.push('stop'); }
     }))();
     await app.start();
@@ -469,8 +465,8 @@ describe('Application lifecycle', function() {
     const beforeStart = vi.fn();
     const stopEvent = vi.fn();
     const app = new (Application.extend({
-      onBeforeStart: beforeStart,
-      onBeforeStop() { return stopping.promise; },
+      prepareStart: beforeStart,
+      prepareStop() { return stopping.promise; },
       onStop: stopEvent
     }))();
     await app.start();
@@ -495,8 +491,8 @@ describe('Application lifecycle', function() {
     const error = new Error('stop failed');
     const beforeStart = vi.fn();
     const app = new (Application.extend({
-      onBeforeStart: beforeStart,
-      onBeforeStop() { return stopping.promise; }
+      prepareStart: beforeStart,
+      prepareStop() { return stopping.promise; }
     }))();
     await app.start();
     beforeStart.mockClear();
@@ -518,7 +514,7 @@ describe('Application lifecycle', function() {
     const events = [];
     let starts = 0;
     const TestApplication = Application.extend({
-      onBeforeStart() {
+      prepareStart() {
         events.push('before:start');
         if (!starts++) { return firstReadiness.promise; }
       },
@@ -556,15 +552,15 @@ describe('Application lifecycle', function() {
     const beforeStop = vi.fn();
     const stopEvent = vi.fn();
     const startEvent = vi.fn();
-    const onBeforeStart = vi.fn();
-    onBeforeStart.mockReturnValueOnce(undefined).mockImplementationOnce((app, options, context) => {
+    const prepareStart = vi.fn();
+    prepareStart.mockReturnValueOnce(undefined).mockImplementationOnce((options, context) => {
       restartContext = context;
       restartStarted.resolve();
       return restartReadiness.promise;
     });
     const app = new (Application.extend({
-      onBeforeStart,
-      onBeforeStop: beforeStop,
+      prepareStart,
+      prepareStop: beforeStop,
       onStop: stopEvent,
       onStart: startEvent
     }))();
@@ -593,19 +589,19 @@ describe('Application lifecycle', function() {
     const restartStarted = defer();
     const beforeStop = vi.fn();
     const stopEvent = vi.fn();
-    const onBeforeStart = vi.fn();
+    const prepareStart = vi.fn();
     let destroy;
-    onBeforeStart.mockReturnValueOnce(undefined).mockImplementationOnce((application, options, context) => {
+    prepareStart.mockReturnValueOnce(undefined).mockImplementationOnce((options, context) => {
       context.signal.addEventListener('abort', () => {
         readiness.resolve();
-        destroy = application.destroy();
+        destroy = app.destroy();
       }, { once: true });
       restartStarted.resolve();
       return readiness.promise;
     });
     const app = new (Application.extend({
-      onBeforeStart,
-      onBeforeStop: beforeStop,
+      prepareStart,
+      prepareStop: beforeStop,
       onStop: stopEvent
     }))();
     await app.start();
@@ -626,7 +622,7 @@ describe('Application lifecycle', function() {
     const stopping = defer();
     const beforeStop = vi.fn().mockReturnValue(stopping.promise);
     const stopEvent = vi.fn();
-    const app = new (Application.extend({ onBeforeStop: beforeStop, onStop: stopEvent }))();
+    const app = new (Application.extend({ prepareStop: beforeStop, onStop: stopEvent }))();
     await app.start();
 
     const restart = app.restart();
@@ -645,14 +641,14 @@ describe('Application lifecycle', function() {
     const restartStarted = defer();
     const beforeStop = vi.fn();
     const stopEvent = vi.fn();
-    const onBeforeStart = vi.fn();
-    onBeforeStart.mockReturnValueOnce(undefined).mockImplementationOnce(() => {
+    const prepareStart = vi.fn();
+    prepareStart.mockReturnValueOnce(undefined).mockImplementationOnce(() => {
       restartStarted.resolve();
       return restartReadiness.promise;
     });
     const app = new (Application.extend({
-      onBeforeStart,
-      onBeforeStop: beforeStop,
+      prepareStart,
+      prepareStop: beforeStop,
       onStop: stopEvent
     }))();
     await app.start();
@@ -678,7 +674,7 @@ describe('Application lifecycle', function() {
     const readiness = defer();
     const events = [];
     const TestApplication = Application.extend({
-      onBeforeStart() {
+      prepareStart() {
         events.push('before:start');
         return readiness.promise;
       },
@@ -730,7 +726,7 @@ describe('Application lifecycle', function() {
   it('shares a reentrant start that is not awaited by its own readiness hook', async function() {
     let repeated;
     const app = new (Application.extend({
-      onBeforeStart() {
+      prepareStart() {
         repeated = this.start();
       }
     }))();
@@ -771,7 +767,7 @@ describe('Application lifecycle', function() {
     const error = new Error('stale failure');
     const startEvent = vi.fn();
     const app = new (Application.extend({
-      onBeforeStart() { return readiness.promise; },
+      prepareStart() { return readiness.promise; },
       onStart: startEvent
     }))();
 
@@ -790,7 +786,7 @@ describe('Application lifecycle', function() {
   it('rejects destroy hook failure without marking the Application destroyed', async function() {
     const error = new Error('destroy failed');
     const app = new (Application.extend({
-      onBeforeDestroy() {
+      prepareDestroy() {
         throw error;
       }
     }))();
@@ -804,12 +800,12 @@ describe('Application lifecycle', function() {
   it('shares repeated destroy calls while teardown is in flight', async function() {
     const teardown = defer();
     let destroyContext;
-    const beforeDestroy = vi.fn().mockImplementation((app, options, context) => {
+    const beforeDestroy = vi.fn().mockImplementation((options, context) => {
       destroyContext = context;
       return teardown.promise;
     });
     const destroyEvent = vi.fn();
-    const app = new (Application.extend({ onBeforeDestroy: beforeDestroy, onDestroy: destroyEvent }))();
+    const app = new (Application.extend({ prepareDestroy: beforeDestroy, onDestroy: destroyEvent }))();
 
     const first = app.destroy();
     const repeated = app.destroy();
@@ -832,7 +828,7 @@ describe('Application lifecycle', function() {
     const events = [];
     const app = new (Application.extend({
       onStop() { events.push('stop'); },
-      onBeforeDestroy() { throw error; }
+      prepareDestroy() { throw error; }
     }))();
     await app.start();
 
@@ -847,8 +843,8 @@ describe('Application lifecycle', function() {
     const stopping = defer();
     const error = new Error('destroy failed');
     const app = new (Application.extend({
-      onBeforeStop() { return stopping.promise; },
-      onBeforeDestroy() { throw error; }
+      prepareStop() { return stopping.promise; },
+      prepareDestroy() { throw error; }
     }))();
     await app.start();
 
@@ -869,9 +865,9 @@ describe('Application lifecycle', function() {
     const teardown = defer();
     const stopEvent = vi.fn();
     const app = new (Application.extend({
-      onBeforeStop() { return stopping.promise; },
+      prepareStop() { return stopping.promise; },
       onStop: stopEvent,
-      onBeforeDestroy() { return teardown.promise; }
+      prepareDestroy() { return teardown.promise; }
     }))();
     await app.start();
 
@@ -898,7 +894,7 @@ describe('Application lifecycle', function() {
     const startEvent = vi.fn();
     const stopEvent = vi.fn();
     const app = new (Application.extend({
-      onBeforeStop: beforeStop,
+      prepareStop: beforeStop,
       onStart: startEvent,
       onStop: stopEvent
     }))();
@@ -928,7 +924,7 @@ describe('Application lifecycle', function() {
     const stopping = defer();
     const beforeStop = vi.fn().mockReturnValue(stopping.promise);
     const stopEvent = vi.fn();
-    const app = new (Application.extend({ onBeforeStop: beforeStop, onStop: stopEvent }))();
+    const app = new (Application.extend({ prepareStop: beforeStop, onStop: stopEvent }))();
     await app.start();
 
     const firstStop = app.stop();
@@ -950,7 +946,7 @@ describe('Application lifecycle', function() {
     const stopping = defer();
     const error = new Error('destroy completion failed');
     const app = new (Application.extend({
-      onBeforeStop() { return stopping.promise; },
+      prepareStop() { return stopping.promise; },
       onDestroy() { throw error; }
     }))();
     await app.start();
@@ -970,7 +966,7 @@ describe('Application lifecycle', function() {
     const stopping = defer();
     const error = new Error('stop failed');
     const app = new (Application.extend({
-      onBeforeStop() { return stopping.promise; }
+      prepareStop() { return stopping.promise; }
     }))();
     await app.start();
 
@@ -989,7 +985,7 @@ describe('Application lifecycle', function() {
   it('keeps running when destroy stop readiness fails without a stop caller', async function() {
     const error = new Error('stop failed');
     const app = new (Application.extend({
-      onBeforeStop() { throw error; }
+      prepareStop() { throw error; }
     }))();
     await app.start();
 
@@ -1003,7 +999,7 @@ describe('Application lifecycle', function() {
     const error = new Error('stop failed');
     const beforeStop = vi.fn().mockImplementation(() => { throw error; });
     const app = new (Application.extend({
-      onBeforeStop: beforeStop
+      prepareStop: beforeStop
     }))();
     await app.start();
 
@@ -1024,7 +1020,7 @@ describe('Application lifecycle', function() {
     const stopping = defer();
     const error = new Error('stop event failed');
     const app = new (Application.extend({
-      onBeforeStop() { return stopping.promise; },
+      prepareStop() { return stopping.promise; },
       onStop() { throw error; }
     }))();
     await app.start();

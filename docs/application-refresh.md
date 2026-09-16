@@ -121,7 +121,7 @@ export async function createResultsFeature({ el, items, loadItems, beforeStop = 
         }
       });
     },
-    onBeforeStop(app, options, context) { return beforeStop(options, context); },
+    prepareStop(options, context) { return beforeStop(options, context); },
     onStop() { requests?.dispose(); },
     onBeforeDestroy() { requests?.dispose(); }
   });

@@ -147,7 +147,7 @@ describe('Application ownership', function() {
   it('no-ops registration when either lifecycle is terminal', async function() {
     const ownerReadiness = Promise.withResolvers();
     const DestroyingOwner = Application.extend({
-      onBeforeDestroy() {
+      prepareDestroy() {
         return ownerReadiness.promise;
       }
     });
@@ -164,7 +164,7 @@ describe('Application ownership', function() {
     const liveOwner = new Application();
     const childReadiness = Promise.withResolvers();
     const DestroyingChild = Application.extend({
-      onBeforeDestroy() {
+      prepareDestroy() {
         return childReadiness.promise;
       }
     });
@@ -201,7 +201,7 @@ describe('Application ownership', function() {
     const readinessError = new Error('not ready');
     let attempt = 0;
     const ChildApplication = Application.extend({
-      onBeforeDestroy() {
+      prepareDestroy() {
         if (!attempt++) { throw readinessError; }
       }
     });
@@ -276,7 +276,7 @@ describe('Application ownership', function() {
     const firstReadiness = Promise.withResolvers();
     const firstStarted = Promise.withResolvers();
     const FirstChild = Application.extend({
-      onBeforeDestroy() {
+      prepareDestroy() {
         events.push('first:before');
         firstStarted.resolve();
         return firstReadiness.promise;
@@ -286,7 +286,7 @@ describe('Application ownership', function() {
       }
     });
     const SecondChild = Application.extend({
-      onBeforeDestroy() {
+      prepareDestroy() {
         events.push('second:before');
       },
       onDestroy() {
@@ -294,7 +294,7 @@ describe('Application ownership', function() {
       }
     });
     const ParentApplication = Application.extend({
-      onBeforeDestroy() {
+      prepareDestroy() {
         events.push('parent:before');
         parentEntered.resolve();
         return parentReadiness.promise;
@@ -334,7 +334,7 @@ describe('Application ownership', function() {
     const readinessError = new Error('not ready');
     let attempt = 0;
     const ChildApplication = Application.extend({
-      onBeforeDestroy() {
+      prepareDestroy() {
         if (!attempt++) { throw readinessError; }
       }
     });
@@ -360,12 +360,12 @@ describe('Application ownership', function() {
     const childBeforeDestroy = vi.fn();
     let attempt = 0;
     const ParentApplication = Application.extend({
-      onBeforeDestroy() {
+      prepareDestroy() {
         if (!attempt++) { throw readinessError; }
       }
     });
     const ChildApplication = Application.extend({
-      onBeforeDestroy: childBeforeDestroy
+      prepareDestroy: childBeforeDestroy
     });
     const parent = new ParentApplication();
     const child = new ChildApplication();
@@ -391,7 +391,7 @@ describe('Application ownership', function() {
       onDestroy() { events.push('first'); }
     });
     const SecondApplication = Application.extend({
-      onBeforeDestroy() {
+      prepareDestroy() {
         if (!secondAttempt++) { throw readinessError; }
       },
       onDestroy() { events.push('second'); }

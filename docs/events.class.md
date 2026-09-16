@@ -46,52 +46,49 @@ proxied view events receive the host view.
 
 ## Application Events
 
-Application events describe its asynchronous lifecycle. Use a readiness method
-when completion must wait for work; event-listener return values are not awaited.
+Application lifecycle notifications are synchronous, like other Marionette events.
+Their corresponding `onBeforeStart`, `onStart`, `onBeforeStop`, `onStop`,
+`onBeforeDestroy`, and `onDestroy` methods are also synchronous notifications.
+No notification return value delays an operation.
 
 ### `before:start` event
 
-Receives `(application, options, context)` before startup completes. The matching
-`onBeforeStart(application, options, { signal })` method may return a Promise to
-delay readiness. Pass the signal to cancellable work and prevent stale results
-from committing application side effects.
+Receives `(application, options)` before `prepareStart(options, { signal })` runs.
+The matching `onBeforeStart` method has the same notification arguments.
+Put asynchronous startup work in `prepareStart`, not either notification handler.
 
 ### `start` event
 
-Receives `(application, options)` after local readiness completes. Required child startup must be explicitly awaited
-in the readiness hook.
-The matching `onStart(application, options)` method can show the feature's View.
-Both are completion notifications; their return values are not awaited.
+Receives `(application, options, result)` after `prepareStart` completes.
+The matching `onStart` method receives the same prepared result and can show the
+feature's View. The result is one value, including when it is an array; it is
+`undefined` if no preparation method exists. Required children must be explicitly
+started and awaited in `prepareStart`.
 
 Use the [Application lifecycle example](./marionette.application.md#starting-an-application)
-for startup and the [routing guide](./routing.md) to connect an application's
-router. Starting a history service is application setup, not a Marionette lifecycle
-requirement.
-
-The `options` passed to a lifecycle operation reach its hooks and events.
-Readiness hooks and `before:*` events also receive a context whose signal is
-aborted when a later operation invalidates that readiness. A transferred stop
-phase retains its original options, context, and un-aborted signal. Only a Promise
-returned by `onBeforeStart`, `onBeforeStop`, or `onBeforeDestroy` delays its phase.
-See [Application lifecycle](./marionette.application.md#application-lifecycle)
-for operation results, ordering, and cancellation.
+for startup and the [routing guide](./routing.md) to connect a router.
+Starting a history service is application setup, not a Marionette requirement.
 
 ### `before:stop` event
 
-Fired just before the application is stopped. A Promise returned by
-`onBeforeStop` delays completion of the stop lifecycle.
+Receives `(application, options)` before `prepareStop(options, { signal })` runs.
+The matching `onBeforeStop` method is a synchronous notification. Only the
+preparation method can delay stop permission and readiness.
 
 ### `stop` event
 
-Fired after the application has stopped. This event is a completion
-notification and its return value is not awaited.
+Receives `(application, options)` after the application stops.
+The matching `onStop` method is also a synchronous completion notification.
 
 #### Application `destroy` events
 
-The `Application` class also triggers `before:destroy` and `destroy` as part of
-its [asynchronous lifecycle](./marionette.application.md#application-lifecycle).
-`onBeforeDestroy` is awaited and receives `(application, options, context)`;
-`onDestroy` is a completion notification and receives `(application, options)`.
+`before:destroy` and `onBeforeDestroy` receive `(application, options)` before
+`prepareDestroy(options, { signal })`. After preparation and teardown,
+`destroy` and `onDestroy` receive `(application, options)`.
+
+Only preparation methods receive the readiness context. A transferred stop phase
+retains its original options and signal. See [Application lifecycle](./marionette.application.md#application-lifecycle)
+for cancellation, ownership, operation results, and failure behavior.
 
 ## Behavior Events
 

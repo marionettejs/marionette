@@ -30,7 +30,7 @@ export function createStateWorkspace(el, sharedState, domain, lifecycle) {
     }
   };
   const Workspace = Application.extend({
-    async onBeforeStart(application, options, context) {
+    async prepareStart(options, context) {
       await lifecycle.ready(context.signal);
       if (context.signal.aborted) { return; }
       const started = await this.getChildApp('editor')?.start();

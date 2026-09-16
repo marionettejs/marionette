@@ -36,7 +36,7 @@ export interface ApplicationOptions {
 }
 
 type Common = typeof CommonMixin;
-export interface ApplicationInstance<Options extends object = object, State = object> extends Common {
+export interface ApplicationInstance<Options extends object = object, State = object, StartResult = unknown> extends Common {
   cid: string;
   cidPrefix: string;
   options: Options;
@@ -60,10 +60,13 @@ export interface ApplicationInstance<Options extends object = object, State = ob
   stop(options?: unknown): Promise<boolean>;
   restart(options?: unknown): Promise<boolean>;
   destroy(options?: unknown): Promise<boolean>;
-  onBeforeStart?(application: this, options: unknown, context: LifecycleContext): unknown;
-  onBeforeStop?(application: this, options: unknown, context: LifecycleContext): unknown;
-  onBeforeDestroy?(application: this, options: unknown, context: LifecycleContext): unknown;
-  onStart?(application: this, options: unknown): unknown;
+  prepareStart?(options: unknown, context: LifecycleContext): StartResult | PromiseLike<StartResult>;
+  prepareStop?(options: unknown, context: LifecycleContext): unknown;
+  prepareDestroy?(options: unknown, context: LifecycleContext): unknown;
+  onBeforeStart?(application: this, options: unknown): unknown;
+  onBeforeStop?(application: this, options: unknown): unknown;
+  onBeforeDestroy?(application: this, options: unknown): unknown;
+  onStart?(application: this, options: unknown, result: StartResult): unknown;
   onStop?(application: this, options: unknown): unknown;
   onDestroy?(application: this, options: unknown): unknown;
   addChildApp<Child extends ApplicationInstance<object, unknown>>(name: string, application: Child): Child;
@@ -79,8 +82,10 @@ export interface ApplicationInstance<Options extends object = object, State = ob
   getView(): SupportedView | undefined;
 }
 
+type StartResultFor<Props> = Props extends { prepareStart: (...args: never[]) => infer Result } ? Awaited<Result>
+  : Props extends { prepareStart?: (...args: never[]) => infer Result } ? Awaited<Result> | undefined : unknown;
 type ApplicationResult<Props, Args extends unknown[], State> = Merge<
-  ApplicationInstance<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State>,
+  ApplicationInstance<Merge<DefaultOptions<Props>, OptionsFor<Args>>, State, StartResultFor<Props>>,
   'options' extends keyof Props ? Omit<Props, 'options'> : Props
 >;
 export type ApplicationConstructor<Props extends object = {}, Args extends unknown[] = [options?: ApplicationOptions],
@@ -444,24 +449,30 @@ async function startApplication(application: ApplicationInternals, operation: Op
   // Restart has finished deactivation; explicit child starts are now allowed.
   application._lifecycleState = STARTING;
   const readiness = beginReadiness(operation, options, context => {
-    return application.triggerMethod('before:start', application, options, context);
+    application.triggerMethod('before:start', application, options);
+    if (!isCurrentOperation(application, operation)) { return; }
+    return application.prepareStart?.(options, context);
   });
 
-  await readiness.promise;
+  const result = await readiness.promise;
   if (!isCurrentOperation(application, operation)) { return; }
 
   completeReadiness(operation);
   application._lifecycleState = RUNNING;
   operation.failureState = RUNNING;
   operation.isCompleting = true;
-  application.triggerMethod('start', application, options);
+  application.triggerMethod('start', application, options, result);
 }
 
 async function stopApplication(application: ApplicationInternals, operation: Operation, options: unknown, notify = true) {
   try {
     if (!operation.stopReadiness) {
       const readiness = beginReadiness(operation, options, async context => {
-        if (notify) { await application.triggerMethod('before:stop', application, options, context); }
+        if (notify) {
+          application.triggerMethod('before:stop', application, options);
+          if (!isCurrentOperation(application, operation)) { return false; }
+          await application.prepareStop?.(options, context);
+        }
         return stopChildApps(application, operation, options);
       });
       // Adopters retain this phase's notification policy, just like its options.
@@ -606,7 +617,8 @@ export default /* @__PURE__ */ ((methods: object) => {
       emptyView(this, options);
 
       const readiness = beginReadiness(nextOperation, options, context => {
-        return this.triggerMethod('before:destroy', this, options, context);
+        this.triggerMethod('before:destroy', this, options);
+        return this.prepareDestroy?.(options, context);
       });
 
       await readiness.promise;

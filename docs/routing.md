@@ -81,7 +81,7 @@ export async function createPageNavigation({ el, loadPage, beforeStop = async() 
         commit: page => this.showView(new PageView({ model: page }))
       });
     },
-    onBeforeStop(app, options, context) { return beforeStop(options, context); },
+    prepareStop(options, context) { return beforeStop(options, context); },
     onStop() { requests?.dispose(); },
     onBeforeDestroy() { requests?.dispose(); }
   });
@@ -108,7 +108,7 @@ The identity check in `finally` keeps an older request from clearing the newer
 request's cancellation handle.
 
 This controller owns cancellation for page requests. It does not make every
-View lifecycle asynchronous. Use Application readiness hooks for work that
+View lifecycle asynchronous. Use Application preparation methods for work that
 must finish before the *feature* can start; see
 [Application lifecycle](./marionette.application.md#application-lifecycle).
 Repeated in-flight `start()` or `restart()` calls share their operation Promise,

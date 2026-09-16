@@ -74,11 +74,11 @@ migration guides may refer to the old `backbone.marionette` package name.
 ## Application lifecycle and readiness
 
 `start()`, `stop()`, `restart()`, and `destroy()` are Application **lifecycle
-operations**. A **readiness hook** is one of `onBeforeStart`, `onBeforeStop`, or
-`onBeforeDestroy`. Marionette awaits a Promise returned by one of those hooks
+operations**. A **preparation method** is one of `prepareStart`, `prepareStop`, or
+`prepareDestroy`. Marionette awaits a Promise returned by one of those methods
 before completing that phase.
 
-The corresponding `before:*` event listeners are synchronous notifications;
+The `onBefore*` methods and corresponding `before:*` event listeners are synchronous notifications;
 their return values are not awaited. `onStart`, `onStop`, `onDestroy`, and their
 matching events are **completion notifications** and are not awaited either.
 See [Application lifecycle](https://github.com/marionettejs/marionette/blob/master/docs/marionette.application.md) for ordering,

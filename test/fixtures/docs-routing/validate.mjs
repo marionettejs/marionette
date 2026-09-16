@@ -173,7 +173,7 @@ try {
   assert.equal(await currentStart, true);
   sessions[0].resolve({ name: 'Stale session' });
   await Promise.resolve();
-  assert.equal(bootstrap.session.name, 'Current session', 'canceled startup cannot commit state');
+  assert.equal(bootstrap.getView().model.name, 'Current session', 'canceled startup cannot commit state');
   assert.equal(document.querySelector('h1').textContent, 'Current session');
   assert.equal(await bootstrap.stop(), true);
   const failedStart = bootstrap.start();

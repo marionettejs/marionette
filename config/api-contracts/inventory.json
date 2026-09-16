@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "c007c7b263af096f58e58b22347ff1b67c7a4f66abb63b4a2be5d2b73ecd9e30",
+  "semanticsSha256": "0929a305cce177355389fafdc1c5b46d8332046647ce7c970b27b49be866c616",
   "entrypoints": [
     {
       "name": "marionette",
@@ -39,7 +39,7 @@
           "members": {
             "apply": "(receiver: object, args: IArguments | [options?: ApplicationOptions | undefined]) => void",
             "call": "(receiver: object, options?: ApplicationOptions | undefined) => void",
-            "extend": "<Added extends object = {}, AddedStatics extends object = {}>(this: Added extends { constructor: (...args: never[]) => unknown; } ? object : (this: object, ...args: never[]) => unknown, prototypeProperties?: (Added & ThisType<Merge<ApplicationInstance<Merge<DefaultOptions<Added>, OptionsFor<ArgumentsFor<Added, [options?: ApplicationOptions | undefined]>>>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>>, \"options\" extends keyof Added ? Omit<Added, keyof Added & \"options\"> : Added>>) | undefined, staticProperties?: (AddedStatics & ThisType<ApplicationConstructor<Added, ArgumentsFor<Added, [options?: ApplicationOptions | undefined]>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, AddedStatics>>) | undefined) => ApplicationConstructor<Added, ArgumentsFor<Added, [options?: ApplicationOptions | undefined]>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, AddedStatics>",
+            "extend": "<Added extends object = {}, AddedStatics extends object = {}>(this: Added extends { constructor: (...args: never[]) => unknown; } ? object : (this: object, ...args: never[]) => unknown, prototypeProperties?: (Added & ThisType<Merge<ApplicationInstance<Merge<DefaultOptions<Added>, OptionsFor<ArgumentsFor<Added, [options?: ApplicationOptions | undefined]>>>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, StartResultFor<Added>>, \"options\" extends keyof Added ? Omit<Added, keyof Added & \"options\"> : Added>>) | undefined, staticProperties?: (AddedStatics & ThisType<ApplicationConstructor<Added, ArgumentsFor<Added, [options?: ApplicationOptions | undefined]>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, AddedStatics>>) | undefined) => ApplicationConstructor<Added, ArgumentsFor<Added, [options?: ApplicationOptions | undefined]>, SuppliedState<Added, Added extends { createState: (...args: never[]) => infer State; } ? State : object>, AddedStatics>",
             "setStateApi": "<Receiver extends StateApiClass, Mixin extends object>(this: Receiver, mixin?: string | number | bigint | boolean | symbol | (Mixin & Partial<StateApi<never>>) | null | undefined) => Receiver"
           },
           "callableMembers": [
@@ -49,7 +49,7 @@
             "setStateApi"
           ],
           "construct": [
-            "<Provided extends [options?: ApplicationOptions | undefined] = [options?: ApplicationOptions | undefined]>(...args: Provided): ApplicationInstance<object & OptionsFor<Provided>, SuppliedState<Provided[0], object>>"
+            "<Provided extends [options?: ApplicationOptions | undefined] = [options?: ApplicationOptions | undefined]>(...args: Provided): ApplicationInstance<object & OptionsFor<Provided>, SuppliedState<Provided[0], object>, unknown>"
           ],
           "instance": {
             "addChildApp": "<Child extends ApplicationInstance<object, unknown>>(name: string, application: Child) => Child",
@@ -61,8 +61,8 @@
             "createState": "(options?: (object & ApplicationOptions) | undefined) => unknown",
             "destroy": "(options?: unknown) => Promise<boolean>",
             "getChannel": "() => Channel | undefined",
-            "getChildApp": "(name: string) => ApplicationInstance<object, unknown> | undefined",
-            "getChildApps": "() => Record<string, ApplicationInstance<object, unknown>>",
+            "getChildApp": "(name: string) => ApplicationInstance<object, unknown, unknown> | undefined",
+            "getChildApps": "() => Record<string, ApplicationInstance<object, unknown, unknown>>",
             "getName": "() => string | undefined",
             "getOption": "{ (optionName?: null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: PropertyKey | null | undefined): unknown; }",
             "getRegion": "() => RegionInstance<RegionOptions> | undefined",
@@ -78,21 +78,24 @@
             "normalizeMethods": "{ (this: unknown, hash?: false | \"\" | 0 | 0n | null | undefined): undefined; (this: unknown, hash: object): EventMap; (this: unknown, hash?: OptionalBindings): EventMap | undefined; }",
             "off": "{ <Receiver>(this: Receiver, name?: string | null | undefined, callback?: EventCallback | null | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
             "on": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
-            "onBeforeDestroy": "?((application: ApplicationInstance<object & ApplicationOptions, object>, options: unknown, context: LifecycleContext) => unknown) | undefined",
-            "onBeforeStart": "?((application: ApplicationInstance<object & ApplicationOptions, object>, options: unknown, context: LifecycleContext) => unknown) | undefined",
-            "onBeforeStop": "?((application: ApplicationInstance<object & ApplicationOptions, object>, options: unknown, context: LifecycleContext) => unknown) | undefined",
+            "onBeforeDestroy": "?((application: ApplicationInstance<object & ApplicationOptions, object, unknown>, options: unknown) => unknown) | undefined",
+            "onBeforeStart": "?((application: ApplicationInstance<object & ApplicationOptions, object, unknown>, options: unknown) => unknown) | undefined",
+            "onBeforeStop": "?((application: ApplicationInstance<object & ApplicationOptions, object, unknown>, options: unknown) => unknown) | undefined",
             "once": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
-            "onDestroy": "?((application: ApplicationInstance<object & ApplicationOptions, object>, options: unknown) => unknown) | undefined",
-            "onStart": "?((application: ApplicationInstance<object & ApplicationOptions, object>, options: unknown) => unknown) | undefined",
-            "onStop": "?((application: ApplicationInstance<object & ApplicationOptions, object>, options: unknown) => unknown) | undefined",
+            "onDestroy": "?((application: ApplicationInstance<object & ApplicationOptions, object, unknown>, options: unknown) => unknown) | undefined",
+            "onStart": "?((application: ApplicationInstance<object & ApplicationOptions, object, unknown>, options: unknown, result: unknown) => unknown) | undefined",
+            "onStop": "?((application: ApplicationInstance<object & ApplicationOptions, object, unknown>, options: unknown) => unknown) | undefined",
             "options": "object & ApplicationOptions",
             "preinitialize": "(options?: (object & ApplicationOptions) | undefined) => void",
+            "prepareDestroy": "?((options: unknown, context: LifecycleContext) => unknown) | undefined",
+            "prepareStart": "?((options: unknown, context: LifecycleContext) => unknown) | undefined",
+            "prepareStop": "?((options: unknown, context: LifecycleContext) => unknown) | undefined",
             "Radio": "RadioApi",
             "radioEvents": "?object | (() => object) | undefined",
             "radioRequests": "?object | (() => object) | undefined",
             "region": "?RegionDefinition | undefined",
             "regionClass": "RegionClass",
-            "removeChildApp": "(name: string, options?: unknown) => Promise<ApplicationInstance<object, unknown> | undefined>",
+            "removeChildApp": "(name: string, options?: unknown) => Promise<ApplicationInstance<object, unknown, unknown> | undefined>",
             "restart": "(options?: unknown) => Promise<boolean>",
             "setView": "<Child extends SupportedView>(view: Child) => Child",
             "showView": "{ (view?: undefined, options?: ShowOptions | undefined): SupportedView | undefined; <Child extends SupportedView>(view: Child, options?: ShowOptions | undefined): Child; }",
@@ -139,6 +142,9 @@
             "onStart",
             "onStop",
             "preinitialize",
+            "prepareDestroy",
+            "prepareStart",
+            "prepareStop",
             "removeChildApp",
             "restart",
             "setView",
@@ -257,6 +263,15 @@
               "preinitialize": [
                 "application-composition"
               ],
+              "prepareDestroy": [
+                "application-lifecycle"
+              ],
+              "prepareStart": [
+                "application-lifecycle"
+              ],
+              "prepareStop": [
+                "application-lifecycle"
+              ],
               "removeChildApp": [
                 "application-composition"
               ],
@@ -309,7 +324,7 @@
             "call"
           ],
           "construct": [
-            "<Provided extends Args = Args>(...args: Provided): Constructed<Props, Merge<ApplicationInstance<Merge<DefaultOptions<Props>, OptionsFor<Provided>>, SuppliedState<Provided[0], State>>, \"options\" extends keyof Props ? Omit<Props, keyof Props & \"options\"> : Props>>"
+            "<Provided extends Args = Args>(...args: Provided): Constructed<Props, Merge<ApplicationInstance<Merge<DefaultOptions<Props>, OptionsFor<Provided>>, SuppliedState<Provided[0], State>, StartResultFor<Props>>, \"options\" extends keyof Props ? Omit<Props, keyof Props & \"options\"> : Props>>"
           ],
           "instance": {},
           "callableInstanceMembers": [],
@@ -330,7 +345,7 @@
         {
           "name": "ApplicationInstance",
           "kind": "type",
-          "signature": "ApplicationInstance<Options, State>",
+          "signature": "ApplicationInstance<Options, State, StartResult>",
           "contracts": [
             "type-shapes"
           ],
@@ -344,8 +359,8 @@
             "createState": "(options?: Options | undefined) => unknown",
             "destroy": "(options?: unknown) => Promise<boolean>",
             "getChannel": "() => Channel | undefined",
-            "getChildApp": "(name: string) => ApplicationInstance<object, unknown> | undefined",
-            "getChildApps": "() => Record<string, ApplicationInstance<object, unknown>>",
+            "getChildApp": "(name: string) => ApplicationInstance<object, unknown, unknown> | undefined",
+            "getChildApps": "() => Record<string, ApplicationInstance<object, unknown, unknown>>",
             "getName": "() => string | undefined",
             "getOption": "{ (optionName?: null | undefined): undefined; <Receiver extends object, Name extends PropertyKey | null | undefined>(this: Receiver, optionName: Name): GetOptionResult<Receiver, Name>; (this: object, optionName: PropertyKey | null | undefined): unknown; }",
             "getRegion": "() => RegionInstance<RegionOptions> | undefined",
@@ -361,21 +376,24 @@
             "normalizeMethods": "{ (this: unknown, hash?: false | \"\" | 0 | 0n | null | undefined): undefined; (this: unknown, hash: object): EventMap; (this: unknown, hash?: OptionalBindings): EventMap | undefined; }",
             "off": "{ <Receiver>(this: Receiver, name?: string | null | undefined, callback?: EventCallback | null | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
             "on": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
-            "onBeforeDestroy": "?((application: ApplicationInstance<Options, State>, options: unknown, context: LifecycleContext) => unknown) | undefined",
-            "onBeforeStart": "?((application: ApplicationInstance<Options, State>, options: unknown, context: LifecycleContext) => unknown) | undefined",
-            "onBeforeStop": "?((application: ApplicationInstance<Options, State>, options: unknown, context: LifecycleContext) => unknown) | undefined",
+            "onBeforeDestroy": "?((application: ApplicationInstance<Options, State, StartResult>, options: unknown) => unknown) | undefined",
+            "onBeforeStart": "?((application: ApplicationInstance<Options, State, StartResult>, options: unknown) => unknown) | undefined",
+            "onBeforeStop": "?((application: ApplicationInstance<Options, State, StartResult>, options: unknown) => unknown) | undefined",
             "once": "{ <Receiver>(this: Receiver, name: string, callback?: EventCallback | undefined, context?: unknown): Receiver; <Receiver>(this: Receiver, events: EventMap, context?: unknown, explicitContext?: unknown): Receiver; }",
-            "onDestroy": "?((application: ApplicationInstance<Options, State>, options: unknown) => unknown) | undefined",
-            "onStart": "?((application: ApplicationInstance<Options, State>, options: unknown) => unknown) | undefined",
-            "onStop": "?((application: ApplicationInstance<Options, State>, options: unknown) => unknown) | undefined",
+            "onDestroy": "?((application: ApplicationInstance<Options, State, StartResult>, options: unknown) => unknown) | undefined",
+            "onStart": "?((application: ApplicationInstance<Options, State, StartResult>, options: unknown, result: StartResult) => unknown) | undefined",
+            "onStop": "?((application: ApplicationInstance<Options, State, StartResult>, options: unknown) => unknown) | undefined",
             "options": "Options",
             "preinitialize": "(options?: Options | undefined) => void",
+            "prepareDestroy": "?((options: unknown, context: LifecycleContext) => unknown) | undefined",
+            "prepareStart": "?((options: unknown, context: LifecycleContext) => StartResult | PromiseLike<StartResult>) | undefined",
+            "prepareStop": "?((options: unknown, context: LifecycleContext) => unknown) | undefined",
             "Radio": "RadioApi",
             "radioEvents": "?object | (() => object) | undefined",
             "radioRequests": "?object | (() => object) | undefined",
             "region": "?RegionDefinition | undefined",
             "regionClass": "RegionClass",
-            "removeChildApp": "(name: string, options?: unknown) => Promise<ApplicationInstance<object, unknown> | undefined>",
+            "removeChildApp": "(name: string, options?: unknown) => Promise<ApplicationInstance<object, unknown, unknown> | undefined>",
             "restart": "(options?: unknown) => Promise<boolean>",
             "setView": "<Child extends SupportedView>(view: Child) => Child",
             "showView": "{ (view?: undefined, options?: ShowOptions | undefined): SupportedView | undefined; <Child extends SupportedView>(view: Child, options?: ShowOptions | undefined): Child; }",
@@ -422,6 +440,9 @@
             "onStart",
             "onStop",
             "preinitialize",
+            "prepareDestroy",
+            "prepareStart",
+            "prepareStop",
             "removeChildApp",
             "restart",
             "setView",
@@ -527,6 +548,15 @@
                 "type-shapes"
               ],
               "preinitialize": [
+                "type-shapes"
+              ],
+              "prepareDestroy": [
+                "type-shapes"
+              ],
+              "prepareStart": [
+                "type-shapes"
+              ],
+              "prepareStop": [
                 "type-shapes"
               ],
               "removeChildApp": [
@@ -7806,8 +7836,7 @@
       "kind": "literal",
       "arguments": [
         "application",
-        "options",
-        "context"
+        "options"
       ]
     },
     {
@@ -7816,7 +7845,8 @@
       "kind": "literal",
       "arguments": [
         "application",
-        "options"
+        "options",
+        "result"
       ]
     },
     {
@@ -7825,8 +7855,7 @@
       "kind": "literal",
       "arguments": [
         "application",
-        "options",
-        "context"
+        "options"
       ]
     },
     {
@@ -7844,8 +7873,7 @@
       "kind": "literal",
       "arguments": [
         "this",
-        "options",
-        "context"
+        "options"
       ]
     },
     {
@@ -8013,7 +8041,7 @@
     "src/mixins/ui.ts": "5cb417e1456cd17b43357e480102be3fc1b436167c43b853af7d45ab79d35ffd",
     "src/mixins/view-events.ts": "108a31ba7d0f74916848c5b2f85b422afe15703a8e9fa2dbca0b17b6a5ff0fb2",
     "src/mixins/view.ts": "d0895d07d087d24d5cd8ce8d051a7acbbc9cee64fd2b5a6824b26973fc064e18",
-    "src/modules/application.ts": "11a9541a102d67f1d76ca83ec4bd65e8d68bfc7790e818aaeded14965dae42ec",
+    "src/modules/application.ts": "3c6be0f0d93e171a5d258d19556c3955f34ff00726f70ec10a4262f84e9e82af",
     "src/modules/behavior.ts": "475fe0451e629559992bd0f5ec18ad16438309b018bf643b5917dfc47a1693b6",
     "src/modules/child-view-container.ts": "ab52685a0a4fd8861534b8e9784704791c3e72a15ee19547766293be4a030803",
     "src/modules/collection-view.ts": "40bbaefedea29de171597e905f8fdde7ee6f55877da9e441996c9b5bf56bfe58",
@@ -8041,9 +8069,9 @@
     "docs/diagnostic-catalog.md": "1df844c7e8edbea59a8c07776d656d45f77266108babb770d7690183fe85d180",
     "docs/dom.api.md": "a697a637ae4c6cc92aa5d72850b404763f08e0417800feacc0b431ec073d3916",
     "docs/dom.interactions.md": "81bd678c7d498e08c08c84cfc3bbe1d27451ef46ed521e67fff4f72450bdbadb",
-    "docs/events.class.md": "7370bdc890168105ab61fd6140aae9f43ec473a0872fd7cdf1812d2cf9fd9e00",
+    "docs/events.class.md": "faed5ac4f6eca3ec447ae7cd44b6efd8f039e935b38a4c191076d485bd57a35f",
     "docs/events.md": "227484aca95a4003903bd8df51f3c38c11144480ace919b63bacbf5bc2bb3d22",
-    "docs/marionette.application.md": "9bf34ebf6130126135129ac04b03d37ee24ba7868d5596a15ffafdcbdc9af5a3",
+    "docs/marionette.application.md": "bbb8db3bc58f2b021d9dd77d748a3a005ee9b6a3410d3a897c171dc8b3fb1a85",
     "docs/marionette.behavior.md": "bf002b5ba380cf1bb1054b98f9813d89b4aef16ba6495d02b823ed178ab3f0c4",
     "docs/marionette.collectionview.md": "5af1ed04daaf0e976fdd0538b0931fd370fd09167079d0c21b01195f8628cefe",
     "docs/marionette.mnobject.md": "056bb3041902d66831a0031e2e9c97770f485f613450861ae55aba46ca592243",
@@ -8061,9 +8089,10 @@
     "packages/data/readme.md": "ca98cee5fcb519278b47e9a12e3e8838f5e9c9c5913646c14398fc7111d6f8d6",
     "packages/utils/readme.md": "8fe46e7f62e691e208ef87bba47ec0209302cfed15faa0d87a221f66cf666348",
     "test/contracts/dom-adapters.js": "a3f71df6a2e52f8d4a52ebb2d3cbbc8e77e055f459daf7c071f4e5fd55ad8c3f",
-    "test/unit/application-child-lifecycle.spec.js": "fae6cd469119901a1a39e1ee9f8aa5aae55db39d50df7a3cb145e640fba8d400",
-    "test/unit/application-lifecycle.spec.js": "52adc58534d8cb079dacb9b8b5f608bd62783c14ad5b98bb8cd85dcdd757c331",
-    "test/unit/application-ownership.spec.js": "6710968792d0c52877110abc63b4622b18efc3b030d5f5f1060e4de046326095",
+    "test/unit/application-child-lifecycle.spec.js": "e69e6a140e341563b49333d09bd1c483151f9f4b2a494960a4dfc78bb81f8dcb",
+    "test/unit/application-lifecycle.spec.js": "43da21063d3b03c1c16fd047735458a26a98abe003ef75e607bad0f01a473f37",
+    "test/unit/application-ownership.spec.js": "f1e6a74f639bb6ceedd85957c696a45de28e1526ed41df0f34663a23b25bb68f",
+    "test/unit/application-preparation.spec.js": "23e58351eec5983b4d412be099a7e9306f4b758a1f501874f46baca8be940b56",
     "test/unit/application-prepared-view.spec.js": "440619dba9c73570974f1531bbe8b601fcb9a27ed64b499d6c10b9e8ca955dca",
     "test/unit/application-root-view.spec.js": "2c1c642bb872836425b942580cc6600236cf3110186b427b1f7b2fd6263ff78d",
     "test/unit/backbone-adapter.spec.js": "016907f55d5e20d695f916dbd4189ac7e3e543a0f903df6a3922c207dade59df",
@@ -8090,7 +8119,7 @@
     "test/unit/events-parity.spec.js": "a0ec7cd3dac3636803ec6ecc6fb7161df2a74fa7d5e6d532477e12539a9bd71c",
     "test/unit/events-single-dispatch.spec.js": "9405ceb5a59c4ebddf3aeb4a902588dcf81a6bc35aca40bde0e8aa41760fb6ce",
     "test/unit/jquery-dom-api.spec.js": "4b0187d3ca5dac647394dd906fe6c6ca11764688c12ef864bc4eae867a629ded",
-    "test/unit/model-based/application.spec.js": "606f73e131faa4991ac2dc5370abc80b0f61467623705b0d929587e654cc7e35",
+    "test/unit/model-based/application.spec.js": "e40a27ede3317869f8e3a1e10563be78f1bfe768365d62bcd1fedd38322a84ed",
     "test/unit/modules-error.spec.js": "3ca32416b3329999cb3fcdd3fbc66751d722e7a2c0082195b702b64dce6284c3",
     "test/unit/object.spec.js": "ca82986738229a1af224aa3bd2b0ab88d70ca92dc556806796e5b056b19ebb3e",
     "test/unit/provider-acceptance.spec.js": "9eb8795a222745b41ba2d76ae770dfa702e2f0f1ec8e17be8402be42c6166db9",

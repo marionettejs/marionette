@@ -20,9 +20,9 @@ function fixture() {
       return gate.promise;
     };
     const App = Application.extend({
-      onBeforeStart(app, options, context) { return before('start', options, context); },
-      onBeforeStop(app, options, context) { return before('stop', options, context); },
-      onBeforeDestroy(app, options, context) { return before('destroy', options, context); },
+      prepareStart(options, context) { return before('start', options, context); },
+      prepareStop(options, context) { return before('stop', options, context); },
+      prepareDestroy(options, context) { return before('destroy', options, context); },
       onStart() { real.trace.push(`${name}:start`); },
       onStop() { real.trace.push(`${name}:stop`); },
       onDestroy() { real.trace.push(`${name}:destroy`); }

@@ -420,7 +420,7 @@ current-evidence findings:
   method runs before the event and supplies the return value; a synchronous method
   exception prevents event dispatch. `getOption` remains available for configuration.
 - **Selected:** Application lifecycle is the selected asynchronous boundary. Only Promises returned
-  by its readiness hooks are awaited; completion hooks and every View, Region,
+  by its preparation methods are awaited; lifecycle notifications and every View, Region,
   CollectionView, renderer, template, Events, Radio, Marionette-managed state-source
   callbacks, and destroy callbacks stay synchronous. Publish a sync/async contract
   matrix and never auto-await an arbitrary callback. Development validation may
@@ -715,10 +715,11 @@ and every release blocker maps to this strategy.
 - Complete the remaining API-shape and agent-ergonomics gate for existing public
   contracts while freezing state-source composition, StateApi/DataApi observation,
   normalized reconciliation, extension, and additional Application ownership. The Application
-  lifecycle-hook decision recorded below settles its target
-  shape by retaining core Marionette's subject-first lifecycle convention, meeting the
-  verified Toolkit/app-frontend asynchronous-readiness need through that single hook
-  path, and rejecting parallel compatibility seams. Executable implementation and
+  lifecycle decision recorded below settles its target
+  shape by retaining subject-first synchronous lifecycle notifications and using
+  separate preparation methods for the verified Toolkit/app-frontend asynchronous
+  readiness need. Startup preparation supplies one result to completion; obsolete
+  awaitable notification hooks are removed without compatibility aliases. Executable implementation and
   migration evidence remain required before this part of the gate passes. Broader
   Application ownership work remains tracked by [#190][issue-190].
 - Complete the [production-runtime authorship audit][issue-329] for every in-scope path
@@ -776,23 +777,29 @@ and every release blocker maps to this strategy.
   duplicate implementations in core.
 - Specify Application as Marionette's first promise-based public lifecycle contract
   and add transition-table or model-based tests. Preserve Marionette lifecycle
-  signatures with the subject first. Treat Promises returned by `onBeforeStart`,
-  `onBeforeStop`, and `onBeforeDestroy` as their operations' only readiness inputs;
-  keep `onStart`, `onStop`, and `onDestroy` as non-awaited completion notifications.
-  Completion return values are ignored and asynchronous completion work owns its error
-  handling. A readiness hook throw or rejection rejects the operation before its target
-  is reached and restores the prior stable state. A synchronous completion-hook throw
+  notifications with the subject first and ignore all notification return values.
+  Await only `prepareStart(options, context)`, `prepareStop(options, context)`,
+  and `prepareDestroy(options, context)` after each synchronous before notification.
+  Pass the resolved startup result as one unchanged third argument to `onStart` /
+  `start`; stop and destroy preparation values are readiness-only. Public operation
+  promises retain boolean results. Asynchronous notification work owns its error
+  handling. A synchronous before-notification throw, preparation throw, or preparation
+  rejection rejects the operation before its target is reached and restores the
+  last stable state. A synchronous completion-hook throw
   rejects the operation after retaining the target state already reached. Repeated
   calls of the same operation kind share the active operation. Before destruction, a
   different operation kind supersedes it before its target state is reached. Once
   destruction begins it is terminal, and stale readiness completion cannot mutate
   state or emit an invalidated completion event. Do not add Toolkit's `beforeStart`,
   `triggerStart`, or `finallyStart` extension seams.
-- Give each awaitable Application readiness hook a standard operation context with an
+- Give each Application preparation method a standard operation context with an
   `AbortSignal`. Supersession aborts before replacement readiness begins unless the
   winning operation adopts the in-flight readiness phase; adopted stop readiness keeps
   the same context and signal. Cancellation follows the ordinary supersession result
-  rather than the failure path. Verify hook arguments, abort and transfer ordering,
+  rather than the failure path. Before notifications receive no context. A
+  `before:start` or `before:stop` notification that supersedes its pending operation
+  prevents that preparation from beginning; destruction remains terminal. Verify
+  arguments, abort and transfer ordering,
   repeated-call sharing, and migration for consumer readiness work that cooperatively
   stops on abort.
 - Strengthen Application as the single non-renderable lifecycle and ownership scope,

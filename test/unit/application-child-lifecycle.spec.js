@@ -39,7 +39,7 @@ describe('Application child lifecycle', () => {
     const start = vi.fn();
     const childOptions = { section: 'queue' };
     const app = owner({
-      async onBeforeStart() {
+      async prepareStart() {
         this.setView(new View({ template: false }));
         const started = await this.getChildApp('required').start(childOptions);
         if (!started) { throw new Error('Required child unavailable'); }
@@ -47,7 +47,7 @@ describe('Application child lifecycle', () => {
       onStart: start
     });
     const child = app.addChildApp('required', new (Application.extend({
-      onBeforeStart(childApp, options) {
+      prepareStart(options) {
         expect(options).toBe(childOptions);
         expect(app.getView()).toBeInstanceOf(View);
         entered.resolve();
@@ -67,7 +67,7 @@ describe('Application child lifecycle', () => {
   it('allows a slow optional child to start independently after the owner', async() => {
     const ready = gate();
     const app = owner();
-    const child = app.addChildApp('optional', new (Application.extend({ onBeforeStart() { return ready.promise; } }))());
+    const child = app.addChildApp('optional', new (Application.extend({ prepareStart() { return ready.promise; } }))());
     expect(await app.start()).toBe(true);
     const starting = child.start();
     expect(app.isRunning()).toBe(true);
@@ -80,7 +80,7 @@ describe('Application child lifecycle', () => {
     it(`${method} drains a running grandchild through stopped owners`, async() => {
       const beforeStop = vi.fn();
       const beforeDestroy = vi.fn(() => expect(grandchild.isRunning()).toBe(false));
-      const app = owner({ onBeforeStop: beforeStop, onBeforeDestroy: beforeDestroy });
+      const app = owner({ prepareStop: beforeStop, prepareDestroy: beforeDestroy });
       const child = app.addChildApp('child', new Application());
       const grandchild = child.addChildApp('grandchild', new Application());
       await grandchild.start();
@@ -103,13 +103,13 @@ describe('Application child lifecycle', () => {
     it(`${method} cleans an explicitly started prefix after failed parent readiness`, async() => {
       const failure = new Error('Second child unavailable');
       const stopped = [];
-      const app = owner({ async onBeforeStart() {
+      const app = owner({ async prepareStart() {
         await this.getChildApp('first').start();
         await this.getChildApp('second').start();
       } });
       const first = app.addChildApp('first', new (Application.extend({ onStop() { stopped.push('first'); } }))());
       const second = app.addChildApp('second', new (Application.extend({
-        onBeforeStart() { throw failure; },
+        prepareStart() { throw failure; },
         onStop() { stopped.push('second'); }
       }))());
       await expect(app.start()).rejects.toBe(failure);
@@ -125,12 +125,12 @@ describe('Application child lifecycle', () => {
   it('retries an explicit startup without restarting its completed prerequisites', async() => {
     let failed = true;
     const firstStarted = vi.fn();
-    const app = owner({ async onBeforeStart() {
+    const app = owner({ async prepareStart() {
       await this.getChildApp('first').start();
       await this.getChildApp('second').start();
     } });
     app.addChildApp('first', new (Application.extend({ onStart: firstStarted }))());
-    const second = app.addChildApp('second', new (Application.extend({ onBeforeStart() {
+    const second = app.addChildApp('second', new (Application.extend({ prepareStart() {
       if (failed) { throw new Error('Not ready'); }
     } }))());
     await expect(app.start()).rejects.toThrow('Not ready');
@@ -144,10 +144,10 @@ describe('Application child lifecycle', () => {
     const ready = gate();
     const entered = gate();
     const failure = new Error('Required child canceled');
-    const app = owner({ async onBeforeStart() {
+    const app = owner({ async prepareStart() {
       if (!await this.getChildApp('child').start()) { throw failure; }
     } });
-    const child = app.addChildApp('child', new (Application.extend({ onBeforeStart() {
+    const child = app.addChildApp('child', new (Application.extend({ prepareStart() {
       entered.resolve();
       return ready.promise;
     } }))());
@@ -164,7 +164,7 @@ describe('Application child lifecycle', () => {
       const ready = gate();
       const entered = gate();
       let hold = false;
-      const app = owner({ onBeforeStop() {
+      const app = owner({ prepareStop() {
         if (hold) { entered.resolve(); return ready.promise; }
       } });
       const child = app.addChildApp('child', new Application());
@@ -186,7 +186,7 @@ describe('Application child lifecycle', () => {
     let blocked;
     let child;
     const app = owner({
-      onBeforeStart() { return child.start(); },
+      prepareStart() { return child.start(); },
       onStop() { blocked = child.start(); }
     });
     child = app.addChildApp('child', new Application());
@@ -212,7 +212,7 @@ describe('Application child lifecycle', () => {
     const options = { action: 'close' };
     const app = owner({ onBeforeStop() { events.push('owner:before'); }, onStop() { events.push('owner:stop'); } });
     for (const name of ['10', '2']) {
-      const child = app.addChildApp(name, new (Application.extend({ onBeforeStop(childApp, received) {
+      const child = app.addChildApp(name, new (Application.extend({ prepareStop(received) {
         expect(received).toBe(options);
         events.push(name);
       } }))());
@@ -231,7 +231,7 @@ describe('Application child lifecycle', () => {
     const children = [];
     for (const name of ['first', 'second', 'third']) {
       const child = app.addChildApp(name, new (Application.extend({
-        onBeforeStop() { if (name === 'second' && permission.fail) { throw failure; } },
+        prepareStop() { if (name === 'second' && permission.fail) { throw failure; } },
         onStop() { events.push(name); }
       }))());
       children.push(child);
@@ -251,7 +251,7 @@ describe('Application child lifecycle', () => {
     let deny = true;
     const app = owner();
     const child = app.addChildApp('child', new (Application.extend({
-      onBeforeStop() { if (deny) { throw failure; } }
+      prepareStop() { if (deny) { throw failure; } }
     }))());
     try {
       await child.start();
@@ -276,7 +276,7 @@ describe('Application child lifecycle', () => {
       const ready = gate();
       let signal;
       const app = owner();
-      const child = app.addChildApp('child', new (Application.extend({ onBeforeStart(childApp, options, context) {
+      const child = app.addChildApp('child', new (Application.extend({ prepareStart(options, context) {
         signal = context.signal;
         return ready.promise;
       } }))());
@@ -306,7 +306,7 @@ describe('Application child lifecycle', () => {
       const ready = gate();
       const entered = gate();
       let hold = false;
-      const app = owner({ onBeforeStop() { if (hold) { entered.resolve(); return ready.promise; } } });
+      const app = owner({ prepareStop() { if (hold) { entered.resolve(); return ready.promise; } } });
       const child = app.addChildApp('child', new Application());
       await child.start();
       await app.start();
@@ -332,7 +332,7 @@ describe('Application child lifecycle', () => {
     const firstOptions = { source: 'first' };
     const latestOptions = { source: 'latest' };
     const ChildApplication = Application.extend({
-      onBeforeStop() {
+      prepareStop() {
         if (this.getName() === 'first') {
           childStopping.resolve();
           return readiness.promise;
@@ -341,7 +341,7 @@ describe('Application child lifecycle', () => {
       onStop() { events.push(`${this.getName()}:stop`); }
     });
     const OwnerApplication = Application.extend({
-      onBeforeStop(application, options) { events.push(options); },
+      prepareStop(options) { events.push(options); },
       onStop() { events.push('parent:stop'); }
     });
     const parent = new OwnerApplication();
@@ -379,7 +379,7 @@ for (const method of ['stop', 'destroy']) {
     const ready = gate();
     const entered = gate();
     const app = owner();
-    const child = app.addChildApp('child', new (Application.extend({ onBeforeStop() {
+    const child = app.addChildApp('child', new (Application.extend({ prepareStop() {
       entered.resolve();
       return ready.promise;
     } }))());
@@ -400,8 +400,8 @@ it('preserves silent stopped-owner cleanup when restart adopts descendant stop r
   const ready = gate();
   const entered = gate();
   const notifications = vi.fn();
-  const app = owner({ onBeforeStop: notifications, onStop: notifications });
-  const child = app.addChildApp('child', new (Application.extend({ onBeforeStop() {
+  const app = owner({ prepareStop: notifications, onStop: notifications });
+  const child = app.addChildApp('child', new (Application.extend({ prepareStop() {
     entered.resolve();
     return ready.promise;
   } }))());

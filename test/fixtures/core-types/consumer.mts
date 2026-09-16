@@ -31,7 +31,7 @@ if (found) { found.label().toUpperCase(); }
 const app: ApplicationInstance = new Application();
 const completion: Promise<boolean> = app.destroy();
 const App = Application.extend({
-  onBeforeStart(owner: ApplicationInstance, options: unknown, context: LifecycleContext) {
+  prepareStart(options: unknown, context: LifecycleContext) {
     context.signal.throwIfAborted();
   },
 });
