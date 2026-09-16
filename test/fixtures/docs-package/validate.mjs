@@ -58,6 +58,21 @@ const installedSkill = resolve(packageRoot, 'dist/agent-skill');
 const directory = await mkdtemp(resolve(tmpdir(), 'marionette-copied-skill-'));
 try {
   await cp(installedSkill, directory, { recursive: true });
+  for (const skillRoot of [installedSkill, directory]) {
+    const skill = await readFile(resolve(skillRoot, 'SKILL.md'), 'utf8');
+    const commands = parser.lexer(skill).filter(token => token.type === 'code' && token.lang === 'sh')
+      .flatMap(token => token.text.split('\n'));
+    assert.equal(commands.length, 2, 'Exercise both documented lookup commands');
+    for (const command of commands) {
+      const [executable, ...args] = command.split(/\s+/);
+      assert.equal(executable, 'node');
+      const output = execFileSync(process.execPath,
+        args.map(arg => arg === '"/path/to/application"' ? process.cwd() : arg),
+        { cwd: skillRoot, encoding: 'utf8' });
+      assert.ok(output.includes(manifest.sourceRevision));
+      assert.ok(output.includes('docs/agents.md'));
+    }
+  }
   const result = execFileSync(process.execPath, [resolve(directory, 'scripts/docs.mjs'), '--package-root', packageRoot, '--list'], { encoding: 'utf8' });
   assert.ok(result.includes(manifest.sourceRevision));
   assert.ok(result.includes('docs/agents.md'));
