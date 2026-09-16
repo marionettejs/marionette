@@ -11,11 +11,20 @@ choices. This skill does not authorize dependency upgrades.
 ## Locate matching docs
 
 Resolve the package from the application workspace, not the copied skill directory
-or a neighboring monorepo package. The read-only helper requires Node 24 or later:
+or a neighboring monorepo package. The read-only helper requires Node 24 or later.
+Its path is `scripts/docs.mjs` relative to the directory containing this `SKILL.md`:
+
+- In the npm package, that directory is `<package-root>/dist/agent-skill/`.
+- After copying the skill, it is the copied directory, such as
+  `/path/to/application/.agents/skills/marionette/`.
+
+Replace `/path/to/skill-directory` with that directory's absolute path and
+`/path/to/application` with the application's absolute path. These commands work
+from any working directory:
 
 ```sh
-node /path/to/marionette/scripts/docs.mjs --project /path/to/application --list
-node /path/to/marionette/scripts/docs.mjs --project /path/to/application --page docs/agents.md
+node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --list
+node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --page docs/agents.md
 ```
 
 These are lookup options, not a required sequence. `--list` returns provenance and
