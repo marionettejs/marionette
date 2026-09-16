@@ -47,8 +47,11 @@ for (const entry of entries) {
   }
 }
 assert.ok(manifest.pages.every(page => page.section !== 'Maintaining Marionette'));
-assert.ok(manifest.assets.every(asset => !asset.source.startsWith('benchmarks/docs/')),
+assert.ok(manifest.assets.every(asset => !asset.source.startsWith('benchmarks/')),
   'Maintainer trial evidence must not enter the consumer package');
+const maintainerAssets = new Set(['ROADMAP.md', 'test/README.md']);
+assert.ok(manifest.assets.every(asset => !maintainerAssets.has(asset.source) && !asset.source.startsWith('test/unit/')),
+  'Maintainer planning and test guidance must not enter the consumer package');
 assert.ok(manifest.assets.some(asset => asset.source === 'test/fixtures/docs-routing/validate.mjs'),
   'Consumer fixture evidence must be available offline');
 const installedSkill = resolve(packageRoot, 'dist/agent-skill');
