@@ -15,7 +15,7 @@ copying credentials or provider configuration into this checklist.
 | Record | Value to capture |
 | --- | --- |
 | Target | Version, Git tag, npm dist-tag, GitHub prerelease/stable status |
-| Library | Clean source commit, PR, CI run, exact artifact and validation report |
+| Library | Clean source commit, PR, CI run, successful manual dry-run ID, exact artifact and validation report |
 | Packages | `marionette`, `@mnjs/utils`, `@mnjs/radio`, `@mnjs/data`, `@mnjs/adapters`; versions and integrity |
 | Website | Import PR, merged source commit, documentation manifest/hash, runtime version/integrity |
 | Deployments | Website deployment ID, MCP deployment/version ID, catalog provenance and corpus hash |
@@ -72,7 +72,8 @@ owns the usability procedure and required records.
   source commit. A new commit requires new evidence, even for documentation edits.
 - [ ] Run `release:artifact` and `release:validate` according to the promotion
   procedure, or the manual workflow with `publish` false. Retain the exact tarballs
-  and successful validation report. Never rebuild between certification and publish.
+  and successful validation report, and record the successful manual workflow run ID.
+  Never rebuild between certification and publish.
 - [ ] Verify supported Linux, macOS, and Windows package checks and the required
   browser/fixture evidence. A platform skipped on PRs still needs its release check.
 - [ ] Inspect npm/tag/release target occupancy, publisher access, all five trusted
@@ -82,8 +83,9 @@ owns the usability procedure and required records.
 
 - [ ] Obtain authorization for the exact version/tag, all five packages, dist-tag
   effects, and GitHub release. Checklist preparation does not authorize publication.
-- [ ] Run the protected manual publication workflow from the certified source and
-  approve its environment. Use the verified artifacts and normal recovery path.
+- [ ] Run the protected manual publication workflow from the certified source, supply
+  the successful dry-run ID as `certification_run_id`, and approve its environment.
+  Use the imported verified artifacts and normal recovery path.
 - [ ] Verify all five registry versions, integrity, dist-tags, and provenance;
   verify the Git tag resolves to the certified commit and GitHub assets match.
 - [ ] In a clean directory outside the checkout, install the exact published

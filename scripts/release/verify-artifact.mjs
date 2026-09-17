@@ -1,7 +1,7 @@
 import { verifyDevelopmentKit } from '../docs/development-kit.mjs';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { appendFile, readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import process from 'node:process';
 import { publicationEnabled } from './publication.mjs';
@@ -13,6 +13,7 @@ const root = resolve(import.meta.dirname, '../..');
 const args = readArguments({
   'artifact-dir': { type: 'string', default: 'release' },
   'source-commit': { type: 'string' },
+  'workflow-run-id': { type: 'string' },
   repository: { type: 'string' },
   'require-validation': { type: 'boolean', default: false },
 });
@@ -171,12 +172,16 @@ for (const packageEvidence of evidence.packages) {
 }
 
 const expectedCommit = args['source-commit'];
+const expectedWorkflowRunId = args['workflow-run-id'];
 const expectedRepository = args.repository;
 if (expectedCommit) {
   assertEqual(evidence.source.commit, expectedCommit, 'source commit');
 }
 if (expectedRepository) {
   assertEqual(evidence.source.repository, expectedRepository, 'source repository');
+}
+if (expectedWorkflowRunId) {
+  assertEqual(evidence.workflow?.runId, expectedWorkflowRunId, 'certification workflow run ID');
 }
 
 for (const packageEvidence of evidence.packages) {
@@ -186,4 +191,14 @@ for (const packageEvidence of evidence.packages) {
 if (args['require-validation']) {
   await verifyCandidateValidation(artifactDir, evidenceBytes);
   console.log('Complete candidate validation verified.');
+}
+
+if (process.env.GITHUB_OUTPUT) {
+  for (const packageEvidence of evidence.packages) {
+    await appendFile(process.env.GITHUB_OUTPUT, `${packageEvidence.id}_tarball=${packageEvidence.tarball.file}\n`);
+  }
+  await appendFile(process.env.GITHUB_OUTPUT, `version=${evidence.release.version}\n`);
+  await appendFile(process.env.GITHUB_OUTPUT, `tag=${evidence.release.tag}\n`);
+  await appendFile(process.env.GITHUB_OUTPUT, `npm_tag=${evidence.release.npmTag}\n`);
+  await appendFile(process.env.GITHUB_OUTPUT, `prerelease=${evidence.release.prerelease}\n`);
 }

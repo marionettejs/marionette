@@ -28,8 +28,13 @@ on:
         required: true
         type: boolean
         default: false
+      certification_run_id:
+        description: Successful dry-run workflow run ID required for publication
+        required: false
+        type: string
 
 permissions:
+  actions: read
   contents: read
 
 concurrency:
@@ -45,6 +50,7 @@ jobs:
     name: Release preflight
     runs-on: ubuntu-24.04
     outputs:
+      certification_run_id: ${{ steps.preflight.outputs.certification_run_id }}
       mode: ${{ steps.preflight.outputs.mode }}
 
     steps:
@@ -65,15 +71,23 @@ jobs:
 
       - name: Authorize workflow mode
         id: preflight
-        run: >-
-          npm run check:release-promotion --
-          --mode "${PROMOTION_MODE}"
-          --repository "${GITHUB_REPOSITORY}"
-          --ref "${GITHUB_REF}"
-          --event "${GITHUB_EVENT_NAME}"
+        env:
+          CERTIFICATION_RUN_ID: ${{ inputs.certification_run_id }}
+        run: |
+          args=(
+            --mode "${PROMOTION_MODE}"
+            --repository "${GITHUB_REPOSITORY}"
+            --ref "${GITHUB_REF}"
+            --event "${GITHUB_EVENT_NAME}"
+          )
+          if [ -n "${CERTIFICATION_RUN_ID}" ]; then
+            args+=(--certification-run-id "${CERTIFICATION_RUN_ID}")
+          fi
+          npm run check:release-promotion -- "${args[@]}"
 
   build:
     name: Build verified tarballs
+    if: needs.preflight.outputs.mode == 'dry-run'
     needs: preflight
     runs-on: ubuntu-24.04
     outputs:
@@ -154,6 +168,7 @@ jobs:
 
   package-smoke:
     name: Release package smoke (${{ matrix.name }})
+    if: needs.preflight.outputs.mode == 'dry-run'
     needs: [preflight, build]
     runs-on: ${{ matrix.runner }}
     strategy:
@@ -161,8 +176,8 @@ jobs:
       matrix:
         include: >-
           ${{ fromJSON(github.event_name == 'pull_request'
-            && '[{"name":"macOS arm64","host":"macos-arm64","runner":"macos-15"}]'
-            || '[{"name":"macOS arm64","host":"macos-arm64","runner":"macos-15"},{"name":"Windows x64","host":"windows-x64","runner":"windows-2025"}]') }}
+            && '[{"name":"macOS arm64","host":"macos-arm64","runner":"macos-15","shard_index":1,"shard_total":1}]'
+            || '[{"name":"macOS arm64","host":"macos-arm64","runner":"macos-15","shard_index":1,"shard_total":1},{"name":"Windows x64 1/4","host":"windows-x64","runner":"windows-2025","shard_index":1,"shard_total":4},{"name":"Windows x64 2/4","host":"windows-x64","runner":"windows-2025","shard_index":2,"shard_total":4},{"name":"Windows x64 3/4","host":"windows-x64","runner":"windows-2025","shard_index":3,"shard_total":4},{"name":"Windows x64 4/4","host":"windows-x64","runner":"windows-2025","shard_index":4,"shard_total":4}]') }}
 
     steps:
       - name: Checkout exact source commit
@@ -175,7 +190,7 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .nvmrc
-          package-manager-cache: false
+          cache: npm
 
       - name: Verify release profile
         run: npm run check:release-profile -- --host ${{ matrix.host }} --runner ${{ matrix.runner }}
@@ -195,14 +210,19 @@ jobs:
           --require-validation
 
       - name: Test exact packed package fixtures
-        run: npm run test:fixtures -- --artifact-dir release --report test/tmp/release-fixtures.json
+        run: >-
+          npm run test:fixtures --
+          --artifact-dir release
+          --report test/tmp/release-fixtures-${{ matrix.shard_index }}-of-${{ matrix.shard_total }}.json
+          --shard-index ${{ matrix.shard_index }}
+          --shard-total ${{ matrix.shard_total }}
 
       - name: Upload package smoke diagnostics
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: release-fixtures-${{ matrix.host }}-${{ env.SOURCE_SHA }}
-          path: test/tmp/release-fixtures.json
+          name: release-fixtures-${{ matrix.host }}-${{ matrix.shard_index }}-of-${{ matrix.shard_total }}-${{ env.SOURCE_SHA }}
+          path: test/tmp/release-fixtures-${{ matrix.shard_index }}-of-${{ matrix.shard_total }}.json
           if-no-files-found: warn
           retention-days: 30
 
@@ -293,6 +313,71 @@ jobs:
       - name: Exercise GitHub release plan without publishing
         run: npm run release:github -- --mode dry-run --artifact-dir release
 
+  certified_artifact:
+    name: Import certified release artifact
+    if: needs.preflight.outputs.mode == 'publish'
+    needs: preflight
+    runs-on: ubuntu-24.04
+    outputs:
+      npm_tag: ${{ steps.verify.outputs.npm_tag }}
+      prerelease: ${{ steps.verify.outputs.prerelease }}
+      tag: ${{ steps.verify.outputs.tag }}
+      utils_tarball: ${{ steps.verify.outputs.utils_tarball }}
+      radio_tarball: ${{ steps.verify.outputs.radio_tarball }}
+      core_tarball: ${{ steps.verify.outputs.core_tarball }}
+      data_tarball: ${{ steps.verify.outputs.data_tarball }}
+      adapters_tarball: ${{ steps.verify.outputs.adapters_tarball }}
+      version: ${{ steps.verify.outputs.version }}
+
+    steps:
+      - name: Checkout exact source commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+
+      - name: Require successful dry-run certification
+        env:
+          CERTIFICATION_RUN_ID: ${{ needs.preflight.outputs.certification_run_id }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${CERTIFICATION_RUN_ID}" > "${RUNNER_TEMP}/certification-run.json"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${CERTIFICATION_RUN_ID}/jobs?per_page=100" > "${RUNNER_TEMP}/certification-jobs.json"
+          jq -e --arg sha "${SOURCE_SHA}" '
+            .conclusion == "success" and
+            .event == "workflow_dispatch" and
+            .head_sha == $sha and
+            .path == ".github/workflows/release.yml"
+          ' "${RUNNER_TEMP}/certification-run.json" > /dev/null
+          jq -e '
+            [.jobs[] | select(.name == "Promotion dry run" and .conclusion == "success")] | length == 1
+          ' "${RUNNER_TEMP}/certification-jobs.json" > /dev/null
+
+      - name: Download certified release artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-candidate-${{ env.SOURCE_SHA }}
+          path: release
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.preflight.outputs.certification_run_id }}
+
+      - name: Verify certified release evidence
+        id: verify
+        run: >-
+          npm run release:verify --
+          --artifact-dir release
+          --source-commit "${{ env.SOURCE_SHA }}"
+          --repository "${{ github.repository }}"
+          --workflow-run-id "${{ needs.preflight.outputs.certification_run_id }}"
+          --require-validation
+
   publication-targets:
     name: Authorize empty publication targets
     if: >-
@@ -301,7 +386,7 @@ jobs:
       github.ref == 'refs/heads/master' &&
       inputs.publish == true &&
       needs.preflight.outputs.mode == 'publish'
-    needs: [preflight, build, package-smoke]
+    needs: [preflight, certified_artifact]
     runs-on: ubuntu-24.04
 
     steps:
@@ -317,11 +402,14 @@ jobs:
           node-version-file: .nvmrc
           package-manager-cache: false
 
-      - name: Download immutable release artifact
+      - name: Download certified release artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: release-candidate-${{ env.SOURCE_SHA }}
           path: release
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.preflight.outputs.certification_run_id }}
 
       - name: Verify release evidence
         run: >-
@@ -329,6 +417,7 @@ jobs:
           --artifact-dir release
           --source-commit "${{ env.SOURCE_SHA }}"
           --repository "${{ github.repository }}"
+          --workflow-run-id "${{ needs.preflight.outputs.certification_run_id }}"
           --require-validation
 
       - name: Require compatible npm, tag, and release targets
@@ -344,10 +433,11 @@ jobs:
       github.ref == 'refs/heads/master' &&
       inputs.publish == true &&
       needs.preflight.outputs.mode == 'publish'
-    needs: [preflight, build, package-smoke, publication-targets]
+    needs: [preflight, certified_artifact, publication-targets]
     environment: stable-release
     runs-on: ubuntu-24.04
     permissions:
+      actions: read
       contents: write
       id-token: write
 
@@ -365,11 +455,14 @@ jobs:
           package-manager-cache: false
           registry-url: https://registry.npmjs.org/
 
-      - name: Download immutable release artifact
+      - name: Download certified release artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: release-candidate-${{ env.SOURCE_SHA }}
           path: release
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.preflight.outputs.certification_run_id }}
 
       - name: Verify release evidence
         run: >-
@@ -377,6 +470,7 @@ jobs:
           --artifact-dir release
           --source-commit "${{ env.SOURCE_SHA }}"
           --repository "${{ github.repository }}"
+          --workflow-run-id "${{ needs.preflight.outputs.certification_run_id }}"
           --require-validation
 
       - name: Stage matching GitHub draft release
@@ -394,46 +488,46 @@ jobs:
         if: steps.npm_state.outputs.utils_npm_action == 'publish'
         run: >-
           npm publish
-          "./release/${{ needs.build.outputs.utils_tarball }}"
+          "./release/${{ needs.certified_artifact.outputs.utils_tarball }}"
           --ignore-scripts
           --access public
-          --tag "${{ needs.build.outputs.npm_tag }}"
+          --tag "${{ needs.certified_artifact.outputs.npm_tag }}"
 
       - name: Publish exact radio tarball with npm provenance
         if: steps.npm_state.outputs.radio_npm_action == 'publish'
         run: >-
           npm publish
-          "./release/${{ needs.build.outputs.radio_tarball }}"
+          "./release/${{ needs.certified_artifact.outputs.radio_tarball }}"
           --ignore-scripts
           --access public
-          --tag "${{ needs.build.outputs.npm_tag }}"
+          --tag "${{ needs.certified_artifact.outputs.npm_tag }}"
 
       - name: Publish exact core tarball with npm provenance
         if: steps.npm_state.outputs.core_npm_action == 'publish'
         run: >-
           npm publish
-          "./release/${{ needs.build.outputs.core_tarball }}"
+          "./release/${{ needs.certified_artifact.outputs.core_tarball }}"
           --ignore-scripts
           --access public
-          --tag "${{ needs.build.outputs.npm_tag }}"
+          --tag "${{ needs.certified_artifact.outputs.npm_tag }}"
 
       - name: Publish exact data tarball with npm provenance
         if: steps.npm_state.outputs.data_npm_action == 'publish'
         run: >-
           npm publish
-          "./release/${{ needs.build.outputs.data_tarball }}"
+          "./release/${{ needs.certified_artifact.outputs.data_tarball }}"
           --ignore-scripts
           --access public
-          --tag "${{ needs.build.outputs.npm_tag }}"
+          --tag "${{ needs.certified_artifact.outputs.npm_tag }}"
 
       - name: Publish exact adapters tarball with npm provenance
         if: steps.npm_state.outputs.adapters_npm_action == 'publish'
         run: >-
           npm publish
-          "./release/${{ needs.build.outputs.adapters_tarball }}"
+          "./release/${{ needs.certified_artifact.outputs.adapters_tarball }}"
           --ignore-scripts
           --access public
-          --tag "${{ needs.build.outputs.npm_tag }}"
+          --tag "${{ needs.certified_artifact.outputs.npm_tag }}"
 
       - name: Verify published npm integrity, channel and provenance metadata
         run: npm run release:targets -- --mode verify-npm --artifact-dir release

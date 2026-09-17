@@ -6,10 +6,31 @@ import { fixture, names, successfulValidation } from './fixture.mjs';
 
 test('the artifact CLI accepts real packed packages tied to the checked-out source', async t => {
   const candidate = await fixture(t);
+  candidate.evidence.workflow = { runId: '123' };
+  await candidate.save();
+  const githubOutput = resolve(candidate.directory, 'verified-output');
   const result = candidate.run('verify-artifact', ['--artifact-dir', candidate.artifacts,
-    '--source-commit', candidate.commit, '--repository', 'marionettejs/marionette']);
+    '--source-commit', candidate.commit, '--repository', 'marionettejs/marionette',
+    '--workflow-run-id', '123'], { GITHUB_OUTPUT: githubOutput });
   assert.equal(result.status, 0, result.stderr);
   for (const [id] of names) { assert.match(result.stdout, new RegExp(`Verified ${id}\\.tgz`)); }
+  const outputs = await readFile(githubOutput, 'utf8');
+  for (const [id] of names) { assert.match(outputs, new RegExp(`${id}_tarball=${id}\\.tgz`)); }
+  assert.match(outputs, /version=5\.0\.0-test\.1/);
+  assert.match(outputs, /tag=v5\.0\.0-test\.1/);
+  assert.match(outputs, /npm_tag=latest/);
+  assert.match(outputs, /prerelease=true/);
+});
+
+test('artifact verification binds a reused candidate to its certification workflow run', async t => {
+  const candidate = await fixture(t);
+  candidate.evidence.workflow = { runId: '123' };
+  await candidate.save();
+  const result = candidate.run('verify-artifact', [
+    '--artifact-dir', candidate.artifacts, '--workflow-run-id', '456',
+  ]);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /certification workflow run ID mismatch/);
 });
 
 const mutations = [
@@ -81,6 +102,7 @@ test('publication preflight defaults to dry-run and rejects unauthorized modes a
   assert.match(safe.stdout, /dry-run/);
   for (const args of [
     ['--mode', 'publish'], ['--mode', 'unknown'], ['--repository', 'other/repository'],
+    ['--certification-run-id', '123'],
     ['--mode', 'dry-run', '--mode', 'publish'], ['--unknown', 'value'], ['--mode'],
   ]) {
     const result = candidate.run('preflight', args);
