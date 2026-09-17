@@ -1,0 +1,33 @@
+benchmarks/agent/evaluator.json
+  s_8bc4ebe3642b83::t_5527ec7a77fb89 53-54
+benchmarks/agent/tasks/composed-lifecycle-repair/README.md
+  s_8bc4ebe3642b83::t_47d961ef32aa72 25,27,36-37,48-49,70,83
+benchmarks/agent/tasks/composed-lifecycle-repair/acceptance/acceptance.test.mjs
+  s_8bc4ebe3642b83::t_77f3e0fca9b61a 125,127-128,287-314
+benchmarks/agent/tasks/composed-lifecycle-repair/prompt.md
+  s_8bc4ebe3642b83::t_bbae327a99e1ec 36-37
+benchmarks/agent/tasks/composed-lifecycle-repair/reference/solution.mjs
+  s_8bc4ebe3642b83::t_05d2354b2bb6ac 41,43
+benchmarks/agent/tasks/composed-lifecycle-repair/workspace/solution.mjs
+  s_8bc4ebe3642b83::t_4785803270afde 40,42
+benchmarks/agent/tasks/composed-lifecycle-repair/workspace/test/README.md
+  s_8bc4ebe3642b83::t_d090ab12b9fa74 1
+test/agent-benchmark/composed-lifecycle-controls.mjs
+  s_8bc4ebe3642b83::t_d4cb60feccaf0c 53-55,59-60,73,77,84
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "0409593453ae2eb44bb04a7157e9ffc3fc448270",
+  "prompts": {},
+  "sessions": {
+    "s_8bc4ebe3642b83": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0adca-119a-75a3-900a-83f3a223701a",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
