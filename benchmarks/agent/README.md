@@ -96,6 +96,11 @@ node --test test/agent-benchmark/*.test.mjs
 # Installed-consumer failure controls, after the reference command above.
 node test/agent-benchmark/evaluator-controls.mjs /tmp/agent-reference/nested-workspace
 
+# Borrowed-state acceptance accepts both retained and current-Region getters,
+# while still rejecting disposal of borrowed state.
+node test/agent-benchmark/acceptance-controls.mjs \
+  /tmp/agent-reference/borrowed-workspace-state /tmp/borrowed-state-controls
+
 # Runnable application and its three-engine UI check.
 node scripts/agent-benchmark/serve.mjs
 npm exec -- playwright test --config test/agent-benchmark/playwright.config.mjs
@@ -174,3 +179,8 @@ two independent tasks for every capability in `capabilities.json`. This proves
 prototype metadata coverage; acceptance/control runs establish their actual case
 behavior. Neither establishes evaluation sample size, agent productivity, or stable
 release readiness.
+
+Acceptance controls also accept freshly prepared `async-session` and `filter-projects`
+reference directories. They verify microtask acquisition and DOM-hidden filtering
+as valid alternatives, while rejecting stale-provider leaks, missing filtering, and
+blank labels. Use a new output directory for each task. These are unscored controls.

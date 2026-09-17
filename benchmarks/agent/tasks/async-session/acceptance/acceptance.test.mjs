@@ -16,12 +16,21 @@ const deferred = () => {
     reject
   };
 };
-test('stale provider acquisition and active subscription both release resources', async() => {
-  const requests = [];
+test('stale provider acquisition and active subscription both release resources', { timeout: 3000 }, async() => {
+  const requests = [deferred(), deferred(), deferred()];
+  let acquired = 0;
   const calls = [];
+  let afterDestroy = false;
+  const afterDestroyProviders = [];
   const session = solution.createSession(() => {
+    if (afterDestroy) {
+      const acquiredProvider = provider();
+      afterDestroyProviders.push(acquiredProvider);
+      return Promise.resolve(acquiredProvider);
+    }
     const d = deferred();
-    requests.push(d);
+    assert.ok(acquired < requests.length, 'Unexpected provider acquisition');
+    requests[acquired++].resolve(d);
     return d.promise;
   }, message => calls.push(message));
   assert.equal(session instanceof Application, false);
@@ -46,24 +55,32 @@ test('stale provider acquisition and active subscription both release resources'
   const stale = provider();
   const active = provider();
   const first = session.start();
+  const staleRequest = await requests[0].promise;
   const second = session.start();
-  requests[1].resolve(active);
-  assert.equal(await second, true);
-  requests[0].resolve(stale);
+  staleRequest.resolve(stale);
   assert.equal(await first, false);
+  (await requests[1].promise).resolve(active);
+  assert.equal(await second, true);
   assert.equal(stale.closed, 1);
   assert.equal(stale.listeners.size, 0);
   [...active.listeners].forEach(fn => fn('hello'));
   assert.deepEqual(calls, ['hello']);
-  session.stop();
-  session.stop();
+  await session.stop();
+  await session.stop();
   assert.equal(active.listeners.size, 0);
   assert.equal(active.closed, 1);
   const third = session.start();
+  await requests[2].promise;
   const late = provider();
-  session.destroy();
-  requests[2].resolve(late);
+  const destruction = session.destroy();
+  (await requests[2].promise).resolve(late);
+  await destruction;
   assert.equal(await third, false);
   assert.equal(late.closed, 1);
+  afterDestroy = true;
   assert.equal(await session.start(), false);
+  afterDestroyProviders.forEach(acquiredProvider => {
+    assert.equal(acquiredProvider.closed, 1);
+    assert.equal(acquiredProvider.listeners.size, 0);
+  });
 });

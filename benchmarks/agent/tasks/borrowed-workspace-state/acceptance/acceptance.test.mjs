@@ -78,7 +78,9 @@ test('borrowed state survives deferred Application restart and canceled destroy'
   assert.notEqual(result.view, first);
   assert.equal(result.view.getState(), shared);
   assert.equal(result.view.getState().count, 9);
+  const finalView = result.view;
   await result.app.stop();
+  assert.equal(finalView.isDestroyed(), true);
   assert.equal(control.releases, 2);
   const pendingStart = result.app.start();
   const pendingReadiness = await control.nextReady();
@@ -90,5 +92,5 @@ test('borrowed state survives deferred Application restart and canceled destroy'
   assert.equal(control.active.size, 0);
   assert.equal(control.releases, 2);
   assert.equal(result.child.isDestroyed(), true);
-  assert.equal(result.view.isDestroyed(), true);
+  assert.equal(finalView.isDestroyed(), true);
 });
