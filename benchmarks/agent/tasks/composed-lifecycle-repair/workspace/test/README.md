@@ -1,1 +1,1 @@
-Acceptance files are installed here after the attempt.
+Acceptance files are withheld until evaluation. Do not occupy their filenames.

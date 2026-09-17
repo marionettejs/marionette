@@ -122,7 +122,10 @@ test('canceled loading never validates or commits its late value', options, asyn
   const c = setup(t);
   const starting = c.app.start({ id: 'old' });
   const old = await c.loading.next();
+  const loadsBeforeRefresh = c.loading.all.length;
   assert.equal(await c.refresh('during-start'), false);
+  await turn();
+  assert.equal(c.loading.all.length, loadsBeforeRefresh);
   await c.app.stop();
   assert.equal(await starting, false);
   old.resolve('obsolete');
@@ -280,4 +283,32 @@ test('refresh validation errors respect replacement and preserve data for retry'
   await c.complete('retry');
   assert.equal(await retry, true);
   assert.equal(c.state.get('label'), 'retry');
+});
+
+test('start superseding pending stop releases the previous resource pair', options, async t => {
+  const c = setup(t);
+  await c.start();
+  c.requirePermission();
+  const stopping = c.app.stop();
+  const permission = await c.permissions.next();
+  const starting = c.app.start({ id: 'replacement' });
+  permission.resolve();
+  assert.equal(await stopping, false);
+  const loading = await c.loading.next();
+  const loadCount = c.loading.all.length;
+  assert.equal(await c.refresh('during-replacement'), false);
+  await turn();
+  assert.equal(c.loading.all.length, loadCount);
+  loading.resolve('replacement');
+  (await c.validating.next()).resolve();
+  assert.equal(await starting, true);
+  assert.equal(c.subscriptions.callbacks.size, 1);
+  assert.equal(c.timers.callbacks.size, 1);
+  c.timers.emit();
+  assert.equal(c.pulses, 1);
+  const destroying = c.app.destroy();
+  (await c.permissions.next()).resolve();
+  assert.equal(await destroying, true);
+  assert.equal(c.subscriptions.callbacks.size, 0);
+  assert.equal(c.timers.callbacks.size, 0);
 });

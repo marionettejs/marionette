@@ -37,8 +37,9 @@ export function createReviewSession({ state, load, validate, beforeStop, subscri
     releaseTimer = undefined;
   };
   const Session = Application.extend({
-    prepareStart({ id }, { signal }) { return request(id, signal); },
+    prepareStart({ id }, { signal }) { active = false; return request(id, signal); },
     onStart() {
+      release();
       active = true;
       releaseSubscription = subscribe(status => state.set('status', status));
       releaseTimer = schedule(onPulse);

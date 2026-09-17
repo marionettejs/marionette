@@ -50,10 +50,14 @@ const variants = [
     '    } catch (error) {'),
   failed: ['refresh replacement, obsolete errors and successful stop invalidate pending work',
     'refresh validation errors respect replacement and preserve data for retry'] },
+  { id: 'replacement-start-leaks-resources', change: text => replaceOnce(text,
+    '    onStart() {\n      release();', '    onStart() {'),
+  failed: ['start superseding pending stop releases the previous resource pair'] },
   { id: 'timer-survives-stop', change: text => replaceOnce(text, '    releaseTimer?.();', ''),
     failed: ['working startup, edits, refresh errors and repeated resource cycles survive repair',
       'destroy adopts stop permission and prevents late refresh commits',
-      'borrowed source survives destruction for another consumer'] }
+      'borrowed source survives destruction for another consumer',
+      'start superseding pending stop releases the previous resource pair'] }
 ];
 await mkdir(output);
 const results = [];
@@ -66,14 +70,15 @@ for (const variant of variants) {
   await writeFile(join(attempt, 'workspace/solution.mjs'), variant.change(original));
   const result = await evaluateAttempt({ attempt });
   results.push({ id: variant.id, ...result });
-  await writeFile(join(output, 'controls.json'), `${JSON.stringify({ scored: false, results }, null, 2)}\n`);
+  await writeFile(join(output, 'controls.json'), `${JSON.stringify({ scored: false, complete: false, expectedControls: variants.map(entry => entry.id), results }, null, 2)}\n`);
   assert.equal(result.failure, null);
   assert.equal(result.aborted, false);
   assert.match(result.stdout, /^# cancelled 0$/m);
-  assert.doesNotMatch(result.stdout, /testTimeoutFailure|unhandledRejection|uncaughtException/);
+  assert.doesNotMatch(`${result.stdout}\n${result.stderr}`, /testTimeoutFailure|unhandledRejection|uncaughtException/);
   assert.equal(result.exitCode, variant.failed.length ? 1 : 0);
   assert.deepEqual([...result.expectedCases].filter(name => !result.observedCases.includes(name)).sort(),
     [...variant.failed].sort(), `${variant.id}: unexpected behavioral failures; see ${attempt}/result.json`);
   assert.equal(result.acceptancePassed, !variant.failed.length);
   console.log(`PASS ${variant.id}: ${variant.failed.length} expected behavioral failures`);
 }
+await writeFile(join(output, 'controls.json'), `${JSON.stringify({ scored: false, complete: true, expectedControls: variants.map(entry => entry.id), results }, null, 2)}\n`);
