@@ -40,6 +40,20 @@
     ],
     "borrowed-workspace-state": [
       "borrowed state survives deferred Application restart and canceled destroy"
+    ],
+    "composed-lifecycle-repair": [
+      "working startup, edits, refresh errors and repeated resource cycles survive repair",
+      "canceled loading never validates or commits its late value",
+      "late validation cannot overwrite a newer successful start",
+      "refresh replacement, obsolete errors and successful stop invalidate pending work",
+      "rejected stop preserves delivery, heartbeat, editing and pending refresh",
+      "destroy adopts stop permission and prevents late refresh commits",
+      "startup validation failure preserves data and acquires no resources",
+      "borrowed source survives destruction for another consumer",
+      "refresh validation errors respect replacement and preserve data for retry",
+      "start superseding pending stop leaves one active resource pair",
+      "failed replacement load releases resources and allows retry",
+      "failed replacement validation releases resources and allows retry"
     ]
   }
 }

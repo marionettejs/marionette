@@ -21,6 +21,7 @@
   "benchmarks/agent/evaluation-plan.md",
   "benchmarks/agent/README.md",
   "benchmarks/agent/app/README.md",
+  "benchmarks/agent/tasks/composed-lifecycle-repair/README.md",
   "benchmarks/docs/README.md",
   "benchmarks/docs/prepare.mjs",
   "benchmarks/docs/acceptance/run.mjs",
