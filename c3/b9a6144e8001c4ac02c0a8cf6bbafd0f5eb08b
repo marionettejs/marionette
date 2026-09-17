@@ -1,0 +1,55 @@
+benchmarks/agent/README.md
+  s_8bc4ebe3642b83::t_0ea1bc229e5024 3-4,187-209
+benchmarks/agent/corpus.json
+  s_8bc4ebe3642b83::t_2b2e24a1a4c462 428-487
+benchmarks/agent/evaluator.json
+  s_8bc4ebe3642b83::t_01bf2931ca7bac 57-64
+benchmarks/agent/series-decisions.json
+  s_8bc4ebe3642b83::t_a932c4ac5ec0d5 71-78
+benchmarks/agent/tasks/attach-resource/acceptance/acceptance.test.mjs
+  s_8bc4ebe3642b83::t_ce1510861210d2 1-35
+benchmarks/agent/tasks/attach-resource/prompt.md
+  s_8bc4ebe3642b83::t_f42f51d20bfcce 1-3
+benchmarks/agent/tasks/attach-resource/reference/solution.mjs
+  s_8bc4ebe3642b83::t_78b3b1d096522f 1-19
+benchmarks/agent/tasks/attach-resource/workspace/package.json
+  s_8bc4ebe3642b83::t_f8235cf05bddf0 1-6
+benchmarks/agent/tasks/attach-resource/workspace/solution.mjs
+  s_8bc4ebe3642b83::t_55bdb1603da5fa 1-21
+benchmarks/agent/tasks/attach-resource/workspace/test/README.md
+  s_8bc4ebe3642b83::t_63429118565f6a 1
+benchmarks/agent/tasks/render-resource/acceptance/acceptance.test.mjs
+  s_8bc4ebe3642b83::t_62bbabb04df12c 1-38
+benchmarks/agent/tasks/render-resource/prompt.md
+  s_8bc4ebe3642b83::t_ab0ce2053f41b6 1-3
+benchmarks/agent/tasks/render-resource/reference/solution.mjs
+  s_8bc4ebe3642b83::t_f61f08830d7843 1-12
+benchmarks/agent/tasks/render-resource/workspace/package.json
+  s_8bc4ebe3642b83::t_d83e0ae4467312 1-6
+benchmarks/agent/tasks/render-resource/workspace/solution.mjs
+  s_8bc4ebe3642b83::t_f068c58f49362c 1-14
+benchmarks/agent/tasks/render-resource/workspace/test/README.md
+  s_8bc4ebe3642b83::t_30b0b4340662d8 1
+docs/events.md
+  s_8bc4ebe3642b83::t_9e51d7bb45c854 133-138
+test/agent-benchmark/harness.test.mjs
+  s_8bc4ebe3642b83::t_83b1c6549dea82 10
+test/agent-benchmark/lifecycle-controls.mjs
+  s_8bc4ebe3642b83::t_87cf90731d4709 1-51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "c3b9a6144e8001c4ac02c0a8cf6bbafd0f5eb08b",
+  "prompts": {},
+  "sessions": {
+    "s_8bc4ebe3642b83": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0adca-119a-75a3-900a-83f3a223701a",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
