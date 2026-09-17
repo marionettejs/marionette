@@ -233,6 +233,11 @@ and its still-managed children once.
 
 ## Destroying a View
 
+For an attached View, `before:destroy` runs before `before:detach`. If both hooks
+release the same application resource, make that release idempotent. See
+[resources created in lifecycle methods](./events.md#resources-created-in-lifecycle-methods)
+for choosing cleanup boundaries.
+
 Destroying a View (for example, `myView.destroy()`) removes Marionette-owned
 resources: delegated View and Behavior DOM handlers, bound UI, outgoing
 `listenTo()` subscriptions, entity-event bookkeeping, Behaviors, Regions and

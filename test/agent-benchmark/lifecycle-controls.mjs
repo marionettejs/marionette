@@ -19,9 +19,12 @@ const replaceOnce = (text, before, after) => {
 const starter = await readFile(new URL(`../../benchmarks/agent/tasks/${record.taskId}/workspace/solution.mjs`, import.meta.url), 'utf8');
 const variants = [
   { id: 'reference', change: text => text, passes: true },
-  { id: 'event-listener', change: () => starter.replace(
+  { id: 'event-listener', change: () => replaceOnce(starter,
     record.taskId === 'render-resource' ? 'this.once(\'render\', release)' : 'this.once(\'attach\', release)',
     record.taskId === 'render-resource' ? 'this.once(\'before:render\', release)' : 'this.once(\'before:detach\', release)'), passes: true },
+  { id: 'missing-view-argument', change: text => record.taskId === 'render-resource' ?
+    replaceOnce(text, 'makeResource(this)', 'makeResource()') :
+    replaceOnce(text, 'connect(this)', 'connect()'), passes: false, failure: /ERR_ASSERTION/ },
   { id: 'premature-disposal', change: () => starter, passes: false, failure: /ERR_ASSERTION/ },
   { id: 'missing-final-cleanup', change: text => record.taskId === 'render-resource' ?
     replaceOnce(text, '    onBeforeDestroy: release', '') :

@@ -171,6 +171,8 @@ reference solution, and withheld acceptance. Each is independently evaluated.
 | `async-session` | Async resource acquisition, stale cleanup, plain-service role |
 | `scoped-message-presenter` | Optional MnObject role, independent borrowed-source listeners |
 | `owned-workspace-state` | Nested Applications and separately owned Application/View state |
+| `render-resource` | Resource survives creation, receives the owning View, and releases once before replacement and on destroy |
+| `attach-resource` | Connection receives the owning View, survives attached rerenders, releases on detach/destroy, and reacquires on reattachment |
 | `composed-lifecycle-repair` | Two-stage startup/refresh races, rejected stop, active resources, draft and borrowed-state preservation |
 | `borrowed-workspace-state` | Nested ownership rejection and borrowed state/domain survival |
 
@@ -201,9 +203,17 @@ elapsed time. Retain all failed attempts. Successful references or a small pilot
 establish statistical equivalence, dollar savings or release readiness. An unseen
 migration task is required before generalizing a retrieval improvement.
 
-Run lifecycle positive/negative controls against a prepared reference:
+From the repository root, run lifecycle positive/negative controls against a prepared reference:
 
 ```sh
 node test/agent-benchmark/lifecycle-controls.mjs /tmp/agent-reference/render-resource /tmp/render-controls
 node test/agent-benchmark/lifecycle-controls.mjs /tmp/agent-reference/attach-resource /tmp/attach-controls
 ```
+
+These two repairs are correlated near-transfer probes of the same event-ordering
+misconception, not independent evidence of broad migration coverage. The attachment
+case additionally requires the connection to survive rerenders. Repeated terminal
+operations also exercise existing framework guards; the discriminating assertions
+are resource survival, callback owner identity, replacement ordering and exactly-once
+disposal. Scores count complete attempts, not individual assertions. Cleanup does
+not depend on which termination hook fires first because release is idempotent.

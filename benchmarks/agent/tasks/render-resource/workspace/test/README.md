@@ -1,1 +1,1 @@
-Acceptance tests are withheld until the attempt is complete.
+Acceptance files are withheld until evaluation. Do not occupy their filenames.
