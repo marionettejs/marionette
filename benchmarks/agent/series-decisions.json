@@ -68,6 +68,14 @@
     {
       "id": "composed-lifecycle-repair",
       "predeclaredRuns": null
+    },
+    {
+      "id": "render-resource",
+      "predeclaredRuns": null
+    },
+    {
+      "id": "attach-resource",
+      "predeclaredRuns": null
     }
   ]
 }

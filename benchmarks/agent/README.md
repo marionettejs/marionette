@@ -1,7 +1,7 @@
 # Agent benchmark prototypes and reference application
 
-This directory contains Fieldnotes, a runnable public reference application, fourteen
-draft tasks (thirteen implementation exercises and one composed repair), hidden
+This directory contains Fieldnotes, a runnable public reference application, sixteen
+draft tasks (thirteen implementation exercises and three repairs), hidden
 public-API acceptance cases, known reference solutions, and a local evaluator. This is an unscored prototype, not a completed
 release evaluation or evidence of agent effectiveness.
 
@@ -184,3 +184,26 @@ Acceptance controls also accept freshly prepared `async-session` and `filter-pro
 reference directories. They verify microtask acquisition and DOM-hidden filtering
 as valid alternatives, while rejecting stale-provider leaks, missing filtering, and
 blank labels. Use a new output directory for each task. These are unscored controls.
+
+## Lifecycle context experiments
+
+`render-resource` and `attach-resource` repair resources released during their own
+creation event. Their acceptance observes acquisition, retained View identity, DOM
+attachment and exactly-once disposal across repeated operations. The render task
+requires release before the next acquisition, not necessarily before DOM replacement.
+Callbacks are synchronous and cleanup succeeds; reentrant callbacks and externally
+destroying the panel View are outside these tasks.
+
+For a context comparison, freeze these prompts and tests and vary only documentation:
+full relevant documents, manually selected sections, or automatically selected sections.
+Record selected source IDs/revisions, omitted sections, input/output/cached tokens and
+elapsed time. Retain all failed attempts. Successful references or a small pilot do not
+establish statistical equivalence, dollar savings or release readiness. An unseen
+migration task is required before generalizing a retrieval improvement.
+
+Run lifecycle positive/negative controls against a prepared reference:
+
+```sh
+node test/agent-benchmark/lifecycle-controls.mjs /tmp/agent-reference/render-resource /tmp/render-controls
+node test/agent-benchmark/lifecycle-controls.mjs /tmp/agent-reference/attach-resource /tmp/attach-controls
+```

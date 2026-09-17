@@ -130,6 +130,12 @@ myView.triggerMethod('something:happened', 'foo');
 
 **The `triggerMethod` method is available to [all Marionette classes](./common.md#triggermethod).**
 
+#### Resources created in lifecycle methods
+
+A lifecycle method runs before its matching event is emitted. A listener registered inside `onRender` for `render` can therefore run during that same render. Using `once` only limits the number of calls; it does not wait for the next lifecycle operation.
+
+If `onRender` creates a resource that must survive until the next render, release the previous resource in `onBeforeRender` (or on `before:render`), and release the current resource on destruction. Pick cleanup boundaries from the resource's actual lifetime rather than subscribing to the event that is still creating it. Keep cleanup idempotent when two termination paths can apply.
+
 ### Listening to Events
 
 Use `on` to register a callback directly on an emitter:
