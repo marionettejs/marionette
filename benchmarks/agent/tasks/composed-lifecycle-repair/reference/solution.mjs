@@ -38,7 +38,13 @@ export function createReviewSession({ state, load, validate, beforeStop, subscri
     releaseTimer = undefined;
   };
   const Session = Application.extend({
-    prepareStart({ id }, { signal }) { active = false; return request(id, signal); },
+    prepareStart({ id }, { signal }) {
+      active = false;
+      return request(id, signal).catch(error => {
+        if (!signal.aborted) { release(); }
+        throw error;
+      });
+    },
     onStart() {
       release();
       active = true;

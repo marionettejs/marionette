@@ -51,7 +51,9 @@
       "startup validation failure preserves data and acquires no resources",
       "borrowed source survives destruction for another consumer",
       "refresh validation errors respect replacement and preserve data for retry",
-      "start superseding pending stop releases the previous resource pair"
+      "start superseding pending stop leaves one active resource pair",
+      "failed replacement load releases resources and allows retry",
+      "failed replacement validation releases resources and allows retry"
     ]
   }
 }

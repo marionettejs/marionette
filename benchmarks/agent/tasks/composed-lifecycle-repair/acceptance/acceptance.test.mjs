@@ -22,10 +22,13 @@ function queue() {
 function resources() {
   const callbacks = new Set();
   let released = 0;
+  let acquired = 0;
   return {
     callbacks,
     get released() { return released; },
+    get acquired() { return acquired; },
     register(callback) {
+      acquired++;
       callbacks.add(callback);
       return () => {
         assert.equal(callbacks.delete(callback), true, 'release each registration exactly once');
@@ -285,7 +288,7 @@ test('refresh validation errors respect replacement and preserve data for retry'
   assert.equal(c.state.get('label'), 'retry');
 });
 
-test('start superseding pending stop releases the previous resource pair', options, async t => {
+test('start superseding pending stop leaves one active resource pair', options, async t => {
   const c = setup(t);
   await c.start();
   c.requirePermission();
@@ -304,6 +307,8 @@ test('start superseding pending stop releases the previous resource pair', optio
   assert.equal(await starting, true);
   assert.equal(c.subscriptions.callbacks.size, 1);
   assert.equal(c.timers.callbacks.size, 1);
+  assert.equal(c.subscriptions.acquired - c.subscriptions.released, 1);
+  assert.equal(c.timers.acquired - c.timers.released, 1);
   c.timers.emit();
   assert.equal(c.pulses, 1);
   const destroying = c.app.destroy();
@@ -311,4 +316,44 @@ test('start superseding pending stop releases the previous resource pair', optio
   assert.equal(await destroying, true);
   assert.equal(c.subscriptions.callbacks.size, 0);
   assert.equal(c.timers.callbacks.size, 0);
+  assert.equal(c.subscriptions.released, c.subscriptions.acquired);
+  assert.equal(c.timers.released, c.timers.acquired);
 });
+
+for (const stage of ['load', 'validation']) {
+  test(`failed replacement ${stage} releases resources and allows retry`, options, async t => {
+    const c = setup(t);
+    await c.start();
+    c.edit('retained draft');
+    c.requirePermission();
+    const stopping = c.app.stop();
+    const permission = await c.permissions.next();
+    const starting = c.app.start({ id: 'replacement' });
+    const rejected = assert.rejects(starting, /replacement failed/);
+    permission.resolve();
+    assert.equal(await stopping, false);
+    const loading = await c.loading.next();
+    if (stage === 'load') {
+      loading.reject(new Error('replacement failed'));
+    } else {
+      loading.resolve('replacement');
+      (await c.validating.next()).reject(new Error('replacement failed'));
+    }
+    await rejected;
+    assert.equal(c.app.isRunning(), false);
+    assert.equal(c.subscriptions.callbacks.size, 0);
+    assert.equal(c.timers.callbacks.size, 0);
+    assert.equal(c.subscriptions.released, c.subscriptions.acquired);
+    assert.equal(c.timers.released, c.timers.acquired);
+    assert.equal(c.state.get('label'), 'initial');
+    assert.equal(c.state.get('draft'), 'retained draft');
+    const loadCount = c.loading.all.length;
+    assert.equal(await c.refresh('stopped'), false);
+    await turn();
+    assert.equal(c.loading.all.length, loadCount);
+    assert.equal(await c.app.stop(), true);
+    await c.start('retry');
+    assert.equal(c.subscriptions.callbacks.size, 1);
+    assert.equal(c.timers.callbacks.size, 1);
+  });
+}

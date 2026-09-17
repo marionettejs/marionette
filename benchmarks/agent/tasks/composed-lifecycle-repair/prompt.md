@@ -33,8 +33,11 @@ schedule, onPulse })`, returning `{ app, refresh(id), edit(draft) }`:
 - `prepareStop` awaits `beforeStop(options, context)`. While permission is pending,
   status and heartbeat remain active. Rejection preserves them and pending refresh
   work. Successful stop releases both registrations exactly once and invalidates
-  pending refresh work. Restart acquires one fresh pair. A start superseding pending stop must not leak
-  the previous pair when startup completes again. Destruction releases all
+  pending refresh work. Restart acquires one fresh pair. A start superseding pending
+  stop must not leak
+  the previous pair when startup completes again; retaining a working pair is valid.
+  If replacement startup fails and leaves the Application stopped, release its
+  resources, preserve label/draft, and allow a later start to retry. Destruction releases all
   owned resources and prevents later commits. A destroy adopting pending stop
   permission must not ask twice. No synchronous disposer-error recovery is required.
 - `state` is a borrowed source exposing `get`, `set`, and `dispose`. `app.getState()`

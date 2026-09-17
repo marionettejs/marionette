@@ -28,6 +28,9 @@ const variants = [
       'destroy adopts stop permission and prevents late refresh commits',
       'borrowed source survives destruction for another consumer'] },
   { id: 'correct-reference', change: text => text, failed: [] },
+  { id: 'correct-retained-resources', change: text => replaceOnce(text,
+    '      release();\n      active = true;\n      releaseSubscription = subscribe(status => state.set(\'status\', status));\n      releaseTimer = schedule(onPulse);',
+    '      active = true;\n      releaseSubscription ??= subscribe(status => state.set(\'status\', status));\n      releaseTimer ??= schedule(onPulse);'), failed: [] },
   { id: 'missing-load-guard', change: text => replaceOnce(text,
     '      if (controller.signal.aborted) { return false; }\n      await validate', '      await validate'),
   failed: ['canceled loading never validates or commits its late value'] },
@@ -52,12 +55,18 @@ const variants = [
     'refresh validation errors respect replacement and preserve data for retry'] },
   { id: 'replacement-start-leaks-resources', change: text => replaceOnce(text,
     '    onStart() {\n      release();', '    onStart() {'),
-  failed: ['start superseding pending stop releases the previous resource pair'] },
+  failed: ['start superseding pending stop leaves one active resource pair'] },
+  { id: 'failed-replacement-retains-resources', change: text => replaceOnce(text,
+    '        if (!signal.aborted) { release(); }', ''),
+  failed: ['failed replacement load releases resources and allows retry',
+    'failed replacement validation releases resources and allows retry'] },
   { id: 'timer-survives-stop', change: text => replaceOnce(text, '    releaseTimer?.();', ''),
     failed: ['working startup, edits, refresh errors and repeated resource cycles survive repair',
       'destroy adopts stop permission and prevents late refresh commits',
       'borrowed source survives destruction for another consumer',
-      'start superseding pending stop releases the previous resource pair'] }
+      'start superseding pending stop leaves one active resource pair',
+      'failed replacement load releases resources and allows retry',
+      'failed replacement validation releases resources and allows retry'] }
 ];
 await mkdir(output);
 const results = [];

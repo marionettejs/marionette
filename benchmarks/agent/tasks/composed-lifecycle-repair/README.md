@@ -22,10 +22,11 @@ normal startup/edit/refresh behavior; repair must preserve that behavior. The
 reference uses the existing public API and a local request controller, not a
 proposed resource API. Acceptance requires effects and results, not that structure.
 
-The ten named acceptance cases cover repeated stop/start resource cycles,
+The twelve named acceptance cases cover repeated stop/start resource cycles,
 non-cooperative loading/validation, old results after a newer start, obsolete
-errors, refresh during pending/rejected stop, adopted stop during destruction, start superseding pending stop,
-startup and refresh validation failure/retry, and borrowed-source survival. Providers and
+errors, refresh during pending/rejected stop, adopted stop during destruction,
+start superseding pending stop, replacement load/validation failure and retry,
+and borrowed-source survival. Providers and
 registrations are controlled in memory. No timing sleeps, actual intervals,
 network service, DOM or focus assumptions are part of this task. Each case has a
 bounded timeout so broken submissions cannot hang evaluation indefinitely.
@@ -45,10 +46,9 @@ node test/agent-benchmark/composed-lifecycle-controls.mjs \
   /tmp/composed-reference/composed-lifecycle-repair /tmp/composed-controls
 ```
 
-The third command retains ten independent installed-consumer records: the seeded
-starter, a correct reference and eight single-defect controls. It verifies the
-exact named failures,
-including which preservation cases still pass. A fixture merely exiting nonzero is
+The third command retains twelve independent installed-consumer records: the seeded
+starter, two correct implementations (replacing or retaining registrations) and nine
+single-defect controls. It verifies the exact named failures, including which preservation cases still pass. A fixture merely exiting nonzero is
 insufficient qualification. All records have `scored: false`; known-solution success
 is not evidence of agent usability. These controls are outside visible workspaces.
 
@@ -67,7 +67,7 @@ For a later successive-change/handoff pilot:
 2. Give agent A only the declared prompt, installed workspace and public docs under
    enforced filesystem/network isolation. Stop its processes before acceptance.
    Retain its submission, trace, failures, commands, costs and interventions.
-3. Independently evaluate all ten cases. Preserve unsuccessful attempts; do not
+3. Independently evaluate all twelve cases. Preserve unsuccessful attempts; do not
    substitute the reference and call the outcome a successful agent handoff.
 4. A separate fresh agent B may repair A's actual submission with the same contract
    and only the feedback declared in the frozen policy. Pin that submission's hash
