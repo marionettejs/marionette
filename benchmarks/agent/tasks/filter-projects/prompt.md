@@ -1,6 +1,6 @@
 # Filter projects while retaining owned rows
 
-Implement `solution.mjs` in this workspace. Return `{view, filter(query), destroy()}`. Use CollectionView and one child per project `{id,label}`. Filtering is case-insensitive substring matching and must reveal the same live row instances when cleared. Do not mutate the supplied domain array or objects. Render labels as text.
+Implement `solution.mjs` in this workspace. Return `{view, filter(query), destroy()}`. Use CollectionView and one child per project `{id,label}`. Filtering is case-insensitive substring matching and must reveal the same live row instances when cleared. Filtering is judged by which rows are visible in the DOM; hidden rows may remain in the public children collection. Do not mutate the supplied domain array or objects. Render labels as text.
 
 Export `createProjects(el, projects)`. Use only documented public `marionette` package APIs. Framework owners render/destroy their own children; never touch underscored members. Do not change the test tooling or dependencies. Your implementation may add local files. Use supplied callbacks and resources; do not add network access, timers, or global singletons. Input labels are untrusted text.
 
