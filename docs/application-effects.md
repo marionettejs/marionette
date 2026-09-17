@@ -22,18 +22,24 @@ changes. Starting from stopped creates a fresh scope.
 
 Canceling pending startup or rejecting its loader disposes the scope immediately.
 Terminal destruction
-also disposes effects. A readiness `signal` cancels only its pending phase; it is
+also disposes effects. A `prepareStart` signal covers only pending startup; it is
 not a signal for the entire subsequent run. The scope below owns that longer
 lifetime and passes its signal to the loader. Every awaited continuation checks
 cancellation before committing its result, including providers that ignore abort.
 
 ## Recheck cancellation after awaited work
 
-A preparation signal belongs to one pending lifecycle operation. Read
+A `prepareStart` signal belongs to its pending startup phase. Read
 `signal.aborted` after each awaited step before doing more work or committing its
 result. Capturing `const canceled = signal.aborted` before an await only records
 its earlier value. Checking `isRunning()` instead is also insufficient: a newer
 start may be running when an older request finally resolves.
+
+Stop preparation has different ownership: a replacement operation can adopt an
+in-flight `prepareStop` phase, retaining its original options and context without
+aborting its signal. The original caller's Promise resolving `false` does not mean
+that adopted work was canceled. See
+[preparation methods and notifications](./marionette.application.md#preparation-methods-and-notifications).
 
 This example loads and validates a value before committing it. Supply asynchronous
 `load({ signal })` and `validate(value, { signal })` functions and a synchronous
@@ -77,7 +83,7 @@ explicit scope below when effects must continue until stop succeeds and remain
 active if permission rejects. Disposing them in `onBeforeStop` would end them before
 the permission decision; disposal belongs in `onStop` for that policy.
 
-A successful preparation does not give its signal the lifetime of the subsequent
+Successful `prepareStart` does not give its signal the lifetime of the subsequent
 active run. Register active resources with their own scope and dispose that scope
 on successful stop and terminal destruction. The executable example below and its
 [installed checks](https://github.com/marionettejs/marionette/blob/master/test/fixtures/docs-application-guides/effects.mjs)
