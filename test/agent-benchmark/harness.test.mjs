@@ -7,7 +7,7 @@ import { evaluateAttempt, evaluateOutcome, inventory, isWithin, loadCorpus } fro
 
 test('prototype corpus covers every capability twice without historical comparison decisions', async() => {
   const corpus = await loadCorpus();
-  assert.equal(corpus.tasks.length, 14);
+  assert.equal(corpus.tasks.length, 16);
   assert.equal(corpus.status, 'prototype-unscored');
 });
 

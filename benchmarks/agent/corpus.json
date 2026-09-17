@@ -425,6 +425,66 @@
           }
         ]
       }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "render-resource",
+      "title": "Repair render-scoped resource lifetime",
+      "promptPath": "benchmarks/agent/tasks/render-resource/prompt.md",
+      "workspacePath": "benchmarks/agent/tasks/render-resource/workspace",
+      "capabilities": [
+        "invalid-cases",
+        "plain-view",
+        "resource-ownership-and-cleanup"
+      ],
+      "acceptance": {
+        "command": [
+          "node",
+          "--test",
+          "--test-reporter=tap",
+          "test/acceptance.test.mjs"
+        ],
+        "hiddenTests": [
+          {
+            "sourcePath": "benchmarks/agent/support/environment.mjs",
+            "targetPath": "test/environment.mjs"
+          },
+          {
+            "sourcePath": "benchmarks/agent/tasks/render-resource/acceptance/acceptance.test.mjs",
+            "targetPath": "test/acceptance.test.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "attach-resource",
+      "title": "Repair attachment-scoped connection lifetime",
+      "promptPath": "benchmarks/agent/tasks/attach-resource/prompt.md",
+      "workspacePath": "benchmarks/agent/tasks/attach-resource/workspace",
+      "capabilities": [
+        "invalid-cases",
+        "plain-view",
+        "resource-ownership-and-cleanup"
+      ],
+      "acceptance": {
+        "command": [
+          "node",
+          "--test",
+          "--test-reporter=tap",
+          "test/acceptance.test.mjs"
+        ],
+        "hiddenTests": [
+          {
+            "sourcePath": "benchmarks/agent/support/environment.mjs",
+            "targetPath": "test/environment.mjs"
+          },
+          {
+            "sourcePath": "benchmarks/agent/tasks/attach-resource/acceptance/acceptance.test.mjs",
+            "targetPath": "test/acceptance.test.mjs"
+          }
+        ]
+      }
     }
   ]
 }
