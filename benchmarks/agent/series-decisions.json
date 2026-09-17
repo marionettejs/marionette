@@ -64,6 +64,10 @@
     {
       "id": "borrowed-workspace-state",
       "predeclaredRuns": null
+    },
+    {
+      "id": "composed-lifecycle-repair",
+      "predeclaredRuns": null
     }
   ]
 }

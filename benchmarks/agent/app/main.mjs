@@ -7,7 +7,7 @@ const mount = new Region({
   el: '#app'
 });
 const Shell = View.extend({
-  template: () => '<header><span class="mark">F</span><div><h1>Fieldnotes</h1><p>A small workspace with explicit owners.</p></div><span class="tag">Public reference application</span></header><main><section class="projects"><h2>Projects</h2><label>Find a project<input type="search" placeholder="Filter projects"></label><div class="list"></div></section><section class="editor"><div class="section-heading"><h2>Working notes</h2><button class="help">How this works</button></div><p>Write a note. Save with Ctrl+Enter or ⌘+Enter.</p><div class="draft"></div><div class="status"></div><h3>Saved locally in this session</h3><ul class="saved"></ul></section></main><footer>13 draft tasks · reference solutions verified independently · no agent score claimed</footer>',
+  template: () => '<header><span class="mark">F</span><div><h1>Fieldnotes</h1><p>A small workspace with explicit owners.</p></div><span class="tag">Public reference application</span></header><main><section class="projects"><h2>Projects</h2><label>Find a project<input type="search" placeholder="Filter projects"></label><div class="list"></div></section><section class="editor"><div class="section-heading"><h2>Working notes</h2><button class="help">How this works</button></div><p>Write a note. Save with Ctrl+Enter or ⌘+Enter.</p><div class="draft"></div><div class="status"></div><h3>Saved locally in this session</h3><ul class="saved"></ul></section></main><footer>14 draft tasks · reference solutions verified independently · no agent score claimed</footer>',
   regions: {
     projects: '.list',
     editor: '.draft',

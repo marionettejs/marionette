@@ -399,6 +399,32 @@
           }
         ]
       }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "composed-lifecycle-repair",
+      "title": "Repair a composed review-session lifecycle",
+      "promptPath": "benchmarks/agent/tasks/composed-lifecycle-repair/prompt.md",
+      "workspacePath": "benchmarks/agent/tasks/composed-lifecycle-repair/workspace",
+      "capabilities": [
+        "application-state-composition",
+        "async-startup-and-teardown",
+        "resource-ownership-and-cleanup"
+      ],
+      "acceptance": {
+        "command": [
+          "node",
+          "--test",
+          "--test-reporter=tap",
+          "test/acceptance.test.mjs"
+        ],
+        "hiddenTests": [
+          {
+            "sourcePath": "benchmarks/agent/tasks/composed-lifecycle-repair/acceptance/acceptance.test.mjs",
+            "targetPath": "test/acceptance.test.mjs"
+          }
+        ]
+      }
     }
   ]
 }

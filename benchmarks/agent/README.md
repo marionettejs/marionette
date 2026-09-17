@@ -1,8 +1,8 @@
 # Agent benchmark prototypes and reference application
 
-This directory contains Fieldnotes, a runnable public reference application, thirteen
-draft implementation tasks, hidden public-API acceptance cases, known reference
-solutions, and a local evaluator. This is an unscored prototype, not a completed
+This directory contains Fieldnotes, a runnable public reference application, fourteen
+draft tasks (thirteen implementation exercises and one composed repair), hidden
+public-API acceptance cases, known reference solutions, and a local evaluator. This is an unscored prototype, not a completed
 release evaluation or evidence of agent effectiveness.
 
 No model, runner/permissions profile, acceptance policy, counts, budgets, pilot,
@@ -49,8 +49,10 @@ abort.
 `capabilities.json` identifies the current prototype's framework contract areas.
 Its requirement for two independent tasks per capability is a fixture-diversity
 check, not a release task floor, sample-size rule, or proof of application coverage.
-The thirteen tasks are implementation exercises. A release evaluation still needs
-realistic change and repair work, successive changes, fresh-agent handoffs, and the
+The composed repair task adds lifecycle races to a working headless session.
+[Its coverage and handoff plan](tasks/composed-lifecycle-repair/README.md) records
+what it reuses and what remains uncollected. A release evaluation still needs
+independent attempts, successive changes, fresh-agent handoffs, and the
 public application and migration evidence specified in the roadmap.
 
 ## Evaluation policy
@@ -164,6 +166,7 @@ reference solution, and withheld acceptance. Each is independently evaluated.
 | `async-session` | Async resource acquisition, stale cleanup, plain-service role |
 | `scoped-message-presenter` | Optional MnObject role, independent borrowed-source listeners |
 | `owned-workspace-state` | Nested Applications and separately owned Application/View state |
+| `composed-lifecycle-repair` | Two-stage startup/refresh races, rejected stop, active resources, draft and borrowed-state preservation |
 | `borrowed-workspace-state` | Nested ownership rejection and borrowed state/domain survival |
 
 `loadCorpus` validates task isolation, a complete decision inventory, and at least
