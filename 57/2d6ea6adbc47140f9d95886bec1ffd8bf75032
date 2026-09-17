@@ -1,0 +1,21 @@
+benchmarks/agent/tasks/composed-lifecycle-repair/acceptance/acceptance.test.mjs
+  s_8bc4ebe3642b83::t_0a53aee677a406 70
+test/agent-benchmark/composed-lifecycle-controls.mjs
+  s_8bc4ebe3642b83::t_77f1d9c67db9a7 86
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "572d6ea6adbc47140f9d95886bec1ffd8bf75032",
+  "prompts": {},
+  "sessions": {
+    "s_8bc4ebe3642b83": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0adca-119a-75a3-900a-83f3a223701a",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
