@@ -219,3 +219,6 @@ try {
 
 // <!-- executable-example: application-active-effects -->
 await import('./effects.mjs');
+
+// <!-- executable-example: application-preparation-commit -->
+await import('./preparation.mjs');

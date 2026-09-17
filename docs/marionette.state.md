@@ -37,6 +37,11 @@ Choose how the state source is created and who disposes it:
   releases subscriptions and then calls the selected StateApi's optional
   `disposeOwned(source)` hook.
 
+Returning an existing shared source from `createState()` still makes it owned;
+the factory's return value establishes ownership even if the factory did not
+allocate it. Pass that shared source through `state` when this owner must borrow
+it and leave disposal to its caller.
+
 A supplied function is a source, not a factory. Use `createState()` when a
 function must be invoked to create a source.
 

@@ -22,10 +22,72 @@ changes. Starting from stopped creates a fresh scope.
 
 Canceling pending startup or rejecting its loader disposes the scope immediately.
 Terminal destruction
-also disposes effects. A readiness `signal` cancels only its pending phase; it is
+also disposes effects. A `prepareStart` signal covers only pending startup; it is
 not a signal for the entire subsequent run. The scope below owns that longer
 lifetime and passes its signal to the loader. Every awaited continuation checks
 cancellation before committing its result, including providers that ignore abort.
+
+## Recheck cancellation after awaited work
+
+A `prepareStart` signal belongs to its pending startup phase. Read
+`signal.aborted` after each awaited step before doing more work or committing its
+result. Capturing `const canceled = signal.aborted` before an await only records
+its earlier value. Checking `isRunning()` instead is also insufficient: a newer
+start may be running when an older request finally resolves.
+
+Stop preparation has different ownership: a replacement operation can adopt an
+in-flight `prepareStop` phase, retaining its original options and context without
+aborting its signal. The original caller's Promise resolving `false` does not mean
+that adopted work was canceled. See
+[preparation methods and notifications](./marionette.application.md#preparation-methods-and-notifications).
+
+This example loads and validates a value before committing it. Supply asynchronous
+`load({ signal })` and `validate(value, { signal })` functions and a synchronous
+`commit(value)` function. The checks protect the commit even when a provider ignores
+abort. They do not force that provider's Promise to settle or undo its own effects.
+
+<!-- executable-example: application-preparation-commit -->
+```javascript
+import { Application } from 'marionette';
+
+export function createPreparedFeature({ load, validate, commit }) {
+  const Feature = Application.extend({
+    async prepareStart(options, { signal }) {
+      const value = await load({ signal });
+      if (signal.aborted) { return; }
+      await validate(value, { signal });
+      if (signal.aborted) { return; }
+      commit(value);
+    }
+  });
+  return new Feature();
+}
+```
+
+If stop cancels startup while validation is pending, resolving validation later
+must not call `commit`. The second check is necessary even though the first check
+passed. Likewise, a newer successful start cannot authorize the old operation's
+commit. Use [latest-request ownership](./application-refresh.md#share-one-latest-request-controller)
+for independently replaceable refresh requests during an active run.
+The [installed preparation checks](https://github.com/marionettejs/marionette/blob/master/test/fixtures/docs-application-guides/preparation.mjs)
+exercise successful commit, canceled loading, and old validation completing after
+a newer successful start.
+
+## Distinguish delivery from resource cleanup
+
+Configured `stateEvents` can intentionally remain subscribed for the object's
+lifetime. A handler guarded by `isRunning()` suppresses its work while the feature
+is stopped, but does not unsubscribe or cancel a timer. It also suppresses work
+while stop permission is pending, because that is a lifecycle transition. Use the
+explicit scope below when effects must continue until stop succeeds and remain
+active if permission rejects. Disposing them in `onBeforeStop` would end them before
+the permission decision; disposal belongs in `onStop` for that policy.
+
+Successful `prepareStart` does not give its signal the lifetime of the subsequent
+active run. Register active resources with their own scope and dispose that scope
+on successful stop and terminal destruction. The executable example below and its
+[installed checks](https://github.com/marionettejs/marionette/blob/master/test/fixtures/docs-application-guides/effects.mjs)
+already cover rejected stop permission and successful timer cleanup.
 
 ## A complete feature
 
