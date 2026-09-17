@@ -83,7 +83,7 @@ for (const variant of variants) {
   assert.equal(result.failure, null);
   assert.equal(result.aborted, false);
   assert.match(result.stdout, /^# cancelled 0$/m);
-  assert.doesNotMatch(`${result.stdout}\n${result.stderr}`, /testTimeoutFailure|unhandledRejection|uncaughtException/);
+  assert.doesNotMatch(`${result.stdout}\n${result.stderr}`, /testTimeoutFailure|hookFailed|unhandledRejection|uncaughtException/);
   assert.equal(result.exitCode, variant.failed.length ? 1 : 0);
   assert.deepEqual([...result.expectedCases].filter(name => !result.observedCases.includes(name)).sort(),
     [...variant.failed].sort(), `${variant.id}: unexpected behavioral failures; see ${attempt}/result.json`);

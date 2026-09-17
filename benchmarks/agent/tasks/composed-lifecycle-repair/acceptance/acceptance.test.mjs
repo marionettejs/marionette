@@ -67,7 +67,7 @@ function setup(t) {
       for (const gate of channel.all) { gate.resolve('cleanup'); }
     }
     await session.app.destroy();
-  });
+  }, { timeout: 3000 });
   assert.ok(session.app instanceof Application);
   return { ...session, state, loading, validating, permissions, subscriptions, timers,
     get disposed() { return disposed; }, get pulses() { return pulses; },
