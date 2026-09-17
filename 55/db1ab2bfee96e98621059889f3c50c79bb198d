@@ -1,0 +1,31 @@
+benchmarks/agent/evaluator.json
+  s_8bc4ebe3642b83::t_80a75cca6b6070 54-56
+benchmarks/agent/tasks/composed-lifecycle-repair/README.md
+  s_8bc4ebe3642b83::t_231170db64c199 25,27-29,49-51,70
+benchmarks/agent/tasks/composed-lifecycle-repair/acceptance/acceptance.test.mjs
+  s_8bc4ebe3642b83::t_d216571a9b3176 25,29,31,291,310-311,319-320,322-359
+benchmarks/agent/tasks/composed-lifecycle-repair/prompt.md
+  s_8bc4ebe3642b83::t_d3b6a3939c8a4e 36-40
+benchmarks/agent/tasks/composed-lifecycle-repair/reference/solution.mjs
+  s_8bc4ebe3642b83::t_274195cca42cbe 41-47
+benchmarks/agent/tasks/composed-lifecycle-repair/workspace/solution.mjs
+  s_8bc4ebe3642b83::t_cca140ff57fb76 40-46
+test/agent-benchmark/composed-lifecycle-controls.mjs
+  s_8bc4ebe3642b83::t_f010554a335e11 31-33,58-62,67-69
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "55db1ab2bfee96e98621059889f3c50c79bb198d",
+  "prompts": {},
+  "sessions": {
+    "s_8bc4ebe3642b83": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0adca-119a-75a3-900a-83f3a223701a",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
