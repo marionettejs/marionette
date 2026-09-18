@@ -1,0 +1,54 @@
+config/api-contracts/inventory.json
+  s_15ef02ef10478f::t_87f9c47af2c259 8068,8089
+  s_15ef02ef10478f::t_0f604ec0d87a79 8074
+  s_bd170ff740ca58::t_d5ee855eb0d64d 8084
+docs/readme.md
+  s_a934d14791824b::t_3912fa720317be 36,44-45
+docs/marionette.application.md
+  s_a934d14791824b::t_65e7bdda52f394 399
+  s_a934d14791824b::t_085d3c6485a644 201-206,208,394-398,406
+  s_a934d14791824b::t_fe008876a77796 402,405,409-410,420-421
+docs/testing.md
+  s_a934d14791824b::t_fe008876a77796 21,29,32,36,45-46,49
+docs/data.api.md
+  s_a934d14791824b::t_fe008876a77796 238
+  s_a934d14791824b::t_085d3c6485a644 229-234,237
+docs/typescript.md
+  s_a934d14791824b::t_fe008876a77796 53-58,60-63
+test/fixtures/docs-application-guides/validate.mjs
+  s_a934d14791824b::t_b59e0c93529eb0 69-72
+packages/data/readme.md
+  s_a934d14791824b::t_085d3c6485a644 17-22,25-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "a5951a8f2fb0f79172d426eef4c366c6eb0e94d8",
+  "prompts": {},
+  "sessions": {
+    "s_15ef02ef10478f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0a021-e188-7d30-b992-73ccc4ae5f18",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_a934d14791824b": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0b4cb-1aaa-7130-b098-e4b8bb26d844",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_bd170ff740ca58": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0849e-3aa3-76e0-a103-be1accb6af6b",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
