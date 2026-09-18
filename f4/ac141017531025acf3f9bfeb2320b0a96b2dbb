@@ -1,0 +1,34 @@
+docs/typescript.md
+  s_a934d14791824b::t_fe008876a77796 53-58,60-63
+docs/data.api.md
+  s_a934d14791824b::t_085d3c6485a644 229-234,237
+  s_a934d14791824b::t_fe008876a77796 238
+docs/testing.md
+  s_a934d14791824b::t_fe008876a77796 21,29,32,36,45-46,49
+docs/marionette.application.md
+  s_a934d14791824b::t_fe008876a77796 402,405,409-410,420-421
+  s_a934d14791824b::t_085d3c6485a644 201-206,208,394-398,406
+  s_a934d14791824b::t_65e7bdda52f394 399
+packages/data/readme.md
+  s_a934d14791824b::t_085d3c6485a644 17-22,25-26
+docs/readme.md
+  s_a934d14791824b::t_3912fa720317be 36,44-45
+test/fixtures/docs-application-guides/validate.mjs
+  s_a934d14791824b::t_b59e0c93529eb0 69-72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "f4ac141017531025acf3f9bfeb2320b0a96b2dbb",
+  "prompts": {},
+  "sessions": {
+    "s_a934d14791824b": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0b4cb-1aaa-7130-b098-e4b8bb26d844",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
