@@ -33,7 +33,7 @@ const Counter = View.extend({
   events: { 'click button': 'increment' },
   increment() {
     this.count += 1;
-    this.el.querySelector('span').textContent = String(this.count);
+    this.render();
   }
 });
 
@@ -41,8 +41,8 @@ export const region = new Region({ el: '#app' });
 region.show(new Counter());
 ```
 
-Click the button: **Count: 0 → Count: 1 → Count: 2**. The View handles the click
-and updates the number in place. The button stays the same DOM element.
+Click the button: **Count: 0 → Count: 1 → Count: 2**. The View handles the click,
+updates its state, and renders the template again.
 
 When that part of the screen is finished, `region.empty()` destroys the View and
 removes its event handlers. The `#app` mount remains, ready for the next View.
