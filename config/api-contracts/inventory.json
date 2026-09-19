@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "00edd3a076ef3989f6b69a79f9d8fd25e85281a810236966101278640fb1e026",
+  "semanticsSha256": "8bd28900edfd7e21c1b642a61bbc5b22f25e5e81d125e6f3d438ddae63b1e45b",
   "entrypoints": [
     {
       "name": "marionette",
@@ -610,6 +610,19 @@
             "regionClass": "?RegionClass | undefined",
             "state": "?unknown",
             "stateEvents": "?object | (() => object) | undefined"
+          },
+          "callableMembers": [],
+          "operationContracts": {}
+        },
+        {
+          "name": "ApplicationStartOptions",
+          "kind": "type",
+          "signature": "ApplicationStartOptions",
+          "contracts": [
+            "type-shapes"
+          ],
+          "members": {
+            "region": "?RegionDefinition | undefined"
           },
           "callableMembers": [],
           "operationContracts": {}
@@ -7444,6 +7457,13 @@
         "Region",
         "View"
       ]
+    },
+    {
+      "code": "MN0041",
+      "slug": "application-region-conflict",
+      "objects": [
+        "Application"
+      ]
     }
   ],
   "toolingEntrypoints": [
@@ -8030,7 +8050,7 @@
     "packages/utils/src/trigger-method.ts": "3a6460a5fdc6e0a319a6eea1e323f34f19fa0811ee1ea71fccaa45ade531d38f",
     "packages/utils/src/unique-id.ts": "22f5f12062eeef10c1336ee01e4b28b7d0cfe562c0f53f79e2a3219eb389f72b",
     "src/create-marionette.ts": "12baf1aadeeae54aefbb7e5777db9392f74650a407dcd506e97ebf18b73cfcc1",
-    "src/index.ts": "0fdbaa2bbb16566dd1032f786273e7b1acc8683390033b2c63b196e2dc04b449",
+    "src/index.ts": "41476602f9a5712f0742954fdc7d20a09bef62ba80711d25abe3d1bda8064656",
     "src/mixins/behaviors.ts": "720633138c31d36c3c9e9367c1cd9ef4a9b8514b2e5cfcb88e04bfdea7566991",
     "src/mixins/common.ts": "375340ed4f7c5db6c3bd9dc9d73c73b49e69347e3451c0db7dd646ae714f5156",
     "src/mixins/delegate-entity-events.ts": "778dc193ff0b32611e6a9112e133f961c2f522c6864ea847c70e7d676fb41c9c",
@@ -8041,7 +8061,7 @@
     "src/mixins/ui.ts": "5cb417e1456cd17b43357e480102be3fc1b436167c43b853af7d45ab79d35ffd",
     "src/mixins/view-events.ts": "108a31ba7d0f74916848c5b2f85b422afe15703a8e9fa2dbca0b17b6a5ff0fb2",
     "src/mixins/view.ts": "d0895d07d087d24d5cd8ce8d051a7acbbc9cee64fd2b5a6824b26973fc064e18",
-    "src/modules/application.ts": "29351d4980796ee1ab1d36c26877ab2dd46838c9b5484ad60d5b3a1d6e70670d",
+    "src/modules/application.ts": "ce25c75c3ff130a1e9caeef42ecc254ce411899fa980be599af5b94cbe454805",
     "src/modules/behavior.ts": "475fe0451e629559992bd0f5ec18ad16438309b018bf643b5917dfc47a1693b6",
     "src/modules/child-view-container.ts": "ab52685a0a4fd8861534b8e9784704791c3e72a15ee19547766293be4a030803",
     "src/modules/collection-view.ts": "40bbaefedea29de171597e905f8fdde7ee6f55877da9e441996c9b5bf56bfe58",
@@ -8062,7 +8082,7 @@
     "src/utils/subscribe-bindings.ts": "24633b6b39c2d0a8c833670e2ab1d584fb6bed2fae3ac5cfb5d42461cf233f4a"
   },
   "evidence": {
-    "config/diagnostics/catalog.json": "76cc4270e2ec939078cc3c8537d66e45bf0a58010fe25eeef81ab21f58886997",
+    "config/diagnostics/catalog.json": "45360deea6dfe7d531b256dbbebb443e9fa578fb0d43fc9becce7ab5126c76bf",
     "docs/choosing-integrations.md": "385bfb2c7d85a8e0db71fd795ed1fef488aa637aa5094e93210810ff91f31f12",
     "docs/common.md": "1d14004d1c49e98ca40be9fd28d35faaf372f2a12f13fae6afa3cac8a8bf14cc",
     "docs/data.api.md": "5b714e990415d75982e78aaa62c0e86ad4b2fb0e75ea089fd994a080fdcee01a",
@@ -8071,7 +8091,7 @@
     "docs/dom.interactions.md": "81bd678c7d498e08c08c84cfc3bbe1d27451ef46ed521e67fff4f72450bdbadb",
     "docs/events.class.md": "faed5ac4f6eca3ec447ae7cd44b6efd8f039e935b38a4c191076d485bd57a35f",
     "docs/events.md": "8225ceda0d100b6bf466ab779cacc1001b7eec16b8dfd09d8c43d97924228e50",
-    "docs/marionette.application.md": "28e5298ea84bf5b9a11e691d48f09ee4b2f59ea5d37a8addaab8cd85c8122c63",
+    "docs/marionette.application.md": "0e79f6768228ddf46af4f5fc43fcefc9b72cb5059a3177476edfd3b3a5f03ab0",
     "docs/marionette.behavior.md": "bf002b5ba380cf1bb1054b98f9813d89b4aef16ba6495d02b823ed178ab3f0c4",
     "docs/marionette.collectionview.md": "5af1ed04daaf0e976fdd0538b0931fd370fd09167079d0c21b01195f8628cefe",
     "docs/marionette.mnobject.md": "056bb3041902d66831a0031e2e9c97770f485f613450861ae55aba46ca592243",
@@ -8095,6 +8115,7 @@
     "test/unit/application-preparation.spec.js": "23e58351eec5983b4d412be099a7e9306f4b758a1f501874f46baca8be940b56",
     "test/unit/application-prepared-view.spec.js": "0d70642eb618d73d579ffe785da441f8af58a7ddee9a74200ab481b3c79f943f",
     "test/unit/application-root-view.spec.js": "aff198abb69b19ffd13bbb6d5a727d7b0eac0d661a9ade5a98d48a043843ff5a",
+    "test/unit/application-start-region.spec.js": "d34edbf34b6568834bf2c7cb20b173b7b004ab0f3da34861872d47e04ba435da",
     "test/unit/backbone-adapter.spec.js": "016907f55d5e20d695f916dbd4189ac7e3e543a0f903df6a3922c207dade59df",
     "test/unit/behavior-lifecycle.spec.js": "8c70d05fa530d27eac901291a3487c9cacac1ef1d0c22a3adda917da5774d05a",
     "test/unit/behavior-ui-contract.spec.js": "65def27b40f17e3d931803faeff7c9dbb3c580e14f157fa5d2f8145fb95c1761",

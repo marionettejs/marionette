@@ -1509,12 +1509,14 @@
         "Application"
       ],
       "result": "Operations resolve true at the requested target, false when superseded, and compatible calls share in-flight promises. Current readiness failure rejects the operation promise.",
-      "timing": "Before and completion notifications are synchronous and ignore returns. Only prepareStart/prepareStop/prepareDestroy are awaited with options and an abort context; start completion receives one resolved preparation result. Supersession aborts before replacement preparation; adopted stop retains its original context/options without abort.",
+      "timing": "Before and completion notifications are synchronous and ignore returns. Only prepareStart/prepareStop/prepareDestroy are awaited with options and an abort context; start completion receives one resolved preparation result. Supersession aborts before replacement preparation; adopted stop retains its original context/options without abort. Startup Region binding occurs before startup notifications, after any adopted stop readiness finishes.",
       "ownership": "Registration never starts children. Callers explicitly await prerequisites. Stop/destroy traverse all owned descendants, including stopped intermediate owners; descendants cannot start/restart during an ancestor stop or terminal phase.",
       "mutation": "Canceled readiness cannot append stale framework completion events or alter stable state.",
-      "repetition": "Compatible calls share promises. A stopped owner still drains owned descendants without repeating its own stop preparation or notifications. Restart deactivates children; reactivation is explicit.",
+      "repetition": "Compatible calls share promises. A stopped owner still drains owned descendants without repeating its own stop preparation or notifications. Restart deactivates children; reactivation is explicit. A different Region on a compatible start or restart is rejected with MN0041; a fresh start from stopped may bind a new host.",
       "destruction": "Destruction blocks owner and descendant start/restart; successful destruction destroys owned children. Readiness rejection preserves the documented retry and partial-child boundaries.",
-      "diagnostics": [],
+      "diagnostics": [
+        "MN0041"
+      ],
       "docs": [
         {
           "file": "docs/marionette.application.md",
@@ -1527,6 +1529,10 @@
         {
           "file": "docs/events.class.md",
           "heading": "Application Events"
+        },
+        {
+          "file": "docs/marionette.application.md",
+          "heading": "Starting an Application"
         }
       ],
       "tests": [
@@ -1573,6 +1579,14 @@
         {
           "file": "test/unit/application-preparation.spec.js",
           "title": "notifies before startup, awaits preparation, and forwards one result to completion"
+        },
+        {
+          "file": "test/unit/application-start-region.spec.js",
+          "title": "binds before startup notifications and forwards the complete options object"
+        },
+        {
+          "file": "test/unit/application-start-region.spec.js",
+          "title": "keeps a prepared root while rebinding a stopped displayed root"
         }
       ],
       "events": [

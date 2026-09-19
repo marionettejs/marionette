@@ -34,6 +34,10 @@ export interface ApplicationOptions {
   stateEvents?: Bindings | (() => Bindings);
   state?: unknown;
 }
+export interface ApplicationStartOptions {
+  region?: RegionDefinition;
+  [key: string]: unknown;
+}
 
 type Common = typeof CommonMixin;
 export interface ApplicationInstance<Options extends object = object, State = object, StartResult = unknown> extends Common {
@@ -133,6 +137,7 @@ interface Operation extends Deferred<boolean> {
   stopDeferred?: Deferred<boolean>;
   isCompleting?: boolean;
   isStopped?: boolean;
+  regionDefinition?: RegionDefinition;
 }
 
 type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & StateHost & {
@@ -193,6 +198,14 @@ function throwApplicationOwnershipConflict(message: string) {
     code: 'MN0031',
     name: classErrorName,
     message
+  });
+}
+
+function throwApplicationRegionConflict() {
+  throw new MarionetteError({
+    code: 'MN0041',
+    name: classErrorName,
+    message: 'An Application cannot start with a different Region while it is running or starting.'
   });
 }
 
@@ -436,7 +449,8 @@ function runOperation(application: ApplicationInternals, operation: Operation, c
   })();
 }
 
-function beginOperation(application: ApplicationInternals, kind: OperationKind, state: LifecycleState, failureState: FailureState, callback: (operation: Operation) => unknown) {
+function beginOperation(application: ApplicationInternals, kind: OperationKind, state: LifecycleState, failureState: FailureState,
+  callback: (operation: Operation) => unknown, regionDefinition?: RegionDefinition) {
   const superseded = supersedeOperation(application);
   const deferred = createDeferred<boolean>();
   // A canceled child traversal cannot be continued by a later operation.
@@ -447,7 +461,8 @@ function beginOperation(application: ApplicationInternals, kind: OperationKind, 
     kind,
     failureState,
     readiness: stopReadiness,
-    stopReadiness
+    stopReadiness,
+    regionDefinition
   };
 
   application._lifecycleOperation = operation;
@@ -463,6 +478,43 @@ function beginOperation(application: ApplicationInternals, kind: OperationKind, 
   return deferred.promise;
 }
 
+function getStartRegion(options: unknown) {
+  return (options as ApplicationStartOptions | undefined)?.region;
+}
+
+function assertStartRegion(application: ApplicationInternals, definition: RegionDefinition | undefined, operation?: Operation) {
+  if (definition === undefined) { return; }
+
+  const pending = operation?.regionDefinition;
+  if (definition === pending) { return; }
+  const changingHost = pending !== undefined && pending !== application.region && pending !== application._region;
+  if (!changingHost && (definition === application._region || definition === application.region)) { return; }
+  throwApplicationRegionConflict();
+}
+
+function replaceStartRegion(application: ApplicationInternals, definition: RegionDefinition) {
+  const current = application._region;
+  if (definition === current || definition === application.region) { return; }
+  const defaults = {
+    [runtimeId]: application[runtimeId],
+    regionClass: application.regionClass
+  };
+  const next = buildRegion(definition, defaults);
+
+  const displayed = releaseDisplayedView(application);
+  if (displayed && current?.currentView === displayed) {
+    current.empty();
+  }
+  application._ownedRegion?.destroy();
+  application._region = next;
+  application.region = definition;
+  if (definition instanceof Region) {
+    delete application._ownedRegion;
+  } else {
+    application._ownedRegion = next;
+  }
+}
+
 async function startApplication(application: ApplicationInternals, operation: Operation, options: unknown) {
   if (operation.stopReadiness) {
     const readiness = operation.stopReadiness;
@@ -472,6 +524,10 @@ async function startApplication(application: ApplicationInternals, operation: Op
     completeReadiness(operation);
     if (childrenStopped) { operation.failureState = STOPPED; }
     delete operation.stopReadiness;
+  }
+
+  if (operation.regionDefinition !== undefined) {
+    replaceStartRegion(application, operation.regionDefinition);
   }
 
   // Restart has finished deactivation; explicit child starts are now allowed.
@@ -560,14 +616,18 @@ export default /* @__PURE__ */ ((methods: object) => {
       return Promise.resolve(false);
     }
 
+    const definition = getStartRegion(options);
     const operation = this._lifecycleOperation;
+    if (operation?.kind === 'start' || this._lifecycleState === STARTING || this._lifecycleState === RUNNING) {
+      try { assertStartRegion(this, definition, operation); } catch (error) { return Promise.reject(error); }
+    }
     if (operation?.kind === 'start') { return operation.promise; }
     if (this._lifecycleState === RUNNING && !operation) { return Promise.resolve(true); }
 
     const failureState = getFailureState(this, operation);
     return beginOperation(this, 'start', STARTING, failureState, nextOperation => {
       return startApplication(this, nextOperation, options);
-    });
+    }, definition);
   },
 
   stop(this: ApplicationInternals, options?: unknown) {
@@ -612,8 +672,12 @@ export default /* @__PURE__ */ ((methods: object) => {
       return Promise.resolve(false);
     }
 
+    const definition = getStartRegion(options);
     const operation = this._lifecycleOperation;
-    if (operation?.kind === 'restart') { return operation.promise; }
+    if (operation?.kind === 'restart') {
+      try { assertStartRegion(this, definition, operation); } catch (error) { return Promise.reject(error); }
+      return operation.promise;
+    }
     const wasStopped = this._lifecycleState === STOPPED;
     const shouldStop = !operation?.isStopped && (!wasStopped || !!this._childApps);
     const failureState = getFailureState(this, operation);
@@ -624,7 +688,7 @@ export default /* @__PURE__ */ ((methods: object) => {
       } else { emptyView(this, options); }
       if (!isCurrentOperation(this, nextOperation)) { return; }
       await startApplication(this, nextOperation, options);
-    });
+    }, definition);
   },
 
   destroy(this: ApplicationInternals, options?: unknown) {

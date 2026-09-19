@@ -570,6 +570,32 @@ canceled teardown can retain partial progress. Child start/restart
 returns `false` while an ancestor is stopping or terminal. See
 [Application ownership](docs/marionette.application.md#application-ownership).
 
+## Bind reusable child Applications to a new parent Region
+
+An Application can receive its host at startup, which lets a registered child
+follow a parent layout that is recreated on restart:
+
+```javascript
+const ChildApplication = Application.extend({
+  prepareStart(options) {
+    return this.loadData(options.source);
+  }
+});
+
+parent.prepareStart = () => child.start({
+  region: parent.getRegion(),
+  source: 'layout'
+});
+```
+
+`start({ region })` binds before `before:start` and `prepareStart`, while the
+original options object remains available to those hooks. Region instances are
+borrowed. Selector, Region class, and object definitions create an owned host.
+Missing or `undefined` `region` retains the current host. A running or starting
+Application rejects a different host with `MN0041`; stop the child before
+rebinding it. `restart({ region })` waits for its stop phase to complete before
+changing hosts. A failed stop leaves the existing host in place.
+
 ## Application preparation methods
 
 V5 through beta.3 awaited `onBeforeStart`, `onBeforeStop`, and `onBeforeDestroy`.

@@ -1,4 +1,4 @@
-import { Application, type ApplicationInstance, type LifecycleContext } from 'marionette';
+import { Application, type ApplicationInstance, type ApplicationStartOptions, type LifecycleContext } from 'marionette';
 import { View } from 'marionette';
 import { Region, type RegionInstance } from 'marionette';
 import type {SupportedView} from 'marionette';
@@ -68,6 +68,8 @@ const count: number = stateOwner.getState().count;
 stateOwner.getState().ready;
 
 async function lifecycle() {
+  const dynamicRegionStart: ApplicationStartOptions = { region: '#application', source: 'dynamic-region' };
+  const dynamicRegionStarted: Promise<boolean> = root.start(dynamicRegionStart);
   const started: boolean = await root.start({source: 'example'});
   const stopped: boolean = await root.stop();
   const restarted: boolean = await root.restart();

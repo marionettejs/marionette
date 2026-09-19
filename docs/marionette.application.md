@@ -187,8 +187,25 @@ also supersede its requested stop. Inspect the result and handle rejection; a
 ### Starting an Application
 
 Once configured, await `start(options)` before dispatching work that requires a
-running Application. The optional argument is passed to the lifecycle methods
-and events.
+running Application. The optional argument is passed unchanged to the lifecycle
+methods and events. Its `region` property can bind the Application to a
+Region instance, selector, Region class, or Region definition before
+`before:start` and `prepareStart` run:
+
+```javascript
+const childRegion = layout.getRegion('content');
+await child.start({ region: childRegion, source: 'layout' });
+```
+
+An omitted or `undefined` `region` keeps the current host. Region instances are
+borrowed; selector and definition forms construct an owned Region. A different
+host cannot be selected while an Application is running or starting and rejects
+with `MN0041`; await `stop()` before a new `start({ region })`, or use
+`restart({ region })` to stop and select a new host in one operation.
+An in-flight start with the same Region or exact definition continues to share
+its existing Promise. A host replacement after a successful stop releases the
+Application's displayed root, preserves a prepared root for the new host, and
+destroys the previous owned Region.
 
 The application below loads a session before showing its root View. The supplied
 `loadSession({ signal })` function returns a Promise for an object with a
