@@ -1,0 +1,31 @@
+docs-site/resources.json
+  s_8bc4ebe3642b83::t_06c85428273709 43-45
+docs/task-recipes.md
+  s_8bc4ebe3642b83::t_bc57d774395e2f 10,120-243
+docs/view.rendering.md
+  s_8bc4ebe3642b83::t_cd99d4cce946e5 128-149
+test/fixtures/docs-prerendered-content/literal-template.mjs
+  s_8bc4ebe3642b83::t_3d37a8af7eecb8 1-52
+test/fixtures/docs-prerendered-content/validate.mjs
+  s_8bc4ebe3642b83::t_a82aac38dc984e 49-51
+test/fixtures/docs-region-lifecycle/retry-delete.mjs
+  s_8bc4ebe3642b83::t_aed23a45d35c62 1-169
+test/fixtures/docs-region-lifecycle/validate.mjs
+  s_8bc4ebe3642b83::t_6dcae07beddd02 186-188
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "a333a1aec73e7559183c51c192746444fc53d11e",
+  "prompts": {},
+  "sessions": {
+    "s_8bc4ebe3642b83": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0adca-119a-75a3-900a-83f3a223701a",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
