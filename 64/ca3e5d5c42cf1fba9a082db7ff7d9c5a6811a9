@@ -1,0 +1,21 @@
+test/types/application.cts
+  s_0b2518106a33a7::t_643a6f50085538 30,61
+test/types/application.mts
+  s_0b2518106a33a7::t_ef3bf1c8b3dc34 30,61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "64ca3e5d5c42cf1fba9a082db7ff7d9c5a6811a9",
+  "prompts": {},
+  "sessions": {
+    "s_0b2518106a33a7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0b78c-30de-7fc1-8943-96b2fce3589f",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
