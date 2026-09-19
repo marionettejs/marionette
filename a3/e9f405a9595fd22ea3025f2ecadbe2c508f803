@@ -1,0 +1,56 @@
+src/modules/application.ts
+  s_0b2518106a33a7::t_6da456a47f4fdf 322
+  s_0b2518106a33a7::t_c4a87b9d03e70e 148,323-324,326-328,331-337,339-340,344,346-348,764-766,788,796
+  s_0b2518106a33a7::t_1f8c20383f4a57 320-321,325
+  s_0b2518106a33a7::t_634768e2136e31 329,338,345,349-351
+  s_0b2518106a33a7::t_461feea45422c7 330
+docs/marionette.application.md
+  s_0b2518106a33a7::t_50a417b28d7290 524-531,534-539
+  s_0b2518106a33a7::t_80f4cd22fd57fb 520-522
+  s_0b2518106a33a7::t_7b4d5743b3a17c 509-510,512-515
+  s_0b2518106a33a7::t_2f8c1fa38568b4 611-614,626,631-635
+  s_0b2518106a33a7::t_3652a225949a45 590-591
+  s_0b2518106a33a7::t_96bd5377ad546b 523
+test/unit/application-root-view.spec.js
+  s_0b2518106a33a7::t_ff55b9f6615994 51,57,59,63-64,88,99,103-104,109,135,143,145,149,153,162,164-165,169,171,309,321,357,365,370
+  s_0b2518106a33a7::t_bff628f6ba9659 167
+test/unit/application-prepared-view.spec.js
+  s_0b2518106a33a7::t_7dfb42aa5eac50 240,246,271,286
+  s_0b2518106a33a7::t_863ebef93f88f0 138-150,310
+  s_0b2518106a33a7::t_c5b5a8d4ff127e 274-276,292-309
+  s_0b2518106a33a7::t_f9790e158fe456 311
+docs/compact-reference.md
+  s_0b2518106a33a7::t_e46bb32933378a 16,24
+upgradeGuide.md
+  s_0b2518106a33a7::t_72687ea2f5fdab 35-54
+test/browser/application-prepared-view.spec.mjs
+  s_0b2518106a33a7::t_a4492d14b93b22 101,125,142-144,147-149,159-161,176-179
+  s_0b2518106a33a7::t_dd5c48e2215536 108-109,126-129,134-141,145-146,150,152-158,162-174,180-181
+  s_0b2518106a33a7::t_ee159c84694747 151,175
+  s_0b2518106a33a7::t_6a4ade394d13f6 182
+config/release-validation.json
+  s_0b2518106a33a7::t_f2f4d52b0d6312 17-19
+  s_0b2518106a33a7::t_239c2d170c2e04 16
+config/api-contracts/semantics.json
+  s_0b2518106a33a7::t_804e07ec6d9a53 2343,2345-2346,2348,2394
+docs/migration-from-v4.md
+  s_0b2518106a33a7::t_e46bb32933378a 88
+config/api-contracts/inventory.json
+  s_0b2518106a33a7::t_a24b1955b23f7a 4,8044,8074,8096-8097
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "a3e9f405a9595fd22ea3025f2ecadbe2c508f803",
+  "prompts": {},
+  "sessions": {
+    "s_0b2518106a33a7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0b78c-30de-7fc1-8943-96b2fce3589f",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
