@@ -135,6 +135,19 @@ describe('Application prepared root View', () => {
     expect(displayed.isDestroyed()).toBe(false);
   });
 
+  it('releases a displayed association when external teardown removes the host first', () => {
+    const app = application();
+    const root = view();
+    app.showView(root);
+    root.on('before:destroy', () => app.stop());
+
+    root.destroy();
+
+    expect(root.isDestroyed()).toBe(true);
+    expect(app.getView()).toBeUndefined();
+    expect(app.getRegion().currentView).toBeUndefined();
+  });
+
   for (const operation of ['stop', 'restart', 'destroy']) {
     for (const running of [false, true]) {
       it(`${operation} destroys a never-displayed root while ${running ? 'running' : 'stopped'}`, async() => {
@@ -224,13 +237,13 @@ describe('Application prepared root View', () => {
     expect(other.getView()).toBe(root);
   });
 
-  it('lets Applications sharing a Region read its same displayed root without claiming it', () => {
+  it('keeps displayed root selection explicit for Applications sharing a Region', () => {
     const app = application();
     const other = new Application({ region: app.getRegion() });
     apps.push(other);
     const root = view();
     app.showView(root);
-    expect(other.getView()).toBe(root);
+    expect(other.getView()).toBeUndefined();
     expect(other.setView(root)).toBe(root);
     expect(other.showView()).toBe(root);
     expect(app.getView()).toBe(root);
@@ -255,8 +268,11 @@ describe('Application prepared root View', () => {
     expect(second.getView()).toBe(secondRoot);
     second.showView();
     expect(firstRoot.isDestroyed()).toBe(true);
-    expect(first.getView()).toBe(secondRoot);
+    expect(first.getView()).toBeUndefined();
     expect(second.getView()).toBe(secondRoot);
+    expect(region.currentView).toBe(secondRoot);
+    await first.stop();
+    expect(secondRoot.isDestroyed()).toBe(false);
     expect(region.currentView).toBe(secondRoot);
     await second.stop();
     expect(secondRoot.isDestroyed()).toBe(true);
@@ -267,10 +283,30 @@ describe('Application prepared root View', () => {
     const app = application();
     const root = view();
     app.getRegion().show(root);
-    expect(app.getView()).toBe(root);
+    expect(app.getView()).toBeUndefined();
     expect(app.setView(root)).toBe(root);
     expect(app.getView()).toBe(root);
     expect(root.isAttached()).toBe(true);
+  });
+
+  it('keeps a displayed root selected when an ancestor View detaches its host element', async() => {
+    const outerRegion = new Region({ el: host });
+    owners.push(outerRegion);
+    const outer = new View({
+      template: () => '<div class="application-host"></div>',
+      regions: { application: '.application-host' }
+    });
+    outerRegion.show(outer);
+    const app = application({ region: outer.getRegion('application') });
+    const root = view();
+    app.showView(root);
+
+    expect(outerRegion.detachView()).toBe(outer);
+    expect(app.getView()).toBe(root);
+    expect(app.getRegion().currentView).toBe(root);
+
+    await app.stop();
+    outer.destroy();
   });
 
   it('does not let external host changes overwrite a prepared root', async() => {

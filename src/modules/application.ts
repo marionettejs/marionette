@@ -145,6 +145,7 @@ type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & S
   _region?: RegionInstance;
   _ownedRegion?: RegionInstance;
   _preparedView?: SupportedView;
+  _displayedView?: SupportedView;
   _isDestroyed: boolean;
   _initRegion(): void;
   _initRadio(): void;
@@ -316,11 +317,38 @@ function onPreparedViewDestroyed(this: ApplicationInternals) {
   releasePreparedView(this);
 }
 
+function releaseDisplayedView(application: ApplicationInternals, view = application._displayedView,
+  region = application.getRegion()) {
+  if (!view) { return; }
+
+  delete application._displayedView;
+  region?.off('empty', onDisplayedRegionEmpty, application);
+  return view;
+}
+
+function onDisplayedRegionEmpty(this: ApplicationInternals, region: RegionInstance, view: SupportedView) {
+  releaseDisplayedView(this, view, region);
+}
+
+function claimDisplayedView(application: ApplicationInternals, view: SupportedView) {
+  if (application._displayedView === view) { return; }
+
+  releaseDisplayedView(application);
+  application._displayedView = view;
+  application.getRegion()?.on('empty', onDisplayedRegionEmpty, application);
+}
+
 function emptyView(application: ApplicationInternals, options?: unknown) {
   releasePreparedView(application)?.destroy();
   const region = application.getRegion();
-  if (region?.currentView) {
-    region.empty(options as ShowOptions | undefined);
+  const displayed = application._displayedView;
+  if (displayed) {
+    // A host replacement or detachment ends this Application's association;
+    // never adopt or destroy the unrelated current View.
+    releaseDisplayedView(application, displayed);
+    if (region?.currentView === displayed) {
+      region.empty(options as ShowOptions | undefined);
+    }
   }
 }
 
@@ -733,7 +761,9 @@ export default /* @__PURE__ */ ((methods: object) => {
     }
 
     releasePreparedView(this)?.destroy();
-    if (view !== this.getRegion()?.currentView) {
+    if (view === this.getRegion()?.currentView) {
+      claimDisplayedView(this, view);
+    } else {
       this._preparedView = view;
       view._parent = this;
       view.on('destroy', onPreparedViewDestroyed, this);
@@ -755,6 +785,7 @@ export default /* @__PURE__ */ ((methods: object) => {
     region.show(root, ...args);
     if (region.currentView === root) {
       releasePreparedView(this);
+      claimDisplayedView(this, root);
     } else {
       root._parent = this;
     }
@@ -762,6 +793,6 @@ export default /* @__PURE__ */ ((methods: object) => {
   },
 
   getView(this: ApplicationInternals) {
-    return this._preparedView || this.getRegion()?.currentView;
+    return this._preparedView || this._displayedView;
   }
 });

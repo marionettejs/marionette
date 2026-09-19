@@ -32,6 +32,26 @@ The sections below explain the specific API changes. The library's fixtures
 validate supported integration patterns; they do not establish that an untested
 consumer application has migrated successfully.
 
+## Select Application root Views explicitly
+
+An Application keeps its prepared root until `showView()` hands it to the host
+Region. After display, `getView()` returns the root selected by that Application;
+it does not adopt a View shown directly through a shared Region. Select an
+existing host View explicitly when taking responsibility for it:
+
+```js
+const view = app.getRegion().currentView;
+app.setView(view);
+```
+
+Replacing or detaching a selected root ends that Application's association.
+Stopping an Application destroys its prepared root and empties the host only
+when its selected root is still current. A View that another Application has
+displayed remains with that Application. Detaching through `region.detachView()`
+transfers the View to the caller, so a later stop does not destroy it. An
+Application-created Region is still destroyed with the Application, including
+its current contents; borrowed Regions remain available to their external owner.
+
 ## Use the included TypeScript declarations
 
 The `marionette` package includes declarations for its public exports in ESM and
