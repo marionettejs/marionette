@@ -1,0 +1,21 @@
+config/release-validation.json
+  s_0b2518106a33a7::t_d0453936b22cd1 215-218
+test/browser/application-start-region.spec.mjs
+  s_0b2518106a33a7::t_0a9dcafe0454aa 96-161
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "9d6dc0b1543be1c1f422eaa878469301182c3b1c",
+  "prompts": {},
+  "sessions": {
+    "s_0b2518106a33a7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0b78c-30de-7fc1-8943-96b2fce3589f",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
