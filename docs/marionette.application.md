@@ -198,11 +198,14 @@ The application below loads a session before showing its root View. The supplied
 ```javascript
 import { Application, View } from 'marionette';
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[character]));
+}
+
 const SessionView = View.extend({
-  template: () => '<h1></h1>',
-  onRender() {
-    this.el.querySelector('h1').textContent = this.model.name;
-  }
+  template: ({ name }) => `<h1>${escapeHtml(name)}</h1>`
 });
 
 export function createSessionApplication({ el, loadSession }) {
@@ -388,21 +391,25 @@ import { Application, View } from 'marionette';
 
 export const refreshes = [];
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[character]));
+}
+
 const DashboardView = View.extend({
   initialize(options) {
-    this.initialStatus = options.initialStatus;
+    this.status = options.initialStatus;
   },
 
-  template() {
-    return '<button class="refresh">Refresh</button><p class="status"></p>';
+  template({ status }) {
+    return `<button class="refresh">Refresh</button><p class="status">${escapeHtml(status)}</p>`;
   },
+
+  templateContext() { return { status: this.status }; },
 
   events: {
     'click .refresh': 'requestRefresh'
-  },
-
-  onRender() {
-    this.showStatus(this.initialStatus);
   },
 
   requestRefresh() {
@@ -410,7 +417,8 @@ const DashboardView = View.extend({
   },
 
   showStatus(status) {
-    this.el.querySelector('.status').textContent = status;
+    this.status = status;
+    this.render();
   }
 });
 
