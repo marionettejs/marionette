@@ -148,6 +148,21 @@ describe('Application prepared root View', () => {
     expect(app.getRegion().currentView).toBeUndefined();
   });
 
+  it('can show a prepared replacement from a completed Region empty event', () => {
+    const app = application();
+    const displayed = view();
+    const replacement = view();
+    app.showView(displayed);
+    app.setView(replacement);
+    app.getRegion().on('empty', () => app.showView());
+
+    app.getRegion().empty();
+
+    expect(displayed.isDestroyed()).toBe(true);
+    expect(app.getView()).toBe(replacement);
+    expect(app.getRegion().currentView).toBe(replacement);
+  });
+
   for (const operation of ['stop', 'restart', 'destroy']) {
     for (const running of [false, true]) {
       it(`${operation} destroys a never-displayed root while ${running ? 'running' : 'stopped'}`, async() => {
@@ -237,21 +252,23 @@ describe('Application prepared root View', () => {
     expect(other.getView()).toBe(root);
   });
 
-  it('keeps displayed root selection explicit for Applications sharing a Region', () => {
+  it('makes displayed root selection exclusive across Applications sharing a Region', () => {
     const app = application();
     const other = new Application({ region: app.getRegion() });
     apps.push(other);
     const root = view();
     app.showView(root);
     expect(other.getView()).toBeUndefined();
-    expect(other.setView(root)).toBe(root);
-    expect(other.showView()).toBe(root);
+    const pending = view();
+    other.setView(pending);
+    expect(() => other.setView(root)).toThrow(expect.objectContaining({ code: 'MN0003' }));
+    expect(other.getView()).toBe(pending);
     expect(app.getView()).toBe(root);
     expect(app.getRegion().detachView()).toBe(root);
     expect(app.getView()).toBeUndefined();
-    expect(other.getView()).toBeUndefined();
     expect(other.setView(root)).toBe(root);
     expect(other.showView()).toBe(root);
+    expect(other.getView()).toBe(root);
   });
 
   it('allows coordinated Applications to display distinct roots in a borrowed host', async() => {

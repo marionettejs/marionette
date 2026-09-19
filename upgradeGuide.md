@@ -37,7 +37,9 @@ consumer application has migrated successfully.
 An Application keeps its prepared root until `showView()` hands it to the host
 Region. After display, `getView()` returns the root selected by that Application;
 it does not adopt a View shown directly through a shared Region. Select an
-existing host View explicitly when taking responsibility for it:
+existing host View explicitly when taking responsibility for it. Only one
+Application may select a displayed root at a time; another selection fails with
+`MN0003` until the first Application releases it:
 
 ```js
 const view = app.getRegion().currentView;
@@ -50,7 +52,10 @@ when its selected root is still current. A View that another Application has
 displayed remains with that Application. Detaching through `region.detachView()`
 transfers the View to the caller, so a later stop does not destroy it. An
 Application-created Region is still destroyed with the Application, including
-its current contents; borrowed Regions remain available to their external owner.
+its current contents; stopping or restarting it also clears a directly shown
+View while preserving unmanaged HTML. Borrowed Regions remain available to their
+external owner. Repeating `showView()` for an already displayed root is a no-op
+and ignores its options.
 
 ## Use the included TypeScript declarations
 
