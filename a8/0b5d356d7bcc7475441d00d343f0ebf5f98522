@@ -1,0 +1,45 @@
+test/unit/application-prepared-view.spec.js
+  s_0b2518106a33a7::t_08fea1298b7b6b 255,262-265,271
+  s_0b2518106a33a7::t_06adb57c052d89 151-165
+docs/marionette.region.md
+  s_0b2518106a33a7::t_e9231a83ddb353 133-137
+test/unit/application-root-view.spec.js
+  s_0b2518106a33a7::t_976a3f407c14f5 24-27,34-35,38,40-41
+  s_0b2518106a33a7::t_668892cab014fa 59-72
+  s_0b2518106a33a7::t_bc8d1d138e7fb2 344,356
+  s_0b2518106a33a7::t_d4675aaf8a37b7 20,39
+  s_0b2518106a33a7::t_fa3e740c80e11c 73-85
+docs/marionette.application.md
+  s_0b2518106a33a7::t_361964c1f8ff61 529-531,536-543,595-597,620-621
+docs/compact-reference.md
+  s_0b2518106a33a7::t_2413384823ab9f 16,24
+config/api-contracts/semantics.json
+  s_0b2518106a33a7::t_8d31248ad006a3 2343,2345,2348,2390
+docs/migration-from-v4.md
+  s_0b2518106a33a7::t_89cb19f0aa04c3 88
+upgradeGuide.md
+  s_0b2518106a33a7::t_67df435cebb815 40-42,55-58
+src/modules/application.ts
+  s_0b2518106a33a7::t_a779a1d437b40d 157-159,323-332,352,355,370-371,783-784,806
+  s_0b2518106a33a7::t_c83c1066dd0098 337
+  s_0b2518106a33a7::t_765761c4a81522 340,807
+  s_0b2518106a33a7::t_62da431a2ead1f 333-334
+config/api-contracts/inventory.json
+  s_0b2518106a33a7::t_d255f8253d595e 4,8044,8074,8078,8096-8097
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "a80b5d356d7bcc7475441d00d343f0ebf5f98522",
+  "prompts": {},
+  "sessions": {
+    "s_0b2518106a33a7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0b78c-30de-7fc1-8943-96b2fce3589f",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
