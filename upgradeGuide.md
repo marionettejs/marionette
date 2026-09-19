@@ -576,25 +576,48 @@ An Application can receive its host at startup, which lets a registered child
 follow a parent layout that is recreated on restart:
 
 ```javascript
-const ChildApplication = Application.extend({
-  prepareStart(options) {
-    return this.loadData(options.source);
-  }
-});
+import { Application, View } from 'marionette';
 
-parent.prepareStart = () => child.start({
-  region: parent.getRegion(),
-  source: 'layout'
+const Layout = View.extend({
+  template: () => '<main></main>',
+  regions: { content: 'main' }
 });
+const Child = Application.extend({
+  onStart() { this.showView(new View({ template: () => '<p>Child content</p>' })); }
+});
+const Parent = Application.extend({
+  initialize() { this.addChildApp('content', new Child()); },
+  onBeforeStart() { this.setView(new Layout()).render(); },
+  async prepareStart(options, { signal }) {
+    const started = await this.getChildApp('content').start({
+      region: this.getView().getRegion('content')
+    });
+    if (!started && !signal.aborted) throw new Error('Child startup canceled');
+  },
+  onStart() { this.showView(); }
+});
+const parent = new Parent({ region: '#app' });
+await parent.start();
+await parent.restart(); // Same child Application, new layout and content Region.
+await parent.destroy();
 ```
 
 `start({ region })` binds before `before:start` and `prepareStart`, while the
 original options object remains available to those hooks. Region instances are
-borrowed. Selector, Region class, and object definitions create an owned host.
+borrowed. Start and restart accept only existing Region instances; selectors,
+Region classes, and definition objects are rejected with `MN0042`. Constructor
+options still support creating an Application-owned Region.
 Missing or `undefined` `region` retains the current host. A running or starting
-Application rejects a different host with `MN0041`; stop the child before
-rebinding it. `restart({ region })` waits for its stop phase to complete before
-changing hosts. A failed stop leaves the existing host in place.
+Application rejects a different host passed to `start()` with `MN0041`; stop the
+child before rebinding it, or use `restart({ region })`. Restart waits for its
+stop phase before changing hosts, and a failed stop leaves the old host in place.
+A newer restart with a different host supersedes an unfinished start or restart;
+the superseded operation resolves `false`.
+
+The `region` option is now reserved. Rename domain options such as
+`start({ region: 'us-east-1' })` to `start({ regionCode: 'us-east-1' })` and update
+their preparation handlers. Strings are rejected as invalid startup hosts; they
+are not forwarded solely as domain data.
 
 ## Application preparation methods
 

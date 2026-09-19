@@ -35,7 +35,7 @@ export interface ApplicationOptions {
   state?: unknown;
 }
 export interface ApplicationStartOptions {
-  region?: RegionDefinition;
+  region?: RegionInstance;
   [key: string]: unknown;
 }
 
@@ -60,9 +60,9 @@ export interface ApplicationInstance<Options extends object = object, State = ob
   getChannel(): Channel | undefined;
   isDestroyed(): boolean;
   isRunning(): boolean;
-  start(options?: unknown): Promise<boolean>;
+  start(options?: ApplicationStartOptions): Promise<boolean>;
   stop(options?: unknown): Promise<boolean>;
-  restart(options?: unknown): Promise<boolean>;
+  restart(options?: ApplicationStartOptions): Promise<boolean>;
   destroy(options?: unknown): Promise<boolean>;
   prepareStart?(options: unknown, context: LifecycleContext): StartResult | PromiseLike<StartResult>;
   prepareStop?(options: unknown, context: LifecycleContext): unknown;
@@ -137,7 +137,7 @@ interface Operation extends Deferred<boolean> {
   stopDeferred?: Deferred<boolean>;
   isCompleting?: boolean;
   isStopped?: boolean;
-  regionDefinition?: RegionDefinition;
+  startRegion?: RegionInstance;
 }
 
 type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & StateHost & {
@@ -201,8 +201,8 @@ function throwApplicationOwnershipConflict(message: string) {
   });
 }
 
-function throwApplicationRegionConflict() {
-  throw new MarionetteError({
+function applicationRegionConflict() {
+  return new MarionetteError({
     code: 'MN0041',
     name: classErrorName,
     message: 'An Application cannot start with a different Region while it is running or starting.'
@@ -450,7 +450,7 @@ function runOperation(application: ApplicationInternals, operation: Operation, c
 }
 
 function beginOperation(application: ApplicationInternals, kind: OperationKind, state: LifecycleState, failureState: FailureState,
-  callback: (operation: Operation) => unknown, regionDefinition?: RegionDefinition) {
+  callback: (operation: Operation) => unknown, startRegion?: RegionInstance) {
   const superseded = supersedeOperation(application);
   const deferred = createDeferred<boolean>();
   // A canceled child traversal cannot be continued by a later operation.
@@ -462,7 +462,7 @@ function beginOperation(application: ApplicationInternals, kind: OperationKind, 
     failureState,
     readiness: stopReadiness,
     stopReadiness,
-    regionDefinition
+    startRegion
   };
 
   application._lifecycleOperation = operation;
@@ -478,41 +478,39 @@ function beginOperation(application: ApplicationInternals, kind: OperationKind, 
   return deferred.promise;
 }
 
-function getStartRegion(options: unknown) {
-  return (options as ApplicationStartOptions | undefined)?.region;
+function isCompatibleStartRegion(application: ApplicationInternals, definition: RegionInstance | undefined, operation?: Operation) {
+  if (definition === undefined) { return true; }
+
+  const pending = operation?.startRegion;
+  if (definition === pending) { return true; }
+  return pending === undefined && definition === application._region;
 }
 
-function assertStartRegion(application: ApplicationInternals, definition: RegionDefinition | undefined, operation?: Operation) {
-  if (definition === undefined) { return; }
-
-  const pending = operation?.regionDefinition;
-  if (definition === pending) { return; }
-  const changingHost = pending !== undefined && pending !== application.region && pending !== application._region;
-  if (!changingHost && (definition === application._region || definition === application.region)) { return; }
-  throwApplicationRegionConflict();
-}
-
-function replaceStartRegion(application: ApplicationInternals, definition: RegionDefinition) {
+function replaceStartRegion(application: ApplicationInternals, operation: Operation, definition: RegionInstance) {
   const current = application._region;
-  if (definition === current || definition === application.region) { return; }
-  const defaults = {
+  const owned = application._ownedRegion;
+  if (!(definition instanceof Region)) {
+    throw new MarionetteError({
+      code: 'MN0042',
+      name: classErrorName,
+      message: 'Application start requires an existing Region instance.'
+    });
+  }
+  if (definition === current) { return; }
+  // Validate runtime identity before releasing the previous presentation.
+  buildRegion(definition, {
     [runtimeId]: application[runtimeId],
     regionClass: application.regionClass
-  };
-  const next = buildRegion(definition, defaults);
-
+  });
   const displayed = releaseDisplayedView(application);
   if (displayed && current?.currentView === displayed) {
     current.empty();
   }
-  application._ownedRegion?.destroy();
-  application._region = next;
+  if (isCurrentOperation(application, operation)) { owned?.destroy(); }
+  if (!isCurrentOperation(application, operation)) { return; }
+  application._region = definition;
   application.region = definition;
-  if (definition instanceof Region) {
-    delete application._ownedRegion;
-  } else {
-    application._ownedRegion = next;
-  }
+  delete application._ownedRegion;
 }
 
 async function startApplication(application: ApplicationInternals, operation: Operation, options: unknown) {
@@ -526,8 +524,9 @@ async function startApplication(application: ApplicationInternals, operation: Op
     delete operation.stopReadiness;
   }
 
-  if (operation.regionDefinition !== undefined) {
-    replaceStartRegion(application, operation.regionDefinition);
+  if (operation.startRegion !== undefined) {
+    replaceStartRegion(application, operation, operation.startRegion);
+    if (!isCurrentOperation(application, operation)) { return; }
   }
 
   // Restart has finished deactivation; explicit child starts are now allowed.
@@ -611,15 +610,15 @@ export default /* @__PURE__ */ ((methods: object) => {
   },
 
   // Begin local asynchronous readiness; callers explicitly start required children.
-  start(this: ApplicationInternals, options?: unknown) {
+  start(this: ApplicationInternals, options?: ApplicationStartOptions) {
     if (isTerminal(this) || hasStoppingOwner(this)) {
       return Promise.resolve(false);
     }
 
-    const definition = getStartRegion(options);
+    const definition = options?.region;
     const operation = this._lifecycleOperation;
     if (operation?.kind === 'start' || this._lifecycleState === STARTING || this._lifecycleState === RUNNING) {
-      try { assertStartRegion(this, definition, operation); } catch (error) { return Promise.reject(error); }
+      if (!isCompatibleStartRegion(this, definition, operation)) { return Promise.reject(applicationRegionConflict()); }
     }
     if (operation?.kind === 'start') { return operation.promise; }
     if (this._lifecycleState === RUNNING && !operation) { return Promise.resolve(true); }
@@ -667,17 +666,14 @@ export default /* @__PURE__ */ ((methods: object) => {
     });
   },
 
-  restart(this: ApplicationInternals, options?: unknown) {
+  restart(this: ApplicationInternals, options?: ApplicationStartOptions) {
     if (isTerminal(this) || hasStoppingOwner(this)) {
       return Promise.resolve(false);
     }
 
-    const definition = getStartRegion(options);
+    const definition = options?.region;
     const operation = this._lifecycleOperation;
-    if (operation?.kind === 'restart') {
-      try { assertStartRegion(this, definition, operation); } catch (error) { return Promise.reject(error); }
-      return operation.promise;
-    }
+    if (operation?.kind === 'restart' && isCompatibleStartRegion(this, definition, operation)) { return operation.promise; }
     const wasStopped = this._lifecycleState === STOPPED;
     const shouldStop = !operation?.isStopped && (!wasStopped || !!this._childApps);
     const failureState = getFailureState(this, operation);

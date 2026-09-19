@@ -189,7 +189,7 @@ also supersede its requested stop. Inspect the result and handle rejection; a
 Once configured, await `start(options)` before dispatching work that requires a
 running Application. The optional argument is passed unchanged to the lifecycle
 methods and events. Its `region` property can bind the Application to a
-Region instance, selector, Region class, or Region definition before
+Region instance before
 `before:start` and `prepareStart` run:
 
 ```javascript
@@ -197,15 +197,30 @@ const childRegion = layout.getRegion('content');
 await child.start({ region: childRegion, source: 'layout' });
 ```
 
-An omitted or `undefined` `region` keeps the current host. Region instances are
-borrowed; selector and definition forms construct an owned Region. A different
-host cannot be selected while an Application is running or starting and rejects
+An omitted or `undefined` `region` keeps the current host. The supplied Region is
+borrowed. Selectors, Region classes, and definition objects are rejected with
+`MN0042`; use constructor options to create an Application-owned Region. A different
+host passed to `start()` while an Application is running or starting rejects
 with `MN0041`; await `stop()` before a new `start({ region })`, or use
 `restart({ region })` to stop and select a new host in one operation.
-An in-flight start with the same Region or exact definition continues to share
-its existing Promise. A host replacement after a successful stop releases the
+An in-flight start with the same Region instance continues to share
+its existing Promise. A compatible in-flight restart also shares its Promise;
+a restart requesting a different host supersedes the earlier operation, which
+resolves `false`. Restart can replace an unfinished start: it cancels startup,
+completes deactivation, and then binds the requested host. A host replacement after a successful stop releases the
 Application's displayed root, preserves a prepared root for the new host, and
 destroys the previous owned Region.
+
+The `region` key is reserved for host configuration. Use a different option name
+for domain data, such as `regionCode`; strings in `region` are rejected rather
+than forwarded solely as application data.
+
+With a shared borrowed host, `region.empty()` destroys the displayed View and
+clears its Application's displayed-root association, but does not stop that
+Application or destroy a separately prepared replacement. `application.stop()`
+deactivates the feature and clears its own preparation and display. The router
+or other shared-host coordinator must choose which Applications run; replacing
+or emptying a Region does not make that decision automatically.
 
 The application below loads a session before showing its root View. The supplied
 `loadSession({ signal })` function returns a Promise for an object with a

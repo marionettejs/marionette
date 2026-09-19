@@ -25,7 +25,7 @@ afterEach(async() => {
 
 describe('Application start Region binding', () => {
   it('binds before startup notifications and forwards the complete options object', async() => {
-    const regionDefinition = { el: document.createElement('div') };
+    const regionDefinition = makeRegion();
     const options = { region: regionDefinition, source: 'layout' };
     const calls = [];
     const application = makeApplication({
@@ -89,7 +89,7 @@ describe('Application start Region binding', () => {
     expect(joined).toBe(started);
     await expect(application.start({ region: second })).rejects.toMatchObject({ code: 'MN0041' });
     ready.resolve();
-    await started;
+    await expect(started).resolves.toBe(true);
   });
 
   it('changes a restart host only after the previous host has stopped', async() => {
@@ -150,8 +150,8 @@ describe('Application start Region binding', () => {
     expect(borrowed.isDestroyed()).toBe(false);
 
     const owned = makeRegion();
-    const ownedApplication = makeApplication();
-    await ownedApplication.start({ region: { el: owned.el } });
+    const ownedApplication = makeApplication({ region: { el: owned.el } });
+    await ownedApplication.start();
     const constructed = ownedApplication.getRegion();
     const constructedDestroy = vi.spyOn(constructed, 'destroy');
     await ownedApplication.destroy();
@@ -203,10 +203,10 @@ describe('Application start Region binding', () => {
     expect(other.getView()).toBe(replacement);
   });
 
-  it('disposes an owned host when replacing it with a borrowed host, then owns the next definition', async() => {
+  it('disposes a constructor-owned host when replacing it with a borrowed host', async() => {
     const borrowed = makeRegion();
-    const application = makeApplication();
-    await application.start({ region: { el: document.createElement('div') } });
+    const application = makeApplication({ region: { el: document.createElement('div') } });
+    await application.start();
     const owned = application.getRegion();
     const ownedDestroy = vi.spyOn(owned, 'destroy');
     const borrowedDestroy = vi.spyOn(borrowed, 'destroy');
@@ -217,13 +217,13 @@ describe('Application start Region binding', () => {
     expect(borrowedDestroy).not.toHaveBeenCalled();
 
     await application.stop();
-    await application.start({ region: { el: document.createElement('div') } });
+    await application.start({ region: makeRegion() });
     expect(borrowedDestroy).not.toHaveBeenCalled();
     await application.destroy();
   });
 
-  it('reuses the same definition for running and in-flight starts', async() => {
-    const definition = { el: document.createElement('div') };
+  it('reuses the same instance for running and in-flight starts', async() => {
+    const definition = makeRegion();
     const application = makeApplication({ prepareStart: () => Promise.resolve() });
     await application.start({ region: definition });
     const host = application.getRegion();
@@ -242,7 +242,7 @@ describe('Application start Region binding', () => {
     expect(application.getRegion()).toBe(host);
   });
 
-  it('rejects a different Region during restart without changing the pending host', async() => {
+  it('supersedes a pending restart when a newer restart requests a different host', async() => {
     const first = makeRegion();
     const second = makeRegion();
     const third = makeRegion();
@@ -251,11 +251,92 @@ describe('Application start Region binding', () => {
     await application.start();
 
     const restarting = application.restart({ region: second });
-    await expect(application.restart({ region: third })).rejects.toMatchObject({ code: 'MN0041' });
+    const replacement = application.restart({ region: third });
+    expect(application.restart({ region: third })).toBe(replacement);
+    await expect(restarting).resolves.toBe(false);
     expect(application.getRegion()).toBe(first);
     stopping.resolve();
-    await restarting;
+    await expect(replacement).resolves.toBe(true);
+    expect(application.getRegion()).toBe(third);
+  });
+
+  it('allows restart to replace the host of an unfinished start after deactivation', async() => {
+    const first = makeRegion();
+    const second = makeRegion();
+    const pending = Promise.withResolvers();
+    let firstSignal;
+    const application = makeApplication({
+      prepareStart({ region }, { signal }) {
+        if (region !== first) { return; }
+        firstSignal = signal;
+        return pending.promise;
+      }
+    });
+    const started = application.start({ region: first });
+    const restarted = application.restart({ region: second });
+
+    await expect(started).resolves.toBe(false);
+    await expect(restarted).resolves.toBe(true);
+    expect(firstSignal.aborted).toBe(true);
     expect(application.getRegion()).toBe(second);
+    pending.resolve();
+  });
+
+  it('rejects a conflicting start from the previous root teardown', async() => {
+    const requested = makeRegion();
+    const conflicting = makeRegion();
+    const application = makeApplication({ region: { el: document.createElement('div') } });
+    const oldHost = application.getRegion();
+    const view = new View({ template: false });
+    let attempted;
+    view.on('before:destroy', () => {
+      attempted = application.start({ region: conflicting });
+    });
+    application.showView(view);
+
+    const started = application.start({ region: requested });
+    await expect(attempted).rejects.toMatchObject({ code: 'MN0041' });
+    await expect(started).resolves.toBe(true);
+    expect(oldHost.isDestroyed()).toBe(true);
+    expect(application.getRegion()).toBe(requested);
+    expect(conflicting.isDestroyed()).toBe(false);
+  });
+
+  for (const source of ['view', 'region']) {
+    it(`preserves a newer restart requested during old ${source} teardown`, async() => {
+      const original = { el: document.createElement('div') };
+      const requested = makeRegion();
+      const latest = makeRegion();
+      const application = makeApplication({ region: original });
+      const oldHost = application.getRegion();
+      const view = new View({ template: false });
+      let restarted;
+      const teardownSource = source === 'view' ? view : oldHost;
+      teardownSource.once('before:destroy', () => { restarted = application.restart({ region: latest }); });
+      application.showView(view);
+
+      await expect(application.start({ region: requested })).resolves.toBe(false);
+      await expect(restarted).resolves.toBe(true);
+      expect(application.getRegion().el).toBe(latest.el);
+      expect(application.getRegion().isDestroyed()).toBe(false);
+      expect(oldHost.isDestroyed()).toBe(true);
+      expect(requested.isDestroyed()).toBe(false);
+    });
+  }
+
+  it('does not revive an Application destroyed during old root teardown', async() => {
+    const application = makeApplication({ region: { el: document.createElement('div') } });
+    const next = makeRegion();
+    const view = new View({ template: false });
+    let destroyed;
+    view.once('before:destroy', () => { destroyed = application.destroy(); });
+    application.showView(view);
+
+    await expect(application.start({ region: next })).resolves.toBe(false);
+    await expect(destroyed).resolves.toBe(true);
+    expect(application.isDestroyed()).toBe(true);
+    expect(application.getRegion()).toBeUndefined();
+    expect(next.isDestroyed()).toBe(false);
   });
 
   it('does not bind a new host when the stop phase fails', async() => {
@@ -291,23 +372,40 @@ describe('Application start Region binding', () => {
     await expect(restarted).resolves.toBe(true);
   });
 
-  it('accepts the resolved host instance during startup from a Region definition', async() => {
+  it('accepts the constructor-owned host instance during startup', async() => {
     const ready = Promise.withResolvers();
-    const application = makeApplication({ prepareStart: () => ready.promise });
-    const started = application.start({ region: { el: document.createElement('div') } });
+    const application = makeApplication({ region: { el: document.createElement('div') }, prepareStart: () => ready.promise });
+    const started = application.start();
 
     expect(application.start({ region: application.getRegion() })).toBe(started);
     ready.resolve();
     await expect(started).resolves.toBe(true);
   });
 
+  it.each(['#mount', { el: '#mount' }, Region, null])('rejects a non-instance host without changing the presentation (%s)', async(region) => {
+    const application = makeApplication({ region: { el: document.createElement('div') } });
+    const host = application.getRegion();
+    const view = new View({ template: false });
+    application.showView(view);
+
+    await expect(application.start({ region })).rejects.toMatchObject({ code: 'MN0042' });
+    expect(application.getRegion()).toBe(host);
+    expect(host.currentView).toBe(view);
+    expect(view.isDestroyed()).toBe(false);
+  });
+
   it('rejects a Region from another Marionette runtime', async() => {
     const otherRuntime = createMarionette();
     const foreign = new otherRuntime.Region({ el: document.createElement('div') });
-    const application = makeApplication();
+    const application = makeApplication({ region: { el: document.createElement('div') } });
+    const current = application.getRegion();
+    const displayed = new View({ template: false });
+    application.showView(displayed);
 
     await expect(application.start({ region: foreign })).rejects.toMatchObject({ code: 'MN0030' });
-    expect(application.getRegion()).toBeUndefined();
+    expect(application.getRegion()).toBe(current);
+    expect(current.currentView).toBe(displayed);
+    expect(displayed.isDestroyed()).toBe(false);
     foreign.destroy();
   });
 });

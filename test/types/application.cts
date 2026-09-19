@@ -27,7 +27,7 @@ new Child({label: false});
 // @ts-expect-error The inferred state does not have an unrelated property.
 child.getState().missing;
 
-const root = new Application({region: '#application', channelName: 'application'});
+const root = new Application({region: borrowedRegion, channelName: 'application'});
 const sameChild: typeof child = root.addChildApp('editor', child);
 const children: Record<string, ApplicationInstance<object, unknown>> = root.getChildApps();
 const missing: ApplicationInstance<object, unknown> | undefined = root.getChildApp('missing');
@@ -58,7 +58,7 @@ const requiredView: SupportedView = root.getView();
 const asynchronousView: Promise<typeof view> = root.showView(view);
 
 const borrowedRegion = new Region({el: '#borrowed'});
-const borrower = new Application({region: borrowedRegion});
+const borrower = new Application({region: '#application'});
 const customRegion = Region.extend({replaceElement: true});
 new Application({regionClass: customRegion, region: {el: '#custom'}});
 const borrowedState = {count: 1};
@@ -68,8 +68,20 @@ const count: number = stateOwner.getState().count;
 stateOwner.getState().ready;
 
 async function lifecycle() {
-  const dynamicRegionStart: ApplicationStartOptions = { region: '#application', source: 'dynamic-region' };
+  const dynamicRegionStart: ApplicationStartOptions = { region: borrowedRegion, source: 'dynamic-region' };
   const dynamicRegionStarted: Promise<boolean> = root.start(dynamicRegionStart);
+  root.start({region: borrowedRegion, source: 'direct'});
+  root.restart({region: borrowedRegion, source: 'direct'});
+  // @ts-expect-error A startup Region must be a Region instance.
+  root.start({region: 42});
+  // @ts-expect-error Restart validates its next Region too.
+  root.restart({region: false});
+  // @ts-expect-error Start borrows an existing Region, never a selector.
+  root.start({region: '#application'});
+  // @ts-expect-error Restart cannot construct a Region from a definition.
+  root.restart({region: {el: '#application'}});
+  // @ts-expect-error A Region class is not an existing instance.
+  root.start({region: Region});
   const started: boolean = await root.start({source: 'example'});
   const stopped: boolean = await root.stop();
   const restarted: boolean = await root.restart();
@@ -92,7 +104,7 @@ class NativeApplication extends Application {
   async prepareStart(options: unknown, {signal}: LifecycleContext) {
     if (!signal.aborted) {this.isRunning();}
   }
-  async start(options?: unknown) { return super.start(options); }
+  async start(options?: ApplicationStartOptions) { return super.start(options); }
 }
 const native: Promise<boolean> = new NativeApplication().start();
 
