@@ -29,7 +29,7 @@ The `Application` `cidPrefix` is `mna`.
 
 When instantiating an `Application` there are several properties, if passed,
 that will be attached directly to the instance:
-`childApps`, `channelName`, `radioEvents`, `radioRequests`, `region`, `regionClass`,
+`channelName`, `radioEvents`, `radioRequests`, `region`, `regionClass`,
 `stateEvents`
 
 ```javascript
@@ -291,8 +291,11 @@ methods.
 
 The declaration is inherited even when a subclass overrides `initialize()`.
 A subclass declaration or constructor `childApps` option replaces the entire
-inherited map; maps are not merged. Use `{}` to omit inherited children.
-`preinitialize()` may configure the declaration. With native classes, use a
+inherited map; maps are not merged. A non-undefined `childApps` option takes
+precedence through `getOption()` without assigning to the declaration property,
+including a getter-only property. Use `{}` to omit inherited children.
+`preinitialize()` may configure the declaration property or `this.options.childApps`;
+a non-undefined option takes precedence over the property. With native classes, use a
 prototype `childApps()` method, getter, or `preinitialize()`, not an instance field assigned after
 `super()` has completed construction. TypeScript native subclasses should use a
 getter: the public property type supports both map and function values, so

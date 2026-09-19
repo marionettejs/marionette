@@ -2348,7 +2348,8 @@
       "destruction": "Stop destroys a prepared View and empties the host. Destroy also tears down owned children and a constructed root Region; it preserves a borrowed Region. Direct destruction releases preparation; displayed Views follow Region cleanup and detachment.",
       "diagnostics": [
         "MN0003",
-        "MN0007"
+        "MN0007",
+        "MN0031"
       ],
       "docs": [
         {
@@ -2400,6 +2401,14 @@
         {
           "file": "test/unit/application-child-declarations.spec.js",
           "title": "retains declared children through explicit activation and restart, then destroys them"
+        },
+        {
+          "file": "test/unit/application-child-declarations.spec.js",
+          "title": "replaces getter declarations through options without reading or assigning the getter"
+        },
+        {
+          "file": "test/unit/application-child-declarations.spec.js",
+          "title": "resolves a function declaration once with the parent as context before initialize"
         }
       ],
       "members": [

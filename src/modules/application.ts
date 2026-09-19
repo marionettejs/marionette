@@ -1,7 +1,7 @@
 // Application
 // -----------
 
-import { getValue, setProperty, MarionetteError, uniqueId } from '@mnjs/utils';
+import { setProperty, MarionetteError, uniqueId } from '@mnjs/utils';
 import extend from '../utils/extend.ts';
 import CommonMixin from '../mixins/common.ts';
 import DestroyMixin from '../mixins/destroy.ts';
@@ -157,7 +157,6 @@ type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & S
 };
 
 const ClassOptions = [
-  'childApps',
   'channelName',
   'radioEvents',
   'radioRequests',
@@ -183,7 +182,8 @@ const Application = function(this: ApplicationInternals, options?: ApplicationOp
   this._initRegion();
   this._initRadio();
   this._initState(options);
-  const childApps = getValue(this, 'childApps') as ChildApplications | undefined;
+  const declaration = this.getOption('childApps') as ApplicationOptions['childApps'];
+  const childApps = typeof declaration === 'function' ? declaration.call(this) : declaration;
   if (childApps) {
     for (const [name, ChildApp] of Object.entries(childApps)) {
       this.addChildApp(name, new ChildApp());

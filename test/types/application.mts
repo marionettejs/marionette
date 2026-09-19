@@ -189,3 +189,6 @@ new NativeDeclaredParent();
 new FunctionDeclaredParent().getChildApp('editor') satisfies ApplicationInstance<object, unknown> | undefined;
 // @ts-expect-error Declaration functions return constructors, not instances.
 new Application({ childApps: () => ({ editor: new Application() }) });
+
+new NativeDeclaredParent({ childApps: { replacement: StaticChild } });
+new NativeDeclaredParent({ childApps: () => ({ replacement: StaticChild }) });

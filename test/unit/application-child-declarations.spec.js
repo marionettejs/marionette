@@ -106,6 +106,28 @@ describe('Application child declarations', () => {
     expect(configured.hasChildApp('configured')).toBe(true);
   });
 
+  it('replaces getter declarations through options without reading or assigning the getter', () => {
+    const inherited = vi.fn(() => ({ inherited: Application }));
+    class Parent extends Application {
+      get childApps() { return inherited(); }
+    }
+    const replaced = own(new Parent({ childApps: { replacement: Application } }));
+    expect(Object.keys(replaced.getChildApps())).toEqual(['replacement']);
+    const declaration = vi.fn(function() {
+      expect(this.options.label).toBe('configured');
+      return { configured: Application };
+    });
+    const configured = own(new Parent({ label: 'configured', childApps: declaration }));
+    expect(Object.keys(configured.getChildApps())).toEqual(['configured']);
+    expect(declaration).toHaveBeenCalledTimes(1);
+    const empty = own(new Parent({ childApps: {} }));
+    expect(empty.getChildApps()).toEqual({});
+    expect(inherited).not.toHaveBeenCalled();
+    const fallback = own(new Parent({ childApps: undefined }));
+    expect(fallback.hasChildApp('inherited')).toBe(true);
+    expect(inherited).toHaveBeenCalledTimes(1);
+  });
+
   it('uses the existing removal lifecycle without reconstructing a declared child', async() => {
     const app = own(new Application({ childApps: { editor: Application } }));
     const child = app.getChildApp('editor');
