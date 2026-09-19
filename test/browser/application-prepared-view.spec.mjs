@@ -98,14 +98,15 @@ test('preparing a replacement preserves the displayed screen until Region adopti
       focusPreserved: document.activeElement === input,
       value: input.value,
       preparingAppReadsPending: first.getView() === prepared,
-      otherAppReadsDisplayed: other.getView() === displayed,
+      otherAppHasNoSelection: other.getView() === undefined,
       hostReadsDisplayed: region.currentView === displayed
     };
     first.showView();
     const after = {
       oldDestroyed: displayed.isDestroyed(),
       replacementConnected: prepared.el.isConnected,
-      bothReadHost: first.getView() === region.currentView && other.getView() === region.currentView
+      firstOwnsReplacement: first.getView() === region.currentView,
+      otherDoesNotAdoptReplacement: other.getView() === undefined
     };
     region.detachView();
     const detached = {
@@ -121,9 +122,61 @@ test('preparing a replacement preserves the displayed screen until Region adopti
   });
   assert.deepEqual(result.before, {
     preparedDetached: true, oldConnected: true, focusPreserved: true, value: 'Unsaved edit',
-    preparingAppReadsPending: true, otherAppReadsDisplayed: true, hostReadsDisplayed: true
+    preparingAppReadsPending: true, otherAppHasNoSelection: true, hostReadsDisplayed: true
   });
-  assert.deepEqual(result.after, { oldDestroyed: true, replacementConnected: true, bothReadHost: true });
+  assert.deepEqual(result.after, {
+    oldDestroyed: true, replacementConnected: true,
+    firstOwnsReplacement: true, otherDoesNotAdoptReplacement: true
+  });
   assert.deepEqual(result.detached, { bothEmpty: true, alive: true });
   assert.equal(result.released, true);
+});
+
+test('Applications sharing a borrowed Region stop only their own displayed root', async({ page }) => {
+  const result = await page.evaluate(async() => {
+    const { Application, Region, View } = await import('marionette');
+    const region = new Region({ el: '#content' });
+    const first = new Application({ region });
+    const second = new Application({ region });
+    const firstRoot = new View({ template: () => '<p>First</p>' });
+    const secondRoot = new View({ template: () => '<input>' });
+    await first.start();
+    await second.start();
+    first.showView(firstRoot);
+    second.showView(secondRoot);
+    const input = secondRoot.el.querySelector('input');
+    input.focus();
+    input.value = 'Edited draft';
+    const before = {
+      firstNoLongerOwnsDisplayed: first.getView() === undefined,
+      secondOwnsDisplayed: second.getView() === secondRoot,
+      current: region.currentView === secondRoot
+    };
+    await first.stop();
+    const afterFirstStop = {
+      firstView: first.getView() === undefined,
+      secondAlive: !secondRoot.isDestroyed(),
+      current: region.currentView === secondRoot,
+      focusPreserved: document.activeElement === input,
+      valuePreserved: input.value === 'Edited draft'
+    };
+    await second.stop();
+    const afterSecondStop = {
+      secondView: second.getView() === undefined,
+      destroyed: secondRoot.isDestroyed(),
+      current: region.currentView === undefined
+    };
+    await first.destroy();
+    await second.destroy();
+    region.destroy();
+    return { before, afterFirstStop, afterSecondStop };
+  });
+  assert.deepEqual(result, {
+    before: { firstNoLongerOwnsDisplayed: true, secondOwnsDisplayed: true, current: true },
+    afterFirstStop: {
+      firstView: true, secondAlive: true, current: true,
+      focusPreserved: true, valuePreserved: true
+    },
+    afterSecondStop: { secondView: true, destroyed: true, current: true }
+  });
 });
