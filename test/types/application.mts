@@ -192,3 +192,8 @@ new Application({ childApps: () => ({ editor: new Application() }) });
 
 new NativeDeclaredParent({ childApps: { replacement: StaticChild } });
 new NativeDeclaredParent({ childApps: () => ({ replacement: StaticChild }) });
+
+class NativeMethodDeclaredParent extends Application {
+  // @ts-expect-error Native methods cannot override the declared childApps property; use a getter.
+  childApps() { return { editor: StaticChild }; }
+}

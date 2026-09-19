@@ -298,8 +298,9 @@ including a getter-only property. Use `{}` to omit inherited children.
 a non-undefined option takes precedence over the property. With native classes, use a
 prototype `childApps()` method, getter, or `preinitialize()`, not an instance field assigned after
 `super()` has completed construction. TypeScript native subclasses should use a
-getter: the public property type supports both map and function values, so
-TypeScript rejects overriding it with a method declaration.
+getter: the public interface declares `childApps` as a property, and TypeScript
+rejects overriding a property with a method declaration. This is a declaration-form
+restriction, not a consequence of the map-or-function union.
 
 Declaration only constructs and registers. Start chosen children explicitly with
 their startup options; parent start/restart does not activate or reconstruct them.
@@ -308,7 +309,12 @@ Changing the map after construction does not change registered children.
 Use explicit `addChildApp()` for dynamic/lazy children or constructors requiring
 arguments. Per-child factories, shared instances, and option descriptors are not
 declaration forms. Constructor failures follow the synchronous failure boundary
-above; there is no partial-construction rollback.
+above; there is no partial-construction rollback. Declarations must describe a
+finite construction tree. Self-recursive or mutually recursive declarations are
+not detected before construction and can exhaust the call stack. The `MN0031`
+cycle check applies to ownership relationships between existing instances; it
+does not validate a graph of constructors. Invalid declaration shapes have no
+guaranteed diagnostic.
 
 ### Registering and controlling children
 
