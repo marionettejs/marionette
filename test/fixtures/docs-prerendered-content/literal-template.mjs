@@ -10,7 +10,7 @@ const marker = '<!-- executable-example: view-literal-false-template -->';
 assert.equal(markdown.split(marker).length - 1, 1);
 const example = markdown.slice(markdown.indexOf(marker) + marker.length)
   .match(/^\s*```javascript\n([\s\S]*?)\n```/);
-assert.ok(example);
+assert.ok(example, 'the view-literal-false-template marker must have a JavaScript fence');
 await mkdir(resolve(fixtureDir, 'dist'), { recursive: true });
 const examplePath = resolve(fixtureDir, 'dist/view-literal-false-template.mjs');
 await writeFile(examplePath, example[1]);
@@ -24,16 +24,21 @@ try {
   const host = document.createElement('main');
   document.body.append(host);
   const region = new Region({ el: host });
-  const view = new DraftView();
+  const view = new DraftView({ ui: { input: 'input' } });
   const input = view.el.querySelector('input');
   input.value = 'unsaved';
   let renders = 0;
+  view.on('before:render', () => { renders += 1; });
   view.on('render', () => { renders += 1; });
   region.show(view);
   view.render();
   assert.equal(view.el.querySelector('input'), input);
   assert.equal(input.value, 'unsaved');
   assert.equal(renders, 0);
+  assert.equal(view.isRendered(), true);
+  assert.throws(() => view.getUI('input'));
+  view.bindUIElements();
+  assert.equal(view.getUI('input')[0], input);
   region.destroy();
   assert.equal(view.isDestroyed(), true);
 
@@ -43,6 +48,7 @@ try {
   wrong.el.append(discarded);
   wrong.render();
   assert.equal(wrong.el.contains(discarded), false);
+  assert.equal(wrong.el.textContent, 'false');
   wrong.destroy();
   host.remove();
 } finally {

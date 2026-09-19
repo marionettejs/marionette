@@ -9,7 +9,7 @@ const markdown = await readFile(resolve(fixtureDir, '../../../docs/task-recipes.
 const marker = '<!-- executable-example: retryable-delete-screen -->';
 assert.equal(markdown.split(marker).length - 1, 1);
 const example = markdown.slice(markdown.indexOf(marker) + marker.length).match(/^\s*```javascript\n([\s\S]*?)\n```/);
-assert.ok(example);
+assert.ok(example, 'the retryable-delete-screen marker must have a JavaScript fence');
 await mkdir(resolve(fixtureDir, 'dist'), {
   recursive: true
 });
@@ -33,9 +33,9 @@ after(() => {
 });
 for (const schedule of ['immediate', 'deferred']) {
   const subject = {
-    createDeleteScreen(el, load, remove, navigate) {
+    createDeleteScreen(el, load, remove, navigate, reportError) {
       const invoke = fn => schedule === 'immediate' ? fn : id => Promise.resolve().then(() => fn(id));
-      return createDeleteScreen(el, invoke(load), invoke(remove), navigate);
+      return createDeleteScreen(el, invoke(load), invoke(remove), navigate, reportError);
     }
   };
   const deferred = () => {
@@ -61,7 +61,7 @@ for (const schedule of ['immediate', 'deferred']) {
     const nav = [];
     const screen = subject.createDeleteScreen(el, () => loading.promise, () => ++removes === 1 ? firstRemoval.promise : retryRemoval.promise, id => nav.push(id));
     const open = screen.open('a');
-    const originalView = screen.region.currentView;
+    const originalView = el.firstElementChild;
     const button = el.querySelector('button');
     assert.equal(button.disabled, true);
     assert.equal(await screen.confirm(), false);
@@ -77,7 +77,7 @@ for (const schedule of ['immediate', 'deferred']) {
     assert.equal(removes, 1);
     firstRemoval.reject(new Error('<b>retry</b>'));
     assert.equal(await confirmation, false);
-    assert.equal(screen.region.currentView, originalView);
+    assert.equal(el.firstElementChild, originalView);
     assert.equal(el.querySelector('button'), button);
     assert.equal(button.disabled, false);
     assert.equal(el.querySelector('[role="alert"]').textContent, '<b>retry</b>');
@@ -163,7 +163,28 @@ for (const schedule of ['immediate', 'deferred']) {
     assert.equal(el.querySelector('button').disabled, true);
     assert.equal(await screen.confirm(), false);
     assert.equal(await screen.open('b'), true);
+    assert.equal(el.querySelector('[role="alert"]').textContent, '');
     screen.destroy();
     el.remove();
   });
 }
+
+test('unexpected navigation failures reject awaited calls and are reported on clicks', async() => {
+  const el = host();
+  const failure = new Error('navigation failed');
+  const reported = [];
+  let removes = 0;
+  const screen = createDeleteScreen(el, async() => ({ label: 'A' }), async() => { removes++; }, () => { throw failure; }, error => reported.push(error));
+  assert.deepEqual(Object.keys(screen).sort(), ['close', 'confirm', 'destroy', 'open']);
+  await screen.open('a');
+  await assert.rejects(screen.confirm(), error => error === failure);
+  assert.deepEqual(reported, []);
+  await screen.open('b');
+  el.querySelector('button').click();
+  await new Promise(done => setImmediate(done));
+  assert.deepEqual(reported, [failure]);
+  assert.equal(removes, 2);
+  assert.equal(await screen.confirm(), false);
+  screen.destroy();
+  el.remove();
+});

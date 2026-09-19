@@ -125,7 +125,8 @@ state. A completed load is not necessarily a successful load: only success sets
 `ready`. A failed deletion leaves the same View and button mounted for retry.
 
 Save this factory as `delete-screen.js`. Supply `load(id)` resolving `{ label }`,
-`remove(id)` resolving after deletion, and a synchronous `navigate(id)` callback.
+`remove(id)` resolving after deletion, a synchronous `navigate(id)` callback, and a
+non-throwing `reportError(error)` callback for unexpected failures from button clicks.
 The two request functions may reject with an `Error`; other callbacks and DOM
 operations follow the [synchronous failure contract](./view.lifecycle.md#synchronous-failures).
 
@@ -133,7 +134,7 @@ operations follow the [synchronous failure contract](./view.lifecycle.md#synchro
 ```javascript
 import { Region, View } from 'marionette';
 
-export function createDeleteScreen(el, load, remove, navigate) {
+export function createDeleteScreen(el, load, remove, navigate, reportError) {
   const region = new Region({ el });
   let current;
   let destroyed = false;
@@ -142,7 +143,7 @@ export function createDeleteScreen(el, load, remove, navigate) {
   const Screen = View.extend({
     template: () => '<span class="label"></span><button type="button" disabled>Delete</button><p role="alert"></p>',
     events: {
-      'click button': () => { void confirm(); }
+      'click button': () => { void confirm().catch(reportError); }
     }
   });
 
@@ -207,26 +208,37 @@ export function createDeleteScreen(el, load, remove, navigate) {
     region.destroy();
   }
 
-  return { region, open, confirm, close, destroy };
+  return { open, confirm, close, destroy };
 }
 ```
 
-For example, with a connected `host` element and in-memory data:
+For example, with in-memory data:
 
 ```javascript
 import { createDeleteScreen } from './delete-screen.js';
 
+const host = document.createElement('main');
+document.body.append(host);
 const records = new Map([['a', { label: 'Draft' }]]);
 const screen = createDeleteScreen(
   host,
-  async id => records.get(id),
+  async id => {
+    if (!records.has(id)) { throw new Error('Record not found'); }
+    return records.get(id);
+  },
   async id => { records.delete(id); },
-  id => { console.log('Deleted', id); }
+  id => { console.log('Deleted', id); },
+  error => { console.error(error); }
 );
 await screen.open('a');
 // Click Delete, or await screen.confirm().
 // Call screen.destroy() when the owner leaves this workflow.
 ```
+
+The factory owns its Region; change screens only through the returned methods.
+Awaited calls propagate unexpected callback or DOM failures as rejections. The
+button handler reports those failures through `reportError`; it does not treat
+them as retryable deletion failures.
 
 `open` resolves true only for the current successful load. `confirm` resolves
 true only for the current successful deletion and navigates once. Premature or
