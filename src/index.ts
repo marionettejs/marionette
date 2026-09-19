@@ -50,7 +50,7 @@ export type { ViewInstance, ViewConstructor, ViewConfiguration } from './modules
 export type { BehaviorInstance, BehaviorConstructor, BehaviorOptions, BehaviorHost } from './modules/behavior.ts';
 export type { CollectionViewInstance, CollectionViewConstructor, CollectionViewConfiguration,
   CollectionChild, ChildRenderOptions } from './modules/collection-view.ts';
-export type { ApplicationInstance, ApplicationConstructor, ApplicationOptions, LifecycleContext } from './modules/application.ts';
+export type { ApplicationInstance, ApplicationConstructor, ApplicationOptions, ApplicationStartOptions, LifecycleContext } from './modules/application.ts';
 export type { RegionInstance, RegionConstructor, RegionOptions, ShowOptions, RegionOwner } from './modules/region.ts';
 export type { RegionClass, RegionDefinition } from './modules/common/build-region.ts';
 export type { SupportedView, ViewLifecycle } from './modules/common/view.ts';

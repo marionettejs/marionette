@@ -12,7 +12,7 @@ import buildRegion from './common/build-region.ts';
 import { setStateApi } from '../runtime/state-api.ts';
 import { defaultRuntimeId, runtimeId } from '../runtime-id.ts';
 
-import type { RegionInstance, ShowOptions } from './region.ts';
+import type { RegionInstance, RegionInternals, ShowOptions } from './region.ts';
 import type { RegionClass, RegionDefinition } from './common/build-region.ts';
 import type { SupportedView } from './common/view.ts';
 import type { StateApi } from '../runtime/state-api.ts';
@@ -33,6 +33,10 @@ export interface ApplicationOptions {
   regionClass?: RegionClass;
   stateEvents?: Bindings | (() => Bindings);
   state?: unknown;
+}
+export interface ApplicationStartOptions {
+  region?: RegionInstance;
+  [key: string]: unknown;
 }
 
 type Common = typeof CommonMixin;
@@ -56,9 +60,9 @@ export interface ApplicationInstance<Options extends object = object, State = ob
   getChannel(): Channel | undefined;
   isDestroyed(): boolean;
   isRunning(): boolean;
-  start(options?: unknown): Promise<boolean>;
+  start(options?: ApplicationStartOptions): Promise<boolean>;
   stop(options?: unknown): Promise<boolean>;
-  restart(options?: unknown): Promise<boolean>;
+  restart(options?: ApplicationStartOptions): Promise<boolean>;
   destroy(options?: unknown): Promise<boolean>;
   prepareStart?(options: unknown, context: LifecycleContext): StartResult | PromiseLike<StartResult>;
   prepareStop?(options: unknown, context: LifecycleContext): unknown;
@@ -133,6 +137,7 @@ interface Operation extends Deferred<boolean> {
   stopDeferred?: Deferred<boolean>;
   isCompleting?: boolean;
   isStopped?: boolean;
+  startRegion?: RegionInstance;
 }
 
 type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & StateHost & {
@@ -193,6 +198,14 @@ function throwApplicationOwnershipConflict(message: string) {
     code: 'MN0031',
     name: classErrorName,
     message
+  });
+}
+
+function applicationRegionConflict() {
+  return new MarionetteError({
+    code: 'MN0041',
+    name: classErrorName,
+    message: 'An Application cannot start with a different Region while it is running or starting.'
   });
 }
 
@@ -423,7 +436,8 @@ function runOperation(application: ApplicationInternals, operation: Operation, c
   })();
 }
 
-function beginOperation(application: ApplicationInternals, kind: OperationKind, state: LifecycleState, failureState: FailureState, callback: (operation: Operation) => unknown) {
+function beginOperation(application: ApplicationInternals, kind: OperationKind, state: LifecycleState, failureState: FailureState,
+  callback: (operation: Operation) => unknown, startRegion?: RegionInstance) {
   const superseded = supersedeOperation(application);
   const deferred = createDeferred<boolean>();
   // A canceled child traversal cannot be continued by a later operation.
@@ -434,7 +448,8 @@ function beginOperation(application: ApplicationInternals, kind: OperationKind, 
     kind,
     failureState,
     readiness: stopReadiness,
-    stopReadiness
+    stopReadiness,
+    startRegion
   };
 
   application._lifecycleOperation = operation;
@@ -450,6 +465,34 @@ function beginOperation(application: ApplicationInternals, kind: OperationKind, 
   return deferred.promise;
 }
 
+function isCompatibleStartRegion(application: ApplicationInternals, region: RegionInstance | undefined, operation?: Operation) {
+  return region === undefined || region === (operation?.startRegion ?? application._region);
+}
+
+function replaceStartRegion(application: ApplicationInternals, operation: Operation, region: RegionInstance) {
+  const current = application._region;
+  if (region === current) { return; }
+  if ((region as RegionInternals)[runtimeId] !== application[runtimeId]) {
+    throw new MarionetteError({
+      code: 'MN0030',
+      name: 'RegionError',
+      message: 'A Region instance must belong to the same Marionette runtime as its owner.'
+    });
+  }
+
+  const owned = application._ownedRegion;
+  const displayed = releaseDisplayedView(application);
+  if (displayed && current?.currentView === displayed) {
+    current.empty();
+  }
+  if (!isCurrentOperation(application, operation)) { return; }
+  owned?.destroy();
+  if (!isCurrentOperation(application, operation)) { return; }
+
+  application._region = region;
+  delete application._ownedRegion;
+}
+
 async function startApplication(application: ApplicationInternals, operation: Operation, options: unknown) {
   if (operation.stopReadiness) {
     const readiness = operation.stopReadiness;
@@ -459,6 +502,11 @@ async function startApplication(application: ApplicationInternals, operation: Op
     completeReadiness(operation);
     if (childrenStopped) { operation.failureState = STOPPED; }
     delete operation.stopReadiness;
+  }
+
+  if (operation.startRegion !== undefined) {
+    replaceStartRegion(application, operation, operation.startRegion);
+    if (!isCurrentOperation(application, operation)) { return; }
   }
 
   // Restart has finished deactivation; explicit child starts are now allowed.
@@ -542,19 +590,23 @@ export default /* @__PURE__ */ ((methods: object) => {
   },
 
   // Begin local asynchronous readiness; callers explicitly start required children.
-  start(this: ApplicationInternals, options?: unknown) {
+  start(this: ApplicationInternals, options?: ApplicationStartOptions) {
     if (isTerminal(this) || hasStoppingOwner(this)) {
       return Promise.resolve(false);
     }
 
+    const region = options?.region;
     const operation = this._lifecycleOperation;
+    if (operation?.kind === 'start' || this._lifecycleState === STARTING || this._lifecycleState === RUNNING) {
+      if (!isCompatibleStartRegion(this, region, operation)) { return Promise.reject(applicationRegionConflict()); }
+    }
     if (operation?.kind === 'start') { return operation.promise; }
     if (this._lifecycleState === RUNNING && !operation) { return Promise.resolve(true); }
 
     const failureState = getFailureState(this, operation);
     return beginOperation(this, 'start', STARTING, failureState, nextOperation => {
       return startApplication(this, nextOperation, options);
-    });
+    }, region);
   },
 
   stop(this: ApplicationInternals, options?: unknown) {
@@ -594,13 +646,14 @@ export default /* @__PURE__ */ ((methods: object) => {
     });
   },
 
-  restart(this: ApplicationInternals, options?: unknown) {
+  restart(this: ApplicationInternals, options?: ApplicationStartOptions) {
     if (isTerminal(this) || hasStoppingOwner(this)) {
       return Promise.resolve(false);
     }
 
+    const region = options?.region;
     const operation = this._lifecycleOperation;
-    if (operation?.kind === 'restart') { return operation.promise; }
+    if (operation?.kind === 'restart' && isCompatibleStartRegion(this, region, operation)) { return operation.promise; }
     const wasStopped = this._lifecycleState === STOPPED;
     const shouldStop = !operation?.isStopped && (!wasStopped || !!this._childApps);
     const failureState = getFailureState(this, operation);
@@ -611,7 +664,7 @@ export default /* @__PURE__ */ ((methods: object) => {
       } else { emptyView(this, options); }
       if (!isCurrentOperation(this, nextOperation)) { return; }
       await startApplication(this, nextOperation, options);
-    });
+    }, region);
   },
 
   destroy(this: ApplicationInternals, options?: unknown) {

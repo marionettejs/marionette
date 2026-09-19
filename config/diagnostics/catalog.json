@@ -702,6 +702,22 @@
         "lint"
       ],
       "benchmarkCategory": "lifecycle"
+    },
+    {
+      "code": "MN0041",
+      "slug": "application-region-conflict",
+      "status": "active",
+      "category": "ownership",
+      "severity": "error",
+      "objects": [
+        "Application"
+      ],
+      "remediation": "Stop the Application before binding a different Region, or reuse the current Region while it is running or starting.",
+      "docsAnchor": "/errors/MN0041/",
+      "surfaces": [
+        "runtime"
+      ],
+      "benchmarkCategory": "ownership"
     }
   ]
 }

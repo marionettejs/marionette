@@ -1,4 +1,4 @@
-import { Application, type ApplicationInstance, type LifecycleContext } from 'marionette';
+import { Application, type ApplicationInstance, type ApplicationStartOptions, type LifecycleContext } from 'marionette';
 import { View } from 'marionette';
 import { Region, type RegionInstance } from 'marionette';
 import type {SupportedView} from 'marionette';
@@ -68,6 +68,20 @@ const count: number = stateOwner.getState().count;
 stateOwner.getState().ready;
 
 async function lifecycle() {
+  const dynamicRegionStart: ApplicationStartOptions = { region: borrowedRegion, source: 'dynamic-region' };
+  const dynamicRegionStarted: Promise<boolean> = root.start(dynamicRegionStart);
+  root.start({region: borrowedRegion, source: 'direct'});
+  root.restart({region: borrowedRegion, source: 'direct'});
+  // @ts-expect-error A startup Region must be a Region instance.
+  root.start({region: 42});
+  // @ts-expect-error Restart validates its next Region too.
+  root.restart({region: false});
+  // @ts-expect-error Start borrows an existing Region, never a selector.
+  root.start({region: '#application'});
+  // @ts-expect-error Restart cannot construct a Region from a definition.
+  root.restart({region: {el: '#application'}});
+  // @ts-expect-error A Region class is not an existing instance.
+  root.start({region: Region});
   const started: boolean = await root.start({source: 'example'});
   const stopped: boolean = await root.stop();
   const restarted: boolean = await root.restart();
@@ -90,7 +104,7 @@ class NativeApplication extends Application {
   async prepareStart(options: unknown, {signal}: LifecycleContext) {
     if (!signal.aborted) {this.isRunning();}
   }
-  async start(options?: unknown) { return super.start(options); }
+  async start(options?: ApplicationStartOptions) { return super.start(options); }
 }
 const native: Promise<boolean> = new NativeApplication().start();
 
