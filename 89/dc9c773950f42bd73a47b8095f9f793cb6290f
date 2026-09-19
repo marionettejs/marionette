@@ -1,0 +1,28 @@
+test/unit/application-start-region.spec.js
+  s_0b2518106a33a7::t_7429f3a4a1b152 2,170-252,254-264
+  s_0b2518106a33a7::t_ea3e1b6887fe85 253
+config/release-validation.json
+  s_0b2518106a33a7::t_9011eaaf3b48d1 207-210
+test/types/application.cts
+  s_0b2518106a33a7::t_d1b7c9a258366a 1,71-72
+test/browser/application-start-region.spec.mjs
+  s_0b2518106a33a7::t_9011eaaf3b48d1 1-95
+test/types/application.mts
+  s_0b2518106a33a7::t_d1b7c9a258366a 1,71-72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "89dc9c773950f42bd73a47b8095f9f793cb6290f",
+  "prompts": {},
+  "sessions": {
+    "s_0b2518106a33a7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0b78c-30de-7fc1-8943-96b2fce3589f",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
