@@ -36,15 +36,10 @@ consumer application has migrated successfully.
 
 An Application keeps its prepared root until `showView()` hands it to the host
 Region. After display, `getView()` returns the root selected by that Application;
-it does not adopt a View shown directly through a shared Region. Select an
-existing host View explicitly when taking responsibility for it. Only one
-Application may select a displayed root at a time; another selection fails with
-`MN0003` until the first Application releases it:
-
-```js
-const view = app.getRegion().currentView;
-app.setView(view);
-```
+it does not adopt or claim a View shown directly through a shared Region. Prepare
+an unowned View with `setView(view)` before displaying it through the Application.
+Reselecting the Application's own displayed root cancels a pending replacement;
+an arbitrary displayed root fails with `MN0003`.
 
 Replacing or detaching a selected root ends that Application's association.
 Stopping an Application destroys its prepared root and empties the host only

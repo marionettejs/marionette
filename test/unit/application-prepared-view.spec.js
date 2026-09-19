@@ -252,7 +252,7 @@ describe('Application prepared root View', () => {
     expect(other.getView()).toBe(root);
   });
 
-  it('makes displayed root selection exclusive across Applications sharing a Region', () => {
+  it('rejects a displayed root selected by another Application while preserving preparation', () => {
     const app = application();
     const other = new Application({ region: app.getRegion() });
     apps.push(other);
@@ -296,14 +296,16 @@ describe('Application prepared root View', () => {
     expect(region.isDestroyed()).toBe(false);
   });
 
-  it('can explicitly select a View already displayed in its host', () => {
+  it('rejects a directly displayed root while preserving a prepared replacement', () => {
     const app = application();
-    const root = view();
-    app.getRegion().show(root);
-    expect(app.getView()).toBeUndefined();
-    expect(app.setView(root)).toBe(root);
-    expect(app.getView()).toBe(root);
-    expect(root.isAttached()).toBe(true);
+    const displayed = view();
+    const pending = view();
+    app.setView(pending);
+    app.getRegion().show(displayed);
+    expect(() => app.setView(displayed)).toThrow(expect.objectContaining({ code: 'MN0003' }));
+    expect(() => app.showView(displayed)).toThrow(expect.objectContaining({ code: 'MN0003' }));
+    expect(app.getView()).toBe(pending);
+    expect(app.getRegion().currentView).toBe(displayed);
   });
 
   it('keeps a displayed root selected when an ancestor View detaches its host element', async() => {

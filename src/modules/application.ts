@@ -154,9 +154,6 @@ type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & S
   _initStateEvents(): unknown;
 };
 
-const displayedViewOwner = Symbol('ApplicationDisplayedViewOwner');
-type DisplayedViewInternals = SupportedView & { [displayedViewOwner]?: ApplicationInternals };
-
 const ClassOptions = [
   'channelName',
   'radioEvents',
@@ -320,40 +317,17 @@ function onPreparedViewDestroyed(this: ApplicationInternals) {
   releasePreparedView(this);
 }
 
-function assertDisplayedViewCanSelect(application: ApplicationInternals, view: SupportedView) {
-  const owner = (view as DisplayedViewInternals)[displayedViewOwner];
-  if (owner && owner !== application) {
-    throw new MarionetteError({
-      code: 'MN0003',
-      name: 'ApplicationError',
-      message: 'View is already selected by another Application',
-      url: 'marionette.application.html#setviewview'
-    });
-  }
-}
-
 function releaseDisplayedView(application: ApplicationInternals, view = application._displayedView,
   region = application.getRegion()) {
   if (!view || application._displayedView !== view) { return; }
 
   delete application._displayedView;
-  delete (view as DisplayedViewInternals)[displayedViewOwner];
   region?.off('empty', onDisplayedRegionEmpty, application);
   return view;
 }
 
 function onDisplayedRegionEmpty(this: ApplicationInternals, region: RegionInstance, view: SupportedView) {
   releaseDisplayedView(this, view, region);
-}
-
-function claimDisplayedView(application: ApplicationInternals, view: SupportedView) {
-  if (application._displayedView === view) { return; }
-
-  assertDisplayedViewCanSelect(application, view);
-  releaseDisplayedView(application);
-  application._displayedView = view;
-  (view as DisplayedViewInternals)[displayedViewOwner] = application;
-  application.getRegion()?.on('empty', onDisplayedRegionEmpty, application);
 }
 
 function emptyView(application: ApplicationInternals, options?: unknown) {
@@ -764,7 +738,7 @@ export default /* @__PURE__ */ ((methods: object) => {
         url: 'marionette.application.html#setviewview'
       });
     }
-    if (view._parent && view._parent !== this.getRegion()) {
+    if (view._parent && view !== this._displayedView) {
       throw new MarionetteError({
         code: 'MN0003',
         name: 'ApplicationError',
@@ -773,16 +747,12 @@ export default /* @__PURE__ */ ((methods: object) => {
       });
     }
 
-    assertDisplayedViewCanSelect(this, view);
-
     releasePreparedView(this)?.destroy();
-    if (view === this.getRegion()?.currentView) {
-      claimDisplayedView(this, view);
-    } else {
-      this._preparedView = view;
-      view._parent = this;
-      view.on('destroy', onPreparedViewDestroyed, this);
-    }
+    if (view === this._displayedView) { return view; }
+
+    this._preparedView = view;
+    view._parent = this;
+    view.on('destroy', onPreparedViewDestroyed, this);
     return view;
   },
 
@@ -801,7 +771,8 @@ export default /* @__PURE__ */ ((methods: object) => {
     region.show(root, ...args);
     if (region.currentView === root) {
       releasePreparedView(this);
-      claimDisplayedView(this, root);
+      this._displayedView = root;
+      region.on('empty', onDisplayedRegionEmpty, this);
     } else {
       root._parent = this;
     }
