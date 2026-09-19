@@ -359,15 +359,8 @@ function claimDisplayedView(application: ApplicationInternals, view: SupportedVi
 function emptyView(application: ApplicationInternals, options?: unknown) {
   releasePreparedView(application)?.destroy();
   const region = application.getRegion();
-  const displayed = application._displayedView;
-  if (displayed) {
-    // A host replacement or detachment ends this Application's association;
-    // never adopt or destroy the unrelated current View.
-    releaseDisplayedView(application, displayed);
-    if (region?.currentView === displayed) {
-      region.empty(options as ShowOptions | undefined);
-    }
-  } else if (application._ownedRegion && region?.currentView) {
+  const displayed = releaseDisplayedView(application);
+  if (region?.currentView && (application._ownedRegion || region.currentView === displayed)) {
     region.empty(options as ShowOptions | undefined);
   }
 }
