@@ -29,7 +29,7 @@ The `Application` `cidPrefix` is `mna`.
 
 When instantiating an `Application` there are several properties, if passed,
 that will be attached directly to the instance:
-`channelName`, `radioEvents`, `radioRequests`, `region`, `regionClass`,
+`childApps`, `channelName`, `radioEvents`, `radioRequests`, `region`, `regionClass`,
 `stateEvents`
 
 ```javascript
@@ -41,9 +41,9 @@ const myApplication = new Application();
 ### Initialization hooks
 
 `preinitialize(options)` runs after `options` and `cid` are assigned, before
-Marionette sets up the Region, Radio, and State. Use it to prepare instance
+Marionette sets up the Region, Radio, State, and declared children. Use it to prepare instance
 configuration those steps depend on. `initialize(options)` runs after that
-setup, before State event subscriptions are connected. Owned State is still
+setup, including child registration, before State event subscriptions are connected. Owned State is still
 created lazily when `getState()` is first called.
 
 ```javascript
@@ -257,6 +257,47 @@ An Application may own named child Applications. Ownership is one-way: an
 Application locates and controls its children, while children receive required
 collaborators explicitly. Internal parent references exist only to enforce
 lifecycle and unlink children safely; upward lookup is not public API.
+
+### Declaring static children
+
+Use a `childApps` map for children that can be constructed without arguments:
+
+```javascript
+const Workspace = Application.extend({
+  childApps: {
+    search: SearchApplication,
+    editor: EditorApplication
+  },
+  initialize() {
+    // Both children are already registered, but neither has been started.
+    this.getChildApp('search');
+  }
+});
+```
+
+Each parent instance constructs fresh children once, after Region, Radio, and
+State setup and before `initialize()`. Constructors receive no arguments;
+parent options are not forwarded. Entries register through `addChildApp()` in
+JavaScript own enumerable string-key order and follow its ownership rules.
+Children must belong to the parent's Marionette runtime.
+
+The declaration is inherited even when a subclass overrides `initialize()`.
+A subclass declaration or constructor `childApps` option replaces the entire
+inherited map; maps are not merged. Use `{}` to omit inherited children.
+`preinitialize()` may configure the declaration. With native classes, use a
+prototype getter or `preinitialize()`, not an instance field assigned after
+`super()` has completed construction.
+
+Declaration only constructs and registers. Start chosen children explicitly with
+their startup options; parent start/restart does not activate or reconstruct them.
+Removing a declared child destroys it and does not recreate it on restart.
+Changing the map after construction does not change registered children.
+Use explicit `addChildApp()` for dynamic/lazy children or constructors requiring
+arguments. Factories, shared instances, and per-child option descriptors are not
+declaration forms. Constructor failures follow the synchronous failure boundary
+above; there is no partial-construction rollback.
+
+### Registering and controlling children
 
 `addChildApp(name, application)` registers an existing live,
 parentless Application instance under a non-empty string name and returns that

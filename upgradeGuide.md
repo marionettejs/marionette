@@ -540,6 +540,11 @@ value. A synchronous method exception still prevents event notification.
 
 ## Explicit child Application activation
 
+`childApps: { search: SearchApplication }` constructs and registers static children
+once before `initialize()`. Constructors receive no arguments; subclass maps replace
+inherited maps. Use `addChildApp` for dynamic children or constructor arguments.
+Neither form activates children.
+
 `addChildApp` registers ownership only. A parent's `start` and the startup phase
 of `restart` no longer start registered children or forward startup options. Call
 selected children's `start(childOptions)` explicitly and await prerequisites in
