@@ -156,3 +156,15 @@ new Application({ childApps: { editor: NeedsOptions } });
 new Application({ childApps: { editor: () => new Application() } });
 // @ts-expect-error Views are not child Applications.
 new Application({ childApps: { editor: View } });
+
+new Application({ childApps: () => ({ editor: StaticChild }) });
+const FunctionDeclaredParent = Application.extend({
+  childApps() { return { editor: StaticChild }; }
+});
+class NativeDeclaredParent extends Application {
+  get childApps() { return { editor: StaticChild }; }
+}
+new NativeDeclaredParent();
+new FunctionDeclaredParent().getChildApp('editor') satisfies ApplicationInstance<object, unknown> | undefined;
+// @ts-expect-error Declaration functions return constructors, not instances.
+new Application({ childApps: () => ({ editor: new Application() }) });

@@ -12,7 +12,9 @@ afterEach(async() => {
 
 describe('Application child declarations', () => {
   it('constructs fresh named children before initialize without forwarding parent options', () => {
-    const initializeChild = vi.fn();
+    const initializeChild = vi.fn(function() {
+      expect(this.getName()).toBeUndefined();
+    });
     const Child = Application.extend({ initialize: initializeChild });
     const initializeParent = vi.fn(function() {
       expect(this.getChildApp('editor')).toBeInstanceOf(Child);
@@ -84,6 +86,24 @@ describe('Application child declarations', () => {
     expect(app.getChildApp('branch').getChildApp('leaf')).toBeInstanceOf(Leaf);
     await app.destroy();
     expect(destroyed).toEqual(['leaf', 'branch', 'parent']);
+  });
+
+  it('resolves a function declaration once with the parent as context before initialize', async() => {
+    const declaration = vi.fn(function() {
+      expect(this.options.label).toBe('workspace');
+      return { editor: Application };
+    });
+    class Parent extends Application {
+      childApps() { return declaration.call(this); }
+      initialize() { expect(this.hasChildApp('editor')).toBe(true); }
+    }
+    const app = own(new Parent({ label: 'workspace' }));
+    const child = app.getChildApp('editor');
+    await app.restart();
+    expect(app.getChildApp('editor')).toBe(child);
+    expect(declaration).toHaveBeenCalledTimes(1);
+    const configured = own(new Application({ childApps: () => ({ configured: Application }) }));
+    expect(configured.hasChildApp('configured')).toBe(true);
   });
 
   it('uses the existing removal lifecycle without reconstructing a declared child', async() => {

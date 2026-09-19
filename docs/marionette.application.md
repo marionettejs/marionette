@@ -260,7 +260,8 @@ lifecycle and unlink children safely; upward lookup is not public API.
 
 ### Declaring static children
 
-Use a `childApps` map for children that can be constructed without arguments:
+Use a `childApps` map, or a function returning that map, for children that can be
+constructed without arguments:
 
 ```javascript
 const Workspace = Application.extend({
@@ -279,21 +280,30 @@ Each parent instance constructs fresh children once, after Region, Radio, and
 State setup and before `initialize()`. Constructors receive no arguments;
 parent options are not forwarded. Entries register through `addChildApp()` in
 JavaScript own enumerable string-key order and follow its ownership rules.
-Children must belong to the parent's Marionette runtime.
+Children must belong to the parent's Marionette runtime. A function declaration
+runs once with the parent as `this`, at the same construction step.
+
+A child's own `initialize()` completes before registration, so `getName()` is
+still `undefined` there. Its registered name is available in start hooks and
+in the parent's `initialize()`. Lookup still returns the general
+`ApplicationInstance | undefined` type; declared keys do not infer child-specific
+methods.
 
 The declaration is inherited even when a subclass overrides `initialize()`.
 A subclass declaration or constructor `childApps` option replaces the entire
 inherited map; maps are not merged. Use `{}` to omit inherited children.
 `preinitialize()` may configure the declaration. With native classes, use a
-prototype getter or `preinitialize()`, not an instance field assigned after
-`super()` has completed construction.
+prototype `childApps()` method, getter, or `preinitialize()`, not an instance field assigned after
+`super()` has completed construction. TypeScript native subclasses should use a
+getter: the public property type supports both map and function values, so
+TypeScript rejects overriding it with a method declaration.
 
 Declaration only constructs and registers. Start chosen children explicitly with
 their startup options; parent start/restart does not activate or reconstruct them.
 Removing a declared child destroys it and does not recreate it on restart.
 Changing the map after construction does not change registered children.
 Use explicit `addChildApp()` for dynamic/lazy children or constructors requiring
-arguments. Factories, shared instances, and per-child option descriptors are not
+arguments. Per-child factories, shared instances, and option descriptors are not
 declaration forms. Constructor failures follow the synchronous failure boundary
 above; there is no partial-construction rollback.
 

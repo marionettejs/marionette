@@ -1,7 +1,7 @@
 // Application
 // -----------
 
-import { setProperty, MarionetteError, uniqueId } from '@mnjs/utils';
+import { getValue, setProperty, MarionetteError, uniqueId } from '@mnjs/utils';
 import extend from '../utils/extend.ts';
 import CommonMixin from '../mixins/common.ts';
 import DestroyMixin from '../mixins/destroy.ts';
@@ -25,8 +25,9 @@ import type { Constructed, Merge, ArgumentsFor, DefaultOptions, OptionsFor, Stat
 export interface LifecycleContext {
   signal: AbortSignal;
 }
+type ChildApplications = Record<string, new () => ApplicationInstance<object, unknown>>;
 export interface ApplicationOptions {
-  childApps?: Record<string, new () => ApplicationInstance<object, unknown>>;
+  childApps?: ChildApplications | (() => ChildApplications);
   channelName?: string | (() => string);
   radioEvents?: Bindings | (() => Bindings);
   radioRequests?: Bindings | (() => Bindings);
@@ -182,7 +183,7 @@ const Application = function(this: ApplicationInternals, options?: ApplicationOp
   this._initRegion();
   this._initRadio();
   this._initState(options);
-  const childApps = this.childApps;
+  const childApps = getValue(this, 'childApps') as ChildApplications | undefined;
   if (childApps) {
     for (const [name, ChildApp] of Object.entries(childApps)) {
       this.addChildApp(name, new ChildApp());
