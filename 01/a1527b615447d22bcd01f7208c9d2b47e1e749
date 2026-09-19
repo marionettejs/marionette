@@ -1,0 +1,43 @@
+config/api-contracts/inventory.json
+  s_0b2518106a33a7::t_1b456772eef791 4,617-629,7460-7466,8053,8064,8085,8094,8118
+config/api-contracts/semantics.json
+  s_0b2518106a33a7::t_d72203841223dd 1512,1515,1517-1519,1532-1535,1582-1589
+config/diagnostics/catalog.json
+  s_0b2518106a33a7::t_220f76ea82ad00 705-720
+config/release-validation.json
+  s_0b2518106a33a7::t_b346c164289364 211-214
+docs/compact-reference.md
+  s_0b2518106a33a7::t_fc5bd0936f95a7 22,115
+docs/marionette.application.md
+  s_0b2518106a33a7::t_bbaeaeadff0714 190-208
+src/index.ts
+  s_0b2518106a33a7::t_d02cee3f1b9c45 53
+src/modules/application.ts
+  s_0b2518106a33a7::t_016ba622c25337 37-40,140,204-211,452-453,464-465,481-517,529-532,619,621-623,630,675,677-680,691
+test/browser/application-start-region.spec.mjs
+  s_0b2518106a33a7::t_f9340c12f834b4 1-95
+test/types/application.cts
+  s_0b2518106a33a7::t_4413646d836b30 1,71-72
+test/types/application.mts
+  s_0b2518106a33a7::t_e106c3ed3ac0cd 1,71-72
+upgradeGuide.md
+  s_0b2518106a33a7::t_356c78db76d6eb 573-598
+test/unit/application-start-region.spec.js
+  s_0b2518106a33a7::t_715a06688a0a19 1-313
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "01a1527b615447d22bcd01f7208c9d2b47e1e749",
+  "prompts": {},
+  "sessions": {
+    "s_0b2518106a33a7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0b78c-30de-7fc1-8943-96b2fce3589f",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
