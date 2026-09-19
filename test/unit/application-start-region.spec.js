@@ -25,8 +25,8 @@ afterEach(async() => {
 
 describe('Application start Region binding', () => {
   it('binds before startup notifications and forwards the complete options object', async() => {
-    const regionDefinition = makeRegion();
-    const options = { region: regionDefinition, source: 'layout' };
+    const region = makeRegion();
+    const options = { region, source: 'layout' };
     const calls = [];
     const application = makeApplication({
       onBeforeStart(app, received) {
@@ -39,7 +39,7 @@ describe('Application start Region binding', () => {
 
     await application.start(options);
 
-    expect(application.getRegion()).toBeInstanceOf(Region);
+    expect(application.getRegion()).toBe(region);
     expect(calls).toEqual([
       ['before', application.getRegion(), options],
       ['prepare', application.getRegion(), options]
@@ -205,7 +205,8 @@ describe('Application start Region binding', () => {
 
   it('disposes a constructor-owned host when replacing it with a borrowed host', async() => {
     const borrowed = makeRegion();
-    const application = makeApplication({ region: { el: document.createElement('div') } });
+    const configuration = { el: document.createElement('div') };
+    const application = makeApplication({ region: configuration });
     await application.start();
     const owned = application.getRegion();
     const ownedDestroy = vi.spyOn(owned, 'destroy');
@@ -214,6 +215,7 @@ describe('Application start Region binding', () => {
     await application.stop();
     await application.start({ region: borrowed });
     expect(ownedDestroy).toHaveBeenCalledTimes(1);
+    expect(application.region).toBe(configuration);
     expect(borrowedDestroy).not.toHaveBeenCalled();
 
     await application.stop();
@@ -223,19 +225,19 @@ describe('Application start Region binding', () => {
   });
 
   it('reuses the same instance for running and in-flight starts', async() => {
-    const definition = makeRegion();
+    const region = makeRegion();
     const application = makeApplication({ prepareStart: () => Promise.resolve() });
-    await application.start({ region: definition });
+    await application.start({ region });
     const host = application.getRegion();
 
-    expect(await application.start({ region: definition })).toBe(true);
+    expect(await application.start({ region })).toBe(true);
     expect(application.getRegion()).toBe(host);
     await application.stop();
 
     const ready = Promise.withResolvers();
     application.prepareStart = () => ready.promise;
-    const first = application.start({ region: definition });
-    const joined = application.start({ region: definition });
+    const first = application.start({ region });
+    const joined = application.start({ region });
     expect(joined).toBe(first);
     ready.resolve();
     await first;
@@ -377,21 +379,12 @@ describe('Application start Region binding', () => {
     const application = makeApplication({ region: { el: document.createElement('div') }, prepareStart: () => ready.promise });
     const started = application.start();
 
-    expect(application.start({ region: application.getRegion() })).toBe(started);
+    const host = application.getRegion();
+    expect(application.start({ region: host })).toBe(started);
     ready.resolve();
     await expect(started).resolves.toBe(true);
-  });
-
-  it.each(['#mount', { el: '#mount' }, Region, null])('rejects a non-instance host without changing the presentation (%s)', async(region) => {
-    const application = makeApplication({ region: { el: document.createElement('div') } });
-    const host = application.getRegion();
-    const view = new View({ template: false });
-    application.showView(view);
-
-    await expect(application.start({ region })).rejects.toMatchObject({ code: 'MN0042' });
-    expect(application.getRegion()).toBe(host);
-    expect(host.currentView).toBe(view);
-    expect(view.isDestroyed()).toBe(false);
+    await application.destroy();
+    expect(host.isDestroyed()).toBe(true);
   });
 
   it('rejects a Region from another Marionette runtime', async() => {

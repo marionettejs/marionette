@@ -12,7 +12,7 @@ import buildRegion from './common/build-region.ts';
 import { setStateApi } from '../runtime/state-api.ts';
 import { defaultRuntimeId, runtimeId } from '../runtime-id.ts';
 
-import type { RegionInstance, ShowOptions } from './region.ts';
+import type { RegionInstance, RegionInternals, ShowOptions } from './region.ts';
 import type { RegionClass, RegionDefinition } from './common/build-region.ts';
 import type { SupportedView } from './common/view.ts';
 import type { StateApi } from '../runtime/state-api.ts';
@@ -498,38 +498,31 @@ function beginOperation(application: ApplicationInternals, kind: OperationKind, 
   return deferred.promise;
 }
 
-function isCompatibleStartRegion(application: ApplicationInternals, definition: RegionInstance | undefined, operation?: Operation) {
-  if (definition === undefined) { return true; }
-
-  const pending = operation?.startRegion;
-  if (definition === pending) { return true; }
-  return pending === undefined && definition === application._region;
+function isCompatibleStartRegion(application: ApplicationInternals, region: RegionInstance | undefined, operation?: Operation) {
+  return region === undefined || region === (operation?.startRegion ?? application._region);
 }
 
-function replaceStartRegion(application: ApplicationInternals, operation: Operation, definition: RegionInstance) {
+function replaceStartRegion(application: ApplicationInternals, operation: Operation, region: RegionInstance) {
   const current = application._region;
-  const owned = application._ownedRegion;
-  if (!(definition instanceof Region)) {
+  if (region === current) { return; }
+  if ((region as RegionInternals)[runtimeId] !== application[runtimeId]) {
     throw new MarionetteError({
-      code: 'MN0042',
-      name: classErrorName,
-      message: 'Application start requires an existing Region instance.'
+      code: 'MN0030',
+      name: 'RegionError',
+      message: 'A Region instance must belong to the same Marionette runtime as its owner.'
     });
   }
-  if (definition === current) { return; }
-  // Validate runtime identity before releasing the previous presentation.
-  buildRegion(definition, {
-    [runtimeId]: application[runtimeId],
-    regionClass: application.regionClass
-  });
+
+  const owned = application._ownedRegion;
   const displayed = releaseDisplayedView(application);
   if (displayed && current?.currentView === displayed) {
     current.empty();
   }
-  if (isCurrentOperation(application, operation)) { owned?.destroy(); }
   if (!isCurrentOperation(application, operation)) { return; }
-  application._region = definition;
-  application.region = definition;
+  owned?.destroy();
+  if (!isCurrentOperation(application, operation)) { return; }
+
+  application._region = region;
   delete application._ownedRegion;
 }
 
@@ -635,10 +628,10 @@ export default /* @__PURE__ */ ((methods: object) => {
       return Promise.resolve(false);
     }
 
-    const definition = options?.region;
+    const region = options?.region;
     const operation = this._lifecycleOperation;
     if (operation?.kind === 'start' || this._lifecycleState === STARTING || this._lifecycleState === RUNNING) {
-      if (!isCompatibleStartRegion(this, definition, operation)) { return Promise.reject(applicationRegionConflict()); }
+      if (!isCompatibleStartRegion(this, region, operation)) { return Promise.reject(applicationRegionConflict()); }
     }
     if (operation?.kind === 'start') { return operation.promise; }
     if (this._lifecycleState === RUNNING && !operation) { return Promise.resolve(true); }
@@ -646,7 +639,7 @@ export default /* @__PURE__ */ ((methods: object) => {
     const failureState = getFailureState(this, operation);
     return beginOperation(this, 'start', STARTING, failureState, nextOperation => {
       return startApplication(this, nextOperation, options);
-    }, definition);
+    }, region);
   },
 
   stop(this: ApplicationInternals, options?: unknown) {
@@ -691,9 +684,9 @@ export default /* @__PURE__ */ ((methods: object) => {
       return Promise.resolve(false);
     }
 
-    const definition = options?.region;
+    const region = options?.region;
     const operation = this._lifecycleOperation;
-    if (operation?.kind === 'restart' && isCompatibleStartRegion(this, definition, operation)) { return operation.promise; }
+    if (operation?.kind === 'restart' && isCompatibleStartRegion(this, region, operation)) { return operation.promise; }
     const wasStopped = this._lifecycleState === STOPPED;
     const shouldStop = !operation?.isStopped && (!wasStopped || !!this._childApps);
     const failureState = getFailureState(this, operation);
@@ -704,7 +697,7 @@ export default /* @__PURE__ */ ((methods: object) => {
       } else { emptyView(this, options); }
       if (!isCurrentOperation(this, nextOperation)) { return; }
       await startApplication(this, nextOperation, options);
-    }, definition);
+    }, region);
   },
 
   destroy(this: ApplicationInternals, options?: unknown) {

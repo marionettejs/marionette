@@ -718,22 +718,6 @@
         "runtime"
       ],
       "benchmarkCategory": "ownership"
-    },
-    {
-      "code": "MN0042",
-      "slug": "application-start-region-instance",
-      "status": "active",
-      "category": "ownership",
-      "severity": "error",
-      "objects": [
-        "Application"
-      ],
-      "remediation": "Pass an existing Region instance to start or restart. Use constructor options to create an Application-owned Region.",
-      "docsAnchor": "/errors/MN0042/",
-      "surfaces": [
-        "runtime"
-      ],
-      "benchmarkCategory": "ownership"
     }
   ]
 }

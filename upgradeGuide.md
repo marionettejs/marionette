@@ -609,9 +609,10 @@ await parent.destroy();
 
 `start({ region })` binds before `before:start` and `prepareStart`, while the
 original options object remains available to those hooks. Region instances are
-borrowed. Start and restart accept only existing Region instances; selectors,
-Region classes, and definition objects are rejected with `MN0042`. Constructor
-options still support creating an Application-owned Region.
+borrowed. Start and restart accept only existing Region instances. Constructor
+options still support creating an Application-owned Region from a selector,
+Region class, or definition object. Startup leaves that constructor configuration
+unchanged; use `getRegion()` to read the active host.
 Missing or `undefined` `region` retains the current host. A running or starting
 Application rejects a different host passed to `start()` with `MN0041`; stop the
 child before rebinding it, or use `restart({ region })`. Restart waits for its
@@ -621,8 +622,8 @@ the superseded operation resolves `false`.
 
 The `region` option is now reserved. Rename domain options such as
 `start({ region: 'us-east-1' })` to `start({ regionCode: 'us-east-1' })` and update
-their preparation handlers. Strings are rejected as invalid startup hosts; they
-are not forwarded solely as domain data.
+their preparation handlers. The startup `region` must be a Region instance from
+the same Marionette runtime, not domain data.
 
 ## Application preparation methods
 
