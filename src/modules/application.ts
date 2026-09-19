@@ -25,7 +25,9 @@ import type { Constructed, Merge, ArgumentsFor, DefaultOptions, OptionsFor, Stat
 export interface LifecycleContext {
   signal: AbortSignal;
 }
+type ChildApplications = Record<string, new () => ApplicationInstance<object, unknown>>;
 export interface ApplicationOptions {
+  childApps?: ChildApplications | (() => ChildApplications);
   channelName?: string | (() => string);
   radioEvents?: Bindings | (() => Bindings);
   radioRequests?: Bindings | (() => Bindings);
@@ -40,6 +42,7 @@ export interface ApplicationInstance<Options extends object = object, State = ob
   cid: string;
   cidPrefix: string;
   options: Options;
+  childApps?: ApplicationOptions['childApps'];
   channelName?: ApplicationOptions['channelName'];
   radioEvents?: ApplicationOptions['radioEvents'];
   radioRequests?: ApplicationOptions['radioRequests'];
@@ -179,6 +182,13 @@ const Application = function(this: ApplicationInternals, options?: ApplicationOp
   this._initRegion();
   this._initRadio();
   this._initState(options);
+  const declaration = this.getOption('childApps') as ApplicationOptions['childApps'];
+  const childApps = typeof declaration === 'function' ? declaration.call(this) : declaration;
+  if (childApps) {
+    for (const [name, ChildApp] of Object.entries(childApps)) {
+      this.addChildApp(name, new ChildApp());
+    }
+  }
   (this.initialize as { apply(receiver: ApplicationInternals, args: IArguments): unknown }).apply(this, arguments);
   this._initStateEvents();
 };

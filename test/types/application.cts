@@ -139,3 +139,40 @@ replacementPreparation.onStart?.(replacementPreparation, undefined, {name: 'Edit
 declare const notifications: ApplicationInstance;
 // @ts-expect-error Before notifications do not receive the preparation context.
 notifications.onBeforeStart?.(notifications, undefined, {signal: new AbortController().signal});
+
+const StaticChild = Application.extend({ label() { return 'static'; } });
+const declaredParent = new Application({ childApps: { editor: StaticChild } });
+declaredParent.getChildApp('editor') satisfies ApplicationInstance<object, unknown> | undefined;
+const DeclaredParent = Application.extend({ childApps: { editor: StaticChild } });
+new DeclaredParent().childApps.editor satisfies typeof StaticChild;
+// @ts-expect-error Declarations require constructors, not shared instances.
+new Application({ childApps: { editor: new Application() } });
+class NeedsOptions extends Application {
+  constructor(options: { label: string }) { super(); options.label.toUpperCase(); }
+}
+// @ts-expect-error Child constructors must accept no arguments.
+new Application({ childApps: { editor: NeedsOptions } });
+// @ts-expect-error Factories are not child constructors.
+new Application({ childApps: { editor: () => new Application() } });
+// @ts-expect-error Views are not child Applications.
+new Application({ childApps: { editor: View } });
+
+new Application({ childApps: () => ({ editor: StaticChild }) });
+const FunctionDeclaredParent = Application.extend({
+  childApps() { return { editor: StaticChild }; }
+});
+class NativeDeclaredParent extends Application {
+  get childApps() { return { editor: StaticChild }; }
+}
+new NativeDeclaredParent();
+new FunctionDeclaredParent().getChildApp('editor') satisfies ApplicationInstance<object, unknown> | undefined;
+// @ts-expect-error Declaration functions return constructors, not instances.
+new Application({ childApps: () => ({ editor: new Application() }) });
+
+new NativeDeclaredParent({ childApps: { replacement: StaticChild } });
+new NativeDeclaredParent({ childApps: () => ({ replacement: StaticChild }) });
+
+class NativeMethodDeclaredParent extends Application {
+  // @ts-expect-error Native methods cannot override the declared childApps property; use a getter.
+  childApps() { return { editor: StaticChild }; }
+}

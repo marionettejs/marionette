@@ -2341,14 +2341,15 @@
         "Application"
       ],
       "result": "Construction, addChildApp, setView and showView(view) return their public instance; showView() returns the prepared or current View, or undefined; removeChildApp returns a Promise of the removed child or undefined; queries return the declared state or optional owner member.",
-      "timing": "Construction, registration, root preparation/display and queries are synchronous; removeChildApp awaits child destruction before releasing ownership.",
+      "timing": "Construction, registration, root preparation/display and queries are synchronous; removeChildApp awaits child destruction before releasing ownership. childApps resolves a map or function once and registers fresh no-argument children before initialize; declarations do not activate children. Parent restart retains registered instances without reconstructing or automatically reactivating them; start selected children explicitly.",
       "ownership": "Named children belong to the Application until removal. setView temporarily owns a prepared View; showView hands it to the Region and releases Application ownership. Without preparation, getView reads the Region currentView, including direct Region display.",
       "mutation": "setView destroys only a previous prepared View, leaving the displayed View until Region show replaces it. getView reads preparation or current display without rendering. Child registration/removal coordinates with the owner lifecycle.",
-      "repetition": "Preparing the same pending View is a no-op; selecting the host currentView cancels preparation. Showing the current View does not render or attach it again. Child registrations and lookups follow documented ownership guards.",
+      "repetition": "Preparing the same pending View is a no-op; selecting the host currentView cancels preparation. Showing the current View does not render or attach it again. Child registrations and lookups follow documented ownership guards. Child declaration maps replace rather than merge inherited maps and are not reprocessed on restart.",
       "destruction": "Stop destroys a prepared View and empties the host. Destroy also tears down owned children and a constructed root Region; it preserves a borrowed Region. Direct destruction releases preparation; displayed Views follow Region cleanup and detachment.",
       "diagnostics": [
         "MN0003",
-        "MN0007"
+        "MN0007",
+        "MN0031"
       ],
       "docs": [
         {
@@ -2396,6 +2397,18 @@
         {
           "file": "test/unit/application-prepared-view.spec.js",
           "title": "composes detached children through getView and updates one region after display"
+        },
+        {
+          "file": "test/unit/application-child-declarations.spec.js",
+          "title": "retains declared children through explicit activation and restart, then destroys them"
+        },
+        {
+          "file": "test/unit/application-child-declarations.spec.js",
+          "title": "replaces getter declarations through options without reading or assigning the getter"
+        },
+        {
+          "file": "test/unit/application-child-declarations.spec.js",
+          "title": "resolves a function declaration once with the parent as context before initialize"
         }
       ],
       "members": [

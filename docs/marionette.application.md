@@ -41,9 +41,9 @@ const myApplication = new Application();
 ### Initialization hooks
 
 `preinitialize(options)` runs after `options` and `cid` are assigned, before
-Marionette sets up the Region, Radio, and State. Use it to prepare instance
+Marionette sets up the Region, Radio, State, and declared children. Use it to prepare instance
 configuration those steps depend on. `initialize(options)` runs after that
-setup, before State event subscriptions are connected. Owned State is still
+setup, including child registration, before State event subscriptions are connected. Owned State is still
 created lazily when `getState()` is first called.
 
 ```javascript
@@ -257,6 +257,66 @@ An Application may own named child Applications. Ownership is one-way: an
 Application locates and controls its children, while children receive required
 collaborators explicitly. Internal parent references exist only to enforce
 lifecycle and unlink children safely; upward lookup is not public API.
+
+### Declaring static children
+
+Use a `childApps` map, or a function returning that map, for children that can be
+constructed without arguments:
+
+```javascript
+const Workspace = Application.extend({
+  childApps: {
+    search: SearchApplication,
+    editor: EditorApplication
+  },
+  initialize() {
+    // Both children are already registered, but neither has been started.
+    this.getChildApp('search');
+  }
+});
+```
+
+Each parent instance constructs fresh children once, after Region, Radio, and
+State setup and before `initialize()`. Constructors receive no arguments;
+parent options are not forwarded. Entries register through `addChildApp()` in
+JavaScript own enumerable string-key order and follow its ownership rules.
+Children must belong to the parent's Marionette runtime. A function declaration
+runs once with the parent as `this`, at the same construction step.
+
+A child's own `initialize()` completes before registration, so `getName()` is
+still `undefined` there. Its registered name is available in start hooks and
+in the parent's `initialize()`. Lookup still returns the general
+`ApplicationInstance | undefined` type; declared keys do not infer child-specific
+methods.
+
+The declaration is inherited even when a subclass overrides `initialize()`.
+A subclass declaration or constructor `childApps` option replaces the entire
+inherited map; maps are not merged. A non-undefined `childApps` option takes
+precedence through `getOption()` without assigning to the declaration property,
+including a getter-only property. Use `{}` to omit inherited children.
+`preinitialize()` may configure the declaration property or `this.options.childApps`;
+a non-undefined option takes precedence over the property. With native classes, use a
+prototype `childApps()` method, getter, or `preinitialize()`, not an instance field assigned after
+`super()` has completed construction. TypeScript native subclasses should use a
+getter: the public interface declares `childApps` as a property, and TypeScript
+rejects overriding a property with a method declaration. This is a declaration-form
+restriction, not a consequence of the map-or-function union.
+
+Declaration only constructs and registers. Start chosen children explicitly with
+their startup options; parent start/restart does not activate or reconstruct them.
+Removing a declared child destroys it and does not recreate it on restart.
+Changing the map after construction does not change registered children.
+Use explicit `addChildApp()` for dynamic/lazy children or constructors requiring
+arguments. Per-child factories, shared instances, and option descriptors are not
+declaration forms. Constructor failures follow the synchronous failure boundary
+above; there is no partial-construction rollback. Declarations must describe a
+finite construction tree. Self-recursive or mutually recursive declarations are
+not detected before construction and can exhaust the call stack. The `MN0031`
+cycle check applies to ownership relationships between existing instances; it
+does not validate a graph of constructors. Invalid declaration shapes have no
+guaranteed diagnostic.
+
+### Registering and controlling children
 
 `addChildApp(name, application)` registers an existing live,
 parentless Application instance under a non-empty string name and returns that
