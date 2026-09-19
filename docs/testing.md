@@ -18,7 +18,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { JSDOM } from 'jsdom';
 
-test('a delegated button updates the existing screen and stops after destruction', async () => {
+test('a delegated button rerenders the screen and stops after destruction', async () => {
   const dom = new JSDOM('<!doctype html><main></main>');
   globalThis.window = dom.window;
   globalThis.document = dom.window.document;
@@ -26,13 +26,14 @@ test('a delegated button updates the existing screen and stops after destruction
   try {
     const { Region, View } = await import('marionette');
     const Counter = View.extend({
-      template: () => '<button type="button"><span>Increment</span></button><output>0</output>',
+      template: ({ count }) => `<button type="button"><span>Increment</span></button><output>${count}</output>`,
       events: { 'click button': 'increment' },
       initialize() { this.count = 0; },
+      templateContext() { return { count: this.count }; },
       increment(event) {
         assert.equal(event.delegateTarget.tagName, 'BUTTON');
         this.count += 1;
-        this.el.querySelector('output').textContent = String(this.count);
+        this.render();
       }
     });
     region = new Region({ el: document.querySelector('main') });
@@ -41,10 +42,11 @@ test('a delegated button updates the existing screen and stops after destruction
     const button = view.el.querySelector('button');
     button.querySelector('span').click();
     assert.equal(view.el.querySelector('output').textContent, '1');
-    assert.equal(view.el.querySelector('button'), button);
+    assert.notEqual(view.el.querySelector('button'), button);
+    const updatedButton = view.el.querySelector('button');
     region.empty();
     assert.equal(view.isDestroyed(), true);
-    button.click();
+    updatedButton.click();
     assert.equal(view.count, 1);
     assert.equal(document.querySelector('main').children.length, 0);
   } finally {

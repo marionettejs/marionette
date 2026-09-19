@@ -14,13 +14,16 @@ npm install marionette@5.0.0-beta.4 @mnjs/data@5.0.0-beta.4
 import { CollectionView, View } from 'marionette';
 import { Collection, DataApi } from '@mnjs/data';
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[character]));
+}
+
 const Row = View.extend({
   tagName: 'li',
-  template: () => '<span></span>',
-  modelEvents: { change: 'render' },
-  onRender() {
-    this.el.querySelector('span').textContent = this.model.get('label');
-  }
+  template: ({ label }) => `<span>${escapeHtml(label)}</span>`,
+  modelEvents: { change: 'render' }
 });
 const List = CollectionView.extend({ tagName: 'ul', childView: Row });
 Row.setDataApi(DataApi);
