@@ -154,6 +154,9 @@ type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & S
   _initStateEvents(): unknown;
 };
 
+const displayedViewOwner = Symbol('ApplicationDisplayedViewOwner');
+type DisplayedViewInternals = SupportedView & { [displayedViewOwner]?: ApplicationInternals };
+
 const ClassOptions = [
   'channelName',
   'radioEvents',
@@ -317,11 +320,24 @@ function onPreparedViewDestroyed(this: ApplicationInternals) {
   releasePreparedView(this);
 }
 
+function assertDisplayedViewCanSelect(application: ApplicationInternals, view: SupportedView) {
+  const owner = (view as DisplayedViewInternals)[displayedViewOwner];
+  if (owner && owner !== application) {
+    throw new MarionetteError({
+      code: 'MN0003',
+      name: 'ApplicationError',
+      message: 'View is already selected by another Application',
+      url: 'marionette.application.html#setviewview'
+    });
+  }
+}
+
 function releaseDisplayedView(application: ApplicationInternals, view = application._displayedView,
   region = application.getRegion()) {
-  if (!view) { return; }
+  if (!view || application._displayedView !== view) { return; }
 
   delete application._displayedView;
+  delete (view as DisplayedViewInternals)[displayedViewOwner];
   region?.off('empty', onDisplayedRegionEmpty, application);
   return view;
 }
@@ -333,8 +349,10 @@ function onDisplayedRegionEmpty(this: ApplicationInternals, region: RegionInstan
 function claimDisplayedView(application: ApplicationInternals, view: SupportedView) {
   if (application._displayedView === view) { return; }
 
+  assertDisplayedViewCanSelect(application, view);
   releaseDisplayedView(application);
   application._displayedView = view;
+  (view as DisplayedViewInternals)[displayedViewOwner] = application;
   application.getRegion()?.on('empty', onDisplayedRegionEmpty, application);
 }
 
@@ -349,6 +367,8 @@ function emptyView(application: ApplicationInternals, options?: unknown) {
     if (region?.currentView === displayed) {
       region.empty(options as ShowOptions | undefined);
     }
+  } else if (application._ownedRegion && region?.currentView) {
+    region.empty(options as ShowOptions | undefined);
   }
 }
 
@@ -760,6 +780,8 @@ export default /* @__PURE__ */ ((methods: object) => {
       });
     }
 
+    assertDisplayedViewCanSelect(this, view);
+
     releasePreparedView(this)?.destroy();
     if (view === this.getRegion()?.currentView) {
       claimDisplayedView(this, view);
@@ -781,7 +803,8 @@ export default /* @__PURE__ */ ((methods: object) => {
     // The Region becomes the sole owner after adoption. An allowed missing
     // mount leaves the prepared View with the Application for later cleanup.
     const region = this.getRegion()!;
-    if (root._parent === this) { delete root._parent; }
+    if (root === region.currentView) { return root; }
+    delete root._parent;
     region.show(root, ...args);
     if (region.currentView === root) {
       releasePreparedView(this);

@@ -17,20 +17,28 @@ describe('Application root View ownership', function() {
     setFixtures('<div id="application-root"></div>');
   });
 
-  it('shows and reads the current View of its Region', function() {
+  it('shows and reads its selected View', function() {
     const region = new Region({ el: '#application-root' });
     const app = new Application({ region });
     const view = new RootView();
+    const renders = vi.fn();
+    const attaches = vi.fn();
+    view.on('render', renders);
+    view.on('attach', attaches);
     const show = vi.spyOn(region, 'show');
 
     expect(app.getView()).toBeUndefined();
     expect(app.showView(view)).to.equal(view);
     expect(show).toHaveBeenCalledTimes(1);
     expect(show).toHaveBeenCalledWith(view);
+    expect(renders).toHaveBeenCalledTimes(1);
+    expect(attaches).toHaveBeenCalledTimes(1);
     expect(app.getRegion()).to.equal(region);
     expect(app.getView()).to.equal(view);
-    expect(app.showView(view)).to.equal(view);
-    expect(show).toHaveBeenCalledTimes(2);
+    expect(app.showView(view, { allowMissingEl: false })).to.equal(view);
+    expect(show).toHaveBeenCalledTimes(1);
+    expect(renders).toHaveBeenCalledTimes(1);
+    expect(attaches).toHaveBeenCalledTimes(1);
 
     region.destroy();
   });
@@ -46,6 +54,33 @@ describe('Application root View ownership', function() {
 
     await app.destroy();
     region.destroy();
+  });
+
+  it('stops a directly shown View in an Application-created Region', async function() {
+    const app = new Application({ region: '#application-root' });
+    const view = new RootView();
+
+    app.getRegion().show(view);
+
+    expect(app.getView()).toBeUndefined();
+    expect(await app.stop()).toBe(true);
+    expect(view.isDestroyed()).toBe(true);
+    expect(app.getRegion().currentView).toBeUndefined();
+
+    await app.destroy();
+  });
+
+  it('restarts after clearing a directly shown View in an Application-created Region', async function() {
+    const app = new Application({ region: '#application-root' });
+    const view = new RootView();
+
+    app.getRegion().show(view);
+
+    expect(await app.restart()).toBe(true);
+    expect(view.isDestroyed()).toBe(true);
+    expect(app.getRegion().currentView).toBeUndefined();
+
+    await app.destroy();
   });
 
   it('does not adopt a View already shown before the Region is supplied', async function() {
@@ -306,7 +341,7 @@ describe('Application root View ownership', function() {
     await app.destroy();
   });
 
-  it('preserves an externally shown root View when restarting a stopped Application', async function() {
+  it('clears an externally shown root View when restarting an Application-created Region', async function() {
     const starts = [];
     const TestApplication = Application.extend({
       region: '#application-root',
@@ -318,7 +353,7 @@ describe('Application root View ownership', function() {
     app.getRegion().show(view);
 
     expect(await app.restart()).toBe(true);
-    expect(view.isDestroyed()).toBe(false);
+    expect(view.isDestroyed()).toBe(true);
     expect(starts).to.deep.equal([undefined]);
 
     await app.destroy();

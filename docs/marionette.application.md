@@ -526,17 +526,21 @@ only when its selected displayed View is still current. A replacement or
 detached View remains with the Region or caller that now owns it. Destroying the
 Application also destroys a Region it constructed, including whatever that
 Region currently displays, but never destroys a borrowed Region or an unrelated
-View in it. Restart cleans up the Application's preparation and display before
+View in it. For a Region constructed by the Application, a directly shown View
+is also cleared by stop or restart; unmanaged HTML remains when there is no
+current View. Restart cleans up the Application's preparation and display before
 `onStart` builds a new root. Detaching a View through the host transfers it to
 the caller; the Application does not keep ownership of that detached View.
 
 Borrowing does not reserve a Region exclusively. Applications borrowing the same
-host keep independent selected roots. Each may prepare a distinct replacement;
-displaying one replaces the host's current View and ends the prior Application's
-association. Stopping one Application leaves another Application's selected
-displayed View in place. A prepared View itself has one owner and cannot be
-adopted by another Application, Region, or CollectionView until handed to its
-host and subsequently detached.
+host keep independent selected roots. A displayed root can be selected by only
+one Application at a time; another Application must wait for the first one to
+release it through Region empty or detach. Each may prepare a distinct
+replacement; displaying one replaces the host's current View and ends the prior
+Application's association. Stopping one Application leaves another Application's
+selected displayed View in place. A prepared View itself has one owner and
+cannot be adopted by another Application, Region, or CollectionView until handed
+to its host and subsequently detached.
 
 If the Region has no View, stopping the Application leaves unmanaged HTML alone.
 `region` can also be passed as a constructor option.
@@ -588,7 +592,9 @@ changing Region ownership or display.
 
 A View owned elsewhere is rejected with `MN0003`; a destroyed View is rejected
 with `MN0007`. Passing the host's current View explicitly selects it for this
-Application while the Region remains its sole owner. A prepared View cannot be adopted directly by another container:
+Application while the Region remains its sole owner. If another Application has
+already selected that displayed View, selection is rejected with `MN0003` and
+the pending View remains prepared. A prepared View cannot be adopted directly by another container:
 first display it through its Application, then use the host's `detachView()` to
 transfer it. Once displayed, normal Region ownership rules apply, including for
 Applications sharing a borrowed host.
@@ -611,7 +617,8 @@ needed. To pass options, use `showView(undefined, options)`.
 Without preparation, `showView()` re-shows the Application's selected displayed
 View, or returns `undefined` when no View is selected. A View shown directly by
 the Region is not adopted by this call. Otherwise it returns the View
-synchronously.
+synchronously. Calling it for the already displayed root is a no-op; supplied
+options are ignored and the View is not rendered or attached again.
 
 When no separate composition step is needed, `showView(view, options)` performs
 `setView(view)` followed by the same display operation, returning the supplied
