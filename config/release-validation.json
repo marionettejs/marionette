@@ -212,6 +212,10 @@
     {
       "file": "application-start-region.spec.mjs",
       "title": "registered child follows a recreated parent layout Region across restart"
+    },
+    {
+      "file": "application-start-region.spec.mjs",
+      "title": "a borrowed shell survives canceled loading and controller restart"
     }
   ],
   "fixtures": [
