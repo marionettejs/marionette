@@ -1,0 +1,27 @@
+config/api-contracts/inventory.json
+  s_8bc4ebe3642b83::t_8375f2b01e6189 8087
+docs/task-recipes.md
+  s_8bc4ebe3642b83::t_ac41d59a29aba4 128-129,137,146,211,215,220-221,225-228,230-231,238-242
+docs/view.rendering.md
+  s_8bc4ebe3642b83::t_fa1f516032785b 129-131,148-153
+test/fixtures/docs-prerendered-content/literal-template.mjs
+  s_8bc4ebe3642b83::t_39989aa105b7c4 13,27,31,38-41,51
+test/fixtures/docs-region-lifecycle/retry-delete.mjs
+  s_8bc4ebe3642b83::t_85b4278725fc80 12,36,38,64,80,166,171-190
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "5d06096fe11a638d1336a6247ff13167f0d3b346",
+  "prompts": {},
+  "sessions": {
+    "s_8bc4ebe3642b83": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0adca-119a-75a3-900a-83f3a223701a",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
