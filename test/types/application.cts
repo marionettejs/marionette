@@ -27,7 +27,7 @@ new Child({label: false});
 // @ts-expect-error The inferred state does not have an unrelated property.
 child.getState().missing;
 
-const root = new Application({region: borrowedRegion, channelName: 'application'});
+const root = new Application({region: '#application', channelName: 'application'});
 const sameChild: typeof child = root.addChildApp('editor', child);
 const children: Record<string, ApplicationInstance<object, unknown>> = root.getChildApps();
 const missing: ApplicationInstance<object, unknown> | undefined = root.getChildApp('missing');
@@ -58,7 +58,7 @@ const requiredView: SupportedView = root.getView();
 const asynchronousView: Promise<typeof view> = root.showView(view);
 
 const borrowedRegion = new Region({el: '#borrowed'});
-const borrower = new Application({region: '#application'});
+const borrower = new Application({region: borrowedRegion});
 const customRegion = Region.extend({replaceElement: true});
 new Application({regionClass: customRegion, region: {el: '#custom'}});
 const borrowedState = {count: 1};
