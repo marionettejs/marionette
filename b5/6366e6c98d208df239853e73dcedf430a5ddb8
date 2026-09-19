@@ -1,0 +1,38 @@
+upgradeGuide.md
+  s_0b2518106a33a7::t_c5d6bd322032a4 573-598
+docs/marionette.application.md
+  s_0b2518106a33a7::t_c5d6bd322032a4 190-195,197-202,205-208
+  s_0b2518106a33a7::t_9b300d52aeacd2 196,203-204
+src/modules/application.ts
+  s_0b2518106a33a7::t_a4edce1e2e8a1e 37-40,140,204-211,452-453,464-465,481,483-488,492-494,496-501,503-514,516-522,534-537,624,626-633,638,683,685-688,699
+  s_0b2518106a33a7::t_7e9f87a2ece5ce 495,515
+  s_0b2518106a33a7::t_4cbdbb9f8dc801 489
+  s_0b2518106a33a7::t_9b300d52aeacd2 482,490-491,502
+config/diagnostics/catalog.json
+  s_0b2518106a33a7::t_4cbdbb9f8dc801 705-720
+test/unit/application-start-region.spec.js
+  s_0b2518106a33a7::t_e7dcc838c718a4 1-111,143-170
+  s_0b2518106a33a7::t_107c8d308fd4c1 112-142
+src/index.ts
+  s_0b2518106a33a7::t_c5d6bd322032a4 53
+config/api-contracts/inventory.json
+  s_0b2518106a33a7::t_73be80f8300cd6 617-629,7460-7466,8053,8085
+docs/compact-reference.md
+  s_0b2518106a33a7::t_2dd3f7c6ab9d1e 115
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "b56366e6c98d208df239853e73dcedf430a5ddb8",
+  "prompts": {},
+  "sessions": {
+    "s_0b2518106a33a7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0b78c-30de-7fc1-8943-96b2fce3589f",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
