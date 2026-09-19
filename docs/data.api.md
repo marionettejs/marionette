@@ -226,13 +226,16 @@ import { Collection, DataApi, Model, StateApi } from '@mnjs/data';
 setDataApi(DataApi);
 setStateApi(StateApi);
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[character]));
+}
+
 const RowView = View.extend({
   tagName: 'li',
-  template: () => '',
-  modelEvents: { change: 'render' },
-  onRender() {
-    this.el.textContent = this.model.get('label');
-  }
+  template: ({ label }) => escapeHtml(label),
+  modelEvents: { change: 'render' }
 });
 const state = new Model({ selectedId: null });
 const collection = new Collection([{ id: 1, label: 'one' }]);

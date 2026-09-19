@@ -50,16 +50,20 @@ application values rather than writing ad hoc properties through a cast.
 ```ts
 import { Region, View } from 'marionette';
 
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[character]!));
+}
+
 const MessageView = View.extend({
-  template: () => '<p></p>',
+  templateContext() { return { message: this.options.message }; },
+  template({ message }: { message: string }) {
+    return `<p>${escapeHtml(message)}</p>`;
+  },
   initialize(options: { message: string }) {
     // The annotation defines required application options.
     void options;
-  },
-  onRender() {
-    const paragraph = this.el.querySelector('p');
-    if (!paragraph) throw new Error('Message template requires a paragraph');
-    paragraph.textContent = this.options.message;
   },
   message(): string {
     return this.options.message;
