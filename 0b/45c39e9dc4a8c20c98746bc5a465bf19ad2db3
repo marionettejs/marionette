@@ -1,0 +1,42 @@
+upgradeGuide.md
+  s_0b2518106a33a7::t_5e2c474fc21345 579,581-597,599-602,607-609,611-620
+docs/marionette.application.md
+  s_0b2518106a33a7::t_5e2c474fc21345 202-203,206-210,214-221
+  s_0b2518106a33a7::t_45e7009f8187f5 192,200-201,222-224
+src/modules/application.ts
+  s_0b2518106a33a7::t_90f5b1e11db685 63,65,140,204-205,453,465,481-482,484-486,489,491-495
+  s_0b2518106a33a7::t_4b926892a720af 496-501,513
+  s_0b2518106a33a7::t_d366573804db26 38,504,509-511,527-529,613,618,621,669,674,676
+test/unit/application-start-region.spec.js
+  s_0b2518106a33a7::t_4b926892a720af 308-310,325-326,403,406
+  s_0b2518106a33a7::t_79a67c822af698 92,153-154,206,208-209,220,225-226,245,254-256,259-280,282-307,311-324,327-339,375,385-386,391,401
+  s_0b2518106a33a7::t_ce31b399c3c471 28,377-378,387-390,392-396,400,402,407-408
+config/api-contracts/inventory.json
+  s_0b2518106a33a7::t_c7808297e82df0 4,99,102,397,400,625,7467-7473,8071,8092,8101,8125
+config/api-contracts/semantics.json
+  s_0b2518106a33a7::t_867e40b922b57d 1515,1518-1519
+config/diagnostics/catalog.json
+  s_0b2518106a33a7::t_f8840443cfc78c 721-736
+docs/compact-reference.md
+  s_0b2518106a33a7::t_9b52eb15cefce5 116
+test/types/application.cts
+  s_0b2518106a33a7::t_882d70eaba6043 30,61,71,73-84,107
+test/types/application.mts
+  s_0b2518106a33a7::t_24a2fb5bfe3986 30,61,71,73-84,107
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "0b45c39e9dc4a8c20c98746bc5a465bf19ad2db3",
+  "prompts": {},
+  "sessions": {
+    "s_0b2518106a33a7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0b78c-30de-7fc1-8943-96b2fce3589f",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
