@@ -13,7 +13,7 @@ Use plain functions or classes when you do not need Marionette lifecycle, events
 | Region | show adopts a View; detach releases ownership without destroying it; empty/replacement destroy the current View. | [Lifecycle transition contract](./marionette.region.md) |
 | CollectionView | Managed children belong to the CollectionView; stable unchanged model sources preserve child identity; same-key replacement recreates a child. | [Managing Children](./marionette.collectionview.md) |
 | Behavior | Host owns top-level and nested Behaviors; direct Behavior destruction does not destroy its host. | [Behavior Lifecycle](./marionette.behavior.md) |
-| Application | Named children belong to the Application until removal. setView temporarily owns a prepared View; showView hands it to the Region and records the one selected displayed root. A displayed root cannot be selected by two Applications. getView never adopts a direct Region display; select one explicitly with setView. | [Application Lifecycle](./marionette.application.md) |
+| Application | Named children belong to the Application until removal. setView temporarily owns a prepared View; showView hands it to the Region and records the Application's selected displayed root. A direct Region display is not adopted or claimable; an Application may reselect its own displayed root. | [Application Lifecycle](./marionette.application.md) |
 
 ## Lifecycle and cancellation
 
