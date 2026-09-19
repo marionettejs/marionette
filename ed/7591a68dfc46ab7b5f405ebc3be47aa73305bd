@@ -1,0 +1,23 @@
+docs/marionette.region.md
+  s_0b2518106a33a7::t_18d7d57ec49683 134-137
+src/modules/application.ts
+  s_0b2518106a33a7::t_18d7d57ec49683 362-363
+config/api-contracts/inventory.json
+  s_0b2518106a33a7::t_678754cd05d4c3 8044,8078
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "ed7591a68dfc46ab7b5f405ebc3be47aa73305bd",
+  "prompts": {},
+  "sessions": {
+    "s_0b2518106a33a7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0b78c-30de-7fc1-8943-96b2fce3589f",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
