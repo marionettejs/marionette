@@ -411,6 +411,24 @@ describe('Application root View ownership', function() {
     expect(app.getView()).toBeUndefined();
   });
 
+  it('can stop from external Region teardown without emptying the host twice', async function() {
+    const region = new Region({ el: '#application-root' });
+    const app = new Application({ region });
+    const view = new RootView();
+    let stopped;
+    view.on('before:destroy', () => { stopped = app.stop(); });
+    app.showView(view);
+
+    region.empty();
+
+    expect(await stopped).toBe(true);
+    expect(view.isDestroyed()).toBe(true);
+    expect(app.getView()).toBeUndefined();
+    expect(region.currentView).toBeUndefined();
+    await app.destroy();
+    region.destroy();
+  });
+
   it('preserves an external replacement in a borrowed Region when construction fails', function() {
     const region = new Region({ el: '#application-root' });
     const root = new RootView();

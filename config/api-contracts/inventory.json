@@ -8094,7 +8094,7 @@
     "test/unit/application-ownership.spec.js": "f1e6a74f639bb6ceedd85957c696a45de28e1526ed41df0f34663a23b25bb68f",
     "test/unit/application-preparation.spec.js": "23e58351eec5983b4d412be099a7e9306f4b758a1f501874f46baca8be940b56",
     "test/unit/application-prepared-view.spec.js": "0d70642eb618d73d579ffe785da441f8af58a7ddee9a74200ab481b3c79f943f",
-    "test/unit/application-root-view.spec.js": "018d98b7f939fe4dce21dbf6a4037d8e3ae7e9dfcbef679b2f13badcb54ff0c7",
+    "test/unit/application-root-view.spec.js": "aff198abb69b19ffd13bbb6d5a727d7b0eac0d661a9ade5a98d48a043843ff5a",
     "test/unit/backbone-adapter.spec.js": "016907f55d5e20d695f916dbd4189ac7e3e543a0f903df6a3922c207dade59df",
     "test/unit/behavior-lifecycle.spec.js": "8c70d05fa530d27eac901291a3487c9cacac1ef1d0c22a3adda917da5774d05a",
     "test/unit/behavior-ui-contract.spec.js": "65def27b40f17e3d931803faeff7c9dbb3c580e14f157fa5d2f8145fb95c1761",
