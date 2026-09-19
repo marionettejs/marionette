@@ -7,6 +7,7 @@ existing compatible integration; each task identifies when another one is needed
 | Task | Start here | Owner and decision |
 | --- | --- | --- |
 | Save a draft without losing focus | [Forms](./forms-and-accessibility.md) | The form View owns input DOM and its pending save; update status without rerendering. |
+| Retry a failed deletion | [Retryable delete screen](#keep-a-delete-screen-open-for-retry) | A Region owns the screen; successful loading enables deletion, and failed deletion preserves the retry surface. |
 | Change pages while requests overlap | [Routing](./routing.md) | The application owns URL handling and cancellation; the Region owns the active page. |
 | Refresh a root class or ARIA state | [Root attributes](./marionette.view.md#refreshing-root-attributes) | Call `renderAttributes()` when only declared root attributes changed. |
 | Keep surviving list rows editable | [Collection reconciliation](./marionette.collectionview.md#managing-children) | Keep the observable collection and surviving source objects; do not rebuild the entire CollectionView on every change. |
@@ -116,3 +117,139 @@ ID matching preserves the existing View's `model` object under every adapter.
 The [integration guide](./choosing-integrations.md) identifies supported contracts;
 [testing](./testing.md) explains the input identity and stale-subscription assertions
 that catch this failure.
+
+## Keep a delete screen open for retry
+
+Use a Region to own the screen while loading and deleting remain application
+state. A completed load is not necessarily a successful load: only success sets
+`ready`. A failed deletion leaves the same View and button mounted for retry.
+
+Save this factory as `delete-screen.js`. Supply `load(id)` resolving `{ label }`,
+`remove(id)` resolving after deletion, a synchronous `navigate(id)` callback, and a
+non-throwing `reportError(error)` callback for unexpected failures from button clicks.
+The two request functions may reject with an `Error`; other callbacks and DOM
+operations follow the [synchronous failure contract](./view.lifecycle.md#synchronous-failures).
+
+<!-- executable-example: retryable-delete-screen -->
+```javascript
+import { Region, View } from 'marionette';
+
+export function createDeleteScreen(el, load, remove, navigate, reportError) {
+  const region = new Region({ el });
+  let current;
+  let destroyed = false;
+  const isCurrent = screen => !destroyed && current === screen;
+
+  const Screen = View.extend({
+    template: () => '<span class="label"></span><button type="button" disabled>Delete</button><p role="alert"></p>',
+    events: {
+      'click button': () => { void confirm().catch(reportError); }
+    }
+  });
+
+  function update(screen, error = '') {
+    const { el } = screen.view;
+    el.querySelector('[role="alert"]').textContent = error;
+    el.querySelector('button').disabled = !screen.ready || screen.deleting;
+  }
+
+  async function open(id) {
+    if (destroyed) { return false; }
+    const screen = { id, ready: false, deleting: false, view: new Screen() };
+    current = screen;
+    region.show(screen.view);
+    let record;
+    try {
+      record = await load(id);
+    } catch (error) {
+      if (isCurrent(screen)) { update(screen, error.message); }
+      return false;
+    }
+    if (!isCurrent(screen)) { return false; }
+    screen.view.el.querySelector('.label').textContent = record.label;
+    screen.ready = true;
+    update(screen);
+    return true;
+  }
+
+  async function confirm() {
+    const screen = current;
+    if (!screen || !isCurrent(screen) || !screen.ready || screen.deleting) {
+      return false;
+    }
+    screen.deleting = true;
+    update(screen);
+    try {
+      await remove(screen.id);
+    } catch (error) {
+      if (isCurrent(screen)) {
+        screen.deleting = false;
+        update(screen, error.message);
+      }
+      return false;
+    }
+    if (!isCurrent(screen)) { return false; }
+    screen.ready = false;
+    screen.deleting = false;
+    update(screen);
+    navigate(screen.id);
+    return true;
+  }
+
+  function close() {
+    current = undefined;
+    region.empty();
+  }
+
+  function destroy() {
+    if (destroyed) { return; }
+    current = undefined;
+    destroyed = true;
+    region.destroy();
+  }
+
+  return { open, confirm, close, destroy };
+}
+```
+
+For example, with in-memory data:
+
+```javascript
+import { createDeleteScreen } from './delete-screen.js';
+
+const host = document.createElement('main');
+document.body.append(host);
+const records = new Map([['a', { label: 'Draft' }]]);
+const screen = createDeleteScreen(
+  host,
+  async id => {
+    if (!records.has(id)) { throw new Error('Record not found'); }
+    return records.get(id);
+  },
+  async id => { records.delete(id); },
+  id => { console.log('Deleted', id); },
+  error => { console.error(error); }
+);
+await screen.open('a');
+// Click Delete, or await screen.confirm().
+// Call screen.destroy() when the owner leaves this workflow.
+```
+
+The factory owns its Region; change screens only through the returned methods.
+Awaited calls propagate unexpected callback or DOM failures as rejections. The
+button handler reports those failures through `reportError`; it does not treat
+them as retryable deletion failures.
+
+`open` resolves true only for the current successful load. `confirm` resolves
+true only for the current successful deletion and navigates once. Premature or
+duplicate confirmation returns false. Errors and labels are assigned as text,
+not HTML. Updating status does not rerender the View or replace its button.
+
+Opening another record, `close()`, or `destroy()` makes old results stale. A late
+success or rejection cannot repaint or navigate from the new screen. This ignores
+results; it does not cancel a server-side deletion already in progress. `close()`
+permits reopening, while `destroy()` permanently ends the workflow.
+
+The [executable checks](../test/fixtures/docs-region-lifecycle/retry-delete.mjs)
+cover failed loading, duplicate clicks, failed deletion and retry, stale requests,
+reopening, and destruction, with both immediate and deferred request invocation.

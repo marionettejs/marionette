@@ -46,3 +46,6 @@ try {
   delete globalThis.window;
   delete globalThis.document;
 }
+
+// <!-- executable-example: view-literal-false-template -->
+await import('./literal-template.mjs');

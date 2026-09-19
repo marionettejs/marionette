@@ -40,5 +40,7 @@
   "benchmarks/docs/results/2026-09-08/widget-lifetime/solution.mjs",
   "benchmarks/docs/results/2026-09-08/widget-lifetime/validate.mjs",
   "test/README.md",
-  "test/unit/model-based/README.md"
+  "test/unit/model-based/README.md",
+  "test/fixtures/docs-prerendered-content/literal-template.mjs",
+  "test/fixtures/docs-region-lifecycle/retry-delete.mjs"
 ]

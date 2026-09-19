@@ -125,6 +125,33 @@ const MyIconButtonView = View.extend({
 });
 ```
 
+Set the **property** to `false`; `template() { return false; }` is still a
+template function and runs the rendering pipeline. A false-returning function
+replaces existing DOM with the text `false` under the default native DOM adapter.
+With a class constructor, pass the literal option to `super`:
+
+<!-- executable-example: view-literal-false-template -->
+```javascript
+import { View } from 'marionette';
+
+export class DraftView extends View {
+  constructor(options) {
+    super({ ...options, template: false });
+    const input = this.el.ownerDocument.createElement('input');
+    input.setAttribute('aria-label', 'Draft');
+    this.el.append(input);
+  }
+}
+```
+
+After `const view = new DraftView()`, calling `view.render()` keeps the same input
+and its value. Initialize this DOM in the constructor, since neither
+`before:render` nor `render` fires with `template: false`. This also skips render-time
+UI binding: after building the DOM, call `bindUIElements()` explicitly if you
+configure `ui` and need `getUI()`. Construction binds UI only when the element
+already has contents when `super()` runs. A Region can still show and own the
+View, and `isRendered()` reports true after it is shown.
+
 ## Rendering the Template
 
 Each view class has a renderer which by default passes the [view data](#serializing-data)
