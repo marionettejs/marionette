@@ -1,0 +1,36 @@
+test/unit/application-prepared-view.spec.js
+  s_0b2518106a33a7::t_c56cc00d7fd3fa 255,299,301-305,307-308
+  s_0b2518106a33a7::t_b0a9f1b1921202 306
+src/modules/application.ts
+  s_0b2518106a33a7::t_ec9d3974563550 741,751-755,774-775
+config/api-contracts/semantics.json
+  s_0b2518106a33a7::t_93527593abe623 2345,2347
+docs/migration-from-v4.md
+  s_0b2518106a33a7::t_b4ee12081814e9 88
+upgradeGuide.md
+  s_0b2518106a33a7::t_59587352c1acf7 39-42
+docs/marionette.application.md
+  s_0b2518106a33a7::t_d5d465d2ea2aaf 591-597
+  s_0b2518106a33a7::t_9b3eae180840a6 514-515,520-522,536-542
+  s_0b2518106a33a7::t_6afb4b81cc0bd1 619,641-643
+docs/compact-reference.md
+  s_0b2518106a33a7::t_5a9e285f374b0c 16
+config/api-contracts/inventory.json
+  s_0b2518106a33a7::t_755f9669ce5b32 4,8044,8074,8096
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "01a009878e0f2315683c5173c1bb572b09130d24",
+  "prompts": {},
+  "sessions": {
+    "s_0b2518106a33a7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0b78c-30de-7fc1-8943-96b2fce3589f",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
