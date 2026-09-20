@@ -23,7 +23,7 @@ const counterPath = await extract('readme.md',
 const formPath = await extract('forms-and-accessibility.md',
   '<!-- executable-example: accessible-form-save -->', 'form.mjs');
 const widgetPath = await extract('task-recipes.md',
-  '<!-- executable-example: widget-owned-lifecycle -->', 'widget.mjs');
+  '<!-- executable-example: widget-owned-lifecycle -->', 'widget-view.js');
 
 // Compile the actual TypeScript fences, including rejected consumer options.
 const types = await readFile(resolve(fixtureDir, '../../../docs/typescript.md'), 'utf8');
@@ -223,3 +223,6 @@ await import('./effects.mjs');
 
 // <!-- executable-example: application-preparation-commit -->
 await import('./preparation.mjs');
+
+// <!-- executable-example: widget-owned-workspace -->
+await import('./workspace.mjs');
