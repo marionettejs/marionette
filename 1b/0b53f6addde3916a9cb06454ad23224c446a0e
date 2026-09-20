@@ -1,0 +1,25 @@
+docs-site/resources.json
+  s_8bc4ebe3642b83::t_25d6023917603a 10
+docs/task-recipes.md
+  s_8bc4ebe3642b83::t_ef22927b77b5a3 17,107-192
+test/fixtures/docs-application-guides/validate.mjs
+  s_8bc4ebe3642b83::t_3137beeb8d69bf 26,226-228
+test/fixtures/docs-application-guides/workspace.mjs
+  s_8bc4ebe3642b83::t_c013f9a3c1d368 1-101
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "1b0b53f6addde3916a9cb06454ad23224c446a0e",
+  "prompts": {},
+  "sessions": {
+    "s_8bc4ebe3642b83": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0adca-119a-75a3-900a-83f3a223701a",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
