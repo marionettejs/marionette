@@ -132,8 +132,9 @@ destroyed child are no longer forwarded to the parent.
 
 The `empty` event runs after `currentView` and View ownership have been cleared.
 When `region.empty()` is invoked directly, an `empty` listener may show a
-prepared replacement through the same Region; that new operation observes the
-completed empty state. Exceptions still abort the synchronous callback operation
+replacement View through the same Region; that new operation observes the
+completed empty state. For an Application-prepared replacement, call
+`application.showView()` to transfer ownership to the Region. Exceptions still abort the synchronous callback operation
 under the [synchronous failure boundary](./view.lifecycle.md#synchronous-failures).
 
 The following example preserves a View by detaching it before showing it again.
