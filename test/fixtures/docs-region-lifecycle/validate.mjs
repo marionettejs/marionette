@@ -183,3 +183,6 @@ try {
   delete globalThis.document;
   delete globalThis.window;
 }
+
+// <!-- executable-example: retryable-delete-screen -->
+await import('./retry-delete.mjs');
