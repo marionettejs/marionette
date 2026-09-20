@@ -32,6 +32,26 @@ The sections below explain the specific API changes. The library's fixtures
 validate supported integration patterns; they do not establish that an untested
 consumer application has migrated successfully.
 
+## Select Application root Views explicitly
+
+An Application keeps its prepared root until `showView()` hands it to the host
+Region. After display, `getView()` returns the root selected by that Application;
+it does not adopt or claim a View shown directly through a shared Region. Prepare
+an unowned View with `setView(view)` before displaying it through the Application.
+Reselecting the Application's own displayed root cancels a pending replacement;
+an arbitrary displayed root fails with `MN0003`.
+
+Replacing or detaching a selected root ends that Application's association.
+Stopping an Application destroys its prepared root and empties the host only
+when its selected root is still current. A View that another Application has
+displayed remains with that Application. Detaching through `region.detachView()`
+transfers the View to the caller, so a later stop does not destroy it. An
+Application-created Region is still destroyed with the Application, including
+its current contents; stopping or restarting it also clears a directly shown
+View while preserving unmanaged HTML. Borrowed Regions remain available to their
+external owner. Repeating `showView()` for an already displayed root is a no-op
+and ignores its options.
+
 ## Use the included TypeScript declarations
 
 The `marionette` package includes declarations for its public exports in ESM and
@@ -554,6 +574,56 @@ owned descendants, including beneath stopped intermediate owners; failed or
 canceled teardown can retain partial progress. Child start/restart
 returns `false` while an ancestor is stopping or terminal. See
 [Application ownership](docs/marionette.application.md#application-ownership).
+
+## Bind reusable child Applications to a new parent Region
+
+An Application can receive its host at startup, which lets a registered child
+follow a parent layout that is recreated on restart:
+
+```javascript
+import { Application, View } from 'marionette';
+
+const Layout = View.extend({
+  template: () => '<main></main>',
+  regions: { content: 'main' }
+});
+const Child = Application.extend({
+  onStart() { this.showView(new View({ template: () => '<p>Child content</p>' })); }
+});
+const Parent = Application.extend({
+  initialize() { this.addChildApp('content', new Child()); },
+  onBeforeStart() { this.setView(new Layout()).render(); },
+  async prepareStart(options, { signal }) {
+    const started = await this.getChildApp('content').start({
+      region: this.getView().getRegion('content')
+    });
+    if (!started && !signal.aborted) throw new Error('Child startup canceled');
+  },
+  onStart() { this.showView(); }
+});
+const parent = new Parent({ region: '#app' });
+await parent.start();
+await parent.restart(); // Same child Application, new layout and content Region.
+await parent.destroy();
+```
+
+`start({ region })` binds before `before:start` and `prepareStart`, while the
+original options object remains available to those hooks. Region instances are
+borrowed. Start and restart accept only existing Region instances. Constructor
+options still support creating an Application-owned Region from a selector,
+Region class, or definition object. Startup leaves that constructor configuration
+unchanged; use `getRegion()` to read the active host.
+Missing or `undefined` `region` retains the current host. A running or starting
+Application rejects a different host passed to `start()` with `MN0041`; stop the
+child before rebinding it, or use `restart({ region })`. Restart waits for its
+stop phase before changing hosts, and a failed stop leaves the old host in place.
+A newer restart with a different host supersedes an unfinished start or restart;
+the superseded operation resolves `false`.
+
+The `region` option is now reserved. Rename domain options such as
+`start({ region: 'us-east-1' })` to `start({ regionCode: 'us-east-1' })` and update
+their preparation handlers. The startup `region` must be a Region instance from
+the same Marionette runtime, not domain data.
 
 ## Application preparation methods
 
