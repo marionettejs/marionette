@@ -84,7 +84,7 @@ permission, propagation, or trusted-publisher configuration.
 
 ## If the beta fails in your application
 
-Pin `5.0.0-beta.3` across all five packages and restore the matching application
+Pin `5.0.0-beta.4` across all five packages and restore the matching application
 code and lockfile. The old `marionette@5.0.0-alpha.2` is not an API-compatible
 rollback for this candidate. Existing v4 applications should retain their
 pre-migration revision and `backbone.marionette` lockfile until their beta trial
