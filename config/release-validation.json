@@ -208,6 +208,14 @@
     {
       "file": "application-refresh.spec.mjs",
       "title": "Application refresh preserves editor focus and draft while only latest results commit"
+    },
+    {
+      "file": "application-start-region.spec.mjs",
+      "title": "registered child follows a recreated parent layout Region across restart"
+    },
+    {
+      "file": "application-start-region.spec.mjs",
+      "title": "a borrowed shell survives canceled loading and controller restart"
     }
   ],
   "fixtures": [
