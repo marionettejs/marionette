@@ -1,6 +1,6 @@
 # Try Marionette v5 beta
 
-`5.0.0-beta.4` is prepared for application trials. Registry installation requires
+`5.0.0-beta.5` is prepared for application trials. Registry installation requires
 a published release; use certified tarballs before publication. Release promotion
 sets npm `latest` to the current prerelease until stable v5. A matching version
 string alone does not prove that a locally built artifact matches a release.
@@ -37,9 +37,10 @@ pins matching runtime dependencies; a candidate kit instead supplies exact local
 tarballs and a complete lockfile. Both include application agent instructions,
 typecheck, consumer lint, unit tests, build, and a browser-test command.
 
-The registry path requires beta.4 to be published first. Beta.3 remains the previous
-published candidate and awaits Application `onBefore*` hooks rather than this beta's
-`prepare*` methods. Move asynchronous preparation to the new methods before upgrading.
+The registry path requires beta.5 to be published first. Beta.4 remains the previous
+published candidate. Beta.5 adds ownership-aware root cleanup, existing Regions on
+start/restart, and static child declarations. When upgrading from beta.3 or earlier,
+move asynchronous `onBefore*` preparation to the corresponding `prepare*` methods.
 
 The starter has editable rows, asynchronous local selection, deliberate cancellation,
 and teardown. It has no backend, persistence, or URL router. Connect its `navigate`
@@ -83,7 +84,7 @@ permission, propagation, or trusted-publisher configuration.
 
 ## If the beta fails in your application
 
-Pin `5.0.0-beta.3` across all five packages and restore the matching application
+Pin `5.0.0-beta.4` across all five packages and restore the matching application
 code and lockfile. The old `marionette@5.0.0-alpha.2` is not an API-compatible
 rollback for this candidate. Existing v4 applications should retain their
 pre-migration revision and `backbone.marionette` lockfile until their beta trial
@@ -92,5 +93,5 @@ succeeds.
 Maintainers must not overwrite a published beta version. Withdraw its recommendation,
 deprecate a broken version with a specific reason, and publish a corrected beta.
 Move the selected npm tag (`latest` before the first stable v5) only to the verified
-beta.3 release. Preserve exact artifacts and failure evidence.
+beta.4 release. Preserve exact artifacts and failure evidence.
 See [release recovery](https://github.com/marionettejs/marionette/blob/master/docs/release-promotion.md#recovery-and-rollback).

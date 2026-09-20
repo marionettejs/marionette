@@ -5,7 +5,7 @@
   "entrypoints": [
     {
       "name": "marionette",
-      "version": "5.0.0-beta.4",
+      "version": "5.0.0-beta.5",
       "kind": "runtime",
       "source": "src/index.ts",
       "conditions": {
@@ -5358,7 +5358,7 @@
     },
     {
       "name": "@mnjs/utils",
-      "version": "5.0.0-beta.4",
+      "version": "5.0.0-beta.5",
       "kind": "runtime",
       "source": "packages/utils/src/index.ts",
       "conditions": {
@@ -5979,7 +5979,7 @@
     },
     {
       "name": "@mnjs/radio",
-      "version": "5.0.0-beta.4",
+      "version": "5.0.0-beta.5",
       "kind": "runtime",
       "source": "packages/radio/src/index.ts",
       "conditions": {
@@ -6440,7 +6440,7 @@
     },
     {
       "name": "@mnjs/data",
-      "version": "5.0.0-beta.4",
+      "version": "5.0.0-beta.5",
       "kind": "runtime",
       "source": "packages/data/src/index.ts",
       "conditions": {
@@ -6973,7 +6973,7 @@
     },
     {
       "name": "@mnjs/adapters/backbone",
-      "version": "5.0.0-beta.4",
+      "version": "5.0.0-beta.5",
       "kind": "runtime",
       "source": "packages/adapters/src/data/backbone.ts",
       "conditions": {
@@ -7048,7 +7048,7 @@
     },
     {
       "name": "@mnjs/adapters/dom/jquery",
-      "version": "5.0.0-beta.4",
+      "version": "5.0.0-beta.5",
       "kind": "runtime",
       "source": "packages/adapters/src/dom/jquery.ts",
       "conditions": {
@@ -7108,7 +7108,7 @@
     },
     {
       "name": "@mnjs/adapters/xstate",
-      "version": "5.0.0-beta.4",
+      "version": "5.0.0-beta.5",
       "kind": "runtime",
       "source": "packages/adapters/src/data/xstate.ts",
       "conditions": {
@@ -7195,7 +7195,7 @@
     },
     {
       "name": "@mnjs/adapters/dom/morphdom",
-      "version": "5.0.0-beta.4",
+      "version": "5.0.0-beta.5",
       "kind": "runtime",
       "source": "packages/adapters/src/dom/morphdom.ts",
       "conditions": {
@@ -7235,7 +7235,7 @@
     },
     {
       "name": "@mnjs/adapters/dom/lit-html",
-      "version": "5.0.0-beta.4",
+      "version": "5.0.0-beta.5",
       "kind": "runtime",
       "source": "packages/adapters/src/dom/lit-html.ts",
       "conditions": {
@@ -8088,7 +8088,7 @@
     "config/diagnostics/catalog.json": "45360deea6dfe7d531b256dbbebb443e9fa578fb0d43fc9becce7ab5126c76bf",
     "docs/choosing-integrations.md": "385bfb2c7d85a8e0db71fd795ed1fef488aa637aa5094e93210810ff91f31f12",
     "docs/common.md": "1d14004d1c49e98ca40be9fd28d35faaf372f2a12f13fae6afa3cac8a8bf14cc",
-    "docs/data.api.md": "45638b4c67edb51a5d258a88347e580ee3138410ab98f99d27170939eeda78d6",
+    "docs/data.api.md": "f96a24fa8f08ed1437944d558e91878a16f941b7efd3dcc40c91b2de52d1f5a2",
     "docs/diagnostic-catalog.md": "1df844c7e8edbea59a8c07776d656d45f77266108babb770d7690183fe85d180",
     "docs/dom.api.md": "a697a637ae4c6cc92aa5d72850b404763f08e0417800feacc0b431ec073d3916",
     "docs/dom.interactions.md": "81bd678c7d498e08c08c84cfc3bbe1d27451ef46ed521e67fff4f72450bdbadb",
@@ -8101,16 +8101,16 @@
     "docs/marionette.region.md": "4b205c3699d771e6d6b288fd0914b15af80a7a76cfaaae9e63a92ac9ed0a6dee",
     "docs/marionette.state.md": "2598f36fad1f5103f1f940312e311e1ed3c446d2e7725bdac690367511f73d97",
     "docs/marionette.view.md": "b7b5871b0b56474cc3bc2513c2e2c4fdabdafcd724bfbaa8076ea7eee40d5ab5",
-    "docs/optional-backbone.md": "8f8323ba79c77de961b81c1e6f9d3ed10efa5566629772054de201ea247ddaba",
+    "docs/optional-backbone.md": "f1d47cd797e109a9a57f56e1db187b50bafd16f1ff2775f03559f9f7e59bc86c",
     "docs/radio.md": "c0013e382554aa6cd4e46ab60908f5e6cce7117c134b3f4656c37a163f8a5f4e",
     "docs/runtime-isolation.md": "e18927a5aa30558805018c9c28dffceaf02d953394efce8eaa7d35f0711de7f4",
     "docs/typescript.md": "08361d38a3b3c29dcc45097fc44d74962cee91d9d97bea9f84006c1a9639e59b",
     "docs/utils.md": "5c2d0854895bb19f613926788cf81c5849cf18af1e43ac540e860b226fa80d2a",
     "docs/view.lifecycle.md": "1e5f0e77d9bba799296ed40860a1d466e58cc086c36f72314cbe3c9daeedf8e3",
     "docs/view.rendering.md": "106bd7c14f5897513a5072bed98d36e029b9be91650267f17ebcf90b03d8cb13",
-    "packages/adapters/readme.md": "67bca53b26a2facef67f4bc04931af31cbe9923167a9e62c98aa9789c40fd291",
-    "packages/data/readme.md": "3457a89461df43126a7904d4a4fad71afd6a9cf14ff3c8cd733b4b4653f01483",
-    "packages/utils/readme.md": "8ba1130cd1b6fd0aac3dd945d100bb2cebc8c87212890f1229a0863e2d9e4755",
+    "packages/adapters/readme.md": "d1be90d2631fcd4346b9e4648e7288e63ff28063fd7ffb860f32de25164d5d29",
+    "packages/data/readme.md": "041e330fad1a87c891844b774dd5309aae61cc7a36d76b3dcf9ec5dfcd7b8c95",
+    "packages/utils/readme.md": "2ea64109e9b65c9fb66d48c30fec86b6475aa4d8c809cc68c68a28925ed93021",
     "test/contracts/dom-adapters.js": "a3f71df6a2e52f8d4a52ebb2d3cbbc8e77e055f459daf7c071f4e5fd55ad8c3f",
     "test/unit/application-child-declarations.spec.js": "3b98e033f99902a8bff5c533c03599375381da4b4a01b9014e825eb21cb80e2b",
     "test/unit/application-child-lifecycle.spec.js": "e69e6a140e341563b49333d09bd1c483151f9f4b2a494960a4dfc78bb81f8dcb",
