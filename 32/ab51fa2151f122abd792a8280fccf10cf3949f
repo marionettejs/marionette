@@ -1,0 +1,53 @@
+config/api-contracts/inventory.json
+  s_0b2518106a33a7::t_19214ae23544ff 4,100,103,399,402,620-632,7463-7469,8056,8067,8088,8097,8101,8120-8122
+config/api-contracts/semantics.json
+  s_0b2518106a33a7::t_2ea598c85e282f 1512,1515,1517-1519,1532-1535,1582-1589,2357,2359-2362,2405,2409
+config/diagnostics/catalog.json
+  s_0b2518106a33a7::t_019a4b53e8403a 705-720
+config/release-validation.json
+  s_0b2518106a33a7::t_899e29f4c8fdfc 16-19,211-218
+docs/compact-reference.md
+  s_0b2518106a33a7::t_75543112d835cc 16,22,24,115
+docs/marionette.application.md
+  s_0b2518106a33a7::t_5f7d90e109787f 190-223,609-610,612-615,620-633,636-642,691-692,694-697,717-721,733,738-743
+docs/marionette.region.md
+  s_0b2518106a33a7::t_f84f484fa35881 133-138
+docs/migration-from-v4.md
+  s_0b2518106a33a7::t_f83722b61c10b2 88
+src/index.ts
+  s_0b2518106a33a7::t_afcbdbc24ede47 53
+src/modules/application.ts
+  s_0b2518106a33a7::t_5cd1682ac2855c 15,39-42,66,68,143,156,214-221,343-355,359-360,449-450,461-462,478-505,517-521,603,608,610-612,619,659,664,666,677,804,814-818,832-833,837-838,846
+test/browser/application-prepared-view.spec.mjs
+  s_0b2518106a33a7::t_54f5d0a6ed0b30 101,108-109,125-129,134-182
+test/browser/application-start-region.spec.mjs
+  s_0b2518106a33a7::t_922306e9e94b5a 1-161
+test/types/application.cts
+  s_0b2518106a33a7::t_2ad86733229375 1,71-84,107
+test/types/application.mts
+  s_0b2518106a33a7::t_b3b8da46a738fb 1,71-84,107
+test/unit/application-prepared-view.spec.js
+  s_0b2518106a33a7::t_bdb7e3628c2c27 138-165,255,261-265,271,288,291-293,299,301-319,321-323,325-328
+test/unit/application-root-view.spec.js
+  s_0b2518106a33a7::t_0257fb7a667e85 20,24-27,34-35,38-41,59-86,92,94,98-99,123,134,138-139,144,170,178,180,184,188,197,199-200,202,204,206,344,392,400,405,449-466
+test/unit/application-start-region.spec.js
+  s_0b2518106a33a7::t_8f855975a1b6c8 1-404
+upgradeGuide.md
+  s_0b2518106a33a7::t_a99da4ef261f3f 35-54,578-627
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "32ab51fa2151f122abd792a8280fccf10cf3949f",
+  "prompts": {},
+  "sessions": {
+    "s_0b2518106a33a7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0b78c-30de-7fc1-8943-96b2fce3589f",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
