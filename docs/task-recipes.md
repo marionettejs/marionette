@@ -14,6 +14,7 @@ existing compatible integration; each task identifies when another one is needed
 | Reuse server-provided markup | [Prerendered content](./dom.prerendered.md) | Give an existing element to its View; establish child ownership explicitly. |
 | Observe a shared model | [DataApi](./data.api.md) | Use the existing provider, or native observable data for a new application; plain objects do not emit changes. |
 | React to local owner state | [State](./marionette.state.md) | Choose StateApi separately from DataApi; use owner cleanup for subscriptions. |
+| Replace an editor while keeping notes | [Editor workspace](#replace-an-editor-without-resetting-a-sibling-pane) | Separate regions preserve the sibling draft; each editor owns its widget and forwards save events. |
 | Wrap a widget that owns DOM | [The example below](#wrap-a-dom-owning-widget) | The View owns the widget handle and tears it down before DOM removal. |
 
 ## Wrap a DOM-owning widget
@@ -102,6 +103,89 @@ lifecycle callback does not automatically await arbitrary third-party promises.
 The [executable fixture](https://github.com/marionettejs/marionette/blob/master/test/fixtures/docs-application-guides/validate.mjs)
 checks one widget per attachment, teardown before rerender, detach/reshow, and
 final destruction. See [lifecycle](./view.lifecycle.md) for event ordering.
+
+### Replace an editor without resetting a sibling pane
+
+Use separate regions when one pane changes while another keeps an unfinished draft.
+This workspace reuses `WidgetView` above (save that module as `widget-view.js`), so
+its editor handle is released before detach, rerender, replacement, and destruction.
+`mountEditor(host, onDraft)` is your synchronous editor adapter: it reports draft
+strings and returns a non-throwing `{ destroy() }` handle.
+
+<!-- executable-example: widget-owned-workspace -->
+```javascript
+import { View } from 'marionette';
+import { WidgetView } from './widget-view.js';
+
+const EditorView = WidgetView.extend({
+  template: () => '<span data-label></span><div data-widget-host></div>' +
+    '<button type="button" data-save>Save</button>',
+  draft: '',
+  onRender() {
+    this.el.querySelector('[data-label]').textContent = this.getOption('label');
+  },
+  events: {
+    'click [data-save]'() {
+      this.triggerMethod('save', this.getOption('id'), this.draft);
+    }
+  }
+});
+
+export function createEditorWorkspace(el, mountEditor, onSave) {
+  const Workspace = View.extend({
+    template: () => '<div data-editor-region></div><div data-notes-region></div>',
+    regions: {
+      editor: { el: '[data-editor-region]', replaceElement: true },
+      notes: '[data-notes-region]'
+    },
+    childViewEvents: {
+      save(id, draft) { onSave(id, draft); }
+    }
+  });
+  const view = new Workspace({ el }).render();
+  const notes = new View({ template: () => '<textarea aria-label="Notes"></textarea>' });
+  view.showChildView('notes', notes);
+
+  return {
+    view,
+    openEditor(id, label) {
+      const editor = new EditorView({
+        id, label,
+        createWidget(host) {
+          let active = true;
+          const handle = mountEditor(host, draft => {
+            if (active) editor.draft = draft;
+          });
+          return {
+            destroy() {
+              active = false;
+              handle.destroy();
+            }
+          };
+        }
+      });
+      view.showChildView('editor', editor);
+      return editor;
+    },
+    closeEditor() { view.getRegion('editor').empty(); },
+    destroy() { view.destroy(); }
+  };
+}
+```
+
+Call `createEditorWorkspace` with an attached element, your editor adapter, and a
+save callback. `openEditor(id, label)` destroys the previous editor; `closeEditor()`
+releases it without disturbing the notes View, its DOM, draft, or focus. Open another
+editor later, and call `destroy()` when leaving the workspace. Update drafts through
+the adapter callback, not by rerendering the workspace. Persist editor content outside
+the disposable widget if it must survive detach or rerender.
+
+The save handler receives exactly the emitted `id, draft` arguments; Marionette does
+not prepend the child View. Region-owned event forwarding stops for a replaced or
+removed child. Each widget handle also has its own `active` flag, cleared **before**
+its teardown: a late callback from that handle cannot overwrite a newer draft, even
+if the same View was detached and shown again. See [child events](./events.md#child-view-events)
+and [region ownership](./marionette.region.md#lifecycle-transition-contract).
 
 ## Preserve an edited row during collection changes
 
