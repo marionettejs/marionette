@@ -7,7 +7,7 @@ for standalone use. To use it with Marionette views, install both packages and
 configure the runtime before creating owners:
 
 ```sh
-npm install marionette@5.0.0-beta.4 @mnjs/data@5.0.0-beta.4
+npm install marionette@5.0.0-beta.5 @mnjs/data@5.0.0-beta.5
 ```
 
 ```js

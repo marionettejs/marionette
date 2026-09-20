@@ -1,3 +1,25 @@
+### v5.0.0-beta.5
+
+> An Application can keep its children without keeping yesterday’s living room.
+
+* Separate Application root ownership from its host Region. Stopping an Application
+  releases its prepared and displayed roots without clearing another Application's
+  replacement in a borrowed Region. Prepare roots with `setView()` and hand them
+  to the Region with `showView()`; displaying a View directly through a Region
+  does not transfer Application ownership.
+* Accept an existing Region in `start({ region })` and `restart({ region })`, so
+  retained child Applications can follow recreated parent layouts. Constructor
+  Region definitions remain owned; startup Regions are borrowed. Use `restart()`
+  when changing the host of an active Application.
+* Add `childApps` constructor maps or functions for static, no-argument children.
+  Construct and register them once before parent initialization; activation stays
+  explicit. Subclass and option declarations replace inherited maps. Use
+  `addChildApp()` for dynamic children or constructor arguments.
+* Expand executable lifecycle and migration guidance, and direct documentation
+  retrieval toward relevant contracts. These changes do not establish measured
+  agent-effectiveness or stable-v5 readiness.
+* Shard Windows release certification while retaining the complete fixture gate.
+
 ### v5.0.0-beta.4
 
 > Events announce. Preparation waits. Apparently those needed separate job descriptions.

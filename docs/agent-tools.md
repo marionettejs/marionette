@@ -92,13 +92,13 @@ and lockfile, including any npm alias. A v4 application may use
 marionette found” does not mean the application has no Marionette dependency.
 
 Download the exact target into a temporary directory without installing it in the
-application. This example inspects `5.0.0-beta.4`; set `migration_target_version` to
+application. This example inspects `5.0.0-beta.5`; set `migration_target_version` to
 the exact release selected for your migration, not `latest` or `next`. Downloading
 requires npm registry access; reading the extracted docs requires Node 24 or later.
 Run these commands in the same shell:
 
 ```sh
-migration_target_version="5.0.0-beta.4"
+migration_target_version="5.0.0-beta.5"
 migration_target_dir="$(mktemp -d)"
 npm pack "marionette@$migration_target_version" --ignore-scripts --pack-destination "$migration_target_dir"
 tar -xzf "$migration_target_dir/marionette-$migration_target_version.tgz" -C "$migration_target_dir"
