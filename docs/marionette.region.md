@@ -130,6 +130,13 @@ When its current View destroys itself, the Region clears that View's ownership
 and releases the owning parent View's subscriptions to it. Later events on the
 destroyed child are no longer forwarded to the parent.
 
+The `empty` event runs after `currentView` and View ownership have been cleared.
+When `region.empty()` is invoked directly, an `empty` listener may show a
+replacement View through the same Region; that new operation observes the
+completed empty state. For an Application-prepared replacement, call
+`application.showView()` to transfer ownership to the Region. Exceptions still abort the synchronous callback operation
+under the [synchronous failure boundary](./view.lifecycle.md#synchronous-failures).
+
 The following example preserves a View by detaching it before showing it again.
 Calling `empty()` afterward destroys the View and returns the Region to its empty state.
 

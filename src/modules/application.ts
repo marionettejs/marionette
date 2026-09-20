@@ -145,6 +145,7 @@ type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & S
   _region?: RegionInstance;
   _ownedRegion?: RegionInstance;
   _preparedView?: SupportedView;
+  _displayedView?: SupportedView;
   _isDestroyed: boolean;
   _initRegion(): void;
   _initRadio(): void;
@@ -316,10 +317,24 @@ function onPreparedViewDestroyed(this: ApplicationInternals) {
   releasePreparedView(this);
 }
 
+function releaseDisplayedView(application: ApplicationInternals, view = application._displayedView,
+  region = application.getRegion()) {
+  if (!view || application._displayedView !== view) { return; }
+
+  delete application._displayedView;
+  region?.off('empty', onDisplayedRegionEmpty, application);
+  return view;
+}
+
+function onDisplayedRegionEmpty(this: ApplicationInternals, region: RegionInstance, view: SupportedView) {
+  releaseDisplayedView(this, view, region);
+}
+
 function emptyView(application: ApplicationInternals, options?: unknown) {
   releasePreparedView(application)?.destroy();
   const region = application.getRegion();
-  if (region?.currentView) {
+  const displayed = releaseDisplayedView(application);
+  if (region?.currentView && (application._ownedRegion || region.currentView === displayed)) {
     region.empty(options as ShowOptions | undefined);
   }
 }
@@ -723,7 +738,7 @@ export default /* @__PURE__ */ ((methods: object) => {
         url: 'marionette.application.html#setviewview'
       });
     }
-    if (view._parent && view._parent !== this.getRegion()) {
+    if (view._parent && view !== this._displayedView) {
       throw new MarionetteError({
         code: 'MN0003',
         name: 'ApplicationError',
@@ -733,11 +748,11 @@ export default /* @__PURE__ */ ((methods: object) => {
     }
 
     releasePreparedView(this)?.destroy();
-    if (view !== this.getRegion()?.currentView) {
-      this._preparedView = view;
-      view._parent = this;
-      view.on('destroy', onPreparedViewDestroyed, this);
-    }
+    if (view === this._displayedView) { return view; }
+
+    this._preparedView = view;
+    view._parent = this;
+    view.on('destroy', onPreparedViewDestroyed, this);
     return view;
   },
 
@@ -751,10 +766,13 @@ export default /* @__PURE__ */ ((methods: object) => {
     // The Region becomes the sole owner after adoption. An allowed missing
     // mount leaves the prepared View with the Application for later cleanup.
     const region = this.getRegion()!;
-    if (root._parent === this) { delete root._parent; }
+    if (root === region.currentView) { return root; }
+    delete root._parent;
     region.show(root, ...args);
     if (region.currentView === root) {
       releasePreparedView(this);
+      this._displayedView = root;
+      region.on('empty', onDisplayedRegionEmpty, this);
     } else {
       root._parent = this;
     }
@@ -762,6 +780,6 @@ export default /* @__PURE__ */ ((methods: object) => {
   },
 
   getView(this: ApplicationInternals) {
-    return this._preparedView || this.getRegion()?.currentView;
+    return this._preparedView || this._displayedView;
   }
 });

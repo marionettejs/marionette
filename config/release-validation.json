@@ -14,6 +14,10 @@
       "title": "preparing a replacement preserves the displayed screen until Region adoption"
     },
     {
+      "file": "application-prepared-view.spec.mjs",
+      "title": "Applications sharing a borrowed Region stop only their own displayed root"
+    },
+    {
       "file": "attachment-owner-document.spec.mjs",
       "title": "direct template content attaches parent and child once"
     },
