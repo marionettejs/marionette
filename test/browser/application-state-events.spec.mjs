@@ -73,3 +73,30 @@ test('Application state events preserve active UI through rejected stop and rese
     restarted: { sameState: true, choice: 'initial', writes: ['next'] }, empty: true
   });
 });
+
+test('restart completion can stop its newly mounted root', async({ page }) => {
+  const result = await page.evaluate(async() => {
+    const { Application, View } = await import('marionette');
+    let starts = 0;
+    let stops = 0;
+    let stopping;
+    let root;
+    const App = Application.extend({
+      region: '#content',
+      onStart() {
+        root = this.showView(new View({ template: () => '<input value="new run">' }));
+        if (++starts === 2) { stopping = this.stop(); }
+      },
+      onStop() { stops += 1; }
+    });
+    const app = new App();
+    await app.start();
+    await app.restart();
+    const stopped = await stopping;
+    const observed = { stopped, stops, running: app.isRunning(), destroyed: root.isDestroyed(),
+      mounted: root.el.isConnected, empty: document.querySelector('#content').childElementCount === 0 };
+    await app.destroy();
+    return observed;
+  });
+  assert.deepEqual(result, { stopped: true, stops: 2, running: false, destroyed: true, mounted: false, empty: true });
+});

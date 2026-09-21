@@ -2,7 +2,8 @@
 
 Application `stateEvents` deliver during the active run, following `isRunning()`.
 Seed state before activation and read its current value in `onStart`; pending stop
-permission leaves delivery active until stopping succeeds. Subscriptions themselves
+permission for stop/restart leaves delivery active until stopping succeeds.
+Terminal destruction deactivates delivery immediately. Subscriptions themselves
 remain installed until destruction, and suppressed notifications are not replayed.
 
 `radioEvents`, `radioRequests`, and ordinary `listenTo` bindings have object

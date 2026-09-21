@@ -255,6 +255,66 @@ describe('Application state events follow activation', function() {
     expect(later).not.toHaveBeenCalled();
   });
 
+  it('fully stops a new run from its restart completion handler', async function() {
+    const handler = vi.fn();
+    const stopped = vi.fn();
+    let starts = 0;
+    let stopping;
+    let root;
+    const app = createApp({
+      stateEvents: { changed: handler },
+      onStart() {
+        root = this.setView(new runtime.View({ template: false }));
+        if (++starts === 2) { stopping = this.stop(); }
+      },
+      onStop: stopped
+    });
+    await app.start();
+    expect(await app.restart()).toBe(true);
+    expect(await stopping).toBe(true);
+    expect(stopped).toHaveBeenCalledTimes(2);
+    expect(app.isRunning()).toBe(false);
+    expect(root.isDestroyed()).toBe(true);
+    expect(app.getView()).toBeUndefined();
+    state.trigger('changed');
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('deactivates before an adopted start replaces the old Region', async function() {
+    const ready = readiness();
+    const handler = vi.fn();
+    const activity = [];
+    const first = new runtime.Region({ el: document.createElement('main') });
+    const second = new runtime.Region({ el: document.createElement('main') });
+    const app = createApp({
+      stateEvents: { changed: handler },
+      prepareStop() { return ready.promise; },
+      onStart() {
+        const root = this.showView(new runtime.View({ template: false }));
+        root.on('before:destroy', () => {
+          activity.push(this.isRunning());
+          state.trigger('changed');
+        });
+      }
+    });
+    await app.start({ region: first });
+    const oldRoot = app.getView();
+    const stopping = app.stop();
+    const starting = app.start({ region: second });
+    expect(app.isRunning()).toBe(true);
+    ready.resolve();
+    expect(await stopping).toBe(false);
+    expect(await starting).toBe(true);
+    expect(activity).toEqual([false]);
+    expect(handler).not.toHaveBeenCalled();
+    expect(oldRoot.isDestroyed()).toBe(true);
+    expect(app.getRegion()).toBe(second);
+    expect(app.isRunning()).toBe(true);
+    await app.destroy();
+    first.destroy();
+    second.destroy();
+  });
+
   it('keeps other owners and explicit listeners independent and releases subscriptions once', async function() {
     const cleanups = [];
     const disposeOwned = vi.fn();

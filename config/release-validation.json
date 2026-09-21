@@ -220,6 +220,10 @@
     {
       "file": "application-state-events.spec.mjs",
       "title": "Application state events preserve active UI through rejected stop and reset safely on restart"
+    },
+    {
+      "file": "application-state-events.spec.mjs",
+      "title": "restart completion can stop its newly mounted root"
     }
   ],
   "fixtures": [
