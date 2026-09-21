@@ -91,9 +91,10 @@ destroyed state or emit the invalidated success event.
 before `onStart`, and stays `true` while stop permission or descendant stopping is
 pending, including a restart's stop phase. Rejected or canceled stop preserves the
 active run. It becomes `false` before successful stop tears down the root, during
-startup preparation, and immediately when terminal destruction begins. If destroy
-fails before deactivation, the previous running state is restored. It does not
-report whether a lifecycle operation is pending.
+startup preparation, and immediately when terminal destruction begins. If
+destruction's stop preparation fails before the previous run is stopped, its
+running state is restored. It does not report whether a lifecycle operation is
+pending.
 
 ### Lifecycle operations
 
