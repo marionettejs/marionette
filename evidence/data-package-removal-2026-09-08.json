@@ -11,6 +11,7 @@
   },
   "explicitGc": true,
   "method": "Two warmups and nine measured samples per variant; alternating order; construction and cleanup excluded; silent removal; median milliseconds.",
+  "currentContractNote": "Historical result from before removal notifications became mandatory; do not compare with current notifying benchmark runs.",
   "cases": [
     {
       "count": 1000,

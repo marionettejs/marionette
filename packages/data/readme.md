@@ -60,9 +60,13 @@ setters when needed; using this package does not require creating a new runtime.
 
 `Model` provides `get`, `has`, `set`, `unset`, `clear`, `reset`, `toObject`, and
 `destroy`. `Collection` provides ordered `at`, `get`, `indexOf`, iteration,
-`forEach`, `map`, `add`, `remove`, `reset`, `move`, `sort`, `toArray`, and `destroy` operations. Pass `{ silent: true }` to a
-structural mutation to suppress its normalized record and entity events.
-`destroy()` is the exception and always emits its destruction event.
+`forEach`, `map`, `add`, `remove`, `reset`, `move`, `sort`, `toArray`, and
+`destroy` operations. Construction seeds data without emitting mutation events.
+Subsequent mutations always publish their documented entity events and normalized
+structural records; there is no `silent` option, notification queue, or replay.
+Unchanged Model writes and no-op membership/move operations do not emit. Explicit
+`reset` and `sort` retain their documented notifications. `destroy()` always emits
+its destruction event.
 
 Define subclass `defaults` on the prototype, for example with `Model.extend`, a
 prototype method, or a prototype getter. Native class fields initialize after
@@ -81,8 +85,9 @@ already present. Applications should keep ids unique when changing them.
 `get`, `remove`, and `move` resolve an exact member instance first, then an
 application id, then a cid. This precedence does not change when models move.
 Bulk removal resolves its inputs against one current membership snapshot, including
-silent id changes. It skips missing identities and repeated matches, returns
-removed Models in input order, and keeps surviving Models in collection order.
+ids changed since those models were added. It skips missing identities and repeated
+matches, returns removed Models in input order, and keeps surviving Models in
+collection order.
 If id writes temporarily create duplicates, id lookup selects the first current
 member; applications should restore unique ids.
 
@@ -92,7 +97,7 @@ is used only for raw attribute objects. Initial model instances do not configure
 the constructor used for future raw additions.
 
 A model may belong to multiple Collections. Its `destroy` event removes it from
-each containing Collection, forwarding removal options such as `silent`.
+each containing Collection, forwarding removal metadata.
 The destroy event itself still fires. Destroying a Collection releases subscriptions; it
 does not destroy its models.
 
@@ -130,7 +135,8 @@ not a complete model snapshot. Removing an attribute reports `undefined` in
 Nested Model writes complete synchronously as independent changes. Use the event's
 `options.changed` to inspect that event: `model.changed` reflects the latest write,
 which may be a nested mutation by the time an outer change callback runs. Silent
-writes still update attributes and `changed`; no-op writes clear `changed`.
+writes are not supported; every effective write notifies. No-op writes clear
+`changed` without notifying.
 
 Collection `add` and `remove` events originate on the Collection. Model events are
 forwarded by containing Collections. Sorting is explicit: a prototype comparator

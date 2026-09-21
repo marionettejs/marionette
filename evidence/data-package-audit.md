@@ -11,7 +11,8 @@ keeping it out avoids expanding the mutation contract while fixing current metho
   compatibility fallback remains.
 - Collection lookup is exact member instance, then application id, then cid.
   Reordering does not change this precedence. Batch lookup uses the same precedence
-  against a current snapshot, so silent id changes need no persistent index.
+  against a current snapshot, so ids changed since insertion need no persistent
+  index.
 - Bulk removal uses a temporary identity Map and removal Set instead of repeated
   scans. A regression test limits ID reads to at most twice the collection length.
 - The array removal overload is reachable. Collection types account for both
@@ -31,9 +32,11 @@ shared utilities. The source blob hashes and all samples are recorded in
 [the measurement JSON](./data-package-removal-2026-09-08.json).
 
 Two warmups and nine samples per variant, alternating execution order. Construction,
-cleanup, and explicit GC are outside the timer. Mutations are silent. Tests and
-builds were not run concurrently with the reported measurement. These are local
-microbenchmarks, not browser or production throughput claims.
+cleanup, and explicit GC are outside the timer. These historical measurements
+suppressed mutation notifications under the contract in effect at the time. They
+are not comparable with current runs, which deliver removal notifications. Tests
+and builds were not run concurrently with the reported measurement. These are
+local microbenchmarks, not browser or production throughput claims.
 
 | Collection size | Removed inputs | Before median | After median | Ratio |
 | ---: | --- | ---: | ---: | ---: |
@@ -49,7 +52,8 @@ instances formerly required 49,995,000 ID reads; the new batch index needs 20,00
 Single-removal differences are small and mixed; no general single-removal speedup
 is claimed.
 
-Reproduce from a checkout containing this change:
+Run the current notifying benchmark shape from a checkout containing this change;
+it does not reproduce the historical silent measurements above:
 
 ```sh
 baseline=$(mktemp -d)

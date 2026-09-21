@@ -1652,7 +1652,7 @@
       "result": "Model instances expose attributes, identity and exact mutation/query results in generated signatures.",
       "timing": "Synchronous; callbacks or adapters that throw abort the operation.",
       "ownership": "No source ownership transfer.",
-      "mutation": "set/unset/clear/reset publish exact change records unless silent; missing and own undefined are distinct. Native Model subclasses are preserved.",
+      "mutation": "set/unset/clear/reset publish exact change records after notification-free construction; missing and own undefined are distinct. Native Model subclasses are preserved.",
       "repetition": "Nested writes complete synchronously as independent changes; destroy is idempotent.",
       "destruction": "destroy notifies observers once; containing collections remove that model; later mutations do not revive it.",
       "diagnostics": [],
@@ -1689,7 +1689,7 @@
       "timing": "Synchronous; callbacks or adapters that throw abort the operation.",
       "ownership": "Collections observe membership but do not own Model lifetimes; the same Model may belong to multiple Collections.",
       "mutation": "add/remove produce normalized records; move/sort reorder; reset rebuilds membership; no Collection.set API exists.",
-      "repetition": "No-op/silent mutations follow their documented event rules; sort emits even if order is unchanged; destroy is idempotent.",
+      "repetition": "No-op mutations follow their documented event rules; notifications cannot be silenced; sort emits even if order is unchanged; destroy is idempotent.",
       "destruction": "Successful destruction releases subscriptions; callback exceptions abort cleanup.",
       "diagnostics": [],
       "docs": [

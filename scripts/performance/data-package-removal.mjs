@@ -35,7 +35,7 @@ for (const count of [1000, 10000]) {
         const candidates = input === 'models' ? models : input === 'ids' ? models.map(model => model.id) : models[0];
         globalThis.gc();
         const start = performance.now();
-        const removed = collection.remove(candidates, { silent: true });
+        const removed = collection.remove(candidates);
         const elapsed = performance.now() - start;
         if (trial >= 0) { samples[name].push(elapsed); }
         assert.equal(collection.length, input === 'single' ? count - 1 : 0);
@@ -56,6 +56,6 @@ console.log(JSON.stringify({
   baseline: resolve(baseline),
   current: root,
   explicitGc: typeof globalThis.gc === 'function',
-  method: 'Two warmups and nine measured samples per variant; alternating order; construction and cleanup excluded; silent removal; median milliseconds.',
+  method: 'Two warmups and nine measured samples per variant; alternating order; construction and cleanup excluded; removal notifications delivered; median milliseconds.',
   cases
 }, null, 2));

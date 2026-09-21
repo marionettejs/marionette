@@ -4,7 +4,6 @@ import type { EventMethods as EventSource, Merge, Constructed, CallableParent } 
 
 export type ModelAttributes = Record<string, unknown>;
 export interface MutationOptions {
-  silent?: boolean;
   [key: string]: unknown;
 }
 
@@ -113,13 +112,11 @@ function update<Receiver extends ModelRuntime>(model: Receiver, attributes: Mode
   model.id = model.get(model.idAttribute);
   model.changed = changed;
 
-  if (!options.silent) {
-    const change = { ...options, changed, previous };
-    for (const key of changedKeys) {
-      model.triggerMethod(`change:${ key }`, model, changed[key], change);
-    }
-    model.triggerMethod('change', model, change);
+  const change = { ...options, changed, previous };
+  for (const key of changedKeys) {
+    model.triggerMethod(`change:${ key }`, model, changed[key], change);
   }
+  model.triggerMethod('change', model, change);
 
   return model;
 }
@@ -130,7 +127,10 @@ export const Model = function(this: ModelRuntime, attributes: ModelAttributes | 
   this.cid = `mnd${ ++modelId }`;
   this.attributes = {};
   const defaults = getDefaults(this);
-  update(this, { ...defaults, ...attributes }, { silent: true });
+  for (const [key, value] of Object.entries({ ...defaults, ...attributes })) {
+    setProperty(this.attributes, key, value);
+  }
+  this.id = this.get(this.idAttribute);
   this.changed = {};
   this.initialize(attributes, options);
 } as unknown as ModelExtension<ModelAttributes, {}, {}>;
