@@ -160,7 +160,7 @@ type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & S
   _destroyRadio(): unknown;
   _initState(options?: unknown): void;
   _isRunning: boolean;
-  _initStateEvents(isActive: (application: ApplicationInternals) => boolean): unknown;
+  _initStateEvents(shouldDeliver: (application: ApplicationInternals) => boolean): unknown;
 };
 
 const ClassOptions = [
