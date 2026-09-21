@@ -1,0 +1,70 @@
+test/fixtures/data-package-types/validate.mts
+  s_9ac4d9a4112f3d::t_90ad7784271e09 32
+evidence/data-package-removal-2026-09-08.json
+  s_4d58313edd39a0::t_61bdf262600e16 14
+evidence/state-data-regression-ledger.md
+  s_4d58313edd39a0::t_61bdf262600e16 19-20
+test/fixtures/data-package-types/validate.cts
+  s_9ac4d9a4112f3d::t_a747ae4f276e0c 32
+packages/data/src/collection.ts
+  s_9ac4d9a4112f3d::t_0153cf4b023c8c 152-159,167,266-268,291-293,300,302,318,337
+config/api-contracts/semantics.json
+  s_9ac4d9a4112f3d::t_0c5cac1b475f41 1655,1692
+test/unit/data-package/api-integration.spec.js
+  s_9ac4d9a4112f3d::t_e474c8263aa390 6-33
+test/unit/data-package/model.spec.js
+  s_9ac4d9a4112f3d::t_cf21a148fc4a48 34-46,72,131,134-135,142-143
+changelog.md
+  s_9ac4d9a4112f3d::t_8daaa5c21d5c59 1-6
+docs/maintainers/line-audit-integrations.md
+  s_4d58313edd39a0::t_4ea6ea60beceeb 101-102
+test/performance/data-package.test.mjs
+  s_4d58313edd39a0::t_61bdf262600e16 24
+test/fixtures/data-package-types/validate.ts
+  s_9ac4d9a4112f3d::t_98f681fc7b4ca5 32
+upgradeGuide.md
+  s_9ac4d9a4112f3d::t_1c2973a473f890 653-658,664-667
+  s_4d58313edd39a0::t_61bdf262600e16 659-663
+packages/data/readme.md
+  s_4d58313edd39a0::t_61bdf262600e16 63,138-139
+  s_9ac4d9a4112f3d::t_a9e5e80a7e4d6c 100
+  s_4d58313edd39a0::t_4ea6ea60beceeb 64-69,88-90
+docs/data.api.md
+  s_9ac4d9a4112f3d::t_35e75017f3caa1 250-251,271
+  s_4d58313edd39a0::t_61bdf262600e16 252-253,273-275
+packages/data/src/model.ts
+  s_9ac4d9a4112f3d::t_b735ab25c9241b 115-117,119,130-133
+evidence/data-package-audit.md
+  s_4d58313edd39a0::t_4ea6ea60beceeb 14-15
+  s_4d58313edd39a0::t_61bdf262600e16 35-39,55-56
+config/api-contracts/inventory.json
+  s_9ac4d9a4112f3d::t_d962f3e837decb 4,8027,8029,8087,8108,8135-8137
+scripts/performance/data-package-removal.mjs
+  s_4d58313edd39a0::t_61bdf262600e16 38,59
+test/unit/data-package/collection.spec.js
+  s_9ac4d9a4112f3d::t_37dc0c62e984a4 20-34,152,184,195,300,311-312,338,346-351,365
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "b83a6a95625967328df71922fc96ed54c6d8c633",
+  "prompts": {},
+  "sessions": {
+    "s_4d58313edd39a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c2d0-dbd6-7bd0-8a9f-7db3a0992b1b",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    },
+    "s_9ac4d9a4112f3d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c2af-dd78-7880-ab85-5f5ec704af20",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
