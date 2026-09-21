@@ -96,6 +96,31 @@ on successful stop and terminal destruction. The executable example below and it
 [installed checks](https://github.com/marionettejs/marionette/blob/master/test/fixtures/docs-application-guides/effects.mjs)
 already cover rejected stop permission and successful timer cleanup.
 
+## Work started after activation
+
+An async action called from `onStart`, a state handler, or a user event is not part
+of `prepareStart` readiness. Handle its rejection at the action's owner and check
+whether its result still belongs to the current work before updating the UI.
+There are two separate questions:
+
+- Does this request still belong to the active run? A later run may make
+  `isRunning()` true again, so that boolean alone cannot identify the request's run.
+- Has a newer request replaced it within the same run? A run-scoped signal alone
+  does not establish latest-request-wins ordering.
+
+Use the [latest-request example](./application-refresh.md#share-one-latest-request-controller)
+for replaceable reads, with disposal tied to the feature's chosen lifetime.
+Ignoring an obsolete result or aborting a request does not undo a write already
+performed by a provider. Save and discard actions need an explicit mutation policy;
+do not assume the same replacement policy is appropriate for them.
+
+An owned child Application is useful when the work belongs to a feature with its
+own activation and cleanup, with state or UI where needed. Put its initial readiness in
+its `prepareStart` and render its prepared result in `onStart`. A child per Promise
+does not automatically solve request ordering. Even when startup belongs to an
+existing child, a parent's asynchronous failure handler must still check that the
+failure is relevant to the parent's current context.
+
 ## A complete feature
 
 Save this module as `status-feature.js`. Supply an element, an `@mnjs/data` Model,

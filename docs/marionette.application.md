@@ -96,6 +96,32 @@ destruction's stop preparation fails before the previous run is stopped, its
 running state is restored. It does not report whether a lifecycle operation is
 pending.
 
+### Cleanup and stop permission
+
+`onBeforeStop` announces a stop attempt; `prepareStop` supplies its readiness.
+Neither means the active run has ended. Keep listeners, request ownership, and
+services needed by that run available while permission is pending. Use `onStop`
+for synchronous cleanup after successful stopping, such as removing per-run
+listeners or invalidating outstanding display requests. Waiting until destruction
+alone leaves those resources installed across ordinary stop/restart cycles.
+
+Do not destroy a required service in `prepareStop` merely to await its cleanup.
+For example, `removeChildApp('service')` destroys that child; a later readiness
+failure cannot restore it. Parent/child stopping is not transactional: children
+already stopped before another child fails remain stopped. See
+[child ownership](#registering-and-controlling-children) for the partial-failure contract.
+
+Moving asynchronous disposal into `onStop` does not make it awaited. Choose the
+service's ownership and readiness policy explicitly when its disposal must finish
+before another run can use it. Resources acquired during startup also need a
+cancellation/rejection cleanup path; successful-stop cleanup alone does not cover
+failed preparation. A replacement start can also adopt pending stop readiness
+without emitting the superseded stop notification; dispose any previous run scope
+before acquiring its replacement. The [effects guide](./application-effects.md#choose-when-effects-end)
+shows an application-owned scope with those paths. Cleanup callbacks remain
+subject to the [synchronous failure contract](./view.lifecycle.md#synchronous-failures);
+these rules do not add rollback or asynchronous notification handling.
+
 ### Lifecycle operations
 
 | Current condition | Operation | Lifecycle | Result |
