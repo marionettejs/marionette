@@ -685,3 +685,13 @@ setters and collection operations for later multi-value or multi-member changes.
 Remove `silent` options from native data calls. Arbitrary option metadata still
 passes through events, but cannot suppress notification. Backbone's own mutation
 API is unchanged. This change does not introduce batching or deferred delivery.
+
+## Restart requests from completion callbacks
+
+A compatible `restart()` still coalesces during stop/start preparation and retains
+the original operation's options. Once startup commits, before `onStart` and the
+`start` event, another `restart()` begins a new cycle with its own Promise/options.
+The previous cycle has completed successfully; cancellation or failure of the next
+cycle does not change that result. Do not restart unconditionally from every
+start notification. Completion callbacks remain synchronous notifications whose
+returned Promises Marionette does not await.
