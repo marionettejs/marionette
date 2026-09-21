@@ -29,7 +29,7 @@ const stopState = StateApi.subscribe(model, 'change:label', () => {});
 const result: unknown = triggerMethod.call(model, 'fixture:event');
 
 collection.add({ id: 2, label: 'two' });
-model.set('label', 'ONE', { silent: true });
+model.set('label', 'ONE', { source: 'editor' });
 stopCollection();
 stopState();
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "authority": "authored TypeScript and explicit public behavioral evidence",
-  "semanticsSha256": "077157bce1349db05f4e0870f4c4bce89077b3b0d227da7ec485034388c79074",
+  "semanticsSha256": "cf3e46b8a51946806392b9d296c4283cf5810e697c3d22761a68c1e30458f5b5",
   "entrypoints": [
     {
       "name": "marionette",
@@ -6925,10 +6925,6 @@
           "contracts": [
             "type-shapes"
           ],
-          "members": {
-            "silent": "?boolean | undefined"
-          },
-          "callableMembers": [],
           "operationContracts": {}
         },
         {
@@ -8028,9 +8024,9 @@
     "packages/adapters/src/dom/lit-html.ts": "68228d1089e693cd1d253630707b9aa16808f09a3ceeb240d69e66450e46af14",
     "packages/adapters/src/dom/morphdom.ts": "0b6d2341ea16d8eac97c21dd96b2203ff6ca10fd7a6bf2a4ac25b37647456182",
     "packages/data/src/api.ts": "c65a4e10e60b5e1932375de036ebbc06774aa0e07344c7b5a8dc0c1dce7147e0",
-    "packages/data/src/collection.ts": "1163370f3f0a0a14953162d65b1d2b12d634fee99111c1a909b055f38e245050",
+    "packages/data/src/collection.ts": "fead862103e9686252b8b431a46fedbb6f720e623fad0a94cd174cc7e49a6900",
     "packages/data/src/index.ts": "69c337a8029e46835a923b38c5eb190de2f715137bae64fade4a6e37bb1e7a1b",
-    "packages/data/src/model.ts": "b09e0838c0fdcc134830b32ea3644f11b5be91ed2f5fc9f95a4becaa89ffb609",
+    "packages/data/src/model.ts": "1683287903de89258c304d9f6a3d7c13f3772ded1d955fe64283322b368fd937",
     "packages/radio/src/debug.ts": "069c7aab08d8a48eff7a6cc5efe4ff09bac80f12acaa6ddc5721ed18e8065eb6",
     "packages/radio/src/index.ts": "24171247f65ecb3697629883abe9d248395b090d566ea70ac7c1b856d1cd7940",
     "packages/radio/src/radio.ts": "42a799d58d602c0fbbb4fcbc16170e1a89dad55c47d5f00ffaed69c8ee3d877f",
@@ -8088,7 +8084,7 @@
     "config/diagnostics/catalog.json": "45360deea6dfe7d531b256dbbebb443e9fa578fb0d43fc9becce7ab5126c76bf",
     "docs/choosing-integrations.md": "385bfb2c7d85a8e0db71fd795ed1fef488aa637aa5094e93210810ff91f31f12",
     "docs/common.md": "1d14004d1c49e98ca40be9fd28d35faaf372f2a12f13fae6afa3cac8a8bf14cc",
-    "docs/data.api.md": "f96a24fa8f08ed1437944d558e91878a16f941b7efd3dcc40c91b2de52d1f5a2",
+    "docs/data.api.md": "1ec05dfa681bd55ea6ce092bf03665ecf11f9a171ed5d650f9da6992529f785c",
     "docs/diagnostic-catalog.md": "1df844c7e8edbea59a8c07776d656d45f77266108babb770d7690183fe85d180",
     "docs/dom.api.md": "a697a637ae4c6cc92aa5d72850b404763f08e0417800feacc0b431ec073d3916",
     "docs/dom.interactions.md": "81bd678c7d498e08c08c84cfc3bbe1d27451ef46ed521e67fff4f72450bdbadb",
@@ -8109,7 +8105,7 @@
     "docs/view.lifecycle.md": "1e5f0e77d9bba799296ed40860a1d466e58cc086c36f72314cbe3c9daeedf8e3",
     "docs/view.rendering.md": "106bd7c14f5897513a5072bed98d36e029b9be91650267f17ebcf90b03d8cb13",
     "packages/adapters/readme.md": "d1be90d2631fcd4346b9e4648e7288e63ff28063fd7ffb860f32de25164d5d29",
-    "packages/data/readme.md": "041e330fad1a87c891844b774dd5309aae61cc7a36d76b3dcf9ec5dfcd7b8c95",
+    "packages/data/readme.md": "43faa3e01259ff1bf6bb2ade38e233ba396c40635907051726d237bda7c24996",
     "packages/utils/readme.md": "2ea64109e9b65c9fb66d48c30fec86b6475aa4d8c809cc68c68a28925ed93021",
     "test/contracts/dom-adapters.js": "a3f71df6a2e52f8d4a52ebb2d3cbbc8e77e055f459daf7c071f4e5fd55ad8c3f",
     "test/unit/application-child-declarations.spec.js": "3b98e033f99902a8bff5c533c03599375381da4b4a01b9014e825eb21cb80e2b",
@@ -8136,9 +8132,9 @@
     "test/unit/create-marionette.spec.js": "ea65384c245530b7d46909b6f1bebedf3544c7ea5d08dc33a92c5ef956f02902",
     "test/unit/data-api-integration.spec.js": "50086bdabcadc63a4f91f395dd42ef0d9713d5ac687ae4976d19fffd71a908c7",
     "test/unit/data-api-redux.spec.js": "0d0cb3a11ecfaeacbea2ea5e30c8bdda73993aa7be2b1f45eb09fb7b548d7940",
-    "test/unit/data-package/api-integration.spec.js": "6648f2577073c442c1db161e40b3e1909b011f9644efe155141efc4b238ebd77",
-    "test/unit/data-package/collection.spec.js": "499b774fd34d75010f471db8ffd044a4a2ad00f84dfbf70df182f64f7a5db97a",
-    "test/unit/data-package/model.spec.js": "b67c0783ae13e36b2903c404212d1a7c3bed0078f44a01f9828c2377991615ff",
+    "test/unit/data-package/api-integration.spec.js": "ec12b3be7cc046a020d5d2b6f2f7ee7dfdb3b986da13387c5fc78a5cf4482afb",
+    "test/unit/data-package/collection.spec.js": "7f3e2b860ce7b120a85387c4acc1d385aa9ab012109ce2512e1e2028a4b47cec",
+    "test/unit/data-package/model.spec.js": "3d8fae03af29f886864f234b2d8e4b563de26ac85187224db05f3358d952c3f4",
     "test/unit/dom-adapters.spec.js": "12450f4ad513ae9000c9db640d481b995db91bcbe2f66c42fc503b72d019f69a",
     "test/unit/events-literal-names.spec.js": "ed182d2c2d34f11ad702af6d6c69b439faa04745e93256e0ae28cc2c87298bf0",
     "test/unit/events-parity.spec.js": "a0ec7cd3dac3636803ec6ecc6fb7161df2a74fa7d5e6d532477e12539a9bd71c",

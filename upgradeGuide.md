@@ -650,3 +650,18 @@ Toolkit's app-frontend-style `beforeStart(options)` maps to `prepareStart(option
 { signal })`; `onBeforeStart` remains the notification. Replace arrays of Promises
 with an explicit `Promise.all` and consume its array as one startup result.
 See [Application preparation](docs/marionette.application.md#preparation-methods-and-notifications).
+
+## Native data mutations notify observers
+
+`@mnjs/data` no longer supports `{ silent: true }`. Model mutations and Collection
+structural operations always publish their documented notifications; unchanged
+writes and no-op membership/move operations remain no-ops. Construction still
+seeds initial data without mutation events. Collection construction seeds
+membership directly and no longer invokes an overridden `reset`. Mutations called
+from `initialize` use the normal notifying methods. Complete initial setup during
+construction or initialization, subscribe afterward, and use the existing bulk
+setters and collection operations for later multi-value or multi-member changes.
+
+Remove `silent` options from native data calls. Arbitrary option metadata still
+passes through events, but cannot suppress notification. Backbone's own mutation
+API is unchanged. This change does not introduce batching or deferred delivery.

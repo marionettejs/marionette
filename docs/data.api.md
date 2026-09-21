@@ -247,9 +247,10 @@ const list = new CollectionView({
 collection.get(1).set('label', 'updated'); // The existing row now shows "updated".
 ```
 
-Unless `{ silent: true }` is passed, the package Collection emits synchronous
-`update`, `sort`, and `reset` events. The adapter translates them directly to
-normalized records. There is no separate observer queue, coalescing, or replay.
+After notification-free construction, the package Collection emits synchronous
+`update`, `sort`, and `reset` events for its documented mutations. There is no
+`silent` option. The adapter translates them directly to normalized records. There
+is no separate observer queue, coalescing, or replay.
 Finish one structural mutation before starting another; schedule mutations from
 collection listeners or child lifecycle handlers after the current notification
 returns. Listener errors propagate and abort delivery.
@@ -267,11 +268,11 @@ Lookup precedence is exact member instance, application id, then cid, regardless
 of collection order. Supplied native Model instances retain their identity even
 when the Collection configures a different model constructor; only raw attributes
 use that constructor. Bulk removal resolves all identities against one current
-snapshot, including ids changed with `{ silent: true }`.
+snapshot, including changed ids.
 
-`Model.destroy()` and `Collection.destroy()` always emit their `destroy`
-lifecycle events, including with `{ silent: true }`. A destroyed model removes
-itself from each containing Collection through ordinary event subscriptions.
+`Model.destroy()` and `Collection.destroy()` always emit their `destroy` lifecycle
+events. A destroyed model removes itself from each containing Collection through
+ordinary event subscriptions.
 Destroying a Collection releases its subscriptions without destroying its models.
 
 Use `Model.toObject()` for a shallow attribute copy and `Collection.toArray()`

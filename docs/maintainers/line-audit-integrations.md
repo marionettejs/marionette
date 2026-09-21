@@ -98,8 +98,8 @@ The upstream implementation and docs now preserve supplied native Model instance
 through construction, addition and reset even when a different raw-attribute
 factory is configured. Lookup uses exact member instance, then application id,
 then cid. Batch removal uses one temporary identity index and a removal Set;
-current ids, including silent changes, are read for that operation. No persistent
-index or observer queue was introduced.
+current ids, including changes made since insertion, are read for that operation.
+No persistent index or observer queue was introduced.
 
 The package guide received three clarifications after the merge:
 
