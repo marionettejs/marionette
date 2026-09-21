@@ -149,6 +149,14 @@ function indexModels(models: ModelType[]) {
   return identities;
 }
 
+function replaceModels(collection: CollectionInstanceRuntime, models: ModelInput | ReadonlyArray<ModelInput> | null) {
+  const preparedModels = asArray(models).map(model => collection._prepareModel(model));
+  assertUniqueModels(preparedModels);
+  collection._replaceBindings(collection.models, preparedModels);
+  collection.models = preparedModels;
+  collection.length = preparedModels.length;
+}
+
 // The constructor and generic instance interface share the public name.
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const Collection = function(this: CollectionInstanceRuntime, models: ModelInput | ReadonlyArray<ModelInput> | null = [], options: CollectionOptions | null = {}) {
@@ -156,7 +164,7 @@ export const Collection = function(this: CollectionInstanceRuntime, models: Mode
   this.models = [];
   this.length = 0;
   if (options.model) { this.model = options.model; }
-  this.reset(models, { silent: true });
+  replaceModels(this, models);
   this.initialize(models, options);
 } as unknown as CollectionExtension<ModelType, {}, {}>;
 
@@ -255,11 +263,9 @@ Object.assign(Collection.prototype, Events, {
     this.models.splice(at, 0, ...added);
     this.length = this.models.length;
 
-    if (!options.silent) {
-      const change: CollectionChange = { kind: 'update', added, removed: [], updated: [] };
-      for (const model of added) { this.triggerMethod('add', model, this, options); }
-      this.triggerMethod('update', this, { ...options, changes: change });
-    }
+    const change: CollectionChange = { kind: 'update', added, removed: [], updated: [] };
+    for (const model of added) { this.triggerMethod('add', model, this, options); }
+    this.triggerMethod('update', this, { ...options, changes: change });
     return Array.isArray(models) ? added : added[0];
   },
 
@@ -282,26 +288,18 @@ Object.assign(Collection.prototype, Events, {
     this.models = nextModels;
     this.length = this.models.length;
 
-    if (!options.silent) {
-      const change: CollectionChange = { kind: 'update', added: [], removed, updated: [] };
-      for (const model of removed) { this.triggerMethod('remove', model, this, options); }
-      this.triggerMethod('update', this, { ...options, changes: change });
-    }
+    const change: CollectionChange = { kind: 'update', added: [], removed, updated: [] };
+    for (const model of removed) { this.triggerMethod('remove', model, this, options); }
+    this.triggerMethod('update', this, { ...options, changes: change });
     return Array.isArray(models) ? removed : removed[0];
   },
 
   reset(models: ModelInput | ReadonlyArray<ModelInput> | null = [], options: MutationOptions | null = {}) {
     options = normalizeOptions(options);
     if (this._isDestroyed) { return this; }
-    const preparedModels = asArray(models).map(model => this._prepareModel(model));
-    assertUniqueModels(preparedModels);
-    this._replaceBindings(this.models, preparedModels);
-    this.models = preparedModels;
-    this.length = this.models.length;
+    replaceModels(this, models);
 
-    if (!options.silent) {
-      this.triggerMethod('reset', this, options);
-    }
+    this.triggerMethod('reset', this, options);
     return this;
   },
 
@@ -317,9 +315,7 @@ Object.assign(Collection.prototype, Events, {
     if (previousIndex === nextIndex) { return currentModel; }
     this.models.splice(previousIndex, 1);
     this.models.splice(nextIndex, 0, currentModel);
-    if (!options.silent) {
-      this.triggerMethod('sort', this, options);
-    }
+    this.triggerMethod('sort', this, options);
     return currentModel;
   },
 
@@ -338,9 +334,7 @@ Object.assign(Collection.prototype, Events, {
     } else {
       return this;
     }
-    if (!options.silent) {
-      this.triggerMethod('sort', this, options);
-    }
+    this.triggerMethod('sort', this, options);
     return this;
   },
 

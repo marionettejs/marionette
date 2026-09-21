@@ -21,7 +21,7 @@ test('native bulk removal resolves identities in linear work', () => {
     const id = model.id;
     Object.defineProperty(model, 'id', { get() { reads.id++; return id; } });
   }
-  const removed = collection.remove(models, { silent: true });
+  const removed = collection.remove(models);
   assert.deepEqual(removed, models);
   assert.equal(collection.length, 0);
   assert.ok(reads.id <= count * 2, `Expected at most two id reads per member, got ${reads.id}`);

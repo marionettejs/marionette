@@ -31,6 +31,19 @@ describe('@mnjs/data Model', function() {
     expect(fieldDefaults.defaults).to.deep.equal({ ignoredDuringConstruction: true });
   });
 
+  it('seeds construction without invoking change hooks but notifies initialization writes', function() {
+    const changed = vi.fn();
+    const Seeded = Model.extend({ defaults: { enabled: true }, onChange: changed });
+    const seeded = new Seeded({ id: 1 });
+    expect(changed).not.toHaveBeenCalled();
+    expect(seeded.toObject()).toEqual({ enabled: true, id: 1 });
+    const Initialized = Seeded.extend({ initialize() { this.set('enabled', false); } });
+    const initialized = new Initialized();
+    expect(changed).toHaveBeenCalledTimes(1);
+    seeded.destroy();
+    initialized.destroy();
+  });
+
   it('sets, unsets, clears, and resets attributes with exact change events', function() {
     const model = new Model({ id: 1, name: 'one' });
     const nameChange = vi.fn();
@@ -56,7 +69,7 @@ describe('@mnjs/data Model', function() {
 
     model.unset('name');
     expect(model.has('name')).toBe(false);
-    model.clear({ silent: true });
+    model.clear();
     expect(model.toObject()).to.deep.equal({});
     model.reset({ id: 3 });
     expect(model.toObject()).to.deep.equal({ id: 3 });
@@ -115,17 +128,19 @@ describe('@mnjs/data Model', function() {
     expect(changes[1].previous.value).toBeUndefined();
   });
 
-  it('does not emit for silent writes', function() {
+  it('notifies every mutation even when options contain obsolete silent metadata', function() {
     const model = new Model({ name: 'one' });
     const change = vi.fn();
-    model.on('change change:name', change);
+    model.on('change', change);
+    model.on('change:name', change);
 
     model.set('name', 'two', { silent: true });
     model.unset('name', { silent: true });
     model.reset({ name: 'three' }, { silent: true });
     model.clear({ silent: true });
 
-    expect(change).not.toHaveBeenCalled();
+    expect(change).toHaveBeenCalledTimes(8);
+    model.destroy();
   });
 
   it('treats null mutation options as no options', function() {

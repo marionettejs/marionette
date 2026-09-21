@@ -3,6 +3,34 @@ import { createMarionette } from 'marionette';
 import { Collection, DataApi, Model, StateApi } from '@mnjs/data';
 
 describe('@mnjs/data Marionette integration', function() {
+  it('keeps rendered rows synchronized even when obsolete silent metadata is supplied', function() {
+    const runtime = createMarionette();
+    runtime.setDataApi(DataApi);
+    const Row = runtime.View.extend({
+      template: data => `<span>${data.label}</span>`,
+      modelEvents: { change: 'render' }
+    });
+    const collection = new Collection([{ id: 1, label: 'first' }]);
+    const view = new runtime.CollectionView({ collection, childView: Row, viewComparator: false }).render();
+    const first = collection.get(1);
+    const row = view.children.findByModel(first);
+    const options = { silent: true };
+    first.set('label', 'updated', options);
+    expect(row.el.textContent).toBe('updated');
+    collection.add({ id: 2, label: 'second' }, options);
+    collection.move(2, 0, options);
+    expect(view.el.textContent).toBe('secondupdated');
+    expect(view.children.findByModel(first)).toBe(row);
+    collection.remove(2, options);
+    expect(view.el.textContent).toBe('updated');
+    collection.reset([], options);
+    expect(view.el.textContent).toBe('');
+    expect(row.isDestroyed()).toBe(true);
+    view.destroy();
+    collection.destroy();
+    first.destroy();
+  });
+
   it('drives keyed add, removal, reorder, model updates, and reset reconciliation', function() {
     const runtime = createMarionette();
     runtime.setDataApi(DataApi);

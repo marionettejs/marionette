@@ -17,6 +17,21 @@ describe('@mnjs/data Collection', function() {
     collection.destroy();
   });
 
+  it('seeds membership without reset hooks but notifies initialization mutations', function() {
+    const reset = vi.fn();
+    const add = vi.fn();
+    const Seeded = Collection.extend({ onReset: reset, onAdd: add });
+    const seeded = new Seeded([{ id: 1 }]);
+    expect(reset).not.toHaveBeenCalled();
+    expect(add).not.toHaveBeenCalled();
+    expect(seeded.length).toBe(1);
+    const Initialized = Seeded.extend({ initialize() { this.add({ id: 2 }); } });
+    const initialized = new Initialized();
+    expect(add).toHaveBeenCalledTimes(1);
+    seeded.destroy();
+    initialized.destroy();
+  });
+
   it('provides ordered collection access and iteration', function() {
     expect(collection.length).to.equal(2);
     expect(collection.at(0)).to.equal(collection.get(1));
@@ -134,7 +149,7 @@ describe('@mnjs/data Collection', function() {
     const first = collection.at(0);
     const second = collection.at(1);
     const third = collection.add({ id: NaN });
-    first.set('id', 10, { silent: true });
+    first.set('id', 10);
     expect(collection.remove([null, undefined, 'missing', second.cid, third, 10, first]))
       .to.deep.equal([second, third, first]);
     expect(collection.length).to.equal(0);
@@ -166,7 +181,7 @@ describe('@mnjs/data Collection', function() {
 
   it('does not resolve nullish identities to a keyless Model', function() {
     const keyless = new Model({ name: 'keyless' });
-    collection.reset([keyless], { silent: true });
+    collection.reset([keyless]);
 
     expect(collection.get(null)).toBeUndefined();
     expect(collection.get(undefined)).toBeUndefined();
@@ -177,7 +192,7 @@ describe('@mnjs/data Collection', function() {
 
   it('uses SameValueZero matching for NaN ids', function() {
     const model = new Model({ id: NaN, name: 'one' });
-    collection.reset([model], { silent: true });
+    collection.reset([model]);
 
     expect(collection.get(NaN)).to.equal(model);
     expect(collection.add({ id: NaN })).toBeUndefined();
@@ -282,7 +297,7 @@ describe('@mnjs/data Collection', function() {
     expect(changes[0].removed).to.deep.equal([model]);
   });
 
-  it('honors silent destruction for removal while still forwarding destroy', function() {
+  it('notifies removal and destruction even with obsolete silent metadata', function() {
     const model = collection.get(1);
     const options = { silent: true };
     const destroy = vi.fn();
@@ -293,8 +308,8 @@ describe('@mnjs/data Collection', function() {
     model.destroy(options);
 
     expect(collection.get(1)).toBeUndefined();
-    expect(remove).not.toHaveBeenCalled();
-    expect(changes).to.deep.equal([]);
+    expect(remove).toHaveBeenCalledTimes(1);
+    expect(changes).to.deep.equal([{ kind: 'update', added: [], removed: [model], updated: [] }]);
     expect(destroy).toHaveBeenCalledTimes(1);
     expect(destroy.mock.calls.map(args => args.slice(0, 2))).toContainEqual([model, options]);
   });
@@ -320,19 +335,20 @@ describe('@mnjs/data Collection', function() {
     other.destroy();
   });
 
-  it('supports silent and no-op mutations', function() {
+  it('skips no-op mutations and reports every structural change', function() {
     const first = collection.get(1);
     expect(collection.move(first, 0)).to.equal(first);
     expect(() => collection.move(first, 1.5)).to.throw(TypeError, 'requires an integer index');
     expect(collection.move('missing', 0)).toBeUndefined();
     expect(collection.remove('missing')).toBeUndefined();
     expect(collection.sort()).to.equal(collection);
-    collection.add({ id: 3 }, { silent: true });
-    collection.remove(3, { silent: true });
-    collection.move(first, 1, { silent: true });
-    collection.sort((left, right) => right.id - left.id, { silent: true });
-    collection.reset([], { silent: true });
     expect(changes).to.deep.equal([]);
+    collection.add({ id: 3 });
+    collection.remove(3);
+    collection.move(first, 1);
+    collection.sort((left, right) => right.id - left.id);
+    collection.reset([]);
+    expect(changes.map(change => change.kind)).to.deep.equal(['update', 'update', 'reorder', 'reorder', 'reset']);
   });
 
   it('emits sort even when the order remains unchanged, as Backbone does', function() {
@@ -346,7 +362,7 @@ describe('@mnjs/data Collection', function() {
       { id: 1, name: 'same' },
       { id: 2, name: 'zebra' },
       { id: 3, name: 'same' }
-    ], { silent: true });
+    ]);
 
     collection.sort('name');
     expect(collection.map(model => model.id)).to.deep.equal([1, 3, 2]);
