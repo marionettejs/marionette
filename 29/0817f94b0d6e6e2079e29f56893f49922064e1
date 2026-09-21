@@ -1,0 +1,29 @@
+docs/marionette.application.md
+  s_da5c2bf23e393e::t_bcbccc9f5b6bbb 94-97
+config/api-contracts/inventory.json
+  s_9ac4d9a4112f3d::t_ec2a6ea443b53e 8097
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "290817f94b0d6e6e2079e29f56893f49922064e1",
+  "prompts": {},
+  "sessions": {
+    "s_9ac4d9a4112f3d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c2af-dd78-7880-ab85-5f5ec704af20",
+        "model": "unknown"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_da5c2bf23e393e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "04dfab15-0488-44b1-847c-cb0672976655",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
