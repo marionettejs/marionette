@@ -2,6 +2,7 @@ changelog.md
   s_9ac4d9a4112f3d::t_0670d0a67787a9 3-5
 config/api-contracts/inventory.json
   s_9ac4d9a4112f3d::t_a508bba49c30f3 8063,8093,8117
+  s_3b69c7f8bf7e40::t_e2337e431b222c 4
 config/api-contracts/semantics.json
   s_9ac4d9a4112f3d::t_73d323823e0538 1515,1594-1597
 config/release-validation.json
@@ -16,6 +17,7 @@ test/unit/application-restart-completion.spec.js
   s_9ac4d9a4112f3d::t_f500b64f481206 1-167
 upgradeGuide.md
   s_9ac4d9a4112f3d::t_dd707a8d95cacc 669,685-693
+  s_3b69c7f8bf7e40::t_e2337e431b222c 684
 ---
 {
   "schema_version": "authorship/3.0.0",
@@ -23,6 +25,14 @@ upgradeGuide.md
   "base_commit_sha": "5505c0aa5c35ebb867b240469f75a0c36e6a2710",
   "prompts": {},
   "sessions": {
+    "s_3b69c7f8bf7e40": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c30c-6aa6-7b22-9949-35b1e04dd2c9",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
     "s_9ac4d9a4112f3d": {
       "agent_id": {
         "tool": "codex",
