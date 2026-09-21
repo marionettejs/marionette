@@ -159,7 +159,8 @@ type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & S
   _initRadio(): void;
   _destroyRadio(): unknown;
   _initState(options?: unknown): void;
-  _initStateEvents(): unknown;
+  _isRunning: boolean;
+  _initStateEvents(isActive: (application: ApplicationInternals) => boolean): unknown;
 };
 
 const ClassOptions = [
@@ -196,8 +197,12 @@ const Application = function(this: ApplicationInternals, options?: ApplicationOp
     }
   }
   (this.initialize as { apply(receiver: ApplicationInternals, args: IArguments): unknown }).apply(this, arguments);
-  this._initStateEvents();
+  this._initStateEvents(isApplicationRunning);
 };
+
+function isApplicationRunning(application: ApplicationInternals) {
+  return application._isRunning;
+}
 
 function isCurrentOperation(application: ApplicationInternals, operation: Operation) {
   return application._lifecycleOperation === operation;
@@ -400,7 +405,7 @@ function completeReadiness(operation: Operation) {
 
 function getFailureState(application: ApplicationInternals, operation?: Operation) {
   if (operation?.stopReadiness) { return operation.failureState; }
-  return application._lifecycleState === RUNNING ? RUNNING : STOPPED;
+  return application._isRunning ? RUNNING : STOPPED;
 }
 
 function supersedeOperation(application: ApplicationInternals) {
@@ -422,6 +427,7 @@ function completeOperation(application: ApplicationInternals, operation: Operati
 function cancelOperation(application: ApplicationInternals, operation: Operation) {
   delete application._lifecycleOperation;
   application._lifecycleState = operation.failureState;
+  application._isRunning = operation.failureState === RUNNING;
   operation.resolve(false);
 }
 
@@ -430,6 +436,7 @@ function failOperation(application: ApplicationInternals, operation: Operation, 
 
   delete application._lifecycleOperation;
   application._lifecycleState = operation.failureState;
+  application._isRunning = operation.failureState === RUNNING;
   operation.reject(error);
 }
 
@@ -464,6 +471,7 @@ function beginOperation(application: ApplicationInternals, kind: OperationKind, 
 
   application._lifecycleOperation = operation;
   application._lifecycleState = state;
+  if (state === DESTROYING) { application._isRunning = false; }
 
   if (superseded?.readiness && superseded.readiness !== stopReadiness) {
     superseded.readiness.controller.abort();
@@ -519,6 +527,7 @@ async function startApplication(application: ApplicationInternals, operation: Op
     if (!isCurrentOperation(application, operation)) { return; }
   }
 
+  application._isRunning = false;
   // Restart has finished deactivation; explicit child starts are now allowed.
   application._lifecycleState = STARTING;
   const readiness = beginReadiness(operation, options, context => {
@@ -532,6 +541,7 @@ async function startApplication(application: ApplicationInternals, operation: Op
 
   completeReadiness(operation);
   application._lifecycleState = RUNNING;
+  application._isRunning = true;
   operation.failureState = RUNNING;
   operation.isCompleting = true;
   application.triggerMethod('start', application, options, result);
@@ -562,6 +572,7 @@ async function stopApplication(application: ApplicationInternals, operation: Ope
       cancelOperation(application, operation);
       return;
     }
+    application._isRunning = false;
     emptyView(application, readiness.options);
     if (!isCurrentOperation(application, operation)) { return; }
     operation.failureState = STOPPED;
@@ -594,9 +605,10 @@ export default /* @__PURE__ */ ((methods: object) => {
   cidPrefix: 'mna',
 
   _lifecycleState: STOPPED,
+  _isRunning: false,
 
   isRunning(this: ApplicationInternals) {
-    return this._lifecycleState === RUNNING;
+    return isApplicationRunning(this);
   },
 
   // Begin local asynchronous readiness; callers explicitly start required children.

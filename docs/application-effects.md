@@ -1,8 +1,13 @@
 # Own effects explicitly
 
-Application `stateEvents`, `radioEvents`, `radioRequests`, and ordinary `listenTo`
-bindings have object lifetime. Stop does not remove them; destroy releases the
-framework-owned subscriptions. Use them for deliberately persistent behavior.
+Application `stateEvents` deliver during the active run, following `isRunning()`.
+Seed state before activation and read its current value in `onStart`; pending stop
+permission leaves delivery active until stopping succeeds. Subscriptions themselves
+remain installed until destruction, and suppressed notifications are not replayed.
+
+`radioEvents`, `radioRequests`, and ordinary `listenTo` bindings have object
+lifetime. Stop does not remove them; destroy releases the framework-owned
+subscriptions. Use explicit listeners for deliberately persistent state behavior.
 
 For a restartable feature, give subscriptions and asynchronous work an explicit
 owner. The following application module uses one small effects scope. It is
@@ -75,13 +80,14 @@ a newer successful start.
 
 ## Distinguish delivery from resource cleanup
 
-Configured `stateEvents` can intentionally remain subscribed for the object's
-lifetime. A handler guarded by `isRunning()` suppresses its work while the feature
-is stopped, but does not unsubscribe or cancel a timer. It also suppresses work
-while stop permission is pending, because that is a lifecycle transition. Use the
-explicit scope below when effects must continue until stop succeeds and remain
-active if permission rejects. Disposing them in `onBeforeStop` would end them before
-the permission decision; disposal belongs in `onStop` for that policy.
+Configured `stateEvents` gate delivery; they do not unsubscribe on stop or cancel
+work a handler already started. `isRunning()` stays true during pending stop
+permission, but a later run can also be active when an older request finishes.
+Use operation signals or a latest-request owner to prevent stale commits.
+
+Use the explicit scope below for effects that observe loading-time changes or own
+timers, requests, and other resources. Disposing them in `onBeforeStop` would end
+them before permission is decided; disposal belongs in `onStop` for this policy.
 
 Successful `prepareStart` does not give its signal the lifetime of the subsequent
 active run. Register active resources with their own scope and dispose that scope

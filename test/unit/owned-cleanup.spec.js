@@ -61,6 +61,7 @@ describe('MnObject and Application owned cleanup', function() {
       Owner.setStateApi(TestStateApi);
       const owner = new Owner();
 
+      if (name === 'Application') { await owner.start(); }
       owner.off();
       Radio.trigger(channelName, 'ping');
       state.set('ready', true);

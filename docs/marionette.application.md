@@ -87,9 +87,13 @@ teardown until it has reached a stopped or destroyed state. Completion of an
 invalidated asynchronous hook cannot change the Application's running or
 destroyed state or emit the invalidated success event.
 
-`isRunning()` is `true` only after startup readiness completes and while the
-Application is running. It is `false` before the first start, during lifecycle
-transitions, after stop, and after destroy.
+`isRunning()` describes the active run. It becomes `true` after startup readiness,
+before `onStart`, and stays `true` while stop permission or descendant stopping is
+pending, including a restart's stop phase. Rejected or canceled stop preserves the
+active run. It becomes `false` before successful stop tears down the root, during
+startup preparation, and immediately when terminal destruction begins. If destroy
+fails before deactivation, the previous running state is restored. It does not
+report whether a lifecycle operation is pending.
 
 ### Lifecycle operations
 
@@ -536,8 +540,15 @@ export const dashboardView = dashboard.getView();
 
 ## Application state
 
-State and Radio bindings have object lifetime. For restartable feature effects,
-see [explicit activation and cleanup](./application-effects.md).
+Application `stateEvents` deliver only while `isRunning()` is true. Initial state
+can be seeded in `onBeforeStart` or `prepareStart` without invoking UI or persistence
+handlers before the root is ready. `onStart` reads current state for initial display.
+Events suppressed before activation or after deactivation are not queued or replayed.
+Delivery continues while stop permission is pending and ends before root teardown.
+
+Radio bindings and explicit listeners retain object lifetime. For timers, requests,
+loading-time reactions, or deliberately persistent state observation, see
+[explicit activation and cleanup](./application-effects.md).
 
 
 An Application may compose one [state source](./marionette.state.md). A supplied

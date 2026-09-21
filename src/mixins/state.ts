@@ -38,12 +38,12 @@ const StateMixin = {
     }
   },
 
-  _initStateEvents<Receiver extends StateHost>(this: Receiver) {
+  _initStateEvents<Receiver extends StateHost>(this: Receiver, isActive?: (owner: Receiver) => boolean) {
     if (this._isDestroyed) { return this; }
 
     const stateEvents = getValue(this, 'stateEvents') as Bindings | undefined;
     if (stateEvents && !this._isDestroyed) {
-      this._stateEventCleanup = subscribeBindings(this, this.State, this.getState(), stateEvents);
+      this._stateEventCleanup = subscribeBindings(this, this.State, this.getState(), stateEvents, isActive);
     }
 
     return this;

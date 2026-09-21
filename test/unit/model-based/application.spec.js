@@ -159,7 +159,7 @@ const commands = [
     expect(await settled(first)).toBe(false);
     expect(gate.options).toBe(options);
     expect(context.signal.aborted).toBe(false);
-    expect(app.isRunning()).toBe(false);
+    expect(app.isRunning()).toBe(replacement !== 'destroy');
     expect(real.trace.filter(event => event === 'owner:before:stop')).toHaveLength(1);
     gate.resolve();
     expect(await settled(winner)).toBe(true);

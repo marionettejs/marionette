@@ -1,3 +1,10 @@
+### Unreleased
+
+* Scope Application `stateEvents` to the active run without replacing state or
+  subscriptions on restart. Suppress startup/stopped delivery without replay.
+* Keep `isRunning()` true through pending stop permission and descendant stopping;
+  deactivate before root teardown or when terminal destruction begins.
+
 ### v5.0.0-beta.5
 
 > An Application can keep its children without keeping yesterday’s living room.

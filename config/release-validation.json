@@ -216,6 +216,10 @@
     {
       "file": "application-start-region.spec.mjs",
       "title": "a borrowed shell survives canceled loading and controller restart"
+    },
+    {
+      "file": "application-state-events.spec.mjs",
+      "title": "Application state events preserve active UI through rejected stop and reset safely on restart"
     }
   ],
   "fixtures": [

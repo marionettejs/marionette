@@ -650,3 +650,18 @@ Toolkit's app-frontend-style `beforeStart(options)` maps to `prepareStart(option
 { signal })`; `onBeforeStart` remains the notification. Replace arrays of Promises
 with an explicit `Promise.all` and consume its array as one startup result.
 See [Application preparation](docs/marionette.application.md#preparation-methods-and-notifications).
+
+## Application state events follow the active run
+
+Application `stateEvents` no longer invoke handlers during initial startup,
+restart preparation, or while stopped. Seed state normally before startup and
+read the current source in `onStart` for initial display. Remove per-handler
+`isRunning()` guards used only to enforce this boundary; suppressed events are
+not replayed. State identity and subscriptions persist across stop/restart.
+
+`isRunning()` now remains true while an active run awaits stop permission or
+owned-child stopping, including a restart's stop phase. It becomes false before
+root teardown and during the new startup, or immediately when destruction begins.
+Rejected/canceled stop preserves activation. Use explicit listeners with owned
+cleanup if a feature deliberately needs loading-time or object-lifetime reactions.
+View state events, Radio bindings, and explicit listeners are unchanged.
