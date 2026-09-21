@@ -139,10 +139,9 @@ describe('Application state events follow activation', function() {
     it(`keeps delivery when ${operation} permission rejects`, async function() {
       const ready = readiness();
       const handler = vi.fn();
-      let rejectStop = true;
       const app = createApp({
         stateEvents: { changed: handler },
-        prepareStop() { if (rejectStop) { return ready.promise; } }
+        prepareStop: vi.fn().mockReturnValueOnce(ready.promise)
       });
       await app.start();
       const stopping = app[operation]();
@@ -152,7 +151,8 @@ describe('Application state events follow activation', function() {
       expect(app.isRunning()).toBe(true);
       state.trigger('changed', 'restored');
       expect(handler.mock.calls).toEqual([['pending'], ['restored']]);
-      rejectStop = false;
+      expect(await app.stop()).toBe(true);
+      expect(app.isRunning()).toBe(false);
     });
   });
 
@@ -187,14 +187,13 @@ describe('Application state events follow activation', function() {
   it('preserves activation when reentrant stop replacement rejects', async function() {
     let replacement;
     let replace = true;
-    let deny = true;
     const handler = vi.fn();
     const app = createApp({
       stateEvents: { changed: handler },
       onBeforeStop() {
         if (replace) { replace = false; replacement = this.restart(); }
       },
-      prepareStop() { if (deny) { throw new Error('denied'); } }
+      prepareStop: vi.fn().mockImplementationOnce(() => { throw new Error('denied'); })
     });
     await app.start();
     const stopped = app.stop();
@@ -203,7 +202,8 @@ describe('Application state events follow activation', function() {
     expect(app.isRunning()).toBe(true);
     state.trigger('changed');
     expect(handler).toHaveBeenCalledTimes(1);
-    deny = false;
+    expect(await app.stop()).toBe(true);
+    expect(app.isRunning()).toBe(false);
   });
 
   it('suppresses canceled and failed startup including late completions', async function() {
