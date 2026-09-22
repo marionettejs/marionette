@@ -682,7 +682,8 @@ export default /* @__PURE__ */ ((methods: object) => {
 
     const region = options?.region;
     const operation = this._lifecycleOperation;
-    if (operation?.kind === 'restart' && isCompatibleStartRegion(this, region, operation)) { return operation.promise; }
+    if (operation?.kind === 'restart' && !operation.isCompleting &&
+        isCompatibleStartRegion(this, region, operation)) { return operation.promise; }
     const wasStopped = this._lifecycleState === STOPPED;
     const shouldStop = !operation?.isStopped && (!wasStopped || !!this._childApps);
     const failureState = getFailureState(this, operation);

@@ -224,6 +224,10 @@
     {
       "file": "application-state-events.spec.mjs",
       "title": "restart completion can stop its newly mounted root"
+    },
+    {
+      "file": "application-restart-completion.spec.mjs",
+      "title": "restart from completion mounts a fresh run after releasing prior roots"
     }
   ],
   "fixtures": [
