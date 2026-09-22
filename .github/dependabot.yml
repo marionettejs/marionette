@@ -12,6 +12,10 @@ updates:
         patterns: ['vitest', '@vitest/*']
       mutation:
         patterns: ['@stryker-mutator/*']
+      tooling-patches:
+        dependency-type: development
+        patterns: ['*']
+        update-types: [patch]
     ignore:
       - dependency-name: marionette
       - dependency-name: '@mnjs/*'
@@ -40,3 +44,4 @@ updates:
     groups:
       actions:
         patterns: ['*']
+        update-types: [minor, patch]
