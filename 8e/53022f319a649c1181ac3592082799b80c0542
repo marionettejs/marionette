@@ -1,0 +1,32 @@
+docs/maintainers/documentation.md
+  s_8bc670f0bb5f37::t_85027708d04853 35-36
+test/agent-docs/lookup.test.mjs
+  s_8bc670f0bb5f37::t_85027708d04853 103-105,115-123
+  s_8bc670f0bb5f37::t_1dbb8d5b0e3d8c 124-125
+skills/marionette/SKILL.md
+  s_8bc670f0bb5f37::t_85027708d04853 3
+skills/marionette/scripts/docs.mjs
+  s_8bc670f0bb5f37::t_85027708d04853 60-65,77
+docs/agent-tools.md
+  s_8bc670f0bb5f37::t_85027708d04853 26-29
+plugins/marionette/skills/marionette/SKILL.md
+  s_8bc670f0bb5f37::t_3f12fbfea5358b 3
+plugins/marionette/skills/marionette/scripts/docs.mjs
+  s_8bc670f0bb5f37::t_d3a8f88c0b0fc0 60-65,77
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "8e53022f319a649c1181ac3592082799b80c0542",
+  "prompts": {},
+  "sessions": {
+    "s_8bc670f0bb5f37": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c7f9-f977-78d3-94ee-2291f98aa98e",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
