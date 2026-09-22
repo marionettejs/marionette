@@ -547,9 +547,10 @@ can therefore still receive a service event from an in-flight save or request.
 For handlers that should act only during a run, pair registration with explicit
 cleanup: remove a `listenTo(source, event, callback)` binding with
 `stopListening(source, event, callback)`, or a `bindEvents(source, map)` binding
-with `unbindEvents(source, map)`. Keep the same callback or map available for
-cleanup and remove the binding when stopping begins if delivery must cease
-before asynchronous stop preparation. Reinstall it once for each new run.
+with `unbindEvents(source, map)`. Preserve callback identity for cleanup, including
+functions stored in maps. A map of method-name strings may be recreated if the
+methods still resolve to the same functions. Remove the binding when stopping
+begins if delivery must cease before asynchronous stop preparation. Reinstall it once for each new run.
 If stop can reject and effects must remain active until it succeeds, clean up in
 `onStop` instead. Choose that policy explicitly; early cleanup must account for a
 failed stop that leaves the Application running. Avoid clearing unrelated

@@ -43,8 +43,11 @@ call `Model#destroy()` (which may perform persistence), `off()`, or
 through StateApi; subscriptions that the model itself creates remain the model
 owner's responsibility. Prefer putting external subscriptions on the owning
 Application, or explicitly call `stopListening()` on an exclusively owned
-Backbone state model when its owner is destroyed. Do not clear listeners on a
-borrowed or shared model on behalf of another owner.
+Backbone state model when its owner is destroyed to remove bindings created with
+`listenTo`. Bindings registered with `on` need matching `off(event, callback, context)`
+calls on the emitter where they were registered; `stopListening()` does not remove
+them. Do not clear listeners on a borrowed or shared model on behalf of another
+owner.
 
 Returning an existing shared source from `createState()` still makes it owned;
 the factory's return value establishes ownership even if the factory did not
