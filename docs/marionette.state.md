@@ -37,6 +37,18 @@ Choose how the state source is created and who disposes it:
   releases subscriptions and then calls the selected StateApi's optional
   `disposeOwned(source)` hook.
 
+The optional Backbone StateApi implements `disposeOwned` as a no-op. It does not
+call `Model#destroy()` (which may perform persistence), `off()`, or
+`stopListening()` on the model. Marionette releases the subscriptions it installed
+through StateApi; subscriptions that the model itself creates remain the model
+owner's responsibility. Prefer putting external subscriptions on the owning
+Application, or explicitly call `stopListening()` on an exclusively owned
+Backbone state model when its owner is destroyed to remove bindings created with
+`listenTo`. Bindings registered with `on` need matching `off(event, callback, context)`
+calls on the emitter where they were registered; `stopListening()` does not remove
+them. Do not clear listeners on a borrowed or shared model on behalf of another
+owner.
+
 Returning an existing shared source from `createState()` still makes it owned;
 the factory's return value establishes ownership even if the factory did not
 allocate it. Pass that shared source through `state` when this owner must borrow

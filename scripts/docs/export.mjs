@@ -39,7 +39,7 @@ export function contentDigest(pages) {
 }
 
 async function readSource(repository, source) {
-  if (typeof source !== 'string' || !/^[a-zA-Z0-9._/-]+\.(?:md|json|m?js)$/.test(source) ||
+  if (typeof source !== 'string' || !/^[a-zA-Z0-9._/-]+\.(?:md|json|m?js|ya?ml)$/.test(source) ||
       source.startsWith('/') || source.split('/').some(part => !part || part === '.' || part === '..')) {
     throw new Error(`Invalid documentation resource: ${source}`);
   }
