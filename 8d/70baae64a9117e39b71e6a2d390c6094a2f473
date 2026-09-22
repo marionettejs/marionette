@@ -1,0 +1,19 @@
+test/performance/browser-report.test.mjs
+  s_a06841778b75e9::t_895c7a4c526697 41-57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "8d70baae64a9117e39b71e6a2d390c6094a2f473",
+  "prompts": {},
+  "sessions": {
+    "s_a06841778b75e9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c940-f36e-7812-ab48-fe187e06a180",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
