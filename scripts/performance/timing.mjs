@@ -5,7 +5,8 @@ import { resolve } from 'node:path';
 import process from 'node:process';
 import { pathToFileURL } from 'node:url';
 import { readFile } from 'node:fs/promises';
-import { loadBackboneRuntime } from './load-runtime.mjs';
+import assert from 'node:assert/strict';
+import { isDeepStrictEqual } from 'node:util';
 
 function getArgument(args, name, fallback) {
   const index = args.indexOf(name);
@@ -109,20 +110,29 @@ async function loadRuntime(root, dependencyRoot) {
   };
 
   try {
-    const { Backbone, Marionette } = await loadBackboneRuntime(root, dependencyRoot);
-
-    return { Backbone, Marionette, cleanup };
+    const [{ createMarionette }, { default: BackboneApi }, data] = await Promise.all([
+      import(pathToFileURL(resolve(root, 'dist/marionette.js')).href),
+      import(pathToFileURL(resolve(root, 'packages/adapters/dist/backbone.js')).href),
+      import(pathToFileURL(resolve(root, 'packages/data/dist/index.js')).href),
+    ]);
+    const Marionette = createMarionette();
+    Marionette.setDataApi(BackboneApi);
+    Marionette.setStateApi(BackboneApi);
+    const native = createMarionette();
+    native.setDataApi(data.DataApi);
+    native.setStateApi(data.StateApi);
+    return { Backbone: requireFromRoot('backbone'), Marionette, native, data, cleanup };
   } catch (error) {
     cleanup();
     throw error;
   }
 }
 
-function createCases({ Backbone, Marionette }) {
+function createCases({ Backbone, Marionette, native, data }) {
   const { CollectionView, Region, View } = Marionette;
   const PlainView = View.extend({ template: false });
   const RenderView = View.extend({
-    template: data => `<span>${data.value || ''}</span>`,
+    template: context => `<span>${context.value || ''}</span>`,
     templateContext: { value: 'benchmark' },
   });
   const ChildView = View.extend({
@@ -157,9 +167,57 @@ function createCases({ Backbone, Marionette }) {
         view.destroy();
       }
     }],
-    // Keep historical workload IDs visible without timing a removed API.
-    ['view-set-element-destroy', null],
-    ['behavior-view-set-element-destroy', null],
+    ['behavior-mount-event-destroy', iterations => {
+      let callbacks = 0;
+      const ClickBehavior = native.Behavior.extend({
+        events: { 'click button': () => { callbacks += 1; } },
+      });
+      const BehaviorView = native.View.extend({
+        template: () => '<button>Run</button>',
+        behaviors: [ClickBehavior],
+      });
+      for (let index = 0; index < iterations; index += 1) {
+        const view = new BehaviorView();
+        view.render();
+        document.body.append(view.el);
+        const button = view.el.querySelector('button');
+        button.click();
+        assert.equal(callbacks, index + 1);
+        view.destroy();
+        button.click();
+        assert.equal(callbacks, index + 1);
+        assert.equal(view.el.isConnected, false);
+      }
+    }],
+    ['native-collection-view-render-destroy', iterations => {
+      const NativeChild = native.View.extend({ tagName: 'li', template: false });
+      for (let index = 0; index < iterations; index += 1) {
+        const models = collectionModels.map(model => new data.Model(model));
+        const collection = new data.Collection(models);
+        const view = new native.CollectionView({ childView: NativeChild, collection });
+        view.render();
+        assert.equal(view.el.children.length, models.length);
+        view.destroy();
+        collection.destroy();
+        models.forEach(model => model.destroy());
+      }
+    }],
+    ['native-collection-view-add-remove', iterations => {
+      const NativeChild = native.View.extend({ tagName: 'li', template: false });
+      const collection = new data.Collection();
+      const view = new native.CollectionView({ childView: NativeChild, collection });
+      view.render();
+      for (let index = 0; index < iterations; index += 1) {
+        const model = new data.Model({ id: index });
+        collection.add(model);
+        assert.equal(view.el.children.length, 1);
+        collection.remove(model);
+        assert.equal(view.el.children.length, 0);
+        model.destroy();
+      }
+      view.destroy();
+      collection.destroy();
+    }],
     ['region-show-empty', iterations => {
       const region = new Region({ el: document.createElement('div') });
       for (let index = 0; index < iterations; index += 1) {
@@ -207,11 +265,6 @@ export async function measure({
     const cases = createCases(runtime);
     for (const caseConfig of contract.timing.cases) {
       const run = cases.get(caseConfig.id);
-      if (run === null) {
-        results.push({ id: caseConfig.id, status: 'retired',
-          reason: 'View roots are fixed at construction; setElement was removed.' });
-        continue;
-      }
       if (!run) {
         throw new Error(`No timing case implements ${caseConfig.id}`);
       }
@@ -234,6 +287,7 @@ export async function measure({
         id: caseConfig.id,
         iterationsPerSample: caseConfig.iterationsPerSample,
         sampleCount: contract.timing.sampleCount,
+        samplesNanoseconds: samples,
         ...summarize(samples),
       });
     }
@@ -242,7 +296,7 @@ export async function measure({
   }
 
   const report = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     mode: 'hosted-reporting-only',
     sourceCommit: sourceCommit(resolvedRoot),
     harnessSchemaVersion: contract.timing.harnessSchemaVersion,
@@ -253,6 +307,13 @@ export async function measure({
       architecture: process.arch,
       runnerImage: process.env.ImageOS || null,
       runnerImageVersion: process.env.ImageVersion || null,
+    },
+    measurement: {
+      environment: 'jsdom',
+      jsdom: createRequire(resolve(resolvedDependencyRoot, 'package.json'))('jsdom/package.json').version,
+      backbone: createRequire(resolve(resolvedDependencyRoot, 'package.json'))('backbone/package.json').version,
+      warmupBatches: contract.timing.warmupBatches,
+      sampleCount: contract.timing.sampleCount,
     },
     warningThresholdPercent: contract.thresholds.hostedTimingWarningPercent,
     cases: results,
@@ -267,18 +328,28 @@ export async function createReport(baseFile, currentFile) {
   const baseCases = new Map(base.cases.map(result => [result.id, result]));
   const rows = [];
   const warnings = [];
+  let comparableCount = 0;
 
   for (const result of current.cases) {
     const baseResult = baseCases.get(result.id);
-    if (result.status === 'retired') {
-      rows.push(`| ${result.id} | ${baseResult?.medianNanoseconds === undefined ? '—' : formatTime(baseResult.medianNanoseconds)} | Retired | ${baseResult?.p95Nanoseconds === undefined ? '—' : formatTime(baseResult.p95Nanoseconds)} | ${result.reason} |`);
-      continue;
-    }
     if (!baseResult) {
       rows.push(`| ${result.id} | New | ${formatTime(result.medianNanoseconds)} | New | ${formatTime(result.p95Nanoseconds)} |`);
       continue;
     }
 
+    const comparable = base.schemaVersion === current.schemaVersion &&
+      Boolean(current.harnessRevision) && base.harnessRevision === current.harnessRevision &&
+      base.harnessSchemaVersion === current.harnessSchemaVersion &&
+      isDeepStrictEqual(base.measurement, current.measurement) &&
+      isDeepStrictEqual(base.environment, current.environment) &&
+      baseResult.iterationsPerSample === result.iterationsPerSample &&
+      baseResult.sampleCount === result.sampleCount;
+    if (!comparable) {
+      rows.push(`| ${result.id} | ${formatTime(baseResult.medianNanoseconds)} | ${formatTime(result.medianNanoseconds)} (Non-comparable) | ${formatTime(baseResult.p95Nanoseconds)} | ${formatTime(result.p95Nanoseconds)} (Non-comparable) |`);
+      continue;
+    }
+
+    comparableCount += 1;
     const medianChange = changePercent(baseResult.medianNanoseconds, result.medianNanoseconds);
     const p95Change = changePercent(baseResult.p95Nanoseconds, result.p95Nanoseconds);
     if (medianChange > current.warningThresholdPercent || p95Change > current.warningThresholdPercent) {
@@ -291,13 +362,18 @@ export async function createReport(baseFile, currentFile) {
     '<!-- performance-timing-report -->',
     '## Hosted timing report ⏱️',
     '',
+    'Environment: jsdom (no browser layout or paint). Unprefixed collection cases use Backbone; native-prefixed cases use @mnjs/data.',
+    'Durations are per iteration, including the setup, assertions, and cleanup inside each workload. Changed harness, environment, or sampling settings are non-comparable.',
+    '',
     '| Case | Base median | PR median | Base p95 | PR p95 |',
     '| --- | ---: | ---: | ---: | ---: |',
     ...rows,
     '',
-    warnings.length ? `Warnings: ${warnings.join('; ')}.` : 'No hosted timing warning threshold was exceeded.',
+    warnings.length ? `Warnings: ${warnings.join('; ')}.` : comparableCount ?
+      'No warning threshold was exceeded among comparable workloads.' :
+      'No comparable existing workloads; no timing warnings evaluated.',
     '',
-    'Hosted timing is reporting-only and never decides merge or release eligibility. Controlled-runner baselines and enforcement remain #127 PR B.'
+    'Hosted timing is reporting-only and never decides merge or release eligibility. Investigate changes with repeated matched runs; shared-host noise is not a proven regression.'
   ].join('\n');
 }
 
@@ -312,10 +388,6 @@ export async function main(args = process.argv.slice(2)) {
       console.log(JSON.stringify(report, null, 2));
     } else {
       for (const result of report.cases) {
-        if (result.status === 'retired') {
-          console.log(`${result.id}: retired — ${result.reason}`);
-          continue;
-        }
         console.log(`${result.id}: median ${formatTime(result.medianNanoseconds)}, p95 ${formatTime(result.p95Nanoseconds)}`);
       }
     }

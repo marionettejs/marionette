@@ -401,24 +401,36 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.base.sha }}
-          path: performance-base
+          path: test/tmp/performance-base
           persist-credentials: false
 
       - name: Build pull request base
-        working-directory: performance-base
+        working-directory: test/tmp/performance-base
         run: |
           npm ci
           npm run build
+
+      - name: Install Chromium for both revisions
+        run: |
+          npx playwright install --with-deps chromium
+          (cd test/tmp/performance-base && npx playwright install chromium)
+
+      - name: Measure browser timing on exact base and candidate
+        run: |
+          set -euo pipefail
+          (cd test/tmp/performance-base && node scripts/performance/browser.mjs --profile baseline --output test/tmp/browser-timing.json)
+          node scripts/performance/browser.mjs --profile baseline --output test/tmp/browser-timing.json
 
       - name: Measure hosted timing
         run: |
           set -euo pipefail
           current_timing_script='scripts/performance/timing.mjs'
-          base_timing_script='performance-base/scripts/performance/timing.mjs'
+          base_timing_script='test/tmp/performance-base/scripts/performance/timing.mjs'
           test -f "${base_timing_script}"
-          node "${base_timing_script}" --root performance-base --config performance-base/config/performance.json --json > performance-timing-base.json
+          node "${base_timing_script}" --root test/tmp/performance-base --config test/tmp/performance-base/config/performance.json --json > performance-timing-base.json
           node "${current_timing_script}" --config config/performance.json --json > performance-timing-current.json
           node "${current_timing_script}" --report performance-timing-base.json performance-timing-current.json > performance-timing-report.md
+          node scripts/performance/browser-report.mjs test/tmp/performance-base/test/tmp/browser-timing.json test/tmp/browser-timing.json >> performance-timing-report.md
           cat performance-timing-report.md >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Upload hosted timing report
@@ -428,3 +440,16 @@ jobs:
           path: performance-timing-report.md
           if-no-files-found: error
           retention-days: 1
+
+      - name: Upload raw timing evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: performance-timing-evidence
+          path: |
+            performance-timing-base.json
+            performance-timing-current.json
+            test/tmp/browser-timing.json
+            test/tmp/performance-base/test/tmp/browser-timing.json
+          if-no-files-found: warn
+          retention-days: 30
