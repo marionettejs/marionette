@@ -1,4 +1,6 @@
-### Unreleased
+### v5.0.0-beta.6
+
+> Stopped means stopped, restarting means restarting, and silent mutations can finally stop pretending nothing happened.
 
 * Begin a new restart cycle for `restart()` requested from `onStart` or a `start`
   listener; preserve compatible restart coalescing during preparation.
@@ -7,7 +9,7 @@
   subscriptions on restart. Suppress startup/stopped delivery without replay.
 * Keep `isRunning()` true through pending stop permission and descendant stopping;
   deactivate before root teardown or when terminal destruction begins.
-* For beta.6, improve discovery of Application lifetimes and add executable loading
+* Improve discovery of Application lifetimes and add executable loading
   shell, child readiness, late-save completion, hover, and nested-click examples.
   Clarify adapter-dependent DOM preservation and route agents to canonical guides.
   These are documentation and test changes, not new runtime APIs.
@@ -15,6 +17,19 @@
 * Remove public `silent` mutation behavior from `@mnjs/data`. Construction remains
   notification-free; subsequent mutations publish their documented events so
   subscribed Views and collection observers remain synchronized.
+
+* Add the installable Marionette agent plugin with bundled skill and documentation
+  MCP configuration; pin repository installation to the matching release tag.
+* Expand owned-widget, migration-lifetime, and public integration guidance.
+* Report native-v5 and browser performance workloads without comparative claims;
+  update development dependencies and reduce routine PR package work while
+  retaining complete manual release certification.
+
+Breaking beta changes are detailed in [the upgrade guide](upgradeGuide.md).
+Recover with all five beta.5 packages and their matching consumer code and lockfile;
+reverting package versions alone does not restore the previous application contract.
+Stable publication remains disabled. This prerelease uses npm `latest`; `next`
+remains unchanged.
 
 ### v5.0.0-beta.5
 

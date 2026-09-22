@@ -3,7 +3,7 @@
 Named channels for events and request/reply, usable without Marionette core or a DOM.
 
 ```sh
-npm install @mnjs/radio@5.0.0-beta.5
+npm install @mnjs/radio@5.0.0-beta.6
 ```
 
 ```js

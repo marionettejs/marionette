@@ -88,16 +88,11 @@ test('stable plugin releases require immutable non-transitional installation gui
   assert.throws(() => assertReleasePresentation('5.0.0', current, manifest),
     /Stable installation instructions/);
   const stable = current
-    .replace('--ref master', '--ref v5.0.0')
-    .replaceAll('5.0.0-beta.5', '5.0.0')
-    .replace(
-      /The checked-in command follows Marionette's protected `master` branch only until a\nrelease tag contains the plugin\.[\s\S]*?that pin deliberately\./,
-      'The repository marketplace is pinned to this immutable Marionette release tag.',
-    );
+    .replaceAll('5.0.0-beta.6', '5.0.0');
   assert.throws(() => assertReleasePresentation('5.0.0', stable, manifest),
     /Stable plugin presentation/);
   assert.throws(() => assertReleasePresentation('5.0.0',
-    stable.replace('--ref v5.0.0', '--ref v5.0.0-beta.5'),
+    stable.replace('--ref v5.0.0', '--ref v5.0.0-beta.6'),
     { ...manifest, version: '5.0.0' }), /matching release tag/);
   assert.doesNotThrow(() => assertReleasePresentation('5.0.0', stable,
     { ...manifest, version: '5.0.0' }));

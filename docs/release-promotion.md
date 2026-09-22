@@ -11,7 +11,7 @@ successful package workflow is only one stage of the complete release.
 
 The machine-readable publication gate is
 [`config/release-promotion.json`](../config/release-promotion.json). Stable publication is
-disabled; prerelease authorization is restricted to `5.0.0-beta.5`. Schema 2 separates `publication.stable`
+disabled; prerelease authorization is restricted to `5.0.0-beta.6`. Schema 2 separates `publication.stable`
 (a boolean) from `publication.prerelease` (one exact version string, or `null`).
 A beta authorization never authorizes stable or a later prerelease. Both channels
 use the same protected workflow and exact-artifact checks. Pull requests and manual
@@ -106,7 +106,7 @@ and checks that the evidence manifest records the same workflow run ID. A missin
 failed, different-commit, pull-request, or different-workflow run is rejected before
 the protected environment or publication steps.
 
-The candidate version is `5.0.0-beta.5`; the registry alpha belongs to an older
+The candidate version is `5.0.0-beta.6`; the registry alpha belongs to an older
 implementation. Inspect all five candidate versions and their Git tag before
 publication. A real publication request refuses any target that conflicts with the
 verified artifact before requesting write permissions; exact matching targets enter
@@ -115,17 +115,17 @@ the documented recovery path.
 ## Beta publication authorization
 
 The [beta contract and readiness checklist](./beta.md) define the candidate scope.
-Use matching `5.0.0-beta.5` versions across all five packages and their internal
+Use matching `5.0.0-beta.6` versions across all five packages and their internal
 requirements. `publication.stable` remains `false`; `publication.prerelease`
-authorizes only `5.0.0-beta.5`. This policy does not initiate publication: verify npm
+authorizes only `5.0.0-beta.6`. This policy does not initiate publication: verify npm
 access, certify the exact candidate, and obtain release approval before manually
 dispatching the protected workflow. Changing this policy changes the source commit
 and invalidates prior certification; rebuild and certify the authorization commit
 before publication.
 
 Until the first stable v5 release, the current v5 prerelease uses npm `latest`
-and remains a GitHub prerelease. Preparing or validating beta.5 does not change
-registry tags. Authorized publication moves `latest` from beta.4 to beta.5 for all
+and remains a GitHub prerelease. Preparing or validating beta.6 does not change
+registry tags. Authorized publication moves `latest` from beta.5 to beta.6 for all
 five packages and leaves `next` untouched. Once stable v5 ships, change
 `npm.prereleaseTag` to `next` before authorizing subsequent prereleases so `latest`
 continues to identify stable v5. Verification checks the policy-selected dist-tag
@@ -258,7 +258,7 @@ the explicit presence check covers that gap.
 
 On 2026-09-16, all five beta.2 package records exposed SLSA provenance metadata.
 That establishes the registry metadata for beta.2, not the current trusted-publisher
-configuration or beta.5's result. Existing tarballs are immutable and are not
-republished by these checks. The authorized beta.5 publication must establish the
+configuration or beta.6's result. Existing tarballs are immutable and are not
+republished by these checks. The authorized beta.6 publication must establish the
 same five-package result; missing provenance requires diagnosing its publication
 path before a new version, not silently waiving the requirement or changing `latest`.

@@ -1,25 +1,27 @@
 # Try Marionette v5 beta
 
-`5.0.0-beta.5` is prepared for application trials. Registry installation requires
+`5.0.0-beta.6` is prepared for application trials. Registry installation requires
 a published release; use certified tarballs before publication. Release promotion
 sets npm `latest` to the current prerelease until stable v5. A matching version
 string alone does not prove that a locally built artifact matches a release.
 
-## Preparing beta.6
+## Changes in beta.6
 
-The unreleased documentation improvements connect Application object/run lifetimes,
-preparation, and request completion; show loading/error UI with awaited child
-startup; and explain native event boundaries and adapter-dependent DOM retention.
-They introduce no framework API. General application patterns live in the
-[Application reference](./marionette.application.md), [effects guide](./application-effects.md),
-and [DOM interactions](./dom.interactions.md); the [migration ledger](./migration-from-v4.md)
-remains for v4-to-v5 changes.
+Application `stateEvents` follows the active run: startup and stopped changes do
+not invoke configured handlers or replay later. Read initial state in `onStart`.
+An active Application remains running while stop permission is pending; a rejected
+stop preserves the run. Restart requests from completion callbacks begin a fresh
+cycle rather than reusing the completed restart.
 
-The unreleased source includes active-run `stateEvents` and fresh restarts from
-completion callbacks. Do not infer these behaviors from an installed beta.5
-version. Release preparation must bump the package and synchronized agent plugin
-versions together, build a clean candidate, and validate its exact tarballs.
-These documentation changes are not a published beta.6 release.
+Native `@mnjs/data` mutations no longer support `{ silent: true }`. Remove those
+options and expect documented notifications after construction. Backbone mutation
+behavior is unchanged. Review the [upgrade guide](../upgradeGuide.md) before updating
+consumer code; these are breaking beta changes.
+
+The Application, ownership, interaction, migration, and agent-tooling guides include
+executable loading shells, child readiness, late completion, and event-boundary
+examples. These guides and the new consumer agent plugin do not add runtime APIs
+or establish measured agent effectiveness.
 
 ## What beta means
 
@@ -53,7 +55,7 @@ pins matching runtime dependencies; a candidate kit instead supplies exact local
 tarballs and a complete lockfile. Both include application agent instructions,
 typecheck, consumer lint, unit tests, build, and a browser-test command.
 
-Beta.5 is the current published candidate. It adds ownership-aware root
+Beta.6 retains the beta.5 ownership-aware root
 cleanup, existing Regions on start/restart, and static child declarations. When
 upgrading from beta.3 or earlier, move asynchronous `onBefore*` preparation to
 the corresponding `prepare*` methods.
@@ -100,7 +102,7 @@ permission, propagation, or trusted-publisher configuration.
 
 ## If the beta fails in your application
 
-Pin `5.0.0-beta.4` across all five packages and restore the matching application
+Pin `5.0.0-beta.5` across all five packages and restore the matching application
 code and lockfile. The old `marionette@5.0.0-alpha.2` is not an API-compatible
 rollback for this candidate. Existing v4 applications should retain their
 pre-migration revision and `backbone.marionette` lockfile until their beta trial
@@ -109,5 +111,5 @@ succeeds.
 Maintainers must not overwrite a published beta version. Withdraw its recommendation,
 deprecate a broken version with a specific reason, and publish a corrected beta.
 Move the selected npm tag (`latest` before the first stable v5) only to the verified
-beta.4 release. Preserve exact artifacts and failure evidence.
+beta.5 release. Preserve exact artifacts and failure evidence.
 See [release recovery](https://github.com/marionettejs/marionette/blob/master/docs/release-promotion.md#recovery-and-rollback).
