@@ -1,0 +1,79 @@
+.agents/plugins/marketplace.json
+  s_a602915b6dbd3b::t_19ee4387853ee3 1-20
+config/api-contracts/inventory.json
+  s_9ac4d9a4112f3d::t_5cab15a53c2f6d 8093,8097-8098
+docs-site/resources.json
+  s_a602915b6dbd3b::t_b356d482db481b 20
+docs/agent-tools.md
+  s_a602915b6dbd3b::t_56c7c703600fc7 10-41,48-50,149,151,173-180
+docs/beta.md
+  s_a602915b6dbd3b::t_b0de98f72672f4 58
+docs/maintainers/documentation.md
+  s_a602915b6dbd3b::t_21c73fa19e445d 34-46
+docs/maintainers/readme.md
+  s_a602915b6dbd3b::t_62ba747bed61f3 60
+docs/maintainers/release-checklist.md
+  s_a602915b6dbd3b::t_9748911c776e87 60-63
+docs/marionette.application.md
+  s_a602915b6dbd3b::t_890bec2e4e2352 164-167,571-596
+docs/marionette.region.md
+  s_a602915b6dbd3b::t_5e60f724471e24 227-232
+docs/marionette.state.md
+  s_a602915b6dbd3b::t_d94397b7ecef34 40-51
+docs/migration-from-v4.md
+  s_a602915b6dbd3b::t_1cd897a9593566 37,171-184
+plugins/marionette/mcp.json
+  s_a602915b6dbd3b::t_0940ed3afd4c4f 1-9
+plugins/marionette/plugin.json
+  s_a602915b6dbd3b::t_1ee1ce32b7be82 1-39
+plugins/marionette/skills/marionette/SKILL.md
+  s_a602915b6dbd3b::t_728da2f2c0b641 1-76
+plugins/marionette/skills/marionette/agents/openai.yaml
+  s_a602915b6dbd3b::t_b1da381512bc2f 1-13
+plugins/marionette/skills/marionette/scripts/docs.mjs
+  s_a602915b6dbd3b::t_2ecc97e3096b3c 1-115
+readme.md
+  s_a602915b6dbd3b::t_0645282cacbf17 85
+scripts/docs/export.mjs
+  s_a602915b6dbd3b::t_3361e5b275f41e 42
+skills/marionette/SKILL.md
+  s_a602915b6dbd3b::t_541fa1581ecb5d 3,45-46
+skills/marionette/agents/openai.yaml
+  s_a602915b6dbd3b::t_c47a6f04f62f1a 1-13
+skills/marionette/scripts/docs.mjs
+  s_a602915b6dbd3b::t_4ebce8ab099f0e 60-65,77
+test/agent-docs/lookup.test.mjs
+  s_a602915b6dbd3b::t_ae46dd69e8e6f8 103-105,115-125
+test/agent-docs/plugin.test.mjs
+  s_a602915b6dbd3b::t_3cb17de16118d9 1-115
+test/docs/export.test.mjs
+  s_a602915b6dbd3b::t_10dc8479c6bc64 99,107-108,131-132
+test/fixtures/docs-package/validate.mjs
+  s_a602915b6dbd3b::t_8d8b928e601ff1 4,20-31,35-36,39-40,43,71-86
+upgradeGuide.md
+  s_a602915b6dbd3b::t_31830d9cf277d4 22-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "529b8e65892e13387589ac5c7f7d6e560ee86d8f",
+  "prompts": {},
+  "sessions": {
+    "s_9ac4d9a4112f3d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c2af-dd78-7880-ab85-5f5ec704af20",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_a602915b6dbd3b": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c924-d791-7fe3-b2b7-2e3fcdcff4a5",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
