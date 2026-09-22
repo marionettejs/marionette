@@ -3,6 +3,7 @@ changelog.md
 config/api-contracts/inventory.json
   s_9ac4d9a4112f3d::t_a508bba49c30f3 8063,8117
   s_3b69c7f8bf7e40::t_e2337e431b222c 4
+  s_3b69c7f8bf7e40::t_e5ae8eea8913d7 8093
 config/api-contracts/semantics.json
   s_9ac4d9a4112f3d::t_73d323823e0538 1515,1594-1597
 config/release-validation.json
