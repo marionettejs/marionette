@@ -86,7 +86,13 @@ esac
       });
       assert.equal(result.status, failure === 'none' ? 0 : 1, result.stderr);
       const calls = await readFile(join(directory, 'calls.txt'), 'utf8');
-      assert.match(calls, /test\/tmp\/performance-base\/scripts\/performance\/timing.mjs --root test\/tmp\/performance-base/);
+      assert.deepEqual(calls.trim().split('\n'), [
+        'test/tmp/performance-base/scripts/performance/timing.mjs --root test/tmp/performance-base --config test/tmp/performance-base/config/performance.json --json',
+        'scripts/performance/timing.mjs --config config/performance.json --json',
+        'scripts/performance/timing.mjs --report performance-timing-base.json performance-timing-current.json',
+        'scripts/performance/browser-report.mjs test/tmp/performance-base/test/tmp/browser-timing.json test/tmp/browser-timing.json',
+      ]);
+      assert.deepEqual(JSON.parse(await readFile(join(directory, 'performance-timing-current.json'), 'utf8')), { cases: [] });
       assert.match(calls, /browser-report.mjs test\/tmp\/performance-base\/test\/tmp\/browser-timing.json test\/tmp\/browser-timing.json/);
       if (failure === 'none') {
         assert.equal(await readFile(join(directory, 'summary.md'), 'utf8'), 'Hosted report\nBrowser report\n');

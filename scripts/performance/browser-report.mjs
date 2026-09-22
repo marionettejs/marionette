@@ -4,23 +4,47 @@ import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 
 function comparisonInputs(report) {
-  const { runner } = report;
+  const runner = report?.runner;
   return {
-    schemaVersion: report.schemaVersion,
-    fixture: report.fixture,
-    harness: report.artifacts['scripts/performance/browser.mjs'],
-    profile: report.profile,
+    schemaVersion: report?.schemaVersion,
+    fixture: report?.fixture,
+    harness: report?.artifacts?.['scripts/performance/browser.mjs'],
+    profile: report?.profile,
     runner: Object.fromEntries([
       'browser', 'browserVersion', 'headless', 'accessibilityInstrumentation',
       'monitorViewEvents', 'runOrder', 'workloadTimeoutMilliseconds', 'samples',
-      'warmups', 'node', 'npmVersion', 'playwright'
-    ].map(key => [key, runner[key]])),
+      'warmups', 'node', 'npmVersion', 'playwright', 'browserEnvironment'
+    ].map(key => [key, runner?.[key]])),
     host: Object.fromEntries(['architecture', 'cpuModel', 'cpuCount', 'platform', 'totalMemoryBytes']
-      .map(key => [key, runner.host[key]]))
+      .map(key => [key, runner?.host?.[key]]))
   };
 }
 
-function time(value) { return `${value.toFixed(2)} ms`; }
+function time(value) { return Number.isFinite(value) && value >= 0 ? `${value.toFixed(2)} ms` : 'Unavailable'; }
+
+function completeInputs(inputs) {
+  return inputs.schemaVersion === 1 && Boolean(inputs.fixture?.entrySha256) &&
+    Boolean(inputs.fixture?.manifestSha256) && Boolean(inputs.harness) &&
+    Object.values(inputs.runner).every(value => value !== undefined) &&
+    Object.values(inputs.host).every(value => value !== undefined) &&
+    ['deviceMemoryGiB', 'hardwareConcurrency', 'userAgent']
+      .every(key => inputs.runner.browserEnvironment?.[key] !== undefined);
+}
+
+function inventory(report) {
+  const workloads = Array.isArray(report?.workloads) ? report.workloads : [];
+  const ids = workloads.map(workload => workload?.id);
+  const order = report?.runner?.runOrder;
+  const valid = ids.length > 0 && ids.every(id => typeof id === 'string' && id.length > 0) &&
+    new Set(ids).size === ids.length && isDeepStrictEqual(ids, order);
+  return { workloads, ids, valid };
+}
+
+function completeWorkload(workload) {
+  return workload?.configuration != null &&
+    ['medianMilliseconds', 'p95Milliseconds'].every(key =>
+      Number.isFinite(workload?.summary?.[key]) && workload.summary[key] >= 0);
+}
 function change(base, current) {
   if (base === 0) { return 'Non-comparable: zero baseline'; }
   const percent = (current - base) / base * 100;
@@ -28,26 +52,44 @@ function change(base, current) {
 }
 
 export function createBrowserReport(base, current) {
-  const baseCases = new Map(base.workloads.map(workload => [workload.id, workload]));
-  const matched = base.profile === 'baseline' && current.profile === 'baseline' &&
-    current.runner.samples >= 25 && current.runner.warmups >= 5 &&
-    Boolean(current.fixture.entrySha256) &&
-    Boolean(current.artifacts['scripts/performance/browser.mjs']) &&
-    isDeepStrictEqual(comparisonInputs(base), comparisonInputs(current));
-  const rows = current.workloads.map(workload => {
-    const previous = baseCases.get(workload.id);
-    const comparable = matched && previous &&
-      isDeepStrictEqual(previous.configuration, workload.configuration);
-    const median = workload.summary.medianMilliseconds;
-    const p95 = workload.summary.p95Milliseconds;
-    const status = previous ? 'Non-comparable' : 'New';
-    return `| ${workload.id} | ${JSON.stringify(workload.configuration)} | ${previous ? time(previous.summary.medianMilliseconds) : '—'} | ${time(median)} (${comparable ? change(previous.summary.medianMilliseconds, median) : status}) | ${previous ? time(previous.summary.p95Milliseconds) : '—'} | ${time(p95)} (${comparable ? change(previous.summary.p95Milliseconds, p95) : status}) |`;
-  });
+  const baseInventory = inventory(base);
+  const currentInventory = inventory(current);
+  const sameInventory = baseInventory.valid && currentInventory.valid &&
+    isDeepStrictEqual(baseInventory.ids, currentInventory.ids);
+  const baseInputs = comparisonInputs(base);
+  const currentInputs = comparisonInputs(current);
+  const complete = completeInputs(baseInputs) && completeInputs(currentInputs) &&
+    [...baseInventory.workloads, ...currentInventory.workloads].every(completeWorkload);
+  const matched = complete && sameInventory &&
+    base?.profile === 'baseline' && current?.profile === 'baseline' &&
+    current?.runner?.samples >= 25 && current?.runner?.warmups >= 5 &&
+    isDeepStrictEqual(baseInputs, currentInputs);
+  const rows = [];
+  const ids = new Set([...currentInventory.ids, ...baseInventory.ids]);
+  for (const id of ids) {
+    const previousCases = baseInventory.workloads.filter(workload => workload?.id === id);
+    const currentCases = currentInventory.workloads.filter(workload => workload?.id === id);
+    const count = Math.max(previousCases.length, currentCases.length);
+    for (let index = 0; index < count; index += 1) {
+      const previous = previousCases[index];
+      const workload = currentCases[index];
+      const comparable = matched &&
+        isDeepStrictEqual(previous?.configuration, workload?.configuration);
+      const median = workload?.summary?.medianMilliseconds;
+      const p95 = workload?.summary?.p95Milliseconds;
+      const status = !workload ? 'Removed' : previous ? 'Non-comparable' : 'New';
+      const label = `${id || 'Missing workload ID'}${count > 1 ? ` (duplicate ${index + 1})` : ''}`;
+      rows.push(`| ${label} | ${JSON.stringify(workload?.configuration ?? previous?.configuration ?? null)} | ${time(previous?.summary?.medianMilliseconds)} | ${time(median)} (${comparable ? change(previous.summary.medianMilliseconds, median) : status}) | ${time(previous?.summary?.p95Milliseconds)} | ${time(p95)} (${comparable ? change(previous.summary.p95Milliseconds, p95) : status}) |`);
+    }
+  }
+  const runner = current?.runner;
   return [
     '',
     '### Browser timing — native v5',
     '',
-    `Environment: ${current.runner.browser} ${current.runner.browserVersion}, ${current.runner.headless ? 'headless' : 'headed'}; ${current.runner.warmups} warmups and ${current.runner.samples} retained samples (${current.profile} profile).`,
+    `Environment: ${runner?.browser ?? 'unknown'} ${runner?.browserVersion ?? 'unknown'}, ${runner?.headless === undefined ? 'unknown mode' : runner.headless ? 'headless' : 'headed'}; ${runner?.warmups ?? 'unknown'} warmups and ${runner?.samples ?? 'unknown'} retained samples (${current?.profile ?? 'unknown'} profile).`,
+    ...(!sameInventory ? ['Non-comparable: inventory mismatch (missing, duplicate, reordered, or changed workloads versus the recorded manifest run order).'] : []),
+    ...(!complete ? ['Non-comparable: incomplete or unsupported report metadata or workload summaries; unavailable measurements are not zero.'] : []),
     'Durations are per complete workload with the configuration shown: list reconciliation, Application restart/destruction, or state mount/update/destruction. These are not per-operation jsdom timings.',
     '',
     '| Case | Configuration | Base median | PR median | Base p95 | PR p95 |',

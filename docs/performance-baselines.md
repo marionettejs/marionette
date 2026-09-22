@@ -94,9 +94,14 @@ checkout's own browser harness sequentially with five warmups and 25 retained
 samples. The two-sample validation job remains a functional check.
 
 Browser percentages require matching fixture and runner hashes, workload settings,
-browser/runtime versions, host configuration, and full sampling profiles. Built
+browser/runtime versions, browser-reported hardware/user-agent settings, host
+configuration, and full sampling profiles. Missing metadata or summaries are
+reported as unavailable and non-comparable. Missing, repeated, or changed workload
+inventories are explicitly non-comparable; base-only and duplicate records remain
+visible. Malformed JSON or unreadable evidence still fails report generation. Built
 library hashes identify the measured artifacts but are expected to differ between
-revisions. Browser durations cover a complete workload, not an individual operation.
+revisions. Likewise, changes to the measured native data and adapter packages are
+part of the comparison, not reasons to suppress regression warnings. Browser durations cover a complete workload, not an individual operation.
 Shared hosted hardware is not an exclusive controlled baseline; these measurements
 are reporting-only even when their metadata permits a comparison. Raw jsdom and
 browser JSON reports are retained in the `performance-timing-evidence` CI artifact
