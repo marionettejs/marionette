@@ -31,6 +31,19 @@ agent-specific entry files point to it. Consumer instructions live in
 [Build with Marionette](../agents.md). Do not ship maintainer release procedures
 as if they were instructions for building an application.
 
+`skills/marionette/` is the canonical consumer skill source. Keep its packaged
+`dist/agent-skill/` output and the copy in
+`plugins/marionette/skills/marionette/` byte-identical.
+The plugin version equals the Marionette package version. Bump them together for
+every release and every plugin-content update; reusing a version can leave clients
+on a cached skill or MCP configuration. Before a stable release, replace the
+repository-marketplace installation command's `master` ref with the matching
+immutable `v<version>` tag. The agent-doc tests enforce both stable-release rules.
+The plugin owns Codex distribution and its documentation MCP connection; consumer
+applications own only their selected integrations, architecture, and verification
+commands. Do not require each application to vendor Marionette's skill or repeat
+the MCP configuration when the plugin is available.
+
 ## Start each page with the decision it helps make
 
 A task guide follows this order when the task needs each part:

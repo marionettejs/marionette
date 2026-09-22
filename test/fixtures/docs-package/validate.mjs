@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
-import { cp, mkdtemp, readFile, realpath, rm } from 'node:fs/promises';
+import { cp, mkdtemp, readdir, readFile, realpath, rm } from 'node:fs/promises';
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
@@ -17,16 +17,30 @@ const manifest = JSON.parse(await readFile(resolve(docsRoot, 'manifest.json'), '
 const pkg = JSON.parse(await readFile(resolve(packageRoot, 'package.json'), 'utf8'));
 assert.equal(manifest.packageVersion, pkg.version);
 const hash = value => createHash('sha256').update(value).digest('hex');
+async function files(root, directory = '') {
+  const paths = [];
+  for (const entry of await readdir(resolve(root, directory), { withFileTypes: true })) {
+    const path = [directory, entry.name].filter(Boolean).join('/');
+    if (entry.isDirectory()) {
+      paths.push(...await files(root, path));
+    } else {
+      paths.push(path);
+    }
+  }
+  return paths.sort();
+}
 const entries = [...manifest.pages, ...manifest.assets];
 const digest = hash([...entries].sort((a, b) => a.source.localeCompare(b.source, 'en')).map(entry => `${entry.source}\0${entry.sha256}\n`).join(''));
 assert.equal(digest, manifest.contentSha256);
-async function contained(path) {
-  const base = await realpath(docsRoot);
+async function containedWithin(root, path, label) {
+  const base = await realpath(root);
   const target = await realpath(path);
   const local = relative(base, target);
-  assert.ok(local !== '..' && !local.startsWith(`..${sep}`) && !isAbsolute(local), `Target escapes packaged docs: ${path}`);
+  assert.ok(local !== '..' && !local.startsWith(`..${sep}`) && !isAbsolute(local),
+    `${label} escapes its root: ${path}`);
   return target;
 }
+const contained = path => containedWithin(docsRoot, path, 'Target');
 const parser = new Marked();
 let linksChecked = 0;
 for (const entry of entries) {
@@ -54,7 +68,22 @@ assert.ok(manifest.assets.every(asset => !maintainerAssets.has(asset.source) && 
   'Maintainer planning and test guidance must not enter the consumer package');
 assert.ok(manifest.assets.some(asset => asset.source === 'test/fixtures/docs-routing/validate.mjs'),
   'Consumer fixture evidence must be available offline');
-const installedSkill = resolve(packageRoot, 'dist/agent-skill');
+const installedSkill = await containedWithin(packageRoot,
+  resolve(packageRoot, 'dist/agent-skill'), 'Packaged skill');
+const documentedSkill = await containedWithin(docsRoot,
+  resolve(docsRoot, 'skills/marionette'), 'Documented skill');
+const skillFiles = await files(documentedSkill);
+assert.deepEqual(await files(installedSkill), skillFiles,
+  'Packaged skill paths differ from the documented canonical snapshot');
+for (const path of skillFiles) {
+  assert.deepEqual(await readFile(await containedWithin(installedSkill,
+    resolve(installedSkill, path), 'Packaged skill file')),
+  await readFile(await containedWithin(documentedSkill,
+    resolve(documentedSkill, path), 'Documented skill file')), `Packaged skill differs at ${path}`);
+}
+const skillMetadata = await readFile(resolve(installedSkill, 'agents/openai.yaml'), 'utf8');
+assert.match(skillMetadata, /https:\/\/mcp\.marionettejs\.com\/mcp/,
+  'Packaged skill must declare the documentation MCP dependency');
 const directory = await mkdtemp(resolve(tmpdir(), 'marionette-copied-skill-'));
 try {
   await cp(installedSkill, directory, { recursive: true });

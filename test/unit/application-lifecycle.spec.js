@@ -305,7 +305,7 @@ describe('Application lifecycle', function() {
     const repeated = app.stop();
 
     expect(repeated).to.equal(first);
-    expect(app.isRunning()).toBe(false);
+    expect(app.isRunning()).toBe(true);
     stopping.resolve();
     expect(await first).toBe(true);
     expect(await app.stop()).toBe(true);

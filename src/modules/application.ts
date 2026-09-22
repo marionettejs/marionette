@@ -159,7 +159,8 @@ type ApplicationInternals = ApplicationInstance<object, unknown> & RadioHost & S
   _initRadio(): void;
   _destroyRadio(): unknown;
   _initState(options?: unknown): void;
-  _initStateEvents(): unknown;
+  _isRunning: boolean;
+  _initStateEvents(shouldDeliver: (application: ApplicationInternals) => boolean): unknown;
 };
 
 const ClassOptions = [
@@ -196,8 +197,19 @@ const Application = function(this: ApplicationInternals, options?: ApplicationOp
     }
   }
   (this.initialize as { apply(receiver: ApplicationInternals, args: IArguments): unknown }).apply(this, arguments);
-  this._initStateEvents();
+  this._initStateEvents(isApplicationRunning);
 };
+
+function isApplicationRunning(application: ApplicationInternals) {
+  return application._isRunning;
+}
+
+// Phase and activation differ while stop permission is pending. Commit both
+// together so public activity and configured state-event delivery cannot drift.
+function setLifecycleState(application: ApplicationInternals, state: LifecycleState, running: boolean) {
+  application._lifecycleState = state;
+  application._isRunning = running;
+}
 
 function isCurrentOperation(application: ApplicationInternals, operation: Operation) {
   return application._lifecycleOperation === operation;
@@ -400,7 +412,7 @@ function completeReadiness(operation: Operation) {
 
 function getFailureState(application: ApplicationInternals, operation?: Operation) {
   if (operation?.stopReadiness) { return operation.failureState; }
-  return application._lifecycleState === RUNNING ? RUNNING : STOPPED;
+  return application._isRunning ? RUNNING : STOPPED;
 }
 
 function supersedeOperation(application: ApplicationInternals) {
@@ -421,7 +433,7 @@ function completeOperation(application: ApplicationInternals, operation: Operati
 
 function cancelOperation(application: ApplicationInternals, operation: Operation) {
   delete application._lifecycleOperation;
-  application._lifecycleState = operation.failureState;
+  setLifecycleState(application, operation.failureState, operation.failureState === RUNNING);
   operation.resolve(false);
 }
 
@@ -429,7 +441,7 @@ function failOperation(application: ApplicationInternals, operation: Operation, 
   if (!isCurrentOperation(application, operation)) { return; }
 
   delete application._lifecycleOperation;
-  application._lifecycleState = operation.failureState;
+  setLifecycleState(application, operation.failureState, operation.failureState === RUNNING);
   operation.reject(error);
 }
 
@@ -463,7 +475,7 @@ function beginOperation(application: ApplicationInternals, kind: OperationKind, 
   };
 
   application._lifecycleOperation = operation;
-  application._lifecycleState = state;
+  setLifecycleState(application, state, state === DESTROYING ? false : application._isRunning);
 
   if (superseded?.readiness && superseded.readiness !== stopReadiness) {
     superseded.readiness.controller.abort();
@@ -514,13 +526,15 @@ async function startApplication(application: ApplicationInternals, operation: Op
     delete operation.stopReadiness;
   }
 
+  // Deactivate before replacing a Region can invoke root teardown callbacks.
+  setLifecycleState(application, application._lifecycleState, false);
   if (operation.startRegion !== undefined) {
     replaceStartRegion(application, operation, operation.startRegion);
     if (!isCurrentOperation(application, operation)) { return; }
   }
 
   // Restart has finished deactivation; explicit child starts are now allowed.
-  application._lifecycleState = STARTING;
+  setLifecycleState(application, STARTING, false);
   const readiness = beginReadiness(operation, options, context => {
     application.triggerMethod('before:start', application, options);
     if (!isCurrentOperation(application, operation)) { return; }
@@ -531,7 +545,10 @@ async function startApplication(application: ApplicationInternals, operation: Op
   if (!isCurrentOperation(application, operation)) { return; }
 
   completeReadiness(operation);
-  application._lifecycleState = RUNNING;
+  // A restart's completed stop belongs to the previous run. Completion handlers
+  // can stop this new run and must execute its full stop lifecycle.
+  delete operation.isStopped;
+  setLifecycleState(application, RUNNING, true);
   operation.failureState = RUNNING;
   operation.isCompleting = true;
   application.triggerMethod('start', application, options, result);
@@ -562,12 +579,13 @@ async function stopApplication(application: ApplicationInternals, operation: Ope
       cancelOperation(application, operation);
       return;
     }
+    setLifecycleState(application, application._lifecycleState, false);
     emptyView(application, readiness.options);
     if (!isCurrentOperation(application, operation)) { return; }
     operation.failureState = STOPPED;
     operation.isStopped = true;
     if (operation.kind === 'stop') {
-      application._lifecycleState = STOPPED;
+      setLifecycleState(application, STOPPED, false);
       operation.isCompleting = true;
     }
     if (readiness.notify) { application.triggerMethod('stop', application, readiness.options); }
@@ -594,9 +612,10 @@ export default /* @__PURE__ */ ((methods: object) => {
   cidPrefix: 'mna',
 
   _lifecycleState: STOPPED,
+  _isRunning: false,
 
   isRunning(this: ApplicationInternals) {
-    return this._lifecycleState === RUNNING;
+    return isApplicationRunning(this);
   },
 
   // Begin local asynchronous readiness; callers explicitly start required children.
@@ -636,7 +655,7 @@ export default /* @__PURE__ */ ((methods: object) => {
     if (operation?.kind === 'stop') { return operation.promise; }
     if (operation?.isStopped) {
       const superseded = supersedeOperation(this);
-      this._lifecycleState = STOPPED;
+      setLifecycleState(this, STOPPED, false);
       superseded!.readiness?.controller.abort();
       return Promise.resolve(true);
     }
@@ -663,7 +682,8 @@ export default /* @__PURE__ */ ((methods: object) => {
 
     const region = options?.region;
     const operation = this._lifecycleOperation;
-    if (operation?.kind === 'restart' && isCompatibleStartRegion(this, region, operation)) { return operation.promise; }
+    if (operation?.kind === 'restart' && !operation.isCompleting &&
+        isCompatibleStartRegion(this, region, operation)) { return operation.promise; }
     const wasStopped = this._lifecycleState === STOPPED;
     const shouldStop = !operation?.isStopped && (!wasStopped || !!this._childApps);
     const failureState = getFailureState(this, operation);
@@ -709,7 +729,7 @@ export default /* @__PURE__ */ ((methods: object) => {
       delete this._region;
       delete this._ownedRegion;
       this._isDestroyed = true;
-      this._lifecycleState = DESTROYED;
+      setLifecycleState(this, DESTROYED, false);
       nextOperation.failureState = DESTROYED;
       nextOperation.isCompleting = true;
       if (this._parentApp) {

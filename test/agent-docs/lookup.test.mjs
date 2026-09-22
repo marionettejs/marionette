@@ -100,6 +100,9 @@ test('path traversal and document symlinks outside the snapshot are rejected', a
   data.manifest.pages[0].source = '../outside.md';
   await data.save();
   assert.match(data.run().stderr, /Unsafe/);
+  data.manifest.pages[0].source = 'C:docs/routing.md';
+  await data.save();
+  assert.match(data.run().stderr, /Unsafe/);
   data.manifest.pages[0].source = 'docs/routing.md';
   await data.save();
   const outside = resolve(data.temporary, 'outside.md');
@@ -107,6 +110,17 @@ test('path traversal and document symlinks outside the snapshot are rejected', a
   await rm(resolve(data.docs, 'docs/routing.md'));
   await symlink(outside, resolve(data.docs, 'docs/routing.md'));
   assert.match(data.run().stderr, /escapes/);
+});
+
+test('manifest symlinks outside the snapshot are rejected before reading', async t => {
+  const data = await fixture(t);
+  const outside = resolve(data.temporary, 'external-manifest.json');
+  await writeFile(outside, JSON.stringify(data.manifest));
+  await rm(resolve(data.docs, 'manifest.json'));
+  await symlink(outside, resolve(data.docs, 'manifest.json'));
+  const result = data.run();
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Documentation manifest escapes its package/);
 });
 
 test('manifest content digest is checked independently of page hashes', async t => {

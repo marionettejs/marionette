@@ -76,7 +76,13 @@ an idempotent call when that state is already current. It resolves `false` when
 a later incompatible operation supersedes the request. `false` is cancellation,
 not failure. A current lifecycle hook failure rejects its operation Promise.
 
-Compatible repeated calls share the in-flight Promise. Before destruction
+Compatible repeated calls share the in-flight Promise. For `restart()`, this
+coalescing ends before the `onStart`/`start` completion notification: a restart
+requested there begins a new cycle with its own options and Promise. The completed
+cycle remains successful if that new cycle later fails or is canceled. An
+unconditional restart on every start notification therefore creates a loop.
+Completion notifications are synchronous; Marionette does not await their return
+values or automatically wait for a cycle they initiate. Before destruction
 begins, the latest incompatible operation wins: for example, `stop()` during
 startup resolves the earlier `start()` as `false`, completes the stop lifecycle,
 and prevents a stale `start` event. A `start()` that supersedes an in-flight
@@ -87,9 +93,40 @@ teardown until it has reached a stopped or destroyed state. Completion of an
 invalidated asynchronous hook cannot change the Application's running or
 destroyed state or emit the invalidated success event.
 
-`isRunning()` is `true` only after startup readiness completes and while the
-Application is running. It is `false` before the first start, during lifecycle
-transitions, after stop, and after destroy.
+`isRunning()` describes the active run. It becomes `true` after startup readiness,
+before `onStart`, and stays `true` while stop permission or descendant stopping is
+pending, including a restart's stop phase. Rejected or canceled stop preserves the
+active run. It becomes `false` before successful stop tears down the root, during
+startup preparation, and immediately when terminal destruction begins. If
+destruction's stop preparation fails before the previous run is stopped, its
+running state is restored. It does not report whether a lifecycle operation is
+pending.
+
+### Cleanup and stop permission
+
+`onBeforeStop` announces a stop attempt; `prepareStop` supplies its readiness.
+Neither means the active run has ended. Keep listeners, request ownership, and
+services needed by that run available while permission is pending. Use `onStop`
+for synchronous cleanup after successful stopping, such as removing per-run
+listeners or invalidating outstanding display requests. Waiting until destruction
+alone leaves those resources installed across ordinary stop/restart cycles.
+
+Do not destroy a required service in `prepareStop` merely to await its cleanup.
+For example, `removeChildApp('service')` destroys that child; a later readiness
+failure cannot restore it. Parent/child stopping is not transactional: children
+already stopped before another child fails remain stopped. See
+[child ownership](#registering-and-controlling-children) for the partial-failure contract.
+
+Moving asynchronous disposal into `onStop` does not make it awaited. Choose the
+service's ownership and readiness policy explicitly when its disposal must finish
+before another run can use it. Resources acquired during startup also need a
+cancellation/rejection cleanup path; successful-stop cleanup alone does not cover
+failed preparation. A replacement start can also adopt pending stop readiness
+without emitting the superseded stop notification; dispose any previous run scope
+before acquiring its replacement. The [effects guide](./application-effects.md#choose-when-effects-end)
+shows an application-owned scope with those paths. Cleanup callbacks remain
+subject to the [synchronous failure contract](./view.lifecycle.md#synchronous-failures);
+these rules do not add rollback or asynchronous notification handling.
 
 ### Lifecycle operations
 
@@ -130,7 +167,10 @@ returning it does not make its failure a readiness failure.
 
 `prepareStart`'s resolved value is passed unchanged as the third argument to
 `onStart(application, options, result)` and `start` listeners. Arrays are not
-spread. Without `prepareStart`, the result is `undefined`. The operation's own
+spread or implicitly awaited element by element. When preparation starts several
+asynchronous operations, return `Promise.all(requests)` to wait for all of them;
+returning the array itself completes preparation without waiting for its Promises.
+Without `prepareStart`, the result is `undefined`. The operation's own
 Promise still resolves a boolean, not the prepared value. Canceled startup never
 emits completion with an obsolete result. Stop and destroy preparation results
 are ignored; those methods provide readiness rather than startup data.
@@ -204,9 +244,12 @@ host. A different host passed to `start()` while an Application is running or st
 with `MN0041`; await `stop()` before a new `start({ region })`, or use
 `restart({ region })` to stop and select a new host in one operation.
 An in-flight start with the same Region instance continues to share
-its existing Promise. A compatible in-flight restart also shares its Promise;
-a restart requesting a different host supersedes the earlier operation, which
-resolves `false`. Restart can replace an unfinished start: it cancels startup,
+its existing Promise. A compatible restart during stop/start preparation shares
+its Promise and keeps the original options; it does not queue newer options. A
+restart requesting a different host during preparation supersedes the earlier
+operation, which resolves `false`. Once startup commits, a restart from `onStart`
+or a `start` listener starts a new cycle, even with the same host. Restart can
+replace an unfinished start: it cancels startup,
 completes deactivation, and then binds the requested host. Rebinding releases the
 Application's displayed root, preserves a prepared root for the new host, and
 destroys the previous owned Region.
@@ -534,10 +577,43 @@ await dashboard.start();
 export const dashboardView = dashboard.getView();
 ```
 
+## Subscription lifetime across stop and restart
+
+Ordinary `listenTo` and `bindEvents` subscriptions belong to the Application
+instance. `stop()` does not remove them, and `restart()` reuses that instance.
+`destroy()` calls `stopListening()` for terminal cleanup. A stopped Application
+can therefore still receive a service event from an in-flight save or request.
+
+For handlers that should act only during a run, pair registration with explicit
+cleanup: remove a `listenTo(source, event, callback)` binding with
+`stopListening(source, event, callback)`, or a `bindEvents(source, map)` binding
+with `unbindEvents(source, map)`. Preserve callback identity for cleanup, including
+functions stored in maps. A map of method-name strings may be recreated if the
+methods still resolve to the same functions. Remove the binding when stopping
+begins if delivery must cease before asynchronous stop preparation. Reinstall it once for each new run.
+If stop can reject and effects must remain active until it succeeds, clean up in
+`onStop` instead. Choose that policy explicitly; early cleanup must account for a
+failed stop that leaves the Application running. Avoid clearing unrelated
+object-lifetime subscriptions.
+
+Unbinding prevents delivery while stopped; it does not cancel the producer or
+distinguish an old request from a new run after restart. Use the operation's
+abort signal where supported and check current request/run identity before
+applying late UI effects. A save may still complete on the server without
+permission to navigate a stopped or replaced screen. See
+[explicit activation and cleanup](./application-effects.md) for run-owned effects.
+
 ## Application state
 
-State and Radio bindings have object lifetime. For restartable feature effects,
-see [explicit activation and cleanup](./application-effects.md).
+Application `stateEvents` deliver only while `isRunning()` is true. Initial state
+can be seeded in `onBeforeStart` or `prepareStart` without invoking UI or persistence
+handlers before the root is ready. `onStart` reads current state for initial display.
+Events suppressed before activation or after deactivation are not queued or replayed.
+Delivery continues while stop permission is pending and ends before root teardown.
+
+Radio bindings and explicit listeners retain object lifetime. For timers, requests,
+loading-time reactions, or deliberately persistent state observation, see
+[explicit activation and cleanup](./application-effects.md).
 
 
 An Application may compose one [state source](./marionette.state.md). A supplied

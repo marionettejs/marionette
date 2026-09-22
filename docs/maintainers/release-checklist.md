@@ -57,7 +57,10 @@ owns the usability procedure and required records.
 - [ ] Review the changelog, migration guidance, beta limitations, and resolved
   issues. Separate shipped behavior from unmeasured agent-effectiveness claims.
 - [ ] Align all five package versions, internal requirements, locks, README install
-  commands, release policy, and generated contract inventory. Before stable v5,
+  commands, the Marionette plugin version, release policy, and generated contract
+  inventory. Replace the plugin marketplace installation command's `master` ref
+  with the matching immutable release tag; stable installation guidance must not
+  retain prerelease-only wording or presentation metadata. Before stable v5,
   publish the current prerelease on `latest`; reserve `next` for later prereleases
   after stable v5. Record the actual tag effects from the policy.
 - [ ] Write a fresh, lightly snarky opening about what this release actually changes.

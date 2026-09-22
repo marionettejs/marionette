@@ -224,6 +224,12 @@ document when no parent is defined, and returns the first matching native DOM
 element. A custom `getEl` override must preserve that native-element return
 contract; do not return a `NodeList` or jQuery collection. To customize selector
 lookup through the DOM adapter, implement `findEl(context, selector)` instead.
+`getEl` accepts a selector string, not a DOM element. Unlike the Region's `el`
+option, it is not an element-or-selector normalizer. Once the Region has resolved
+its element, use `region.el` directly for native focus or scroll operations;
+do not pass that element back into `getEl`. Before resolution, `region.el` may
+still be the configured selector string.
+
 The v4 `DomApi#getEl` method is not part of the v5 DOM API.
 
 Selector lookup is deferred until a DOM operation such as `show()` needs it. During construction, `initialize` observes the configured

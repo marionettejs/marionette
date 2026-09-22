@@ -1,0 +1,39 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "marionette",
+  "version": "5.0.0-beta.5",
+  "description": "Build and migrate Marionette applications with version-matched documentation.",
+  "author": {
+    "name": "Marionette.js",
+    "url": "https://marionettejs.com/"
+  },
+  "homepage": "https://marionettejs.com/docs/agent-tools/",
+  "repository": "https://github.com/marionettejs/marionette",
+  "license": "MIT",
+  "keywords": [
+    "backbone",
+    "marionette",
+    "migration",
+    "documentation"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Marionette",
+        "shortDescription": "Build with version-matched Marionette docs.",
+        "longDescription": "Use the installed Marionette contract, migration guidance, and optional hosted documentation MCP when building or upgrading an application.",
+        "developerName": "Marionette.js",
+        "category": "Developer Tools",
+        "capabilities": [
+          "Read"
+        ],
+        "websiteURL": "https://marionettejs.com/",
+        "defaultPrompt": [
+          "Inspect this application's Marionette contract.",
+          "Plan a Marionette v4 to v5 migration.",
+          "Debug this Marionette lifecycle issue."
+        ]
+      }
+    }
+  }
+}

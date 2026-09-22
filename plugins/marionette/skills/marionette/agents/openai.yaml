@@ -1,0 +1,13 @@
+interface:
+  display_name: "Marionette"
+  short_description: "Build and migrate Marionette applications"
+  default_prompt: "Use $marionette to inspect this application's installed contract and complete the requested Marionette work."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "marionette-docs"
+      description: "Versioned Marionette documentation"
+      transport: "streamable_http"
+      url: "https://mcp.marionettejs.com/mcp"
+policy:
+  allow_implicit_invocation: true
