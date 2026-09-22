@@ -76,7 +76,13 @@ an idempotent call when that state is already current. It resolves `false` when
 a later incompatible operation supersedes the request. `false` is cancellation,
 not failure. A current lifecycle hook failure rejects its operation Promise.
 
-Compatible repeated calls share the in-flight Promise. Before destruction
+Compatible repeated calls share the in-flight Promise. For `restart()`, this
+coalescing ends before the `onStart`/`start` completion notification: a restart
+requested there begins a new cycle with its own options and Promise. The completed
+cycle remains successful if that new cycle later fails or is canceled. An
+unconditional restart on every start notification therefore creates a loop.
+Completion notifications are synchronous; Marionette does not await their return
+values or automatically wait for a cycle they initiate. Before destruction
 begins, the latest incompatible operation wins: for example, `stop()` during
 startup resolves the earlier `start()` as `false`, completes the stop lifecycle,
 and prevents a stale `start` event. A `start()` that supersedes an in-flight
@@ -238,9 +244,12 @@ host. A different host passed to `start()` while an Application is running or st
 with `MN0041`; await `stop()` before a new `start({ region })`, or use
 `restart({ region })` to stop and select a new host in one operation.
 An in-flight start with the same Region instance continues to share
-its existing Promise. A compatible in-flight restart also shares its Promise;
-a restart requesting a different host supersedes the earlier operation, which
-resolves `false`. Restart can replace an unfinished start: it cancels startup,
+its existing Promise. A compatible restart during stop/start preparation shares
+its Promise and keeps the original options; it does not queue newer options. A
+restart requesting a different host during preparation supersedes the earlier
+operation, which resolves `false`. Once startup commits, a restart from `onStart`
+or a `start` listener starts a new cycle, even with the same host. Restart can
+replace an unfinished start: it cancels startup,
 completes deactivation, and then binds the requested host. Rebinding releases the
 Application's displayed root, preserves a prepared root for the new host, and
 destroys the previous owned Region.

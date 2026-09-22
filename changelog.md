@@ -1,5 +1,8 @@
 ### Unreleased
 
+* Begin a new restart cycle for `restart()` requested from `onStart` or a `start`
+  listener; preserve compatible restart coalescing during preparation.
+
 * Scope Application `stateEvents` to the active run without replacing state or
   subscriptions on restart. Suppress startup/stopped delivery without replay.
 * Keep `isRunning()` true through pending stop permission and descendant stopping;
