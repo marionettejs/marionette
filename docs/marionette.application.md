@@ -130,7 +130,10 @@ returning it does not make its failure a readiness failure.
 
 `prepareStart`'s resolved value is passed unchanged as the third argument to
 `onStart(application, options, result)` and `start` listeners. Arrays are not
-spread. Without `prepareStart`, the result is `undefined`. The operation's own
+spread or implicitly awaited element by element. When preparation starts several
+asynchronous operations, return `Promise.all(requests)` to wait for all of them;
+returning the array itself completes preparation without waiting for its Promises.
+Without `prepareStart`, the result is `undefined`. The operation's own
 Promise still resolves a boolean, not the prepared value. Canceled startup never
 emits completion with an obsolete result. Stop and destroy preparation results
 are ignored; those methods provide readiness rather than startup data.
@@ -533,6 +536,31 @@ export const dashboard = new DashboardApplication();
 await dashboard.start();
 export const dashboardView = dashboard.getView();
 ```
+
+## Subscription lifetime across stop and restart
+
+Ordinary `listenTo` and `bindEvents` subscriptions belong to the Application
+instance. `stop()` does not remove them, and `restart()` reuses that instance.
+`destroy()` calls `stopListening()` for terminal cleanup. A stopped Application
+can therefore still receive a service event from an in-flight save or request.
+
+For handlers that should act only during a run, pair registration with explicit
+cleanup: remove a `listenTo(source, event, callback)` binding with
+`stopListening(source, event, callback)`, or a `bindEvents(source, map)` binding
+with `unbindEvents(source, map)`. Keep the same callback or map available for
+cleanup and remove the binding when stopping begins if delivery must cease
+before asynchronous stop preparation. Reinstall it once for each new run.
+If stop can reject and effects must remain active until it succeeds, clean up in
+`onStop` instead. Choose that policy explicitly; early cleanup must account for a
+failed stop that leaves the Application running. Avoid clearing unrelated
+object-lifetime subscriptions.
+
+Unbinding prevents delivery while stopped; it does not cancel the producer or
+distinguish an old request from a new run after restart. Use the operation's
+abort signal where supported and check current request/run identity before
+applying late UI effects. A save may still complete on the server without
+permission to navigate a stopped or replaced screen. See
+[explicit activation and cleanup](./application-effects.md) for run-owned effects.
 
 ## Application state
 
