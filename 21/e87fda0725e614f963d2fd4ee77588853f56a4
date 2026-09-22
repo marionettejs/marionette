@@ -1,0 +1,34 @@
+docs/maintainers/documentation.md
+  s_8bc670f0bb5f37::t_fe3e20940c01f3 37-41
+docs/maintainers/release-checklist.md
+  s_8bc670f0bb5f37::t_fe3e20940c01f3 60-63
+test/agent-docs/plugin.test.mjs
+  s_8bc670f0bb5f37::t_fe3e20940c01f3 2,32-45,48,51-52,63-66,73-80
+  s_8bc670f0bb5f37::t_25ec1b682eb2de 15-24,30-31,81,83-86,89-91,93-96
+  s_8bc670f0bb5f37::t_d7f9ec591a8d8c 27-29,92
+  s_8bc670f0bb5f37::t_4f46b7b1b900d6 14,25-26,47,49,53-54,56-57,59,82,87-88,97-98
+test/fixtures/docs-package/validate.mjs
+  s_8bc670f0bb5f37::t_fe3e20940c01f3 4,20-31,70-77
+plugins/marionette/mcp.json
+  s_8bc670f0bb5f37::t_4f46b7b1b900d6 2,5
+docs/agent-tools.md
+  s_8bc670f0bb5f37::t_fe3e20940c01f3 26-30
+plugins/marionette/plugin.json
+  s_8bc670f0bb5f37::t_4f46b7b1b900d6 2,4,19-38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "21e87fda0725e614f963d2fd4ee77588853f56a4",
+  "prompts": {},
+  "sessions": {
+    "s_8bc670f0bb5f37": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c7f9-f977-78d3-94ee-2291f98aa98e",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
