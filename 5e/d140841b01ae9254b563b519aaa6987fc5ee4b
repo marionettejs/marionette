@@ -1,0 +1,31 @@
+.github/workflows/release.yml
+  s_7dd1312ea8b52f::t_7f0c54c08a7b55 15-17,24
+docs/release-profile.md
+  s_7dd1312ea8b52f::t_563fd7a0246f2d 38-40
+docs/release-promotion.md
+  s_7dd1312ea8b52f::t_b6b44980d57b27 81-87
+test/README.md
+  s_7dd1312ea8b52f::t_e77e84d71fd1b7 85-88
+test/fixtures/smoke.sh
+  s_7dd1312ea8b52f::t_3e84a8f59cbe45 16,18-23,25
+test/tooling/package-smoke.test.mjs
+  s_7dd1312ea8b52f::t_2a7df85d8a6db9 1-56
+test/tooling/workflows.test.mjs
+  s_7dd1312ea8b52f::t_9461ed40250d66 3,5,7,26-41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "5ed140841b01ae9254b563b519aaa6987fc5ee4b",
+  "prompts": {},
+  "sessions": {
+    "s_7dd1312ea8b52f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c97d-0f16-7260-b867-d94de1d50c19",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
