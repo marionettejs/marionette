@@ -1,8 +1,14 @@
 # Own effects explicitly
 
-Application `stateEvents`, `radioEvents`, `radioRequests`, and ordinary `listenTo`
-bindings have object lifetime. Stop does not remove them; destroy releases the
-framework-owned subscriptions. Use them for deliberately persistent behavior.
+Application `stateEvents` deliver during the active run, following `isRunning()`.
+Seed state before activation and read its current value in `onStart`; pending stop
+permission for stop/restart leaves delivery active until stopping succeeds.
+Terminal destruction deactivates delivery immediately. Subscriptions themselves
+remain installed until destruction, and suppressed notifications are not replayed.
+
+`radioEvents`, `radioRequests`, and ordinary `listenTo` bindings have object
+lifetime. Stop does not remove them; destroy releases the framework-owned
+subscriptions. Use explicit listeners for deliberately persistent state behavior.
 
 For a restartable feature, give subscriptions and asynchronous work an explicit
 owner. The following application module uses one small effects scope. It is
@@ -75,19 +81,45 @@ a newer successful start.
 
 ## Distinguish delivery from resource cleanup
 
-Configured `stateEvents` can intentionally remain subscribed for the object's
-lifetime. A handler guarded by `isRunning()` suppresses its work while the feature
-is stopped, but does not unsubscribe or cancel a timer. It also suppresses work
-while stop permission is pending, because that is a lifecycle transition. Use the
-explicit scope below when effects must continue until stop succeeds and remain
-active if permission rejects. Disposing them in `onBeforeStop` would end them before
-the permission decision; disposal belongs in `onStop` for that policy.
+Configured `stateEvents` gate delivery; they do not unsubscribe on stop or cancel
+work a handler already started. `isRunning()` stays true during pending stop
+permission, but a later run can also be active when an older request finishes.
+Use operation signals or a latest-request owner to prevent stale commits.
+
+Use the explicit scope below for effects that observe loading-time changes or own
+timers, requests, and other resources. Disposing them in `onBeforeStop` would end
+them before permission is decided; disposal belongs in `onStop` for this policy.
 
 Successful `prepareStart` does not give its signal the lifetime of the subsequent
 active run. Register active resources with their own scope and dispose that scope
 on successful stop and terminal destruction. The executable example below and its
 [installed checks](https://github.com/marionettejs/marionette/blob/master/test/fixtures/docs-application-guides/effects.mjs)
 already cover rejected stop permission and successful timer cleanup.
+
+## Work started after activation
+
+An async action called from `onStart`, a state handler, or a user event is not part
+of `prepareStart` readiness. Handle its rejection at the action's owner and check
+whether its result still belongs to the current work before updating the UI.
+There are two separate questions:
+
+- Does this request still belong to the active run? A later run may make
+  `isRunning()` true again, so that boolean alone cannot identify the request's run.
+- Has a newer request replaced it within the same run? A run-scoped signal alone
+  does not establish latest-request-wins ordering.
+
+Use the [latest-request example](./application-refresh.md#share-one-latest-request-controller)
+for replaceable reads, with disposal tied to the feature's chosen lifetime.
+Ignoring an obsolete result or aborting a request does not undo a write already
+performed by a provider. Save and discard actions need an explicit mutation policy;
+do not assume the same replacement policy is appropriate for them.
+
+An owned child Application is useful when the work belongs to a feature with its
+own activation and cleanup, with state or UI where needed. Put its initial readiness in
+its `prepareStart` and render its prepared result in `onStart`. A child per Promise
+does not automatically solve request ordering. Even when startup belongs to an
+existing child, a parent's asynchronous failure handler must still check that the
+failure is relevant to the parent's current context.
 
 ## A complete feature
 

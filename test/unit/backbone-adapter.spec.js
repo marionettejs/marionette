@@ -135,6 +135,35 @@ describe('Backbone adapter', function() {
     owner.destroy();
   });
 
+  it('scopes Application Backbone state events without silencing independent observers', async function() {
+    const runtime = createMarionette();
+    runtime.setStateApi(BackboneApi);
+    const state = new Backbone.Model();
+    const handler = vi.fn();
+    const observer = vi.fn();
+    state.on('change:responseId', observer);
+    const App = runtime.Application.extend({
+      stateEvents: { 'change:responseId': handler },
+      onBeforeStart() { state.set('responseId', null); }
+    });
+    const app = new App({ state });
+    await app.start();
+    expect(handler).not.toHaveBeenCalled();
+    const options = { source: 'editor' };
+    state.set('responseId', 'selected', options);
+    expect(handler).toHaveBeenCalledExactlyOnceWith(state, 'selected', options);
+    expect(handler.mock.contexts).toEqual([app]);
+    await app.restart();
+    expect(app.getState()).toBe(state);
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(observer).toHaveBeenCalledTimes(3);
+    await app.destroy();
+    state.set('responseId', 'after');
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(observer).toHaveBeenCalledTimes(4);
+    state.off();
+  });
+
   it('unsubscribes owned Backbone state without calling Model#destroy', function() {
     const runtime = createMarionette();
     runtime.setStateApi(BackboneApi);

@@ -87,9 +87,40 @@ teardown until it has reached a stopped or destroyed state. Completion of an
 invalidated asynchronous hook cannot change the Application's running or
 destroyed state or emit the invalidated success event.
 
-`isRunning()` is `true` only after startup readiness completes and while the
-Application is running. It is `false` before the first start, during lifecycle
-transitions, after stop, and after destroy.
+`isRunning()` describes the active run. It becomes `true` after startup readiness,
+before `onStart`, and stays `true` while stop permission or descendant stopping is
+pending, including a restart's stop phase. Rejected or canceled stop preserves the
+active run. It becomes `false` before successful stop tears down the root, during
+startup preparation, and immediately when terminal destruction begins. If
+destruction's stop preparation fails before the previous run is stopped, its
+running state is restored. It does not report whether a lifecycle operation is
+pending.
+
+### Cleanup and stop permission
+
+`onBeforeStop` announces a stop attempt; `prepareStop` supplies its readiness.
+Neither means the active run has ended. Keep listeners, request ownership, and
+services needed by that run available while permission is pending. Use `onStop`
+for synchronous cleanup after successful stopping, such as removing per-run
+listeners or invalidating outstanding display requests. Waiting until destruction
+alone leaves those resources installed across ordinary stop/restart cycles.
+
+Do not destroy a required service in `prepareStop` merely to await its cleanup.
+For example, `removeChildApp('service')` destroys that child; a later readiness
+failure cannot restore it. Parent/child stopping is not transactional: children
+already stopped before another child fails remain stopped. See
+[child ownership](#registering-and-controlling-children) for the partial-failure contract.
+
+Moving asynchronous disposal into `onStop` does not make it awaited. Choose the
+service's ownership and readiness policy explicitly when its disposal must finish
+before another run can use it. Resources acquired during startup also need a
+cancellation/rejection cleanup path; successful-stop cleanup alone does not cover
+failed preparation. A replacement start can also adopt pending stop readiness
+without emitting the superseded stop notification; dispose any previous run scope
+before acquiring its replacement. The [effects guide](./application-effects.md#choose-when-effects-end)
+shows an application-owned scope with those paths. Cleanup callbacks remain
+subject to the [synchronous failure contract](./view.lifecycle.md#synchronous-failures);
+these rules do not add rollback or asynchronous notification handling.
 
 ### Lifecycle operations
 
@@ -565,8 +596,15 @@ permission to navigate a stopped or replaced screen. See
 
 ## Application state
 
-State and Radio bindings have object lifetime. For restartable feature effects,
-see [explicit activation and cleanup](./application-effects.md).
+Application `stateEvents` deliver only while `isRunning()` is true. Initial state
+can be seeded in `onBeforeStart` or `prepareStart` without invoking UI or persistence
+handlers before the root is ready. `onStart` reads current state for initial display.
+Events suppressed before activation or after deactivation are not queued or replayed.
+Delivery continues while stop permission is pending and ends before root teardown.
+
+Radio bindings and explicit listeners retain object lifetime. For timers, requests,
+loading-time reactions, or deliberately persistent state observation, see
+[explicit activation and cleanup](./application-effects.md).
 
 
 An Application may compose one [state source](./marionette.state.md). A supplied

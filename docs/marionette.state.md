@@ -165,8 +165,17 @@ methods to state owners.
 
 ## Application lifetime
 
-State and Radio bindings have object lifetime. For restartable feature effects,
-see [explicit activation and cleanup](./application-effects.md).
+Application state identity and subscriptions persist across stop/restart, but
+configured `stateEvents` deliver only while `isRunning()` is true. Delivery begins
+before `onStart`, continues through pending stop permission, and ends before
+successful stop tears down the root or when terminal destruction begins. Startup
+and stopped writes remain in the source without replay; read current state in
+`onStart` for initial composition. Other state owners, including Views, retain
+object-lifetime delivery, and independent observers of a shared source are unaffected.
+
+Radio bindings and explicit `listenTo` subscriptions retain object lifetime.
+Use [explicit activation and cleanup](./application-effects.md) for loading-time
+or persistent observation, timers, and asynchronous work.
 
 
 <!-- executable-example: application-local-state -->

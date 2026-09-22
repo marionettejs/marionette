@@ -1,5 +1,10 @@
 ### Unreleased
 
+* Scope Application `stateEvents` to the active run without replacing state or
+  subscriptions on restart. Suppress startup/stopped delivery without replay.
+* Keep `isRunning()` true through pending stop permission and descendant stopping;
+  deactivate before root teardown or when terminal destruction begins.
+
 * Remove public `silent` mutation behavior from `@mnjs/data`. Construction remains
   notification-free; subsequent mutations publish their documented events so
   subscribed Views and collection observers remain synchronized.
