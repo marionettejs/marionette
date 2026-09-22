@@ -7,6 +7,6 @@
   },
   "dependencies": {
     "backbone": "1.6.1",
-    "jsdom": "30.0.1"
+    "jsdom": "30.1.0"
   }
 }
