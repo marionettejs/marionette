@@ -1,0 +1,25 @@
+docs/marionette.application.md
+  s_d884cbceb67f72::t_d66e58afe92ff1 133-136,540-564
+docs/marionette.region.md
+  s_d884cbceb67f72::t_cbf27c20752bc5 227-232
+docs/marionette.state.md
+  s_d884cbceb67f72::t_f52cbe86fa1007 40-48
+docs/migration-from-v4.md
+  s_d884cbceb67f72::t_aff92d69353e4c 170-183
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "dcde8ea4a8a658aab8043ff3f7e19ccbc84fdbaa",
+  "prompts": {},
+  "sessions": {
+    "s_d884cbceb67f72": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c7ff-3533-7e01-a602-52653aee37e8",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
