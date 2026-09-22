@@ -1,0 +1,19 @@
+test/tooling/workflows.test.mjs
+  s_7dd1312ea8b52f::t_32595f5e816441 27,30-33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "d1162d5535e96dcb05d12e84ab00195f3756e217",
+  "prompts": {},
+  "sessions": {
+    "s_7dd1312ea8b52f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c97d-0f16-7260-b867-d94de1d50c19",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
