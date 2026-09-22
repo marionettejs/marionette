@@ -24,9 +24,13 @@ for (const [name, source, status, message] of [
   });
 }
 
-test('release routing certifies infrastructure while keeping ordinary edits on regular CI', async() => {
+test('release filter examples include infrastructure and exclude ordinary edits', async() => {
   const workflow = parse(await readFile(resolve(import.meta.dirname, '../../.github/workflows/release.yml'), 'utf8'));
   const paths = workflow.on.pull_request.paths;
+  // This sample-path check uses Node's glob dialect, not GitHub's routing engine.
+  // It assumes the current simple positive * and ** filters agree for these files.
+  // Reassess the matcher before adding negation, ordered exclusions, directory-only
+  // filters, or other glob syntax; passing here does not prove GitHub event routing.
   for (const path of [
     'tools/eslint/index.mjs', 'tools/eslint/index.d.cts', 'scripts/performance/bundle-size.mjs',
     'scripts/diagnostics/check-catalog.mjs', 'scripts/api-contracts/check.mjs',
