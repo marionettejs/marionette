@@ -2,5 +2,5 @@
   "private": true,
   "type": "module",
   "scripts": { "validate": "node validate.mjs" },
-  "dependencies": { "marked": "18.0.12" }
+  "dependencies": { "marked": "18.0.13" }
 }
