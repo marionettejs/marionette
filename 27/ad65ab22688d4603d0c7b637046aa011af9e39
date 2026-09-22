@@ -1,0 +1,61 @@
+changelog.md
+  s_267e7a791356aa::t_0bd8c801349659 10-14
+config/api-contracts/inventory.json
+  s_267e7a791356aa::t_cc3f1e235d0822 8090,8093,8098,8106
+docs-site/resources.json
+  s_267e7a791356aa::t_884a9b81132f00 8,48-49
+docs/application-effects.md
+  s_267e7a791356aa::t_c9dc942b9adf92 3-11,14-87,156-163,171-195
+docs/beta.md
+  s_267e7a791356aa::t_12d2e954dcf1f9 8-17,23,56
+docs/dom.interactions.md
+  s_267e7a791356aa::t_2c38c4b6834246 129-183
+docs/marionette.application.md
+  s_267e7a791356aa::t_aa6cabd3a25d49 22-23,81-87,98-131,249-254,331-392,672-680
+docs/marionette.state.md
+  s_a602915b6dbd3b::t_77c70f22847336 168-178
+docs/migration-from-v4.md
+  s_267e7a791356aa::t_1ae865db523c76 31,87-88,173,175-181
+docs/view.rendering.md
+  s_267e7a791356aa::t_37b2e38b3c13ca 287-294
+plugins/marionette/skills/marionette/SKILL.md
+  s_267e7a791356aa::t_5d823b0d8b8b6a 55-57,76-78
+skills/marionette/SKILL.md
+  s_267e7a791356aa::t_0d870ed2a6ef1b 55-57,76-78
+test/browser/docs-interaction-boundaries.spec.mjs
+  s_267e7a791356aa::t_c81da30005b9e0 1-63
+test/fixtures/docs-application-guides/completion.mjs
+  s_267e7a791356aa::t_0f9961da2865c0 1-125
+test/fixtures/docs-application-guides/validate.mjs
+  s_267e7a791356aa::t_bb5d48d64479d1 229-232
+test/fixtures/docs-view-dom-interactions/boundaries.mjs
+  s_267e7a791356aa::t_3abf166c04d81f 1-75
+test/fixtures/docs-view-dom-interactions/validate.mjs
+  s_267e7a791356aa::t_01de308e5f0509 260-262
+upgradeGuide.md
+  s_267e7a791356aa::t_f8a5db2778ec3d 653-654
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "27ad65ab22688d4603d0c7b637046aa011af9e39",
+  "prompts": {},
+  "sessions": {
+    "s_267e7a791356aa": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08689-8981-7cf3-a3c5-0ee0a88b599c",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_a602915b6dbd3b": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c924-d791-7fe3-b2b7-2e3fcdcff4a5",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
