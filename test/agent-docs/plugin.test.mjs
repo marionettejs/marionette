@@ -20,12 +20,12 @@ function assertReleasePresentation(version, instructions, manifest) {
     /follows Marionette's protected `master` branch only until a release tag contains the plugin/,
     'Stable installation instructions must not retain transitional release wording');
   assert.match(instructions,
-    new RegExp(`plugin marketplace add marionettejs/marionette --ref v${version.replaceAll('.', '\\.')}`),
+    new RegExp(`plugin marketplace add marionettejs/marionette --ref v${version.replaceAll('.', '\\.')}(?![0-9A-Za-z-])`),
     'Stable installation instructions must use the matching release tag');
   assert.doesNotMatch(JSON.stringify(manifest), /\b(?:beta|prerelease)\b/i,
     'Stable plugin presentation must not contain prerelease labeling');
   const baseVersion = version.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  assert.doesNotMatch(instructions, new RegExp(`\\b${baseVersion}-[0-9A-Za-z]`),
+  assert.doesNotMatch(instructions, new RegExp(`${baseVersion}-[0-9A-Za-z]`),
     'Stable plugin instructions must not retain prerelease examples for that version');
 }
 
@@ -94,6 +94,11 @@ test('stable plugin releases require immutable non-transitional installation gui
       /The checked-in command follows Marionette's protected `master` branch only until a\nrelease tag contains the plugin\.[\s\S]*?that pin deliberately\./,
       'The repository marketplace is pinned to this immutable Marionette release tag.',
     );
+  assert.throws(() => assertReleasePresentation('5.0.0', stable, manifest),
+    /Stable plugin presentation/);
+  assert.throws(() => assertReleasePresentation('5.0.0',
+    stable.replace('--ref v5.0.0', '--ref v5.0.0-beta.5'),
+    { ...manifest, version: '5.0.0' }), /matching release tag/);
   assert.doesNotThrow(() => assertReleasePresentation('5.0.0', stable,
     { ...manifest, version: '5.0.0' }));
 });
