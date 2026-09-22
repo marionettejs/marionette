@@ -5,6 +5,7 @@
   "scripts/api-contracts/README.md",
   "test/fixtures/docs-application-guides/package.json",
   "test/fixtures/docs-application-guides/validate.mjs",
+  "test/fixtures/docs-application-guides/completion.mjs",
   "test/fixtures/docs-application-guides/effects.mjs",
   "test/fixtures/docs-application-guides/preparation.mjs",
   "test/fixtures/docs-application-guides/workspace.mjs",
@@ -44,5 +45,6 @@
   "test/README.md",
   "test/unit/model-based/README.md",
   "test/fixtures/docs-prerendered-content/literal-template.mjs",
-  "test/fixtures/docs-region-lifecycle/retry-delete.mjs"
+  "test/fixtures/docs-region-lifecycle/retry-delete.mjs",
+  "test/fixtures/docs-view-dom-interactions/boundaries.mjs"
 ]

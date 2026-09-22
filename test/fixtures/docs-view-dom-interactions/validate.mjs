@@ -257,3 +257,6 @@ try {
   delete globalThis.document;
   delete globalThis.window;
 }
+
+// <!-- executable-example: native-hover-nested-click -->
+await import('./boundaries.mjs');

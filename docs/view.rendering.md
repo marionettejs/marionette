@@ -284,6 +284,14 @@ const MessageView = View.extend({
 MessageView.setDomApi(MorphdomDomApi);
 ```
 
+DOM replacement is adapter-dependent: the native `setContents` replaces the
+contents, while Morphdom can retain matching descendants. Rendering again is
+therefore not necessarily an iframe reload with Morphdom. A retained iframe with
+unchanged content attributes can survive; changing its `src`, replacing its node,
+or destroying its owning Region child can still navigate or reload it. Test the
+actual adapter and browser interaction rather than treating `render()` as proof of
+either preservation or replacement.
+
 Morphdom updates the View's contents using its normal matching rules, including
 element IDs. Empty roots take the direct HTML insertion path. For Lit templates,
 select the Lit DOM adapter:
