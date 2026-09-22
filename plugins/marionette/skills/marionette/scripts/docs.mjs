@@ -57,7 +57,12 @@ async function main() {
   if (docsLocal === '..' || docsLocal.startsWith(`..${sep}`) || isAbsolute(docsLocal)) {
     throw new Error('Documentation root escapes its package.');
   }
-  const manifest = await json(resolve(docsRoot, 'manifest.json'));
+  const manifestPath = await realpath(resolve(docsRoot, 'manifest.json'));
+  const manifestLocal = relative(docsRoot, manifestPath);
+  if (manifestLocal === '..' || manifestLocal.startsWith(`..${sep}`) || isAbsolute(manifestLocal)) {
+    throw new Error('Documentation manifest escapes its package.');
+  }
+  const manifest = await json(manifestPath);
   if (metadata.name !== 'marionette' || manifest.packageName !== metadata.name || manifest.packageVersion !== metadata.version) {
     throw new Error('Documentation package/version does not match the installed marionette package.');
   }
@@ -69,7 +74,7 @@ async function main() {
   const files = new Map();
   for (const entry of entries) {
     const source = entry.source;
-    if (typeof source !== 'string' || isAbsolute(source) || source.includes('\\') || source.split('/').some(part => !part || part === '..' || part === '.')) {
+    if (typeof source !== 'string' || isAbsolute(source) || source.includes('\\') || source.includes(':') || source.split('/').some(part => !part || part === '..' || part === '.')) {
       throw new Error('Unsafe documentation source path.');
     }
     if (files.has(source)) { throw new Error(`Duplicate documentation source: ${source}`); }

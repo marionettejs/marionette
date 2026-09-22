@@ -1,6 +1,6 @@
 ---
 name: marionette
-description: Use for building, migrating, debugging, reviewing, or testing Marionette applications, including v5, backbone.marionette, and their @mnjs integrations. Read version-matched docs and preserve the application's integration choices. For changes to the library itself, follow its repository guidance.
+description: Build, debug, review, or test Marionette v5 applications using version-matched docs, including v4-to-v5 migration and @mnjs integrations. For changes to the library itself, follow its repository guidance.
 ---
 
 # Build with Marionette

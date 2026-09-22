@@ -32,7 +32,8 @@ agent-specific entry files point to it. Consumer instructions live in
 as if they were instructions for building an application.
 
 `skills/marionette/` is the canonical consumer skill source. Keep its packaged
-`dist/agent-skill/` output and the copy in `plugins/marionette/` byte-identical.
+`dist/agent-skill/` output and the copy in
+`plugins/marionette/skills/marionette/` byte-identical.
 The plugin owns Codex distribution and its documentation MCP connection; consumer
 applications own only their selected integrations, architecture, and verification
 commands. Do not require each application to vendor Marionette's skill or repeat
