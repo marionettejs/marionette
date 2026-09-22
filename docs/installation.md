@@ -7,7 +7,7 @@ The instructions below cover adding Marionette to an existing application.
 Install the core package, show a View, then add the integrations your application
 needs. Native DOM APIs, plain objects, and function templates work out of the box.
 
-This guide describes beta.5. Registry commands require that version to be published;
+This guide describes beta.6. Registry commands require that version to be published;
 see [contributor setup](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#set-up-the-repository) to build and pack
 an unreleased checkout locally.
 
