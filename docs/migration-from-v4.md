@@ -168,3 +168,17 @@ It is not a failure and does not need a `catch`. A current readiness failure
 rejects and should use the application's ordinary error path. Marionette aborts
 the readiness signal before replacement readiness starts, so pass it to
 cancellable work rather than inventing a parallel cancellation hook.
+
+
+## Replacing application lifecycle wrappers
+
+If the v4 application used a Toolkit or custom base class, audit the behavior
+that wrapper supplied separately from Marionette core. Replacing its method
+names does not migrate its readiness and cleanup policy.
+
+| Wrapper assumption | V5 replacement | Verify in the application |
+| --- | --- | --- |
+| Returning an array of requests delays startup. | Return `Promise.all(requests)` from `prepareStart`; core awaits the returned value, not each array element. See [preparation methods](./marionette.application.md#preparation-methods-and-notifications). | Hold one required request pending and verify that startup and its loader remain pending; reject it and verify the readiness error path. |
+| Stopping clears ordinary service event subscriptions. | Pair run-specific `listenTo` / `bindEvents` registration with explicit removal on stop; scope late UI effects to the current request/run. See [subscription lifetime](./marionette.application.md#subscription-lifetime-across-stop-and-restart). | Begin a save, navigate away, then complete it. The save may finish, but the old screen must not navigate or update the replacement screen. Repeat after restarting the same owner. |
+| Destroying an owner clears listeners created by its Backbone state model. | The Backbone StateApi does not dispose model-owned subscriptions. Put external listeners on the owner or clean up its exclusively owned model explicitly. See [state ownership](./marionette.state.md#borrowed-and-owned-sources). | Destroy the owner, then emit the external event; the former state must not modify stored preferences or other application state. |
+| `Region.getEl(region.el)` normalizes either a selector or an element. | `getEl(selector)` is a selector lookup. Use the resolved `region.el` directly for native DOM operations. See [Region element lookup](./marionette.region.md#defining-regions). | Show the Region, then exercise the custom focus/scroll path using the resolved element. |
