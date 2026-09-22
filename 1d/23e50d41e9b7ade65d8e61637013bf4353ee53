@@ -1,0 +1,61 @@
+plugins/marionette/.mcp.json
+  s_8bc670f0bb5f37::t_8d02bef6e0bb09 1-8
+readme.md
+  s_8bc670f0bb5f37::t_bc4e812b04b32b 85
+docs/maintainers/documentation.md
+  s_8bc670f0bb5f37::t_645d735e32750c 34-40
+test/docs/export.test.mjs
+  s_8bc670f0bb5f37::t_2ef9a8eb15f788 99,107-108
+  s_8bc670f0bb5f37::t_6ed75d98b0879d 131-132
+skills/marionette/SKILL.md
+  s_8bc670f0bb5f37::t_6ed75d98b0879d 3
+  s_8bc670f0bb5f37::t_3f07c8c520fad3 45-46
+docs/migration-from-v4.md
+  s_8bc670f0bb5f37::t_3f07c8c520fad3 37
+skills/marionette/agents/openai.yaml
+  s_8bc670f0bb5f37::t_3f07c8c520fad3 1-13
+docs-site/resources.json
+  s_8bc670f0bb5f37::t_3f07c8c520fad3 20
+.agents/plugins/marketplace.json
+  s_8bc670f0bb5f37::t_8d02bef6e0bb09 1-20
+upgradeGuide.md
+  s_8bc670f0bb5f37::t_3f07c8c520fad3 22-27
+plugins/marionette/.codex-plugin/plugin.json
+  s_8bc670f0bb5f37::t_8d02bef6e0bb09 1-36
+docs/agent-tools.md
+  s_8bc670f0bb5f37::t_6ed75d98b0879d 168-174
+  s_8bc670f0bb5f37::t_90e986230f9de3 145
+  s_8bc670f0bb5f37::t_4235546950ca29 10-35,42-44,143,167
+docs/beta.md
+  s_8bc670f0bb5f37::t_4235546950ca29 58
+docs/maintainers/readme.md
+  s_8bc670f0bb5f37::t_bc4e812b04b32b 60
+test/agent-docs/plugin.test.mjs
+  s_8bc670f0bb5f37::t_645d735e32750c 1-45
+scripts/docs/export.mjs
+  s_8bc670f0bb5f37::t_2ef9a8eb15f788 42
+test/fixtures/docs-package/validate.mjs
+  s_8bc670f0bb5f37::t_6ed75d98b0879d 58-60
+plugins/marionette/skills/marionette/SKILL.md
+  s_8bc670f0bb5f37::t_97e79543ec0db4 1-76
+plugins/marionette/skills/marionette/agents/openai.yaml
+  s_8bc670f0bb5f37::t_3fcf340ea0d7fa 1-13
+plugins/marionette/skills/marionette/scripts/docs.mjs
+  s_8bc670f0bb5f37::t_20c6458c3c4112 1-110
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "1d23e50d41e9b7ade65d8e61637013bf4353ee53",
+  "prompts": {},
+  "sessions": {
+    "s_8bc670f0bb5f37": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c7f9-f977-78d3-94ee-2291f98aa98e",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
