@@ -198,9 +198,9 @@ mutation/benchmark run remains development tooling with explicit scope and limit
 
 Dependabot proposes weekly root tooling updates, with TypeScript ESLint, Vitest,
 and Stryker packages grouped by tool before the remaining development dependency
-patches are grouped together. Other root minor and major upgrades remain separate.
-Weekly GitHub Action minor and patch updates are grouped; major upgrades remain
-separate. Monthly consumer-fixture updates preserve review of their independent
+minor and patch updates are grouped together. Other root major upgrades remain
+separate. Weekly GitHub Action minor and patch updates are grouped; major upgrades
+remain separate. Monthly consumer-fixture updates preserve review of their independent
 lockfiles. These groups apply to version updates; security updates remain separate.
 Local Marionette package versions are excluded from these automated updates. The
 bot never merges changes; browser profile pins and all affected consumer contracts
