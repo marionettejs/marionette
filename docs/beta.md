@@ -55,7 +55,7 @@ pins matching runtime dependencies; a candidate kit instead supplies exact local
 tarballs and a complete lockfile. Both include application agent instructions,
 typecheck, consumer lint, unit tests, build, and a browser-test command.
 
-Beta.6 retains beta.5 ownership-aware root
+Beta.6 retains the beta.5 ownership-aware root
 cleanup, existing Regions on start/restart, and static child declarations. When
 upgrading from beta.3 or earlier, move asynchronous `onBefore*` preparation to
 the corresponding `prepare*` methods.
