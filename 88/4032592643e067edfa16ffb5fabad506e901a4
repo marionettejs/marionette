@@ -1,0 +1,43 @@
+config/api-contracts/inventory.json
+  s_a602915b6dbd3b::t_da46e21bf555b6 8090,8093,8106
+config/release-validation.json
+  s_a602915b6dbd3b::t_74238bfd737831 231-238
+docs-site/resources.json
+  s_a602915b6dbd3b::t_0a8412424397e3 49-50
+docs/application-effects.md
+  s_a602915b6dbd3b::t_6a93673a5d3a2e 37-41
+docs/beta.md
+  s_a602915b6dbd3b::t_8fd24d0f754de6 56-59
+docs/dom.interactions.md
+  s_a602915b6dbd3b::t_34e56f32096aed 145,170
+docs/marionette.application.md
+  s_a602915b6dbd3b::t_d8e6deaf1fe97c 25,381-393
+docs/view.rendering.md
+  s_a602915b6dbd3b::t_95e17f36600175 290-294
+plugins/marionette/skills/marionette/SKILL.md
+  s_a602915b6dbd3b::t_e38c6a141da911 76-79
+skills/marionette/SKILL.md
+  s_a602915b6dbd3b::t_b600ce90dcd4d6 76-79
+test/browser/docs-interaction-boundaries.spec.mjs
+  s_a602915b6dbd3b::t_4fff62b831abbf 26-28
+test/fixtures/docs-application-guides/completion.mjs
+  s_a602915b6dbd3b::t_b72faef68cb5a6 8
+test/fixtures/docs-view-dom-interactions/boundaries.mjs
+  s_a602915b6dbd3b::t_3270621e66a202 2,7,11,20-28,42-53,56-57,82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "884032592643e067edfa16ffb5fabad506e901a4",
+  "prompts": {},
+  "sessions": {
+    "s_a602915b6dbd3b": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c924-d791-7fe3-b2b7-2e3fcdcff4a5",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
