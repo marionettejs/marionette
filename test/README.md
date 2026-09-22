@@ -80,6 +80,14 @@ Each job installs and builds its own checkout and uploads its own reports. The
 `Node 24` aggregate check succeeds only when all five suites succeed; a failed,
 cancelled, or skipped suite does not pass the aggregate check. macOS package smoke
 runs alongside these jobs, and Windows package smoke runs on master pushes.
+On PRs, Linux and macOS run `bash test/fixtures/smoke.sh` after `npm ci`: it packs
+the built outputs once without lifecycle scripts and supplies those same five
+tarballs to `cjs-node`, `standalone-packages`, `core-types`, `vite`,
+`cjs-adapters`, and `collection-removal-survivors`. Every selected fixture runs
+even when an earlier fixture fails; any failure fails the smoke job.
+Reports are written to `test/tmp/fixture-reports/smoke-*.json`.
+Master pushes retain the full fixture inventory. Smoke results do not certify a
+release; manual release candidates still require the complete exact-artifact gates.
 
 Each suite uploads the following repository report paths:
 

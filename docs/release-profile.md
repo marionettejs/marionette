@@ -33,8 +33,14 @@ packages, review the exact package and version, and then use
 `npm approve-scripts <package>` to add a version-pinned approval. Isolated fixture
 packages keep their own approvals.
 
-PR CI runs the complete suite on the canonical Ubuntu 24.04 x64 host and clean
-installation and packed-package fixtures on macOS 15 arm64. The full Windows 2025
+PR CI runs core, tooling, browser, and agent-reference checks on Ubuntu 24.04 x64.
+Linux and macOS 15 arm64 package jobs build during clean installation, then pack
+once and run six installed-consumer smoke fixtures: CommonJS core, standalone
+ESM/CommonJS packages, consumer types, Vite/source maps, CommonJS adapters, and
+Backbone CollectionView removal with preserved survivor nodes.
+The complete Linux and macOS fixture inventories run on pushes to `master`.
+Full release certification runs automatically only for packaging/release infrastructure
+PRs; ordinary source, test, and documentation edits retain regular CI. The full Windows 2025
 x64 package-fixture suite runs after merge on pushes to `master`, and remains a
 required gate for release artifacts. Windows failures therefore surface after
 merge without delaying routine PRs. Release dry runs on PRs test macOS; manually
