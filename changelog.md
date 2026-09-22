@@ -7,6 +7,10 @@
   subscriptions on restart. Suppress startup/stopped delivery without replay.
 * Keep `isRunning()` true through pending stop permission and descendant stopping;
   deactivate before root teardown or when terminal destruction begins.
+* For beta.6, improve discovery of Application lifetimes and add executable loading
+  shell, child readiness, late-save completion, hover, and nested-click examples.
+  Clarify adapter-dependent DOM preservation and route agents to canonical guides.
+  These are documentation and test changes, not new runtime APIs.
 
 * Remove public `silent` mutation behavior from `@mnjs/data`. Construction remains
   notification-free; subsequent mutations publish their documented events so

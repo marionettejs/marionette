@@ -126,6 +126,60 @@ methods return the View, and both are no-ops after destruction has started.
 Construction calls `delegateEvents()`. A subclass override remains responsible
 for delegating to the base method when it wants Marionette's cleanup and redelegation.
 
+## Hover boundaries and nested clicks
+
+With the native EventDelegator, use bubbling `mouseover`/`mouseout` for delegated
+hover and reject transitions within the matched element using `relatedTarget`.
+Delegated `mouseenter`/`mouseleave` do not acquire bubbling behavior. A selector-free
+`mouseenter` handler can observe entry into the View root itself. Focus/blur are
+the capture exceptions described [below](#eventdelegator-adapter).
+
+Each declaration installs a listener on the root. Within a View, `events` are
+registered before `triggers`, in each map's key order; matching selectors do not
+reorder listeners from inner to outer. `stopPropagation()` prevents travel to
+another ancestor, but does not suppress another listener on this same root.
+`stopImmediatePropagation()` stops remaining listeners on that root too; it cannot
+undo a handler that already ran. Prefer explicit filtering to depending on order.
+Returning `false` from an `events` handler does not cancel a native event.
+
+This event map lets the nested action work without opening the row. The row handler
+filters the action even though both declarations match the same click. Clicking
+an icon uses `delegateTarget` for the matched control, not `target`.
+
+<!-- executable-example: native-hover-nested-click -->
+```javascript
+import { View } from 'marionette';
+
+export const RowView = View.extend({
+  template: () => '<article class="row"><span>Record</span><button class="action"><span>Save</span></button></article>',
+  events: {
+    'mouseover .row': 'enterRow',
+    'mouseout .row': 'leaveRow',
+    'click .row': 'openRow',
+    'click .action': 'saveRow'
+  },
+  enterRow(event) {
+    if (event.relatedTarget && event.delegateTarget.contains(event.relatedTarget)) { return; }
+    this.triggerMethod('row:enter');
+  },
+  leaveRow(event) {
+    if (event.relatedTarget && event.delegateTarget.contains(event.relatedTarget)) { return; }
+    this.triggerMethod('row:leave');
+  },
+  openRow(event) {
+    if (event.target.closest('.action')) { return; }
+    this.triggerMethod('row:open');
+  },
+  saveRow(event) {
+    this.triggerMethod('row:save', event.delegateTarget);
+  }
+});
+```
+
+The [installed boundary checks](https://github.com/marionettejs/marionette/blob/master/test/fixtures/docs-view-dom-interactions/boundaries.mjs)
+execute the example's nested clicks, hover transitions, and cleanup, and verify
+same-root ordering and propagation. Browser focus checks cover the capture policy.
+
 ## EventDelegator Adapter
 
 An EventDelegator owns how one normalized `events` or `triggers` declaration is

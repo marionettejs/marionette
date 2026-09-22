@@ -52,7 +52,9 @@ each page's absolute `path`, for reading the file directly:
 | Application architecture or unfamiliar ownership | `docs/agents.md` |
 | Rendering or screen replacement | `docs/marionette.view.md`, `docs/marionette.region.md`, `docs/view.lifecycle.md` |
 | Changing lists or observable records | `docs/marionette.collectionview.md`, `docs/data.api.md` |
-| Async features or navigation | `docs/marionette.application.md`, `docs/routing.md` |
+| Application runs, readiness, or late save completion | `docs/marionette.application.md`, `docs/application-effects.md`; request replacement: `docs/application-refresh.md` |
+| Navigation | `docs/routing.md` |
+| Hover, nested clicks, or DOM preservation | `docs/dom.interactions.md`, `docs/view.rendering.md` |
 | State ownership or framework error | `docs/marionette.state.md` or `docs/diagnostic-catalog.md` |
 | Skill setup or optional documentation MCP | `docs/agent-tools.md` |
 
@@ -71,6 +73,8 @@ including personalized examples, use `docs/agents.md`.
 
 The requested application behavior works against the installed package, preserves
 unrelated edits/focus and ownership, and has evidence for the affected interaction
-and cleanup boundary. Use the application's checks; browser interactions require
+and cleanup boundary. Reproduce uncertain contracts through public package APIs.
+Use the application's checks; exercise actual clicks, focus, hover boundaries,
+replacement and cleanup with the selected adapters. Browser interactions require
 browser evidence. Report actual results and untested boundaries. Record changed
 integration decisions in the application's notes, keeping API details in the docs.

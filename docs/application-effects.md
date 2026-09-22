@@ -11,8 +11,83 @@ lifetime. Stop does not remove them; destroy releases the framework-owned
 subscriptions. Use explicit listeners for deliberately persistent state behavior.
 
 For a restartable feature, give subscriptions and asynchronous work an explicit
-owner. The following application module uses one small effects scope. It is
-application code, not a Marionette export or a new framework lifecycle.
+owner. Start with the lifetime and completion guidance below. The later effects
+scope example is application code for additional resources, not a Marionette
+export or a new framework lifecycle.
+
+## Choose the lifetime first
+
+| Lifetime | Owner and boundary | Canonical contract |
+| --- | --- | --- |
+| Application object | Survives stop/restart; retains its state source and ordinary `listenTo`/`bindEvents` and Radio bindings until explicit cleanup or destroy. | [Subscriptions](./marionette.application.md#subscription-lifetime-across-stop-and-restart), [state ownership](./marionette.state.md#borrowed-and-owned-sources) |
+| Active run | Configured Application `stateEvents` deliver during the run; this does not cancel requests or clean up other resources. | [Application state](./marionette.application.md#application-state) |
+| Preparation phase | The supplied signal tracks that pending lifecycle phase, not the later run. | [Preparation](./marionette.application.md#preparation-methods-and-notifications) |
+| Individual request | Its initiating screen/request owns permission to apply the result, even if persistence outlives that screen. | [Completion below](#allow-persistence-without-late-ui-effects), [replacement requests](./application-refresh.md) |
+
+Restart retains the Application and its state; it does not reset the source to its
+initial values. Read current state when composing the next screen. Use the public
+lifecycle and View ownership first; the effects helper below is only needed for
+resources whose lifetime is not already owned by those APIs.
+
+## Allow persistence without late UI effects
+
+Use this pattern when a save should finish after navigation away. The service owns
+persistence; the initiating Application root owns completion UI. Supply
+`saveRecord(value)` and synchronous `navigate(saved)` functions. This method is
+called while the feature is running. It returns `true` only when the save succeeds
+and its current screen applies success UI and navigation. A failure shows an error
+on the current screen and returns `false`; an obsolete completion returns `false`
+without updating UI. It handles late rejection too. Keep navigation out of the
+persistence service.
+
+<!-- executable-example: application-save-completion -->
+```javascript
+import { Application, View } from 'marionette';
+
+const Editor = View.extend({
+  template: () => '<p role="status">Ready</p>',
+  showStatus(message) { this.el.querySelector('[role="status"]').textContent = message; }
+});
+
+export function createEditor({ el, saveRecord, navigate }) {
+  const Feature = Application.extend({
+    onStart() { this.showView(new Editor()); },
+    async save(value) {
+      const screen = this.getView();
+      if (!this.isRunning() || !screen || screen.isDestroyed()) { return false; }
+      const request = {};
+      this.latestSave = request;
+      const isCurrent = () => this.latestSave === request && this.isRunning() &&
+        this.getView() === screen && !screen.isDestroyed();
+      try {
+        const saved = await saveRecord(value);
+        if (!isCurrent()) { return false; }
+        screen.showStatus('Saved');
+        navigate(saved);
+        return true;
+      } catch {
+        if (!isCurrent()) { return false; }
+        screen.showStatus('Could not save');
+        return false;
+      }
+    }
+  });
+  return new Feature({ region: { el } });
+}
+```
+
+Stopping destroys the owned root. Restart creates a different root, so a late save
+cannot update it even if `isRunning()` is true again. Replacing the displayed root
+also invalidates completion without requiring an Application stop. Request identity
+handles overlapping saves on the same screen; it does not serialize server writes.
+During pending stop permission the run and its screen remain active, so this policy
+still permits completion; a rejected stop keeps that screen usable. If the product
+must freeze interaction earlier, define that policy explicitly.
+
+For cancellation of the work itself, see the [form example](./forms-and-accessibility.md#save-without-replacing-the-users-input).
+Neither canceling a client request nor suppressing its completion proves that a
+server write was rolled back. The [installed completion checks](https://github.com/marionettejs/marionette/blob/master/test/fixtures/docs-application-guides/completion.mjs)
+execute this example and the loading shell against packed packages.
 
 ## Choose when effects end
 

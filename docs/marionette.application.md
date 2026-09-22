@@ -19,8 +19,10 @@ The `Application` `cidPrefix` is `mna`.
 
 * [Instantiating An Application](#instantiating-an-application)
 * [Application Lifecycle](#application-lifecycle)
+* [Mount loading UI before readiness](#mount-loading-ui-before-readiness)
 * [Application Ownership](#application-ownership)
 * [Application and root View communication](#application-and-root-view-communication)
+* [Subscription lifetime across stop and restart](#subscription-lifetime-across-stop-and-restart)
 * [Application State](#application-state)
 * [Application Region](#application-region)
 * [Application Region Methods](#application-region-methods)
@@ -325,6 +327,75 @@ A current loader failure rejects `start()`; handle it at the application entry
 point. Route registration and browser-history startup belong to the router's
 owner, outside a feature's restartable `onStart` hook. See
 [router integration](./routing.md) for per-navigation loading and cancellation.
+
+## Mount loading UI before readiness
+
+When loading can fail, mount a shell in `onBeforeStart`, before `prepareStart`
+runs. This complete module takes two asynchronous loaders and an unowned child
+Application. The parent adopts the child once. Render the shell before retrieving
+its Region; pass that fresh Region on every child start, including after restart.
+The shell owns loading/error presentation while the child owns the content screen.
+
+<!-- executable-example: application-loading-shell -->
+```javascript
+import { Application, View } from 'marionette';
+
+const Shell = View.extend({
+  template: () => '<p role="status">Loading…</p><main></main>',
+  regions: { content: 'main' },
+  showStatus(message) { this.el.querySelector('[role="status"]').textContent = message; }
+});
+
+export function createWorkspace({ el, child, loadAccount, loadSettings }) {
+  const Workspace = Application.extend({
+    initialize() { this.addChildApp('content', child); },
+    onBeforeStart() {
+      this.setView(new Shell());
+      this.getView().render();
+      this.showView();
+    },
+    async prepareStart(options, { signal }) {
+      const shell = this.getView();
+      try {
+        const [account, settings] = await Promise.all([
+          loadAccount({ signal }), loadSettings({ signal })
+        ]);
+        if (signal.aborted) { return; }
+        const started = await child.start({
+          region: shell.getRegion('content'), account, settings
+        });
+        if (signal.aborted) { return; }
+        if (!started) { throw new Error('Required child startup was superseded'); }
+      } catch (error) {
+        if (signal.aborted) { return; }
+        shell.showStatus('Could not load. Try again.');
+        throw error;
+      }
+    },
+    onStart() { this.getView().showStatus('Ready'); }
+  });
+  return new Workspace({ region: { el } });
+}
+```
+
+Await `workspace.start()` at the entry point and handle its rejection there;
+readiness failure still rejects. The mounted error shell remains available
+until retry or teardown. The next start replaces it. `Promise.all` waits for
+both loaders; returning an array would not wait for its entries. It does not
+cancel the other loader when one rejects. Loaders here return values without
+committing UI. Child startup is explicit and awaited; registering it alone does
+not make the parent wait.
+
+If the parent startup is canceled, `signal.aborted` suppresses further work before
+examining the child result. A remaining `false` means the required child was
+independently superseded while the parent startup is still current. This example
+chooses to reject that parent startup because its required content is not ready;
+it does not reinterpret ordinary cancellation as a framework error.
+
+This example covers asynchronous readiness failure, not rollback of synchronous
+construction/rendering failures. See [the failure boundary](./view.lifecycle.md#synchronous-failures).
+For work after startup, use [completion ownership](./application-effects.md#allow-persistence-without-late-ui-effects),
+not the completed preparation signal.
 
 ## Application Ownership
 
