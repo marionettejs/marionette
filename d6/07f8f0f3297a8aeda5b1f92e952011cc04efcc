@@ -1,0 +1,19 @@
+package.json
+  s_a06841778b75e9::t_1c7790597dadd4 3,51-56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "d607f8f0f3297a8aeda5b1f92e952011cc04efcc",
+  "prompts": {},
+  "sessions": {
+    "s_a06841778b75e9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c940-f36e-7812-ab48-fe187e06a180",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
