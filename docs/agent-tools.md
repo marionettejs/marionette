@@ -18,16 +18,12 @@ Until the plugin is listed in the public directory, add Marionette's repository
 marketplace and install the plugin with the Codex CLI:
 
 ```sh
-codex plugin marketplace add marionettejs/marionette --ref master \
+codex plugin marketplace add marionettejs/marionette --ref v5.0.0-beta.6 \
   --sparse .agents/plugins --sparse plugins/marionette
 codex plugin add marionette@marionettejs
 ```
 
-The checked-in command follows Marionette's protected `master` branch only until a
-release tag contains the plugin. Release preparation replaces `master` with the
-matching immutable `v<version>` tag. For an environment that requires an immutable
-reviewed input before then, replace `master` with the reviewed commit SHA and update
-that pin deliberately.
+The repository marketplace is pinned to this immutable Marionette release tag.
 
 Restart the client after installation, then confirm that `marionette` appears in
 its plugin or skill list. Installing the plugin makes the skill available to every
@@ -124,13 +120,13 @@ and lockfile, including any npm alias. A v4 application may use
 marionette found” does not mean the application has no Marionette dependency.
 
 Download the exact target into a temporary directory without installing it in the
-application. This example inspects `5.0.0-beta.5`; set `migration_target_version` to
+application. This example inspects `5.0.0-beta.6`; set `migration_target_version` to
 the exact release selected for your migration, not `latest` or `next`. Downloading
 requires npm registry access; reading the extracted docs requires Node 24 or later.
 Run these commands in the same shell:
 
 ```sh
-migration_target_version="5.0.0-beta.5"
+migration_target_version="5.0.0-beta.6"
 migration_target_dir="$(mktemp -d)"
 npm pack "marionette@$migration_target_version" --ignore-scripts --pack-destination "$migration_target_dir"
 tar -xzf "$migration_target_dir/marionette-$migration_target_version.tgz" -C "$migration_target_dir"
