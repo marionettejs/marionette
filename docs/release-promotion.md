@@ -78,8 +78,11 @@ not coverage.
 ## Dry run
 
 The `Release promotion` workflow runs automatically when a pull request changes the
-release contract. A maintainer can also dispatch it with `publish` left false. The
-dry run:
+packaging or release infrastructure: workflows, toolchain pins, package manifests
+and locks, build/type configuration, release/docs/check scripts, validation config,
+and package/release validation harnesses. Ordinary runtime, unit-test, and documentation
+edits use regular CI without repeating release certification. A maintainer can also
+dispatch it with `publish` left false for any candidate. The dry run:
 
 1. verifies the pinned release profile and clean source commit;
 2. performs the final artifact build and packs without lifecycle scripts;

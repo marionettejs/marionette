@@ -228,7 +228,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Test package fixtures
+      - name: Test packed consumer smoke fixtures
+        if: github.event_name == 'pull_request'
+        run: bash test/fixtures/smoke.sh
+
+      - name: Test complete package fixture inventory
+        if: github.event_name == 'push'
         run: npm run test:fixtures
 
       - name: Upload suite reports
@@ -273,7 +278,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Test package fixtures
+      - name: Test packed consumer smoke fixtures
+        if: github.event_name == 'pull_request'
+        run: bash test/fixtures/smoke.sh
+
+      - name: Test complete package fixture inventory
+        if: github.event_name == 'push'
         run: npm run test:fixtures
 
   windows-package-smoke:
