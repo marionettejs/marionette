@@ -1,0 +1,23 @@
+test/agent-docs/plugin.test.mjs
+  s_8bc670f0bb5f37::t_914e03b7f56e7c 23
+  s_8bc670f0bb5f37::t_4d8f803929c1a3 28,97-101
+test/fixtures/docs-package/validate.mjs
+  s_8bc670f0bb5f37::t_4d8f803929c1a3 35-36,39-40,43,71-74,79-80
+  s_8bc670f0bb5f37::t_dfd532a8d11214 81-82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "f2cfa8952cb09159d1a808845af17db2dbedf3dc",
+  "prompts": {},
+  "sessions": {
+    "s_8bc670f0bb5f37": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c7f9-f977-78d3-94ee-2291f98aa98e",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
