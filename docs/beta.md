@@ -5,6 +5,22 @@ a published release; use certified tarballs before publication. Release promotio
 sets npm `latest` to the current prerelease until stable v5. A matching version
 string alone does not prove that a locally built artifact matches a release.
 
+## Preparing beta.6
+
+The unreleased documentation improvements connect Application object/run lifetimes,
+preparation, and request completion; show loading/error UI with awaited child
+startup; and explain native event boundaries and adapter-dependent DOM retention.
+They introduce no framework API. General application patterns live in the
+[Application reference](./marionette.application.md), [effects guide](./application-effects.md),
+and [DOM interactions](./dom.interactions.md); the [migration ledger](./migration-from-v4.md)
+remains for v4-to-v5 changes.
+
+The unreleased source includes active-run `stateEvents` and fresh restarts from
+completion callbacks. Do not infer these behaviors from an installed beta.5
+version. Release preparation must bump the package and synchronized agent plugin
+versions together, build a clean candidate, and validate its exact tarballs.
+These documentation changes are not a published beta.6 release.
+
 ## What beta means
 
 The intended architecture is ready for application trials: named core imports,
@@ -37,10 +53,10 @@ pins matching runtime dependencies; a candidate kit instead supplies exact local
 tarballs and a complete lockfile. Both include application agent instructions,
 typecheck, consumer lint, unit tests, build, and a browser-test command.
 
-The registry path requires beta.5 to be published first. Beta.4 remains the previous
-published candidate. Beta.5 adds ownership-aware root cleanup, existing Regions on
-start/restart, and static child declarations. When upgrading from beta.3 or earlier,
-move asynchronous `onBefore*` preparation to the corresponding `prepare*` methods.
+Beta.5 is the current published candidate. It adds ownership-aware root
+cleanup, existing Regions on start/restart, and static child declarations. When
+upgrading from beta.3 or earlier, move asynchronous `onBefore*` preparation to
+the corresponding `prepare*` methods.
 
 The starter has editable rows, asynchronous local selection, deliberate cancellation,
 and teardown. It has no backend, persistence, or URL router. Connect its `navigate`

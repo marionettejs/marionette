@@ -650,9 +650,8 @@ when stop, restart, or destroy must still stop its active descendants.
 Update cancellation work to use the preparation method's context, not a
 notification argument. Existing synchronous cleanup in `onBeforeDestroy` stays there.
 
-Toolkit's app-frontend-style `beforeStart(options)` maps to `prepareStart(options,
-{ signal })`; `onBeforeStart` remains the notification. Replace arrays of Promises
-with an explicit `Promise.all` and consume its array as one startup result.
+For multiple required requests, return an explicit `Promise.all` from
+`prepareStart` and consume its array as one startup result.
 See [Application preparation](docs/marionette.application.md#preparation-methods-and-notifications).
 
 ## Application state events follow the active run

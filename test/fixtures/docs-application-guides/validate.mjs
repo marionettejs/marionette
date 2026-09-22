@@ -226,3 +226,7 @@ await import('./preparation.mjs');
 
 // <!-- executable-example: widget-owned-workspace -->
 await import('./workspace.mjs');
+
+// <!-- executable-example: application-save-completion -->
+// <!-- executable-example: application-loading-shell -->
+await import('./completion.mjs');
