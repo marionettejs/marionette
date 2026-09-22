@@ -17,6 +17,7 @@
   "test/fixtures/docs-region-lifecycle/package.json",
   "test/fixtures/docs-region-lifecycle/validate.mjs",
   "skills/marionette/SKILL.md",
+  "skills/marionette/agents/openai.yaml",
   "skills/marionette/scripts/docs.mjs",
   "ROADMAP.md",
   "benchmarks/agent/evaluation-plan.md",

@@ -57,6 +57,7 @@ change, not a mandatory sequence for every edit.
 | One Region behavior | `npm test -- test/unit/region-lifecycle.spec.js` | Add the relevant ownership, View, or Application suites when their composition changes. Replace the path for another unit task. |
 | Authored types or runtime source | `npm run check:types` and the affected unit test | Run `npm run test:types` for the public type contract; use `npm run build` for generated declarations and distributions. |
 | Documentation prose or links | `npm run docs:check` | An executable marker check does not execute the example. Changed behavior in an example also needs its actual fixture or behavioral test. |
+| Consumer skill or plugin | `npm run test:agent-docs` | Run the plugin validator before publication; add `npm run docs:check` when installation, migration, or retrieval guidance changes. |
 | Public package export or installed example | `npm run test:fixtures` | Use `-- --fixture <name>` to select one installed consumer; the runner builds and packs all five packages unless supplied exact artifacts. Validate ESM/CJS/bundler cases affected by the contract. |
 | Browser-specific behavior | `npm run build`, then `npm run test:browser -- <case>.spec.mjs` | Use `npm run test:browser` when shared DOM or browser integration changes span cases. Run only a real filename from `test/browser/`. |
 | Diagnostic catalog | `npm run check:diagnostics` and the owning invariant test | Add type consumers when removing a shape diagnostic; keep tests for runtime invariants. |

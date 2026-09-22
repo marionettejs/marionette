@@ -55,7 +55,7 @@ Use [TypeScript guidance](./typescript.md) when adding typed application code.
 3. Change a module during `npm run dev`. The old workspace should release its handlers.
 4. Run `npm test` and `npm run build`. Add a regression for your application's behavior.
 5. Test keyboard focus and selection in a real browser using the actual DOM adapter.
-6. Install the [consumer agent skill](./agent-tools.md) if useful, then ask it to locate
+6. Install the [consumer agent plugin or skill](./agent-tools.md) if useful, then ask it to locate
    the installed docs and identify the component responsible for cancellation.
 
 The installed-consumer fixture checks the starter outside the repository against
