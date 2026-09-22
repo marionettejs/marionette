@@ -1,0 +1,33 @@
+.github/workflows/ci.yml
+  s_a06841778b75e9::t_0bfb28d820497d 404,408,413-423,428,430,433,443-455
+config/performance.json
+  s_a06841778b75e9::t_4b3728f3978fa9 297,320-331
+docs/performance-baselines.md
+  s_a06841778b75e9::t_4ababd8088d2a3 76-103
+scripts/performance/browser-report.mjs
+  s_a06841778b75e9::t_1ce48fb92eae4d 1-71
+scripts/performance/timing.mjs
+  s_a06841778b75e9::t_cdcf9eead3331e 8-9,113-124,131,135,170-220,290,299,311-317,331,340-352,365-367,372-374,376
+test/performance/browser-report.test.mjs
+  s_a06841778b75e9::t_2d935b60c4307d 1-56
+test/performance/ci-report.test.mjs
+  s_a06841778b75e9::t_402495f50c18ed 3,58-98
+test/performance/timing.test.mjs
+  s_a06841778b75e9::t_e6401e10ce7f8a 35-46,48-74,127-129,136-138,156,161,167
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "b30ee8964e130dd5296e06fef732ad7572b27355",
+  "prompts": {},
+  "sessions": {
+    "s_a06841778b75e9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c940-f36e-7812-ab48-fe187e06a180",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
