@@ -1,0 +1,21 @@
+test/README.md
+  s_69378e84391886::t_b2869581b33a31 199-207
+.github/dependabot.yml
+  s_69378e84391886::t_b2869581b33a31 15-18,47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "636ae5e99975b3a3bf8bbcecb9efda49466b0916",
+  "prompts": {},
+  "sessions": {
+    "s_69378e84391886": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c949-2735-7fe1-b6fa-3d3aea74fd44",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
