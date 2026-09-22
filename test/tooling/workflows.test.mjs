@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join, matchesGlob, resolve } from 'node:path';
 import { test } from 'node:test';
+import { parse } from 'yaml';
 
 const checker = resolve(import.meta.dirname, '../../scripts/checks/workflows.mjs');
 for (const [name, source, status, message] of [
@@ -22,3 +23,19 @@ for (const [name, source, status, message] of [
     assert.match(result.stdout + result.stderr, message);
   });
 }
+
+test('release routing certifies infrastructure while keeping ordinary edits on regular CI', async() => {
+  const workflow = parse(await readFile(resolve(import.meta.dirname, '../../.github/workflows/release.yml'), 'utf8'));
+  const paths = workflow.on.pull_request.paths;
+  for (const path of [
+    'tools/eslint/index.mjs', 'tools/eslint/index.d.cts', 'scripts/performance/bundle-size.mjs',
+    'scripts/diagnostics/check-catalog.mjs', 'scripts/api-contracts/check.mjs',
+    'package.json', 'packages/data/package.json', 'packages/adapters/rollup.config.mjs',
+    '.babelrc', '.npmrc', 'test/fixtures/sample/.npmignore', 'build/.gitignore',
+  ]) {
+    assert.ok(paths.some(pattern => matchesGlob(path, pattern)), `${path} needs release certification`);
+  }
+  for (const path of ['src/modules/view.ts', 'packages/data/src/model.ts', 'test/unit/view.spec.js', 'docs/readme.md']) {
+    assert.ok(!paths.some(pattern => matchesGlob(path, pattern)), `${path} should use regular CI`);
+  }
+});

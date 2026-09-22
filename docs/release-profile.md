@@ -35,8 +35,9 @@ packages keep their own approvals.
 
 PR CI runs core, tooling, browser, and agent-reference checks on Ubuntu 24.04 x64.
 Linux and macOS 15 arm64 package jobs build during clean installation, then pack
-once and run five installed-consumer smoke fixtures: CommonJS core, standalone
-ESM/CommonJS packages, consumer types, Vite/source maps, and CommonJS adapters.
+once and run six installed-consumer smoke fixtures: CommonJS core, standalone
+ESM/CommonJS packages, consumer types, Vite/source maps, CommonJS adapters, and
+Backbone CollectionView removal with preserved survivor nodes.
 The complete Linux and macOS fixture inventories run on pushes to `master`.
 Full release certification runs automatically only for packaging/release infrastructure
 PRs; ordinary source, test, and documentation edits retain regular CI. The full Windows 2025

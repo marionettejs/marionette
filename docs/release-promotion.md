@@ -78,10 +78,13 @@ not coverage.
 ## Dry run
 
 The `Release promotion` workflow runs automatically when a pull request changes the
-packaging or release infrastructure: workflows, toolchain pins, package manifests
-and locks, build/type configuration, release/docs/check scripts, validation config,
-and package/release validation harnesses. Ordinary runtime, unit-test, and documentation
-edits use regular CI without repeating release certification. A maintainer can also
+packaging or release infrastructure, including workflows, toolchain pins, package
+manifests and locks, npm configuration and package-inclusion dotfiles (`.npmrc`,
+`.npmignore`, `.gitignore`), Babel/build/type configuration, shipped tools,
+release/docs/check/performance/diagnostics/API-contract scripts, validation config,
+and package/release validation harnesses. The exact path filters live in
+[the release workflow](../.github/workflows/release.yml). Ordinary runtime, unit-test,
+and documentation edits use regular CI without repeating release certification. A maintainer can also
 dispatch it with `publish` left false for any candidate. The dry run:
 
 1. verifies the pinned release profile and clean source commit;
