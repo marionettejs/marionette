@@ -1,0 +1,27 @@
+.github/dependabot.yml
+  s_69378e84391886::t_20c45d8f5fbffe 15,18
+scripts/performance/bundle-size.mjs
+  s_69378e84391886::t_20c45d8f5fbffe 39
+benchmarks/consumer-bundles/contract.json
+  s_69378e84391886::t_20c45d8f5fbffe 10
+config/performance.json
+  s_69378e84391886::t_20c45d8f5fbffe 24-25
+test/README.md
+  s_69378e84391886::t_59715209684350 201-203
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "f0b19ce4a1345b3bb524adfaa49483bc3a98eab4",
+  "prompts": {},
+  "sessions": {
+    "s_69378e84391886": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c949-2735-7fe1-b6fa-3d3aea74fd44",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
