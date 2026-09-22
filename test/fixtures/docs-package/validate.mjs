@@ -55,6 +55,9 @@ assert.ok(manifest.assets.every(asset => !maintainerAssets.has(asset.source) && 
 assert.ok(manifest.assets.some(asset => asset.source === 'test/fixtures/docs-routing/validate.mjs'),
   'Consumer fixture evidence must be available offline');
 const installedSkill = resolve(packageRoot, 'dist/agent-skill');
+const skillMetadata = await readFile(resolve(installedSkill, 'agents/openai.yaml'), 'utf8');
+assert.match(skillMetadata, /https:\/\/mcp\.marionettejs\.com\/mcp/,
+  'Packaged skill must declare the documentation MCP dependency');
 const directory = await mkdtemp(resolve(tmpdir(), 'marionette-copied-skill-'));
 try {
   await cp(installedSkill, directory, { recursive: true });

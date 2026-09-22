@@ -82,6 +82,7 @@ See [installation](docs/installation.md) for package entrypoints and supported s
 ## Documentation
 
 - [Build with an agent](docs/agents.md)
+- [Install the Marionette agent plugin or skill](docs/agent-tools.md)
 - [Choose integrations](docs/choosing-integrations.md)
 - [Documentation index](docs/readme.md)
 - [Installation and package entrypoints](docs/installation.md)

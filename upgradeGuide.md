@@ -19,8 +19,12 @@ current public behavior boundary. Final migration documentation is tracked in
    helper aliases using the [compatibility ledger](docs/migration-from-v4.md).
    Keep the existing application's routing and domain model unless it needs a change.
 4. Await Application `start`, `stop`, `restart` and `destroy` results at the
-   application boundary. Make asynchronous readiness respect cancellation before
-   committing side effects. Distinguish borrowed state/Regions from owned factories.
+   application boundary. Application is the Marionette owner with an asynchronous
+   active lifecycle; View, CollectionView, Behavior, MnObject and Region destruction
+   remains synchronous. Test and mount helpers must await Application destruction
+   before clearing or replacing its host. Make asynchronous readiness respect
+   cancellation before committing side effects. Distinguish borrowed state/Regions
+   from owned factories.
 5. Use the shipped public declarations and run the application's type/build
    checks. Test startup, navigation cancellation, child replacement, editable
    focus/drafts, repeated mounts and teardown through public behavior in a browser.

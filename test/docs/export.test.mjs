@@ -96,6 +96,7 @@ test('resources are explicit text files and cannot escape through paths or symli
     await mkdir(outside);
     await writeFile(resolve(repository, 'guide.md'), 'Read this exact text.\n');
     await writeFile(resolve(repository, 'helper.js'), 'export const value = true;\n');
+    await writeFile(resolve(repository, 'metadata.yaml'), 'enabled: true\n');
     await writeFile(resolve(repository, 'unlisted.md'), 'Do not export adjacent files.');
     await writeFile(resolve(outside, 'private.md'), 'Outside the repository.');
     const resources = await readResources(repository, ['guide.md']);
@@ -103,6 +104,8 @@ test('resources are explicit text files and cannot escape through paths or symli
     assert.equal(resources[0].bytes.toString(), 'Read this exact text.\n');
     assert.equal((await readResources(repository, ['helper.js']))[0].bytes.toString(),
       'export const value = true;\n');
+    assert.equal((await readResources(repository, ['metadata.yaml']))[0].bytes.toString(),
+      'enabled: true\n');
     for (const source of ['../outside/private.md', '/guide.md', './guide.md', 'a/../guide.md',
       'a//guide.md', 'a\\guide.md', 'guide.txt', 'guide.md?query', 42, null]) {
       await assert.rejects(readResources(repository, [source]), /Invalid documentation resource/);
@@ -125,7 +128,8 @@ test('exports every current top-level guide with exact bytes and reproducible pr
   assert.equal(typeof manifest.sourceDirty, 'boolean');
   const resources = JSON.parse(await readFile(new URL('../../docs-site/resources.json', import.meta.url), 'utf8'));
   assert.deepEqual(manifest.assets.map(asset => asset.source), resources);
-  for (const source of ['config/diagnostics/catalog.json', 'skills/marionette/scripts/docs.mjs',
+  for (const source of ['config/diagnostics/catalog.json', 'skills/marionette/agents/openai.yaml',
+    'skills/marionette/scripts/docs.mjs',
     'test/fixtures/docs-routing/validate.mjs', 'benchmarks/docs/results/2026-09-08/latest-navigation/solution.mjs']) {
     assert.ok(manifest.assets.some(asset => asset.source === source), `Missing supporting resource: ${source}`);
   }

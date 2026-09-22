@@ -7,15 +7,41 @@ Marionette skill helps an agent select those documents and
 apply their lifecycle and integration rules. None of these resources requires an
 account, network access, hosted model, or shared API key to read.
 
-## Install the consumer skill
+## Install the Marionette plugin
+
+For Codex and ChatGPT clients with plugin support, install Marionette's upstream
+plugin instead of copying its skill and MCP configuration into each application.
+The plugin bundles the consumer skill and the public read-only documentation MCP;
+the application repository keeps only its own integration and verification decisions.
+
+Until the plugin is listed in the public directory, add Marionette's repository
+marketplace and install the plugin with the Codex CLI:
+
+```sh
+codex plugin marketplace add marionettejs/marionette --ref master \
+  --sparse .agents/plugins --sparse plugins/marionette
+codex plugin add marionette@marionettejs
+```
+
+Restart the client after installation, then confirm that `marionette` appears in
+its plugin or skill list. Installing the plugin makes the skill available to every
+repository on that Codex host; it does not change an application's dependencies.
+The skill can activate implicitly for Marionette work or explicitly as `$marionette`.
+
+The bundled MCP is optional evidence. Always compare its catalog's package version
+and complete source revision with the application's installed documentation before
+using remote results. The skill falls back to installed Markdown when they differ.
+
+## Install only the consumer skill
 
 Builds containing these resources ship `dist/agent-skill/` and `dist/docs/` inside
 the `marionette` package. Check that both exist in your installed package before
 following these steps; earlier artifacts do not contain them. Do not upgrade an
 application just to install instructions.
 
-Copy the whole `dist/agent-skill/` directory, including `scripts/`, into the skill
-location supported by your agent client, naming the copied folder `marionette`.
+Clients without plugin support can copy the whole `dist/agent-skill/` directory,
+including `agents/` and `scripts/`, into the skill location supported by the client,
+naming the copied folder `marionette`.
 Use the client's documented installation mechanism; installing an npm dependency
 does not automatically activate an agent skill. For a source checkout, the same
 skill lives in `skills/marionette/`. Use the checkout matching the package's known
@@ -114,9 +140,9 @@ They do not describe the installed v4 runtime or prove migration success. Contin
 to use the current version's matching docs and public APIs when investigating
 existing behavior.
 
-To install the optional skill before upgrading, use
+To install only the optional skill before upgrading, use
 `$migration_target_dir/package/dist/agent-skill` as the source directory in the
-[skill installation steps](#install-the-consumer-skill). Keep the extracted package
+[skill installation steps](#install-only-the-consumer-skill). Keep the extracted package
 available and pass its explicit `--package-root` when reading target docs; copying
 the skill does not change what `--project` resolves.
 
@@ -138,11 +164,14 @@ copied into a consumer application.
 
 ## Connect the optional documentation MCP
 
-The public, read-only endpoint is `https://mcp.marionettejs.com/mcp`. Configure
-it explicitly in a client that supports Streamable HTTP; no server login or API
-key is required. Follow the website's [MCP setup guide](https://marionettejs.com/docs/mcp/)
-for client configuration and the optional local stdio server. Installing the npm
-package or copying the skill does not establish an MCP connection.
+The public, read-only endpoint is `https://mcp.marionettejs.com/mcp`. The Marionette
+plugin configures it for supported clients. The skill also declares the connection
+in `agents/openai.yaml`; OpenAI clients that honor this metadata can offer the MCP
+dependency when the skill is installed. Other clients require explicit Streamable
+HTTP configuration. No server login or API key is required. Follow the website's
+[MCP setup guide](https://marionettejs.com/docs/mcp/) for client configuration and
+the optional local stdio server. Installing the npm package or copying only the
+skill does not guarantee an active MCP connection across clients.
 
 1. Read the `marionette://catalog` resource and compare its
    `provenance.packageVersion` and `provenance.sourceRevision` with the installed
