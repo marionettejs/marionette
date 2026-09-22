@@ -1,6 +1,6 @@
 {
   "name": "marionette",
-  "description": "The Composite Javascript Framework",
+  "description": "A JavaScript library for structured interfaces, with explicit ownership and lifecycle. Built with agent-led development in mind.",
   "version": "5.0.0-beta.5",
   "type": "module",
   "homepage": "https://marionettejs.com/",
@@ -48,16 +48,12 @@
     "baseline widely available"
   ],
   "keywords": [
-    "backbone",
-    "plugin",
-    "marionette",
-    "composite",
-    "architecture",
-    "single",
-    "page",
-    "app",
-    "client",
-    "browser"
+    "javascript",
+    "typescript",
+    "ui",
+    "application-architecture",
+    "lifecycle",
+    "marionette"
   ],
   "license": "MIT",
   "scripts": {
