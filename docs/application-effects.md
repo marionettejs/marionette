@@ -34,8 +34,11 @@ resources whose lifetime is not already owned by those APIs.
 Use this pattern when a save should finish after navigation away. The service owns
 persistence; the initiating Application root owns completion UI. Supply
 `saveRecord(value)` and synchronous `navigate(saved)` functions. This method is
-called while the feature is running and returns whether it applied completion UI.
-It handles a late rejection too. Do not move navigation into the persistence service.
+called while the feature is running. It returns `true` only when the save succeeds
+and its current screen applies success UI and navigation. A failure shows an error
+on the current screen and returns `false`; an obsolete completion returns `false`
+without updating UI. It handles late rejection too. Keep navigation out of the
+persistence service.
 
 <!-- executable-example: application-save-completion -->
 ```javascript

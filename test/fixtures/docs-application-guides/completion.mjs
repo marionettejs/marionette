@@ -5,6 +5,7 @@ import { JSDOM } from 'jsdom';
 async function extract(page, id) {
   const markdown = await readFile(new URL(`../../../docs/${page}`, import.meta.url), 'utf8');
   const marker = `<!-- executable-example: ${id} -->`;
+  assert.equal(markdown.split(marker).length - 1, 1, `expected one ${marker}`);
   const code = markdown.slice(markdown.indexOf(marker) + marker.length)
     .match(/^\s*```javascript\n([\s\S]*?)\n```/);
   assert.ok(code);

@@ -1,12 +1,14 @@
 import assert from 'node:assert/strict';
-import { readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { JSDOM } from 'jsdom';
 
 const markdown = await readFile(new URL('../../../docs/dom.interactions.md', import.meta.url), 'utf8');
 const marker = '<!-- executable-example: native-hover-nested-click -->';
+assert.equal(markdown.split(marker).length - 1, 1, `expected one ${marker}`);
 const code = markdown.slice(markdown.indexOf(marker) + marker.length)
   .match(/^\s*```javascript\n([\s\S]*?)\n```/);
 assert.ok(code);
+await mkdir(new URL('./dist/', import.meta.url), { recursive: true });
 const output = new URL('./dist/boundaries.mjs', import.meta.url);
 await writeFile(output, code[1]);
 const dom = new JSDOM('<!doctype html><main></main>');
@@ -14,12 +16,16 @@ globalThis.window = dom.window;
 globalThis.document = dom.window.document;
 const { RowView } = await import(output);
 const { View } = await import('marionette');
-const view = new RowView().render();
 const trace = [];
-view.on('row:open', () => trace.push('open'));
-view.on('row:save', control => { assert.equal(control, button); trace.push('save'); });
-view.on('row:enter', () => trace.push('enter'));
-view.on('row:leave', () => trace.push('leave'));
+// Public hooks remain callable after destroy; removed event subscriptions cannot
+// conceal a leaked DOM handler from these observations.
+const ObservedRow = RowView.extend({
+  onRowOpen() { trace.push('open'); },
+  onRowSave(control) { assert.equal(control, button); trace.push('save'); },
+  onRowEnter() { trace.push('enter'); },
+  onRowLeave() { trace.push('leave'); }
+});
+const view = new ObservedRow().render();
 document.querySelector('main').append(view.el);
 const row = view.el.querySelector('.row');
 const button = view.el.querySelector('button');
@@ -33,16 +39,22 @@ try {
   icon.dispatchEvent(new dom.window.MouseEvent('mouseout', { bubbles: true, relatedTarget: button }));
   row.dispatchEvent(new dom.window.MouseEvent('mouseout', { bubbles: true }));
   assert.deepEqual(trace, ['save', 'open', 'enter', 'leave']);
-  let enters = 0;
-  view.delegateEvents({ 'mouseenter .row': () => enters++ });
-  row.dispatchEvent(new dom.window.MouseEvent('mouseenter', { bubbles: false }));
-  assert.equal(enters, 0);
-  view.delegateEvents({ mouseenter: () => enters++ });
-  view.el.dispatchEvent(new dom.window.MouseEvent('mouseenter', { bubbles: false }));
-  assert.equal(enters, 1);
+  const entryProbe = new RowView().render();
+  try {
+    let enters = 0;
+    entryProbe.delegateEvents({ 'mouseenter .row': () => enters++ });
+    entryProbe.el.querySelector('.row').dispatchEvent(new dom.window.MouseEvent('mouseenter', { bubbles: false }));
+    assert.equal(enters, 0);
+    entryProbe.delegateEvents({ mouseenter: () => enters++ });
+    entryProbe.el.dispatchEvent(new dom.window.MouseEvent('mouseenter', { bubbles: false }));
+    assert.equal(enters, 1);
+  } finally { entryProbe.destroy(); }
+
+  // This View still has its original click and hover registrations at destruction.
   view.destroy();
   icon.click();
-  assert.equal(trace.length, 4);
+  row.dispatchEvent(new dom.window.MouseEvent('mouseover', { bubbles: true }));
+  assert.deepEqual(trace, ['save', 'open', 'enter', 'leave']);
 
   const order = [];
   const Ordered = View.extend({
@@ -67,7 +79,7 @@ try {
     assert.deepEqual(order, ['immediate']);
   } finally { document.body.removeEventListener('click', ancestor); ordered.destroy(); }
 } finally {
-  view.destroy();
+  if (!view.isDestroyed()) { view.destroy(); }
   dom.window.close();
   delete globalThis.window;
   delete globalThis.document;

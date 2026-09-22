@@ -23,7 +23,9 @@ test('documented row handles actual hover boundaries and nested clicks', async({
   await page.locator('.action span').hover();
   await page.locator('.action span').click();
   await page.locator('.row > span').click();
-  await page.mouse.move(0, 0);
+  const rowBox = await page.locator('.row').boundingBox();
+  assert.ok(rowBox);
+  await page.mouse.move(rowBox.x + rowBox.width / 2, rowBox.y + rowBox.height + 1);
   assert.deepEqual(await page.evaluate(() => window.rowTrace), ['enter', 'save', 'open', 'leave']);
   await page.evaluate(() => window.rowExample.destroy());
 });

@@ -142,7 +142,7 @@ another ancestor, but does not suppress another listener on this same root.
 undo a handler that already ran. Prefer explicit filtering to depending on order.
 Returning `false` from an `events` handler does not cancel a native event.
 
-This module lets the nested action work without opening the row. The row handler
+This event map lets the nested action work without opening the row. The row handler
 filters the action even though both declarations match the same click. Clicking
 an icon uses `delegateTarget` for the matched control, not `target`.
 
@@ -167,8 +167,7 @@ export const RowView = View.extend({
     this.triggerMethod('row:leave');
   },
   openRow(event) {
-    const target = event.target.nodeType === 1 ? event.target : event.target.parentElement;
-    if (target.closest('.action')) { return; }
+    if (event.target.closest('.action')) { return; }
     this.triggerMethod('row:open');
   },
   saveRow(event) {

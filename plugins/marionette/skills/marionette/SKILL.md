@@ -73,7 +73,8 @@ including personalized examples, use `docs/agents.md`.
 
 The requested application behavior works against the installed package, preserves
 unrelated edits/focus and ownership, and has evidence for the affected interaction
-and cleanup boundary. Reproduce uncertain contracts through public package APIs. Use the application's
-checks; exercise actual clicks, focus, hover boundaries, replacement and cleanup
-with the selected adapters. Browser interactions require browser evidence. Report actual results and untested boundaries. Record changed
+and cleanup boundary. Reproduce uncertain contracts through public package APIs.
+Use the application's checks; exercise actual clicks, focus, hover boundaries,
+replacement and cleanup with the selected adapters. Browser interactions require
+browser evidence. Report actual results and untested boundaries. Record changed
 integration decisions in the application's notes, keeping API details in the docs.

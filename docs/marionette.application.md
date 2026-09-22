@@ -20,9 +20,9 @@ The `Application` `cidPrefix` is `mna`.
 * [Instantiating An Application](#instantiating-an-application)
 * [Application Lifecycle](#application-lifecycle)
 * [Mount loading UI before readiness](#mount-loading-ui-before-readiness)
-* [Subscription lifetime across stop and restart](#subscription-lifetime-across-stop-and-restart)
 * [Application Ownership](#application-ownership)
 * [Application and root View communication](#application-and-root-view-communication)
+* [Subscription lifetime across stop and restart](#subscription-lifetime-across-stop-and-restart)
 * [Application State](#application-state)
 * [Application Region](#application-region)
 * [Application Region Methods](#application-region-methods)
@@ -378,12 +378,19 @@ export function createWorkspace({ el, child, loadAccount, loadSettings }) {
 }
 ```
 
-Call `await workspace.start()` inside the entry point's error handler; readiness
-failure still rejects. The mounted error shell remains available until retry or
-teardown. The next start replaces it. `Promise.all` waits for both loaders; returning
-an array would not wait for its entries. It does not cancel the other loader when
-one rejects. Loaders here return values without committing UI. Child startup is
-explicit and awaited; registering it alone does not make the parent wait.
+Await `workspace.start()` at the entry point and handle its rejection there;
+readiness failure still rejects. The mounted error shell remains available
+until retry or teardown. The next start replaces it. `Promise.all` waits for
+both loaders; returning an array would not wait for its entries. It does not
+cancel the other loader when one rejects. Loaders here return values without
+committing UI. Child startup is explicit and awaited; registering it alone does
+not make the parent wait.
+
+If the parent startup is canceled, `signal.aborted` suppresses further work before
+examining the child result. A remaining `false` means the required child was
+independently superseded while the parent startup is still current. This example
+chooses to reject that parent startup because its required content is not ready;
+it does not reinterpret ordinary cancellation as a framework error.
 
 This example covers asynchronous readiness failure, not rollback of synchronous
 construction/rendering failures. See [the failure boundary](./view.lifecycle.md#synchronous-failures).
