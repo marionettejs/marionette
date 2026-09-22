@@ -7,6 +7,6 @@
   },
   "dependencies": {
     "typescript": "7.0.2",
-    "xstate": "5.33.0"
+    "xstate": "5.33.2"
   }
 }

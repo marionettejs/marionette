@@ -8,7 +8,7 @@
   "dependencies": {
     "backbone": "1.6.1",
     "jquery": "4.0.0",
-    "xstate": "5.33.0",
+    "xstate": "5.33.2",
     "vite": "^8.3.0"
   },
   "allowScripts": {
