@@ -32,20 +32,46 @@ describe('hosted timing report math', () => {
     assert.equal(changePercent(0, 0), 100);
   });
 
-  test('reports retired workloads without a fabricated timing improvement', async() => {
-    const directory = await mkdtemp(join(tmpdir(), 'marionette-retired-timing-'));
-    const base = join(directory, 'base.json');
-    const current = join(directory, 'current.json');
-    const id = 'view-set-element-destroy';
+  test('compares only matched workloads and omits removed cases', async() => {
+    const directory = await mkdtemp(join(tmpdir(), 'marionette-timing-report-'));
+    const baseFile = join(directory, 'base.json');
+    const currentFile = join(directory, 'current.json');
+    const report = {
+      schemaVersion: 2, harnessSchemaVersion: 1, harnessRevision: 'abc',
+      measurement: { environment: 'jsdom', sampleCount: 20, warmupBatches: 5 },
+      environment: { node: '24', platform: 'linux', architecture: 'x64' },
+      warningThresholdPercent: 10,
+      cases: [{ id: 'render', iterationsPerSample: 10, sampleCount: 20,
+        medianNanoseconds: 100, p95Nanoseconds: 200 }],
+    };
     try {
-      await writeFile(base, JSON.stringify({ cases: [{ id, medianNanoseconds: 100, p95Nanoseconds: 200 }] }));
-      await writeFile(current, JSON.stringify({ warningThresholdPercent: 10,
-        cases: [{ id, status: 'retired', reason: 'Root replacement was removed.' }] }));
-      const report = await createReport(base, current);
-      assert.match(report, /100 ns \| Retired \| 200 ns \| Root replacement was removed/);
-      assert.doesNotMatch(report, /NaN|-100|0 ns \(/);
-      await writeFile(base, await readFile(current));
-      assert.match(await createReport(base, current), /— \| Retired \| —/);
+      await writeFile(baseFile, JSON.stringify(report));
+      const current = structuredClone(report);
+      current.cases[0].medianNanoseconds = 120;
+      await writeFile(currentFile, JSON.stringify(current));
+      assert.match(await createReport(baseFile, currentFile), /120 ns \(\+20.00%\)/);
+      assert.match(await createReport(baseFile, currentFile), /exceeded/);
+      for (const mutate of [
+        value => { value.harnessRevision = 'changed'; },
+        value => { delete value.harnessRevision; },
+        value => { value.schemaVersion = 1; },
+        value => { value.measurement.warmupBatches = 2; },
+        value => { value.environment.node = '26'; },
+        value => { value.cases[0].iterationsPerSample = 20; },
+        value => { value.cases[0].sampleCount = 5; },
+      ]) {
+        const changed = structuredClone(current);
+        mutate(changed);
+        await writeFile(currentFile, JSON.stringify(changed));
+        const text = await createReport(baseFile, currentFile);
+        assert.match(text, /Non-comparable/);
+        assert.doesNotMatch(text, /\+20.00%|exceeded the/);
+      }
+      current.cases[0].id = 'new-workload';
+      await writeFile(currentFile, JSON.stringify(current));
+      const text = await createReport(baseFile, currentFile);
+      assert.match(text, /new-workload \| New/);
+      assert.doesNotMatch(text, /\| render \|/);
     } finally {
       await rm(directory, { recursive: true, force: true });
     }
@@ -98,14 +124,18 @@ describe('hosted timing report math', () => {
     const contract = JSON.parse(await readFile(new URL('../../config/performance.json', import.meta.url)));
     const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'window');
     const documentDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'document');
-    contract.timing.cases = [];
+    contract.timing.cases = contract.timing.cases.map(entry => ({ ...entry, iterationsPerSample: 1 }));
+    contract.timing.sampleCount = 1;
+    contract.timing.warmupBatches = 1;
 
     try {
       const configPath = join(fixtureRoot, 'performance.json');
       await writeFile(configPath, JSON.stringify(contract));
       const result = await measure({ root, configPath });
 
-      assert.deepEqual(result.cases, []);
+      assert.equal(result.cases.length, 8);
+      assert.ok(result.cases.every(entry => Number.isFinite(entry.medianNanoseconds)));
+      assert.equal(result.measurement.environment, 'jsdom');
       assert.deepEqual(Object.getOwnPropertyDescriptor(globalThis, 'window'), windowDescriptor);
       assert.deepEqual(Object.getOwnPropertyDescriptor(globalThis, 'document'), documentDescriptor);
     } finally {
@@ -123,21 +153,18 @@ describe('hosted timing report math', () => {
       await Promise.all([
         mkdir(join(fixtureRoot, 'dist'), { recursive: true }),
         mkdir(join(fixtureRoot, 'packages/adapters/dist'), { recursive: true }),
+        mkdir(join(fixtureRoot, 'packages/data/dist'), { recursive: true }),
       ]);
       await writeFile(join(fixtureRoot, 'package.json'), '{"type":"module"}\n');
       await writeFile(
         join(fixtureRoot, 'dist/marionette.js'),
-        'export function setDataApi() {}\n' +
-        'export function setStateApi() {}\n' +
-        'export const View = { extend() { throw new Error("Timing case construction failed"); } };\n' +
-        'export const Behavior = {};\n' +
-        'export const CollectionView = {};\n' +
-        'export const Region = {};\n'
+        'export function createMarionette() { throw new Error("Timing case construction failed"); }\n'
       );
       await writeFile(
         join(fixtureRoot, 'packages/adapters/dist/backbone.js'),
         'export default {};\n'
       );
+      await writeFile(join(fixtureRoot, 'packages/data/dist/index.js'), 'export const DataApi = {};');
       await assert.rejects(
         measure({
           root: fixtureRoot,

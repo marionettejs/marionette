@@ -73,10 +73,39 @@ are noisy: investigate meaningful changes with matched builds and repeated,
 alternating runs before attributing them to a code change. Do not replace a full
 benchmark result with an unlabeled targeted retry.
 
-That command remains the active CI-comparable jsdom and Backbone adapter-backed
-series retained for matched historical comparisons. Its workload IDs, environment,
-and results should be interpreted on those terms. It does not measure browser
-layout or paint, native `@mnjs/data`, or Application/state composition.
+The jsdom section retains the five View, Region, and Backbone-backed collection
+workloads and adds native `@mnjs/data` collection render/destruction and add/remove,
+plus Behavior mounting, delegated event delivery, and destruction. Native and
+Backbone workloads use separate isolated runtimes. Removed `setElement` workloads
+are no longer emitted; old reports retain their historical results. jsdom does not
+measure browser layout or paint. Durations include each workload's setup, public
+assertions, and cleanup, divided by its iteration count.
+
+Percentage comparisons require matching report schema, harness revision, jsdom and
+Backbone versions, Node/host environment, warmups, sample count, and per-case
+iterations. A changed harness starts a non-comparable series; a new ID is labeled
+New. No warning is derived from a non-comparable result.
+
+The PR report also includes a separate **Browser timing — native v5** section for
+the existing native list reconciliation, Application restart/destruction, and
+state mount/update/destruction workloads. The timing job builds the exact base
+and candidate independently, installs their Chromium revisions, and runs each
+checkout's own browser harness sequentially with five warmups and 25 retained
+samples. The two-sample validation job remains a functional check.
+
+Browser percentages require matching fixture and runner hashes, workload settings,
+browser/runtime versions, browser-reported hardware/user-agent settings, host
+configuration, and full sampling profiles. Missing metadata or summaries are
+reported as unavailable and non-comparable. Missing, repeated, or changed workload
+inventories are explicitly non-comparable; base-only and duplicate records remain
+visible. Malformed JSON or unreadable evidence still fails report generation. Built
+library hashes identify the measured artifacts but are expected to differ between
+revisions. Likewise, changes to the measured native data and adapter packages are
+part of the comparison, not reasons to suppress regression warnings. Browser durations cover a complete workload, not an individual operation.
+Shared hosted hardware is not an exclusive controlled baseline; these measurements
+are reporting-only even when their metadata permits a comparison. Raw jsdom and
+browser JSON reports are retained in the `performance-timing-evidence` CI artifact
+for 30 days, separately from the Markdown comment artifact.
 
 The separate browser runner exercises representative v5 public APIs in a real
 browser:

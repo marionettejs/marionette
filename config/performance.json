@@ -21,8 +21,8 @@
     },
     "lockedDependencies": {
       "backbone": "1.6.1",
-      "jsdom": "30.0.1",
-      "rollup": "4.63.2"
+      "jsdom": "30.1.0",
+      "rollup": "4.63.4"
     },
     "commands": {
       "deterministic": [
@@ -294,7 +294,7 @@
   },
   "timing": {
     "harnessSchemaVersion": 1,
-    "harnessRevision": "02c52f9eafeb92b273674794cdd6ab60ec84b78e33f1eb3cd61c2e6dcdf43fbb",
+    "harnessRevision": "b089fb375f08384a93be8ac789b7734d20f058162b54325837f3ec747b26c06b",
     "sampleCount": 20,
     "warmupBatches": 5,
     "cases": [
@@ -307,14 +307,6 @@
         "iterationsPerSample": 100
       },
       {
-        "id": "view-set-element-destroy",
-        "iterationsPerSample": 100
-      },
-      {
-        "id": "behavior-view-set-element-destroy",
-        "iterationsPerSample": 100
-      },
-      {
         "id": "region-show-empty",
         "iterationsPerSample": 50
       },
@@ -324,6 +316,18 @@
       },
       {
         "id": "collection-view-add-remove",
+        "iterationsPerSample": 20
+      },
+      {
+        "id": "behavior-mount-event-destroy",
+        "iterationsPerSample": 100
+      },
+      {
+        "id": "native-collection-view-render-destroy",
+        "iterationsPerSample": 10
+      },
+      {
+        "id": "native-collection-view-add-remove",
         "iterationsPerSample": 20
       }
     ],

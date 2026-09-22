@@ -196,9 +196,13 @@ pin selects 6.16.0 to avoid its reported denial-of-service advisories; remove th
 override when Stryker's dependency chain accepts a fixed version natively. Every
 mutation/benchmark run remains development tooling with explicit scope and limits.
 
-Dependabot proposes weekly root tooling and pinned GitHub Action updates, with
-Vitest and Stryker packages grouped by tool. Monthly consumer-fixture updates
-preserve review of their independent lockfiles. Local Marionette package versions
-are excluded from these automated updates. The bot never merges changes; browser
-profile pins and all affected consumer contracts must still pass review and CI.
+Dependabot proposes weekly root tooling updates, with TypeScript ESLint, Vitest,
+and Stryker packages grouped by tool before the remaining development dependency
+minor and patch updates are grouped together. Other root major upgrades remain
+separate. Weekly GitHub Action minor and patch updates are grouped; major upgrades
+remain separate. Monthly consumer-fixture updates preserve review of their independent
+lockfiles. These groups apply to version updates; security updates remain separate.
+Local Marionette package versions are excluded from these automated updates. The
+bot never merges changes; browser profile pins and all affected consumer contracts
+must still pass review and CI.
 Configuration follows GitHub's [Dependabot options reference](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference).
