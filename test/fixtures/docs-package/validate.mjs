@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
-import { cp, mkdtemp, readFile, realpath, rm } from 'node:fs/promises';
+import { cp, mkdtemp, readdir, readFile, realpath, rm } from 'node:fs/promises';
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
@@ -17,6 +17,18 @@ const manifest = JSON.parse(await readFile(resolve(docsRoot, 'manifest.json'), '
 const pkg = JSON.parse(await readFile(resolve(packageRoot, 'package.json'), 'utf8'));
 assert.equal(manifest.packageVersion, pkg.version);
 const hash = value => createHash('sha256').update(value).digest('hex');
+async function files(root, directory = '') {
+  const paths = [];
+  for (const entry of await readdir(resolve(root, directory), { withFileTypes: true })) {
+    const path = [directory, entry.name].filter(Boolean).join('/');
+    if (entry.isDirectory()) {
+      paths.push(...await files(root, path));
+    } else {
+      paths.push(path);
+    }
+  }
+  return paths.sort();
+}
 const entries = [...manifest.pages, ...manifest.assets];
 const digest = hash([...entries].sort((a, b) => a.source.localeCompare(b.source, 'en')).map(entry => `${entry.source}\0${entry.sha256}\n`).join(''));
 assert.equal(digest, manifest.contentSha256);
@@ -55,6 +67,14 @@ assert.ok(manifest.assets.every(asset => !maintainerAssets.has(asset.source) && 
 assert.ok(manifest.assets.some(asset => asset.source === 'test/fixtures/docs-routing/validate.mjs'),
   'Consumer fixture evidence must be available offline');
 const installedSkill = resolve(packageRoot, 'dist/agent-skill');
+const documentedSkill = resolve(docsRoot, 'skills/marionette');
+const skillFiles = await files(documentedSkill);
+assert.deepEqual(await files(installedSkill), skillFiles,
+  'Packaged skill paths differ from the documented canonical snapshot');
+for (const path of skillFiles) {
+  assert.deepEqual(await readFile(resolve(installedSkill, path)),
+    await readFile(resolve(documentedSkill, path)), `Packaged skill differs at ${path}`);
+}
 const skillMetadata = await readFile(resolve(installedSkill, 'agents/openai.yaml'), 'utf8');
 assert.match(skillMetadata, /https:\/\/mcp\.marionettejs\.com\/mcp/,
   'Packaged skill must declare the documentation MCP dependency');

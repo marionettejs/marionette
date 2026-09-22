@@ -23,9 +23,11 @@ codex plugin marketplace add marionettejs/marionette --ref master \
 codex plugin add marionette@marionettejs
 ```
 
-This command follows Marionette's protected `master` branch. For an environment
-that requires an immutable reviewed input, replace `master` with the reviewed
-commit SHA or release tag and update that pin deliberately.
+The checked-in command follows Marionette's protected `master` branch only until a
+release tag contains the plugin. Release preparation replaces `master` with the
+matching immutable `v<version>` tag. For an environment that requires an immutable
+reviewed input before then, replace `master` with the reviewed commit SHA and update
+that pin deliberately.
 
 Restart the client after installation, then confirm that `marionette` appears in
 its plugin or skill list. Installing the plugin makes the skill available to every
