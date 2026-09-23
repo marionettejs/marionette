@@ -1,0 +1,77 @@
+ROADMAP.md
+  s_9b1b3939109fa4::t_c00d5f2fdb38fb 942-976
+changelog.md
+  s_9b1b3939109fa4::t_9b19019ce26d11 1-12
+config/api-contracts/inventory.json
+  s_267e7a791356aa::t_1516f5a0678beb 8,5361,5982,6443,6972,7047,7107,7194,7234,8087,8100,8107-8109
+config/release-promotion.json
+  s_9b1b3939109fa4::t_4bd8a8bd10a90a 5
+docs/agent-tools.md
+  s_9b1b3939109fa4::t_2e165c1dfa206b 21,123,129
+docs/beta.md
+  s_9b1b3939109fa4::t_f9fd9e36715902 1,3,8-16,34,39-41,48,67,105,107-108,112,114,120-121,123
+docs/data.api.md
+  s_9b1b3939109fa4::t_9a05e7e83687e5 219
+docs/installation.md
+  s_9b1b3939109fa4::t_14863434a32c7f 10,33,61,73,76,79,188,262,264
+docs/maintainers/rc-stabilization.md
+  s_9b1b3939109fa4::t_83c8b02b943d8d 1-39
+docs/maintainers/release-checklist.md
+  s_9b1b3939109fa4::t_4a93fb73ab1c88 25-33
+docs/migration-from-v4.md
+  s_9b1b3939109fa4::t_86f1b8bf9e2f97 23
+docs/optional-backbone.md
+  s_9b1b3939109fa4::t_6a8dd5ebae25a2 10
+docs/release-promotion.md
+  s_9b1b3939109fa4::t_16d9fec93af68e 14,16,109,115,117-118,120,127-128,136,261-262
+package-lock.json
+  s_9b1b3939109fa4::t_9169bb0b6919af 3,9,16-17,8741,8744,8752
+package.json
+  s_9b1b3939109fa4::t_a5be17b17efea6 4,178-179
+packages/adapters/package.json
+  s_9b1b3939109fa4::t_4af489374ea1de 4,81
+packages/adapters/readme.md
+  s_9b1b3939109fa4::t_401e777234da67 30,72,129,175,197
+packages/data/package.json
+  s_9b1b3939109fa4::t_b4d328c4385dbb 4,52
+packages/data/readme.md
+  s_9b1b3939109fa4::t_48aab0c752aea4 10
+packages/radio/package.json
+  s_9b1b3939109fa4::t_febebd85ec8ef9 4,52
+packages/radio/readme.md
+  s_9b1b3939109fa4::t_09191190e33ced 6
+packages/utils/package.json
+  s_9b1b3939109fa4::t_56c9f56fa05ad1 4
+packages/utils/readme.md
+  s_9b1b3939109fa4::t_9a1dff82272058 7
+plugins/marionette/plugin.json
+  s_9b1b3939109fa4::t_19efa18f90ad1c 4
+readme.md
+  s_9b1b3939109fa4::t_7c3f7cc903053e 48
+test/agent-docs/plugin.test.mjs
+  s_9b1b3939109fa4::t_e675d7213287c4 25-26,93,97
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "ac7a410b35b029b573126cb900cc1b34c11942c3",
+  "prompts": {},
+  "sessions": {
+    "s_267e7a791356aa": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08689-8981-7cf3-a3c5-0ee0a88b599c",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_9b1b3939109fa4": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c929-2fdb-7951-82db-c927ebfd8781",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
