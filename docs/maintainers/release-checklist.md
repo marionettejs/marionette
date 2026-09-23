@@ -22,6 +22,16 @@ copying credentials or provider configuration into this checklist.
 | Recovery | Previous verified npm tag targets, website deployment, MCP deployment, and known limitations |
 | Approval | Exact publication/deployment scope and maintainer authorization |
 
+## Release-candidate acceptance
+
+Use the [RC stabilization checklist](./rc-stabilization.md) and
+[issue #574](https://github.com/marionettejs/marionette/issues/574). Candidate
+publication requires settled provisional contracts, complete exact-artifact
+certification and authorization, with no confirmed unresolved critical library
+defect remaining.
+The stable-v5 acceptance section below may remain pending while the RC is tested.
+Do not mark its evidence complete merely because an RC is published.
+
 ## Stable-v5 acceptance
 
 Before certifying `5.0.0`, attach a decision for each of the

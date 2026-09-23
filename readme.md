@@ -45,7 +45,7 @@ agent advantages require separate evidence and are not a condition of stability.
 ## Install
 
 ```sh
-npm install marionette@5.0.0-beta.6
+npm install marionette@5.0.0-rc.1
 ```
 
 Add the mount element to the page:

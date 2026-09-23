@@ -192,8 +192,8 @@ consumers against the original tarballs. Its separate validation record binds lo
 three-engine browser results, fixture results and lock hashes to the immutable
 release evidence. Failed/incomplete/mismatched evidence cannot be promoted.
 `config/release-promotion.json` separately authorizes stable publication and one
-exact prerelease version. Stable publication remains disabled; beta.3 is the
-currently authorized prerelease. Validation never grants publication permission.
+exact prerelease version. Stable publication remains disabled; read the policy
+for the currently authorized prerelease. Validation never grants publication permission.
 
 ## Dependency maintenance
 

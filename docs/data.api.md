@@ -216,8 +216,11 @@ Install `@mnjs/data` with `marionette` when an application wants a small
 first-party observable Model and ordered Collection without Backbone:
 
 ```sh
-npm install marionette@5.0.0-beta.6 @mnjs/data@5.0.0-beta.6
+npm install marionette@5.0.0-rc.1 @mnjs/data@5.0.0-rc.1
 ```
+
+Registry installation requires publication of this release candidate. Before
+publication, use the matching [candidate tarballs](./beta.md).
 
 ```javascript
 import { CollectionView, setDataApi, setStateApi, View } from 'marionette';
