@@ -1,0 +1,21 @@
+docs/installation.md
+  s_9b1b3939109fa4::t_e9ba06bf09f555 36
+docs/maintainers/rc-stabilization.md
+  s_9b1b3939109fa4::t_e9ba06bf09f555 16-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "30da576b9bac0ee38fe1fcc17c54b542499fa590",
+  "prompts": {},
+  "sessions": {
+    "s_9b1b3939109fa4": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c929-2fdb-7951-82db-c927ebfd8781",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
