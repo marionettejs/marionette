@@ -33,7 +33,7 @@ The v5 package name is `marionette`.
 npm install marionette@5.0.0-rc.1
 ```
 
-This command becomes available after the beta is published. Use documentation matching that
+This command becomes available after this release candidate is published. Use documentation matching that
 artifact. To use the current-source APIs described here, [build and pack the
 checkout](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md#set-up-the-repository)
 and install the package artifacts from that same source revision. A matching

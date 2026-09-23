@@ -13,7 +13,10 @@ Prepare `5.0.0-rc.1` from the published beta.6 runtime, certify its exact artifa
 - [ ] Provisionally freeze the public API; document limitations and require another RC for contract changes.
 - [ ] Align all five package versions, internal dependencies, agent plugin, documentation, and prerelease policy.
 - [ ] Review/merge preparation and certify the exact final commit/tarballs on every supported host/browser.
-- [ ] Record publication authorization, manual certification run ID, package/tag/provenance verification, and matching website/MCP handoff.
+- [ ] Before dispatch, record publication authorization and the successful manual certification run ID.
+
+After publication, complete package/tag/provenance verification and the matching
+website/MCP handoff in the [release checklist](./release-checklist.md).
 
 ## Stable exit requirements during RC stabilization
 
