@@ -230,3 +230,8 @@ await import('./workspace.mjs');
 // <!-- executable-example: application-save-completion -->
 // <!-- executable-example: application-loading-shell -->
 await import('./completion.mjs');
+
+// <!-- executable-example: root-resize-observer-cleanup -->
+// <!-- executable-example: descendant-listener-cleanup -->
+// <!-- executable-example: view-lifetime-cleanup -->
+await import('./resource-cleanup.mjs');

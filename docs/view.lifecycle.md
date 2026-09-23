@@ -224,7 +224,8 @@ Use the [`before:detach` event](./events.class.md#detach-and-beforedetach-events
 to clean up listeners added to the root `el`. Render can replace descendants
 while the root remains attached; use
 [`dom:remove`](./events.class.md#domremove-event) to clean up listeners tied to
-those rendered descendants.
+those rendered descendants. [View resource cleanup](./resource-cleanup.md)
+shows complete patterns for both lifetimes and for resources kept until destruction.
 
 Detaching a parent View propagates detachment to its managed Region children while
 preserving their rendered state and ownership. Re-showing that parent attaches the same

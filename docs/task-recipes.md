@@ -16,6 +16,7 @@ existing compatible integration; each task identifies when another one is needed
 | React to local owner state | [State](./marionette.state.md) | Choose StateApi separately from DataApi; use owner cleanup for subscriptions. |
 | Replace an editor while keeping notes | [Editor workspace](#replace-an-editor-without-resetting-a-sibling-pane) | Separate regions preserve the sibling draft; each editor owns its widget and forwards save events. |
 | Wrap a widget that owns DOM | [The example below](#wrap-a-dom-owning-widget) | The View owns the widget handle and tears it down before DOM removal. |
+| Clean up an observer or external listener | [View resource cleanup](./resource-cleanup.md) | Match root, rendered descendant, and View lifetime to their lifecycle events. |
 
 ## Wrap a DOM-owning widget
 
