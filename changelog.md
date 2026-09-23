@@ -1,3 +1,15 @@
+### v5.0.0-rc.1
+
+> Same runtime, fewer excuses to keep calling the API experimental.
+
+* Provisionally freeze the beta.6 public API for release-candidate evaluation.
+  No production runtime behavior changes from beta.6 are included.
+* Separate RC artifact certification from stable-release acceptance. Track consumer
+  closeout, independent maintenance evaluation, timing/retention, and seven days
+  of declared workflow stabilization before the separately authorized stable release.
+* Align all five packages, the agent plugin, and installation guidance to rc.1.
+  This remains a prerelease; unfinished acceptance evidence is not claimed complete.
+
 ### v5.0.0-beta.6
 
 > Stopped means stopped, restarting means restarting, and silent mutations can finally stop pretending nothing happened.

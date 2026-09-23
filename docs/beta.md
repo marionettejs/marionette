@@ -1,11 +1,19 @@
-# Try Marionette v5 beta
+# Try the Marionette v5 release candidate
 
-`5.0.0-beta.6` is prepared for application trials. Registry installation requires
+`5.0.0-rc.1` is prepared for release-candidate evaluation. Registry installation requires
 a published release; use certified tarballs before publication. Release promotion
 sets npm `latest` to the current prerelease until stable v5. A matching version
 string alone does not prove that a locally built artifact matches a release.
 
-## Changes in beta.6
+## RC.1 scope
+
+RC.1 retains beta.6 runtime behavior and provisionally freezes its public API.
+Candidate certification is required before publication; consumer closeout,
+independent maintenance evaluation, and stabilization are required before stable.
+Track their evidence in [issue #574](https://github.com/marionettejs/marionette/issues/574).
+No scored agent result or completed stabilization period is claimed by this version.
+
+## Changes retained from beta.6
 
 Application `stateEvents` follows the active run: startup and stopped changes do
 not invoke configured handlers or replay later. Read initial state in `onStart`.
@@ -23,20 +31,21 @@ executable loading shells, child readiness, late completion, and event-boundary
 examples. These guides and the new consumer agent plugin do not add runtime APIs
 or establish measured agent effectiveness.
 
-## What beta means
+## What release candidate means
 
 The intended architecture is ready for application trials: named core imports,
 View and Region ownership, synchronous UI lifecycle, Application asynchronous
 coordination, optional data/state providers, and first-party package declarations.
-Use those documented public contracts. Beta feedback can still change an API before
-stable; record any change in migration guidance and the release notes.
+Use those documented public contracts. Changes require demonstrated consumer
+evidence. A public-contract change requires another RC and fresh stabilization;
+record it in migration guidance and release notes.
 
 Stable v5 requires dependable contracts, public migration and application evidence,
 fresh-agent maintenance work, and bounded stabilization under the
 [roadmap](https://github.com/marionettejs/marionette/blob/master/ROADMAP.md#stable-v5-release-criteria). Comparative agent superiority
 and two complete application rewrites are not release requirements.
 
-This beta makes no comparative agent-effectiveness claim. The public corpus remains
+This candidate makes no comparative agent-effectiveness claim. The public corpus remains
 an unscored prototype. This candidate includes consumer lint, a compact contract
 reference, source maps, and a typed starter with browser tests; those tools do not
 establish application usability or complete the release evaluation.
@@ -45,7 +54,7 @@ Core is `marionette`. The companion packages are `@mnjs/utils`,
 `@mnjs/radio`, `@mnjs/data`, and `@mnjs/adapters`. Keep all package
 versions aligned; install optional providers only when needed. See
 [the migration ledger](./migration-from-v4.md) and [upgrade guide](../upgradeGuide.md).
-The historical registry alpha is an older implementation and is not this beta's API.
+The historical registry alpha is an older implementation and is not this candidate's API.
 
 ## Start an application
 
@@ -55,7 +64,7 @@ pins matching runtime dependencies; a candidate kit instead supplies exact local
 tarballs and a complete lockfile. Both include application agent instructions,
 typecheck, consumer lint, unit tests, build, and a browser-test command.
 
-Beta.6 retains the beta.5 ownership-aware root
+RC.1 retains the beta.5 ownership-aware root
 cleanup, existing Regions on start/restart, and static child declarations. When
 upgrading from beta.3 or earlier, move asynchronous `onBefore*` preparation to
 the corresponding `prepare*` methods.
@@ -93,23 +102,23 @@ Do not include private application code or customer data.
 
 ## Before publication
 
-A beta needs verified scope/publisher access for all five packages, a clean candidate
+A release candidate needs verified scope/publisher access for all five packages, a clean candidate
 commit, and the full [exact-artifact validation](https://github.com/marionettejs/marionette/blob/master/docs/release-promotion.md#dry-run).
-Review the beta notes, migration guidance and installed starter together. Record
-known failures instead of claiming the beta is stable. Registry installation must
+Review the candidate notes, migration guidance and installed starter together. Record
+known failures instead of claiming the candidate is stable. Registry installation must
 be checked immediately after publication; local tarball tests cannot prove npm
 permission, propagation, or trusted-publisher configuration.
 
-## If the beta fails in your application
+## If the candidate fails in your application
 
-Pin `5.0.0-beta.5` across all five packages and restore the matching application
+Pin `5.0.0-beta.6` across all five packages and restore the matching application
 code and lockfile. The old `marionette@5.0.0-alpha.2` is not an API-compatible
 rollback for this candidate. Existing v4 applications should retain their
-pre-migration revision and `backbone.marionette` lockfile until their beta trial
+pre-migration revision and `backbone.marionette` lockfile until their candidate trial
 succeeds.
 
-Maintainers must not overwrite a published beta version. Withdraw its recommendation,
-deprecate a broken version with a specific reason, and publish a corrected beta.
+Maintainers must not overwrite a published version. Withdraw its recommendation,
+deprecate a broken version with a specific reason, and publish a corrected candidate.
 Move the selected npm tag (`latest` before the first stable v5) only to the verified
-beta.5 release. Preserve exact artifacts and failure evidence.
+beta.6 release. Preserve exact artifacts and failure evidence.
 See [release recovery](https://github.com/marionettejs/marionette/blob/master/docs/release-promotion.md#recovery-and-rollback).

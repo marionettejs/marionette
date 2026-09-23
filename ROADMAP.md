@@ -1,6 +1,6 @@
 # Agent-ready Marionette v5
 
-Date: 2026-09-09
+Date: 2026-09-23
 Status: Governing project strategy
 
 ## Decision
@@ -938,6 +938,41 @@ the default runtime while providing measured runtime-class and Radio isolation;
 future runtime factory expansion still requires evidence. These experiments
 target 5.x and do not block stable v5. Unsuccessful candidates are documented and
 closed rather than retained as dormant APIs.
+
+## Release-candidate entry and stabilization
+
+The September 23, 2026 maintainer decision separates candidate publication from
+stable acceptance. RC.1 provisionally freezes beta.6's public API and introduces
+no new runtime behavior. [Issue #574](https://github.com/marionettejs/marionette/issues/574)
+and the [RC stabilization checklist](https://github.com/marionettejs/marionette/blob/master/docs/maintainers/rc-stabilization.md) own the
+remaining evidence and dated results.
+
+A candidate may be published after known critical supported-workflow library
+failures are resolved, its public contract and limitations are documented, and
+its exact artifacts pass complete release certification. Independent maintenance
+evaluation, consumer closeout and the stabilization period run against the RC;
+they are stable-release requirements, not prerequisites to obtaining an RC.
+
+Use existing public application workflows and anonymous private-consumer
+reproductions. Complete application rewrites and unrelated consumer baseline debt
+are not release requirements. Keep four bounded maintenance task families:
+feature addition, successive change, lifecycle repair, and fresh-agent handoff.
+Freeze the evaluation policy and authorized resource envelope before attempts;
+prior migration work remains exploratory evidence, not retrospective scores.
+
+Require seven consecutive days of recorded workflow stabilization after the
+published candidate is installed in the selected consumer workflows. A contract
+change requires a new RC and restarts the period. Other fixes require affected
+checks and an explicit decision about which earlier evidence remains applicable.
+Calendar time, absent testing, does not satisfy this gate.
+
+Performance acceptance requires reproducible matched measurements, characterized
+variance, reviewed retention evidence and investigation of meaningful regressions.
+A dedicated host is not an independent gate when those conditions can be met;
+obtain stronger isolation if noise prevents a decision. Preserve focus, selection
+and identity; record supported tradeoffs instead of optimizing away correctness.
+Comparative framework research, speculative APIs and new performance ceilings
+remain outside this release.
 
 ## Stable v5 release criteria
 

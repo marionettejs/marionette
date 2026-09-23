@@ -22,6 +22,8 @@ function assertReleasePresentation(version, instructions, manifest) {
   assert.match(instructions,
     new RegExp(`plugin marketplace add marionettejs/marionette --ref v${version.replaceAll('.', '\\.')}(?![0-9A-Za-z-])`),
     'Stable installation instructions must use the matching release tag');
+  assert.equal(manifest.version, version,
+    'Stable plugin presentation must use the stable package version');
   assert.doesNotMatch(JSON.stringify(manifest), /\b(?:beta|prerelease)\b/i,
     'Stable plugin presentation must not contain prerelease labeling');
   const baseVersion = version.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -88,11 +90,11 @@ test('stable plugin releases require immutable non-transitional installation gui
   assert.throws(() => assertReleasePresentation('5.0.0', current, manifest),
     /Stable installation instructions/);
   const stable = current
-    .replaceAll('5.0.0-beta.6', '5.0.0');
+    .replaceAll('5.0.0-rc.1', '5.0.0');
   assert.throws(() => assertReleasePresentation('5.0.0', stable, manifest),
     /Stable plugin presentation/);
   assert.throws(() => assertReleasePresentation('5.0.0',
-    stable.replace('--ref v5.0.0', '--ref v5.0.0-beta.6'),
+    stable.replace('--ref v5.0.0', '--ref v5.0.0-rc.1'),
     { ...manifest, version: '5.0.0' }), /matching release tag/);
   assert.doesNotThrow(() => assertReleasePresentation('5.0.0', stable,
     { ...manifest, version: '5.0.0' }));
