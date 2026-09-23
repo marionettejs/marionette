@@ -14,6 +14,8 @@
   "test/fixtures/docs-routing/package.json",
   "test/fixtures/docs-routing/validate.mjs",
   "test/fixtures/docs-routing/refresh.mjs",
+  "test/fixtures/docs-routing/child-refresh.mjs",
+  "test/fixtures/docs-routing/selection.mjs",
   "test/fixtures/docs-prerendered-content/package.json",
   "test/fixtures/docs-prerendered-content/validate.mjs",
   "test/fixtures/docs-region-lifecycle/package.json",

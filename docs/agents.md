@@ -128,6 +128,11 @@ side effects. Marionette suppresses stale lifecycle completion; it cannot undo a
 arbitrary write made by application code. Follow the complete
 [routing pattern](./routing.md) for navigation and feature startup.
 
+Keep an Application's active lifetime separate from each data request. If list
+results and a sidebar have separate owners under one shell, refresh the list's
+collection in place and cancel superseded requests; restarting their parent
+destroys both UI trees. See the [persistent-shell example](./application-refresh.md#keep-a-shell-and-independently-owned-children).
+
 ## Completion evidence
 
 Use the application's existing test runner, scripts, and package manager. Library
