@@ -26,8 +26,9 @@ copying credentials or provider configuration into this checklist.
 
 Use the [RC stabilization checklist](./rc-stabilization.md) and
 [issue #574](https://github.com/marionettejs/marionette/issues/574). Candidate
-publication requires settled provisional contracts, no confirmed unresolved
-critical library defect, complete exact-artifact certification and authorization.
+publication requires settled provisional contracts, complete exact-artifact
+certification and authorization, with no confirmed unresolved critical library
+defect remaining.
 The stable-v5 acceptance section below may remain pending while the RC is tested.
 Do not mark its evidence complete merely because an RC is published.
 

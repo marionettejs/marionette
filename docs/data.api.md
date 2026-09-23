@@ -219,6 +219,9 @@ first-party observable Model and ordered Collection without Backbone:
 npm install marionette@5.0.0-rc.1 @mnjs/data@5.0.0-rc.1
 ```
 
+Registry installation requires publication of this release candidate. Before
+publication, use the matching [candidate tarballs](./beta.md).
+
 ```javascript
 import { CollectionView, setDataApi, setStateApi, View } from 'marionette';
 import { Collection, DataApi, Model, StateApi } from '@mnjs/data';

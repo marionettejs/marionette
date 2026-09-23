@@ -20,7 +20,7 @@ website/MCP handoff in the [release checklist](./release-checklist.md).
 
 ## Stable exit requirements during RC stabilization
 
-- [ ] Record the start and end of seven consecutive days after the published candidate is installed in the selected consumer workflows. Record application revisions and which workflows each owns; calendar time alone is insufficient.
+- [ ] Record the start and end of seven consecutive days after the published candidate is installed in the selected consumer workflows. For each workflow, record dates and application revisions, and verify their lockfiles resolve to the exact candidate version and integrity throughout that period; calendar time alone is insufficient.
 - [ ] Verify startup/error UI, latest navigation/load/save completion, rejected-stop screen preservation where supported, repeated restart/teardown, updates, draft/focus/selection, and overlay cleanup. Keep unit, browser, live-service, and retention evidence distinct.
 - [ ] Close or explicitly disposition consumer acceptance gaps with evidence; publish anonymous reproductions for private findings. Do not require complete private migration or complete Vue removal.
 - [ ] Freeze a bounded fresh-agent maintenance policy before collection; record build/change/repair/handoff outcomes and interventions. Model, permissions, attempts, spend/time envelope, and authorization remain required before paid runs. Existing migrations and known solutions are supporting evidence, not scored attempts.

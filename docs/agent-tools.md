@@ -122,7 +122,9 @@ marionette found” does not mean the application has no Marionette dependency.
 Download the exact target into a temporary directory without installing it in the
 application. This example inspects `5.0.0-rc.1`; set `migration_target_version` to
 the exact release selected for your migration, not `latest` or `next`. Downloading
-requires npm registry access; reading the extracted docs requires Node 24 or later.
+requires npm registry access and publication of the selected version; before
+publication, use the certified candidate tarballs described in the
+[release-candidate guide](./beta.md). Reading the extracted docs requires Node 24 or later.
 Run these commands in the same shell:
 
 ```sh

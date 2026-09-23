@@ -54,7 +54,7 @@ Core is `marionette`. The companion packages are `@mnjs/utils`,
 `@mnjs/radio`, `@mnjs/data`, and `@mnjs/adapters`. Keep all package
 versions aligned; install optional providers only when needed. See
 [the migration ledger](./migration-from-v4.md) and [upgrade guide](../upgradeGuide.md).
-The historical registry alpha is an older implementation and is not this beta's API.
+The historical registry alpha is an older implementation and is not this candidate's API.
 
 ## Start an application
 
@@ -114,7 +114,7 @@ permission, propagation, or trusted-publisher configuration.
 Pin `5.0.0-beta.6` across all five packages and restore the matching application
 code and lockfile. The old `marionette@5.0.0-alpha.2` is not an API-compatible
 rollback for this candidate. Existing v4 applications should retain their
-pre-migration revision and `backbone.marionette` lockfile until their beta trial
+pre-migration revision and `backbone.marionette` lockfile until their candidate trial
 succeeds.
 
 Maintainers must not overwrite a published version. Withdraw its recommendation,
