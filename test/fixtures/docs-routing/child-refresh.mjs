@@ -24,7 +24,9 @@ try {
   const shell = workspace.application.getView();
   const sidebar = workspace.sidebar.getView();
   const input = document.querySelector('aside input');
-  input.value = 'Keep this draft';
+  const draft = document.querySelector('aside textarea');
+  input.checked = true;
+  draft.value = 'Keep this draft';
 
   const initial = workspace.refresh('initial');
   loads.get('initial').resolve([{ id: 1, name: 'First' }]);
@@ -43,7 +45,9 @@ try {
   assert.equal(workspace.application.getView(), shell);
   assert.equal(workspace.sidebar.getView(), sidebar);
   assert.equal(document.querySelector('aside input'), input);
-  assert.equal(input.value, 'Keep this draft');
+  assert.equal(document.querySelector('aside textarea'), draft);
+  assert.equal(input.checked, true);
+  assert.equal(draft.value, 'Keep this draft');
   assert.equal(workspace.items.get(1), firstModel);
   assert.equal(document.querySelector('li'), firstCard);
   assert.equal(firstCard.textContent, '<b>Updated</b>');
@@ -68,7 +72,8 @@ try {
   loads.get('retry').resolve([{ id: 1, name: 'Retried' }]);
   assert.equal(await retry, true);
   assert.equal(document.querySelector('li'), firstCard);
-  assert.equal(input.value, 'Keep this draft');
+  assert.equal(input.checked, true);
+  assert.equal(draft.value, 'Keep this draft');
 
   const canceled = workspace.refresh('canceled');
   workspace.cancelRefresh();
@@ -78,7 +83,8 @@ try {
   assert.equal(await canceled, false);
   assert.equal(document.querySelector('[role="status"]').textContent, 'Ready');
   assert.equal(firstCard.textContent, 'Retried');
-  assert.equal(input.value, 'Keep this draft');
+  assert.equal(input.checked, true);
+  assert.equal(draft.value, 'Keep this draft');
 
   const pendingStop = workspace.refresh('pending-stop');
   assert.equal(await workspace.application.stop(), true);
@@ -96,6 +102,7 @@ try {
   assert.equal(workspace.sidebar.isRunning(), true);
   const newInput = document.querySelector('aside input');
   assert.notEqual(newInput, input, 'restart of active lifetime replaces sidebar UI');
+  assert.notEqual(document.querySelector('aside textarea'), draft);
   const pendingDestroy = workspace.refresh('pending-destroy');
   assert.equal(await workspace.application.destroy(), true);
   assert.equal(loads.get('pending-destroy').signal.aborted, true);

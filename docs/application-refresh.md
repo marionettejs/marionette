@@ -110,7 +110,8 @@ Card.setDataApi(DataApi);
 Cards.setDataApi(DataApi);
 
 const Sidebar = View.extend({
-  template: () => '<label>Sidebar note<input></label>'
+  template: () => '<label>Sidebar open<input type="checkbox"></label>' +
+    '<label>Draft<textarea></textarea></label>'
 });
 const Shell = View.extend({
   template: () => '<p role="status">Ready</p><section class="results"></section>' +
@@ -188,7 +189,8 @@ export function createWorkspaceResults({ el, loadItems }) {
 Call `await workspace.application.start()` once, then call
 `await workspace.refresh(query)` for each results load. The list's Collection
 retains Models for surviving ids, so their card Views remain in place while
-names and ordering change. The sidebar View and its input are untouched. While
+names and ordering change. The sidebar View, its disclosure state, and its draft
+textarea are untouched. While
 a replacement is pending, both the existing cards and sidebar remain visible.
 The result is assigned as text, so a record name is not interpreted as HTML.
 
@@ -199,6 +201,10 @@ guard. A current load failure shows a retry message and leaves displayed cards
 alone; the next refresh can retry. `cancelRefresh()` invalidates the status
 update, restores the resting status, and keeps the list visible. A synchronous
 collection or render failure still rejects; it is not presented as a load failure.
+The list has one request controller because its results are one replaceable result.
+If the sidebar loads its own replaceable data, give that child a separate controller
+and dispose it at that child's stop and destruction; list and sidebar requests
+must not cancel one another.
 
 The parent registers both children once and starts them explicitly with Regions
 from the current shell. Parent stop stops the children and destroys their Views;
@@ -210,7 +216,7 @@ startup is not transactional.
 
 Use `restart()` when the feature's active run must end, such as changing its host
 Region or resetting the whole workspace. Restart destroys the shell, list cards,
-and sidebar input; it is unsuitable for a results refresh that must preserve
+and sidebar controls; it is unsuitable for a results refresh that must preserve
 them. The parent's preparation signal covers startup only. List refreshes have
 their own request lifetime and do not become Application preparation merely
 because the list is owned by an Application. See [child ownership](./marionette.application.md#application-ownership)
@@ -221,6 +227,80 @@ Promise and retain its original options. A later resource selection in those
 options is not queued. Coordinate latest selection explicitly, then start the
 chosen resource once the lifecycle boundary allows it; see the
 [restart contract](./marionette.application.md#starting-an-application).
+
+## Select a resource with an explicit latest policy
+
+Use this separate pattern when changing the selected resource intentionally
+replaces the child screen. It ends the child's active run and destroys its old
+View. Keep the persistent-shell pattern above for data changes that must retain
+cards or drafts. Supply `loadResource(id, { signal })` returning an object with a
+`name` string, and an element that hosts the selected child.
+
+<!-- executable-example: application-latest-selection -->
+```javascript
+import { Application, View } from 'marionette';
+
+const Resource = View.extend({
+  template: () => '',
+  onRender() { this.el.textContent = this.model.name; }
+});
+const SelectionShell = View.extend({
+  template: () => '<section></section>',
+  regions: { resource: 'section' }
+});
+
+export function createResourceSelection({ el, loadResource }) {
+  const Selected = Application.extend({
+    async prepareStart({ id }, { signal }) {
+      const resource = await loadResource(id, { signal });
+      if (signal.aborted) { return; }
+      return resource;
+    },
+    onStart(app, options, resource) {
+      this.showView(new Resource({ model: resource }));
+    }
+  });
+  const selected = new Selected();
+  const Workspace = Application.extend({
+    initialize() { this.addChildApp('selected', selected); },
+    onBeforeStart() { this.showView(new SelectionShell()); }
+  });
+  const application = new Workspace({ region: { el } });
+  let latest = 0;
+
+  return {
+    application, selected,
+    async select(id) {
+      if (!application.isRunning()) { return false; }
+      const selection = ++latest;
+      await selected.stop();
+      if (selection !== latest) { return false; }
+      const started = await selected.start({
+        region: application.getView().getRegion('resource'), id
+      });
+      return selection === latest && started;
+    }
+  };
+}
+```
+
+Start the owning `application` first, then call `await selector.select(id)` and
+handle a current loader rejection at the caller. A new selection calls `stop()`
+on the selected child immediately, canceling any pending child
+startup, then starts only the latest selected id after stop completes. The token
+prevents an older `select()` continuation from starting its resource when
+concurrent calls share stop readiness. Marionette's preparation signal prevents
+an obsolete load, even one that ignores abort, from reaching `onStart` and
+showing its View. The parent shell stays mounted as selected Views change.
+`false` means superseded selection; a current readiness failure rejects.
+Destroy the owning Application when the selector is released.
+
+Repeated `restart({ id })` is unsuitable for rapid selection: compatible
+in-flight restarts share the first operation and its original options. The
+selection token is application code, not a Marionette framework API or a
+framework-owned run signal. This example uses a lifecycle boundary because the
+selected child screen is replaced; the list refresh above remains an individual
+request within an active child.
 
 ## Refresh a collection and preserve the editor
 
