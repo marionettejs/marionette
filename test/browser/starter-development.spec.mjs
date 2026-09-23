@@ -13,7 +13,10 @@ const execute = (file, args, options = {}) => executeFile(file, args, { ...optio
   ...process.env, ...options.env, NODE_PATH: '',
   NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --no-global-search-paths`,
   PATH: (process.env.PATH || '').split(delimiter).filter(path => !path.includes('node_modules')).join(delimiter)
-} });
+} }).catch(error => {
+  error.message += `\n${error.stdout || ''}`;
+  throw error;
+});
 
 test('installed TypeScript starter releases old owners across repeated Vite edits', async({ page }, testInfo) => {
   test.setTimeout(600_000);
@@ -123,7 +126,10 @@ test('installed TypeScript starter releases old owners across repeated Vite edit
         window.oldOpen.click();
       });
       await expect(page.getByRole('status')).toHaveText('Loading…');
-      await writeFile(sourcePath, source.replace('<h1>Notes</h1>', `<h1>${title}</h1>`));
+      // Publish a complete edit so Vite cannot reload the file between truncation and writing.
+      const editedPath = `${sourcePath}.tmp`;
+      await writeFile(editedPath, source.replace('<h1>Notes</h1>', `<h1>${title}</h1>`));
+      await rename(editedPath, sourcePath);
       await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible();
       await expect(page.getByRole('status')).toHaveText('Choose a note.');
       expect(await page.evaluate(async() => {
