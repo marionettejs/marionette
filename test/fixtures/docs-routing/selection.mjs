@@ -58,6 +58,17 @@ try {
   loads.get('failed').reject(error);
   await assert.rejects(failed, reason => reason === error);
   assert.deepEqual(starts, ['B', 'D']);
+
+  const stoppedSelection = selector.select('stopped');
+  assert.equal(await selector.application.stop(), true);
+  assert.equal(await stoppedSelection, false);
+  assert.equal(loads.has('stopped'), false, 'stopped owner cannot start a new selection');
+
+  assert.equal(await selector.application.start(), true);
+  const releasedSelection = selector.select('released');
+  assert.equal(await selector.application.destroy(), true);
+  assert.equal(await releasedSelection, false);
+  assert.equal(loads.has('released'), false, 'destroyed owner cannot start a new selection');
   console.log('Selection example passed: latest A/B and C/D, obsolete readiness and failure, current failure.');
 } finally {
   loads.forEach(load => load.resolve({ name: 'Finished' }));

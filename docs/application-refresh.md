@@ -274,9 +274,11 @@ export function createResourceSelection({ el, loadResource }) {
       if (!application.isRunning()) { return false; }
       const selection = ++latest;
       await selected.stop();
-      if (selection !== latest) { return false; }
+      if (selection !== latest || !application.isRunning()) { return false; }
+      const shell = application.getView();
+      if (!shell || shell.isDestroyed()) { return false; }
       const started = await selected.start({
-        region: application.getView().getRegion('resource'), id
+        region: shell.getRegion('resource'), id
       });
       return selection === latest && started;
     }
@@ -292,7 +294,9 @@ prevents an older `select()` continuation from starting its resource when
 concurrent calls share stop readiness. Marionette's preparation signal prevents
 an obsolete load, even one that ignores abort, from reaching `onStart` and
 showing its View. The parent shell stays mounted as selected Views change.
-`false` means superseded selection; a current readiness failure rejects.
+`false` means the selection was superseded or the owner stopped; a current
+readiness failure rejects. An owner stop or destroy while `select()` awaits the
+child stop also prevents a later child start.
 Destroy the owning Application when the selector is released.
 
 Repeated `restart({ id })` is unsuitable for rapid selection: compatible
