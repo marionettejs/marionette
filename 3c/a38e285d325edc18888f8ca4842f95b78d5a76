@@ -1,0 +1,21 @@
+test/fixtures/docs-routing/selection.mjs
+  s_4d28c115ab2892::t_516baf0cd8e093 61-71
+docs/application-refresh.md
+  s_4d28c115ab2892::t_516baf0cd8e093 277-279,281,297-299
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "3ca38e285d325edc18888f8ca4842f95b78d5a76",
+  "prompts": {},
+  "sessions": {
+    "s_4d28c115ab2892": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0cd77-5259-7610-8ee0-2160d8e5a7a1",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
