@@ -1,0 +1,20 @@
+test/browser/starter-development.spec.mjs
+  s_9b1b3939109fa4::t_f901e1ec948835 16-19
+  s_9b1b3939109fa4::t_1f2a9fbcd89e67 129-132
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "5fedb0b3f15212b3f6fd5c0b75692d2453ffe1c7",
+  "prompts": {},
+  "sessions": {
+    "s_9b1b3939109fa4": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c929-2fdb-7951-82db-c927ebfd8781",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
