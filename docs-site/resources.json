@@ -8,6 +8,7 @@
   "test/fixtures/docs-application-guides/completion.mjs",
   "test/fixtures/docs-application-guides/effects.mjs",
   "test/fixtures/docs-application-guides/preparation.mjs",
+  "test/fixtures/docs-application-guides/resource-cleanup.mjs",
   "test/fixtures/docs-application-guides/workspace.mjs",
   "test/fixtures/docs-application-guides/troubleshooting.mjs",
   "test/fixtures/docs-routing/package.json",

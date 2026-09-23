@@ -120,6 +120,12 @@
     "section": "Build interfaces"
   },
   {
+    "source": "docs/resource-cleanup.md",
+    "route": "docs/resource-cleanup",
+    "title": "Clean up View resources",
+    "section": "Build interfaces"
+  },
+  {
     "source": "docs/view.rendering.md",
     "route": "docs/rendering",
     "title": "Templates and rendering",
