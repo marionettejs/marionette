@@ -1,0 +1,41 @@
+test/fixtures/docs-application-guides/resource-cleanup.mjs
+  s_932355d3ceb435::t_a7a1f77a9e7efd 1-98
+docs-site/navigation.json
+  s_932355d3ceb435::t_5925142ec4a25f 123-127
+  s_267e7a791356aa::t_1dc91e7961b733 122
+docs/task-recipes.md
+  s_932355d3ceb435::t_8ec69c108f6f86 19
+docs-site/resources.json
+  s_932355d3ceb435::t_cfdea6f213fb96 11
+docs/view.lifecycle.md
+  s_932355d3ceb435::t_8ec69c108f6f86 227-228
+docs/resource-cleanup.md
+  s_932355d3ceb435::t_8ec69c108f6f86 1-96,100-125
+  s_932355d3ceb435::t_e1fb8b950681b9 97-99
+test/fixtures/docs-application-guides/validate.mjs
+  s_932355d3ceb435::t_a7a1f77a9e7efd 233-237
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "319c52aaedfd9d35bd4ab18bb902ef717075ec61",
+  "prompts": {},
+  "sessions": {
+    "s_267e7a791356aa": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08689-8981-7cf3-a3c5-0ee0a88b599c",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_932355d3ceb435": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0ccb7-194c-72d2-b859-443afa9808ef",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
