@@ -17,7 +17,8 @@ await writeFile(examplePath, code[1]);
 const refreshMarkdown = await readFile(resolve(fixtureDir, '../../../docs/application-refresh.md'), 'utf8');
 for (const [exampleMarker, filename] of [
   ['<!-- executable-example: application-latest-request -->', 'latest-request.js'],
-  ['<!-- executable-example: application-data-refresh -->', 'results-feature.js']
+  ['<!-- executable-example: application-data-refresh -->', 'results-feature.js'],
+  ['<!-- executable-example: application-child-data-refresh -->', 'workspace-results.js']
 ]) {
   const source = refreshMarkdown.slice(refreshMarkdown.indexOf(exampleMarker) + exampleMarker.length)
     .match(/^\s*```javascript\n([\s\S]*?)\n```/);
@@ -197,3 +198,4 @@ try {
 }
 
 await import('./refresh.mjs');
+await import('./child-refresh.mjs');

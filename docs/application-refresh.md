@@ -73,6 +73,147 @@ existing request alone. Old success, error, and cleanup continuations cannot
 commit or discard a newer request's cancellation handle.
 The external signal covers that pending request, not the feature's persistent effects.
 
+## Keep a shell and independently owned children
+
+Use this pattern when list results and a sidebar share a workspace but have different
+UI state. The parent owns their active lifetimes and the shell. Each child owns its
+own View; the list child owns its replaceable requests. A list refresh is not a
+child `restart()` or a parent lifecycle operation.
+
+Save this module beside `latest-request.js` as `workspace-results.js`. Supply an
+element and `loadItems(query, { signal })` returning records with unique, stable
+`id` and `name` values. The example uses the native `@mnjs/data` Collection and
+its DataApi, configured on the two collection-aware View classes.
+
+<!-- executable-example: application-child-data-refresh -->
+```javascript
+import { Application, CollectionView, View } from 'marionette';
+import { Collection, DataApi } from '@mnjs/data';
+import { createLatestRequest } from './latest-request.js';
+
+const Card = View.extend({
+  tagName: 'li',
+  template: () => '',
+  modelEvents: { 'change:name': 'render' },
+  onRender() { this.el.textContent = this.model.get('name'); }
+});
+const Cards = CollectionView.extend({ tagName: 'ul', childView: Card });
+Card.setDataApi(DataApi);
+Cards.setDataApi(DataApi);
+
+const Sidebar = View.extend({
+  template: () => '<label>Sidebar note<input></label>'
+});
+const Shell = View.extend({
+  template: () => '<p role="status">Ready</p><section class="results"></section>' +
+    '<aside></aside>',
+  regions: { results: '.results', sidebar: 'aside' },
+  showStatus(message) { this.el.querySelector('[role="status"]').textContent = message; }
+});
+
+export function createWorkspaceResults({ el, loadItems }) {
+  const items = new Collection();
+  let requests;
+  let generation = 0;
+  let showStatus;
+  const List = Application.extend({
+    onStart(app, options) {
+      requests?.dispose();
+      generation += 1;
+      showStatus = options.showStatus;
+      this.showView(new Cards({ collection: items }));
+      requests = createLatestRequest({
+        load: loadItems,
+        commit(rows) {
+          const current = new Map(items.map(model => [model.get('id'), model]));
+          const order = new Map(rows.map((row, index) => [row.id, index]));
+          items.remove(items.models.filter(model => !order.has(model.get('id'))));
+          for (const row of rows) { current.get(row.id)?.set(row); }
+          items.add(rows.filter(row => !current.has(row.id)));
+          items.sort((left, right) => order.get(left.get('id')) - order.get(right.get('id')));
+        }
+      });
+    },
+    onStop() { generation += 1; requests?.dispose(); },
+    onBeforeDestroy() { generation += 1; requests?.dispose(); },
+    async refresh(query) {
+      if (!this.isRunning()) { return false; }
+      const ownGeneration = ++generation;
+      showStatus('Loading…');
+      try {
+        const committed = await requests.run(query);
+        if (ownGeneration !== generation || !this.isRunning()) { return false; }
+        if (committed) { showStatus('Ready'); }
+        return committed;
+      } catch (error) {
+        if (ownGeneration !== generation || !this.isRunning()) { return false; }
+        showStatus('Could not load. Try again.');
+        return false;
+      }
+    },
+    cancelRefresh() { generation += 1; requests?.cancel(); }
+  });
+  const Side = Application.extend({
+    onStart() { this.showView(new Sidebar()); }
+  });
+  const list = new List();
+  const sidebar = new Side();
+  const Workspace = Application.extend({
+    initialize() {
+      this.addChildApp('list', list);
+      this.addChildApp('sidebar', sidebar);
+    },
+    onBeforeStart() { this.showView(new Shell()); },
+    async prepareStart(options, { signal }) {
+      const shell = this.getView();
+      const listStarted = await list.start({
+        region: shell.getRegion('results'), showStatus: message => shell.showStatus(message)
+      });
+      if (signal.aborted) { return; }
+      if (!listStarted) { throw new Error('List startup was superseded'); }
+      const sidebarStarted = await sidebar.start({ region: shell.getRegion('sidebar') });
+      if (signal.aborted) { return; }
+      if (!sidebarStarted) { throw new Error('Sidebar startup was superseded'); }
+    }
+  });
+  const application = new Workspace({ region: { el } });
+  return { application, list, sidebar, items,
+    refresh(query) { return list.refresh(query); },
+    cancelRefresh() { list.cancelRefresh(); }
+  };
+}
+```
+
+Call `await workspace.application.start()` once, then call
+`await workspace.refresh(query)` for each results load. The list's Collection
+retains Models for surviving ids, so their card Views remain in place while
+names and ordering change. The sidebar View and its input are untouched. While
+a replacement is pending, both the existing cards and sidebar remain visible.
+The result is assigned as text, so a record name is not interpreted as HTML.
+
+Each refresh cancels the previous list request. The controller checks its
+`AbortSignal` after the loader settles, including when a loader ignores abort.
+The list's generation check also suppresses late success and failure status
+updates. A current failure shows a retry message and leaves displayed cards
+alone; the next refresh can retry. `cancelRefresh()` invalidates the status
+update and cancels the request without clearing the list.
+
+The parent registers both children once and starts them explicitly with Regions
+from the current shell. Parent stop stops the children and destroys their Views;
+parent destroy destroys both children. A later parent start creates a new shell
+and starts the same children with its new Regions. Call `items.destroy()` after
+destroying the workspace; this factory owns the Collection. If one child fails
+startup, explicitly stop or destroy the workspace before abandoning it: child
+startup is not transactional.
+
+Use `restart()` when the feature's active run must end, such as changing its host
+Region or resetting the whole workspace. Restart destroys the shell, list cards,
+and sidebar input; it is unsuitable for a results refresh that must preserve
+them. The parent's preparation signal covers startup only. List refreshes have
+their own request lifetime and do not become Application preparation merely
+because the list is owned by an Application. See [child ownership](./marionette.application.md#application-ownership)
+and [effect lifetimes](./application-effects.md#choose-the-lifetime-first).
+
 ## Refresh a collection and preserve the editor
 
 Save this module beside `latest-request.js` as `results-feature.js`. Supply an

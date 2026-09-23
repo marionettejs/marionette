@@ -521,6 +521,12 @@ Ownership gives teardown responsibility; it has no per-child lifecycle flags. Pu
 that must outlive an Application under a longer-lived owner and pass it to the
 shorter-lived child as a dependency.
 
+Ownership follows the parent's active lifetime, not each request made by a child.
+For a shell with separately owned list and sidebar children, use the
+[persistent-shell refresh example](./application-refresh.md#keep-a-shell-and-independently-owned-children).
+It starts children explicitly, refreshes only the list's data, and preserves
+the sidebar while superseded requests finish.
+
 <!-- executable-example: application-child-ownership -->
 ```javascript
 import { Application } from 'marionette';
