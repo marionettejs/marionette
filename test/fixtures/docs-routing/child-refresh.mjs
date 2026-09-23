@@ -73,8 +73,10 @@ try {
   const canceled = workspace.refresh('canceled');
   workspace.cancelRefresh();
   assert.equal(loads.get('canceled').signal.aborted, true);
+  assert.equal(document.querySelector('[role="status"]').textContent, 'Ready');
   loads.get('canceled').reject(new Error('Canceled failure'));
   assert.equal(await canceled, false);
+  assert.equal(document.querySelector('[role="status"]').textContent, 'Ready');
   assert.equal(firstCard.textContent, 'Retried');
   assert.equal(input.value, 'Keep this draft');
 

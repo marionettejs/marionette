@@ -263,8 +263,16 @@ await test('documented refresh uses one active session and replaces only current
 
     await t.test('current synchronous commit failures reject without a recovery contract', async() => {
       const error = new Error('Commit failed');
-      const requests = createLatestRequest({ load: async() => 'value', commit() { throw error; } });
-      try { await assert.rejects(requests.run('input'), failure => failure === error); } finally { requests.dispose(); }
+      let handledLoadFailures = 0;
+      const requests = createLatestRequest({
+        load: async() => 'value',
+        commit() { throw error; },
+        fail() { handledLoadFailures += 1; }
+      });
+      try {
+        await assert.rejects(requests.run('input'), failure => failure === error);
+        assert.equal(handledLoadFailures, 0, 'a commit failure is not a load failure');
+      } finally { requests.dispose(); }
     });
   } finally {
     dom.window.close();

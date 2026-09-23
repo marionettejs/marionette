@@ -13,11 +13,12 @@ Application.
 
 Save this module as `latest-request.js` and import it wherever the application
 needs replacement requests. It is application code, not a Marionette export.
-`load(input, { signal })` is asynchronous; `commit(value, input)` is synchronous.
+`load(input, { signal })` is asynchronous; `commit(value, input)` and the optional
+`fail(error, input)` are synchronous.
 
 <!-- executable-example: application-latest-request -->
 ```javascript
-export function createLatestRequest({ load, commit }) {
+export function createLatestRequest({ load, commit, fail }) {
   let pending;
   let disposed = false;
 
@@ -43,13 +44,18 @@ export function createLatestRequest({ load, commit }) {
       request.signal.addEventListener('abort', releaseSignal, { once: true });
 
       try {
-        const value = await load(input, { signal: request.signal });
+        let value;
+        try {
+          value = await load(input, { signal: request.signal });
+        } catch (error) {
+          if (request.signal.aborted) { return false; }
+          if (!fail) { throw error; }
+          fail(error, input);
+          return false;
+        }
         if (request.signal.aborted) { return false; }
         commit(value, input);
         return true;
-      } catch (error) {
-        if (request.signal.aborted) { return false; }
-        throw error;
       } finally {
         releaseSignal();
         request.signal.removeEventListener('abort', releaseSignal);
@@ -60,9 +66,11 @@ export function createLatestRequest({ load, commit }) {
 }
 ```
 
-`run` resolves `true` after committing and `false` for canceled work or a disposed
-controller. A current load or commit failure rejects. Catch current failures at
-the application boundary and provide a retry action. The post-await check also
+`run` resolves `true` after committing and `false` for canceled work, a disposed
+controller, or a current load failure handled by `fail`. Without `fail`, a current
+load failure rejects. A synchronous `commit` or `fail` failure always rejects;
+handle it at the application boundary without treating a partially applied commit
+as a retryable load failure. The post-await check also
 protects against providers that ignore abort; a canceled Promise settles when
 its loader settles. Cancellation does not force a non-cooperative loader to finish.
 
@@ -114,12 +122,10 @@ const Shell = View.extend({
 export function createWorkspaceResults({ el, loadItems }) {
   const items = new Collection();
   let requests;
-  let generation = 0;
   let showStatus;
   const List = Application.extend({
     onStart(app, options) {
       requests?.dispose();
-      generation += 1;
       showStatus = options.showStatus;
       this.showView(new Cards({ collection: items }));
       requests = createLatestRequest({
@@ -131,27 +137,22 @@ export function createWorkspaceResults({ el, loadItems }) {
           for (const row of rows) { current.get(row.id)?.set(row); }
           items.add(rows.filter(row => !current.has(row.id)));
           items.sort((left, right) => order.get(left.get('id')) - order.get(right.get('id')));
-        }
+          showStatus('Ready');
+        },
+        fail() { showStatus('Could not load. Try again.'); }
       });
     },
-    onStop() { generation += 1; requests?.dispose(); },
-    onBeforeDestroy() { generation += 1; requests?.dispose(); },
-    async refresh(query) {
+    onStop() { requests?.dispose(); },
+    onBeforeDestroy() { requests?.dispose(); },
+    refresh(query) {
       if (!this.isRunning()) { return false; }
-      const ownGeneration = ++generation;
       showStatus('Loading…');
-      try {
-        const committed = await requests.run(query);
-        if (ownGeneration !== generation || !this.isRunning()) { return false; }
-        if (committed) { showStatus('Ready'); }
-        return committed;
-      } catch (error) {
-        if (ownGeneration !== generation || !this.isRunning()) { return false; }
-        showStatus('Could not load. Try again.');
-        return false;
-      }
+      return requests.run(query);
     },
-    cancelRefresh() { generation += 1; requests?.cancel(); }
+    cancelRefresh() {
+      requests?.cancel();
+      if (this.isRunning()) { showStatus('Ready'); }
+    }
   });
   const Side = Application.extend({
     onStart() { this.showView(new Sidebar()); }
@@ -193,10 +194,11 @@ The result is assigned as text, so a record name is not interpreted as HTML.
 
 Each refresh cancels the previous list request. The controller checks its
 `AbortSignal` after the loader settles, including when a loader ignores abort.
-The list's generation check also suppresses late success and failure status
-updates. A current failure shows a retry message and leaves displayed cards
+Success and failure status updates run inside the request controller's cancellation
+guard. A current load failure shows a retry message and leaves displayed cards
 alone; the next refresh can retry. `cancelRefresh()` invalidates the status
-update and cancels the request without clearing the list.
+update, restores the resting status, and keeps the list visible. A synchronous
+collection or render failure still rejects; it is not presented as a load failure.
 
 The parent registers both children once and starts them explicitly with Regions
 from the current shell. Parent stop stops the children and destroys their Views;
@@ -213,6 +215,12 @@ them. The parent's preparation signal covers startup only. List refreshes have
 their own request lifetime and do not become Application preparation merely
 because the list is owned by an Application. See [child ownership](./marionette.application.md#application-ownership)
 and [effect lifetimes](./application-effects.md#choose-the-lifetime-first).
+
+Compatible `restart(options)` calls made while a restart is pending share its
+Promise and retain its original options. A later resource selection in those
+options is not queued. Coordinate latest selection explicitly, then start the
+chosen resource once the lifecycle boundary allows it; see the
+[restart contract](./marionette.application.md#starting-an-application).
 
 ## Refresh a collection and preserve the editor
 
