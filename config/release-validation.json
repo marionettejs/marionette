@@ -262,6 +262,7 @@
     "docs-common-contract",
     "docs-dom-api",
     "docs-entity-events",
+    "docs-hosted-view",
     "docs-package",
     "docs-prerendered-content",
     "docs-radio-owner",

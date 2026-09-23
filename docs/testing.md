@@ -95,6 +95,25 @@ Observe failures through the rendered UI and application API boundary. A green
 compiler, coverage percentage, or matching screenshot alone does not establish
 that the intended operation succeeded. Keep test data anonymous and deterministic.
 
+## Assess a migration against its actual owner
+
+Record the application commit, installed package versions and documentation source
+revision, configured adapters, and the entrypoint exercised by each check. Keep
+existing end-to-end expectations as the behavioral baseline; add focused coverage
+for changed ownership rather than weakening acceptance to fit the implementation.
+
+A mocked View proves the host's coordination only. A reference fixture proves its
+listed contracts only. A route that still uses the previous framework does not
+prove the migrated screen, and a View-only integration cannot establish Application
+startup, rejected stop, or restart behavior. Pair fast tests with a browser witness
+through the activated production route and real adapter.
+
+Report failed or skipped checks and retry-only passes explicitly. A green CI job
+that tolerates a failing typecheck is not a passing typecheck. Results for an earlier
+application head or package build do not certify the current candidate. Separate
+service/fixture failures from framework failures using a supported public-API
+reproduction before proposing a library change.
+
 ## Keep examples and evidence together
 
 For repository contributions, an `executable-example` marker connects a canonical

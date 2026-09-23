@@ -130,3 +130,12 @@ For a new project, choose the simplest option that meets the stated capability;
 ask for a preference only when the choice changes a meaningful product or
 maintenance constraint. Do not introduce additional providers just because
 examples for them appear beside each other in this guide.
+
+## Keep a framework host boundary explicit
+
+For incremental migration from Vue, React, or another UI framework, let the shell
+own one empty mount and use a Region for the Marionette screen. Native DOM
+insertion does not notify Marionette attachment or Lit directive connection.
+Follow the [host integration guide](./hosting-views.md) for mount, update, and
+teardown; keep the existing shared store as the single writer until its ownership
+is deliberately migrated.

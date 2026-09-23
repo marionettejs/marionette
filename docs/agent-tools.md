@@ -187,6 +187,17 @@ skill does not guarantee an active MCP connection across clients.
    until it is `null` to read the complete document. For an example, use its catalog
    `id` as `get_example.name` and retrieve all chunks before parsing the recipe JSON.
 
+For focused reading, `search_sections` returns exact heading IDs, ancestry, and
+sizes; pass those IDs to `get_sections`. Inspect its `omitted` entries and request
+missing sections separately. Its `maxCharacters` budget counts UTF-16 code units,
+not tokens, excludes metadata, and never truncates a section. Use paginated
+`get_doc` for a section too large for the budget or when the full context matters.
+Section selection is lexical search, not dependency analysis: also read the linked
+ownership, setup, and cleanup contracts. For example, a Lit rendering excerpt alone
+does not explain how a [framework host](./hosting-views.md) attaches the View.
+Use exact tool limits advertised by the connected server; older snapshots may
+not expose section tools, in which case document retrieval remains sufficient.
+
 The hosted snapshot may lag a new release or candidate. Use installed Markdown
 when provenance does not match or the service is unavailable. Retrieved recipes
 still need application tests; this server does not inspect or run your application.

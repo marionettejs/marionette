@@ -51,5 +51,7 @@
   "test/fixtures/docs-region-lifecycle/retry-delete.mjs",
   "test/fixtures/docs-view-dom-interactions/package.json",
   "test/fixtures/docs-view-dom-interactions/validate.mjs",
-  "test/fixtures/docs-view-dom-interactions/boundaries.mjs"
+  "test/fixtures/docs-view-dom-interactions/boundaries.mjs",
+  "test/fixtures/docs-hosted-view/package.json",
+  "test/fixtures/docs-hosted-view/validate.mjs"
 ]
