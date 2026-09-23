@@ -1,4 +1,4 @@
-# Clean up resources owned by a View
+# View resource cleanup
 
 Match each resource to the part of the View that uses it. Marionette destroys
 owned child Views, delegated `events` handlers, Behaviors, and outgoing

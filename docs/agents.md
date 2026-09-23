@@ -39,6 +39,7 @@ prerequisite for reading a specific guide.
 | Render a changing list | [CollectionView](./marionette.collectionview.md), [DataApi](./data.api.md) | Stable item identity, correct ordering, removal cleanup, and preservation of surviving edits. |
 | Coordinate a feature or navigate | [Application](./marionette.application.md), [routing](./routing.md) | Startup success, stale navigation, failure, stop, and destruction. |
 | Choose data, state, rendering, or DOM integration | [Choosing integrations](./choosing-integrations.md) | The chosen capability matches the source; configuring one integration does not implicitly configure another. |
+| Host a screen in Vue, React, or another shell | [Host a Marionette screen](./hosting-views.md) | Managed attachment, one DOM owner, stable drafts, and cleanup before host removal. |
 | Add local or shared state | [State sources](./marionette.state.md) | The correct observer updates; destroying one borrower does not dispose shared state. |
 | Handle DOM or component events | [DOM interactions](./dom.interactions.md), [events](./events.md) | One intended response per interaction and no response after teardown. |
 | Diagnose a framework error | [Diagnostic catalog](./diagnostic-catalog.md) | The invariant associated with the diagnostic code; do not match only error-message text. |

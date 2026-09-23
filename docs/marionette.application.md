@@ -176,6 +176,11 @@ Without `prepareStart`, the result is `undefined`. The operation's own
 Promise still resolves a boolean, not the prepared value. Canceled startup never
 emits completion with an obsolete result. Stop and destroy preparation results
 are ignored; those methods provide readiness rather than startup data.
+Returning `false` from a preparation method does not veto the operation:
+`prepareStart` passes it to `onStart` as data, and `prepareStop` ignores it.
+To refuse readiness, throw or reject. Do not confuse a child's `start()` result
+with the parent's preparation result; handle required-child cancellation explicitly
+as shown in [child readiness](#mount-loading-ui-before-readiness).
 
 Before notifications run before preparation begins. If a `before:start` or
 `before:stop` notification supersedes its pending operation, that preparation method

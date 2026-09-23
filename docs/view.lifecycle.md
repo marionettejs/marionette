@@ -209,6 +209,8 @@ Marionette attachment lifecycles or updating `isAttached()`. The same caveat
 applies when application code directly removes or moves an attached root.
 Prefer a Region or CollectionView for managed transitions; if application code
 moves the element directly, it owns the resulting lifecycle mismatch.
+For a Vue, React, or other framework shell, use the complete
+[Region-based host pattern](./hosting-views.md).
 
 A child shown in a rendered but detached parent View's Region is rendered and remains
 detached. When the parent is later shown in an attached Region, attachment propagates

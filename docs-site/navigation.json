@@ -26,7 +26,7 @@
   {
     "source": "docs/beta.md",
     "route": "docs/beta",
-    "title": "Try the beta candidate",
+    "title": "Try the release candidate",
     "section": "Start here"
   },
   {
@@ -122,7 +122,7 @@
   {
     "source": "docs/resource-cleanup.md",
     "route": "docs/resource-cleanup",
-    "title": "Clean up View resources",
+    "title": "View resource cleanup",
     "section": "Build interfaces"
   },
   {
@@ -184,6 +184,12 @@
     "route": "docs/choosing-integrations",
     "title": "Choose integrations",
     "section": "Choose integrations"
+  },
+  {
+    "source": "docs/hosting-views.md",
+    "route": "docs/hosting-views",
+    "title": "Host a screen in another framework",
+    "section": "Application guides"
   },
   {
     "source": "docs/marionette.state.md",
