@@ -1,0 +1,19 @@
+docs/agent-tools.md
+  s_55787f6149f525::t_7da7e62f263ad1 55,65,78
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "cd37b64c8867520cb32b08e5e1699cc9ac017a1b",
+  "prompts": {},
+  "sessions": {
+    "s_55787f6149f525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d2b8-cb39-7233-916c-437345981b78",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
