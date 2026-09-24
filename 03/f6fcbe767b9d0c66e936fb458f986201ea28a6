@@ -1,0 +1,84 @@
+test/browser/docs-form.spec.mjs
+  s_57ab4090cf452d::t_0f9a7af7efb74f 34-39,41,73,78-83
+docs/readme.md
+  s_57ab4090cf452d::t_1baab485100b8a 8
+  s_57ab4090cf452d::t_34f5391391108c 11
+docs/application-agent-template.md
+  s_57ab4090cf452d::t_1baab485100b8a 25,48
+docs/development.md
+  s_57ab4090cf452d::t_1baab485100b8a 1,3-5,80-81
+test/fixtures/docs-application-guides/validate.mjs
+  s_57ab4090cf452d::t_0e8bba8386fe44 120,124-125,133-134,153,159
+docs/agent-tools.md
+  s_57ab4090cf452d::t_1baab485100b8a 14
+  s_4d56c1f4bdf7fe::t_5eeedc80225e5a 156,159-160,162-165,167
+  s_8bc670f0bb5f37::t_90e986230f9de3 168
+  s_dafe2a28156c79::t_1bf357f489c994 10-13
+  s_8bc670f0bb5f37::t_4235546950ca29 15-16,166
+  s_dafe2a28156c79::t_26f0ae87acc234 17-25,254-272
+readme.md
+  s_bc19ab09821624::t_9a1a8df7433b49 107
+  s_bc19ab09821624::t_780a4a50a0487a 89
+  s_57ab4090cf452d::t_1baab485100b8a 19-23,104-106
+llms.txt
+  s_57ab4090cf452d::t_1baab485100b8a 5-7
+docs/agents.md
+  s_dafe2a28156c79::t_73368fdcfe7997 47
+  s_57ab4090cf452d::t_1baab485100b8a 40,52-59
+  s_bc19ab09821624::t_6917fa1e004f85 60-62
+docs/quick-start.md
+  s_57ab4090cf452d::t_0f9a7af7efb74f 80-86,88-96
+  s_dafe2a28156c79::t_fae21518cd9ff7 87
+docs/forms-and-accessibility.md
+  s_bc19ab09821624::t_339de0da5d643b 27,31,44,70,124,171
+  s_57ab4090cf452d::t_0f9a7af7efb74f 26,39-43,118-123,166-169
+  s_57ab4090cf452d::t_c3295719e66d5b 170
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "03f6fcbe767b9d0c66e936fb458f986201ea28a6",
+  "prompts": {},
+  "sessions": {
+    "s_4d56c1f4bdf7fe": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a093bc-e9ea-7e92-86db-45cb1f45595f",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_57ab4090cf452d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d4c0-3302-77c0-b52f-34e1aa94792e",
+        "model": "gpt-6-astra"
+      },
+      "human_author": null
+    },
+    "s_8bc670f0bb5f37": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c7f9-f977-78d3-94ee-2291f98aa98e",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_bc19ab09821624": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a080e7-cb4f-73e3-b41e-328bfeae0db2",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_dafe2a28156c79": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d4dd-377e-7552-905d-4457a753ecc6",
+        "model": "gpt-6-astra"
+      },
+      "human_author": null
+    }
+  }
+}
