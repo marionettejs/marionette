@@ -1,0 +1,21 @@
+scripts/docs/stage-package.mjs
+  s_997c0e1518baee::t_39f6f7fa19934c 22
+test/docs/package.test.mjs
+  s_997c0e1518baee::t_6e3f6b25f35d0c 13-14,22,48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "0b9914a49c9fa18550b22f9f66dfe5939e814881",
+  "prompts": {},
+  "sessions": {
+    "s_997c0e1518baee": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d1c7-6513-7c31-8c05-612db0d115b3",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
