@@ -1,4 +1,4 @@
-import { MarionetteError } from '@mnjs/utils';
+import { MarionetteError, extend } from '@mnjs/utils';
 
 const error = new MarionetteError({ message: 'example', code: 'MN0001' });
 const inherited = new MarionetteError(Object.create({ code: 'MN0001' }));
@@ -39,3 +39,12 @@ if (caught instanceof MarionetteError && caught.code === 'MN0001') {
 const samePrototype: typeof MarionetteError.prototype = error;
 // @ts-expect-error A native Error does not provide the Marionette URL/hook contract.
 const missingMarionetteFields: typeof error = new Error('native');
+
+const ClassicError = extend.call(MarionetteError, { name: 'ClassicError' });
+const classic = new ClassicError({ message: 'classic' });
+const DelegatingError = extend.call(MarionetteError, {
+  constructor: function(this: typeof error, options: { message: string }) {
+    return MarionetteError.call(this, options);
+  }
+});
+const delegated = new DelegatingError({ message: 'delegated' });

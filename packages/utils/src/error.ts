@@ -18,6 +18,7 @@ export interface MarionetteErrorInstance extends Omit<Error, 'name' | 'message'>
 }
 
 export interface MarionetteErrorConstructor {
+  (this: MarionetteErrorInstance, options: NonNullable<unknown>): MarionetteErrorInstance;
   new(options: NonNullable<unknown>): MarionetteErrorInstance;
   prototype: MarionetteErrorInstance;
   __super__: Error;
@@ -43,7 +44,7 @@ const MarionetteError: MarionetteErrorConstructor = extend.call(Error, {
   // eslint-disable-next-line object-shorthand
   constructor: function(this: MarionetteErrorInstance, options: NonNullable<unknown>) {
     // Construct a native Error so browser exception reporting retains its message and stack.
-    const nativeError = Reflect.construct(Error, [(options as { message?: unknown }).message], new.target) as Error;
+    const nativeError = Reflect.construct(Error, [(options as { message?: unknown }).message], new.target ?? this.constructor) as Error;
     const error = nativeError as unknown as MarionetteErrorInstance;
     const nativeProperties: Partial<Record<typeof errorProps[number], unknown>> = {};
     const optionProperties: Partial<Record<typeof errorProps[number], unknown>> = {};
@@ -68,6 +69,13 @@ const MarionetteError: MarionetteErrorConstructor = extend.call(Error, {
     error.url = typeof error.code === 'string' ?
       `https://marionettejs.com/errors/${encodeURIComponent(error.code)}/` :
       error.urlRoot + (error.url as string);
+    // Classic custom constructors may initialize their receiver and ignore our return value.
+    if (!new.target) {
+      Object.defineProperties(this, {
+        ...Object.getOwnPropertyDescriptors(error),
+        stack: { value: error.stack, writable: true, configurable: true }
+      });
+    }
     return error;
   },
 

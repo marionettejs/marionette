@@ -105,17 +105,15 @@ limitations for each release. A successful request does not prove the service
 stays within its provider's nominal resource budget. Domain registration remains
 an existing separate cost.
 
-The catalog reserves `/errors/<code>/` routes, and `docs-site/CNAME` configures
-`docs.marionettejs.com` for the diagnostic artifact. Runtime `MarionetteError.url`
-still uses the legacy `http://marionettejs.com/docs/v<version>/` prefix and its
-per-error prose path; it does not yet point to the catalog route. Treat any runtime
-URL change as a separate reviewed contract change. The integrated website generates
-catalog pages from the same source. Before launch, configure the diagnostic domain
-to serve those routes, or deploy the library diagnostic artifact there. Do not
-remove published error codes or leave their URLs unresolved. Once that domain is
-served by the integrated artifact, retire the separate Pages deployment workflow
-and library presentation scaffold; keep the shared catalog and export validation.
-The existing `DOCS_PAGES_ENABLED` gate is not changed by this work.
+The catalog reserves `/errors/<code>/` routes. Coded runtime `MarionetteError.url`
+values point to `https://marionettejs.com/errors/<code>/`, where the integrated
+website generates catalog pages from the same source. Do not remove published
+error codes or leave their URLs unresolved.
+
+`docs-site/CNAME` configures `docs.marionettejs.com` for the separate diagnostic
+artifact. The existing `DOCS_PAGES_ENABLED` gate is unchanged. Retire that separate
+Pages deployment and library presentation scaffold only when its domain is served
+by the integrated artifact; keep the shared catalog and export validation.
 
 Legacy documentation at `marionettejs.com/docs/current/` describes earlier releases.
 Do not replace it implicitly when deploying the v5 preview. Stable and immutable

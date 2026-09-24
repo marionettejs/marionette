@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { MarionetteError as PublicMarionetteError } from 'marionette';
-import { MarionetteError } from '@mnjs/utils';
+import { MarionetteError, extend } from '@mnjs/utils';
 
 describe('MarionetteError', function() {
   it('should be subclass of native Error', function() {
@@ -28,6 +28,33 @@ describe('MarionetteError', function() {
     expect(error).toBeInstanceOf(CustomError);
     expect(error).toBeInstanceOf(MarionetteError);
     expect(Object.prototype.toString.call(error)).toBe('[object Error]');
+  });
+
+  it('constructs native errors through the public extend helper', function() {
+    const Sub = extend.call(MarionetteError, { name: 'SubError' });
+    const error = new Sub({ code: 'MN0001', message: 'extended' });
+    expect(error).toBeInstanceOf(Sub);
+    expect(error).toBeInstanceOf(MarionetteError);
+    expect(Object.prototype.toString.call(error)).toBe('[object Error]');
+    expect(error.name).toBe('SubError');
+    expect(error.message).toBe('extended');
+    expect(error.stack).toContain('extended');
+  });
+
+  it('initializes custom constructor receivers even when they ignore the parent result', function() {
+    const Sub = extend.call(MarionetteError, {
+      constructor: function(options) {
+        MarionetteError.call(this, options);
+        this.detail = 'custom';
+      }
+    });
+    const error = new Sub({ code: 'MN0001', message: 'delegated' });
+    expect(error).toBeInstanceOf(Sub);
+    expect(error.message).toBe('delegated');
+    expect(error.code).toBe('MN0001');
+    expect(error.url).toBe('https://marionettejs.com/errors/MN0001/');
+    expect(error.stack).toContain('delegated');
+    expect(error.detail).toBe('custom');
   });
 
   describe('when passed options', function() {

@@ -2920,6 +2920,9 @@
             "captureStackTrace",
             "toString"
           ],
+          "call": [
+            "(this: MarionetteErrorInstance, options: {}): MarionetteErrorInstance"
+          ],
           "operationContracts": {
             "instance": {
               "captureStackTrace": [
@@ -2957,6 +2960,9 @@
           "callableInstanceMembers": [
             "captureStackTrace",
             "toString"
+          ],
+          "call": [
+            "(this: MarionetteErrorInstance, options: {}): MarionetteErrorInstance"
           ],
           "operationContracts": {
             "instance": {
@@ -5759,6 +5765,9 @@
             "captureStackTrace",
             "toString"
           ],
+          "call": [
+            "(this: MarionetteErrorInstance, options: {}): MarionetteErrorInstance"
+          ],
           "operationContracts": {
             "instance": {
               "captureStackTrace": [
@@ -5796,6 +5805,9 @@
           "callableInstanceMembers": [
             "captureStackTrace",
             "toString"
+          ],
+          "call": [
+            "(this: MarionetteErrorInstance, options: {}): MarionetteErrorInstance"
           ],
           "operationContracts": {
             "instance": {
@@ -8031,11 +8043,11 @@
     "packages/radio/src/index.ts": "24171247f65ecb3697629883abe9d248395b090d566ea70ac7c1b856d1cd7940",
     "packages/radio/src/radio.ts": "42a799d58d602c0fbbb4fcbc16170e1a89dad55c47d5f00ffaed69c8ee3d877f",
     "packages/radio/src/requests.ts": "68ccf97dbf79da12102c19d91bb9ba63a5fabe28866dd4a862de0df264747382",
-    "packages/utils/src/bind-events.ts": "15ac2efc033329536039f8d846199f39a5e999f4c9efcb9df8445854bded9059",
+    "packages/utils/src/bind-events.ts": "475fabcde622df0d6365ee6454c892ea75ebf95f11487ca074ce5508fe118a72",
     "packages/utils/src/bind-requests.ts": "4888ab0880961e2c8eaa131f91031f1dc0f1b39ab11907506bce94b3bb4f2870",
     "packages/utils/src/build-event-args.ts": "229567f225c14e49ec063898daa1ee40ccb7bc72813dd4324f10a921585d5ba6",
     "packages/utils/src/call-handler.ts": "d12565a492c7db98041a9ad66698a9dce3d023fd626671d4ce7537d9c4afe138",
-    "packages/utils/src/error.ts": "79aadefa5d87a7bb9ea65d10070e7c4f623f2eb72bee47fb676989c3daebceeb",
+    "packages/utils/src/error.ts": "e048a7dd534cf31c687b68dd56b7d9e62a28b2513c9f97b93225469fcb5df62c",
     "packages/utils/src/events.ts": "faeedf4cf22461ccb57b3c8ea23629c9060923e117e4db2ef6008bc3b6865d13",
     "packages/utils/src/extend.ts": "ea69bf3ae876e9266cd4259435f7a265c7a2d8c904ab54458e3af3c65c8c6bb7",
     "packages/utils/src/get-option.ts": "871bfce664422e78d80d260bd372195da8026e9592917183a5c351741af8cd85",
@@ -8060,23 +8072,23 @@
     "src/mixins/ui.ts": "5cb417e1456cd17b43357e480102be3fc1b436167c43b853af7d45ab79d35ffd",
     "src/mixins/view-events.ts": "108a31ba7d0f74916848c5b2f85b422afe15703a8e9fa2dbca0b17b6a5ff0fb2",
     "src/mixins/view.ts": "d0895d07d087d24d5cd8ce8d051a7acbbc9cee64fd2b5a6824b26973fc064e18",
-    "src/modules/application.ts": "1e2fd9564709b26c58fc7e72cb5cc968d6f4eb9b47fc3b482f0772fecb426e6c",
+    "src/modules/application.ts": "5022f89e5cd60307c656257a28101293c6cc6c2217983c3e944b1300f084bca9",
     "src/modules/behavior.ts": "475fe0451e629559992bd0f5ec18ad16438309b018bf643b5917dfc47a1693b6",
     "src/modules/child-view-container.ts": "ab52685a0a4fd8861534b8e9784704791c3e72a15ee19547766293be4a030803",
-    "src/modules/collection-view.ts": "91c7b94aa133aaefc36f0a66e659d7100aab275a14c831fcbff0515e536fe702",
+    "src/modules/collection-view.ts": "162f2114825d9bf67df0efd3fb7559e57a6dcfa0828f8eb0e71a9203e6a2474a",
     "src/modules/common/build-region.ts": "69fc222800674736c3385928e8a4b07932c1fd5ca7237b48fb4ab8f3a309022b",
     "src/modules/common/chainable-methods.ts": "5d61465f3de8bc0f84a3491e24067f7a711f2a7ebae08cb1a3d94375d9d153a2",
     "src/modules/common/monitor-view-events.ts": "e4f221ca598e2ce63c1cff766edbb2221d7cc7d1cb527086689e08b622a4f655",
     "src/modules/common/view.ts": "cd62997f30b7120e61f5067f876e612793dba629dfe942b46f156c861273c67e",
     "src/modules/object.ts": "23dacb7eacf2448ccbb690caa92195b49b992def43e4ef7cb598b50c03224100",
-    "src/modules/region.ts": "03a7ab2a5721ca01ded6c1070217bdc10b40673ce4cc3a21e4bb699ef68bb569",
+    "src/modules/region.ts": "21aa57762c8f05d955b0eaeaf2c362e3caed691a5c14cf056fcb2851d2fad128",
     "src/modules/view.ts": "ed458f9fad3452a9468fcc9bb8f1b85a7432d967d1caf2b36c18f8fb6d1b7a86",
     "src/runtime-id.ts": "3636769dee054da16eaa2171f2badc2a71a528dedb41ea1d4ac3342e09060087",
-    "src/runtime/data-api.ts": "85b7ce5d823c9ca7cce5bde827fcb03322372f48c7a2bcf82956442aa847f9e5",
+    "src/runtime/data-api.ts": "f962aeba9bc33e10a1db3fc0c098d05a23bc54250d781f5df371bd11da419b66",
     "src/runtime/dom-api.ts": "6dcaec5e6e4c7e14c84da32daeb8ff5b8f85ae24ec1f82ab9af2054ed9166475",
     "src/runtime/event-delegator.ts": "0b1f0ed46c49ea7f29fce9b6a7966253cb871ea6ed365ff3566ad8aa61351e4e",
     "src/runtime/renderer.ts": "9d3419a82872bc0ed017e2716cafe430b33833aab44d8cdf8c74746b1ecdab30",
-    "src/runtime/state-api.ts": "ea7191414367fedcd46ed231cbeb1a824f03cce8fec7dcd33ce7860cb5966d46",
+    "src/runtime/state-api.ts": "109cad5a2d2aebda1d50c907009e62ee40c816983e9a5f09b59197d392ca4f31",
     "src/utils/extend.ts": "1df6dc34448491ad1e3254da1106d9c73108f2f17f6e8b77f9bc2691a0c8ba61",
     "src/utils/subscribe-bindings.ts": "4337d7226b96fa2af73ad96136eced7af866a6d8130ea860ab076f2a77b7e4df"
   },
@@ -8085,7 +8097,7 @@
     "docs/choosing-integrations.md": "0eeea88e9f74ada7b9a31bc82bc9374b72fe22e9c3456853a44b94107111d1c7",
     "docs/common.md": "1d14004d1c49e98ca40be9fd28d35faaf372f2a12f13fae6afa3cac8a8bf14cc",
     "docs/data.api.md": "2f2818cdeeb658a504286a75a0df20c0f6e8492fed6b8ebaa5a040555e839110",
-    "docs/diagnostic-catalog.md": "1df844c7e8edbea59a8c07776d656d45f77266108babb770d7690183fe85d180",
+    "docs/diagnostic-catalog.md": "5cb6df76a0dcd19b170829a7c16c0f90878b9fb8ee377b012647768d302d268d",
     "docs/dom.api.md": "a697a637ae4c6cc92aa5d72850b404763f08e0417800feacc0b431ec073d3916",
     "docs/dom.interactions.md": "5b6de1a2eacfbee1bf78fef6e6061c9b3648bc78f6f043d7d3d37541c5508b9c",
     "docs/events.class.md": "faed5ac4f6eca3ec447ae7cd44b6efd8f039e935b38a4c191076d485bd57a35f",
@@ -8123,7 +8135,7 @@
     "test/unit/behavior-ui-contract.spec.js": "65def27b40f17e3d931803faeff7c9dbb3c580e14f157fa5d2f8145fb95c1761",
     "test/unit/collection-view/collection-view-children.spec.js": "3383be2e1def6c561ce827bb4742b7d57e7f2396e99b0fd2b39b601accc327e4",
     "test/unit/collection-view/collection-view-lifecycle.spec.js": "6d331ff97770fcc755fc4f5ddaef20372ac000fa2948d53ead4670b7b56801ec",
-    "test/unit/collection-view/collection-view-reconciliation.spec.js": "ad8766fe445a552d7882f089b96c8787082cd58bbb39f0cab141fb5f13ee601a",
+    "test/unit/collection-view/collection-view-reconciliation.spec.js": "b65841d3e25d4ab13e55b498513548df8892d8494fee48077de9386b5ba2fc7e",
     "test/unit/collection-view/collection-view-sorting.spec.js": "c20347ce2d7ef8352a5b5441a5a5b9d98537ca4ee5880ebb1d9b15740d9627df",
     "test/unit/common/bind-events.spec.js": "52704cfd2974216d9558751c7ba614e001a52a0606b1d3945d021988191c4f48",
     "test/unit/common/bind-request.spec.js": "44d59624cfd5cfd4899078b90cb700f3a175cdfb09f13191059d07909548a1e4",
@@ -8143,7 +8155,7 @@
     "test/unit/events-single-dispatch.spec.js": "9405ceb5a59c4ebddf3aeb4a902588dcf81a6bc35aca40bde0e8aa41760fb6ce",
     "test/unit/jquery-dom-api.spec.js": "4b0187d3ca5dac647394dd906fe6c6ca11764688c12ef864bc4eae867a629ded",
     "test/unit/model-based/application.spec.js": "10243a43b4699c6b30dd8e47f2486d25c512885a17015884b985629ebed5fff5",
-    "test/unit/modules-error.spec.js": "3ca32416b3329999cb3fcdd3fbc66751d722e7a2c0082195b702b64dce6284c3",
+    "test/unit/modules-error.spec.js": "7d47f9eb477425cce87fc6368c05c4db3532db6c7da54b68911582c1334ddc26",
     "test/unit/object.spec.js": "ca82986738229a1af224aa3bd2b0ab88d70ca92dc556806796e5b056b19ebb3e",
     "test/unit/provider-acceptance.spec.js": "9eb8795a222745b41ba2d76ae770dfa702e2f0f1ec8e17be8402be42c6166db9",
     "test/unit/radio-public.spec.js": "cc808f986107a14c0aefdfc3db3cac9b966154422d3527a6ee91e0a54d348ab9",

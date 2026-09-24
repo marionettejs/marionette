@@ -121,3 +121,17 @@ test('uncaught framework errors retain their message and stack in browser report
   assert.match(error.message, /same model appears more than once/);
   assert.match(error.stack, /same model appears more than once/);
 });
+
+
+test('utility-extended errors retain native browser exception reporting', async({ page }) => {
+  const reported = page.waitForEvent('pageerror');
+  await page.evaluate(async() => {
+    const { MarionetteError, extend } = await import('marionette');
+    const Sub = extend.call(MarionetteError, { name: 'SubError' });
+    setTimeout(() => { throw new Sub({ code: 'MN0001', message: 'Extended error' }); }, 0);
+  });
+  const error = await reported;
+  assert.equal(error.name, 'SubError');
+  assert.equal(error.message, 'Extended error');
+  assert.match(error.stack, /Extended error/);
+});
