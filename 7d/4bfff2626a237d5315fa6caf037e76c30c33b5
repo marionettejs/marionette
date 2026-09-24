@@ -1,0 +1,19 @@
+test/fixtures/docs-package/validate.mjs
+  s_997c0e1518baee::t_d21955e8c8b8b4 71-72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "7d4bfff2626a237d5315fa6caf037e76c30c33b5",
+  "prompts": {},
+  "sessions": {
+    "s_997c0e1518baee": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d1c7-6513-7c31-8c05-612db0d115b3",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
