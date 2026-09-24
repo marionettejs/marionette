@@ -1,0 +1,79 @@
+scripts/docs/stage-package.mjs
+  s_997c0e1518baee::t_792512621f4845 1,5-12
+  s_997c0e1518baee::t_d568e03e2d633e 2,19-21,23,26-35,39,41
+plugins/marionette/skills/marionette/scripts/docs.mjs
+  s_997c0e1518baee::t_7e1e84331ab643 53-55,57,77-78
+test/agent-docs/lookup.test.mjs
+  s_997c0e1518baee::t_7e1e84331ab643 18,31,78,119-120,144,147-150,153
+scripts/agent-benchmark/harness.mjs
+  s_997c0e1518baee::t_25912db9fdb1aa 76-79
+test/fixtures/smoke.sh
+  s_997c0e1518baee::t_792512621f4845 8
+test/fixtures/docs-package/validate.mjs
+  s_997c0e1518baee::t_7e1e84331ab643 11-14,41,45,57,71-72,116
+test/agent-benchmark/harness.test.mjs
+  s_997c0e1518baee::t_25912db9fdb1aa 237-253,255
+  s_997c0e1518baee::t_e5bf0c16c868b0 254
+scripts/release/build-artifact.mjs
+  s_997c0e1518baee::t_792512621f4845 129-132
+  s_997c0e1518baee::t_bd8b986e7cebb0 233
+test/docs/package.test.mjs
+  s_997c0e1518baee::t_81c56216b3a8cb 17
+  s_997c0e1518baee::t_a18252c15ad3b1 3,10,13-14,16,20,23-25,27-29,40-41,43-44,46,50-52,56,58-61
+skills/marionette/scripts/docs.mjs
+  s_997c0e1518baee::t_7e1e84331ab643 53-55,57,77-78
+test/release/build.test.mjs
+  s_997c0e1518baee::t_792512621f4845 110
+  s_997c0e1518baee::t_25912db9fdb1aa 43,120
+  s_997c0e1518baee::t_29ea7fc6f76ead 44-45
+CONTRIBUTING.md
+  s_997c0e1518baee::t_52840f48610549 36-37
+benchmarks/docs/prepare.mjs
+  s_997c0e1518baee::t_fdf9b9322a544a 12,25
+docs-site/README.md
+  s_997c0e1518baee::t_df39795eef077c 44,182,185
+docs/agent-tools.md
+  s_997c0e1518baee::t_e565fadd21967f 39
+docs/application-agent-template.md
+  s_997c0e1518baee::t_cc19fa4aa49acb 21
+docs/development.md
+  s_997c0e1518baee::t_2197b7a2c4b428 18,76-77
+package.json
+  s_997c0e1518baee::t_0c60c253f0254c 41-48
+readme.md
+  s_997c0e1518baee::t_fe97c29ba70086 42,97-98,111,113
+scripts/api-contracts/README.md
+  s_997c0e1518baee::t_0fddf61b111494 5
+scripts/docs/development-kit.mjs
+  s_997c0e1518baee::t_56499f7f9b1422 76
+scripts/docs/package.mjs
+  s_997c0e1518baee::t_545c3d0979f741 21-22,24
+scripts/performance/runtime-scope.mjs
+  s_997c0e1518baee::t_369e63771df9fc 11
+test/browser/fixtures.mjs
+  s_997c0e1518baee::t_33c530235a7e24 48
+test/browser/starter-development.spec.mjs
+  s_997c0e1518baee::t_54796c7919d2c8 40,70
+test/fixtures/data-package-starter/AGENTS.md
+  s_997c0e1518baee::t_a0dd16427c857e 3,5,9
+test/fixtures/data-package-starter/readme.md
+  s_997c0e1518baee::t_94faebc097c373 10,60
+test/performance/contract.test.mjs
+  s_997c0e1518baee::t_c8810a52ff9c7c 1017,1025,1033,1036,1038
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "1675b0f37f3b712d5d0e0c749ab9aa14a2be4f81",
+  "prompts": {},
+  "sessions": {
+    "s_997c0e1518baee": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d1c7-6513-7c31-8c05-612db0d115b3",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
