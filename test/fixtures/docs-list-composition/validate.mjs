@@ -4,29 +4,20 @@ import { JSDOM } from 'jsdom';
 
 const markdown = await readFile(new URL('../../../docs/list-composition.md', import.meta.url), 'utf8');
 await mkdir(new URL('./dist/', import.meta.url), { recursive: true });
-for (const [marker, filename] of [
-  ['<!-- executable-example: interactive-managed-list -->', 'interactive-list.js'],
-  ['<!-- executable-example: bounded-managed-list -->', 'bounded-list.js'],
-]) {
-  assert.equal(markdown.split(marker).length - 1, 1);
-  const code = markdown.slice(markdown.indexOf(marker) + marker.length)
-    .match(/^\s*```javascript\n([\s\S]*?)\n```/);
-  assert.ok(code);
-  await writeFile(new URL(`./dist/${filename}`, import.meta.url), code[1]);
-}
+const marker = '<!-- executable-example: interactive-managed-list -->';
+assert.equal(markdown.split(marker).length - 1, 1);
+const code = markdown.slice(markdown.indexOf(marker) + marker.length)
+  .match(/^\s*```javascript\n([\s\S]*?)\n```/);
+assert.ok(code);
+await writeFile(new URL('./dist/interactive-list.js', import.meta.url), code[1]);
 const dom = new JSDOM('<!doctype html><main></main>');
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
 const host = document.querySelector('main');
 const { mountList } = await import('./dist/interactive-list.js');
-const { mountWindow } = await import('./dist/bounded-list.js');
 let active = 0;
-let peak = 0;
-let constructions = 0;
 const observeRow = () => {
   active++;
-  constructions++;
-  peak = Math.max(peak, active);
   return () => { active--; };
 };
 let feature;
@@ -56,43 +47,10 @@ try {
   assert.equal(survivor.isDestroyed(), true);
   assert.equal(active, 0);
   assert.equal(host.children.length, 0);
-
-  constructions = 0;
-  peak = 0;
-  const records = Array.from({ length: 100000 }, (_, id) => ({ id, title: `Post ${id}` }));
-  feature = mountWindow(host, records, { observeRow });
-  assert.equal(constructions, feature.capacity);
-  const initial = feature.list.children.findByModel(feature.visible.get(0));
-  const overlapping = feature.list.children.findByModel(feature.visible.get(5));
-  const draft = overlapping.getUI('draft')[0];
-  draft.value = 'Keep while visible';
-  feature.viewport.el.scrollTop = 160;
-  feature.viewport.el.dispatchEvent(new window.Event('scroll'));
-  assert.equal(initial.isDestroyed(), true);
-  assert.equal(feature.list.children.findByModel(feature.visible.get(5)), overlapping);
-  assert.equal(overlapping.getUI('draft')[0], draft);
-  assert.equal(draft.value, 'Keep while visible');
-  assert.equal(feature.list.el.style.top, '80px');
-  feature.viewport.el.scrollTop = 4000000;
-  feature.viewport.el.dispatchEvent(new window.Event('scroll'));
-  assert.equal(overlapping.isDestroyed(), true);
-  assert.equal(feature.visible.at(feature.visible.length - 1).id, 99999);
-  assert.equal(feature.list.children.length, feature.capacity);
-  assert.equal(peak, feature.capacity);
-  const rows = feature.list.children.toArray();
-  const viewportElement = feature.viewport.el;
-  feature.destroy();
-  assert.equal(active, 0);
-  assert.equal(rows.every(row => row.isDestroyed()), true);
-  assert.equal(host.children.length, 0);
-  const before = constructions;
-  viewportElement.scrollTop = 0;
-  viewportElement.dispatchEvent(new window.Event('scroll'));
-  assert.equal(constructions, before, 'teardown removes the application scroll listener');
 } finally {
   feature?.destroy();
   dom.window.close();
   delete globalThis.window;
   delete globalThis.document;
 }
-console.log('Managed list examples passed: selection, identity, bounded rows, and cleanup.');
+console.log('Interactive list example passed: selection, updates, identity, and cleanup.');

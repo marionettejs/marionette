@@ -1,14 +1,10 @@
-# Interactive lists and bounded rendering
+# Interactive lists
 
-Use a `CollectionView` with a child `View` for repeated interactive rows. It owns
-row creation, event delegation, removal, and destruction. A parent `View` can own
-the surrounding controls and show the list through a Region. Replacing a list's
-HTML on every selection or scroll discards row identity, input state, and the
-framework's child ownership.
-
-For a large dataset, keep only a bounded window in the rendered collection.
-Marionette does not provide a virtual scroller: the application owns window
-calculation, dimensions, scroll position, accessibility, and offscreen state.
+Use a `CollectionView` when repeated rows need independent View identity, state,
+or cleanup. It owns row creation, event delegation, removal, and destruction.
+A parent View can show the list through a Region. Simple repeated markup can
+remain in a View template when a full snapshot update meets the task; delegated
+DOM events alone do not require one View per row.
 
 ## An ordinary interactive list
 
@@ -89,84 +85,18 @@ recreates children. With a plain array, explicit `render()` is how changed
 membership becomes visible, so use an observable source when preserving rows
 across structural updates matters.
 
-## A fixed-height viewport for a large list
+## Large datasets
 
-Save this second module as `bounded-list.js` beside `interactive-list.js`.
-Supply immutable records with unique ids, a positive fixed row height, and a
-positive viewport height. It keeps at most the visible rows plus two overscan
-bands and one partial row. The source array may contain 100,000 records without
-creating 100,000 models or Views.
+Measure the application's rendering and interaction costs before changing its
+list architecture. Consider filtering or pagination when they fit the workflow.
+If the interface needs continuous scrolling and rendering the whole dataset is
+costly, consider a virtualizer appropriate to that interface. Marionette does
+not supply one. Keep DOM ownership explicit at that integration boundary and
+decide how selection, drafts, focus, and subscriptions behave when a row leaves
+the rendered set.
 
-<!-- executable-example: bounded-managed-list -->
-```javascript
-import { Collection } from '@mnjs/data';
-import { List, runtime } from './interactive-list.js';
-
-export function mountWindow(host, records, {
-  rowHeight = 40, height = 400, overscan = 2, observeRow
-} = {}) {
-  const capacity = Math.ceil(height / rowHeight) + 2 * overscan + 1;
-  const visible = new Collection();
-  const list = new List({ collection: visible, childViewOptions: { observeRow } });
-  const Viewport = runtime.View.extend({
-    template: () => '<div class="spacer"><div class="rows"></div></div>',
-    regions: { rows: '.rows' },
-    onRender() {
-      Object.assign(this.el.style, { height: `${height}px`, overflowY: 'auto' });
-      const spacer = this.el.querySelector('.spacer');
-      Object.assign(spacer.style, { height: `${records.length * rowHeight}px`, position: 'relative' });
-      Object.assign(list.el.style, { position: 'absolute', margin: '0', padding: '0', width: '100%' });
-      this.showChildView('rows', list);
-      this.el.addEventListener('scroll', update);
-    },
-    onBeforeDestroy() { this.el.removeEventListener('scroll', update); }
-  });
-  const viewport = new Viewport();
-  function update() {
-    const start = Math.min(Math.max(0, records.length - capacity),
-      Math.max(0, Math.floor(viewport.el.scrollTop / rowHeight) - overscan));
-    const next = records.slice(start, start + capacity);
-    const ids = new Set(next.map(record => record.id));
-    // Remove departing rows first to keep the live row count bounded.
-    visible.remove(visible.models.filter(model => !ids.has(model.id)));
-    for (const [index, record] of next.entries()) {
-      const model = visible.get(record.id) || visible.add(record);
-      visible.move(model, index);
-      const row = list.children.findByModel(model);
-      Object.assign(row.el.style, { height: `${rowHeight}px`, boxSizing: 'border-box', overflow: 'hidden' });
-    }
-    list.el.style.top = `${start * rowHeight}px`;
-  }
-  const region = new runtime.Region({ el: host });
-  region.show(viewport);
-  update();
-  return {
-    viewport, list, visible, capacity,
-    destroy() {
-      region.destroy();
-      visible.destroy();
-    }
-  };
-}
-```
-
-Scrolling reconciles only the bounded collection. Rows shared by consecutive
-windows keep their View and DOM identity. Departing rows are destroyed and release
-their application subscriptions; returning rows are new instances. The viewport's
-Region owns the list and the outer Region owns the viewport. Teardown removes
-the scroll listener, destroys the managed rows, and releases collection observers.
-
-This is a fixed-height composition recipe, not a complete accessible virtualizer
-or a measured performance result. It does not handle variable heights, dynamic
-source replacement, keyboard navigation across windows, or persistent selection
-and drafts. In particular, a focused row leaving the window is destroyed. An
-application must decide whether to pin that row, move focus, or persist its edits;
-use an established virtualizer when those requirements are substantial. Avoid
-rerendering the viewport after mounting; that would replace its owned list.
-
-The executable fixture checks selection, surviving row/input identity, bounded
-construction, row disposal, and teardown using these exact snippets. Its DOM
-environment does not establish browser scroll geometry or focus retention.
-See [CollectionView](./marionette.collectionview.md),
+The executable fixture checks selection, targeted updates, surviving row/input
+identity, and cleanup using the exact example above. See
+[CollectionView](./marionette.collectionview.md),
 [observable sources](./data.api.md#optional-mnjsdata-sources), and
 [resource cleanup](./resource-cleanup.md) for the underlying contracts.

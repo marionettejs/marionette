@@ -63,8 +63,8 @@ adapter. Record the chosen provider and its registration point once in the
 application's own architecture notes so later agents do not choose again.
 
 Use a View for interface ownership, a Region for placement, and a CollectionView
-for repeated children. Use an Application when work has an asynchronous feature
-lifecycle. A plain function or class is enough when it needs none of these
+for repeated children when items need independent ownership. Use an Application
+when work has an asynchronous feature lifecycle. A plain function or class is enough when it needs none of these
 contracts. The [class guide](./classes.md) explains the boundaries.
 
 Before expanding a small example into an application, revisit its data and ownership

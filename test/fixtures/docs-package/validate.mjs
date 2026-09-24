@@ -64,7 +64,7 @@ parser.walkTokens(parser.lexer(discovery), token => {
   if (token.type === 'link') { discoveryLinks.push(token.href); }
 });
 assert.ok(discoveryLinks.includes('docs/quick-start.md'));
-assert.ok(discoveryLinks.includes('docs/list-composition.md'));
+assert.ok(discoveryLinks.includes('docs/agents.md'));
 for (const href of discoveryLinks) {
   await contained(resolve(packageRoot, href));
 }

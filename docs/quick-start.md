@@ -1,8 +1,10 @@
 # Quick start
 
-Use View for a component, a named Region to place another component, and
-CollectionView for repeated interactive rows. Start here for working API shapes;
-use the [compact reference](./compact-reference.md) for lifecycle contracts.
+Use this page for an introduction to common API shapes. A View owns a component,
+a Region places another component, and a CollectionView manages repeated child
+Views. Use child Views when rows need independent identity, state, or cleanup;
+simple static or snapshot markup can stay in a View template. See the
+[compact reference](./compact-reference.md) for lifecycle contracts.
 
 ## A screen with managed rows
 
@@ -51,16 +53,17 @@ region.show(screen);
 The labels above are fixed trusted values. The Region renders and attaches the
 screen. The screen owns its rows Region; the CollectionView owns each row.
 Destroying the outer Region destroys the entire tree and its managed listeners.
-Do not replace the list container with `innerHTML` to update rows: that bypasses
-child ownership and discards identity, focus, and widget state.
+Replacing this managed child container manually bypasses child ownership and
+discards its rows' DOM identity. Update through the owning Views or data source.
+A View template can render repeated markup directly when separate child lifetimes
+and preservation of row state are unnecessary.
 
 A plain array is a snapshot. Mutating it does not notify the CollectionView;
 call `rows.render()` after an explicit snapshot change. That full render destroys
 and recreates children. When membership changes should preserve surviving rows,
 use an observable collection and its supported DataApi. The
 [interactive list recipe](./list-composition.md) shows `@mnjs/data` setup,
-selection, updates, and cleanup. The same page shows a bounded viewport for large
-lists; do not construct 100,000 child Views merely to hide most of them.
+selection, updates, and cleanup.
 
 See [View](./marionette.view.md), [Region](./marionette.region.md), and
 [CollectionView](./marionette.collectionview.md) for their full contracts.
@@ -151,8 +154,6 @@ Valid synchronous construction/render/cleanup callbacks are required; see the
   existing integration when it meets the task.
 - Pass data into function templates. Supply extra display values with
   `templateContext`; do not depend on template `this` being a View.
-- Use named Regions and CollectionView child Views instead of composing all
-  interactive children into one large HTML string.
 - Plain arrays do not emit change notifications. Choose an observable DataApi
   for incremental row updates; calling `render()` is a full rebuild.
 
