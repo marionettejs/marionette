@@ -1,0 +1,37 @@
+test/types/error.cts
+  s_55787f6149f525::t_23a54b4c343de1 1,42-50
+test/types/error.mts
+  s_55787f6149f525::t_23a54b4c343de1 1,42-50
+packages/utils/src/error.ts
+  s_55787f6149f525::t_23a54b4c343de1 21
+  s_55787f6149f525::t_6a2aa40795a696 74-77
+  s_55787f6149f525::t_1ea618a9d97635 47,72-73,78
+config/api-contracts/inventory.json
+  s_55787f6149f525::t_0baf842e5ed4d4 8050
+  s_55787f6149f525::t_23a54b4c343de1 2923-2925,2964-2966,5768-5770,5809-5811,8046,8075,8078,8084,8087,8091,8100,8138
+  s_55787f6149f525::t_9158dcdfb4af6b 8158
+docs-site/README.md
+  s_55787f6149f525::t_e61bff8f4c3b74 108-116
+docs/diagnostic-catalog.md
+  s_55787f6149f525::t_733ea52220d783 19,49-55,147
+test/browser/ownership-boundaries.spec.mjs
+  s_55787f6149f525::t_2891c67d4d6ddd 124-137
+test/unit/modules-error.spec.js
+  s_55787f6149f525::t_b61edfb9794f52 3,33-59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "e4d36a223b2630aa13cb9b627a334fbe96200e8b",
+  "prompts": {},
+  "sessions": {
+    "s_55787f6149f525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d2b8-cb39-7233-916c-437345981b78",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
