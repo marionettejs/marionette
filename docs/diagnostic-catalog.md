@@ -38,7 +38,9 @@ try {
 `message`, `stack`, and the existing `url` property. The code is the stable lookup
 key for the repository-generated diagnostic reference. Error names preserve useful
 framework categories such as `ViewError`, `RegionError`, and `CollectionViewError`.
-Messages and legacy URLs are explanatory prose and are not machine contracts.
+Coded errors link to `https://marionettejs.com/errors/<code>/` through `url`,
+independent of the installed prerelease version. Messages are explanatory prose;
+branch on the diagnostic code rather than parsing the message.
 
 Production errors copy only supported Error fields and the compact code. They do not
 import the catalog or perform runtime catalog lookup. Engines with

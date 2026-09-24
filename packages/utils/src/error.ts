@@ -2,7 +2,6 @@
 // -----
 
 import extend from './extend.ts';
-import packageJson from '../package.json' with { type: 'json' };
 
 export interface MarionetteErrorInstance extends Omit<Error, 'name' | 'message'> {
   name: unknown;
@@ -29,13 +28,13 @@ type NativeErrorConstructor = ErrorConstructor & {
 };
 
 type ErrorPrototype = Pick<MarionetteErrorInstance, 'urlRoot' | 'url' | 'captureStackTrace' | 'toString'> & {
-  constructor(this: MarionetteErrorInstance, options: NonNullable<unknown>): void;
+  constructor(this: MarionetteErrorInstance, options: NonNullable<unknown>): MarionetteErrorInstance;
 } & ThisType<MarionetteErrorInstance>;
 
 const errorProps = ['code', 'description', 'fileName', 'lineNumber', 'name', 'message', 'number', 'url'] as const;
 
 const MarionetteError: MarionetteErrorConstructor = extend.call(Error, {
-  urlRoot: `http://marionettejs.com/docs/v${packageJson.version}/`,
+  urlRoot: 'https://marionettejs.com/docs/',
 
   url: '',
 
@@ -43,7 +42,9 @@ const MarionetteError: MarionetteErrorConstructor = extend.call(Error, {
   // which makes `new MarionetteError(...)` throw at runtime.
   // eslint-disable-next-line object-shorthand
   constructor: function(this: MarionetteErrorInstance, options: NonNullable<unknown>) {
-    const error = (Error as (message?: unknown) => Error).call(this, (options as { message?: unknown }).message);
+    // Construct a native Error so browser exception reporting retains its message and stack.
+    const nativeError = Reflect.construct(Error, [(options as { message?: unknown }).message], new.target) as Error;
+    const error = nativeError as unknown as MarionetteErrorInstance;
     const nativeProperties: Partial<Record<typeof errorProps[number], unknown>> = {};
     const optionProperties: Partial<Record<typeof errorProps[number], unknown>> = {};
 
@@ -62,13 +63,12 @@ const MarionetteError: MarionetteErrorConstructor = extend.call(Error, {
       }
     }
 
-    if (this !== undefined && this !== null) {
-      Object.assign(this, nativeProperties, optionProperties);
-    }
-
-    this.captureStackTrace(error);
-
-    this.url = this.urlRoot + (this.url as string);
+    Object.assign(error, nativeProperties, optionProperties);
+    error.captureStackTrace(nativeError);
+    error.url = typeof error.code === 'string' ?
+      `https://marionettejs.com/errors/${encodeURIComponent(error.code)}/` :
+      error.urlRoot + (error.url as string);
+    return error;
   },
 
   captureStackTrace(fallbackError: Error) {

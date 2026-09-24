@@ -329,6 +329,21 @@ describe('CollectionView normalized reconciliation', function() {
     view.destroy();
   });
 
+  it('distinguishes a repeated model from distinct models with colliding keys', function() {
+    const model = { id: 1 };
+    for (const [models, message] of [
+      [[model, model], 'The same model appears more than once'],
+      [[model, { id: 1 }], 'duplicate key "1" for distinct models']
+    ]) {
+      const view = new ListView({ collection: { models } });
+      try {
+        expect(() => view.render()).toThrow(message);
+      } finally {
+        view.destroy();
+      }
+    }
+  });
+
   it('diagnoses duplicate, missing, and unstable keys', function() {
     const duplicate = { id: 1, name: 'duplicate' };
     expect(() => new ListView({ collection: { models: [duplicate, duplicate] } }).render())
