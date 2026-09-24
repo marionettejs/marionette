@@ -1,0 +1,23 @@
+config/release-validation.json
+  s_55787f6149f525::t_38d98838c8d07d 180-187
+test/types/error.cts
+  s_55787f6149f525::t_4e1ac5b754409c 44,50
+test/types/error.mts
+  s_55787f6149f525::t_0f72525dca868e 44,50
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "0d58e4b4e2b0aa4b40f97ea2305b19c5e6442212",
+  "prompts": {},
+  "sessions": {
+    "s_55787f6149f525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d2b8-cb39-7233-916c-437345981b78",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
