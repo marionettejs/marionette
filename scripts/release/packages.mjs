@@ -20,3 +20,16 @@ export function validatePackageInventory(packages) {
     }
   }
 }
+
+export function stagedCoreManifest(pkg, documentation) {
+  return {
+    ...pkg,
+    files: [...new Set([
+      ...(pkg.files || []),
+      ...documentation.pages.map(entry => entry.source),
+      ...documentation.assets.map(entry => entry.source),
+      'docs-manifest.json',
+      'starter/',
+    ])],
+  };
+}

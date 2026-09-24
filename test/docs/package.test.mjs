@@ -19,7 +19,7 @@ test('packed guides keep source bytes and resolve at repository-relative paths',
     pages: [{ source: 'docs/view.md' }, { source: 'docs/guide(v2).md' }], assets: []
   };
   const pkg = JSON.stringify({ name: 'marionette-link-fixture', version: '1.0.0',
-    files: ['dist/', 'scripts/', 'docs/', 'docs-manifest.json', 'readme.md', 'upgradeGuide.md', 'license.txt'], main: 'dist/index.js' });
+    files: ['dist/', 'readme.md', 'upgradeGuide.md', 'license.txt'], main: 'dist/index.js' });
   const source = '[View\nreference](docs/view.md#render "View")\n' +
     '[Guide][view]\n\n[view]: <docs/view.md#render> "View"\n' +
     '[Parentheses](docs/guide(v2).md) [License](license.txt) [Upgrade](upgradeGuide.md)\n' +
@@ -30,6 +30,8 @@ test('packed guides keep source bytes and resolve at repository-relative paths',
     'license.txt': 'License', 'dist/index.js': 'export const value = 1;\n',
     '.docs-export/docs/view.md': '# View\n\n## Render\n', '.docs-export/docs/guide(v2).md': '# Guide\n'
   })) { await writeFile(resolve(root, file), content); }
+  const [rootPack] = JSON.parse(execFileSync('npm', ['pack', '--dry-run', '--ignore-scripts', '--json'], { cwd: root, encoding: 'utf8' }));
+  assert.equal(rootPack.files.some(file => /^(scripts|docs|test|config|packages|skills)\//.test(file.path)), false);
   await stagePackage(root, manifest);
   await writeFile(resolve(root, '.package/stale.txt'), 'stale');
   await stagePackage(root, manifest);
@@ -38,7 +40,11 @@ test('packed guides keep source bytes and resolve at repository-relative paths',
   const tarball = resolve(root, packed.filename);
   const files = new Set(execFileSync('tar', ['-tzf', tarball], { encoding: 'utf8' }).trim().split('\n'));
   const unpack = file => execFileSync('tar', ['-xOf', tarball, `package/${file}`], { encoding: 'utf8' });
-  assert.equal(unpack('package.json'), pkg);
+  assert.deepEqual(JSON.parse(unpack('package.json')), {
+    ...JSON.parse(pkg),
+    files: ['dist/', 'readme.md', 'upgradeGuide.md', 'license.txt', 'docs/view.md', 'docs/guide(v2).md', 'docs-manifest.json', 'starter/'],
+  });
+  assert.equal(await readFile(resolve(root, 'package.json'), 'utf8'), pkg);
   assert.equal(unpack('readme.md'), source);
   assert.equal(unpack('upgradeGuide.md'), '[View](docs/view.md#render)');
   assert.equal(unpack('dist/index.js'), 'export const value = 1;\n');
