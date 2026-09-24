@@ -1,0 +1,41 @@
+.gitignore
+  s_997c0e1518baee::t_c5c2c7dc437e3b 35
+CONTRIBUTING.md
+  s_997c0e1518baee::t_3671ef2cdd27b6 31-40
+build/clean.js
+  s_997c0e1518baee::t_72d1306c01fb00 4
+eslint.config.mjs
+  s_997c0e1518baee::t_7fefddf17aab48 13
+scripts/agent-benchmark/harness.mjs
+  s_997c0e1518baee::t_6e32b510f6dfbf 79
+scripts/docs/package.mjs
+  s_997c0e1518baee::t_c4df3c006b5bbf 5,57-58
+scripts/docs/stage-package.mjs
+  s_997c0e1518baee::t_2728668c94acaf 1-62
+scripts/release/build-artifact.mjs
+  s_997c0e1518baee::t_5d5b2510795f29 132
+test/browser/global-setup.mjs
+  s_997c0e1518baee::t_05c20e0ffeb539 40
+test/docs/package.test.mjs
+  s_997c0e1518baee::t_afed7b77a3489a 1-61
+test/fixtures/run.mjs
+  s_997c0e1518baee::t_c4cbe7105a33ac 190
+test/release/build.test.mjs
+  s_997c0e1518baee::t_27bdbc4df91831 2,19,41-42,107-109
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "3285230a923b5438b4d932ed15b90cf5af46a756",
+  "prompts": {},
+  "sessions": {
+    "s_997c0e1518baee": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d1c7-6513-7c31-8c05-612db0d115b3",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
