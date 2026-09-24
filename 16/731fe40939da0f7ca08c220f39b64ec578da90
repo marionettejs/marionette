@@ -1,0 +1,31 @@
+.claude-plugin/marketplace.json
+  s_8955bbd7175126::t_13374d74f06db8 1-13
+plugins/marionette/.mcp.json
+  s_8955bbd7175126::t_13374d74f06db8 1-8
+.cursor-plugin/marketplace.json
+  s_8955bbd7175126::t_13374d74f06db8 1-13
+test/agent-docs/plugin.test.mjs
+  s_8955bbd7175126::t_2522595b5c5dda 27-35,108-115
+  s_8955bbd7175126::t_c42c622d67d5cf 129-160
+docs/agent-tools.md
+  s_8955bbd7175126::t_e4c464c45c56fa 48-49,56-62,76-77,84-88
+  s_8955bbd7175126::t_31679c552a2042 12-28,42-47,50-55,63-75,78-83,89-91,231-235
+plugins/marionette/.claude-plugin/plugin.json
+  s_8955bbd7175126::t_13374d74f06db8 1-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "16731fe40939da0f7ca08c220f39b64ec578da90",
+  "prompts": {},
+  "sessions": {
+    "s_8955bbd7175126": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d360-d7d3-7430-be80-ac23f9be4ebd",
+        "model": "gpt-6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
