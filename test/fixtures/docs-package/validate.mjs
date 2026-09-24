@@ -68,6 +68,8 @@ assert.ok(discoveryLinks.includes('docs/list-composition.md'));
 for (const href of discoveryLinks) {
   await contained(resolve(packageRoot, href));
 }
+assert.ok(!(await files(packageRoot)).some(path => path.startsWith('config/api-contracts/') ||
+  path.startsWith('scripts/')), 'Build tooling and contract inventories must not be packed');
 assert.ok(manifest.assets.every(asset => !asset.source.startsWith('config/api-contracts/') &&
   !asset.source.startsWith('scripts/api-contracts/')),
 'Build contract data must not obscure consumer guide searches');
