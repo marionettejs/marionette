@@ -70,7 +70,10 @@ See [View](./marionette.view.md), [Region](./marionette.region.md), and
 Use `events` when the handler needs an input value or keyboard information.
 Use `triggers` when a DOM interaction should become a View event, as above.
 `ui` names selectors; `getUI(name)` returns an array-like query result.
-A Behavior contributes reusable interaction to its owning View.
+A Behavior contributes reusable interaction to its owning View. In a delegated
+DOM handler, `event.delegateTarget` is the element matched by the event selector;
+`event.target` can be a nested icon or span, and `event.currentTarget` is the
+listener host. Use `delegateTarget` when you need the matched control.
 
 <!-- executable-example: quick-start-behavior -->
 ```javascript
@@ -78,14 +81,14 @@ import { Behavior, View } from 'marionette';
 
 const ClearInput = Behavior.extend({
   events: { 'click .clear': 'clear' },
-  clear() {
+  clear(event) {
     this.view.getUI('query')[0].value = '';
-    this.view.trigger('query:changed', '');
+    this.view.trigger('query:changed', '', event.delegateTarget);
   }
 });
 
 export const Search = View.extend({
-  template: () => '<label>Search <input class="query"></label><button class="clear" type="button">Clear</button>',
+  template: () => '<label>Search <input class="query"></label><button class="clear" type="button"><span>Clear</span></button>',
   ui: { query: '.query' },
   behaviors: [ClearInput],
   events: { 'input @ui.query': 'updateQuery' },
@@ -109,8 +112,7 @@ channels when components need communication beyond a direct owner-child link.
 
 <!-- executable-example: quick-start-application -->
 ```javascript
-import { Application, View } from 'marionette';
-import { Radio } from '@mnjs/radio';
+import { Application, Radio, View } from 'marionette';
 
 const Ready = View.extend({ template: () => '<p>Ready</p>' });
 const Feature = Application.extend({
