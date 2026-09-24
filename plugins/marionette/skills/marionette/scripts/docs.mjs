@@ -1,8 +1,9 @@
 import { createHash } from 'node:crypto';
 import { readFile, realpath, stat } from 'node:fs/promises';
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
+import { searchSections } from './search.mjs';
 
-const usage = 'Usage: node docs.mjs [--project PATH] [--package-root PATH] [--list | --page SOURCE]';
+const usage = 'Usage: node docs.mjs [--project PATH] [--package-root PATH] [--list | --page SOURCE | --search QUERY | --section ID]';
 const hash = value => createHash('sha256').update(value).digest('hex');
 const json = async path => JSON.parse(await readFile(path, 'utf8'));
 
@@ -36,12 +37,12 @@ async function main() {
     if (argument === '--list') {
       if (mode) { throw new Error(usage); }
       mode = 'list';
-    } else if (['--project', '--package-root', '--page'].includes(argument)) {
+    } else if (['--project', '--package-root', '--page', '--search', '--section'].includes(argument)) {
       const value = args[++index];
       if (!value || value.startsWith('--')) { throw new Error(usage); }
-      if (argument === '--page') {
+      if (['--page', '--search', '--section'].includes(argument)) {
         if (mode) { throw new Error(usage); }
-        mode = 'page';
+        mode = argument.slice(2);
       }
       options[argument.slice(2)] = value;
     } else {
@@ -93,7 +94,35 @@ async function main() {
     sourceDirty: manifest.sourceDirty,
     contentSha256: digest,
   };
-  if (mode === 'page') {
+  if (mode === 'search' || mode === 'section') {
+    const entry = files.get('docs-sections.json');
+    if (!entry) { throw new Error('This artifact has no section index. Use --page or search its installed Markdown directly.'); }
+    const index = JSON.parse(entry.content.toString('utf8'));
+    if (index.schemaVersion !== 1 || !Array.isArray(index.sections)) {
+      throw new Error('Unsupported documentation section index.');
+    }
+    const pageSources = new Set(manifest.pages.map(page => page.source));
+    const ids = new Set();
+    for (const section of index.sections) {
+      if (typeof section.id !== 'string' || ids.has(section.id) || !pageSources.has(section.source) ||
+          typeof section.heading !== 'string' || !Array.isArray(section.ancestors) ||
+          !Number.isInteger(section.start) || !Number.isInteger(section.end) || section.start < 0 ||
+          section.end < section.start || section.end > files.get(section.source).content.toString('utf8').length) {
+        throw new Error('Invalid documentation section index.');
+      }
+      ids.add(section.id);
+    }
+    if (mode === 'search') {
+      if (!options.search.trim() || options.search.length > 200) { throw new Error('Search requires 1–200 characters.'); }
+      console.log(JSON.stringify({ ...provenance, query: options.search,
+        results: searchSections(index.sections, files, options.search) }, null, 2));
+    } else {
+      const section = index.sections.find(value => value.id === options.section);
+      if (!section) { throw new Error('Unknown section ID. Use --search against this installed artifact.'); }
+      console.log(JSON.stringify({ ...provenance, ...section }));
+      console.log(files.get(section.source).content.toString('utf8').slice(section.start, section.end));
+    }
+  } else if (mode === 'page') {
     const page = manifest.pages.find(entry => entry.source === options.page);
     if (!page) { throw new Error('Page is not in this package manifest. Use --list to find its exact source path.'); }
     console.log(JSON.stringify({ ...provenance, source: page.source, sha256: page.sha256 }));

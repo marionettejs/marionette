@@ -366,6 +366,14 @@ DOM API, `view.getUI('save')` and `view.ui.save` are native `NodeList`
 instances. Marionette rebinds those collections to replacement nodes after
 each render.
 
+### `getUI(name)`: read bound elements
+
+`getUI(name)` reads the named selector result without rendering or changing ownership.
+With the default DomApi it returns a native `NodeList`, not a single element; use
+`this.getUI('save')[0]` for the first match. Read it in `onRender()` or later.
+Rendering replaces the binding, so read it again after a render instead of retaining
+a collection of old nodes. An installed DomApi may supply a different array-like result.
+
 Use `getUI(name)` after declaring a `ui` map and binding its elements when
 application code needs a named element. Calling it without a declared map,
 before binding, or after unbinding throws

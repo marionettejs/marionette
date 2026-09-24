@@ -1,13 +1,17 @@
 # Try the Marionette v5 release candidate
 
-`5.0.0-rc.1` is prepared for release-candidate evaluation. Registry installation requires
+`5.0.0-rc.2` is prepared for release-candidate evaluation. Registry installation requires
 a published release; use certified tarballs before publication. Release promotion
 sets npm `latest` to the current prerelease until stable v5. A matching version
 string alone does not prove that a locally built artifact matches a release.
 
-## RC.1 scope
+## RC.2 scope
 
-RC.1 retains beta.6 runtime behavior and provisionally freezes its public API.
+RC.2 carries forward the provisionally frozen API and the post-RC.1 fixes for
+native error reporting and diagnostic links. It adds task-first documentation,
+focused installed-document retrieval, and matching consumer skill instructions.
+The release metadata is prepared; publication remains disabled pending separate
+authorization. RC.1 results do not certify RC.2 artifacts.
 Candidate certification is required before publication; consumer closeout,
 independent maintenance evaluation, and stabilization are required before stable.
 Track their evidence in [issue #574](https://github.com/marionettejs/marionette/issues/574).
@@ -64,7 +68,7 @@ pins matching runtime dependencies; a candidate kit instead supplies exact local
 tarballs and a complete lockfile. Both include application agent instructions,
 typecheck, consumer lint, unit tests, build, and a browser-test command.
 
-RC.1 retains the beta.5 ownership-aware root
+RC.2 retains the beta.5 ownership-aware root
 cleanup, existing Regions on start/restart, and static child declarations. When
 upgrading from beta.3 or earlier, move asynchronous `onBefore*` preparation to
 the corresponding `prepare*` methods.

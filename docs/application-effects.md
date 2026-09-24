@@ -84,7 +84,7 @@ During pending stop permission the run and its screen remain active, so this pol
 still permits completion; a rejected stop keeps that screen usable. If the product
 must freeze interaction earlier, define that policy explicitly.
 
-For cancellation of the work itself, see the [form example](./forms-and-accessibility.md#save-without-replacing-the-users-input).
+For cancellation of the work itself, see the [form example](./forms-and-accessibility.md#save-a-form-without-losing-focus).
 Neither canceling a client request nor suppressing its completion proves that a
 server write was rolled back. The [installed completion checks](https://github.com/marionettejs/marionette/blob/master/test/fixtures/docs-application-guides/completion.mjs)
 execute this example and the loading shell against packed packages.

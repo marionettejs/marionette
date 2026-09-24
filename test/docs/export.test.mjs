@@ -7,6 +7,7 @@ import { posix, resolve } from 'node:path';
 import test from 'node:test';
 import { Marked } from 'marked';
 import { contentDigest, exportDocs, readResources, sha256, validateNavigation } from '../../scripts/docs/export.mjs';
+import { documentSections, isConsumerPage } from '../../scripts/docs/sections.mjs';
 
 const markdownParser = new Marked();
 
@@ -49,9 +50,10 @@ test('export CLI labels stable and prerelease documentation from the selected po
     for (const path of ['scripts/docs', 'scripts/release', 'docs-site', 'docs', 'config/diagnostics']) {
       await mkdir(resolve(directory, path), { recursive: true });
     }
-    for (const path of ['scripts/docs/export.mjs', 'scripts/release/publication.mjs', 'config/release-promotion.json']) {
+    for (const path of ['scripts/docs/export.mjs', 'scripts/docs/sections.mjs', 'scripts/release/publication.mjs', 'config/release-promotion.json']) {
       await cp(new URL(`../../${path}`, import.meta.url), resolve(directory, path));
     }
+    await cp(new URL('../../node_modules/marked', import.meta.url), resolve(directory, 'node_modules/marked'), { recursive: true });
     const policyPath = resolve(directory, 'config/release-promotion.json');
     const policy = JSON.parse(await readFile(policyPath, 'utf8'));
     policy.npm.prereleaseTag = 'next';
@@ -127,7 +129,7 @@ test('exports every current top-level guide with exact bytes and reproducible pr
   assert.match(manifest.sourceRevision, /^[a-f0-9]{40}$/);
   assert.equal(typeof manifest.sourceDirty, 'boolean');
   const resources = JSON.parse(await readFile(new URL('../../docs-site/resources.json', import.meta.url), 'utf8'));
-  assert.deepEqual(manifest.assets.map(asset => asset.source), resources);
+  assert.deepEqual(manifest.assets.map(asset => asset.source), [...resources, 'docs-sections.json']);
   for (const source of ['config/diagnostics/catalog.json', 'skills/marionette/agents/openai.yaml',
     'skills/marionette/scripts/docs.mjs',
     'test/fixtures/docs-routing/validate.mjs', 'benchmarks/docs/results/2026-09-08/latest-navigation/solution.mjs']) {
@@ -139,9 +141,16 @@ test('exports every current top-level guide with exact bytes and reproducible pr
   }
   const entries = [...manifest.pages, ...manifest.assets];
   for (const page of entries) {
-    const original = await readFile(new URL(`../../${page.source}`, import.meta.url));
     const exported = await readFile(new URL(`../../.docs-export/${page.source}`, import.meta.url));
-    assert.deepEqual(exported, original);
+    if (page.source === 'docs-sections.json') {
+      const expected = (await Promise.all(manifest.pages.filter(isConsumerPage)
+        .map(async value => documentSections(value.source,
+          await readFile(new URL(`../../${value.source}`, import.meta.url), 'utf8'))))).flat();
+      assert.deepEqual(JSON.parse(exported), { schemaVersion: 1, sections: expected });
+    } else {
+      const original = await readFile(new URL(`../../${page.source}`, import.meta.url));
+      assert.deepEqual(exported, original);
+    }
     assert.equal(sha256(exported), page.sha256);
   }
   assert.equal(contentDigest(entries), manifest.contentSha256);

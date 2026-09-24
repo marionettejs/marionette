@@ -6,7 +6,7 @@ A parent View can show the list through a Region. Simple repeated markup can
 remain in a View template when a full snapshot update meets the task; delegated
 DOM events alone do not require one View per row.
 
-## An ordinary interactive list
+## Add, remove, and reorder editable rows
 
 Save this module as `interactive-list.js`. It uses the optional `@mnjs/data`
 package for observable structural updates. The isolated runtime keeps this

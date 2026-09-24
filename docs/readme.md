@@ -50,13 +50,9 @@ removes its event handlers. The `#app` mount remains, ready for the next View.
 
 ## Give it a little more to do
 
-| You want to… | Next step |
-| --- | --- |
-| Show a list that changes | [Render children with CollectionView](marionette.collectionview.md) |
-| Open a detail screen | [Show and replace a View](marionette.region.md) |
-| Save a form without losing a draft | [Forms and accessibility](forms-and-accessibility.md) |
-| Connect an existing router or data source | [Choose integrations](choosing-integrations.md) |
-| Check that it works | [Test an application](testing.md) |
+Use the [task table](./agents.md#read-for-the-task) for changing lists, forms,
+navigation, integrations, and cleanup. [Testing](./testing.md) explains how to
+verify the affected interaction.
 
 You can keep Backbone models, an existing router, or a preferred template system.
 Choose each integration for the job it does; the button above needs none of them.

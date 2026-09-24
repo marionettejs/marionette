@@ -2,12 +2,12 @@ import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { contentDigest, exportDocs } from './export.mjs';
+import { isConsumerPage } from './sections.mjs';
 import { stagePackage } from './stage-package.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const manifest = await exportDocs();
-manifest.pages = manifest.pages.filter(page =>
-  page.section !== 'Maintaining Marionette');
+manifest.pages = manifest.pages.filter(isConsumerPage);
 manifest.assets = manifest.assets.filter(asset => !asset.source.startsWith('benchmarks/') &&
   !asset.source.startsWith('config/api-contracts/') &&
   !asset.source.startsWith('scripts/api-contracts/') && asset.source !== 'ROADMAP.md' && !asset.source.startsWith('test/unit/') && asset.source !== 'test/README.md');

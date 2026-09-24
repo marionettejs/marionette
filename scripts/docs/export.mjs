@@ -4,6 +4,7 @@ import { mkdir, readFile, realpath, rename, rm, writeFile } from 'node:fs/promis
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { releaseChannel } from '../release/publication.mjs';
+import { documentSections, isConsumerPage } from './sections.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 export const sha256 = value => createHash('sha256').update(value).digest('hex');
@@ -81,6 +82,10 @@ export async function exportDocs() {
   })));
   const pages = contents.map(({ page, bytes }) => ({ ...page, sha256: sha256(bytes) }));
   const assetContents = await readResources(root, assetSources, navigation.map(page => page.source));
+  const sections = contents.filter(({ page }) => isConsumerPage(page))
+    .flatMap(({ page, bytes }) => documentSections(page.source, bytes.toString('utf8')));
+  assetContents.push({ source: 'docs-sections.json',
+    bytes: Buffer.from(`${JSON.stringify({ schemaVersion: 1, sections })}\n`) });
   const assets = assetContents.map(({ source, bytes }) => ({ source, sha256: sha256(bytes) }));
   const manifest = {
     schemaVersion: 1,

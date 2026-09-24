@@ -44,6 +44,27 @@ applications own only their selected integrations, architecture, and verificatio
 commands. Do not require each application to vendor Marionette's skill or repeat
 the MCP configuration when the plugin is available.
 
+## Keep task routing and retrieval aligned
+
+The table in `docs/agents.md` owns consumer task routing. Edit that table, then run
+`node scripts/docs/agent-routes.mjs --write` to update the skill's table and plugin
+copy. `docs:check` rejects routing drift. Other entry points link to the table or
+to a specific task; do not maintain competing catalogs of first reads.
+
+Use `docs/agent-tools.md` for one-time client setup and `docs/agent-retrieval.md`
+for recurring lookup. Name important public symbols in reference headings and
+state their arguments, result, setup, and ownership in the same section. A heading
+match without the argument contract is not sufficient retrieval evidence.
+
+Package generation builds `docs-sections.json` from consumer Markdown with the
+build-time parser and includes its hash in the package documentation manifest.
+The local helper reads this index without loading a Markdown parser or application
+code. Its IDs are local source positions, not website anchors or MCP IDs. Preserve
+complete section boundaries and provenance. `npm run test:agent-docs` includes
+real-corpus retrieval controls; those are deterministic checks, not fresh-agent
+usability trials. The hosted MCP implementation lives in the website repository;
+reading-copy sync does not deploy these changes or change its search algorithm.
+
 ## Start each page with the decision it helps make
 
 A task guide follows this order when the task needs each part:

@@ -5,7 +5,7 @@ A Marionette View owns the form and its pending save; the application supplies t
 persistence operation. A DataApi or StateApi is not required for this local draft.
 Choose a shared observable source only when other owners need to observe it.
 
-## Save without replacing the user's input
+## Save a form without losing focus
 
 This complete module uses the default DOM and event implementations. The template
 contains only trusted, fixed markup. User data is assigned through `value` or

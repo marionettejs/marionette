@@ -24,7 +24,10 @@ for behavioral evidence.
 `docs:export` writes `.docs-export/manifest.json` and exact Markdown files at their
 repository paths. `resources.json` explicitly lists supporting files: the
 diagnostic catalog, executable fixtures, portable agent skill, and saved trial
-evidence. Each is exported at its repository path as a hashed asset; the exporter
+evidence. Each authored resource is exported at its repository path as a hashed asset.
+The exporter also generates `docs-sections.json` from consumer Markdown headings
+for focused local lookup. The full export and npm package carry identical index
+bytes and hashes; maintainer pages are excluded from that index. The exporter
 does not recursively copy the repository. The
 manifest identifies package version, source revision, working changes, each file's
 SHA-256, and the combined content hash. No timestamps or network reads affect the
