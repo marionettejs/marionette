@@ -34,6 +34,8 @@ import type { Constructed, Merge, ArgumentsFor, DefaultOptions, OptionsFor, Stat
 /**
  * Configure a component with data-first templates and managed child Regions.
  * @example
+ * import { View } from 'marionette';
+ * // Escape untrusted template values; see docs/security.md.
  * const Screen = View.extend({
  *   template: ({ title }) => `<h1>${title}</h1><div class="body"></div>`,
  *   regions: { body: '.body' },

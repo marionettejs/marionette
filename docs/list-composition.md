@@ -69,7 +69,7 @@ export function mountList(host, records, observeRow) {
 }
 ```
 
-Call `mountList(document.querySelector('#list'), records)` with an empty connected
+Call `const feature = mountList(document.querySelector('#list'), records)` with an empty connected
 host and records such as `[{ id: 1, title: 'First post' }]`. Listen to
 `feature.list.on('selection', id => ...)` for application selection updates.
 Call `feature.collection.add(record)`, `remove(id)`, or `move(id, index)` to

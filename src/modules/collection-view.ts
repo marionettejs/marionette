@@ -41,6 +41,8 @@ export interface ChildRenderOptions {
  * Configure managed repeated children. Plain arrays require explicit render(),
  * which rebuilds children; use an observable DataApi for incremental membership.
  * @example
+ * import { CollectionView, View } from 'marionette';
+ * // Escape untrusted template values; see docs/security.md.
  * const Row = View.extend({
  *   tagName: 'li',
  *   template: ({ label }) => `<button>${label}</button>`,

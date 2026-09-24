@@ -17,9 +17,15 @@ before inserting them into markup.
 ```javascript
 import { CollectionView, Region, View } from 'marionette';
 
+function escapeHtml(value) {
+  const text = document.createElement('span');
+  text.textContent = String(value);
+  return text.innerHTML;
+}
+
 const Row = View.extend({
   tagName: 'li',
-  template: ({ label }) => `<button type="button">${label}</button>`,
+  template: ({ label }) => `<button type="button">${escapeHtml(label)}</button>`,
   triggers: { 'click button': 'select' }
 });
 
@@ -27,16 +33,18 @@ const Rows = CollectionView.extend({
   tagName: 'ul',
   childView: Row,
   childViewEvents: {
-    select(child) { this.trigger('selected', child.model); }
+    select(child) { this.trigger('selected', child.model, child); }
   }
 });
+
+const records = [{ label: 'First post' }, { label: 'Second post' }];
 
 const Screen = View.extend({
   template: () => '<h1>Posts</h1><div class="rows"></div><output></output>',
   regions: { rows: '.rows' },
   ui: { status: 'output' },
   onRender() {
-    const rows = new Rows({ collection: [{ label: 'First post' }, { label: 'Second post' }] });
+    const rows = new Rows({ collection: records });
     this.listenTo(rows, 'selected', record => {
       this.getUI('status')[0].textContent = record.label;
     });
@@ -50,15 +58,16 @@ region.show(screen);
 // At application teardown: region.destroy();
 ```
 
-The labels above are fixed trusted values. The Region renders and attaches the
-screen. The screen owns its rows Region; the CollectionView owns each row.
+The template escapes labels as text, including values supplied by users. The
+Region renders and attaches the screen. The screen owns its rows Region; the CollectionView owns each row.
 Destroying the outer Region destroys the entire tree and its managed listeners.
 Replacing this managed child container manually bypasses child ownership and
 discards its rows' DOM identity. Update through the owning Views or data source.
 A View template can render repeated markup directly when separate child lifetimes
 and preservation of row state are unnecessary.
 
-A plain array is a snapshot. Mutating it does not notify the CollectionView;
+The records live outside the render hook, so rendering the screen again uses
+the current records. A plain array is a snapshot. Mutating it does not notify the CollectionView;
 call `rows.render()` after an explicit snapshot change. That full render destroys
 and recreates children. When membership changes should preserve surviving rows,
 use an observable collection and its supported DataApi. The
@@ -119,7 +128,6 @@ import { Application, Radio, View } from 'marionette';
 
 const Ready = View.extend({ template: () => '<p>Ready</p>' });
 const Feature = Application.extend({
-  channelName: 'quick-start',
   radioEvents: { refresh: 'refresh' },
   onStart() { this.showView(new Ready()); },
   refresh() {
@@ -127,17 +135,19 @@ const Feature = Application.extend({
   }
 });
 
-export async function mountFeature(host) {
-  const application = new Feature({ region: { el: host } });
+export async function mountFeature(host, channelName) {
+  const application = new Feature({ region: { el: host }, channelName });
   await application.start();
   return {
     application,
-    refresh() { Radio.channel('quick-start').trigger('refresh'); },
+    refresh() { Radio.channel(channelName).trigger('refresh'); },
     destroy() { return application.destroy(); }
   };
 }
 ```
 
+Call `const feature = await mountFeature(host, 'my-feature')` with an empty,
+connected host and a distinct channel name for each independent feature.
 Call `await feature.destroy()` before removing the host. Destruction removes the
 owned View and managed Radio bindings. Channel names are shared: use an
 application-specific name if multiple independent features coexist. Read
