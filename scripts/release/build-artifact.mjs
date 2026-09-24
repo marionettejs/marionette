@@ -4,7 +4,7 @@ import { appendFile, mkdir, readFile, readdir, realpath, writeFile } from 'node:
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import process from 'node:process';
 import { readArguments } from './arguments.mjs';
-import { releasePackages } from './packages.mjs';
+import { releasePackages, stagedCoreManifest } from './packages.mjs';
 import { publicationEnabled } from './publication.mjs';
 import { buildDevelopmentKit } from '../docs/development-kit.mjs';
 
@@ -138,8 +138,10 @@ for (const configuration of releasePackages) {
     throw new Error(`${manifest.name} Marionette peer ${manifest.peerDependencies?.marionette || 'missing'} does not match ${packageJson.version}.`);
   }
 
-  if (configuration.id === 'core' && JSON.stringify(await readJson('.package/package.json')) !== JSON.stringify(manifest)) {
-    throw new Error('Core staged package.json does not match the source manifest.');
+  const packedManifest = configuration.id === 'core' ?
+    stagedCoreManifest(manifest, await readJson('.package/docs-manifest.json')) : manifest;
+  if (configuration.id === 'core' && JSON.stringify(await readJson('.package/package.json')) !== JSON.stringify(packedManifest)) {
+    throw new Error('Core staged package.json does not match the expected generated manifest.');
   }
 
   const packOutput = run(process.execPath, [
@@ -173,7 +175,7 @@ for (const configuration of releasePackages) {
     id: configuration.id,
     name: configuration.name,
     version: manifest.version,
-    manifest,
+    manifest: packedManifest,
     manifestReport: {
       file: configuration.manifestFile,
       sha512: sha512(Buffer.from(packageManifestText)),

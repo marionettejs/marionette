@@ -39,7 +39,11 @@ if (args[0] === 'run') {
   if (process.env.RELEASE_TEST_BUILD_FAILURE === args[1]) { console.error('intentional build command failure'); process.exit(9); }
   if (args[1] === 'build') { mkdirSync('dist', { recursive: true }); writeFileSync('dist/built.js', 'built from source');
     mkdirSync('.package', { recursive: true });
-    cpSync('package.json', '.package/package.json');
+    const staged = JSON.parse(readFileSync('package.json'));
+    staged.files = [...new Set([...(staged.files || []), 'docs-manifest.json', 'starter/'])];
+    if (process.env.RELEASE_TEST_STAGE_FILES) { staged.files.push('test/'); }
+    writeFileSync('.package/package.json', JSON.stringify(staged));
+    writeFileSync('.package/docs-manifest.json', JSON.stringify({ pages: [], assets: [] }));
     if (process.env.RELEASE_TEST_STALE_STAGE) { writeFileSync('.package/package.json', JSON.stringify({ name: 'marionette', version: '0.0.0' })); }
     mkdirSync('.package/starter', { recursive: true });
     writeFileSync('.package/starter/package.json', JSON.stringify({ name: 'starter', private: true }));
@@ -117,6 +121,7 @@ for (const version of ['5.0.0-test.1', '5.0.0']) {
 }
 
 for (const [name, env, error] of [
+  ['staged allowlist mismatch', { RELEASE_TEST_STAGE_FILES: 'yes' }, /staged package.json does not match/],
   ['staged manifest mismatch', { RELEASE_TEST_STALE_STAGE: 'yes' }, /staged package.json does not match/],
   ['build failure', { RELEASE_TEST_BUILD_FAILURE: 'build' }, /status 9/],
   ['distribution failure', { RELEASE_TEST_BUILD_FAILURE: 'test:dist' }, /status 9/],

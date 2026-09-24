@@ -35,10 +35,10 @@ For a local core tarball, run `npm run build` followed by
 `npm pack ./.package --ignore-scripts`; the generated staging directory contains
 consumer docs at their repository-relative paths. Root guides, source Markdown,
 and website exports share the same links. Release and fixture tooling use this same
-staged core package. Do not pack or publish the repository root: its `files`
-allowlist names directories whose contents are filtered during staging. A direct
-root pack or repository-path installation can include maintainer docs, test
-fixtures, build scripts, and workspace sources; it is not the consumer artifact.
+staged core package. Only its generated `package.json` expands `files` with the
+selected documentation paths, `docs-manifest.json`, and `starter/`. The source
+manifest keeps the narrow runtime-and-root-guides allowlist for direct root packs
+and Git installs. Use the staged artifact to include the consumer documentation.
 
 `npm pack` and npm Git installs
 run `prepare` automatically; installing a published tarball uses its compiled files.
