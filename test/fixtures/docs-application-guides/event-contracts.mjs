@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { JSDOM } from 'jsdom';
 
 async function example(document, id) {
@@ -10,6 +10,7 @@ async function example(document, id) {
     .match(/^\s*```javascript\n([\s\S]*?)\n```/);
   assert.ok(code);
   const output = new URL(`./dist/${id}.mjs`, import.meta.url);
+  await mkdir(new URL('./dist/', import.meta.url), { recursive: true });
   await writeFile(output, code[1]);
   return import(output);
 }

@@ -266,7 +266,7 @@ text or element target to the closest matching descendant of `rootEl` and set
 namespaces such as `click.menu` are not interpreted, and non-bubbling events
 such as `mouseenter` are not emulated.
 
-#### Read the matched control
+### Read the matched control
 
 With the default native EventDelegator, `event.currentTarget` is the listener
 host (the View root), `event.delegateTarget` is the element matched by the
