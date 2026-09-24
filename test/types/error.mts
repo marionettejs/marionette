@@ -41,10 +41,10 @@ const samePrototype: typeof MarionetteError.prototype = error;
 const missingMarionetteFields: typeof error = new Error('native');
 
 const ClassicError = extend.call(MarionetteError, { name: 'ClassicError' });
-const classic = new ClassicError({ message: 'classic' });
+new ClassicError({ message: 'classic' });
 const DelegatingError = extend.call(MarionetteError, {
   constructor: function(this: typeof error, options: { message: string }) {
     return MarionetteError.call(this, options);
   }
 });
-const delegated = new DelegatingError({ message: 'delegated' });
+new DelegatingError({ message: 'delegated' });
