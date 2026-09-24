@@ -52,8 +52,7 @@ containing these files exists, add its marketplace with
 `claude plugin install marionette@marionettejs`. The `v5.0.0-rc.1` tag predates
 the Claude Code marketplace, so it cannot be used for this installation.
 
-These commands follow Claude Code's documented syntax; a native install has not
-yet been verified. Check that `/marionette:marionette` is listed and `/mcp` shows
+Check that `/marionette:marionette` is listed and `/mcp` shows
 the documentation server. A plugin reload or new session may be required.
 
 ### Cursor
@@ -63,8 +62,7 @@ Cursor can read `.cursor-plugin/marketplace.json` and the portable plugin in
 `https://github.com/marionettejs/marionette` as a marketplace in Customize,
 then installs the plugin. Importing the default branch
 is a mutable preview until a release containing these files is available; the
-`v5.0.0-rc.1` tag does not include the Cursor marketplace. A native install and
-tag-pinned Cursor marketplace import have not yet been verified. Check that the
+`v5.0.0-rc.1` tag does not include the Cursor marketplace. Check that the
 skill appears in Customize and that the documentation MCP is connected.
 
 ### GitHub Copilot CLI
@@ -77,8 +75,7 @@ files exists, add its marketplace with
 `copilot plugin install marionette@marionettejs`. The `v5.0.0-rc.1` tag predates
 this marketplace, so it cannot be used for this installation.
 
-These commands follow Copilot CLI's documented syntax; a native install has not
-yet been verified. Confirm that the plugin is listed and its skill and
+Confirm that the plugin is listed and its skill and
 documentation MCP are available. Copilot in VS Code and Copilot cloud agent
 have different setup surfaces; follow their client documentation to install a
 skill and configure MCP.
