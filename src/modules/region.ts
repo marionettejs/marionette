@@ -154,8 +154,7 @@ Object.assign(Region.prototype, CommonMixin, {
       throw new MarionetteError({
         code: 'MN0003',
         name: classErrorName,
-        message: 'View is already managed by an Application, Region, or CollectionView',
-        url: 'marionette.region.html#showing-a-view'
+        message: 'View is already managed by an Application, Region, or CollectionView'
       });
     }
 
@@ -193,8 +192,7 @@ Object.assign(Region.prototype, CommonMixin, {
       throw new MarionetteError({
         code: 'MN0004',
         name: classErrorName,
-        message: 'An "el" must be specified for a region.',
-        url: 'marionette.region.html#additional-options'
+        message: 'An "el" must be specified for a region.'
       });
     }
 
@@ -287,8 +285,7 @@ Object.assign(Region.prototype, CommonMixin, {
         throw new MarionetteError({
           code: 'MN0005',
           name: classErrorName,
-          message: `An "el" must exist in DOM for this region ${this.cid}`,
-          url: 'marionette.region.html#additional-options'
+          message: `An "el" must exist in DOM for this region ${this.cid}`
         });
       }
     }
@@ -300,8 +297,7 @@ Object.assign(Region.prototype, CommonMixin, {
       throw new MarionetteError({
         code: 'MN0007',
         name: classErrorName,
-        message: `View (cid: "${view.cid}") has already been destroyed and cannot be used.`,
-        url: 'marionette.region.html#showing-a-view'
+        message: `View (cid: "${view.cid}") has already been destroyed and cannot be used.`
       });
     }
 

@@ -817,16 +817,14 @@ export default /* @__PURE__ */ ((methods: object) => {
       throw new MarionetteError({
         code: 'MN0007',
         name: 'ApplicationError',
-        message: `View (cid: "${view.cid}") has already been destroyed and cannot be used.`,
-        url: 'marionette.application.html#setviewview'
+        message: `View (cid: "${view.cid}") has already been destroyed and cannot be used.`
       });
     }
     if (view._parent && view !== this._displayedView) {
       throw new MarionetteError({
         code: 'MN0003',
         name: 'ApplicationError',
-        message: 'View is already managed by an Application, Region, or CollectionView',
-        url: 'marionette.application.html#setviewview'
+        message: 'View is already managed by an Application, Region, or CollectionView'
       });
     }
 

@@ -14,7 +14,7 @@ describe('public ownership gaps discovered by the mutation pilot', () => {
     expect(handler).toHaveBeenCalledTimes(1);
   });
 
-  it('explains conflicting ownership and links to the showing contract', () => {
+  it('explains conflicting ownership and links to its diagnostic', () => {
     const first = new Region({ el: document.createElement('section') });
     const second = new Region({ el: document.createElement('section') });
     const view = new View({ template: false });
@@ -23,7 +23,7 @@ describe('public ownership gaps discovered by the mutation pilot', () => {
       expect(() => second.show(view)).toThrowError(expect.objectContaining({
         code: 'MN0003',
         message: expect.stringMatching(/already managed/),
-        url: expect.stringMatching(/marionette\.region\.html#showing-a-view$/)
+        url: 'https://marionettejs.com/errors/MN0003/'
       }));
       expect(first.currentView).toBe(view);
       expect(second.hasView()).toBe(false);

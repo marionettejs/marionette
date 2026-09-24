@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { MarionetteError as PublicMarionetteError, VERSION } from 'marionette';
-import { MarionetteError } from '@mnjs/utils';
+import { MarionetteError as PublicMarionetteError } from 'marionette';
+import { MarionetteError, extend } from '@mnjs/utils';
 
 describe('MarionetteError', function() {
   it('should be subclass of native Error', function() {
@@ -15,6 +15,46 @@ describe('MarionetteError', function() {
 
   it('requires construction with new', function() {
     expect(() => MarionetteError({ message: 'foo' })).to.throw(TypeError);
+  });
+
+  it('uses a stable HTTPS diagnostic URL for coded errors', function() {
+    const error = new MarionetteError({ code: 'MN0039', message: 'Duplicate key', url: 'data.api.html' });
+    expect(error.url).toBe('https://marionettejs.com/errors/MN0039/');
+  });
+
+  it('preserves native identity for subclasses', function() {
+    class CustomError extends MarionetteError {}
+    const error = new CustomError({ message: 'custom' });
+    expect(error).toBeInstanceOf(CustomError);
+    expect(error).toBeInstanceOf(MarionetteError);
+    expect(Object.prototype.toString.call(error)).toBe('[object Error]');
+  });
+
+  it('constructs native errors through the public extend helper', function() {
+    const Sub = extend.call(MarionetteError, { name: 'SubError' });
+    const error = new Sub({ code: 'MN0001', message: 'extended' });
+    expect(error).toBeInstanceOf(Sub);
+    expect(error).toBeInstanceOf(MarionetteError);
+    expect(Object.prototype.toString.call(error)).toBe('[object Error]');
+    expect(error.name).toBe('SubError');
+    expect(error.message).toBe('extended');
+    expect(error.stack).toContain('extended');
+  });
+
+  it('initializes custom constructor receivers even when they ignore the parent result', function() {
+    const Sub = extend.call(MarionetteError, {
+      constructor: function(options) {
+        MarionetteError.call(this, options);
+        this.detail = 'custom';
+      }
+    });
+    const error = new Sub({ code: 'MN0001', message: 'delegated' });
+    expect(error).toBeInstanceOf(Sub);
+    expect(error.message).toBe('delegated');
+    expect(error.code).toBe('MN0001');
+    expect(error.url).toBe('https://marionettejs.com/errors/MN0001/');
+    expect(error.stack).toContain('delegated');
+    expect(error.detail).toBe('custom');
   });
 
   describe('when passed options', function() {
@@ -35,7 +75,7 @@ describe('MarionetteError', function() {
     });
 
     it('should output the correct string', function() {
-      expect(error.toString()).to.equal('Foo: Bar See: http://marionettejs.com/docs/v' + VERSION + '/');
+      expect(error.toString()).to.equal('Foo: Bar See: https://marionettejs.com/docs/');
     });
   });
 
@@ -54,12 +94,12 @@ describe('MarionetteError', function() {
       expect(error).to.contain({
         name: 'Foo',
         message: 'Bar',
-        url: 'http://marionettejs.com/docs/v' + VERSION + '/Baz'
+        url: 'https://marionettejs.com/docs/Baz'
       });
     });
 
     it('should output the correct string', function() {
-      expect(error.toString()).to.equal('Foo: Bar See: http://marionettejs.com/docs/v' + VERSION + '/Baz');
+      expect(error.toString()).to.equal('Foo: Bar See: https://marionettejs.com/docs/Baz');
     });
   });
 
@@ -251,10 +291,6 @@ describe('MarionetteError', function() {
   describe('when Error.captureStackTrace is not callable', function() {
     let captureStackTrace = Error.captureStackTrace;
 
-    beforeEach(function() {
-      vi.spyOn(MarionetteError.prototype, 'captureStackTrace');
-    });
-
     afterEach(function() {
       Error.captureStackTrace = captureStackTrace;
     });
@@ -266,16 +302,8 @@ describe('MarionetteError', function() {
       it(`retains the fallback stack when ${description}`, function() {
         Error.captureStackTrace = value;
         const error = new MarionetteError({ message: 'foo' });
-        const fallbackError = MarionetteError.prototype.captureStackTrace.mock.calls.at(0)[0];
-
-        expect(MarionetteError.prototype.captureStackTrace).toHaveBeenCalledTimes(1);
-        expect(fallbackError).to.be.instanceOf(Error);
-        expect(error.stack).to.equal(fallbackError.stack).and.to.contain('Error: foo');
-        expect(Object.getOwnPropertyDescriptor(error, 'stack')).to.include({
-          writable: true,
-          enumerable: true,
-          configurable: true
-        });
+        expect(error.stack).toContain('foo');
+        expect(Object.getOwnPropertyDescriptor(error, 'stack').enumerable).toBe(false);
       });
     }
   })

@@ -16,7 +16,7 @@ Schema version 2 adds explicit retired identities without restoring their emissi
 Read the [machine-readable catalog](../config/diagnostics/catalog.json), find the
 entry by `code`, and read its `remediation`. This file is included in packaged
 docs for offline lookup. The website also provides a
-[diagnostic reference](https://v5.marionettejs.com/errors/).
+[diagnostic reference](https://marionettejs.com/errors/).
 
 ## Runtime error contract
 
@@ -38,11 +38,20 @@ try {
 `message`, `stack`, and the existing `url` property. The code is the stable lookup
 key for the repository-generated diagnostic reference. Error names preserve useful
 framework categories such as `ViewError`, `RegionError`, and `CollectionViewError`.
-Messages and legacy URLs are explanatory prose and are not machine contracts.
+Coded errors link to `https://marionettejs.com/errors/<code>/` through `url`,
+independent of the installed prerelease version. Messages are explanatory prose;
+branch on the diagnostic code rather than parsing the message.
 
 Production errors copy only supported Error fields and the compact code. They do not
 import the catalog or perform runtime catalog lookup. Engines with
 `Error.captureStackTrace` use it; other engines retain the native fallback stack.
+
+Native `class` subclasses and subclasses created with the public `extend` helper
+retain native Error identity. A custom classic constructor that calls
+`MarionetteError.call(this, options)` must return that call's result to retain
+native browser exception reporting. Ignoring the result still initializes the
+receiver's supported error fields and stack, but cannot give that ordinary object
+native Error identity.
 
 ## Entry contract
 
@@ -135,7 +144,7 @@ reserve codes for planned validation. Defined entries likewise are not placehold
 for incidental JavaScript exceptions or benchmark hypotheses. New invariants receive codes when their
 behavior and remediation are implemented and reviewed.
 
-The generated [diagnostic reference](https://v5.marionettejs.com/errors/) lists the current catalog directly
+The generated [diagnostic reference](https://marionettejs.com/errors/) lists the current catalog directly
 from the machine-readable source. A shared invariant has one code even when more
 than one framework object reports it.
 

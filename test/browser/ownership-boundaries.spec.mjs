@@ -101,3 +101,37 @@ test('framework errors preserve native identity and usable stacks with the platf
   const expected = { native: true, code: 'MN0030', message: 'Ownership conflict', stack: true };
   assert.deepEqual(result, { normal: expected, fallback: expected });
 });
+
+test('uncaught framework errors retain their message and stack in browser reporting', async({ page }) => {
+  const reported = page.waitForEvent('pageerror');
+  await page.evaluate(async() => {
+    const { CollectionView, View } = await import('marionette');
+    const model = { title: 'Repeated blog' };
+    const list = new CollectionView({ collection: [model, model], childView: View });
+    setTimeout(() => {
+      try {
+        list.render();
+      } finally {
+        list.destroy();
+      }
+    }, 0);
+  });
+  const error = await reported;
+  assert.equal(error.name, 'CollectionViewError');
+  assert.match(error.message, /same model appears more than once/);
+  assert.match(error.stack, /same model appears more than once/);
+});
+
+
+test('utility-extended errors retain native browser exception reporting', async({ page }) => {
+  const reported = page.waitForEvent('pageerror');
+  await page.evaluate(async() => {
+    const { MarionetteError, extend } = await import('marionette');
+    const Sub = extend.call(MarionetteError, { name: 'SubError' });
+    setTimeout(() => { throw new Sub({ code: 'MN0001', message: 'Extended error' }); }, 0);
+  });
+  const error = await reported;
+  assert.equal(error.name, 'SubError');
+  assert.equal(error.message, 'Extended error');
+  assert.match(error.stack, /Extended error/);
+});

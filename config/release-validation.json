@@ -179,6 +179,14 @@
     },
     {
       "file": "ownership-boundaries.spec.mjs",
+      "title": "uncaught framework errors retain their message and stack in browser reporting"
+    },
+    {
+      "file": "ownership-boundaries.spec.mjs",
+      "title": "utility-extended errors retain native browser exception reporting"
+    },
+    {
+      "file": "ownership-boundaries.spec.mjs",
       "title": "framework errors preserve native identity and usable stacks with the platform fallback"
     },
     {
