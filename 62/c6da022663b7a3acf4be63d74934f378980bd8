@@ -1,0 +1,156 @@
+docs/readme.md
+  s_dafe2a28156c79::t_1bf357f489c994 53-55
+plugins/marionette/skills/marionette/scripts/docs.mjs
+  s_dafe2a28156c79::t_9436f91146f2f8 4,6,40,43,45,97-125
+skills/marionette/scripts/docs.mjs
+  s_dafe2a28156c79::t_d5dc0ca8a00cea 4,6,40,43,45,97-125
+docs/compact-reference.md
+  s_dafe2a28156c79::t_bd6e8fe5bbf26e 3,11-16,20,22,24-44,50-60,62,64,66,68-88,94-104,106,108,110,112-142,146-176,178,180,182,184,202
+scripts/docs/package.mjs
+  s_dafe2a28156c79::t_d5dc0ca8a00cea 4,6,15-19
+docs/view.rendering.md
+  s_dafe2a28156c79::t_73368fdcfe7997 25-37
+docs/agents.md
+  s_dafe2a28156c79::t_73368fdcfe7997 38,42-51
+  s_dafe2a28156c79::t_1bf357f489c994 187,189-191,193-194
+  s_dafe2a28156c79::t_527fe1317a9f0d 52-57
+docs/forms-and-accessibility.md
+  s_dafe2a28156c79::t_1e91425f7d93c4 8
+plugins/marionette/skills/marionette/scripts/search.mjs
+  s_dafe2a28156c79::t_eeded5c8ea674a 1-18
+test/agent-docs/retrieval.test.mjs
+  s_dafe2a28156c79::t_1e91425f7d93c4 18-46
+  s_dafe2a28156c79::t_d35200530dccf6 1-17,47-57
+docs/application-effects.md
+  s_dafe2a28156c79::t_1e91425f7d93c4 87
+docs/agent-retrieval.md
+  s_dafe2a28156c79::t_1bf357f489c994 1-112
+docs-site/resources.json
+  s_dafe2a28156c79::t_9436f91146f2f8 27
+skills/marionette/scripts/search.mjs
+  s_dafe2a28156c79::t_eeded5c8ea674a 1-18
+docs/dom.interactions.md
+  s_dafe2a28156c79::t_73368fdcfe7997 369-376
+scripts/docs/sections.mjs
+  s_dafe2a28156c79::t_1e91425f7d93c4 32
+  s_dafe2a28156c79::t_eeded5c8ea674a 1-31,33-36
+plugins/marionette/skills/marionette/SKILL.md
+  s_dafe2a28156c79::t_eeded5c8ea674a 26-27,30-37,47-48,50,53-78
+scripts/docs/agent-routes.mjs
+  s_dafe2a28156c79::t_eeded5c8ea674a 1-36
+skills/marionette/SKILL.md
+  s_dafe2a28156c79::t_eeded5c8ea674a 26-27,30-37,47-48,50,53-78
+docs/release-promotion.md
+  s_9b715d9e600fb6::t_39b6efd7bdbde2 129
+  s_dafe2a28156c79::t_42cde2bd12d47b 14,109,118,120,127-128
+scripts/api-contracts/reference.mjs
+  s_dafe2a28156c79::t_bd6e8fe5bbf26e 14-15,17-21,24,33-35,38-42,45-49,51-54
+test/fixtures/docs-package/validate.mjs
+  s_dafe2a28156c79::t_c5299ceab69609 119-120,123-132,135,139,144
+docs/list-composition.md
+  s_dafe2a28156c79::t_1e91425f7d93c4 9
+config/api-contracts/inventory.json
+  s_dafe2a28156c79::t_bd6e8fe5bbf26e 8102,8104,8112,8118
+  s_dafe2a28156c79::t_3009c2c54094b5 8,5367,5994,6455,6984,7059,7119,7206,7246,8099,8119-8121
+package.json
+  s_dafe2a28156c79::t_9436f91146f2f8 71
+  s_dafe2a28156c79::t_ec5ccfd3d4ed5d 4,179-180
+docs-site/navigation.json
+  s_dafe2a28156c79::t_1bf357f489c994 75-79
+  s_dafe2a28156c79::t_7742055b74f38c 74
+docs/task-recipes.md
+  s_dafe2a28156c79::t_73368fdcfe7997 7-11
+docs/events.md
+  s_dafe2a28156c79::t_fae21518cd9ff7 570-577
+docs/agent-tools.md
+  s_dafe2a28156c79::t_1bf357f489c994 200
+  s_50b5496ca1acfb::t_4c720516ce3c41 45-46
+  s_8bc670f0bb5f37::t_4235546950ca29 35
+  s_dafe2a28156c79::t_9114618095587c 10-13,36-37,40
+changelog.md
+  s_dafe2a28156c79::t_0bd4f77179ed1c 1-16
+config/release-promotion.json
+  s_dafe2a28156c79::t_16271a82bae965 5
+docs/beta.md
+  s_dafe2a28156c79::t_e4c3d5ce722688 3,8,10-14
+docs/data.api.md
+  s_dafe2a28156c79::t_18003ec5f379f0 219
+docs/installation.md
+  s_dafe2a28156c79::t_050c1a39a1a490 33,61,73,76,79,188,262,264
+docs/maintainers/documentation.md
+  s_dafe2a28156c79::t_3857cfbf167177 47-67
+docs/maintainers/rc-stabilization.md
+  s_dafe2a28156c79::t_1ae104214a68b1 1,8
+docs/migration-from-v4.md
+  s_dafe2a28156c79::t_38e1addbf09155 23
+docs/optional-backbone.md
+  s_dafe2a28156c79::t_30c1dab8ba8f20 10
+package-lock.json
+  s_dafe2a28156c79::t_adf5703e13ac7c 3,9,16-17,8741,8744,8752
+packages/adapters/package.json
+  s_dafe2a28156c79::t_6b909b49deb998 4,81
+packages/adapters/readme.md
+  s_dafe2a28156c79::t_e05358fcc7c1bc 30,72,129,175,197
+packages/data/package.json
+  s_dafe2a28156c79::t_f9b8f2e1729d75 4,52
+packages/data/readme.md
+  s_dafe2a28156c79::t_61b5d9b1627408 10
+packages/radio/package.json
+  s_dafe2a28156c79::t_d77df90f12e0c3 4,52
+packages/radio/readme.md
+  s_dafe2a28156c79::t_0a052fc6d3163d 6
+packages/utils/package.json
+  s_dafe2a28156c79::t_978acad56aeb9c 4
+packages/utils/readme.md
+  s_dafe2a28156c79::t_ba66ea5151c424 7
+plugins/marionette/.claude-plugin/plugin.json
+  s_dafe2a28156c79::t_4cec9ad648e74c 3
+plugins/marionette/plugin.json
+  s_dafe2a28156c79::t_b218a307773ca9 4
+readme.md
+  s_dafe2a28156c79::t_e14d0270335996 53
+test/agent-docs/lookup.test.mjs
+  s_dafe2a28156c79::t_5d173e7e20b832 166-215
+test/agent-docs/plugin.test.mjs
+  s_dafe2a28156c79::t_a12ff66db876b2 102,107
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "62c6da022663b7a3acf4be63d74934f378980bd8",
+  "prompts": {},
+  "sessions": {
+    "s_50b5496ca1acfb": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c9b0-1aa2-7270-afe5-d46d4e59d5ba",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_8bc670f0bb5f37": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0c7f9-f977-78d3-94ee-2291f98aa98e",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_9b715d9e600fb6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08519-c4aa-77e0-96b5-ac8c23eafcfe",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    },
+    "s_dafe2a28156c79": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d4dd-377e-7552-905d-4457a753ecc6",
+        "model": "gpt-6-astra"
+      },
+      "human_author": null
+    }
+  }
+}
