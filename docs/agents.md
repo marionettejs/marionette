@@ -37,18 +37,29 @@ prerequisite for reading a specific guide.
 
 | Task | Start here | Verify |
 | --- | --- | --- |
+| Build a first screen | [Quick start](./quick-start.md) | Mount, select a row, update the display, and destroy the owner. |
 | Show or update a piece of UI | [View](./marionette.view.md), [rendering](./view.rendering.md) | The intended element and content change; relevant handlers still work after rendering. |
 | Replace part of a screen | [Region](./marionette.region.md), [View lifecycle](./view.lifecycle.md) | The outgoing View is cleaned up and the new View owns the intended mount. |
 | Render a changing list | [CollectionView](./marionette.collectionview.md), [DataApi](./data.api.md), [managed list recipes](./list-composition.md) | Stable item identity, correct ordering, removal cleanup, and preservation of surviving edits. |
 | Coordinate a feature or navigate | [Application](./marionette.application.md), [routing](./routing.md) | Startup success, stale navigation, failure, stop, and destruction. |
 | Choose data, state, rendering, or DOM integration | [Choosing integrations](./choosing-integrations.md) | The chosen capability matches the source; configuring one integration does not implicitly configure another. |
 | Host a screen in Vue, React, or another shell | [Host a Marionette screen](./hosting-views.md) | Managed attachment, one DOM owner, stable drafts, and cleanup before host removal. |
+| Edit and save a form | [Forms](./forms-and-accessibility.md) | Retain input identity and focus; check edits, revert, save, failure, and late completion. |
 | Add local or shared state | [State sources](./marionette.state.md) | The correct observer updates; destroying one borrower does not dispose shared state. |
 | Handle DOM or component events | [DOM interactions](./dom.interactions.md), [events](./events.md) | One intended response per interaction and no response after teardown. |
 | Diagnose a framework error | [Diagnostic catalog](./diagnostic-catalog.md) | The invariant associated with the diagnostic code; do not match only error-message text. |
 
-Read the relevant page and its direct references. Load the full documentation only
-when the task requires a broader API review.
+Read one starting page, then follow references that resolve an actual question.
+Once the imports, setup, update path, and cleanup are clear, implement and run a
+small public interaction check. Use its result to decide what to read next.
+Do not read every linked reference or inspect the distribution source as a
+prerequisite to building a screen. For an uncertain signature, search the matching
+API page and installed declarations first.
+
+Reuse the installed package and integration facts already established in the
+application instructions. Recheck them when dependencies, configuration, or the
+workspace change; record new decisions with the
+[application instruction template](./application-agent-template.md).
 
 ## Choose the smallest supported pattern
 

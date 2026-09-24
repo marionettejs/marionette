@@ -77,6 +77,23 @@ selection, updates, and cleanup.
 See [View](./marionette.view.md), [Region](./marionette.region.md), and
 [CollectionView](./marionette.collectionview.md) for their full contracts.
 
+## Read the example without opening every reference
+
+| Question | Contract used above |
+| --- | --- |
+| Where does instance setup go? | `initialize(options)` receives construction options. Store per-instance state there; DOM-dependent work belongs after rendering. |
+| What reaches the template? | Its argument is serialized data plus `templateContext`; a plain row object supplies its attributes directly. The template is not bound to the View. |
+| When can a named Region find its element? | The screen's `onRender()` runs after its template creates `.rows`; `showChildView()` renders and places the child there. |
+| What does a child event handler receive? | The event's emitted arguments. Here `triggers` supplies the child View, so `select(child)` receives the row. An explicit `trigger('select', record)` would pass only `record`. |
+| Is `getUI()` one element? | It returns an array-like query result. `[0]` selects the first match; `ui` names selectors bound during rendering. |
+| How do updates reach the DOM? | Plain objects are not observable. Update through the owning View explicitly; use an observable source when multiple owners need notification. |
+
+For exact signatures, follow [View](./marionette.view.md),
+[DOM interactions](./dom.interactions.md), or [events](./events.md) only as needed.
+For editing, use the [form recipe](./forms-and-accessibility.md): update derived
+messages while retaining the focused control. Whole-View rendering replaces its
+content with the default renderer and is not an input-event update strategy.
+
 ## DOM events and reusable Behavior
 
 Use `events` when the handler needs an input value or keyboard information.

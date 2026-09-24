@@ -5,9 +5,10 @@ it up when it is replaced. Start there; add the other pieces when you need them.
 
 ## Where do you want to start?
 
+- **[Build a complete screen](quick-start.md)** — compose Views, rows, and events in one module.
 - **[Start a development project](development.md)** — use matching candidate packages, TypeScript, lint, tests, and Vite.
 - **[Troubleshoot a problem](troubleshooting.md)** — follow a symptom or diagnostic code to a fix.
-- **[Build something](installation.md#quick-start)** — set up Marionette and show your first View.
+- **[Install Marionette](installation.md#install)** — choose package entrypoints and set up dependencies.
 - **[Work with an agent](agents.md)** — give your agent the right contract and a concrete task.
 - **[Look up an API](public-api.md)** — find the class, method, or integration you need.
 

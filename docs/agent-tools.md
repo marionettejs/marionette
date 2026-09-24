@@ -7,6 +7,22 @@ Marionette skill helps an agent select those documents and
 apply their lifecycle and integration rules. None of these resources requires an
 account, network access, hosted model, or shared API key to read.
 
+## Get from a task to working code
+
+| Situation | First read | Next action |
+| --- | --- | --- |
+| First screen in an existing project | [Quick start](./quick-start.md) | Adapt the complete module and check one interaction. |
+| New project needing a toolchain | [Development starter](./development.md) | Copy the starter and run its validation. |
+| Change an existing application | [Task table](./agents.md#read-for-the-task) | Read the selected guide and reuse the application's integrations. |
+| One unfamiliar API detail | The matching page or declaration | Search for its symbol or heading; read the relevant section. |
+
+Choose one retrieval route for the task. Installed Markdown is sufficient when
+available; installing a plugin or connecting MCP is not a prerequisite. Record
+package provenance and integration choices in the application instructions, and
+refresh them when the dependency or configuration changes. Stop discovery once
+the setup, update, and cleanup path is clear; verify the implementation before
+broadening the search.
+
 ## Install the Marionette plugin
 
 Install Marionette's upstream plugin when your client supports it. The plugin
@@ -137,15 +153,19 @@ installed docs, including hoisted dependencies, without importing application co
 It does not add a server, registry, or production dependency.
 
 ```sh
-node .agents/skills/marionette/scripts/docs.mjs --project . --list
-node .agents/skills/marionette/scripts/docs.mjs --project . --page docs/routing.md
+node .agents/skills/marionette/scripts/docs.mjs --project . --page docs/quick-start.md
 ```
 
+Use `--page` directly when the source path is known; `--list` is only needed for
+discovery. Both modes return provenance, so listing first is unnecessary.
 `--list` returns JSON with absolute page paths, version, source revision, local
-change status, and content digest. `--page` accepts an exact `source` path from
-that list and prints one provenance record followed by the page's Markdown. Run
-from the application workspace, not a neighboring package with a different
-Marionette dependency. `--project` defaults to the current directory.
+change status, and content digest. `--page` accepts a package-relative source path
+and prints one provenance record followed by the page's Markdown. For a relative
+link in `docs/agents.md`, resolve `./forms-and-accessibility.md` to
+`docs/forms-and-accessibility.md`; omit any `#heading` fragment. Use `--list` if
+the source path is uncertain. Run from the application workspace, not a neighboring
+package with a different Marionette dependency. `--project` defaults to the current
+directory.
 
 For a package manager without a physical `node_modules` tree, find that
 application's physical package directory using its package manager and supply
@@ -231,23 +251,25 @@ skill does not guarantee an active MCP connection across clients.
 1. Read the `marionette://catalog` resource and compare its
    `provenance.packageVersion` and `provenance.sourceRevision` with the installed
    documentation manifest. A matching version label alone is insufficient.
-2. Pass the exact installed `version` to every `search_docs`, `get_doc`, and
-   `get_example` call. The server rejects unsupported versions, including `latest`
-   and `next`; do not upgrade the application to match the server.
-3. Use a search result's `id` as `get_doc.path`. Follow each returned `nextOffset`
-   until it is `null` to read the complete document. For an example, use its catalog
-   `id` as `get_example.name` and retrieve all chunks before parsing the recipe JSON.
+2. Pass the exact installed `version` to retrieval calls. The server rejects
+   unsupported versions, including `latest` and `next`; do not upgrade the
+   application to match the server.
+3. For an API question, prefer `search_sections` and pass the returned heading IDs
+   to `get_sections`. Read their ancestry and inspect `omitted` entries; request
+   any needed sections separately. Batch related sections within the advertised
+   limit instead of loading several complete references.
+4. For a complete guide, use a `search_docs` result's `id` as `get_doc.path` and
+   follow `nextOffset` until it is `null`. For an example, use its catalog `id` as
+   `get_example.name` and retrieve all chunks before parsing the recipe JSON.
 
-For focused reading, `search_sections` returns exact heading IDs, ancestry, and
-sizes; pass those IDs to `get_sections`. Inspect its `omitted` entries and request
-missing sections separately. Its `maxCharacters` budget counts UTF-16 code units,
-not tokens, excludes metadata, and never truncates a section. Use paginated
-`get_doc` for a section too large for the budget or when the full context matters.
-Section selection is lexical search, not dependency analysis: also read the linked
-ownership, setup, and cleanup contracts. For example, a Lit rendering excerpt alone
-does not explain how a [framework host](./hosting-views.md) attaches the View.
-Use exact tool limits advertised by the connected server; older snapshots may
-not expose section tools, in which case document retrieval remains sufficient.
+The section `maxCharacters` budget counts UTF-16 code units, not tokens, excludes
+metadata, and never truncates a section. Use paginated `get_doc` for a section too
+large for the budget or when full context matters. Section selection is lexical
+search, not dependency analysis: read linked ownership, setup, or cleanup contracts
+when they are needed to apply the excerpt. A Lit rendering excerpt alone does not
+explain how a [framework host](./hosting-views.md) attaches the View.
+Use the exact tool limits advertised by the connected server. Older snapshots may
+not expose section tools; document retrieval remains sufficient in that case.
 
 The hosted snapshot may lag a new release or candidate. Use installed Markdown
 when provenance does not match or the service is unavailable. Retrieved recipes

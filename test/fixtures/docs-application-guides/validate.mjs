@@ -117,10 +117,12 @@ try {
   const input = view.el.querySelector('input');
   const status = view.el.querySelector('[role="status"]');
   const button = view.el.querySelector('button');
+  const dirty = view.el.querySelector('.dirty');
   assert.equal(input.value, '<img src=x onerror=alert(1)>');
   assert.equal(view.el.querySelector('img'), null);
   assert.equal(view.el.querySelector('label').htmlFor, input.id);
-  assert.equal(input.getAttribute('aria-describedby'), status.id);
+  assert.deepEqual(input.getAttribute('aria-describedby').split(' '), [status.id, dirty.id]);
+  assert.equal(dirty.textContent, '');
   const other = new ProfileForm({ displayName: 'Other', save: async() => {} }).render();
   assert.notEqual(other.el.querySelector('input').id, input.id);
   other.destroy();
@@ -128,6 +130,8 @@ try {
   assert.equal(await view.submit(), false);
   assert.equal(calls.length, 0);
   input.value = 'Unfinished draft';
+  input.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+  assert.equal(dirty.textContent, 'Unsaved changes');
   input.focus();
   input.setSelectionRange(3, 8);
   const failed = view.submit();
@@ -146,11 +150,13 @@ try {
   assert.equal(button.disabled, false);
   assert.match(status.textContent, /Your changes are still here/);
   assert.doesNotMatch(status.textContent, /Private server/);
+  assert.equal(dirty.textContent, 'Unsaved changes');
   const saved = view.submit();
   assert.deepEqual(calls[1].profile, { displayName: 'Unfinished draft' });
   calls[1].resolve();
   assert.equal(await saved, true);
   assert.equal(status.textContent, 'Saved.');
+  assert.equal(dirty.textContent, '');
   assert.equal(document.activeElement, input);
   assert.equal(view.el.hasAttribute('aria-busy'), false);
   input.value = 'Draft reset by explicit render';
