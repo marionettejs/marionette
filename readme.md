@@ -39,7 +39,7 @@ The v5 pre-release is under active development. These guides describe the curren
 source; published prereleases can lag behind it. Registry commands below require
 the named version to be published. Stable v5 will ship only after
 the public contract, migration, application usability, packaging, browser, performance,
-and stabilization gates in the [project roadmap](ROADMAP.md) pass. Comparative
+and stabilization gates in the [project roadmap](https://github.com/marionettejs/marionette/blob/master/ROADMAP.md) pass. Comparative
 agent advantages require separate evidence and are not a condition of stability.
 
 ## Install
@@ -94,8 +94,8 @@ See [installation](docs/installation.md) for package entrypoints and supported s
 - [Upgrade guide](upgradeGuide.md)
 
 Builds containing these documentation resources include the matching consumer
-guides under `dist/docs/`; earlier published alphas may not include them.
-Start at `dist/docs/readme.md`; its manifest records source revision and content
+guides under `docs/`; earlier published alphas may not include them.
+Start at `docs/readme.md`; `docs-manifest.json` records source revision and content
 hashes. Read the page needed for the task rather than loading the whole bundle.
 
 The API reference is being reconciled for stable v5 in
@@ -108,9 +108,9 @@ work is complete, the repository's v5 guides above are canonical; the hosted
 Found an awkward API, a missing example, or a bug that survives a convincing test
 suite? Bring a small reproduction. Contributions should start from a focused public
 issue that describes the intended behavior and its runtime cost. See
-[CONTRIBUTING.md](CONTRIBUTING.md) and the [v5 roadmap](ROADMAP.md).
+[CONTRIBUTING.md](https://github.com/marionettejs/marionette/blob/master/CONTRIBUTING.md) and the [v5 roadmap](https://github.com/marionettejs/marionette/blob/master/ROADMAP.md).
 
-The [maintainer guide](docs/maintainers/readme.md) maps each change to the relevant
+The [maintainer guide](https://github.com/marionettejs/marionette/blob/master/docs/maintainers/readme.md) maps each change to the relevant
 source and validation commands.
 
 ## License

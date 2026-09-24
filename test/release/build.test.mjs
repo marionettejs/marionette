@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, realpath, symlink, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { test } from 'node:test';
 import { fixture, git, hash, names } from './fixture.mjs';
@@ -16,7 +16,7 @@ async function buildFixture(t, { version = '5.0.0-test.1', manifestMutation } = 
     manifestMutation?.(id, manifest);
     await writeFile(resolve(directory, 'package.json'), JSON.stringify(manifest));
   }
-  await writeFile(resolve(candidate.root, '.gitignore'), 'dist/\nnode_modules/\ntest/tmp/\n');
+  await writeFile(resolve(candidate.root, '.gitignore'), 'dist/\n.package/\nnode_modules/\ntest/tmp/\n');
   await mkdir(resolve(candidate.root, 'test/fixtures/data-package-starter'), { recursive: true });
   await writeFile(resolve(candidate.root, 'test/fixtures/data-package-starter/package-lock.json'), JSON.stringify({ packages: {} }));
   await mkdir(resolve(candidate.root, 'scripts/performance'), { recursive: true });
@@ -38,8 +38,15 @@ appendFileSync(${JSON.stringify(calls)}, JSON.stringify(args) + '\\n');
 if (args[0] === 'run') {
   if (process.env.RELEASE_TEST_BUILD_FAILURE === args[1]) { console.error('intentional build command failure'); process.exit(9); }
   if (args[1] === 'build') { mkdirSync('dist', { recursive: true }); writeFileSync('dist/built.js', 'built from source');
-    mkdirSync('dist/docs/starter', { recursive: true });
-    writeFileSync('dist/docs/starter/package.json', JSON.stringify({ name: 'starter', private: true }));
+    mkdirSync('.package', { recursive: true });
+    const staged = JSON.parse(readFileSync('package.json'));
+    staged.files = [...new Set([...(staged.files || []), 'docs-manifest.json', 'starter/'])];
+    if (process.env.RELEASE_TEST_STAGE_FILES) { staged.files.push('test/'); }
+    writeFileSync('.package/package.json', JSON.stringify(staged));
+    writeFileSync('.package/docs-manifest.json', JSON.stringify({ pages: [], assets: [] }));
+    if (process.env.RELEASE_TEST_STALE_STAGE) { writeFileSync('.package/package.json', JSON.stringify({ name: 'marionette', version: '0.0.0' })); }
+    mkdirSync('.package/starter', { recursive: true });
+    writeFileSync('.package/starter/package.json', JSON.stringify({ name: 'starter', private: true }));
   }
   else if (args[1] === 'test:dist') { assert.equal(readFileSync('dist/built.js', 'utf8'), 'built from source'); }
   else { throw new Error('Unexpected npm run: ' + args); }
@@ -102,7 +109,9 @@ for (const version of ['5.0.0-test.1', '5.0.0']) {
     }
     const calls = (await readFile(candidate.calls, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
     assert.deepEqual(calls.slice(0, 2), [['run', 'build'], ['run', 'test:dist']]);
-    assert.equal(calls.filter(args => args[0] === 'pack').length, 5);
+    const packCalls = calls.filter(args => args[0] === 'pack');
+    assert.equal(packCalls.length, 5);
+    assert.equal(await realpath(packCalls[2][1]), await realpath(resolve(candidate.root, '.package')));
     const verify = candidate.run('verify-artifact', ['--artifact-dir', candidate.output]);
     assert.equal(verify.status, 0, verify.stderr);
     const retry = candidate.run('build-artifact', ['--output', candidate.output]);
@@ -112,6 +121,8 @@ for (const version of ['5.0.0-test.1', '5.0.0']) {
 }
 
 for (const [name, env, error] of [
+  ['staged allowlist mismatch', { RELEASE_TEST_STAGE_FILES: 'yes' }, /staged package.json does not match/],
+  ['staged manifest mismatch', { RELEASE_TEST_STALE_STAGE: 'yes' }, /staged package.json does not match/],
   ['build failure', { RELEASE_TEST_BUILD_FAILURE: 'build' }, /status 9/],
   ['distribution failure', { RELEASE_TEST_BUILD_FAILURE: 'test:dist' }, /status 9/],
   ['pack count', { RELEASE_TEST_PACK_FAILURE: 'count' }, /Expected one utils tarball/],
@@ -177,4 +188,19 @@ test('artifact construction rejects malformed publication policy before building
   assert.match(result.stderr, /Invalid release publication policy/);
   assert.equal(await readFile(candidate.calls, 'utf8'), '');
   assert.deepEqual(await readdir(candidate.output), []);
+});
+
+
+test('release output rejects the staging tree and symlink aliases before building', async t => {
+  const candidate = await buildFixture(t);
+  const stage = resolve(candidate.root, '.package');
+  await mkdir(stage);
+  const alias = resolve(candidate.directory, 'stage-alias');
+  await symlink(stage, alias, 'junction');
+  for (const output of [stage, resolve(stage, 'nested'), alias, resolve(alias, 'nested')]) {
+    const result = candidate.run('build-artifact', ['--output', output]);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /must not overlap the .package/);
+  }
+  assert.equal(await readFile(candidate.calls, 'utf8'), '');
 });

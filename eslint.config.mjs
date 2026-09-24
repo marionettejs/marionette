@@ -10,6 +10,7 @@ export default [
     ignores: [
       '.claude/worktrees/**',
       '.docs-site/**',
+      '.package/**',
       '.docs-export/**',
       '.docs-export-tmp/**',
       // Preserve submitted trial artifacts exactly as evaluated.

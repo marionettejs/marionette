@@ -1,10 +1,10 @@
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { appendFile, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { appendFile, mkdir, readFile, readdir, realpath, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import process from 'node:process';
 import { readArguments } from './arguments.mjs';
-import { releasePackages } from './packages.mjs';
+import { releasePackages, stagedCoreManifest } from './packages.mjs';
 import { publicationEnabled } from './publication.mjs';
 import { buildDevelopmentKit } from '../docs/development-kit.mjs';
 
@@ -58,7 +58,19 @@ async function getNpmVersion() {
   return npmPackage.version;
 }
 
-const outputDir = resolve(root, args.output);
+const requestedOutput = resolve(root, args.output);
+// Resolve existing ancestors too, so symlink aliases cannot overlap build outputs.
+async function canonicalOutput(path) {
+  try { return await realpath(path); } catch (error) {
+    if (error.code !== 'ENOENT') { throw error; }
+    return resolve(await canonicalOutput(dirname(path)), relative(dirname(path), path));
+  }
+}
+const outputDir = await canonicalOutput(requestedOutput);
+const stagingRoot = resolve(await realpath(root), '.package');
+if (outputDir === stagingRoot || outputDir.startsWith(`${stagingRoot}${sep}`)) {
+  throw new Error('Release output must not overlap the .package build staging directory.');
+}
 await mkdir(outputDir, { recursive: true });
 if ((await readdir(outputDir)).length !== 0) {
   throw new Error(`Release artifact directory must be empty: ${outputDir}`);
@@ -126,10 +138,16 @@ for (const configuration of releasePackages) {
     throw new Error(`${manifest.name} Marionette peer ${manifest.peerDependencies?.marionette || 'missing'} does not match ${packageJson.version}.`);
   }
 
+  const packedManifest = configuration.id === 'core' ?
+    stagedCoreManifest(manifest, await readJson('.package/docs-manifest.json')) : manifest;
+  if (configuration.id === 'core' && JSON.stringify(await readJson('.package/package.json')) !== JSON.stringify(packedManifest)) {
+    throw new Error('Core staged package.json does not match the expected generated manifest.');
+  }
+
   const packOutput = run(process.execPath, [
     npmCli,
     'pack',
-    resolve(root, configuration.directory),
+    resolve(root, configuration.id === 'core' ? '.package' : configuration.directory),
     '--ignore-scripts',
     '--json',
     '--pack-destination',
@@ -157,7 +175,7 @@ for (const configuration of releasePackages) {
     id: configuration.id,
     name: configuration.name,
     version: manifest.version,
-    manifest,
+    manifest: packedManifest,
     manifestReport: {
       file: configuration.manifestFile,
       sha512: sha512(Buffer.from(packageManifestText)),
@@ -226,7 +244,7 @@ const evidence = {
 };
 
 evidence.reports.developmentStarter = await buildDevelopmentKit({
-  source: resolve(root, 'dist/docs/starter'), toolingLock: resolve(root, 'test/fixtures/data-package-starter/package-lock.json'), artifactDir: outputDir, packages,
+  source: resolve(root, '.package/starter'), toolingLock: resolve(root, 'test/fixtures/data-package-starter/package-lock.json'), artifactDir: outputDir, packages,
   sourceCommit, npmCli: process.env.npm_execpath
 });
 

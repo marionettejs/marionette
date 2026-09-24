@@ -5,7 +5,7 @@ cd "$(dirname "$0")/../.."
 artifacts=$(mktemp -d "${TMPDIR:-/tmp}/marionette-package-smoke.XXXXXX")
 trap 'rm -rf "$artifacts"' EXIT
 
-directories=(. packages/data packages/adapters packages/utils packages/radio)
+directories=(.package packages/data packages/adapters packages/utils packages/radio)
 flags=(--tarball --data-tarball --adapters-tarball --utils-tarball --radio-tarball)
 arguments=()
 for index in "${!directories[@]}"; do

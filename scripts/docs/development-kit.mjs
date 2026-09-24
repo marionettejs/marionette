@@ -73,7 +73,7 @@ npm run dev
 
 Use the Node/npm profile in release-evidence.json. The starter lockfile selects these
 exact local tarballs, including their integrity hashes, with no npm version lookup
-for Marionette packages. The documentation in node_modules/marionette/dist/docs
+for Marionette packages. The documentation in node_modules/marionette/docs
 belongs to this same source. Start with docs/development.md and docs/troubleshooting.md.
 Validation status is recorded in candidate-validation.json when certification finishes.
 `);
