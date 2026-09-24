@@ -15,7 +15,7 @@ After installing a release containing the starter, copy it into an empty app
 folder outside `node_modules`:
 
 ```sh
-cp -R node_modules/marionette/dist/docs/starter ../my-marionette-app
+cp -R node_modules/marionette/starter ../my-marionette-app
 cd ../my-marionette-app
 mv gitignore .gitignore
 npm install
@@ -73,8 +73,8 @@ checkout, linking step, or separate runtime installation. To create an artifact
 from source, maintainers use the [release procedure](https://github.com/marionettejs/marionette/blob/master/docs/release-promotion.md#dry-run).
 Creating or testing a candidate does not publish it.
 
-Read `node_modules/marionette/dist/docs/docs/readme.md` and its neighboring pages
-for the APIs in this candidate. `node_modules/marionette/dist/docs/manifest.json`
+Read `node_modules/marionette/docs/readme.md` and its neighboring pages
+for the APIs in this candidate. `node_modules/marionette/docs-manifest.json`
 records its source revision. Give an agent that installed documentation path;
 start with [the compact reference](compact-reference.md), then the relevant API.
 Do not combine an unreleased starter with registry beta.1 dependencies.

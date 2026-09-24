@@ -18,7 +18,7 @@ data in these instructions.
 
 - Application workspace: [directory containing this application's manifest].
 - Marionette package/version and install source: [lockfile and resolved package].
-- Documentation: [installed dist/docs path or exact release/source snapshot].
+- Documentation: [installed docs path or exact release/source snapshot].
 - Source revision and local changes, when known: [manifest provenance].
 - Optional Marionette packages: [actual versions, or none].
 

@@ -36,7 +36,7 @@ using remote results. The skill falls back to installed Markdown when they diffe
 
 ## Install only the consumer skill
 
-Builds containing these resources ship `dist/agent-skill/` and `dist/docs/` inside
+Builds containing these resources ship `dist/agent-skill/` and `docs/` inside
 the `marionette` package. Check that both exist in your installed package before
 following these steps; earlier artifacts do not contain them. Do not upgrade an
 application just to install instructions.

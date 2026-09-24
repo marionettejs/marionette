@@ -33,8 +33,8 @@ tarballs skips rebuilding.
 
 For a local core tarball, run `npm run build` followed by
 `npm pack ./.package --ignore-scripts`; the generated staging directory contains
-package-relative README and upgrade-guide links. Source Markdown and website
-exports retain their repository paths. Release and fixture tooling use this same
+consumer docs at their repository-relative paths. Root guides, source Markdown,
+and website exports share the same links. Release and fixture tooling use this same
 staged core package.
 
 `npm pack` and npm Git installs

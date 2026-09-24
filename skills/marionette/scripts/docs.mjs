@@ -50,15 +50,11 @@ async function main() {
   }
   const packageRoot = options['package-root'] ? await realpath(options['package-root']) : await installedPackage(options.project);
   const metadata = await json(resolve(packageRoot, 'package.json'));
-  const docsRoot = await realpath(resolve(packageRoot, 'dist/docs')).catch(() => {
-    throw new Error('This package has no dist/docs. Read its exports/declarations and obtain documentation from its exact release or known source revision; do not substitute current master.');
+  const manifestPath = await realpath(resolve(packageRoot, 'docs-manifest.json')).catch(error => {
+    if (error.code !== 'ENOENT') { throw error; }
+    throw new Error('This package has no docs-manifest.json. Read its exports/declarations and obtain documentation from its exact release or known source revision; do not substitute current master.');
   });
-  const docsLocal = relative(packageRoot, docsRoot);
-  if (docsLocal === '..' || docsLocal.startsWith(`..${sep}`) || isAbsolute(docsLocal)) {
-    throw new Error('Documentation root escapes its package.');
-  }
-  const manifestPath = await realpath(resolve(docsRoot, 'manifest.json'));
-  const manifestLocal = relative(docsRoot, manifestPath);
+  const manifestLocal = relative(packageRoot, manifestPath);
   if (manifestLocal === '..' || manifestLocal.startsWith(`..${sep}`) || isAbsolute(manifestLocal)) {
     throw new Error('Documentation manifest escapes its package.');
   }
@@ -78,8 +74,8 @@ async function main() {
       throw new Error('Unsafe documentation source path.');
     }
     if (files.has(source)) { throw new Error(`Duplicate documentation source: ${source}`); }
-    const path = await realpath(resolve(docsRoot, source));
-    const local = relative(docsRoot, path);
+    const path = await realpath(resolve(packageRoot, source));
+    const local = relative(packageRoot, path);
     if (local === '..' || local.startsWith(`..${sep}`) || isAbsolute(local)) {
       throw new Error(`Documentation source escapes its package: ${source}`);
     }

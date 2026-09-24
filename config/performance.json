@@ -271,7 +271,6 @@
     "docs/",
     "docs-site/",
     "dist/eslint/",
-    "dist/docs/",
     "dist/agent-skill/",
     "eslint-rules/",
     "node_modules/",

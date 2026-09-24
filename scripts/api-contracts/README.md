@@ -2,7 +2,7 @@
 
 This is the compact contract record for core, utils, Radio, native data and every
 adapter entrypoint. The existing guides remain the canonical explanations.
-The JSON is documentation metadata, packaged under `dist/docs/config/api-contracts/`;
+The JSON is documentation metadata, packaged under `config/api-contracts/`;
 it is never imported by production modules.
 
 - [inventory.json](../../config/api-contracts/inventory.json) derives exports, signatures, inherited public

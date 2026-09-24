@@ -73,6 +73,10 @@ export async function prepareArtifacts({ root = repositoryRoot, manifestPath, ou
     directory = dirname(resolve(manifestPath));
     manifest = await readJson(resolve(manifestPath));
   } else {
+    const stage = await lstat(resolve(root, '.package')).catch(() => null);
+    if (!stage?.isDirectory() || stage.isSymbolicLink()) {
+      throw new Error('PACKAGED_DOC_STAGE: run npm run build before packing local benchmark artifacts.');
+    }
     directory = output;
     manifest = { schemaVersion: 3, packages: [] };
     for (const [id, name, path] of packageDefinitions) {

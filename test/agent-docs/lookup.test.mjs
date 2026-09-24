@@ -15,7 +15,7 @@ async function fixture(t) {
   t.after(() => rm(temporary, { recursive: true, force: true }));
   const app = resolve(temporary, 'app');
   const packageRoot = resolve(app, 'node_modules/marionette');
-  const docs = resolve(packageRoot, 'dist/docs');
+  const docs = packageRoot;
   const skill = resolve(app, '.agents/skills/marionette');
   await mkdir(resolve(docs, 'docs'), { recursive: true });
   await mkdir(resolve(app, 'src/feature'), { recursive: true });
@@ -28,7 +28,7 @@ async function fixture(t) {
     sourceRevision: 'a'.repeat(40), sourceDirty: true,
     contentSha256: hash(`${page.source}\0${page.sha256}\n`), pages: [page], assets: [],
   };
-  const save = () => writeFile(resolve(docs, 'manifest.json'), JSON.stringify(manifest));
+  const save = () => writeFile(resolve(docs, 'docs-manifest.json'), JSON.stringify(manifest));
   await save();
   await cp(resolve(repository, 'skills/marionette'), skill, { recursive: true });
   const run = (...args) => spawnSync(process.execPath, [resolve(skill, 'scripts/docs.mjs'), ...args], {
@@ -75,7 +75,7 @@ test('nearest workspace dependency wins over another installed version', async t
 
 test('missing packaged docs fails with an explicit source requirement', async t => {
   const data = await fixture(t);
-  await rm(data.docs, { recursive: true });
+  await rm(resolve(data.packageRoot, 'docs-manifest.json'));
   const result = data.run();
   assert.equal(result.status, 1);
   assert.match(result.stderr, /exact release or known source revision/);
@@ -116,8 +116,8 @@ test('manifest symlinks outside the snapshot are rejected before reading', async
   const data = await fixture(t);
   const outside = resolve(data.temporary, 'external-manifest.json');
   await writeFile(outside, JSON.stringify(data.manifest));
-  await rm(resolve(data.docs, 'manifest.json'));
-  await symlink(outside, resolve(data.docs, 'manifest.json'));
+  await rm(resolve(data.docs, 'docs-manifest.json'));
+  await symlink(outside, resolve(data.docs, 'docs-manifest.json'));
   const result = data.run();
   assert.equal(result.status, 1);
   assert.match(result.stderr, /Documentation manifest escapes its package/);
@@ -141,13 +141,14 @@ test('unknown pages and ambiguous arguments fail without changing package files'
   assert.equal(await readFile(resolve(data.docs, 'docs/routing.md'), 'utf8'), data.content);
 });
 
-test('a documentation root symlink cannot escape the installed package', async t => {
+test('a documentation directory symlink cannot escape the installed package', async t => {
   const data = await fixture(t);
   const outside = resolve(data.temporary, 'external-docs');
-  await cp(data.docs, outside, { recursive: true });
-  await rm(data.docs, { recursive: true });
-  await symlink(outside, data.docs, 'dir');
+  const directory = resolve(data.packageRoot, 'docs');
+  await cp(directory, outside, { recursive: true });
+  await rm(directory, { recursive: true });
+  await symlink(outside, directory, 'dir');
   const result = data.run();
   assert.equal(result.status, 1);
-  assert.match(result.stderr, /Documentation root escapes its package/);
+  assert.match(result.stderr, /Documentation source escapes its package/);
 });

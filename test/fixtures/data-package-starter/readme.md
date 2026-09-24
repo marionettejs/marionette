@@ -7,7 +7,7 @@ your existing router when the application needs URLs.
 
 ## Start from an npm release
 
-Copy this entire directory from `node_modules/marionette/dist/docs/starter` into
+Copy this entire directory from `node_modules/marionette/starter` into
 an empty application directory outside `node_modules`. The packaged manifest
 selects matching versions of `marionette` and `@mnjs/data`. Use Node 24 or later:
 
@@ -57,6 +57,6 @@ these tests for your application; a passing build is not a browser check.
 through development and application builds. Open authored sources in browser
 developer tools. `eslint.config.mjs` enables the public Marionette consumer rules.
 
-Use `node_modules/marionette/dist/docs/docs/development.md` for the complete workflow
+Use `node_modules/marionette/docs/development.md` for the complete workflow
 and matching troubleshooting and API guidance. The adjacent manifest records the
 source revision. A package version alone cannot identify an unpublished build.

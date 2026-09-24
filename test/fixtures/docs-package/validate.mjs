@@ -8,12 +8,10 @@ import { execFileSync } from 'node:child_process';
 import { Marked } from 'marked';
 
 const require = createRequire(import.meta.url);
-const packageRoot = dirname(require.resolve('marionette/package.json'));
-const docsRoot = await realpath(resolve(packageRoot, 'dist/docs'));
-const docsLocal = relative(await realpath(packageRoot), docsRoot);
-assert.ok(docsLocal !== '..' && !docsLocal.startsWith(`..${sep}`) && !isAbsolute(docsLocal),
-  'Documentation root escapes its package');
-const manifest = JSON.parse(await readFile(resolve(docsRoot, 'manifest.json'), 'utf8'));
+const packageRoot = await realpath(dirname(require.resolve('marionette/package.json')));
+const manifestPath = await containedWithin(packageRoot,
+  resolve(packageRoot, 'docs-manifest.json'), 'Documentation manifest');
+const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
 const pkg = JSON.parse(await readFile(resolve(packageRoot, 'package.json'), 'utf8'));
 assert.equal(manifest.packageVersion, pkg.version);
 const hash = value => createHash('sha256').update(value).digest('hex');
@@ -40,11 +38,11 @@ async function containedWithin(root, path, label) {
     `${label} escapes its root: ${path}`);
   return target;
 }
-const contained = path => containedWithin(docsRoot, path, 'Target');
+const contained = path => containedWithin(packageRoot, path, 'Target');
 const parser = new Marked();
 let linksChecked = 0;
 for (const entry of entries) {
-  const bytes = await readFile(await contained(resolve(docsRoot, entry.source)));
+  const bytes = await readFile(await contained(resolve(packageRoot, entry.source)));
   assert.equal(hash(bytes), entry.sha256, entry.source);
   if (!entry.source.endsWith('.md')) {continue;}
   const hrefs = [];
@@ -56,7 +54,7 @@ for (const entry of entries) {
     let file;
     assert.doesNotThrow(() => { file = decodeURIComponent(href.split('#')[0].split('?')[0]); }, `${entry.source}: invalid URL ${href}`);
     if (!file) {continue;}
-    await assert.doesNotReject(contained(resolve(docsRoot, dirname(entry.source), file)), `${entry.source}: missing packaged target ${href}`);
+    await assert.doesNotReject(contained(resolve(packageRoot, dirname(entry.source), file)), `${entry.source}: missing packaged target ${href}`);
     linksChecked++;
   }
 }
@@ -70,8 +68,8 @@ assert.ok(manifest.assets.some(asset => asset.source === 'test/fixtures/docs-rou
   'Consumer fixture evidence must be available offline');
 const installedSkill = await containedWithin(packageRoot,
   resolve(packageRoot, 'dist/agent-skill'), 'Packaged skill');
-const documentedSkill = await containedWithin(docsRoot,
-  resolve(docsRoot, 'skills/marionette'), 'Documented skill');
+const documentedSkill = await containedWithin(packageRoot,
+  resolve(packageRoot, 'skills/marionette'), 'Documented skill');
 const skillFiles = await files(documentedSkill);
 assert.deepEqual(await files(installedSkill), skillFiles,
   'Packaged skill paths differ from the documented canonical snapshot');
@@ -115,7 +113,7 @@ try {
         const result = JSON.parse(output.slice(0, headerEnd));
         assert.equal(result.sourceRevision, manifest.sourceRevision);
         assert.equal(result.source, 'docs/agents.md');
-        const page = await readFile(resolve(docsRoot, result.source), 'utf8');
+        const page = await readFile(resolve(packageRoot, result.source), 'utf8');
         assert.equal(output.slice(headerEnd + 1), `${page}\n`);
       }
     }

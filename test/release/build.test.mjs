@@ -40,8 +40,9 @@ if (args[0] === 'run') {
   if (args[1] === 'build') { mkdirSync('dist', { recursive: true }); writeFileSync('dist/built.js', 'built from source');
     mkdirSync('.package', { recursive: true });
     cpSync('package.json', '.package/package.json');
-    mkdirSync('dist/docs/starter', { recursive: true });
-    writeFileSync('dist/docs/starter/package.json', JSON.stringify({ name: 'starter', private: true }));
+    if (process.env.RELEASE_TEST_STALE_STAGE) { writeFileSync('.package/package.json', JSON.stringify({ name: 'marionette', version: '0.0.0' })); }
+    mkdirSync('.package/starter', { recursive: true });
+    writeFileSync('.package/starter/package.json', JSON.stringify({ name: 'starter', private: true }));
   }
   else if (args[1] === 'test:dist') { assert.equal(readFileSync('dist/built.js', 'utf8'), 'built from source'); }
   else { throw new Error('Unexpected npm run: ' + args); }
@@ -106,7 +107,7 @@ for (const version of ['5.0.0-test.1', '5.0.0']) {
     assert.deepEqual(calls.slice(0, 2), [['run', 'build'], ['run', 'test:dist']]);
     const packCalls = calls.filter(args => args[0] === 'pack');
     assert.equal(packCalls.length, 5);
-    assert.equal(packCalls[2][1], await realpath(resolve(candidate.root, '.package')));
+    assert.equal(await realpath(packCalls[2][1]), await realpath(resolve(candidate.root, '.package')));
     const verify = candidate.run('verify-artifact', ['--artifact-dir', candidate.output]);
     assert.equal(verify.status, 0, verify.stderr);
     const retry = candidate.run('build-artifact', ['--output', candidate.output]);
@@ -116,6 +117,7 @@ for (const version of ['5.0.0-test.1', '5.0.0']) {
 }
 
 for (const [name, env, error] of [
+  ['staged manifest mismatch', { RELEASE_TEST_STALE_STAGE: 'yes' }, /staged package.json does not match/],
   ['build failure', { RELEASE_TEST_BUILD_FAILURE: 'build' }, /status 9/],
   ['distribution failure', { RELEASE_TEST_BUILD_FAILURE: 'test:dist' }, /status 9/],
   ['pack count', { RELEASE_TEST_PACK_FAILURE: 'count' }, /Expected one utils tarball/],

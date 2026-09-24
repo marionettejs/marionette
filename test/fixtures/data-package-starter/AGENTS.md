@@ -1,12 +1,12 @@
 # Work on this Marionette application
 
-Use `node_modules/marionette/dist/docs/docs/agents.md` for application architecture
+Use `node_modules/marionette/docs/agents.md` for application architecture
 and its task links for specific contracts. The compact reference is an optional
-overview. `dist/docs/manifest.json` and this application's lockfile identify the
+overview. `docs-manifest.json` and this application's lockfile identify the
 installed version and source; do not substitute mismatched website examples.
 
 For skill setup or remote documentation retrieval, consult the installed
-`docs/agent-tools.md` under `dist/docs`. Local Markdown is sufficient.
+`docs/agent-tools.md` under the package root. Local Markdown is sufficient.
 
 ## Existing architecture
 

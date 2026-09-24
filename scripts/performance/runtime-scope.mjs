@@ -8,7 +8,7 @@ export function isCoreRuntimeArtifact(path) {
 }
 
 export function isDocumentationArtifact(path) {
-  return path.startsWith('dist/docs/') || path.startsWith('dist/agent-skill/');
+  return path.startsWith('dist/agent-skill/');
 }
 
 export function isToolingArtifact(path) {

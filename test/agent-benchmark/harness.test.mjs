@@ -234,3 +234,22 @@ test('saved artifact inputs can be reused for another benchmark attempt', async 
   assert.deepEqual(second.packages.map(({ path, ...entry }) => entry), first.packages.map(({ path, ...entry }) => entry));
   assert.deepEqual(second.source, first.source);
 });
+
+
+test('local artifact preparation packs the staged core and rejects missing stages', async t => {
+  const { prepareArtifacts } = await import('../../scripts/agent-benchmark/harness.mjs');
+  const { execFileSync } = await import('node:child_process');
+  const root = await mkdtemp(join(tmpdir(), 'agent-staged-pack-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await assert.rejects(prepareArtifacts({ root, output: join(root, 'missing') }), /PACKAGED_DOC_STAGE/);
+  for (const [directory, name] of [['.package', 'marionette'], ['packages/data', '@mnjs/data'],
+    ['packages/adapters', '@mnjs/adapters'], ['packages/utils', '@mnjs/utils'], ['packages/radio', '@mnjs/radio']]) {
+    await mkdir(join(root, directory), { recursive: true });
+    await writeFile(join(root, directory, 'package.json'), JSON.stringify({ name, version: '1.0.0' }));
+  }
+  await writeFile(join(root, '.package/readme.md'), 'staged documentation');
+  await writeFile(join(root, 'package.json'), JSON.stringify({ name: 'wrong-source', version: '0.0.0' }));
+  const result = await prepareArtifacts({ root, output: join(root, 'artifacts') });
+  assert.equal(result.packages.length, 5);
+  assert.equal(execFileSync('tar', ['-xOf', result.packages.find(entry => entry.id === 'core').path, 'package/readme.md'], { encoding: 'utf8' }), 'staged documentation');
+});

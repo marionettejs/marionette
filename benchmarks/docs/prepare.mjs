@@ -9,7 +9,7 @@ if (!output) {throw new Error('Usage: node benchmarks/docs/prepare.mjs /absolute
 await readFile(resolve(root, 'dist/agent-skill/SKILL.md'));
 await mkdir(output); // Refuse to overwrite an existing attempt.
 const tasks = ['latest-navigation', 'editable-list', 'widget-lifetime'];
-const manifest = JSON.parse(await readFile(resolve(root, 'dist/docs/manifest.json'), 'utf8'));
+const manifest = JSON.parse(await readFile(resolve(root, '.package/docs-manifest.json'), 'utf8'));
 await writeFile(resolve(output, 'provenance.json'), JSON.stringify({
   packageVersion: manifest.packageVersion, sourceRevision: manifest.sourceRevision,
   sourceDirty: manifest.sourceDirty, contentSha256: manifest.contentSha256, tasks,
@@ -22,7 +22,7 @@ const npm = (args, cwd) => execFileSync('npm', args, {
   env: { ...process.env, npm_config_fund: 'false', npm_config_audit: 'false' },
 });
 const dependencies = { jsdom: '30.0.1' };
-for (const location of ['.', 'packages/utils', 'packages/radio', 'packages/data']) {
+for (const location of ['.package', 'packages/utils', 'packages/radio', 'packages/data']) {
   const cwd = resolve(root, location);
   const { name } = JSON.parse(await readFile(resolve(cwd, 'package.json'), 'utf8'));
   const [packed] = JSON.parse(npm(['pack', '--ignore-scripts', '--json', '--pack-destination', packs], cwd));

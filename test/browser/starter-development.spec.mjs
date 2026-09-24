@@ -37,7 +37,7 @@ test('installed TypeScript starter releases old owners across repeated Vite edit
       // Before publication, exact tarballs stand in for the unavailable registry
       // version without rewriting the starter's declared version dependencies.
       const npmStarter = join(directory, 'npm-starter');
-      await cp(join(core.directory, 'dist/docs/starter'), npmStarter, { recursive: true });
+      await cp(join(core.directory, 'starter'), npmStarter, { recursive: true });
       expect(await readdir(npmStarter)).not.toContain('package-lock.json');
       await rename(join(npmStarter, 'gitignore'), join(npmStarter, '.gitignore'));
       expect(await readFile(join(npmStarter, '.gitignore'), 'utf8')).toContain('node_modules/');
@@ -67,7 +67,7 @@ test('installed TypeScript starter releases old owners across repeated Vite edit
       await rm(npmStarter, { recursive: true, force: true });
     }
     const report = await buildDevelopmentKit({
-      source: join(core.directory, 'dist/docs/starter'),
+      source: join(core.directory, 'starter'),
       toolingLock: new URL('../fixtures/data-package-starter/package-lock.json', import.meta.url), artifactDir: directory,
       packages: candidate.packages, sourceCommit: candidate.source?.commit || 'local',
       npmCli: process.env.npm_execpath

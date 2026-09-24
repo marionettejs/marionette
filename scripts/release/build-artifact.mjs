@@ -126,6 +126,10 @@ for (const configuration of releasePackages) {
     throw new Error(`${manifest.name} Marionette peer ${manifest.peerDependencies?.marionette || 'missing'} does not match ${packageJson.version}.`);
   }
 
+  if (configuration.id === 'core' && JSON.stringify(await readJson('.package/package.json')) !== JSON.stringify(manifest)) {
+    throw new Error('Core staged package.json does not match the source manifest.');
+  }
+
   const packOutput = run(process.execPath, [
     npmCli,
     'pack',
@@ -226,7 +230,7 @@ const evidence = {
 };
 
 evidence.reports.developmentStarter = await buildDevelopmentKit({
-  source: resolve(root, 'dist/docs/starter'), toolingLock: resolve(root, 'test/fixtures/data-package-starter/package-lock.json'), artifactDir: outputDir, packages,
+  source: resolve(root, '.package/starter'), toolingLock: resolve(root, 'test/fixtures/data-package-starter/package-lock.json'), artifactDir: outputDir, packages,
   sourceCommit, npmCli: process.env.npm_execpath
 });
 
