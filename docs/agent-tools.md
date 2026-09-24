@@ -9,10 +9,23 @@ account, network access, hosted model, or shared API key to read.
 
 ## Install the Marionette plugin
 
-For Codex and ChatGPT clients with plugin support, install Marionette's upstream
-plugin instead of copying its skill and MCP configuration into each application.
-The plugin bundles the consumer skill and the public read-only documentation MCP;
-the application repository keeps only its own integration and verification decisions.
+Install Marionette's upstream plugin when your client supports it. The plugin
+bundles the consumer skill and the public read-only documentation MCP; the
+application repository keeps only its own integration and verification decisions.
+
+| Client | Plugin discovery | Install |
+| --- | --- | --- |
+| Codex and ChatGPT with plugin support | `.agents/plugins/marketplace.json` | [Codex CLI](#codex) |
+| Claude Code | `.claude-plugin/marketplace.json` | [Claude Code setup](#claude-code) |
+| Cursor | `.cursor-plugin/marketplace.json` | [Cursor setup](#cursor) |
+| GitHub Copilot CLI | `.claude-plugin/marketplace.json` | [Copilot CLI setup](#github-copilot-cli) |
+
+These marketplaces point to the same `plugins/marionette/skills/marionette/`
+tree. The portable `plugin.json` and `mcp.json` serve clients that support Agent
+Plugins 1.0. Claude Code reads its own manifest and `.mcp.json` from that plugin
+directory. Installing the plugin does not change an application's dependencies.
+
+### Codex
 
 Until the plugin is listed in the public directory, add Marionette's repository
 marketplace and install the plugin with the Codex CLI:
@@ -26,9 +39,46 @@ codex plugin add marionette@marionettejs
 The repository marketplace is pinned to this immutable Marionette release tag.
 
 Restart the client after installation, then confirm that `marionette` appears in
-its plugin or skill list. Installing the plugin makes the skill available to every
-repository on that Codex host; it does not change an application's dependencies.
-The skill can activate implicitly for Marionette work or explicitly as `$marionette`.
+its plugin or skill list. The skill can activate implicitly for Marionette work or
+explicitly as `$marionette`.
+
+### Claude Code
+
+Claude Code reads the marketplace in this repository and the plugin's
+`.claude-plugin/plugin.json`, skill, and `.mcp.json`. After a release tag
+containing these files exists, add its marketplace with
+`claude plugin marketplace add marionettejs/marionette@v<version>`, replacing
+`<version>` with that release's version. Then run
+`claude plugin install marionette@marionettejs`. The `v5.0.0-rc.1` tag predates
+the Claude Code marketplace, so it cannot be used for this installation.
+
+Check that `/marionette:marionette` is listed and `/mcp` shows
+the documentation server. A plugin reload or new session may be required.
+
+### Cursor
+
+Cursor can read `.cursor-plugin/marketplace.json` and the portable plugin in
+`plugins/marionette/`. Its documented flow imports
+`https://github.com/marionettejs/marionette` as a marketplace in Customize,
+then installs the plugin. Importing the default branch
+is a mutable preview until a release containing these files is available; the
+`v5.0.0-rc.1` tag does not include the Cursor marketplace. Check that the
+skill appears in Customize and that the documentation MCP is connected.
+
+### GitHub Copilot CLI
+
+Copilot CLI can read the same `.claude-plugin/marketplace.json` as Claude Code
+and the portable plugin it references. After a release tag containing these
+files exists, add its marketplace with
+`copilot plugin marketplace add marionettejs/marionette#v<version>`, replacing
+`<version>` with that release's version. Then run
+`copilot plugin install marionette@marionettejs`. The `v5.0.0-rc.1` tag predates
+this marketplace, so it cannot be used for this installation.
+
+Confirm that the plugin is listed and its skill and
+documentation MCP are available. Copilot in VS Code and Copilot cloud agent
+have different setup surfaces; follow their client documentation to install a
+skill and configure MCP.
 
 The bundled MCP is optional evidence. Always compare its catalog's package version
 and complete source revision with the application's installed documentation before
@@ -168,10 +218,11 @@ copied into a consumer application.
 
 ## Connect the optional documentation MCP
 
-The public, read-only endpoint is `https://mcp.marionettejs.com/mcp`. The Marionette
-plugin configures it for supported clients. The skill also declares the connection
-in `agents/openai.yaml`; OpenAI clients that honor this metadata can offer the MCP
-dependency when the skill is installed. Other clients require explicit Streamable
+The public, read-only endpoint is `https://mcp.marionettejs.com/mcp`. The portable
+plugin and Claude Code plugin each declare it; confirm that your installed client
+actually connects. The skill also declares the connection in `agents/openai.yaml`;
+OpenAI clients that honor this metadata can offer the MCP dependency when the skill
+is installed alone. Clients using a copied skill may require explicit Streamable
 HTTP configuration. No server login or API key is required. Follow the website's
 [MCP setup guide](https://marionettejs.com/docs/mcp/) for client configuration and
 the optional local stdio server. Installing the npm package or copying only the

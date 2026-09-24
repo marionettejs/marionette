@@ -1,0 +1,13 @@
+{
+  "name": "marionettejs",
+  "owner": {
+    "name": "Marionette.js"
+  },
+  "plugins": [
+    {
+      "name": "marionette",
+      "source": "./plugins/marionette",
+      "description": "Build and migrate Marionette applications with version-matched documentation."
+    }
+  ]
+}
