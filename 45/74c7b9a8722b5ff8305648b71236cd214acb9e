@@ -1,0 +1,44 @@
+test/browser/ownership-boundaries.spec.mjs
+  s_55787f6149f525::t_9f11aeef7aa8ab 104-123
+src/modules/application.ts
+  s_55787f6149f525::t_9f11aeef7aa8ab 820,827
+test/unit/modules-error.spec.js
+  s_55787f6149f525::t_16bfdb43d3b2cf 278-279
+  s_55787f6149f525::t_4ed5d12c15fbbd 2,20-32,51,70,75
+src/runtime/data-api.ts
+  s_55787f6149f525::t_9f11aeef7aa8ab 74,94
+packages/utils/src/error.ts
+  s_55787f6149f525::t_16e67f926ca8ec 68-70
+  s_55787f6149f525::t_b514ceceedfd30 31,37,45-47,66-67,71
+src/modules/collection-view.ts
+  s_55787f6149f525::t_16e67f926ca8ec 277-279
+  s_55787f6149f525::t_9f11aeef7aa8ab 259,634,720,1107,1149
+test/unit/collection-view/collection-view-reconciliation.spec.js
+  s_55787f6149f525::t_9f11aeef7aa8ab 332-346
+src/runtime/state-api.ts
+  s_55787f6149f525::t_9f11aeef7aa8ab 28
+packages/utils/src/bind-events.ts
+  s_55787f6149f525::t_9f11aeef7aa8ab 32
+src/modules/region.ts
+  s_55787f6149f525::t_9f11aeef7aa8ab 157,195,288,300
+docs/diagnostic-catalog.md
+  s_55787f6149f525::t_378502c17042cc 41-43
+test/unit/model-based/mutation-regressions.spec.js
+  s_55787f6149f525::t_71996e9c91f3f0 17,26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "4574c7b9a8722b5ff8305648b71236cd214acb9e",
+  "prompts": {},
+  "sessions": {
+    "s_55787f6149f525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d2b8-cb39-7233-916c-437345981b78",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
