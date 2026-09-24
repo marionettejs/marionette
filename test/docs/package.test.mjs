@@ -10,6 +10,8 @@ import { stagePackage } from '../../scripts/docs/stage-package.mjs';
 test('packed guides keep source bytes and resolve at repository-relative paths', async t => {
   const root = await mkdtemp(resolve(tmpdir(), 'marionette-package-links-'));
   t.after(() => rm(root, { recursive: true, force: true }));
+  await mkdir(resolve(root, 'scripts'));
+  await writeFile(resolve(root, 'scripts/not-exported.mjs'), 'throw new Error("source-only");');
   await mkdir(resolve(root, 'dist'), { recursive: true });
   await mkdir(resolve(root, '.docs-export/docs'), { recursive: true });
   const manifest = {
@@ -17,7 +19,7 @@ test('packed guides keep source bytes and resolve at repository-relative paths',
     pages: [{ source: 'docs/view.md' }, { source: 'docs/guide(v2).md' }], assets: []
   };
   const pkg = JSON.stringify({ name: 'marionette-link-fixture', version: '1.0.0',
-    files: ['dist/', 'docs/', 'docs-manifest.json', 'readme.md', 'upgradeGuide.md', 'license.txt'], main: 'dist/index.js' });
+    files: ['dist/', 'scripts/', 'docs/', 'docs-manifest.json', 'readme.md', 'upgradeGuide.md', 'license.txt'], main: 'dist/index.js' });
   const source = '[View\nreference](docs/view.md#render "View")\n' +
     '[Guide][view]\n\n[view]: <docs/view.md#render> "View"\n' +
     '[Parentheses](docs/guide(v2).md) [License](license.txt) [Upgrade](upgradeGuide.md)\n' +
@@ -43,6 +45,7 @@ test('packed guides keep source bytes and resolve at repository-relative paths',
   assert.equal(unpack('docs/view.md'), '# View\n\n## Render\n');
   assert.deepEqual(JSON.parse(unpack('docs-manifest.json')), manifest);
   assert.equal(files.has('package/stale.txt'), false);
+  assert.equal(files.has('package/scripts/not-exported.mjs'), false);
   assert.equal([...files].some(file => file.startsWith('package/dist/docs/')), false);
   for (const file of ['readme.md', 'upgradeGuide.md']) {
     await Promise.all(marked.walkTokens(marked.lexer(unpack(file)), token => {

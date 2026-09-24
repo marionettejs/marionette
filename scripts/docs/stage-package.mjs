@@ -17,10 +17,9 @@ export async function stagePackage(root, manifest) {
   await mkdir(destination, { recursive: true });
   const pkg = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));
   const entries = [...manifest.pages, ...manifest.assets];
-  const documentationRoots = new Set(entries.map(entry => `${entry.source.split('/')[0]}/`));
   // Documentation is copied from the selected export, never whole source directories.
   for (const file of ['package.json', ...pkg.files]) {
-    if (documentationRoots.has(file) || file === 'docs-manifest.json' || file === 'starter/') { continue; }
+    if ((file.endsWith('/') && file !== 'dist/') || file === 'docs-manifest.json') { continue; }
     await cp(resolve(root, file), resolve(destination, file), { recursive: true });
   }
   for (const { source } of entries) {
