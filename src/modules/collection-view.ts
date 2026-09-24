@@ -256,8 +256,7 @@ function throwCollectionProtocolError(message: string): never {
   throw new MarionetteError({
     code: 'MN0039',
     name: classErrorName,
-    message,
-    url: 'data.api.html#collection-observations'
+    message
   });
 }
 
@@ -275,7 +274,9 @@ function buildCollectionSnapshot(Data: DataProvider, collection: unknown, previo
       throwCollectionProtocolError(`DataApi.key() returned a missing key for model at index ${ index }.`);
     }
     if (keys.has(key)) {
-      throwCollectionProtocolError(`DataApi.key() returned duplicate key "${ String(key) }".`);
+      throwCollectionProtocolError(modelEntries.has(model) ?
+        `The same model appears more than once in the collection (index ${ index }). Each model must appear only once.` :
+        `DataApi.key() returned duplicate key "${ String(key) }" for distinct models (index ${ index }). Return a unique key for each model.`);
     }
     const previousEntry = previous?.get(model);
     if (previousEntry && !sameValueZero(previousEntry.key, key)) {
@@ -630,8 +631,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       throw new MarionetteError({
         code: 'MN0011',
         name: classErrorName,
-        message: 'A "childView" must be specified',
-        url: 'marionette.collectionview.html#collectionviews-childview'
+        message: 'A "childView" must be specified'
       });
     }
 
@@ -717,8 +717,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       throw new MarionetteError({
         code: 'MN0013',
         name: classErrorName,
-        message: `The specified "childViewContainer" was not found: ${childViewContainer}`,
-        url: 'marionette.collectionview.html#defining-the-childviewcontainer'
+        message: `The specified "childViewContainer" was not found: ${childViewContainer}`
       });
     }
   },
@@ -1105,8 +1104,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       throw new MarionetteError({
         code: 'MN0015',
         name: classErrorName,
-        message: 'Both views must be children of the collection view to swap.',
-        url: 'marionette.collectionview.html#swapping-child-views'
+        message: 'Both views must be children of the collection view to swap.'
       });
     }
 
@@ -1148,8 +1146,7 @@ Object.assign(CollectionView.prototype, ViewMixin, {
       throw new MarionetteError({
         code: 'MN0003',
         name: classErrorName,
-        message: 'View is already managed by an Application, Region, or CollectionView',
-        url: 'marionette.region.html#showing-a-view'
+        message: 'View is already managed by an Application, Region, or CollectionView'
       });
     }
 

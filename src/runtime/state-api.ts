@@ -25,8 +25,7 @@ export default {
     throw new MarionetteError({
       code: 'MN0037',
       name: 'StateApiError',
-      message: 'The default StateApi cannot observe stateEvents. Configure a StateApi that supports this state source or remove stateEvents.',
-      url: 'marionette.state.html#state-events'
+      message: 'The default StateApi cannot observe stateEvents. Configure a StateApi that supports this state source or remove stateEvents.'
     });
   }
 } satisfies StateApi<unknown> as StateApi<unknown>;

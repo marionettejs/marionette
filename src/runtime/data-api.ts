@@ -71,8 +71,7 @@ export default {
       throw new MarionetteError({
         code: 'MN0037',
         name: 'DataApiError',
-        message: 'The default DataApi cannot observe modelEvents or collectionEvents on a plain value. Configure a DataApi that supports this source or remove the event map.',
-        url: 'data.api.html#entity-events'
+        message: 'The default DataApi cannot observe modelEvents or collectionEvents on a plain value. Configure a DataApi that supports this source or remove the event map.'
       });
     }
 
@@ -92,8 +91,7 @@ export default {
     throw new MarionetteError({
       code: 'MN0037',
       name: 'DataApiError',
-      message: 'The default DataApi can observe only static plain arrays. Configure a DataApi that supports this collection source.',
-      url: 'data.api.html#collection-observations'
+      message: 'The default DataApi can observe only static plain arrays. Configure a DataApi that supports this collection source.'
     });
   }
 } satisfies DefaultDataApi as DefaultDataApi;
