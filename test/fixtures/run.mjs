@@ -86,7 +86,7 @@ function selectedPackages(fixtureName) {
   if (fixtureName !== 'standalone-packages') {
     names.push('marionette');
   }
-  if (fixtureName === 'standalone-packages' || fixtureName === 'core-types' || fixtureName === 'vite' || fixtureName === 'docs-application-guides' || fixtureName === 'docs-routing' || fixtureName.startsWith('data-package-')) {
+  if (fixtureName === 'standalone-packages' || fixtureName === 'core-types' || fixtureName === 'vite' || fixtureName === 'docs-application-guides' || fixtureName === 'docs-routing' || fixtureName === 'docs-list-composition' || fixtureName.startsWith('data-package-')) {
     names.push('@mnjs/data');
   }
   if (fixtureName === 'core-types' || fixtureName === 'vite' || adapterFixtures.has(fixtureName)) {

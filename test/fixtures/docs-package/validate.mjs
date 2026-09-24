@@ -58,6 +58,21 @@ for (const entry of entries) {
     linksChecked++;
   }
 }
+const discovery = await readFile(resolve(packageRoot, 'llms.txt'), 'utf8');
+const discoveryLinks = [];
+parser.walkTokens(parser.lexer(discovery), token => {
+  if (token.type === 'link') { discoveryLinks.push(token.href); }
+});
+assert.ok(discoveryLinks.includes('docs/quick-start.md'));
+assert.ok(discoveryLinks.includes('docs/agents.md'));
+for (const href of discoveryLinks) {
+  await contained(resolve(packageRoot, href));
+}
+assert.ok(!(await files(packageRoot)).some(path => path.startsWith('config/api-contracts/') ||
+  path.startsWith('scripts/')), 'Build tooling and contract inventories must not be packed');
+assert.ok(manifest.assets.every(asset => !asset.source.startsWith('config/api-contracts/') &&
+  !asset.source.startsWith('scripts/api-contracts/')),
+'Build contract data must not obscure consumer guide searches');
 assert.ok(manifest.pages.every(page => page.section !== 'Maintaining Marionette'));
 assert.ok(manifest.assets.every(asset => !asset.source.startsWith('benchmarks/')),
   'Maintainer trial evidence must not enter the consumer package');

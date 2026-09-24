@@ -1,0 +1,14 @@
+# Marionette
+
+Start here when using the installed package or this repository to build an application.
+
+- [Task routing](docs/agents.md): choose the guide needed for the current task.
+- [Quick start](docs/quick-start.md): optional API introduction with templates, Regions, CollectionView, events, Behavior, Radio, Application, and v4 migration.
+- [Compact contracts](docs/compact-reference.md): ownership, readiness, and teardown.
+- [API index](docs/readme.md): individual reference pages.
+- [Migration from v4](upgradeGuide.md).
+
+Use the relevant task guide directly, or the quick start when an API introduction helps.
+Search docs/*.md for API guidance; test/fixtures/ holds executable doc examples; config/diagnostics/ holds diagnostic codes.
+The installed package version is in package.json. Its documentation provenance is
+in docs-manifest.json. This file is a discovery index, not maintainer instructions.

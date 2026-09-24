@@ -1,5 +1,8 @@
 # Build with Marionette
 
+For an introduction to the API, use the [quick start](./quick-start.md). For an
+established task, go directly to the task table below.
+
 Use this guide when an agent is building or maintaining an application with
 Marionette. It links each decision to the same contracts a human reviewer uses.
 For changes to Marionette itself, use the [maintainer guide](https://github.com/marionettejs/marionette/blob/master/docs/maintainers/readme.md).
@@ -36,7 +39,7 @@ prerequisite for reading a specific guide.
 | --- | --- | --- |
 | Show or update a piece of UI | [View](./marionette.view.md), [rendering](./view.rendering.md) | The intended element and content change; relevant handlers still work after rendering. |
 | Replace part of a screen | [Region](./marionette.region.md), [View lifecycle](./view.lifecycle.md) | The outgoing View is cleaned up and the new View owns the intended mount. |
-| Render a changing list | [CollectionView](./marionette.collectionview.md), [DataApi](./data.api.md) | Stable item identity, correct ordering, removal cleanup, and preservation of surviving edits. |
+| Render a changing list | [CollectionView](./marionette.collectionview.md), [DataApi](./data.api.md), [managed list recipes](./list-composition.md) | Stable item identity, correct ordering, removal cleanup, and preservation of surviving edits. |
 | Coordinate a feature or navigate | [Application](./marionette.application.md), [routing](./routing.md) | Startup success, stale navigation, failure, stop, and destruction. |
 | Choose data, state, rendering, or DOM integration | [Choosing integrations](./choosing-integrations.md) | The chosen capability matches the source; configuring one integration does not implicitly configure another. |
 | Host a screen in Vue, React, or another shell | [Host a Marionette screen](./hosting-views.md) | Managed attachment, one DOM owner, stable drafts, and cleanup before host removal. |
@@ -60,8 +63,8 @@ adapter. Record the chosen provider and its registration point once in the
 application's own architecture notes so later agents do not choose again.
 
 Use a View for interface ownership, a Region for placement, and a CollectionView
-for repeated children. Use an Application when work has an asynchronous feature
-lifecycle. A plain function or class is enough when it needs none of these
+for repeated children when items need independent ownership. Use an Application
+when work has an asynchronous feature lifecycle. A plain function or class is enough when it needs none of these
 contracts. The [class guide](./classes.md) explains the boundaries.
 
 Before expanding a small example into an application, revisit its data and ownership

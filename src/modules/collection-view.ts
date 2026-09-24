@@ -37,6 +37,25 @@ export interface ChildRenderOptions {
   index?: number | null;
 }
 
+/**
+ * Configure managed repeated children. Plain arrays require explicit render(),
+ * which rebuilds children; use an observable DataApi for incremental membership.
+ * @example
+ * import { CollectionView, View } from 'marionette';
+ * function escapeHtml(value) {
+ *   const text = document.createElement('span');
+ *   text.textContent = String(value);
+ *   return text.innerHTML;
+ * }
+ * const Row = View.extend({
+ *   tagName: 'li',
+ *   template: ({ label }) => `<button>${escapeHtml(label)}</button>`,
+ *   triggers: { 'click button': 'select' }
+ * });
+ * const List = CollectionView.extend({ tagName: 'ul', childView: Row });
+ * const list = new List({ collection: [{ label: 'First' }] });
+ * // Show through a Region; the list owns and destroys its Row instances.
+ */
 export interface CollectionViewConfiguration<Child extends CollectionChild = CollectionChild, Model = never>
   extends Omit<ViewConfiguration, 'regions' | 'regionClass'> {
   childView?: ChildClass<Child> | ((model: Model) => ChildClass<Child>);

@@ -41,7 +41,8 @@
     "readme.md",
     "license.txt",
     "changelog.md",
-    "upgradeGuide.md"
+    "upgradeGuide.md",
+    "llms.txt"
   ],
   "sideEffects": false,
   "browserslist": [
