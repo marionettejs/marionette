@@ -1854,7 +1854,7 @@
         "CollectionView",
         "Application"
       ],
-      "result": "Returns the matching onEventName method result; undefined when absent.",
+      "result": "Returns the matching onEventName method result; undefined when absent. triggerMethod(\"item:select\") calls onItemSelect before emitting item:select. Calling it again from onItemSelect recurses; forward with a distinct event name, or use trigger for listener-only emission.",
       "timing": "Synchronous; callback or adapter exceptions abort the operation without rollback or attempt-all cleanup.",
       "ownership": "No ownership transfer.",
       "mutation": "Resolves the method directly on the instance or prototype without reading options, then calls it before triggering the event with original arguments. Dispatch uses one literal string name, including whitespace; object maps and other non-string names are outside the typed contract, with no runtime shape validation.",
@@ -2187,7 +2187,7 @@
         "delegateEvents",
         "undelegateEvents"
       ],
-      "result": "Returns the View.",
+      "result": "Returns the View. With the default native EventDelegator, event.delegateTarget is the matched selector element, event.currentTarget is the listener host (the View root), and event.target is the originating node. Use delegateTarget to read the matched control.",
       "timing": "Synchronous; returned callback promises do not delay the operation.",
       "ownership": "Does not transfer ownership; the owner keeps its existing composition.",
       "mutation": "Resolves current event maps, UI selectors, View triggers and Behavior handlers; redelegation releases prior handlers before installing replacements.",

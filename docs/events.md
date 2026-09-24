@@ -131,6 +131,33 @@ myView.triggerMethod('something:happened', 'foo');
 
 **The `triggerMethod` method is available to [all Marionette classes](./common.md#triggermethod).**
 
+#### Forward without invoking the same method again
+
+`triggerMethod('item:select')` calls `onItemSelect` before emitting `item:select`.
+Calling `this.triggerMethod('item:select')` inside `onItemSelect` invokes the same
+method again and recurses. Forward a different event when another hook should run:
+
+<!-- executable-example: trigger-method-forwarding -->
+```javascript
+import { MnObject } from 'marionette';
+
+export const Selection = MnObject.extend({
+  onItemSelect(item) {
+    this.triggerMethod('selection:changed', item);
+  },
+  notifyListeners(item) {
+    this.trigger('item:select', item);
+  }
+});
+```
+
+`selection.triggerMethod('item:select', item)` invokes `onItemSelect`, emits
+`selection:changed`, then emits `item:select`. `selection.notifyListeners(item)`
+only emits `item:select`; `trigger` does not invoke `onItemSelect`. Choose the
+latter when only subscribed listeners should be notified. If an `onItemSelect`
+hook has nothing to forward, simply return: the original `triggerMethod` call
+already emits `item:select` after the hook completes.
+
 #### Resources created in lifecycle methods
 
 A lifecycle method runs before its matching event is emitted. A listener registered inside `onRender` for `render` can therefore run during that same render. Using `once` only limits the number of calls; it does not wait for the next lifecycle operation.
@@ -331,6 +358,7 @@ forward selected names through `childViewTriggers`, or opt into a prefix through
 `childViewEventPrefix`. Without one of those configurations, a parent does not
 automatically forward every child event. For example:
 
+<!-- contract-example: collection-row-selection -->
 ```javascript
 import { View, CollectionView } from 'marionette';
 
@@ -373,6 +401,7 @@ unchanged: Marionette does not prepend the child instance to arbitrary events.
 DOM `triggers` already supply `(view, event)`, while a custom event must explicitly
 supply its View when handlers need it.
 
+<!-- contract-example: region-child-prefix -->
 ```javascript
 import { View } from 'marionette';
 
@@ -414,6 +443,7 @@ const ParentView = View.extend({
 
 The same opt-in applies to a `CollectionView` and its `childView`:
 
+<!-- contract-example: collection-child-prefix -->
 ```javascript
 import { View, CollectionView } from 'marionette';
 
@@ -443,6 +473,7 @@ on the view or collectionview. For more information on the `childViewEventPrefix
 The default value for `childViewEventPrefix` is `false`. It disables prefixed
 forwarding, while explicit child event maps remain active.
 
+<!-- contract-example: custom-child-prefix -->
 ```javascript
 import { CollectionView, View } from 'marionette';
 
@@ -469,6 +500,7 @@ attribute to map child events to methods on the parent view. This takes events
 fired on child views - _without the `childview:` prefix_ - and calls the
 method referenced or attached function.
 
+<!-- contract-example: region-child-event-map -->
 ```javascript
 import { View } from 'marionette';
 
@@ -504,6 +536,7 @@ const ParentView = View.extend({
 The `childViewEvents` attribute can also attach functions directly to be event
 handlers:
 
+<!-- contract-example: region-child-trigger-map -->
 ```javascript
 import { View } from 'marionette';
 
@@ -558,6 +591,7 @@ normalizes only own enumerable string keys.
 `childViewTriggers` is sugar on top of [`childViewEvents`](#explicit-event-listeners) much
 in the same way that [view `triggers`](./dom.interactions.md#view-triggers) are sugar for [view `events`](./dom.interactions.md#view-events).
 
+<!-- contract-example: nested-child-messages -->
 ```javascript
 import { View, CollectionView } from 'marionette';
 

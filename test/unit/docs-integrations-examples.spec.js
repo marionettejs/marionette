@@ -10,10 +10,24 @@ function blocks(file) {
     .map(match => match[1]);
 }
 
-function execute(file, index, exercise = '') {
+function eventExample(id, exercise) {
+  const markdown = readFileSync('docs/events.md', 'utf8');
+  const marker = `<!-- contract-example: ${id} -->`;
+  expect(markdown.split(marker)).toHaveLength(2);
+  const code = markdown.slice(markdown.indexOf(marker) + marker.length)
+    .match(/^\s*```(?:javascript|js)\n([\s\S]*?)```/);
+  expect(code).not.toBeNull();
+  return executeCode(code[1], exercise);
+}
+
+function execute(file, index, exercise) {
+  return executeCode(blocks(file)[index], exercise);
+}
+
+function executeCode(example, exercise = '') {
   const runtime = createMarionette();
   const imports = { ...utils, ...runtime, createMarionette, BackboneApi, Backbone };
-  const code = blocks(file)[index]
+  const code = example
     .replace(/^import .* from .*;\n/gm, '')
     .replace(/^export /gm, '');
   const logs = [];
@@ -26,7 +40,7 @@ function execute(file, index, exercise = '') {
 
 describe('integration documentation examples', () => {
   it('forwards a clicked collection row through the declared child event map', () => {
-    const { result, logs } = execute('docs/events.md', 9, `
+    const { result, logs } = eventExample('collection-row-selection', `
       const count = list.children.length;
       list.destroy();
       return count;
@@ -36,7 +50,7 @@ describe('integration documentation examples', () => {
   });
 
   it('opts into prefixed Region-child events and preserves custom arguments', () => {
-    const { result, logs } = execute('docs/events.md', 10, `
+    const { result, logs } = eventExample('region-child-prefix', `
       const parent = new ParentView().render();
       const child = parent.getChildView('foo');
       const received = [];
@@ -59,7 +73,7 @@ describe('integration documentation examples', () => {
   });
 
   it('opts into prefixed CollectionView child events', () => {
-    const { logs } = execute('docs/events.md', 11, `
+    const { logs } = eventExample('collection-child-prefix', `
       const list = new MyList({ collection: [{}] }).render();
       list.children.first().el.click();
       list.destroy();
@@ -69,14 +83,14 @@ describe('integration documentation examples', () => {
   });
 
   it('forwards the custom prefix render event', () => {
-    const { logs } = execute('docs/events.md', 12, 'collectionView.destroy();');
+    const { logs } = eventExample('custom-child-prefix', 'collectionView.destroy();');
     expect(logs).toHaveLength(1);
     expect(logs[0][0]).toBe('Child rendered');
   });
 
-  for (const index of [13, 14]) {
-    it(`handles a Region child click with explicit map example ${index}`, () => {
-      const { logs } = execute('docs/events.md', index, `
+  for (const id of ['region-child-event-map', 'region-child-trigger-map']) {
+    it(`handles a Region child click with explicit map example ${id}`, () => {
+      const { logs } = eventExample(id, `
         const parent = new ParentView().render();
         parent.getChildView('foo').el.click();
         parent.destroy();
@@ -86,7 +100,7 @@ describe('integration documentation examples', () => {
   }
 
   it('preserves message values through two generations', () => {
-    const { logs } = execute('docs/events.md', 16, `
+    const { logs } = eventExample('nested-child-messages', `
       const parent = new GrandParentView({ collection: [{}] }).render();
       parent.el.querySelector('.button').click();
       parent.destroy();
