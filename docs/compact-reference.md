@@ -53,11 +53,11 @@ Custom provider state/data retains opaque source identity and provider-owned eve
 
 ## Events, communication, and cleanup
 
-Returns the View. Does not transfer ownership; the owner keeps its existing composition. [EventDelegator Adapter](./dom.interactions.md).
+Returns the View. With the default native EventDelegator, event.delegateTarget is the matched selector element, event.currentTarget is the listener host (the View root), and event.target is the originating node. Use delegateTarget to read the matched control. Does not transfer ownership; the owner keeps its existing composition. [EventDelegator Adapter](./dom.interactions.md).
 
 on/off/once/listenTo/listenToOnce/stopListening/trigger return their receiver; triggerMethod has its own result contract. listenTo subscriptions belong to the listener; off removes source registrations. [Events API](./events.md).
 
-Returns the matching onEventName method result; undefined when absent. No ownership transfer. [`triggerMethod`](./events.md).
+Returns the matching onEventName method result; undefined when absent. triggerMethod("item:select") calls onItemSelect before emitting item:select. Calling it again from onItemSelect recurses; forward with a distinct event name, or use trigger for listener-only emission. No ownership transfer. [`triggerMethod`](./events.md).
 
 channel returns a named channel; direct Channel construction is independent; messaging forwards Events/Requests results. Each Radio registry owns its channel references; owner bindings are scoped by context. [Channel Lifecycle](./radio.md).
 

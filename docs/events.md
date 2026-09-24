@@ -131,6 +131,33 @@ myView.triggerMethod('something:happened', 'foo');
 
 **The `triggerMethod` method is available to [all Marionette classes](./common.md#triggermethod).**
 
+#### Forward without invoking the same method again
+
+`triggerMethod('item:select')` calls `onItemSelect` before emitting `item:select`.
+Calling `this.triggerMethod('item:select')` inside `onItemSelect` invokes the same
+method again and recurses. Forward a different event when another hook should run:
+
+<!-- executable-example: trigger-method-forwarding -->
+```javascript
+import { MnObject } from 'marionette';
+
+export const Selection = MnObject.extend({
+  onItemSelect(item) {
+    this.triggerMethod('selection:changed', item);
+  },
+  notifyListeners(item) {
+    this.trigger('item:select', item);
+  }
+});
+```
+
+`selection.triggerMethod('item:select', item)` invokes `onItemSelect`, emits
+`selection:changed`, then emits `item:select`. `selection.notifyListeners(item)`
+only emits `item:select`; `trigger` does not invoke `onItemSelect`. Choose the
+latter when only subscribed listeners should be notified. If an `onItemSelect`
+hook has nothing to forward, simply return: the original `triggerMethod` call
+already emits `item:select` after the hook completes.
+
 #### Resources created in lifecycle methods
 
 A lifecycle method runs before its matching event is emitted. A listener registered inside `onRender` for `render` can therefore run during that same render. Using `once` only limits the number of calls; it does not wait for the next lifecycle operation.

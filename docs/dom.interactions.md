@@ -266,6 +266,30 @@ text or element target to the closest matching descendant of `rootEl` and set
 namespaces such as `click.menu` are not interpreted, and non-bubbling events
 such as `mouseenter` are not emulated.
 
+#### Read the matched control
+
+With the default native EventDelegator, `event.currentTarget` is the listener
+host (the View root), `event.delegateTarget` is the element matched by the
+selector, and `event.target` can be a nested icon or text node. Read the matched
+control through `delegateTarget`. Unlike jQuery-backed v4 delegation,
+`currentTarget` does not identify the matched descendant.
+
+<!-- executable-example: delegated-control-target -->
+```javascript
+import { View } from 'marionette';
+
+export const ActionView = View.extend({
+  template: () => '<button class="action" data-action="save"><span>Save</span></button>',
+  events: { 'click .action': 'handleAction' },
+  handleAction(event) {
+    this.triggerMethod('action:selected', event.delegateTarget.dataset.action);
+  }
+});
+```
+
+Clicking either the button or its nested span selects `save`. Custom
+EventDelegator adapters define their own event representation.
+
 Delegated native `focus` and `blur` use capture because those events do not
 bubble. The delegated handler therefore runs before a target-element listener.
 A Marionette trigger stops propagation by default, which prevents the event

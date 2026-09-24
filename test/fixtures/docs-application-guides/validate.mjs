@@ -235,3 +235,7 @@ await import('./completion.mjs');
 // <!-- executable-example: descendant-listener-cleanup -->
 // <!-- executable-example: view-lifetime-cleanup -->
 await import('./resource-cleanup.mjs');
+
+// <!-- executable-example: delegated-control-target -->
+// <!-- executable-example: trigger-method-forwarding -->
+await import('./event-contracts.mjs');
