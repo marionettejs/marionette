@@ -12,7 +12,7 @@ for (const failure of ['', 'cjs-node', 'pack']) {
   test(`packed smoke completes diagnostics and propagates ${failure || 'success'}`, async t => {
     const root = await mkdtemp(join(tmpdir(), 'marionette-smoke-test-'));
     t.after(() => rm(root, { recursive: true, force: true }));
-    for (const directory of ['test/fixtures', 'bin', 'tmp', 'packages/data', 'packages/adapters', 'packages/utils', 'packages/radio']) {
+    for (const directory of ['.package', 'test/fixtures', 'bin', 'tmp', 'packages/data', 'packages/adapters', 'packages/utils', 'packages/radio']) {
       await mkdir(join(root, directory), { recursive: true });
     }
     await cp(smoke, join(root, 'test/fixtures/smoke.sh'));

@@ -2,7 +2,7 @@
 
 Use `node_modules/marionette/docs/agents.md` for application architecture
 and its task links for specific contracts. The compact reference is an optional
-overview. `docs-manifest.json` and this application's lockfile identify the
+overview. `node_modules/marionette/docs-manifest.json` and this application's lockfile identify the
 installed version and source; do not substitute mismatched website examples.
 
 For skill setup or remote documentation retrieval, consult the installed

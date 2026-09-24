@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdir, readFile, readdir, realpath, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, realpath, symlink, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { test } from 'node:test';
 import { fixture, git, hash, names } from './fixture.mjs';
@@ -183,4 +183,19 @@ test('artifact construction rejects malformed publication policy before building
   assert.match(result.stderr, /Invalid release publication policy/);
   assert.equal(await readFile(candidate.calls, 'utf8'), '');
   assert.deepEqual(await readdir(candidate.output), []);
+});
+
+
+test('release output rejects the staging tree and symlink aliases before building', async t => {
+  const candidate = await buildFixture(t);
+  const stage = resolve(candidate.root, '.package');
+  await mkdir(stage);
+  const alias = resolve(candidate.directory, 'stage-alias');
+  await symlink(stage, alias, 'junction');
+  for (const output of [stage, resolve(stage, 'nested'), alias, resolve(alias, 'nested')]) {
+    const result = candidate.run('build-artifact', ['--output', output]);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /must not overlap the .package/);
+  }
+  assert.equal(await readFile(candidate.calls, 'utf8'), '');
 });
