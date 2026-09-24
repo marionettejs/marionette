@@ -152,3 +152,14 @@ test('a documentation directory symlink cannot escape the installed package', as
   assert.equal(result.status, 1);
   assert.match(result.stderr, /Documentation source escapes its package/);
 });
+
+test('a document symlink to the package root is rejected before reading', async t => {
+  const data = await fixture(t);
+  const document = resolve(data.packageRoot, 'docs/routing.md');
+  await rm(document);
+  await symlink(data.packageRoot, document, 'dir');
+  const result = data.run('--page', 'docs/routing.md');
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Documentation source escapes its package: docs\/routing\.md/);
+  assert.equal(result.stdout, '');
+});

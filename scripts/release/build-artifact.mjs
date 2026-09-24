@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { appendFile, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { appendFile, mkdir, readFile, readdir, realpath, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import process from 'node:process';
 import { readArguments } from './arguments.mjs';
@@ -58,7 +58,19 @@ async function getNpmVersion() {
   return npmPackage.version;
 }
 
-const outputDir = resolve(root, args.output);
+const requestedOutput = resolve(root, args.output);
+// Resolve existing ancestors too, so symlink aliases cannot overlap build outputs.
+async function canonicalOutput(path) {
+  try { return await realpath(path); } catch (error) {
+    if (error.code !== 'ENOENT') { throw error; }
+    return resolve(await canonicalOutput(dirname(path)), relative(dirname(path), path));
+  }
+}
+const outputDir = await canonicalOutput(requestedOutput);
+const stagingRoot = resolve(await realpath(root), '.package');
+if (outputDir === stagingRoot || outputDir.startsWith(`${stagingRoot}${sep}`)) {
+  throw new Error('Release output must not overlap the .package build staging directory.');
+}
 await mkdir(outputDir, { recursive: true });
 if ((await readdir(outputDir)).length !== 0) {
   throw new Error(`Release artifact directory must be empty: ${outputDir}`);

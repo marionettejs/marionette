@@ -76,7 +76,7 @@ async function main() {
     if (files.has(source)) { throw new Error(`Duplicate documentation source: ${source}`); }
     const path = await realpath(resolve(packageRoot, source));
     const local = relative(packageRoot, path);
-    if (local === '..' || local.startsWith(`..${sep}`) || isAbsolute(local)) {
+    if (!local || local === '..' || local.startsWith(`..${sep}`) || isAbsolute(local)) {
       throw new Error(`Documentation source escapes its package: ${source}`);
     }
     const content = await readFile(path);

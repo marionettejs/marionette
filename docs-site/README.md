@@ -182,7 +182,7 @@ An npm release remains an explicit import in the website. Read the exact revisio
 from the published package's `docs-manifest.json`, export with `npm run docs:export`
 from a clean checkout of that revision, and import the complete `.docs-export` with
 `npm run docs:import -- /path/to/released-source/.docs-export`. The full export
-preserves maintainer pages that the narrower npm the package root directory omits.
+preserves maintainer pages that the consumer npm package omits.
 Require matching version/repository/revision, `sourceDirty: false`, identical
 metadata and bytes for every npm consumer page/asset, and the reviewed maintainer
 route inventory. Website `npm run check` verifies the npm subset against the pinned
