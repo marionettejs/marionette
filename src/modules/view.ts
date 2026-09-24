@@ -35,9 +35,13 @@ import type { Constructed, Merge, ArgumentsFor, DefaultOptions, OptionsFor, Stat
  * Configure a component with data-first templates and managed child Regions.
  * @example
  * import { View } from 'marionette';
- * // Escape untrusted template values; see docs/security.md.
+ * function escapeHtml(value) {
+ *   const text = document.createElement('span');
+ *   text.textContent = String(value);
+ *   return text.innerHTML;
+ * }
  * const Screen = View.extend({
- *   template: ({ title }) => `<h1>${title}</h1><div class="body"></div>`,
+ *   template: ({ title }) => `<h1>${escapeHtml(title)}</h1><div class="body"></div>`,
  *   regions: { body: '.body' },
  *   onRender() { this.showChildView('body', new View({ template: () => 'Ready' })); }
  * });

@@ -68,7 +68,7 @@ and preservation of row state are unnecessary.
 
 The records live outside the render hook, so rendering the screen again uses
 the current records. A plain array is a snapshot. Mutating it does not notify the CollectionView;
-call `rows.render()` after an explicit snapshot change. That full render destroys
+call `screen.getChildView('rows').render()` after an explicit snapshot change. That full render destroys
 and recreates children. When membership changes should preserve surviving rows,
 use an observable collection and its supported DataApi. The
 [interactive list recipe](./list-composition.md) shows `@mnjs/data` setup,

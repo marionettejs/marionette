@@ -42,10 +42,14 @@ export interface ChildRenderOptions {
  * which rebuilds children; use an observable DataApi for incremental membership.
  * @example
  * import { CollectionView, View } from 'marionette';
- * // Escape untrusted template values; see docs/security.md.
+ * function escapeHtml(value) {
+ *   const text = document.createElement('span');
+ *   text.textContent = String(value);
+ *   return text.innerHTML;
+ * }
  * const Row = View.extend({
  *   tagName: 'li',
- *   template: ({ label }) => `<button>${label}</button>`,
+ *   template: ({ label }) => `<button>${escapeHtml(label)}</button>`,
  *   triggers: { 'click button': 'select' }
  * });
  * const List = CollectionView.extend({ tagName: 'ul', childView: Row });
