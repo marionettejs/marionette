@@ -1,0 +1,29 @@
+CONTRIBUTING.md
+  s_997c0e1518baee::t_14cab77772ab50 38-41
+scripts/docs/stage-package.mjs
+  s_997c0e1518baee::t_91067fc4e5232b 4,22,31
+scripts/release/build-artifact.mjs
+  s_997c0e1518baee::t_afe3b26da4b913 7,141-144,178
+scripts/release/packages.mjs
+  s_997c0e1518baee::t_5d6e581e2aaa98 23-35
+test/docs/package.test.mjs
+  s_997c0e1518baee::t_e9b4a108fb732e 22,33-34,43-47
+test/release/build.test.mjs
+  s_997c0e1518baee::t_853302de0e8089 42-46,124
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "ba19a06272eee2cfdd90d9192b3876eaca6bb826",
+  "prompts": {},
+  "sessions": {
+    "s_997c0e1518baee": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d1c7-6513-7c31-8c05-612db0d115b3",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
