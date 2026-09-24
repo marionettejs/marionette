@@ -37,7 +37,7 @@ export default async function setup() {
       evidence = { schemaVersion: 3, packages: [] };
       for (const configuration of packages) {
         const packed = JSON.parse(execFileSync(process.execPath, [
-          npmCli, 'pack', resolve(root, configuration.directory), '--ignore-scripts',
+          npmCli, 'pack', resolve(root, configuration.id === 'core' ? '.package' : configuration.directory), '--ignore-scripts',
           '--json', '--pack-destination', artifactDirectory
         ], { cwd: root, encoding: 'utf8' }));
         if (packed.length !== 1 || packed[0].name !== configuration.name) {

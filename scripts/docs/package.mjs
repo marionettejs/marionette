@@ -2,6 +2,7 @@ import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { contentDigest, exportDocs } from './export.mjs';
+import { stagePackage } from './stage-package.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const manifest = await exportDocs();
@@ -53,3 +54,5 @@ const starterManifest = JSON.parse(await readFile(starterManifestPath, 'utf8'));
 starterManifest.dependencies = { marionette: manifest.packageVersion, '@mnjs/data': manifest.packageVersion };
 starterManifest.allowScripts[`marionette@${manifest.packageVersion}`] = false;
 await writeFile(starterManifestPath, `${JSON.stringify(starterManifest, null, 2)}\n`);
+
+await stagePackage(root, manifest);

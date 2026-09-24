@@ -28,7 +28,16 @@ Generated `dist/` directories and `src/version.js` are ignored by Git; edit sour
 and their co-located TypeScript contracts. Declarations are generated for all five
 packages; do not maintain separate handwritten copies. After source edits, run
 `npm run build` before distribution or browser checks. The fixture runner builds
-once before packing local packages; supplying an artifact directory or all five tarballs skips rebuilding. `npm pack` and npm Git installs
+once before packing local packages; supplying an artifact directory or all five
+tarballs skips rebuilding.
+
+For a local core tarball, run `npm run build` followed by
+`npm pack ./.package --ignore-scripts`; the generated staging directory contains
+package-relative README and upgrade-guide links. Source Markdown and website
+exports retain their repository paths. Release and fixture tooling use this same
+staged core package.
+
+`npm pack` and npm Git installs
 run `prepare` automatically; installing a published tarball uses its compiled files.
 If npm uses `strict-allow-scripts`, approve Marionette's `prepare` lifecycle for a
 Git dependency. Tarball consumers can deny scripts because the package is prebuilt.

@@ -76,7 +76,7 @@ export async function prepareArtifacts({ root = repositoryRoot, manifestPath, ou
     directory = output;
     manifest = { schemaVersion: 3, packages: [] };
     for (const [id, name, path] of packageDefinitions) {
-      const packed = JSON.parse(execute('npm', ['pack', resolve(root, path), '--ignore-scripts', '--json', '--pack-destination', directory], root));
+      const packed = JSON.parse(execute('npm', ['pack', resolve(root, id === 'core' ? '.package' : path), '--ignore-scripts', '--json', '--pack-destination', directory], root));
       if (packed.length !== 1 || packed[0].name !== name) { throw new Error(`Expected exactly one ${name} package`); }
       const bytes = await readFile(join(directory, packed[0].filename));
       manifest.packages.push({ id, name, version: packed[0].version, tarball: { file: packed[0].filename, sha512: digest(bytes), integrity: packed[0].integrity, size: bytes.length } });

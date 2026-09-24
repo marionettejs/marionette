@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, realpath, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { test } from 'node:test';
 import { fixture, git, hash, names } from './fixture.mjs';
@@ -16,7 +16,7 @@ async function buildFixture(t, { version = '5.0.0-test.1', manifestMutation } = 
     manifestMutation?.(id, manifest);
     await writeFile(resolve(directory, 'package.json'), JSON.stringify(manifest));
   }
-  await writeFile(resolve(candidate.root, '.gitignore'), 'dist/\nnode_modules/\ntest/tmp/\n');
+  await writeFile(resolve(candidate.root, '.gitignore'), 'dist/\n.package/\nnode_modules/\ntest/tmp/\n');
   await mkdir(resolve(candidate.root, 'test/fixtures/data-package-starter'), { recursive: true });
   await writeFile(resolve(candidate.root, 'test/fixtures/data-package-starter/package-lock.json'), JSON.stringify({ packages: {} }));
   await mkdir(resolve(candidate.root, 'scripts/performance'), { recursive: true });
@@ -38,6 +38,8 @@ appendFileSync(${JSON.stringify(calls)}, JSON.stringify(args) + '\\n');
 if (args[0] === 'run') {
   if (process.env.RELEASE_TEST_BUILD_FAILURE === args[1]) { console.error('intentional build command failure'); process.exit(9); }
   if (args[1] === 'build') { mkdirSync('dist', { recursive: true }); writeFileSync('dist/built.js', 'built from source');
+    mkdirSync('.package', { recursive: true });
+    cpSync('package.json', '.package/package.json');
     mkdirSync('dist/docs/starter', { recursive: true });
     writeFileSync('dist/docs/starter/package.json', JSON.stringify({ name: 'starter', private: true }));
   }
@@ -102,7 +104,9 @@ for (const version of ['5.0.0-test.1', '5.0.0']) {
     }
     const calls = (await readFile(candidate.calls, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
     assert.deepEqual(calls.slice(0, 2), [['run', 'build'], ['run', 'test:dist']]);
-    assert.equal(calls.filter(args => args[0] === 'pack').length, 5);
+    const packCalls = calls.filter(args => args[0] === 'pack');
+    assert.equal(packCalls.length, 5);
+    assert.equal(packCalls[2][1], await realpath(resolve(candidate.root, '.package')));
     const verify = candidate.run('verify-artifact', ['--artifact-dir', candidate.output]);
     assert.equal(verify.status, 0, verify.stderr);
     const retry = candidate.run('build-artifact', ['--output', candidate.output]);

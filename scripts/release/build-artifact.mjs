@@ -129,7 +129,7 @@ for (const configuration of releasePackages) {
   const packOutput = run(process.execPath, [
     npmCli,
     'pack',
-    resolve(root, configuration.directory),
+    resolve(root, configuration.id === 'core' ? '.package' : configuration.directory),
     '--ignore-scripts',
     '--json',
     '--pack-destination',

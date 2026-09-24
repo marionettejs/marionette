@@ -32,5 +32,6 @@ test/fixtures/*/dist/
 /packages/*/dist/
 /src/version.js
 
+/.package/
 /.docs-export/
 /.docs-export-tmp/

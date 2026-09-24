@@ -187,7 +187,7 @@ try {
     console.log('Building package candidates for fixtures...');
     npm(['run', 'build']);
     paths = packageInputs.map(input => {
-      const result = JSON.parse(npm(['pack', '--json', '--ignore-scripts', '--pack-destination', packDir], resolve(rootDir, input.directory)));
+      const result = JSON.parse(npm(['pack', '--json', '--ignore-scripts', '--pack-destination', packDir], resolve(rootDir, input.name === 'marionette' ? '.package' : input.directory)));
       if (result.length !== 1) {
         throw new Error(`Expected one packed ${input.name} tarball, received ${result.length}`);
       }
