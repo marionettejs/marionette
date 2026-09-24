@@ -1,0 +1,31 @@
+docs-site/navigation.json
+  s_267e7a791356aa::t_fd8dce019cc58e 17
+docs/agents.md
+  s_267e7a791356aa::t_64cd1432b51238 66-67
+docs/list-composition.md
+  s_267e7a791356aa::t_9c196d6ea93289 1,3-7,88,90-96,98-100
+docs/quick-start.md
+  s_267e7a791356aa::t_a199e646741801 3-7,56-59,66
+llms.txt
+  s_267e7a791356aa::t_0e87d198aa2ea2 6,11
+test/fixtures/docs-list-composition/validate.mjs
+  s_267e7a791356aa::t_3b19a19229fb50 7-12,56
+test/fixtures/docs-package/validate.mjs
+  s_267e7a791356aa::t_b8f777580869e6 67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "1bddad8b69d404d5f9d003eda2136456e7554c23",
+  "prompts": {},
+  "sessions": {
+    "s_267e7a791356aa": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a08689-8981-7cf3-a3c5-0ee0a88b599c",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
