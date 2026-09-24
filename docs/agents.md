@@ -1,5 +1,9 @@
 # Build with Marionette
 
+New to the API? Read the [quick start](./quick-start.md) first. For repeated
+interactive rows or a large viewport, use the [managed list recipes](./list-composition.md).
+
+
 Use this guide when an agent is building or maintaining an application with
 Marionette. It links each decision to the same contracts a human reviewer uses.
 For changes to Marionette itself, use the [maintainer guide](https://github.com/marionettejs/marionette/blob/master/docs/maintainers/readme.md).

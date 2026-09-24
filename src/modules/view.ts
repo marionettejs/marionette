@@ -31,6 +31,17 @@ import type { RegionInstance, RegionInternals, ShowOptions } from './region.ts';
 import type { RegionDefinition, RegionClass } from './common/build-region.ts';
 import type { Constructed, Merge, ArgumentsFor, DefaultOptions, OptionsFor, StateFor, SuppliedState } from './object.ts';
 
+/**
+ * Configure a component with data-first templates and managed child Regions.
+ * @example
+ * const Screen = View.extend({
+ *   template: ({ title }) => `<h1>${title}</h1><div class="body"></div>`,
+ *   regions: { body: '.body' },
+ *   onRender() { this.showChildView('body', new View({ template: () => 'Ready' })); }
+ * });
+ * const screen = new Screen({ model: { title: 'Posts' } });
+ * // Show through a Region; destroy that Region at teardown.
+ */
 export interface ViewConfiguration {
   el?: Element | (() => Element);
   tagName?: string | (() => string);

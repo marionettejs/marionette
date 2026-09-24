@@ -6,6 +6,18 @@
     "section": "Start here"
   },
   {
+    "source": "docs/quick-start.md",
+    "route": "docs/quick-start",
+    "title": "Quick start",
+    "section": "Start here"
+  },
+  {
+    "source": "docs/list-composition.md",
+    "route": "docs/list-composition",
+    "title": "Interactive and bounded lists",
+    "section": "Application guides"
+  },
+  {
     "source": "docs/installation.md",
     "route": "docs/installation",
     "title": "Install and show a View",

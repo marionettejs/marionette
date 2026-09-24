@@ -9,7 +9,8 @@ const manifest = await exportDocs();
 manifest.pages = manifest.pages.filter(page =>
   page.section !== 'Maintaining Marionette');
 manifest.assets = manifest.assets.filter(asset => !asset.source.startsWith('benchmarks/') &&
-  asset.source !== 'ROADMAP.md' && !asset.source.startsWith('test/unit/') && asset.source !== 'test/README.md');
+  !asset.source.startsWith('config/api-contracts/') &&
+  !asset.source.startsWith('scripts/api-contracts/') && asset.source !== 'ROADMAP.md' && !asset.source.startsWith('test/unit/') && asset.source !== 'test/README.md');
 manifest.contentSha256 = contentDigest([...manifest.pages, ...manifest.assets]);
 const skillDestination = resolve(root, 'dist/agent-skill');
 await rm(skillDestination, { recursive: true, force: true });
