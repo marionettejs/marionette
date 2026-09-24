@@ -1,0 +1,32 @@
+plugins/marionette/.claude-plugin/plugin.json
+  s_8955bbd7175126::t_13374d74f06db8 1-8
+test/agent-docs/plugin.test.mjs
+  s_8955bbd7175126::t_2522595b5c5dda 27-35,108-110,112,114-115
+  s_8955bbd7175126::t_fbc96eda536a4c 111,113
+  s_8955bbd7175126::t_c42c622d67d5cf 129-160
+plugins/marionette/.mcp.json
+  s_8955bbd7175126::t_13374d74f06db8 1-8
+.cursor-plugin/marketplace.json
+  s_8955bbd7175126::t_13374d74f06db8 1-13
+.claude-plugin/marketplace.json
+  s_8955bbd7175126::t_13374d74f06db8 1-13
+docs/agent-tools.md
+  s_8955bbd7175126::t_26520bdb3bcb04 19-21,47-57,61-67,72-83
+  s_8955bbd7175126::t_31679c552a2042 12-18,22-28,42-46,58-60,68-71,223-227
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "76506c1609d0db864898c54b0c31dad740b64a58",
+  "prompts": {},
+  "sessions": {
+    "s_8955bbd7175126": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d360-d7d3-7430-be80-ac23f9be4ebd",
+        "model": "gpt-6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
