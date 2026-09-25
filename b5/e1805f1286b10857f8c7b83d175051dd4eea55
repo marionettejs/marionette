@@ -1,0 +1,36 @@
+plugins/marionette/skills/marionette/scripts/search.mjs
+  s_b0843bf3c94419::t_48838a80245a8a 17-18
+  s_b0843bf3c94419::t_abf6c0f6e0bb8f 11-12,16
+skills/marionette/scripts/search.mjs
+  s_b0843bf3c94419::t_48838a80245a8a 17-18
+  s_b0843bf3c94419::t_98c3bbb89a95ad 11-12,16
+docs/maintainers/discovery-audit.md
+  s_b0843bf3c94419::t_256f3139ecab1c 1-106
+docs-site/navigation.json
+  s_b0843bf3c94419::t_256f3139ecab1c 381-385
+  s_b0843bf3c94419::t_3d674663610cd5 380
+docs/dom.interactions.md
+  s_b0843bf3c94419::t_48838a80245a8a 117-118,131-135,381-383,402-420
+  s_b0843bf3c94419::t_8aa83dce557247 421
+test/agent-docs/retrieval.test.mjs
+  s_b0843bf3c94419::t_48838a80245a8a 38-50,71-74
+  s_b0843bf3c94419::t_a8e89bfce5c0f9 37,75-77
+docs/marionette.region.md
+  s_b0843bf3c94419::t_477ab0ab3dd994 573-577
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "b5e1805f1286b10857f8c7b83d175051dd4eea55",
+  "prompts": {},
+  "sessions": {
+    "s_b0843bf3c94419": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d749-2db1-7d11-816f-b7e614b83026",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
