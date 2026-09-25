@@ -13,20 +13,26 @@ installing a plugin or copying the skill if needed.
 
 ## Read matching docs locally
 
-The skill bundles a read-only helper requiring Node 24 or later. It addresses a
-specific retrieval problem: the copied skill must locate the application's
-installed docs, including hoisted dependencies, without importing application code.
-It does not add a server, registry, or production dependency.
+The installed package includes a read-only helper requiring Node 24 or later.
+From the application directory containing `node_modules/marionette`, run it
+directly; copying or activating a skill is unnecessary:
 
 ```sh
-node .agents/skills/marionette/scripts/docs.mjs --project . --page docs/quick-start.md
+node node_modules/marionette/dist/agent-skill/scripts/docs.mjs --project . --page docs/quick-start.md
 ```
+
+The helper lives at `dist/agent-skill/scripts/docs.mjs` inside the package, not
+`scripts/docs.mjs` at its root. For a hoisted dependency, use the actual installed
+package path for the executable and keep `--project` pointed at your application.
+A copied skill has the same helper at `scripts/docs.mjs` relative to its `SKILL.md`.
+The helper locates matching docs without importing application code or using a
+network. It adds no server, registry, or production dependency.
 
 For an unfamiliar symbol or task, search the installed section index:
 
 ```sh
-node .agents/skills/marionette/scripts/docs.mjs --project . --search 'getUI'
-node .agents/skills/marionette/scripts/docs.mjs --project . --search 'childViewEvents arguments'
+node node_modules/marionette/dist/agent-skill/scripts/docs.mjs --project . --search 'getUI'
+node node_modules/marionette/dist/agent-skill/scripts/docs.mjs --project . --search 'childViewEvents arguments'
 ```
 
 Search returns at most five section IDs, headings, ancestry, sizes, and matched
@@ -36,7 +42,7 @@ construct them or reuse them after a dependency update. For example, replace
 `<returned-id>` below with an actual result:
 
 ```sh
-node .agents/skills/marionette/scripts/docs.mjs --project . --section '<returned-id>'
+node node_modules/marionette/dist/agent-skill/scripts/docs.mjs --project . --section '<returned-id>'
 ```
 
 Read the returned ancestry and linked setup/ownership rules. Search is lexical;

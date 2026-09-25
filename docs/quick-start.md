@@ -77,6 +77,22 @@ selection, updates, and cleanup.
 See [View](./marionette.view.md), [Region](./marionette.region.md), and
 [CollectionView](./marionette.collectionview.md) for their full contracts.
 
+## When a save outlives the screen
+
+Showing a different View in a Region normally destroys the previous View and
+cleans up its managed DOM handlers and subscriptions. Destruction does not cancel
+arbitrary promises, stop code after an `await`, or undo a server write. Application
+code owns those effects. Removing DOM directly is not managed View destruction.
+
+Separate the result's data owner from its screen owner. A successful save may
+still need to clear the original record's retained draft after its editor is gone.
+Do that in the longer-lived data owner, then update UI only if the initiating View
+and request are still current. A destroyed child View's success event must not be
+the only path that commits persistent application state. Keep a newer draft when
+an earlier save finishes. The [complete persistence example](./application-effects.md#reconcile-retained-drafts-before-suppressing-ui)
+shows both boundaries; use the [form recipe](./forms-and-accessibility.md) when the
+work should instead be canceled with the form.
+
 ## Read the example without opening every reference
 
 | Question | Contract used above |

@@ -14,3 +14,13 @@ Use the relevant task guide directly, or the quick start when an API introductio
 Search docs/*.md for API guidance; test/fixtures/ holds executable doc examples; config/diagnostics/ holds diagnostic codes.
 The installed package version is in package.json. Its documentation provenance is
 in docs-manifest.json. This file is a discovery index, not maintainer instructions.
+
+For a focused API lookup from your application directory (Node 24+):
+
+```sh
+node node_modules/marionette/dist/agent-skill/scripts/docs.mjs --project . --search 'getUI'
+```
+
+Use a returned section ID with `--section` on the same helper. It ships inside the
+package; no skill installation or MCP connection is required. See
+[focused retrieval](docs/agent-retrieval.md) for hoisted package paths and provenance.

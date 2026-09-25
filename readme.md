@@ -86,6 +86,17 @@ See [installation](docs/installation.md) for package entrypoints and supported s
 
 ## Documentation
 
+For a focused API lookup from your application directory (Node 24+):
+
+```sh
+node node_modules/marionette/dist/agent-skill/scripts/docs.mjs --project . --search 'getUI'
+```
+
+Use a returned section ID with `--section` on the same helper. It ships inside the
+package; no skill installation or MCP connection is required. See
+[focused retrieval](docs/agent-retrieval.md) for hoisted package paths and provenance.
+
+
 - [Quick start: a complete interactive screen](docs/quick-start.md)
 - [Build with an agent](docs/agents.md)
 - [Install the Marionette agent plugin or skill](docs/agent-tools.md)

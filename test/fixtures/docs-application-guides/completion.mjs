@@ -15,6 +15,7 @@ async function extract(page, id) {
   return import(output);
 }
 const { createEditor } = await extract('application-effects.md', 'application-save-completion');
+const { createDraftStore } = await extract('application-effects.md', 'persistent-draft-save');
 const { createWorkspace } = await extract('marionette.application.md', 'application-loading-shell');
 const dom = new JSDOM('<!doctype html><div id="editor"></div><div id="workspace"></div>');
 globalThis.window = dom.window;
@@ -64,6 +65,68 @@ try {
   assert.equal(await late, false);
   assert.deepEqual(navigated, ['second']);
 } finally { await editor.destroy(); }
+
+const writes = [];
+const drafts = createDraftStore((id, text) => {
+  const write = { id, text, ...Promise.withResolvers() };
+  writes.push(write);
+  return write.promise;
+});
+const completions = [];
+const draftEditor = createEditor({
+  el: document.querySelector('#editor'),
+  saveRecord: id => drafts.save(id),
+  navigate: saved => completions.push(saved)
+});
+try {
+  await draftEditor.start();
+  drafts.set('first', 'Original draft');
+  drafts.set('second', 'Other record draft');
+  const initiatingView = draftEditor.getView();
+  const saving = draftEditor.save('first');
+  draftEditor.getRegion().show(new View({ template: () => 'Other record' }));
+  assert.equal(initiatingView.isDestroyed(), true);
+  writes[0].resolve({ id: 'first', text: 'Original draft' });
+  assert.equal(await saving, false, 'obsolete UI completion is suppressed');
+  assert.equal(drafts.get('first'), undefined, 'late success still clears the original retained draft');
+  assert.equal(drafts.get('second'), 'Other record draft');
+  assert.equal(document.querySelector('#editor').textContent, 'Other record');
+  assert.deepEqual(completions, []);
+
+  await draftEditor.restart();
+  drafts.set('first', 'Retry draft');
+  const failing = draftEditor.save('first');
+  draftEditor.getRegion().show(new View({ template: () => 'Replacement after failure' }));
+  writes[1].reject(new Error('Late failure'));
+  assert.equal(await failing, false);
+  assert.equal(drafts.get('first'), 'Retry draft', 'failure retains the original draft');
+  assert.equal(document.querySelector('#editor').textContent, 'Replacement after failure');
+
+  await draftEditor.restart();
+  const older = draftEditor.save('first');
+  await draftEditor.restart();
+  drafts.set('first', 'Retry draft');
+  writes[2].resolve({ id: 'first', text: 'Retry draft' });
+  assert.equal(await older, false);
+  assert.equal(drafts.get('first'), 'Retry draft', 'even an equal-text newer edit survives an older save');
+  assert.equal(draftEditor.getView().el.textContent, 'Ready');
+  assert.deepEqual(completions, []);
+
+  const current = draftEditor.save('first');
+  const saved = { id: 'first', text: 'Retry draft' };
+  writes[3].resolve(saved);
+  assert.equal(await current, true);
+  assert.equal(drafts.get('first'), undefined);
+  assert.deepEqual(completions, [saved]);
+  assert.equal(draftEditor.getView().el.textContent, 'Saved');
+  assert.deepEqual(writes.map(({ id, text }) => ({ id, text })), [
+    { id: 'first', text: 'Original draft' },
+    { id: 'first', text: 'Retry draft' },
+    { id: 'first', text: 'Retry draft' },
+    { id: 'first', text: 'Retry draft' }
+  ]);
+  await assert.rejects(drafts.save('missing'), /No draft to save/);
+} finally { await draftEditor.destroy(); }
 
 const account = Promise.withResolvers();
 const settings = Promise.withResolvers();

@@ -568,6 +568,23 @@ resolving its element, changing the DOM, or emitting empty lifecycle events.
 any HTML inside the region when emptying. If the region _does_ contain a
 View, any HTML that doesn't belong to the View will remain.
 
+### Pending work after replacement
+
+Normal replacement destroys the outgoing View, removing its managed DOM handlers,
+its `listenTo` subscriptions, and Region/parent event forwarding. This cleanup does
+not cancel arbitrary promises or prevent an async function from continuing after
+`await`. A direct callback can still mutate application state. Detaching a View or
+removing its DOM manually is not destruction.
+
+Choose whether a request belongs to the disposable screen or must finish for its
+record. For screen-owned work, cancel it in the owning lifecycle hook and check
+that its result is still current before updating UI. For a save that should finish
+after navigation, reconcile the original record and retained draft in a
+longer-lived owner, then suppress obsolete UI effects. Do not rely on a destroyed
+child emitting a completion event to commit that state. See the
+[complete persistence example](./application-effects.md#reconcile-retained-drafts-before-suppressing-ui)
+for successful saves, failures, and newer drafts.
+
 ### Preserving Existing Views
 
 If you replace the current view with a new view by calling `show`, it will
