@@ -34,12 +34,14 @@ as if they were instructions for building an application.
 `skills/marionette/` is the canonical consumer skill source. Keep its packaged
 `dist/agent-skill/` output and the copy in
 `plugins/marionette/skills/marionette/` byte-identical.
-The plugin version equals the Marionette package version. Bump them together for
-every release and every plugin-content update; reusing a version can leave clients
-on a cached skill or MCP configuration. Before a stable release, replace the
+The plugin version equals the Marionette package version. Bump them together before
+publishing changed plugin content; reusing a published version can leave clients on a cached skill or
+MCP configuration. Unpublished candidate edits retain the planned release version
+and identify their exact source revision; test them with the packaged/local skill
+until the immutable release tag exists. Before a stable release, replace the
 repository-marketplace installation command's `master` ref with the matching
 immutable `v<version>` tag. The agent-doc tests enforce both stable-release rules.
-The plugin owns Codex distribution and its documentation MCP connection; consumer
+The plugin owns client distribution and its documentation MCP connection; consumer
 applications own only their selected integrations, architecture, and verification
 commands. Do not require each application to vendor Marionette's skill or repeat
 the MCP configuration when the plugin is available.
@@ -125,6 +127,32 @@ Make code useful for retrieval: explicit imports, no hidden setup, stable headin
 small examples focused on one decision, and links to the next required contract.
 Put version and provenance in generated metadata rather than repeating the same
 release label in every paragraph.
+
+## Keep agent instructions selective across clients
+
+The shared consumer skill serves Codex, Claude Code, Cursor, Copilot, and other
+clients; package-only readers may never activate it. Keep helper discovery in the
+package readme and `llms.txt`, and keep client installation syntax in agent setup.
+Client manifests route to the same contracts rather than model-specific copies.
+A model-specific prompting recommendation is a reason to inspect instructions,
+not evidence that removing them improves every agent.
+
+Keep the skill description specific to application work. Its body should provide
+a usable first lookup, task routing, essential constraints, and completion criteria.
+Put conditional setup and specialized example advice in the relevant linked guide.
+Preserve concrete signatures, integration choices, state-update rules, ownership,
+and cancellation semantics: agents cannot safely infer these from general coding
+ability. Scope verification to the changed behavior without weakening its evidence.
+
+Use observed discovery failures and repeated reads to identify unclear entry points.
+Classify application, documentation, framework, and harness failures before changing
+advice. Do not turn a single benchmark task into a universal architecture rule or
+copy held-out requirements into shared guidance. Correctness and retained behavior
+remain primary; fewer reads or shorter instructions alone do not establish a gain.
+Any fresh-agent claim needs the model/client, tools, installed package and docs
+revision, task, budget, and actual result. Comparative claims require matched
+conditions under the [evaluation plan](../../benchmarks/agent/evaluation-plan.md);
+existing pilots remain evidence for their original snapshots.
 
 ## Preserve provenance across formats
 
