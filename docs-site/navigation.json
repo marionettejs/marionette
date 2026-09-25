@@ -378,6 +378,12 @@
     "section": "Maintaining Marionette"
   },
   {
+    "source": "docs/maintainers/discovery-audit.md",
+    "route": "docs/maintainers/discovery-audit",
+    "title": "Agent discovery audit",
+    "section": "Maintaining Marionette"
+  },
+  {
     "source": "docs/maintainers/documentation-trial.md",
     "route": "docs/maintainers/documentation-trial",
     "title": "Documentation reading trial",

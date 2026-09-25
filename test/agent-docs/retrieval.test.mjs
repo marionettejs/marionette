@@ -34,6 +34,20 @@ test('task routes resolve relative guides to package sources and reject incomple
   assert.throws(() => skillRoutes(guide.replace('[Form](./forms.md#save), [Upgrade](../upgradeGuide.md)', 'missing'), skill), /no guide/);
 });
 
+test('complete query coverage outranks a common heading word, then heading specificity and size break ties', () => {
+  const content = '# Reference\n\n## event\nAn unrelated notification.\n\n## Read a control\nevent currentTarget delegateTarget\n\n## currentTarget delegateTarget\nevent currentTarget delegateTarget\n\n## Another complete answer\nevent currentTarget delegateTarget with additional explanation.\n';
+  const files = new Map([['reference.md', { content: Buffer.from(content) }]]);
+  const sections = documentSections('reference.md', content);
+  const results = searchSections(sections, files, 'event currentTarget delegateTarget');
+  assert.equal(results[0].heading, 'currentTarget delegateTarget');
+  assert.equal(results[1].heading, 'Read a control');
+  assert.ok(results.findIndex(result => result.heading === 'event') >
+    results.findIndex(result => result.heading === 'Another complete answer'));
+  assert.deepEqual(results[0].matchedTerms, ['event', 'currenttarget', 'delegatetarget']);
+  assert.deepEqual(searchSections(sections, files, 'absentSymbol'), []);
+  assert.deepEqual(searchSections(sections, files, 'the and'), []);
+});
+
 test('real consumer questions retrieve the required contract without reading a full API reference', async() => {
   const pages = JSON.parse(await readFile(resolve(root, 'docs-site/navigation.json'), 'utf8'))
     .filter(isConsumerPage);
@@ -54,7 +68,13 @@ test('real consumer questions retrieve the required contract without reading a f
     }
   }
   const cases = [
-    ['getUI', 'docs/dom.interactions.md', 'getUI(name)', ['NodeList', 'MN0023']],
+    ['getUI', 'docs/dom.interactions.md', 'getUI(name)', ['NodeList', 'MN0023', 'template: false']],
+    ['bindUIElements', 'docs/dom.interactions.md', 'bindUIElements()', ['template: false', 'Behavior', 'MN0023']],
+    ['delegateEvents', 'docs/dom.interactions.md', 'delegateEvents(events)', ['no-ops after destruction', 'do not render', 'new matching descendants']],
+    ['event currentTarget delegateTarget', 'docs/dom.interactions.md', 'Read the matched control', ['listener', 'nested', 'delegateTarget']],
+    ['showChildView destroys listeners', 'docs/marionette.region.md', 'Pending work after replacement', ['destroy()', 'not cancel arbitrary promises', 'longer-lived owner']],
+    ['save after destroy', 'docs/marionette.region.md', 'Pending work after replacement', ['retained draft', 'completion event']],
+    ['initialize options', 'docs/common.md', 'initialize', ['options']],
     ['childViewEvents arguments', 'docs/events.md', 'Using CollectionView\'s childViewEvents', ['does not prepend', 'trigger']],
     ['unsaved changes form focus', 'docs/forms-and-accessibility.md', 'Save a form without losing focus', ['initialName', 'updateDraftStatus']],
     ['preserve editable rows sort', 'docs/list-composition.md', 'Add, remove, and reorder editable rows', ['Surviving child Views', 'input elements']],

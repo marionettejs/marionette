@@ -8,11 +8,13 @@ export function searchSections(sections, files, query) {
     const heading = words(section.heading);
     const body = words(content);
     const matchedTerms = terms.filter(term => body.has(term));
-    // Exact heading words favor the named API over incidental usage in a recipe.
-    // Multiple matches outrank a single broad match; shorter ties avoid whole guides.
+    // Complete query coverage comes first. For partial matches, heading words
+    // still favor the named API or task over incidental matches in a large guide.
     const score = terms.filter(term => heading.has(term)).length * 8 + matchedTerms.length * 3;
     return { ...section, characters: section.end - section.start, matchedTerms, score };
   }).filter(section => section.matchedTerms.length)
-    .sort((a, b) => b.score - a.score || a.characters - b.characters || a.id.localeCompare(b.id, 'en'))
+    .sort((a, b) => Number(b.matchedTerms.length === terms.length) - Number(a.matchedTerms.length === terms.length) ||
+      b.score - a.score ||
+      a.characters - b.characters || a.id.localeCompare(b.id, 'en'))
     .slice(0, 5);
 }
