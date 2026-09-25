@@ -68,6 +68,30 @@ assert.ok(discoveryLinks.includes('docs/agents.md'));
 for (const href of discoveryLinks) {
   await contained(resolve(packageRoot, href));
 }
+// Exercise the command advertised to package-only agents, without copying a skill.
+for (const source of ['llms.txt', 'readme.md', 'docs/agent-retrieval.md']) {
+  const markdown = await readFile(resolve(packageRoot, source), 'utf8');
+  const command = parser.lexer(markdown).filter(token => token.type === 'code' && token.lang === 'sh')
+    .flatMap(token => token.text.split('\n'))
+    .find(line => /--search 'getUI'$/.test(line));
+  assert.ok(command, `${source}: package-only search command is discoverable`);
+  const [executable, helper, ...args] = command.split(/\s+/).map(token => token.replace(/^(['"])(.*)\1$/, '$2'));
+  assert.equal(executable, 'node');
+  assert.equal(helper, 'node_modules/marionette/dist/agent-skill/scripts/docs.mjs');
+  const result = JSON.parse(execFileSync(process.execPath, [helper, ...args], {
+    cwd: process.cwd(), encoding: 'utf8'
+  }));
+  assert.equal(result.sourceRevision, manifest.sourceRevision);
+  const section = result.results[0];
+  assert.equal(section.heading, 'getUI(name): read bound elements');
+  const excerpt = execFileSync(process.execPath, [helper, '--project', '.', '--section', section.id], {
+    cwd: process.cwd(), encoding: 'utf8'
+  });
+  const headerEnd = excerpt.indexOf('\n');
+  assert.equal(JSON.parse(excerpt.slice(0, headerEnd)).contentSha256, manifest.contentSha256);
+  const page = await readFile(resolve(packageRoot, section.source), 'utf8');
+  assert.equal(excerpt.slice(headerEnd + 1), `${page.slice(section.start, section.end)}\n`);
+}
 assert.ok(!(await files(packageRoot)).some(path => path.startsWith('config/api-contracts/') ||
   path.startsWith('scripts/')), 'Build tooling and contract inventories must not be packed');
 assert.ok(manifest.assets.every(asset => !asset.source.startsWith('config/api-contracts/') &&

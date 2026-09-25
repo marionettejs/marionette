@@ -89,6 +89,55 @@ Neither canceling a client request nor suppressing its completion proves that a
 server write was rolled back. The [installed completion checks](https://github.com/marionettejs/marionette/blob/master/test/fixtures/docs-application-guides/completion.mjs)
 execute this example and the loading shell against packed packages.
 
+## Reconcile retained drafts before suppressing UI
+
+Use a longer-lived data owner when saving must finish after the editor is replaced.
+The owner must update the original record's retained draft even when no screen can
+show success. Checking `isDestroyed()` before that update, or depending on a
+completion event from the destroyed editor, can leave an already-saved draft behind.
+
+This complete application helper stores text drafts. Supply `saveRecord(id, text)`
+which resolves with the saved record or rejects on failure. Keep the returned store
+with the session or feature that owns the records, outside the disposable editor.
+Each edit gets a new identity, so an older save cannot clear a newer draft, even if
+the text happens to match. A rejection leaves the draft untouched.
+
+<!-- executable-example: persistent-draft-save -->
+```javascript
+export function createDraftStore(saveRecord) {
+  const drafts = new Map();
+  return {
+    set(id, text) { drafts.set(id, { text }); },
+    get(id) { return drafts.get(id)?.text; },
+    async save(id) {
+      const draft = drafts.get(id);
+      if (!draft) { throw new Error('No draft to save'); }
+      const saved = await saveRecord(id, draft.text);
+      if (drafts.get(id) === draft) { drafts.delete(id); }
+      return saved;
+    }
+  };
+}
+```
+
+Connect this store to `createEditor` above by supplying
+`saveRecord: id => drafts.save(id)`. Record edits with `drafts.set(id, text)` and
+call `editor.save(id)`. The store reconciles the draft before its promise resolves;
+only then does the editor's `isCurrent()` check decide whether to show success or
+navigate. A late failure retains the draft and is caught without changing the new
+screen. Opening the record again should load its current server data and overlay
+any remaining draft.
+
+This separates client state reconciliation from UI completion. It does not order
+concurrent server writes: serialize writes per record or use the application's
+version/conflict protocol when needed. Canceling a request is a different product
+policy and does not prove the server canceled a write. No framework recovery or
+automatic request cancellation is implied.
+
+The [installed completion checks](https://github.com/marionettejs/marionette/blob/master/test/fixtures/docs-application-guides/completion.mjs)
+execute this helper together with `createEditor`, replacing the View before late
+success and failure and checking retained drafts and unchanged replacement UI.
+
 ## Choose when effects end
 
 This example activates effects during startup so loading-time state and Radio
