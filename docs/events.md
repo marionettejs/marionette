@@ -567,6 +567,14 @@ const ParentView = View.extend({
 
 #### Using `CollectionView`'s `childViewEvents`
 
+`childViewEvents` calls the parent's handler with the child's emitted arguments,
+unchanged, and binds `this` to the parent. It does not prepend the child View.
+For example, `child.trigger('select', record)` calls the parent's `select(record)`;
+`child.triggerMethod('select', child, record)` calls `select(child, record)`.
+DOM `triggers` supply the child View as their first argument automatically.
+Forwarding ends when the child is removed or destroyed. Region-owned children use
+the same argument contract; see [explicit event listeners](#explicit-event-listeners).
+
 ```javascript
 import { CollectionView } from 'marionette';
 

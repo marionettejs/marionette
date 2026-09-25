@@ -2,8 +2,10 @@
 
 Start here when using the installed package or this repository to build an application.
 
-- [Task routing](docs/agents.md): choose the guide needed for the current task.
-- [Quick start](docs/quick-start.md): optional API introduction with templates, Regions, CollectionView, events, Behavior, Radio, Application, and v4 migration.
+- [Quick start](docs/quick-start.md): one complete first screen with managed rows, selection, DOM events, and cleanup.
+- [Task routing](docs/agents.md): choose one starting guide for an existing task.
+- [Focused retrieval](docs/agent-retrieval.md): read a known guide or search matching installed sections; optional MCP uses the same contract.
+- [Forms](docs/forms-and-accessibility.md): retain focused input while updating derived display and saving.
 - [Compact contracts](docs/compact-reference.md): ownership, readiness, teardown, delegated event targets, and triggerMethod dispatch.
 - [API index](docs/readme.md): individual reference pages.
 - [Migration from v4](upgradeGuide.md).

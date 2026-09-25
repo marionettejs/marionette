@@ -99,11 +99,12 @@ test('stable plugin releases require immutable non-transitional installation gui
   assert.throws(() => assertReleasePresentation('5.0.0', current, manifest),
     /Stable installation instructions/);
   const stable = current
+    .replaceAll('5.0.0-rc.2', '5.0.0')
     .replaceAll('5.0.0-rc.1', '5.0.0');
   assert.throws(() => assertReleasePresentation('5.0.0', stable, manifest),
     /Stable plugin presentation/);
   assert.throws(() => assertReleasePresentation('5.0.0',
-    stable.replace('--ref v5.0.0', '--ref v5.0.0-rc.1'),
+    stable.replace('--ref v5.0.0', '--ref v5.0.0-rc.2'),
     { ...manifest, version: '5.0.0' }), /matching release tag/);
   assert.throws(() => assertReleasePresentation('5.0.0', stable,
     { ...manifest, version: '5.0.0' }), /Stable Claude Code instructions/);

@@ -72,6 +72,12 @@
     "section": "Start here"
   },
   {
+    "source": "docs/agent-retrieval.md",
+    "route": "docs/agent-retrieval",
+    "title": "Read docs for a task",
+    "section": "Start here"
+  },
+  {
     "source": "docs/agent-tools.md",
     "route": "docs/agent-tools",
     "title": "Set up an agent",

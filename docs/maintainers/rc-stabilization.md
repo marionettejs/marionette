@@ -1,11 +1,11 @@
-# RC.1 stabilization checklist
+# Release-candidate stabilization checklist
 
 Tracking record: [issue #574](https://github.com/marionettejs/marionette/issues/574).
 Update dated results in that issue; the unchecked items below describe required evidence.
 
 ## Objective
 
-Prepare `5.0.0-rc.1` from the published beta.6 runtime, certify its exact artifacts, and use the RC as the fixed target for the remaining stable-release evidence. This issue does not declare stable readiness or authorize `5.0.0` publication.
+Prepare `5.0.0-rc.2`, certify its exact artifacts, and use that candidate as the fixed target for the remaining stable-release evidence. Preserve RC.1 results as earlier evidence; refresh affected checks for RC.2. Publication remains disabled until separately authorized. This issue does not declare stable readiness or authorize `5.0.0` publication.
 
 ## RC entry requirements
 
@@ -30,10 +30,10 @@ website/MCP handoff in the [release checklist](./release-checklist.md).
 
 ## Evidence status at preparation
 
-- Public library source/tag: beta.6 at `18e21435fa21f75bf4a5067a210dec2ea7e0bccc`; no subsequent runtime change at preparation.
+- RC.2 runtime baseline: beta.6 at `18e21435fa21f75bf4a5067a210dec2ea7e0bccc` plus the post-RC.1 native-error reporting and diagnostic-link fixes in [#583](https://github.com/marionettejs/marionette/pull/583). Refresh error/diagnostic contracts, browser checks, and exact-artifact certification for RC.2; beta.6 and RC.1 results do not certify these candidate bytes. This preparation PR changes documentation and development tooling, not production source.
 - Public consumer: Vikunja beta.6 adoption at `0ef01d3d186c058b4aa6dedfbede974412dac489`, CI https://github.com/marionettejs/vikunja/actions/runs/35756578282 . Green aggregate CI includes a tolerated typecheck failure and one browser retry; full clean acceptance is not inferred.
 - Maintainer-local consumer acceptance and branch-performance reports are supporting observations. They do not establish public reproducibility, full acceptance equivalence, independent agent success, or retention. Keep private code and raw logs out of this issue.
-- No new confirmed beta.6 library defect was established by the reviewed reports. Unresolved attribution/coverage must remain explicit.
+- At the beta.6 assessment, no new confirmed library defect was established by those reviewed reports. Unresolved attribution/coverage must remain explicit.
 
 ## Issue ownership
 

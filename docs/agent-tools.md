@@ -7,6 +7,11 @@ Marionette skill helps an agent select those documents and
 apply their lifecycle and integration rules. None of these resources requires an
 account, network access, hosted model, or shared API key to read.
 
+For everyday work, use [Read documentation for a task](./agent-retrieval.md).
+It covers direct page lookup, local search, focused sections, and matching MCP
+results. Use the [task table](./agents.md#read-for-the-task) to select a guide.
+Plugin installation is optional and only needs doing once per client setup.
+
 ## Install the Marionette plugin
 
 Install Marionette's upstream plugin when your client supports it. The plugin
@@ -27,16 +32,18 @@ directory. Installing the plugin does not change an application's dependencies.
 
 ### Codex
 
-Until the plugin is listed in the public directory, add Marionette's repository
-marketplace and install the plugin with the Codex CLI:
+After the RC.2 release tag is published, add its repository marketplace and
+install the plugin with the Codex CLI:
 
 ```sh
-codex plugin marketplace add marionettejs/marionette --ref v5.0.0-rc.1 \
+codex plugin marketplace add marionettejs/marionette --ref v5.0.0-rc.2 \
   --sparse .agents/plugins --sparse plugins/marionette
 codex plugin add marionette@marionettejs
 ```
 
-The repository marketplace is pinned to this immutable Marionette release tag.
+This command pins the marketplace to the intended immutable release tag;
+preparing these files does not create that tag. Until then, test the candidate's
+packaged skill using [the local-copy instructions](#install-only-the-consumer-skill).
 
 Restart the client after installation, then confirm that `marionette` appears in
 its plugin or skill list. The skill can activate implicitly for Marionette work or
@@ -129,38 +136,6 @@ lifecycle. A response that only repeats the prompt has not demonstrated retrieva
 If the client cannot load skills, give it [Build with Marionette](./agents.md) and
 the matching task guide directly; the skill is an optional entry point.
 
-## Read matching docs locally
-
-The skill bundles a read-only helper requiring Node 24 or later. It addresses a
-specific retrieval problem: the copied skill must locate the application's
-installed docs, including hoisted dependencies, without importing application code.
-It does not add a server, registry, or production dependency.
-
-```sh
-node .agents/skills/marionette/scripts/docs.mjs --project . --list
-node .agents/skills/marionette/scripts/docs.mjs --project . --page docs/routing.md
-```
-
-`--list` returns JSON with absolute page paths, version, source revision, local
-change status, and content digest. `--page` accepts an exact `source` path from
-that list and prints one provenance record followed by the page's Markdown. Run
-from the application workspace, not a neighboring package with a different
-Marionette dependency. `--project` defaults to the current directory.
-
-For a package manager without a physical `node_modules` tree, find that
-application's physical package directory using its package manager and supply
-`--package-root /path/to/marionette`. The helper does not execute resolver hooks or
-install packages to guess that path. Exit status `1` indicates missing docs,
-invalid arguments, a version mismatch, or inconsistent files; it does not silently
-switch to a different source.
-
-The helper validates documentation hashes and their package version. This proves
-that the files agree with their manifest, not that an arbitrary custom runtime was
-built from that revision. Check installed exports and test uncertain behavior. An
-alpha version alone cannot identify a source commit; `sourceDirty: true` means
-local changes are included. Older packages without docs require an exact release
-or known source checkout, not an automatic fallback to today's website.
-
 ## Inspect a target release before migrating
 
 Keep the application's installed version separate from the proposed target.
@@ -216,51 +191,13 @@ working test commands. Keep those decisions in the application. The library's
 maintainer `AGENTS.md` describes changing Marionette itself and should not be
 copied into a consumer application.
 
-## Connect the optional documentation MCP
-
-The public, read-only endpoint is `https://mcp.marionettejs.com/mcp`. The portable
-plugin and Claude Code plugin each declare it; confirm that your installed client
-actually connects. The skill also declares the connection in `agents/openai.yaml`;
-OpenAI clients that honor this metadata can offer the MCP dependency when the skill
-is installed alone. Clients using a copied skill may require explicit Streamable
-HTTP configuration. No server login or API key is required. Follow the website's
-[MCP setup guide](https://marionettejs.com/docs/mcp/) for client configuration and
-the optional local stdio server. Installing the npm package or copying only the
-skill does not guarantee an active MCP connection across clients.
-
-1. Read the `marionette://catalog` resource and compare its
-   `provenance.packageVersion` and `provenance.sourceRevision` with the installed
-   documentation manifest. A matching version label alone is insufficient.
-2. Pass the exact installed `version` to every `search_docs`, `get_doc`, and
-   `get_example` call. The server rejects unsupported versions, including `latest`
-   and `next`; do not upgrade the application to match the server.
-3. Use a search result's `id` as `get_doc.path`. Follow each returned `nextOffset`
-   until it is `null` to read the complete document. For an example, use its catalog
-   `id` as `get_example.name` and retrieve all chunks before parsing the recipe JSON.
-
-For focused reading, `search_sections` returns exact heading IDs, ancestry, and
-sizes; pass those IDs to `get_sections`. Inspect its `omitted` entries and request
-missing sections separately. Its `maxCharacters` budget counts UTF-16 code units,
-not tokens, excludes metadata, and never truncates a section. Use paginated
-`get_doc` for a section too large for the budget or when the full context matters.
-Section selection is lexical search, not dependency analysis: also read the linked
-ownership, setup, and cleanup contracts. For example, a Lit rendering excerpt alone
-does not explain how a [framework host](./hosting-views.md) attaches the View.
-Use exact tool limits advertised by the connected server; older snapshots may
-not expose section tools, in which case document retrieval remains sufficient.
-
-The hosted snapshot may lag a new release or candidate. Use installed Markdown
-when provenance does not match or the service is unavailable. Retrieved recipes
-still need application tests; this server does not inspect or run your application.
-Keep private application data out of hosted documentation queries.
-
 ## Choose an optional service only for a specific need
 
 | Resource | Useful for | Boundary |
 | --- | --- | --- |
 | Packaged Markdown and manifest | Reading the contract shipped with an installed package | Available offline; verify custom runtime provenance separately. |
 | Website Markdown and `llms.txt` | Discovering pages and reading a published snapshot | An index is a set of links, not automatic instruction installation. Check version and source metadata. |
-| Documentation MCP | Structured search, full-document retrieval, and example discovery | Follow the [MCP workflow](#connect-the-optional-documentation-mcp). Check catalog version/source and follow pagination. It does not inspect or test your application. |
+| Documentation MCP | Structured search, full-document retrieval, and example discovery | Follow the [MCP workflow](./agent-retrieval.md#read-matching-docs-over-mcp). Check catalog version/source and follow pagination. It does not inspect or test your application. |
 | Context7 | Finding relevant excerpts through a supported agent integration | Optional third-party retrieval; results can omit setup or mix versions. Verify against the exact source. |
 | Local skill helper | Finding and checking packaged docs from a consumer workspace | Reads files only; no network, project-code execution, or automatic fallback. |
 | Website WebMCP tools | Operating the website's interactive example | Controls that example, not the consumer application. It is not a remote documentation server. |

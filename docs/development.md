@@ -1,7 +1,8 @@
-# Develop against the current candidate
+# Start a development project
 
-Use the TypeScript starter when beginning an application trial against unreleased
-Marionette changes. It includes editable rows, asynchronous selection, cancellation,
+For a first screen in an existing project, use the [quick start](quick-start.md).
+Use the TypeScript starter when you need a new project with a development toolchain,
+including trials against unreleased Marionette changes. It includes editable rows, asynchronous selection, cancellation,
 ownership cleanup, lint, tests, and Vite. It has no backend or persistence; connect
 its `navigate(id)` function to your application's router when URLs are needed.
 
@@ -76,7 +77,8 @@ Creating or testing a candidate does not publish it.
 Read `node_modules/marionette/docs/readme.md` and its neighboring pages
 for the APIs in this candidate. `node_modules/marionette/docs-manifest.json`
 records its source revision. Give an agent that installed documentation path;
-start with [the compact reference](compact-reference.md), then the relevant API.
+read the [quick start](quick-start.md) for basic composition or use the
+[task table](agents.md#read-for-the-task) for an established task.
 Do not combine an unreleased starter with registry beta.1 dependencies.
 
 ## Edit and verify a feature

@@ -116,23 +116,32 @@ try {
       const args = tokens.map(token => token.replace(/^(['"])(.*)\1$/, '$2'))
         .map(arg => substitutions.get(arg) ?? arg);
       const output = execFileSync(process.execPath, args, { cwd: process.cwd(), encoding: 'utf8' });
-      if (args.includes('--list')) {
-        modes.add('list');
+      if (args.includes('--search')) {
+        modes.add('search');
         const result = JSON.parse(output);
         assert.equal(result.sourceRevision, manifest.sourceRevision);
-        assert.deepEqual(result.pages.map(page => page.source), manifest.pages.map(page => page.source));
+        const section = result.results[0];
+        assert.equal(section.heading, 'getUI(name): read bound elements');
+        const excerpt = execFileSync(process.execPath, [resolve(skillRoot, 'scripts/docs.mjs'),
+          '--project', process.cwd(), '--section', section.id], { encoding: 'utf8' });
+        const headerEnd = excerpt.indexOf('\n');
+        assert.equal(JSON.parse(excerpt.slice(0, headerEnd)).contentSha256, manifest.contentSha256);
+        const page = await readFile(resolve(packageRoot, section.source), 'utf8');
+        assert.equal(excerpt.slice(headerEnd + 1), `${page.slice(section.start, section.end)}\n`);
+        assert.ok(excerpt.includes('NodeList'));
+        assert.ok(excerpt.includes('MN0023'));
       } else {
         modes.add('page');
-        assert.deepEqual(args.slice(-2), ['--page', 'docs/agents.md']);
+        assert.deepEqual(args.slice(-2), ['--page', 'docs/quick-start.md']);
         const headerEnd = output.indexOf('\n');
         const result = JSON.parse(output.slice(0, headerEnd));
         assert.equal(result.sourceRevision, manifest.sourceRevision);
-        assert.equal(result.source, 'docs/agents.md');
+        assert.equal(result.source, 'docs/quick-start.md');
         const page = await readFile(resolve(packageRoot, result.source), 'utf8');
         assert.equal(output.slice(headerEnd + 1), `${page}\n`);
       }
     }
-    assert.deepEqual([...modes].sort(), ['list', 'page']);
+    assert.deepEqual([...modes].sort(), ['page', 'search']);
   }
   const result = execFileSync(process.execPath, [resolve(directory, 'scripts/docs.mjs'), '--package-root', packageRoot, '--list'], { encoding: 'utf8' });
   assert.ok(result.includes(manifest.sourceRevision));

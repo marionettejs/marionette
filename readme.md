@@ -16,6 +16,11 @@ the work that starts and stops with them.
 Start with native DOM APIs, plain objects, and function templates. Choose other data,
 state, and rendering tools as your application needs them.
 
+For a first screen, read the [quick start](docs/quick-start.md): one complete module
+covering a View, managed rows, selection events, and teardown. For an existing
+application, use the [task table](docs/agents.md#read-for-the-task) to read only the
+contract needed for the change.
+
 ## A place for the next change
 
 Adding a detail panel, updating a list, or stopping a feature should have a
@@ -45,7 +50,7 @@ agent advantages require separate evidence and are not a condition of stability.
 ## Install
 
 ```sh
-npm install marionette@5.0.0-rc.1
+npm install marionette@5.0.0-rc.2
 ```
 
 Add the mount element to the page:
@@ -81,6 +86,7 @@ See [installation](docs/installation.md) for package entrypoints and supported s
 
 ## Documentation
 
+- [Quick start: a complete interactive screen](docs/quick-start.md)
 - [Build with an agent](docs/agents.md)
 - [Install the Marionette agent plugin or skill](docs/agent-tools.md)
 - [Choose integrations](docs/choosing-integrations.md)
@@ -95,8 +101,10 @@ See [installation](docs/installation.md) for package entrypoints and supported s
 
 Builds containing these documentation resources include the matching consumer
 guides under `docs/`; earlier published alphas may not include them.
-Start at `docs/readme.md`; `docs-manifest.json` records source revision and content
-hashes. Read the page needed for the task rather than loading the whole bundle.
+Read `docs/quick-start.md` for a first screen or `docs/agents.md` for task routing.
+`docs-manifest.json` records source revision and content hashes. These paths are
+relative to the installed `marionette` package; read the needed page directly
+instead of enumerating the documentation bundle.
 
 The API reference is being reconciled for stable v5 in
 [issue #147](https://github.com/marionettejs/marionette/issues/147). Until that

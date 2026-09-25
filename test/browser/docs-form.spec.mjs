@@ -31,7 +31,14 @@ test('documented form preserves keyboard, validation, draft, focus, retry and te
   const input = page.getByRole('textbox', { name: 'Display name' });
   await input.press('Enter');
   assert.equal(await page.evaluate(() => globalThis.saves.length), 0, `${name}: native required validation`);
+  const dirty = page.locator('.dirty');
+  assert.equal(await dirty.textContent(), '');
+  await input.fill('Temporary edit');
+  assert.equal(await dirty.textContent(), 'Unsaved changes');
+  await input.fill('');
+  assert.equal(await dirty.textContent(), '', 'reverting clears the derived message');
   await input.fill('Unfinished draft');
+  assert.equal(await dirty.textContent(), 'Unsaved changes');
   await input.focus();
   await page.evaluate(() => {
     globalThis.originalInput = document.querySelector('input');
@@ -63,10 +70,17 @@ test('documented form preserves keyboard, validation, draft, focus, retry and te
   assert.match(failed.message, /Your changes are still here/);
   assert.doesNotMatch(failed.message, /private server/);
   assert.equal(failed.busy, false);
+  assert.equal(await dirty.textContent(), 'Unsaved changes', 'failed save retains the dirty draft');
   await input.press('Enter');
   assert.equal(await page.evaluate(() => globalThis.saves.length), 2);
   await page.evaluate(async() => { globalThis.saves[1].resolve(); await Promise.resolve(); });
   assert.equal(await page.getByRole('status').textContent(), 'Saved.');
+  assert.equal(await dirty.textContent(), '', 'save advances the baseline');
+  await input.fill('Next edit');
+  assert.equal(await dirty.textContent(), 'Unsaved changes');
+  await input.fill('Unfinished draft');
+  assert.equal(await dirty.textContent(), '', 'revert compares with the new saved baseline');
+  assert.equal(await input.evaluate(el => el === globalThis.originalInput && document.activeElement === el), true);
   const late = await page.evaluate(async() => {
     const pending = globalThis.form.submit();
     const request = globalThis.saves[2];

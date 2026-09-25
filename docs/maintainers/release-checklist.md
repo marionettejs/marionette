@@ -106,6 +106,12 @@ owns the usability procedure and required records.
   Run `npm audit signatures` and the installed starter's validation and browser
   tests. Check packaged agent docs/skill discovery, consumer lint, and source maps
   from the actual installed distribution. Record commands and results.
+- [ ] In clean client profiles, exercise the documented plugin installation and one
+  task lookup for each supported client: Codex, Claude Code, Cursor, and Copilot CLI.
+  Record the client version, installed plugin version, selected skill, resolved
+  application package, and retrieved page/section provenance. File/manifest tests
+  alone do not establish client activation. Check an unavailable or mismatched MCP
+  snapshot leaves installed-document lookup usable; report untested clients.
 - [ ] Read the public release page: opening line first, working links, correct
   install command/status, matching assets, and no unsupported readiness claims.
 

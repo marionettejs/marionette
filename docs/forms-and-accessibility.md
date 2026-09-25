@@ -5,7 +5,7 @@ A Marionette View owns the form and its pending save; the application supplies t
 persistence operation. A DataApi or StateApi is not required for this local draft.
 Choose a shared observable source only when other owners need to observe it.
 
-## Save without replacing the user's input
+## Save a form without losing focus
 
 This complete module uses the default DOM and event implementations. The template
 contains only trusted, fixed markup. User data is assigned through `value` or
@@ -23,11 +23,12 @@ export const ProfileForm = View.extend({
     return `<label for="${id}-name">Display name</label>
       <input id="${id}-name" name="displayName" required
         autocomplete="nickname" maxlength="80"
-        aria-describedby="${id}-status">
+        aria-describedby="${id}-status ${id}-dirty">
+      <p id="${id}-dirty" class="dirty" aria-live="polite"></p>
       <button type="submit">Save</button>
       <p id="${id}-status" role="status" aria-live="polite"></p>`;
   },
-  events: { submit: 'onSubmit' },
+  events: { submit: 'onSubmit', 'input [name=displayName]': 'updateDraftStatus' },
   initialize({ displayName, save }) {
     this.initialName = displayName;
     this.save = save;
@@ -35,6 +36,12 @@ export const ProfileForm = View.extend({
   },
   onRender() {
     this.el.elements.namedItem('displayName').value = this.initialName;
+    this.updateDraftStatus();
+  },
+  updateDraftStatus() {
+    const input = this.el.elements.namedItem('displayName');
+    const dirty = input.value !== this.initialName;
+    this.el.querySelector('.dirty').textContent = dirty ? 'Unsaved changes' : '';
   },
   onBeforeRender() {
     this.cancelSave();
@@ -60,6 +67,7 @@ export const ProfileForm = View.extend({
       await this.save({ displayName }, { signal: request.signal });
       if (request.signal.aborted || this.isDestroyed()) return false;
       this.initialName = displayName;
+      this.updateDraftStatus();
       status.textContent = 'Saved.';
       return true;
     } catch {
@@ -107,6 +115,13 @@ region.show(new ProfileForm({
 // When the feature is removed: region.destroy(); mount.remove();
 ```
 
+The input value is the current draft; `initialName` is its saved baseline.
+`updateDraftStatus()` derives the message from that comparison on every input
+and after a successful save. Reverting the value clears the message, and a failed
+save leaves the baseline and draft intact. The empty message container stays in
+place for its accessibility reference; the text is removed when there are no edits.
+No second mutable `dirty` flag needs to be synchronized.
+
 The submit event handles the button and keyboard submission. Native `required`
 validation prevents an empty save. While saving, the input is read-only and the
 button is disabled; duplicate programmatic submissions return `false`. A failure
@@ -147,6 +162,12 @@ The [executable form fixture](https://github.com/marionettejs/marionette/blob/ma
 checks unique labels, literal untrusted text, duplicate saves, retained input and
 focus, errors, cancellation, and late results. It uses a simulated DOM; it does
 not establish screen-reader announcements or native browser validation UI.
+
+The [browser form check](https://github.com/marionettejs/marionette/blob/master/test/browser/docs-form.spec.mjs)
+also exercises the exact example: change a field, revert it, save it, and fail a
+save while checking derived status and retained focus. For a multi-field form,
+compare every relevant field with its saved baseline. Persist drafts outside the
+View when they must survive replacement; use the existing application data source.
 
 In the real application, tab through the form, submit with Enter, cause an API
 failure, navigate away during a save, and confirm there is no unexpected focus

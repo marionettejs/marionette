@@ -1,3 +1,19 @@
+### v5.0.0-rc.2
+
+> The docs now have directions, so the agent can stop asking for a map of the maps.
+
+* Preserve native Error reporting and point coded diagnostics to their public error
+  pages, carrying forward the post-RC.1 fixes from #583.
+* Ship consumer documentation at usable package-relative paths, with complete
+  quick-start and managed-list recipes and declaration examples from #582.
+* Route skills and guides from one task table; explain update choices, child event
+  arguments, UI lookup, and derived form status beside their examples.
+* Add offline section search and complete section reads over a hash-verified index.
+  Separate recurring retrieval guidance from one-time client setup and give the
+  generated contract reference named, focused sections.
+* Prepare matching package/plugin versions. Publication remains disabled; these
+  checks do not establish independent agent usability or stable-release acceptance.
+
 ### v5.0.0-rc.1
 
 > Same runtime, fewer excuses to keep calling the API experimental.

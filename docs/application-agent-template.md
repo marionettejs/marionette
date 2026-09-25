@@ -22,6 +22,7 @@ data in these instructions.
 - Source revision and local changes, when known: [manifest provenance].
 - Optional Marionette packages: [actual versions, or none].
 
+Reuse these facts until dependencies, configuration, or workspace change.
 Use matching documentation. Check the installed exports before adopting an API
 from an external example. Do not change dependency versions to make a snippet fit.
 
@@ -44,6 +45,7 @@ a router choice does not imply a data, state, renderer, or DOM adapter change.
 - Shared resources and disposal owners: [actual subscriptions/state/widgets].
 - Unit/component check: [existing command and working directory].
 - Browser interaction check: [existing command and working directory].
+- Browser availability: [installed browser/configuration and any network restrictions].
 - Build/type check: [existing command and working directory].
 - Relevant existing patterns: [a few actual source or test paths].
 

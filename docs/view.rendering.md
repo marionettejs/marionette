@@ -22,6 +22,19 @@ myView.render();
 
 This renders `<h1>Contents</h1>`, available at `myView.el`.
 
+## Choose the update that preserves the right state
+
+| Intended change | Approach | What to preserve |
+| --- | --- | --- |
+| Replace disposable template content | Call the owning View's `render()` | Default rendering replaces descendants; do not use it for input-event status updates. |
+| Show form status while someone types | Update the relevant text or attributes; follow [Forms](./forms-and-accessibility.md) | Input identity, value, focus, and selection. |
+| Add, remove, or reorder editable rows | Use an observable collection's structural operations; follow [Interactive lists](./list-composition.md) | Surviving model, child View, and input identity. Explicit list `render()` rebuilds children. |
+| Update declared root classes or ARIA attributes | Call [`renderAttributes()`](./marionette.view.md#refreshing-root-attributes) | Descendants and child ownership. |
+| Replace one pane while another keeps a draft | Show the replacement through its own [Region](./marionette.region.md) | The sibling Region and its content. |
+
+Choose the application's established renderer and data provider. Plain objects and
+arrays do not notify observers; explicit updates remain necessary.
+
 ## Documentation Index
 
 * [What is a template](#what-is-a-template)

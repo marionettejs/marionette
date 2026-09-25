@@ -163,3 +163,53 @@ test('a document symlink to the package root is rejected before reading', async 
   assert.match(result.stderr, /Documentation source escapes its package: docs\/routing\.md/);
   assert.equal(result.stdout, '');
 });
+
+async function sectionFixture(t) {
+  const data = await fixture(t);
+  const { documentSections } = await import('../../scripts/docs/sections.mjs');
+  const content = '# UI\n\n## `getUI(name)`\nRead bound elements after rendering.\n\n### Results\nA NodeList, not one element.\n\n## Cleanup\nDestroy the owner.\n';
+  await writeFile(resolve(data.docs, 'docs/routing.md'), content);
+  data.manifest.pages[0].sha256 = hash(content);
+  const index = JSON.stringify({ schemaVersion: 1, sections: documentSections('docs/routing.md', content) });
+  await writeFile(resolve(data.docs, 'docs-sections.json'), index);
+  data.manifest.assets.push({ source: 'docs-sections.json', sha256: hash(index) });
+  data.manifest.contentSha256 = hash([...data.manifest.pages, ...data.manifest.assets]
+    .sort((a, b) => a.source.localeCompare(b.source, 'en'))
+    .map(entry => `${entry.source}\0${entry.sha256}\n`).join(''));
+  await data.save();
+  return { ...data, content };
+}
+
+test('search and section lookup preserve provenance and read complete nested sections', async t => {
+  const data = await sectionFixture(t);
+  const search = data.run('--search', 'getUI');
+  assert.equal(search.status, 0, search.stderr);
+  const result = JSON.parse(search.stdout);
+  assert.equal(result.sourceRevision, data.manifest.sourceRevision);
+  assert.equal(result.results[0].heading, 'getUI(name)');
+  assert.deepEqual(result.results[0].ancestors, ['UI']);
+  assert.deepEqual(result.results[0].matchedTerms, ['getui']);
+  const read = data.run('--section', result.results[0].id);
+  assert.equal(read.status, 0, read.stderr);
+  const [metadata, ...body] = read.stdout.split('\n');
+  assert.equal(JSON.parse(metadata).contentSha256, data.manifest.contentSha256);
+  assert.equal(body.join('\n'), data.content.slice(data.content.indexOf('## `getUI'), data.content.indexOf('## Cleanup')) + '\n');
+  assert.deepEqual(JSON.parse(data.run('--search', 'nonexistent-symbol').stdout).results, []);
+});
+
+test('focused lookup rejects unknown IDs, ambiguous modes, missing and tampered indexes', async t => {
+  const old = await fixture(t);
+  assert.match(old.run('--search', 'routing').stderr, /no section index/);
+  assert.equal(old.run('--page', 'docs/routing.md').status, 0);
+  const data = await sectionFixture(t);
+  assert.match(data.run('--section', 'docs/routing.md#missing').stderr, /Unknown section ID/);
+  for (const args of [['--search'], ['--search', ' '], ['--search', 'x'.repeat(201)],
+    ['--search', 'getUI', '--list'], ['--section', 'x', '--page', 'docs/routing.md']]) {
+    assert.equal(data.run(...args).status, 1);
+  }
+  await writeFile(resolve(data.docs, 'docs-sections.json'), '{}');
+  const result = data.run('--search', 'getUI');
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /hash mismatch/);
+  assert.equal(result.stdout, '');
+});

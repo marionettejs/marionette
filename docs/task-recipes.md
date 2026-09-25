@@ -4,19 +4,11 @@ Start with the resource that must survive or be cleaned up. These recipes use
 Marionette ownership to keep application behavior predictable. Preserve an
 existing compatible integration; each task identifies when another one is needed.
 
-| Task | Start here | Owner and decision |
-| --- | --- | --- |
-| Save a draft without losing focus | [Forms](./forms-and-accessibility.md) | The form View owns input DOM and its pending save; update status without rerendering. |
-| Retry a failed deletion | [Retryable delete screen](#keep-a-delete-screen-open-for-retry) | A Region owns the screen; successful loading enables deletion, and failed deletion preserves the retry surface. |
-| Change pages while requests overlap | [Routing](./routing.md) | The application owns URL handling and cancellation; the Region owns the active page. |
-| Refresh a root class or ARIA state | [Root attributes](./marionette.view.md#refreshing-root-attributes) | Call `renderAttributes()` when only declared root attributes changed. |
-| Keep surviving list rows editable | [Collection reconciliation](./marionette.collectionview.md#managing-children) | Keep the observable collection and surviving source objects; do not rebuild the entire CollectionView on every change. |
-| Reuse server-provided markup | [Prerendered content](./dom.prerendered.md) | Give an existing element to its View; establish child ownership explicitly. |
-| Observe a shared model | [DataApi](./data.api.md) | Use the existing provider, or native observable data for a new application; plain objects do not emit changes. |
-| React to local owner state | [State](./marionette.state.md) | Choose StateApi separately from DataApi; use owner cleanup for subscriptions. |
-| Replace an editor while keeping notes | [Editor workspace](#replace-an-editor-without-resetting-a-sibling-pane) | Separate regions preserve the sibling draft; each editor owns its widget and forwards save events. |
-| Wrap a widget that owns DOM | [The example below](#wrap-a-dom-owning-widget) | The View owns the widget handle and tears it down before DOM removal. |
-| Clean up an observer or external listener | [View resource cleanup](./resource-cleanup.md) | Match root, rendered descendant, and View lifetime to their lifecycle events. |
+Use the [task table](./agents.md#read-for-the-task) to choose the first guide.
+This page covers [DOM-owning widgets](#wrap-a-dom-owning-widget),
+[independent editor panes](#replace-an-editor-without-resetting-a-sibling-pane),
+[editable row identity](#preserve-an-edited-row-during-collection-changes), and
+[retryable deletion](#keep-a-delete-screen-open-for-retry).
 
 ## Wrap a DOM-owning widget
 

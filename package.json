@@ -1,7 +1,7 @@
 {
   "name": "marionette",
   "description": "A JavaScript library for structured interfaces, with explicit ownership and lifecycle. Built with agent-led development in mind.",
-  "version": "5.0.0-rc.1",
+  "version": "5.0.0-rc.2",
   "type": "module",
   "homepage": "https://marionettejs.com/",
   "engines": {
@@ -68,7 +68,7 @@
     "check:release-profile": "node scripts/checks/release-profile.mjs",
     "coverage": "vitest run --coverage",
     "docs:build": "node scripts/docs/build.mjs",
-    "docs:check": "node --test test/docs/export.test.mjs && npm run check:docs-examples && npm run docs:build && node scripts/docs/check-links.mjs",
+    "docs:check": "node scripts/docs/agent-routes.mjs && node --test test/docs/export.test.mjs && npm run check:docs-examples && npm run docs:build && node scripts/docs/check-links.mjs",
     "lint:base": "eslint --config eslint.config.mjs .",
     "lint": "npm run lint:base -- --max-warnings=0",
     "lint:ci": "npm run lint:base -- --max-warnings=0",
@@ -176,8 +176,8 @@
     "packages/radio"
   ],
   "dependencies": {
-    "@mnjs/radio": "5.0.0-rc.1",
-    "@mnjs/utils": "5.0.0-rc.1"
+    "@mnjs/radio": "5.0.0-rc.2",
+    "@mnjs/utils": "5.0.0-rc.2"
   },
   "overrides": {
     "@stryker-mutator/core": {

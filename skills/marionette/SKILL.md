@@ -23,15 +23,18 @@ Replace `/path/to/skill-directory` with that directory's absolute path and
 from any working directory:
 
 ```sh
-node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --list
-node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --page docs/agents.md
+node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --page docs/quick-start.md
+node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --search getUI
 ```
 
-These are lookup options, not a required sequence. `--list` returns provenance and
-available page paths; `--page` reads one source path. The helper checks packaged
-documentation hashes and version without executing project code or using a network.
-For installations without `node_modules`, supply `--package-root` with the physical
-package directory obtained from that application's package manager.
+Read a known task page directly; listing every page is unnecessary. `--search`
+returns up to five section IDs with sizes and ancestry; pass a returned ID to
+`--section` for its complete text. `--list` discovers page paths when needed.
+Search/section lookup requires the index shipped starting with RC.2; earlier
+artifacts can be read with `--page` or searched as local Markdown files.
+All modes verify hashes and version without executing project code or using a
+network. With no physical `node_modules`, supply `--package-root` from the
+application's package manager.
 
 If packaged docs are absent, use the exact release or known source commit and
 installed exports/declarations. Do not silently substitute current website docs,
@@ -41,27 +44,38 @@ hashes do not prove a custom runtime matches them; test uncertain runtime behavi
 
 ## Select the relevant contract
 
-Pass the task page's `source` field from the manifest or `--list` output to
-`--page`; it prints provenance followed by the page content. Only `--list` returns
-each page's absolute `path`, for reading the file directly:
+Use a source path below with `--page`. This table is generated from the canonical
+application task guide; read one guide before following links for open questions.
 
+<!-- task-routes:start -->
 | Task | Packaged page |
 | --- | --- |
-| New application | `docs/development.md` for the typed starter; `docs/choosing-integrations.md` for integration decisions |
-| Migrating an existing application | `docs/agent-tools.md` (pre-migration setup); `docs/migration-from-v4.md` and `upgradeGuide.md` from that target |
-| Application architecture or unfamiliar ownership | `docs/agents.md` |
-| Rendering or screen replacement | `docs/marionette.view.md`, `docs/marionette.region.md`, `docs/view.lifecycle.md` |
-| Changing lists or observable records | `docs/marionette.collectionview.md`, `docs/data.api.md` |
-| Application runs, readiness, or late save completion | `docs/marionette.application.md`, `docs/application-effects.md`; request replacement: `docs/application-refresh.md` |
-| Navigation | `docs/routing.md` |
-| Hover, nested clicks, or DOM preservation | `docs/dom.interactions.md`, `docs/view.rendering.md` |
-| State ownership or framework error | `docs/marionette.state.md` or `docs/diagnostic-catalog.md` |
-| Skill setup or optional documentation MCP | `docs/agent-tools.md` |
+| Build a first screen | `docs/quick-start.md` |
+| Start a new project | `docs/development.md` |
+| Edit and save a form | `docs/forms-and-accessibility.md` |
+| Render a changing list | `docs/list-composition.md` |
+| Show or update a piece of UI | `docs/view.rendering.md` |
+| Replace part of a screen | `docs/marionette.region.md` |
+| Navigate between screens | `docs/routing.md` |
+| Own asynchronous feature work | `docs/application-effects.md` |
+| Refresh data without restarting a feature | `docs/application-refresh.md` |
+| Choose an integration | `docs/choosing-integrations.md` |
+| Host a screen in another framework | `docs/hosting-views.md` |
+| Add local or shared state | `docs/marionette.state.md` |
+| Handle DOM or child events | `docs/dom.interactions.md`, `docs/events.md` |
+| Own a widget or subscription | `docs/resource-cleanup.md`, `docs/task-recipes.md` |
+| Diagnose a framework error | `docs/troubleshooting.md` |
+| Migrate from v4 | `docs/agent-tools.md`, `upgradeGuide.md` |
+<!-- task-routes:end -->
 
-Follow relevant links rather than loading an overview and every reference. For MCP,
-read the retrieval rules in `docs/agent-tools.md` before remote use: exact version
-and source must match. Installed Markdown remains sufficient. For v4 applications,
-use matching migration material and installed APIs; this skill is not an upgrade plan.
+For one unfamiliar API, prefer `--search` and `--section` over a complete
+reference. Stop discovery once setup, updates, and cleanup are clear; use an
+interaction check to identify what to read next. Reuse recorded package and
+integration facts until dependencies, configuration, or workspace change.
+
+Read `docs/agent-retrieval.md` for local lookup and optional MCP retrieval rules.
+Remote version and source must match the installed artifact. Installed Markdown
+is sufficient; plugin or MCP setup is not part of every task.
 
 DataApi, StateApi, renderer, DomApi, EventDelegator, and router are independent
 choices; a Backbone router does not require Backbone data. Register configuration
