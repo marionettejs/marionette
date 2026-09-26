@@ -128,7 +128,7 @@ try {
     const skill = await readFile(resolve(skillRoot, 'SKILL.md'), 'utf8');
     const commands = parser.lexer(skill).filter(token => token.type === 'code' && token.lang === 'sh')
       .flatMap(token => token.text.split('\n'));
-    assert.equal(commands.length, 2, 'Exercise both documented lookup commands');
+    assert.equal(commands.length, 3, 'Exercise every documented lookup command');
     const modes = new Set();
     for (const command of commands) {
       const [executable, ...tokens] = command.split(/\s+/);
@@ -154,6 +154,19 @@ try {
         assert.equal(excerpt.slice(headerEnd + 1), `${page.slice(section.start, section.end)}\n`);
         assert.ok(excerpt.includes('NodeList'));
         assert.ok(excerpt.includes('MN0023'));
+      } else if (args.includes('--symbol')) {
+        modes.add('symbol');
+        const result = JSON.parse(output);
+        assert.equal(result.contentSha256, manifest.contentSha256);
+        const [match] = result.matches;
+        assert.deepEqual([match.entrypoint, match.name, match.member, match.access],
+          ['marionette', 'Region', 'detachView', 'instance']);
+        assert.ok(match.contracts.every(id => result.contracts[id]), 'Every returned contract is described');
+        const section = match.sections.find(value => value.heading === 'Detaching Existing Views');
+        assert.ok(section, 'Symbol lookup names the section documenting the member');
+        const excerpt = execFileSync(process.execPath, [resolve(skillRoot, 'scripts/docs.mjs'),
+          '--project', process.cwd(), '--section', section.id], { encoding: 'utf8' });
+        assert.ok(excerpt.includes('detachView'));
       } else {
         modes.add('page');
         assert.deepEqual(args.slice(-2), ['--page', 'docs/quick-start.md']);
@@ -165,7 +178,7 @@ try {
         assert.equal(output.slice(headerEnd + 1), `${page}\n`);
       }
     }
-    assert.deepEqual([...modes].sort(), ['page', 'search']);
+    assert.deepEqual([...modes].sort(), ['page', 'search', 'symbol']);
   }
   const result = execFileSync(process.execPath, [resolve(directory, 'scripts/docs.mjs'), '--package-root', packageRoot, '--list'], { encoding: 'utf8' });
   assert.ok(result.includes(manifest.sourceRevision));

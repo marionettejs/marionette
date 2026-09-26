@@ -23,13 +23,16 @@ packages by walking parents from `--project`; these commands work from any cwd:
 ```sh
 node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --page docs/quick-start.md
 node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --search getUI
+node "/path/to/skill-directory/scripts/docs.mjs" --project "/path/to/application" --symbol Region.detachView
 ```
 
 For package-only use, the skill directory is `<package-root>/dist/agent-skill/`;
 with a local install, the helper is
 `node_modules/marionette/dist/agent-skill/scripts/docs.mjs`.
 
-Search returns section IDs, sizes, and ancestry; use `--section '<returned-id>'` for a complete section.
+Search returns section IDs, sizes, and ancestry; use `--section '<returned-id>'`
+for a complete section. For an exact export or member name, `--symbol` returns its
+signature and section IDs for its reviewed contracts.
 Use `--list` only when the page path is unknown. Installed Markdown is also
 readable directly; earlier packages may not have the helper or section index.
 
@@ -67,9 +70,9 @@ application task guide; read one guide before following links for open questions
 | Migrate from v4 | `docs/agent-tools.md`, `upgradeGuide.md` |
 <!-- task-routes:end -->
 
-For one unfamiliar API, prefer `--search` and `--section` over a complete
-reference. Stop discovery once setup, updates, and cleanup are clear; use an
-interaction check to identify what to read next.
+For one unfamiliar API, prefer `--symbol` or `--search` and `--section` over a
+complete reference. Stop discovery once setup, updates, and cleanup are clear;
+use an interaction check to identify what to read next.
 
 DataApi, StateApi, renderer, DomApi, EventDelegator, and router are independent
 choices; a Backbone router does not require Backbone data. Register configuration

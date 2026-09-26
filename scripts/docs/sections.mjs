@@ -1,6 +1,8 @@
 import { marked } from 'marked';
 
 export const isConsumerPage = page => page.section !== 'Maintaining Marionette';
+export const plainHeading = text => text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+  .replace(/<[^>]+>/g, '').replace(/[`*_~]/g, '');
 
 // Build-time only. Consumers read verified offsets without a Markdown dependency.
 export function documentSections(source, markdown) {
@@ -18,8 +20,7 @@ export function documentSections(source, markdown) {
     if (token.type !== 'heading') { continue; }
     const start = offsets[position];
     const line = markdown.slice(0, start).split(/\r\n?|\n/).length;
-    const heading = token.text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-      .replace(/<[^>]+>/g, '').replace(/[`*_~]/g, '');
+    const heading = plainHeading(token.text);
     headings.push({ id: `${source}#L${line}`, source, heading, depth: token.depth, start });
   }
   if (!headings.length || headings[0].start > 0) {

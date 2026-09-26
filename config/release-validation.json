@@ -218,6 +218,10 @@
       "title": "Application refresh preserves editor focus and draft while only latest results commit"
     },
     {
+      "file": "application-refresh.spec.mjs",
+      "title": "canonical feed routes retry to its Application and preserves a sibling draft during pagination"
+    },
+    {
       "file": "application-start-region.spec.mjs",
       "title": "registered child follows a recreated parent layout Region across restart"
     },
