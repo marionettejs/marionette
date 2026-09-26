@@ -117,6 +117,7 @@ export const FeedApplication = Application.extend({
     const previous = this.getView();
     if (previous) this.stopListening(previous);
     this.getState().set({ page: 1, status: 'loading', hasNext: false });
+    this.articles.reset();
     const view = new FeedView({ collection: this.articles, state: this.getState() });
     this.listenTo(view, 'next', () => this.requestPage(this.getState().get('page') + 1));
     this.listenTo(view, 'previous', () => this.requestPage(this.getState().get('page') - 1));

@@ -69,6 +69,5 @@ export const LayoutView = View.extend({
     this.showChildView('list', new ListView({ collection: this.options.collection }));
     this.showChildView('status', new StatusView({ state: this.getState() }));
   },
-  showStatus(message: string) { this.getState().set('message', message); },
-  showNote(note: Note) { this.showChildView('detail', new DetailView({ model: note })); }
+  showStatus(message: string) { this.getState().set('message', message); }
 });
