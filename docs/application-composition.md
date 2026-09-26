@@ -250,4 +250,4 @@ Review owner choice alongside behavior. [Composition checks](./testing.md) shoul
 exercise parent stop/destruction, Region replacement during a request, direct
 source updates, and any draft/focus guarantees. Passing those checks does not
 establish that fresh agents will select these owners; that needs a separate
-[usability evaluation](../benchmarks/agent/evaluation-plan.md).
+[usability evaluation](https://github.com/marionettejs/marionette/blob/master/benchmarks/agent/evaluation-plan.md).
