@@ -1,0 +1,38 @@
+docs/marionette.application.md
+  s_bae3f20545810f::t_7b858d6383349d 529
+  s_bae3f20545810f::t_a9118722ec0fcc 528,530-531
+test/fixtures/docs-region-lifecycle/retry-delete.mjs
+  s_bae3f20545810f::t_3d668619d82b0a 3,5-6,9-15,23-43,46-50,52-53,55-58,60-75,78-87,89,92-93,95-97,99-106,108-109
+  s_bae3f20545810f::t_8ee70c69f8ad96 76-77
+docs/task-recipes.md
+  s_bae3f20545810f::t_7b858d6383349d 191-195,197-200,207,217-220,222,225,228,232-234,236,239,245-246,255-260,262-263,265,268-273,276-277
+test/fixtures/docs-application-guides/feed.mjs
+  s_bae3f20545810f::t_7b858d6383349d 66,70
+  s_bae3f20545810f::t_b8bbbd0598ce19 13,17,20,22
+docs/application-composition.md
+  s_bae3f20545810f::t_7b858d6383349d 169,216-218,226-246,249-253
+config/api-contracts/inventory.json
+  s_bae3f20545810f::t_412e8e74452e8c 8105
+docs/agents.md
+  s_bae3f20545810f::t_4447140e6b6cc5 161-162
+docs/testing.md
+  s_bae3f20545810f::t_01554defb2ca69 128
+test/fixtures/data-package-starter/workspace.test.mjs
+  s_bae3f20545810f::t_50edcce814c6db 18-20,80,115-117
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "a48490f358ff76c169bd634bdc109c21beeb8077",
+  "prompts": {},
+  "sessions": {
+    "s_bae3f20545810f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0dc4c-e2a2-7602-ad97-5ee963c9a2cb",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "Paul Falgout <paul.falgout@roundingwell.com>"
+    }
+  }
+}
